@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Enemy
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - GroundCollider
+  - Agent
+  - Town
+  - Enemy
+  - Text
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Sea
+    uniqueID: 3331804009
+    locked: 0
+  - name: Ground
+    uniqueID: 612694459
+    locked: 0
+  - name: Props
+    uniqueID: 3156280351
+    locked: 0
+  - name: Highlight
+    uniqueID: 2623721151
+    locked: 0
+  - name: Agents
+    uniqueID: 215243557
+    locked: 0
+  - name: SelectionIndicator
+    uniqueID: 531390027
+    locked: 0
+  - name: SelectedObject
+    uniqueID: 1137079723
+    locked: 0
+  - name: FX
+    uniqueID: 333809523
+    locked: 0
+  - name: FogOfWar
+    uniqueID: 3039288197
+    locked: 0
+  - name: Unexplored
+    uniqueID: 1248682311
+    locked: 0
