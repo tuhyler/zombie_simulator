@@ -23,7 +23,8 @@ public class UIBuilderHandler : MonoBehaviour
     [SerializeField]
     private RectTransform allContents;
     private Vector3 originalLoc;
-    private bool activeStatus; //set this up so we don't have to wait for tween to set inactive
+    [HideInInspector]
+    public bool activeStatus; //set this up so we don't have to wait for tween to set inactive
 
     [SerializeField]
     public ResourceHolder resources;
@@ -79,7 +80,7 @@ public class UIBuilderHandler : MonoBehaviour
     {
         if (optionsScroller.horizontalNormalizedPosition >= 0f)
         {
-            optionsScroller.horizontalNormalizedPosition -= 10f;
+            optionsScroller.horizontalNormalizedPosition -= 0.05f;
         }
     }
 
@@ -87,7 +88,7 @@ public class UIBuilderHandler : MonoBehaviour
     {
         if (optionsScroller.horizontalNormalizedPosition <= 1f)
         {
-            optionsScroller.horizontalNormalizedPosition += 10f;
+            optionsScroller.horizontalNormalizedPosition += 0.05f;
         }
     }
 

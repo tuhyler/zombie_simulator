@@ -61,7 +61,7 @@ public class UIWorldResources : MonoBehaviour
         }
         else
         {
-            researchTitle.text = "";
+            researchTitle.text = "No Current Research";
         }
     }
 

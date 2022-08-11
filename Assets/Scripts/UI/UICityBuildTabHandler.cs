@@ -33,14 +33,15 @@ public class UICityBuildTabHandler : MonoBehaviour
     public void PassUI(UIBuilderHandler uiBuilder)
     {
         uiLaborHandler.HideUI();
-        
+
+        bool currentlyActive = uiBuilder.activeStatus;
+
         if (builderUI != null) //checking if new tab is clicked 
         {
             builderUI.ToggleVisibility(false);
         }
 
-
-        if (builderUI == uiBuilder) //turn off if same tab is clicked
+        if (builderUI == uiBuilder && currentlyActive) //turn off if same tab is clicked
         {
             sameUI = true;
             builderUI.ToggleVisibility(false);
