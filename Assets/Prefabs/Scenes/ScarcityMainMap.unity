@@ -34199,6 +34199,26 @@ PrefabInstance:
       propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 792602461152979813, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1634818655}
+    - target: {fileID: 792602461152979813, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RemoveImprovementButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 792602461152979813, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: CityBuilderManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 792602461152979813, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 860155606346464488, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -35057,7 +35077,7 @@ PrefabInstance:
     - target: {fileID: 5907547429230737570, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000015258789
+      value: -0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 6106127161584651274, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
         type: 3}
@@ -35358,6 +35378,41 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1634818655}
+    - target: {fileID: 7901373019332448735, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: RemoveImprovementButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: CityBuilderManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 7907083182212533473, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
         type: 3}

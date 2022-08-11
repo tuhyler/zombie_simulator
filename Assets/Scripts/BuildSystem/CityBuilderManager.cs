@@ -290,17 +290,17 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             return;
         }
 
-        if (buildingData == null)
-        {
-            uiBuildingBuilder.ToggleVisibility(false);
+        //if (buildingData == null)
+        //{
+        //    uiBuildingBuilder.ToggleVisibility(false);
 
-            if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
-                return;
+        //    if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
+        //        return;
 
-            uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
-            removingBuilding = true;
-            return;
-        }
+        //    uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
+        //    removingBuilding = true;
+        //    return;
+        //}
 
         Vector3 cityPos = selectedCity.transform.position;
         Vector3 buildingLocalPos = buildingData.prefab.transform.position; //putting the building in it's position in the city square
@@ -341,6 +341,17 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         uiBuildingBuilder.ToggleVisibility(false);
         uiCityTabs.ResetUI();
         UpdateLaborNumbers();
+    }
+
+    public void RemoveBuildingButton()
+    {
+        uiBuildingBuilder.ToggleVisibility(false);
+
+        if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
+            return;
+
+        uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
+        removingBuilding = true;
     }
 
     private void RemoveBuilding(string selectedBuilding)
@@ -408,6 +419,11 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             uiLaborHandler.HideUI();
     }
 
+    public void CloseBuildBuildingTab()
+    {
+        uiBuildingBuilder.ToggleVisibility(false);
+    }
+
     public void CreateImprovement(ImprovementDataSO improvementData)
     {
         laborChange = 0;
@@ -433,7 +449,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             TerrainData td = world.GetTerrainDataAt(tile);
             td.DisableHighlight(); //turning off all highlights first
 
-            if (improvementData == null) //If removing improvement
+            if (removingImprovement) //If removing improvement
             {
                 if (world.CheckIfTileIsImproved(tile))
                 {
@@ -443,7 +459,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
                     improvement.EnableHighlight(Color.red);
                     td.EnableHighlight(Color.red);
                     tilesToChange.Add(tile);
-                    removingImprovement = true;
+                    //removingImprovement = true;
                 }
             }
             else //if placing improvement
@@ -487,6 +503,15 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         ResetTileLists();
         uiCityTabs.ResetUI();
         UpdateLaborNumbers();
+    }
+
+    public void RemoveImprovementButton()
+    {
+        laborChange = 0;
+        uiImprovementBuilder.ToggleVisibility(false);
+
+        removingImprovement = true;
+        ImprovementTileHighlight();
     }
 
     private void RemoveImprovement(TerrainData selectedImprovement)
@@ -534,6 +559,11 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         ResetTileLists();
         removingImprovement = false;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
+    }
+
+    public void CloseBuildImprovementTab() //for close button
+    {
+        uiImprovementBuilder.ToggleVisibility(false);
     }
 
     public void LaborManager(int laborChange) //for assigning labor
