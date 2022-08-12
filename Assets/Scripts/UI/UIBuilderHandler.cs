@@ -122,6 +122,17 @@ public class UIBuilderHandler : MonoBehaviour
             {
                 PrepareBuildOptions(resourceManager);
             }
+
+            //if (buildOptions.Count <= 5) //hiding the scroll buttons if not enough options to scroll
+            //{
+            //    scrollLeft.gameObject.SetActive(false);
+            //    scrollRight.gameObject.SetActive(false);
+            //}
+            //else
+            //{
+            //    scrollLeft.gameObject.SetActive(true);
+            //    scrollRight.gameObject.SetActive(true);
+            //}
         }
         else
         {
