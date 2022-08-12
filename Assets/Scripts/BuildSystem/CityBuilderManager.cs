@@ -280,6 +280,11 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         uiCityTabs.ResetUI();
     }
 
+    public void CloseBuildUnitTab()
+    {
+        uiUnitBuilder.ToggleVisibility(false);
+    }
+
     public void CreateBuilding(ImprovementDataSO buildingData)
     {
         laborChange = 0;
