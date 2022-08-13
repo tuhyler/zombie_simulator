@@ -463,6 +463,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 7569234164273575448, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+    - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
 --- !u!224 &343121510960962830 stripped
 RectTransform:
@@ -495,6 +496,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laborChange: 1
+  cityBuilderManager: {fileID: 0}
   canvasGroup: {fileID: 1628587133339152980}
 --- !u!1001 &6057072880423407845
 PrefabInstance:
@@ -708,6 +710,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 7569234164273575448, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+    - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
 --- !u!1 &6676293990535959265 stripped
 GameObject:
@@ -728,6 +731,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laborChange: -1
+  cityBuilderManager: {fileID: 0}
   canvasGroup: {fileID: 7556253606806580557}
 --- !u!225 &7556253606806580557 stripped
 CanvasGroup:
