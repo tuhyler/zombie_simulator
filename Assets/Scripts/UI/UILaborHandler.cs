@@ -22,9 +22,16 @@ public class UILaborHandler : MonoBehaviour
     private List<UILaborHandlerOptions> laborOptions;
     public List<UILaborHandlerOptions> GetLaborOptions { get { return laborOptions; } }
 
+    [SerializeField] //for tweening
+    private RectTransform allContents;
+    private bool activeStatus;
+    private Vector3 originalLoc;
+
+
 
     private void Awake()
     {
+        originalLoc = allContents.anchoredPosition3D;
         gameObject.SetActive(false); //Hide to start
 
         laborOptions = new List<UILaborHandlerOptions>(); //instantiate
@@ -56,8 +63,8 @@ public class UILaborHandler : MonoBehaviour
     //pass data to know if can show in the UI
     public void ShowUI(int laborChange, City city, MapWorld world, int placesToWork) 
     {
-        gameObject.SetActive(true);
-
+        ToggleVisibility(true);
+        
         this.laborChange = laborChange;
 
         foreach (UILaborHandlerOptions options in laborOptions)
@@ -68,7 +75,37 @@ public class UILaborHandler : MonoBehaviour
         PrepareLaborChangeOptions(city.cityPop, placesToWork);
     }
 
+    private void ToggleVisibility(bool v)
+    {
+        if (activeStatus == v)
+            return;
+
+        LeanTween.cancel(gameObject);
+
+        if (v)
+        {
+            gameObject.SetActive(true);
+
+            activeStatus = true;
+
+            allContents.anchoredPosition3D = originalLoc + new Vector3(500f, 0, 0);
+
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 500f, 0.3f).setEaseOutSine();
+            LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
+        }
+        else
+        {
+            activeStatus = false;
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
+        }
+    }
+
     public void HideUI()
+    {
+        ToggleVisibility(false);        
+    }
+
+    private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
     }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
 public class ResourceManager : MonoBehaviour, ITurnDependent
 {
     private Dictionary<ResourceType, int> resourceDict = new(); //need this later for save system
@@ -44,7 +44,7 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
 
     private void PrepareResourceDictionary()
     {
-        foreach (ResourceIndividualSO resourceData in resourceHolder.allStorableResources) //Enum.GetValues(typeof(ResourceType)) 
+        foreach (ResourceIndividualSO resourceData in resourceHolder.allStorableResources.Concat(resourceHolder.allWorldResources).ToList())
         {
             if (resourceData.resourceType == ResourceType.None)
                 continue;
