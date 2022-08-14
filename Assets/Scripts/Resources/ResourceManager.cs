@@ -20,8 +20,6 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
     private Dictionary<string , int> buildingResourceGenerationDict = new(); //to see how many building resources generated per turn in city.
 
     //initial resources
-    private ResourceHolder resourceHolder;
-    //public List<ResourceIndividualSO> initialResourceData = new(); //list the resource data of resources to store
     public List<ResourceValue> initialResources = new(); //resources you start a city with
     private City city;
 
@@ -36,7 +34,6 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
 
     private void Awake()
     {
-        resourceHolder = FindObjectOfType<ResourceHolder>();
         CalculateAndChangeFoodLimit();
         PrepareResourceDictionary();
         SetInitialResourceValues();
@@ -44,7 +41,7 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
 
     private void PrepareResourceDictionary()
     {
-        foreach (ResourceIndividualSO resourceData in resourceHolder.allStorableResources.Concat(resourceHolder.allWorldResources).ToList())
+        foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
             if (resourceData.resourceType == ResourceType.None)
                 continue;
