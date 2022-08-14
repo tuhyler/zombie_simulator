@@ -76,7 +76,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         List<ResourceValue> objectProduced;
         List<ResourceValue> objectConsumed;
         List<ResourceValue> objectCost;
-        List<ResourceIndividualSO> resourceInfo = buttonHandler.resources.allStorableResources.Concat(buttonHandler.resources.allWorldResources).ToList();
+        List<ResourceIndividualSO> resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
 
         if (isUnitPanel)
         {

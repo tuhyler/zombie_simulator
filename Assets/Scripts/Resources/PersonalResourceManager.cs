@@ -14,20 +14,17 @@ public class PersonalResourceManager : MonoBehaviour
     public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
     private float resourceStorageLevel;
     public float GetResourceStorageLevel { get { return resourceStorageLevel; } }
-
-    private ResourceHolder resourceHolder;
     //public List<ResourceIndividualSO> initialResourceData = new(); //list the resource data of resources to store
 
 
     private void Awake()
     {
-        resourceHolder = FindObjectOfType<ResourceHolder>();
         PrepareResourceDictionary();
     }
 
     private void PrepareResourceDictionary()
     {
-        foreach (ResourceIndividualSO resourceData in resourceHolder.allStorableResources) //Enum.GetValues(typeof(ResourceType)) 
+        foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources) //Enum.GetValues(typeof(ResourceType)) 
         {
             if (resourceData.resourceType == ResourceType.None)
                 continue;

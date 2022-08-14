@@ -26,18 +26,13 @@ public class UITradeResourceTask : MonoBehaviour
     //private string chosenAmount;
     private int traderCargoStorageLimit;
 
-    private ResourceHolder resourceHolder;
+    //private ResourceHolder resourceHolder;
 
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
     private bool getAll;
 
-
-    private void Awake()
-    {
-        resourceHolder = FindObjectOfType<ResourceHolder>();
-    }
 
     private void Start()
     {
@@ -108,7 +103,7 @@ public class UITradeResourceTask : MonoBehaviour
     {
         resourceList.options.Remove(defaultFirstChoice); //removing top choice
 
-        foreach (ResourceIndividualSO resource in resourceHolder.allStorableResources)
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
             if (resourceValue.resourceType == resource.resourceType)
             {
@@ -155,7 +150,7 @@ public class UITradeResourceTask : MonoBehaviour
         resourceValue.resourceType = ResourceType.None;
         resourceValue.resourceAmount = 0;
 
-        foreach (ResourceIndividualSO resource in resourceHolder.allStorableResources)
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
             if (chosenResource == resource.resourceName)
                 resourceValue.resourceType = resource.resourceType;

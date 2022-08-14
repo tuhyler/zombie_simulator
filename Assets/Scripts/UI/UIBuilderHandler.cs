@@ -26,9 +26,6 @@ public class UIBuilderHandler : MonoBehaviour
     [HideInInspector]
     public bool activeStatus; //set this up so we don't have to wait for tween to set inactive
 
-    [SerializeField]
-    public ResourceHolder resources;
-
     public bool showResourceProduced, showResourceConsumed;
 
     [SerializeField]

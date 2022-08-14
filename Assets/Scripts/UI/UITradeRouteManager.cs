@@ -21,7 +21,6 @@ public class UITradeRouteManager : MonoBehaviour
     private Transform stopHolder;
 
     //for generating resource lists
-    private ResourceHolder resourceHolder;
     private List<TMP_Dropdown.OptionData> resources = new();
 
     [SerializeField] //for tweening
@@ -33,7 +32,6 @@ public class UITradeRouteManager : MonoBehaviour
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
-        resourceHolder = FindObjectOfType<ResourceHolder>();
         AddResources();
         gameObject.SetActive(false);
     }
@@ -54,7 +52,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void AddResources()
     {
-        foreach (ResourceIndividualSO resource in resourceHolder.allStorableResources)
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
             resources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
         }
@@ -112,7 +110,7 @@ public class UITradeRouteManager : MonoBehaviour
         unitMovement.TurnOnInfoScreen();
     }
 
-    public void AddStopPanelButton() //added this as a method attached to button can't return anything
+    public void AddStopPanelButton() //added this as a method attached to button as it can't return anything
     {
         AddStopPanel();
     }
