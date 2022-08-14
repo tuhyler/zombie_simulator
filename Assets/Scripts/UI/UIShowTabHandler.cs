@@ -32,6 +32,11 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (uiBuilder == null)
+        {
+            
+            return;
+        }
         uiBuildTabHandler.PassUI(uiBuilder);
         uiBuildTabHandler.ShowUI();
     }

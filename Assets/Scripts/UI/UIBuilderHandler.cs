@@ -34,6 +34,9 @@ public class UIBuilderHandler : MonoBehaviour
     [SerializeField]
     private UIScrollButton scrollLeft, scrollRight;
 
+    [HideInInspector]
+    public bool isQueueing; 
+
     //public bool isUnit; //flag indicating if units will be built using this UI
 
     //[SerializeField]

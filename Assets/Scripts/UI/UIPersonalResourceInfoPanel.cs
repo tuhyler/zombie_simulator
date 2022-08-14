@@ -144,7 +144,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     public void UpdateStorageLevel(float level)
     {
-        if (unitStorageLevel == 0)
+        if (unitStorageLevel == 0) //progress bar gives value of null w/o this
             progressBarMask.fillAmount = 0;
 
         unitStorageLevel = level;
@@ -159,7 +159,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             unitStoragePercent.text = $"{Mathf.RoundToInt((level / unitStorageLimit) * 100)}%";
         }
 
-        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, unitStorageLevel / unitStorageLimit, 0.3f)
+        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, unitStorageLevel / unitStorageLimit, 0.2f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {
