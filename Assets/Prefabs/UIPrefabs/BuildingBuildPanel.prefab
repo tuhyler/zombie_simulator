@@ -1375,12 +1375,12 @@ MonoBehaviour:
   uiElementsParent: {fileID: 5705801010939397683}
   allContents: {fileID: 4658468831888969045}
   activeStatus: 0
-  resources: {fileID: 0}
   showResourceProduced: 1
   showResourceConsumed: 0
   optionsScroller: {fileID: 2090939757082536309}
   scrollLeft: {fileID: 1869984857932806766}
   scrollRight: {fileID: 634186264098433910}
+  isQueueing: 0
 --- !u!1 &8162007414810059178
 GameObject:
   m_ObjectHideFlags: 0

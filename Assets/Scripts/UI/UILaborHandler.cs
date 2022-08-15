@@ -6,7 +6,8 @@ using UnityEngine.Events;
 
 public class UILaborHandler : MonoBehaviour
 {
-    private int laborChange;
+    [HideInInspector]
+    public int laborChange;
     private int currentLabor;
     public int GetCurrentLabor { get { return currentLabor; } }
     private int maxLabor;
@@ -51,7 +52,7 @@ public class UILaborHandler : MonoBehaviour
 
     public void ShowUIRemoveBuildings(Vector3Int cityTile, MapWorld world)
     {
-        gameObject.SetActive(true);
+        ToggleVisibility(true);
 
         foreach (UILaborHandlerOptions options in laborOptions)
         {

@@ -14,6 +14,8 @@ public class UIBuilderHandler : MonoBehaviour
     private UnityEvent<ImprovementDataSO> OnIconButtonClick;
     [SerializeField]
     private UnityEvent<UnitBuildDataSO> OnUnitIconButtonClick;
+    [SerializeField]
+    private UIQueueManager uiQueueManager; //messy, but necessary to have queue manager perform the same functions as this
 
     [SerializeField]
     private Transform uiElementsParent;
@@ -44,17 +46,20 @@ public class UIBuilderHandler : MonoBehaviour
 
     private void Awake()
     {
-        gameObject.SetActive(false); //Hide to start
-
-        buildOptions = new List<UIBuildOptions>(); //instantiate
-
-        foreach (Transform selection in uiElementsParent) //populate list
+        if (uiQueueManager == null)
         {
-            buildOptions.Add(selection.GetComponent<UIBuildOptions>());
-            //Debug.Log("print " + selection.name);
-        }
+            gameObject.SetActive(false); //Hide to start
 
-        originalLoc = allContents.anchoredPosition3D;
+            buildOptions = new List<UIBuildOptions>(); //instantiate
+
+            foreach (Transform selection in uiElementsParent) //populate list
+            {
+                buildOptions.Add(selection.GetComponent<UIBuildOptions>());
+                //Debug.Log("print " + selection.name);
+            }
+
+            originalLoc = allContents.anchoredPosition3D;
+        }
     }
 
     private void Update()
@@ -102,16 +107,22 @@ public class UIBuilderHandler : MonoBehaviour
         OnUnitIconButtonClick?.Invoke(unitBuildData);
     }
 
-    public void ToggleVisibility(bool val, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
+    public void ToggleVisibility(bool v, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
     {
-        if (activeStatus == val)
+        if (uiQueueManager != null)
+        {
+            uiQueueManager.ToggleVisibility(v);
+            return;
+        }
+
+        if (activeStatus == v)
             return;
 
         LeanTween.cancel(gameObject);
 
-        if (val)
+        if (v)
         {
-            gameObject.SetActive(val);
+            gameObject.SetActive(v);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
