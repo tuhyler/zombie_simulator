@@ -16,6 +16,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
     [SerializeField]
     private UIBuilderHandler uiBuildingBuilder;
     [SerializeField]
+    private UIQueueManager uiQueueManager;
+    [SerializeField]
     private UIInfoPanelCity uiInfoPanelCity;
     //[SerializeField]
     //private UIInfoPanelCityWarehouse uiInfoPanelCityWarehouse;
@@ -229,7 +231,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         if (selectedCity.cityPop.GetPop == 1)
         {
             uiDestroyCityWarning.ToggleVisibility(true);
-            uiUnitBuilder.ToggleVisibility(false);
+            //uiUnitBuilder.ToggleVisibility(false);
+            uiCityTabs.HideSelectedTab();
             lastUnitData = unitData;
             return;
         }
@@ -276,13 +279,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
         selectedCity.SelectUnitToProduce(unitGO, destroyedCity);
 
-        uiUnitBuilder.ToggleVisibility(false);
-        uiCityTabs.ResetUI();
-    }
-
-    public void CloseBuildUnitTab()
-    {
-        uiUnitBuilder.ToggleVisibility(false);
+        //uiUnitBuilder.ToggleVisibility(false);
+        uiCityTabs.HideSelectedTab();
     }
 
     public void CreateBuilding(ImprovementDataSO buildingData)
@@ -294,18 +292,6 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             Debug.Log("City already produced something");
             return;
         }
-
-        //if (buildingData == null)
-        //{
-        //    uiBuildingBuilder.ToggleVisibility(false);
-
-        //    if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
-        //        return;
-
-        //    uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
-        //    removingBuilding = true;
-        //    return;
-        //}
 
         Vector3 cityPos = selectedCity.transform.position;
         Vector3 buildingLocalPos = buildingData.prefab.transform.position; //putting the building in it's position in the city square
@@ -343,17 +329,18 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         placesToWork++;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
 
-        uiBuildingBuilder.ToggleVisibility(false);
-        uiCityTabs.ResetUI();
+        //uiBuildingBuilder.ToggleVisibility(false);
+        uiCityTabs.HideSelectedTab();
         UpdateLaborNumbers();
     }
 
     public void RemoveBuildingButton()
     {
-        uiBuildingBuilder.ToggleVisibility(false);
+        //uiBuildingBuilder.ToggleVisibility(false);
+        uiCityTabs.HideSelectedTab();
 
-        if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
-            return;
+        //if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
+        //    return;
 
         uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
         removingBuilding = true;
@@ -415,18 +402,13 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         //this object maintenance
         if (currentLabor < maxLabor)
             placesToWork--;
-        uiImprovementBuilder.ToggleVisibility(false);
-        uiCityTabs.ResetUI();
+        //uiImprovementBuilder.ToggleVisibility(false);
+        uiCityTabs.HideSelectedTab();
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
         removingBuilding = false;
         uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
-        if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
-            uiLaborHandler.HideUI();
-    }
-
-    public void CloseBuildBuildingTab()
-    {
-        uiBuildingBuilder.ToggleVisibility(false);
+        //if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
+        //    uiLaborHandler.HideUI();
     }
 
     public void CreateImprovement(ImprovementDataSO improvementData)
@@ -441,7 +423,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
         this.improvementData = improvementData;
 
-        uiImprovementBuilder.ToggleVisibility(false);
+        //uiImprovementBuilder.ToggleVisibility(false);
+        uiCityTabs.HideSelectedTab();
         ImprovementTileHighlight();
     }
 
@@ -506,14 +489,14 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         placesToWork++;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
         ResetTileLists();
-        uiCityTabs.ResetUI();
         UpdateLaborNumbers();
     }
 
     public void RemoveImprovementButton()
     {
         laborChange = 0;
-        uiImprovementBuilder.ToggleVisibility(false);
+        //uiImprovementBuilder.ToggleVisibility(false);
+        uiCityTabs.HideSelectedTab();
 
         removingImprovement = true;
         ImprovementTileHighlight();
@@ -559,16 +542,10 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         //this object maintenance
         if (currentLabor < maxLabor)
             placesToWork--;
-        uiImprovementBuilder.ToggleVisibility(false);
-        uiCityTabs.ResetUI();
+        //uiImprovementBuilder.ToggleVisibility(false);
         ResetTileLists();
         removingImprovement = false;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
-    }
-
-    public void CloseBuildImprovementTab() //for close button
-    {
-        uiImprovementBuilder.ToggleVisibility(false);
     }
 
     public void LaborManager(int laborChange) //for assigning labor
@@ -579,17 +556,31 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             uiLaborAssignment.HideUI();
             return;
         }
-        
+
+        uiCityTabs.HideSelectedTab();
+        uiLaborHandler.HideUI();
+        ResetTileLists();
+
         removingBuilding = false;
         improvementData = null;
-        this.laborChange = laborChange;
+        
+        if (laborChange != uiLaborAssignment.laborChangeFlag) //turn on menu only when selecting different button
+        {
+            uiLaborAssignment.ResetLaborAssignment(-laborChange);
+            uiLaborAssignment.laborChangeFlag = laborChange;
+            this.laborChange = laborChange;
 
-        if (world.GetBuildingListForCity(selectedCityLoc).Count > 0) //only shows if city has buildings
-            uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
+            if (world.GetBuildingListForCity(selectedCityLoc).Count > 0) //only shows if city has buildings
+                uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
 
-        BuildingButtonHighlight();
-        LaborTileHighlight();
-        UpdateLaborNumbers();
+            BuildingButtonHighlight();
+            LaborTileHighlight();
+            UpdateLaborNumbers();
+        }
+        else
+        {
+            uiLaborAssignment.ResetLaborAssignment(laborChange);
+        }
     }
 
     public void PassLaborChange(string buildingName) //for changing labor counts in city labor
@@ -841,12 +832,35 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         }
     }
 
+    public void CloseCityBuildTabs()
+    {
+        uiLaborAssignment.ResetLaborAssignment();
+        uiCityTabs.HideSelectedTab();
+        uiLaborHandler.HideUI();
+        ResetTileLists();
+    }
+
+    public void CloseLaborMenus()
+    {
+        uiLaborAssignment.ResetLaborAssignment();
+        uiLaborHandler.HideUI();
+        ResetTileLists();
+    }
+
+
+
+
+    public void SetQueueStatus(bool v)
+    {
+        uiUnitBuilder.isQueueing = v;
+        uiImprovementBuilder.isQueueing = v;
+        uiBuildingBuilder.isQueueing = v;
+    }
+
     public void RunCityNamerUI()
     {
-        uiUnitBuilder.ToggleVisibility(false);
-        uiImprovementBuilder.ToggleVisibility(false);
-        uiBuildingBuilder.ToggleVisibility(false);
-        uiLaborHandler.HideUI();
+        ResetTileLists();
+        CloseCityBuildTabs();
         HideLaborNumbers();
 
         uiCityNamer.ToggleVisibility(true, selectedCity);
@@ -872,7 +886,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
     public void NoDestroyCity() //in case user chickens out
     {
         uiDestroyCityWarning.ToggleVisibility(false);
-        uiUnitBuilder.ToggleVisibility(true);
+        //uiUnitBuilder.ToggleVisibility(true);
+        uiCityTabs.HideSelectedTab();
         lastUnitData = null;
     }
 
@@ -893,19 +908,14 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
     {
         cityTiles = new List<Vector3Int>();
         developedTiles = new List<Vector3Int>();
-        ResetTileLists();
+        //ResetTileLists();
         removingImprovement = false;
         removingBuilding = false;
+        CloseCityBuildTabs();
         uiCityTabs.ToggleVisibility(false);
-        uiUnitBuilder.ToggleVisibility(false);
         uiResourceManager.ToggleVisibility(false);
-        uiImprovementBuilder.ToggleVisibility(false);
-        uiBuildingBuilder.ToggleVisibility(false);
         uiInfoPanelCity.ToggleVisibility(false);
-        //uiInfoPanelCityWarehouse.ToggleTweenVisibility(false);
         uiLaborAssignment.HideUI();
-        uiLaborHandler.HideUI();
-        //resourceManager.NullUI();
         uiUnitTurn.buttonClicked.RemoveListener(ResetCityUI);
         HideLaborNumbers();
         HideBorders();

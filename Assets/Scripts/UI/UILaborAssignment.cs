@@ -7,6 +7,9 @@ public class UILaborAssignment : MonoBehaviour
 {
     private int laborChange;
 
+    [HideInInspector]
+    public int laborChangeFlag;
+
     [SerializeField]
     private UnityEvent<int> OnIconButtonClick;
 
@@ -69,6 +72,14 @@ public class UILaborAssignment : MonoBehaviour
         }
     }
 
+    public void ToggleEnable(bool v)
+    {
+        foreach (UILaborAssignmentOptions options in laborOptions)
+        {
+            options.ToggleEnable(v);
+        }
+    }
+
     public void HideUI()
     {
         if (!activeStatus)
@@ -78,11 +89,25 @@ public class UILaborAssignment : MonoBehaviour
 
         activeStatus = false;
         LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -600f, 0.2f).setOnComplete(SetActiveStatusFalse);
+
+        laborChangeFlag = 0;
     }
 
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+    }
+
+    public void ResetLaborAssignment(int laborChange = 0)
+    {
+        this.laborChange = 0;
+        laborChangeFlag = 0;
+
+        foreach (UILaborAssignmentOptions laborOption in laborOptions)
+        {
+            if (laborOption.LaborChange == laborChange || laborChange == 0)
+                laborOption.ToggleButtonSelection(false);
+        }
     }
 
     public void PrepareLaborChange(int laborChange)

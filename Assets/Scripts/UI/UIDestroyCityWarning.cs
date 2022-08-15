@@ -58,11 +58,11 @@ public class UIDestroyCityWarning : MonoBehaviour
 
         playerInput.enabled = !v;
         cameraController.enabled = !v;
-        uiCityBuildTabHandler.ToggleInteractable(!v);
-        uiLaborAssignment.ToggleInteractable(!v);
+        uiCityBuildTabHandler.ToggleEnable(!v);
+        uiLaborAssignment.ToggleEnable(!v);
         uiInfoPanelCity.enabled = !v;
         uiNextButton.interactable = !v;
-        turnHandler.ToggleInteractable(!v);
+        turnHandler.ToggleEnable(!v);
     }
 
     public void SetActiveStatusFalse()

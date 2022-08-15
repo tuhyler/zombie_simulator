@@ -19,9 +19,12 @@ public class UIUnitTurnHandler : MonoBehaviour
     [HideInInspector]
     public UnityEvent buttonClicked; //only listener in CityBuilderManager to ResetUI
 
+    private bool buttonsAreWorking;
+
     private void Awake()
     {
         turnHandler = GetComponent<UnitTurnListHandler>();
+        buttonsAreWorking = true;
     }
 
     private void SelectUnit(Unit unit) => turnHandler.SelectUnit(unit);
@@ -44,6 +47,9 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void NextUnitToMove() //used on right button
     {
+        if (!buttonsAreWorking)
+            return;
+        
         IncreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
         buttonClicked?.Invoke();
@@ -51,6 +57,9 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void PrevUnitToMove() //used on left button
     {
+        if (!buttonsAreWorking)
+            return;
+        
         DecreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
         buttonClicked?.Invoke();
@@ -87,5 +96,8 @@ public class UIUnitTurnHandler : MonoBehaviour
         canvasGroup.interactable = v;
     }
 
-
+    public void ToggleEnable(bool v)
+    {
+        buttonsAreWorking = v;
+    }
 }

@@ -8,19 +8,22 @@ public class UICityBuildTabHandler : MonoBehaviour
     [SerializeField]
     private CityBuilderManager cityBuilderManager;
 
-    [SerializeField]
-    private CanvasGroup canvasGroup;
+    //[SerializeField]
+    //public CanvasGroup canvasGroup;
 
-    [SerializeField]
-    private UILaborHandler uiLaborHandler;
+    //[SerializeField]
+    //private UILaborHandler uiLaborHandler;
 
     private UIBuilderHandler builderUI;
+    private UIShowTabHandler currentTabSelected;
     private bool sameUI;
     private ResourceManager resourceManager;
 
-    [SerializeField]
-    private RectTransform allContents;
+    [HideInInspector]
+    public bool buttonsAreWorking;
 
+    [SerializeField] // for tweening
+    private RectTransform allContents;
     private Vector3 originalLoc;
     private bool activeStatus;
 
@@ -28,27 +31,42 @@ public class UICityBuildTabHandler : MonoBehaviour
     {
         gameObject.SetActive(false);
         originalLoc = allContents.anchoredPosition3D;
+        buttonsAreWorking = true; //setting default value doesn't work
     }
 
     public void PassUI(UIBuilderHandler uiBuilder)
     {
-        uiLaborHandler.HideUI();
+        cityBuilderManager.CloseLaborMenus();
 
-        bool currentlyActive = uiBuilder.activeStatus;
 
+        //bool currentlyActive = uiBuilder.activeStatus;
+        if (builderUI == uiBuilder) //turn off if same tab is clicked
+        {
+            sameUI = true; //so it doesn't reopen selected tab
+        }
+        
         if (builderUI != null) //checking if new tab is clicked 
         {
-            builderUI.ToggleVisibility(false);
-        }
-
-        if (builderUI == uiBuilder && currentlyActive) //turn off if same tab is clicked
-        {
-            sameUI = true;
-            builderUI.ToggleVisibility(false);
+            HideSelectedTab();
         }
 
         builderUI = uiBuilder;
-        cityBuilderManager.ResetTileLists(); //to reset highlighted tiles when going to different tab
+    }
+
+    public void SetSelectedTab(UIShowTabHandler selectedTab)
+    {
+        currentTabSelected = selectedTab;
+    }
+
+    public void HideSelectedTab()
+    {
+        if (builderUI != null)
+            builderUI.ToggleVisibility(false);
+        if (currentTabSelected != null)
+        {
+            currentTabSelected.ToggleButtonSelection(false);
+            ResetUI();
+        }
     }
 
     public void ToggleVisibility(bool v, ResourceManager resourceManager = null)
@@ -82,9 +100,14 @@ public class UICityBuildTabHandler : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void ToggleInteractable(bool v)
+    //public void ToggleInteractable(bool v)
+    //{
+    //    canvasGroup.interactable = v;
+    //}
+
+    public void ToggleEnable(bool v)
     {
-        canvasGroup.interactable = v;
+        buttonsAreWorking = v;
     }
 
     public void ShowUI()
@@ -99,9 +122,8 @@ public class UICityBuildTabHandler : MonoBehaviour
         //tabUI.ToggleInteractable(false);
     }
 
-    public void ResetUI()
+    private void ResetUI()
     {
-        sameUI = false;
         builderUI = null;
     }
 }
