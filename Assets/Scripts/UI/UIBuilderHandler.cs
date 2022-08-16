@@ -14,8 +14,6 @@ public class UIBuilderHandler : MonoBehaviour
     private UnityEvent<ImprovementDataSO> OnIconButtonClick;
     [SerializeField]
     private UnityEvent<UnitBuildDataSO> OnUnitIconButtonClick;
-    [SerializeField]
-    private UIQueueManager uiQueueManager; //messy, but necessary to have queue manager perform the same functions as this
 
     [SerializeField]
     private Transform uiElementsParent;
@@ -36,8 +34,8 @@ public class UIBuilderHandler : MonoBehaviour
     [SerializeField]
     private UIScrollButton scrollLeft, scrollRight;
 
-    [HideInInspector]
-    public bool isQueueing; 
+    //[HideInInspector]
+    //public bool isQueueing; 
 
     //public bool isUnit; //flag indicating if units will be built using this UI
 
@@ -46,20 +44,16 @@ public class UIBuilderHandler : MonoBehaviour
 
     private void Awake()
     {
-        if (uiQueueManager == null)
+        gameObject.SetActive(false); //Hide to start
+
+        buildOptions = new List<UIBuildOptions>(); //instantiate
+
+        foreach (Transform selection in uiElementsParent) //populate list
         {
-            gameObject.SetActive(false); //Hide to start
-
-            buildOptions = new List<UIBuildOptions>(); //instantiate
-
-            foreach (Transform selection in uiElementsParent) //populate list
-            {
-                buildOptions.Add(selection.GetComponent<UIBuildOptions>());
-                //Debug.Log("print " + selection.name);
-            }
-
-            originalLoc = allContents.anchoredPosition3D;
+            buildOptions.Add(selection.GetComponent<UIBuildOptions>());
         }
+
+        originalLoc = allContents.anchoredPosition3D;
     }
 
     private void Update()
@@ -109,12 +103,6 @@ public class UIBuilderHandler : MonoBehaviour
 
     public void ToggleVisibility(bool v, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
     {
-        if (uiQueueManager != null)
-        {
-            uiQueueManager.ToggleVisibility(v);
-            return;
-        }
-
         if (activeStatus == v)
             return;
 
