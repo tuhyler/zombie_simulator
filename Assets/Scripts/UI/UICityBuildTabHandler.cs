@@ -9,6 +9,8 @@ public class UICityBuildTabHandler : MonoBehaviour
     private CityBuilderManager cityBuilderManager;
 
     //[SerializeField]
+
+    //[SerializeField]
     //public CanvasGroup canvasGroup;
 
     //[SerializeField]
@@ -61,7 +63,9 @@ public class UICityBuildTabHandler : MonoBehaviour
     public void HideSelectedTab()
     {
         if (builderUI != null)
+        {
             builderUI.ToggleVisibility(false);
+        }
         if (currentTabSelected != null)
         {
             currentTabSelected.ToggleButtonSelection(false);
