@@ -9,6 +9,8 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
     private TMP_Text itemText;
+    [HideInInspector]
+    public string itemName; //string name only used to check if already on queue list
 
     [SerializeField]
     private Image background;
@@ -22,29 +24,69 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
     //for unselecting
     private Color originalTextColor;
     private Color originalBackgroundColor;
-    private bool isSelected;
+
+    [HideInInspector]
+    public bool isSelected;
 
     private void Awake()
     {
         originalTextColor = itemText.color;
         originalBackgroundColor = background.color;
-        uiQueueManager = GetComponentInParent<UIQueueManager>();
+        //if (transform.parent.childCount == 0)
+        //    uiQueueManager.SetFirstQueueItem(this);
     }
 
     public void CreateQueueItem(string text, Vector3Int loc, UnitBuildDataSO unitBuildData = null, ImprovementDataSO improvementData = null)
     {
-        if (loc.x == 0 && loc.z == 0)
-        {
-            itemText.text = text;
-        }
-        else
-        {
-            itemText.text = (text + " (" + loc.x + "," + loc.z + ")");
-        }
-
+        itemText.text = text;
+        itemName = text;
         buildLoc = loc;
         this.unitBuildData = unitBuildData;
         this.improvementData = improvementData;
+    }
+
+    public (Vector3Int, ImprovementDataSO, UnitBuildDataSO) GetQueueItemData()
+    {
+        return (buildLoc, improvementData, unitBuildData);
+    }
+
+    public void SetQueueManager(UIQueueManager uiQueueManager)
+    {
+        this.uiQueueManager = uiQueueManager;
+    }
+
+    public void MoveItemUp()
+    {
+        int placement = transform.GetSiblingIndex();
+        if (placement == 0)
+        {
+            uiQueueManager.SetFirstQueueItem(this);
+            return;
+        }
+
+        transform.SetSiblingIndex(placement - 1);
+    }
+
+    public void MoveItemDown()
+    {
+        int placement = transform.GetSiblingIndex();
+        if (placement == transform.parent.childCount - 1)
+            return;
+
+        transform.SetSiblingIndex(placement + 1);
+        if (placement == 0)
+            uiQueueManager.GetQueueItem(0);
+    }
+
+    public int GetNextItemIndex()
+    {
+        int placement = transform.GetSiblingIndex();
+        if (placement == transform.parent.childCount - 1)
+            placement--;
+        else
+            placement++;
+
+        return placement;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -52,10 +94,12 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
         ToggleItemSelection(!isSelected);
     }
 
-    private void ToggleItemSelection(bool v)
+    public void ToggleItemSelection(bool v)
     {
         if (v)
         {
+            uiQueueManager.ClearQueueItemSelect();
+            uiQueueManager.SetSelectedQueueItem(this);
             isSelected = true;
             itemText.color = Color.white;
             background.color = Color.gray;
@@ -63,6 +107,7 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
         else
         {
             isSelected = false;
+            //uiQueueManager.ResetSelectedQueueItem();
             itemText.color = originalTextColor;
             background.color = originalBackgroundColor;
         }

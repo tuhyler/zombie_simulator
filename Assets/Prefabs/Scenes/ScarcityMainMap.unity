@@ -35275,7 +35275,7 @@ PrefabInstance:
     - target: {fileID: 4658468831888969045, guid: 9294b0a7b7d30324f91e7496e284a8ad,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 480
+      value: 470
       objectReference: {fileID: 0}
     - target: {fileID: 4658468831888969045, guid: 9294b0a7b7d30324f91e7496e284a8ad,
         type: 3}
@@ -35320,7 +35320,7 @@ PrefabInstance:
     - target: {fileID: 4658468831888969045, guid: 9294b0a7b7d30324f91e7496e284a8ad,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -5
+      value: -10
       objectReference: {fileID: 0}
     - target: {fileID: 4658468831888969045, guid: 9294b0a7b7d30324f91e7496e284a8ad,
         type: 3}
@@ -35530,7 +35530,7 @@ PrefabInstance:
     - target: {fileID: 7897299358747257353, guid: 9294b0a7b7d30324f91e7496e284a8ad,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: BeginBuildQueue
+      value: ToggleQueue
       objectReference: {fileID: 0}
     - target: {fileID: 7897299358747257353, guid: 9294b0a7b7d30324f91e7496e284a8ad,
         type: 3}
@@ -37222,7 +37222,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500008
+      value: 8.500859
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
