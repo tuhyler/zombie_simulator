@@ -71,6 +71,9 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
     private UnitBuildDataSO lastUnitData;
 
+    //for queued buildings
+    private List<ResourceValue> resourcesToCheck = new();
+
     private void Awake()
     {
         GrowLaborNumbersPool();
@@ -247,7 +250,6 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             return;
         }
 
-
         if (selectedCity.InProduction)
         {
             Debug.Log("City already producing something");
@@ -296,6 +298,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             uiQueueManager.AddToQueue(new Vector3Int(0,0,0), buildingData);
             return;
         }
+
+        uiQueueManager.CheckIfBuiltItemIsQueued(new Vector3Int(0, 0, 0), buildingData);
 
         laborChange = 0;
 
@@ -481,6 +485,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             uiQueueManager.AddToQueue(tempBuildLocation - selectedCityLoc, improvementData);
             return;
         }
+
+        uiQueueManager.CheckIfBuiltItemIsQueued(tempBuildLocation - selectedCityLoc, improvementData);
         
         Vector3 buildLocation = tempBuildLocation;
 
@@ -879,13 +885,21 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
 
 
-    public void BeginBuildQueue()
+    public void ToggleQueue()
+    {
+        if (!isQueueing)
+            BeginBuildQueue();
+        else
+            EndBuildQueue();
+    }
+
+    private void BeginBuildQueue()
     {
         SetQueueStatus(true);
         uiQueueManager.ToggleButtonSelection(true);
     }
 
-    public void EndBuildQueue()
+    private void EndBuildQueue()
     {
         SetQueueStatus(false);
         uiQueueManager.ToggleButtonSelection(false);
@@ -900,12 +914,65 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         //uiQueueManager.isQueueing = v;
     }
 
+    public void SetQueueResources(List<ResourceValue> resourceList)
+    {
+        resourcesToCheck = resourceList;
+    }
+
+    public void CheckResourcesForQueue()
+    {
+        if (resourcesToCheck.Count > 0)
+        {
+            foreach (ResourceValue resource in resourcesToCheck)
+            {
+                if (!resourceManager.CheckResourceAvailability(resource))
+                {
+                    return;
+                }
+            }
+
+            (Vector3Int loc, ImprovementDataSO improvementData, UnitBuildDataSO unitBuildData) = uiQueueManager.SetBuildInfo();
+
+            if (unitBuildData != null) //build unit
+            {
+                if (selectedCity.cityPop.GetPop == 1)
+                {
+                    Debug.Log("not enough pop to make unit");
+                    return;
+                }
+                CreateUnit(unitBuildData);
+            }
+            else if (loc.x == 0 && loc.z == 0) //build building
+            {
+                CreateBuilding(improvementData);
+            }
+            else //build improvement
+            {
+                Vector3Int tile = loc + selectedCityLoc;
+
+                if (world.IsBuildLocationTaken(tile) || world.TileHasBuildings(tile) || world.IsRoadOnTile(tile))
+                {
+                    Debug.Log("queued item loc is already taken");
+                    return;
+                }
+                BuildImprovement(improvementData, tile);
+            }
+
+            uiQueueManager.RemoveFirstFromQueue();
+        }
+    }
+
     public void CloseQueueUI()
     {
         EndBuildQueue();
         uiQueueManager.ToggleVisibility(false);
 
     }
+
+
+
+
+
 
     public void RunCityNamerUI()
     {
@@ -978,6 +1045,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
     public void WaitTurn()
     {
+        CheckResourcesForQueue();
         ResetCityUI();
     }
 
