@@ -46,7 +46,8 @@ public class UIQueueButton : MonoBehaviour, IPointerDownHandler
         {
             isSelected = false;
             buttonImage.color = originalButtonColor;
-            uiQueueManager.ToggleVisibility(false);
+            uiBuildTabHandler.cityBuilderManager.CloseQueueUI();
+            //uiQueueManager.ToggleVisibility(false);
         }
     }
 }

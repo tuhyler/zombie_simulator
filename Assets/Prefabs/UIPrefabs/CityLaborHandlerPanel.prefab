@@ -284,6 +284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cac6d46e19a15045a8efbb593dacb6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  laborChange: 0
   buildingName: 
   OnIconButtonClick:
     m_PersistentCalls:

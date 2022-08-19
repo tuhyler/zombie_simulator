@@ -18,4 +18,8 @@ MonoBehaviour:
   unitCost:
   - resourceType: 4
     resourceAmount: 10
+  consumedResources:
+  - resourceType: 2
+    resourceAmount: 1
   unitType: 0
+  unitDescription: Builds cities and roads

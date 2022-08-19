@@ -26,7 +26,7 @@ public class UIBuilderHandler : MonoBehaviour
     [HideInInspector]
     public bool activeStatus; //set this up so we don't have to wait for tween to set inactive
 
-    public bool showResourceProduced, showResourceConsumed;
+    //public bool showResourceProduced, showResourceConsumed;
 
     [SerializeField]
     public ScrollRect optionsScroller;
@@ -34,8 +34,8 @@ public class UIBuilderHandler : MonoBehaviour
     [SerializeField]
     private UIScrollButton scrollLeft, scrollRight;
 
-    //[HideInInspector]
-    //public bool isQueueing; 
+    [HideInInspector]
+    public bool isQueueing;
 
     //public bool isUnit; //flag indicating if units will be built using this UI
 
@@ -162,8 +162,9 @@ public class UIBuilderHandler : MonoBehaviour
         {
             if (buildItem == null)
                 continue;
-            
-            buildItem.ToggleInteractable(true);
+
+            //buildItem.ToggleInteractable(true);
+            buildItem.SetResourceTextToDefault();
 
             List<ResourceValue> resourceCosts = new();
 
@@ -176,7 +177,8 @@ public class UIBuilderHandler : MonoBehaviour
             {
                 if (!resourceManager.CheckResourceAvailability(item))
                 {
-                    buildItem.ToggleInteractable(false); //deactivate if not enough resources
+                    //buildItem.ToggleInteractable(false); //deactivate if not enough resources
+                    buildItem.SetResourceTextToRed(item);
                     break;
                 }
             }

@@ -17,4 +17,6 @@ public class UIResourceInfoPanel : MonoBehaviour
 
     [SerializeField]
     public RectTransform resourceTransform, allContents;
+
+    public ResourceType resourceType;
 }

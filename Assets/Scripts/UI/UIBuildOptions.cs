@@ -33,21 +33,25 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     [SerializeField]
     private Transform resourceProducedHolder, resourceConsumedHolder, resourceCostHolder, resourceProducedContents, resourceConsumedContents, resourceCostContents;
 
-    private bool isUnitPanel, produced = true, consumed = true;
+    private bool isUnitPanel, cannotAfford;//, produced = true, consumed = true;
+
+    //for checking if city can afford resource
+    private List<UIResourceInfoPanel> costResourcePanels = new();
+    //private bool ;
 
     private void Awake()
     {
         buttonHandler = GetComponentInParent<UIBuilderHandler>();
-        if (!buttonHandler.showResourceProduced)
-        {
-            resourceProducedContents.gameObject.SetActive(false);
-            produced = false;
-        }
-        if (!buttonHandler.showResourceConsumed)
-        {
-            resourceConsumedContents.gameObject.SetActive(false);
-            consumed = false;
-        }
+        //if (!buttonHandler.showResourceProduced)
+        //{
+        //    resourceProducedContents.gameObject.SetActive(false);
+        //    //produced = false;
+        //}
+        //if (!buttonHandler.showResourceConsumed)
+        //{
+        //    resourceConsumedContents.gameObject.SetActive(false);
+        //    //consumed = false;
+        //}
         canvasGroup = GetComponent<CanvasGroup>();
         if (unitBuildData != null)
             isUnitPanel = true;
@@ -57,6 +61,11 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     public void ToggleInteractable(bool v)
     {
         canvasGroup.interactable = v;
+
+        foreach (UIResourceInfoPanel resourceInfoPanel in costResourcePanels)
+        {
+            resourceInfoPanel.backgroundCanvas.interactable = v;
+        }
     }
 
     public void OnUnitPointerClick()
@@ -73,6 +82,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     private void PopulateSelectionPanel()
     {
         float workEthicChange = 0;
+        string objectDescription = "";
         List<ResourceValue> objectProduced;
         List<ResourceValue> objectConsumed;
         List<ResourceValue> objectCost;
@@ -84,7 +94,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             objectImage.sprite = unitBuildData.image;
             objectCost = unitBuildData.unitCost;
             objectProduced = new();
-            objectConsumed = new();
+            objectConsumed = unitBuildData.consumedResources;
+            objectDescription = unitBuildData.unitDescription;
         }
         else
         {
@@ -96,16 +107,18 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             workEthicChange = buildData.workEthicChange;
         }
 
-        GenerateResourceInfoPanels(resourceCostHolder, objectCost, resourceInfo);
-        if (produced)
-            GenerateResourceInfoPanels(resourceProducedHolder, objectProduced, resourceInfo, workEthicChange);
-        if (consumed)
-            GenerateResourceInfoPanels(resourceConsumedHolder, objectConsumed, resourceInfo);
+        //cost info
+        GenerateResourceInfoPanels(resourceCostHolder, "", objectCost, resourceInfo, 0, true);
+        //producer info
+        GenerateResourceInfoPanels(resourceProducedHolder, objectDescription, objectProduced, resourceInfo, workEthicChange);
+        //consumed info
+        GenerateResourceInfoPanels(resourceConsumedHolder, "", objectConsumed, resourceInfo);
     }
 
-    private void GenerateResourceInfoPanels(Transform transform, List<ResourceValue> resources, List<ResourceIndividualSO> resourceInfo, float workEthicChange = 0)
+    private void GenerateResourceInfoPanels(Transform transform, string description, List<ResourceValue> resources, 
+        List<ResourceIndividualSO> resourceInfo, float workEthicChange = 0, bool isCost = false)
     {
-        if (workEthicChange != 0)
+        if (workEthicChange != 0 || description.Length > 0)
         {
             GameObject panel = Instantiate(resourceInfoPanel);
             panel.transform.SetParent(transform, false);
@@ -114,10 +127,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             uiResourceInfoPanel.resourceAmount.color = Color.black;//new Color32(28, 72, 140, 255); //color32 uses bytes
             uiResourceInfoPanel.resourceAmount.alignment = TextAlignmentOptions.Midline;
             uiResourceInfoPanel.resourceTransform.anchoredPosition3D += new Vector3(0,20f,0);
-            uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(140, 0);
+            uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(230, 0);
             uiResourceInfoPanel.resourceTransform.SetParent(uiResourceInfoPanel.allContents, false);
             uiResourceInfoPanel.backgroundCanvas.gameObject.SetActive(false);
-            uiResourceInfoPanel.resourceAmount.text = "Work Ethic: +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
+
+            if (workEthicChange != 0)
+                description = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
+
+            uiResourceInfoPanel.resourceAmount.text = description;
         }
         
         foreach (ResourceValue value in resources)
@@ -130,9 +147,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
             uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
             uiResourceCostPanel.resourceImage.sprite = resourceInfo[index].resourceIcon;
+            uiResourceCostPanel.resourceType = value.resourceType;
+            if (isCost)
+            {
+                costResourcePanels.Add(uiResourceCostPanel);
+            }
         }
 
-        if (resources.Count == 0 && workEthicChange == 0)
+        if (resources.Count == 0 && workEthicChange == 0 && description.Length == 0)
         {
             //Code is repeated here because it won't work in separate method for some reason
             GameObject panel = Instantiate(resourceInfoPanel);
@@ -147,8 +169,38 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         }
     }
 
+    public void SetResourceTextToDefault()
+    {
+        cannotAfford = false;
+        foreach (UIResourceInfoPanel resourcePanel in costResourcePanels)
+        {
+            resourcePanel.resourceAmount.color = Color.white;
+        }
+    }
+
+    public void SetResourceTextToRed(ResourceValue resourceValue)
+    {
+        cannotAfford = true;
+        foreach (UIResourceInfoPanel resourcePanel in costResourcePanels)
+        {
+            if (resourcePanel.resourceType == resourceValue.resourceType)
+            {
+                resourcePanel.resourceAmount.color = Color.red;
+            }
+        }
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!canvasGroup.interactable)
+            return;
+
+        if (cannotAfford && !buttonHandler.isQueueing)
+        {
+            Debug.Log("Can't afford.");
+            return;
+        }
+
         if (isUnitPanel)
         {
             buttonHandler.PrepareUnitBuild(unitBuildData);

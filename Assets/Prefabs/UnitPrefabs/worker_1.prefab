@@ -102,6 +102,7 @@ MonoBehaviour:
   unitDataSO: {fileID: 11400000, guid: 18c8b91359d031b4993718da17e9fc1f, type: 2}
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
   allUnitDataSO: {fileID: 11400000, guid: 92232cdda4bffe84b9a83a398665d448, type: 2}
+  world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
@@ -111,6 +112,8 @@ MonoBehaviour:
   turnHandler: {fileID: 0}
   zeroMovementPoints: 0
   isTrader: 0
+  atStop: 0
+  followingRoute: 0
   harvesting: 0
   harvested: 0
   resourceIsNotNull: 0
