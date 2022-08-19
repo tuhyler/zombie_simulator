@@ -25,15 +25,8 @@ public class City : MonoBehaviour, ITurnDependent
     private TMP_Text cityName;
     public string CityName { get { return cityName.text; } }
 
-    //[SerializeField]
-    //private TMP_Text cityPopText;
-    //public string CityPopText { get { return cityPopText.text; } }
-
-    //[SerializeField]
-    //private TMP_Text cityLaborText;
-    //public string CityLaborText { get { return cityLaborText.text; } }
-
-    private Vector3Int cityLoc;
+    [HideInInspector]
+    public Vector3Int cityLoc;
     
     private MapWorld world;
 
@@ -65,7 +58,11 @@ public class City : MonoBehaviour, ITurnDependent
     public int GetGoldPerTurn { get { return goldPerTurn; } }
     private int researchPerTurn;
     public int GetResearchPerTurn { get { return researchPerTurn; } }
-    
+
+    //stored queue items
+    [HideInInspector]
+    public List<UIQueueItem> savedQueueItems = new();
+
     //private SelectionHighlight highlight; //Highlight doesn't work on city name text
 
     private void Awake()
@@ -190,8 +187,8 @@ public class City : MonoBehaviour, ITurnDependent
     {
         this.unitToProduce = unitToProduce;
         InProduction = true;
-        if (destroyedCity)
-            CompleteProduction(destroyedCity);
+        //if (destroyedCity)
+        CompleteProduction(destroyedCity);
     }
 
     public void ToggleProduction(bool v)
@@ -392,6 +389,45 @@ public class City : MonoBehaviour, ITurnDependent
         }
     }
 
+    //for queued build items
+    public void RemoveFirstFromQueue(CityBuilderManager cityBuilderManager)
+    {
+        UIQueueItem item = savedQueueItems[0];
+        savedQueueItems.Remove(item);
+        Destroy(item);
+
+        if (savedQueueItems.Count > 0)
+        {
+            UIQueueItem nextItem = savedQueueItems[0];
+            
+            List<ResourceValue> resourceCosts = new();
+
+            if (nextItem.unitBuildData != null)
+                resourceCosts = new(nextItem.unitBuildData.unitCost);
+            if (nextItem.improvementData != null)
+                resourceCosts = new(nextItem.improvementData.improvementCost);
+
+            resourceManager.SetQueueResources(resourceCosts, cityBuilderManager);
+        }
+    }
+
+    public UIQueueItem GetBuildInfo()
+    {
+        return savedQueueItems[0];
+    }
+
+
+    //public void CheckIfBuiltItemIsQueued(Vector3Int loc, ImprovementDataSO improvementData)
+    //{
+    //    foreach (UIQueueItem item in savedQueueItems)
+    //    {
+    //        if (item.itemName == improvementData.improvementName && item.buildLoc == loc)
+    //        {
+    //            savedQueueItems.Remove(item);
+    //            return;
+    //        }
+    //    }
+    //}
 
 
     internal void Select()

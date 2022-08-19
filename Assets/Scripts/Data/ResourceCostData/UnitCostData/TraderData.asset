@@ -20,4 +20,8 @@ MonoBehaviour:
     resourceAmount: 10
   - resourceType: 5
     resourceAmount: 10
+  consumedResources:
+  - resourceType: 2
+    resourceAmount: 1
   unitType: 5
+  unitDescription: Moves resources

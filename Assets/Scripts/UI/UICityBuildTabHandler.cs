@@ -6,7 +6,7 @@ using UnityEngine;
 public class UICityBuildTabHandler : MonoBehaviour
 {
     [SerializeField]
-    private CityBuilderManager cityBuilderManager;
+    public CityBuilderManager cityBuilderManager;
 
     //[SerializeField]
 

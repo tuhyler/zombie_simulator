@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,11 +22,9 @@ public class UIQueueManager : MonoBehaviour
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
     private Vector3 originalLoc;
-
-    //[HideInInspector]
-    //public bool isQueueing;
 
     [SerializeField] //changing color of add queue button when selected
     private Image addQueueImage;
@@ -54,6 +50,13 @@ public class UIQueueManager : MonoBehaviour
             gameObject.SetActive(v);
             uiQueueButton.ToggleButtonSelection(true);
             cityBuilderManager.CloseLaborMenus();
+            List<UIQueueItem> tempQueueItems = cityBuilderManager.GetQueueItems();
+            foreach(UIQueueItem item in tempQueueItems)
+            {
+                item.gameObject.SetActive(true);
+                queueItemNames.Add(item.itemName);
+                PlaceQueueItem(item);
+            }
 
             activeStatus = true;
 
@@ -66,6 +69,8 @@ public class UIQueueManager : MonoBehaviour
         {
             activeStatus = false;
             uiQueueButton.ToggleButtonSelection(false);
+            ToggleButtonSelection(false);
+            HideQueueItems();
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 300f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
@@ -80,16 +85,17 @@ public class UIQueueManager : MonoBehaviour
         selectedQueueItem = item;
     }
 
-    public void SetFirstQueueItem(UIQueueItem item)
+    public void SetFirstQueueItem()
     {
-        firstQueueItem = item;
+        firstQueueItem = queueItems[0];
+        //firstQueueItem = item;
         SetResourcesToCheck();
     }
 
-    public void GetQueueItem(int index)
-    {
-        SetFirstQueueItem(queueItemHolder.GetChild(index).GetComponent<UIQueueItem>());
-    }
+    //public void GetQueueItem(int index)
+    //{
+    //    SetFirstQueueItem(queueItemHolder.GetChild(index).GetComponent<UIQueueItem>());
+    //}
 
     public void ClearQueueItemSelect()
     {
@@ -112,22 +118,34 @@ public class UIQueueManager : MonoBehaviour
 
         GameObject newQueueItem = Instantiate(uiQueueItem);
         newQueueItem.SetActive(true);
-        newQueueItem.transform.SetParent(queueItemHolder, false);
-
         UIQueueItem queueItemHandler = newQueueItem.GetComponent<UIQueueItem>();
-
-        queueItemHandler.CreateQueueItem(buildName, loc, unitBuildData, improvementData);
         queueItemHandler.SetQueueManager(this);
-        queueItems.Add(queueItemHandler);
+        queueItemHandler.CreateQueueItem(buildName, loc, unitBuildData, improvementData);
         queueItemNames.Add(buildName);
-        if (queueItems.Count == 1) //if first to list, make top of list
-            SetFirstQueueItem(queueItemHandler);
+        PlaceQueueItem(queueItemHandler);
+
+        //newQueueItem.transform.SetParent(queueItemHolder, false);
+        //UIQueueItem queueItemHandler = GetFromQueueItemPool();asd;
+
+        //queueItemHandler.transform.SetParent(queueItemHolder, false);
+        //queueItems.Add(queueItemHandler);
+        //queueItemNames.Add(buildName);
+        //if (queueItems.Count == 1) //if first to list, make top of list
+        //    SetFirstQueueItem(queueItemHandler);
     }
 
-    public void RemoveFirstFromQueue()
+    private void PlaceQueueItem(UIQueueItem queueItemHandler)
     {
-        RemoveFromQueue(firstQueueItem);
+        queueItemHandler.transform.SetParent(queueItemHolder, false);
+        queueItems.Add(queueItemHandler);
+        if (queueItems.Count == 1) //if first to list, make top of list
+            SetFirstQueueItem();
     }
+
+    //public void RemoveFirstFromQueue()
+    //{
+    //    RemoveFromQueue(firstQueueItem);
+    //}
 
     public void RemoveFromQueue()
     {
@@ -142,9 +160,9 @@ public class UIQueueManager : MonoBehaviour
         queueItems.Remove(queueItem);
         queueItemNames.Remove(queueItem.itemName);
 
-        if (queueItem == firstQueueItem)
+        if (queueItem == firstQueueItem && queueItems.Count > 0)
         {
-            GetQueueItem(1);
+            SetFirstQueueItem();
         }
 
         if (queueItem == selectedQueueItem)
@@ -166,13 +184,21 @@ public class UIQueueManager : MonoBehaviour
     public void MoveItemUp()
     {
         if (selectedQueueItem != null)
-            selectedQueueItem.MoveItemUp();
+        {
+            int index = selectedQueueItem.MoveItemUp();
+            queueItems.Remove(selectedQueueItem);
+            queueItems.Insert(index, selectedQueueItem);
+        }
     }
 
     public void MoveItemDown()
     {
         if (selectedQueueItem != null)
-            selectedQueueItem.MoveItemDown();
+        {
+            int index = selectedQueueItem.MoveItemDown();
+            queueItems.Remove(selectedQueueItem);
+            queueItems.Insert(index, selectedQueueItem);
+        }
     }
 
     private string CreateItemName(Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null)
@@ -210,11 +236,7 @@ public class UIQueueManager : MonoBehaviour
 
     private void SetResourcesToCheck()
     {
-        Vector3Int loc = new Vector3Int(0, 0, 0);
-        ImprovementDataSO improvementData = null;
-        UnitBuildDataSO unitBuildData = null;
-
-        (loc, improvementData, unitBuildData) = firstQueueItem.GetQueueItemData();
+        (Vector3Int loc, ImprovementDataSO improvementData, UnitBuildDataSO unitBuildData) = firstQueueItem.GetQueueItemData();
 
         List<ResourceValue> resourceCosts = new();
 
@@ -223,12 +245,19 @@ public class UIQueueManager : MonoBehaviour
         if (improvementData != null)
             resourceCosts = new(improvementData.improvementCost);
 
-        cityBuilderManager.SetQueueResources(resourceCosts);
+        cityBuilderManager.resourceManager.SetQueueResources(resourceCosts, cityBuilderManager);
     }
 
-    public (Vector3Int, ImprovementDataSO, UnitBuildDataSO) SetBuildInfo()
+    //public (Vector3Int, ImprovementDataSO, UnitBuildDataSO) SetBuildInfo()
+    //{
+    //    return firstQueueItem.GetQueueItemData();
+    //}
+
+    public List<UIQueueItem> SetQueueItems()
     {
-        return firstQueueItem.GetQueueItemData();
+        List<UIQueueItem> queueItems = new(this.queueItems);
+        
+        return queueItems;
     }
 
     public void ToggleButtonSelection(bool v)
@@ -241,5 +270,56 @@ public class UIQueueManager : MonoBehaviour
         {
             addQueueImage.color = originalButtonColor;
         }
+    }
+
+    public void UnselectQueueItem()
+    {
+        if (selectedQueueItem != null)
+        {
+            selectedQueueItem.ToggleItemSelection(false);
+            selectedQueueItem = null;
+        }   
+    }
+
+
+
+
+
+    //private void GrowQueueItemPool()
+    //{
+    //    for (int i = 0; i < 5; i++) //grow pool 5 at a time
+    //    {
+    //        GameObject gameObject = Instantiate(uiQueueItem);
+    //        UIQueueItem queueItem = gameObject.GetComponent<UIQueueItem>();
+    //        AddToQueueItemPool(queueItem);
+    //    }
+    //}
+
+    //private void AddToQueueItemPool(UIQueueItem queueItem)
+    //{
+    //    queueItem.gameObject.SetActive(false); //inactivate it when adding to pool
+    //    queueItemQueue.Enqueue(queueItem);
+    //}
+
+    //private UIQueueItem GetFromQueueItemPool()
+    //{
+    //    if (queueItemQueue.Count == 0)
+    //        GrowQueueItemPool();
+
+    //    UIQueueItem queueItem = queueItemQueue.Dequeue();
+    //    queueItem.gameObject.SetActive(true);
+    //    return queueItem;
+    //}
+
+    public void HideQueueItems()
+    {
+        foreach (UIQueueItem queueItem in queueItems)
+        {
+            queueItem.gameObject.SetActive(false);
+        }
+
+        queueItems.Clear();
+        queueItemNames.Clear();
+        queueItemHolder.DetachChildren();
     }
 }

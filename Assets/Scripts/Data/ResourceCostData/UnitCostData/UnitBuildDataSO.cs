@@ -9,7 +9,9 @@ public class UnitBuildDataSO : ScriptableObject
     public string unitName;
     public Sprite image;
     public List<ResourceValue> unitCost;
+    public List<ResourceValue> consumedResources;
     public UnitType unitType;
+    public string unitDescription;
 }
 
 public enum UnitType

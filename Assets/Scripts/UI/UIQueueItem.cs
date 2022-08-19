@@ -17,9 +17,9 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
 
     private UIQueueManager uiQueueManager;
 
-    private UnitBuildDataSO unitBuildData;
-    private ImprovementDataSO improvementData;
-    private Vector3Int buildLoc;
+    public UnitBuildDataSO unitBuildData;
+    public ImprovementDataSO improvementData;
+    public Vector3Int buildLoc;
 
     //for unselecting
     private Color originalTextColor;
@@ -55,27 +55,31 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
         this.uiQueueManager = uiQueueManager;
     }
 
-    public void MoveItemUp()
+    public int MoveItemUp()
     {
         int placement = transform.GetSiblingIndex();
         if (placement == 0)
         {
-            uiQueueManager.SetFirstQueueItem(this);
-            return;
+            uiQueueManager.SetFirstQueueItem();
+            return placement;
         }
 
         transform.SetSiblingIndex(placement - 1);
+
+        return placement - 1;
     }
 
-    public void MoveItemDown()
+    public int MoveItemDown()
     {
         int placement = transform.GetSiblingIndex();
         if (placement == transform.parent.childCount - 1)
-            return;
+            return placement;
 
         transform.SetSiblingIndex(placement + 1);
         if (placement == 0)
-            uiQueueManager.GetQueueItem(0);
+            uiQueueManager.SetFirstQueueItem();
+
+        return placement + 1;
     }
 
     public int GetNextItemIndex()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,8 @@ public class CameraController : MonoBehaviour
 
     [HideInInspector]
     public Transform followTransform;
+    [HideInInspector]
+    public Quaternion followRotation;
 
     private bool scrolling;
     public bool Scrolling { set { scrolling = value; } }
@@ -20,10 +23,11 @@ public class CameraController : MonoBehaviour
     private float movementLimit = 10f;
     private float edgeSize = 10f; //pixel buffer size
 
-    public float movementSpeed, movementTime;
+    public float movementSpeed, movementTime, rotationAmount;
     public Vector3 zoomAmount;
 
-    private Vector3 newPosition, newZoom;
+    public Vector3 newPosition, newZoom;
+    public Quaternion newRotation;
 
     void Start()
     {
@@ -31,6 +35,9 @@ public class CameraController : MonoBehaviour
 
         newPosition = transform.position; //set static position that doesn't default to 0
         newZoom = cameraTransform.localPosition; //local position so that the text layer stays in rightful place
+        newRotation = transform.rotation;
+        //followRotation = cameraTransform.localRotation;
+        followRotation = transform.rotation;
     }
 
     void LateUpdate() //Lateupdate to reduce jittering on camera 
@@ -66,6 +73,27 @@ public class CameraController : MonoBehaviour
 
     }
 
+    public void CenterCameraNoFollow(Vector3 pos)
+    {
+        followTransform = null;
+        newPosition = pos;
+    }
+
+    public void CenterCameraShiftUp(Vector3 pos)
+    {
+        newPosition = pos + new Vector3(0, -.4f, 0.7f);
+    }
+
+    public void ShiftCameraUp(Quaternion shift)
+    {
+        newRotation = shift;
+    }
+
+    public void SetZoom(Vector3 zoom)
+    {
+        newZoom = zoom;
+    }
+
     private void HandleKeyboardMovementInput()
     {
         //assigning keys
@@ -85,6 +113,16 @@ public class CameraController : MonoBehaviour
         {
             newPosition += transform.right * movementSpeed; //right
         }
+
+        //for rotation
+        //if (Input.GetKey(KeyCode.Q))
+        //{
+        //    newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
+        //}
+        //if (Input.GetKey(KeyCode.E))
+        //{
+        //    newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
+        //}
 
         MoveCamera();
     }
@@ -120,6 +158,7 @@ public class CameraController : MonoBehaviour
 
         //smoothing camera movement
         transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);
+        transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
     }
 
     public void HandleMouseZoomInput()

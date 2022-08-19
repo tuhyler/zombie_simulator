@@ -21,7 +21,9 @@ public class Unit : MonoBehaviour, ITurnDependent
     [SerializeField]
     private AllUnitDataSO allUnitDataSO; //for storing multi-turn movement info and turn order info
 
+    [HideInInspector]
     public MapWorld world;
+    [HideInInspector]
     public UnityEvent FinishedMoving; //listeners are in BuildingManager (1) and UnitMovement (2)(3 total)
 
     //movement details

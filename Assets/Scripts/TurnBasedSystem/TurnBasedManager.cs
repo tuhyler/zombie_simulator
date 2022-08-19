@@ -39,7 +39,7 @@ public class TurnBasedManager : MonoBehaviour
         foreach (UnitTurnTaker turnTaker in FindObjectsOfType<UnitTurnTaker>())
         {
             turnTaker.WaitTurn();
-            Debug.Log($"Object {turnTaker.name} is waiting");
+            //Debug.Log($"Object {turnTaker.name} is waiting");
         }
     }
 

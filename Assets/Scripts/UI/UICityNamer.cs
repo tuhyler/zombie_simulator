@@ -116,7 +116,6 @@ public class UICityNamer : MonoBehaviour
             StartCoroutine(Shake(.25f, 10));
 
             Debug.Log("Name already used.");
-            inputField.Select();
             return;
         }
 

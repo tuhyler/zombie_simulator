@@ -32,6 +32,10 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
     public int FoodGrowthLimit { get { return foodGrowthLimit; } }
     public int FoodPerTurn { get { return resourceGenerationPerTurnDict[ResourceType.Food]; } }
 
+    //for queued build orders
+    private List<ResourceValue> queuedResourcesToCheck = new();
+    private CityBuilderManager cityBuilderManager; //only instantiated through queue build
+
     private void Awake()
     {
         CalculateAndChangeFoodLimit();
@@ -355,7 +359,8 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
         return resourceDict[resourceType];
     }
 
-    public void WaitTurn()
+    //checking if enough food to grow
+    private void CheckForPopGrowth()
     {
         consumeResources = false;
 
@@ -421,6 +426,42 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
         }
 
         city.UpdateCityPopInfo(); //update city info after correcting food info
+    }
+
+
+
+    //for queued build orders in cities
+    //public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
+    //{
+    //    this.cityBuilderManager = cityBuilderManager;
+    //}
+
+    public void SetQueueResources(List<ResourceValue> resourceList, CityBuilderManager cityBuilderManager)
+    {
+        queuedResourcesToCheck = resourceList;
+        this.cityBuilderManager = cityBuilderManager;
+    }
+
+    private void CheckResourcesForQueue()
+    {
+        if (queuedResourcesToCheck.Count > 0)
+        {
+            foreach (ResourceValue resource in queuedResourcesToCheck)
+            {
+                if (!CheckResourceAvailability(resource))
+                {
+                    return;
+                }
+            }
+
+            cityBuilderManager.BuildQueuedBuilding(city, this);
+        }
+    }
+
+    public void WaitTurn()
+    {
+        CheckForPopGrowth();
+        CheckResourcesForQueue();
     }
 }
 
