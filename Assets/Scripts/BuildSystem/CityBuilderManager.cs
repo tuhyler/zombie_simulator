@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class CityBuilderManager : MonoBehaviour, ITurnDependent
@@ -39,8 +40,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
     [SerializeField]
     private CameraController focusCam;
-    private Vector3 originalCameraPosition;
-    private Quaternion originalCameraRotation;
+    private Quaternion originalRotation;
 
     private City selectedCity;
     private Vector3Int selectedCityLoc;
@@ -83,32 +83,25 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         GrowBordersPool();
     }
 
-    public void CenterCamOnCity()
+    private void CenterCamOnCity()
     {
-        if (selectedCity != null)
-            focusCam.CenterCameraNoFollow(selectedCity.transform.position);
+        focusCam.CenterCameraNoFollow(selectedCity.transform.position);
     }
 
     private void CameraBirdsEyeRotation()
     {
-        originalCameraRotation = focusCam.followRotation;
-
-        if (selectedCity != null)
-        {
-            focusCam.CenterCameraShiftUp(selectedCity.transform.position);
-            focusCam.ShiftCameraUp(Quaternion.Euler(20, 0, 0));
-            focusCam.SetZoom(new Vector3(0,6.5f,-4.5f));
-        }
+        originalRotation = focusCam.transform.rotation;
+        focusCam.centerTransform = transform;
     }
 
     private void CameraDefaultRotation()
     {
-        if (selectedCity != null)
-        {
-            focusCam.newRotation = originalCameraRotation;
-
-        }
+        focusCam.centerTransform = null;
+        focusCam.transform.rotation = Quaternion.Lerp(focusCam.transform.rotation, originalRotation, Time.deltaTime * 5);
+        focusCam.SetZoom(new Vector3(0, 5.0f, -3.0f));
+        //focusCam.cameraTransform.localPosition += new Vector3(0, -1f, 1f);
     }
+
 
     public void HandleSelection(GameObject selectedObject)
     {
@@ -471,8 +464,10 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
     private void ImprovementTileHighlight()
     {
+        //CameraBirdsEyeRotationAsync();
+        //StartCoroutine(CameraBirdsEyeRotation(5f));
         CameraBirdsEyeRotation();
-        
+
         tilesToChange.Clear();
 
         if (removingImprovement)
@@ -483,6 +478,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         else
         {
             uiImprovementBuildInfoPanel.SetText("Building " + improvementData.improvementName);
+            uiImprovementBuildInfoPanel.SetImage(improvementData.image);
             uiImprovementBuildInfoPanel.ToggleVisibility(true);
         }
 
@@ -638,7 +634,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         CloseQueueUI();
         uiCityTabs.HideSelectedTab();
         //uiLaborHandler.HideUI();
-        ResetTileLists();
+        //ResetTileLists();
+        CloseImprovementBuildPanel();
 
         removingBuilding = false;
         improvementData = null;
@@ -649,8 +646,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             uiLaborAssignment.laborChangeFlag = laborChange;
             this.laborChange = laborChange;
 
-            if (world.GetBuildingListForCity(selectedCityLoc).Count > 0) //only shows if city has buildings
-                uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
+            //if (world.GetBuildingListForCity(selectedCityLoc).Count > 0) //only shows if city has buildings
+            uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
 
             BuildingButtonHighlight();
             LaborTileHighlight();
@@ -880,8 +877,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         BuildingButtonHighlight();
         LaborTileHighlight();
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
-        if (world.GetBuildingListForCity(selectedCityLoc).Count > 0)
-            uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
+        //if (world.GetBuildingListForCity(selectedCityLoc).Count > 0)
+        uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
     }
 
     private void RemoveLaborFromDicts(Vector3Int terrainLocation)
@@ -922,8 +919,8 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
     public void ResetCityUIToBase()
     {
-        uiLaborAssignment.ResetLaborAssignment();
         CloseImprovementBuildPanel();
+        uiLaborAssignment.ResetLaborAssignment();
         CloseQueueUI();
         uiCityTabs.HideSelectedTab();
         uiLaborHandler.HideUI();

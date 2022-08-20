@@ -9,11 +9,13 @@ public class CameraController : MonoBehaviour
     //public static CameraController instance; //for only one time use in another class
 
     [SerializeField]
-    private Transform cameraTransform;
+    public Transform cameraTransform;
     //CameraController.instance.followTransform = transform; //use this in other scripts to center and follow; 
 
     [HideInInspector]
     public Transform followTransform;
+    [HideInInspector]
+    public Transform centerTransform;
     [HideInInspector]
     public Quaternion followRotation;
 
@@ -36,24 +38,31 @@ public class CameraController : MonoBehaviour
         newPosition = transform.position; //set static position that doesn't default to 0
         newZoom = cameraTransform.localPosition; //local position so that the text layer stays in rightful place
         newRotation = transform.rotation;
-        //followRotation = cameraTransform.localRotation;
-        followRotation = transform.rotation;
     }
 
     void LateUpdate() //Lateupdate to reduce jittering on camera 
     {
         if (followTransform != null) //to center on something
         {
+            transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * 5);
             transform.position = Vector3.Lerp(transform.position, followTransform.position, Time.deltaTime * movementTime);
             newPosition = followTransform.position; //so you don't return to previous spot when breaking focus
+        }
+        else if (centerTransform != null)
+        {
+            transform.position = Vector3.Lerp(transform.position, centerTransform.position + new Vector3(0, -.4f, 0.7f), Time.deltaTime * movementTime);
+            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, new Vector3(0, 6.5f, -4.5f), Time.deltaTime * movementTime);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(20, 0, 0), Time.deltaTime * movementTime);
+            newPosition = centerTransform.position; //so you don't return to previous spot when breaking focus
+            newZoom = cameraTransform.localPosition;
         }
         else
         {
             HandleKeyboardMovementInput();
             //HandleMouseMovementInput(); //turned off temporarily
         }
-        if (!EventSystem.current.IsPointerOverGameObject())
-            HandleMouseZoomInput(); //so you can still zoom in but still be focused
+        //if (!EventSystem.current.IsPointerOverGameObject()) //so you can still zoom in but still be focused
+        HandleMouseZoomInput(); 
 
 
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) ||
@@ -77,16 +86,6 @@ public class CameraController : MonoBehaviour
     {
         followTransform = null;
         newPosition = pos;
-    }
-
-    public void CenterCameraShiftUp(Vector3 pos)
-    {
-        newPosition = pos + new Vector3(0, -.4f, 0.7f);
-    }
-
-    public void ShiftCameraUp(Quaternion shift)
-    {
-        newRotation = shift;
     }
 
     public void SetZoom(Vector3 zoom)
@@ -180,5 +179,10 @@ public class CameraController : MonoBehaviour
 
         //smoothing zoom
         cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
+    }
+
+    private void RotateCamera()
+    {
+
     }
 }

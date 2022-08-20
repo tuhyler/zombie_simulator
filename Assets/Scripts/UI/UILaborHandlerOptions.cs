@@ -18,6 +18,8 @@ public class UILaborHandlerOptions : MonoBehaviour
     private int maxLabor;
     public int SetMaxLabor { set { maxLabor = value; } }
 
+    public bool noneText; //flag if it's none text, shown for no buildings
+
     private UILaborHandler buttonHandler;
     private ButtonHighlight highlight;
 
@@ -26,15 +28,31 @@ public class UILaborHandlerOptions : MonoBehaviour
 
     private void Awake()
     {
-        buildingName = buildingTMP.text;
-        buttonHandler = GetComponentInParent<UILaborHandler>();
-        canvasGroup = GetComponent<CanvasGroup>();
-        highlight = GetComponent<ButtonHighlight>();
-        SetUICount();
+        if (!noneText)
+        {
+            buildingName = buildingTMP.text;
+            buttonHandler = GetComponentInParent<UILaborHandler>();
+            canvasGroup = GetComponent<CanvasGroup>();
+            highlight = GetComponent<ButtonHighlight>();
+            SetUICount();
+        }
     }
 
     public void CheckVisibility(Vector3Int cityTile, MapWorld world)
     {
+        if (noneText)
+        {
+            if (!world.TileHasBuildings(cityTile))
+            {
+                gameObject.SetActive(true);
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
+            return;
+        }
+
         if (world.IsBuildingInCity(cityTile, buildingName))
         {
             currentLabor = world.GetCurrentLaborForBuilding(cityTile, buildingName);

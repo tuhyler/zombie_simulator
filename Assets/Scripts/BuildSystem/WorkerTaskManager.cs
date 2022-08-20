@@ -277,7 +277,7 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         ResourceManager resourceManager = newCity.GetComponent<ResourceManager>();
         resourceProducer.SetResourceManager(resourceManager);
         resourceProducer.BeginResourceGeneration(); //begin generating resources
-        if (world.CheckIfTileHasBuildings(workerTile)) //if tile already has buildings, need to switch resourceManager for each resourceProducer 
+        if (world.TileHasBuildings(workerTile)) //if tile already has buildings, need to switch resourceManager for each resourceProducer 
         {
             foreach (string buildingName in world.GetBuildingListForCity(workerTile))
             {
