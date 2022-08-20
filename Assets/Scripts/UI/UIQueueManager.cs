@@ -186,8 +186,12 @@ public class UIQueueManager : MonoBehaviour
         if (selectedQueueItem != null)
         {
             int index = selectedQueueItem.MoveItemUp();
+            if (index == -1)
+                return;
             queueItems.Remove(selectedQueueItem);
             queueItems.Insert(index, selectedQueueItem);
+            if (index == 0)
+                SetFirstQueueItem();
         }
     }
 
@@ -196,8 +200,12 @@ public class UIQueueManager : MonoBehaviour
         if (selectedQueueItem != null)
         {
             int index = selectedQueueItem.MoveItemDown();
+            if (index == -1)
+                return;
             queueItems.Remove(selectedQueueItem);
             queueItems.Insert(index, selectedQueueItem);
+            if (index == 1)
+                SetFirstQueueItem();
         }
     }
 

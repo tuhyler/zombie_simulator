@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -22,6 +23,9 @@ public class UILaborHandler : MonoBehaviour
     private Transform uiElementsParent;
     private List<UILaborHandlerOptions> laborOptions;
     public List<UILaborHandlerOptions> GetLaborOptions { get { return laborOptions; } }
+
+    [SerializeField]
+    private TMP_Text noneText;
 
     [SerializeField] //for tweening
     private RectTransform allContents;

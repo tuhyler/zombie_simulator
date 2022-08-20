@@ -251,7 +251,15 @@ public class MapWorld : MonoBehaviour
 
     public bool TileHasBuildings(Vector3Int cityTile)
     {
-        return cityBuildingDict.ContainsKey(cityTile);
+        if (!cityBuildingDict.ContainsKey(cityTile))
+        {
+            return false;
+        }
+
+        if (cityBuildingDict[cityTile].Count > 0)
+            return true;
+        else
+            return false;
     }
 
 
@@ -719,10 +727,10 @@ public class MapWorld : MonoBehaviour
         return false;
     }
 
-    public bool CheckIfTileHasBuildings(Vector3Int cityTile)
-    {
-        return cityBuildingDict.ContainsKey(cityTile);
-    }
+    //public bool CheckIfTileHasBuildings(Vector3Int cityTile)
+    //{
+    //    return cityBuildingDict.ContainsKey(cityTile);
+    //}
 
     public bool CheckCityName(string cityName)
     {

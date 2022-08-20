@@ -41,6 +41,7 @@ public class MovementSystem : MonoBehaviour
     {
         totalTurns = 2;
         (currentPath, newTurnList, totalMovementCost) = selectedUnit.GetContinuedMovementPath();
+        currentLoc = selectedUnit.transform.position;
         ShowPath();
     }
 

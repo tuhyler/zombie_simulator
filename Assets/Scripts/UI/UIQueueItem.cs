@@ -60,11 +60,12 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
         int placement = transform.GetSiblingIndex();
         if (placement == 0)
         {
-            uiQueueManager.SetFirstQueueItem();
-            return placement;
+            return -1;
         }
 
         transform.SetSiblingIndex(placement - 1);
+        //if (placement - 1 == 0)
+        //    uiQueueManager.SetFirstQueueItem();
 
         return placement - 1;
     }
@@ -73,11 +74,11 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
     {
         int placement = transform.GetSiblingIndex();
         if (placement == transform.parent.childCount - 1)
-            return placement;
+            return -1;
 
         transform.SetSiblingIndex(placement + 1);
-        if (placement == 0)
-            uiQueueManager.SetFirstQueueItem();
+        //if (placement == 0)
+        //    uiQueueManager.SetFirstQueueItem();
 
         return placement + 1;
     }

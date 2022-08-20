@@ -2,26 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIImprovementBuildPanel : MonoBehaviour
 {
     [SerializeField]
     private TMP_Text text;
 
+    [SerializeField]
+    private Image image;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
     public bool activeStatus;
-    private Vector3 originalLoc;
+    //private Vector3 originalLoc;
 
     private void Awake()
     {
         gameObject.SetActive(false);
+        image.gameObject.SetActive(false);
     }
 
     public void SetText(string text)
     {
         this.text.text = text;
+    }
+
+    public void SetImage(Sprite image)
+    {
+        this.image.gameObject.SetActive(true);
+        this.image.sprite = image;
     }
 
     public void ToggleVisibility(bool v)
@@ -37,15 +48,18 @@ public class UIImprovementBuildPanel : MonoBehaviour
 
             activeStatus = true;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, 100f, 0);
+            //allContents.anchoredPosition3D = originalLoc + new Vector3(0, 100f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 100f, 0.3f).setEaseOutSine();
+            LeanTween.scale(allContents, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutSine);
+            //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 100f, 0.3f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {
             activeStatus = false;
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 100f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            image.gameObject.SetActive(false);
+            //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 100f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
         }
     }
 

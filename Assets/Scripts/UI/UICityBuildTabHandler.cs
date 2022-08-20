@@ -39,6 +39,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     public void PassUI(UIBuilderHandler uiBuilder)
     {
         cityBuilderManager.CloseLaborMenus();
+        cityBuilderManager.CloseImprovementBuildPanel();
 
 
         //bool currentlyActive = uiBuilder.activeStatus;
