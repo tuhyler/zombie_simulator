@@ -324,10 +324,11 @@ public class UIQueueManager : MonoBehaviour
         foreach (UIQueueItem queueItem in queueItems)
         {
             queueItem.gameObject.SetActive(false);
+            queueItem.transform.SetParent(null, false); //false is necessary for higher resolutions
         }
 
         queueItems.Clear();
         queueItemNames.Clear();
-        queueItemHolder.DetachChildren();
+        //queueItemHolder.DetachChildren(); //this doubles the scale of children's rect transform in 4k. 
     }
 }
