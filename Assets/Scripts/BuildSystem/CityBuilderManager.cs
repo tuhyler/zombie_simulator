@@ -91,7 +91,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
     private void CameraBirdsEyeRotation()
     {
         originalRotation = focusCam.transform.rotation;
-        focusCam.centerTransform = transform;
+        focusCam.centerTransform = selectedCity.transform;
     }
 
     private void CameraDefaultRotation()

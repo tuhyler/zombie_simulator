@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class UIQueueItem : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
-    private TMP_Text itemText;
+    public TMP_Text itemText;
     [HideInInspector]
     public string itemName; //string name only used to check if already on queue list
 
