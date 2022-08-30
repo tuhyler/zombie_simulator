@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: b1a28142a1b72fb469366fe9c35226ea
+guid: 927b6cb378dcb4b4f8782f8d3ad4dbe1
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Water
+    second: {fileID: 2100000, guid: 9b813835b19622e4b85e1540d7892b34, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
