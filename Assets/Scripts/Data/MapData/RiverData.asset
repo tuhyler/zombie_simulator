@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
+  m_Name: RiverData
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 9203405519390938773, guid: f72558895b6c8e746b5598f21c9dcdaf, type: 3}
+  roadPrefab: {fileID: 0}
+  clearedForestPrefab: {fileID: 0}
+  walkable: 1
+  sailable: 1
+  movementCost: 10
+  type: 1
+  resourceType: 1
