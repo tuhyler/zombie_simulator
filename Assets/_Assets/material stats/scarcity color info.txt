@@ -1,0 +1,20 @@
+Grassland colors:
+Color 1 - 50BC70 a-1 pos-0
+Color 2 - 37AD70 a-1 pos-.507
+Color 3 - 26A66F a-1 pos-.698
+Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
+
+Mountain colors:
+Color 1 - B6C5CC a-1 pos-0
+Color 2 - AEBDC3 a-1 pos-.507
+Color 3 - C2D2D9 a-1 pos-.698
+Noise: Scale-1 Detail-2.5 Roughness-.75 Distortion-0
+
+Desert colors:
+Color 1 - F3DEBF a-1 pos-0
+Color 2 - E3CFB3 a-1 pos-.507
+Color 3 - E7C4AC a-1 pos-.698
+Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
+
+Snow:
+E7E7E7 a-1
