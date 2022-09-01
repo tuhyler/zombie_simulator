@@ -505,7 +505,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
                 if (td.GetTerrainData().resourceType == improvementData.resourceType && !world.IsBuildLocationTaken(tile) 
                     && !world.TileHasBuildings(tile) && !world.IsRoadOnTile(tile))
                 {
-                    td.EnableHighlight(Color.white);
+                    td.EnableHighlight(new Color(1, 1, 1, 0.2f));
                     tilesToChange.Add(tile);
                 }
             }
@@ -931,7 +931,9 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
     {
         uiLaborAssignment.ResetLaborAssignment();
         uiLaborHandler.HideUI();
-        ResetTileLists();
+        
+        if (!uiImprovementBuildInfoPanel.activeStatus)
+            ResetTileLists();
     }
 
 
