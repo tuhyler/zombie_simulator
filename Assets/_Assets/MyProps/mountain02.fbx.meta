@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: a58b2058ab58fe247a580e74d0f6f58c
+guid: 43bdc9f4bc941244289c8335e91659fb
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Grassland
-    second: {fileID: 2100000, guid: 078202bf488871040bfd8b9670d258f1, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

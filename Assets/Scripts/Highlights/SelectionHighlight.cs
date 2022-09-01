@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class SelectionHighlight : MonoBehaviour
 {
-    Dictionary<Renderer, Material[]> glowMaterialDictionary = new();
-    Dictionary<Renderer, Material[]> originalMaterialDictionary = new();
-    Dictionary<Color, Material> cachedGlowMaterials = new();
+    Dictionary<MeshRenderer, Material[]> glowMaterialDictionary = new();
+    Dictionary<MeshRenderer, Material[]> originalMaterialDictionary = new();
+    Dictionary<Color, Material> cachedGlowColors = new();
+    Dictionary<Texture, Material> cachedGlowTextures = new();
 
     [SerializeField]
     private Material glowMaterial;
@@ -22,7 +23,7 @@ public class SelectionHighlight : MonoBehaviour
 
     private void PrepareMaterialDictionaries() //puts glowing and original materials in dictionaries at the beginning
     {
-        foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+        foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
         {
             Material[] originalMaterials = renderer.materials;
             originalMaterialDictionary.Add(renderer, originalMaterials);
@@ -30,38 +31,56 @@ public class SelectionHighlight : MonoBehaviour
             Material[] newMaterials = new Material[renderer.materials.Length];
             for (int i = 0; i < renderer.materials.Length; i++)
             {
-                //Material mat;
-                if (!cachedGlowMaterials.TryGetValue(originalMaterials[i].color, out Material mat))
+                if (originalMaterials[i].mainTexture == null)
                 {
-                    mat = new Material(glowMaterial);
-                    //By default, Unity considers a color with the property name "_Color" to be the main color
-                    mat.color = originalMaterials[i].color;
-                    cachedGlowMaterials[mat.color] = mat;
+                    //Material mat;
+                    if (!cachedGlowColors.TryGetValue(originalMaterials[i].color, out Material mat))
+                    {
+                        mat = new Material(glowMaterial);
+                        //By default, Unity considers a color with the property name "_Color" to be the main color
+                        mat.color = originalMaterials[i].color;
+                        cachedGlowColors[mat.color] = mat;
+                    }
+
+                    newMaterials[i] = mat;
+                    //if (!cachedGlowColors.TryGetValue(originalMaterials[i].color, out Material mat))
+                    //{
+
+                    //}
+
+                    continue;
+                } 
+                  
+                //Material mat2;
+                if (!cachedGlowTextures.TryGetValue(originalMaterials[i].mainTexture, out Material mat2))
+                {
+                    mat2 = new Material(glowMaterial);
+                    //By default, Unity considers a texture with the property name "_MainTex" to be the main texture
+                    mat2.mainTexture = originalMaterials[i].mainTexture;
+                    cachedGlowTextures[mat2.mainTexture] = mat2;
                 }
-                newMaterials[i] = mat;
+
+                newMaterials[i] = mat2;
+
+                //if (!cachedGlowTextures.TryGetValue(originalMaterials[i].mainTexture, out Material mat2))
+                //{
+                //    mat2 = new Material(glowMaterial);
+                //    //By default, Unity considers a texture with the property name "_MainTex" to be the main texture
+                //    mat2.mainTexture = originalMaterials[i].mainTexture;
+                //    cachedGlowTextures[mat2.mainTexture] = mat2;
+                //}
+
+                //newMaterials[i] = mat2;
             }
             glowMaterialDictionary.Add(renderer, newMaterials);
         }
     }
 
-    //internal void HighlightValidPath()
-    //{
-    //    //if (isGlowing == false) //checks if it's highlighted first, won't work otherwise //turned off for AStar method
-    //    //    return;
-    //    foreach (Renderer renderer in glowMaterialDictionary.Keys)
-    //    {
-    //        foreach (Material item in glowMaterialDictionary[renderer]) //sets the glow color for each item in dictionary
-    //        {
-    //            item.SetColor("_GlowColor", validSpaceColor);
-    //        }
-    //    }
-    //}
-
     public void ResetGlowHighlight() //goes back to original color, not from dictionary though
     {
         //if (isGlowing == false)
         //    return;
-        foreach (Renderer renderer in glowMaterialDictionary.Keys)
+        foreach (MeshRenderer renderer in glowMaterialDictionary.Keys)
         {
             foreach (Material item in glowMaterialDictionary[renderer])
             {
@@ -106,7 +125,7 @@ public class SelectionHighlight : MonoBehaviour
     public void EnableHighlight(Color highlightColor) //don't like 'Toggle' using this instead
     {
         ResetGlowHighlight();
-        foreach (Renderer renderer in originalMaterialDictionary.Keys)
+        foreach (MeshRenderer renderer in originalMaterialDictionary.Keys)
         {
             renderer.materials = glowMaterialDictionary[renderer];
             foreach (Material item in glowMaterialDictionary[renderer]) //sets the glow color for each item in dictionary
@@ -119,7 +138,7 @@ public class SelectionHighlight : MonoBehaviour
 
     public void DisableHighlight()
     {
-        foreach (Renderer renderer in originalMaterialDictionary.Keys)
+        foreach (MeshRenderer renderer in originalMaterialDictionary.Keys)
         {
             renderer.materials = originalMaterialDictionary[renderer];
         }

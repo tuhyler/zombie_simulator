@@ -65,7 +65,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterial: {fileID: 2100000, guid: 902e335b538979147bd2837e251af069, type: 2}
 --- !u!114 &6819035849026694897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,7 +78,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e516335614f28540b7cd4ec134a5567, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spriteRenderer: {fileID: 863917894737955979}
 --- !u!114 &1113454333511771471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,6 +105,7 @@ MonoBehaviour:
   unitDataSO: {fileID: 0}
   buildDataSO: {fileID: 0}
   allUnitDataSO: {fileID: 11400000, guid: 92232cdda4bffe84b9a83a398665d448, type: 2}
+  world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
@@ -115,6 +115,9 @@ MonoBehaviour:
   turnHandler: {fileID: 0}
   zeroMovementPoints: 0
   isTrader: 0
+  atStop: 0
+  followingRoute: 0
+  hasRoute: 0
 --- !u!114 &9082481739774170290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,10 +130,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e386f97d5cdd5874289aac3a55755f95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialResourceData:
-  - {fileID: 11400000, guid: c8c65b73e0518d647a5d6a56dee3f494, type: 2}
-  - {fileID: 11400000, guid: 11d03602a2930784b999a7fabb726018, type: 2}
-  - {fileID: 11400000, guid: 7e17dfeeadaac0b498394568fbec22ca, type: 2}
 --- !u!114 &5126641289950847378
 MonoBehaviour:
   m_ObjectHideFlags: 0
