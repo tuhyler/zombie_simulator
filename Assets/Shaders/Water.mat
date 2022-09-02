@@ -53,7 +53,7 @@ Material:
     m_Floats:
     - _Distance: 0.4
     - _FoamAmount: 0.08
-    - _FoamCutoff: 2
+    - _FoamCutoff: 3
     - _FoamScale: 0
     - _FoamSpeed: 0.005
     - _HeightFrequency: 5
