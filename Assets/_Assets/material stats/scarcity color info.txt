@@ -18,3 +18,9 @@ Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Snow:
 E7E7E7 a-1
+
+Forest Pine:
+Color 1: 0C552D a-1 pos-0.5
+Color 2: 19A257 a-1 pos-1
+
+Green lighter: 148E4B a-1
