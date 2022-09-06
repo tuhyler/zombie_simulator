@@ -28,7 +28,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5053643818856347320}
+  - {fileID: 6834098578828237442}
   m_Father: {fileID: 1103709480011530553}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
---- !u!1001 &4731206481535996243
+--- !u!1001 &6439339393096514921
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -209,9 +209,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ac7fff1dcf79095429df7241b2ec7416, type: 3}
---- !u!4 &5053643818856347320 stripped
+--- !u!4 &6834098578828237442 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
     type: 3}
-  m_PrefabInstance: {fileID: 4731206481535996243}
+  m_PrefabInstance: {fileID: 6439339393096514921}
   m_PrefabAsset: {fileID: 0}
