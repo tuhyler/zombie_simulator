@@ -1,26 +1,53 @@
+(assume alpha=1 unless specified otherwise)
+
 Grassland colors:
-Color 1 - 50BC70 a-1 pos-0
-Color 2 - 37AD70 a-1 pos-.507
-Color 3 - 26A66F a-1 pos-.698
+Color 1 - 50BC70 pos-0
+Color 2 - 37AD70 pos-.507
+Color 3 - 26A66F pos-.698
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Mountain colors:
-Color 1 - B6C5CC a-1 pos-0
-Color 2 - AEBDC3 a-1 pos-.507
-Color 3 - C2D2D9 a-1 pos-.698
+Color 1 - B6C5CC pos-0
+Color 2 - AEBDC3 pos-.507
+Color 3 - C2D2D9 pos-.698
 Noise: Scale-1 Detail-2.5 Roughness-.75 Distortion-0
 
 Desert colors:
-Color 1 - F3DEBF a-1 pos-0
-Color 2 - E3CFB3 a-1 pos-.507
-Color 3 - E7C4AC a-1 pos-.698
+Color 1 - F3DEBF pos-0
+Color 2 - E3CFB3 pos-.507
+Color 3 - E7C4AC pos-.698
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Snow:
-E7E7E7 a-1
+E7E7E7
 
 Forest Pine:
-Color 1: 0C552D a-1 pos-0.5
-Color 2: 19A257 a-1 pos-1
+Color 1: 0C552D pos-0.5
+Color 2: 19A257 pos-1
 
-Green lighter: 148E4B a-1
+Green lighter: 148E4B
+
+Grassland flood plains:
+Gradient colors:
+Color 1: 000000 pos-0
+Color 2: 37AD70 pos-.5
+Color 3: 000000 pos-.7
+Noise: Scale-2 Detail-1 Roughness.75 Distortion-0
+
+Waves color:
+Color 1: 3FC580 pos-0
+Color 2: 26A66F pos-.5
+Color 3: 43D389 pos-.7
+Noise: Scale-5 Detail-2 Roughness-2 Distortion-1
+
+Desert flood plains:
+Gradient colors:
+Color 1: FFD8BE pos-.35
+Color 2: 37AD70 pos-.5
+Color 3: FFD8BE pos-.58
+Noise: Scale-2 Detail-1 Roughness.75 Distortion-0
+
+Waves color:
+Color 1: 37AD70 pos-0
+Color 2: FFD8BE pos-.8
+Noise: Scale-5 Detail-2 Roughness-2 Distortion-1
