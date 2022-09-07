@@ -28,7 +28,7 @@ Color 2: 19A257 pos-1
 Green lighter: 148E4B
 
 Grassland flood plains:
-Gradient colors:
+Ground colors:
 Color 1: 000000 pos-0
 Color 2: 37AD70 pos-.5
 Color 3: 000000 pos-.7
@@ -41,7 +41,7 @@ Color 3: 43D389 pos-.7
 Noise: Scale-5 Detail-2 Roughness-2 Distortion-1
 
 Desert flood plains:
-Gradient colors:
+Ground colors:
 Color 1: FFD8BE pos-.35
 Color 2: 37AD70 pos-.5
 Color 3: FFD8BE pos-.58
