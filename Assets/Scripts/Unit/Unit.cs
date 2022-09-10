@@ -55,7 +55,7 @@ public class Unit : MonoBehaviour, ITurnDependent
             ResetMovementPoints();
     }
 
-    public virtual void AwakeMethods()
+    protected virtual void AwakeMethods()
     {
         unitDataSO.MovementPointsCheck();
         turnHandler = FindObjectOfType<UIUnitTurnHandler>();
@@ -216,7 +216,7 @@ public class Unit : MonoBehaviour, ITurnDependent
         FinishedMoving?.Invoke(); //turns on UIs again, hides worker one
     }
 
-    public void TradeRouteCheck(Vector3 endPosition)
+    protected void TradeRouteCheck(Vector3 endPosition)
     {
         if (isTrader && followingRoute && TryGetComponent<TradeRouteManager>(out TradeRouteManager routeManager))
         {
@@ -253,7 +253,7 @@ public class Unit : MonoBehaviour, ITurnDependent
         highlight.DisableHighlight();
     }
 
-    public virtual void WaitTurnMethods() //so inherited classes can set up their own waitturn methods
+    protected virtual void WaitTurnMethods() //so inherited classes can set up their own waitturn methods
     {
         ResetMovementPoints();
         if (CompareTag("Player")) //so enemies don't get added to lists

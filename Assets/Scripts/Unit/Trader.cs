@@ -25,7 +25,7 @@ public class Trader : Unit, ITurnDependent //inherit from unit class
         unitMovement = FindObjectOfType<UnitMovement>();
     }
 
-    public override void AwakeMethods()
+    protected override void AwakeMethods()
     {
         base.AwakeMethods();
         personalResourceManager = GetComponent<PersonalResourceManager>();
@@ -96,7 +96,7 @@ public class Trader : Unit, ITurnDependent //inherit from unit class
         followingRoute = false;
     }
 
-    public override void WaitTurnMethods()
+    protected override void WaitTurnMethods()
     {
         base.WaitTurnMethods();
         if (followingRoute && atStop)
