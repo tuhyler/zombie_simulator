@@ -9,6 +9,9 @@ public class TerrainData : MonoBehaviour
     [SerializeField]
     private TerrainDataSO terrainData;
 
+    [SerializeField]
+    public TMP_Text numbers;
+
     private SelectionHighlight highlight;
 
     private Vector3Int tileCoordinates;

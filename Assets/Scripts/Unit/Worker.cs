@@ -35,7 +35,7 @@ public class Worker : Unit, ITurnDependent
         }
     }
 
-    public override void WaitTurnMethods()
+    protected override void WaitTurnMethods()
     {
         base.WaitTurnMethods();
         if (harvesting && resourceIsNotNull)
