@@ -18129,18 +18129,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8192b0fbb669a484b8dc1e4afdf8e489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPosition: {x: 0, y: 3, z: 0}
-  autoUpdate: 1
+  seed: 4
+  yCoord: 3
   width: 50
   height: 50
-  scale: 9
+  scale: 8
   octaves: 3
-  persistance: 0.539
-  lacunarity: 1.07
-  grasslandThreshold: 1.5
-  iterations: 1
-  walkLength: 10
-  iterationStartRandom: 1
+  persistance: 0.493
+  lacunarity: 2
+  threshold: 5
+  iterations: 15
+  randomFillPercent: 60
   grassland: {fileID: 4461690370859731775, guid: 16f9283fd4969f7459226421f2c4b6a7,
     type: 3}
   desert: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34, type: 3}
@@ -18179,7 +18178,10 @@ MonoBehaviour:
     type: 3}
   oceanDesertRiver: {fileID: 2466234295217164166, guid: 29d355062b1ac98438be7ee693517c29,
     type: 3}
+  ocean: {fileID: 2466234295217164166, guid: ea1b039f639b9f64e810b77857b0f586, type: 3}
   groundTiles: {fileID: 2030671130}
+  startPosition: {x: 0, y: 3, z: 0}
+  autoUpdate: 1
 --- !u!4 &955906186
 Transform:
   m_ObjectHideFlags: 0
@@ -41264,7 +41266,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500793
+      value: 8.500003
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

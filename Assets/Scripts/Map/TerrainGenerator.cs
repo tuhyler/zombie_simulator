@@ -4,42 +4,54 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class TerrainGenerator : TerrainGeneratorAbstract
+public class TerrainGenerator : MonoBehaviour
 {
-    [Header("World Generation Info")]
+    [SerializeField]
+    private int seed = 4;
+    [SerializeField]
+    private int yCoord = 3;
+
+    [Header("Perlin Noise Generation Info")]
     //[SerializeField]
     //protected Vector3Int startPosition = Vector3Int.zero;
     [SerializeField]
-    private int width;
+    private int width = 50;
     [SerializeField]
-    private int height;
+    private int height = 50;
     [SerializeField]
-    private float scale = 1;
+    private float scale = 8;
     [SerializeField]
-    private int octaves;
+    private int octaves = 3;
     [Range(0f, 1f)]
     [SerializeField]
-    private float persistance;
+    private float persistance = 0.5f;
     [SerializeField]
-    private float lacunarity;
-    [SerializeField]
-    private float grasslandThreshold = 0;
+    private float lacunarity = 1.01f;
 
-    [Header("Random Walk")]
+    [Header("Cellular Automata Generation Info")]
     [SerializeField]
-    private int iterations;
+    private int threshold = 5;
     [SerializeField]
-    private int walkLength;
+    private int iterations = 15;
     [SerializeField]
-    private bool iterationStartRandom = true;
+    private int randomFillPercent = 60;
+
+    //[Header("Random Walk")]
+    //[SerializeField]
+    //private int iterationsRW = 10;
+    //[SerializeField]
+    //private int walkLength = 10;
+    //[SerializeField]
+    //private bool iterationStartRandom = true;
 
     [Header("Tiles")]
     [SerializeField]
     private GameObject grassland; //separate here so that header isn't on every line
     [SerializeField]
-    private GameObject desert, forest, jungle, swamp, grasslandHill, desertHill, grasslandMountain, desertMountain, 
+    private GameObject desert, forest, jungle, swamp, grasslandHill, desertHill, grasslandMountain, desertMountain,
         riverGrasslandEnd, riverGrasslandStraight, riverGrasslandCurve, riverDesertEnd, riverDesertStraight, riverDesertCurve,
-        oceanGrasslandCoast, oceanGrasslandCorner, oceanGrasslandRiver, oceanDesertCoast, oceanDesertCorner, oceanDesertRiver;
+        oceanGrasslandCoast, oceanGrasslandCorner, oceanGrasslandRiver, oceanDesertCoast, oceanDesertCorner, oceanDesertRiver,
+        ocean;
 
     [Header("Parents for Tiles")]
     [SerializeField]
@@ -47,100 +59,150 @@ public class TerrainGenerator : TerrainGeneratorAbstract
 
     private List<GameObject> allTiles = new();
 
+    [SerializeField]
+    protected Vector3Int startPosition = Vector3Int.zero;
 
-    protected override void RunProceduralGeneration()
+    public bool autoUpdate;
+
+    public void GenerateMap()
+    {
+        RunProceduralGeneration();
+    }
+
+    public void RemoveMap()
+    {
+        RemoveAllTiles();
+    }
+
+    protected void RunProceduralGeneration()
     {
         RemoveAllTiles();
 
-        if (scale <= 0)
-            scale = 0.0001f;
-
         GameObject tile = null;
 
-        for(int i = 0; i < width; i++)
+        //HashSet<float> noise = ProceduralGeneration.PerlinNoiseGenerator(width, height, scale, octaves, persistance, lacunarity);
+        Dictionary<Vector3Int, int> randNumbers = 
+            ProceduralGeneration.GenerateCellularAutomata(threshold, width, height, iterations, randomFillPercent, seed, yCoord);
+        
+
+        List<Vector3Int> landPositions = new();
+
+        foreach (Vector3Int position in randNumbers.Keys)
         {
-            for (int j = 0; j < height; j++)
+            if (randNumbers[position] == 1)
             {
-                float amplitude = 1;
-                float frequency = 1;
-                float noiseHeight = 0;
-
-                int x = i;// - width * 1 / 2;
-                int y = j;// - height * 1 / 2;
-                Vector3Int position = new Vector3Int(x, 3, y);
-
-                for (int k = 0; k < octaves; k++)
-                {                    
-                    float xCoord = (float)i /*/ width**/ / (scale * frequency);
-                    float yCoord = (float)j /*/ height **/ / (scale * frequency);
-
-                    float perlinValue = Mathf.PerlinNoise(xCoord, yCoord) * 2 - 1;
-
-                    noiseHeight += perlinValue * amplitude;
-
-                    amplitude *= persistance;
-                    frequency *= lacunarity;
-                }
-
-                //grasslandThreshold - ((grasslandThreshold - 1) / 2)
-                //grasslandThreshold - ((grasslandThreshold + 1) / 2)
-
-                if (noiseHeight > .75f)
-                {
-                    tile = grasslandMountain;
-                }
-                else if (noiseHeight > .5f)
-                {
-                    tile = grasslandHill;
-                }
-                else if (noiseHeight > .25f)
-                {
-                    tile = forest;
-                }
-                else if (noiseHeight >= -.1)
-                {
-                    tile = grassland;
-                }
-                else if (noiseHeight > -.25f)
-                {
-                    tile = swamp;
-                }
-                else if (noiseHeight > -.5f)
-                {
-                    tile = desert;
-                }
-                else if (noiseHeight > -.75f)
-                {
-                    tile = desertHill;
-                }
-                else if (noiseHeight > -1f)
-                {
-                    tile = desertMountain;
-                }
-
-                GenerateTile(noiseHeight, tile, position);
+                tile = ocean;
+                GenerateTile(tile, position);
+            }
+            else
+            {
+                //tile = grassland;
+                landPositions.Add(position);
             }
         }
 
-        for (int i = 0; i < width; i++)
+        List<float> noise = ProceduralGeneration.PerlinNoiseGenerator(landPositions, scale, octaves, persistance, lacunarity);
+
+        for (int i = 0; i < landPositions.Count; i++)
         {
-            for (int j = 0; j < height; j++)
+
+            if (noise.ElementAt(i) > .75f)
             {
-         
+                tile = grasslandMountain;
             }
+            else if (noise.ElementAt(i) > .5f)
+            {
+                tile = grasslandHill;
+            }
+            else if (noise.ElementAt(i) > .25f)
+            {
+                tile = forest;
+            }
+            else if (noise.ElementAt(i) >= -.2)
+            {
+                tile = grassland;
+            }
+            else if (noise.ElementAt(i) > -.25f)
+            {
+                tile = swamp;
+            }
+            else if (noise.ElementAt(i) > -.5f)
+            {
+                tile = desert;
+            }
+            else if (noise.ElementAt(i) > -.75f)
+            {
+                tile = desertHill;
+            }
+            else if (noise.ElementAt(i) > -1f)
+            {
+                tile = desertMountain;
+            }
+
+            GenerateTile(tile, landPositions[i]);
         }
 
-                //HashSet<Vector3Int> groundPositions = RunRandomWalk();
+        //        for (int i = 0; i < width; i++)
+        //        {
+        //            for (int j = 0; j < height; j++)
+        //            {
+        //                int x = i;// - width * 1 / 2;
+        //                int y = j;// - height * 1 / 2;
+        //                Vector3Int position = new Vector3Int(x, 3, y);
 
-                //foreach (Vector3Int position in groundPositions)
-                //{
-                //    GameObject newTile = Instantiate(grassland, position, Quaternion.identity);
-                //    newTile.transform.SetParent(groundTiles.transform, false);
-                //    allTiles.Add(newTile);
-                //}
-            }
+        ///*                if (noise.ElementAt(k) > .75f)
+        //                {
+        //                    tile = grasslandMountain;
+        //                }
+        //                else if (noise.ElementAt(k) > .5f)
+        //                {
+        //                    tile = grasslandHill;
+        //                }
+        //                else if (noise.ElementAt(k) > .25f)
+        //                {
+        //                    tile = forest;
+        //                }
+        //                else if (noise.ElementAt(k) >= -.2)
+        //                {
+        //                    tile = grassland;
+        //                }
+        //                else if (noise.ElementAt(k) > -.25f)
+        //                {
+        //                    tile = swamp;
+        //                }
+        //                else if (noise.ElementAt(k) > -.5f)
+        //                {
+        //                    tile = desert;
+        //                }
+        //                else if (noise.ElementAt(k) > -.75f)
+        //                {
+        //                    tile = desertHill;
+        //                }
+        //                else if (noise.ElementAt(k) > -1f)
+        //                {
+        //                    tile = desertMountain;
+        //                }
+        //*/
+            //                //GenerateTile(tile, position);
+            //                //k++;
+            //            }
+            //        }
 
-    private void GenerateTile(float perlinCoord, GameObject tile, Vector3Int position)
+
+
+            //HashSet<Vector3Int> groundPositions = RunRandomWalk();
+
+            //foreach (Vector3Int position in groundPositions)
+            //{
+            //    GameObject newTile = Instantiate(grassland, position, Quaternion.identity);
+            //    newTile.transform.SetParent(groundTiles.transform, false);
+            //    allTiles.Add(newTile);
+            //}
+        }
+
+
+
+    private void GenerateTile(/*float perlinCoord, */GameObject tile, Vector3Int position)
     {
         GameObject newTile = Instantiate(tile, position, Quaternion.identity);
         newTile.transform.SetParent(groundTiles.transform, false);
@@ -150,7 +212,7 @@ public class TerrainGenerator : TerrainGeneratorAbstract
         //newTile.GetComponent<TerrainData>().numbers.text = Math.Round(perlinCoord, 3).ToString();
     }
 
-    protected override void RemoveAllTiles()
+    protected void RemoveAllTiles()
     {
         foreach (GameObject tile in allTiles)
         {
@@ -158,20 +220,20 @@ public class TerrainGenerator : TerrainGeneratorAbstract
         }
     }
 
-    private HashSet<Vector3Int> RunRandomWalk()
-    {
-        var currentPosition = startPosition;
-        HashSet<Vector3Int> groundPositions = new();
-        for (int i = 0; i < iterations; i++)
-        {
-            var path = ProceduralGeneration.SimpleRandomWalk(currentPosition, walkLength);
-            groundPositions.UnionWith(path);
-            if (iterationStartRandom)
-            {
-                currentPosition = groundPositions.ElementAt(UnityEngine.Random.Range(0, groundPositions.Count));
-            }
-        }
+    //private HashSet<Vector3Int> RunRandomWalk()
+    //{
+    //    var currentPosition = startPosition;
+    //    HashSet<Vector3Int> groundPositions = new();
+    //    for (int i = 0; i < iterationsRW; i++)
+    //    {
+    //        var path = ProceduralGeneration.SimpleRandomWalk(currentPosition, walkLength);
+    //        groundPositions.UnionWith(path);
+    //        if (iterationStartRandom)
+    //        {
+    //            currentPosition = groundPositions.ElementAt(UnityEngine.Random.Range(0, groundPositions.Count));
+    //        }
+    //    }
 
-        return groundPositions;
-    }
+    //    return groundPositions;
+    //}
 }
