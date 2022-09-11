@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(TerrainGeneratorAbstract), true)]
+[CustomEditor(typeof(TerrainGenerator), true)]
 public class TerrainGeneratorButton : Editor
 {
-    TerrainGeneratorAbstract generator;
+    //TerrainGeneratorAbstract generator;
 
     private void Awake()
     {
-        generator = (TerrainGeneratorAbstract)target;
+        //TerrainGenerator generator = (TerrainGenerator)target;
     }
 
     public override void OnInspectorGUI()
     {
-        base.OnInspectorGUI();
+        TerrainGenerator generator = (TerrainGenerator)target;
+        //base.OnInspectorGUI();
         if (DrawDefaultInspector())
         {
             if (generator.autoUpdate)

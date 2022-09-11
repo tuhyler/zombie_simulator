@@ -1661,9 +1661,9 @@ public class LTDescr
 	}
 
 	/**
-	* Set how short the iterations are for certain ease types (compatible: easeOutElastic, easeInElastic, easeInOutElastic). <br>
+	* Set how short the iterationsRW are for certain ease types (compatible: easeOutElastic, easeInElastic, easeInOutElastic). <br>
 	* @method setPeriod
-	* @param {float} period:float how short the iterations are that the tween will animate at (default 0.3f)
+	* @param {float} period:float how short the iterationsRW are that the tween will animate at (default 0.3f)
 	* @return {LTDescr} LTDescr an object that distinguishes the tween
 	* @example
 	* LeanTween.moveX(gameObject, 5f, 2.0f ).setEase( LeanTweenType.easeOutElastic ).setPeriod(0.3f);
