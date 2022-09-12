@@ -6,12 +6,13 @@ using UnityEngine;
 
 public class TerrainGenerator : MonoBehaviour
 {
+    [Header("General Map Parameters")]
     [SerializeField]
     private int seed = 4;
     [SerializeField]
-    private int yCoord = 3;
+    private int yCoord = 3, desertPerc = 25, forestPerc = 25, junglePerc = 25, mountainousPerc = 70, mountainRangeLength = 20;
 
-    [Header("Perlin Noise Generation Info")]
+    [Header("Perlin Noise Generation Parameters")]
     //[SerializeField]
     //protected Vector3Int startPosition = Vector3Int.zero;
     [SerializeField]
@@ -27,8 +28,10 @@ public class TerrainGenerator : MonoBehaviour
     private float persistance = 0.5f;
     [SerializeField]
     private float lacunarity = 1.01f;
+    [SerializeField]
+    private float offset;
 
-    [Header("Cellular Automata Generation Info")]
+    [Header("Cellular Automata Generation Parameters")]
     [SerializeField]
     private int threshold = 5;
     [SerializeField]
@@ -59,8 +62,8 @@ public class TerrainGenerator : MonoBehaviour
 
     private List<GameObject> allTiles = new();
 
-    [SerializeField]
-    protected Vector3Int startPosition = Vector3Int.zero;
+    //[SerializeField]
+    //protected Vector3Int startPosition = Vector3Int.zero;
 
     public bool autoUpdate;
 
@@ -83,6 +86,7 @@ public class TerrainGenerator : MonoBehaviour
         //HashSet<float> noise = ProceduralGeneration.PerlinNoiseGenerator(width, height, scale, octaves, persistance, lacunarity);
         Dictionary<Vector3Int, int> randNumbers = 
             ProceduralGeneration.GenerateCellularAutomata(threshold, width, height, iterations, randomFillPercent, seed, yCoord);
+        randNumbers = ProceduralGeneration.GenerateMountainRanges(randNumbers, width, height, mountainousPerc, mountainRangeLength, seed);
         
 
         List<Vector3Int> landPositions = new();
@@ -91,8 +95,15 @@ public class TerrainGenerator : MonoBehaviour
         {
             if (randNumbers[position] == 1)
             {
-                tile = ocean;
-                GenerateTile(tile, position);
+                GenerateTile(ocean, position);
+            }
+            else if (randNumbers[position] == 2)
+            {
+                GenerateTile(grasslandHill, position);
+            }
+            else if (randNumbers[position] == 3)
+            {
+                GenerateTile(grasslandMountain, position);
             }
             else
             {
@@ -101,44 +112,57 @@ public class TerrainGenerator : MonoBehaviour
             }
         }
 
-        List<float> noise = ProceduralGeneration.PerlinNoiseGenerator(landPositions, scale, octaves, persistance, lacunarity);
+        List<float> noise = ProceduralGeneration.PerlinNoiseGenerator(landPositions, scale, octaves, persistance, lacunarity, seed, offset);
 
         for (int i = 0; i < landPositions.Count; i++)
         {
 
-            if (noise.ElementAt(i) > .75f)
-            {
-                tile = grasslandMountain;
-            }
-            else if (noise.ElementAt(i) > .5f)
-            {
-                tile = grasslandHill;
-            }
-            else if (noise.ElementAt(i) > .25f)
+            //if (noise.ElementAt(i) > .875f)
+            //{
+            //    tile = grasslandMountain;
+            //}
+            //else if (noise.ElementAt(i) > 75f)
+            //{
+            //    tile = grasslandHill;
+            //}
+            List<float> noiseSorted = new(noise);
+
+            noiseSorted.Sort();
+
+            int noiseCount = Mathf.RoundToInt(noiseSorted.Count);
+
+            float grasslandPerc = 100 - (desertPerc + junglePerc + forestPerc);
+            float groupOneValue = noiseSorted[Mathf.RoundToInt(noiseCount * (desertPerc/100f))];
+            float groupTwoValue = noiseSorted[Mathf.RoundToInt(noiseCount * ((desertPerc + grasslandPerc) / 100f))];
+            float groupThreeValue = noiseSorted[Mathf.RoundToInt(noiseCount * ((desertPerc + grasslandPerc + junglePerc) / 100))];
+            //float groupFourValue = noiseSorted[noiseCount * 4];
+            
+            if (noise.ElementAt(i) > groupThreeValue)
             {
                 tile = forest;
             }
-            else if (noise.ElementAt(i) >= -.2)
+            else if (noise.ElementAt(i) > groupTwoValue)
+            {
+                tile = jungle;
+            }
+            else if (noise.ElementAt(i) > groupOneValue)
             {
                 tile = grassland;
             }
-            else if (noise.ElementAt(i) > -.25f)
-            {
-                tile = swamp;
-            }
-            else if (noise.ElementAt(i) > -.5f)
+            //else if (noise.ElementAt(i) > groupOneValue)
+            //{
+            //    tile = swamp;
+            //}
+            else if (noise.ElementAt(i) > 0f)
             {
                 tile = desert;
             }
-            else if (noise.ElementAt(i) > -.75f)
-            {
-                tile = desertHill;
-            }
-            else if (noise.ElementAt(i) > -1f)
-            {
-                tile = desertMountain;
-            }
+            //else if (noise.ElementAt(i) > 0f)
+            //{
+            //    tile = desertMountain;
+            //}
 
+            tile = grassland;
             GenerateTile(tile, landPositions[i]);
         }
 
