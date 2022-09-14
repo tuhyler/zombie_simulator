@@ -25,26 +25,17 @@ public class ProceduralGeneration
         new Vector3Int(-1,0,1), //upper left
     };
 
-    //public static HashSet<Vector3Int> SimpleRandomWalk(Vector3Int startPosition, int walkLength)
-    //{
-    //    HashSet<Vector3Int> path = new HashSet<Vector3Int>();
-
-    //    path.Add(startPosition);
-    //    var previousPosition = startPosition;
-
-    //    for (int i = 0; i < walkLength; i++)
-    //    {
-    //        while (path.Count == i+1)
-    //        {
-    //            var newPosition = previousPosition + neighborsFourDirections[Random.Range(0, 4)]; //random direction
-
-    //            path.Add(newPosition);
-    //            previousPosition = newPosition;
-    //        }
-    //    }
-
-    //    return path;
-    //}
+/*    Terrain Key:
+    0 = placeholder for land
+    1 = sea
+    2 = hill
+    3 = mountain
+    4 = grassland
+    5 = desert
+    6 = forest
+    7 = jungle
+    8 = swamp
+*/
 
     public static List<float> PerlinNoiseGenerator(int width, int height, float scale, int octaves, float persistance, 
         float lacunarity)
@@ -86,10 +77,11 @@ public class ProceduralGeneration
         return noiseList;
     }
 
-    public static List<float> PerlinNoiseGenerator(List<Vector3Int> positions, float scale, int octaves, float persistance,
-        float lacunarity, int seed, float offset)
+    public static Dictionary<Vector3Int, float> PerlinNoiseGenerator(List<Vector3Int> positions, 
+        float scale, int octaves, float persistance, float lacunarity, int seed, float offset)
     {
         List<float> noiseList = new();
+        Dictionary<Vector3Int, float> noiseMap = new();
 
         float max = 0;
         float min = 0;
@@ -118,19 +110,22 @@ public class ProceduralGeneration
             for (int k = 0; k < octaves; k++)
             {
                 float xCoord = (float)pos.x / (scale * frequency) + octaveOffsets[k].x;
-                float yCoord = (float)pos.z / (scale * frequency) + octaveOffsets[k].y;
+                float zCoord = (float)pos.z / (scale * frequency) + octaveOffsets[k].y;
 
-                float simplexValue = Unity.Mathematics.noise.snoise(new Unity.Mathematics.float4(xCoord, 3.0f, yCoord, 1.0f));
+                float simplexValue = Unity.Mathematics.noise.snoise(new Unity.Mathematics.float4(xCoord, 3.0f, zCoord, 1.0f));
                 //noiseHeight += simplexValue * amplitude;
 
-                float simplex2Value = Unity.Mathematics.noise.psrnoise(new Unity.Mathematics.float2(xCoord,yCoord), new Unity.Mathematics.float2(xCoord,yCoord));
+                float simplex2Value = Unity.Mathematics.noise.psrnoise(new Unity.Mathematics.float2(xCoord, zCoord), new Unity.Mathematics.float2(xCoord, zCoord));
                 //noiseHeight += simplex2Value * amplitude;
 
-                float perlinValue = Mathf.PerlinNoise(xCoord, yCoord) * 2 - 1;
-                //noiseHeight += perlinValue * amplitude;
+                Unity.Mathematics.float2 cellularValue = Unity.Mathematics.noise.cellular2x2(new Unity.Mathematics.float2(xCoord, zCoord));
+                //noiseHeight += cellularValue.x * amplitude;
 
-                float avgNoise = (simplexValue + simplexValue + perlinValue) / 3;
-                noiseHeight += avgNoise * amplitude;
+                float perlinValue = Mathf.PerlinNoise(xCoord, zCoord) * 2 - 1;
+                noiseHeight += perlinValue * amplitude;
+
+                //float avgNoise = (simplexValue + simplexValue + perlinValue) / 3;
+                //noiseHeight += avgNoise * amplitude;
 
                 amplitude *= persistance;
                 frequency *= lacunarity;
@@ -151,9 +146,46 @@ public class ProceduralGeneration
             noiseList[i] = Mathf.InverseLerp(min, max, noiseList[i]);
         }
 
-        return noiseList;
+        for (int i = 0; i < positions.Count; i++)
+        {
+            noiseMap[positions[i]] = noiseList[i];
+        }
+
+        return noiseMap;
     }
 
+    public static Dictionary<Vector3Int, int> GenerateTerrain(Dictionary<Vector3Int, int> mainTiles, Dictionary<Vector3Int, float> mainNoise,
+        float lowerThreshold, float upperThreshold, int width, int height, int yCoord, int equatorDist, int seed)
+    {
+        System.Random random = new System.Random(seed);
+
+        if (lowerThreshold > upperThreshold)
+            lowerThreshold = upperThreshold;
+        
+        //cleaning up diagonals first
+        mainTiles = DiagonalCheck(mainTiles, width, height, yCoord);
+        //getting sections of maps to assign terrain to
+        Dictionary<int, List<Vector3Int>> terrainRegions = GetTerrainRegions(mainNoise, lowerThreshold, upperThreshold);
+
+        int equatorPos = height / 2;
+
+        foreach (int region in terrainRegions.Keys)
+        {
+            int[] terrainOptions = new int[] { 4, 5, 6 };
+            int chosenTerrain = terrainOptions[random.Next(0, terrainOptions.Length)];
+            if (region == 0)
+                chosenTerrain = 4; //first region (borders of noise regions) is grassland
+            
+            foreach (Vector3Int tile in terrainRegions[region])
+            {
+                if (chosenTerrain == 6 && tile.z < equatorPos + equatorDist && tile.z > equatorPos - equatorDist)
+                    chosenTerrain = 7;
+                mainTiles[tile] = chosenTerrain;
+            }
+        }
+
+        return mainTiles;
+    }
 
     public static Dictionary<Vector3Int, int> GenerateCellularAutomata(int threshold, int width, int height, int iterations, 
         int randomFillPercent, int seed, int yCoord)
@@ -314,100 +346,229 @@ public class ProceduralGeneration
         return landMassDict;
     }
 
-    public static Dictionary<Vector3Int, int> GenerateMountainRanges(Dictionary<Vector3Int, int> mainTiles, 
-        int width, int height, int mountainousPerc, int mountainRangeLength, int seed) 
+    //enough differences in this code to warrant a separate method
+    private static Dictionary<int, List<Vector3Int>> GetTerrainRegions(Dictionary<Vector3Int, float> mapDict, 
+        float lowerThreshold, float upperThreshold)
     {
-        System.Random random = new System.Random(seed.GetHashCode());
+        Dictionary<int, List<Vector3Int>> landMassDict = new();
+        landMassDict[0] = new List<Vector3Int>();
 
-        Dictionary<int, List<Vector3Int>> landMassDict = GetLandMasses(mainTiles);
-        int mapSize = width * height;
-        List<Vector3Int> mountainStarts = new();
-        
-        foreach(int key in landMassDict.Keys)
+        List<Vector3Int> checkedPositions = new();
+        Queue<Vector3Int> queue = new();
+        int landMassCount = 1;
+
+        foreach (Vector3Int pos in mapDict.Keys)
         {
-            if (landMassDict[key].Count < mapSize / 10)
+            if (mapDict[pos] > lowerThreshold && mapDict[pos] < upperThreshold)
             {
-                mountainStarts.Add(landMassDict[key][Random.Range(0, landMassDict[key].Count)]);
+                landMassDict[0].Add(pos); //first region is borders of noise groups
+                checkedPositions.Add(pos);
                 continue;
             }
-
-            int mountainRangeCount = landMassDict[key].Count / 250;
-
-            for (int i = 0; i < mountainRangeCount; i++)
-            {
-                mountainStarts.Add(landMassDict[key][Random.Range(0, landMassDict[key].Count)]);
-            }
-        }
-
-        foreach (Vector3Int pos in mountainStarts)
-        {
-            Queue<Vector3Int> queue = new();
-            queue.Enqueue(pos);
             
-            mainTiles[pos] = 2;
-            int step = 0;
+            if (checkedPositions.Contains(pos))
+                continue;
 
-            int mainDirection = random.Next(0, 8);
-            int[] diagonals = new int[3];
-            int[] perpendiculars = new int[2];
-
-            diagonals[0] = mainDirection;
-            if (mainDirection == 0)
-                perpendiculars[0] = 6;
-            else if (mainDirection == 1)
-                perpendiculars[0] = 7;
-            else
-            perpendiculars[1] = mainDirection - 2;
-
-            if (mainDirection == 6)
-                perpendiculars[0] = 0;
-            else if (mainDirection == 7)
-                perpendiculars[0] = 1;
-            else
-                perpendiculars[0] = mainDirection + 2;
-
-            if (mainDirection == 0)
-                diagonals[1] = 7;
-            else
-                diagonals[1] = mainDirection - 1;
-
-            if (mainDirection == 7)
-                diagonals[2] = 0;
-            else
-                diagonals[2] = mainDirection + 1;
-
+            queue.Enqueue(pos);
+            checkedPositions.Add(pos);
+            bool upper = mapDict[pos] >= upperThreshold;
+            landMassDict[landMassCount] = new List<Vector3Int>();
 
             while (queue.Count > 0)
             {
-                Vector3Int nextDirection = queue.Dequeue() + neighborsEightDirections[diagonals[random.Next(0,3)]];
+                Vector3Int pos2 = queue.Dequeue();
 
-                if (mainTiles[nextDirection] == 0)
+                foreach (Vector3Int neighbor in neighborsFourDirections)
                 {
-                    int newTile = random.Next(0, 100) < mountainousPerc ? 2 : 3; //2 is hill, 3 is mountain
-                    mainTiles[nextDirection] = newTile;
+                    Vector3Int neighborCheck = pos2 + neighbor;
 
-                    //foreach (int side in perpendiculars)
-                    //{
+                    if (mapDict.ContainsKey(neighborCheck) && !checkedPositions.Contains(neighborCheck))
+                    {
+                        checkedPositions.Add(neighborCheck);
 
-                    //}
-
-                    if (random.Next(0, mountainRangeLength) > 0)
-                        queue.Enqueue(nextDirection);
-
-                    step++;
+                        if (upper)
+                        {
+                            if (mapDict[neighborCheck] >= upperThreshold)
+                            {
+                                landMassDict[landMassCount].Add(neighborCheck);
+                                queue.Enqueue(neighborCheck);
+                            }
+                        }
+                        else
+                        {
+                            if (mapDict[neighborCheck] <= lowerThreshold)
+                            {
+                                landMassDict[landMassCount].Add(neighborCheck);
+                                queue.Enqueue(neighborCheck);
+                            }
+                        }
+                    }
                 }
-
-                
             }
 
+            landMassCount++;
+        }
 
+        return landMassDict;
+    }
+
+    public static Dictionary<Vector3Int, int> GenerateMountainRanges(Dictionary<Vector3Int, int> mainTiles, 
+        int mountainPerc, int mountainousPerc, int mountainRangeLength, int seed) 
+    {
+        System.Random random = new System.Random(seed);
+
+        Dictionary<int, List<Vector3Int>> landMassDict = GetLandMasses(mainTiles);
+        Queue<Vector3Int> mountainStarts = new();
+        List<Vector3Int> allTiles = new();
+        bool justHills = false;
+
+        foreach (int key in landMassDict.Keys)
+        {
+            mountainStarts.Enqueue(landMassDict[key][Random.Range(0, landMassDict[key].Count)]);
+            allTiles.AddRange(landMassDict[key]);
+        }
+
+        int mountainCount = 0;
+        int mountainTotal = Mathf.RoundToInt((mountainPerc / 100f) * allTiles.Count);
+
+        while (mountainStarts.Count > 0)
+        {
+            Vector3Int startPosition = mountainStarts.Dequeue();
+            List<Vector3Int> sideTileList = new();
+            
+            mainTiles[startPosition] = 2; //first position is always hill
+            mountainCount++;
+            allTiles.Remove(startPosition);
+
+            Queue<Vector3Int> queue = new();
+            queue.Enqueue(startPosition);
+            int newDirection = 0;
+
+            int[] alternateDirections = DirectionSetUp(random.Next(0, 4));
+
+            while (queue.Count > 0)
+            {
+                Vector3Int prevTile = queue.Dequeue();
+                Vector3Int nextTile;
+
+                if (newDirection == 0)
+                    newDirection = random.Next(0, 3); 
+                else if (newDirection == 1)
+                    newDirection = random.Next(0, 2); //can't go backwards
+                else
+                    newDirection = new int[2] { 0, 2 }[random.Next(0, 2)]; //can't go backwards
+
+                Vector3Int tileShift = neighborsFourDirections[alternateDirections[newDirection]];
+                nextTile = prevTile + tileShift;
+
+                if (!mainTiles.ContainsKey(nextTile) || mountainCount >= mountainTotal)
+                    continue;
+
+                if (mainTiles[nextTile] == 0)
+                {
+                    if (!justHills)
+                        mainTiles[nextTile] = random.Next(0, 100) > mountainousPerc ? 2 : 3; //2 is hill, 3 is mountain
+                    else
+                        mainTiles[nextTile] = 2;
+
+                    mountainCount++;
+                    allTiles.Remove(nextTile);
+                    sideTileList.Remove(nextTile);
+
+                    //adding tiles to the side tile list
+                    if (tileShift.x == 0)
+                    {
+                        sideTileList.Add(nextTile + new Vector3Int(-1, 0, 0));
+                        sideTileList.Add(nextTile + new Vector3Int(1, 0, 0));
+                    }
+                    else
+                    {
+                        sideTileList.Add(nextTile + new Vector3Int(0, 0, -1));
+                        sideTileList.Add(nextTile + new Vector3Int(0, 0, 1));
+                    }
+
+                    if (random.Next(0, mountainRangeLength) > 0)
+                        queue.Enqueue(nextTile);
+                }
+                else if (mainTiles[nextTile] == 3)
+                {
+                    mainTiles[prevTile] = 2; //turn back into hill if encountered mountain
+                }
+            }
+
+            //adding hills to the side
+            foreach (Vector3Int tile in sideTileList)
+            {
+                if (mainTiles.ContainsKey(tile) && mainTiles[tile] == 0)
+                {
+                    mainTiles[tile] = 2;
+                    mountainCount++;
+                    allTiles.Remove(tile);
+                }
+            }
+
+            //if more mountain tiles need to be placed, get random position
+            if (mountainStarts.Count == 0 && mountainCount < mountainTotal)
+            {
+                if (allTiles.Count > 0)
+                {
+                    mountainStarts.Enqueue(allTiles[random.Next(0, allTiles.Count)]);
+                    justHills = random.Next(0, 10) > 7;
+                }
+            }
         }
 
         return mainTiles;
     }
 
-    //private int[] DirectionRoll()
-    //{
-    //    return int[]
-    //}
+    //getting vector3s that are diagonal and perpendicular to main direction
+    private static int[] DirectionSetUp(int mainDirection)
+    {
+        int[] directions = new int[3];
+
+        directions[0] = mainDirection;
+
+        if (mainDirection == 0)
+            directions[1] = 3;
+        else
+            directions[1] = mainDirection - 1;
+
+        if (mainDirection == 3)
+            directions[2] = 0;
+        else
+            directions[2] = mainDirection + 1;
+
+        return directions;
+    }
+
+    public static Dictionary<Vector3Int, int> DiagonalCheck(Dictionary<Vector3Int, int> mapDict, int width, int height, int yCoord)
+    {
+        for (int k = 0; k < 2; k++) //2 passes
+        {
+            for (int i = 0; i < width - 1; i++)
+            {
+                for (int j = 0; j < height - 1; j++)
+                {
+                    Vector3Int tileA = new Vector3Int(i, yCoord, j);
+                    Vector3Int tileB = new Vector3Int(i, yCoord, j + 1);
+                    Vector3Int tileC = new Vector3Int(i + 1, yCoord, j + 1);
+                    Vector3Int tileD = new Vector3Int(i + 1, yCoord, j);
+
+                    if (mapDict[tileA] == 1 && mapDict[tileC] == 1 && mapDict[tileB] != 1 && mapDict[tileD] != 1)
+                        mapDict[tileB] = 1;
+
+                    if (mapDict[tileA] != 1 && mapDict[tileC] != 1 && mapDict[tileB] == 1 && mapDict[tileD] == 1)
+                        mapDict[tileA] = 1;
+
+                    if (mapDict[tileA] == 3 && mapDict[tileC] == 3 && mapDict[tileB] != 3 && mapDict[tileD] != 3)
+                        mapDict[tileA] = 2;
+
+                    if (mapDict[tileA] != 3 && mapDict[tileC] != 3 && mapDict[tileB] == 3 && mapDict[tileD] == 3)
+                        mapDict[tileB] = 2;
+                }
+            }
+        }
+
+        return mapDict;
+    }
 }
