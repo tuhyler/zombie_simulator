@@ -52,7 +52,7 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private GameObject grassland; //separate here so that header isn't on every line
     [SerializeField]
-    private GameObject desert, forest, jungle, swamp, grasslandHill, desertHill, grasslandMountain, desertMountain,
+    private GameObject desert, forest, jungle, swamp, grasslandHill, desertHill, grasslandMountain, desertMountain, forestHill, jungleHill,
         riverGrasslandEnd, riverGrasslandStraight, riverGrasslandCurve, riverDesertEnd, riverDesertStraight, riverDesertCurve,
         oceanGrasslandCoast, oceanGrasslandCorner, oceanGrasslandRiver, oceanDesertCoast, oceanDesertCorner, oceanDesertRiver,
         ocean;
@@ -82,181 +82,77 @@ public class TerrainGenerator : MonoBehaviour
     {
         RemoveAllTiles();
 
-        GameObject tile = null;
+        //GameObject tile = null;
 
         //HashSet<float> noise = ProceduralGeneration.PerlinNoiseGenerator(width, height, scale, octaves, persistance, lacunarity);
         Dictionary<Vector3Int, int> randNumbers = 
             ProceduralGeneration.GenerateCellularAutomata(threshold, width, height, iterations, randomFillPercent, seed, yCoord);
-        //randNumbers = ProceduralGeneration.GenerateMountainRanges(randNumbers, mountainPerc, mountainousPerc, mountainRangeLength, seed);
-        //randNumbers = ProceduralGeneration.GenerateTerrain(randNumbers, width, height, yCoord, equatorDist, seed);
-        
 
-        List<Vector3Int> landPositions = new();
+        Dictionary<Vector3Int, float> noise = ProceduralGeneration.PerlinNoiseGenerator(randNumbers,
+            scale, octaves, persistance, lacunarity, seed, offset);
+
+        randNumbers = ProceduralGeneration.GenerateTerrain(randNumbers, noise, 0.45f, 0.65f, desertPerc, forestPerc,
+            width, height, yCoord, equatorDist, seed);
+        randNumbers = ProceduralGeneration.GenerateMountainRanges(randNumbers, mountainPerc, mountainousPerc, mountainRangeLength, seed);
+
+        //List<Vector3Int> landPositions = new();
 
         foreach (Vector3Int position in randNumbers.Keys)
-        {
-            if (randNumbers[position] == 1)
+        {            
+            if (randNumbers[position] == ProceduralGeneration.sea)
             {
                 GenerateTile(ocean, position);
             }
-            else if (randNumbers[position] == 2)
+            else if (randNumbers[position] == ProceduralGeneration.grasslandHill)
             {
                 GenerateTile(grasslandHill, position);
             }
-            else if (randNumbers[position] == 3)
+            else if (randNumbers[position] == ProceduralGeneration.desertHill)
+            {
+                GenerateTile(desertHill, position);
+            }
+            else if (randNumbers[position] == ProceduralGeneration.forestHill)
+            {
+                GenerateTile(forestHill, position);
+            }
+            else if (randNumbers[position] == ProceduralGeneration.jungleHill)
+            {
+                GenerateTile(jungleHill, position);
+            }
+            else if (randNumbers[position] == ProceduralGeneration.grasslandMountain)
             {
                 GenerateTile(grasslandMountain, position);
             }
-            else if (randNumbers[position] == 4)
+            else if (randNumbers[position] == ProceduralGeneration.desertMountain)
+            {
+                GenerateTile(desertMountain, position);
+            }
+            else if (randNumbers[position] == ProceduralGeneration.grassland)
             {
                 GenerateTile(grassland, position);
             }
-            else if (randNumbers[position] == 5)
+            else if (randNumbers[position] == ProceduralGeneration.desert)
             {
                 GenerateTile(desert, position);
             }
-            else if (randNumbers[position] == 6)
+            else if (randNumbers[position] == ProceduralGeneration.forest)
             {
                 GenerateTile(forest, position);
             }
-            else if (randNumbers[position] == 7)
+            else if (randNumbers[position] == ProceduralGeneration.jungle)
             {
                 GenerateTile(jungle, position);
             }
-            else if (randNumbers[position] == 8)
+            else if (randNumbers[position] == ProceduralGeneration.swamp)
             {
                 GenerateTile(swamp, position);
             }
             else
             {
-                //tile = grassland;
-                landPositions.Add(position);
+                GenerateTile(grassland, position);
             }
         }
-
-        Dictionary<Vector3Int, float> noise = ProceduralGeneration.PerlinNoiseGenerator(landPositions, 
-            scale, octaves, persistance, lacunarity, seed, offset);
-
-        randNumbers = ProceduralGeneration.GenerateTerrain(randNumbers, noise, 0.45f, 0.65f, width, height, yCoord, equatorDist, seed);
-
-        for (int i = 0; i < landPositions.Count; i++)
-        {
-
-            //if (noise.ElementAt(i) > .875f)
-            //{
-            //    tile = grasslandMountain;
-            //}
-            //else if (noise.ElementAt(i) > 75f)
-            //{
-            //    tile = grasslandHill;
-            //}
-            //List<float> noiseSorted = new(noise);
-
-            //noiseSorted.Sort();
-
-            //int noiseCount = Mathf.RoundToInt(noiseSorted.Count);
-
-            //float grasslandPerc = 100 - (desertPerc + junglePerc + forestPerc);
-            //float groupOneValue = noiseSorted[Mathf.RoundToInt(noiseCount * (desertPerc / 100f))];
-            //float groupTwoValue = noiseSorted[Mathf.RoundToInt(noiseCount * ((desertPerc + grasslandPerc) / 100f))];
-            //float groupThreeValue = noiseSorted[Mathf.RoundToInt(noiseCount * ((desertPerc + grasslandPerc + junglePerc) / 100))];
-            //float groupFourValue = noiseSorted[noiseCount * 4];
-            
-            //if (noise[i] >.45 && noise[i] < .65)
-            //{
-            //    tile = desert;
-            //}
-            //else if (noise[i] >= .65)
-            //{
-            //    tile = grassland;
-            //}
-            //else
-            //{
-            //    tile = forest;
-            //}
-
-            //if (noise.ElementAt(i) > groupThreeValue)
-            //{
-            //    tile = forest;
-            //}
-            //else if (noise.ElementAt(i) > groupTwoValue)
-            //{
-            //    tile = jungle;
-            //}
-            //else if (noise.ElementAt(i) > groupOneValue)
-            //{
-            //    tile = grassland;
-            //}
-            ////else if (noise.ElementAt(i) > groupOneValue)
-            ////{
-            ////    tile = swamp;
-            ////}
-            //else if (noise.ElementAt(i) > 0f)
-            //{
-            //    tile = desert;
-            //}
-
-            //tile = grassland;
-            GenerateTile(tile, landPositions[i]);
-        }
-
-        //        for (int i = 0; i < width; i++)
-        //        {
-        //            for (int j = 0; j < height; j++)
-        //            {
-        //                int x = i;// - width * 1 / 2;
-        //                int y = j;// - height * 1 / 2;
-        //                Vector3Int position = new Vector3Int(x, 3, y);
-
-        ///*                if (noise.ElementAt(k) > .75f)
-        //                {
-        //                    tile = grasslandMountain;
-        //                }
-        //                else if (noise.ElementAt(k) > .5f)
-        //                {
-        //                    tile = grasslandHill;
-        //                }
-        //                else if (noise.ElementAt(k) > .25f)
-        //                {
-        //                    tile = forest;
-        //                }
-        //                else if (noise.ElementAt(k) >= -.2)
-        //                {
-        //                    tile = grassland;
-        //                }
-        //                else if (noise.ElementAt(k) > -.25f)
-        //                {
-        //                    tile = swamp;
-        //                }
-        //                else if (noise.ElementAt(k) > -.5f)
-        //                {
-        //                    tile = desert;
-        //                }
-        //                else if (noise.ElementAt(k) > -.75f)
-        //                {
-        //                    tile = desertHill;
-        //                }
-        //                else if (noise.ElementAt(k) > -1f)
-        //                {
-        //                    tile = desertMountain;
-        //                }
-        //*/
-            //                //GenerateTile(tile, position);
-            //                //k++;
-            //            }
-            //        }
-
-
-
-            //HashSet<Vector3Int> groundPositions = RunRandomWalk();
-
-            //foreach (Vector3Int position in groundPositions)
-            //{
-            //    GameObject newTile = Instantiate(grassland, position, Quaternion.identity);
-            //    newTile.transform.SetParent(groundTiles.transform, false);
-            //    allTiles.Add(newTile);
-            //}
-        }
+    }
 
 
 
@@ -277,21 +173,22 @@ public class TerrainGenerator : MonoBehaviour
             DestroyImmediate(tile);
         }
     }
-
-    //private HashSet<Vector3Int> RunRandomWalk()
-    //{
-    //    var currentPosition = startPosition;
-    //    HashSet<Vector3Int> groundPositions = new();
-    //    for (int i = 0; i < iterationsRW; i++)
-    //    {
-    //        var path = ProceduralGeneration.SimpleRandomWalk(currentPosition, walkLength);
-    //        groundPositions.UnionWith(path);
-    //        if (iterationStartRandom)
-    //        {
-    //            currentPosition = groundPositions.ElementAt(UnityEngine.Random.Range(0, groundPositions.Count));
-    //        }
-    //    }
-
-    //    return groundPositions;
-    //}
 }
+
+
+//public struct TerrainID
+//{
+//    public int landPlaceholder;
+//    public int sea;
+//    public int grasslandHill;
+//    public int desertHill;
+//    public int forestHill;
+//    public int jungleHill;
+//    public int grasslandMountain;
+//    public int desertMountain;
+//    public int grassland;
+//    public int desert;
+//    public int forest;
+//    public int jungle;
+//    public int swamp;
+//}
