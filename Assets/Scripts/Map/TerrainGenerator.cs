@@ -10,8 +10,8 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private int seed = 4;
     [SerializeField]
-    private int yCoord = 3, desertPerc = 20, forestPerc = 20, junglePerc = 20, mountainPerc = 10, mountainousPerc = 80, 
-        mountainRangeLength = 20, equatorDist = 10;
+    private int yCoord = 3, desertPerc = 30, forestAndJunglePerc = 70, mountainPerc = 10, mountainousPerc = 80, 
+        mountainRangeLength = 20, equatorDist = 10, riverPerc = 5, riverCountMin = 10;
 
     [Header("Perlin Noise Generation Parameters")]
     //[SerializeField]
@@ -85,67 +85,81 @@ public class TerrainGenerator : MonoBehaviour
         //GameObject tile = null;
 
         //HashSet<float> noise = ProceduralGeneration.PerlinNoiseGenerator(width, height, scale, octaves, persistance, lacunarity);
-        Dictionary<Vector3Int, int> randNumbers = 
+        Dictionary<Vector3Int, int> mainMap = 
             ProceduralGeneration.GenerateCellularAutomata(threshold, width, height, iterations, randomFillPercent, seed, yCoord);
 
-        Dictionary<Vector3Int, float> noise = ProceduralGeneration.PerlinNoiseGenerator(randNumbers,
+        Dictionary<Vector3Int, float> noise = ProceduralGeneration.PerlinNoiseGenerator(mainMap,
             scale, octaves, persistance, lacunarity, seed, offset);
 
-        randNumbers = ProceduralGeneration.GenerateTerrain(randNumbers, noise, 0.45f, 0.65f, desertPerc, forestPerc,
+        mainMap = ProceduralGeneration.GenerateTerrain(mainMap, noise, 0.45f, 0.65f, desertPerc, forestAndJunglePerc,
             width, height, yCoord, equatorDist, seed);
-        randNumbers = ProceduralGeneration.GenerateMountainRanges(randNumbers, mountainPerc, mountainousPerc, mountainRangeLength, seed);
+
+        Dictionary<Vector3Int, int> mountainMap = ProceduralGeneration.GenerateMountainRanges(mainMap, mountainPerc, mountainousPerc, mountainRangeLength, 
+            width, height, yCoord, seed);
+
+        mountainMap = ProceduralGeneration.GenerateRivers(mountainMap, riverPerc, riverCountMin, seed);
+
+        mainMap = ProceduralGeneration.MergeMountainTerrain(mainMap, mountainMap);
 
         //List<Vector3Int> landPositions = new();
 
-        foreach (Vector3Int position in randNumbers.Keys)
+        foreach (Vector3Int position in mainMap.Keys)
         {            
-            if (randNumbers[position] == ProceduralGeneration.sea)
+            if (mainMap[position] == ProceduralGeneration.sea)
             {
                 GenerateTile(ocean, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.grasslandHill)
+            else if (mainMap[position] == ProceduralGeneration.grasslandHill)
             {
                 GenerateTile(grasslandHill, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.desertHill)
+            else if (mainMap[position] == ProceduralGeneration.desertHill)
             {
                 GenerateTile(desertHill, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.forestHill)
+            else if (mainMap[position] == ProceduralGeneration.forestHill)
             {
                 GenerateTile(forestHill, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.jungleHill)
+            else if (mainMap[position] == ProceduralGeneration.jungleHill)
             {
                 GenerateTile(jungleHill, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.grasslandMountain)
+            else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
             {
                 GenerateTile(grasslandMountain, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.desertMountain)
+            else if (mainMap[position] == ProceduralGeneration.desertMountain)
             {
                 GenerateTile(desertMountain, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.grassland)
+            else if (mainMap[position] == ProceduralGeneration.grassland)
             {
                 GenerateTile(grassland, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.desert)
+            else if (mainMap[position] == ProceduralGeneration.desert)
             {
                 GenerateTile(desert, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.forest)
+            else if (mainMap[position] == ProceduralGeneration.forest)
             {
                 GenerateTile(forest, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.jungle)
+            else if (mainMap[position] == ProceduralGeneration.jungle)
             {
                 GenerateTile(jungle, position);
             }
-            else if (randNumbers[position] == ProceduralGeneration.swamp)
+            else if (mainMap[position] == ProceduralGeneration.swamp)
             {
                 GenerateTile(swamp, position);
+            }
+            else if (mainMap[position] == ProceduralGeneration.grasslandRiver)
+            {
+                GenerateTile(riverGrasslandStraight, position);
+            }
+            else if (mainMap[position] == ProceduralGeneration.desertRiver)
+            {
+                GenerateTile(riverDesertStraight, position);
             }
             else
             {
