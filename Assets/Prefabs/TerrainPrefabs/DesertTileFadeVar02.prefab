@@ -12,6 +12,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: DesertTileFadeVar02
       objectReference: {fileID: 0}
+    - target: {fileID: 2997620081912887924, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2997620081912887924, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2997620081912887924, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
     - target: {fileID: 7687956695361648898, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_RootOrder

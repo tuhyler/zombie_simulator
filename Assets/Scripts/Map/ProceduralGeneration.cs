@@ -134,6 +134,21 @@ public class ProceduralGeneration
         return noiseMap;
     }
 
+    public static Dictionary<Vector3Int, int> AddOceanRing(Dictionary<Vector3Int, int> mainMap, int width, int height, int yCoord, int depth)
+    {
+        for (int i = -depth; i < width + depth; i++)
+        {
+            for (int j = -depth; j < height + depth; j++)
+            {
+                Vector3Int oceanTile = new Vector3Int(i, yCoord, j);
+                if (!mainMap.ContainsKey(oceanTile))
+                    mainMap[oceanTile] = sea;
+            }
+        }
+
+        return mainMap;
+    }
+
     public static Dictionary<Vector3Int, int> MergeMountainTerrain(Dictionary<Vector3Int, int> mainMap, Dictionary<Vector3Int, int> mountainMap)
     {
         foreach (Vector3Int tile in mountainMap.Keys)
@@ -160,10 +175,23 @@ public class ProceduralGeneration
             }
             else if (mountainMap[tile] == river)
             {
-                if (mainMap[tile] == grassland || mainMap[tile] == forest || mainMap[tile] == jungle || mainMap[tile] == swamp)
-                    mainMap[tile] = grasslandRiver;
-                else if (mainMap[tile] == desert)
-                    mainMap[tile] = desertRiver;
+                mainMap[tile] = river;
+                
+                //if (mainMap[tile] == grassland || mainMap[tile] == forest || mainMap[tile] == jungle || mainMap[tile] == swamp)
+                //    mainMap[tile] = grasslandRiver;
+                //else if (mainMap[tile] == desert)
+                //{
+                //    mainMap[tile] = desertRiver;
+
+                //    foreach (Vector3Int neighbor in neighborsFourDirections)
+                //    {
+                //        if (mainMap[neighbor + tile] == grassland || mainMap[neighbor + tile] == forest || mainMap[neighbor + tile] == jungle ||
+                //            mainMap[neighbor + tile] == swamp || mainMap[neighbor + tile] == grasslandHill || mainMap[neighbor + tile] == grasslandMountain)
+                //        {
+                //            mainMap[tile] = grasslandRiver;
+                //        }
+                //    }
+                //}
             }
         }
 
@@ -287,7 +315,7 @@ public class ProceduralGeneration
                     
                     foreach (Vector3Int neighbor in neighborsEightDirections)
                     {
-                        if (mainTiles.ContainsKey(currentTile + neighbor) && mainTiles[currentTile + neighbor] == sea)
+                        if (!mainTiles.ContainsKey(currentTile + neighbor) || mainTiles[currentTile + neighbor] == sea)
                             seaCount++;
                     }
 
