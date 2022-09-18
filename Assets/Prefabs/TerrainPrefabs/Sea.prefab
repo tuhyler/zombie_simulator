@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 151414204977523408}
   - component: {fileID: 5191855138478399228}
   m_Layer: 6
-  m_Name: SeaTile
+  m_Name: Sea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

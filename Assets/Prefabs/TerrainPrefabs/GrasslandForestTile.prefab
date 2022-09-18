@@ -127,6 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: 0d19c76124f82c542980a2733a23fa44, type: 2}
+  numbers: {fileID: 0}
   hasRoad: 0
 --- !u!114 &-7194674504443025371
 MonoBehaviour:
