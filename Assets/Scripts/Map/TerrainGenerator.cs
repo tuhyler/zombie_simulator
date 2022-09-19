@@ -10,16 +10,10 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private int seed = 4;
     [SerializeField]
-    private int yCoord = 3, desertPerc = 30, forestAndJunglePerc = 70, mountainPerc = 10, mountainousPerc = 80, 
+    private int width = 50, height = 50, yCoord = 3, desertPerc = 30, forestAndJunglePerc = 70, mountainPerc = 10, mountainousPerc = 80, 
         mountainRangeLength = 20, equatorDist = 10, riverPerc = 5, riverCountMin = 10, oceanRingDepth = 2;
 
     [Header("Perlin Noise Generation Parameters")]
-    //[SerializeField]
-    //protected Vector3Int startPosition = Vector3Int.zero;
-    [SerializeField]
-    private int width = 50;
-    [SerializeField]
-    private int height = 50;
     [SerializeField]
     private float scale = 8;
     [SerializeField]
@@ -40,40 +34,44 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private int randomFillPercent = 60;
 
-    //[Header("Random Walk")]
-    //[SerializeField]
-    //private int iterationsRW = 10;
-    //[SerializeField]
-    //private int walkLength = 10;
-    //[SerializeField]
-    //private bool iterationStartRandom = true;
-
     [Header("Tiles")]
     [SerializeField]
     private GameObject grassland; //separate here so that header isn't on every line
     [SerializeField]
     private GameObject forest, jungle, grasslandHill, forestHill, jungleHill, grasslandFloodPlain,
-        desertFloodPlainVar0, desertFloodPlainVar1, desertFloodPlainVar2, desertFloodPlainVar3, desertFloodPlainVar4, desertFloodPlainVar5,
+        desertFloodPlainVar1, desertFloodPlainVar2, desertFloodPlainVar3, desertFloodPlainVar4, desertFloodPlainVar5,
         desertVar0, desertVar1, desertVar2, desertVar3, desertVar4, desertVar5,
         desertHillVar0, desertHillVar1, desertHillVar2, desertHillVar3, desertHillVar4, desertHillVar5,
         grasslandMountain1, grasslandMountain2, grasslandMountain3, grasslandMountain4, desertMountain1, desertMountain2, desertMountain3, desertMountain4,
         swampVar0, swampVar1, swampVar2, swampVar3, swampVar4, swampVar5,
         riverSolo,  riverEnd, riverStraightVar1, riverStraightVar2, riverStraightVar3, riverCurve, riverThreeWay, riverFourWay,
-        ocean, oceanStraightCoastVar1, oceanCurve, oceanRiver, oceanThreeWay, oceanCorner;
+        ocean, oceanStraightCoastVar1, oceanCurve, oceanCurveRiverLeft, oceanCurveRiverRight, oceanRiver, oceanThreeWay, oceanCorner, oceanKittyCorner, 
+        oceanStraightCornerLeft, oceanStraightCornerRight, oceanRiverCornerLeft, oceanRiverCornerRight;
+
+    [Header("Props")]
+    [SerializeField]
+    private GameObject grasslandProp01;
+    [SerializeField]
+    private GameObject grasslandProp02, grasslandProp03, desertProp01, desertFloodPlainProp01;
+
+    [Header("Water")]
+    [SerializeField]
+    private GameObject water;
 
     [Header("Parents for Tiles")]
     [SerializeField]
     private Transform groundTiles;
 
-    private GameObject[] grasslandMountainArray;
-    private GameObject[] desertMountainArray;
+    private GameObject[] grasslandMountains;
+    private GameObject[] desertMountains;
+    private GameObject[] grasslandProps;
+    private GameObject[] desertProps;
+    private GameObject[] desertFloodPlainProps;
+    private GameObject[] riverStraights;
 
     int[] ugh = { 1, 2, 3 }; 
 
     private List<GameObject> allTiles = new();
-
-    //[SerializeField]
-    //protected Vector3Int startPosition = Vector3Int.zero;
 
     public bool autoUpdate;
 
@@ -117,20 +115,26 @@ public class TerrainGenerator : MonoBehaviour
 
         mainMap = ProceduralGeneration.AddOceanRing(mainMap, width, height, yCoord, oceanRingDepth);
 
-        //List<Vector3Int> landPositions = new();
+        //mainMap[new Vector3Int(14, 3, 25)] = ProceduralGeneration.grassland;
+        //mainMap[new Vector3Int(14, 3, 23)] = ProceduralGeneration.grassland;
+        //mainMap[new Vector3Int(16, 3, 25)] = ProceduralGeneration.grassland;
+        //mainMap[new Vector3Int(16, 3, 23)] = ProceduralGeneration.grassland;
+
+        mainMap = ProceduralGeneration.ConvertOceanToRivers(mainMap);
+
 
         foreach (Vector3Int position in mainMap.Keys)
         {            
             if (mainMap[position] == ProceduralGeneration.sea)
             {
-                GameObject sea;
-                Quaternion rotation;
-                int[] neighborDirectTerrainLoc = new int[4] { 0, 0, 0, 0 }; 
+                GameObject sea = ocean;
+                Quaternion rotation = Quaternion.identity;
+                int[] neighborDirectTerrainLoc = new int[4] { 0, 0, 0, 0 };
                 int[] neighborTerrainLoc = new int[4] { 0, 0, 0, 0 };
-                int[] neighborDirectTerrainType = new int[4];
-                int[] neighborTerrainType = new int[4];
+                int[] neighborRiver = new int[4] { 0, 0, 0, 0 };
                 int directNeighborCount = 0;
                 int neighborCount = 0;
+                int riverCount = 0;
                 int i = 0;
 
                 foreach (Vector3Int neighbor in ProceduralGeneration.neighborsEightDirections)
@@ -145,13 +149,18 @@ public class TerrainGenerator : MonoBehaviour
                         if (i % 2 == 0)
                         {
                             directNeighborCount++;
-                            neighborDirectTerrainLoc[i] = 1;
-                            neighborDirectTerrainType[i] = mainMap[neighborPos];
+                            neighborDirectTerrainLoc[i / 2] = 1;
+                            if (mainMap[neighborPos] == ProceduralGeneration.river)
+                            {
+                                neighborRiver[i / 2] = 1;
+                                riverCount++;
+                            }
                         }
-
-                        neighborCount++;
-                        neighborTerrainLoc[i] = 1;
-                        neighborTerrainType[i] = mainMap[neighborPos];
+                        else
+                        {
+                            neighborCount++;
+                            neighborTerrainLoc[i / 2] = 1;
+                        }
                     }
 
                     i++;
@@ -159,54 +168,65 @@ public class TerrainGenerator : MonoBehaviour
 
                 if (directNeighborCount == 1)
                 {
-                    int index = Array.FindIndex(neighborTerrainLoc, x => x == 1);
-                    if (neighborTerrainType[index] == ProceduralGeneration.river)
-                    {
-                        sea = oceanRiver;
-                    }
-                    else
-                    {
-                        sea = oceanStraightCoastVar1;
-                    }
-
+                    sea = riverCount == 0 ? oceanStraightCoastVar1 : oceanRiver;
+                    int index = Array.FindIndex(neighborDirectTerrainLoc, x => x == 1);
                     rotation = Quaternion.Euler(0, index * 90, 0);
+
+                    if (neighborCount >= 2)
+                    {
+                        int cornerOne = index + 1;
+                        int cornerTwo = index + 2;
+                        cornerOne = cornerOne == 4 ? 0 : cornerOne;
+                        cornerTwo = cornerTwo == 4 ? 0 : cornerTwo;
+                        cornerTwo = cornerTwo == 5 ? 1 : cornerTwo;
+
+                        if (neighborTerrainLoc[cornerOne] == 1)
+                            sea = riverCount == 0 ? oceanStraightCornerLeft : oceanRiverCornerLeft;
+                        else if (neighborTerrainLoc[cornerTwo] == 1)
+                            sea = riverCount == 0 ? oceanStraightCornerRight : oceanRiverCornerRight;
+                    }
                 }
                 else if (directNeighborCount == 2)
                 {
-                    int index = 0;
-                    int totalIndex = 0;
-                    //int rotationFactor;
+                    if (position == new Vector3Int(19,3,16))
+                        Debug.Log("");
+                    
+                    sea = oceanCurve;
+                    int[] holder = new int[2];
 
                     for (int j = 0; j < 2; j++)
                     {
-                        index = Array.FindIndex(neighborTerrainLoc, x => x == 1);
-                        neighborTerrainLoc[index] = 0; //setting to zero so it doesn't find the first one again
-                        totalIndex += index;
+                        holder[j] = Array.FindIndex(neighborDirectTerrainLoc, x => x == 1);
+                        neighborDirectTerrainLoc[holder[j]] = 0; //setting to zero so it doesn't find the first one again
                     }
 
-                    if (totalIndex % 2 == 0) //for straight across
+                    int max = Mathf.Max(holder);
+                    int min = Mathf.Min(holder);
+
+                    rotation = max - min == 1 ? Quaternion.Euler(0, min * 90, 0) : Quaternion.Euler(0, max * 90, 0);
+
+                    if (riverCount == 1)
                     {
-                        sea = riverStraightVar1;
-                        rotation = Quaternion.Euler(0, (index % 2) * 90, 0);
+                        int riverIndex = Array.FindIndex(neighborRiver, x => x == 1);
+
+                        if (riverIndex == max)
+                            sea = max - min == 1 ? oceanCurveRiverLeft : oceanCurveRiverRight;
+                        else if (riverIndex == min)
+                            sea = max - min == 1 ? oceanCurveRiverRight : oceanCurveRiverLeft;
                     }
-                    else //for corners
+                    else if (riverCount == 2)
                     {
-                        int rotationFactor = totalIndex / 2;
-                        if (totalIndex == 3 && index == 3)
-                            rotationFactor = 3;
-                        sea = oceanCurve;
-                        rotation = Quaternion.Euler(0, rotationFactor * 90, 0);
+                        sea = oceanThreeWay;
                     }
                 }
                 else if (directNeighborCount == 3)
                 {
-                    sea = riverEnd;
-                    int index = Array.FindIndex(neighborTerrainLoc, x => x == 0);
-                    rotation = Quaternion.Euler(0, index * 90, 0);
+                    sea = ocean;
+                    rotation = Quaternion.identity;
                 }
                 else if (directNeighborCount == 4)
                 {
-                    sea = riverSolo;
+                    sea = ocean;
                     rotation = Quaternion.identity;
                 }
                 else
@@ -217,14 +237,22 @@ public class TerrainGenerator : MonoBehaviour
                         int index = Array.FindIndex(neighborTerrainLoc, x => x == 1);
                         rotation = Quaternion.Euler(0, index * 90, 0);
                     }
-                    else
+                    else if (neighborCount == 2)
+                    {
+                        sea = oceanKittyCorner;
+                        int index = Array.FindIndex(neighborTerrainLoc, x => x == 1);
+                        rotation = Quaternion.Euler(0, index * 90, 0);
+                    }
+                    else if (neighborCount == 3)
                     {
                         sea = ocean;
-                        rotation = Quaternion.identity;
+                        int index = Array.FindIndex(neighborTerrainLoc, x => x == 0);
+                        rotation = Quaternion.Euler(0, index * 90, 0);
                     }
                 }
 
                 GenerateTile(sea, position, rotation);
+                //GenerateTile(ocean, position, Quaternion.identity);
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandHill)
             {
@@ -247,26 +275,32 @@ public class TerrainGenerator : MonoBehaviour
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
             {
-                GameObject grasslandMountain = grasslandMountainArray[random.Next(0,4)];
+                GameObject grasslandMountain = grasslandMountains[random.Next(0,4)];
                 
                 GenerateTile(grasslandMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
             }
             else if (mainMap[position] == ProceduralGeneration.desertMountain)
             {
-                GameObject desertMountain = desertMountainArray[random.Next(0, 4)];
+                GameObject desertMountain = desertMountains[random.Next(0, 4)];
 
                 GenerateTile(desertMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
             }
             else if (mainMap[position] == ProceduralGeneration.grassland)
-            {
-                GenerateTile(grassland, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
+            {                
+                GameObject newTile = GenerateTile(grassland, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
+
+                if (random.Next(0, 10) < 7)
+                    AddProp(random, newTile, grasslandProps);
             }
             else if (mainMap[position] == ProceduralGeneration.desert)
             {
                 FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, desertVar0, desertVar1, desertVar2, desertVar3,
                     desertVar4, desertVar5, out Quaternion rotation, out GameObject desert);
 
-                GenerateTile(desert, position, rotation);
+                GameObject newTile = GenerateTile(desert, position, rotation);
+
+                if (random.Next(0, 10) < 3)
+                    AddProp(random, newTile, desertProps);
             }
             else if (mainMap[position] == ProceduralGeneration.forest)
             {
@@ -288,17 +322,40 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, true, riverSolo, riverEnd, riverCurve, riverThreeWay,
                     riverFourWay, riverStraightVar1, out Quaternion rotation, out GameObject river);
 
+                if (river == riverStraightVar1)
+                    river = riverStraights[random.Next(0, riverStraights.Length)];
+
                 GenerateTile(river, position, rotation);
             }
-            //else if (mainMap[position] == ProceduralGeneration.desertRiver)
-            //{
-            //    GenerateTile(riverDesertStraight, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
-            //}
+            else if (mainMap[position] == ProceduralGeneration.grasslandFloodPlain)
+            {
+                GameObject newTile = GenerateTile(grasslandFloodPlain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
+
+                if (random.Next(0, 10) < 7)
+                    AddProp(random, newTile, grasslandProps);
+            }
+            else if (mainMap[position] == ProceduralGeneration.desertFloodPlain)
+            {
+                FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, desertVar0, desertFloodPlainVar1, desertFloodPlainVar2,
+                    desertFloodPlainVar3, desertFloodPlainVar4, desertFloodPlainVar5, out Quaternion rotation, out GameObject desertFloodPlain);
+
+                GameObject newTile = GenerateTile(desertFloodPlain, position, rotation);
+
+                if (random.Next(0, 10) < 5)
+                    AddProp(random, newTile, desertFloodPlainProps);
+            }
             else
             {
                 GenerateTile(grassland, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
             }
         }
+
+        //Finish it all of by placing water
+        Vector3 waterLoc = new Vector3((width) / 2, yCoord - .05f, (height) / 2);
+        GameObject water = Instantiate(this.water, waterLoc, Quaternion.identity);
+        water.transform.SetParent(groundTiles.transform, false);
+        allTiles.Add(water);
+        water.transform.localScale = new Vector3((width + oceanRingDepth * 2)/10f, 1, (height + oceanRingDepth * 2)/10f);
     }
 
     //ugly method to make above method cleaner
@@ -316,25 +373,27 @@ public class TerrainGenerator : MonoBehaviour
             if (desert && !mainMap.ContainsKey(neighborPos))
                 continue;
 
-            if (desert)
+            if (desert) //for desert
             {
                 if (mainMap[neighborPos] == ProceduralGeneration.grassland || mainMap[neighborPos] == ProceduralGeneration.forest ||
                     mainMap[neighborPos] == ProceduralGeneration.jungle || mainMap[neighborPos] == ProceduralGeneration.jungleHill ||
                     mainMap[neighborPos] == ProceduralGeneration.forestHill || mainMap[neighborPos] == ProceduralGeneration.swamp ||
                     mainMap[neighborPos] == ProceduralGeneration.grasslandHill || mainMap[neighborPos] == ProceduralGeneration.grasslandMountain ||
-                    mainMap[neighborPos] == ProceduralGeneration.river)
+                    mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain ||
+                    mainMap[neighborPos] == ProceduralGeneration.sea)
                 {
                     neighborCount++;
                     neighborTerrainLoc[i] = 1;
                 }
             }
-            else if (!desert && !river)
+            else if (!desert && !river) //for swamp
             {
                 if (!mainMap.ContainsKey(neighborPos) || mainMap[neighborPos] == ProceduralGeneration.grassland || 
                     mainMap[neighborPos] == ProceduralGeneration.forest ||mainMap[neighborPos] == ProceduralGeneration.jungle || 
                     mainMap[neighborPos] == ProceduralGeneration.jungleHill || mainMap[neighborPos] == ProceduralGeneration.forestHill || 
                     mainMap[neighborPos] == ProceduralGeneration.desertHill || mainMap[neighborPos] == ProceduralGeneration.desert ||
                     mainMap[neighborPos] == ProceduralGeneration.grasslandHill || mainMap[neighborPos] == ProceduralGeneration.grasslandMountain ||
+                    mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain || mainMap[neighborPos] == ProceduralGeneration.desertFloodPlain ||
                     mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.sea)
                 {
                     neighborCount++;
@@ -405,20 +464,33 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    private void PopulateArrays()
+    private void AddProp(System.Random random, GameObject terrain, GameObject[] propArray)
     {
-        grasslandMountainArray = new GameObject[4] { grasslandMountain1, grasslandMountain2, grasslandMountain3, grasslandMountain4 };
-        desertMountainArray = new GameObject[4] { desertMountain1, desertMountain2, desertMountain3, desertMountain4 };
+        TerrainData td = terrain.GetComponent<TerrainData>();
+        Quaternion rotation = Quaternion.Euler(0, random.Next(0, 4) * 90, 0);
+        rotation = Quaternion.identity;
+
+        GameObject newProp = Instantiate(propArray[random.Next(0, propArray.Length)], new Vector3Int(0, 0, 0), rotation);
+        newProp.transform.SetParent(td.prop, false);
     }
 
-    private void GenerateTile(/*float perlinCoord, */GameObject tile, Vector3Int position, Quaternion rotation)
+    private void PopulateArrays()
+    {
+        grasslandMountains = new GameObject[4] { grasslandMountain1, grasslandMountain2, grasslandMountain3, grasslandMountain4 };
+        desertMountains = new GameObject[4] { desertMountain1, desertMountain2, desertMountain3, desertMountain4 };
+        grasslandProps = new GameObject[3] { grasslandProp01, grasslandProp02, grasslandProp03 };
+        desertProps = new GameObject[1] { desertProp01 };
+        desertFloodPlainProps = new GameObject[1] { desertFloodPlainProp01 };
+        riverStraights = new GameObject[3] { riverStraightVar1, riverStraightVar2, riverStraightVar3 };
+    }
+
+    private GameObject GenerateTile(/*float perlinCoord, */GameObject tile, Vector3Int position, Quaternion rotation)
     {
         GameObject newTile = Instantiate(tile, position, rotation);
         newTile.transform.SetParent(groundTiles.transform, false);
         allTiles.Add(newTile);
 
-        //temporary, just to see the values
-        //newTile.GetComponent<TerrainData>().numbers.text = Math.Round(perlinCoord, 3).ToString();
+        return newTile;
     }
 
     protected void RemoveAllTiles()

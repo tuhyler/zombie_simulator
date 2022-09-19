@@ -65,7 +65,82 @@ PrefabInstance:
     - target: {fileID: 7221296149639146468, guid: 0605caa28d198334aa0152469fb6c4b8,
         type: 3}
       propertyPath: m_Name
-      value: DesertHillTile
+      value: DesertHillTileFadeVar00
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0605caa28d198334aa0152469fb6c4b8, type: 3}
+--- !u!4 &4720151951389838183 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5510608897258472015, guid: 0605caa28d198334aa0152469fb6c4b8,
+    type: 3}
+  m_PrefabInstance: {fileID: 1006770744786913576}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8702962565557164361
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 4720151951389838183}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ac7fff1dcf79095429df7241b2ec7416,
+        type: 3}
+      propertyPath: m_Name
+      value: deserthill01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ac7fff1dcf79095429df7241b2ec7416, type: 3}

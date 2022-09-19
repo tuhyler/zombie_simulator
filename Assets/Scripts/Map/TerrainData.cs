@@ -10,7 +10,7 @@ public class TerrainData : MonoBehaviour
     private TerrainDataSO terrainData;
 
     [SerializeField]
-    public TMP_Text numbers;
+    public Transform prop;
 
     private SelectionHighlight highlight;
 

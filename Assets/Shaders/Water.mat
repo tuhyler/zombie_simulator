@@ -56,8 +56,8 @@ Material:
     - _FoamCutoff: 3
     - _FoamScale: 0
     - _FoamSpeed: 0.005
-    - _HeightFrequency: 5
-    - _NormalStrength: 0.7
+    - _HeightFrequency: 1
+    - _NormalStrength: 1
     - _QueueControl: 0
     - _QueueOffset: 0
     - _RefractionSpeed: 0.02
