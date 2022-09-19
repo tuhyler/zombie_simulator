@@ -24,8 +24,8 @@ public class ProceduralGeneration
     public static int jungle = 13;
     public static int swamp = 14;
     public static int river = 15;
-    public static int grasslandRiver = 16; 
-    public static int desertRiver = 17;
+    public static int grasslandFloodPlain = 16; 
+    public static int desertFloodPlain = 17;
 
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -149,6 +149,118 @@ public class ProceduralGeneration
         return mainMap;
     }
 
+    public static Dictionary<Vector3Int, int> ConvertOceanToRivers(Dictionary<Vector3Int, int> mainMap)
+    {
+        Dictionary<Vector3Int, int> mapTiles = new(mainMap);
+
+        for (int k = 0; k < 2; k++) //2 passes
+        {
+            foreach (Vector3Int pos in mainMap.Keys)
+            {
+                int[] neighborDirectTerrainLoc = new int[4] { 0, 0, 0, 0 };
+                int neighborDirectCount = 0;
+                int[] neighborTerrainLoc = new int[4] { 0, 0, 0, 0 };
+                int neighborCount = 0;
+                int i = 0;
+
+                if (mainMap[pos] == sea)
+                {
+                    foreach (Vector3Int neighbor in neighborsEightDirections)
+                    {
+                        Vector3Int neighborPos = neighbor + pos;
+
+                        if (!mainMap.ContainsKey(neighborPos))
+                            continue;
+
+                        if (mainMap[neighborPos] != sea) //|| mainMap[neighborPos] == river)
+                        {
+                            if (i % 2 == 0)
+                            {
+                                neighborDirectTerrainLoc[i / 2] = 1;
+                                neighborDirectCount++;
+                            }
+                            else
+                            {
+                                neighborTerrainLoc[i / 2] = 1;
+                                neighborCount++;
+                            }
+                        }
+
+                        i++;
+                    }
+                }
+
+                if (pos == new Vector3Int(10, 3, 35))
+                    Debug.Log("");
+
+                if (neighborDirectCount == 0)
+                {
+                    if (neighborCount == 4)
+                    {
+                        mapTiles[pos] = river;
+                    }
+                }
+                else if (neighborDirectCount == 1)
+                {
+                    if (neighborCount >= 2)
+                    {
+                        int index = Array.FindIndex(neighborDirectTerrainLoc, x => x == 1);
+                        int cornerOne = index + 1;
+                        int cornerTwo = index + 2;
+                        cornerOne = cornerOne == 4 ? 0 : cornerOne;
+                        cornerTwo = cornerTwo == 4 ? 0 : cornerTwo;
+                        cornerTwo = cornerTwo == 5 ? 1 : cornerTwo;
+
+                        if (cornerOne == 1 && cornerTwo == 1)
+                            mapTiles[pos] = river;
+                    }
+                }
+                else if (neighborDirectCount == 2)
+                {
+                    int[] holder = new int[2];
+
+                    for (int j = 0; j < 2; j++)
+                    {
+                        holder[j] = Array.FindIndex(neighborDirectTerrainLoc, x => x == 1);
+                        neighborDirectTerrainLoc[holder[j]] = 0; //setting to zero so it doesn't find the first one again
+                    }
+
+                    int max = Mathf.Max(holder);
+                    int min = Mathf.Min(holder);
+
+                    if ((max - min) % 2 == 0) //for straight across
+                        mapTiles[pos] = river;
+                    else
+                    {
+                        if (neighborCount >= 1)
+                        {
+                            if (max < 3 && neighborTerrainLoc[max + 1] == 1)
+                                mapTiles[pos] = river;
+                            else if (min == 0 && max == 3 && neighborTerrainLoc[min + 1] == 1)
+                                mapTiles[pos] = river;
+                            else if (min == 2 && neighborTerrainLoc[0] == 1)
+                                mapTiles[pos] = river;
+                        }
+                    }
+
+                }
+                else if (neighborDirectCount == 3)
+                {
+                    mapTiles[pos] = river;
+                }
+                else
+                {
+                    mapTiles[pos] = river;
+                }
+
+            }
+
+            mainMap = new(mapTiles);
+        }
+
+        return mapTiles;
+    }
+
     public static Dictionary<Vector3Int, int> MergeMountainTerrain(Dictionary<Vector3Int, int> mainMap, Dictionary<Vector3Int, int> mountainMap)
     {
         foreach (Vector3Int tile in mountainMap.Keys)
@@ -176,22 +288,19 @@ public class ProceduralGeneration
             else if (mountainMap[tile] == river)
             {
                 mainMap[tile] = river;
-                
-                //if (mainMap[tile] == grassland || mainMap[tile] == forest || mainMap[tile] == jungle || mainMap[tile] == swamp)
-                //    mainMap[tile] = grasslandRiver;
-                //else if (mainMap[tile] == desert)
-                //{
-                //    mainMap[tile] = desertRiver;
 
-                //    foreach (Vector3Int neighbor in neighborsFourDirections)
-                //    {
-                //        if (mainMap[neighbor + tile] == grassland || mainMap[neighbor + tile] == forest || mainMap[neighbor + tile] == jungle ||
-                //            mainMap[neighbor + tile] == swamp || mainMap[neighbor + tile] == grasslandHill || mainMap[neighbor + tile] == grasslandMountain)
-                //        {
-                //            mainMap[tile] = grasslandRiver;
-                //        }
-                //    }
-                //}
+                foreach (Vector3Int neighbor in neighborsFourDirections)
+                {
+                    Vector3Int neighborPos = neighbor + tile;
+
+                    if (!mainMap.ContainsKey(neighborPos))
+                        continue;
+
+                    if (mainMap[neighborPos] == grassland)
+                        mainMap[neighborPos] = grasslandFloodPlain;
+                    else if (mainMap[neighborPos] == desert)
+                        mainMap[neighborPos] = desertFloodPlain;
+                }
             }
         }
 
@@ -773,9 +882,6 @@ public class ProceduralGeneration
             totalTileCount++;
             int seaCheck = 0;
 
-            if (tile == new Vector3Int(19, 3, 30))
-                Debug.Log("found");
-
             foreach (Vector3Int neighbor in neighborsFourDirections)
             {
                 
@@ -832,7 +938,7 @@ public class ProceduralGeneration
         {
             Queue<Vector3Int> newRiver = new();
             Vector3Int newRiverStart = riverStarts.Dequeue();
-            Debug.Log("River start is " + newRiverStart);
+            //Debug.Log("River start is " + newRiverStart);
             newRiver.Enqueue(newRiverStart);
             List<Vector3Int> newRiverTiles = new();
             int[] alternateDirections = DirectionSetUp(random.Next(0, 4));
@@ -852,9 +958,9 @@ public class ProceduralGeneration
             while (newRiver.Count > 0)
             {
                 Vector3Int position = newRiver.Dequeue();
-                Debug.Log("river goes " + position);
-                if (position == new Vector3Int(34, 3, 21))
-                    Debug.Log("found");
+                //Debug.Log("river goes " + position);
+                //if (position == new Vector3Int(34, 3, 21))
+                //    Debug.Log("found");
 
                 newRiverTiles.Add(position);
                 potentialStartTiles.Remove(position);

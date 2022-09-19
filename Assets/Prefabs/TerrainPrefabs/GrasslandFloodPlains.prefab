@@ -94,6 +94,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: 58d4e77210298ca42b215c5a7ebfc0d5, type: 2}
+  prop: {fileID: 5113110230019589537}
   hasRoad: 0
 --- !u!114 &2647782564825345499
 MonoBehaviour:
