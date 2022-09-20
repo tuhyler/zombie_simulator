@@ -17694,7 +17694,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8192b0fbb669a484b8dc1e4afdf8e489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 4
+  seed: 6
   width: 50
   height: 50
   yCoord: 3
@@ -17706,7 +17706,7 @@ MonoBehaviour:
   equatorDist: 5
   riverPerc: 0
   riverCountMin: 10
-  oceanRingDepth: 2
+  oceanRingDepth: 3
   scale: 5
   octaves: 3
   persistance: 0.474
@@ -17816,7 +17816,7 @@ MonoBehaviour:
     type: 3}
   oceanRiver: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
     type: 3}
-  oceanThreeWay: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
+  oceanThreeWay: {fileID: 2466234295217164166, guid: bcbc7709c4aedf34789dc74a95e3412a,
     type: 3}
   oceanCorner: {fileID: 2466234295217164166, guid: 271575a18740b8844bf4c7b379b3edb0,
     type: 3}
@@ -17826,9 +17826,9 @@ MonoBehaviour:
     type: 3}
   oceanStraightCornerRight: {fileID: 2466234295217164166, guid: bbdd5bbbed748e6499922b456032ed5a,
     type: 3}
-  oceanRiverCornerLeft: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
+  oceanRiverCornerLeft: {fileID: 2466234295217164166, guid: 3e496b8bdd1229e4091cd5ca0d01df73,
     type: 3}
-  oceanRiverCornerRight: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
+  oceanRiverCornerRight: {fileID: 2466234295217164166, guid: 756567be5250eb140b8867fdd35d5630,
     type: 3}
   grasslandProp01: {fileID: 9073605623283122857, guid: b46832f06bbb3ef439028bb021b5ae44,
     type: 3}
@@ -39845,7 +39845,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.499994
+      value: 8.500001
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
