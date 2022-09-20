@@ -17810,9 +17810,9 @@ MonoBehaviour:
     type: 3}
   oceanCurve: {fileID: 2466234295217164166, guid: ffc020e0ba923a74f8744359f14d1903,
     type: 3}
-  oceanCurveRiverLeft: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
+  oceanCurveRiverLeft: {fileID: 2466234295217164166, guid: fd1b8c0435710be48945a95336e70e33,
     type: 3}
-  oceanCurveRiverRight: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
+  oceanCurveRiverRight: {fileID: 2466234295217164166, guid: e6114a1b9d1f39d449889e4707db249b,
     type: 3}
   oceanRiver: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
     type: 3}
@@ -17820,11 +17820,11 @@ MonoBehaviour:
     type: 3}
   oceanCorner: {fileID: 2466234295217164166, guid: 271575a18740b8844bf4c7b379b3edb0,
     type: 3}
-  oceanKittyCorner: {fileID: 2466234295217164166, guid: 271575a18740b8844bf4c7b379b3edb0,
+  oceanKittyCorner: {fileID: 2466234295217164166, guid: 50cd08a4492bc264da59d171f3cd1fb0,
     type: 3}
-  oceanStraightCornerLeft: {fileID: 2466234295217164166, guid: 0d4c85581415c32478850ca1f9498f30,
+  oceanStraightCornerLeft: {fileID: 2466234295217164166, guid: 961eb7b4c4c7e2a428fee38968442611,
     type: 3}
-  oceanStraightCornerRight: {fileID: 2466234295217164166, guid: 0d4c85581415c32478850ca1f9498f30,
+  oceanStraightCornerRight: {fileID: 2466234295217164166, guid: bbdd5bbbed748e6499922b456032ed5a,
     type: 3}
   oceanRiverCornerLeft: {fileID: 2466234295217164166, guid: 8bb070d810db1824ba6105fc35e08260,
     type: 3}
@@ -39845,7 +39845,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500183
+      value: 8.499994
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

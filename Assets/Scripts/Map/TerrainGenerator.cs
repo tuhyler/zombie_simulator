@@ -115,8 +115,8 @@ public class TerrainGenerator : MonoBehaviour
 
         mainMap = ProceduralGeneration.AddOceanRing(mainMap, width, height, yCoord, oceanRingDepth);
 
-        //mainMap[new Vector3Int(14, 3, 25)] = ProceduralGeneration.grassland;
-        //mainMap[new Vector3Int(14, 3, 23)] = ProceduralGeneration.grassland;
+        mainMap[new Vector3Int(46, 3, 3)] = ProceduralGeneration.grassland;
+        //mainMap[new Vector3Int(44, 3, 3)] = ProceduralGeneration.grassland;
         //mainMap[new Vector3Int(16, 3, 25)] = ProceduralGeneration.grassland;
         //mainMap[new Vector3Int(16, 3, 23)] = ProceduralGeneration.grassland;
 
@@ -172,7 +172,7 @@ public class TerrainGenerator : MonoBehaviour
                     int index = Array.FindIndex(neighborDirectTerrainLoc, x => x == 1);
                     rotation = Quaternion.Euler(0, index * 90, 0);
 
-                    if (neighborCount >= 2)
+                    if (neighborCount >= 1)
                     {
                         int cornerOne = index + 1;
                         int cornerTwo = index + 2;
@@ -351,7 +351,7 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         //Finish it all of by placing water
-        Vector3 waterLoc = new Vector3((width) / 2, yCoord - .05f, (height) / 2);
+        Vector3 waterLoc = new Vector3((width) / 2, yCoord - .02f, (height) / 2);
         GameObject water = Instantiate(this.water, waterLoc, Quaternion.identity);
         water.transform.SetParent(groundTiles.transform, false);
         allTiles.Add(water);
@@ -379,8 +379,8 @@ public class TerrainGenerator : MonoBehaviour
                     mainMap[neighborPos] == ProceduralGeneration.jungle || mainMap[neighborPos] == ProceduralGeneration.jungleHill ||
                     mainMap[neighborPos] == ProceduralGeneration.forestHill || mainMap[neighborPos] == ProceduralGeneration.swamp ||
                     mainMap[neighborPos] == ProceduralGeneration.grasslandHill || mainMap[neighborPos] == ProceduralGeneration.grasslandMountain ||
-                    mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain ||
-                    mainMap[neighborPos] == ProceduralGeneration.sea)
+                    /*mainMap[neighborPos] == ProceduralGeneration.river || */mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain /*||
+                    mainMap[neighborPos] == ProceduralGeneration.sea*/)
                 {
                     neighborCount++;
                     neighborTerrainLoc[i] = 1;
@@ -393,8 +393,8 @@ public class TerrainGenerator : MonoBehaviour
                     mainMap[neighborPos] == ProceduralGeneration.jungleHill || mainMap[neighborPos] == ProceduralGeneration.forestHill || 
                     mainMap[neighborPos] == ProceduralGeneration.desertHill || mainMap[neighborPos] == ProceduralGeneration.desert ||
                     mainMap[neighborPos] == ProceduralGeneration.grasslandHill || mainMap[neighborPos] == ProceduralGeneration.grasslandMountain ||
-                    mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain || mainMap[neighborPos] == ProceduralGeneration.desertFloodPlain ||
-                    mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.sea)
+                    mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain || mainMap[neighborPos] == ProceduralGeneration.desertFloodPlain /*||
+                    mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.sea*/)
                 {
                     neighborCount++;
                     neighborTerrainLoc[i] = 1;
