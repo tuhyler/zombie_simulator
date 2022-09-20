@@ -94,7 +94,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: 3ba1ac758cdd6794fbe38a5ac8b879d6, type: 2}
-  numbers: {fileID: 0}
+  prop: {fileID: 0}
   hasRoad: 0
 --- !u!114 &5191855138478399228
 MonoBehaviour:
@@ -207,7 +207,8 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: e7d9ff91be916f74da6c230b11070b1d, type: 2}
+      objectReference: {fileID: 5219994001965915643, guid: 3b57df4cecb3e83448f7b2b273c0332b,
+        type: 3}
     - target: {fileID: 919132149155446097, guid: a1932cd2370d7664d974694c538a7bf3,
         type: 3}
       propertyPath: m_Name
