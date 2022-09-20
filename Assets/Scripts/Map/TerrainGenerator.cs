@@ -115,8 +115,8 @@ public class TerrainGenerator : MonoBehaviour
 
         mainMap = ProceduralGeneration.AddOceanRing(mainMap, width, height, yCoord, oceanRingDepth);
 
-        mainMap[new Vector3Int(46, 3, 3)] = ProceduralGeneration.grassland;
-        //mainMap[new Vector3Int(44, 3, 3)] = ProceduralGeneration.grassland;
+        mainMap[new Vector3Int(44, 3, 25)] = ProceduralGeneration.grassland;
+        mainMap[new Vector3Int(45, 3, 23)] = ProceduralGeneration.river;
         //mainMap[new Vector3Int(16, 3, 25)] = ProceduralGeneration.grassland;
         //mainMap[new Vector3Int(16, 3, 23)] = ProceduralGeneration.grassland;
 
