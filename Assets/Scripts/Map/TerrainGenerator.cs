@@ -66,6 +66,12 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private Transform groundTiles;
 
+    [Header("Terrain Data SO")]
+    [SerializeField]
+    private TerrainDataSO forestSO;
+    [SerializeField]
+    private TerrainDataSO jungleSO, forestHillSO, jungleHillSO;
+
     private GameObject[] grasslandMountains;
     private GameObject[] desertMountains;
     private GameObject[] grasslandProps;
@@ -284,7 +290,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 GameObject newTile = GenerateTile(forestHill, position, rotation);
 
-                AddProp(random, newTile, forestHillProps);
+                AddProp(random, newTile, forestHillProps, forestHillSO);
             }
             else if (mainMap[position] == ProceduralGeneration.jungleHill)
             {
@@ -293,7 +299,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 GameObject newTile = GenerateTile(jungleHill, position, rotation);
 
-                AddProp(random, newTile, jungleHillProps);
+                AddProp(random, newTile, jungleHillProps, jungleHillSO);
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
             {
@@ -309,9 +315,6 @@ public class TerrainGenerator : MonoBehaviour
             }
             else if (mainMap[position] == ProceduralGeneration.grassland)
             {
-                if (position == new Vector3Int(31, 3, 25))
-                    Debug.Log("");
-                
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
                    grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject grassland);
 
@@ -337,7 +340,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 GameObject newTile = GenerateTile(forest, position, rotation);
 
-                AddProp(random, newTile, forestProps);
+                AddProp(random, newTile, forestProps, forestSO);
             }
             else if (mainMap[position] == ProceduralGeneration.jungle)
             {
@@ -346,7 +349,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 GameObject newTile = GenerateTile(jungle, position, rotation);
 
-                AddProp(random, newTile, jungleProps);
+                AddProp(random, newTile, jungleProps, jungleSO);
             }
             else if (mainMap[position] == ProceduralGeneration.swamp)
             {
@@ -393,7 +396,7 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         //Finish it all of by placing water
-        Vector3 waterLoc = new Vector3((width) / 2, yCoord - .02f, (height) / 2);
+        Vector3 waterLoc = new Vector3(width / 2 - .5f, yCoord - .02f, height / 2 - .5f);
         GameObject water = Instantiate(this.water, waterLoc, Quaternion.identity);
         water.transform.SetParent(groundTiles.transform, false);
         allTiles.Add(water);
@@ -516,9 +519,12 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    private void AddProp(System.Random random, GameObject terrain, GameObject[] propArray)
+    private void AddProp(System.Random random, GameObject terrain, GameObject[] propArray, TerrainDataSO tdSO = null)
     {
         TerrainData td = terrain.GetComponent<TerrainData>();
+        if (tdSO != null)
+            td.terrainData = tdSO;
+
         Quaternion rotation = Quaternion.Euler(0, random.Next(0, 4) * 90, 0);
         rotation = Quaternion.identity;
 
@@ -560,19 +566,3 @@ public class TerrainGenerator : MonoBehaviour
 }
 
 
-//public struct TerrainID
-//{
-//    public int landPlaceholder;
-//    public int sea;
-//    public int grasslandHillVar00;
-//    public int terrain;
-//    public int forestHill;
-//    public int jungleHill;
-//    public int grasslandMountain;
-//    public int desertMountain;
-//    public int grasslandVar00;
-//    public int desert;
-//    public int forest;
-//    public int jungle;
-//    public int swamp;
-//}

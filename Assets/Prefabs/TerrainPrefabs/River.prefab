@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 5378143918301295818}
   - component: {fileID: -6139789592915377178}
   m_Layer: 6
-  m_Name: GrasslandRiverTile
+  m_Name: River
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
