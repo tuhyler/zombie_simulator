@@ -190,9 +190,6 @@ public class ProceduralGeneration
                     }
                 }
 
-                if (pos == new Vector3Int(10, 3, 35))
-                    Debug.Log("");
-
                 if (neighborDirectCount == 0)
                 {
                     if (neighborCount == 4)
@@ -320,7 +317,7 @@ public class ProceduralGeneration
         //getting count of all land tiles
         foreach (int key in terrainRegions.Keys)
         {
-            if (key != 0) //0 is grassland
+            if (key != 0) //0 is grasslandVar00
                 allTilesCount += terrainRegions[key].Count;
         }
 
@@ -374,7 +371,7 @@ public class ProceduralGeneration
             int prevTerrain = chosenTerrain;
 
             if (region == 0)
-                chosenTerrain = grassland; //first region (borders of noise regions) is grassland
+                chosenTerrain = grassland; //first region (borders of noise regions) is grasslandVar00
             
             foreach (Vector3Int tile in terrainRegions[region])
             {
@@ -794,7 +791,7 @@ public class ProceduralGeneration
 
     //private static int GetHill(int terrainType)
     //{
-    //    int hillType = grasslandHill;
+    //    int hillType = grasslandHillVar00;
 
     //    if (terrainType == desert)
     //        hillType = desertHill;
@@ -802,8 +799,8 @@ public class ProceduralGeneration
     //        hillType = forestHill;
     //    else if (terrainType == jungle || terrainType == swamp)
     //        hillType = jungleHill;
-    //    else if (terrainType == grassland)
-    //        hillType = grasslandHill;
+    //    else if (terrainType == grasslandVar00)
+    //        hillType = grasslandHillVar00;
 
     //    return hillType;
     //}
