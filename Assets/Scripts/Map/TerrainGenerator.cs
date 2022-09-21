@@ -317,7 +317,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 GameObject newTile = GenerateTile(grassland, position, rotation);
 
-                if (random.Next(0, 10) < 4)
+                if (random.Next(0, 10) < 3)
                     AddProp(random, newTile, grasslandProps);
             }
             else if (mainMap[position] == ProceduralGeneration.desert)
@@ -373,7 +373,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 GameObject newTile = GenerateTile(grasslandFloodPlain, position, rotation);
 
-                if (random.Next(0, 10) < 7)
+                if (random.Next(0, 10) < 3)
                     AddProp(random, newTile, grasslandProps);
             }
             else if (mainMap[position] == ProceduralGeneration.desertFloodPlain)
