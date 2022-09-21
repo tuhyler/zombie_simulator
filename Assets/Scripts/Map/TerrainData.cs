@@ -7,7 +7,7 @@ using UnityEngine;
 public class TerrainData : MonoBehaviour
 {
     [SerializeField]
-    private TerrainDataSO terrainData;
+    public TerrainDataSO terrainData;
 
     [SerializeField]
     public Transform prop;
