@@ -16421,7 +16421,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8192b0fbb669a484b8dc1e4afdf8e489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 2
+  seed: 3
   width: 50
   height: 50
   yCoord: 3
@@ -16593,7 +16593,7 @@ MonoBehaviour:
     type: 3}
   desertProp01: {fileID: 9073605623283122857, guid: 958ea9c5f011fd44e8b05c51b580875d,
     type: 3}
-  desertProp02: {fileID: 9073605623283122857, guid: 958ea9c5f011fd44e8b05c51b580875d,
+  desertProp02: {fileID: 9073605623283122857, guid: 6fd3d4ee77ac3b94c90193632c865751,
     type: 3}
   desertFloodPlainProp01: {fileID: 9073605623283122857, guid: b984d21b1b49d9c489009f5620bcffa7,
     type: 3}
@@ -39012,7 +39012,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.5
+      value: 8.500671
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
