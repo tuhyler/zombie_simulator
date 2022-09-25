@@ -91,13 +91,12 @@ public class ProceduralGeneration
                 float xCoord = (float)pos.x / (scale * frequency) + octaveOffsets[k].x;
                 float zCoord = (float)pos.z / (scale * frequency) + octaveOffsets[k].y;
 
-                float simplexValue = Unity.Mathematics.noise.snoise(new Unity.Mathematics.float4(xCoord, 3.0f, zCoord, 1.0f));
+                //patches are messy
+                //float simplexValue = Unity.Mathematics.noise.snoise(new Unity.Mathematics.float4(xCoord, 3.0f, zCoord, 1.0f));
                 //noiseHeight += simplexValue * amplitude;
 
-                float simplex2Value = Unity.Mathematics.noise.psrnoise(new Unity.Mathematics.float2(xCoord, zCoord), new Unity.Mathematics.float2(xCoord, zCoord));
-                //noiseHeight += simplex2Value * amplitude;
-
-                Unity.Mathematics.float2 cellularValue = Unity.Mathematics.noise.cellular2x2(new Unity.Mathematics.float2(xCoord, zCoord));
+                //cellular (patches too big, scale to decrease in size but get messy)
+                //Unity.Mathematics.float2 cellularValue = Unity.Mathematics.noise.cellular2x2(new Unity.Mathematics.float2(xCoord, zCoord));
                 //noiseHeight += cellularValue.x * amplitude;
 
                 float perlinValue = Mathf.PerlinNoise(xCoord, zCoord) * 2 - 1;
@@ -261,7 +260,10 @@ public class ProceduralGeneration
     public static Dictionary<Vector3Int, int> MergeMountainTerrain(Dictionary<Vector3Int, int> mainMap, Dictionary<Vector3Int, int> mountainMap)
     {
         foreach (Vector3Int tile in mountainMap.Keys)
-        {            
+        {
+            if (tile == new Vector3Int(16, 3, 12))
+                Debug.Log("");
+            
             if (mountainMap[tile] == mountain)
             {
                 if (mainMap[tile] == grassland || mainMap[tile] == forest || mainMap[tile] == jungle || mainMap[tile] == swamp)
@@ -298,6 +300,10 @@ public class ProceduralGeneration
                     else if (mainMap[neighborPos] == desert)
                         mainMap[neighborPos] = desertFloodPlain;
                 }
+            }
+            else if (mountainMap[tile] == sea && mainMap[tile] != sea)
+            {
+                mainMap[tile] = sea;
             }
         }
 
@@ -675,8 +681,11 @@ public class ProceduralGeneration
 
         foreach (int key in landMassDict.Keys)
         {
-            mountainStarts.Enqueue(landMassDict[key][random.Next(0, landMassDict[key].Count)]);
-            allTiles.AddRange(landMassDict[key]);
+            if (landMassDict[key].Count > 0)
+            {
+                mountainStarts.Enqueue(landMassDict[key][random.Next(0, landMassDict[key].Count)]);
+                allTiles.AddRange(landMassDict[key]);
+            }
         }
 
         int mountainCount = 0;
@@ -837,6 +846,9 @@ public class ProceduralGeneration
                     Vector3Int tileB = new(i, yCoord, j + 1);
                     Vector3Int tileC = new(i + 1, yCoord, j + 1);
                     Vector3Int tileD = new(i + 1, yCoord, j);
+                    if (tileA == new Vector3Int(16, 3, 12))
+                        Debug.Log("");
+
 
                     if (mapDict[tileA] == sea && mapDict[tileC] == sea && mapDict[tileB] != sea && mapDict[tileD] != sea)
                         mapDict[tileB] = sea;
@@ -845,14 +857,10 @@ public class ProceduralGeneration
                         mapDict[tileA] = sea;
 
                     if (mapDict[tileA] == mountain && mapDict[tileC] == mountain && mapDict[tileB] != mountain && mapDict[tileD] != mountain)
-                    {
                         mapDict[tileA] = hill;
-                    }
 
                     if (mapDict[tileA] != mountain && mapDict[tileC] != mountain && mapDict[tileB] == mountain && mapDict[tileD] == mountain)
-                    {
                         mapDict[tileB] = hill;
-                    }
                 }
             }
         }
