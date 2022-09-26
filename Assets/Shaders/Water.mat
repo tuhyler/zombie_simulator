@@ -54,7 +54,7 @@ Material:
     - _Distance: 0.4
     - _FoamAmount: 0.08
     - _FoamCutoff: 3
-    - _FoamScale: 1
+    - _FoamScale: 0
     - _FoamSpeed: 0.005
     - _HeightFrequency: 5
     - _NormalStrength: 1
@@ -63,7 +63,7 @@ Material:
     - _RefractionSpeed: 0.01
     - _RefractionStrength: 0
     - _Smoothness: 1
-    - _WaveAmplitude: 0.01
+    - _WaveAmplitude: 0
     - _waveSpeed: 0.01
     m_Colors:
     - _DeepWaterColor: {r: 0.082352936, g: 0.15268262, b: 1, a: 0.19215687}

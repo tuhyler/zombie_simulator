@@ -3,7 +3,12 @@ guid: 0093fa85797a1b041b0597eb04e07972
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DesertFloodPlains
+    second: {fileID: 2100000, guid: 94078c80e1ba3cd4cb4cf28ba3961135, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

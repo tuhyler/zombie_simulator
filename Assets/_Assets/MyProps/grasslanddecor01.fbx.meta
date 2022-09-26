@@ -3,7 +3,27 @@ guid: b626bead16afdcc4192e4e2cec80a588
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BrownDark
+    second: {fileID: 2100000, guid: 9814159f31216b241ad420253c020533, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GreenGradient
+    second: {fileID: 2100000, guid: 9814159f31216b241ad420253c020533, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PurpleFlower
+    second: {fileID: 2100000, guid: 9814159f31216b241ad420253c020533, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Stem
+    second: {fileID: 2100000, guid: 9814159f31216b241ad420253c020533, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

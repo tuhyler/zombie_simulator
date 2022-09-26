@@ -3,7 +3,27 @@ guid: 5ac7c61e0405b464b90136687bb6b3ff
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Brown
+    second: {fileID: 2100000, guid: 4dc68d50016560f4dabbd5dba9be54c1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bush
+    second: {fileID: 2100000, guid: 809d97957de96a549865232446eeba04, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WillowLeafLeft
+    second: {fileID: 2100000, guid: 628d25178b47d374bb38304ed092e3db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WillowLeafRight
+    second: {fileID: 2100000, guid: c70e8472587d20549bc8bc0e13780104, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
