@@ -3,7 +3,17 @@ guid: 3e9d8d4402b42104fa3dccfda268f091
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Beach
+    second: {fileID: 2100000, guid: 9d040886a2f99d84aaf00450edf3f033, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Desert
+    second: {fileID: 2100000, guid: 140175cc9ba93bb4bb345988d281b2cb, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

@@ -3,7 +3,12 @@ guid: dd61ed5be17a68042904eaef3cdb5581
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GrasslandFloodPlain
+    second: {fileID: 2100000, guid: ed61f266ead61bb429f692ba7ed964f8, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

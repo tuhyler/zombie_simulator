@@ -3,7 +3,12 @@ guid: 8568babf0dcd08243a3285d7426fc1d6
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SwampGround
+    second: {fileID: 2100000, guid: 5c4b613e1fed96c4baf06bcc404a0cf9, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
