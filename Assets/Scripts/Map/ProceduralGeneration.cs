@@ -261,9 +261,6 @@ public class ProceduralGeneration
     {
         foreach (Vector3Int tile in mountainMap.Keys)
         {
-            if (tile == new Vector3Int(16, 3, 12))
-                Debug.Log("");
-            
             if (mountainMap[tile] == mountain)
             {
                 if (mainMap[tile] == grassland || mainMap[tile] == forest || mainMap[tile] == jungle || mainMap[tile] == swamp)
@@ -846,9 +843,6 @@ public class ProceduralGeneration
                     Vector3Int tileB = new(i, yCoord, j + 1);
                     Vector3Int tileC = new(i + 1, yCoord, j + 1);
                     Vector3Int tileD = new(i + 1, yCoord, j);
-                    if (tileA == new Vector3Int(16, 3, 12))
-                        Debug.Log("");
-
 
                     if (mapDict[tileA] == sea && mapDict[tileC] == sea && mapDict[tileB] != sea && mapDict[tileD] != sea)
                         mapDict[tileB] = sea;
