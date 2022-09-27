@@ -7,11 +7,6 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: AnimalSkinRoof
-    second: {fileID: 2100000, guid: 2e4fbf3cfe0cfbd4087ba80812b57d13, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
       name: Bark
     second: {fileID: 2100000, guid: 6867138b8053adb4dba0872e15638a90, type: 2}
   - first:
