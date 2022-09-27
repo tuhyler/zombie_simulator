@@ -16641,7 +16641,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8192b0fbb669a484b8dc1e4afdf8e489, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 13
+  seed: 56
   width: 50
   height: 50
   yCoord: 3
@@ -39289,7 +39289,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500244
+      value: 8.500982
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

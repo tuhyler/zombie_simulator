@@ -7,6 +7,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Darkness
+    second: {fileID: 2100000, guid: bb8b97d97ae1f964cab6a0504a8d2c33, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: FrameLightWood
     second: {fileID: 2100000, guid: 01390651c06909f46bea4f951dd6d9c3, type: 2}
   - first:

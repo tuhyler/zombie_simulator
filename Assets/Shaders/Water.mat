@@ -55,12 +55,12 @@ Material:
     - _FoamAmount: 0.08
     - _FoamCutoff: 3
     - _FoamScale: 0
-    - _FoamSpeed: 0.005
+    - _FoamSpeed: 0.01
     - _HeightFrequency: 5
     - _NormalStrength: 1
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _RefractionSpeed: 0.01
+    - _RefractionSpeed: 0.005
     - _RefractionStrength: 0
     - _Smoothness: 1
     - _WaveAmplitude: 0

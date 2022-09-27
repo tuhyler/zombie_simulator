@@ -99,6 +99,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: swampdecor01
       objectReference: {fileID: 0}
+    - target: {fileID: 5604350172490870465, guid: 5ac7c61e0405b464b90136687bb6b3ff,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 628d25178b47d374bb38304ed092e3db, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5ac7c61e0405b464b90136687bb6b3ff, type: 3}
 --- !u!4 &5231396723199608351 stripped
