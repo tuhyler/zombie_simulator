@@ -3,42 +3,7 @@ guid: 73d89e2fc43d692408a982140989ec6a
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: AncientWall
-    second: {fileID: 2100000, guid: 9bdbaab664ba4b34e8e9ac697c221331, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Corn
-    second: {fileID: 2100000, guid: 561b45107a2190b408eefc0c159e592c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: CornStalk
-    second: {fileID: 2100000, guid: 561b45107a2190b408eefc0c159e592c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Farmland
-    second: {fileID: 2100000, guid: 561b45107a2190b408eefc0c159e592c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Food
-    second: {fileID: 2100000, guid: 561b45107a2190b408eefc0c159e592c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: FrameLightWood
-    second: {fileID: 2100000, guid: 01390651c06909f46bea4f951dd6d9c3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: StrawRoof
-    second: {fileID: 2100000, guid: 8b44312c73779fb4bb89a1ec06961907, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
