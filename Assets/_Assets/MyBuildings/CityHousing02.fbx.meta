@@ -3,27 +3,7 @@ guid: 2032c0f6447bb3f49839870ccb2a5c5b
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: FrameLightWood
-    second: {fileID: 2100000, guid: 01390651c06909f46bea4f951dd6d9c3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: GrasslandMud
-    second: {fileID: 2100000, guid: b2e706e76aeaff04b8756ba2155533b3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: RoofStraw
-    second: {fileID: 2100000, guid: 8b44312c73779fb4bb89a1ec06961907, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: WallAncientStone
-    second: {fileID: 2100000, guid: 9bdbaab664ba4b34e8e9ac697c221331, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
