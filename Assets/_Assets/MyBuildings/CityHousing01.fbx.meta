@@ -3,17 +3,7 @@ guid: 606242c6352268f4f9137230c800941c
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: AnimalSkin
-    second: {fileID: 2100000, guid: 44c811f4dc9c677418d1ba4306896abb, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: FrameLightWood
-    second: {fileID: 2100000, guid: ce7df0037c6bbcd42b672776ed2d7955, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
