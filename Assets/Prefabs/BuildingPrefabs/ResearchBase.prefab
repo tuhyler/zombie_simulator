@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 1686765677576597183}
   - component: {fileID: 2050705500241568073}
   - component: {fileID: 718474908050057380}
-  - component: {fileID: -3634337795367324582}
+  - component: {fileID: 314479568230301181}
   m_Layer: 7
-  m_Name: Temple
+  m_Name: ResearchBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8789389234130458407}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0, z: 0.25}
+  m_LocalPosition: {x: -0.25, y: 0, z: 0.25}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -60,7 +60,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
---- !u!114 &-3634337795367324582
+--- !u!114 &314479568230301181
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,7 +69,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8789389234130458407}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7b95767022238141b1a88937eef8d00, type: 3}
+  m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1871596882331571792
@@ -138,7 +138,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 427383167765458806, guid: 461545ab300932a469cea2fa36fdc46f,
+      objectReference: {fileID: 2449643321303987976, guid: 8901a5e70d5016e489ada2a1e07b23f2,
         type: 3}
     - target: {fileID: 919132149155446097, guid: a6514744fcd6eb349989858c3ad4887c,
         type: 3}
