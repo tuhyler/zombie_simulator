@@ -72,6 +72,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: flatland01
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cad2107ec4920f64ca11623c2afc00ae, type: 3}
 --- !u!1001 &1881784512876244396
