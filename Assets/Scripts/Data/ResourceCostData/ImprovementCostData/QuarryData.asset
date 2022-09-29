@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: QuarryData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 3621346998882524032, guid: a16948c8fc249d64bbc881492d267b33, type: 3}
+  prefab: {fileID: 5287637160269364084, guid: 621fc3803ad9c3645a7d989ac5d06061, type: 3}
   improvementName: Quarry
-  image: {fileID: 0}
+  image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   improvementCost: []
   consumedResources: []
   producedResources:
