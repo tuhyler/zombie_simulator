@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: LumbermillData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5741721052344323297, guid: c71bab83b60063a46a9aeb06cc058e20, type: 3}
+  prefab: {fileID: 6952278204151173005, guid: 5a5331d32a75f9f459ac9326c34bdf98, type: 3}
   improvementName: Lumbermill
-  image: {fileID: 0}
+  image: {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
   improvementCost:
   - resourceType: 4
     resourceAmount: 300

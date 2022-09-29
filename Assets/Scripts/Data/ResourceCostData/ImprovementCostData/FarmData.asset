@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: FarmData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8789389234130458407, guid: 5af237387799660428805ee8b0755933, type: 3}
+  prefab: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00, type: 3}
   improvementName: Farm
-  image: {fileID: 0}
+  image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   improvementCost:
   - resourceType: 4
     resourceAmount: 10
