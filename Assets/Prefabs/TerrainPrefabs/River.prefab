@@ -111,7 +111,7 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: -462981019419857548, guid: 40757ab37f458e34094bcccc7555dedc, type: 3}
+  m_Mesh: {fileID: -462981019419857548, guid: cad2107ec4920f64ca11623c2afc00ae, type: 3}
 --- !u!114 &5378143918301295818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,6 +125,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: 2c4809890581b1e45b3c81593b416fcb, type: 2}
+  prop: {fileID: 0}
   hasRoad: 0
 --- !u!114 &-6139789592915377178
 MonoBehaviour:

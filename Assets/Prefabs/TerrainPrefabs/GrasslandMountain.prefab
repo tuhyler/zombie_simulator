@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: -3658443331444529470}
   - component: {fileID: 7525565218650109521}
   m_Layer: 6
-  m_Name: GrasslandMountainTile
+  m_Name: GrasslandMountain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,7 +80,7 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 1
   m_CookingOptions: 30
-  m_Mesh: {fileID: -462981019419857548, guid: 40757ab37f458e34094bcccc7555dedc, type: 3}
+  m_Mesh: {fileID: 3237046608918968389, guid: 43bdc9f4bc941244289c8335e91659fb, type: 3}
 --- !u!114 &-3658443331444529470
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,6 +94,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: e4153a4a3925dde48a5ee020d8b1ac8b, type: 2}
+  prop: {fileID: 0}
   hasRoad: 0
 --- !u!114 &7525565218650109521
 MonoBehaviour:
