@@ -42,6 +42,10 @@ public class Unit : MonoBehaviour, ITurnDependent
     [HideInInspector]
     public bool zeroMovementPoints, isTrader, atStop, followingRoute;
 
+    //animation
+    private Animator unitAnimator;
+    private int isMovingHash;
+
 
     private void Awake()
     {
@@ -62,6 +66,8 @@ public class Unit : MonoBehaviour, ITurnDependent
         focusCam = FindObjectOfType<CameraController>();
         world = FindObjectOfType<MapWorld>();
         highlight = GetComponent<SelectionHighlight>();
+        unitAnimator = GetComponent<Animator>();
+        isMovingHash = Animator.StringToHash("isMoving");
     }
 
     public void CenterCamera()
@@ -104,6 +110,7 @@ public class Unit : MonoBehaviour, ITurnDependent
             pathPositions = new Queue<TerrainData>(currentPath);
             TerrainData firstTarget = pathPositions.Dequeue();
 
+            unitAnimator.SetBool(isMovingHash, true);
             StartCoroutine(RotationCoroutine(firstTarget));
         }
         else //if unit has orders but no movement points, turns the unit towards the direction
@@ -213,6 +220,7 @@ public class Unit : MonoBehaviour, ITurnDependent
         world.AddUnitPosition(endPosition, gameObject);
         turnHandler.ToggleInteractable(true);
         pathPositions.Clear();
+        unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke(); //turns on UIs again, hides worker one
     }
 
