@@ -62,7 +62,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  glowMaterial: {fileID: 2100000, guid: 902e335b538979147bd2837e251af069, type: 2}
+  glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
 --- !u!114 &6819035849026694897
 MonoBehaviour:
   m_ObjectHideFlags: 0
