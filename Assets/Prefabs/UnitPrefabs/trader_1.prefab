@@ -19,6 +19,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 65f0c330ebb36da4a97be1168cf2d410,
         type: 2}
+    - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
+        type: 3}
+      propertyPath: movementDuration
+      value: 1.25
+      objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
         type: 3}
       propertyPath: m_Name
@@ -109,6 +114,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5304958516240478958}
     m_Modifications:
+    - target: {fileID: -8854106560732313159, guid: 7ca14f5f4e4e6484f9bfe5c83ccb30d0,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3c981ed6af8153444a97d3de36fc1181, type: 2}
     - target: {fileID: -8679921383154817045, guid: 7ca14f5f4e4e6484f9bfe5c83ccb30d0,
         type: 3}
       propertyPath: m_RootOrder
