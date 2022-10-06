@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4778263574884209705}
   - component: {fileID: 6819035849026694897}
   - component: {fileID: 1113454333511771471}
+  - component: {fileID: -1569295495130398200}
   m_Layer: 7
   m_Name: units
   m_TagString: Player
@@ -63,6 +64,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterialColor: {fileID: 2100000, guid: 902e335b538979147bd2837e251af069, type: 2}
 --- !u!114 &6819035849026694897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,6 +89,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e5ad495e39811448b52328af01e43c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &-1569295495130398200
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4084126454760206941}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: e830136ddcfc19d4f8b4b007d9cafcab, type: 3}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &6973416628821537667
 GameObject:
   m_ObjectHideFlags: 0
