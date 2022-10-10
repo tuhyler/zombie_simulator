@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitTurnListHandler : MonoBehaviour, ITurnDependent
+public class UnitTurnListHandler : MonoBehaviour
 {
 
     [SerializeField]
@@ -72,9 +72,9 @@ public class UnitTurnListHandler : MonoBehaviour, ITurnDependent
         return unitTurnList.Count;
     }
 
-    public void WaitTurn()
-    {
-        if (CountOfList() > 0)
-            uiUnitTurnHandler.ToggleInteractable(true);
-    }
+    //public void WaitTurn()
+    //{
+    //    if (CountOfList() > 0)
+    //        uiUnitTurnHandler.ToggleInteractable(true);
+    //}
 }

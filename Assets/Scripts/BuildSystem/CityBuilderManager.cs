@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class CityBuilderManager : MonoBehaviour, ITurnDependent
+public class CityBuilderManager : MonoBehaviour
 {
     [SerializeField]
     private UICityBuildTabHandler uiCityTabs;
@@ -260,7 +260,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
         CreateUnit(unitData);
     }
 
-    private void CreateUnit(UnitBuildDataSO unitData, bool destroyedCity = false) //action for the button to run
+    private void CreateUnit(UnitBuildDataSO unitData) //action for the button to run
     {
         if (isQueueing)
         {
@@ -303,7 +303,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             unitGO.name = unitData.name.Split("_")[0] + "_" + infantryCount;
         }
 
-        selectedCity.SelectUnitToProduce(unitGO, destroyedCity);
+        selectedCity.SelectUnitToProduce(unitGO);
 
         //uiUnitBuilder.ToggleVisibility(false);
         uiCityTabs.HideSelectedTab();
@@ -1030,7 +1030,7 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
 
     public void DestroyCity() //set on destroy city warning message
     {
-        CreateUnit(lastUnitData, true);
+        CreateUnit(lastUnitData);
         lastUnitData = null;
 
         GameObject destroyedCity = world.GetStructure(selectedCityLoc);
@@ -1092,11 +1092,6 @@ public class CityBuilderManager : MonoBehaviour, ITurnDependent
             selectedCityLoc = new();
             selectedCity = null;
         }
-    }
-
-    public void WaitTurn()
-    {
-        ResetCityUI();
     }
 
 

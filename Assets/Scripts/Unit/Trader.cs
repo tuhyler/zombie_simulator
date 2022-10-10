@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Trader : Unit, ITurnDependent //inherit from unit class
+public class Trader : Unit
 {
     private PersonalResourceManager personalResourceManager;
     public PersonalResourceManager PersonalResourceManager { get { return personalResourceManager; } }
@@ -69,8 +69,8 @@ public class Trader : Unit, ITurnDependent //inherit from unit class
         followingRoute = true;
         atStop = false;
         
-        (List<Vector3Int> currentPath, List<bool> newTurnList, int totalMovementCost) = GridSearch.AStarSearch(world, world.GetClosestTile(transform.position),
-                tradeRouteManager.GoToNext(), CurrentMovementPoints, GetUnitData().movementPoints, isTrader);
+        List<Vector3Int> currentPath = GridSearch.AStarSearch(world, world.GetClosestTile(transform.position),
+                tradeRouteManager.GoToNext(), isTrader);
 
         List<TerrainData> paths = new();
 
@@ -85,10 +85,8 @@ public class Trader : Unit, ITurnDependent //inherit from unit class
             paths.Add(world.GetTerrainDataAt(path));
         }
 
-        if (CurrentMovementPoints < totalMovementCost)
-            unitMovement.ContinuedMovementUnits.Enqueue(this);
-
-        MoveThroughPath(paths);
+        if (paths.Count > 0)
+            MoveThroughPath(paths);
     }
 
     public void CancelRoute()
@@ -96,18 +94,13 @@ public class Trader : Unit, ITurnDependent //inherit from unit class
         followingRoute = false;
     }
 
-    protected override void WaitTurnMethods()
-    {
-        base.WaitTurnMethods();
-        if (followingRoute && atStop)
-        {
-            if (tradeRouteManager.GoToNextStopCheck())
-                BeginNextStepInRoute();
-        }
-    }
-
-    public new void WaitTurn()
-    {
-        WaitTurnMethods();
-    }
+    //protected override void WaitTurnMethods()
+    //{
+    //    base.WaitTurnMethods();
+    //    if (followingRoute && atStop)
+    //    {
+    //        if (tradeRouteManager.GoToNextStopCheck())
+    //            BeginNextStepInRoute();
+    //    }
+    //}
 }

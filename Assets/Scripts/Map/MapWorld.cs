@@ -34,6 +34,10 @@ public class MapWorld : MonoBehaviour
     //for roads
     private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new();
 
+    //for terrain speeds
+    public TerrainDataSO flatland, forest, hill, forestHill;
+
+
     [SerializeField] //for gizmos
     private bool showGizmo;
     //private bool showObstacle, showDifficult, showGround, showSea;
@@ -273,7 +277,7 @@ public class MapWorld : MonoBehaviour
     public Vector3Int GetClosestTile(Vector3 worldPosition)
     {
         worldPosition.y = 0;
-        return Vector3Int.FloorToInt(worldPosition);
+        return Vector3Int.RoundToInt(worldPosition);
     }
 
     public int GetMovementCost(Vector3Int tileWorldPosition, bool v)

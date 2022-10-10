@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class UnitMovement : MonoBehaviour, ITurnDependent
+public class UnitMovement : MonoBehaviour
 {
     [SerializeField]
     private MapWorld world;
@@ -48,33 +48,14 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
     private InfoProvider selectedUnitInfoProvider;
     private bool loadScreenSet; //flag if load/unload ui is showing
 
-    //for moving units with continued orders sequentially at start of turn
-    private Queue<Unit> continuedMovementUnits = new();
-    public Queue<Unit> ContinuedMovementUnits { get { return continuedMovementUnits; } }
-    private Queue<Unit> nextTurnMovementUnits = new(); //for those how have orders spanning multiple turns
-
-    //to prevent things from being clicked during movement
-    public UnityEvent BlockPlayerInput, UnblockPlayerInput;
-
-    private bool continued; //added this to prevent going to next unit automatically during continued orders (could conflict with unitTurnList) 
-
-    private ResourceManager cityResourceManager; //for transferring cargo to/from trader
-
+    //for transferring cargo to/from trader
+    private ResourceManager cityResourceManager; 
     public int cityTraderIncrement = 1;
 
     public void CenterCamOnUnit()
     {
         if (selectedUnit != null)
             selectedUnit.CenterCamera();
-    }
-
-    public void SkipTurn()
-    {
-        if (selectedUnit != null)
-        {
-            selectedUnit.FinishMovement();
-            infoManager.ShowInfoPanel(selectedUnitInfoProvider);
-        }
     }
 
     public void HandleUnitSelection(GameObject selectedObject)
@@ -175,7 +156,7 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
         turnHandler.SetIndex(selectedUnit);
         selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
         infoManager.ShowInfoPanel(selectedUnitInfoProvider);
-        if (selectedUnit.CurrentMovementPoints <= 0 && selectedUnit.moreToMove)
+        if (selectedUnit.moreToMove)
         {
             uiCancelMove.ToggleTweenVisibility(true);
             movementSystem.ShowPathToMove(selectedUnit);
@@ -183,6 +164,12 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
 
         ShowIndividualCityButtonsUI();
         selectedUnit.Select();
+    }
+
+    public void HandleLocationSelection(Vector3 location)
+    {
+        if (selectedUnit != null)
+            selectedUnit.DestinationLoc = location;
     }
 
     public void HandleTileSelection(GameObject detectedObject)
@@ -201,6 +188,7 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
 
         TerrainData terrainSelected = detectedObject.GetComponent<TerrainData>(); //need to assign component
         Vector3Int terrainPos = terrainSelected.GetTileCoordinates();
+        //newLocation -= terrainPos;
 
         if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
         {
@@ -223,52 +211,52 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
             InfoPopUpHandler.Create(mouseLoc, "Must travel on road.");
             
             Debug.Log("Trader must travel on road.");
-            movementSystem.HidePath(world);
+            movementSystem.HidePath();
             movementSystem.ClearPaths();
             selectedTile = null;
             return;
         }
 
-        if (world.IsUnitLocationTaken(terrainPos))
-        { //cancel movement if unit is already there
+        //if (world.IsUnitLocationTaken(terrainPos))
+        //{ //cancel movement if unit is already there
 
-            //below is for switching places with neighboring unit
-            Vector3Int currentPos = Vector3Int.FloorToInt(selectedUnit.transform.position);
+        //    //below is for switching places with neighboring unit
+        //    Vector3Int currentPos = Vector3Int.FloorToInt(selectedUnit.transform.position);
             
-            if (Math.Abs(currentPos.x - terrainPos.x) <= 1 && Math.Abs(currentPos.z - terrainPos.z) <= 1) //seeing if next to each other
-            {
-                Unit unitInTheWay = world.GetUnit(terrainPos);
-                if (unitInTheWay.GetComponent<Trader>() != null && !world.GetTerrainDataAt(currentPos).hasRoad)
-                {
-                    Debug.Log("Trader must travel on road.");
-                    return;
-                }
-                    
-                if (unitInTheWay.CurrentMovementPoints > 0 && selectedUnit.CurrentMovementPoints > 0)  
-                {
-                    MovementPreparations();
-                    world.RemoveUnitPosition(currentPos/*, selectedUnit.gameObject*/); //need to remove both at same time to allow swapping spaces
-                    world.RemoveUnitPosition(terrainPos/*, unitInTheWay.gameObject*/);
+        //    if (Math.Abs(currentPos.x - terrainPos.x) <= 1 && Math.Abs(currentPos.z - terrainPos.z) <= 1) //seeing if next to each other
+        //    {
+        //        Unit unitInTheWay = world.GetUnit(terrainPos);
+        //        if (unitInTheWay.GetComponent<Trader>() != null && !world.GetTerrainDataAt(currentPos).hasRoad)
+        //        {
+        //            Debug.Log("Trader must travel on road.");
+        //            return;
+        //        }
 
-                    //moving unit in the way
-                    TerrainData currentTile = world.GetTerrainDataAt(currentPos);
-                    TerrainData terrainTile = world.GetTerrainDataAt(terrainPos);
-                    List<TerrainData> unitInTheWayPath = new() { currentTile };
-                    unitInTheWay.MoveThroughPath(unitInTheWayPath);
+        //        if (!unitInTheWay.isBusy && !selectedUnit.isBusy)
+        //        {
+        //            MovementPreparations();
+        //            world.RemoveUnitPosition(currentPos/*, selectedUnit.gameObject*/); //need to remove both at same time to allow swapping spaces
+        //            world.RemoveUnitPosition(terrainPos/*, unitInTheWay.gameObject*/);
 
-                    //moving selected unit
-                    List<TerrainData> selectedPath = new() { terrainTile };
-                    selectedUnit.MoveThroughPath(selectedPath);
-                    return;
-                }
-            }
-            //above is for switching places with neighboring unit
+        //            //moving unit in the way
+        //            TerrainData currentTile = world.GetTerrainDataAt(currentPos);
+        //            TerrainData terrainTile = world.GetTerrainDataAt(terrainPos);
+        //            List<TerrainData> unitInTheWayPath = new() { currentTile };
+        //            unitInTheWay.MoveThroughPath(unitInTheWayPath);
 
-            Debug.Log("Unit already at selected tile");
-            return;
-        }
+        //            //moving selected unit
+        //            List<TerrainData> selectedPath = new() { terrainTile };
+        //            selectedUnit.MoveThroughPath(selectedPath);
+        //            return;
+        //        }
+        //    }
+        //    //above is for switching places with neighboring unit
 
-        Debug.Log("Sel. terrain is " + terrainSelected.name);
+        //    Debug.Log("Unit already at selected tile");
+        //    return;
+        //}
+
+        //Debug.Log("Sel. terrain is " + terrainSelected.name);
         HandleSelectedTile(terrainSelected, terrainPos);
 
     }
@@ -284,7 +272,7 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
         {
             if (selectedTile != terrainSelected)
             {
-                movementSystem.HidePath(world); //Hides previous path if new tile is selected
+                movementSystem.HidePath(); //Hides previous path if new tile is selected
                 if (queueMovementOrders)
                 {
                     movementSystem.AppendNewPath();
@@ -303,13 +291,9 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
             }
 
             MovementPreparations();
-            if (selectedUnit.CurrentMovementPoints < movementSystem.GetTotalMovementCost() && selectedUnit.CompareTag("Player"))
-            {
-                continuedMovementUnits.Enqueue(selectedUnit); //add to list to move sequentially at beginning of next turn
-                Debug.Log("adding to queue here" + selectedUnit.name);
-            }
+
             movementSystem.MoveUnit(selectedUnit, world);
-            movementSystem.HidePath(world);
+            movementSystem.HidePath();
             movementSystem.ClearPaths();
             selectedTile = null;
         }
@@ -319,23 +303,6 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
     {
         turnHandler.ToggleInteractable(false);
         uiJoinCity.ToggleTweenVisibility(false);
-        selectedUnit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
-        selectedUnit.FinishedMoving.AddListener(FinishedMoving);
-        BlockPlayerInput?.Invoke();
-    }
-
-    private void FinishedMoving()
-    {
-        UnblockPlayerInput?.Invoke();
-        selectedUnitInfoProvider.UpdateInfo();
-        infoManager.ShowInfoPanel(selectedUnitInfoProvider);
-        selectedUnit.FinishedMoving.RemoveListener(FinishedMoving);
-        if (selectedUnit.CurrentMovementPoints <= 0 || continued)
-        {
-            ClearSelection();
-            if (!continued)
-                turnHandler.GoToNextUnit();
-        }
     }
 
     public void HandleShiftDown()
@@ -348,50 +315,9 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
         queueMovementOrders = false;
     }
 
-    //So units make continued orders one at a time
-    private void StartContinuedMovementOrders()
-    {
-        //Debug.Log("dequeued " + selectedUnit);
-        selectedUnit.FinishedMoving.AddListener(DequeueContinuedMovementUnits); //can't add listener 'FinishMoving' during this sequence
-        selectedUnit.ContinueMovementOrders();
-        //movementSystem.ContinueMovementOrders(world, selectedUnit);
-    }
-
-    private void DequeueContinuedMovementUnits()
-    {
-        if (selectedUnit != null)
-        {
-            selectedUnit.FinishedMoving.RemoveListener(DequeueContinuedMovementUnits);
-            if (selectedUnit.MovementOrdersCheck()) //adding to queue if there are still more movement orders to complete
-            {
-                //Debug.Log("adding to queue " + selectedUnit.name);
-                nextTurnMovementUnits.Enqueue(selectedUnit);
-            }
-            infoManager.HideInfoPanel();
-            selectedUnit = null;
-            selectedTrader = null;
-            //Debug.Log("just removed listener " + selectedUnit.name);
-        }
-        if (continuedMovementUnits.Count > 0)
-        {
-            continued = true;
-            selectedUnit = continuedMovementUnits.Dequeue();
-            StartContinuedMovementOrders();
-        }
-        else //setting up next turn's orders
-        {
-            continuedMovementUnits = new(nextTurnMovementUnits);
-            nextTurnMovementUnits = new();
-            continued = false;
-        }
-    }
-
     public void CancelContinuedMovementOrders()
     {
         selectedUnit.ResetMovementOrders(); //deleting continued movement orders
-        continuedMovementUnits = new Queue<Unit>(continuedMovementUnits.Where(unit => unit != selectedUnit)); //remove unit from queue
-        ClearSelection();
-        turnHandler.GoToNextUnit();
     }
 
     public void JoinCity() //for Join City button
@@ -413,7 +339,7 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
     {
         if (!loadScreenSet)
         {
-            movementSystem.HidePath(world);
+            movementSystem.HidePath();
             movementSystem.ClearPaths();
             selectedTile = null;
 
@@ -520,7 +446,7 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
 
     private void ShowIndividualCityButtonsUI()
     {
-        if (selectedUnit == null) //just in case
+        if (selectedUnit == null)
             return;
 
         if (world.IsCityOnTile(Vector3Int.FloorToInt(selectedUnit.transform.position)))
@@ -537,11 +463,6 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
             uiJoinCity.ToggleTweenVisibility(false);
             //uiLoadUnload.ToggleTweenVisibility(false);
             uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
-        }
-
-        if (selectedUnit != null)
-        {
-            selectedUnit.FinishedMoving.RemoveListener(ShowIndividualCityButtonsUI);
         }
     }
 
@@ -567,7 +488,7 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
         uiPersonalResourceInfoPanel.ToggleVisibility(false);
         LoadUnloadFinish(); //clear load cargo screen
         infoManager.HideInfoPanel();
-        movementSystem.HidePath(world);
+        movementSystem.HidePath();
         movementSystem.ClearPaths(); //necessary to queue movement orders, may break FinishMoving()
         selectedUnitInfoProvider = null;
         selectedTrader = null;
@@ -577,12 +498,5 @@ public class UnitMovement : MonoBehaviour, ITurnDependent
     private bool CheckIfTheSameUnitSelected(Unit unitReference)
     {
         return selectedUnit == unitReference;
-    }
-
-    public void WaitTurn() //must have System or Unit turn taker script attached to Empty for this to work
-    {
-        ClearSelection();
-        DequeueContinuedMovementUnits();
-        infoManager.HideInfoPanel();
     }
 }

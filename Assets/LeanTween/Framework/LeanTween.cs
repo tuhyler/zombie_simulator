@@ -1014,7 +1014,7 @@ public class LeanTween : MonoBehaviour {
 
         if (tween.time <= 0f)
             tween.updateInternal();
-        //tween.hasPhysics = gameObject.rigidbody!=null;
+        //tween.hasPhysics = gameObject.unitRigidbody!=null;
 
         return tween;
     }

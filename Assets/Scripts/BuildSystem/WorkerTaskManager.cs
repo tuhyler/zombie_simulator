@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WorkerTaskManager : MonoBehaviour, ITurnDependent
+public class WorkerTaskManager : MonoBehaviour
 {
     [SerializeField]
     public UIWorkerHandler workerTaskUI;
@@ -84,7 +84,7 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         }
 
         workerUnit = null;
-        ResetWorkerTaskSystem(); //reset everything before selecting
+        //ResetWorkerTaskSystem(); //reset everything before selecting
 
         workerUnit = selectedObject.GetComponent<Worker>(); //checks if unit is worker
 
@@ -99,7 +99,7 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         if (workerUnit != null)
         {
             workerUnit = null;
-            ResetWorkerTaskSystem();
+            //ResetWorkerTaskSystem();
         }
         workerUnit = unit.GetComponent<Worker>();
         if (workerUnit != null)
@@ -113,10 +113,10 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         //workerUnit = worker.GetComponent<Unit>();
         if (workerUnit.harvested) //if unit just finished harvesting something, can't move until resource is sent to city
             workerUnit.SendResourceToCity();
-        if (workerUnit != null && workerUnit.CanStillMove()) //Because warrior doesn't have worker component, it won't see the build UI
+        if (workerUnit != null) //Because warrior doesn't have worker component, it won't see the build UI
         {
             workerTaskUI.ToggleVisibility(true);
-            workerUnit.FinishedMoving.AddListener(ResetWorkerTaskSystem); //hides the UI here without needing to connect to unit class
+            //workerUnit.FinishedMoving.AddListener(ResetWorkerTaskSystem); //hides the UI here without needing to connect to unit class
         }
     }
 
@@ -125,27 +125,18 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         return workerUnit == unitReference;
     }
 
-    private void ResetWorkerTaskSystem() //hides worker ui, nulls unit
-    {
-        if (workerUnit == null || !workerUnit.CanStillMove())
-            workerTaskUI.ToggleVisibility(false);
-        if (workerUnit != null)
-        {
-            workerUnit.FinishedMoving.RemoveListener(ResetWorkerTaskSystem); //need to remove the listener else it will stay, adding to memory
-            if (workerUnit.CanStillMove())
-                workerTaskUI.ToggleVisibility(true);
-            else
-                workerUnit = null;
-        }
-    }
-
-    private void FinishTurn()
-    {
-        if (workerUnit != null)
-            workerUnit.FinishedMoving.RemoveListener(ResetWorkerTaskSystem);
-        workerTaskUI.ToggleVisibility(false);
-        workerUnit = null;
-    }
+    //private void ResetWorkerTaskSystem() //hides worker ui, nulls unit
+    //{
+    //    if (workerUnit == null)
+    //    {
+    //        workerTaskUI.ToggleVisibility(false);
+    //    }
+    //    else
+    //    {
+    //        workerUnit.FinishedMoving.RemoveListener(ResetWorkerTaskSystem); //need to remove the listener else it will stay, adding to memory
+    //        workerTaskUI.ToggleVisibility(true);
+    //    }
+    //}
 
     public void PerformTask(ImprovementDataSO improvementData)
     {
@@ -193,8 +184,7 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
             return;
         }
         roadManager.RemoveRoadAtPosition(workerTile);
-        workerUnit.FinishMovement();
-        FinishWorkerTurn();
+        movementSystem.HidePath();
         Debug.Log("Removing road at " + workerTile);
     }
 
@@ -219,9 +209,7 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
 
         resourceIndividualHandler.GenerateHarvestedResource(resourceIndividual, workerPos, workerUnit);
 
-        //run some sort of animation here
-        workerUnit.FinishMovement();
-        FinishWorkerTurn();
+        movementSystem.HidePath();
         return;
     }
 
@@ -239,8 +227,7 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         }
 
         roadManager.BuildRoadAtPosition(workerTile);
-        workerUnit.FinishMovement();
-        FinishWorkerTurn();
+        movementSystem.HidePath();
     }
 
     private void BuildCity(Vector3 workerPos, Vector3Int workerTile, ImprovementDataSO improvementData)
@@ -299,13 +286,7 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         world.RemoveUnitPosition(workerPos/*, workerUnit.gameObject*/);
         workerUnit.DestroyUnit(); //This unit handles its own destruction, done in unit class
         infoManager.HideInfoPanel();
-        FinishWorkerTurn();
-    }
-
-    private void FinishWorkerTurn()
-    {
-        movementSystem.HidePath(world); //If moement path is highlighted before building
-        ResetWorkerTaskSystem(); //needs to be here for building city
+        movementSystem.HidePath();
     }
 
     //checking if building city too close to another one
@@ -326,10 +307,5 @@ public class WorkerTaskManager : MonoBehaviour, ITurnDependent
         }
 
         return false;
-    }
-
-    public void WaitTurn()
-    {
-        FinishTurn(); //running this to null everything out
     }
 }

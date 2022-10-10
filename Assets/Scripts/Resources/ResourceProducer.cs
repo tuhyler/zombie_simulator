@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ResourceProducer : MonoBehaviour, ITurnDependent
+public class ResourceProducer : MonoBehaviour
 {
     private ResourceManager resourceManager;
     //private TaskDataSO taskData;
@@ -45,11 +45,11 @@ public class ResourceProducer : MonoBehaviour, ITurnDependent
         resourceManager.UpdateBuildingResourceGeneration(myImprovementData.producedResources, buildingName, currentLabor);
     }
 
-    public void WaitTurn()
-    {
-        resourceManager.PrepareResource(myImprovementData.producedResources, currentLabor);
-        //Debug.Log("Resources for " + myImprovementData.prefab.name);
-    }
+    //public void WaitTurn()
+    //{
+    //    resourceManager.PrepareResource(myImprovementData.producedResources, currentLabor);
+    //    //Debug.Log("Resources for " + myImprovementData.prefab.name);
+    //}
 
     internal void SetResourceManager(ResourceManager resourceManager)
     {

@@ -240,6 +240,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: infantry_1
       objectReference: {fileID: 0}
+    - target: {fileID: 4600499379608453412, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Height
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4600499379608453412, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Height
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
@@ -324,16 +344,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitDataSO: {fileID: 11400000, guid: fbad48fd49778cf4c8e43b7cb41f9522, type: 2}
   buildDataSO: {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
-  allUnitDataSO: {fileID: 11400000, guid: 92232cdda4bffe84b9a83a398665d448, type: 2}
   world: {fileID: 0}
-  FinishedMoving:
-    m_PersistentCalls:
-      m_Calls: []
-  movementDuration: 1
-  rotationDuration: 0.1
   moreToMove: 0
+  isBusy: 0
   turnHandler: {fileID: 0}
-  zeroMovementPoints: 0
   isTrader: 0
   atStop: 0
   followingRoute: 0

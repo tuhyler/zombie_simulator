@@ -31,10 +31,4 @@ public class InfoProvider : MonoBehaviour
         objectName = gameObject.name;
         regMovementPoints = selectedUnit.GetUnitData().movementPoints;
     }
-
-    public void UpdateInfo()
-    {
-        currentMovementPoints = selectedUnit.CurrentMovementPoints;
-    }
-
 }

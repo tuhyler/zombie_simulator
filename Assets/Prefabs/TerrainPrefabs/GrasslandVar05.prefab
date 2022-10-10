@@ -12,6 +12,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: GrasslandVar05
       objectReference: {fileID: 0}
+    - target: {fileID: 4461690370859731775, guid: 16f9283fd4969f7459226421f2c4b6a7,
+        type: 3}
+      propertyPath: m_TagString
+      value: Forest
+      objectReference: {fileID: 0}
     - target: {fileID: 6236641862112944610, guid: 16f9283fd4969f7459226421f2c4b6a7,
         type: 3}
       propertyPath: m_RootOrder
