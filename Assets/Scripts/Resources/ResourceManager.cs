@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-public class ResourceManager : MonoBehaviour, ITurnDependent
+public class ResourceManager : MonoBehaviour
 {
     private Dictionary<ResourceType, int> resourceDict = new(); //need this later for save system
     private Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
@@ -458,11 +458,11 @@ public class ResourceManager : MonoBehaviour, ITurnDependent
         }
     }
 
-    public void WaitTurn()
-    {
-        CheckForPopGrowth();
-        CheckResourcesForQueue();
-    }
+    //public void WaitTurn()
+    //{
+    //    CheckForPopGrowth();
+    //    CheckResourcesForQueue();
+    //}
 }
 
 [Serializable] //needs to be serializable in order to be seen in unity

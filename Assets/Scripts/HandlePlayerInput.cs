@@ -14,6 +14,7 @@ public class HandlePlayerInput : MonoBehaviour
     //all input is handled on this class through unity events, just more organized here. (here and camera controller)
     public UnityEvent<GameObject> HandleOtherSelection;
     public UnityEvent<GameObject> HandleTileSelection;
+    public UnityEvent<Vector3> HandleLocationSelection;
     public UnityEvent HandleShiftDown, HandleShiftUp, HandleR, HandleEnter, HandleC, HandleB, HandleG, HandleX, HandleSpace;
     //public UnityEvent HandleShiftUp;
     //public UnityEvent HandleR;
@@ -77,6 +78,7 @@ public class HandlePlayerInput : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
         {
             selectedGameObject = hit.collider.gameObject;
+            HandleLocationSelection?.Invoke(hit.point);
         }
 
         else

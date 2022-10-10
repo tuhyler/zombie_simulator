@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Worker : Unit, ITurnDependent
+public class Worker : Unit
 {
     [HideInInspector]
     public bool harvesting, harvested, resourceIsNotNull;
@@ -35,15 +35,15 @@ public class Worker : Unit, ITurnDependent
         }
     }
 
-    protected override void WaitTurnMethods()
-    {
-        base.WaitTurnMethods();
-        if (harvesting && resourceIsNotNull)
-            HarvestResource();
-    }
+    //protected override void WaitTurnMethods()
+    //{
+    //    base.WaitTurnMethods();
+    //    if (harvesting && resourceIsNotNull)
+    //        HarvestResource();
+    //}
 
-    public new void WaitTurn()
-    {
-        WaitTurnMethods();
-    }
+    //public new void WaitTurn()
+    //{
+    //    WaitTurnMethods();
+    //}
 }

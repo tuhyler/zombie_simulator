@@ -5,11 +5,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Unit : MonoBehaviour, ITurnDependent
+public class Unit : MonoBehaviour
 {
-    private int currentMovementPoints;
-    public int CurrentMovementPoints { get { return currentMovementPoints; } set { currentMovementPoints = value; } }
-
     [SerializeField]
     private UnitDataSO unitDataSO;
     public UnitDataSO GetUnitData() => unitDataSO;
@@ -18,20 +15,21 @@ public class Unit : MonoBehaviour, ITurnDependent
     private UnitBuildDataSO buildDataSO;
     public UnitBuildDataSO GetBuildDataSO() => buildDataSO;
 
-    [SerializeField]
-    private AllUnitDataSO allUnitDataSO; //for storing multi-turn movement info and turn order info
 
     [HideInInspector]
     public MapWorld world;
     [HideInInspector]
-    public UnityEvent FinishedMoving; //listeners are in BuildingManager (1) and UnitMovement (2)(3 total)
+    //public UnityEvent FinishedMoving; //listeners are in BuildingManager (1) and UnitMovement (2)(3 total)
 
     //movement details
-    [SerializeField]
-    private float movementDuration = .5f, rotationDuration = 0.1f;
+    private Rigidbody unitRigidbody;
+    private float rotationDuration = 0.1f, moveSpeed = .5f;
     private Queue<TerrainData> pathPositions = new();
     [HideInInspector]
-    public bool moreToMove; //check if they have continued orders
+    public bool moreToMove, isBusy; //check if they're doing something
+    private Vector3 destinationLoc;
+    public Vector3 DestinationLoc { set { destinationLoc = value; } }
+    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed;
 
     //selection indicators
     private SelectionHighlight highlight;
@@ -40,7 +38,7 @@ public class Unit : MonoBehaviour, ITurnDependent
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool zeroMovementPoints, isTrader, atStop, followingRoute;
+    public bool isTrader, atStop, followingRoute;
 
     //animation
     private Animator unitAnimator;
@@ -52,22 +50,21 @@ public class Unit : MonoBehaviour, ITurnDependent
         AwakeMethods();
     }
 
-    private void Start()
-    {
-        AddUnitToDicts();
-        if (!zeroMovementPoints)
-            ResetMovementPoints();
-    }
-
     protected virtual void AwakeMethods()
     {
-        unitDataSO.MovementPointsCheck();
         turnHandler = FindObjectOfType<UIUnitTurnHandler>();
         focusCam = FindObjectOfType<CameraController>();
         world = FindObjectOfType<MapWorld>();
         highlight = GetComponent<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
+        unitRigidbody = GetComponent<Rigidbody>();
+
+        //caching terrain costs
+        flatlandSpeed = world.flatland.movementCost;
+        forestSpeed = world.forest.movementCost;
+        hillSpeed = world.hill.movementCost;
+        forestHillSpeed = world.forestHill.movementCost;
     }
 
     public void CenterCamera()
@@ -77,54 +74,30 @@ public class Unit : MonoBehaviour, ITurnDependent
 
 
     //Methods for moving unit
-    private void ResetMovementPoints()
-    {
-        currentMovementPoints = GetUnitData().movementPoints;
-        zeroMovementPoints = false;
-    }
-
-    public void ContinueMovementOrders()
-    {
-        List<TerrainData> continuedPath = allUnitDataSO.GetMovementOrders(this);
-
-        if (continuedPath.Count > 0)
-            MoveThroughPath(continuedPath);
-    }
-
-    public bool CanStillMove()
-    {
-        if (currentMovementPoints > 0)
-            return true;
-        return false;
-    }
-
     //Gets the path positions and starts the coroutines
     public void MoveThroughPath(List<TerrainData> currentPath) 
     {
-        CenterCamera(); //if you break focus before moving, focus again when moving
+        //CenterCamera(); //focus to start moving
 
-        if (currentMovementPoints > 0)
-        {
-            world.RemoveUnitPosition(transform.position/*, gameObject*/);//removing previous location
+        world.RemoveUnitPosition(transform.position/*, gameObject*/);//removing previous location
 
-            pathPositions = new Queue<TerrainData>(currentPath);
-            TerrainData firstTarget = pathPositions.Dequeue();
+        //destinationLoc = currentPath[currentPath.Count - 1].transform.position; //currentPath is list instead of queue for this line
+        pathPositions = new Queue<TerrainData>(currentPath);
+        TerrainData firstTarget = pathPositions.Dequeue();
 
-            unitAnimator.SetBool(isMovingHash, true);
-            StartCoroutine(RotationCoroutine(firstTarget));
-        }
-        else //if unit has orders but no movement points, turns the unit towards the direction
-        {
-            SetMovementOrders(this, currentPath);
-            StartCoroutine(RotationCoroutine(currentPath[0]));
-        }
+        moreToMove = true;
+        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        unitAnimator.SetBool(isMovingHash, true);
+        StartCoroutine(RotationCoroutine(firstTarget));
     }
-
 
     //rotate unit before moving
     private IEnumerator RotationCoroutine(TerrainData endPositionTile)
     {
         Vector3 endPosition = endPositionTile.transform.position;
+
+        if (pathPositions.Count == 0)
+            endPosition = destinationLoc;
 
         Quaternion startRotation = transform.rotation;
         endPosition.y = transform.position.y;
@@ -143,85 +116,103 @@ public class Unit : MonoBehaviour, ITurnDependent
             }
             transform.rotation = endRotation;
         }
-        if (currentMovementPoints > 0)
-        {
-            Vector3 startPosition = transform.position;
-            int movementCost = endPositionTile.MovementCost;
-            if (!world.GetTerrainDataAt(Vector3Int.FloorToInt(startPosition)).hasRoad) //for moving onto road from non-road
-                movementCost = endPositionTile.OriginalMovementCost; 
 
-            StartCoroutine(MovementCoroutine(startPosition, endPosition, movementCost));
-        }
-        else
-        {
-            FinishedMoving?.Invoke();
-            turnHandler.ToggleInteractable(true);
-            turnHandler.GoToNextUnit();
-        }
+        Vector3 startPosition = transform.position;
+        //int movementCost = endPositionTile.MovementCost;
+        //if (!world.GetTerrainDataAt(Vector3Int.FloorToInt(startPosition)).hasRoad) //for moving onto road from non-road
+        //    movementCost = endPositionTile.OriginalMovementCost; 
+
+        StartCoroutine(MovementCoroutine(startPosition, endPosition));
+
     }
 
 
 
-    //moves unit (using Lerp)
-    private IEnumerator MovementCoroutine(Vector3 startPosition, Vector3 endPosition, int movementCost)
+    //moves unit
+    private IEnumerator MovementCoroutine(Vector3 startPosition, Vector3 endPosition)
     {
         //Vector3 startPosition = transform.position;
         Vector3Int endLoc = Vector3Int.FloorToInt(endPosition);
 
-        bool lastMove = false;
-
-        if (pathPositions.Count == 0 || movementCost >= currentMovementPoints)
-            lastMove = true;
-
         //checks if tile can still be moved to before moving there
-        if ((lastMove && world.IsUnitLocationTaken(endLoc)) || (isTrader && !world.GetTerrainDataAt(endLoc).hasRoad))
+        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !world.GetTerrainDataAt(endLoc).hasRoad))
         {
             FinishMoving(endPosition);
             yield break;
         }
 
-        endPosition.y = startPosition.y;
-        float timeElapsed = 0;
+        //float diff = Mathf.Sqrt(Mathf.Pow(startPosition.x - endPosition.x, 2) + Mathf.Pow(startPosition.z - endPosition.z, 2));
+        //movementDuration = diff * movementDurationOneTerrain;
 
-        while (timeElapsed < movementDuration)
+        //    world.AddUnitPosition(destinationLoc, gameObject); //add to world dict just before moving to tile
+
+        endPosition.y = .49f; //fixed y position
+        Debug.Log("end position is " + endPosition);
+        //float timeElapsed = 0;
+        //float moveSpeed = .5f;
+
+        //Vector3 test = Vector3.one;
+
+        while (Mathf.Pow(transform.localPosition.x - endPosition.x,2) + Mathf.Pow(transform.localPosition.z - endPosition.z,2) > 0.005f)
         {
-            timeElapsed += Time.deltaTime;
-            float lerpStep = timeElapsed / movementDuration;
-            transform.position = Vector3.Lerp(startPosition, endPosition, lerpStep);
+            float movementThisFrame = Time.deltaTime * moveSpeed;
+            Vector3 newPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
+            transform.localPosition = newPosition;
+
+            //Debug.Log("local position is " + Mathf.Pow(transform.localPosition.x - endPosition.x,2) + Mathf.Pow(transform.localPosition.z - endPosition.z,2));
+
+            if (Mathf.Pow(transform.localPosition.x - endPosition.x,2) + Mathf.Pow(transform.localPosition.z - endPosition.z,2) <= 0.005f)
+                break;
+
             yield return null;
         }
-        //transform.position = endPosition; //don't think this needs to be here
-        currentMovementPoints -= movementCost;
+
+        //while ((transform.localPosition - endPosition).sqrMagnitude > 0)
+        //{
+        //    float movementThisFrame = Time.deltaTime * moveSpeed;
+        //    Vector3 newPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
+        //    transform.localPosition = newPosition;
+
+        //    Debug.Log("local position is " + transform.localPosition);
+
+        //    if ((transform.localPosition - endPosition).sqrMagnitude == 0)
+        //        break;
+
+        //    yield return null;
+        //}
+
+        //while (timeElapsed < movementDuration)
+        //{
+        //    timeElapsed += Time.deltaTime;
+        //    float lerpStep = timeElapsed / movementDuration;
+        //    //transform.position = Vector3.MoveTowards(transform.position, endPosition, diff / 100);
+        //    //transform.position = Vector3.SmoothDamp(transform.position, endPosition, ref test, movementDuration);
+
+        //    //transform.position = Vector3.Lerp(transform.position, endPosition, lerpStep);
+        //    yield return null;
+        //}
 
         //Decisions based on how many movement points and path positions are left
-        if (currentMovementPoints > 0)
+        if (pathPositions.Count > 0)
         {
-            if (pathPositions.Count > 0)
-            {
-                StartCoroutine(RotationCoroutine(pathPositions.Dequeue()));
-            }
-            else
-            {   
-                FinishMoving(endPosition);
-            }
+            StartCoroutine(RotationCoroutine(pathPositions.Dequeue()));
         }
         else
-        {
-            RemoveFromUnitList();
-            FinishMoving(endPosition); //this may need to go back above previous statement for proper ordering
+        {   
+            FinishMoving(endPosition);
         }
     }
 
     private void FinishMoving(Vector3 endPosition)
     {
+        //unitRigidbody.constraints = RigidbodyConstraints.FreezePositionX;
+        unitRigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+        //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+
         TradeRouteCheck(endPosition);
-        SetMovementOrders(this, pathPositions.ToList()); //sending empty list upon movement finish (need to be lists because Queues dequeue themselves inexplicably)
-        moreToMove = pathPositions.Count > 0;
-        world.AddUnitPosition(endPosition, gameObject);
-        turnHandler.ToggleInteractable(true);
+        moreToMove = false;
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
-        FinishedMoving?.Invoke(); //turns on UIs again, hides worker one
     }
 
     protected void TradeRouteCheck(Vector3 endPosition)
@@ -234,12 +225,34 @@ public class Unit : MonoBehaviour, ITurnDependent
             {
                 routeManager.SetCity(world.GetCity(endLoc));
                 atStop = true;
-                FinishMovement(); //lots of repetition here. 
+                //Deselect(); //lots of repetition here. 
                 //routeManager.CompleteTradeRouteOrders();
             }
         }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Entering tile type " + collision.gameObject.tag);
+        
+        if (collision.gameObject.CompareTag("Flatland"))
+        {
+            moveSpeed = flatlandSpeed * .5f;
+        }
+        else if (collision.gameObject.CompareTag("Forest"))
+        {
+            moveSpeed = forestSpeed * .125f;
+        }
+        else if (collision.gameObject.CompareTag("Hill"))
+        {
+            moveSpeed = hillSpeed * .125f;
+
+        }
+        else if (collision.gameObject.CompareTag("Forest Hill"))
+        {
+            moveSpeed = forestHillSpeed * 0.0833f;
+        }
+    }
 
 
 
@@ -251,7 +264,7 @@ public class Unit : MonoBehaviour, ITurnDependent
         //selectionCircle.enabled = true;
         //highlight.ToggleGlow(true, Color.white);
         highlight.EnableHighlight(Color.white);
-        CenterCamera();
+        //CenterCamera();
     }
 
     public void Deselect()
@@ -261,124 +274,45 @@ public class Unit : MonoBehaviour, ITurnDependent
         highlight.DisableHighlight();
     }
 
-    protected virtual void WaitTurnMethods() //so inherited classes can set up their own waitturn methods
-    {
-        ResetMovementPoints();
-        if (CompareTag("Player")) //so enemies don't get added to lists
-        {
-            turnHandler.turnHandler.AddToTurnList(this);
-        }
-    }
-
-    public void WaitTurn()
-    {
-        WaitTurnMethods();
-    }
-
     public void FinishMovement() //Stops all movement, run when performing certain actions
     {
-        RemoveFromUnitList();
-        currentMovementPoints = 0;
         Deselect();
         turnHandler.GoToNextUnit();
-        FinishedMoving?.Invoke();
-    }
-
-    public void FinishMovementNoNextUnit() //Same as FinishMovement, but doesn't go to next unit
-    {
-        RemoveFromUnitList();
-        currentMovementPoints = 0;
-        Deselect();
-        FinishedMoving?.Invoke();
     }
 
     public void DestroyUnit()
     {
         RemoveUnitFromData();
-        RemoveFromUnitList();
-        currentMovementPoints = 0; //do this to remove workerUI screen
-
-        FinishedMoving?.Invoke(); //Call this so that it doesn't move
+        Deselect();
         Destroy(gameObject);
     }
 
-    private void RemoveFromUnitList()
+
+
+    //Methods for movement order information 
+    //displays movement orders when selected
+    public List<Vector3Int> GetContinuedMovementPath() 
     {
-        if (CompareTag("Player")) //added this check so enemies don't break it
-        {
-            turnHandler.turnHandler.RemoveUnitFromTurnList(this); //removes from list
-        }
-    }
-
-
-
-    //Methods for adding information to AllUnitSO
-    private void AddUnitToDicts()
-    {
-        if (CompareTag("Player")) //do this to avoid adding enemy units
-        {
-            allUnitDataSO.SetMovementOrders(this, new List<TerrainData>());
-            if (!zeroMovementPoints) //only add to list if it has movement points
-                turnHandler.turnHandler.AddToTurnList(this);
-        }
-    }
-
-    private void SetMovementOrders(Unit unit, List<TerrainData> movementOrders)
-    {
-        allUnitDataSO.SetMovementOrders(unit, movementOrders);
-    }
-
-
-    public (List<Vector3Int>, List<bool>, int) GetContinuedMovementPath() //displays movement orders when selected after using all movement points
-    {
-        List<TerrainData> continuedOrders = allUnitDataSO.GetMovementOrders(this);
         List<Vector3Int> continuedOrdersPositions = new();
-        List<bool> newTurnList = new();
-        int totalMovementCost = 0;
-        int turnMovementCost = 0;
-        int regMovementPoints = unitDataSO.movementPoints;
 
-        foreach (TerrainData td in continuedOrders)
+        foreach (TerrainData td in pathPositions)
         {
-            int tileCost = td.MovementCost; //for counting road as regular from non-road
-            if (!td.hasRoad)
-                tileCost = td.OriginalMovementCost;
-
-            totalMovementCost += tileCost;
-            turnMovementCost += tileCost;
             continuedOrdersPositions.Add(td.GetTileCoordinates());
-
-            int diffMovementCost = regMovementPoints - turnMovementCost;
-
-            if (diffMovementCost <= 0) //fixing movement cost if last move on turn puts movement points in negative
-            {
-                totalMovementCost += diffMovementCost;
-                turnMovementCost = 0;
-                newTurnList.Add(true);
-                continue;
-            }
-
-            newTurnList.Add(false);
         }
 
-        return (continuedOrdersPositions, newTurnList, totalMovementCost);
+        return continuedOrdersPositions;
     }
 
     public void ResetMovementOrders()
     {
-        allUnitDataSO.SetMovementOrders(this, new List<TerrainData>());
+        pathPositions.Clear();
         moreToMove = false;
-    }
-
-    public bool MovementOrdersCheck()
-    {
-        return allUnitDataSO.MovementOrdersLengthRemaining(this) > 0;
     }
 
     private void RemoveUnitFromData()
     {
-        allUnitDataSO.RemoveUnitFromDicts(this);
+        ResetMovementOrders();
         turnHandler.turnHandler.RemoveUnitFromTurnList(this);
-        world.RemoveUnitPosition(transform.position/*, gameObject*/);
+        world.RemoveUnitPosition(transform.position);
     }
 }

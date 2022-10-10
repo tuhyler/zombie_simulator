@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: HillTerrain
   m_EditorClassIdentifier: 
+  prefab: {fileID: 0}
+  roadPrefab: {fileID: 0}
+  clearedForestPrefab: {fileID: 0}
   walkable: 1
   sailable: 0
-  movementCost: 20
+  movementCost: 2
   type: 0
   resourceType: 5

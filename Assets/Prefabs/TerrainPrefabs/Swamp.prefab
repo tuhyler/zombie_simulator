@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 2647782564825345499}
   m_Layer: 6
   m_Name: Swamp
-  m_TagString: Untagged
+  m_TagString: Forest
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

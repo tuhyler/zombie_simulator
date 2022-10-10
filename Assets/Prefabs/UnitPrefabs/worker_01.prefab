@@ -106,6 +106,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: worker_01
       objectReference: {fileID: 0}
+    - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
@@ -189,16 +194,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitDataSO: {fileID: 11400000, guid: 18c8b91359d031b4993718da17e9fc1f, type: 2}
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
-  allUnitDataSO: {fileID: 11400000, guid: 92232cdda4bffe84b9a83a398665d448, type: 2}
   world: {fileID: 0}
-  FinishedMoving:
-    m_PersistentCalls:
-      m_Calls: []
-  movementDuration: 2.5
-  rotationDuration: 0.1
   moreToMove: 0
+  isBusy: 0
   turnHandler: {fileID: 0}
-  zeroMovementPoints: 0
   isTrader: 0
   atStop: 0
   followingRoute: 0

@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class City : MonoBehaviour, ITurnDependent
+public class City : MonoBehaviour
 {
     public bool InProduction { get; private set; }
     private GameObject unitToProduce;
@@ -183,12 +183,12 @@ public class City : MonoBehaviour, ITurnDependent
         }
     }
 
-    public void SelectUnitToProduce(GameObject unitToProduce, bool destroyedCity)
+    public void SelectUnitToProduce(GameObject unitToProduce)
     {
         this.unitToProduce = unitToProduce;
         InProduction = true;
         //if (destroyedCity)
-        CompleteProduction(destroyedCity);
+        CompleteProduction();
     }
 
     public void ToggleProduction(bool v)
@@ -196,7 +196,7 @@ public class City : MonoBehaviour, ITurnDependent
         InProduction = v;
     }
 
-    private void CompleteProduction(bool destroyedCity = false)
+    private void CompleteProduction()
     {
         if (!InProduction)
             return;
@@ -228,10 +228,7 @@ public class City : MonoBehaviour, ITurnDependent
         buildPositionFinal.y += .5f;
         GameObject unitGO = Instantiate(unitToProduce, buildPositionFinal, Quaternion.identity); //produce unit at specified position
         unitGO.name = unitGO.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
-        if (destroyedCity)
-        {
-            unitGO.GetComponent<Unit>().zeroMovementPoints = destroyedCity; //can't move after destroyed city
-        }
+
         world.AddUnitPosition(buildPosition, unitToProduce);
     }
 
@@ -442,13 +439,5 @@ public class City : MonoBehaviour, ITurnDependent
         DisableHighlight();
         //selectionCircle.enabled = false;
         //highlight.ToggleGlow(false);
-    }
-
-    public void WaitTurn()
-    {
-        CompleteProduction();
-        UpdateWorldResources();
-        //UpdateCityPopInfo();
-        //PopulationGrowthCheck();
     }
 }

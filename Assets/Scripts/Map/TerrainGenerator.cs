@@ -275,6 +275,7 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
                     grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject grasslandHill);
 
+                grasslandHill.tag = "Hill";
                 GenerateTile(grasslandHill, position, rotation);
             }
             else if (mainMap[position] == ProceduralGeneration.desertHill)
@@ -282,6 +283,7 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, false, desertHillVar0, desertHillVar1, desertHillVar2, desertHillVar3,
                     desertHillVar4, desertHillVar5, out Quaternion rotation, out GameObject desertHill);
 
+                desertHill.tag = "Hill";
                 GenerateTile(desertHill, position, rotation);
             }
             else if (mainMap[position] == ProceduralGeneration.forestHill)
@@ -289,6 +291,7 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
                     grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject forestHill);
 
+                forestHill.tag = "Forest Hill";
                 GameObject newTile = GenerateTile(forestHill, position, rotation);
 
                 AddProp(random, newTile, forestHillProps, forestHillSO);
@@ -298,6 +301,7 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
                     grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject jungleHill);
 
+                jungleHill.tag = "Forest Hill";
                 GameObject newTile = GenerateTile(jungleHill, position, rotation);
 
                 AddProp(random, newTile, jungleHillProps, jungleHillSO);
@@ -339,6 +343,7 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
                     grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject forest);
 
+                forest.tag = "Forest";
                 GameObject newTile = GenerateTile(forest, position, rotation);
 
                 AddProp(random, newTile, forestProps, forestSO);
@@ -348,6 +353,7 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
                     grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject jungle);
 
+                jungle.tag = "Forest";
                 GameObject newTile = GenerateTile(jungle, position, rotation);
 
                 AddProp(random, newTile, jungleProps, jungleSO);
