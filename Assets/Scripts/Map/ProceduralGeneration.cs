@@ -26,25 +26,26 @@ public class ProceduralGeneration
     public static int river = 15;
     public static int grasslandFloodPlain = 16; 
     public static int desertFloodPlain = 17;
+    private static int increment = 3;
 
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
-        new Vector3Int(0,0,1), //up
-        new Vector3Int(1,0,0), //right
-        new Vector3Int(0,0,-1), //down
-        new Vector3Int(-1,0,0), //left
+        new Vector3Int(0,0,increment), //up
+        new Vector3Int(increment,0,0), //right
+        new Vector3Int(0,0,-increment), //down
+        new Vector3Int(-increment,0,0), //left
     };
 
     public readonly static List<Vector3Int> neighborsEightDirections = new()
     {
-        new Vector3Int(0,0,1), //up
-        new Vector3Int(1,0,1), //upper right
-        new Vector3Int(1,0,0), //right
-        new Vector3Int(1,0,-1), //lower right
-        new Vector3Int(0,0,-1), //down
-        new Vector3Int(-1,0,-1), //lower left
-        new Vector3Int(-1,0,0), //left
-        new Vector3Int(-1,0,1), //upper left
+        new Vector3Int(0,0,increment), //up
+        new Vector3Int(increment,0,increment), //upper right
+        new Vector3Int(increment,0,0), //right
+        new Vector3Int(increment,0,-increment), //lower right
+        new Vector3Int(0,0,-increment), //down
+        new Vector3Int(-increment,0,-increment), //lower left
+        new Vector3Int(-increment,0,0), //left
+        new Vector3Int(-increment,0,increment), //upper left
     };
 
     public static Dictionary<Vector3Int, float> PerlinNoiseGenerator(Dictionary<Vector3Int, int> positions, 
@@ -139,7 +140,7 @@ public class ProceduralGeneration
         {
             for (int j = -depth; j < height + depth; j++)
             {
-                Vector3Int oceanTile = new Vector3Int(i, yCoord, j);
+                Vector3Int oceanTile = new Vector3Int(i*increment, yCoord, j*increment);
                 if (!mainMap.ContainsKey(oceanTile))
                     mainMap[oceanTile] = sea;
             }
@@ -416,7 +417,7 @@ public class ProceduralGeneration
         {
             for (int j = 0; j < height; j++)
             {
-                Vector3Int currentTile = new Vector3Int(i, yCoord, j);
+                Vector3Int currentTile = new Vector3Int(i*increment, yCoord, j*increment);
 
                 if (mainTiles[currentTile] == jungle)
                 {
@@ -495,7 +496,7 @@ public class ProceduralGeneration
         {
             for (int j = 0; j < height; j++)
             {
-                randomTiles[new Vector3Int(i, yCoord, j)] = random.Next(0, 100) < randomFillPercent ? sea : landPlaceholder;
+                randomTiles[new Vector3Int(i*increment, yCoord, j*increment)] = random.Next(0, 100) < randomFillPercent ? sea : landPlaceholder;
             }
         }
 
@@ -531,9 +532,9 @@ public class ProceduralGeneration
                 for (int j = 0; j < boundary2; j++)
                 {
                     if (k == 0)
-                        currentTile = new Vector3Int(i, yCoord, j);
+                        currentTile = new Vector3Int(i*increment, yCoord, j*increment);
                     else
-                        currentTile = new Vector3Int(j, yCoord, i);
+                        currentTile = new Vector3Int(j*increment, yCoord, i*increment);
 
                     int currentType = mapDict[currentTile];
 
@@ -839,10 +840,10 @@ public class ProceduralGeneration
             {
                 for (int j = 0; j < height - 1; j++)
                 {
-                    Vector3Int tileA = new(i, yCoord, j);
-                    Vector3Int tileB = new(i, yCoord, j + 1);
-                    Vector3Int tileC = new(i + 1, yCoord, j + 1);
-                    Vector3Int tileD = new(i + 1, yCoord, j);
+                    Vector3Int tileA = new(i*increment, yCoord, j *increment);
+                    Vector3Int tileB = new(i*increment, yCoord, j *increment + increment);
+                    Vector3Int tileC = new(i*increment + increment, yCoord, j*increment + increment);
+                    Vector3Int tileD = new(i*increment + increment, yCoord, j*increment);
 
                     if (mapDict[tileA] == sea && mapDict[tileC] == sea && mapDict[tileB] != sea && mapDict[tileD] != sea)
                         mapDict[tileB] = sea;

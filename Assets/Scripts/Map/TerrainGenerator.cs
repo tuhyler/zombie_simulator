@@ -403,11 +403,11 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         //Finish it all of by placing water
-        Vector3 waterLoc = new Vector3(width / 2 - .5f, yCoord - .02f, height / 2 - .5f);
+        Vector3 waterLoc = new Vector3(width*3 / 2 - .5f, yCoord - .02f, height*3 / 2 - .5f);
         GameObject water = Instantiate(this.water, waterLoc, Quaternion.identity);
         water.transform.SetParent(groundTiles.transform, false);
         allTiles.Add(water);
-        water.transform.localScale = new Vector3((width + oceanRingDepth * 2)/10f, 1, (height + oceanRingDepth * 2)/10f);
+        water.transform.localScale = new Vector3((width*3 + oceanRingDepth * 2)/10f, 1, (height*3 + oceanRingDepth * 2)/10f);
     }
 
     //ugly method to make above method cleaner

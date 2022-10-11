@@ -36,6 +36,9 @@ public class MapWorld : MonoBehaviour
 
     //for terrain speeds
     public TerrainDataSO flatland, forest, hill, forestHill;
+    
+    //for expanding gameobject size
+    private static int increment = 3;
 
 
     [SerializeField] //for gizmos
@@ -55,7 +58,14 @@ public class MapWorld : MonoBehaviour
         foreach (TerrainData td in FindObjectsOfType<TerrainData>()) //this is slow, but should be okay for turn based
         {
             //TerrainDataSO terrainData = td.GetTerrainData();
-            world[td.GetTileCoordinates()] = td; //populate dictionary
+            Vector3Int tileCoordinate = td.GetTileCoordinates();
+            world[tileCoordinate] = td; //populate dictionary
+
+            foreach (Vector3Int tile in neighborsEightDirections)
+            {
+                world[tileCoordinate + tile] = td;
+            }
+
         }
 
         foreach (Unit unit in FindObjectsOfType<Unit>()) //adds all units and their locations to start game.
@@ -160,25 +170,6 @@ public class MapWorld : MonoBehaviour
         return roadTileDict[tile];
     }
 
-    //public int GetPlaceInMultiTileLine(Vector3Int tile, GameObject unitGO)
-    //{
-    //    return multiUnitPosDict[tile].IndexOf(unitGO);
-    //}
-
-    //public GameObject GetLastInLine(Vector3Int objectLoc)
-    //{
-    //    return multiUnitPosDict[objectLoc][multiUnitPosDict[objectLoc].Count-1];
-    //}
-
-    //public GameObject GetNextInLine(Vector3Int objectLoc, int index)
-    //{
-    //    index++;
-    //    if (index == multiUnitPosDict[objectLoc].Count)
-    //        index = 0;
-        
-    //    return multiUnitPosDict[objectLoc][index];
-    //}
-
     public void SetTerrainData(Vector3Int tile, TerrainData td)
     {
         world[tile] = td;
@@ -247,12 +238,6 @@ public class MapWorld : MonoBehaviour
         //return cityNameDict.ContainsKey(cityName);
     }
 
-    //public bool IsTileShared(Vector3Int position)
-    //{
-    //    //Vector3Int loc = Vector3Int.FloorToInt(position);
-    //    return multiUnitPosDict.ContainsKey(position);
-    //}
-
     public bool TileHasBuildings(Vector3Int cityTile)
     {
         if (!cityBuildingDict.ContainsKey(cityTile))
@@ -303,6 +288,14 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-1,0,0), //left
     };
 
+    public readonly static List<Vector3Int> neighborsFourDirectionsIncrement = new()
+    {
+        new Vector3Int(0,0,increment), //up
+        new Vector3Int(increment,0,0), //right
+        new Vector3Int(0,0,-increment), //down
+        new Vector3Int(-increment,0,0), //left
+    };
+
     public readonly static List<Vector3Int> neighborsDiagFourDirections = new()
     {
         new Vector3Int(1, 0, 1), //upper right
@@ -325,33 +318,33 @@ public class MapWorld : MonoBehaviour
 
     public readonly static List<Vector3Int> cityRadius = new()
     {
-        new Vector3Int(0,0,1), //up
-        new Vector3Int(1,0,1), //upper right
-        new Vector3Int(1,0,0), //right
-        new Vector3Int(1,0,-1), //lower right
-        new Vector3Int(0,0,-1), //down
-        new Vector3Int(-1,0,-1), //lower left
-        new Vector3Int(-1,0,0), //left
-        new Vector3Int(-1,0,1), //upper left
-        new Vector3Int(0,0,2), //up up
-        new Vector3Int(1,0,2), //up up right
-        new Vector3Int(2,0,2), //upper right corner
-        new Vector3Int(2,0,1), //up right right
-        new Vector3Int(2,0,0), //right right
-        new Vector3Int(2,0,-1), //right right down
-        new Vector3Int(2,0,-2), //lower right corner
-        new Vector3Int(1,0,-2), //down down right
-        new Vector3Int(0,0,-2), //down down
-        new Vector3Int(-1,0,-2), //down down left
-        new Vector3Int(-2,0,-2), //lower left corner
-        new Vector3Int(-2,0,-1), //left left down
-        new Vector3Int(-2,0,0), //left left
-        new Vector3Int(-2,0,1), //left left up
-        new Vector3Int(-2,0,2), //upper left corner
-        new Vector3Int(-1,0,2), //up up left
+        new Vector3Int(0,0,increment), //up
+        new Vector3Int(increment,0,increment), //upper right
+        new Vector3Int(increment,0,0), //right
+        new Vector3Int(increment,0,-increment), //lower right
+        new Vector3Int(0,0,-increment), //down
+        new Vector3Int(-increment,0,-increment), //lower left
+        new Vector3Int(-increment,0,0), //left
+        new Vector3Int(-increment,0,increment), //upper left
+        new Vector3Int(0,0,2*increment), //up up
+        new Vector3Int(increment,0,2*increment), //up up right
+        new Vector3Int(2*increment,0,2*increment), //upper right corner
+        new Vector3Int(2*increment,0,increment), //up right right
+        new Vector3Int(2*increment,0,0), //right right
+        new Vector3Int(2*increment,0,-increment), //right right down
+        new Vector3Int(2*increment,0,-2*increment), //lower right corner
+        new Vector3Int(increment,0,-2*increment), //down down right
+        new Vector3Int(0,0,-2*increment), //down down
+        new Vector3Int(-increment,0,-2*increment), //down down left
+        new Vector3Int(-2*increment,0,-2*increment), //lower left corner
+        new Vector3Int(-2*increment,0,-increment), //left left down
+        new Vector3Int(-2*increment,0,0), //left left
+        new Vector3Int(-2*increment,0,increment), //left left up
+        new Vector3Int(-2*increment,0,2*increment), //upper left corner
+        new Vector3Int(-increment,0,2*increment), //up up left
     };
 
-    public enum State { FOURWAY, EIGHTWAY, EIGHTWAYTWODEEP };
+    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYTWODEEP };
 
     public List<Vector3Int> GetNeighborsFor(Vector3Int worldTilePosition, State criteria)
     {
@@ -361,6 +354,9 @@ public class MapWorld : MonoBehaviour
         {
             case State.FOURWAY:
                 listToUse = new(neighborsFourDirections);
+                break;
+            case State.FOURWAYINCREMENT:
+                listToUse = new(neighborsFourDirectionsIncrement);
                 break;
             case State.EIGHTWAY:
                 listToUse = new(neighborsEightDirections);
@@ -469,6 +465,16 @@ public class MapWorld : MonoBehaviour
         return soloRoad;
     }
 
+    public TerrainData GetTerrainData(Vector3Int tileLoc)
+    {
+        return world[tileLoc];
+    }
+
+    public Vector3Int GetClosestTerrainLoc(Vector3 worldPosition)
+    {
+        return world[GetClosestTile(worldPosition)].GetTileCoordinates();
+    }
+
     public void AddCityName(string cityName, Vector3Int cityLoc)
     {
         cityNameDict[cityName] = cityLoc;
@@ -486,11 +492,6 @@ public class MapWorld : MonoBehaviour
 
         buildingPosDict[position] = structure;
     }
-
-    //public void AddRoadStructure(Vector3Int loc, GameObject road)
-    //{
-    //    buildingPosDict[loc] = road;
-    //}
 
     public void AddResourceProducer(Vector3 buildPosition, ResourceProducer resourceProducer)
     {
@@ -556,60 +557,13 @@ public class MapWorld : MonoBehaviour
         Vector3Int position = Vector3Int.FloorToInt(unitPosition);
 
         unitPosDict[position] = unitGO;
-        // for tracking trader locations, who don't take up space
-        //if (unitGO.GetComponent<Trader>())
-        //    traderPosDict[position] = unitGO;
-        //else
-        //    unitPosDict[position] = unitGO;
-
-        //if (unitPosDict.ContainsKey(position) || traderPosDict.ContainsKey(position))
-        //{
-        //    if (multiUnitPosDict.ContainsKey(position))
-        //    {
-        //        ShiftUnitUp(multiUnitPosDict[position][multiUnitPosDict[position].Count - 1]);
-
-
-
-        //        multiUnitPosDict[position].Add(unitGO);
-        //    }
-        //    else
-        //        multiUnitPosDict[position] = new List<GameObject>() { unitGO };
-        //}
     }
-
-    //private IEnumerator ShiftUnitUp(GameObject unitGO) //moving up a little the unit already on tile
-    //{
-    //    float timeElapsed = 0;
-    //    Vector3 startPosition = unitGO.transform.position;
-    //    Vector3 endPosition = startPosition;
-    //    endPosition.y += 0.3f;
-
-    //    while (timeElapsed < 0.5)
-    //    {
-    //        timeElapsed += Time.deltaTime;
-    //        float lerpStep = timeElapsed / 0.5f;
-    //        unitGO.transform.position = Vector3.Lerp(startPosition, endPosition, lerpStep);
-    //        yield return null;
-    //    }
-    //}
 
     public void RemoveUnitPosition(Vector3 unitPosition/*, GameObject unitGO*/)
     {
         Vector3Int position = Vector3Int.FloorToInt(unitPosition);
 
         unitPosDict.Remove(position);
-        // for tracking trader locations, who don't take up space
-        //if (multiUnitPosDict.ContainsKey(position))
-        //{
-        //    multiUnitPosDict[position].Remove(unitGO);
-        //    if (multiUnitPosDict[position].Count == 0)
-        //        multiUnitPosDict.Remove(position);
-        //}
-
-        //if (unitGO.GetComponent<Trader>())
-        //    traderPosDict.Remove(position);
-        //else
-        //    unitPosDict.Remove(position);
     }
 
 
