@@ -6,9 +6,11 @@ using UnityEngine;
 
 public class GridSearch
 {
-    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isTrader)
+    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader)
     {
-        List<Vector3Int> path = new();
+        Vector3Int startPosition = world.GetClosestTile(startLocation);
+
+        List <Vector3Int> path = new();
 
         List<Vector3Int> positionsToCheck = new();
         Dictionary<Vector3Int, int> costDictionary = new();

@@ -49,7 +49,7 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null)
         {
-            BuildCity(workerUnit.transform.position, Vector3Int.FloorToInt(workerUnit.transform.position), cityData);
+            BuildCity(world.GetClosestTerrainLoc(workerUnit.transform.position), cityData);
         }
     }
 
@@ -84,7 +84,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         workerUnit = null;
-        //ResetWorkerTaskSystem(); //reset everything before selecting
+        ResetWorkerTaskSystem(); //reset everything before selecting
 
         workerUnit = selectedObject.GetComponent<Worker>(); //checks if unit is worker
 
@@ -99,7 +99,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (workerUnit != null)
         {
             workerUnit = null;
-            //ResetWorkerTaskSystem();
+            ResetWorkerTaskSystem();
         }
         workerUnit = unit.GetComponent<Worker>();
         if (workerUnit != null)
@@ -125,23 +125,23 @@ public class WorkerTaskManager : MonoBehaviour
         return workerUnit == unitReference;
     }
 
-    //private void ResetWorkerTaskSystem() //hides worker ui, nulls unit
-    //{
-    //    if (workerUnit == null)
-    //    {
-    //        workerTaskUI.ToggleVisibility(false);
-    //    }
-    //    else
-    //    {
-    //        workerUnit.FinishedMoving.RemoveListener(ResetWorkerTaskSystem); //need to remove the listener else it will stay, adding to memory
-    //        workerTaskUI.ToggleVisibility(true);
-    //    }
-    //}
+    private void ResetWorkerTaskSystem() //hides worker ui, nulls unit
+    {
+        if (workerUnit == null)
+        {
+            workerTaskUI.ToggleVisibility(false);
+        }
+        else
+        {
+            //workerUnit.FinishedMoving.RemoveListener(ResetWorkerTaskSystem); //need to remove the listener else it will stay, adding to memory
+            workerTaskUI.ToggleVisibility(true);
+        }
+    }
 
     public void PerformTask(ImprovementDataSO improvementData)
     {
         Vector3 workerPos = workerUnit.transform.position;
-        Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
+        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
 
         Debug.Log("Performing task at " + workerTile);
 
@@ -165,7 +165,7 @@ public class WorkerTaskManager : MonoBehaviour
 
         if (improvementData.prefab.name == "City") //creating city
         {
-            BuildCity(workerPos, workerTile, improvementData);
+            BuildCity(workerTile, improvementData);
             return;
         }
     }
@@ -230,7 +230,7 @@ public class WorkerTaskManager : MonoBehaviour
         movementSystem.HidePath();
     }
 
-    private void BuildCity(Vector3 workerPos, Vector3Int workerTile, ImprovementDataSO improvementData)
+    private void BuildCity(Vector3Int workerTile, ImprovementDataSO improvementData)
     {
         if (world.IsBuildLocationTaken(workerTile))
         {
@@ -238,7 +238,7 @@ public class WorkerTaskManager : MonoBehaviour
             return;
         }
 
-        if (CheckForCity(workerPos))
+        if (CheckForCity(workerTile))
             return;
 
         //clear the forest if building on forest tile
@@ -255,11 +255,11 @@ public class WorkerTaskManager : MonoBehaviour
             roadManager.BuildRoadAtPosition(workerTile);
 
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
-        GameObject newCity = Instantiate(improvementData.prefab, workerPos, Quaternion.identity); //creates building unit position.
-        world.AddStructure(workerPos, newCity); //adds building location to buildingDict
+        GameObject newCity = Instantiate(improvementData.prefab, workerTile, Quaternion.identity); //creates building unit position.
+        world.AddStructure(workerTile, newCity); //adds building location to buildingDict
 
         ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
-        world.AddResourceProducer(workerPos, resourceProducer);
+        world.AddResourceProducer(workerTile, resourceProducer);
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
         ResourceManager resourceManager = newCity.GetComponent<ResourceManager>();
         resourceProducer.SetResourceManager(resourceManager);
@@ -276,14 +276,15 @@ public class WorkerTaskManager : MonoBehaviour
         }
         else //if no currently existing buildings, set up dictionaries
         {
-            world.AddCityBuildingDict(workerPos);
+            world.AddCityBuildingDict(workerTile);
         }
 
         newCity.GetComponent<City>().SetNewCityName();
         //uiCityNamer.HandleCityName();
         //RunCityNamerUI();
 
-        world.RemoveUnitPosition(workerPos/*, workerUnit.gameObject*/);
+        //world.RemoveUnitPosition(workerPos/*, workerUnit.gameObject*/);
+        workerTaskUI.ToggleVisibility(false);
         workerUnit.DestroyUnit(); //This unit handles its own destruction, done in unit class
         infoManager.HideInfoPanel();
         movementSystem.HidePath();

@@ -166,13 +166,7 @@ public class UnitMovement : MonoBehaviour
         selectedUnit.Select();
     }
 
-    public void HandleLocationSelection(Vector3 location)
-    {
-        if (selectedUnit != null)
-            selectedUnit.DestinationLoc = location;
-    }
-
-    public void HandleTileSelection(GameObject detectedObject)
+    public void HandleLocationSelection(Vector3 location, GameObject detectedObject)
     {
         if (uiCityResourceInfoPanel.inUse)
         {
@@ -186,9 +180,10 @@ public class UnitMovement : MonoBehaviour
         if (UnitSelected(detectedObject)) //don't run if you're selecting a unit 
             return;
 
-        TerrainData terrainSelected = detectedObject.GetComponent<TerrainData>(); //need to assign component
-        Vector3Int terrainPos = terrainSelected.GetTileCoordinates();
-        //newLocation -= terrainPos;
+        selectedUnit.DestinationLoc = location;
+
+        Vector3Int terrainPos = world.GetClosestTile(location);
+        TerrainData terrainSelected = world.GetTerrainDataAt(terrainPos);
 
         if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
         {
@@ -209,7 +204,7 @@ public class UnitMovement : MonoBehaviour
             Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
 
             InfoPopUpHandler.Create(mouseLoc, "Must travel on road.");
-            
+
             Debug.Log("Trader must travel on road.");
             movementSystem.HidePath();
             movementSystem.ClearPaths();
@@ -217,48 +212,46 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        //if (world.IsUnitLocationTaken(terrainPos))
-        //{ //cancel movement if unit is already there
+        //    //if (world.IsUnitLocationTaken(terrainPos))
+        //    //{ //cancel movement if unit is already there
 
-        //    //below is for switching places with neighboring unit
-        //    Vector3Int currentPos = Vector3Int.FloorToInt(selectedUnit.transform.position);
-            
-        //    if (Math.Abs(currentPos.x - terrainPos.x) <= 1 && Math.Abs(currentPos.z - terrainPos.z) <= 1) //seeing if next to each other
-        //    {
-        //        Unit unitInTheWay = world.GetUnit(terrainPos);
-        //        if (unitInTheWay.GetComponent<Trader>() != null && !world.GetTerrainDataAt(currentPos).hasRoad)
-        //        {
-        //            Debug.Log("Trader must travel on road.");
-        //            return;
-        //        }
+        //    //    //below is for switching places with neighboring unit
+        //    //    Vector3Int currentPos = Vector3Int.FloorToInt(selectedUnit.transform.position);
 
-        //        if (!unitInTheWay.isBusy && !selectedUnit.isBusy)
-        //        {
-        //            MovementPreparations();
-        //            world.RemoveUnitPosition(currentPos/*, selectedUnit.gameObject*/); //need to remove both at same time to allow swapping spaces
-        //            world.RemoveUnitPosition(terrainPos/*, unitInTheWay.gameObject*/);
+        //    //    if (Math.Abs(currentPos.x - terrainPos.x) <= 1 && Math.Abs(currentPos.z - terrainPos.z) <= 1) //seeing if next to each other
+        //    //    {
+        //    //        Unit unitInTheWay = world.GetUnit(terrainPos);
+        //    //        if (unitInTheWay.GetComponent<Trader>() != null && !world.GetTerrainDataAt(currentPos).hasRoad)
+        //    //        {
+        //    //            Debug.Log("Trader must travel on road.");
+        //    //            return;
+        //    //        }
 
-        //            //moving unit in the way
-        //            TerrainData currentTile = world.GetTerrainDataAt(currentPos);
-        //            TerrainData terrainTile = world.GetTerrainDataAt(terrainPos);
-        //            List<TerrainData> unitInTheWayPath = new() { currentTile };
-        //            unitInTheWay.MoveThroughPath(unitInTheWayPath);
+        //    //        if (!unitInTheWay.isBusy && !selectedUnit.isBusy)
+        //    //        {
+        //    //            MovementPreparations();
+        //    //            world.RemoveUnitPosition(currentPos/*, selectedUnit.gameObject*/); //need to remove both at same time to allow swapping spaces
+        //    //            world.RemoveUnitPosition(terrainPos/*, unitInTheWay.gameObject*/);
 
-        //            //moving selected unit
-        //            List<TerrainData> selectedPath = new() { terrainTile };
-        //            selectedUnit.MoveThroughPath(selectedPath);
-        //            return;
-        //        }
-        //    }
-        //    //above is for switching places with neighboring unit
+        //    //            //moving unit in the way
+        //    //            TerrainData currentTile = world.GetTerrainDataAt(currentPos);
+        //    //            TerrainData terrainTile = world.GetTerrainDataAt(terrainPos);
+        //    //            List<TerrainData> unitInTheWayPath = new() { currentTile };
+        //    //            unitInTheWay.MoveThroughPath(unitInTheWayPath);
 
-        //    Debug.Log("Unit already at selected tile");
-        //    return;
-        //}
+        //    //            //moving selected unit
+        //    //            List<TerrainData> selectedPath = new() { terrainTile };
+        //    //            selectedUnit.MoveThroughPath(selectedPath);
+        //    //            return;
+        //    //        }
+        //    //    }
+        //    //    //above is for switching places with neighboring unit
 
-        //Debug.Log("Sel. terrain is " + terrainSelected.name);
+        //    //    Debug.Log("Unit already at selected tile");
+        //    //    return;
+        //    //}
+
         HandleSelectedTile(terrainSelected, terrainPos);
-
     }
 
     private bool UnitSelected(GameObject detectedObject)
@@ -489,7 +482,7 @@ public class UnitMovement : MonoBehaviour
         LoadUnloadFinish(); //clear load cargo screen
         infoManager.HideInfoPanel();
         movementSystem.HidePath();
-        movementSystem.ClearPaths(); //necessary to queue movement orders, may break FinishMoving()
+        movementSystem.ClearPaths(); //necessary to queue movement orders
         selectedUnitInfoProvider = null;
         selectedTrader = null;
         selectedUnit = null;

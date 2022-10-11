@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 7185426163474996275}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 624174126433392015}
@@ -67,9 +67,11 @@ MonoBehaviour:
   cityNameMaterial: {fileID: 2100000, guid: 87e679e04e2fd464b94fa13055be0e02, type: 2}
   cityNameField: {fileID: 709202929113320297}
   cityName: {fileID: 7771684247865887059}
+  cityLoc: {x: 0, y: 0, z: 0}
   cityPop: {fileID: 0}
   unitFoodConsumptionPerTurn: 1
   warehouseStorageLimit: 200
+  savedQueueItems: []
 --- !u!114 &-5699919199278134000
 MonoBehaviour:
   m_ObjectHideFlags: 0

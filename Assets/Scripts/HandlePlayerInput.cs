@@ -13,8 +13,8 @@ public class HandlePlayerInput : MonoBehaviour
 
     //all input is handled on this class through unity events, just more organized here. (here and camera controller)
     public UnityEvent<GameObject> HandleOtherSelection;
-    public UnityEvent<GameObject> HandleTileSelection;
-    public UnityEvent<Vector3> HandleLocationSelection;
+    //public UnityEvent<GameObject> HandleTileSelection;
+    public UnityEvent<Vector3, GameObject> HandleLocationSelection;
     public UnityEvent HandleShiftDown, HandleShiftUp, HandleR, HandleEnter, HandleC, HandleB, HandleG, HandleX, HandleSpace;
     //public UnityEvent HandleShiftUp;
     //public UnityEvent HandleR;
@@ -73,23 +73,25 @@ public class HandlePlayerInput : MonoBehaviour
     private void HandleMouseClick()
     {
         GameObject selectedGameObject;
+
         mousePositionClick = Input.mousePosition;
         Ray ray = mainCamera.ScreenPointToRay(mousePositionClick);
         if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
         {
             selectedGameObject = hit.collider.gameObject;
-            HandleLocationSelection?.Invoke(hit.point);
         }
-
         else
             selectedGameObject = null;
 
         if (selectedGameObject == null)
             return;
 
-        if (selectedGameObject.GetComponent<TerrainData>() == null)
-            HandleOtherSelection?.Invoke(selectedGameObject);
-        else
-            HandleTileSelection?.Invoke(selectedGameObject);
+        HandleLocationSelection?.Invoke(hit.point, selectedGameObject);
+        HandleOtherSelection?.Invoke(selectedGameObject);
+
+        //if (selectedGameObject.GetComponent<TerrainData>() == null)
+        //    HandleOtherSelection?.Invoke(selectedGameObject);
+        //else
+        //    HandleTileSelection?.Invoke(selectedGameObject);
     }
 }

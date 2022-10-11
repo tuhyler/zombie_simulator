@@ -123,7 +123,7 @@ public class CityBuilderManager : MonoBehaviour
         if (selectedCity != null)
         {
             isActive = true;
-            selectedCityLoc = Vector3Int.FloorToInt(selectedCity.transform.position);
+            selectedCityLoc = Vector3Int.RoundToInt(selectedCity.transform.position);
             (cityTiles,developedTiles) = GetThisCityRadius();
             DrawBorders();
             CheckForWork();
@@ -149,9 +149,11 @@ public class CityBuilderManager : MonoBehaviour
     }
 
     //for deselecting city after clicking off of it
-    public void HandleDeselect(GameObject selectedObject)
+    public void HandleDeselect(Vector3 location, GameObject detectedObject)
     {
-        if (cityTiles.Contains(selectedObject.GetComponent<TerrainData>().GetTileCoordinates())) //to not deselect city when working within city
+        location.y = 0f;
+        
+        if (cityTiles.Contains(world.GetClosestTerrainLoc(location))) //to not deselect city when working within city
             return;
 
         if (selectedCity != null)
@@ -160,13 +162,16 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    public void HandleTileSelection(GameObject detectedObject)
+    public void HandleTileSelection(Vector3 location, GameObject detectedObject)
     {
         if (improvementData == null && laborChange == 0 && !removingImprovement)
             return;
 
-        TerrainData terrainSelected = detectedObject.GetComponent<TerrainData>();
-        Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
+        //TerrainData terrainSelected = detectedObject.GetComponent<TerrainData>();
+
+        Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
+        TerrainData terrainSelected = world.GetTerrainData(terrainLocation);
+        //Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
 
         if (!tilesToChange.Contains(terrainLocation))
         {
@@ -205,7 +210,7 @@ public class CityBuilderManager : MonoBehaviour
 
     private (List<Vector3Int>, List<Vector3Int>) GetThisCityRadius() //radius just for selected city
     {
-        return world.GetCityRadiusFor(world.GetClosestTile(selectedCity.transform.position), selectedCity.gameObject);
+        return world.GetCityRadiusFor(selectedCityLoc, selectedCity.gameObject);
     }
 
     private void DrawBorders()
@@ -215,7 +220,7 @@ public class CityBuilderManager : MonoBehaviour
         foreach (Vector3Int tile in tempCityTiles)
         {
             //finding border neighbors for tile
-            List<Vector3Int> neighborList = world.GetNeighborsFor(tile, MapWorld.State.FOURWAY);
+            List<Vector3Int> neighborList = world.GetNeighborsFor(tile, MapWorld.State.FOURWAYINCREMENT);
             foreach (Vector3Int neighbor in neighborList)
             {
                 if (!tempCityTiles.Contains(neighbor)) //only draw borders on areas that aren't city tiles
@@ -226,7 +231,7 @@ public class CityBuilderManager : MonoBehaviour
 
                     Vector3Int borderLocation = neighbor - tile; //used to determine where on tile border should be
                     Vector3 borderPosition = tile;
-                    borderPosition.y += .5f;
+                    borderPosition.y = 0f;
 
                     if (borderLocation.x != 0)
                     {
@@ -524,7 +529,7 @@ public class CityBuilderManager : MonoBehaviour
         
         Vector3 buildLocation = tempBuildLocation;
 
-        buildLocation.y += 0.5f;
+        buildLocation.y = 0f;
         resourceManager.SpendResource(improvementData.improvementCost); //this spends the resources needed to build
         resourceManager.UpdateUI(uiResourceManager);
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
@@ -820,7 +825,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         //specifying location on tile
         Vector3 numberPosition = tile;
-        numberPosition.y += .51f;
+        numberPosition.y += .01f;
         numberPosition.z += -.3f; //bottom center of tile
 
         //Object pooling set up
@@ -1073,8 +1078,8 @@ public class CityBuilderManager : MonoBehaviour
         if (selectedCity != null)
         {
             isActive = false;
-            cityTiles = new List<Vector3Int>();
-            developedTiles = new List<Vector3Int>();
+            cityTiles.Clear();
+            developedTiles.Clear();
             //ResetTileLists();
             removingImprovement = false;
             removingBuilding = false;

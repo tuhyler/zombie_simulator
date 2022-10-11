@@ -16,13 +16,13 @@ public class Trader : Unit
     [HideInInspector]
     public bool hasRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
 
-    private UnitMovement unitMovement;
+    //private UnitMovement unitMovement;
 
     private void Awake()
     {
         AwakeMethods();
         isTrader = true;
-        unitMovement = FindObjectOfType<UnitMovement>();
+        //unitMovement = FindObjectOfType<UnitMovement>();
     }
 
     protected override void AwakeMethods()
@@ -69,10 +69,9 @@ public class Trader : Unit
         followingRoute = true;
         atStop = false;
         
-        List<Vector3Int> currentPath = GridSearch.AStarSearch(world, world.GetClosestTile(transform.position),
-                tradeRouteManager.GoToNext(), isTrader);
+        List<Vector3Int> currentPath = GridSearch.AStarSearch(world, transform.position, tradeRouteManager.GoToNext(), isTrader);
 
-        List<TerrainData> paths = new();
+        //List<TerrainData> paths = new();
 
         if (currentPath.Count == 0)
         {
@@ -80,13 +79,13 @@ public class Trader : Unit
             return;
         }
 
-        foreach (Vector3Int path in currentPath)
-        {
-            paths.Add(world.GetTerrainDataAt(path));
-        }
+        //foreach (Vector3Int path in currentPath)
+        //{
+        //    paths.Add(world.GetTerrainDataAt(path));
+        //}
 
-        if (paths.Count > 0)
-            MoveThroughPath(paths);
+        if (currentPath.Count > 0)
+            MoveThroughPath(currentPath);
     }
 
     public void CancelRoute()

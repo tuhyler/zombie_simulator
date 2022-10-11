@@ -44,7 +44,7 @@ public class MovementSystem : MonoBehaviour
         }
         else
         {
-            currentPath = GridSearch.AStarSearch(world, world.GetClosestTile(selectedUnit.transform.position), endPosition, isTrader);
+            currentPath = GridSearch.AStarSearch(world, selectedUnit.transform.position, endPosition, isTrader);
         }
 
         ShowPath();
@@ -56,7 +56,7 @@ public class MovementSystem : MonoBehaviour
         {
             //position to place shoePrint
             Vector3 turnCountPosition = currentPath[i];
-            turnCountPosition.y += 0.51f; //added .01 to make it not blend with terrain
+            turnCountPosition.y += 0.01f; //added .01 to make it not blend with terrain
 
             Vector3 prevPosition;
 
@@ -69,7 +69,7 @@ public class MovementSystem : MonoBehaviour
                 prevPosition = currentPath[i - 1];
             }
 
-            prevPosition.y = 0.51f;
+            prevPosition.y = 0.01f;
             GameObject shoePrintPath = GetFromShoePrintPool();
             shoePrintPath.transform.position = (turnCountPosition + prevPosition) / 2;
             float xDiff = turnCountPosition.x - prevPosition.x;
@@ -139,16 +139,16 @@ public class MovementSystem : MonoBehaviour
     {        
         Debug.Log("Moving Unit " + selectedUnit.name);
 
-        List<TerrainData> totalMovementList = new(); //the entire path
+        //List<TerrainData> totalMovementList = new(); //the entire path
 
-        foreach (Vector3Int pos in currentPath)
-        {
-            TerrainData td = world.GetTerrainDataAt(pos);
-            totalMovementList.Add(td);
-        }
+        //foreach (Vector3Int pos in currentPath)
+        //{
+        //    TerrainData td = world.GetTerrainDataAt(pos);
+        //    totalMovementList.Add(td);
+        //}
 
-        if (totalMovementList.Count > 0)
-            selectedUnit.MoveThroughPath(totalMovementList);
+        if (currentPath.Count > 0)
+            selectedUnit.MoveThroughPath(currentPath);
     }
 
 

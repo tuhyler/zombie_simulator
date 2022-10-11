@@ -23,8 +23,8 @@ public class Unit : MonoBehaviour
 
     //movement details
     private Rigidbody unitRigidbody;
-    private float rotationDuration = 0.1f, moveSpeed = .5f;
-    private Queue<TerrainData> pathPositions = new();
+    private float rotationDuration = 0.001f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f;
+    private Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
     public bool moreToMove, isBusy; //check if they're doing something
     private Vector3 destinationLoc;
@@ -65,6 +65,7 @@ public class Unit : MonoBehaviour
         forestSpeed = world.forest.movementCost;
         hillSpeed = world.hill.movementCost;
         forestHillSpeed = world.forestHill.movementCost;
+        originalMoveSpeed = unitDataSO.movementSpeed;
     }
 
     public void CenterCamera()
@@ -75,15 +76,15 @@ public class Unit : MonoBehaviour
 
     //Methods for moving unit
     //Gets the path positions and starts the coroutines
-    public void MoveThroughPath(List<TerrainData> currentPath) 
+    public void MoveThroughPath(List<Vector3Int> currentPath) 
     {
         //CenterCamera(); //focus to start moving
 
         world.RemoveUnitPosition(transform.position/*, gameObject*/);//removing previous location
 
         //destinationLoc = currentPath[currentPath.Count - 1].transform.position; //currentPath is list instead of queue for this line
-        pathPositions = new Queue<TerrainData>(currentPath);
-        TerrainData firstTarget = pathPositions.Dequeue();
+        pathPositions = new Queue<Vector3Int>(currentPath);
+        Vector3 firstTarget = pathPositions.Dequeue();
 
         moreToMove = true;
         unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
@@ -92,9 +93,10 @@ public class Unit : MonoBehaviour
     }
 
     //rotate unit before moving
-    private IEnumerator RotationCoroutine(TerrainData endPositionTile)
+    private IEnumerator RotationCoroutine(Vector3 endPosition)
     {
-        Vector3 endPosition = endPositionTile.transform.position;
+        //Vector3 endPosition = endPositionTile.transform.position;
+        //Debug.Log("next stop is " + endPosition);
 
         if (pathPositions.Count == 0)
             endPosition = destinationLoc;
@@ -117,19 +119,19 @@ public class Unit : MonoBehaviour
             transform.rotation = endRotation;
         }
 
-        Vector3 startPosition = transform.position;
+        //Vector3 startPosition = transform.position;
         //int movementCost = endPositionTile.MovementCost;
         //if (!world.GetTerrainDataAt(Vector3Int.FloorToInt(startPosition)).hasRoad) //for moving onto road from non-road
         //    movementCost = endPositionTile.OriginalMovementCost; 
 
-        StartCoroutine(MovementCoroutine(startPosition, endPosition));
+        StartCoroutine(MovementCoroutine(endPosition));
 
     }
 
 
 
     //moves unit
-    private IEnumerator MovementCoroutine(Vector3 startPosition, Vector3 endPosition)
+    private IEnumerator MovementCoroutine(Vector3 endPosition)
     {
         //Vector3 startPosition = transform.position;
         Vector3Int endLoc = Vector3Int.FloorToInt(endPosition);
@@ -146,8 +148,8 @@ public class Unit : MonoBehaviour
 
         //    world.AddUnitPosition(destinationLoc, gameObject); //add to world dict just before moving to tile
 
-        endPosition.y = .49f; //fixed y position
-        Debug.Log("end position is " + endPosition);
+        endPosition.y = 0f; //fixed y position
+        //Debug.Log("end position is " + endPosition);
         //float timeElapsed = 0;
         //float moveSpeed = .5f;
 
@@ -233,24 +235,23 @@ public class Unit : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Entering tile type " + collision.gameObject.tag);
+        //Debug.Log("Entering tile type " + collision.gameObject.tag);
         
         if (collision.gameObject.CompareTag("Flatland"))
         {
-            moveSpeed = flatlandSpeed * .5f;
+            moveSpeed = flatlandSpeed * originalMoveSpeed;
         }
         else if (collision.gameObject.CompareTag("Forest"))
         {
-            moveSpeed = forestSpeed * .125f;
+            moveSpeed = forestSpeed * originalMoveSpeed * 0.25f;
         }
         else if (collision.gameObject.CompareTag("Hill"))
         {
-            moveSpeed = hillSpeed * .125f;
-
+            moveSpeed = hillSpeed * originalMoveSpeed * 0.25f;
         }
         else if (collision.gameObject.CompareTag("Forest Hill"))
         {
-            moveSpeed = forestHillSpeed * 0.0833f;
+            moveSpeed = forestHillSpeed * originalMoveSpeed * 0.125f;
         }
     }
 
@@ -293,12 +294,12 @@ public class Unit : MonoBehaviour
     //displays movement orders when selected
     public List<Vector3Int> GetContinuedMovementPath() 
     {
-        List<Vector3Int> continuedOrdersPositions = new();
+        List<Vector3Int> continuedOrdersPositions = new(pathPositions);
 
-        foreach (TerrainData td in pathPositions)
-        {
-            continuedOrdersPositions.Add(td.GetTileCoordinates());
-        }
+        //foreach (TerrainData td in pathPositions)
+        //{
+        //    continuedOrdersPositions.Add(td.GetTileCoordinates());
+        //}
 
         return continuedOrdersPositions;
     }
