@@ -22,8 +22,8 @@ public class CameraController : MonoBehaviour
     private bool scrolling;
     public bool Scrolling { set { scrolling = value; } }
 
-    private float movementLimit = 10f;
-    private float edgeSize = 10f; //pixel buffer size
+    private float movementLimit = 40f;
+    private float edgeSize = 40f; //pixel buffer size
 
     public float movementSpeed, movementTime, rotationAmount;
     public Vector3 zoomAmount;
@@ -174,8 +174,8 @@ public class CameraController : MonoBehaviour
     private void ZoomCamera()
     {
         //zooming limits (set manually)
-        newZoom.y = Mathf.Clamp(newZoom.y, 2.2f, 7); //difference between the two need to be the same. 
-        newZoom.z = Mathf.Clamp(newZoom.z, -5.8f, -1);
+        newZoom.y = Mathf.Clamp(newZoom.y, 5f, 17); //difference between the two need to be the same. 
+        newZoom.z = Mathf.Clamp(newZoom.z, -13f, -1); //last has to be -1ish
 
         //smoothing zoom
         cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);

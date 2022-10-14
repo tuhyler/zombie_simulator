@@ -12,14 +12,34 @@ public class RoadManager : MonoBehaviour
     [SerializeField]
     private MapWorld world;
 
-    private int basicRoadMovementCost = 5;
+    [SerializeField]
+    private int roadMovementCost = 5;
 
+    public readonly static List<Vector3Int> neighborsFourDirections = new()
+    {
+        new Vector3Int(0,0,1), //up
+        new Vector3Int(1,0,0), //right
+        new Vector3Int(0,0,-1), //down
+        new Vector3Int(-1,0,0), //left
+    };
 
+    private readonly static List<Vector3Int> neighborsDiagFourDirections = new()
+    {
+        new Vector3Int(1, 0, 1), //upper right
+        new Vector3Int(1, 0, -1), //lower right
+        new Vector3Int(-1, 0, -1), //lower left
+        new Vector3Int(-1, 0, 1), //upper left
+    };
 
-    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight) //creating road prefabs
+    private void Awake()
+    {
+        world.SetRoadCost(roadMovementCost);
+    }
+
+    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight) //placing road prefabs
     {
         Vector3 pos = roadPosition;
-        pos.y += .5f;
+        pos.y = 0f;
         GameObject structure = Instantiate(model, pos, rotation);
         world.SetRoads(roadPosition, structure, straight);
     }
@@ -39,9 +59,8 @@ public class RoadManager : MonoBehaviour
         }
         
         world.InitializeRoads(roadPosition);
-        td.MovementCost = basicRoadMovementCost;
+        //td.MovementCost = basicRoadMovementCost;
         td.hasRoad = true;
-        //world.AddRoadStructure(roadPosition, emptyRoad);
         (List<(Vector3Int, bool, int[])> roadNeighbors, int[] straightRoads, int[] diagRoads) = world.GetRoadNeighborsFor(roadPosition);
 
         int straightRoadsCount = straightRoads.Sum(); //number of roads in straight neighbors
@@ -50,6 +69,13 @@ public class RoadManager : MonoBehaviour
         //making road shape based on how many of its neighbors have roads, and where the roads are
         if (straightRoadsCount + diagRoadsCount == 0)
             CreateRoadSolo(roadPosition);
+
+        world.SetRoadLocations(roadPosition);
+
+        if (straightRoadsCount > 0)
+            SetRoadLocations(roadPosition, straightRoads, true);
+        if (diagRoadsCount > 0)
+            SetRoadLocations(roadPosition, diagRoads, false);
 
         if (straightRoadsCount > 0)
             PrepareRoadCreation(roadPosition, straightRoads, straightRoadsCount, true);
@@ -65,7 +91,7 @@ public class RoadManager : MonoBehaviour
         foreach ((Vector3Int roadLoc, bool straight, int[] roads) in roadNeighbors)
         {
             int roadCount = roads.Sum();
-            Destroy(world.GetRoads(roadLoc, straight)); //destroying road, consider object pooling?
+            Destroy(world.GetRoads(roadLoc, straight)); //destroying road, consider object pooling
             if (roadCount == 0) //for placing solo roads on neighboring roads (when removing roads)
             {
                 if(world.SoloRoadCheck(roadLoc, straight))
@@ -75,6 +101,7 @@ public class RoadManager : MonoBehaviour
                 }
             }
 
+            SetRoadLocations(roadLoc, roads, straight);
             PrepareRoadCreation(roadLoc, roads, roadCount, straight);
         }
     }
@@ -96,6 +123,27 @@ public class RoadManager : MonoBehaviour
         else if (roadCount == 4)
         {
             CreateFourWay(roadPosition, straight);
+        }
+    }
+
+    private void SetRoadLocations(Vector3Int location, int[] roads, bool straight)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (roads[i] == 1)
+            {
+                if (straight)
+                    world.SetRoadLocations(location + neighborsFourDirections[i]);
+                else
+                    world.SetRoadLocations(location + neighborsDiagFourDirections[i]);
+            }
+            else
+            {
+                if (straight)
+                    world.RemoveRoadLocation(location + neighborsFourDirections[i]);
+                else
+                    world.RemoveRoadLocation(location + neighborsDiagFourDirections[i]);
+            }
         }
     }
 
@@ -165,6 +213,12 @@ public class RoadManager : MonoBehaviour
             Destroy(road);
         }
         world.RemoveRoad(tile);
+        world.RemoveRoadLocation(tile);
+
+        foreach (Vector3Int neighbor in neighborsFourDirections)
+            world.RemoveRoadLocation(tile + neighbor);
+        foreach (Vector3Int neighbor in neighborsDiagFourDirections)
+            world.RemoveRoadLocation(tile + neighbor);
 
         (List<(Vector3Int, bool, int[])> removedRoadNeighbors, int[] straightRoads, int[] diagRoads) = world.GetRoadNeighborsFor(tile);
         FixNeighborRoads(removedRoadNeighbors);
