@@ -9,6 +9,7 @@ TagManager:
   - Hill
   - Forest
   - Forest Hill
+  - Road
   layers:
   - Default
   - TransparentFX

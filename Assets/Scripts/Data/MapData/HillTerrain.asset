@@ -17,6 +17,6 @@ MonoBehaviour:
   clearedForestPrefab: {fileID: 0}
   walkable: 1
   sailable: 0
-  movementCost: 2
+  movementCost: 20
   type: 0
   resourceType: 5

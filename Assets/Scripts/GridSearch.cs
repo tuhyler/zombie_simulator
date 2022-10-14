@@ -25,7 +25,6 @@ public class GridSearch
         while (positionsToCheck.Count > 0)
         {
             Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
-            bool hasRoad = world.GetTerrainDataAt(current).hasRoad; //for going onto road from non-road
 
             positionsToCheck.Remove(current);
             if (current.Equals(endPosition))
@@ -39,10 +38,16 @@ public class GridSearch
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
 
-                if (isTrader && !world.GetTerrainDataAt(neighbor).hasRoad)
+                bool isRoadOnTileLocation = world.IsRoadOnTileLocation(neighbor);
+                int tempCost;
+
+                if (isTrader && !isRoadOnTileLocation) //If it's a trader and not on road, ignore
                     continue;
 
-                int tempCost = world.GetMovementCost(neighbor, hasRoad);
+                if (isRoadOnTileLocation)
+                    tempCost = world.GetRoadCost();
+                else
+                    tempCost = world.GetMovementCost(neighbor);
 
                 int newCost = costDictionary[current] + tempCost;
                 if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
@@ -84,7 +89,7 @@ public class GridSearch
                 if (!world.CheckIfPositionIsValid(neighbor))
                     continue;
 
-                if (isTrader && !world.GetTerrainDataAt(neighbor).hasRoad)
+                if (isTrader && !world.IsRoadOnTileLocation(neighbor))
                     continue;
 
                 positionsToCheck.Add(neighbor);

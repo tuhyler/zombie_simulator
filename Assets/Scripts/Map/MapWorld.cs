@@ -12,6 +12,7 @@ public class MapWorld : MonoBehaviour
     
     private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
+    private List<Vector3Int> cityLocations = new();
 
     private Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingDict = new(); //all the buildings and info within a city 
@@ -27,12 +28,15 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, GameObject> cityWorkedTileDict = new(); //the city worked tiles belong to
     private Dictionary<Vector3Int, ResourceProducer> cityImprovementProducerDict = new(); //all the improvements that have resource producers (for speed)
     private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingCurrentWorkedDict = new(); //current worked for buildings in city
+
     private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingMaxWorkedDict = new(); //max labor of buildings within city
     private Dictionary<Vector3Int, List<string>> cityBuildingList = new(); //list of buildings on city tiles (here instead of City because buildings can be without a city)
     private Dictionary<Vector3Int, Dictionary<string, ResourceProducer>> cityBuildingIsProducer = new(); //all the buildings that are resource producers (for speed)
 
     //for roads
-    private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new();
+    private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new(); //stores road GOs, only on terrain locations
+    private List<Vector3Int> roadLocsList = new(); //indicates which tiles have roads on them
+    int roadCost = 0;
 
     //for terrain speeds
     public TerrainDataSO flatland, forest, hill, forestHill;
@@ -55,11 +59,10 @@ public class MapWorld : MonoBehaviour
     {
         uiWorldResources.SetActiveStatus(true);
 
-        foreach (TerrainData td in FindObjectsOfType<TerrainData>()) //this is slow, but should be okay for turn based
+        foreach (TerrainData td in FindObjectsOfType<TerrainData>())
         {
-            //TerrainDataSO terrainData = td.GetTerrainData();
             Vector3Int tileCoordinate = td.GetTileCoordinates();
-            world[tileCoordinate] = td; //populate dictionary
+            world[tileCoordinate] = td; 
 
             foreach (Vector3Int tile in neighborsEightDirections)
             {
@@ -165,6 +168,16 @@ public class MapWorld : MonoBehaviour
         return roadTileDict[tile][index];
     }
 
+    public void SetRoadCost(int cost)
+    {
+        roadCost = cost;
+    }
+
+    public int GetRoadCost()
+    {
+        return roadCost;
+    }
+
     public List<GameObject> GetAllRoadsOnTile(Vector3Int tile)
     {
         return roadTileDict[tile];
@@ -177,7 +190,7 @@ public class MapWorld : MonoBehaviour
 
     public void SetCityDevelopment(Vector3 tile, CityImprovement cityDevelopment)
     {
-        Vector3Int position = Vector3Int.FloorToInt(tile);
+        Vector3Int position = Vector3Int.RoundToInt(tile);
         cityImprovementDict[position] = cityDevelopment;
     }
 
@@ -192,6 +205,22 @@ public class MapWorld : MonoBehaviour
         roadTileDict[tile][index] = road;
     }
 
+    public void SetRoadLocations(Vector3Int tile)
+    {
+        if (!roadLocsList.Contains(tile))
+            roadLocsList.Add(tile);
+    }
+
+    public bool IsRoadOnTileLocation(Vector3Int tile)
+    {
+        return roadLocsList.Contains(tile);
+    }
+
+    public void RemoveRoadLocation(Vector3Int tile)
+    {
+        roadLocsList.Remove(tile);
+    }
+
     public void InitializeRoads(Vector3Int tile)
     {
         roadTileDict[tile] = new() { null, null }; //two place holders for road, first for straight, second for diagonal
@@ -199,7 +228,8 @@ public class MapWorld : MonoBehaviour
 
     public bool IsCityOnTile(Vector3Int tile) //checking if city is on tile
     {
-        return buildingPosDict.ContainsKey(tile) && buildingPosDict[tile].GetComponent<City>();
+        //return buildingPosDict.ContainsKey(tile) && buildingPosDict[tile].GetComponent<City>();
+        return cityLocations.Contains(tile);
     }
 
     public bool IsBuildLocationTaken(Vector3Int buildLoc)
@@ -217,7 +247,7 @@ public class MapWorld : MonoBehaviour
         return cityBuildingDict[cityTile].ContainsKey(buildingName);
     }
 
-    public bool IsRoadOnTile(Vector3Int position)
+    public bool IsRoadOnTerrain(Vector3Int position)
     {
         return roadTileDict.ContainsKey(position);
     }
@@ -265,12 +295,12 @@ public class MapWorld : MonoBehaviour
         return Vector3Int.RoundToInt(worldPosition);
     }
 
-    public int GetMovementCost(Vector3Int tileWorldPosition, bool v)
+    public int GetMovementCost(Vector3Int tileWorldPosition)
     {
-        if (v)
-            return world[tileWorldPosition].MovementCost;
-        else
-            return world[tileWorldPosition].OriginalMovementCost;
+        //if (v)
+        //    return world[tileWorldPosition].MovementCost;
+        //else
+        return world[tileWorldPosition].MovementCost;
         //return world[tileWorldPosition].MovementCost; //for counting road movement cost from non-road terrain
     }
 
@@ -280,7 +310,7 @@ public class MapWorld : MonoBehaviour
         return td;
     }
 
-    public readonly static List<Vector3Int> neighborsFourDirections = new()
+    private readonly static List<Vector3Int> neighborsFourDirections = new()
     {
         new Vector3Int(0,0,1), //up
         new Vector3Int(1,0,0), //right
@@ -288,7 +318,7 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-1,0,0), //left
     };
 
-    public readonly static List<Vector3Int> neighborsFourDirectionsIncrement = new()
+    private readonly static List<Vector3Int> neighborsFourDirectionsIncrement = new()
     {
         new Vector3Int(0,0,increment), //up
         new Vector3Int(increment,0,0), //right
@@ -296,7 +326,7 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-increment,0,0), //left
     };
 
-    public readonly static List<Vector3Int> neighborsDiagFourDirections = new()
+    private readonly static List<Vector3Int> neighborsDiagFourDirections = new()
     {
         new Vector3Int(1, 0, 1), //upper right
         new Vector3Int(1, 0, -1), //lower right
@@ -304,7 +334,15 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-1, 0, 1), //upper left
     };
 
-    public readonly static List<Vector3Int> neighborsEightDirections = new()
+    private readonly static List<Vector3Int> neighborsDiagFourDirectionsIncrement = new()
+    {
+        new Vector3Int(increment, 0, increment), //upper right
+        new Vector3Int(increment, 0, -increment), //lower right
+        new Vector3Int(-increment, 0, -increment), //lower left
+        new Vector3Int(-increment, 0, increment), //upper left
+    };
+
+    private readonly static List<Vector3Int> neighborsEightDirections = new()
     {
         new Vector3Int(0,0,1), //up
         new Vector3Int(1,0,1), //upper right
@@ -316,7 +354,19 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-1,0,1), //upper left
     };
 
-    public readonly static List<Vector3Int> cityRadius = new()
+    private readonly static List<Vector3Int> neighborsEightDirectionsIncrement = new()
+    {
+        new Vector3Int(0,0,increment), //up
+        new Vector3Int(increment,0,increment), //upper right
+        new Vector3Int(increment,0,0), //right
+        new Vector3Int(increment,0,-increment), //lower right
+        new Vector3Int(0,0,-increment), //down
+        new Vector3Int(-increment,0,-increment), //lower left
+        new Vector3Int(-increment,0,0), //left
+        new Vector3Int(-increment,0,increment), //upper left
+    };
+
+    private readonly static List<Vector3Int> cityRadius = new()
     {
         new Vector3Int(0,0,increment), //up
         new Vector3Int(increment,0,increment), //upper right
@@ -418,7 +468,7 @@ public class MapWorld : MonoBehaviour
         int[] straightRoads = { 0, 0, 0, 0 };
         int[] diagRoads = { 0, 0, 0, 0 }; 
         int i = 0;
-        foreach (Vector3Int direction in neighborsEightDirections)
+        foreach (Vector3Int direction in neighborsEightDirectionsIncrement)
         {
             Vector3Int neighbor = direction + position;
             bool straightFlag = i % 2 == 0;
@@ -428,7 +478,7 @@ public class MapWorld : MonoBehaviour
                 int[] neighborRoads = { 0, 0, 0, 0 };
                 int neighborCount = 0;
 
-                List<Vector3Int> neighborDirectionList = straightFlag ? neighborsFourDirections : neighborsDiagFourDirections;
+                List<Vector3Int> neighborDirectionList = straightFlag ? neighborsFourDirectionsIncrement : neighborsDiagFourDirectionsIncrement;
                 foreach (Vector3Int neighborDirection in neighborDirectionList)
                 {
                     if (roadTileDict.ContainsKey(neighbor + neighborDirection))
@@ -453,7 +503,7 @@ public class MapWorld : MonoBehaviour
 
     public bool SoloRoadCheck(Vector3Int neighbor, bool straightFlag)
     {
-        List<Vector3Int> neighborDirectionList = !straightFlag ? neighborsFourDirections : neighborsDiagFourDirections;
+        List<Vector3Int> neighborDirectionList = !straightFlag ? neighborsFourDirectionsIncrement : neighborsDiagFourDirectionsIncrement;
         bool soloRoad = true;
 
         foreach (Vector3Int neighborDirection in neighborDirectionList)
@@ -491,6 +541,13 @@ public class MapWorld : MonoBehaviour
         }
 
         buildingPosDict[position] = structure;
+
+        cityLocations.Add(position);
+
+        foreach (Vector3Int tile in neighborsEightDirections)
+        {
+            cityLocations.Add(tile + position);
+        }
     }
 
     public void AddResourceProducer(Vector3 buildPosition, ResourceProducer resourceProducer)
@@ -544,6 +601,12 @@ public class MapWorld : MonoBehaviour
             cityBuildingMaxWorkedDict.Remove(buildPosition);
             cityBuildingList.Remove(buildPosition);
             cityBuildingIsProducer.Remove(buildPosition);
+
+            cityLocations.Remove(buildPosition);
+            foreach (Vector3Int tile in neighborsEightDirections)
+            {
+                cityLocations.Remove(buildPosition + tile);
+            }
         }
     }
 

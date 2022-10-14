@@ -19,7 +19,7 @@ public class UIUnitTurnHandler : MonoBehaviour
     [HideInInspector]
     public UnityEvent buttonClicked; //only listener in CityBuilderManager to ResetUI
 
-    private bool buttonsAreWorking;
+    private bool buttonsAreWorking; //because enable only works this way
 
     private void Awake()
     {
@@ -29,21 +29,21 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     private void SelectUnit(Unit unit) => turnHandler.SelectUnit(unit);
 
-    public void GoToNextUnit() //for when a unit runs out of movement points
-    {
-        int listCount = turnHandler.CountOfList();
+    //public void GoToNextUnit() //for when a unit runs out of movement points
+    //{
+    //    int listCount = turnHandler.CountOfList();
 
-        if (listCount == 0) //if the last unit to move finishes
-        {
-            ToggleInteractable(false);
-            return;
-        }
+    //    if (listCount == 0) //if the last unit to move finishes
+    //    {
+    //        ToggleInteractable(false);
+    //        return;
+    //    }
 
-        if (currentListIndex >= listCount) //go to first in list if over list count
-            currentListIndex = 0;
+    //    if (currentListIndex >= listCount) //go to first in list if over list count
+    //        currentListIndex = 0;
 
-        SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
-    }
+    //    SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
+    //}
 
     public void NextUnitToMove() //used on right button
     {

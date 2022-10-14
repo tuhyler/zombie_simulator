@@ -124,7 +124,7 @@ PrefabInstance:
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -197,10 +197,12 @@ MonoBehaviour:
   world: {fileID: 0}
   moreToMove: 0
   isBusy: 0
+  isMoving: 0
   turnHandler: {fileID: 0}
   isTrader: 0
   atStop: 0
   followingRoute: 0
+  isWorker: 0
   harvesting: 0
   harvested: 0
   resourceIsNotNull: 0

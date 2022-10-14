@@ -89,7 +89,7 @@ PrefabInstance:
     - target: {fileID: 1544600012458007256, guid: 921095d3d121473419d372397a80a384,
         type: 3}
       propertyPath: m_TagString
-      value: Forest Hill
+      value: Hill
       objectReference: {fileID: 0}
     - target: {fileID: 3730685473443563688, guid: 921095d3d121473419d372397a80a384,
         type: 3}

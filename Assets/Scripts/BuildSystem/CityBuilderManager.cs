@@ -151,15 +151,15 @@ public class CityBuilderManager : MonoBehaviour
     //for deselecting city after clicking off of it
     public void HandleDeselect(Vector3 location, GameObject detectedObject)
     {
+        if (selectedCity == null)
+            return;
+        
         location.y = 0f;
         
         if (cityTiles.Contains(world.GetClosestTerrainLoc(location))) //to not deselect city when working within city
             return;
 
-        if (selectedCity != null)
-        {
-            ResetCityUI();
-        }
+        ResetCityUI();
     }
 
     public void HandleTileSelection(Vector3 location, GameObject detectedObject)
@@ -508,7 +508,7 @@ public class CityBuilderManager : MonoBehaviour
             else //if placing improvement
             {
                 if (td.GetTerrainData().resourceType == improvementData.resourceType && !world.IsBuildLocationTaken(tile) 
-                    && !world.TileHasBuildings(tile) && !world.IsRoadOnTile(tile))
+                    && !world.TileHasBuildings(tile) && !world.IsRoadOnTerrain(tile))
                 {
                     td.EnableHighlight(new Color(1, 1, 1, 0.2f));
                     tilesToChange.Add(tile);
@@ -826,7 +826,7 @@ public class CityBuilderManager : MonoBehaviour
         //specifying location on tile
         Vector3 numberPosition = tile;
         numberPosition.y += .01f;
-        numberPosition.z += -.3f; //bottom center of tile
+        numberPosition.z += -1.3f; //bottom center of tile
 
         //Object pooling set up
         CityLaborTileNumber tempObject = GetFromLaborNumbersPool();
@@ -995,7 +995,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             Vector3Int tile = queuedItem.buildLoc + selectedCityLoc;
 
-            if (world.IsBuildLocationTaken(tile) || world.TileHasBuildings(tile) || world.IsRoadOnTile(tile))
+            if (world.IsBuildLocationTaken(tile) || world.TileHasBuildings(tile) || world.IsRoadOnTerrain(tile))
             {
                 Debug.Log("Tile already taken");
                 city.RemoveFirstFromQueue(this);

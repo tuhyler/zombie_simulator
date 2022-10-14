@@ -14,25 +14,20 @@ public class UnitTurnListHandler : MonoBehaviour
     [SerializeField]
     private WorkerTaskManager buildingManager;
 
-    public List<Unit> unitTurnList = new(); //public just for testing
+    private List<Unit> unitTurnList = new(); 
 
-    private void Awake()
-    {
-        unitTurnList = new List<Unit>();
-    }
 
-    public void StartTurn() //currently not having a unit selected to start turn
-    {
-        if (CountOfList() > 0)
-        {
-            SelectUnit(GetFromTurnList(0)); //always goes to the first in the list, should I change this?
-            uiUnitTurnHandler.ToggleInteractable(true);
-        }
-        else
-        {
-            uiUnitTurnHandler.ToggleInteractable(false);
-        }
-    }
+    //public void ListCountCheck()
+    //{
+    //    if (CountOfList() > 0)
+    //    {
+    //        uiUnitTurnHandler.ToggleInteractable(true);
+    //    }
+    //    else
+    //    {
+    //        uiUnitTurnHandler.ToggleInteractable(false);
+    //    }
+    //}
 
     public int GetIndexOf(Unit unit)
     {
@@ -42,18 +37,18 @@ public class UnitTurnListHandler : MonoBehaviour
     public void SelectUnit(Unit unit)
     {
         unitMovement.PrepareMovement(unit);
-        buildingManager.HandleUnitSelection(unit); //If worker, shows UI
     }
 
     public void AddToTurnList(Unit unit)
     {
         if (!unitTurnList.Contains(unit))
             unitTurnList.Add(unit);
+
+        uiUnitTurnHandler.ToggleInteractable(true);
     }
 
     public Unit GetFromTurnList(int index)
     {
-        //Debug.Log("index is " + index);
         return unitTurnList[index];
     }
 

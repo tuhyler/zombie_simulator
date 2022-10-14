@@ -8,7 +8,19 @@ public class Worker : Unit
     [HideInInspector]
     public bool harvesting, harvested, resourceIsNotNull;
     private ResourceIndividualHandler resourceIndividualHandler;
- 
+
+
+    private void Awake()
+    {
+        AwakeMethods();
+        isWorker = true;
+    }
+
+    protected override void AwakeMethods()
+    {
+        base.AwakeMethods();
+    }
+
     public void SendResourceToCity()
     {
         (City city, ResourceIndividualSO resourceIndividual) = resourceIndividualHandler.GetResourceGatheringDetails();

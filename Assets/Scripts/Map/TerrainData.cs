@@ -16,8 +16,8 @@ public class TerrainData : MonoBehaviour
 
     private Vector3Int tileCoordinates;
 
-    private int originalMovementCost;
-    public int OriginalMovementCost { get { return originalMovementCost; } }
+    //private int originalMovementCost;
+    //public int OriginalMovementCost { get { return originalMovementCost; } }
 
     private int movementCost; 
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
@@ -35,7 +35,7 @@ public class TerrainData : MonoBehaviour
 
     public Vector3Int GetTileCoordinates()
     {
-        tileCoordinates = Vector3Int.FloorToInt(transform.position);
+        tileCoordinates = Vector3Int.RoundToInt(transform.position);
         return tileCoordinates;
     }
 
@@ -56,7 +56,7 @@ public class TerrainData : MonoBehaviour
     public void ResetMovementCost()
     {
         movementCost = GetTerrainData().movementCost;
-        originalMovementCost = movementCost;
+        //originalMovementCost = movementCost;
     }
 
     public void AddTerrainToWorld(MapWorld world)
