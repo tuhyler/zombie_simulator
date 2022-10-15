@@ -67,6 +67,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoadCurve01
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 37203e7f61fe440499aa964b5330daad,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37203e7f61fe440499aa964b5330daad, type: 3}
 --- !u!1001 &5790836132878587115
@@ -136,6 +141,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8489739623021197108, guid: e9fbb305868b2af4ba8a0ae64264bfb4,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -5495902117074765545, guid: 37203e7f61fe440499aa964b5330daad,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e9fbb305868b2af4ba8a0ae64264bfb4, type: 3}
 --- !u!4 &1253775102106986870 stripped

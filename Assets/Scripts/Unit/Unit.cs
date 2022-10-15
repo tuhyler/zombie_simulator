@@ -31,7 +31,7 @@ public class Unit : MonoBehaviour
     private Vector3 finalDestinationLoc;
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
-    private Coroutine co;
+    private Coroutine movingCo;
     private MovementSystem movementSystem;
     private Queue<GameObject> shoePrintQueue = new();
 
@@ -100,9 +100,9 @@ public class Unit : MonoBehaviour
 
         moreToMove = true;
         isMoving = true;
-        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePosition;
         unitAnimator.SetBool(isMovingHash, true);
-        co = StartCoroutine(MovementCoroutine(firstTarget));
+        movingCo = StartCoroutine(MovementCoroutine(firstTarget));
     }
 
     //rotate unit before moving
@@ -157,7 +157,7 @@ public class Unit : MonoBehaviour
 
         if (pathPositions.Count > 0)
         {
-            co = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+            movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
             if (shoePrintQueue.Count > 0)
                 movementSystem.AddToShoePrintPool(shoePrintQueue.Dequeue());
         }
@@ -252,8 +252,8 @@ public class Unit : MonoBehaviour
 
     public void StopMovement()
     {
-        if (co != null)
-            StopCoroutine(co);
+        if (movingCo != null)
+            StopCoroutine(movingCo);
         FinishMoving(destinationLoc);
     }
 

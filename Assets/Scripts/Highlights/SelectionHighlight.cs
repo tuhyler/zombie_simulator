@@ -58,7 +58,7 @@ public class SelectionHighlight : MonoBehaviour
         {
             if (originalMaterials[i].mainTexture == null)
             {
-                //Material mat;
+                //for simple colors;
                 if (!cachedGlowColors.TryGetValue(originalMaterials[i].color, out Material mat))
                 {
                     mat = new Material(glowMaterialColor);
@@ -72,7 +72,7 @@ public class SelectionHighlight : MonoBehaviour
                 continue;
             }
 
-            //Material mat2;
+            //for textures;
             if (!cachedGlowTextures.TryGetValue(originalMaterials[i].mainTexture, out Material mat2))
             {
                 mat2 = new Material(glowMaterial);

@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 public class City : MonoBehaviour
 {
-    public bool InProduction { get; private set; }
     private GameObject unitToProduce;
 
     //[SerializeField]
@@ -27,6 +26,8 @@ public class City : MonoBehaviour
 
     [HideInInspector]
     public Vector3Int cityLoc;
+    [HideInInspector]
+    public bool activeCity;
     
     private MapWorld world;
 
@@ -38,14 +39,13 @@ public class City : MonoBehaviour
     [HideInInspector]
     public CityPopulation cityPop;
 
-    //food info
-    public int unitFoodConsumptionPerTurn = 1; //how much food one unit eats per turn
+    //foodConsumed info
+    public int unitFoodConsumptionPerTurn = 1, secondsTillGrowthCheck = 60; //how much foodConsumed one unit eats per turn
     private int foodConsumptionPerTurn; //total 
-    public int FoodConsumptionPerTurn { get { return foodConsumptionPerTurn; } set { foodConsumptionPerTurn = value; } }
-    private int populationDeclineTurnCount;
-    public int PopulationDeclineTurnCount { get { return populationDeclineTurnCount; } set { populationDeclineTurnCount = value; } }
-    private string turnsTillGrowth; //string in case there's no growth
-    public string GetTurnsTillGrowth { get { return turnsTillGrowth; } }
+    public int FoodConsumptionPerMinute { get { return foodConsumptionPerTurn; } set { foodConsumptionPerTurn = value; } }
+    private string minutesTillGrowth; //string in case there's no growth
+    public string GetMinutesTillGrowth { get { return minutesTillGrowth; } }
+    private Coroutine foodConsumedCo;
 
     //resource info
     private float workEthic = 1.0f;
@@ -55,9 +55,9 @@ public class City : MonoBehaviour
     //world resource info
     private Dictionary<ResourceType, int> worldResourceGenerationDict = new();
     private int goldPerTurn;
-    public int GetGoldPerTurn { get { return goldPerTurn; } }
+    public int GetGoldPerMinute { get { return goldPerTurn; } }
     private int researchPerTurn;
-    public int GetResearchPerTurn { get { return researchPerTurn; } }
+    public int GetResearchPerMinute { get { return researchPerTurn; } }
 
     //stored queue items
     [HideInInspector]
@@ -75,8 +75,10 @@ public class City : MonoBehaviour
         resourceProducer = GetComponent<ResourceProducer>();
         resourceManager.SetCity(this);
         resourceProducer.SetResourceManager(resourceManager);
+
         cityPop.IncreasePopulation();
-        cityLoc = Vector3Int.FloorToInt(transform.position);
+        
+        cityLoc = Vector3Int.RoundToInt(transform.position);
         PrepWorldResourceDict();
         //highlight = GetComponent<SelectionHighlight>();
 
@@ -87,6 +89,8 @@ public class City : MonoBehaviour
     private void Start()
     {
         UpdateCityPopInfo();
+        if (cityPop.GetPop >= 1)
+            StartCoroutine(FoodConsumptionCoroutine());
     }
 
 
@@ -160,6 +164,7 @@ public class City : MonoBehaviour
         AddCityNameToWorld();
     }
 
+    //update city info after changing foodConsumed info
     public void UpdateCityPopInfo()
     {
         //cityPopText.text = cityPop.GetPop.ToString();
@@ -171,36 +176,27 @@ public class City : MonoBehaviour
 
         if (foodPerTurn > 0)
         {
-            turnsTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerTurn).ToString();
+            minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerTurn).ToString();
         }
-        if (foodPerTurn < 0) //adding 2 to allow starvation period
+        if (foodPerTurn < 0) 
         {
-            turnsTillGrowth = (Mathf.FloorToInt((float)foodStorage / foodPerTurn) - 2).ToString(); //maybe take absolute value, change color to red?
+            minutesTillGrowth = Mathf.FloorToInt((float)foodStorage / foodPerTurn).ToString(); //maybe take absolute value, change color to red?
         }
         if (foodPerTurn == 0)
         {
-            turnsTillGrowth = "-";
+            minutesTillGrowth = "-";
         }
     }
 
     public void SelectUnitToProduce(GameObject unitToProduce)
     {
         this.unitToProduce = unitToProduce;
-        InProduction = true;
         //if (destroyedCity)
         CompleteProduction();
     }
 
-    public void ToggleProduction(bool v)
-    {
-        InProduction = v;
-    }
-
     private void CompleteProduction()
     {
-        if (!InProduction)
-            return;
-        InProduction = false;
         if (unitToProduce == null)
             return;
 
@@ -237,17 +233,20 @@ public class City : MonoBehaviour
         cityPop.IncreasePopulationAndLabor();
         resourceManager.IncreaseFoodConsumptionPerTurn(true);
         UpdateCityPopInfo();
+
+        if (cityPop.GetPop == 1)
+            StartCoroutine(FoodConsumptionCoroutine());
     }
 
     public void PopulationDeclineCheck()
     {
-
         cityPop.DecreasePopulation();
 
         if (cityPop.GetSetUnusedLabor > 0) //if unused labor, get rid of first
             cityPop.DecreaseUnusedLabor();
         else
         {
+            StopFoodConsumptionCoroutine();
             System.Random random = new();
             int randomLabor = random.Next(cityPop.GetSetUsedLabor); //randomly choosing by weight between field and city labor
 
@@ -383,6 +382,35 @@ public class City : MonoBehaviour
         {
             if (worldResourceGenerationDict[resourceType] != 0)
                 world.UpdateWorldResources(resourceType, worldResourceGenerationDict[resourceType]);
+        }
+    }
+
+    private IEnumerator FoodConsumptionCoroutine()
+    {
+        int countDownTimer = secondsTillGrowthCheck;
+        
+        while (countDownTimer > 0)
+        {
+            yield return new WaitForSeconds(1);
+            countDownTimer--;
+        }
+
+        ResourceValue foodConsumed;
+        foodConsumed.resourceType = ResourceType.Food;
+        foodConsumed.resourceAmount = foodConsumptionPerTurn;
+
+        //consume before checking for growth
+        resourceManager.ConsumeResources(new List<ResourceValue> { foodConsumed }, 1);
+        resourceManager.CheckForPopGrowth();
+
+        Debug.Log(cityName + " is checking for growth");
+    }
+
+    private void StopFoodConsumptionCoroutine()
+    {
+        if (foodConsumedCo != null)
+        {
+            StopCoroutine(foodConsumedCo);
         }
     }
 
