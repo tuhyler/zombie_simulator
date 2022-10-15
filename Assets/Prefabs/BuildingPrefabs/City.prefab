@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2311649316462798009}
   - component: {fileID: 7800520638858068917}
   - component: {fileID: -11843151354040455}
-  - component: {fileID: -5699919199278134000}
   - component: {fileID: -548530054223577924}
   - component: {fileID: -1354641546340956128}
   - component: {fileID: 350781982696099274}
@@ -68,22 +67,12 @@ MonoBehaviour:
   cityNameField: {fileID: 709202929113320297}
   cityName: {fileID: 7771684247865887059}
   cityLoc: {x: 0, y: 0, z: 0}
+  activeCity: 0
   cityPop: {fileID: 0}
   unitFoodConsumptionPerTurn: 1
+  secondsTillGrowthCheck: 120
   warehouseStorageLimit: 200
   savedQueueItems: []
---- !u!114 &-5699919199278134000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7185426163474996275}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e5ad495e39811448b52328af01e43c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-548530054223577924
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: QuarryData
+  m_Name: Quarry01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 5287637160269364084, guid: 621fc3803ad9c3645a7d989ac5d06061, type: 3}
   improvementName: Quarry
@@ -20,6 +20,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 5
     resourceAmount: 1
+  producedResourceTime: 60
   resourceType: 5
   workEthicChange: 0
   maxLabor: 2

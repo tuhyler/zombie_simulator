@@ -17,16 +17,17 @@ public class ResourceIndividualHandler : MonoBehaviour
     private GameObject resourceGO;
 
 
-    public void HandleSelection(GameObject selectedObject)
+    public void HandleResourceBubbleSelection(Vector3 location, GameObject selectedObject)
     {
         if (selectedObject == null)
             return;
 
-        Resource resource = selectedObject.GetComponent<Resource>();
-
-        if (resource != null)
+        if (selectedObject.TryGetComponent(out Resource resource))
         {
-            SendResourceToCity();
+            if (resource != null)
+            {
+                SendResourceToCity();
+            }
         }
     }
 

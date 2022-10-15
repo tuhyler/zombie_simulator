@@ -72,7 +72,7 @@ public class WorkerTaskManager : MonoBehaviour
         this.workerUnit = workerUnit;
     }
 
-    //public void HandleSelection(GameObject selectedObject)
+    //public void HandleCitySelection(GameObject selectedObject)
     //{
     //    if (selectedObject == null)
     //        return;

@@ -6,8 +6,8 @@ public class ResourceManager : MonoBehaviour
 {
     private Dictionary<ResourceType, int> resourceDict = new(); //need this later for save system
     private Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
-    private Dictionary<ResourceType, int> resourceGenerationPerTurnDict = new();
-    private Dictionary<ResourceType, int> resourceConsumedDict = new();
+    private Dictionary<ResourceType, int> resourceGenerationPerTurnDict = new(); //for resource generation stats
+    private Dictionary<ResourceType, int> resourceConsumedDict = new(); //for resource consumption stats
 
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } }
 
@@ -15,6 +15,8 @@ public class ResourceManager : MonoBehaviour
     public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
     private float resourceStorageLevel;
     public float GetResourceStorageLevel { get { return resourceStorageLevel; } }
+    UIResourceManager uiResourceManager;
+    UIInfoPanelCity uiInfoPanelCity;
 
     private Dictionary<Vector3Int, Dictionary<ResourceType, int>> currentWorkedResourceGenerationDict = new(); //to see how many resources generated per turn in tile.
     private Dictionary<string , int> buildingResourceGenerationDict = new(); //to see how many building resources generated per turn in city.
@@ -24,7 +26,6 @@ public class ResourceManager : MonoBehaviour
     private City city;
 
     //for managing food consumption
-    private bool consumeResources; //allows resources to be consumed before adding resources to the coffers on turn end
     private bool growth;
     private int foodGrowthLevel;
     public int FoodGrowthLevel { get { return foodGrowthLevel; } }
@@ -91,7 +92,7 @@ public class ResourceManager : MonoBehaviour
 
         if (city.CheckIfWorldResource(resourceType))
         {
-            //city.AddToChangedResourcesList(resourceType);
+            //city.AddToChangedResourcesList(resourceValue);
             city.UpdateWorldResourceGeneration(resourceType, generationDiff);
         }
     }
@@ -169,40 +170,35 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    private void ConsumeResources()
+    public void ConsumeResources(List<ResourceValue> consumedResource, int currentLabor)
     {
-        foreach (ResourceType resourceType in resourceConsumedDict.Keys)
+        foreach (ResourceValue resourceValue in consumedResource)
         {
-            int consumedAmount = resourceConsumedDict[resourceType];
+            int consumedAmount = resourceValue.resourceAmount * currentLabor;
+            ResourceType resourceType = resourceValue.resourceType;
 
-            if (resourceType == ResourceType.Food && consumedAmount > resourceDict[resourceType])
+            resourceConsumedDict[resourceType] = consumedAmount;
+
+            if (resourceValue.resourceType == ResourceType.Food && consumedAmount > resourceDict[resourceType])
             {
                 foodGrowthLevel -= consumedAmount - resourceDict[resourceType];
                 consumedAmount = resourceDict[resourceType];
             }
+
             resourceDict[resourceType] -= consumedAmount;
             resourceStorageLevel -= consumedAmount;
+
+            UpdateUI(resourceType);
         }
     }
 
     public void PrepareResource(List<ResourceValue> producedResource, int currentLabor)
     {
-        ConsumeResourcesCheck(); //this is here because prepare resources runs before resourcemanager on turn end
-
         foreach (ResourceValue resourceVal in producedResource)
         {
             int newResourceAmount = CalculateResourceGeneration(resourceVal.resourceAmount, currentLabor);
 
             CheckResource(resourceVal.resourceType, newResourceAmount);
-        }
-    }
-
-    private void ConsumeResourcesCheck()
-    {
-        if (!consumeResources) //because of this, PrepareResource can only be used in WaitTurn method
-        {
-            consumeResources = true;
-            ConsumeResources();
         }
     }
 
@@ -236,6 +232,8 @@ public class ResourceManager : MonoBehaviour
         }
 
         foodGrowthLevel += resourceAmount;
+
+        uiInfoPanelCity.UpdateFoodGrowth(foodGrowthLevel);
         return resourceAmount;
     }
 
@@ -271,6 +269,8 @@ public class ResourceManager : MonoBehaviour
         if (wasteCheck > 0)
             Debug.Log($"Wasted {wasteCheck} of {resourceType}");
 
+        CheckResourcesForQueue();
+        UpdateUI(resourceType);
         return resourceAmountAdjusted;
     }
 
@@ -299,41 +299,45 @@ public class ResourceManager : MonoBehaviour
 
     private void SpendResource(ResourceType resourceType, int resourceAmount) //changing the resource counter upon using resources
     {
-        //ResourceType resourceType = resourceValue.resourceType; 
+        //ResourceType resourceValue = resourceValue.resourceValue; 
         resourceDict[resourceType] -= resourceAmount; //subtract cost
         if (resourceStorageMultiplierDict.ContainsKey(resourceType))
         {
             resourceStorageLevel -= resourceAmount * resourceStorageMultiplierDict[resourceType];
         }
         VerifyResourceAmount(resourceType);
-        //UpdateUI(resourceType);
+        //UpdateUI(resourceValue);
     }
 
-    public void SetUI(UIResourceManager uiResourceManager, string cityName, int cityStorageLimit, float cityStorageLevel)
+    public void SetUI(UIResourceManager uiResourceManager, UIInfoPanelCity uiInfoPanelCity)
     {
-        uiResourceManager.SetCityInfo(cityName, cityStorageLimit, cityStorageLevel);
+        this.uiResourceManager = uiResourceManager;
+        this.uiInfoPanelCity = uiInfoPanelCity;
     }
 
-    public void UpdateUI(UIResourceManager uiResourceManager) //updating the UI with the resource information in the dictionary
+    public void UpdateUI() //updating the UI with the resource information in the dictionary
     {
         foreach (ResourceType resourceType in resourceDict.Keys)
         {
-            UpdateUI(resourceType, uiResourceManager);
+            UpdateUI(resourceType);
         }
     }
 
-    private void UpdateUI(ResourceType resourceType, UIResourceManager uiResourceManager)
+    private void UpdateUI(ResourceType resourceType)
     {
-        uiResourceManager.SetResource(resourceType, resourceDict[resourceType]);
+        if (city.activeCity) //only update UI for currently selected city
+        {
+            uiResourceManager.SetResource(resourceType, resourceDict[resourceType]);
+            uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerTurnDict[resourceType]);
+        }
+    }
+
+    public void UpdateUIGeneration(ResourceType resourceType)
+    {
         uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerTurnDict[resourceType]);
     }
 
-    public void UpdateUIGeneration(ResourceType resourceType, UIResourceManager uiResourceManager)
-    {
-        uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerTurnDict[resourceType]);
-    }
-
-    public void UpdateUIGenerationAll(UIResourceManager uiResourceManager)
+    public void UpdateUIGenerationAll()
     {
         foreach (ResourceType resourceType in resourceDict.Keys)
         {
@@ -360,10 +364,8 @@ public class ResourceManager : MonoBehaviour
     }
 
     //checking if enough food to grow
-    private void CheckForPopGrowth()
+    public void CheckForPopGrowth()
     {
-        consumeResources = false;
-
         if (growth) //increasing pop if food over or equal to max
         {
             growth = false;
@@ -390,39 +392,24 @@ public class ResourceManager : MonoBehaviour
 
             foodGrowthLevel = excessFood;
         }
-        else
-        {
-            if (foodGrowthLevel < foodGrowthLimit && resourceDict[ResourceType.Food] > 0) //fill up food coffers if below food limit (but no growth). 
-            {
-                int diff = foodGrowthLimit - foodGrowthLevel;
-                if (resourceDict[ResourceType.Food] < diff)
-                    diff = resourceDict[ResourceType.Food];
-                foodGrowthLevel += diff;
-                resourceDict[ResourceType.Food] -= diff;
-                resourceStorageLevel -= diff;
-            }
-        }
+        //else
+        //{
+        //    if (foodGrowthLevel < foodGrowthLimit && resourceDict[ResourceType.Food] > 0) //fill up food coffers if below food limit (but no growth). 
+        //    {
+        //        int diff = foodGrowthLimit - foodGrowthLevel;
+        //        if (resourceDict[ResourceType.Food] < diff)
+        //            diff = resourceDict[ResourceType.Food];
+        //        foodGrowthLevel += diff;
+        //        resourceDict[ResourceType.Food] -= diff;
+        //        resourceStorageLevel -= diff;
+        //    }
+        //}
 
         if (foodGrowthLevel < 0) //decreasing pop if food under 0 for 2 straight turns
         {
-            city.PopulationDeclineTurnCount++; //changing counter of starving labor
-            Debug.Log($"{city.CityName} is losing food for {city.PopulationDeclineTurnCount} turns");
-            int turnWaitTillDecline = 2; //cannot be zero!
-            if (city.PopulationDeclineTurnCount >= turnWaitTillDecline) //if in the negative for 2 straight turns, remove pop based on food lost. 
-            {
-                for (int i = 0; i < Mathf.Max(Mathf.Abs(foodGrowthLevel) / turnWaitTillDecline, 1); i++) //Lose a minimum of one
-                {
-                    city.PopulationDeclineCheck();
-                }
-
-                city.PopulationDeclineTurnCount = 0;
-                foodGrowthLevel = 0;
-                CalculateAndChangeFoodLimit();
-            }
-        }
-        else
-        {
-            city.PopulationDeclineTurnCount = 0;
+            city.PopulationDeclineCheck();
+            foodGrowthLevel = 0;
+            CalculateAndChangeFoodLimit();
         }
 
         city.UpdateCityPopInfo(); //update city info after correcting food info

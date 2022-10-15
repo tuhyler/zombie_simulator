@@ -51,7 +51,7 @@ public class CameraController : MonoBehaviour
         else if (centerTransform != null)
         {
             transform.position = Vector3.Lerp(transform.position, centerTransform.position + new Vector3(0, -.4f, 0.7f), Time.deltaTime * movementTime);
-            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, new Vector3(0, 6.5f, -4.5f), Time.deltaTime * movementTime);
+            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, new Vector3(0, 17.5f, -11.0f), Time.deltaTime * movementTime);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(20, 0, 0), Time.deltaTime * movementTime);
             newPosition = centerTransform.position; //so you don't return to previous spot when breaking focus
             newZoom = cameraTransform.localPosition;

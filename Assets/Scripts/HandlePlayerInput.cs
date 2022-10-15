@@ -12,8 +12,8 @@ public class HandlePlayerInput : MonoBehaviour
     private Vector3 mousePositionClick;
 
     //all input is handled on this class through unity events, just more organized here. (here and camera controller)
-    public UnityEvent<GameObject> HandleOtherSelection;
-    //public UnityEvent<GameObject> HandleTileSelection;
+    //public UnityEvent<GameObject> HandleOtherSelection;
+    //public UnityEvent<GameObject> HandleCityTileSelection;
     public UnityEvent<Vector3, GameObject> HandleLocationSelection;
     public UnityEvent HandleShiftDown, HandleShiftUp, HandleR, HandleEnter, HandleC, HandleB, HandleG, HandleX, HandleSpace;
     //public UnityEvent HandleShiftUp;
@@ -87,11 +87,11 @@ public class HandlePlayerInput : MonoBehaviour
             return;
 
         HandleLocationSelection?.Invoke(hit.point, selectedGameObject);
-        HandleOtherSelection?.Invoke(selectedGameObject);
+        //HandleOtherSelection?.Invoke(selectedGameObject);
 
         //if (selectedGameObject.GetComponent<TerrainData>() == null)
         //    HandleOtherSelection?.Invoke(selectedGameObject);
         //else
-        //    HandleTileSelection?.Invoke(selectedGameObject);
+        //    HandleCityTileSelection?.Invoke(selectedGameObject);
     }
 }

@@ -10,6 +10,12 @@ public class ResourceProducer : MonoBehaviour
     private ImprovementDataSO myImprovementData;
     public ImprovementDataSO GetImprovementData { get { return myImprovementData; } }
     private int currentLabor;
+    
+    //for production info
+    private Coroutine producingCo;
+    bool suddenStop;
+
+
 
     public void InitializeImprovementData(ImprovementDataSO data)
     {
@@ -59,5 +65,42 @@ public class ResourceProducer : MonoBehaviour
     public bool CheckResourceManager(ResourceManager resourceManager)
     {
         return this.resourceManager = resourceManager;
+    }
+
+    public void StartProducing()
+    {
+        suddenStop = false;
+        StartCoroutine(ProducingCoroutine());
+    }
+
+    //timer for producing resources 
+    private IEnumerator ProducingCoroutine()
+    {
+        bool timer = true;
+        resourceManager.ConsumeResources(myImprovementData.consumedResources, currentLabor);
+        
+        while (timer)
+        {
+            yield return new WaitForSeconds(myImprovementData.producedResourceTime);
+            timer = false;
+        }
+
+        if (!suddenStop)
+        {
+            resourceManager.PrepareResource(myImprovementData.producedResources, currentLabor);
+            Debug.Log("Resources for " + myImprovementData.prefab.name);
+        }
+
+        if (currentLabor > 0)
+            StartCoroutine(ProducingCoroutine());
+    }
+
+    public void StopProducing()
+    {
+        if (producingCo != null)
+        {
+            StopCoroutine(producingCo);
+            suddenStop = true;
+        }
     }
 }

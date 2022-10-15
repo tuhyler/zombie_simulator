@@ -64,7 +64,7 @@ public class UnitMovement : MonoBehaviour
 
         if (detectedObject.TryGetComponent(out Unit unitReference) && unitReference.CompareTag("Player"))
         {
-            if (CheckIfTheSameUnitSelected(unitReference)) //Unselect when clicking same unit
+            if (selectedUnit == unitReference) //Unselect when clicking same unit
             {
                 ClearSelection();
                 return;
@@ -172,8 +172,9 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-            selectedUnit = null;
-            selectedTrader = null;
+            //selectedUnit = null;
+            //selectedTrader = null;
+            ClearSelection();
         }
 
         //if (selectedUnit == null)
@@ -305,6 +306,7 @@ public class UnitMovement : MonoBehaviour
         }
         //movementSystem.HidePath();
         movementSystem.ClearPaths();
+        uiJoinCity.ToggleTweenVisibility(false);
     }
 
     public void HandleShiftDown()
@@ -512,8 +514,8 @@ public class UnitMovement : MonoBehaviour
         selectedUnit = null;
     }
 
-    private bool CheckIfTheSameUnitSelected(Unit unitReference)
-    {
-        return selectedUnit == unitReference;
-    }
+    //private bool CheckIfTheSameUnitSelected(Unit unitReference)
+    //{
+    //    return selectedUnit == unitReference;
+    //}
 }

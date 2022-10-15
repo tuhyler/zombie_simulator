@@ -6,8 +6,8 @@ using UnityEngine;
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TextMeshProUGUI nameText, cityPop, unusedLabor, workEthic, foodLevelAndLimit, foodPerTurn, foodConsumed, 
-        turnsTillGrowth, goldPerTurn, researchPerTurn;
+    private TextMeshProUGUI nameText, cityPop, unusedLabor, workEthic, foodLevelAndLimit, foodPerMinute, foodConsumed, 
+        minutesTillGrowth, goldPerMinute, researchPerMinute;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -32,15 +32,15 @@ public class UIInfoPanelCity : MonoBehaviour
         cityPop.text = $"City Size: {pop}";
         unusedLabor.text = $"Unused Labor: {labor}";
         workEthic.text = $"Work Ethic: {ethic * 100}%";
-        foodLevelAndLimit.text = $"Food for Growth: {foodLevel}/{foodLimit}";
+        foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
         if (food > 0)
-            foodPerTurn.text = $"Food per Turn: +{food}";
+            foodPerMinute.text = $"Food/Minute: +{food}";
         else
-            foodPerTurn.text = $"Food per Turn: {food}";
-        foodConsumed.text = $"Food Eaten per Turn: {foodEaten}";
-        turnsTillGrowth.text = $"Turns Till Growth: {growthTurns}";
-        goldPerTurn.text = $"Gold per Turn: {gold}";
-        researchPerTurn.text = $"Research per Turn: {research}";
+            foodPerMinute.text = $"Food/Minute: {food}";
+        foodConsumed.text = $"Food Consumed/Minute: {foodEaten}";
+        minutesTillGrowth.text = $"Minutes Till Growth: {growthTurns}";
+        goldPerMinute.text = $"Gold/Minute: {gold}";
+        researchPerMinute.text = $"Research/Minute: {research}";
     }
 
     public void UpdateCityName(string name)

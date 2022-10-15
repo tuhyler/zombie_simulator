@@ -98,45 +98,46 @@ public class CityBuilderManager : MonoBehaviour
     {
         focusCam.centerTransform = null;
         focusCam.transform.rotation = Quaternion.Lerp(focusCam.transform.rotation, originalRotation, Time.deltaTime * 5);
-        focusCam.SetZoom(new Vector3(0, 5.0f, -3.0f));
+        focusCam.SetZoom(new Vector3(0, 7.5f, -3.5f));
         //focusCam.cameraTransform.localPosition += new Vector3(0, -1f, 1f);
     }
 
 
-    public void HandleSelection(GameObject selectedObject)
+    public void HandleCitySelection(Vector3 location, GameObject selectedObject)
     {
-        ResetCityUI();
+        //if (selectedCity != null)
+            //ResetCityUI();
 
         if (selectedObject == null)
             return;
 
-        if (selectedObject.CompareTag("Player"))
+        if (selectedObject.CompareTag("Player") && selectedObject.TryGetComponent(out City cityReference))
         {
-            if (selectedObject.TryGetComponent(out selectedCity))
-                Debug.Log("Selected item is " + selectedCity.CityName);
-        }
-        else
-        {
-            selectedCity = null;
-        }
+            if (selectedCity != null && selectedCity != cityReference)
+            {
+                ResetCityUI();
+                //selectedCity = cityReference;
+            }
+            
+            selectedCity = cityReference;
+            Debug.Log("Selected item is " + selectedCity.CityName);
 
-        if (selectedCity != null)
-        {
             isActive = true;
-            selectedCityLoc = Vector3Int.RoundToInt(selectedCity.transform.position);
-            (cityTiles,developedTiles) = GetThisCityRadius();
+            selectedCity.activeCity = true;
+            selectedCityLoc = world.GetClosestTerrainLoc(location);
+            (cityTiles, developedTiles) = GetThisCityRadius();
             DrawBorders();
             CheckForWork();
             resourceManager = selectedCity.ResourceManager;
-            resourceManager.SetUI(uiResourceManager, selectedCity.CityName, selectedCity.warehouseStorageLimit, 
-                selectedCity.ResourceManager.GetResourceStorageLevel);
-            resourceManager.UpdateUI(uiResourceManager);
+            resourceManager.SetUI(uiResourceManager, uiInfoPanelCity);
+            uiResourceManager.SetCityInfo(selectedCity.CityName, selectedCity.warehouseStorageLimit, selectedCity.ResourceManager.GetResourceStorageLevel);
+            resourceManager.UpdateUI();
             uiCityTabs.ToggleVisibility(true, resourceManager);
             uiResourceManager.ToggleVisibility(true);
             CenterCamOnCity();
             uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop.ToString(), selectedCity.cityPop.GetSetUnusedLabor.ToString(),
                 selectedCity.GetSetWorkEthic, resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerTurn,
-                selectedCity.FoodConsumptionPerTurn, selectedCity.GetTurnsTillGrowth, selectedCity.GetGoldPerTurn, selectedCity.GetResearchPerTurn);
+                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
             //uiInfoPanelCityWarehouse.SetAllWarehouseData(selectedCity.ResourceManager.ResourceStorageLimit,
             //    selectedCity.ResourceManager.GetResourceStorageLevel);
             uiInfoPanelCity.ToggleVisibility(true);
@@ -146,67 +147,122 @@ public class CityBuilderManager : MonoBehaviour
             UpdateLaborNumbers();
             selectedCity.Select();
         }
-    }
-
-    //for deselecting city after clicking off of it
-    public void HandleDeselect(Vector3 location, GameObject detectedObject)
-    {
-        if (selectedCity == null)
-            return;
-        
-        location.y = 0f;
-        
-        if (cityTiles.Contains(world.GetClosestTerrainLoc(location))) //to not deselect city when working within city
-            return;
-
-        ResetCityUI();
-    }
-
-    public void HandleTileSelection(Vector3 location, GameObject detectedObject)
-    {
-        if (improvementData == null && laborChange == 0 && !removingImprovement)
-            return;
-
-        //TerrainData terrainSelected = detectedObject.GetComponent<TerrainData>();
-
-        Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
-        TerrainData terrainSelected = world.GetTerrainData(terrainLocation);
-        //Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
-
-        if (!tilesToChange.Contains(terrainLocation))
+        //selecting tiles to place improvements
+        else if (selectedCity != null && selectedObject.TryGetComponent(out TerrainData terrainSelected))
         {
-            Debug.Log("Not suitable location");
-            return;
-        }
+            Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
 
-        if (removingImprovement)
-        {
-            RemoveImprovement(terrainSelected);
-            return;
-        }
+            //deselecting if choosing tile outside of city
+            if (!cityTiles.Contains(terrainLocation))
+                ResetCityUI();
 
-        if (world.CheckIfTileIsImproved(terrainLocation)) //for changing labor counts in tile
-        {
-            if (improvementData != null)
+            if (improvementData == null && laborChange == 0 && !removingImprovement)
+                return;
+
+            //TerrainData terrainSelected = detectedObject.GetComponent<TerrainData>();
+
+            //TerrainData terrainSelected = world.GetTerrainData(terrainLocation);
+            //Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
+
+            if (!tilesToChange.Contains(terrainLocation))
             {
-                Debug.Log("Already developed");
+                Debug.Log("Not suitable location");
                 return;
             }
 
-            ChangeLaborCount(terrainSelected, terrainLocation);
+            if (removingImprovement)
+            {
+                RemoveImprovement(terrainSelected);
+                return;
+            }
+
+            if (world.CheckIfTileIsImproved(terrainLocation)) //for changing labor counts in tile
+            {
+                if (improvementData != null)
+                {
+                    Debug.Log("Already developed");
+                    return;
+                }
+
+                ChangeLaborCount(terrainSelected, terrainLocation);
+            }
+            else
+            {
+                if (laborChange != 0)
+                {
+                    Debug.Log("Needs to be developed to work");
+                    return;
+                }
+
+                BuildImprovement(improvementData, terrainLocation); //for building improvement
+            }
         }
         else
         {
-
-            if (laborChange != 0)
-            {
-                Debug.Log("Needs to be developed to work");
-                return;
-            }
-
-            BuildImprovement(improvementData, terrainLocation); //for building improvement
+            //selectedCity = null;
+            ResetCityUI();
         }
     }
+
+    //for deselecting city after clicking off of it
+    //public void HandleCityDeselect(Vector3 location, GameObject detectedObject)
+    //{
+    //    if (selectedCity == null)
+    //        return;
+        
+    //    location.y = 0f;
+        
+    //    if (cityTiles.Contains(world.GetClosestTerrainLoc(location))) //to not deselect city when working within city
+    //        return;
+
+    //    ResetCityUI();
+    //}
+
+    //public void HandleCityTileSelection(Vector3 location, GameObject detectedObject)
+    //{
+    //    if (improvementData == null && laborChange == 0 && !removingImprovement)
+    //        return;
+
+    //    //TerrainData terrainSelected = detectedObject.GetComponent<TerrainData>();
+
+    //    Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
+    //    TerrainData terrainSelected = world.GetTerrainData(terrainLocation);
+    //    //Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
+
+    //    if (!tilesToChange.Contains(terrainLocation))
+    //    {
+    //        Debug.Log("Not suitable location");
+    //        return;
+    //    }
+
+    //    if (removingImprovement)
+    //    {
+    //        RemoveImprovement(terrainSelected);
+    //        return;
+    //    }
+
+    //    if (world.CheckIfTileIsImproved(terrainLocation)) //for changing labor counts in tile
+    //    {
+    //        if (improvementData != null)
+    //        {
+    //            Debug.Log("Already developed");
+    //            return;
+    //        }
+
+    //        ChangeLaborCount(terrainSelected, terrainLocation);
+    //    }
+    //    else
+    //    {
+
+    //        if (laborChange != 0)
+    //        {
+    //            Debug.Log("Needs to be developed to work");
+    //            return;
+    //        }
+
+    //        BuildImprovement(improvementData, terrainLocation); //for building improvement
+    //    }
+    //}
 
     private (List<Vector3Int>, List<Vector3Int>) GetThisCityRadius() //radius just for selected city
     {
@@ -273,12 +329,6 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
 
-        if (selectedCity.InProduction)
-        {
-            Debug.Log("City already producing something");
-            return;
-        }
-
         selectedCity.PopulationDeclineCheck(); //decrease population before creating unit so we can see where labor will be lost
         //CheckForWork(); //not necessary
 
@@ -287,10 +337,10 @@ public class CityBuilderManager : MonoBehaviour
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
         uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop.ToString(), selectedCity.cityPop.GetSetUnusedLabor.ToString(),
             selectedCity.GetSetWorkEthic, resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerTurn,
-            selectedCity.FoodConsumptionPerTurn, selectedCity.GetTurnsTillGrowth, selectedCity.GetGoldPerTurn, selectedCity.GetResearchPerTurn);
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
 
         resourceManager.SpendResource(unitData.unitCost);
-        resourceManager.UpdateUI(uiResourceManager);
+        resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
         Debug.Log("building " + unitData.name + " at " + selectedCityLoc);
@@ -326,19 +376,13 @@ public class CityBuilderManager : MonoBehaviour
 
         laborChange = 0;
 
-        if (selectedCity.InProduction && buildingData != null)
-        {
-            Debug.Log("City already produced something");
-            return;
-        }
-
         Vector3 cityPos = selectedCity.transform.position;
         Vector3 buildingLocalPos = buildingData.prefab.transform.position; //putting the building in it's position in the city square
 
         cityPos += buildingLocalPos;
         
         resourceManager.SpendResource(buildingData.improvementCost); //this spends the resources needed to build
-        resourceManager.UpdateUI(uiResourceManager);
+        resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
         Debug.Log("Placing structure in " + selectedCity.CityName);
@@ -362,8 +406,6 @@ public class CityBuilderManager : MonoBehaviour
         {
             workEthicHandler.InitializeImprovementData(buildingData);
         }
-
-        selectedCity.ToggleProduction(true);
 
         placesToWork++;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
@@ -415,7 +457,7 @@ public class CityBuilderManager : MonoBehaviour
         }
 
 
-        resourceManager.UpdateUI(uiResourceManager);
+        resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
 
@@ -433,9 +475,9 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.UpdateCityPopInfo();
         uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop.ToString(), selectedCity.cityPop.GetSetUnusedLabor.ToString(),
             selectedCity.GetSetWorkEthic, resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerTurn,
-            selectedCity.FoodConsumptionPerTurn, selectedCity.GetTurnsTillGrowth, selectedCity.GetGoldPerTurn, selectedCity.GetResearchPerTurn);
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
         RemoveLaborFromBuildingDicts(selectedBuilding);
-        resourceManager.UpdateUIGenerationAll(uiResourceManager);
+        resourceManager.UpdateUIGenerationAll();
         UpdateLaborNumbers();
 
         //this object maintenance
@@ -453,12 +495,6 @@ public class CityBuilderManager : MonoBehaviour
     public void CreateImprovement(ImprovementDataSO improvementData)
     {
         laborChange = 0;
-
-        if (selectedCity.InProduction && improvementData != null)
-        {
-            Debug.Log("City already produced something");
-            return;
-        }
 
         this.improvementData = improvementData;
 
@@ -531,7 +567,7 @@ public class CityBuilderManager : MonoBehaviour
 
         buildLocation.y = 0f;
         resourceManager.SpendResource(improvementData.improvementCost); //this spends the resources needed to build
-        resourceManager.UpdateUI(uiResourceManager);
+        resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
         Debug.Log("Placing structure at " + buildLocation);
@@ -546,8 +582,6 @@ public class CityBuilderManager : MonoBehaviour
         world.AddResourceProducer(buildLocation, resourceProducer);
         resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
-
-        selectedCity.ToggleProduction(true);
 
         placesToWork++;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
@@ -579,7 +613,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
         }
-        resourceManager.UpdateUI(uiResourceManager);
+        resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
 
@@ -599,9 +633,9 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.UpdateCityPopInfo();
         uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop.ToString(), selectedCity.cityPop.GetSetUnusedLabor.ToString(),
             selectedCity.GetSetWorkEthic, resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerTurn,
-            selectedCity.FoodConsumptionPerTurn, selectedCity.GetTurnsTillGrowth, selectedCity.GetGoldPerTurn, selectedCity.GetResearchPerTurn);
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
         RemoveLaborFromDicts(improvementLoc);
-        resourceManager.UpdateUIGeneration(selectedImprovement.GetTerrainData().resourceType, uiResourceManager);
+        resourceManager.UpdateUIGeneration(selectedImprovement.GetTerrainData().resourceType);
         UpdateLaborNumbers();
 
         //this object maintenance
@@ -711,9 +745,9 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.UpdateCityPopInfo();
         uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop.ToString(), selectedCity.cityPop.GetSetUnusedLabor.ToString(),
             selectedCity.GetSetWorkEthic, resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerTurn,
-            selectedCity.FoodConsumptionPerTurn, selectedCity.GetTurnsTillGrowth, selectedCity.GetGoldPerTurn, selectedCity.GetResearchPerTurn);
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
 
-        resourceManager.UpdateUIGenerationAll(uiResourceManager);
+        resourceManager.UpdateUIGenerationAll();
         BuildingButtonHighlight();
         LaborTileHighlight();
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
@@ -859,11 +893,13 @@ public class CityBuilderManager : MonoBehaviour
         if (labor == 0) //removing from world dicts when zeroed out
         {
             RemoveLaborFromDicts(terrainLocation);
+            resourceProducer.StopProducing();
         }
 
         if (labor == 1 && laborChange > 0) //assigning city to location if working for first time
         {
             world.AddToCityLabor(terrainLocation, selectedCity.gameObject);
+            resourceProducer.StartProducing();
         }
 
         if (labor != 0)
@@ -875,10 +911,10 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.UpdateCityPopInfo();
         uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop.ToString(), selectedCity.cityPop.GetSetUnusedLabor.ToString(),
             selectedCity.GetSetWorkEthic, resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerTurn,
-            selectedCity.FoodConsumptionPerTurn, selectedCity.GetTurnsTillGrowth, selectedCity.GetGoldPerTurn, selectedCity.GetResearchPerTurn);
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
 
         UpdateLaborNumbers();
-        resourceManager.UpdateUIGeneration(terrainSelected.GetTerrainData().resourceType, uiResourceManager);
+        resourceManager.UpdateUIGeneration(terrainSelected.GetTerrainData().resourceType);
         BuildingButtonHighlight();
         LaborTileHighlight();
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
@@ -1095,6 +1131,7 @@ public class CityBuilderManager : MonoBehaviour
                 selectedCity.Deselect();
             placesToWork = 0;
             selectedCityLoc = new();
+            selectedCity.activeCity = false;
             selectedCity = null;
         }
     }

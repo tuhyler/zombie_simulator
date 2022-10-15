@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1686765677576597183}
-  - component: {fileID: 1626544596095087892}
   - component: {fileID: -8263471475875251820}
   - component: {fileID: 2050705500241568073}
   - component: {fileID: 718474908050057380}
@@ -36,18 +35,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1626544596095087892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8789389234130458407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e5ad495e39811448b52328af01e43c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-8263471475875251820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,7 +72,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 0}
+  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
 --- !u!1001 &4535896656404142559
 PrefabInstance:
   m_ObjectHideFlags: 0
