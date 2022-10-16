@@ -36,7 +36,7 @@ public class MapWorld : MonoBehaviour
     //for roads
     private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new(); //stores road GOs, only on terrain locations
     private List<Vector3Int> roadLocsList = new(); //indicates which tiles have roads on them
-    int roadCost = 0;
+    int roadCost = 10;
 
     //for terrain speeds
     public TerrainDataSO flatland, forest, hill, forestHill;

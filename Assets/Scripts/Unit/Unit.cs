@@ -100,7 +100,7 @@ public class Unit : MonoBehaviour
 
         moreToMove = true;
         isMoving = true;
-        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePosition;
+        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation /*| RigidbodyConstraints.FreezePosition*/;
         unitAnimator.SetBool(isMovingHash, true);
         movingCo = StartCoroutine(MovementCoroutine(firstTarget));
     }

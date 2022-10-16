@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: e830136ddcfc19d4f8b4b007d9cafcab,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e830136ddcfc19d4f8b4b007d9cafcab,
         type: 3}
@@ -142,6 +142,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7432469902806296215, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: -3781817975210493374, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: unitDataSO
@@ -315,6 +320,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6568893320125822013, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 2959467708922500008, guid: e830136ddcfc19d4f8b4b007d9cafcab,
+        type: 3}
+    - target: {fileID: 6568893320125822013, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Convex
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8272090162984193035, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: unitDataSO
@@ -323,6 +339,7 @@ PrefabInstance:
         type: 2}
     m_RemovedComponents:
     - {fileID: 8577568048053697432, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
+    - {fileID: 6568893320125822013, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
 --- !u!1 &2321851027760307080 stripped
 GameObject:
@@ -345,6 +362,9 @@ MonoBehaviour:
   unitDataSO: {fileID: 11400000, guid: fbad48fd49778cf4c8e43b7cb41f9522, type: 2}
   buildDataSO: {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
   world: {fileID: 0}
+  FinishedMoving:
+    m_PersistentCalls:
+      m_Calls: []
   moreToMove: 0
   isBusy: 0
   isMoving: 0

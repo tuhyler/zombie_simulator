@@ -39,7 +39,7 @@ public class RoadManager : MonoBehaviour
     private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight) //placing road prefabs
     {
         Vector3 pos = roadPosition;
-        pos.y = 0f;
+        pos.y = 0.01f;
         GameObject structure = Instantiate(model, pos, rotation);
         world.SetRoads(roadPosition, structure, straight);
     }

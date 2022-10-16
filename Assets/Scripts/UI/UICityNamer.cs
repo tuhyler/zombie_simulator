@@ -19,9 +19,6 @@ public class UICityNamer : MonoBehaviour
     private HandlePlayerInput playerInput;
 
     [SerializeField]
-    private CanvasGroup uiNextButton;
-
-    [SerializeField]
     private UIUnitTurnHandler turnHandler;
 
     [SerializeField]
@@ -90,7 +87,6 @@ public class UICityNamer : MonoBehaviour
         uiCityBuildTabHandler.ToggleEnable(!v);
         uiLaborAssignment.ToggleEnable(!v);
         uiInfoPanelCity.enabled = !v;
-        uiNextButton.interactable = !v;
         turnHandler.ToggleEnable(!v);
         tempCity = city;
     }
