@@ -101,6 +101,11 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: a101eac166a5a9349bae86d3365a229f, type: 2}
+    - target: {fileID: 1309350269883409193, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
@@ -109,7 +114,7 @@ PrefabInstance:
     - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Center.y
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -195,6 +200,9 @@ MonoBehaviour:
   unitDataSO: {fileID: 11400000, guid: 18c8b91359d031b4993718da17e9fc1f, type: 2}
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
   world: {fileID: 0}
+  FinishedMoving:
+    m_PersistentCalls:
+      m_Calls: []
   moreToMove: 0
   isBusy: 0
   isMoving: 0
