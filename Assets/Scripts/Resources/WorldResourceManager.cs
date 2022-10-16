@@ -8,7 +8,7 @@ public class WorldResourceManager : MonoBehaviour
     private UIWorldResources uiWorldResources;
 
     private Dictionary<ResourceType, int> resourceDict = new(); 
-    private Dictionary<ResourceType, int> resourceGenerationPerTurnDict = new();
+    private Dictionary<ResourceType, float> resourceGenerationPerTurnDict = new();
 
     //initial resources
     public List<ResourceValue> worldResources = new(); //define world resources here
@@ -49,7 +49,7 @@ public class WorldResourceManager : MonoBehaviour
     //    {
     //        if (initialResourceGeneration.resourceType == ResourceType.None)
     //            throw new ArgumentException("Resource can't be none!");
-    //        resourceGenerationPerTurnDict[initialResourceGeneration.resourceType] = initialResourceGeneration.resourceGenerationAmount; //assign initial generation
+    //        resourceGenerationPerMinuteDict[initialResourceGeneration.resourceType] = initialResourceGeneration.resourceGenerationAmount; //assign initial generation
     //    }
     //}
 
@@ -59,7 +59,7 @@ public class WorldResourceManager : MonoBehaviour
         UpdateUI(resourceType);
     }
 
-    public void ModifyResourceGenerationPerTurn(ResourceType resourceType, int generationDiff)
+    public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff)
     {
         resourceGenerationPerTurnDict[resourceType] += generationDiff;
         UpdateUI(resourceType);
@@ -94,10 +94,10 @@ public class WorldResourceManager : MonoBehaviour
     private void UpdateUI(ResourceType resourceType)
     {
         uiWorldResources.SetResource(resourceType, resourceDict[resourceType]);
-        //uiWorldResources.SetResourceGenerationAmount(resourceType, resourceGenerationPerTurnDict[resourceType]);
+        //uiWorldResources.SetResourceGenerationAmount(resourceType, resourceGenerationPerMinuteDict[resourceType]);
     }
 
-    public void UpdateUIGeneration(ResourceType resourceType, int diffAmount)
+    public void UpdateUIGeneration(ResourceType resourceType, float diffAmount)
     {
         uiWorldResources.SetResourceGenerationAmount(resourceType, diffAmount);
     }

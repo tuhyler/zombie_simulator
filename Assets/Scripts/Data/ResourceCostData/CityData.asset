@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: CityData
   m_EditorClassIdentifier: 
   prefab: {fileID: 7185426163474996275, guid: f4bc35ea5c784c1419f0d93e07c35dd5, type: 3}
+  improvementName: 
+  image: {fileID: 0}
   improvementCost: []
   consumedResources: []
   producedResources:
   - resourceType: 1
-    resourceAmount: 1
+    resourceAmount: 0
+  producedResourceTime: 60
   resourceType: 1
   workEthicChange: 0
   maxLabor: 1

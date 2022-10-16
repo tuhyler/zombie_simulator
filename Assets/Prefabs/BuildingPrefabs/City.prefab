@@ -70,7 +70,7 @@ MonoBehaviour:
   activeCity: 0
   cityPop: {fileID: 0}
   unitFoodConsumptionPerTurn: 1
-  secondsTillGrowthCheck: 120
+  secondsTillGrowthCheck: 60
   warehouseStorageLimit: 200
   savedQueueItems: []
 --- !u!114 &-548530054223577924

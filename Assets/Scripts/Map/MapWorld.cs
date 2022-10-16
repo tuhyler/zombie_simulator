@@ -85,9 +85,9 @@ public class MapWorld : MonoBehaviour
         worldResourceManager.SetResource(resourceType, amount);
     }
 
-    public void UpdateWorldResourceGeneration(ResourceType resourceType, int amount)
+    public void UpdateWorldResourceGeneration(ResourceType resourceType, float amount)
     {
-        worldResourceManager.ModifyResourceGenerationPerTurn(resourceType, amount);
+        worldResourceManager.ModifyResourceGenerationPerMinute(resourceType, amount);
     }
 
     public List<ResourceType> WorldResourcePrep()

@@ -257,7 +257,8 @@ public class WorkerTaskManager : MonoBehaviour
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
         ResourceManager resourceManager = newCity.GetComponent<ResourceManager>();
         resourceProducer.SetResourceManager(resourceManager);
-        resourceProducer.BeginResourceGeneration(); //begin generating resources
+        //resourceProducer.BeginResourceGeneration(); //begin generating resources
+        resourceProducer.StartProducing();
         if (world.TileHasBuildings(workerTile)) //if tile already has buildings, need to switch resourceManager for each resourceProducer 
         {
             foreach (string buildingName in world.GetBuildingListForCity(workerTile))
