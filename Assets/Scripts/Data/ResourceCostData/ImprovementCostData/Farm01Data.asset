@@ -23,8 +23,8 @@ MonoBehaviour:
   consumedResources: []
   producedResources:
   - resourceType: 1
-    resourceAmount: 1
-  producedResourceTime: 2
+    resourceAmount: 2
+  producedResourceTime: 6
   resourceType: 1
   workEthicChange: 0
   maxLabor: 2

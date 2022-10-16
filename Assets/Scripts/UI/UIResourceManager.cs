@@ -116,14 +116,15 @@ public class UIResourceManager : MonoBehaviour
         if (resourceUIDict.ContainsKey(resourceType))//checking if resource is in dictionary
         {
             resourceUIDict[resourceType].SetValue(val);
+            resourceUIDict[resourceType].CheckVisibility();
         }
     }
 
-    public void SetResourceGenerationAmount(ResourceType resourceType, int val) //Set the resources to a value
-    {
-        if (resourceUIDict.ContainsKey(resourceType))//checking if resource is in dictionary
-        {
-            resourceUIDict[resourceType].SetGeneration(val);
-        }
-    }
+    //public void SetResourceGenerationAmount(ResourceType resourceType, int val) //Set the resources to a value
+    //{
+    //    if (resourceUIDict.ContainsKey(resourceType))//checking if resource is in dictionary
+    //    {
+    //        //resourceUIDict[resourceType].SetGeneration(val);
+    //    }
+    //}
 }

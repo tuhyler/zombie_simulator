@@ -46,6 +46,8 @@ public class City : MonoBehaviour
     private string minutesTillGrowth; //string in case there's no growth
     public string GetMinutesTillGrowth { get { return minutesTillGrowth; } }
     private Coroutine foodConsumedCo;
+    private int countDownTimer;
+    public int CountDownTimer { get { return countDownTimer; } }
 
     //resource info
     private float workEthic = 1.0f;
@@ -53,9 +55,9 @@ public class City : MonoBehaviour
     public int warehouseStorageLimit = 200;
 
     //world resource info
-    private Dictionary<ResourceType, int> worldResourceGenerationDict = new();
-    private int goldPerTurn;
-    public int GetGoldPerMinute { get { return goldPerTurn; } }
+    private Dictionary<ResourceType, float> worldResourceGenerationDict = new();
+    private int goldPerMinute;
+    public int GetGoldPerMinute { get { return goldPerMinute; } }
     private int researchPerTurn;
     public int GetResearchPerMinute { get { return researchPerTurn; } }
 
@@ -170,19 +172,19 @@ public class City : MonoBehaviour
         //cityPopText.text = cityPop.GetPop.ToString();
         //cityLaborText.text = cityPop.GetSetUnusedLabor.ToString();
         foodConsumptionPerTurn = cityPop.GetPop * unitFoodConsumptionPerTurn;
-        resourceManager.ModifyResourceConsumptionPerTurn(ResourceType.Food, foodConsumptionPerTurn);
-        int foodPerTurn = resourceManager.GetResourceGenerationValues(ResourceType.Food);
+        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, foodConsumptionPerTurn, true);
+        float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
         int foodStorage = resourceManager.GetResourceValues(ResourceType.Food);
 
-        if (foodPerTurn > 0)
+        if (foodPerMinute > 0)
         {
-            minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerTurn).ToString();
+            minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerMinute).ToString();
         }
-        if (foodPerTurn < 0) 
+        if (foodPerMinute < 0) 
         {
-            minutesTillGrowth = Mathf.FloorToInt((float)foodStorage / foodPerTurn).ToString(); //maybe take absolute value, change color to red?
+            minutesTillGrowth = Mathf.FloorToInt((float)foodStorage / foodPerMinute).ToString(); //maybe take absolute value, change color to red?
         }
-        if (foodPerTurn == 0)
+        if (foodPerMinute == 0)
         {
             minutesTillGrowth = "-";
         }
@@ -288,7 +290,7 @@ public class City : MonoBehaviour
         {
             world.RemoveFromCurrentWorked(chosenTile);
             world.RemoveFromCityLabor(chosenTile);
-            resourceManager.RemoveKeyFromGenerationDict(chosenTile);
+            //resourceManager.RemoveKeyFromGenerationDict(chosenTile);
         }
         else
         {
@@ -324,7 +326,7 @@ public class City : MonoBehaviour
         if (labor == 0) //removing from world dicts when zeroed out
         {
             world.RemoveFromBuildingCurrentWorked(cityLoc, chosenBuildingName);
-            resourceManager.RemoveKeyFromBuildingGenerationDict(chosenBuildingName);
+            //resourceManager.RemoveKeyFromBuildingGenerationDict(chosenBuildingName);
         }
         else
         {
@@ -354,45 +356,45 @@ public class City : MonoBehaviour
         return worldResourceGenerationDict.ContainsKey(resourceType);
     }
 
-    public void UpdateWorldResourceGeneration(ResourceType resourceType, int diffAmount)
+    public void UpdateWorldResourceGeneration(ResourceType resourceType, float diffAmount)
     {
-        int prevResourcePerTurn = worldResourceGenerationDict[resourceType];
-        int currentResourcePerTurn = resourceManager.GetResourceGenerationValues(resourceType);
-        int resourcePerTurnChange = currentResourcePerTurn - prevResourcePerTurn;
-        world.UpdateWorldResourceGeneration(resourceType, resourcePerTurnChange);
+        float currentResourcePerTurn = resourceManager.GetResourceGenerationValues(resourceType);
+        world.UpdateWorldResourceGeneration(resourceType, diffAmount);
         worldResourceGenerationDict[resourceType] = currentResourcePerTurn;
-        UpdateInfoPanel(resourceType, resourcePerTurnChange);
+        UpdateInfoPanel(resourceType, diffAmount);
     }
 
-    private void UpdateInfoPanel(ResourceType resourceType, int diffAmount)
+    private void UpdateInfoPanel(ResourceType resourceType, float diffAmount)
     {
         if (resourceType == ResourceType.Gold)
         {
-            goldPerTurn += diffAmount;
+            goldPerMinute += Mathf.RoundToInt(diffAmount);
         }
         if (resourceType == ResourceType.Research)
         {
-            researchPerTurn += diffAmount;
+            researchPerTurn += Mathf.RoundToInt(diffAmount);
         }
     }
 
-    public void UpdateWorldResources() //run at turn end
+    public void UpdateWorldResources()
     {
         foreach (ResourceType resourceType in worldResourceGenerationDict.Keys)
         {
             if (worldResourceGenerationDict[resourceType] != 0)
-                world.UpdateWorldResources(resourceType, worldResourceGenerationDict[resourceType]);
+                world.UpdateWorldResources(resourceType, 0); //need to figure this out
         }
     }
 
     private IEnumerator FoodConsumptionCoroutine()
     {
-        int countDownTimer = secondsTillGrowthCheck;
+        countDownTimer = secondsTillGrowthCheck;
         
         while (countDownTimer > 0)
         {
             yield return new WaitForSeconds(1);
             countDownTimer--;
+            if (activeCity)
+                resourceManager.uiInfoPanelCity.SetTimer(countDownTimer);
         }
 
         ResourceValue foodConsumed;
@@ -404,6 +406,7 @@ public class City : MonoBehaviour
         resourceManager.CheckForPopGrowth();
 
         Debug.Log(cityName + " is checking for growth");
+        StartCoroutine(FoodConsumptionCoroutine());
     }
 
     private void StopFoodConsumptionCoroutine()

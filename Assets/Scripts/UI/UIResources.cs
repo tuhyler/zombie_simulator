@@ -45,8 +45,8 @@ public class UIResources : MonoBehaviour
         resourceAmount.text = val.ToString();
     }
 
-    public void SetGeneration(int val)
-    {
+    //public void SetGeneration(int val)
+    //{
         //if (val > 0)
         //{
         //    //resourceGenerationAmount.text = $"+{val}";
@@ -59,5 +59,5 @@ public class UIResources : MonoBehaviour
         //{
         //    //resourceGenerationAmount.text = val.ToString();
         //}
-    }
+    //}
 }

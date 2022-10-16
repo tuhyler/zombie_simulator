@@ -65,7 +65,7 @@ public class UIWorldResources : MonoBehaviour
         }
     }
 
-    public void SetResourceGenerationAmount(ResourceType resourceType, int val)
+    public void SetResourceGenerationAmount(ResourceType resourceType, float val)
     {
         //if (val > 0)
         //{
