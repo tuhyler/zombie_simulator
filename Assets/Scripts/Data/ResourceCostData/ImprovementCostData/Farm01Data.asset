@@ -24,8 +24,9 @@ MonoBehaviour:
   producedResources:
   - resourceType: 1
     resourceAmount: 2
-  producedResourceTime: 6
+  producedResourceTime: 60
   resourceType: 1
   workEthicChange: 0
   maxLabor: 2
   laborCost: 0
+  replaceTerrain: 0

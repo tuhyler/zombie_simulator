@@ -16,4 +16,5 @@ public class ImprovementDataSO : ScriptableObject
     public float workEthicChange;
     public int maxLabor;
     public int laborCost;
+    public bool replaceTerrain = false;
 }

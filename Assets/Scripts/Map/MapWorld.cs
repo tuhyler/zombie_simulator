@@ -35,8 +35,9 @@ public class MapWorld : MonoBehaviour
 
     //for roads
     private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new(); //stores road GOs, only on terrain locations
+    private List<Vector3Int> soloRoadLocsList = new(); //indicates which tiles have solo roads on them
     private List<Vector3Int> roadLocsList = new(); //indicates which tiles have roads on them
-    int roadCost = 10;
+    private int roadCost; //set in road manager
 
     //for terrain speeds
     public TerrainDataSO flatland, forest, hill, forestHill;
@@ -85,9 +86,9 @@ public class MapWorld : MonoBehaviour
         worldResourceManager.SetResource(resourceType, amount);
     }
 
-    public void UpdateWorldResourceGeneration(ResourceType resourceType, float amount)
+    public void UpdateWorldResourceGeneration(ResourceType resourceType, float amount, bool add)
     {
-        worldResourceManager.ModifyResourceGenerationPerMinute(resourceType, amount);
+        worldResourceManager.ModifyResourceGenerationPerMinute(resourceType, amount, add);
     }
 
     public List<ResourceType> WorldResourcePrep()
@@ -211,14 +212,30 @@ public class MapWorld : MonoBehaviour
             roadLocsList.Add(tile);
     }
 
+    public void SetSoloRoadLocations(Vector3Int tile)
+    {
+        if (!soloRoadLocsList.Contains(tile))
+            soloRoadLocsList.Add(tile);
+    }
+
     public bool IsRoadOnTileLocation(Vector3Int tile)
     {
         return roadLocsList.Contains(tile);
     }
 
+    public bool IsSoloRoadOnTileLocation(Vector3Int tile)
+    {
+        return soloRoadLocsList.Contains(tile);
+    }
+
     public void RemoveRoadLocation(Vector3Int tile)
     {
         roadLocsList.Remove(tile);
+    }
+
+    public void RemoveSoloRoadLocation(Vector3Int tile)
+    {
+        soloRoadLocsList.Remove(tile);
     }
 
     public void InitializeRoads(Vector3Int tile)

@@ -11,6 +11,8 @@ public class TerrainData : MonoBehaviour
 
     [SerializeField]
     public Transform prop;
+    //[HideInInspector]
+    //public GameObject propPrefab;
 
     private SelectionHighlight highlight;
 
@@ -62,6 +64,11 @@ public class TerrainData : MonoBehaviour
     public void AddTerrainToWorld(MapWorld world)
     {
         world.SetTerrainData(GetTileCoordinates(), this);
+    }
+
+    public void DestroyProp(GameObject go)
+    {
+        Destroy(go);
     }
 
     public void DestroyTile(MapWorld world)

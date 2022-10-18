@@ -17,4 +17,5 @@ public class GameAssets : MonoBehaviour
     public GameObject cityBorderPrefab;
     public GameObject shoePrintPrefab;
     public GameObject laborNumberPrefab;
+    public GameObject timeProgressPrefab;
 }

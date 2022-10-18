@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: JungleHillTerrain
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
-  roadPrefab: {fileID: 0}
-  clearedForestPrefab: {fileID: 0}
+  roadPrefab: {fileID: 9073605623283122857, guid: daa293a6370d4d946880b36c2f235117,
+    type: 3}
+  clearedForestData: {fileID: 11400000, guid: 1fddc1ef6099212409811e55da512a76, type: 2}
   walkable: 1
   sailable: 0
   movementCost: 30
-  type: 0
+  type: 6
   resourceType: 5

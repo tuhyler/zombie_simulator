@@ -6,9 +6,8 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Map/TerrainData")]
 public class TerrainDataSO : ScriptableObject
 {
-    public GameObject prefab;
     public GameObject roadPrefab; //only for changing forest terrain when a road is built
-    public GameObject clearedForestPrefab; //for clearing a forest
+    public TerrainDataSO clearedForestData; //for clearing a forest
     public bool walkable = false;
     public bool sailable = false;
     public int movementCost = 10;
@@ -31,5 +30,6 @@ public enum TerrainType
     Obstacle,
     Sea,
     River,
-    Forest
+    Forest,
+    ForestHill
 }

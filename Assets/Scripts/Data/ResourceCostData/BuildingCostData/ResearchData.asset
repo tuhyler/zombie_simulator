@@ -24,6 +24,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 3
     resourceAmount: 10
+  producedResourceTime: 10
   resourceType: 0
   workEthicChange: 0
   maxLabor: 5

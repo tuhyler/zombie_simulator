@@ -86,6 +86,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: RoadSolo
       objectReference: {fileID: 0}
+    - target: {fileID: 1627574910764654738, guid: e9fbb305868b2af4ba8a0ae64264bfb4,
+        type: 3}
+      propertyPath: m_TagString
+      value: Road
+      objectReference: {fileID: 0}
     - target: {fileID: 4700459591256341917, guid: e9fbb305868b2af4ba8a0ae64264bfb4,
         type: 3}
       propertyPath: m_RootOrder

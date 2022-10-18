@@ -1,0 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+
+public class TimeProgressBar : MonoBehaviour
+{
+    [SerializeField]
+    private TMP_Text timeText;
+
+    [SerializeField]
+    private Transform timeProgressBarMask;
+
+    public float fullProgressBarAmount = 0.77f;
+    private int totalTime;
+    private float increment;
+    private Vector3 newScale;
+
+    private void Awake()
+    {
+        //laborNumberHolder.GetComponent<SpriteRenderer>().enabled = false;
+        timeText.outlineWidth = 0.5f;
+        timeText.outlineColor = new Color(0, 0, 0, 255);
+
+        newScale = timeProgressBarMask.localScale; //change progress bar through scale
+        newScale.x = 0;
+        timeProgressBarMask.localScale = newScale;
+        SetActive(false);
+    }
+
+    public void SetTime(int time)
+    {
+        timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
+        newScale.x = (totalTime - time) * increment + increment;
+
+        if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
+        {
+            Vector3 tempScale = timeProgressBarMask.localScale;
+            tempScale.x = 0;
+            timeProgressBarMask.localScale = tempScale;
+            //timeProgressBarMask.localScale = newScale;
+        }
+
+        LeanTween.value(timeProgressBarMask.gameObject, timeProgressBarMask.localScale.x, newScale.x, 1.09f)
+        .setEase(LeanTweenType.linear)
+        .setOnUpdate((value) =>
+        {
+            newScale.x = value;
+            timeProgressBarMask.localScale = newScale;
+        });
+    }
+
+    public void SetTimeProgressBarValue(int fillAmount)
+    {
+        totalTime = fillAmount;
+        
+        if (fillAmount <= 0)
+            fillAmount = 1;
+
+        increment = fullProgressBarAmount / fillAmount;
+    }
+
+    public void SetActive(bool v)
+    {
+        gameObject.SetActive(v);
+    }
+}

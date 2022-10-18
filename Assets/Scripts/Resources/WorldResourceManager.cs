@@ -59,9 +59,13 @@ public class WorldResourceManager : MonoBehaviour
         UpdateUI(resourceType);
     }
 
-    public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff)
+    public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff, bool add)
     {
-        resourceGenerationPerTurnDict[resourceType] += generationDiff;
+        if (add)
+            resourceGenerationPerTurnDict[resourceType] += generationDiff;
+        else
+            resourceGenerationPerTurnDict[resourceType] -= generationDiff;
+        
         UpdateUI(resourceType);
     }
 
