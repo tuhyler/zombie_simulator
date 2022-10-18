@@ -12,14 +12,19 @@ public class ResourceProducer : MonoBehaviour
     private int currentLabor;
     private float tempLabor; //if adding labor during production process
     Queue<float> tempLaborPercsQueue = new();
+    private Vector3 producerLoc;
+    private bool isImprovement = false;
 
     //for production info
     private Coroutine producingCo;
     private int productionTimer;
+    private TimeProgressBar timeProgressBar;
+    private bool isProducing;
     private Dictionary<ResourceType, float> generatedPerMinute = new();
     private Dictionary<ResourceType, float> consumedPerMinute = new();
+    
 
-
+    
     public void InitializeImprovementData(ImprovementDataSO data)
     {
         myImprovementData = data;
@@ -28,6 +33,24 @@ public class ResourceProducer : MonoBehaviour
     internal void SetResourceManager(ResourceManager resourceManager)
     {
         this.resourceManager = resourceManager;
+    }
+
+    public void SetLocation(Vector3Int loc)
+    {
+        producerLoc = loc;
+        if (loc != resourceManager.city.cityLoc)
+            isImprovement = true;
+
+        if (isImprovement)
+            SetProgressTimeBar();
+    }
+
+    private void SetProgressTimeBar()
+    {
+        producerLoc.z -= 1.5f; //bottom center of tile
+        GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, producerLoc, Quaternion.Euler(90, 0, 0));
+        timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
+        timeProgressBar.SetTimeProgressBarValue(myImprovementData.producedResourceTime);
     }
 
     public void UpdateCurrentLaborData(int currentLabor)
@@ -49,7 +72,11 @@ public class ResourceProducer : MonoBehaviour
     {
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
-        StartCoroutine(ProducingCoroutine());
+
+        if (resourceManager.city.activeCity && isImprovement)
+            timeProgressBar.SetActive(true);
+        producingCo = StartCoroutine(ProducingCoroutine());
+        isProducing = true;
     }
 
     public void AddLaborMidProduction()
@@ -78,6 +105,11 @@ public class ResourceProducer : MonoBehaviour
     private IEnumerator ProducingCoroutine()
     {
         productionTimer = myImprovementData.producedResourceTime;
+        if (resourceManager.city.activeCity && isImprovement)
+        {
+            timeProgressBar.SetTime(productionTimer);
+        }
+
         tempLabor = currentLabor;
         resourceManager.ConsumeResources(myImprovementData.consumedResources, currentLabor);
         
@@ -85,6 +117,8 @@ public class ResourceProducer : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
             productionTimer--;
+            if (resourceManager.city.activeCity && isImprovement)
+                timeProgressBar.SetTime(productionTimer);
         }
 
         resourceManager.PrepareResource(myImprovementData.producedResources, tempLabor);
@@ -93,7 +127,7 @@ public class ResourceProducer : MonoBehaviour
         if (currentLabor > 0)
         {
             tempLaborPercsQueue.Clear();
-            StartCoroutine(ProducingCoroutine());
+            producingCo = StartCoroutine(ProducingCoroutine());
         }
     }
 
@@ -106,6 +140,19 @@ public class ResourceProducer : MonoBehaviour
         {
             StopCoroutine(producingCo);
             resourceManager.PrepareResource(myImprovementData.consumedResources, 1, true);
+        }
+
+        if (isImprovement)
+            timeProgressBar.SetActive(false);
+        isProducing = false;
+    }
+
+    public void TimeProgressBarSetActive(bool v)
+    {
+        if (isProducing && isImprovement)
+        {
+            timeProgressBar.SetTime(productionTimer);
+            timeProgressBar.SetActive(v);
         }
     }
 

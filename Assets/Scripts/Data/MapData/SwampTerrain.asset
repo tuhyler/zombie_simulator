@@ -12,11 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: SwampTerrain
   m_EditorClassIdentifier: 
-  prefab: {fileID: 9028135723056779164, guid: 9c6898333e1236444b35325f349b779b, type: 3}
-  roadPrefab: {fileID: 9028135723056779164, guid: cef0926271c0cfb48b5ebd88d729d905,
+  roadPrefab: {fileID: 9073605623283122857, guid: 62a97f02621f4ac4b832334746e610e9,
     type: 3}
-  clearedForestPrefab: {fileID: 4461690370859731775, guid: 16f9283fd4969f7459226421f2c4b6a7,
-    type: 3}
+  clearedForestData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
   walkable: 1
   sailable: 0
   movementCost: 20

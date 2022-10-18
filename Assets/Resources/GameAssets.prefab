@@ -50,7 +50,7 @@ MonoBehaviour:
     type: 3}
   shoePrintPrefab: {fileID: 4764973178347815870, guid: e4b78ce8b5c692b41b32464a3ae281e2,
     type: 3}
-  turnCountPrefab: {fileID: 7804093059410087792, guid: 4ceae4a85677a154282c6b7dae733733,
-    type: 3}
   laborNumberPrefab: {fileID: 7804093059410087792, guid: 974970d91b11c214eb7adc896b375e72,
+    type: 3}
+  timeProgressPrefab: {fileID: 7804093059410087792, guid: 4bdbd357e537aa54ab5ee0584ead1d69,
     type: 3}

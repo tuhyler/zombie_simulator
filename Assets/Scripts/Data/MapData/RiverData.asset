@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: RiverData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 9203405519390938773, guid: f72558895b6c8e746b5598f21c9dcdaf, type: 3}
   roadPrefab: {fileID: 0}
-  clearedForestPrefab: {fileID: 0}
+  clearedForestData: {fileID: 0}
   walkable: 1
   sailable: 1
   movementCost: 10

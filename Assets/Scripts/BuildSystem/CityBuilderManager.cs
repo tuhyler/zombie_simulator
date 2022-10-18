@@ -59,14 +59,16 @@ public class CityBuilderManager : MonoBehaviour
     private int placesToWork; //to see how many tiles a city has in its radius to send labor to. 
 
     //for object pooling of labor numbers
-    //[SerializeField]
-    //private GameObject laborNumberPrefab;
     private Queue<CityLaborTileNumber> laborNumberQueue = new(); //the pool in object pooling
     private List<CityLaborTileNumber> laborNumberList = new(); //to add to in order to add back into pool
 
     //for object pooling of city borders
     private Queue<GameObject> borderQueue = new();
     private List<GameObject> borderList = new();
+
+    ////for object pooling of city borders
+    //private Queue<TimeProgressBar> borderQueue = new();
+    //private List<TimeProgressBar> borderList = new();
 
     //for naming of units (need to store these to save)
     private int workerCount;
@@ -126,6 +128,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity.activeCity = true;
             selectedCityLoc = world.GetClosestTerrainLoc(location);
             (cityTiles, developedTiles) = GetThisCityRadius();
+            ResourceProducerTimeProgressBarsSetActive(true);
             DrawBorders();
             CheckForWork();
             resourceManager = selectedCity.ResourceManager;
@@ -137,7 +140,7 @@ public class CityBuilderManager : MonoBehaviour
             CenterCamOnCity();
             uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
                 resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
-                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
+                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetResearchPerMinute);
             //uiInfoPanelCityWarehouse.SetAllWarehouseData(selectedCity.ResourceManager.ResourceStorageLimit,
             //    selectedCity.ResourceManager.GetResourceStorageLevel);
             uiInfoPanelCity.ToggleVisibility(true);
@@ -269,6 +272,14 @@ public class CityBuilderManager : MonoBehaviour
         return world.GetCityRadiusFor(selectedCityLoc, selectedCity.gameObject);
     }
 
+    private void ResourceProducerTimeProgressBarsSetActive(bool v)
+    {
+        foreach (Vector3Int tile in developedTiles)
+        {
+            world.GetResourceProducer(tile).TimeProgressBarSetActive(v);
+        }
+    }
+
     private void DrawBorders()
     {
         List<Vector3Int> tempCityTiles = new(cityTiles) {selectedCityLoc};
@@ -336,10 +347,9 @@ public class CityBuilderManager : MonoBehaviour
         UpdateLaborNumbers();
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
 
-        if (selectedCity.activeCity)
-            uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
-                resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
-                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
+        uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
+            resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetResearchPerMinute);
 
         resourceManager.SpendResource(unitData.unitCost);
         resourceManager.UpdateUI();
@@ -401,6 +411,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
             resourceProducer.InitializeImprovementData(buildingData); //allows the new structure to also start generating resources
+            resourceProducer.SetLocation(selectedCityLoc);
             world.AddToCityBuildingIsProducerDict(selectedCityLoc, buildingName, resourceProducer);
         }
 
@@ -476,10 +487,9 @@ public class CityBuilderManager : MonoBehaviour
         //updating all the labor info
         selectedCity.UpdateCityPopInfo();
 
-        if (selectedCity.activeCity)
-            uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
-                resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
-                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
+        uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
+            resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetResearchPerMinute);
 
         RemoveLaborFromBuildingDicts(selectedBuilding);
         //resourceManager.UpdateUIGenerationAll();
@@ -587,7 +597,8 @@ public class CityBuilderManager : MonoBehaviour
         world.AddResourceProducer(buildLocation, resourceProducer);
         resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
-
+        resourceProducer.SetLocation(tempBuildLocation);
+        
         placesToWork++;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
         ResetTileLists();
@@ -637,10 +648,9 @@ public class CityBuilderManager : MonoBehaviour
         //updating all the labor info
         selectedCity.UpdateCityPopInfo();
 
-        if (selectedCity.activeCity)
-            uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
-                resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
-                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
+        uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
+            resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetResearchPerMinute);
 
         RemoveLaborFromDicts(improvementLoc);
         //resourceManager.UpdateUIGeneration(selectedImprovement.GetTerrainData().resourceType);
@@ -752,10 +762,9 @@ public class CityBuilderManager : MonoBehaviour
 
         selectedCity.UpdateCityPopInfo();
 
-        if (selectedCity.activeCity)
-            uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
-                resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
-                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
+        uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
+            resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetResearchPerMinute);
 
         //resourceManager.UpdateUIGenerationAll();
         BuildingButtonHighlight();
@@ -870,7 +879,7 @@ public class CityBuilderManager : MonoBehaviour
         //specifying location on tile
         Vector3 numberPosition = tile;
         numberPosition.y += .01f;
-        numberPosition.z += -1.3f; //bottom center of tile
+        numberPosition.z += 1.3f; //top center of tile
 
         //Object pooling set up
         CityLaborTileNumber tempObject = GetFromLaborNumbersPool();
@@ -894,8 +903,8 @@ public class CityBuilderManager : MonoBehaviour
         ChangeCityLaborInfo();
 
         ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
-        if (!resourceProducer.CheckResourceManager(resourceManager))
-            resourceProducer.SetResourceManager(resourceManager);
+        //if (!resourceProducer.CheckResourceManager(resourceManager))
+        //    resourceProducer.SetResourceManager(resourceManager);
 
         resourceProducer.UpdateCurrentLaborData(labor);
 
@@ -927,10 +936,9 @@ public class CityBuilderManager : MonoBehaviour
         //updating all the labor info
         selectedCity.UpdateCityPopInfo();
 
-        if (selectedCity.activeCity)
-            uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
-                resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute, 
-                selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetGoldPerMinute, selectedCity.GetResearchPerMinute);
+        uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
+            resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute, 
+            selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetResearchPerMinute);
 
         UpdateLaborNumbers();
         //resourceManager.UpdateUIGeneration(terrainSelected.GetTerrainData().resourceType);
@@ -1132,6 +1140,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedCity != null)
         {
+            ResourceProducerTimeProgressBarsSetActive(false);
             isActive = false;
             cityTiles.Clear();
             developedTiles.Clear();
@@ -1235,4 +1244,41 @@ public class CityBuilderManager : MonoBehaviour
 
         borderList.Clear();
     }
+
+    //private void GrowTimeProgressBarsPool()
+    //{
+    //    for (int i = 0; i < 5; i++) //grow pool 5 at a time
+    //    {
+    //        GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab);
+    //        TimeProgressBar timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
+    //        timeProgressBar.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
+    //        AddToTimeProgressBarsPool(timeProgressBar);
+    //    }
+    //}
+
+    //private void AddToTimeProgressBarsPool(TimeProgressBar timeProgressBar)
+    //{
+    //    timeProgressBar.SetActive(false); //inactivate it when adding to pool
+    //    timeProgressQueue.Enqueue(timeProgressBar);
+    //}
+
+    //private TimeProgressBar GetFromTimeProgressBarsPool()
+    //{
+    //    if (timeProgressQueue.Count == 0)
+    //        GrowTimeProgressBarsPool();
+
+    //    var timeProgressBar = timeProgressQueue.Dequeue();
+    //    timeProgressBar.SetActive(true);
+    //    return timeProgressBar;
+    //}
+
+    //private void HideTimeProgressBars()
+    //{
+    //    foreach (TimeProgressBar timeProgressBar in timeProgressList)
+    //    {
+    //        AddToTimeProgressBarsPool(timeProgressBar);
+    //    }
+
+    //    timeProgressList.Clear();
+    //}
 }

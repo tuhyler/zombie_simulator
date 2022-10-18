@@ -310,8 +310,8 @@ public class Unit : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Hill"))
         {
-            moveSpeed = (hillSpeed / 10f) * originalMoveSpeed * 0.25f;
-            threshold = 0.01f;
+            moveSpeed = (hillSpeed / 10f) * originalMoveSpeed * 0.4f;
+            threshold = 0.05f;
         }
         else if (collision.gameObject.CompareTag("Forest Hill"))
         {
@@ -319,7 +319,7 @@ public class Unit : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Road"))
         {
-            moveSpeed = (roadSpeed / 10f) * originalMoveSpeed;
+            moveSpeed = (roadSpeed / 10f) * originalMoveSpeed * 3f;
         }
     }
 

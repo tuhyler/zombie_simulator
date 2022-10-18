@@ -49,13 +49,13 @@ public class RoadManager : MonoBehaviour
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
 
-        if (td.GetTerrainData().type == TerrainType.Forest)
+        if (td.GetTerrainData().type == TerrainType.Forest || td.GetTerrainData().type == TerrainType.ForestHill)
         {
-            GameObject newPrefab = td.GetTerrainData().roadPrefab;
-            GameObject newTile = Instantiate(newPrefab, roadPosition, Quaternion.Euler(0, 0, 0));
-            td.DestroyTile(world);
-            td = newTile.GetComponent<TerrainData>();
-            td.AddTerrainToWorld(world);
+            Destroy(td.prop.GetChild(0).gameObject);
+            GameObject newProp = Instantiate(td.GetTerrainData().roadPrefab, Vector3Int.zero, Quaternion.Euler(0, 0, 0));
+            newProp.transform.SetParent(td.prop, false);
+            //td = newTile.GetComponent<TerrainData>();
+            //td.AddTerrainToWorld(world);
         }
         
         world.InitializeRoads(roadPosition);
@@ -92,11 +92,17 @@ public class RoadManager : MonoBehaviour
         {
             int roadCount = roads.Sum();
             Destroy(world.GetRoads(roadLoc, straight)); //destroying road, consider object pooling
+            if (world.IsSoloRoadOnTileLocation(roadLoc))
+            {
+                Destroy(world.GetRoads(roadLoc, false));
+                world.RemoveSoloRoadLocation(roadLoc);
+            }
+
             if (roadCount == 0) //for placing solo roads on neighboring roads (when removing roads)
             {
                 if(world.SoloRoadCheck(roadLoc, straight))
                 {
-                    if (world.GetRoads(roadLoc, false) != solo) //if there's not already a solo road there
+                    if (!world.IsSoloRoadOnTileLocation(roadLoc)) //if there's not already a solo road there
                         CreateRoadSolo(roadLoc);
                 }
             }
@@ -150,6 +156,7 @@ public class RoadManager : MonoBehaviour
     private void CreateRoadSolo(Vector3Int roadPosition)
     {
         CreateRoad(solo, roadPosition, Quaternion.Euler(0, 0, 0), false); //solo roads still exists when connecting with straight road
+        world.SetSoloRoadLocations(roadPosition);
     }
 
     private void CreateDeadEnd(Vector3Int roadPosition, int[] roads, bool straight)

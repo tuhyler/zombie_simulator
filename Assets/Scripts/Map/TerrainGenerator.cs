@@ -56,7 +56,7 @@ public class TerrainGenerator : MonoBehaviour
     private GameObject grasslandProp01;
     [SerializeField]
     private GameObject grasslandProp02, grasslandProp03, desertProp01, desertProp02, desertFloodPlainProp01, desertFloodPlainProp02, forestPropVar01,
-        junglePropVar01, forestHillPropVar01, jungleHillVar01;
+        junglePropVar01, forestHillPropVar01, jungleHillVar01, swampPropVar01;
 
     [Header("Water")]
     [SerializeField]
@@ -70,21 +70,10 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private TerrainDataSO forestSO;
     [SerializeField]
-    private TerrainDataSO jungleSO, forestHillSO, jungleHillSO;
+    private TerrainDataSO jungleSO, forestHillSO, jungleHillSO, swampSO;
 
-    private GameObject[] grasslandMountains;
-    private GameObject[] desertMountains;
-    private GameObject[] grasslandProps;
-    private GameObject[] forestProps;
-    private GameObject[] jungleProps;
-    private GameObject[] forestHillProps;
-    private GameObject[] jungleHillProps;
-    private GameObject[] desertProps;
-    private GameObject[] desertFloodPlainProps;
-    private GameObject[] riverStraights;
-    private GameObject[] oceanCurves;
-
-    int[] ugh = { 1, 2, 3 }; 
+    private GameObject[] grasslandMountains, desertMountains, grasslandProps, forestProps, jungleProps, swampProps, forestHillProps, jungleHillProps, desertProps,
+        desertFloodPlainProps, riverStraights, oceanCurves;
 
     private List<GameObject> allTiles = new();
 
@@ -363,7 +352,10 @@ public class TerrainGenerator : MonoBehaviour
                 FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, false, swampVar0, swampVar1, swampVar2, swampVar3,
                     swampVar4, swampVar5, out Quaternion rotation, out GameObject swamp);
 
-                GenerateTile(swamp, position, rotation);
+                swamp.tag = "Forest";
+                GameObject newTile = GenerateTile(swamp, position, rotation);
+
+                AddProp(random, newTile, swampProps, swampSO);
             }
             else if (mainMap[position] == ProceduralGeneration.river)
             {
@@ -533,9 +525,10 @@ public class TerrainGenerator : MonoBehaviour
             td.terrainData = tdSO;
 
         Quaternion rotation = Quaternion.Euler(0, random.Next(0, 4) * 90, 0);
-        rotation = Quaternion.identity;
+        //rotation = Quaternion.identity;
 
-        GameObject newProp = Instantiate(propArray[random.Next(0, propArray.Length)], new Vector3Int(0, 0, 0), rotation);
+        GameObject newProp = Instantiate(propArray[random.Next(0, propArray.Length)], Vector3Int.zero, rotation);
+        //td.propPrefab = newProp;
         newProp.transform.SetParent(td.prop, false);
     }
 
@@ -549,6 +542,7 @@ public class TerrainGenerator : MonoBehaviour
         riverStraights = new GameObject[3] { riverStraightVar1, riverStraightVar2, riverStraightVar3 };
         forestProps = new GameObject[1] { forestPropVar01 };
         jungleProps = new GameObject[1] { junglePropVar01 };
+        swampProps = new GameObject[1] { swampPropVar01 };
         forestHillProps = new GameObject[1] { forestHillPropVar01 };
         jungleHillProps = new GameObject[1] { jungleHillVar01 };
         oceanCurves = new GameObject[2] { oceanCurve, oceanCurveDiagonal };

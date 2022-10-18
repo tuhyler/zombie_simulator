@@ -239,10 +239,9 @@ public class WorkerTaskManager : MonoBehaviour
         TerrainData td = world.GetTerrainDataAt(workerTile);
         if (td.GetTerrainData().type == TerrainType.Forest)
         {
-            GameObject newPrefab = td.GetTerrainData().clearedForestPrefab;
-            GameObject newTile = Instantiate(newPrefab, workerTile, Quaternion.Euler(0, 0, 0));
-            td.DestroyTile(world);
-            newTile.GetComponent<TerrainData>().AddTerrainToWorld(world);
+            Destroy(td.prop.GetChild(0).gameObject);
+            td.terrainData = td.GetTerrainData().clearedForestData;
+            td.gameObject.tag = "Flatland";
         }
 
         if (!world.IsRoadOnTerrain(workerTile)) //build road where city is placed
@@ -251,21 +250,25 @@ public class WorkerTaskManager : MonoBehaviour
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
         GameObject newCity = Instantiate(improvementData.prefab, workerTile, Quaternion.identity); //creates building unit position.
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
+        City city = newCity.GetComponent<City>();
+        city.SetNewCityName();
 
-        ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
-        world.AddResourceProducer(workerTile, resourceProducer);
-        resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
+        //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
+        //world.AddResourceProducer(workerTile, resourceProducer);
+        //resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
         ResourceManager resourceManager = newCity.GetComponent<ResourceManager>();
-        resourceProducer.SetResourceManager(resourceManager);
+        //resourceProducer.SetResourceManager(resourceManager);
         //resourceProducer.BeginResourceGeneration(); //begin generating resources
-        resourceProducer.StartProducing();
+        //resourceProducer.StartProducing();
         if (world.TileHasBuildings(workerTile)) //if tile already has buildings, need to switch resourceManager for each resourceProducer 
         {
             foreach (string buildingName in world.GetBuildingListForCity(workerTile))
             {
                 if (world.CheckBuildingIsProducer(workerTile, buildingName))
                 {
-                    world.GetBuildingProducer(workerTile, buildingName).SetResourceManager(resourceManager);
+                    ResourceProducer resourceProducer = world.GetBuildingProducer(workerTile, buildingName);
+                    resourceProducer.SetResourceManager(resourceManager);
+                    resourceProducer.SetLocation(workerTile);
                 }
             }
         }
@@ -274,7 +277,6 @@ public class WorkerTaskManager : MonoBehaviour
             world.AddCityBuildingDict(workerTile);
         }
 
-        newCity.GetComponent<City>().SetNewCityName();
         //uiCityNamer.HandleCityName();
         //RunCityNamerUI();
 

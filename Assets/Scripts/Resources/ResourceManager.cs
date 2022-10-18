@@ -24,7 +24,7 @@ public class ResourceManager : MonoBehaviour
 
     //initial resources
     public List<ResourceValue> initialResources = new(); //resources you start a city with
-    private City city;
+    public City city;
 
     //for managing food consumption
     private bool growth;
@@ -96,7 +96,7 @@ public class ResourceManager : MonoBehaviour
 
         if (city.CheckIfWorldResource(resourceType))
         {
-            city.UpdateWorldResourceGeneration(resourceType, generationDiff);
+            city.UpdateWorldResourceGeneration(resourceType, generationDiff, add);
         }
     }
 
@@ -328,19 +328,6 @@ public class ResourceManager : MonoBehaviour
             //uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerMinuteDict[resourceType]);
         }
     }
-
-    //public void UpdateUIGeneration(ResourceType resourceType)
-    //{
-        //uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerMinuteDict[resourceType]);
-    //}
-
-    //public void UpdateUIGenerationAll()
-    //{
-    //    foreach (ResourceType resourceType in resourceDict.Keys)
-    //    {
-            //uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerMinuteDict[resourceType]);
-    //    }
-    //}
 
     public void IncreaseFoodConsumptionPerTurn(bool v) //only used when increasing pop when joining city, growth, or building city
     {

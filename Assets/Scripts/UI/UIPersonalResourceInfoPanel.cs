@@ -110,13 +110,13 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         }
     }
 
-    private void ResourceHolderCheck() //show resources if carrying something (not necessary apparently?)
-    {
-        if (unitStorageLevel > 0)
-            uiElementsParent.gameObject.SetActive(true);
-        else
-            uiElementsParent.gameObject.SetActive(false);
-    }
+    //private void ResourceHolderCheck() //show resources if carrying something
+    //{
+    //    if (unitStorageLevel > 0)
+    //        uiElementsParent.gameObject.SetActive(true);
+    //    else
+    //        uiElementsParent.gameObject.SetActive(false);
+    //}
 
     public void HandleButtonClick()
     {
