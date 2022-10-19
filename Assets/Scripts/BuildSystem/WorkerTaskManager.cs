@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class WorkerTaskManager : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     private ResourceIndividualHandler resourceIndividualHandler;
 
+
     private void Awake()
     {
         //audioSource = GetComponent<AudioSource>();
@@ -39,7 +41,19 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null)
         {
-            BuildRoad(world.GetClosestTerrainLoc(workerUnit.transform.position));
+            Vector3 pos = workerUnit.transform.position;
+            Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                BuildRoad(); 
+            }
+            else
+            {
+                MoveToCenterOfTile(workerTile);
+                workerUnit.FinishedMoving.AddListener(BuildRoad);
+            }
         }
     }
 
@@ -47,7 +61,19 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null)
         {
-            BuildCity(world.GetClosestTerrainLoc(world.GetClosestTerrainLoc(workerUnit.transform.position)), cityData);
+            Vector3 pos = workerUnit.transform.position;
+            Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                BuildCity();
+            }
+            else
+            {
+                MoveToCenterOfTile(workerTile);
+                workerUnit.FinishedMoving.AddListener(BuildCity);
+            }
         }
     }
 
@@ -55,7 +81,21 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null)
         {
-            GatherResource(workerUnit.transform.position, Vector3Int.FloorToInt(workerUnit.transform.position));
+            Vector3 pos = workerUnit.transform.position;
+            Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+            
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                GatherResource();
+            }
+            else
+            {
+                workerUnit.StopMovement();
+                workerUnit.isBusy = true;
+                unitMovement.HandleSelectedLocation(pos, workerTile);
+                workerUnit.FinishedMoving.AddListener(GatherResource);
+            }
         }
     }
 
@@ -63,8 +103,27 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null)
         {
-            RemoveRoad(world.GetClosestTerrainLoc(workerUnit.transform.position));
+            Vector3 pos = workerUnit.transform.position;
+            Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                RemoveRoad();
+            }
+            else
+            {
+                MoveToCenterOfTile(workerTile);
+                workerUnit.FinishedMoving.AddListener(RemoveRoad);
+            }
         }
+    }
+
+    private void MoveToCenterOfTile(Vector3Int workerTile)
+    {
+        workerUnit.StopMovement();
+        workerUnit.isBusy = true;
+        unitMovement.HandleSelectedLocation(workerTile, workerTile);
     }
 
     public void SetWorkerUnit(Worker workerUnit)
@@ -126,45 +185,77 @@ public class WorkerTaskManager : MonoBehaviour
     //    return workerUnit == unitReference;
     //}
 
-    public void PerformTask(ImprovementDataSO improvementData)
+    public void PerformTask(ImprovementDataSO improvementData) //don't actually use "improvementData".
     {
-        Vector3 workerPos = workerUnit.transform.position;
-        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
-        workerUnit.StopMovement();
-
-        Debug.Log("Performing task at " + workerTile);
+        Vector3 pos = workerUnit.transform.position;
+        Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
         if (improvementData == null) //removing the road
         {
-            unitMovement.HandleSelectedLocation(workerTile, workerTile);
-            RemoveRoad(workerTile);
-            return;
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                RemoveRoad();
+            }
+            else
+            {
+                MoveToCenterOfTile(workerTile);
+                workerUnit.FinishedMoving.AddListener(RemoveRoad);
+            }
         }
 
-        if (improvementData.prefab.name == "Resource") //if action is to gather resources
+        else if (improvementData.prefab.name == "Resource") //if action is to gather resources
         {
-            unitMovement.HandleSelectedLocation(workerPos, workerTile);
-            GatherResource(workerPos, workerTile);
-            return;
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                GatherResource();
+            }
+            else
+            {
+                workerUnit.StopMovement();
+                workerUnit.isBusy = true;
+                unitMovement.HandleSelectedLocation(pos, workerTile); //only one that doesn't need to centered on larger tile
+                workerUnit.FinishedMoving.AddListener(GatherResource);
+            }
         }
 
-        if (improvementData.prefab.name == "Road") //adding road
+        else if (improvementData.prefab.name == "Road") //adding road
         {
-            unitMovement.HandleSelectedLocation(workerTile, workerTile);
-            BuildRoad(workerTile);
-            return;
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                BuildRoad();
+            }
+            else
+            {
+                MoveToCenterOfTile(workerTile);
+                workerUnit.FinishedMoving.AddListener(BuildRoad);
+            }
         }
 
-        if (improvementData.prefab.name == "City") //creating city
+        else if (improvementData.prefab.name == "City") //creating city
         {
-            unitMovement.HandleSelectedLocation(workerTile, workerTile);
-            BuildCity(workerTile, improvementData);
-            return;
+            if (Vector3Int.RoundToInt(pos) == workerTile)
+            {
+                //add to finish animation listener
+                BuildCity();
+            }
+            else
+            {
+                MoveToCenterOfTile(workerTile);
+                workerUnit.FinishedMoving.AddListener(BuildCity);
+            }
         }
     }
 
-    private void RemoveRoad(Vector3Int workerTile)
+    private void RemoveRoad()
     {
+        Vector3 workerPos = workerUnit.transform.position;
+        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        workerUnit.FinishedMoving.RemoveListener(RemoveRoad);
+        workerUnit.isBusy = false;
+        
         if (!world.IsRoadOnTerrain(workerTile))
         {
             Debug.Log("No road on tile.");
@@ -182,8 +273,14 @@ public class WorkerTaskManager : MonoBehaviour
         Debug.Log("Removing road at " + workerTile);
     }
 
-    private void GatherResource(Vector3 workerPos, Vector3Int workerTile)
+    private void GatherResource()
     {
+        Vector3 workerPos = workerUnit.transform.position;
+        workerPos.y = 0;
+        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        workerUnit.FinishedMoving.RemoveListener(GatherResource);
+        workerUnit.isBusy = false;
+
         if (world.IsBuildLocationTaken(workerTile) || world.IsRoadOnTerrain(workerTile))
         {
             Debug.Log("Harvest on open tile");
@@ -204,11 +301,15 @@ public class WorkerTaskManager : MonoBehaviour
         resourceIndividualHandler.GenerateHarvestedResource(resourceIndividual, workerPos, workerUnit);
 
         //workerUnit.HidePath();
-        return;
     }
 
-    private void BuildRoad(Vector3Int workerTile)
+    private void BuildRoad()
     {
+        Vector3 workerPos = workerUnit.transform.position;
+        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        workerUnit.FinishedMoving.RemoveListener(BuildRoad);
+        workerUnit.isBusy = false;
+
         if (world.IsRoadOnTerrain(workerTile))
         {
             Debug.Log("Already road on tile");
@@ -224,8 +325,13 @@ public class WorkerTaskManager : MonoBehaviour
         //workerUnit.HidePath();
     }
 
-    private void BuildCity(Vector3Int workerTile, ImprovementDataSO improvementData)
+    private void BuildCity()
     {
+        Vector3 workerPos = workerUnit.transform.position;
+        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        workerUnit.FinishedMoving.RemoveListener(BuildCity);
+        workerUnit.isBusy = false;
+
         if (world.IsBuildLocationTaken(workerTile))
         {
             Debug.Log("Already occupied");
@@ -248,8 +354,9 @@ public class WorkerTaskManager : MonoBehaviour
             roadManager.BuildRoadAtPosition(workerTile);
 
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
-        GameObject newCity = Instantiate(improvementData.prefab, workerTile, Quaternion.identity); //creates building unit position.
+        GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); //creates building unit position.
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
+        world.AddCity(workerTile);
         City city = newCity.GetComponent<City>();
         city.SetNewCityName();
 

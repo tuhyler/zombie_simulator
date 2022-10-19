@@ -3,32 +3,7 @@ guid: 42a69264d4ed15240bcca0658da91cd6
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: FrameLightWood
-    second: {fileID: 2100000, guid: 01390651c06909f46bea4f951dd6d9c3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Ground
-    second: {fileID: 2100000, guid: 8f648195c7284f4449d5a477e2daad31, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Hole
-    second: {fileID: 2100000, guid: b2e706e76aeaff04b8756ba2155533b3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Rope
-    second: {fileID: 2100000, guid: 8b44312c73779fb4bb89a1ec06961907, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: WallStone
-    second: {fileID: 2100000, guid: 49621c2a9d5d764448b85070061ff528, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

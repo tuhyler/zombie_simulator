@@ -27272,6 +27272,12 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Flatland
       objectReference: {fileID: 0}
+    - target: {fileID: 2595137472308243765, guid: 7e8e7352197d4d14c9c0759a887c5083,
+        type: 3}
+      propertyPath: terrainData
+      value: 
+      objectReference: {fileID: 11400000, guid: cb2a8b692bb95d54ebd398c49ef45903,
+        type: 2}
     - target: {fileID: 7215669629571644995, guid: 7e8e7352197d4d14c9c0759a887c5083,
         type: 3}
       propertyPath: m_RootOrder

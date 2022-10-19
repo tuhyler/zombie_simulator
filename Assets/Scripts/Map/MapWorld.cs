@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MapWorld : MonoBehaviour
 {
@@ -532,10 +533,10 @@ public class MapWorld : MonoBehaviour
         return soloRoad;
     }
 
-    public TerrainData GetTerrainData(Vector3Int tileLoc)
-    {
-        return world[tileLoc];
-    }
+    //public TerrainData GetTerrainData(Vector3Int tileLoc)
+    //{
+    //    return world[tileLoc];
+    //}
 
     public Vector3Int GetClosestTerrainLoc(Vector3 worldPosition)
     {
@@ -558,10 +559,14 @@ public class MapWorld : MonoBehaviour
         }
 
         buildingPosDict[position] = structure;
+    }
 
+    public void AddCity(Vector3 buildPosition)
+    {
+        Vector3Int position = Vector3Int.FloorToInt(buildPosition);
         cityLocations.Add(position);
 
-        foreach (Vector3Int tile in neighborsEightDirections)
+        foreach (Vector3Int tile in neighborsFourDirections)
         {
             cityLocations.Add(tile + position);
         }

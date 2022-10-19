@@ -11,8 +11,6 @@ public class TerrainData : MonoBehaviour
 
     [SerializeField]
     public Transform prop;
-    //[HideInInspector]
-    //public GameObject propPrefab;
 
     private SelectionHighlight highlight;
 
@@ -31,8 +29,7 @@ public class TerrainData : MonoBehaviour
     {
         terrainData.MovementCostCheck();
         ResetMovementCost();
-        //turnNumberHolder.GetComponent<MeshRenderer>().enabled = false;
-        highlight = GetComponent<SelectionHighlight>(); //Instantiated here, rather than making an empty in Unity and dragging it over.
+        highlight = GetComponent<SelectionHighlight>(); 
     }
 
     public Vector3Int GetTileCoordinates()
@@ -64,11 +61,6 @@ public class TerrainData : MonoBehaviour
     public void AddTerrainToWorld(MapWorld world)
     {
         world.SetTerrainData(GetTileCoordinates(), this);
-    }
-
-    public void DestroyProp(GameObject go)
-    {
-        Destroy(go);
     }
 
     public void DestroyTile(MapWorld world)

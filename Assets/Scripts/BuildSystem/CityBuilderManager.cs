@@ -598,6 +598,11 @@ public class CityBuilderManager : MonoBehaviour
         resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
         resourceProducer.SetLocation(tempBuildLocation);
+
+        if (improvementData.replaceTerrain)
+        {
+            world.GetTerrainDataAt(tempBuildLocation).gameObject.SetActive(false);
+        }
         
         placesToWork++;
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
@@ -624,6 +629,7 @@ public class CityBuilderManager : MonoBehaviour
         GameObject improvement = world.GetStructure(improvementLoc);
         ResourceProducer resourceProducer = world.GetResourceProducer(improvementLoc);
         resourceProducer.UpdateCurrentLaborData(0);
+        resourceProducer.StopProducing();
 
         foreach (ResourceValue resourceValue in resourceProducer.GetImprovementData.improvementCost) //adding back 100% of cost (if there's room)
         {
@@ -631,6 +637,12 @@ public class CityBuilderManager : MonoBehaviour
         }
         resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
+
+        if (resourceProducer.GetImprovementData.replaceTerrain)
+        {
+            world.GetTerrainDataAt(improvementLoc).gameObject.SetActive(true);
+        }
+
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
 
         int currentLabor = world.GetCurrentLaborForTile(improvementLoc);
