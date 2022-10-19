@@ -25,3 +25,4 @@ MonoBehaviour:
   workEthicChange: 0
   maxLabor: 2
   laborCost: 0
+  replaceTerrain: 1

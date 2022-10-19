@@ -219,7 +219,7 @@ public class UIQueueManager : MonoBehaviour
 
         if (!(loc.x == 0 && loc.z == 0))
         {
-            buildName = (buildName + " (" + loc.x + "," + loc.z + ")");
+            buildName = (buildName + " (" + loc.x/3 + "," + loc.z/3 + ")");
         }
 
         return buildName;

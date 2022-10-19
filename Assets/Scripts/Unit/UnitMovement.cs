@@ -299,9 +299,11 @@ public class UnitMovement : MonoBehaviour
 
         selectedUnit.FinalDestinationLoc = location;
         //uiJoinCity.ToggleTweenVisibility(false);
+        if (selectedUnit.isBusy)
+            uiCancelMove.ToggleTweenVisibility(true);
+
         if (!queueMovementOrders)
         {
-            uiCancelMove.ToggleTweenVisibility(true);
             movementSystem.MoveUnit(selectedUnit);
         }
         //movementSystem.HidePath();

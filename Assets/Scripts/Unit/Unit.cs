@@ -282,7 +282,7 @@ public class Unit : MonoBehaviour
     {
         if (isTrader && followingRoute && TryGetComponent<TradeRouteManager>(out TradeRouteManager routeManager))
         {
-            Vector3Int endLoc = Vector3Int.FloorToInt(endPosition);
+            Vector3Int endLoc = Vector3Int.RoundToInt(endPosition);
             
             if (endLoc == routeManager.CurrentDestination)
             {
