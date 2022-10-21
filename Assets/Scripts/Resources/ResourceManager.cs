@@ -234,8 +234,10 @@ public class ResourceManager : MonoBehaviour
         return resourceAmount;
     }
 
+    //returns how much is actually moved
     private int AddResourceToStorage(ResourceType resourceType, int resourceAmount)
     {
+        //check to ensure you don't take out more resources than are available in dictionary
         if (resourceAmount < 0 && -resourceAmount > resourceDict[resourceType])
         {
             resourceAmount = -resourceDict[resourceType];
@@ -244,9 +246,9 @@ public class ResourceManager : MonoBehaviour
         if (resourceStorageMultiplierDict.ContainsKey(resourceType))
             resourceAmount = Mathf.CeilToInt(resourceAmount * resourceStorageMultiplierDict[resourceType]);
 
+        //adjusting resource amount to move based on how much space is available
         int newResourceAmount = resourceAmount;
         int newResourceBalance = (Mathf.CeilToInt(resourceStorageLevel) + newResourceAmount) - resourceStorageLimit;
-
         if (newResourceBalance >= 0 && resourceStorageLimit > 0) //limit of 0 or less means infinite storage
         {
             newResourceAmount -= newResourceBalance;
@@ -255,7 +257,6 @@ public class ResourceManager : MonoBehaviour
         int resourceAmountAdjusted = Mathf.RoundToInt(newResourceAmount / resourceStorageMultiplierDict[resourceType]);
 
         resourceDict[resourceType] += resourceAmountAdjusted; //updating the dictionary
-        VerifyResourceAmount(resourceType); //check to see if resource is less than 0 (just in case)
 
         resourceStorageLevel += newResourceAmount;
 

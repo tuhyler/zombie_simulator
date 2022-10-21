@@ -19,7 +19,7 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public MapWorld world;
     [HideInInspector]
-    public UnityEvent FinishedMoving; //listeners are in BuildingManager (1) and UnitMovement (2)(3 total)
+    public UnityEvent FinishedMoving; //listeners are...
 
     //movement details
     private Rigidbody unitRigidbody;
@@ -42,7 +42,7 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool isTrader, atStop, followingRoute, isWorker;
+    public bool isTrader, atStop, followingRoute, isWorker, isSelected;
 
     //animation
     private Animator unitAnimator;
@@ -95,6 +95,7 @@ public class Unit : MonoBehaviour
 
         //finalDestinationLoc = currentPath[currentPath.Count - 1].transform.position; //currentPath is list instead of queue for this line
         pathPositions = new Queue<Vector3Int>(currentPath);
+
         ShowPath(currentPath);
         Vector3 firstTarget = pathPositions.Dequeue();
 
@@ -112,7 +113,7 @@ public class Unit : MonoBehaviour
         //Debug.Log("next stop is " + endPosition);
 
         destinationLoc = endPosition;
-
+        
         //checks if tile can still be moved to before moving there
         if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !world.IsRoadOnTileLocation(Vector3Int.FloorToInt(endPosition))))
         {
@@ -269,34 +270,30 @@ public class Unit : MonoBehaviour
         unitRigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; 
         //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
 
-        TradeRouteCheck(endPosition);
         moreToMove = false;
         isMoving = false;
         HidePath();
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke();
+        TradeRouteCheck(endPosition);
     }
 
-    protected void TradeRouteCheck(Vector3 endPosition)
+    //sees if trader is at trade route stop and has finished trade orders
+    protected virtual void TradeRouteCheck(Vector3 endPosition)
     {
-        if (isTrader && followingRoute && TryGetComponent<TradeRouteManager>(out TradeRouteManager routeManager))
-        {
-            Vector3Int endLoc = Vector3Int.RoundToInt(endPosition);
-            
-            if (endLoc == routeManager.CurrentDestination)
-            {
-                routeManager.SetCity(world.GetCity(endLoc));
-                atStop = true;
-                //Deselect(); //lots of repetition here. 
-                //routeManager.CompleteTradeRouteOrders();
-            }
-        }
+        
+    }
+
+    //sends trader to next stop
+    public virtual void BeginNextStepInRoute()
+    {
+
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("colliding with " + collision.gameObject.tag);
+        //Debug.Log("colliding with " + collision.gameObject.tag);
         
         threshold = 0.001f;
         
@@ -332,6 +329,7 @@ public class Unit : MonoBehaviour
     {
         //selectionCircle.enabled = true;
         //highlight.ToggleGlow(true, Color.white);
+        isSelected = true;
         highlight.EnableHighlight(Color.white);
         //CenterCamera();
     }
@@ -340,6 +338,7 @@ public class Unit : MonoBehaviour
     {
         //selectionCircle.enabled = false;
         //highlight.ToggleGlow(false, Color.white);
+        isSelected = false;
         highlight.DisableHighlight();
     }
 
@@ -393,6 +392,8 @@ public class Unit : MonoBehaviour
     private void ShowPath(List<Vector3Int> currentPath, bool queued = false)
     {
         //List<Vector3Int> currentPath = new(pathPositions);
+        if (!isSelected)
+            return;
 
         for (int i = 0; i < currentPath.Count; i++)
         {

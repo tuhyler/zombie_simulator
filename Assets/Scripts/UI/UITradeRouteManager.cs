@@ -25,7 +25,8 @@ public class UITradeRouteManager : MonoBehaviour
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
     private Vector3 originalLoc;
 
 
@@ -134,26 +135,54 @@ public class UITradeRouteManager : MonoBehaviour
         List<string> destinations = new();
         List<List<ResourceValue>> resourceAssignments = new();
         List<int> waitTimes = new();
+        UITradeStopHandler[] stopInfoArray = transform.GetComponentsInChildren<UITradeStopHandler>();
 
-        foreach(UITradeStopHandler stopHandler in transform.GetComponentsInChildren<UITradeStopHandler>())
-        {
+        //checking for consecutive stops
+        int i = 0;
+        int childCount = stopInfoArray.Length;
+        bool consecFound = false;
+
+        foreach(UITradeStopHandler stopHandler in stopInfoArray)
+        {            
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
             if (destination == null)
             {
-                continue;
+                InfoPopUpHandler.Create(selectedTrader.transform.position, "Stop with no assigned city");
+                return;
             }
 
             destinations.Add(destination);
             resourceAssignments.Add(resourceAssignment);
             waitTimes.Add(waitTime);
+
+            if (i == childCount - 1)
+                consecFound = destinations[i] == destinations[0];
+            else if (i > 0)
+                consecFound = destinations[i] == destinations[i - 1];
+
+            i++;
+
+            if (consecFound)
+            {
+                InfoPopUpHandler.Create(selectedTrader.transform.position, "Same city for consecutive stops");
+                return;
+            }
         }
 
-        selectedTrader.SetTradeRoute(destinations, resourceAssignments, waitTimes);
+        selectedTrader.SetTradeRoute(destinations, resourceAssignments, waitTimes, unitMovement.GetUIPersonalResourceInfoPanel);
 
-        if (!selectedTrader.followingRoute && destinations.Count > 0)
+        if (selectedTrader.followingRoute)
         {
-            //unitMovement.uiBeginTradeRoute.ToggleTweenVisibility(true);
+            unitMovement.CancelTradeRoute();
+        }
+
+        if (destinations.Count > 0)
+        {
             unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
+        }
+        else
+        {
+            unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
         }
 
         CloseWindow();

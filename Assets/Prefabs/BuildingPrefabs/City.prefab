@@ -49,8 +49,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0.5, z: 0}
+  m_Size: {x: 1.5, y: 0, z: 1.5}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-11843151354040455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,7 +70,7 @@ MonoBehaviour:
   activeCity: 0
   cityPop: {fileID: 0}
   unitFoodConsumptionPerTurn: 1
-  secondsTillGrowthCheck: 60
+  secondsTillGrowthCheck: 600
   warehouseStorageLimit: 200
   savedQueueItems: []
 --- !u!114 &-548530054223577924
@@ -97,11 +97,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f06b93f5898e54691a69ddceb7609c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 4
-    resourceAmount: 50
+    resourceAmount: 5
   - resourceType: 5
     resourceAmount: 50
+  city: {fileID: 0}
 --- !u!114 &350781982696099274
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -8446,7 +8446,7 @@ PrefabInstance:
         type: 3}
       propertyPath: terrainData
       value: 
-      objectReference: {fileID: 11400000, guid: 0d19c76124f82c542980a2733a23fa44,
+      objectReference: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14,
         type: 2}
     - target: {fileID: 7215669629571644995, guid: 7e8e7352197d4d14c9c0759a887c5083,
         type: 3}
@@ -39053,7 +39053,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.5
+      value: 8.500059
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

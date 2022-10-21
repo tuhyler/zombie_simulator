@@ -16,6 +16,11 @@ public class Trader : Unit
     [HideInInspector]
     public bool hasRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
 
+    [SerializeField]
+    private int loadUnloadRate = 1;
+
+    private Coroutine LoadUnloadCo;
+
     //private UnitMovement unitMovement;
 
     private void Awake()
@@ -33,10 +38,11 @@ public class Trader : Unit
     }
 
     //passing details of the trade route
-    public void SetTradeRoute(List<string> cityNames, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
+    public void SetTradeRoute(List<string> cityNames, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes, UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
     {
         tradeRouteManager = GetComponent<TradeRouteManager>();
-        tradeRouteManager.SetPersonalResourceManager(personalResourceManager);
+        tradeRouteManager.SetTrader(this);
+        tradeRouteManager.SetPersonalResourceManager(personalResourceManager, uiPersonalResourceInfoPanel);
 
         List<Vector3Int> cityStops = new();
 
@@ -64,12 +70,39 @@ public class Trader : Unit
         return tradeRouteManager.CityStops;
     }
 
-    public void BeginNextStepInRoute() //this does not have the finish movement listeners
+    protected override void TradeRouteCheck(Vector3 endPosition)
     {
+        if (followingRoute)
+        {
+            Vector3Int endLoc = Vector3Int.RoundToInt(endPosition);
+
+            if (endLoc == tradeRouteManager.CurrentDestination)
+            {
+                tradeRouteManager.SetCity(world.GetCity(endLoc));
+                atStop = true;
+                tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
+                LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
+
+                //if (tradeRouteManager.GoToNextStopCheck(loadUnloadRate))
+                //{
+                //    BeginNextStepInRoute();
+                //}
+                //Deselect(); //lots of repetition here. 
+                //routeManager.CompleteTradeRouteOrders();
+            }
+        }
+    }
+
+    public override void BeginNextStepInRoute() //this does not have the finish movement listeners
+    {
+        tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
+        LoadUnloadCo = null;
         followingRoute = true;
         atStop = false;
-        
-        List<Vector3Int> currentPath = GridSearch.AStarSearch(world, transform.position, tradeRouteManager.GoToNext(), isTrader);
+        Vector3Int nextStop = tradeRouteManager.GoToNext();
+
+
+        List<Vector3Int> currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader);
 
         //List<TerrainData> paths = new();
 
@@ -85,12 +118,20 @@ public class Trader : Unit
         //}
 
         if (currentPath.Count > 0)
+        {
+            FinalDestinationLoc = nextStop;
             MoveThroughPath(currentPath);
+        }
     }
 
     public void CancelRoute()
     {
         followingRoute = false;
+        if (LoadUnloadCo != null)
+        {
+            tradeRouteManager.StopHoldingPatternCoroutine();
+            StopCoroutine(LoadUnloadCo);
+        }
     }
 
     //protected override void WaitTurnMethods()
