@@ -150,7 +150,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3502493241704426579}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-2487404850287484824
+--- !u!114 &8428303923059082267
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,6 +162,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1494dc149f65d8469be6dd2791edb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
+  terrainData: {fileID: 0}
   prop: {fileID: 0}
   hasRoad: 0

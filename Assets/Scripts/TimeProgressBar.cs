@@ -14,7 +14,9 @@ public class TimeProgressBar : MonoBehaviour
     public float fullProgressBarAmount = 0.77f;
     private int totalTime;
     private float increment;
+    private float positionIncrement;
     private Vector3 newScale;
+    private Vector3 newPosition;
 
     private void Awake()
     {
@@ -23,7 +25,9 @@ public class TimeProgressBar : MonoBehaviour
         timeText.outlineColor = new Color(0, 0, 0, 255);
 
         newScale = timeProgressBarMask.localScale; //change progress bar through scale
+        newPosition = timeProgressBarMask.localPosition;
         newScale.x = 0;
+        newPosition.x = -.68f;
         timeProgressBarMask.localScale = newScale;
         SetActive(false);
     }
@@ -32,12 +36,16 @@ public class TimeProgressBar : MonoBehaviour
     {
         timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
         newScale.x = (totalTime - time) * increment + increment;
+        newPosition.x = -0.68f + ((totalTime - time) * positionIncrement + positionIncrement);
 
         if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
         {
             Vector3 tempScale = timeProgressBarMask.localScale;
+            Vector3 tempPosition = timeProgressBarMask.localPosition;
             tempScale.x = 0;
             timeProgressBarMask.localScale = tempScale;
+            tempPosition.x = -.68f;
+            timeProgressBarMask.localPosition = tempPosition;
             //timeProgressBarMask.localScale = newScale;
         }
 
@@ -48,6 +56,15 @@ public class TimeProgressBar : MonoBehaviour
             newScale.x = value;
             timeProgressBarMask.localScale = newScale;
         });
+
+        LeanTween.value(timeProgressBarMask.gameObject, timeProgressBarMask.localPosition.x, newPosition.x, 1.09f)
+        .setEase(LeanTweenType.linear)
+        .setOnUpdate((value) =>
+        {
+            newPosition.x = value;
+            timeProgressBarMask.localPosition = newPosition;
+        });
+
     }
 
     public void SetTimeProgressBarValue(int fillAmount)
@@ -58,6 +75,7 @@ public class TimeProgressBar : MonoBehaviour
             fillAmount = 1;
 
         increment = fullProgressBarAmount / fillAmount;
+        positionIncrement = (-0.745f - -0.68f) / fillAmount;
     }
 
     public void SetActive(bool v)

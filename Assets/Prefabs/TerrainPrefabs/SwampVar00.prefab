@@ -84,7 +84,7 @@ PrefabInstance:
     - target: {fileID: 4461690370859731775, guid: 67e93b34d67acfb4d82f345e22c815e2,
         type: 3}
       propertyPath: m_Name
-      value: SwampTileFadeVar00
+      value: SwampVar00
       objectReference: {fileID: 0}
     - target: {fileID: 6236641862112944610, guid: 67e93b34d67acfb4d82f345e22c815e2,
         type: 3}
