@@ -17,9 +17,10 @@ public class Trader : Unit
     public bool hasRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
 
     [SerializeField]
-    private int loadUnloadRate = 1;
+    public int loadUnloadRate = 1;
 
     private Coroutine LoadUnloadCo;
+    private Coroutine WaitTimeCo;
 
     //private UnitMovement unitMovement;
 
@@ -82,6 +83,7 @@ public class Trader : Unit
                 atStop = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
                 LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
+                WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
 
                 //if (tradeRouteManager.GoToNextStopCheck(loadUnloadRate))
                 //{
@@ -96,7 +98,12 @@ public class Trader : Unit
     public override void BeginNextStepInRoute() //this does not have the finish movement listeners
     {
         tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
+        if (LoadUnloadCo != null)
+            StopCoroutine(LoadUnloadCo);
         LoadUnloadCo = null;
+        if (WaitTimeCo != null)
+            StopCoroutine(WaitTimeCo);
+        WaitTimeCo = null;
         followingRoute = true;
         atStop = false;
         Vector3Int nextStop = tradeRouteManager.GoToNext();
@@ -129,8 +136,13 @@ public class Trader : Unit
         followingRoute = false;
         if (LoadUnloadCo != null)
         {
-            tradeRouteManager.StopHoldingPatternCoroutine();
+            //tradeRouteManager.StopHoldingPatternCoroutine();
             StopCoroutine(LoadUnloadCo);
+            tradeRouteManager.StopHoldingPatternCoroutine();
+        }
+        if (WaitTimeCo != null)
+        {
+            StopCoroutine(WaitTimeCo);
         }
     }
 

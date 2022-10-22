@@ -53,7 +53,10 @@ public class City : MonoBehaviour
     private float workEthic = 1.0f;
     public float GetSetWorkEthic { get { return workEthic; } set { workEthic = value; } }
     public int warehouseStorageLimit = 200;
-
+    private Dictionary<ResourceType, List<TradeRouteManager>> resourceWaitList = new();
+    private TradeRouteManager tradeRouteWaiter;
+    private ResourceType resourceWaiter = ResourceType.None;
+    
     //world resource info
     //private int goldPerMinute;
     //public int GetGoldPerMinute { get { return goldPerMinute; } }
@@ -331,6 +334,32 @@ public class City : MonoBehaviour
             world.AddToCurrentBuildingLabor(cityLoc, chosenBuildingName, labor);
         }
     }
+
+    public void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
+    {
+        tradeRouteWaiter = tradeRouteManager;
+        resourceWaiter = resourceType;
+    }
+
+    public void CheckResourceWaiter(ResourceType resourceType)
+    {
+        if (tradeRouteWaiter != null && resourceWaiter == resourceType)
+        {
+            tradeRouteWaiter.resourceCheck = false;
+            tradeRouteWaiter = null;
+            resourceWaiter = ResourceType.None;
+        }
+    }
+
+    public void CheckLimitWaiter()
+    {
+        if (tradeRouteWaiter != null && resourceWaiter == ResourceType.None)
+        {
+            tradeRouteWaiter.resourceCheck = false;
+            tradeRouteWaiter = null;
+        }
+    }
+
 
     public void ChangeWorkEthic(float change)
     {

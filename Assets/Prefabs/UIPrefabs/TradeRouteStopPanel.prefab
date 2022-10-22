@@ -1086,7 +1086,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 170, y: 40}
+  m_SizeDelta: {x: 170, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6219202347778173966
 CanvasRenderer:
@@ -1116,8 +1116,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7b662902c50a27c48b59e63b10c5b5c2, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: f611fc459debb5345bc8233d67b8b261, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2278,7 +2278,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 3728922233604159645}
   m_TextViewport: {fileID: 8501954622058301690}
   m_TextComponent: {fileID: 8853258732694006938}
@@ -3731,6 +3731,7 @@ MonoBehaviour:
   tradeResourceTaskTemplate: {fileID: 7389737143294441261, guid: b5775ac59f0a9d0498088a53b4a1414a,
     type: 3}
   inputWaitTime: {fileID: 1423600392463481433}
+  waitForeverToggle: {fileID: 833721808914393911}
   defaultFirstChoice:
     m_Text: Select...
     m_Image: {fileID: 0}
@@ -3847,7 +3848,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 1}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8003283634071034970

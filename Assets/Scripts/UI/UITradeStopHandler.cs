@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class UITradeStopHandler : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class UITradeStopHandler : MonoBehaviour
 
     [SerializeField]
     private TMP_InputField inputWaitTime;
+
+    [SerializeField]
+    private Toggle waitForeverToggle;
 
     //[SerializeField]
     //private Transform resourceDetailHolder;
@@ -41,7 +45,7 @@ public class UITradeStopHandler : MonoBehaviour
     {
         //for checking if number is positive and integer
         inputWaitTime.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
-        inputWaitTime.interactable = false;
+        //inputWaitTime.interactable = false;
     }
 
     public void MoveStopUp()
@@ -146,6 +150,15 @@ public class UITradeStopHandler : MonoBehaviour
     public void SetWaitTimes(int waitTime)
     {
         this.waitTime = waitTime;
+
+        if (waitTime < 0)
+            waitForeverToggle.isOn = true;
+        else
+        {
+            inputWaitTime.interactable = true;
+            waitForeverToggle.isOn = false;
+            inputWaitTime.text = waitTime.ToString();
+        }
     }
 
     private void PrepareNameList()
