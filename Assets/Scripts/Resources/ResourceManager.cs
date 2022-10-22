@@ -36,6 +36,7 @@ public class ResourceManager : MonoBehaviour
 
     //for queued build orders
     private List<ResourceValue> queuedResourcesToCheck = new();
+    private List<ResourceType> queuedResourceTypesToCheck = new();
     private CityBuilderManager cityBuilderManager; //only instantiated through queue build
 
     private void Awake()
@@ -141,11 +142,16 @@ public class ResourceManager : MonoBehaviour
 
     public bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAdded)
     {
-        if (resourceAdded > 0 && resourceStorageLimit <= 0)
+        if (resourceAdded < 0 && resourceDict[resourceType] > 0)
             return true;
-        if (resourceAdded < 0 && resourceDict[resourceType] == 0)
+        else if (resourceAdded < 0 && resourceDict[resourceType] == 0)
             return false;
-        return Mathf.CeilToInt(resourceStorageLevel + resourceStorageMultiplierDict[resourceType]) <= resourceStorageLimit;
+        else if (resourceStorageMultiplierDict[resourceType] < 1)
+            return Mathf.CeilToInt(resourceStorageLevel + resourceStorageMultiplierDict[resourceType]) <= resourceStorageLimit;
+        else if (resourceAdded > 0 && resourceStorageLimit <= 0) //for infinite storage
+            return true;
+
+        return resourceStorageLevel < resourceStorageLimit;
     }
 
     private void VerifyResourceAmount(ResourceType resourceType)
@@ -171,6 +177,7 @@ public class ResourceManager : MonoBehaviour
 
             resourceDict[resourceType] -= consumedAmount;
             resourceStorageLevel -= consumedAmount;
+            city.CheckLimitWaiter();
 
             UpdateUI(resourceType);
         }
@@ -267,8 +274,14 @@ public class ResourceManager : MonoBehaviour
         if (wasteCheck > 0)
             Debug.Log($"Wasted {wasteCheck} of {resourceType}");
 
-        CheckResourcesForQueue();
+        if (queuedResourceTypesToCheck.Contains(resourceType))
+            CheckResourcesForQueue();
         UpdateUI(resourceType);
+        if (newResourceAmount > 0)
+            city.CheckResourceWaiter(resourceType);
+        else if (newResourceAmount < 0)
+            city.CheckLimitWaiter();
+        
         return resourceAmountAdjusted;
     }
 
@@ -303,6 +316,7 @@ public class ResourceManager : MonoBehaviour
         {
             resourceStorageLevel -= resourceAmount * resourceStorageMultiplierDict[resourceType];
         }
+        city.CheckLimitWaiter();
         VerifyResourceAmount(resourceType);
         //UpdateUI(resourceValue);
     }
@@ -373,6 +387,8 @@ public class ResourceManager : MonoBehaviour
                     resourceDict[ResourceType.Food] -= excessFood;
                     resourceStorageLevel -= excessFood;
                 }
+
+                city.CheckLimitWaiter();
             }
 
             foodGrowthLevel = excessFood;
@@ -387,6 +403,7 @@ public class ResourceManager : MonoBehaviour
                 foodGrowthLevel += diff;
                 resourceDict[ResourceType.Food] -= diff;
                 resourceStorageLevel -= diff;
+                city.CheckLimitWaiter();
             }
         }
 
@@ -415,6 +432,11 @@ public class ResourceManager : MonoBehaviour
     {
         queuedResourcesToCheck = resourceList;
         this.cityBuilderManager = cityBuilderManager;
+
+        foreach (ResourceValue resource in resourceList)
+        {
+            queuedResourceTypesToCheck.Add(resource.resourceType);
+        }
     }
 
     private void CheckResourcesForQueue()
@@ -430,6 +452,8 @@ public class ResourceManager : MonoBehaviour
             }
 
             cityBuilderManager.BuildQueuedBuilding(city, this);
+            queuedResourcesToCheck.Clear();
+            queuedResourceTypesToCheck.Clear();
         }
     }
 

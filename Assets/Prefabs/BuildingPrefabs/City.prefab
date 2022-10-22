@@ -71,7 +71,7 @@ MonoBehaviour:
   cityPop: {fileID: 0}
   unitFoodConsumptionPerTurn: 1
   secondsTillGrowthCheck: 600
-  warehouseStorageLimit: 200
+  warehouseStorageLimit: 100
   savedQueueItems: []
 --- !u!114 &-548530054223577924
 MonoBehaviour:
@@ -100,9 +100,9 @@ MonoBehaviour:
   uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 4
-    resourceAmount: 5
+    resourceAmount: 45
   - resourceType: 5
-    resourceAmount: 50
+    resourceAmount: 55
   city: {fileID: 0}
 --- !u!114 &350781982696099274
 MonoBehaviour:
