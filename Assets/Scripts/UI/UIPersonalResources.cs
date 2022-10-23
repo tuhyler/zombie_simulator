@@ -13,6 +13,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
     [SerializeField] //for tweening
     private RectTransform allContents;
     private bool activeStatus;
+    private Vector3 scale; 
 
     [SerializeField]
     private ResourceType resourceType;
@@ -27,6 +28,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
     {
         SetButtonInteractable(false);
         buttonHandler = GetComponentInParent<UIPersonalResourceInfoPanel>();
+        scale = allContents.localScale;
     }
 
     public void CheckVisibility()
@@ -36,6 +38,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
         if (resourceAmount > 0) //convert string to integer
         {
             activeStatus = true;
+            allContents.localScale = scale; //if selecting trader while it's loading
             gameObject.SetActive(true);
         }
         else
@@ -50,8 +53,24 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
         canvasGroup.interactable = v;
     }
 
-    public void SetValue(int val)
+    public void SetValue(int val, bool active = false)
     {
+        if (active)
+        {
+            if (val <= 0)
+            {
+                activeStatus = false;
+                LeanTween.scale(gameObject, Vector3.zero, 0.2f).setEase(LeanTweenType.easeOutSine).setOnComplete(SetActiveStatusFalse);
+            }
+            else if (!activeStatus && val > 0)
+            {
+                activeStatus = true;
+                gameObject.SetActive(true);
+                allContents.localScale = Vector3.zero;
+                LeanTween.scale(allContents, Vector3.one, 0.2f).setEase(LeanTweenType.easeOutBack);
+            }
+        }
+       
         resourceAmountText.text = val.ToString();
         resourceAmount = val;
     }

@@ -19,7 +19,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingDict = new(); //all the buildings and info within a city 
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
-    private Dictionary<Vector3Int, GameObject> unitPosDict = new(); //to track unitGO locations
+    private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
     //private Dictionary<Vector3Int, GameObject> traderPosDict = new(); //to track trader locations 
     //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
@@ -76,8 +76,8 @@ public class MapWorld : MonoBehaviour
         foreach (Unit unit in FindObjectsOfType<Unit>()) //adds all units and their locations to start game.
         {
             Vector3 unitPos = unit.transform.position;
-            if (!unitPosDict.ContainsKey(Vector3Int.FloorToInt(unitPos))) //just in case dictionary was missing any
-                AddUnitPosition(unitPos, unit.gameObject);
+            if (!unitPosDict.ContainsKey(Vector3Int.RoundToInt(unitPos))) //just in case dictionary was missing any
+                AddUnitPosition(unitPos, unit);
         }
     }
 
@@ -106,6 +106,19 @@ public class MapWorld : MonoBehaviour
     public Unit GetUnit(Vector3Int tile)
     {
         return unitPosDict[tile].GetComponent<Unit>();
+    }
+
+    public bool IsUnitWaitingForSameCity(Vector3Int tile, Vector3 finalDestination)
+    {
+        if (!unitPosDict.ContainsKey(tile))
+            return false;
+
+        Unit tempUnit = unitPosDict[tile];
+
+        if (tempUnit.isWaiting && tempUnit.FinalDestinationLoc == finalDestination)
+            return true;
+        else
+            return false;
     }
 
     public City GetCity(Vector3Int tile)
@@ -551,7 +564,7 @@ public class MapWorld : MonoBehaviour
 
     public void AddStructure(Vector3 buildPosition, GameObject structure) //method to add building to dict
     {
-        Vector3Int position = Vector3Int.FloorToInt(buildPosition);
+        Vector3Int position = Vector3Int.RoundToInt(buildPosition);
         if (buildingPosDict.ContainsKey(position))
         {
             Debug.LogError($"There is a structure already at this position {buildPosition}");
@@ -563,7 +576,7 @@ public class MapWorld : MonoBehaviour
 
     public void AddCity(Vector3 buildPosition)
     {
-        Vector3Int position = Vector3Int.FloorToInt(buildPosition);
+        Vector3Int position = Vector3Int.RoundToInt(buildPosition);
         cityLocations.Add(position);
 
         foreach (Vector3Int tile in neighborsFourDirections)
@@ -574,13 +587,13 @@ public class MapWorld : MonoBehaviour
 
     public void AddResourceProducer(Vector3 buildPosition, ResourceProducer resourceProducer)
     {
-        Vector3Int position = Vector3Int.FloorToInt(buildPosition);
+        Vector3Int position = Vector3Int.RoundToInt(buildPosition);
         cityImprovementProducerDict[position] = resourceProducer;
     }
 
     public void AddCityBuildingDict(Vector3 cityPos)
     {
-        Vector3Int cityTile = Vector3Int.FloorToInt(cityPos);
+        Vector3Int cityTile = Vector3Int.RoundToInt(cityPos);
         cityBuildingDict[cityTile] = new Dictionary<string, GameObject>();
         cityBuildingCurrentWorkedDict[cityTile] = new Dictionary<string, int>();
         cityBuildingMaxWorkedDict[cityTile] = new Dictionary<string, int>();
@@ -637,16 +650,16 @@ public class MapWorld : MonoBehaviour
         roadTileDict.Remove(buildPosition);
     }
 
-    public void AddUnitPosition(Vector3 unitPosition, GameObject unitGO)
+    public void AddUnitPosition(Vector3 unitPosition, Unit unit)
     {
-        Vector3Int position = Vector3Int.FloorToInt(unitPosition);
+        Vector3Int position = Vector3Int.RoundToInt(unitPosition);
 
-        unitPosDict[position] = unitGO;
+        unitPosDict[position] = unit;
     }
 
     public void RemoveUnitPosition(Vector3 unitPosition/*, GameObject unitGO*/)
     {
-        Vector3Int position = Vector3Int.FloorToInt(unitPosition);
+        Vector3Int position = Vector3Int.RoundToInt(unitPosition);
 
         unitPosDict.Remove(position);
     }
@@ -667,7 +680,7 @@ public class MapWorld : MonoBehaviour
 
     public void AddToMaxLaborDict(Vector3 pos, int max) //only adding to max labor when improvements are built, hence Vector3
     {
-        Vector3Int posInt = Vector3Int.FloorToInt(pos);
+        Vector3Int posInt = Vector3Int.RoundToInt(pos);
         maxWorkedTileDict[posInt] = max;
     }
 

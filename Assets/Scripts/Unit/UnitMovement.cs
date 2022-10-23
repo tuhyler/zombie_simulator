@@ -201,11 +201,11 @@ public class UnitMovement : MonoBehaviour
         {
             selectedTrader = selectedUnit.GetComponent<Trader>();
             uiPersonalResourceInfoPanel.PrepareResourceUI(selectedTrader.PersonalResourceManager.ResourceDict);
-            uiPersonalResourceInfoPanel.ToggleVisibility(true);
-            uiTraderPanel.ToggleVisibility(true);
             uiPersonalResourceInfoPanel.SetTitleInfo(selectedTrader.name,
                 selectedTrader.PersonalResourceManager.GetResourceStorageLevel, selectedTrader.CargoStorageLimit);
-            if (world.IsCityOnTile(Vector3Int.RoundToInt(selectedTrader.transform.position)))
+            uiPersonalResourceInfoPanel.ToggleVisibility(true);
+            uiTraderPanel.ToggleVisibility(true);
+            if (world.IsCityOnTile(Vector3Int.RoundToInt(selectedTrader.transform.position)) && !selectedTrader.followingRoute)
             {
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(true);
             }
@@ -243,6 +243,7 @@ public class UnitMovement : MonoBehaviour
     private void PrepareMovement()
     {
         Debug.Log("Sel. unit is " + selectedUnit.name);
+        selectedUnit.Select();
         turnHandler.SetIndex(selectedUnit);
         selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
         infoManager.ShowInfoPanel(selectedUnitInfoProvider);
@@ -252,9 +253,7 @@ public class UnitMovement : MonoBehaviour
             //movementSystem.ShowPathToMove(selectedUnit);
             selectedUnit.ShowContinuedPath();
         }
-
         ShowIndividualCityButtonsUI();
-        selectedUnit.Select();
     }
 
     public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos)
@@ -333,7 +332,6 @@ public class UnitMovement : MonoBehaviour
 
     public void JoinCity() //for Join City button
     {
-        //Vector3Int unitLoc = Vector3Int.FloorToInt(selectedUnit.transform.position);
         City joinedCity = world.GetCity(world.GetClosestTerrainLoc(selectedUnit.transform.position));
         joinedCity.PopulationGrowthCheck();
 
@@ -354,7 +352,7 @@ public class UnitMovement : MonoBehaviour
             movementSystem.ClearPaths();
             //selectedTile = null;
 
-            Vector3Int unitLoc = Vector3Int.FloorToInt(selectedUnit.transform.position);
+            Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
             City selectedCity = world.GetCity(unitLoc);
             cityResourceManager = selectedCity.ResourceManager;
 
@@ -416,9 +414,9 @@ public class UnitMovement : MonoBehaviour
             selectedTrader.PersonalResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
         }
 
-        uiCityResourceInfoPanel.UpdateResource(resourceType, cityResourceManager.GetResourceDictValue(resourceType));
+        uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, cityResourceManager.GetResourceDictValue(resourceType));
         uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.GetResourceStorageLevel);
-        uiPersonalResourceInfoPanel.UpdateResource(resourceType, selectedTrader.PersonalResourceManager.GetResourceDictValue(resourceType));
+        uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.PersonalResourceManager.GetResourceDictValue(resourceType));
         uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.PersonalResourceManager.GetResourceStorageLevel);
     }
 

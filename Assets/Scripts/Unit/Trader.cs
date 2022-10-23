@@ -28,7 +28,6 @@ public class Trader : Unit
     {
         AwakeMethods();
         isTrader = true;
-        //unitMovement = FindObjectOfType<UnitMovement>();
     }
 
     protected override void AwakeMethods()
@@ -81,6 +80,7 @@ public class Trader : Unit
             {
                 tradeRouteManager.SetCity(world.GetCity(endLoc));
                 atStop = true;
+                isWaiting = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
                 LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
                 WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
