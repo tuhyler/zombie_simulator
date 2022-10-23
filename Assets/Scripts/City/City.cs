@@ -53,9 +53,9 @@ public class City : MonoBehaviour
     private float workEthic = 1.0f;
     public float GetSetWorkEthic { get { return workEthic; } set { workEthic = value; } }
     public int warehouseStorageLimit = 200;
-    private Dictionary<ResourceType, List<TradeRouteManager>> resourceWaitList = new();
     private TradeRouteManager tradeRouteWaiter;
     private ResourceType resourceWaiter = ResourceType.None;
+    private Queue<Unit> waitList = new();
     
     //world resource info
     //private int goldPerMinute;
@@ -216,7 +216,7 @@ public class City : MonoBehaviour
                 }
             }
 
-            if (buildPosition == Vector3Int.FloorToInt(transform.position))
+            if (buildPosition == Vector3Int.RoundToInt(transform.position))
             {
                 Debug.Log("No suitable locations to build unit");
                 return;
@@ -227,8 +227,9 @@ public class City : MonoBehaviour
         buildPositionFinal.y += .5f;
         GameObject unitGO = Instantiate(unitToProduce, buildPositionFinal, Quaternion.identity); //produce unit at specified position
         unitGO.name = unitGO.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
+        Unit unit = unitGO.GetComponent<Unit>();
 
-        world.AddUnitPosition(buildPosition, unitToProduce);
+        world.AddUnitPosition(buildPosition, unit);
     }
 
     public void PopulationGrowthCheck()
@@ -360,6 +361,27 @@ public class City : MonoBehaviour
         }
     }
 
+    public void AddToWaitList(Unit unit)
+    {
+        if (!waitList.Contains(unit))
+            waitList.Enqueue(unit);
+    }
+
+    public void CheckQueue()
+    {
+        if (waitList.Count > 0)
+        {
+            waitList.Dequeue().MoveUpInLine();
+        }
+
+        if (waitList.Count > 0)
+        {
+            foreach(Unit unit in waitList)
+            {
+                unit.MoveUpInLine();
+            }
+        }
+    }
 
     public void ChangeWorkEthic(float change)
     {

@@ -24,7 +24,7 @@ public class UITradeStopHandler : MonoBehaviour
 
     private List<string> cityNames;
 
-    private int traderCargoStorageLimit;
+    //private int traderCargoStorageLimit;
 
     private string chosenCity;
     //private string chosenWaitTime;
@@ -116,10 +116,10 @@ public class UITradeStopHandler : MonoBehaviour
     //    chosenWaitTime = value.Trim();
     //}
 
-    public void SetCargoStorageLimit(int cargoLimit)
-    {
-        traderCargoStorageLimit = cargoLimit;
-    }
+    //public void SetCargoStorageLimit(int cargoLimit)
+    //{
+    //    traderCargoStorageLimit = cargoLimit;
+    //}
 
     public void WaitForever(bool v)
     {
@@ -188,7 +188,8 @@ public class UITradeStopHandler : MonoBehaviour
 
         UITradeResourceTask newResourceTask = newTask.GetComponent<UITradeResourceTask>();
         newResourceTask.AddResources(resources);
-        newResourceTask.SetCargoStorageLimit(traderCargoStorageLimit);
+        newResourceTask.SetStop(this);
+        //newResourceTask.SetCargoStorageLimit(traderCargoStorageLimit);
         uiResourceTasks.Add(newResourceTask);
 
         return newResourceTask;
@@ -240,6 +241,11 @@ public class UITradeStopHandler : MonoBehaviour
         }
 
         return (chosenCity, chosenResourceValues, waitTime);
+    }
+
+    public void RemoveResource(UITradeResourceTask uiTradeResourceTask)
+    {
+        uiResourceTasks.Remove(uiTradeResourceTask);
     }
 
     public void CloseWindow()

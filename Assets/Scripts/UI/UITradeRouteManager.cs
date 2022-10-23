@@ -125,7 +125,7 @@ public class UITradeRouteManager : MonoBehaviour
         UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
         newStopHandler.AddCityNames(cityNames);
         newStopHandler.AddResources(resources);
-        newStopHandler.SetCargoStorageLimit(selectedTrader.CargoStorageLimit);
+        //newStopHandler.SetCargoStorageLimit(selectedTrader.CargoStorageLimit);
 
         return newStopHandler;
     }

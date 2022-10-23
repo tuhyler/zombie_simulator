@@ -42,7 +42,7 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool isTrader, atStop, followingRoute, isWorker, isSelected;
+    public bool isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting;
 
     //animation
     private Animator unitAnimator;
@@ -101,7 +101,7 @@ public class Unit : MonoBehaviour
 
         moreToMove = true;
         isMoving = true;
-        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation /*| RigidbodyConstraints.FreezePosition*/;
+        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         unitAnimator.SetBool(isMovingHash, true);
         movingCo = StartCoroutine(MovementCoroutine(firstTarget));
     }
@@ -115,7 +115,7 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !world.IsRoadOnTileLocation(Vector3Int.FloorToInt(endPosition))))
+        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(endPosition))))
         {
             FinishMoving(endPosition);
             yield break;
@@ -158,9 +158,16 @@ public class Unit : MonoBehaviour
 
         if (pathPositions.Count > 0)
         {
-            movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-            if (shoePrintQueue.Count > 0)
-                movementSystem.AddToShoePrintPool(shoePrintQueue.Dequeue());
+            if (world.IsUnitWaitingForSameCity(pathPositions.Peek(), finalDestinationLoc))
+            {
+                GetInLine(endPosition);
+            }
+            else
+            {
+                movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+                if (shoePrintQueue.Count > 0)
+                    movementSystem.AddToShoePrintPool(shoePrintQueue.Dequeue());
+            }
         }
         else
         {
@@ -264,14 +271,30 @@ public class Unit : MonoBehaviour
         ShowPath(queuedOrders, true);
     }
 
+    private void GetInLine(Vector3 endPosition)
+    {
+        movingCo = null;
+        world.GetCity(Vector3Int.RoundToInt(finalDestinationLoc)).AddToWaitList(this);
+        world.AddUnitPosition(endPosition, this);
+        isWaiting = true;
+        unitAnimator.SetBool(isMovingHash, false);
+    }
+
+    public void MoveUpInLine()
+    {
+        world.RemoveUnitPosition(transform.position/*, gameObject*/);//removing previous location
+        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+        unitAnimator.SetBool(isMovingHash, true);
+        movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+    }
+
     private void FinishMoving(Vector3 endPosition)
     {
-        //unitRigidbody.constraints = RigidbodyConstraints.FreezePositionX;
-        unitRigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; 
-        //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        //unitRigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; 
 
         moreToMove = false;
         isMoving = false;
+        world.AddUnitPosition(finalDestinationLoc, this);
         HidePath();
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);

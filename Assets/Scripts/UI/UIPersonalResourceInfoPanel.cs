@@ -127,7 +127,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     {
         unitStorageLevel = level;
         unitStorageLimit = limit;
-        
+        progressBarMask.fillAmount = unitStorageLevel / unitStorageLimit;
+
         unitNameTitle.text = $"{name} Storage";
         if (limit == 0)
         {
@@ -188,9 +189,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     public void PrepareResourceUI(Dictionary<ResourceType, int> resourceDict)
     {
         foreach (UIPersonalResources selection in personalResources)
-        { 
-            SetResource(selection.ResourceType, resourceDict[selection.ResourceType]);
-            if (resourceDict[selection.ResourceType] > 0)
+        {
+            int amount = resourceDict[selection.ResourceType];
+            SetResource(selection.ResourceType, amount);
+            if (amount > 0)
                 inUse = true;
         }
     }
@@ -214,7 +216,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         inUse = false;
     }
 
-    public void SetResource(ResourceType resourceType, int val) //Set the resources to a value
+    private void SetResource(ResourceType resourceType, int val) //Set the resources to a value
     {
         if (personalResourceUIDictionary.ContainsKey(resourceType))//checking if resource is in dictionary
         {
@@ -273,7 +275,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         ToggleVisibility(false);
     }
 
-    public void UpdateResource(ResourceType resourceType, int val) //Set the resources to a value
+    public void UpdateResourceInteractable(ResourceType resourceType, int val) //Set the resources to a value
     {
         if (personalResourceUIDictionary.ContainsKey(resourceType))//checking if resource is in dictionary
         {
@@ -281,4 +283,11 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         }
     }
 
+    public void UpdateResource(ResourceType resourceType, int val) //Set the resources to a value
+    {
+        if (personalResourceUIDictionary.ContainsKey(resourceType))//checking if resource is in dictionary
+        {
+            personalResourceUIDictionary[resourceType].SetValue(val, true);
+        }
+    }
 }

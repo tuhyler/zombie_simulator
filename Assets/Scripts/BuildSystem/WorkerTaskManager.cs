@@ -397,7 +397,7 @@ public class WorkerTaskManager : MonoBehaviour
     //checking if building city too close to another one
     private bool CheckForCity(Vector3 workerPos)
     {
-        Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
+        Vector3Int workerTile = Vector3Int.RoundToInt(workerPos);
         foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.EIGHTWAYTWODEEP))
         {
             if (!world.IsCityOnTile(tile))

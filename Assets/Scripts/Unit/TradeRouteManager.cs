@@ -117,7 +117,7 @@ public class TradeRouteManager : MonoBehaviour
     //                Mathf.Max(resourcesAtArrival[resourceValue.resourceType] + resourceValue.resourceAmount, 0);
     //        }
 
-    //        uiPersonalResourceInfoPanel.UpdateResource(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
+    //        uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
     //        uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
 
     //        //for setting equal
@@ -171,11 +171,11 @@ public class TradeRouteManager : MonoBehaviour
                     personalResourceManager.CheckResource(resourceValue.resourceType, resourceAmountAdjusted);
 
 
-                    //if (trader.isSelected)
-                    //{
-                    uiPersonalResourceInfoPanel.UpdateResource(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
-                    uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
-                    //}
+                    if (trader.isSelected)
+                    {
+                        uiPersonalResourceInfoPanel.UpdateResource(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
+                        uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
+                    }
 
                     amountMoved += resourceAmountAdjusted;
                     if (resourceAmountAdjusted == 0)
@@ -212,11 +212,11 @@ public class TradeRouteManager : MonoBehaviour
                     int resourceAmountAdjusted = city.ResourceManager.CheckResource(resourceValue.resourceType, loadUnloadRateMod);
                     personalResourceManager.CheckResource(resourceValue.resourceType, -resourceAmountAdjusted);
 
-                    //if (trader.isSelected)
-                    //{
-                    uiPersonalResourceInfoPanel.UpdateResource(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
-                    uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
-                    //}
+                    if (trader.isSelected)
+                    {
+                        uiPersonalResourceInfoPanel.UpdateResource(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
+                        uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
+                    }
                     amountMoved -= resourceAmountAdjusted;
                     if (resourceAmountAdjusted == 0)
                         resourceCheck = true;
@@ -284,8 +284,10 @@ public class TradeRouteManager : MonoBehaviour
         Debug.Log("Finished loading");
         resourceCheck = false;
         waitForever=false;
-        StopAllCoroutines(); //this does nothing
+        //StopAllCoroutines(); //this does nothing
         timeWaited = 0;
+        city.CheckQueue();
+        trader.isWaiting = false;
         IncreaseCurrentStop();
         FinishedLoading?.Invoke();
     }

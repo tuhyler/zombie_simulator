@@ -106,7 +106,10 @@ MonoBehaviour:
   atStop: 0
   followingRoute: 0
   isWorker: 0
+  isSelected: 0
+  isWaiting: 0
   hasRoute: 0
+  loadUnloadRate: 1
 --- !u!114 &9082481739774170290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -131,6 +134,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e06e69bbb06324d9568e2e3c0c1923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FinishedLoading:
+    m_PersistentCalls:
+      m_Calls: []
+  resourceCheck: 0
+  waitForever: 0
+  loadUnloadRate: 0
 --- !u!95 &8160468823899162694
 Animator:
   serializedVersion: 4
@@ -165,7 +174,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 2
-  m_Constraints: 112
+  m_Constraints: 122
   m_CollisionDetection: 0
 --- !u!1 &6973416628821537667
 GameObject:

@@ -16,15 +16,20 @@ public class UITradeResourceTask : MonoBehaviour
     [SerializeField]
     private TMP_InputField inputStorageAmount;
 
+    [SerializeField]
+    private Toggle allToggle;
+
     //[SerializeField]
     //private Image resourceIcon;
+
+    UITradeStopHandler uiTradeStopHandler;
 
     private List<string> resources = new();
 
     private string chosenResource;
     private int chosenMultiple = 1;
     //private string chosenAmount;
-    private int traderCargoStorageLimit;
+    //private int traderCargoStorageLimit;
 
     //private ResourceHolder resourceHolder;
 
@@ -38,7 +43,7 @@ public class UITradeResourceTask : MonoBehaviour
     {
         //for checking if number is positive and integer
         inputStorageAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
-        inputStorageAmount.interactable = true;
+        //inputStorageAmount.interactable = true;
     }
 
     public void SetChosenResource(int value)
@@ -75,10 +80,10 @@ public class UITradeResourceTask : MonoBehaviour
     //    chosenAmount = value;
     //}
 
-    public void SetCargoStorageLimit(int cargoLimit)
-    {
-        traderCargoStorageLimit = cargoLimit;
-    }
+    //public void SetCargoStorageLimit(int cargoLimit)
+    //{
+    //    traderCargoStorageLimit = cargoLimit;
+    //}
 
     private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
     {
@@ -113,7 +118,17 @@ public class UITradeResourceTask : MonoBehaviour
                     actionList.value = 1;
                 resourceList.RefreshShownValue();
 
-                inputStorageAmount.text = Mathf.Abs(resourceValue.resourceAmount).ToString();
+                if (Mathf.Abs(resourceValue.resourceAmount) > 1000)
+                {
+                    inputStorageAmount.interactable = false;
+                    allToggle.isOn = true;
+                }
+                else
+                {
+                    inputStorageAmount.text = Mathf.Abs(resourceValue.resourceAmount).ToString();
+                    inputStorageAmount.interactable = true;
+                    allToggle.isOn = false;
+                }
             }
         }
     }
@@ -160,7 +175,7 @@ public class UITradeResourceTask : MonoBehaviour
 
         if (getAll) //get all of the resource
         {
-            resourceValue.resourceAmount = traderCargoStorageLimit;
+            resourceValue.resourceAmount = 99999;
         }
         else
         {
@@ -193,9 +208,15 @@ public class UITradeResourceTask : MonoBehaviour
         return resourceValue;
     }
 
+    internal void SetStop(UITradeStopHandler uiTradeStopHandler)
+    {
+        this.uiTradeStopHandler = uiTradeStopHandler;
+    }
+
     public void CloseWindow()
     {
         //resourceHolder = null;
+        uiTradeStopHandler.RemoveResource(this);
         resources.Clear();
         Destroy(gameObject);
     }
