@@ -33,8 +33,10 @@ public class GridSearch
                 return path;
             }
 
-            foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+            foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
             {
+                Vector3Int neighbor = tile + current;
+                
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
 
@@ -48,6 +50,9 @@ public class GridSearch
                     tempCost = world.GetRoadCost();
                 else
                     tempCost = world.GetMovementCost(neighbor);
+
+                if (neighbor.sqrMagnitude == 2)
+                    tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 
                 int newCost = costDictionary[current] + tempCost;
                 if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])

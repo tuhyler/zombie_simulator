@@ -351,13 +351,14 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         if (!world.IsRoadOnTerrain(workerTile)) //build road where city is placed
-            roadManager.BuildRoadAtPosition(workerTile);
+            roadManager.BuildRoadAtPosition(workerTile, true);
 
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); //creates building unit position.
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
         world.AddCity(workerTile);
         City city = newCity.GetComponent<City>();
+        city.SetHouse();
         city.SetNewCityName();
 
         //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
@@ -388,9 +389,9 @@ public class WorkerTaskManager : MonoBehaviour
         //RunCityNamerUI();
 
         //world.RemoveUnitPosition(workerPos/*, workerUnit.gameObject*/);
-        unitMovement.uiWorkerTask.ToggleVisibility(false);
-        workerUnit.DestroyUnit(); //This unit handles its own destruction, done in unit class
-        infoManager.HideInfoPanel();
+        //unitMovement.uiWorkerTask.ToggleVisibility(false);
+        //workerUnit.DestroyUnit(); //This unit handles its own destruction, done in unit class
+        //infoManager.HideInfoPanel();
         //workerUnit.HidePath();
     }
 

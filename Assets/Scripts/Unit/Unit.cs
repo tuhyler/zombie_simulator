@@ -30,10 +30,13 @@ public class Unit : MonoBehaviour
     private Vector3 destinationLoc;
     private Vector3 finalDestinationLoc;
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
-    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
+    private Vector3Int currentLocation;
+    public Vector3Int CurrentLocation { set { currentLocation = value; } }
+    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed, newSpotTry;
     private Coroutine movingCo;
     private MovementSystem movementSystem;
     private Queue<GameObject> shoePrintQueue = new();
+    private Vector3 shoePrintScale;
 
     //selection indicators
     private SelectionHighlight highlight;
@@ -71,6 +74,7 @@ public class Unit : MonoBehaviour
         hillSpeed = world.hill.movementCost;
         forestHillSpeed = world.forestHill.movementCost;
         originalMoveSpeed = unitDataSO.movementSpeed;
+        shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
     }
 
     private void Start()
@@ -91,7 +95,7 @@ public class Unit : MonoBehaviour
     {
         //CenterCamera(); //focus to start moving
 
-        world.RemoveUnitPosition(transform.position/*, gameObject*/);//removing previous location
+        world.RemoveUnitPosition(currentLocation);//removing previous location
 
         //finalDestinationLoc = currentPath[currentPath.Count - 1].transform.position; //currentPath is list instead of queue for this line
         pathPositions = new Queue<Vector3Int>(currentPath);
@@ -101,7 +105,7 @@ public class Unit : MonoBehaviour
 
         moreToMove = true;
         isMoving = true;
-        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+        //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         unitAnimator.SetBool(isMovingHash, true);
         movingCo = StartCoroutine(MovementCoroutine(firstTarget));
     }
@@ -124,7 +128,7 @@ public class Unit : MonoBehaviour
         if (pathPositions.Count == 0)
             endPosition = finalDestinationLoc;
 
-        endPosition.y = 0f; //fixed y position
+        //endPosition.y = 0f; //fixed y position
 
         Quaternion startRotation = transform.rotation;
         endPosition.y = transform.position.y;
@@ -158,15 +162,23 @@ public class Unit : MonoBehaviour
 
         if (pathPositions.Count > 0)
         {
-            if (world.IsUnitWaitingForSameCity(pathPositions.Peek(), finalDestinationLoc))
+            Vector3Int nextStep = pathPositions.Peek();
+            
+            if (followingRoute && world.IsUnitWaitingForSameCity(nextStep, finalDestinationLoc))
             {
                 GetInLine(endPosition);
+            }
+            else if (pathPositions.Count == 1 && world.IsUnitLocationTaken(nextStep)) //don't occupy sqaure if another unit is there
+            {
+                FinishMoving(endPosition);
             }
             else
             {
                 movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
                 if (shoePrintQueue.Count > 0)
-                    movementSystem.AddToShoePrintPool(shoePrintQueue.Dequeue());
+                {
+                    DequeueShoePrint();
+                }
             }
         }
         else
@@ -257,6 +269,32 @@ public class Unit : MonoBehaviour
     //        FinishMoving(endPosition);
     //    }
     //}
+    private IEnumerator SlideUnit(Vector3 endPosition)
+    {
+        Quaternion startRotation = transform.rotation;
+        endPosition.y = transform.position.y;
+        Vector3 direction = endPosition - transform.position;
+        Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        float timeElapsed = 0;
+        while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
+        {
+            timeElapsed += Time.deltaTime;
+            float movementThisFrame = Time.deltaTime * moveSpeed;
+            float lerpStep = timeElapsed / rotationDuration; //Value between 0 and 1
+            transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
+            //transform.localPosition = newPosition;
+            transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
+
+            if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
+                break;
+
+            yield return null;
+        }
+
+        FinishMoving(endPosition);
+    }
+
 
     public void StopMovement()
     {
@@ -275,15 +313,15 @@ public class Unit : MonoBehaviour
     {
         movingCo = null;
         world.GetCity(Vector3Int.RoundToInt(finalDestinationLoc)).AddToWaitList(this);
-        world.AddUnitPosition(endPosition, this);
+        currentLocation = world.AddUnitPosition(endPosition, this);
         isWaiting = true;
         unitAnimator.SetBool(isMovingHash, false);
     }
 
     public void MoveUpInLine()
     {
-        world.RemoveUnitPosition(transform.position/*, gameObject*/);//removing previous location
-        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+        world.RemoveUnitPosition(currentLocation);//removing previous location
+        //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         unitAnimator.SetBool(isMovingHash, true);
         movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
     }
@@ -294,12 +332,42 @@ public class Unit : MonoBehaviour
 
         moreToMove = false;
         isMoving = false;
-        world.AddUnitPosition(finalDestinationLoc, this);
+        currentLocation = world.AddUnitPosition(finalDestinationLoc, this);
         HidePath();
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke();
         TradeRouteCheck(endPosition);
+        //if (world.IsUnitLocationTaken(currentLocation))
+        //{
+        //    FindNewSpot(currentLocation);
+        //}
+    }
+
+    private void FindNewSpot(Vector3Int current)
+    {
+        Vector3Int firstTile = current;        
+        
+        foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+        {
+            if (isTrader && !world.IsRoadOnTileLocation(tile))
+                continue;
+
+            if (world.IsUnitLocationTaken(tile))
+            {
+                firstTile = tile;
+                continue;
+            }
+
+            StartCoroutine(SlideUnit(tile));
+            return;
+        }
+
+        if (newSpotTry < 2)
+        {
+            newSpotTry++;
+            FindNewSpot(firstTile); //keep going until finding new spot
+        }
     }
 
     //sees if trader is at trade route stop and has finished trade orders
@@ -341,9 +409,24 @@ public class Unit : MonoBehaviour
         {
             moveSpeed = (roadSpeed / 10f) * originalMoveSpeed * 3f;
         }
+        else if (collision.gameObject.CompareTag("Player"))
+        {
+            unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+        }
     }
 
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        }
+    }
 
+    public void CheckForSpotAvailability()
+    {
+
+    }
 
 
 
@@ -404,7 +487,7 @@ public class Unit : MonoBehaviour
     {
         ResetMovementOrders();
         turnHandler.turnHandler.RemoveUnitFromTurnList(this);
-        world.RemoveUnitPosition(transform.position);
+        world.RemoveUnitPosition(currentLocation);
     }
 
     public void ShowContinuedPath()
@@ -481,7 +564,7 @@ public class Unit : MonoBehaviour
 
             shoePrintPath.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
 
-            //stretching the sprite a little for diagonal 
+            //squishing the sprite a little for straights
             Vector3 scale = shoePrintPath.transform.localScale; 
             scale.x -= x;
             shoePrintPath.transform.localScale = scale;
@@ -498,10 +581,17 @@ public class Unit : MonoBehaviour
             
             for (int i = 0; i < count; i++)
             {
-                movementSystem.AddToShoePrintPool(shoePrintQueue.Dequeue());
+                DequeueShoePrint();
             }
 
             shoePrintQueue.Clear();
         }
+    }
+
+    private void DequeueShoePrint()
+    {
+        GameObject shoePrint = shoePrintQueue.Dequeue();
+        shoePrint.transform.localScale = shoePrintScale;
+        movementSystem.AddToShoePrintPool(shoePrint);
     }
 }

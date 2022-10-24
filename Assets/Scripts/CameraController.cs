@@ -38,6 +38,7 @@ public class CameraController : MonoBehaviour
         newPosition = transform.position; //set static position that doesn't default to 0
         newZoom = cameraTransform.localPosition; //local position so that the text layer stays in rightful place
         newRotation = transform.rotation;
+        scrolling = true;
     }
 
     void LateUpdate() //Lateupdate to reduce jittering on camera 
@@ -62,7 +63,8 @@ public class CameraController : MonoBehaviour
             //HandleMouseMovementInput(); //turned off temporarily
         }
         //if (!EventSystem.current.IsPointerOverGameObject()) //so you can still zoom in but still be focused
-        HandleMouseZoomInput(); 
+        if (scrolling)
+            HandleMouseZoomInput(); 
 
 
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) ||

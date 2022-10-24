@@ -772,7 +772,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 8.5008545, y: 0}
+  m_AnchoredPosition: {x: 8.499993, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1189476968333509827
@@ -969,8 +969,6 @@ MonoBehaviour:
   uiElementsParent: {fileID: 2079834693550434276}
   allContents: {fileID: 7582599321877566492}
   activeStatus: 0
-  showResourceProduced: 1
-  showResourceConsumed: 1
   optionsScroller: {fileID: 444034198894144127}
   scrollLeft: {fileID: 2421289976216653281}
   scrollRight: {fileID: 1755404982849047153}
@@ -1056,8 +1054,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 0}
   m_HandleRect: {fileID: 1763604027450423307}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 0.99988675
+  m_Value: 1
+  m_Size: 0.9933235
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

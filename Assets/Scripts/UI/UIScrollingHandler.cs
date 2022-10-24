@@ -8,15 +8,13 @@ public class UIScrollingHandler : MonoBehaviour, IPointerEnterHandler, IPointerE
     [SerializeField]
     private CameraController cameraController;
 
-    public void OnPointerEnter(PointerEventData eventData) //for scrolling the menu, don't zoom in the world
-    {
-        cameraController.Scrolling = true;
-        Debug.Log("mouse is over the menu");
-    }
-
-    public void OnPointerExit(PointerEventData eventData) //for scrolling the menu
+    public void OnPointerEnter(PointerEventData eventData) //for scrolling the menu
     {
         cameraController.Scrolling = false;
-        Debug.Log("mouse is no longer over the menu");
+    }
+
+    public void OnPointerExit(PointerEventData eventData) //for scrolling the world
+    {
+        cameraController.Scrolling = true;
     }
 }

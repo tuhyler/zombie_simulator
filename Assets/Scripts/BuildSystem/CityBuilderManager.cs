@@ -87,7 +87,8 @@ public class CityBuilderManager : MonoBehaviour
 
     private void CenterCamOnCity()
     {
-        focusCam.CenterCameraNoFollow(selectedCity.transform.position);
+        if (selectedCity != null)
+            focusCam.CenterCameraNoFollow(selectedCity.transform.position);
     }
 
     private void CameraBirdsEyeRotation()
