@@ -36,16 +36,18 @@ public class RoadManager : MonoBehaviour
         world.SetRoadCost(roadMovementCost);
     }
 
-    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight) //placing road prefabs
+    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool city = false) //placing road prefabs
     {
         Vector3 pos = roadPosition;
         pos.y = 0.01f;
         GameObject structure = Instantiate(model, pos, rotation);
+        if (city) //hiding solo roads for new cities
+            structure.SetActive(false);
         world.SetRoads(roadPosition, structure, straight);
     }
 
     //finds if road changes are happening diagonally or on straight, then destroys objects accordingly
-    public void BuildRoadAtPosition(Vector3Int roadPosition) 
+    public void BuildRoadAtPosition(Vector3Int roadPosition, bool city = false) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
 
@@ -68,7 +70,7 @@ public class RoadManager : MonoBehaviour
 
         //making road shape based on how many of its neighbors have roads, and where the roads are
         if (straightRoadsCount + diagRoadsCount == 0)
-            CreateRoadSolo(roadPosition);
+            CreateRoadSolo(roadPosition, city);
 
         world.SetRoadLocations(roadPosition);
 
@@ -153,9 +155,9 @@ public class RoadManager : MonoBehaviour
         }
     }
 
-    private void CreateRoadSolo(Vector3Int roadPosition)
+    private void CreateRoadSolo(Vector3Int roadPosition, bool city = false)
     {
-        CreateRoad(solo, roadPosition, Quaternion.Euler(0, 0, 0), false); //solo roads still exists when connecting with straight road
+        CreateRoad(solo, roadPosition, Quaternion.Euler(0, 0, 0), false, city); //solo roads still exists when connecting with straight road
         world.SetSoloRoadLocations(roadPosition);
     }
 

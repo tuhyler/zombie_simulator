@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2315983313483041500}
   - component: {fileID: 856294511368196341}
   m_Layer: 0
-  m_Name: JoinCityButton
+  m_Name: MoveButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b1399a3e6a745de46a04fa79ae7a4293, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 954d6894757d3bf4085ffb8357a804e2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -149,7 +149,7 @@ GameObject:
   - component: {fileID: 2924333034029193117}
   - component: {fileID: 1132788130419021965}
   m_Layer: 0
-  m_Name: UnitJoinCityPanel
+  m_Name: UnitMovePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -173,7 +173,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -135, y: 335}
+  m_AnchoredPosition: {x: -135, y: 300}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4937665241526067687

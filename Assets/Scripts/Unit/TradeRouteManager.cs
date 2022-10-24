@@ -250,7 +250,7 @@ public class TradeRouteManager : MonoBehaviour
             {
                 yield return new WaitForSeconds(secondIntervals);
                 timeWaited += secondIntervals;
-                Debug.Log("waited " + timeWaited + " seconds");
+                //Debug.Log("waited " + timeWaited + " seconds");
             }
 
             yield break; //this is enough, just using while loop to count seconds
@@ -260,7 +260,7 @@ public class TradeRouteManager : MonoBehaviour
         {
             yield return new WaitForSeconds(secondIntervals);
             timeWaited += secondIntervals;
-            Debug.Log("waited " + timeWaited + " seconds");
+            //Debug.Log("waited " + timeWaited + " seconds");
         }
 
         FinishLoading();

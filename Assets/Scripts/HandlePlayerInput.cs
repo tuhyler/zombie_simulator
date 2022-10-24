@@ -15,6 +15,7 @@ public class HandlePlayerInput : MonoBehaviour
     //public UnityEvent<GameObject> HandleOtherSelection;
     //public UnityEvent<GameObject> HandleCityTileSelection;
     public UnityEvent<Vector3, GameObject> HandleLocationSelection;
+    public UnityEvent<Vector3, GameObject> HandleLocationMovementSelection;
     public UnityEvent HandleShiftDown, HandleShiftUp, HandleR, HandleEnter, HandleC, HandleB, HandleG, HandleX, HandleSpace;
     //public UnityEvent HandleShiftUp;
     //public UnityEvent HandleR;
@@ -22,7 +23,10 @@ public class HandlePlayerInput : MonoBehaviour
     private void Update()
     {
         if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())  //second check is so you don't click behind the UI
-            HandleMouseClick();
+            HandleLeftMouseClick();
+
+        if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())  //second check is so you don't click behind the UI
+            HandleRightMouseClick();
 
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) //for order queueing
         {
@@ -70,7 +74,7 @@ public class HandlePlayerInput : MonoBehaviour
         }
     }
 
-    private void HandleMouseClick()
+    private void HandleLeftMouseClick()
     {
         GameObject selectedGameObject;
 
@@ -87,11 +91,24 @@ public class HandlePlayerInput : MonoBehaviour
             return;
 
         HandleLocationSelection?.Invoke(hit.point, selectedGameObject);
-        //HandleOtherSelection?.Invoke(selectedGameObject);
+    }
 
-        //if (selectedGameObject.GetComponent<TerrainData>() == null)
-        //    HandleOtherSelection?.Invoke(selectedGameObject);
-        //else
-        //    HandleCityTileSelection?.Invoke(selectedGameObject);
+    private void HandleRightMouseClick()
+    {
+        GameObject selectedGameObject;
+
+        mousePositionClick = Input.mousePosition;
+        Ray ray = mainCamera.ScreenPointToRay(mousePositionClick);
+        if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
+        {
+            selectedGameObject = hit.collider.gameObject;
+        }
+        else
+            selectedGameObject = null;
+
+        if (selectedGameObject == null)
+            return;
+
+        HandleLocationMovementSelection?.Invoke(hit.point, selectedGameObject);
     }
 }

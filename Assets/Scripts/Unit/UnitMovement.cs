@@ -20,7 +20,9 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private UISingleConditionalButtonHandler uiCancelMove; //cancel movement orders
     [SerializeField]
-    private UISingleConditionalButtonHandler uiJoinCity; 
+    private UISingleConditionalButtonHandler uiJoinCity;
+    [SerializeField]
+    private UISingleConditionalButtonHandler uiMoveUnit;
     [SerializeField]
     public UITraderOrderHandler uiTraderPanel;
     [SerializeField]
@@ -42,6 +44,7 @@ public class UnitMovement : MonoBehaviour
     //private TerrainData selectedTile;
     private InfoProvider selectedUnitInfoProvider;
     private bool loadScreenSet; //flag if load/unload ui is showing
+    private bool moveUnit;
 
     //for transferring cargo to/from trader
     private ResourceManager cityResourceManager; 
@@ -80,6 +83,7 @@ public class UnitMovement : MonoBehaviour
                 selectedUnit = unitReference;
             }
 
+            uiMoveUnit.ToggleTweenVisibility(true);
             SelectWorker();
             SelectTrader();
             PrepareMovement();
@@ -88,6 +92,9 @@ public class UnitMovement : MonoBehaviour
         //moving unit upon selection
         else if (detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
         {
+            if (!moveUnit)
+                return;
+            
             if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
             {
                 LoadUnloadFinish();
@@ -286,7 +293,7 @@ public class UnitMovement : MonoBehaviour
 
         //    uiJoinCity.ToggleTweenVisibility(false);
 
-        //    movementSystem.MoveUnit(selectedUnit, world);
+        //    movementSystem.MoveUnitToggle(selectedUnit, world);
         //    movementSystem.HidePath();
         //    movementSystem.ClearPaths();
         //    //selectedTile = null;
@@ -306,11 +313,28 @@ public class UnitMovement : MonoBehaviour
 
         if (!queueMovementOrders)
         {
+            moveUnit = false;
+            uiMoveUnit.ToggleButtonColor(false);
             movementSystem.MoveUnit(selectedUnit);
         }
         //movementSystem.HidePath();
         movementSystem.ClearPaths();
         uiJoinCity.ToggleTweenVisibility(false);
+    }
+
+    public void MoveUnit()
+    {
+        moveUnit = true;
+    }
+
+    public void MoveUnitToggle()
+    {
+        if (!moveUnit)
+            moveUnit = true;
+        else
+            moveUnit = false;
+
+        uiMoveUnit.ToggleButtonColor(moveUnit);
     }
 
     public void HandleShiftDown()
@@ -508,6 +532,8 @@ public class UnitMovement : MonoBehaviour
     private void ClearSelection()
     {
         //selectedTile = null;
+        moveUnit = false;
+        uiMoveUnit.ToggleTweenVisibility(false);
         uiCancelMove.ToggleTweenVisibility(false);
         uiJoinCity.ToggleTweenVisibility(false);
         uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);

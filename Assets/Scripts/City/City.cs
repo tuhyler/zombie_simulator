@@ -13,6 +13,10 @@ public class City : MonoBehaviour
     //private MeshRenderer selectionCircle;
 
     [SerializeField]
+    private GameObject housingPrefab;
+    private GameObject currentHouse;
+
+    [SerializeField]
     private Material cityNameMaterial;
 
     private Material originalCityNameMaterial;//, originalCityStatMaterial;
@@ -191,6 +195,14 @@ public class City : MonoBehaviour
         }
     }
 
+    public void SetHouse()
+    {
+        if (currentHouse != null)
+            Destroy(currentHouse);
+
+        Instantiate(housingPrefab, transform.position, Quaternion.identity);
+    }
+
     public void SelectUnitToProduce(GameObject unitToProduce)
     {
         this.unitToProduce = unitToProduce;
@@ -229,7 +241,7 @@ public class City : MonoBehaviour
         unitGO.name = unitGO.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit unit = unitGO.GetComponent<Unit>();
 
-        world.AddUnitPosition(buildPosition, unit);
+        unit.CurrentLocation = world.AddUnitPosition(buildPosition, unit);
     }
 
     public void PopulationGrowthCheck()

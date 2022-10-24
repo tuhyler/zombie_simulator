@@ -77,7 +77,7 @@ public class MapWorld : MonoBehaviour
         {
             Vector3 unitPos = unit.transform.position;
             if (!unitPosDict.ContainsKey(Vector3Int.RoundToInt(unitPos))) //just in case dictionary was missing any
-                AddUnitPosition(unitPos, unit);
+                unit.CurrentLocation = AddUnitPosition(unitPos, unit);
         }
     }
 
@@ -456,6 +456,24 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
+    public List<Vector3Int> GetNeighborsCoordinates(State criteria)
+    {
+        List<Vector3Int> neighbors = new();
+        switch (criteria)
+        {
+            case State.FOURWAY:
+                return new(neighborsFourDirections);
+            case State.FOURWAYINCREMENT:
+                return new(neighborsFourDirectionsIncrement);
+            case State.EIGHTWAY:
+                return new(neighborsEightDirections);
+            case State.EIGHTWAYTWODEEP:
+                return new(cityRadius);
+        }
+
+        return neighbors;
+    }
+
     public (List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition, GameObject city) //two ring layer around specific city
     {
         List<Vector3Int> neighbors = new();
@@ -650,16 +668,18 @@ public class MapWorld : MonoBehaviour
         roadTileDict.Remove(buildPosition);
     }
 
-    public void AddUnitPosition(Vector3 unitPosition, Unit unit)
+    public Vector3Int AddUnitPosition(Vector3 unitPosition, Unit unit)
     {
         Vector3Int position = Vector3Int.RoundToInt(unitPosition);
 
         unitPosDict[position] = unit;
+
+        return position;
     }
 
-    public void RemoveUnitPosition(Vector3 unitPosition/*, GameObject unitGO*/)
+    public void RemoveUnitPosition(Vector3Int position/*, GameObject unitGO*/)
     {
-        Vector3Int position = Vector3Int.RoundToInt(unitPosition);
+        //Vector3Int position = Vector3Int.RoundToInt(unitPosition);
 
         unitPosDict.Remove(position);
     }
