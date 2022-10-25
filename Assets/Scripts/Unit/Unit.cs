@@ -31,7 +31,7 @@ public class Unit : MonoBehaviour
     private Vector3 finalDestinationLoc;
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private Vector3Int currentLocation;
-    public Vector3Int CurrentLocation { set { currentLocation = value; } }
+    public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed, newSpotTry;
     private Coroutine movingCo;
     private MovementSystem movementSystem;
@@ -271,6 +271,7 @@ public class Unit : MonoBehaviour
     //}
     private IEnumerator SlideUnit(Vector3 endPosition)
     {
+        newSpotTry = 0;
         Quaternion startRotation = transform.rotation;
         endPosition.y = transform.position.y;
         Vector3 direction = endPosition - transform.position;
@@ -332,21 +333,23 @@ public class Unit : MonoBehaviour
 
         moreToMove = false;
         isMoving = false;
-        currentLocation = world.AddUnitPosition(finalDestinationLoc, this);
+        currentLocation = Vector3Int.RoundToInt(transform.position);
         HidePath();
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke();
         TradeRouteCheck(endPosition);
-        //if (world.IsUnitLocationTaken(currentLocation))
-        //{
-        //    FindNewSpot(currentLocation);
-        //}
+        if (world.IsUnitLocationTaken(currentLocation))
+        {
+            FindNewSpot(currentLocation);
+            return;
+        }
+        world.AddUnitPosition(currentLocation, this);
     }
 
     private void FindNewSpot(Vector3Int current)
     {
-        Vector3Int firstTile = current;        
+        Vector3Int lastTile = current;        
         
         foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
         {
@@ -355,7 +358,7 @@ public class Unit : MonoBehaviour
 
             if (world.IsUnitLocationTaken(tile))
             {
-                firstTile = tile;
+                lastTile = tile;
                 continue;
             }
 
@@ -366,7 +369,7 @@ public class Unit : MonoBehaviour
         if (newSpotTry < 2)
         {
             newSpotTry++;
-            FindNewSpot(firstTile); //keep going until finding new spot
+            FindNewSpot(lastTile); //keep going until finding new spot
         }
     }
 
@@ -391,37 +394,43 @@ public class Unit : MonoBehaviour
         if (collision.gameObject.CompareTag("Flatland"))
         {
             moveSpeed = (flatlandSpeed / 10f) * originalMoveSpeed;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 8f);
         }
         else if (collision.gameObject.CompareTag("Forest"))
         {
             moveSpeed = (forestSpeed / 10f) * originalMoveSpeed * 0.25f;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 4f);
         }
         else if (collision.gameObject.CompareTag("Hill"))
         {
-            moveSpeed = (hillSpeed / 10f) * originalMoveSpeed * 0.4f;
+            moveSpeed = (hillSpeed / 10f) * originalMoveSpeed * 0.25f;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 4f);
             threshold = 0.05f;
         }
         else if (collision.gameObject.CompareTag("Forest Hill"))
         {
             moveSpeed = (forestHillSpeed / 10f) * originalMoveSpeed * 0.125f;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 2f);
         }
         else if (collision.gameObject.CompareTag("Road"))
         {
             moveSpeed = (roadSpeed / 10f) * originalMoveSpeed * 3f;
-        }
-        else if (collision.gameObject.CompareTag("Player"))
-        {
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 16f);
             unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         }
+        //else if (collision.gameObject.CompareTag("Player"))
+        //{
+        //    unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+        //}
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-        }
-    }
+    //private void OnCollisionExit(Collision collision)
+    //{
+    //    if (collision.gameObject.CompareTag("Player"))
+    //    {
+    //        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+    //    }
+    //}
 
     public void CheckForSpotAvailability()
     {

@@ -66,7 +66,14 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        if (detectedObject.TryGetComponent(out Unit unitReference) && unitReference.CompareTag("Player"))
+        //moving unit upon selection
+        if (moveUnit && selectedUnit != null) //detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
+        {
+            location.y = 0;
+            TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
+            MoveUnit(terrainSelected, location);
+        }
+        else if (detectedObject.TryGetComponent(out Unit unitReference) && unitReference.CompareTag("Player"))
         {
             if (selectedUnit == unitReference) //Unselect when clicking same unit
             {
@@ -87,96 +94,6 @@ public class UnitMovement : MonoBehaviour
             SelectWorker();
             SelectTrader();
             PrepareMovement();
-        }
-
-        //moving unit upon selection
-        else if (detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
-        {
-            if (!moveUnit)
-                return;
-            
-            if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
-            {
-                LoadUnloadFinish();
-                return;
-            }
-
-            Vector3Int terrainPos = world.GetClosestTile(location);
-
-            if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
-            {
-                Debug.Log("Not suitable location");
-                return;
-            }
-
-            if (selectedTrader != null && selectedTrader.followingRoute) //can't change orders if following route
-            {
-                Debug.Log("Currently following route");
-                return;
-            }
-
-            if (selectedTrader != null && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(location)))
-            {
-                Vector3 mousePos = Input.mousePosition;
-                mousePos.z = 10f; //z must be more than 0, else just gives camera position
-                Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-
-                InfoPopUpHandler.Create(mouseLoc, "Must travel on road.");
-
-                //Debug.Log("Trader must travel on road.");
-                selectedUnit.HidePath();
-                movementSystem.ClearPaths();
-                //selectedTile = null;
-                return;
-            }
-
-            if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders of new ones
-            {
-                //selectedUnit.isMoving = false;
-                selectedUnit.StopMovement();
-                //return;
-            }
-
-            //    //if (world.IsUnitLocationTaken(terrainPos))
-            //    //{ //cancel movement if unit is already there
-
-            //    //    //below is for switching places with neighboring unit
-            //    //    Vector3Int currentPos = Vector3Int.FloorToInt(selectedUnit.transform.position);
-
-            //    //    if (Math.Abs(currentPos.x - terrainPos.x) <= 1 && Math.Abs(currentPos.z - terrainPos.z) <= 1) //seeing if next to each other
-            //    //    {
-            //    //        Unit unitInTheWay = world.GetUnit(terrainPos);
-            //    //        if (unitInTheWay.GetComponent<Trader>() != null && !world.GetTerrainDataAt(currentPos).hasRoad)
-            //    //        {
-            //    //            Debug.Log("Trader must travel on road.");
-            //    //            return;
-            //    //        }
-
-            //    //        if (!unitInTheWay.isBusy && !selectedUnit.isBusy)
-            //    //        {
-            //    //            MovementPreparations();
-            //    //            world.RemoveUnitPosition(currentPos/*, selectedUnit.gameObject*/); //need to remove both at same time to allow swapping spaces
-            //    //            world.RemoveUnitPosition(terrainPos/*, unitInTheWay.gameObject*/);
-
-            //    //            //moving unit in the way
-            //    //            TerrainData currentTile = world.GetTerrainDataAt(currentPos);
-            //    //            TerrainData terrainTile = world.GetTerrainDataAt(terrainPos);
-            //    //            List<TerrainData> unitInTheWayPath = new() { currentTile };
-            //    //            unitInTheWay.MoveThroughPath(unitInTheWayPath);
-
-            //    //            //moving selected unit
-            //    //            List<TerrainData> selectedPath = new() { terrainTile };
-            //    //            selectedUnit.MoveThroughPath(selectedPath);
-            //    //            return;
-            //    //        }
-            //    //    }
-            //    //    //above is for switching places with neighboring unit
-
-            //    //    Debug.Log("Unit already at selected tile");
-            //    //    return;
-            //    //}
-
-            HandleSelectedLocation(location, terrainPos);
         }
         else
         {
@@ -274,7 +191,7 @@ public class UnitMovement : MonoBehaviour
             //movementSystem.ClearPaths();
             //return;
         }
-        else
+        else if (selectedUnit.isMoving)
         {
             selectedUnit.ResetMovementOrders();
         }
@@ -322,9 +239,114 @@ public class UnitMovement : MonoBehaviour
         uiJoinCity.ToggleTweenVisibility(false);
     }
 
-    public void MoveUnit()
+    public void MoveUnitRightClick(Vector3 location, GameObject detectedObject)
     {
-        moveUnit = true;
+        //if nothing detected, nothing selected
+        if (detectedObject == null)
+        {
+            selectedUnit = null;
+            selectedTrader = null;
+            return;
+        }
+
+        if (selectedUnit == null)
+            return;
+
+        location.y = 0;
+        TerrainData terrain = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
+        MoveUnit(terrain, location);
+    }
+
+    private void MoveUnit(TerrainData terrainSelected, Vector3 location)
+    {
+        if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
+        {
+            LoadUnloadFinish();
+            return;
+        }
+
+        Vector3Int terrainPos = world.GetClosestTile(location);
+
+
+        if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
+        {
+            GiveWarningMessage("Can't move there");
+            return;
+        }
+
+        if (selectedTrader != null && selectedTrader.followingRoute) //can't change orders if following route
+        {
+            GiveWarningMessage("Currently following route");
+            return;
+        }
+
+        if (selectedTrader != null && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(location)))
+        {
+            GiveWarningMessage("Must travel on road");
+
+            //Debug.Log("Trader must travel on road.");
+            selectedUnit.HidePath();
+            movementSystem.ClearPaths();
+            //selectedTile = null;
+            return;
+        }
+
+        if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders of new ones
+        {
+            //selectedUnit.isMoving = false;
+            selectedUnit.StopMovement();
+            //return;
+        }
+
+        //    //if (world.IsUnitLocationTaken(terrainPos))
+        //    //{ //cancel movement if unit is already there
+
+        //    //    //below is for switching places with neighboring unit
+        //    //    Vector3Int currentPos = Vector3Int.FloorToInt(selectedUnit.transform.position);
+
+        //    //    if (Math.Abs(currentPos.x - terrainPos.x) <= 1 && Math.Abs(currentPos.z - terrainPos.z) <= 1) //seeing if next to each other
+        //    //    {
+        //    //        Unit unitInTheWay = world.GetUnit(terrainPos);
+        //    //        if (unitInTheWay.GetComponent<Trader>() != null && !world.GetTerrainDataAt(currentPos).hasRoad)
+        //    //        {
+        //    //            Debug.Log("Trader must travel on road.");
+        //    //            return;
+        //    //        }
+
+        //    //        if (!unitInTheWay.isBusy && !selectedUnit.isBusy)
+        //    //        {
+        //    //            MovementPreparations();
+        //    //            world.RemoveUnitPosition(currentPos/*, selectedUnit.gameObject*/); //need to remove both at same time to allow swapping spaces
+        //    //            world.RemoveUnitPosition(terrainPos/*, unitInTheWay.gameObject*/);
+
+        //    //            //moving unit in the way
+        //    //            TerrainData currentTile = world.GetTerrainDataAt(currentPos);
+        //    //            TerrainData terrainTile = world.GetTerrainDataAt(terrainPos);
+        //    //            List<TerrainData> unitInTheWayPath = new() { currentTile };
+        //    //            unitInTheWay.MoveThroughPath(unitInTheWayPath);
+
+        //    //            //moving selected unit
+        //    //            List<TerrainData> selectedPath = new() { terrainTile };
+        //    //            selectedUnit.MoveThroughPath(selectedPath);
+        //    //            return;
+        //    //        }
+        //    //    }
+        //    //    //above is for switching places with neighboring unit
+
+        //    //    Debug.Log("Unit already at selected tile");
+        //    //    return;
+        //    //}
+
+        HandleSelectedLocation(location, terrainPos);
+    }
+
+    private void GiveWarningMessage(string message)
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = 10f; //z must be more than 0, else just gives camera position
+        Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+
+        InfoPopUpHandler.Create(mouseLoc, message);
     }
 
     public void MoveUnitToggle()
