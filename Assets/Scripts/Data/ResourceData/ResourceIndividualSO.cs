@@ -6,10 +6,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Resource Data", menuName = "Resource/ResourceData")]
 public class ResourceIndividualSO : ScriptableObject
 {
-    public GameObject prefab;
+    //public GameObject prefab;
     public ResourceType resourceType;
     public float resourceStorageMultiplier;
     public string resourceName;
-    public Sprite resourceIcon; 
+    public Sprite resourceIcon;
+    public int ResourceGatheringTime = 5;
     //public ResourceValue resourceValue;
 }

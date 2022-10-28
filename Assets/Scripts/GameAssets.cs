@@ -18,4 +18,6 @@ public class GameAssets : MonoBehaviour
     public GameObject shoePrintPrefab;
     public GameObject laborNumberPrefab;
     public GameObject timeProgressPrefab;
+    public GameObject resourceBubble;
+    public GameObject test;
 }

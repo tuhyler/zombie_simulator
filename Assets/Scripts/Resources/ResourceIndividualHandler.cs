@@ -8,9 +8,6 @@ public class ResourceIndividualHandler : MonoBehaviour
     [SerializeField]
     private MapWorld world;
 
-    [SerializeField]
-    private List<ResourceIndividualSO> resource;
-
     private City tempCity;
     private Worker workerUnit;
     private ResourceIndividualSO resourceIndividual;
@@ -57,21 +54,20 @@ public class ResourceIndividualHandler : MonoBehaviour
             }
         }
 
-        Debug.Log("No nearby city in which to store resource");
         return false;
     }
 
-    internal void SetResourceActive()
-    {
-        resourceGO.SetActive(true);
-    }
+    //internal void SetResourceActive()
+    //{
+    //    resourceGO.SetActive(true);
+    //}
 
     public ResourceIndividualSO GetResourcePrefab(Vector3Int workerPos)
     {
         TerrainData td = world.GetTerrainDataAt(workerPos);
         ResourceType rt = td.GetTerrainData().resourceType;
 
-        foreach (ResourceIndividualSO resource in resource)
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
             if (rt == resource.resourceType)
             {
@@ -84,21 +80,61 @@ public class ResourceIndividualHandler : MonoBehaviour
     }
 
 
-    public void GenerateHarvestedResource(ResourceIndividualSO resourceIndividual, Vector3 unitPos, Worker workerUnit)
+    public IEnumerator GenerateHarvestedResource(Vector3 unitPos)
+    {
+        int timePassed = 0;
+        
+        while (timePassed < resourceIndividual.ResourceGatheringTime)
+        {
+            yield return new WaitForSeconds(1);
+            timePassed++;
+        }
+
+        ShowHarvestedResource(unitPos);
+    }
+
+
+    //public void GenerateHarvestedResource(Vector3 unitPos, Worker workerUnit)
+    //{
+    //    this.workerUnit = workerUnit;
+    //    workerUnit.PrepResourceGathering(this);
+    //    unitPos.y += 1.0f; //setting it up to float above worker's head
+    //    resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+    //    //resourceGO = Instantiate(resourceIndividual.prefab, unitPos, Quaternion.Euler(90,0,0));
+    //    //workerUnit.resourceIsNotNull = true;
+    //    resourceGO.SetActive(false);
+    //    this.workerUnit.harvesting = true;
+    //}
+
+    public void SetWorker(Worker workerUnit)
     {
         this.workerUnit = workerUnit;
+    }
+
+    private void ShowHarvestedResource(Vector3 unitPos)
+    {
         workerUnit.PrepResourceGathering(this);
-        unitPos.y += 1.0f; //setting it up to float above worker's head
-        resourceGO = Instantiate(resourceIndividual.prefab, unitPos, Quaternion.identity);
-        workerUnit.resourceIsNotNull = true;
-        resourceGO.SetActive(false);
-        this.workerUnit.harvesting = true;
+        workerUnit.harvested = true;
+        unitPos.x += 1f;
+        unitPos.z += 1f;
+        //unitPos += Vector3.one; //setting it up to float above worker's head
+        resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+        Resource resource = resourceGO.GetComponent<Resource>();
+        resource.SetSprites(resourceIndividual.resourceIcon);
+        resourceGO.transform.localScale = Vector3.zero;
+        LeanTween.scale(resourceGO, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
     }
 
     public void NullHarvestValues() //nulling out all the values used to harvest resources
     {
-        Destroy(resourceGO);
+        LeanTween.scale(resourceGO, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
         tempCity = null;
         resourceIndividual = null;
+        workerUnit = null;
+    }
+
+    private void DestroyResourceIcon()
+    {
+        Destroy(resourceGO);
     }
 }

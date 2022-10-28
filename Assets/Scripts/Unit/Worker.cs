@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class Worker : Unit
 {
-    [HideInInspector]
-    public bool harvesting, harvested, resourceIsNotNull;
+    //[HideInInspector]
+    //public bool harvested;// harvesting, resourceIsNotNull;
     private ResourceIndividualHandler resourceIndividualHandler;
 
 
@@ -21,8 +21,9 @@ public class Worker : Unit
         base.AwakeMethods();
     }
 
-    public void SendResourceToCity()
+    public override void SendResourceToCity()
     {
+        isBusy = false;
         (City city, ResourceIndividualSO resourceIndividual) = resourceIndividualHandler.GetResourceGatheringDetails();
         city.ResourceManager.CheckResource(resourceIndividual.resourceType, 1); //only add one of respective resource
         harvested = false;
@@ -36,16 +37,16 @@ public class Worker : Unit
         this.resourceIndividualHandler = resourceIndividualHandler;
     }
 
-    private void HarvestResource()
-    {
-        if (harvesting)
-        {
-            harvesting = false;
-            harvested = true;
-            resourceIsNotNull = false;
-            resourceIndividualHandler.SetResourceActive();
-        }
-    }
+    //private void HarvestResource()
+    //{
+    //    if (harvesting)
+    //    {
+    //        harvesting = false;
+    //        harvested = true;
+    //        resourceIsNotNull = false;
+    //        resourceIndividualHandler.SetResourceActive();
+    //    }
+    //}
 
     //protected override void WaitTurnMethods()
     //{

@@ -45,7 +45,7 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting;
+    public bool isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting, harvested;
 
     //animation
     private Animator unitAnimator;
@@ -381,6 +381,12 @@ public class Unit : MonoBehaviour
 
     //sends trader to next stop
     public virtual void BeginNextStepInRoute()
+    {
+
+    }
+
+    //for harvesting resource
+    public virtual void SendResourceToCity()
     {
 
     }
