@@ -69,6 +69,9 @@ public class UnitMovement : MonoBehaviour
         //moving unit upon selection
         if (moveUnit && selectedUnit != null) //detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
         {
+            if (selectedUnit.isBusy)
+                return;
+
             location.y = 0;
             TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
             MoveUnit(terrainSelected, location);
@@ -252,6 +255,9 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit == null)
             return;
 
+        if (selectedUnit.isBusy)
+            return;
+
         location.y = 0;
         TerrainData terrain = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
         MoveUnit(terrain, location);
@@ -259,6 +265,9 @@ public class UnitMovement : MonoBehaviour
 
     private void MoveUnit(TerrainData terrainSelected, Vector3 location)
     {
+        if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
+            selectedUnit.SendResourceToCity();
+
         if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
         {
             LoadUnloadFinish();

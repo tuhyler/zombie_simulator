@@ -54,3 +54,6 @@ MonoBehaviour:
     type: 3}
   timeProgressPrefab: {fileID: 7804093059410087792, guid: 4bdbd357e537aa54ab5ee0584ead1d69,
     type: 3}
+  resourceBubble: {fileID: 2079849781279894658, guid: 5ef82d055c06e4945b70fae30439ba79,
+    type: 3}
+  test: {fileID: 4361862825098438801, guid: a111eddcceb5b5c43893a32983ad14c0, type: 3}

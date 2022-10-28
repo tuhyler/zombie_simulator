@@ -62,10 +62,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4617023331365026172, guid: ba43643a69e79894396998cab5051b46,
+        type: 3}
+      propertyPath: m_Center.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9174814290611353267, guid: ba43643a69e79894396998cab5051b46,
         type: 3}
       propertyPath: m_Name
-      value: EmptyResource
+      value: Food
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ba43643a69e79894396998cab5051b46, type: 3}

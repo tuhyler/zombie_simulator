@@ -39,7 +39,7 @@ public class WorkerTaskManager : MonoBehaviour
     //Methods to run when pressing certain keys
     public void HandleR()
     {
-        if (workerUnit != null)
+        if (workerUnit != null && !workerUnit.isBusy)
         {
             Vector3 pos = workerUnit.transform.position;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -59,7 +59,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleB()
     {
-        if (workerUnit != null)
+        if (workerUnit != null && !workerUnit.isBusy)
         {
             Vector3 pos = workerUnit.transform.position;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -79,7 +79,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleG()
     {
-        if (workerUnit != null)
+        if (workerUnit != null && !workerUnit.isBusy)
         {
             Vector3 pos = workerUnit.transform.position;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -101,7 +101,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleX()
     {
-        if (workerUnit != null)
+        if (workerUnit != null && !workerUnit.isBusy)
         {
             Vector3 pos = workerUnit.transform.position;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -187,6 +187,9 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void PerformTask(ImprovementDataSO improvementData) //don't actually use "improvementData".
     {
+        if (workerUnit.isBusy)
+            return;
+        
         Vector3 pos = workerUnit.transform.position;
         Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
@@ -258,13 +261,13 @@ public class WorkerTaskManager : MonoBehaviour
         
         if (!world.IsRoadOnTerrain(workerTile))
         {
-            Debug.Log("No road on tile.");
+            InfoPopUpHandler.Create(workerUnit.transform.position, "No road here");
             return;
         }
 
         if (world.IsCityOnTile(workerTile))
         {
-            Debug.Log("Can't remove city road");
+            InfoPopUpHandler.Create(workerUnit.transform.position, "Can't remove city road");
             return;
         }
 
@@ -279,26 +282,32 @@ public class WorkerTaskManager : MonoBehaviour
         workerPos.y = 0;
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         workerUnit.FinishedMoving.RemoveListener(GatherResource);
-        workerUnit.isBusy = false;
+        workerUnit.isBusy = true;
 
         if (world.IsBuildLocationTaken(workerTile) || world.IsRoadOnTerrain(workerTile))
         {
-            Debug.Log("Harvest on open tile");
+            InfoPopUpHandler.Create(workerUnit.transform.position, "Harvest on open tile");
             return;
         }
 
-        if (!resourceIndividualHandler.CheckForCity(workerTile)) //only works if city is nearby. 
+        if (!resourceIndividualHandler.CheckForCity(workerTile))
+        {
+            InfoPopUpHandler.Create(workerUnit.transform.position, "No nearby city");
             return;
+        } 
 
         ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
         if (resourceIndividual == null)
         {
-            Debug.Log("No resource to harvest here.");
+            InfoPopUpHandler.Create(workerUnit.transform.position, "No resource to harvest here");
             return;
         }
         Debug.Log("Harvesting resource at " + workerPos);
 
-        resourceIndividualHandler.GenerateHarvestedResource(resourceIndividual, workerPos, workerUnit);
+        //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
+        resourceIndividualHandler.SetWorker(workerUnit);
+        StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos));
+
 
         //workerUnit.HidePath();
     }
@@ -312,12 +321,12 @@ public class WorkerTaskManager : MonoBehaviour
 
         if (world.IsRoadOnTerrain(workerTile))
         {
-            Debug.Log("Already road on tile");
+            InfoPopUpHandler.Create(workerUnit.transform.position, "Already road on tile");
             return;
         }
         if (world.IsBuildLocationTaken(workerTile))
         {
-            Debug.Log("Already structure on tile");
+            InfoPopUpHandler.Create(workerUnit.transform.position, "Already something here");
             return;
         }
 
@@ -334,11 +343,11 @@ public class WorkerTaskManager : MonoBehaviour
 
         if (world.IsBuildLocationTaken(workerTile))
         {
-            Debug.Log("Already occupied");
+            InfoPopUpHandler.Create(workerUnit.transform.position, "Already something here");
             return;
         }
 
-        if (CheckForCity(workerTile))
+        if (CheckForNearbyCity(workerTile))
             return;
 
         //clear the forest if building on forest tile
@@ -396,7 +405,7 @@ public class WorkerTaskManager : MonoBehaviour
     }
 
     //checking if building city too close to another one
-    private bool CheckForCity(Vector3 workerPos)
+    private bool CheckForNearbyCity(Vector3 workerPos)
     {
         Vector3Int workerTile = Vector3Int.RoundToInt(workerPos);
         foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.EIGHTWAYTWODEEP))
@@ -407,7 +416,7 @@ public class WorkerTaskManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Can't build here, too close to another city.");
+                InfoPopUpHandler.Create(workerUnit.transform.position, "Too close to another city");
                 return true;
             }
         }
