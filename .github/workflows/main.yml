@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         projectPath:
-          - tuhyler/zombie_simulator
+          - 
         testMode:
           - playmode
           - editmode
