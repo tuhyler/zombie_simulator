@@ -354,7 +354,6 @@ public class WorkerTaskManager : MonoBehaviour
         Vector3 workerPos = workerUnit.transform.position;
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         workerUnit.FinishedMoving.RemoveListener(BuildCity);
-        workerUnit.isBusy = false;
 
         if (world.IsBuildLocationTaken(workerTile))
         {
