@@ -390,7 +390,7 @@ public class CityBuilderManager : MonoBehaviour
         laborChange = 0;
 
         Vector3 cityPos = selectedCity.transform.position;
-        Vector3 buildingLocalPos = buildingData.prefab.transform.position; //putting the building in it's position in the city square
+        Vector3 buildingLocalPos = buildingData.buildingLocation; //putting the building in it's position in the city square
 
         cityPos += buildingLocalPos;
         

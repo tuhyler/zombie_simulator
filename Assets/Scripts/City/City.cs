@@ -202,7 +202,9 @@ public class City : MonoBehaviour
         if (currentHouse != null)
             Destroy(currentHouse);
 
-        Instantiate(housingPrefab, transform.position, Quaternion.identity);
+        Vector3 houseLoc = transform.position;
+        houseLoc.z -= 1f;
+        Instantiate(housingPrefab, houseLoc, Quaternion.identity);
     }
 
     public void SelectUnitToProduce(GameObject unitToProduce)
