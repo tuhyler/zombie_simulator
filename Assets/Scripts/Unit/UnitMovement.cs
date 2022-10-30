@@ -10,8 +10,6 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private MapWorld world;
     [SerializeField]
-    private MovementSystem movementSystem;
-    [SerializeField]
     private UIUnitTurnHandler turnHandler;
     [SerializeField]
     private InfoManager infoManager;
@@ -23,6 +21,8 @@ public class UnitMovement : MonoBehaviour
     private UISingleConditionalButtonHandler uiJoinCity;
     [SerializeField]
     private UISingleConditionalButtonHandler uiMoveUnit;
+    [SerializeField]
+    private UISingleConditionalButtonHandler uiCancelTask;
     [SerializeField]
     public UITraderOrderHandler uiTraderPanel;
     [SerializeField]
@@ -38,8 +38,10 @@ public class UnitMovement : MonoBehaviour
     private UISingleConditionalButtonHandler uiCancelTradeRoute;
 
     private bool queueMovementOrders;
+    private MovementSystem movementSystem;
 
     private Unit selectedUnit;
+    private Worker selectedWorker;
     private Trader selectedTrader;
     //private TerrainData selectedTile;
     private InfoProvider selectedUnitInfoProvider;
@@ -49,6 +51,11 @@ public class UnitMovement : MonoBehaviour
     //for transferring cargo to/from trader
     private ResourceManager cityResourceManager; 
     public int cityTraderIncrement = 1;
+
+    private void Awake()
+    {
+        movementSystem = GetComponent<MovementSystem>();
+    }
 
     public void CenterCamOnUnit()
     {
@@ -80,6 +87,9 @@ public class UnitMovement : MonoBehaviour
         {
             if (selectedUnit == unitReference) //Unselect when clicking same unit
             {
+                if (selectedWorker != null && selectedWorker.harvested)
+                    selectedWorker.SendResourceToCity();
+
                 ClearSelection();
                 return;
             }
@@ -113,7 +123,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedUnit.isWorker)
         {
-            Worker selectedWorker = selectedUnit.GetComponent<Worker>();
+            selectedWorker = selectedUnit.GetComponent<Worker>();
             workerTaskManager.SetWorkerUnit(selectedWorker);
             uiWorkerTask.ToggleVisibility(true);
 
@@ -185,8 +195,6 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos)
     {
-        bool isTrader = selectedTrader != null;
-
         if (queueMovementOrders && selectedUnit.FinalDestinationLoc != location && selectedUnit.isMoving)
         {
             movementSystem.AppendNewPath(selectedUnit);
@@ -221,8 +229,8 @@ public class UnitMovement : MonoBehaviour
 
         //bool isTrader = selectedTrader != null;
 
-        MovementFinishSetUp();
-        movementSystem.GetPathToMove(world, selectedUnit, terrainPos, isTrader); //Call AStar movement
+        selectedUnit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
+        movementSystem.GetPathToMove(world, selectedUnit, terrainPos, selectedTrader != null); //Call AStar movement
 
         selectedUnit.FinalDestinationLoc = location;
         //uiJoinCity.ToggleTweenVisibility(false);
@@ -259,7 +267,11 @@ public class UnitMovement : MonoBehaviour
             return;
 
         location.y = 0;
-        TerrainData terrain = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
+        Vector3Int locationInt = Vector3Int.RoundToInt(location);
+        if (Vector3Int.RoundToInt(selectedUnit.transform.position) == locationInt)
+            return;
+
+        TerrainData terrain = world.GetTerrainDataAt(locationInt);
         MoveUnit(terrain, location);
     }
 
@@ -547,10 +559,10 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    private void MovementFinishSetUp()
-    {
-        selectedUnit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
-    }
+    //private void MovementFinishSetUp()
+    //{
+        
+    //}
 
     public void TurnOnInfoScreen()
     {
@@ -567,6 +579,7 @@ public class UnitMovement : MonoBehaviour
         uiMoveUnit.ToggleTweenVisibility(false);
         uiCancelMove.ToggleTweenVisibility(false);
         uiJoinCity.ToggleTweenVisibility(false);
+        uiCancelTask.ToggleTweenVisibility(false);
         uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
         uiTraderPanel.ToggleVisibility(false);
         uiCancelTradeRoute.ToggleTweenVisibility(false);
@@ -583,6 +596,7 @@ public class UnitMovement : MonoBehaviour
         //movementSystem.ClearPaths(); //necessary to queue movement orders
         selectedUnitInfoProvider = null;
         selectedTrader = null;
+        selectedWorker = null;
         selectedUnit = null;
     }
 

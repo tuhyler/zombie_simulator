@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: ResourceData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 9174814290611353267, guid: ba43643a69e79894396998cab5051b46, type: 3}
+  prefab: {fileID: 0}
+  improvementName: Resource
+  image: {fileID: 0}
   improvementCost: []
   consumedResources: []
   producedResources: []
+  producedResourceTime: 0
   resourceType: 0
   workEthicChange: 0
   maxLabor: 0
   laborCost: 0
+  replaceTerrain: 0

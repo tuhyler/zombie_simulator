@@ -98,6 +98,8 @@ public class City : MonoBehaviour
         UpdateCityPopInfo();
         if (cityPop.GetPop >= 1)
             StartCoroutine(FoodConsumptionCoroutine());
+
+        //Physics.IgnoreLayerCollision(6,7);
     }
 
 

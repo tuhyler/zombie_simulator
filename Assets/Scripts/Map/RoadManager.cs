@@ -13,7 +13,9 @@ public class RoadManager : MonoBehaviour
     private MapWorld world;
 
     [SerializeField]
-    private int roadMovementCost = 5;
+    private WorkerTaskManager workerTaskManager;
+
+    public int roadMovementCost = 5, roadBuildingTime = 1, roadRemovingTime = 1;
 
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -45,6 +47,22 @@ public class RoadManager : MonoBehaviour
             structure.SetActive(false);
         world.SetRoads(roadPosition, structure, straight);
     }
+
+    public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)
+    {
+        int timePassed = 0;
+
+        while (timePassed < roadBuildingTime)
+        {
+            yield return new WaitForSeconds(1);
+            timePassed++;
+        }
+
+        worker.isBusy = false;
+        workerTaskManager.TurnOffCancelTask();
+        BuildRoadAtPosition(roadPosition);
+    }
+
 
     //finds if road changes are happening diagonally or on straight, then destroys objects accordingly
     public void BuildRoadAtPosition(Vector3Int roadPosition, bool city = false) 
@@ -208,6 +226,21 @@ public class RoadManager : MonoBehaviour
     {
         GameObject road = straight ? fourWay : diagFourWay;
         CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), straight);
+    }
+
+    public IEnumerator RemoveRoad(Vector3Int tile, Worker worker)
+    {
+        int timePassed = 0;
+
+        while (timePassed < roadRemovingTime)
+        {
+            yield return new WaitForSeconds(1);
+            timePassed++;
+        }
+
+        worker.isBusy = false;
+        workerTaskManager.TurnOffCancelTask();
+        RemoveRoadAtPosition(tile);
     }
 
     public void RemoveRoadAtPosition(Vector3Int tile)

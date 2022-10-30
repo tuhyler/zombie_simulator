@@ -13,10 +13,14 @@ MonoBehaviour:
   m_Name: RoadData
   m_EditorClassIdentifier: 
   prefab: {fileID: 1627574910764654738, guid: e9fbb305868b2af4ba8a0ae64264bfb4, type: 3}
+  improvementName: Road
+  image: {fileID: 0}
   improvementCost: []
   consumedResources: []
   producedResources: []
+  producedResourceTime: 0
   resourceType: 0
   workEthicChange: 0
   maxLabor: 0
   laborCost: 0
+  replaceTerrain: 0

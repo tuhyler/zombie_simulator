@@ -7,6 +7,8 @@ public class ResourceIndividualHandler : MonoBehaviour
 {
     [SerializeField]
     private MapWorld world;
+    [SerializeField]
+    private WorkerTaskManager workerTaskManager;
 
     private City tempCity;
     private Worker workerUnit;
@@ -90,6 +92,8 @@ public class ResourceIndividualHandler : MonoBehaviour
             timePassed++;
         }
 
+        workerUnit.isBusy = false;
+        workerTaskManager.TurnOffCancelTask();
         ShowHarvestedResource(unitPos);
     }
 
@@ -125,9 +129,16 @@ public class ResourceIndividualHandler : MonoBehaviour
         LeanTween.scale(resourceGO, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
     }
 
-    public void NullHarvestValues() //nulling out all the values used to harvest resources
+    public void ResetHarvestValues() //nulling out all the values used to harvest resources
     {
         LeanTween.scale(resourceGO, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
+        tempCity = null;
+        resourceIndividual = null;
+        workerUnit = null;
+    }
+
+    public void NullHarvestValues()
+    {
         tempCity = null;
         resourceIndividual = null;
         workerUnit = null;

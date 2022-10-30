@@ -19,7 +19,7 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public MapWorld world;
     [HideInInspector]
-    public UnityEvent FinishedMoving; //listeners are...
+    public UnityEvent FinishedMoving; //listeners are worker tasks and show individualcity buttons
 
     //movement details
     private Rigidbody unitRigidbody;
@@ -81,6 +81,8 @@ public class Unit : MonoBehaviour
     {
         turnHandler.turnHandler.AddToTurnList(this);
         roadSpeed = world.GetRoadCost();
+
+        //Physics.IgnoreLayerCollision(8, 10);
     }
 
     public void CenterCamera()
@@ -146,6 +148,7 @@ public class Unit : MonoBehaviour
             transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
             //transform.localPosition = newPosition;
             transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
+            //Debug.Log("current location: " + Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2));
 
             if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
                 break;
@@ -299,9 +302,13 @@ public class Unit : MonoBehaviour
 
     public void StopMovement()
     {
-        if (movingCo != null)
-            StopCoroutine(movingCo);
-        FinishMoving(destinationLoc);
+        if (isMoving)
+        {
+            if (movingCo != null)
+                StopCoroutine(movingCo);
+
+            FinishMoving(destinationLoc);
+        }
     }
 
     public void AddToMovementQueue(List<Vector3Int> queuedOrders)
