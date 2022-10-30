@@ -23,12 +23,12 @@ public class Worker : Unit
 
     public override void SendResourceToCity()
     {
-        isBusy = false;
+        //isBusy = false;
         (City city, ResourceIndividualSO resourceIndividual) = resourceIndividualHandler.GetResourceGatheringDetails();
         city.ResourceManager.CheckResource(resourceIndividual.resourceType, 1); //only add one of respective resource
         harvested = false;
 
-        resourceIndividualHandler.NullHarvestValues();
+        resourceIndividualHandler.ResetHarvestValues();
         resourceIndividualHandler = null;
     }
 

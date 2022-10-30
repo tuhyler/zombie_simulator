@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -548530054223577924}
   - component: {fileID: -1354641546340956128}
   - component: {fileID: 350781982696099274}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: City
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 7185426163474996275}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7520340027991800466}
@@ -48,7 +48,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.5, y: 0, z: 1.5}
+  m_Size: {x: 2, y: 1, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-11843151354040455
 MonoBehaviour:
@@ -137,7 +137,7 @@ PrefabInstance:
     - target: {fileID: 1283713312625653450, guid: 721144a4478cf8b458bda7e2b95431f5,
         type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 1283713312625653450, guid: 721144a4478cf8b458bda7e2b95431f5,
         type: 3}
@@ -158,6 +158,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2627657982459710624, guid: 721144a4478cf8b458bda7e2b95431f5,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 3015803000972761919, guid: 721144a4478cf8b458bda7e2b95431f5,
         type: 3}
@@ -203,6 +208,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5837263855307685316, guid: 721144a4478cf8b458bda7e2b95431f5,
+        type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6918740815282819115, guid: 721144a4478cf8b458bda7e2b95431f5,
         type: 3}
