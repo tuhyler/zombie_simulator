@@ -24,8 +24,8 @@ public class UILaborHandler : MonoBehaviour
     private List<UILaborHandlerOptions> laborOptions;
     public List<UILaborHandlerOptions> GetLaborOptions { get { return laborOptions; } }
 
-    [SerializeField]
-    private TMP_Text noneText;
+    //[SerializeField]
+    //private TMP_Text noneText;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -37,14 +37,13 @@ public class UILaborHandler : MonoBehaviour
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
-        gameObject.SetActive(false); //Hide to start
+        gameObject.SetActive(false);
 
-        laborOptions = new List<UILaborHandlerOptions>(); //instantiate
+        laborOptions = new List<UILaborHandlerOptions>();
 
-        foreach (Transform selection in uiElementsParent) //populate list
+        foreach (Transform selection in uiElementsParent) //populates list with just one card - "None"
         {
             laborOptions.Add(selection.GetComponent<UILaborHandlerOptions>());
-            //Debug.Log("print " + selection.name);
         }
 
     }
@@ -71,10 +70,22 @@ public class UILaborHandler : MonoBehaviour
         ToggleVisibility(true);
         
         this.laborChange = laborChange;
+        int showCount = 0; //to see if None text should be shown
 
-        foreach (UILaborHandlerOptions options in laborOptions)
+        foreach (UILaborHandlerOptions option in laborOptions)
         {
-            options.CheckVisibility(Vector3Int.FloorToInt(city.transform.position), world);
+            if (option.noneText)
+            {
+                if (showCount == 0)
+                    option.ToggleVisibility(true);
+                else
+                    option.ToggleVisibility(false);
+
+                continue;
+            }
+
+            showCount += option.CheckVisibility(city.cityLoc, world);
+            //showCount += result;
         }
 
         PrepareLaborChangeOptions(city.cityPop, placesToWork);

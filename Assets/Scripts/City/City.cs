@@ -197,14 +197,15 @@ public class City : MonoBehaviour
         }
     }
 
-    public void SetHouse()
+    public void SetHouse(Vector3Int cityLoc)
     {
         if (currentHouse != null)
             Destroy(currentHouse);
 
-        Vector3 houseLoc = transform.position;
+        Vector3 houseLoc = cityLoc;
         houseLoc.z -= 1f;
-        Instantiate(housingPrefab, houseLoc, Quaternion.identity);
+        GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
+        world.SetCityBuilding(cityLoc, housingPrefab.name, housing);
     }
 
     public void SelectUnitToProduce(GameObject unitToProduce)

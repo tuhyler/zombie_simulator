@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class CityImprovement : MonoBehaviour
 {
+    //[SerializeField]
+    //private ImprovementDataSO improvementDataSO;
+    //public ImprovementDataSO GetImprovementDataSO { get { return improvementDataSO; } }
+    
     private SelectionHighlight highlight;
 
     private void Awake()

@@ -16,7 +16,8 @@ public class MapWorld : MonoBehaviour
     private List<Vector3Int> cityLocations = new();
 
     private Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
-    private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingDict = new(); //all the buildings and info within a city 
+    private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
+    private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
@@ -159,6 +160,11 @@ public class MapWorld : MonoBehaviour
 
     public GameObject GetBuilding(Vector3Int cityTile, string buildingName)
     {
+        return cityBuildingGODict[cityTile][buildingName];
+    }
+
+    public CityImprovement GetBuildingData(Vector3Int cityTile, string buildingName)
+    {
         return cityBuildingDict[cityTile][buildingName];
     }
 
@@ -211,7 +217,9 @@ public class MapWorld : MonoBehaviour
 
     public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building)
     {
-        cityBuildingDict[cityTile][buildingName] = building;
+        cityBuildingGODict[cityTile][buildingName] = building;
+        cityBuildingDict[cityTile][buildingName] = building.GetComponent<CityImprovement>();
+        cityBuildingList[cityTile].Add(buildingName);
     }
 
     public void SetRoads(Vector3Int tile, GameObject road, bool straight)
@@ -275,7 +283,7 @@ public class MapWorld : MonoBehaviour
 
     public bool IsBuildingInCity(Vector3Int cityTile, string buildingName)
     {
-        return cityBuildingDict[cityTile].ContainsKey(buildingName);
+        return cityBuildingGODict[cityTile].ContainsKey(buildingName);
     }
 
     public bool IsRoadOnTerrain(Vector3Int position)
@@ -301,12 +309,12 @@ public class MapWorld : MonoBehaviour
 
     public bool TileHasBuildings(Vector3Int cityTile)
     {
-        if (!cityBuildingDict.ContainsKey(cityTile))
+        if (!cityBuildingGODict.ContainsKey(cityTile))
         {
             return false;
         }
 
-        if (cityBuildingDict[cityTile].Count > 0)
+        if (cityBuildingGODict[cityTile].Count > 0)
             return true;
         else
             return false;
@@ -612,7 +620,8 @@ public class MapWorld : MonoBehaviour
     public void AddCityBuildingDict(Vector3 cityPos)
     {
         Vector3Int cityTile = Vector3Int.RoundToInt(cityPos);
-        cityBuildingDict[cityTile] = new Dictionary<string, GameObject>();
+        cityBuildingGODict[cityTile] = new Dictionary<string, GameObject>();
+        cityBuildingDict[cityTile] = new Dictionary<string, CityImprovement>();
         cityBuildingCurrentWorkedDict[cityTile] = new Dictionary<string, int>();
         cityBuildingMaxWorkedDict[cityTile] = new Dictionary<string, int>();
         cityBuildingList[cityTile] = new List<string>();
@@ -626,6 +635,7 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveCityBuilding(Vector3Int cityTile, string buildingName) 
     {
+        cityBuildingGODict[cityTile].Remove(buildingName);
         cityBuildingDict[cityTile].Remove(buildingName);
         cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
         cityBuildingMaxWorkedDict[cityTile].Remove(buildingName);
@@ -648,8 +658,9 @@ public class MapWorld : MonoBehaviour
             cityImprovementDict.Remove(buildPosition);
             cityImprovementProducerDict.Remove(buildPosition);
         }
-        if (cityBuildingDict.ContainsKey(buildPosition) && cityBuildingDict[buildPosition].Count == 0) //buildings will stay if city abandoned
+        if (cityBuildingGODict.ContainsKey(buildPosition) && cityBuildingGODict[buildPosition].Count == 0) //buildings will stay if city abandoned
         {
+            cityBuildingGODict.Remove(buildPosition);
             cityBuildingDict.Remove(buildPosition);
             cityBuildingMaxWorkedDict.Remove(buildPosition);
             cityBuildingList.Remove(buildPosition);
@@ -709,10 +720,10 @@ public class MapWorld : MonoBehaviour
         cityBuildingMaxWorkedDict[cityTile][buildingName] = max;
     }
 
-    public void AddToCityBuildingList(Vector3Int cityTile, string buildingName)
-    {
-        cityBuildingList[cityTile].Add(buildingName);
-    }
+    //public void AddToCityBuildingList(Vector3Int cityTile, string buildingName)
+    //{
+    //    cityBuildingList[cityTile].Add(buildingName);
+    //}
 
     public void AddToCityBuildingIsProducerDict(Vector3Int cityTile, string buildingName, ResourceProducer resourceProducer)
     {
@@ -805,7 +816,7 @@ public class MapWorld : MonoBehaviour
 
     //public bool CheckIfTileHasBuildings(Vector3Int cityTile)
     //{
-    //    return cityBuildingDict.ContainsKey(cityTile);
+    //    return cityBuildingGODict.ContainsKey(cityTile);
     //}
 
     public bool CheckCityName(string cityName)

@@ -10,6 +10,7 @@ public class UILaborHandlerOptions : MonoBehaviour
 
     [SerializeField]
     private TMP_Text buildingTMP;
+
     private string buildingName;
     public string GetBuildingName { get { return buildingName; } }
 
@@ -31,6 +32,7 @@ public class UILaborHandlerOptions : MonoBehaviour
         if (!noneText)
         {
             buildingName = buildingTMP.text;
+            buildingTMP.text = buildingName.Remove(buildingName.Length - 2); //just displaing simplified name
             buttonHandler = GetComponentInParent<UILaborHandler>();
             canvasGroup = GetComponent<CanvasGroup>();
             highlight = GetComponent<ButtonHighlight>();
@@ -38,31 +40,25 @@ public class UILaborHandlerOptions : MonoBehaviour
         }
     }
 
-    public void CheckVisibility(Vector3Int cityTile, MapWorld world)
+    public void ToggleVisibility(bool v)
     {
-        if (noneText)
-        {
-            if (!world.TileHasBuildings(cityTile))
-            {
-                gameObject.SetActive(true);
-            }
-            else
-            {
-                gameObject.SetActive(false);
-            }
-            return;
-        }
+        gameObject.SetActive(v);
+    }
 
+    public int CheckVisibility(Vector3Int cityTile, MapWorld world)
+    {
         if (world.IsBuildingInCity(cityTile, buildingName))
         {
             currentLabor = world.GetCurrentLaborForBuilding(cityTile, buildingName);
             maxLabor = world.GetMaxLaborForBuilding(cityTile, buildingName);
             gameObject.SetActive(true);
             SetUICount();
+            return 1;
         }
         else
         {
             gameObject.SetActive(false);
+            return 0;
         }
     }
 

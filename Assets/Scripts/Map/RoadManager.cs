@@ -41,7 +41,7 @@ public class RoadManager : MonoBehaviour
     private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool city = false) //placing road prefabs
     {
         Vector3 pos = roadPosition;
-        pos.y = 0.01f;
+        pos.y = 0.12f;
         GameObject structure = Instantiate(model, pos, rotation);
         if (city) //hiding solo roads for new cities
             structure.SetActive(false);

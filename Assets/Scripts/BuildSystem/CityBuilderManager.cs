@@ -116,20 +116,27 @@ public class CityBuilderManager : MonoBehaviour
 
         if (selectedObject.CompareTag("Player") && selectedObject.TryGetComponent(out City cityReference))
         {
-            if (selectedCity != null && selectedCity != cityReference)
+            if (selectedCity != null)
             {
-                ResetCityUI();
-                //selectedCity = cityReference;
-            }
-            
+                if (selectedCity != cityReference)
+                {
+                    ResetCityUI();
+                }
+                else //deselect if same city selected
+                {
+                    ResetCityUI();
+                    return;
+                }
+            } 
+           
             selectedCity = cityReference;
-            Debug.Log("Selected item is " + selectedCity.CityName);
 
             isActive = true;
             selectedCity.activeCity = true;
             selectedCityLoc = world.GetClosestTerrainLoc(location);
             (cityTiles, developedTiles) = GetThisCityRadius();
             ResourceProducerTimeProgressBarsSetActive(true);
+            ToggleBuildingHighlight(true);
             DrawBorders();
             CheckForWork();
             resourceManager = selectedCity.ResourceManager;
@@ -268,6 +275,24 @@ public class CityBuilderManager : MonoBehaviour
     //    }
     //}
 
+    private void ToggleBuildingHighlight(bool v)
+    {
+        if (v)
+        {
+            foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
+            {
+                world.GetBuildingData(selectedCityLoc, name).EnableHighlight(Color.white);
+            }
+        }
+        else
+        {
+            foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
+            {
+                world.GetBuildingData(selectedCityLoc, name).DisableHighlight();
+            }
+        }
+    }
+
     private (List<Vector3Int>, List<Vector3Int>) GetThisCityRadius() //radius just for selected city
     {
         return world.GetCityRadiusFor(selectedCityLoc, selectedCity.gameObject);
@@ -379,35 +404,35 @@ public class CityBuilderManager : MonoBehaviour
 
     public void CreateBuilding(ImprovementDataSO buildingData)
     {
+        //Queue info
         if (isQueueing)
         {
             uiQueueManager.AddToQueue(new Vector3Int(0,0,0), buildingData);
             return;
         }
-
         uiQueueManager.CheckIfBuiltItemIsQueued(new Vector3Int(0, 0, 0), buildingData);
-
+        
         laborChange = 0;
 
+        //building locations
         Vector3 cityPos = selectedCity.transform.position;
         Vector3 buildingLocalPos = buildingData.buildingLocation; //putting the building in it's position in the city square
-
         cityPos += buildingLocalPos;
         
+        //resource info
         resourceManager.SpendResource(buildingData.improvementCost); //this spends the resources needed to build
         resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
-        Debug.Log("Placing structure in " + selectedCity.CityName);
+        //Debug.Log("Placing structure in " + selectedCity.CityName);
 
+        //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
         string buildingName = buildingData.prefab.name;
         world.SetCityBuilding(selectedCityLoc, buildingName, building);
         world.AddToCityMaxLaborDict(selectedCityLoc, buildingName, buildingData.maxLabor);
-        world.AddToCityBuildingList(selectedCityLoc, buildingName);
-        ResourceProducer resourceProducer = building.GetComponent<ResourceProducer>();
-        WorkEthicHandler workEthicHandler = building.GetComponent<WorkEthicHandler>();
 
+        ResourceProducer resourceProducer = building.GetComponent<ResourceProducer>();
         if (resourceProducer != null) //not all buildings will generate resources 
         {
             resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
@@ -416,15 +441,20 @@ public class CityBuilderManager : MonoBehaviour
             world.AddToCityBuildingIsProducerDict(selectedCityLoc, buildingName, resourceProducer);
         }
 
+        WorkEthicHandler workEthicHandler = building.GetComponent<WorkEthicHandler>();
         if (workEthicHandler != null) //not all buildings will have work ethic changes
         {
             workEthicHandler.InitializeImprovementData(buildingData);
         }
 
-        placesToWork++;
-        uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
+        //setting labor data
+        if (buildingData.maxLabor > 0)
+        {
+            placesToWork++;
+            uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
+        }
 
-        //uiBuildingBuilder.ToggleVisibility(false);
+        //ui updating
         uiCityTabs.HideSelectedTab();
         UpdateLaborNumbers();
     }
@@ -445,7 +475,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         //putting the resources and labor back
         GameObject building = world.GetBuilding(selectedCityLoc, selectedBuilding);
-        WorkEthicHandler workEthicHandler = world.GetBuilding(selectedCityLoc, selectedBuilding).GetComponent<WorkEthicHandler>();
+        WorkEthicHandler workEthicHandler = building.GetComponent<WorkEthicHandler>();
 
         if (world.CheckBuildingIsProducer(selectedCityLoc, selectedBuilding))
         {
@@ -1168,6 +1198,7 @@ public class CityBuilderManager : MonoBehaviour
             uiUnitTurn.buttonClicked.RemoveListener(ResetCityUI);
             HideLaborNumbers();
             HideBorders();
+            ToggleBuildingHighlight(false);
             if (selectedCity != null)
                 selectedCity.Deselect();
             placesToWork = 0;
