@@ -7,6 +7,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 718474908050057380, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
+        type: 3}
+      propertyPath: glowMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+    - target: {fileID: 718474908050057380, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
+        type: 3}
+      propertyPath: glowMaterialColor
+      value: 
+      objectReference: {fileID: 2100000, guid: 902e335b538979147bd2837e251af069, type: 2}
     - target: {fileID: 1686765677576597183, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
         type: 3}
       propertyPath: m_RootOrder
@@ -77,6 +87,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2050705500241568073, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
+        type: 3}
+      propertyPath: improvementDataSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 9b61fa9939b08fc4d88dcb7cb6c79525,
+        type: 2}
     - target: {fileID: 8789389234130458407, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
         type: 3}
       propertyPath: m_Name

@@ -67,9 +67,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1463489326688238679}
   - {fileID: 5203131487963136442}
   - {fileID: 4645578430395199819}
+  - {fileID: 1463489326688238679}
   m_Father: {fileID: 4658468831888969045}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 2446957500532144076}
   - component: {fileID: 8368028373402465833}
   m_Layer: 0
-  m_Name: NoneText
+  m_Name: NoneTextAlwaysLast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,7 +149,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4659475051868033150}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -178,6 +178,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laborCountAndMax: {fileID: 2446957500532144076}
   buildingTMP: {fileID: 2446957500532144076}
+  image: {fileID: 0}
   noneText: 1
   canvasGroup: {fileID: 8368028373402465833}
 --- !u!114 &2446957500532144076
@@ -628,7 +629,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   uiElementsParent: {fileID: 4659475051868033150}
-  noneText: {fileID: 2446957500532144076}
   allContents: {fileID: 4658468831888969045}
 --- !u!1 &7352101936243210842
 GameObject:
@@ -696,7 +696,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '      City Buildings'
+  m_text: Labor For City Buildings
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -776,7 +776,7 @@ PrefabInstance:
     - target: {fileID: 729763245470796560, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
       propertyPath: m_text
-      value: Temple
+      value: Monument01
       objectReference: {fileID: 0}
     - target: {fileID: 1422625372763401312, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
@@ -811,7 +811,7 @@ PrefabInstance:
     - target: {fileID: 1997897763210703676, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1997897763210703676, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
@@ -906,7 +906,7 @@ PrefabInstance:
     - target: {fileID: 2375204295238814943, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
       propertyPath: m_Name
-      value: TempleLabor
+      value: Monument01Labor
       objectReference: {fileID: 0}
     - target: {fileID: 2436792576961564271, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
@@ -1017,7 +1017,7 @@ PrefabInstance:
     - target: {fileID: 729763245470796560, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
       propertyPath: m_text
-      value: Research
+      value: Research01
       objectReference: {fileID: 0}
     - target: {fileID: 1422625372763401312, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
@@ -1052,7 +1052,7 @@ PrefabInstance:
     - target: {fileID: 1997897763210703676, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1997897763210703676, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}

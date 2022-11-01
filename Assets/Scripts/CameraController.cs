@@ -81,7 +81,14 @@ public class CameraController : MonoBehaviour
         //{
         //    followTransform = null;
         //}
-
+        //if (Input.GetKey(KeyCode.Q))
+        //{
+        //    newRotation *= Quaternion.Euler(Vector3.left * rotationAmount);
+        //}
+        //if (Input.GetKey(KeyCode.E))
+        //{
+        //    newRotation *= Quaternion.Euler(Vector3.left * -rotationAmount);
+        //}
     }
 
     public void CenterCameraNoFollow(Vector3 pos)
@@ -185,6 +192,6 @@ public class CameraController : MonoBehaviour
 
     private void RotateCamera()
     {
-
+        transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
     }
 }

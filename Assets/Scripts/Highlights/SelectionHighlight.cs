@@ -18,7 +18,7 @@ public class SelectionHighlight : MonoBehaviour
 
     [SerializeField]
     private Material glowMaterialColor; //for colors
-    //private bool isGlowing;
+    private bool isGlowing;
 
     private Color glowColor;
 
@@ -108,8 +108,12 @@ public class SelectionHighlight : MonoBehaviour
     }
 
 
-    public void EnableHighlight(Color highlightColor) //don't like 'Toggle' using this instead
+    public void EnableHighlight(Color highlightColor)
     {
+        if (isGlowing)
+            return;
+
+        isGlowing = true;
         ResetGlowHighlight();
         foreach (MeshRenderer renderer in originalMaterialDictionary.Keys)
         {
@@ -134,6 +138,11 @@ public class SelectionHighlight : MonoBehaviour
 
     public void DisableHighlight()
     {
+        if (!isGlowing)
+            return;
+
+        isGlowing = false;
+        
         foreach (MeshRenderer renderer in originalMaterialDictionary.Keys)
         {
             renderer.materials = originalMaterialDictionary[renderer];

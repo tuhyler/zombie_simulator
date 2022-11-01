@@ -179,7 +179,7 @@ public class UnitMovement : MonoBehaviour
 
     private void PrepareMovement()
     {
-        Debug.Log("Sel. unit is " + selectedUnit.name);
+        //Debug.Log("Sel. unit is " + selectedUnit.name);
         selectedUnit.Select();
         turnHandler.SetIndex(selectedUnit);
         selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
@@ -531,7 +531,7 @@ public class UnitMovement : MonoBehaviour
         uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
     }
 
-    private void ShowIndividualCityButtonsUI()
+    public void ShowIndividualCityButtonsUI()
     {
         if (selectedUnit == null)
             return;

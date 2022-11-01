@@ -231,6 +231,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laborCountAndMax: {fileID: 1787102076178589209}
   buildingTMP: {fileID: 729763245470796560}
+  image: {fileID: 3578463407444225854}
+  noneText: 0
   canvasGroup: {fileID: 6852636951768474160}
 --- !u!114 &9010028177997414865
 MonoBehaviour:
@@ -462,7 +464,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Text
+  m_text: Monument
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -490,8 +492,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 26
+  m_fontSizeBase: 26
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
