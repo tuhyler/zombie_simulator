@@ -10,4 +10,5 @@ public class UnitDataSO : ScriptableObject
     public int health = 10;
     public int attackStrength = 10;
     public float movementSpeed = 1f;
+    public TransportationType transportationType = TransportationType.Land;
 }

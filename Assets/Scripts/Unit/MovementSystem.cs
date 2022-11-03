@@ -30,13 +30,13 @@ public class MovementSystem : MonoBehaviour
 
         if (orderQueueing) //adding lists to each other for order queueing, turn counter starts at 1 each time
         {
-            currentPath = GridSearch.AStarSearch(world, priorPath, endPosition, isTrader);
+            currentPath = GridSearch.AStarSearch(world, priorPath, endPosition, isTrader, selectedUnit.bySea);
             selectedUnit.AddToMovementQueue(currentPath);
             orderQueueing = false;
         }
         else
         {
-            currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader);
+            currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader, selectedUnit.bySea);
         }
 
         //ShowPath();

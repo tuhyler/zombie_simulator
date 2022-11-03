@@ -9,14 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: ObstacleTerrain
+  m_Script: {fileID: 11500000, guid: 108e5631031d91f4e864c62db9544156, type: 3}
+  m_Name: Infantry1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
-  roadPrefab: {fileID: 0}
-  clearedForestPrefab: {fileID: 0}
-  walkable: 0
-  sailable: 0
-  movementCost: 20
-  type: 2
-  resourceType: 0
+  movementPoints: 30
+  health: 10
+  attackStrength: 10
+  movementSpeed: 2

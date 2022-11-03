@@ -19,4 +19,4 @@ MonoBehaviour:
   sailable: 0
   movementCost: 30
   type: 6
-  resourceType: 5
+  resourceType: 4

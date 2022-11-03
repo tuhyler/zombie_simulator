@@ -9,13 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: HillTerrain
+  m_Script: {fileID: 11500000, guid: 108e5631031d91f4e864c62db9544156, type: 3}
+  m_Name: BoatTrader1Data
   m_EditorClassIdentifier: 
-  roadPrefab: {fileID: 0}
-  clearedForestData: {fileID: 0}
-  walkable: 1
-  sailable: 0
-  movementCost: 20
-  type: 4
-  resourceType: 5
+  movementPoints: 20
+  health: 10
+  attackStrength: 10
+  movementSpeed: 1
+  transportationType: 1

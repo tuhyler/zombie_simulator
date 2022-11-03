@@ -109,7 +109,7 @@ public class Trader : Unit
         Vector3Int nextStop = tradeRouteManager.GoToNext();
 
 
-        List<Vector3Int> currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader);
+        List<Vector3Int> currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader, bySea);
 
         //List<TerrainData> paths = new();
 

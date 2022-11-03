@@ -328,6 +328,16 @@ public class MapWorld : MonoBehaviour
         return world.ContainsKey(tileWorldPosition) && world[tileWorldPosition].GetTerrainData().walkable;
     }
 
+    public bool CheckIfSeaPositionIsValid(Vector3Int tileWorldPosition)
+    {
+        return world.ContainsKey(tileWorldPosition) && world[tileWorldPosition].GetTerrainData().sailable;
+    }
+
+    public bool CheckIfSeaPositionIsRiverOrCoast(Vector3Int tileWorldPosition)
+    {
+        return world[tileWorldPosition].GetTerrainData().type == TerrainType.River || world[tileWorldPosition].GetTerrainData().type == TerrainType.Coast;
+    }
+
     public Vector3Int GetClosestTile(Vector3 worldPosition)
     {
         worldPosition.y = 0;

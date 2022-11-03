@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: InfantryData
+  m_Name: Trader1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2321851027760307080, guid: b8ea75b095d526c47b34746b4047349a, type: 3}
-  unitName: Infantry
+  prefab: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108, type: 3}
+  unitName: Trader
   image: {fileID: 0}
   unitCost:
-  - resourceType: 5
-    resourceAmount: 10
   - resourceType: 4
+    resourceAmount: 10
+  - resourceType: 5
     resourceAmount: 10
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
-  unitType: 1
-  unitDescription: Strong, fast unit
+  unitType: 5
+  unitDescription: Transports cargo on land
