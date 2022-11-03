@@ -29,6 +29,6 @@ public class InfoProvider : MonoBehaviour
     {
         selectedUnit = gameObject.GetComponent<Unit>();
         objectName = gameObject.name;
-        regMovementPoints = selectedUnit.GetUnitData().movementPoints;
+        //regMovementPoints = selectedUnit.GetUnitData().movementPoints;
     }
 }

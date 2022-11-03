@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1494dc149f65d8469be6dd2791edb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainData: {fileID: 11400000, guid: e4153a4a3925dde48a5ee020d8b1ac8b, type: 2}
+  terrainData: {fileID: 11400000, guid: ba7d2165cd2acc24b9fcfb758105308a, type: 2}
   prop: {fileID: 0}
   hasRoad: 0
 --- !u!114 &7525565218650109521

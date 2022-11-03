@@ -45,7 +45,7 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting, harvested;
+    public bool bySea, isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting, harvested;
 
     //animation
     private Animator unitAnimator;
@@ -74,6 +74,7 @@ public class Unit : MonoBehaviour
         hillSpeed = world.hill.movementCost;
         forestHillSpeed = world.forestHill.movementCost;
         originalMoveSpeed = unitDataSO.movementSpeed;
+        bySea = unitDataSO.transportationType == TransportationType.Sea;
         shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
     }
 
@@ -121,7 +122,7 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(endPosition))))
+        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !bySea && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(endPosition))))
         {
             FinishMoving(endPosition);
             yield break;
@@ -171,7 +172,7 @@ public class Unit : MonoBehaviour
             {
                 GetInLine(endPosition);
             }
-            else if (pathPositions.Count == 1 && world.IsUnitLocationTaken(nextStep)) //don't occupy sqaure if another unit is there
+            else if (pathPositions.Count == 1 && !followingRoute && world.IsUnitLocationTaken(nextStep)) //don't occupy sqaure if another unit is there
             {
                 FinishMoving(endPosition);
             }
@@ -346,7 +347,7 @@ public class Unit : MonoBehaviour
         unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke();
         TradeRouteCheck(endPosition);
-        if (world.IsUnitLocationTaken(currentLocation))
+        if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
         {
             FindNewSpot(currentLocation);
             return;
@@ -617,4 +618,10 @@ public class Unit : MonoBehaviour
         shoePrint.transform.localScale = shoePrintScale;
         movementSystem.AddToShoePrintPool(shoePrint);
     }
+}
+
+public enum TransportationType
+{
+    Land,
+    Sea,
 }

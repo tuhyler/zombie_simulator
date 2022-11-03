@@ -10,18 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: TraderData
+  m_Name: BoatTrader1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108, type: 3}
-  unitName: Trader
+  prefab: {fileID: 0}
+  unitName: Felucca
   image: {fileID: 0}
   unitCost:
   - resourceType: 4
-    resourceAmount: 10
-  - resourceType: 5
-    resourceAmount: 10
+    resourceAmount: 40
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
   unitType: 5
-  unitDescription: Moves resources
+  unitDescription: Transports cargo on water

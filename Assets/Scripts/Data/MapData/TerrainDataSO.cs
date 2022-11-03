@@ -11,7 +11,7 @@ public class TerrainDataSO : ScriptableObject
     public bool walkable = false;
     public bool sailable = false;
     public int movementCost = 10;
-    public TerrainType type;
+    public TerrainType type = TerrainType.Flatland;
     public ResourceType resourceType;
 
     public void MovementCostCheck()
@@ -25,11 +25,12 @@ public class TerrainDataSO : ScriptableObject
 
 public enum TerrainType
 {
-    Difficult,
-    Moveable,
     Obstacle,
+    Coast,
     Sea,
     River,
+    Flatland,
+    Hill,
     Forest,
     ForestHill
 }

@@ -289,7 +289,15 @@ public class UnitMovement : MonoBehaviour
         Vector3Int terrainPos = world.GetClosestTile(location);
 
 
-        if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
+        if (selectedUnit.bySea)
+        {
+            if (!terrainSelected.GetTerrainData().sailable)
+            {
+                GiveWarningMessage("Can't move there");
+                return;
+            }
+        }
+        else if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
         {
             GiveWarningMessage("Can't move there");
             return;
@@ -301,7 +309,7 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        if (selectedTrader != null && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(location)))
+        if (selectedTrader != null && !selectedTrader.bySea && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(location)))
         {
             GiveWarningMessage("Must travel on road");
 
