@@ -12,6 +12,9 @@ public class TerrainData : MonoBehaviour
     [SerializeField]
     public Transform prop;
 
+    [SerializeField]
+    private GameObject highlightPlane;
+
     private SelectionHighlight highlight;
 
     private Vector3Int tileCoordinates;
@@ -25,11 +28,18 @@ public class TerrainData : MonoBehaviour
     [HideInInspector]
     public bool hasRoad;
 
+    private bool isCoast = false;
+
     private void Awake()
     {
         terrainData.MovementCostCheck();
         ResetMovementCost();
-        highlight = GetComponent<SelectionHighlight>(); 
+        highlight = GetComponent<SelectionHighlight>();
+        if (highlightPlane != null)
+        {
+            highlightPlane.SetActive(false);
+            isCoast = true;
+        }
     }
 
     public Vector3Int GetTileCoordinates()
@@ -43,12 +53,18 @@ public class TerrainData : MonoBehaviour
     public void EnableHighlight(Color highlightColor)
     {
         //highlight.ToggleGlow(true, highlightColor);
+        if (isCoast)
+            ToggleHighlightPlane(true);
+
         highlight.EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()
     {
         //highlight.ToggleGlow(false, Color.white);
+        if (isCoast)
+            ToggleHighlightPlane(false);
+
         highlight.DisableHighlight();
     }
 
@@ -69,4 +85,9 @@ public class TerrainData : MonoBehaviour
         Destroy(gameObject);
     }
     
+    private void ToggleHighlightPlane(bool v)
+    {
+        if (highlightPlane != null)
+            highlightPlane.SetActive(v);
+    }
 }

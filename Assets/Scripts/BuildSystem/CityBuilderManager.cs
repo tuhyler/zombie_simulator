@@ -589,8 +589,10 @@ public class CityBuilderManager : MonoBehaviour
             }
             else //if placing improvement
             {
-                if (td.GetTerrainData().resourceType == improvementData.resourceType && !world.IsBuildLocationTaken(tile) 
-                    && !world.TileHasBuildings(tile) && !world.IsRoadOnTerrain(tile))
+                TerrainType tt = td.GetTerrainData().type;
+
+                if (!world.IsBuildLocationTaken(tile) && !world.TileHasBuildings(tile) && !world.IsRoadOnTerrain(tile) && 
+                    td.GetTerrainData().resourceType == improvementData.resourceType && tt == improvementData.terrainType)
                 {
                     td.EnableHighlight(new Color(1, 1, 1, 0.2f));
                     tilesToChange.Add(tile);
@@ -618,7 +620,30 @@ public class CityBuilderManager : MonoBehaviour
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
         Debug.Log("Placing structure at " + buildLocation);
 
-        GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.identity);
+        int rotation = 0;
+
+        if (improvementData.terrainType == TerrainType.Coast || improvementData.terrainType == TerrainType.River)
+        {
+            int minimum = 99999;
+            int rotationIndex = 0;
+            
+            foreach(Vector3Int neighbor in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.FOURWAYINCREMENT))
+            {
+                if (world.GetTerrainDataAt(neighbor).terrainData.sailable) //don't place harbor on neighboring water tiles
+                    continue;
+                
+                int distanceFromCity = neighbor.sqrMagnitude - selectedCityLoc.sqrMagnitude;
+                if (distanceFromCity < minimum)
+                {
+                    minimum = distanceFromCity;
+                    rotation = rotationIndex * 90;
+                }
+
+                rotationIndex++;
+            }
+        }
+
+        GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
         world.SetCityDevelopment(buildLocation, improvement.GetComponent<CityImprovement>());
         world.AddToMaxLaborDict(buildLocation, improvementData.maxLabor);

@@ -85,14 +85,18 @@ public class ResourceIndividualHandler : MonoBehaviour
 
     public IEnumerator GenerateHarvestedResource(Vector3 unitPos, Worker worker, City city, ResourceIndividualSO resourceIndividual)
     {
-        int timePassed = 0;
-        
-        while (timePassed < resourceIndividual.ResourceGatheringTime)
+        int timePassed = resourceIndividual.ResourceGatheringTime;
+        worker.ShowProgressTimeBar(timePassed);
+        worker.SetTime(timePassed);
+
+        while (timePassed > 0)
         {
             yield return new WaitForSeconds(1);
-            timePassed++;
+            timePassed--;
+            worker.SetTime(timePassed);
         }
 
+        worker.HideProgressTimeBar();
         workerTaskManager.TurnOffCancelTask();
 
         //showing harvested resource

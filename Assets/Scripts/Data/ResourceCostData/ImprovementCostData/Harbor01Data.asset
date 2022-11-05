@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Harbor01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1368035484181370, guid: 2e60d2d09d7c06b42a5c383cf07b90fa, type: 3}
+  prefab: {fileID: 3507881236362810283, guid: 6f2156896dd57c345be6d4355d95907d, type: 3}
   improvementName: Harbor
   improvementLevel: 1
   buildingLocation: {x: 0, y: 0, z: 0}
@@ -25,7 +25,8 @@ MonoBehaviour:
   consumedResources: []
   producedResources: []
   producedResourceTime: 0
-  resourceType: 0
+  resourceType: 1
+  terrainType: 1
   workEthicChange: 0
   maxLabor: 0
   laborCost: 0

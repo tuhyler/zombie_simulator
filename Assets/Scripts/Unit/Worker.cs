@@ -11,6 +11,7 @@ public class Worker : Unit
     private WorkerTaskManager workerTaskManager;
     private Vector3Int resourceCityLoc;
     private Resource resource;
+    private TimeProgressBar timeProgressBar;
 
     private void Awake()
     {
@@ -18,11 +19,20 @@ public class Worker : Unit
         isWorker = true;
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
         resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
+        SetProgressTimeBar();
     }
 
     protected override void AwakeMethods()
     {
         base.AwakeMethods();
+    }
+
+    private void SetProgressTimeBar()
+    {
+        //producerLoc.z -= 1.5f; //bottom center of tile
+        GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0));
+        timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
+        //timeProgressBar.SetTimeProgressBarValue(myImprovementData.producedResourceTime);
     }
 
     public override void SendResourceToCity()
@@ -155,6 +165,26 @@ public class Worker : Unit
     public void SetResource(Resource resource)
     {
         this.resource = resource;
+    }
+
+    public void ShowProgressTimeBar(int time)
+    {
+        Vector3 pos = transform.position;
+        pos.z += -1f;
+        timeProgressBar.gameObject.transform.position = pos;
+        //timeProgressBar.SetTime(time);
+        timeProgressBar.SetTimeProgressBarValue(time);
+        timeProgressBar.SetActive(true);
+    }
+
+    public void HideProgressTimeBar()
+    {
+        timeProgressBar.SetActive(false);
+    }
+
+    public void SetTime(int time)
+    {
+        timeProgressBar.SetTime(time);
     }
 
     //public IEnumerator BuildRoad(Vector3Int roadPosition, RoadManager roadManager)

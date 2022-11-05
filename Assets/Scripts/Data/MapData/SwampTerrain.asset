@@ -18,5 +18,5 @@ MonoBehaviour:
   walkable: 1
   sailable: 0
   movementCost: 20
-  type: 5
+  type: 7
   resourceType: 4

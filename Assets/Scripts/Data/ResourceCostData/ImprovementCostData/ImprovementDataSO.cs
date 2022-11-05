@@ -15,6 +15,7 @@ public class ImprovementDataSO : ScriptableObject
     public List<ResourceValue> producedResources;
     public int producedResourceTime;
     public ResourceType resourceType; //used for highlight tiles in city
+    public TerrainType terrainType;
     public float workEthicChange;
     public int maxLabor;
     public int laborCost;
