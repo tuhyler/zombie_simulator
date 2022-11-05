@@ -50,14 +50,18 @@ public class RoadManager : MonoBehaviour
 
     public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)
     {
-        int timePassed = 0;
+        int timePassed = roadBuildingTime;
+        worker.ShowProgressTimeBar(timePassed);
+        worker.SetTime(timePassed);
 
-        while (timePassed < roadBuildingTime)
+        while (timePassed > 0)
         {
             yield return new WaitForSeconds(1);
-            timePassed++;
+            timePassed--;
+            worker.SetTime(timePassed);
         }
 
+        worker.HideProgressTimeBar();
         worker.isBusy = false;
         workerTaskManager.TurnOffCancelTask();
         BuildRoadAtPosition(roadPosition);
@@ -230,14 +234,18 @@ public class RoadManager : MonoBehaviour
 
     public IEnumerator RemoveRoad(Vector3Int tile, Worker worker)
     {
-        int timePassed = 0;
+        int timePassed = roadRemovingTime;
+        worker.ShowProgressTimeBar(timePassed);
+        worker.SetTime(timePassed);
 
-        while (timePassed < roadRemovingTime)
+        while (timePassed > 0)
         {
             yield return new WaitForSeconds(1);
-            timePassed++;
+            timePassed--;
+            worker.SetTime(timePassed);
         }
 
+        worker.HideProgressTimeBar();
         worker.isBusy = false;
         workerTaskManager.TurnOffCancelTask();
         RemoveRoadAtPosition(tile);

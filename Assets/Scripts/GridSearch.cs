@@ -145,25 +145,23 @@ public class GridSearch
             }
 
             //below is for units not cutting corners
-            bool currentIsCorner = (current.x % 3 != 0 && current.z % 3 != 0);
             bool currentIsRiverOrCoast = false;
 
-            if (currentIsCorner)
+            if (current.x % 3 != 0 && current.z % 3 != 0)
                 currentIsRiverOrCoast = world.CheckIfSeaPositionIsRiverOrCoast(current);
 
             foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
             {
                 Vector3Int neighbor = tile + current;
-
                 int sqrMagnitude = tile.sqrMagnitude;
+
                 //below is for units not cutting corners
-                bool neighborIsCorner = sqrMagnitude == 2;
                 bool neighborIsRiverOrCoast = false;
                 
-                if (neighborIsCorner)
+                if (sqrMagnitude == 2)
                     neighborIsRiverOrCoast = world.CheckIfSeaPositionIsRiverOrCoast(current);
                 
-                if (currentIsRiverOrCoast && neighborIsRiverOrCoast) //&& currentIsCorner && neighborIsCorner)
+                if (currentIsRiverOrCoast && neighborIsRiverOrCoast)
                     continue;
 
                 if (!world.CheckIfSeaPositionIsValid(neighbor))

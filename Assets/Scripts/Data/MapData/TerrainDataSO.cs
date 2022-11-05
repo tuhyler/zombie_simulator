@@ -23,14 +23,17 @@ public class TerrainDataSO : ScriptableObject
     }
 }
 
+//always add new ones at the bottom
 public enum TerrainType
 {
     Obstacle,
     Coast,
     Sea,
+    SeaIntersection,
     River,
     Flatland,
     Hill,
     Forest,
     ForestHill
+
 }

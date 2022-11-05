@@ -351,18 +351,23 @@ public class WorkerTaskManager : MonoBehaviour
 
     private IEnumerator BuildCityCoroutine(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td)
     {
-        int timePassed = 0;
-        int timeLimit = cityBuildingTime;
+        int timePassed = cityBuildingTime;
+        //int timeLimit = cityBuildingTime;
 
         if (clearForest)
-            timeLimit *= 2;
+            timePassed *= 2;
 
-        while (timePassed < timeLimit)
+        worker.ShowProgressTimeBar(timePassed);
+        worker.SetTime(timePassed);
+
+        while (timePassed > 0)
         {
             yield return new WaitForSeconds(1);
-            timePassed++;
+            timePassed--;
+            worker.SetTime(timePassed);
         }
 
+        worker.HideProgressTimeBar();
         TurnOffCancelTask();
         BuildCity(workerTile, worker, clearForest, td);
     }
@@ -441,6 +446,7 @@ public class WorkerTaskManager : MonoBehaviour
     public void CancelTask()
     {
         StopCoroutine(taskCoroutine);
+        workerUnit.HideProgressTimeBar();
         workerUnit.isBusy = false;
         //resourceIndividualHandler.NullHarvestValues();
         TurnOffCancelTask();
