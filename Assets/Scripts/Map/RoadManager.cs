@@ -10,6 +10,9 @@ public class RoadManager : MonoBehaviour
     private GameObject solo, deadEnd, straightRoad, curve, threeWay, fourWay, diagDeadEnd, diagonal, diagCurve, diagThreeWay, diagFourWay;
 
     [SerializeField]
+    private GameObject soloHill, deadEndHill, straightRoadHill, curveHill, threeWayHill, fourWayHill, diagDeadEndHill, diagonalHill, diagCurveHill, diagThreeWayHill, diagFourWayHill;
+
+    [SerializeField]
     private MapWorld world;
 
     [SerializeField]
@@ -41,7 +44,7 @@ public class RoadManager : MonoBehaviour
     private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool city = false) //placing road prefabs
     {
         Vector3 pos = roadPosition;
-        pos.y = 0.12f;
+        pos.y = -.04f;
         GameObject structure = Instantiate(model, pos, rotation);
         if (city) //hiding solo roads for new cities
             structure.SetActive(false);
@@ -72,6 +75,7 @@ public class RoadManager : MonoBehaviour
     public void BuildRoadAtPosition(Vector3Int roadPosition, bool city = false) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
+        bool hill = td.GetTerrainData().type == TerrainType.Hill;
 
         if (td.GetTerrainData().type == TerrainType.Forest || td.GetTerrainData().type == TerrainType.ForestHill)
         {
@@ -92,7 +96,7 @@ public class RoadManager : MonoBehaviour
 
         //making road shape based on how many of its neighbors have roads, and where the roads are
         if (straightRoadsCount + diagRoadsCount == 0)
-            CreateRoadSolo(roadPosition, city);
+            CreateRoadSolo(roadPosition, city, hill);
 
         world.SetRoadLocations(roadPosition);
 
@@ -102,9 +106,9 @@ public class RoadManager : MonoBehaviour
             SetRoadLocations(roadPosition, diagRoads, false);
 
         if (straightRoadsCount > 0)
-            PrepareRoadCreation(roadPosition, straightRoads, straightRoadsCount, true);
+            PrepareRoadCreation(roadPosition, straightRoads, straightRoadsCount, true, hill);
         if (diagRoadsCount > 0)
-            PrepareRoadCreation(roadPosition, diagRoads, diagRoadsCount, false);
+            PrepareRoadCreation(roadPosition, diagRoads, diagRoadsCount, false, hill);
 
         //changing neighbor roads to meet up with new road
         FixNeighborRoads(roadNeighbors);
@@ -115,6 +119,8 @@ public class RoadManager : MonoBehaviour
         foreach ((Vector3Int roadLoc, bool straight, int[] roads) in roadNeighbors)
         {
             int roadCount = roads.Sum();
+            bool hill = world.GetTerrainDataAt(roadLoc).GetTerrainData().type == TerrainType.Hill;
+
             Destroy(world.GetRoads(roadLoc, straight)); //destroying road, consider object pooling
             if (world.IsSoloRoadOnTileLocation(roadLoc))
             {
@@ -127,32 +133,32 @@ public class RoadManager : MonoBehaviour
                 if(world.SoloRoadCheck(roadLoc, straight))
                 {
                     if (!world.IsSoloRoadOnTileLocation(roadLoc)) //if there's not already a solo road there
-                        CreateRoadSolo(roadLoc);
+                        CreateRoadSolo(roadLoc, false, hill);
                 }
             }
 
             SetRoadLocations(roadLoc, roads, straight);
-            PrepareRoadCreation(roadLoc, roads, roadCount, straight);
+            PrepareRoadCreation(roadLoc, roads, roadCount, straight, hill);
         }
     }
 
-    private void PrepareRoadCreation(Vector3Int roadPosition, int[] roads, int roadCount, bool straight)
+    private void PrepareRoadCreation(Vector3Int roadPosition, int[] roads, int roadCount, bool straight, bool hill)
     {
         if (roadCount == 1) //dead end if just one 
         {
-            CreateDeadEnd(roadPosition, roads, straight);
+            CreateDeadEnd(roadPosition, roads, straight, hill);
         }
         else if (roadCount == 2)
         {
-            CreateTwoWay(roadPosition, roads, straight);
+            CreateTwoWay(roadPosition, roads, straight, hill);
         }
         else if (roadCount == 3)
         {
-            CreateThreeWay(roadPosition, roads, straight);
+            CreateThreeWay(roadPosition, roads, straight, hill);
         }
         else if (roadCount == 4)
         {
-            CreateFourWay(roadPosition, straight);
+            CreateFourWay(roadPosition, straight, hill);
         }
     }
 
@@ -177,20 +183,26 @@ public class RoadManager : MonoBehaviour
         }
     }
 
-    private void CreateRoadSolo(Vector3Int roadPosition, bool city = false)
+    private void CreateRoadSolo(Vector3Int roadPosition, bool city, bool hill)
     {
-        CreateRoad(solo, roadPosition, Quaternion.Euler(0, 0, 0), false, city); //solo roads still exists when connecting with straight road
+        GameObject road = hill ? soloHill : solo;
+        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), false, city); //solo roads still exists when connecting with straight road
         world.SetSoloRoadLocations(roadPosition);
     }
 
-    private void CreateDeadEnd(Vector3Int roadPosition, int[] roads, bool straight)
+    private void CreateDeadEnd(Vector3Int roadPosition, int[] roads, bool straight, bool hill)
     {
         int index = Array.FindIndex(roads, x => x == 1);
-        GameObject road = straight ? deadEnd : diagDeadEnd;
+        GameObject road;
+
+        if (hill)
+            road = straight ? deadEndHill : diagDeadEndHill;
+        else
+            road = straight ? deadEnd : diagDeadEnd;
         CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight);
     }
 
-    private void CreateTwoWay(Vector3Int roadPosition, int[] roads, bool straight)
+    private void CreateTwoWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill)
     {
         int index = 0;
         int totalIndex = 0;
@@ -206,7 +218,12 @@ public class RoadManager : MonoBehaviour
         if (totalIndex % 2 == 0) //for straight roads
         {
             rotationFactor = index % 2;
-            GameObject road = straight ? straightRoad : diagonal;
+            GameObject road;
+
+            if (hill)
+                road = straight ? straightRoadHill : diagonalHill;
+            else
+                road = straight ? straightRoad : diagonal;
             CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight);
         }
         else //for curves
@@ -214,21 +231,38 @@ public class RoadManager : MonoBehaviour
             rotationFactor = totalIndex / 2;
             if (totalIndex == 3 && index == 3) 
                 rotationFactor = 3;
-            GameObject road = straight ? curve : diagCurve;
+
+            GameObject road;
+            
+            if (hill)
+                road = straight ? curveHill : diagCurveHill;
+            else
+                road = straight ? curve : diagCurve;
             CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight);
         }
     }
 
-    private void CreateThreeWay(Vector3Int roadPosition, int[] roads, bool straight)
+    private void CreateThreeWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill)
     {
         int index = Array.FindIndex(roads, x => x == 0);
-        GameObject road = straight ? threeWay: diagThreeWay;
+        GameObject road;
+
+        if (hill)
+            road = straight ? threeWayHill : diagThreeWayHill;
+        else
+            road = straight ? threeWay: diagThreeWay;
         CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight);
     }
 
-    private void CreateFourWay(Vector3Int roadPosition, bool straight)
+    private void CreateFourWay(Vector3Int roadPosition, bool straight, bool hill)
     {
-        GameObject road = straight ? fourWay : diagFourWay;
+        GameObject road;
+
+        if (hill)
+            road = straight ? fourWayHill : diagFourWayHill;
+        else
+            road = straight ? fourWay : diagFourWay;
+
         CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), straight);
     }
 

@@ -28134,10 +28134,32 @@ MonoBehaviour:
     type: 3}
   diagFourWay: {fileID: 5101276599224808569, guid: 138822d3d15c018438d33a3cf6d98836,
     type: 3}
+  soloHill: {fileID: 5101276599224808569, guid: 6aa3233ebbbac2742b714aab986f165b,
+    type: 3}
+  deadEndHill: {fileID: 5101276599224808569, guid: 656484e71b329b646824511e04ff045c,
+    type: 3}
+  straightRoadHill: {fileID: 112810431015810440, guid: cf2e7b3b53e0db44e892940195fd397e,
+    type: 3}
+  curveHill: {fileID: 5101276599224808569, guid: 997e39ee11501c1488baf29e1852c0b1,
+    type: 3}
+  threeWayHill: {fileID: 5101276599224808569, guid: 51e087a2e7d482b44b39a118a8f55632,
+    type: 3}
+  fourWayHill: {fileID: 5101276599224808569, guid: e94147d1a52c32a48907139955d175cc,
+    type: 3}
+  diagDeadEndHill: {fileID: 5101276599224808569, guid: 27fa1a1e8842c1a4bbf21ab1c91546e8,
+    type: 3}
+  diagonalHill: {fileID: 5101276599224808569, guid: 951a3f5acf830ca4193e93c5f69c30bc,
+    type: 3}
+  diagCurveHill: {fileID: 5101276599224808569, guid: c6ef5ccda84cda541b2e518fd81a520d,
+    type: 3}
+  diagThreeWayHill: {fileID: 5101276599224808569, guid: d0928968d0ffff44bbcbae2f711c7b60,
+    type: 3}
+  diagFourWayHill: {fileID: 5101276599224808569, guid: f066249b254dc754d878a194b2caea95,
+    type: 3}
   world: {fileID: 163795767}
   workerTaskManager: {fileID: 1634818652}
   roadMovementCost: 5
-  roadBuildingTime: 5
+  roadBuildingTime: 1
   roadRemovingTime: 1
 --- !u!1001 &1643024420
 PrefabInstance:
@@ -39825,7 +39847,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.5
+      value: 8.943115
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

@@ -401,7 +401,7 @@ public class Unit : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        //Debug.Log("colliding with " + collision.gameObject.tag);
+        Debug.Log("colliding with " + collision.gameObject.tag);
         
         threshold = 0.001f;
 
