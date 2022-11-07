@@ -390,8 +390,8 @@ public class WorkerTaskManager : MonoBehaviour
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); //creates building unit position.
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
-        world.AddCity(workerTile);
         City city = newCity.GetComponent<City>();
+        world.AddCity(workerTile, city);
         city.SetNewCityName();
 
         //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();

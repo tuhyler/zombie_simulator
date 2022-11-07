@@ -163,6 +163,12 @@ public class UIBuilderHandler : MonoBehaviour
             if (buildItem == null)
                 continue;
 
+            if (buildItem.singleBuild && buildItem.isBuilt)
+            {
+                buildItem.gameObject.SetActive(false);
+                continue;
+            }
+
             //buildItem.ToggleInteractable(true);
             buildItem.SetResourceTextToDefault();
 

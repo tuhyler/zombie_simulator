@@ -433,6 +433,11 @@ public class Unit : MonoBehaviour
             moveSpeed = (forestHillSpeed / 10f) * originalMoveSpeed * 0.125f;
             unitAnimator.SetFloat("speed", originalMoveSpeed * 2f);
         }
+        else if (collision.gameObject.CompareTag("Water"))
+        {
+            moveSpeed = (flatlandSpeed / 10f) * originalMoveSpeed;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 8f);
+        }
         //else if (collision.gameObject.CompareTag("Player"))
         //{
         //    unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;

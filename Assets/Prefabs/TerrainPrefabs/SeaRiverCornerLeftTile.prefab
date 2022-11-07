@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 6449928624672776919}
   m_Layer: 6
   m_Name: SeaRiverCornerLeftTile
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

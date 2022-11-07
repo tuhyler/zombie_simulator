@@ -507,7 +507,7 @@ public class UnitMovement : MonoBehaviour
 
             Vector3Int traderLoc = Vector3Int.RoundToInt(selectedTrader.transform.position);
 
-            List<string> cityNames = world.GetConnectedCityNames(traderLoc); //only showing city names accessible by unit
+            List<string> cityNames = world.GetConnectedCityNames(traderLoc, selectedTrader.bySea); //only showing city names accessible by unit
             uiTradeRouteManager.PrepareTradeRouteMenu(cityNames, selectedTrader);
             uiTradeRouteManager.ToggleVisibility(true);
             uiTradeRouteManager.LoadTraderRouteInfo(selectedTrader, world);

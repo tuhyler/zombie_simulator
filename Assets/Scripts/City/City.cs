@@ -31,7 +31,9 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Vector3Int cityLoc;
     [HideInInspector]
-    public bool activeCity;
+    public bool activeCity, hasHarbor;
+
+    public Vector3Int harborLocation;
     
     private MapWorld world;
 
