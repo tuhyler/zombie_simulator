@@ -75,7 +75,7 @@ public class RoadManager : MonoBehaviour
     public void BuildRoadAtPosition(Vector3Int roadPosition, bool city = false) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
-        bool hill = td.GetTerrainData().type == TerrainType.Hill;
+        bool hill = td.GetTerrainData().type == TerrainType.Hill || td.GetTerrainData().type == TerrainType.ForestHill;
 
         if (td.GetTerrainData().type == TerrainType.Forest || td.GetTerrainData().type == TerrainType.ForestHill)
         {
@@ -119,7 +119,7 @@ public class RoadManager : MonoBehaviour
         foreach ((Vector3Int roadLoc, bool straight, int[] roads) in roadNeighbors)
         {
             int roadCount = roads.Sum();
-            bool hill = world.GetTerrainDataAt(roadLoc).GetTerrainData().type == TerrainType.Hill;
+            bool hill = world.GetTerrainDataAt(roadLoc).GetTerrainData().type == TerrainType.Hill || world.GetTerrainDataAt(roadLoc).GetTerrainData().type == TerrainType.ForestHill;
 
             Destroy(world.GetRoads(roadLoc, straight)); //destroying road, consider object pooling
             if (world.IsSoloRoadOnTileLocation(roadLoc))

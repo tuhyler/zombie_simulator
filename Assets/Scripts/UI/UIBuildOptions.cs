@@ -35,6 +35,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
     private bool isUnitPanel, cannotAfford;//, produced = true, consumed = true;
 
+    //for hiding card upon build for city
+    public bool singleBuild;
+
+    [HideInInspector]
+    public bool isBuilt;
+
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
     //private bool ;
@@ -211,5 +217,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             buttonHandler.PrepareBuild(buildData);
             buttonHandler.HandleButtonClick();
         }
+
+        if (singleBuild)
+            isBuilt = true;
     }
 }

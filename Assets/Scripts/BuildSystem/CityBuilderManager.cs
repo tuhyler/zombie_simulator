@@ -643,12 +643,22 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
+        //adding improvement to world dictionaries
         GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
         world.SetCityDevelopment(buildLocation, improvement.GetComponent<CityImprovement>());
         world.AddToMaxLaborDict(buildLocation, improvementData.maxLabor);
+        if (improvementData.improvementName == "Harbor")
+        {
+            selectedCity.hasHarbor = true;
+            selectedCity.harborLocation = tempBuildLocation;
+            world.SetCityHarbor(selectedCity, tempBuildLocation);
+            world.AddToCityLabor(tempBuildLocation, selectedCity.gameObject);
+        }
         developedTiles.Add(tempBuildLocation);
 
+
+        //resource production
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
         world.AddResourceProducer(buildLocation, resourceProducer);
         resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
@@ -712,6 +722,12 @@ public class CityBuilderManager : MonoBehaviour
         world.RemoveFromMaxWorked(improvementLoc);
         world.RemoveStructure(improvementLoc);
         developedTiles.Remove(improvementLoc);
+        if (improvementLoc == selectedCity.harborLocation)
+        {
+            selectedCity.hasHarbor = false;
+            world.RemoveHarbor(improvementLoc);
+            world.RemoveFromCityLabor(improvementLoc);
+        }
 
         //updating all the labor info
         selectedCity.UpdateCityPopInfo();
@@ -953,6 +969,9 @@ public class CityBuilderManager : MonoBehaviour
         CityLaborTileNumber tempObject = GetFromLaborNumbersPool();
         tempObject.transform.position = numberPosition;
         laborNumberList.Add(tempObject);
+
+        if (world.GetMaxLaborForTile(tile) == 0) //don't show numbers for those that don't take labor
+            return;
         tempObject.SetLaborNumber(world.PrepareLaborNumbers(tile));
     }
 

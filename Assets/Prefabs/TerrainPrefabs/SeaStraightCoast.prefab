@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 2141899297743964581}
   m_Layer: 6
   m_Name: SeaStraightCoast
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

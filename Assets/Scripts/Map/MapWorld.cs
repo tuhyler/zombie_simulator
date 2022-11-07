@@ -15,6 +15,8 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
     private List<Vector3Int> cityLocations = new();
 
+    private Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
+    private Dictionary<Vector3Int, City> cityHarborDict = new(); //cities and the respective locations of their harbors
     private Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
     private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
@@ -124,17 +126,32 @@ public class MapWorld : MonoBehaviour
 
     public City GetCity(Vector3Int tile)
     {
-        return buildingPosDict[tile].GetComponent<City>();
+        return cityDict[tile];
     }
 
-    public List<string> GetConnectedCityNames(Vector3Int unitLoc)
+    public List<string> GetConnectedCityNames(Vector3Int unitLoc, bool bySea)
     {
         List<string> names = new();
 
         foreach (string name in cityNameDict.Keys)
         {
+            Vector3Int destination;
+            
+            if (bySea)
+            {
+                City city = cityDict[cityNameDict[name]];
+                if (!city.hasHarbor)
+                    continue;
+                else
+                    destination = city.harborLocation;
+            }
+            else
+            {
+                destination = cityNameDict[name];
+            }
+
             //check if trader can reach all destinations
-            if (GridSearch.TraderMovementCheck(this, unitLoc, cityNameDict[name]))
+            if (GridSearch.TraderMovementCheck(this, unitLoc, destination, bySea))
             {
                 names.Add(name);
             } 
@@ -148,9 +165,22 @@ public class MapWorld : MonoBehaviour
         return cityNameDict[cityName];
     }
 
-    public string GetCityName(Vector3Int cityLoc)
+    public City GetHarborCityLocation(Vector3Int harborLocation)
     {
-        return cityLocDict[cityLoc];
+        return cityHarborDict[harborLocation];
+    }
+
+    public Vector3Int GetCityHarborLocation(string cityName)
+    {
+        return cityDict[cityNameDict[cityName]].harborLocation;
+    }
+
+    public string GetCityName(Vector3Int cityLoc, bool bySea = false)
+    {
+        if (bySea)
+            return cityHarborDict[cityLoc].CityName;
+        else
+            return cityLocDict[cityLoc];
     }
 
     public GameObject GetStructure(Vector3Int tile)
@@ -220,6 +250,11 @@ public class MapWorld : MonoBehaviour
         cityBuildingGODict[cityTile][buildingName] = building;
         cityBuildingDict[cityTile][buildingName] = building.GetComponent<CityImprovement>();
         cityBuildingList[cityTile].Add(buildingName);
+    }
+
+    public void SetCityHarbor(City city, Vector3Int harborLoc)
+    {
+        cityHarborDict[harborLoc] = city;
     }
 
     public void SetRoads(Vector3Int tile, GameObject road, bool straight)
@@ -610,10 +645,11 @@ public class MapWorld : MonoBehaviour
         buildingPosDict[position] = structure;
     }
 
-    public void AddCity(Vector3 buildPosition)
+    public void AddCity(Vector3 buildPosition, City city)
     {
         Vector3Int position = Vector3Int.RoundToInt(buildPosition);
         cityLocations.Add(position);
+        cityDict[position] = city;
 
         foreach (Vector3Int tile in neighborsFourDirections)
         {
@@ -677,11 +713,17 @@ public class MapWorld : MonoBehaviour
             cityBuildingIsProducer.Remove(buildPosition);
 
             cityLocations.Remove(buildPosition);
+            cityDict.Remove(buildPosition);
             foreach (Vector3Int tile in neighborsEightDirections)
             {
                 cityLocations.Remove(buildPosition + tile);
             }
         }
+    }
+
+    public void RemoveHarbor(Vector3Int harborLoc)
+    {
+        cityHarborDict.Remove(harborLoc);
     }
 
     public void RemoveRoad(Vector3Int buildPosition)

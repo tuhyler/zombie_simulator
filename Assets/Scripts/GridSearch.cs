@@ -149,6 +149,7 @@ public class GridSearch
 
             if (current.x % 3 != 0 && current.z % 3 != 0)
                 currentIsRiverOrCoast = world.CheckIfSeaPositionIsRiverOrCoast(current);
+            //above is for units not cutting corners
 
             foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
             {
@@ -192,7 +193,7 @@ public class GridSearch
     }
 
 
-    public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isTrader = true)
+    public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isSeaTrader = true)
     {
         List<Vector3Int> positionsToCheck = new();
         Dictionary<Vector3Int, int> priorityDictionary = new();
@@ -212,11 +213,22 @@ public class GridSearch
 
             foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
             {
-                if (!world.CheckIfPositionIsValid(neighbor))
-                    continue;
+                if (isSeaTrader)
+                {
+                    if (!world.CheckIfSeaPositionIsValid(neighbor))
+                        continue;
+                }
+                else
+                {
+                    if (!world.CheckIfPositionIsValid(neighbor))
+                        continue;
 
-                if (isTrader && !world.IsRoadOnTileLocation(neighbor))
-                    continue;
+                    if (!world.IsRoadOnTileLocation(neighbor))
+                        continue;
+                }
+
+                //if (!isSeaTrader && !world.IsRoadOnTileLocation(neighbor))
+                //    continue;
 
                 positionsToCheck.Add(neighbor);
                 priorityDictionary[neighbor] = ManhattanDistance(endPosition, neighbor);

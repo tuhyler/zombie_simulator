@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 6785997424667835597}
   m_Layer: 6
   m_Name: SeaCorner
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

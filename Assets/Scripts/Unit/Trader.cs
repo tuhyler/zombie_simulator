@@ -48,7 +48,10 @@ public class Trader : Unit
 
         foreach (string name in cityNames)
         {
-            cityStops.Add(world.GetCityLocation(name));
+            if (bySea)
+                cityStops.Add(world.GetCityHarborLocation(name));
+            else
+                cityStops.Add(world.GetCityLocation(name));
         }
 
         if (cityStops.Count > 0)
@@ -78,7 +81,10 @@ public class Trader : Unit
 
             if (endLoc == tradeRouteManager.CurrentDestination)
             {
-                tradeRouteManager.SetCity(world.GetCity(endLoc));
+                if (bySea)
+                    tradeRouteManager.SetCity(world.GetHarborCityLocation(endLoc));
+                else
+                    tradeRouteManager.SetCity(world.GetCity(endLoc));
                 atStop = true;
                 isWaiting = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
