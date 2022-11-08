@@ -28,7 +28,9 @@ MonoBehaviour:
     resourceAmount: 10
   producedResourceTime: 0
   resourceType: 0
+  terrainType: 0
   workEthicChange: 0
   maxLabor: 5
   laborCost: 0
   replaceTerrain: 0
+  singleBuild: 1

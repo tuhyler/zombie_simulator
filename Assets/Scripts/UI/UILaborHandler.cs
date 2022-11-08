@@ -56,11 +56,25 @@ public class UILaborHandler : MonoBehaviour
     public void ShowUIRemoveBuildings(Vector3Int cityTile, MapWorld world)
     {
         ToggleVisibility(true);
+        int showCount = 0;
 
-        foreach (UILaborHandlerOptions options in laborOptions)
+        foreach (UILaborHandlerOptions option in laborOptions)
         {
-            options.ToggleInteractable(true); //toggle all interactable
-            options.CheckVisibility(cityTile, world);
+            if (option.noneText)
+            {
+                if (showCount == 0)
+                    option.ToggleVisibility(true);
+                else
+                    option.ToggleVisibility(false);
+
+                continue;
+            }
+
+            showCount += option.CheckVisibility(cityTile, world);
+
+            option.EnableHighlight(Color.red);
+            option.ToggleInteractable(true); //toggle all interactable
+            option.CheckVisibility(cityTile, world);
         }
     }
 

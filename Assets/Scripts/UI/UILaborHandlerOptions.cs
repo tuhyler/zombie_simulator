@@ -32,7 +32,7 @@ public class UILaborHandlerOptions : MonoBehaviour
         if (!noneText)
         {
             buildingName = buildingTMP.text;
-            buildingTMP.text = buildingName.Remove(buildingName.Length - 2); //just displaing simplified name
+            buildingTMP.text = buildingName.Remove(buildingName.Length - 2); //just displaying simplified name
             buttonHandler = GetComponentInParent<UILaborHandler>();
             canvasGroup = GetComponent<CanvasGroup>();
             highlight = GetComponent<ButtonHighlight>();

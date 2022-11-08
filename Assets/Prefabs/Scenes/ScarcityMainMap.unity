@@ -31559,6 +31559,12 @@ PrefabInstance:
       objectReference: {fileID: 1009808077}
     - target: {fileID: 814257511978116511, guid: b76754e35878fdc4fae12e92d04d30c4,
         type: 3}
+      propertyPath: resourceInfoPanel
+      value: 
+      objectReference: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
+        type: 3}
+    - target: {fileID: 814257511978116511, guid: b76754e35878fdc4fae12e92d04d30c4,
+        type: 3}
       propertyPath: OnIconButtonClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -35716,6 +35722,12 @@ PrefabInstance:
       objectReference: {fileID: 1009808077}
     - target: {fileID: 5066759596964185190, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
         type: 3}
+      propertyPath: resourceInfoPanel
+      value: 
+      objectReference: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
+        type: 3}
+    - target: {fileID: 5066759596964185190, guid: 7ad3ed1226431434eb6d913eff9cd2ba,
+        type: 3}
       propertyPath: OnIconButtonClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 0
       objectReference: {fileID: 0}
@@ -39847,7 +39859,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.499995
+      value: 8.664978
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
@@ -44442,6 +44454,12 @@ PrefabInstance:
       propertyPath: resources
       value: 
       objectReference: {fileID: 1009808077}
+    - target: {fileID: 8668398115744699802, guid: 0d922bb27c6789f428c0f113f1312d51,
+        type: 3}
+      propertyPath: resourceInfoPanel
+      value: 
+      objectReference: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
+        type: 3}
     - target: {fileID: 8668398115744699802, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: OnUnitIconButtonClick.m_PersistentCalls.m_Calls.Array.size
