@@ -20,4 +20,5 @@ public class ImprovementDataSO : ScriptableObject
     public int maxLabor;
     public int laborCost;
     public bool replaceTerrain = false;
+    public bool singleBuild = false;
 }

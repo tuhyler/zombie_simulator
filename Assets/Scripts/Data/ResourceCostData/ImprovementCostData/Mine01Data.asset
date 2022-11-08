@@ -33,3 +33,4 @@ MonoBehaviour:
   maxLabor: 2
   laborCost: 0
   replaceTerrain: 0
+  singleBuild: 1

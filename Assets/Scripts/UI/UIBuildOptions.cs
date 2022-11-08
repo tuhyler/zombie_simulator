@@ -27,19 +27,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     [SerializeField]
     private Image objectImage;
 
-    [SerializeField]
-    private GameObject resourceInfoPanel;
+    //[SerializeField]
+    //private GameObject resourceInfoPanel;
 
     [SerializeField]
     private Transform resourceProducedHolder, resourceConsumedHolder, resourceCostHolder, resourceProducedContents, resourceConsumedContents, resourceCostContents;
 
-    private bool isUnitPanel, cannotAfford;//, produced = true, consumed = true;
-
-    //for hiding card upon build for city
-    public bool singleBuild;
-
-    [HideInInspector]
-    public bool isBuilt;
+    private bool isUnitPanel, cannotAfford, isShowing;//, produced = true, consumed = true;
 
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
@@ -72,6 +66,15 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         {
             resourceInfoPanel.backgroundCanvas.interactable = v;
         }
+    }
+
+    public void ToggleVisibility(bool v)
+    {
+        if (isShowing == v)
+            return;
+        
+        isShowing = v;
+        gameObject.SetActive(v);
     }
 
     public void OnUnitPointerClick()
@@ -126,9 +129,11 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     {
         if (workEthicChange != 0 || description.Length > 0)
         {
-            GameObject panel = Instantiate(resourceInfoPanel);
-            panel.transform.SetParent(transform, false);
-            UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
+            //GameObject panel = Instantiate(resourceInfoPanel);
+            //panel.transform.SetParent(transform, false);
+            //UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
+            UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
+            uiResourceInfoPanel.transform.SetParent(transform, false);
 
             uiResourceInfoPanel.resourceAmount.color = Color.black;//new Color32(28, 72, 140, 255); //color32 uses bytes
             uiResourceInfoPanel.resourceAmount.alignment = TextAlignmentOptions.Midline;
@@ -145,9 +150,11 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         
         foreach (ResourceValue value in resources)
         {
-            GameObject panel = Instantiate(resourceInfoPanel); 
-            panel.transform.SetParent(transform, false);
-            UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
+            //GameObject panel = Instantiate(resourceInfoPanel); 
+            //panel.transform.SetParent(transform, false);
+            //UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
+            UIResourceInfoPanel uiResourceCostPanel = buttonHandler.GetFromResourceInfoPanelPool();
+            uiResourceCostPanel.transform.SetParent(transform, false);
 
             int index = resourceInfo.FindIndex(a => a.resourceType == value.resourceType);
 
@@ -163,9 +170,11 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         if (resources.Count == 0 && workEthicChange == 0 && description.Length == 0)
         {
             //Code is repeated here because it won't work in separate method for some reason
-            GameObject panel = Instantiate(resourceInfoPanel);
-            panel.transform.SetParent(transform, false);
-            UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
+            //GameObject panel = Instantiate(resourceInfoPanel);
+            //panel.transform.SetParent(transform, false);
+            //UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
+            UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
+            uiResourceInfoPanel.transform.SetParent(transform, false);
 
             uiResourceInfoPanel.resourceAmount.color = Color.black;// new Color32(28, 72, 140, 255); //color32 uses bytes
             uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(70, 20);
@@ -217,8 +226,5 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             buttonHandler.PrepareBuild(buildData);
             buttonHandler.HandleButtonClick();
         }
-
-        if (singleBuild)
-            isBuilt = true;
     }
 }

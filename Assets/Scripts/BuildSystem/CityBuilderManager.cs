@@ -277,11 +277,13 @@ public class CityBuilderManager : MonoBehaviour
 
     private void ToggleBuildingHighlight(bool v)
     {
+        Color highlightColor = removingBuilding ? Color.red : Color.white;
+        
         if (v)
         {
             foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
-                world.GetBuildingData(selectedCityLoc, name).EnableHighlight(Color.white);
+                world.GetBuildingData(selectedCityLoc, name).EnableHighlight(highlightColor);
             }
         }
         else
@@ -432,6 +434,9 @@ public class CityBuilderManager : MonoBehaviour
         world.SetCityBuilding(selectedCityLoc, buildingName, building);
         world.AddToCityMaxLaborDict(selectedCityLoc, buildingName, buildingData.maxLabor);
 
+        if (buildingData.singleBuild)
+            selectedCity.singleBuildImprovementsAndBuildings.Add(buildingData.improvementName);
+
         ResourceProducer resourceProducer = building.GetComponent<ResourceProducer>();
         if (resourceProducer != null) //not all buildings will generate resources 
         {
@@ -462,6 +467,7 @@ public class CityBuilderManager : MonoBehaviour
     public void RemoveBuildingButton()
     {
         //uiBuildingBuilder.ToggleVisibility(false);
+        laborChange = 0;
         uiCityTabs.HideSelectedTab();
 
         //if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
@@ -469,6 +475,7 @@ public class CityBuilderManager : MonoBehaviour
 
         uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
         removingBuilding = true;
+        ToggleBuildingHighlight(true);
     }
 
     private void RemoveBuilding(string selectedBuilding)
@@ -500,6 +507,8 @@ public class CityBuilderManager : MonoBehaviour
             UpdateCityWorkEthic(workEthicHandler.GetWorkEthicChange(0)); //zero out labor
         }
 
+        if (selectedCity.singleBuildImprovementsAndBuildings.Contains(selectedBuilding))
+            selectedCity.singleBuildImprovementsAndBuildings.Remove(selectedBuilding);
 
         resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
@@ -532,7 +541,7 @@ public class CityBuilderManager : MonoBehaviour
         //uiImprovementBuilder.ToggleVisibility(false);
         uiCityTabs.HideSelectedTab();
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
-        removingBuilding = false;
+        //removingBuilding = false;
         uiLaborHandler.ShowUIRemoveBuildings(selectedCityLoc, world);
         //if (world.GetBuildingListForCity(selectedCityLoc).Count == 0)
         //    uiLaborHandler.HideUI();
@@ -648,7 +657,8 @@ public class CityBuilderManager : MonoBehaviour
         world.AddStructure(buildLocation, improvement);
         world.SetCityDevelopment(buildLocation, improvement.GetComponent<CityImprovement>());
         world.AddToMaxLaborDict(buildLocation, improvementData.maxLabor);
-        if (improvementData.improvementName == "Harbor")
+        string improvementName = improvementData.improvementName;
+        if (improvementName == "Harbor")
         {
             selectedCity.hasHarbor = true;
             selectedCity.harborLocation = tempBuildLocation;
@@ -657,6 +667,8 @@ public class CityBuilderManager : MonoBehaviour
         }
         developedTiles.Add(tempBuildLocation);
 
+        if (improvementData.singleBuild)
+            selectedCity.singleBuildImprovementsAndBuildings.Add(improvementName);
 
         //resource production
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
@@ -696,6 +708,7 @@ public class CityBuilderManager : MonoBehaviour
         ResourceProducer resourceProducer = world.GetResourceProducer(improvementLoc);
         resourceProducer.UpdateCurrentLaborData(0);
         resourceProducer.StopProducing();
+        ImprovementDataSO improvementData = resourceProducer.GetImprovementData;
 
         foreach (ResourceValue resourceValue in resourceProducer.GetImprovementData.improvementCost) //adding back 100% of cost (if there's room)
         {
@@ -704,10 +717,13 @@ public class CityBuilderManager : MonoBehaviour
         resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
 
-        if (resourceProducer.GetImprovementData.replaceTerrain)
+        if (improvementData.replaceTerrain)
         {
             world.GetTerrainDataAt(improvementLoc).gameObject.SetActive(true);
         }
+
+        if (improvementData.singleBuild)
+            selectedCity.singleBuildImprovementsAndBuildings.Remove(improvementData.improvementName);
 
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
 
@@ -722,6 +738,7 @@ public class CityBuilderManager : MonoBehaviour
         world.RemoveFromMaxWorked(improvementLoc);
         world.RemoveStructure(improvementLoc);
         developedTiles.Remove(improvementLoc);
+
         if (improvementLoc == selectedCity.harborLocation)
         {
             selectedCity.hasHarbor = false;
@@ -1088,7 +1105,10 @@ public class CityBuilderManager : MonoBehaviour
         uiLaborHandler.HideUI();
         
         if (!uiImprovementBuildInfoPanel.activeStatus)
+        {
             ResetTileLists();
+            ToggleBuildingHighlight(true);
+        }
     }
 
 

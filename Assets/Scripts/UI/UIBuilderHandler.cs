@@ -37,6 +37,11 @@ public class UIBuilderHandler : MonoBehaviour
     [HideInInspector]
     public bool isQueueing;
 
+    //for object pooling
+    private Queue<UIResourceInfoPanel> resourceInfoPanelQueue = new();
+    [SerializeField]
+    private GameObject resourceInfoPanel;
+
     //public bool isUnit; //flag indicating if units will be built using this UI
 
     //[SerializeField]
@@ -54,6 +59,8 @@ public class UIBuilderHandler : MonoBehaviour
         }
 
         originalLoc = allContents.anchoredPosition3D;
+
+        GrowResourceInfoPanelPool();
     }
 
     private void Update()
@@ -158,14 +165,24 @@ public class UIBuilderHandler : MonoBehaviour
 
     private void PrepareBuildOptions(ResourceManager resourceManager)
     {
+        List<string> improvementSingleBuildList = resourceManager.city.singleBuildImprovementsAndBuildings;
+
         foreach (UIBuildOptions buildItem in buildOptions)
         {
             if (buildItem == null)
                 continue;
 
-            if (buildItem.singleBuild && buildItem.isBuilt)
+            string itemName;
+            if (buildItem.UnitBuildData != null)
+                itemName = buildItem.UnitBuildData.unitName;
+            else
+                itemName = buildItem.BuildData.improvementName;
+
+            buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
+
+            if (improvementSingleBuildList.Contains(itemName))
             {
-                buildItem.gameObject.SetActive(false);
+                buildItem.ToggleVisibility(false);
                 continue;
             }
 
@@ -189,5 +206,31 @@ public class UIBuilderHandler : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void GrowResourceInfoPanelPool()
+    {
+        for (int i = 0; i < 20; i++) //grow pool 20 at a time
+        {
+            GameObject panel = Instantiate(resourceInfoPanel);
+            UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
+            AddToResourceInfoPanelPool(uiResourceInfoPanel);
+        }
+    }
+
+    private void AddToResourceInfoPanelPool(UIResourceInfoPanel resourceInfoPanel)
+    {
+        resourceInfoPanel.gameObject.SetActive(false); //inactivate it when adding to pool
+        resourceInfoPanelQueue.Enqueue(resourceInfoPanel);
+    }
+
+    public UIResourceInfoPanel GetFromResourceInfoPanelPool()
+    {
+        if (resourceInfoPanelQueue.Count == 0)
+            GrowResourceInfoPanelPool();
+
+        var resourceInfoPanel = resourceInfoPanelQueue.Dequeue();
+        resourceInfoPanel.gameObject.SetActive(true);
+        return resourceInfoPanel;
     }
 }

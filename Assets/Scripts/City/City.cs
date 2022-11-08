@@ -40,6 +40,8 @@ public class City : MonoBehaviour
     private ResourceManager resourceManager;
     public ResourceManager ResourceManager { get { return resourceManager; } }
 
+    public List<string> singleBuildImprovementsAndBuildings = new();
+
     //private ResourceProducer resourceProducer;
 
     [HideInInspector]
