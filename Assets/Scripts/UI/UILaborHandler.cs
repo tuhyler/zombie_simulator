@@ -14,7 +14,10 @@ public class UILaborHandler : MonoBehaviour
     private int maxLabor;
     public int GetMaxLabor { get { return maxLabor; } }
 
-    public string buildingName;
+    [SerializeField]
+    private TMP_Text laborHandlerText;
+
+    private string buildingName;
 
     [SerializeField]
     private UnityEvent<string> OnIconButtonClick;
@@ -55,11 +58,14 @@ public class UILaborHandler : MonoBehaviour
 
     public void ShowUIRemoveBuildings(Vector3Int cityTile, MapWorld world)
     {
+        laborHandlerText.text = "Remove City Buildings";
         ToggleVisibility(true);
         int showCount = 0;
 
         foreach (UILaborHandlerOptions option in laborOptions)
         {
+            option.removingOption = true;
+            
             if (option.noneText)
             {
                 if (showCount == 0)
@@ -74,13 +80,15 @@ public class UILaborHandler : MonoBehaviour
 
             option.EnableHighlight(Color.red);
             option.ToggleInteractable(true); //toggle all interactable
-            option.CheckVisibility(cityTile, world);
+            //option.CheckVisibility(cityTile, world);
+            option.removingOption = false;
         }
     }
 
     //pass data to know if can show in the UI
     public void ShowUI(int laborChange, City city, MapWorld world, int placesToWork) 
     {
+        laborHandlerText.text = "Labor for City Buildings";
         ToggleVisibility(true);
         
         this.laborChange = laborChange;

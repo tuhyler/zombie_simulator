@@ -146,7 +146,7 @@ public class Worker : Unit
 
     public bool CheckForCity(Vector3Int workerPos) //finds if city is nearby, returns it (interface? in WorkerTaskManager)
     {
-        foreach (Vector3Int tile in world.GetNeighborsFor(workerPos, MapWorld.State.EIGHTWAYTWODEEP))
+        foreach (Vector3Int tile in world.GetNeighborsFor(workerPos, MapWorld.State.CITYRADIUS))
         {
             if (!world.IsCityOnTile(tile))
             {

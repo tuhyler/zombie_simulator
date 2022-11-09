@@ -178,8 +178,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laborCountAndMax: {fileID: 2446957500532144076}
   buildingTMP: {fileID: 2446957500532144076}
-  image: {fileID: 0}
   noneText: 1
+  removingOption: 0
   canvasGroup: {fileID: 8368028373402465833}
 --- !u!114 &2446957500532144076
 MonoBehaviour:
@@ -624,7 +624,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laborChange: 0
-  buildingName: 
+  laborHandlerText: {fileID: 7571450958479682463}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls: []
@@ -776,7 +776,7 @@ PrefabInstance:
     - target: {fileID: 729763245470796560, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
       propertyPath: m_text
-      value: Monument01
+      value: Monument
       objectReference: {fileID: 0}
     - target: {fileID: 1422625372763401312, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
@@ -1017,7 +1017,7 @@ PrefabInstance:
     - target: {fileID: 729763245470796560, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}
       propertyPath: m_text
-      value: Research01
+      value: Research
       objectReference: {fileID: 0}
     - target: {fileID: 1422625372763401312, guid: 4e8edfd6955cc054b997a25ab542af95,
         type: 3}

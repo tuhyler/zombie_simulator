@@ -10,26 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Lumbermill01Data
+  m_Name: Farm01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 6952278204151173005, guid: 5a5331d32a75f9f459ac9326c34bdf98, type: 3}
-  improvementName: Lumbermill
+  prefab: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00, type: 3}
+  improvementName: Farm
   improvementLevel: 0
+  rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
+  image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   improvementCost:
   - resourceType: 4
     resourceAmount: 10
   - resourceType: 5
-    resourceAmount: 50
+    resourceAmount: 10
   consumedResources: []
   producedResources:
-  - resourceType: 4
-    resourceAmount: 1
-  producedResourceTime: 5
-  resourceType: 4
-  terrainType: 7
+  - resourceType: 1
+    resourceAmount: 2
+  producedResourceTime: 60
+  resourceType: 1
+  terrainType: 5
   workEthicChange: 0
   maxLabor: 2
   laborCost: 0
   replaceTerrain: 0
+  singleBuild: 0

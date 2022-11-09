@@ -8,9 +8,6 @@ public class UIDestroyCityWarning : MonoBehaviour
     private HandlePlayerInput playerInput;
 
     [SerializeField]
-    private CanvasGroup uiNextButton;
-
-    [SerializeField]
     private UIUnitTurnHandler turnHandler;
 
     [SerializeField]
@@ -61,7 +58,6 @@ public class UIDestroyCityWarning : MonoBehaviour
         uiCityBuildTabHandler.ToggleEnable(!v);
         uiLaborAssignment.ToggleEnable(!v);
         uiInfoPanelCity.enabled = !v;
-        uiNextButton.interactable = !v;
         turnHandler.ToggleEnable(!v);
     }
 
