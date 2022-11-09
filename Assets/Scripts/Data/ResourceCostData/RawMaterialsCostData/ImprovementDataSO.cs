@@ -8,6 +8,7 @@ public class ImprovementDataSO : ScriptableObject
     public GameObject prefab;
     public string improvementName;
     public int improvementLevel;
+    public bool rawMaterials;
     public Vector3 buildingLocation;
     public Sprite image;
     public List<ResourceValue> improvementCost;

@@ -401,23 +401,23 @@ public class WorkerTaskManager : MonoBehaviour
         //resourceProducer.SetResourceManager(resourceManager);
         //resourceProducer.BeginResourceGeneration(); //begin generating resources
         //resourceProducer.StartProducing();
-        if (world.TileHasBuildings(workerTile)) //if tile already has buildings, need to switch resourceManager for each resourceProducer 
-        {
-            foreach (string buildingName in world.GetBuildingListForCity(workerTile))
-            {
-                if (world.CheckBuildingIsProducer(workerTile, buildingName))
-                {
-                    ResourceProducer resourceProducer = world.GetBuildingProducer(workerTile, buildingName);
-                    resourceProducer.SetResourceManager(resourceManager);
-                    resourceProducer.SetLocation(workerTile);
-                }
-            }
-        }
-        else //if no currently existing buildings, set up dictionaries
-        {
-            world.AddCityBuildingDict(workerTile);
-            city.SetHouse(workerTile);
-        }
+        //if (world.TileHasBuildings(workerTile)) //if tile already has buildings, need to switch resourceManager for each resourceProducer 
+        //{
+        //    foreach (string buildingName in world.GetBuildingListForCity(workerTile))
+        //    {
+        //        if (world.CheckBuildingIsProducer(workerTile, buildingName))
+        //        {
+        //            ResourceProducer resourceProducer = world.GetBuildingProducer(workerTile, buildingName);
+        //            resourceProducer.SetResourceManager(resourceManager);
+        //            resourceProducer.SetLocation(workerTile);
+        //        }
+        //    }
+        //}
+        //else //if no currently existing buildings, set up dictionaries
+        //{
+        world.AddCityBuildingDict(workerTile);
+        city.SetHouse(workerTile);
+        //}
 
         //showing join city button
         unitMovement.ShowIndividualCityButtonsUI();
@@ -427,7 +427,7 @@ public class WorkerTaskManager : MonoBehaviour
     private bool CheckForNearbyCity(Vector3 workerPos)
     {
         Vector3Int workerTile = Vector3Int.RoundToInt(workerPos);
-        foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.EIGHTWAYTWODEEP))
+        foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
         {
             if (!world.IsCityOnTile(tile))
             {

@@ -35,7 +35,7 @@ public class MapWorld : MonoBehaviour
 
     private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingMaxWorkedDict = new(); //max labor of buildings within city
     private Dictionary<Vector3Int, List<string>> cityBuildingList = new(); //list of buildings on city tiles (here instead of City because buildings can be without a city)
-    private Dictionary<Vector3Int, Dictionary<string, ResourceProducer>> cityBuildingIsProducer = new(); //all the buildings that are resource producers (for speed)
+    //private Dictionary<Vector3Int, Dictionary<string, ResourceProducer>> cityBuildingIsProducer = new(); //all the buildings that are resource producers (for speed)
 
     //for roads
     private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new(); //stores road GOs, only on terrain locations
@@ -203,10 +203,10 @@ public class MapWorld : MonoBehaviour
         return cityImprovementProducerDict[pos];
     }
 
-    public ResourceProducer GetBuildingProducer(Vector3Int cityTile, string buildingName)
-    {
-        return cityBuildingIsProducer[cityTile][buildingName];
-    }
+    //public ResourceProducer GetBuildingProducer(Vector3Int cityTile, string buildingName)
+    //{
+    //    return cityBuildingIsProducer[cityTile][buildingName];
+    //}
 
     public CityImprovement GetCityDevelopment(Vector3Int tile)
     {
@@ -342,18 +342,18 @@ public class MapWorld : MonoBehaviour
         //return cityNameDict.ContainsKey(cityName);
     }
 
-    public bool TileHasBuildings(Vector3Int cityTile)
-    {
-        if (!cityBuildingGODict.ContainsKey(cityTile))
-        {
-            return false;
-        }
+    //public bool TileHasBuildings(Vector3Int cityTile)
+    //{
+    //    if (!cityBuildingGODict.ContainsKey(cityTile))
+    //    {
+    //        return false;
+    //    }
 
-        if (cityBuildingGODict[cityTile].Count > 0)
-            return true;
-        else
-            return false;
-    }
+    //    if (cityBuildingGODict[cityTile].Count > 0)
+    //        return true;
+    //    else
+    //        return false;
+    //}
 
 
 
@@ -450,6 +450,34 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-increment,0,increment), //upper left
     };
 
+    private readonly static List<Vector3Int> neighborsEightDirectionsTwoDeep = new()
+    {
+        new Vector3Int(0,0,1), //up
+        new Vector3Int(1,0,1), //upper right
+        new Vector3Int(1,0,0), //right
+        new Vector3Int(1,0,-1), //lower right
+        new Vector3Int(0,0,-1), //down
+        new Vector3Int(-1,0,-1), //lower left
+        new Vector3Int(-1,0,0), //left
+        new Vector3Int(-1,0,1), //upper left
+        new Vector3Int(0,0,2), //up up
+        new Vector3Int(1,0,2), //up up right
+        new Vector3Int(2,0,2), //upper right corner
+        new Vector3Int(2,0,1), //up right right
+        new Vector3Int(2,0,0), //right right
+        new Vector3Int(2,0,-1), //right right down
+        new Vector3Int(2,0,-2), //lower right corner
+        new Vector3Int(1,0,-2), //down down right
+        new Vector3Int(0,0,-2), //down down
+        new Vector3Int(-1,0,-2), //down down left
+        new Vector3Int(-2,0,-2), //lower left corner
+        new Vector3Int(-2,0,-1), //left left down
+        new Vector3Int(-2,0,0), //left left
+        new Vector3Int(-2,0,1), //left left up
+        new Vector3Int(-2,0,2), //upper left corner
+        new Vector3Int(-1,0,2), //up up left
+    };
+
     private readonly static List<Vector3Int> cityRadius = new()
     {
         new Vector3Int(0,0,increment), //up
@@ -478,7 +506,7 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-increment,0,2*increment), //up up left
     };
 
-    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYTWODEEP };
+    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYTWODEEP, CITYRADIUS };
 
     public List<Vector3Int> GetNeighborsFor(Vector3Int worldTilePosition, State criteria)
     {
@@ -496,6 +524,9 @@ public class MapWorld : MonoBehaviour
                 listToUse = new(neighborsEightDirections);
                 break;
             case State.EIGHTWAYTWODEEP:
+                listToUse = new(neighborsEightDirectionsTwoDeep);
+                break;
+            case State.CITYRADIUS:
                 listToUse = new(cityRadius);
                 break;
         }
@@ -521,6 +552,8 @@ public class MapWorld : MonoBehaviour
             case State.EIGHTWAY:
                 return new(neighborsEightDirections);
             case State.EIGHTWAYTWODEEP:
+                return new(neighborsEightDirectionsTwoDeep);
+            case State.CITYRADIUS:
                 return new(cityRadius);
         }
 
@@ -671,7 +704,7 @@ public class MapWorld : MonoBehaviour
         cityBuildingCurrentWorkedDict[cityTile] = new Dictionary<string, int>();
         cityBuildingMaxWorkedDict[cityTile] = new Dictionary<string, int>();
         cityBuildingList[cityTile] = new List<string>();
-        cityBuildingIsProducer[cityTile] = new Dictionary<string, ResourceProducer>();
+        //cityBuildingIsProducer[cityTile] = new Dictionary<string, ResourceProducer>();
     }
 
     public int CityCount()
@@ -686,7 +719,7 @@ public class MapWorld : MonoBehaviour
         cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
         cityBuildingMaxWorkedDict[cityTile].Remove(buildingName);
         cityBuildingList[cityTile].Remove(buildingName);
-        cityBuildingIsProducer[cityTile].Remove(buildingName);
+        //cityBuildingIsProducer[cityTile].Remove(buildingName);
     }
 
     public void RemoveCityName(Vector3Int cityLoc)
@@ -704,13 +737,18 @@ public class MapWorld : MonoBehaviour
             cityImprovementDict.Remove(buildPosition);
             cityImprovementProducerDict.Remove(buildPosition);
         }
-        if (cityBuildingGODict.ContainsKey(buildPosition) && cityBuildingGODict[buildPosition].Count == 0) //buildings will stay if city abandoned
+        if (cityBuildingGODict.ContainsKey(buildPosition)) //if destroying city, destroy all buildings within
         {
+            foreach (string building in cityBuildingGODict[buildPosition].Keys)
+            {
+                Destroy(cityBuildingGODict[buildPosition][building]);
+            }
+            
             cityBuildingGODict.Remove(buildPosition);
             cityBuildingDict.Remove(buildPosition);
             cityBuildingMaxWorkedDict.Remove(buildPosition);
             cityBuildingList.Remove(buildPosition);
-            cityBuildingIsProducer.Remove(buildPosition);
+            //cityBuildingIsProducer.Remove(buildPosition);
 
             cityLocations.Remove(buildPosition);
             cityDict.Remove(buildPosition);
@@ -777,10 +815,10 @@ public class MapWorld : MonoBehaviour
     //    cityBuildingList[cityTile].Add(buildingName);
     //}
 
-    public void AddToCityBuildingIsProducerDict(Vector3Int cityTile, string buildingName, ResourceProducer resourceProducer)
-    {
-        cityBuildingIsProducer[cityTile][buildingName] = resourceProducer;
-    }
+    //public void AddToCityBuildingIsProducerDict(Vector3Int cityTile, string buildingName, ResourceProducer resourceProducer)
+    //{
+    //    cityBuildingIsProducer[cityTile][buildingName] = resourceProducer;
+    //}
 
     public void AddToCityLabor(Vector3Int pos, GameObject city)
     {
@@ -824,7 +862,13 @@ public class MapWorld : MonoBehaviour
 
     public List<string> GetBuildingListForCity(Vector3Int cityTile)
     {
-        return cityBuildingList[cityTile];
+        if (cityBuildingList.ContainsKey(cityTile))
+            return cityBuildingList[cityTile];
+        else
+        {
+            List<string> noList = new();
+            return noList;
+        }
     }
 
     public bool CheckImprovementIsProducer(Vector3Int pos)
@@ -832,10 +876,10 @@ public class MapWorld : MonoBehaviour
         return cityImprovementProducerDict.ContainsKey(pos);
     }
 
-    public bool CheckBuildingIsProducer(Vector3Int cityTile, string buildingName)
-    {
-        return cityBuildingIsProducer[cityTile].ContainsKey(buildingName);
-    }
+    //public bool CheckBuildingIsProducer(Vector3Int cityTile, string buildingName)
+    //{
+    //    return cityBuildingIsProducer[cityTile].ContainsKey(buildingName);
+    //}
 
     private GameObject GetCityLaborForTile(Vector3Int pos)
     {

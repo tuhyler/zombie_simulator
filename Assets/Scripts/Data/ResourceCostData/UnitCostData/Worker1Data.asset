@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Worker1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1725578051896526516, guid: 5acb3f133e2f57f438443ff1b7a71bd3, type: 3}
+  prefab: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296, type: 3}
   unitName: Worker
   image: {fileID: 0}
   unitCost:

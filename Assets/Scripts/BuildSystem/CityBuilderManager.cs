@@ -430,21 +430,21 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
-        string buildingName = buildingData.prefab.name;
+        string buildingName = buildingData.improvementName;
         world.SetCityBuilding(selectedCityLoc, buildingName, building);
         world.AddToCityMaxLaborDict(selectedCityLoc, buildingName, buildingData.maxLabor);
 
         if (buildingData.singleBuild)
             selectedCity.singleBuildImprovementsAndBuildings.Add(buildingData.improvementName);
 
-        ResourceProducer resourceProducer = building.GetComponent<ResourceProducer>();
-        if (resourceProducer != null) //not all buildings will generate resources 
-        {
-            resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
-            resourceProducer.InitializeImprovementData(buildingData); //allows the new structure to also start generating resources
-            resourceProducer.SetLocation(selectedCityLoc);
-            world.AddToCityBuildingIsProducerDict(selectedCityLoc, buildingName, resourceProducer);
-        }
+        //ResourceProducer resourceProducer = building.GetComponent<ResourceProducer>();
+        //if (resourceProducer != null) //not all buildings will generate resources 
+        //{
+        //    resourceProducer.SetResourceManager(resourceManager); //need to set resourceManager for each new resource producer. 
+        //    resourceProducer.InitializeImprovementData(buildingData); //allows the new structure to also start generating resources
+        //    resourceProducer.SetLocation(selectedCityLoc);
+        //    world.AddToCityBuildingIsProducerDict(selectedCityLoc, buildingName, resourceProducer);
+        //}
 
         WorkEthicHandler workEthicHandler = building.GetComponent<WorkEthicHandler>();
         if (workEthicHandler != null) //not all buildings will have work ethic changes
@@ -484,23 +484,23 @@ public class CityBuilderManager : MonoBehaviour
         GameObject building = world.GetBuilding(selectedCityLoc, selectedBuilding);
         WorkEthicHandler workEthicHandler = building.GetComponent<WorkEthicHandler>();
 
-        if (world.CheckBuildingIsProducer(selectedCityLoc, selectedBuilding))
-        {
-            ResourceProducer resourceProducer = world.GetBuildingProducer(selectedCityLoc, selectedBuilding);
-            resourceProducer.UpdateCurrentLaborData(0);
+        //if (world.CheckBuildingIsProducer(selectedCityLoc, selectedBuilding))
+        //{
+        //    ResourceProducer resourceProducer = world.GetBuildingProducer(selectedCityLoc, selectedBuilding);
+        //    resourceProducer.UpdateCurrentLaborData(0);
 
-            foreach (ResourceValue resourceValue in resourceProducer.GetImprovementData.improvementCost) //adding back 100% of cost (if there's room)
-            {
-                resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
-            }
-        }
-        else //if building has both, still only do one (should have at least one)
+        //    foreach (ResourceValue resourceValue in resourceProducer.GetImprovementData.improvementCost) //adding back 100% of cost (if there's room)
+        //    {
+        //        resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+        //    }
+        //}
+        //else //if building has both, still only do one (should have at least one)
+        //{
+        foreach (ResourceValue resourceValue in workEthicHandler.GetImprovementData.improvementCost)
         {
-            foreach (ResourceValue resourceValue in workEthicHandler.GetImprovementData.improvementCost)
-            {
-                resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
-            }
+            resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
         }
+        //}
 
         if (workEthicHandler != null)
         {
@@ -598,13 +598,18 @@ public class CityBuilderManager : MonoBehaviour
             }
             else //if placing improvement
             {
-                TerrainType tt = td.GetTerrainData().type;
-
-                if (!world.IsBuildLocationTaken(tile) && !world.TileHasBuildings(tile) && !world.IsRoadOnTerrain(tile) && 
-                    td.GetTerrainData().resourceType == improvementData.resourceType && tt == improvementData.terrainType)
+                if (!world.IsBuildLocationTaken(tile) && !world.IsRoadOnTerrain(tile) && td.GetTerrainData().type == improvementData.terrainType)
                 {
-                    td.EnableHighlight(new Color(1, 1, 1, 0.2f));
-                    tilesToChange.Add(tile);
+                    if (improvementData.rawMaterials && td.GetTerrainData().resourceType == improvementData.resourceType)
+                    {
+                        td.EnableHighlight(new Color(1, 1, 1, 0.2f));
+                        tilesToChange.Add(tile);
+                    }
+                    else if (!improvementData.rawMaterials)
+                    {
+                        td.EnableHighlight(new Color(1, 1, 1, 0.2f));
+                        tilesToChange.Add(tile);
+                    }
                 }
             }
         }
@@ -838,10 +843,10 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.cityPop.GetSetCityLaborers += laborChange;
         ChangeCityLaborInfo();
 
-        if (world.CheckBuildingIsProducer(selectedCityLoc, buildingName))
-        {
-            world.GetBuildingProducer(selectedCityLoc, buildingName).UpdateCurrentLaborData(labor);
-        }
+        //if (world.CheckBuildingIsProducer(selectedCityLoc, buildingName))
+        //{
+        //    world.GetBuildingProducer(selectedCityLoc, buildingName).UpdateCurrentLaborData(labor);
+        //}
 
         WorkEthicHandler workEthicHandler = world.GetBuilding(selectedCityLoc, buildingName).GetComponent<WorkEthicHandler>();
 
@@ -888,11 +893,11 @@ public class CityBuilderManager : MonoBehaviour
                     world.GetResourceProducer(tile).CalculateResourceGenerationPerMinute();
             }
 
-            foreach (string cityBuildingName in world.GetBuildingListForCity(selectedCityLoc))
-            {
-                if (world.CheckBuildingIsProducer(selectedCityLoc, cityBuildingName))
-                    world.GetBuildingProducer(selectedCityLoc, cityBuildingName).CalculateResourceGenerationPerMinute();
-            }
+            //foreach (string cityBuildingName in world.GetBuildingListForCity(selectedCityLoc))
+            //{
+            //    if (world.CheckBuildingIsProducer(selectedCityLoc, cityBuildingName))
+            //        world.GetBuildingProducer(selectedCityLoc, cityBuildingName).CalculateResourceGenerationPerMinute();
+            //}
         }
     }
 
@@ -980,7 +985,7 @@ public class CityBuilderManager : MonoBehaviour
         //specifying location on tile
         Vector3 numberPosition = tile;
         numberPosition.y += .01f;
-        numberPosition.z += 1.3f; //top center of tile
+        numberPosition.z -= 1.3f; //bottom center of tile
 
         //Object pooling set up
         CityLaborTileNumber tempObject = GetFromLaborNumbersPool();
@@ -1165,7 +1170,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             Vector3Int tile = queuedItem.buildLoc + selectedCityLoc;
 
-            if (world.IsBuildLocationTaken(tile) || world.TileHasBuildings(tile) || world.IsRoadOnTerrain(tile))
+            if (world.IsBuildLocationTaken(tile) || world.IsRoadOnTerrain(tile))
             {
                 Debug.Log("Tile already taken");
                 city.RemoveFirstFromQueue(this);

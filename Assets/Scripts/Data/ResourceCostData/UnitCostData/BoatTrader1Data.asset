@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: BoatTrader1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
-  unitName: Felucca
+  prefab: {fileID: 5269694401452621163, guid: 93eeea04b2503ca4b8e3df5751f2495a, type: 3}
+  unitName: Trade Boat
   image: {fileID: 0}
   unitCost:
   - resourceType: 4

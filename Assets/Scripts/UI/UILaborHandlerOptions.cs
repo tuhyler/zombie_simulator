@@ -21,6 +21,9 @@ public class UILaborHandlerOptions : MonoBehaviour
 
     public bool noneText; //flag if it's none text, shown for no buildings
 
+    [HideInInspector]
+    public bool removingOption;
+
     private UILaborHandler buttonHandler;
     private ButtonHighlight highlight;
 
@@ -32,7 +35,7 @@ public class UILaborHandlerOptions : MonoBehaviour
         if (!noneText)
         {
             buildingName = buildingTMP.text;
-            buildingTMP.text = buildingName.Remove(buildingName.Length - 2); //just displaying simplified name
+            //buildingTMP.text = buildingName.Remove(buildingName.Length - 2); //just displaying simplified name
             buttonHandler = GetComponentInParent<UILaborHandler>();
             canvasGroup = GetComponent<CanvasGroup>();
             highlight = GetComponent<ButtonHighlight>();
@@ -51,6 +54,13 @@ public class UILaborHandlerOptions : MonoBehaviour
         {
             currentLabor = world.GetCurrentLaborForBuilding(cityTile, buildingName);
             maxLabor = world.GetMaxLaborForBuilding(cityTile, buildingName);
+
+            if (!removingOption && maxLabor == 0)
+            {
+                ToggleVisibility(false);
+                return 0;
+            }
+
             gameObject.SetActive(true);
             SetUICount();
             return 1;
@@ -82,6 +92,10 @@ public class UILaborHandlerOptions : MonoBehaviour
     private void SetUICount()
     {
         laborCountAndMax.text = $"{currentLabor}/{maxLabor}";
+        if (maxLabor == 0)
+            laborCountAndMax.gameObject.SetActive(false);
+        else
+            laborCountAndMax.gameObject.SetActive(true);
     }
 
     public void EnableHighlight(Color highlightColor)

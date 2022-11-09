@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 3b762d108bd859740994e93f3ecedf1c,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3b762d108bd859740994e93f3ecedf1c,
         type: 3}
@@ -109,7 +109,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
-      value: worker_01
+      value: Worker1Data_1
       objectReference: {fileID: 0}
     - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -207,10 +207,11 @@ MonoBehaviour:
   isBusy: 0
   isMoving: 0
   turnHandler: {fileID: 0}
+  bySea: 0
   isTrader: 0
   atStop: 0
   followingRoute: 0
   isWorker: 0
-  harvesting: 0
+  isSelected: 0
+  isWaiting: 0
   harvested: 0
-  resourceIsNotNull: 0
