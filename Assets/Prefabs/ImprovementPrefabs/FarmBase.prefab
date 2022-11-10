@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: -8263471475875251820}
   - component: {fileID: 2050705500241568073}
   - component: {fileID: 718474908050057380}
-  - component: {fileID: 1415870958543752818}
+  - component: {fileID: 1359330119388014317}
   m_Layer: 7
-  m_Name: QuarryBase
+  m_Name: FarmBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73,7 +73,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
---- !u!65 &1415870958543752818
+--- !u!65 &1359330119388014317
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,5 +84,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2, y: 0, z: 2}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 2, y: 0.1, z: 2}
+  m_Center: {x: 0, y: 0.1, z: 0}

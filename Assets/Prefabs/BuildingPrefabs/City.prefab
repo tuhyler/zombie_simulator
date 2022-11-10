@@ -48,8 +48,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.8, y: 1, z: 1.8}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.8, y: 0.1, z: 1.8}
+  m_Center: {x: 0, y: 0.1, z: 0}
 --- !u!114 &-11843151354040455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,6 +69,9 @@ MonoBehaviour:
   cityName: {fileID: 7771684247865887059}
   cityLoc: {x: 0, y: 0, z: 0}
   activeCity: 0
+  hasHarbor: 0
+  harborLocation: {x: 0, y: 0, z: 0}
+  singleBuildImprovementsAndBuildings: []
   cityPop: {fileID: 0}
   unitFoodConsumptionPerTurn: 1
   secondsTillGrowthCheck: 600

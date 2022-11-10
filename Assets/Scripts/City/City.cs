@@ -209,7 +209,7 @@ public class City : MonoBehaviour
         Vector3 houseLoc = cityLoc;
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
-        world.SetCityBuilding(cityLoc, housingPrefab.name, housing);
+        world.SetCityBuilding(cityLoc, housingPrefab.name, housing, this, true);
     }
 
     public void SelectUnitToProduce(GameObject unitToProduce)

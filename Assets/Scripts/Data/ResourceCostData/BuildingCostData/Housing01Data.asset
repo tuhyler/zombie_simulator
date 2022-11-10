@@ -15,6 +15,7 @@ MonoBehaviour:
   prefab: {fileID: 2413421541421609430, guid: 6161d90e38ce78d40b917c4495a50eea, type: 3}
   improvementName: Housing
   improvementLevel: 1
+  rawMaterials: 0
   buildingLocation: {x: 0, y: 0, z: -1}
   image: {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
   improvementCost:
