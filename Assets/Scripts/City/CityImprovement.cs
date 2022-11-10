@@ -8,20 +8,46 @@ public class CityImprovement : MonoBehaviour
     //private ImprovementDataSO improvementDataSO;
     //public ImprovementDataSO GetImprovementDataSO { get { return improvementDataSO; } }
     
-    private SelectionHighlight highlight;
+    private SelectionHighlight[] highlight;
+    private string improvementName;
+    public string ImprovementName { get { return improvementName; } set { improvementName = value; } }
+    private City city;
+    [HideInInspector]
+    public bool initialCityHouse; 
 
     private void Awake()
     {
-        highlight = GetComponent<SelectionHighlight>();
+        highlight = GetComponents<SelectionHighlight>();
     }
 
     public void EnableHighlight(Color highlightColor)
     {
-        highlight.EnableHighlight(highlightColor);
+        highlight[0].EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()
     {
-        highlight.DisableHighlight();
+        highlight[0].DisableHighlight();
+    }
+
+    //in case object has two of this script (such as in buildings)
+    public void EnableHighlight2(Color highlightColor)
+    {
+        highlight[1].EnableHighlight(highlightColor);
+    }
+
+    public void DisableHighlight2()
+    {
+        highlight[1].DisableHighlight();
+    }
+
+    public void SetCity(City city)
+    {
+        this.city = city;
+    }
+
+    public City GetCity()
+    {
+        return city;
     }
 }

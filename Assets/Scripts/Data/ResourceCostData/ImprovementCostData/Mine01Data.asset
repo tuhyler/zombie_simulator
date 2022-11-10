@@ -31,7 +31,7 @@ MonoBehaviour:
   resourceType: 5
   terrainType: 6
   workEthicChange: 0
-  maxLabor: 2
+  maxLabor: 1
   laborCost: 0
   replaceTerrain: 0
   singleBuild: 1
