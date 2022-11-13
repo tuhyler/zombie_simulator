@@ -397,7 +397,7 @@ public class WorkerTaskManager : MonoBehaviour
         //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
         //world.AddResourceProducer(workerTile, resourceProducer);
         //resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
-        ResourceManager resourceManager = newCity.GetComponent<ResourceManager>();
+        //ResourceManager resourceManager = newCity.GetComponent<ResourceManager>();
         //resourceProducer.SetResourceManager(resourceManager);
         //resourceProducer.BeginResourceGeneration(); //begin generating resources
         //resourceProducer.StartProducing();

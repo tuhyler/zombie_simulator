@@ -13,7 +13,9 @@ public class CityImprovement : MonoBehaviour
     public string ImprovementName { get { return improvementName; } set { improvementName = value; } }
     private City city;
     [HideInInspector]
-    public bool initialCityHouse; 
+    public bool initialCityHouse, isConstruction;
+
+    private Coroutine constructionCo;
 
     private void Awake()
     {
@@ -50,4 +52,56 @@ public class CityImprovement : MonoBehaviour
     {
         return city;
     }
+
+    public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
+    {
+        constructionCo = StartCoroutine(BuildImprovementCoroutine(city, producer, improvementData, tempBuildLocation, cityBuilderManager));
+    }
+
+    private IEnumerator BuildImprovementCoroutine(City city, ResourceProducer producer, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
+    {
+        int timePassed = improvementData.buildTime;
+
+        producer.ShowConstructionProgressTimeBar(timePassed);
+        producer.SetConstructionTime(timePassed);
+
+        while (timePassed > 0)
+        {
+            yield return new WaitForSeconds(1);
+            timePassed--;
+            producer.SetConstructionTime(timePassed);
+        }
+
+        producer.HideConstructionProgressTimeBar();
+        cityBuilderManager.RemoveConstruction(tempBuildLocation);
+        cityBuilderManager.AddToConstructionTilePool(this);
+        cityBuilderManager.FinishImprovement(city, improvementData, tempBuildLocation);
+    }
+
+    public void RemoveConstruction(CityBuilderManager cityBuilderManager, Vector3Int tempBuildLocation)
+    {
+        StopCoroutine(constructionCo);
+        cityBuilderManager.RemoveConstruction(tempBuildLocation);
+        cityBuilderManager.AddToConstructionTilePool(this);
+    }
+
+    //public void ShowConstructionProgressTimeBar(int time)
+    //{
+    //    Vector3 pos = transform.position;
+    //    pos.z += -1f;
+    //    timeProgressBar.gameObject.transform.position = pos;
+    //    //timeProgressBar.SetConstructionTime(time);
+    //    timeProgressBar.SetTimeProgressBarValue(time);
+    //    timeProgressBar.SetActive(true);
+    //}
+
+    //public void HideConstructionProgressTimeBar()
+    //{
+    //    timeProgressBar.SetActive(false);
+    //}
+
+    //public void SetConstructionTime(int time)
+    //{
+    //    timeProgressBar.SetConstructionTime(time);
+    //}
 }
