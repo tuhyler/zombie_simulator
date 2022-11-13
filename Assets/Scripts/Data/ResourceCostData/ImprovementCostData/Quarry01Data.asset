@@ -31,3 +31,4 @@ MonoBehaviour:
   laborCost: 0
   replaceTerrain: 1
   singleBuild: 0
+  buildTime: 5

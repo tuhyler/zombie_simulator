@@ -172,7 +172,7 @@ public class Worker : Unit
         Vector3 pos = transform.position;
         pos.z += -1f;
         timeProgressBar.gameObject.transform.position = pos;
-        //timeProgressBar.SetTime(time);
+        //timeProgressBar.SetConstructionTime(time);
         timeProgressBar.SetTimeProgressBarValue(time);
         timeProgressBar.SetActive(true);
     }

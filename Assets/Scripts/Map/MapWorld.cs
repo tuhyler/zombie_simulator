@@ -18,6 +18,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
     private Dictionary<Vector3Int, City> cityHarborDict = new(); //cities and the respective locations of their harbors
     private Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
+    private Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
     private Dictionary<string, Vector3Int> cityNameDict = new();
@@ -48,7 +49,6 @@ public class MapWorld : MonoBehaviour
     
     //for expanding gameobject size
     private static int increment = 3;
-
 
     [SerializeField] //for gizmos
     private bool showGizmo;
@@ -213,6 +213,11 @@ public class MapWorld : MonoBehaviour
         return cityImprovementDict[tile];
     }
 
+    public CityImprovement GetCityDevelopmentConstruction(Vector3Int tile)
+    {
+        return cityImprovementConstructionDict[tile];
+    }
+
     public GameObject GetRoads(Vector3Int tile, bool straight)
     {
         int index = straight ? 0 : 1;
@@ -239,10 +244,15 @@ public class MapWorld : MonoBehaviour
         world[tile] = td;
     }
 
-    public void SetCityDevelopment(Vector3 tile, CityImprovement cityDevelopment)
+    public void SetCityDevelopment(Vector3Int tile, CityImprovement cityDevelopment)
     {
-        Vector3Int position = Vector3Int.RoundToInt(tile);
-        cityImprovementDict[position] = cityDevelopment;
+        //Vector3Int position = Vector3Int.RoundToInt(tile);
+        cityImprovementDict[tile] = cityDevelopment;
+    }
+
+    public void SetCityImprovementConstruction(Vector3Int tile, CityImprovement cityDevelopment)
+    {
+        cityImprovementConstructionDict[tile] = cityDevelopment;
     }
 
     public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building, City city, bool isInitialCityHouse)
@@ -564,10 +574,11 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
-    public (List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition, GameObject city) //two ring layer around specific city
+    public (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition, GameObject city) //two ring layer around specific city
     {
         List<Vector3Int> neighbors = new();
         List<Vector3Int> developed = new();
+        List<Vector3Int> constructing = new();
         foreach (Vector3Int direction in cityRadius)
         {
             Vector3Int checkPosition = worldTilePosition + direction;
@@ -579,10 +590,12 @@ public class MapWorld : MonoBehaviour
                 neighbors.Add(checkPosition);
                 if (CheckIfTileIsImproved(checkPosition))
                     developed.Add(checkPosition);
+                else if (CheckIfTileIsUnderConstruction(checkPosition))
+                    constructing.Add(checkPosition);
             }
 
         }
-        return (neighbors, developed);
+        return (neighbors, developed, constructing);
     }
 
     public List<Vector3Int> GetWorkedCityRadiusFor(Vector3Int worldTilePosition, GameObject city) //two ring layer around specific city
@@ -763,6 +776,11 @@ public class MapWorld : MonoBehaviour
         }
     }
 
+    public void RemoveConstruction(Vector3Int tile)
+    {
+        cityImprovementConstructionDict.Remove(tile);   
+    }
+
     public void RemoveHarbor(Vector3Int harborLoc)
     {
         cityHarborDict.Remove(harborLoc);
@@ -900,6 +918,11 @@ public class MapWorld : MonoBehaviour
         return maxWorkedTileDict.ContainsKey(pos);
     }
 
+    public bool CheckIfTileIsUnderConstruction(Vector3Int pos)
+    {
+        return cityImprovementConstructionDict.ContainsKey(pos);
+    }
+
     public bool CheckIfTileIsMaxxed(Vector3Int pos)
     {
         if (currentWorkedTileDict.ContainsKey(pos))
@@ -961,7 +984,6 @@ public class MapWorld : MonoBehaviour
         if (cityWorkedTileDict.ContainsKey(pos))
             cityWorkedTileDict.Remove(pos);
     }
-
 
 
 

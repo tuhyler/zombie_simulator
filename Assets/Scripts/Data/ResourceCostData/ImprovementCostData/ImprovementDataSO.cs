@@ -22,4 +22,5 @@ public class ImprovementDataSO : ScriptableObject
     public int laborCost; //how much gold to charge labor
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool singleBuild = false; //only one per city
+    public int buildTime;
 }

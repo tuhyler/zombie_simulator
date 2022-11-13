@@ -27,7 +27,7 @@ public class TerrainData : MonoBehaviour
 
     [HideInInspector]
     public bool hasRoad;
-
+    
     private bool isCoast = false;
 
     private void Awake()
@@ -90,4 +90,5 @@ public class TerrainData : MonoBehaviour
         if (highlightPlane != null)
             highlightPlane.SetActive(v);
     }
+
 }
