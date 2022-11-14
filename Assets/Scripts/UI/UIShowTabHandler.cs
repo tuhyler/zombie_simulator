@@ -18,11 +18,15 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     [SerializeField] //changing color of button when selected
     private Image buttonImage;
     private Color originalButtonColor;
+    private bool sideButton;
+    public bool isRemoving, isUpgrading;
 
     private void Awake()
     {
         uiBuildTabHandler = GetComponentInParent<UICityBuildTabHandler>();
         originalButtonColor = buttonImage.color;
+        if (isRemoving || isUpgrading)
+            sideButton = true;
     }
 
     //public void ToggleInteractable(bool v)
@@ -43,8 +47,20 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
         
         ToggleButtonSelection(true);
 
-        uiBuildTabHandler.PassUI(uiBuilder);
-        uiBuildTabHandler.ShowUI();
+        if (sideButton)
+        {
+            uiBuildTabHandler.StartSideButton(isRemoving);
+            if (isRemoving)
+                uiBuildTabHandler.cityBuilderManager.RemoveImprovements();
+            else if (isUpgrading)
+                uiBuildTabHandler.cityBuilderManager.UpgradeImprovements();
+        }
+        else
+        {
+            uiBuildTabHandler.PassUI(uiBuilder);
+            uiBuildTabHandler.ShowUI();
+        }
+
         uiBuildTabHandler.SetSelectedTab(this);
     }
 

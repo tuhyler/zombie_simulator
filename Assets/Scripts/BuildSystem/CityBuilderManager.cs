@@ -77,7 +77,7 @@ public class CityBuilderManager : MonoBehaviour
     private int workerCount;
     private int infantryCount;
 
-    private bool removingImprovement, isQueueing; //flags thrown when doing specific tasks
+    private bool removingImprovement, upgradingImprovement, isQueueing; //flags thrown when doing specific tasks
     private bool isActive; //when looking at a city
 
     private UnitBuildDataSO lastUnitData;
@@ -354,8 +354,9 @@ public class CityBuilderManager : MonoBehaviour
     public void RemoveImprovements()
     {
         laborChange = 0;
-        uiCityTabs.HideSelectedTab();
-
+        //uiCityTabs.HideSelectedTab();
+        //CloseLaborMenus();
+        
         removingImprovement = true;
         ToggleBuildingHighlight(true);
         ImprovementTileHighlight();
@@ -365,6 +366,15 @@ public class CityBuilderManager : MonoBehaviour
     {
         constructingTiles.Remove(tempBuildLocation);
         world.RemoveConstruction(tempBuildLocation);
+    }
+
+    public void UpgradeImprovements()
+    {
+        upgradingImprovement = true;
+        if (upgradingImprovement)
+        {
+
+        }
     }
 
     private void ToggleBuildingHighlight(bool v)
@@ -547,7 +557,7 @@ public class CityBuilderManager : MonoBehaviour
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
         string buildingName = buildingData.improvementName;
-        world.SetCityBuilding(selectedCityLoc, buildingName, building, selectedCity, false);
+        world.SetCityBuilding(selectedCityLoc, buildingName, building, selectedCity, false, improvementData.improvementLevel);
         world.AddToCityMaxLaborDict(selectedCityLoc, buildingName, buildingData.maxLabor);
 
         if (buildingData.singleBuild)
@@ -787,6 +797,7 @@ public class CityBuilderManager : MonoBehaviour
         GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
+        cityImprovement.SetBuildingLevel = improvementData.improvementLevel;
         world.SetCityDevelopment(tempBuildLocation, cityImprovement);
         improvement.SetActive(false);
 
@@ -830,7 +841,6 @@ public class CityBuilderManager : MonoBehaviour
     {
         //activating structure
         world.GetStructure(tempBuildLocation).SetActive(true);
-        developedTiles.Add(tempBuildLocation);
 
         if (improvementData.replaceTerrain)
         {
@@ -840,16 +850,17 @@ public class CityBuilderManager : MonoBehaviour
         //setting harbor info
         if (improvementData.improvementName == "Harbor")
         {
-            selectedCity.hasHarbor = true;
-            selectedCity.harborLocation = tempBuildLocation;
-            world.SetCityHarbor(selectedCity, tempBuildLocation);
-            world.AddToCityLabor(tempBuildLocation, selectedCity.gameObject);
+            city.hasHarbor = true;
+            city.harborLocation = tempBuildLocation;
+            world.SetCityHarbor(city, tempBuildLocation);
+            world.AddToCityLabor(tempBuildLocation, city.gameObject);
         }
 
         //setting labor info
         world.AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
         if (selectedCity != null && city == selectedCity)
         {
+            developedTiles.Add(tempBuildLocation);
             placesToWork++;
             uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
             PrepareLaborNumber(tempBuildLocation);
@@ -956,9 +967,15 @@ public class CityBuilderManager : MonoBehaviour
         if (uiImprovementBuildInfoPanel.activeStatus)
             CameraDefaultRotation();
         removingImprovement = false;
+        upgradingImprovement = false;
         ResetTileLists();
         ToggleBuildingHighlight(true);
         uiImprovementBuildInfoPanel.ToggleVisibility(false);
+    }
+
+    public void CancelUpgrade()
+    {
+        upgradingImprovement = false;
     }
 
 
@@ -1453,8 +1470,7 @@ public class CityBuilderManager : MonoBehaviour
             HideLaborNumbers();
             HideBorders();
             ToggleBuildingHighlight(false);
-            //if (selectedCity != null)
-            //    selectedCity.Deselect();
+            selectedCity.Deselect();
             placesToWork = 0;
             selectedCityLoc = new();
             selectedCity.activeCity = false;

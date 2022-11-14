@@ -33,6 +33,7 @@ public class City : MonoBehaviour
     [HideInInspector]
     public bool activeCity, hasHarbor;
 
+    [HideInInspector]
     public Vector3Int harborLocation;
     
     private MapWorld world;
@@ -40,6 +41,7 @@ public class City : MonoBehaviour
     private ResourceManager resourceManager;
     public ResourceManager ResourceManager { get { return resourceManager; } }
 
+    [HideInInspector]
     public List<string> singleBuildImprovementsAndBuildings = new();
 
     //private ResourceProducer resourceProducer;
@@ -209,7 +211,7 @@ public class City : MonoBehaviour
         Vector3 houseLoc = cityLoc;
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
-        world.SetCityBuilding(cityLoc, housingPrefab.name, housing, this, true);
+        world.SetCityBuilding(cityLoc, housingPrefab.name, housing, this, true, 0);
     }
 
     public void SelectUnitToProduce(GameObject unitToProduce)
