@@ -14,6 +14,8 @@ public class CityImprovement : MonoBehaviour
     private City city;
     [HideInInspector]
     public bool initialCityHouse, isConstruction;
+    private int buildingLevel = 99;
+    public int SetBuildingLevel { set { buildingLevel = value; } }
 
     private Coroutine constructionCo;
 

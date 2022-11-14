@@ -255,9 +255,10 @@ public class MapWorld : MonoBehaviour
         cityImprovementConstructionDict[tile] = cityDevelopment;
     }
 
-    public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building, City city, bool isInitialCityHouse)
+    public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building, City city, bool isInitialCityHouse, int improvementLevel)
     {
         CityImprovement improvement = building.GetComponent<CityImprovement>();
+        improvement.SetBuildingLevel = improvementLevel;
         improvement.ImprovementName = buildingName;
         improvement.SetCity(city);
         improvement.initialCityHouse = isInitialCityHouse;

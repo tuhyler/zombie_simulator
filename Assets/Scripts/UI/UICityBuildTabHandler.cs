@@ -29,11 +29,14 @@ public class UICityBuildTabHandler : MonoBehaviour
     private Vector3 originalLoc;
     private bool activeStatus;
 
+    //for side buttons
+    private bool isRemoving, isUpgrading;
+
     private void Awake()
     {
         gameObject.SetActive(false);
         originalLoc = allContents.anchoredPosition3D;
-        buttonsAreWorking = true; //setting default value doesn't work
+        buttonsAreWorking = true; 
     }
 
     public void PassUI(UIBuilderHandler uiBuilder)
@@ -52,8 +55,41 @@ public class UICityBuildTabHandler : MonoBehaviour
         {
             HideSelectedTab();
         }
+        else if (isRemoving || isUpgrading) //turning off side buttons
+        {
+            HideSelectedTab();
+        }
 
         builderUI = uiBuilder;
+    }
+
+    public void StartSideButton(bool option)
+    {
+        builderUI = null;
+        sameUI = false;
+
+        if (option)
+        {
+            if (isRemoving)
+            {
+                HideSelectedTab();
+                return;
+            }
+            isRemoving = true;
+        }
+        else
+        {
+            if (isUpgrading)
+            {
+                HideSelectedTab();
+                return;
+            }
+            isUpgrading = true;
+        }
+        HideSelectedTab();
+
+        cityBuilderManager.CloseLaborMenus();
+        cityBuilderManager.CloseImprovementBuildPanel();
     }
 
     public void SetSelectedTab(UIShowTabHandler selectedTab)
@@ -69,6 +105,16 @@ public class UICityBuildTabHandler : MonoBehaviour
         }
         if (currentTabSelected != null)
         {
+            if (currentTabSelected.isRemoving)
+            {
+                cityBuilderManager.CloseImprovementBuildPanel();
+                isRemoving = false;
+            }
+            else if (currentTabSelected.isUpgrading)
+            {
+                cityBuilderManager.CancelUpgrade();
+                isUpgrading = false;
+            }
             currentTabSelected.ToggleButtonSelection(false);
             ResetUI();
         }

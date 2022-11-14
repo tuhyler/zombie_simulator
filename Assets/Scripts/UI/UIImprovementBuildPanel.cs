@@ -12,6 +12,9 @@ public class UIImprovementBuildPanel : MonoBehaviour
     [SerializeField]
     private Image image;
 
+    [SerializeField]
+    private RectTransform imageBackground;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
@@ -21,6 +24,7 @@ public class UIImprovementBuildPanel : MonoBehaviour
     private void Awake()
     {
         gameObject.SetActive(false);
+        imageBackground.gameObject.SetActive(false);
         image.gameObject.SetActive(false);
     }
 
@@ -31,6 +35,7 @@ public class UIImprovementBuildPanel : MonoBehaviour
 
     public void SetImage(Sprite image)
     {
+        imageBackground.gameObject.SetActive(true);
         this.image.gameObject.SetActive(true);
         this.image.sprite = image;
     }
@@ -57,6 +62,7 @@ public class UIImprovementBuildPanel : MonoBehaviour
         else
         {
             activeStatus = false;
+            imageBackground.gameObject.SetActive(false);
             image.gameObject.SetActive(false);
             //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 100f, 0.2f).setOnComplete(SetActiveStatusFalse);
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);

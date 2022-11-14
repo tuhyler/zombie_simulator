@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2050705500241568073}
   - component: {fileID: 718474908050057380}
   - component: {fileID: 1359330119388014317}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: ConstructionBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,6 +59,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  initialCityHouse: 0
+  isConstruction: 0
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0

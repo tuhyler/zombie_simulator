@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 718474908050057380}
   - component: {fileID: 4252527723130437634}
   - component: {fileID: 7796438051319544572}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: HousingBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,6 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialCityHouse: 0
+  isConstruction: 0
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0
