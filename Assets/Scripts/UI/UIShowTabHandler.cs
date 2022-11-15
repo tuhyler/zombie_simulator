@@ -50,10 +50,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
         if (sideButton)
         {
             uiBuildTabHandler.StartSideButton(isRemoving);
-            if (isRemoving)
-                uiBuildTabHandler.cityBuilderManager.RemoveImprovements();
-            else if (isUpgrading)
-                uiBuildTabHandler.cityBuilderManager.UpgradeImprovements();
+            uiBuildTabHandler.ShowUISideButton(isRemoving);
         }
         else
         {

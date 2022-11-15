@@ -81,6 +81,13 @@ public class Trader : Unit
 
             if (endLoc == tradeRouteManager.CurrentDestination)
             {
+                //checking to see if stop still exists
+                if (!world.CheckIfCityOrHarborStillExists(endLoc, bySea))
+                {
+                    CancelRoute();
+                    return;
+                }
+
                 if (bySea)
                     tradeRouteManager.SetCity(world.GetHarborCityLocation(endLoc));
                 else
@@ -114,6 +121,12 @@ public class Trader : Unit
         atStop = false;
         Vector3Int nextStop = tradeRouteManager.GoToNext();
 
+        //checking to see if stop still exists
+        if (!world.CheckIfCityOrHarborStillExists(nextStop, bySea))
+        {
+            CancelRoute();
+            return;
+        }
 
         List<Vector3Int> currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader, bySea);
 

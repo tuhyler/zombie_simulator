@@ -40,6 +40,7 @@ public class UIQueueButton : MonoBehaviour, IPointerDownHandler
         {
             isSelected = true;
             buttonImage.color = Color.green;
+            uiBuildTabHandler.CloseRemovalWindow();
             uiQueueManager.ToggleVisibility(true);
         }
         else
