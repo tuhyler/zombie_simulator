@@ -140,7 +140,7 @@ public class CityBuilderManager : MonoBehaviour
                 TerrainData terrainSelected = world.GetTerrainDataAt(terrainLocation);
 
                 //deselecting if choosing improvement outside of city
-                if (!removingImprovement && !cityTiles.Contains(terrainLocation))
+                if (!cityTiles.Contains(terrainLocation))
                 {
                     ResetCityUI();
                     return;
@@ -358,6 +358,7 @@ public class CityBuilderManager : MonoBehaviour
         //CloseLaborMenus();
         
         removingImprovement = true;
+        CloseQueueUI();
         ToggleBuildingHighlight(true);
         ImprovementTileHighlight();
     }
@@ -964,8 +965,10 @@ public class CityBuilderManager : MonoBehaviour
 
     public void CloseImprovementBuildPanel()
     {
-        if (uiImprovementBuildInfoPanel.activeStatus)
+        if (uiImprovementBuildInfoPanel.activeStatus & !removingImprovement)
             CameraDefaultRotation();
+        if (removingImprovement)
+            uiCityTabs.CloseSelectedTab();
         removingImprovement = false;
         upgradingImprovement = false;
         ResetTileLists();

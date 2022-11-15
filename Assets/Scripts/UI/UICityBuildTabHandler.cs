@@ -44,7 +44,6 @@ public class UICityBuildTabHandler : MonoBehaviour
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementBuildPanel();
 
-
         //bool currentlyActive = uiBuilder.activeStatus;
         if (builderUI == uiBuilder) //turn off if same tab is clicked
         {
@@ -65,15 +64,13 @@ public class UICityBuildTabHandler : MonoBehaviour
 
     public void StartSideButton(bool option)
     {
-        builderUI = null;
         sameUI = false;
 
         if (option)
         {
             if (isRemoving)
             {
-                HideSelectedTab();
-                return;
+                sameUI = true;
             }
             isRemoving = true;
         }
@@ -81,20 +78,22 @@ public class UICityBuildTabHandler : MonoBehaviour
         {
             if (isUpgrading)
             {
-                HideSelectedTab();
-                return;
+                sameUI = true;
             }
             isUpgrading = true;
         }
-        HideSelectedTab();
 
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementBuildPanel();
+        HideSelectedTab();
     }
 
     public void SetSelectedTab(UIShowTabHandler selectedTab)
     {
-        currentTabSelected = selectedTab;
+        if (!sameUI)
+            currentTabSelected = selectedTab;
+        else
+            sameUI = false;
     }
 
     public void HideSelectedTab()
@@ -115,8 +114,8 @@ public class UICityBuildTabHandler : MonoBehaviour
                 cityBuilderManager.CancelUpgrade();
                 isUpgrading = false;
             }
-            currentTabSelected.ToggleButtonSelection(false);
-            ResetUI();
+            CloseSelectedTab();
+            builderUI = null;
         }
     }
 
@@ -140,7 +139,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         {
             activeStatus = false;
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(SetActiveStatusFalse);
-            ResetUI();
+            builderUI = null;
         }
 
         this.resourceManager = resourceManager;
@@ -165,7 +164,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     {
         if (sameUI)
         {
-            sameUI = false;
+            //sameUI = false;
             builderUI = null;
             return;
         }
@@ -173,8 +172,38 @@ public class UICityBuildTabHandler : MonoBehaviour
         //tabUI.ToggleInteractable(false);
     }
 
-    private void ResetUI()
+    public void ShowUISideButton(bool isRemoving)
     {
-        builderUI = null;
+        if (sameUI)
+        {
+            //sameUI = false;
+            return;
+        }
+
+        if (isRemoving)
+            cityBuilderManager.RemoveImprovements();
+        else
+            cityBuilderManager.UpgradeImprovements();
+    }
+
+    public void CloseSelectedTab()
+    {
+        if (currentTabSelected != null)
+        {
+            currentTabSelected.ToggleButtonSelection(false);
+
+            if (currentTabSelected.isRemoving)
+                isRemoving = false;
+            else if (currentTabSelected.isUpgrading)
+                isUpgrading = false;
+
+            currentTabSelected = null;
+        }
+    }
+
+    public void CloseRemovalWindow()
+    {
+        if (isRemoving)
+            cityBuilderManager.CloseImprovementBuildPanel();
     }
 }

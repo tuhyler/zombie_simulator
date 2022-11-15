@@ -170,6 +170,14 @@ public class MapWorld : MonoBehaviour
         return cityHarborDict[harborLocation];
     }
 
+    public bool CheckIfCityOrHarborStillExists(Vector3Int location, bool bySea)
+    {
+        if (bySea)
+            return cityHarborDict.ContainsKey(location);
+        else
+            return cityDict.ContainsKey(location);
+    }
+
     public Vector3Int GetCityHarborLocation(string cityName)
     {
         return cityDict[cityNameDict[cityName]].harborLocation;
