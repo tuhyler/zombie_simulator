@@ -88,6 +88,7 @@ public class UIQueueManager : MonoBehaviour
     public void SetFirstQueueItem()
     {
         firstQueueItem = queueItems[0];
+        cityBuilderManager.SetCityQueueItems();
         //firstQueueItem = item;
         SetResourcesToCheck();
     }
@@ -223,6 +224,23 @@ public class UIQueueManager : MonoBehaviour
         }
 
         return buildName;
+    }
+
+    public void CheckIfBuiltUnitIsQueued(UnitBuildDataSO unitData)
+    {
+        string builtName = CreateItemName(new Vector3Int(0, 0, 0), null, unitData);
+
+        if (queueItemNames.Contains(builtName))
+        {
+            foreach (UIQueueItem item in queueItems)
+            {
+                if (item.itemName == builtName)
+                {
+                    RemoveFromQueue(item);
+                    return;
+                }
+            }
+        }
     }
 
     public void CheckIfBuiltItemIsQueued(Vector3Int loc, ImprovementDataSO improvementData)

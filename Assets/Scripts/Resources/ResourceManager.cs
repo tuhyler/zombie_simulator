@@ -437,6 +437,8 @@ public class ResourceManager : MonoBehaviour
         {
             queuedResourceTypesToCheck.Add(resource.resourceType);
         }
+
+        CheckResourcesForQueue();
     }
 
     private void CheckResourcesForQueue()

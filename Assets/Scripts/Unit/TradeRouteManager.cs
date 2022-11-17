@@ -305,6 +305,11 @@ public class TradeRouteManager : MonoBehaviour
             currentStop = 0;
     }
 
+    public void RemoveCityStop(Vector3Int cityStop)
+    {
+        cityStops.Remove(cityStop);
+    }
+
 
 
     //public bool GoToNextStopCheck()

@@ -289,7 +289,7 @@ public class City : MonoBehaviour
 
     private void RemoveRandomFieldLaborer(System.Random random)
     {
-        List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(world.GetClosestTile(transform.position), gameObject);
+        List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(Vector3Int.RoundToInt(transform.position), gameObject);
 
         //below is giving every labor in any tile equal chance of being chosen
         int currentLabor = 0;

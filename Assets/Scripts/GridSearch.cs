@@ -11,7 +11,7 @@ public class GridSearch
         if (bySea)
             return AStarSearchSea(world, startLocation, endPosition);
         
-        Vector3Int startPosition = world.GetClosestTile(startLocation);
+        Vector3Int startPosition = Vector3Int.RoundToInt(startLocation);
 
         //below is for units staying on road, don't skip across
         List<Vector3Int> xRoads = new() { new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0) };
@@ -119,7 +119,7 @@ public class GridSearch
 
     public static List<Vector3Int> AStarSearchSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
     {
-        Vector3Int startPosition = world.GetClosestTile(startLocation);
+        Vector3Int startPosition = Vector3Int.RoundToInt(startLocation);
 
         List<Vector3Int> path = new();
 

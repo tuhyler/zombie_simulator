@@ -165,7 +165,7 @@ public class MapWorld : MonoBehaviour
         return cityNameDict[cityName];
     }
 
-    public City GetHarborCityLocation(Vector3Int harborLocation)
+    public City GetHarborCity(Vector3Int harborLocation)
     {
         return cityHarborDict[harborLocation];
     }
@@ -181,6 +181,11 @@ public class MapWorld : MonoBehaviour
     public Vector3Int GetCityHarborLocation(string cityName)
     {
         return cityDict[cityNameDict[cityName]].harborLocation;
+    }
+
+    public bool IsHarborOnTile(Vector3Int location)
+    {
+        return cityHarborDict.ContainsKey(location);
     }
 
     public string GetCityName(Vector3Int cityLoc, bool bySea = false)
@@ -396,11 +401,11 @@ public class MapWorld : MonoBehaviour
         return world[tileWorldPosition].GetTerrainData().type == TerrainType.River || world[tileWorldPosition].GetTerrainData().type == TerrainType.Coast;
     }
 
-    public Vector3Int GetClosestTile(Vector3 worldPosition)
-    {
-        worldPosition.y = 0;
-        return Vector3Int.RoundToInt(worldPosition);
-    }
+    //public Vector3Int GetClosestTile(Vector3 worldPosition)
+    //{
+    //    worldPosition.y = 0;
+    //    return Vector3Int.RoundToInt(worldPosition);
+    //}
 
     public int GetMovementCost(Vector3Int tileWorldPosition)
     {
@@ -683,7 +688,8 @@ public class MapWorld : MonoBehaviour
 
     public Vector3Int GetClosestTerrainLoc(Vector3 worldPosition)
     {
-        return world[GetClosestTile(worldPosition)].GetTileCoordinates();
+        worldPosition.y = 0f;
+        return world[Vector3Int.RoundToInt(worldPosition)].GetTileCoordinates();
     }
 
     public void AddCityName(string cityName, Vector3Int cityLoc)

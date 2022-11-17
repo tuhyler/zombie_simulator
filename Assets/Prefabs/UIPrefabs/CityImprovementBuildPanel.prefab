@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7683187727860056080}
   - component: {fileID: 4622546920234178740}
   m_Layer: 5
-  m_Name: ImprovementImageBackGround
+  m_Name: ImprovementImageBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,8 +67,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5accd08349a5eb74a88107f4e957b7c7, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 89b5a3e781d40574489734b720235afd, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

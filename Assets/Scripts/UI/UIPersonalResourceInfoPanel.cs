@@ -120,7 +120,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     public void HandleButtonClick()
     {
-        OnIconButtonClick?.Invoke(resourceType);
+        if (inUse)
+            OnIconButtonClick?.Invoke(resourceType);
     }
 
     public void SetTitleInfo(string name, float level, int limit)
@@ -192,8 +193,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             int amount = resourceDict[selection.ResourceType];
             SetResource(selection.ResourceType, amount);
-            if (amount > 0)
-                inUse = true;
+            //if (amount > 0)
+            //    inUse = true;
         }
     }
 
@@ -212,8 +213,6 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             uiPersonalResources.SetButtonInteractable(false);
             SetResource(uiPersonalResources.ResourceType, 0);
         }
-
-        inUse = false;
     }
 
     private void SetResource(ResourceType resourceType, int val) //Set the resources to a value
@@ -245,6 +244,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
         //allContents.anchoredPosition3D += new Vector3(0, -200f, 0);
         //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + shiftAmount, 0.4f).setEase(LeanTweenType.easeOutSine);
+        inUse = true;
         ToggleButtonInteractable(true);
     }
 
@@ -263,6 +263,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             LeanTween.moveY(allContents, originalLoc.y, 0.4f).setEase(LeanTweenType.easeOutSine);
         }
+
+        inUse = false;
     }
 
     private void SetActiveStatusFalse()
