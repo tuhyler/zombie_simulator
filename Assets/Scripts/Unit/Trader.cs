@@ -14,7 +14,7 @@ public class Trader : Unit
     public int CargoStorageLimit { get { return cargoStorageLimit; } }
 
     [HideInInspector]
-    public bool hasRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
+    public bool hasRoute, interruptedRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
 
     [SerializeField]
     public int loadUnloadRate = 1;
@@ -85,11 +85,13 @@ public class Trader : Unit
                 if (!world.CheckIfCityOrHarborStillExists(endLoc, bySea))
                 {
                     CancelRoute();
+                    tradeRouteManager.RemoveCityStop(endLoc);
+                    interruptedRoute = true;
                     return;
                 }
 
                 if (bySea)
-                    tradeRouteManager.SetCity(world.GetHarborCityLocation(endLoc));
+                    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
                 else
                     tradeRouteManager.SetCity(world.GetCity(endLoc));
                 atStop = true;
@@ -125,6 +127,8 @@ public class Trader : Unit
         if (!world.CheckIfCityOrHarborStillExists(nextStop, bySea))
         {
             CancelRoute();
+            tradeRouteManager.RemoveCityStop(nextStop);
+            interruptedRoute = true;
             return;
         }
 

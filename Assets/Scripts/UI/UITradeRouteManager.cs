@@ -184,6 +184,7 @@ public class UITradeRouteManager : MonoBehaviour
 
         if (destinations.Count > 0)
         {
+            unitMovement.UninterruptedRoute();
             unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
         }
         else

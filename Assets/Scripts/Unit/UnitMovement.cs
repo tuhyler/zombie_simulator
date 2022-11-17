@@ -108,8 +108,12 @@ public class UnitMovement : MonoBehaviour
             SelectTrader();
             PrepareMovement();
         }
-        else
+        else if (loadScreenSet)
         {
+            LoadUnloadFinish();
+        }
+        else
+                {
             //selectedUnit = null;
             //selectedTrader = null;
             ClearSelection();
@@ -151,7 +155,7 @@ public class UnitMovement : MonoBehaviour
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
             }
 
-            if (selectedTrader.hasRoute && !selectedTrader.followingRoute)
+            if (selectedTrader.hasRoute && !selectedTrader.followingRoute && !selectedTrader.interruptedRoute)
             {
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
             }
@@ -280,13 +284,13 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
             selectedUnit.SendResourceToCity();
 
-        if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
-        {
-            LoadUnloadFinish();
-            return;
-        }
+        //if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
+        //{
+        //    LoadUnloadFinish();
+        //    return;
+        //}
 
-        Vector3Int terrainPos = world.GetClosestTile(location);
+        Vector3Int terrainPos = Vector3Int.RoundToInt(location);
 
 
         if (selectedUnit.bySea)
@@ -427,8 +431,15 @@ public class UnitMovement : MonoBehaviour
             movementSystem.ClearPaths();
             //selectedTile = null;
 
-            Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
-            City selectedCity = world.GetCity(unitLoc);
+            //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
+            Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
+            
+            City selectedCity;
+            if (selectedUnit.bySea)
+                selectedCity = world.GetHarborCity(unitLoc);
+            else
+                selectedCity = world.GetCity(unitLoc);
+            
             cityResourceManager = selectedCity.ResourceManager;
 
             uiPersonalResourceInfoPanel.SetPosition();
@@ -456,10 +467,10 @@ public class UnitMovement : MonoBehaviour
     {
         if (loadScreenSet)
         {
-            uiPersonalResourceInfoPanel.RestorePosition();
-            uiCityResourceInfoPanel.RestorePosition();
             if (uiCityResourceInfoPanel.inUse)
                 uiCityResourceInfoPanel.EmptyResourceUI();
+            uiPersonalResourceInfoPanel.RestorePosition();
+            uiCityResourceInfoPanel.RestorePosition();
             cityResourceManager = null;
             loadScreenSet = false;
         }
@@ -536,7 +547,13 @@ public class UnitMovement : MonoBehaviour
         ShowIndividualCityButtonsUI();
         CancelContinuedMovementOrders();
         uiCancelTradeRoute.ToggleTweenVisibility(false);
-        uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
+        if (!selectedTrader.interruptedRoute)
+            uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
+    }
+
+    public void UninterruptedRoute()
+    {
+        selectedTrader.interruptedRoute = false;
     }
 
     public void ShowIndividualCityButtonsUI()
@@ -550,19 +567,19 @@ public class UnitMovement : MonoBehaviour
             uiCancelMove.ToggleTweenVisibility(false);
         }
 
-        if (!selectedUnit.followingRoute && world.IsCityOnTile(Vector3Int.RoundToInt(selectedUnit.transform.position)))
+        Vector3Int currentLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
+
+        if (!selectedUnit.followingRoute && (world.IsCityOnTile(currentLoc) || world.IsHarborOnTile(currentLoc)))
         {
             uiJoinCity.ToggleTweenVisibility(true);
             if (selectedTrader != null)
             {
-                //uiLoadUnload.ToggleTweenVisibility(true);
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(true);
             }
         }
         else
         {
             uiJoinCity.ToggleTweenVisibility(false);
-            //uiLoadUnload.ToggleTweenVisibility(false);
             uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
         }
     }

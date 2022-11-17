@@ -495,6 +495,12 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
 
+        CreateUnitAfterQueueCheck(unitData);
+    }
+
+    private void CreateUnitAfterQueueCheck(UnitBuildDataSO unitData)
+    {
+        uiQueueManager.CheckIfBuiltUnitIsQueued(unitData);
         selectedCity.PopulationDeclineCheck(); //decrease population before creating unit so we can see where labor will be lost
         //CheckForWork(); //not necessary
 
@@ -502,7 +508,7 @@ public class CityBuilderManager : MonoBehaviour
         UpdateLaborNumbers();
         uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
 
-        uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic, 
+        uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.GetPop, selectedCity.cityPop.GetSetUnusedLabor, selectedCity.GetSetWorkEthic,
             resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, selectedCity.CountDownTimer, resourceManager.FoodPerMinute,
             selectedCity.FoodConsumptionPerMinute, selectedCity.GetMinutesTillGrowth, selectedCity.GetResearchPerMinute);
 
@@ -539,15 +545,21 @@ public class CityBuilderManager : MonoBehaviour
             uiQueueManager.AddToQueue(new Vector3Int(0,0,0), buildingData);
             return;
         }
+
+        CreateBuildingAfterQueueCheck(buildingData);
+    }
+
+    private void CreateBuildingAfterQueueCheck(ImprovementDataSO buildingData)
+    {
         uiQueueManager.CheckIfBuiltItemIsQueued(new Vector3Int(0, 0, 0), buildingData);
-        
+
         laborChange = 0;
 
         //building locations
         Vector3 cityPos = selectedCity.transform.position;
         Vector3 buildingLocalPos = buildingData.buildingLocation; //putting the building in it's position in the city square
         cityPos += buildingLocalPos;
-        
+
         //resource info
         resourceManager.SpendResource(buildingData.improvementCost); //this spends the resources needed to build
         resourceManager.UpdateUI();
@@ -558,7 +570,7 @@ public class CityBuilderManager : MonoBehaviour
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
         string buildingName = buildingData.improvementName;
-        world.SetCityBuilding(selectedCityLoc, buildingName, building, selectedCity, false, improvementData.improvementLevel);
+        world.SetCityBuilding(selectedCityLoc, buildingName, building, selectedCity, false, buildingData.improvementLevel);
         world.AddToCityMaxLaborDict(selectedCityLoc, buildingName, buildingData.maxLabor);
 
         if (buildingData.singleBuild)
@@ -760,12 +772,17 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
 
+        BuildImprovementAfterQueueCheck(improvementData, tempBuildLocation);
+    }
+
+    private void BuildImprovementAfterQueueCheck(ImprovementDataSO improvementData, Vector3Int tempBuildLocation)
+    {
         uiQueueManager.CheckIfBuiltItemIsQueued(tempBuildLocation - selectedCityLoc, improvementData);
-        
+
         //spending resources to build
         Vector3 buildLocation = tempBuildLocation;
         buildLocation.y = 0f;
-        resourceManager.SpendResource(improvementData.improvementCost); 
+        resourceManager.SpendResource(improvementData.improvementCost);
         resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
@@ -777,12 +794,12 @@ public class CityBuilderManager : MonoBehaviour
         {
             int minimum = 99999;
             int rotationIndex = 0;
-            
-            foreach(Vector3Int neighbor in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.FOURWAYINCREMENT))
+
+            foreach (Vector3Int neighbor in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.FOURWAYINCREMENT))
             {
                 if (world.GetTerrainDataAt(neighbor).terrainData.sailable) //don't place harbor on neighboring water tiles
                     continue;
-                
+
                 int distanceFromCity = neighbor.sqrMagnitude - selectedCityLoc.sqrMagnitude;
                 if (distanceFromCity < minimum)
                 {
@@ -809,7 +826,7 @@ public class CityBuilderManager : MonoBehaviour
         //resource production
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
         world.AddResourceProducer(buildLocation, resourceProducer);
-        resourceProducer.SetResourceManager(resourceManager); 
+        resourceProducer.SetResourceManager(resourceManager);
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
         resourceProducer.SetLocation(tempBuildLocation);
 
@@ -828,7 +845,7 @@ public class CityBuilderManager : MonoBehaviour
         //{
         //    world.GetTerrainDataAt(tempBuildLocation).gameObject.SetActive(false);
         //}
-        
+
         ////setting labor info
         //placesToWork++;
         //uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
@@ -1359,13 +1376,15 @@ public class CityBuilderManager : MonoBehaviour
             if (selectedCity.cityPop.GetPop == 1)
             {
                 InfoPopUpHandler.Create(selectedCityLoc, "Not enough pop to make unit");
+                city.RemoveFirstFromQueue(this);
+                uiQueueManager.CheckIfBuiltUnitIsQueued(queuedItem.unitBuildData);
                 return;
             }
-            CreateUnit(queuedItem.unitBuildData);
+            CreateUnitAfterQueueCheck(queuedItem.unitBuildData);
         }
         else if (queuedItem.buildLoc.x == 0 && queuedItem.buildLoc.z == 0) //build building
         {
-            CreateBuilding(queuedItem.improvementData);
+            CreateBuildingAfterQueueCheck(queuedItem.improvementData);
         }
         else //build improvement
         {
@@ -1375,9 +1394,10 @@ public class CityBuilderManager : MonoBehaviour
             {
                 InfoPopUpHandler.Create(selectedCityLoc, "Tile already taken");
                 city.RemoveFirstFromQueue(this);
+                uiQueueManager.CheckIfBuiltItemIsQueued(tile, queuedItem.improvementData);
                 return;
             }
-            BuildImprovement(queuedItem.improvementData, tile);
+            BuildImprovementAfterQueueCheck(queuedItem.improvementData, tile);
         }
 
         city.RemoveFirstFromQueue(this);
@@ -1392,9 +1412,14 @@ public class CityBuilderManager : MonoBehaviour
     {
         SetQueueStatus(false);
         uiQueueManager.UnselectQueueItem();
+        SetCityQueueItems();
+        uiQueueManager.ToggleVisibility(false);
+    }
+
+    public void SetCityQueueItems()
+    {
         if (uiQueueManager.activeStatus)
             selectedCity.savedQueueItems = uiQueueManager.SetQueueItems();
-        uiQueueManager.ToggleVisibility(false);
     }
 
 
