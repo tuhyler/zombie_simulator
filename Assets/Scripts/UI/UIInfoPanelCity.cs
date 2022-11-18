@@ -6,7 +6,7 @@ using UnityEngine;
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TextMeshProUGUI nameText, cityPop, unusedLabor, workEthic, foodLevelAndLimit, growthTimer, foodPerMinute, foodConsumed, minutesTillGrowth, researchPerMinute;
+    private TextMeshProUGUI nameText, cityPop, unusedLabor, workEthic, foodLevelAndLimit, foodPerMinute, foodConsumed;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -22,7 +22,7 @@ public class UIInfoPanelCity : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void SetData(string name, int pop, int labor, float ethic, int foodLevel, int foodLimit, int time, float food, int foodEaten, string growthTime, int research)
+    public void SetData(string name, int pop, int labor, float ethic, int foodLevel, int foodLimit, float food, int foodEaten)
     {
         this.foodLimit = foodLimit;
         nameText.text = name;
@@ -30,31 +30,28 @@ public class UIInfoPanelCity : MonoBehaviour
         unusedLabor.text = $"Unused Labor: {labor}";
         workEthic.text = $"Work Ethic: {ethic * 100}%";
         foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
-        growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
+        //growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
         if (food > 0)
-            foodPerMinute.text = $"Food per Minute: +{food}";
+            foodPerMinute.text = $"Net Food Harvested: +{food}";
         else
-            foodPerMinute.text = $"Food per Minute: {food}";
-        foodConsumed.text = $"Food Eaten per Minute: {foodEaten}";
-        minutesTillGrowth.text = $"Minutes Till Growth: {growthTime}";
-        researchPerMinute.text = $"Research per Minute: {research}";
+            foodPerMinute.text = $"Net Food Harvested: {food}";
+        foodConsumed.text = $"Food Consumed: {foodEaten}";
     }
 
-    public void SetTimer(int time)
-    {
-        growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
-    }
+    //public void SetTimer(int time)
+    //{
+    //    growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
+    //}
 
-    public void UpdateFoodStats(int pop, int foodLevel, int foodLimit, float food, int foodEaten, string growthTime)
+    public void UpdateFoodStats(int pop, int foodLevel, int foodLimit, float food, int foodEaten)
     {
         cityPop.text = $"City Size: {pop}";
         foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
         if (food > 0)
-            foodPerMinute.text = $"Food per Minute: +{food}";
+            foodPerMinute.text = $"Net Food Harvested: +{food}";
         else
-            foodPerMinute.text = $"Food per Minute: {food}";
-        foodConsumed.text = $"Food Consumed per Minute: {foodEaten}";
-        minutesTillGrowth.text = $"Time Till Growth: {growthTime}";
+            foodPerMinute.text = $"Net Food Harvested: {food}";
+        foodConsumed.text = $"Food Consumed: {foodEaten}";
     }
 
     public void UpdateCityName(string name)

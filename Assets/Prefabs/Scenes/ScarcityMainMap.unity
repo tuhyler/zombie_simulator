@@ -13442,6 +13442,41 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: c93bde7fdf01f1548a928c76fd5516da,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: c93bde7fdf01f1548a928c76fd5516da,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: c93bde7fdf01f1548a928c76fd5516da,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1634818655}
+    - target: {fileID: 7901373019332448735, guid: c93bde7fdf01f1548a928c76fd5516da,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: c93bde7fdf01f1548a928c76fd5516da,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CloseCityTab
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: c93bde7fdf01f1548a928c76fd5516da,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: CityBuilderManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901373019332448735, guid: c93bde7fdf01f1548a928c76fd5516da,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 8606519754744911341, guid: c93bde7fdf01f1548a928c76fd5516da,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -21836,6 +21871,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6037592269306873487, guid: 19b8710c590577e42a724e87e2a79531,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6772299875352325469, guid: 19b8710c590577e42a724e87e2a79531,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6772299875352325469, guid: 19b8710c590577e42a724e87e2a79531,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6772299875352325469, guid: 19b8710c590577e42a724e87e2a79531,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6772299875352325469, guid: 19b8710c590577e42a724e87e2a79531,
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
@@ -33230,7 +33285,7 @@ PrefabInstance:
     - target: {fileID: 814257511978116511, guid: b76754e35878fdc4fae12e92d04d30c4,
         type: 3}
       propertyPath: OnIconButtonClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: CreateBuilding
+      value: CreateBuildingQueueCheck
       objectReference: {fileID: 0}
     - target: {fileID: 814257511978116511, guid: b76754e35878fdc4fae12e92d04d30c4,
         type: 3}

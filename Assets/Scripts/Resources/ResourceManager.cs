@@ -417,7 +417,7 @@ public class ResourceManager : MonoBehaviour
         city.UpdateCityPopInfo(); //update city info after correcting food info
 
         if (city.activeCity)
-            uiInfoPanelCity.UpdateFoodStats(city.cityPop.GetPop, foodGrowthLevel, foodGrowthLimit, FoodPerMinute, city.FoodConsumptionPerMinute, city.GetMinutesTillGrowth);
+            uiInfoPanelCity.UpdateFoodStats(city.cityPop.GetPop, foodGrowthLevel, foodGrowthLimit, FoodPerMinute, city.FoodConsumptionPerMinute);
     }
 
 

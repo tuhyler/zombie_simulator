@@ -14,6 +14,8 @@ public class CityImprovement : MonoBehaviour
     private City city;
     [HideInInspector]
     public bool initialCityHouse, isConstruction;
+    private int constructionTime;
+    public int ConstructionTime { get { return constructionTime; } }
     private int buildingLevel = 99;
     public int SetBuildingLevel { set { buildingLevel = value; } }
 
@@ -64,7 +66,9 @@ public class CityImprovement : MonoBehaviour
     {
         int timePassed = improvementData.buildTime;
 
-        producer.ShowConstructionProgressTimeBar(timePassed);
+        producer.ShowConstructionProgressTimeBar(timePassed, city.activeCity);
+        //if (!city.activeCity)
+        //    producer.HideConstructionProgressTimeBar();
         producer.SetConstructionTime(timePassed);
 
         while (timePassed > 0)

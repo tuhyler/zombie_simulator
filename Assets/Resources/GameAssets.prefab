@@ -52,6 +52,8 @@ MonoBehaviour:
     type: 3}
   laborNumberPrefab: {fileID: 7804093059410087792, guid: 974970d91b11c214eb7adc896b375e72,
     type: 3}
+  cityGrowthProgressPrefab: {fileID: 7804093059410087792, guid: 0b0fb1f5992df2249938a80c17ea4f53,
+    type: 3}
   timeProgressPrefab: {fileID: 7804093059410087792, guid: 4bdbd357e537aa54ab5ee0584ead1d69,
     type: 3}
   resourceBubble: {fileID: 2079849781279894658, guid: 5ef82d055c06e4945b70fae30439ba79,

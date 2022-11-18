@@ -20,9 +20,9 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
   improvementCost:
   - resourceType: 4
-    resourceAmount: 30
+    resourceAmount: 20
   - resourceType: 5
-    resourceAmount: 50
+    resourceAmount: 30
   consumedResources: []
   producedResources:
   - resourceType: 5
@@ -34,5 +34,5 @@ MonoBehaviour:
   maxLabor: 1
   laborCost: 0
   replaceTerrain: 0
-  singleBuild: 1
+  singleBuild: 0
   buildTime: 5

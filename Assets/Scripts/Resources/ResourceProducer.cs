@@ -62,14 +62,15 @@ public class ResourceProducer : MonoBehaviour
     //    return this.resourceManager = resourceManager;
     //}
 
-    public void ShowConstructionProgressTimeBar(int time)
+    public void ShowConstructionProgressTimeBar(int time, bool active)
     {
         //Vector3 pos = transform.position;
         //pos.z += -1f;
         //timeProgressBar.gameObject.transform.position = pos;
         //timeProgressBar.SetConstructionTime(time);
         timeProgressBar.SetTimeProgressBarValue(time);
-        timeProgressBar.SetActive(true);
+        if (active)
+            timeProgressBar.SetActive(true);
     }
 
     public void HideConstructionProgressTimeBar()
@@ -172,11 +173,11 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
-    public void TimeConstructionProgressBarSetActive(bool v)
+    public void TimeConstructionProgressBarSetActive(bool v, int time)
     {
         if (v)
         {
-            timeProgressBar.SetTime(2);
+            timeProgressBar.SetTime(time);
         }
 
         timeProgressBar.SetActive(v);
