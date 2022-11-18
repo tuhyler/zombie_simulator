@@ -1236,7 +1236,7 @@ PrefabInstance:
     - target: {fileID: 624308965952619012, guid: 746cf8e385e549f4aa81ddbb5f262598,
         type: 3}
       propertyPath: m_Name
-      value: TemplePanel
+      value: MonumentPanel
       objectReference: {fileID: 0}
     - target: {fileID: 732574731867193409, guid: 746cf8e385e549f4aa81ddbb5f262598,
         type: 3}

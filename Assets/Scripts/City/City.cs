@@ -56,8 +56,8 @@ public class City : MonoBehaviour
     private string minutesTillGrowth; //string in case there's no growth
     public string GetMinutesTillGrowth { get { return minutesTillGrowth; } }
     private Coroutine foodConsumedCo;
+    private TimeProgressBar timeProgressBar;
     private int countDownTimer;
-    public int CountDownTimer { get { return countDownTimer; } }
 
     //resource info
     private float workEthic = 1.0f;
@@ -93,6 +93,8 @@ public class City : MonoBehaviour
         cityPop.IncreasePopulation();
         
         cityLoc = Vector3Int.RoundToInt(transform.position);
+
+        SetProgressTimeBar();
         //highlight = GetComponent<SelectionHighlight>();
 
         originalCityNameMaterial = cityNameField.material;
@@ -218,10 +220,10 @@ public class City : MonoBehaviour
     {
         this.unitToProduce = unitToProduce;
         //if (destroyedCity)
-        CompleteProduction();
+        CompleteUnitProduction();
     }
 
-    private void CompleteProduction()
+    private void CompleteUnitProduction()
     {
         if (unitToProduce == null)
             return;
@@ -448,13 +450,17 @@ public class City : MonoBehaviour
     private IEnumerator FoodConsumptionCoroutine()
     {
         countDownTimer = secondsTillGrowthCheck;
-        
+        SetCityGrowthTime(countDownTimer);
+
         while (countDownTimer > 0)
         {
             yield return new WaitForSeconds(1);
             countDownTimer--;
             if (activeCity)
-                resourceManager.uiInfoPanelCity.SetTimer(countDownTimer);
+            {
+                //resourceManager.uiInfoPanelCity.SetTimer(countDownTimer);
+                SetCityGrowthTime(countDownTimer);
+            }
         }
 
         ResourceValue foodConsumed;
@@ -475,6 +481,32 @@ public class City : MonoBehaviour
         {
             StopCoroutine(foodConsumedCo);
         }
+    }
+
+    private void SetProgressTimeBar()
+    {
+        Vector3 cityPos = cityLoc;
+        cityPos.z -= 1.5f; //bottom center of tile
+        GameObject gameObject = Instantiate(GameAssets.Instance.cityGrowthProgressPrefab, cityPos, Quaternion.Euler(90, 0, 0));
+        timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
+        timeProgressBar.SetAdditionalText = "Growth: ";
+        timeProgressBar.SetTimeProgressBarValue(secondsTillGrowthCheck);
+    }
+
+    public void HideCityGrowthProgressTimeBar()
+    {
+        timeProgressBar.SetActive(false);
+    }
+
+    public void SetCityGrowthTime(int time)
+    {
+        timeProgressBar.SetTime(time);
+    }
+
+    public void CityGrowthProgressBarSetActive(bool v)
+    {
+        timeProgressBar.SetTime(countDownTimer);
+        timeProgressBar.SetActive(v);
     }
 
     //for queued build items

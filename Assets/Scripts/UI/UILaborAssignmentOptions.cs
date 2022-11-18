@@ -97,7 +97,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
                 }
                 else
                 {
-                    colorToChange = Color.red;
+                    colorToChange = new Color(1, .56f, .56f);//Color.red is too red;
                 }
 
                 buttonImage.color = colorToChange;

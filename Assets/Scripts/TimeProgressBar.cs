@@ -12,11 +12,14 @@ public class TimeProgressBar : MonoBehaviour
     private Transform timeProgressBarMask;
 
     public float fullProgressBarAmount = 0.77f;
+    private float positionCorrection = -.71f; //progress bar moves slightly to the right as it fills up, so this corrects for that.
     private int totalTime;
     private float increment;
     private float positionIncrement;
     private Vector3 newScale;
     private Vector3 newPosition;
+    private string additionalText = "";
+    public string SetAdditionalText { set { additionalText= value; } }
 
     private void Awake()
     {
@@ -27,16 +30,16 @@ public class TimeProgressBar : MonoBehaviour
         newScale = timeProgressBarMask.localScale; //change progress bar through scale
         newPosition = timeProgressBarMask.localPosition;
         newScale.x = 0;
-        newPosition.x = -.68f;
+        newPosition.x = positionCorrection;
         timeProgressBarMask.localScale = newScale;
         SetActive(false);
     }
 
     public void SetTime(int time)
     {
-        timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
+        timeText.text = additionalText + string.Format("{0:00}:{1:00}", time / 60, time % 60);
         newScale.x = (totalTime - time) * increment + increment;
-        newPosition.x = -0.68f + ((totalTime - time) * positionIncrement + positionIncrement);
+        newPosition.x = positionCorrection + ((totalTime - time) * positionIncrement + positionIncrement);
 
         if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
         {
@@ -44,7 +47,7 @@ public class TimeProgressBar : MonoBehaviour
             Vector3 tempPosition = timeProgressBarMask.localPosition;
             tempScale.x = 0;
             timeProgressBarMask.localScale = tempScale;
-            tempPosition.x = -.68f;
+            tempPosition.x = positionCorrection;
             timeProgressBarMask.localPosition = tempPosition;
             //timeProgressBarMask.localScale = newScale;
         }
@@ -75,11 +78,16 @@ public class TimeProgressBar : MonoBehaviour
             fillAmount = 1;
 
         increment = fullProgressBarAmount / fillAmount;
-        positionIncrement = (-0.745f - -0.68f) / fillAmount;
+        positionIncrement = (-0.745f - positionCorrection) / fillAmount;
     }
 
     public void SetActive(bool v)
     {
         gameObject.SetActive(v);
+        if (v)
+        {
+            newScale.x = 0;
+            timeProgressBarMask.localScale = newScale;
+        }
     }
 }
