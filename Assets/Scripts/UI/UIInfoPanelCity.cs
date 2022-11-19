@@ -6,7 +6,7 @@ using UnityEngine;
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TextMeshProUGUI nameText, cityPop, unusedLabor, workEthic, foodLevelAndLimit, foodPerMinute, foodConsumed;
+    private TextMeshProUGUI nameText, cityPop, availableHousing, unusedLabor, workEthic, foodLevelAndLimit, foodPerMinute;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -22,20 +22,37 @@ public class UIInfoPanelCity : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void SetData(string name, int pop, int labor, float ethic, int foodLevel, int foodLimit, float food, int foodEaten)
+    public void SetData(string name, int pop, int housing, int labor, float ethic, int foodLevel, int foodLimit, float food)
     {
-        this.foodLimit = foodLimit;
         nameText.text = name;
-        cityPop.text = $"City Size: {pop}";
-        unusedLabor.text = $"Unused Labor: {labor}";
-        workEthic.text = $"Work Ethic: {ethic * 100}%";
-        foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
-        //growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
-        if (food > 0)
-            foodPerMinute.text = $"Net Food Harvested: +{food}";
+
+        SetCityAndFoodStats(pop, foodLevel, foodLimit, food);
+
+        if (housing < 0)
+        {
+            availableHousing.text = $"-{housing}";
+            availableHousing.color = Color.red;
+        }
+        else if (housing == 0)
+        {
+            availableHousing.text = $"{housing}";
+            availableHousing.color = Color.white;
+
+        }
         else
-            foodPerMinute.text = $"Net Food Harvested: {food}";
-        foodConsumed.text = $"Food Consumed: {foodEaten}";
+        {
+            availableHousing.text = $"+{housing}";
+            availableHousing.color = Color.green;
+        }
+
+        unusedLabor.text = $"Unemployed: {labor}";
+        workEthic.text = $"{ethic * 100}%";
+        if (ethic < .5)
+            workEthic.color = Color.red;
+        else if (ethic < .8)
+            workEthic.color = Color.yellow;
+        else
+            workEthic.color = Color.green;
     }
 
     //public void SetTimer(int time)
@@ -43,15 +60,38 @@ public class UIInfoPanelCity : MonoBehaviour
     //    growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
     //}
 
-    public void UpdateFoodStats(int pop, int foodLevel, int foodLimit, float food, int foodEaten)
+    public void UpdateFoodStats(int pop, int foodLevel, int foodLimit, float food)
     {
-        cityPop.text = $"City Size: {pop}";
+        SetCityAndFoodStats(pop, foodLevel, foodLimit, food);
+    }
+
+    private void SetCityAndFoodStats(int pop, int foodLevel, int foodLimit, float food)
+    {
+        this.foodLimit = foodLimit;
+
+        cityPop.text = $"Size: {pop}";
         foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
+        SetSurplusFoodText(food);
+    }
+
+    private void SetSurplusFoodText(float food)
+    {
         if (food > 0)
-            foodPerMinute.text = $"Net Food Harvested: +{food}";
+        {
+            foodPerMinute.text = $"+{food}";
+            foodPerMinute.color = Color.green;
+        }
+        else if (food < 0)
+        {
+            foodPerMinute.text = $"-{food}";
+            foodPerMinute.color = Color.red;
+        }
         else
-            foodPerMinute.text = $"Net Food Harvested: {food}";
-        foodConsumed.text = $"Food Consumed: {foodEaten}";
+        {
+            foodPerMinute.text = $"{food}";
+            foodPerMinute.color = Color.white;
+        }
+
     }
 
     public void UpdateCityName(string name)
