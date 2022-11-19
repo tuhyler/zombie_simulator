@@ -59,6 +59,10 @@ public class City : MonoBehaviour
     private TimeProgressBar timeProgressBar;
     private int countDownTimer;
 
+    //housingInfo
+    private int housingCount = 2;
+    public int HousingCount { get { return housingCount; } set { housingCount = value; } }
+
     //resource info
     private float workEthic = 1.0f;
     public float GetSetWorkEthic { get { return workEthic; } set { workEthic = value; } }
