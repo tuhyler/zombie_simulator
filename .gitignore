@@ -73,4 +73,3 @@ crashlytics-build.properties
 
 # Specific files to exclude
 /[Aa]ssets/[Ss]cripts/ZInspectorButtons/*
-# /.github/*

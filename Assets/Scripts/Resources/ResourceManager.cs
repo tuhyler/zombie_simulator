@@ -340,6 +340,7 @@ public class ResourceManager : MonoBehaviour
         if (city.activeCity) //only update UI for currently selected city
         {
             uiResourceManager.SetResource(resourceType, resourceDict[resourceType]);
+            uiResourceManager.SetCityCurrentStorage(resourceStorageLevel);
             //uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerMinuteDict[resourceType]);
         }
     }

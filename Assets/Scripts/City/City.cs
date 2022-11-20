@@ -77,6 +77,12 @@ public class City : MonoBehaviour
     private int researchPerMinute;
     public int GetResearchPerMinute { get { return researchPerMinute; } }
 
+    //resource priorities
+    private bool autoAssignLabor;
+    public bool AutoAssignLabor { get { return autoAssignLabor; } set { autoAssignLabor = value; } }
+    private List<ResourceType> resourcePriorities = new();
+    public List<ResourceType> ResourcePriorities { get { return resourcePriorities; } set { resourcePriorities = value; } }
+
     //stored queue items
     [HideInInspector]
     public List<UIQueueItem> savedQueueItems = new();
@@ -513,6 +519,12 @@ public class City : MonoBehaviour
         timeProgressBar.SetActive(v);
     }
 
+    //for automatically assigning labor
+    public void AutoAssignmentsForLabor()
+    {
+
+    }
+
     //for queued build items
     public void RemoveFirstFromQueue(CityBuilderManager cityBuilderManager)
     {
@@ -541,17 +553,13 @@ public class City : MonoBehaviour
     }
 
 
-    //public void CheckIfBuiltItemIsQueued(Vector3Int loc, ImprovementDataSO improvementData)
+    ////labor priority methods
+    //public void SetLaborPriorities(List<ResourceValue> resourcePriorities)
     //{
-    //    foreach (UIQueueItem item in savedQueueItems)
-    //    {
-    //        if (item.itemName == improvementData.improvementName && item.buildLoc == loc)
-    //        {
-    //            savedQueueItems.Remove(item);
-    //            return;
-    //        }
-    //    }
+    //    this.resourcePriorities = resourcePriorities;
     //}
+
+    //public void GetLaborPriorities()
 
 
     internal void Select()

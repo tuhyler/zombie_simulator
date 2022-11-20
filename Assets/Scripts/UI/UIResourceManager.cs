@@ -95,7 +95,19 @@ public class UIResourceManager : MonoBehaviour
     public void SetCityCurrentStorage(float cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
+        //progressBarMask.fillAmount = cityStorageLevel / cityStorageLimit;
+        UpdateStorage(cityStorageLevel);
         UpdateCityInfo();
+    }
+
+    private void UpdateStorage(float cityStorageLevel)
+    {
+        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, cityStorageLevel / cityStorageLimit, 0.2f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                progressBarMask.fillAmount = value;
+            });
     }
 
     private void PrepareResourceDictionary() //put all resources in dictionary

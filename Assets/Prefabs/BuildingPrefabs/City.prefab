@@ -74,7 +74,7 @@ MonoBehaviour:
   singleBuildImprovementsAndBuildings: []
   cityPop: {fileID: 0}
   unitFoodConsumptionPerTurn: 1
-  secondsTillGrowthCheck: 10
+  secondsTillGrowthCheck: 600
   warehouseStorageLimit: 100
   savedQueueItems: []
 --- !u!114 &-548530054223577924

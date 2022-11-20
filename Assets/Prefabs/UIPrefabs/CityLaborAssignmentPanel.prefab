@@ -624,6 +624,8 @@ MonoBehaviour:
         m_CallState: 2
   uiElementsParent: {fileID: 8071035904910150894}
   autoAssign: {fileID: 339539838265510742}
+  openPrioritizationImage: {fileID: 795341691696162379}
+  buttonLeft: {fileID: 0}
   openAssignmentPriorityMenu: {fileID: 9052323928513810680}
   uiLaborPrioritizationManager: {fileID: 0}
   allContents: {fileID: 7582599321877566492}
@@ -747,7 +749,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 795341691696162379}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3507233852935189571}
+        m_TargetAssemblyTypeName: UILaborAssignment, Assembly-CSharp
+        m_MethodName: TogglePrioritizationMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &3047767552861261820
 PrefabInstance:
   m_ObjectHideFlags: 0

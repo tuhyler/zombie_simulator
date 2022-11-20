@@ -11,8 +11,9 @@ public class TimeProgressBar : MonoBehaviour
     [SerializeField]
     private Transform timeProgressBarMask;
 
-    public float fullProgressBarAmount = 0.77f;
-    private float positionCorrection = -.71f; //progress bar moves slightly to the right as it fills up, so this corrects for that.
+    public float fullProgressBarAmount = 1f;
+    private float positionCorrectionAtBeginning = -.71f; //progress bar moves slightly to the right as it fills up, so this corrects for that.
+    private float positionCorrectionAtEnd = -.745f;
     private int totalTime;
     private float increment;
     private float positionIncrement;
@@ -30,7 +31,7 @@ public class TimeProgressBar : MonoBehaviour
         newScale = timeProgressBarMask.localScale; //change progress bar through scale
         newPosition = timeProgressBarMask.localPosition;
         newScale.x = 0;
-        newPosition.x = positionCorrection;
+        newPosition.x = positionCorrectionAtBeginning;
         timeProgressBarMask.localScale = newScale;
         SetActive(false);
     }
@@ -39,7 +40,7 @@ public class TimeProgressBar : MonoBehaviour
     {
         timeText.text = additionalText + string.Format("{0:00}:{1:00}", time / 60, time % 60);
         newScale.x = (totalTime - time) * increment + increment;
-        newPosition.x = positionCorrection + ((totalTime - time) * positionIncrement + positionIncrement);
+        newPosition.x = positionCorrectionAtBeginning + ((totalTime - time) * positionIncrement + positionIncrement);
 
         if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
         {
@@ -47,12 +48,12 @@ public class TimeProgressBar : MonoBehaviour
             Vector3 tempPosition = timeProgressBarMask.localPosition;
             tempScale.x = 0;
             timeProgressBarMask.localScale = tempScale;
-            tempPosition.x = positionCorrection;
+            tempPosition.x = positionCorrectionAtBeginning;
             timeProgressBarMask.localPosition = tempPosition;
             //timeProgressBarMask.localScale = newScale;
         }
 
-        LeanTween.value(timeProgressBarMask.gameObject, timeProgressBarMask.localScale.x, newScale.x, 1.09f)
+        LeanTween.value(timeProgressBarMask.gameObject, timeProgressBarMask.localScale.x, newScale.x, 1.09f) //just over one second
         .setEase(LeanTweenType.linear)
         .setOnUpdate((value) =>
         {
@@ -78,7 +79,7 @@ public class TimeProgressBar : MonoBehaviour
             fillAmount = 1;
 
         increment = fullProgressBarAmount / fillAmount;
-        positionIncrement = (-0.745f - positionCorrection) / fillAmount;
+        positionIncrement = (positionCorrectionAtEnd - positionCorrectionAtBeginning) / fillAmount;
     }
 
     public void SetActive(bool v)
