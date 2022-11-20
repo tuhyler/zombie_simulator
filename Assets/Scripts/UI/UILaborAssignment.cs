@@ -18,15 +18,6 @@ public class UILaborAssignment : MonoBehaviour
     private Transform uiElementsParent;
     private List<UILaborAssignmentOptions> laborOptions;
 
-    [SerializeField]
-    private Toggle autoAssign;
-
-    [SerializeField]
-    private Button openAssignmentPriorityMenu;
-
-    [SerializeField]
-    private UICityLaborPrioritizationManager uiLaborPrioritizationManager;
-
     [SerializeField] //for tweening
     private RectTransform allContents;
     private bool activeStatus;
@@ -45,25 +36,11 @@ public class UILaborAssignment : MonoBehaviour
             laborOptions.Add(selection.GetComponent<UILaborAssignmentOptions>());
             //Debug.Log("print " + selection.name);
         }
-
-        openAssignmentPriorityMenu.interactable = false;
     }
 
     public void HandleButtonClick()
     {
         OnIconButtonClick?.Invoke(laborChange);
-    }
-
-    public void ToggleAutoAssign()
-    {
-        if (autoAssign.isOn)
-        {
-            openAssignmentPriorityMenu.interactable = true;
-        }
-        else
-        {
-            openAssignmentPriorityMenu.interactable = false;
-        }
     }
 
     public void ShowUI(CityPopulation cityPop, int placesToWork) //pass data to know if can show in the UI

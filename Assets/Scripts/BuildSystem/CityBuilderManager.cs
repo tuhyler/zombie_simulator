@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CityBuilderManager : MonoBehaviour
 {
@@ -34,6 +35,14 @@ public class CityBuilderManager : MonoBehaviour
     private UICityNamer uiCityNamer;
     [SerializeField]
     private UIDestroyCityWarning uiDestroyCityWarning;
+
+    //for labor prioritization auto-assignment menu
+    [SerializeField]
+    private Toggle autoAssign;
+    [SerializeField]
+    private Button openAssignmentPriorityMenu;
+    [SerializeField]
+    private UICityLaborPrioritizationManager uiLaborPrioritizationManager;
 
     [SerializeField]
     private MapWorld world;
@@ -87,6 +96,7 @@ public class CityBuilderManager : MonoBehaviour
         GrowLaborNumbersPool();
         GrowBordersPool();
         GrowConstructionTilePool();
+        openAssignmentPriorityMenu.interactable = false;
     }
 
     private void CenterCamOnCity()
@@ -277,6 +287,7 @@ public class CityBuilderManager : MonoBehaviour
         ToggleBuildingHighlight(true);
         DrawBorders();
         CheckForWork();
+        autoAssign.isOn = selectedCity.AutoAssignLabor;
         resourceManager = selectedCity.ResourceManager;
         resourceManager.SetUI(uiResourceManager, uiInfoPanelCity);
         uiResourceManager.SetCityInfo(selectedCity.CityName, selectedCity.warehouseStorageLimit, selectedCity.ResourceManager.GetResourceStorageLevel);
@@ -1346,7 +1357,47 @@ public class CityBuilderManager : MonoBehaviour
                 ToggleBuildingHighlight(true);
             }
         }
+
+        if (uiLaborPrioritizationManager.activeStatus)
+            uiLaborPrioritizationManager.ToggleVisibility(false);
     }
+
+    public void ToggleAutoAssign()
+    {
+        if (autoAssign.isOn)
+        {
+            openAssignmentPriorityMenu.interactable = true;
+            selectedCity.AutoAssignLabor = true;
+            selectedCity.AutoAssignmentsForLabor();
+        }
+        else
+        {
+            openAssignmentPriorityMenu.interactable = false;
+            selectedCity.AutoAssignLabor = false;
+            uiLaborPrioritizationManager.ToggleVisibility(false);
+        }
+    }
+
+    public void TogglePrioritizationMenu()
+    {
+        if (!uiLaborPrioritizationManager.activeStatus)
+        {
+            CloseLaborMenus();
+            CloseImprovementBuildPanel();
+            uiCityTabs.HideSelectedTab();
+            CloseQueueUI();
+            uiLaborPrioritizationManager.ToggleVisibility(true);
+            uiLaborPrioritizationManager.PrepareLaborPrioritizationMenu(selectedCity);
+            uiLaborPrioritizationManager.LoadLaborPrioritizationInfo();
+            //prioritizationMenuActive = true;
+        }
+        else
+        {
+            uiLaborPrioritizationManager.ToggleVisibility(false);
+        }
+    }
+
+
 
 
 
@@ -1512,6 +1563,8 @@ public class CityBuilderManager : MonoBehaviour
             uiResourceManager.ToggleVisibility(false);
             uiInfoPanelCity.ToggleVisibility(false);
             uiLaborAssignment.HideUI();
+            if (uiLaborPrioritizationManager.activeStatus)
+                uiLaborPrioritizationManager.ToggleVisibility(false, true);
             uiUnitTurn.buttonClicked.RemoveListener(ResetCityUI);
             HideLaborNumbers();
             HideBorders();

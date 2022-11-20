@@ -422,8 +422,8 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UITradeResourceTask, Assembly-CSharp
+      - m_Target: {fileID: 3559424396070568439}
+        m_TargetAssemblyTypeName: UILaborResourcePriority, Assembly-CSharp
         m_MethodName: SetChosenResource
         m_Mode: 0
         m_Arguments:
@@ -592,13 +592,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 3559424396070568439}
+        m_TargetAssemblyTypeName: UILaborResourcePriority, Assembly-CSharp
+        m_MethodName: CloseWindow
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -737,7 +737,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &1972639499169302058
@@ -950,9 +950,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UITradeStopHandler, Assembly-CSharp
-        m_MethodName: MoveStopDown
+      - m_Target: {fileID: 3559424396070568439}
+        m_TargetAssemblyTypeName: UILaborResourcePriority, Assembly-CSharp
+        m_MethodName: MovePriorityDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1082,7 +1082,7 @@ GameObject:
   - component: {fileID: 2159353113782829540}
   - component: {fileID: 4104300425884725389}
   m_Layer: 0
-  m_Name: StopInfoHolder
+  m_Name: PriorityInfoHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1107,7 +1107,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 280, y: 130}
+  m_SizeDelta: {x: 280, y: 105}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &4104300425884725389
 MonoBehaviour:
@@ -1257,7 +1257,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5292375440402095528}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.81333333
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1471,7 +1471,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1
+  m_text: 99
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -1738,9 +1738,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UITradeStopHandler, Assembly-CSharp
-        m_MethodName: MoveStopUp
+      - m_Target: {fileID: 3559424396070568439}
+        m_TargetAssemblyTypeName: UILaborResourcePriority, Assembly-CSharp
+        m_MethodName: MovePriorityUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1786,7 +1786,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 10}
+  m_SizeDelta: {x: 150, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &582394340896227459
 MonoBehaviour:
@@ -1805,7 +1805,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 3
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
@@ -1948,7 +1948,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 12
+  m_Spacing: 3
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1970,6 +1970,7 @@ GameObject:
   - component: {fileID: 3559424396070568439}
   - component: {fileID: 4843609831502529016}
   - component: {fileID: 2322339374868683679}
+  - component: {fileID: 6366375647084075931}
   m_Layer: 5
   m_Name: CityLaborResourcePriorityPanel
   m_TagString: Untagged
@@ -2034,8 +2035,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceList: {fileID: 7562694439721318140}
   priorityNumber: {fileID: 7079934428737292521}
+  currentPriorityNumber: 0
   defaultFirstChoice:
-    m_Text: 
+    m_Text: Select...
     m_Image: {fileID: 0}
 --- !u!114 &4843609831502529016
 MonoBehaviour:
@@ -2093,6 +2095,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &6366375647084075931
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7389737143294441261}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7726712435782206130
 GameObject:
   m_ObjectHideFlags: 0
@@ -2217,7 +2231,7 @@ GameObject:
   - component: {fileID: 4440181703799727016}
   - component: {fileID: 3559712159431206677}
   m_Layer: 0
-  m_Name: StopContentHolder
+  m_Name: PriorityContentHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
