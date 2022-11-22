@@ -73,8 +73,8 @@ MonoBehaviour:
   harborLocation: {x: 0, y: 0, z: 0}
   singleBuildImprovementsAndBuildings: []
   cityPop: {fileID: 0}
-  unitFoodConsumptionPerTurn: 1
-  secondsTillGrowthCheck: 600
+  unitFoodConsumptionPerMinute: 1
+  secondsTillGrowthCheck: 10
   warehouseStorageLimit: 100
   savedQueueItems: []
 --- !u!114 &-548530054223577924
@@ -89,6 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  producedResources: 
 --- !u!114 &-1354641546340956128
 MonoBehaviour:
   m_ObjectHideFlags: 0

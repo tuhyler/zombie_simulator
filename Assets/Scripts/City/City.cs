@@ -7,14 +7,10 @@ using UnityEngine.UI;
 
 public class City : MonoBehaviour
 {
-    private GameObject unitToProduce;
-
-    //[SerializeField]
-    //private MeshRenderer selectionCircle;
-
     [SerializeField]
     private GameObject housingPrefab;
     private GameObject currentHouse;
+    private CityBuilderManager cityBuilderManager;
 
     [SerializeField]
     private Material cityNameMaterial;
@@ -50,12 +46,11 @@ public class City : MonoBehaviour
     public CityPopulation cityPop;
 
     //foodConsumed info
-    public int unitFoodConsumptionPerTurn = 1, secondsTillGrowthCheck = 60; //how much foodConsumed one unit eats per turn
-    private int foodConsumptionPerTurn; //total 
-    public int FoodConsumptionPerMinute { get { return foodConsumptionPerTurn; } set { foodConsumptionPerTurn = value; } }
+    public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60; //how much foodConsumed one unit eats per turn
+    private int foodConsumptionPerMinute; //total 
+    public int FoodConsumptionPerMinute { get { return foodConsumptionPerMinute; } set { foodConsumptionPerMinute = value; } }
     private string minutesTillGrowth; //string in case there's no growth
     public string GetMinutesTillGrowth { get { return minutesTillGrowth; } }
-    private Coroutine foodConsumedCo;
     private TimeProgressBar timeProgressBar;
     private int countDownTimer;
 
@@ -82,6 +77,8 @@ public class City : MonoBehaviour
     public bool AutoAssignLabor { get { return autoAssignLabor; } set { autoAssignLabor = value; } }
     private List<ResourceType> resourcePriorities = new();
     public List<ResourceType> ResourcePriorities { get { return resourcePriorities; } set { resourcePriorities = value; } }
+    private int placesToWork;
+    public int PlacesToWork { get { return placesToWork; } set { placesToWork = value; } }
 
     //stored queue items
     [HideInInspector]
@@ -100,8 +97,6 @@ public class City : MonoBehaviour
         resourceManager.SetCity(this);
         //resourceProducer.SetResourceManager(resourceManager);
 
-        cityPop.IncreasePopulation();
-        
         cityLoc = Vector3Int.RoundToInt(transform.position);
 
         SetProgressTimeBar();
@@ -114,10 +109,17 @@ public class City : MonoBehaviour
     private void Start()
     {
         UpdateCityPopInfo();
-        if (cityPop.GetPop >= 1)
+        if (cityPop.CurrentPop >= 1)
             StartCoroutine(FoodConsumptionCoroutine());
 
+        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1; //first pop is free
+        countDownTimer = secondsTillGrowthCheck;
         //Physics.IgnoreLayerCollision(6,7);
+    }
+
+    public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
+    {
+        this.cityBuilderManager = cityBuilderManager;
     }
 
 
@@ -194,10 +196,9 @@ public class City : MonoBehaviour
     //update city info after changing foodConsumed info
     public void UpdateCityPopInfo()
     {
-        //cityPopText.text = cityPop.GetPop.ToString();
-        //cityLaborText.text = cityPop.GetSetUnusedLabor.ToString();
-        foodConsumptionPerTurn = cityPop.GetPop * unitFoodConsumptionPerTurn;
-        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, foodConsumptionPerTurn, true);
+        //cityPopText.text = cityPop.CurrentPop.ToString();
+        //cityLaborText.text = cityPop.UnusedLabor.ToString();
+        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, foodConsumptionPerMinute, true);
         float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
         int foodStorage = resourceManager.FoodGrowthLevel;
 
@@ -205,11 +206,11 @@ public class City : MonoBehaviour
         {
             minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerMinute).ToString();
         }
-        if (foodPerMinute < 0) 
+        else if (foodPerMinute < 0) 
         {
             minutesTillGrowth = Mathf.FloorToInt(foodStorage / foodPerMinute).ToString(); //maybe take absolute value, change color to red?
         }
-        if (foodPerMinute == 0)
+        else if (foodPerMinute == 0)
         {
             minutesTillGrowth = "-";
         }
@@ -226,73 +227,50 @@ public class City : MonoBehaviour
         world.SetCityBuilding(cityLoc, housingPrefab.name, housing, this, true, 0);
     }
 
-    public void SelectUnitToProduce(GameObject unitToProduce)
+    public void PopulationGrowthCheck(bool joinCity)
     {
-        this.unitToProduce = unitToProduce;
-        //if (destroyedCity)
-        CompleteUnitProduction();
-    }
+        cityPop.IncreasePopulationAndLabor();
+        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
+        resourceManager.IncreaseFoodConsumptionPerTurn(true);
+        
+        if (joinCity)
+            UpdateCityPopInfo();
 
-    private void CompleteUnitProduction()
-    {
-        if (unitToProduce == null)
-            return;
-
-        Vector3Int buildPosition = cityLoc;
-        if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
+        if (autoAssignLabor)
         {
-            //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
-            foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
+            AutoAssignmentsForLabor();
+            if (activeCity)
             {
-                if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).GetTerrainData().walkable)
-                {
-                    buildPosition = pos;
-                    break;
-                }
-            }
-
-            if (buildPosition == Vector3Int.RoundToInt(transform.position))
-            {
-                Debug.Log("No suitable locations to build unit");
-                return;
+                cityBuilderManager.UpdateCityLaborUIs();
             }
         }
 
-        Vector3 buildPositionFinal = buildPosition;
-        buildPositionFinal.y += .5f;
-        GameObject unitGO = Instantiate(unitToProduce, buildPositionFinal, Quaternion.identity); //produce unit at specified position
-        unitGO.name = unitGO.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
-        Unit unit = unitGO.GetComponent<Unit>();
-
-        unit.CurrentLocation = world.AddUnitPosition(buildPosition, unit);
-    }
-
-    public void PopulationGrowthCheck()
-    {
-        cityPop.IncreasePopulationAndLabor();
-        resourceManager.IncreaseFoodConsumptionPerTurn(true);
-        UpdateCityPopInfo();
-
-        if (cityPop.GetPop == 1)
+        if (cityPop.CurrentPop == 1)
             StartCoroutine(FoodConsumptionCoroutine());
     }
 
     public void PopulationDeclineCheck()
     {
-        cityPop.DecreasePopulation();
+        cityPop.CurrentPop--;
+        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
+        if (cityPop.CurrentPop == 0)
+        {
+            StopAllCoroutines();
+            CityGrowthProgressBarSetActive(false);
+        }
 
-        if (cityPop.GetSetUnusedLabor > 0) //if unused labor, get rid of first
-            cityPop.DecreaseUnusedLabor();
+        if (cityPop.UnusedLabor > 0) //if unused labor, get rid of first
+            cityPop.UnusedLabor--;
         else
         {
-            StopFoodConsumptionCoroutine();
+            //StopFoodConsumptionCoroutine();
             System.Random random = new();
-            int randomLabor = random.Next(cityPop.GetSetUsedLabor); //randomly choosing by weight between field and city labor
+            //int randomLabor = random.Next(cityPop.UsedLabor); //randomly choosing by weight between field and city labor
 
-            if (randomLabor < cityPop.GetSetFieldLaborers)
-                RemoveRandomFieldLaborer(random);
-            else
-                RemoveRandomCityLaborer(random);
+            //if (randomLabor < cityPop.GetSetFieldLaborers)
+            RemoveRandomFieldLaborer(random);
+            //else
+            //    RemoveRandomCityLaborer(random);
         }
 
         resourceManager.IncreaseFoodConsumptionPerTurn(false);
@@ -301,7 +279,7 @@ public class City : MonoBehaviour
 
     private void RemoveRandomFieldLaborer(System.Random random)
     {
-        List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(Vector3Int.RoundToInt(transform.position), gameObject);
+        List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(cityLoc, gameObject);
 
         //below is giving every labor in any tile equal chance of being chosen
         int currentLabor = 0;
@@ -335,41 +313,41 @@ public class City : MonoBehaviour
         }
     }
 
-    private void RemoveRandomCityLaborer(System.Random random)
-    {
-        List<string> buildingNames = world.GetBuildingListForCity(cityLoc);
+    //private void RemoveRandomCityLaborer(System.Random random)
+    //{
+    //    List<string> buildingNames = world.GetBuildingListForCity(cityLoc);
 
-        //below is giving every labor in any building equal chance of being chosen
-        int currentLabor = 0;
-        Dictionary<int, string> laborByBuilding = new();
-        foreach (string buildingName in buildingNames)
-        {
-            int prevLabor = currentLabor;
-            currentLabor += world.GetCurrentLaborForBuilding(cityLoc, buildingName);
-            for (int i = prevLabor; i < currentLabor; i++)
-            {
-                laborByBuilding[currentLabor] = buildingName;
-            }
-        }
+    //    //below is giving every labor in any building equal chance of being chosen
+    //    int currentLabor = 0;
+    //    Dictionary<int, string> laborByBuilding = new();
+    //    foreach (string buildingName in buildingNames)
+    //    {
+    //        int prevLabor = currentLabor;
+    //        currentLabor += world.GetCurrentLaborForBuilding(cityLoc, buildingName);
+    //        for (int i = prevLabor; i < currentLabor; i++)
+    //        {
+    //            laborByBuilding[currentLabor] = buildingName;
+    //        }
+    //    }
 
-        string chosenBuildingName = laborByBuilding[random.Next(currentLabor)];
-        //above is giving labor in any building equal chance of being chosen
+    //    string chosenBuildingName = laborByBuilding[random.Next(currentLabor)];
+    //    //above is giving labor in any building equal chance of being chosen
 
-        //string chosenBuildingName = buildingNames[random.Next(buildingNames.Count)]; //equal chance of being chosen, regardless of labor size
+    //    //string chosenBuildingName = buildingNames[random.Next(buildingNames.Count)]; //equal chance of being chosen, regardless of labor size
         
-        int labor = world.GetCurrentLaborForBuilding(cityLoc, chosenBuildingName);
-        labor--;
+    //    int labor = world.GetCurrentLaborForBuilding(cityLoc, chosenBuildingName);
+    //    labor--;
 
-        if (labor == 0) //removing from world dicts when zeroed out
-        {
-            world.RemoveFromBuildingCurrentWorked(cityLoc, chosenBuildingName);
-            //resourceManager.RemoveKeyFromBuildingGenerationDict(chosenBuildingName);
-        }
-        else
-        {
-            world.AddToCurrentBuildingLabor(cityLoc, chosenBuildingName, labor);
-        }
-    }
+    //    if (labor == 0) //removing from world dicts when zeroed out
+    //    {
+    //        world.RemoveFromBuildingCurrentWorked(cityLoc, chosenBuildingName);
+    //        //resourceManager.RemoveKeyFromBuildingGenerationDict(chosenBuildingName);
+    //    }
+    //    else
+    //    {
+    //        world.AddToCurrentBuildingLabor(cityLoc, chosenBuildingName, labor);
+    //    }
+    //}
 
     public void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
     {
@@ -459,7 +437,6 @@ public class City : MonoBehaviour
     //Time generator to consume food
     private IEnumerator FoodConsumptionCoroutine()
     {
-        countDownTimer = secondsTillGrowthCheck;
         SetCityGrowthTime(countDownTimer);
 
         while (countDownTimer > 0)
@@ -475,22 +452,24 @@ public class City : MonoBehaviour
 
         ResourceValue foodConsumed;
         foodConsumed.resourceType = ResourceType.Food;
-        foodConsumed.resourceAmount = foodConsumptionPerTurn;
+        foodConsumed.resourceAmount = foodConsumptionPerMinute;
 
         //consume before checking for growth
         resourceManager.ConsumeResources(new List<ResourceValue> { foodConsumed }, 1);
         resourceManager.CheckForPopGrowth();
 
         Debug.Log(cityName + " is checking for growth");
+        countDownTimer = secondsTillGrowthCheck;
         StartCoroutine(FoodConsumptionCoroutine());
     }
 
     private void StopFoodConsumptionCoroutine()
     {
-        if (foodConsumedCo != null)
-        {
-            StopCoroutine(foodConsumedCo);
-        }
+        StopAllCoroutines();
+        //if (foodConsumedCo != null)
+        //{
+        //    StopCoroutine(foodConsumedCo);
+        //}
     }
 
     private void SetProgressTimeBar()
@@ -515,6 +494,9 @@ public class City : MonoBehaviour
 
     public void CityGrowthProgressBarSetActive(bool v)
     {
+        if (v && cityPop.CurrentPop == 0)
+            return;
+
         timeProgressBar.SetTime(countDownTimer);
         timeProgressBar.SetActive(v);
     }
@@ -522,7 +504,120 @@ public class City : MonoBehaviour
     //for automatically assigning labor
     public void AutoAssignmentsForLabor()
     {
+        //if (reassignAll)
+        //{
+        //    List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(cityLoc, gameObject);
 
+        //    foreach (Vector3Int tile in workedTiles)
+        //    {
+        //        ResourceProducer resourceProducer = world.GetResourceProducer(tile);
+                
+        //        int currentLabor = world.GetCurrentLaborForTile(tile);
+        //        int maxLabor = world.GetMaxLaborForTile(tile);
+        //        cityPop.UnusedLabor += currentLabor;
+        //        cityPop.UsedLabor -= currentLabor;
+        //        world.RemoveFromCurrentWorked(tile);
+
+        //        if (currentLabor == maxLabor)  
+        //            PlacesToWork++;
+        //    }
+        //}
+        
+        int unusedLabor = cityPop.UnusedLabor;
+        bool maxxed;
+
+        List<Vector3Int> laborLocs = world.GetPotentialLaborLocationsForCity(cityLoc, gameObject);
+
+        if (laborLocs.Count == 0)
+            return;
+
+        //Going through resource priorities first
+        foreach (ResourceType resourceType in ResourcePriorities)
+        {
+            List<Vector3Int> laborTiles = new(laborLocs);
+            
+            foreach (Vector3Int laborTile in laborTiles)
+            {
+                if (unusedLabor == 0)
+                    break;
+                
+                if (world.GetResourceProducer(laborTile).producedResources.Contains(resourceType))
+                {
+                    (unusedLabor, maxxed) = IncreaseLaborCount(unusedLabor, laborTile);
+                    if (maxxed)
+                        laborLocs.Remove(laborTile);
+                }
+            }
+        }
+
+        //randomly assigning the rest
+        if (laborLocs.Count > 0 && unusedLabor > 0)
+        {
+            RandomLaborAssignment(unusedLabor, laborLocs);
+        }
+    }
+
+    private void RandomLaborAssignment(int labor, List<Vector3Int> locations)
+    {
+        System.Random random = new System.Random();
+        
+        for (int i = 0; i < labor; i++)
+        {
+            if (locations.Count == 0) 
+                break;
+            
+            int tileIndex = random.Next(0, locations.Count);
+            (int remainingLabor, bool maxxed) = IncreaseLaborCount(1, locations[tileIndex]);
+            if (maxxed)
+                locations.Remove(locations[tileIndex]);
+        }
+    }
+
+    private (int, bool) IncreaseLaborCount(int laborChange, Vector3Int terrainLocation)
+    {
+        int labor = world.GetCurrentLaborForTile(terrainLocation);
+        int maxLabor = world.GetMaxLaborForTile(terrainLocation);
+        bool maxxed = false;
+        int remainingLabor = 0;
+
+        int laborDiff = maxLabor - labor;
+
+        if (laborDiff < laborChange)
+        {
+            remainingLabor = laborChange - laborDiff;
+            laborChange = laborDiff;
+        }
+
+        labor += laborChange;
+        if (labor == maxLabor)
+        {
+            PlacesToWork--;
+            maxxed = true;
+        }
+        //selectedCity.cityPop.GetSetFieldLaborers += laborChange;
+        cityPop.UnusedLabor -= laborChange;
+        cityPop.UsedLabor += laborChange;
+
+        ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
+        resourceProducer.UpdateCurrentLaborData(labor);
+
+
+        if (labor == 1) //assigning city to location if working for first time
+        {
+            world.AddToCityLabor(terrainLocation, gameObject);
+            resourceProducer.StartProducing();
+        }
+        else
+        {
+            resourceProducer.AddLaborMidProduction();
+        }
+
+        world.AddToCurrentFieldLabor(terrainLocation, labor);
+
+        //updating all the city labor info
+        UpdateCityPopInfo();
+
+        return (remainingLabor, maxxed);
     }
 
     //for queued build items
@@ -574,5 +669,11 @@ public class City : MonoBehaviour
         DisableHighlight();
         //selectionCircle.enabled = false;
         //highlight.ToggleGlow(false);
+    }
+
+    public void DestroyThisCity()
+    {
+        StopAllCoroutines();
+        Destroy(timeProgressBar.gameObject);
     }
 }

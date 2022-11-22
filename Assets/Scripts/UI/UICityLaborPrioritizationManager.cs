@@ -9,6 +9,9 @@ using UnityEngine.UI;
 public class UICityLaborPrioritizationManager : MonoBehaviour
 {
     [SerializeField]
+    private CityBuilderManager cityBuilderManager;
+
+    [SerializeField]
     private GameObject uiLaborResourcePriority;
 
     [SerializeField]
@@ -186,7 +189,13 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
         resourcePriorityList.Clear();
         city.ResourcePriorities = resourcePriorities;
-        city.AutoAssignmentsForLabor();
+
+        //if (resourcePriorities.Count > 0)
+        //{
+        //    city.AutoAssignmentsForLabor();
+        //    cityBuilderManager.UpdateCityLaborUIs();
+        //}
+
         ToggleVisibility(false);
     }
 }

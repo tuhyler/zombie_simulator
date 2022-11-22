@@ -76,7 +76,7 @@ public class UILaborHandler : MonoBehaviour
                 continue;
             }
 
-            showCount += option.CheckVisibility(cityTile, world);
+            //showCount += option.CheckVisibility(cityTile, world);
 
             option.EnableHighlight(Color.red);
             option.ToggleInteractable(true); //toggle all interactable
@@ -106,7 +106,7 @@ public class UILaborHandler : MonoBehaviour
                 continue;
             }
 
-            showCount += option.CheckVisibility(city.cityLoc, world);
+            //showCount += option.CheckVisibility(city.cityLoc, world);
             //showCount += result;
         }
 
@@ -168,10 +168,10 @@ public class UILaborHandler : MonoBehaviour
         {
             laborItem.ToggleInteractable(true);
 
-            if (laborChange > 0 && (cityPop.GetSetUnusedLabor == 0 || placesToWork == 0 || laborItem.CheckLaborIsMaxxed()))
+            if (laborChange > 0 && (cityPop.UnusedLabor == 0 || placesToWork == 0 || laborItem.CheckLaborIsMaxxed()))
                 laborItem.ToggleInteractable(false); //deactivate if not enough unused labor
 
-            if (laborChange < 0 && (cityPop.GetSetUsedLabor == 0 || laborItem.GetCurrentLabor == 0))
+            if (laborChange < 0 && (cityPop.UsedLabor == 0 || laborItem.GetCurrentLabor == 0))
                 laborItem.ToggleInteractable(false); //deactivate if not enough used labor
         }
     }

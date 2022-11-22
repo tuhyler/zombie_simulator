@@ -19,12 +19,19 @@ public class ResourceProducer : MonoBehaviour
     private int productionTimer;
     private TimeProgressBar timeProgressBar;
     private bool isProducing;
+    [HideInInspector]
+    public List<ResourceType> producedResources; //too see what this producer is making
     private Dictionary<ResourceType, float> generatedPerMinute = new();
     private Dictionary<ResourceType, float> consumedPerMinute = new();
 
     public void InitializeImprovementData(ImprovementDataSO data)
     {
         myImprovementData = data;
+        
+        foreach(ResourceValue resourceValue in data.producedResources)
+        {
+            producedResources.Add(resourceValue.resourceType);
+        }
     }
 
     internal void SetResourceManager(ResourceManager resourceManager)

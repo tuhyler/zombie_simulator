@@ -243,7 +243,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
-      value: infantry_1
+      value: Infantry1Data_1
       objectReference: {fileID: 0}
     - target: {fileID: 4600499379608453412, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -369,10 +369,14 @@ MonoBehaviour:
   isBusy: 0
   isMoving: 0
   turnHandler: {fileID: 0}
+  bySea: 0
   isTrader: 0
   atStop: 0
   followingRoute: 0
   isWorker: 0
+  isSelected: 0
+  isWaiting: 0
+  harvested: 0
 --- !u!4 &5945042009464761750 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,

@@ -166,13 +166,14 @@ public class ResourceManager : MonoBehaviour
         {
             int consumedAmount = Mathf.RoundToInt(resourceValue.resourceAmount * currentLabor);
             ResourceType resourceType = resourceValue.resourceType;
+            int storageAmount = resourceDict[resourceType];
 
             resourceConsumedPerMinuteDict[resourceType] = consumedAmount;
 
-            if (resourceValue.resourceType == ResourceType.Food && consumedAmount > resourceDict[resourceType])
+            if (resourceValue.resourceType == ResourceType.Food && consumedAmount > storageAmount)
             {
-                foodGrowthLevel -= consumedAmount - resourceDict[resourceType];
-                consumedAmount = resourceDict[resourceType];
+                foodGrowthLevel -= consumedAmount - storageAmount;
+                consumedAmount = storageAmount;
             }
 
             resourceDict[resourceType] -= consumedAmount;
@@ -292,7 +293,7 @@ public class ResourceManager : MonoBehaviour
 
     private void CalculateAndChangeFoodLimit()
     {
-        int cityPop = city.cityPop.GetPop;
+        int cityPop = city.cityPop.CurrentPop;
         int newLimit = 9 + cityPop;
 
         foodGrowthLimit = newLimit;
@@ -348,9 +349,9 @@ public class ResourceManager : MonoBehaviour
     public void IncreaseFoodConsumptionPerTurn(bool v) //only used when increasing pop when joining city, growth, or building city
     {
         if (v)
-            resourceGenerationPerMinuteDict[ResourceType.Food] -= city.unitFoodConsumptionPerTurn;
+            resourceGenerationPerMinuteDict[ResourceType.Food] -= city.unitFoodConsumptionPerMinute;
         else
-            resourceGenerationPerMinuteDict[ResourceType.Food] += city.unitFoodConsumptionPerTurn;
+            resourceGenerationPerMinuteDict[ResourceType.Food] += city.unitFoodConsumptionPerMinute;
     }
 
     public int GetResourceLimit(ResourceType resourceType)
@@ -371,7 +372,7 @@ public class ResourceManager : MonoBehaviour
             growth = false;
             int excessFood = 0;
 
-            city.PopulationGrowthCheck();
+            city.PopulationGrowthCheck(false);
             CalculateAndChangeFoodLimit();
 
             if (resourceDict[ResourceType.Food] > 0) //can only carry over one limit of food, rest of food goes to storage
@@ -416,9 +417,10 @@ public class ResourceManager : MonoBehaviour
         }
 
         city.UpdateCityPopInfo(); //update city info after correcting food info
+        UpdateUI(ResourceType.Food);
 
         if (city.activeCity)
-            uiInfoPanelCity.UpdateFoodStats(city.cityPop.GetPop, foodGrowthLevel, foodGrowthLimit, FoodPerMinute);
+            uiInfoPanelCity.UpdateFoodStats(city.cityPop.CurrentPop, foodGrowthLevel, foodGrowthLimit, FoodPerMinute);
     }
 
 

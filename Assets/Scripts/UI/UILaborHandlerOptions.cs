@@ -48,29 +48,29 @@ public class UILaborHandlerOptions : MonoBehaviour
         gameObject.SetActive(v);
     }
 
-    public int CheckVisibility(Vector3Int cityTile, MapWorld world)
-    {
-        if (world.IsBuildingInCity(cityTile, buildingName))
-        {
-            currentLabor = world.GetCurrentLaborForBuilding(cityTile, buildingName);
-            maxLabor = world.GetMaxLaborForBuilding(cityTile, buildingName);
+    //public int CheckVisibility(Vector3Int cityTile, MapWorld world)
+    //{
+    //    if (world.IsBuildingInCity(cityTile, buildingName))
+    //    {
+    //        currentLabor = world.GetCurrentLaborForBuilding(cityTile, buildingName);
+    //        maxLabor = world.GetMaxLaborForBuilding(cityTile, buildingName);
 
-            if (!removingOption && maxLabor == 0)
-            {
-                ToggleVisibility(false);
-                return 0;
-            }
+    //        if (!removingOption && maxLabor == 0)
+    //        {
+    //            ToggleVisibility(false);
+    //            return 0;
+    //        }
 
-            gameObject.SetActive(true);
-            SetUICount();
-            return 1;
-        }
-        else
-        {
-            gameObject.SetActive(false);
-            return 0;
-        }
-    }
+    //        gameObject.SetActive(true);
+    //        SetUICount();
+    //        return 1;
+    //    }
+    //    else
+    //    {
+    //        gameObject.SetActive(false);
+    //        return 0;
+    //    }
+    //}
 
     public void ToggleInteractable(bool v)
     {
