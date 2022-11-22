@@ -412,7 +412,7 @@ public class UnitMovement : MonoBehaviour
     public void JoinCity() //for Join City button
     {
         City joinedCity = world.GetCity(world.GetClosestTerrainLoc(selectedUnit.transform.position));
-        joinedCity.PopulationGrowthCheck();
+        joinedCity.PopulationGrowthCheck(true);
 
         foreach (ResourceValue resourceValue in selectedUnit.GetBuildDataSO().unitCost) //adding back 100% of cost (if there's room)
         {

@@ -15,6 +15,9 @@ public class UILaborAssignment : MonoBehaviour
     private UnityEvent<int> OnIconButtonClick;
 
     [SerializeField]
+    private CityBuilderManager cityBuildingManager;
+
+    [SerializeField]
     private Transform uiElementsParent;
     private List<UILaborAssignmentOptions> laborOptions;
 
@@ -33,7 +36,9 @@ public class UILaborAssignment : MonoBehaviour
 
         foreach (Transform selection in uiElementsParent) //populate list
         {
-            laborOptions.Add(selection.GetComponent<UILaborAssignmentOptions>());
+            UILaborAssignmentOptions assignmentOption = selection.GetComponent<UILaborAssignmentOptions>();
+            assignmentOption.SetCityBuilderManager(cityBuildingManager);
+            laborOptions.Add(assignmentOption);
             //Debug.Log("print " + selection.name);
         }
     }
@@ -124,11 +129,25 @@ public class UILaborAssignment : MonoBehaviour
         {
             laborItem.ToggleInteractable(true);
 
-            if (laborItem.LaborChange > 0 && (cityPop.GetSetUnusedLabor == 0 || placesToWork == 0))
+            if (laborItem.LaborChange > 0 && (cityPop.UnusedLabor == 0 || placesToWork == 0))
+            {
                 laborItem.ToggleInteractable(false); //deactivate if not enough unused labor
+                cityBuildingManager.LaborChange = 0;
+            }
 
-            if (laborItem.LaborChange < 0 && cityPop.GetSetUsedLabor == 0)
+            if (laborItem.LaborChange < 0 && cityPop.UsedLabor == 0)
+            {
                 laborItem.ToggleInteractable(false); //deactivate if not enough used labor
+                cityBuildingManager.LaborChange = 0;
+            }
+        }
+    }
+
+    public void SetAssignmentOptionsInteractableOff()
+    {
+        foreach (UILaborAssignmentOptions laborItem in laborOptions)
+        {
+            laborItem.ToggleInteractable(false);
         }
     }
 }

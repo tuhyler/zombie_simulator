@@ -393,6 +393,7 @@ public class WorkerTaskManager : MonoBehaviour
         City city = newCity.GetComponent<City>();
         world.AddCity(workerTile, city);
         city.SetNewCityName();
+        city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
 
         //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
         //world.AddResourceProducer(workerTile, resourceProducer);

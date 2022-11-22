@@ -628,6 +628,27 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
+    //to see what is developed for a city and what's worked for the city specifically
+    public List<Vector3Int> GetPotentialLaborLocationsForCity(Vector3Int cityTile, GameObject city)
+    {
+        List<Vector3Int> neighbors = new();
+
+        foreach (Vector3Int direction in cityRadius)
+        {
+            Vector3Int neighbor = cityTile + direction;
+
+            if (world.ContainsKey(neighbor) && CheckIfTileIsImproved(neighbor))
+            {
+                if ((cityWorkedTileDict.ContainsKey(neighbor) && GetCityLaborForTile(neighbor) != city) || CheckIfTileIsMaxxed(neighbor))
+                    continue;
+
+                neighbors.Add(neighbor);
+            }
+        }
+
+        return neighbors;
+    }
+
     public (List<(Vector3Int, bool, int[])>, int[], int[]) GetRoadNeighborsFor(Vector3Int position)
     {
         List<(Vector3Int, bool, int[])> neighbors = new();
@@ -892,10 +913,10 @@ public class MapWorld : MonoBehaviour
         return maxWorkedTileDict[pos];
     }
 
-    public int GetMaxLaborForBuilding(Vector3Int cityTile, string buildingName)
-    {
-        return cityBuildingMaxWorkedDict[cityTile][buildingName];
-    }
+    //public int GetMaxLaborForBuilding(Vector3Int cityTile, string buildingName)
+    //{
+    //    return cityBuildingMaxWorkedDict[cityTile][buildingName];
+    //}
 
     public List<string> GetBuildingListForCity(Vector3Int cityTile)
     {
@@ -990,8 +1011,7 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveFromMaxWorked(Vector3Int pos) //only removing when improvements are destroyed
     {
-        if (maxWorkedTileDict.ContainsKey(pos))
-            maxWorkedTileDict.Remove(pos);
+        maxWorkedTileDict.Remove(pos);
     }
 
     public void RemoveFromCityLabor(Vector3Int pos)

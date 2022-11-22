@@ -10,6 +10,9 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     private UIBuilderHandler uiBuilder;
     public UIBuilderHandler UIBuilder { get { return uiBuilder; } }
 
+    [SerializeField]
+    private CanvasGroup canvasGroup;
+
     private UICityBuildTabHandler uiBuildTabHandler;
 
     //[SerializeField]
@@ -29,10 +32,10 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
             sideButton = true;
     }
 
-    //public void ToggleInteractable(bool v)
-    //{
-    //    canvasGroup.interactable = v;
-    //}
+    public void ToggleInteractable(bool v)
+    {
+        canvasGroup.interactable = v;
+    }
 
     //public void OnButtonClick()
     //{

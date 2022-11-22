@@ -13,7 +13,6 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
     private UILaborAssignment buttonHandler;
     private Button button;
 
-    [SerializeField]
     private CityBuilderManager cityBuilderManager;
 
     //[SerializeField]
@@ -31,6 +30,11 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
         //canvasGroup = GetComponent<CanvasGroup>();
         originalButtonColor = buttonImage.color;
         button = GetComponent<Button>();
+    }
+
+    public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
+    {
+        this.cityBuilderManager = cityBuilderManager;
     }
 
     public void ToggleInteractable(bool v)
@@ -66,16 +70,17 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
         if (!isSelected)
         {
             ToggleButtonSelection(true);
-            //buttonHandler.PrepareLaborChange(laborChange);
-            //buttonHandler.HandleButtonClick();
+            buttonHandler.PrepareLaborChange(laborChange);
+            buttonHandler.HandleButtonClick();
         }
         else
         {
             ToggleButtonSelection(false);
+            cityBuilderManager.CloseLaborMenus();
         }
 
-        buttonHandler.PrepareLaborChange(laborChange);
-        buttonHandler.HandleButtonClick();
+        //buttonHandler.PrepareLaborChange(laborChange);
+        //buttonHandler.HandleButtonClick();
     }
 
     public void ToggleButtonSelection(bool v)
