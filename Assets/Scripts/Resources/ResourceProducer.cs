@@ -175,7 +175,11 @@ public class ResourceProducer : MonoBehaviour
     {
         if (isProducing)
         {
-            timeProgressBar.SetTime(productionTimer);
+            if (v)
+            {
+                timeProgressBar.SetTime(productionTimer);
+                timeProgressBar.SetProgressBarMask();
+            }
             timeProgressBar.SetActive(v);
         }
     }

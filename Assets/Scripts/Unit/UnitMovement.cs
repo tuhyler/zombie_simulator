@@ -620,6 +620,7 @@ public class UnitMovement : MonoBehaviour
         infoManager.HideInfoPanel();
         //movementSystem.ClearPaths(); //necessary to queue movement orders
         selectedUnitInfoProvider = null;
+        workerTaskManager.NullWorkerUnit();
         selectedTrader = null;
         selectedWorker = null;
         selectedUnit = null;

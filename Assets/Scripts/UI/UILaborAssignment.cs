@@ -48,7 +48,7 @@ public class UILaborAssignment : MonoBehaviour
         OnIconButtonClick?.Invoke(laborChange);
     }
 
-    public void ShowUI(CityPopulation cityPop, int placesToWork) //pass data to know if can show in the UI
+    public void ShowUI(CityPopulation cityPop, int placesToWork, bool autoAssign) //pass data to know if can show in the UI
     {
         if (activeStatus)
             return;
@@ -61,6 +61,12 @@ public class UILaborAssignment : MonoBehaviour
 
         LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
         LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+
+        if (autoAssign)
+        {
+            SetAssignmentOptionsInteractableOff();
+            return;
+        }
 
         PrepareLaborChangeOptions(cityPop, placesToWork);
     }
@@ -149,5 +155,8 @@ public class UILaborAssignment : MonoBehaviour
         {
             laborItem.ToggleInteractable(false);
         }
+
+        laborChange = 0;
+        laborChangeFlag = 0;
     }
 }
