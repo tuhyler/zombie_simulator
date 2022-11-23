@@ -132,6 +132,7 @@ public class ResourceProducer : MonoBehaviour
         productionTimer = myImprovementData.producedResourceTime;
         if (resourceManager.city.activeCity)
         {
+            timeProgressBar.SetProgressBarBeginningPosition();
             timeProgressBar.SetTime(productionTimer);
         }
 
@@ -175,12 +176,13 @@ public class ResourceProducer : MonoBehaviour
     {
         if (isProducing)
         {
+            timeProgressBar.SetActive(v);
             if (v)
             {
+                timeProgressBar.SetProgressBarMask(productionTimer);
                 timeProgressBar.SetTime(productionTimer);
-                timeProgressBar.SetProgressBarMask();
+                //timeProgressBar.SetProgressBarMask();
             }
-            timeProgressBar.SetActive(v);
         }
     }
 
