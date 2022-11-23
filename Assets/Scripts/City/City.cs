@@ -463,15 +463,6 @@ public class City : MonoBehaviour
         StartCoroutine(FoodConsumptionCoroutine());
     }
 
-    private void StopFoodConsumptionCoroutine()
-    {
-        StopAllCoroutines();
-        //if (foodConsumedCo != null)
-        //{
-        //    StopCoroutine(foodConsumedCo);
-        //}
-    }
-
     private void SetProgressTimeBar()
     {
         Vector3 cityPos = cityLoc;
@@ -497,8 +488,12 @@ public class City : MonoBehaviour
         if (v && cityPop.CurrentPop == 0)
             return;
 
-        timeProgressBar.SetTime(countDownTimer);
         timeProgressBar.SetActive(v);
+        if (v)
+        {
+            timeProgressBar.SetProgressBarMask(countDownTimer);
+            timeProgressBar.SetTime(countDownTimer);
+        }
     }
 
     //for automatically assigning labor

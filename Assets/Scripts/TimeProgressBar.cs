@@ -32,9 +32,18 @@ public class TimeProgressBar : MonoBehaviour
         newPosition = timeProgressBarMask.localPosition;
         newScale.x = 0;
         newPosition.x = positionCorrectionAtBeginning;
+        timeProgressBarMask.localPosition = newPosition;
         timeProgressBarMask.localScale = newScale;
         SetActive(false);
     }
+
+    //public void SetActiveTime(int time)
+    //{
+    //    timeText.text = additionalText + string.Format("{0:00}:{1:00}", time / 60, time % 60);
+    //    Vector3 tempScale = timeProgressBarMask.localScale;
+    //    tempScale.x = time * increment;
+    //    timeProgressBarMask.localScale = tempScale;
+    //}
 
     public void SetTime(int time)
     {
@@ -42,12 +51,14 @@ public class TimeProgressBar : MonoBehaviour
         newScale.x = (totalTime - time) * increment + increment;
         newPosition.x = positionCorrectionAtBeginning + ((totalTime - time) * positionIncrement + positionIncrement);
 
+        //setting the last increment
         if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
         {
             Vector3 tempScale = timeProgressBarMask.localScale;
-            Vector3 tempPosition = timeProgressBarMask.localPosition;
             tempScale.x = 0;
             timeProgressBarMask.localScale = tempScale;
+
+            Vector3 tempPosition = timeProgressBarMask.localPosition;
             tempPosition.x = positionCorrectionAtBeginning;
             timeProgressBarMask.localPosition = tempPosition;
             //timeProgressBarMask.localScale = newScale;
@@ -71,13 +82,17 @@ public class TimeProgressBar : MonoBehaviour
 
     }
 
-    public void SetProgressBarMask()
+    public void SetProgressBarMask(int time)
     {
-        //Vector3 tempScale = timeProgressBarMask.localScale;
-        ////Vector3 tempPosition = timeProgressBarMask.localPosition;
-        //tempScale.x = totalTime * increment;
-        //timeProgressBarMask.localScale = tempScale;
-        
+        Vector3 tempScale = timeProgressBarMask.localScale;
+        tempScale.x = (totalTime - time) * increment;
+        timeProgressBarMask.localScale = tempScale;
+    }
+
+    public void SetProgressBarBeginningPosition()
+    {
+        newPosition.x = positionCorrectionAtBeginning;
+        timeProgressBarMask.localPosition = newPosition;
     }
 
     public void SetTimeProgressBarValue(int fillAmount)
