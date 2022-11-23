@@ -11,7 +11,7 @@ public class TimeProgressBar : MonoBehaviour
     [SerializeField]
     private Transform timeProgressBarMask;
 
-    public float fullProgressBarAmount = 1f;
+    public float fullProgressBarAmount = .77f;
     private float positionCorrectionAtBeginning = -.71f; //progress bar moves slightly to the right as it fills up, so this corrects for that.
     private float positionCorrectionAtEnd = -.745f;
     private int totalTime;
@@ -69,6 +69,15 @@ public class TimeProgressBar : MonoBehaviour
             timeProgressBarMask.localPosition = newPosition;
         });
 
+    }
+
+    public void SetProgressBarMask()
+    {
+        //Vector3 tempScale = timeProgressBarMask.localScale;
+        ////Vector3 tempPosition = timeProgressBarMask.localPosition;
+        //tempScale.x = totalTime * increment;
+        //timeProgressBarMask.localScale = tempScale;
+        
     }
 
     public void SetTimeProgressBarValue(int fillAmount)

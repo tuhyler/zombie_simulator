@@ -457,4 +457,9 @@ public class WorkerTaskManager : MonoBehaviour
     {
         uiCancelTask.ToggleTweenVisibility(false);
     }
+
+    public void NullWorkerUnit()
+    {
+        workerUnit = null;
+    }
 }

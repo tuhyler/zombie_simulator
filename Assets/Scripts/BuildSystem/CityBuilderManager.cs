@@ -300,7 +300,7 @@ public class CityBuilderManager : MonoBehaviour
         //    selectedCity.ResourceManager.GetResourceStorageLevel);
         uiInfoPanelCity.ToggleVisibility(true);
         //uiInfoPanelCityWarehouse.ToggleTweenVisibility(true);
-        uiLaborAssignment.ShowUI(selectedCity.cityPop, selectedCity.PlacesToWork);
+        uiLaborAssignment.ShowUI(selectedCity.cityPop, selectedCity.PlacesToWork, autoAssign.isOn);
         uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
         UpdateLaborNumbers();
         selectedCity.CityGrowthProgressBarSetActive(true);
@@ -1394,6 +1394,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (autoAssign.isOn)
         {
+            CloseLaborMenus();
             openAssignmentPriorityMenu.interactable = true;
             selectedCity.AutoAssignLabor = true;
 
