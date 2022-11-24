@@ -110,6 +110,7 @@ MonoBehaviour:
   isWaiting: 0
   harvested: 0
   hasRoute: 0
+  interruptedRoute: 0
   loadUnloadRate: 1
 --- !u!114 &9082481739774170290
 MonoBehaviour:

@@ -79,9 +79,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Auto Assign Labor
-
-'
+  m_Text: Auto Assign
 --- !u!1 &205028385289631157
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,8 +185,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6061548572464279568}
   - {fileID: 7243487226134207802}
+  - {fileID: 6061548572464279568}
   - {fileID: 5043836439035581601}
   m_Father: {fileID: 7582599321877566492}
   m_RootOrder: 1
@@ -215,8 +213,8 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 3
-  m_Spacing: -20
+  m_ChildAlignment: 4
+  m_Spacing: 15
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -333,12 +331,12 @@ RectTransform:
   - {fileID: 4229407847530835580}
   - {fileID: 7258604853185407076}
   m_Father: {fileID: 5999199095867646189}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 236, y: 30}
+  m_SizeDelta: {x: 170, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &339539838265510742
 MonoBehaviour:
@@ -623,6 +621,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  cityBuildingManager: {fileID: 0}
   uiElementsParent: {fileID: 8071035904910150894}
   allContents: {fileID: 7582599321877566492}
 --- !u!1 &6181862596881422419
@@ -787,12 +786,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5999199095867646189}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 45, y: 5}
+  m_SizeDelta: {x: 40, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &3047767552861261820
 PrefabInstance:
@@ -1073,7 +1072,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laborChange: 1
-  cityBuilderManager: {fileID: 0}
   buttonImage: {fileID: 3386285010633436998}
 --- !u!114 &3386285010633436998 stripped
 MonoBehaviour:
@@ -1332,7 +1330,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laborChange: -1
-  cityBuilderManager: {fileID: 0}
   buttonImage: {fileID: 5817053707937968223}
 --- !u!224 &8829255333853807127 stripped
 RectTransform:

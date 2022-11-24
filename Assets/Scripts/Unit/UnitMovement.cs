@@ -89,8 +89,9 @@ public class UnitMovement : MonoBehaviour
             {
                 if (selectedWorker != null && selectedWorker.harvested)
                     selectedWorker.SendResourceToCity();
-
-                ClearSelection();
+                else
+                    ClearSelection();
+                
                 return;
             }
             else if (selectedUnit != null) //Change to a different unit
@@ -112,8 +113,30 @@ public class UnitMovement : MonoBehaviour
         {
             LoadUnloadFinish();
         }
+        else if (detectedObject.TryGetComponent(out Resource resource))
+        {
+            Worker tempWorker = resource.GetHarvestingWorker();
+            
+            if (tempWorker == null)
+            {
+                ClearSelection();
+            }
+            else if (selectedWorker != null && selectedWorker == tempWorker)
+            {
+                selectedWorker.SendResourceToCity();
+            }
+            else
+            {
+                ClearSelection();
+                tempWorker.SendResourceToCity();
+                selectedUnit = tempWorker;
+                uiMoveUnit.ToggleTweenVisibility(true);
+                SelectWorker(); 
+                PrepareMovement();
+            }            
+        }
         else
-                {
+        {
             //selectedUnit = null;
             //selectedTrader = null;
             ClearSelection();
@@ -324,10 +347,11 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders of new ones
+        if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders if new ones
         {
             //selectedUnit.isMoving = false;
-            selectedUnit.StopMovement();
+            //selectedUnit.StopMovement();
+            selectedUnit.ShiftMovement();
             //return;
         }
 

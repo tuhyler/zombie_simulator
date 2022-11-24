@@ -20,11 +20,6 @@ public class HandlePlayerInput : MonoBehaviour
     //public UnityEvent HandleShiftUp;
     //public UnityEvent HandleR;
 
-    private void Start()
-    {
-        //defining the layers to be used in layermask
-        //layerMask = (1 << 6) | (1 << 7) | (1 << 8);
-    }
 
     private void Update()
     {
