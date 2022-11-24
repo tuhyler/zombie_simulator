@@ -22,7 +22,7 @@ public class Unit : MonoBehaviour
     public UnityEvent FinishedMoving; //listeners are worker tasks and show individualcity buttons
 
     //movement details
-    private Rigidbody unitRigidbody;
+    //private Rigidbody unitRigidbody;
     private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.005f;
     private Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
@@ -66,7 +66,7 @@ public class Unit : MonoBehaviour
         highlight = GetComponent<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
-        unitRigidbody = GetComponent<Rigidbody>();
+        //unitRigidbody = GetComponent<Rigidbody>();
 
         //caching terrain costs
         flatlandSpeed = world.flatland.movementCost;
@@ -308,8 +308,16 @@ public class Unit : MonoBehaviour
             if (movingCo != null)
                 StopCoroutine(movingCo);
 
-            FinishMoving(destinationLoc);
+            if (isMoving) //check here twice in case still moving after stopping coroutine
+                FinishMoving(destinationLoc);
         }
+    }
+
+    public void ShiftMovement()
+    {
+        StopAllCoroutines();
+        HidePath();
+        pathPositions.Clear();
     }
 
     public void AddToMovementQueue(List<Vector3Int> queuedOrders)
@@ -370,7 +378,7 @@ public class Unit : MonoBehaviour
                 continue;
             }
 
-            StartCoroutine(SlideUnit(tile));
+            MoveThroughPath(new List<Vector3Int> { tile });
             return;
         }
 
@@ -399,7 +407,7 @@ public class Unit : MonoBehaviour
 
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionStay(Collision collision)
     {
         //Debug.Log("colliding with " + collision.gameObject.tag);
         
@@ -452,10 +460,10 @@ public class Unit : MonoBehaviour
     //    }
     //}
 
-    public void CheckForSpotAvailability()
-    {
+    //public void CheckForSpotAvailability()
+    //{
 
-    }
+    //}
 
 
 

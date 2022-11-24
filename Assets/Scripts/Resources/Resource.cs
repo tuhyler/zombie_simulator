@@ -48,6 +48,11 @@ public class Resource : MonoBehaviour
         LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
     }
 
+    public Worker GetHarvestingWorker()
+    {
+        return worker;
+    }
+
     //public void PrepareResourceSendToCity()
     //{
     //    worker.SendResourceToCity();
