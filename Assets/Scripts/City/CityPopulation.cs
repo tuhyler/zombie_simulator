@@ -8,7 +8,7 @@ public class CityPopulation : MonoBehaviour
     private int currentPop = 1;
     public int CurrentPop { get { return currentPop; } set { currentPop = value; } }
 
-    private int unusedLabor = 2;
+    private int unusedLabor = 25;
     public int UnusedLabor { get { return unusedLabor; } set { unusedLabor = value; } }
 
     private int usedLabor;

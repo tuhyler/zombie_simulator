@@ -57,6 +57,21 @@ public class UnitMovement : MonoBehaviour
         movementSystem = GetComponent<MovementSystem>();
     }
 
+    public void HandleEsc()
+    {
+        if (selectedUnit != null)
+        {
+            if (selectedUnit.isMoving)
+            {
+                CancelContinuedMovementOrders();
+            }
+            else if (selectedUnit.followingRoute)
+            {
+                CancelTradeRoute();
+            }
+        }
+    }
+
     public void CenterCamOnUnit()
     {
         if (selectedUnit != null)
@@ -73,13 +88,15 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
+        location.y = 0;
+
         //moving unit upon selection
         if (moveUnit && selectedUnit != null) //detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
         {
             if (selectedUnit.isBusy)
                 return;
 
-            location.y = 0;
+            //location.y = 0;
             TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
             MoveUnit(terrainSelected, location);
         }
@@ -295,7 +312,7 @@ public class UnitMovement : MonoBehaviour
 
         location.y = 0;
         Vector3Int locationInt = Vector3Int.RoundToInt(location);
-        if (Vector3Int.RoundToInt(selectedUnit.transform.position) == locationInt)
+        if (Vector3Int.RoundToInt(selectedUnit.transform.position) == locationInt) //won't move within same tile
             return;
 
         TerrainData terrain = world.GetTerrainDataAt(locationInt);
@@ -352,6 +369,7 @@ public class UnitMovement : MonoBehaviour
             //selectedUnit.isMoving = false;
             //selectedUnit.StopMovement();
             selectedUnit.ShiftMovement();
+            selectedUnit.FinishedMoving.RemoveAllListeners();
             //return;
         }
 

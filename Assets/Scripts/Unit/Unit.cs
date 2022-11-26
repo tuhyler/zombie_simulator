@@ -273,32 +273,32 @@ public class Unit : MonoBehaviour
     //        FinishMoving(endPosition);
     //    }
     //}
-    private IEnumerator SlideUnit(Vector3 endPosition)
-    {
-        newSpotTry = 0;
-        Quaternion startRotation = transform.rotation;
-        endPosition.y = transform.position.y;
-        Vector3 direction = endPosition - transform.position;
-        Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
+    //private IEnumerator SlideUnit(Vector3 endPosition)
+    //{
+    //    newSpotTry = 0;
+    //    Quaternion startRotation = transform.rotation;
+    //    endPosition.y = transform.position.y;
+    //    Vector3 direction = endPosition - transform.position;
+    //    Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
 
-        float timeElapsed = 0;
-        while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
-        {
-            timeElapsed += Time.deltaTime;
-            float movementThisFrame = Time.deltaTime * moveSpeed;
-            float lerpStep = timeElapsed / rotationDuration; //Value between 0 and 1
-            transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
-            //transform.localPosition = newPosition;
-            transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
+    //    float timeElapsed = 0;
+    //    while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
+    //    {
+    //        timeElapsed += Time.deltaTime;
+    //        float movementThisFrame = Time.deltaTime * moveSpeed;
+    //        float lerpStep = timeElapsed / rotationDuration; //Value between 0 and 1
+    //        transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
+    //        //transform.localPosition = newPosition;
+    //        transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
 
-            if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
-                break;
+    //        if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
+    //            break;
 
-            yield return null;
-        }
+    //        yield return null;
+    //    }
 
-        FinishMoving(endPosition);
-    }
+    //    FinishMoving(endPosition);
+    //}
 
 
     public void StopMovement()

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -101,7 +102,7 @@ public class UILaborResourcePriority : MonoBehaviour
     {
         resourceList.options.Remove(defaultFirstChoice); //removing top choice
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
             if (resourceType == resource.resourceType)
             {
@@ -110,35 +111,17 @@ public class UILaborResourcePriority : MonoBehaviour
                 resourceList.RefreshShownValue();
             }
         }
-
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allWorldResources)
-        {
-            if (resourceType == resource.resourceType)
-            {
-                chosenResource = resource.resourceName;
-                resourceList.value = resources.IndexOf(chosenResource);
-                resourceList.RefreshShownValue();
-            }
-        }
-
     }
 
     public ResourceType GetChosenResource()
     {
         ResourceType chosenResourceType = ResourceType.None;
         
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
             if (chosenResource == resource.resourceName)
                 chosenResourceType = resource.resourceType;
         }
-
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allWorldResources)
-        {
-            if (chosenResource == resource.resourceName)
-                chosenResourceType = resource.resourceType;
-        }
-
 
         return chosenResourceType;
     }

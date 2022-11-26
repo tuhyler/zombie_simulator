@@ -2,109 +2,174 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UILaborHandlerOptions : MonoBehaviour
 {
     [SerializeField]
-    private TMP_Text laborCountAndMax;
+    private TMP_Text resourceGeneration;
 
     [SerializeField]
-    private TMP_Text buildingTMP;
+    public Image resourceImage;
 
-    private string buildingName;
-    public string GetBuildingName { get { return buildingName; } }
+    [HideInInspector]
+    public ResourceType resourceType;
 
-    private int currentLabor;
-    public int GetCurrentLabor { get { return currentLabor; } }
-    private int maxLabor;
-    public int SetMaxLabor { set { maxLabor = value; } }
+    //for managing the labor icons
+    [SerializeField]
+    private Transform laborIconHolder;
+    private UICityLaborIcon laborIcon10;
+    private UICityLaborIcon laborIcon5;
+    private List<UICityLaborIcon> laborIcons = new();
+    private List<UICityLaborIcon> laborIconsOneList = new(); //to turn on the one icons individually (for speed)
 
     public bool noneText; //flag if it's none text, shown for no buildings
 
-    [HideInInspector]
-    public bool removingOption;
-
-    private UILaborHandler buttonHandler;
-    private ButtonHighlight highlight;
-
-    [SerializeField]
-    private CanvasGroup canvasGroup; //handles all aspects of a group of UI elements together, instead of individually in Unity
+    private bool isShowing;
 
     private void Awake()
     {
+        foreach (Transform selection in laborIconHolder)
+        {
+            UICityLaborIcon laborIcon = selection.GetComponent<UICityLaborIcon>();
+            laborIcon.ToggleVisibility(false);
+            int size = laborIcon.size;
+            laborIcons.Add(laborIcon);
+
+            if (size == 10)
+            {
+                laborIcon10 = laborIcon;
+                laborIcon10.infinite = true;
+            }
+            else if (size == 5)
+                laborIcon5 = laborIcon;
+            else
+            {
+                laborIcon.HideNumber();
+                laborIconsOneList.Add(laborIcon);
+            }
+        }
+
         if (!noneText)
         {
-            buildingName = buildingTMP.text;
-            //buildingTMP.text = buildingName.Remove(buildingName.Length - 2); //just displaying simplified name
-            buttonHandler = GetComponentInParent<UILaborHandler>();
-            canvasGroup = GetComponent<CanvasGroup>();
-            highlight = GetComponent<ButtonHighlight>();
-            SetUICount();
+            resourceGeneration.text = "+0";
         }
     }
 
     public void ToggleVisibility(bool v)
     {
+        if (!v)
+            HideLaborIcons();
+        
         gameObject.SetActive(v);
+        isShowing = v;
     }
 
-    //public int CheckVisibility(Vector3Int cityTile, MapWorld world)
-    //{
-    //    if (world.IsBuildingInCity(cityTile, buildingName))
-    //    {
-    //        currentLabor = world.GetCurrentLaborForBuilding(cityTile, buildingName);
-    //        maxLabor = world.GetMaxLaborForBuilding(cityTile, buildingName);
-
-    //        if (!removingOption && maxLabor == 0)
-    //        {
-    //            ToggleVisibility(false);
-    //            return 0;
-    //        }
-
-    //        gameObject.SetActive(true);
-    //        SetUICount();
-    //        return 1;
-    //    }
-    //    else
-    //    {
-    //        gameObject.SetActive(false);
-    //        return 0;
-    //    }
-    //}
-
-    public void ToggleInteractable(bool v)
+    //setting up which icons to show
+    public void SetUICount(int count, float resourceGenerationNum)
     {
-        canvasGroup.interactable = v;
+        resourceGeneration.text = $"+{Mathf.RoundToInt(resourceGenerationNum)}";
+
+        if (count == 0)
+            return;
+        
+        foreach (UICityLaborIcon laborIcon in laborIcons)
+        {
+            int size = laborIcon.size;
+
+            if (count >= size)
+            {
+                laborIcon.ToggleVisibility(true);
+                
+                if (laborIcon.infinite)
+                {
+                    int total = (count / size) * size;
+                    count -= total;
+                    laborIcon.SetNumber(total);
+                }
+                else
+                {
+                    count -= size;
+                }
+            }
+        }
     }
 
-    public void OnButtonClick()
+    public void AddSubtractUICount(int count, int laborChange, float resourceGenerationNum)
     {
-        buttonHandler.PrepareLaborChange(currentLabor, maxLabor, buildingName);
-        currentLabor += buttonHandler.GetLaborChange();
-        SetUICount();
+        resourceGeneration.text = $"+{Mathf.RoundToInt(resourceGenerationNum)}";
+        
+        if (laborChange > 0)
+        {
+            if (count % 10 == 0)
+            {
+                laborIcon5.ToggleVisibility(false);
+                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                    laborIcons.ToggleVisibility(false);
+                laborIcon10.SetNumber((count / 10) * 10);
+                laborIcon10.ToggleVisibility(true);
+            }
+            else if (count % 5 == 0)
+            {
+                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                    laborIcons.ToggleVisibility(false);
+                laborIcon5.ToggleVisibility(true);
+            }
+            else
+            {
+                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                {
+                    if (!laborIcons.isActive)
+                    {
+                        laborIcons.ToggleVisibility(true);
+                        break; //just turn on one
+                    }
+                }
+            }
+        }
+        else if (laborChange < 0)
+        {
+            if (count % 10 == 9)
+            {
+                if (count / 10 == 0)
+                    laborIcon10.ToggleVisibility(false);
+                else
+                    laborIcon10.SetNumber((count / 10) * 10);
+
+                laborIcon5.ToggleVisibility(true);
+                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                    laborIcons.ToggleVisibility(true);
+            }
+            else if (count % 5 == 4)
+            {
+                laborIcon5.ToggleVisibility(false);
+
+                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                    laborIcons.ToggleVisibility(true);
+            }
+            else
+            {
+                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                {
+                    if (laborIcons.isActive)
+                    {
+                        laborIcons.ToggleVisibility(false);
+                        break; //just turn off one
+                    }
+                }
+            }
+        }
     }
 
-    public bool CheckLaborIsMaxxed()
+    public void HideLaborIcons()
     {
-        return currentLabor == maxLabor;
-    }
-
-    private void SetUICount()
-    {
-        laborCountAndMax.text = $"{currentLabor}/{maxLabor}";
-        if (maxLabor == 0)
-            laborCountAndMax.gameObject.SetActive(false);
-        else
-            laborCountAndMax.gameObject.SetActive(true);
-    }
-
-    public void EnableHighlight(Color highlightColor)
-    {
-        highlight.EnableHighlight(highlightColor);
-    }
-
-    public void DisableHighlight()
-    {
-        highlight.DisableHighlight();
+        if (isShowing)
+        {
+            foreach (UICityLaborIcon laborIcon in laborIcons)
+            {
+                if (laborIcon.isActive)
+                    laborIcon.ToggleVisibility(false);
+            }
+        }
     }
 }

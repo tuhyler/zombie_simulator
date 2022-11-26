@@ -65,6 +65,7 @@ public class City : MonoBehaviour
     private TradeRouteManager tradeRouteWaiter;
     private ResourceType resourceWaiter = ResourceType.None;
     private Queue<Unit> waitList = new();
+    private Dictionary<ResourceType, int> resourcesWorkedDict = new();
     
     //world resource info
     //private int goldPerMinute;
@@ -421,17 +422,38 @@ public class City : MonoBehaviour
         }
     }
 
-    //private void UpdateInfoPanel(ResourceType resourceType, float diffAmount)
-    //{
-    //    if (resourceType == ResourceType.Gold)
-    //    {
-    //        goldPerMinute += Mathf.RoundToInt(diffAmount);
-    //    }
-    //    if (resourceType == ResourceType.Research)
-    //    {
-    //        researchPerMinute += Mathf.RoundToInt(diffAmount);
-    //    }
-    //}
+    public void CreateKeyInResourcesWorked(ResourceType resourceType)
+    {
+        resourcesWorkedDict[resourceType] = 1;
+    }
+
+    public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)
+    {
+        if (resourcesWorkedDict.ContainsKey(resourceType))
+            resourcesWorkedDict[resourceType] += laborChange;
+        else
+            resourcesWorkedDict[resourceType] = laborChange;
+    }
+
+    public void RemoveFromResourcesWorked(ResourceType resourceType)
+    {
+        resourcesWorkedDict.Remove(resourceType);
+    }
+
+    public int CheckResourcesWorkedCount()
+    {
+        return resourcesWorkedDict.Count;
+    }
+
+    public bool CheckResourcesWorkedExists(ResourceType resourceType)
+    {
+        return resourcesWorkedDict.ContainsKey(resourceType);
+    }
+
+    public int GetResourcesWorkedResourceCount(ResourceType resourceType)
+    {
+        return resourcesWorkedDict[resourceType];
+    }
 
 
     //Time generator to consume food

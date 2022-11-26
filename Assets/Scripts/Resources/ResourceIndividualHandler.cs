@@ -104,6 +104,7 @@ public class ResourceIndividualHandler : MonoBehaviour
         worker.harvested = true;
         unitPos.x += 1f;
         unitPos.z += 1f;
+        unitPos.y += 1f;
         //unitPos += Vector3.one; //setting it up to float above worker's head
         GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
         Resource resource = resourceGO.GetComponent<Resource>();

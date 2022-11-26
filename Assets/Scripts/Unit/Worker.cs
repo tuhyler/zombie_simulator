@@ -120,7 +120,7 @@ public class Worker : Unit
             InfoPopUpHandler.Create(workerPos, "No resource to harvest here");
             return;
         }
-        Debug.Log("Harvesting resource at " + workerPos);
+        //Debug.Log("Harvesting resource at " + workerPos);
 
         //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
         StopMovement();
