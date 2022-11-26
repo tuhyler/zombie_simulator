@@ -1624,6 +1624,7 @@ public class CityBuilderManager : MonoBehaviour
                 uiLaborPrioritizationManager.ToggleVisibility(false, true);
             uiUnitTurn.buttonClicked.RemoveListener(ResetCityUI);
             HideLaborNumbers();
+            uiLaborHandler.ResetUI();
             HideBorders();
             ToggleBuildingHighlight(false);
             selectedCity.Deselect();

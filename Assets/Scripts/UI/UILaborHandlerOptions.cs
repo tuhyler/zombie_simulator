@@ -23,8 +23,6 @@ public class UILaborHandlerOptions : MonoBehaviour
     private List<UICityLaborIcon> laborIcons = new();
     private List<UICityLaborIcon> laborIconsOneList = new(); //to turn on the one icons individually (for speed)
 
-    public bool noneText; //flag if it's none text, shown for no buildings
-
     private bool isShowing;
 
     private void Awake()
@@ -50,16 +48,13 @@ public class UILaborHandlerOptions : MonoBehaviour
             }
         }
 
-        if (!noneText)
-        {
-            resourceGeneration.text = "+0";
-        }
+         resourceGeneration.text = "+0";
     }
 
     public void ToggleVisibility(bool v)
     {
-        if (!v)
-            HideLaborIcons();
+        //if (!v)
+        //    HideLaborIcons();
         
         gameObject.SetActive(v);
         isShowing = v;

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CityPopulation : MonoBehaviour
 {
-    private int currentPop = 1;
+    private int currentPop = 0;
     public int CurrentPop { get { return currentPop; } set { currentPop = value; } }
 
     private int unusedLabor = 25;
