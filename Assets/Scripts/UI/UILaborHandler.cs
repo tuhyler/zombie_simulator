@@ -55,21 +55,10 @@ public class UILaborHandler : MonoBehaviour
         
         foreach (UILaborHandlerOptions option in laborOptions)
         {
-            if (option.noneText)
+            if (city.CheckResourcesWorkedExists(option.resourceType))
             {
-                if (city.CheckResourcesWorkedCount() == 0) //to see if None text should be shown
-                {
-                    option.ToggleVisibility(true);
-                    break;
-                }
-            }
-            else
-            {
-                if (city.CheckResourcesWorkedExists(option.resourceType))
-                {
-                    option.ToggleVisibility(true);
-                    option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
-                }
+                option.ToggleVisibility(true);
+                option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
             }
         }
     }
@@ -102,6 +91,15 @@ public class UILaborHandler : MonoBehaviour
     public void HideUI()
     {
         ToggleVisibility(false);        
+    }
+
+    public void ResetUI()
+    {
+        foreach (UILaborHandlerOptions option in laborOptions)
+        {
+            option.HideLaborIcons();
+            option.ToggleVisibility(false);
+        }
     }
 
     private void SetActiveStatusFalse()

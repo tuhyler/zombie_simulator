@@ -247,7 +247,7 @@ public class City : MonoBehaviour
         }
 
         if (cityPop.CurrentPop == 1)
-            StartCoroutine(FoodConsumptionCoroutine());
+            StartCoroutine( FoodConsumptionCoroutine());
     }
 
     public void PopulationDeclineCheck()
