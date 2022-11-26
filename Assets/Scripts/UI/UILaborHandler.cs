@@ -1,31 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class UILaborHandler : MonoBehaviour
 {
-    [HideInInspector]
-    public int laborChange;
-    private int currentLabor;
-    public int GetCurrentLabor { get { return currentLabor; } }
-    private int maxLabor;
-    public int GetMaxLabor { get { return maxLabor; } }
-
     [SerializeField]
-    private TMP_Text laborHandlerText;
-
-    private string buildingName;
-
+    private GameObject laborResourceOption;
+    
     [SerializeField]
-    private UnityEvent<string> OnIconButtonClick;
-
-    [SerializeField]
-    private Transform uiElementsParent;
+    private Transform laborOptionScrollRect;
     private List<UILaborHandlerOptions> laborOptions;
-    public List<UILaborHandlerOptions> GetLaborOptions { get { return laborOptions; } }
 
     //[SerializeField]
     //private TMP_Text noneText;
@@ -44,73 +32,46 @@ public class UILaborHandler : MonoBehaviour
 
         laborOptions = new List<UILaborHandlerOptions>();
 
-        foreach (Transform selection in uiElementsParent) //populates list with just one card - "None"
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
-            laborOptions.Add(selection.GetComponent<UILaborHandlerOptions>());
+            UILaborHandlerOptions newLaborOption = Instantiate(laborResourceOption).GetComponent<UILaborHandlerOptions>();
+            //laborResourceGO.SetActive(true);
+            newLaborOption.transform.SetParent(laborOptionScrollRect, false);
+            //= laborResourceGO.;
+            newLaborOption.resourceImage.sprite = resource.resourceIcon;
+            newLaborOption.resourceType = resource.resourceType;
+            newLaborOption.ToggleVisibility(false);
+            laborOptions.Add(newLaborOption);
         }
 
-    }
 
-    public void HandleButtonClick()
-    {
-        OnIconButtonClick?.Invoke(buildingName);
-    }
 
-    public void ShowUIRemoveBuildings(Vector3Int cityTile, MapWorld world)
-    {
-        laborHandlerText.text = "Remove City Buildings";
-        ToggleVisibility(true);
-        int showCount = 0;
-
-        foreach (UILaborHandlerOptions option in laborOptions)
-        {
-            option.removingOption = true;
-            
-            if (option.noneText)
-            {
-                if (showCount == 0)
-                    option.ToggleVisibility(true);
-                else
-                    option.ToggleVisibility(false);
-
-                continue;
-            }
-
-            //showCount += option.CheckVisibility(cityTile, world);
-
-            option.EnableHighlight(Color.red);
-            option.ToggleInteractable(true); //toggle all interactable
-            //option.CheckVisibility(cityTile, world);
-            option.removingOption = false;
-        }
     }
 
     //pass data to know if can show in the UI
-    public void ShowUI(int laborChange, City city, MapWorld world, int placesToWork) 
+    public void ShowUI(City city) 
     {
-        laborHandlerText.text = "Labor for City Buildings";
         ToggleVisibility(true);
         
-        this.laborChange = laborChange;
-        int showCount = 0; //to see if None text should be shown
-
         foreach (UILaborHandlerOptions option in laborOptions)
         {
             if (option.noneText)
             {
-                if (showCount == 0)
+                if (city.CheckResourcesWorkedCount() == 0) //to see if None text should be shown
+                {
                     option.ToggleVisibility(true);
-                else
-                    option.ToggleVisibility(false);
-
-                continue;
+                    break;
+                }
             }
-
-            //showCount += option.CheckVisibility(city.cityLoc, world);
-            //showCount += result;
+            else
+            {
+                if (city.CheckResourcesWorkedExists(option.resourceType))
+                {
+                    option.ToggleVisibility(true);
+                    option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
+                }
+            }
         }
-
-        PrepareLaborChangeOptions(city.cityPop, placesToWork);
     }
 
     private void ToggleVisibility(bool v)
@@ -148,31 +109,19 @@ public class UILaborHandler : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public int GetLaborChange()
+    public void PlusMinusOneLabor(ResourceType resourceType, int laborCount, int laborChange, float resourceGeneration)
     {
-        return laborChange;
-    }
-
-    public void PrepareLaborChange(int currentLabor, int maxLabor, string buildingName)
-    {
-        this.currentLabor = currentLabor;
-        this.maxLabor = maxLabor;
-        this.buildingName = buildingName;
-    }
-
-    private void PrepareLaborChangeOptions(CityPopulation cityPop, int placesToWork)
-    {
-        //uiLaborHandler.ToggleTweenVisibility(true);
-
-        foreach (UILaborHandlerOptions laborItem in laborOptions)
+        foreach (UILaborHandlerOptions uiLaborHandlerOption in laborOptions)
         {
-            laborItem.ToggleInteractable(true);
+            if (resourceType == uiLaborHandlerOption.resourceType)
+            {
+                if (laborCount == 1)
+                    uiLaborHandlerOption.ToggleVisibility(true);
+                else if (laborCount == 0)
+                    uiLaborHandlerOption.ToggleVisibility(false);
 
-            if (laborChange > 0 && (cityPop.UnusedLabor == 0 || placesToWork == 0 || laborItem.CheckLaborIsMaxxed()))
-                laborItem.ToggleInteractable(false); //deactivate if not enough unused labor
-
-            if (laborChange < 0 && (cityPop.UsedLabor == 0 || laborItem.GetCurrentLabor == 0))
-                laborItem.ToggleInteractable(false); //deactivate if not enough used labor
+                uiLaborHandlerOption.AddSubtractUICount(laborCount, laborChange, resourceGeneration);
+            }
         }
     }
 }

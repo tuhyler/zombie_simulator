@@ -40,12 +40,24 @@ public class WorkerTaskManager : MonoBehaviour
         roadManager = GetComponent<RoadManager>();
     }
 
+    public void HandleEsc()
+    {
+        if (workerUnit != null)
+        {
+            if (workerUnit.isBusy)
+            {
+                CancelTask();
+            }
+        }
+    }
+
     //Methods to run when pressing certain keys
     public void HandleR()
     {
         if (workerUnit != null && !workerUnit.isBusy)
         {
             Vector3 pos = workerUnit.transform.position;
+            pos.y = 0;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
             if (Vector3Int.RoundToInt(pos) == workerTile)
@@ -66,6 +78,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (workerUnit != null && !workerUnit.isBusy)
         {
             Vector3 pos = workerUnit.transform.position;
+            pos.y = 0;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
             if (Vector3Int.RoundToInt(pos) == workerTile)
@@ -111,6 +124,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (workerUnit != null && !workerUnit.isBusy)
         {
             Vector3 pos = workerUnit.transform.position;
+            pos.y = 0;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
             if (Vector3Int.RoundToInt(pos) == workerTile)
@@ -128,7 +142,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     private void MoveToCenterOfTile(Vector3Int workerTile)
     {
-        workerUnit.StopMovement();
+        workerUnit.ShiftMovement();
         unitMovement.HandleSelectedLocation(workerTile, workerTile);
     }
 
@@ -199,6 +213,7 @@ public class WorkerTaskManager : MonoBehaviour
             return;
         
         Vector3 pos = workerUnit.transform.position;
+        pos.y = 0;
         Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
         if (improvementData == null) //removing the road

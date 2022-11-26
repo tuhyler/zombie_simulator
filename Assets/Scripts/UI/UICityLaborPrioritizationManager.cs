@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEditor.VersionControl;
 using UnityEngine;
@@ -58,12 +59,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     private void AddResources()
     {
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allWorldResources)
-        {
-            resources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
-        }
-
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
             resources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
         }

@@ -1064,6 +1064,7 @@ public class CityBuilderManager : MonoBehaviour
         CloseQueueUI();
         uiCityTabs.HideSelectedTab();
         //uiLaborHandler.HideUI();
+        //uiLaborHandler.ShowUI(selectedCity);
         //ResetTileLists();
         CloseImprovementBuildPanel();
 
@@ -1077,7 +1078,7 @@ public class CityBuilderManager : MonoBehaviour
             this.laborChange = laborChange;
 
             //if (world.GetBuildingListForCity(selectedCityLoc).Count > 0) //only shows if city has buildings
-            //uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
+            uiLaborHandler.ShowUI(selectedCity);
 
             //BuildingButtonHighlight();
             LaborTileHighlight();
@@ -1085,7 +1086,7 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
-            //uiLaborHandler.HideUI();
+            uiLaborHandler.HideUI();
             uiLaborAssignment.ResetLaborAssignment(laborChange);
         }
     }
@@ -1290,6 +1291,18 @@ public class CityBuilderManager : MonoBehaviour
 
         resourceProducer.UpdateCurrentLaborData(labor);
 
+        foreach (ResourceType resourceType in resourceProducer.producedResources)
+        {
+            selectedCity.ChangeResourcesWorked(resourceType, laborChange);
+         
+            int totalResourceLabor = selectedCity.GetResourcesWorkedResourceCount(resourceType);
+
+            uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType));
+
+            if (totalResourceLabor == 0)
+               selectedCity.RemoveFromResourcesWorked(resourceType);
+        }
+
 
         if (labor == 0) //removing from world dicts when zeroed out
         {
@@ -1362,6 +1375,7 @@ public class CityBuilderManager : MonoBehaviour
         uiLaborAssignment.ResetLaborAssignment();
         CloseQueueUI();
         uiCityTabs.HideSelectedTab();
+        CloseLaborMenus();
         //uiLaborHandler.HideUI();
         //ResetTileLists(); //already in improvement build panel
     }
@@ -1371,7 +1385,7 @@ public class CityBuilderManager : MonoBehaviour
         if (laborChange != 0)
         {
             uiLaborAssignment.ResetLaborAssignment();
-            //uiLaborHandler.HideUI();
+            uiLaborHandler.HideUI();
 
             if (!uiImprovementBuildInfoPanel.activeStatus)
             {

@@ -707,10 +707,14 @@ public class MapWorld : MonoBehaviour
     //    return world[tileLoc];
     //}
 
-    public Vector3Int GetClosestTerrainLoc(Vector3 worldPosition)
+    public Vector3Int GetClosestTerrainLoc(Vector3 v)
     {
-        worldPosition.y = 0f;
-        return world[Vector3Int.RoundToInt(worldPosition)].GetTileCoordinates();
+        //c sharp rounds to the closest even number at the midpoint. 
+        v.y = 0f;
+        v.x = (float)Math.Round(v.x, MidpointRounding.AwayFromZero);
+        v.z = (float)Math.Round(v.z, MidpointRounding.AwayFromZero);
+
+        return world[Vector3Int.RoundToInt(v)].GetTileCoordinates();
     }
 
     public void AddCityName(string cityName, Vector3Int cityLoc)

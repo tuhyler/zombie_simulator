@@ -16,7 +16,7 @@ public class HandlePlayerInput : MonoBehaviour
     //public UnityEvent<GameObject> HandleCityTileSelection;
     public UnityEvent<Vector3, GameObject> HandleLocationSelection;
     public UnityEvent<Vector3, GameObject> HandleLocationMovementSelection;
-    public UnityEvent HandleShiftDown, HandleShiftUp, HandleR, HandleEnter, HandleC, HandleB, HandleG, HandleX, HandleSpace;
+    public UnityEvent HandleShiftDown, HandleShiftUp, HandleEsc, HandleR, HandleEnter, HandleC, HandleB, HandleG, HandleX, HandleSpace;
     //public UnityEvent HandleShiftUp;
     //public UnityEvent HandleR;
 
@@ -37,6 +37,11 @@ public class HandlePlayerInput : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.RightShift))
         {
             HandleShiftUp?.Invoke();
+        }
+
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            HandleEsc?.Invoke();
         }
 
         if (Input.GetKeyUp(KeyCode.R))
