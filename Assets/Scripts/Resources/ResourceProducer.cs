@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceProducer : MonoBehaviour
@@ -18,6 +19,9 @@ public class ResourceProducer : MonoBehaviour
     private Coroutine producingCo;
     private int productionTimer;
     private TimeProgressBar timeProgressBar;
+    [HideInInspector]
+    public bool isWaitingToStart, isWaitingToUnload;
+    private float unloadLabor;
     private bool isProducing;
     [HideInInspector]
     public List<ResourceType> producedResources; //too see what this producer is making
@@ -95,6 +99,12 @@ public class ResourceProducer : MonoBehaviour
     //for producing resources
     public void StartProducing()
     {
+        if (resourceManager.fullInventory)
+        {
+            AddToProduceStartWaitList();
+            return;
+        }
+        
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
@@ -147,10 +157,42 @@ public class ResourceProducer : MonoBehaviour
                 timeProgressBar.SetTime(productionTimer);
         }
 
-        resourceManager.PrepareResource(myImprovementData.producedResources, tempLabor);
+        //checking of storage is free to unload
+        if (resourceManager.fullInventory)
+        {
+            isWaitingToUnload = true;
+            unloadLabor = tempLabor;
+            resourceManager.waitingToUnloadProducers.Enqueue(this);
+            timeProgressBar.SetToZero();
+        }
+        else
+        {
+            RestartProductionCheck(tempLabor);
+        }
+    }
+
+    public void UnloadAndRestart()
+    {
+        if (isWaitingToUnload)
+        {
+            isWaitingToUnload = false;
+            timeProgressBar.ResetProgressBar();
+            RestartProductionCheck(unloadLabor);
+        }
+    }
+
+    public void RestartProductionCheck(float labor)
+    {
+        resourceManager.PrepareResource(myImprovementData.producedResources, labor);
         Debug.Log("Resources for " + myImprovementData.prefab.name);
 
-        if (currentLabor > 0)
+        //checking storage again after loading
+        if (resourceManager.fullInventory)
+        {
+            AddToProduceStartWaitList();
+            timeProgressBar.SetActive(false);
+        }
+        else
         {
             tempLaborPercsQueue.Clear();
             producingCo = StartCoroutine(ProducingCoroutine());
@@ -168,8 +210,30 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.PrepareResource(myImprovementData.consumedResources, 1, true);
         }
 
+        if (isWaitingToStart)
+        {
+            resourceManager.city.RemoveFromWaitToStartList(this);
+            isWaitingToStart = false;
+        }
+        if (isWaitingToUnload)
+        {
+            resourceManager.RemoveFromWaitUnloadQueue(this);
+            isWaitingToUnload = false;
+        }
         timeProgressBar.SetActive(false);
         isProducing = false;
+    }
+
+    private void AddToProduceStartWaitList()
+    {
+        isWaitingToStart = true;
+        resourceManager.city.AddToWaitToStartList(this);
+
+    }
+
+    public void SetTimeProgressBarToZero()
+    {
+        timeProgressBar.SetToZero();
     }
 
     public void TimeProgressBarSetActive(bool v)

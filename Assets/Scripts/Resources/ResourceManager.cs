@@ -15,6 +15,12 @@ public class ResourceManager : MonoBehaviour
     public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
     private float resourceStorageLevel;
     public float GetResourceStorageLevel { get { return resourceStorageLevel; } }
+    [HideInInspector]
+    public Queue<ResourceProducer> waitingToUnloadProducers = new();
+    [HideInInspector]
+    public bool fullInventory;
+
+    //UIs to update
     private UIResourceManager uiResourceManager;
     [HideInInspector]
     public UIInfoPanelCity uiInfoPanelCity;
@@ -178,6 +184,7 @@ public class ResourceManager : MonoBehaviour
 
             resourceDict[resourceType] -= consumedAmount;
             resourceStorageLevel -= consumedAmount;
+            CheckProducerUnloadWaitList();
             city.CheckLimitWaiter();
 
             UpdateUI(resourceType);
@@ -231,6 +238,8 @@ public class ResourceManager : MonoBehaviour
             foodGrowthLevel += resourceAmount;
             if (city.activeCity)
                 uiInfoPanelCity.UpdateFoodGrowth(foodGrowthLevel);
+            if (city.cityPop.CurrentPop == 0)
+                CheckForPopGrowth();
             return AddResourceToStorage(ResourceType.Food, newResourceBalance);
         }
 
@@ -267,6 +276,10 @@ public class ResourceManager : MonoBehaviour
         resourceDict[resourceType] += resourceAmountAdjusted; //updating the dictionary
 
         resourceStorageLevel += newResourceAmount;
+        if (resourceStorageLevel >= resourceStorageLimit)
+            fullInventory = true;
+        if (newResourceAmount < 0)
+            CheckProducerUnloadWaitList();
 
         int wasteCheck = 0;
         if (resourceStorageMultiplierDict.ContainsKey(resourceType) && resourceStorageMultiplierDict[resourceType] > 0)
@@ -316,6 +329,7 @@ public class ResourceManager : MonoBehaviour
         if (resourceStorageMultiplierDict.ContainsKey(resourceType))
         {
             resourceStorageLevel -= resourceAmount * resourceStorageMultiplierDict[resourceType];
+            CheckProducerUnloadWaitList();
         }
         city.CheckLimitWaiter();
         VerifyResourceAmount(resourceType);
@@ -382,12 +396,14 @@ public class ResourceManager : MonoBehaviour
                     excessFood = foodGrowthLimit;
                     resourceDict[ResourceType.Food] -= foodGrowthLimit;
                     resourceStorageLevel -= foodGrowthLimit;
+                    CheckProducerUnloadWaitList();
                 }
                 else
                 {
                     excessFood = resourceDict[ResourceType.Food];
                     resourceDict[ResourceType.Food] -= excessFood;
                     resourceStorageLevel -= excessFood;
+                    CheckProducerUnloadWaitList();
                 }
 
                 city.CheckLimitWaiter();
@@ -405,6 +421,7 @@ public class ResourceManager : MonoBehaviour
                 foodGrowthLevel += diff;
                 resourceDict[ResourceType.Food] -= diff;
                 resourceStorageLevel -= diff;
+                CheckProducerUnloadWaitList();
                 city.CheckLimitWaiter();
             }
         }
@@ -423,14 +440,39 @@ public class ResourceManager : MonoBehaviour
             uiInfoPanelCity.UpdateFoodStats(city.cityPop.CurrentPop, foodGrowthLevel, foodGrowthLimit, FoodPerMinute);
     }
 
+    private void CheckProducerUnloadWaitList()
+    {
+        if (fullInventory)
+        {
+            fullInventory = false;
+            
+            for (int i = 0; i < waitingToUnloadProducers.Count; i++)
+            {
+                if (!fullInventory)
+                    waitingToUnloadProducers.Dequeue().UnloadAndRestart();
+                else
+                    break;
+            }
+
+            //check again to start the others
+            if (!fullInventory)
+                city.RestartProduction();
+        }
+    }
+
+    public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
+    {
+        waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
+    }
 
 
-    //for queued build orders in cities
+
     //public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
     //{
     //    this.cityBuilderManager = cityBuilderManager;
     //}
 
+    //for queued build orders in cities
     public void SetQueueResources(List<ResourceValue> resourceList, CityBuilderManager cityBuilderManager)
     {
         queuedResourcesToCheck = resourceList;
