@@ -21,6 +21,7 @@ public class ImprovementDataSO : ScriptableObject
     public int maxLabor; //max amount of labor
     public int laborCost; //how much gold to charge labor
     public bool replaceTerrain = false; //prefab replaces terrain
+    public bool replaceProp = true; //replace terrain prop when building upon it
     public bool singleBuild = false; //only one per city
     public int buildTime;
 }

@@ -30,10 +30,7 @@ public class TimeProgressBar : MonoBehaviour
 
         newScale = timeProgressBarMask.localScale; //change progress bar through scale
         newPosition = timeProgressBarMask.localPosition;
-        newScale.x = 0;
-        newPosition.x = positionCorrectionAtBeginning;
-        timeProgressBarMask.localPosition = newPosition;
-        timeProgressBarMask.localScale = newScale;
+        ResetProgressBar();
         SetActive(false);
     }
 
@@ -52,7 +49,8 @@ public class TimeProgressBar : MonoBehaviour
         newPosition.x = positionCorrectionAtBeginning + ((totalTime - time) * positionIncrement + positionIncrement);
 
         //setting the last increment
-        if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
+        //if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
+        if (time == 0)
         {
             Vector3 tempScale = timeProgressBarMask.localScale;
             tempScale.x = 0;
@@ -114,5 +112,23 @@ public class TimeProgressBar : MonoBehaviour
             newScale.x = 0;
             timeProgressBarMask.localScale = newScale;
         }
+    }
+
+    public void SetToZero()
+    {
+        LeanTween.cancel(timeProgressBarMask.gameObject);
+        timeText.text = additionalText + string.Format("{0:00}:{1:00}", 0 / 60, 0 % 60);
+        newScale.x = fullProgressBarAmount;
+        timeProgressBarMask.localScale = newScale;
+        newPosition.x = positionCorrectionAtEnd;
+        timeProgressBarMask.localPosition = newPosition;
+    }
+
+    public void ResetProgressBar()
+    {
+        newScale.x = 0;
+        newPosition.x = positionCorrectionAtBeginning;
+        timeProgressBarMask.localPosition = newPosition;
+        timeProgressBarMask.localScale = newScale;
     }
 }

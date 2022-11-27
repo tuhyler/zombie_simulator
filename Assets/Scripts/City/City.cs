@@ -66,6 +66,7 @@ public class City : MonoBehaviour
     private ResourceType resourceWaiter = ResourceType.None;
     private Queue<Unit> waitList = new();
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
+    private List<ResourceProducer> waitingToStartProducerList = new();
     
     //world resource info
     //private int goldPerMinute;
@@ -247,7 +248,11 @@ public class City : MonoBehaviour
         }
 
         if (cityPop.CurrentPop == 1)
-            StartCoroutine( FoodConsumptionCoroutine());
+        {
+            if (activeCity)
+                CityGrowthProgressBarSetActive(true);
+            StartCoroutine(FoodConsumptionCoroutine());
+        }
     }
 
     public void PopulationDeclineCheck()
@@ -257,7 +262,8 @@ public class City : MonoBehaviour
         if (cityPop.CurrentPop == 0)
         {
             StopAllCoroutines();
-            CityGrowthProgressBarSetActive(false);
+            if (activeCity)
+                CityGrowthProgressBarSetActive(false);
         }
 
         if (cityPop.UnusedLabor > 0) //if unused labor, get rid of first
@@ -455,6 +461,28 @@ public class City : MonoBehaviour
         return resourcesWorkedDict[resourceType];
     }
 
+    public void RestartProduction()
+    {
+        List<ResourceProducer> tempProducers = new(waitingToStartProducerList);
+        
+        foreach (ResourceProducer producer in tempProducers)
+        {
+            producer.isWaitingToStart = false;
+            producer.StartProducing();
+            waitingToStartProducerList.Remove(producer);
+        }
+    }
+
+    public void AddToWaitToStartList(ResourceProducer resourceProducer)
+    {
+        waitingToStartProducerList.Add(resourceProducer);
+    }
+
+    public void RemoveFromWaitToStartList(ResourceProducer resourceProducer)
+    {
+        waitingToStartProducerList.Remove(resourceProducer);
+    }
+
 
     //Time generator to consume food
     private IEnumerator FoodConsumptionCoroutine()
@@ -618,6 +646,12 @@ public class City : MonoBehaviour
         ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
         resourceProducer.UpdateCurrentLaborData(labor);
 
+        foreach (ResourceType resourceType in resourceProducer.producedResources)
+        {
+            ChangeResourcesWorked(resourceType, laborChange);
+            int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
+            cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, ResourceManager.GetResourceGenerationValues(resourceType));
+        }
 
         if (labor == 1) //assigning city to location if working for first time
         {

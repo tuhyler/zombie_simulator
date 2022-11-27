@@ -48,7 +48,7 @@ public class UILaborAssignment : MonoBehaviour
         OnIconButtonClick?.Invoke(laborChange);
     }
 
-    public void ShowUI(CityPopulation cityPop, int placesToWork, bool autoAssign) //pass data to know if can show in the UI
+    public void ShowUI(City city) //pass data to know if can show in the UI
     {
         if (activeStatus)
             return;
@@ -62,18 +62,18 @@ public class UILaborAssignment : MonoBehaviour
         LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
         LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
-        if (autoAssign)
-        {
-            SetAssignmentOptionsInteractableOff();
-            return;
-        }
+        //if (city.AutoAssignLabor)
+        //{
+        //    SetAssignmentOptionsInteractableOff();
+        //    return;
+        //}
 
-        PrepareLaborChangeOptions(cityPop, placesToWork);
+        PrepareLaborChangeOptions(city.cityPop, city.PlacesToWork, city.AutoAssignLabor);
     }
 
-    public void UpdateUI(CityPopulation cityPop, int placesToWork)
+    public void UpdateUI(City city)
     {
-        PrepareLaborChangeOptions(cityPop, placesToWork);
+        PrepareLaborChangeOptions(city.cityPop, city.PlacesToWork, city.AutoAssignLabor);
     }
 
     public void ToggleInteractable(bool v)
@@ -127,9 +127,13 @@ public class UILaborAssignment : MonoBehaviour
         this.laborChange = laborChange;
     }
 
-    private void PrepareLaborChangeOptions(CityPopulation cityPop, int placesToWork)
+    private void PrepareLaborChangeOptions(CityPopulation cityPop, int placesToWork, bool autoAssign)
     {
-        //uiLaborHandler.ToggleTweenVisibility(true);
+        if (autoAssign) //can't adjust labor with auto assign on
+        {
+            SetAssignmentOptionsInteractableOff();
+            return;
+        }
         
         foreach (UILaborAssignmentOptions laborItem in laborOptions)
         {

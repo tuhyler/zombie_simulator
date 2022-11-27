@@ -20,7 +20,8 @@ public class UILaborHandler : MonoBehaviour
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
     private Vector3 originalLoc;
 
 
@@ -48,6 +49,19 @@ public class UILaborHandler : MonoBehaviour
 
     }
 
+    //preparing labor menu upon city selection
+    public void PrepUI(City city)
+    {
+        foreach (UILaborHandlerOptions option in laborOptions)
+        {
+            if (city.CheckResourcesWorkedExists(option.resourceType))
+            {
+                option.ToggleVisibility(true);
+                option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
+            }
+        }
+    }
+
     //pass data to know if can show in the UI
     public void ShowUI(City city) 
     {
@@ -63,7 +77,7 @@ public class UILaborHandler : MonoBehaviour
         }
     }
 
-    private void ToggleVisibility(bool v)
+    public void ToggleVisibility(bool v)
     {
         if (activeStatus == v)
             return;
