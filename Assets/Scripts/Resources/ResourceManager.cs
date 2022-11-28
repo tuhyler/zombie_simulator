@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEditor;
+
 public class ResourceManager : MonoBehaviour
 {
     private Dictionary<ResourceType, int> resourceDict = new(); //need this later for save system
@@ -445,8 +447,9 @@ public class ResourceManager : MonoBehaviour
         if (fullInventory)
         {
             fullInventory = false;
-            
-            for (int i = 0; i < waitingToUnloadProducers.Count; i++)
+            int queueCount = waitingToUnloadProducers.Count;
+
+            for (int i = 0; i < queueCount; i++)
             {
                 if (!fullInventory)
                     waitingToUnloadProducers.Dequeue().UnloadAndRestart();

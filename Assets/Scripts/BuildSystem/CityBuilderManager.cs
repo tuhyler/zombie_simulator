@@ -34,6 +34,8 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private UICityNamer uiCityNamer;
     [SerializeField]
+    public Button abandonCityButton;
+    [SerializeField]
     private UIDestroyCityWarning uiDestroyCityWarning;
 
     //for labor prioritization auto-assignment menu
@@ -66,7 +68,8 @@ public class CityBuilderManager : MonoBehaviour
     public ResourceManager resourceManager;
 
     private int laborChange;
-    public int LaborChange { set { laborChange = value; } }
+    //public int LaborChange { set { laborChange = value; } }
+    private int placesToWork;
 
     //for object pooling of labor numbers
     private Queue<CityLaborTileNumber> laborNumberQueue = new(); //the pool in object pooling
@@ -88,14 +91,12 @@ public class CityBuilderManager : MonoBehaviour
     private bool removingImprovement, upgradingImprovement, isQueueing; //flags thrown when doing specific tasks
     private bool isActive; //when looking at a city
 
-    private UnitBuildDataSO lastUnitData;
-
     private void Awake()
     {
         GrowLaborNumbersPool();
         GrowBordersPool();
         GrowConstructionTilePool();
-        openAssignmentPriorityMenu.interactable = false;
+        //openAssignmentPriorityMenu.interactable = false;
     }
 
     private void CenterCamOnCity()
@@ -285,7 +286,7 @@ public class CityBuilderManager : MonoBehaviour
         ResourceProducerTimeProgressBarsSetActive(true);
         ToggleBuildingHighlight(true);
         DrawBorders();
-        //CheckForWork();
+        CheckForWork();
         autoAssign.isOn = selectedCity.AutoAssignLabor;
         resourceManager = selectedCity.ResourceManager;
         resourceManager.SetUI(uiResourceManager, uiInfoPanelCity);
@@ -300,9 +301,13 @@ public class CityBuilderManager : MonoBehaviour
         //    selectedCity.ResourceManager.GetResourceStorageLevel);
         uiInfoPanelCity.ToggleVisibility(true);
         //uiInfoPanelCityWarehouse.ToggleTweenVisibility(true);
-        uiLaborAssignment.ShowUI(selectedCity);
+        uiLaborAssignment.ShowUI(selectedCity, placesToWork);
         uiLaborHandler.PrepUI(selectedCity);
         uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
+        if (selectedCity.cityPop.CurrentPop > 0)
+            abandonCityButton.interactable = false;
+        else
+            abandonCityButton.interactable = true;
         UpdateLaborNumbers();
         selectedCity.CityGrowthProgressBarSetActive(true);
         selectedCity.Select();
@@ -455,8 +460,8 @@ public class CityBuilderManager : MonoBehaviour
 
         foreach (Vector3Int tile in constructingTiles)
         {
-            int time = world.GetCityDevelopmentConstruction(tile).ConstructionTime;
-            world.GetResourceProducer(tile).TimeConstructionProgressBarSetActive(v, time);
+            //int time = world.GetCityDevelopmentConstruction(tile).ConstructionTime;
+            world.GetResourceProducer(tile).TimeConstructionProgressBarSetActive(v, world.GetCityDevelopmentConstruction(tile).GetTimePassed);
         }
     }
 
@@ -500,15 +505,6 @@ public class CityBuilderManager : MonoBehaviour
 
     public void CheckPopForUnit(UnitBuildDataSO unitData)
     {
-        //if (selectedCity.cityPop.CurrentPop == 1 && !isQueueing)
-        //{
-        //    uiDestroyCityWarning.ToggleVisibility(true);
-        //    //uiUnitBuilder.ToggleVisibility(false);
-        //    uiCityTabs.HideSelectedTab();
-        //    lastUnitData = unitData;
-        //    return;
-        //}
-
         CreateUnitQueueCheck(unitData);
     }
 
@@ -535,7 +531,7 @@ public class CityBuilderManager : MonoBehaviour
         if (selectedCity != null && selectedCity == city)
         {
             UpdateLaborNumbers();
-            uiLaborAssignment.UpdateUI(city);
+            uiLaborAssignment.UpdateUI(city, placesToWork);
             uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.GetSetWorkEthic,
                 resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerMinute);
             resourceManager.UpdateUI();
@@ -617,11 +613,13 @@ public class CityBuilderManager : MonoBehaviour
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
         string buildingName = buildingData.improvementName;
-        world.SetCityBuilding(city.cityLoc, buildingName, building, city, false, buildingData.improvementLevel);
+        world.SetCityBuilding(city.cityLoc, buildingName, building, city, false, buildingData.improvementLevel, buildingData.singleBuild);
         world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
 
         if (buildingData.singleBuild)
-            city.singleBuildImprovementsAndBuildings.Add(buildingData.improvementName);
+        {
+            city.singleBuildImprovementsBuildingsDict[buildingData.improvementName] = selectedCityLoc;
+        }
 
         //ResourceProducer resourceProducer = building.GetComponent<ResourceProducer>();
         //if (resourceProducer != null) //not all buildings will generate resources 
@@ -699,8 +697,8 @@ public class CityBuilderManager : MonoBehaviour
             UpdateCityWorkEthic(workEthicHandler.GetWorkEthicChange(0)); //zero out labor
         }
 
-        if (selectedCity.singleBuildImprovementsAndBuildings.Contains(selectedBuilding))
-            selectedCity.singleBuildImprovementsAndBuildings.Remove(selectedBuilding);
+        if (selectedCity.singleBuildImprovementsBuildingsDict.ContainsKey(selectedBuilding))
+            selectedCity.singleBuildImprovementsBuildingsDict.Remove(selectedBuilding);
 
         resourceManager.UpdateUI();
         uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.GetResourceStorageLevel);
@@ -867,13 +865,19 @@ public class CityBuilderManager : MonoBehaviour
         GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
+        cityImprovement.ImprovementName = improvementData.improvementName;
         cityImprovement.SetBuildingLevel = improvementData.improvementLevel;
+        //cityImprovement.ConstructionTime = improvementData.buildTime;
+        cityImprovement.singleBuild = improvementData.singleBuild;
         world.SetCityDevelopment(tempBuildLocation, cityImprovement);
         improvement.SetActive(false);
 
         //setting single build rules
         if (improvementData.singleBuild)
-            city.singleBuildImprovementsAndBuildings.Add(improvementData.improvementName);
+        {
+            city.singleBuildImprovementsBuildingsDict[improvementData.improvementName] = tempBuildLocation;
+            world.AddToCityLabor(tempBuildLocation, city.gameObject);
+        }
 
         //resource production
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
@@ -919,7 +923,7 @@ public class CityBuilderManager : MonoBehaviour
                 td.prop.gameObject.SetActive(false);
         }
 
-        city.PlacesToWork++;
+        placesToWork++;
 
         if (improvementData.replaceTerrain)
         {
@@ -932,7 +936,6 @@ public class CityBuilderManager : MonoBehaviour
             city.hasHarbor = true;
             city.harborLocation = tempBuildLocation;
             world.SetCityHarbor(city, tempBuildLocation);
-            world.AddToCityLabor(tempBuildLocation, city.gameObject);
         }
 
         //setting labor info
@@ -945,7 +948,6 @@ public class CityBuilderManager : MonoBehaviour
             developedTiles.Add(tempBuildLocation);
             if (laborChange != 0)
                 LaborTileHighlight();
-            uiLaborAssignment.UpdateUI(city);
             UpdateCityLaborUIs();
             PrepareLaborNumber(tempBuildLocation);
         }
@@ -991,7 +993,10 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         if (improvementData.singleBuild)
-            selectedCity.singleBuildImprovementsAndBuildings.Remove(improvementData.improvementName);
+        {
+            selectedCity.singleBuildImprovementsBuildingsDict.Remove(improvementData.improvementName);
+            world.RemoveSingleBuildFromCityLabor(improvementLoc);
+        }
 
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
 
@@ -1013,14 +1018,17 @@ public class CityBuilderManager : MonoBehaviour
 
         ImprovementTileHighlight();
 
-        if (selectedImprovement.isConstruction) //stop here if it in construction process
+        //stop here if it in construction process
+        if (selectedImprovement.isConstruction)
+        {
+            constructingTiles.Remove(improvementLoc);
             return;
+        }
 
         if (improvementLoc == selectedCity.harborLocation)
         {
             selectedCity.hasHarbor = false;
             world.RemoveHarbor(improvementLoc);
-            world.RemoveFromCityLabor(improvementLoc);
         }
 
         //updating all the labor info
@@ -1035,11 +1043,11 @@ public class CityBuilderManager : MonoBehaviour
 
         //this object maintenance
         if (currentLabor > 0)
-            selectedCity.PlacesToWork--;
+            placesToWork--;
         //uiImprovementBuilder.ToggleVisibility(false);
         //ResetTileLists();
         //removingImprovement = false;
-        uiLaborAssignment.UpdateUI(selectedCity);
+        uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
         //CloseImprovementBuildPanel();
     }
 
@@ -1185,6 +1193,17 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
+    private void CheckForWork() //only used for enabling the "add labor" button
+    {
+        placesToWork = 0;
+
+        foreach (Vector3Int tile in developedTiles)
+        {
+            if (/*world.CheckIfTileIsImproved(tile) && */!world.CheckIfTileIsMaxxed(tile) /*&& world.CheckIfCityOwnsTile(tile, selectedCity.gameObject)*/)
+                placesToWork++;
+        }
+    }
+
     //private int ChangePlacesToWorkCount(int labor, int maxLabor)
     //{
     //    if (labor == maxLabor) //if decreasing from max amount
@@ -1292,10 +1311,10 @@ public class CityBuilderManager : MonoBehaviour
             return;
 
         if (labor == maxLabor) //if decreasing from max amount
-            selectedCity.PlacesToWork++;
+            placesToWork++;
         labor += laborChange;
         if (labor == maxLabor) //if increasing to max amount
-            selectedCity.PlacesToWork--;
+            placesToWork--;
 
         //selectedCity.cityPop.GetSetFieldLaborers += laborChange;
         selectedCity.cityPop.UnusedLabor -= laborChange;
@@ -1354,7 +1373,7 @@ public class CityBuilderManager : MonoBehaviour
         //resourceManager.UpdateUIGeneration(terrainSelected.GetTerrainData().resourceType);
         //BuildingButtonHighlight();
         LaborTileHighlight();
-        uiLaborAssignment.UpdateUI(selectedCity);
+        uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
         //if (world.GetBuildingListForCity(selectedCityLoc).Count > 0)
         //uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
     }
@@ -1377,7 +1396,7 @@ public class CityBuilderManager : MonoBehaviour
         UpdateLaborNumbers();
         uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.GetSetWorkEthic,
             resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerMinute);
-        uiLaborAssignment.UpdateUI(selectedCity);
+        uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
     }
 
     public void CloseCityTab()
@@ -1408,7 +1427,6 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-
     public void CloseLaborMenus()
     {
         uiLaborHandler.HideUI();
@@ -1428,7 +1446,11 @@ public class CityBuilderManager : MonoBehaviour
             uiLaborPrioritizationManager.ToggleVisibility(false);
     }
 
-
+    public void DestroyCityWarning()
+    {
+        uiDestroyCityWarning.ToggleVisibility(true);
+        ResetCityUIToBase();
+    }
 
 
 
@@ -1440,7 +1462,7 @@ public class CityBuilderManager : MonoBehaviour
         if (autoAssign.isOn)
         {
             CloseLaborMenus();
-            openAssignmentPriorityMenu.interactable = true;
+            //openAssignmentPriorityMenu.interactable = true;
             selectedCity.AutoAssignLabor = true;
 
             if (selectedCity.cityPop.UnusedLabor > 0)
@@ -1454,15 +1476,15 @@ public class CityBuilderManager : MonoBehaviour
         else
         {
             selectedCity.AutoAssignLabor = false;
-            uiLaborAssignment.UpdateUI(selectedCity);
-            ClosePrioritizationManager();
+            uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+            uiLaborPrioritizationManager.ToggleVisibility(false);
         }
     }
 
     public void ClosePrioritizationManager()
     {
-        openAssignmentPriorityMenu.interactable = false;
-        selectedCity.AutoAssignLabor = false;
+        //openAssignmentPriorityMenu.interactable = false;
+        //selectedCity.AutoAssignLabor = false;
         uiLaborPrioritizationManager.ToggleVisibility(false);
     }
 
@@ -1592,15 +1614,55 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCity() //set on destroy city warning message
     {
-        CreateUnitQueueCheck(lastUnitData);
-        lastUnitData = null;
-
         GameObject destroyedCity = world.GetStructure(selectedCityLoc);
+
+        //destroy all construction projects upon destroying city
+        removingImprovement = true;
+        List<Vector3Int> constructionToStop = new(constructingTiles);
+
+        foreach (Vector3Int constructionTile in constructionToStop)
+        {
+            CityImprovement construction = world.GetCityDevelopmentConstruction(constructionTile);
+            construction.RemoveConstruction(this, constructionTile);
+            RemoveImprovement(constructionTile, construction);
+        }
+        removingImprovement = false;
 
         world.RemoveStructure(selectedCityLoc);
         world.RemoveCityName(selectedCityLoc);
 
         selectedCity.DestroyThisCity();
+
+        //for all single build improvements, finding a nearby city to join that doesn't have one. If not one available, then is unowned. 
+        foreach (string singleImprovement in selectedCity.singleBuildImprovementsBuildingsDict.Keys)
+        {
+            Vector3Int improvementLoc = selectedCity.singleBuildImprovementsBuildingsDict[singleImprovement];
+            if (improvementLoc == selectedCityLoc)
+                continue;
+
+            world.RemoveSingleBuildFromCityLabor(improvementLoc);
+
+            foreach (Vector3Int tile in world.GetNeighborsFor(improvementLoc, MapWorld.State.CITYRADIUS))
+            {
+                if (world.IsCityOnTile(tile))
+                {
+                    City tempCity = world.GetCity(tile);
+                    if (!tempCity.singleBuildImprovementsBuildingsDict.ContainsKey(singleImprovement))
+                    {
+                        tempCity.singleBuildImprovementsBuildingsDict[singleImprovement] = improvementLoc;
+                        world.AddToCityLabor(improvementLoc, tempCity.gameObject);
+
+                        if (singleImprovement == "Harbor") //is also done in City object
+                        {
+                            world.RemoveHarbor(improvementLoc);
+                            tempCity.hasHarbor = true;
+                            tempCity.harborLocation = improvementLoc;
+                            world.SetCityHarbor(tempCity, improvementLoc);
+                        }
+                    }
+                }
+            }
+        }
         Destroy(destroyedCity);
 
         uiDestroyCityWarning.ToggleVisibility(false);
@@ -1613,7 +1675,6 @@ public class CityBuilderManager : MonoBehaviour
         uiDestroyCityWarning.ToggleVisibility(false);
         //uiUnitBuilder.ToggleVisibility(true);
         uiCityTabs.HideSelectedTab();
-        lastUnitData = null;
     }
 
     public void ResetTileLists()

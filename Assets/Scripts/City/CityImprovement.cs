@@ -13,13 +13,15 @@ public class CityImprovement : MonoBehaviour
     public string ImprovementName { get { return improvementName; } set { improvementName = value; } }
     private City city;
     [HideInInspector]
-    public bool initialCityHouse, isConstruction;
+    public bool initialCityHouse, isConstruction, singleBuild;
     private int constructionTime;
-    public int ConstructionTime { get { return constructionTime; } }
+    public int ConstructionTime { get { return constructionTime; } set { constructionTime = value; } }
     private int buildingLevel = 99;
     public int SetBuildingLevel { set { buildingLevel = value; } }
 
     private Coroutine constructionCo;
+    private int timePassed;
+    public int GetTimePassed { get { return timePassed; } }
 
     private void Awake()
     {
@@ -64,7 +66,7 @@ public class CityImprovement : MonoBehaviour
 
     private IEnumerator BuildImprovementCoroutine(City city, ResourceProducer producer, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
     {
-        int timePassed = improvementData.buildTime;
+        timePassed = improvementData.buildTime;
 
         producer.ShowConstructionProgressTimeBar(timePassed, city.activeCity);
         //if (!city.activeCity)
@@ -90,24 +92,4 @@ public class CityImprovement : MonoBehaviour
         cityBuilderManager.RemoveConstruction(tempBuildLocation);
         cityBuilderManager.AddToConstructionTilePool(this);
     }
-
-    //public void ShowConstructionProgressTimeBar(int time)
-    //{
-    //    Vector3 pos = transform.position;
-    //    pos.z += -1f;
-    //    timeProgressBar.gameObject.transform.position = pos;
-    //    //timeProgressBar.SetConstructionTime(time);
-    //    timeProgressBar.SetTimeProgressBarValue(time);
-    //    timeProgressBar.SetActive(true);
-    //}
-
-    //public void HideConstructionProgressTimeBar()
-    //{
-    //    timeProgressBar.SetActive(false);
-    //}
-
-    //public void SetConstructionTime(int time)
-    //{
-    //    timeProgressBar.SetConstructionTime(time);
-    //}
 }

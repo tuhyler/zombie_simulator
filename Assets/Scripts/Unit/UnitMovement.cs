@@ -358,8 +358,11 @@ public class UnitMovement : MonoBehaviour
             GiveWarningMessage("Must travel on road");
 
             //Debug.Log("Trader must travel on road.");
-            selectedUnit.HidePath();
-            movementSystem.ClearPaths();
+            //if (!selectedUnit.isMoving)
+            //{
+            //    selectedUnit.HidePath();
+            //    movementSystem.ClearPaths();
+            //}
             //selectedTile = null;
             return;
         }

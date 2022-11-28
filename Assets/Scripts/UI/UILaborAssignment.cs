@@ -48,7 +48,7 @@ public class UILaborAssignment : MonoBehaviour
         OnIconButtonClick?.Invoke(laborChange);
     }
 
-    public void ShowUI(City city) //pass data to know if can show in the UI
+    public void ShowUI(City city, int placesToWork) //pass data to know if can show in the UI
     {
         if (activeStatus)
             return;
@@ -68,12 +68,12 @@ public class UILaborAssignment : MonoBehaviour
         //    return;
         //}
 
-        PrepareLaborChangeOptions(city.cityPop, city.PlacesToWork, city.AutoAssignLabor);
+        PrepareLaborChangeOptions(city.cityPop, placesToWork, city.AutoAssignLabor);
     }
 
-    public void UpdateUI(City city)
+    public void UpdateUI(City city, int placesToWork)
     {
-        PrepareLaborChangeOptions(city.cityPop, city.PlacesToWork, city.AutoAssignLabor);
+        PrepareLaborChangeOptions(city.cityPop, placesToWork, city.AutoAssignLabor);
     }
 
     public void ToggleInteractable(bool v)
@@ -142,13 +142,13 @@ public class UILaborAssignment : MonoBehaviour
             if (laborItem.LaborChange > 0 && (cityPop.UnusedLabor == 0 || placesToWork == 0))
             {
                 laborItem.ToggleInteractable(false); //deactivate if not enough unused labor
-                cityBuildingManager.LaborChange = 0;
+                //cityBuildingManager.LaborChange = 0;
             }
 
             if (laborItem.LaborChange < 0 && cityPop.UsedLabor == 0)
             {
                 laborItem.ToggleInteractable(false); //deactivate if not enough used labor
-                cityBuildingManager.LaborChange = 0;
+                //cityBuildingManager.LaborChange = 0;
             }
         }
     }

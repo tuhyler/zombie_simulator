@@ -38,7 +38,7 @@ public class City : MonoBehaviour
     public ResourceManager ResourceManager { get { return resourceManager; } }
 
     [HideInInspector]
-    public List<string> singleBuildImprovementsAndBuildings = new();
+    public Dictionary<string, Vector3Int> singleBuildImprovementsBuildingsDict = new();
 
     //private ResourceProducer resourceProducer;
 
@@ -79,8 +79,6 @@ public class City : MonoBehaviour
     public bool AutoAssignLabor { get { return autoAssignLabor; } set { autoAssignLabor = value; } }
     private List<ResourceType> resourcePriorities = new();
     public List<ResourceType> ResourcePriorities { get { return resourcePriorities; } set { resourcePriorities = value; } }
-    private int placesToWork;
-    public int PlacesToWork { get { return placesToWork; } set { placesToWork = value; } }
 
     //stored queue items
     [HideInInspector]
@@ -226,7 +224,7 @@ public class City : MonoBehaviour
         Vector3 houseLoc = cityLoc;
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
-        world.SetCityBuilding(cityLoc, housingPrefab.name, housing, this, true, 0);
+        world.SetCityBuilding(cityLoc, housingPrefab.name, housing, this, true, 0, true);
     }
 
     public void PopulationGrowthCheck(bool joinCity)
@@ -247,10 +245,13 @@ public class City : MonoBehaviour
             }
         }
 
-        if (cityPop.CurrentPop == 1)
+        if (cityPop.CurrentPop >= 1)
         {
             if (activeCity)
+            {
                 CityGrowthProgressBarSetActive(true);
+                cityBuilderManager.abandonCityButton.interactable = true;
+            }
             StartCoroutine(FoodConsumptionCoroutine());
         }
     }
@@ -263,7 +264,10 @@ public class City : MonoBehaviour
         {
             StopAllCoroutines();
             if (activeCity)
+            {
                 CityGrowthProgressBarSetActive(false);
+                cityBuilderManager.abandonCityButton.interactable = true;
+            }
         }
 
         if (cityPop.UnusedLabor > 0) //if unused labor, get rid of first
@@ -636,7 +640,7 @@ public class City : MonoBehaviour
         labor += laborChange;
         if (labor == maxLabor)
         {
-            PlacesToWork--;
+            //PlacesToWork--;
             maxxed = true;
         }
         //selectedCity.cityPop.GetSetFieldLaborers += laborChange;
@@ -698,14 +702,31 @@ public class City : MonoBehaviour
         return savedQueueItems[0];
     }
 
+    //looking to see if there are any unclaimed single builds in the area to lay claim to
+    public void CheckForAvailableSingleBuilds()
+    {
+        foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.CITYRADIUS))
+        {
+            if (world.CheckIfTileIsImproved(tile) && !world.CheckIfCityOwnsTile(tile))
+            {
+                CityImprovement cityImprovement = world.GetCityDevelopment(tile);
 
-    ////labor priority methods
-    //public void SetLaborPriorities(List<ResourceValue> resourcePriorities)
-    //{
-    //    this.resourcePriorities = resourcePriorities;
-    //}
+                if (cityImprovement.singleBuild)
+                {
+                    string name = cityImprovement.ImprovementName;
+                    singleBuildImprovementsBuildingsDict[name] = tile;
+                    world.AddToCityLabor(tile, gameObject);
 
-    //public void GetLaborPriorities()
+                    if (name == "Harbor")
+                    {
+                        hasHarbor = true;
+                        harborLocation = tile;
+                        world.SetCityHarbor(this, tile);
+                    }
+                }
+            }
+        }
+    }
 
 
     internal void Select()
