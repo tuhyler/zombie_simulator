@@ -252,12 +252,12 @@ public class ResourceProducer : MonoBehaviour
 
     public void TimeConstructionProgressBarSetActive(bool v, int time)
     {
+        timeProgressBar.SetActive(v);
         if (v)
         {
+            timeProgressBar.SetProgressBarMask(time);
             timeProgressBar.SetTime(time);
         }
-
-        timeProgressBar.SetActive(v);
     }
 
     //recalculating generation per resource every time labor/work ethic changes

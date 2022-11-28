@@ -268,11 +268,12 @@ public class MapWorld : MonoBehaviour
         cityImprovementConstructionDict[tile] = cityDevelopment;
     }
 
-    public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building, City city, bool isInitialCityHouse, int improvementLevel)
+    public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building, City city, bool isInitialCityHouse, int improvementLevel, bool singleBuild)
     {
         CityImprovement improvement = building.GetComponent<CityImprovement>();
         improvement.SetBuildingLevel = improvementLevel;
         improvement.ImprovementName = buildingName;
+        improvement.singleBuild = singleBuild;
         improvement.SetCity(city);
         improvement.initialCityHouse = isInitialCityHouse;
         cityBuildingGODict[cityTile][buildingName] = building;
@@ -948,6 +949,11 @@ public class MapWorld : MonoBehaviour
         return cityWorkedTileDict[pos];
     }
 
+    public bool CheckIfCityOwnsTile(Vector3Int pos)
+    {
+        return cityWorkedTileDict.ContainsKey(pos);
+    }
+
     public bool CheckIfTileIsWorked(Vector3Int pos)
     {
         return currentWorkedTileDict.ContainsKey(pos);
@@ -1020,11 +1026,18 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveFromCityLabor(Vector3Int pos)
     {
+        if (cityImprovementDict[pos].singleBuild)
+            return;
+        
         if (cityWorkedTileDict.ContainsKey(pos))
             cityWorkedTileDict.Remove(pos);
     }
 
-
+    public void RemoveSingleBuildFromCityLabor(Vector3Int pos)
+    {
+        if (cityWorkedTileDict.ContainsKey(pos))
+            cityWorkedTileDict.Remove(pos);
+    }
 
 
 

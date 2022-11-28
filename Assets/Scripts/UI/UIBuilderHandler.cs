@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -165,7 +166,7 @@ public class UIBuilderHandler : MonoBehaviour
 
     private void PrepareBuildOptions(ResourceManager resourceManager)
     {
-        List<string> improvementSingleBuildList = resourceManager.city.singleBuildImprovementsAndBuildings;
+        List<string> improvementSingleBuildList = resourceManager.city.singleBuildImprovementsBuildingsDict.Keys.ToList();
 
         foreach (UIBuildOptions buildItem in buildOptions)
         {
