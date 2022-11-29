@@ -33,7 +33,7 @@ public class UILaborHandler : MonoBehaviour
 
         laborOptions = new List<UILaborHandlerOptions>();
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources))
         {
             UILaborHandlerOptions newLaborOption = Instantiate(laborResourceOption).GetComponent<UILaborHandlerOptions>();
             //laborResourceGO.SetActive(true);

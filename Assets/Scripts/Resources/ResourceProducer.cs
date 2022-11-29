@@ -131,9 +131,9 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceConsumedPerMinute();
 
         if (tempLaborPercsQueue.Count > 0)
-            resourceManager.PrepareResource(myImprovementData.consumedResources, tempLaborPercsQueue.Dequeue(), true);
+            resourceManager.PrepareResource(myImprovementData.consumedResources, tempLaborPercsQueue.Dequeue(), producerLoc, true);
         else
-            resourceManager.PrepareResource(myImprovementData.consumedResources, 1, true);
+            resourceManager.PrepareResource(myImprovementData.consumedResources, 1, producerLoc, true);
     }
 
     //timer for producing resources 
@@ -183,7 +183,7 @@ public class ResourceProducer : MonoBehaviour
 
     public void RestartProductionCheck(float labor)
     {
-        resourceManager.PrepareResource(myImprovementData.producedResources, labor);
+        resourceManager.PrepareResource(myImprovementData.producedResources, labor, producerLoc);
         Debug.Log("Resources for " + myImprovementData.prefab.name);
 
         //checking storage again after loading
@@ -207,7 +207,7 @@ public class ResourceProducer : MonoBehaviour
         if (producingCo != null)
         {
             StopCoroutine(producingCo);
-            resourceManager.PrepareResource(myImprovementData.consumedResources, 1, true);
+            resourceManager.PrepareResource(myImprovementData.consumedResources, 1, producerLoc, true);
         }
 
         if (isWaitingToStart)

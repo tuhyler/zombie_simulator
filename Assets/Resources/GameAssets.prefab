@@ -46,6 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   popUpTextPrefab: {fileID: 374134590606724341, guid: b07434212caab684a91d1f6a079fc566,
     type: 3}
+  popUpResourceNumbersPrefab: {fileID: 374134590606724341, guid: a82c5242d4d7c644f9874a51885b74d6,
+    type: 3}
   cityBorderPrefab: {fileID: 7372795965402052165, guid: 3c150e347ffa4c84ebf223f9cf3ace88,
     type: 3}
   shoePrintPrefab: {fileID: 4764973178347815870, guid: e4b78ce8b5c692b41b32464a3ae281e2,
@@ -58,4 +60,3 @@ MonoBehaviour:
     type: 3}
   resourceBubble: {fileID: 2079849781279894658, guid: 5ef82d055c06e4945b70fae30439ba79,
     type: 3}
-  test: {fileID: 4361862825098438801, guid: a111eddcceb5b5c43893a32983ad14c0, type: 3}

@@ -25,7 +25,7 @@ public class InfoPopUpHandler : MonoBehaviour
         if (disappearTimer < 0)
         {
             // start disappearing
-            float disappearSpeed = 3f;
+            float disappearSpeed = 1f;
             textColor.a -= disappearSpeed * Time.deltaTime;
             popUpText.color = textColor;
 
@@ -34,6 +34,11 @@ public class InfoPopUpHandler : MonoBehaviour
                 Destroy(gameObject);
             }
         }
+    }
+
+    private void LateUpdate()
+    {
+        transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
     }
 
     public static InfoPopUpHandler Create(Vector3 position, string text)

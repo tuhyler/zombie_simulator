@@ -1012,6 +1012,7 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         //updating world dicts
+        RemoveLaborFromDicts(improvementLoc);
         world.RemoveFromMaxWorked(improvementLoc);
         world.RemoveStructure(improvementLoc);
         developedTiles.Remove(improvementLoc);
@@ -1037,8 +1038,6 @@ public class CityBuilderManager : MonoBehaviour
         uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.GetSetWorkEthic, 
             resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerMinute);
 
-        RemoveLaborFromDicts(improvementLoc);
-        //resourceManager.UpdateUIGeneration(selectedImprovement.GetTerrainData().resourceType);
         UpdateLaborNumbers();
 
         //this object maintenance
