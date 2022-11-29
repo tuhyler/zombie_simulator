@@ -14,6 +14,7 @@ public class GameAssets : MonoBehaviour
     }
 
     public GameObject popUpTextPrefab;
+    public GameObject popUpResourceNumbersPrefab;
     public GameObject cityBorderPrefab;
     public GameObject shoePrintPrefab;
     public GameObject laborNumberPrefab;

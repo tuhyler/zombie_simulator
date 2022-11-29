@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEditor;
+using Unity.VisualScripting;
+using Mono.Cecil;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -193,7 +195,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, bool returnResource = false)
+    public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
     {
         foreach (ResourceValue resourceVal in producedResource)
         {
@@ -208,7 +210,10 @@ public class ResourceManager : MonoBehaviour
                 newResourceAmount = CalculateResourceGeneration(resourceVal.resourceAmount, currentLabor);
             }
 
-            CheckResource(resourceVal.resourceType, newResourceAmount);
+            int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
+            producerLoc.x += .6f;
+            producerLoc.z += 1.5f;
+            InfoResourcePopUpHandler.CreateResourceStat(producerLoc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
         }
     }
 
