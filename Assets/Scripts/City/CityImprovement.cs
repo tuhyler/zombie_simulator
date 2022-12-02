@@ -17,7 +17,7 @@ public class CityImprovement : MonoBehaviour
     private int constructionTime;
     public int ConstructionTime { get { return constructionTime; } set { constructionTime = value; } }
     private int buildingLevel = 99;
-    public int SetBuildingLevel { set { buildingLevel = value; } }
+    public int BuildingLevel { get { return buildingLevel; } set { buildingLevel = value; } }
 
     private Coroutine constructionCo;
     private int timePassed;

@@ -432,11 +432,6 @@ public class City : MonoBehaviour
         }
     }
 
-    public void CreateKeyInResourcesWorked(ResourceType resourceType)
-    {
-        resourcesWorkedDict[resourceType] = 1;
-    }
-
     public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)
     {
         if (resourcesWorkedDict.ContainsKey(resourceType))
@@ -448,11 +443,6 @@ public class City : MonoBehaviour
     public void RemoveFromResourcesWorked(ResourceType resourceType)
     {
         resourcesWorkedDict.Remove(resourceType);
-    }
-
-    public int CheckResourcesWorkedCount()
-    {
-        return resourcesWorkedDict.Count;
     }
 
     public bool CheckResourcesWorkedExists(ResourceType resourceType)

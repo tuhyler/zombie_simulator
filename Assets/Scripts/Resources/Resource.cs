@@ -9,6 +9,7 @@ public class Resource : MonoBehaviour
     [SerializeField]
     private SpriteMask spriteMask;
 
+    public int gatheringAmount = 1;
     private Worker worker;
     private City city;
     private ResourceIndividualSO resourceIndividual;
@@ -44,10 +45,13 @@ public class Resource : MonoBehaviour
     {
         worker.harvested = false;
         worker.isBusy = false;
-        city.ResourceManager.CheckResource(resourceIndividual.resourceType, 1); //only add one of respective resource
+        int gatheredResource = city.ResourceManager.CheckResource(resourceIndividual.resourceType, gatheringAmount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
-        loc.x += .6f;
-        InfoResourcePopUpHandler.CreateResourceStat(loc, 1, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType));
+        bool wasted = false;
+        if (gatheredResource == 0)
+            wasted = true;
+
+        InfoResourcePopUpHandler.CreateResourceStat(loc, gatheringAmount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), wasted);
         LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
     }
 

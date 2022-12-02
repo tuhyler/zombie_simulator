@@ -24,6 +24,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
+    private Dictionary<string, int> cityImprovementMaxLevelDict = new();
     //private Dictionary<Vector3Int, GameObject> traderPosDict = new(); //to track trader locations 
     //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
@@ -81,6 +82,16 @@ public class MapWorld : MonoBehaviour
             Vector3 unitPos = unit.transform.position;
             if (!unitPosDict.ContainsKey(Vector3Int.RoundToInt(unitPos))) //just in case dictionary was missing any
                 unit.CurrentLocation = AddUnitPosition(unitPos, unit);
+        }
+
+        foreach (ImprovementDataSO data in UpgradeableObjectHolder.Instance.allBuildingsAndImprovements)
+        {
+            cityImprovementMaxLevelDict[data.improvementName] = 1;
+        }
+
+        foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
+        {
+            cityImprovementMaxLevelDict[data.unitName] = 1;
         }
     }
 
@@ -252,6 +263,19 @@ public class MapWorld : MonoBehaviour
         return roadTileDict[tile];
     }
 
+    public int GetUpgradeableObjectMaxLevel(string name)
+    {
+        return cityImprovementMaxLevelDict[name];
+    }
+
+    public void SetUpgradeableObjectMaxLevel(string name, int level)
+    {
+        if (cityImprovementMaxLevelDict[name] >= level)
+            return;
+
+        cityImprovementMaxLevelDict[name] = level;
+    }
+
     public void SetTerrainData(Vector3Int tile, TerrainData td)
     {
         world[tile] = td;
@@ -271,7 +295,7 @@ public class MapWorld : MonoBehaviour
     public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building, City city, bool isInitialCityHouse, int improvementLevel, bool singleBuild)
     {
         CityImprovement improvement = building.GetComponent<CityImprovement>();
-        improvement.SetBuildingLevel = improvementLevel;
+        improvement.BuildingLevel = improvementLevel;
         improvement.ImprovementName = buildingName;
         improvement.singleBuild = singleBuild;
         improvement.SetCity(city);
@@ -976,12 +1000,12 @@ public class MapWorld : MonoBehaviour
         return false;
     }
 
-    public bool CheckIfBuildingIsMaxxed(Vector3Int cityTile, string buildingName)
-    {
-        if (cityBuildingCurrentWorkedDict[cityTile].ContainsKey(buildingName))
-            return cityBuildingMaxWorkedDict[cityTile][buildingName] == cityBuildingCurrentWorkedDict[cityTile][buildingName];
-        return false;
-    }
+    //public bool CheckIfBuildingIsMaxxed(Vector3Int cityTile, string buildingName)
+    //{
+    //    if (cityBuildingCurrentWorkedDict[cityTile].ContainsKey(buildingName))
+    //        return cityBuildingMaxWorkedDict[cityTile][buildingName] == cityBuildingCurrentWorkedDict[cityTile][buildingName];
+    //    return false;
+    //}
 
     //public bool CheckIfTileHasBuildings(Vector3Int cityTile)
     //{
