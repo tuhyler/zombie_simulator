@@ -48,19 +48,24 @@ public class InfoResourcePopUpHandler : MonoBehaviour
         transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
     }
 
-    public static InfoResourcePopUpHandler CreateResourceStat(Vector3 position, int number, Sprite image)
+    public static InfoResourcePopUpHandler CreateResourceStat(Vector3 position, int number, Sprite image, bool waste = false)
     {
         GameObject popUpGO = Instantiate(GameAssets.Instance.popUpResourceNumbersPrefab, position, Quaternion.Euler(90, 0, 0));
 
         InfoResourcePopUpHandler popUpResourceNumbers = popUpGO.GetComponent<InfoResourcePopUpHandler>();
-        popUpResourceNumbers.SetPopUpResourceNumber(number, image);
+        popUpResourceNumbers.SetPopUpResourceNumber(number, image, waste);
 
         return popUpResourceNumbers;
     }
 
-    public void SetPopUpResourceNumber(int number, Sprite image)
+    public void SetPopUpResourceNumber(int number, Sprite image, bool waste)
     {
-        if (number > 0)
+        if (waste)
+        {
+            popUpText.text = $"No Room for {number} ";
+            popUpText.color = Color.red;
+        }
+        else if (number > 0)
         {
             popUpText.color = Color.green;
             popUpText.text = "+" + number.ToString();

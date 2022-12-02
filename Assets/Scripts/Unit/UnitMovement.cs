@@ -459,9 +459,14 @@ public class UnitMovement : MonoBehaviour
         City joinedCity = world.GetCity(world.GetClosestTerrainLoc(selectedUnit.transform.position));
         joinedCity.PopulationGrowthCheck(true);
 
+        int i = 0;
         foreach (ResourceValue resourceValue in selectedUnit.GetBuildDataSO().unitCost) //adding back 100% of cost (if there's room)
         {
-            joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+            int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+            Vector3 cityLoc = joinedCity.cityLoc;
+            cityLoc.z += -.5f * i;
+            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+            i++;
         }
 
         selectedUnit.DestroyUnit();

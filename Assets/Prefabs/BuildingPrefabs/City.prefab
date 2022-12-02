@@ -71,7 +71,6 @@ MonoBehaviour:
   activeCity: 0
   hasHarbor: 0
   harborLocation: {x: 0, y: 0, z: 0}
-  singleBuildImprovementsAndBuildings: []
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 600
@@ -89,6 +88,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isWaitingToStart: 0
+  isWaitingToUnload: 0
   producedResources: 
 --- !u!114 &-1354641546340956128
 MonoBehaviour:
@@ -102,6 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f06b93f5898e54691a69ddceb7609c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fullInventory: 0
   uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 4

@@ -47,6 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isWaitingToStart: 0
+  isWaitingToUnload: 0
+  producedResources: 
 --- !u!114 &2050705500241568073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,6 +64,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initialCityHouse: 0
   isConstruction: 0
+  singleBuild: 0
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0

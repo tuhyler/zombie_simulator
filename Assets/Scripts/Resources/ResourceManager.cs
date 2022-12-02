@@ -49,6 +49,8 @@ public class ResourceManager : MonoBehaviour
     private List<ResourceType> queuedResourceTypesToCheck = new();
     private CityBuilderManager cityBuilderManager; //only instantiated through queue build
 
+    private int resourceCount; //for counting wasted resources
+
     private void Awake()
     {
         CalculateAndChangeFoodLimit();
@@ -197,6 +199,8 @@ public class ResourceManager : MonoBehaviour
 
     public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
     {
+        int i = 0;
+        resourceCount = 0;
         foreach (ResourceValue resourceVal in producedResource)
         {
             int newResourceAmount;
@@ -211,9 +215,10 @@ public class ResourceManager : MonoBehaviour
             }
 
             int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
-            producerLoc.x += .6f;
             producerLoc.z += 1.5f;
+            producerLoc.z += -.5f * i;
             InfoResourcePopUpHandler.CreateResourceStat(producerLoc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
+            i++;
         }
     }
 
@@ -229,7 +234,7 @@ public class ResourceManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Error moving {resourceType}!");
+            //Debug.Log($"Error moving {resourceType}!");
             return 0;
         }
     }
@@ -245,9 +250,10 @@ public class ResourceManager : MonoBehaviour
             foodGrowthLevel += resourceAmount;
             if (city.activeCity)
                 uiInfoPanelCity.UpdateFoodGrowth(foodGrowthLevel);
+            int addedResource = AddResourceToStorage(ResourceType.Food, newResourceBalance);
             if (city.cityPop.CurrentPop == 0)
                 CheckForPopGrowth();
-            return AddResourceToStorage(ResourceType.Food, newResourceBalance);
+            return resourceAmount + addedResource;
         }
 
         foodGrowthLevel += resourceAmount;
@@ -293,7 +299,13 @@ public class ResourceManager : MonoBehaviour
             wasteCheck = Mathf.RoundToInt((resourceAmount - newResourceAmount) / resourceStorageMultiplierDict[resourceType]);
 
         if (wasteCheck > 0)
+        {
+            Vector3 loc = city.cityLoc;
+            loc.z += -.5f * resourceCount;
+            InfoResourcePopUpHandler.CreateResourceStat(loc, wasteCheck, ResourceHolder.Instance.GetIcon(resourceType), true);
             Debug.Log($"Wasted {wasteCheck} of {resourceType}");
+            resourceCount++;
+        }
 
         if (queuedResourceTypesToCheck.Contains(resourceType))
             CheckResourcesForQueue();
@@ -323,9 +335,14 @@ public class ResourceManager : MonoBehaviour
 
     public void SpendResource(List<ResourceValue> buildCost)
     {
+        int i = 0;
         foreach (ResourceValue resourceValue in buildCost)
         {
             SpendResource(resourceValue.resourceType, resourceValue.resourceAmount);
+            Vector3 loc = city.cityLoc;
+            loc.z += -.5f * i;
+            InfoResourcePopUpHandler.CreateResourceStat(loc, -resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+            i++;
         }
     }
 

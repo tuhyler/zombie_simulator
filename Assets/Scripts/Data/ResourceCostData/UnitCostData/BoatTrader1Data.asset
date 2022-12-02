@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BoatTrader1Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 5269694401452621163, guid: 93eeea04b2503ca4b8e3df5751f2495a, type: 3}
-  unitName: Trade Boat
+  unitName: BoatTrader
   image: {fileID: 0}
   unitCost:
   - resourceType: 4
