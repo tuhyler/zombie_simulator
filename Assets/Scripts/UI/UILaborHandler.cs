@@ -116,6 +116,25 @@ public class UILaborHandler : MonoBehaviour
         }
     }
 
+    //for removing an improvement
+    public void RemoveHandlerOption(List<ResourceType> resourceTypes, City city)
+    {
+        foreach (ResourceType resourceType in resourceTypes)
+        {
+            city.RemoveFromResourcesWorked(resourceType);
+
+            foreach (UILaborHandlerOptions uiLaborHandlerOption in laborOptions)
+            {
+                if (resourceType == uiLaborHandlerOption.resourceType)
+                {
+                    uiLaborHandlerOption.HideLaborIcons();
+                    uiLaborHandlerOption.ToggleVisibility(false);
+                    return;
+                }
+            }
+        }
+    }
+
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);

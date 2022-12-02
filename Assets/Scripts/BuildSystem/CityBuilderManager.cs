@@ -1059,8 +1059,6 @@ public class CityBuilderManager : MonoBehaviour
             world.RemoveSingleBuildFromCityLabor(improvementLoc);
         }
 
-        //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
-
         if (!selectedImprovement.isConstruction)
         {
             if (!world.CheckIfTileIsMaxxed(improvementLoc))
@@ -1101,6 +1099,7 @@ public class CityBuilderManager : MonoBehaviour
 
         UpdateLaborNumbers();
         uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+        uiLaborHandler.RemoveHandlerOption(resourceProducer.producedResources, selectedCity);
     }
 
     public void CloseImprovementBuildPanel()
@@ -1475,6 +1474,10 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
+            CloseCityTab();
+            CloseImprovementBuildPanel();
+            CloseQueueUI();
+            ResetTileLists();
             uiLaborHandler.ToggleVisibility(true);
         }
     }
@@ -1745,6 +1748,7 @@ public class CityBuilderManager : MonoBehaviour
         laborChange = 0;
         //removingBuilding = false;
         removingImprovement = false;
+        upgradingImprovement = false;
     }
 
     private void ResetCityUI()
