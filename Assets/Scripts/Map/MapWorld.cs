@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,7 +25,10 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
-    private Dictionary<string, int> cityImprovementMaxLevelDict = new();
+    private Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
+    private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new();
+    private Dictionary<string, ImprovementDataSO> upgradeableObjectDataDict = new();
+    private Dictionary<ResourceType, Sprite> resourceSpriteDict = new();
     //private Dictionary<Vector3Int, GameObject> traderPosDict = new(); //to track trader locations 
     //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
@@ -84,14 +88,60 @@ public class MapWorld : MonoBehaviour
                 unit.CurrentLocation = AddUnitPosition(unitPos, unit);
         }
 
+        string upgradeableObjectName = "";
+        List<ResourceValue> upgradeableObjectTotalCost = new();
+        int upgradeableObjectLevel = 9999;
+
         foreach (ImprovementDataSO data in UpgradeableObjectHolder.Instance.allBuildingsAndImprovements)
         {
-            cityImprovementMaxLevelDict[data.improvementName] = 1;
+            upgradeableObjectMaxLevelDict[data.improvementName] = 1;
+
+            if (upgradeableObjectLevel < data.improvementLevel) //skip if reached max level
+            {
+                upgradeableObjectDataDict[upgradeableObjectName] = data; //adding the data necessary to upgrade the object to
+                
+                //calculating costs to improve
+                Dictionary<ResourceType, int> prevResourceCosts = new(); //making dict to more easily find the data
+                List<ResourceValue> upgradeableObjectCost = new();
+
+                foreach (ResourceValue prevResourceValue in upgradeableObjectTotalCost)
+                {
+                    prevResourceCosts[prevResourceValue.resourceType] = prevResourceValue.resourceAmount;
+                }
+
+                foreach (ResourceValue resourceValue in data.improvementCost)
+                {
+                    if (prevResourceCosts.ContainsKey(resourceValue.resourceType))
+                    {
+                        ResourceValue newResourceValue;
+                        newResourceValue.resourceType = resourceValue.resourceType;
+                        newResourceValue.resourceAmount = resourceValue.resourceAmount - prevResourceCosts[resourceValue.resourceType];
+                        if (newResourceValue.resourceAmount > 0)
+                            upgradeableObjectCost.Add(newResourceValue);
+                    }
+                    else //if it doesn't have the resourceType, then add the whole thing
+                    {
+                        upgradeableObjectCost.Add(resourceValue);
+                    }
+                }
+
+                upgradeableObjectPriceDict[upgradeableObjectName] = upgradeableObjectCost;
+            }
+
+            upgradeableObjectName = data.improvementName + "-" + data.improvementLevel; //needs to be last to compare to following data
+            upgradeableObjectTotalCost = data.improvementCost;
+            upgradeableObjectLevel = data.improvementLevel;
         }
 
+        //populating the upgradeableobjectdict, every one starts at level 1. 
         foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
         {
-            cityImprovementMaxLevelDict[data.unitName] = 1;
+            upgradeableObjectMaxLevelDict[data.unitName] = 1;
+        }
+
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources))
+        {
+            resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
         }
     }
 
@@ -265,15 +315,30 @@ public class MapWorld : MonoBehaviour
 
     public int GetUpgradeableObjectMaxLevel(string name)
     {
-        return cityImprovementMaxLevelDict[name];
+        return upgradeableObjectMaxLevelDict[name];
     }
 
     public void SetUpgradeableObjectMaxLevel(string name, int level)
     {
-        if (cityImprovementMaxLevelDict[name] >= level)
+        if (upgradeableObjectMaxLevelDict[name] >= level)
             return;
 
-        cityImprovementMaxLevelDict[name] = level;
+        upgradeableObjectMaxLevelDict[name] = level;
+    }
+
+    public List<ResourceValue> GetUpgradeCost(string nameAndLevel)
+    {
+        return upgradeableObjectPriceDict[nameAndLevel]; 
+    }
+
+    public ImprovementDataSO GetUpgradeData(string nameAndLevel)
+    {
+        return upgradeableObjectDataDict[nameAndLevel];
+    }
+
+    public Sprite GetResourceIcon(ResourceType resourceType)
+    {
+        return resourceSpriteDict[resourceType];
     }
 
     public void SetTerrainData(Vector3Int tile, TerrainData td)
@@ -292,12 +357,11 @@ public class MapWorld : MonoBehaviour
         cityImprovementConstructionDict[tile] = cityDevelopment;
     }
 
-    public void SetCityBuilding(Vector3Int cityTile, string buildingName, GameObject building, City city, bool isInitialCityHouse, int improvementLevel, bool singleBuild)
+    public void SetCityBuilding(ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, bool isInitialCityHouse)
     {
         CityImprovement improvement = building.GetComponent<CityImprovement>();
-        improvement.BuildingLevel = improvementLevel;
-        improvement.ImprovementName = buildingName;
-        improvement.singleBuild = singleBuild;
+        improvement.InitializeImprovementData(improvementData);
+        string buildingName = improvementData.improvementName;
         improvement.SetCity(city);
         improvement.initialCityHouse = isInitialCityHouse;
         cityBuildingGODict[cityTile][buildingName] = building;
@@ -1050,7 +1114,7 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveFromCityLabor(Vector3Int pos)
     {
-        if (cityImprovementDict[pos].singleBuild)
+        if (cityImprovementDict[pos].GetImprovementData.singleBuild)
             return;
         
         if (cityWorkedTileDict.ContainsKey(pos))

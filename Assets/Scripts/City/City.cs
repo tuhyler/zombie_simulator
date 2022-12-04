@@ -9,6 +9,8 @@ public class City : MonoBehaviour
 {
     [SerializeField]
     private GameObject housingPrefab;
+    [SerializeField]
+    private ImprovementDataSO housingData;
     private GameObject currentHouse;
     private CityBuilderManager cityBuilderManager;
 
@@ -224,7 +226,7 @@ public class City : MonoBehaviour
         Vector3 houseLoc = cityLoc;
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
-        world.SetCityBuilding(cityLoc, housingPrefab.name, housing, this, true, 0, true);
+        world.SetCityBuilding(housingData, cityLoc, housing, this, true);
     }
 
     public void PopulationGrowthCheck(bool joinCity)
@@ -627,27 +629,12 @@ public class City : MonoBehaviour
             laborChange = laborDiff;
         }
 
-        labor += laborChange;
-        if (labor == maxLabor)
-        {
-            //PlacesToWork--;
-            maxxed = true;
-        }
         //selectedCity.cityPop.GetSetFieldLaborers += laborChange;
         cityPop.UnusedLabor -= laborChange;
         cityPop.UsedLabor += laborChange;
 
         ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
-        resourceProducer.UpdateCurrentLaborData(labor);
-
-        foreach (ResourceType resourceType in resourceProducer.producedResources)
-        {
-            ChangeResourcesWorked(resourceType, laborChange);
-            int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
-            cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, ResourceManager.GetResourceGenerationValues(resourceType));
-        }
-
-        if (labor == 1) //assigning city to location if working for first time
+        if (labor == 0) //assigning city to location if working for first time
         {
             world.AddToCityLabor(terrainLocation, gameObject);
             resourceProducer.StartProducing();
@@ -655,6 +642,24 @@ public class City : MonoBehaviour
         else
         {
             resourceProducer.AddLaborMidProduction();
+        }
+
+        labor += laborChange;
+        if (labor == maxLabor)
+        {
+            //PlacesToWork--;
+            maxxed = true;
+        }
+        resourceProducer.UpdateCurrentLaborData(labor);
+
+        foreach (ResourceType resourceType in resourceProducer.producedResources)
+        {
+            for (int i = 0; i < laborChange; i++)
+            {
+                ChangeResourcesWorked(resourceType, 1);
+                int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
+                cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
+            }
         }
 
         world.AddToCurrentFieldLabor(terrainLocation, labor);
@@ -701,9 +706,9 @@ public class City : MonoBehaviour
             {
                 CityImprovement cityImprovement = world.GetCityDevelopment(tile);
 
-                if (cityImprovement.singleBuild)
+                if (cityImprovement.GetImprovementData.singleBuild)
                 {
-                    string name = cityImprovement.ImprovementName;
+                    string name = cityImprovement.GetImprovementData.improvementName;
                     singleBuildImprovementsBuildingsDict[name] = tile;
                     world.AddToCityLabor(tile, gameObject);
 

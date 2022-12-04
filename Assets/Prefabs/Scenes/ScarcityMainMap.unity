@@ -12074,12 +12074,14 @@ MonoBehaviour:
   allBuildingsAndImprovements:
   - {fileID: 11400000, guid: 9b61fa9939b08fc4d88dcb7cb6c79525, type: 2}
   - {fileID: 11400000, guid: bda5688ab681b674c9bdb9877fb77e08, type: 2}
+  - {fileID: 11400000, guid: bcdc4229d856b084e9ed8da3e9212e83, type: 2}
   - {fileID: 11400000, guid: 1bcb93094e8212d48aa1f85d8a792a83, type: 2}
   - {fileID: 11400000, guid: fb8cf073d6ffd7c498718a92718ec963, type: 2}
   - {fileID: 11400000, guid: f4001fb324b9efe4f9cdc5ba2e797485, type: 2}
   - {fileID: 11400000, guid: 6df796fca3cff5a42bf8231754e68317, type: 2}
+  - {fileID: 11400000, guid: a01c4570b67a0bd4d833908e95a1111f, type: 2}
   - {fileID: 11400000, guid: 8aea651ff099cc245acefdcb2dbb34f1, type: 2}
-  - {fileID: 11400000, guid: bcdc4229d856b084e9ed8da3e9212e83, type: 2}
+  - {fileID: 11400000, guid: 572acc82596e95f478b851c63b0612bf, type: 2}
   allUnits:
   - {fileID: 11400000, guid: 35aa8a19ef15c0c42b3625976d280369, type: 2}
   - {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
@@ -32752,8 +32754,6 @@ MonoBehaviour:
   resourceManager: {fileID: 0}
   constructionTile: {fileID: 1812115572741614599, guid: 9970c5401b53eb648b59457a58d90a19,
     type: 3}
-  constructionTileHill: {fileID: 0}
-  constructionBuilding: {fileID: 0}
 --- !u!114 &1634818656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45653,7 +45653,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500061
+      value: 8.499997
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

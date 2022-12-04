@@ -801,7 +801,6 @@ MonoBehaviour:
   scrollLeft: {fileID: 2823218441868147118}
   scrollRight: {fileID: 1820544747811503909}
   isQueueing: 0
-  resourceInfoPanel: {fileID: 0}
 --- !u!1 &4746096515039410429
 GameObject:
   m_ObjectHideFlags: 0

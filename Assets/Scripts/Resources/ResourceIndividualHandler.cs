@@ -142,7 +142,7 @@ public class ResourceIndividualHandler : MonoBehaviour
     //    //unitPos += Vector3.one; //setting it up to float above worker's head
     //    resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
     //    Resource resource = resourceGO.GetComponent<Resource>();
-    //    resource.SetSprites(resourceIndividual.resourceIcon);
+    //    resource.SetResourcePanel(resourceIndividual.resourceIcon);
     //    resourceGO.transform.localScale = Vector3.zero;
     //    LeanTween.scale(resourceGO, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
     //}

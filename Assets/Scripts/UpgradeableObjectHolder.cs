@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class UpgradeableObjectHolder : MonoBehaviour
@@ -12,5 +13,9 @@ public class UpgradeableObjectHolder : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+
+        //putting order to set up upgrading costs in MapWorld
+        allBuildingsAndImprovements = allBuildingsAndImprovements.OrderBy(x => x.improvementLevel).ToList();
+        allBuildingsAndImprovements = allBuildingsAndImprovements.OrderBy(x => x.improvementName).ToList();
     }
 }

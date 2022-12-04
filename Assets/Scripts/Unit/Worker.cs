@@ -32,7 +32,7 @@ public class Worker : Unit
         //producerLoc.z -= 1.5f; //bottom center of tile
         GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0));
         timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
-        //timeProgressBar.SetTimeProgressBarValue(myImprovementData.producedResourceTime);
+        //timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
     }
 
     public override void SendResourceToCity()

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5722024901346893330}
   - component: {fileID: 3845615343375160753}
   - component: {fileID: 3347234897448638389}
-  - component: {fileID: 113585520941835564}
+  - component: {fileID: 7499256101265549107}
   m_Layer: 5
   m_Name: ResourceIcon
   m_TagString: Untagged
@@ -77,7 +77,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &113585520941835564
+--- !u!114 &7499256101265549107
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -148,7 +148,6 @@ MonoBehaviour:
   resourceAmount: {fileID: 1245424484425196480}
   resourceImage: {fileID: 3347234897448638389}
   backgroundCanvas: {fileID: 4834448168911250375}
-  allCanvas: {fileID: 1274252946908775833}
   resourceTransform: {fileID: 5802068587810323059}
   allContents: {fileID: 3353171004290388722}
   resourceType: 0
@@ -201,7 +200,7 @@ GameObject:
   - component: {fileID: 5802068587810323059}
   - component: {fileID: 324607307809853797}
   - component: {fileID: 1245424484425196480}
-  - component: {fileID: 8900554869068469870}
+  - component: {fileID: 2191247210381253038}
   m_Layer: 5
   m_Name: ResourceAmount
   m_TagString: Untagged
@@ -327,7 +326,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &8900554869068469870
+--- !u!114 &2191247210381253038
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -356,7 +355,7 @@ GameObject:
   - component: {fileID: 7315062529990214195}
   - component: {fileID: 4365077465092691932}
   - component: {fileID: 4834448168911250375}
-  - component: {fileID: 5778119846883558005}
+  - component: {fileID: 8451589194280513225}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -462,7 +461,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &5778119846883558005
+--- !u!114 &8451589194280513225
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
