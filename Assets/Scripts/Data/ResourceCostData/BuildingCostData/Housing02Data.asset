@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Research01Data
+  m_Name: Housing02Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 4912429292590689663, guid: 354720d68c138d24c8b9e30d10f05bf0, type: 3}
-  improvementName: Research
-  improvementLevel: 1
+  prefab: {fileID: 2413421541421609430, guid: 6161d90e38ce78d40b917c4495a50eea, type: 3}
+  improvementName: Housing
+  improvementLevel: 2
   rawMaterials: 0
-  buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: b1e8d9efd187143438b3866c2ebcfc2c, type: 3}
+  buildingLocation: {x: 0, y: 0, z: -1}
+  image: {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
   improvementCost:
   - resourceType: 5
     resourceAmount: 10
@@ -27,13 +27,13 @@ MonoBehaviour:
   producedResources:
   - resourceType: 3
     resourceAmount: 10
-  producedResourceTime: 10
-  resourceType: 3
-  terrainType: 5
+  producedResourceTime: 0
+  resourceType: 0
+  terrainType: 0
   workEthicChange: 0
   maxLabor: 5
   laborCost: 0
   replaceTerrain: 0
   replaceProp: 1
   singleBuild: 1
-  buildTime: 1
+  buildTime: 0

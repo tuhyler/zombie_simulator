@@ -8,8 +8,7 @@ public class ResourceProducer : MonoBehaviour
 {
     private ResourceManager resourceManager;
     //private TaskDataSO taskData;
-    private ImprovementDataSO myImprovementData;
-    public ImprovementDataSO GetImprovementData { get { return myImprovementData; } }
+    private ImprovementDataSO improvementData;
     private int currentLabor;
     private float tempLabor; //if adding labor during production process
     Queue<float> tempLaborPercsQueue = new();
@@ -30,7 +29,7 @@ public class ResourceProducer : MonoBehaviour
 
     public void InitializeImprovementData(ImprovementDataSO data)
     {
-        myImprovementData = data;
+        improvementData = data;
         
         foreach(ResourceValue resourceValue in data.producedResources)
         {
@@ -58,7 +57,7 @@ public class ResourceProducer : MonoBehaviour
         producerLoc.z -= 1.5f; //bottom center of tile
         GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, producerLoc, Quaternion.Euler(90, 0, 0));
         timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
-        //timeProgressBar.SetTimeProgressBarValue(myImprovementData.producedResourceTime);
+        //timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
     }
 
     public void UpdateCurrentLaborData(int currentLabor)
@@ -86,7 +85,7 @@ public class ResourceProducer : MonoBehaviour
 
     public void HideConstructionProgressTimeBar()
     {
-        timeProgressBar.SetTimeProgressBarValue(myImprovementData.producedResourceTime);
+        timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
         timeProgressBar.SetActive(false);
     }
 
@@ -119,10 +118,10 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
-        float percWorked = (float)productionTimer / myImprovementData.producedResourceTime;
+        float percWorked = (float)productionTimer / improvementData.producedResourceTime;
         tempLabor += percWorked;
         tempLaborPercsQueue.Enqueue(tempLabor);
-        resourceManager.ConsumeResources(myImprovementData.consumedResources, tempLabor);
+        resourceManager.ConsumeResources(improvementData.consumedResources, tempLabor);
     }
 
     public void RemoveLaborMidProduction()
@@ -131,15 +130,15 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceConsumedPerMinute();
 
         if (tempLaborPercsQueue.Count > 0)
-            resourceManager.PrepareResource(myImprovementData.consumedResources, tempLaborPercsQueue.Dequeue(), producerLoc, true);
+            resourceManager.PrepareResource(improvementData.consumedResources, tempLaborPercsQueue.Dequeue(), producerLoc, true);
         else
-            resourceManager.PrepareResource(myImprovementData.consumedResources, 1, producerLoc, true);
+            resourceManager.PrepareResource(improvementData.consumedResources, 1, producerLoc, true);
     }
 
     //timer for producing resources 
     private IEnumerator ProducingCoroutine()
     {
-        productionTimer = myImprovementData.producedResourceTime;
+        productionTimer = improvementData.producedResourceTime;
         if (resourceManager.city.activeCity)
         {
             timeProgressBar.SetProgressBarBeginningPosition();
@@ -147,7 +146,7 @@ public class ResourceProducer : MonoBehaviour
         }
 
         tempLabor = currentLabor;
-        resourceManager.ConsumeResources(myImprovementData.consumedResources, currentLabor);
+        resourceManager.ConsumeResources(improvementData.consumedResources, currentLabor);
         
         while (productionTimer > 0)
         {
@@ -183,8 +182,8 @@ public class ResourceProducer : MonoBehaviour
 
     public void RestartProductionCheck(float labor)
     {
-        resourceManager.PrepareResource(myImprovementData.producedResources, labor, producerLoc);
-        Debug.Log("Resources for " + myImprovementData.prefab.name);
+        resourceManager.PrepareResource(improvementData.producedResources, labor, producerLoc);
+        Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
         if (resourceManager.fullInventory)
@@ -207,7 +206,7 @@ public class ResourceProducer : MonoBehaviour
         if (producingCo != null)
         {
             StopCoroutine(producingCo);
-            resourceManager.PrepareResource(myImprovementData.consumedResources, 1, producerLoc, true);
+            resourceManager.PrepareResource(improvementData.consumedResources, 1, producerLoc, true);
         }
 
         if (isWaitingToStart)
@@ -263,14 +262,14 @@ public class ResourceProducer : MonoBehaviour
     //recalculating generation per resource every time labor/work ethic changes
     public void CalculateResourceGenerationPerMinute()
     {
-        foreach (ResourceValue resourceValue in myImprovementData.producedResources)
+        foreach (ResourceValue resourceValue in improvementData.producedResources)
         {
             if (!generatedPerMinute.ContainsKey(resourceValue.resourceType))
                 generatedPerMinute[resourceValue.resourceType] = 0;
             else
                 resourceManager.ModifyResourceGenerationPerMinute(resourceValue.resourceType, generatedPerMinute[resourceValue.resourceType], false);
 
-            int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(resourceValue.resourceAmount, currentLabor) * (60f / myImprovementData.producedResourceTime));
+            int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(resourceValue.resourceAmount, currentLabor) * (60f / improvementData.producedResourceTime));
             generatedPerMinute[resourceValue.resourceType] = amount;
             resourceManager.ModifyResourceGenerationPerMinute(resourceValue.resourceType, amount, true);
 
@@ -282,14 +281,14 @@ public class ResourceProducer : MonoBehaviour
     //only changes when labor changes, not work ethic
     private void CalculateResourceConsumedPerMinute()
     {
-        foreach (ResourceValue resourceValue in myImprovementData.consumedResources)
+        foreach (ResourceValue resourceValue in improvementData.consumedResources)
         {
             if (!consumedPerMinute.ContainsKey(resourceValue.resourceType))
                 consumedPerMinute[resourceValue.resourceType] = 0;
             else
                 resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, consumedPerMinute[resourceValue.resourceType], false);
 
-            int amount = Mathf.RoundToInt((resourceValue.resourceAmount * currentLabor) * (60f / myImprovementData.producedResourceTime));
+            int amount = Mathf.RoundToInt((resourceValue.resourceAmount * currentLabor) * (60f / improvementData.producedResourceTime));
             consumedPerMinute[resourceValue.resourceType] = amount;
             resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, amount, true);
 

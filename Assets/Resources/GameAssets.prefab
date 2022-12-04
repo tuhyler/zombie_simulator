@@ -60,3 +60,5 @@ MonoBehaviour:
     type: 3}
   resourceBubble: {fileID: 2079849781279894658, guid: 5ef82d055c06e4945b70fae30439ba79,
     type: 3}
+  resourceInfoPanel: {fileID: 4764973178347815870, guid: 37a7c494c26839c4684b3621bf361497,
+    type: 3}

@@ -64,6 +64,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   housingPrefab: {fileID: 2413421541421609430, guid: 6161d90e38ce78d40b917c4495a50eea,
     type: 3}
+  housingData: {fileID: 11400000, guid: 42b13ed0d99811a47b556be96cbb0dd6, type: 2}
   cityNameMaterial: {fileID: 2100000, guid: 87e679e04e2fd464b94fa13055be0e02, type: 2}
   cityNameField: {fileID: 709202929113320297}
   cityName: {fileID: 7771684247865887059}

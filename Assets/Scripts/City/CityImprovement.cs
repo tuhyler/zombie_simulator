@@ -9,15 +9,11 @@ public class CityImprovement : MonoBehaviour
     //public ImprovementDataSO GetImprovementDataSO { get { return improvementDataSO; } }
     
     private SelectionHighlight[] highlight;
-    private string improvementName;
-    public string ImprovementName { get { return improvementName; } set { improvementName = value; } }
+    private ImprovementDataSO improvementData;
+    public ImprovementDataSO GetImprovementData { get { return improvementData; } }
     private City city;
     [HideInInspector]
-    public bool initialCityHouse, isConstruction, singleBuild;
-    private int constructionTime;
-    public int ConstructionTime { get { return constructionTime; } set { constructionTime = value; } }
-    private int buildingLevel = 99;
-    public int BuildingLevel { get { return buildingLevel; } set { buildingLevel = value; } }
+    public bool initialCityHouse, isConstruction;
 
     private Coroutine constructionCo;
     private int timePassed;
@@ -26,6 +22,11 @@ public class CityImprovement : MonoBehaviour
     private void Awake()
     {
         highlight = GetComponents<SelectionHighlight>();
+    }
+
+    public void InitializeImprovementData(ImprovementDataSO data)
+    {
+        improvementData = data;
     }
 
     public void EnableHighlight(Color highlightColor)
