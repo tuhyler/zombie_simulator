@@ -10,26 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Quarry01Data
+  m_Name: Mine02Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5287637160269364084, guid: 621fc3803ad9c3645a7d989ac5d06061, type: 3}
-  improvementName: Quarry
-  improvementLevel: 1
+  prefab: {fileID: 4377796082950431887, guid: 3414d4bf8033ced4d947110bdbf96ae2, type: 3}
+  improvementName: Mine
+  improvementLevel: 2
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
-  improvementCost: []
+  image: {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
+  improvementCost:
+  - resourceType: 4
+    resourceAmount: 5
+  - resourceType: 5
+    resourceAmount: 30
   consumedResources: []
   producedResources:
   - resourceType: 5
-    resourceAmount: 1
-  producedResourceTime: 60
+    resourceAmount: 30
+  producedResourceTime: 10
   resourceType: 5
-  terrainType: 5
+  terrainType: 6
   workEthicChange: 0
-  maxLabor: 2
+  maxLabor: 3
   laborCost: 0
-  replaceTerrain: 1
+  replaceTerrain: 0
   replaceProp: 1
   singleBuild: 0
   buildTime: 5

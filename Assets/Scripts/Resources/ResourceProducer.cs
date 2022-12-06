@@ -37,7 +37,7 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
-    internal void SetResourceManager(ResourceManager resourceManager)
+    public void SetResourceManager(ResourceManager resourceManager)
     {
         this.resourceManager = resourceManager;
     }
@@ -63,6 +63,10 @@ public class ResourceProducer : MonoBehaviour
     public void UpdateCurrentLaborData(int currentLabor)
     {
         this.currentLabor = currentLabor;
+    }
+
+    public void UpdateResourceGenerationData()
+    {
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
     }

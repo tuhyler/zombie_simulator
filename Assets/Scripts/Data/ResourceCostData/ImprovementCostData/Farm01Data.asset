@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00, type: 3}
   improvementName: Farm
-  improvementLevel: 0
+  improvementLevel: 1
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
@@ -34,5 +34,6 @@ MonoBehaviour:
   maxLabor: 2
   laborCost: 0
   replaceTerrain: 0
+  replaceProp: 1
   singleBuild: 0
   buildTime: 5

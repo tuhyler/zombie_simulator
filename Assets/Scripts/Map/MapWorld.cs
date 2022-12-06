@@ -22,6 +22,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
+    private List<Vector3Int> unclaimedSingleBuildList = new();
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
@@ -690,6 +691,9 @@ public class MapWorld : MonoBehaviour
                 if (cityWorkedTileDict.ContainsKey(checkPosition) && GetCityLaborForTile(checkPosition) != city)
                     continue;
 
+                if (unclaimedSingleBuildList.Contains(checkPosition))
+                    continue;
+
                 neighbors.Add(checkPosition);
                 if (CheckIfTileIsImproved(checkPosition))
                     developed.Add(checkPosition);
@@ -934,6 +938,21 @@ public class MapWorld : MonoBehaviour
         //Vector3Int position = Vector3Int.RoundToInt(unitPosition);
 
         unitPosDict.Remove(position);
+    }
+
+    public void AddToUnclaimedSingleBuild(Vector3Int location)
+    {
+        unclaimedSingleBuildList.Add(location);
+    }
+
+    public bool CheckIfUnclaimedSingleBuild(Vector3Int location)
+    {
+        return unclaimedSingleBuildList.Contains(location);
+    }
+
+    public void RemoveFromUnclaimedSingleBuild(Vector3Int location)
+    {
+        unclaimedSingleBuildList.Remove(location);
     }
 
 

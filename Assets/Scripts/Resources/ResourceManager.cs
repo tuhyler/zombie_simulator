@@ -56,6 +56,10 @@ public class ResourceManager : MonoBehaviour
         CalculateAndChangeFoodLimit();
         PrepareResourceDictionary();
         SetInitialResourceValues();
+
+        //only relevant during editing
+        if (resourceStorageLevel >= resourceStorageLimit)
+            fullInventory = true;
     }
 
     private void PrepareResourceDictionary()

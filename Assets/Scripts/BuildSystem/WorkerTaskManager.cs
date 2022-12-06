@@ -356,7 +356,10 @@ public class WorkerTaskManager : MonoBehaviour
     public void BuildCityPreparations(Vector3Int workerTile, Worker worker)
     {
         if (CheckForNearbyCity(workerTile))
+        {
+            worker.isBusy = false;
             return;
+        }
 
         TerrainData td = world.GetTerrainDataAt(workerTile);
         bool clearForest = td.GetTerrainData().type == TerrainType.Forest;
