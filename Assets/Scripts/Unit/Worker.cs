@@ -141,6 +141,8 @@ public class Worker : Unit
             return;
         }
 
+        StopMovement();
+        isBusy = true;
         workerTaskManager.BuildCityPreparations(workerTile, this);
     }
 

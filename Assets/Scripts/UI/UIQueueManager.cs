@@ -93,11 +93,6 @@ public class UIQueueManager : MonoBehaviour
         SetResourcesToCheck();
     }
 
-    //public void GetQueueItem(int index)
-    //{
-    //    SetFirstQueueItem(queueItemHolder.GetChild(index).GetComponent<UIQueueItem>());
-    //}
-
     public void ClearQueueItemSelect()
     {
         if (selectedQueueItem != null)
@@ -107,9 +102,10 @@ public class UIQueueManager : MonoBehaviour
         }
     }
 
-    public void AddToQueue(Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null)
+    public void AddToQueue(Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null, List<ResourceValue> upgradeCosts = null)
     {
-        string buildName = CreateItemName(loc, improvementData, unitBuildData);
+        bool upgrading = upgradeCosts != null;
+        string buildName = CreateItemName(loc, upgrading, improvementData, unitBuildData);
 
         if (unitBuildData == null && queueItemNames.Contains(buildName))
         {
@@ -121,18 +117,10 @@ public class UIQueueManager : MonoBehaviour
         newQueueItem.SetActive(true);
         UIQueueItem queueItemHandler = newQueueItem.GetComponent<UIQueueItem>();
         queueItemHandler.SetQueueManager(this);
-        queueItemHandler.CreateQueueItem(buildName, loc, unitBuildData, improvementData);
+        queueItemHandler.CreateQueueItem(buildName, loc, unitBuildData, improvementData, upgradeCosts);
+        queueItemHandler.upgrading = upgrading;
         queueItemNames.Add(buildName);
         PlaceQueueItem(queueItemHandler);
-
-        //newQueueItem.transform.SetParent(queueItemHolder, false);
-        //UIQueueItem queueItemHandler = GetFromQueueItemPool();asd;
-
-        //queueItemHandler.transform.SetParent(queueItemHolder, false);
-        //queueItems.Add(queueItemHandler);
-        //queueItemNames.Add(buildName);
-        //if (queueItems.Count == 1) //if first to list, make top of list
-        //    SetFirstQueueItem(queueItemHandler);
     }
 
     private void PlaceQueueItem(UIQueueItem queueItemHandler)
@@ -142,11 +130,6 @@ public class UIQueueManager : MonoBehaviour
         if (queueItems.Count == 1) //if first to list, make top of list
             SetFirstQueueItem();
     }
-
-    //public void RemoveFirstFromQueue()
-    //{
-    //    RemoveFromQueue(firstQueueItem);
-    //}
 
     public void RemoveFromQueue()
     {
@@ -210,7 +193,7 @@ public class UIQueueManager : MonoBehaviour
         }
     }
 
-    private string CreateItemName(Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null)
+    private string CreateItemName(Vector3Int loc, bool upgrading, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null)
     {
         string buildName = "";
         if (improvementData != null)
@@ -220,15 +203,18 @@ public class UIQueueManager : MonoBehaviour
 
         if (!(loc.x == 0 && loc.z == 0))
         {
-            buildName = (buildName + " (" + loc.x/3 + "," + loc.z/3 + ")");
+            buildName = buildName + " (" + loc.x/3 + "," + loc.z/3 + ")";
         }
+
+        if (upgrading)
+            buildName = "Upgrade " + buildName;
 
         return buildName;
     }
 
     public void CheckIfBuiltUnitIsQueued(UnitBuildDataSO unitData)
     {
-        string builtName = CreateItemName(new Vector3Int(0, 0, 0), null, unitData);
+        string builtName = CreateItemName(new Vector3Int(0, 0, 0), false, null, unitData);
 
         if (queueItemNames.Contains(builtName))
         {
@@ -243,18 +229,27 @@ public class UIQueueManager : MonoBehaviour
         }
     }
 
-    public void CheckIfBuiltItemIsQueued(Vector3Int loc, ImprovementDataSO improvementData)
+    public void CheckIfBuiltItemIsQueued(Vector3Int loc, bool upgrading, ImprovementDataSO improvementData, City city)
     {
-        string builtName = CreateItemName(loc, improvementData);
+        string builtName = CreateItemName(loc, upgrading, improvementData);
 
-        if (queueItemNames.Contains(builtName))
+        if (city.savedQueueItemsNames.Contains(builtName))
         {
-            foreach (UIQueueItem item in queueItems)
+            int index = city.savedQueueItemsNames.IndexOf(builtName);
+            city.savedQueueItemsNames.Remove(builtName);
+            UIQueueItem queueItem = city.savedQueueItems[index];
+            city.savedQueueItems.Remove(queueItem);
+            Destroy(queueItem);
+
+            if (city.activeCity)
             {
-                if (item.itemName == builtName)
+                foreach (UIQueueItem item in queueItems)
                 {
-                    RemoveFromQueue(item);
-                    return;
+                    if (item.itemName == builtName)
+                    {
+                        RemoveFromQueue(item);
+                        return;
+                    }
                 }
             }
         }
@@ -262,28 +257,26 @@ public class UIQueueManager : MonoBehaviour
 
     private void SetResourcesToCheck()
     {
-        (Vector3Int loc, ImprovementDataSO improvementData, UnitBuildDataSO unitBuildData) = firstQueueItem.GetQueueItemData();
+        (ImprovementDataSO improvementData, UnitBuildDataSO unitBuildData, List<ResourceValue> upgradeCosts) = firstQueueItem.GetQueueItemData();
 
         List<ResourceValue> resourceCosts = new();
 
         if (unitBuildData != null)
             resourceCosts = new(unitBuildData.unitCost);
-        if (improvementData != null)
+        else if (upgradeCosts != null)
+            resourceCosts = upgradeCosts;
+        else if (improvementData != null)
             resourceCosts = new(improvementData.improvementCost);
 
         cityBuilderManager.resourceManager.SetQueueResources(resourceCosts, cityBuilderManager);
     }
 
-    //public (Vector3Int, ImprovementDataSO, UnitBuildDataSO) SetBuildInfo()
-    //{
-    //    return firstQueueItem.GetQueueItemData();
-    //}
-
-    public List<UIQueueItem> SetQueueItems()
+    public (List<UIQueueItem>, List<string>) SetQueueItems()
     {
         List<UIQueueItem> queueItems = new(this.queueItems);
+        List<string> queueItemNames = new(this.queueItemNames);
         
-        return queueItems;
+        return (queueItems, queueItemNames);
     }
 
     public void ToggleButtonSelection(bool v)

@@ -19,6 +19,7 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
 
     public UnitBuildDataSO unitBuildData;
     public ImprovementDataSO improvementData;
+    public List<ResourceValue> upgradeCosts;
     public Vector3Int buildLoc;
 
     //for unselecting
@@ -26,7 +27,7 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
     private Color originalBackgroundColor;
 
     [HideInInspector]
-    public bool isSelected;
+    public bool isSelected, upgrading;
 
     private void Awake()
     {
@@ -36,18 +37,21 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
         //    uiQueueManager.SetFirstQueueItem(this);
     }
 
-    public void CreateQueueItem(string text, Vector3Int loc, UnitBuildDataSO unitBuildData = null, ImprovementDataSO improvementData = null)
+    public void CreateQueueItem(string text, Vector3Int loc, UnitBuildDataSO unitBuildData, ImprovementDataSO improvementData, List<ResourceValue> upgradeCosts)
     {
         itemText.text = text;
         itemName = text;
         buildLoc = loc;
         this.unitBuildData = unitBuildData;
-        this.improvementData = improvementData;
+
+        if (upgradeCosts == null)
+            this.improvementData = improvementData;
+        this.upgradeCosts = upgradeCosts;
     }
 
-    public (Vector3Int, ImprovementDataSO, UnitBuildDataSO) GetQueueItemData()
+    public (ImprovementDataSO, UnitBuildDataSO, List<ResourceValue>) GetQueueItemData()
     {
-        return (buildLoc, improvementData, unitBuildData);
+        return (improvementData, unitBuildData, upgradeCosts);
     }
 
     public void SetQueueManager(UIQueueManager uiQueueManager)

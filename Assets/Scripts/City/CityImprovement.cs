@@ -11,9 +11,10 @@ public class CityImprovement : MonoBehaviour
     private SelectionHighlight[] highlight;
     private ImprovementDataSO improvementData;
     public ImprovementDataSO GetImprovementData { get { return improvementData; } }
-    private City city;
+    private City city; //for buildings, click on them to select city
+    private City queueCity; //for improvements, when queued for upgrades
     [HideInInspector]
-    public bool initialCityHouse, isConstruction;
+    public bool initialCityHouse, isConstruction, queued;
 
     private Coroutine constructionCo;
     private int timePassed;
@@ -58,6 +59,16 @@ public class CityImprovement : MonoBehaviour
     public City GetCity()
     {
         return city;
+    }
+
+    public void SetQueueCity(City city)
+    {
+        queueCity = city;
+    }
+
+    public City GetQueueCity()
+    {
+        return queueCity;
     }
 
     public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)

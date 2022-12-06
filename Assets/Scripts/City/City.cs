@@ -85,6 +85,8 @@ public class City : MonoBehaviour
     //stored queue items
     [HideInInspector]
     public List<UIQueueItem> savedQueueItems = new();
+    [HideInInspector]
+    public List<string> savedQueueItemsNames = new();
 
     //private SelectionHighlight highlight; //Highlight doesn't work on city name text
 
@@ -252,7 +254,7 @@ public class City : MonoBehaviour
             if (activeCity)
             {
                 CityGrowthProgressBarSetActive(true);
-                cityBuilderManager.abandonCityButton.interactable = true;
+                cityBuilderManager.abandonCityButton.interactable = false;
             }
             StartCoroutine(FoodConsumptionCoroutine());
         }
@@ -637,6 +639,7 @@ public class City : MonoBehaviour
         if (labor == 0) //assigning city to location if working for first time
         {
             world.AddToCityLabor(terrainLocation, gameObject);
+            resourceProducer.SetResourceManager(resourceManager);
             resourceProducer.StartProducing();
         }
         else
@@ -651,6 +654,7 @@ public class City : MonoBehaviour
             maxxed = true;
         }
         resourceProducer.UpdateCurrentLaborData(labor);
+        resourceProducer.UpdateResourceGenerationData();
 
         foreach (ResourceType resourceType in resourceProducer.producedResources)
         {
@@ -671,25 +675,50 @@ public class City : MonoBehaviour
     }
 
     //for queued build items
-    public void RemoveFirstFromQueue(CityBuilderManager cityBuilderManager)
+    public void GoToNextItemInQueue()
     {
-        UIQueueItem item = savedQueueItems[0];
-        savedQueueItems.Remove(item);
-        Destroy(item);
+        //UIQueueItem item = savedQueueItems[0];
+        //savedQueueItems.Remove(item);
+        //savedQueueItemsNames.RemoveAt(0);
+        //Destroy(item);
 
         if (savedQueueItems.Count > 0)
+            GoToNextItemInBuildQueue();
+    }
+
+    public void RemoveFromQueue(Vector3Int loc, ImprovementDataSO improvementData)
+    {
+        string name = "Upgrade " + improvementData.improvementName + " (" + loc.x / 3 + "," + loc.z / 3 + ")";
+
+        int index = 0;
+        foreach (UIQueueItem item in savedQueueItems)
         {
-            UIQueueItem nextItem = savedQueueItems[0];
-            
-            List<ResourceValue> resourceCosts = new();
+            if (item.upgrading && item.itemName == name)
+            {
+                savedQueueItems.Remove(item);
+                savedQueueItemsNames.RemoveAt(index);
+                Destroy(item);
+                if (index == 0 && savedQueueItems.Count > 0)
+                    GoToNextItemInBuildQueue();
+                break;
+            }
 
-            if (nextItem.unitBuildData != null)
-                resourceCosts = new(nextItem.unitBuildData.unitCost);
-            if (nextItem.improvementData != null)
-                resourceCosts = new(nextItem.improvementData.improvementCost);
-
-            resourceManager.SetQueueResources(resourceCosts, cityBuilderManager);
+            index++;
         }
+    }
+
+    private void GoToNextItemInBuildQueue()
+    {
+        UIQueueItem nextItem = savedQueueItems[0];
+
+        List<ResourceValue> resourceCosts = new();
+
+        if (nextItem.unitBuildData != null)
+            resourceCosts = new(nextItem.unitBuildData.unitCost);
+        if (nextItem.improvementData != null)
+            resourceCosts = new(nextItem.improvementData.improvementCost);
+
+        resourceManager.SetQueueResources(resourceCosts, cityBuilderManager);
     }
 
     public UIQueueItem GetBuildInfo()
@@ -702,23 +731,22 @@ public class City : MonoBehaviour
     {
         foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.CITYRADIUS))
         {
-            if (world.CheckIfTileIsImproved(tile) && !world.CheckIfCityOwnsTile(tile))
+            if (world.CheckIfUnclaimedSingleBuild(tile))
             {
                 CityImprovement cityImprovement = world.GetCityDevelopment(tile);
 
-                if (cityImprovement.GetImprovementData.singleBuild)
-                {
-                    string name = cityImprovement.GetImprovementData.improvementName;
-                    singleBuildImprovementsBuildingsDict[name] = tile;
-                    world.AddToCityLabor(tile, gameObject);
+                string name = cityImprovement.GetImprovementData.improvementName;
+                singleBuildImprovementsBuildingsDict[name] = tile;
+                world.AddToCityLabor(tile, gameObject);
 
-                    if (name == "Harbor")
-                    {
-                        hasHarbor = true;
-                        harborLocation = tile;
-                        world.SetCityHarbor(this, tile);
-                    }
+                if (name == "Harbor")
+                {
+                    hasHarbor = true;
+                    harborLocation = tile;
+                    world.SetCityHarbor(this, tile);
                 }
+
+                world.RemoveFromUnclaimedSingleBuild(tile);
             }
         }
     }

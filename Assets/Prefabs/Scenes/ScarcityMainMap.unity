@@ -12082,6 +12082,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a01c4570b67a0bd4d833908e95a1111f, type: 2}
   - {fileID: 11400000, guid: 8aea651ff099cc245acefdcb2dbb34f1, type: 2}
   - {fileID: 11400000, guid: 572acc82596e95f478b851c63b0612bf, type: 2}
+  - {fileID: 11400000, guid: 16eadd7a7a2e2bf4198bf5dc7d0d0364, type: 2}
   allUnits:
   - {fileID: 11400000, guid: 35aa8a19ef15c0c42b3625976d280369, type: 2}
   - {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
@@ -45653,7 +45654,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.499997
+      value: 8.5
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
