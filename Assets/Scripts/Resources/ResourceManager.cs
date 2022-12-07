@@ -527,9 +527,9 @@ public class ResourceManager : MonoBehaviour
                 }
             }
 
-            cityBuilderManager.BuildQueuedBuilding(city, this);
             queuedResourcesToCheck.Clear();
             queuedResourceTypesToCheck.Clear();
+            cityBuilderManager.BuildQueuedBuilding(city, this);
         }
     }
 
