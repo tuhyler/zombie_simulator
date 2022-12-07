@@ -454,7 +454,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             selectedImprovement.queued = true;
             selectedImprovement.SetQueueCity(selectedCity);
-            uiQueueManager.AddToQueue(tempBuildLocation - selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, world.GetUpgradeCost(nameAndLevel));
+            uiQueueManager.AddToQueue(tempBuildLocation - selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, new(world.GetUpgradeCost(nameAndLevel)));
             return;
         }
 
@@ -512,7 +512,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         //setting up the resourceInfoPanels to appear below improvement
         List<ResourceInfoPanel> resourceInfoPanelList = new();
-        List<ResourceValue> upgradeCost = world.GetUpgradeCost(improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel);
+        List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel));
         int resourceCount = upgradeCost.Count;
         int i = 0;
         foreach (ResourceValue value in upgradeCost)

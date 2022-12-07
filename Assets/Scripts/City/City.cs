@@ -715,7 +715,9 @@ public class City : MonoBehaviour
 
         if (nextItem.unitBuildData != null)
             resourceCosts = new(nextItem.unitBuildData.unitCost);
-        if (nextItem.improvementData != null)
+        else if (nextItem.upgradeCosts != null)
+            resourceCosts = new(nextItem.upgradeCosts);
+        else if (nextItem.improvementData != null)
             resourceCosts = new(nextItem.improvementData.improvementCost);
 
         resourceManager.SetQueueResources(resourceCosts, cityBuilderManager);
