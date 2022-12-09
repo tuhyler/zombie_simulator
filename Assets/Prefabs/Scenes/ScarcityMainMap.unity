@@ -1970,6 +1970,7 @@ MonoBehaviour:
   hill: {fileID: 11400000, guid: 1fddc1ef6099212409811e55da512a76, type: 2}
   forestHill: {fileID: 11400000, guid: a3bf20a911054dc4b91717af0b6c61f9, type: 2}
   showGizmo: 0
+  buildingRoad: 0
 --- !u!114 &163795768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13888,6 +13889,7 @@ MonoBehaviour:
   uiJoinCity: {fileID: 1163674712}
   uiMoveUnit: {fileID: 219439591}
   uiCancelTask: {fileID: 1479650295}
+  uiConfirmBuildRoad: {fileID: 0}
   uiTraderPanel: {fileID: 2117892975}
   uiWorkerTask: {fileID: 741427551}
   uiPersonalResourceInfoPanel: {fileID: 1196333613}
@@ -27956,10 +27958,10 @@ MonoBehaviour:
   followTransform: {fileID: 0}
   centerTransform: {fileID: 0}
   followRotation: {x: 0, y: 0, z: 0, w: 0}
-  movementSpeed: 1
+  movementSpeed: 0.3
   movementTime: 5
   rotationAmount: 1
-  zoomAmount: {x: 0, y: -0.6, z: 0.6}
+  zoomAmount: {x: 0, y: -0.3, z: 0.3}
   newPosition: {x: 0, y: 0, z: 0}
   newZoom: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
@@ -43277,6 +43279,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3502743919550185369, guid: 9294b0a7b7d30324f91e7496e284a8ad,
         type: 3}
+      propertyPath: world
+      value: 
+      objectReference: {fileID: 163795767}
+    - target: {fileID: 3502743919550185369, guid: 9294b0a7b7d30324f91e7496e284a8ad,
+        type: 3}
       propertyPath: uiQueueItem
       value: 
       objectReference: {fileID: 7389737143294441261, guid: dda7e75a585f344419214da649a75099,
@@ -45654,7 +45661,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.499993
+      value: 8.500427
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

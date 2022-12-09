@@ -30,6 +30,9 @@ public class UIQueueManager : MonoBehaviour
     private Image addQueueImage;
     private Color originalButtonColor;
 
+    [SerializeField]
+    private MapWorld world;
+
 
     private void Awake()
     {
@@ -102,18 +105,24 @@ public class UIQueueManager : MonoBehaviour
         }
     }
 
-    public void AddToQueue(Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null, List<ResourceValue> upgradeCosts = null)
+    public void AddToQueue(Vector3Int worldLoc, Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null, List<ResourceValue> upgradeCosts = null)
     {
         bool upgrading = upgradeCosts != null;
         string buildName = CreateItemName(loc, upgrading, improvementData, unitBuildData);
 
         if (unitBuildData == null && queueItemNames.Contains(buildName))
         {
-            Debug.Log("Item already in queue");
+            GiveWarningMessage("Item already in queue");
+            return;
+        }
+        else if (loc != new Vector3Int(0, 0, 0) && world.CheckQueueLocation(worldLoc))
+        {
+            GiveWarningMessage("Location already queued");
             return;
         }
 
         GameObject newQueueItem = Instantiate(uiQueueItem);
+        world.AddLocationToQueueList(worldLoc);
         newQueueItem.SetActive(true);
         UIQueueItem queueItemHandler = newQueueItem.GetComponent<UIQueueItem>();
         queueItemHandler.SetQueueManager(this);
@@ -143,6 +152,7 @@ public class UIQueueManager : MonoBehaviour
     {
         queueItems.Remove(queueItem);
         queueItemNames.Remove(queueItem.itemName);
+        world.RemoveLocationFromQueueList(queueItem.buildLoc);
 
         if (queueItem == firstQueueItem && queueItems.Count > 0)
         {
@@ -237,6 +247,7 @@ public class UIQueueManager : MonoBehaviour
         {
             int index = city.savedQueueItemsNames.IndexOf(builtName);
             city.savedQueueItemsNames.Remove(builtName);
+            world.RemoveLocationFromQueueList(loc);
             UIQueueItem queueItem = city.savedQueueItems[index];
             city.savedQueueItems.Remove(queueItem);
             Destroy(queueItem);
@@ -298,6 +309,15 @@ public class UIQueueManager : MonoBehaviour
             selectedQueueItem.ToggleItemSelection(false);
             selectedQueueItem = null;
         }   
+    }
+    
+    private void GiveWarningMessage(string message)
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = 10f; //z must be more than 0, else just gives camera position
+        Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+
+        InfoPopUpHandler.Create(mouseLoc, message);
     }
 
 

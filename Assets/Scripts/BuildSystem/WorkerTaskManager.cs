@@ -63,11 +63,11 @@ public class WorkerTaskManager : MonoBehaviour
             if (Vector3Int.RoundToInt(pos) == workerTile)
             {
                 //add to finish animation listener
-                workerUnit.BuildRoad(); 
+                workerUnit.BuildRoadPreparations(); 
             }
             else
             {
-                workerUnit.FinishedMoving.AddListener(workerUnit.BuildRoad);
+                workerUnit.FinishedMoving.AddListener(workerUnit.BuildRoadPreparations);
                 MoveToCenterOfTile(workerTile);
             }
         }
@@ -183,7 +183,7 @@ public class WorkerTaskManager : MonoBehaviour
     //    {
     //        workerUnit = null;
     //    }
-    //    workerUnit = unit.GetComponent<Worker>();
+    //    workerUnit = unit.GetComponent<Worker>(); 
     //    if (workerUnit != null)
     //    {
     //        HandleUnitSelection();
@@ -237,16 +237,22 @@ public class WorkerTaskManager : MonoBehaviour
 
         else if (improvementData.improvementName == "Road") //adding road
         {
-            if (Vector3Int.RoundToInt(pos) == workerTile)
-            {
-                //add to finish animation listener
-                workerUnit.BuildRoad();
-            }
-            else
-            {
-                MoveToCenterOfTile(workerTile);
-                workerUnit.FinishedMoving.AddListener(workerUnit.BuildRoad);
-            }
+            world.buildingRoad = true;
+            unitMovement.uiConfirmBuildRoad.ToggleTweenVisibility(true);
+            unitMovement.uiCancelTask.ToggleTweenVisibility(true);
+            unitMovement.SetSelectedWorker = workerUnit;
+
+            workerUnit.BuildRoadPreparations();
+
+            //if (Vector3Int.RoundToInt(pos) == workerTile)
+            //{
+            //    workerUnit.BuildRoadPreparations();
+            //}
+            //else
+            //{
+            //    MoveToCenterOfTile(workerTile);
+            //    workerUnit.FinishedMoving.AddListener(workerUnit.BuildRoadPreparations);
+            //}
         }
 
         else if (improvementData.improvementName == "City") //creating city
@@ -328,7 +334,7 @@ public class WorkerTaskManager : MonoBehaviour
         //workerUnit.HidePath();
     }
 
-    public void BuildRoad(Vector3Int workerTile, Worker worker)
+    public void MoveToBuildRoad(Vector3Int workerTile)
     {
         //Vector3 workerPos = workerUnit.transform.position;
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
@@ -347,10 +353,17 @@ public class WorkerTaskManager : MonoBehaviour
 
         //workerUnit.StopMovement();
         //workerUnit.isBusy = true;
-        uiCancelTask.ToggleTweenVisibility(true);
         //taskCoroutine = StartCoroutine(worker.BuildRoad(workerTile, roadManager));
-        taskCoroutine = StartCoroutine(roadManager.BuildRoad(workerTile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
         //workerUnit.HidePath();
+
+        unitMovement.HandleSelectedLocation(workerTile, workerTile);
+
+        //taskCoroutine = StartCoroutine(roadManager.BuildRoad(workerTile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
+    }
+
+    public void BuildRoad(Vector3Int tile, Worker worker)
+    {
+        taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
     }
 
     public void BuildCityPreparations(Vector3Int workerTile, Worker worker)

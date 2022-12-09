@@ -22,7 +22,9 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private UISingleConditionalButtonHandler uiMoveUnit;
     [SerializeField]
-    private UISingleConditionalButtonHandler uiCancelTask;
+    public UISingleConditionalButtonHandler uiCancelTask;
+    [SerializeField]
+    public UISingleConditionalButtonHandler uiConfirmBuildRoad;
     [SerializeField]
     public UITraderOrderHandler uiTraderPanel;
     [SerializeField]
@@ -42,6 +44,7 @@ public class UnitMovement : MonoBehaviour
 
     private Unit selectedUnit;
     private Worker selectedWorker;
+    public Worker SetSelectedWorker { set { selectedWorker = value; } }
     private Trader selectedTrader;
     //private TerrainData selectedTile;
     private InfoProvider selectedUnitInfoProvider;
@@ -90,6 +93,31 @@ public class UnitMovement : MonoBehaviour
 
         location.y = 0;
 
+
+        Vector3Int locationPos = Vector3Int.RoundToInt(location);
+
+        //if building road, can't select anything else
+        if (world.buildingRoad)
+        {
+            TerrainData td = world.GetTerrainDataAt(locationPos);
+            
+            if (world.IsRoadOnTerrain(locationPos) || world.IsBuildLocationTaken(locationPos))
+            {
+                GiveWarningMessage("Already something here");
+            }
+            else if (!td.terrainData.walkable)
+            {
+                GiveWarningMessage("Can't build here");
+            }
+            else
+            {
+                td.EnableHighlight(Color.white);
+                selectedWorker.AddToRoadQueue(locationPos);
+            }
+ 
+            return;            
+        }
+        
         //moving unit upon selection
         if (moveUnit && selectedUnit != null) //detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
         {

@@ -22,6 +22,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
+    private List<Vector3Int> cityImprovementQueueList = new();
     private List<Vector3Int> unclaimedSingleBuildList = new();
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
@@ -58,6 +59,9 @@ public class MapWorld : MonoBehaviour
 
     [SerializeField] //for gizmos
     private bool showGizmo;
+
+    [HideInInspector]
+    public bool buildingRoad;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     private void Awake()
@@ -373,6 +377,21 @@ public class MapWorld : MonoBehaviour
     public void SetCityHarbor(City city, Vector3Int harborLoc)
     {
         cityHarborDict[harborLoc] = city;
+    }
+
+    public void AddLocationToQueueList(Vector3Int location)
+    {
+        cityImprovementQueueList.Add(location);
+    }
+
+    public bool CheckQueueLocation(Vector3Int location)
+    {
+        return cityImprovementQueueList.Contains(location);
+    }
+
+    public void RemoveLocationFromQueueList(Vector3Int location)
+    {
+        cityImprovementQueueList.Remove(location);  
     }
 
     public void SetRoads(Vector3Int tile, GameObject road, bool straight)

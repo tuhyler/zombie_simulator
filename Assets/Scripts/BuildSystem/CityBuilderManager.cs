@@ -139,8 +139,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void HandleCitySelection(Vector3 location, GameObject selectedObject)
     {
-        //if (selectedCity != null)
-            //ResetCityUI();
+        if (world.buildingRoad)
+            return;
 
         if (selectedObject == null)
             return;
@@ -253,16 +253,21 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else if (upgradingImprovement)
                 {
-                    UpgradeSelectedImprovementQueueCheck(terrainLocation, improvementSelected);
+                    CityImprovement improvement = world.GetCityDevelopment(terrainLocation);
+
+                    UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
                 }
                 else if (removingImprovement)
                 {
+                    CityImprovement improvement = world.GetCityDevelopment(terrainLocation);
+                    
                     if (world.CheckIfTileIsUnderConstruction(terrainLocation))
                     {
-                        world.GetCityDevelopmentConstruction(terrainLocation).RemoveConstruction(this, terrainLocation);
+                        improvement = world.GetCityDevelopmentConstruction(terrainLocation);
+                        improvement.RemoveConstruction(this, terrainLocation);
                     }
 
-                    RemoveImprovement(terrainLocation, improvementSelected, selectedCity, false);
+                    RemoveImprovement(terrainLocation, improvement, selectedCity, false);
                 }
                 else if (laborChange != 0)
                 {
@@ -454,7 +459,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             selectedImprovement.queued = true;
             selectedImprovement.SetQueueCity(selectedCity);
-            uiQueueManager.AddToQueue(tempBuildLocation - selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, new(world.GetUpgradeCost(nameAndLevel)));
+            uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, new(world.GetUpgradeCost(nameAndLevel)));
             return;
         }
 
@@ -663,7 +668,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (isQueueing)
         {
-            uiQueueManager.AddToQueue(new Vector3Int(0,0,0), null, unitData);
+            uiQueueManager.AddToQueue(selectedCityLoc, new Vector3Int(0,0,0), null, unitData);
             return;
         }
 
@@ -738,7 +743,7 @@ public class CityBuilderManager : MonoBehaviour
         //Queue info
         if (isQueueing)
         {
-            uiQueueManager.AddToQueue(new Vector3Int(0,0,0), buildingData);
+            uiQueueManager.AddToQueue(selectedCityLoc, new Vector3Int(0,0,0), buildingData);
             return;
         }
 
@@ -985,7 +990,7 @@ public class CityBuilderManager : MonoBehaviour
         //queue information
         if (isQueueing)
         {
-            uiQueueManager.AddToQueue(tempBuildLocation - selectedCityLoc, improvementData);
+            uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, improvementData);
             return;
         }
 
@@ -1083,10 +1088,11 @@ public class CityBuilderManager : MonoBehaviour
         else
         {
             CityImprovement constructionTile = GetFromConstructionTilePool();
+            constructionTile.InitializeImprovementData(improvementData);
             constructingTiles.Add(tempBuildLocation);
             world.SetCityImprovementConstruction(tempBuildLocation, constructionTile);
             constructionTile.transform.position = tempBuildLocation;
-            constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, improvementData, tempBuildLocation, this);
+            constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this);
         }
 
         //if (improvementData.replaceTerrain)
@@ -1168,7 +1174,7 @@ public class CityBuilderManager : MonoBehaviour
 
     //    removingImprovement = true;
     //    ImprovementTileHighlight();
-    //}
+    //} 
 
     private void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement)
     {

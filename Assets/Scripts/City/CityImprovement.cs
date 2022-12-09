@@ -71,12 +71,12 @@ public class CityImprovement : MonoBehaviour
         return queueCity;
     }
 
-    public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
+    public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
     {
-        constructionCo = StartCoroutine(BuildImprovementCoroutine(city, producer, improvementData, tempBuildLocation, cityBuilderManager));
+        constructionCo = StartCoroutine(BuildImprovementCoroutine(city, producer, tempBuildLocation, cityBuilderManager));
     }
 
-    private IEnumerator BuildImprovementCoroutine(City city, ResourceProducer producer, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
+    private IEnumerator BuildImprovementCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
     {
         timePassed = improvementData.buildTime;
 

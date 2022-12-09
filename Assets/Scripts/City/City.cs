@@ -697,6 +697,7 @@ public class City : MonoBehaviour
             {
                 savedQueueItems.Remove(item);
                 savedQueueItemsNames.RemoveAt(index);
+                world.RemoveLocationFromQueueList(loc);
                 Destroy(item);
                 if (index == 0 && savedQueueItems.Count > 0)
                     GoToNextItemInBuildQueue();
