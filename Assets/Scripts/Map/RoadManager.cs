@@ -68,6 +68,11 @@ public class RoadManager : MonoBehaviour
         worker.isBusy = false;
         workerTaskManager.TurnOffCancelTask();
         BuildRoadAtPosition(roadPosition);
+
+        if (worker.MoreRoadToBuild())
+        {
+            worker.BeginBuildingRoad();
+        }
     }
 
 

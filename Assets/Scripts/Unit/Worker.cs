@@ -12,6 +12,7 @@ public class Worker : Unit
     private Vector3Int resourceCityLoc;
     private Resource resource;
     private TimeProgressBar timeProgressBar;
+    private Queue<Vector3Int> roadBuildQueue = new();
 
     private void Awake()
     {
@@ -49,27 +50,54 @@ public class Worker : Unit
     //{
     //    this.resourceIndividualHandler = resourceIndividualHandler;
     //}
-
-    public void BuildRoad()
+    public void AddToRoadQueue(Vector3Int roadLoc)
     {
-        Vector3 workerPos = transform.position;
-        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
-        FinishedMoving.RemoveListener(BuildRoad);
+        roadBuildQueue.Enqueue(roadLoc);
+    }
 
-        if (world.IsRoadOnTerrain(workerTile))
-        {
-            InfoPopUpHandler.Create(workerPos, "Already road on tile");
-            return;
-        }
-        if (world.IsBuildLocationTaken(workerTile))
-        {
-            InfoPopUpHandler.Create(workerPos, "Already something here");
-            return;
-        }
+    public bool MoreRoadToBuild()
+    {
+        return roadBuildQueue.Count > 0;
+    }
+
+    public void ResetRoadQueue()
+    {
+        roadBuildQueue.Clear();
+    }
+
+    public void BuildRoadPreparations()
+    {
+        //Vector3 workerPos = transform.position;
+        //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        FinishedMoving.RemoveListener(BuildRoadPreparations);
+
+        //if (world.IsRoadOnTerrain(workerTile))
+        //{
+        //    InfoPopUpHandler.Create(workerPos, "Already road on tile");
+        //    return;
+        //}
+        //else if (world.IsBuildLocationTaken(workerTile))
+        //{
+        //    InfoPopUpHandler.Create(workerPos, "Already something here");
+        //    return;
+        //}
 
         StopMovement();
+        //isBusy = true;
+        //workerTaskManager.BuildRoad(workerTile, this);
+    }
+
+    public void BeginBuildingRoad()
+    {
         isBusy = true;
-        workerTaskManager.BuildRoad(workerTile, this);
+        FinishedMoving.AddListener(BuildRoad);
+        workerTaskManager.MoveToBuildRoad(roadBuildQueue.Dequeue());
+    }
+
+    private void BuildRoad()
+    {
+        FinishedMoving.RemoveListener(BuildRoad);
+        workerTaskManager.BuildRoad(Vector3Int.RoundToInt(transform.position), this);
     }
 
     public void RemoveRoad()
