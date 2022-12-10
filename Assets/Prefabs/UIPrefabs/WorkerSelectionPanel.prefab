@@ -202,6 +202,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildData: {fileID: 0}
   canvasGroup: {fileID: 4382634860799491496}
+  buttonImage: {fileID: 339274342687367354}
 --- !u!1 &4871339309576906425
 GameObject:
   m_ObjectHideFlags: 0

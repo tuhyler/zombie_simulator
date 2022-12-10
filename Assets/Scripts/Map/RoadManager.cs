@@ -41,13 +41,13 @@ public class RoadManager : MonoBehaviour
         world.SetRoadCost(roadMovementCost);
     }
 
-    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool city = false) //placing road prefabs
+    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight) //placing road prefabs
     {
         Vector3 pos = roadPosition;
         pos.y = -.04f;
         GameObject structure = Instantiate(model, pos, rotation);
-        if (city) //hiding solo roads for new cities
-            structure.SetActive(false);
+        //if (city) //hiding solo roads for new cities
+        //    structure.SetActive(false);
         world.SetRoads(roadPosition, structure, straight);
     }
 
@@ -65,7 +65,6 @@ public class RoadManager : MonoBehaviour
         }
 
         worker.HideProgressTimeBar();
-        worker.isBusy = false;
         workerTaskManager.TurnOffCancelTask();
         BuildRoadAtPosition(roadPosition);
 
@@ -73,11 +72,15 @@ public class RoadManager : MonoBehaviour
         {
             worker.BeginBuildingRoad();
         }
+        else
+        {
+            worker.isBusy = false;
+        }
     }
 
 
     //finds if road changes are happening diagonally or on straight, then destroys objects accordingly
-    public void BuildRoadAtPosition(Vector3Int roadPosition, bool city = false) 
+    public void BuildRoadAtPosition(Vector3Int roadPosition) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
         bool hill = td.GetTerrainData().type == TerrainType.Hill || td.GetTerrainData().type == TerrainType.ForestHill;
@@ -101,7 +104,7 @@ public class RoadManager : MonoBehaviour
 
         //making road shape based on how many of its neighbors have roads, and where the roads are
         if (straightRoadsCount + diagRoadsCount == 0)
-            CreateRoadSolo(roadPosition, city, hill);
+            CreateRoadSolo(roadPosition, hill);
 
         world.SetRoadLocations(roadPosition);
 
@@ -138,7 +141,7 @@ public class RoadManager : MonoBehaviour
                 if(world.SoloRoadCheck(roadLoc, straight))
                 {
                     if (!world.IsSoloRoadOnTileLocation(roadLoc)) //if there's not already a solo road there
-                        CreateRoadSolo(roadLoc, false, hill);
+                        CreateRoadSolo(roadLoc, hill);
                 }
             }
 
@@ -188,10 +191,10 @@ public class RoadManager : MonoBehaviour
         }
     }
 
-    private void CreateRoadSolo(Vector3Int roadPosition, bool city, bool hill)
+    private void CreateRoadSolo(Vector3Int roadPosition, bool hill)
     {
         GameObject road = hill ? soloHill : solo;
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), false, city); //solo roads still exists when connecting with straight road
+        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), false); //solo roads still exists when connecting with straight road
         world.SetSoloRoadLocations(roadPosition);
     }
 
