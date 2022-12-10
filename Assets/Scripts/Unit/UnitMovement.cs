@@ -20,7 +20,7 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private UISingleConditionalButtonHandler uiJoinCity;
     [SerializeField]
-    private UISingleConditionalButtonHandler uiMoveUnit;
+    public UISingleConditionalButtonHandler uiMoveUnit;
     [SerializeField]
     public UISingleConditionalButtonHandler uiCancelTask;
     [SerializeField]
@@ -55,6 +55,9 @@ public class UnitMovement : MonoBehaviour
     private ResourceManager cityResourceManager; 
     public int cityTraderIncrement = 1;
 
+    //for building roads
+    private List<TerrainData> highlightedTiles = new();
+
     private void Awake()
     {
         movementSystem = GetComponent<MovementSystem>();
@@ -62,7 +65,7 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleEsc()
     {
-        if (selectedUnit != null)
+        if (selectedUnit != null && !selectedUnit.isBusy)
         {
             if (selectedUnit.isMoving)
             {
@@ -73,6 +76,12 @@ public class UnitMovement : MonoBehaviour
                 CancelTradeRoute();
             }
         }
+    }
+
+    public void HandleEnter()
+    {
+        if (selectedWorker != null && world.buildingRoad)
+            ConfirmRoadBuild();
     }
 
     public void CenterCamOnUnit()
@@ -94,7 +103,7 @@ public class UnitMovement : MonoBehaviour
         location.y = 0;
 
 
-        Vector3Int locationPos = Vector3Int.RoundToInt(location);
+        Vector3Int locationPos = world.GetClosestTerrainLoc(location);
 
         //if building road, can't select anything else
         if (world.buildingRoad)
@@ -112,6 +121,7 @@ public class UnitMovement : MonoBehaviour
             else
             {
                 td.EnableHighlight(Color.white);
+                highlightedTiles.Add(td);
                 selectedWorker.AddToRoadQueue(locationPos);
             }
  
@@ -529,6 +539,22 @@ public class UnitMovement : MonoBehaviour
             uiCityResourceInfoPanel.SetPosition();
             loadScreenSet = true;
         }
+    }
+
+    public void ConfirmRoadBuild()
+    {
+        ClearBuildRoad();
+        selectedWorker.BeginBuildingRoad();
+    }
+
+    public void ClearBuildRoad()
+    {
+        world.buildingRoad = false;
+        uiConfirmBuildRoad.ToggleTweenVisibility(false);
+        uiMoveUnit.ToggleTweenVisibility(true);
+        workerTaskManager.ToggleRoadBuild(false);
+        foreach (TerrainData td in highlightedTiles)
+            td.DisableHighlight();
     }
 
     public void Load(ResourceType resourceType)

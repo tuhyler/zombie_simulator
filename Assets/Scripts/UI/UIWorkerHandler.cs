@@ -14,6 +14,7 @@ public class UIWorkerHandler : MonoBehaviour
     private Transform uiElementsParent;
     [HideInInspector]
     public List<UIWorkerOptions> buildOptions;
+    public UIWorkerOptions roadBuildOption;
 
     //for tweening
     [SerializeField]
@@ -33,6 +34,11 @@ public class UIWorkerHandler : MonoBehaviour
         }
 
         originalLoc = allContents.anchoredPosition3D;
+    }
+
+    public void SetRoadBuildOption(UIWorkerOptions option)
+    {
+        roadBuildOption = option;
     }
 
     public void HandleButtonClick()

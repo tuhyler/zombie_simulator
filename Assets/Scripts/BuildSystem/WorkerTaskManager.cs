@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WorkerTaskManager : MonoBehaviour
@@ -25,6 +26,8 @@ public class WorkerTaskManager : MonoBehaviour
     private ImprovementDataSO cityData;
     [SerializeField]
     private UISingleConditionalButtonHandler uiCancelTask;
+    [SerializeField]
+    private UIWorkerHandler uiWorkerHandler;
 
     private ResourceIndividualHandler resourceIndividualHandler;
     private RoadManager roadManager;
@@ -42,13 +45,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleEsc()
     {
-        if (workerUnit != null)
-        {
-            if (workerUnit.isBusy)
-            {
-                CancelTask();
-            }
-        }
+        if (workerUnit != null && workerUnit.isBusy)
+            CancelTask();
     }
 
     //Methods to run when pressing certain keys
@@ -56,20 +54,22 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy)
         {
-            Vector3 pos = workerUnit.transform.position;
-            pos.y = 0;
-            Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+            BuildRoadPrep();
+            workerUnit.BuildRoadPreparations();
+            ToggleRoadBuild(true);
+            //Vector3 pos = workerUnit.transform.position;
+            //pos.y = 0;
+            //Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
-            if (Vector3Int.RoundToInt(pos) == workerTile)
-            {
-                //add to finish animation listener
-                workerUnit.BuildRoadPreparations(); 
-            }
-            else
-            {
-                workerUnit.FinishedMoving.AddListener(workerUnit.BuildRoadPreparations);
-                MoveToCenterOfTile(workerTile);
-            }
+            //if (Vector3Int.RoundToInt(pos) == workerTile)
+            //{
+            //    //add to finish animation listener
+            //}
+            //else
+            //{
+            //    workerUnit.FinishedMoving.AddListener(workerUnit.BuildRoadPreparations);
+            //    MoveToCenterOfTile(workerTile);
+            //}
         }
     }
 
@@ -237,11 +237,7 @@ public class WorkerTaskManager : MonoBehaviour
 
         else if (improvementData.improvementName == "Road") //adding road
         {
-            world.buildingRoad = true;
-            unitMovement.uiConfirmBuildRoad.ToggleTweenVisibility(true);
-            unitMovement.uiCancelTask.ToggleTweenVisibility(true);
-            unitMovement.SetSelectedWorker = workerUnit;
-
+            BuildRoadPrep();
             workerUnit.BuildRoadPreparations();
 
             //if (Vector3Int.RoundToInt(pos) == workerTile)
@@ -334,6 +330,16 @@ public class WorkerTaskManager : MonoBehaviour
         //workerUnit.HidePath();
     }
 
+    private void BuildRoadPrep()
+    {
+        world.buildingRoad = true;
+        workerUnit.isBusy = true;
+        unitMovement.uiConfirmBuildRoad.ToggleTweenVisibility(true);
+        unitMovement.uiCancelTask.ToggleTweenVisibility(true);
+        unitMovement.uiMoveUnit.ToggleTweenVisibility(false);
+        unitMovement.SetSelectedWorker = workerUnit;
+    }
+
     public void MoveToBuildRoad(Vector3Int workerTile)
     {
         //Vector3 workerPos = workerUnit.transform.position;
@@ -416,7 +422,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         if (!world.IsRoadOnTerrain(workerTile)) //build road where city is placed
-            roadManager.BuildRoadAtPosition(workerTile, true);
+            roadManager.BuildRoadAtPosition(workerTile);
 
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); //creates building unit position.
@@ -479,11 +485,29 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void CancelTask()
     {
-        StopCoroutine(taskCoroutine);
-        workerUnit.HideProgressTimeBar();
+        if (world.buildingRoad)
+        {
+            unitMovement.ClearBuildRoad();
+        }
+        else if (workerUnit.isMoving)
+        {
+            workerUnit.BuildRoadPreparations();
+            workerUnit.ResetRoadQueue();
+        }
+        else
+        {
+            StopCoroutine(taskCoroutine);
+            workerUnit.HideProgressTimeBar();
+        }
+
+        workerUnit.ResetRoadQueue();
         workerUnit.isBusy = false;
-        //resourceIndividualHandler.NullHarvestValues();
         TurnOffCancelTask();
+    }
+
+    public void ToggleRoadBuild(bool v)
+    {
+        uiWorkerHandler.roadBuildOption.ToggleColor(v);
     }
 
     public void TurnOffCancelTask()

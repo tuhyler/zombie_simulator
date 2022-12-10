@@ -69,7 +69,7 @@ public class Worker : Unit
     {
         //Vector3 workerPos = transform.position;
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
-        FinishedMoving.RemoveListener(BuildRoadPreparations);
+        FinishedMoving.RemoveListener(BuildRoad);
 
         //if (world.IsRoadOnTerrain(workerTile))
         //{
@@ -89,7 +89,6 @@ public class Worker : Unit
 
     public void BeginBuildingRoad()
     {
-        isBusy = true;
         FinishedMoving.AddListener(BuildRoad);
         workerTaskManager.MoveToBuildRoad(roadBuildQueue.Dequeue());
     }
@@ -97,7 +96,9 @@ public class Worker : Unit
     private void BuildRoad()
     {
         FinishedMoving.RemoveListener(BuildRoad);
-        workerTaskManager.BuildRoad(Vector3Int.RoundToInt(transform.position), this);
+        Vector3 currentPos = transform.position;
+        currentPos.y = 0;
+        workerTaskManager.BuildRoad(Vector3Int.RoundToInt(currentPos), this);
     }
 
     public void RemoveRoad()
