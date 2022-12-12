@@ -13,6 +13,8 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private UICityBuildTabHandler uiCityTabs;
     [SerializeField]
+    public UIMarketPlaceManager uiMarketPlaceManager;
+    [SerializeField]
     private UIBuilderHandler uiUnitBuilder;
     [SerializeField]
     private UIResourceManager uiResourceManager;
@@ -396,6 +398,17 @@ public class CityBuilderManager : MonoBehaviour
     //        BuildImprovementQueueCheck(improvementData, terrainLocation); //for building improvement
     //    }
     //}
+    
+    public void SellResources()
+    {
+        uiMarketPlaceManager.ToggleVisibility(true);
+    }
+
+    public void CloseSellResources()
+    {
+        uiMarketPlaceManager.ToggleVisibility(false);
+        uiCityTabs.CloseSelectedTab();
+    }
 
     public void RemoveImprovements()
     {

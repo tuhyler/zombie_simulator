@@ -30,7 +30,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     private bool activeStatus;
 
     //for side buttons
-    private bool isRemoving, isUpgrading;
+    private bool isRemoving, isUpgrading, isSelling;
 
     private void Awake()
     {
@@ -54,7 +54,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         {
             HideSelectedTab();
         }
-        else if (isRemoving || isUpgrading) //turning off side buttons
+        else if (isRemoving || isUpgrading || isSelling) //turning off side buttons
         {
             HideSelectedTab();
         }
@@ -62,7 +62,20 @@ public class UICityBuildTabHandler : MonoBehaviour
         builderUI = uiBuilder;
     }
 
-    public void StartSideButton(bool option)
+    public void StartLeftSideButton()
+    {
+        sameUI = false;
+
+        if (isSelling)
+            sameUI = true;
+
+        isSelling = true;
+        cityBuilderManager.CloseLaborMenus();
+        cityBuilderManager.CloseImprovementBuildPanel();
+        HideSelectedTab();
+    }
+
+    public void StartRightSideButton(bool option)
     {
         sameUI = false;
 
@@ -113,6 +126,11 @@ public class UICityBuildTabHandler : MonoBehaviour
             {
                 cityBuilderManager.CancelUpgrade();
                 isUpgrading = false;
+            }
+            else if (currentTabSelected.isSelling)
+            {
+                cityBuilderManager.uiMarketPlaceManager.ToggleVisibility(false);
+                isSelling = false;
             }
             CloseSelectedTab();
             builderUI = null;
@@ -172,7 +190,18 @@ public class UICityBuildTabHandler : MonoBehaviour
         //tabUI.ToggleInteractable(false);
     }
 
-    public void ShowUISideButton(bool isRemoving)
+    public void ShowUILeftSideButton()
+    {
+        if (sameUI)
+        {
+            //sameUI = false;
+            return;
+        }
+
+        cityBuilderManager.SellResources();
+    }
+
+    public void ShowUIRightSideButton(bool isRemoving)
     {
         if (sameUI)
         {
@@ -196,6 +225,8 @@ public class UICityBuildTabHandler : MonoBehaviour
                 isRemoving = false;
             else if (currentTabSelected.isUpgrading)
                 isUpgrading = false;
+            else if (currentTabSelected.isSelling)
+                isSelling = false;
 
             currentTabSelected = null;
         }
