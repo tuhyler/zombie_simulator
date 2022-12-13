@@ -318,7 +318,7 @@ public class CityBuilderManager : MonoBehaviour
         CheckForWork();
         autoAssign.isOn = selectedCity.AutoAssignLabor;
         resourceManager = selectedCity.ResourceManager;
-        resourceManager.SetUI(uiResourceManager, uiInfoPanelCity);
+        resourceManager.SetUI(uiResourceManager, uiMarketPlaceManager, uiInfoPanelCity);
         uiResourceManager.SetCityInfo(selectedCity.CityName, selectedCity.warehouseStorageLimit, selectedCity.ResourceManager.GetResourceStorageLevel);
         resourceManager.UpdateUI();
         uiCityTabs.ToggleVisibility(true, resourceManager);
@@ -401,7 +401,7 @@ public class CityBuilderManager : MonoBehaviour
     
     public void SellResources()
     {
-        uiMarketPlaceManager.ToggleVisibility(true);
+        uiMarketPlaceManager.ToggleVisibility(true, selectedCity);
     }
 
     public void CloseSellResources()
@@ -1094,19 +1094,19 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         //setting construction time and graphic first
-        if (upgradingImprovement)
-        {
-            FinishImprovement(city, improvementData, tempBuildLocation);
-        }
-        else
-        {
-            CityImprovement constructionTile = GetFromConstructionTilePool();
-            constructionTile.InitializeImprovementData(improvementData);
-            constructingTiles.Add(tempBuildLocation);
-            world.SetCityImprovementConstruction(tempBuildLocation, constructionTile);
-            constructionTile.transform.position = tempBuildLocation;
-            constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this);
-        }
+        //if (upgradingImprovement)
+        //{
+        //    FinishImprovement(city, improvementData, tempBuildLocation);
+        //}
+        //else
+        
+        CityImprovement constructionTile = GetFromConstructionTilePool();
+        constructionTile.InitializeImprovementData(improvementData);
+        constructingTiles.Add(tempBuildLocation);
+        world.SetCityImprovementConstruction(tempBuildLocation, constructionTile);
+        constructionTile.transform.position = tempBuildLocation;
+        constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this);
+        
 
         //if (improvementData.replaceTerrain)
         //{
@@ -1210,7 +1210,7 @@ public class CityBuilderManager : MonoBehaviour
                 selectedImprovement = world.GetCityDevelopment(improvementLoc);
         }
 
-        //putting the resources and labor back
+        //putting the labor back
         GameObject improvement = world.GetStructure(improvementLoc);
         ResourceProducer resourceProducer = world.GetResourceProducer(improvementLoc);
 

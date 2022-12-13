@@ -12,8 +12,14 @@ public class ResourceManager : MonoBehaviour
     private Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
     private Dictionary<ResourceType, float> resourceGenerationPerMinuteDict = new(); //for resource generation stats
     private Dictionary<ResourceType, float> resourceConsumedPerMinuteDict = new(); //for resource consumption stats
+    private Dictionary<ResourceType, int> resourcePriceDict = new();
+    private Dictionary<ResourceType, bool> resourceSellDict = new();
+    private Dictionary<ResourceType, int> resourceMinHoldDict = new();
 
-    public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } }
+    public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
+    public Dictionary<ResourceType, int> ResourcePriceDict { get { return resourcePriceDict; } set { resourcePriceDict = value; } }
+    public Dictionary<ResourceType, bool> ResourceSellDict { get { return resourceSellDict; } set { resourceSellDict = value; } }
+    public Dictionary<ResourceType, int> ResourceMinHoldDict { get { return resourceMinHoldDict; } set { resourceMinHoldDict = value; } }
 
     private int resourceStorageLimit; 
     public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
@@ -26,6 +32,7 @@ public class ResourceManager : MonoBehaviour
 
     //UIs to update
     private UIResourceManager uiResourceManager;
+    private UIMarketPlaceManager uiMarketPlaceManager;
     [HideInInspector]
     public UIInfoPanelCity uiInfoPanelCity;
 
@@ -364,9 +371,10 @@ public class ResourceManager : MonoBehaviour
         //UpdateUI(resourceValue);
     }
 
-    public void SetUI(UIResourceManager uiResourceManager, UIInfoPanelCity uiInfoPanelCity)
+    public void SetUI(UIResourceManager uiResourceManager, UIMarketPlaceManager uiMarketPlaceManager, UIInfoPanelCity uiInfoPanelCity)
     {
         this.uiResourceManager = uiResourceManager;
+        this.uiMarketPlaceManager = uiMarketPlaceManager;
         this.uiInfoPanelCity = uiInfoPanelCity;
     }
 
@@ -384,7 +392,9 @@ public class ResourceManager : MonoBehaviour
         {
             uiResourceManager.SetResource(resourceType, resourceDict[resourceType]);
             uiResourceManager.SetCityCurrentStorage(resourceStorageLevel);
-            //uiResourceManager.SetResourceGenerationAmount(resourceType, resourceGenerationPerMinuteDict[resourceType]);
+
+            if (uiMarketPlaceManager.activeStatus)
+                uiMarketPlaceManager.UpdateResourceAmount(resourceType, resourceDict[resourceType], this);
         }
     }
 

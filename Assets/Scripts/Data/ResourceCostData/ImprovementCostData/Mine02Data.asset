@@ -22,7 +22,7 @@ MonoBehaviour:
   - resourceType: 4
     resourceAmount: 5
   - resourceType: 5
-    resourceAmount: 30
+    resourceAmount: 35
   consumedResources: []
   producedResources:
   - resourceType: 5

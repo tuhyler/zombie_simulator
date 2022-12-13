@@ -1315,11 +1315,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c28092ff6130e447b484d4aced1630c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resourceName: 
+  price: 0
+  amount: 0
+  sell: 0
+  resourceType: 0
   resourceImage: {fileID: 3342886669661019410}
   cityPrice: {fileID: 712794115167565654}
   cityAmount: {fileID: 944042428570268002}
-  sellToggle: {fileID: 0}
-  minimumAmount: {fileID: 0}
+  sellToggle: {fileID: 6604649196115649142}
+  minimumAmount: {fileID: 7527735241364454480}
 --- !u!114 &4323918486877362835
 MonoBehaviour:
   m_ObjectHideFlags: 0

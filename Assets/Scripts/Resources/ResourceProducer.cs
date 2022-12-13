@@ -102,7 +102,7 @@ public class ResourceProducer : MonoBehaviour
     //for producing resources
     public void StartProducing()
     {
-        if (resourceManager.fullInventory)
+        if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
         {
             AddToProduceStartWaitList();
             return;
@@ -161,7 +161,7 @@ public class ResourceProducer : MonoBehaviour
         }
 
         //checking of storage is free to unload
-        if (resourceManager.fullInventory)
+        if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
         {
             isWaitingToUnload = true;
             unloadLabor = tempLabor;
@@ -184,13 +184,13 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
-    public void RestartProductionCheck(float labor)
+    private void RestartProductionCheck(float labor)
     {
         resourceManager.PrepareResource(improvementData.producedResources, labor, producerLoc);
         Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
-        if (resourceManager.fullInventory)
+        if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
         {
             AddToProduceStartWaitList();
             timeProgressBar.SetActive(false);
