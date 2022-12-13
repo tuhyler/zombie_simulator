@@ -51,6 +51,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             marketResource.price = resource.resourcePrice;
             marketResource.resourceImage.sprite = resource.resourceIcon;
             marketResource.resourceName = resource.resourceName;
+            marketResource.resourceType = resource.resourceType;
             resourceNames.Add(resource.resourceName);
 
             marketResourceList.Add(marketResource);
@@ -59,7 +60,7 @@ public class UIMarketPlaceManager : MonoBehaviour
         resourceNames.Sort();
     }
 
-    public void ToggleVisibility(bool v)
+    public void ToggleVisibility(bool v, City city = null)
     {
         if (activeStatus == v)
             return;
@@ -69,6 +70,7 @@ public class UIMarketPlaceManager : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
+            SetResourceData(city);
 
             activeStatus = true;
 
@@ -90,6 +92,48 @@ public class UIMarketPlaceManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    private void SetResourceData(City city)
+    {
+        foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
+        {
+            resourcePanel.price = city.ResourceManager.ResourcePriceDict[resourcePanel.resourceType];
+            resourcePanel.cityPrice.text = city.ResourceManager.ResourcePriceDict[resourcePanel.resourceType].ToString();
+            resourcePanel.amount = city.ResourceManager.ResourceDict[resourcePanel.resourceType];
+            resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[resourcePanel.resourceType].ToString();
+
+            if (city.ResourceManager.ResourceSellDict[resourcePanel.resourceType])
+            {
+                resourcePanel.sellToggle.isOn = true;
+                resourcePanel.minimumAmount.text = city.ResourceManager.ResourceMinHoldDict[resourcePanel.resourceType].ToString();
+            }
+            else
+            {
+                resourcePanel.sellToggle.isOn = false;
+            }
+        }
+    }
+
+    public void UpdateResourcePrices(ResourceType resourceType, int price, ResourceManager resourceManager)
+    {
+
+    }
+
+    public void UpdateResourceAmount(ResourceType resourceType, int amount, ResourceManager resourceManager)
+    {
+        foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
+        {
+            if (resourcePanel.resourceType == resourceType)
+            {
+                resourcePanel.amount = resourceManager.ResourceDict[resourcePanel.resourceType];
+                resourcePanel.cityAmount.text = resourceManager.ResourceDict[resourcePanel.resourceType].ToString();
+                return;
+            }
+        }
+    }
+
+
+
+    //sort button coloring
     private void ChangeSortButtonsColors(string column)
     {
         if (column == "resources")

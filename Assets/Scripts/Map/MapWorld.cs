@@ -31,6 +31,9 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new();
     private Dictionary<string, ImprovementDataSO> upgradeableObjectDataDict = new();
     private Dictionary<ResourceType, Sprite> resourceSpriteDict = new();
+    private Dictionary<ResourceType, int> defaultResourcePriceDict = new();
+    private Dictionary<ResourceType, int> blankResourceDict = new();
+    private Dictionary<ResourceType, bool> boolResourceDict = new();
     //private Dictionary<Vector3Int, GameObject> traderPosDict = new(); //to track trader locations 
     //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
@@ -144,7 +147,15 @@ public class MapWorld : MonoBehaviour
             upgradeableObjectMaxLevelDict[data.unitName] = 1;
         }
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources))
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        {
+            resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
+            defaultResourcePriceDict[resource.resourceType] = resource.resourcePrice;
+            blankResourceDict[resource.resourceType] = 0;
+            boolResourceDict[resource.resourceType] = false;
+        }
+
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allWorldResources)
         {
             resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
         }
@@ -344,6 +355,21 @@ public class MapWorld : MonoBehaviour
     public Sprite GetResourceIcon(ResourceType resourceType)
     {
         return resourceSpriteDict[resourceType];
+    }
+
+    public Dictionary<ResourceType, int> GetDefaultResourcePrices()
+    {
+        return defaultResourcePriceDict;
+    }
+
+    public Dictionary<ResourceType, int> GetBlankResourceDict()
+    {
+        return blankResourceDict;
+    }
+
+    public Dictionary<ResourceType, bool> GetBoolResourceDict()
+    {
+        return boolResourceDict; 
     }
 
     public void SetTerrainData(Vector3Int tile, TerrainData td)

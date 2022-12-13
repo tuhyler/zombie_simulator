@@ -12,6 +12,8 @@ public class UIMarketResourcePanel : MonoBehaviour
     public int price, amount;
     [HideInInspector]
     public bool sell;
+    [HideInInspector]
+    public ResourceType resourceType;
 
     [SerializeField]
     public Image resourceImage;

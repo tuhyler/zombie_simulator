@@ -107,6 +107,10 @@ public class City : MonoBehaviour
         //highlight = GetComponent<SelectionHighlight>();
 
         originalCityNameMaterial = cityNameField.material;
+        resourceManager.ResourceDict = new(world.GetBlankResourceDict());
+        resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
+        resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
+        resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
         //originalCityStatMaterial = citySizeField.material;
     }
 
