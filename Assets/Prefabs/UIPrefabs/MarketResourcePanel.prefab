@@ -600,7 +600,19 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6584517441418522936}
+        m_TargetAssemblyTypeName: UIMarketResourcePanel, Assembly-CSharp
+        m_MethodName: UpdateMinHold
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -774,8 +786,20 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
-  m_IsOn: 1
+      m_Calls:
+      - m_Target: {fileID: 6584517441418522936}
+        m_TargetAssemblyTypeName: UIMarketResourcePanel, Assembly-CSharp
+        m_MethodName: UpdateSellBool
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_IsOn: 0
 --- !u!1 &6239970846702573350
 GameObject:
   m_ObjectHideFlags: 0
@@ -1003,7 +1027,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 5, y: 5}
+  m_SizeDelta: {x: 15, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6649341559830086857
 GameObject:
@@ -1325,6 +1349,7 @@ MonoBehaviour:
   cityAmount: {fileID: 944042428570268002}
   sellToggle: {fileID: 6604649196115649142}
   minimumAmount: {fileID: 7527735241364454480}
+  minimumAmountText: {fileID: 2547322027806706481}
 --- !u!114 &4323918486877362835
 MonoBehaviour:
   m_ObjectHideFlags: 0

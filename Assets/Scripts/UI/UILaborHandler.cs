@@ -44,9 +44,6 @@ public class UILaborHandler : MonoBehaviour
             newLaborOption.ToggleVisibility(false);
             laborOptions.Add(newLaborOption);
         }
-
-
-
     }
 
     //preparing labor menu upon city selection
@@ -57,7 +54,8 @@ public class UILaborHandler : MonoBehaviour
             if (city.CheckResourcesWorkedExists(option.resourceType))
             {
                 option.ToggleVisibility(true);
-                option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
+                option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType), 
+                    city.GetResourcesWorkedLaborCost(option.resourceType));
             }
         }
     }
@@ -72,7 +70,8 @@ public class UILaborHandler : MonoBehaviour
             if (city.CheckResourcesWorkedExists(option.resourceType))
             {
                 option.ToggleVisibility(true);
-                option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
+                option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType),
+                    city.GetResourcesWorkedLaborCost(option.resourceType));
             }
         }
     }
@@ -121,7 +120,7 @@ public class UILaborHandler : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void PlusMinusOneLabor(ResourceType resourceType, int laborCount, int laborChange, float resourceGeneration)
+    public void PlusMinusOneLabor(ResourceType resourceType, int laborCount, int laborChange, float resourceGeneration, int laborCost)
     {
         foreach (UILaborHandlerOptions uiLaborHandlerOption in laborOptions)
         {
@@ -132,7 +131,7 @@ public class UILaborHandler : MonoBehaviour
                 else if (laborCount == 0)
                     uiLaborHandlerOption.ToggleVisibility(false);
 
-                uiLaborHandlerOption.AddSubtractUICount(laborCount, laborChange, resourceGeneration);
+                uiLaborHandlerOption.AddSubtractUICount(laborCount, laborChange, resourceGeneration, laborCost);
             }
         }
     }

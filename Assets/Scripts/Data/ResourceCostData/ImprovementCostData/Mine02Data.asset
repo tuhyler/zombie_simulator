@@ -32,7 +32,7 @@ MonoBehaviour:
   terrainType: 6
   workEthicChange: 0
   maxLabor: 3
-  laborCost: 0
+  laborCost: 2
   replaceTerrain: 0
   replaceProp: 1
   singleBuild: 0

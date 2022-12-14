@@ -24,6 +24,8 @@ public class UIMarketPlaceManager : MonoBehaviour
     private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortSellUp;
     private Color sortButtonOriginalColor;
 
+    private City city;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
@@ -47,6 +49,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
             GameObject marketResourceGO = Instantiate(uiMarketResourcePanel, resourceHolder);
             UIMarketResourcePanel marketResource = marketResourceGO.GetComponent<UIMarketResourcePanel>();
+            marketResource.SetMarketPlaceManager(this);
             marketResource.cityPrice.text = resource.resourcePrice.ToString();
             marketResource.price = resource.resourcePrice;
             marketResource.resourceImage.sprite = resource.resourceIcon;
@@ -70,7 +73,8 @@ public class UIMarketPlaceManager : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
-            SetResourceData(city);
+            this.city = city;
+            SetResourceData();
 
             activeStatus = true;
 
@@ -92,7 +96,7 @@ public class UIMarketPlaceManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void SetResourceData(City city)
+    private void SetResourceData()
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
         {
@@ -101,16 +105,23 @@ public class UIMarketPlaceManager : MonoBehaviour
             resourcePanel.amount = city.ResourceManager.ResourceDict[resourcePanel.resourceType];
             resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[resourcePanel.resourceType].ToString();
 
-            if (city.ResourceManager.ResourceSellDict[resourcePanel.resourceType])
-            {
-                resourcePanel.sellToggle.isOn = true;
+            bool isOn = city.ResourceManager.ResourceSellDict[resourcePanel.resourceType];
+            resourcePanel.sellToggle.isOn = isOn;
+            resourcePanel.minimumAmount.interactable = isOn;
+
+            if (isOn)
                 resourcePanel.minimumAmount.text = city.ResourceManager.ResourceMinHoldDict[resourcePanel.resourceType].ToString();
-            }
-            else
-            {
-                resourcePanel.sellToggle.isOn = false;
-            }
         }
+    }
+
+    public void SetResourceSell(ResourceType resourceType, bool isOn)
+    {
+        city.ResourceManager.ResourceSellDict[resourceType] = isOn;
+    }
+
+    public void SetResourceMinHold(ResourceType resourceType, int minHold)
+    {
+        city.ResourceManager.ResourceMinHoldDict[resourceType] = minHold;
     }
 
     public void UpdateResourcePrices(ResourceType resourceType, int price, ResourceManager resourceManager)

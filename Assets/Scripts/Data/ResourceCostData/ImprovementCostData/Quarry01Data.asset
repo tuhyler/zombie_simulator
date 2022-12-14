@@ -28,7 +28,7 @@ MonoBehaviour:
   terrainType: 5
   workEthicChange: 0
   maxLabor: 2
-  laborCost: 0
+  laborCost: 2
   replaceTerrain: 1
   replaceProp: 1
   singleBuild: 0

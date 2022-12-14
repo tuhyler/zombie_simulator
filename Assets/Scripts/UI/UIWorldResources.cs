@@ -21,7 +21,7 @@ public class UIWorldResources : MonoBehaviour
 
     private void Awake()
     {
-        SetGoldValue(goldAmount);
+        SetGoldValue(0);
         SetResearchValue(researchAmount);
         SetResearchTitle();
     }
