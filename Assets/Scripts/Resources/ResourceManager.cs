@@ -183,28 +183,49 @@ public class ResourceManager : MonoBehaviour
             throw new InvalidOperationException("Can't have resources less than 0 " + resourceType);
     }
 
-    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor)
+    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, int goldCost)
     {
+        if (goldCost > 0)
+        {
+            ResourceValue goldValue;
+            goldValue.resourceType = ResourceType.Gold;
+            goldValue.resourceAmount = goldCost;
+            consumedResource.Add(goldValue);
+        }
+
+        int i = 0;
         foreach (ResourceValue resourceValue in consumedResource)
         {
             int consumedAmount = Mathf.RoundToInt(resourceValue.resourceAmount * currentLabor);
             ResourceType resourceType = resourceValue.resourceType;
-            int storageAmount = resourceDict[resourceType];
 
-            resourceConsumedPerMinuteDict[resourceType] = consumedAmount;
-
-            if (resourceValue.resourceType == ResourceType.Food && consumedAmount > storageAmount)
+            if (resourceType == ResourceType.Gold)
             {
-                foodGrowthLevel -= consumedAmount - storageAmount;
-                consumedAmount = storageAmount;
+                
+            }
+            else
+            {
+                int storageAmount = resourceDict[resourceType];
+
+                resourceConsumedPerMinuteDict[resourceType] = consumedAmount;
+
+                if (resourceValue.resourceType == ResourceType.Food && consumedAmount > storageAmount)
+                {
+                    foodGrowthLevel -= consumedAmount - storageAmount;
+                    consumedAmount = storageAmount;
+                }
+
+                resourceDict[resourceType] -= consumedAmount;
+                resourceStorageLevel -= consumedAmount;
+                CheckProducerUnloadWaitList();
+                city.CheckLimitWaiter();
+                UpdateUI(resourceType);
             }
 
-            resourceDict[resourceType] -= consumedAmount;
-            resourceStorageLevel -= consumedAmount;
-            CheckProducerUnloadWaitList();
-            city.CheckLimitWaiter();
-
-            UpdateUI(resourceType);
+            Vector3 cityLoc = city.cityLoc;
+            cityLoc.z += 0.5f;
+            cityLoc.z += 0.5f * i;
+            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
         }
     }
 
@@ -406,14 +427,44 @@ public class ResourceManager : MonoBehaviour
             resourceGenerationPerMinuteDict[ResourceType.Food] += city.unitFoodConsumptionPerMinute;
     }
 
-    public int GetResourceLimit(ResourceType resourceType)
-    {
-        return resourceStorageLimit;
-    }
+    //public int GetResourceLimit(ResourceType resourceType)
+    //{
+    //    return resourceStorageLimit;
+    //}
 
     public int GetResourceDictValue(ResourceType resourceType)
     {
         return resourceDict[resourceType];
+    }
+
+    public int SellResources()
+    {
+        int goldAdded = 0;
+        int i = 0;
+
+        foreach (ResourceType resourceType in resourceSellDict.Keys)
+        {
+            if (resourceSellDict[resourceType])
+            {
+                int sellAmount = resourceDict[resourceType] - resourceMinHoldDict[resourceType];
+                if (sellAmount > 0)
+                {
+                    int goldGained = resourcePriceDict[resourceType] * sellAmount;
+                    goldAdded += goldGained;
+                    CheckResource(resourceType, -sellAmount);
+
+                    Vector3 cityLoc = city.cityLoc;
+                    Vector3 cityLoc2 = cityLoc;
+                    cityLoc.z += -1f * i; //-0.5f * i;
+                    cityLoc2.z += -1f * i;
+                    InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldGained, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+                    InfoResourcePopUpHandler.CreateResourceStat(cityLoc2, sellAmount, ResourceHolder.Instance.GetIcon(resourceType));
+                    i++;
+                }
+            }
+        }
+
+        return goldAdded;
     }
 
     //checking if enough food to grow

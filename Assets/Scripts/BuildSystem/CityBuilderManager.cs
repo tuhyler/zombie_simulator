@@ -1218,10 +1218,10 @@ public class CityBuilderManager : MonoBehaviour
         {
             for (int i = 0; i < world.GetCurrentLaborForTile(improvementLoc); i++)
             {
-                city.ChangeResourcesWorked(resourceType, -1);
+                city.ChangeResourcesWorked(resourceType, -1, -resourceProducer.LaborCost);
 
                 int totalResourceLabor = city.GetResourcesWorkedResourceCount(resourceType);
-                uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, city.ResourceManager.GetResourceGenerationValues(resourceType));
+                uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, city.ResourceManager.GetResourceGenerationValues(resourceType), resourceProducer.LaborCost);
                 if (totalResourceLabor == 0)
                     city.RemoveFromResourcesWorked(resourceType);
             }
@@ -1632,11 +1632,11 @@ public class CityBuilderManager : MonoBehaviour
         resourceProducer.UpdateResourceGenerationData();
         foreach (ResourceType resourceType in resourceProducer.producedResources)
         {
-            selectedCity.ChangeResourcesWorked(resourceType, laborChange);
+            selectedCity.ChangeResourcesWorked(resourceType, laborChange, resourceProducer.LaborCost*laborChange);
 
             int totalResourceLabor = selectedCity.GetResourcesWorkedResourceCount(resourceType);
 
-            uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType));
+            uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType), resourceProducer.LaborCost);
 
             if (totalResourceLabor == 0)
                 selectedCity.RemoveFromResourcesWorked(resourceType);

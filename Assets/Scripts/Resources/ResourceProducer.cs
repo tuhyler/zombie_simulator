@@ -13,6 +13,8 @@ public class ResourceProducer : MonoBehaviour
     private float tempLabor; //if adding labor during production process
     Queue<float> tempLaborPercsQueue = new();
     private Vector3 producerLoc;
+    private int laborCost;
+    public int LaborCost { get { return laborCost; } }
 
     //for production info
     private Coroutine producingCo;
@@ -30,6 +32,7 @@ public class ResourceProducer : MonoBehaviour
     public void InitializeImprovementData(ImprovementDataSO data)
     {
         improvementData = data;
+        laborCost = data.laborCost;
         
         foreach(ResourceValue resourceValue in data.producedResources)
         {
@@ -125,7 +128,7 @@ public class ResourceProducer : MonoBehaviour
         float percWorked = (float)productionTimer / improvementData.producedResourceTime;
         tempLabor += percWorked;
         tempLaborPercsQueue.Enqueue(tempLabor);
-        resourceManager.ConsumeResources(improvementData.consumedResources, tempLabor);
+        resourceManager.ConsumeResources(improvementData.consumedResources, tempLabor, improvementData.laborCost);
     }
 
     public void RemoveLaborMidProduction()
@@ -150,7 +153,7 @@ public class ResourceProducer : MonoBehaviour
         }
 
         tempLabor = currentLabor;
-        resourceManager.ConsumeResources(improvementData.consumedResources, currentLabor);
+        resourceManager.ConsumeResources(improvementData.consumedResources, currentLabor, improvementData.laborCost);
         
         while (productionTimer > 0)
         {
