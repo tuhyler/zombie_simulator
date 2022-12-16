@@ -172,6 +172,11 @@ public class MapWorld : MonoBehaviour
         worldResourceManager.ModifyResourceGenerationPerMinute(resourceType, amount, add);
     }
 
+    public bool CheckWorldGold(int amount)
+    {
+        return worldResourceManager.GetWorldGoldLevel() >= amount;
+    }
+
     public List<ResourceType> WorldResourcePrep()
     {
         return worldResourceManager.PassWorldResources();

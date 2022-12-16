@@ -146,6 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceAmount: {fileID: 1245424484425196480}
+  image: {fileID: 7315062529990214195}
   resourceImage: {fileID: 3347234897448638389}
   backgroundCanvas: {fileID: 4834448168911250375}
   resourceTransform: {fileID: 5802068587810323059}
@@ -226,7 +227,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 60, y: 20}
+  m_SizeDelta: {x: 80, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &324607307809853797
 CanvasRenderer:

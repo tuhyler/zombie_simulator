@@ -68,8 +68,6 @@ public class City : MonoBehaviour
     private ResourceType resourceWaiter = ResourceType.None;
     private Queue<Unit> waitList = new();
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
-    private Dictionary<ResourceType, int> resourcesWorkedLaborCostDict = new();
-    private List<ResourceProducer> waitingToStartProducerList = new();
     
     //world resource info
     //private int goldPerMinute;
@@ -441,24 +439,21 @@ public class City : MonoBehaviour
         }
     }
 
-    public void ChangeResourcesWorked(ResourceType resourceType, int laborChange, int laborCost)
+    public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)
     {
         if (resourcesWorkedDict.ContainsKey(resourceType))
         {
             resourcesWorkedDict[resourceType] += laborChange;
-            resourcesWorkedLaborCostDict[resourceType] += laborCost;
         }
         else
         {
             resourcesWorkedDict[resourceType] = laborChange;
-            resourcesWorkedLaborCostDict[resourceType] = laborCost;
         }
     }
 
     public void RemoveFromResourcesWorked(ResourceType resourceType)
     {
         resourcesWorkedDict.Remove(resourceType);
-        resourcesWorkedLaborCostDict.Remove(resourceType);
     }
 
     public bool CheckResourcesWorkedExists(ResourceType resourceType)
@@ -471,31 +466,14 @@ public class City : MonoBehaviour
         return resourcesWorkedDict[resourceType];
     }
 
-    public int GetResourcesWorkedLaborCost(ResourceType resourceType)
+    public void UpdateWorldGold(int amount)
     {
-        return resourcesWorkedLaborCostDict[resourceType];
+        world.UpdateWorldResources(ResourceType.Gold, amount);
     }
 
-    public void RestartProduction()
+    public bool CheckWorldGold(int amount)
     {
-        List<ResourceProducer> tempProducers = new(waitingToStartProducerList);
-        
-        foreach (ResourceProducer producer in tempProducers)
-        {
-            producer.isWaitingToStart = false;
-            producer.StartProducing();
-            waitingToStartProducerList.Remove(producer);
-        }
-    }
-
-    public void AddToWaitToStartList(ResourceProducer resourceProducer)
-    {
-        waitingToStartProducerList.Add(resourceProducer);
-    }
-
-    public void RemoveFromWaitToStartList(ResourceProducer resourceProducer)
-    {
-        waitingToStartProducerList.Remove(resourceProducer);
+        return world.CheckWorldGold(amount);
     }
 
 
@@ -520,7 +498,7 @@ public class City : MonoBehaviour
         foodConsumed.resourceAmount = foodConsumptionPerMinute;
 
         //consume before checking for growth
-        resourceManager.ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, 0);
+        resourceManager.ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, cityLoc);
         resourceManager.CheckForPopGrowth();
 
         Debug.Log(cityName + " is checking for growth");
@@ -678,9 +656,9 @@ public class City : MonoBehaviour
         {
             for (int i = 0; i < laborChange; i++)
             {
-                ChangeResourcesWorked(resourceType, 1, resourceProducer.LaborCost);
+                ChangeResourcesWorked(resourceType, 1);
                 int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
-                cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType), resourceProducer.LaborCost);
+                cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
             }
         }
 

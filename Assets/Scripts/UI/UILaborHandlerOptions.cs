@@ -23,12 +23,6 @@ public class UILaborHandlerOptions : MonoBehaviour
     private List<UICityLaborIcon> laborIcons = new();
     private List<UICityLaborIcon> laborIconsOneList = new(); //to turn on the one icons individually (for speed)
 
-    [SerializeField]
-    private TMP_Text goldLost;
-
-    [SerializeField]
-    private Transform goldLostIcon;
-
     private bool isShowing;
 
     private void Awake()
@@ -68,10 +62,9 @@ public class UILaborHandlerOptions : MonoBehaviour
     }
 
     //setting up which icons to show
-    public void SetUICount(int count, float resourceGenerationNum, int laborCost)
+    public void SetUICount(int count, float resourceGenerationNum)
     {
         resourceGeneration.text = $"+{Mathf.RoundToInt(resourceGenerationNum)}";
-        goldLost.text = $"-{laborCost * count}";
 
         if (count == 0)
             return;
@@ -98,10 +91,9 @@ public class UILaborHandlerOptions : MonoBehaviour
         }
     }
 
-    public void AddSubtractUICount(int count, int laborChange, float resourceGenerationNum, int laborCost)
+    public void AddSubtractUICount(int count, int laborChange, float resourceGenerationNum)
     {
         resourceGeneration.text = $"+{Mathf.RoundToInt(resourceGenerationNum)}";
-        goldLost.text = $"-{laborCost * count}";
         
         if (laborChange > 0)
         {

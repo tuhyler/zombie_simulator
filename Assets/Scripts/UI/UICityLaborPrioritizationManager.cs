@@ -115,7 +115,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     {
         if (resourcePriorityList.Count >= resources.Count) //limit
         {
-            InfoPopUpHandler.Create(city.cityLoc, "Nope, that's too many");
+            InfoPopUpHandler.Create(city.cityLoc, "Nope, too many");
             return;
         }
 
