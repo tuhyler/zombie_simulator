@@ -17,6 +17,7 @@ public class ResourceManager : MonoBehaviour
     private Dictionary<ResourceType, int> resourceMinHoldDict = new();
 
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
+    public Dictionary<ResourceType, float> ResourceConsumedPerMinuteDict { get { return resourceConsumedPerMinuteDict; } }
     public Dictionary<ResourceType, int> ResourcePriceDict { get { return resourcePriceDict; } set { resourcePriceDict = value; } }
     public Dictionary<ResourceType, bool> ResourceSellDict { get { return resourceSellDict; } set { resourceSellDict = value; } }
     public Dictionary<ResourceType, int> ResourceMinHoldDict { get { return resourceMinHoldDict; } set { resourceMinHoldDict = value; } }
@@ -29,6 +30,13 @@ public class ResourceManager : MonoBehaviour
     public Queue<ResourceProducer> waitingToUnloadProducers = new();
     [HideInInspector]
     public bool fullInventory;
+
+    //wait list for inventory space
+    private List<ResourceProducer> waitingForStorageRoomProducerList = new();
+
+    //consuming resources
+    private List<ResourceProducer> waitingforResourceProducerList = new();
+    private List<ResourceType> resourcesNeededForProduction = new();
 
     //UIs to update
     private UIResourceManager uiResourceManager;
@@ -183,16 +191,8 @@ public class ResourceManager : MonoBehaviour
             throw new InvalidOperationException("Can't have resources less than 0 " + resourceType);
     }
 
-    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, int goldCost)
+    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location)
     {
-        if (goldCost > 0)
-        {
-            ResourceValue goldValue;
-            goldValue.resourceType = ResourceType.Gold;
-            goldValue.resourceAmount = goldCost;
-            consumedResource.Add(goldValue);
-        }
-
         int i = 0;
         foreach (ResourceValue resourceValue in consumedResource)
         {
@@ -201,13 +201,13 @@ public class ResourceManager : MonoBehaviour
 
             if (resourceType == ResourceType.Gold)
             {
-                
+                city.UpdateWorldGold(-consumedAmount);
             }
             else
             {
                 int storageAmount = resourceDict[resourceType];
 
-                resourceConsumedPerMinuteDict[resourceType] = consumedAmount;
+                //resourceConsumedPerMinuteDict[resourceType] = consumedAmount;
 
                 if (resourceValue.resourceType == ResourceType.Food && consumedAmount > storageAmount)
                 {
@@ -222,11 +222,31 @@ public class ResourceManager : MonoBehaviour
                 UpdateUI(resourceType);
             }
 
-            Vector3 cityLoc = city.cityLoc;
-            cityLoc.z += 0.5f;
-            cityLoc.z += 0.5f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
+            if (resourceValue.resourceType != ResourceType.Food)
+            {
+                location.z += 0.5f;
+                location.z += 0.5f * i;
+                InfoResourcePopUpHandler.CreateResourceStat(location, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
+            }
         }
+    }
+
+    public bool ConsumeResourcesCheck(List<ResourceValue> consumeResources, int labor)
+    {
+        foreach (ResourceValue value in consumeResources)
+        {
+            if (value.resourceType == ResourceType.Gold)
+            {
+                if (!city.CheckWorldGold(value.resourceAmount * labor))
+                    return false;
+            }
+            else if (resourceDict[value.resourceType] < value.resourceAmount * labor)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
@@ -259,6 +279,11 @@ public class ResourceManager : MonoBehaviour
         if (resourceType == ResourceType.Food && newResourceAmount > 0)
         {
             return AddFood(newResourceAmount);
+        }
+        else if (resourceType == ResourceType.Gold)
+        {
+            city.UpdateWorldGold(newResourceAmount);
+            return newResourceAmount;
         }
         else if (CheckStorageSpaceForResource(resourceType, newResourceAmount) && resourceDict.ContainsKey(resourceType))
         {
@@ -325,6 +350,8 @@ public class ResourceManager : MonoBehaviour
             fullInventory = true;
         if (newResourceAmount < 0)
             CheckProducerUnloadWaitList();
+        else if (resourcesNeededForProduction.Contains(resourceType))
+            CheckProducerResourceWaitList(resourceType);
 
         int wasteCheck = 0;
         if (resourceStorageMultiplierDict.ContainsKey(resourceType) && resourceStorageMultiplierDict[resourceType] > 0)
@@ -546,7 +573,19 @@ public class ResourceManager : MonoBehaviour
 
             //check again to start the others
             if (!fullInventory)
-                city.RestartProduction();
+                RestartStorageRoomWaitProduction();
+        }
+    }
+
+    public void RestartStorageRoomWaitProduction()
+    {
+        List<ResourceProducer> tempProducers = new(waitingForStorageRoomProducerList);
+
+        foreach (ResourceProducer producer in tempProducers)
+        {
+            producer.isWaitingForStorageRoom = false;
+            producer.StartProducing();
+            waitingForStorageRoomProducerList.Remove(producer);
         }
     }
 
@@ -555,7 +594,48 @@ public class ResourceManager : MonoBehaviour
         waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
     }
 
+    private void CheckProducerResourceWaitList(ResourceType resourceType)
+    {
+        List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
+        
+        foreach (ResourceProducer producer in tempWaitingForResource)
+        {
+            if (producer.consumedResourceTypes.Contains(resourceType))
+                producer.RestartResourceWaitProduction();
+        }
+    }
 
+    public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)
+    {
+        waitingForStorageRoomProducerList.Add(resourceProducer);
+    }
+
+    public void RemoveFromStorageRoomWaitList(ResourceProducer resourceProducer)
+    {
+        waitingForStorageRoomProducerList.Remove(resourceProducer);
+    }
+
+    public void AddToResourceWaitList(ResourceProducer resourceProducer)
+    {
+        waitingforResourceProducerList.Add(resourceProducer);
+    }
+
+    public void RemoveFromResourceWaitList(ResourceProducer resourceProducer)
+    {
+        waitingforResourceProducerList.Remove(resourceProducer);
+    }
+
+    public void AddToResourcesNeededForProduction(List<ResourceType> consumedResources)
+    {
+        foreach (ResourceType type in consumedResources)
+            resourcesNeededForProduction.Add(type);
+    }
+
+    public void RemoveFromResourcesNeededForProduction(List<ResourceType> consumedResources)
+    {
+        foreach (ResourceType type in consumedResources)
+            resourcesNeededForProduction.Remove(type);
+    }
 
     //public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
     //{

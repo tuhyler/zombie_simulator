@@ -10,6 +10,9 @@ public class UIResourceInfoPanel : MonoBehaviour
     public TMP_Text resourceAmount;
 
     [SerializeField]
+    public Image image;
+
+    [SerializeField]
     public Image resourceImage;
 
     [SerializeField]

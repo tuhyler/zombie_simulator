@@ -21,7 +21,7 @@ public class UIWorldResources : MonoBehaviour
 
     private void Awake()
     {
-        SetGoldValue(0);
+        //goldResourceAmount.text = "0".ToString();
         SetResearchValue(researchAmount);
         SetResearchTitle();
     }
@@ -34,15 +34,16 @@ public class UIWorldResources : MonoBehaviour
     public void SetResource(ResourceType resourceType, int resourceAmount)
     {
         if (resourceType == ResourceType.Gold)
-            SetGoldValue(resourceAmount);
+            goldResourceAmount.text = resourceAmount.ToString();
+            //SetGoldValue(resourceAmount);
         else if (resourceType == ResourceType.Research)
             SetResearchValue(resourceAmount);
     }
 
     private void SetGoldValue(int goldVal)
     {
-        goldAmount += goldVal;
-        goldResourceAmount.text = goldAmount.ToString();
+        //goldAmount = goldVal;
+        //goldResourceAmount.text = goldAmount.ToString();
     }
 
     private void SetResearchValue(int researchVal)

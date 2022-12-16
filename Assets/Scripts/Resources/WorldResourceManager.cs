@@ -40,8 +40,9 @@ public class WorldResourceManager : MonoBehaviour
             if (initialResourceValue.resourceType == ResourceType.None)
                 throw new ArgumentException("Resource can't be none!");
             resourceDict[initialResourceValue.resourceType] = initialResourceValue.resourceAmount; //assigns the initial values for each resource
-            UpdateUI(initialResourceValue.resourceType);
         }
+
+        UpdateUI();
     }
 
     //private void SetInitialResourceGenerationValues()
@@ -80,6 +81,11 @@ public class WorldResourceManager : MonoBehaviour
         }
 
         return resourceList;
+    }
+
+    public int GetWorldGoldLevel()
+    {
+        return resourceDict[ResourceType.Gold];
     }
 
     //methods for managing world resource UI

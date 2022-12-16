@@ -625,8 +625,10 @@ public class CityBuilderManager : MonoBehaviour
                 producer.TimeProgressBarSetActive(v);
                 producer.SetTimeProgressBarToZero();
             }
-            else if (!producer.isWaitingToStart)
+            else if (!producer.isWaitingForStorageRoom && !producer.isWaitingforResources)
+            {
                 producer.TimeProgressBarSetActive(v);
+            }
         }
 
         foreach (Vector3Int tile in constructingTiles)
@@ -1218,10 +1220,10 @@ public class CityBuilderManager : MonoBehaviour
         {
             for (int i = 0; i < world.GetCurrentLaborForTile(improvementLoc); i++)
             {
-                city.ChangeResourcesWorked(resourceType, -1, -resourceProducer.LaborCost);
+                city.ChangeResourcesWorked(resourceType, -1);
 
                 int totalResourceLabor = city.GetResourcesWorkedResourceCount(resourceType);
-                uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, city.ResourceManager.GetResourceGenerationValues(resourceType), resourceProducer.LaborCost);
+                uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, city.ResourceManager.GetResourceGenerationValues(resourceType));
                 if (totalResourceLabor == 0)
                     city.RemoveFromResourcesWorked(resourceType);
             }
@@ -1568,6 +1570,14 @@ public class CityBuilderManager : MonoBehaviour
 
     private void ChangeLaborCount(TerrainData terrainSelected, Vector3Int terrainLocation)
     {
+        ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
+
+        if (laborChange > 0 && !resourceProducer.ConsumeResourcesCheck())
+        {
+            GiveWarningMessage("Not enough resources");
+            return;
+        }
+        
         int labor = world.GetCurrentLaborForTile(terrainLocation);
         int maxLabor = world.GetMaxLaborForTile(terrainLocation);
 
@@ -1586,7 +1596,6 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.cityPop.UnusedLabor -= laborChange;
         selectedCity.cityPop.UsedLabor += laborChange;
 
-        ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
         resourceProducer.UpdateCurrentLaborData(labor);
         //if (!resourceProducer.CheckResourceManager(resourceManager))
         //    resourceProducer.SetResourceManager(resourceManager);
@@ -1632,11 +1641,12 @@ public class CityBuilderManager : MonoBehaviour
         resourceProducer.UpdateResourceGenerationData();
         foreach (ResourceType resourceType in resourceProducer.producedResources)
         {
-            selectedCity.ChangeResourcesWorked(resourceType, laborChange, resourceProducer.LaborCost*laborChange);
+            selectedCity.ChangeResourcesWorked(resourceType, laborChange);
 
             int totalResourceLabor = selectedCity.GetResourcesWorkedResourceCount(resourceType);
 
-            uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType), resourceProducer.LaborCost);
+            uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType));
+            uiLaborHandler.UpdateResourcesConsumed(resourceProducer.consumedResourceTypes, selectedCity.ResourceManager.ResourceConsumedPerMinuteDict);
 
             if (totalResourceLabor == 0)
                 selectedCity.RemoveFromResourcesWorked(resourceType);

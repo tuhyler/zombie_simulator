@@ -13,26 +13,37 @@ public class ResourceProducer : MonoBehaviour
     private float tempLabor; //if adding labor during production process
     Queue<float> tempLaborPercsQueue = new();
     private Vector3 producerLoc;
-    private int laborCost;
-    public int LaborCost { get { return laborCost; } }
 
     //for production info
     private Coroutine producingCo;
     private int productionTimer;
     private TimeProgressBar timeProgressBar;
     [HideInInspector]
-    public bool isWaitingToStart, isWaitingToUnload;
+    public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload;
     private float unloadLabor;
     private bool isProducing;
     [HideInInspector]
     public List<ResourceType> producedResources; //too see what this producer is making
     private Dictionary<ResourceType, float> generatedPerMinute = new();
     private Dictionary<ResourceType, float> consumedPerMinute = new();
+    [HideInInspector]
+    public List<ResourceValue> consumedResources = new();
+    [HideInInspector]
+    public List<ResourceType> consumedResourceTypes = new();
 
     public void InitializeImprovementData(ImprovementDataSO data)
     {
         improvementData = data;
-        laborCost = data.laborCost;
+        consumedResources = new(data.consumedResources);
+        ResourceValue laborCost;
+        laborCost.resourceType = ResourceType.Gold;
+        laborCost.resourceAmount = data.laborCost;
+        consumedResources.Insert(0, laborCost);
+
+        foreach (ResourceValue value in consumedResources)
+        {
+            consumedResourceTypes.Add(value.resourceType);
+        }
         
         foreach(ResourceValue resourceValue in data.producedResources)
         {
@@ -101,16 +112,33 @@ public class ResourceProducer : MonoBehaviour
         timeProgressBar.SetTime(time);
     }
 
+    //checking if production can continue
+    public void RestartResourceWaitProduction()
+    {
+        if (resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+        {
+            isWaitingforResources = false;
+            resourceManager.RemoveFromResourceWaitList(this);
+            resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
+
+            StartProducing();
+        }
+    }
 
     //for producing resources
     public void StartProducing()
     {
         if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
         {
-            AddToProduceStartWaitList();
+            AddToStorageRoomWaitList();
             return;
         }
-        
+        else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+        {
+            AddToResourceWaitList();
+            return;
+        }
+
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
@@ -127,8 +155,8 @@ public class ResourceProducer : MonoBehaviour
 
         float percWorked = (float)productionTimer / improvementData.producedResourceTime;
         tempLabor += percWorked;
-        tempLaborPercsQueue.Enqueue(tempLabor);
-        resourceManager.ConsumeResources(improvementData.consumedResources, tempLabor, improvementData.laborCost);
+        tempLaborPercsQueue.Enqueue(percWorked);
+        resourceManager.ConsumeResources(consumedResources, percWorked, producerLoc);
     }
 
     public void RemoveLaborMidProduction()
@@ -136,10 +164,25 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
-        if (tempLaborPercsQueue.Count > 0)
-            resourceManager.PrepareResource(improvementData.consumedResources, tempLaborPercsQueue.Dequeue(), producerLoc, true);
-        else
-            resourceManager.PrepareResource(improvementData.consumedResources, 1, producerLoc, true);
+        if (!isWaitingforResources && !isWaitingForStorageRoom)
+        {
+            if (tempLaborPercsQueue.Count > 0)
+            {
+                float tempLaborRemoved = tempLaborPercsQueue.Dequeue();
+                tempLabor -= tempLaborRemoved;
+                resourceManager.PrepareResource(consumedResources, tempLaborRemoved, producerLoc, true);
+            }
+            else
+            {
+                resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
+            }
+        }
+    }
+
+    //checking if one more labor can be added
+    public bool ConsumeResourcesCheck()
+    {
+        return resourceManager.ConsumeResourcesCheck(consumedResources, 1);
     }
 
     //timer for producing resources 
@@ -153,7 +196,7 @@ public class ResourceProducer : MonoBehaviour
         }
 
         tempLabor = currentLabor;
-        resourceManager.ConsumeResources(improvementData.consumedResources, currentLabor, improvementData.laborCost);
+        resourceManager.ConsumeResources(consumedResources, currentLabor, producerLoc);
         
         while (productionTimer > 0)
         {
@@ -195,7 +238,12 @@ public class ResourceProducer : MonoBehaviour
         //checking storage again after loading
         if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
         {
-            AddToProduceStartWaitList();
+            AddToStorageRoomWaitList();
+            timeProgressBar.SetActive(false);
+        }
+        else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+        {
+            AddToResourceWaitList();
             timeProgressBar.SetActive(false);
         }
         else
@@ -210,31 +258,43 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
-        if (producingCo != null)
+        if (isWaitingForStorageRoom)
         {
-            StopCoroutine(producingCo);
-            resourceManager.PrepareResource(improvementData.consumedResources, 1, producerLoc, true);
+            resourceManager.RemoveFromStorageRoomWaitList(this);
+            isWaitingForStorageRoom = false;
         }
-
-        if (isWaitingToStart)
+        else if (isWaitingforResources)
         {
-            resourceManager.city.RemoveFromWaitToStartList(this);
-            isWaitingToStart = false;
+            resourceManager.RemoveFromResourceWaitList(this);
+            resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
+            isWaitingforResources = false;
         }
-        if (isWaitingToUnload)
+        else if (isWaitingToUnload)
         {
             resourceManager.RemoveFromWaitUnloadQueue(this);
             isWaitingToUnload = false;
         }
+        else if (producingCo != null)
+        {
+            StopCoroutine(producingCo);
+            resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
+        }
+
         timeProgressBar.SetActive(false);
         isProducing = false;
     }
 
-    private void AddToProduceStartWaitList()
+    private void AddToStorageRoomWaitList()
     {
-        isWaitingToStart = true;
-        resourceManager.city.AddToWaitToStartList(this);
+        isWaitingForStorageRoom = true;
+        resourceManager.AddToStorageRoomWaitList(this);
+    }
 
+    private void AddToResourceWaitList()
+    {
+        isWaitingforResources = true;
+        resourceManager.AddToResourceWaitList(this);
+        resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
     }
 
     public void SetTimeProgressBarToZero()
@@ -288,7 +348,7 @@ public class ResourceProducer : MonoBehaviour
     //only changes when labor changes, not work ethic
     private void CalculateResourceConsumedPerMinute()
     {
-        foreach (ResourceValue resourceValue in improvementData.consumedResources)
+        foreach (ResourceValue resourceValue in consumedResources)
         {
             if (!consumedPerMinute.ContainsKey(resourceValue.resourceType))
                 consumedPerMinute[resourceValue.resourceType] = 0;
@@ -300,7 +360,7 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, amount, true);
 
             if (amount == 0)
-                generatedPerMinute.Remove(resourceValue.resourceType);
+                consumedPerMinute.Remove(resourceValue.resourceType);
         }
     }
 }
