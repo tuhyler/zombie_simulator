@@ -11,7 +11,7 @@ public class InfoManager : MonoBehaviour
     {
         //HideInfoPanel();
         infoPanel.ToggleVisibility(true);
-        infoPanel.SetData(/*infoProvider.Image, */infoProvider.NameToDisplay, infoProvider.CurrentMovementPoints, infoProvider.RegMovementPoints);
+        infoPanel.SetData(/*infoProvider.Image, */infoProvider.NameToDisplay);
     }
 
     public void HideInfoPanel()

@@ -12,11 +12,11 @@ public class InfoProvider : MonoBehaviour
     private string objectName;
     public string NameToDisplay => objectName;
 
-    private int currentMovementPoints;
-    public int CurrentMovementPoints => currentMovementPoints;
+    //private int currentMovementPoints;
+    //public int CurrentMovementPoints => currentMovementPoints;
 
-    private int regMovementPoints;
-    public int RegMovementPoints => regMovementPoints;
+    //private int regMovementPoints;
+    //public int RegMovementPoints => regMovementPoints;
 
     private Unit selectedUnit;
 
