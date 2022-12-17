@@ -11,7 +11,7 @@ public class ResourceProducer : MonoBehaviour
     private ImprovementDataSO improvementData;
     private int currentLabor;
     private float tempLabor; //if adding labor during production process
-    Queue<float> tempLaborPercsQueue = new();
+    List<float> tempLaborPercsList = new();
     private Vector3 producerLoc;
 
     //for production info
@@ -153,9 +153,15 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
-        float percWorked = (float)productionTimer / improvementData.producedResourceTime;
+        float percWorked;
+        if (isWaitingforResources)
+            percWorked = 0;
+        else if (!ConsumeResourcesCheck())
+            percWorked = 0;
+        else
+            percWorked = (float)productionTimer / improvementData.producedResourceTime;
         tempLabor += percWorked;
-        tempLaborPercsQueue.Enqueue(percWorked);
+        tempLaborPercsList.Add(percWorked);
         resourceManager.ConsumeResources(consumedResources, percWorked, producerLoc);
     }
 
@@ -166,9 +172,12 @@ public class ResourceProducer : MonoBehaviour
 
         if (!isWaitingforResources && !isWaitingForStorageRoom)
         {
-            if (tempLaborPercsQueue.Count > 0)
+            int tempLaborPercCount = tempLaborPercsList.Count;
+
+            if (tempLaborPercCount > 0)
             {
-                float tempLaborRemoved = tempLaborPercsQueue.Dequeue();
+                float tempLaborRemoved = tempLaborPercsList[tempLaborPercCount-1]; //LIFO
+                tempLaborPercsList.RemoveAt(tempLaborPercCount-1);
                 tempLabor -= tempLaborRemoved;
                 resourceManager.PrepareResource(consumedResources, tempLaborRemoved, producerLoc, true);
             }
@@ -248,7 +257,7 @@ public class ResourceProducer : MonoBehaviour
         }
         else
         {
-            tempLaborPercsQueue.Clear();
+            tempLaborPercsList.Clear();
             producingCo = StartCoroutine(ProducingCoroutine());
         }
     }

@@ -71,11 +71,7 @@ public class UIInfoPanelCity : MonoBehaviour
 
         cityPop.text = $"Size: {pop}";
         foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
-        SetSurplusFoodText(food);
-    }
 
-    private void SetSurplusFoodText(float food)
-    {
         if (food > 0)
         {
             foodPerMinute.text = $"+{food}";
@@ -91,7 +87,6 @@ public class UIInfoPanelCity : MonoBehaviour
             foodPerMinute.text = $"{food}";
             foodPerMinute.color = Color.white;
         }
-
     }
 
     public void UpdateCityName(string name)

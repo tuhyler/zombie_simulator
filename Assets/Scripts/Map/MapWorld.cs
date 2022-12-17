@@ -67,6 +67,10 @@ public class MapWorld : MonoBehaviour
     public bool buildingRoad;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
+    //for naming of units
+    [HideInInspector]
+    public int workerCount, infantryCount;
+
     private void Awake()
     {
         worldResourceManager = GetComponent<WorldResourceManager>();

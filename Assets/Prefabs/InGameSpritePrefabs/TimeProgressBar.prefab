@@ -204,9 +204,9 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -1255679099
-  m_SortingLayer: 9
-  m_SortingOrder: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &7038463903926904159
 MonoBehaviour:
@@ -442,4 +442,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeText: {fileID: 7038463903926904159}
   timeProgressBarMask: {fileID: 8260948737049769129}
-  fullProgressBarAmount: 0.77
+  fullProgressBarAmount: 0.78

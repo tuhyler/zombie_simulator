@@ -206,18 +206,17 @@ public class UIQueueManager : MonoBehaviour
     private string CreateItemName(Vector3Int loc, bool upgrading, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null)
     {
         string buildName = "";
-        if (improvementData != null)
+        if (upgrading)
+            buildName = "Upgrade";
+        else if (improvementData != null)
             buildName = improvementData.improvementName;
-        if (unitBuildData != null)
+        else if (unitBuildData != null)
             buildName = unitBuildData.unitName;
 
         if (!(loc.x == 0 && loc.z == 0))
         {
             buildName = buildName + " (" + loc.x/3 + "," + loc.z/3 + ")";
         }
-
-        if (upgrading)
-            buildName = "Upgrade " + buildName;
 
         return buildName;
     }

@@ -2903,6 +2903,8 @@ MonoBehaviour:
   forestHill: {fileID: 11400000, guid: a3bf20a911054dc4b91717af0b6c61f9, type: 2}
   showGizmo: 0
   buildingRoad: 0
+  workerCount: 0
+  infantryCount: 0
 --- !u!114 &163795768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48186,7 +48188,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500427
+      value: 8.500366
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

@@ -238,7 +238,8 @@ public class City : MonoBehaviour
     {
         cityPop.IncreasePopulationAndLabor();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
-        resourceManager.IncreaseFoodConsumptionPerTurn(true);
+        if (cityPop.CurrentPop > 1)
+            resourceManager.IncreaseFoodConsumptionPerTurn(true);
         
         if (joinCity)
             UpdateCityPopInfo();
@@ -291,7 +292,8 @@ public class City : MonoBehaviour
             //    RemoveRandomCityLaborer(random);
         }
 
-        resourceManager.IncreaseFoodConsumptionPerTurn(false);
+        if (cityPop.CurrentPop > 0)
+            resourceManager.IncreaseFoodConsumptionPerTurn(false);
         UpdateCityPopInfo();
     }
 
@@ -619,6 +621,8 @@ public class City : MonoBehaviour
         bool maxxed = false;
         int remainingLabor = 0;
 
+        ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
+
         int laborDiff = maxLabor - labor;
 
         if (laborDiff < laborChange)
@@ -631,7 +635,6 @@ public class City : MonoBehaviour
         cityPop.UnusedLabor -= laborChange;
         cityPop.UsedLabor += laborChange;
 
-        ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
         if (labor == 0) //assigning city to location if working for first time
         {
             world.AddToCityLabor(terrainLocation, gameObject);
@@ -650,7 +653,7 @@ public class City : MonoBehaviour
             maxxed = true;
         }
         resourceProducer.UpdateCurrentLaborData(labor);
-        resourceProducer.UpdateResourceGenerationData();
+        //resourceProducer.UpdateResourceGenerationData();
 
         foreach (ResourceType resourceType in resourceProducer.producedResources)
         {
@@ -684,7 +687,7 @@ public class City : MonoBehaviour
 
     public void RemoveFromQueue(Vector3Int loc, ImprovementDataSO improvementData)
     {
-        string name = "Upgrade " + improvementData.improvementName + " (" + loc.x / 3 + "," + loc.z / 3 + ")";
+        string name = "Upgrade" + " (" + loc.x / 3 + "," + loc.z / 3 + ")";
 
         int index = 0;
         foreach (UIQueueItem item in savedQueueItems)

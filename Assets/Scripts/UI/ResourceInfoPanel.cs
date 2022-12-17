@@ -12,6 +12,7 @@ public class ResourceInfoPanel : MonoBehaviour
     [SerializeField]
     private TMP_Text resourceAmount;
 
+
     public void SetResourcePanel(Sprite sprite, int amount, bool haveEnough)
     {
         resourceImageHolder.sprite = sprite;

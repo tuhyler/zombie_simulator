@@ -222,7 +222,7 @@ public class ResourceManager : MonoBehaviour
                 UpdateUI(resourceType);
             }
 
-            if (resourceValue.resourceType != ResourceType.Food)
+            if (consumedAmount > 0 && resourceValue.resourceType != ResourceType.Food)
             {
                 location.z += 0.5f;
                 location.z += 0.5f * i;
@@ -592,6 +592,16 @@ public class ResourceManager : MonoBehaviour
     public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
     {
         waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
+    }
+
+    public void CheckProducerResourceWaitList()
+    {
+        List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
+
+        foreach (ResourceProducer producer in tempWaitingForResource)
+        {
+            producer.RestartResourceWaitProduction();
+        }
     }
 
     private void CheckProducerResourceWaitList(ResourceType resourceType)

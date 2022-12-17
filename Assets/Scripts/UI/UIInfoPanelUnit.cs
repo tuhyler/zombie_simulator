@@ -25,12 +25,12 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
         gameObject.SetActive(false);
     }
 
-    public void SetData(/*Sprite sprite, */string text, int currentMP, int regMP)
+    public void SetData(/*Sprite sprite, */string text)
     {
         nameText.text = text;
-        //infoImage.sprite = sprite;
-        currentMovePoints.text = Mathf.Max(currentMP,0).ToString(); //can't have less than 0
-        regMovePoints.text = regMP.ToString();
+        ////infoImage.sprite = sprite;
+        //currentMovePoints.text = Mathf.Max(currentMP,0).ToString(); //can't have less than 0
+        //regMovePoints.text = regMP.ToString();
     }
 
     public void ToggleVisibility(bool v)
