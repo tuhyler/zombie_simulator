@@ -68,8 +68,9 @@ public class ResourceProducer : MonoBehaviour
 
     private void SetProgressTimeBar()
     {
-        producerLoc.z -= 1.5f; //bottom center of tile
-        GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, producerLoc, Quaternion.Euler(90, 0, 0));
+        Vector3 progressBarLoc = producerLoc; //bottom center of tile
+        progressBarLoc.z -= 1.5f;
+        GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, progressBarLoc, Quaternion.Euler(90, 0, 0));
         timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
         //timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
     }

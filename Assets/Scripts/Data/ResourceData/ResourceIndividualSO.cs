@@ -13,5 +13,6 @@ public class ResourceIndividualSO : ScriptableObject
     public Sprite resourceIcon;
     public int ResourceGatheringTime = 5;
     public int resourcePrice;
+    public int resourceQuantityPerPop = 1;
     //public ResourceValue resourceValue;
 }

@@ -442,4 +442,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeText: {fileID: 7038463903926904159}
   timeProgressBarMask: {fileID: 8260948737049769129}
-  fullProgressBarAmount: 0.8
+  fullProgressBarAmount: 0.78
