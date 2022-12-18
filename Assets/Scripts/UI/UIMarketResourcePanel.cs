@@ -11,7 +11,7 @@ public class UIMarketResourcePanel : MonoBehaviour
     [HideInInspector]
     public string resourceName;
     [HideInInspector]
-    public int price, amount;
+    public int price, amount, total;
     [HideInInspector]
     public bool sell;
     [HideInInspector]
@@ -22,7 +22,7 @@ public class UIMarketResourcePanel : MonoBehaviour
     public Image resourceImage;
 
     [SerializeField]
-    public TMP_Text cityPrice, cityAmount;
+    public TMP_Text cityPrice, cityAmount, cityTotals;
 
     [SerializeField]
     public Toggle sellToggle;

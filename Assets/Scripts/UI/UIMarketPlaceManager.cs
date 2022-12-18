@@ -17,11 +17,11 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     //for sorting
     [SerializeField]
-    private Image sortResources, sortPrices, sortAmounts, sortSell;
+    private Image sortResources, sortPrices, sortAmounts, sortTotals, sortSell;
     [SerializeField]
     private Sprite buttonUp;
     private Sprite buttonDown;
-    private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortSellUp;
+    private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortTotalsUp, sortSellUp;
     private Color sortButtonOriginalColor;
 
     private City city;
@@ -100,17 +100,21 @@ public class UIMarketPlaceManager : MonoBehaviour
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
         {
-            resourcePanel.price = city.ResourceManager.ResourcePriceDict[resourcePanel.resourceType];
-            resourcePanel.cityPrice.text = city.ResourceManager.ResourcePriceDict[resourcePanel.resourceType].ToString();
-            resourcePanel.amount = city.ResourceManager.ResourceDict[resourcePanel.resourceType];
-            resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[resourcePanel.resourceType].ToString();
+            ResourceType type = resourcePanel.resourceType;
+            
+            resourcePanel.price = city.ResourceManager.ResourcePriceDict[type];
+            resourcePanel.cityPrice.text = city.ResourceManager.ResourcePriceDict[type].ToString();
+            resourcePanel.amount = city.ResourceManager.ResourceDict[type];
+            resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[type].ToString();
+            resourcePanel.total = city.ResourceManager.ResourceSellHistoryDict[type];
+            resourcePanel.cityTotals.text = city.ResourceManager.ResourceSellHistoryDict[type].ToString();
 
-            bool isOn = city.ResourceManager.ResourceSellDict[resourcePanel.resourceType];
+            bool isOn = city.ResourceManager.ResourceSellDict[type];
             resourcePanel.sellToggle.isOn = isOn;
             resourcePanel.minimumAmount.interactable = isOn;
 
             if (isOn)
-                resourcePanel.minimumAmount.text = city.ResourceManager.ResourceMinHoldDict[resourcePanel.resourceType].ToString();
+                resourcePanel.minimumAmount.text = city.ResourceManager.ResourceMinHoldDict[type].ToString();
         }
     }
 
@@ -124,19 +128,20 @@ public class UIMarketPlaceManager : MonoBehaviour
         city.ResourceManager.ResourceMinHoldDict[resourceType] = minHold;
     }
 
-    public void UpdateResourcePrices(ResourceType resourceType, int price, ResourceManager resourceManager)
-    {
-
-    }
-
-    public void UpdateResourceAmount(ResourceType resourceType, int amount, ResourceManager resourceManager)
+    public void UpdateMarketResourceNumbers(ResourceType resourceType, int price, int amount, int total)
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
         {
             if (resourcePanel.resourceType == resourceType)
             {
-                resourcePanel.amount = resourceManager.ResourceDict[resourcePanel.resourceType];
-                resourcePanel.cityAmount.text = resourceManager.ResourceDict[resourcePanel.resourceType].ToString();
+                resourcePanel.price = price;
+                resourcePanel.cityPrice.text = price.ToString();
+                
+                resourcePanel.amount = amount;
+                resourcePanel.cityAmount.text = amount.ToString();
+
+                resourcePanel.total = total;
+                resourcePanel.cityTotals.text = total.ToString();
                 return;
             }
         }
@@ -152,6 +157,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = Color.green;
             sortPrices.color = sortButtonOriginalColor;
             sortAmounts.color = sortButtonOriginalColor;
+            sortTotals.color = sortButtonOriginalColor;
             sortSell.color = sortButtonOriginalColor;
         }
         else if (column == "prices")
@@ -159,6 +165,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = sortButtonOriginalColor;
             sortPrices.color = Color.green;
             sortAmounts.color = sortButtonOriginalColor;
+            sortTotals.color = sortButtonOriginalColor;
             sortSell.color = sortButtonOriginalColor;
         }
         else if (column == "amount")
@@ -166,6 +173,15 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = sortButtonOriginalColor;
             sortPrices.color = sortButtonOriginalColor;
             sortAmounts.color = Color.green;
+            sortTotals.color = sortButtonOriginalColor;
+            sortSell.color = sortButtonOriginalColor;
+        }
+        else if (column == "total")
+        {
+            sortResources.color = sortButtonOriginalColor;
+            sortPrices.color = sortButtonOriginalColor;
+            sortAmounts.color = sortButtonOriginalColor;
+            sortTotals.color = Color.green;
             sortSell.color = sortButtonOriginalColor;
         }
         else if (column == "sell")
@@ -173,6 +189,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = sortButtonOriginalColor;
             sortPrices.color = sortButtonOriginalColor;
             sortAmounts.color = sortButtonOriginalColor;
+            sortTotals.color = sortButtonOriginalColor;
             sortSell.color = Color.green;
         }
     }
@@ -182,6 +199,7 @@ public class UIMarketPlaceManager : MonoBehaviour
         sortResources.color = sortButtonOriginalColor;
         sortPrices.color = sortButtonOriginalColor;
         sortAmounts.color = sortButtonOriginalColor;
+        sortTotals.color = sortButtonOriginalColor;
         sortSell.color = sortButtonOriginalColor;
     }
 
@@ -313,6 +331,59 @@ public class UIMarketPlaceManager : MonoBehaviour
                 for (int j = i + 1; j < marketResourceList.Count; j++)
                 {
                     if (marketResourceList[j].amount > marketResourceList[i].amount)
+                    {
+                        UIMarketResourcePanel marketResource = marketResourceList[i];
+                        marketResourceList[i] = marketResourceList[j];
+                        marketResourceList[j] = marketResource;
+                    }
+                }
+            }
+        }
+
+        //reorder on UI
+        for (int i = 0; i < marketResourceList.Count; i++)
+        {
+            marketResourceList[i].transform.SetSiblingIndex(i);
+        }
+    }
+
+    public void SortTotals()
+    {
+        ChangeSortButtonsColors("total");
+
+        if (sortTotalsUp)
+            sortTotals.sprite = buttonUp;
+        else
+            sortTotals.sprite = buttonDown;
+
+        SortTotals(sortTotalsUp);
+        sortTotalsUp = !sortTotalsUp;
+    }
+
+    private void SortTotals(bool up)
+    {
+        if (up) //sort prices ascending
+        {
+            for (int i = 0; i < marketResourceList.Count; i++)
+            {
+                for (int j = i + 1; j < marketResourceList.Count; j++)
+                {
+                    if (marketResourceList[j].total < marketResourceList[i].total)
+                    {
+                        UIMarketResourcePanel marketResource = marketResourceList[i];
+                        marketResourceList[i] = marketResourceList[j];
+                        marketResourceList[j] = marketResource;
+                    }
+                }
+            }
+        }
+        else //sort descending
+        {
+            for (int i = 0; i < marketResourceList.Count; i++)
+            {
+                for (int j = i + 1; j < marketResourceList.Count; j++)
+                {
+                    if (marketResourceList[j].total > marketResourceList[i].total)
                     {
                         UIMarketResourcePanel marketResource = marketResourceList[i];
                         marketResourceList[i] = marketResourceList[j];

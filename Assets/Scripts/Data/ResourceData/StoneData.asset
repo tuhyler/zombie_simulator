@@ -17,4 +17,5 @@ MonoBehaviour:
   resourceName: Stone
   resourceIcon: {fileID: 21300000, guid: 8cb0883a9920bd545bacccade1e5d661, type: 3}
   ResourceGatheringTime: 5
-  resourcePrice: 5
+  resourcePrice: 2
+  resourceQuantityPerPop: 50

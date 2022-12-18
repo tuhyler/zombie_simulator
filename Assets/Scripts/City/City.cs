@@ -110,6 +110,7 @@ public class City : MonoBehaviour
         resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
         resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
         resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
+        resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
         //originalCityStatMaterial = citySizeField.material;
     }
 
@@ -253,13 +254,14 @@ public class City : MonoBehaviour
             }
         }
 
-        if (cityPop.CurrentPop >= 1)
+        if (cityPop.CurrentPop == 1)
         {
             if (activeCity)
             {
                 CityGrowthProgressBarSetActive(true);
                 cityBuilderManager.abandonCityButton.interactable = false;
             }
+            resourceManager.SellResources();
             StartCoroutine(FoodConsumptionCoroutine());
         }
     }
@@ -482,18 +484,22 @@ public class City : MonoBehaviour
     //Time generator to consume food
     private IEnumerator FoodConsumptionCoroutine()
     {
-        SetCityGrowthTime(countDownTimer);
+        if (activeCity)
+        {
+            timeProgressBar.SetProgressBarBeginningPosition();
+            timeProgressBar.SetTime(countDownTimer);
+        }
 
         while (countDownTimer > 0)
         {
             yield return new WaitForSeconds(1);
             countDownTimer--;
             if (activeCity)
-            {
-                //resourceManager.uiInfoPanelCity.SetTimer(countDownTimer);
-                SetCityGrowthTime(countDownTimer);
-            }
+                timeProgressBar.SetTime(countDownTimer);
         }
+
+        //sell before growing
+        world.UpdateWorldResources(ResourceType.Gold, resourceManager.SellResources());
 
         ResourceValue foodConsumed;
         foodConsumed.resourceType = ResourceType.Food;
@@ -502,10 +508,10 @@ public class City : MonoBehaviour
         //consume before checking for growth
         resourceManager.ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, cityLoc);
         resourceManager.CheckForPopGrowth();
+        resourceManager.CycleCount++;
 
         Debug.Log(cityName + " is checking for growth");
         countDownTimer = secondsTillGrowthCheck;
-        world.UpdateWorldResources(ResourceType.Gold, resourceManager.SellResources())  ;
         StartCoroutine(FoodConsumptionCoroutine());
     }
 
@@ -522,11 +528,6 @@ public class City : MonoBehaviour
     public void HideCityGrowthProgressTimeBar()
     {
         timeProgressBar.SetActive(false);
-    }
-
-    public void SetCityGrowthTime(int time)
-    {
-        timeProgressBar.SetTime(time);
     }
 
     public void CityGrowthProgressBarSetActive(bool v)

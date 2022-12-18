@@ -15,12 +15,14 @@ public class ResourceManager : MonoBehaviour
     private Dictionary<ResourceType, int> resourcePriceDict = new();
     private Dictionary<ResourceType, bool> resourceSellDict = new();
     private Dictionary<ResourceType, int> resourceMinHoldDict = new();
+    private Dictionary<ResourceType, int> resourceSellHistoryDict = new();
 
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
     public Dictionary<ResourceType, float> ResourceConsumedPerMinuteDict { get { return resourceConsumedPerMinuteDict; } }
     public Dictionary<ResourceType, int> ResourcePriceDict { get { return resourcePriceDict; } set { resourcePriceDict = value; } }
     public Dictionary<ResourceType, bool> ResourceSellDict { get { return resourceSellDict; } set { resourceSellDict = value; } }
     public Dictionary<ResourceType, int> ResourceMinHoldDict { get { return resourceMinHoldDict; } set { resourceMinHoldDict = value; } }
+    public Dictionary<ResourceType, int> ResourceSellHistoryDict { get { return resourceSellHistoryDict; } set { resourceSellHistoryDict = value; } }
 
     private int resourceStorageLimit; 
     public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
@@ -44,9 +46,6 @@ public class ResourceManager : MonoBehaviour
     [HideInInspector]
     public UIInfoPanelCity uiInfoPanelCity;
 
-    //private Dictionary<Vector3Int, Dictionary<ResourceType, int>> currentWorkedResourceGenerationDict = new(); //to see how many resources generated per turn in tile.
-    //private Dictionary<string , int> buildingResourceGenerationDict = new(); //to see how many building resources generated per turn in city.
-
     //initial resources
     public List<ResourceValue> initialResources = new(); //resources you start a city with
     public City city;
@@ -58,6 +57,8 @@ public class ResourceManager : MonoBehaviour
     private int foodGrowthLimit;
     public int FoodGrowthLimit { get { return foodGrowthLimit; } }
     public float FoodPerMinute { get { return resourceGenerationPerMinuteDict[ResourceType.Food]; } }
+    private int cycleCount;
+    public int CycleCount { get { return cycleCount; } set { cycleCount = value; } }
 
     //for queued build orders
     private List<ResourceValue> queuedResourcesToCheck = new();
@@ -71,6 +72,7 @@ public class ResourceManager : MonoBehaviour
         CalculateAndChangeFoodLimit();
         PrepareResourceDictionary();
         SetInitialResourceValues();
+        SetPrices();
 
         //only relevant during editing
         if (resourceStorageLevel >= resourceStorageLimit)
@@ -194,6 +196,7 @@ public class ResourceManager : MonoBehaviour
     public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location)
     {
         int i = 0;
+        location.z += 0.5f;
         foreach (ResourceValue resourceValue in consumedResource)
         {
             int consumedAmount = Mathf.RoundToInt(resourceValue.resourceAmount * currentLabor);
@@ -222,11 +225,11 @@ public class ResourceManager : MonoBehaviour
                 UpdateUI(resourceType);
             }
 
-            if (consumedAmount > 0 && resourceValue.resourceType != ResourceType.Food)
+            if (city.activeCity && consumedAmount > 0 && resourceValue.resourceType != ResourceType.Food)
             {
-                location.z += 0.5f;
-                location.z += 0.5f * i;
+                location.z -= 0.5f * i;
                 InfoResourcePopUpHandler.CreateResourceStat(location, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
+                i++;
             }
         }
     }
@@ -252,6 +255,7 @@ public class ResourceManager : MonoBehaviour
     public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
     {
         int i = 0;
+        producerLoc.z += 1.0f;
         resourceCount = 0;
         foreach (ResourceValue resourceVal in producedResource)
         {
@@ -267,8 +271,7 @@ public class ResourceManager : MonoBehaviour
             }
 
             int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
-            producerLoc.z += 1.5f;
-            producerLoc.z += -.5f * i;
+            producerLoc.z += 0.5f * i;
             InfoResourcePopUpHandler.CreateResourceStat(producerLoc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
             i++;
         }
@@ -442,7 +445,7 @@ public class ResourceManager : MonoBehaviour
             uiResourceManager.SetCityCurrentStorage(resourceStorageLevel);
 
             if (uiMarketPlaceManager.activeStatus)
-                uiMarketPlaceManager.UpdateResourceAmount(resourceType, resourceDict[resourceType], this);
+                uiMarketPlaceManager.UpdateMarketResourceNumbers(resourceType, resourcePriceDict[resourceType], resourceDict[resourceType], resourceSellHistoryDict[resourceType]);
         }
     }
 
@@ -478,20 +481,56 @@ public class ResourceManager : MonoBehaviour
                 {
                     int goldGained = resourcePriceDict[resourceType] * sellAmount;
                     goldAdded += goldGained;
+                    resourceSellHistoryDict[resourceType] += sellAmount;
                     CheckResource(resourceType, -sellAmount);
 
                     Vector3 cityLoc = city.cityLoc;
-                    Vector3 cityLoc2 = cityLoc;
-                    cityLoc.z += -1f * i; //-0.5f * i;
-                    cityLoc2.z += -1f * i;
-                    InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldGained, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
-                    InfoResourcePopUpHandler.CreateResourceStat(cityLoc2, sellAmount, ResourceHolder.Instance.GetIcon(resourceType));
+                    cityLoc.z += 0.5f;
+                    cityLoc.z += -0.5f * i;
+                    if (city.activeCity)
+                        InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(resourceType));
                     i++;
                 }
             }
         }
 
+        if (goldAdded > 0)
+        {
+            Vector3 cityLoc = city.cityLoc;
+            cityLoc.z += 1.0f;
+            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+        }
+
+        SetPrices();
+
         return goldAdded;
+    }
+
+    private void SetPrices()
+    {
+        int currentPop = city.cityPop.CurrentPop;
+        float populationFactor = 0.2f; //ratio of how much a new pop increases prices
+        float cycleAttrition = 0.02f; //ratio of how many cycles to burn through resourceQuantityePerPop
+        float abundanceRatio = 0.5f; //how many purchases of resources by current pop to reduce the price in half. 
+
+        foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources)
+        {
+            ResourceType resourceType = resourceData.resourceType;
+            int resourceQuantityPerPop = resourceData.resourceQuantityPerPop;
+
+            if (currentPop > 0)
+            {
+                float priceByPop = (1 + (currentPop-1) * populationFactor);
+                float abundanceWithAttrition = resourceQuantityPerPop * cycleAttrition * cycleCount * currentPop;
+                float abundanceFactor = 1 - ((resourceSellHistoryDict[resourceType] - abundanceWithAttrition) / currentPop) * 1 / resourceQuantityPerPop * abundanceRatio;
+                resourcePriceDict[resourceType] = Mathf.Max((int)Math.Round(resourceData.resourcePrice * priceByPop * abundanceFactor, MidpointRounding.AwayFromZero),1);
+                //resourcePriceDict[resourceType] = Mathf.Max(Mathf.FloorToInt(resourceData.resourcePrice * priceByPop * abundanceFactor), 1);
+            }
+            else //no price if no one there to purchase
+            {
+                resourcePriceDict[resourceType] = 0;
+            }
+        }
     }
 
     //checking if enough food to grow
