@@ -9,6 +9,8 @@ public class MapWorld : MonoBehaviour
 {
     [SerializeField]
     private UIWorldResources uiWorldResources;
+    [SerializeField]
+    private UIResearchTreePanel researchTree;
 
     private WorldResourceManager worldResourceManager;
     
@@ -28,7 +30,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
     private Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
-    private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new();
+    private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new(); 
     private Dictionary<string, ImprovementDataSO> upgradeableObjectDataDict = new();
     private Dictionary<ResourceType, Sprite> resourceSpriteDict = new();
     private Dictionary<ResourceType, int> defaultResourcePriceDict = new();
@@ -163,6 +165,20 @@ public class MapWorld : MonoBehaviour
         {
             resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
         }
+    }
+
+    //Research info
+    public void OpenResearchTree()
+    {
+        if (researchTree.activeStatus)
+            researchTree.ToggleVisibility(false);
+        else
+            researchTree.ToggleVisibility(true);
+    }
+    
+    public void SetResearchName(string name)
+    {
+        uiWorldResources.SetResearchName(name);
     }
 
     //world resources management

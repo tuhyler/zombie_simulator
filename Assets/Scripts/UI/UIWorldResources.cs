@@ -40,6 +40,11 @@ public class UIWorldResources : MonoBehaviour
             SetResearchValue(resourceAmount);
     }
 
+    public void SetResearchName(string name)
+    {
+        researchTitle.text = name;
+    }
+
     private void SetGoldValue(int goldVal)
     {
         //goldAmount = goldVal;
