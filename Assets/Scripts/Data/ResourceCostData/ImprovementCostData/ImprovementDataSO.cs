@@ -24,4 +24,5 @@ public class ImprovementDataSO : ScriptableObject
     public bool replaceProp = true; //replace terrain prop when building upon it
     public bool singleBuild = false; //only one per city
     public int buildTime;
+    public bool locked = true;
 }
