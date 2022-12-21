@@ -45274,6 +45274,26 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2177287935674346125, guid: 170c4e375cca8e84ca0b3884e02f4db7,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 810
+      objectReference: {fileID: 0}
+    - target: {fileID: 3442362160245850368, guid: 170c4e375cca8e84ca0b3884e02f4db7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 163795767}
+    - target: {fileID: 3442362160245850368, guid: 170c4e375cca8e84ca0b3884e02f4db7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CloseResearchTree
+      objectReference: {fileID: 0}
+    - target: {fileID: 3442362160245850368, guid: 170c4e375cca8e84ca0b3884e02f4db7,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MapWorld, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 3768435850844553993, guid: 170c4e375cca8e84ca0b3884e02f4db7,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -45367,7 +45387,7 @@ PrefabInstance:
     - target: {fileID: 4664273602164976609, guid: 170c4e375cca8e84ca0b3884e02f4db7,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 900
+      value: 850
       objectReference: {fileID: 0}
     - target: {fileID: 4664273602164976609, guid: 170c4e375cca8e84ca0b3884e02f4db7,
         type: 3}
@@ -48787,7 +48807,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500183
+      value: 8.500244
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

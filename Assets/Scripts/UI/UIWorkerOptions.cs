@@ -47,7 +47,7 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
         buttonHandler.PrepareBuild(buildData);
         buttonHandler.HandleButtonClick();
 
-        if (buildData.improvementName == "Road")
+        if (buildData != null && buildData.improvementName == "Road")
             ToggleColor(true);
     }
 

@@ -21,6 +21,7 @@ public class UIResearchTreePanel : MonoBehaviour
 
     private void Awake()
     {
+        originalLoc = allContents.anchoredPosition3D;
         gameObject.SetActive(false);
         
         foreach (Transform transform in uiElementsParent)

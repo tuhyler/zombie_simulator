@@ -18,7 +18,7 @@ public class RoadManager : MonoBehaviour
     [SerializeField]
     private WorkerTaskManager workerTaskManager;
 
-    public int roadMovementCost = 5, roadBuildingTime = 1, roadRemovingTime = 1;
+    public int roadMovementCost = 5, roadBuildingTime = 5, roadRemovingTime = 1;
 
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -65,8 +65,8 @@ public class RoadManager : MonoBehaviour
         }
 
         worker.HideProgressTimeBar();
-        workerTaskManager.TurnOffCancelTask();
         BuildRoadAtPosition(roadPosition);
+        world.RemoveWorkerWorkLocation(roadPosition);
 
         if (worker.MoreRoadToBuild())
         {
@@ -75,6 +75,7 @@ public class RoadManager : MonoBehaviour
         else
         {
             worker.isBusy = false;
+            workerTaskManager.TurnOffCancelTask();
         }
     }
 
@@ -290,7 +291,7 @@ public class RoadManager : MonoBehaviour
         worker.HideProgressTimeBar();
         worker.isBusy = false;
         workerTaskManager.TurnOffCancelTask();
-        RemoveRoadAtPosition(tile);
+        world.RemoveWorkerWorkLocation(tile);
     }
 
     public void RemoveRoadAtPosition(Vector3Int tile)

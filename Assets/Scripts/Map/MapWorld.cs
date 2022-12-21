@@ -50,6 +50,9 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, List<string>> cityBuildingList = new(); //list of buildings on city tiles (here instead of City because buildings can be without a city)
     //private Dictionary<Vector3Int, Dictionary<string, ResourceProducer>> cityBuildingIsProducer = new(); //all the buildings that are resource producers (for speed)
 
+    //for workers
+    private List<Vector3Int> workerBusyLocations = new();
+
     //for roads
     private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new(); //stores road GOs, only on terrain locations
     private List<Vector3Int> soloRoadLocsList = new(); //indicates which tiles have solo roads on them
@@ -174,6 +177,11 @@ public class MapWorld : MonoBehaviour
             researchTree.ToggleVisibility(false);
         else
             researchTree.ToggleVisibility(true);
+    }
+
+    public void CloseResearchTree()
+    {
+        researchTree.ToggleVisibility(false);
     }
     
     public void SetResearchName(string name)
@@ -331,6 +339,21 @@ public class MapWorld : MonoBehaviour
     public CityImprovement GetCityDevelopmentConstruction(Vector3Int tile)
     {
         return cityImprovementConstructionDict[tile];
+    }
+
+    public void SetWorkerWorkLocation(Vector3Int loc)
+    {
+        workerBusyLocations.Add(loc);
+    }
+
+    public void RemoveWorkerWorkLocation(Vector3Int loc)
+    {
+        workerBusyLocations.Remove(loc);
+    }
+
+    public bool IsWorkerWorkingAtTile(Vector3Int loc)
+    {
+        return workerBusyLocations.Contains(loc);
     }
 
     public GameObject GetRoads(Vector3Int tile, bool straight)
@@ -865,10 +888,13 @@ public class MapWorld : MonoBehaviour
         return soloRoad;
     }
 
-    //public TerrainData GetTerrainData(Vector3Int tileLoc)
-    //{
-    //    return world[tileLoc];
-    //}
+    public bool IsTileOpenCheck(Vector3Int tile)
+    {
+        if (IsBuildLocationTaken(tile) || IsRoadOnTerrain(tile) || CheckIfTileIsUnderConstruction(tile) || IsWorkerWorkingAtTile(tile))
+            return false;
+        else
+            return true;
+    }
 
     public Vector3Int GetClosestTerrainLoc(Vector3 v)
     {
@@ -878,6 +904,17 @@ public class MapWorld : MonoBehaviour
         v.z = (float)Math.Round(v.z, MidpointRounding.AwayFromZero);
 
         return world[Vector3Int.RoundToInt(v)].GetTileCoordinates();
+    }
+
+    public Vector3Int RoundToInt(Vector3 v)
+    {
+        Vector3Int vInt = new Vector3Int(0,0,0);
+        
+        vInt.y = 0;
+        vInt.x = (int)Math.Round(v.x, MidpointRounding.AwayFromZero);
+        vInt.z = (int)Math.Round(v.z, MidpointRounding.AwayFromZero);
+
+        return vInt;
     }
 
     public void AddCityName(string cityName, Vector3Int cityLoc)
