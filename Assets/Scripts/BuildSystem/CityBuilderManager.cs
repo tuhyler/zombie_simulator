@@ -971,7 +971,7 @@ public class CityBuilderManager : MonoBehaviour
             }
             else //if placing improvement
             {
-                if (!world.IsBuildLocationTaken(tile) && !world.IsRoadOnTerrain(tile) && td.GetTerrainData().type == improvementData.terrainType)
+                if (world.IsTileOpenCheck(tile) && td.GetTerrainData().type == improvementData.terrainType)
                 {
                     if (improvementData.rawMaterials && td.GetTerrainData().resourceType == improvementData.resourceType)
                     {
@@ -1010,6 +1010,12 @@ public class CityBuilderManager : MonoBehaviour
         if (tempBuildLocation == city.cityLoc)
         {
             CreateBuilding(improvementData, city, upgradingImprovement, upgradeCost);
+            return;
+        }
+
+        if (!world.IsTileOpenCheck(tempBuildLocation))
+        {
+            GiveWarningMessage("Something already here");
             return;
         }
 

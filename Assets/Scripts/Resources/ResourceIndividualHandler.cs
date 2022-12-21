@@ -24,10 +24,7 @@ public class ResourceIndividualHandler : MonoBehaviour
         if (selectedObject.TryGetComponent(out Resource resource))
         {
             if (resource != null)
-            {
-                //resourceGO = resource.gameObject;
                 resource.SendResourceToCity();
-            }
         }
     }
 

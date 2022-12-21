@@ -32,7 +32,7 @@ public class Unit : MonoBehaviour
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
-    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed, newSpotTry;
+    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     private Coroutine movingCo;
     private MovementSystem movementSystem;
     private Queue<GameObject> shoePrintQueue = new();
@@ -118,6 +118,34 @@ public class Unit : MonoBehaviour
     {
         //Vector3 endPosition = endPositionTile.transform.position;
         //Debug.Log("next stop is " + endPosition);
+        Vector3Int endPositionInt = world.RoundToInt(endPosition);
+        
+        if (followingRoute && world.IsUnitWaitingForSameCity(endPositionInt, finalDestinationLoc))
+        {
+            GetInLine(endPosition);
+        }
+        else if (/*pathPositions.Count == 0 && !followingRoute && */world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+        {
+            Unit unitInTheWay = world.GetUnit(endPositionInt);
+
+            if (unitInTheWay.isBusy)
+            {
+                if (!isBusy)
+                {
+                    FinishMoving(endPosition);
+                    yield break;
+                }
+                else
+                {
+                    SkipRoadBuild();
+                    yield break;
+                }
+            }
+            else
+            {
+                unitInTheWay.FindNewSpot(endPositionInt);
+            }
+        }
 
         destinationLoc = endPosition;
         
@@ -166,24 +194,45 @@ public class Unit : MonoBehaviour
 
         if (pathPositions.Count > 0)
         {
-            Vector3Int nextStep = pathPositions.Peek();
+            //Vector3Int nextStep = pathPositions.Peek();
             
-            if (followingRoute && world.IsUnitWaitingForSameCity(nextStep, finalDestinationLoc))
+            //if (followingRoute && world.IsUnitWaitingForSameCity(nextStep, finalDestinationLoc))
+            //{
+            //    GetInLine(endPosition);
+            //}
+            //else if (pathPositions.Count == 1 && !followingRoute && world.IsUnitLocationTaken(nextStep)) //don't occupy sqaure if another unit is there
+            //{
+            //    Unit unitInTheWay = world.GetUnit(nextStep);
+
+            //    if (unitInTheWay.isBusy)
+            //    {
+            //        if (!isBusy)
+            //        {
+            //            FinishMoving(endPosition);
+            //        }
+            //        else
+            //        {
+            //            SkipRoadBuild();
+            //        }
+            //    }
+            //    else
+            //    {
+            //        unitInTheWay.FindNewSpot(nextStep);
+            //        movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+            //        if (shoePrintQueue.Count > 0)
+            //        {
+            //            DequeueShoePrint();
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+            if (shoePrintQueue.Count > 0)
             {
-                GetInLine(endPosition);
+                DequeueShoePrint();
             }
-            else if (pathPositions.Count == 1 && !followingRoute && world.IsUnitLocationTaken(nextStep)) //don't occupy sqaure if another unit is there
-            {
-                FinishMoving(endPosition);
-            }
-            else
-            {
-                movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-                if (shoePrintQueue.Count > 0)
-                {
-                    DequeueShoePrint();
-                }
-            }
+            //}
         }
         else
         {
@@ -273,32 +322,6 @@ public class Unit : MonoBehaviour
     //        FinishMoving(endPosition);
     //    }
     //}
-    //private IEnumerator SlideUnit(Vector3 endPosition)
-    //{
-    //    newSpotTry = 0;
-    //    Quaternion startRotation = transform.rotation;
-    //    endPosition.y = transform.position.y;
-    //    Vector3 direction = endPosition - transform.position;
-    //    Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
-
-    //    float timeElapsed = 0;
-    //    while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
-    //    {
-    //        timeElapsed += Time.deltaTime;
-    //        float movementThisFrame = Time.deltaTime * moveSpeed;
-    //        float lerpStep = timeElapsed / rotationDuration; //Value between 0 and 1
-    //        transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
-    //        //transform.localPosition = newPosition;
-    //        transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
-
-    //        if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
-    //            break;
-
-    //        yield return null;
-    //    }
-
-    //    FinishMoving(endPosition);
-    //}
 
 
     public void StopMovement()
@@ -365,28 +388,32 @@ public class Unit : MonoBehaviour
 
     private void FindNewSpot(Vector3Int current)
     {
-        Vector3Int lastTile = current;        
+        //Vector3Int lastTile = current;        
         
         foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
         {
             if (isTrader && !world.IsRoadOnTileLocation(tile))
                 continue;
 
-            if (world.IsUnitLocationTaken(tile))
-            {
-                lastTile = tile;
+            if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile))
                 continue;
-            }
 
+            //if (world.IsUnitLocationTaken(tile))
+            //{
+            //    //lastTile = tile;
+            //    continue;
+            //}
+
+            finalDestinationLoc = tile;
             MoveThroughPath(new List<Vector3Int> { tile });
             return;
         }
 
-        if (newSpotTry < 2)
-        {
-            newSpotTry++;
-            FindNewSpot(lastTile); //keep going until finding new spot
-        }
+        //if (newSpotTry < 2)
+        //{
+        //    newSpotTry++;
+        //    FindNewSpot(lastTile); //keep going until finding new spot
+        //}
     }
 
     //sees if trader is at trade route stop and has finished trade orders
@@ -403,6 +430,11 @@ public class Unit : MonoBehaviour
 
     //for harvesting resource
     public virtual void SendResourceToCity()
+    {
+
+    }
+
+    public virtual void SkipRoadBuild()
     {
 
     }

@@ -100,8 +100,8 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
+        world.CloseResearchTree();
         location.y = 0;
-
 
         Vector3Int locationPos = world.GetClosestTerrainLoc(location);
 
@@ -120,9 +120,16 @@ public class UnitMovement : MonoBehaviour
             }
             else
             {
-                td.EnableHighlight(Color.white);
-                highlightedTiles.Add(td);
-                selectedWorker.AddToRoadQueue(locationPos);
+                if (selectedWorker.AddToRoadQueue(locationPos))
+                {
+                    td.EnableHighlight(Color.white);
+                    highlightedTiles.Add(td);
+                }
+                else
+                {
+                    td.DisableHighlight();
+                    highlightedTiles.Remove(td);
+                }
             }
  
             return;            
@@ -275,16 +282,16 @@ public class UnitMovement : MonoBehaviour
         ShowIndividualCityButtonsUI();
     }
 
-    public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos)
+    public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
     {
-        if (queueMovementOrders && selectedUnit.FinalDestinationLoc != location && selectedUnit.isMoving)
+        if (queueMovementOrders && unit.FinalDestinationLoc != location && unit.isMoving)
         {
             movementSystem.AppendNewPath(selectedUnit);
             //movementSystem.GetPathToMove(world, selectedUnit, terrainPos, isTrader); //Call AStar movement
             //movementSystem.ClearPaths();
             //return;
         }
-        else if (selectedUnit.isMoving)
+        else if (unit.isMoving)
         {
             selectedUnit.ResetMovementOrders();
         }
@@ -311,12 +318,12 @@ public class UnitMovement : MonoBehaviour
 
         //bool isTrader = selectedTrader != null;
 
-        selectedUnit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
-        movementSystem.GetPathToMove(world, selectedUnit, terrainPos, selectedTrader != null); //Call AStar movement
+        unit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
+        movementSystem.GetPathToMove(world, unit, terrainPos, selectedTrader != null); //Call AStar movement
 
-        selectedUnit.FinalDestinationLoc = location;
+        unit.FinalDestinationLoc = location;
         //uiJoinCity.ToggleTweenVisibility(false);
-        if (selectedUnit.isBusy)
+        if (unit.isBusy)
             uiCancelMove.ToggleTweenVisibility(false);
         else
             uiCancelMove.ToggleTweenVisibility(true);
@@ -325,7 +332,7 @@ public class UnitMovement : MonoBehaviour
         {
             moveUnit = false;
             uiMoveUnit.ToggleButtonColor(false);
-            movementSystem.MoveUnit(selectedUnit);
+            movementSystem.MoveUnit(unit);
         }
         //movementSystem.HidePath();
         movementSystem.ClearPaths();
@@ -453,7 +460,7 @@ public class UnitMovement : MonoBehaviour
         //    //    return;
         //    //}
 
-        HandleSelectedLocation(location, terrainPos);
+        HandleSelectedLocation(location, terrainPos, selectedUnit);
     }
 
     private void GiveWarningMessage(string message)
@@ -544,7 +551,7 @@ public class UnitMovement : MonoBehaviour
     public void ConfirmRoadBuild()
     {
         ClearBuildRoad();
-        selectedWorker.BeginBuildingRoad();
+        selectedWorker.SetRoadQueue();
     }
 
     public void ClearBuildRoad()
@@ -708,7 +715,9 @@ public class UnitMovement : MonoBehaviour
         uiMoveUnit.ToggleTweenVisibility(false);
         uiCancelMove.ToggleTweenVisibility(false);
         uiJoinCity.ToggleTweenVisibility(false);
-        uiCancelTask.ToggleTweenVisibility(false);
+
+        if (selectedWorker != null)
+            uiCancelTask.ToggleTweenVisibility(false);
         uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
         uiTraderPanel.ToggleVisibility(false);
         uiCancelTradeRoute.ToggleTweenVisibility(false);

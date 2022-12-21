@@ -12,6 +12,7 @@ public class Worker : Unit
     private Vector3Int resourceCityLoc;
     private Resource resource;
     private TimeProgressBar timeProgressBar;
+    private List<Vector3Int> roadBuildList = new();
     private Queue<Vector3Int> roadBuildQueue = new();
 
     private void Awake()
@@ -50,9 +51,18 @@ public class Worker : Unit
     //{
     //    this.resourceIndividualHandler = resourceIndividualHandler;
     //}
-    public void AddToRoadQueue(Vector3Int roadLoc)
+    public bool AddToRoadQueue(Vector3Int roadLoc)
     {
-        roadBuildQueue.Enqueue(roadLoc);
+        if (roadBuildList.Contains(roadLoc))
+        {
+            roadBuildList.Remove(roadLoc);
+            return false;
+        }
+        else
+        {
+            roadBuildList.Add(roadLoc);
+            return true;
+        }
     }
 
     public bool MoreRoadToBuild()
@@ -62,6 +72,7 @@ public class Worker : Unit
 
     public void ResetRoadQueue()
     {
+        roadBuildList.Clear();
         roadBuildQueue.Clear();
     }
 
@@ -87,10 +98,48 @@ public class Worker : Unit
         //workerTaskManager.BuildRoad(workerTile, this);
     }
 
+    public void SetRoadQueue()
+    {
+        if (roadBuildList.Count > 0)
+        {
+            roadBuildQueue = new Queue<Vector3Int>(roadBuildList);
+            roadBuildList.Clear();
+            BeginBuildingRoad();
+        }
+        else
+        {
+            isBusy = false;
+            workerTaskManager.TurnOffCancelTask();
+        }
+    }
+
     public void BeginBuildingRoad()
     {
-        FinishedMoving.AddListener(BuildRoad);
-        workerTaskManager.MoveToBuildRoad(roadBuildQueue.Dequeue());
+        if (world.RoundToInt(transform.position) == roadBuildQueue.Peek())
+        {
+            roadBuildQueue.Dequeue();
+            BuildRoad();
+        }
+        else
+        {
+            FinishedMoving.AddListener(BuildRoad);
+            workerTaskManager.MoveToBuildRoad(roadBuildQueue.Dequeue(), this);
+        }
+    }
+
+    public override void SkipRoadBuild()
+    {
+        if (MoreRoadToBuild())
+        {
+            BeginBuildingRoad();
+        }
+        else
+        {
+            isBusy = false;
+
+            if (isSelected)
+                workerTaskManager.TurnOffCancelTask();
+        }
     }
 
     private void BuildRoad()
@@ -98,7 +147,7 @@ public class Worker : Unit
         FinishedMoving.RemoveListener(BuildRoad);
         Vector3 currentPos = transform.position;
         currentPos.y = 0;
-        workerTaskManager.BuildRoad(Vector3Int.RoundToInt(currentPos), this);
+        workerTaskManager.BuildRoad(world.RoundToInt(currentPos), this);
     }
 
     public void RemoveRoad()
@@ -130,7 +179,7 @@ public class Worker : Unit
         workerPos.y = 0;
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
 
-        if (world.IsBuildLocationTaken(workerTile) || world.IsRoadOnTerrain(workerTile))
+        if (!world.IsTileOpenCheck(workerTile))
         {
             InfoPopUpHandler.Create(workerPos, "Harvest on open tile");
             return;
@@ -164,7 +213,7 @@ public class Worker : Unit
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(BuildCity);
 
-        if (world.IsBuildLocationTaken(workerTile))
+        if (!world.IsTileOpenCheck(workerTile))
         {
             InfoPopUpHandler.Create(workerPos, "Already something here");
             return;
