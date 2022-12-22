@@ -31,7 +31,12 @@ public class ResourceManager : MonoBehaviour
     [HideInInspector]
     public Queue<ResourceProducer> waitingToUnloadProducers = new();
     [HideInInspector]
+    public Queue<ResourceProducer> waitingToUnloadResearch = new();
+    [HideInInspector]
     public bool fullInventory;
+
+    //wait list for research
+    private List<ResourceProducer> waitingForResearchProducerList = new();
 
     //wait list for inventory space
     private List<ResourceProducer> waitingForStorageRoomProducerList = new();
@@ -204,7 +209,7 @@ public class ResourceManager : MonoBehaviour
 
             if (resourceType == ResourceType.Gold)
             {
-                city.UpdateWorldGold(-consumedAmount);
+                city.UpdateWorldResources(resourceType, -consumedAmount);
             }
             else
             {
@@ -283,9 +288,9 @@ public class ResourceManager : MonoBehaviour
         {
             return AddFood(newResourceAmount);
         }
-        else if (resourceType == ResourceType.Gold)
+        else if (resourceType == ResourceType.Gold || resourceType == ResourceType.Research)
         {
-            city.UpdateWorldGold(newResourceAmount);
+            city.UpdateWorldResources(resourceType, newResourceAmount);
             return newResourceAmount;
         }
         else if (CheckStorageSpaceForResource(resourceType, newResourceAmount) && resourceDict.ContainsKey(resourceType))
@@ -616,6 +621,37 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
+    public void CheckProducerUnloadResearchWaitList()
+    {
+        if (city.WorldResearchingCheck())
+        {
+            int queueCount = waitingToUnloadResearch.Count;
+
+            for (int i = 0; i < queueCount; i++)
+            {
+                if (city.WorldResearchingCheck())
+                    waitingToUnloadResearch.Dequeue().UnloadAndRestart();
+                else
+                    break;
+            }
+
+            if (city.WorldResearchingCheck())
+                RestartResearchWaitProduction();
+        }
+    }
+
+    public void RestartResearchWaitProduction()
+    {
+        List<ResourceProducer> tempProducers = new(waitingForResearchProducerList);
+
+        foreach (ResourceProducer producer in tempProducers)
+        {
+            producer.isWaitingForResearch = false;
+            producer.StartProducing();
+            waitingForResearchProducerList.Remove(producer);
+        }
+    }
+
     public void RestartStorageRoomWaitProduction()
     {
         List<ResourceProducer> tempProducers = new(waitingForStorageRoomProducerList);
@@ -626,6 +662,11 @@ public class ResourceManager : MonoBehaviour
             producer.StartProducing();
             waitingForStorageRoomProducerList.Remove(producer);
         }
+    }
+
+    public void RemoveFromWaitUnloadResearchQueue(ResourceProducer resourceProducer)
+    {
+        waitingToUnloadResearch = new Queue<ResourceProducer>(waitingToUnloadResearch.Where(x => x != resourceProducer));
     }
 
     public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
@@ -652,6 +693,16 @@ public class ResourceManager : MonoBehaviour
             if (producer.consumedResourceTypes.Contains(resourceType))
                 producer.RestartResourceWaitProduction();
         }
+    }
+
+    public void AddToResearchWaitList(ResourceProducer resourceProducer)
+    {
+        waitingForResearchProducerList.Add(resourceProducer);
+    }
+
+    public void RemoveFromResearchWaitlist(ResourceProducer resourceProducer)
+    {
+        waitingforResourceProducerList.Remove(resourceProducer);
     }
 
     public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)

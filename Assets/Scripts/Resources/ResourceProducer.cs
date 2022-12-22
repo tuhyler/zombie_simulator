@@ -19,7 +19,7 @@ public class ResourceProducer : MonoBehaviour
     private int productionTimer;
     private TimeProgressBar timeProgressBar;
     [HideInInspector]
-    public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload;
+    public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch;
     private float unloadLabor;
     private bool isProducing;
     [HideInInspector]
@@ -129,7 +129,12 @@ public class ResourceProducer : MonoBehaviour
     //for producing resources
     public void StartProducing()
     {
-        if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
+        if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        {
+            AddToResearchWaitList();
+            return;
+        }
+        else if (resourceManager.fullInventory)
         {
             AddToStorageRoomWaitList();
             return;
@@ -216,8 +221,17 @@ public class ResourceProducer : MonoBehaviour
                 timeProgressBar.SetTime(productionTimer);
         }
 
+        //checking if still researching
+        if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        {
+            isWaitingToUnload = true;
+            unloadLabor = tempLabor;
+            resourceManager.waitingToUnloadResearch.Enqueue(this);
+            timeProgressBar.SetToZero();
+            resourceManager.city.AddToWorldResearchWaitList();
+        }
         //checking of storage is free to unload
-        if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
+        else if (resourceManager.fullInventory)
         {
             isWaitingToUnload = true;
             unloadLabor = tempLabor;
@@ -246,7 +260,12 @@ public class ResourceProducer : MonoBehaviour
         Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
-        if (resourceManager.fullInventory && improvementData.resourceType != ResourceType.Research)
+        if (improvementData.resourceType != ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        {
+            AddToResearchWaitList();
+            timeProgressBar.SetActive(false);
+        }
+        else if (resourceManager.fullInventory)
         {
             AddToStorageRoomWaitList();
             timeProgressBar.SetActive(false);
@@ -268,7 +287,12 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
-        if (isWaitingForStorageRoom)
+        if (isWaitingForResearch)
+        {
+            resourceManager.RemoveFromWaitUnloadResearchQueue(this);
+            isWaitingForResearch = false;
+        }
+        else if (isWaitingForStorageRoom)
         {
             resourceManager.RemoveFromStorageRoomWaitList(this);
             isWaitingForStorageRoom = false;
@@ -292,6 +316,13 @@ public class ResourceProducer : MonoBehaviour
 
         timeProgressBar.SetActive(false);
         isProducing = false;
+    }
+
+    private void AddToResearchWaitList()
+    {
+        isWaitingForResearch = true;
+        resourceManager.AddToResearchWaitList(this);
+        resourceManager.city.AddToWorldResearchWaitList();
     }
 
     private void AddToStorageRoomWaitList()

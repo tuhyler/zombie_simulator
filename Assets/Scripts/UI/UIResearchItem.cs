@@ -8,13 +8,19 @@ using UnityEngine.UI;
 public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
-    private TMP_Text researchName;
-    
+    private TMP_Text researchName, researchPercentDone;
+
+    [SerializeField]
+    private Image progressBarMask;
+
     [SerializeField]
     private Image researchItemPanel;
     
     [SerializeField]
     private Transform uiElementsParent;
+
+    [SerializeField]
+    private Transform progressBarHolder;
 
     [SerializeField]
     private CanvasGroup canvasGroup;
@@ -43,6 +49,12 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     private void Awake()
     {
+        progressBarMask.fillAmount = 0;
+        progressBarHolder.gameObject.SetActive(false);
+        
+        researchPercentDone.outlineWidth = 0.35f;
+        researchPercentDone.outlineColor = new Color(0, 0, 0, 255);
+
         if (completed)
             canvasGroup.interactable = false;
 
@@ -85,8 +97,10 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void ResearchComplete(MapWorld world)
     {
+        ChangeColor();
         completed = true;
-        canvasGroup.interactable = false;
+        locked = true;
+        canvasGroup.alpha = 0.5f;
         
         foreach (UIResearchReward researchReward in researchRewardList)
         {
@@ -135,5 +149,24 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         {
             SelectResearchItem();
         }
+    }
+
+    public void HideProgressBar()
+    {
+        progressBarHolder.gameObject.SetActive(false);
+    }
+
+    public void UpdateProgressBar()
+    {
+        progressBarHolder.gameObject.SetActive(true);
+        float researchPerc = (float)researchReceived / totalResearchNeeded;
+        researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
+        
+        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                progressBarMask.fillAmount = value;
+            });
     }
 }

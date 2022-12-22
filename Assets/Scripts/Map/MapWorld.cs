@@ -13,7 +13,12 @@ public class MapWorld : MonoBehaviour
     private UIResearchTreePanel researchTree;
 
     private WorldResourceManager worldResourceManager;
-    
+
+    [HideInInspector]
+    public bool researching;
+
+    private List<City> researchWaitList = new();
+
     private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
     private List<Vector3Int> cityLocations = new();
@@ -80,6 +85,10 @@ public class MapWorld : MonoBehaviour
     {
         worldResourceManager = GetComponent<WorldResourceManager>();
         worldResourceManager.SetUI(uiWorldResources);
+        if (researching)
+            SetResearchName(researchTree.GetChosenResearchName());
+        else
+            SetResearchName("No Current Research");
     }
 
     private void Start()
@@ -189,9 +198,37 @@ public class MapWorld : MonoBehaviour
         uiWorldResources.SetResearchName(name);
     }
 
+    public void AddToResearchWaitList(City city)
+    {
+        if (!researchWaitList.Contains(city))
+            researchWaitList.Add(city);
+    }
+
+    public void RestartResearch()
+    {
+        List<City> cityResearchWaitList = new(researchWaitList);
+        
+        foreach (City city in cityResearchWaitList)
+        {
+            if (researching)
+            {
+                researchWaitList.Remove(city);
+                city.RestartResearch();
+            }
+        }
+    }
+
+    public bool CitiesResearchWaitingCheck()
+    {
+        return researchWaitList.Count > 0;
+    }
+
     //world resources management
     public void UpdateWorldResources(ResourceType resourceType, int amount)
     {
+        if (resourceType == ResourceType.Research)
+            researchTree.AddResearch(amount);
+
         worldResourceManager.SetResource(resourceType, amount);
     }
 
@@ -213,6 +250,12 @@ public class MapWorld : MonoBehaviour
     public void UpdateWorldResourceUI(ResourceType resourceType, int diffAmount)
     {
         worldResourceManager.UpdateUIGeneration(resourceType, diffAmount);
+    }
+
+    public void SetWorldResearchUI(int researchReceived, int totalResearch)
+    {
+        uiWorldResources.ResearchLimit = totalResearch;
+        uiWorldResources.SetResearchValue(researchReceived);
     }
 
 

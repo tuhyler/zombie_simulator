@@ -68,7 +68,7 @@ public class WorldResourceManager : MonoBehaviour
         else
             resourceGenerationPerTurnDict[resourceType] -= generationDiff;
         
-        UpdateUI(resourceType);
+        //UpdateUI(resourceType);
     }
 
     public List<ResourceType> PassWorldResources()
@@ -110,6 +110,6 @@ public class WorldResourceManager : MonoBehaviour
 
     public void UpdateUIGeneration(ResourceType resourceType, float diffAmount)
     {
-        uiWorldResources.SetResourceGenerationAmount(resourceType, diffAmount);
+        //uiWorldResources.SetResourceGenerationAmount(resourceType, diffAmount);
     }
 }

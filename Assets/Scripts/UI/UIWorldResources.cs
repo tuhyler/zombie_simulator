@@ -14,16 +14,12 @@ public class UIWorldResources : MonoBehaviour
     private int researchLimit = 10;
     public int ResearchLimit { set { researchLimit = value; } } 
 
-    private int goldAmount, researchAmount;
-
-    private bool researching; //flag if researching something
+    private int researchAmount;
 
 
     private void Awake()
     {
-        //goldResourceAmount.text = "0".ToString();
         SetResearchValue(researchAmount);
-        SetResearchTitle();
     }
 
     public void SetActiveStatus(bool v)
@@ -45,45 +41,18 @@ public class UIWorldResources : MonoBehaviour
         researchTitle.text = name;
     }
 
-    private void SetGoldValue(int goldVal)
+    public void SetResearchValue(int researchVal)
     {
-        //goldAmount = goldVal;
-        //goldResourceAmount.text = goldAmount.ToString();
-    }
-
-    private void SetResearchValue(int researchVal)
-    {
-        researchAmount += researchVal;
-        float researchPerc = researchAmount / researchLimit;
-        progressBarMask.fillAmount = researchPerc;
+        researchAmount = researchVal;
+        float researchPerc = (float)researchAmount / researchLimit;
+        //progressBarMask.fillAmount = researchPerc;
         researchResourceAmount.text = Mathf.RoundToInt(researchPerc * 100).ToString() + "%";
-    }
 
-    public void SetResearchTitle(string title = "")
-    {
-        if (researching)
-        {
-            researchTitle.text = title;
-        }
-        else
-        {
-            researchTitle.text = "No Current Research";
-        }
-    }
-
-    public void SetResourceGenerationAmount(ResourceType resourceType, float val)
-    {
-        //if (val > 0)
-        //{
-        //    //resourceGenerationAmount.text = $"+{val}";
-        //}
-        //if (val == 0)
-        //{
-        //    //resourceGenerationAmount.text = "-";
-        //}
-        //if (val < 0)
-        //{
-        //    //resourceGenerationAmount.text = val.ToString();
-        //}
+        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                progressBarMask.fillAmount = value;
+            });
     }
 }
