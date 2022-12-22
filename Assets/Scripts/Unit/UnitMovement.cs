@@ -254,6 +254,8 @@ public class UnitMovement : MonoBehaviour
 
     public void PrepareMovement(Unit unit) //handling unit selection through the unit turn buttons
     {
+        world.CloseResearchTree();
+        
         if (selectedUnit != null) //clearing selection if a new unit is clicked
         {
             ClearSelection();
@@ -708,35 +710,38 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    private void ClearSelection()
+    public void ClearSelection()
     {
         //selectedTile = null;
-        moveUnit = false;
-        uiMoveUnit.ToggleTweenVisibility(false);
-        uiCancelMove.ToggleTweenVisibility(false);
-        uiJoinCity.ToggleTweenVisibility(false);
-
-        if (selectedWorker != null)
-            uiCancelTask.ToggleTweenVisibility(false);
-        uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
-        uiTraderPanel.ToggleVisibility(false);
-        uiCancelTradeRoute.ToggleTweenVisibility(false);
-        uiTradeRouteManager.CloseWindow();
-        uiWorkerTask.ToggleVisibility(false);
         if (selectedUnit != null)
         {
+            moveUnit = false;
+            uiMoveUnit.ToggleTweenVisibility(false);
+            uiCancelMove.ToggleTweenVisibility(false);
+            uiJoinCity.ToggleTweenVisibility(false);
+
+            if (selectedWorker != null)
+                uiCancelTask.ToggleTweenVisibility(false);
+            uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+            uiTraderPanel.ToggleVisibility(false);
+            uiCancelTradeRoute.ToggleTweenVisibility(false);
+            uiTradeRouteManager.CloseWindow();
+            uiWorkerTask.ToggleVisibility(false);
+            //if (selectedUnit != null)
+            //{
             selectedUnit.Deselect();
             selectedUnit.HidePath();
+            //}
+            uiPersonalResourceInfoPanel.ToggleVisibility(false);
+            LoadUnloadFinish(); //clear load cargo screen
+            infoManager.HideInfoPanel();
+            //movementSystem.ClearPaths(); //necessary to queue movement orders
+            selectedUnitInfoProvider = null;
+            workerTaskManager.NullWorkerUnit();
+            selectedTrader = null;
+            selectedWorker = null;
+            selectedUnit = null;
         }
-        uiPersonalResourceInfoPanel.ToggleVisibility(false);
-        LoadUnloadFinish(); //clear load cargo screen
-        infoManager.HideInfoPanel();
-        //movementSystem.ClearPaths(); //necessary to queue movement orders
-        selectedUnitInfoProvider = null;
-        workerTaskManager.NullWorkerUnit();
-        selectedTrader = null;
-        selectedWorker = null;
-        selectedUnit = null;
     }
 
     //private bool CheckIfTheSameUnitSelected(Unit unitReference)

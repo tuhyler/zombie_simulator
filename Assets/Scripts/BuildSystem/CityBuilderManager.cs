@@ -1995,7 +1995,7 @@ public class CityBuilderManager : MonoBehaviour
         upgradingImprovement = false;
     }
 
-    private void ResetCityUI()
+    public void ResetCityUI()
     {
         if (selectedCity != null)
         {

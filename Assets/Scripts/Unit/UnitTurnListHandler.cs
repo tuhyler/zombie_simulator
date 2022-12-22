@@ -58,7 +58,7 @@ public class UnitTurnListHandler : MonoBehaviour
         if (unitTurnList.Count == 0)
         {
             uiUnitTurnHandler.ToggleInteractable(false);
-            unitTurnList = new();
+            //unitTurnList = new();
         }
     }
 

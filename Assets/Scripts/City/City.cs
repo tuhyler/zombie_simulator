@@ -130,6 +130,20 @@ public class City : MonoBehaviour
         this.cityBuilderManager = cityBuilderManager;
     }
 
+    public bool WorldResearchingCheck()
+    {
+        return world.researching;
+    }
+
+    public void RestartResearch()
+    {
+        resourceManager.CheckProducerUnloadResearchWaitList();
+    }
+
+    public void AddToWorldResearchWaitList()
+    {
+        world.AddToResearchWaitList(this);
+    }
 
     private void EnableHighlight()
     {
@@ -470,9 +484,9 @@ public class City : MonoBehaviour
         return resourcesWorkedDict[resourceType];
     }
 
-    public void UpdateWorldGold(int amount)
+    public void UpdateWorldResources(ResourceType resourceType, int amount)
     {
-        world.UpdateWorldResources(ResourceType.Gold, amount);
+        world.UpdateWorldResources(resourceType, amount);
     }
 
     public bool CheckWorldGold(int amount)
