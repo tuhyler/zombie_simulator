@@ -260,7 +260,7 @@ public class ResourceProducer : MonoBehaviour
         Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
-        if (improvementData.resourceType != ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
             timeProgressBar.SetActive(false);

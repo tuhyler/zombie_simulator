@@ -108,9 +108,9 @@ public class CityBuilderManager : MonoBehaviour
     private void PopulateUpgradeDictForTesting()
     {
         //here just for testing
-        world.SetUpgradeableObjectMaxLevel("Research", 2);
-        world.SetUpgradeableObjectMaxLevel("Mine", 2);
-        world.SetUpgradeableObjectMaxLevel("Monument", 2);
+        //world.SetUpgradeableObjectMaxLevel("Research", 2);
+        //world.SetUpgradeableObjectMaxLevel("Mine", 2);
+        //world.SetUpgradeableObjectMaxLevel("Monument", 2);
     }
 
     private void CenterCamOnCity()
@@ -611,7 +611,7 @@ public class CityBuilderManager : MonoBehaviour
                 producer.TimeProgressBarSetActive(v);
                 producer.SetTimeProgressBarToZero();
             }
-            else if (!producer.isWaitingForStorageRoom && !producer.isWaitingforResources)
+            else if (!producer.isWaitingForResearch && !producer.isWaitingForStorageRoom && !producer.isWaitingforResources)
             {
                 producer.TimeProgressBarSetActive(v);
             }

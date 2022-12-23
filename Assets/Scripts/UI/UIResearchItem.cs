@@ -8,19 +8,13 @@ using UnityEngine.UI;
 public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
-    private TMP_Text researchName, researchPercentDone;
+    private TMP_Text researchName, researchPercentDone, queueNumber;
 
     [SerializeField]
-    private Image progressBarMask;
+    private Image progressBarMask, researchItemPanel, queueNumberHolderImage;
 
     [SerializeField]
-    private Image researchItemPanel;
-    
-    [SerializeField]
-    private Transform uiElementsParent;
-
-    [SerializeField]
-    private Transform progressBarHolder;
+    private Transform uiElementsParent, progressBarHolder, queueNumberHolder;
 
     [SerializeField]
     private CanvasGroup canvasGroup;
@@ -40,18 +34,24 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     public List<UIResearchItem> researchDependent = new();
     public List<Image> arrows = new();
 
-    private bool completed;
+    [HideInInspector]
+    public bool completed;
 
     private List<UIResearchReward> researchRewardList = new();
     private Color originalColor;
-    //private Color arrowOriginalColor;
+    private Color selectedColor = new Color(0, 1f, 1f);
+    private Color arrowOriginalColor;
     private bool isSelected;
+
+    [HideInInspector]
+    public bool tempUnlocked;
 
     private void Awake()
     {
         progressBarMask.fillAmount = 0;
         progressBarHolder.gameObject.SetActive(false);
-        
+        queueNumberHolder.gameObject.SetActive(false);
+
         researchPercentDone.outlineWidth = 0.35f;
         researchPercentDone.outlineColor = new Color(0, 0, 0, 255);
 
@@ -59,7 +59,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             canvasGroup.interactable = false;
 
         originalColor = researchItemPanel.color;
-        //arrowOriginalColor = arrows[0].color;
+        arrowOriginalColor = arrows[0].color;
 
         foreach (Transform transform in uiElementsParent)
             researchRewardList.Add(transform.GetComponent<UIResearchReward>());
@@ -70,8 +70,17 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         this.researchTree = researchTree;
     }
 
+    public void SetQueueNumber(int number)
+    {
+        queueNumber.text = number.ToString();
+    }
+
     public void SelectResearchItem()
     {
+        tempUnlocked = true;
+        foreach (UIResearchItem researchItem in researchUnlocked)
+            researchItem.TempUnlockCheck();
+
         researchTree.SetResearchItem(this);
     }
 
@@ -81,27 +90,35 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         {
             isSelected = false;
             researchItemPanel.color = originalColor;
+            queueNumberHolderImage.color = originalColor;
+            queueNumberHolder.gameObject.SetActive(false);
 
-            //foreach (Image arrow in arrows)
-            //    arrow.color = arrowOriginalColor;
+            foreach (Image arrow in arrows)
+                arrow.color = arrowOriginalColor;
         }
         else
         {
             isSelected = true;
-            researchItemPanel.color = Color.green;
+            researchItemPanel.color = selectedColor;
+            queueNumberHolderImage.color = selectedColor;
+            queueNumberHolder.gameObject.SetActive(true);
+            queueNumber.text = 1.ToString();
 
-            //foreach (Image arrow in arrows)
-            //    arrow.color = Color.green;
+            foreach (Image arrow in arrows)
+                arrow.color = selectedColor;
         }
     }
 
     public void ResearchComplete(MapWorld world)
     {
         ChangeColor();
+        HideProgressBar();
         completed = true;
         locked = true;
+        tempUnlocked = true;
         canvasGroup.alpha = 0.5f;
         
+        //unlocking all research rewards
         foreach (UIResearchReward researchReward in researchRewardList)
         {
             if (researchReward.improvementData != null)
@@ -112,7 +129,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 if (data.improvementLevel > 1)
                 {
                     string nameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-                    world.GetUpgradeData(nameAndLevel).locked = true;
+                    world.GetImprovementData(nameAndLevel).locked = true;
                 }
             }
             else if (researchReward.unitData != null)
@@ -123,11 +140,12 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 if (data.unitLevel > 1)
                 {
                     string nameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
-                    world.GetUpgradeData(nameAndLevel).locked = true;
+                    world.GetUnitBuildData(nameAndLevel).locked = true;
                 }
             }
         }
 
+        //unlocking research items down further in tree
         foreach (UIResearchItem researchItem in researchUnlocked)
             researchItem.UnlockCheck();
     }
@@ -136,7 +154,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     {
         foreach (UIResearchItem researchItem in researchDependent)
         {
-            if (researchItem.locked)
+            if (!researchItem.completed)
                 return;
         }
 
@@ -145,10 +163,48 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (!locked)
+        if (researchTree.isQueueing)
         {
+            if (!researchTree.QueueContainsCheck(this) && (!locked || tempUnlocked))
+            {
+                if (!researchTree.IsResearching())
+                {
+                    SelectResearchItem();
+                    return;
+                }
+                
+                tempUnlocked = true;
+                researchTree.AddToQueue(this);
+                queueNumberHolder.gameObject.SetActive(true);
+                queueNumber.text = (researchTree.QueueCount() + 1).ToString();
+
+                foreach (UIResearchItem researchItem in researchUnlocked)
+                    researchItem.TempUnlockCheck();
+            }
+        }
+        else if (!locked)
+        {
+            if (!researchTree.isQueueing && researchTree.QueueCount() > 0)
+                researchTree.EndQueue();
             SelectResearchItem();
         }
+    }
+
+    public void TempUnlockCheck()
+    {
+        foreach (UIResearchItem researchItem in researchDependent)
+        {
+            if (!researchItem.tempUnlocked)
+                return;
+        }
+
+        tempUnlocked = true;
+    }
+
+    public void EndQueue()
+    {
+        tempUnlocked = false;
+        queueNumberHolder.gameObject.SetActive(false);
     }
 
     public void HideProgressBar()
