@@ -45,6 +45,11 @@ public class WorldResourceManager : MonoBehaviour
         UpdateUI();
     }
 
+    public void SetResearch(int amount)
+    {
+        resourceDict[ResourceType.Research] = amount;
+    }
+
     //private void SetInitialResourceGenerationValues()
     //{
     //    foreach (ResourceGenerationValue initialResourceGeneration in initialWorldResourcesGeneration)

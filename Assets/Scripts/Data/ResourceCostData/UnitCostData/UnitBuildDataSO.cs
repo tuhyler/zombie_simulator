@@ -13,6 +13,7 @@ public class UnitBuildDataSO : ScriptableObject
     public List<ResourceValue> consumedResources;
     public UnitType unitType;
     public string unitDescription;
+    public bool availableInitially = false;
     public bool locked = true;
 }
 

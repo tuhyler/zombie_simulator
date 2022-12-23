@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Tilemaps;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIResearchTreePanel : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class UIResearchTreePanel : MonoBehaviour
     private Transform uiElementsParent;
 
     [SerializeField]
+    private Image queueButton; 
+
+    [SerializeField]
     private UnitMovement unitMovement;
 
     [SerializeField]
@@ -19,7 +23,11 @@ public class UIResearchTreePanel : MonoBehaviour
 
     private UIResearchItem chosenResearchItem;
     private List<UIResearchItem> researchItemList = new();
+    private Queue<UIResearchItem> researchItemQueue = new();
     private int extraResearch;
+    [HideInInspector]
+    public bool isQueueing;
+    private Color originalColor;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -30,13 +38,16 @@ public class UIResearchTreePanel : MonoBehaviour
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
+        originalColor = queueButton.color;
         gameObject.SetActive(false);
         
         foreach (Transform transform in uiElementsParent)
         {
-            UIResearchItem researchItem = transform.GetComponent<UIResearchItem>();
-            researchItem.SetResearchTree(this);
-            researchItemList.Add(researchItem);
+            if (transform.TryGetComponent(out UIResearchItem researchItem))
+            {
+                researchItem.SetResearchTree(this);
+                researchItemList.Add(researchItem);
+            }
         }    
     }
 
@@ -69,6 +80,14 @@ public class UIResearchTreePanel : MonoBehaviour
         }
         else
         {
+            if (chosenResearchItem == null)
+            {
+                world.SetResearchName("No Current Research");
+                world.SetWorldResearchUI(0, 1);
+            }
+
+            isQueueing = false;
+            queueButton.color = originalColor;
             activeStatus = false;
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
@@ -84,10 +103,61 @@ public class UIResearchTreePanel : MonoBehaviour
         ToggleVisibility(false);
     }
 
+    public void StartQueue()
+    {
+        if (isQueueing)
+        {
+            isQueueing = false;
+            queueButton.color = originalColor;
+        }
+        else
+        {
+            isQueueing = true;
+            queueButton.color = Color.green;
+        }
+    }
+
+    public void AddToQueue(UIResearchItem researchItem)
+    {
+        researchItemQueue.Enqueue(researchItem);
+    }
+
+    public int QueueCount()
+    {
+        return researchItemQueue.Count;
+    }
+
+    public bool QueueContainsCheck(UIResearchItem researchItem)
+    {
+        return researchItemQueue.Contains(researchItem);
+    }
+
+    private void MoveDownInQueue()
+    {
+        for (int i = 0; i < researchItemQueue.Count; i++)
+        {
+            UIResearchItem researchItem = researchItemQueue.Dequeue();
+            researchItem.SetQueueNumber(i + 2);
+            researchItemQueue.Enqueue(researchItem);
+        }
+    }
+
+    public void EndQueue()
+    {
+        isQueueing = false;
+        queueButton.color = originalColor;
+
+        int count = researchItemQueue.Count;
+        for (int i = 0; i < count; i++)
+            researchItemQueue.Dequeue().EndQueue();
+    }
+
     public void SetResearchItem(UIResearchItem researchItem)
     {
-        if (chosenResearchItem != null)
+        //undoing from previously selected research item
+        if (chosenResearchItem != null && !chosenResearchItem.completed)
         {
+            chosenResearchItem.tempUnlocked = false;
             chosenResearchItem.ChangeColor();
             if (chosenResearchItem.ResearchReceived == 0)
                 chosenResearchItem.HideProgressBar();
@@ -96,13 +166,11 @@ public class UIResearchTreePanel : MonoBehaviour
             {
                 world.researching = false;
                 world.SetResearchName("No Current Research");
+                world.SetWorldResearchUI(0, 1);
+                chosenResearchItem = null;
                 return;
             }
         }
-
-        world.researching = true;
-        if (world.CitiesResearchWaitingCheck())
-            world.RestartResearch();
 
         researchItem.ChangeColor();
         world.SetResearchName(researchItem.ResearchName);
@@ -111,10 +179,14 @@ public class UIResearchTreePanel : MonoBehaviour
         if (extraResearch > 0)
             AddResearch(extraResearch);
 
+        world.researching = true;
+        if (world.CitiesResearchWaitingCheck())
+            world.RestartResearch();
+
         world.SetWorldResearchUI(chosenResearchItem.ResearchReceived, chosenResearchItem.totalResearchNeeded);
     }
 
-    public void AddResearch(int amount)
+    public int AddResearch(int amount)
     {
         int diff = chosenResearchItem.totalResearchNeeded - chosenResearchItem.ResearchReceived;
         extraResearch = 0;
@@ -122,22 +194,47 @@ public class UIResearchTreePanel : MonoBehaviour
         if (amount > diff)
         {
             extraResearch = amount - diff;
-            chosenResearchItem.ResearchReceived = chosenResearchItem.totalResearchNeeded;
+            amount = diff;
         }
-        else
-        {
-            chosenResearchItem.ResearchReceived += amount;
-        }
+            
+        chosenResearchItem.ResearchReceived += amount;
 
         if (activeStatus)
             chosenResearchItem.UpdateProgressBar();
 
+        return amount;
+    }
+
+    public void CompletedResearchCheck()
+    {
         if (chosenResearchItem.ResearchReceived == chosenResearchItem.totalResearchNeeded)
         {
             chosenResearchItem.ResearchComplete(world);
             researchItemList.Remove(chosenResearchItem);
-            chosenResearchItem = null;
         }
+    }
+
+    public void CompletionNextStep()
+    {
+        if (chosenResearchItem.completed)
+        {
+            if (researchItemQueue.Count == 0)
+            {
+                world.researching = false;
+                //world.SetResearchName("No Current Research");
+                chosenResearchItem = null;
+            }
+            else
+            {
+                SetResearchItem(researchItemQueue.Dequeue());
+                MoveDownInQueue();
+            }
+        }
+    }
+
+    public bool IsResearching()
+    {
+        return chosenResearchItem != null;
     }
 
     public string GetChosenResearchName()

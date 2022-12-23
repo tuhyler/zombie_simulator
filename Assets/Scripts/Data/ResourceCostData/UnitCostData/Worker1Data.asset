@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296, type: 3}
   unitName: Worker
+  unitLevel: 0
   image: {fileID: 0}
   unitCost:
   - resourceType: 4
@@ -23,3 +24,4 @@ MonoBehaviour:
     resourceAmount: 1
   unitType: 0
   unitDescription: Builds cities and roads
+  locked: 0

@@ -173,15 +173,26 @@ public class UIBuilderHandler : MonoBehaviour
             if (buildItem == null)
                 continue;
 
-            string itemName;
+            string itemName = "";
+            List<ResourceValue> resourceCosts = new();
+            bool locked = false;
+
             if (buildItem.UnitBuildData != null)
+            {
                 itemName = buildItem.UnitBuildData.unitName;
-            else
+                resourceCosts = new(buildItem.UnitBuildData.unitCost);
+                locked = buildItem.UnitBuildData.locked;
+            }
+            else if (buildItem.BuildData != null)
+            {
                 itemName = buildItem.BuildData.improvementName;
+                resourceCosts = new(buildItem.BuildData.improvementCost);
+                locked = buildItem.BuildData.locked;
+            }
 
             buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (improvementSingleBuildList.Contains(itemName))
+            if (locked || improvementSingleBuildList.Contains(itemName))
             {
                 buildItem.ToggleVisibility(false);
                 continue;
@@ -189,13 +200,6 @@ public class UIBuilderHandler : MonoBehaviour
 
             //buildItem.ToggleInteractable(true);
             buildItem.SetResourceTextToDefault();
-
-            List<ResourceValue> resourceCosts = new();
-
-            if (buildItem.UnitBuildData != null)
-                resourceCosts = new(buildItem.UnitBuildData.unitCost);
-            if (buildItem.BuildData != null)
-                resourceCosts = new(buildItem.BuildData.improvementCost);
 
             foreach (ResourceValue item in resourceCosts)
             {

@@ -34,6 +34,8 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
+    private Dictionary<string, ImprovementDataSO> improvementDataDict = new();
+    private Dictionary<string, UnitBuildDataSO> unitBuildDataDict = new();
     private Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
     private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new(); 
     private Dictionary<string, ImprovementDataSO> upgradeableObjectDataDict = new();
@@ -120,6 +122,12 @@ public class MapWorld : MonoBehaviour
 
         foreach (ImprovementDataSO data in UpgradeableObjectHolder.Instance.allBuildingsAndImprovements)
         {
+            improvementDataDict[data.improvementName + "-" + data.improvementLevel] = data;
+            
+            if (data.availableInitially)
+                data.locked = false;
+            else
+                data.locked = true;
             upgradeableObjectMaxLevelDict[data.improvementName] = 1;
 
             if (upgradeableObjectLevel < data.improvementLevel) //skip if reached max level
@@ -162,6 +170,12 @@ public class MapWorld : MonoBehaviour
         //populating the upgradeableobjectdict, every one starts at level 1. 
         foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
         {
+            unitBuildDataDict[data.unitName + "-" + data.unitLevel] = data;
+            
+            if (data.availableInitially)
+                data.locked = false;
+            else
+                data.locked = true;
             upgradeableObjectMaxLevelDict[data.unitName] = 1;
         }
 
@@ -227,9 +241,16 @@ public class MapWorld : MonoBehaviour
     public void UpdateWorldResources(ResourceType resourceType, int amount)
     {
         if (resourceType == ResourceType.Research)
-            researchTree.AddResearch(amount);
-
-        worldResourceManager.SetResource(resourceType, amount);
+        {
+            amount = researchTree.AddResearch(amount);
+            researchTree.CompletedResearchCheck();
+            worldResourceManager.SetResource(resourceType, amount);
+            researchTree.CompletionNextStep();
+        }
+        else
+        {
+            worldResourceManager.SetResource(resourceType, amount);
+        }
     }
 
     public void UpdateWorldResourceGeneration(ResourceType resourceType, float amount, bool add)
@@ -254,6 +275,7 @@ public class MapWorld : MonoBehaviour
 
     public void SetWorldResearchUI(int researchReceived, int totalResearch)
     {
+        worldResourceManager.SetResearch(researchReceived);
         uiWorldResources.ResearchLimit = totalResearch;
         uiWorldResources.SetResearchValue(researchReceived);
     }
@@ -441,6 +463,16 @@ public class MapWorld : MonoBehaviour
     public ImprovementDataSO GetUpgradeData(string nameAndLevel)
     {
         return upgradeableObjectDataDict[nameAndLevel];
+    }
+
+    public ImprovementDataSO GetImprovementData(string nameAndLevel)
+    {
+        return improvementDataDict[nameAndLevel];
+    }
+
+    public UnitBuildDataSO GetUnitBuildData(string nameAndLevel)
+    {
+        return unitBuildDataDict[nameAndLevel];
     }
 
     public Sprite GetResourceIcon(ResourceType resourceType)
