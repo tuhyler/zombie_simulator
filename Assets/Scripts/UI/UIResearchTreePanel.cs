@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor.Tilemaps;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class UIResearchTreePanel : MonoBehaviour
 {
@@ -12,6 +14,9 @@ public class UIResearchTreePanel : MonoBehaviour
     [SerializeField]
     private Transform uiElementsParent;
 
+    //[SerializeField]
+    //private RectTransform globalVolume;
+
     [SerializeField]
     private Image queueButton; 
 
@@ -20,6 +25,10 @@ public class UIResearchTreePanel : MonoBehaviour
 
     [SerializeField]
     private CityBuilderManager cityBuilderManager;
+
+    [SerializeField]
+    private Volume globalVolume;
+    private DepthOfField dof;
 
     private UIResearchItem chosenResearchItem;
     private List<UIResearchItem> researchItemList = new();
@@ -40,7 +49,14 @@ public class UIResearchTreePanel : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
         originalColor = queueButton.color;
         gameObject.SetActive(false);
-        
+
+        if (globalVolume.profile.TryGet<DepthOfField>(out DepthOfField tmpDof))
+        {
+            dof = tmpDof;
+        }
+
+        dof.focalLength.value = 15;
+
         foreach (Transform transform in uiElementsParent)
         {
             if (transform.TryGetComponent(out UIResearchItem researchItem))
@@ -49,6 +65,18 @@ public class UIResearchTreePanel : MonoBehaviour
                 researchItemList.Add(researchItem);
             }
         }    
+    }
+
+    public void HandleShiftDown()
+    {
+        if (activeStatus)
+            isQueueing = true;
+    }
+
+    public void HandleShiftUp()
+    {
+        if (activeStatus)
+            isQueueing = false;
     }
 
     public void ToggleVisibility(bool v)
@@ -69,14 +97,22 @@ public class UIResearchTreePanel : MonoBehaviour
             {
                 if (researchItem.ResearchReceived > 0 || researchItem == chosenResearchItem)
                     researchItem.UpdateProgressBar();
+                if (!researchItem.locked && researchItem != chosenResearchItem)
+                    researchItem.ResetAlpha();
             }
 
             activeStatus = true;
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
 
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.5f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                dof.focalLength.value = value;
+            });
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine();
-            //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.5f).setFrom(0f).setEaseLinear();
         }
         else
         {
@@ -89,6 +125,13 @@ public class UIResearchTreePanel : MonoBehaviour
             isQueueing = false;
             queueButton.color = originalColor;
             activeStatus = false;
+
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                dof.focalLength.value = value;
+            });
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
     }
@@ -157,7 +200,7 @@ public class UIResearchTreePanel : MonoBehaviour
         //undoing from previously selected research item
         if (chosenResearchItem != null && !chosenResearchItem.completed)
         {
-            chosenResearchItem.tempUnlocked = false;
+            chosenResearchItem.EndQueue();
             chosenResearchItem.ChangeColor();
             if (chosenResearchItem.ResearchReceived == 0)
                 chosenResearchItem.HideProgressBar();
