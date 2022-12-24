@@ -176,7 +176,7 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
 
-        if (!isWaitingforResources && !isWaitingForStorageRoom)
+        if (!isWaitingForResearch && !isWaitingforResources && !isWaitingForStorageRoom)
         {
             int tempLaborPercCount = tempLaborPercsList.Count;
 
@@ -289,7 +289,7 @@ public class ResourceProducer : MonoBehaviour
 
         if (isWaitingForResearch)
         {
-            resourceManager.RemoveFromWaitUnloadResearchQueue(this);
+            resourceManager.RemoveFromResearchWaitlist(this);
             isWaitingForResearch = false;
         }
         else if (isWaitingForStorageRoom)
@@ -306,6 +306,7 @@ public class ResourceProducer : MonoBehaviour
         else if (isWaitingToUnload)
         {
             resourceManager.RemoveFromWaitUnloadQueue(this);
+            resourceManager.RemoveFromWaitUnloadResearchQueue(this);
             isWaitingToUnload = false;
         }
         else if (producingCo != null)

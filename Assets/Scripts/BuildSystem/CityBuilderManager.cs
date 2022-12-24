@@ -160,7 +160,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 //Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
                 Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
-                TerrainData terrainSelected = world.GetTerrainDataAt(terrainLocation);
+                //TerrainData terrainSelected = world.GetTerrainDataAt(terrainLocation);
 
                 //deselecting if choosing improvement outside of city
                 if (!cityTiles.Contains(terrainLocation) && terrainLocation != selectedCityLoc)
@@ -204,7 +204,7 @@ public class CityBuilderManager : MonoBehaviour
                         return;
                     }
                     
-                    ChangeLaborCount(terrainSelected, terrainLocation);
+                    ChangeLaborCount(terrainLocation);
                 }
             }
         }
@@ -274,7 +274,7 @@ public class CityBuilderManager : MonoBehaviour
                         return;
                     }
 
-                    ChangeLaborCount(terrainSelected, terrainLocation);
+                    ChangeLaborCount(terrainLocation);
                 }
             }
         }
@@ -1558,7 +1558,7 @@ public class CityBuilderManager : MonoBehaviour
         tempObject.SetLaborNumber(world.PrepareLaborNumbers(tile));
     }
 
-    private void ChangeLaborCount(TerrainData terrainSelected, Vector3Int terrainLocation)
+    private void ChangeLaborCount(Vector3Int terrainLocation)
     {
         ResourceProducer resourceProducer = world.GetResourceProducer(terrainLocation); //cached all resource producers in dict
         

@@ -11,13 +11,17 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private TMP_Text researchName, researchPercentDone, queueNumber;
 
     [SerializeField]
-    private Image progressBarMask, researchItemPanel, queueNumberHolderImage;
+    private Image progressBarMask, researchItemPanel, queueNumberHolderImage, queueNumberCheck;
 
     [SerializeField]
     private Transform uiElementsParent, progressBarHolder, queueNumberHolder;
 
     [SerializeField]
-    private CanvasGroup canvasGroup;
+    private Sprite selectedResearchSprite, selectedQueueSprite;
+    private Sprite originalResearchSprite, originalQueueSprite;
+
+    //[SerializeField]
+    //private CanvasGroup canvasGroup;
 
     private UIResearchTreePanel researchTree;
 
@@ -39,7 +43,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     private List<UIResearchReward> researchRewardList = new();
     private Color originalColor;
-    private Color selectedColor = new Color(0, 1f, 1f);
+    private Color selectedColor = new Color(1f, .8f, .65f);
+    private Color lockedColor = new Color(.8f, .8f, .8f);
+    private Color completedColor = new Color(0f, 1f, 0f);
+
+
     private Color arrowOriginalColor;
     private bool isSelected;
 
@@ -51,15 +59,22 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         progressBarMask.fillAmount = 0;
         progressBarHolder.gameObject.SetActive(false);
         queueNumberHolder.gameObject.SetActive(false);
+        queueNumberCheck.gameObject.SetActive(false);
 
         researchPercentDone.outlineWidth = 0.35f;
         researchPercentDone.outlineColor = new Color(0, 0, 0, 255);
 
-        if (completed)
-            canvasGroup.interactable = false;
-
         originalColor = researchItemPanel.color;
+        originalResearchSprite = researchItemPanel.sprite;
+        originalQueueSprite = queueNumberHolderImage.sprite;
+        researchItemPanel.color = lockedColor;
+
+        //if (completed)
+        //    canvasGroup.interactable = false;
+
         arrowOriginalColor = arrows[0].color;
+        foreach (Image arrow in arrows)
+            arrow.color = selectedColor;
 
         foreach (Transform transform in uiElementsParent)
             researchRewardList.Add(transform.GetComponent<UIResearchReward>());
@@ -89,24 +104,34 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         if (isSelected)
         {
             isSelected = false;
-            researchItemPanel.color = originalColor;
-            queueNumberHolderImage.color = originalColor;
+            //researchItemPanel.color = originalColor;
+            researchItemPanel.sprite = originalResearchSprite;
+            queueNumberHolderImage.sprite = originalQueueSprite;
+            //queueNumberHolderImage.color = originalColor;
             queueNumberHolder.gameObject.SetActive(false);
-
-            foreach (Image arrow in arrows)
-                arrow.color = arrowOriginalColor;
-        }
-        else
-        {
-            isSelected = true;
-            researchItemPanel.color = selectedColor;
-            queueNumberHolderImage.color = selectedColor;
-            queueNumberHolder.gameObject.SetActive(true);
-            queueNumber.text = 1.ToString();
 
             foreach (Image arrow in arrows)
                 arrow.color = selectedColor;
         }
+        else
+        {
+            isSelected = true;
+            //researchItemPanel.color = selectedColor;
+            researchItemPanel.sprite = selectedResearchSprite;
+            queueNumberHolderImage.sprite = selectedQueueSprite;
+            //queueNumberHolderImage.color = selectedColor;
+            queueNumberHolder.gameObject.SetActive(true);
+            queueNumber.text = 1.ToString();
+
+            foreach (Image arrow in arrows)
+                arrow.color = originalColor;
+        }
+    }
+
+    public void ResetAlpha()
+    {
+        //canvasGroup.alpha = 1f;
+        researchItemPanel.color = originalColor;
     }
 
     public void ResearchComplete(MapWorld world)
@@ -116,8 +141,18 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         completed = true;
         locked = true;
         tempUnlocked = true;
-        canvasGroup.alpha = 0.5f;
-        
+        researchItemPanel.color = completedColor;
+        queueNumber.gameObject.SetActive(false);
+        queueNumberHolder.gameObject.SetActive(true);
+        queueNumberCheck.gameObject.SetActive(true);
+        queueNumberHolderImage.color = completedColor;
+
+        foreach (Image arrow in arrows)
+        {
+            arrow.color = completedColor;
+        }
+        //canvasGroup.alpha = 0.5f;
+
         //unlocking all research rewards
         foreach (UIResearchReward researchReward in researchRewardList)
         {
@@ -158,6 +193,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 return;
         }
 
+        ResetAlpha();
         locked = false;
     }
 
@@ -203,6 +239,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void EndQueue()
     {
+        foreach (UIResearchItem researchItem in researchUnlocked)
+            researchItem.tempUnlocked = false;
+
         tempUnlocked = false;
         queueNumberHolder.gameObject.SetActive(false);
     }

@@ -666,12 +666,14 @@ public class ResourceManager : MonoBehaviour
 
     public void RemoveFromWaitUnloadResearchQueue(ResourceProducer resourceProducer)
     {
-        waitingToUnloadResearch = new Queue<ResourceProducer>(waitingToUnloadResearch.Where(x => x != resourceProducer));
+        if (waitingToUnloadResearch.Contains(resourceProducer))
+            waitingToUnloadResearch = new Queue<ResourceProducer>(waitingToUnloadResearch.Where(x => x != resourceProducer));
     }
 
     public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
     {
-        waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
+        if (waitingToUnloadProducers.Contains(resourceProducer))
+            waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
     }
 
     public void CheckProducerResourceWaitList()
@@ -702,7 +704,7 @@ public class ResourceManager : MonoBehaviour
 
     public void RemoveFromResearchWaitlist(ResourceProducer resourceProducer)
     {
-        waitingforResourceProducerList.Remove(resourceProducer);
+        waitingForResearchProducerList.Remove(resourceProducer);
     }
 
     public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)
