@@ -1296,7 +1296,6 @@ public class CityBuilderManager : MonoBehaviour
         {
             uiInfoPanelCity.SetData(selectedCity.CityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.GetSetWorkEthic,
                 resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerMinute);
-
         }
 
         if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)

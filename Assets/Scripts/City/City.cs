@@ -15,16 +15,20 @@ public class City : MonoBehaviour
     private CityBuilderManager cityBuilderManager;
 
     [SerializeField]
-    private Material cityNameMaterial;
+    private CityNameField cityNameField;
 
-    private Material originalCityNameMaterial;//, originalCityStatMaterial;
+    //[SerializeField]
+    //private Material cityNameMaterial;
 
-    [SerializeField]
-    private SpriteRenderer cityNameField;//, citySizeField, unusedLaborField;
+    //private Material originalCityNameMaterial;//, originalCityStatMaterial;
 
-    [SerializeField]
-    private TMP_Text cityName;
-    public string CityName { get { return cityName.text; } }
+    //[SerializeField]
+    //private SpriteRenderer cityNameField, citySizeField;//, unusedLaborField;
+
+    //[SerializeField]
+    //private TMP_Text cityName, cityPopText;
+    private string cityName;
+    public string CityName { get { return cityName; } }
 
     [HideInInspector]
     public Vector3Int cityLoc;
@@ -105,13 +109,11 @@ public class City : MonoBehaviour
         SetProgressTimeBar();
         //highlight = GetComponent<SelectionHighlight>();
 
-        originalCityNameMaterial = cityNameField.material;
         resourceManager.ResourceDict = new(world.GetBlankResourceDict());
         resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
         resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
         resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
         resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
-        //originalCityStatMaterial = citySizeField.material;
     }
 
     private void Start()
@@ -122,6 +124,8 @@ public class City : MonoBehaviour
 
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1; //first pop is free
         countDownTimer = secondsTillGrowthCheck;
+
+        cityNameField.ToggleVisibility(false);
         //Physics.IgnoreLayerCollision(6,7);
     }
 
@@ -147,17 +151,12 @@ public class City : MonoBehaviour
 
     private void EnableHighlight()
     {
-        cityNameField.material = cityNameMaterial;
-        //citySizeField.material = cityNameMaterial;
-        //unusedLaborField.material = cityNameMaterial;
-        //Debug.Log("Size is " + cityNameField.size);
+        cityNameField.EnableHighlight();
     }
 
     private void DisableHighlight()
     {
-        cityNameField.material = originalCityNameMaterial;
-        //citySizeField.material = originalCityStatMaterial;
-        //unusedLaborField.material = originalCityStatMaterial;
+        cityNameField.DisableHighlight();
     }
 
     public bool CheckCityName(string cityName)
@@ -184,23 +183,29 @@ public class City : MonoBehaviour
 
         SetCityNameFieldSize(cityName);
         SetCityName(cityName);
+        SetCityPop();
         AddCityNameToWorld();
     }
 
     private void SetCityNameFieldSize(string cityName)
     {
-        float wordLength = cityName.Length;
-        cityNameField.size = new Vector2(wordLength * 0.18f + 0.7f, 1.0f);
+        cityNameField.SetCityNameFieldSize(cityName);
     }
 
     public void SetCityName(string cityName)
     {
-        this.cityName.text = cityName;
+        this.cityName = cityName;
+        cityNameField.SetCityName(cityName);
     }
 
     public void AddCityNameToWorld()
     {
-        world.AddCityName(cityName.text, cityLoc);
+        world.AddCityName(cityName, cityLoc);
+    }
+
+    private void SetCityPop()
+    {
+        cityNameField.SetCityPop(cityPop.CurrentPop);
     }
 
     public void RemoveCityName()
@@ -252,6 +257,7 @@ public class City : MonoBehaviour
     public void PopulationGrowthCheck(bool joinCity)
     {
         cityPop.IncreasePopulationAndLabor();
+        SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
         if (cityPop.CurrentPop > 1)
             resourceManager.IncreaseFoodConsumptionPerTurn(true);
@@ -275,6 +281,7 @@ public class City : MonoBehaviour
                 CityGrowthProgressBarSetActive(true);
                 cityBuilderManager.abandonCityButton.interactable = false;
             }
+            cityNameField.ToggleVisibility(true);
             resourceManager.SellResources();
             StartCoroutine(FoodConsumptionCoroutine());
         }
@@ -283,6 +290,7 @@ public class City : MonoBehaviour
     public void PopulationDeclineCheck()
     {
         cityPop.CurrentPop--;
+        SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
         if (cityPop.CurrentPop == 0)
         {

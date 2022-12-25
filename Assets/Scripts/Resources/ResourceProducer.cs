@@ -308,6 +308,7 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.RemoveFromWaitUnloadQueue(this);
             resourceManager.RemoveFromWaitUnloadResearchQueue(this);
             isWaitingToUnload = false;
+            resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
         }
         else if (producingCo != null)
         {
