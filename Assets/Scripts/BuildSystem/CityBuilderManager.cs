@@ -136,7 +136,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void HandleCitySelection(Vector3 location, GameObject selectedObject)
     {
-        if (world.buildingRoad)
+        if (world.buildingRoad || world.buildingWonder)
             return;
 
         if (selectedObject == null)

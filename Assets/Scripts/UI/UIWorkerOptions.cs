@@ -15,19 +15,19 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
     [SerializeField]
     private CanvasGroup canvasGroup;
 
-    [SerializeField] //changing color of button when selected
-    private Image buttonImage;
-    private Color originalButtonColor;
-    private bool isSelected;
+    //[SerializeField] //changing color of button when selected
+    //private Image buttonImage;
+    //private Color originalButtonColor;
+    //private bool isSelected;
 
     private void Awake()
     {
         buttonHandler = GetComponentInParent<UIWorkerHandler>();
         canvasGroup = GetComponent<CanvasGroup>();
-        originalButtonColor = buttonImage.color;
+        //originalButtonColor = buttonImage.color;
 
-        if (buildData != null && buildData.improvementName == "Road")
-            buttonHandler.SetRoadBuildOption(this);
+        //if (buildData != null && buildData.improvementName == "Road")
+        //    buttonHandler.SetRoadBuildOption(this);
     }
 
 
@@ -47,24 +47,24 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
         buttonHandler.PrepareBuild(buildData);
         buttonHandler.HandleButtonClick();
 
-        if (buildData != null && buildData.improvementName == "Road")
-            ToggleColor(true);
+        //if (buildData != null && buildData.improvementName == "Road")
+        //    ToggleColor(true);
     }
 
-    public void ToggleColor(bool v)
-    {
-        if (isSelected == v)
-            return;
+    //public void ToggleColor(bool v)
+    //{
+    //    if (isSelected == v)
+    //        return;
         
-        if (isSelected)
-        {
-            isSelected = false;
-            buttonImage.color = originalButtonColor;
-        }
-        else
-        {
-            buttonImage.color = Color.green;
-            isSelected = true;
-        }
-    }
+    //    if (isSelected)
+    //    {
+    //        isSelected = false;
+    //        buttonImage.color = originalButtonColor;
+    //    }
+    //    else
+    //    {
+    //        buttonImage.color = Color.green;
+    //        isSelected = true;
+    //    }
+    //}
 }

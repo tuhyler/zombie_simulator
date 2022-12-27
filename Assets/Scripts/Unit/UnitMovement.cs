@@ -92,6 +92,9 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleUnitSelectionAndMovement(Vector3 location, GameObject detectedObject)
     {
+        if (world.buildingWonder)
+            return;
+        
         //if nothing detected, nothing selected
         if (detectedObject == null)
         {
@@ -101,6 +104,7 @@ public class UnitMovement : MonoBehaviour
         }
 
         world.CloseResearchTree();
+        world.CloseWonders();
         location.y = 0;
 
         Vector3Int locationPos = world.GetClosestTerrainLoc(location);
@@ -122,11 +126,17 @@ public class UnitMovement : MonoBehaviour
             {
                 if (selectedWorker.AddToRoadQueue(locationPos))
                 {
+                    if (selectedWorker.IsRoadListMoreThanZero())
+                        uiConfirmBuildRoad.ToggleTweenVisibility(true);
+
                     td.EnableHighlight(Color.white);
                     highlightedTiles.Add(td);
                 }
                 else
                 {
+                    if (!selectedWorker.IsRoadListMoreThanZero())
+                        uiConfirmBuildRoad.ToggleTweenVisibility(false);
+
                     td.DisableHighlight();
                     highlightedTiles.Remove(td);
                 }
@@ -494,11 +504,23 @@ public class UnitMovement : MonoBehaviour
         queueMovementOrders = false;
     }
 
+    public void ToggleCancelButton(bool v)
+    {
+        uiCancelMove.ToggleTweenVisibility(v);
+    }
+
     public void CancelContinuedMovementOrders()
     {
-        selectedUnit.ResetMovementOrders();
-        uiCancelMove.ToggleTweenVisibility(false);
-        selectedUnit.HidePath();
+        if (selectedUnit != null)
+        {
+            selectedUnit.ResetMovementOrders();
+            uiCancelMove.ToggleTweenVisibility(false);
+            selectedUnit.HidePath();
+        }
+        else if (world.buildingWonder)
+        {
+            CloseBuildingSomethingPanel();
+        }
     }
 
     public void JoinCity() //for Join City button
@@ -556,12 +578,30 @@ public class UnitMovement : MonoBehaviour
         selectedWorker.SetRoadQueue();
     }
 
+    public void CloseBuildingSomethingPanel()
+    {
+        if (world.buildingRoad)
+        {
+            ClearBuildRoad();
+
+            selectedWorker.ResetRoadQueue();
+            selectedWorker.isBusy = false;
+            workerTaskManager.TurnOffCancelTask();
+        }
+        else if (world.buildingWonder)
+        {
+            world.CloseBuildingSomethingPanel();
+        }
+    }
+
     public void ClearBuildRoad()
     {
         world.buildingRoad = false;
         uiConfirmBuildRoad.ToggleTweenVisibility(false);
         uiMoveUnit.ToggleTweenVisibility(true);
-        workerTaskManager.ToggleRoadBuild(false);
+        uiWorkerTask.ToggleVisibility(true);
+        workerTaskManager.CloseBuildingRoadPanel();
+        //workerTaskManager.ToggleRoadBuild(false);
         foreach (TerrainData td in highlightedTiles)
             td.DisableHighlight();
     }

@@ -14,10 +14,10 @@ GameObject:
   - component: {fileID: 2009611034026911697}
   - component: {fileID: 9012161218714560926}
   - component: {fileID: 4408959299730940420}
+  - component: {fileID: 8654588524090711973}
   - component: {fileID: 2108233440359776498}
-  - component: {fileID: 5642507770632950622}
   m_Layer: 5
-  m_Name: BuildObjectPanel
+  m_Name: BuildWonderPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -168,6 +168,26 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &8654588524090711973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624308965952619012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22ab773feea162641b61249d7bcf3898, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildData: {fileID: 0}
+  canvasGroup: {fileID: 4408959299730940420}
+  objectName: {fileID: 2927087752969563087}
+  objectImage: {fileID: 3355032083150064776}
+  resourceInfoPanel: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
+    type: 3}
+  resourceCostHolder: {fileID: 4248947161074216305}
+  resourceCostContents: {fileID: 4987195523665830144}
 --- !u!114 &2108233440359776498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,31 +202,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 1
   m_VerticalFit: 1
---- !u!114 &5642507770632950622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 624308965952619012}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1bcdfcce25d1394888420a81221306d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  buildData: {fileID: 0}
-  unitBuildData: {fileID: 0}
-  canvasGroup: {fileID: 4408959299730940420}
-  objectName: {fileID: 2927087752969563087}
-  objectImage: {fileID: 3355032083150064776}
-  resourceInfoPanel: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
-    type: 3}
-  resourceProducedHolder: {fileID: 5892023623257131259}
-  resourceConsumedHolder: {fileID: 5618232202636696049}
-  resourceCostHolder: {fileID: 4248947161074216305}
-  resourceProducedContents: {fileID: 1292233296121455834}
-  resourceConsumedContents: {fileID: 6736260194648849172}
-  resourceCostContents: {fileID: 4987195523665830144}
 --- !u!1 &1425045695668889974
 GameObject:
   m_ObjectHideFlags: 0

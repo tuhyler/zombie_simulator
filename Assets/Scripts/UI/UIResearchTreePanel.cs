@@ -20,11 +20,11 @@ public class UIResearchTreePanel : MonoBehaviour
     [SerializeField]
     private Image queueButton; 
 
-    [SerializeField]
-    private UnitMovement unitMovement;
+    //[SerializeField]
+    //private UnitMovement unitMovement;
 
-    [SerializeField]
-    private CityBuilderManager cityBuilderManager;
+    //[SerializeField]
+    //private CityBuilderManager cityBuilderManager;
 
     [SerializeField]
     private Volume globalVolume;
@@ -88,9 +88,7 @@ public class UIResearchTreePanel : MonoBehaviour
 
         if (v)
         {
-            cityBuilderManager.ResetCityUI();
-            unitMovement.ClearSelection();
-            
+            world.UnselectAll();
             gameObject.SetActive(v);
 
             foreach (UIResearchItem researchItem in researchItemList)
