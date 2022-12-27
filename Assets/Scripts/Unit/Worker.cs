@@ -76,6 +76,11 @@ public class Worker : Unit
         roadBuildQueue.Clear();
     }
 
+    public bool IsRoadListMoreThanZero()
+    {
+        return roadBuildList.Count > 0;
+    }
+
     public void BuildRoadPreparations()
     {
         //Vector3 workerPos = transform.position;
@@ -253,6 +258,7 @@ public class Worker : Unit
         pos.z += -1f;
         timeProgressBar.gameObject.transform.position = pos;
         //timeProgressBar.SetConstructionTime(time);
+        timeProgressBar.SetProgressBarBeginningPosition();
         timeProgressBar.SetTimeProgressBarValue(time);
         timeProgressBar.SetActive(true);
     }

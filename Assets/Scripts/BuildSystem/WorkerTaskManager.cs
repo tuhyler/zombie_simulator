@@ -28,6 +28,8 @@ public class WorkerTaskManager : MonoBehaviour
     private UISingleConditionalButtonHandler uiCancelTask;
     [SerializeField]
     private UIWorkerHandler uiWorkerHandler;
+    [SerializeField]
+    private UIBuildingSomething uiBuildingSomething;
 
     private ResourceIndividualHandler resourceIndividualHandler;
     private RoadManager roadManager;
@@ -56,7 +58,7 @@ public class WorkerTaskManager : MonoBehaviour
         {
             BuildRoadPrep();
             workerUnit.BuildRoadPreparations();
-            ToggleRoadBuild(true);
+            //ToggleRoadBuild(true);
             //Vector3 pos = workerUnit.transform.position;
             //pos.y = 0;
             //Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -332,12 +334,21 @@ public class WorkerTaskManager : MonoBehaviour
 
     private void BuildRoadPrep()
     {
+        uiBuildingSomething.SetText("Building Road");
+        uiWorkerHandler.ToggleVisibility(false);
+        uiBuildingSomething.ToggleVisibility(true);
+
         world.buildingRoad = true;
         workerUnit.isBusy = true;
-        unitMovement.uiConfirmBuildRoad.ToggleTweenVisibility(true);
+        //unitMovement.uiConfirmBuildRoad.ToggleTweenVisibility(true);
         uiCancelTask.ToggleTweenVisibility(true);
         unitMovement.uiMoveUnit.ToggleTweenVisibility(false);
         unitMovement.SetSelectedWorker = workerUnit;
+    }
+
+    public void CloseBuildingRoadPanel()
+    {
+        uiBuildingSomething.ToggleVisibility(false);
     }
 
     public void MoveToBuildRoad(Vector3Int workerTile, Worker workerUnit)
@@ -519,10 +530,10 @@ public class WorkerTaskManager : MonoBehaviour
         TurnOffCancelTask();
     }
 
-    public void ToggleRoadBuild(bool v)
-    {
-        uiWorkerHandler.roadBuildOption.ToggleColor(v);
-    }
+    //public void ToggleRoadBuild(bool v)
+    //{
+    //    uiWorkerHandler.roadBuildOption.ToggleColor(v);
+    //}
 
     public void TurnOffCancelTask()
     {

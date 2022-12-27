@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 public class MapWorld : MonoBehaviour
@@ -11,8 +12,22 @@ public class MapWorld : MonoBehaviour
     private UIWorldResources uiWorldResources;
     [SerializeField]
     private UIResearchTreePanel researchTree;
+    [SerializeField]
+    private UISingleConditionalButtonHandler wonderButton;
+    [SerializeField]
+    private UIWonderHandler wonderHandler;
+    [SerializeField]
+    private UIBuildingSomething uiBuildingSomething;
+    [SerializeField]
+    private UnitMovement unitMovement;
+    [SerializeField]
+    private CityBuilderManager cityBuilderManager;
 
     private WorldResourceManager worldResourceManager;
+    private WonderDataSO wonderData;
+    [SerializeField]
+    private UnityEvent<WonderDataSO> OnIconButtonClick;
+
 
     [HideInInspector]
     public bool researching;
@@ -76,7 +91,7 @@ public class MapWorld : MonoBehaviour
     private bool showGizmo;
 
     [HideInInspector]
-    public bool buildingRoad;
+    public bool buildingRoad, buildingWonder;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -91,6 +106,8 @@ public class MapWorld : MonoBehaviour
             SetResearchName(researchTree.GetChosenResearchName());
         else
             SetResearchName("No Current Research");
+
+        wonderButton.ToggleTweenVisibility(true);
     }
 
     private void Start()
@@ -190,6 +207,100 @@ public class MapWorld : MonoBehaviour
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allWorldResources)
         {
             resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
+        }
+    }
+
+    public void UnselectAll()
+    {
+        cityBuilderManager.ResetCityUI();
+        unitMovement.ClearSelection();
+    }
+
+    public void GiveWarningMessage(string message)
+    {
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = 10f; //z must be more than 0, else just gives camera position
+        Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+
+        InfoPopUpHandler.Create(mouseLoc, message);
+    }
+
+    //wonder info
+    public void HandleWonderPlacement(Vector3 location, GameObject detectedObject)
+    {
+        if (buildingWonder) //only works is placing wonder
+        {
+            Vector3Int locationPos = GetClosestTerrainLoc(location);
+
+            for (int i = 0; i < wonderData.sizeHeight; i++)
+            {
+                for (int j = 0; j < wonderData.sizeWidth; j++)
+                {
+                    Vector3Int newPos = locationPos;
+                    newPos.z += i*increment;
+                    newPos.x += j*increment;
+                    TerrainData td = GetTerrainDataAt(newPos);
+
+                    if (td.terrainData.type != wonderData.terrainType)
+                    {
+                        GiveWarningMessage("Must build on " + wonderData.terrainType);
+                        return;
+                    }
+                    else if (!IsTileOpenCheck(newPos))
+                    {
+                        GiveWarningMessage("Something in the way");
+                        return;
+                    }
+                }
+            }
+
+            SetWonderConstruction();
+        }
+    }
+
+    private void SetWonderConstruction()
+    {
+
+    }
+
+    public void PlaceWonder(WonderDataSO wonderData)
+    {
+        buildingWonder = true;
+        this.wonderData = wonderData;
+        CloseWonders();
+
+        uiBuildingSomething.SetText("Building " + wonderData.wonderName);
+        uiBuildingSomething.ToggleVisibility(true);
+        unitMovement.ToggleCancelButton(true);
+    }
+
+    public void CloseBuildingSomethingPanel()
+    {
+        unitMovement.ToggleCancelButton(false);
+        buildingWonder = false;
+        uiBuildingSomething.ToggleVisibility(false);
+    }
+
+    public void OpenWonders()
+    {
+        if (wonderHandler.activeStatus)
+        {
+            wonderHandler.ToggleVisibility(false);
+            wonderButton.ToggleButtonColor(false);
+        }
+        else
+        {
+            wonderHandler.ToggleVisibility(true);
+            wonderButton.ToggleButtonColor(true);
+        }
+    }
+
+    public void CloseWonders()
+    {
+        if (wonderHandler.activeStatus)
+        {
+            wonderHandler.ToggleVisibility(false);
+            wonderButton.ToggleButtonColor(false);
         }
     }
 

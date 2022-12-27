@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3278592179122087433}
   - component: {fileID: 2315983313483041500}
   m_Layer: 0
-  m_Name: MoveButton
+  m_Name: WonderButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -67,7 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 954d6894757d3bf4085ffb8357a804e2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 35ec9dc42a660f5409dcf8d7243e1cf6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -130,9 +130,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5260703463605753538}
-  - component: {fileID: 1132788130419021965}
+  - component: {fileID: 7286641167647743776}
   m_Layer: 0
-  m_Name: UnitMovePanel
+  m_Name: BuildWonderButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -159,7 +159,7 @@ RectTransform:
   m_AnchoredPosition: {x: -135, y: 300}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1132788130419021965
+--- !u!114 &7286641167647743776
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
