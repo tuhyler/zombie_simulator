@@ -47,7 +47,6 @@ public class TimeProgressBar : MonoBehaviour
         timeText.text = additionalText + string.Format("{0:00}:{1:00}", time / 60, time % 60);
         newScale.x = (totalTime - time) * increment + increment;
         newPosition.x = positionCorrectionAtBeginning + ((totalTime - time) * positionIncrement + positionIncrement);
-
         //setting the last increment
         //if (timeProgressBarMask.localScale.x > totalTime * increment - increment)
         if (time == 0)
@@ -106,12 +105,17 @@ public class TimeProgressBar : MonoBehaviour
 
     public void SetActive(bool v)
     {
-        gameObject.SetActive(v);
+        Debug.Log("scale is " + timeProgressBarMask.localScale.x);
+
         if (v)
         {
             newScale.x = 0;
             timeProgressBarMask.localScale = newScale;
         }
+
+        Debug.Log("new scale is " + timeProgressBarMask.localScale.x);
+
+        gameObject.SetActive(v);
     }
 
     public void SetToZero()

@@ -12,14 +12,16 @@ public class WonderDataSO : ScriptableObject
     public GameObject prefabComplete;
     public string wonderName;
     public string wonderDecription = "Fill in description";
+    public int workerCount = 1;
     public int sizeHeight;
     public int sizeWidth;
+    public Vector3Int unloadLoc;
     public Sprite image;
     public List<ResourceValue> wonderCost;
     public TerrainType terrainType;
     public float workEthicChange;
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceProp = true; //replace terrain prop when building upon it
-    public int buildTime;
+    public int buildTimePerPercent = 10;
     public bool locked = true;
 }
