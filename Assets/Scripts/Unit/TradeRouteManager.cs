@@ -36,6 +36,7 @@ public class TradeRouteManager : MonoBehaviour
 
     private Trader trader;
     private City city;
+    private Wonder wonder;
 
 
     public void SetTradeRoute(List<Vector3Int> cityStops, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
@@ -69,6 +70,12 @@ public class TradeRouteManager : MonoBehaviour
     public void SetCity(City city)
     {
         this.city = city;
+        PrepareResourceDictionary();
+    }
+
+    public void SetWonder(Wonder wonder)
+    {
+        this.wonder = wonder;
         PrepareResourceDictionary();
     }
 
@@ -141,9 +148,14 @@ public class TradeRouteManager : MonoBehaviour
             int resourceAmount = resourceValue.resourceAmount;
             bool loadUnloadCheck = true;
 
+            if (wonder != null && !wonder.CheckResourceType(resourceValue.resourceType))
+            {
+                InfoPopUpHandler.Create(wonder.centerPos, "Wrong resource type: " + resourceValue.resourceType);
+                continue;
+            }
+
             if (resourceAmount == 0)
             {
-
                 continue;
             }
             else if (resourceAmount > 0) //moving from city to trader
@@ -167,7 +179,12 @@ public class TradeRouteManager : MonoBehaviour
                     int loadUnloadRateMod = Mathf.Min(resourceAmount - amountMoved, loadUnloadRate);
                     yield return new WaitForSeconds(secondIntervals);
 
-                    int resourceAmountAdjusted = Mathf.Abs(city.ResourceManager.CheckResource(resourceValue.resourceType, -loadUnloadRateMod));
+                    int resourceAmountAdjusted;
+                    if (city != null)
+                        resourceAmountAdjusted = Mathf.Abs(city.ResourceManager.CheckResource(resourceValue.resourceType, -loadUnloadRateMod));
+                    else
+                        resourceAmountAdjusted = Mathf.Abs(wonder.CheckResource(resourceValue.resourceType, -loadUnloadRateMod));
+
                     personalResourceManager.CheckResource(resourceValue.resourceType, resourceAmountAdjusted);
 
 
@@ -187,7 +204,11 @@ public class TradeRouteManager : MonoBehaviour
                     }
                     else if (resourceAmountAdjusted == 0)
                     {
-                        city.SetWaiter(this, resourceValue.resourceType);
+                        if (city != null)
+                            city.SetWaiter(this, resourceValue.resourceType);
+                        else
+                            wonder.SetWaiter(this, resourceValue.resourceType);
+
                         yield return HoldingPatternCoroutine();
                     }
                 }
@@ -208,8 +229,12 @@ public class TradeRouteManager : MonoBehaviour
                     int loadUnloadRateMod = Mathf.Abs(Mathf.Max(resourceAmount - amountMoved, -loadUnloadRate));
                     yield return new WaitForSeconds(secondIntervals);
 
-
-                    int resourceAmountAdjusted = city.ResourceManager.CheckResource(resourceValue.resourceType, loadUnloadRateMod);
+                    int resourceAmountAdjusted;
+                    if (city != null)
+                        resourceAmountAdjusted = city.ResourceManager.CheckResource(resourceValue.resourceType, loadUnloadRateMod);
+                    else
+                        resourceAmountAdjusted = wonder.CheckResource(resourceValue.resourceType, loadUnloadRateMod);
+                    
                     personalResourceManager.CheckResource(resourceValue.resourceType, -resourceAmountAdjusted);
 
                     if (trader.isSelected)
@@ -227,7 +252,11 @@ public class TradeRouteManager : MonoBehaviour
                     }
                     else if (resourceAmountAdjusted == 0)
                     {
-                        city.SetWaiter(this);
+                        if (city != null)
+                            city.SetWaiter(this);
+                        else
+                            wonder.SetWaiter(this);
+
                         yield return HoldingPatternCoroutine();
                     }
                 }
@@ -286,7 +315,12 @@ public class TradeRouteManager : MonoBehaviour
         waitForever=false;
         //StopAllCoroutines(); //this does nothing
         timeWaited = 0;
-        city.CheckQueue();
+
+        if (city != null)
+            city.CheckQueue();
+        else
+            wonder.CheckQueue();
+
         trader.isWaiting = false;
         IncreaseCurrentStop();
         FinishedLoading?.Invoke();
@@ -305,9 +339,9 @@ public class TradeRouteManager : MonoBehaviour
             currentStop = 0;
     }
 
-    public void RemoveCityStop(Vector3Int cityStop)
+    public void RemoveStop(Vector3Int stop)
     {
-        cityStops.Remove(cityStop);
+        cityStops.Remove(stop);
     }
 
 

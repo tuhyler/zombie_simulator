@@ -44,22 +44,22 @@ public class Trader : Unit
         tradeRouteManager.SetTrader(this);
         tradeRouteManager.SetPersonalResourceManager(personalResourceManager, uiPersonalResourceInfoPanel);
 
-        List<Vector3Int> cityStops = new();
+        List<Vector3Int> tradeStops = new();
 
         foreach (string name in cityNames)
         {
             if (bySea)
-                cityStops.Add(world.GetCityHarborLocation(name));
+                tradeStops.Add(world.GetHarborStopLocation(name));
             else
-                cityStops.Add(world.GetCityLocation(name));
+                tradeStops.Add(world.GetStopLocation(name));
         }
 
-        if (cityStops.Count > 0)
+        if (tradeStops.Count > 0)
             hasRoute = true;
         else
             hasRoute = false;
 
-        tradeRouteManager.SetTradeRoute(cityStops, resourceAssignments, waitTimes);
+        tradeRouteManager.SetTradeRoute(tradeStops, resourceAssignments, waitTimes);
     }
 
     public List<Vector3Int> GetCityStops()
@@ -82,18 +82,22 @@ public class Trader : Unit
             if (endLoc == tradeRouteManager.CurrentDestination)
             {
                 //checking to see if stop still exists
-                if (!world.CheckIfCityOrHarborStillExists(endLoc, bySea))
+                if (!world.CheckIfStopStillExists(endLoc))
                 {
                     CancelRoute();
-                    tradeRouteManager.RemoveCityStop(endLoc);
+                    tradeRouteManager.RemoveStop(endLoc);
                     interruptedRoute = true;
                     return;
                 }
 
-                if (bySea)
-                    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
-                else
+                if (world.IsCityOnTile(endLoc))
                     tradeRouteManager.SetCity(world.GetCity(endLoc));
+                else
+                    tradeRouteManager.SetWonder(world.GetWonder(endLoc));
+                //if (bySea)
+                //    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
+                //else
+                //    tradeRouteManager.SetCity(world.GetCity(endLoc));
                 atStop = true;
                 isWaiting = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
@@ -124,10 +128,10 @@ public class Trader : Unit
         Vector3Int nextStop = tradeRouteManager.GoToNext();
 
         //checking to see if stop still exists
-        if (!world.CheckIfCityOrHarborStillExists(nextStop, bySea))
+        if (!world.CheckIfStopStillExists(nextStop))
         {
             CancelRoute();
-            tradeRouteManager.RemoveCityStop(nextStop);
+            tradeRouteManager.RemoveStop(nextStop);
             interruptedRoute = true;
             return;
         }

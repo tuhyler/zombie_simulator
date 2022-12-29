@@ -87,7 +87,7 @@ public class UIWonderHandler : MonoBehaviour
         OnIconButtonClick?.Invoke(buildData);
     }
 
-    public void ToggleVisibility(bool v, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
+    public void ToggleVisibility(bool v) //pass resources to know if affordable in the UI (optional)
     {
         if (activeStatus == v)
             return;
@@ -104,10 +104,7 @@ public class UIWonderHandler : MonoBehaviour
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
             LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
-            if (resourceManager != null)
-            {
-                PrepareBuildOptions(resourceManager);
-            }
+            PrepareBuildOptions();
         }
         else
         {
@@ -127,10 +124,8 @@ public class UIWonderHandler : MonoBehaviour
         this.buildData = buildData;
     }
 
-    private void PrepareBuildOptions(ResourceManager resourceManager)
+    private void PrepareBuildOptions()
     {
-        List<string> improvementSingleBuildList = resourceManager.city.singleBuildImprovementsBuildingsDict.Keys.ToList();
-
         foreach (UIWonderOptions buildItem in buildOptions)
         {
             if (buildItem == null)
@@ -142,7 +137,7 @@ public class UIWonderHandler : MonoBehaviour
 
             buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (locked || improvementSingleBuildList.Contains(itemName))
+            if (locked || world.GetWondersConstruction("Wonder - " + itemName))
             {
                 buildItem.ToggleVisibility(false);
                 continue;

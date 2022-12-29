@@ -11,6 +11,8 @@ using static UnityEditor.FilePathAttribute;
 public class CityBuilderManager : MonoBehaviour
 {
     [SerializeField]
+    private UIWonderSelection uiWonderSelection;
+    [SerializeField]
     private UICityBuildTabHandler uiCityTabs;
     [SerializeField]
     public UIMarketPlaceManager uiMarketPlaceManager;
@@ -26,8 +28,6 @@ public class CityBuilderManager : MonoBehaviour
     private UIQueueManager uiQueueManager;
     [SerializeField]
     private UIInfoPanelCity uiInfoPanelCity;
-    //[SerializeField]
-    //private UIInfoPanelCityWarehouse uiInfoPanelCityWarehouse;
     [SerializeField]
     private UIUnitTurnHandler uiUnitTurn;
     [SerializeField]
@@ -76,6 +76,11 @@ public class CityBuilderManager : MonoBehaviour
     //public int LaborChange { set { laborChange = value; } }
     private int placesToWork;
 
+    //wonder management
+    private Wonder selectedWonder;
+    [SerializeField]
+    private GameObject wonderHarbor;
+
     //for object pooling of labor numbers
     private Queue<CityLaborTileNumber> laborNumberQueue = new(); //the pool in object pooling
     private List<CityLaborTileNumber> laborNumberList = new(); //to add to in order to add back into pool
@@ -93,7 +98,7 @@ public class CityBuilderManager : MonoBehaviour
     private Queue<ResourceInfoPanel> resourceInfoPanelQueue = new();
     private Dictionary<Vector3, List<ResourceInfoPanel>> resourceInfoPanelDict = new();
 
-    private bool removingImprovement, upgradingImprovement, isQueueing; //flags thrown when doing specific tasks
+    private bool removingImprovement, upgradingImprovement, isQueueing, placingWonderHarbor; //flags thrown when doing specific tasks
     private bool isActive; //when looking at a city
 
     private void Awake()
@@ -117,12 +122,20 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedCity != null)
             focusCam.CenterCameraNoFollow(selectedCity.transform.position);
+        else if (selectedWonder != null)
+            focusCam.CenterCameraNoFollow(selectedWonder.centerPos);
     }
 
     private void CameraBirdsEyeRotation()
     {
         originalRotation = focusCam.transform.rotation;
         focusCam.centerTransform = selectedCity.transform;
+    }
+
+    private void CameraBirdsEyeRotationWonder()
+    {
+        originalRotation = focusCam.transform.rotation;
+        focusCam.centerTransform = selectedWonder.transform;
     }
 
     private void CameraDefaultRotation()
@@ -145,6 +158,10 @@ public class CityBuilderManager : MonoBehaviour
         if (selectedObject.CompareTag("Player") && selectedObject.TryGetComponent(out City cityReference))
         {
             SelectCity(location, cityReference);
+        }
+        else if (selectedObject.TryGetComponent(out Wonder wonder))
+        {
+            SelectWonder(wonder);
         }
         //selecting improvements to remove or add/remove labor
         else if (selectedObject.TryGetComponent(out CityImprovement improvementSelected))
@@ -206,6 +223,19 @@ public class CityBuilderManager : MonoBehaviour
                     
                     ChangeLaborCount(terrainLocation);
                 }
+            }
+        }
+        else if (selectedWonder != null && placingWonderHarbor && selectedObject.TryGetComponent(out TerrainData terrainForHarbor)) //for placing harbor
+        {
+            Vector3Int terrainLocation = terrainForHarbor.GetTileCoordinates();
+
+            if (!tilesToChange.Contains(terrainLocation))
+            {
+                GiveWarningMessage("Can't build here");
+            }
+            else
+            {
+                BuildWonderHarbor(terrainLocation);
             }
         }
         //selecting tiles to place improvements
@@ -281,7 +311,73 @@ public class CityBuilderManager : MonoBehaviour
         else
         {
             ResetCityUI();
+            UnselectWonder();
         }
+    }
+
+    private void SelectWonder(Wonder wonderReference)
+    {
+        if (selectedWonder != null)
+        {
+            if (selectedWonder != wonderReference)
+            {
+                UnselectWonder();
+            }
+            else
+            {
+                UnselectWonder();
+                return; //deselect if same wonder selected
+            }
+        }
+
+        ResetCityUI();
+
+        uiWonderSelection.ToggleVisibility(true, wonderReference);
+        selectedWonder = wonderReference;
+        selectedWonder.isActive = true;
+        selectedWonder.SetUI(uiWonderSelection);
+        CenterCamOnCity();
+    }
+
+    public void BuildHarbor()
+    {
+        tilesToChange.Clear();
+
+        foreach (Vector3Int loc in selectedWonder.PossibleHarborLocs)
+        {
+            if (!world.IsTileOpenCheck(loc))
+                continue;
+            
+            TerrainData td = world.GetTerrainDataAt(loc);
+
+            td.EnableHighlight(new Color(1, 1, 1, 0.2f));
+            tilesToChange.Add(loc);
+        }
+
+        if (tilesToChange.Count == 0)
+        {
+            InfoPopUpHandler.Create(selectedWonder.centerPos, "No available spots");
+        }
+        else
+        {
+            placingWonderHarbor = true;
+            CameraBirdsEyeRotationWonder();
+            uiImprovementBuildInfoPanel.SetText("Building Harbor");
+            uiImprovementBuildInfoPanel.ToggleVisibility(true);
+        }
+    }
+
+    public void BuildWonderHarbor(Vector3Int loc)
+    {
+        GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
+        selectedWonder.hasHarbor = true;
+        selectedWonder.harborLoc = loc;
+
+        world.AddToCityLabor(loc, selectedWonder.gameObject);
+        world.AddStructure(loc, harborGO);
+        uiWonderSelection.HideHarborButton();
+
+        CloseImprovementBuildPanel();
     }
 
     private void SelectCity(Vector3 location, City cityReference)
@@ -292,13 +388,14 @@ public class CityBuilderManager : MonoBehaviour
             {
                 ResetCityUI();
             }
-            else //deselect if same city selected
+            else
             {
                 ResetCityUI();
-                return;
+                return; //deselect if same city selected
             }
         }
 
+        UnselectWonder();
         PopulateUpgradeDictForTesting();
 
         selectedCity = cityReference;
@@ -1043,23 +1140,7 @@ public class CityBuilderManager : MonoBehaviour
         int rotation = 0;
         if (improvementData.terrainType == TerrainType.Coast || improvementData.terrainType == TerrainType.River)
         {
-            int minimum = 99999;
-            int rotationIndex = 0;
-
-            foreach (Vector3Int neighbor in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.FOURWAYINCREMENT))
-            {
-                if (world.GetTerrainDataAt(neighbor).terrainData.sailable) //don't place harbor on neighboring water tiles
-                    continue;
-
-                int distanceFromCity = neighbor.sqrMagnitude - city.cityLoc.sqrMagnitude;
-                if (distanceFromCity < minimum)
-                {
-                    minimum = distanceFromCity;
-                    rotation = rotationIndex * 90;
-                }
-
-                rotationIndex++;
-            }
+            rotation = HarborRotation(tempBuildLocation, city.cityLoc);
         }
 
         //adding improvement to world dictionaries
@@ -1169,6 +1250,30 @@ public class CityBuilderManager : MonoBehaviour
                 UpdateCityLaborUIs();
             }
         }
+    }
+
+    private int HarborRotation(Vector3Int tempBuildLocation, Vector3Int originationLocation)
+    {
+        int rotation = 0;
+        int minimum = 99999;
+        int rotationIndex = 0;
+
+        foreach (Vector3Int neighbor in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.FOURWAYINCREMENT))
+        {
+            if (world.GetTerrainDataAt(neighbor).terrainData.sailable) //don't place harbor on neighboring water tiles
+                continue;
+
+            int distanceFromCity = neighbor.sqrMagnitude - originationLocation.sqrMagnitude;
+            if (distanceFromCity < minimum)
+            {
+                minimum = distanceFromCity;
+                rotation = rotationIndex * 90;
+            }
+
+            rotationIndex++;
+        }
+        
+        return rotation;
     }
 
     //public void RemoveImprovementButton()
@@ -1312,6 +1417,19 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (uiImprovementBuildInfoPanel.activeStatus)
         {
+            if (selectedWonder != null)
+            {
+                CameraDefaultRotation();
+                foreach (Vector3Int tile in tilesToChange)
+                {
+                    world.GetTerrainDataAt(tile).DisableHighlight();
+                }
+                tilesToChange.Clear();
+                uiImprovementBuildInfoPanel.ToggleVisibility(false);
+                placingWonderHarbor = false;
+                return;
+            }
+            
             if (uiImprovementBuildInfoPanel.activeStatus & !removingImprovement)
                 CameraDefaultRotation();
             if (removingImprovement)
@@ -1986,7 +2104,7 @@ public class CityBuilderManager : MonoBehaviour
             if (world.CheckIfTileIsUnderConstruction(tile))
                 world.GetCityDevelopmentConstruction(tile).DisableHighlight();
         }
-        tilesToChange = new List<Vector3Int>();
+        tilesToChange.Clear();
         improvementData = null;
         laborChange = 0;
         //removingBuilding = false;
@@ -2024,6 +2142,19 @@ public class CityBuilderManager : MonoBehaviour
             selectedCityLoc = new();
             selectedCity.activeCity = false;
             selectedCity = null;
+        }
+    }
+
+    public void UnselectWonder()
+    {
+        if (selectedWonder != null)
+        {
+            selectedWonder.isActive = false;
+            uiWonderSelection.ToggleVisibility(false, selectedWonder);
+            selectedWonder.SetUI(null);
+            if (placingWonderHarbor)
+                CloseImprovementBuildPanel();
+            selectedWonder = null;
         }
     }
 

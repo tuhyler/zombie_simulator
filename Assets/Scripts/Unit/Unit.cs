@@ -120,7 +120,7 @@ public class Unit : MonoBehaviour
         //Debug.Log("next stop is " + endPosition);
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
         
-        if (followingRoute && world.IsUnitWaitingForSameCity(endPositionInt, finalDestinationLoc))
+        if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
         {
             GetInLine(endPosition);
         }
@@ -352,7 +352,11 @@ public class Unit : MonoBehaviour
     private void GetInLine(Vector3 endPosition)
     {
         movingCo = null;
-        world.GetCity(Vector3Int.RoundToInt(finalDestinationLoc)).AddToWaitList(this);
+        Vector3Int endPos = world.RoundToInt(endPosition);
+        if (world.IsCityOnTile(endPos))
+            world.GetCity(endPos).AddToWaitList(this);
+        else
+            world.GetWonder(endPos).AddToWaitList(this);
         currentLocation = world.AddUnitPosition(endPosition, this);
         isWaiting = true;
         unitAnimator.SetBool(isMovingHash, false);

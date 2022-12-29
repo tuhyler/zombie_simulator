@@ -258,7 +258,7 @@ public class Worker : Unit
         pos.z += -1f;
         timeProgressBar.gameObject.transform.position = pos;
         //timeProgressBar.SetConstructionTime(time);
-        timeProgressBar.SetProgressBarBeginningPosition();
+        //timeProgressBar.SetProgressBarBeginningPosition();
         timeProgressBar.SetTimeProgressBarValue(time);
         timeProgressBar.SetActive(true);
     }

@@ -331,7 +331,7 @@ public class UnitMovement : MonoBehaviour
         //bool isTrader = selectedTrader != null;
 
         unit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
-        movementSystem.GetPathToMove(world, unit, terrainPos, selectedTrader != null); //Call AStar movement
+        movementSystem.GetPathToMove(world, unit, terrainPos, unit.isTrader); //Call AStar movement
 
         unit.FinalDestinationLoc = location;
         //uiJoinCity.ToggleTweenVisibility(false);
@@ -552,12 +552,12 @@ public class UnitMovement : MonoBehaviour
 
             //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
             Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
-            
-            City selectedCity;
-            if (selectedUnit.bySea)
-                selectedCity = world.GetHarborCity(unitLoc);
-            else
-                selectedCity = world.GetCity(unitLoc);
+
+            City selectedCity = world.GetCity(unitLoc);
+            //if (selectedUnit.bySea)
+            //    selectedCity = world.GetHarborCity(unitLoc);
+            //else
+            //    selectedCity = world.GetCity(unitLoc);
             
             cityResourceManager = selectedCity.ResourceManager;
 
@@ -574,8 +574,15 @@ public class UnitMovement : MonoBehaviour
 
     public void ConfirmRoadBuild()
     {
-        ClearBuildRoad();
-        selectedWorker.SetRoadQueue();
+        if (world.buildingRoad)
+        {
+            ClearBuildRoad();
+            selectedWorker.SetRoadQueue();
+        }
+        else if (world.buildingWonder)
+        {
+            world.SetWonderConstruction();
+        }
     }
 
     public void CloseBuildingSomethingPanel()
@@ -722,7 +729,7 @@ public class UnitMovement : MonoBehaviour
 
         Vector3Int currentLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
-        if (!selectedUnit.followingRoute && (world.IsCityOnTile(currentLoc) || world.IsHarborOnTile(currentLoc)))
+        if (!selectedUnit.followingRoute && world.IsTradeLocOnTile(currentLoc))
         {
             uiJoinCity.ToggleTweenVisibility(true);
             if (selectedTrader != null)

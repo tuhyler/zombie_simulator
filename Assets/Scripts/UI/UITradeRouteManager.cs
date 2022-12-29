@@ -43,7 +43,7 @@ public class UITradeRouteManager : MonoBehaviour
 
         for (int i = 0; i < cityStops.Count; i++)
         {
-            string cityName = world.GetCityName(cityStops[i], selectedTrader.bySea);
+            string cityName = world.GetStopName(cityStops[i]);
             UITradeStopHandler newStopHandler = AddStopPanel();
             newStopHandler.SetCaptionCity(cityName);
             newStopHandler.SetResourceAssignments(selectedTrader.TradeRouteManager.ResourceAssignments[i]);
