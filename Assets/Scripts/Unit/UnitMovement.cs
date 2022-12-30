@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -52,7 +53,8 @@ public class UnitMovement : MonoBehaviour
     private bool moveUnit;
 
     //for transferring cargo to/from trader
-    private ResourceManager cityResourceManager; 
+    private ResourceManager cityResourceManager;
+    private Wonder wonder;
     public int cityTraderIncrement = 1;
 
     //for building roads
@@ -94,7 +96,9 @@ public class UnitMovement : MonoBehaviour
     {
         if (world.buildingWonder)
             return;
-        
+        else if (loadScreenSet)
+            LoadUnloadFinish();
+
         //if nothing detected, nothing selected
         if (detectedObject == null)
         {
@@ -180,10 +184,6 @@ public class UnitMovement : MonoBehaviour
             SelectWorker();
             SelectTrader();
             PrepareMovement();
-        }
-        else if (loadScreenSet)
-        {
-            LoadUnloadFinish();
         }
         else if (detectedObject.TryGetComponent(out Resource resource))
         {
@@ -380,6 +380,8 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
             selectedUnit.SendResourceToCity();
+        else if (loadScreenSet)
+            LoadUnloadFinish();
 
         //if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
         //{
@@ -525,17 +527,26 @@ public class UnitMovement : MonoBehaviour
 
     public void JoinCity() //for Join City button
     {
-        City joinedCity = world.GetCity(world.GetClosestTerrainLoc(selectedUnit.transform.position));
-        joinedCity.PopulationGrowthCheck(true);
+        Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
-        int i = 0;
-        foreach (ResourceValue resourceValue in selectedUnit.GetBuildDataSO().unitCost) //adding back 100% of cost (if there's room)
+        if (world.IsCityOnTile(unitLoc))
         {
-            int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
-            Vector3 cityLoc = joinedCity.cityLoc;
-            cityLoc.z += -.5f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
-            i++;
+            City joinedCity = world.GetCity(unitLoc);
+            joinedCity.PopulationGrowthCheck(true);
+
+            int i = 0;
+            foreach (ResourceValue resourceValue in selectedUnit.GetBuildDataSO().unitCost) //adding back 100% of cost (if there's room)
+            {
+                int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+                Vector3 cityLoc = joinedCity.cityLoc;
+                cityLoc.z += -.5f * i;
+                InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+                i++;
+            }
+        }
+        else
+        {
+            world.GetWonder(unitLoc).WorkersReceived++;
         }
 
         selectedUnit.DestroyUnit();
@@ -553,21 +564,27 @@ public class UnitMovement : MonoBehaviour
             //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
             Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
-            City selectedCity = world.GetCity(unitLoc);
-            //if (selectedUnit.bySea)
-            //    selectedCity = world.GetHarborCity(unitLoc);
-            //else
-            //    selectedCity = world.GetCity(unitLoc);
-            
-            cityResourceManager = selectedCity.ResourceManager;
+            if (world.IsCityOnTile(unitLoc))
+            {
+                City selectedCity = world.GetCity(unitLoc);
+
+                cityResourceManager = selectedCity.ResourceManager;
+                uiCityResourceInfoPanel.SetTitleInfo(selectedCity.CityName,
+                    cityResourceManager.GetResourceStorageLevel, selectedCity.warehouseStorageLimit);
+                uiCityResourceInfoPanel.PrepareResourceUI(cityResourceManager.ResourceDict);
+            }
+            else
+            {
+                wonder = world.GetWonder(unitLoc);
+                uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderName, 10000, 10000);
+                uiCityResourceInfoPanel.PrepareResourceUI(wonder.ResourceDict);
+                uiCityResourceInfoPanel.HideInventoryLevel();
+            }
 
             uiPersonalResourceInfoPanel.SetPosition();
-
-            uiCityResourceInfoPanel.SetTitleInfo(selectedCity.CityName,
-                cityResourceManager.GetResourceStorageLevel, selectedCity.warehouseStorageLimit);
-            uiCityResourceInfoPanel.PrepareResourceUI(cityResourceManager.ResourceDict);
             uiCityResourceInfoPanel.ToggleVisibility(true);
             uiCityResourceInfoPanel.SetPosition();
+
             loadScreenSet = true;
         }
     }
@@ -632,21 +649,37 @@ public class UnitMovement : MonoBehaviour
             uiPersonalResourceInfoPanel.RestorePosition();
             uiCityResourceInfoPanel.RestorePosition();
             cityResourceManager = null;
+            wonder = null;
             loadScreenSet = false;
         }
     }
 
     private void ChangeResourceManagersAndUIs(ResourceType resourceType, int resourceAmount)
     {
+        if (wonder != null && !wonder.CheckResourceType(resourceType))
+        {
+            InfoPopUpHandler.Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
+            return;
+        }
+
         if (resourceAmount > 0) //moving from city to trader
         {
-            int remainingInCity = cityResourceManager.GetResourceDictValue(resourceType);
+            int remainingInCity;
+            
+            if (cityResourceManager != null)
+                remainingInCity = cityResourceManager.GetResourceDictValue(resourceType);
+            else
+                remainingInCity = wonder.ResourceDict[resourceType];
 
             if (remainingInCity < resourceAmount)
                 resourceAmount = remainingInCity;
 
             int resourceAmountAdjusted = selectedTrader.PersonalResourceManager.CheckResource(resourceType, resourceAmount);
-            cityResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
+
+            if (cityResourceManager != null)
+                cityResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
+            else
+                wonder.CheckResource(resourceType, -resourceAmountAdjusted);
         }
 
         if (resourceAmount <= 0) //moving from trader to city
@@ -656,12 +689,24 @@ public class UnitMovement : MonoBehaviour
             if (remainingWithTrader < Mathf.Abs(resourceAmount))
                 resourceAmount = -remainingWithTrader;
 
-            int resourceAmountAdjusted = cityResourceManager.CheckResource(resourceType, -resourceAmount);
+            int resourceAmountAdjusted;
+            if (cityResourceManager != null)
+                resourceAmountAdjusted = cityResourceManager.CheckResource(resourceType, -resourceAmount);
+            else
+                resourceAmountAdjusted = wonder.CheckResource(resourceType, -resourceAmount);
             selectedTrader.PersonalResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
         }
 
-        uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, cityResourceManager.GetResourceDictValue(resourceType));
-        uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.GetResourceStorageLevel);
+        if (cityResourceManager != null)
+        {
+            uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, cityResourceManager.GetResourceDictValue(resourceType));
+            uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.GetResourceStorageLevel);
+        }
+        else
+        {
+            uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, wonder.ResourceDict[resourceType]);
+        }
+
         uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.PersonalResourceManager.GetResourceDictValue(resourceType));
         uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.PersonalResourceManager.GetResourceStorageLevel);
     }
@@ -729,12 +774,21 @@ public class UnitMovement : MonoBehaviour
 
         Vector3Int currentLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
-        if (!selectedUnit.followingRoute && world.IsTradeLocOnTile(currentLoc))
+        if (!selectedUnit.followingRoute)
         {
-            uiJoinCity.ToggleTweenVisibility(true);
-            if (selectedTrader != null)
+            if (world.IsCityOnTile(currentLoc))
+            {
+                uiJoinCity.ToggleTweenVisibility(true);
+            }
+            
+            if (selectedTrader != null && world.IsTradeLocOnTile(currentLoc))
             {
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(true);
+            }
+            else if (selectedUnit.isWorker && world.IsWonderOnTile(currentLoc))
+            {
+                if (world.GetWonder(currentLoc).StillNeedsWorkers())
+                    uiJoinCity.ToggleTweenVisibility(true);
             }
         }
         else

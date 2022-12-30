@@ -21,20 +21,12 @@ public class Worker : Unit
         isWorker = true;
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
         resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
-        SetProgressTimeBar();
+        timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
     }
 
     protected override void AwakeMethods()
     {
         base.AwakeMethods();
-    }
-
-    private void SetProgressTimeBar()
-    {
-        //producerLoc.z -= 1.5f; //bottom center of tile
-        GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0));
-        timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
-        //timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
     }
 
     public override void SendResourceToCity()

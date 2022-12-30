@@ -105,15 +105,11 @@ public class TimeProgressBar : MonoBehaviour
 
     public void SetActive(bool v)
     {
-        Debug.Log("scale is " + timeProgressBarMask.localScale.x);
-
         if (v)
         {
             newScale.x = 0;
             timeProgressBarMask.localScale = newScale;
         }
-
-        Debug.Log("new scale is " + timeProgressBarMask.localScale.x);
 
         gameObject.SetActive(v);
     }
