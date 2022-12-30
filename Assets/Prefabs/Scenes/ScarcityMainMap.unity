@@ -16036,7 +16036,7 @@ MonoBehaviour:
   uiCityResourceInfoPanel: {fileID: 1620586495}
   uiTradeRouteManager: {fileID: 640537117}
   uiCancelTradeRoute: {fileID: 1774535320}
-  cityTraderIncrement: 10
+  cityTraderIncrement: 1
 --- !u!114 &648287305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37147,7 +37147,7 @@ MonoBehaviour:
   world: {fileID: 163795767}
   workerTaskManager: {fileID: 1634818652}
   roadMovementCost: 5
-  roadBuildingTime: 3
+  roadBuildingTime: 1
   roadRemovingTime: 2
 --- !u!1001 &1643024420
 PrefabInstance:
@@ -51072,7 +51072,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500183
+      value: 8.500001
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

@@ -220,6 +220,10 @@ public class MapWorld : MonoBehaviour
         cityBuilderManager.ResetCityUI();
         unitMovement.ClearSelection();
         cityBuilderManager.UnselectWonder();
+        unitMovement.LoadUnloadFinish();
+        researchTree.ToggleVisibility(false);
+        wonderHandler.ToggleVisibility(false);
+        wonderButton.ToggleButtonColor(false);
     }
 
     public void GiveWarningMessage(string message)
@@ -341,13 +345,17 @@ public class MapWorld : MonoBehaviour
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
         GameObject wonderGO = Instantiate(wonderData.prefab0Percent, centerPos, Quaternion.identity);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
+        wonder.SetWorld(this);
         wonder.WonderData = wonderData;
         wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost);
         wonder.unloadLoc = unloadLoc;
         wonder.centerPos = centerPos;
+        wonder.WonderLocs = new(wonderPlacementLoc);
         wonderConstructionDict[wonder.wonderName] = wonder;
-        wonderStopDict[unloadLoc] = wonder;
+        foreach (Vector3Int tile in wonderPlacementLoc)
+            wonderStopDict[tile] = wonder;
+
         //building road in unload area
         roadManager.BuildRoadAtPosition(unloadLoc);
 
@@ -899,11 +907,16 @@ public class MapWorld : MonoBehaviour
         return cityLocations.Contains(tile);
     }
 
+    public bool IsWonderOnTile(Vector3Int tile)
+    {
+        return wonderStopDict.ContainsKey(tile);
+    }
+
     public bool IsTradeLocOnTile(Vector3Int tile)
     {
         if (cityDict.ContainsKey(tile))
             return true;
-        else if (wonderStopDict.ContainsKey(tile))
+        else if (wonderStopDict.ContainsKey(tile) && wonderStopDict[tile].unloadLoc == tile)
             return true;
 
         return false;
@@ -1290,12 +1303,14 @@ public class MapWorld : MonoBehaviour
 
     public Vector3Int GetClosestTerrainLoc(Vector3 v)
     {
-        //c sharp rounds to the closest even number at the midpoint. 
-        v.y = 0f;
-        v.x = (float)Math.Round(v.x, MidpointRounding.AwayFromZero);
-        v.z = (float)Math.Round(v.z, MidpointRounding.AwayFromZero);
+        //c# by default rounds to the closest even number at the midpoint. 
+        Vector3Int vInt = new Vector3Int(0, 0, 0);
 
-        return world[Vector3Int.RoundToInt(v)].GetTileCoordinates();
+        vInt.y = 0;
+        vInt.x = (int)Math.Round(v.x, MidpointRounding.AwayFromZero);
+        vInt.z = (int)Math.Round(v.z, MidpointRounding.AwayFromZero);
+
+        return world[vInt].GetTileCoordinates();
     }
 
     public Vector3Int RoundToInt(Vector3 v)

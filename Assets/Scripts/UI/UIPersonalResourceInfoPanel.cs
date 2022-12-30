@@ -12,6 +12,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     private TMP_Text unitNameTitle, unitStoragePercent, unitLevelAndLimit;
 
     [SerializeField]
+    private GameObject progressBar;
+
+    [SerializeField]
     private Image progressBarMask;
 
     [SerializeField] //for tweening
@@ -110,14 +113,6 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         }
     }
 
-    //private void ResourceHolderCheck() //show resources if carrying something
-    //{
-    //    if (unitStorageLevel > 0)
-    //        uiElementsParent.gameObject.SetActive(true);
-    //    else
-    //        uiElementsParent.gameObject.SetActive(false);
-    //}
-
     public void HandleButtonClick()
     {
         if (inUse)
@@ -191,7 +186,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     {
         foreach (UIPersonalResources selection in personalResources)
         {
-            int amount = resourceDict[selection.ResourceType];
+            int amount;
+            if (resourceDict.ContainsKey(selection.ResourceType))
+                amount = resourceDict[selection.ResourceType];
+            else
+                amount = 0;
+
             SetResource(selection.ResourceType, amount);
             //if (amount > 0)
             //    inUse = true;
@@ -225,7 +225,6 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     public void SetPosition()
     {
-
         if (city)
         {
             ToggleVisibility(true);
@@ -269,6 +268,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     private void SetActiveStatusFalse()
     {
+        unitLevelAndLimit.gameObject.SetActive(true);
+        unitStoragePercent.gameObject.SetActive(true);
+        progressBar.SetActive(true);
         gameObject.SetActive(false);
     }
 
@@ -291,5 +293,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             personalResourceUIDictionary[resourceType].SetValue(val, true);
         }
+    }
+
+    public void HideInventoryLevel()
+    {
+        unitLevelAndLimit.gameObject.SetActive(false);
+        unitStoragePercent.gameObject.SetActive(false);
+        progressBar.SetActive(false);
     }
 }

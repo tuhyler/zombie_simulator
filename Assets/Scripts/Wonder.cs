@@ -2,22 +2,30 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class Wonder : MonoBehaviour
 {
+    private MapWorld world;
     private UIWonderSelection uiWonderSelection;
 
     private int percentDone;
     public int PercentDone { get { return percentDone; } set { percentDone = value; } }
 
+    private Quaternion rotation;
+    public Quaternion Rotation { set { rotation = value; } }
+
     [HideInInspector]
-    public bool isConstructing, canBuildHarbor, hasHarbor, isActive;
+    public bool isConstructing, canBuildHarbor, hasHarbor, isActive, roadPreExisted, completed;
     [HideInInspector]
     public Vector3Int unloadLoc, harborLoc;
     [HideInInspector]
     public Vector3 centerPos;
     [HideInInspector]
     public string wonderName;
+
+    private List<Vector3Int> wonderLocs = new();
+    public List<Vector3Int> WonderLocs { get { return wonderLocs; } set { wonderLocs = value; } }
 
     private List<Vector3Int> possibleHarborLocs = new();
     public List<Vector3Int> PossibleHarborLocs { get { return possibleHarborLocs; } set { possibleHarborLocs = value; } }
@@ -34,10 +42,22 @@ public class Wonder : MonoBehaviour
     private int workersReceived;
     public int WorkersReceived { get { return workersReceived; } set { workersReceived = value; } }
 
-    //for queuing unlaoding
+    //for building the wonder
+    private Dictionary<ResourceType, int> resourceThreshold = new();
+    private Dictionary<ResourceType, bool> resourceThresholdMet = new();
+    private TimeProgressBar timeProgressBar;
+    private Coroutine co;
+
+    //for queuing unloading
     private Queue<Unit> waitList = new();
     private TradeRouteManager tradeRouteWaiter;
     private ResourceType resourceWaiter = ResourceType.None;
+
+    private void Awake()
+    {
+        timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
+        timeProgressBar.gameObject.transform.position = centerPos;
+    }
 
     public void SetResourceDict(List<ResourceValue> resources)
     {
@@ -45,7 +65,14 @@ public class Wonder : MonoBehaviour
         {
             resourceDict[resource.resourceType] = 0;
             resourceCostDict[resource.resourceType] = resource.resourceAmount;
+            resourceThreshold[resource.resourceType] = Mathf.RoundToInt(resource.resourceAmount * 0.01f);
+            resourceThresholdMet[resource.resourceType] = false;
         }
+    }
+
+    public void SetWorld(MapWorld world)
+    {
+        this.world = world;
     }
 
     public void SetUI(UIWonderSelection uiWonderSelection)
@@ -152,6 +179,85 @@ public class Wonder : MonoBehaviour
         else if (newResourceAmount < 0)
             CheckLimitWaiter();
 
+        ThresholdUpdate(resourceType);
         return resourceAmount;
+    }
+
+    public bool StillNeedsWorkers()
+    {
+        return workersReceived < wonderData.workerCount;
+    }
+
+    private void ThresholdUpdate(ResourceType resourceType)
+    {
+        int nextLevel = (percentDone + 1) * resourceThreshold[resourceType];
+        resourceThresholdMet[resourceType] = resourceDict[resourceType] / nextLevel >= 1;
+
+        ThresholdCheck();
+    }
+
+    private void ThresholdCheck()
+    {
+        foreach (ResourceType type in resourceThresholdMet.Keys)
+        {
+            if (!resourceThresholdMet[type])
+                return;
+        }
+
+        if (!StillNeedsWorkers())
+            co = StartCoroutine(BuildNextPortionOfWonder());
+    }
+
+    public IEnumerator BuildNextPortionOfWonder()
+    {
+        int timePassed = wonderData.buildTimePerPercent;
+        timeProgressBar.SetActive(true);
+        timeProgressBar.SetTimeProgressBarValue(timePassed);
+        timeProgressBar.SetTime(timePassed);
+
+        while (timePassed > 0)
+        {
+            yield return new WaitForSeconds(1);
+            timePassed--;
+            timeProgressBar.SetTime(timePassed);
+        }
+
+        timeProgressBar.ResetProgressBar();
+        timeProgressBar.SetActive(false);
+        percentDone++;
+        NextPhaseCheck();
+    }
+
+    private void NextPhaseCheck()
+    {
+        if (percentDone == 25)
+        {
+            SetNewGO(wonderData.prefab25Percent);
+        }
+        else if (percentDone == 50)
+        {
+            SetNewGO(wonderData.prefab50Percent);
+        }
+        else if (percentDone == 75)
+        {
+            SetNewGO(wonderData.prefab75Percent);
+        }
+        else if (percentDone == 100)
+        {
+            SetNewGO(wonderData.prefabComplete);
+            completed = true;
+        }
+
+        ThresholdCheck();
+    }
+
+    private void SetNewGO(GameObject newGO)
+    {
+        GameObject wonderGO = Instantiate(newGO, centerPos, rotation);
+        GameObject priorGO = world.GetStructure(wonderLocs[0]);
+        Destroy(priorGO);
+
+        foreach (Vector3Int tile in wonderLocs)
+            world.AddStructure(tile, wonderGO);
     }
 }
