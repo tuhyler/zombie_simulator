@@ -19,7 +19,7 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private UISingleConditionalButtonHandler uiCancelMove; //cancel movement orders
     [SerializeField]
-    private UISingleConditionalButtonHandler uiJoinCity;
+    public UISingleConditionalButtonHandler uiJoinCity;
     [SerializeField]
     public UISingleConditionalButtonHandler uiMoveUnit;
     [SerializeField]
@@ -84,6 +84,12 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedWorker != null && world.buildingRoad)
             ConfirmRoadBuild();
+    }
+
+    public void HandleB()
+    {
+        if (uiJoinCity.activeStatus)
+            JoinCity();
     }
 
     public void CenterCamOnUnit()
@@ -791,7 +797,7 @@ public class UnitMovement : MonoBehaviour
 
         Vector3Int currentLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
-        if (!selectedUnit.followingRoute)
+        if (!selectedUnit.followingRoute && !selectedUnit.isMoving)
         {
             if (world.IsCityOnTile(currentLoc))
             {

@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using Unity.VisualScripting;
 using Mono.Cecil;
+using System.Resources;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -246,7 +247,10 @@ public class ResourceManager : MonoBehaviour
             if (value.resourceType == ResourceType.Gold)
             {
                 if (!city.CheckWorldGold(value.resourceAmount * labor))
+                {
+                    city.AddToWorldGoldWaitList();
                     return false;
+                }
             }
             else if (resourceDict[value.resourceType] < value.resourceAmount * labor)
             {
@@ -686,7 +690,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    private void CheckProducerResourceWaitList(ResourceType resourceType)
+    public void CheckProducerResourceWaitList(ResourceType resourceType)
     {
         List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
         

@@ -32,6 +32,9 @@ public class MapWorld : MonoBehaviour
     private List<Vector3Int> wonderPlacementLoc = new();
     private int rotationCount;
     private Vector3Int unloadLoc;
+    private Vector3Int finalUnloadLoc;
+    private Quaternion rotation;
+    private bool sideways;
     private Dictionary<string, Wonder> wonderConstructionDict = new();
     private Dictionary<Vector3Int, Wonder> wonderStopDict = new();
 
@@ -39,6 +42,7 @@ public class MapWorld : MonoBehaviour
     public bool researching;
 
     private List<City> researchWaitList = new();
+    private List<City> goldCityWaitList = new();
     private List<Wonder> goldWonderWaitList = new();
 
     private Dictionary<Vector3Int, TerrainData> world = new();
@@ -239,9 +243,10 @@ public class MapWorld : MonoBehaviour
     //wonder info
     public void HandleWonderPlacement(Vector3 location, GameObject detectedObject)
     {
-        if (buildingWonder) //only works is placing wonder
+        if (buildingWonder) //only thing that works is placing wonder
         {
             Vector3Int locationPos = GetClosestTerrainLoc(location);
+            uiConfirmWonderBuild.ToggleTweenVisibility(false);
 
             if (wonderPlacementLoc.Count > 0)
             {
@@ -250,36 +255,69 @@ public class MapWorld : MonoBehaviour
                     GetTerrainDataAt(tile).DisableHighlight();
                 }
 
-                if (locationPos == wonderPlacementLoc[0])
+                if (locationPos == wonderPlacementLoc[0]) //reset if select same square twice
                 {
                     wonderPlacementLoc.Clear();
-                    uiConfirmWonderBuild.ToggleTweenVisibility(false);
-                    uiRotateWonder.ToggleTweenVisibility(false);
+                    //uiConfirmWonderBuild.ToggleTweenVisibility(false);
+                    //uiRotateWonder.ToggleTweenVisibility(false);
                     return;
                 }
             }
 
-            wonderPlacementLoc.Clear();
-            rotationCount = 0;
             List<Vector3Int> wonderLocList = new();
 
-            for (int i = 0; i < wonderData.sizeWidth; i++)
+            //foreach (Vector3Int tile in wonderPlacementLoc)
+            //{
+            //    Vector3Int newPos = locationPos + tile;
+            //    TerrainData td = GetTerrainDataAt(newPos);
+
+            //    if (td.terrainData.type != wonderData.terrainType)
+            //    {
+            //        GiveWarningMessage("Must build on " + wonderData.terrainType);
+            //        return;
+            //    }
+            //    else if (tile != unloadLoc && !IsTileOpenCheck(newPos))
+            //    {
+            //        GiveWarningMessage("Something in the way");
+            //        return;
+            //    }
+            //    else if (tile == unloadLoc && !IsTileOpenButRoadCheck(newPos))
+            //    {
+            //        GiveWarningMessage("Something in the way");
+            //        return;
+            //    }
+
+            //    wonderLocList.Add(newPos);
+            //}
+
+            int width = sideways ? wonderData.sizeHeight : wonderData.sizeWidth;
+            int height = sideways ? wonderData.sizeWidth : wonderData.sizeHeight;
+
+            for (int i = 0; i < width; i++)
             {
-                for (int j = 0; j < wonderData.sizeHeight; j++)
+                for (int j = 0; j < height; j++)
                 {
                     Vector3Int newPos = locationPos;
-                    newPos.z += i*increment;
-                    newPos.x += j*increment;
+                    newPos.z += i * increment;
+                    newPos.x += j * increment;
                     TerrainData td = GetTerrainDataAt(newPos);
 
                     if (td.terrainData.type != wonderData.terrainType)
                     {
                         GiveWarningMessage("Must build on " + wonderData.terrainType);
+                        wonderPlacementLoc.Clear();
                         return;
                     }
-                    else if (!IsTileOpenCheck(newPos))
+                    else if (newPos - locationPos != unloadLoc && !IsTileOpenCheck(newPos))
                     {
                         GiveWarningMessage("Something in the way");
+                        wonderPlacementLoc.Clear();
+                        return;
+                    }
+                    else if (newPos - locationPos == unloadLoc && !IsTileOpenButRoadCheck(newPos))
+                    {
+                        GiveWarningMessage("Something in the way");
+                        wonderPlacementLoc.Clear();
                         return;
                     }
 
@@ -289,10 +327,10 @@ public class MapWorld : MonoBehaviour
 
             foreach (Vector3Int tile in wonderLocList)
             {
-                if (tile-locationPos == wonderData.unloadLoc)
+                if (tile-locationPos == unloadLoc)
                 {
-                    GetTerrainDataAt(tile).EnableHighlight(new Color(0, 1, 0, 0.2f));
-                    unloadLoc = tile;
+                    GetTerrainDataAt(tile).EnableHighlight(new Color(0, 1, 0, 1f));
+                    finalUnloadLoc = tile;
                 }
                 else
                     GetTerrainDataAt(tile).EnableHighlight(new Color(1, 1, 1, 0.2f));
@@ -302,7 +340,7 @@ public class MapWorld : MonoBehaviour
             //foreach ()
 
             uiConfirmWonderBuild.ToggleTweenVisibility(true);
-            uiRotateWonder.ToggleTweenVisibility(true);
+            //uiRotateWonder.ToggleTweenVisibility(true);
             wonderPlacementLoc = wonderLocList;
         }
     }
@@ -334,7 +372,7 @@ public class MapWorld : MonoBehaviour
         {
             avgLoc += tile;
 
-            if (!IsTileOpenCheck(tile))
+            if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)))
             {
                 GiveWarningMessage("Something in the way");
                 wonderPlacementLoc.Clear();
@@ -351,7 +389,9 @@ public class MapWorld : MonoBehaviour
         wonder.SetPrefabs();
         wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost);
-        wonder.unloadLoc = unloadLoc;
+        wonder.unloadLoc = finalUnloadLoc;
+        wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
+        wonder.Rotation = rotation;
         wonder.SetCenterPos(centerPos);
         wonder.WonderLocs = new(wonderPlacementLoc);
         wonderConstructionDict[wonder.wonderName] = wonder;
@@ -359,7 +399,8 @@ public class MapWorld : MonoBehaviour
             wonderStopDict[tile] = wonder;
 
         //building road in unload area
-        roadManager.BuildRoadAtPosition(unloadLoc);
+        if (!wonder.roadPreExisted)
+            roadManager.BuildRoadAtPosition(finalUnloadLoc);
 
         //claiming the area for the wonder
         List<Vector3Int> harborTiles = new();
@@ -394,37 +435,57 @@ public class MapWorld : MonoBehaviour
         this.wonderData = wonderData;
         CloseWonders();
 
+        rotationCount = 0;
+        unloadLoc = wonderData.unloadLoc;
+
         uiBuildingSomething.SetText("Building " + wonderData.wonderName);
         uiBuildingSomething.ToggleVisibility(true);
+        uiRotateWonder.ToggleTweenVisibility(true);
         unitMovement.ToggleCancelButton(true);
     }
 
     public void RotateWonderPlacement()
     {
         rotationCount++;
-        Vector3Int placementLoc = wonderPlacementLoc[0];
 
+        Vector3Int tempPlacementLoc;
+        if (wonderPlacementLoc.Count > 0)
+            tempPlacementLoc = wonderPlacementLoc[0];
+        else
+            tempPlacementLoc = new Vector3Int(0, 0, 0);
+
+        sideways = false;
+
+        Vector3Int placementLoc = tempPlacementLoc;
         if (rotationCount % 4 == 1)
+        {
             placementLoc.z += (wonderData.sizeHeight - 1) * increment;
+            sideways = true;
+        }
         if (rotationCount % 4 == 2)
         {
             placementLoc.z += (wonderData.sizeHeight - 1) * increment;
             placementLoc.x += (wonderData.sizeWidth - 1) * increment;
+            sideways = false;
         }
         if (rotationCount % 4 == 3)
+        {
             placementLoc.x += (wonderData.sizeWidth - 1) * increment;
+            sideways = true;
+        }
 
         foreach (Vector3Int tile in wonderPlacementLoc)
         {
             GetTerrainDataAt(tile).DisableHighlight();
 
             if (tile-placementLoc == wonderData.unloadLoc)
-                GetTerrainDataAt(tile).EnableHighlight(new Color(0, 1, 0, 0.2f));
+                GetTerrainDataAt(tile).EnableHighlight(new Color(0, 1, 0, 1f));
             else
                 GetTerrainDataAt(tile).EnableHighlight(new Color(1, 1, 1, 0.2f));
         }
 
-        unloadLoc = placementLoc;
+        rotation = Quaternion.Euler(0, rotationCount * 90, 0);
+        unloadLoc = placementLoc - tempPlacementLoc;
     }
 
     public void CloseBuildingSomethingPanel()
@@ -518,6 +579,28 @@ public class MapWorld : MonoBehaviour
         return researchWaitList.Count > 0;
     }
 
+    public void AddToGoldCityWaitList(City city)
+    {
+        if (!goldCityWaitList.Contains(city))
+            goldCityWaitList.Add(city);
+    }
+
+    public void RestartCityProduction()
+    {
+        List<City> cityWaitList = new(goldCityWaitList);
+
+        foreach (City city in cityWaitList)
+        {
+            goldCityWaitList.Remove(city);
+            city.RestartProduction();
+        }
+    }
+
+    public bool CitiesGoldWaitingCheck()
+    {
+        return goldCityWaitList.Count > 0;
+    }
+
     public void AddToGoldWonderWaitList(Wonder wonder)
     {
         if (!goldWonderWaitList.Contains(wonder))
@@ -553,8 +636,14 @@ public class MapWorld : MonoBehaviour
         else
         {
             worldResourceManager.SetResource(resourceType, amount);
-            if (amount > 0 && WondersWaitingCheck())
-                RestartWonderConstruction();
+            if (amount > 0)
+            {
+                if (CitiesGoldWaitingCheck())
+                    RestartCityProduction();
+                
+                if (WondersWaitingCheck())
+                    RestartWonderConstruction();
+            }
         }
     }
 
@@ -1327,6 +1416,14 @@ public class MapWorld : MonoBehaviour
             return true;
     }
 
+    public bool IsTileOpenButRoadCheck(Vector3Int tile)
+    {
+        if (IsBuildLocationTaken(tile) || CheckIfTileIsUnderConstruction(tile) || IsWorkerWorkingAtTile(tile))
+            return false;
+        else
+            return true;
+    }
+
     public Vector3Int GetClosestTerrainLoc(Vector3 v)
     {
         //c# by default rounds to the closest even number at the midpoint. 
@@ -1426,9 +1523,6 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveStructure(Vector3Int buildPosition)
     {
-        if (!buildingPosDict.ContainsKey(buildPosition))
-            return;
-
         buildingPosDict.Remove(buildPosition);
         if (cityImprovementDict.ContainsKey(buildPosition))
         {

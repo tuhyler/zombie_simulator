@@ -10,7 +10,8 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
 
     [SerializeField] //changing color of button when selected
     private Image buttonImage;

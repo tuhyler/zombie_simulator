@@ -144,9 +144,19 @@ public class City : MonoBehaviour
         resourceManager.CheckProducerUnloadResearchWaitList();
     }
 
+    public void RestartProduction()
+    {
+        resourceManager.CheckProducerResourceWaitList(ResourceType.Gold);
+    }
+
     public void AddToWorldResearchWaitList()
     {
         world.AddToResearchWaitList(this);
+    }
+
+    public void AddToWorldGoldWaitList()
+    {
+        world.AddToGoldCityWaitList(this);
     }
 
     private void EnableHighlight()

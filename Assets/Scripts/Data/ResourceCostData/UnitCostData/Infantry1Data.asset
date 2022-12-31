@@ -21,9 +21,12 @@ MonoBehaviour:
     resourceAmount: 10
   - resourceType: 4
     resourceAmount: 10
+  - resourceType: 2
+    resourceAmount: 10000
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
   unitType: 1
   unitDescription: Strong, fast unit
-  locked: 0
+  availableInitially: 0
+  locked: 1

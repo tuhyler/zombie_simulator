@@ -188,7 +188,7 @@ public class GridSearch
             }
         }
 
-        InfoPopUpHandler.Create(endPosition, "Cannot reach selected area");
+        InfoPopUpHandler.Create(startLocation, "Cannot reach selected area");
         return path;
     }
 

@@ -292,11 +292,11 @@ public class RoadManager : MonoBehaviour
         worker.isBusy = false;
         workerTaskManager.TurnOffCancelTask();
         world.RemoveWorkerWorkLocation(tile);
+        RemoveRoadAtPosition(tile);
     }
 
     public void RemoveRoadAtPosition(Vector3Int tile)
     {
-        world.RemoveStructure(tile);
         TerrainData td = world.GetTerrainDataAt(tile);
         td.ResetMovementCost();
         td.hasRoad = false;
@@ -307,6 +307,7 @@ public class RoadManager : MonoBehaviour
         }
         world.RemoveRoad(tile);
         world.RemoveRoadLocation(tile);
+        world.RemoveSoloRoadLocation(tile);
 
         foreach (Vector3Int neighbor in neighborsFourDirections)
             world.RemoveRoadLocation(tile + neighbor);

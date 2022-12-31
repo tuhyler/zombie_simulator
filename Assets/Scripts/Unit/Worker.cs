@@ -210,12 +210,6 @@ public class Worker : Unit
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(BuildCity);
 
-        if (!world.IsTileOpenCheck(workerTile))
-        {
-            InfoPopUpHandler.Create(workerPos, "Already something here");
-            return;
-        }
-
         StopMovement();
         isBusy = true;
         workerTaskManager.BuildCityPreparations(workerTile, this);

@@ -10,11 +10,11 @@ public class Wonder : MonoBehaviour
 {
     private MapWorld world;
     private UIWonderSelection uiWonderSelection;
-    public GameObject mesh0Percent;
-    public GameObject mesh25Percent;
-    public GameObject mesh50Percent;
-    public GameObject mesh75Percent;
-    public GameObject meshComplete;
+    public MeshRenderer mesh0Percent;
+    public MeshRenderer mesh25Percent;
+    public MeshRenderer mesh50Percent;
+    public MeshRenderer mesh75Percent;
+    public MeshRenderer meshComplete;
     //public MeshRenderer currentMesh;
     
     private int percentDone;
@@ -73,14 +73,14 @@ public class Wonder : MonoBehaviour
         //mesh0Percent = wonderData.mesh0Percent;
         //currentMesh = mesh0Percent;
         //mesh25Percent = wonderData.mesh25Percent;
-        mesh25Percent.SetActive(false);
+        mesh25Percent.enabled = false;
         //mesh25Percent.
         //mesh50Percent = wonderData.mesh50Percent;
-        mesh50Percent.SetActive(false);
+        mesh50Percent.enabled = false;
         //mesh75Percent = wonderData.mesh75Percent;
-        mesh75Percent.SetActive(false);
+        mesh75Percent.enabled = false;
         //meshComplete = wonderData.meshComplete;
-        meshComplete.SetActive(false);
+        meshComplete.enabled = false;
     }
 
     public void SetCenterPos(Vector3 centerPos)
@@ -317,6 +317,7 @@ public class Wonder : MonoBehaviour
         {
             SetNewGO(mesh75Percent,meshComplete);
             isConstructing = false;
+            world.RemoveWonderName(wonderName);
             if (isActive)
                 uiWonderSelection.HideCancelConstructionButton();
         }
@@ -324,10 +325,10 @@ public class Wonder : MonoBehaviour
         ThresholdCheck();
     }
 
-    private void SetNewGO(GameObject prevMesh, GameObject newMesh)
+    private void SetNewGO(MeshRenderer prevMesh, MeshRenderer newMesh)
     {
-        prevMesh.SetActive(false);
-        newMesh.SetActive(true);
+        prevMesh.enabled = false;
+        newMesh.enabled = true;
         //currentMesh = newMesh;
 
         //GameObject wonderGO = Instantiate(newGO, centerPos, rotation);

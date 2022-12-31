@@ -22,7 +22,7 @@ PrefabInstance:
     - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
         type: 3}
       propertyPath: loadUnloadRate
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
         type: 3}
