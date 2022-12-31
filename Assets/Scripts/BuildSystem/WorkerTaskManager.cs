@@ -77,7 +77,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleB()
     {
-        if (workerUnit != null && !workerUnit.isBusy)
+        if (workerUnit != null && !workerUnit.isBusy && !unitMovement.uiJoinCity.activeStatus)
         {
             Vector3 pos = workerUnit.transform.position;
             pos.y = 0;
@@ -397,7 +397,7 @@ public class WorkerTaskManager : MonoBehaviour
             worker.isBusy = false;
             return;
         }
-        if (!world.IsTileOpenCheck(tile))
+        if (!world.IsTileOpenButRoadCheck(tile))
         {
             InfoPopUpHandler.Create(tile, "Already something here"); 
             return;

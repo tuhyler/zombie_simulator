@@ -73,7 +73,7 @@ MonoBehaviour:
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 10
-  warehouseStorageLimit: 100
+  warehouseStorageLimit: 1000
   savedQueueItems: []
   savedQueueItemsNames: []
 --- !u!114 &-548530054223577924

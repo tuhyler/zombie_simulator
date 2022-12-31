@@ -27,7 +27,7 @@ MonoBehaviour:
   wonderName: Pyramids
   wonderDecription: Fill in description
   workersNeeded: 2
-  workerCost: 1
+  workerCost: 9
   sizeHeight: 2
   sizeWidth: 2
   unloadLoc: {x: 0, y: 0, z: 0}
