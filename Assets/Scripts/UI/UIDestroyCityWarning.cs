@@ -22,6 +22,9 @@ public class UIDestroyCityWarning : MonoBehaviour
     [SerializeField]
     private UIInfoPanelCity uiInfoPanelCity;
 
+    [SerializeField]
+    private UIWonderSelection uiWonderSelection;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     private bool activeStatus;
@@ -59,6 +62,7 @@ public class UIDestroyCityWarning : MonoBehaviour
         uiLaborAssignment.ToggleEnable(!v);
         uiInfoPanelCity.enabled = !v;
         turnHandler.ToggleEnable(!v);
+        uiWonderSelection.ToggleEnable(!v);
     }
 
     public void SetActiveStatusFalse()

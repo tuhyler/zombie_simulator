@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class UITradeRouteManager : MonoBehaviour
 {
@@ -23,6 +23,10 @@ public class UITradeRouteManager : MonoBehaviour
     //for generating resource lists
     private List<TMP_Dropdown.OptionData> resources = new();
 
+    [SerializeField] //changing color of button when selected
+    private Image buttonImage;
+    private Color originalButtonColor;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
@@ -33,6 +37,7 @@ public class UITradeRouteManager : MonoBehaviour
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
+        originalButtonColor = buttonImage.color;
         AddResources();
         gameObject.SetActive(false);
     }
@@ -95,9 +100,18 @@ public class UITradeRouteManager : MonoBehaviour
         this.cityNames = cityNames;
     }
 
+    public void ToggleButtonColor(bool v)
+    {
+        if (v)
+            buttonImage.color = Color.green;
+        else
+            buttonImage.color = originalButtonColor;
+    }
+
     public void CloseWindow()
     {
         selectedTrader = null;
+        ToggleButtonColor(false);
         //gameObject.SetActive(false);
 
         activeStatus = false;

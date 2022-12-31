@@ -334,13 +334,17 @@ public class CityBuilderManager : MonoBehaviour
 
         uiWonderSelection.ToggleVisibility(true, wonderReference);
         selectedWonder = wonderReference;
-        selectedWonder.isActive = true;
         selectedWonder.SetUI(uiWonderSelection);
+        selectedWonder.isActive = true;
+        selectedWonder.TimeProgressBarSetActive(true);
         CenterCamOnCity();
     }
 
     public void BuildHarbor()
     {
+        if (!uiWonderSelection.buttonsAreWorking)
+            return;
+
         tilesToChange.Clear();
 
         foreach (Vector3Int loc in selectedWonder.PossibleHarborLocs)
@@ -367,6 +371,53 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
+    public void CreateWorker()
+    {
+        if (!uiWonderSelection.buttonsAreWorking)
+            return;
+
+        if (selectedWonder.WorkersReceived == 0)
+        {
+            InfoPopUpHandler.Create(selectedWonder.unloadLoc, "No workers to unload");
+            return;
+        }
+
+        selectedWonder.StopConstructing();
+        selectedWonder.WorkersReceived--; //decrease worker count 
+        uiWonderSelection.UpdateUIWorkers(selectedWonder.WorkersReceived);
+
+        GameObject workerGO = selectedWonder.WonderData.workerData.prefab;
+
+        world.workerCount++;
+        workerGO.name = selectedWonder.WonderData.workerData.name.Split("_")[0] + "_" + world.workerCount;
+
+        Vector3Int buildPosition = selectedWonder.unloadLoc;
+        if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
+        {
+            //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
+            foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
+            {
+                if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).GetTerrainData().walkable)
+                {
+                    buildPosition = pos;
+                    break;
+                }
+            }
+
+            if (buildPosition == Vector3Int.RoundToInt(transform.position))
+            {
+                Debug.Log("No suitable locations to build unit");
+                return;
+            }
+        }
+
+        GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
+        unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
+        Unit newUnit = unit.GetComponent<Unit>();
+
+        newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+    }
+
     public void BuildWonderHarbor(Vector3Int loc)
     {
         GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
@@ -378,6 +429,51 @@ public class CityBuilderManager : MonoBehaviour
         uiWonderSelection.HideHarborButton();
 
         CloseImprovementBuildPanel();
+    }
+
+    public void OpenCancelWonderConstructionWarning()
+    {
+        if (uiWonderSelection.buttonsAreWorking)
+            uiDestroyCityWarning.ToggleVisibility(true);
+    }
+
+    private void CancelWonderConstruction()
+    {
+        uiDestroyCityWarning.ToggleVisibility(false);
+        uiWonderSelection.ToggleVisibility(false, selectedWonder);
+        selectedWonder.StopConstructing();
+
+        for (int i = 0; i < selectedWonder.WorkersReceived; i++)
+        {
+            CreateWorker();
+        }
+        
+        if (!selectedWonder.roadPreExisted)
+        {
+            RoadManager roadManager = GetComponent<RoadManager>();
+            roadManager.RemoveRoadAtPosition(selectedWonder.unloadLoc);
+        }
+
+        if (selectedWonder.hasHarbor)
+        {
+            GameObject harbor = world.GetStructure(selectedWonder.harborLoc);
+            Destroy(harbor);
+            world.RemoveSingleBuildFromCityLabor(selectedWonder.harborLoc);
+            world.RemoveStructure(selectedWonder.harborLoc);
+        }
+
+        world.RemoveWonderName(selectedWonder.wonderName);
+
+        GameObject priorGO = world.GetStructure(selectedWonder.WonderLocs[2]);
+        Destroy(priorGO);
+
+        foreach (Vector3Int tile in selectedWonder.WonderLocs)
+        {
+            world.RemoveStructure(tile);
+            world.RemoveSingleBuildFromCityLabor(tile);
+        }
+
+        selectedWonder = null;
     }
 
     private void SelectCity(Vector3 location, City cityReference)
@@ -792,9 +888,6 @@ public class CityBuilderManager : MonoBehaviour
             uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
             uiCityTabs.HideSelectedTab();
         }
-
-        //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
-        //Debug.Log("building " + unitData.name + " at " + selectedCityLoc);
 
         GameObject unitGO = unitData.prefab;
 
@@ -1845,7 +1938,9 @@ public class CityBuilderManager : MonoBehaviour
     public void DestroyCityWarning()
     {
         uiDestroyCityWarning.ToggleVisibility(true);
-        ResetCityUIToBase();
+
+        if (selectedCity != null)
+            ResetCityUIToBase();
     }
 
 
@@ -2019,10 +2114,15 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCity() //set on destroy city warning message
     {
+        if (selectedWonder != null)
+        {
+            CancelWonderConstruction();
+            return;
+        }
+        
         GameObject destroyedCity = world.GetStructure(selectedCityLoc);
 
         //destroy all construction projects upon destroying city
-        removingImprovement = true;
         List<Vector3Int> constructionToStop = new(constructingTiles);
 
         foreach (Vector3Int constructionTile in constructionToStop)
@@ -2031,7 +2131,6 @@ public class CityBuilderManager : MonoBehaviour
             construction.RemoveConstruction(this, constructionTile);
             RemoveImprovement(constructionTile, construction, selectedCity, false);
         }
-        removingImprovement = false;
 
         world.RemoveStructure(selectedCityLoc);
         world.RemoveCityName(selectedCityLoc);
@@ -2085,8 +2184,8 @@ public class CityBuilderManager : MonoBehaviour
     public void NoDestroyCity() //in case user chickens out
     {
         uiDestroyCityWarning.ToggleVisibility(false);
-        //uiUnitBuilder.ToggleVisibility(true);
-        uiCityTabs.HideSelectedTab();
+        if (selectedCity != null)
+            uiCityTabs.HideSelectedTab();
     }
 
     public void ResetTileLists()
@@ -2149,7 +2248,9 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedWonder != null)
         {
+            uiDestroyCityWarning.ToggleVisibility(false);
             selectedWonder.isActive = false;
+            selectedWonder.TimeProgressBarSetActive(false);
             uiWonderSelection.ToggleVisibility(false, selectedWonder);
             selectedWonder.SetUI(null);
             if (placingWonderHarbor)
