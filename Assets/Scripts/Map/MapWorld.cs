@@ -39,6 +39,7 @@ public class MapWorld : MonoBehaviour
     public bool researching;
 
     private List<City> researchWaitList = new();
+    private List<Wonder> goldWonderWaitList = new();
 
     private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
@@ -220,7 +221,7 @@ public class MapWorld : MonoBehaviour
         cityBuilderManager.ResetCityUI();
         unitMovement.ClearSelection();
         cityBuilderManager.UnselectWonder();
-        unitMovement.LoadUnloadFinish();
+        //unitMovement.LoadUnloadFinish(false);
         researchTree.ToggleVisibility(false);
         wonderHandler.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
@@ -343,14 +344,15 @@ public class MapWorld : MonoBehaviour
 
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
-        GameObject wonderGO = Instantiate(wonderData.prefab0Percent, centerPos, Quaternion.identity);
+        GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, Quaternion.identity);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
         wonder.SetWorld(this);
         wonder.WonderData = wonderData;
+        wonder.SetPrefabs();
         wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost);
         wonder.unloadLoc = unloadLoc;
-        wonder.centerPos = centerPos;
+        wonder.SetCenterPos(centerPos);
         wonder.WonderLocs = new(wonderPlacementLoc);
         wonderConstructionDict[wonder.wonderName] = wonder;
         foreach (Vector3Int tile in wonderPlacementLoc)
@@ -516,6 +518,28 @@ public class MapWorld : MonoBehaviour
         return researchWaitList.Count > 0;
     }
 
+    public void AddToGoldWonderWaitList(Wonder wonder)
+    {
+        if (!goldWonderWaitList.Contains(wonder))
+            goldWonderWaitList.Add(wonder);
+    }
+
+    private void RestartWonderConstruction()
+    {
+        List<Wonder> wonderWaitList = new(goldWonderWaitList);
+
+        foreach (Wonder wonder in wonderWaitList)
+        {
+            goldWonderWaitList.Remove(wonder);
+            wonder.ThresholdCheck();
+        }
+    }
+
+    private bool WondersWaitingCheck()
+    {
+        return goldWonderWaitList.Count > 0;
+    }
+
     //world resources management
     public void UpdateWorldResources(ResourceType resourceType, int amount)
     {
@@ -529,6 +553,8 @@ public class MapWorld : MonoBehaviour
         else
         {
             worldResourceManager.SetResource(resourceType, amount);
+            if (amount > 0 && WondersWaitingCheck())
+                RestartWonderConstruction();
         }
     }
 
@@ -1393,8 +1419,16 @@ public class MapWorld : MonoBehaviour
         cityLocDict.Remove(cityLoc);
     }
 
+    public void RemoveWonderName(string name)
+    {
+        wonderConstructionDict.Remove(name);
+    }
+
     public void RemoveStructure(Vector3Int buildPosition)
     {
+        if (!buildingPosDict.ContainsKey(buildPosition))
+            return;
+
         buildingPosDict.Remove(buildPosition);
         if (cityImprovementDict.ContainsKey(buildPosition))
         {

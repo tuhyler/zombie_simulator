@@ -159,9 +159,9 @@ public class Worker : Unit
             return;
         }
 
-        if (world.IsCityOnTile(workerTile))
+        if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile))
         {
-            InfoPopUpHandler.Create(workerPos, "Can't remove city road");
+            InfoPopUpHandler.Create(workerPos, "Can't remove this road");
             return;
         }
 

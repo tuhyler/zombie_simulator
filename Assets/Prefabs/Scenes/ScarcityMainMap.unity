@@ -5721,6 +5721,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a6132c3d12e04f44a9cfa1e11bd215a6, type: 3}
+--- !u!114 &277779013 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6306010924383633035, guid: a6132c3d12e04f44a9cfa1e11bd215a6,
+    type: 3}
+  m_PrefabInstance: {fileID: 277779012}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &278243167
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16036,7 +16048,7 @@ MonoBehaviour:
   uiCityResourceInfoPanel: {fileID: 1620586495}
   uiTradeRouteManager: {fileID: 640537117}
   uiCancelTradeRoute: {fileID: 1774535320}
-  cityTraderIncrement: 1
+  cityTraderIncrement: 5
 --- !u!114 &648287305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24018,6 +24030,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8607919193828306377, guid: 2c829f6a6fd2ba14891f70ca843ee7f2,
         type: 3}
+      propertyPath: buttonImage
+      value: 
+      objectReference: {fileID: 277779013}
+    - target: {fileID: -8607919193828306377, guid: 2c829f6a6fd2ba14891f70ca843ee7f2,
+        type: 3}
       propertyPath: unitMovement
       value: 
       objectReference: {fileID: 648287304}
@@ -30818,6 +30835,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1997047603260751212, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2027863880379529781, guid: 72bb7d89d05bf9d4d9052361310ce898,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -31043,6 +31065,41 @@ PrefabInstance:
       propertyPath: world
       value: 
       objectReference: {fileID: 163795767}
+    - target: {fileID: 7111020000513904998, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7111020000513904998, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7111020000513904998, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1634818655}
+    - target: {fileID: 7111020000513904998, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7111020000513904998, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CreateWorker
+      objectReference: {fileID: 0}
+    - target: {fileID: 7111020000513904998, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: CityBuilderManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7111020000513904998, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 7113548548052977731, guid: 72bb7d89d05bf9d4d9052361310ce898,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -31052,6 +31109,46 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187638346425833488, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187638346425833488, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187638346425833488, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1634818655}
+    - target: {fileID: 7187638346425833488, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187638346425833488, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OpenCancelWonderConstructionWarning
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187638346425833488, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: CityBuilderManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7187638346425833488, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 7313012167309659769, guid: 72bb7d89d05bf9d4d9052361310ce898,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7389737143294441261, guid: 72bb7d89d05bf9d4d9052361310ce898,
         type: 3}
@@ -32627,6 +32724,11 @@ PrefabInstance:
       propertyPath: uiLaborAssignment
       value: 
       objectReference: {fileID: 795473417}
+    - target: {fileID: 6911706859373247045, guid: 68801d1412ff12b43af7f575030ddf3b,
+        type: 3}
+      propertyPath: uiWonderSelection
+      value: 
+      objectReference: {fileID: 1756409234}
     - target: {fileID: 6911706859373247045, guid: 68801d1412ff12b43af7f575030ddf3b,
         type: 3}
       propertyPath: uiCityBuildTabHandler
@@ -51072,7 +51174,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500001
+      value: 8.5
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

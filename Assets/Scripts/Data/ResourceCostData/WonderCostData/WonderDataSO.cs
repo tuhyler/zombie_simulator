@@ -5,14 +5,16 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Wonder Data", menuName = "EconomyData/WonderData")]
 public class WonderDataSO : ScriptableObject
 {
-    public GameObject prefab0Percent;
-    public GameObject prefab25Percent;
-    public GameObject prefab50Percent;
-    public GameObject prefab75Percent;
-    public GameObject prefabComplete;
+    public GameObject wonderPrefab;
+    public MeshRenderer mesh0Percent;
+    public MeshRenderer mesh25Percent;
+    public MeshRenderer mesh50Percent;
+    public MeshRenderer mesh75Percent;
+    public MeshRenderer meshComplete;
     public string wonderName;
     public string wonderDecription = "Fill in description";
-    public int workerCount = 1;
+    public int workersNeeded = 1;
+    public int workerCost;
     public int sizeHeight;
     public int sizeWidth;
     public Vector3Int unloadLoc;
@@ -24,4 +26,5 @@ public class WonderDataSO : ScriptableObject
     public bool replaceProp = true; //replace terrain prop when building upon it
     public int buildTimePerPercent = 10;
     public bool locked = true;
+    public UnitBuildDataSO workerData;
 }

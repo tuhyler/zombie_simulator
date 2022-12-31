@@ -50,6 +50,7 @@ public class TradeRouteManager : MonoBehaviour
     public Vector3Int GoToNext()
     {
         city = null;
+        wonder = null;
         resourcesAtArrival.Clear();
         currentDestination = cityStops[currentStop];
         waitTime = waitTimes[currentStop];
@@ -148,10 +149,18 @@ public class TradeRouteManager : MonoBehaviour
             int resourceAmount = resourceValue.resourceAmount;
             bool loadUnloadCheck = true;
 
-            if (wonder != null && !wonder.CheckResourceType(resourceValue.resourceType))
+            if (wonder != null)
             {
-                InfoPopUpHandler.Create(wonder.centerPos, "Wrong resource type: " + resourceValue.resourceType);
-                continue;
+                if (!wonder.CheckResourceType(resourceValue.resourceType))
+                {
+                    InfoPopUpHandler.Create(wonder.centerPos, "Wrong resource type: " + resourceValue.resourceType);
+                    continue;
+                }
+                else if (resourceAmount > 0)
+                {
+                    InfoPopUpHandler.Create(wonder.centerPos, "Can't move from wonder");
+                    continue;
+                }
             }
 
             if (resourceAmount == 0)

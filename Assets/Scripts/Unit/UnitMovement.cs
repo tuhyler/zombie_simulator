@@ -96,8 +96,8 @@ public class UnitMovement : MonoBehaviour
     {
         if (world.buildingWonder)
             return;
-        else if (loadScreenSet)
-            LoadUnloadFinish();
+        //else if (loadScreenSet)
+        //    LoadUnloadFinish(false);
 
         //if nothing detected, nothing selected
         if (detectedObject == null)
@@ -241,7 +241,7 @@ public class UnitMovement : MonoBehaviour
                 selectedTrader.PersonalResourceManager.GetResourceStorageLevel, selectedTrader.CargoStorageLimit);
             uiPersonalResourceInfoPanel.ToggleVisibility(true);
             uiTraderPanel.ToggleVisibility(true);
-            if (world.IsCityOnTile(Vector3Int.RoundToInt(selectedTrader.transform.position)) && !selectedTrader.followingRoute)
+            if (world.IsTradeLocOnTile(world.RoundToInt(selectedTrader.transform.position)) && !selectedTrader.followingRoute)
             {
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(true);
             }
@@ -349,6 +349,7 @@ public class UnitMovement : MonoBehaviour
         //movementSystem.HidePath();
         movementSystem.ClearPaths();
         uiJoinCity.ToggleTweenVisibility(false);
+        uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
     }
 
     public void MoveUnitRightClick(Vector3 location, GameObject detectedObject)
@@ -381,7 +382,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
             selectedUnit.SendResourceToCity();
         else if (loadScreenSet)
-            LoadUnloadFinish();
+            LoadUnloadFinish(true);
 
         //if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
         //{
@@ -546,7 +547,7 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-            world.GetWonder(unitLoc).WorkersReceived++;
+            world.GetWonder(unitLoc).AddWorker();
         }
 
         selectedUnit.DestroyUnit();
@@ -557,8 +558,10 @@ public class UnitMovement : MonoBehaviour
     {
         if (!loadScreenSet)
         {
+            uiTraderPanel.uiLoadUnload.ToggleButtonColor(true);
             selectedUnit.HidePath();
             movementSystem.ClearPaths();
+            uiTradeRouteManager.CloseWindow();
             //selectedTile = null;
 
             //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
@@ -586,6 +589,10 @@ public class UnitMovement : MonoBehaviour
             uiCityResourceInfoPanel.SetPosition();
 
             loadScreenSet = true;
+        }
+        else
+        {
+            LoadUnloadFinish(true);
         }
     }
 
@@ -640,14 +647,15 @@ public class UnitMovement : MonoBehaviour
         ChangeResourceManagersAndUIs(resourceType, -cityTraderIncrement);
     }
 
-    public void LoadUnloadFinish() //putting the screens back after finishing loading cargo
+    private void LoadUnloadFinish(bool keepSelection) //putting the screens back after finishing loading cargo
     {
         if (loadScreenSet)
         {
+            uiTraderPanel.uiLoadUnload.ToggleButtonColor(false);
             if (uiCityResourceInfoPanel.inUse)
                 uiCityResourceInfoPanel.EmptyResourceUI();
-            uiPersonalResourceInfoPanel.RestorePosition();
-            uiCityResourceInfoPanel.RestorePosition();
+            uiPersonalResourceInfoPanel.RestorePosition(keepSelection);
+            uiCityResourceInfoPanel.RestorePosition(keepSelection);
             cityResourceManager = null;
             wonder = null;
             loadScreenSet = false;
@@ -656,10 +664,18 @@ public class UnitMovement : MonoBehaviour
 
     private void ChangeResourceManagersAndUIs(ResourceType resourceType, int resourceAmount)
     {
-        if (wonder != null && !wonder.CheckResourceType(resourceType))
+        if (wonder != null)
         {
-            InfoPopUpHandler.Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
-            return;
+            if (!wonder.CheckResourceType(resourceType))
+            {
+                InfoPopUpHandler.Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
+                return;
+            }
+            else if (resourceAmount > 0)
+            {
+                InfoPopUpHandler.Create(selectedUnit.transform.position, "Can't move from wonder");
+                return;
+            }
         }
 
         if (resourceAmount > 0) //moving from city to trader
@@ -718,8 +734,9 @@ public class UnitMovement : MonoBehaviour
 
         if (!uiTradeRouteManager.activeStatus)
         {
-            LoadUnloadFinish();
+            LoadUnloadFinish(true);
             infoManager.HideInfoPanel();
+            uiTradeRouteManager.ToggleButtonColor(true);
 
             Vector3Int traderLoc = Vector3Int.RoundToInt(selectedTrader.transform.position);
 
@@ -798,11 +815,6 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    //private void MovementFinishSetUp()
-    //{
-        
-    //}
-
     public void TurnOnInfoScreen()
     {
         if (selectedTrader != null)
@@ -834,7 +846,7 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.HidePath();
             //}
             uiPersonalResourceInfoPanel.ToggleVisibility(false);
-            LoadUnloadFinish(); //clear load cargo screen
+            LoadUnloadFinish(false); //clear load cargo screen
             infoManager.HideInfoPanel();
             //movementSystem.ClearPaths(); //necessary to queue movement orders
             selectedUnitInfoProvider = null;

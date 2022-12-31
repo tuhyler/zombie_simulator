@@ -1,6 +1,8 @@
+using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Resources;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
 
@@ -8,7 +10,13 @@ public class Wonder : MonoBehaviour
 {
     private MapWorld world;
     private UIWonderSelection uiWonderSelection;
-
+    public GameObject mesh0Percent;
+    public GameObject mesh25Percent;
+    public GameObject mesh50Percent;
+    public GameObject mesh75Percent;
+    public GameObject meshComplete;
+    //public MeshRenderer currentMesh;
+    
     private int percentDone;
     public int PercentDone { get { return percentDone; } set { percentDone = value; } }
 
@@ -16,7 +24,7 @@ public class Wonder : MonoBehaviour
     public Quaternion Rotation { set { rotation = value; } }
 
     [HideInInspector]
-    public bool isConstructing, canBuildHarbor, hasHarbor, isActive, roadPreExisted, completed;
+    public bool isConstructing, canBuildHarbor, hasHarbor, isActive, roadPreExisted;
     [HideInInspector]
     public Vector3Int unloadLoc, harborLoc;
     [HideInInspector]
@@ -44,9 +52,10 @@ public class Wonder : MonoBehaviour
 
     //for building the wonder
     private Dictionary<ResourceType, int> resourceThreshold = new();
-    private Dictionary<ResourceType, bool> resourceThresholdMet = new();
     private TimeProgressBar timeProgressBar;
-    private Coroutine co;
+    private Coroutine buildingCo;
+    private int timePassed;
+    private bool isBuilding;
 
     //for queuing unloading
     private Queue<Unit> waitList = new();
@@ -56,6 +65,27 @@ public class Wonder : MonoBehaviour
     private void Awake()
     {
         timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
+        isConstructing = true;
+    }
+
+    public void SetPrefabs()
+    {
+        //mesh0Percent = wonderData.mesh0Percent;
+        //currentMesh = mesh0Percent;
+        //mesh25Percent = wonderData.mesh25Percent;
+        mesh25Percent.SetActive(false);
+        //mesh25Percent.
+        //mesh50Percent = wonderData.mesh50Percent;
+        mesh50Percent.SetActive(false);
+        //mesh75Percent = wonderData.mesh75Percent;
+        mesh75Percent.SetActive(false);
+        //meshComplete = wonderData.meshComplete;
+        meshComplete.SetActive(false);
+    }
+
+    public void SetCenterPos(Vector3 centerPos)
+    {
+        this.centerPos = centerPos;
         timeProgressBar.gameObject.transform.position = centerPos;
     }
 
@@ -65,9 +95,23 @@ public class Wonder : MonoBehaviour
         {
             resourceDict[resource.resourceType] = 0;
             resourceCostDict[resource.resourceType] = resource.resourceAmount;
-            resourceThreshold[resource.resourceType] = Mathf.RoundToInt(resource.resourceAmount * 0.01f);
-            resourceThresholdMet[resource.resourceType] = false;
+            SetNextResourceThreshold(resource.resourceType);
         }
+    }
+
+    private void SetNextResourceThreshold(ResourceType resourceType)
+    {
+        resourceThreshold[resourceType] = (percentDone + 1) * Mathf.RoundToInt(resourceCostDict[resourceType] * 0.01f);
+    }
+
+    private void IncreasePercentDone()
+    {
+        percentDone++;
+        if (percentDone == 100)
+            return;
+
+        foreach (ResourceType resourceType in resourceDict.Keys)
+            SetNextResourceThreshold(resourceType);
     }
 
     public void SetWorld(MapWorld world)
@@ -101,14 +145,14 @@ public class Wonder : MonoBehaviour
         }
     }
 
-    public void CheckLimitWaiter()
-    {
-        if (tradeRouteWaiter != null && resourceWaiter == ResourceType.None)
-        {
-            tradeRouteWaiter.resourceCheck = false;
-            tradeRouteWaiter = null;
-        }
-    }
+    //public void CheckLimitWaiter()
+    //{
+    //    if (tradeRouteWaiter != null && resourceWaiter == ResourceType.None)
+    //    {
+    //        tradeRouteWaiter.resourceCheck = false;
+    //        tradeRouteWaiter = null;
+    //    }
+    //}
 
     public void AddToWaitList(Unit unit)
     {
@@ -153,10 +197,10 @@ public class Wonder : MonoBehaviour
     private int AddResourceToStorage(ResourceType resourceType, int resourceAmount)
     {
         //check to ensure you don't take out more resources than are available in dictionary
-        if (resourceAmount < 0 && -resourceAmount > resourceDict[resourceType])
-        {
-            resourceAmount = -resourceDict[resourceType];
-        }
+        //if (resourceAmount < 0 && -resourceAmount > resourceDict[resourceType])
+        //{
+        //    resourceAmount = -resourceDict[resourceType];
+        //}
 
         int resourceLimit = resourceCostDict[resourceType];
 
@@ -176,44 +220,67 @@ public class Wonder : MonoBehaviour
         
         if (newResourceAmount > 0)
             CheckResourceWaiter(resourceType);
-        else if (newResourceAmount < 0)
-            CheckLimitWaiter();
+        //else if (newResourceAmount < 0)
+        //    CheckLimitWaiter();
 
-        ThresholdUpdate(resourceType);
+        if (!isBuilding)
+            ThresholdCheck();
         return resourceAmount;
+    }
+
+    public void AddWorker()
+    {
+        workersReceived++;
+
+        if (!StillNeedsWorkers() && !isBuilding)
+            ThresholdCheck();
     }
 
     public bool StillNeedsWorkers()
     {
-        return workersReceived < wonderData.workerCount;
+        return workersReceived < wonderData.workersNeeded;
     }
 
-    private void ThresholdUpdate(ResourceType resourceType)
-    {
-        int nextLevel = (percentDone + 1) * resourceThreshold[resourceType];
-        resourceThresholdMet[resourceType] = resourceDict[resourceType] / nextLevel >= 1;
+    //private void ThresholdUpdate(ResourceType resourceType)
+    //{
+    //    int nextLevel = (percentDone + 1) * resourceThreshold[resourceType];
+    //    resourceThresholdMet[resourceType] = resourceDict[resourceType] / nextLevel >= 1;
 
-        ThresholdCheck();
-    }
+    //    ThresholdCheck();
+    //}
 
-    private void ThresholdCheck()
+    public void ThresholdCheck()
     {
-        foreach (ResourceType type in resourceThresholdMet.Keys)
+        foreach (ResourceType type in resourceThreshold.Keys)
         {
-            if (!resourceThresholdMet[type])
+            if (resourceDict[type] < resourceThreshold[type])
                 return;
         }
 
-        if (!StillNeedsWorkers())
-            co = StartCoroutine(BuildNextPortionOfWonder());
+        if (StillNeedsWorkers())
+            return;
+
+        if (!world.CheckWorldGold(wonderData.workerCost * workersReceived))
+        {
+            world.AddToGoldWonderWaitList(this);
+            return;
+        }
+
+        buildingCo = StartCoroutine(BuildNextPortionOfWonder());
     }
 
     public IEnumerator BuildNextPortionOfWonder()
     {
-        int timePassed = wonderData.buildTimePerPercent;
-        timeProgressBar.SetActive(true);
+        timePassed = wonderData.buildTimePerPercent;
+
+        if (isActive)
+            timeProgressBar.SetActive(true);
+
         timeProgressBar.SetTimeProgressBarValue(timePassed);
         timeProgressBar.SetTime(timePassed);
+        isBuilding = true;
+
+        ConsumeWorkerCost();
 
         while (timePassed > 0)
         {
@@ -222,9 +289,13 @@ public class Wonder : MonoBehaviour
             timeProgressBar.SetTime(timePassed);
         }
 
+        isBuilding = false;
         timeProgressBar.ResetProgressBar();
-        timeProgressBar.SetActive(false);
-        percentDone++;
+        if (isActive)
+            timeProgressBar.SetActive(false);
+        IncreasePercentDone();
+        if (isActive)
+            uiWonderSelection.UpdateUIPercent(percentDone);
         NextPhaseCheck();
     }
 
@@ -232,32 +303,78 @@ public class Wonder : MonoBehaviour
     {
         if (percentDone == 25)
         {
-            SetNewGO(wonderData.prefab25Percent);
+            SetNewGO(mesh0Percent, mesh25Percent);
         }
         else if (percentDone == 50)
         {
-            SetNewGO(wonderData.prefab50Percent);
+            SetNewGO(mesh25Percent, mesh50Percent);
         }
         else if (percentDone == 75)
         {
-            SetNewGO(wonderData.prefab75Percent);
+            SetNewGO(mesh50Percent, mesh75Percent);
         }
         else if (percentDone == 100)
         {
-            SetNewGO(wonderData.prefabComplete);
-            completed = true;
+            SetNewGO(mesh75Percent,meshComplete);
+            isConstructing = false;
+            if (isActive)
+                uiWonderSelection.HideCancelConstructionButton();
         }
 
         ThresholdCheck();
     }
 
-    private void SetNewGO(GameObject newGO)
+    private void SetNewGO(GameObject prevMesh, GameObject newMesh)
     {
-        GameObject wonderGO = Instantiate(newGO, centerPos, rotation);
-        GameObject priorGO = world.GetStructure(wonderLocs[0]);
-        Destroy(priorGO);
+        prevMesh.SetActive(false);
+        newMesh.SetActive(true);
+        //currentMesh = newMesh;
 
-        foreach (Vector3Int tile in wonderLocs)
-            world.AddStructure(tile, wonderGO);
+        //GameObject wonderGO = Instantiate(newGO, centerPos, rotation);
+        //GameObject priorGO = world.GetStructure(wonderLocs[0]);
+        //Destroy(priorGO);
+
+        //foreach (Vector3Int tile in wonderLocs)
+        //{
+        //    world.RemoveStructure(tile);
+        //    world.AddStructure(tile, wonderGO);
+        //}
+    }
+
+    public void TimeProgressBarSetActive(bool v)
+    {
+        if (isBuilding)
+        {
+            timeProgressBar.SetActive(v);
+            if (v)
+            {
+                timeProgressBar.SetProgressBarMask(timePassed);
+                timeProgressBar.SetTime(timePassed);
+                //timeProgressBar.SetProgressBarMask();
+            }
+        }
+    }
+
+    private void ConsumeWorkerCost()
+    {
+        int amount = -wonderData.workerCost * workersReceived;
+        world.UpdateWorldResources(ResourceType.Gold, amount);
+        Vector3 loc = centerPos;
+        loc.y += 0.5f;
+        if (isActive)
+            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+    }
+
+    public void StopConstructing()
+    {
+        if (isBuilding)
+        {
+            timeProgressBar.SetActive(false);
+            StopCoroutine(buildingCo);
+            int amount = wonderData.workerCost * workersReceived;
+            world.UpdateWorldResources(ResourceType.Gold, amount);
+            InfoResourcePopUpHandler.CreateResourceStat(centerPos, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+            isBuilding = false;
+        }
     }
 }

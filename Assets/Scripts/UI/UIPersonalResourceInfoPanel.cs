@@ -104,7 +104,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
             if (!city)
             {
-                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.2f).setOnComplete(SetActiveStatusFalse);
+                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 400f, 0.2f).setOnComplete(SetActiveStatusFalse);
             }
             else
             {
@@ -247,20 +247,25 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         ToggleButtonInteractable(true);
     }
 
-    public void RestorePosition()
+    public void RestorePosition(bool keepSelection)
     {
         ToggleButtonInteractable(false);
 
         if (city)
         {
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 300f, 0.4f)
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.4f)
                 .setEase(LeanTweenType.easeOutSine)
                 .setOnComplete(SetVisibilityFalse);
             LeanTween.alpha(allContents, 0f, 0.4f).setEaseLinear();
         }
         else
         {
-            LeanTween.moveY(allContents, originalLoc.y, 0.4f).setEase(LeanTweenType.easeOutSine);
+            Vector3 loc;
+            if (keepSelection)
+                loc = originalLoc;
+            else
+                loc = originalLoc + new Vector3(0, 200f, 0);
+            LeanTween.moveY(allContents, loc.y, 0.4f).setEase(LeanTweenType.easeOutSine);
         }
 
         inUse = false;
