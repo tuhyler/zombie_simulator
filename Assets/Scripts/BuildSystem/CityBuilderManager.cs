@@ -802,7 +802,7 @@ public class CityBuilderManager : MonoBehaviour
             if (v && producer.isWaitingToUnload)
             {
                 producer.TimeProgressBarSetActive(v);
-                producer.SetTimeProgressBarToZero();
+                producer.SetTimeProgressBarToFull();
             }
             else if (!producer.isWaitingForResearch && !producer.isWaitingForStorageRoom && !producer.isWaitingforResources)
             {

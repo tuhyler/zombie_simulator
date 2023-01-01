@@ -17,7 +17,8 @@ public class ResourceProducer : MonoBehaviour
     //for production info
     private Coroutine producingCo;
     private int productionTimer;
-    private TimeProgressBar timeProgressBar;
+    //private TimeProgressBar timeProgressBar;
+    private UITimeProgressBar uiTimeProgressBar;
     [HideInInspector]
     public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch;
     private float unloadLabor;
@@ -70,8 +71,11 @@ public class ResourceProducer : MonoBehaviour
     {
         Vector3 progressBarLoc = producerLoc; //bottom center of tile
         progressBarLoc.z -= 1.5f;
-        GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, progressBarLoc, Quaternion.Euler(90, 0, 0));
-        timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
+        //GameObject gameObject = Instantiate(GameAssets.Instance.timeProgressPrefab, progressBarLoc, Quaternion.Euler(90, 0, 0));
+        //timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
+
+        GameObject progressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, progressBarLoc, Quaternion.Euler(90, 0, 0));
+        uiTimeProgressBar = progressBar.GetComponent<UITimeProgressBar>();
         //timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
     }
 
@@ -97,20 +101,25 @@ public class ResourceProducer : MonoBehaviour
         //pos.z += -1f;
         //timeProgressBar.gameObject.transform.position = pos;
         //timeProgressBar.SetConstructionTime(time);
-        timeProgressBar.SetTimeProgressBarValue(time);
+        //timeProgressBar.SetTimeProgressBarValue(time);
+        uiTimeProgressBar.SetTimeProgressBarValue(time);
+        uiTimeProgressBar.SetToZero();
         if (active)
-            timeProgressBar.SetActive(true);
+            uiTimeProgressBar.gameObject.SetActive(true);
+        //timeProgressBar.SetActive(true);
     }
 
     public void HideConstructionProgressTimeBar()
     {
-        timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
-        timeProgressBar.SetActive(false);
+        uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
+        //timeProgressBar.SetActive(false);
+        uiTimeProgressBar.gameObject.SetActive(false);
     }
 
     public void SetConstructionTime(int time)
     {
-        timeProgressBar.SetTime(time);
+        //timeProgressBar.SetTime(time);
+        uiTimeProgressBar.SetTime(time);
     }
 
     //checking if production can continue
@@ -149,7 +158,8 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceConsumedPerMinute();
 
         if (resourceManager.city.activeCity)
-            timeProgressBar.SetActive(true);
+            uiTimeProgressBar.gameObject.SetActive(true);
+            //timeProgressBar.SetActive(true);
         producingCo = StartCoroutine(ProducingCoroutine());
         isProducing = true;
     }
@@ -206,8 +216,10 @@ public class ResourceProducer : MonoBehaviour
         productionTimer = improvementData.producedResourceTime;
         if (resourceManager.city.activeCity)
         {
-            timeProgressBar.SetProgressBarBeginningPosition();
-            timeProgressBar.SetTime(productionTimer);
+            //timeProgressBar.SetProgressBarBeginningPosition();
+            //timeProgressBar.SetTime(productionTimer);
+            uiTimeProgressBar.SetToZero();
+            uiTimeProgressBar.SetTime(productionTimer);
         }
 
         tempLabor = currentLabor;
@@ -218,7 +230,8 @@ public class ResourceProducer : MonoBehaviour
             yield return new WaitForSeconds(1);
             productionTimer--;
             if (resourceManager.city.activeCity)
-                timeProgressBar.SetTime(productionTimer);
+                uiTimeProgressBar.SetTime(productionTimer);
+            //timeProgressBar.SetTime(productionTimer);
         }
 
         //checking if still researching
@@ -227,7 +240,8 @@ public class ResourceProducer : MonoBehaviour
             isWaitingToUnload = true;
             unloadLabor = tempLabor;
             resourceManager.waitingToUnloadResearch.Enqueue(this);
-            timeProgressBar.SetToZero();
+            //timeProgressBar.SetToZero();
+            uiTimeProgressBar.SetToFull();
             resourceManager.city.AddToWorldResearchWaitList();
         }
         //checking of storage is free to unload
@@ -236,7 +250,8 @@ public class ResourceProducer : MonoBehaviour
             isWaitingToUnload = true;
             unloadLabor = tempLabor;
             resourceManager.waitingToUnloadProducers.Enqueue(this);
-            timeProgressBar.SetToZero();
+            //timeProgressBar.SetToZero();
+            uiTimeProgressBar.SetToFull();
         }
         else
         {
@@ -249,7 +264,8 @@ public class ResourceProducer : MonoBehaviour
         if (isWaitingToUnload)
         {
             isWaitingToUnload = false;
-            timeProgressBar.ResetProgressBar();
+            //timeProgressBar.ResetProgressBar();
+            uiTimeProgressBar.SetToZero();
             RestartProductionCheck(unloadLabor);
         }
     }
@@ -263,17 +279,20 @@ public class ResourceProducer : MonoBehaviour
         if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
-            timeProgressBar.SetActive(false);
+            //timeProgressBar.SetActive(false);
+            uiTimeProgressBar.gameObject.SetActive(false);
         }
         else if (resourceManager.fullInventory)
         {
             AddToStorageRoomWaitList();
-            timeProgressBar.SetActive(false);
+            uiTimeProgressBar.gameObject.SetActive(false);
+            //timeProgressBar.SetActive(false);
         }
         else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
         {
             AddToResourceWaitList();
-            timeProgressBar.SetActive(false);
+            uiTimeProgressBar.gameObject.SetActive(false);
+            //timeProgressBar.SetActive(false);
         }
         else
         {
@@ -316,7 +335,8 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
         }
 
-        timeProgressBar.SetActive(false);
+        //timeProgressBar.SetActive(false);
+        uiTimeProgressBar.gameObject.SetActive(false);
         isProducing = false;
     }
 
@@ -340,32 +360,33 @@ public class ResourceProducer : MonoBehaviour
         resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
     }
 
-    public void SetTimeProgressBarToZero()
+    public void SetTimeProgressBarToFull()
     {
-        timeProgressBar.SetToZero();
+        uiTimeProgressBar.SetToFull();
     }
 
     public void TimeProgressBarSetActive(bool v)
     {
         if (isProducing)
         {
-            timeProgressBar.SetActive(v);
+            //timeProgressBar.SetActive(v);
+            uiTimeProgressBar.gameObject.SetActive(v);
             if (v)
             {
-                timeProgressBar.SetProgressBarMask(productionTimer);
-                timeProgressBar.SetTime(productionTimer);
-                //timeProgressBar.SetProgressBarMask();
+                uiTimeProgressBar.SetProgressBarMask(productionTimer);
+                uiTimeProgressBar.SetTime(productionTimer);
             }
         }
     }
 
     public void TimeConstructionProgressBarSetActive(bool v, int time)
     {
-        timeProgressBar.SetActive(v);
+        //timeProgressBar.SetActive(v);
+        uiTimeProgressBar.gameObject.SetActive(true);
         if (v)
         {
-            timeProgressBar.SetProgressBarMask(time);
-            timeProgressBar.SetTime(time);
+            uiTimeProgressBar.SetProgressBarMask(time);
+            uiTimeProgressBar.SetTime(time);
         }
     }
 
