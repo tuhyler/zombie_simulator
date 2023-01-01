@@ -57,7 +57,8 @@ public class City : MonoBehaviour
     public int FoodConsumptionPerMinute { get { return foodConsumptionPerMinute; } set { foodConsumptionPerMinute = value; } }
     private string minutesTillGrowth; //string in case there's no growth
     public string GetMinutesTillGrowth { get { return minutesTillGrowth; } }
-    private TimeProgressBar timeProgressBar;
+    //private TimeProgressBar timeProgressBar;
+    private UITimeProgressBar uiTimeProgressBar;
     private int countDownTimer;
 
     //housingInfo
@@ -518,8 +519,8 @@ public class City : MonoBehaviour
     {
         if (activeCity)
         {
-            timeProgressBar.SetProgressBarBeginningPosition();
-            timeProgressBar.SetTime(countDownTimer);
+            uiTimeProgressBar.SetToZero();
+            uiTimeProgressBar.SetTime(countDownTimer);
         }
 
         while (countDownTimer > 0)
@@ -527,7 +528,7 @@ public class City : MonoBehaviour
             yield return new WaitForSeconds(1);
             countDownTimer--;
             if (activeCity)
-                timeProgressBar.SetTime(countDownTimer);
+                uiTimeProgressBar.SetTime(countDownTimer);
         }
 
         //sell before growing
@@ -551,15 +552,15 @@ public class City : MonoBehaviour
     {
         Vector3 cityPos = cityLoc;
         cityPos.z -= 1.5f; //bottom center of tile
-        GameObject gameObject = Instantiate(GameAssets.Instance.cityGrowthProgressPrefab, cityPos, Quaternion.Euler(90, 0, 0));
-        timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
-        timeProgressBar.SetAdditionalText = "Growth: ";
-        timeProgressBar.SetTimeProgressBarValue(secondsTillGrowthCheck);
+        GameObject gameObject = Instantiate(GameAssets.Instance.cityGrowthProgressPrefab2, cityPos, Quaternion.Euler(90, 0, 0));
+        uiTimeProgressBar = gameObject.GetComponent<UITimeProgressBar>();
+        uiTimeProgressBar.SetAdditionalText = "Growth: ";
+        uiTimeProgressBar.SetTimeProgressBarValue(secondsTillGrowthCheck);
     }
 
     public void HideCityGrowthProgressTimeBar()
     {
-        timeProgressBar.SetActive(false);
+        uiTimeProgressBar.gameObject.SetActive(false);
     }
 
     public void CityGrowthProgressBarSetActive(bool v)
@@ -567,11 +568,11 @@ public class City : MonoBehaviour
         if (v && cityPop.CurrentPop == 0)
             return;
 
-        timeProgressBar.SetActive(v);
+        uiTimeProgressBar.gameObject.SetActive(v);
         if (v)
         {
-            timeProgressBar.SetProgressBarMask(countDownTimer);
-            timeProgressBar.SetTime(countDownTimer);
+            uiTimeProgressBar.SetProgressBarMask(countDownTimer);
+            uiTimeProgressBar.SetTime(countDownTimer);
         }
     }
 
@@ -804,6 +805,6 @@ public class City : MonoBehaviour
     public void DestroyThisCity()
     {
         StopAllCoroutines();
-        Destroy(timeProgressBar.gameObject);
+        Destroy(uiTimeProgressBar.gameObject);
     }
 }

@@ -56,9 +56,13 @@ MonoBehaviour:
     type: 3}
   cityGrowthProgressPrefab: {fileID: 7804093059410087792, guid: 0b0fb1f5992df2249938a80c17ea4f53,
     type: 3}
+  cityGrowthProgressPrefab2: {fileID: 2616545287873098607, guid: f25ce15425f346d4591ecef4c20bb05b,
+    type: 3}
   timeProgressPrefab: {fileID: 7804093059410087792, guid: 4bdbd357e537aa54ab5ee0584ead1d69,
     type: 3}
   resourceBubble: {fileID: 2079849781279894658, guid: 5ef82d055c06e4945b70fae30439ba79,
     type: 3}
   resourceInfoPanel: {fileID: 4764973178347815870, guid: 37a7c494c26839c4684b3621bf361497,
+    type: 3}
+  uiTimeProgressPrefab: {fileID: 2616545287873098607, guid: bf17aa7d9f2e11f45bc02820d282172e,
     type: 3}

@@ -52,7 +52,8 @@ public class Wonder : MonoBehaviour
 
     //for building the wonder
     private Dictionary<ResourceType, int> resourceThreshold = new();
-    private TimeProgressBar timeProgressBar;
+    //private TimeProgressBar timeProgressBar;
+    private UITimeProgressBar uiTimeProgressBar;
     private Coroutine buildingCo;
     private int timePassed;
     private bool isBuilding;
@@ -64,7 +65,7 @@ public class Wonder : MonoBehaviour
 
     private void Awake()
     {
-        timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
+        uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
         isConstructing = true;
     }
 
@@ -86,7 +87,10 @@ public class Wonder : MonoBehaviour
     public void SetCenterPos(Vector3 centerPos)
     {
         this.centerPos = centerPos;
-        timeProgressBar.gameObject.transform.position = centerPos;
+        uiTimeProgressBar.gameObject.transform.position = centerPos;
+        timePassed = wonderData.buildTimePerPercent;
+        uiTimeProgressBar.SetTimeProgressBarValue(timePassed);
+
     }
 
     public void SetResourceDict(List<ResourceValue> resources)
@@ -271,13 +275,11 @@ public class Wonder : MonoBehaviour
 
     public IEnumerator BuildNextPortionOfWonder()
     {
-        timePassed = wonderData.buildTimePerPercent;
-
         if (isActive)
-            timeProgressBar.SetActive(true);
+            uiTimeProgressBar.gameObject.SetActive(true);
 
-        timeProgressBar.SetTimeProgressBarValue(timePassed);
-        timeProgressBar.SetTime(timePassed);
+        uiTimeProgressBar.SetToZero();
+        uiTimeProgressBar.SetTime(timePassed);
         isBuilding = true;
 
         ConsumeWorkerCost();
@@ -286,13 +288,12 @@ public class Wonder : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
             timePassed--;
-            timeProgressBar.SetTime(timePassed);
+            uiTimeProgressBar.SetTime(timePassed);
         }
 
         isBuilding = false;
-        timeProgressBar.ResetProgressBar();
         if (isActive)
-            timeProgressBar.SetActive(false);
+            uiTimeProgressBar.gameObject.SetActive(false);
         IncreasePercentDone();
         if (isActive)
             uiWonderSelection.UpdateUIPercent(percentDone);
@@ -346,11 +347,11 @@ public class Wonder : MonoBehaviour
     {
         if (isBuilding)
         {
-            timeProgressBar.SetActive(v);
+            uiTimeProgressBar.gameObject.SetActive(v);
             if (v)
             {
-                timeProgressBar.SetProgressBarMask(timePassed);
-                timeProgressBar.SetTime(timePassed);
+                uiTimeProgressBar.SetProgressBarMask(timePassed);
+                uiTimeProgressBar.SetTime(timePassed);
                 //timeProgressBar.SetProgressBarMask();
             }
         }
@@ -370,7 +371,7 @@ public class Wonder : MonoBehaviour
     {
         if (isBuilding)
         {
-            timeProgressBar.SetActive(false);
+            uiTimeProgressBar.gameObject.SetActive(false);
             StopCoroutine(buildingCo);
             int amount = wonderData.workerCost * workersReceived;
             world.UpdateWorldResources(ResourceType.Gold, amount);

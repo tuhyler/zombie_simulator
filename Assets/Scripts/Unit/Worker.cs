@@ -11,7 +11,8 @@ public class Worker : Unit
     private WorkerTaskManager workerTaskManager;
     private Vector3Int resourceCityLoc;
     private Resource resource;
-    private TimeProgressBar timeProgressBar;
+    //private TimeProgressBar timeProgressBar;
+    private UITimeProgressBar uiTimeProgressBar;
     private List<Vector3Int> roadBuildList = new();
     private Queue<Vector3Int> roadBuildQueue = new();
 
@@ -21,7 +22,8 @@ public class Worker : Unit
         isWorker = true;
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
         resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
-        timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
+        //timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
+        uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
     }
 
     protected override void AwakeMethods()
@@ -242,21 +244,22 @@ public class Worker : Unit
     {
         Vector3 pos = transform.position;
         pos.z += -1f;
-        timeProgressBar.gameObject.transform.position = pos;
+        uiTimeProgressBar.gameObject.transform.position = pos;
         //timeProgressBar.SetConstructionTime(time);
         //timeProgressBar.SetProgressBarBeginningPosition();
-        timeProgressBar.SetTimeProgressBarValue(time);
-        timeProgressBar.SetActive(true);
+        uiTimeProgressBar.SetTimeProgressBarValue(time);
+        uiTimeProgressBar.SetToZero();
+        uiTimeProgressBar.gameObject.SetActive(true);
     }
 
     public void HideProgressTimeBar()
     {
-        timeProgressBar.SetActive(false);
+        uiTimeProgressBar.gameObject.SetActive(false);
     }
 
     public void SetTime(int time)
     {
-        timeProgressBar.SetTime(time);
+        uiTimeProgressBar.SetTime(time);
     }
 
     //public IEnumerator BuildRoad(Vector3Int roadPosition, RoadManager roadManager)
