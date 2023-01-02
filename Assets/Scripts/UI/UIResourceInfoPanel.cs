@@ -22,7 +22,4 @@ public class UIResourceInfoPanel : MonoBehaviour
     public RectTransform resourceTransform, allContents;
 
     public ResourceType resourceType;
-
-    [HideInInspector]
-    public bool isShowing;
 }

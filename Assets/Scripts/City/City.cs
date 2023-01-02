@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -496,6 +497,12 @@ public class City : MonoBehaviour
     public bool CheckResourcesWorkedExists(ResourceType resourceType)
     {
         return resourcesWorkedDict.ContainsKey(resourceType);
+    }
+
+    public List<ResourceType> GetResourcesWorked()
+    {
+        List<ResourceType> resourceKeys = resourcesWorkedDict.Keys.ToList();
+        return resourceKeys;
     }
 
     public int GetResourcesWorkedResourceCount(ResourceType resourceType)
