@@ -55,6 +55,7 @@ public class Wonder : MonoBehaviour
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
     private Coroutine buildingCo;
+    private int totalTime;
     private int timePassed;
     private bool isBuilding;
 
@@ -88,8 +89,8 @@ public class Wonder : MonoBehaviour
     {
         this.centerPos = centerPos;
         uiTimeProgressBar.gameObject.transform.position = centerPos;
-        timePassed = wonderData.buildTimePerPercent;
-        uiTimeProgressBar.SetTimeProgressBarValue(timePassed);
+        totalTime = wonderData.buildTimePerPercent;
+        uiTimeProgressBar.SetTimeProgressBarValue(totalTime);
 
     }
 
@@ -236,7 +237,7 @@ public class Wonder : MonoBehaviour
     {
         workersReceived++;
 
-        if (!StillNeedsWorkers() && !isBuilding)
+        if (!StillNeedsWorkers())
             ThresholdCheck();
     }
 
@@ -275,11 +276,15 @@ public class Wonder : MonoBehaviour
 
     public IEnumerator BuildNextPortionOfWonder()
     {
+        timePassed = totalTime;
+        
         if (isActive)
+        {
             uiTimeProgressBar.gameObject.SetActive(true);
+            uiTimeProgressBar.SetToZero();
+            uiTimeProgressBar.SetTime(timePassed);
+        }
 
-        uiTimeProgressBar.SetToZero();
-        uiTimeProgressBar.SetTime(timePassed);
         isBuilding = true;
 
         ConsumeWorkerCost();
@@ -288,7 +293,8 @@ public class Wonder : MonoBehaviour
         {
             yield return new WaitForSeconds(1);
             timePassed--;
-            uiTimeProgressBar.SetTime(timePassed);
+            if (isActive)
+                uiTimeProgressBar.SetTime(timePassed);
         }
 
         isBuilding = false;

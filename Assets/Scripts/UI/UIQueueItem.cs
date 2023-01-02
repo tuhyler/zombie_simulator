@@ -17,9 +17,13 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
 
     private UIQueueManager uiQueueManager;
 
+    [HideInInspector] 
     public UnitBuildDataSO unitBuildData;
+    [HideInInspector] 
     public ImprovementDataSO improvementData;
+    [HideInInspector] 
     public List<ResourceValue> upgradeCosts;
+    [HideInInspector] 
     public Vector3Int buildLoc;
 
     //for unselecting

@@ -88,12 +88,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             activeStatus = false;
             city = null;
             openPrioritizationImage.sprite = buttonRight;
-            foreach (UILaborResourcePriority uiLaborResourcePriority in resourcePriorityList)
-            {
-                uiLaborResourcePriority.RemoveWindow();
-            }
-
-            resourcePriorityList.Clear();
+            
             if (!exitCity)
                 LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -300f, 0.3f).setOnComplete(SetActiveStatusFalse);
             else
@@ -103,6 +98,13 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     private void SetActiveStatusFalse()
     {
+        foreach (UILaborResourcePriority uiLaborResourcePriority in resourcePriorityList)
+        {
+            uiLaborResourcePriority.RemoveWindow();
+        }
+
+        resourcePriorityList.Clear();
+
         gameObject.SetActive(false);
     }
 
@@ -177,13 +179,13 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         foreach (UILaborResourcePriority uiLaborResource in resourcePriorityList)
         {
             ResourceType resourceType = uiLaborResource.GetChosenResource();
-            uiLaborResource.RemoveWindow();
+            //uiLaborResource.RemoveWindow();
             if (resourceType == ResourceType.None || resourcePriorities.Contains(resourceType))
                 continue;
             resourcePriorities.Add(resourceType);
         }
 
-        resourcePriorityList.Clear();
+        //resourcePriorityList.Clear();
         city.ResourcePriorities = resourcePriorities;
 
         //if (resourcePriorities.Count > 0)

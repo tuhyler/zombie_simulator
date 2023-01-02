@@ -24,7 +24,7 @@ public class UICityLaborCostPanel : MonoBehaviour
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
-    public bool activeStatus;
+    public bool activeStatus, isOpen;
     private Vector3 originalLoc;
 
     private void Awake()
@@ -74,26 +74,40 @@ public class UICityLaborCostPanel : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(true);
-            openCostsImage.sprite = buttonRight;
-            openCostsImage.color = Color.green;
-
             activeStatus = true;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(150f, 0, 0);
+            if (suddenly)
+            {
+                allContents.anchoredPosition3D = originalLoc + new Vector3(600f, 0, 0);
+                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 600f, 0.3f).setEaseOutSine();
+            }
+            else
+            {
+                openCostsImage.sprite = buttonRight;
+                openCostsImage.color = Color.green;
+                isOpen = true;
 
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 150f, 0.3f).setEaseOutSine();
+                allContents.anchoredPosition3D = originalLoc + new Vector3(150f, 0, 0);
+                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 150f, 0.3f).setEaseOutSine();
+            }
+
             LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {
-            openCostsImage.sprite = buttonLeft;
-            openCostsImage.color = originalColor;
-
             activeStatus = false;
-            if (suddenly) //when closing the entire labor menu
+            //when closing the entire labor menu
+            if (suddenly)
+            {
                 LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            }
             else
+            {
+                openCostsImage.sprite = buttonLeft;
+                openCostsImage.color = originalColor;
+                isOpen = false;
                 LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 150f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            }
         }
     }
 
@@ -104,13 +118,17 @@ public class UICityLaborCostPanel : MonoBehaviour
 
     public void ResetUI()
     {
-        if (activeStatus)
+        //if (activeStatus)
+        //{
+        foreach (UIResourceInfoPanel resource in resourceOptions)
         {
-            foreach (UIResourceInfoPanel resource in resourceOptions)
+            if (resource.isShowing)
             {
                 resource.gameObject.SetActive(false);
+                resource.isShowing = false;
             }
         }
+        //}
     }
 
     public void SetConsumedResourcesInfo(Dictionary<ResourceType, float> consumedResourcesDict)
@@ -120,6 +138,7 @@ public class UICityLaborCostPanel : MonoBehaviour
             if (consumedResourcesDict.ContainsKey(resourceOption.resourceType) && consumedResourcesDict[resourceOption.resourceType] > 0)
             {
                 resourceOption.gameObject.SetActive(true);
+                resourceOption.isShowing = true;
                 resourceOption.resourceAmount.text = $"-{consumedResourcesDict[resourceOption.resourceType]}";
             }
         }
@@ -132,6 +151,7 @@ public class UICityLaborCostPanel : MonoBehaviour
             if (consumedResourceTypes.Contains(resourceOption.resourceType) && consumedResourcesDict[resourceOption.resourceType] > 0)
             {
                 resourceOption.gameObject.SetActive(true);
+                resourceOption.isShowing = true;
                 resourceOption.resourceAmount.text = $"-{consumedResourcesDict[resourceOption.resourceType]}";
             }
         }

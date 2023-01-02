@@ -1523,9 +1523,9 @@ public class CityBuilderManager : MonoBehaviour
                 return;
             }
             
-            if (uiImprovementBuildInfoPanel.activeStatus & !removingImprovement)
+            if (uiImprovementBuildInfoPanel.activeStatus && !removingImprovement && !upgradingImprovement)
                 CameraDefaultRotation();
-            if (removingImprovement)
+            if (removingImprovement || upgradingImprovement)
                 uiCityTabs.CloseSelectedTab();
             removingImprovement = false;
             upgradingImprovement = false;

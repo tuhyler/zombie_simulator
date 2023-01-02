@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7630646246126480910}
   - component: {fileID: 8544220011686260525}
   m_Layer: 0
-  m_Name: ScrollButton
+  m_Name: ScrollButton-dep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -86,8 +86,10 @@ public class UILaborHandler : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(true);
-
             activeStatus = true;
+
+            if (uiCityLaborCostPanel.isOpen)
+                ToggleCityLaborCost();
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(500f, 0, 0);
 
@@ -111,16 +113,16 @@ public class UILaborHandler : MonoBehaviour
     {
         city = null;
         
-        if (activeStatus)
+        //if (activeStatus)
+        //{
+        foreach (UILaborHandlerOptions option in laborOptions)
         {
-            foreach (UILaborHandlerOptions option in laborOptions)
-            {
-                option.HideLaborIcons();
-                option.ToggleVisibility(false);
-            }
-
-            uiCityLaborCostPanel.ResetUI();
+            option.HideLaborIcons();
+            option.ToggleVisibility(false);
         }
+
+        uiCityLaborCostPanel.ResetUI();
+        //}
     }
 
     private void SetActiveStatusFalse()
@@ -137,7 +139,7 @@ public class UILaborHandler : MonoBehaviour
         else
         {
             uiCityLaborCostPanel.SetConsumedResourcesInfo(city.ResourceManager.ResourceConsumedPerMinuteDict);
-            uiCityLaborCostPanel.ToggleVisibility(true, false);
+            uiCityLaborCostPanel.ToggleVisibility(true, uiCityLaborCostPanel.isOpen);
         }
     }
 
