@@ -14,6 +14,7 @@ public class UILaborHandler : MonoBehaviour
     [SerializeField]
     private Transform laborOptionScrollRect;
     private List<UILaborHandlerOptions> laborOptions;
+    private Dictionary<ResourceType, UILaborHandlerOptions> laborOptionsDict = new();
 
     [SerializeField]
     private UICityLaborCostPanel uiCityLaborCostPanel;
@@ -42,7 +43,8 @@ public class UILaborHandler : MonoBehaviour
             newLaborOption.resourceImage.sprite = resource.resourceIcon;
             newLaborOption.resourceType = resource.resourceType;
             newLaborOption.ToggleVisibility(false);
-            laborOptions.Add(newLaborOption);
+            //laborOptions.Add(newLaborOption);
+            laborOptionsDict[newLaborOption.resourceType] = newLaborOption;
         }
     }
 
@@ -51,14 +53,21 @@ public class UILaborHandler : MonoBehaviour
     {
         this.city = city;
         
-        foreach (UILaborHandlerOptions option in laborOptions)
+        foreach (ResourceType resourceType in city.GetResourcesWorked())
         {
-            if (city.CheckResourcesWorkedExists(option.resourceType))
-            {
-                option.ToggleVisibility(true);
-                option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
-            }
+            laborOptionsDict[resourceType].ToggleVisibility(true);
+            laborOptionsDict[resourceType].SetUICount(city.GetResourcesWorkedResourceCount(resourceType), city.ResourceManager.GetResourceGenerationValues(resourceType));
+            laborOptions.Add(laborOptionsDict[resourceType]);
         }
+
+        //foreach (UILaborHandlerOptions option in laborOptions)
+        //{
+        //    if (city.CheckResourcesWorkedExists(option.resourceType))
+        //    {
+        //        option.ToggleVisibility(true);
+        //        option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
+        //    }
+        //}
     }
 
     //pass data to know if can show in the UI
@@ -121,6 +130,7 @@ public class UILaborHandler : MonoBehaviour
             option.ToggleVisibility(false);
         }
 
+        laborOptions.Clear();
         uiCityLaborCostPanel.ResetUI();
         //}
     }
@@ -145,25 +155,35 @@ public class UILaborHandler : MonoBehaviour
 
     public void UpdateResourcesConsumed(List<ResourceType> consumedResourceTypes, Dictionary<ResourceType, float> consumedResourcesDict)
     {
-        if (uiCityLaborCostPanel.activeStatus)
-        {
-            uiCityLaborCostPanel.UpdateConsumedResources(consumedResourceTypes, consumedResourcesDict);
-        }
+        uiCityLaborCostPanel.UpdateConsumedResources(consumedResourceTypes, consumedResourcesDict);
     }
 
     public void PlusMinusOneLabor(ResourceType resourceType, int laborCount, int laborChange, float resourceGeneration)
     {
-        foreach (UILaborHandlerOptions uiLaborHandlerOption in laborOptions)
+        if (laborCount == 1)
         {
-            if (resourceType == uiLaborHandlerOption.resourceType)
-            {
-                if (laborCount == 1)
-                    uiLaborHandlerOption.ToggleVisibility(true);
-                else if (laborCount == 0)
-                    uiLaborHandlerOption.ToggleVisibility(false);
-
-                uiLaborHandlerOption.AddSubtractUICount(laborCount, laborChange, resourceGeneration);
-            }
+            laborOptionsDict[resourceType].ToggleVisibility(true);
+            laborOptions.Add(laborOptionsDict[resourceType]);
         }
+        else if (laborCount == 0)
+        {
+            laborOptionsDict[resourceType].ToggleVisibility(false);
+            laborOptions.Remove(laborOptionsDict[resourceType]);
+        }
+
+        laborOptionsDict[resourceType].AddSubtractUICount(laborCount, laborChange, resourceGeneration);
+
+        //foreach (UILaborHandlerOptions uiLaborHandlerOption in laborOptions)
+        //{
+        //    if (resourceType == uiLaborHandlerOption.resourceType)
+        //    {
+        //        if (laborCount == 1)
+        //            uiLaborHandlerOption.ToggleVisibility(true);
+        //        else if (laborCount == 0)
+        //            uiLaborHandlerOption.ToggleVisibility(false);
+
+        //        uiLaborHandlerOption.AddSubtractUICount(laborCount, laborChange, resourceGeneration);
+        //    }
+        //}
     }
 }

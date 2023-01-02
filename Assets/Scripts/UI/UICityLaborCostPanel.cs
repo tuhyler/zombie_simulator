@@ -20,6 +20,7 @@ public class UICityLaborCostPanel : MonoBehaviour
     [SerializeField]
     private GameObject uiResourceInfoPanel;
     private List<UIResourceInfoPanel> resourceOptions = new();
+    private Dictionary<ResourceType, UIResourceInfoPanel> resourceOptionsDict = new();
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -60,7 +61,8 @@ public class UICityLaborCostPanel : MonoBehaviour
             resourceOption.resourceAmount.color = Color.red;
             resourceOption.gameObject.SetActive(false);
 
-            resourceOptions.Add(resourceOption);
+            //resourceOptions.Add(resourceOption);
+            resourceOptionsDict[resourceOption.resourceType] = resourceOption;
         }
     }
 
@@ -118,42 +120,68 @@ public class UICityLaborCostPanel : MonoBehaviour
 
     public void ResetUI()
     {
-        //if (activeStatus)
-        //{
         foreach (UIResourceInfoPanel resource in resourceOptions)
         {
-            if (resource.isShowing)
-            {
-                resource.gameObject.SetActive(false);
-                resource.isShowing = false;
-            }
+            resource.gameObject.SetActive(false);
         }
-        //}
+
+        resourceOptions.Clear();
     }
 
     public void SetConsumedResourcesInfo(Dictionary<ResourceType, float> consumedResourcesDict)
     {
-        foreach (UIResourceInfoPanel resourceOption in resourceOptions)
+        foreach (ResourceType resourceType in consumedResourcesDict.Keys)
         {
-            if (consumedResourcesDict.ContainsKey(resourceOption.resourceType) && consumedResourcesDict[resourceOption.resourceType] > 0)
-            {
-                resourceOption.gameObject.SetActive(true);
-                resourceOption.isShowing = true;
-                resourceOption.resourceAmount.text = $"-{consumedResourcesDict[resourceOption.resourceType]}";
-            }
+            if (resourceType == ResourceType.Food || consumedResourcesDict[resourceType] == 0)
+                continue;
+            
+            resourceOptionsDict[resourceType].gameObject.SetActive(true);
+            resourceOptions.Add(resourceOptionsDict[resourceType]);
+            resourceOptionsDict[resourceType].resourceAmount.text = $"-{consumedResourcesDict[resourceType]}";
         }
+
+        //foreach (UIResourceInfoPanel resourceOption in resourceOptions)
+        //{
+        //    if (consumedResourcesDict.ContainsKey(resourceOption.resourceType) && consumedResourcesDict[resourceOption.resourceType] > 0)
+        //    {
+        //        resourceOption.gameObject.SetActive(true);
+        //        resourceOption.isShowing = true;
+        //        resourceOption.resourceAmount.text = $"-{consumedResourcesDict[resourceOption.resourceType]}";
+        //    }
+        //}
     }
 
     public void UpdateConsumedResources(List<ResourceType> consumedResourceTypes, Dictionary<ResourceType, float> consumedResourcesDict)
     {
-        foreach (UIResourceInfoPanel resourceOption in resourceOptions)
+        foreach (ResourceType resourceType in consumedResourceTypes)
         {
-            if (consumedResourceTypes.Contains(resourceOption.resourceType) && consumedResourcesDict[resourceOption.resourceType] > 0)
+            if (resourceType == ResourceType.Food)
+                continue;
+
+            if (consumedResourcesDict[resourceType] > 0)
             {
-                resourceOption.gameObject.SetActive(true);
-                resourceOption.isShowing = true;
-                resourceOption.resourceAmount.text = $"-{consumedResourcesDict[resourceOption.resourceType]}";
+                if (!resourceOptions.Contains(resourceOptionsDict[resourceType]))
+                {
+                    resourceOptionsDict[resourceType].gameObject.SetActive(true);
+                    resourceOptions.Add(resourceOptionsDict[resourceType]);
+                }
+
+                resourceOptionsDict[resourceType].resourceAmount.text = $"-{consumedResourcesDict[resourceType]}";
+            }
+            else if (consumedResourcesDict[resourceType] == 0 && resourceOptions.Contains(resourceOptionsDict[resourceType]))
+            {
+                resourceOptionsDict[resourceType].gameObject.SetActive(false);
+                resourceOptions.Remove(resourceOptionsDict[resourceType]);
             }
         }
+
+        //foreach (UIResourceInfoPanel resourceOption in resourceOptions)
+        //{
+        //    if (consumedResourceTypes.Contains(resourceOption.resourceType) && consumedResourcesDict[resourceOption.resourceType] > 0)
+        //    {
+        //        resourceOption.gameObject.SetActive(true);
+        //        resourceOption.resourceAmount.text = $"-{consumedResourcesDict[resourceOption.resourceType]}";
+        //    }
+        //}
     }
 }

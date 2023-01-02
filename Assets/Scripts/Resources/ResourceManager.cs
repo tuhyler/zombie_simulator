@@ -92,11 +92,15 @@ public class ResourceManager : MonoBehaviour
             if (resourceData.resourceType == ResourceType.None)
                 continue;
             resourceDict[resourceData.resourceType] = 0;
-            if (resourceData.resourceStorageMultiplier <= 0) //absolutely cannot be zero or less
-                resourceStorageMultiplierDict[resourceData.resourceType] = 1;
-            resourceStorageMultiplierDict[resourceData.resourceType] = resourceData.resourceStorageMultiplier;
             resourceGenerationPerMinuteDict[resourceData.resourceType] = 0;
-            resourceConsumedPerMinuteDict[resourceData.resourceType] = 0;
+
+            if (resourceData.resourceType != ResourceType.Research)
+            {
+                if (resourceData.resourceStorageMultiplier <= 0) //absolutely cannot be zero or less
+                    resourceStorageMultiplierDict[resourceData.resourceType] = 1;
+                resourceStorageMultiplierDict[resourceData.resourceType] = resourceData.resourceStorageMultiplier;
+                resourceConsumedPerMinuteDict[resourceData.resourceType] = 0;
+            }
         }
     }
 
