@@ -170,7 +170,7 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceConsumedPerMinute();
 
         float percWorked;
-        if (isWaitingforResources)
+        if (isWaitingforResources || resourceManager.fullInventory)
             percWorked = 0;
         else if (!ConsumeResourcesCheck())
             percWorked = 0;

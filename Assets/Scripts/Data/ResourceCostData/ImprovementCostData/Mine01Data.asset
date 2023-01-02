@@ -29,12 +29,12 @@ MonoBehaviour:
   producedResources:
   - resourceType: 5
     resourceAmount: 30
-  producedResourceTime: 3
+  producedResourceTime: 10
   resourceType: 5
   terrainType: 6
   workEthicChange: 0
-  maxLabor: 3
-  laborCost: 9
+  maxLabor: 15
+  laborCost: 1
   replaceTerrain: 0
   replaceProp: 1
   singleBuild: 0

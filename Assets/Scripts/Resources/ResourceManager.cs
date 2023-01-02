@@ -207,6 +207,8 @@ public class ResourceManager : MonoBehaviour
         {
             int consumedAmount = Mathf.RoundToInt(resourceValue.resourceAmount * currentLabor);
             ResourceType resourceType = resourceValue.resourceType;
+            if (consumedAmount == 0)
+                continue;
 
             if (resourceType == ResourceType.Gold)
             {

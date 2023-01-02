@@ -79,6 +79,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
         if (v)
         {
+            progressBarMask.fillAmount = 0;
             gameObject.SetActive(v);
             activeStatus = true;
 
