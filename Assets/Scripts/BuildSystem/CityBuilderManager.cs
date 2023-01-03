@@ -94,6 +94,10 @@ public class CityBuilderManager : MonoBehaviour
     private GameObject constructionTile;
     private Queue<CityImprovement> constructionTileQueue = new();
 
+    //for making objects transparent
+    [SerializeField]
+    public Material transparentMat;
+
     //for object pooling of resource info panels
     private Queue<ResourceInfoPanel> resourceInfoPanelQueue = new();
     private Dictionary<Vector3, List<ResourceInfoPanel>> resourceInfoPanelDict = new();

@@ -20,8 +20,8 @@ public class Wonder : MonoBehaviour
     private int percentDone;
     public int PercentDone { get { return percentDone; } set { percentDone = value; } }
 
-    private Quaternion rotation;
-    public Quaternion Rotation { set { rotation = value; } }
+    //private Quaternion rotation;
+    //public Quaternion Rotation { set { rotation = value; } }
 
     [HideInInspector]
     public bool isConstructing, canBuildHarbor, hasHarbor, isActive, roadPreExisted;
