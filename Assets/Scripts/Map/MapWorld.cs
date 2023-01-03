@@ -24,6 +24,8 @@ public class MapWorld : MonoBehaviour
     private CityBuilderManager cityBuilderManager;
     [SerializeField]
     private RoadManager roadManager;
+    [SerializeField]
+    private Material transparentMat;
 
     private WorldResourceManager worldResourceManager;
     private WonderDataSO wonderData;
@@ -37,6 +39,7 @@ public class MapWorld : MonoBehaviour
     private bool sideways;
     private Dictionary<string, Wonder> wonderConstructionDict = new();
     private Dictionary<Vector3Int, Wonder> wonderStopDict = new();
+    private GameObject wonderGhost;
 
     [HideInInspector]
     public bool researching;
@@ -292,6 +295,7 @@ public class MapWorld : MonoBehaviour
 
             int width = sideways ? wonderData.sizeHeight : wonderData.sizeWidth;
             int height = sideways ? wonderData.sizeWidth : wonderData.sizeHeight;
+            Vector3 avgLoc = new Vector3(0, 0, 0);
 
             for (int i = 0; i < width; i++)
             {
@@ -321,8 +325,19 @@ public class MapWorld : MonoBehaviour
                         return;
                     }
 
+                    avgLoc += newPos;
                     wonderLocList.Add(newPos);
                 }
+            }
+
+            wonderGhost = Instantiate(wonderData.wonderPrefab, avgLoc / wonderLocList.Count, rotation);
+            Color newColor = new(0, 1, 0, .5f);
+
+            foreach (MeshRenderer render in wonderData.prefabRenderers)
+            {
+                transparentMat.SetTexture("_BaseMap", render.sharedMaterial.mainTexture);
+                transparentMat.color = newColor;
+                render.sharedMaterial = transparentMat;
             }
 
             foreach (Vector3Int tile in wonderLocList)
@@ -347,6 +362,8 @@ public class MapWorld : MonoBehaviour
 
     public void SetWonderConstruction()
     {
+        Destroy(wonderGhost);
+        
         //resetting ui
         if (wonderPlacementLoc.Count > 0)
         {
@@ -382,7 +399,7 @@ public class MapWorld : MonoBehaviour
 
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
-        GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, Quaternion.identity);
+        GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, rotation);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
         wonder.SetWorld(this);
         wonder.WonderData = wonderData;
@@ -391,7 +408,7 @@ public class MapWorld : MonoBehaviour
         wonder.SetResourceDict(wonderData.wonderCost);
         wonder.unloadLoc = finalUnloadLoc;
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
-        wonder.Rotation = rotation;
+        //wonder.Rotation = rotation;
         wonder.SetCenterPos(centerPos);
         wonder.WonderLocs = new(wonderPlacementLoc);
         wonderConstructionDict[wonder.wonderName] = wonder;
@@ -485,6 +502,7 @@ public class MapWorld : MonoBehaviour
         }
 
         rotation = Quaternion.Euler(0, rotationCount * 90, 0);
+        wonderGhost.transform.rotation = rotation;
         unloadLoc = placementLoc - tempPlacementLoc;
     }
 

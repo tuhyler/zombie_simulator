@@ -3300,6 +3300,7 @@ MonoBehaviour:
   unitMovement: {fileID: 648287304}
   cityBuilderManager: {fileID: 1634818655}
   roadManager: {fileID: 1634818657}
+  transparentMat: {fileID: 2100000, guid: 7460f712a10e233428bdc32d69818caa, type: 2}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls:
@@ -39836,6 +39837,7 @@ MonoBehaviour:
     type: 3}
   constructionTile: {fileID: 1812115572741614599, guid: 9970c5401b53eb648b59457a58d90a19,
     type: 3}
+  transparentMat: {fileID: 2100000, guid: 7460f712a10e233428bdc32d69818caa, type: 2}
 --- !u!114 &1634818656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54466,7 +54468,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500977
+      value: 8.500864
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
