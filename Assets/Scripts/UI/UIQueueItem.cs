@@ -10,7 +10,7 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
     [SerializeField]
     public TMP_Text itemText;
     [HideInInspector]
-    public string itemName; //string name only used to check if already on queue list
+    public string itemName, buildingName; //first string name only used to check if already on queue list
 
     [SerializeField]
     private Image background;

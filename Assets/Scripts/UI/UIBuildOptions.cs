@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -56,6 +57,9 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         if (unitBuildData != null)
             isUnitPanel = true;
         PopulateSelectionPanel();
+
+        //if (buildData != null)
+        //    buildData.prefabRenderers = buildData.prefab.GetComponentsInChildren<MeshRenderer>();
     }
 
     public void ToggleInteractable(bool v)
@@ -212,7 +216,11 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
         if (cannotAfford && !buttonHandler.isQueueing)
         {
-            Debug.Log("Can't afford.");
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = 10f; //z must be more than 0, else just gives camera position
+            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+
+            InfoPopUpHandler.Create(mouseLoc, "Can't afford");
             return;
         }
 

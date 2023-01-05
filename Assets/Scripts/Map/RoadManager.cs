@@ -49,6 +49,11 @@ public class RoadManager : MonoBehaviour
         //if (city) //hiding solo roads for new cities
         //    structure.SetActive(false);
         world.SetRoads(roadPosition, structure, straight);
+        if (world.CheckQueueLocation(roadPosition))
+        {
+            world.RemoveLocationFromQueueList(roadPosition);
+            world.RemoveQueueGhostImprovement(roadPosition);
+        }
     }
 
     public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)

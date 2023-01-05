@@ -6,7 +6,7 @@ using UnityEngine;
 public class WonderDataSO : ScriptableObject
 {
     public GameObject wonderPrefab;
-    public MeshRenderer[] prefabRenderers;
+    //public MeshRenderer[] prefabRenderers;
     public MeshRenderer mesh0Percent;
     public MeshRenderer mesh25Percent;
     public MeshRenderer mesh50Percent;

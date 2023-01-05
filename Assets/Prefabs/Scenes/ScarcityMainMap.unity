@@ -39835,6 +39835,8 @@ MonoBehaviour:
   resourceManager: {fileID: 0}
   wonderHarbor: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00,
     type: 3}
+  upgradeQueueGhost: {fileID: 918213226758697082, guid: 9a3b99913629a684a8dd2bc0a56f70b1,
+    type: 3}
   constructionTile: {fileID: 1812115572741614599, guid: 9970c5401b53eb648b59457a58d90a19,
     type: 3}
   transparentMat: {fileID: 2100000, guid: 7460f712a10e233428bdc32d69818caa, type: 2}
@@ -54468,7 +54470,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500864
+      value: 8.5
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

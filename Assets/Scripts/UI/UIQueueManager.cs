@@ -51,6 +51,7 @@ public class UIQueueManager : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
+            cityBuilderManager.ShowQueuedGhost();
             uiQueueButton.ToggleButtonSelection(true);
             cityBuilderManager.CloseLaborMenus();
             List<UIQueueItem> tempQueueItems = cityBuilderManager.GetQueueItems();
@@ -71,6 +72,7 @@ public class UIQueueManager : MonoBehaviour
         else
         {
             activeStatus = false;
+            cityBuilderManager.HideQueuedGhost();
             uiQueueButton.ToggleButtonSelection(false);
             ToggleButtonSelection(false);
             HideQueueItems();
@@ -105,31 +107,44 @@ public class UIQueueManager : MonoBehaviour
         }
     }
 
-    public void AddToQueue(Vector3Int worldLoc, Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null, List<ResourceValue> upgradeCosts = null)
+    public bool AddToQueue(Vector3Int worldLoc, Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null, List<ResourceValue> upgradeCosts = null)
     {
+        Vector3Int cityLoc = new(0, 0, 0);
+        bool building = false;
+        string buildingName = "";
+
+        if (cityLoc == loc && improvementData != null)
+        {
+            building = true;
+            buildingName = improvementData.improvementName;
+        }
+
         bool upgrading = upgradeCosts != null;
         string buildName = CreateItemName(loc, upgrading, improvementData, unitBuildData);
 
         if (unitBuildData == null && queueItemNames.Contains(buildName))
         {
             GiveWarningMessage("Item already in queue");
-            return;
+            return false;
         }
         else if (loc != new Vector3Int(0, 0, 0) && world.CheckQueueLocation(worldLoc))
         {
             GiveWarningMessage("Location already queued");
-            return;
+            return false;
         }
 
         GameObject newQueueItem = Instantiate(uiQueueItem);
         world.AddLocationToQueueList(worldLoc);
         newQueueItem.SetActive(true);
         UIQueueItem queueItemHandler = newQueueItem.GetComponent<UIQueueItem>();
+        if (building)
+            queueItemHandler.buildingName = buildingName;
         queueItemHandler.SetQueueManager(this);
         queueItemHandler.CreateQueueItem(buildName, loc, unitBuildData, improvementData, upgradeCosts);
         queueItemHandler.upgrading = upgrading;
         queueItemNames.Add(buildName);
         PlaceQueueItem(queueItemHandler);
+        return true;
     }
 
     private void PlaceQueueItem(UIQueueItem queueItemHandler)
@@ -217,6 +232,10 @@ public class UIQueueManager : MonoBehaviour
         {
             buildName = buildName + " (" + loc.x/3 + "," + loc.z/3 + ")";
         }
+        else
+        {
+            buildName = buildName + " " + improvementData.improvementName;
+        }
 
         return buildName;
     }
@@ -238,7 +257,7 @@ public class UIQueueManager : MonoBehaviour
         }
     }
 
-    public void CheckIfBuiltItemIsQueued(Vector3Int loc, bool upgrading, ImprovementDataSO improvementData, City city)
+    public bool CheckIfBuiltItemIsQueued(Vector3Int worldLoc, Vector3Int loc, bool upgrading, ImprovementDataSO improvementData, City city)
     {
         string builtName = CreateItemName(loc, upgrading, improvementData);
 
@@ -246,7 +265,7 @@ public class UIQueueManager : MonoBehaviour
         {
             int index = city.savedQueueItemsNames.IndexOf(builtName);
             city.savedQueueItemsNames.Remove(builtName);
-            world.RemoveLocationFromQueueList(loc);
+            world.RemoveLocationFromQueueList(worldLoc);
             UIQueueItem queueItem = city.savedQueueItems[index];
             city.savedQueueItems.Remove(queueItem);
             Destroy(queueItem);
@@ -258,11 +277,19 @@ public class UIQueueManager : MonoBehaviour
                     if (item.itemName == builtName)
                     {
                         RemoveFromQueue(item);
-                        return;
+                        return true;
                     }
                 }
             }
         }
+
+        if (!(loc.x == 0 && loc.z == 0) && world.CheckQueueLocation(worldLoc))
+        {
+            world.RemoveLocationFromQueueList(worldLoc);
+            return true;
+        }
+
+        return false;
     }
 
     private void SetResourcesToCheck()
