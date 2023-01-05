@@ -51,7 +51,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
         canvasGroup = GetComponent<CanvasGroup>();
         PopulateSelectionPanel();
 
-        buildData.prefabRenderers = buildData.wonderPrefab.GetComponentsInChildren<MeshRenderer>();
+        //buildData.prefabRenderers = buildData.wonderPrefab.GetComponentsInChildren<MeshRenderer>();
     }
 
     public void ToggleInteractable(bool v)

@@ -20,7 +20,7 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 846ff20ee8921b64984b0d660f868b3b, type: 3}
   improvementCost:
   - resourceType: 5
-    resourceAmount: 35
+    resourceAmount: 40
   consumedResources: []
   producedResources: []
   producedResourceTime: 0

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -72,6 +73,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<ResourceType, int> defaultResourcePriceDict = new();
     private Dictionary<ResourceType, int> blankResourceDict = new();
     private Dictionary<ResourceType, bool> boolResourceDict = new();
+    private Dictionary<Vector3Int, GameObject> queueGhostsDict = new(); //for displaying samples for queued items
     //private Dictionary<Vector3Int, GameObject> traderPosDict = new(); //to track trader locations 
     //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
@@ -331,13 +333,22 @@ public class MapWorld : MonoBehaviour
             }
 
             wonderGhost = Instantiate(wonderData.wonderPrefab, avgLoc / wonderLocList.Count, rotation);
-            Color newColor = new(0, 1, 0, .5f);
+            Color newColor = new(1, 1, 1, .5f);
+            MeshRenderer[] renderers = wonderGhost.GetComponentsInChildren<MeshRenderer>();
 
-            foreach (MeshRenderer render in wonderData.prefabRenderers)
+            foreach (MeshRenderer render in renderers)
             {
-                transparentMat.SetTexture("_BaseMap", render.sharedMaterial.mainTexture);
-                transparentMat.color = newColor;
-                render.sharedMaterial = transparentMat;
+                Material[] newMats = render.materials;
+
+                for (int i = 0; i < newMats.Length; i++)
+                {
+                    Material newMat = new(transparentMat);
+                    newMat.color = newColor;
+                    newMat.SetTexture("_BaseMap", newMats[i].mainTexture);
+                    newMats[i] = newMat;
+                }
+
+                render.materials = newMats;
             }
 
             foreach (Vector3Int tile in wonderLocList)
@@ -819,6 +830,37 @@ public class MapWorld : MonoBehaviour
         }
     }
 
+    public void SetQueueGhost(Vector3Int loc, GameObject gameObject)
+    {
+        queueGhostsDict[loc] = gameObject;
+    }
+
+    public bool ShowQueueGhost(Vector3Int loc)
+    {
+        if (queueGhostsDict.ContainsKey(loc))
+        {
+            queueGhostsDict[loc].SetActive(true);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsLocationQueued(Vector3Int loc)
+    {
+        return queueGhostsDict.ContainsKey(loc);
+    }
+
+    public GameObject GetQueueGhost(Vector3Int loc)
+    {
+        return queueGhostsDict[loc];
+    }
+
+    public void RemoveQueueGhost(Vector3Int loc)
+    {
+        queueGhostsDict.Remove(loc);
+    }
+
     public GameObject GetStructure(Vector3Int tile)
     {
         return buildingPosDict[tile];
@@ -989,6 +1031,11 @@ public class MapWorld : MonoBehaviour
     public void RemoveLocationFromQueueList(Vector3Int location)
     {
         cityImprovementQueueList.Remove(location);  
+    }
+
+    public void RemoveQueueGhostImprovement(Vector3Int location)
+    {
+        cityBuilderManager.RemoveQueueGhostImprovement(location);
     }
 
     public void SetRoads(Vector3Int tile, GameObject road, bool straight)
