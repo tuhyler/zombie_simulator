@@ -109,15 +109,11 @@ public class UIQueueManager : MonoBehaviour
 
     public bool AddToQueue(Vector3Int worldLoc, Vector3Int loc, ImprovementDataSO improvementData = null, UnitBuildDataSO unitBuildData = null, List<ResourceValue> upgradeCosts = null)
     {
-        Vector3Int cityLoc = new(0, 0, 0);
-        bool building = false;
+        bool building = loc == new Vector3Int(0, 0, 0);
         string buildingName = "";
 
-        if (cityLoc == loc && improvementData != null)
-        {
-            building = true;
+        if (improvementData != null && building)
             buildingName = improvementData.improvementName;
-        }
 
         bool upgrading = upgradeCosts != null;
         string buildName = CreateItemName(loc, upgrading, improvementData, unitBuildData);
@@ -143,6 +139,13 @@ public class UIQueueManager : MonoBehaviour
         queueItemHandler.CreateQueueItem(buildName, loc, unitBuildData, improvementData, upgradeCosts);
         queueItemHandler.upgrading = upgrading;
         queueItemNames.Add(buildName);
+        if (improvementData != null)
+        {
+            if (upgrading)
+                cityBuilderManager.CreateQueuedArrow(improvementData, worldLoc, building);
+            else
+                cityBuilderManager.CreateQueuedGhost(improvementData, worldLoc, building);
+        }
         PlaceQueueItem(queueItemHandler);
         return true;
     }
@@ -159,19 +162,27 @@ public class UIQueueManager : MonoBehaviour
     {
         if (selectedQueueItem != null)
         {
-            RemoveFromQueue(selectedQueueItem);
+            if (selectedQueueItem.buildLoc.x == 0 && selectedQueueItem.buildLoc.z == 0)
+                cityBuilderManager.RemoveQueueGhostBuilding(selectedQueueItem.buildingName);
+            else
+                cityBuilderManager.RemoveQueueGhostImprovement(selectedQueueItem.buildLoc + cityBuilderManager.SelectedCityLoc);
+
+            RemoveFromQueue(selectedQueueItem, cityBuilderManager.SelectedCityLoc);
         }
     }
 
-    private void RemoveFromQueue(UIQueueItem queueItem)
+    private void RemoveFromQueue(UIQueueItem queueItem, Vector3Int cityLoc)
     {
         queueItems.Remove(queueItem);
         queueItemNames.Remove(queueItem.itemName);
-        world.RemoveLocationFromQueueList(queueItem.buildLoc);
+        world.RemoveLocationFromQueueList(queueItem.buildLoc + cityLoc);
 
-        if (queueItem == firstQueueItem && queueItems.Count > 0)
+        if (queueItem == firstQueueItem)
         {
-            SetFirstQueueItem();
+            if (queueItems.Count > 0)
+                SetFirstQueueItem();
+            else
+                cityBuilderManager.resourceManager.ClearQueueResources();
         }
 
         if (queueItem == selectedQueueItem)
@@ -240,7 +251,7 @@ public class UIQueueManager : MonoBehaviour
         return buildName;
     }
 
-    public void CheckIfBuiltUnitIsQueued(UnitBuildDataSO unitData)
+    public void CheckIfBuiltUnitIsQueued(UnitBuildDataSO unitData, Vector3Int cityLoc)
     {
         string builtName = CreateItemName(new Vector3Int(0, 0, 0), false, null, unitData);
 
@@ -250,7 +261,7 @@ public class UIQueueManager : MonoBehaviour
             {
                 if (item.itemName == builtName)
                 {
-                    RemoveFromQueue(item);
+                    RemoveFromQueue(item, cityLoc);
                     return;
                 }
             }
@@ -260,6 +271,7 @@ public class UIQueueManager : MonoBehaviour
     public bool CheckIfBuiltItemIsQueued(Vector3Int worldLoc, Vector3Int loc, bool upgrading, ImprovementDataSO improvementData, City city)
     {
         string builtName = CreateItemName(loc, upgrading, improvementData);
+        List<UIQueueItem> tempQueueItems = new(queueItems);
 
         if (city.savedQueueItemsNames.Contains(builtName))
         {
@@ -272,18 +284,18 @@ public class UIQueueManager : MonoBehaviour
 
             if (city.activeCity)
             {
-                foreach (UIQueueItem item in queueItems)
+                foreach (UIQueueItem item in tempQueueItems)
                 {
                     if (item.itemName == builtName)
                     {
-                        RemoveFromQueue(item);
-                        return true;
+                        RemoveFromQueue(item, city.cityLoc);
                     }
                 }
             }
-        }
 
-        if (!(loc.x == 0 && loc.z == 0) && world.CheckQueueLocation(worldLoc))
+            return true;
+        }
+        else if (!(loc.x == 0 && loc.z == 0) && world.CheckQueueLocation(worldLoc))
         {
             world.RemoveLocationFromQueueList(worldLoc);
             return true;

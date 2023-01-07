@@ -768,6 +768,11 @@ public class ResourceManager : MonoBehaviour
         CheckResourcesForQueue();
     }
 
+    public void ClearQueueResources()
+    {
+        queuedResourcesToCheck.Clear();
+    }
+
     private void CheckResourcesForQueue()
     {
         if (queuedResourcesToCheck.Count > 0)

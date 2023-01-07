@@ -382,7 +382,7 @@ public class ResourceProducer : MonoBehaviour
     public void TimeConstructionProgressBarSetActive(bool v, int time)
     {
         //timeProgressBar.SetActive(v);
-        uiTimeProgressBar.gameObject.SetActive(true);
+        uiTimeProgressBar.gameObject.SetActive(v);
         if (v)
         {
             uiTimeProgressBar.SetProgressBarMask(time);
