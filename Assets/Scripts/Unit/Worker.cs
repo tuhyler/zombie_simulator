@@ -13,8 +13,11 @@ public class Worker : Unit
     private Resource resource;
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
-    private List<Vector3Int> roadBuildList = new();
-    private Queue<Vector3Int> roadBuildQueue = new();
+    private List<Vector3Int> orderList = new();
+    public List<Vector3Int> OrderList { get { return orderList; } }
+    private Queue<Vector3Int> orderQueue = new();
+    [HideInInspector]
+    public bool removing;
 
     private void Awake()
     {
@@ -45,37 +48,37 @@ public class Worker : Unit
     //{
     //    this.resourceIndividualHandler = resourceIndividualHandler;
     //}
-    public bool AddToRoadQueue(Vector3Int roadLoc)
+    public bool AddToOrderQueue(Vector3Int roadLoc)
     {
-        if (roadBuildList.Contains(roadLoc))
+        if (orderList.Contains(roadLoc))
         {
-            roadBuildList.Remove(roadLoc);
+            orderList.Remove(roadLoc);
             return false;
         }
         else
         {
-            roadBuildList.Add(roadLoc);
+            orderList.Add(roadLoc);
             return true;
         }
     }
 
-    public bool MoreRoadToBuild()
+    public bool MoreOrdersToFollow()
     {
-        return roadBuildQueue.Count > 0;
+        return orderQueue.Count > 0;
     }
 
-    public void ResetRoadQueue()
+    public void ResetOrderQueue()
     {
-        roadBuildList.Clear();
-        roadBuildQueue.Clear();
+        orderList.Clear();
+        orderQueue.Clear();
     }
 
-    public bool IsRoadListMoreThanZero()
+    public bool IsOrderListMoreThanZero()
     {
-        return roadBuildList.Count > 0;
+        return orderList.Count > 0;
     }
 
-    public void BuildRoadPreparations()
+    public void WorkerOrdersPreparations()
     {
         //Vector3 workerPos = transform.position;
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
@@ -97,38 +100,82 @@ public class Worker : Unit
         //workerTaskManager.BuildRoad(workerTile, this);
     }
 
+    public void SetRoadRemovalQueue()
+    {
+        if (orderList.Count > 0)
+        {
+            orderQueue = new Queue<Vector3Int>(orderList);
+            //orderList.Clear();
+            BeginRoadRemoval();
+        }
+        else
+        {
+            isBusy = false;
+            if (isSelected)
+                workerTaskManager.TurnOffCancelTask();
+        }
+    }
+
+    public void BeginRoadRemoval()
+    {        
+        if (world.RoundToInt(transform.position) == orderQueue.Peek())
+        {
+            RemoveRoad();
+        }
+        else
+        {
+            FinishedMoving.AddListener(RemoveRoad);
+            workerTaskManager.MoveToCompleteOrders(orderQueue.Peek(), this);
+        }
+    }
+
+    public void SkipRoadRemoval()
+    {
+        if (MoreOrdersToFollow())
+        {
+            BeginRoadRemoval();
+        }
+        else
+        {
+            isBusy = false;
+
+            if (isSelected)
+                workerTaskManager.TurnOffCancelTask();
+        }
+    }
+
     public void SetRoadQueue()
     {
-        if (roadBuildList.Count > 0)
+        if (orderList.Count > 0)
         {
-            roadBuildQueue = new Queue<Vector3Int>(roadBuildList);
-            roadBuildList.Clear();
+            orderQueue = new Queue<Vector3Int>(orderList);
+            //orderList.Clear();
             BeginBuildingRoad();
         }
         else
         {
             isBusy = false;
-            workerTaskManager.TurnOffCancelTask();
+            if (isSelected)
+                workerTaskManager.TurnOffCancelTask();
         }
     }
 
     public void BeginBuildingRoad()
     {
-        if (world.RoundToInt(transform.position) == roadBuildQueue.Peek())
+        if (world.RoundToInt(transform.position) == orderQueue.Peek())
         {
-            roadBuildQueue.Dequeue();
             BuildRoad();
         }
         else
         {
             FinishedMoving.AddListener(BuildRoad);
-            workerTaskManager.MoveToBuildRoad(roadBuildQueue.Dequeue(), this);
+            workerTaskManager.MoveToCompleteOrders(orderQueue.Peek(), this);
         }
     }
 
     public override void SkipRoadBuild()
     {
-        if (MoreRoadToBuild())
+        if (MoreOrdersToFollow())
         {
             BeginBuildingRoad();
         }
@@ -143,32 +190,47 @@ public class Worker : Unit
 
     private void BuildRoad()
     {
+        Vector3Int workerTile = orderQueue.Dequeue();
+        orderList.Remove(workerTile);
+
         FinishedMoving.RemoveListener(BuildRoad);
-        Vector3 currentPos = transform.position;
-        currentPos.y = 0;
-        workerTaskManager.BuildRoad(world.RoundToInt(currentPos), this);
+        //Vector3 workerPos = transform.position;
+        //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        workerTaskManager.BuildRoad(workerTile, this);
+        world.GetTerrainDataAt(workerTile).DisableHighlight();
     }
 
     public void RemoveRoad()
     {
-        Vector3 workerPos = transform.position;
-        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        Vector3Int workerTile = orderQueue.Dequeue();
+        orderList.Remove(workerTile);
+
+        //Vector3 workerPos = transform.position;
+        //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(RemoveRoad);
+
+        world.GetTerrainDataAt(workerTile).DisableHighlight();
+        foreach (GameObject go in world.GetAllRoadsOnTile(workerTile))
+        {
+            if (go == null)
+                continue;
+            go.GetComponent<SelectionHighlight>().DisableHighlight();
+        }
 
         if (!world.IsRoadOnTerrain(workerTile))
         {
-            InfoPopUpHandler.Create(workerPos, "No road here");
+            InfoPopUpHandler.Create(workerTile, "No road here");
             return;
         }
 
         if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile))
         {
-            InfoPopUpHandler.Create(workerPos, "Can't remove this road");
+            InfoPopUpHandler.Create(workerTile, "Can't remove this");
             return;
         }
 
-        StopMovement();
-        isBusy = true;
+        //StopMovement();
+        //isBusy = true;
         workerTaskManager.RemoveRoad(workerTile, this);
     }
 

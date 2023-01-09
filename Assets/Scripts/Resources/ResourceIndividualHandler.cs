@@ -94,7 +94,8 @@ public class ResourceIndividualHandler : MonoBehaviour
         }
 
         worker.HideProgressTimeBar();
-        workerTaskManager.TurnOffCancelTask();
+        if (worker.isSelected)
+            workerTaskManager.TurnOffCancelTask();
 
         //showing harvested resource
         //worker.PrepResourceGathering(this);

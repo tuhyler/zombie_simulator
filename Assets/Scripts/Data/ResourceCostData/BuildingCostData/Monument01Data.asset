@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Monument01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 7952248765643111094, guid: df4e94bcbf2d38b4e96290f27dde2be2, type: 3}
+  isBuilding: 1
   improvementName: Monument
   improvementLevel: 1
   rawMaterials: 0

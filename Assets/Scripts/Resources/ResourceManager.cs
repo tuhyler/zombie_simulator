@@ -68,7 +68,7 @@ public class ResourceManager : MonoBehaviour
 
     //for queued build orders
     private List<ResourceValue> queuedResourcesToCheck = new();
-    private List<ResourceType> queuedResourceTypesToCheck = new();
+    private List<ResourceType> queuedResourceTypesToCheck = new(); //have this to check if the queue type has recently been added (can't check values easily)   
     private CityBuilderManager cityBuilderManager; //only instantiated through queue build
 
     private int resourceCount; //for counting wasted resources
@@ -104,7 +104,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    internal void SetCity(City city)
+    public void SetCity(City city)
     {
         this.city = city;
     }
@@ -244,6 +244,8 @@ public class ResourceManager : MonoBehaviour
                 i++;
             }
         }
+
+        city.UpdateResourceInfo();
     }
 
     public bool ConsumeResourcesCheck(List<ResourceValue> consumeResources, int labor)
@@ -387,6 +389,7 @@ public class ResourceManager : MonoBehaviour
         if (queuedResourceTypesToCheck.Contains(resourceType))
             CheckResourcesForQueue();
         UpdateUI(resourceType);
+        city.UpdateResourceInfo();
         if (newResourceAmount > 0)
             city.CheckResourceWaiter(resourceType);
         else if (newResourceAmount < 0)
@@ -771,6 +774,7 @@ public class ResourceManager : MonoBehaviour
     public void ClearQueueResources()
     {
         queuedResourcesToCheck.Clear();
+        queuedResourceTypesToCheck.Clear();
     }
 
     private void CheckResourcesForQueue()
@@ -785,8 +789,7 @@ public class ResourceManager : MonoBehaviour
                 }
             }
 
-            queuedResourcesToCheck.Clear();
-            queuedResourceTypesToCheck.Clear();
+            ClearQueueResources();
             cityBuilderManager.BuildQueuedBuilding(city, this);
         }
     }

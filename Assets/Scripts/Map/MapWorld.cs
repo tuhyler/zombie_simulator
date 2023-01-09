@@ -107,7 +107,7 @@ public class MapWorld : MonoBehaviour
     private bool showGizmo;
 
     [HideInInspector]
-    public bool buildingRoad, buildingWonder;
+    public bool workerOrders, buildingWonder;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -543,6 +543,9 @@ public class MapWorld : MonoBehaviour
 
     public void OpenWonders()
     {
+        if (workerOrders)
+            return;
+        
         if (wonderHandler.activeStatus)
         {
             wonderHandler.ToggleVisibility(false);
@@ -567,6 +570,9 @@ public class MapWorld : MonoBehaviour
     //Research info
     public void OpenResearchTree()
     {
+        if (workerOrders)
+            return;
+        
         if (researchTree.activeStatus)
             researchTree.ToggleVisibility(false);
         else
@@ -886,6 +892,11 @@ public class MapWorld : MonoBehaviour
     //    return cityBuildingIsProducer[cityTile][buildingName];
     //}
 
+    public bool TileHasCityImprovement(Vector3Int tile)
+    {
+        return cityImprovementDict.ContainsKey(tile);
+    }
+
     public CityImprovement GetCityDevelopment(Vector3Int tile)
     {
         return cityImprovementDict[tile];
@@ -1004,6 +1015,7 @@ public class MapWorld : MonoBehaviour
     public void SetCityBuilding(ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, bool isInitialCityHouse)
     {
         CityImprovement improvement = building.GetComponent<CityImprovement>();
+        improvement.building = improvementData.isBuilding;
         improvement.InitializeImprovementData(improvementData);
         string buildingName = improvementData.improvementName;
         improvement.SetCity(city);
@@ -1028,14 +1040,30 @@ public class MapWorld : MonoBehaviour
         return cityImprovementQueueList.Contains(location);
     }
 
+    public City GetQueuedImprovementCity(Vector3Int loc)
+    {
+        return queueGhostsDict[loc].GetComponent<CityImprovement>().GetCity();
+    }
+
     public void RemoveLocationFromQueueList(Vector3Int location)
     {
         cityImprovementQueueList.Remove(location);  
     }
 
-    public void RemoveQueueGhostImprovement(Vector3Int location)
+    public void RemoveQueueGhostImprovement(Vector3Int location, City city)
     {
-        cityBuilderManager.RemoveQueueGhostImprovement(location);
+        cityBuilderManager.RemoveQueueGhostImprovement(location, city);
+    }
+
+    public void RemoveQueueItemCheck(Vector3Int location)
+    {
+        if (CheckQueueLocation(location))
+        {
+            RemoveLocationFromQueueList(location);
+            City city = GetQueuedImprovementCity(location);
+            RemoveQueueGhostImprovement(location, city);
+            city.RemoveFromQueue(location - city.cityLoc);
+        }
     }
 
     public void SetRoads(Vector3Int tile, GameObject road, bool straight)

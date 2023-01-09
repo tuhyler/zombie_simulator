@@ -25,7 +25,7 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     public UISingleConditionalButtonHandler uiCancelTask;
     [SerializeField]
-    public UISingleConditionalButtonHandler uiConfirmBuildRoad;
+    public UISingleConditionalButtonHandler uiConfirmWorkerOrders;
     [SerializeField]
     public UITraderOrderHandler uiTraderPanel;
     [SerializeField]
@@ -57,8 +57,10 @@ public class UnitMovement : MonoBehaviour
     private Wonder wonder;
     public int cityTraderIncrement = 1;
 
-    //for building roads
-    private List<TerrainData> highlightedTiles = new();
+    //for worker orders
+    [HideInInspector]
+    public bool buildingRoad, removingAll, removingRoad, removingLiquid, removingPower; 
+    //private List<TerrainData> highlightedTiles = new();
 
     private void Awake()
     {
@@ -82,8 +84,8 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleEnter()
     {
-        if (selectedWorker != null && world.buildingRoad)
-            ConfirmRoadBuild();
+        if (selectedWorker != null && world.workerOrders)
+            ConfirmWorkerOrders();
     }
 
     public void HandleB()
@@ -120,38 +122,83 @@ public class UnitMovement : MonoBehaviour
         Vector3Int locationPos = world.GetClosestTerrainLoc(location);
 
         //if building road, can't select anything else
-        if (world.buildingRoad)
+        if (world.workerOrders)
         {
             TerrainData td = world.GetTerrainDataAt(locationPos);
             
-            if (world.IsRoadOnTerrain(locationPos) || world.IsBuildLocationTaken(locationPos))
+            if (buildingRoad)
             {
-                GiveWarningMessage("Already something here");
-            }
-            else if (!td.terrainData.walkable)
-            {
-                GiveWarningMessage("Can't build here");
-            }
-            else
-            {
-                if (selectedWorker.AddToRoadQueue(locationPos))
+                if (world.IsRoadOnTerrain(locationPos) || world.IsBuildLocationTaken(locationPos))
                 {
-                    if (selectedWorker.IsRoadListMoreThanZero())
-                        uiConfirmBuildRoad.ToggleTweenVisibility(true);
-
-                    td.EnableHighlight(Color.white);
-                    highlightedTiles.Add(td);
+                    GiveWarningMessage("Already something here");
+                }
+                else if (!td.terrainData.walkable)
+                {
+                    GiveWarningMessage("Can't build here");
                 }
                 else
                 {
-                    if (!selectedWorker.IsRoadListMoreThanZero())
-                        uiConfirmBuildRoad.ToggleTweenVisibility(false);
+                    if (selectedWorker.AddToOrderQueue(locationPos))
+                    {
+                        if (selectedWorker.IsOrderListMoreThanZero())
+                            uiConfirmWorkerOrders.ToggleTweenVisibility(true);
 
-                    td.DisableHighlight();
-                    highlightedTiles.Remove(td);
+                        td.EnableHighlight(Color.white);
+                        //highlightedTiles.Add(td);
+                    }
+                    else
+                    {
+                        if (!selectedWorker.IsOrderListMoreThanZero())
+                            uiConfirmWorkerOrders.ToggleTweenVisibility(false);
+
+                        td.DisableHighlight();
+                        //highlightedTiles.Remove(td);
+                    }
                 }
             }
- 
+            else if (removingRoad)
+            {
+                if (!world.IsRoadOnTerrain(locationPos))
+                {
+                    GiveWarningMessage("No road here");
+                }
+                else if (world.IsCityOnTile(locationPos) || world.IsWonderOnTile(locationPos))
+                {
+                    GiveWarningMessage("Can't remove this");
+                }
+                else
+                {
+                    if (selectedWorker.AddToOrderQueue(locationPos))
+                    {
+                        if (selectedWorker.IsOrderListMoreThanZero())
+                            uiConfirmWorkerOrders.ToggleTweenVisibility(true);
+
+                        td.EnableHighlight(Color.red);
+                        foreach (GameObject go in world.GetAllRoadsOnTile(locationPos))
+                        {
+                            if (go == null)
+                                continue;
+                            go.GetComponent<SelectionHighlight>().EnableHighlight(Color.white);
+                        }
+                        //highlightedTiles.Add(td);
+                    }
+                    else
+                    {
+                        if (!selectedWorker.IsOrderListMoreThanZero())
+                            uiConfirmWorkerOrders.ToggleTweenVisibility(false);
+
+                        td.DisableHighlight();
+                        foreach (GameObject go in world.GetAllRoadsOnTile(locationPos))
+                        {
+                            if (go == null)
+                                continue;
+                            go.GetComponent<SelectionHighlight>().DisableHighlight();
+                        }
+                        //highlightedTiles.Remove(td);
+                    }
+                }
+            }
+
             return;            
         }
         
@@ -231,6 +278,8 @@ public class UnitMovement : MonoBehaviour
             selectedWorker = selectedUnit.GetComponent<Worker>();
             workerTaskManager.SetWorkerUnit(selectedWorker);
             uiWorkerTask.ToggleVisibility(true);
+            if (selectedWorker.IsOrderListMoreThanZero())
+                ToggleOrderHighlights(true);
 
             if (selectedWorker.harvested) //if unit just finished harvesting something, send to closest city
                 selectedWorker.SendResourceToCity();
@@ -602,12 +651,21 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    public void ConfirmRoadBuild()
+    public void ConfirmWorkerOrders()
     {
-        if (world.buildingRoad)
+        if (world.workerOrders)
         {
             ClearBuildRoad();
-            selectedWorker.SetRoadQueue();
+            if (buildingRoad)
+            {
+                selectedWorker.SetRoadQueue();
+            }
+            else if (removingRoad)
+            {
+                selectedWorker.SetRoadRemovalQueue();
+                selectedWorker.removing = true;
+            }
+            ResetOrderFlags();
         }
         else if (world.buildingWonder)
         {
@@ -615,13 +673,24 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
+    public void ResetOrderFlags()
+    {
+        buildingRoad = false;
+        removingAll = false;
+        removingRoad = false;
+        removingLiquid = false;
+        removingPower = false;
+    }
+
     public void CloseBuildingSomethingPanel()
     {
-        if (world.buildingRoad)
+        if (world.workerOrders)
         {
             ClearBuildRoad();
+            ToggleOrderHighlights(false);
+            ResetOrderFlags();
 
-            selectedWorker.ResetRoadQueue();
+            selectedWorker.ResetOrderQueue();
             selectedWorker.isBusy = false;
             workerTaskManager.TurnOffCancelTask();
         }
@@ -633,14 +702,71 @@ public class UnitMovement : MonoBehaviour
 
     public void ClearBuildRoad()
     {
-        world.buildingRoad = false;
-        uiConfirmBuildRoad.ToggleTweenVisibility(false);
+        world.workerOrders = false;
+        uiConfirmWorkerOrders.ToggleTweenVisibility(false);
         uiMoveUnit.ToggleTweenVisibility(true);
         uiWorkerTask.ToggleVisibility(true);
         workerTaskManager.CloseBuildingRoadPanel();
         //workerTaskManager.ToggleRoadBuild(false);
-        foreach (TerrainData td in highlightedTiles)
-            td.DisableHighlight();
+        //foreach (TerrainData td in highlightedTiles)
+        //{
+        //    td.DisableHighlight();
+
+        //    if (removingRoad)
+        //    {
+        //        foreach (GameObject go in world.GetAllRoadsOnTile(td.GetTileCoordinates()))
+        //        {
+        //            if (go == null)
+        //                continue;
+        //            go.GetComponent<SelectionHighlight>().DisableHighlight();
+        //        }
+        //    }
+        //}
+    }
+
+    public void ToggleOrderHighlights(bool v)
+    {
+        if (v)
+        {
+            Color highlightColor;
+
+            if (selectedWorker.removing)
+                highlightColor = Color.red;
+            else
+                highlightColor = Color.white;
+
+            foreach (Vector3Int tile in selectedWorker.OrderList)
+            {
+                world.GetTerrainDataAt(tile).EnableHighlight(highlightColor);
+
+                if (selectedWorker.removing && world.IsRoadOnTerrain(tile))
+                {
+                    foreach (GameObject go in world.GetAllRoadsOnTile(tile))
+                    {
+                        if (go == null)
+                            continue;
+                        go.GetComponent<SelectionHighlight>().EnableHighlight(Color.white);
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (Vector3Int tile in selectedWorker.OrderList)
+            {
+                world.GetTerrainDataAt(tile).DisableHighlight();
+
+                if (selectedWorker.removing && world.IsRoadOnTerrain(tile))
+                {
+                    foreach (GameObject go in world.GetAllRoadsOnTile(tile))
+                    {
+                        if (go == null)
+                            continue;
+                        go.GetComponent<SelectionHighlight>().DisableHighlight();
+                    }
+                }
+            }
+        }
     }
 
     public void Load(ResourceType resourceType)
@@ -834,6 +960,9 @@ public class UnitMovement : MonoBehaviour
         //selectedTile = null;
         if (selectedUnit != null)
         {
+            if (selectedUnit.isBusy && selectedWorker.IsOrderListMoreThanZero())
+                ToggleOrderHighlights(false);
+
             moveUnit = false;
             uiMoveUnit.ToggleTweenVisibility(false);
             uiCancelMove.ToggleTweenVisibility(false);

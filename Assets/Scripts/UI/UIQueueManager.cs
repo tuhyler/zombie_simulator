@@ -163,9 +163,9 @@ public class UIQueueManager : MonoBehaviour
         if (selectedQueueItem != null)
         {
             if (selectedQueueItem.buildLoc.x == 0 && selectedQueueItem.buildLoc.z == 0)
-                cityBuilderManager.RemoveQueueGhostBuilding(selectedQueueItem.buildingName);
+                cityBuilderManager.RemoveQueueGhostBuilding(selectedQueueItem.buildingName, cityBuilderManager.SelectedCity);
             else
-                cityBuilderManager.RemoveQueueGhostImprovement(selectedQueueItem.buildLoc + cityBuilderManager.SelectedCityLoc);
+                cityBuilderManager.RemoveQueueGhostImprovement(selectedQueueItem.buildLoc + cityBuilderManager.SelectedCityLoc, cityBuilderManager.SelectedCity);
 
             RemoveFromQueue(selectedQueueItem, cityBuilderManager.SelectedCityLoc);
         }
@@ -175,7 +175,12 @@ public class UIQueueManager : MonoBehaviour
     {
         queueItems.Remove(queueItem);
         queueItemNames.Remove(queueItem.itemName);
+        City city = world.GetCity(cityLoc);
+        city.savedQueueItems.Remove(queueItem);
+        city.savedQueueItemsNames.Remove(queueItem.itemName);
         world.RemoveLocationFromQueueList(queueItem.buildLoc + cityLoc);
+        if (world.TileHasCityImprovement(queueItem.buildLoc + cityLoc))
+            world.GetCityDevelopment(queueItem.buildLoc + cityLoc).queued = false;
 
         if (queueItem == firstQueueItem)
         {
@@ -243,10 +248,10 @@ public class UIQueueManager : MonoBehaviour
         {
             buildName = buildName + " (" + loc.x/3 + "," + loc.z/3 + ")";
         }
-        else
-        {
-            buildName = buildName + " " + improvementData.improvementName;
-        }
+        //else
+        //{
+        //    buildName = buildName + " " + improvementData.improvementName;
+        //}
 
         return buildName;
     }
@@ -281,6 +286,7 @@ public class UIQueueManager : MonoBehaviour
             UIQueueItem queueItem = city.savedQueueItems[index];
             city.savedQueueItems.Remove(queueItem);
             Destroy(queueItem);
+            city.ResourceManager.ClearQueueResources();
 
             if (city.activeCity)
             {
@@ -297,8 +303,8 @@ public class UIQueueManager : MonoBehaviour
         }
         else if (!(loc.x == 0 && loc.z == 0) && world.CheckQueueLocation(worldLoc))
         {
-            world.RemoveLocationFromQueueList(worldLoc);
-            return true;
+            world.RemoveQueueItemCheck(worldLoc);
+            return false;
         }
 
         return false;
@@ -357,36 +363,6 @@ public class UIQueueManager : MonoBehaviour
 
         InfoPopUpHandler.Create(mouseLoc, message);
     }
-
-
-
-
-
-    //private void GrowQueueItemPool()
-    //{
-    //    for (int i = 0; i < 5; i++) //grow pool 5 at a time
-    //    {
-    //        GameObject gameObject = Instantiate(uiQueueItem);
-    //        UIQueueItem queueItem = gameObject.GetComponent<UIQueueItem>();
-    //        AddToQueueItemPool(queueItem);
-    //    }
-    //}
-
-    //private void AddToQueueItemPool(UIQueueItem queueItem)
-    //{
-    //    queueItem.gameObject.SetActive(false); //inactivate it when adding to pool
-    //    queueItemQueue.Enqueue(queueItem);
-    //}
-
-    //private UIQueueItem GetFromQueueItemPool()
-    //{
-    //    if (queueItemQueue.Count == 0)
-    //        GrowQueueItemPool();
-
-    //    UIQueueItem queueItem = queueItemQueue.Dequeue();
-    //    queueItem.gameObject.SetActive(true);
-    //    return queueItem;
-    //}
 
     public void HideQueueItems()
     {
