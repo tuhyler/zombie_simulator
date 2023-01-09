@@ -92,6 +92,8 @@ public class City : MonoBehaviour
     public List<UIQueueItem> savedQueueItems = new();
     [HideInInspector]
     public List<string> savedQueueItemsNames = new();
+    [HideInInspector]
+    public Dictionary<string, GameObject> buildingQueueGhostDict = new();
 
     //private SelectionHighlight highlight; //Highlight doesn't work on city name text
 
@@ -134,6 +136,11 @@ public class City : MonoBehaviour
     public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
     {
         this.cityBuilderManager = cityBuilderManager;
+    }
+
+    public void UpdateResourceInfo()
+    {
+        cityBuilderManager.UpdateResourceInfo();
     }
 
     public bool WorldResearchingCheck()
@@ -726,17 +733,39 @@ public class City : MonoBehaviour
             GoToNextItemInBuildQueue();
     }
 
-    public void RemoveFromQueue(Vector3Int loc, ImprovementDataSO improvementData)
-    {
-        string name = "Upgrade" + " (" + loc.x / 3 + "," + loc.z / 3 + ")";
+    //public void RemoveFromQueue(Vector3Int loc)
+    //{
+    //    string name = "Upgrade" + " (" + loc.x / 3 + "," + loc.z / 3 + ")";
 
+    //    int index = 0;
+    //    foreach (UIQueueItem item in savedQueueItems)
+    //    {
+    //        if (item.upgrading && item.itemName == name)
+    //        {
+    //            savedQueueItems.Remove(item);
+    //            savedQueueItemsNames.RemoveAt(index);
+    //            resourceManager.ClearQueueResources();
+    //            world.RemoveLocationFromQueueList(loc);
+    //            Destroy(item);
+    //            if (index == 0 && savedQueueItems.Count > 0)
+    //                GoToNextItemInBuildQueue();
+    //            break;
+    //        }
+
+    //        index++;
+    //    }
+    //}
+
+    public void RemoveFromQueue(Vector3Int loc)
+    {
         int index = 0;
         foreach (UIQueueItem item in savedQueueItems)
         {
-            if (item.upgrading && item.itemName == name)
+            if (item.buildLoc == loc)
             {
                 savedQueueItems.Remove(item);
                 savedQueueItemsNames.RemoveAt(index);
+                resourceManager.ClearQueueResources();
                 world.RemoveLocationFromQueueList(loc);
                 Destroy(item);
                 if (index == 0 && savedQueueItems.Count > 0)

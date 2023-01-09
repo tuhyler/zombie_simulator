@@ -7,6 +7,8 @@ public class UIUnitTurnHandler : MonoBehaviour
 {
     //[SerializeField]
     //private AllUnitDataSO allUnitDataSO;
+    [SerializeField]
+    private MapWorld world;
 
     [SerializeField]
     private CanvasGroup canvasGroup;
@@ -47,7 +49,7 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void NextUnitToMove() //used on right button
     {
-        if (!buttonsAreWorking)
+        if (!buttonsAreWorking || world.workerOrders)
             return;
         
         IncreaseIndex();
@@ -57,7 +59,7 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void PrevUnitToMove() //used on left button
     {
-        if (!buttonsAreWorking)
+        if (!buttonsAreWorking || world.workerOrders)
             return;
         
         DecreaseIndex();

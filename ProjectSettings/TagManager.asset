@@ -11,6 +11,7 @@ TagManager:
   - Forest Hill
   - Road
   - Water
+  - Upgrade
   layers:
   - Default
   - TransparentFX

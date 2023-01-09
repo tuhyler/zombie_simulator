@@ -11,10 +11,13 @@ public class UIWorkerHandler : MonoBehaviour
     private UnityEvent<ImprovementDataSO> OnIconButtonClick;
 
     [SerializeField]
+    private UIWorkerRemovalOptions uiWorkerRemovalOptions;
+
+    [SerializeField]
     private Transform uiElementsParent;
     [HideInInspector]
     public List<UIWorkerOptions> buildOptions;
-    //public UIWorkerOptions roadBuildOption;
+    private UIWorkerOptions removalOptions;
 
     //for tweening
     [SerializeField]
@@ -36,10 +39,15 @@ public class UIWorkerHandler : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
     }
 
-    //public void SetRoadBuildOption(UIWorkerOptions option)
-    //{
-    //    roadBuildOption = option;
-    //}
+    public void SetRoadBuildOption(UIWorkerOptions option)
+    {
+        removalOptions = option;
+    }
+
+    public void ToggleRemovalOptions(bool v)
+    {
+        uiWorkerRemovalOptions.ToggleVisibility(v, false);
+    }
 
     public void HandleButtonClick()
     {
@@ -55,6 +63,7 @@ public class UIWorkerHandler : MonoBehaviour
 
         if (val)
         {
+            removalOptions.ToggleColor(false);
             gameObject.SetActive(val);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
@@ -70,6 +79,7 @@ public class UIWorkerHandler : MonoBehaviour
         else
         {
             activeStatus = false;
+            uiWorkerRemovalOptions.ToggleVisibility(false, true);
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Mine01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 4377796082950431887, guid: 184d14c8c7a562d449166d198eaedf4b, type: 3}
+  isBuilding: 0
   improvementName: Mine
   improvementLevel: 1
   rawMaterials: 1
@@ -25,7 +26,7 @@ MonoBehaviour:
     resourceAmount: 25
   consumedResources:
   - resourceType: 4
-    resourceAmount: 1
+    resourceAmount: 40
   producedResources:
   - resourceType: 5
     resourceAmount: 30

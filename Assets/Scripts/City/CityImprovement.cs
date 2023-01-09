@@ -14,7 +14,7 @@ public class CityImprovement : MonoBehaviour
     private City city; //for buildings, click on them to select city
     private City queueCity; //for improvements, when queued for upgrades
     [HideInInspector]
-    public bool initialCityHouse, isConstruction, queued;
+    public bool initialCityHouse, isConstruction, queued, building;
 
     private Coroutine constructionCo;
     private int timePassed;

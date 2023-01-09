@@ -49,11 +49,7 @@ public class RoadManager : MonoBehaviour
         //if (city) //hiding solo roads for new cities
         //    structure.SetActive(false);
         world.SetRoads(roadPosition, structure, straight);
-        if (world.CheckQueueLocation(roadPosition))
-        {
-            world.RemoveLocationFromQueueList(roadPosition);
-            world.RemoveQueueGhostImprovement(roadPosition);
-        }
+
     }
 
     public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)
@@ -73,14 +69,15 @@ public class RoadManager : MonoBehaviour
         BuildRoadAtPosition(roadPosition);
         world.RemoveWorkerWorkLocation(roadPosition);
 
-        if (worker.MoreRoadToBuild())
+        if (worker.MoreOrdersToFollow())
         {
             worker.BeginBuildingRoad();
         }
         else
         {
             worker.isBusy = false;
-            workerTaskManager.TurnOffCancelTask();
+            if (worker.isSelected)
+                workerTaskManager.TurnOffCancelTask();
         }
     }
 
@@ -294,10 +291,22 @@ public class RoadManager : MonoBehaviour
         }
 
         worker.HideProgressTimeBar();
-        worker.isBusy = false;
-        workerTaskManager.TurnOffCancelTask();
-        world.RemoveWorkerWorkLocation(tile);
+        //worker.isBusy = false;
+        //workerTaskManager.TurnOffCancelTask();
         RemoveRoadAtPosition(tile);
+        world.RemoveWorkerWorkLocation(tile);
+
+        if (worker.MoreOrdersToFollow())
+        {
+            worker.BeginRoadRemoval();
+        }
+        else
+        {
+            worker.isBusy = false;
+            worker.removing = false;
+            if (worker.isSelected)
+                workerTaskManager.TurnOffCancelTask();
+        }
     }
 
     public void RemoveRoadAtPosition(Vector3Int tile)

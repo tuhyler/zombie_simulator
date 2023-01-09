@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Housing02Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 2413421541421609430, guid: 6161d90e38ce78d40b917c4495a50eea, type: 3}
+  isBuilding: 1
   improvementName: Housing
   improvementLevel: 2
   rawMaterials: 0
@@ -37,3 +38,5 @@ MonoBehaviour:
   replaceProp: 1
   singleBuild: 1
   buildTime: 0
+  availableInitially: 0
+  locked: 1
