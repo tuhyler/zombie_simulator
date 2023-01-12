@@ -69,6 +69,9 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleEsc()
     {
+        if (world.buildingWonder)
+            world.CloseBuildingSomethingPanel();
+        
         if (selectedUnit != null && !selectedUnit.isBusy)
         {
             if (selectedUnit.isMoving)
@@ -577,7 +580,7 @@ public class UnitMovement : MonoBehaviour
         }
         else if (world.buildingWonder)
         {
-            CloseBuildingSomethingPanel();
+            world.CloseBuildingSomethingPanel();
         }
     }
 

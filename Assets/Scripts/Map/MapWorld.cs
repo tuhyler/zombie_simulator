@@ -250,6 +250,9 @@ public class MapWorld : MonoBehaviour
     {
         if (buildingWonder) //only thing that works is placing wonder
         {
+            if (wonderPlacementLoc != null)
+                Destroy(wonderGhost);
+
             Vector3Int locationPos = GetClosestTerrainLoc(location);
             uiConfirmWonderBuild.ToggleTweenVisibility(false);
 
@@ -519,6 +522,9 @@ public class MapWorld : MonoBehaviour
 
     public void CloseBuildingSomethingPanel()
     {
+        if (wonderGhost != null)
+            Destroy(wonderGhost);
+        
         if (wonderPlacementLoc.Count > 0)
         {
             foreach (Vector3Int tile in wonderPlacementLoc)

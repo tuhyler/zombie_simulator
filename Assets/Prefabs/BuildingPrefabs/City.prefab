@@ -66,6 +66,8 @@ MonoBehaviour:
     type: 3}
   housingData: {fileID: 11400000, guid: 42b13ed0d99811a47b556be96cbb0dd6, type: 2}
   cityNameField: {fileID: 8342028981247781059}
+  heavenHighlight: {fileID: 4953528115713912327, guid: a11824c75395cb942965c0ed24f8949d,
+    type: 3}
   cityLoc: {x: 0, y: 0, z: 0}
   activeCity: 0
   hasHarbor: 0

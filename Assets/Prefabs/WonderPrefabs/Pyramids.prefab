@@ -235,6 +235,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pyramids75Perc
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 502da53437fc3e54794ebec9adca15d7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 502da53437fc3e54794ebec9adca15d7, type: 3}
 --- !u!4 &5619663830540293923 stripped
@@ -321,6 +326,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pyramids50Perc
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bea3d1fb91124ac4093677fa37b84e42,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bea3d1fb91124ac4093677fa37b84e42, type: 3}
 --- !u!23 &5147546941963788232 stripped
@@ -406,6 +416,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Pyramids25Perc
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2b1ee3d18d834d74d8bc9b6cefe31625,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2b1ee3d18d834d74d8bc9b6cefe31625, type: 3}
@@ -496,7 +511,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 55499c5756588b94095bfdf5fcd5ce37,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 55499c5756588b94095bfdf5fcd5ce37, type: 3}
