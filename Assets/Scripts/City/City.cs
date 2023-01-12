@@ -18,6 +18,9 @@ public class City : MonoBehaviour
     [SerializeField]
     private CityNameField cityNameField;
 
+    [SerializeField]
+    private ParticleSystem heavenHighlight;
+    private ParticleSystem godray;
     //[SerializeField]
     //private Material cityNameMaterial;
 
@@ -130,7 +133,16 @@ public class City : MonoBehaviour
         countDownTimer = secondsTillGrowthCheck;
 
         cityNameField.ToggleVisibility(false);
+        InstantiateGodray();
         //Physics.IgnoreLayerCollision(6,7);
+    }
+
+    public void InstantiateGodray()
+    {
+        Vector3 pos = transform.position;
+        pos.y += 3f;
+        heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
+        heavenHighlight.Pause();
     }
 
     public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
@@ -140,6 +152,7 @@ public class City : MonoBehaviour
 
     public void UpdateResourceInfo()
     {
+        
         cityBuilderManager.UpdateResourceInfo();
     }
 
@@ -276,6 +289,7 @@ public class City : MonoBehaviour
     public void PopulationGrowthCheck(bool joinCity)
     {
         cityPop.IncreasePopulationAndLabor();
+        heavenHighlight.Play();
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
         if (cityPop.CurrentPop > 1)
