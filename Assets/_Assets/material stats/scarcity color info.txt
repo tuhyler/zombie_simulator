@@ -6,6 +6,12 @@ Color 2 - 37AD70 pos-.5
 Color 3 - 26A66F pos-.7
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
+Grassland2 colors:
+Color 1 - 48A964 pos-0
+Color 2 - 25A46D pos-.5
+Color 3 - 26A870 pos-.7
+Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
+
 Mountain colors:
 Color 1 - B6C5CC pos-0
 Color 2 - AEBDC3 pos-.5
