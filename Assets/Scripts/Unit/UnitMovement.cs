@@ -443,8 +443,8 @@ public class UnitMovement : MonoBehaviour
     {
         Vector3 locationInt = location;
         locationInt.y = 0f;
-        if (world.RoundToInt(selectedUnit.transform.position) == world.GetClosestTerrainLoc(locationInt)) //won't move within same tile
-            return;
+        //if (world.RoundToInt(selectedUnit.transform.position) == world.GetClosestTerrainLoc(locationInt)) //won't move within same tile
+        //    return;
 
         location.y += .1f;
         starshine.transform.position = location;

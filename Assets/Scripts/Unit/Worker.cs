@@ -70,6 +70,10 @@ public class Worker : Unit
 
     public void ResetOrderQueue()
     {
+        foreach (Vector3Int tile in orderList)
+        {
+            world.GetTerrainDataAt(tile).DisableHighlight();
+        }
         orderList.Clear();
         orderQueue.Clear();
     }

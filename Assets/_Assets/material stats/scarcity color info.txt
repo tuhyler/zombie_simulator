@@ -7,9 +7,9 @@ Color 3 - 26A66F pos-.7
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Grassland2 colors:
-Color 1 - 48A964 pos-0
-Color 2 - 25A46D pos-.5
-Color 3 - 26A870 pos-.7
+Color 1 - 4AAD67 pos-0
+Color 2 - 33A168 pos-.5
+Color 3 - 24A06B pos-.7
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Mountain colors:
@@ -22,6 +22,12 @@ Desert colors:
 Color 1 - F3DEBF pos-0
 Color 2 - E3CFB3 pos-.5
 Color 3 - E7C4AC pos-.7
+Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
+
+Desert2 colors:
+Color 1 - EFCDA8 pos-0
+Color 2 - EBC597 pos-.5
+Color 3 - DEC096 pos-.7
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Snow:
