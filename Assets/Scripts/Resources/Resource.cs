@@ -41,10 +41,15 @@ public class Resource : MonoBehaviour
         this.resourceIndividual = resourceIndividual;
     }
 
-    public void SendResourceToCity()
+    public IEnumerator SendResourceToCity()
     {
         worker.harvested = false;
         worker.isBusy = false;
+        LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
+        yield return new WaitForSeconds(0.5f);
+        city.PlayLightBullet();
+        yield return new WaitForSeconds(0.5f);
+
         int gatheredResource = city.ResourceManager.CheckResource(resourceIndividual.resourceType, gatheringAmount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
         bool wasted = false;
@@ -52,7 +57,7 @@ public class Resource : MonoBehaviour
             wasted = true;
 
         InfoResourcePopUpHandler.CreateResourceStat(loc, gatheringAmount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), wasted);
-        LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
+        city.PlayResourceSplash();
     }
 
     public Worker GetHarvestingWorker()

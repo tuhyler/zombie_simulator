@@ -35,7 +35,7 @@ public class Unit : MonoBehaviour
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     private Coroutine movingCo;
     private MovementSystem movementSystem;
-    private Queue<GameObject> shoePrintQueue = new();
+    private Queue<GameObject> pathQueue = new();
     private Vector3 shoePrintScale;
 
     //selection indicators
@@ -103,7 +103,7 @@ public class Unit : MonoBehaviour
         //finalDestinationLoc = currentPath[currentPath.Count - 1].transform.position; //currentPath is list instead of queue for this line
         pathPositions = new Queue<Vector3Int>(currentPath);
 
-        ShowPath(currentPath);
+        //ShowPath(currentPath);
         Vector3 firstTarget = pathPositions.Dequeue();
 
         moreToMove = true;
@@ -130,12 +130,12 @@ public class Unit : MonoBehaviour
 
             if (unitInTheWay.isBusy)
             {
-                if (!isBusy)
-                {
-                    FinishMoving(endPosition);
-                    yield break;
-                }
-                else
+                //if (!isBusy)
+                //{
+                //    FinishMoving(endPosition);
+                //    yield break;
+                //}
+                if (isBusy)
                 {
                     SkipRoadBuild();
                     yield break;
@@ -228,9 +228,9 @@ public class Unit : MonoBehaviour
             //else
             //{
             movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-            if (shoePrintQueue.Count > 0)
+            if (pathQueue.Count > 0)
             {
-                DequeueShoePrint();
+                DequeuePath();
             }
             //}
         }
@@ -346,7 +346,8 @@ public class Unit : MonoBehaviour
     public void AddToMovementQueue(List<Vector3Int> queuedOrders)
     {
         queuedOrders.ForEach(pos => pathPositions.Enqueue(pos));
-        ShowPath(queuedOrders, true);
+        List<Vector3Int> entirePath = new(pathPositions.ToList());
+        ShowPath(entirePath, true);
     }
 
     private void GetInLine(Vector3 endPosition)
@@ -595,8 +596,14 @@ public class Unit : MonoBehaviour
             }
 
             prevPosition.y = 0.01f;
-            GameObject shoePrintPath = movementSystem.GetFromShoePrintPool();
-            shoePrintPath.transform.position = (turnCountPosition + prevPosition) / 2;
+            GameObject path;
+
+            if (bySea)
+                path = movementSystem.GetFromChevronPool();
+            else
+                path = movementSystem.GetFromShoePrintPool();
+
+            path.transform.position = (turnCountPosition + prevPosition) / 2;
             float xDiff = turnCountPosition.x - prevPosition.x;
             float zDiff = turnCountPosition.z - prevPosition.z;
 
@@ -635,37 +642,40 @@ public class Unit : MonoBehaviour
                     z = 45;
             }
 
-            shoePrintPath.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
+            path.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
 
             //squishing the sprite a little for straights
-            Vector3 scale = shoePrintPath.transform.localScale; 
+            Vector3 scale = path.transform.localScale; 
             scale.x -= x;
-            shoePrintPath.transform.localScale = scale;
+            path.transform.localScale = scale;
 
-            shoePrintQueue.Enqueue(shoePrintPath);
+            pathQueue.Enqueue(path);
         }
     }
 
     public void HidePath()
     {
-        if (shoePrintQueue.Count > 0)
+        if (pathQueue.Count > 0)
         {
-            int count = shoePrintQueue.Count; //can't decrease count while using it
+            int count = pathQueue.Count; //can't decrease count while using it
             
             for (int i = 0; i < count; i++)
             {
-                DequeueShoePrint();
+                DequeuePath();
             }
 
-            shoePrintQueue.Clear();
+            pathQueue.Clear();
         }
     }
 
-    private void DequeueShoePrint()
+    private void DequeuePath()
     {
-        GameObject shoePrint = shoePrintQueue.Dequeue();
-        shoePrint.transform.localScale = shoePrintScale;
-        movementSystem.AddToShoePrintPool(shoePrint);
+        GameObject path = pathQueue.Dequeue();
+        path.transform.localScale = shoePrintScale;
+        if (bySea)
+            movementSystem.AddToChevronPool(path);
+        else
+            movementSystem.AddToShoePrintPool(path);
     }
 }
 

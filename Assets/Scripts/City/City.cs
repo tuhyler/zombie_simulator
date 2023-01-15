@@ -18,9 +18,10 @@ public class City : MonoBehaviour
     [SerializeField]
     private CityNameField cityNameField;
 
+    //particle systems
     [SerializeField]
-    private ParticleSystem heavenHighlight;
-    private ParticleSystem godray;
+    private ParticleSystem heavenHighlight, resourceSplash, lightBullet;
+
     //[SerializeField]
     //private Material cityNameMaterial;
 
@@ -133,14 +134,19 @@ public class City : MonoBehaviour
         countDownTimer = secondsTillGrowthCheck;
 
         cityNameField.ToggleVisibility(false);
-        InstantiateGodray();
+        InstantiateParticleSystems();
         //Physics.IgnoreLayerCollision(6,7);
     }
 
-    public void InstantiateGodray()
+    public void InstantiateParticleSystems()
     {
         Vector3 pos = transform.position;
-        pos.y += 3f;
+        resourceSplash = Instantiate(resourceSplash, pos, Quaternion.Euler(-90, 0, 0));
+        resourceSplash.Pause();
+        pos.y = 8f;
+        lightBullet = Instantiate(lightBullet, pos, Quaternion.Euler(90, 0, 0));
+        lightBullet.Pause();
+        pos.y = 3f;
         heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
         heavenHighlight.Pause();
     }
@@ -476,6 +482,16 @@ public class City : MonoBehaviour
     public void ChangeWorkEthic(float change)
     {
         workEthic += change;
+    }
+
+    public void PlayResourceSplash()
+    {
+        resourceSplash.Play();
+    }
+
+    public void PlayLightBullet()
+    {
+        lightBullet.Play();
     }
 
 

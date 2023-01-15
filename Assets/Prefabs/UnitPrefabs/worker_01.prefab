@@ -109,7 +109,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
-      value: Worker1Data_1
+      value: worker_01
       objectReference: {fileID: 0}
     - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -215,3 +215,6 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  removing: 0
+  lightBeam: {fileID: 6841559248971666239, guid: 9b46cb8e8220ddd428f5785751c57fad,
+    type: 3}

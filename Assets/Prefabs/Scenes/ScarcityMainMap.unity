@@ -3302,6 +3302,8 @@ MonoBehaviour:
   cityBuilderManager: {fileID: 1634818655}
   roadManager: {fileID: 1634818657}
   transparentMat: {fileID: 2100000, guid: 7460f712a10e233428bdc32d69818caa, type: 2}
+  lightBeam: {fileID: 898278802632816235, guid: 5070ee270a9393146b45080ffcce65f2,
+    type: 3}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls:
@@ -18495,6 +18497,8 @@ MonoBehaviour:
   uiCityResourceInfoPanel: {fileID: 1620586495}
   uiTradeRouteManager: {fileID: 640537117}
   uiCancelTradeRoute: {fileID: 1774535320}
+  starshine: {fileID: 4953528115713912327, guid: 6a8cf473ed616ea4c8bc61b4af8c6d4d,
+    type: 3}
   cityTraderIncrement: 1
   buildingRoad: 0
   removingAll: 0
@@ -54838,7 +54842,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500549
+      value: 8.499999
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

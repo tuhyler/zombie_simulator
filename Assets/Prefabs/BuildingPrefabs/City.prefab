@@ -68,6 +68,10 @@ MonoBehaviour:
   cityNameField: {fileID: 8342028981247781059}
   heavenHighlight: {fileID: 4953528115713912327, guid: a11824c75395cb942965c0ed24f8949d,
     type: 3}
+  resourceSplash: {fileID: 6041035029305573530, guid: 5320170368765854d9b0fc9402239eb0,
+    type: 3}
+  lightBullet: {fileID: 898278802632816235, guid: 5070ee270a9393146b45080ffcce65f2,
+    type: 3}
   cityLoc: {x: 0, y: 0, z: 0}
   activeCity: 0
   hasHarbor: 0
