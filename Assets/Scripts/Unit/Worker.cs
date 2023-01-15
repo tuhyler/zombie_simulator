@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class Worker : Unit
 {
@@ -38,8 +39,8 @@ public class Worker : Unit
     {
         //isBusy = false;
         //(City city, ResourceIndividualSO resourceIndividual) = resourceIndividualHandler.GetResourceGatheringDetails();
-        
-        resource.SendResourceToCity();
+        world.CreateLightBeam(transform.position);
+        StartCoroutine(resource.SendResourceToCity());
         //resourceIndividualHandler.ResetHarvestValues();
         //resourceIndividualHandler = null;
     }

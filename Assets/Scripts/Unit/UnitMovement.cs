@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEditor.PlayerSettings;
 
 public class UnitMovement : MonoBehaviour
 {
@@ -40,6 +41,9 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private UISingleConditionalButtonHandler uiCancelTradeRoute;
 
+    [SerializeField]
+    private ParticleSystem starshine;
+
     private bool queueMovementOrders;
     private MovementSystem movementSystem;
 
@@ -65,6 +69,12 @@ public class UnitMovement : MonoBehaviour
     private void Awake()
     {
         movementSystem = GetComponent<MovementSystem>();
+    }
+
+    private void Start()
+    {
+        starshine = Instantiate(starshine, new Vector3(0, 0, 0), Quaternion.identity);
+        starshine.Pause();
     }
 
     public void HandleEsc()
@@ -212,8 +222,8 @@ public class UnitMovement : MonoBehaviour
                 return;
 
             //location.y = 0;
-            TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
-            MoveUnit(terrainSelected, location);
+            //TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
+            MoveUnit(location);
         }
         else if (detectedObject.TryGetComponent(out Unit unitReference) && unitReference.CompareTag("Player"))
         {
@@ -426,17 +436,22 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isBusy)
             return;
 
-        location.y = 0;
-        Vector3Int locationInt = Vector3Int.RoundToInt(location);
-        if (Vector3Int.RoundToInt(selectedUnit.transform.position) == locationInt) //won't move within same tile
-            return;
-
-        TerrainData terrain = world.GetTerrainDataAt(locationInt);
-        MoveUnit(terrain, location);
+        MoveUnit(location);
     }
 
-    private void MoveUnit(TerrainData terrainSelected, Vector3 location)
+    private void MoveUnit(Vector3 location)
     {
+        Vector3 locationInt = location;
+        locationInt.y = 0f;
+        if (world.RoundToInt(selectedUnit.transform.position) == world.GetClosestTerrainLoc(locationInt)) //won't move within same tile
+            return;
+
+        location.y += .1f;
+        starshine.transform.position = location;
+        starshine.Play();
+
+        TerrainData terrainSelected = world.GetTerrainDataAt(world.RoundToInt(locationInt));
+
         if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
             selectedUnit.SendResourceToCity();
         else if (loadScreenSet)
@@ -448,7 +463,7 @@ public class UnitMovement : MonoBehaviour
         //    return;
         //}
 
-        Vector3Int terrainPos = Vector3Int.RoundToInt(location);
+        Vector3Int terrainPos = world.RoundToInt(locationInt);
 
 
         if (selectedUnit.bySea)
@@ -471,7 +486,7 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        if (selectedTrader != null && !selectedTrader.bySea && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(location)))
+        if (selectedTrader != null && !selectedTrader.bySea && !world.IsRoadOnTileLocation(terrainPos))
         {
             GiveWarningMessage("Must travel on road");
 
@@ -533,7 +548,7 @@ public class UnitMovement : MonoBehaviour
         //    //    return;
         //    //}
 
-        HandleSelectedLocation(location, terrainPos, selectedUnit);
+        HandleSelectedLocation(locationInt, terrainPos, selectedUnit);
     }
 
     private void GiveWarningMessage(string message)

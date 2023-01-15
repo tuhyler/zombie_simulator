@@ -24,7 +24,7 @@ public class ResourceIndividualHandler : MonoBehaviour
         if (selectedObject.TryGetComponent(out Resource resource))
         {
             if (resource != null)
-                resource.SendResourceToCity();
+                StartCoroutine(resource.SendResourceToCity());
         }
     }
 

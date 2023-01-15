@@ -28,6 +28,9 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private Material transparentMat;
 
+    [SerializeField]
+    private ParticleSystem lightBeam;
+
     private WorldResourceManager worldResourceManager;
     private WonderDataSO wonderData;
     [SerializeField]
@@ -223,6 +226,21 @@ public class MapWorld : MonoBehaviour
         {
             resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
         }
+
+        CreateParticleSystems();
+    }
+
+    private void CreateParticleSystems()
+    {
+        lightBeam = Instantiate(lightBeam, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
+        lightBeam.Pause();
+    }
+
+    public void CreateLightBeam(Vector3 loc)
+    {
+        loc.y += 2f;
+        lightBeam.transform.position = loc;
+        lightBeam.Play();
     }
 
     public void UnselectAll()
