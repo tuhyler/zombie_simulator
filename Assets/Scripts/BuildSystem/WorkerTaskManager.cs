@@ -595,6 +595,7 @@ public class WorkerTaskManager : MonoBehaviour
         {
             StopCoroutine(taskCoroutine);
             workerUnit.HideProgressTimeBar();
+            world.RemoveWorkerWorkLocation(world.RoundToInt(workerUnit.transform.position));
         }
 
         workerUnit.ResetOrderQueue();
