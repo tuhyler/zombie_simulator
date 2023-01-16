@@ -50,6 +50,11 @@ public class TerrainData : MonoBehaviour
 
     public TerrainDataSO GetTerrainData() => terrainData;
 
+    public void SetNewRenderer(MeshRenderer[] oldRenderer, MeshRenderer[] newRenderer)
+    {
+        highlight.SetNewRenderer(oldRenderer, newRenderer);
+    }
+
     public void EnableHighlight(Color highlightColor)
     {
         //highlight.ToggleGlow(true, highlightColor);

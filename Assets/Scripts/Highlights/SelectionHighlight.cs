@@ -50,6 +50,24 @@ public class SelectionHighlight : MonoBehaviour
         }
     }
 
+    public void SetNewRenderer(MeshRenderer[] oldRenderer, MeshRenderer[] newRenderer)
+    {
+        foreach (MeshRenderer renderer in oldRenderer)
+        {
+            originalMaterialDictionary.Remove(renderer);
+            glowMaterialDictionary.Remove(renderer);
+        }
+
+        foreach (MeshRenderer renderer in newRenderer)
+        {
+            Material[] originalMaterials = renderer.materials;
+            originalMaterialDictionary.Add(renderer, originalMaterials);
+
+            Material[] newMaterials = GetMaterialsFromMesh(originalMaterials, renderer.materials.Length);
+            glowMaterialDictionary.Add(renderer, newMaterials);
+        }
+    }
+
     private Material[] GetMaterialsFromMesh(Material[] originalMaterials, int materialLength)
     {
         Material[] newMaterials = new Material[materialLength];

@@ -90,11 +90,17 @@ public class RoadManager : MonoBehaviour
 
         if (td.GetTerrainData().type == TerrainType.Forest || td.GetTerrainData().type == TerrainType.ForestHill)
         {
-            Destroy(td.prop.GetChild(0).gameObject);
-            GameObject newProp = Instantiate(td.GetTerrainData().roadPrefab, Vector3Int.zero, Quaternion.Euler(0, 0, 0));
-            newProp.transform.SetParent(td.prop, false);
-            //td = newTile.GetComponent<TerrainData>();
-            //td.AddTerrainToWorld(world);
+            GameObject newPropPF = td.GetTerrainData().roadPrefab;
+            if (newPropPF != null)
+            {
+                GameObject newProp = Instantiate(newPropPF, Vector3Int.zero, Quaternion.Euler(0, 0, 0));
+                newProp.transform.SetParent(td.prop, false);
+                MeshRenderer[] oldRenderer = td.prop.GetChild(0).GetComponentsInChildren<MeshRenderer>();
+                MeshRenderer[] newRenderer = newProp.GetComponentsInChildren<MeshRenderer>();
+                td.SetNewRenderer(oldRenderer, newRenderer);
+
+                Destroy(td.prop.GetChild(0).gameObject);
+            }
         }
         
         world.InitializeRoads(roadPosition);

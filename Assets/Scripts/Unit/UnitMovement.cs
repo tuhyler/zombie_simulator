@@ -443,28 +443,15 @@ public class UnitMovement : MonoBehaviour
     {
         Vector3 locationInt = location;
         locationInt.y = 0f;
+        TerrainData terrainSelected = world.GetTerrainDataAt(world.RoundToInt(locationInt));
+        Vector3Int terrainPos = world.RoundToInt(locationInt);
         //if (world.RoundToInt(selectedUnit.transform.position) == world.GetClosestTerrainLoc(locationInt)) //won't move within same tile
         //    return;
-
-        location.y += .1f;
-        starshine.transform.position = location;
-        starshine.Play();
-
-        TerrainData terrainSelected = world.GetTerrainDataAt(world.RoundToInt(locationInt));
 
         if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
             selectedUnit.SendResourceToCity();
         else if (loadScreenSet)
             LoadUnloadFinish(true);
-
-        //if (uiCityResourceInfoPanel.inUse) //close trade panel when clicking to terrain
-        //{
-        //    LoadUnloadFinish();
-        //    return;
-        //}
-
-        Vector3Int terrainPos = world.RoundToInt(locationInt);
-
 
         if (selectedUnit.bySea)
         {
@@ -489,64 +476,18 @@ public class UnitMovement : MonoBehaviour
         if (selectedTrader != null && !selectedTrader.bySea && !world.IsRoadOnTileLocation(terrainPos))
         {
             GiveWarningMessage("Must travel on road");
-
-            //Debug.Log("Trader must travel on road.");
-            //if (!selectedUnit.isMoving)
-            //{
-            //    selectedUnit.HidePath();
-            //    movementSystem.ClearPaths();
-            //}
-            //selectedTile = null;
             return;
         }
 
+        location.y += .1f;
+        starshine.transform.position = location;
+        starshine.Play();
+
         if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders if new ones
         {
-            //selectedUnit.isMoving = false;
-            //selectedUnit.StopMovement();
             selectedUnit.ShiftMovement();
             selectedUnit.FinishedMoving.RemoveAllListeners();
-            //return;
         }
-
-        //    //if (world.IsUnitLocationTaken(terrainPos))
-        //    //{ //cancel movement if unit is already there
-
-        //    //    //below is for switching places with neighboring unit
-        //    //    Vector3Int currentPos = Vector3Int.FloorToInt(selectedUnit.transform.position);
-
-        //    //    if (Math.Abs(currentPos.x - terrainPos.x) <= 1 && Math.Abs(currentPos.z - terrainPos.z) <= 1) //seeing if next to each other
-        //    //    {
-        //    //        Unit unitInTheWay = world.GetUnit(terrainPos);
-        //    //        if (unitInTheWay.GetComponent<Trader>() != null && !world.GetTerrainDataAt(currentPos).hasRoad)
-        //    //        {
-        //    //            Debug.Log("Trader must travel on road.");
-        //    //            return;
-        //    //        }
-
-        //    //        if (!unitInTheWay.isBusy && !selectedUnit.isBusy)
-        //    //        {
-        //    //            MovementPreparations();
-        //    //            world.RemoveUnitPosition(currentPos/*, selectedUnit.gameObject*/); //need to remove both at same time to allow swapping spaces
-        //    //            world.RemoveUnitPosition(terrainPos/*, unitInTheWay.gameObject*/);
-
-        //    //            //moving unit in the way
-        //    //            TerrainData currentTile = world.GetTerrainDataAt(currentPos);
-        //    //            TerrainData terrainTile = world.GetTerrainDataAt(terrainPos);
-        //    //            List<TerrainData> unitInTheWayPath = new() { currentTile };
-        //    //            unitInTheWay.MoveThroughPath(unitInTheWayPath);
-
-        //    //            //moving selected unit
-        //    //            List<TerrainData> selectedPath = new() { terrainTile };
-        //    //            selectedUnit.MoveThroughPath(selectedPath);
-        //    //            return;
-        //    //        }
-        //    //    }
-        //    //    //above is for switching places with neighboring unit
-
-        //    //    Debug.Log("Unit already at selected tile");
-        //    //    return;
-        //    //}
 
         HandleSelectedLocation(locationInt, terrainPos, selectedUnit);
     }
