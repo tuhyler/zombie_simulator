@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class UIWonderHandler : MonoBehaviour
@@ -25,6 +27,11 @@ public class UIWonderHandler : MonoBehaviour
     [SerializeField]
     private UIScrollButton scrollLeft, scrollRight;
 
+    //for blurring background
+    [SerializeField]
+    private Volume globalVolume;
+    private DepthOfField dof;
+
     //for tweening
     [SerializeField]
     private RectTransform allContents;
@@ -36,6 +43,13 @@ public class UIWonderHandler : MonoBehaviour
     private void Awake()
     {
         gameObject.SetActive(false);
+
+        if (globalVolume.profile.TryGet<DepthOfField>(out DepthOfField tmpDof))
+        {
+            dof = tmpDof;
+        }
+
+        dof.focalLength.value = 15;
 
         buildOptions = new List<UIWonderOptions>();
 
@@ -99,18 +113,31 @@ public class UIWonderHandler : MonoBehaviour
             world.UnselectAll();
             gameObject.SetActive(v);
             activeStatus = true;
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
-            LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.5f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                dof.focalLength.value = value;
+            });
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine();
+            //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
             PrepareBuildOptions();
         }
         else
         {
             activeStatus = false;
-            LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 300f, 0.2f).setOnComplete(SetActiveStatusFalse);
+
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                dof.focalLength.value = value;
+            });
+            //LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
     }
 

@@ -349,13 +349,13 @@ public class TerrainGenerator : MonoBehaviour
             }
             else if (mainMap[position] == ProceduralGeneration.swamp)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, false, swampVar0, swampVar1, swampVar2, swampVar3,
-                    swampVar4, swampVar5, out Quaternion rotation, out GameObject swamp);
+                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, false, swampVar0, swampVar1, swampVar2,
+                    swampVar3, swampVar4, swampVar5, out Quaternion rotation, out GameObject swamp);
 
                 swamp.tag = "Forest";
                 GameObject newTile = GenerateTile(swamp, position, rotation);
 
-                AddProp(random, newTile, swampProps, swampSO);
+                //AddProp(random, newTile, swampProps, swampSO);
             }
             else if (mainMap[position] == ProceduralGeneration.river)
             {
@@ -432,17 +432,24 @@ public class TerrainGenerator : MonoBehaviour
             }
             else if (!desert && !river && !grassland) //for swamp
             {
-                if (!mainMap.ContainsKey(neighborPos) || mainMap[neighborPos] == ProceduralGeneration.grassland || 
-                    mainMap[neighborPos] == ProceduralGeneration.forest ||mainMap[neighborPos] == ProceduralGeneration.jungle || 
-                    mainMap[neighborPos] == ProceduralGeneration.jungleHill || mainMap[neighborPos] == ProceduralGeneration.forestHill || 
-                    mainMap[neighborPos] == ProceduralGeneration.desertHill || mainMap[neighborPos] == ProceduralGeneration.desert ||
-                    mainMap[neighborPos] == ProceduralGeneration.grasslandHill || mainMap[neighborPos] == ProceduralGeneration.grasslandMountain ||
-                    mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain || mainMap[neighborPos] == ProceduralGeneration.desertFloodPlain /*||
-                    mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.sea*/)
+                if (!mainMap.ContainsKey(neighborPos) ||
+                    mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.sea ||
+                    mainMap[neighborPos] == ProceduralGeneration.desertMountain)
                 {
                     neighborCount++;
                     neighborTerrainLoc[i] = 1;
                 }
+                //if (!mainMap.ContainsKey(neighborPos) || mainMap[neighborPos] == ProceduralGeneration.grassland || 
+                //    mainMap[neighborPos] == ProceduralGeneration.forest ||mainMap[neighborPos] == ProceduralGeneration.jungle || 
+                //    mainMap[neighborPos] == ProceduralGeneration.jungleHill || mainMap[neighborPos] == ProceduralGeneration.forestHill || 
+                //    mainMap[neighborPos] == ProceduralGeneration.desertHill || mainMap[neighborPos] == ProceduralGeneration.desert ||
+                //    mainMap[neighborPos] == ProceduralGeneration.grasslandHill || mainMap[neighborPos] == ProceduralGeneration.grasslandMountain ||
+                //    mainMap[neighborPos] == ProceduralGeneration.grasslandFloodPlain || mainMap[neighborPos] == ProceduralGeneration.desertFloodPlain /*||
+                //    mainMap[neighborPos] == ProceduralGeneration.river || mainMap[neighborPos] == ProceduralGeneration.sea*/)
+                //{
+                //    neighborCount++;
+                //    neighborTerrainLoc[i] = 1;
+                //}
             }
             else if (river) //for river 
             {
