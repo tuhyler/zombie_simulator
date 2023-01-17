@@ -41,7 +41,11 @@ public class PersonalResourceManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Error moving {resourceType}!");
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = 10f; //z must be more than 0, else just gives camera position
+            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+
+            InfoPopUpHandler.Create(mouseLoc, "Full inventory");
             return 0;
         }
     }

@@ -91,6 +91,10 @@ public class Unit : MonoBehaviour
         focusCam.followTransform = transform;
     }
 
+    public void StopAnimation()
+    {
+        unitAnimator.SetBool(isMovingHash, false);
+    }
 
     //Methods for moving unit
     //Gets the path positions and starts the coroutines
@@ -138,6 +142,8 @@ public class Unit : MonoBehaviour
                 if (isBusy)
                 {
                     SkipRoadBuild();
+                    if (isSelected)
+                        world.GetTerrainDataAt(endPositionInt).DisableHighlight();
                     yield break;
                 }
             }

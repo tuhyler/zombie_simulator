@@ -36,12 +36,16 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
     private bool isUnitPanel, cannotAfford, isShowing;//, produced = true, consumed = true;
 
+    private Vector3 initialPos; //for shaking 
+
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
     //private bool ;
 
     private void Awake()
     {
+        initialPos = transform.position;
+
         buttonHandler = GetComponentInParent<UIBuilderHandler>();
         //if (!buttonHandler.showResourceProduced)
         //{
@@ -216,6 +220,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
         if (cannotAfford && !buttonHandler.isQueueing)
         {
+            StartCoroutine(Shake());
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = 10f; //z must be more than 0, else just gives camera position
             Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
@@ -234,5 +239,21 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             buttonHandler.PrepareBuild(buildData);
             buttonHandler.HandleButtonClick();
         }
+    }
+
+    private IEnumerator Shake()
+    {
+        Vector3 initialPos = transform.position;
+        float elapsedTime = 0f;
+        float duration = 0.2f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            transform.position = initialPos + (Random.insideUnitSphere * .02f);
+            yield return null;
+        }
+
+        transform.position = initialPos;
     }
 }

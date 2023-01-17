@@ -392,6 +392,7 @@ public class WorkerTaskManager : MonoBehaviour
         //workerUnit.StopMovement();
         //workerUnit.isBusy = true;
         //resourceIndividualHandler.SetWorker(workerUnit);
+        world.SetWorkerWorkLocation(world.RoundToInt(workerPos));
         uiCancelTask.ToggleTweenVisibility(true);
         taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual));
 
@@ -452,6 +453,7 @@ public class WorkerTaskManager : MonoBehaviour
             return;
         }
 
+        worker.RemoveFromOrderQueue();
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
         taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
