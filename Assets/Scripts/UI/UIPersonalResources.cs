@@ -24,11 +24,22 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
 
     private UIPersonalResourceInfoPanel buttonHandler;
 
+    [SerializeField]
+    private ParticleSystem buttonHighlight;
+
     private void Awake()
     {
         SetButtonInteractable(false);
         buttonHandler = GetComponentInParent<UIPersonalResourceInfoPanel>();
         scale = allContents.localScale;
+
+        InstantiateHighlight();
+    }
+
+    private void InstantiateHighlight()
+    {
+        buttonHighlight = Instantiate(buttonHighlight, transform.position, Quaternion.identity);
+        buttonHighlight.Pause();
     }
 
     public void CheckVisibility()
@@ -70,12 +81,12 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
                 LeanTween.scale(allContents, Vector3.one, 0.2f).setEase(LeanTweenType.easeOutBack);
             }
         }
-       
+
         resourceAmountText.text = val.ToString();
         resourceAmount = val;
     }
 
-    public void UpdateValue(int val)
+    public void UpdateValue(int val, bool positive)
     {
         //int currentAmount = int.Parse(resourceAmountText.text);
         //currentAmount += val;
@@ -93,6 +104,14 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
             gameObject.SetActive(true);
             allContents.localScale = Vector3.zero;
             LeanTween.scale(allContents, Vector3.one, 0.2f).setEase(LeanTweenType.easeOutBack);
+        }
+        else if (positive)
+        {
+            buttonHighlight.transform.position = transform.position;
+            //buttonHighlight.Stop();
+            //if (buttonHighlight.isPlaying)
+            //    buttonHighlight.Stop();
+            buttonHighlight.Play();
         }
         resourceAmountText.text = val.ToString();
         resourceAmount = val;

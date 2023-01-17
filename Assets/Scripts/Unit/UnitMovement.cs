@@ -436,6 +436,9 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isBusy)
             return;
 
+        if (selectedUnit.isMoving)
+            selectedUnit.StopAnimation();
+
         MoveUnit(location);
     }
 
@@ -769,6 +772,8 @@ public class UnitMovement : MonoBehaviour
             }
         }
 
+        bool personalFull = false;
+
         if (resourceAmount > 0) //moving from city to trader
         {
             int remainingInCity;
@@ -782,12 +787,15 @@ public class UnitMovement : MonoBehaviour
                 resourceAmount = remainingInCity;
 
             int resourceAmountAdjusted = selectedTrader.PersonalResourceManager.CheckResource(resourceType, resourceAmount);
+            personalFull = resourceAmountAdjusted == 0;
 
             if (cityResourceManager != null)
                 cityResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
             else
                 wonder.CheckResource(resourceType, -resourceAmountAdjusted);
         }
+
+        bool cityFull = false;
 
         if (resourceAmount <= 0) //moving from trader to city
         {
@@ -801,21 +809,31 @@ public class UnitMovement : MonoBehaviour
                 resourceAmountAdjusted = cityResourceManager.CheckResource(resourceType, -resourceAmount);
             else
                 resourceAmountAdjusted = wonder.CheckResource(resourceType, -resourceAmount);
+
+            cityFull = resourceAmountAdjusted == 0;
             selectedTrader.PersonalResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
         }
 
-        if (cityResourceManager != null)
+        bool toTrader = resourceAmount > 0;
+
+        if (!cityFull)
         {
-            uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, cityResourceManager.GetResourceDictValue(resourceType));
-            uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.GetResourceStorageLevel);
-        }
-        else
-        {
-            uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, wonder.ResourceDict[resourceType]);
+            if (cityResourceManager != null)
+            {
+                uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, cityResourceManager.GetResourceDictValue(resourceType), !toTrader);
+                uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.GetResourceStorageLevel);
+            }
+            else
+            {
+                uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, wonder.ResourceDict[resourceType], !toTrader);
+            }
         }
 
-        uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.PersonalResourceManager.GetResourceDictValue(resourceType));
-        uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.PersonalResourceManager.GetResourceStorageLevel);
+        if (!personalFull)
+        {
+            uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.PersonalResourceManager.GetResourceDictValue(resourceType), toTrader);
+            uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.PersonalResourceManager.GetResourceStorageLevel);
+        }
     }
 
     public void SetUpTradeRoute()

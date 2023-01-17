@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2541008483618137126}
   - component: {fileID: 6041035029305573530}
   - component: {fileID: 956648292902749719}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ResourceSplash
   m_TagString: Untagged
   m_Icon: {fileID: 0}

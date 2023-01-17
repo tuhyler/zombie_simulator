@@ -45,6 +45,7 @@ public class Resource : MonoBehaviour
     {
         worker.harvested = false;
         worker.isBusy = false;
+        worker.RemoveWorkLocation();
         LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
         yield return new WaitForSeconds(0.5f);
         city.PlayLightBullet();

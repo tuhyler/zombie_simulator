@@ -141,6 +141,7 @@ public class City : MonoBehaviour
     public void InstantiateParticleSystems()
     {
         Vector3 pos = transform.position;
+        pos.y = .2f;
         resourceSplash = Instantiate(resourceSplash, pos, Quaternion.Euler(-90, 0, 0));
         resourceSplash.Pause();
         pos.y = 8f;

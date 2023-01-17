@@ -78,6 +78,14 @@ public class Worker : Unit
         orderQueue.Clear();
     }
 
+    public void RemoveFromOrderQueue()
+    {
+        Vector3Int workerTile = orderQueue.Dequeue();
+        orderList.Remove(workerTile);
+
+        //return workerTile;
+    }
+
     public bool IsOrderListMoreThanZero()
     {
         return orderList.Count > 0;
@@ -180,6 +188,9 @@ public class Worker : Unit
 
     public override void SkipRoadBuild()
     {
+        RemoveFromOrderQueue();
+        FinishedMoving.RemoveListener(BuildRoad);
+
         if (MoreOrdersToFollow())
         {
             BeginBuildingRoad();
@@ -187,6 +198,7 @@ public class Worker : Unit
         else
         {
             isBusy = false;
+            StopMovement();
 
             if (isSelected)
                 workerTaskManager.TurnOffCancelTask();
@@ -195,14 +207,15 @@ public class Worker : Unit
 
     private void BuildRoad()
     {
-        Vector3Int workerTile = orderQueue.Dequeue();
-        orderList.Remove(workerTile);
+        Vector3Int workerTile = orderQueue.Peek();
+        //orderList.Remove(workerTile);
 
         FinishedMoving.RemoveListener(BuildRoad);
         //Vector3 workerPos = transform.position;
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+        if (isSelected)
+            world.GetTerrainDataAt(workerTile).DisableHighlight();
         workerTaskManager.BuildRoad(workerTile, this);
-        world.GetTerrainDataAt(workerTile).DisableHighlight();
     }
 
     public void RemoveRoad()
@@ -271,6 +284,11 @@ public class Worker : Unit
         isBusy = true;
         //resourceIndividualHandler.SetWorker(this);
         workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual);
+    }
+
+    public void RemoveWorkLocation()
+    {
+        world.RemoveWorkerWorkLocation(world.RoundToInt(transform.position));
     }
 
     public void BuildCity()

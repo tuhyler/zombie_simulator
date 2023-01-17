@@ -25,9 +25,9 @@ Color 3 - E7C4AC pos-.7
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Desert2 colors:
-Color 1 - EFCDA8 pos-0
-Color 2 - EBC597 pos-.5
-Color 3 - DEC096 pos-.7
+Color 1 - E4C4A1 pos-0
+Color 2 - E5C093 pos-.5
+Color 3 - D7BA92 pos-.7
 Noise: Scale-2 Detail-1 Roughness-.75 Distortion-0
 
 Snow:
