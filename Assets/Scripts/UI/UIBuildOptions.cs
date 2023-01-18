@@ -250,7 +250,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
-            transform.position = initialPos + (Random.insideUnitSphere * .02f);
+            transform.position = initialPos + (Random.insideUnitSphere * .01f);
             yield return null;
         }
 

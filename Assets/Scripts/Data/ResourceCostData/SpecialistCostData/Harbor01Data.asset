@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Harbor01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 3507881236362810283, guid: 6f2156896dd57c345be6d4355d95907d, type: 3}
+  isBuilding: 0
   improvementName: Harbor
   improvementLevel: 1
   rawMaterials: 0
@@ -35,4 +36,5 @@ MonoBehaviour:
   replaceProp: 1
   singleBuild: 1
   buildTime: 5
-  locked: 1
+  availableInitially: 1
+  locked: 0
