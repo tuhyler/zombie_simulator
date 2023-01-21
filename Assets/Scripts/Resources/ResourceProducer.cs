@@ -20,7 +20,7 @@ public class ResourceProducer : MonoBehaviour
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
     [HideInInspector]
-    public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch;
+    public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch, isUpgrading;
     private float unloadLabor;
     private bool isProducing;
     [HideInInspector]
@@ -97,28 +97,20 @@ public class ResourceProducer : MonoBehaviour
 
     public void ShowConstructionProgressTimeBar(int time, bool active)
     {
-        //Vector3 pos = transform.position;
-        //pos.z += -1f;
-        //timeProgressBar.gameObject.transform.position = pos;
-        //timeProgressBar.SetConstructionTime(time);
-        //timeProgressBar.SetTimeProgressBarValue(time);
         uiTimeProgressBar.SetTimeProgressBarValue(time);
         uiTimeProgressBar.SetToZero();
         if (active)
             uiTimeProgressBar.gameObject.SetActive(true);
-        //timeProgressBar.SetActive(true);
     }
 
     public void HideConstructionProgressTimeBar()
     {
         uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
-        //timeProgressBar.SetActive(false);
         uiTimeProgressBar.gameObject.SetActive(false);
     }
 
     public void SetConstructionTime(int time)
     {
-        //timeProgressBar.SetTime(time);
         uiTimeProgressBar.SetTime(time);
     }
 
@@ -159,7 +151,6 @@ public class ResourceProducer : MonoBehaviour
 
         if (resourceManager.city.activeCity)
             uiTimeProgressBar.gameObject.SetActive(true);
-            //timeProgressBar.SetActive(true);
         producingCo = StartCoroutine(ProducingCoroutine());
         isProducing = true;
     }
