@@ -47,9 +47,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isWaitingToStart: 0
+  isWaitingForStorageRoom: 0
+  isWaitingforResources: 0
   isWaitingToUnload: 0
+  isWaitingForResearch: 0
   producedResources: 
+  consumedResources: []
+  consumedResourceTypes: 
 --- !u!114 &2050705500241568073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,7 +68,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initialCityHouse: 0
   isConstruction: 0
-  singleBuild: 0
+  queued: 0
+  building: 0
+  upgradeSwirl: {fileID: 835882597958153440, guid: 36b6b10b4d7cc6f45bddcecb7be85848,
+    type: 3}
+  upgradeSwirlDown: {fileID: 835882597958153440, guid: 978ff5b2c0df34c4b987363cf1f221cb,
+    type: 3}
+  upgradeFlash: {fileID: 4953528115713912327, guid: 9350269db2930ef4488ef3d6a082ccb5,
+    type: 3}
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0
