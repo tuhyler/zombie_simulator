@@ -51,6 +51,7 @@ MonoBehaviour:
   isWaitingforResources: 0
   isWaitingToUnload: 0
   isWaitingForResearch: 0
+  isUpgrading: 0
   producedResources: 
   consumedResources: []
   consumedResourceTypes: 
@@ -75,6 +76,11 @@ MonoBehaviour:
   upgradeSwirlDown: {fileID: 835882597958153440, guid: 978ff5b2c0df34c4b987363cf1f221cb,
     type: 3}
   upgradeFlash: {fileID: 4953528115713912327, guid: 9350269db2930ef4488ef3d6a082ccb5,
+    type: 3}
+  upgradeSplash: {fileID: 0}
+  smokeEmitter: {fileID: 7349772663803766996, guid: a4cb9fc147b5a4c46a9b78685f6dce49,
+    type: 3}
+  smokeSplash: {fileID: 628277446984423490, guid: 03e9c0ee9c03fe541a1baa03a45e9e9b,
     type: 3}
 --- !u!114 &718474908050057380
 MonoBehaviour:

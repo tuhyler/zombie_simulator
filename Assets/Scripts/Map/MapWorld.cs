@@ -1040,6 +1040,7 @@ public class MapWorld : MonoBehaviour
     {
         CityImprovement improvement = building.GetComponent<CityImprovement>();
         improvement.building = improvementData.isBuilding;
+        improvement.PlaySmokeSplashBuilding();
         improvement.InitializeImprovementData(improvementData);
         string buildingName = improvementData.improvementName;
         improvement.SetCity(city);

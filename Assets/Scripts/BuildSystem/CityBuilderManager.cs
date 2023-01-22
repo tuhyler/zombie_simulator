@@ -793,6 +793,8 @@ public class CityBuilderManager : MonoBehaviour
 
         if (upgradeLoc == city.cityLoc)
         {
+            selectedImprovement.PlayUpgradeSplash();
+            RemoveImprovement(upgradeLoc, selectedImprovement, city, true);
             CreateBuilding(data, city, true, upgradeCost);
         }
         else
@@ -1087,7 +1089,7 @@ public class CityBuilderManager : MonoBehaviour
         if (upgradingImprovement)
         {
             city.ResourceManager.SpendResource(upgradeCost);
-            upgradeCost.Clear();
+            //upgradeCost.Clear();
         }
         else
         {
@@ -1098,6 +1100,11 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+        //if (upgradingImprovement)
+        //{
+        //    CityImprovement buildingImprovement = building.GetComponent<CityImprovement>();
+        //    buildingImprovement.PlayUpgradeSplash();
+        //}
         string buildingName = buildingData.improvementName;
         world.SetCityBuilding(buildingData, city.cityLoc, building, city, false);
         world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
@@ -2519,11 +2526,12 @@ public class CityBuilderManager : MonoBehaviour
     //object pooling the construction graphics
     private void GrowConstructionTilePool()
     {
-        for (int i = 0; i < 5; i++) //grow pool 5 at a time
+        for (int i = 0; i < 2; i++) //grow pool 2 at a time
         {
             GameObject constructionTileGO = Instantiate(constructionTile);
             CityImprovement constructionImprovement = constructionTileGO.GetComponent<CityImprovement>();
             constructionImprovement.isConstruction = true;
+            constructionImprovement.SetSmokeEmitters();
             AddToConstructionTilePool(constructionImprovement);
         }
     }
