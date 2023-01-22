@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Research01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 4912429292590689663, guid: 354720d68c138d24c8b9e30d10f05bf0, type: 3}
+  isBuilding: 0
   improvementName: Research
   improvementLevel: 1
   rawMaterials: 0
@@ -36,6 +37,6 @@ MonoBehaviour:
   replaceTerrain: 0
   replaceProp: 1
   singleBuild: 1
-  buildTime: 1
+  buildTime: 30
   availableInitially: 1
   locked: 0
