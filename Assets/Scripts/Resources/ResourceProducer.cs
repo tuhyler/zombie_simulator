@@ -103,6 +103,12 @@ public class ResourceProducer : MonoBehaviour
             uiTimeProgressBar.gameObject.SetActive(true);
     }
 
+    public void SetUpgradeProgressTimeBar(int time)
+    {
+        uiTimeProgressBar.SetTimeProgressBarValue(time);
+        uiTimeProgressBar.SetToZero();
+    }
+
     public void HideConstructionProgressTimeBar()
     {
         uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
