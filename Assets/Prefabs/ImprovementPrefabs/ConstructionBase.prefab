@@ -71,6 +71,7 @@ MonoBehaviour:
   isConstruction: 0
   queued: 0
   building: 0
+  isUpgrading: 0
   upgradeSwirl: {fileID: 835882597958153440, guid: 36b6b10b4d7cc6f45bddcecb7be85848,
     type: 3}
   upgradeSwirlDown: {fileID: 835882597958153440, guid: 978ff5b2c0df34c4b987363cf1f221cb,
@@ -78,10 +79,15 @@ MonoBehaviour:
   upgradeFlash: {fileID: 4953528115713912327, guid: 9350269db2930ef4488ef3d6a082ccb5,
     type: 3}
   upgradeSplash: {fileID: 0}
+  smokeSlow: {fileID: 6274452008107166603, guid: acf41fc99ac241d469dcc340f173f3e3,
+    type: 3}
   smokeEmitter: {fileID: 7349772663803766996, guid: a4cb9fc147b5a4c46a9b78685f6dce49,
     type: 3}
   smokeSplash: {fileID: 628277446984423490, guid: 03e9c0ee9c03fe541a1baa03a45e9e9b,
     type: 3}
+  removeEruption: {fileID: 392546873931958410, guid: a6c6127933384f24298b33e29cc8648b,
+    type: 3}
+  removeSplash: {fileID: 0}
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0

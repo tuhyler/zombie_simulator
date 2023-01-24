@@ -15,10 +15,12 @@ public class CityImprovement : MonoBehaviour
     private City city; //for buildings, click on them to select city
     private City queueCity; //for improvements, when queued for upgrades
     [HideInInspector]
-    public bool initialCityHouse, isConstruction, queued, building;
+    public bool initialCityHouse, isConstruction, queued, building, isUpgrading;
+    private List<ResourceValue> upgradeCost = new();
+    public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
 
     [SerializeField]
-    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeEmitter, smokeSplash;
+    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash;
 
     private Coroutine constructionCo;
     private int timePassed;
@@ -36,16 +38,20 @@ public class CityImprovement : MonoBehaviour
         if (!building)
         {
             upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
-            upgradeSwirl.Pause();
+            upgradeSwirl.Stop();
             upgradeSwirl.gameObject.SetActive(false);
+
+            removeEruption = Instantiate(removeEruption, loc, Quaternion.Euler(-90, 0, 0));
+            removeEruption.Stop();
 
             loc.y += 0.1f;
             upgradeFlash = Instantiate(upgradeFlash, loc, Quaternion.Euler(0, 0, 0));
-            upgradeFlash.Pause();
+            upgradeFlash.Stop();
+
 
             loc.y += 1.5f;
             upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
-            upgradeSwirlDown.Pause();
+            upgradeSwirlDown.Stop();
             upgradeSwirlDown.gameObject.SetActive(false);
 
         }
@@ -60,7 +66,10 @@ public class CityImprovement : MonoBehaviour
         {
             loc.y += .1f; 
             upgradeSplash = Instantiate(upgradeSplash, loc, Quaternion.Euler(-90, 0, 0));
-            upgradeSplash.Pause();
+            upgradeSplash.Stop();
+
+            removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
+            removeSplash.Stop();
         }
     }
 
@@ -72,11 +81,15 @@ public class CityImprovement : MonoBehaviour
     public void SetSmokeEmitters()
     {
         smokeEmitter = Instantiate(smokeEmitter, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        smokeEmitter.Pause();
+        smokeEmitter.Stop();
         smokeEmitter.gameObject.SetActive(false);
 
         smokeSplash = Instantiate(smokeSplash, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        smokeSplash.Pause();
+        smokeSplash.Stop();
+
+        smokeSlow = Instantiate(smokeSlow, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
+        smokeSlow.Stop();
+        smokeSlow.gameObject.SetActive(false);
     }
 
     public void EnableHighlight(Color highlightColor)
@@ -139,10 +152,35 @@ public class CityImprovement : MonoBehaviour
         upgradeSplash.Play();
     }
 
-    private void PlaySmokeSplash()
+    public void PlayRemoveEffect()
+    {
+        if (building)
+            removeSplash.Play();
+        else
+            removeEruption.Play();
+    }
+
+    private void PlaySmokeEmitter(Vector3 loc)
+    {
+        int time = improvementData.buildTime;
+        var emission = smokeEmitter.emission;
+        emission.rateOverTime = 10f / time;
+        smokeEmitter.transform.position = loc;
+        smokeEmitter.gameObject.SetActive(true);
+        smokeEmitter.Play();
+
+        smokeSlow.transform.position = loc;
+        smokeSlow.gameObject.SetActive(true);
+        smokeSlow.Play();
+    }
+
+    private void PlaySmokeSplash(bool isHill)
     {
         Vector3 loc = transform.position;
-        loc.y += .1f;
+        if (isHill)
+            loc.y += .6f;
+        else
+            loc.y += .1f;
         smokeSplash.transform.position = loc;
         smokeSplash.Play();
     }
@@ -155,7 +193,7 @@ public class CityImprovement : MonoBehaviour
         smokeSplash.Play();
     }
 
-    public void StopParticleSystems()
+    public void StopUpgradeSwirls()
     {
         if (upgradeSwirl.isPlaying)
         {
@@ -170,20 +208,24 @@ public class CityImprovement : MonoBehaviour
     public void StopSmokeEmitter()
     {
         smokeEmitter.Stop();
+        smokeSlow.Stop();
         smokeEmitter.gameObject.SetActive(false);
+        smokeSlow.gameObject.SetActive(false);
     }
 
-    public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
+    public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, bool isHill)
     {
         Vector3 loc = transform.position;
-        loc.y += .1f;
-        smokeEmitter.transform.position = loc;
-        smokeEmitter.gameObject.SetActive(true);
-        smokeEmitter.Play();
-        constructionCo = StartCoroutine(BuildImprovementCoroutine(city, producer, tempBuildLocation, cityBuilderManager));
+
+        if (isHill)
+            loc.y += 0.6f;
+        else
+            loc.y += .1f;
+        PlaySmokeEmitter(loc); 
+        constructionCo = StartCoroutine(BuildImprovementCoroutine(city, producer, tempBuildLocation, cityBuilderManager, isHill));
     }
 
-    private IEnumerator BuildImprovementCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager)
+    private IEnumerator BuildImprovementCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, bool isHill)
     {
         timePassed = improvementData.buildTime;
 
@@ -201,7 +243,7 @@ public class CityImprovement : MonoBehaviour
 
         //if (isConstruction)
         StopSmokeEmitter();
-        PlaySmokeSplash();
+        PlaySmokeSplash(isHill);
         producer.HideConstructionProgressTimeBar();
         cityBuilderManager.RemoveConstruction(tempBuildLocation);
         cityBuilderManager.AddToConstructionTilePool(this);
@@ -217,6 +259,7 @@ public class CityImprovement : MonoBehaviour
     {
         timePassed = data.buildTime;
         PlayUpgradeSwirl(timePassed);
+        isUpgrading = true;
         producer.isUpgrading = true;
         producer.ShowConstructionProgressTimeBar(timePassed, city.activeCity);
         producer.SetConstructionTime(timePassed);
@@ -235,15 +278,28 @@ public class CityImprovement : MonoBehaviour
             producer.SetConstructionTime(timePassed);
         }
 
-        StopParticleSystems();
-        producer.isUpgrading = false;
-        producer.HideConstructionProgressTimeBar();
+        StopUpgradeProcess(producer);
         cityBuilderManager.UpgradeSelectedImprovement(tempBuildLocation, this, city, data);
+    }
+
+    public void StopUpgrade()
+    {
+        StopCoroutine(constructionCo);
+    }
+
+    public void StopUpgradeProcess(ResourceProducer producer)
+    {
+        StopUpgradeSwirls();
+        isUpgrading = false;
+        producer.isUpgrading = false;
+        upgradeCost.Clear();
+        producer.HideConstructionProgressTimeBar();
     }
 
     public void RemoveConstruction(CityBuilderManager cityBuilderManager, Vector3Int tempBuildLocation)
     {
         StopCoroutine(constructionCo);
+        StopSmokeEmitter();
         cityBuilderManager.RemoveConstruction(tempBuildLocation);
         cityBuilderManager.AddToConstructionTilePool(this);
     }

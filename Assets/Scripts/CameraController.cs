@@ -183,7 +183,7 @@ public class CameraController : MonoBehaviour
     private void ZoomCamera()
     {
         //zooming limits (set manually)
-        newZoom.y = Mathf.Clamp(newZoom.y, 5f, 17); //difference between the two need to be the same. 
+        newZoom.y = Mathf.Clamp(newZoom.y, 3f, 15); //difference between the two need to be the same. 
         newZoom.z = Mathf.Clamp(newZoom.z, -13f, -1); //last has to be -1ish
 
         //smoothing zoom

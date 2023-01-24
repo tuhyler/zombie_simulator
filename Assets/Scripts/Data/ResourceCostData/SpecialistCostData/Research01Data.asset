@@ -37,6 +37,6 @@ MonoBehaviour:
   replaceTerrain: 0
   replaceProp: 1
   singleBuild: 1
-  buildTime: 30
+  buildTime: 5
   availableInitially: 1
   locked: 0
