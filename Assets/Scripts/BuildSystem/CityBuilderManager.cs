@@ -435,6 +435,10 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
+        //for tweening
+        unit.transform.localScale = new Vector3(1.5f, 0f, 1.5f);
+        LeanTween.scale(unit, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
 
@@ -444,6 +448,9 @@ public class CityBuilderManager : MonoBehaviour
     public void BuildWonderHarbor(Vector3Int loc)
     {
         GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
+        //for tweening
+        harborGO.transform.localScale = new Vector3(1.5f, 0f, 1.5f);
+        LeanTween.scale(harborGO, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
         selectedWonder.hasHarbor = true;
         selectedWonder.harborLoc = loc;
 
@@ -560,7 +567,11 @@ public class CityBuilderManager : MonoBehaviour
 
         foreach (string building in selectedCity.buildingQueueGhostDict.Keys) //buildings
         {
-            selectedCity.buildingQueueGhostDict[building].SetActive(true);
+            GameObject ghost = selectedCity.buildingQueueGhostDict[building];
+            ghost.SetActive(true);
+            //for tweening
+            ghost.transform.localScale = Vector3.zero;
+            LeanTween.scale(ghost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
             queuedGhost.Add(selectedCity.buildingQueueGhostDict[building]);
         }
     }
@@ -586,6 +597,9 @@ public class CityBuilderManager : MonoBehaviour
             newLoc.y += .1f;
 
         GameObject improvementGhost = Instantiate(improvementData.prefab, newLoc, Quaternion.identity);
+        //for tweening
+        improvementGhost.transform.localScale = Vector3.zero;
+        LeanTween.scale(improvementGhost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
         MeshRenderer[] renderers = improvementGhost.GetComponentsInChildren<MeshRenderer>();
 
         foreach (MeshRenderer render in renderers)
@@ -620,6 +634,9 @@ public class CityBuilderManager : MonoBehaviour
     {
         //setting up arrow ghost
         GameObject arrowGhost = Instantiate(upgradeQueueGhost, tempBuildLocation, Quaternion.Euler(0, 90f, 0));
+        //for tweening
+        arrowGhost.transform.localScale = Vector3.zero;
+        LeanTween.scale(arrowGhost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
         if (isBuilding)
         {
             arrowGhost.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
@@ -1118,6 +1135,9 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
+        //for tweening
+        unit.transform.localScale = new Vector3(0.6f, 0f, 0.6f);
+        LeanTween.scale(unit, new Vector3(0.6f, 0.6f, 0.6f), 0.5f).setEase(LeanTweenType.easeOutBack);
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
 
@@ -1163,6 +1183,10 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+        //for tweening
+        building.transform.localScale = Vector3.zero;
+        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+
         //if (upgradingImprovement)
         //{
         //    CityImprovement buildingImprovement = building.GetComponent<CityImprovement>();
@@ -1478,7 +1502,7 @@ public class CityBuilderManager : MonoBehaviour
             world.SetCityImprovementConstruction(tempBuildLocation, constructionTile);
             constructionTile.transform.position = tempBuildLocation;
             TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
-            bool isHill = td.terrainData.type == TerrainType.Hill;
+            bool isHill = td.terrainData.isHill;
             constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this, isHill);
 
             if (city.activeCity)
@@ -1516,7 +1540,12 @@ public class CityBuilderManager : MonoBehaviour
     public void FinishImprovement(City city, ImprovementDataSO improvementData, Vector3Int tempBuildLocation)
     {
         //activating structure
-        world.GetStructure(tempBuildLocation).SetActive(true);
+        GameObject improvement = world.GetStructure(tempBuildLocation);
+        improvement.SetActive(true);
+        //for tweening
+        improvement.transform.localScale = Vector3.zero;
+        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+
 
         if (improvementData.replaceProp)
         {

@@ -869,7 +869,11 @@ public class MapWorld : MonoBehaviour
     {
         if (queueGhostsDict.ContainsKey(loc))
         {
-            queueGhostsDict[loc].SetActive(true);
+            GameObject ghost = queueGhostsDict[loc];
+            ghost.SetActive(true);
+            //for tweening
+            ghost.transform.localScale = Vector3.zero;
+            LeanTween.scale(ghost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
             return true;
         }
 

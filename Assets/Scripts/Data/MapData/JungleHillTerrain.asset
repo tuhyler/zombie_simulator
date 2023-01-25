@@ -17,6 +17,7 @@ MonoBehaviour:
   clearedForestData: {fileID: 11400000, guid: 1fddc1ef6099212409811e55da512a76, type: 2}
   walkable: 1
   sailable: 0
+  isHill: 1
   movementCost: 30
   type: 8
   resourceType: 4

@@ -15,6 +15,8 @@ public class Unit : MonoBehaviour
     private UnitBuildDataSO buildDataSO;
     public UnitBuildDataSO GetBuildDataSO() => buildDataSO;
 
+    [SerializeField]
+    private ParticleSystem lightBeam;
 
     [HideInInspector]
     public MapWorld world;
@@ -83,6 +85,10 @@ public class Unit : MonoBehaviour
         turnHandler.turnHandler.AddToTurnList(this);
         roadSpeed = world.GetRoadCost();
 
+        Vector3 loc = transform.position;
+        loc.y += 0.1f;
+        lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(-90,0,0));
+        lightBeam.Play();
         //Physics.IgnoreLayerCollision(8, 10);
     }
 

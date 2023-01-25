@@ -199,6 +199,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitDataSO: {fileID: 11400000, guid: 18c8b91359d031b4993718da17e9fc1f, type: 2}
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
+  lightBeam: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
+    type: 3}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
@@ -216,5 +218,5 @@ MonoBehaviour:
   isWaiting: 0
   harvested: 0
   removing: 0
-  lightBeam: {fileID: 6841559248971666239, guid: 9b46cb8e8220ddd428f5785751c57fad,
+  removeSplash: {fileID: 6041035029305573530, guid: 227158f9fa8122c4492aaec08d475a56,
     type: 3}

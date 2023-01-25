@@ -20,6 +20,9 @@ public class Worker : Unit
     [HideInInspector]
     public bool removing;
 
+    //[SerializeField]
+    //private ParticleSystem removeSplash;
+
     private void Awake()
     {
         AwakeMethods();
@@ -33,7 +36,15 @@ public class Worker : Unit
     protected override void AwakeMethods()
     {
         base.AwakeMethods();
+        //removeSplash = Instantiate(removeSplash, new Vector3(0, 0, 0), Quaternion.Euler(-90,0,0));
+        //removeSplash.Stop();
     }
+
+    //public void PlaySplash(Vector3 loc)
+    //{
+    //    removeSplash.transform.position = loc;
+    //    removeSplash.Play();
+    //}
 
     public override void SendResourceToCity()
     {
@@ -227,7 +238,9 @@ public class Worker : Unit
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(RemoveRoad);
 
-        world.GetTerrainDataAt(workerTile).DisableHighlight();
+        TerrainData td = world.GetTerrainDataAt(workerTile);
+        td.DisableHighlight();
+        //bool isHill = td.terrainData.isHill;
         foreach (GameObject go in world.GetAllRoadsOnTile(workerTile))
         {
             if (go == null)

@@ -290,6 +290,9 @@ public class City : MonoBehaviour
         Vector3 houseLoc = cityLoc;
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
+        //for tweening
+        housing.transform.localScale = Vector3.zero;
+        LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
         world.SetCityBuilding(housingData, cityLoc, housing, this, true);
     }
 

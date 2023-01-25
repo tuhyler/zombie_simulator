@@ -46,6 +46,9 @@ public class RoadManager : MonoBehaviour
         Vector3 pos = roadPosition;
         pos.y = -.04f;
         GameObject structure = Instantiate(model, pos, rotation);
+        //for tweening
+        structure.transform.localScale = Vector3.zero;
+        LeanTween.scale(structure, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
         //if (city) //hiding solo roads for new cities
         //    structure.SetActive(false);
         world.SetRoads(roadPosition, structure, straight);
@@ -296,6 +299,7 @@ public class RoadManager : MonoBehaviour
             worker.SetTime(timePassed);
         }
 
+        //worker.PlaySplash(tile, isHill);
         worker.HideProgressTimeBar();
         //worker.isBusy = false;
         //workerTaskManager.TurnOffCancelTask();
@@ -323,7 +327,12 @@ public class RoadManager : MonoBehaviour
 
         foreach (GameObject road in world.GetAllRoadsOnTile(tile))
         {
-            Destroy(road);
+            //for tweening
+            if (road == null)
+                continue;
+            LeanTween.scale(road, Vector3.zero, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { Destroy(road); } );
+
+            //Destroy(road);
         }
         world.RemoveRoad(tile);
         world.RemoveRoadLocation(tile);

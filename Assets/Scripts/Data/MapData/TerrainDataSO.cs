@@ -10,6 +10,7 @@ public class TerrainDataSO : ScriptableObject
     public TerrainDataSO clearedForestData; //for clearing a forest
     public bool walkable = false;
     public bool sailable = false;
+    public bool isHill = false;
     public int movementCost = 10;
     public TerrainType type = TerrainType.Flatland;
     public ResourceType resourceType;

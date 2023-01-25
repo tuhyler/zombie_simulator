@@ -243,7 +243,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
-      value: Infantry1Data_1
+      value: infantry_1
       objectReference: {fileID: 0}
     - target: {fileID: 4600499379608453412, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -361,6 +361,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitDataSO: {fileID: 11400000, guid: fbad48fd49778cf4c8e43b7cb41f9522, type: 2}
   buildDataSO: {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
+  lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
+    type: 3}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
