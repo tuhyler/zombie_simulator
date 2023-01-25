@@ -138,7 +138,7 @@ public class CityImprovement : MonoBehaviour
         upgradeSwirl.gameObject.SetActive(true);
         var main = upgradeSwirl.main;
         //start delay is a function of whatever the simulation speed is
-        main.startDelay = time * 0.5f * 0.4f;
+        main.startDelay = time * 0.5f * 0.2f;
         upgradeSwirl.Play();
 
         upgradeSwirlDown.gameObject.SetActive(true);

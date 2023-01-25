@@ -123,14 +123,14 @@ public class CameraController : MonoBehaviour
         }
 
         //for rotation
-        //if (Input.GetKey(KeyCode.Q))
-        //{
-        //    newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
-        //}
-        //if (Input.GetKey(KeyCode.E))
-        //{
-        //    newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
-        //}
+        if (Input.GetKey(KeyCode.Q))
+            {
+                newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
+            }
+        if (Input.GetKey(KeyCode.E))
+        {
+            newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
+        }
 
         MoveCamera();
     }
