@@ -40,12 +40,12 @@ public class DayNightCycle : MonoBehaviour
             if (Mathf.RoundToInt(timeODay) == 18)
             {
                 day = false;
-                SetFloatieCount(1.2f, new Color(1f, 1f, 0.666f));
+                SetFloatieCount(2.5f, new Color(1f, 1f, 0.666f));
             }
             else if (Mathf.RoundToInt(timeODay) == 6)
             {
                 day = true;
-                SetFloatieCount(0.2f, Color.white);
+                SetFloatieCount(0.5f, Color.white);
             }
         }
         else
@@ -62,7 +62,7 @@ public class DayNightCycle : MonoBehaviour
 
         directionalLight.color = directionalColor.Evaluate(timePercent);
         if (timeODay < 18.1)
-            directionalLight.transform.localRotation = Quaternion.Euler(timePercent * 360 - 90f, 105, 0); 
+            directionalLight.transform.localRotation = Quaternion.Euler(timePercent * 360 - 90f, 75, 0); 
     }
 
     private void SetFloatieCount(float count, Color floatieColor)

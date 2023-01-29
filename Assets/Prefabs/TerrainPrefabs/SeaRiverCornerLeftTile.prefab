@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 5287164924357551451}
   - component: {fileID: 151414204977523408}
   - component: {fileID: 5191855138478399228}
-  - component: {fileID: 6449928624672776919}
+  - component: {fileID: 3732280710434569562}
   m_Layer: 6
   m_Name: SeaRiverCornerLeftTile
   m_TagString: Water
@@ -97,8 +97,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
---- !u!65 &6449928624672776919
-BoxCollider:
+--- !u!64 &3732280710434569562
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -107,9 +107,10 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 2, y: 0, z: 2}
-  m_Center: {x: 0, y: -0.3, z: 0}
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -462981019419857548, guid: 1419b8e41eb669840af2e82f6013b00b, type: 3}
 --- !u!1 &7947533954490412569
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,7 +134,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7947533954490412569}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -141,7 +142,7 @@ Transform:
   - {fileID: 921287508413779142}
   m_Father: {fileID: 5287164924357551451}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &811680816420580141
 PrefabInstance:
   m_ObjectHideFlags: 0
