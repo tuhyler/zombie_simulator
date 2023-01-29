@@ -62,10 +62,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2237327767086630809, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -462981019419857548, guid: a58343e5cad840f4db526780f43a7935,
+        type: 3}
+    - target: {fileID: 8566338253770776186, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9203405519390938773, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_Name
-      value: GrasslandRiverStraightTileVar02
+      value: RiverStraightVar02
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f72558895b6c8e746b5598f21c9dcdaf, type: 3}
