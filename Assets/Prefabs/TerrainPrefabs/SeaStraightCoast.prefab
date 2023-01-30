@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 151414204977523408}
   - component: {fileID: 5191855138478399228}
   - component: {fileID: 2755406763223592589}
+  - component: {fileID: -2164246665107799811}
   m_Layer: 6
   m_Name: SeaStraightCoast
   m_TagString: Water
@@ -112,6 +113,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -462981019419857548, guid: b3d6969822c9f6648b30e8eccab9a2a7, type: 3}
+--- !u!65 &-2164246665107799811
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2466234295217164166}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2, y: 0, z: 2}
+  m_Center: {x: 0, y: -0.3, z: 0}
 --- !u!1 &7947533954490412569
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,6 +17,7 @@ MonoBehaviour:
   walkable: 1
   sailable: 0
   isHill: 1
+  isLand: 1
   movementCost: 20
   type: 6
   resourceType: 5

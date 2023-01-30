@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 151414204977523408}
   - component: {fileID: 5191855138478399228}
   - component: {fileID: 7892687033930291047}
+  - component: {fileID: 6814602809047806786}
   m_Layer: 6
   m_Name: SeaKittyCorner
   m_TagString: Water
@@ -111,6 +112,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -462981019419857548, guid: f89b0192c9a947d438a66c1f4745ab3e, type: 3}
+--- !u!65 &6814602809047806786
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2466234295217164166}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2, y: 0, z: 2}
+  m_Center: {x: 0, y: -0.3, z: 0}
 --- !u!1 &7947533954490412569
 GameObject:
   m_ObjectHideFlags: 0

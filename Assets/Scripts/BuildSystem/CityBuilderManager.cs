@@ -1544,7 +1544,7 @@ public class CityBuilderManager : MonoBehaviour
         improvement.SetActive(true);
         //for tweening
         improvement.transform.localScale = Vector3.zero;
-        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack);
 
 
         if (improvementData.replaceProp)
