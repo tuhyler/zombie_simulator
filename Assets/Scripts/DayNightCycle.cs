@@ -31,7 +31,7 @@ public class DayNightCycle : MonoBehaviour
             if (day)
                 timeODay += Time.deltaTime * speed;
             else
-                timeODay += Time.deltaTime * speed * 2;
+                timeODay += Time.deltaTime * speed * 3; //night is 3 times as fast as day
             timeODay %= 24; //Clamp between 0-24
             UpdateLighting(timeODay * 0.041667f); //divide by 24
             //else
@@ -61,8 +61,10 @@ public class DayNightCycle : MonoBehaviour
         RenderSettings.fogDensity = fogDensity.Evaluate(timePercent);
 
         directionalLight.color = directionalColor.Evaluate(timePercent);
-        if (timeODay < 18.1)
-            directionalLight.transform.localRotation = Quaternion.Euler(timePercent * 360 - 90f, 75, 0); 
+        //if (timeODay < 18.1)
+        directionalLight.transform.localRotation = Quaternion.Euler(timePercent * 360 - 90f, 75, 0);
+        //else
+        //    directionalLight.transform.localRotation = Quaternion.Euler(-90f, 75, 0);
     }
 
     private void SetFloatieCount(float count, Color floatieColor)

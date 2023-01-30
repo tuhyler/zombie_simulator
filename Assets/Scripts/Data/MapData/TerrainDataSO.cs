@@ -11,6 +11,7 @@ public class TerrainDataSO : ScriptableObject
     public bool walkable = false;
     public bool sailable = false;
     public bool isHill = false;
+    public bool isLand = false;
     public int movementCost = 10;
     public TerrainType type = TerrainType.Flatland;
     public ResourceType resourceType;

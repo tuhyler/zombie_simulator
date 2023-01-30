@@ -27,11 +27,14 @@ public class TerrainData : MonoBehaviour
 
     [HideInInspector]
     public bool hasRoad;
-    
+
+    private bool isLand = true;
     private bool isCoast = false;
+    public bool IsCoast { get { return isCoast; } }
 
     private void Awake()
     {
+        isLand = terrainData.isLand;
         terrainData.MovementCostCheck();
         ResetMovementCost();
         highlight = GetComponent<SelectionHighlight>();
@@ -42,9 +45,39 @@ public class TerrainData : MonoBehaviour
         }
     }
 
+    public void SetCoastCoordinates(MapWorld world)
+    {
+        List<Vector3Int> allTileLocs = world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAY);
+
+        foreach (Vector3Int tile in allTileLocs)
+        {
+            if (tile == tileCoordinates)
+                continue;
+
+            foreach (Vector3Int neighbor in world.GetNeighborsFor(tile, MapWorld.State.FOURWAY))
+            {
+                if (allTileLocs.Contains(neighbor) || tile == tileCoordinates)
+                    continue;
+
+                TerrainData tileCheck = world.GetTerrainDataAt(world.GetClosestTerrainLoc(neighbor));
+
+                if (tileCheck.isLand)
+                {
+                    world.AddToCoastList(tile);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void SetTileCoordinates(MapWorld world)
+    {
+        tileCoordinates = world.RoundToInt(transform.position);
+    }
+
     public Vector3Int GetTileCoordinates()
     {
-        tileCoordinates = Vector3Int.RoundToInt(transform.position);
+        //tileCoordinates = Vector3Int.RoundToInt(transform.position);
         return tileCoordinates;
     }
 

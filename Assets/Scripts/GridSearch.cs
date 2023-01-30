@@ -145,10 +145,10 @@ public class GridSearch
             }
 
             //below is for units not cutting corners
-            bool currentIsRiverOrCoast = false;
+            //bool currentIsRiverOrCoast = false;
 
-            if (current.x % 3 != 0 && current.z % 3 != 0)
-                currentIsRiverOrCoast = world.CheckIfSeaPositionIsRiverOrCoast(current);
+            //if (current.x % 3 != 0 && current.z % 3 != 0)
+            //    currentIsRiverOrCoast = world.GetTerrainDataAt(current).IsCoast;
             //above is for units not cutting corners
 
             foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
@@ -157,22 +157,28 @@ public class GridSearch
                 int sqrMagnitude = tile.sqrMagnitude;
 
                 //below is for units not cutting corners
-                bool neighborIsRiverOrCoast = false;
-                
-                if (sqrMagnitude == 2)
-                    neighborIsRiverOrCoast = world.CheckIfSeaPositionIsRiverOrCoast(current);
-                
-                if (currentIsRiverOrCoast && neighborIsRiverOrCoast)
-                    continue;
+                //bool neighborIsRiverOrCoast = false;
+
+                //if (sqrMagnitude == 2)
+                //    neighborIsRiverOrCoast = world.GetTerrainDataAt(current).IsCoast; 
+
+                //if (currentIsRiverOrCoast && neighborIsRiverOrCoast)
+                //    continue;
 
                 if (!world.CheckIfSeaPositionIsValid(neighbor))
                     continue;
                 //above is for units not cutting corners
 
+                if (world.CheckIfCoastCoast(neighbor) && neighbor != endPosition)
+                    continue;
+
                 int tempCost = world.GetMovementCost(neighbor);
 
                 if (sqrMagnitude == 2)
                     tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+
+                //if (world.CheckIfCoastCoast(neighbor))
+                //    tempCost *= 2;
 
                 int newCost = costDictionary[current] + tempCost;
                 if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])

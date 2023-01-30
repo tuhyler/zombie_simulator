@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
@@ -102,6 +103,8 @@ public class MapWorld : MonoBehaviour
 
     //for terrain speeds
     public TerrainDataSO flatland, forest, hill, forestHill;
+    //for boats to avoid traveling the coast
+    private List<Vector3Int> coastCoastList = new();
     
     //for expanding gameobject size
     private static int increment = 3;
@@ -131,18 +134,24 @@ public class MapWorld : MonoBehaviour
     {
         wonderButton.ToggleTweenVisibility(true);
         uiWorldResources.SetActiveStatus(true);
+        List<TerrainData> coastalTerrain = new();
 
         foreach (TerrainData td in FindObjectsOfType<TerrainData>())
         {
+            if (td.IsCoast && !coastalTerrain.Contains(td))
+                coastalTerrain.Add(td);
+            td.SetTileCoordinates(this);
             Vector3Int tileCoordinate = td.GetTileCoordinates();
             world[tileCoordinate] = td; 
 
             foreach (Vector3Int tile in neighborsEightDirections)
             {
                 world[tileCoordinate + tile] = td;
-            }
-
+            }                
         }
+
+        foreach (TerrainData td in coastalTerrain)
+            td.SetCoastCoordinates(this);
 
         foreach (Unit unit in FindObjectsOfType<Unit>()) //adds all units and their locations to start game.
         {
@@ -1211,20 +1220,30 @@ public class MapWorld : MonoBehaviour
 
 
     //for movement
-    public bool CheckIfPositionIsValid(Vector3Int tileWorldPosition)
+    public bool CheckIfPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tileWorldPosition) && world[tileWorldPosition].GetTerrainData().walkable;
+        return world.ContainsKey(tile) && world[tile].GetTerrainData().walkable;
     }
 
-    public bool CheckIfSeaPositionIsValid(Vector3Int tileWorldPosition)
+    public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tileWorldPosition) && world[tileWorldPosition].GetTerrainData().sailable;
+        return world.ContainsKey(tile) && world[tile].GetTerrainData().sailable;
     }
 
-    public bool CheckIfSeaPositionIsRiverOrCoast(Vector3Int tileWorldPosition)
+    public bool CheckIfCoastCoast(Vector3Int tile)
     {
-        return world[tileWorldPosition].GetTerrainData().type == TerrainType.River || world[tileWorldPosition].GetTerrainData().type == TerrainType.Coast;
+        return coastCoastList.Contains(tile);
     }
+
+    public void AddToCoastList(Vector3Int tile)
+    {
+        coastCoastList.Add(tile);
+    }
+    //public bool CheckIfIsCoast(Vector3Int tileWorldPosition)
+    //{
+    //    return GetTerrainDataAt(tileWorldPosition).IsCoast;
+    //    //return world[tileWorldPosition].GetTerrainData().type == TerrainType.River || world[tileWorldPosition].GetTerrainData().type == TerrainType.Coast;
+    //}
 
     //public Vector3Int GetClosestTile(Vector3 worldPosition)
     //{
