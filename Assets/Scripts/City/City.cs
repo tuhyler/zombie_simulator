@@ -599,7 +599,8 @@ public class City : MonoBehaviour
     private void SetProgressTimeBar()
     {
         Vector3 cityPos = cityLoc;
-        cityPos.z -= 1.5f; //bottom center of tile
+        //cityPos.z -= 1.5f; //bottom center of tile
+        cityPos.y += 1.5f; //above tile
         GameObject gameObject = Instantiate(GameAssets.Instance.cityGrowthProgressPrefab2, cityPos, Quaternion.Euler(90, 0, 0));
         uiTimeProgressBar = gameObject.GetComponent<UITimeProgressBar>();
         uiTimeProgressBar.SetAdditionalText = "Growth: ";

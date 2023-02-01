@@ -31,10 +31,13 @@ public class TerrainData : MonoBehaviour
     private bool isLand = true;
     private bool isCoast = false;
     public bool IsCoast { get { return isCoast; } }
+    private bool isSeaCorner = false;
+    public bool IsSeaCorner { get { return isSeaCorner; } }
 
     private void Awake()
     {
         isLand = terrainData.isLand;
+        isSeaCorner = terrainData.isSeaCorner;
         terrainData.MovementCostCheck();
         ResetMovementCost();
         highlight = GetComponent<SelectionHighlight>();
@@ -54,7 +57,7 @@ public class TerrainData : MonoBehaviour
             if (tile == tileCoordinates)
                 continue;
 
-            foreach (Vector3Int neighbor in world.GetNeighborsFor(tile, MapWorld.State.FOURWAY))
+            foreach (Vector3Int neighbor in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAY))
             {
                 if (allTileLocs.Contains(neighbor) || tile == tileCoordinates)
                     continue;

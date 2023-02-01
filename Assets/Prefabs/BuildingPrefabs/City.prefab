@@ -98,6 +98,7 @@ MonoBehaviour:
   isWaitingforResources: 0
   isWaitingToUnload: 0
   isWaitingForResearch: 0
+  isUpgrading: 0
   producedResources: 
   consumedResources: []
   consumedResourceTypes: 

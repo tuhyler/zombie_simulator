@@ -15,5 +15,5 @@ MonoBehaviour:
   movementPoints: 20
   health: 10
   attackStrength: 10
-  movementSpeed: 3
+  movementSpeed: 1
   transportationType: 0

@@ -38,6 +38,7 @@ public class Unit : MonoBehaviour
     private Coroutine movingCo;
     private MovementSystem movementSystem;
     private Queue<GameObject> pathQueue = new();
+    private int queueCount = 0;
     private Vector3 shoePrintScale;
 
     //selection indicators
@@ -162,7 +163,7 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !bySea && !world.IsRoadOnTileLocation(Vector3Int.RoundToInt(endPosition))))
+        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition))))
         {
             FinishMoving(endPosition);
             yield break;
@@ -357,9 +358,18 @@ public class Unit : MonoBehaviour
 
     public void AddToMovementQueue(List<Vector3Int> queuedOrders)
     {
+        queueCount++; 
         queuedOrders.ForEach(pos => pathPositions.Enqueue(pos));
-        List<Vector3Int> entirePath = new(pathPositions.ToList());
-        ShowPath(entirePath, true);
+
+        if (queueCount == 1)
+        {
+            List<Vector3Int> entirePath = new(pathPositions.ToList());
+            ShowPath(entirePath, true);
+        }
+        else
+        {
+            ShowPath(queuedOrders, true);
+        }
     }
 
     private void GetInLine(Vector3 endPosition)
@@ -387,6 +397,7 @@ public class Unit : MonoBehaviour
     {
         //unitRigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; 
 
+        queueCount = 0;
         moreToMove = false;
         isMoving = false;
         currentLocation = Vector3Int.RoundToInt(transform.position);
@@ -466,34 +477,37 @@ public class Unit : MonoBehaviour
         if (collision.gameObject.CompareTag("Road"))
         {
             moveSpeed = (roadSpeed / 10f) * originalMoveSpeed * 3f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 16f);
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 24f);
             //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         }
         else if (collision.gameObject.CompareTag("Flatland"))
         {
             moveSpeed = (flatlandSpeed / 10f) * originalMoveSpeed;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 8f);
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 12f);
         }
         else if (collision.gameObject.CompareTag("Forest"))
         {
             moveSpeed = (forestSpeed / 10f) * originalMoveSpeed * 0.25f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 4f);
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 9f);
         }
         else if (collision.gameObject.CompareTag("Hill"))
         {
             moveSpeed = (hillSpeed / 10f) * originalMoveSpeed * 0.25f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 4f);
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 9f);
             threshold = 0.05f;
         }
         else if (collision.gameObject.CompareTag("Forest Hill"))
         {
             moveSpeed = (forestHillSpeed / 10f) * originalMoveSpeed * 0.125f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 2f);
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 5f);
         }
         else if (collision.gameObject.CompareTag("Water"))
         {
             moveSpeed = (flatlandSpeed / 10f) * originalMoveSpeed;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 8f);
+            if (bySea)
+                unitAnimator.SetFloat("speed", originalMoveSpeed * 12f);
+            else
+                unitAnimator.SetFloat("speed", originalMoveSpeed * 3f);
         }
         //else if (collision.gameObject.CompareTag("Player"))
         //{
@@ -591,14 +605,14 @@ public class Unit : MonoBehaviour
         {
             //position to place shoePrint
             Vector3 turnCountPosition = currentPath[i];
-            turnCountPosition.y += 0.01f; //added .01 to make it not blend with terrain
+            turnCountPosition.y += 0.01f; 
 
             Vector3 prevPosition;
 
             if (i == 0)
             {
-                if (queued)
-                    prevPosition = Vector3Int.RoundToInt(finalDestinationLoc);
+                if (queued && queueCount > 1)
+                    prevPosition = world.RoundToInt(finalDestinationLoc);
                 else
                     prevPosition = transform.position;
             }

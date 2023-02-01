@@ -25,6 +25,11 @@ public class UITimeProgressBar : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    void LateUpdate()
+    {
+        transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+    }
+
     public void SetTime(int time)
     {
         timeText.text = additionalText + string.Format("{0:00}:{1:00}", time / 60, time % 60);
