@@ -364,8 +364,11 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
     {
-        if (queueMovementOrders && unit.FinalDestinationLoc != location && unit.isMoving)
+        if (queueMovementOrders /*&& unit.FinalDestinationLoc != location*/ && unit.isMoving)
         {
+            if (unit.FinalDestinationLoc == location)
+                return;
+            
             movementSystem.AppendNewPath(selectedUnit);
             //movementSystem.GetPathToMove(world, selectedUnit, terrainPos, isTrader); //Call AStar movement
             //movementSystem.ClearPaths();
@@ -436,7 +439,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isBusy)
             return;
 
-        if (selectedUnit.isMoving)
+        if (selectedUnit.isMoving && !queueMovementOrders)
             selectedUnit.StopAnimation();
 
         MoveUnit(location);

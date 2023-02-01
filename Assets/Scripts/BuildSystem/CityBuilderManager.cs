@@ -2605,7 +2605,7 @@ public class CityBuilderManager : MonoBehaviour
         InfoPopUpHandler.Create(mouseLoc, message);
     }
 
-
+    #region object pooling
     //Object pooling methods
     private void GrowLaborNumbersPool()
     {
@@ -2740,4 +2740,5 @@ public class CityBuilderManager : MonoBehaviour
         resourceInfoPanel.gameObject.SetActive(true);
         return resourceInfoPanel;
     }
+    #endregion
 }

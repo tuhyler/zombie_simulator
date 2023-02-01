@@ -341,7 +341,8 @@ public class Worker : Unit
     public void ShowProgressTimeBar(int time)
     {
         Vector3 pos = transform.position;
-        pos.z += -1f;
+        //pos.z += -1f;
+        pos.y += -0.4f;
         uiTimeProgressBar.gameObject.transform.position = pos;
         //timeProgressBar.SetConstructionTime(time);
         //timeProgressBar.SetProgressBarBeginningPosition();
