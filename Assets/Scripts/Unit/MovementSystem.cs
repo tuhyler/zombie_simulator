@@ -38,6 +38,7 @@ public class MovementSystem : MonoBehaviour
         }
         else
         {
+            selectedUnit.QueueCount = 0;
             currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader, selectedUnit.bySea);
         }
     }

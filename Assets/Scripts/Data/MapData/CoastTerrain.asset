@@ -18,7 +18,7 @@ MonoBehaviour:
   sailable: 1
   isHill: 0
   isLand: 0
-  isSeaCorner: 0
-  movementCost: 10
+  isSeaCorner: 1
+  movementCost: 30
   type: 1
   resourceType: 1

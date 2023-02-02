@@ -28,7 +28,7 @@ public class Unit : MonoBehaviour
     private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.005f;
     private Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
-    public bool moreToMove, isBusy, isMoving; //check if they're doing something
+    public bool moreToMove, isBusy, isMoving, isBeached; //check if they're doing something
     private Vector3 destinationLoc;
     private Vector3 finalDestinationLoc;
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
@@ -39,6 +39,7 @@ public class Unit : MonoBehaviour
     private MovementSystem movementSystem;
     private Queue<GameObject> pathQueue = new();
     private int queueCount = 0;
+    public int QueueCount { set { queueCount = value; } }
     private Vector3 shoePrintScale;
 
     //selection indicators
@@ -130,7 +131,38 @@ public class Unit : MonoBehaviour
         //Vector3 endPosition = endPositionTile.transform.position;
         //Debug.Log("next stop is " + endPosition);
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
-        
+        TerrainData td = world.GetTerrainDataAt(endPositionInt);
+        float y = 0;
+
+        if (bySea)
+        {
+            y = transform.position.y;
+
+            if (isBeached)
+            {
+                y = -.3f;
+                isBeached = false;
+            }
+            else if (td.IsSeaCorner && world.CheckIfCoastCoast(endPositionInt))
+            {
+                y = -.25f;
+                isBeached = true;
+            }
+        }
+        else if (td.terrainData.isHill)
+        {
+            if (endPositionInt.x % 3 == 0)
+                y = .4f;
+            else
+                y = .2f;
+        }
+        else if (td.IsSeaCorner)
+        {
+            //if (world.CheckIfCoastCoast(endPositionInt))
+            y = transform.position.y;
+
+        }
+
         if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
         {
             GetInLine(endPosition);
@@ -150,7 +182,8 @@ public class Unit : MonoBehaviour
                 {
                     SkipRoadBuild();
                     if (isSelected)
-                        world.GetTerrainDataAt(endPositionInt).DisableHighlight();
+                        td.DisableHighlight();
+                        //world.GetTerrainDataAt(endPositionInt).DisableHighlight();
                     yield break;
                 }
             }
@@ -175,8 +208,10 @@ public class Unit : MonoBehaviour
         //endPosition.y = 0f; //fixed y position
 
         Quaternion startRotation = transform.rotation;
-        endPosition.y = transform.position.y;
+        //endPosition.y = transform.position.y;
+        endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
+        Debug.Log("current position is " + transform.position);
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
 
         //if (Mathf.Approximately(Mathf.Abs(Quaternion.Dot(startRotation, endRotation)), 1.0f) == false)
@@ -476,38 +511,43 @@ public class Unit : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Road"))
         {
-            moveSpeed = (roadSpeed / 10f) * originalMoveSpeed * 3f;
+            moveSpeed = roadSpeed * .1f * originalMoveSpeed * 1.5f;
             unitAnimator.SetFloat("speed", originalMoveSpeed * 24f);
             //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         }
         else if (collision.gameObject.CompareTag("Flatland"))
         {
-            moveSpeed = (flatlandSpeed / 10f) * originalMoveSpeed;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 12f);
+            moveSpeed = flatlandSpeed * .1f * originalMoveSpeed;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
         }
         else if (collision.gameObject.CompareTag("Forest"))
         {
-            moveSpeed = (forestSpeed / 10f) * originalMoveSpeed * 0.25f;
+            moveSpeed = forestSpeed * .1f * originalMoveSpeed * 0.25f;
             unitAnimator.SetFloat("speed", originalMoveSpeed * 9f);
         }
         else if (collision.gameObject.CompareTag("Hill"))
         {
-            moveSpeed = (hillSpeed / 10f) * originalMoveSpeed * 0.25f;
+            moveSpeed = hillSpeed * .1f * originalMoveSpeed * 0.25f;
             unitAnimator.SetFloat("speed", originalMoveSpeed * 9f);
             threshold = 0.05f;
         }
         else if (collision.gameObject.CompareTag("Forest Hill"))
         {
-            moveSpeed = (forestHillSpeed / 10f) * originalMoveSpeed * 0.125f;
+            moveSpeed = forestHillSpeed * .1f * originalMoveSpeed * 0.125f;
             unitAnimator.SetFloat("speed", originalMoveSpeed * 5f);
         }
         else if (collision.gameObject.CompareTag("Water"))
         {
-            moveSpeed = (flatlandSpeed / 10f) * originalMoveSpeed;
             if (bySea)
+            {
+                moveSpeed = flatlandSpeed * .1f * originalMoveSpeed;
                 unitAnimator.SetFloat("speed", originalMoveSpeed * 12f);
+            }
             else
+            {
+                moveSpeed = flatlandSpeed * .1f * originalMoveSpeed * 0.25f;
                 unitAnimator.SetFloat("speed", originalMoveSpeed * 3f);
+            }
         }
         //else if (collision.gameObject.CompareTag("Player"))
         //{
@@ -592,6 +632,7 @@ public class Unit : MonoBehaviour
 
     public void ShowContinuedPath()
     {
+        queueCount = 1;
         ShowPath(new List<Vector3Int>(pathPositions));
     }
 
