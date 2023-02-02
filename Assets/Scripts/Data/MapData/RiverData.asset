@@ -16,6 +16,9 @@ MonoBehaviour:
   clearedForestData: {fileID: 0}
   walkable: 1
   sailable: 1
-  movementCost: 10
+  isHill: 0
+  isLand: 0
+  isSeaCorner: 1
+  movementCost: 30
   type: 1
   resourceType: 1

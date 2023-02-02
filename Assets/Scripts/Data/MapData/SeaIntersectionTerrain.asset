@@ -19,6 +19,6 @@ MonoBehaviour:
   isHill: 0
   isLand: 0
   isSeaCorner: 1
-  movementCost: 10
+  movementCost: 30
   type: 3
   resourceType: 1

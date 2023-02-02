@@ -138,7 +138,7 @@ public class MapWorld : MonoBehaviour
 
         foreach (TerrainData td in FindObjectsOfType<TerrainData>())
         {
-            if ((td.IsCoast || td.IsSeaCorner) && !coastalTerrain.Contains(td))
+            if (td.IsSeaCorner && !coastalTerrain.Contains(td))
                 coastalTerrain.Add(td);
             td.SetTileCoordinates(this);
             Vector3Int tileCoordinate = td.GetTileCoordinates();
