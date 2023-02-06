@@ -269,7 +269,7 @@ public class MapWorld : MonoBehaviour
         mousePos.z = 10f; //z must be more than 0, else just gives camera position
         Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
 
-        InfoPopUpHandler.Create(mouseLoc, message);
+        InfoPopUpHandler.WarningMessage().Create(mouseLoc, message);
     }
 
     //wonder info

@@ -2,12 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UIElements;
 
 public class InfoPopUpHandler : MonoBehaviour
 {
+    private static InfoPopUpHandler warningMessage;
+
     private TMP_Text popUpText;
-    private float disappearTimer = 2f;
+    private float visibleTime = 2f;
+    private float disappearTimer;
     private Color textColor;
+    private Coroutine co;
+
 
     private void Awake()
     {
@@ -16,44 +22,63 @@ public class InfoPopUpHandler : MonoBehaviour
         popUpText.outlineColor = Color.black;
     }
 
-    private void Update()
-    {
-        float moveSpeed = 0.2f;
-        transform.position += new Vector3(0, 0, moveSpeed) * Time.deltaTime;
-
-        disappearTimer -= Time.deltaTime;
-        if (disappearTimer < 0)
-        {
-            // start disappearing
-            float disappearSpeed = 1f;
-            textColor.a -= disappearSpeed * Time.deltaTime;
-            popUpText.color = textColor;
-
-            if (textColor.a < 0)
-            {
-                Destroy(gameObject);
-            }
-        }
-    }
-
     private void LateUpdate()
     {
         transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
     }
 
-    public static InfoPopUpHandler Create(Vector3 position, string text)
+    private IEnumerator ShowMessage()
     {
-        GameObject popUpGO = Instantiate(GameAssets.Instance.popUpTextPrefab, position, Quaternion.Euler(90,0,0));
+        float moveSpeed = 0.2f;
+        
+        while (disappearTimer > 0)
+        {
+            disappearTimer -= Time.deltaTime;
+            transform.position += new Vector3(0, moveSpeed, 0) * Time.deltaTime;
+            
+            yield return null;
+        }
 
-        InfoPopUpHandler popUpText = popUpGO.GetComponent<InfoPopUpHandler>();
-        popUpText.SetPopUpText(text);
+        while (textColor.a > 0)
+        {
+            transform.position += new Vector3(0, moveSpeed, 0) * Time.deltaTime;
+            float disappearSpeed = 1f;
+            textColor.a -= disappearSpeed * Time.deltaTime;
+            popUpText.color = textColor;
+            yield return null;
+        }
 
-        return popUpText;
+        gameObject.SetActive(false);
+    }
+
+    public static InfoPopUpHandler WarningMessage()
+    {
+        if (warningMessage == null)
+        {
+            GameObject popUpGO = Instantiate(GameAssets.Instance.popUpTextPrefab, new Vector3(0, 0, 0), Quaternion.Euler(90, 0, 0));
+            warningMessage = popUpGO.GetComponent<InfoPopUpHandler>();
+        }
+
+        return warningMessage;
+    }
+    
+    public void Create(Vector3 position, string text)
+    {
+        if (co != null)
+            StopCoroutine(co);
+        gameObject.SetActive(true);
+        disappearTimer = visibleTime;
+        warningMessage.transform.position = position;
+        warningMessage.SetPopUpText(text);
+
+        co = StartCoroutine(ShowMessage());
     }
 
     public void SetPopUpText(string text)
     {
         popUpText.text = text;
         textColor = popUpText.color;
+        textColor.a = 1f;
+        popUpText.color = textColor;
     }
 }

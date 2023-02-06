@@ -18,6 +18,9 @@ public class Unit : MonoBehaviour
     [SerializeField]
     private ParticleSystem lightBeam;
 
+    [SerializeField]
+    private GameObject selectionCircle;
+
     [HideInInspector]
     public MapWorld world;
     [HideInInspector]
@@ -80,6 +83,8 @@ public class Unit : MonoBehaviour
         originalMoveSpeed = unitDataSO.movementSpeed;
         bySea = unitDataSO.transportationType == TransportationType.Sea;
         shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
+        if (bySea)
+            selectionCircle.SetActive(false);
     }
 
     private void Start()
@@ -146,6 +151,7 @@ public class Unit : MonoBehaviour
             else if (td.IsSeaCorner && world.CheckIfCoastCoast(endPositionInt))
             {
                 y = -.25f;
+                TurnOffRipples();
                 isBeached = true;
             }
         }
@@ -211,7 +217,6 @@ public class Unit : MonoBehaviour
         //endPosition.y = transform.position.y;
         endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
-        Debug.Log("current position is " + transform.position);
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
 
         //if (Mathf.Approximately(Mathf.Abs(Quaternion.Dot(startRotation, endRotation)), 1.0f) == false)
@@ -288,90 +293,6 @@ public class Unit : MonoBehaviour
         }
     }
 
-
-
-    //moves unit
-    //private void MovementCoroutine(Vector3 endPosition)
-    //{
-        //Vector3 startPosition = transform.position;
-        //Vector3Int endLoc = Vector3Int.FloorToInt(endPosition);
-        //destinationLoc = endPosition;
-
-        ////checks if tile can still be moved to before moving there
-        //if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !world.GetTerrainDataAt(endLoc).hasRoad))
-        //{
-        //    FinishMoving(endPosition);
-        //    yield break;
-        //}
-
-        //float diff = Mathf.Sqrt(Mathf.Pow(startPosition.x - endPosition.x, 2) + Mathf.Pow(startPosition.z - endPosition.z, 2));
-        //movementDuration = diff * movementDurationOneTerrain;
-
-        //    world.AddUnitPosition(finalDestinationLoc, gameObject); //add to world dict just before moving to tile
-
-        //endPosition.y = 0f; //fixed y position
-        //Debug.Log("end position is " + endPosition);
-        //Debug.Log("transform position is " + transform.localPosition);
-        //float timeElapsed = 0;
-        //float moveSpeed = .5f;
-
-        //Vector3 test = Vector3.one;
-
-        //while (Mathf.Pow(transform.localPosition.x - endPosition.x,2) + Mathf.Pow(transform.localPosition.z - endPosition.z,2) > 0.005f)
-        //{
-        //    float movementThisFrame = Time.deltaTime * moveSpeed;
-        //    Vector3 newPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
-        //    transform.localPosition = newPosition;
-
-        //    //Debug.Log("current location is " + transform.localPosition);
-        //    Debug.Log("local position is " + Mathf.Pow(transform.localPosition.x - endPosition.x,2) + Mathf.Pow(transform.localPosition.z - endPosition.z,2));
-
-        //    if (Mathf.Pow(transform.localPosition.x - endPosition.x,2) + Mathf.Pow(transform.localPosition.z - endPosition.z,2) <= 0.005f)
-        //        break;
-
-        //    if (!isMoving)
-        //        yield break;
-
-        //    yield return null;
-        //}
-
-        //while ((transform.localPosition - endPosition).sqrMagnitude > 0)
-        //{
-        //    float movementThisFrame = Time.deltaTime * moveSpeed;
-        //    Vector3 newPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
-        //    transform.localPosition = newPosition;
-
-        //    Debug.Log("local position is " + transform.localPosition);
-
-        //    if ((transform.localPosition - endPosition).sqrMagnitude == 0)
-        //        break;
-
-        //    yield return null;
-        //}
-
-        //while (timeElapsed < movementDuration)
-        //{
-        //    timeElapsed += Time.deltaTime;
-        //    float lerpStep = timeElapsed / movementDuration;
-        //    //transform.position = Vector3.MoveTowards(transform.position, endPosition, diff / 100);
-        //    //transform.position = Vector3.SmoothDamp(transform.position, endPosition, ref test, movementDuration);
-
-        //    //transform.position = Vector3.Lerp(transform.position, endPosition, lerpStep);
-        //    yield return null;
-        //}
-
-        //Decisions based on how many movement points and path positions are left
-    //    if (pathPositions.Count > 0)
-    //    {
-    //        StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-    //    }
-    //    else
-    //    {   
-    //        FinishMoving(endPosition);
-    //    }
-    //}
-
-
     public void StopMovement()
     {
         if (isMoving)
@@ -431,7 +352,8 @@ public class Unit : MonoBehaviour
     private void FinishMoving(Vector3 endPosition)
     {
         //unitRigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; 
-
+        if (bySea && !isBeached)
+            TurnOffRipples();
         queueCount = 0;
         moreToMove = false;
         isMoving = false;
@@ -497,7 +419,13 @@ public class Unit : MonoBehaviour
 
     }
 
+    //if space is occupied with something
     public virtual void SkipRoadBuild()
+    {
+
+    }
+
+    public virtual void TurnOffRipples()
     {
 
     }
@@ -512,7 +440,7 @@ public class Unit : MonoBehaviour
         if (collision.gameObject.CompareTag("Road"))
         {
             moveSpeed = roadSpeed * .1f * originalMoveSpeed * 1.5f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 24f);
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
             //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         }
         else if (collision.gameObject.CompareTag("Flatland"))
@@ -549,6 +477,11 @@ public class Unit : MonoBehaviour
                 unitAnimator.SetFloat("speed", originalMoveSpeed * 3f);
             }
         }
+        else if (collision.gameObject.CompareTag("Swamp"))
+        {
+            moveSpeed = forestSpeed * .1f * originalMoveSpeed * .125f;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 5f);
+        }
         //else if (collision.gameObject.CompareTag("Player"))
         //{
         //    unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
@@ -576,6 +509,8 @@ public class Unit : MonoBehaviour
         //selectionCircle.enabled = true;
         //highlight.ToggleGlow(true, Color.white);
         isSelected = true;
+        if (bySea)
+            selectionCircle.SetActive(true);
         highlight.EnableHighlight(Color.white);
         //CenterCamera();
     }
@@ -585,6 +520,8 @@ public class Unit : MonoBehaviour
         //selectionCircle.enabled = false;
         //highlight.ToggleGlow(false, Color.white);
         isSelected = false;
+        if (bySea)
+            selectionCircle.SetActive(false); 
         highlight.DisableHighlight();
     }
 

@@ -37,7 +37,7 @@ MonoBehaviour:
   maxLabor: 15
   laborCost: 1
   replaceTerrain: 0
-  replaceProp: 1
+  returnProp: 0
   singleBuild: 0
   buildTime: 20
   availableInitially: 1

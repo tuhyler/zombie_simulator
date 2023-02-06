@@ -161,7 +161,7 @@ public class UITradeRouteManager : MonoBehaviour
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
             if (destination == null)
             {
-                InfoPopUpHandler.Create(selectedTrader.transform.position, "No assigned city to stop");
+                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "No assigned city to stop");
                 return;
             }
 
@@ -178,13 +178,13 @@ public class UITradeRouteManager : MonoBehaviour
 
             if (consecFound)
             {
-                InfoPopUpHandler.Create(selectedTrader.transform.position, "Consecutive stops for same city");
+                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "Consecutive stops for same city");
                 return;
             }
 
             if (resourceAssignment.Count == 0 && waitTime < 0)
             {
-                InfoPopUpHandler.Create(selectedTrader.transform.position, "No orders and no wait time max for stop");
+                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "No orders and no wait time max for stop");
                 return;
             }
         }
