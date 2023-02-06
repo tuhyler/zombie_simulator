@@ -439,9 +439,6 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isBusy)
             return;
 
-        if (selectedUnit.isMoving && !queueMovementOrders)
-            selectedUnit.StopAnimation();
-
         MoveUnit(location);
     }
 
@@ -466,6 +463,8 @@ public class UnitMovement : MonoBehaviour
                 GiveWarningMessage("Can't move there");
                 return;
             }
+
+            selectedTrader.TurnOnRipples();
         }
         else if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
         {
@@ -484,6 +483,9 @@ public class UnitMovement : MonoBehaviour
             GiveWarningMessage("Must travel on road");
             return;
         }
+
+        if (selectedUnit.isMoving && !queueMovementOrders)
+            selectedUnit.StopAnimation();
 
         location.y += .1f;
         starshine.transform.position = location;
@@ -504,7 +506,7 @@ public class UnitMovement : MonoBehaviour
         mousePos.z = 10f; //z must be more than 0, else just gives camera position
         Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
 
-        InfoPopUpHandler.Create(mouseLoc, message);
+        InfoPopUpHandler.WarningMessage().Create(mouseLoc, message);
     }
 
     public void MoveUnitToggle()
@@ -765,12 +767,12 @@ public class UnitMovement : MonoBehaviour
         {
             if (!wonder.CheckResourceType(resourceType))
             {
-                InfoPopUpHandler.Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
+                InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
                 return;
             }
             else if (resourceAmount > 0)
             {
-                InfoPopUpHandler.Create(selectedUnit.transform.position, "Can't move from wonder");
+                InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't move from wonder");
                 return;
             }
         }

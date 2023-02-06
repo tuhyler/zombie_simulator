@@ -16,8 +16,10 @@ public class Trader : Unit
     [HideInInspector]
     public bool hasRoute, interruptedRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
 
-    [SerializeField]
     public int loadUnloadRate = 1;
+
+    [SerializeField]
+    private GameObject ripples;
 
     private Coroutine LoadUnloadCo;
     private Coroutine WaitTimeCo;
@@ -35,6 +37,28 @@ public class Trader : Unit
         base.AwakeMethods();
         personalResourceManager = GetComponent<PersonalResourceManager>();
         personalResourceManager.ResourceStorageLimit = cargoStorageLimit;
+        if (bySea)
+            ripples.SetActive(false);
+    }
+
+    public void TurnOnRipples()
+    {
+        if (!isMoving)
+        {
+            ripples.SetActive(true);
+            //for tweening
+            LeanTween.alpha(ripples, 1f, 0.2f).setFrom(0f).setEase(LeanTweenType.linear);
+        }
+    }
+
+    public override void TurnOffRipples()
+    {
+        LeanTween.alpha(ripples, 0f, 0.5f).setFrom(1f).setEase(LeanTweenType.linear).setOnComplete(SetActiveStatusFalse);
+    }
+
+    private void SetActiveStatusFalse()
+    {
+        ripples.SetActive(false);
     }
 
     //passing details of the trade route

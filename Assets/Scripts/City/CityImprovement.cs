@@ -152,12 +152,24 @@ public class CityImprovement : MonoBehaviour
         upgradeSplash.Play();
     }
 
-    public void PlayRemoveEffect()
+    public void PlayRemoveEffect(bool isHill)
     {
-        if (building)
-            removeSplash.Play();
+        Vector3 loc = transform.position;
+        if (isHill)
+            loc.y += .8f;
         else
+            loc.y += .1f;
+
+        if (building)
+        {
+            removeSplash.transform.position = loc;
+            removeSplash.Play();
+        }
+        else
+        {
+            removeEruption.transform.position = loc;
             removeEruption.Play();
+        }
     }
 
     private void PlaySmokeEmitter(Vector3 loc)

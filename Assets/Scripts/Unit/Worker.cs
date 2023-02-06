@@ -250,13 +250,13 @@ public class Worker : Unit
 
         if (!world.IsRoadOnTerrain(workerTile))
         {
-            InfoPopUpHandler.Create(workerTile, "No road here");
+            InfoPopUpHandler.WarningMessage().Create(workerTile, "No road here");
             return;
         }
 
         if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile))
         {
-            InfoPopUpHandler.Create(workerTile, "Can't remove this");
+            InfoPopUpHandler.WarningMessage().Create(workerTile, "Can't remove this");
             return;
         }
 
@@ -273,13 +273,13 @@ public class Worker : Unit
 
         if (!world.IsTileOpenCheck(workerTile))
         {
-            InfoPopUpHandler.Create(workerPos, "Harvest on open tile");
+            InfoPopUpHandler.WarningMessage().Create(workerPos, "Harvest on open tile");
             return;
         }
 
         if (!CheckForCity(workerTile))
         {
-            InfoPopUpHandler.Create(workerPos, "No nearby city");
+            InfoPopUpHandler.WarningMessage().Create(workerPos, "No nearby city");
             return;
         }
 
@@ -287,7 +287,7 @@ public class Worker : Unit
         ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
         if (resourceIndividual == null)
         {
-            InfoPopUpHandler.Create(workerPos, "No resource to harvest here");
+            InfoPopUpHandler.WarningMessage().Create(workerPos, "No resource to harvest here");
             return;
         }
         //Debug.Log("Harvesting resource at " + workerPos);

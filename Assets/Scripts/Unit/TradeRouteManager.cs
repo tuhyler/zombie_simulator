@@ -153,12 +153,12 @@ public class TradeRouteManager : MonoBehaviour
             {
                 if (!wonder.CheckResourceType(resourceValue.resourceType))
                 {
-                    InfoPopUpHandler.Create(wonder.centerPos, "Wrong resource type: " + resourceValue.resourceType);
+                    InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Wrong resource type: " + resourceValue.resourceType);
                     continue;
                 }
                 else if (resourceAmount > 0)
                 {
-                    InfoPopUpHandler.Create(wonder.centerPos, "Can't move from wonder");
+                    InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Can't move from wonder");
                     continue;
                 }
             }

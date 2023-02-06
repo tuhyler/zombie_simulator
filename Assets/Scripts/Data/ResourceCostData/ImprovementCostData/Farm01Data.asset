@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Farm01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00, type: 3}
+  isBuilding: 0
   improvementName: Farm
   improvementLevel: 1
   rawMaterials: 1
@@ -34,7 +35,7 @@ MonoBehaviour:
   maxLabor: 2
   laborCost: 1
   replaceTerrain: 0
-  replaceProp: 1
+  returnProp: 0
   singleBuild: 0
   buildTime: 5
   availableInitially: 1

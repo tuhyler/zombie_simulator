@@ -225,7 +225,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             mousePos.z = 10f; //z must be more than 0, else just gives camera position
             Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
 
-            InfoPopUpHandler.Create(mouseLoc, "Can't afford");
+            InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Can't afford");
             return;
         }
 
@@ -243,17 +243,17 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
     private IEnumerator Shake()
     {
-        Vector3 initialPos = transform.position;
+        Vector3 initialPos = transform.localPosition;
         float elapsedTime = 0f;
         float duration = 0.2f;
 
         while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
-            transform.position = initialPos + (Random.insideUnitSphere * .01f);
+            transform.localPosition = initialPos + (Random.insideUnitSphere * 10f);
             yield return null;
         }
 
-        transform.position = initialPos;
+        transform.localPosition = initialPos;
     }
 }

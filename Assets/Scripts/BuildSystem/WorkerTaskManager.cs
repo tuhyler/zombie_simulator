@@ -325,13 +325,13 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!world.IsRoadOnTerrain(tile))
         {
-            InfoPopUpHandler.Create(tile, "No road here");
+            InfoPopUpHandler.WarningMessage().Create(tile, "No road here");
             worker.SkipRoadRemoval();
             return;
         }
         else if (world.IsCityOnTile(tile) || world.IsWonderOnTile(tile))
         {
-            InfoPopUpHandler.Create(tile, "Can't remove this");
+            InfoPopUpHandler.WarningMessage().Create(tile, "Can't remove this");
             worker.SkipRoadRemoval();
             return;
         }
@@ -468,7 +468,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
         if (!world.IsTileOpenButRoadCheck(tile))
         {
-            InfoPopUpHandler.Create(tile, "Already something here");
+            InfoPopUpHandler.WarningMessage().Create(tile, "Already something here");
             worker.isBusy = false;
             return;
         }
@@ -571,7 +571,7 @@ public class WorkerTaskManager : MonoBehaviour
             }
             else
             {
-                InfoPopUpHandler.Create(workerUnit.transform.position, "Too close to another city");
+                InfoPopUpHandler.WarningMessage().Create(workerUnit.transform.position, "Too close to another city");
                 return true;
             }
         }

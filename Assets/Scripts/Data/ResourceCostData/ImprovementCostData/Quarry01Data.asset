@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: Quarry01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 5287637160269364084, guid: 621fc3803ad9c3645a7d989ac5d06061, type: 3}
+  isBuilding: 0
   improvementName: Quarry
   improvementLevel: 1
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
-  improvementCost: []
+  improvementCost:
+  - resourceType: 4
+    resourceAmount: 1000
   consumedResources: []
   producedResources:
   - resourceType: 5
@@ -30,7 +33,7 @@ MonoBehaviour:
   maxLabor: 2
   laborCost: 2
   replaceTerrain: 1
-  replaceProp: 1
+  returnProp: 0
   singleBuild: 0
   buildTime: 30
   availableInitially: 1

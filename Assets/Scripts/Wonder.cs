@@ -189,7 +189,7 @@ public class Wonder : MonoBehaviour
         }
         else
         {
-            InfoPopUpHandler.Create(centerPos, "No storage space for " + resourceType);
+            InfoPopUpHandler.WarningMessage().Create(centerPos, "No storage space for " + resourceType);
             return 0;
         }
     }

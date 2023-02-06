@@ -53,6 +53,10 @@ public class RoadManager : MonoBehaviour
         //    structure.SetActive(false);
         world.SetRoads(roadPosition, structure, straight);
 
+        //replacing prop
+        TerrainData td = world.GetTerrainDataAt(roadPosition);
+        if (td.prop != null)
+            td.prop.gameObject.SetActive(false);
     }
 
     public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)
