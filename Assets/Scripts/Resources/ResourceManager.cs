@@ -289,7 +289,9 @@ public class ResourceManager : MonoBehaviour
 
             int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
             producerLoc.z += 0.5f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(producerLoc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
+
+            if (resourceAmount != 0)
+                InfoResourcePopUpHandler.CreateResourceStat(producerLoc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
             i++;
         }
     }
