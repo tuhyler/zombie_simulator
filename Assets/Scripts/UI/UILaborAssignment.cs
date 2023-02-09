@@ -153,6 +153,17 @@ public class UILaborAssignment : MonoBehaviour
         }
     }
 
+    public void ToggleInteractable(int laborChange)
+    {
+        foreach (UILaborAssignmentOptions laborItem in laborOptions)
+        {
+            if (laborItem.LaborChange == laborChange)
+            {
+                laborItem.ToggleButtonSelection(true);
+            }
+        }
+    }
+
     public void SetAssignmentOptionsInteractableOff()
     {
         foreach (UILaborAssignmentOptions laborItem in laborOptions)

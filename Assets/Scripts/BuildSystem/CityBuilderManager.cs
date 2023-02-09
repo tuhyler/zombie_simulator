@@ -1582,15 +1582,23 @@ public class CityBuilderManager : MonoBehaviour
             else
             {
                 placesToWork++;
+                UpdateCityLaborUIs();
+
                 if (laborChange != 0)
+                {
+                    uiLaborAssignment.ToggleInteractable(laborChange);
                     LaborTileHighlight();
+                }
                 else if (removingImprovement && uiImprovementBuildInfoPanel.activeStatus)
+                {
                     ImprovementTileHighlight();
+                }
                 else if (upgradingImprovement && uiImprovementBuildInfoPanel.activeStatus)
+                {
                     UpgradeTileHighlight();
+                }
                 //PrepareLaborNumber(tempBuildLocation);
 
-                UpdateCityLaborUIs();
             }
         }
     }

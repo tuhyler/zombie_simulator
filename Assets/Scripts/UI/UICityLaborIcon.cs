@@ -15,11 +15,11 @@ public class UICityLaborIcon : MonoBehaviour
     [HideInInspector]
     public bool isActive;
 
-    private void Start()
-    {
-        numberText.outlineWidth = 0.35f;
-        numberText.outlineColor = new Color(0, 0, 0, 255);
-    }
+    //private void Start()
+    //{
+    //    numberText.outlineWidth = 0.35f;
+    //    numberText.outlineColor = new Color(0, 0, 0, 255);
+    //}
 
     public void ToggleVisibility(bool v)
     {

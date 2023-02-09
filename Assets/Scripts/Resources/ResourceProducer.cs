@@ -137,6 +137,9 @@ public class ResourceProducer : MonoBehaviour
     //for producing resources
     public void StartProducing()
     {
+        CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
+        CalculateResourceConsumedPerMinute();
+
         if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
@@ -152,9 +155,6 @@ public class ResourceProducer : MonoBehaviour
             AddToResourceWaitList();
             return;
         }
-
-        CalculateResourceGenerationPerMinute();
-        CalculateResourceConsumedPerMinute();
 
         if (resourceManager.city.activeCity)
             uiTimeProgressBar.gameObject.SetActive(true);

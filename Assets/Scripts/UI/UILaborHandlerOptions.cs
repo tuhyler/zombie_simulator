@@ -19,7 +19,7 @@ public class UILaborHandlerOptions : MonoBehaviour
     [SerializeField]
     private Transform laborIconHolder;
     private UICityLaborIcon laborIcon10;
-    private UICityLaborIcon laborIcon5;
+    //private UICityLaborIcon laborIcon5;
     private List<UICityLaborIcon> laborIcons = new();
     private List<UICityLaborIcon> laborIconsOneList = new(); //to turn on the one icons individually (for speed)
 
@@ -31,16 +31,13 @@ public class UILaborHandlerOptions : MonoBehaviour
         {
             UICityLaborIcon laborIcon = selection.GetComponent<UICityLaborIcon>();
             laborIcon.ToggleVisibility(false);
-            int size = laborIcon.size;
             laborIcons.Add(laborIcon);
 
-            if (size == 10)
+            if (laborIcon.infinite)
             {
                 laborIcon10 = laborIcon;
                 laborIcon10.infinite = true;
             }
-            else if (size == 5)
-                laborIcon5 = laborIcon;
             else
             {
                 laborIcon.HideNumber();
@@ -97,20 +94,20 @@ public class UILaborHandlerOptions : MonoBehaviour
         
         if (laborChange > 0)
         {
-            if (count % 10 == 0)
+            if (count % 5 == 0)
             {
-                laborIcon5.ToggleVisibility(false);
+                //laborIcon5.ToggleVisibility(false);
                 foreach (UICityLaborIcon laborIcons in laborIconsOneList)
                     laborIcons.ToggleVisibility(false);
-                laborIcon10.SetNumber((count / 10) * 10);
+                laborIcon10.SetNumber(count);
                 laborIcon10.ToggleVisibility(true);
             }
-            else if (count % 5 == 0)
-            {
-                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
-                    laborIcons.ToggleVisibility(false);
-                laborIcon5.ToggleVisibility(true);
-            }
+            //else if (count % 5 == 0)
+            //{
+            //    foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+            //        laborIcons.ToggleVisibility(false);
+            //    laborIcon5.ToggleVisibility(true);
+            //}
             else
             {
                 foreach (UICityLaborIcon laborIcons in laborIconsOneList)
@@ -125,34 +122,42 @@ public class UILaborHandlerOptions : MonoBehaviour
         }
         else if (laborChange < 0)
         {
-            if (count % 10 == 9)
+            if (count % 5 == 4)
             {
-                if (count / 10 == 0)
+                if (count < 5)
                     laborIcon10.ToggleVisibility(false);
                 else
-                    laborIcon10.SetNumber((count / 10) * 10);
+                    laborIcon10.SetNumber(count / 5 * 5);
 
-                laborIcon5.ToggleVisibility(true);
+                //laborIcon5.ToggleVisibility(true);
                 foreach (UICityLaborIcon laborIcons in laborIconsOneList)
                     laborIcons.ToggleVisibility(true);
             }
-            else if (count % 5 == 4)
-            {
-                laborIcon5.ToggleVisibility(false);
+            //else if (count % 5 == 4)
+            //{
+            //    laborIcon5.ToggleVisibility(false);
 
-                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
-                    laborIcons.ToggleVisibility(true);
-            }
+            //    foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+            //        laborIcons.ToggleVisibility(true);
+            //}
             else
             {
-                foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                for (int i = laborIconsOneList.Count - 1; i >= 0; i--)
                 {
-                    if (laborIcons.isActive)
+                    if (laborIconsOneList[i].isActive)
                     {
-                        laborIcons.ToggleVisibility(false);
-                        break; //just turn off one
+                        laborIconsOneList[i].ToggleVisibility(false);
+                        break;
                     }
                 }
+                //foreach (UICityLaborIcon laborIcons in laborIconsOneList)
+                //{
+                //    if (laborIcons.isActive)
+                //    {
+                //        laborIcons.ToggleVisibility(false);
+                //        break; //just turn off one
+                //    }
+                //}
             }
         }
     }
