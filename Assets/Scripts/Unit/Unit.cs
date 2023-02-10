@@ -222,7 +222,8 @@ public class Unit : MonoBehaviour
         //if (Mathf.Approximately(Mathf.Abs(Quaternion.Dot(startRotation, endRotation)), 1.0f) == false)
         //{
         float timeElapsed = 0;
-        while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
+        while (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) > threshold)
+        //while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
         {
             timeElapsed += Time.deltaTime;
             float movementThisFrame = Time.deltaTime * moveSpeed;
@@ -232,8 +233,10 @@ public class Unit : MonoBehaviour
             transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
             //Debug.Log("current location: " + Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2));
 
-            if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
-                break;
+            //if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
+                //break;
+            //if (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) <= threshold)
+            //    break;
 
             yield return null;
         }
