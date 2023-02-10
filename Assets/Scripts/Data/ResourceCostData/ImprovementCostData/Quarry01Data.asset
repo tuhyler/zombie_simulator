@@ -21,7 +21,7 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   improvementCost:
   - resourceType: 4
-    resourceAmount: 1000
+    resourceAmount: 10
   consumedResources: []
   producedResources:
   - resourceType: 5
@@ -35,6 +35,6 @@ MonoBehaviour:
   replaceTerrain: 1
   returnProp: 0
   singleBuild: 0
-  buildTime: 30
+  buildTime: 5
   availableInitially: 1
   locked: 0

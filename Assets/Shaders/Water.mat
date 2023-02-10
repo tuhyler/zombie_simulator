@@ -64,7 +64,7 @@ Material:
     - _RefractionStrength: 0
     - _Smoothness: 1
     - _WaveAmplitude: 0
-    - _waveSpeed: 0.01
+    - _waveSpeed: 0.1
     m_Colors:
     - _DeepWaterColor: {r: 0.08235294, g: 0.42352942, b: 1, a: 0.19215687}
     - _FoamColor: {r: 1, g: 0.9901168, b: 0.9496855, a: 1}
