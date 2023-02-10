@@ -2,6 +2,7 @@ using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+//using System.Drawing;
 using System.Threading.Tasks;
 using UnityEditor.VersionControl;
 using UnityEngine;
@@ -1611,14 +1612,15 @@ public class CityBuilderManager : MonoBehaviour
 
         foreach (Vector3Int neighbor in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.FOURWAYINCREMENT))
         {
-            if (world.GetTerrainDataAt(neighbor).terrainData.sailable) //don't place harbor on neighboring water tiles
-                continue;
-
-            int distanceFromCity = neighbor.sqrMagnitude - originationLocation.sqrMagnitude;
-            if (distanceFromCity < minimum)
+            if (!world.GetTerrainDataAt(neighbor).terrainData.sailable) //don't place harbor on neighboring water tiles
             {
-                minimum = distanceFromCity;
-                rotation = rotationIndex * 90;
+                //int distanceFromCity = neighbor.sqrMagnitude - originationLocation.sqrMagnitude;
+                int distanceFromCity = Math.Abs(neighbor.x - originationLocation.x) + Math.Abs(neighbor.z - originationLocation.z);
+                if (distanceFromCity < minimum)
+                {
+                    minimum = distanceFromCity;
+                    rotation = rotationIndex * 90;
+                }
             }
 
             rotationIndex++;
