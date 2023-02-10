@@ -1545,16 +1545,16 @@ public class CityBuilderManager : MonoBehaviour
         improvement.SetActive(true);
         //for tweening
         improvement.transform.localScale = Vector3.zero;
-        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete(() => { ReplaceTerrainCheck(tempBuildLocation, improvementData.replaceTerrain); });
 
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
         if (td.prop != null)
             td.prop.gameObject.SetActive(false);
 
-        if (improvementData.replaceTerrain)
-        {
-            world.GetTerrainDataAt(tempBuildLocation).gameObject.SetActive(false);
-        }
+        //if (improvementData.replaceTerrain)
+        //{
+        //    world.GetTerrainDataAt(tempBuildLocation).gameObject.SetActive(false);
+        //}
 
         //setting harbor info
         if (improvementData.improvementName == "Harbor")
@@ -1601,6 +1601,14 @@ public class CityBuilderManager : MonoBehaviour
                 //PrepareLaborNumber(tempBuildLocation);
 
             }
+        }
+    }
+
+    private void ReplaceTerrainCheck(Vector3Int tempBuildLocation, bool replaceTerrain)
+    {
+        if (replaceTerrain)
+        {
+            world.GetTerrainDataAt(tempBuildLocation).gameObject.SetActive(false);
         }
     }
 
