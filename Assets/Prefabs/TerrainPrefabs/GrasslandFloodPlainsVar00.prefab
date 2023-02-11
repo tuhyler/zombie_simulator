@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
         type: 3}
@@ -81,6 +81,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7589143445497744748, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: groundMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 7a919bdec3040b446b55445019605ebc, type: 2}
     - target: {fileID: 4461690370859731775, guid: cb365157dbee9a346be1aa620099656f,
         type: 3}
       propertyPath: m_Name

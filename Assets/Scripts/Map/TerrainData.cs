@@ -15,6 +15,9 @@ public class TerrainData : MonoBehaviour
     [SerializeField]
     private GameObject highlightPlane;
 
+    [SerializeField]
+    public Material groundMaterial;
+
     private SelectionHighlight highlight;
 
     private Vector3Int tileCoordinates;

@@ -221,10 +221,13 @@ public class Unit : MonoBehaviour
 
         //if (Mathf.Approximately(Mathf.Abs(Quaternion.Dot(startRotation, endRotation)), 1.0f) == false)
         //{
+        float distance = 1f;
         float timeElapsed = 0;
-        while (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) > threshold)
+        while (distance > threshold)
+        //while (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) > threshold)
         //while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
         {
+            distance = Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z);
             timeElapsed += Time.deltaTime;
             float movementThisFrame = Time.deltaTime * moveSpeed;
             float lerpStep = timeElapsed / rotationDuration; //Value between 0 and 1
@@ -233,8 +236,10 @@ public class Unit : MonoBehaviour
             transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
             //Debug.Log("current location: " + Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2));
 
+            if (distance <= threshold)
+                break;
             //if (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) <= threshold)
-                //break;
+            //    break;
             //if (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) <= threshold)
             //    break;
 
@@ -439,11 +444,11 @@ public class Unit : MonoBehaviour
         
         threshold = 0.001f;
 
-
         if (collision.gameObject.CompareTag("Road"))
         {
-            moveSpeed = roadSpeed * .1f * originalMoveSpeed * 1.5f;
+            moveSpeed = roadSpeed * .1f * originalMoveSpeed * 2.5f;
             unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
+            threshold = 0.1f;
             //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         }
         else if (collision.gameObject.CompareTag("Flatland"))
@@ -460,7 +465,7 @@ public class Unit : MonoBehaviour
         {
             moveSpeed = hillSpeed * .1f * originalMoveSpeed * 0.25f;
             unitAnimator.SetFloat("speed", originalMoveSpeed * 9f);
-            threshold = 0.05f;
+            threshold = 0.1f;
         }
         else if (collision.gameObject.CompareTag("Forest Hill"))
         {

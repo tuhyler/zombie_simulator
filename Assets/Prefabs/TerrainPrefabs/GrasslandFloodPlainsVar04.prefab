@@ -81,6 +81,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7589143445497744748, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: groundMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: ed61f266ead61bb429f692ba7ed964f8, type: 2}
     - target: {fileID: 4461690370859731775, guid: cb365157dbee9a346be1aa620099656f,
         type: 3}
       propertyPath: m_Name
