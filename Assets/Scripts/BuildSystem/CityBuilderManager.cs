@@ -1469,14 +1469,15 @@ public class CityBuilderManager : MonoBehaviour
 
         //adding improvement to world dictionaries
         GameObject improvementPrefab;
-        if (improvementData.secondaryPrefab != null)
+        TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
+
+        if (td.terrainData.isFloodPlain)
             improvementPrefab = improvementData.secondaryPrefab;
         else
             improvementPrefab = improvementData.prefab;
 
         if (improvementData.replaceTerrain)
         {
-            TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
             Material mat = td.groundMaterial;
             rotation = (int)td.transform.eulerAngles.y;
 
@@ -1521,7 +1522,7 @@ public class CityBuilderManager : MonoBehaviour
             constructionTile.InitializeImprovementData(improvementData);
             world.SetCityImprovementConstruction(tempBuildLocation, constructionTile);
             constructionTile.transform.position = tempBuildLocation;
-            TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
+            //TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
             bool isHill = td.terrainData.isHill;
             constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this, isHill);
 
