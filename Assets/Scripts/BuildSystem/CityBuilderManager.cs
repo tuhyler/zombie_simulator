@@ -1468,7 +1468,26 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         //adding improvement to world dictionaries
-        GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
+        GameObject improvementPrefab;
+        if (improvementData.secondaryPrefab != null)
+            improvementPrefab = improvementData.secondaryPrefab;
+        else
+            improvementPrefab = improvementData.prefab;
+
+        if (improvementData.replaceTerrain)
+        {
+            TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
+            Material mat = td.groundMaterial;
+            rotation = (int)td.transform.eulerAngles.y;
+
+            foreach(MeshRenderer renderer in improvementPrefab.GetComponentsInChildren<MeshRenderer>())
+            {
+                if (renderer.name == "Ground")
+                    renderer.material = mat;
+            }
+        }
+
+        GameObject improvement = Instantiate(improvementPrefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.InitializeImprovementData(improvementData);
@@ -1545,9 +1564,10 @@ public class CityBuilderManager : MonoBehaviour
         improvement.SetActive(true);
         //for tweening
         improvement.transform.localScale = Vector3.zero;
-        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete(() => { ReplaceTerrainCheck(tempBuildLocation, improvementData.replaceTerrain); });
-
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
+        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete(() => { ReplaceTerrainCheck(tempBuildLocation, improvementData.replaceTerrain); });
+        //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
+
         if (td.prop != null)
             td.prop.gameObject.SetActive(false);
 
