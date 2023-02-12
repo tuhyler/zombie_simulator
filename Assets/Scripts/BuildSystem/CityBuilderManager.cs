@@ -1468,27 +1468,24 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         //adding improvement to world dictionaries
-        GameObject improvementPrefab;
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
 
         if (td.terrainData.isFloodPlain)
-            improvementPrefab = improvementData.secondaryPrefab;
-        else
-            improvementPrefab = improvementData.prefab;
+            improvementData = improvementData.secondaryData;
 
         if (improvementData.replaceTerrain)
         {
             Material mat = td.groundMaterial;
             rotation = (int)td.transform.eulerAngles.y;
 
-            foreach(MeshRenderer renderer in improvementPrefab.GetComponentsInChildren<MeshRenderer>())
+            foreach(MeshRenderer renderer in improvementData.prefab.GetComponentsInChildren<MeshRenderer>())
             {
                 if (renderer.name == "Ground")
                     renderer.material = mat;
             }
         }
 
-        GameObject improvement = Instantiate(improvementPrefab, buildLocation, Quaternion.Euler(0, rotation, 0));
+        GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.InitializeImprovementData(improvementData);
@@ -1631,7 +1628,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (replaceTerrain)
         {
-            world.GetTerrainDataAt(tempBuildLocation).gameObject.SetActive(false);
+            world.GetTerrainDataAt(tempBuildLocation).main.gameObject.SetActive(false);
         }
     }
 
@@ -1740,7 +1737,7 @@ public class CityBuilderManager : MonoBehaviour
 
             if (improvementData.replaceTerrain)
             {
-                world.GetTerrainDataAt(improvementLoc).gameObject.SetActive(true);
+                world.GetTerrainDataAt(improvementLoc).main.gameObject.SetActive(true);
             }
 
             if (improvementData.returnProp)

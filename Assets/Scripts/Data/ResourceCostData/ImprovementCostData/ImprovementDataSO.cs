@@ -6,7 +6,7 @@ using UnityEngine;
 public class ImprovementDataSO : ScriptableObject
 {
     public GameObject prefab;
-    public GameObject secondaryPrefab;
+    public ImprovementDataSO secondaryData;
     public bool isBuilding;
     public string improvementName;
     public int improvementLevel;
