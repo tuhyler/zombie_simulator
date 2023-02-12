@@ -1492,6 +1492,7 @@ public class CityBuilderManager : MonoBehaviour
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.InitializeImprovementData(improvementData);
+        cityImprovement.SetPSLocs();
         cityImprovement.SetQueueCity(null);
 
         world.SetCityDevelopment(tempBuildLocation, cityImprovement);
@@ -1508,6 +1509,7 @@ public class CityBuilderManager : MonoBehaviour
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
         world.AddResourceProducer(buildLocation, resourceProducer);
         resourceProducer.SetResourceManager(city.ResourceManager);
+        resourceProducer.SetCityImprovement(cityImprovement);
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
         resourceProducer.SetLocation(tempBuildLocation);
 
@@ -2122,7 +2124,7 @@ public class CityBuilderManager : MonoBehaviour
             resourceProducer.StopProducing();
         }
         else if (labor == 1 && laborChange > 0) //assigning city to location if working for first time
-        {
+        {            
             if (world.GetCityDevelopment(terrainLocation).queued)
             {
                 CityImprovement selectedImprovement = world.GetCityDevelopment(terrainLocation);

@@ -42,3 +42,6 @@ MonoBehaviour:
   buildTime: 5
   availableInitially: 1
   locked: 0
+  workFire1Loc: {x: 1, y: 0, z: 1}
+  workFire2Loc: {x: 1, y: 0, z: -1}
+  workSmokeLoc: {x: 0, y: 0.2, z: 1}
