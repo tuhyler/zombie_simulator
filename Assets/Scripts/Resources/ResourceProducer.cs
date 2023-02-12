@@ -7,6 +7,7 @@ using UnityEngine;
 public class ResourceProducer : MonoBehaviour
 {
     private ResourceManager resourceManager;
+    private CityImprovement cityImprovement;
     //private TaskDataSO taskData;
     private ImprovementDataSO improvementData;
     private int currentLabor;
@@ -16,7 +17,7 @@ public class ResourceProducer : MonoBehaviour
 
     //for production info
     private Coroutine producingCo;
-    private int productionTimer;
+    public int productionTimer;
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
     [HideInInspector]
@@ -55,6 +56,11 @@ public class ResourceProducer : MonoBehaviour
     public void SetResourceManager(ResourceManager resourceManager)
     {
         this.resourceManager = resourceManager;
+    }
+
+    public void SetCityImprovement(CityImprovement cityImprovement)
+    {
+        this.cityImprovement = cityImprovement;
     }
 
     public void SetLocation(Vector3Int loc)
@@ -212,6 +218,7 @@ public class ResourceProducer : MonoBehaviour
     private IEnumerator ProducingCoroutine()
     {
         productionTimer = improvementData.producedResourceTime;
+        cityImprovement.StartWork(productionTimer);
         if (resourceManager.city.activeCity)
         {
             //timeProgressBar.SetProgressBarBeginningPosition();
@@ -240,9 +247,10 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.waitingToUnloadResearch.Enqueue(this);
             //timeProgressBar.SetToZero();
             uiTimeProgressBar.SetToFull();
+            cityImprovement.StopWork(true);
             resourceManager.city.AddToWorldResearchWaitList();
         }
-        //checking of storage is free to unload
+        //checking if storage is free to unload
         else if (resourceManager.fullInventory)
         {
             isWaitingToUnload = true;
@@ -250,6 +258,7 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.waitingToUnloadProducers.Enqueue(this);
             //timeProgressBar.SetToZero();
             uiTimeProgressBar.SetToFull();
+            cityImprovement.StopWork(true);
         }
         else
         {
@@ -264,6 +273,7 @@ public class ResourceProducer : MonoBehaviour
             isWaitingToUnload = false;
             //timeProgressBar.ResetProgressBar();
             uiTimeProgressBar.SetToZero();
+            cityImprovement.StopWaiting();
             RestartProductionCheck(unloadLabor);
         }
     }
@@ -279,17 +289,20 @@ public class ResourceProducer : MonoBehaviour
             AddToResearchWaitList();
             //timeProgressBar.SetActive(false);
             uiTimeProgressBar.gameObject.SetActive(false);
+            cityImprovement.StopWork(false);
         }
         else if (resourceManager.fullInventory)
         {
             AddToStorageRoomWaitList();
             uiTimeProgressBar.gameObject.SetActive(false);
+            cityImprovement.StopWork(false);
             //timeProgressBar.SetActive(false);
         }
         else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
         {
             AddToResourceWaitList();
             uiTimeProgressBar.gameObject.SetActive(false);
+            cityImprovement.StopWork(false);
             //timeProgressBar.SetActive(false);
         }
         else
@@ -333,6 +346,7 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
         }
 
+        cityImprovement.StopWork(false);
         //timeProgressBar.SetActive(false);
         uiTimeProgressBar.gameObject.SetActive(false);
         isProducing = false;

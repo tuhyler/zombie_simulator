@@ -20,15 +20,26 @@ public class CityImprovement : MonoBehaviour
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
 
     [SerializeField]
-    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash;
+    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash, workFire1, workFire2, 
+        workSmoke;
+
+    private Vector3 workFire1Loc, workFire2Loc, workSmokeLoc;
 
     private Coroutine constructionCo;
     private int timePassed;
     public int GetTimePassed { get { return timePassed; } }
 
+    //animation
+    private Animator improvementAnimator;
+    private int isWorkingHash;
+    private int isWaitingHash;
+
     private void Awake()
     {
         highlight = GetComponents<SelectionHighlight>();
+        improvementAnimator = GetComponent<Animator>();
+        isWorkingHash = Animator.StringToHash("isWorking");
+        isWaitingHash = Animator.StringToHash("isWaiting");
     }
 
     private void Start()
@@ -37,6 +48,24 @@ public class CityImprovement : MonoBehaviour
 
         if (!building)
         {
+            if (workFire1 != null)
+            {
+                workFire1 = Instantiate(workFire1, loc + workFire1Loc, Quaternion.Euler(-90, 0, 0));
+                workFire1.Stop(); 
+            }
+
+            if (workFire2 != null)
+            {
+                workFire2 = Instantiate(workFire2, loc + workFire2Loc, Quaternion.Euler(-90, 0, 0));
+                workFire2.Stop();
+            }
+
+            if (workSmoke != null)
+            {
+                workSmoke = Instantiate(workSmoke, loc + workSmokeLoc, Quaternion.Euler(-90, 0, 0));
+                workSmoke.Stop();
+            }
+            
             upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
             upgradeSwirl.Stop();
             upgradeSwirl.gameObject.SetActive(false);
@@ -53,7 +82,6 @@ public class CityImprovement : MonoBehaviour
             upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
             upgradeSwirlDown.Stop();
             upgradeSwirlDown.gameObject.SetActive(false);
-
         }
         //else if (isConstruction)
         //{
@@ -78,6 +106,13 @@ public class CityImprovement : MonoBehaviour
         improvementData = data;
     }
 
+    public void SetPSLocs()
+    {
+        workFire1Loc = improvementData.workFire1Loc;
+        workFire2Loc = improvementData.workFire2Loc;
+        workSmokeLoc = improvementData.workSmokeLoc;
+    }
+
     public void SetSmokeEmitters()
     {
         smokeEmitter = Instantiate(smokeEmitter, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
@@ -90,6 +125,50 @@ public class CityImprovement : MonoBehaviour
         smokeSlow = Instantiate(smokeSlow, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
         smokeSlow.Stop();
         smokeSlow.gameObject.SetActive(false);
+    }
+
+    public void StartWork(int seconds = 1)
+    {
+        if (improvementAnimator != null)
+        {
+            improvementAnimator.SetBool(isWorkingHash, true);
+            improvementAnimator.SetFloat("speed", 1f/seconds);
+        }
+
+        if (workFire1 != null)
+            workFire1.Play();
+
+        if (workFire2 != null)
+            workFire2.Play();
+
+        if (workSmoke != null)
+            workSmoke.Play();
+    }
+
+    public void StopWork(bool waiting)
+    {
+        if (improvementAnimator != null)
+        {
+            if (waiting)
+                improvementAnimator.SetBool(isWaitingHash, true);
+            else
+                improvementAnimator.SetBool(isWorkingHash, false);
+        }
+
+        if (workFire1 != null)
+            workFire1.Stop();
+
+        if (workFire2 != null)
+            workFire2.Stop();
+
+        if (workSmoke != null)
+            workSmoke.Stop();
+    }
+
+    public void StopWaiting()
+    {
+        if (improvementAnimator != null)
+            improvementAnimator.SetBool(isWaitingHash, false);
     }
 
     public void EnableHighlight(Color highlightColor)

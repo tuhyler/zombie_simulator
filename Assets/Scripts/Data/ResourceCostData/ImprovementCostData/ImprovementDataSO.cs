@@ -28,4 +28,7 @@ public class ImprovementDataSO : ScriptableObject
     public int buildTime;
     public bool availableInitially = false;
     public bool locked = true;
+    public Vector3 workFire1Loc;
+    public Vector3 workFire2Loc;
+    public Vector3 workSmokeLoc;
 }
