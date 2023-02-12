@@ -10,7 +10,7 @@ public class TerrainData : MonoBehaviour
     public TerrainDataSO terrainData;
 
     [SerializeField]
-    public Transform prop;
+    public Transform main, prop;
 
     [SerializeField]
     private GameObject highlightPlane;

@@ -2715,7 +2715,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 96786230}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 6}
+  m_LocalPosition: {x: 0, y: 2, z: 9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3124,6 +3124,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GrasslandDecor06
+      objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: 2dc685712af5ad24c95d5e30df94db69,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2dc685712af5ad24c95d5e30df94db69, type: 3}
@@ -3929,6 +3934,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GrasslandDecor04
+      objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: bac1367d9921c504f9e83bd5839e48ba,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bac1367d9921c504f9e83bd5839e48ba, type: 3}
@@ -26772,6 +26782,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: GrasslandDecor05
       objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: dce4c7b846200724f8a7d5a889c172d2,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dce4c7b846200724f8a7d5a889c172d2, type: 3}
 --- !u!1001 &797412592
@@ -44851,6 +44866,11 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7298379652418494757, guid: de374e441caf3cf49aa5ed9ae85ed296,
+        type: 3}
+      propertyPath: m_Center.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7612223899073196632, guid: de374e441caf3cf49aa5ed9ae85ed296,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -46870,6 +46890,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: GrasslandDecor02
       objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: 9f80b0b37224d0543a8cc0ee69633cf3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f80b0b37224d0543a8cc0ee69633cf3, type: 3}
 --- !u!1 &1367085893
@@ -47047,6 +47072,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GrasslandDecor01
+      objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: b46832f06bbb3ef439028bb021b5ae44,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b46832f06bbb3ef439028bb021b5ae44, type: 3}
@@ -53199,6 +53229,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: GrasslandDecor06
       objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: 2dc685712af5ad24c95d5e30df94db69,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2dc685712af5ad24c95d5e30df94db69, type: 3}
 --- !u!1001 &1720996109
@@ -53781,6 +53816,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GrasslandDecor04
+      objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: bac1367d9921c504f9e83bd5839e48ba,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bac1367d9921c504f9e83bd5839e48ba, type: 3}
@@ -56820,6 +56860,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: GrasslandDecor05
       objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: dce4c7b846200724f8a7d5a889c172d2,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dce4c7b846200724f8a7d5a889c172d2, type: 3}
 --- !u!1001 &1826090223
@@ -58624,6 +58669,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GrasslandDecor06
+      objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: 2dc685712af5ad24c95d5e30df94db69,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2dc685712af5ad24c95d5e30df94db69, type: 3}
@@ -61949,6 +61999,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GrasslandDecor03
+      objectReference: {fileID: 0}
+    - target: {fileID: 9073605623283122857, guid: de8ace443689126458de5a893508f4a5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de8ace443689126458de5a893508f4a5, type: 3}

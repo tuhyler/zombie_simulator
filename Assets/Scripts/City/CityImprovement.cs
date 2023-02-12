@@ -165,6 +165,12 @@ public class CityImprovement : MonoBehaviour
             workSmoke.Stop();
     }
 
+    public void StopWorkAnimation()
+    {
+        if (improvementAnimator != null)
+            improvementAnimator.SetBool(isWorkingHash, false);
+    }
+
     public void StopWaiting()
     {
         if (improvementAnimator != null)

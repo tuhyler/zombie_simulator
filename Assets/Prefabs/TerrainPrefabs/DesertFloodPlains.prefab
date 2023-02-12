@@ -49,7 +49,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: 92a16e2c9246d424ca69482650746635, type: 2}
+  main: {fileID: 2997620081912887924}
   prop: {fileID: 8847728230643572033}
+  highlightPlane: {fileID: 0}
+  groundMaterial: {fileID: 0}
   hasRoad: 0
 --- !u!114 &-8795209696621121151
 MonoBehaviour:

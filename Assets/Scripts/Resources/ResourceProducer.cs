@@ -164,6 +164,7 @@ public class ResourceProducer : MonoBehaviour
 
         if (resourceManager.city.activeCity)
             uiTimeProgressBar.gameObject.SetActive(true);
+
         producingCo = StartCoroutine(ProducingCoroutine());
         isProducing = true;
     }
@@ -308,6 +309,7 @@ public class ResourceProducer : MonoBehaviour
         else
         {
             tempLaborPercsList.Clear();
+            cityImprovement.StopWorkAnimation();
             producingCo = StartCoroutine(ProducingCoroutine());
         }
     }

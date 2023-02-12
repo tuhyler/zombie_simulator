@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Farm01Data
+  m_Name: FarmFloodPlains01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00, type: 3}
-  secondaryData: {fileID: 11400000, guid: b7d41219a09ae7a4b94f48de6b4037d1, type: 2}
+  prefab: {fileID: 1818493788481445142, guid: a653316b7a6b86f429ea33d95bb8e124, type: 3}
+  secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Farm
   improvementLevel: 1
@@ -35,12 +35,12 @@ MonoBehaviour:
   workEthicChange: 0
   maxLabor: 2
   laborCost: 1
-  replaceTerrain: 0
+  replaceTerrain: 1
   returnProp: 0
   singleBuild: 0
   buildTime: 5
   availableInitially: 1
   locked: 0
-  workFire1Loc: {x: 0, y: 0.7, z: 0}
+  workFire1Loc: {x: 0, y: 0.2, z: 0}
   workFire2Loc: {x: 0, y: 0, z: 0}
   workSmokeLoc: {x: 0, y: 0, z: 0}
