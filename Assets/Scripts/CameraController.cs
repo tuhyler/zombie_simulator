@@ -22,6 +22,9 @@ public class CameraController : MonoBehaviour
     private bool scrolling;
     public bool Scrolling { set { scrolling = value; } }
 
+    private bool disableMouse;
+    public bool DisableMouse { set { disableMouse = value; } }
+
     private float movementLimit = 40f;
     private float edgeSize = 40f; //pixel buffer size
 
@@ -51,9 +54,9 @@ public class CameraController : MonoBehaviour
         }
         else if (centerTransform != null)
         {
-            transform.position = Vector3.Lerp(transform.position, centerTransform.position + new Vector3(0, -.4f, 0.7f), Time.deltaTime * movementTime);
+            transform.position = Vector3.Lerp(transform.position, centerTransform.position + new Vector3(0, -.4f, -1.7f), Time.deltaTime * movementTime);
             cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, new Vector3(0, 17.5f, -11.0f), Time.deltaTime * movementTime);
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(20, 0, 0), Time.deltaTime * movementTime);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(20, transform.rotation.eulerAngles.y, 0), Time.deltaTime * movementTime);
             newPosition = centerTransform.position; //so you don't return to previous spot when breaking focus
             newZoom = cameraTransform.localPosition;
         }
@@ -68,16 +71,16 @@ public class CameraController : MonoBehaviour
 
 
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) ||
-            Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.RightArrow) ||
-            Input.mousePosition.y > Screen.height - edgeSize || Input.mousePosition.x < edgeSize || Input.mousePosition.y < edgeSize ||
-            Input.mousePosition.x > Screen.width - edgeSize) //break focus
+            Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.RightArrow))
+            //|| Input.mousePosition.y > Screen.height - edgeSize || Input.mousePosition.x < edgeSize || Input.mousePosition.y < edgeSize ||
+            //Input.mousePosition.x > Screen.width - edgeSize) //break focus
         //if (Input.anyKey) //break focus
         {
             followTransform = null;
         }
 
-        //if (Input.mousePosition.y > Screen.height - edgeSize || Input.mousePosition.x < edgeSize || 
-        //    Input.mousePosition.y < edgeSize || Input.mousePosition.x > Screen.width - edgeSize) 
+        //if (Input.mousePosition.y > Screen.height - edgeSize || Input.mousePosition.x < edgeSize ||
+        //    Input.mousePosition.y < edgeSize || Input.mousePosition.x > Screen.width - edgeSize)
         //{
         //    followTransform = null;
         //}
@@ -102,6 +105,11 @@ public class CameraController : MonoBehaviour
         newZoom = zoom;
     }
 
+    public Vector3 GetZoom()
+    {
+        return newZoom;
+    }
+
     private void HandleKeyboardMovementInput()
     {
         //assigning keys
@@ -124,9 +132,9 @@ public class CameraController : MonoBehaviour
 
         //for rotation
         if (Input.GetKey(KeyCode.Q))
-            {
-                newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
-            }
+        {
+            newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
+        }
         if (Input.GetKey(KeyCode.E))
         {
             newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
@@ -137,6 +145,8 @@ public class CameraController : MonoBehaviour
 
     private void HandleMouseMovementInput()
     {
+        if (disableMouse)
+            return;
 
         if (Input.mousePosition.y > Screen.height - edgeSize)
         {
@@ -183,8 +193,8 @@ public class CameraController : MonoBehaviour
     private void ZoomCamera()
     {
         //zooming limits (set manually)
-        newZoom.y = Mathf.Clamp(newZoom.y, 3f, 15); //difference between the two need to be the same. 
-        newZoom.z = Mathf.Clamp(newZoom.z, -13f, -1); //last has to be -1ish
+        newZoom.y = Mathf.Clamp(newZoom.y, 3f, 11); //for perfect diagonal, needs to be linear. if starting zoom y=5.5, z=-3, then 2.5 to bottom and 5.5 to top for both. 
+        newZoom.z = Mathf.Clamp(newZoom.z, -8.5f, -0.5f); 
 
         //smoothing zoom
         cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);

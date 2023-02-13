@@ -24,7 +24,7 @@ public class InfoResourcePopUpHandler : MonoBehaviour
     private void Update()
     {
         float moveSpeed = 0.2f;
-        transform.position += new Vector3(0, 0, moveSpeed) * Time.deltaTime;
+        transform.position += new Vector3(0, moveSpeed, 0) * Time.deltaTime;
 
         disappearTimer -= Time.deltaTime;
         if (disappearTimer < 0)
