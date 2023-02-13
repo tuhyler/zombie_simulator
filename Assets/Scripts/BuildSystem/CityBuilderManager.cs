@@ -58,6 +58,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private CameraController focusCam;
     private Quaternion originalRotation;
+    private Vector3 originalZoom;
 
     private City selectedCity;
     public City SelectedCity { get { return selectedCity; } }
@@ -140,21 +141,25 @@ public class CityBuilderManager : MonoBehaviour
 
     private void CameraBirdsEyeRotation()
     {
+        focusCam.DisableMouse = true;
         originalRotation = focusCam.transform.rotation;
+        originalZoom = focusCam.GetZoom();
         focusCam.centerTransform = selectedCity.transform;
     }
 
     private void CameraBirdsEyeRotationWonder()
     {
         originalRotation = focusCam.transform.rotation;
+        originalZoom = focusCam.GetZoom();
         focusCam.centerTransform = selectedWonder.transform;
     }
 
     private void CameraDefaultRotation()
     {
+        focusCam.DisableMouse = false;
         focusCam.centerTransform = null;
         focusCam.transform.rotation = Quaternion.Lerp(focusCam.transform.rotation, originalRotation, Time.deltaTime * 5);
-        focusCam.SetZoom(new Vector3(0, 7.5f, -3.5f));
+        focusCam.SetZoom(originalZoom);
         //focusCam.cameraTransform.localPosition += new Vector3(0, -1f, 1f);
     }
 

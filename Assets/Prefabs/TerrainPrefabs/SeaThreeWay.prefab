@@ -81,8 +81,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: 7ed7f8fed9391d846ae905b992515e62, type: 2}
+  main: {fileID: 0}
   prop: {fileID: 0}
   highlightPlane: {fileID: 0}
+  groundMaterial: {fileID: 0}
   hasRoad: 0
 --- !u!114 &5191855138478399228
 MonoBehaviour:
@@ -124,7 +126,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 2, y: 0, z: 2}
-  m_Center: {x: 0, y: -0.3, z: 0}
+  m_Center: {x: 0, y: -0.2, z: 0}
 --- !u!1 &7947533954490412569
 GameObject:
   m_ObjectHideFlags: 0

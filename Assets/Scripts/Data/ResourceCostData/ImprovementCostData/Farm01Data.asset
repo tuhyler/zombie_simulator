@@ -29,7 +29,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 1
     resourceAmount: 2
-  producedResourceTime: 10
+  producedResourceTime: 20
   resourceType: 1
   terrainType: 5
   workEthicChange: 0

@@ -148,9 +148,9 @@ public class Unit : MonoBehaviour
                 y = -.3f;
                 isBeached = false;
             }
-            else if (td.IsSeaCorner && world.CheckIfCoastCoast(endPositionInt))
+            else if (world.CheckIfCoastCoast(endPositionInt))
             {
-                y = -.25f;
+                y = -.15f;
                 TurnOffRipples();
                 isBeached = true;
             }
