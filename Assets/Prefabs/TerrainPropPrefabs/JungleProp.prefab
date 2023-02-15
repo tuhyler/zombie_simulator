@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 20
   m_IsActive: 1
 --- !u!4 &1547425620333918306
 Transform:
@@ -39,6 +39,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1547425620333918306}
     m_Modifications:
+    - target: {fileID: -8924481169308352187, guid: d040e7cae7e578f428bb1e2986831d8e,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d040e7cae7e578f428bb1e2986831d8e,
         type: 3}
       propertyPath: m_RootOrder
@@ -94,10 +99,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7973575482608485698, guid: d040e7cae7e578f428bb1e2986831d8e,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d040e7cae7e578f428bb1e2986831d8e,
         type: 3}
       propertyPath: m_Name
       value: jungle01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d040e7cae7e578f428bb1e2986831d8e,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6226060847750925519, guid: d040e7cae7e578f428bb1e2986831d8e,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d040e7cae7e578f428bb1e2986831d8e, type: 3}

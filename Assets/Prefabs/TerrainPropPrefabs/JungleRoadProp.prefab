@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 20
   m_IsActive: 1
 --- !u!4 &1547425620333918306
 Transform:
@@ -94,10 +94,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7973575482608485698, guid: d36517e7b36df04439dd1a6201064943,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d36517e7b36df04439dd1a6201064943,
         type: 3}
       propertyPath: m_Name
       value: jungleroad01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d36517e7b36df04439dd1a6201064943,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6226060847750925519, guid: d36517e7b36df04439dd1a6201064943,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d36517e7b36df04439dd1a6201064943, type: 3}

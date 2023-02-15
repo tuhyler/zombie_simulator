@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 20
   m_IsActive: 1
 --- !u!4 &6193421569473789042
 Transform:
@@ -40,15 +40,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5011132036053948465}
-  - component: {fileID: 595757560706769052}
   - component: {fileID: -3658443331444529470}
   - component: {fileID: 7525565218650109521}
+  - component: {fileID: 5870712689763546697}
   m_Layer: 6
   m_Name: GrasslandMountain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 20
   m_IsActive: 1
 --- !u!4 &5011132036053948465
 Transform:
@@ -67,20 +67,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &595757560706769052
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3381364887944033004}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 3237046608918968389, guid: 43bdc9f4bc941244289c8335e91659fb, type: 3}
 --- !u!114 &-3658443331444529470
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,7 +80,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: ba7d2165cd2acc24b9fcfb758105308a, type: 2}
+  main: {fileID: 0}
   prop: {fileID: 0}
+  highlightPlane: {fileID: 0}
+  groundMaterial: {fileID: 0}
   hasRoad: 0
 --- !u!114 &7525565218650109521
 MonoBehaviour:
@@ -110,6 +99,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
+--- !u!65 &5870712689763546697
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3381364887944033004}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2, y: 0, z: 2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7106546565617963891
 GameObject:
   m_ObjectHideFlags: 0
@@ -124,7 +126,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 20
   m_IsActive: 1
 --- !u!4 &478413442398559047
 Transform:
