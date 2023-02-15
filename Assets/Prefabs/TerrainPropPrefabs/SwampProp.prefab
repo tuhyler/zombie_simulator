@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 20
   m_IsActive: 1
 --- !u!4 &1547425620333918306
 Transform:
@@ -94,10 +94,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7973575482608485698, guid: 5ac7c61e0405b464b90136687bb6b3ff,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}
       propertyPath: m_Name
       value: swampdecor01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5ac7c61e0405b464b90136687bb6b3ff,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2560095358516857325, guid: 5ac7c61e0405b464b90136687bb6b3ff,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 5604350172490870465, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}

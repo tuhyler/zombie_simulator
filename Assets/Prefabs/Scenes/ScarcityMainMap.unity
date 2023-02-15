@@ -25,7 +25,7 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 1
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SubtractiveShadowColor: {r: 0.41960785, g: 0.47843137, b: 0.627451, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: e11f5b66aad75483b8cd16ee18a0c917, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -5070,6 +5070,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: worker_01 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8751335123064606720, guid: de374e441caf3cf49aa5ed9ae85ed296,
         type: 3}
@@ -18393,6 +18398,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: warrior0
       objectReference: {fileID: 0}
+    - target: {fileID: 2321851027760307080, guid: b8ea75b095d526c47b34746b4047349a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5945042009464761750, guid: b8ea75b095d526c47b34746b4047349a,
         type: 3}
       propertyPath: m_RootOrder
@@ -23496,6 +23506,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: trader_1
       objectReference: {fileID: 0}
+    - target: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4772441922446314046, guid: 252a6d05c66060d4d9b896e55d3e6108,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -23754,6 +23769,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: boat_trader_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5269694401452621163, guid: 93eeea04b2503ca4b8e3df5751f2495a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93eeea04b2503ca4b8e3df5751f2495a, type: 3}
@@ -37771,6 +37791,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: trader_1 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4772441922446314046, guid: 252a6d05c66060d4d9b896e55d3e6108,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -44890,6 +44915,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: worker_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8751335123064606720, guid: de374e441caf3cf49aa5ed9ae85ed296,
         type: 3}
@@ -53482,6 +53512,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: trader_1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4772441922446314046, guid: 252a6d05c66060d4d9b896e55d3e6108,
         type: 3}
@@ -65455,7 +65490,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500063
+      value: 8.500068
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}

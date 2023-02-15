@@ -52,14 +52,24 @@ public class CameraController : MonoBehaviour
             transform.position = Vector3.Lerp(transform.position, followTransform.position, Time.deltaTime * movementTime);
             newPosition = followTransform.position; //so you don't return to previous spot when breaking focus
         }
-        else if (centerTransform != null)
-        {
-            transform.position = Vector3.Lerp(transform.position, centerTransform.position + new Vector3(0, -.4f, -1.7f), Time.deltaTime * movementTime);
-            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, new Vector3(0, 17.5f, -11.0f), Time.deltaTime * movementTime);
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(20, transform.rotation.eulerAngles.y, 0), Time.deltaTime * movementTime);
-            newPosition = centerTransform.position; //so you don't return to previous spot when breaking focus
-            newZoom = cameraTransform.localPosition;
-        }
+        //else if (centerTransform != null)
+        //{
+        //    int newY = 0;
+        //    float y = transform.rotation.eulerAngles.y;
+
+        //    if (y > 45 && y <= 135)
+        //        newY = 90;
+        //    else if (y > 135 && y <= 225)
+        //        newY = 180;
+        //    else if (y > 225 && y <= 315)
+        //        newY = 270;
+        
+        //    transform.position = Vector3.Lerp(transform.position, centerTransform.position + new Vector3(0, -.4f, -1.7f), Time.deltaTime * movementTime);
+        //    cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, new Vector3(0, 17.5f, -11.0f), Time.deltaTime * movementTime);
+        //    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(20, newY, 0), Time.deltaTime * movementTime);
+        //    newPosition = centerTransform.position; //so you don't return to previous spot when breaking focus
+        //    newZoom = cameraTransform.localPosition;
+        //}
         else
         {
             HandleKeyboardMovementInput();
