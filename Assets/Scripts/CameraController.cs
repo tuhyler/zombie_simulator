@@ -19,6 +19,9 @@ public class CameraController : MonoBehaviour
     [HideInInspector]
     public Quaternion followRotation;
 
+    //for lerping (smooth damp)
+    private Vector3 velocity = Vector3.zero;
+
     private bool scrolling;
     public bool Scrolling { set { scrolling = value; } }
 
@@ -28,7 +31,7 @@ public class CameraController : MonoBehaviour
     private float movementLimit = 40f;
     private float edgeSize = 40f; //pixel buffer size
 
-    public float movementSpeed, movementTime, rotationAmount;
+    public float movementSpeed, movementTime, rotationAmount, zoomTime;
     public Vector3 zoomAmount;
 
     public Vector3 newPosition, newZoom;
@@ -49,7 +52,7 @@ public class CameraController : MonoBehaviour
         if (followTransform != null) //to center on something
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * 5);
-            transform.position = Vector3.Lerp(transform.position, followTransform.position, Time.deltaTime * movementTime);
+            transform.position = Vector3.SmoothDamp(transform.position, followTransform.position, ref velocity, Time.deltaTime * movementTime);
             newPosition = followTransform.position; //so you don't return to previous spot when breaking focus
         }
         //else if (centerTransform != null)
@@ -185,7 +188,7 @@ public class CameraController : MonoBehaviour
         newPosition.z = Mathf.Clamp(newPosition.z, -movementLimit, movementLimit); //change to edge
 
         //smoothing camera movement
-        transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);
+        transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, Time.deltaTime * movementTime);
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
     }
 
@@ -207,7 +210,7 @@ public class CameraController : MonoBehaviour
         newZoom.z = Mathf.Clamp(newZoom.z, -8.5f, -0.5f); 
 
         //smoothing zoom
-        cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
+        cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * zoomTime);
     }
 
     private void RotateCamera()
