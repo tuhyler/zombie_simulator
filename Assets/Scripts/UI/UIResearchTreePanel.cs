@@ -12,6 +12,9 @@ public class UIResearchTreePanel : MonoBehaviour
     private MapWorld world;
 
     [SerializeField]
+    private CameraController cameraController;
+
+    [SerializeField]
     private Transform uiElementsParent;
 
     //[SerializeField]
@@ -132,6 +135,8 @@ public class UIResearchTreePanel : MonoBehaviour
             });
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
+
+        cameraController.enabled = !v;
     }
 
     private void SetActiveStatusFalse()

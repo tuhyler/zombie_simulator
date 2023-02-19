@@ -11,7 +11,10 @@ public class UIWonderHandler : MonoBehaviour
 {
     [SerializeField]
     private MapWorld world;
-    
+
+    [SerializeField]
+    private CameraController cameraController;
+
     private WonderDataSO buildData;
     
     [SerializeField]
@@ -139,6 +142,8 @@ public class UIWonderHandler : MonoBehaviour
             //LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
+
+        cameraController.enabled = !v;
     }
 
     private void SetActiveStatusFalse()

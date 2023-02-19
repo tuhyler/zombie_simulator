@@ -12,6 +12,9 @@ public class UIBuilderHandler : MonoBehaviour
     private UnitBuildDataSO unitBuildData;
 
     [SerializeField]
+    private CameraController cameraController;
+
+    [SerializeField]
     private UnityEvent<ImprovementDataSO> OnIconButtonClick;
     [SerializeField]
     private UnityEvent<UnitBuildDataSO> OnUnitIconButtonClick;
@@ -147,6 +150,8 @@ public class UIBuilderHandler : MonoBehaviour
             LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 300f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
+
+        cameraController.enabled = !v;
     }
 
     private void SetActiveStatusFalse()
@@ -207,7 +212,7 @@ public class UIBuilderHandler : MonoBehaviour
                 {
                     //buildItem.ToggleInteractable(false); //deactivate if not enough resources
                     buildItem.SetResourceTextToRed(item);
-                    break;
+                    //break;
                 }
             }
         }
