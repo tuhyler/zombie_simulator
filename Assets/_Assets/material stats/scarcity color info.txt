@@ -62,3 +62,17 @@ Waves color:
 Color 1: 3CBE7B pos-.35
 Color 2: E3CFB3 pos-.4
 Noise: Scale-6 Detail-2 Roughness-2 Distortion-1
+
+Lightwood1:
+Color 1: E4B987 pos-0
+Color 2: 91764B pos-.83
+Color 3: 000000 pos-1
+Noise: Scale-5 Detail-2 Roughness-.5 Distortion-1
+Y Scale = 10
+
+Lightwood2:
+Color 1: 9F815E pos-0
+Color 2: 7B633F pos-.83
+Color 3: 000000 pos-1
+Noise: Scale-5 Detail-2 Roughness-.5 Distortion-1
+Y Scale = 10
