@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 public class TerrainData : MonoBehaviour
@@ -14,9 +11,6 @@ public class TerrainData : MonoBehaviour
 
     [SerializeField]
     private GameObject highlightPlane;
-
-    [SerializeField]
-    public Material groundMaterial;
 
     private SelectionHighlight highlight;
 

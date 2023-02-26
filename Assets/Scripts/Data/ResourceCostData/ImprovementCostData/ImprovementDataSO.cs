@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +6,7 @@ public class ImprovementDataSO : ScriptableObject
 {
     public GameObject prefab;
     public ImprovementDataSO secondaryData;
+    public ImprovementDataSO tertiaryData;
     public bool isBuilding;
     public string improvementName;
     public int improvementLevel;

@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class Worker : Unit
 {
@@ -20,12 +17,17 @@ public class Worker : Unit
     [HideInInspector]
     public bool removing;
 
+    //animations
+    private int isWorkingHash;
+
+
     //[SerializeField]
     //private ParticleSystem removeSplash;
 
     private void Awake()
     {
         AwakeMethods();
+        isWorkingHash = Animator.StringToHash("isWorking");
         isWorker = true;
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
         resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
@@ -45,6 +47,11 @@ public class Worker : Unit
     //    removeSplash.transform.position = loc;
     //    removeSplash.Play();
     //}
+
+    public void SetWorkAnimation(bool v)
+    {
+        unitAnimator.SetBool(isWorkingHash, v);
+    }
 
     public override void SendResourceToCity()
     {
@@ -218,6 +225,8 @@ public class Worker : Unit
 
     private void BuildRoad()
     {
+        unitAnimator.SetBool(isWorkingHash, true);
+
         Vector3Int workerTile = orderQueue.Peek();
         //orderList.Remove(workerTile);
 
@@ -294,6 +303,7 @@ public class Worker : Unit
 
         //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
         StopMovement();
+        unitAnimator.SetBool(isWorkingHash, true);
         isBusy = true;
         //resourceIndividualHandler.SetWorker(this);
         workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual);

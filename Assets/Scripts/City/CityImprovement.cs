@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Rendering.MaterialUpgrader;
 
 public class CityImprovement : MonoBehaviour
 {
     //[SerializeField]
     //private ImprovementDataSO improvementDataSO;
     //public ImprovementDataSO GetImprovementDataSO { get { return improvementDataSO; } }
-    
+
+    [SerializeField]
+    private List<ImprovementAnimators> animators = new();
+
     private SelectionHighlight[] highlight;
     private ImprovementDataSO improvementData;
     public ImprovementDataSO GetImprovementData { get { return improvementData; } }
@@ -30,16 +32,16 @@ public class CityImprovement : MonoBehaviour
     public int GetTimePassed { get { return timePassed; } }
 
     //animation
-    private Animator improvementAnimator;
-    private int isWorkingHash;
-    private int isWaitingHash;
+    //private Animator improvementAnimator;
+    //private int isWorkingHash;
+    //private int isWaitingHash;
 
     private void Awake()
     {
         highlight = GetComponents<SelectionHighlight>();
-        improvementAnimator = GetComponent<Animator>();
-        isWorkingHash = Animator.StringToHash("isWorking");
-        isWaitingHash = Animator.StringToHash("isWaiting");
+        //improvementAnimator = GetComponent<Animator>();
+        //isWorkingHash = Animator.StringToHash("isWorking");
+        //isWaitingHash = Animator.StringToHash("isWaiting");
     }
 
     private void Start()
@@ -129,12 +131,18 @@ public class CityImprovement : MonoBehaviour
 
     public void StartWork(int seconds = 1)
     {
-        if (improvementAnimator != null)
-        {
-            improvementAnimator.SetBool(isWorkingHash, true);
-            improvementAnimator.SetFloat("speed", 1f/seconds);
-        }
+        //if (improvementAnimator != null)
+        //{
+        //    improvementAnimator.SetBool(isWorkingHash, true);
+        //    improvementAnimator.SetFloat("speed", 1f/seconds);
+        //}
 
+        foreach (ImprovementAnimators animator in animators)
+        {
+            //int mod = new System.Random().Next(0, 4);
+            animator.StartAnimation(seconds);
+        }
+ 
         if (workFire1 != null)
             workFire1.Play();
 
@@ -147,12 +155,20 @@ public class CityImprovement : MonoBehaviour
 
     public void StopWork(bool waiting)
     {
-        if (improvementAnimator != null)
+        //if (improvementAnimator != null)
+        //{
+        //    if (waiting)
+        //        improvementAnimator.SetBool(isWaitingHash, true);
+        //    else
+        //        improvementAnimator.SetBool(isWorkingHash, false);
+        //}
+
+        if (animators.Count > 0)
         {
-            if (waiting)
-                improvementAnimator.SetBool(isWaitingHash, true);
-            else
-                improvementAnimator.SetBool(isWorkingHash, false);
+            foreach (ImprovementAnimators animator in animators)
+            {
+                animator.StopAnimation(waiting);
+            }
         }
 
         if (workFire1 != null)
@@ -167,14 +183,20 @@ public class CityImprovement : MonoBehaviour
 
     public void StopWorkAnimation()
     {
-        if (improvementAnimator != null)
-            improvementAnimator.SetBool(isWorkingHash, false);
+        if (animators.Count > 0)
+        {
+            foreach (ImprovementAnimators animator in animators)
+                animator.StopAnimation(false);
+        }
     }
 
     public void StopWaiting()
     {
-        if (improvementAnimator != null)
-            improvementAnimator.SetBool(isWaitingHash, false);
+        if (animators.Count > 0)
+        {
+            foreach (ImprovementAnimators animator in animators)
+                animator.StopAnimation(true);
+        }
     }
 
     public void EnableHighlight(Color highlightColor)

@@ -190,6 +190,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemText: {fileID: 3944427115028200047}
   itemName: 
+  buildingName: 
   background: {fileID: 2995671313249486988}
   unitBuildData: {fileID: 0}
   improvementData: {fileID: 0}

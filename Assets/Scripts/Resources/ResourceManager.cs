@@ -2,10 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using UnityEditor;
-using Unity.VisualScripting;
-using Mono.Cecil;
-using System.Resources;
 
 public class ResourceManager : MonoBehaviour
 {

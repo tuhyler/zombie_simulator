@@ -55,7 +55,8 @@ public class Unit : MonoBehaviour
     public bool bySea, isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting, harvested;
 
     //animation
-    private Animator unitAnimator;
+    [HideInInspector]
+    public Animator unitAnimator;
     private int isMovingHash;
 
 

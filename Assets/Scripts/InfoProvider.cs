@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InfoProvider : MonoBehaviour
@@ -18,7 +15,7 @@ public class InfoProvider : MonoBehaviour
     //private int regMovementPoints;
     //public int RegMovementPoints => regMovementPoints;
 
-    private Unit selectedUnit;
+    //private Unit selectedUnit;
 
     private void Start()
     {
@@ -27,7 +24,7 @@ public class InfoProvider : MonoBehaviour
 
     private void GetBaseInfo()
     {
-        selectedUnit = gameObject.GetComponent<Unit>();
+        //selectedUnit = gameObject.GetComponent<Unit>();
         objectName = gameObject.name;
         //regMovementPoints = selectedUnit.GetUnitData().movementPoints;
     }

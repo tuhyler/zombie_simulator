@@ -95,6 +95,7 @@ MonoBehaviour:
   buildDataSO: {fileID: 0}
   lightBeam: {fileID: 6841559248971666239, guid: 9b46cb8e8220ddd428f5785751c57fad,
     type: 3}
+  selectionCircle: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
@@ -102,6 +103,7 @@ MonoBehaviour:
   moreToMove: 0
   isBusy: 0
   isMoving: 0
+  isBeached: 0
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -111,9 +113,11 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  unitAnimator: {fileID: 0}
   hasRoute: 0
   interruptedRoute: 0
   loadUnloadRate: 1
+  ripples: {fileID: 0}
 --- !u!114 &9082481739774170290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,4 +183,4 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 122
-  m_CollisionDetection: 3
+  m_CollisionDetection: 0

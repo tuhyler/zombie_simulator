@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 1686765677576597183}
   - component: {fileID: 2050705500241568073}
   - component: {fileID: 718474908050057380}
-  - component: {fileID: 4252527723130437634}
   - component: {fileID: 7796438051319544572}
+  - component: {fileID: 4530263000516872463}
   m_Layer: 8
   m_Name: HousingBase
   m_TagString: Untagged
@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animators: []
   initialCityHouse: 0
   isConstruction: 0
   queued: 0
@@ -57,12 +58,16 @@ MonoBehaviour:
   upgradeFlash: {fileID: 0}
   upgradeSplash: {fileID: 6041035029305573530, guid: f33ec1b18d6b26844828ba3f7121dea0,
     type: 3}
+  smokeSlow: {fileID: 0}
   smokeEmitter: {fileID: 0}
   smokeSplash: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
     type: 3}
   removeEruption: {fileID: 0}
   removeSplash: {fileID: 6041035029305573530, guid: 227158f9fa8122c4492aaec08d475a56,
     type: 3}
+  workFire1: {fileID: 0}
+  workFire2: {fileID: 0}
+  workSmoke: {fileID: 0}
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,20 +82,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
   glowMaterialColor: {fileID: 2100000, guid: 902e335b538979147bd2837e251af069, type: 2}
---- !u!64 &4252527723130437634
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8789389234130458407}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
 --- !u!114 &7796438051319544572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,3 +96,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
+--- !u!65 &4530263000516872463
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8789389234130458407}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
