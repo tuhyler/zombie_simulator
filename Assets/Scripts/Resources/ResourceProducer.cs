@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceProducer : MonoBehaviour
@@ -309,7 +307,7 @@ public class ResourceProducer : MonoBehaviour
         else
         {
             tempLaborPercsList.Clear();
-            cityImprovement.StopWorkAnimation();
+            //cityImprovement.StopWorkAnimation();
             producingCo = StartCoroutine(ProducingCoroutine());
         }
     }

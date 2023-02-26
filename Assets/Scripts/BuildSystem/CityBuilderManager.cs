@@ -1,13 +1,7 @@
-using Mono.Cecil;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-//using System.Drawing;
-using System.Threading.Tasks;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.FilePathAttribute;
 
 public class CityBuilderManager : MonoBehaviour
 {
@@ -1476,19 +1470,27 @@ public class CityBuilderManager : MonoBehaviour
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
 
         if (td.terrainData.isFloodPlain)
-            improvementData = improvementData.secondaryData;
-
-        if (improvementData.replaceTerrain)
         {
-            Material mat = td.groundMaterial;
-            rotation = (int)td.transform.eulerAngles.y;
-
-            foreach(MeshRenderer renderer in improvementData.prefab.GetComponentsInChildren<MeshRenderer>())
-            {
-                if (renderer.name == "Ground")
-                    renderer.material = mat;
-            }
+            if (td.terrainData.isDesert)
+                improvementData = improvementData.secondaryData;
+            else
+                improvementData = improvementData.tertiaryData;
         }
+
+        //if (improvementData.replaceTerrain)
+        //{
+        //    rotation = (int)td.transform.eulerAngles.y;
+        //    //Vector2[] test = td.main.GetComponentInChildren<Mesh>().uv;
+        //    MeshFilter ugh = td.main.GetComponentInChildren<MeshFilter>();
+        //    Vector2[] test = ugh.mesh.uv;
+
+        //    //Vector2[] test2 = improvementData.prefab.GetComponentInChildren<MeshFilter>().mesh.uv;
+
+        //    foreach (MeshFilter mesh in improvementData.prefab.GetComponentsInChildren<MeshFilter>())
+        //    {
+
+        //    }
+        //}
 
         GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
@@ -1567,10 +1569,18 @@ public class CityBuilderManager : MonoBehaviour
         //activating structure
         GameObject improvement = world.GetStructure(tempBuildLocation);
         improvement.SetActive(true);
-        //for tweening
-        improvement.transform.localScale = Vector3.zero;
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
-        LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete(() => { ReplaceTerrainCheck(tempBuildLocation, improvementData.replaceTerrain); });
+
+        if (improvementData.replaceTerrain)
+        {
+            world.GetTerrainDataAt(tempBuildLocation).main.gameObject.SetActive(false);
+        }
+        else
+        {
+            //for tweening
+            improvement.transform.localScale = Vector3.zero;
+            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack);//.setOnComplete(() => { ReplaceTerrainCheck(tempBuildLocation, improvementData.replaceTerrain); });
+        }    
         //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
 
         if (td.prop != null)
@@ -1629,13 +1639,13 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    private void ReplaceTerrainCheck(Vector3Int tempBuildLocation, bool replaceTerrain)
-    {
-        if (replaceTerrain)
-        {
-            world.GetTerrainDataAt(tempBuildLocation).main.gameObject.SetActive(false);
-        }
-    }
+    //private void ReplaceTerrainCheck(Vector3Int tempBuildLocation, bool replaceTerrain)
+    //{
+    //    if (replaceTerrain)
+    //    {
+    //        world.GetTerrainDataAt(tempBuildLocation).main.gameObject.SetActive(false);
+    //    }
+    //}
 
     private int HarborRotation(Vector3Int tempBuildLocation, Vector3Int originationLocation)
     {

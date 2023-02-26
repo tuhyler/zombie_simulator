@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ResourceIndividualHandler : MonoBehaviour
@@ -84,6 +82,7 @@ public class ResourceIndividualHandler : MonoBehaviour
     {
         int timePassed = resourceIndividual.ResourceGatheringTime;
         worker.ShowProgressTimeBar(timePassed);
+        worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
         while (timePassed > 0)
@@ -94,6 +93,7 @@ public class ResourceIndividualHandler : MonoBehaviour
         }
 
         worker.HideProgressTimeBar();
+        worker.SetWorkAnimation(false);
         if (worker.isSelected)
             workerTaskManager.TurnOffCancelTask();
 

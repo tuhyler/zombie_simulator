@@ -103,6 +103,11 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2924565007274644614, guid: e4bd301c61563bc4ea65de6a90358251,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5835038277475754307, guid: e4bd301c61563bc4ea65de6a90358251,
         type: 3}
       propertyPath: m_Mesh

@@ -1,7 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class WorkerTaskManager : MonoBehaviour
@@ -489,6 +486,7 @@ public class WorkerTaskManager : MonoBehaviour
             timePassed *= 2;
 
         worker.ShowProgressTimeBar(timePassed);
+        worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
         while (timePassed > 0)
@@ -499,6 +497,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         worker.HideProgressTimeBar();
+        worker.SetWorkAnimation(false);
         if (worker.isSelected)
             TurnOffCancelTask();
         BuildCity(workerTile, worker, clearForest, td);
@@ -595,6 +594,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
         else
         {
+            workerUnit.SetWorkAnimation(false);
             StopCoroutine(taskCoroutine);
             workerUnit.HideProgressTimeBar();
             world.RemoveWorkerWorkLocation(world.RoundToInt(workerUnit.transform.position));

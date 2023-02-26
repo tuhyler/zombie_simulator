@@ -581,9 +581,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -773,7 +773,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 8.511841, y: 0}
+  m_AnchoredPosition: {x: 8.5, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1189476968333509827
@@ -961,6 +961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84615fb1f33212e4b8aefef6608eff43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraController: {fileID: 0}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls: []
@@ -1055,8 +1056,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 0}
   m_HandleRect: {fileID: 1763604027450423307}
   m_Direction: 0
-  m_Value: -0.00004698738
-  m_Size: 0.8345125
+  m_Value: 0
+  m_Size: 0.83475024
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

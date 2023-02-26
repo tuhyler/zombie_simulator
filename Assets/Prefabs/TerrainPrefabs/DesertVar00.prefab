@@ -91,6 +91,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: DesertVar00
       objectReference: {fileID: 0}
+    - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715452913932692106, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5595022816629027392, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7687956695361648898, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_RootOrder

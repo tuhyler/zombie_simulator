@@ -91,7 +91,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: eb63926735324254098e0f80e66c4630, type: 3}
   - {fileID: 21300000, guid: ac9b05b7dd0c0c543947f5dcb4be0616, type: 3}
   - {fileID: 21300000, guid: 8f0dc8b7bc4f1c74290a3fc91cd5059c, type: 3}
-  - {fileID: 21300000, guid: 86fb73d7c66643749a1e1ef527c12d2e, type: 3}
   - {fileID: 21300000, guid: 89b5a3e781d40574489734b720235afd, type: 3}
   - {fileID: 21300000, guid: 4ee705485766f314a84ab4207ce54dc8, type: 3}
   - {fileID: 21300000, guid: c4a8fb580091c8f409477b7c369708a9, type: 3}
@@ -189,7 +188,6 @@ SpriteAtlas:
   - panel_lightgold
   - panel_lightblue
   - button_right
-  - scrollbar_blue
   - background_image
   - button_trade
   - arrow_researchdown_lightblue

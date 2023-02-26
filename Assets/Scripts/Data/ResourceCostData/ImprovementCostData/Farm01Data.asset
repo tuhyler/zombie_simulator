@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Farm01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00, type: 3}
-  secondaryData: {fileID: 11400000, guid: b7d41219a09ae7a4b94f48de6b4037d1, type: 2}
+  secondaryData: {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
+  tertiaryData: {fileID: 11400000, guid: b7d41219a09ae7a4b94f48de6b4037d1, type: 2}
   isBuilding: 0
   improvementName: Farm
   improvementLevel: 1
@@ -29,7 +30,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 1
     resourceAmount: 2
-  producedResourceTime: 20
+  producedResourceTime: 5
   resourceType: 1
   terrainType: 5
   workEthicChange: 0
@@ -38,7 +39,7 @@ MonoBehaviour:
   replaceTerrain: 0
   returnProp: 0
   singleBuild: 0
-  buildTime: 5
+  buildTime: 2
   availableInitially: 1
   locked: 0
   workFire1Loc: {x: 0, y: 0.7, z: 0}

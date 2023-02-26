@@ -63,6 +63,7 @@ public class RoadManager : MonoBehaviour
     {
         int timePassed = roadBuildingTime;
         worker.ShowProgressTimeBar(timePassed);
+        worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
         while (timePassed > 0)
@@ -73,6 +74,7 @@ public class RoadManager : MonoBehaviour
         }
 
         worker.HideProgressTimeBar();
+        worker.SetWorkAnimation(false);
         BuildRoadAtPosition(roadPosition);
         world.RemoveWorkerWorkLocation(roadPosition);
 
@@ -294,6 +296,7 @@ public class RoadManager : MonoBehaviour
     {
         int timePassed = roadRemovingTime;
         worker.ShowProgressTimeBar(timePassed);
+        worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
         while (timePassed > 0)
@@ -305,6 +308,7 @@ public class RoadManager : MonoBehaviour
 
         //worker.PlaySplash(tile, isHill);
         worker.HideProgressTimeBar();
+        worker.SetWorkAnimation(false);
         //worker.isBusy = false;
         //workerTaskManager.TurnOffCancelTask();
         RemoveRoadAtPosition(tile);
