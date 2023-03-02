@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  productionTimer: 0
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
   isWaitingToUnload: 0
@@ -67,6 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animators: []
   initialCityHouse: 0
   isConstruction: 0
   queued: 0
@@ -79,11 +81,15 @@ MonoBehaviour:
   upgradeFlash: {fileID: 4953528115713912327, guid: 9350269db2930ef4488ef3d6a082ccb5,
     type: 3}
   upgradeSplash: {fileID: 0}
+  smokeSlow: {fileID: 0}
   smokeEmitter: {fileID: 0}
   smokeSplash: {fileID: 0}
   removeEruption: {fileID: 392546873931958410, guid: a6c6127933384f24298b33e29cc8648b,
     type: 3}
   removeSplash: {fileID: 0}
+  workFire1: {fileID: 0}
+  workFire2: {fileID: 0}
+  workSmoke: {fileID: 0}
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,7 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
+  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
 --- !u!65 &8679080859792582666
 BoxCollider:
   m_ObjectHideFlags: 0

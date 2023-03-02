@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using UnityEngine;
 
@@ -20,6 +21,10 @@ public class RoadManager : MonoBehaviour
 
     public int roadMovementCost = 5, roadBuildingTime = 5, roadRemovingTime = 1;
 
+    [SerializeField]
+    private Transform roadHolder;
+    private List<MeshFilter> roadGOList = new();
+    
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
         new Vector3Int(0,0,1), //up
@@ -45,18 +50,21 @@ public class RoadManager : MonoBehaviour
     {
         Vector3 pos = roadPosition;
         pos.y = -.04f;
-        GameObject structure = Instantiate(model, pos, rotation);
-        //for tweening
-        structure.transform.localScale = Vector3.zero;
-        LeanTween.scale(structure, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        GameObject roadGO = Instantiate(model, pos, rotation);
+        //for tweening (can't tween with combined meshes, looks weird)
+        //roadGO.transform.localScale = Vector3.zero;
+        //LeanTween.scale(roadGO, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
         //if (city) //hiding solo roads for new cities
         //    structure.SetActive(false);
-        world.SetRoads(roadPosition, structure, straight);
+        roadGO.transform.parent = roadHolder.transform;
+        Road road = roadGO.GetComponent<Road>();
+        roadGOList.Add(road.MeshFilter);
 
+        world.SetRoads(roadPosition, road, straight);
         //replacing prop
-        TerrainData td = world.GetTerrainDataAt(roadPosition);
-        if (td.prop != null)
-            td.prop.gameObject.SetActive(false);
+        //TerrainData td = world.GetTerrainDataAt(roadPosition);
+        //if (td.prop != null)
+        //    td.prop.gameObject.SetActive(true);
     }
 
     public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)
@@ -87,8 +95,16 @@ public class RoadManager : MonoBehaviour
             worker.isBusy = false;
             if (worker.isSelected)
                 workerTaskManager.TurnOffCancelTask();
+            //StartCoroutine(CombineMeshWaiter());
         }
     }
+
+    //public IEnumerator CombineMeshWaiter() //waiting for tweening to finish to combine
+    //{
+    //    yield return new WaitForSeconds(0.26f);
+
+    //    CombineMeshes();
+    //}
 
 
     //finds if road changes are happening diagonally or on straight, then destroys objects accordingly
@@ -102,7 +118,7 @@ public class RoadManager : MonoBehaviour
             GameObject newPropPF = td.GetTerrainData().roadPrefab;
             if (newPropPF != null)
             {
-                GameObject newProp = Instantiate(newPropPF, Vector3Int.zero, Quaternion.Euler(0, 0, 0));
+                GameObject newProp = Instantiate(newPropPF, Vector3Int.zero, td.prop.GetChild(0).transform.rotation);
                 newProp.transform.SetParent(td.prop, false);
                 MeshRenderer[] oldRenderer = td.prop.GetChild(0).GetComponentsInChildren<MeshRenderer>();
                 MeshRenderer[] newRenderer = newProp.GetComponentsInChildren<MeshRenderer>();
@@ -111,6 +127,11 @@ public class RoadManager : MonoBehaviour
                 Destroy(td.prop.GetChild(0).gameObject);
             }
         }
+        else if (td.prop != null) //for replacing decor (could destroy)
+        {
+            td.prop.gameObject.SetActive(false);
+        }
+
         
         world.InitializeRoads(roadPosition);
         //td.MovementCost = basicRoadMovementCost;
@@ -138,6 +159,7 @@ public class RoadManager : MonoBehaviour
 
         //changing neighbor roads to meet up with new road
         FixNeighborRoads(roadNeighbors);
+        CombineMeshes();
     }
 
     private void FixNeighborRoads(List<(Vector3Int, bool, int[])> roadNeighbors)
@@ -147,10 +169,20 @@ public class RoadManager : MonoBehaviour
             int roadCount = roads.Sum();
             bool hill = world.GetTerrainDataAt(roadLoc).GetTerrainData().type == TerrainType.Hill || world.GetTerrainDataAt(roadLoc).GetTerrainData().type == TerrainType.ForestHill;
 
-            Destroy(world.GetRoads(roadLoc, straight)); //destroying road, consider object pooling
+            Road road = world.GetRoads(roadLoc, straight);
+            if (road != null)
+            {
+                roadGOList.Remove(road.MeshFilter);
+                Destroy(road.gameObject);
+            }
             if (world.IsSoloRoadOnTileLocation(roadLoc))
             {
-                Destroy(world.GetRoads(roadLoc, false));
+                Road road2 = world.GetRoads(roadLoc, false);
+                if (road2 != null)
+                {
+                    roadGOList.Remove(road2.MeshFilter);
+                    Destroy(road2.gameObject);
+                }
                 world.RemoveSoloRoadLocation(roadLoc);
             }
 
@@ -333,14 +365,14 @@ public class RoadManager : MonoBehaviour
         td.ResetMovementCost();
         td.hasRoad = false;
 
-        foreach (GameObject road in world.GetAllRoadsOnTile(tile))
+        foreach (Road road in world.GetAllRoadsOnTile(tile))
         {
-            //for tweening
             if (road == null)
                 continue;
-            LeanTween.scale(road, Vector3.zero, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { Destroy(road); } );
-
-            //Destroy(road);
+            roadGOList.Remove(road.MeshFilter);
+            Destroy(road.gameObject);
+            //for tweening (can't tween with combined meshes, looks weird)
+            //LeanTween.scale(road.gameObject, Vector3.zero, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { Destroy(road.gameObject); } );
         }
         world.RemoveRoad(tile);
         world.RemoveRoadLocation(tile);
@@ -353,5 +385,34 @@ public class RoadManager : MonoBehaviour
 
         (List<(Vector3Int, bool, int[])> removedRoadNeighbors, int[] straightRoads, int[] diagRoads) = world.GetRoadNeighborsFor(tile);
         FixNeighborRoads(removedRoadNeighbors);
+        CombineMeshes();
+    }
+
+    public void CombineMeshes()
+    {
+        //MeshFilter[] meshFilters;
+
+        //if (adding)
+        //    meshFilters = roadHolder.GetComponentsInChildren<MeshFilter>();
+        //else
+        MeshFilter[] meshFilters = roadGOList.ToArray();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        int i = 0;
+
+        while (i < meshFilters.Length)
+        {
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+
+            i++;
+        }
+
+        MeshFilter meshFilter = roadHolder.GetComponent<MeshFilter>();
+        meshFilter.mesh = new Mesh();
+        meshFilter.mesh.CombineMeshes(combine);
+        roadHolder.GetComponent<MeshCollider>().sharedMesh = meshFilter.sharedMesh;
+
+        roadHolder.transform.gameObject.SetActive(true);
     }
 }

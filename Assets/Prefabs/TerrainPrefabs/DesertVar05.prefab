@@ -77,6 +77,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: grasslandtodesert05
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 08c917deb23a4f949a5085acba5e2c44,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08c917deb23a4f949a5085acba5e2c44, type: 3}
 --- !u!1001 &8142581820858945851
@@ -90,6 +95,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: DesertVar05
+      objectReference: {fileID: 0}
+    - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715452913932692106, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5595022816629027392, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7687956695361648898, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}

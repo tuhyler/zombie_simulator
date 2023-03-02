@@ -3,48 +3,44 @@ using UnityEngine;
 
 public class SelectionHighlight : MonoBehaviour
 {
-    Dictionary<MeshRenderer, Material[]> glowMaterialDictionary = new();
-    Dictionary<MeshRenderer, Material[]> originalMaterialDictionary = new();
-    Dictionary<SkinnedMeshRenderer, Material[]> glowSkinnedMaterialDictionary = new();
-    Dictionary<SkinnedMeshRenderer, Material[]> originalSkinnedMaterialDictionary = new();
-
-    Dictionary<Color, Material> cachedGlowColors = new();
-    Dictionary<Texture, Material> cachedGlowTextures = new();
-
     [SerializeField]
-    private Material glowMaterial; //for textures
+    private Material glowMaterial, originalMaterial, secondaryGlowMaterial; //first one is for textures, 2nd is regular material, 3rd is alternate
 
-    [SerializeField]
-    private Material glowMaterialColor; //for colors
+    //[SerializeField]
+    //private Material glowMaterialColor; //for colors
     private bool isGlowing;
 
-    private Color glowColor;
+    List<MeshRenderer> renderers = new();
+    List<SkinnedMeshRenderer> renderersSkinned = new();
+
+    //private Color glowColor;
 
     private void Awake()
     {
         PrepareMaterialDictionaries();
-        glowColor = glowMaterial.GetColor("_GlowColor");
+        //glowColor = glowMaterial.GetColor("_GlowColor");
     }
 
     private void PrepareMaterialDictionaries() //puts glowing and original materials in dictionaries at the beginning
     {
+        //careful working with materials in this, could eliminate static status
+        
+        if (originalMaterial != null)
+        {
+            glowMaterial.mainTexture = originalMaterial.mainTexture;
+            if (secondaryGlowMaterial != null)
+                secondaryGlowMaterial.mainTexture = originalMaterial.mainTexture;
+        }
+        
         //first meshrenderers then skinnedmeshrenderers
         foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
         {
-            Material[] originalMaterials = renderer.materials;
-            originalMaterialDictionary.Add(renderer, originalMaterials);
-
-            Material[] newMaterials = GetMaterialsFromMesh(originalMaterials, renderer.materials.Length);
-            glowMaterialDictionary.Add(renderer, newMaterials);
+            renderers.Add(renderer);
         }
-        
+
         foreach (SkinnedMeshRenderer renderer in GetComponentsInChildren<SkinnedMeshRenderer>())
         {
-            Material[] originalMaterials = renderer.materials;
-            originalSkinnedMaterialDictionary.Add(renderer, originalMaterials);
-
-            Material[] newMaterials = GetMaterialsFromMesh(originalMaterials, renderer.materials.Length);
-            glowSkinnedMaterialDictionary.Add(renderer, newMaterials);
+            renderersSkinned.Add(renderer);
         }
     }
 
@@ -52,103 +48,102 @@ public class SelectionHighlight : MonoBehaviour
     {
         foreach (MeshRenderer renderer in oldRenderer)
         {
-            originalMaterialDictionary.Remove(renderer);
-            glowMaterialDictionary.Remove(renderer);
+            renderers.Remove(renderer);
         }
 
         foreach (MeshRenderer renderer in newRenderer)
         {
-            Material[] originalMaterials = renderer.materials;
-            originalMaterialDictionary.Add(renderer, originalMaterials);
-
-            Material[] newMaterials = GetMaterialsFromMesh(originalMaterials, renderer.materials.Length);
-            glowMaterialDictionary.Add(renderer, newMaterials);
+            renderers.Add(renderer);            
         }
     }
 
-    private Material[] GetMaterialsFromMesh(Material[] originalMaterials, int materialLength)
-    {
-        Material[] newMaterials = new Material[materialLength];
+    //private Material[] GetMaterialsFromMesh(Material[] originalMaterials, int materialLength)
+    //{
+    //    Material[] newMaterials = new Material[materialLength];
 
-        for (int i = 0; i < materialLength; i++)
-        {
-            if (originalMaterials[i].mainTexture == null)
-            {
-                //for simple colors;
-                if (!cachedGlowColors.TryGetValue(originalMaterials[i].color, out Material mat))
-                {
-                    mat = new Material(glowMaterialColor);
-                    //By default, Unity considers a color with the property name "_Color" to be the main color
-                    mat.color = originalMaterials[i].color;
-                    cachedGlowColors[mat.color] = mat;
-                }
+    //    for (int i = 0; i < materialLength; i++)
+    //    {
+    //        if (originalMaterials[i].mainTexture == null)
+    //        {
+    //            //for simple colors;
+    //            if (!cachedGlowColors.TryGetValue(originalMaterials[i].color, out Material mat))
+    //            {
+    //                //mat = new Material(glowMaterialColor);
+    //                //By default, Unity considers a color with the property name "_Color" to be the main color
+    //                mat.color = originalMaterials[i].color;
+    //                cachedGlowColors[mat.color] = mat;
+    //            }
 
-                newMaterials[i] = mat;
+    //            newMaterials[i] = mat;
 
-                continue;
-            }
+    //            continue;
+    //        }
 
-            //for textures;
-            if (!cachedGlowTextures.TryGetValue(originalMaterials[i].mainTexture, out Material mat2))
-            {
-                mat2 = new Material(glowMaterial);
-                //By default, Unity considers a texture with the property name "_MainTex" to be the main texture
-                mat2.mainTexture = originalMaterials[i].mainTexture;
-                cachedGlowTextures[mat2.mainTexture] = mat2;
-            }
+    //        //for textures;
+    //        if (!cachedGlowTextures.TryGetValue(originalMaterials[i].mainTexture, out Material mat2))
+    //        {
+    //            mat2 = new Material(glowMaterial);
+    //            //By default, Unity considers a texture with the property name "_MainTex" to be the main texture
+    //            mat2.mainTexture = originalMaterials[i].mainTexture;
+    //            cachedGlowTextures[mat2.mainTexture] = mat2;
+    //        }
 
-            newMaterials[i] = mat2;
-        }
+    //        newMaterials[i] = mat2;
+    //    }
 
-        return newMaterials; 
-    }
+    //    return newMaterials; 
+    //}
 
-    public void ResetGlowHighlight() //goes back to original color
-    {
-        //first meshrenderer, then skinnedmeshrenderer
-        foreach (MeshRenderer renderer in glowMaterialDictionary.Keys)
-        {
-            foreach (Material item in glowMaterialDictionary[renderer])
-            {
-                item.SetColor("_GlowColor", glowColor);
-            }
-        }
+    //public void ResetGlowHighlight() //goes back to original color (not necessary)
+    //{
+    //    foreach (MeshRenderer renderer in renderers)
+    //    {
+    //        foreach (Material item in renderer.materials)
+    //        {
+    //            item.SetColor("_GlowColor", glowColor);
+    //        }
+    //    }
 
-        foreach (SkinnedMeshRenderer renderer in glowSkinnedMaterialDictionary.Keys)
-        {
-            foreach (Material item in glowSkinnedMaterialDictionary[renderer])
-            {
-                item.SetColor("_GlowColor", glowColor);
-            }
-        }
-    }
+    //    foreach (SkinnedMeshRenderer renderer in renderersSkinned)
+    //    {
+    //        foreach (Material item in renderer.materials)
+    //        {
+    //            item.SetColor("_GlowColor", glowColor);
+    //        }
+    //    }
+    //}
 
 
-    public void EnableHighlight(Color highlightColor)
+    public void EnableHighlight(Color highlightColor, bool secondary = false)
     {
         if (isGlowing)
             return;
 
         isGlowing = true;
-        ResetGlowHighlight();
-        foreach (MeshRenderer renderer in originalMaterialDictionary.Keys)
+
+        Material glow;
+
+        if (secondary)
+            glow = secondaryGlowMaterial;
+        else
+            glow = glowMaterial;
+
+        foreach(MeshRenderer renderer in renderers)
         {
-            renderer.materials = glowMaterialDictionary[renderer];
-            foreach (Material item in glowMaterialDictionary[renderer]) //sets the glow color for each item in dictionary
+            renderer.material = glow;
+            foreach (Material item in renderer.materials)
             {
                 item.SetColor("_GlowColor", highlightColor);
             }
-
         }
 
-        foreach (SkinnedMeshRenderer renderer in originalSkinnedMaterialDictionary.Keys)
+        foreach (SkinnedMeshRenderer renderer in renderersSkinned)
         {
-            renderer.materials = glowSkinnedMaterialDictionary[renderer];
-            foreach (Material item in glowSkinnedMaterialDictionary[renderer]) //sets the glow color for each item in dictionary
+            renderer.material = glow;
+            foreach (Material item in renderer.materials)
             {
                 item.SetColor("_GlowColor", highlightColor);
             }
-
         }
     }
 
@@ -159,14 +154,14 @@ public class SelectionHighlight : MonoBehaviour
 
         isGlowing = false;
         
-        foreach (MeshRenderer renderer in originalMaterialDictionary.Keys)
+        foreach (MeshRenderer renderer in renderers)
         {
-            renderer.materials = originalMaterialDictionary[renderer];
+            renderer.material = originalMaterial;
         }
 
-        foreach (SkinnedMeshRenderer renderer in originalSkinnedMaterialDictionary.Keys)
+        foreach (SkinnedMeshRenderer renderer in renderersSkinned)
         {
-            renderer.materials = originalSkinnedMaterialDictionary[renderer];
+            renderer.material = originalMaterial;
         }
     }
 }

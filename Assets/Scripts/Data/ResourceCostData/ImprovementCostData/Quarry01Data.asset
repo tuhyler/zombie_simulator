@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Quarry01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 5287637160269364084, guid: 621fc3803ad9c3645a7d989ac5d06061, type: 3}
+  secondaryData: {fileID: 0}
+  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Quarry
   improvementLevel: 1
+  improvementNameAndLevel: Quarry-1
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
@@ -38,3 +41,6 @@ MonoBehaviour:
   buildTime: 5
   availableInitially: 1
   locked: 0
+  workFire1Loc: {x: 0, y: 0, z: 0}
+  workFire2Loc: {x: 0, y: 0, z: 0}
+  workSmokeLoc: {x: 0, y: 0, z: 0}

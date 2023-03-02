@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Mine01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 4377796082950431887, guid: 184d14c8c7a562d449166d198eaedf4b, type: 3}
+  secondaryData: {fileID: 0}
+  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Mine
   improvementLevel: 1
+  improvementNameAndLevel: Mine-1
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
@@ -39,6 +42,9 @@ MonoBehaviour:
   replaceTerrain: 0
   returnProp: 0
   singleBuild: 0
-  buildTime: 20
+  buildTime: 5
   availableInitially: 1
   locked: 0
+  workFire1Loc: {x: 0, y: 0, z: 0}
+  workFire2Loc: {x: 0, y: 0, z: 0}
+  workSmokeLoc: {x: 0, y: 0, z: 0}

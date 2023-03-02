@@ -250,11 +250,12 @@ public class Worker : Unit
         TerrainData td = world.GetTerrainDataAt(workerTile);
         td.DisableHighlight();
         //bool isHill = td.terrainData.isHill;
-        foreach (GameObject go in world.GetAllRoadsOnTile(workerTile))
+        foreach (Road road in world.GetAllRoadsOnTile(workerTile))
         {
-            if (go == null)
+            if (road == null)
                 continue;
-            go.GetComponent<SelectionHighlight>().DisableHighlight();
+            road.MeshFilter.gameObject.SetActive(false);
+            road.SelectionHighlight.DisableHighlight();
         }
 
         if (!world.IsRoadOnTerrain(workerTile))

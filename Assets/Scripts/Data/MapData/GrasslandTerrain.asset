@@ -12,12 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: GrasslandTerrain
   m_EditorClassIdentifier: 
+  prefab: {fileID: 1100336493781816478, guid: 7e8e7352197d4d14c9c0759a887c5083, type: 3}
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
+  terrainName: Grassland
+  isFloodPlain: 0
+  isDesert: 0
   walkable: 1
   sailable: 0
   isHill: 0
   isLand: 1
+  isSeaCorner: 0
   movementCost: 10
   type: 5
   resourceType: 1

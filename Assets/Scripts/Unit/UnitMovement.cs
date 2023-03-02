@@ -181,11 +181,12 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmWorkerOrders.ToggleTweenVisibility(true);
 
                         td.EnableHighlight(Color.red);
-                        foreach (GameObject go in world.GetAllRoadsOnTile(locationPos))
+                        foreach (Road road in world.GetAllRoadsOnTile(locationPos))
                         {
-                            if (go == null)
+                            if (road == null)
                                 continue;
-                            go.GetComponent<SelectionHighlight>().EnableHighlight(Color.white);
+                            road.MeshFilter.gameObject.SetActive(true);
+                            road.SelectionHighlight.EnableHighlight(Color.white);
                         }
                         //highlightedTiles.Add(td);
                     }
@@ -195,11 +196,12 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmWorkerOrders.ToggleTweenVisibility(false);
 
                         td.DisableHighlight();
-                        foreach (GameObject go in world.GetAllRoadsOnTile(locationPos))
+                        foreach (Road road in world.GetAllRoadsOnTile(locationPos))
                         {
-                            if (go == null)
+                            if (road == null)
                                 continue;
-                            go.GetComponent<SelectionHighlight>().DisableHighlight();
+                            road.MeshFilter.gameObject.SetActive(false);
+                            road.SelectionHighlight.DisableHighlight();
                         }
                         //highlightedTiles.Remove(td);
                     }
@@ -647,8 +649,8 @@ public class UnitMovement : MonoBehaviour
     {
         if (world.workerOrders)
         {
-            ClearBuildRoad();
             ToggleOrderHighlights(false);
+            ClearBuildRoad();
             ResetOrderFlags();
 
             selectedWorker.ResetOrderQueue();
@@ -702,11 +704,12 @@ public class UnitMovement : MonoBehaviour
 
                 if (selectedWorker.removing && world.IsRoadOnTerrain(tile))
                 {
-                    foreach (GameObject go in world.GetAllRoadsOnTile(tile))
+                    foreach (Road road in world.GetAllRoadsOnTile(tile))
                     {
-                        if (go == null)
+                        if (road == null)
                             continue;
-                        go.GetComponent<SelectionHighlight>().EnableHighlight(Color.white);
+                        road.MeshFilter.gameObject.SetActive(true);
+                        road.SelectionHighlight.EnableHighlight(Color.white);
                     }
                 }
             }
@@ -717,13 +720,14 @@ public class UnitMovement : MonoBehaviour
             {
                 world.GetTerrainDataAt(tile).DisableHighlight();
 
-                if (selectedWorker.removing && world.IsRoadOnTerrain(tile))
+                if ((selectedWorker.removing || world.workerOrders) && world.IsRoadOnTerrain(tile))
                 {
-                    foreach (GameObject go in world.GetAllRoadsOnTile(tile))
+                    foreach (Road road in world.GetAllRoadsOnTile(tile))
                     {
-                        if (go == null)
+                        if (road == null)
                             continue;
-                        go.GetComponent<SelectionHighlight>().DisableHighlight();
+                        road.MeshFilter.gameObject.SetActive(false);
+                        road.SelectionHighlight.DisableHighlight();
                     }
                 }
             }

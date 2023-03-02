@@ -12,6 +12,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Squash (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}
       propertyPath: m_RootOrder
@@ -92,6 +97,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Squash (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}
@@ -256,6 +266,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 3c981ed6af8153444a97d3de36fc1181, type: 2}
     - target: {fileID: -7511558181221131132, guid: 73d89e2fc43d692408a982140989ec6a,
         type: 3}
+      propertyPath: m_CastShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 73d89e2fc43d692408a982140989ec6a,
+        type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
@@ -363,6 +378,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Farm01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 73d89e2fc43d692408a982140989ec6a,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1042863066957246962, guid: 73d89e2fc43d692408a982140989ec6a,
         type: 3}
@@ -522,6 +542,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Tomato (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6965665250670750426, guid: b7792967ef855394b806d6245acde63e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b7792967ef855394b806d6245acde63e, type: 3}
@@ -725,6 +750,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Farm01
       objectReference: {fileID: 0}
+    - target: {fileID: 8789389234130458407, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5af237387799660428805ee8b0755933, type: 3}
 --- !u!4 &4581823937108388938 stripped
@@ -744,6 +774,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Squash (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}
@@ -881,6 +916,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Corn (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7172246335879207649, guid: e18888b5ef2a82742ba0c3ac6e10c1af,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e18888b5ef2a82742ba0c3ac6e10c1af, type: 3}
 --- !u!114 &525336372142450364 stripped
@@ -961,6 +1001,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Tomato (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6965665250670750426, guid: b7792967ef855394b806d6245acde63e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b7792967ef855394b806d6245acde63e, type: 3}
@@ -1043,6 +1088,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Corn (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 7172246335879207649, guid: e18888b5ef2a82742ba0c3ac6e10c1af,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e18888b5ef2a82742ba0c3ac6e10c1af, type: 3}
 --- !u!114 &8857308653791029730 stripped
@@ -1068,6 +1118,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Squash (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}
@@ -1149,6 +1204,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Squash (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}
@@ -1286,6 +1346,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Corn
       objectReference: {fileID: 0}
+    - target: {fileID: 7172246335879207649, guid: e18888b5ef2a82742ba0c3ac6e10c1af,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e18888b5ef2a82742ba0c3ac6e10c1af, type: 3}
 --- !u!114 &6073641560493650394 stripped
@@ -1311,6 +1376,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Squash (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}
@@ -1448,6 +1518,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Corn (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 7172246335879207649, guid: e18888b5ef2a82742ba0c3ac6e10c1af,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e18888b5ef2a82742ba0c3ac6e10c1af, type: 3}
 --- !u!114 &6492016915327245223 stripped
@@ -1529,6 +1604,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tomato
       objectReference: {fileID: 0}
+    - target: {fileID: 6965665250670750426, guid: b7792967ef855394b806d6245acde63e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b7792967ef855394b806d6245acde63e, type: 3}
 --- !u!114 &8812949087781913966 stripped
@@ -1554,6 +1634,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Squash
+      objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}
@@ -1635,6 +1720,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Squash (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 217566463553817289, guid: a9f64b54e8af5544d966d0643b0b67f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1074491347041922770, guid: a9f64b54e8af5544d966d0643b0b67f5,
         type: 3}

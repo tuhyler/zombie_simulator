@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -377,7 +379,7 @@ public class CityBuilderManager : MonoBehaviour
             
             TerrainData td = world.GetTerrainDataAt(loc);
 
-            td.EnableHighlight(new Color(1, 1, 1, 0.2f));
+            td.EnableHighlight(Color.white);
             tilesToChange.Add(loc);
         }
 
@@ -768,7 +770,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void UpgradeSelectedImprovementQueueCheck(Vector3Int tempBuildLocation, CityImprovement selectedImprovement)
     {
-        string nameAndLevel = selectedImprovement.GetImprovementData.improvementName + '-' + selectedImprovement.GetImprovementData.improvementLevel;
+        string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
 
         //queue information
         if (isQueueing)
@@ -818,7 +820,7 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
-        string nameAndLevel = selectedImprovement.GetImprovementData.improvementName + '-' + selectedImprovement.GetImprovementData.improvementLevel;
+        string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
         List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
         city.ResourceManager.SpendResource(upgradeCost);
         selectedImprovement.UpgradeCost = upgradeCost;
@@ -944,19 +946,14 @@ public class CityBuilderManager : MonoBehaviour
 
     private void ToggleBuildingHighlight(bool v)
     {
-        //foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
-        //{
-        //    world.GetBuildingData(selectedCityLoc, name).DisableHighlight2();
-        //    world.GetBuildingData(selectedCityLoc, name).DisableHighlight();
-        //}
-
         if (v)
         {
             foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
                 CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
+                building.MeshFilter.gameObject.SetActive(true);
                 building.DisableHighlight();
-                building.DisableHighlight2();
+                //building.DisableHighlight2();
 
                 if (removingImprovement)
                 {
@@ -964,13 +961,16 @@ public class CityBuilderManager : MonoBehaviour
                     if (building.initialCityHouse)
                         building.EnableHighlight(Color.white);
                     else
-                        building.EnableHighlight2(Color.red);
+                        building.EnableHighlight(Color.red, true);
                 }
                 else if (upgradingImprovement)
                 {
+                    if (building.initialCityHouse)
+                        building.EnableHighlight(Color.white);
+
                     if (building.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(building.GetImprovementData.improvementName))
                     {
-                        building.EnableHighlight2(Color.green);
+                        building.EnableHighlight(Color.green, true);
 
                         SetUpResourceInfoPanel(building, building.GetImprovementData.buildingLocation+selectedCityLoc, true);
                     }
@@ -984,8 +984,9 @@ public class CityBuilderManager : MonoBehaviour
             foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
                 CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
+                building.MeshFilter.gameObject.SetActive(false);
                 building.DisableHighlight();
-                building.DisableHighlight2();
+                //building.DisableHighlight2();
             }
         }
     }
@@ -1183,9 +1184,10 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+        building.transform.parent = city.subTransform;
         //for tweening
         building.transform.localScale = Vector3.zero;
-        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform); });
 
         //if (upgradingImprovement)
         //{
@@ -1232,7 +1234,17 @@ public class CityBuilderManager : MonoBehaviour
 
             uiCityTabs.HideSelectedTab();
         }
+
+        //StartCoroutine(TestRun(city));
+        //CombineMeshes(city.transform, city.CityMeshFilters);
     }
+
+    //private IEnumerator TestRun(City city)
+    //{
+    //    yield return new WaitForSeconds(0.26f);
+
+    //    CombineMeshes(city.transform, city.CityMeshFilters);
+    //}
 
     //public void RemoveBuildingButton()
     //{
@@ -1301,10 +1313,14 @@ public class CityBuilderManager : MonoBehaviour
         //selectedCity.cityPop.UnusedLabor += currentLabor;
         //selectedCity.cityPop.UsedLabor -= currentLabor;
 
+        city.RemoveFromMeshFilterList(world.GetBuildingData(city.cityLoc, selectedBuilding).MeshFilter);
         Destroy(building);
 
         //updating world dicts
         world.RemoveCityBuilding(city.cityLoc, selectedBuilding);
+        
+        //updating city graphic
+        CombineMeshes(city, city.subTransform);
 
         //updating all the labor info
         //selectedCity.UpdateCityPopInfo();
@@ -1394,12 +1410,12 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     if (improvementData.rawMaterials && td.GetTerrainData().resourceType == improvementData.resourceType)
                     {
-                        td.EnableHighlight(new Color(1, 1, 1, 0.2f));
+                        td.EnableHighlight(Color.white);
                         tilesToChange.Add(tile);
                     }
                     else if (!improvementData.rawMaterials)
                     {
-                        td.EnableHighlight(new Color(1, 1, 1, 0.2f));
+                        td.EnableHighlight(Color.white);
                         tilesToChange.Add(tile);
                     }
                 }
@@ -2589,6 +2605,7 @@ public class CityBuilderManager : MonoBehaviour
             uiLaborHandler.ResetUI();
             HideBorders();
             ToggleBuildingHighlight(false);
+            //ToggleCityHighlight(false);
             selectedCity.Deselect();
             selectedCity.HideCityGrowthProgressTimeBar();
             selectedCityLoc = new();
@@ -2622,6 +2639,38 @@ public class CityBuilderManager : MonoBehaviour
         Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
 
         InfoPopUpHandler.WarningMessage().Create(mouseLoc, message);
+    }
+
+    public void CombineMeshes(City city, Transform cityTransform)
+    {
+        //MeshFilter[] meshFilters = improvementHolder.GetComponentsInChildren<MeshFilter>();
+        MeshFilter[] meshFilters = city.CityMeshFilters.ToArray();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        int i = 0;
+
+        while (i < meshFilters.Length)
+        {
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+
+            i++;
+        }
+
+        MeshFilter meshFilter = cityTransform.GetComponent<MeshFilter>();
+        meshFilter.mesh = new Mesh();
+        meshFilter.mesh.CombineMeshes(combine);
+        //cityTransform.GetComponent<MeshCollider>().sharedMesh = meshFilter.sharedMesh;
+
+        cityTransform.transform.gameObject.SetActive(true);
+
+        //meshes inexplicably move without this when making the parent a non-pre-existing item in the heirarchy
+        cityTransform.localScale = new Vector3(1, 1, 1);
+        cityTransform.rotation = Quaternion.identity;
+        cityTransform.position = Vector3.zero;
+
+        if (selectedCity == city)
+            ToggleBuildingHighlight(true);
     }
 
     #region object pooling

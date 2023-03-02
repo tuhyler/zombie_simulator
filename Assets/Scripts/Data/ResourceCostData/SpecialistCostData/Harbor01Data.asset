@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Harbor01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 3507881236362810283, guid: 6f2156896dd57c345be6d4355d95907d, type: 3}
+  secondaryData: {fileID: 0}
+  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Harbor
   improvementLevel: 1
+  improvementNameAndLevel: Harbor-1
   rawMaterials: 0
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 0}
@@ -33,8 +36,11 @@ MonoBehaviour:
   maxLabor: 0
   laborCost: 0
   replaceTerrain: 0
-  replaceProp: 1
+  returnProp: 0
   singleBuild: 1
   buildTime: 5
   availableInitially: 1
   locked: 0
+  workFire1Loc: {x: 0, y: 0, z: 0}
+  workFire2Loc: {x: 0, y: 0, z: 0}
+  workSmokeLoc: {x: 0, y: 0, z: 0}

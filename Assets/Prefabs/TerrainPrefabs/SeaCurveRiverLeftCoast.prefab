@@ -42,9 +42,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5287164924357551451}
   - component: {fileID: 151414204977523408}
-  - component: {fileID: 5191855138478399228}
   - component: {fileID: 8533531468100778695}
   - component: {fileID: 745472902615077137}
+  - component: {fileID: 3993914363084241956}
   m_Layer: 6
   m_Name: SeaCurveRiverLeftCoast
   m_TagString: Water
@@ -85,22 +85,7 @@ MonoBehaviour:
   main: {fileID: 0}
   prop: {fileID: 0}
   highlightPlane: {fileID: 6862420308120669275}
-  groundMaterial: {fileID: 0}
   hasRoad: 0
---- !u!114 &5191855138478399228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2466234295217164166}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
 --- !u!64 &8533531468100778695
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -114,7 +99,7 @@ MeshCollider:
   serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: -462981019419857548, guid: 0616da5c3fa405b4183683d219e4a3b6, type: 3}
+  m_Mesh: {fileID: -462981019419857548, guid: 683fcf0b35b311e428476807373fbae2, type: 3}
 --- !u!65 &745472902615077137
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -128,6 +113,20 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 0, z: 2}
   m_Center: {x: 0, y: -0.2, z: 0}
+--- !u!114 &3993914363084241956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2466234295217164166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
+  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
 --- !u!1 &7947533954490412569
 GameObject:
   m_ObjectHideFlags: 0

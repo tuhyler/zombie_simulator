@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 22
   m_IsActive: 1
 --- !u!4 &5510608897258472015
 Transform:
@@ -45,7 +45,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 22
   m_IsActive: 1
 --- !u!4 &2245400654677337466
 Transform:
@@ -79,7 +79,7 @@ GameObject:
   m_TagString: Hill
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 22
   m_IsActive: 1
 --- !u!4 &1103709480011530553
 Transform:
@@ -128,7 +128,6 @@ MonoBehaviour:
   main: {fileID: 5510608897258472015}
   prop: {fileID: 2245400654677337466}
   highlightPlane: {fileID: 0}
-  groundMaterial: {fileID: 0}
   hasRoad: 0
 --- !u!114 &-7069180112018482579
 MonoBehaviour:
@@ -143,4 +142,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
+  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}

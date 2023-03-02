@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 22
   m_IsActive: 1
 --- !u!4 &6193421569473789042
 Transform:
@@ -48,7 +48,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 22
   m_IsActive: 1
 --- !u!4 &5011132036053948465
 Transform:
@@ -80,10 +80,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: ba7d2165cd2acc24b9fcfb758105308a, type: 2}
-  main: {fileID: 0}
-  prop: {fileID: 0}
+  main: {fileID: 478413442398559047}
+  prop: {fileID: 6193421569473789042}
   highlightPlane: {fileID: 0}
-  groundMaterial: {fileID: 0}
   hasRoad: 0
 --- !u!114 &7525565218650109521
 MonoBehaviour:
@@ -98,7 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
+  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
 --- !u!65 &5870712689763546697
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -126,7 +125,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 22
   m_IsActive: 1
 --- !u!4 &478413442398559047
 Transform:

@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1686765677576597183}
   - component: {fileID: 2050705500241568073}
-  - component: {fileID: 718474908050057380}
   - component: {fileID: -3634337795367324582}
   - component: {fileID: 3277869951715035978}
   - component: {fileID: 2924565007274644614}
@@ -69,20 +68,6 @@ MonoBehaviour:
   workFire1: {fileID: 0}
   workFire2: {fileID: 0}
   workSmoke: {fileID: 0}
---- !u!114 &718474908050057380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8789389234130458407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 902e335b538979147bd2837e251af069, type: 2}
 --- !u!114 &-3634337795367324582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,8 +92,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
+  glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a,
+    type: 2}
 --- !u!65 &2924565007274644614
 BoxCollider:
   m_ObjectHideFlags: 0

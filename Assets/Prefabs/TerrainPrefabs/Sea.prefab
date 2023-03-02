@@ -41,7 +41,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5287164924357551451}
   - component: {fileID: 151414204977523408}
-  - component: {fileID: 5191855138478399228}
   - component: {fileID: 4305036326747826313}
   m_Layer: 6
   m_Name: Sea
@@ -83,22 +82,7 @@ MonoBehaviour:
   main: {fileID: 0}
   prop: {fileID: 0}
   highlightPlane: {fileID: 0}
-  groundMaterial: {fileID: 0}
   hasRoad: 0
---- !u!114 &5191855138478399228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2466234295217164166}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
 --- !u!65 &4305036326747826313
 BoxCollider:
   m_ObjectHideFlags: 0

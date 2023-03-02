@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Lumbermill01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 6952278204151173005, guid: 5a5331d32a75f9f459ac9326c34bdf98, type: 3}
+  secondaryData: {fileID: 0}
+  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Lumbermill
   improvementLevel: 1
+  improvementNameAndLevel: Lumbermill-1
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
@@ -40,3 +43,6 @@ MonoBehaviour:
   buildTime: 5
   availableInitially: 1
   locked: 0
+  workFire1Loc: {x: 0, y: 0, z: 0}
+  workFire2Loc: {x: 0, y: 0, z: 0}
+  workSmokeLoc: {x: 0, y: 0, z: 0}
