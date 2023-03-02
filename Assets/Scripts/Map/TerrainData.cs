@@ -30,9 +30,15 @@ public class TerrainData : MonoBehaviour
     public bool IsCoast { get { return isCoast; } }
     private bool isSeaCorner = false;
     public bool IsSeaCorner { get { return isSeaCorner; } }
+    private bool isGlowing = false;
+
+    private List<MeshRenderer> renderers = new();
+
 
     private void Awake()
     {
+        PrepareRenderers();
+        
         isLand = terrainData.isLand;
         isSeaCorner = terrainData.isSeaCorner;
         terrainData.MovementCostCheck();
@@ -44,6 +50,15 @@ public class TerrainData : MonoBehaviour
             isCoast = true;
         }
     }
+
+    private void PrepareRenderers()
+    {
+        foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
+        {
+            renderers.Add(renderer);
+        }
+    }
+
 
     public void SetCoastCoordinates(MapWorld world)
     {
@@ -90,7 +105,11 @@ public class TerrainData : MonoBehaviour
 
     public void EnableHighlight(Color highlightColor)
     {
-        //highlight.ToggleGlow(true, highlightColor);
+        if (isGlowing)
+            return;
+
+        isGlowing = true;
+
         if (isCoast)
             ToggleHighlightPlane(true);
 
@@ -99,7 +118,11 @@ public class TerrainData : MonoBehaviour
 
     public void DisableHighlight()
     {
-        //highlight.ToggleGlow(false, Color.white);
+        if (!isGlowing) 
+            return;
+        
+        isGlowing = false;
+        
         if (isCoast)
             ToggleHighlightPlane(false);
 

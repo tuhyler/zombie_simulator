@@ -184,7 +184,8 @@ public class CameraController : MonoBehaviour
         newPosition.z = Mathf.Clamp(newPosition.z, -movementLimit, movementLimit); //change to edge
 
         //smoothing camera movement
-        transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, Time.deltaTime * movementTime);
+        //transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, Time.deltaTime * movementTime);
+        transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
     }
 

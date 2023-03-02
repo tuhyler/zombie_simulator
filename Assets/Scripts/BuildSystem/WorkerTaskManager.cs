@@ -582,8 +582,8 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (world.workerOrders)
         {
-            unitMovement.ClearBuildRoad();
             unitMovement.ToggleOrderHighlights(false);
+            unitMovement.ClearBuildRoad();
             unitMovement.ResetOrderFlags();
             //workerUnit.ResetRoadQueue();
         }

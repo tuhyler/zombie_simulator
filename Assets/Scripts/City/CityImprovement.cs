@@ -11,7 +11,10 @@ public class CityImprovement : MonoBehaviour
     [SerializeField]
     private List<ImprovementAnimators> animators = new();
 
-    private SelectionHighlight[] highlight;
+    private MeshFilter meshFilter;
+    public MeshFilter MeshFilter { get { return meshFilter; } }
+
+    private SelectionHighlight highlight;
     private ImprovementDataSO improvementData;
     public ImprovementDataSO GetImprovementData { get { return improvementData; } }
     private City city; //for buildings, click on them to select city
@@ -38,7 +41,8 @@ public class CityImprovement : MonoBehaviour
 
     private void Awake()
     {
-        highlight = GetComponents<SelectionHighlight>();
+        highlight = GetComponent<SelectionHighlight>();
+        meshFilter = GetComponentInChildren<MeshFilter>();
         //improvementAnimator = GetComponent<Animator>();
         //isWorkingHash = Animator.StringToHash("isWorking");
         //isWaitingHash = Animator.StringToHash("isWaiting");
@@ -199,26 +203,26 @@ public class CityImprovement : MonoBehaviour
         }
     }
 
-    public void EnableHighlight(Color highlightColor)
+    public void EnableHighlight(Color highlightColor, bool secondary = false)
     {
-        highlight[0].EnableHighlight(highlightColor);
+        highlight.EnableHighlight(highlightColor, secondary);
     }
 
     public void DisableHighlight()
     {
-        highlight[0].DisableHighlight();
+        highlight.DisableHighlight();
     }
 
     //in case object has two of this script (such as in buildings)
-    public void EnableHighlight2(Color highlightColor)
-    {
-        highlight[1].EnableHighlight(highlightColor);
-    }
+    //public void EnableHighlight2(Color highlightColor)
+    //{
+    //    highlight[1].EnableHighlight(highlightColor);
+    //}
 
-    public void DisableHighlight2()
-    {
-        highlight[1].DisableHighlight();
-    }
+    //public void DisableHighlight2()
+    //{
+    //    highlight[1].DisableHighlight();
+    //}
 
     public void SetCity(City city)
     {

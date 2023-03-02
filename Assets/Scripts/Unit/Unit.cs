@@ -163,11 +163,12 @@ public class Unit : MonoBehaviour
             else
                 y = .2f;
         }
-        else if (td.IsSeaCorner)
+        else if (td.IsSeaCorner) //walking the beach in rivers
         {
-            //if (world.CheckIfCoastCoast(endPositionInt))
-            y = transform.position.y;
-
+            if (world.CheckIfCoastCoast(endPositionInt))
+                y = -.10f;
+            else
+                y = transform.position.y;
         }
 
         if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
@@ -623,10 +624,10 @@ public class Unit : MonoBehaviour
             float x = 0;
             int z = 0;
 
-            if (Mathf.Abs(xDiff) + Mathf.Abs(zDiff) == 1)
-            {
-                x = .07f;
-            }
+            //if (Mathf.Abs(xDiff) + Mathf.Abs(zDiff) == 1)
+            //{
+            //    x = .2f;
+            //}
 
             //checking tile placements to see how to rotate shoe prints
             if (xDiff < 0)
@@ -659,7 +660,7 @@ public class Unit : MonoBehaviour
 
             //squishing the sprite a little for straights
             Vector3 scale = path.transform.localScale; 
-            scale.x -= x;
+            scale.x += x;
             path.transform.localScale = scale;
 
             pathQueue.Enqueue(path);

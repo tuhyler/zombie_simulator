@@ -12,12 +12,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: GrasslandHillVar01
       objectReference: {fileID: 0}
-    - target: {fileID: 3730685473443563688, guid: 921095d3d121473419d372397a80a384,
+    - target: {fileID: 1544600012458007256, guid: 921095d3d121473419d372397a80a384,
         type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 3237046608918968389, guid: 96d4f2a5dc9325649a93e62d5f8d1ac2,
+      propertyPath: m_StaticEditorFlags
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3537506130247885709, guid: 921095d3d121473419d372397a80a384,
         type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 22
+      objectReference: {fileID: 0}
     - target: {fileID: 3730685473443563688, guid: 921095d3d121473419d372397a80a384,
         type: 3}
       propertyPath: m_Material
@@ -42,6 +46,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6421295822068005703, guid: 921095d3d121473419d372397a80a384,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6724948334342040576, guid: 921095d3d121473419d372397a80a384,
         type: 3}
@@ -182,6 +191,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: deserthilltograssland01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 67876bd3a1c3fff4bb0de615ea3eba10,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 22
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67876bd3a1c3fff4bb0de615ea3eba10, type: 3}

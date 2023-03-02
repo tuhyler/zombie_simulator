@@ -77,6 +77,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: deserttofloodplains02
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 677763c6ec11798438c15073f561d5cd,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 677763c6ec11798438c15073f561d5cd, type: 3}
 --- !u!1001 &7013746964042440759
@@ -111,10 +116,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1842853312862270058, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4461690370859731775, guid: cb365157dbee9a346be1aa620099656f,
         type: 3}
       propertyPath: m_Name
       value: GrasslandFloodPlainsVar02
+      objectReference: {fileID: 0}
+    - target: {fileID: 4461690370859731775, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 5701387748758558304, guid: cb365157dbee9a346be1aa620099656f,
         type: 3}
@@ -175,6 +190,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8185741750714739360, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb365157dbee9a346be1aa620099656f, type: 3}

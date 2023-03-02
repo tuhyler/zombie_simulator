@@ -50,6 +50,7 @@ public class ResourceManager : MonoBehaviour
 
     //initial resources
     public List<ResourceValue> initialResources = new(); //resources you start a city with
+    [HideInInspector]
     public City city;
 
     //for managing food consumption

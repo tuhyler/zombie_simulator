@@ -92,7 +92,7 @@ public class MapWorld : MonoBehaviour
     private List<Vector3Int> workerBusyLocations = new();
 
     //for roads
-    private Dictionary<Vector3Int, List<GameObject>> roadTileDict = new(); //stores road GOs, only on terrain locations
+    private Dictionary<Vector3Int, List<Road>> roadTileDict = new(); //stores road GOs, only on terrain locations
     private List<Vector3Int> soloRoadLocsList = new(); //indicates which tiles have solo roads on them
     private List<Vector3Int> roadLocsList = new(); //indicates which tiles have roads on them
     private int roadCost; //set in road manager
@@ -385,7 +385,7 @@ public class MapWorld : MonoBehaviour
                     finalUnloadLoc = tile;
                 }
                 else
-                    GetTerrainDataAt(tile).EnableHighlight(new Color(1, 1, 1, 0.2f));
+                    GetTerrainDataAt(tile).EnableHighlight(Color.white);
             }
 
             //GameObject wonderGhostGO = Instantiate(wonderData.prefabComplete);
@@ -535,7 +535,7 @@ public class MapWorld : MonoBehaviour
             if (tile-placementLoc == wonderData.unloadLoc)
                 GetTerrainDataAt(tile).EnableHighlight(new Color(0, 1, 0, 1f));
             else
-                GetTerrainDataAt(tile).EnableHighlight(new Color(1, 1, 1, 0.2f));
+                GetTerrainDataAt(tile).EnableHighlight(Color.white);
         }
 
         rotation = Quaternion.Euler(0, rotationCount * 90, 0);
@@ -955,7 +955,7 @@ public class MapWorld : MonoBehaviour
         return workerBusyLocations.Contains(loc);
     }
 
-    public GameObject GetRoads(Vector3Int tile, bool straight)
+    public Road GetRoads(Vector3Int tile, bool straight)
     {
         int index = straight ? 0 : 1;
         return roadTileDict[tile][index];
@@ -971,7 +971,7 @@ public class MapWorld : MonoBehaviour
         return roadCost;
     }
 
-    public List<GameObject> GetAllRoadsOnTile(Vector3Int tile)
+    public List<Road> GetAllRoadsOnTile(Vector3Int tile)
     {
         return roadTileDict[tile];
     }
@@ -1053,6 +1053,8 @@ public class MapWorld : MonoBehaviour
         improvement.InitializeImprovementData(improvementData);
         string buildingName = improvementData.improvementName;
         improvement.SetCity(city);
+        city.AddToMeshFilterList(improvement.MeshFilter);
+        improvement.transform.parent = city.transform;
         improvement.initialCityHouse = isInitialCityHouse;
         cityBuildingGODict[cityTile][buildingName] = building;
         cityBuildingDict[cityTile][buildingName] = improvement;
@@ -1100,7 +1102,7 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void SetRoads(Vector3Int tile, GameObject road, bool straight)
+    public void SetRoads(Vector3Int tile, Road road, bool straight)
     {
         int index = straight ? 0 : 1;
         roadTileDict[tile][index] = road;

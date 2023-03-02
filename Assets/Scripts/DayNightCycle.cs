@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -14,6 +15,10 @@ public class DayNightCycle : MonoBehaviour
     
     [SerializeField, Range(0, 24)]
     private float timeODay;
+
+    [SerializeField]
+    private float baseIntensity;
+    private float intensity;
 
     [SerializeField]
     private Gradient ambientColor, directionalColor, fogColor;
@@ -59,10 +64,19 @@ public class DayNightCycle : MonoBehaviour
         RenderSettings.fogDensity = fogDensity.Evaluate(timePercent);
 
         directionalLight.color = directionalColor.Evaluate(timePercent);
-        //if (timeODay < 18.1)
-        directionalLight.transform.localRotation = Quaternion.Euler(timePercent * 360 - 90f, 75, 0);
-        //else
-        //    directionalLight.transform.localRotation = Quaternion.Euler(-90f, 75, 0);
+        if (timeODay < 18.1)
+        {
+            directionalLight.intensity = baseIntensity;
+            intensity = baseIntensity;
+            directionalLight.transform.localRotation = Quaternion.Euler(timePercent * 360 - 90f, 75, 0);
+        }
+        else
+        {
+            intensity -= Time.deltaTime * speed * 5;
+            //Debug.Log(intensity);
+            directionalLight.intensity = intensity;
+            //directionalLight.transform.localRotation = Quaternion.Euler(-90f, 75, 0);
+        }
     }
 
     private void SetFloatieCount(float count, Color floatieColor)

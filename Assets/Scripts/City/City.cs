@@ -5,12 +5,19 @@ using UnityEngine;
 
 public class City : MonoBehaviour
 {
+    //city praphics
     [SerializeField]
     private GameObject housingPrefab;
     [SerializeField]
     private ImprovementDataSO housingData;
     private GameObject currentHouse;
     private CityBuilderManager cityBuilderManager;
+    private List<MeshFilter> cityMeshFilters = new();
+    public List<MeshFilter> CityMeshFilters { get { return cityMeshFilters; } }
+    private SelectionHighlight selectionHighlight;
+    public SelectionHighlight SelectionHighlight { get { return selectionHighlight; } }
+    [SerializeField]
+    public Transform subTransform;
 
     [SerializeField]
     private CityNameField cityNameField;
@@ -19,16 +26,7 @@ public class City : MonoBehaviour
     [SerializeField]
     private ParticleSystem heavenHighlight, resourceSplash, lightBullet;
 
-    //[SerializeField]
-    //private Material cityNameMaterial;
-
-    //private Material originalCityNameMaterial;//, originalCityStatMaterial;
-
-    //[SerializeField]
-    //private SpriteRenderer cityNameField, citySizeField;//, unusedLaborField;
-
-    //[SerializeField]
-    //private TMP_Text cityName, cityPopText;
+    //city info
     private string cityName;
     public string CityName { get { return cityName; } }
 
@@ -103,6 +101,7 @@ public class City : MonoBehaviour
         //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
         world = FindObjectOfType<MapWorld>();
         cityPop = GetComponent<CityPopulation>();
+        selectionHighlight = GetComponentInChildren<SelectionHighlight>();
         resourceManager = GetComponent<ResourceManager>();
         resourceManager.ResourceStorageLimit = warehouseStorageLimit;
         //resourceProducer = GetComponent<ResourceProducer>();
@@ -158,6 +157,16 @@ public class City : MonoBehaviour
     {
         
         cityBuilderManager.UpdateResourceInfo();
+    }
+
+    public void AddToMeshFilterList(MeshFilter meshFilter)
+    {
+        cityMeshFilters.Add(meshFilter);
+    }
+
+    public void RemoveFromMeshFilterList(MeshFilter meshFilter)
+    {
+        cityMeshFilters.Remove(meshFilter);
     }
 
     public bool WorldResearchingCheck()
@@ -289,7 +298,7 @@ public class City : MonoBehaviour
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
         //for tweening
         housing.transform.localScale = Vector3.zero;
-        LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { cityBuilderManager.CombineMeshes(this, subTransform); });
         world.SetCityBuilding(housingData, cityLoc, housing, this, true);
     }
 

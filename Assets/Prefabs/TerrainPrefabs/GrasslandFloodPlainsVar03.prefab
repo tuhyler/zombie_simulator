@@ -27,10 +27,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 1842853312862270058, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4461690370859731775, guid: cb365157dbee9a346be1aa620099656f,
         type: 3}
       propertyPath: m_Name
       value: GrasslandFloodPlainsVar03
+      objectReference: {fileID: 0}
+    - target: {fileID: 4461690370859731775, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 5701387748758558304, guid: cb365157dbee9a346be1aa620099656f,
         type: 3}
@@ -91,6 +101,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8185741750714739360, guid: cb365157dbee9a346be1aa620099656f,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb365157dbee9a346be1aa620099656f, type: 3}
@@ -176,6 +191,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: deserttofloodplains03
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dce217e3ce5b6f442ae4b9f8d919b874,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dce217e3ce5b6f442ae4b9f8d919b874, type: 3}
