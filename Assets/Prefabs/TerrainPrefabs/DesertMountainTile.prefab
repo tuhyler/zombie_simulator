@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 5457287108992171801}
   m_Layer: 6
   m_Name: DesertMountainTile
-  m_TagString: Untagged
+  m_TagString: Hill
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 22
@@ -98,6 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 0}
 --- !u!65 &5457287108992171801
 BoxCollider:
   m_ObjectHideFlags: 0
