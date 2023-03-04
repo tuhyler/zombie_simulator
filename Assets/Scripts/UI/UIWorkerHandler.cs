@@ -16,6 +16,7 @@ public class UIWorkerHandler : MonoBehaviour
     private Transform uiElementsParent;
     [HideInInspector]
     public List<UIWorkerOptions> buildOptions;
+    [SerializeField]
     private UIWorkerOptions removalOptions;
 
     //for tweening
@@ -40,7 +41,7 @@ public class UIWorkerHandler : MonoBehaviour
 
     public void SetRoadBuildOption(UIWorkerOptions option)
     {
-        removalOptions = option;
+        //removalOptions = option;  
     }
 
     public void ToggleRemovalOptions(bool v)

@@ -556,7 +556,7 @@ public class CityBuilderManager : MonoBehaviour
             abandonCityButton.interactable = true;
         UpdateLaborNumbers();
         selectedCity.CityGrowthProgressBarSetActive(true);
-        selectedCity.Select();
+        //selectedCity.Select();
     }
 
     public void ShowQueuedGhost()
@@ -2606,7 +2606,7 @@ public class CityBuilderManager : MonoBehaviour
             HideBorders();
             ToggleBuildingHighlight(false);
             //ToggleCityHighlight(false);
-            selectedCity.Deselect();
+            //selectedCity.Deselect();
             selectedCity.HideCityGrowthProgressTimeBar();
             selectedCityLoc = new();
             selectedCity.activeCity = false;

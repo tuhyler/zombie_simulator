@@ -8,8 +8,8 @@ public class CityImprovement : MonoBehaviour
     //private ImprovementDataSO improvementDataSO;
     //public ImprovementDataSO GetImprovementDataSO { get { return improvementDataSO; } }
 
-    [SerializeField]
-    private List<ImprovementAnimators> animators = new();
+    //[SerializeField]
+    //private List<ImprovementAnimators> animators = new();
 
     private MeshFilter meshFilter;
     public MeshFilter MeshFilter { get { return meshFilter; } }
@@ -35,17 +35,17 @@ public class CityImprovement : MonoBehaviour
     public int GetTimePassed { get { return timePassed; } }
 
     //animation
-    //private Animator improvementAnimator;
-    //private int isWorkingHash;
-    //private int isWaitingHash;
+    private Animator improvementAnimator;
+    private int isWorkingHash;
+    private int isWaitingHash;
 
     private void Awake()
     {
         highlight = GetComponent<SelectionHighlight>();
         meshFilter = GetComponentInChildren<MeshFilter>();
-        //improvementAnimator = GetComponent<Animator>();
-        //isWorkingHash = Animator.StringToHash("isWorking");
-        //isWaitingHash = Animator.StringToHash("isWaiting");
+        improvementAnimator = GetComponent<Animator>();
+        isWorkingHash = Animator.StringToHash("isWorking");
+        isWaitingHash = Animator.StringToHash("isWaiting");
     }
 
     private void Start()
@@ -135,18 +135,19 @@ public class CityImprovement : MonoBehaviour
 
     public void StartWork(int seconds = 1)
     {
-        //if (improvementAnimator != null)
+        if (improvementAnimator != null)
+        {
+            improvementAnimator.SetBool(isWorkingHash, false); //stop animation first
+            improvementAnimator.SetBool(isWorkingHash, true);
+            improvementAnimator.SetFloat("speed", 1f / seconds);
+        }
+
+        //foreach (ImprovementAnimators animator in animators)
         //{
-        //    improvementAnimator.SetBool(isWorkingHash, true);
-        //    improvementAnimator.SetFloat("speed", 1f/seconds);
+        //    //int mod = new System.Random().Next(0, 4);
+        //    animator.StartAnimation(seconds);
         //}
 
-        foreach (ImprovementAnimators animator in animators)
-        {
-            //int mod = new System.Random().Next(0, 4);
-            animator.StartAnimation(seconds);
-        }
- 
         if (workFire1 != null)
             workFire1.Play();
 
@@ -159,21 +160,21 @@ public class CityImprovement : MonoBehaviour
 
     public void StopWork(bool waiting)
     {
-        //if (improvementAnimator != null)
-        //{
-        //    if (waiting)
-        //        improvementAnimator.SetBool(isWaitingHash, true);
-        //    else
-        //        improvementAnimator.SetBool(isWorkingHash, false);
-        //}
-
-        if (animators.Count > 0)
+        if (improvementAnimator != null)
         {
-            foreach (ImprovementAnimators animator in animators)
-            {
-                animator.StopAnimation(waiting);
-            }
+            if (waiting)
+                improvementAnimator.SetBool(isWaitingHash, true);
+            else
+                improvementAnimator.SetBool(isWorkingHash, false);
         }
+
+        //if (animators.Count > 0)
+        //{
+        //    foreach (ImprovementAnimators animator in animators)
+        //    {
+        //        animator.StopAnimation(waiting);
+        //    }
+        //}
 
         if (workFire1 != null)
             workFire1.Stop();
@@ -187,20 +188,22 @@ public class CityImprovement : MonoBehaviour
 
     public void StopWorkAnimation()
     {
-        if (animators.Count > 0)
-        {
-            foreach (ImprovementAnimators animator in animators)
-                animator.StopAnimation(false);
-        }
+        //if (animators.Count > 0)
+        //{
+        //    foreach (ImprovementAnimators animator in animators)
+        //        animator.StopAnimation(false);
+        //}
     }
 
     public void StopWaiting()
     {
-        if (animators.Count > 0)
-        {
-            foreach (ImprovementAnimators animator in animators)
-                animator.StopAnimation(true);
-        }
+        improvementAnimator.SetBool(isWaitingHash, false);
+
+        //if (animators.Count > 0)
+        //{
+        //    foreach (ImprovementAnimators animator in animators)
+        //        animator.StopAnimation(true);
+        //}
     }
 
     public void EnableHighlight(Color highlightColor, bool secondary = false)
