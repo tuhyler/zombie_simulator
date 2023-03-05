@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Farm01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5838738910640936402, guid: c582914d18271b848bf029524391aa00, type: 3}
+  prefab: {fileID: 5838738910640936402, guid: 7424a7609d612054094a5c5c29a63ede, type: 3}
   secondaryData: {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
   tertiaryData: {fileID: 11400000, guid: b7d41219a09ae7a4b94f48de6b4037d1, type: 2}
   isBuilding: 0
@@ -46,3 +46,4 @@ MonoBehaviour:
   workFire1Loc: {x: 0, y: 0.7, z: 0}
   workFire2Loc: {x: 0, y: 0, z: 0}
   workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0

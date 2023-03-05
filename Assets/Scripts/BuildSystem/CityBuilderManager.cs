@@ -1610,13 +1610,20 @@ public class CityBuilderManager : MonoBehaviour
 
         if (improvementData.replaceTerrain)
         {
-            world.GetTerrainDataAt(tempBuildLocation).main.gameObject.SetActive(false);
+            Vector2[] terrainUVs = td.GetComponent<MeshFilter>().mesh.uv;
+            td.main.gameObject.SetActive(false);
+
+            foreach (MeshFilter mesh in improvement.GetComponentsInChildren<MeshFilter>())
+            {
+                if (mesh.name == "Ground")
+                    mesh.mesh.uv = terrainUVs;
+            }
         }
         else
         {
             //for tweening
             improvement.transform.localScale = Vector3.zero;
-            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform); cityImprovement.SetInactive(); });
+            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city); });
         }    
         //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
 
@@ -1640,7 +1647,10 @@ public class CityBuilderManager : MonoBehaviour
         world.AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
         if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
             city.AutoAssignmentsForLabor();
+    }
 
+    private void TileCheck(Vector3Int tempBuildLocation, City city)
+    {
         if (selectedCity != null && cityTiles.Contains(tempBuildLocation))
         {
             developedTiles.Add(tempBuildLocation);
@@ -2198,14 +2208,15 @@ public class CityBuilderManager : MonoBehaviour
         else if (labor == 1 && laborChange > 0) //assigning city to location if working for first time
         {
             CityImprovement selectedImprovement = world.GetCityDevelopment(terrainLocation);
+            //if mesh isn't owned by anyone, add to this city's
             if (selectedImprovement.meshCity == null)
             {
                 selectedImprovement.meshCity = selectedCity;
                 selectedImprovement.transform.parent = selectedCity.transform;
                 selectedCity.SetNewMeshCity(terrainLocation, improvementMeshDict, improvementMeshList);
                 CombineMeshes(selectedCity, selectedCity.subTransform);
+                selectedCity.AddToImprovementList(selectedImprovement);
             }
-
 
             if (world.GetCityDevelopment(terrainLocation).queued)
             {

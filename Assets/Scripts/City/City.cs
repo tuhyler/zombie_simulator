@@ -144,12 +144,15 @@ public class City : MonoBehaviour
         Vector3 pos = transform.position;
         pos.y = .2f;
         resourceSplash = Instantiate(resourceSplash, pos, Quaternion.Euler(-90, 0, 0));
+        resourceSplash.transform.parent = transform;
         resourceSplash.Pause();
         pos.y = 8f;
         lightBullet = Instantiate(lightBullet, pos, Quaternion.Euler(90, 0, 0));
+        lightBullet.transform.parent = transform;
         lightBullet.Pause();
         pos.y = 3f;
         heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
+        heavenHighlight.transform.parent = transform;
         heavenHighlight.Pause();
     }
 
@@ -167,8 +170,16 @@ public class City : MonoBehaviour
     public void AddToMeshFilterList(GameObject go, MeshFilter[] meshFilter, bool building, Vector3Int loc, string name = "")
     {
         int count = meshFilter.Length;
+        //List<MeshFilter> meshFilterList = new();
+        
         for (int i = 0; i < count; i++)
+        {
+            //if (meshFilter[i].name == "Animation")
+            //    continue;
+
+            //meshFilterList.Add(meshFilter[i]);
             cityMeshFilters.Add(meshFilter[i]);
+        }
 
         if (building)
             buildingMeshes[name] = (meshFilter, go);

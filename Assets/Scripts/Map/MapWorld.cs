@@ -238,6 +238,7 @@ public class MapWorld : MonoBehaviour
     private void CreateParticleSystems()
     {
         lightBeam = Instantiate(lightBeam, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
+        lightBeam.transform.parent = transform;
         lightBeam.Pause();
     }
 

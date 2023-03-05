@@ -40,6 +40,7 @@ public class CityImprovement : MonoBehaviour
     private Animator improvementAnimator;
     private int isWorkingHash;
     private int isWaitingHash;
+    Coroutine co;
 
     private void Awake()
     {
@@ -59,35 +60,42 @@ public class CityImprovement : MonoBehaviour
             if (workFire1 != null)
             {
                 workFire1 = Instantiate(workFire1, loc + workFire1Loc, Quaternion.Euler(-90, 0, 0));
+                //workFire1.transform.parent = transform;
                 workFire1.Stop(); 
             }
 
             if (workFire2 != null)
             {
                 workFire2 = Instantiate(workFire2, loc + workFire2Loc, Quaternion.Euler(-90, 0, 0));
+                //workFire2.transform.parent = transform;
                 workFire2.Stop();
             }
 
             if (workSmoke != null)
             {
                 workSmoke = Instantiate(workSmoke, loc + workSmokeLoc, Quaternion.Euler(-90, 0, 0));
+                //workSmoke.transform.parent = transform;
                 workSmoke.Stop();
             }
             
             upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
+            //upgradeSwirl.transform.parent = transform;
             upgradeSwirl.Stop();
             upgradeSwirl.gameObject.SetActive(false);
 
             removeEruption = Instantiate(removeEruption, loc, Quaternion.Euler(-90, 0, 0));
+            //removeEruption.transform.parent = transform;
             removeEruption.Stop();
 
             loc.y += 0.1f;
             upgradeFlash = Instantiate(upgradeFlash, loc, Quaternion.Euler(0, 0, 0));
+            //upgradeFlash.transform.parent = transform;
             upgradeFlash.Stop();
 
 
             loc.y += 1.5f;
             upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
+            //upgradeSwirlDown.transform.parent = transform;
             upgradeSwirlDown.Stop();
             upgradeSwirlDown.gameObject.SetActive(false);
         }
@@ -124,59 +132,68 @@ public class CityImprovement : MonoBehaviour
     public void SetSmokeEmitters()
     {
         smokeEmitter = Instantiate(smokeEmitter, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
+        //smokeEmitter.transform.parent = transform;
         smokeEmitter.Stop();
         smokeEmitter.gameObject.SetActive(false);
 
         smokeSplash = Instantiate(smokeSplash, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
+        //smokeSplash.transform.parent = transform;
         smokeSplash.Stop();
 
         smokeSlow = Instantiate(smokeSlow, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
+        //smokeSlow.transform.parent = transform;
         smokeSlow.Stop();
         smokeSlow.gameObject.SetActive(false);
     }
 
-    public void StartWork(int seconds = 1)
+    public void StartWork(int seconds)
     {
         if (improvementAnimator != null)
         {
-            improvementAnimator.SetBool(isWorkingHash, false); //stop animation first
-            improvementAnimator.SetBool(isWorkingHash, true);
-            improvementAnimator.SetFloat("speed", 1f / seconds);
+            if (improvementData.workAnimLoop)
+            {
+                improvementAnimator.SetBool(isWorkingHash, true);
+            }
+            else
+            {
+                co = StartCoroutine(StartWorkAnimation(seconds));
+            }
         }
 
-        //foreach (ImprovementAnimators animator in animators)
-        //{
-        //    //int mod = new System.Random().Next(0, 4);
-        //    animator.StartAnimation(seconds);
-        //}
-
-        if (workFire1 != null)
+        if (workFire1 != null && !workFire1.isPlaying)
             workFire1.Play();
 
-        if (workFire2 != null)
+        if (workFire2 != null && !workFire2.isPlaying)
             workFire2.Play();
 
-        if (workSmoke != null)
+        if (workSmoke != null && !workSmoke.isPlaying)
             workSmoke.Play();
     }
 
-    public void StopWork(bool waiting)
+    //ridiculous workaround since you can't stop and start an animation at the same time.
+    private IEnumerator StartWorkAnimation(int seconds)
+    {
+        improvementAnimator.SetBool(isWorkingHash, false); //stop animation first
+        yield return new WaitForSeconds(0.001f);
+        improvementAnimator.SetBool(isWorkingHash, true);
+        improvementAnimator.SetFloat("speed", 1f / seconds);
+    }
+
+    public void StopWork()
     {
         if (improvementAnimator != null)
         {
-            if (waiting)
-                improvementAnimator.SetBool(isWaitingHash, true);
-            else
+            if (improvementData.workAnimLoop)
+            {
                 improvementAnimator.SetBool(isWorkingHash, false);
+            }
+            else
+            {
+                if (co != null)
+                    StopCoroutine(co);
+                improvementAnimator.SetBool(isWorkingHash, false);
+            }
         }
-
-        //if (animators.Count > 0)
-        //{
-        //    foreach (ImprovementAnimators animator in animators)
-        //    {
-        //        animator.StopAnimation(waiting);
-        //    }
-        //}
 
         if (workFire1 != null)
             workFire1.Stop();
@@ -188,25 +205,37 @@ public class CityImprovement : MonoBehaviour
             workSmoke.Stop();
     }
 
-    public void StopWorkAnimation()
-    {
-        //if (animators.Count > 0)
-        //{
-        //    foreach (ImprovementAnimators animator in animators)
-        //        animator.StopAnimation(false);
-        //}
-    }
+    //public void StartWorkAnimation(int seconds = 1)
+    //{
+    //    if (improvementAnimator != null)
+    //    {
+    //        improvementAnimator.SetBool(isWorkingHash, true);
+    //        improvementAnimator.SetFloat("speed", 1f / (seconds-1));
+    //    }
 
-    public void StopWaiting()
-    {
-        improvementAnimator.SetBool(isWaitingHash, false);
+    //    //if (animators.Count > 0)
+    //    //{
+    //    //    foreach (ImprovementAnimators animator in animators)
+    //    //        animator.StopAnimation(false);
+    //    //}
+    //}
 
-        //if (animators.Count > 0)
-        //{
-        //    foreach (ImprovementAnimators animator in animators)
-        //        animator.StopAnimation(true);
-        //}
-    }
+    //public void StopWorkAnimation()
+    //{
+    //    if (improvementAnimator != null)
+    //        improvementAnimator.SetBool(isWorkingHash, false);
+    //}
+
+    //public void StopWaiting()
+    //{
+    //    improvementAnimator.SetBool(isWaitingHash, false);
+
+    //    //if (animators.Count > 0)
+    //    //{
+    //    //    foreach (ImprovementAnimators animator in animators)
+    //    //        animator.StopAnimation(true);
+    //    //}
+    //}
 
     //doing this so that the highlight doesn't mix with the combinedmesh.
     public void Embiggen()

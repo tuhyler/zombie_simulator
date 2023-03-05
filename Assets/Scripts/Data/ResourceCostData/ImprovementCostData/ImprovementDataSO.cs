@@ -32,4 +32,5 @@ public class ImprovementDataSO : ScriptableObject
     public Vector3 workFire1Loc;
     public Vector3 workFire2Loc;
     public Vector3 workSmokeLoc;
+    public bool workAnimLoop = false;
 }
