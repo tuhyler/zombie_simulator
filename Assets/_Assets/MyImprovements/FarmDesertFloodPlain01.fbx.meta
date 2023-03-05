@@ -2,7 +2,10 @@ fileFormatVersion: 2
 guid: 6f4dd0879a4857545825985d69806162
 ModelImporter:
   serializedVersion: 21202
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 2757145418335790036
+    second: Armature|Grow
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -97,7 +100,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   additionalBone: 0
   userData: 
