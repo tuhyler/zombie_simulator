@@ -1045,20 +1045,27 @@ public class MapWorld : MonoBehaviour
         cityImprovementConstructionDict[tile] = cityDevelopment;
     }
 
-    public void SetCityBuilding(ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, bool isInitialCityHouse)
+    public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, bool isInitialCityHouse)
     {
-        CityImprovement improvement = building.GetComponent<CityImprovement>();
+        //CityImprovement improvement = building.GetComponent<CityImprovement>();
         improvement.building = improvementData.isBuilding;
         improvement.PlaySmokeSplashBuilding();
         improvement.InitializeImprovementData(improvementData);
         string buildingName = improvementData.improvementName;
         improvement.SetCity(city);
-        city.AddToMeshFilterList(improvement.MeshFilter);
         improvement.transform.parent = city.transform;
         improvement.initialCityHouse = isInitialCityHouse;
         cityBuildingGODict[cityTile][buildingName] = building;
         cityBuildingDict[cityTile][buildingName] = improvement;
         cityBuildingList[cityTile].Add(buildingName);
+        improvement.Embiggen();
+
+        //making two objects, this one for the parent mesh
+        GameObject tempObject = Instantiate(improvementData.prefab, (Vector3)cityTile + improvementData.buildingLocation, Quaternion.identity);
+        CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
+        city.AddToMeshFilterList(tempObject, tempImprovement.MeshFilter, true, Vector3Int.zero, buildingName);
+        tempObject.transform.parent = city.transform;
+        tempObject.SetActive(false);
     }
 
     public void SetCityHarbor(City city, Vector3Int harborLoc)
