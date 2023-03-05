@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Housing02Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 2413421541421609430, guid: 6161d90e38ce78d40b917c4495a50eea, type: 3}
+  secondaryData: {fileID: 0}
+  tertiaryData: {fileID: 0}
   isBuilding: 1
   improvementName: Housing
   improvementLevel: 2
+  improvementNameAndLevel: Housing-2
   rawMaterials: 0
   buildingLocation: {x: 0, y: 0, z: -1}
   image: {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
@@ -35,8 +38,11 @@ MonoBehaviour:
   maxLabor: 5
   laborCost: 0
   replaceTerrain: 0
-  replaceProp: 1
+  returnProp: 0
   singleBuild: 1
   buildTime: 0
   availableInitially: 0
   locked: 1
+  workFire1Loc: {x: 0, y: 0, z: 0}
+  workFire2Loc: {x: 0, y: 0, z: 0}
+  workSmokeLoc: {x: 0, y: 0, z: 0}

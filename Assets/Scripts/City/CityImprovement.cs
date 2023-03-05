@@ -11,14 +11,16 @@ public class CityImprovement : MonoBehaviour
     //[SerializeField]
     //private List<ImprovementAnimators> animators = new();
 
-    private MeshFilter meshFilter;
-    public MeshFilter MeshFilter { get { return meshFilter; } }
+    private MeshFilter[] meshFilter;
+    public MeshFilter[] MeshFilter { get { return meshFilter; } }
 
     private SelectionHighlight highlight;
     private ImprovementDataSO improvementData;
     public ImprovementDataSO GetImprovementData { get { return improvementData; } }
     private City city; //for buildings, click on them to select city
     private City queueCity; //for improvements, when queued for upgrades
+    [HideInInspector]
+    public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
     public bool initialCityHouse, isConstruction, queued, building, isUpgrading;
     private List<ResourceValue> upgradeCost = new();
@@ -42,7 +44,7 @@ public class CityImprovement : MonoBehaviour
     private void Awake()
     {
         highlight = GetComponent<SelectionHighlight>();
-        meshFilter = GetComponentInChildren<MeshFilter>();
+        meshFilter = GetComponentsInChildren<MeshFilter>();
         improvementAnimator = GetComponent<Animator>();
         isWorkingHash = Animator.StringToHash("isWorking");
         isWaitingHash = Animator.StringToHash("isWaiting");
@@ -206,13 +208,51 @@ public class CityImprovement : MonoBehaviour
         //}
     }
 
+    //doing this so that the highlight doesn't mix with the combinedmesh.
+    public void Embiggen()
+    {
+        Vector3 newScale = new Vector3(1.01f, 1.01f, 1.01f);
+
+        int count = meshFilter.Length;
+        for (int i = 0; i < count; i++)
+        {
+            meshFilter[i].transform.localScale = newScale;
+            Vector3 pos = meshFilter[i].transform.position;
+            pos.y += 0.01f;
+            meshFilter[i].transform.position = pos;
+        }
+    }
+
+    public void SetInactive()
+    {
+        int count = meshFilter.Length;
+        for (int i = 0; i < count; i++)
+            meshFilter[i].gameObject.SetActive(false);
+    }
+
     public void EnableHighlight(Color highlightColor, bool secondary = false)
     {
+        if (highlight.isGlowing)
+            return;
+        
+        int count = meshFilter.Length;
+        for (int i = 0; i < count; i++)
+        {
+            meshFilter[i].gameObject.SetActive(true);
+        }
+        
         highlight.EnableHighlight(highlightColor, secondary);
     }
 
     public void DisableHighlight()
     {
+        if (!highlight.isGlowing)
+            return;
+        
+        int count = meshFilter.Length;
+        for (int i = 0; i < count; i++)
+            meshFilter[i].gameObject.SetActive(false);
+
         highlight.DisableHighlight();
     }
 

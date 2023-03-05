@@ -8,7 +8,8 @@ public class SelectionHighlight : MonoBehaviour
 
     //[SerializeField]
     //private Material glowMaterialColor; //for colors
-    private bool isGlowing;
+    [HideInInspector]
+    public bool isGlowing;
 
     List<MeshRenderer> renderers = new();
     List<SkinnedMeshRenderer> renderersSkinned = new();
@@ -116,9 +117,6 @@ public class SelectionHighlight : MonoBehaviour
 
     public void EnableHighlight(Color highlightColor, bool secondary = false)
     {
-        if (isGlowing)
-            return;
-
         isGlowing = true;
 
         Material glow;
@@ -149,9 +147,6 @@ public class SelectionHighlight : MonoBehaviour
 
     public void DisableHighlight()
     {
-        if (!isGlowing)
-            return;
-
         isGlowing = false;
         
         foreach (MeshRenderer renderer in renderers)

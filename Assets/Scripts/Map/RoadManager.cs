@@ -23,7 +23,7 @@ public class RoadManager : MonoBehaviour
 
     [SerializeField]
     private Transform roadHolder;
-    private List<MeshFilter> roadGOList = new();
+    private List<MeshFilter> roadMeshList = new();
     
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -58,7 +58,7 @@ public class RoadManager : MonoBehaviour
         //    structure.SetActive(false);
         roadGO.transform.parent = roadHolder.transform;
         Road road = roadGO.GetComponent<Road>();
-        roadGOList.Add(road.MeshFilter);
+        roadMeshList.Add(road.MeshFilter);
 
         world.SetRoads(roadPosition, road, straight);
         //replacing prop
@@ -172,7 +172,7 @@ public class RoadManager : MonoBehaviour
             Road road = world.GetRoads(roadLoc, straight);
             if (road != null)
             {
-                roadGOList.Remove(road.MeshFilter);
+                roadMeshList.Remove(road.MeshFilter);
                 Destroy(road.gameObject);
             }
             if (world.IsSoloRoadOnTileLocation(roadLoc))
@@ -180,7 +180,7 @@ public class RoadManager : MonoBehaviour
                 Road road2 = world.GetRoads(roadLoc, false);
                 if (road2 != null)
                 {
-                    roadGOList.Remove(road2.MeshFilter);
+                    roadMeshList.Remove(road2.MeshFilter);
                     Destroy(road2.gameObject);
                 }
                 world.RemoveSoloRoadLocation(roadLoc);
@@ -369,7 +369,7 @@ public class RoadManager : MonoBehaviour
         {
             if (road == null)
                 continue;
-            roadGOList.Remove(road.MeshFilter);
+            roadMeshList.Remove(road.MeshFilter);
             Destroy(road.gameObject);
             //for tweening (can't tween with combined meshes, looks weird)
             //LeanTween.scale(road.gameObject, Vector3.zero, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { Destroy(road.gameObject); } );
@@ -395,7 +395,7 @@ public class RoadManager : MonoBehaviour
         //if (adding)
         //    meshFilters = roadHolder.GetComponentsInChildren<MeshFilter>();
         //else
-        MeshFilter[] meshFilters = roadGOList.ToArray();
+        MeshFilter[] meshFilters = roadMeshList.ToArray();
         CombineInstance[] combine = new CombineInstance[meshFilters.Length];
         int i = 0;
 

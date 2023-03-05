@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: Monument02Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 7952248765643111094, guid: 80caa5ba3d769d749b67763f5488ffb4, type: 3}
+  secondaryData: {fileID: 0}
+  tertiaryData: {fileID: 0}
   isBuilding: 1
   improvementName: Monument
   improvementLevel: 2
+  improvementNameAndLevel: Monument-2
   rawMaterials: 0
   buildingLocation: {x: 1, y: 0, z: 1}
   image: {fileID: 21300000, guid: 846ff20ee8921b64984b0d660f868b3b, type: 3}
@@ -31,8 +34,11 @@ MonoBehaviour:
   maxLabor: 0
   laborCost: 0
   replaceTerrain: 0
-  replaceProp: 1
+  returnProp: 0
   singleBuild: 1
   buildTime: 0
   availableInitially: 0
   locked: 1
+  workFire1Loc: {x: 0, y: 0, z: 0}
+  workFire2Loc: {x: 0, y: 0, z: 0}
+  workSmokeLoc: {x: 0, y: 0, z: 0}

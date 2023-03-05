@@ -14,6 +14,11 @@ public class City : MonoBehaviour
     private CityBuilderManager cityBuilderManager;
     private List<MeshFilter> cityMeshFilters = new();
     public List<MeshFilter> CityMeshFilters { get { return cityMeshFilters; } }
+    private Dictionary<string, (MeshFilter[], GameObject)> buildingMeshes = new(); //for removing meshes
+    private Dictionary<Vector3Int, (MeshFilter[], GameObject)> improvementMeshes = new();
+    private List<CityImprovement> improvementList = new();
+    public List<CityImprovement> ImprovementList { get { return improvementList; } }
+
     private SelectionHighlight selectionHighlight;
     public SelectionHighlight SelectionHighlight { get { return selectionHighlight; } }
     [SerializeField]
@@ -159,14 +164,82 @@ public class City : MonoBehaviour
         cityBuilderManager.UpdateResourceInfo();
     }
 
-    public void AddToMeshFilterList(MeshFilter meshFilter)
+    public void AddToMeshFilterList(GameObject go, MeshFilter[] meshFilter, bool building, Vector3Int loc, string name = "")
     {
-        cityMeshFilters.Add(meshFilter);
+        int count = meshFilter.Length;
+        for (int i = 0; i < count; i++)
+            cityMeshFilters.Add(meshFilter[i]);
+
+        if (building)
+            buildingMeshes[name] = (meshFilter, go);
+        else
+            improvementMeshes[loc] = (meshFilter, go);
     }
 
-    public void RemoveFromMeshFilterList(MeshFilter meshFilter)
+    public void RemoveFromMeshFilterList(bool building, Vector3Int loc, string name = "")
     {
-        cityMeshFilters.Remove(meshFilter);
+        GameObject go;
+        MeshFilter[] meshFilter;
+
+        if (building)
+        {
+            (meshFilter, go) = buildingMeshes[name];
+            buildingMeshes.Remove(name);
+        }
+        else
+        {
+            (meshFilter, go) = improvementMeshes[loc];
+            improvementMeshes.Remove(loc);
+        }
+        
+        int count = meshFilter.Length;
+        for (int i = 0; i < count; i++)
+            cityMeshFilters.Remove(meshFilter[i]);
+
+        Destroy(go);
+    }
+
+    //Reassigning improvement meshes to the orphan transform in the heirarchy
+    public void ReassignMeshes(Transform orphan, Dictionary<Vector3Int, (MeshFilter[], GameObject)> meshDict, List<MeshFilter> meshList)
+    {
+        foreach (Vector3Int loc in improvementMeshes.Keys)
+        {
+            (MeshFilter[] meshes, GameObject go)= improvementMeshes[loc];
+
+            int count = meshes.Length;
+            for (int i = 0;i < count; i++)
+                meshList.Add(meshes[i]);
+
+            meshDict[loc] = (meshes, go);
+            go.transform.parent = orphan;
+        }
+    }
+
+    public void SetNewMeshCity(Vector3Int loc, Dictionary<Vector3Int, (MeshFilter[], GameObject)> meshDict, List<MeshFilter> meshList)
+    {
+        (MeshFilter[] meshes, GameObject go) = meshDict[loc];
+        meshDict.Remove(loc);
+
+        int count = meshes.Length;
+        for (int i = 0; i < count; i++)
+        {
+            meshList.Remove(meshes[i]);
+            cityMeshFilters.Add(meshes[i]);
+            meshes[i].gameObject.SetActive(false);
+        }
+
+        improvementMeshes[loc] = (meshes, go);
+        go.transform.parent = transform;
+    }
+
+    public void AddToImprovementList(CityImprovement improvement)
+    {
+        improvementList.Add(improvement);
+    }
+
+    public void RemoveFromImprovementList(CityImprovement improvement)
+    {
+        improvementList.Remove(improvement);
     }
 
     public bool WorldResearchingCheck()
@@ -296,10 +369,11 @@ public class City : MonoBehaviour
         Vector3 houseLoc = cityLoc;
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
+        CityImprovement improvement = housing.GetComponent<CityImprovement>();
         //for tweening
         housing.transform.localScale = Vector3.zero;
-        LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { cityBuilderManager.CombineMeshes(this, subTransform); });
-        world.SetCityBuilding(housingData, cityLoc, housing, this, true);
+        LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { cityBuilderManager.CombineMeshes(this, subTransform); improvement.SetInactive(); });
+        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, true);
     }
 
     public void PopulationGrowthCheck(bool joinCity)

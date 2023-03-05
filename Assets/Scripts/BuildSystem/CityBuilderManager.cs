@@ -110,6 +110,11 @@ public class CityBuilderManager : MonoBehaviour
     private bool removingImprovement, upgradingImprovement, isQueueing, placingWonderHarbor; //flags thrown when doing specific tasks
     private bool isActive; //when looking at a city
 
+    [SerializeField]
+    private Transform improvementHolder;
+    private Dictionary<Vector3Int, (MeshFilter[], GameObject)> improvementMeshDict = new();
+    private List<MeshFilter> improvementMeshList = new();
+
     private void Awake()
     {
         GrowLaborNumbersPool();
@@ -951,7 +956,6 @@ public class CityBuilderManager : MonoBehaviour
             foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
                 CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
-                building.MeshFilter.gameObject.SetActive(true);
                 building.DisableHighlight();
                 //building.DisableHighlight2();
 
@@ -984,7 +988,11 @@ public class CityBuilderManager : MonoBehaviour
             foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
                 CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
-                building.MeshFilter.gameObject.SetActive(false);
+                int count = building.MeshFilter.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    building.MeshFilter[i].gameObject.SetActive(false);
+                }
                 building.DisableHighlight();
                 //building.DisableHighlight2();
             }
@@ -1184,10 +1192,11 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+        CityImprovement improvement = building.GetComponent<CityImprovement>();
         building.transform.parent = city.subTransform;
         //for tweening
         building.transform.localScale = Vector3.zero;
-        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform); });
+        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform); improvement.SetInactive(); });
 
         //if (upgradingImprovement)
         //{
@@ -1195,7 +1204,7 @@ public class CityBuilderManager : MonoBehaviour
         //    buildingImprovement.PlayUpgradeSplash();
         //}
         string buildingName = buildingData.improvementName;
-        world.SetCityBuilding(buildingData, city.cityLoc, building, city, false);
+        world.SetCityBuilding(improvement, buildingData, city.cityLoc, building, city, false);
         world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
 
         if (buildingData.singleBuild)
@@ -1313,7 +1322,7 @@ public class CityBuilderManager : MonoBehaviour
         //selectedCity.cityPop.UnusedLabor += currentLabor;
         //selectedCity.cityPop.UsedLabor -= currentLabor;
 
-        city.RemoveFromMeshFilterList(world.GetBuildingData(city.cityLoc, selectedBuilding).MeshFilter);
+        city.RemoveFromMeshFilterList(true, Vector3Int.zero, selectedBuilding);
         Destroy(building);
 
         //updating world dicts
@@ -1393,10 +1402,10 @@ public class CityBuilderManager : MonoBehaviour
                 }                
                 else if (world.CheckIfTileIsUnderConstruction(tile))
                 {
-                    CityImprovement improvement = world.GetCityDevelopmentConstruction(tile);
-                    improvement.DisableHighlight();
+                    //CityImprovement improvement = world.GetCityDevelopmentConstruction(tile);
+                    //improvement.DisableHighlight();
 
-                    improvement.EnableHighlight(Color.red);
+                    //improvement.EnableHighlight(Color.red);
                     td.EnableHighlight(Color.red);
                     tilesToChange.Add(tile);
                 }
@@ -1586,6 +1595,18 @@ public class CityBuilderManager : MonoBehaviour
         GameObject improvement = world.GetStructure(tempBuildLocation);
         improvement.SetActive(true);
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
+        CityImprovement cityImprovement = world.GetCityDevelopment(tempBuildLocation);
+        cityImprovement.meshCity = city;
+        cityImprovement.transform.parent = city.transform;
+        cityImprovement.Embiggen();
+        city.AddToImprovementList(cityImprovement);
+
+        //making two objects, this one for the parent mesh
+        GameObject tempObject = Instantiate(improvementData.prefab, cityImprovement.transform.position, cityImprovement.transform.rotation);
+        CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
+        city.AddToMeshFilterList(tempObject, tempImprovement.MeshFilter, false, tempBuildLocation);
+        tempObject.transform.parent = city.transform;
+        tempObject.SetActive(false);
 
         if (improvementData.replaceTerrain)
         {
@@ -1595,7 +1616,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             //for tweening
             improvement.transform.localScale = Vector3.zero;
-            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack);//.setOnComplete(() => { ReplaceTerrainCheck(tempBuildLocation, improvementData.replaceTerrain); });
+            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform); cityImprovement.SetInactive(); });
         }    
         //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
 
@@ -1792,6 +1813,29 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
+        //updating city graphic
+        if (!selectedImprovement.isConstruction)
+        {
+            if (selectedImprovement.meshCity != null)
+            {
+                selectedImprovement.meshCity.RemoveFromImprovementList(selectedImprovement);
+                selectedImprovement.meshCity.RemoveFromMeshFilterList(false, improvementLoc);
+                CombineMeshes(selectedImprovement.meshCity, selectedImprovement.meshCity.subTransform);
+            }
+            else
+            {
+                (MeshFilter[] meshes, GameObject go) = improvementMeshDict[improvementLoc];
+                improvementMeshDict.Remove(improvementLoc);
+
+                int count = meshes.Length;
+                for (int i = 0; i < count; i++)
+                    improvementMeshList.Remove(meshes[i]);
+
+                Destroy(go);
+                CombineMeshes();
+            }
+        }
+        
         GameObject improvement = world.GetStructure(improvementLoc);
         Destroy(improvement);
 
@@ -2152,10 +2196,20 @@ public class CityBuilderManager : MonoBehaviour
             resourceProducer.StopProducing();
         }
         else if (labor == 1 && laborChange > 0) //assigning city to location if working for first time
-        {            
+        {
+            CityImprovement selectedImprovement = world.GetCityDevelopment(terrainLocation);
+            if (selectedImprovement.meshCity == null)
+            {
+                selectedImprovement.meshCity = selectedCity;
+                selectedImprovement.transform.parent = selectedCity.transform;
+                selectedCity.SetNewMeshCity(terrainLocation, improvementMeshDict, improvementMeshList);
+                CombineMeshes(selectedCity, selectedCity.subTransform);
+            }
+
+
             if (world.GetCityDevelopment(terrainLocation).queued)
             {
-                CityImprovement selectedImprovement = world.GetCityDevelopment(terrainLocation);
+                //CityImprovement selectedImprovement = world.GetCityDevelopment(terrainLocation);
                 City tempCity = selectedImprovement.GetQueueCity();
 
                 if (tempCity != selectedCity)
@@ -2478,6 +2532,16 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
 
+        //disassociating improvements from city
+        foreach (CityImprovement improvement in selectedCity.ImprovementList)
+        {
+            improvement.meshCity = null;
+            improvement.transform.parent = improvementHolder.transform;
+        }
+
+        selectedCity.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
+        CombineMeshes();
+
         //destroying queued objects
         foreach(UIQueueItem queueItem in selectedCity.savedQueueItems)
         {
@@ -2567,10 +2631,10 @@ public class CityBuilderManager : MonoBehaviour
         {
             world.GetTerrainDataAt(tile).DisableHighlight();
             if (world.CheckIfTileIsImproved(tile))
-                world.GetCityDevelopment(tile).DisableHighlight(); //cached for speed 
+                world.GetCityDevelopment(tile).DisableHighlight();
 
-            if (world.CheckIfTileIsUnderConstruction(tile))
-                world.GetCityDevelopmentConstruction(tile).DisableHighlight();
+            //if (world.CheckIfTileIsUnderConstruction(tile))
+            //    world.GetCityDevelopmentConstruction(tile).DisableHighlight();
         }
         tilesToChange.Clear();
         improvementData = null;
@@ -2670,7 +2734,34 @@ public class CityBuilderManager : MonoBehaviour
         cityTransform.position = Vector3.zero;
 
         if (selectedCity == city)
+        {
             ToggleBuildingHighlight(true);
+            if (removingImprovement)
+                ImprovementTileHighlight();
+        }
+    }
+
+    //for the improvement holder
+    public void CombineMeshes()
+    {
+        MeshFilter[] meshFilters = improvementMeshList.ToArray();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        int i = 0;
+
+        while (i < meshFilters.Length)
+        {
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+
+            i++;
+        }
+
+        MeshFilter meshFilter = improvementHolder.GetComponent<MeshFilter>();
+        meshFilter.mesh = new Mesh();
+        meshFilter.mesh.CombineMeshes(combine);
+
+        improvementHolder.transform.gameObject.SetActive(true);
     }
 
     #region object pooling
