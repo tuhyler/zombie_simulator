@@ -33,10 +33,14 @@ public class TerrainData : MonoBehaviour
     private bool isGlowing = false;
 
     private List<MeshRenderer> renderers = new();
-
+    private Vector2[] uvs;
+    public Vector2[] UVs { get { return uvs; } }
 
     private void Awake()
     {
+        if (terrainData.type == TerrainType.Flatland)
+            uvs = main.GetComponentInChildren<MeshFilter>().mesh.uv;
+
         PrepareRenderers();
         
         isLand = terrainData.isLand;

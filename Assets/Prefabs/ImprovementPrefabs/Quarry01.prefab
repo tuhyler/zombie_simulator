@@ -150,29 +150,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3502493241704426579}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &5287637160269364084 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8789389234130458407, guid: 3394415ed561f064e96384b0f51a7c05,
-    type: 3}
-  m_PrefabInstance: {fileID: 3502493241704426579}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8428303923059082267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5287637160269364084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1494dc149f65d8469be6dd2791edb02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  terrainData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
-  main: {fileID: 0}
-  prop: {fileID: 0}
-  highlightPlane: {fileID: 0}
-  hasRoad: 0
 --- !u!1001 &7240680354740421091
 PrefabInstance:
   m_ObjectHideFlags: 0
