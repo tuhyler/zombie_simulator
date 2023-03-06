@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 1818493788481445142, guid: 6ac760f8d92380a4db62a30110e8354a, type: 3}
   secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: FarmFP
   improvementLevel: 1
@@ -43,6 +42,7 @@ MonoBehaviour:
   buildTime: 5
   availableInitially: 1
   locked: 0
-  workFire1Loc: {x: 0, y: 0.2, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
+  workFireLoc: {x: 0, y: 0, z: 0}
   workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0
+  hideAnimMesh: 1

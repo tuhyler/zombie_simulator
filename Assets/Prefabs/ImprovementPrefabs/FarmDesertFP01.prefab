@@ -64,6 +64,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
+      propertyPath: animMesh
+      value: 
+      objectReference: {fileID: 3492529997754363875}
+    - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
@@ -301,3 +306,9 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6f4dd0879a4857545825985d69806162, type: 3}
+--- !u!1 &3492529997754363875 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -3623647299942157393, guid: 6f4dd0879a4857545825985d69806162,
+    type: 3}
+  m_PrefabInstance: {fileID: 9061737769993215052}
+  m_PrefabAsset: {fileID: 0}
