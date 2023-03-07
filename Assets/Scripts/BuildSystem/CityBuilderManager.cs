@@ -96,7 +96,7 @@ public class CityBuilderManager : MonoBehaviour
 
     //for object pooling of construction graphics
     [SerializeField]
-    private GameObject constructionTile;
+    private GameObject constructionTilePrefab;
     private Queue<CityImprovement> constructionTileQueue = new();
 
     //for making objects transparent
@@ -988,11 +988,11 @@ public class CityBuilderManager : MonoBehaviour
             foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
                 CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
-                int count = building.MeshFilter.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    building.MeshFilter[i].gameObject.SetActive(false);
-                }
+                //int count = building.MeshFilter.Length;
+                //for (int i = 0; i < count; i++)
+                //{
+                //    building.MeshFilter[i].gameObject.SetActive(false);
+                //}
                 building.DisableHighlight();
                 //building.DisableHighlight2();
             }
@@ -1496,10 +1496,11 @@ public class CityBuilderManager : MonoBehaviour
 
         if (td.terrainData.isFloodPlain)
         {
-            if (td.terrainData.isDesert)
-                improvementData = improvementData.secondaryData;
-            else
-                improvementData = improvementData.tertiaryData;
+            rotation = (int)td.transform.eulerAngles.y;
+            improvementData = improvementData.secondaryData;
+            //if (td.terrainData.isDesert)
+            //else
+            //    improvementData = improvementData.tertiaryData;
         }
 
         //if (improvementData.replaceTerrain)
@@ -1603,20 +1604,35 @@ public class CityBuilderManager : MonoBehaviour
 
         //making two objects, this one for the parent mesh
         GameObject tempObject = Instantiate(improvementData.prefab, cityImprovement.transform.position, cityImprovement.transform.rotation);
-        CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
-        city.AddToMeshFilterList(tempObject, tempImprovement.MeshFilter, false, tempBuildLocation);
+        //CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
+        MeshFilter[] meshes = tempObject.GetComponentsInChildren<MeshFilter>();
+        city.AddToMeshFilterList(tempObject, meshes, false, tempBuildLocation);
         tempObject.transform.parent = city.transform;
         tempObject.SetActive(false);
 
         if (improvementData.replaceTerrain)
         {
-            Vector2[] terrainUVs = td.GetComponent<MeshFilter>().mesh.uv;
             td.main.gameObject.SetActive(false);
-
             foreach (MeshFilter mesh in improvement.GetComponentsInChildren<MeshFilter>())
             {
                 if (mesh.name == "Ground")
-                    mesh.mesh.uv = terrainUVs;
+                {
+                    Vector2[] terrainUVs = td.UVs;
+                    Vector2[] newUVs = mesh.mesh.uv;
+                    Vector2[] finalUVs = NormalizeUVs(terrainUVs, newUVs);
+                    mesh.mesh.uv = finalUVs;
+
+                    foreach (MeshFilter mesh2 in tempObject.GetComponentsInChildren<MeshFilter>())
+                    {
+                        if (mesh2.name == "Ground")
+                        {
+                            mesh2.mesh.uv = finalUVs;
+                            break;
+                        }
+                    }
+
+                    break;
+                }
             }
         }
         else
@@ -1647,6 +1663,14 @@ public class CityBuilderManager : MonoBehaviour
         world.AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
         if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
             city.AutoAssignmentsForLabor();
+
+        //no tweening, so must be done here
+        if (improvementData.replaceTerrain)
+        {
+            CombineMeshes(city, city.subTransform); 
+            cityImprovement.SetInactive();
+            TileCheck(tempBuildLocation, city);
+        }
     }
 
     private void TileCheck(Vector3Int tempBuildLocation, City city)
@@ -1686,13 +1710,63 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    //private void ReplaceTerrainCheck(Vector3Int tempBuildLocation, bool replaceTerrain)
-    //{
-    //    if (replaceTerrain)
-    //    {
-    //        world.GetTerrainDataAt(tempBuildLocation).main.gameObject.SetActive(false);
-    //    }
-    //}
+    //for reassigning UVs when the Vector2 counts don't match
+    private Vector2[] NormalizeUVs(Vector2[] terrainUVs, Vector2[] newUVs)
+    {
+        int i = 0;
+        float maxX = 0;
+        float minX = 1;
+        float maxY = 0;
+        float minY = 1;
+        float newMaxX = 0;
+        float newMinX = 1;
+        float newMaxY = 0;
+        float newMinY = 1;
+        while (i < terrainUVs.Length)
+        {
+            Vector2 vector = terrainUVs[i];
+            if (maxX < vector.x)
+                maxX = vector.x;
+            if (maxY < vector.y)
+                maxY = vector.y;
+            if (minX > vector.x)
+                minX = vector.x;
+            if (minY > vector.y)
+                minY = vector.y;
+            i++;
+        }
+
+        i = 0;
+        while (i < newUVs.Length)
+        {
+            Vector2 vector = newUVs[i];
+            if (newMaxX < vector.x)
+                newMaxX = vector.x;
+            if (newMaxY < vector.y)
+                newMaxY = vector.y;
+            if (newMinX > vector.x)
+                newMinX = vector.x;
+            if (newMinY > vector.y)
+                newMinY = vector.y;
+            i++;
+        }
+
+        i = 0;
+        float rangeX = maxX - minX;
+        float rangeY = maxY - minY;
+        float newRangeX = newMaxX - newMinX;
+        float newRangeY = newMaxY - newMinY;
+        while (i < newUVs.Length)
+        {
+            Vector2 uv = newUVs[i];
+            uv.x = minX + rangeX * ((uv.x - newMinX) / newRangeX);
+            uv.y = minY + rangeY * ((uv.y - newMinY) / newRangeY);
+            newUVs[i] = uv;
+            i++;
+        }
+
+        return newUVs;
+    }
 
     private int HarborRotation(Vector3Int tempBuildLocation, Vector3Int originationLocation)
     {
@@ -1722,6 +1796,7 @@ public class CityBuilderManager : MonoBehaviour
     private void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement)
     {
         ImprovementDataSO improvementData = selectedImprovement.GetImprovementData;
+        selectedImprovement.DestroyPS();
 
         if (selectedImprovement.queued)
         {
@@ -2741,8 +2816,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //meshes inexplicably move without this when making the parent a non-pre-existing item in the heirarchy
         cityTransform.localScale = new Vector3(1, 1, 1);
-        cityTransform.rotation = Quaternion.identity;
-        cityTransform.position = Vector3.zero;
+        cityTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
 
         if (selectedCity == city)
         {
@@ -2859,7 +2933,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         for (int i = 0; i < 2; i++) //grow pool 2 at a time
         {
-            GameObject constructionTileGO = Instantiate(constructionTile);
+            GameObject constructionTileGO = Instantiate(constructionTilePrefab);
             CityImprovement constructionImprovement = constructionTileGO.GetComponent<CityImprovement>();
             constructionImprovement.isConstruction = true;
             constructionImprovement.SetSmokeEmitters();

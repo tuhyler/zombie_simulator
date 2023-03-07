@@ -22,15 +22,15 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool initialCityHouse, isConstruction, queued, building, isUpgrading;
+    public bool initialCityHouse, queued, building, isConstruction, isUpgrading;
     private List<ResourceValue> upgradeCost = new();
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
 
     [SerializeField]
-    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash, workFire1, workFire2, 
-        workSmoke;
+    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash, workFire, workSmoke;
+    private List<ParticleSystem> particleSystems = new();
 
-    private Vector3 workFire1Loc, workFire2Loc, workSmokeLoc;
+    private Vector3 workFireLoc, workSmokeLoc;
 
     private Coroutine constructionCo;
     private int timePassed;
@@ -39,8 +39,10 @@ public class CityImprovement : MonoBehaviour
     //animation
     private Animator improvementAnimator;
     private int isWorkingHash;
-    private int isWaitingHash;
+    //private int isWaitingHash;
     Coroutine co;
+    [SerializeField]
+    private GameObject animMesh;
 
     private void Awake()
     {
@@ -48,68 +50,55 @@ public class CityImprovement : MonoBehaviour
         meshFilter = GetComponentsInChildren<MeshFilter>();
         improvementAnimator = GetComponent<Animator>();
         isWorkingHash = Animator.StringToHash("isWorking");
-        isWaitingHash = Animator.StringToHash("isWaiting");
+        //isWaitingHash = Animator.StringToHash("isWaiting");
     }
 
     private void Start()
     {
         Vector3 loc = transform.position;
 
-        if (!building)
+        if (!building && !isConstruction)
         {
-            if (workFire1 != null)
+            if (workFire != null)
             {
-                workFire1 = Instantiate(workFire1, loc + workFire1Loc, Quaternion.Euler(-90, 0, 0));
-                //workFire1.transform.parent = transform;
-                workFire1.Stop(); 
-            }
-
-            if (workFire2 != null)
-            {
-                workFire2 = Instantiate(workFire2, loc + workFire2Loc, Quaternion.Euler(-90, 0, 0));
-                //workFire2.transform.parent = transform;
-                workFire2.Stop();
+                workFire = Instantiate(workFire, loc + workFireLoc, Quaternion.Euler(-90, 0, 0));
+                particleSystems.Add(workFire);
+                workFire.Stop(); 
             }
 
             if (workSmoke != null)
             {
                 workSmoke = Instantiate(workSmoke, loc + workSmokeLoc, Quaternion.Euler(-90, 0, 0));
-                //workSmoke.transform.parent = transform;
+                particleSystems.Add(workSmoke);
                 workSmoke.Stop();
             }
             
             upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
-            //upgradeSwirl.transform.parent = transform;
+            particleSystems.Add(upgradeSwirl);
             upgradeSwirl.Stop();
-            upgradeSwirl.gameObject.SetActive(false);
 
             removeEruption = Instantiate(removeEruption, loc, Quaternion.Euler(-90, 0, 0));
-            //removeEruption.transform.parent = transform;
             removeEruption.Stop();
 
             loc.y += 0.1f;
             upgradeFlash = Instantiate(upgradeFlash, loc, Quaternion.Euler(0, 0, 0));
-            //upgradeFlash.transform.parent = transform;
+            particleSystems.Add(upgradeFlash);
             upgradeFlash.Stop();
 
 
             loc.y += 1.5f;
             upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
-            //upgradeSwirlDown.transform.parent = transform;
+            particleSystems.Add(upgradeSwirlDown);
             upgradeSwirlDown.Stop();
-            upgradeSwirlDown.gameObject.SetActive(false);
+
+            if (improvementData.hideAnimMesh)
+                animMesh.SetActive(false);
         }
-        //else if (isConstruction)
-        //{
-        //    loc.y += 0.1f;
-        //    smokeEmitter = Instantiate(smokeEmitter, loc, Quaternion.Euler(0, 0, 0));
-        //    smokeEmitter.Pause();
-        //    smokeEmitter.gameObject.SetActive(false);
-        //}
-        else
+        else if (building)
         {
             loc.y += .1f; 
             upgradeSplash = Instantiate(upgradeSplash, loc, Quaternion.Euler(-90, 0, 0));
+            particleSystems.Add(upgradeSplash);
             upgradeSplash.Stop();
 
             removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
@@ -124,26 +113,20 @@ public class CityImprovement : MonoBehaviour
 
     public void SetPSLocs()
     {
-        workFire1Loc = improvementData.workFire1Loc;
-        workFire2Loc = improvementData.workFire2Loc;
+        workFireLoc = improvementData.workFireLoc;
         workSmokeLoc = improvementData.workSmokeLoc;
     }
 
     public void SetSmokeEmitters()
     {
         smokeEmitter = Instantiate(smokeEmitter, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        //smokeEmitter.transform.parent = transform;
         smokeEmitter.Stop();
-        smokeEmitter.gameObject.SetActive(false);
 
         smokeSplash = Instantiate(smokeSplash, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        //smokeSplash.transform.parent = transform;
         smokeSplash.Stop();
 
         smokeSlow = Instantiate(smokeSlow, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        //smokeSlow.transform.parent = transform;
         smokeSlow.Stop();
-        smokeSlow.gameObject.SetActive(false);
     }
 
     public void StartWork(int seconds)
@@ -153,24 +136,25 @@ public class CityImprovement : MonoBehaviour
             if (improvementData.workAnimLoop)
             {
                 improvementAnimator.SetBool(isWorkingHash, true);
+                if (improvementData.hideAnimMesh)
+                    animMesh.SetActive(true);
             }
             else
             {
+                if (improvementData.hideAnimMesh)
+                    animMesh.SetActive(true);
                 co = StartCoroutine(StartWorkAnimation(seconds));
             }
         }
 
-        if (workFire1 != null && !workFire1.isPlaying)
-            workFire1.Play();
-
-        if (workFire2 != null && !workFire2.isPlaying)
-            workFire2.Play();
+        if (workFire != null && !workFire.isPlaying)
+            workFire.Play();
 
         if (workSmoke != null && !workSmoke.isPlaying)
             workSmoke.Play();
     }
 
-    //ridiculous workaround since you can't stop and start an animation at the same time.
+    //ridiculous workaround since you can't stop and then start an animation at the same time.
     private IEnumerator StartWorkAnimation(int seconds)
     {
         improvementAnimator.SetBool(isWorkingHash, false); //stop animation first
@@ -186,20 +170,21 @@ public class CityImprovement : MonoBehaviour
             if (improvementData.workAnimLoop)
             {
                 improvementAnimator.SetBool(isWorkingHash, false);
+                if (improvementData.hideAnimMesh)
+                    animMesh.SetActive(false);
             }
             else
             {
                 if (co != null)
                     StopCoroutine(co);
                 improvementAnimator.SetBool(isWorkingHash, false);
+                if (improvementData.hideAnimMesh)
+                    animMesh.SetActive(false);
             }
         }
 
-        if (workFire1 != null)
-            workFire1.Stop();
-
-        if (workFire2 != null)
-            workFire2.Stop();
+        if (workFire != null)
+            workFire.Stop();
 
         if (workSmoke != null)
             workSmoke.Stop();
@@ -257,6 +242,12 @@ public class CityImprovement : MonoBehaviour
         int count = meshFilter.Length;
         for (int i = 0; i < count; i++)
             meshFilter[i].gameObject.SetActive(false);
+    }
+
+    public void DestroyPS()
+    {
+        foreach (ParticleSystem ps in particleSystems)
+            Destroy(ps.gameObject);
     }
 
     public void EnableHighlight(Color highlightColor, bool secondary = false)
@@ -385,6 +376,7 @@ public class CityImprovement : MonoBehaviour
         Vector3 loc = transform.position;
         loc.y += .1f;
         smokeSplash = Instantiate(smokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+        //particleSystems.Add(smokeSplash);
         smokeSplash.Play();
     }
 
@@ -441,8 +433,8 @@ public class CityImprovement : MonoBehaviour
         PlaySmokeSplash(isHill);
         producer.HideConstructionProgressTimeBar();
         cityBuilderManager.RemoveConstruction(tempBuildLocation);
-        cityBuilderManager.AddToConstructionTilePool(this);
         cityBuilderManager.FinishImprovement(city, improvementData, tempBuildLocation);
+        cityBuilderManager.AddToConstructionTilePool(this);
     }
 
     public void BeginImprovementUpgradeProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, ImprovementDataSO data)

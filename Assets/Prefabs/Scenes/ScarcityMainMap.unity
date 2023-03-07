@@ -25920,80 +25920,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37384e5fc00832c46a9fdb2d0887f381, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &732645271
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1293491327}
-    m_Modifications:
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1547425620333918306, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9073605623283122857, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_Name
-      value: GrasslandDecor04
-      objectReference: {fileID: 0}
-    - target: {fileID: 9073605623283122857, guid: bac1367d9921c504f9e83bd5839e48ba,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: bac1367d9921c504f9e83bd5839e48ba, type: 3}
 --- !u!114 &732729799 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 492117300300410894, guid: 2ddbfb6b93f977043b365dd30df3353a,
@@ -45083,7 +45009,7 @@ MonoBehaviour:
   followTransform: {fileID: 0}
   centerTransform: {fileID: 0}
   followRotation: {x: 0, y: 0, z: 0, w: 0}
-  movementSpeed: 0.1
+  movementSpeed: 0.2
   movementTime: 7
   rotationAmount: 1
   zoomTime: 5
@@ -45257,12 +45183,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7644687841689987261, guid: 417f0913fc58b014a8ebd0cadfba206c,
     type: 3}
   m_PrefabInstance: {fileID: 1274751865}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1293491327 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8384399993646635520, guid: 7e8e7352197d4d14c9c0759a887c5083,
-    type: 3}
-  m_PrefabInstance: {fileID: 1612970378}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1296306933
 PrefabInstance:
@@ -50350,6 +50270,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1445872407}
     m_Modifications:
+    - target: {fileID: 673849420353639453, guid: 7e8e7352197d4d14c9c0759a887c5083,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 1100336493781816478, guid: 7e8e7352197d4d14c9c0759a887c5083,
         type: 3}
       propertyPath: m_Name
@@ -50360,12 +50285,27 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Flatland
       objectReference: {fileID: 0}
+    - target: {fileID: 1100336493781816478, guid: 7e8e7352197d4d14c9c0759a887c5083,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 2595137472308243765, guid: 7e8e7352197d4d14c9c0759a887c5083,
         type: 3}
       propertyPath: terrainData
       value: 
       objectReference: {fileID: 11400000, guid: cb2a8b692bb95d54ebd398c49ef45903,
         type: 2}
+    - target: {fileID: 3115669212889951691, guid: 7e8e7352197d4d14c9c0759a887c5083,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4843530373240206593, guid: 7e8e7352197d4d14c9c0759a887c5083,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 7215669629571644995, guid: 7e8e7352197d4d14c9c0759a887c5083,
         type: 3}
       propertyPath: m_RootOrder
@@ -50681,7 +50621,7 @@ MonoBehaviour:
     type: 3}
   upgradeQueueGhost: {fileID: 918213226758697082, guid: 9a3b99913629a684a8dd2bc0a56f70b1,
     type: 3}
-  constructionTile: {fileID: 1812115572741614599, guid: 9970c5401b53eb648b59457a58d90a19,
+  constructionTilePrefab: {fileID: 8789389234130458407, guid: 76ba8a5746198a34ba7676280dafa144,
     type: 3}
   transparentMat: {fileID: 2100000, guid: 7460f712a10e233428bdc32d69818caa, type: 2}
   improvementHolder: {fileID: 1826833829}
@@ -65903,7 +65843,7 @@ PrefabInstance:
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.500061
+      value: 8.502015
       objectReference: {fileID: 0}
     - target: {fileID: 2079834693550434276, guid: 0d922bb27c6789f428c0f113f1312d51,
         type: 3}
