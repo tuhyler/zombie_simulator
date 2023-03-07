@@ -6,7 +6,6 @@ public class ImprovementDataSO : ScriptableObject
 {
     public GameObject prefab;
     public ImprovementDataSO secondaryData;
-    public ImprovementDataSO tertiaryData;
     public bool isBuilding;
     public string improvementName;
     public int improvementLevel;
@@ -29,8 +28,8 @@ public class ImprovementDataSO : ScriptableObject
     public int buildTime;
     public bool availableInitially = false;
     public bool locked = true;
-    public Vector3 workFire1Loc;
-    public Vector3 workFire2Loc;
+    public Vector3 workFireLoc;
     public Vector3 workSmokeLoc;
     public bool workAnimLoop = false;
+    public bool hideAnimMesh = false;
 }

@@ -81,8 +81,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: f6bc1b6c81d221a489ba0c85e8b709d5, type: 2}
-  main: {fileID: 0}
-  prop: {fileID: 0}
+  main: {fileID: 754207839284618797}
+  prop: {fileID: 6424281992737964312}
   highlightPlane: {fileID: 6704770300757614012}
   hasRoad: 0
 --- !u!65 &5520662599573681669
@@ -112,6 +112,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 0}
+  isGlowing: 0
 --- !u!1 &7947533954490412569
 GameObject:
   m_ObjectHideFlags: 0
