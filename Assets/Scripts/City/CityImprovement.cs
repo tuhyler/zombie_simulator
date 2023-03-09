@@ -13,6 +13,7 @@ public class CityImprovement : MonoBehaviour
 
     private MeshFilter[] meshFilter;
     public MeshFilter[] MeshFilter { get { return meshFilter; } }
+    public SkinnedMeshRenderer skinnedMesh;
 
     private SelectionHighlight highlight;
     private ImprovementDataSO improvementData;
@@ -52,6 +53,7 @@ public class CityImprovement : MonoBehaviour
 
         highlight = GetComponent<SelectionHighlight>();
         meshFilter = GetComponentsInChildren<MeshFilter>();
+        skinnedMesh = GetComponentInChildren<SkinnedMeshRenderer>();
         improvementAnimator = GetComponent<Animator>();
         isWorkingHash = Animator.StringToHash("isWorking");
         //isWaitingHash = Animator.StringToHash("isWaiting");

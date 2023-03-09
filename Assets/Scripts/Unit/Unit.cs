@@ -28,7 +28,7 @@ public class Unit : MonoBehaviour
 
     //movement details
     //private Rigidbody unitRigidbody;
-    private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.005f;
+    private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
     private Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
     public bool moreToMove, isBusy, isMoving, isBeached; //check if they're doing something
@@ -139,20 +139,21 @@ public class Unit : MonoBehaviour
         //Debug.Log("next stop is " + endPosition);
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
         TerrainData td = world.GetTerrainDataAt(endPositionInt);
-        float y = 0;
+        float y = 0f;
 
         if (bySea)
         {
-            y = transform.position.y;
+            //y = transform.position.y;
+            y = -.45f;
 
             if (isBeached)
             {
-                y = -.3f;
+                //y = -.45f;
                 isBeached = false;
             }
             else if (world.CheckIfCoastCoast(endPositionInt))
             {
-                y = -.15f;
+                y = -.3f;
                 TurnOffRipples();
                 isBeached = true;
             }
@@ -221,7 +222,7 @@ public class Unit : MonoBehaviour
         endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
-
+        //Debug.Log("end: " + endPosition);
         //if (Mathf.Approximately(Mathf.Abs(Quaternion.Dot(startRotation, endRotation)), 1.0f) == false)
         //{
         float distance = 1f;
@@ -230,6 +231,9 @@ public class Unit : MonoBehaviour
         //while (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) > threshold)
         //while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
         {
+            if (distance < threshold)
+                Debug.Log("True");
+            
             distance = Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z);
             timeElapsed += Time.deltaTime;
             float movementThisFrame = Time.deltaTime * moveSpeed;
@@ -237,7 +241,8 @@ public class Unit : MonoBehaviour
             transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
             //transform.localPosition = newPosition;
             transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
-            //Debug.Log("current location: " + Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2));
+            //Debug.Log("distance: " + distance);
+            Debug.Log("current: " + transform.localPosition);
 
             if (distance <= threshold)
                 break;
@@ -445,7 +450,7 @@ public class Unit : MonoBehaviour
     {
         //Debug.Log("colliding with " + collision.gameObject.tag);
         
-        threshold = 0.001f;
+        //threshold = 0.001f;
 
         if (collision.gameObject.CompareTag("Road"))
         {
