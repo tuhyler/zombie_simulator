@@ -12,6 +12,7 @@ TagManager:
   - Road
   - Water
   - Upgrade
+  - Swamp
   layers:
   - Default
   - TransparentFX

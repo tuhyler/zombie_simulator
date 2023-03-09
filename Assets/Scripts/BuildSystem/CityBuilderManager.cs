@@ -1522,7 +1522,7 @@ public class CityBuilderManager : MonoBehaviour
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.InitializeImprovementData(improvementData);
-        cityImprovement.SetPSLocs();
+        //cityImprovement.SetPSLocs();
         cityImprovement.SetQueueCity(null);
 
         world.SetCityDevelopment(tempBuildLocation, cityImprovement);
@@ -1604,25 +1604,27 @@ public class CityBuilderManager : MonoBehaviour
 
         //making two objects, this one for the parent mesh
         GameObject tempObject = Instantiate(improvementData.prefab, cityImprovement.transform.position, cityImprovement.transform.rotation);
-        //CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
-        MeshFilter[] meshes = tempObject.GetComponentsInChildren<MeshFilter>();
+        CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
+        MeshFilter[] meshes = tempImprovement.MeshFilter;
         city.AddToMeshFilterList(tempObject, meshes, false, tempBuildLocation);
         tempObject.transform.parent = city.transform;
         tempObject.SetActive(false);
 
+        //resetting ground UVs is necessary
         if (improvementData.replaceTerrain)
         {
             td.main.gameObject.SetActive(false);
-            foreach (MeshFilter mesh in improvement.GetComponentsInChildren<MeshFilter>())
+
+            foreach (MeshFilter mesh in cityImprovement.MeshFilter)
             {
                 if (mesh.name == "Ground")
                 {
                     Vector2[] terrainUVs = td.UVs;
                     Vector2[] newUVs = mesh.mesh.uv;
                     Vector2[] finalUVs = NormalizeUVs(terrainUVs, newUVs);
-                    mesh.mesh.uv = finalUVs;
+                    //mesh.mesh.uv = finalUVs;
 
-                    foreach (MeshFilter mesh2 in tempObject.GetComponentsInChildren<MeshFilter>())
+                    foreach (MeshFilter mesh2 in meshes)
                     {
                         if (mesh2.name == "Ground")
                         {
@@ -1642,6 +1644,39 @@ public class CityBuilderManager : MonoBehaviour
             LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city); });
         }    
         //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
+
+        //reseting rock UVs 
+        if (improvementData.replaceRocks)
+        {
+            foreach (MeshFilter mesh in cityImprovement.MeshFilter)
+            {
+                if (mesh.name == "Rocks")
+                {
+                    Vector2 rockUVs = td.RockUVs;
+                    Vector2[] newUVs = mesh.mesh.uv;
+                    int i = 0;
+
+                    while (i < newUVs.Length)
+                    {
+                        newUVs[i] = rockUVs;
+                        i++;
+                    }
+                    mesh.mesh.uv = newUVs;
+
+                    foreach (MeshFilter mesh2 in meshes)
+                    {
+                        if (mesh2.name == "Rocks")
+                        {
+                            mesh2.mesh.uv = newUVs;
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+            }
+
+        }
 
         if (td.prop != null)
             td.prop.gameObject.SetActive(false);
@@ -1879,7 +1914,10 @@ public class CityBuilderManager : MonoBehaviour
 
             if (improvementData.returnProp)
             {
-                world.GetTerrainDataAt(improvementLoc).prop.gameObject.SetActive(true);
+                TerrainData td = world.GetTerrainDataAt(improvementLoc);
+                td.prop.gameObject.SetActive(true);
+                if (td.terrainData.hasRocks)
+                    td.RocksCheck();
             }
 
             if (improvementData.singleBuild)

@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: GrasslandStoneTerrain
+  m_Name: HillStoneTerrain
   m_EditorClassIdentifier: 
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   isFloodPlain: 0
   walkable: 1
   sailable: 0
-  isHill: 0
+  isHill: 1
   isLand: 1
   isSeaCorner: 0
-  movementCost: 10
-  type: 5
+  movementCost: 20
+  type: 6
   resourceType: 5
   hasRocks: 1
   keepProp: 1

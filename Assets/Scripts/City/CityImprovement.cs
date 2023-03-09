@@ -30,7 +30,8 @@ public class CityImprovement : MonoBehaviour
     private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash, workFire, workSmoke;
     private List<ParticleSystem> particleSystems = new();
 
-    private Vector3 workFireLoc, workSmokeLoc;
+    [SerializeField]
+    private Light workLight;
 
     private Coroutine constructionCo;
     private int timePassed;
@@ -46,6 +47,9 @@ public class CityImprovement : MonoBehaviour
 
     private void Awake()
     {
+        if (workLight != null)
+            workLight.gameObject.SetActive(false);
+
         highlight = GetComponent<SelectionHighlight>();
         meshFilter = GetComponentsInChildren<MeshFilter>();
         improvementAnimator = GetComponent<Animator>();
@@ -60,19 +64,11 @@ public class CityImprovement : MonoBehaviour
         if (!building && !isConstruction)
         {
             if (workFire != null)
-            {
-                workFire = Instantiate(workFire, loc + workFireLoc, Quaternion.Euler(-90, 0, 0));
-                particleSystems.Add(workFire);
                 workFire.Stop(); 
-            }
-
-            if (workSmoke != null)
-            {
-                workSmoke = Instantiate(workSmoke, loc + workSmokeLoc, Quaternion.Euler(-90, 0, 0));
-                particleSystems.Add(workSmoke);
-                workSmoke.Stop();
-            }
             
+            if (workSmoke != null)
+                workSmoke.Stop();
+
             upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
             particleSystems.Add(upgradeSwirl);
             upgradeSwirl.Stop();
@@ -111,11 +107,11 @@ public class CityImprovement : MonoBehaviour
         improvementData = data;
     }
 
-    public void SetPSLocs()
-    {
-        workFireLoc = improvementData.workFireLoc;
-        workSmokeLoc = improvementData.workSmokeLoc;
-    }
+    //public void SetPSLocs()
+    //{
+    //    workFireLoc = improvementData.workFireLoc;
+    //    workSmokeLoc = improvementData.workSmokeLoc;
+    //}
 
     public void SetSmokeEmitters()
     {
@@ -131,6 +127,9 @@ public class CityImprovement : MonoBehaviour
 
     public void StartWork(int seconds)
     {
+        if (workLight != null)
+            workLight.gameObject.SetActive(true);
+        
         if (improvementAnimator != null)
         {
             if (improvementData.workAnimLoop)
@@ -165,6 +164,9 @@ public class CityImprovement : MonoBehaviour
 
     public void StopWork()
     {
+        if (workLight != null)
+            workLight.gameObject.SetActive(false);
+
         if (improvementAnimator != null)
         {
             if (improvementData.workAnimLoop)

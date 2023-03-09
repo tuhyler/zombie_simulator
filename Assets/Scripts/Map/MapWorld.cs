@@ -143,7 +143,7 @@ public class MapWorld : MonoBehaviour
             foreach (Vector3Int tile in neighborsEightDirections)
             {
                 world[tileCoordinate + tile] = td;
-            }                
+            }
         }
 
         foreach (TerrainData td in coastalTerrain)
@@ -738,7 +738,6 @@ public class MapWorld : MonoBehaviour
         uiWorldResources.ResearchLimit = totalResearch;
         uiWorldResources.SetResearchValue(researchReceived);
     }
-
 
     public Unit GetUnit(Vector3Int tile)
     {

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using UnityEngine;
 
@@ -49,7 +48,7 @@ public class RoadManager : MonoBehaviour
     private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight) //placing road prefabs
     {
         Vector3 pos = roadPosition;
-        pos.y = -.04f;
+        //pos.y = -.04f;
         GameObject roadGO = Instantiate(model, pos, rotation);
         //for tweening (can't tween with combined meshes, looks weird)
         //roadGO.transform.localScale = Vector3.zero;
@@ -127,7 +126,7 @@ public class RoadManager : MonoBehaviour
                 Destroy(td.prop.GetChild(0).gameObject);
             }
         }
-        else if (td.prop != null) //for replacing decor (could destroy)
+        else if (td.prop != null && !td.terrainData.keepProp) //for replacing decor (could destroy)
         {
             td.prop.gameObject.SetActive(false);
         }

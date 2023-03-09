@@ -18,7 +18,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 123
   m_IsActive: 1
 --- !u!4 &1686765677576597183
 Transform:
@@ -68,11 +68,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animators: []
+  meshCity: {fileID: 0}
   initialCityHouse: 0
-  isConstruction: 0
   queued: 0
   building: 0
+  isConstruction: 0
   isUpgrading: 0
   upgradeSwirl: {fileID: 835882597958153440, guid: 36b6b10b4d7cc6f45bddcecb7be85848,
     type: 3}
@@ -87,9 +87,9 @@ MonoBehaviour:
   removeEruption: {fileID: 392546873931958410, guid: a6c6127933384f24298b33e29cc8648b,
     type: 3}
   removeSplash: {fileID: 0}
-  workFire1: {fileID: 0}
-  workFire2: {fileID: 0}
+  workFire: {fileID: 0}
   workSmoke: {fileID: 0}
+  animMesh: {fileID: 0}
 --- !u!114 &718474908050057380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,6 +104,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 0}
+  isGlowing: 0
 --- !u!65 &4914746956554069280
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -115,5 +117,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2, y: 1, z: 2}
-  m_Center: {x: 0, y: 0.1, z: 0}
+  m_Size: {x: 1, y: 0.8, z: 2}
+  m_Center: {x: 0, y: 0.4, z: 0}

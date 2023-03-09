@@ -130,6 +130,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 0}
+  isGlowing: 0
 --- !u!64 &2237327767086630809
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -215,7 +217,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 3c4284aca49ffae42afcb8706f6953f8, type: 2}
+      objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     - target: {fileID: 919132149155446097, guid: cad2107ec4920f64ca11623c2afc00ae,
         type: 3}
       propertyPath: m_Name

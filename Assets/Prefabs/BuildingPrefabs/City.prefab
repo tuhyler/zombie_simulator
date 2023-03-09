@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5032172735334801564}
   - component: {fileID: 4578348606182636768}
   - component: {fileID: 2381964445577140621}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CityGraphic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3993654054941920326}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.16639009, y: 0.9388353, z: -0.310253}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

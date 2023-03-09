@@ -15,6 +15,8 @@ public class TerrainDataSO : ScriptableObject
     public int movementCost = 10;
     public TerrainType type = TerrainType.Flatland;
     public ResourceType resourceType;
+    public bool hasRocks = false;
+    public bool keepProp = false;
 
     public void MovementCostCheck()
     {

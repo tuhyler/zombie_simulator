@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5287637160269364084, guid: 621fc3803ad9c3645a7d989ac5d06061, type: 3}
   secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Quarry
   improvementLevel: 1
@@ -36,11 +35,13 @@ MonoBehaviour:
   maxLabor: 2
   laborCost: 2
   replaceTerrain: 1
-  returnProp: 0
+  replaceRocks: 1
+  returnProp: 1
   singleBuild: 0
   buildTime: 5
   availableInitially: 1
   locked: 0
-  workFire1Loc: {x: 0, y: 0, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
+  workFireLoc: {x: 0, y: 0, z: 0}
   workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0
+  hideAnimMesh: 0
