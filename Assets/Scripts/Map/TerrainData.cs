@@ -32,14 +32,28 @@ public class TerrainData : MonoBehaviour
     public bool IsSeaCorner { get { return isSeaCorner; } }
     private bool isGlowing = false;
 
+    private ResourceGraphicHandler resourceGraphic;
+
     private List<MeshRenderer> renderers = new();
     private Vector2[] uvs;
     public Vector2[] UVs { get { return uvs; } }
+    private Vector2 rockUVs;
+    public Vector2 RockUVs { get { return rockUVs; } }
+
+    public int resourceAmount;
 
     private void Awake()
     {
         if (terrainData.type == TerrainType.Flatland)
             uvs = main.GetComponentInChildren<MeshFilter>().mesh.uv;
+        if (terrainData.hasRocks)
+        {
+            rockUVs = prop.GetComponentInChildren<MeshFilter>().mesh.uv[0];
+            resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
+            resourceGraphic.isHill = terrainData.isHill;
+
+            RocksCheck();
+        }
 
         PrepareRenderers();
         
@@ -63,6 +77,20 @@ public class TerrainData : MonoBehaviour
         }
     }
 
+    public void SetRockUVs(Vector2 uv)
+    {
+        MeshFilter mesh = prop.GetComponentInChildren<MeshFilter>();
+        Vector2[] uvs = mesh.mesh.uv;
+        int i = 0;
+        
+        while (i < uvs.Length)
+        {
+            uvs[i] = uv;
+            i++;
+        }
+
+        mesh.mesh.uv = uvs;
+    }
 
     public void SetCoastCoordinates(MapWorld world)
     {
@@ -154,6 +182,30 @@ public class TerrainData : MonoBehaviour
     {
         if (highlightPlane != null)
             highlightPlane.SetActive(v);
+    }
+
+    public void RocksCheck()
+    {
+        resourceGraphic.TurnOffGraphics();
+
+        if (resourceGraphic.isHill)
+        {
+            if (resourceAmount > 100)
+                resourceGraphic.resourceLargeHill.SetActive(true);
+            else if (resourceAmount > 50)
+                resourceGraphic.resourceMediumHill.SetActive(true);
+            else if (resourceAmount > 0)
+                resourceGraphic.resourceSmallHill.SetActive(true);
+        }
+        else
+        {
+            if (resourceAmount > 100)
+                resourceGraphic.resourceLargeFlat.SetActive(true);
+            else if (resourceAmount > 50)
+                resourceGraphic.resourceMediumFlat.SetActive(true);
+            else if (resourceAmount > 0)
+                resourceGraphic.resourceSmallFlat.SetActive(true);
+        }
     }
 
 }

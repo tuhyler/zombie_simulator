@@ -23,13 +23,12 @@ public class ImprovementDataSO : ScriptableObject
     public int maxLabor; //max amount of labor
     public int laborCost; //how much gold to charge labor
     public bool replaceTerrain = false; //prefab replaces terrain
+    public bool replaceRocks = false; //setting rocks as the same color as the prop
     public bool returnProp = false; //return terrain prop when removing it
     public bool singleBuild = false; //only one per city
     public int buildTime;
     public bool availableInitially = false;
     public bool locked = true;
-    public Vector3 workFireLoc;
-    public Vector3 workSmokeLoc;
     public bool workAnimLoop = false;
     public bool hideAnimMesh = false;
 }

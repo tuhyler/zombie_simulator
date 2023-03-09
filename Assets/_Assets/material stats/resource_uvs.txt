@@ -1,0 +1,1 @@
+//all resource uvs refer to placement on main texture atlas

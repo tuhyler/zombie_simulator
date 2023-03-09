@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 8073064088494166244}
   m_Layer: 6
   m_Name: Grassland
-  m_TagString: Flatland
+  m_TagString: Forest
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 20
@@ -97,8 +97,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  glowMaterialColor: {fileID: 2100000, guid: 4882ab2fe5444a14eb789f2d65bffb6d, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 0}
+  isGlowing: 0
 --- !u!65 &8073064088494166244
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4377796082950431887, guid: 3414d4bf8033ced4d947110bdbf96ae2, type: 3}
   secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Mine
   improvementLevel: 2
@@ -38,11 +37,11 @@ MonoBehaviour:
   maxLabor: 3
   laborCost: 2
   replaceTerrain: 0
+  replaceRocks: 0
   returnProp: 0
   singleBuild: 0
   buildTime: 5
-  availableInitially: 0
-  locked: 1
-  workFire1Loc: {x: 0, y: 0, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
-  workSmokeLoc: {x: 0, y: 0, z: 0}
+  availableInitially: 1
+  locked: 0
+  workAnimLoop: 0
+  hideAnimMesh: 0
