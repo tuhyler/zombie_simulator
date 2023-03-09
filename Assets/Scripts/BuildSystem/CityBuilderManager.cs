@@ -1672,6 +1672,20 @@ public class CityBuilderManager : MonoBehaviour
                         }
                     }
 
+                    if (cityImprovement.skinnedMesh != null)
+                    {
+                        int j = 0;
+                        Vector2[] skinnedUVs = cityImprovement.skinnedMesh.sharedMesh.uv;
+
+                        while (j < skinnedUVs.Length)
+                        {
+                            skinnedUVs[j] = rockUVs;
+                            j++;
+                        }
+
+                        cityImprovement.skinnedMesh.sharedMesh.uv = skinnedUVs;
+                    }
+
                     break;
                 }
             }
