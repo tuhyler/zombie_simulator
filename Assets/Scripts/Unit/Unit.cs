@@ -242,7 +242,7 @@ public class Unit : MonoBehaviour
             //transform.localPosition = newPosition;
             transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
             //Debug.Log("distance: " + distance);
-            Debug.Log("current: " + transform.localPosition);
+            //Debug.Log("current: " + transform.localPosition);
 
             if (distance <= threshold)
                 break;
