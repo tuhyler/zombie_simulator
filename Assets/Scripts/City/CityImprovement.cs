@@ -29,7 +29,7 @@ public class CityImprovement : MonoBehaviour
 
     [SerializeField]
     private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash, workFire, workSmoke;
-    private List<ParticleSystem> particleSystems = new();
+    //private List<ParticleSystem> particleSystems = new();
 
     [SerializeField]
     private Light workLight;
@@ -65,40 +65,44 @@ public class CityImprovement : MonoBehaviour
 
         if (!building && !isConstruction)
         {
-            if (workFire != null)
-                workFire.Stop(); 
+            //if (workFire != null)
+            //    workFire.Stop(); 
             
-            if (workSmoke != null)
-                workSmoke.Stop();
+            //if (workSmoke != null)
+            //    workSmoke.Stop();
 
-            upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
-            particleSystems.Add(upgradeSwirl);
-            upgradeSwirl.Stop();
+            //upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
+            //particleSystems.Add(upgradeSwirl);
+            //upgradeSwirl.Stop();
 
             removeEruption = Instantiate(removeEruption, loc, Quaternion.Euler(-90, 0, 0));
             removeEruption.Stop();
 
-            loc.y += 0.1f;
-            upgradeFlash = Instantiate(upgradeFlash, loc, Quaternion.Euler(0, 0, 0));
-            particleSystems.Add(upgradeFlash);
-            upgradeFlash.Stop();
+            //loc.y += 0.1f;
+            //upgradeFlash.transform.position = loc;
+            //upgradeFlash = Instantiate(upgradeFlash, loc, Quaternion.Euler(0, 0, 0));
+            //particleSystems.Add(upgradeFlash);
+            //upgradeFlash.Pause();
 
 
-            loc.y += 1.5f;
-            upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
-            particleSystems.Add(upgradeSwirlDown);
-            upgradeSwirlDown.Stop();
+            //loc.y += 1.5f;
+            //upgradeSwirlDown.transform.position = loc;
+            //upgradeSwirlDown.transform.rotation = Quaternion.Euler(-270, 0, 0);
+            //upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
+            //particleSystems.Add(upgradeSwirlDown);
+            //upgradeSwirlDown.Pause();
 
             if (improvementData.hideAnimMesh)
                 animMesh.SetActive(false);
         }
         else if (building)
         {
-            loc.y += .1f; 
-            upgradeSplash = Instantiate(upgradeSplash, loc, Quaternion.Euler(-90, 0, 0));
-            particleSystems.Add(upgradeSplash);
-            upgradeSplash.Stop();
+            //upgradeSplash = Instantiate(upgradeSplash, loc, Quaternion.Euler(-90, 0, 0));
+            //particleSystems.Add(upgradeSplash);
+            //upgradeSplash.Stop();
+            //upgradeSplash.gameObject.SetActive(false);
 
+            loc.y += .1f; 
             removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
             removeSplash.Stop();
         }
@@ -248,11 +252,11 @@ public class CityImprovement : MonoBehaviour
             meshFilter[i].gameObject.SetActive(false);
     }
 
-    public void DestroyPS()
-    {
-        foreach (ParticleSystem ps in particleSystems)
-            Destroy(ps.gameObject);
-    }
+    //public void DestroyPS()
+    //{
+    //    //foreach (ParticleSystem ps in particleSystems)
+    //    //    Destroy(ps.gameObject);
+    //}
 
     public void EnableHighlight(Color highlightColor, bool secondary = false)
     {
@@ -325,9 +329,14 @@ public class CityImprovement : MonoBehaviour
         upgradeSwirlDown.Play();
     }
 
-    public void PlayUpgradeSplash()
+    //public void PlayUpgradeSplash()
+    //{
+    //    upgradeSplash.Play();
+    //}
+
+    public void DestroyUpgradeSplash()
     {
-        upgradeSplash.Play();
+        Destroy(upgradeSplash);
     }
 
     public void PlayRemoveEffect(bool isHill)
@@ -389,10 +398,10 @@ public class CityImprovement : MonoBehaviour
         if (upgradeSwirl.isPlaying)
         {
             upgradeSwirl.Stop();
-            upgradeSwirl.gameObject.SetActive(false);
+            //upgradeSwirl.gameObject.SetActive(false);
 
             upgradeSwirlDown.Stop();
-            upgradeSwirlDown.gameObject.SetActive(false);
+            //upgradeSwirlDown.gameObject.SetActive(false);
         }
     }
 
@@ -455,7 +464,7 @@ public class CityImprovement : MonoBehaviour
         producer.ShowConstructionProgressTimeBar(timePassed, city.activeCity);
         producer.SetConstructionTime(timePassed);
 
-        while (timePassed > 2)
+        while (timePassed > 1)
         {
             yield return new WaitForSeconds(1);
             timePassed--;

@@ -199,7 +199,12 @@ public class Unit : MonoBehaviour
             }
             else
             {
-                unitInTheWay.FindNewSpot(endPositionInt);
+                Vector3Int next;
+                if (pathPositions.Count > 0)
+                    next = pathPositions.Peek();
+                else
+                    next = new Vector3Int(0, -10, 0);
+                unitInTheWay.FindNewSpot(endPositionInt, next);
             }
         }
 
@@ -381,13 +386,13 @@ public class Unit : MonoBehaviour
         TradeRouteCheck(endPosition);
         if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
         {
-            FindNewSpot(currentLocation);
+            FindNewSpot(currentLocation, new Vector3Int(0, -10, 0));
             return;
         }
         world.AddUnitPosition(currentLocation, this);
     }
 
-    private void FindNewSpot(Vector3Int current)
+    private void FindNewSpot(Vector3Int current, Vector3Int next)
     {
         //Vector3Int lastTile = current;        
         
@@ -397,6 +402,9 @@ public class Unit : MonoBehaviour
                 continue;
 
             if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile))
+                continue;
+
+            if (tile == next && tile != new Vector3Int(0, -10, 0)) //this just means null
                 continue;
 
             //if (world.IsUnitLocationTaken(tile))

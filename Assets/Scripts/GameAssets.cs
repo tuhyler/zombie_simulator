@@ -21,6 +21,7 @@ public class GameAssets : MonoBehaviour
     public GameObject cityGrowthProgressPrefab2;
     public GameObject timeProgressPrefab;
     public GameObject resourceBubble;
+    public GameObject resourceInfoHolder;
     public GameObject resourceInfoPanel;
     public GameObject uiTimeProgressPrefab;
 }

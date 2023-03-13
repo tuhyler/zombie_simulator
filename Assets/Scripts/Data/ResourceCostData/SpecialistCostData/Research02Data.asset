@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5618590599906311602, guid: 1832844a90baf724bb7d5b9e6f5d3ee8, type: 3}
   secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Research
   improvementLevel: 2
@@ -38,11 +37,11 @@ MonoBehaviour:
   maxLabor: 5
   laborCost: 10
   replaceTerrain: 0
+  replaceRocks: 0
   returnProp: 0
   singleBuild: 1
-  buildTime: 30
+  buildTime: 5
   availableInitially: 0
   locked: 1
-  workFire1Loc: {x: 0, y: 0, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
-  workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0
+  hideAnimMesh: 0
