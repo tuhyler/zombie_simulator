@@ -64,6 +64,8 @@ MonoBehaviour:
     type: 3}
   resourceBubble: {fileID: 2079849781279894658, guid: 5ef82d055c06e4945b70fae30439ba79,
     type: 3}
+  resourceInfoHolder: {fileID: 4764973178347815870, guid: f905e36b43c29c245b1589664c838206,
+    type: 3}
   resourceInfoPanel: {fileID: 4764973178347815870, guid: 37a7c494c26839c4684b3621bf361497,
     type: 3}
   uiTimeProgressPrefab: {fileID: 2616545287873098607, guid: bf17aa7d9f2e11f45bc02820d282172e,

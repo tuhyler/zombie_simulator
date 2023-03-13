@@ -502,6 +502,11 @@ public class WorkerTaskManager : MonoBehaviour
             TurnOffCancelTask();
         BuildCity(workerTile, worker, clearForest, td);
         world.RemoveWorkerWorkLocation(workerTile);
+
+        //moving worker up a smidge to be on top of road
+        Vector3 moveUp = worker.transform.position;
+        moveUp.y += .2f;
+        worker.transform.position = moveUp;
     }
 
     private void BuildCity(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td)

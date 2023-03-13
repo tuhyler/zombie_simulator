@@ -203,8 +203,8 @@ public class CameraController : MonoBehaviour
     private void ZoomCamera()
     {
         //zooming limits (set manually)
-        newZoom.y = Mathf.Clamp(newZoom.y, 3f, 11); //for perfect diagonal, needs to be linear. if starting zoom y=5.5, z=-3, then 2.5 to bottom and 5.5 to top for both. 
-        newZoom.z = Mathf.Clamp(newZoom.z, -8.5f, -0.5f); 
+        newZoom.y = Mathf.Clamp(newZoom.y, 3f, 11); //for perfect diagonal, needs to be linear. if starting zoom y=5.5, z=-4.5, then 2.5 to bottom and 5.5 to top for both. 
+        newZoom.z = Mathf.Clamp(newZoom.z, -10f, -2f); 
 
         //smoothing zoom
         cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * zoomTime);

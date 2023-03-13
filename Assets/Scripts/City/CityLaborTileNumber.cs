@@ -17,6 +17,11 @@ public class CityLaborTileNumber : MonoBehaviour
         laborNumberText.GetComponent<TMP_Text>().enabled = false;
     }
 
+    void LateUpdate()
+    {
+        transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+    }
+
     public void SetLaborNumber(string turnCount)
     {
         //laborNumberHolder.enabled = true;
