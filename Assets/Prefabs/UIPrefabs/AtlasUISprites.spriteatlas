@@ -130,6 +130,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: e907ae8f2fad7cf4d847987f3528eb2b, type: 3}
   - {fileID: 21300000, guid: fd0e0c9f9d9741d4e934841e2fe6b35c, type: 3}
   - {fileID: 21300000, guid: 6a30f0af17b501a48b56130d7d1b1e4a, type: 3}
+  - {fileID: 21300000, guid: 1d30fbbf36a9d48429edc0f7fcb53abb, type: 3}
   - {fileID: 21300000, guid: ec2d0cbf569e1614f9a33df24dfff106, type: 3}
   - {fileID: 21300000, guid: 4e118cbf2f598644cb92a14374dd70c0, type: 3}
   - {fileID: 21300000, guid: f7597dcf3db9fef43a5911d31c498d38, type: 3}
@@ -227,6 +228,7 @@ SpriteAtlas:
   - button_building
   - button_plus
   - scroll_arrowleft
+  - arrow_lightblue
   - button_upgrade
   - arrow_researchup_lightblue
   - check_black
