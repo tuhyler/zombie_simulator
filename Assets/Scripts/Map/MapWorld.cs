@@ -106,6 +106,8 @@ public class MapWorld : MonoBehaviour
     //for expanding gameobject size
     private static int increment = 3;
 
+    private SpeechBubbleHandler speechBubble;
+
     [SerializeField] //for gizmos
     private bool showGizmo;
 
@@ -125,6 +127,9 @@ public class MapWorld : MonoBehaviour
             SetResearchName(researchTree.GetChosenResearchName());
         else
             SetResearchName("No Current Research");
+        GameObject speechBubbleGO = Instantiate(GameAssets.Instance.speechBubble);
+        speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
+        speechBubble.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -1957,7 +1962,15 @@ public class MapWorld : MonoBehaviour
             cityWorkedTileDict.Remove(pos);
     }
 
+    public void PlayMessage(Vector3 loc)
+    {
+        speechBubble.SetText(loc, "This is a test. This is only a test.");
+    }
 
+    public void StopMessage()
+    {
+        speechBubble.CancelText();
+    }
 
 
     //debug gizmos

@@ -70,3 +70,5 @@ MonoBehaviour:
     type: 3}
   uiTimeProgressPrefab: {fileID: 2616545287873098607, guid: bf17aa7d9f2e11f45bc02820d282172e,
     type: 3}
+  speechBubble: {fileID: 2079849781279894658, guid: 48cf8f7a4ab3b154da8f9d0bd7dac0b5,
+    type: 3}
