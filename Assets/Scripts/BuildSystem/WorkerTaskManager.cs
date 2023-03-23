@@ -474,6 +474,8 @@ public class WorkerTaskManager : MonoBehaviour
         bool clearForest = td.GetTerrainData().type == TerrainType.Forest;
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
+        worker.citiesBuilt++;
+        worker.SpeechCheck();
         taskCoroutine = StartCoroutine(BuildCityCoroutine(tile, worker, clearForest, td));   
     }
 

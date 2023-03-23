@@ -52,7 +52,7 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting, harvested;
+    public bool bySea, isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting, harvested, somethingToSay, sayingSomething;
 
     //animation
     [HideInInspector]
