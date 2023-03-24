@@ -55,7 +55,6 @@ MonoBehaviour:
   cityNameField: {fileID: 759914645907119161}
   cityName: {fileID: 7531931400293178883}
   cityPop: {fileID: 6483813010830416031}
-  cityNameMaterial: {fileID: 2100000, guid: 87e679e04e2fd464b94fa13055be0e02, type: 2}
 --- !u!1 &2627657982459710624
 GameObject:
   m_ObjectHideFlags: 0

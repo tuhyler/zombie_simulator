@@ -111,6 +111,9 @@ public class UnitMovement : MonoBehaviour
     {
         if (world.buildingWonder)
             return;
+
+        if (selectedUnit != null && selectedUnit.sayingSomething)
+            SpeakingCheck();
         //else if (loadScreenSet)
         //    LoadUnloadFinish(false);
 
@@ -240,6 +243,14 @@ public class UnitMovement : MonoBehaviour
             else //Select unit for the first time
             {
                 selectedUnit = unitReference;
+            }
+
+            if (unitReference.somethingToSay)
+            {
+                unitReference.somethingToSay = false;
+                unitReference.sayingSomething = true;
+                world.PlayMessage(location);
+                CenterCamOnUnit();
             }
 
             uiMoveUnit.ToggleTweenVisibility(true);
@@ -434,6 +445,9 @@ public class UnitMovement : MonoBehaviour
 
         if (selectedUnit.isBusy)
             return;
+
+        if (selectedUnit != null && selectedUnit.sayingSomething)
+            SpeakingCheck();
 
         MoveUnit(location);
     }
@@ -935,6 +949,15 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
+    private void SpeakingCheck()
+    {
+        if (selectedUnit.sayingSomething)
+        {
+            selectedUnit.sayingSomething = false;
+            world.StopMessage();
+        }
+    }
+
     public void ClearSelection()
     {
         //selectedTile = null;
@@ -943,6 +966,7 @@ public class UnitMovement : MonoBehaviour
             if (selectedUnit.isBusy && selectedWorker.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(false);
 
+            SpeakingCheck();
             moveUnit = false;
             uiMoveUnit.ToggleTweenVisibility(false);
             uiCancelMove.ToggleTweenVisibility(false);

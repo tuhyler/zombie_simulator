@@ -9,14 +9,14 @@ public class CityNameField : MonoBehaviour
     [SerializeField]
     public TMP_Text cityName, cityPop;
 
-    [SerializeField]
-    private Material cityNameMaterial;
-    private Material originalCityNameMaterial;
+    //[SerializeField]
+    //private Material cityNameMaterial;
+    //private Material originalCityNameMaterial;
 
 
     private void Awake()
     {
-        originalCityNameMaterial = cityNameField.material;
+        //originalCityNameMaterial = cityNameField.material;
     }
 
     void LateUpdate()
@@ -41,12 +41,12 @@ public class CityNameField : MonoBehaviour
 
     public void EnableHighlight()
     {
-        cityNameField.material = cityNameMaterial;
+        //cityNameField.material = cityNameMaterial;
     }
 
     public void DisableHighlight()
     {
-        cityNameField.material = originalCityNameMaterial;
+        //cityNameField.material = originalCityNameMaterial;
     }
 
     public void SetCityNameFieldSize(string cityName)

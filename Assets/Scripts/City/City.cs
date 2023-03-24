@@ -382,13 +382,14 @@ public class City : MonoBehaviour
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
         CityImprovement improvement = housing.GetComponent<CityImprovement>();
+        improvement.DestroyUpgradeSplash();
         initialHouse = improvement;
+        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, true);
         //for tweening
         housing.transform.localScale = Vector3.zero;
         LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { 
             cityBuilderManager.CombineMeshes(this, subTransform); improvement.SetInactive(); 
         });
-        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, true);
     }
 
     public void PopulationGrowthCheck(bool joinCity)
@@ -970,7 +971,7 @@ public class City : MonoBehaviour
 
     public void DestroyThisCity()
     {
-        initialHouse.DestroyPS();
+        //initialHouse.DestroyPS();
         initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).terrainData.isHill);
         StopAllCoroutines();
         Destroy(uiTimeProgressBar.gameObject);

@@ -82,6 +82,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1099803070470002178, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1359330119388014317, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_Enabled
@@ -157,6 +162,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1703446905038246948, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: animMesh
@@ -173,6 +183,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4335854821895997823, guid: 1b1ce0b92b809d5488ac40027272b44c,
         type: 3}
+    - target: {fileID: 4833968758101626825, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8568417478804482300, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 8789389234130458407, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_Name
