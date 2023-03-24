@@ -20,6 +20,9 @@ public class Worker : Unit
     //animations
     private int isWorkingHash;
 
+    //dialogue stats
+    [HideInInspector]
+    public int citiesBuilt;
 
     //[SerializeField]
     //private ParticleSystem removeSplash;
@@ -370,6 +373,12 @@ public class Worker : Unit
     public void SetTime(int time)
     {
         uiTimeProgressBar.SetTime(time);
+    }
+
+    public void SpeechCheck()
+    {
+        if (citiesBuilt == 1)
+            somethingToSay = true;
     }
 
     //public IEnumerator BuildRoad(Vector3Int roadPosition, RoadManager roadManager)

@@ -30,7 +30,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2156026491706801541}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -46,17 +47,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animators: []
+  skinnedMesh: {fileID: 0}
+  meshCity: {fileID: 0}
   initialCityHouse: 0
-  isConstruction: 0
   queued: 0
   building: 0
+  isConstruction: 0
   isUpgrading: 0
   upgradeSwirl: {fileID: 0}
   upgradeSwirlDown: {fileID: 0}
   upgradeFlash: {fileID: 0}
-  upgradeSplash: {fileID: 6041035029305573530, guid: f33ec1b18d6b26844828ba3f7121dea0,
-    type: 3}
+  upgradeSplash: {fileID: 7889979104158587193}
   smokeSlow: {fileID: 0}
   smokeEmitter: {fileID: 0}
   smokeSplash: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
@@ -64,9 +65,10 @@ MonoBehaviour:
   removeEruption: {fileID: 0}
   removeSplash: {fileID: 6041035029305573530, guid: 227158f9fa8122c4492aaec08d475a56,
     type: 3}
-  workFire1: {fileID: 0}
-  workFire2: {fileID: 0}
+  workFire: {fileID: 0}
   workSmoke: {fileID: 0}
+  workLight: {fileID: 0}
+  animMesh: {fileID: 0}
 --- !u!114 &7796438051319544572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,6 +85,7 @@ MonoBehaviour:
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
   secondaryGlowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a,
     type: 2}
+  isGlowing: 0
 --- !u!65 &4530263000516872463
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -96,3 +99,84 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1001 &4515077888979229091
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1686765677576597183}
+    m_Modifications:
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7872122735579793442, guid: f33ec1b18d6b26844828ba3f7121dea0,
+        type: 3}
+      propertyPath: m_Name
+      value: UpgradeSplash
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f33ec1b18d6b26844828ba3f7121dea0, type: 3}
+--- !u!4 &2156026491706801541 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
+    type: 3}
+  m_PrefabInstance: {fileID: 4515077888979229091}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &7889979104158587193 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 6041035029305573530, guid: f33ec1b18d6b26844828ba3f7121dea0,
+    type: 3}
+  m_PrefabInstance: {fileID: 4515077888979229091}
+  m_PrefabAsset: {fileID: 0}

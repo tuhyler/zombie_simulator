@@ -103,6 +103,10 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public Material transparentMat;
 
+    //for object pooling resource info holders
+    private Queue<ResourceInfoHolder> resourceInfoHolderQueue = new();
+    private Dictionary<Vector3, ResourceInfoHolder> resourceInfoHolderDict = new();
+
     //for object pooling of resource info panels
     private Queue<ResourceInfoPanel> resourceInfoPanelQueue = new();
     private Dictionary<Vector3, List<ResourceInfoPanel>> resourceInfoPanelDict = new();
@@ -115,11 +119,17 @@ public class CityBuilderManager : MonoBehaviour
     private Dictionary<Vector3Int, (MeshFilter[], GameObject)> improvementMeshDict = new();
     private List<MeshFilter> improvementMeshList = new();
 
+    [HideInInspector]
+    public GameObject emptyGO;
+
     private void Awake()
     {
+        emptyGO = new GameObject("NewImprovement");
+        emptyGO.SetActive(false);
         GrowLaborNumbersPool();
         GrowBordersPool();
         GrowConstructionTilePool(); 
+        GrowResourceInfoHolderPool();
         GrowResourceInfoPanelPool();
         //openAssignmentPriorityMenu.interactable = false;
     }
@@ -128,7 +138,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         //here just for testing
         world.SetUpgradeableObjectMaxLevel("Research", 2);
-        //world.SetUpgradeableObjectMaxLevel("Mine", 2);
+        world.SetUpgradeableObjectMaxLevel("Mine", 2);
         world.SetUpgradeableObjectMaxLevel("Monument", 2);
     }
 
@@ -142,25 +152,25 @@ public class CityBuilderManager : MonoBehaviour
 
     private void CameraBirdsEyeRotation()
     {
-        focusCam.DisableMouse = true;
-        originalRotation = focusCam.transform.rotation;
-        originalZoom = focusCam.GetZoom();
-        focusCam.centerTransform = selectedCity.transform;
+        //focusCam.DisableMouse = true;
+        //originalRotation = focusCam.transform.rotation;
+        //originalZoom = focusCam.GetZoom();
+        //focusCam.centerTransform = selectedCity.transform;
     }
 
     private void CameraBirdsEyeRotationWonder()
     {
-        originalRotation = focusCam.transform.rotation;
-        originalZoom = focusCam.GetZoom();
-        focusCam.centerTransform = selectedWonder.transform;
+        //originalRotation = focusCam.transform.rotation;
+        //originalZoom = focusCam.GetZoom();
+        //focusCam.centerTransform = selectedWonder.transform;
     }
 
     private void CameraDefaultRotation()
     {
-        focusCam.DisableMouse = false;
-        focusCam.centerTransform = null;
-        focusCam.transform.rotation = Quaternion.Lerp(focusCam.transform.rotation, originalRotation, Time.deltaTime * 5);
-        focusCam.SetZoom(originalZoom);
+        //focusCam.DisableMouse = false;
+        //focusCam.centerTransform = null;
+        //focusCam.transform.rotation = Quaternion.Lerp(focusCam.transform.rotation, originalRotation, Time.deltaTime * 5);
+        //focusCam.SetZoom(originalZoom);
         //focusCam.cameraTransform.localPosition += new Vector3(0, -1f, 1f);
     }
 
@@ -741,6 +751,7 @@ public class CityBuilderManager : MonoBehaviour
             TerrainData td = world.GetTerrainDataAt(tile);
             td.DisableHighlight(); //turning off all highlights first
             PoolResourceInfoPanel(tile);
+            resourceInfoHolderDict.Remove(tile);
             resourceInfoPanelDict.Remove(tile);
 
             CityImprovement improvement = world.GetCityDevelopment(tile); //cached for speed
@@ -761,8 +772,9 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (upgradingImprovement)
         {
-            foreach (Vector3 location in resourceInfoPanelDict.Keys)
-                PoolResourceInfoPanel(location);
+            foreach (Vector3 location in resourceInfoHolderDict.Keys)
+                PoolResourceInfoPanel(location);    
+            resourceInfoHolderDict.Clear();
             resourceInfoPanelDict.Clear();
 
             foreach (Vector3Int tile in tilesToChange)
@@ -813,11 +825,13 @@ public class CityBuilderManager : MonoBehaviour
             if (upgradeLoc == selectedCityLoc)
             {
                 PoolResourceInfoPanel(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc);
-                resourceInfoPanelDict.Remove(selectedImprovement.GetImprovementData.buildingLocation); //can't be in previous method
+                resourceInfoHolderDict.Remove(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc);
+                resourceInfoPanelDict.Remove(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc); //can't be in previous method
             }
             else
             {
                 PoolResourceInfoPanel(upgradeLoc);
+                resourceInfoHolderDict.Remove(upgradeLoc);
                 resourceInfoPanelDict.Remove(upgradeLoc);
              
                 //placesToWork--;
@@ -833,9 +847,9 @@ public class CityBuilderManager : MonoBehaviour
 
         if (upgradeLoc == city.cityLoc)
         {
-            selectedImprovement.PlayUpgradeSplash();
+            //selectedImprovement.PlayUpgradeSplash();
             RemoveImprovement(upgradeLoc, selectedImprovement, city, true);
-            CreateBuilding(data, city, true, upgradeCost);
+            CreateBuilding(data, city, true);
         }
         else
         {
@@ -875,6 +889,9 @@ public class CityBuilderManager : MonoBehaviour
                     resourceManager.FoodGrowthLevel, resourceManager.FoodGrowthLimit, resourceManager.FoodPerMinute);
                 UpdateLaborNumbers();
                 uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+
+                resourceManager.UpdateUI();
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
             }
             else
             {
@@ -919,32 +936,45 @@ public class CityBuilderManager : MonoBehaviour
         List<ResourceInfoPanel> resourceInfoPanelList = new();
         List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel));
         int resourceCount = upgradeCost.Count;
+        Vector3 holderPos = tile;
+        //holderPos.y -= 1f;
+        holderPos.z -= 1.5f;
+        if (building)
+            holderPos.z += 1;
+        ResourceInfoHolder resourceInfoHolder = GetFromResourceInfoHolderPool();
+        resourceInfoHolder.transform.position = holderPos;
+
         int i = 0;
         foreach (ResourceValue value in upgradeCost)
         {
-            Vector3 panelPos = tile;
-            panelPos.z -= 1.5f;
-            if (building)
-                panelPos.z += 1;
+            Vector3 panelPos = new Vector3(0, 0, 0);
+            //panelPos.z -= 1.5f;
+            //if (building)
+            //    panelPos.z += 1;
+            ////panelPos.y += 0.5f;
             panelPos.x -= .32f * (resourceCount - 1);
             panelPos.x += .64f * i;
 
             ResourceInfoPanel resourceInfoPanel = GetFromResourceInfoPanelPool();
             bool haveEnough = selectedCity.ResourceManager.CheckResourceAvailability(value);
             resourceInfoPanel.SetResourcePanel(world.GetResourceIcon(value.resourceType), value.resourceAmount, haveEnough);
-            resourceInfoPanel.transform.position = panelPos;
+            resourceInfoPanel.transform.SetParent(resourceInfoHolder.transform);
+            resourceInfoPanel.transform.localPosition = panelPos;
             resourceInfoPanelList.Add(resourceInfoPanel);
             i++;
         }
 
+        resourceInfoHolderDict[tile] = resourceInfoHolder;
         resourceInfoPanelDict[tile] = resourceInfoPanelList;
     }
 
     private void PoolResourceInfoPanel(Vector3 location)
     {
-        if (!resourceInfoPanelDict.ContainsKey(location))
+        if (!resourceInfoHolderDict.ContainsKey(location))
             return;
-        
+
+        AddToResourceInfoHolderPool(resourceInfoHolderDict[location]);
+
         foreach (ResourceInfoPanel resourceInfoPanel in resourceInfoPanelDict[location])
             AddToResourceInfoPanelPool(resourceInfoPanel);
     }
@@ -1165,7 +1195,7 @@ public class CityBuilderManager : MonoBehaviour
         CreateBuilding(buildingData, selectedCity, false);
     }
 
-    private void CreateBuilding(ImprovementDataSO buildingData, City city, bool upgradingImprovement, List<ResourceValue> upgradeCost = null)
+    private void CreateBuilding(ImprovementDataSO buildingData, City city, bool upgradingImprovement)
     {
         if(uiQueueManager.CheckIfBuiltItemIsQueued(city.cityLoc, new Vector3Int(0, 0, 0), upgradingImprovement, buildingData, city))
             RemoveQueueGhostBuilding(buildingData.improvementName, city);
@@ -1178,12 +1208,12 @@ public class CityBuilderManager : MonoBehaviour
         cityPos += buildingLocalPos;
 
         //resource info
-        if (upgradingImprovement)
-        {
-            city.ResourceManager.SpendResource(upgradeCost);
-            //upgradeCost.Clear();
-        }
-        else
+        //if (upgradingImprovement)
+        //{
+        //    city.ResourceManager.SpendResource(upgradeCost);
+        //    //upgradeCost.Clear();
+        //}
+        if (!upgradingImprovement)
         {
             city.ResourceManager.SpendResource(buildingData.improvementCost); //this spends the resources needed to build
         }
@@ -1193,19 +1223,23 @@ public class CityBuilderManager : MonoBehaviour
         //setting world data
         GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
         CityImprovement improvement = building.GetComponent<CityImprovement>();
+        if (!upgradingImprovement)
+            improvement.DestroyUpgradeSplash();
         building.transform.parent = city.subTransform;
-        //for tweening
-        building.transform.localScale = Vector3.zero;
-        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform); improvement.SetInactive(); });
 
         //if (upgradingImprovement)
         //{
         //    CityImprovement buildingImprovement = building.GetComponent<CityImprovement>();
         //    buildingImprovement.PlayUpgradeSplash();
         //}
+
         string buildingName = buildingData.improvementName;
         world.SetCityBuilding(improvement, buildingData, city.cityLoc, building, city, false);
         world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
+
+        //for tweening
+        building.transform.localScale = Vector3.zero;
+        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform); improvement.SetInactive(); });
 
         if (buildingData.singleBuild)
         {
@@ -1269,7 +1303,7 @@ public class CityBuilderManager : MonoBehaviour
     //    ToggleBuildingHighlight(true);
     //}
 
-    private void RemoveBuilding(string selectedBuilding, City city)
+    private void RemoveBuilding(string selectedBuilding, City city, bool upgradingImprovement)
     {
         //putting the resources and labor back
         GameObject building = world.GetBuilding(city.cityLoc, selectedBuilding);
@@ -1287,14 +1321,17 @@ public class CityBuilderManager : MonoBehaviour
         //}
         //else //if building has both, still only do one (should have at least one)
         //{
-        int i = 0;
-        foreach (ResourceValue resourceValue in workEthicHandler.GetImprovementData.improvementCost)
+        if (!upgradingImprovement)
         {
-            int resourcesReturned = resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
-            Vector3 cityLoc = city.cityLoc;
-            cityLoc.z += -.5f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
-            i++;
+            int i = 0;
+            foreach (ResourceValue resourceValue in workEthicHandler.GetImprovementData.improvementCost)
+            {
+                int resourcesReturned = resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+                Vector3 cityLoc = city.cityLoc;
+                cityLoc.z += -.5f * i;
+                InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+                i++;
+            }
         }
         //}
 
@@ -1599,13 +1636,31 @@ public class CityBuilderManager : MonoBehaviour
         CityImprovement cityImprovement = world.GetCityDevelopment(tempBuildLocation);
         cityImprovement.meshCity = city;
         cityImprovement.transform.parent = city.transform;
-        cityImprovement.Embiggen();
         city.AddToImprovementList(cityImprovement);
 
         //making two objects, this one for the parent mesh
-        GameObject tempObject = Instantiate(improvementData.prefab, cityImprovement.transform.position, cityImprovement.transform.rotation);
-        CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
-        MeshFilter[] meshes = tempImprovement.MeshFilter;
+        GameObject tempObject = Instantiate(emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);
+        tempObject.name = improvement.name;
+        MeshFilter[] improvementMeshes = cityImprovement.MeshFilter;
+
+        MeshFilter[] meshes = new MeshFilter[improvementMeshes.Length];
+        int k = 0;
+
+        foreach (MeshFilter mesh in improvementMeshes)
+        {
+            Quaternion rotation = mesh.transform.rotation;
+            meshes[k] = Instantiate(mesh, mesh.transform.position, rotation);
+            meshes[k].name = mesh.name;
+            meshes[k].transform.parent = tempObject.transform;
+            k++;
+        }
+
+        tempObject.transform.localScale = improvement.transform.localScale;
+        cityImprovement.Embiggen();
+        
+        //GameObject tempObject = Instantiate(improvementData.prefab, cityImprovement.transform.position, cityImprovement.transform.rotation);
+        //CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
+        //MeshFilter[] meshes = tempObject.GetComponentsInChildren<MeshFilter>();
         city.AddToMeshFilterList(tempObject, meshes, false, tempBuildLocation);
         tempObject.transform.parent = city.transform;
         tempObject.SetActive(false);
@@ -1845,7 +1900,7 @@ public class CityBuilderManager : MonoBehaviour
     private void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement)
     {
         ImprovementDataSO improvementData = selectedImprovement.GetImprovementData;
-        selectedImprovement.DestroyPS();
+        //selectedImprovement.DestroyPS();
 
         if (selectedImprovement.queued)
         {
@@ -1861,7 +1916,7 @@ public class CityBuilderManager : MonoBehaviour
         //remove building
         if (improvementLoc == city.cityLoc)
         {
-            RemoveBuilding(improvementData.improvementName, city);
+            RemoveBuilding(improvementData.improvementName, city, upgradingImprovement);
             return;
         }
         else if (selectedImprovement == null) //in case the tile is selected, missing the box collider of development
@@ -2289,7 +2344,7 @@ public class CityBuilderManager : MonoBehaviour
         //specifying location on tile
         Vector3 numberPosition = tile;
         numberPosition.y += .01f;
-        numberPosition.z -= 1f; //bottom center of tile
+        numberPosition.z += 1f; //bottom center of tile
 
         //Object pooling set up
         CityLaborTileNumber tempObject = GetFromLaborNumbersPool();
@@ -2761,8 +2816,9 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ResetTileLists()
     {
-        foreach (Vector3 location in resourceInfoPanelDict.Keys)
+        foreach (Vector3 location in resourceInfoHolderDict.Keys)
             PoolResourceInfoPanel(location);
+        resourceInfoHolderDict.Clear();
         resourceInfoPanelDict.Clear();
 
         foreach (Vector3Int tile in tilesToChange)
@@ -3009,6 +3065,34 @@ public class CityBuilderManager : MonoBehaviour
         return constructionTile;
     }
 
+    //object pooling the resource info holders
+    private void GrowResourceInfoHolderPool()
+    {
+        for (int i = 0; i < 10; i++) //grow pool 20 at a time
+        {
+            GameObject resourceInfoHolderGO = Instantiate(GameAssets.Instance.resourceInfoHolder);
+            ResourceInfoHolder resourceInfoHolder = resourceInfoHolderGO.GetComponent<ResourceInfoHolder>();
+            //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
+            AddToResourceInfoHolderPool(resourceInfoHolder);
+        }
+    }
+
+    private void AddToResourceInfoHolderPool(ResourceInfoHolder resourceInfoHolder)
+    {
+        resourceInfoHolder.gameObject.SetActive(false);
+        resourceInfoHolderQueue.Enqueue(resourceInfoHolder);
+    }
+
+    private ResourceInfoHolder GetFromResourceInfoHolderPool()
+    {
+        if (resourceInfoHolderQueue.Count == 0)
+            GrowResourceInfoHolderPool();
+
+        var resourceInfoHolder = resourceInfoHolderQueue.Dequeue();
+        resourceInfoHolder.gameObject.SetActive(true);
+        return resourceInfoHolder;
+    } 
+
     //object pooling the resource info panels
     private void GrowResourceInfoPanelPool()
     {
@@ -3021,13 +3105,13 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    public void AddToResourceInfoPanelPool(ResourceInfoPanel resourceInfoPanel)
+    private void AddToResourceInfoPanelPool(ResourceInfoPanel resourceInfoPanel)
     {
         resourceInfoPanel.gameObject.SetActive(false);
         resourceInfoPanelQueue.Enqueue(resourceInfoPanel);
     }
 
-    public ResourceInfoPanel GetFromResourceInfoPanelPool()
+    private ResourceInfoPanel GetFromResourceInfoPanelPool()
     {
         if (resourceInfoPanelQueue.Count == 0)
             GrowResourceInfoPanelPool();

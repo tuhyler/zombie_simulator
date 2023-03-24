@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -105,6 +106,8 @@ public class MapWorld : MonoBehaviour
     //for expanding gameobject size
     private static int increment = 3;
 
+    private SpeechBubbleHandler speechBubble;
+
     [SerializeField] //for gizmos
     private bool showGizmo;
 
@@ -124,6 +127,9 @@ public class MapWorld : MonoBehaviour
             SetResearchName(researchTree.GetChosenResearchName());
         else
             SetResearchName("No Current Research");
+        GameObject speechBubbleGO = Instantiate(GameAssets.Instance.speechBubble);
+        speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
+        speechBubble.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -1058,12 +1064,30 @@ public class MapWorld : MonoBehaviour
         cityBuildingGODict[cityTile][buildingName] = building;
         cityBuildingDict[cityTile][buildingName] = improvement;
         cityBuildingList[cityTile].Add(buildingName);
-        improvement.Embiggen();
 
         //making two objects, this one for the parent mesh
-        GameObject tempObject = Instantiate(improvementData.prefab, (Vector3)cityTile + improvementData.buildingLocation, Quaternion.identity);
-        CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
-        city.AddToMeshFilterList(tempObject, tempImprovement.MeshFilter, true, Vector3Int.zero, buildingName);
+        GameObject tempObject = Instantiate(cityBuilderManager.emptyGO, improvement.transform.position, improvement.transform.rotation);
+        tempObject.name = improvement.name;
+        MeshFilter[] improvementMeshes = improvement.MeshFilter;
+
+        MeshFilter[] meshes = new MeshFilter[improvementMeshes.Length];
+        int k = 0;
+
+        foreach (MeshFilter mesh in improvementMeshes)
+        {
+            Quaternion rotation = mesh.transform.rotation;
+            meshes[k] = Instantiate(mesh, improvement.transform.position, rotation);
+            meshes[k].name = mesh.name;
+            meshes[k].transform.parent = tempObject.transform;
+            k++;
+        }
+
+        tempObject.transform.localScale = improvement.transform.localScale;
+        improvement.Embiggen();
+
+        //GameObject tempObject = Instantiate(improvementData.prefab, (Vector3)cityTile + improvementData.buildingLocation, Quaternion.identity);
+        //CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
+        city.AddToMeshFilterList(tempObject, meshes, true, Vector3Int.zero, buildingName);
         tempObject.transform.parent = city.transform;
         tempObject.SetActive(false);
     }
@@ -1681,7 +1705,7 @@ public class MapWorld : MonoBehaviour
             foreach (string building in cityBuildingGODict[buildPosition].Keys)
             {
                 CityImprovement improvement = cityBuildingDict[buildPosition][building];
-                improvement.DestroyPS();
+                //improvement.DestroyPS();
                 improvement.PlayRemoveEffect(isHill);
                 Destroy(cityBuildingGODict[buildPosition][building]);
             }
@@ -1938,7 +1962,15 @@ public class MapWorld : MonoBehaviour
             cityWorkedTileDict.Remove(pos);
     }
 
+    public void PlayMessage(Vector3 loc)
+    {
+        speechBubble.SetText(loc, "This is a test. This is only a test.");
+    }
 
+    public void StopMessage()
+    {
+        speechBubble.CancelText();
+    }
 
 
     //debug gizmos

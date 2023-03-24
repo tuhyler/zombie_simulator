@@ -85,6 +85,11 @@ public class RoadManager : MonoBehaviour
         BuildRoadAtPosition(roadPosition);
         world.RemoveWorkerWorkLocation(roadPosition);
 
+        //moving worker up a smidge to be on top of road
+        Vector3 moveUp = worker.transform.position;
+        moveUp.y += .2f;
+        worker.transform.position = moveUp;
+
         if (worker.MoreOrdersToFollow())
         {
             worker.BeginBuildingRoad();
