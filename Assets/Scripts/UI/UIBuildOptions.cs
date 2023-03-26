@@ -22,7 +22,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     private CanvasGroup canvasGroup; //handles all aspects of a group of UI elements together, instead of individually in Unity
 
     [SerializeField]
-    private TMP_Text objectName;
+    private TMP_Text objectName, objectLevel;
 
     [SerializeField]
     private Image objectImage;
@@ -107,6 +107,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         if (isUnitPanel)
         {
             objectName.text = unitBuildData.unitName;
+            objectLevel.text = "Level " + unitBuildData.unitLevel;
             objectImage.sprite = unitBuildData.image;
             objectCost = unitBuildData.unitCost;
             objectProduced = new();
@@ -116,6 +117,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         else
         {
             objectName.text = buildData.improvementName;
+            objectLevel.text = "Level " + buildData.improvementLevel;
             objectImage.sprite = buildData.image;
             objectCost = buildData.improvementCost;
             objectProduced = buildData.producedResources;

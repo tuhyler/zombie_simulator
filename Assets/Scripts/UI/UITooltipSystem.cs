@@ -13,9 +13,9 @@ public class UITooltipSystem : MonoBehaviour
         current = this;
     }
 
-    public static void Show(Vector3 position, string title, List<ResourceValue> produces, List<ResourceValue> consumes, List<ResourceValue> costs)
+    public static void Show(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> produces, List<ResourceValue> consumes, List<ResourceValue> costs)
     {
-        current.tooltip.SetInfo(position, title, produces, consumes, costs);
+        current.tooltip.SetInfo(position, title, level, workEthic, description, produces, consumes, costs);
         current.tooltip.gameObject.SetActive(true);
     }
 
