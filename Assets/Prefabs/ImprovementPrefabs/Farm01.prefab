@@ -183,6 +183,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 4335854821895997823, guid: 1b1ce0b92b809d5488ac40027272b44c,
         type: 3}
+    - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: workPS.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: workPS.Array.data[0]
+      value: 
+      objectReference: {fileID: 1775900439872134356}
     - target: {fileID: 4833968758101626825, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_RootOrder

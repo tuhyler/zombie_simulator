@@ -28,11 +28,12 @@ public class CityImprovement : MonoBehaviour
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
 
     [SerializeField]
-    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash, workFire, workSmoke;
-    //private List<ParticleSystem> particleSystems = new();
+    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash;
+    [SerializeField]
+    private List<ParticleSystem> workPS = new();
 
     [SerializeField]
-    private Light workLight;
+    private List<Light> workLights = new();
 
     private Coroutine constructionCo;
     private int timePassed;
@@ -48,8 +49,8 @@ public class CityImprovement : MonoBehaviour
 
     private void Awake()
     {
-        if (workLight != null)
-            workLight.gameObject.SetActive(false);
+        foreach (Light light in workLights)
+            light.gameObject.SetActive(false);
 
         highlight = GetComponent<SelectionHighlight>();
         meshFilter = GetComponentsInChildren<MeshFilter>();
@@ -65,12 +66,6 @@ public class CityImprovement : MonoBehaviour
 
         if (!building && !isConstruction)
         {
-            //if (workFire != null)
-            //    workFire.Stop(); 
-            
-            //if (workSmoke != null)
-            //    workSmoke.Stop();
-
             //upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
             //particleSystems.Add(upgradeSwirl);
             //upgradeSwirl.Stop();
@@ -133,8 +128,11 @@ public class CityImprovement : MonoBehaviour
 
     public void StartWork(int seconds)
     {
-        if (workLight != null)
-            workLight.gameObject.SetActive(true);
+        foreach (Light light in workLights)
+        {
+            if (!light.isActiveAndEnabled)
+                light.gameObject.SetActive(true);
+        }
         
         if (improvementAnimator != null)
         {
@@ -152,11 +150,11 @@ public class CityImprovement : MonoBehaviour
             }
         }
 
-        if (workFire != null && !workFire.isPlaying)
-            workFire.Play();
-
-        if (workSmoke != null && !workSmoke.isPlaying)
-            workSmoke.Play();
+        foreach (ParticleSystem ps in workPS)
+        {
+            if (!ps.isPlaying)
+                ps.Play();
+        }
     }
 
     //ridiculous workaround since you can't stop and then start an animation at the same time.
@@ -170,8 +168,11 @@ public class CityImprovement : MonoBehaviour
 
     public void StopWork()
     {
-        if (workLight != null)
-            workLight.gameObject.SetActive(false);
+        foreach (Light light in workLights)
+        {
+            if (light.isActiveAndEnabled)
+                light.gameObject.SetActive(false);
+        }
 
         if (improvementAnimator != null)
         {
@@ -191,11 +192,11 @@ public class CityImprovement : MonoBehaviour
             }
         }
 
-        if (workFire != null)
-            workFire.Stop();
-
-        if (workSmoke != null)
-            workSmoke.Stop();
+        foreach (ParticleSystem ps in workPS)
+        {
+            if (ps.isPlaying)
+                ps.Stop();
+        }
     }
 
     //public void StartWorkAnimation(int seconds = 1)
