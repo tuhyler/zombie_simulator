@@ -17,6 +17,8 @@ public class UIResearchReward : MonoBehaviour
         if (improvementData != null)
         {
             tooltipInfo.title = improvementData.improvementName;
+            tooltipInfo.level = improvementData.improvementLevel;
+            tooltipInfo.workEthic = improvementData.workEthicChange;
             tooltipInfo.produces = improvementData.producedResources;
             tooltipInfo.consumes = improvementData.consumedResources;
             tooltipInfo.costs = improvementData.improvementCost;
@@ -24,7 +26,7 @@ public class UIResearchReward : MonoBehaviour
         else if (unitData != null)
         {
             tooltipInfo.title = unitData.unitName;
-
+            tooltipInfo.description = unitData.unitDescription;
         }
 
         if (improvementData != null)

@@ -149,6 +149,7 @@ MonoBehaviour:
   image: {fileID: 7315062529990214195}
   resourceImage: {fileID: 3347234897448638389}
   backgroundCanvas: {fileID: 4834448168911250375}
+  backgroundImage: {fileID: 0}
   resourceTransform: {fileID: 5802068587810323059}
   allContents: {fileID: 3353171004290388722}
   resourceType: 0
@@ -181,7 +182,7 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 4
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
