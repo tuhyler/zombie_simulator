@@ -9,7 +9,7 @@ public class UITooltip : MonoBehaviour
 {
     public TMP_Text title, level, producesTitle;
     private TMP_Text producesText, consumesNone;
-    private int screenHeightNegHalf, listCount;
+    private int screenHeightNegHalf = -750, listCount;
     private RectTransform rectTransform;
     public Transform producesRect, consumesRect, costsRect;
     private List<UIResourceInfoPanel> producesInfo = new(), consumesInfo = new(), costsInfo = new();
@@ -18,7 +18,7 @@ public class UITooltip : MonoBehaviour
     private void Awake()
     {
         resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
-        screenHeightNegHalf = Screen.height * -1 / 2;
+        //screenHeightNegHalf = Screen.height * -1 / 2;
         rectTransform = GetComponent<RectTransform>();
         gameObject.SetActive(false);
 
