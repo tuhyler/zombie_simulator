@@ -10,7 +10,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private TMP_Text researchName, researchPercentDone, queueNumber;
 
     [SerializeField]
-    private Image progressBarMask, researchItemPanel, queueNumberHolderImage, queueNumberCheck;
+    private Image progressBarMask, researchItemPanel, queueNumberHolderImage, queueNumberCheck, researchIcon;
 
     [SerializeField]
     private Transform uiElementsParent, progressBarHolder, queueNumberHolder;
@@ -46,8 +46,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private Color lockedColor = new Color(.8f, .8f, .8f);
     private Color completedColor = new Color(0f, 1f, 0f);
 
-
-    private Color arrowOriginalColor;
     private bool isSelected;
 
     [HideInInspector]
@@ -60,8 +58,10 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         queueNumberHolder.gameObject.SetActive(false);
         queueNumberCheck.gameObject.SetActive(false);
 
-        researchPercentDone.outlineWidth = 0.35f;
-        researchPercentDone.outlineColor = new Color(0, 0, 0, 255);
+        researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
+        researchPercentDone.outlineWidth = 0.4f;
+        //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
+        researchPercentDone.text = totalResearchNeeded.ToString();
 
         originalColor = researchItemPanel.color;
         originalResearchSprite = researchItemPanel.sprite;
@@ -71,7 +71,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //if (completed)
         //    canvasGroup.interactable = false;
 
-        arrowOriginalColor = arrows[0].color;
         foreach (Image arrow in arrows)
             arrow.color = selectedColor;
 
@@ -120,6 +119,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             queueNumberHolderImage.sprite = selectedQueueSprite;
             //queueNumberHolderImage.color = selectedColor;
             queueNumberHolder.gameObject.SetActive(true);
+            //researchPercentDone.outlineWidth = 0.35f;
+            //researchPercentDone.color = new Color(255, 255, 255);
+            researchIcon.gameObject.SetActive(false);
             queueNumber.text = 1.ToString();
 
             foreach (Image arrow in arrows)
@@ -137,6 +139,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     {
         ChangeColor();
         HideProgressBar();
+        researchIcon.gameObject.SetActive(false);
+        researchPercentDone.gameObject.SetActive(false);
         completed = true;
         locked = true;
         tempUnlocked = true;
@@ -248,14 +252,19 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     public void HideProgressBar()
     {
         progressBarHolder.gameObject.SetActive(false);
+        //researchPercentDone.outlineWidth = 0f;
+        //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
+        researchPercentDone.text = totalResearchNeeded.ToString();
+        researchIcon.gameObject.SetActive(true);
     }
 
     public void UpdateProgressBar()
     {
         progressBarHolder.gameObject.SetActive(true);
         float researchPerc = (float)researchReceived / totalResearchNeeded;
-        researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
-        
+        //researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
+        researchPercentDone.text = $"{researchReceived}/{totalResearchNeeded}";
+
         LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
