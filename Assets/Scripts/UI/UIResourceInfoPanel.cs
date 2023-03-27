@@ -17,6 +17,9 @@ public class UIResourceInfoPanel : MonoBehaviour
     public CanvasGroup backgroundCanvas;
 
     [SerializeField]
+    public Image backgroundImage;
+
+    [SerializeField]
     public RectTransform resourceTransform, allContents;
 
     public ResourceType resourceType;
