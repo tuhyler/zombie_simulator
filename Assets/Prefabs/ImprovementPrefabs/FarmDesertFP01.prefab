@@ -82,6 +82,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1099803070470002178, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1686765677576597183, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_RootOrder
@@ -160,9 +165,19 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
+      propertyPath: workPS.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
       propertyPath: animators.Array.size
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: workPS.Array.data[0]
+      value: 
+      objectReference: {fileID: 887262931026524114}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: animators.Array.data[0]
@@ -207,6 +222,16 @@ PrefabInstance:
         type: 3}
       propertyPath: animators.Array.data[8]
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4833968758101626825, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8568417478804482300, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8789389234130458407, guid: 5af237387799660428805ee8b0755933,
         type: 3}
