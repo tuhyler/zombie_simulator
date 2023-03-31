@@ -4,6 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Map/TerrainData")]
 public class TerrainDataSO : ScriptableObject
 {
+    public string title;
     public GameObject roadPrefab; //only for changing forest terrain when a road is built
     public TerrainDataSO clearedForestData; //for clearing a forest
     public bool isFloodPlain = false;

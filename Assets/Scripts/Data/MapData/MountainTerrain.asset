@@ -12,12 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: MountainTerrain
   m_EditorClassIdentifier: 
+  title: Mountain
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
+  isFloodPlain: 0
   walkable: 0
   sailable: 0
   isHill: 0
   isLand: 1
+  isSeaCorner: 0
   movementCost: 10
   type: 0
   resourceType: 0
+  hasRocks: 0
+  keepProp: 0

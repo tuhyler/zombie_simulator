@@ -127,6 +127,7 @@ public class UnitMovement : MonoBehaviour
 
         world.CloseResearchTree();
         world.CloseWonders();
+        world.CloseTerrainTooltip();
         location.y = 0;
 
         Vector3Int locationPos = world.GetClosestTerrainLoc(location);
@@ -356,6 +357,7 @@ public class UnitMovement : MonoBehaviour
     private void PrepareMovement()
     {
         //Debug.Log("Sel. unit is " + selectedUnit.name);
+        world.somethingSelected = true;
         selectedUnit.Select();
         turnHandler.SetIndex(selectedUnit);
         selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
