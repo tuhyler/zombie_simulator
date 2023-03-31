@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: SeaTerrain
   m_EditorClassIdentifier: 
+  title: Sea
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
+  isFloodPlain: 0
   walkable: 0
   sailable: 1
   isHill: 0
@@ -22,3 +24,5 @@ MonoBehaviour:
   movementCost: 30
   type: 2
   resourceType: 1
+  hasRocks: 0
+  keepProp: 0

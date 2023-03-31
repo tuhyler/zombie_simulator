@@ -276,6 +276,18 @@ public class CityBuilderManager : MonoBehaviour
                 BuildWonderHarbor(terrainLocation);
             }
         }
+        //selecting terrain to show info
+        else if (selectedCity == null & selectedObject.TryGetComponent(out TerrainData td))
+        {
+            if (world.somethingSelected)
+            {
+                world.somethingSelected = false;
+            }
+            else
+            {
+                world.OpenTerrainTooltip(td);
+            }
+        }
         //selecting tiles to place improvements
         else if (selectedCity != null && selectedObject.TryGetComponent(out TerrainData terrainSelected))
         {
@@ -285,6 +297,7 @@ public class CityBuilderManager : MonoBehaviour
             if (!cityTiles.Contains(terrainLocation))
             {
                 ResetCityUI();
+                //world.OpenTerrainTooltip(terrainSelected);
                 return;
             }
 

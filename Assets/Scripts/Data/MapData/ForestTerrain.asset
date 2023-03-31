@@ -12,13 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: ForestTerrain
   m_EditorClassIdentifier: 
+  title: Forest
   roadPrefab: {fileID: 9073605623283122857, guid: 4d43abc87ac4eee48b1dcfb56e1abf0a,
     type: 3}
   clearedForestData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
+  isFloodPlain: 0
   walkable: 1
   sailable: 0
   isHill: 0
   isLand: 1
+  isSeaCorner: 0
   movementCost: 20
   type: 7
   resourceType: 4
+  hasRocks: 0
+  keepProp: 0

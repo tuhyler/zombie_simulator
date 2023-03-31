@@ -92,6 +92,7 @@ public class UIResearchTreePanel : MonoBehaviour
         {
             world.UnselectAll();
             gameObject.SetActive(v);
+            world.somethingSelected = true;
 
             foreach (UIResearchItem researchItem in researchItemList)
             {

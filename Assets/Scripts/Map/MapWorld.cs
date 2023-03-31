@@ -18,6 +18,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UIBuildingSomething uiBuildingSomething;
     [SerializeField]
+    private UITerrainTooltip uiTerrainTooltip;
+    [SerializeField]
     private UnitMovement unitMovement;
     [SerializeField]
     private CityBuilderManager cityBuilderManager;
@@ -112,7 +114,7 @@ public class MapWorld : MonoBehaviour
     private bool showGizmo;
 
     [HideInInspector]
-    public bool workerOrders, buildingWonder;
+    public bool workerOrders, buildingWonder, terrainTooltip, somethingSelected;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -620,6 +622,32 @@ public class MapWorld : MonoBehaviour
         researchTree.ToggleVisibility(false);
     }
     
+    //terrain tooltip
+    public void OpenTerrainTooltip(TerrainData td)
+    {
+        if (terrainTooltip)
+        {
+            CloseTerrainTooltip();
+            terrainTooltip = false;
+            return;
+        }
+        
+        terrainTooltip = true;
+        uiTerrainTooltip.ToggleVisibility(true, td);
+        //uiTerrainTooltip.SetData(td);
+    }
+
+    public void CloseTerrainTooltipButton()
+    {
+        terrainTooltip = false;
+        uiTerrainTooltip.ToggleVisibility(false);
+    }
+
+    public void CloseTerrainTooltip()
+    {
+        uiTerrainTooltip.ToggleVisibility(false);
+    }
+
     public void SetResearchName(string name)
     {
         uiWorldResources.SetResearchName(name);

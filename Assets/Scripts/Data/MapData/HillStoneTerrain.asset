@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: HillStoneTerrain
   m_EditorClassIdentifier: 
+  title: Hill
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   isFloodPlain: 0
