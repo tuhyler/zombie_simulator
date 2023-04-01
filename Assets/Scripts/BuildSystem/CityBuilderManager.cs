@@ -261,6 +261,28 @@ public class CityBuilderManager : MonoBehaviour
                         ChangeLaborCount(terrainLocation);
                     }
                 }
+                else
+                {
+                    if (world.somethingSelected)
+                    {
+                        world.somethingSelected = false;
+                    }
+                    else
+                    {
+                        world.OpenImprovementTooltip(improvementSelected);
+                    }
+                }
+            }
+            else
+            {
+                if (world.somethingSelected)
+                {
+                    world.somethingSelected = false;
+                }
+                else
+                {
+                    world.OpenImprovementTooltip(improvementSelected);
+                }
             }
         }
         else if (selectedWonder != null && placingWonderHarbor && selectedObject.TryGetComponent(out TerrainData terrainForHarbor)) //for placing harbor
@@ -2855,6 +2877,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedCity != null)
         {
+            world.somethingSelected = false;
             ResourceProducerTimeProgressBarsSetActive(false);
             isActive = false;
             cityTiles.Clear();
@@ -2889,6 +2912,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedWonder != null)
         {
+            world.somethingSelected = false;
             uiDestroyCityWarning.ToggleVisibility(false);
             selectedWonder.isActive = false;
             selectedWonder.TimeProgressBarSetActive(false);

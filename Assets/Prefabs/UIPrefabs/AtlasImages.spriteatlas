@@ -39,22 +39,42 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: e15c6450211bb9d4b9b2c129d30e54f0, type: 3}
+  - {fileID: 21300000, guid: 919625b08f58a3f4e8eb1324b814e146, type: 3}
   - {fileID: 21300000, guid: 6d74bec02454a0e4ca78c4bd1b9ec560, type: 3}
+  - {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
   - {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   - {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
+  - {fileID: 21300000, guid: e6aa6313eaf50024890ed0293ab4262d, type: 3}
+  - {fileID: 21300000, guid: 74a25673e928bef45bf2d3a7ba082f11, type: 3}
+  - {fileID: 21300000, guid: 017a4b341d2d93245a74b5edfb806764, type: 3}
+  - {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
   - {fileID: 21300000, guid: ee38b037c5c1b4e4f9e10a25cbd7818a, type: 3}
+  - {fileID: 21300000, guid: fb5244d8238bfa24294e1f4cd843bf44, type: 3}
+  - {fileID: 21300000, guid: 44ce2ee8b10e8ab4c9e7b51619528bc6, type: 3}
   - {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
+  - {fileID: 21300000, guid: 8bd59da9c5a94dc4b84097eaa5b094ce, type: 3}
+  - {fileID: 21300000, guid: b1aa17e9570b60945bee5be96ef6cd83, type: 3}
   - {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
   - {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
   - {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   - {fileID: 21300000, guid: b1e8d9efd187143438b3866c2ebcfc2c, type: 3}
   m_PackedSpriteNamesToIndex:
   - Housing03Img
+  - StoneCutter01Img
   - Research03Img
+  - Farm00Img
   - Quarry01Img
   - Research02Img
+  - BrickOvens01Img
+  - Weaver01Img
+  - Ceramist01Img
+  - FishingBoats01Img
   - Monument01Img
+  - Bazaar01Img
+  - Sculptor01Img
   - Housing02Img
+  - Monument02Img
+  - Pasture01Img
   - Lumbermill01Img
   - Mine01Img
   - Farm01Img

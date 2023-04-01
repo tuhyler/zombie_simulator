@@ -20,6 +20,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UITerrainTooltip uiTerrainTooltip;
     [SerializeField]
+    private UICityImprovementTip uiCityImprovementTip;
+    [SerializeField]
     private UnitMovement unitMovement;
     [SerializeField]
     private CityBuilderManager cityBuilderManager;
@@ -114,7 +116,7 @@ public class MapWorld : MonoBehaviour
     private bool showGizmo;
 
     [HideInInspector]
-    public bool workerOrders, buildingWonder, terrainTooltip, somethingSelected;
+    public bool workerOrders, buildingWonder, tooltip, somethingSelected;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -625,27 +627,55 @@ public class MapWorld : MonoBehaviour
     //terrain tooltip
     public void OpenTerrainTooltip(TerrainData td)
     {
-        if (terrainTooltip)
+        if (tooltip)
         {
             CloseTerrainTooltip();
-            terrainTooltip = false;
+            CloseImprovementTooltip();
+            tooltip = false;
             return;
         }
         
-        terrainTooltip = true;
+        tooltip = true;
         uiTerrainTooltip.ToggleVisibility(true, td);
         //uiTerrainTooltip.SetData(td);
     }
 
     public void CloseTerrainTooltipButton()
     {
-        terrainTooltip = false;
+        tooltip = false;
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
     public void CloseTerrainTooltip()
     {
         uiTerrainTooltip.ToggleVisibility(false);
+    }
+
+    //city improvement tooltip
+    public void OpenImprovementTooltip(CityImprovement improvement)
+    {
+        if (tooltip)
+        {
+            CloseTerrainTooltip();
+            CloseImprovementTooltip();
+            tooltip = false;
+            return;
+        }
+
+        tooltip = true;
+        uiCityImprovementTip.ToggleVisibility(true, improvement);
+        //uiTerrainTooltip.SetData(td);
+    }
+
+    public void CloseImprovementTooltipButton()
+    {
+        tooltip = false;
+        uiCityImprovementTip.ToggleVisibility(false);
+    }
+
+    public void CloseImprovementTooltip()
+    {
+        uiCityImprovementTip.ToggleVisibility(false);
     }
 
     public void SetResearchName(string name)

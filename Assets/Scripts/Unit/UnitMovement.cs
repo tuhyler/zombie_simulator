@@ -128,6 +128,7 @@ public class UnitMovement : MonoBehaviour
         world.CloseResearchTree();
         world.CloseWonders();
         world.CloseTerrainTooltip();
+        world.CloseImprovementTooltip();
         location.y = 0;
 
         Vector3Int locationPos = world.GetClosestTerrainLoc(location);
