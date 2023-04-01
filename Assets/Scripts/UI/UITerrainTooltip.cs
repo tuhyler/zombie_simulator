@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,15 +14,11 @@ public class UITerrainTooltip : MonoBehaviour
     [SerializeField]
     private Image resourceImage;
 
-    private ResourceType resourceHere;
-    public ResourceType ResourceHere { set { resourceHere = value; } }
-
     List<ResourceIndividualSO> resourceInfo = new();
-
-    private int screenHeightHalf, screenWidthHalf;
 
     //cached TerrainData for turning off highlight
     private TerrainData td;
+    private bool fourK;
 
     //for tweening
     [SerializeField]
@@ -30,10 +27,25 @@ public class UITerrainTooltip : MonoBehaviour
 
     private void Awake()
     {
+        if (Screen.height <= 1080)
+        {
+            allContents.anchorMin = new Vector2(0.1f, 0.1f);
+            allContents.anchorMax = new Vector2(0.1f, 0.1f);
+        }
+        else if (Screen.height <= 1440)
+        {
+            allContents.anchorMin = new Vector2(0.05f, 0.05f);
+            allContents.anchorMax = new Vector2(0.05f, 0.05f);
+        }
+        else if (Screen.height <= 2160)
+        {
+            allContents.anchorMin = new Vector2(-0.2f, -0.2f);
+            allContents.anchorMax = new Vector2(-0.2f, -0.2f);
+            fourK = true;
+        }
+
         resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
         gameObject.SetActive(false);
-        screenHeightHalf = Screen.height / 2;
-        screenWidthHalf = Screen.width / 2;
     }
 
     public void ToggleVisibility(bool val, TerrainData td = null)
@@ -51,11 +63,19 @@ public class UITerrainTooltip : MonoBehaviour
             gameObject.SetActive(val);
             activeStatus = true;
             Vector3 position = Input.mousePosition;
-            position.x -= screenWidthHalf;
-            position.y -= screenHeightHalf;
-            transform.localPosition = position;
+
+            //isn't showing up at mouse position at 4k for some reason
+            if (fourK)
+            {
+                position.x -= 1920;
+                position.y -= 1080;
+                position *= .6f;
+                position.x += 1920;
+                position.y += 1080;
+            }
+
+            position.z = 0;
             allContents.anchoredPosition = position;
-            //allContents.anchoredPosition = pos;
             allContents.localScale = Vector3.zero;
             LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
         }
@@ -92,8 +112,7 @@ public class UITerrainTooltip : MonoBehaviour
             resourceCountTitle.gameObject.SetActive(true);
             resourceCount.gameObject.SetActive(true);
 
-            resourceHere = td.GetTerrainData().resourceType;
-            int index = resourceInfo.FindIndex(a => a.resourceType == resourceHere);
+            int index = resourceInfo.FindIndex(a => a.resourceType == td.GetTerrainData().resourceType);
             resourceImage.sprite = resourceInfo[index].resourceIcon;    
 
             if (td.resourceAmount < 0)

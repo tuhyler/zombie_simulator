@@ -13,7 +13,7 @@ public class UITooltip : MonoBehaviour
     private RectTransform rectTransform;
     public Transform producesRect, consumesRect, costsRect;
     private List<UIResourceInfoPanel> producesInfo = new(), consumesInfo = new(), costsInfo = new();
-    List<ResourceIndividualSO> resourceInfo = new();
+    private List<ResourceIndividualSO> resourceInfo = new();
 
     private void Awake()
     {
