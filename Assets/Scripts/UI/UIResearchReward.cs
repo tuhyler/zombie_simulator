@@ -20,7 +20,7 @@ public class UIResearchReward : MonoBehaviour
             tooltipInfo.level = improvementData.improvementLevel;
             tooltipInfo.workEthic = improvementData.workEthicChange;
             tooltipInfo.produces = improvementData.producedResources;
-            tooltipInfo.consumes = improvementData.consumedResources;
+            //tooltipInfo.consumes = improvementData.consumedResources;
             tooltipInfo.costs = improvementData.improvementCost;
         }
         else if (unitData != null)

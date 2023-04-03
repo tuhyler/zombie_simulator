@@ -38,7 +38,7 @@ public class MovementSystem : MonoBehaviour
             selectedUnit.QueueCount = 0;
             currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader, selectedUnit.bySea);
 
-            if (currentPath.Count == 0) //if moving within current square
+            if (world.RoundToInt(currentLoc) == endPosition) //if moving within current square
                 currentPath.Add(endPosition);
         }
     }

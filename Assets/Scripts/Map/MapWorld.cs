@@ -1681,12 +1681,11 @@ public class MapWorld : MonoBehaviour
         cityLocDict[cityLoc] = cityName;
     }
 
-    public void AddStructure(Vector3 buildPosition, GameObject structure) //method to add building to dict
+    public void AddStructure(Vector3Int position, GameObject structure) //method to add building to dict
     {
-        Vector3Int position = Vector3Int.RoundToInt(buildPosition);
         if (buildingPosDict.ContainsKey(position))
         {
-            Debug.LogError($"There is a structure already at this position {buildPosition}");
+            Debug.LogError($"There is a structure already at this position {position}");
             return;
         }
 
@@ -1707,7 +1706,7 @@ public class MapWorld : MonoBehaviour
 
     public void AddResourceProducer(Vector3 buildPosition, ResourceProducer resourceProducer)
     {
-        Vector3Int position = Vector3Int.RoundToInt(buildPosition);
+        Vector3Int position = RoundToInt(buildPosition);
         cityImprovementProducerDict[position] = resourceProducer;
     }
 

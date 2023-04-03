@@ -12,7 +12,7 @@ public class UITooltip : MonoBehaviour
     private int screenHeightNegHalf = -750, listCount;
     private RectTransform rectTransform;
     public Transform producesRect, consumesRect, costsRect;
-    private List<UIResourceInfoPanel> producesInfo = new(), consumesInfo = new(), costsInfo = new();
+    private List<UIResourceInfoPanel> producesInfo = new(), costsInfo = new();
     private List<ResourceIndividualSO> resourceInfo = new();
 
     private void Awake()
@@ -33,17 +33,17 @@ public class UITooltip : MonoBehaviour
                 producesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
             }
         }
-        foreach (Transform selection in consumesRect)
-        {
-            if (selection.TryGetComponent(out TMP_Text text))
-            {
-                consumesNone = text;
-            }
-            else
-            {
-                consumesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
-            }
-        }
+        //foreach (Transform selection in consumesRect)
+        //{
+        //    if (selection.TryGetComponent(out TMP_Text text))
+        //    {
+        //        consumesNone = text;
+        //    }
+        //    else
+        //    {
+        //        consumesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
+        //    }
+        //}
         foreach (Transform selection in costsRect)
         {
             costsInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
@@ -51,19 +51,19 @@ public class UITooltip : MonoBehaviour
         listCount = producesInfo.Count;
     }
 
-    public void SetInfo(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> produces, List<ResourceValue> consumes, List<ResourceValue> costs)
+    public void SetInfo(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> produces, List<ResourceValue> costs)
     {
         transform.position = position;
         this.title.text = title;
         this.level.text = "Level " + level.ToString();
-        SetResourcePanelInfo(producesInfo, produces, true, false, workEthic, description);
-        SetResourcePanelInfo(consumesInfo, consumes, false, true);
+        SetResourcePanelInfo(producesInfo, produces, true, workEthic, description);
+        //SetResourcePanelInfo(consumesInfo, consumes, false, true);
         SetResourcePanelInfo(costsInfo, costs, false);
 
         PositionCheck();
     }
 
-    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, bool produces, bool consumes = false, float workEthic = 0, string description = "")
+    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, bool produces, float workEthic = 0, string description = "")
     {
         int resourcesCount = resourceList.Count;
         bool showText = false;
@@ -98,22 +98,22 @@ public class UITooltip : MonoBehaviour
         }
 
         //show text for consumes section
-        if (consumes)
-        {
-            if (resourcesCount == 0)
-            {
-                consumesNone.gameObject.SetActive(true);
+        //if (consumes)
+        //{
+        //    if (resourcesCount == 0)
+        //    {
+        //        consumesNone.gameObject.SetActive(true);
 
-                foreach (UIResourceInfoPanel panel in panelList)
-                    panel.gameObject.SetActive(false);
+        //        foreach (UIResourceInfoPanel panel in panelList)
+        //            panel.gameObject.SetActive(false);
 
-                return;
-            }
-            else
-            {
-               consumesNone.gameObject.SetActive(false);
-            }
-        }
+        //        return;
+        //    }
+        //    else
+        //    {
+        //       consumesNone.gameObject.SetActive(false);
+        //    }
+        //}
 
         for (int i = 0; i < listCount; i++)
         {

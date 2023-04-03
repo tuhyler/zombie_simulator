@@ -31,13 +31,10 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
         buttonHandler = GetComponentInParent<UIPersonalResourceInfoPanel>();
         scale = allContents.localScale;
 
-        InstantiateHighlight();
-    }
-
-    private void InstantiateHighlight()
-    {
-        buttonHighlight = Instantiate(buttonHighlight, transform.position, Quaternion.identity);
-        buttonHighlight.Pause();
+        if (Screen.height == 1080)
+            buttonHighlight.transform.localScale = new Vector3(.12f, .12f, .12f);
+        else if (Screen.height < 1080)
+            buttonHighlight.transform.localScale = new Vector3(.13f, .13f, .13f);
     }
 
     public void CheckVisibility()

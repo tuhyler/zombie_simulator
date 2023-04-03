@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Farm00Data
+  m_Name: Farm02Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5838738910640936402, guid: 50fad77f197d6cb4caa1fb0219d88212, type: 3}
-  secondaryData: {fileID: 11400000, guid: b960112883363494884a086f2586a31c, type: 2}
+  prefab: {fileID: 5838738910640936402, guid: 7424a7609d612054094a5c5c29a63ede, type: 3}
+  secondaryData: {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
   isBuilding: 0
   improvementName: Farm
-  improvementLevel: 0
-  improvementNameAndLevel: Farm-0
+  improvementLevel: 2
+  improvementNameAndLevel: Farm-2
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
@@ -26,9 +26,7 @@ MonoBehaviour:
     resourceAmount: 10
   - resourceType: 5
     resourceAmount: 10
-  consumedResources:
-  - resourceType: 2
-    resourceAmount: 1
+  consumedResources: []
   producedResources:
   - resourceType: 1
     resourceAmount: 2

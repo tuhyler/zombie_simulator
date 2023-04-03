@@ -23,7 +23,9 @@ public class ResourceProducer : MonoBehaviour
     private float unloadLabor;
     private bool isProducing;
     [HideInInspector]
-    public List<ResourceType> producedResources; //too see what this producer is making
+    public ResourceValue producedResource; //too see what this producer is making
+    [HideInInspector]
+    public List<ResourceType> producedResources; 
     private Dictionary<ResourceType, float> generatedPerMinute = new();
     private Dictionary<ResourceType, float> consumedPerMinute = new();
     [HideInInspector]
@@ -34,7 +36,6 @@ public class ResourceProducer : MonoBehaviour
     public void InitializeImprovementData(ImprovementDataSO data)
     {
         improvementData = data;
-        consumedResources = new(data.consumedResources);
         ResourceValue laborCost;
         laborCost.resourceType = ResourceType.Gold;
         laborCost.resourceAmount = data.laborCost;
@@ -44,7 +45,9 @@ public class ResourceProducer : MonoBehaviour
         {
             consumedResourceTypes.Add(value.resourceType);
         }
-        
+
+        producedResource = data.producedResources[0];
+
         foreach(ResourceValue resourceValue in data.producedResources)
         {
             producedResources.Add(resourceValue.resourceType);
@@ -59,6 +62,9 @@ public class ResourceProducer : MonoBehaviour
     public void SetCityImprovement(CityImprovement cityImprovement)
     {
         this.cityImprovement = cityImprovement;
+        consumedResources = new(cityImprovement.allConsumedResources[0]);
+        cityImprovement.producedResource = producedResource.resourceType;
+        cityImprovement.producedResourceIndex = 0;
     }
 
     public void SetLocation(Vector3Int loc)
@@ -279,7 +285,7 @@ public class ResourceProducer : MonoBehaviour
 
     private void RestartProductionCheck(float labor)
     {
-        resourceManager.PrepareResource(improvementData.producedResources, labor, producerLoc);
+        resourceManager.PrepareResource(new List<ResourceValue>() { producedResource }, labor, producerLoc);
         Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
@@ -405,20 +411,20 @@ public class ResourceProducer : MonoBehaviour
     //recalculating generation per resource every time labor/work ethic changes
     public void CalculateResourceGenerationPerMinute()
     {
-        foreach (ResourceValue resourceValue in improvementData.producedResources)
-        {
-            if (!generatedPerMinute.ContainsKey(resourceValue.resourceType))
-                generatedPerMinute[resourceValue.resourceType] = 0;
-            else
-                resourceManager.ModifyResourceGenerationPerMinute(resourceValue.resourceType, generatedPerMinute[resourceValue.resourceType], false);
+        //foreach (ResourceValue resourceValue in improvementData.producedResources)
+        //{
+        if (!generatedPerMinute.ContainsKey(producedResource.resourceType))
+            generatedPerMinute[producedResource.resourceType] = 0;
+        else
+            resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, generatedPerMinute[producedResource.resourceType], false);
 
-            int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(resourceValue.resourceAmount, currentLabor) * (60f / improvementData.producedResourceTime));
-            generatedPerMinute[resourceValue.resourceType] = amount;
-            resourceManager.ModifyResourceGenerationPerMinute(resourceValue.resourceType, amount, true);
+        int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(producedResource.resourceAmount, currentLabor) * (60f / improvementData.producedResourceTime));
+        generatedPerMinute[producedResource.resourceType] = amount;
+        resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, amount, true);
 
-            if (amount == 0)
-                generatedPerMinute.Remove(resourceValue.resourceType);
-        }
+        if (amount == 0)
+            generatedPerMinute.Remove(producedResource.resourceType);
+        //}
     }
 
     //only changes when labor changes, not work ethic

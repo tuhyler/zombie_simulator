@@ -14,7 +14,13 @@ public class ImprovementDataSO : ScriptableObject
     public Vector3 buildingLocation;
     public Sprite image;
     public List<ResourceValue> improvementCost;
-    public List<ResourceValue> consumedResources;
+    //for each produced resource, set consumed resources in the same order as the produced resources
+    public List<ResourceValue> consumedResources = new();
+    public List<ResourceValue> consumedResources1 = new();
+    public List<ResourceValue> consumedResources2 = new();
+    public List<ResourceValue> consumedResources3 = new();
+    public List<ResourceValue> consumedResources4 = new();
+    public List<List<ResourceValue>> allConsumedResources = new();
     public List<ResourceValue> producedResources;
     public int producedResourceTime;
     public ResourceType resourceType; //used for highlight tiles in city
@@ -31,4 +37,13 @@ public class ImprovementDataSO : ScriptableObject
     public bool locked = true;
     public bool workAnimLoop = false;
     public bool hideAnimMesh = false;
+
+    private void Awake()
+    {
+        allConsumedResources.Add(consumedResources);
+        allConsumedResources.Add(consumedResources1);
+        allConsumedResources.Add(consumedResources2);
+        allConsumedResources.Add(consumedResources3);
+        allConsumedResources.Add(consumedResources4);
+    }
 }

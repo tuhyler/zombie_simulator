@@ -39,6 +39,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     public void PassUI(UIBuilderHandler uiBuilder)
     {
         cityBuilderManager.CloseLaborMenus();
+        cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
 
         //bool currentlyActive = uiBuilder.activeStatus;
@@ -68,6 +69,7 @@ public class UICityBuildTabHandler : MonoBehaviour
 
         isSelling = true;
         cityBuilderManager.CloseLaborMenus();
+        cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
         HideSelectedTab();
     }
@@ -94,6 +96,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         }
 
         cityBuilderManager.CloseLaborMenus();
+        cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
         HideSelectedTab();
     }
@@ -116,6 +119,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         {
             if (currentTabSelected.isRemoving)
             {
+                cityBuilderManager.CloseImprovementTooltipButton();
                 cityBuilderManager.CloseImprovementBuildPanel();
                 isRemoving = false;
             }
@@ -232,6 +236,14 @@ public class UICityBuildTabHandler : MonoBehaviour
     public void CloseRemovalWindow()
     {
         if (isRemoving)
+        {
+            cityBuilderManager.CloseImprovementTooltipButton();
             cityBuilderManager.CloseImprovementBuildPanel();
+        }
+    }
+
+    public void CloseImprovementTooltipButton()
+    {
+        cityBuilderManager.CloseImprovementTooltipButton();
     }
 }

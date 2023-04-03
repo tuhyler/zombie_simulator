@@ -412,13 +412,12 @@ public class ResourceManager : MonoBehaviour
     }
 
 
-    public void SpendResource(List<ResourceValue> buildCost)
+    public void SpendResource(List<ResourceValue> buildCost, Vector3 loc)
     {
         int i = 0;
         foreach (ResourceValue resourceValue in buildCost)
         {
             SpendResource(resourceValue.resourceType, resourceValue.resourceAmount);
-            Vector3 loc = city.cityLoc;
             loc.z += -.5f * i;
             InfoResourcePopUpHandler.CreateResourceStat(loc, -resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
             i++;
