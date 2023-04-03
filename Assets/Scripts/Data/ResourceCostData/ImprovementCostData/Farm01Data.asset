@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Farm01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5838738910640936402, guid: 7424a7609d612054094a5c5c29a63ede, type: 3}
-  secondaryData: {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
+  prefab: {fileID: 5838738910640936402, guid: 50fad77f197d6cb4caa1fb0219d88212, type: 3}
+  secondaryData: {fileID: 11400000, guid: b960112883363494884a086f2586a31c, type: 2}
   isBuilding: 0
   improvementName: Farm
   improvementLevel: 1
@@ -26,10 +26,22 @@ MonoBehaviour:
     resourceAmount: 10
   - resourceType: 5
     resourceAmount: 10
-  consumedResources: []
+  consumedResources:
+  - resourceType: 2
+    resourceAmount: 1
+  consumedResources1:
+  - resourceType: 4
+    resourceAmount: 2
+  - resourceType: 2
+    resourceAmount: 5
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
   producedResources:
   - resourceType: 1
     resourceAmount: 2
+  - resourceType: 5
+    resourceAmount: 5
   producedResourceTime: 5
   resourceType: 1
   terrainType: 5
@@ -37,12 +49,11 @@ MonoBehaviour:
   maxLabor: 2
   laborCost: 1
   replaceTerrain: 0
+  replaceRocks: 0
   returnProp: 0
   singleBuild: 0
   buildTime: 5
   availableInitially: 1
   locked: 0
-  workFireLoc: {x: 0, y: 0, z: 0}
-  workSmokeLoc: {x: 0, y: 0, z: 0}
   workAnimLoop: 0
   hideAnimMesh: 1

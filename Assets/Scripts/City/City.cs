@@ -761,7 +761,7 @@ public class City : MonoBehaviour
                 if (unusedLabor == 0)
                     break;
                 
-                if (world.GetResourceProducer(laborTile).producedResources.Contains(resourceType))
+                if (world.GetResourceProducer(laborTile).producedResource.resourceType == resourceType)
                 {
                     (unusedLabor, maxxed) = IncreaseLaborCount(unusedLabor, laborTile);
                     if (maxxed)
@@ -834,15 +834,17 @@ public class City : MonoBehaviour
         resourceProducer.UpdateCurrentLaborData(labor);
         //resourceProducer.UpdateResourceGenerationData();
 
-        foreach (ResourceType resourceType in resourceProducer.producedResources)
+        //foreach (ResourceType resourceType in resourceProducer.producedResources)
+        //{
+        ResourceType resourceType = resourceProducer.producedResource.resourceType;
+
+        for (int i = 0; i < laborChange; i++)
         {
-            for (int i = 0; i < laborChange; i++)
-            {
-                ChangeResourcesWorked(resourceType, 1);
-                int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
-                cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
-            }
+            ChangeResourcesWorked(resourceType, 1);
+            int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
+            cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
         }
+        //}
 
         world.AddToCurrentFieldLabor(terrainLocation, labor);
 

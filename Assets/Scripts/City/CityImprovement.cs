@@ -27,6 +27,14 @@ public class CityImprovement : MonoBehaviour
     private List<ResourceValue> upgradeCost = new();
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
 
+    [HideInInspector]
+    public Vector3Int loc;
+    [HideInInspector]
+    public ResourceType producedResource;
+    [HideInInspector]
+    public int producedResourceIndex;
+    public List<List<ResourceValue>> allConsumedResources = new();
+
     [SerializeField]
     private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash;
     [SerializeField]
@@ -106,6 +114,11 @@ public class CityImprovement : MonoBehaviour
     public void InitializeImprovementData(ImprovementDataSO data)
     {
         improvementData = data;
+        allConsumedResources.Add(data.consumedResources);
+        allConsumedResources.Add(data.consumedResources1);
+        allConsumedResources.Add(data.consumedResources2);
+        allConsumedResources.Add(data.consumedResources3);
+        allConsumedResources.Add(data.consumedResources4);
     }
 
     //public void SetPSLocs()

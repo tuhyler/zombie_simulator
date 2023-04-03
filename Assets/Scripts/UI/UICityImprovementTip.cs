@@ -2,20 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UICityImprovementTip : MonoBehaviour
 {
     [SerializeField]
+    private MapWorld world;
+    
+    [SerializeField]
     public TMP_Text title, level;
     private TMP_Text producesText, consumesNone;
 
     [SerializeField]
-    private Image improvementImage;
+    private Image improvementImage, produceHighlight;
 
     [SerializeField]
     private Transform producesRect, consumesRect;
+    private int producesCount;
 
     private List<UIResourceInfoPanel> producesInfo = new(), consumesInfo = new();
     private List<ResourceIndividualSO> resourceInfo = new();
@@ -24,9 +29,6 @@ public class UICityImprovementTip : MonoBehaviour
     private CityImprovement improvement;
 
     private bool fourK;
-
-    [SerializeField]
-    private ParticleSystem produceHighlight;
 
     //for tweening
     [SerializeField]
@@ -133,7 +135,7 @@ public class UICityImprovementTip : MonoBehaviour
         improvementImage.sprite = data.image;
 
         SetResourcePanelInfo(producesInfo, data.producedResources, true, data.workEthicChange);
-        SetResourcePanelInfo(consumesInfo, data.consumedResources, false);
+        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[improvement.producedResourceIndex], false);
     }
 
     private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, bool produces, float workEthic = 0)
@@ -146,9 +148,11 @@ public class UICityImprovementTip : MonoBehaviour
         //show text for produces section
         if (produces)
         {
+            producesCount = resourcesCount;
+            
             if (showText)
             {
-                produceHighlight.Stop();
+                produceHighlight.gameObject.SetActive(false);
                 
                 producesText.gameObject.SetActive(true);
                 if (workEthic > 0)
@@ -182,6 +186,8 @@ public class UICityImprovementTip : MonoBehaviour
             }
         }
 
+        int indexSelect = 0;
+
         for (int i = 0; i < panelList.Count; i++)
         {
             if (i >= resourcesCount)
@@ -192,16 +198,48 @@ public class UICityImprovementTip : MonoBehaviour
             {
                 panelList[i].gameObject.SetActive(true);
                 panelList[i].resourceAmount.text = resourceList[i].resourceAmount.ToString();
+                panelList[i].resourceType = resourceList[i].resourceType;
                 int index = resourceInfo.FindIndex(a => a.resourceType == resourceList[i].resourceType);
                 panelList[i].resourceImage.sprite = resourceInfo[index].resourceIcon;
 
                 if (produces)
                 {
-                    produceHighlight.Play();
-                    produceHighlight.transform.position = panelList[i].transform.position;
+                    if (resourceList[i].resourceType == improvement.producedResource)
+                        indexSelect = i;
                 }
             }
         }
+
+        if (produces)
+        {
+            int xShiftLeft = (resourcesCount-1) * 30;
+            int xShiftRight = indexSelect * 60;
+
+            Vector2 loc = panelList[0].transform.position;
+            loc.x -= xShiftLeft;
+            loc.x += xShiftRight;
+            loc.y += 5;
+            produceHighlight.transform.localPosition = loc;
+        }
     }
 
+    public void ChangeResourceProduced(int a)
+    {
+        improvement.producedResource = producesInfo[a].resourceType;
+        improvement.producedResourceIndex = a;
+        ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+        producer.producedResource = improvement.GetImprovementData.producedResources[a];
+        producer.consumedResources = improvement.allConsumedResources[a];
+
+        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], false);
+
+        int xShiftLeft = (producesCount - 1) * 30;
+        int xShiftRight = a * 60;
+
+        Vector2 loc = producesInfo[a].transform.position;
+        loc.x -= xShiftLeft;
+        loc.x += xShiftRight;
+        loc.y += 5;
+        produceHighlight.transform.localPosition = loc;
+    }
 }
