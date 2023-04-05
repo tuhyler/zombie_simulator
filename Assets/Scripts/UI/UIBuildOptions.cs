@@ -5,8 +5,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
-public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to pass buildData to the button handler, (or just turn into a button?)
+public class UIBuildOptions : MonoBehaviour, IPointerClickHandler 
 {
     [SerializeField]
     private ImprovementDataSO buildData;
@@ -19,10 +20,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     private UIBuilderHandler buttonHandler;
 
     [SerializeField]
-    private CanvasGroup canvasGroup; //handles all aspects of a group of UI elements together, instead of individually in Unity
-
-    [SerializeField]
-    private TMP_Text objectName, objectLevel;
+    private TMP_Text objectName, objectLevel, producesTitle;
 
     [SerializeField]
     private Image objectImage;
@@ -31,11 +29,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
     private GameObject resourceInfoPanel;
 
     [SerializeField]
-    private Transform resourceProducedHolder, resourceConsumedHolder, resourceCostHolder, resourceProducedContents, resourceConsumedContents, resourceCostContents;
+    private Transform resourceProducedHolder, resourceCostHolder;
 
-    private bool isUnitPanel, cannotAfford, isShowing;//, produced = true, consumed = true;
+    private List<Transform> produceConsumesHolders = new();
+    private TMP_Text description;
 
-    private Vector3 initialPos; //for shaking 
+    private bool isUnitPanel, cannotAfford, isShowing;
 
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
@@ -43,36 +42,24 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
     private void Awake()
     {
-        initialPos = transform.position;
-
         buttonHandler = GetComponentInParent<UIBuilderHandler>();
-        //if (!buttonHandler.showResourceProduced)
-        //{
-        //    resourceProducedContents.gameObject.SetActive(false);
-        //    //produced = false;
-        //}
-        //if (!buttonHandler.showResourceConsumed)
-        //{
-        //    resourceConsumedContents.gameObject.SetActive(false);
-        //    //consumed = false;
-        //}
-        canvasGroup = GetComponent<CanvasGroup>();
+
+        foreach (Transform selection in resourceProducedHolder)
+        {
+            if (selection.TryGetComponent(out TMP_Text text))
+            {
+                description = text;
+                description.gameObject.SetActive(false);
+            }
+            else
+            {
+                produceConsumesHolders.Add(selection);
+            }
+        }
+
         if (unitBuildData != null)
             isUnitPanel = true;
         PopulateSelectionPanel();
-
-        //if (buildData != null)
-        //    buildData.prefabRenderers = buildData.prefab.GetComponentsInChildren<MeshRenderer>();
-    }
-
-    public void ToggleInteractable(bool v)
-    {
-        canvasGroup.interactable = v;
-
-        foreach (UIResourceInfoPanel resourceInfoPanel in costResourcePanels)
-        {
-            resourceInfoPanel.backgroundCanvas.interactable = v;
-        }
     }
 
     public void ToggleVisibility(bool v)
@@ -100,7 +87,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
         float workEthicChange = 0;
         string objectDescription = "";
         List<ResourceValue> objectProduced;
-        List<ResourceValue> objectConsumed;
+        List<List<ResourceValue>> objectConsumed = new();
         List<ResourceValue> objectCost;
         List<ResourceIndividualSO> resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
 
@@ -111,7 +98,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             objectImage.sprite = unitBuildData.image;
             objectCost = unitBuildData.unitCost;
             objectProduced = new();
-            objectConsumed = unitBuildData.consumedResources;
             objectDescription = unitBuildData.unitDescription;
         }
         else
@@ -121,48 +107,66 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             objectImage.sprite = buildData.image;
             objectCost = buildData.improvementCost;
             objectProduced = buildData.producedResources;
-            objectConsumed = buildData.consumedResources;
+            objectConsumed.Add(buildData.consumedResources);
             workEthicChange = buildData.workEthicChange;
         }
 
         //cost info
-        GenerateResourceInfoPanels(resourceCostHolder, "", objectCost, resourceInfo, 0, true);
+        //GenerateResourceInfoPanels(resourceCostHolder, "", objectCost, resourceInfo, 0, true);
+        GenerateResourceInfo(resourceCostHolder, objectCost, resourceInfo, true);
         //producer info
-        GenerateResourceInfoPanels(resourceProducedHolder, objectDescription, objectProduced, resourceInfo, workEthicChange);
+        //GenerateResourceInfoPanels(resourceProducedHolder, objectDescription, objectProduced, resourceInfo, workEthicChange);
+        for (int i = 0; i < produceConsumesHolders.Count; i++) //turning them all off initially
+            produceConsumesHolders[i].gameObject.SetActive(false);
+
+        int producedCount = objectProduced.Count;
+        int maxCount = 0;
+
+        for (int i = 0; i < objectProduced.Count; i++)
+        {
+            produceConsumesHolders[i].gameObject.SetActive(true);
+            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i], resourceInfo);
+
+            if (maxCount < objectConsumed[i].Count)
+                maxCount = objectConsumed[i].Count;
+        }
+
+        if (producedCount == 0)
+        {
+            if (isUnitPanel)
+            {
+                description.text = objectDescription;
+                producesTitle.text = "Unit Info";
+            }
+            else
+            {
+                description.text = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
+                producesTitle.text = "Produces";
+            }
+        }
+
+        if (producedCount <= 1)
+        {
+            SetBaseImageHeight();
+        }
+
+        if (maxCount <= 2)
+        {
+            producesTitle.text = "   Makes       Requires";
+            SetBaseImageWidth();
+        }
+
         //consumed info
-        GenerateResourceInfoPanels(resourceConsumedHolder, "", objectConsumed, resourceInfo);
+        //GenerateResourceInfoPanels(resourceConsumedHolder, "", objectConsumed, resourceInfo);
     }
 
-    private void GenerateResourceInfoPanels(Transform transform, string description, List<ResourceValue> resources, 
-        List<ResourceIndividualSO> resourceInfo, float workEthicChange = 0, bool isCost = false)
+    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, List<ResourceIndividualSO> resourceInfo, bool cost)
     {
-        if (workEthicChange != 0 || description.Length > 0)
-        {
-            GameObject panel = Instantiate(resourceInfoPanel);
-            panel.transform.SetParent(transform, false);
-            UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
-            //UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
-            uiResourceInfoPanel.transform.SetParent(transform, false);
-
-            uiResourceInfoPanel.resourceAmount.color = Color.black;//new Color32(28, 72, 140, 255); //color32 uses bytes
-            uiResourceInfoPanel.resourceAmount.alignment = TextAlignmentOptions.Midline;
-            uiResourceInfoPanel.resourceTransform.anchoredPosition3D += new Vector3(0,20f,0);
-            uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(230, 0);
-            uiResourceInfoPanel.resourceTransform.SetParent(uiResourceInfoPanel.allContents, false);
-            uiResourceInfoPanel.backgroundCanvas.gameObject.SetActive(false);
-
-            if (workEthicChange != 0)
-                description = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
-
-            uiResourceInfoPanel.resourceAmount.text = description;
-        }
-        
         foreach (ResourceValue value in resources)
         {
             GameObject panel = Instantiate(resourceInfoPanel);
             panel.transform.SetParent(transform, false);
             UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
-            //UIResourceInfoPanel uiResourceCostPanel = buttonHandler.GetFromResourceInfoPanelPool();
             uiResourceCostPanel.transform.SetParent(transform, false);
 
             int index = resourceInfo.FindIndex(a => a.resourceType == value.resourceType);
@@ -170,28 +174,110 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
             uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
             uiResourceCostPanel.resourceImage.sprite = resourceInfo[index].resourceIcon;
             uiResourceCostPanel.resourceType = value.resourceType;
-            if (isCost)
-            {
+
+            if (cost)
                 costResourcePanels.Add(uiResourceCostPanel);
+        }
+    }
+
+    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, List<ResourceValue> consumedResources, List<ResourceIndividualSO> resourceInfo)
+    {
+        foreach (Transform selection in transform)
+        {
+            if (selection.TryGetComponent(out UIResourceInfoPanel uiResourceInfoPanel))
+            {
+                int index = resourceInfo.FindIndex(a => a.resourceType == producedResource.resourceType);
+
+                uiResourceInfoPanel.resourceAmount.text = producedResource.resourceAmount.ToString();
+                uiResourceInfoPanel.resourceImage.sprite = resourceInfo[index].resourceIcon;
+                uiResourceInfoPanel.resourceType = producedResource.resourceType;
+            }
+            else if (selection.TryGetComponent(out TMP_Text text))
+            {
+                if (consumedResources.Count > 0)
+                {
+                    text.gameObject.SetActive(false);
+                }
+                else
+                {
+                    text.gameObject.SetActive(true);
+                    return;
+                }
             }
         }
 
-        if (resources.Count == 0 && workEthicChange == 0 && description.Length == 0)
-        {
-            //Code is repeated here because it won't work in separate method for some reason
-            GameObject panel = Instantiate(resourceInfoPanel);
-            panel.transform.SetParent(transform, false);
-            UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
-            //UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
-            uiResourceInfoPanel.transform.SetParent(transform, false);
-
-            uiResourceInfoPanel.resourceAmount.color = Color.black;// new Color32(28, 72, 140, 255); //color32 uses bytes
-            uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(70, 20);
-            uiResourceInfoPanel.resourceTransform.SetParent(uiResourceInfoPanel.allContents, false);
-            uiResourceInfoPanel.backgroundCanvas.gameObject.SetActive(false);
-            uiResourceInfoPanel.resourceAmount.text = "None";
-        }
+        GenerateResourceInfo(transform, consumedResources, resourceInfo, false);
     }
+
+    private void SetBaseImageHeight()
+    {
+
+    }
+
+    private void SetBaseImageWidth()
+    {
+
+    }
+
+    //private void GenerateResourceInfoPanels(Transform transform, string description, List<ResourceValue> resources, 
+    //    List<ResourceIndividualSO> resourceInfo, float workEthicChange = 0, bool isCost = false)
+    //{
+    //    if (workEthicChange != 0 || description.Length > 0)
+    //    {
+    //        GameObject panel = Instantiate(resourceInfoPanel);
+    //        panel.transform.SetParent(transform, false);
+    //        UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
+    //        //UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
+    //        uiResourceInfoPanel.transform.SetParent(transform, false);
+
+    //        uiResourceInfoPanel.resourceAmount.color = Color.black;//new Color32(28, 72, 140, 255); //color32 uses bytes
+    //        uiResourceInfoPanel.resourceAmount.alignment = TextAlignmentOptions.Midline;
+    //        uiResourceInfoPanel.resourceTransform.anchoredPosition3D += new Vector3(0,20f,0);
+    //        uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(230, 0);
+    //        uiResourceInfoPanel.resourceTransform.SetParent(uiResourceInfoPanel.allContents, false);
+    //        uiResourceInfoPanel.backgroundCanvas.gameObject.SetActive(false);
+
+    //        if (workEthicChange != 0)
+    //            description = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
+
+    //        uiResourceInfoPanel.resourceAmount.text = description;
+    //    }
+
+    //    foreach (ResourceValue value in resources)
+    //    {
+    //        GameObject panel = Instantiate(resourceInfoPanel);
+    //        panel.transform.SetParent(transform, false);
+    //        UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
+    //        //UIResourceInfoPanel uiResourceCostPanel = buttonHandler.GetFromResourceInfoPanelPool();
+    //        uiResourceCostPanel.transform.SetParent(transform, false);
+
+    //        int index = resourceInfo.FindIndex(a => a.resourceType == value.resourceType);
+
+    //        uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
+    //        uiResourceCostPanel.resourceImage.sprite = resourceInfo[index].resourceIcon;
+    //        uiResourceCostPanel.resourceType = value.resourceType;
+    //        if (isCost)
+    //        {
+    //            costResourcePanels.Add(uiResourceCostPanel);
+    //        }
+    //    }
+
+    //    if (resources.Count == 0 && workEthicChange == 0 && description.Length == 0)
+    //    {
+    //        //Code is repeated here because it won't work in separate method for some reason
+    //        GameObject panel = Instantiate(resourceInfoPanel);
+    //        panel.transform.SetParent(transform, false);
+    //        UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
+    //        //UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
+    //        uiResourceInfoPanel.transform.SetParent(transform, false);
+
+    //        uiResourceInfoPanel.resourceAmount.color = Color.black;// new Color32(28, 72, 140, 255); //color32 uses bytes
+    //        uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(70, 20);
+    //        uiResourceInfoPanel.resourceTransform.SetParent(uiResourceInfoPanel.allContents, false);
+    //        uiResourceInfoPanel.backgroundCanvas.gameObject.SetActive(false);
+    //        uiResourceInfoPanel.resourceAmount.text = "None";
+    //    }
+    //}
 
     public void SetResourceTextToDefault()
     {
@@ -216,9 +302,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler //use this to 
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!canvasGroup.interactable)
-            return;
-
         if (cannotAfford && !buttonHandler.isQueueing)
         {
             StartCoroutine(Shake());
