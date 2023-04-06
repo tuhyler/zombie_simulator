@@ -10,6 +10,7 @@ public class ImprovementDataSO : ScriptableObject
     public string improvementName;
     public int improvementLevel;
     public string improvementNameAndLevel;
+    public string improvementDescription;
     public bool rawMaterials;
     public Vector3 buildingLocation;
     public Sprite image;

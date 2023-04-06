@@ -31,6 +31,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     [SerializeField]
     private Transform resourceProducedHolder, resourceCostHolder;
 
+    [SerializeField]
+    private RectTransform resourceProduceAllHolder, imageLine;
+
+    [SerializeField]
+    private VerticalLayoutGroup resourceProduceLayout;
+
     private List<Transform> produceConsumesHolders = new();
     private TMP_Text description;
 
@@ -108,7 +114,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             objectCost = buildData.improvementCost;
             objectProduced = buildData.producedResources;
             objectConsumed.Add(buildData.consumedResources);
+            objectConsumed.Add(buildData.consumedResources1);
+            objectConsumed.Add(buildData.consumedResources2);
+            objectConsumed.Add(buildData.consumedResources3);
+            objectConsumed.Add(buildData.consumedResources4);
             workEthicChange = buildData.workEthicChange;
+            objectDescription = buildData.improvementDescription;
         }
 
         //cost info
@@ -131,8 +142,18 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 maxCount = objectConsumed[i].Count;
         }
 
+        int resourcePanelSize = 60;
+        int produceHolderWidth = 160;
+        //int produceTitleWidth = 270;
+        int produceContentsWidth = 240;
+        int produceContentsHeight = 80;
+        int produceLayoutPadding = -10;
+        int imageLineWidth = 210;
+
         if (producedCount == 0)
         {
+            description.gameObject.SetActive(true);
+            
             if (isUnitPanel)
             {
                 description.text = objectDescription;
@@ -140,21 +161,68 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
             else
             {
-                description.text = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
+                if (workEthicChange > 0)
+                    description.text = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
+                else
+                    description.text = objectDescription;
                 producesTitle.text = "Produces";
             }
+
+            //producesTitle.horizontalAlignment = HorizontalAlignmentOptions.Center;
+            produceHolderWidth = 235;
         }
 
-        if (producedCount <= 1)
+        //adjusting height of panel
+        if (producedCount > 1)
         {
-            SetBaseImageHeight();
+            int shift = resourcePanelSize * (producedCount - 1);
+            produceContentsHeight += shift;
+            produceLayoutPadding += shift;
         }
 
-        if (maxCount <= 2)
+
+        //adjusting width of panel
+        if (maxCount > 1)
         {
-            producesTitle.text = "   Makes       Requires";
-            SetBaseImageWidth();
+            int shift = resourcePanelSize * (maxCount - 1);
+            produceHolderWidth += shift;
         }
+        if (maxCount > 2)
+        {
+            int shift = resourcePanelSize * (maxCount - 2);
+            produceContentsWidth += shift;
+            imageLineWidth += shift;
+        }
+        //if (maxCount > 3)
+        //{
+        //    //produceHolderWidth = 275;
+        //    //produceTitleWidth = 300;
+
+        //    int shift = resourcePanelSize * (maxCount - 3);
+        //    //produceHolderWidth += shift;
+        //    //produceTitleWidth += shift;
+        //    produceContentsWidth += shift;
+        //    imageLineWidth += shift;
+        //}
+        //   Makes       Requires
+        //if (maxCount == 3)
+        //{
+        //    producesTitle.text = "  Makes              Requires";
+        //}
+        //else if (maxCount == 4)
+        //{
+        //    producesTitle.text = "  Makes                     Requires";
+        //}
+        //else if (maxCount == 5)
+        //{
+        //    producesTitle.text = "  Makes                           Requires";
+        //}
+
+        resourceProducedHolder.GetComponent<RectTransform>().sizeDelta = new Vector2(produceHolderWidth, 60);
+        //producesTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(produceTitleWidth, 30);
+        resourceProduceAllHolder.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
+        resourceProduceLayout.padding.bottom = produceLayoutPadding;
+        imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
 
         //consumed info
         //GenerateResourceInfoPanels(resourceConsumedHolder, "", objectConsumed, resourceInfo);
@@ -207,16 +275,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
 
         GenerateResourceInfo(transform, consumedResources, resourceInfo, false);
-    }
-
-    private void SetBaseImageHeight()
-    {
-
-    }
-
-    private void SetBaseImageWidth()
-    {
-
     }
 
     //private void GenerateResourceInfoPanels(Transform transform, string description, List<ResourceValue> resources, 
