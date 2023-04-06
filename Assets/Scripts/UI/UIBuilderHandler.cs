@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class UIBuilderHandler : MonoBehaviour
@@ -20,6 +22,11 @@ public class UIBuilderHandler : MonoBehaviour
     [SerializeField]
     private Transform uiElementsParent;
     private List<UIBuildOptions> buildOptions;
+
+    //for blurring background
+    [SerializeField]
+    private Volume globalVolume;
+    private DepthOfField dof;
 
     //for tweening
     [SerializeField]
@@ -52,6 +59,12 @@ public class UIBuilderHandler : MonoBehaviour
     private void Awake()
     {
         gameObject.SetActive(false); //Hide to start
+
+        if (globalVolume.profile.TryGet<DepthOfField>(out DepthOfField tmpDof))
+        {
+            dof = tmpDof;
+        }
+        dof.focalLength.value = 15;
 
         buildOptions = new List<UIBuildOptions>(); //instantiate
 
@@ -121,6 +134,14 @@ public class UIBuilderHandler : MonoBehaviour
         {
             gameObject.SetActive(v);
             activeStatus = true;
+
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.4f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                dof.focalLength.value = value;
+            });
+
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
@@ -145,6 +166,13 @@ public class UIBuilderHandler : MonoBehaviour
         else
         {
             activeStatus = false;
+            //dof.focalLength.value = 15;
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.2f)
+            .setEase(LeanTweenType.easeOutSine)
+            .setOnUpdate((value) =>
+            {
+                dof.focalLength.value = value;
+            });
             LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 300f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }

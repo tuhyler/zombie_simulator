@@ -212,7 +212,7 @@ public class UICityImprovementTip : MonoBehaviour
 
         if (produces)
         {
-            int xShiftLeft = (resourcesCount-1) * 30;
+            int xShiftLeft = (resourcesCount-1) * 31;
             int xShiftRight = indexSelect * 60;
 
             Vector2 loc = panelList[0].transform.position;
@@ -233,7 +233,7 @@ public class UICityImprovementTip : MonoBehaviour
 
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], false);
 
-        int xShiftLeft = (producesCount - 1) * 30;
+        int xShiftLeft = (producesCount - 1) * 31;
         int xShiftRight = a * 60;
 
         Vector2 loc = producesInfo[a].transform.position;

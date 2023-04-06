@@ -28,6 +28,7 @@ public class UIResearchTreePanel : MonoBehaviour
     //[SerializeField]
     //private CityBuilderManager cityBuilderManager;
 
+    //for blurring background
     [SerializeField]
     private Volume globalVolume;
     private DepthOfField dof;
