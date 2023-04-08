@@ -37,29 +37,15 @@ MonoBehaviour:
     resourceAmount: 5
   - resourceType: 5
     resourceAmount: 3
-  - resourceType: 3
-    resourceAmount: 1
-  - resourceType: 1
-    resourceAmount: 7
-  consumedResources2:
-  - resourceType: 2
-    resourceAmount: 2
-  consumedResources3:
-  - resourceType: 3
-    resourceAmount: 4
-  consumedResources4:
-  - resourceType: 5
-    resourceAmount: 5
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
   producedResources:
   - resourceType: 1
     resourceAmount: 2
   - resourceType: 5
     resourceAmount: 5
   - resourceType: 4
-    resourceAmount: 5
-  - resourceType: 2
-    resourceAmount: 5
-  - resourceType: 3
     resourceAmount: 5
   producedResourceTime: 5
   resourceType: 1

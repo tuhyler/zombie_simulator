@@ -1,28 +1,27 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using static UnityEngine.Rendering.DebugUI;
 
 public class UITooltip : MonoBehaviour
 {
     public TMP_Text title, level, producesTitle;
-    private TMP_Text producesText, consumesNone;
-    private int screenHeightNegHalf = -750, listCount;
-    private RectTransform rectTransform;
-    public Transform producesRect, consumesRect, costsRect;
-    private List<UIResourceInfoPanel> producesInfo = new(), costsInfo = new();
-    private List<ResourceIndividualSO> resourceInfo = new();
+    private TMP_Text producesText;
+    private int screenHeightNegHalf = -750;
+    public RectTransform rectTransform, resourceProduceAllHolder, imageLine, resourceProducedHolder, resourceCostHolder;
+    public VerticalLayoutGroup resourceProduceLayout;
+    private List<Transform> produceConsumesHolders = new();
+    private List<UIResourceInfoPanel> costsInfo = new(), producesInfo = new();
+    private List<List<UIResourceInfoPanel>> consumesInfo = new();
+    private List<TMP_Text> noneTextList = new();
 
     private void Awake()
     {
-        resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
-        //screenHeightNegHalf = Screen.height * -1 / 2;
-        rectTransform = GetComponent<RectTransform>();
         gameObject.SetActive(false);
 
-        foreach (Transform selection in producesRect)
+        foreach (Transform selection in resourceProducedHolder)
         {
             if (selection.TryGetComponent(out TMP_Text text))
             {
@@ -30,105 +29,165 @@ public class UITooltip : MonoBehaviour
             }
             else
             {
-                producesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
+                produceConsumesHolders.Add(selection);
             }
         }
-        //foreach (Transform selection in consumesRect)
-        //{
-        //    if (selection.TryGetComponent(out TMP_Text text))
-        //    {
-        //        consumesNone = text;
-        //    }
-        //    else
-        //    {
-        //        consumesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
-        //    }
-        //}
-        foreach (Transform selection in costsRect)
+
+        for (int i = 0; i < produceConsumesHolders.Count; i++)
+        {
+            int j = 0;
+            List<UIResourceInfoPanel> consumesPanels = new();
+            
+            foreach (Transform selection in produceConsumesHolders[i])
+            {
+                
+                //first one is for showing produces
+                if (j == 0)
+                    producesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
+                //after first two is for showing consumes
+                else if (j >= 2 && j <= 6)
+                    consumesPanels.Add(selection.GetComponent<UIResourceInfoPanel>());
+                else if (j == 7)
+                    noneTextList.Add(selection.GetComponent<TMP_Text>());
+
+                j++;
+            }
+
+            consumesInfo.Add(consumesPanels);
+        }
+        foreach (Transform selection in resourceCostHolder)
         {
             costsInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
         }
-        listCount = producesInfo.Count;
     }
 
-    public void SetInfo(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> produces, List<ResourceValue> costs)
+    public void SetInfo(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces, List<List<ResourceValue>> consumes, bool unit)
     {
         transform.position = position;
         this.title.text = title;
         this.level.text = "Level " + level.ToString();
-        SetResourcePanelInfo(producesInfo, produces, true, workEthic, description);
-        //SetResourcePanelInfo(consumesInfo, consumes, false, true);
-        SetResourcePanelInfo(costsInfo, costs, false);
+
+        int producesCount = produces.Count;
+        int maxCount = 0;
+        int resourcePanelSize = 60;
+        int produceHolderWidth = 160;
+        int produceContentsWidth = 240;
+        int produceContentsHeight = 100;
+        int produceLayoutPadding = 10;
+        int imageLineWidth = 210;
+
+        producesTitle.text = "Produces / Requires";
+
+        if (producesCount == 0)
+        {
+            producesText.gameObject.SetActive(true);
+
+            if (unit)
+            {
+                producesText.text = description;
+                producesTitle.text = "Unit Info";
+            }
+            else
+            {
+                if (workEthic > 0)
+                    producesText.text = "Work Ethic +" + Mathf.RoundToInt(workEthic * 100) + "%";
+                else
+                    producesText.text = description;
+                producesTitle.text = "Produces";
+            }
+
+            produceHolderWidth = 280;
+        }
+        else
+        {
+            producesText.gameObject.SetActive(false);
+        }
+
+        for (int i = 0; i < produceConsumesHolders.Count; i++)
+        {
+            if (i >= producesCount)
+            {
+                produceConsumesHolders[i].gameObject.SetActive(false);
+            }
+            else
+            {
+                produceConsumesHolders[i].gameObject.SetActive(true);
+                GenerateProduceInfo(produces[i], consumes[i], i);
+
+                if (maxCount < consumes[i].Count)
+                    maxCount = consumes[i].Count;
+            }
+        }
+
+        GenerateResourceInfo(costs, costsInfo);
+
+        //adjusting height of panel
+        if (producesCount > 1)
+        {
+            int shift = resourcePanelSize * (producesCount - 1);
+            produceContentsHeight += shift;
+            produceLayoutPadding += shift;
+        }
+
+        //adjusting width of panel
+        if (maxCount > 1)
+        {
+            int shift = resourcePanelSize * (maxCount - 1);
+            produceHolderWidth += shift;
+        }
+        if (maxCount > 2)
+        {
+            int shift = resourcePanelSize * (maxCount - 2);
+            produceContentsWidth += shift;
+            imageLineWidth += shift;
+        }
+
+        resourceProducedHolder.sizeDelta = new Vector2(produceHolderWidth, 60);
+        resourceProduceAllHolder.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
+        resourceProduceLayout.padding.bottom = produceLayoutPadding;
+        imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
+        rectTransform.sizeDelta = new Vector2(300, 264 + produceContentsHeight); //height without produce contents window plus 70
 
         PositionCheck();
     }
 
-    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, bool produces, float workEthic = 0, string description = "")
+    private void GenerateResourceInfo(List<ResourceValue> resourcesInfo, List<UIResourceInfoPanel> resourcesToShow)
     {
-        int resourcesCount = resourceList.Count;
-        bool showText = false;
-        if (workEthic > 0 || description.Length > 0)
-            showText = true;
-
-        //show text for produces section
-        if (produces)
-        {
-            producesTitle.text = "Produces";
-
-            if (showText)
-            {
-                producesText.gameObject.SetActive(true);
-                if (workEthic > 0)
-                    producesText.text = "Work Ethic +" + (workEthic * 100).ToString() + '%';
-                else
-                {
-                    producesTitle.text = "Unit Info";
-                    producesText.text = description;
-                }
-
-                foreach (UIResourceInfoPanel panel in panelList)
-                    panel.gameObject.SetActive(false);
-
-                return;
-            }
-            else
-            {
-                producesText.gameObject.SetActive(false);
-            }
-        }
-
-        //show text for consumes section
-        //if (consumes)
-        //{
-        //    if (resourcesCount == 0)
-        //    {
-        //        consumesNone.gameObject.SetActive(true);
-
-        //        foreach (UIResourceInfoPanel panel in panelList)
-        //            panel.gameObject.SetActive(false);
-
-        //        return;
-        //    }
-        //    else
-        //    {
-        //       consumesNone.gameObject.SetActive(false);
-        //    }
-        //}
-
-        for (int i = 0; i < listCount; i++)
+        int resourcesCount = resourcesInfo.Count;
+        
+        for (int i = 0; i < resourcesToShow.Count; i++)
         {
             if (i >= resourcesCount)
             {
-                panelList[i].gameObject.SetActive(false);
+                resourcesToShow[i].gameObject.SetActive(false);
             }
             else
             {
-                panelList[i].gameObject.SetActive(true);
-                panelList[i].resourceAmount.text = resourceList[i].resourceAmount.ToString();
-                int index = resourceInfo.FindIndex(a => a.resourceType == resourceList[i].resourceType);
-                panelList[i].resourceImage.sprite = resourceInfo[index].resourceIcon;
+                resourcesToShow[i].gameObject.SetActive(true);
+
+                resourcesToShow[i].resourceAmount.text = resourcesInfo[i].resourceAmount.ToString();
+                resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourcesInfo[i].resourceType);
+                resourcesToShow[i].resourceType = resourcesInfo[i].resourceType;
             }
         }
+    }
+
+    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex)
+    {
+        producesInfo[produceIndex].resourceAmount.text = producedResource.resourceAmount.ToString();
+        producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
+        producesInfo[produceIndex].resourceType = producedResource.resourceType;
+
+        if (consumedResources.Count > 0)
+        {
+            noneTextList[produceIndex].gameObject.SetActive(false);
+        }
+        else
+        {
+            noneTextList[produceIndex].gameObject.SetActive(true);
+        }
+
+        GenerateResourceInfo(consumedResources, consumesInfo[produceIndex]);
     }
 
     private void PositionCheck()

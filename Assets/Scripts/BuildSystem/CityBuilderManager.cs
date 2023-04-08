@@ -99,6 +99,10 @@ public class CityBuilderManager : MonoBehaviour
     private GameObject constructionTilePrefab;
     private Queue<CityImprovement> constructionTileQueue = new();
 
+    //for object pooling of improvement resources
+    private Queue<ImprovementResource> improvementResourceQueue = new();
+    private List<ImprovementResource> improvementResourceList = new();
+
     //for making objects transparent
     [SerializeField]
     public Material transparentMat;
@@ -131,6 +135,7 @@ public class CityBuilderManager : MonoBehaviour
         GrowConstructionTilePool(); 
         GrowResourceInfoHolderPool();
         GrowResourceInfoPanelPool();
+        GrowImprovementResourcePool();
         //openAssignmentPriorityMenu.interactable = false;
     }
 
@@ -2341,15 +2346,17 @@ public class CityBuilderManager : MonoBehaviour
     //    }
     //}
 
-    private void UpdateLaborNumbers()
+    public void UpdateLaborNumbers()
     {
         if (isActive)
         {
             HideLaborNumbers();
+            HideImprovementResources();
             foreach (Vector3Int tile in developedTiles)
             {
                 //if (world.CheckIfTileIsImproved(tile))
                 PrepareLaborNumber(tile);
+                PrepareImprovementResource(tile);
             }
         }
     }
@@ -2385,19 +2392,36 @@ public class CityBuilderManager : MonoBehaviour
 
     private void PrepareLaborNumber(Vector3Int tile) //grabbing labor numbers and prefab from pool
     {
+        if (world.GetMaxLaborForTile(tile) == 0) //don't show numbers for those that don't take labor
+            return;
+
         //specifying location on tile
         Vector3 numberPosition = tile;
-        numberPosition.y += .01f;
-        numberPosition.z += 1f; //bottom center of tile
+        //numberPosition.y += .01f;
+        numberPosition.z += 1f; //upper center of tile
 
         //Object pooling set up
         CityLaborTileNumber tempObject = GetFromLaborNumbersPool();
         tempObject.transform.position = numberPosition;
         laborNumberList.Add(tempObject);
 
+        tempObject.SetLaborNumber(world.PrepareLaborNumbers(tile));
+    }
+
+    private void PrepareImprovementResource(Vector3Int tile)
+    {
         if (world.GetMaxLaborForTile(tile) == 0) //don't show numbers for those that don't take labor
             return;
-        tempObject.SetLaborNumber(world.PrepareLaborNumbers(tile));
+
+        //specifying location on tile
+        Vector3 position = tile;
+        position.z += .3f;
+
+        ImprovementResource resource = GetFromImprovementResourcePool();
+        resource.transform.position = position;
+        improvementResourceList.Add(resource);
+
+        resource.SetImage(ResourceHolder.Instance.GetIcon(world.GetCityDevelopment(tile).producedResource));
     }
 
     private void ChangeLaborCount(Vector3Int terrainLocation)
@@ -2910,6 +2934,7 @@ public class CityBuilderManager : MonoBehaviour
                 uiLaborPrioritizationManager.ToggleVisibility(false, true);
             uiUnitTurn.buttonClicked.RemoveListener(ResetCityUI);
             HideLaborNumbers();
+            HideImprovementResources();
             uiLaborHandler.ResetUI();
             HideBorders();
             ToggleBuildingHighlight(false);
@@ -3170,6 +3195,44 @@ public class CityBuilderManager : MonoBehaviour
         var resourceInfoPanel = resourceInfoPanelQueue.Dequeue();
         resourceInfoPanel.gameObject.SetActive(true);
         return resourceInfoPanel;
+    }
+
+
+    private void GrowImprovementResourcePool()
+    {
+        for (int i = 0; i < 6; i++) //grow pool 6 at a time
+        {
+            GameObject improvementResource = Instantiate(GameAssets.Instance.improvementResource);
+            ImprovementResource resource = improvementResource.GetComponent<ImprovementResource>();
+            resource.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
+            AddToImprovementResourcePool(resource);
+        }
+    }
+
+    private void AddToImprovementResourcePool(ImprovementResource resource)
+    {
+        resource.gameObject.SetActive(false); //inactivate it when adding to pool
+        improvementResourceQueue.Enqueue(resource);
+    }
+
+    private ImprovementResource GetFromImprovementResourcePool()
+    {
+        if (improvementResourceQueue.Count == 0)
+            GrowImprovementResourcePool();
+
+        ImprovementResource resource= improvementResourceQueue.Dequeue();
+        resource.gameObject.SetActive(true);
+        return resource;
+    }
+
+    private void HideImprovementResources()
+    {
+        foreach (ImprovementResource resource in improvementResourceList)
+        {
+            AddToImprovementResourcePool(resource);
+        }
+
+        improvementResourceList.Clear();
     }
     #endregion
 }

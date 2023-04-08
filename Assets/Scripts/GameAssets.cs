@@ -25,4 +25,5 @@ public class GameAssets : MonoBehaviour
     public GameObject resourceInfoPanel;
     public GameObject uiTimeProgressPrefab;
     public GameObject speechBubble;
+    public GameObject improvementResource;
 }

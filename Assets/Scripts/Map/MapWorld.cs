@@ -24,7 +24,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UnitMovement unitMovement;
     [SerializeField]
-    private CityBuilderManager cityBuilderManager;
+    public CityBuilderManager cityBuilderManager;
     [SerializeField]
     private RoadManager roadManager;
     [SerializeField]

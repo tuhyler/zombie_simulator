@@ -241,5 +241,8 @@ public class UICityImprovementTip : MonoBehaviour
         loc.x += xShiftRight;
         loc.y += 5;
         produceHighlight.transform.localPosition = loc;
+
+        if (world.cityBuilderManager.SelectedCity != null)
+            world.cityBuilderManager.UpdateLaborNumbers();
     }
 }
