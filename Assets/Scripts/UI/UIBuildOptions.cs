@@ -95,7 +95,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         List<ResourceValue> objectProduced;
         List<List<ResourceValue>> objectConsumed = new();
         List<ResourceValue> objectCost;
-        List<ResourceIndividualSO> resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
 
         if (isUnitPanel)
         {
@@ -123,10 +122,9 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
 
         //cost info
-        //GenerateResourceInfoPanels(resourceCostHolder, "", objectCost, resourceInfo, 0, true);
-        GenerateResourceInfo(resourceCostHolder, objectCost, resourceInfo, true);
-        //producer info
-        //GenerateResourceInfoPanels(resourceProducedHolder, objectDescription, objectProduced, resourceInfo, workEthicChange);
+        GenerateResourceInfo(resourceCostHolder, objectCost, true);
+
+        //producer and consumed info
         for (int i = 0; i < produceConsumesHolders.Count; i++) //turning them all off initially
             produceConsumesHolders[i].gameObject.SetActive(false);
 
@@ -136,7 +134,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         for (int i = 0; i < objectProduced.Count; i++)
         {
             produceConsumesHolders[i].gameObject.SetActive(true);
-            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i], resourceInfo);
+            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i]);
 
             if (maxCount < objectConsumed[i].Count)
                 maxCount = objectConsumed[i].Count;
@@ -144,7 +142,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
         int resourcePanelSize = 60;
         int produceHolderWidth = 160;
-        //int produceTitleWidth = 270;
         int produceContentsWidth = 240;
         int produceContentsHeight = 80;
         int produceLayoutPadding = -10;
@@ -180,7 +177,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             produceLayoutPadding += shift;
         }
 
-
         //adjusting width of panel
         if (maxCount > 1)
         {
@@ -193,42 +189,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             produceContentsWidth += shift;
             imageLineWidth += shift;
         }
-        //if (maxCount > 3)
-        //{
-        //    //produceHolderWidth = 275;
-        //    //produceTitleWidth = 300;
-
-        //    int shift = resourcePanelSize * (maxCount - 3);
-        //    //produceHolderWidth += shift;
-        //    //produceTitleWidth += shift;
-        //    produceContentsWidth += shift;
-        //    imageLineWidth += shift;
-        //}
-        //   Makes       Requires
-        //if (maxCount == 3)
-        //{
-        //    producesTitle.text = "  Makes              Requires";
-        //}
-        //else if (maxCount == 4)
-        //{
-        //    producesTitle.text = "  Makes                     Requires";
-        //}
-        //else if (maxCount == 5)
-        //{
-        //    producesTitle.text = "  Makes                           Requires";
-        //}
 
         resourceProducedHolder.GetComponent<RectTransform>().sizeDelta = new Vector2(produceHolderWidth, 60);
-        //producesTitle.GetComponent<RectTransform>().sizeDelta = new Vector2(produceTitleWidth, 30);
         resourceProduceAllHolder.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
         resourceProduceLayout.padding.bottom = produceLayoutPadding;
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
-
-        //consumed info
-        //GenerateResourceInfoPanels(resourceConsumedHolder, "", objectConsumed, resourceInfo);
     }
 
-    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, List<ResourceIndividualSO> resourceInfo, bool cost)
+    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost)
     {
         foreach (ResourceValue value in resources)
         {
@@ -237,10 +205,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
             uiResourceCostPanel.transform.SetParent(transform, false);
 
-            int index = resourceInfo.FindIndex(a => a.resourceType == value.resourceType);
-
             uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
-            uiResourceCostPanel.resourceImage.sprite = resourceInfo[index].resourceIcon;
+            uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
             uiResourceCostPanel.resourceType = value.resourceType;
 
             if (cost)
@@ -248,16 +214,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, List<ResourceValue> consumedResources, List<ResourceIndividualSO> resourceInfo)
+    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, List<ResourceValue> consumedResources)
     {
         foreach (Transform selection in transform)
         {
             if (selection.TryGetComponent(out UIResourceInfoPanel uiResourceInfoPanel))
             {
-                int index = resourceInfo.FindIndex(a => a.resourceType == producedResource.resourceType);
-
                 uiResourceInfoPanel.resourceAmount.text = producedResource.resourceAmount.ToString();
-                uiResourceInfoPanel.resourceImage.sprite = resourceInfo[index].resourceIcon;
+                uiResourceInfoPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
                 uiResourceInfoPanel.resourceType = producedResource.resourceType;
             }
             else if (selection.TryGetComponent(out TMP_Text text))
@@ -274,68 +238,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
         }
 
-        GenerateResourceInfo(transform, consumedResources, resourceInfo, false);
+        GenerateResourceInfo(transform, consumedResources, false);
     }
-
-    //private void GenerateResourceInfoPanels(Transform transform, string description, List<ResourceValue> resources, 
-    //    List<ResourceIndividualSO> resourceInfo, float workEthicChange = 0, bool isCost = false)
-    //{
-    //    if (workEthicChange != 0 || description.Length > 0)
-    //    {
-    //        GameObject panel = Instantiate(resourceInfoPanel);
-    //        panel.transform.SetParent(transform, false);
-    //        UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
-    //        //UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
-    //        uiResourceInfoPanel.transform.SetParent(transform, false);
-
-    //        uiResourceInfoPanel.resourceAmount.color = Color.black;//new Color32(28, 72, 140, 255); //color32 uses bytes
-    //        uiResourceInfoPanel.resourceAmount.alignment = TextAlignmentOptions.Midline;
-    //        uiResourceInfoPanel.resourceTransform.anchoredPosition3D += new Vector3(0,20f,0);
-    //        uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(230, 0);
-    //        uiResourceInfoPanel.resourceTransform.SetParent(uiResourceInfoPanel.allContents, false);
-    //        uiResourceInfoPanel.backgroundCanvas.gameObject.SetActive(false);
-
-    //        if (workEthicChange != 0)
-    //            description = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
-
-    //        uiResourceInfoPanel.resourceAmount.text = description;
-    //    }
-
-    //    foreach (ResourceValue value in resources)
-    //    {
-    //        GameObject panel = Instantiate(resourceInfoPanel);
-    //        panel.transform.SetParent(transform, false);
-    //        UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
-    //        //UIResourceInfoPanel uiResourceCostPanel = buttonHandler.GetFromResourceInfoPanelPool();
-    //        uiResourceCostPanel.transform.SetParent(transform, false);
-
-    //        int index = resourceInfo.FindIndex(a => a.resourceType == value.resourceType);
-
-    //        uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
-    //        uiResourceCostPanel.resourceImage.sprite = resourceInfo[index].resourceIcon;
-    //        uiResourceCostPanel.resourceType = value.resourceType;
-    //        if (isCost)
-    //        {
-    //            costResourcePanels.Add(uiResourceCostPanel);
-    //        }
-    //    }
-
-    //    if (resources.Count == 0 && workEthicChange == 0 && description.Length == 0)
-    //    {
-    //        //Code is repeated here because it won't work in separate method for some reason
-    //        GameObject panel = Instantiate(resourceInfoPanel);
-    //        panel.transform.SetParent(transform, false);
-    //        UIResourceInfoPanel uiResourceInfoPanel = panel.GetComponent<UIResourceInfoPanel>();
-    //        //UIResourceInfoPanel uiResourceInfoPanel = buttonHandler.GetFromResourceInfoPanelPool();
-    //        uiResourceInfoPanel.transform.SetParent(transform, false);
-
-    //        uiResourceInfoPanel.resourceAmount.color = Color.black;// new Color32(28, 72, 140, 255); //color32 uses bytes
-    //        uiResourceInfoPanel.resourceTransform.sizeDelta = new Vector2(70, 20);
-    //        uiResourceInfoPanel.resourceTransform.SetParent(uiResourceInfoPanel.allContents, false);
-    //        uiResourceInfoPanel.backgroundCanvas.gameObject.SetActive(false);
-    //        uiResourceInfoPanel.resourceAmount.text = "None";
-    //    }
-    //}
 
     public void SetResourceTextToDefault()
     {

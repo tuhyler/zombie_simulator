@@ -337,10 +337,10 @@ public class CityImprovement : MonoBehaviour
         main.startDelay = time * 0.5f * 0.2f;
         upgradeSwirl.Play();
 
-        upgradeSwirlDown.gameObject.SetActive(true);
-        var mainDown = upgradeSwirlDown.main;
-        mainDown.startDelay = time * 0.5f * 0.4f + 1.5f;
-        upgradeSwirlDown.Play();
+        //upgradeSwirlDown.gameObject.SetActive(true);
+        //var mainDown = upgradeSwirlDown.main;
+        //mainDown.startDelay = time * 0.5f * 0.4f + 1.5f;
+        //upgradeSwirlDown.Play();
     }
 
     //public void PlayUpgradeSplash()
@@ -472,7 +472,8 @@ public class CityImprovement : MonoBehaviour
     private IEnumerator UpgradeImprovementCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, ImprovementDataSO data, CityBuilderManager cityBuilderManager)
     {
         timePassed = data.buildTime;
-        PlayUpgradeSwirl(timePassed);
+        PlaySmokeEmitter(tempBuildLocation);
+        //PlayUpgradeSwirl(timePassed);
         isUpgrading = true;
         producer.isUpgrading = true;
         producer.ShowConstructionProgressTimeBar(timePassed, city.activeCity);
@@ -484,7 +485,7 @@ public class CityImprovement : MonoBehaviour
             timePassed--;
             producer.SetConstructionTime(timePassed);
         }
-        upgradeFlash.Play();
+        //upgradeFlash.Play();
         while (timePassed > 0)
         {
             yield return new WaitForSeconds(1);

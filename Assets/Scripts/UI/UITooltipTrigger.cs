@@ -19,10 +19,16 @@ public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     [HideInInspector]
     public List<ResourceValue> produces, costs;
+
+    [HideInInspector]
+    public List<List<ResourceValue>> consumes = new();
+
+    [HideInInspector]
+    public bool unit;
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        UITooltipSystem.Show(transform.position, title, level, workEthic, description, produces, costs);
+        UITooltipSystem.Show(transform.position, title, level, workEthic, description, costs, produces, consumes, unit);
     }
 
     public void OnPointerExit(PointerEventData eventData)
