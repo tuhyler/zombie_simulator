@@ -29,6 +29,8 @@ public class ImprovementDataSO : ScriptableObject
     public float workEthicChange; 
     public int maxLabor; //max amount of labor
     public int laborCost; //how much gold to charge labor
+    public int housingIncrease;
+    public bool cityHousing;
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceRocks = false; //setting rocks as the same color as the prop
     public bool returnProp = false; //return terrain prop when removing it

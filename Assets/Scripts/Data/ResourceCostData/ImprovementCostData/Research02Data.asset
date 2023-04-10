@@ -10,41 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Harbor01Data
+  m_Name: Research02Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 3507881236362810283, guid: 6f2156896dd57c345be6d4355d95907d, type: 3}
+  prefab: {fileID: 1611013192853869202, guid: 70de2c43b80231141b9cc01573a379b5, type: 3}
   secondaryData: {fileID: 0}
   isBuilding: 0
-  improvementName: Harbor
-  improvementLevel: 1
-  improvementNameAndLevel: Harbor-1
-  improvementDescription: Allows Naval Trade Ports
+  improvementName: Research
+  improvementLevel: 2
+  improvementNameAndLevel: Research-2
+  improvementDescription: 
   rawMaterials: 0
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 0}
+  image: {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
   improvementCost:
-  - resourceType: 4
-    resourceAmount: 15
   - resourceType: 5
-    resourceAmount: 10
+    resourceAmount: 35
+  - resourceType: 4
+    resourceAmount: 20
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
-  producedResources: []
-  producedResourceTime: 0
-  resourceType: 0
-  terrainType: 1
+  producedResources:
+  - resourceType: 3
+    resourceAmount: 20
+  producedResourceTime: 20
+  resourceType: 3
+  terrainType: 5
   workEthicChange: 0
-  maxLabor: 0
-  laborCost: 0
+  maxLabor: 5
+  laborCost: 10
+  housingIncrease: 0
+  cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
   returnProp: 0
   singleBuild: 1
   buildTime: 5
-  availableInitially: 1
-  locked: 0
+  availableInitially: 0
+  locked: 1
   workAnimLoop: 0
   hideAnimMesh: 0

@@ -97,6 +97,37 @@ public class UIInfoPanelCity : MonoBehaviour
         foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
     }
 
+    public void UpdateHousing(int housing)
+    {
+        if (housing < 0)
+        {
+            availableHousing.text = $"-{housing}";
+            availableHousing.color = Color.red;
+        }
+        else if (housing == 0)
+        {
+            availableHousing.text = $"{housing}";
+            availableHousing.color = Color.white;
+
+        }
+        else
+        {
+            availableHousing.text = $"+{housing}";
+            availableHousing.color = Color.green;
+        }
+    }
+
+    public void UpdateWorkEthic(float ethic)
+    {
+        workEthic.text = $"{ethic * 100}%";
+        if (ethic < .5)
+            workEthic.color = Color.red;
+        else if (ethic < .8)
+            workEthic.color = Color.yellow;
+        else
+            workEthic.color = Color.green;
+    }
+
     public void ToggleVisibility(bool v)
     {
         if (activeStatus == v)

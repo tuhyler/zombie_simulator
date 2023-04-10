@@ -36,7 +36,7 @@ public class CityImprovement : MonoBehaviour
     public List<List<ResourceValue>> allConsumedResources = new();
 
     [SerializeField]
-    private ParticleSystem upgradeSwirl, upgradeSwirlDown, upgradeFlash, upgradeSplash, smokeSlow, smokeEmitter, smokeSplash, removeEruption, removeSplash;
+    private ParticleSystem smokeEmitter, smokeSplash, removeSplash;
     [SerializeField]
     private List<ParticleSystem> workPS = new();
 
@@ -72,14 +72,14 @@ public class CityImprovement : MonoBehaviour
     {
         Vector3 loc = transform.position;
 
-        if (!building && !isConstruction)
+        if (!isConstruction)
         {
             //upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
             //particleSystems.Add(upgradeSwirl);
             //upgradeSwirl.Stop();
 
-            removeEruption = Instantiate(removeEruption, loc, Quaternion.Euler(-90, 0, 0));
-            removeEruption.Stop();
+            removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
+            removeSplash.Stop();
 
             //loc.y += 0.1f;
             //upgradeFlash.transform.position = loc;
@@ -98,17 +98,6 @@ public class CityImprovement : MonoBehaviour
             if (improvementData.hideAnimMesh)
                 animMesh.SetActive(false);
         }
-        else if (building)
-        {
-            //upgradeSplash = Instantiate(upgradeSplash, loc, Quaternion.Euler(-90, 0, 0));
-            //particleSystems.Add(upgradeSplash);
-            //upgradeSplash.Stop();
-            //upgradeSplash.gameObject.SetActive(false);
-
-            loc.y += .1f; 
-            removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
-            removeSplash.Stop();
-        }
     }
 
     public void InitializeImprovementData(ImprovementDataSO data)
@@ -119,24 +108,6 @@ public class CityImprovement : MonoBehaviour
         allConsumedResources.Add(data.consumedResources2);
         allConsumedResources.Add(data.consumedResources3);
         allConsumedResources.Add(data.consumedResources4);
-    }
-
-    //public void SetPSLocs()
-    //{
-    //    workFireLoc = improvementData.workFireLoc;
-    //    workSmokeLoc = improvementData.workSmokeLoc;
-    //}
-
-    public void SetSmokeEmitters()
-    {
-        smokeEmitter = Instantiate(smokeEmitter, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        smokeEmitter.Stop();
-
-        smokeSplash = Instantiate(smokeSplash, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        smokeSplash.Stop();
-
-        smokeSlow = Instantiate(smokeSlow, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        smokeSlow.Stop();
     }
 
     public void StartWork(int seconds)
@@ -329,29 +300,24 @@ public class CityImprovement : MonoBehaviour
         return queueCity;
     }
 
-    public void PlayUpgradeSwirl(int time)
-    {
-        upgradeSwirl.gameObject.SetActive(true);
-        var main = upgradeSwirl.main;
-        //start delay is a function of whatever the simulation speed is
-        main.startDelay = time * 0.5f * 0.2f;
-        upgradeSwirl.Play();
-
-        //upgradeSwirlDown.gameObject.SetActive(true);
-        //var mainDown = upgradeSwirlDown.main;
-        //mainDown.startDelay = time * 0.5f * 0.4f + 1.5f;
-        //upgradeSwirlDown.Play();
-    }
+    //public void PlayUpgradeSwirl(int time)
+    //{
+    //    //upgradeSwirl.gameObject.SetActive(true);
+    //    //var main = upgradeSwirl.main;
+    //    ////start delay is a function of whatever the simulation speed is
+    //    //main.startDelay = time * 0.5f * 0.2f;
+    //    //upgradeSwirl.Play();
+    //}
 
     //public void PlayUpgradeSplash()
     //{
     //    upgradeSplash.Play();
     //}
 
-    public void DestroyUpgradeSplash()
-    {
-        Destroy(upgradeSplash);
-    }
+    //public void DestroyUpgradeSplash()
+    //{
+    //    Destroy(upgradeSplash);
+    //}
 
     public void PlayRemoveEffect(bool isHill)
     {
@@ -361,16 +327,8 @@ public class CityImprovement : MonoBehaviour
         else
             loc.y += .1f;
 
-        if (building)
-        {
-            removeSplash.transform.position = loc;
-            removeSplash.Play();
-        }
-        else
-        {
-            removeEruption.transform.position = loc;
-            removeEruption.Play();
-        }
+        removeSplash.transform.position = loc;
+        removeSplash.Play();
     }
 
     private void PlaySmokeEmitter(Vector3 loc)
@@ -378,16 +336,13 @@ public class CityImprovement : MonoBehaviour
         int time = improvementData.buildTime;
         var emission = smokeEmitter.emission;
         emission.rateOverTime = 10f / time;
+
         smokeEmitter.transform.position = loc;
         smokeEmitter.gameObject.SetActive(true);
         smokeEmitter.Play();
-
-        smokeSlow.transform.position = loc;
-        smokeSlow.gameObject.SetActive(true);
-        smokeSlow.Play();
     }
 
-    private void PlaySmokeSplash(bool isHill)
+    public void PlaySmokeSplash(bool isHill)
     {
         Vector3 loc = transform.position;
         if (isHill)
@@ -407,24 +362,19 @@ public class CityImprovement : MonoBehaviour
         smokeSplash.Play();
     }
 
-    public void StopUpgradeSwirls()
-    {
-        if (upgradeSwirl.isPlaying)
-        {
-            upgradeSwirl.Stop();
-            //upgradeSwirl.gameObject.SetActive(false);
-
-            upgradeSwirlDown.Stop();
-            //upgradeSwirlDown.gameObject.SetActive(false);
-        }
-    }
+    //public void StopUpgradeSwirls()
+    //{
+    //    //if (upgradeSwirl.isPlaying)
+    //    //{
+    //    //    upgradeSwirl.Stop();         
+    //    //    upgradeSwirlDown.Stop();
+    //    //}
+    //}
 
     public void StopSmokeEmitter()
     {
         smokeEmitter.Stop();
-        smokeSlow.Stop();
         smokeEmitter.gameObject.SetActive(false);
-        smokeSlow.gameObject.SetActive(false);
     }
 
     public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, bool isHill)
@@ -464,12 +414,12 @@ public class CityImprovement : MonoBehaviour
         cityBuilderManager.AddToConstructionTilePool(this);
     }
 
-    public void BeginImprovementUpgradeProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, ImprovementDataSO data)
+    public void BeginImprovementUpgradeProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, ImprovementDataSO data, bool isHill)
     {
-        constructionCo = StartCoroutine(UpgradeImprovementCoroutine(city, producer, tempBuildLocation, data, cityBuilderManager));
+        constructionCo = StartCoroutine(UpgradeImprovementCoroutine(city, producer, tempBuildLocation, data, cityBuilderManager, isHill));
     }
 
-    private IEnumerator UpgradeImprovementCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, ImprovementDataSO data, CityBuilderManager cityBuilderManager)
+    private IEnumerator UpgradeImprovementCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, ImprovementDataSO data, CityBuilderManager cityBuilderManager, bool isHill)
     {
         timePassed = data.buildTime;
         PlaySmokeEmitter(tempBuildLocation);
@@ -479,12 +429,12 @@ public class CityImprovement : MonoBehaviour
         producer.ShowConstructionProgressTimeBar(timePassed, city.activeCity);
         producer.SetConstructionTime(timePassed);
 
-        while (timePassed > 1)
-        {
-            yield return new WaitForSeconds(1);
-            timePassed--;
-            producer.SetConstructionTime(timePassed);
-        }
+        //while (timePassed > 1)
+        //{
+        //    yield return new WaitForSeconds(1);
+        //    timePassed--;
+        //    producer.SetConstructionTime(timePassed);
+        //}
         //upgradeFlash.Play();
         while (timePassed > 0)
         {
@@ -504,7 +454,8 @@ public class CityImprovement : MonoBehaviour
 
     public void StopUpgradeProcess(ResourceProducer producer)
     {
-        StopUpgradeSwirls();
+        //StopUpgradeSwirls();
+        StopSmokeEmitter();
         isUpgrading = false;
         producer.isUpgrading = false;
         upgradeCost.Clear();

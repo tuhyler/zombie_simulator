@@ -167,14 +167,14 @@ public class UIBuilderHandler : MonoBehaviour
         {
             activeStatus = false;
             //dof.focalLength.value = 15;
-            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.2f)
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {
                 dof.focalLength.value = value;
             });
             LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 300f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 300f, 0.35f).setOnComplete(SetActiveStatusFalse);
         }
 
         cameraController.enabled = !v;

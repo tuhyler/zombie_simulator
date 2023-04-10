@@ -130,6 +130,9 @@ public class ResourceManager : MonoBehaviour
 
     public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff, bool add)
     {
+        if (resourceType == ResourceType.None)
+            return;
+            
         if (add)
             resourceGenerationPerMinuteDict[resourceType] += generationDiff;
         else
@@ -242,7 +245,8 @@ public class ResourceManager : MonoBehaviour
             }
         }
 
-        city.UpdateResourceInfo();
+        if (city.activeCity)
+            city.UpdateResourceInfo();
     }
 
     public bool ConsumeResourcesCheck(List<ResourceValue> consumeResources, int labor)
@@ -319,7 +323,7 @@ public class ResourceManager : MonoBehaviour
     {
         int newResourceBalance = (foodGrowthLevel + resourceAmount) - foodGrowthLimit;
 
-        if (newResourceBalance >= 0)
+        if (newResourceBalance >= 0 && city.HousingCount > 0)
         {
             growth = true;
             resourceAmount -= newResourceBalance;
@@ -388,7 +392,8 @@ public class ResourceManager : MonoBehaviour
         if (queuedResourceTypesToCheck.Contains(resourceType))
             CheckResourcesForQueue();
         UpdateUI(resourceType);
-        city.UpdateResourceInfo();
+        if (city.activeCity)
+            city.UpdateResourceInfo();
         if (newResourceAmount > 0)
             city.CheckResourceWaiter(resourceType);
         else if (newResourceAmount < 0)
@@ -399,7 +404,7 @@ public class ResourceManager : MonoBehaviour
 
     public int CalculateResourceGeneration(int resourceAmount, float labor)
     {
-        return Mathf.FloorToInt(city.GetSetWorkEthic * (resourceAmount * labor * (1 + .1f * (labor - 1))));
+        return Mathf.FloorToInt(city.workEthic * (resourceAmount * labor * (1 + .1f * (labor - 1))));
     }
 
     private void CalculateAndChangeFoodLimit()

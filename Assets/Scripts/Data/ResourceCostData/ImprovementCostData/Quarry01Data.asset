@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Quarry01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5287637160269364084, guid: 621fc3803ad9c3645a7d989ac5d06061, type: 3}
+  prefab: {fileID: 5122609563439273834, guid: 45c7a726668d70146bb0e424c867ad6f, type: 3}
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Quarry
   improvementLevel: 1
   improvementNameAndLevel: Quarry-1
+  improvementDescription: 
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
@@ -25,6 +26,10 @@ MonoBehaviour:
   - resourceType: 4
     resourceAmount: 10
   consumedResources: []
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
   producedResources:
   - resourceType: 5
     resourceAmount: 1
@@ -34,6 +39,8 @@ MonoBehaviour:
   workEthicChange: 0
   maxLabor: 2
   laborCost: 2
+  housingIncrease: 0
+  cityHousing: 0
   replaceTerrain: 1
   replaceRocks: 1
   returnProp: 1

@@ -31,9 +31,10 @@ public class UIImprovementBuildPanel : MonoBehaviour
         this.text.text = text;
     }
 
-    public void SetImage(Sprite image)
+    public void SetImage(Sprite image, bool background)
     {
-        imageBackground.gameObject.SetActive(true);
+        if (background)
+            imageBackground.gameObject.SetActive(true);
         this.image.gameObject.SetActive(true);
         this.image.sprite = image;
     }

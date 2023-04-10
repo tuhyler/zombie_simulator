@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1686765677576597183}
   - component: {fileID: 2050705500241568073}
-  - component: {fileID: -3634337795367324582}
   - component: {fileID: 3277869951715035978}
   - component: {fileID: 2924565007274644614}
   m_Layer: 8
@@ -31,8 +30,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 6575231433334084552}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -55,33 +53,18 @@ MonoBehaviour:
   building: 0
   isConstruction: 0
   isUpgrading: 0
-  upgradeSwirl: {fileID: 0}
-  upgradeSwirlDown: {fileID: 0}
-  upgradeFlash: {fileID: 0}
-  upgradeSplash: {fileID: 3146471034643756916}
+  loc: {x: 0, y: 0, z: 0}
+  producedResource: 0
+  producedResourceIndex: 0
   smokeSlow: {fileID: 0}
   smokeEmitter: {fileID: 0}
   smokeSplash: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
     type: 3}
-  removeEruption: {fileID: 0}
   removeSplash: {fileID: 6041035029305573530, guid: 227158f9fa8122c4492aaec08d475a56,
     type: 3}
-  workFire: {fileID: 0}
-  workSmoke: {fileID: 0}
-  workLight: {fileID: 0}
+  workPS: []
+  workLights: []
   animMesh: {fileID: 0}
---- !u!114 &-3634337795367324582
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8789389234130458407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7b95767022238141b1a88937eef8d00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3277869951715035978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,89 +95,3 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.8, y: 1.2, z: 0.8}
   m_Center: {x: 0, y: 0.1, z: 0}
---- !u!1001 &8681976797959321582
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1686765677576597183}
-    m_Modifications:
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7872122735579793442, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_Name
-      value: UpgradeSplash
-      objectReference: {fileID: 0}
-    - target: {fileID: 7872122735579793442, guid: f33ec1b18d6b26844828ba3f7121dea0,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: f33ec1b18d6b26844828ba3f7121dea0, type: 3}
---- !u!198 &3146471034643756916 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 6041035029305573530, guid: f33ec1b18d6b26844828ba3f7121dea0,
-    type: 3}
-  m_PrefabInstance: {fileID: 8681976797959321582}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &6575231433334084552 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2541008483618137126, guid: f33ec1b18d6b26844828ba3f7121dea0,
-    type: 3}
-  m_PrefabInstance: {fileID: 8681976797959321582}
-  m_PrefabAsset: {fileID: 0}

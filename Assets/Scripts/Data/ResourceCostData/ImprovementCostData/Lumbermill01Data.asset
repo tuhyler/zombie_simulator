@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Lumbermill01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 6952278204151173005, guid: 5a5331d32a75f9f459ac9326c34bdf98, type: 3}
+  prefab: {fileID: 2382750124830825709, guid: 31232bb530b2618478df7e6dc3d950e2, type: 3}
   secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Lumbermill
   improvementLevel: 1
   improvementNameAndLevel: Lumbermill-1
+  improvementDescription: 
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
@@ -28,6 +28,10 @@ MonoBehaviour:
   - resourceType: 5
     resourceAmount: 10
   consumedResources: []
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
   producedResources:
   - resourceType: 4
     resourceAmount: 5
@@ -37,12 +41,14 @@ MonoBehaviour:
   workEthicChange: 0
   maxLabor: 2
   laborCost: 2
+  housingIncrease: 0
+  cityHousing: 0
   replaceTerrain: 0
+  replaceRocks: 0
   returnProp: 1
   singleBuild: 0
   buildTime: 5
   availableInitially: 1
   locked: 0
-  workFire1Loc: {x: 0, y: 0, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
-  workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0
+  hideAnimMesh: 0
