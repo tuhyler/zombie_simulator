@@ -46,7 +46,8 @@ public class ResourceProducer : MonoBehaviour
             consumedResourceTypes.Add(value.resourceType);
         }
 
-        producedResource = data.producedResources[0];
+        if (data.producedResources.Count > 0)
+            producedResource = data.producedResources[0];
 
         foreach(ResourceValue resourceValue in data.producedResources)
         {

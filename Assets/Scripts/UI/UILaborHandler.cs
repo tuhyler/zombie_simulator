@@ -44,42 +44,22 @@ public class UILaborHandler : MonoBehaviour
         }
     }
 
-    //preparing labor menu upon city selection
-    public void PrepUI(City city)
+    //set numbers when opening menu
+    private void PrepUI()
     {
-        this.city = city;
-        
         foreach (ResourceType resourceType in city.GetResourcesWorked())
         {
             laborOptionsDict[resourceType].ToggleVisibility(true);
             laborOptionsDict[resourceType].SetUICount(city.GetResourcesWorkedResourceCount(resourceType), city.ResourceManager.GetResourceGenerationValues(resourceType));
             laborOptions.Add(laborOptionsDict[resourceType]);
         }
-
-        //foreach (UILaborHandlerOptions option in laborOptions)
-        //{
-        //    if (city.CheckResourcesWorkedExists(option.resourceType))
-        //    {
-        //        option.ToggleVisibility(true);
-        //        option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
-        //    }
-        //}
     }
 
-    //pass data to know if can show in the UI
-    //public void ShowUI(City city) 
-    //{
-    //    ToggleVisibility(true);
-        
-    //    foreach (UILaborHandlerOptions option in laborOptions)
-    //    {
-    //        if (city.CheckResourcesWorkedExists(option.resourceType))
-    //        {
-    //            option.ToggleVisibility(true);
-    //            option.SetUICount(city.GetResourcesWorkedResourceCount(option.resourceType), city.ResourceManager.GetResourceGenerationValues(option.resourceType));
-    //        }
-    //    }
-    //}
+    //setting city upon city selection
+    public void SetCity(City city)
+    {
+        this.city = city;
+    }
 
     public void ToggleVisibility(bool v)
     {
@@ -92,6 +72,7 @@ public class UILaborHandler : MonoBehaviour
         {
             gameObject.SetActive(true);
             activeStatus = true;
+            PrepUI();
 
             if (uiCityLaborCostPanel.isOpen)
                 ToggleCityLaborCost();
@@ -168,18 +149,5 @@ public class UILaborHandler : MonoBehaviour
         }
 
         laborOptionsDict[resourceType].AddSubtractUICount(laborCount, laborChange, resourceGeneration);
-
-        //foreach (UILaborHandlerOptions uiLaborHandlerOption in laborOptions)
-        //{
-        //    if (resourceType == uiLaborHandlerOption.resourceType)
-        //    {
-        //        if (laborCount == 1)
-        //            uiLaborHandlerOption.ToggleVisibility(true);
-        //        else if (laborCount == 0)
-        //            uiLaborHandlerOption.ToggleVisibility(false);
-
-        //        uiLaborHandlerOption.AddSubtractUICount(laborCount, laborChange, resourceGeneration);
-        //    }
-        //}
     }
 }

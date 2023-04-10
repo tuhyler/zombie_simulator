@@ -1109,7 +1109,7 @@ public class MapWorld : MonoBehaviour
         cityImprovementConstructionDict[tile] = cityDevelopment;
     }
 
-    public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, bool isInitialCityHouse)
+    public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city)
     {
         //CityImprovement improvement = building.GetComponent<CityImprovement>();
         improvement.building = improvementData.isBuilding;
@@ -1118,7 +1118,8 @@ public class MapWorld : MonoBehaviour
         string buildingName = improvementData.improvementName;
         improvement.SetCity(city);
         improvement.transform.parent = city.transform;
-        improvement.initialCityHouse = isInitialCityHouse;
+        improvement.initialCityHouse = improvementData.cityHousing;
+        city.workEthic += improvementData.workEthicChange;
         cityBuildingGODict[cityTile][buildingName] = building;
         cityBuildingDict[cityTile][buildingName] = improvement;
         cityBuildingList[cityTile].Add(buildingName);

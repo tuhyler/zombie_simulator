@@ -68,12 +68,11 @@ public class City : MonoBehaviour
     private int countDownTimer;
 
     //housingInfo
-    private int housingCount = 2;
+    private int housingCount = 0;
     public int HousingCount { get { return housingCount; } set { housingCount = value; } }
 
     //resource info
-    private float workEthic = 1.0f;
-    public float GetSetWorkEthic { get { return workEthic; } set { workEthic = value; } }
+    public float workEthic = 0.75f;
     public int warehouseStorageLimit = 200;
     private TradeRouteManager tradeRouteWaiter;
     private ResourceType resourceWaiter = ResourceType.None;
@@ -164,7 +163,6 @@ public class City : MonoBehaviour
 
     public void UpdateResourceInfo()
     {
-        
         cityBuilderManager.UpdateResourceInfo();
     }
 
@@ -382,19 +380,21 @@ public class City : MonoBehaviour
         houseLoc.z -= 1f;
         GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
         CityImprovement improvement = housing.GetComponent<CityImprovement>();
-        improvement.DestroyUpgradeSplash();
+        //improvement.DestroyUpgradeSplash();
         initialHouse = improvement;
-        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, true);
+        housingCount += housingData.housingIncrease;
+        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this);
         //for tweening
         housing.transform.localScale = Vector3.zero;
         LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { 
-            cityBuilderManager.CombineMeshes(this, subTransform); improvement.SetInactive(); 
+            cityBuilderManager.CombineMeshes(this, subTransform, false); improvement.SetInactive(); 
         });
     }
 
     public void PopulationGrowthCheck(bool joinCity)
     {
         cityPop.IncreasePopulationAndLabor();
+        housingCount--;
         heavenHighlight.Play();
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
@@ -429,6 +429,7 @@ public class City : MonoBehaviour
     public void PopulationDeclineCheck()
     {
         cityPop.CurrentPop--;
+        housingCount++;
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
         if (cityPop.CurrentPop == 0)
@@ -577,11 +578,6 @@ public class City : MonoBehaviour
                 unit.MoveUpInLine();
             }
         }
-    }
-
-    public void ChangeWorkEthic(float change)
-    {
-        workEthic += change;
     }
 
     public void PlayResourceSplash()

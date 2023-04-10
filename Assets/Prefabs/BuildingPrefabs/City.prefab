@@ -168,6 +168,7 @@ MonoBehaviour:
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 10
+  workEthic: 0.75
   warehouseStorageLimit: 1000
   savedQueueItems: []
   savedQueueItemsNames: []
@@ -189,6 +190,9 @@ MonoBehaviour:
   isWaitingToUnload: 0
   isWaitingForResearch: 0
   isUpgrading: 0
+  producedResource:
+    resourceType: 0
+    resourceAmount: 0
   producedResources: 
   consumedResources: []
   consumedResourceTypes: 
@@ -210,7 +214,7 @@ MonoBehaviour:
   - resourceType: 4
     resourceAmount: 100
   - resourceType: 5
-    resourceAmount: 60
+    resourceAmount: 200
   city: {fileID: 0}
 --- !u!114 &350781982696099274
 MonoBehaviour:

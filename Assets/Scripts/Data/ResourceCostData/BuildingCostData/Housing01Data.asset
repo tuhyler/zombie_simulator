@@ -14,31 +14,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2413421541421609430, guid: 6161d90e38ce78d40b917c4495a50eea, type: 3}
   secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
   isBuilding: 1
   improvementName: Housing
   improvementLevel: 1
   improvementNameAndLevel: Housing-1
+  improvementDescription: Increases housing by 3
   rawMaterials: 0
   buildingLocation: {x: 0, y: 0, z: -1}
   image: {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
   improvementCost: []
   consumedResources: []
-  producedResources:
-  - resourceType: 3
-    resourceAmount: 10
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
+  producedResources: []
   producedResourceTime: 0
   resourceType: 0
   terrainType: 0
   workEthicChange: 0
   maxLabor: 5
   laborCost: 0
+  housingIncrease: 3
+  cityHousing: 1
   replaceTerrain: 0
+  replaceRocks: 0
   returnProp: 0
   singleBuild: 1
   buildTime: 0
   availableInitially: 0
   locked: 1
-  workFire1Loc: {x: 0, y: 0, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
-  workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0
+  hideAnimMesh: 0
