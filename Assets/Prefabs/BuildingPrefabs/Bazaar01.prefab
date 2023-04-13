@@ -146,6 +146,31 @@ PrefabInstance:
       propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4530263000516872463, guid: 517da5906a37b4b4eb311215d4102921,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4530263000516872463, guid: 517da5906a37b4b4eb311215d4102921,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4530263000516872463, guid: 517da5906a37b4b4eb311215d4102921,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4530263000516872463, guid: 517da5906a37b4b4eb311215d4102921,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4530263000516872463, guid: 517da5906a37b4b4eb311215d4102921,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8789389234130458407, guid: 517da5906a37b4b4eb311215d4102921,
         type: 3}
       propertyPath: m_Name

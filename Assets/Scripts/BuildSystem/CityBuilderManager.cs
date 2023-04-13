@@ -145,6 +145,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         //here just for testing
         world.SetUpgradeableObjectMaxLevel("Research", 2);
+        world.SetUpgradeableObjectMaxLevel("Research", 3);
         world.SetUpgradeableObjectMaxLevel("Monument", 2);
         world.SetUpgradeableObjectMaxLevel("Housing", 2);
     }
