@@ -2,7 +2,13 @@ fileFormatVersion: 2
 guid: ecda4411401c92c4ab3b581781d3c2ce
 ModelImporter:
   serializedVersion: 21202
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 4743084820616853705
+    second: Armature|CameraAction
+  - first:
+      74: 3145700126242964221
+    second: Armature|Working
   externalObjects: {}
   materials:
     materialImportMode: 2
@@ -32,7 +38,7 @@ ModelImporter:
     extraExposedTransformPaths: []
     extraUserProperties: []
     clipAnimations: []
-    isReadable: 0
+    isReadable: 1
   meshes:
     lODScreenPercentages: []
     globalScale: 1
@@ -97,7 +103,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   additionalBone: 0
   userData: 

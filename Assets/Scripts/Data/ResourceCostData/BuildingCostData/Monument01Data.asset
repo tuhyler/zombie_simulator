@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7952248765643111094, guid: df4e94bcbf2d38b4e96290f27dde2be2, type: 3}
   secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
   isBuilding: 1
   improvementName: Monument
   improvementLevel: 1
   improvementNameAndLevel: Monument-1
+  improvementDescription: 
   rawMaterials: 0
   buildingLocation: {x: 1, y: 0, z: 1}
   image: {fileID: 21300000, guid: ee38b037c5c1b4e4f9e10a25cbd7818a, type: 3}
@@ -26,6 +26,10 @@ MonoBehaviour:
   - resourceType: 5
     resourceAmount: 30
   consumedResources: []
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
   producedResources: []
   producedResourceTime: 0
   resourceType: 0
@@ -33,12 +37,14 @@ MonoBehaviour:
   workEthicChange: 1.5
   maxLabor: 0
   laborCost: 0
+  housingIncrease: 0
+  cityHousing: 0
   replaceTerrain: 0
+  replaceRocks: 0
   returnProp: 0
   singleBuild: 1
   buildTime: 0
   availableInitially: 1
   locked: 0
-  workFire1Loc: {x: 0, y: 0, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
-  workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0
+  hideAnimMesh: 0

@@ -2,7 +2,16 @@ fileFormatVersion: 2
 guid: 535132a6c2baa164286b227714118a44
 ModelImporter:
   serializedVersion: 21202
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      74: 4743084820616853705
+    second: Armature|CameraAction
+  - first:
+      74: 3145700126242964221
+    second: Armature|Working
+  - first:
+      74: -3141545029934827905
+    second: Armature|Working.001
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -127,7 +136,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   additionalBone: 0
   userData: 

@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
+  m_Name: FishingBoats01Data
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 2382750124830825709, guid: 58c8d61894811fe44bb05ebc48d93b4a, type: 3}
+  secondaryData: {fileID: 0}
+  isBuilding: 0
+  improvementName: Fishing Boat
+  improvementLevel: 1
+  improvementNameAndLevel: FishingBoat-1
+  improvementDescription: 
+  rawMaterials: 1
+  buildingLocation: {x: 0, y: 0, z: 0}
+  image: {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
+  improvementCost:
+  - resourceType: 4
+    resourceAmount: 10
+  consumedResources:
+  - resourceType: 2
+    resourceAmount: 1
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
+  producedResources:
+  - resourceType: 1
+    resourceAmount: 2
+  producedResourceTime: 5
+  resourceType: 1
+  terrainType: 1
+  workEthicChange: 0
+  maxLabor: 2
+  laborCost: 1
+  housingIncrease: 0
+  cityHousing: 0
+  replaceTerrain: 0
+  replaceRocks: 0
+  returnProp: 0
+  singleBuild: 0
+  buildTime: 5
+  availableInitially: 1
+  locked: 0
+  workAnimLoop: 0
+  hideAnimMesh: 1

@@ -43,7 +43,7 @@ MonoBehaviour:
   laborCost: 1
   housingIncrease: 0
   cityHousing: 0
-  replaceTerrain: 0
+  replaceTerrain: 1
   replaceRocks: 0
   returnProp: 0
   singleBuild: 1
