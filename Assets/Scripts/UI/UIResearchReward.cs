@@ -36,7 +36,7 @@ public class UIResearchReward : MonoBehaviour
         }
 
         if (improvementData != null)
-            rewardIcon.sprite = improvementData.image;
+            rewardIcon.sprite = improvementData.littleImage;
         else if (unitData != null)
             rewardIcon.sprite = unitData.image;
     }

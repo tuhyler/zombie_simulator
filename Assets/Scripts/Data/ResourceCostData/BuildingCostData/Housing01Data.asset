@@ -19,9 +19,9 @@ MonoBehaviour:
   improvementLevel: 1
   improvementNameAndLevel: Housing-1
   improvementDescription: Increases housing by 3
-  rawMaterials: 0
   buildingLocation: {x: 0, y: 0, z: -1}
-  image: {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
+  image: {fileID: 0}
+  littleImage: {fileID: 0}
   improvementCost: []
   consumedResources: []
   consumedResources1: []
@@ -30,11 +30,11 @@ MonoBehaviour:
   consumedResources4: []
   producedResources: []
   producedResourceTime: 0
-  resourceType: 0
+  rawMaterials: 0
+  rawResourceType: 0
   terrainType: 0
   workEthicChange: 0
   maxLabor: 5
-  laborCost: 0
   housingIncrease: 3
   cityHousing: 1
   replaceTerrain: 0
