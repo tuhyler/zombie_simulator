@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
+  m_Name: Sericulture01Data
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 5838738910640936402, guid: 369be2d742135794abc67b7b087a07ba, type: 3}
+  secondaryData: {fileID: 0}
+  isBuilding: 0
+  improvementName: Sericulture
+  improvementLevel: 1
+  improvementNameAndLevel: Sericulture-1
+  improvementDescription: 
+  buildingLocation: {x: 0, y: 0, z: 0}
+  image: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
+  littleImage: {fileID: 21300000, guid: bc97ab8c2bf5af245932e0b67b1b05f3, type: 3}
+  improvementCost:
+  - resourceType: 4
+    resourceAmount: 25
+  consumedResources:
+  - resourceType: 2
+    resourceAmount: 2
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
+  producedResources:
+  - resourceType: 16
+    resourceAmount: 2
+  producedResourceTime: 30
+  rawMaterials: 1
+  rawResourceType: 16
+  terrainType: 5
+  workEthicChange: 0
+  maxLabor: 2
+  housingIncrease: 0
+  cityHousing: 0
+  replaceTerrain: 0
+  replaceRocks: 0
+  returnProp: 1
+  singleBuild: 0
+  buildTime: 25
+  availableInitially: 0
+  locked: 1
+  workAnimLoop: 0
+  hideAnimMesh: 1

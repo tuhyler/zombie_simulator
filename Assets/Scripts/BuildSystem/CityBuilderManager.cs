@@ -1534,7 +1534,7 @@ public class CityBuilderManager : MonoBehaviour
                 
                 if (world.IsTileOpenCheck(tile) && td.GetTerrainData().type == improvementData.terrainType)
                 {
-                    if (improvementData.rawMaterials && td.GetTerrainData().resourceType == improvementData.resourceType)
+                    if (improvementData.rawMaterials && td.GetTerrainData().resourceType == improvementData.rawResourceType)
                     {
                         td.EnableHighlight(Color.white);
                         tilesToChange.Add(tile);

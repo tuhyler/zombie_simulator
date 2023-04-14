@@ -22,9 +22,12 @@ MonoBehaviour:
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
+  littleImage: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   improvementCost:
   - resourceType: 4
-    resourceAmount: 10
+    resourceAmount: 15
+  - resourceType: 5
+    resourceAmount: 5
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -32,20 +35,19 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 5
-    resourceAmount: 1
-  producedResourceTime: 30
-  resourceType: 5
+    resourceAmount: 5
+  producedResourceTime: 15
+  rawResourceType: 5
   terrainType: 5
   workEthicChange: 0
   maxLabor: 2
-  laborCost: 2
   housingIncrease: 0
   cityHousing: 0
   replaceTerrain: 1
   replaceRocks: 1
   returnProp: 1
   singleBuild: 0
-  buildTime: 5
+  buildTime: 20
   availableInitially: 1
   locked: 0
   workAnimLoop: 0

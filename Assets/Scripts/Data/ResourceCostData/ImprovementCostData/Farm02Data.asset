@@ -18,30 +18,37 @@ MonoBehaviour:
   improvementName: Farm
   improvementLevel: 2
   improvementNameAndLevel: Farm-2
-  rawMaterials: 1
+  improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
+  littleImage: {fileID: 21300000, guid: 5757ef8f018e3af4d9108a6b9c72c500, type: 3}
   improvementCost:
   - resourceType: 4
-    resourceAmount: 10
-  - resourceType: 5
-    resourceAmount: 10
-  consumedResources: []
+    resourceAmount: 50
+  consumedResources:
+  - resourceType: 2
+    resourceAmount: 1
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
   producedResources:
   - resourceType: 1
-    resourceAmount: 2
-  producedResourceTime: 5
-  resourceType: 1
+    resourceAmount: 5
+  producedResourceTime: 15
+  rawMaterials: 1
+  rawResourceType: 1
   terrainType: 5
   workEthicChange: 0
   maxLabor: 2
-  laborCost: 1
-  replaceTerrain: 0
+  housingIncrease: 0
+  cityHousing: 0
+  replaceTerrain: 1
   replaceRocks: 0
-  returnProp: 0
+  returnProp: 1
   singleBuild: 0
-  buildTime: 5
-  availableInitially: 1
-  locked: 0
+  buildTime: 20
+  availableInitially: 0
+  locked: 1
   workAnimLoop: 0
   hideAnimMesh: 1

@@ -11,9 +11,9 @@ public class ImprovementDataSO : ScriptableObject
     public int improvementLevel;
     public string improvementNameAndLevel;
     public string improvementDescription;
-    public bool rawMaterials;
     public Vector3 buildingLocation;
     public Sprite image;
+    public Sprite littleImage;
     public List<ResourceValue> improvementCost;
     //for each produced resource, set consumed resources in the same order as the produced resources
     public List<ResourceValue> consumedResources = new();
@@ -24,11 +24,12 @@ public class ImprovementDataSO : ScriptableObject
     public List<List<ResourceValue>> allConsumedResources = new();
     public List<ResourceValue> producedResources;
     public int producedResourceTime;
-    public ResourceType resourceType; //used for highlight tiles in city
+    public bool rawMaterials;
+    public ResourceType rawResourceType; //used for highlight tiles in city
     public TerrainType terrainType;
     public float workEthicChange; 
     public int maxLabor; //max amount of labor
-    public int laborCost; //how much gold to charge labor
+    //public int laborCost; //how much gold to charge labor
     public int housingIncrease;
     public bool cityHousing;
     public bool replaceTerrain = false; //prefab replaces terrain

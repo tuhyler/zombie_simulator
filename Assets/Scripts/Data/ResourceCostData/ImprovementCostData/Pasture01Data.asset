@@ -19,52 +19,36 @@ MonoBehaviour:
   improvementLevel: 1
   improvementNameAndLevel: Pasture-1
   improvementDescription: 
-  rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 3083b8cdad8e636409c158262411ba5b, type: 3}
+  image: {fileID: 21300000, guid: b1aa17e9570b60945bee5be96ef6cd83, type: 3}
+  littleImage: {fileID: 21300000, guid: 3083b8cdad8e636409c158262411ba5b, type: 3}
   improvementCost:
   - resourceType: 4
-    resourceAmount: 10
-  - resourceType: 5
-    resourceAmount: 10
+    resourceAmount: 25
   consumedResources:
-  - resourceType: 5
-    resourceAmount: 1
-  consumedResources1:
-  - resourceType: 4
-    resourceAmount: 2
   - resourceType: 2
-    resourceAmount: 5
-  - resourceType: 5
-    resourceAmount: 3
-  - resourceType: 3
-    resourceAmount: 3
-  - resourceType: 1
-    resourceAmount: 3
+    resourceAmount: 1
+  consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 4
+  - resourceType: 15
     resourceAmount: 2
-  - resourceType: 5
-    resourceAmount: 5
-  - resourceType: 4
-    resourceAmount: 5
-  producedResourceTime: 5
-  resourceType: 4
+  producedResourceTime: 30
+  rawMaterials: 1
+  rawResourceType: 15
   terrainType: 5
   workEthicChange: 0
   maxLabor: 2
-  laborCost: 1
   housingIncrease: 0
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
-  returnProp: 0
+  returnProp: 1
   singleBuild: 0
-  buildTime: 5
-  availableInitially: 1
-  locked: 0
+  buildTime: 25
+  availableInitially: 0
+  locked: 1
   workAnimLoop: 0
   hideAnimMesh: 1

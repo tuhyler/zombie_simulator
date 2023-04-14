@@ -36,10 +36,10 @@ public class ResourceProducer : MonoBehaviour
     public void InitializeImprovementData(ImprovementDataSO data)
     {
         improvementData = data;
-        ResourceValue laborCost;
-        laborCost.resourceType = ResourceType.Gold;
-        laborCost.resourceAmount = data.laborCost;
-        consumedResources.Insert(0, laborCost);
+        //ResourceValue laborCost;
+        //laborCost.resourceType = ResourceType.Gold;
+        //laborCost.resourceAmount = data.laborCost;
+        //consumedResources.Insert(0, laborCost);
 
         foreach (ResourceValue value in consumedResources)
         {
@@ -151,7 +151,7 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
         CalculateResourceConsumedPerMinute();
 
-        if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.rawResourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
             return;
@@ -246,7 +246,7 @@ public class ResourceProducer : MonoBehaviour
         }
 
         //checking if still researching
-        if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.rawResourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
         {
             isWaitingToUnload = true;
             unloadLabor = tempLabor;
@@ -290,7 +290,7 @@ public class ResourceProducer : MonoBehaviour
         Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
-        if (improvementData.resourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.rawResourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
             //timeProgressBar.SetActive(false);

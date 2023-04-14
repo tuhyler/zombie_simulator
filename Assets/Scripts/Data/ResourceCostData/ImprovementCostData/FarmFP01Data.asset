@@ -18,13 +18,13 @@ MonoBehaviour:
   improvementName: Farm (Flood Plains)
   improvementLevel: 1
   improvementNameAndLevel: FarmFP-1
+  improvementDescription: 
   rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
+  littleImage: {fileID: 0}
   improvementCost:
   - resourceType: 4
-    resourceAmount: 10
-  - resourceType: 5
     resourceAmount: 10
   consumedResources: []
   consumedResources1: []
@@ -34,17 +34,18 @@ MonoBehaviour:
   producedResources:
   - resourceType: 1
     resourceAmount: 2
-  producedResourceTime: 20
-  resourceType: 1
+  producedResourceTime: 10
+  rawResourceType: 1
   terrainType: 5
   workEthicChange: 0
-  maxLabor: 2
-  laborCost: 1
+  maxLabor: 1
+  housingIncrease: 0
+  cityHousing: 0
   replaceTerrain: 1
   replaceRocks: 0
-  returnProp: 0
+  returnProp: 1
   singleBuild: 0
-  buildTime: 5
+  buildTime: 10
   availableInitially: 1
   locked: 0
   workAnimLoop: 0
