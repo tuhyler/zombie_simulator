@@ -15,7 +15,7 @@ MonoBehaviour:
   resourceType: 3
   resourceStorageMultiplier: 0
   resourceName: Research
-  resourceIcon: {fileID: 21300000, guid: 2956ec927085bc040910cae56a970b98, type: 3}
+  resourceIcon: {fileID: 21300000, guid: fbc34e2d528690c4b99228f5ac0bd952, type: 3}
   ResourceGatheringTime: 5
   resourcePrice: 1
   resourceQuantityPerPop: 1

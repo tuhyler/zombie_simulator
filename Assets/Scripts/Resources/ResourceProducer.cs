@@ -6,9 +6,12 @@ public class ResourceProducer : MonoBehaviour
 {
     private ResourceManager resourceManager;
     private CityImprovement cityImprovement;
+    [HideInInspector]
+    public int producedResourceIndex;
     //private TaskDataSO taskData;
     private ImprovementDataSO improvementData;
-    private int currentLabor;
+    [HideInInspector]
+    public int currentLabor;
     private float tempLabor; //if adding labor during production process
     List<float> tempLaborPercsList = new();
     private Vector3 producerLoc;
@@ -21,7 +24,8 @@ public class ResourceProducer : MonoBehaviour
     [HideInInspector]
     public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch, isUpgrading;
     private float unloadLabor;
-    private bool isProducing;
+    [HideInInspector]
+    public bool isProducing;
     [HideInInspector]
     public ResourceValue producedResource; //too see what this producer is making
     [HideInInspector]
@@ -47,7 +51,10 @@ public class ResourceProducer : MonoBehaviour
         }
 
         if (data.producedResources.Count > 0)
+        {
             producedResource = data.producedResources[0];
+            producedResourceIndex = 0;
+        }
 
         foreach(ResourceValue resourceValue in data.producedResources)
         {
@@ -123,8 +130,13 @@ public class ResourceProducer : MonoBehaviour
 
     public void HideConstructionProgressTimeBar()
     {
-        uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
+        uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime[producedResourceIndex]);
         uiTimeProgressBar.gameObject.SetActive(false);
+    }
+
+    public void SetNewProgressTime()
+    {
+        uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime[producedResourceIndex]);
     }
 
     public void SetConstructionTime(int time)
@@ -185,7 +197,7 @@ public class ResourceProducer : MonoBehaviour
         else if (!ConsumeResourcesCheck())
             percWorked = 0;
         else
-            percWorked = (float)productionTimer / improvementData.producedResourceTime;
+            percWorked = (float)productionTimer / improvementData.producedResourceTime[producedResourceIndex];
         tempLabor += percWorked;
         tempLaborPercsList.Add(percWorked);
         resourceManager.ConsumeResources(consumedResources, percWorked, producerLoc);
@@ -214,6 +226,12 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
+    public void RestartMidProduction()
+    {
+        StopProducing(true);
+        StartProducing();
+    }
+
     //checking if one more labor can be added
     public bool ConsumeResourcesCheck()
     {
@@ -223,7 +241,7 @@ public class ResourceProducer : MonoBehaviour
     //timer for producing resources 
     private IEnumerator ProducingCoroutine()
     {
-        productionTimer = improvementData.producedResourceTime;
+        productionTimer = improvementData.producedResourceTime[producedResourceIndex];
         cityImprovement.StartWork(productionTimer);
         if (resourceManager.city.activeCity)
         {
@@ -319,7 +337,7 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
-    public void StopProducing()
+    public void StopProducing(bool allLabor = false)
     {
         CalculateResourceGenerationPerMinute();
         CalculateResourceConsumedPerMinute();
@@ -345,12 +363,18 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.RemoveFromWaitUnloadQueue(this);
             resourceManager.RemoveFromWaitUnloadResearchQueue(this);
             isWaitingToUnload = false;
-            resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
+            if (allLabor)
+                resourceManager.PrepareResource(consumedResources, tempLabor, producerLoc, true);
+            else
+                resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
         }
         else if (producingCo != null)
         {
             StopCoroutine(producingCo);
-            resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
+            if (allLabor)
+                resourceManager.PrepareResource(consumedResources, tempLabor, producerLoc, true);
+            else
+                resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
         }
 
         cityImprovement.StopWork();
@@ -419,7 +443,7 @@ public class ResourceProducer : MonoBehaviour
         else
             resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, generatedPerMinute[producedResource.resourceType], false);
 
-        int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(producedResource.resourceAmount, currentLabor) * (60f / improvementData.producedResourceTime));
+        int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(producedResource.resourceAmount, currentLabor) * (60f / improvementData.producedResourceTime[producedResourceIndex]));
         generatedPerMinute[producedResource.resourceType] = amount;
         resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, amount, true);
 
@@ -438,7 +462,7 @@ public class ResourceProducer : MonoBehaviour
             else
                 resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, consumedPerMinute[resourceValue.resourceType], false);
 
-            int amount = Mathf.RoundToInt((resourceValue.resourceAmount * currentLabor) * (60f / improvementData.producedResourceTime));
+            int amount = Mathf.RoundToInt((resourceValue.resourceAmount * currentLabor) * (60f / improvementData.producedResourceTime[producedResourceIndex]));
             consumedPerMinute[resourceValue.resourceType] = amount;
             resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, amount, true);
 

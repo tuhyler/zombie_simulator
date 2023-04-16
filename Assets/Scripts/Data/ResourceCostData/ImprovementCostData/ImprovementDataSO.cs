@@ -16,14 +16,13 @@ public class ImprovementDataSO : ScriptableObject
     public Sprite littleImage;
     public List<ResourceValue> improvementCost;
     //for each produced resource, set consumed resources in the same order as the produced resources
-    public List<ResourceValue> consumedResources = new();
-    public List<ResourceValue> consumedResources1 = new();
-    public List<ResourceValue> consumedResources2 = new();
-    public List<ResourceValue> consumedResources3 = new();
-    public List<ResourceValue> consumedResources4 = new();
-    public List<List<ResourceValue>> allConsumedResources = new();
+    public List<ResourceValue> consumedResources;
+    public List<ResourceValue> consumedResources1;
+    public List<ResourceValue> consumedResources2;
+    public List<ResourceValue> consumedResources3;
+    public List<ResourceValue> consumedResources4;
     public List<ResourceValue> producedResources;
-    public int producedResourceTime;
+    public List<int> producedResourceTime;
     public bool rawMaterials;
     public ResourceType rawResourceType; //used for highlight tiles in city
     public TerrainType terrainType;
@@ -38,16 +37,8 @@ public class ImprovementDataSO : ScriptableObject
     public bool singleBuild = false; //only one per city
     public int buildTime;
     public bool availableInitially = false;
-    public bool locked = true;
+    private bool locked = true;
+    public bool Locked { get { return locked; } set { locked = value; } }
     public bool workAnimLoop = false;
     public bool hideAnimMesh = false;
-
-    private void Awake()
-    {
-        allConsumedResources.Add(consumedResources);
-        allConsumedResources.Add(consumedResources1);
-        allConsumedResources.Add(consumedResources2);
-        allConsumedResources.Add(consumedResources3);
-        allConsumedResources.Add(consumedResources4);
-    }
 }

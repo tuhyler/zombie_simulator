@@ -33,9 +33,9 @@ MonoBehaviour:
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 15
+  - resourceType: 14
     resourceAmount: 2
-  producedResourceTime: 30
+  producedResourceTime: 1e000000
   rawMaterials: 1
   rawResourceType: 15
   terrainType: 5
@@ -49,6 +49,5 @@ MonoBehaviour:
   singleBuild: 0
   buildTime: 25
   availableInitially: 0
-  locked: 1
   workAnimLoop: 0
   hideAnimMesh: 1

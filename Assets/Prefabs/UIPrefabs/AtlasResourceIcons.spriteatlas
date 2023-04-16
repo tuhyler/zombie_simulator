@@ -42,12 +42,14 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 2956ec927085bc040910cae56a970b98, type: 3}
   - {fileID: 21300000, guid: 8cb0883a9920bd545bacccade1e5d661, type: 3}
   - {fileID: 21300000, guid: 136bc68a438e3414f83037321e2a4016, type: 3}
+  - {fileID: 21300000, guid: fbc34e2d528690c4b99228f5ac0bd952, type: 3}
   - {fileID: 21300000, guid: c1ec745f2914dd447ae9605fdd236faf, type: 3}
   m_PackedSpriteNamesToIndex:
   - icon_gold01
   - Icon_research01
   - icon_stone02
   - icon_food01
+  - icon_researchdark
   - icon_lumber01
   m_RenderDataMap: {}
   m_Tag: AtlasResourceIcons

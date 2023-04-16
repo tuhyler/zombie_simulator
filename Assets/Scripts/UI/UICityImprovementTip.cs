@@ -24,6 +24,7 @@ public class UICityImprovementTip : MonoBehaviour
 
     private List<UIResourceInfoPanel> producesInfo = new(), consumesInfo = new();
     private List<ResourceIndividualSO> resourceInfo = new();
+    private List<int> produceTimeList = new();
 
     //cached improvement for turning off highlight
     private CityImprovement improvement;
@@ -133,12 +134,15 @@ public class UICityImprovementTip : MonoBehaviour
         title.text = data.improvementName;
         level.text = "Level " + data.improvementLevel.ToString();
         improvementImage.sprite = data.image;
+        produceTimeList = data.producedResourceTime;
+        int index = improvement.producedResourceIndex;
+        int producedTime = produceTimeList[index];
 
-        SetResourcePanelInfo(producesInfo, data.producedResources, true, data.workEthicChange);
-        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[improvement.producedResourceIndex], false);
+        SetResourcePanelInfo(producesInfo, data.producedResources, producedTime, true, data.workEthicChange);
+        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[index], producedTime, false);
     }
 
-    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, bool produces, float workEthic = 0)
+    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, int producedTime, bool produces, float workEthic = 0)
     {
         int resourcesCount = resourceList.Count;
         bool showText = false;
@@ -197,7 +201,7 @@ public class UICityImprovementTip : MonoBehaviour
             else
             {
                 panelList[i].gameObject.SetActive(true);
-                panelList[i].resourceAmount.text = resourceList[i].resourceAmount.ToString();
+                panelList[i].resourceAmount.text = Mathf.RoundToInt(resourceList[i].resourceAmount * (60f / producedTime)).ToString();
                 panelList[i].resourceType = resourceList[i].resourceType;
                 int index = resourceInfo.FindIndex(a => a.resourceType == resourceList[i].resourceType);
                 panelList[i].resourceImage.sprite = resourceInfo[index].resourceIcon;
@@ -212,34 +216,43 @@ public class UICityImprovementTip : MonoBehaviour
 
         if (produces)
         {
-            int xShiftLeft = (resourcesCount-1) * 31;
-            int xShiftRight = indexSelect * 60;
+            float xShiftLeft = (resourcesCount-1) * 31;
+            float xShiftRight = indexSelect * 60;
+            xShiftRight -= 1.5f;
 
             Vector2 loc = panelList[0].transform.position;
             loc.x -= xShiftLeft;
             loc.x += xShiftRight;
-            loc.y += 5;
+            loc.y += 2;
             produceHighlight.transform.localPosition = loc;
         }
     }
 
     public void ChangeResourceProduced(int a)
     {
+        ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+        if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources || producer.isWaitingToUnload)
+            producer.StopProducing(true);
+
         improvement.producedResource = producesInfo[a].resourceType;
         improvement.producedResourceIndex = a;
-        ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+        producer.producedResourceIndex = a;
+        producer.SetNewProgressTime();
         producer.producedResource = improvement.GetImprovementData.producedResources[a];
         producer.consumedResources = improvement.allConsumedResources[a];
+        if (producer.currentLabor > 0)
+            producer.StartProducing();
 
-        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], false);
+        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], produceTimeList[a], false);
 
-        int xShiftLeft = (producesCount - 1) * 31;
-        int xShiftRight = a * 60;
+        float xShiftLeft = (producesCount - 1) * 31;
+        float xShiftRight = a * 60;
+        xShiftRight -= 1.5f;
 
         Vector2 loc = producesInfo[a].transform.position;
         loc.x -= xShiftLeft;
         loc.x += xShiftRight;
-        loc.y += 5;
+        loc.y += 2f;
         produceHighlight.transform.localPosition = loc;
 
         if (world.cityBuilderManager.SelectedCity != null)
