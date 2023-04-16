@@ -19,13 +19,12 @@ MonoBehaviour:
   improvementLevel: 1
   improvementNameAndLevel: FishingBoats-1
   improvementDescription: 
-  rawMaterials: 1
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
   littleImage: {fileID: 21300000, guid: bdb8da103558c144887685b0a1e9ae98, type: 3}
   improvementCost:
   - resourceType: 4
-    resourceAmount: 15
+    resourceAmount: 40
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
@@ -36,7 +35,8 @@ MonoBehaviour:
   producedResources:
   - resourceType: 1
     resourceAmount: 3
-  producedResourceTime: 15
+  producedResourceTime: 1e000000
+  rawMaterials: 1
   rawResourceType: 1
   terrainType: 1
   workEthicChange: 0
@@ -48,7 +48,6 @@ MonoBehaviour:
   returnProp: 0
   singleBuild: 0
   buildTime: 15
-  availableInitially: 0
-  locked: 1
+  availableInitially: 1
   workAnimLoop: 0
   hideAnimMesh: 1

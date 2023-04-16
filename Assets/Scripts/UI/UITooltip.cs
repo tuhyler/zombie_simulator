@@ -61,7 +61,7 @@ public class UITooltip : MonoBehaviour
         }
     }
 
-    public void SetInfo(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces, List<List<ResourceValue>> consumes, bool unit)
+    public void SetInfo(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces, List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit)
     {
         transform.position = position;
         this.title.text = title;
@@ -112,14 +112,14 @@ public class UITooltip : MonoBehaviour
             else
             {
                 produceConsumesHolders[i].gameObject.SetActive(true);
-                GenerateProduceInfo(produces[i], consumes[i], i);
+                GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i]);
 
                 if (maxCount < consumes[i].Count)
                     maxCount = consumes[i].Count;
             }
         }
 
-        GenerateResourceInfo(costs, costsInfo);
+        GenerateResourceInfo(costs, costsInfo, 60);
 
         //adjusting height of panel
         if (producesCount > 1)
@@ -151,7 +151,7 @@ public class UITooltip : MonoBehaviour
         PositionCheck();
     }
 
-    private void GenerateResourceInfo(List<ResourceValue> resourcesInfo, List<UIResourceInfoPanel> resourcesToShow)
+    private void GenerateResourceInfo(List<ResourceValue> resourcesInfo, List<UIResourceInfoPanel> resourcesToShow, int produceTime)
     {
         int resourcesCount = resourcesInfo.Count;
         
@@ -165,16 +165,16 @@ public class UITooltip : MonoBehaviour
             {
                 resourcesToShow[i].gameObject.SetActive(true);
 
-                resourcesToShow[i].resourceAmount.text = resourcesInfo[i].resourceAmount.ToString();
+                resourcesToShow[i].resourceAmount.text = Mathf.RoundToInt(resourcesInfo[i].resourceAmount * (60f / produceTime)).ToString();
                 resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourcesInfo[i].resourceType);
                 resourcesToShow[i].resourceType = resourcesInfo[i].resourceType;
             }
         }
     }
 
-    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex)
+    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime)
     {
-        producesInfo[produceIndex].resourceAmount.text = producedResource.resourceAmount.ToString();
+        producesInfo[produceIndex].resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / produceTime)).ToString();
         producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
         producesInfo[produceIndex].resourceType = producedResource.resourceType;
 
@@ -187,7 +187,7 @@ public class UITooltip : MonoBehaviour
             noneTextList[produceIndex].gameObject.SetActive(true);
         }
 
-        GenerateResourceInfo(consumedResources, consumesInfo[produceIndex]);
+        GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime);
     }
 
     private void PositionCheck()

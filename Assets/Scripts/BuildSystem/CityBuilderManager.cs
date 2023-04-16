@@ -1260,6 +1260,12 @@ public class CityBuilderManager : MonoBehaviour
         if(uiQueueManager.CheckIfBuiltItemIsQueued(city.cityLoc, new Vector3Int(0, 0, 0), upgradingImprovement, buildingData, city))
             RemoveQueueGhostBuilding(buildingData.improvementName, city);
 
+        //for some non buildings in the building selection list (eg harbor)
+        if (!buildingData.isBuilding)
+        {
+            CreateImprovement(buildingData);
+            return;
+        }
         //laborChange = 0;
 
         //setting building locations
@@ -1634,8 +1640,19 @@ public class CityBuilderManager : MonoBehaviour
 
         //    }
         //}
+        bool isHill = td.terrainData.isHill;
+        GameObject improvement;
+        if (isHill)
+        {
+            Vector3 buildLocationHill = buildLocation;
+            buildLocationHill.y += .5f;
+            improvement = Instantiate(improvementData.prefab, buildLocationHill, Quaternion.Euler(0, rotation, 0));
+        }
+        else
+        {
+            improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
+        }
 
-        GameObject improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.loc = buildLocation;
@@ -1655,6 +1672,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //resource production
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
+        buildLocation.y = 0;
         world.AddResourceProducer(buildLocation, resourceProducer);
         resourceProducer.SetResourceManager(city.ResourceManager);
         resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
@@ -1663,7 +1681,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (upgradingImprovement)
         {
-            resourceProducer.SetUpgradeProgressTimeBar(improvementData.producedResourceTime);
+            resourceProducer.SetUpgradeProgressTimeBar(improvementData.buildTime);
             FinishImprovement(city, improvementData, tempBuildLocation);
         }
         else
@@ -1673,7 +1691,6 @@ public class CityBuilderManager : MonoBehaviour
             world.SetCityImprovementConstruction(tempBuildLocation, constructionTile);
             constructionTile.transform.position = tempBuildLocation;
             //TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
-            bool isHill = td.terrainData.isHill;
             constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this, isHill);
 
             if (city.activeCity)
@@ -2440,7 +2457,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //specifying location on tile
         Vector3 position = tile;
-        position.z += .3f;
+        //position.z += .3f;
 
         ImprovementResource resource = GetFromImprovementResourcePool();
         resource.transform.position = position;

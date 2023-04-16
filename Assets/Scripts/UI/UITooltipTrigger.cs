@@ -24,11 +24,14 @@ public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public List<List<ResourceValue>> consumes = new();
 
     [HideInInspector]
+    public List<int> produceTime;
+
+    [HideInInspector]
     public bool unit;
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        UITooltipSystem.Show(transform.position, title, level, workEthic, description, costs, produces, consumes, unit);
+        UITooltipSystem.Show(transform.position, title, level, workEthic, description, costs, produces, consumes, produceTime, unit);
     }
 
     public void OnPointerExit(PointerEventData eventData)

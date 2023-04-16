@@ -826,7 +826,6 @@ public enum ResourceType
     Pottery,
     Sculpture,
     Copper,
-    Tin,
     Bronze,
     Bronzeware,
     Wool,

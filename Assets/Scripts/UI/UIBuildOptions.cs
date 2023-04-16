@@ -122,7 +122,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
 
         //cost info
-        GenerateResourceInfo(resourceCostHolder, objectCost, true);
+        GenerateResourceInfo(resourceCostHolder, objectCost, true, 60);
 
         //producer and consumed info
         for (int i = 0; i < produceConsumesHolders.Count; i++) //turning them all off initially
@@ -134,7 +134,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         for (int i = 0; i < objectProduced.Count; i++)
         {
             produceConsumesHolders[i].gameObject.SetActive(true);
-            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i]);
+            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], buildData.producedResourceTime[i], objectConsumed[i]);
 
             if (maxCount < objectConsumed[i].Count)
                 maxCount = objectConsumed[i].Count;
@@ -196,7 +196,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
     }
 
-    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost)
+    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost, int producedResourceTime)
     {
         foreach (ResourceValue value in resources)
         {
@@ -205,7 +205,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
             uiResourceCostPanel.transform.SetParent(transform, false);
 
-            uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
+            uiResourceCostPanel.resourceAmount.text = Mathf.RoundToInt(value.resourceAmount * (60f / producedResourceTime)).ToString();
             uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
             uiResourceCostPanel.resourceType = value.resourceType;
 
@@ -214,13 +214,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, List<ResourceValue> consumedResources)
+    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, int producedResourceTime, List<ResourceValue> consumedResources)
     {
         foreach (Transform selection in transform)
         {
             if (selection.TryGetComponent(out UIResourceInfoPanel uiResourceInfoPanel))
             {
-                uiResourceInfoPanel.resourceAmount.text = producedResource.resourceAmount.ToString();
+                uiResourceInfoPanel.resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / producedResourceTime)).ToString();
                 uiResourceInfoPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
                 uiResourceInfoPanel.resourceType = producedResource.resourceType;
             }
@@ -238,7 +238,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
         }
 
-        GenerateResourceInfo(transform, consumedResources, false);
+        GenerateResourceInfo(transform, consumedResources, false, producedResourceTime);
     }
 
     public void SetResourceTextToDefault()

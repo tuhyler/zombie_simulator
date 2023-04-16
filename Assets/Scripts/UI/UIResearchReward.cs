@@ -25,6 +25,7 @@ public class UIResearchReward : MonoBehaviour
             tooltipInfo.consumes.Add(improvementData.consumedResources2);
             tooltipInfo.consumes.Add(improvementData.consumedResources3);
             tooltipInfo.consumes.Add(improvementData.consumedResources4);
+            tooltipInfo.produceTime = improvementData.producedResourceTime;
             tooltipInfo.costs = improvementData.improvementCost;
             tooltipInfo.unit = false;
         }

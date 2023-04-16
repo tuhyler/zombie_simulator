@@ -218,7 +218,7 @@ public class UIBuilderHandler : MonoBehaviour
             {
                 itemName = buildItem.BuildData.improvementName;
                 resourceCosts = new(buildItem.BuildData.improvementCost);
-                locked = buildItem.BuildData.locked;
+                locked = buildItem.BuildData.Locked;
             }
 
             buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change

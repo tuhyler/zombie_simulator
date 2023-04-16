@@ -162,12 +162,12 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             if (researchReward.improvementData != null)
             {
                 ImprovementDataSO data = researchReward.improvementData;
-                data.locked = false;
+                data.Locked = false;
                 world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
                 if (data.improvementLevel > 1)
                 {
                     string nameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-                    world.GetImprovementData(nameAndLevel).locked = true;
+                    world.GetImprovementData(nameAndLevel).Locked = true;
                 }
             }
             else if (researchReward.unitData != null)

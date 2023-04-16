@@ -816,7 +816,7 @@ PrefabInstance:
     - target: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
       propertyPath: m_Name
-      value: SpecialistTab
+      value: ProducerTab
       objectReference: {fileID: 0}
     - target: {fileID: 2915382195100721813, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
@@ -831,7 +831,7 @@ PrefabInstance:
     - target: {fileID: 2915382195100721813, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 120
+      value: 140
       objectReference: {fileID: 0}
     - target: {fileID: 2915382195100721813, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
@@ -882,7 +882,7 @@ PrefabInstance:
     - target: {fileID: 5539165426992379237, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
       propertyPath: m_text
-      value: Special
+      value: Producer
       objectReference: {fileID: 0}
     - target: {fileID: 5539165426992379237, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
@@ -1240,7 +1240,7 @@ PrefabInstance:
     - target: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
       propertyPath: m_Name
-      value: ImproveTab
+      value: RawGoodsTab
       objectReference: {fileID: 0}
     - target: {fileID: 2915382195100721813, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
@@ -1255,7 +1255,7 @@ PrefabInstance:
     - target: {fileID: 2915382195100721813, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 120
+      value: 160
       objectReference: {fileID: 0}
     - target: {fileID: 2915382195100721813, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
@@ -1306,9 +1306,7 @@ PrefabInstance:
     - target: {fileID: 5539165426992379237, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}
       propertyPath: m_text
-      value: 'Improve
-
-'
+      value: Raw Good
       objectReference: {fileID: 0}
     - target: {fileID: 5539165426992379237, guid: dac5af2f106e08f4186d5e09aaee7ebd,
         type: 3}

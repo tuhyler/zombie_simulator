@@ -28,10 +28,10 @@ MonoBehaviour:
   - resourceType: 4
     resourceAmount: 10
   consumedResources:
-  - resourceType: 4
-    resourceAmount: 3
   - resourceType: 7
     resourceAmount: 5
+  - resourceType: 4
+    resourceAmount: 3
   - resourceType: 2
     resourceAmount: 2
   consumedResources1: []
@@ -41,7 +41,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 8
     resourceAmount: 1
-  producedResourceTime: 30
+  producedResourceTime: 1e000000
   rawMaterials: 0
   rawResourceType: 0
   terrainType: 5
@@ -49,12 +49,11 @@ MonoBehaviour:
   maxLabor: 1
   housingIncrease: 0
   cityHousing: 0
-  replaceTerrain: 1
+  replaceTerrain: 0
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
   buildTime: 45
-  availableInitially: 0
-  locked: 1
+  availableInitially: 1
   workAnimLoop: 0
   hideAnimMesh: 0

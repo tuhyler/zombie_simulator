@@ -175,9 +175,9 @@ public class MapWorld : MonoBehaviour
             improvementDataDict[data.improvementName + "-" + data.improvementLevel] = data;
             
             if (data.availableInitially)
-                data.locked = false;
+                data.Locked = false;
             else
-                data.locked = true;
+                data.Locked = true;
             upgradeableObjectMaxLevelDict[data.improvementName] = 1;
 
             if (upgradeableObjectLevel < data.improvementLevel) //skip if reached max level
