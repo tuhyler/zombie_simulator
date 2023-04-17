@@ -1,0 +1,14 @@
+When importing unit fbx with animation, do:
+1. check selected objects
+2. Make sure that the object is in a normal/neutral state, not in the middle of some pose. 
+3. select only "Armature, Mesh" object types
+4. Leave Apply Scalings at "All Local". (change to "FBX Units Scale" if sizing isn't working after import)
+5. set forward to "-Y forward"
+6. check Apply Transform
+7. open "Armature" category, uncheck "Add Leaf Bones"
+8. open "Bake Animation" category (uncheck this if importingn without animation), uncheck "All Actions" if importing a lot of animations (make sure that they are selected in the Nonlinear Animation area). If just a few actions (<= 3),  uncheck "NLA Strips" and "Key All Bones". 
+
+
+If adding a separate armature from the main skeleton armature on a unit, you need to create a new armature as a separate object, and then match it with the chosen mesh separately. Then join the armature with the main skeleton armature (Ctrl + J), then join its respective mesh with the main skeleton armature mesh. (if that doesn't work, maybe set up the animation while the armatures are separate?)
+
+If unit is sinking into the ground, I think the fbx needs to be imported again. 

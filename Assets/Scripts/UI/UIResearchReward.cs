@@ -32,7 +32,9 @@ public class UIResearchReward : MonoBehaviour
         else if (unitData != null)
         {
             tooltipInfo.title = unitData.unitName;
+            tooltipInfo.level = unitData.unitLevel;
             tooltipInfo.description = unitData.unitDescription;
+            tooltipInfo.costs = unitData.unitCost;
             tooltipInfo.unit = true;
         }
 
