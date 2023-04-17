@@ -10,19 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: BoatTrader1Data
+  m_Name: Trader2Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5269694401452621163, guid: 93eeea04b2503ca4b8e3df5751f2495a, type: 3}
-  unitName: BoatTrader
-  unitLevel: 1
-  image: {fileID: 21300000, guid: 8ae616c7b21c83149a25565fa87efa77, type: 3}
+  prefab: {fileID: 4262420279640114416, guid: 801743abbaa111446b985a226fad7b99, type: 3}
+  unitName: Trader
+  unitLevel: 2
+  image: {fileID: 21300000, guid: 7dd37b564630879458f62e18a7bef051, type: 3}
   unitCost:
   - resourceType: 4
-    resourceAmount: 40
+    resourceAmount: 50
+  - resourceType: 5
+    resourceAmount: 10
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
   unitType: 5
-  unitDescription: Transports cargo on water
+  unitDescription: Transports cargo on land, holds more
   availableInitially: 1
   locked: 0

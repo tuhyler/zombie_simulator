@@ -13,6 +13,7 @@ public class UnitBuildDataSO : ScriptableObject
     public UnitType unitType;
     public string unitDescription;
     public bool availableInitially = false;
+    [HideInInspector]
     public bool locked = true;
 }
 

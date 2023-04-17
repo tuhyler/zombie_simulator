@@ -45,6 +45,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 6d74bec02454a0e4ca78c4bd1b9ec560, type: 3}
   - {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
   - {fileID: 21300000, guid: 23af44925d8146040a7102b0248cf945, type: 3}
+  - {fileID: 21300000, guid: 124905a2765bb7241a7f8cdf2ad9f37b, type: 3}
   - {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   - {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
   - {fileID: 21300000, guid: e6aa6313eaf50024890ed0293ab4262d, type: 3}
@@ -53,10 +54,12 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
   - {fileID: 21300000, guid: 60db64a4fe685214ca14a2c9ee244972, type: 3}
   - {fileID: 21300000, guid: 8e1dc726ba6b99b4cabc4f93b0d4b5f4, type: 3}
+  - {fileID: 21300000, guid: 7dd37b564630879458f62e18a7bef051, type: 3}
   - {fileID: 21300000, guid: 870610969b9ed714c850a3c8d8ae06af, type: 3}
   - {fileID: 21300000, guid: ee38b037c5c1b4e4f9e10a25cbd7818a, type: 3}
   - {fileID: 21300000, guid: 06323f375c1e2d24ba41b04acb5e46ba, type: 3}
   - {fileID: 21300000, guid: e5e8f29745fb17d4786d8440a72963eb, type: 3}
+  - {fileID: 21300000, guid: 8ae616c7b21c83149a25565fa87efa77, type: 3}
   - {fileID: 21300000, guid: 379428d7a17f1244da59fb633cc0c2c6, type: 3}
   - {fileID: 21300000, guid: 2eb3cee7396469e49b3dacfdd001054c, type: 3}
   - {fileID: 21300000, guid: 0d54114862c14b644abc953c03242072, type: 3}
@@ -72,6 +75,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: b1aa17e9570b60945bee5be96ef6cd83, type: 3}
   - {fileID: 21300000, guid: 566e6de9ae538ea4291b0ace6a811643, type: 3}
   - {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
+  - {fileID: 21300000, guid: 83e96c5aac2dc7e46aa556dcd51f90de, type: 3}
   - {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
   - {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
   - {fileID: 21300000, guid: bc97ab8c2bf5af245932e0b67b1b05f3, type: 3}
@@ -91,6 +95,7 @@ SpriteAtlas:
   - Research03Img
   - Farm00Img
   - Ceramist02LittleImg
+  - Infantry01Img
   - Quarry01Img
   - Research02Img
   - BrickOvens01Img
@@ -99,10 +104,12 @@ SpriteAtlas:
   - FishingBoats01Img
   - Weaver02Img
   - Farm00LittleImg
+  - Trader02Img
   - ClayProcessor01Img
   - Monument01Img
   - Ceramist02Img
   - Weaver01LittleImg
+  - BoatTrader01Img
   - ClayProcessor01LittleImg
   - Lumbermill01LittleImg
   - Sculptor01LittleImg
@@ -118,6 +125,7 @@ SpriteAtlas:
   - Pasture01Img
   - Harbor01Img
   - Lumbermill01Img
+  - Trader01Img
   - Sericulture01Img
   - BrickOvens01LittleImg
   - Sericulture01LittleImg

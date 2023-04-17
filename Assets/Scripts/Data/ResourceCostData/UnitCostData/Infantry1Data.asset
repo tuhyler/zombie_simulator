@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: b8ea75b095d526c47b34746b4047349a, type: 3}
   unitName: Warrior
-  unitLevel: 0
-  image: {fileID: 0}
+  unitLevel: 1
+  image: {fileID: 21300000, guid: 124905a2765bb7241a7f8cdf2ad9f37b, type: 3}
   unitCost:
   - resourceType: 5
     resourceAmount: 10
@@ -28,5 +28,5 @@ MonoBehaviour:
     resourceAmount: 1
   unitType: 1
   unitDescription: Strong, fast unit
-  availableInitially: 0
-  locked: 1
+  availableInitially: 1
+  locked: 0

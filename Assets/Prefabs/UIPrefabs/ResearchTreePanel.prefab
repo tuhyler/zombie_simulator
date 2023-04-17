@@ -6010,6 +6010,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8772161845450265416, guid: f29f0f90caf35054ea383727388000cf,
         type: 3}
+      propertyPath: unitData
+      value: 
+      objectReference: {fileID: 11400000, guid: 87dff608ff1c4bf45872040a9afe90c7,
+        type: 2}
+    - target: {fileID: 8772161845450265416, guid: f29f0f90caf35054ea383727388000cf,
+        type: 3}
       propertyPath: improvementData
       value: 
       objectReference: {fileID: 0}
