@@ -8,6 +8,7 @@ public class ImprovementDataSO : ScriptableObject
     public ImprovementDataSO secondaryData;
     public bool isBuilding;
     public string improvementName;
+    public string improvementDisplayName;
     public int improvementLevel;
     public string improvementNameAndLevel;
     public string improvementDescription;

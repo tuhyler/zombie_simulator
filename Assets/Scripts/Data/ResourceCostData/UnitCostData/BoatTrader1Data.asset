@@ -22,7 +22,13 @@ MonoBehaviour:
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
-  unitType: 5
-  unitDescription: Transports cargo on water
+  unitType: 6
+  unitDescription: Water transport for cargo
   availableInitially: 1
   locked: 0
+  movementPoints: 10
+  health: 10
+  attackStrength: 10
+  movementSpeed: 1
+  cargoCapacity: 250
+  transportationType: 1

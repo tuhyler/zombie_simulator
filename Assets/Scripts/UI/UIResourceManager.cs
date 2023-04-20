@@ -12,6 +12,12 @@ public class UIResourceManager : MonoBehaviour
     [SerializeField]
     private Image progressBarMask;
 
+    [SerializeField]
+    private Transform resourceHolder;
+
+    [SerializeField]
+    private GameObject resourcePanel;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     private Vector3 originalLoc;
@@ -27,6 +33,26 @@ public class UIResourceManager : MonoBehaviour
     {
         originalLoc = allContents.anchoredPosition3D;
         gameObject.SetActive(false);
+
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        {
+            GameObject panel = Instantiate(resourcePanel);
+            panel.transform.SetParent(resourceHolder);
+            panel.name = resource.resourceType.ToString();
+            UIResources resourceUI = panel.GetComponent<UIResources>();
+            resourceUI.resourceImage.sprite = resource.resourceIcon;
+            resourceUI.resourceType = resource.resourceType;
+
+            //fixing z location & x rotation
+            Vector3 loc = panel.transform.position;
+            loc.z = 0;
+            panel.transform.localPosition = loc;
+            Vector3 rot = panel.transform.eulerAngles;
+            rot.x = 0;
+            panel.transform.localEulerAngles = rot;
+            panel.transform.localScale = Vector3.one;
+        }
+
         PrepareResourceDictionary();
     }
 

@@ -46,7 +46,7 @@ public class UnitMovement : MonoBehaviour
     public Worker SetSelectedWorker { set { selectedWorker = value; } }
     private Trader selectedTrader;
     //private TerrainData selectedTile;
-    private InfoProvider selectedUnitInfoProvider;
+    //private InfoProvider selectedUnitInfoProvider;
     private bool loadScreenSet; //flag if load/unload ui is showing
     private bool moveUnit;
 
@@ -313,9 +313,9 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isTrader)
         {
             selectedTrader = selectedUnit.GetComponent<Trader>();
-            uiPersonalResourceInfoPanel.PrepareResourceUI(selectedTrader.PersonalResourceManager.ResourceDict);
+            uiPersonalResourceInfoPanel.PrepareResourceUI(selectedTrader.personalResourceManager.ResourceDict);
             uiPersonalResourceInfoPanel.SetTitleInfo(selectedTrader.name,
-                selectedTrader.PersonalResourceManager.GetResourceStorageLevel, selectedTrader.CargoStorageLimit);
+                selectedTrader.personalResourceManager.GetResourceStorageLevel, selectedTrader.cargoStorageLimit);
             uiPersonalResourceInfoPanel.ToggleVisibility(true);
             uiTraderPanel.ToggleVisibility(true);
             if (world.IsTradeLocOnTile(world.RoundToInt(selectedTrader.transform.position)) && !selectedTrader.followingRoute)
@@ -361,8 +361,8 @@ public class UnitMovement : MonoBehaviour
         world.somethingSelected = true;
         selectedUnit.Select();
         turnHandler.SetIndex(selectedUnit);
-        selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
-        infoManager.ShowInfoPanel(selectedUnitInfoProvider);
+        //selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
+        infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
         if (selectedUnit.moreToMove)
         {
             uiCancelMove.ToggleTweenVisibility(true);
@@ -571,7 +571,7 @@ public class UnitMovement : MonoBehaviour
             joinedCity.PopulationGrowthCheck(true);
 
             int i = 0;
-            foreach (ResourceValue resourceValue in selectedUnit.GetBuildDataSO().unitCost) //adding back 100% of cost (if there's room)
+            foreach (ResourceValue resourceValue in selectedUnit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
             {
                 int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
                 Vector3 cityLoc = joinedCity.cityLoc;
@@ -806,7 +806,7 @@ public class UnitMovement : MonoBehaviour
             if (remainingInCity < resourceAmount)
                 resourceAmount = remainingInCity;
 
-            int resourceAmountAdjusted = selectedTrader.PersonalResourceManager.CheckResource(resourceType, resourceAmount);
+            int resourceAmountAdjusted = selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
             personalFull = resourceAmountAdjusted == 0;
 
             if (cityResourceManager != null)
@@ -819,7 +819,7 @@ public class UnitMovement : MonoBehaviour
 
         if (resourceAmount <= 0) //moving from trader to city
         {
-            int remainingWithTrader = selectedTrader.PersonalResourceManager.GetResourceDictValue(resourceType);
+            int remainingWithTrader = selectedTrader.personalResourceManager.GetResourceDictValue(resourceType);
 
             if (remainingWithTrader < Mathf.Abs(resourceAmount))
                 resourceAmount = -remainingWithTrader;
@@ -831,7 +831,7 @@ public class UnitMovement : MonoBehaviour
                 resourceAmountAdjusted = wonder.CheckResource(resourceType, -resourceAmount);
 
             cityFull = resourceAmountAdjusted == 0;
-            selectedTrader.PersonalResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
+            selectedTrader.personalResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
         }
 
         bool toTrader = resourceAmount > 0;
@@ -851,8 +851,8 @@ public class UnitMovement : MonoBehaviour
 
         if (!personalFull)
         {
-            uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.PersonalResourceManager.GetResourceDictValue(resourceType), toTrader);
-            uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.PersonalResourceManager.GetResourceStorageLevel);
+            uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), toTrader);
+            uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
         }
     }
 
@@ -948,7 +948,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedTrader != null)
         {
-            infoManager.ShowInfoPanel(selectedUnitInfoProvider);
+            infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
         }
     }
 
@@ -991,7 +991,7 @@ public class UnitMovement : MonoBehaviour
             LoadUnloadFinish(false); //clear load cargo screen
             infoManager.HideInfoPanel();
             //movementSystem.ClearPaths(); //necessary to queue movement orders
-            selectedUnitInfoProvider = null;
+            //selectedUnitInfoProvider = null;
             workerTaskManager.NullWorkerUnit();
             selectedTrader = null;
             selectedWorker = null;

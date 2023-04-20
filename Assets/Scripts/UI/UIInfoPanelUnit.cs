@@ -1,14 +1,12 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the panel and switching it off/on
 {
-    [SerializeField]
-    private TextMeshProUGUI nameText;
-    //[SerializeField]
-    //private Image infoImage;
-    [SerializeField]
-    private TMP_Text currentMovePoints, regMovePoints;
+    public TMP_Text unitName, level, health, speed, strength;
+    public Image strengthImage;
+    public Sprite strengthSprite, inventorySprite;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -22,12 +20,22 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
         gameObject.SetActive(false);
     }
 
-    public void SetData(/*Sprite sprite, */string text)
+    public void SetData(string displayName, int level, string name, int currentHealth, int healthMax, float speed, int strength, int cargo)
     {
-        nameText.text = text;
-        ////infoImage.sprite = sprite;
-        //currentMovePoints.text = Mathf.Max(currentMP,0).ToString(); //can't have less than 0
-        //regMovePoints.text = regMP.ToString();
+        unitName.text = displayName;
+        this.level.text = "Level " + level + " " + name;
+        health.text = currentHealth.ToString() + "/" + healthMax.ToString();
+        this.speed.text = Mathf.RoundToInt(speed * 2).ToString();
+        if (cargo > 0)
+        {
+            this.strength.text = cargo.ToString();
+            strengthImage.sprite = inventorySprite;
+        }
+        else
+        {
+            this.strength.text = strength.ToString();
+            strengthImage.sprite = strengthSprite;
+        }
     }
 
     public void ToggleVisibility(bool v)
@@ -45,7 +53,7 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack();
             LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else

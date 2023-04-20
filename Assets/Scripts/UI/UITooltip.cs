@@ -7,10 +7,12 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class UITooltip : MonoBehaviour
 {
-    public TMP_Text title, level, producesTitle;
+    public TMP_Text title, level, producesTitle, health, speed, strength;
     private TMP_Text producesText;
+    public Image strengthImage;
+    public Sprite inventorySprite, strengthSprite;
     private int screenHeightNegHalf = -750;
-    public RectTransform rectTransform, resourceProduceAllHolder, imageLine, resourceProducedHolder, resourceCostHolder;
+    public RectTransform rectTransform, resourceProduceAllHolder, imageLine, resourceProducedHolder, resourceCostHolder, unitInfo;
     public VerticalLayoutGroup resourceProduceLayout;
     private List<Transform> produceConsumesHolders = new();
     private List<UIResourceInfoPanel> costsInfo = new(), producesInfo = new();
@@ -61,20 +63,25 @@ public class UITooltip : MonoBehaviour
         }
     }
 
-    public void SetInfo(Vector3 position, string title, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces, List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit)
+    public void SetInfo(Vector3 position, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces, 
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity)
     {
         transform.position = position;
-        this.title.text = title;
-        this.level.text = "Level " + level.ToString();
+        this.title.text = displayTitle;
+        if (title == displayTitle)
+            this.level.text = "Level " + level.ToString();
+        else
+            this.level.text = "Level " + level.ToString() + " " + title;
 
         int producesCount = produces.Count;
-        int maxCount = 0;
-        int resourcePanelSize = 60;
-        int produceHolderWidth = 160;
-        int produceContentsWidth = 240;
-        int produceContentsHeight = 100;
+        int maxCount = costs.Count-1;
+        int resourcePanelSize = 90;
+        int produceHolderWidth = 220;
+        int produceHolderHeight = 90;
+        int produceContentsWidth = 320;
+        int produceContentsHeight = 120;
         int produceLayoutPadding = 10;
-        int imageLineWidth = 210;
+        int imageLineWidth = 300;
 
         producesTitle.text = "Produces / Requires";
 
@@ -86,6 +93,21 @@ public class UITooltip : MonoBehaviour
             {
                 producesText.text = description;
                 producesTitle.text = "Unit Info";
+                this.health.text = health.ToString();
+                this.speed.text = Mathf.RoundToInt(speed * 2).ToString();
+                if (cargoCapacity > 0)
+                {
+                    strengthImage.sprite = inventorySprite;
+                    this.strength.text = cargoCapacity.ToString();
+                }
+                else
+                {
+                    this.strength.text = strength.ToString();
+                    strengthImage.sprite = strengthSprite;
+                }
+
+                produceContentsHeight = 160;
+                produceHolderHeight = 110;
             }
             else
             {
@@ -96,11 +118,13 @@ public class UITooltip : MonoBehaviour
                 producesTitle.text = "Produces";
             }
 
-            produceHolderWidth = 280;
+            produceHolderWidth = 330;
+            produceContentsWidth = 350;
         }
         else
         {
             producesText.gameObject.SetActive(false);
+            unitInfo.gameObject.SetActive(false);
         }
 
         for (int i = 0; i < produceConsumesHolders.Count; i++)
@@ -119,6 +143,10 @@ public class UITooltip : MonoBehaviour
             }
         }
 
+        //must be below produce consumes holder activations
+        if (unit)
+            unitInfo.gameObject.SetActive(true);
+
         GenerateResourceInfo(costs, costsInfo, 60);
 
         //adjusting height of panel
@@ -133,7 +161,8 @@ public class UITooltip : MonoBehaviour
         if (maxCount > 1)
         {
             int shift = resourcePanelSize * (maxCount - 1);
-            produceHolderWidth += shift;
+            if (producesCount > 0)
+                produceHolderWidth += shift;
         }
         if (maxCount > 2)
         {
@@ -142,11 +171,13 @@ public class UITooltip : MonoBehaviour
             imageLineWidth += shift;
         }
 
-        resourceProducedHolder.sizeDelta = new Vector2(produceHolderWidth, 60);
+        resourceProducedHolder.sizeDelta = new Vector2(produceHolderWidth, produceHolderHeight);
         resourceProduceAllHolder.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
         resourceProduceLayout.padding.bottom = produceLayoutPadding;
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
-        rectTransform.sizeDelta = new Vector2(300, 264 + produceContentsHeight); //height without produce contents window plus 70
+        rectTransform.sizeDelta = new Vector2(300, 314 + produceContentsHeight); //height without produce contents window plus 70
+
+
 
         PositionCheck();
     }

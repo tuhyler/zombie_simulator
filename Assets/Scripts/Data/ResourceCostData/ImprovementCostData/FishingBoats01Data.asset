@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Fishing Boats
+  improvementDisplayName: Fishing Boats
   improvementLevel: 1
   improvementNameAndLevel: FishingBoats-1
   improvementDescription: 

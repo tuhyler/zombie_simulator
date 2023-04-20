@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Pasture
+  improvementDisplayName: Pasture
   improvementLevel: 1
   improvementNameAndLevel: Pasture-1
   improvementDescription: 

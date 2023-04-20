@@ -1,11 +1,14 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
     private TMP_Text resourceAmountText;
+    [SerializeField]
+    public Image resourceImage; 
     private int resourceAmount;
 
     [SerializeField] //for tweening
@@ -13,9 +16,8 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
     private bool activeStatus;
     private Vector3 scale; 
 
-    [SerializeField]
-    private ResourceType resourceType;
-    public ResourceType ResourceType { get => resourceType; }
+    [HideInInspector]
+    public ResourceType resourceType;
 
     [SerializeField]
     private CanvasGroup canvasGroup;
@@ -28,13 +30,17 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
     private void Awake()
     {
         SetButtonInteractable(false);
-        buttonHandler = GetComponentInParent<UIPersonalResourceInfoPanel>();
         scale = allContents.localScale;
 
-        if (Screen.height == 1080)
-            buttonHighlight.transform.localScale = new Vector3(.12f, .12f, .12f);
+        if (Screen.height >= 1080)
+            buttonHighlight.transform.localScale = new Vector3(.11f, .11f, .11f);
         else if (Screen.height < 1080)
             buttonHighlight.transform.localScale = new Vector3(.13f, .13f, .13f);
+    }
+
+    public void SetButtonHandler(UIPersonalResourceInfoPanel infoPanel)
+    {
+        buttonHandler = infoPanel;
     }
 
     public void CheckVisibility()

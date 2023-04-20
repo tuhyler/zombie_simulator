@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5338010617480299587}
   - component: {fileID: 4969060398838131313}
   - component: {fileID: 4778263574884209705}
-  - component: {fileID: 6819035849026694897}
   - component: {fileID: -2285914093244530181}
   - component: {fileID: 9082481739774170290}
   - component: {fileID: 5126641289950847378}
@@ -67,18 +66,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
---- !u!114 &6819035849026694897
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4084126454760206941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e516335614f28540b7cd4ec134a5567, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  secondaryGlowMaterial: {fileID: 0}
+  isGlowing: 0
 --- !u!114 &-2285914093244530181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91,7 +80,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ae84f6f81aa574e949818be2e4db73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitDataSO: {fileID: 0}
   buildDataSO: {fileID: 0}
   lightBeam: {fileID: 6841559248971666239, guid: 9b46cb8e8220ddd428f5785751c57fad,
     type: 3}
@@ -113,7 +101,12 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  somethingToSay: 0
+  sayingSomething: 0
   unitAnimator: {fileID: 0}
+  personalResourceManager: {fileID: 0}
+  tradeRouteManager: {fileID: 0}
+  cargoStorageLimit: 0
   hasRoute: 0
   interruptedRoute: 0
   loadUnloadRate: 1

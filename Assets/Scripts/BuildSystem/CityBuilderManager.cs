@@ -1645,7 +1645,7 @@ public class CityBuilderManager : MonoBehaviour
         if (isHill)
         {
             Vector3 buildLocationHill = buildLocation;
-            buildLocationHill.y += .5f;
+            buildLocationHill.y += .6f;
             improvement = Instantiate(improvementData.prefab, buildLocationHill, Quaternion.Euler(0, rotation, 0));
         }
         else

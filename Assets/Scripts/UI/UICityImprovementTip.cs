@@ -131,8 +131,11 @@ public class UICityImprovementTip : MonoBehaviour
     private void SetData(CityImprovement improvement)
     {
         ImprovementDataSO data = improvement.GetImprovementData;
-        title.text = data.improvementName;
-        level.text = "Level " + data.improvementLevel.ToString();
+        title.text = data.improvementDisplayName;
+        if (data.improvementName == data.improvementDisplayName)
+            level.text = "Level " + data.improvementLevel.ToString();
+        else
+            level.text = "Level " + data.improvementLevel.ToString() + " " + data.improvementName;
         improvementImage.sprite = data.image;
         produceTimeList = data.producedResourceTime;
         int index = improvement.producedResourceIndex;
@@ -216,14 +219,14 @@ public class UICityImprovementTip : MonoBehaviour
 
         if (produces)
         {
-            float xShiftLeft = (resourcesCount-1) * 31;
-            float xShiftRight = indexSelect * 60;
-            xShiftRight -= 1.5f;
+            float xShiftLeft = (resourcesCount-1) * 47;
+            float xShiftRight = indexSelect * 90;
+            //xShiftRight -= 1.5f;
 
             Vector2 loc = panelList[0].transform.position;
             loc.x -= xShiftLeft;
             loc.x += xShiftRight;
-            loc.y += 2;
+            loc.y += 20;
             produceHighlight.transform.localPosition = loc;
         }
     }
@@ -240,19 +243,20 @@ public class UICityImprovementTip : MonoBehaviour
         producer.SetNewProgressTime();
         producer.producedResource = improvement.GetImprovementData.producedResources[a];
         producer.consumedResources = improvement.allConsumedResources[a];
+        producer.SetConsumedResourceTypes();
         if (producer.currentLabor > 0)
             producer.StartProducing();
 
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], produceTimeList[a], false);
 
-        float xShiftLeft = (producesCount - 1) * 31;
-        float xShiftRight = a * 60;
-        xShiftRight -= 1.5f;
+        float xShiftLeft = (producesCount - 1) * 47;
+        float xShiftRight = a * 90;
+        //xShiftRight -= 1.5f;
 
         Vector2 loc = producesInfo[a].transform.position;
         loc.x -= xShiftLeft;
         loc.x += xShiftRight;
-        loc.y += 2f;
+        loc.y += 20f;
         produceHighlight.transform.localPosition = loc;
 
         if (world.cityBuilderManager.SelectedCity != null)

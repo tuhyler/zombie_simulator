@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Clay Processor
+  improvementDisplayName: Clay Processor
   improvementLevel: 1
   improvementNameAndLevel: ClayProcessor-1
   improvementDescription: 

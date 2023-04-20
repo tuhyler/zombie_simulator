@@ -20,7 +20,11 @@ MonoBehaviour:
   - resourceType: 4
     resourceAmount: 10
   - resourceType: 5
-    resourceAmount: 10
+    resourceAmount: 3
+  - resourceType: 12
+    resourceAmount: 2
+  - resourceType: 11
+    resourceAmount: 3
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
@@ -28,3 +32,9 @@ MonoBehaviour:
   unitDescription: Transports cargo on land
   availableInitially: 1
   locked: 0
+  movementPoints: 10
+  health: 10
+  attackStrength: 10
+  movementSpeed: 0.5
+  cargoCapacity: 10
+  transportationType: 0

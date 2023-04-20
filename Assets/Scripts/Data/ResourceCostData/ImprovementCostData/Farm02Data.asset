@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
   isBuilding: 0
   improvementName: Farm
+  improvementDisplayName: Farm
   improvementLevel: 2
   improvementNameAndLevel: Farm-2
   improvementDescription: 

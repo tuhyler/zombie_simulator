@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Quarry
+  improvementDisplayName: Quarry
   improvementLevel: 1
   improvementNameAndLevel: Quarry-1
   improvementDescription: 

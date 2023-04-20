@@ -49,8 +49,8 @@ public class UITradeRouteManager : MonoBehaviour
             string cityName = world.GetStopName(cityStops[i]);
             UITradeStopHandler newStopHandler = AddStopPanel();
             newStopHandler.SetCaptionCity(cityName);
-            newStopHandler.SetResourceAssignments(selectedTrader.TradeRouteManager.ResourceAssignments[i]);
-            newStopHandler.SetWaitTimes(selectedTrader.TradeRouteManager.WaitTimes[i]);
+            newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i]);
+            newStopHandler.SetWaitTimes(selectedTrader.tradeRouteManager.WaitTimes[i]);
         }
     }
 

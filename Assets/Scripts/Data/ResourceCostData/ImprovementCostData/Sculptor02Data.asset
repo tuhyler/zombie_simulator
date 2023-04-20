@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Sculptor
+  improvementDisplayName: Smith
   improvementLevel: 2
   improvementNameAndLevel: Sculptor-2
   improvementDescription: 

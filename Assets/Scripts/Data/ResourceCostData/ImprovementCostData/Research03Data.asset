@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Research
+  improvementDisplayName: Research
   improvementLevel: 3
   improvementNameAndLevel: Research-3
   improvementDescription: 

@@ -3,14 +3,14 @@ using UnityEngine;
 
 public class Trader : Unit
 {
-    private PersonalResourceManager personalResourceManager;
-    public PersonalResourceManager PersonalResourceManager { get { return personalResourceManager; } }
+    [HideInInspector]
+    public PersonalResourceManager personalResourceManager;
 
-    private TradeRouteManager tradeRouteManager;
-    public TradeRouteManager TradeRouteManager { get { return tradeRouteManager; } }
-    
-    private int cargoStorageLimit = 10;
-    public int CargoStorageLimit { get { return cargoStorageLimit; } }
+    [HideInInspector]
+    public TradeRouteManager tradeRouteManager;
+
+    [HideInInspector]
+    public int cargoStorageLimit;
 
     [HideInInspector]
     public bool hasRoute, interruptedRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
@@ -34,6 +34,7 @@ public class Trader : Unit
     protected override void AwakeMethods()
     {
         base.AwakeMethods();
+        cargoStorageLimit = buildDataSO.cargoCapacity;
         personalResourceManager = GetComponent<PersonalResourceManager>();
         personalResourceManager.ResourceStorageLimit = cargoStorageLimit;
         if (bySea)

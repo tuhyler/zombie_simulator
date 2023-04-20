@@ -1,12 +1,15 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIResources : MonoBehaviour
 {
     [SerializeField]
     private TMP_Text resourceAmount;//, resourceGenerationAmount;
     [SerializeField]
-    private ResourceType resourceType;
+    public Image resourceImage; 
+    [SerializeField]
+    public ResourceType resourceType;
 
     private int resourceValue;
 

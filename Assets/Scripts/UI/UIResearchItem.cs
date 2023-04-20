@@ -10,14 +10,14 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private TMP_Text researchName, researchPercentDone, queueNumber;
 
     [SerializeField]
-    private Image progressBarMask, researchItemPanel, queueNumberHolderImage, queueNumberCheck, researchIcon;
+    private Image progressBarMask, researchItemPanel, topBar, queueNumberHolderImage, queueNumberCheck, researchIcon;
 
     [SerializeField]
     private Transform uiElementsParent, progressBarHolder, queueNumberHolder;
 
     [SerializeField]
-    private Sprite selectedResearchSprite, selectedQueueSprite;
-    private Sprite originalResearchSprite, originalQueueSprite;
+    private Sprite selectedResearchSprite, selectedTopBar, selectedQueueSprite;
+    private Sprite originalResearchSprite, originalTopBar, originalQueueSprite;
 
     //[SerializeField]
     //private CanvasGroup canvasGroup;
@@ -58,13 +58,15 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         queueNumberHolder.gameObject.SetActive(false);
         queueNumberCheck.gameObject.SetActive(false);
 
-        researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
-        researchPercentDone.outlineWidth = 0.4f;
+        researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
+        //researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
+        //researchPercentDone.outlineWidth = 0.8f;
         //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
         researchPercentDone.text = totalResearchNeeded.ToString();
 
         originalColor = researchItemPanel.color;
         originalResearchSprite = researchItemPanel.sprite;
+        originalTopBar = topBar.sprite;
         originalQueueSprite = queueNumberHolderImage.sprite;
         researchItemPanel.color = lockedColor;
 
@@ -104,6 +106,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             isSelected = false;
             //researchItemPanel.color = originalColor;
             researchItemPanel.sprite = originalResearchSprite;
+            topBar.sprite = originalTopBar;
+            foreach (UIResearchReward reward in researchRewardList)
+                reward.Unselect();
             queueNumberHolderImage.sprite = originalQueueSprite;
             //queueNumberHolderImage.color = originalColor;
             queueNumberHolder.gameObject.SetActive(false);
@@ -116,6 +121,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             isSelected = true;
             //researchItemPanel.color = selectedColor;
             researchItemPanel.sprite = selectedResearchSprite;
+            topBar.sprite = selectedTopBar;
+            foreach (UIResearchReward reward in researchRewardList)
+                reward.Select();
             queueNumberHolderImage.sprite = selectedQueueSprite;
             //queueNumberHolderImage.color = selectedColor;
             queueNumberHolder.gameObject.SetActive(true);
@@ -133,6 +141,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     {
         //canvasGroup.alpha = 1f;
         researchItemPanel.color = originalColor;
+        topBar.color = originalColor;
     }
 
     public void ResearchComplete(MapWorld world)
@@ -145,6 +154,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         locked = true;
         tempUnlocked = true;
         researchItemPanel.color = completedColor;
+        topBar.color = completedColor;
+        foreach (UIResearchReward reward in researchRewardList)
+            reward.Select();
         queueNumber.gameObject.SetActive(false);
         queueNumberHolder.gameObject.SetActive(true);
         queueNumberCheck.gameObject.SetActive(true);
@@ -253,7 +265,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     {
         progressBarHolder.gameObject.SetActive(false);
         //researchPercentDone.outlineWidth = 0f;
-        //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
+        researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
         researchPercentDone.text = totalResearchNeeded.ToString();
         researchIcon.gameObject.SetActive(true);
     }
@@ -263,6 +275,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         progressBarHolder.gameObject.SetActive(true);
         float researchPerc = (float)researchReceived / totalResearchNeeded;
         //researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
+        researchPercentDone.color = Color.white; 
         researchPercentDone.text = $"{researchReceived}/{totalResearchNeeded}";
 
         LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
