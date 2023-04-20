@@ -28,3 +28,9 @@ MonoBehaviour:
   unitDescription: Transports cargo on land, holds more
   availableInitially: 1
   locked: 0
+  movementPoints: 10
+  health: 10
+  attackStrength: 10
+  movementSpeed: 0.5
+  cargoCapacity: 25
+  transportationType: 0

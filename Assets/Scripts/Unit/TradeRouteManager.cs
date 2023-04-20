@@ -175,8 +175,8 @@ public class TradeRouteManager : MonoBehaviour
                 //    resourceAmount = remainingInCity;
 
                 //if trader wants more than it can store
-                int level = Mathf.CeilToInt(trader.PersonalResourceManager.GetResourceStorageLevel);
-                int limit = trader.CargoStorageLimit;
+                int level = Mathf.CeilToInt(trader.personalResourceManager.GetResourceStorageLevel);
+                int limit = trader.cargoStorageLimit;
                 if (limit - level < resourceAmount)
                     resourceAmount = limit - level;
 

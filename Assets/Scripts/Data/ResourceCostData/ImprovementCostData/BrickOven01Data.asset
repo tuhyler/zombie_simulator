@@ -15,9 +15,10 @@ MonoBehaviour:
   prefab: {fileID: 7480647496174222647, guid: 9ba220570e1f73c4c8f866ffd31dd8bf, type: 3}
   secondaryData: {fileID: 0}
   isBuilding: 0
-  improvementName: BrickOven
+  improvementName: Smelter
+  improvementDisplayName: Brick Oven
   improvementLevel: 1
-  improvementNameAndLevel: BrickOven-1
+  improvementNameAndLevel: Smelter-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}

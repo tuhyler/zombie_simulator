@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Mine
+  improvementDisplayName: Mine
   improvementLevel: 1
   improvementNameAndLevel: Mine-1
   improvementDescription: 

@@ -20,16 +20,19 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private UIBuilderHandler buttonHandler;
 
     [SerializeField]
-    private TMP_Text objectName, objectLevel, producesTitle;
+    private TMP_Text objectName, objectLevel, producesTitle, health, speed, strength;
 
     [SerializeField]
-    private Image objectImage;
+    private Image objectImage, strengthImage;
+
+    [SerializeField]
+    private Sprite inventorySprite;
 
     [SerializeField]
     private GameObject resourceInfoPanel;
 
     [SerializeField]
-    private Transform resourceProducedHolder, resourceCostHolder;
+    private Transform resourceProducedHolder, resourceCostHolder, unitDescription;
 
     [SerializeField]
     private RectTransform resourceProduceAllHolder, imageLine;
@@ -98,8 +101,17 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
         if (isUnitPanel)
         {
+            health.text = unitBuildData.health.ToString();
+            speed.text = Mathf.RoundToInt(unitBuildData.movementSpeed * 2).ToString();
+            strength.text = unitBuildData.attackStrength.ToString();
+            if (unitBuildData.cargoCapacity > 0)
+            {
+                strengthImage.sprite = inventorySprite;
+                strength.text = unitBuildData.cargoCapacity.ToString();
+            }
+
             objectName.text = unitBuildData.unitName;
-            objectLevel.text = "Level " + unitBuildData.unitLevel;
+            objectLevel.text = "Level " + unitBuildData.unitLevel + " " + unitBuildData.unitType.ToString();
             objectImage.sprite = unitBuildData.image;
             objectCost = unitBuildData.unitCost;
             objectProduced = new();
@@ -107,8 +119,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            objectName.text = buildData.improvementName;
-            objectLevel.text = "Level " + buildData.improvementLevel;
+            unitDescription.gameObject.SetActive(false);
+            objectName.text = buildData.improvementDisplayName;
+            if (buildData.improvementDisplayName == buildData.improvementName)
+                objectLevel.text = "Level " + buildData.improvementLevel;
+            else
+                objectLevel.text = "Level " + buildData.improvementLevel + " " + buildData.improvementName;
             objectImage.sprite = buildData.image;
             objectCost = buildData.improvementCost;
             objectProduced = buildData.producedResources;
@@ -129,7 +145,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             produceConsumesHolders[i].gameObject.SetActive(false);
 
         int producedCount = objectProduced.Count;
-        int maxCount = 0;
+        int maxCount = objectCost.Count-1;
 
         for (int i = 0; i < objectProduced.Count; i++)
         {
@@ -140,12 +156,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 maxCount = objectConsumed[i].Count;
         }
 
-        int resourcePanelSize = 60;
-        int produceHolderWidth = 160;
-        int produceContentsWidth = 240;
-        int produceContentsHeight = 80;
+        int resourcePanelSize = 90;
+        int produceHolderWidth = 220;
+        int produceHolderHeight = 80;
+        int produceContentsWidth = 320;
+        int produceContentsHeight = 110;
         int produceLayoutPadding = -10;
-        int imageLineWidth = 210;
+        int imageLineWidth = 300;
 
         if (producedCount == 0)
         {
@@ -153,8 +170,11 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             
             if (isUnitPanel)
             {
+                unitDescription.gameObject.SetActive(true);
                 description.text = objectDescription;
                 producesTitle.text = "Unit Info";
+                produceHolderHeight = 160;
+                produceContentsHeight = 170;
             }
             else
             {
@@ -166,7 +186,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
 
             //producesTitle.horizontalAlignment = HorizontalAlignmentOptions.Center;
-            produceHolderWidth = 235;
+            produceContentsWidth = 350;
+            produceHolderWidth = 330;
         }
 
         //adjusting height of panel
@@ -181,7 +202,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         if (maxCount > 1)
         {
             int shift = resourcePanelSize * (maxCount - 1);
-            produceHolderWidth += shift;
+            if (producedCount > 0)
+                produceHolderWidth += shift;
         }
         if (maxCount > 2)
         {
@@ -190,7 +212,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             imageLineWidth += shift;
         }
 
-        resourceProducedHolder.GetComponent<RectTransform>().sizeDelta = new Vector2(produceHolderWidth, 60);
+        resourceProducedHolder.GetComponent<RectTransform>().sizeDelta = new Vector2(produceHolderWidth, produceHolderHeight);
         resourceProduceAllHolder.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
         resourceProduceLayout.padding.bottom = produceLayoutPadding;
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);

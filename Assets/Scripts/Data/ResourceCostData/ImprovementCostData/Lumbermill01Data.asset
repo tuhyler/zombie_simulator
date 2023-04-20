@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Lumbermill
+  improvementDisplayName: Lumbermill
   improvementLevel: 1
   improvementNameAndLevel: Lumbermill-1
   improvementDescription: 
@@ -29,7 +30,7 @@ MonoBehaviour:
     resourceAmount: 5
   consumedResources:
   - resourceType: 5
-    resourceAmount: 3000
+    resourceAmount: 4
   - resourceType: 2
     resourceAmount: 1
   consumedResources1:
@@ -43,11 +44,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 4
     resourceAmount: 5
-  - resourceType: 5
-    resourceAmount: 10
-  - resourceType: 1
-    resourceAmount: 10
-  producedResourceTime: 05000000020000000a000000
+  producedResourceTime: 05000000
   rawMaterials: 1
   rawResourceType: 4
   terrainType: 7

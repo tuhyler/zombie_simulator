@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Sericulture
+  improvementDisplayName: Sericulture
   improvementLevel: 1
   improvementNameAndLevel: Sericulture-1
   improvementDescription: 
@@ -33,7 +34,7 @@ MonoBehaviour:
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 17
+  - resourceType: 15
     resourceAmount: 2
   producedResourceTime: 28000000
   rawMaterials: 1

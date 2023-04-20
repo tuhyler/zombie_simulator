@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 1
   improvementName: Monument
+  improvementDisplayName: Monument
   improvementLevel: 1
   improvementNameAndLevel: Monument-1
   improvementDescription: 
@@ -31,7 +32,7 @@ MonoBehaviour:
   consumedResources3: []
   consumedResources4: []
   producedResources: []
-  producedResourceTime: 0
+  producedResourceTime: 
   rawMaterials: 0
   rawResourceType: 0
   terrainType: 0
@@ -45,6 +46,5 @@ MonoBehaviour:
   singleBuild: 1
   buildTime: 0
   availableInitially: 1
-  locked: 0
   workAnimLoop: 0
   hideAnimMesh: 0

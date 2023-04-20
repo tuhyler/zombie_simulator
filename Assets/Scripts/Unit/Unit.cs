@@ -7,14 +7,13 @@ using UnityEngine.Events;
 
 public class Unit : MonoBehaviour
 {
-    [SerializeField]
-    private UnitDataSO unitDataSO;
-    public UnitDataSO GetUnitData() => unitDataSO;
+    //[SerializeField]
+    //private UnitDataSO unitDataSO;
+    //public UnitDataSO GetUnitData() => unitDataSO;
 
     [SerializeField]
-    private UnitBuildDataSO buildDataSO;
-    public UnitBuildDataSO GetBuildDataSO() => buildDataSO;
-
+    public UnitBuildDataSO buildDataSO;
+    
     [SerializeField]
     private ParticleSystem lightBeam;
 
@@ -44,6 +43,10 @@ public class Unit : MonoBehaviour
     private int queueCount = 0;
     public int QueueCount { set { queueCount = value; } }
     private Vector3 shoePrintScale;
+
+    //combat info
+    [HideInInspector]
+    public int currentHealth;
 
     //selection indicators
     private SelectionHighlight highlight;
@@ -81,11 +84,13 @@ public class Unit : MonoBehaviour
         forestSpeed = world.forest.movementCost;
         hillSpeed = world.hill.movementCost;
         forestHillSpeed = world.forestHill.movementCost;
-        originalMoveSpeed = unitDataSO.movementSpeed;
-        bySea = unitDataSO.transportationType == TransportationType.Sea;
+        originalMoveSpeed = buildDataSO.movementSpeed;
+        bySea = buildDataSO.transportationType == TransportationType.Sea;
         shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
             selectionCircle.SetActive(false);
+
+        currentHealth = buildDataSO.health;
     }
 
     private void Start()
@@ -705,10 +710,4 @@ public class Unit : MonoBehaviour
         else
             movementSystem.AddToShoePrintPool(path);
     }
-}
-
-public enum TransportationType
-{
-    Land,
-    Sea,
 }

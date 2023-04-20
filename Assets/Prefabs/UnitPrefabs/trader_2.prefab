@@ -23,7 +23,7 @@ PrefabInstance:
         type: 3}
       propertyPath: buildDataSO
       value: 
-      objectReference: {fileID: 11400000, guid: 65f0c330ebb36da4a97be1168cf2d410,
+      objectReference: {fileID: 11400000, guid: 87dff608ff1c4bf45872040a9afe90c7,
         type: 2}
     - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
         type: 3}

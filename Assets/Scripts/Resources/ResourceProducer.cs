@@ -45,11 +45,6 @@ public class ResourceProducer : MonoBehaviour
         //laborCost.resourceAmount = data.laborCost;
         //consumedResources.Insert(0, laborCost);
 
-        foreach (ResourceValue value in consumedResources)
-        {
-            consumedResourceTypes.Add(value.resourceType);
-        }
-
         if (data.producedResources.Count > 0)
         {
             producedResource = data.producedResources[0];
@@ -62,6 +57,14 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
+    public void SetConsumedResourceTypes()
+    {
+        foreach (ResourceValue value in consumedResources)
+        {
+            consumedResourceTypes.Add(value.resourceType);
+        }
+    }
+
     public void SetResourceManager(ResourceManager resourceManager)
     {
         this.resourceManager = resourceManager;
@@ -71,6 +74,7 @@ public class ResourceProducer : MonoBehaviour
     {
         this.cityImprovement = cityImprovement;
         consumedResources = new(cityImprovement.allConsumedResources[0]);
+        SetConsumedResourceTypes();
         cityImprovement.producedResource = producedResource.resourceType;
         cityImprovement.producedResourceIndex = 0;
     }

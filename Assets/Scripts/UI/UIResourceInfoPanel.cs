@@ -23,4 +23,10 @@ public class UIResourceInfoPanel : MonoBehaviour
     public RectTransform resourceTransform, allContents;
 
     public ResourceType resourceType;
+
+    private void Awake()
+    {
+        resourceAmount.outlineColor = new Color(0f, 0f, 0f);
+        resourceAmount.outlineWidth = .1f;
+    }
 }

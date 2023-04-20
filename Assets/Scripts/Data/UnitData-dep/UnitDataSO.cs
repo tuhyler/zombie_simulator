@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Units/UnitData")]
+//[CreateAssetMenu(menuName = "Units/UnitData")]
 public class UnitDataSO : ScriptableObject
 {
     public int movementPoints = 10;

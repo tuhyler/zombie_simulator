@@ -37,42 +37,42 @@ public class HandlePlayerInput : MonoBehaviour
             HandleShiftUp?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             HandleEsc?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             HandleR?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.Return) || Input.GetKeyUp(KeyCode.KeypadEnter))
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             HandleEnter?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             HandleC?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.B))
         {
             HandleB?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.G))
         {
             HandleG?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X))
         {
             HandleX?.Invoke();
         }
 
-        if (Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             HandleSpace?.Invoke();
         }

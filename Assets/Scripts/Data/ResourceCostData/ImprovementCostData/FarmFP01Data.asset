@@ -15,7 +15,8 @@ MonoBehaviour:
   prefab: {fileID: 1818493788481445142, guid: 6a43a771a1a04414ba2d5252353b7d76, type: 3}
   secondaryData: {fileID: 0}
   isBuilding: 0
-  improvementName: Farm (Flood Plains)
+  improvementName: FarmFP
+  improvementDisplayName: Farm
   improvementLevel: 1
   improvementNameAndLevel: FarmFP-1
   improvementDescription: 

@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Ceramist
+  improvementDisplayName: Coil Ceramist
   improvementLevel: 1
   improvementNameAndLevel: Ceramist-1
   improvementDescription: 

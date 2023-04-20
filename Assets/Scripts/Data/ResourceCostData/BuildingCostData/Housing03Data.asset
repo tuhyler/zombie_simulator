@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 1
   improvementName: Housing
+  improvementDisplayName: Large Stone House
   improvementLevel: 3
   improvementNameAndLevel: Housing-3
   improvementDescription: Increases housing by 2
@@ -35,7 +36,7 @@ MonoBehaviour:
   consumedResources3: []
   consumedResources4: []
   producedResources: []
-  producedResourceTime: 0
+  producedResourceTime: 
   rawMaterials: 0
   rawResourceType: 0
   terrainType: 0
@@ -49,6 +50,5 @@ MonoBehaviour:
   singleBuild: 1
   buildTime: 0
   availableInitially: 0
-  locked: 1
   workAnimLoop: 0
   hideAnimMesh: 0

@@ -6,13 +6,13 @@ using UnityEngine.EventSystems;
 public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [HideInInspector]
-    public string title;
+    public string title, displayTitle;
 
     [HideInInspector]
-    public int level;
+    public int level, health, strength, cargo;
 
     [HideInInspector]
-    public float workEthic;
+    public float workEthic, speed;
 
     [HideInInspector]
     public string description;
@@ -31,7 +31,7 @@ public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExi
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        UITooltipSystem.Show(transform.position, title, level, workEthic, description, costs, produces, consumes, produceTime, unit);
+        UITooltipSystem.Show(transform.position, title, displayTitle, level, workEthic, description, costs, produces, consumes, produceTime, unit, health, speed, strength, cargo);
     }
 
     public void OnPointerExit(PointerEventData eventData)

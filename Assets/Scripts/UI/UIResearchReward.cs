@@ -4,7 +4,11 @@ using UnityEngine.UI;
 public class UIResearchReward : MonoBehaviour
 {
     [SerializeField]
-    private Image rewardIcon;
+    private Image rewardIcon, rewardBackground;
+
+    [SerializeField]
+    private Sprite selectedSprite;
+    private Sprite originalSprite;
     
     public ImprovementDataSO improvementData;
     public UnitBuildDataSO unitData;
@@ -17,6 +21,7 @@ public class UIResearchReward : MonoBehaviour
         if (improvementData != null)
         {
             tooltipInfo.title = improvementData.improvementName;
+            tooltipInfo.displayTitle = improvementData.improvementDisplayName;
             tooltipInfo.level = improvementData.improvementLevel;
             tooltipInfo.workEthic = improvementData.workEthicChange;
             tooltipInfo.produces = improvementData.producedResources;
@@ -31,9 +36,14 @@ public class UIResearchReward : MonoBehaviour
         }
         else if (unitData != null)
         {
-            tooltipInfo.title = unitData.unitName;
+            tooltipInfo.title = unitData.unitType.ToString();
+            tooltipInfo.displayTitle = unitData.unitName;
             tooltipInfo.level = unitData.unitLevel;
             tooltipInfo.description = unitData.unitDescription;
+            tooltipInfo.health = unitData.health;
+            tooltipInfo.speed = unitData.movementSpeed;
+            tooltipInfo.strength = unitData.attackStrength;
+            tooltipInfo.cargo = unitData.cargoCapacity;
             tooltipInfo.costs = unitData.unitCost;
             tooltipInfo.unit = true;
         }
@@ -42,5 +52,17 @@ public class UIResearchReward : MonoBehaviour
             rewardIcon.sprite = improvementData.littleImage;
         else if (unitData != null)
             rewardIcon.sprite = unitData.image;
+
+        originalSprite = rewardBackground.sprite;
+    }
+
+    public void Select()
+    {
+        rewardBackground.sprite = selectedSprite;
+    }
+
+    public void Unselect()
+    {
+        rewardBackground.sprite = originalSprite;
     }
 }

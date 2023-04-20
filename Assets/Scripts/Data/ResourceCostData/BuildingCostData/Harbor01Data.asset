@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Harbor
+  improvementDisplayName: Harbor
   improvementLevel: 1
   improvementNameAndLevel: Harbor-1
   improvementDescription: Allows Naval Trade Ports

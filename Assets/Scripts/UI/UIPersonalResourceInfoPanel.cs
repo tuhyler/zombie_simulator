@@ -30,6 +30,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     [SerializeField]
     private Transform uiElementsParent;
+    [SerializeField]
+    private GameObject resourcePersonalPanel;
 
     private List<UIPersonalResources> personalResources = new();
 
@@ -60,12 +62,34 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         }
 
         gameObject.SetActive(false);
-        PrepareResourceDictionary();
 
-        foreach (Transform selection in uiElementsParent) //populate list
+        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
-            personalResources.Add(selection.GetComponent<UIPersonalResources>());
+            GameObject panel = Instantiate(resourcePersonalPanel);
+            panel.transform.SetParent(uiElementsParent);
+            panel.name = resource.resourceType.ToString();
+            UIPersonalResources personalResource = panel.GetComponent<UIPersonalResources>();
+            personalResource.SetButtonHandler(this);
+            personalResource.resourceImage.sprite = resource.resourceIcon;
+            personalResource.resourceType = resource.resourceType;
+
+
+            //fixing z location & x rotation
+            Vector3 loc = panel.transform.position;
+            loc.z = 0;
+            panel.transform.localPosition = loc;
+            Vector3 rot = panel.transform.eulerAngles;
+            rot.x = 0;
+            panel.transform.localEulerAngles = rot;
+
+            personalResources.Add(personalResource);
         }
+
+        PrepareResourceDictionary();
+        //foreach (Transform selection in uiElementsParent) //populate list
+        //{   
+        //    personalResources.Add(selection.GetComponent<UIPersonalResources>());
+        //}
     }
 
     public void ToggleVisibility(bool v)
@@ -167,12 +191,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     private void PrepareResourceDictionary() //put all resources in dictionary
     {
-        foreach (UIPersonalResources uiPersonalResources in GetComponentsInChildren<UIPersonalResources>())
+        foreach (UIPersonalResources uiPersonalResources in personalResources)
         {
-            if (personalResourceUIDictionary.ContainsKey(uiPersonalResources.ResourceType))
-                Debug.Log("Dictionary already contains a " + uiPersonalResources.ResourceType);
-            personalResourceUIDictionary[uiPersonalResources.ResourceType] = uiPersonalResources;
-            SetResource(uiPersonalResources.ResourceType, 0);
+            if (personalResourceUIDictionary.ContainsKey(uiPersonalResources.resourceType))
+                Debug.Log("Dictionary already contains a " + uiPersonalResources.resourceType);
+            personalResourceUIDictionary[uiPersonalResources.resourceType] = uiPersonalResources;
+            SetResource(uiPersonalResources.resourceType, 0);
         }
     }
 
@@ -186,12 +210,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         foreach (UIPersonalResources selection in personalResources)
         {
             int amount;
-            if (resourceDict.ContainsKey(selection.ResourceType))
-                amount = resourceDict[selection.ResourceType];
+            if (resourceDict.ContainsKey(selection.resourceType))
+                amount = resourceDict[selection.resourceType];
             else
                 amount = 0;
 
-            SetResource(selection.ResourceType, amount);
+            SetResource(selection.resourceType, amount);
             //if (amount > 0)
             //    inUse = true;
         }
@@ -210,7 +234,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         foreach (UIPersonalResources uiPersonalResources in GetComponentsInChildren<UIPersonalResources>())
         {
             uiPersonalResources.SetButtonInteractable(false);
-            SetResource(uiPersonalResources.ResourceType, 0);
+            SetResource(uiPersonalResources.resourceType, 0);
         }
     }
 
@@ -252,7 +276,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
         if (city)
         {
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.4f)
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 800f, 0.4f)
                 .setEase(LeanTweenType.easeOutSine)
                 .setOnComplete(SetVisibilityFalse);
             //LeanTween.alpha(allContents, 0f, 0.4f).setEaseLinear();

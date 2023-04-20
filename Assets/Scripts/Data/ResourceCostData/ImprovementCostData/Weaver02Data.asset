@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryData: {fileID: 0}
   isBuilding: 0
   improvementName: Weaver
+  improvementDisplayName: Silkweaver
   improvementLevel: 2
   improvementNameAndLevel: Weaver-2
   improvementDescription: 

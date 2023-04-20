@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 2108233440359776498}
   - component: {fileID: 5642507770632950622}
   m_Layer: 5
-  m_Name: BuildObjectPanel
+  m_Name: BuildObjectPanel-dep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
