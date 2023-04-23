@@ -921,7 +921,7 @@ public class MapWorld : MonoBehaviour
     {
         if (cityDict.ContainsKey(cityLoc))
         {
-            return cityDict[cityLoc].CityName;
+            return cityDict[cityLoc].cityName;
         }
         else
         {

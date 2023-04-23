@@ -607,7 +607,7 @@ public class UnitMovement : MonoBehaviour
                 City selectedCity = world.GetCity(unitLoc);
 
                 cityResourceManager = selectedCity.ResourceManager;
-                uiCityResourceInfoPanel.SetTitleInfo(selectedCity.CityName,
+                uiCityResourceInfoPanel.SetTitleInfo(selectedCity.cityName,
                     cityResourceManager.GetResourceStorageLevel, selectedCity.warehouseStorageLimit);
                 uiCityResourceInfoPanel.PrepareResourceUI(cityResourceManager.ResourceDict);
             }

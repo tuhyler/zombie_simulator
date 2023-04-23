@@ -111,8 +111,6 @@ public class ResourceManager : MonoBehaviour
         foreach (ResourceValue resourceData in initialResources)
         {
             ResourceType resourceType = resourceData.resourceType;
-            if (resourceType == ResourceType.None)
-                throw new ArgumentException("Resource can't be none!");
             resourceDict[resourceType] = resourceData.resourceAmount; //assigns the initial values for each resource
             if (resourceStorageMultiplierDict.ContainsKey(resourceType))
             {
@@ -207,10 +205,10 @@ public class ResourceManager : MonoBehaviour
     {
         int i = 0;
         location.z += 0.5f;
-        foreach (ResourceValue resourceValue in consumedResource)
+        foreach (ResourceValue value in consumedResource)
         {
-            int consumedAmount = Mathf.RoundToInt(resourceValue.resourceAmount * currentLabor);
-            ResourceType resourceType = resourceValue.resourceType;
+            int consumedAmount = Mathf.RoundToInt(value.resourceAmount * currentLabor);
+            ResourceType resourceType = value.resourceType;
             if (consumedAmount == 0)
                 continue;
 
@@ -224,7 +222,7 @@ public class ResourceManager : MonoBehaviour
 
                 //resourceConsumedPerMinuteDict[resourceType] = consumedAmount;
 
-                if (resourceValue.resourceType == ResourceType.Food && consumedAmount > storageAmount)
+                if (value.resourceType == ResourceType.Food && consumedAmount > storageAmount)
                 {
                     foodGrowthLevel -= consumedAmount - storageAmount;
                     consumedAmount = storageAmount;
@@ -233,11 +231,15 @@ public class ResourceManager : MonoBehaviour
                 resourceDict[resourceType] -= consumedAmount;
                 resourceStorageLevel -= consumedAmount;
                 CheckProducerUnloadWaitList();
+                if (city.resourceGridDict.ContainsKey(value.resourceType))
+                {
+
+                }
                 city.CheckLimitWaiter();
                 UpdateUI(resourceType);
             }
 
-            if (city.activeCity && consumedAmount > 0 && resourceValue.resourceType != ResourceType.Food)
+            if (city.activeCity && consumedAmount > 0 && value.resourceType != ResourceType.Food)
             {
                 location.z -= 0.5f * i;
                 InfoResourcePopUpHandler.CreateResourceStat(location, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
@@ -297,20 +299,23 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public int CheckResource(ResourceType resourceType, int newResourceAmount)
+    public int CheckResource(ResourceType type, int amount)
     {
-        if (resourceType == ResourceType.Food && newResourceAmount > 0)
+        if (type == ResourceType.Food && amount > 0)
         {
-            return AddFood(newResourceAmount);
+            return AddFood(amount);
         }
-        else if (resourceType == ResourceType.Gold || resourceType == ResourceType.Research)
+        else if (type == ResourceType.Gold || type == ResourceType.Research)
         {
-            city.UpdateWorldResources(resourceType, newResourceAmount);
-            return newResourceAmount;
+            city.UpdateWorldResources(type, amount);
+            return amount;
         }
-        else if (CheckStorageSpaceForResource(resourceType, newResourceAmount) && resourceDict.ContainsKey(resourceType))
+        else if (CheckStorageSpaceForResource(type, amount) && resourceDict.ContainsKey(type))
         {
-            return AddResourceToStorage(resourceType, newResourceAmount);
+            if (!city.resourceGridDict.ContainsKey(type))
+                city.AddToGrid(type);
+
+            return AddResourceToStorage(type, amount);
         }
         else
         {
@@ -450,11 +455,11 @@ public class ResourceManager : MonoBehaviour
         this.uiInfoPanelCity = uiInfoPanelCity;
     }
 
-    public void UpdateUI() //updating the UI with the resource information in the dictionary
+    public void UpdateUI(List<ResourceValue> values) //updating the UI with the resource information in the dictionary
     {
-        foreach (ResourceType resourceType in resourceDict.Keys)
+        foreach (ResourceValue value in values)
         {
-            UpdateUI(resourceType);
+            UpdateUI(value.resourceType);
         }
     }
 

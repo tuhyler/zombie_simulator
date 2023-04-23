@@ -68,8 +68,8 @@ public class UICityNamer : MonoBehaviour
             if (city != null)
             {
                 //placeHolderText = $"City_{cityDataSO.GetCountOf() + 1}"; //Do this until you get a list of names to use
-                placeHolderText = city.CityName;
-                placeHolder.text = city.CityName;
+                placeHolderText = city.cityName;
+                placeHolder.text = city.cityName;
                 placeHolder.alpha = 0.5f;
                 inputField.Select();
             }

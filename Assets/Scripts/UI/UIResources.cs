@@ -1,44 +1,23 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UIResources : MonoBehaviour
+public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField]
-    private TMP_Text resourceAmount;//, resourceGenerationAmount;
+    public TMP_Text resourceAmount;
     [SerializeField]
-    public Image resourceImage; 
+    public Image resourceImage, background; 
     [SerializeField]
     public ResourceType resourceType;
 
-    private int resourceValue;
+    [HideInInspector]
+    public int resourceValue, loc; //for moving panels on resource grid
 
-    public ResourceType ResourceType { get => resourceType; }
-
-    private void Start()
-    {
-        //resourceLimitAmount.color = Color.red; //need to change text color for all to white in order to see this
-        if (resourceType == ResourceType.None)
-            throw new System.ArgumentException("Resource type can't be none! in " + gameObject.name);
-        //gameObject.SetActive(false);
-    }
-
-    public void SetActiveStatus(bool v)
-    {
-        gameObject.SetActive(v);
-    }
-
-    public void CheckVisibility()
-    {
-        if (resourceValue > 0) //convert string to integer
-        {
-            gameObject.SetActive(true);
-        }
-        else
-        {
-            gameObject.SetActive(false);
-        }
-    }
+    [HideInInspector]
+    public Transform originalParent;
+    public Transform tempParent;
 
     public void SetValue(int val)
     {
@@ -46,19 +25,26 @@ public class UIResources : MonoBehaviour
         resourceAmount.text = val.ToString();
     }
 
-    //public void SetGeneration(int val)
-    //{
-        //if (val > 0)
-        //{
-        //    //resourceGenerationAmount.text = $"+{val}";
-        //}
-        //if (val == 0)
-        //{
-        //    //resourceGenerationAmount.text = "-";
-        //}
-        //if (val < 0)
-        //{
-        //    //resourceGenerationAmount.text = val.ToString();
-        //}
-    //}
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        originalParent = transform.parent;
+        transform.SetParent(tempParent);
+        transform.SetAsLastSibling();
+        background.raycastTarget = false;
+     }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector3 p = Input.mousePosition;
+        p.z = 935;
+        Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+        transform.position = pos;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        transform.SetParent(originalParent);
+        transform.localPosition = Vector3.zero;
+        background.raycastTarget = true;
+    }
 }

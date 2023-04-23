@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 3353171004290388722}
   - component: {fileID: 5241261455574406187}
   - component: {fileID: 1274252946908775833}
-  - component: {fileID: 7425670856227559090}
+  - component: {fileID: 2197012359545611793}
   m_Layer: 5
   m_Name: BuildResourceInfoPanel
   m_TagString: Untagged
@@ -165,7 +165,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &7425670856227559090
+--- !u!114 &2197012359545611793
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

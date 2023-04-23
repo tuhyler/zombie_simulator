@@ -99,7 +99,7 @@ public class UICityImprovementTip : MonoBehaviour
             activeStatus = true;
             Vector3 position = Input.mousePosition;
 
-            //isn't showing up at mouse position at 4k for some reason
+            //trick to make sure entire window always showns on screen
             if (fourK)
             {
                 position.x -= 1920;
@@ -219,14 +219,17 @@ public class UICityImprovementTip : MonoBehaviour
 
         if (produces)
         {
-            float xShiftLeft = (resourcesCount-1) * 47;
+            float xShiftLeft = (resourcesCount-1) * 45;
             float xShiftRight = indexSelect * 90;
+            float xShift = (resourcesCount - 1) * 90;
             //xShiftRight -= 1.5f;
 
-            Vector2 loc = panelList[0].transform.position;
+            //Vector2 loc = panelList[0].transform.localPosition;
+            Vector2 loc = Vector2.zero;
             loc.x -= xShiftLeft;
             loc.x += xShiftRight;
-            loc.y += 20;
+            //loc.x += 45;
+            loc.y -= 40;
             produceHighlight.transform.localPosition = loc;
         }
     }
@@ -249,14 +252,15 @@ public class UICityImprovementTip : MonoBehaviour
 
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], produceTimeList[a], false);
 
-        float xShiftLeft = (producesCount - 1) * 47;
+        float xShiftLeft = (producesCount - 1) * 45;
         float xShiftRight = a * 90;
         //xShiftRight -= 1.5f;
 
-        Vector2 loc = producesInfo[a].transform.position;
+        //Vector2 loc = producesInfo[a].transform.localPosition;
+        Vector2 loc = Vector2.zero;
         loc.x -= xShiftLeft;
         loc.x += xShiftRight;
-        loc.y += 20f;
+        loc.y -= 40f;
         produceHighlight.transform.localPosition = loc;
 
         if (world.cityBuilderManager.SelectedCity != null)

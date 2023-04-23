@@ -33,9 +33,9 @@ public class City : MonoBehaviour
     private ParticleSystem heavenHighlight, resourceSplash, lightBullet;
 
     //city info
-    private string cityName;
-    public string CityName { get { return cityName; } }
-
+    [HideInInspector]
+    public string cityName;
+    
     [HideInInspector]
     public Vector3Int cityLoc;
     [HideInInspector]
@@ -52,18 +52,12 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Dictionary<string, Vector3Int> singleBuildImprovementsBuildingsDict = new();
 
-    //private ResourceProducer resourceProducer;
-
     [HideInInspector]
     public CityPopulation cityPop;
 
     //foodConsumed info
     public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60; //how much foodConsumed one unit eats per turn
     private int foodConsumptionPerMinute; //total 
-    public int FoodConsumptionPerMinute { get { return foodConsumptionPerMinute; } set { foodConsumptionPerMinute = value; } }
-    private string minutesTillGrowth; //string in case there's no growth
-    public string GetMinutesTillGrowth { get { return minutesTillGrowth; } }
-    //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
     private int countDownTimer;
 
@@ -78,7 +72,11 @@ public class City : MonoBehaviour
     private ResourceType resourceWaiter = ResourceType.None;
     private Queue<Unit> waitList = new();
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
-    
+    [HideInInspector]
+    public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
+    [HideInInspector]
+    public int maxGridValue;
+
     //world resource info
     //private int goldPerMinute;
     //public int GetGoldPerMinute { get { return goldPerMinute; } }
@@ -137,6 +135,20 @@ public class City : MonoBehaviour
         cityNameField.ToggleVisibility(false);
         InstantiateParticleSystems();
         //Physics.IgnoreLayerCollision(6,7);
+
+        int i = 0;
+        foreach (ResourceType type in resourceManager.ResourceDict.Keys)
+        {
+            int amount = resourceManager.ResourceDict[type];
+            if (amount > 0)
+            {
+                resourceGridDict[type] = i;
+                i++;
+            }
+
+        }
+
+        maxGridValue = i;
     }
 
     public void InstantiateParticleSystems()
@@ -357,18 +369,18 @@ public class City : MonoBehaviour
         float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
         int foodStorage = resourceManager.FoodGrowthLevel;
 
-        if (foodPerMinute > 0)
-        {
-            minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerMinute).ToString();
-        }
-        else if (foodPerMinute < 0) 
-        {
-            minutesTillGrowth = Mathf.FloorToInt(foodStorage / foodPerMinute).ToString(); //maybe take absolute value, change color to red?
-        }
-        else if (foodPerMinute == 0)
-        {
-            minutesTillGrowth = "-";
-        }
+        //if (foodPerMinute > 0)
+        //{
+        //    minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerMinute).ToString();
+        //}
+        //else if (foodPerMinute < 0) 
+        //{
+        //    minutesTillGrowth = Mathf.FloorToInt(foodStorage / foodPerMinute).ToString(); //maybe take absolute value, change color to red?
+        //}
+        //else if (foodPerMinute == 0)
+        //{
+        //    minutesTillGrowth = "-";
+        //}
     }
 
     public void SetHouse(Vector3Int cityLoc)
@@ -590,6 +602,50 @@ public class City : MonoBehaviour
         lightBullet.Play();
     }
 
+    public void AddToGrid(ResourceType type)
+    {
+        resourceGridDict[type] = maxGridValue;
+    }
+
+    public void ReshuffleGrid()
+    {
+        int i = 0;
+
+        //re-sorting
+        Dictionary<ResourceType, int> myDict = resourceGridDict.OrderBy(d => d.Value).ToDictionary(x => x.Key, x => x.Value );
+
+        List<ResourceType> types = new List<ResourceType>(myDict.Keys);
+
+        foreach (ResourceType type in types)
+        {
+            int amount = resourceManager.ResourceDict[type];
+            if (amount > 0)
+            {
+                resourceGridDict[type] = resourceGridDict[type] - i;
+            }
+            else
+            {
+                resourceGridDict.Remove(type);
+                i--;
+            }
+
+        }
+
+        maxGridValue = i;
+    }
+
+    public List<ResourceValue> GetResourceValues()
+    {
+        List<ResourceValue> values = new();
+
+        foreach (ResourceType type in resourceGridDict.Keys)
+        {
+            ResourceValue value;
+            value.resourceType = type;
+        }
+
+        return values;
+    }
 
     //world resource manager
     public bool CheckIfWorldResource(ResourceType resourceType) //seeing if its world resource

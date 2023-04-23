@@ -271,7 +271,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: f348982132094e94d8a089d5f8d3ea17, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -423,7 +423,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: ae9eeadb467a7bb42a370e8e0ab7f86b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -666,8 +666,8 @@ MonoBehaviour:
   speed: {fileID: 668980980810770053}
   strength: {fileID: 1405833039591259639}
   strengthImage: {fileID: 6686968668431240815}
-  strengthSprite: {fileID: 21300000, guid: 176cf0cc42e8e4b468fad6f39e538478, type: 3}
-  inventorySprite: {fileID: 21300000, guid: 04c57cc29a6a88b469d57adb0feef78b, type: 3}
+  strengthSprite: {fileID: 21300000, guid: f348982132094e94d8a089d5f8d3ea17, type: 3}
+  inventorySprite: {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
   allContents: {fileID: 7172269090546766210}
 --- !u!1 &6076609533319556090
 GameObject:
@@ -1182,7 +1182,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 7657c92e33834514aa553e39fcdeb24a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
