@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class UIResourceManager : MonoBehaviour
@@ -10,63 +12,64 @@ public class UIResourceManager : MonoBehaviour
     private TMP_Text cityStorageInfo, cityStoragePercent, cityLevelAndLimit;
 
     [SerializeField]
-    private Image progressBarMask;
-
+    private Image progressBarMask, buttonDown;
     [SerializeField]
-    private Transform resourceHolder;
-
-    [SerializeField]
-    private GameObject resourcePanel;
+    private Sprite buttonUp;
+    private Sprite originalDown;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private Vector3 originalLoc;
-    private bool activeStatus;
+    private Vector3 originalLoc, overflowOriginalLoc;
+    private bool activeStatus, overflowActiveStatus;
 
+    //city info
+    private City city;
     private string cityName;
     private int cityStorageLimit;
-    private float cityStorageLevel; 
-    
-    private Dictionary<ResourceType, UIResources> resourceUIDict = new();
+    private float cityStorageLevel;
+
+    //resource grid
+    private List<ResourceIndividualSO> resourceInfo;
+    public RectTransform gridHolder, overflowGridHolder;
+    private Dictionary<int, UIDropLocation> gridCellDict = new();
+    private int activeCells;
+
+    private Dictionary<ResourceType, int> resourceUIDict = new();
 
     private void Awake()
     {
-        originalLoc = allContents.anchoredPosition3D;
         gameObject.SetActive(false);
+        overflowGridHolder.gameObject.SetActive(false);
+        originalLoc = allContents.anchoredPosition3D;
+        overflowOriginalLoc = overflowGridHolder.anchoredPosition3D;
+        originalDown = buttonDown.sprite;
+        resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        int total = 0;
+        foreach (Transform selection in gridHolder)
         {
-            GameObject panel = Instantiate(resourcePanel);
-            panel.transform.SetParent(resourceHolder);
-            panel.name = resource.resourceType.ToString();
-            UIResources resourceUI = panel.GetComponent<UIResources>();
-            resourceUI.resourceImage.sprite = resource.resourceIcon;
-            resourceUI.resourceType = resource.resourceType;
-
-            //fixing z location & x rotation
-            Vector3 loc = panel.transform.position;
-            loc.z = 0;
-            panel.transform.localPosition = loc;
-            Vector3 rot = panel.transform.eulerAngles;
-            rot.x = 0;
-            panel.transform.localEulerAngles = rot;
-            panel.transform.localScale = Vector3.one;
+            GridCellPrep(selection, total);
+            total++;
         }
 
-        PrepareResourceDictionary();
+        foreach (Transform selection in overflowGridHolder)
+        {
+            GridCellPrep(selection, total);
+            total++;
+        }
     }
 
-    //public void SetActiveStatus(bool v)
-    //{
-    //    gameObject.SetActive(v);
+    private void GridCellPrep(Transform selection, int total)
+    {
+        UIDropLocation loc = selection.GetComponent<UIDropLocation>();
+        loc.gameObject.SetActive(false);
+        loc.SetUIResourceManager(this);
+        loc.gridLocation = total;
+        loc.resource.loc = total;
+        gridCellDict.Add(loc.gridLocation, loc);
+    }
 
-    //    foreach (ResourceType resourceType in resourceUIDict.Keys)
-    //    {
-    //        resourceUIDict[resourceType].SetActiveStatus(v);
-    //    }
-    //}
-
-    public void ToggleVisibility(bool v)
+    public void ToggleVisibility(bool v, City city = null)
     {
         if (activeStatus == v)
             return;
@@ -75,22 +78,43 @@ public class UIResourceManager : MonoBehaviour
 
         if (v)
         {
+            this.city = city;
+            SetCityInfo(city.cityName, city.warehouseStorageLimit, city.ResourceManager.GetResourceStorageLevel);
+            activeCells = 0;
+            buttonDown.gameObject.SetActive(false);
+
+            foreach (ResourceType type in city.resourceGridDict.Keys)
+                ActivateCell(type);
+
+            if (activeCells > 10)
+            {
+                gridHolder.sizeDelta = new Vector2(900, 90);
+                buttonDown.gameObject.SetActive(true);
+            }
+            else
+            {
+                gridHolder.sizeDelta = new Vector2(activeCells * 90, 90);
+            }
+
             gameObject.SetActive(v);
             activeStatus = true;
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 200f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -200f, 0.3f).setEaseOutSine();
-            LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
-
-            foreach (ResourceType resourceType in resourceUIDict.Keys)
-            {
-                resourceUIDict[resourceType].CheckVisibility();
-            }
         }
         else
         {
+            for (int i = 0; i < activeCells; i++)
+            {
+                gridCellDict[i].gameObject.SetActive(false);
+            }
+
+            this.city.ReshuffleGrid(); //gets rid of zeroed out resources
+            this.city = null;
+
             activeStatus = false;
+            ToggleOverflowVisibility(false);
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
@@ -100,7 +124,60 @@ public class UIResourceManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void SetCityInfo(string cityName, int cityStorageLimit, float cityStorageLevel)
+    public void ToggleOverflow()
+    {
+        if (overflowActiveStatus)
+            ToggleOverflowVisibility(false);
+        else
+            ToggleOverflowVisibility(true);
+    }
+
+    public void ToggleOverflowVisibility(bool v)
+    {
+        if (overflowActiveStatus == v)
+            return;
+
+        LeanTween.cancel(overflowGridHolder.gameObject);
+
+        if (v)
+        {
+            buttonDown.sprite = buttonUp;
+            overflowGridHolder.gameObject.SetActive(v);
+            overflowActiveStatus = true;
+            float size = Mathf.CeilToInt((activeCells - 10) * 0.1f) * 90;
+
+            overflowGridHolder.anchoredPosition3D = overflowOriginalLoc + new Vector3(0, size, 0);
+
+            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + -size, 0.3f).setEaseOutSine();
+        }
+        else
+        {
+            buttonDown.sprite = originalDown;
+            overflowActiveStatus = false;
+            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + Mathf.CeilToInt((activeCells - 10) * 0.1f) * 90, 0.2f).setOnComplete(SetOverflowStatusFalse);
+        }
+    }
+
+    private void SetOverflowStatusFalse()
+    {
+        overflowGridHolder.gameObject.SetActive(false);
+    }
+    
+    private void ActivateCell(ResourceType type)
+    {
+        int index = resourceInfo.FindIndex(a => a.resourceType == type);
+        int loc = city.resourceGridDict[type];
+        gridCellDict[loc].gameObject.SetActive(true);
+        activeCells++;
+
+        gridCellDict[loc].resource.resourceType = type;
+        gridCellDict[loc].resource.SetValue(city.ResourceManager.ResourceDict[type]);
+        gridCellDict[loc].resource.resourceImage.sprite = resourceInfo[index].resourceIcon;
+        resourceUIDict[type] = loc;
+    }
+
+
+    private void SetCityInfo(string cityName, int cityStorageLimit, float cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
         this.cityName = cityName;
@@ -120,7 +197,6 @@ public class UIResourceManager : MonoBehaviour
     public void SetCityCurrentStorage(float cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
-        //progressBarMask.fillAmount = cityStorageLevel / cityStorageLimit;
         UpdateStorage(cityStorageLevel);
         UpdateCityInfo();
     }
@@ -135,33 +211,45 @@ public class UIResourceManager : MonoBehaviour
             });
     }
 
-    private void PrepareResourceDictionary() //put all resources in dictionary
+    public void SetResource(ResourceType type, int val)
     {
-        foreach (UIResources uiResource in GetComponentsInChildren<UIResources>())//"inchildren" is where the resource prefabs are
+        if (!resourceUIDict.ContainsKey(type))
         {
-            if (resourceUIDict.ContainsKey(uiResource.ResourceType))
-                throw new ArgumentException("Dictionary already contains a " + uiResource.ResourceType);
-            resourceUIDict[uiResource.ResourceType] = uiResource;
-            SetResource(uiResource.ResourceType, 0);
-            //SetResourceLimit(uiResource.ResourceType, 0);
-            //SetResourceGenerationAmount(uiResource.ResourceType, 0);
+            ActivateCell(type);
+            if (activeCells > 10)
+                buttonDown.gameObject.SetActive(true);
+            else
+                gridHolder.sizeDelta = new Vector2(activeCells * 90, 90);
         }
+
+        gridCellDict[resourceUIDict[type]].resource.SetValue(val);
     }
 
-    public void SetResource(ResourceType resourceType, int val) //Set the resources to a value
+    public void MoveResources(int oldNum, int newNum, ResourceType type)
     {
-        if (resourceUIDict.ContainsKey(resourceType))//checking if resource is in dictionary
+        //shifting all the other resources
+        if (oldNum > newNum)
         {
-            resourceUIDict[resourceType].SetValue(val);
-            resourceUIDict[resourceType].CheckVisibility();
+            for (int i = oldNum; i > newNum; i--)
+            {
+                int next = i - 1;
+                gridCellDict[next].MoveResource(gridCellDict[i]);
+                city.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
+                resourceUIDict[gridCellDict[i].resource.resourceType] = i;
+            }
         }
-    }
+        else
+        {
+            for (int i = oldNum; i < newNum; i++)
+            {
+                int next = i + 1;
+                gridCellDict[next].MoveResource(gridCellDict[i]);
+                city.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
+                resourceUIDict[gridCellDict[i].resource.resourceType] = i;
+            }
+        }
 
-    //public void SetResourceGenerationAmount(ResourceType resourceType, int val) //Set the resources to a value
-    //{
-    //    if (resourceUIDict.ContainsKey(resourceType))//checking if resource is in dictionary
-    //    {
-    //        //resourceUIDict[resourceType].SetGeneration(val);
-    //    }
-    //}
+        city.resourceGridDict[type] = newNum;
+        resourceUIDict[type] = newNum;
+    }
 }

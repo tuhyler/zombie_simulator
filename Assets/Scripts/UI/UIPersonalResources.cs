@@ -32,10 +32,10 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler
         SetButtonInteractable(false);
         scale = allContents.localScale;
 
-        if (Screen.height >= 1080)
-            buttonHighlight.transform.localScale = new Vector3(.11f, .11f, .11f);
+        if (Screen.height > 1080)
+            buttonHighlight.transform.localScale = new Vector3(90f, 90f, 90f);
         else if (Screen.height < 1080)
-            buttonHighlight.transform.localScale = new Vector3(.13f, .13f, .13f);
+            buttonHighlight.transform.localScale = new Vector3(110f, 110f, 110f);
     }
 
     public void SetButtonHandler(UIPersonalResourceInfoPanel infoPanel)
