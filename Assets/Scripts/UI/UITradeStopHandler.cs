@@ -17,6 +17,8 @@ public class UITradeStopHandler : MonoBehaviour
     [SerializeField]
     private Toggle waitForeverToggle;
 
+    private UITradeRouteManager tradeRouteManager;
+
     //[SerializeField]
     //private Transform resourceDetailHolder;
 
@@ -29,6 +31,8 @@ public class UITradeStopHandler : MonoBehaviour
 
     //handling all the resource info for this stop
     private List<UITradeResourceTask> uiResourceTasks = new();
+    [HideInInspector]
+    public int resourceCount;
 
     private List<TMP_Dropdown.OptionData> resources;
 
@@ -44,6 +48,11 @@ public class UITradeStopHandler : MonoBehaviour
         //for checking if number is positive and integer
         inputWaitTime.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
         //inputWaitTime.interactable = false;
+    }
+
+    public void SetTradeRouteManager(UITradeRouteManager tradeRouteManager)
+    {
+        this.tradeRouteManager = tradeRouteManager;
     }
 
     public void MoveStopUp()
@@ -105,7 +114,9 @@ public class UITradeStopHandler : MonoBehaviour
     {
         foreach (ResourceValue resourceValue in resourceValues)
         {
-            AddResourceTaskPanel().SetCaptionResourceInfo(resourceValue);
+            UITradeResourceTask resourceTask = AddResourceTaskPanel();
+            if (resourceTask != null)
+                resourceTask.SetCaptionResourceInfo(resourceValue);
         }
     }
 
@@ -180,6 +191,16 @@ public class UITradeStopHandler : MonoBehaviour
 
     private UITradeResourceTask AddResourceTaskPanel() //showing a new resource task panel
     {
+        if (resourceCount >= 20)
+        {
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = 10f; //z must be more than 0, else just gives camera position
+            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+            InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Hit resource limit");
+
+            return null;
+        }
+        
         GameObject newTask = Instantiate(tradeResourceTaskTemplate);
         newTask.SetActive(true);
         newTask.transform.SetParent(transform, false);
@@ -248,6 +269,7 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void CloseWindow()
     {
+        tradeRouteManager.stopCount--;
         uiResourceTasks.Clear();
         cityNames.Clear();
         resources.Clear();

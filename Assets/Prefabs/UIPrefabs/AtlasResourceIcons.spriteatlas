@@ -48,6 +48,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 30109eebbfd69f34bb7d2032ed2a7353, type: 3}
   - {fileID: 21300000, guid: 94678d0d3c59cda488118ca3a28d2872, type: 3}
   - {fileID: 21300000, guid: fbc34e2d528690c4b99228f5ac0bd952, type: 3}
+  - {fileID: 21300000, guid: 0954982f4065e604193f8c37a14ae8ca, type: 3}
   - {fileID: 21300000, guid: c1ec745f2914dd447ae9605fdd236faf, type: 3}
   m_PackedSpriteNamesToIndex:
   - icon_gold01
@@ -60,6 +61,7 @@ SpriteAtlas:
   - icon_copper
   - icon_silk01
   - icon_researchdark
+  - icon_stoneslab01
   - icon_lumber01
   m_RenderDataMap: {}
   m_Tag: AtlasResourceIcons
