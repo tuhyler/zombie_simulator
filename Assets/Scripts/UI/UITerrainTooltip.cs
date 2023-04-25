@@ -18,7 +18,6 @@ public class UITerrainTooltip : MonoBehaviour
 
     //cached TerrainData for turning off highlight
     private TerrainData td;
-    private bool fourK;
 
     //for tweening
     [SerializeField]
@@ -27,23 +26,6 @@ public class UITerrainTooltip : MonoBehaviour
 
     private void Awake()
     {
-        if (Screen.height <= 1080)
-        {
-            allContents.anchorMin = new Vector2(0.1f, 0.1f);
-            allContents.anchorMax = new Vector2(0.1f, 0.1f);
-        }
-        else if (Screen.height <= 1440)
-        {
-            allContents.anchorMin = new Vector2(0.05f, 0.05f);
-            allContents.anchorMax = new Vector2(0.05f, 0.05f);
-        }
-        else if (Screen.height <= 2160)
-        {
-            allContents.anchorMin = new Vector2(-0.2f, -0.2f);
-            allContents.anchorMax = new Vector2(-0.2f, -0.2f);
-            fourK = true;
-        }
-
         resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
         gameObject.SetActive(false);
     }
@@ -62,20 +44,22 @@ public class UITerrainTooltip : MonoBehaviour
             this.td.EnableHighlight(Color.white);
             gameObject.SetActive(val);
             activeStatus = true;
-            Vector3 position = Input.mousePosition;
+            Vector3 p = Input.mousePosition;
+            float x = 0.5f;
+            float y = 0f;
 
-            //isn't showing up at mouse position at 4k for some reason
-            if (fourK)
-            {
-                position.x -= 1920;
-                position.y -= 1080;
-                position *= .6f;
-                position.x += 1920;
-                position.y += 1080;
-            }
+            p.z = 935;
+            if (p.y + allContents.rect.height > Screen.height)
+                y = 1f;
 
-            position.z = 0;
-            allContents.anchoredPosition = position;
+            if (p.x + allContents.rect.width * 0.5f > Screen.width)
+                x = 1f;
+            else if (p.x - allContents.rect.width * 0.5 < 0)
+                x = 0f;
+
+            allContents.pivot = new Vector2(x, y);
+            Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+            allContents.transform.position = pos;
             allContents.localScale = Vector3.zero;
             LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
         }
@@ -117,7 +101,7 @@ public class UITerrainTooltip : MonoBehaviour
 
             if (td.resourceAmount < 0)
             {
-                resourceCount.text = "\u221E";
+                resourceCount.text = "\u221E"; //infinity symbol
                 resourceCount.fontSize = 50;
             }
             else

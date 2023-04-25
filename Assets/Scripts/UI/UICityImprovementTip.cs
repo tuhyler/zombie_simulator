@@ -28,8 +28,7 @@ public class UICityImprovementTip : MonoBehaviour
 
     //cached improvement for turning off highlight
     private CityImprovement improvement;
-
-    private bool fourK;
+    private float xChange, yChange; //work around for produce highlight
 
     //for tweening
     [SerializeField]
@@ -38,24 +37,9 @@ public class UICityImprovementTip : MonoBehaviour
 
     private void Awake()
     {
-        resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
+        gameObject.SetActive(false);
 
-        if (Screen.height <= 1080)
-        {
-            allContents.anchorMin = new Vector2(0.1f, 0.1f);
-            allContents.anchorMax = new Vector2(0.1f, 0.1f);
-        }
-        else if (Screen.height <= 1440)
-        {
-            allContents.anchorMin = new Vector2(0.05f, 0.05f);
-            allContents.anchorMax = new Vector2(0.05f, 0.05f);
-        }
-        else if (Screen.height <= 2160)
-        {
-            allContents.anchorMin = new Vector2(-0.2f, -0.2f);
-            allContents.anchorMax = new Vector2(-0.2f, -0.2f);
-            fourK = true;
-        }
+        resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
 
         foreach (Transform selection in producesRect)
         {
@@ -79,8 +63,6 @@ public class UICityImprovementTip : MonoBehaviour
                 consumesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
             }
         }
-
-        gameObject.SetActive(false);
     }
 
     public void ToggleVisibility(bool val, CityImprovement improvement = null)
@@ -92,26 +74,46 @@ public class UICityImprovementTip : MonoBehaviour
 
         if (val)
         {
+            //setting up pop up location
+            Vector3 p = Input.mousePosition;
+            float x = 0.5f;
+            float y = 0.5f;
+            xChange = 0;
+            yChange = 0;
+
+            p.z = 935;
+            if (p.y + allContents.rect.height * 0.5f > Screen.height)
+            {
+                y = 1f;
+                yChange = -217.5f;
+            }
+            else if (p.y - allContents.rect.height * 0.5f < 0)
+            {
+                y = 0f;
+                yChange = 217.5f;
+            }
+
+            if (p.x + allContents.rect.width * 0.5f > Screen.width)
+            {
+                x = 1f;
+                xChange = 155f;
+            }
+            else if (p.x - allContents.rect.width * 0.5f < 0)
+            {
+                x = 0f;
+                xChange = -155f;
+            }
+
+            allContents.pivot = new Vector2(x, y);
+            Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+            allContents.transform.position = pos;
+
             this.improvement = improvement;
             SetData(this.improvement);
             this.improvement.EnableHighlight(Color.white);
             gameObject.SetActive(val);
             activeStatus = true;
-            Vector3 position = Input.mousePosition;
-
-            //trick to make sure entire window always showns on screen
-            if (fourK)
-            {
-                position.x -= 1920;
-                position.y -= 1080;
-                position *= .6f;
-                position.x += 1920;
-                position.y += 1080;
-            }
-
-            position.z = 0;
-            allContents.anchoredPosition = position;
-            allContents.localScale = Vector3.zero;
+            
             LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
         }
         else
@@ -226,10 +228,10 @@ public class UICityImprovementTip : MonoBehaviour
 
             //Vector2 loc = panelList[0].transform.localPosition;
             Vector2 loc = Vector2.zero;
-            loc.x -= xShiftLeft;
+            loc.x -= xShiftLeft + xChange;
             loc.x += xShiftRight;
             //loc.x += 45;
-            loc.y -= 40;
+            loc.y = -40 + yChange;
             produceHighlight.transform.localPosition = loc;
         }
     }
@@ -258,9 +260,9 @@ public class UICityImprovementTip : MonoBehaviour
 
         //Vector2 loc = producesInfo[a].transform.localPosition;
         Vector2 loc = Vector2.zero;
-        loc.x -= xShiftLeft;
+        loc.x -= xShiftLeft + xChange;
         loc.x += xShiftRight;
-        loc.y -= 40f;
+        loc.y = -40f + yChange;
         produceHighlight.transform.localPosition = loc;
 
         if (world.cityBuilderManager.SelectedCity != null)

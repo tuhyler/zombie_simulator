@@ -20,7 +20,7 @@ public class UITradeResourceTask : MonoBehaviour
     //[SerializeField]
     //private Image resourceIcon;
 
-    UITradeStopHandler uiTradeStopHandler;
+    private UITradeStopHandler uiTradeStopHandler;
 
     private List<string> resources = new();
 
@@ -214,6 +214,7 @@ public class UITradeResourceTask : MonoBehaviour
     public void CloseWindow()
     {
         //resourceHolder = null;
+        uiTradeStopHandler.resourceCount--;
         uiTradeStopHandler.RemoveResource(this);
         resources.Clear();
         Destroy(gameObject);

@@ -17,6 +17,8 @@ public class UITradeRouteManager : MonoBehaviour
 
     [SerializeField]
     private Transform stopHolder;
+    [HideInInspector]
+    public int stopCount;
 
     //for generating resource lists
     private List<TMP_Dropdown.OptionData> resources = new();
@@ -48,9 +50,12 @@ public class UITradeRouteManager : MonoBehaviour
         {
             string cityName = world.GetStopName(cityStops[i]);
             UITradeStopHandler newStopHandler = AddStopPanel();
-            newStopHandler.SetCaptionCity(cityName);
-            newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i]);
-            newStopHandler.SetWaitTimes(selectedTrader.tradeRouteManager.WaitTimes[i]);
+            if (newStopHandler != null)
+            {
+                newStopHandler.SetCaptionCity(cityName);
+                newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i]);
+                newStopHandler.SetWaitTimes(selectedTrader.tradeRouteManager.WaitTimes[i]);
+            }
         }
     }
 
@@ -130,14 +135,26 @@ public class UITradeRouteManager : MonoBehaviour
 
     private UITradeStopHandler AddStopPanel() //showing a new resource task panel
     {
+        if (stopCount >= 20)
+        {
+            Vector3 mousePos = Input.mousePosition;
+            mousePos.z = 10f; //z must be more than 0, else just gives camera position
+            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+            InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Hit stop limit");
+
+            return null;
+        }
+        
         GameObject newStop = Instantiate(uiTradeStopPanel);
         newStop.SetActive(true);
         newStop.transform.SetParent(stopHolder, false);
 
         UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
+        newStopHandler.SetTradeRouteManager(this);
         newStopHandler.AddCityNames(cityNames);
         newStopHandler.AddResources(resources);
         //newStopHandler.SetCargoStorageLimit(selectedTrader.CargoStorageLimit);
+        stopCount++;
 
         return newStopHandler;
     }
