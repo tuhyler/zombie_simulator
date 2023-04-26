@@ -233,7 +233,7 @@ public class UIResourceManager : MonoBehaviour
             for (int i = oldNum; i > newNum; i--)
             {
                 int next = i - 1;
-                gridCellDict[next].MoveResource(gridCellDict[i]);
+                gridCellDict[next].MoveResource(gridCellDict[i], true);
                 city.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
                 resourceUIDict[gridCellDict[i].resource.resourceType] = i;
             }
@@ -243,7 +243,7 @@ public class UIResourceManager : MonoBehaviour
             for (int i = oldNum; i < newNum; i++)
             {
                 int next = i + 1;
-                gridCellDict[next].MoveResource(gridCellDict[i]);
+                gridCellDict[next].MoveResource(gridCellDict[i], false);
                 city.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
                 resourceUIDict[gridCellDict[i].resource.resourceType] = i;
             }
