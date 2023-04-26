@@ -27,15 +27,16 @@ public class UIDropLocation : MonoBehaviour, IDropHandler
         this.resourceManager = resourceManager;
     }
 
-    public void MoveResource(UIDropLocation newDrop)
+    public void MoveResource(UIDropLocation newDrop, bool left)
     {
         resource.loc = newDrop.gridLocation;
         newDrop.resource = resource;
 
         Vector3 newLoc = newDrop.transform.position;
         resource.transform.SetParent(newDrop.transform);
+        int factor = left ? 10 : 9;
 
-        if (newDrop.gridLocation % 10 == 0)
+        if (newDrop.gridLocation % factor == 0)
             resource.transform.localPosition = Vector3.zero;
         else
             LeanTween.moveX(resource.gameObject, newLoc.x, 0.2f).setEaseOutSine().setOnComplete(SetNewParent);
