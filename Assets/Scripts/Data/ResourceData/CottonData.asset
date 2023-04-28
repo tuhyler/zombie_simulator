@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
-  m_Name: MudBrickData
+  m_Name: CottonData
   m_EditorClassIdentifier: 
-  resourceType: 6
+  resourceType: 21
   resourceStorageMultiplier: 1
-  resourceName: MudBrick
-  resourceIcon: {fileID: 21300000, guid: 8cb0883a9920bd545bacccade1e5d661, type: 3}
+  resourceName: Cotton
+  resourceIcon: {fileID: 21300000, guid: bb9795a4945c9084d9422d9f885f01d7, type: 3}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50

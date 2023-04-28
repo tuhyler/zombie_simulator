@@ -39,33 +39,45 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 575bd4902587c214b977a0de9bc2adf8, type: 3}
+  - {fileID: 21300000, guid: 663c0941c68f71b4badacab98cd53fad, type: 3}
+  - {fileID: 21300000, guid: 202609d109b3de44695e860e6736f919, type: 3}
   - {fileID: 21300000, guid: 2956ec927085bc040910cae56a970b98, type: 3}
   - {fileID: 21300000, guid: 8c6425b201d0c5c4c8eb7a0955e9677d, type: 3}
   - {fileID: 21300000, guid: f43cf053c94bc1048a640d33368cc20f, type: 3}
+  - {fileID: 21300000, guid: bb9795a4945c9084d9422d9f885f01d7, type: 3}
   - {fileID: 21300000, guid: 07dd4ba4945215b41adc1da71d9fdd07, type: 3}
   - {fileID: 21300000, guid: 00e962550b4c6c0408f1bd04572e3e72, type: 3}
+  - {fileID: 21300000, guid: 32c59fa742b58e047af6576bc551a2ad, type: 3}
   - {fileID: 21300000, guid: 8cb0883a9920bd545bacccade1e5d661, type: 3}
   - {fileID: 21300000, guid: 136bc68a438e3414f83037321e2a4016, type: 3}
   - {fileID: 21300000, guid: bb9210dbeb5c29f409dfecf134330837, type: 3}
   - {fileID: 21300000, guid: 30109eebbfd69f34bb7d2032ed2a7353, type: 3}
   - {fileID: 21300000, guid: 94678d0d3c59cda488118ca3a28d2872, type: 3}
   - {fileID: 21300000, guid: fbc34e2d528690c4b99228f5ac0bd952, type: 3}
+  - {fileID: 21300000, guid: e99158de73b9ae245a60f41d8d59651e, type: 3}
   - {fileID: 21300000, guid: 0954982f4065e604193f8c37a14ae8ca, type: 3}
+  - {fileID: 21300000, guid: bbc1d93f10f62054083b2125b93e8b2f, type: 3}
   - {fileID: 21300000, guid: c1ec745f2914dd447ae9605fdd236faf, type: 3}
   m_PackedSpriteNamesToIndex:
   - icon_gold01
+  - icon_coilpottery01
+  - icon_clay
   - Icon_research01
   - icon_wool01
   - icon_bronze
+  - icon_cotton01
   - icon_stonestatue01
   - icon_silkcloth01
+  - icon_pottery1
   - icon_stone02
   - icon_food01
   - icon_bronzeware01
   - icon_copper
   - icon_silk01
   - icon_researchdark
+  - icon_jewel
   - icon_stoneslab01
+  - icon_cloth
   - icon_lumber01
   m_RenderDataMap: {}
   m_Tag: AtlasResourceIcons

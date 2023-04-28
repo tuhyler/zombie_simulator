@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8139912016613644117}
   - component: {fileID: 1050338557739992548}
   - component: {fileID: 5994772963381226396}
-  m_Layer: 11
+  m_Layer: 5
   m_Name: PopUpText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79,7 +79,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 200
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &1050338557739992548
 MonoBehaviour:

@@ -135,7 +135,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     private UITradeStopHandler AddStopPanel() //showing a new resource task panel
     {
-        if (stopCount >= 20)
+        if (stopCount >= 2)
         {
             Vector3 mousePos = Input.mousePosition;
             mousePos.z = 10f; //z must be more than 0, else just gives camera position

@@ -170,7 +170,7 @@ MonoBehaviour:
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 10
   workEthic: 1
-  warehouseStorageLimit: 1000
+  warehouseStorageLimit: 2000
   maxGridValue: 0
   savedQueueItems: []
   savedQueueItemsNames: []
@@ -217,9 +217,9 @@ MonoBehaviour:
   uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 4
-    resourceAmount: 5
+    resourceAmount: 10
   - resourceType: 5
-    resourceAmount: 13
+    resourceAmount: 10
   - resourceType: 17
     resourceAmount: 50
   - resourceType: 15
@@ -245,6 +245,14 @@ MonoBehaviour:
   - resourceType: 9
     resourceAmount: 50
   - resourceType: 7
+    resourceAmount: 50
+  - resourceType: 20
+    resourceAmount: 50
+  - resourceType: 21
+    resourceAmount: 50
+  - resourceType: 6
+    resourceAmount: 50
+  - resourceType: 12
     resourceAmount: 50
   city: {fileID: 0}
 --- !u!114 &350781982696099274
