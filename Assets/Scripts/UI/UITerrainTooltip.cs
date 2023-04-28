@@ -14,8 +14,6 @@ public class UITerrainTooltip : MonoBehaviour
     [SerializeField]
     private Image resourceImage;
 
-    List<ResourceIndividualSO> resourceInfo = new();
-
     //cached TerrainData for turning off highlight
     private TerrainData td;
 
@@ -26,7 +24,6 @@ public class UITerrainTooltip : MonoBehaviour
 
     private void Awake()
     {
-        resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
         gameObject.SetActive(false);
     }
 
@@ -95,9 +92,7 @@ public class UITerrainTooltip : MonoBehaviour
             resourceImage.gameObject.SetActive(true);
             resourceCountTitle.gameObject.SetActive(true);
             resourceCount.gameObject.SetActive(true);
-
-            int index = resourceInfo.FindIndex(a => a.resourceType == td.GetTerrainData().resourceType);
-            resourceImage.sprite = resourceInfo[index].resourceIcon;    
+            resourceImage.sprite = ResourceHolder.Instance.GetIcon(type); ;    
 
             if (td.resourceAmount < 0)
             {

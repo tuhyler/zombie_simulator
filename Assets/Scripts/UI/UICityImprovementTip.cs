@@ -23,7 +23,6 @@ public class UICityImprovementTip : MonoBehaviour
     private int producesCount;
 
     private List<UIResourceInfoPanel> producesInfo = new(), consumesInfo = new();
-    private List<ResourceIndividualSO> resourceInfo = new();
     private List<int> produceTimeList = new();
 
     //cached improvement for turning off highlight
@@ -38,8 +37,6 @@ public class UICityImprovementTip : MonoBehaviour
     private void Awake()
     {
         gameObject.SetActive(false);
-
-        resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
 
         foreach (Transform selection in producesRect)
         {
@@ -208,8 +205,7 @@ public class UICityImprovementTip : MonoBehaviour
                 panelList[i].gameObject.SetActive(true);
                 panelList[i].resourceAmount.text = Mathf.RoundToInt(resourceList[i].resourceAmount * (60f / producedTime)).ToString();
                 panelList[i].resourceType = resourceList[i].resourceType;
-                int index = resourceInfo.FindIndex(a => a.resourceType == resourceList[i].resourceType);
-                panelList[i].resourceImage.sprite = resourceInfo[index].resourceIcon;
+                panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 
                 if (produces)
                 {
@@ -223,7 +219,6 @@ public class UICityImprovementTip : MonoBehaviour
         {
             float xShiftLeft = (resourcesCount-1) * 45;
             float xShiftRight = indexSelect * 90;
-            float xShift = (resourcesCount - 1) * 90;
             //xShiftRight -= 1.5f;
 
             //Vector2 loc = panelList[0].transform.localPosition;

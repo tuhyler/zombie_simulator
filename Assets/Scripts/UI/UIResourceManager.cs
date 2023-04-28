@@ -29,7 +29,6 @@ public class UIResourceManager : MonoBehaviour
     private float cityStorageLevel;
 
     //resource grid
-    private List<ResourceIndividualSO> resourceInfo;
     public RectTransform gridHolder, overflowGridHolder;
     private Dictionary<int, UIDropLocation> gridCellDict = new();
     private int activeCells;
@@ -43,7 +42,6 @@ public class UIResourceManager : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
         overflowOriginalLoc = overflowGridHolder.anchoredPosition3D;
         originalDown = buttonDown.sprite;
-        resourceInfo = ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList();
 
         int total = 0;
         foreach (Transform selection in gridHolder)
@@ -165,14 +163,13 @@ public class UIResourceManager : MonoBehaviour
     
     private void ActivateCell(ResourceType type)
     {
-        int index = resourceInfo.FindIndex(a => a.resourceType == type);
         int loc = city.resourceGridDict[type];
         gridCellDict[loc].gameObject.SetActive(true);
         activeCells++;
 
         gridCellDict[loc].resource.resourceType = type;
         gridCellDict[loc].resource.SetValue(city.ResourceManager.ResourceDict[type]);
-        gridCellDict[loc].resource.resourceImage.sprite = resourceInfo[index].resourceIcon;
+        gridCellDict[loc].resource.resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
         resourceUIDict[type] = loc;
     }
 
