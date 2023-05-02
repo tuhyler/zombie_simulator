@@ -39,7 +39,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 5, y: -130}
-  m_SizeDelta: {x: 290, y: 395}
+  m_SizeDelta: {x: 400, y: 540}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &3299895136257763159
 MonoBehaviour:
@@ -57,9 +57,9 @@ MonoBehaviour:
   m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
-  m_Elasticity: 0.1
+  m_Elasticity: 0.01
   m_Inertia: 1
-  m_DecelerationRate: 1.35
+  m_DecelerationRate: 10
   m_ScrollSensitivity: 20
   m_Viewport: {fileID: 6882151185410785522}
   m_HorizontalScrollbar: {fileID: 8068266230021738712}
@@ -749,8 +749,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 310, y: 120}
-  m_SizeDelta: {x: 300, y: 530}
+  m_AnchoredPosition: {x: 310, y: 10}
+  m_SizeDelta: {x: 400, y: 673}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &2634008158965583018
 MonoBehaviour:
@@ -765,6 +765,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cityBuilderManager: {fileID: 0}
+  uiLaborResourcePriorityHolder: {fileID: 7389737143294441261, guid: 069f30a9959537c49bfbed42ca8f1c47,
+    type: 3}
   uiLaborResourcePriority: {fileID: 7389737143294441261, guid: 3eed2097ea0a16348a2a1d8232a64cf2,
     type: 3}
   resourceHolder: {fileID: 3830806380567685439}
@@ -1072,7 +1074,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 10, y: -10}
+  m_AnchoredPosition: {x: 60, y: -10}
   m_SizeDelta: {x: 280, y: 60}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &7860280859784924566
@@ -1210,7 +1212,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 152.5, y: -80}
+  m_AnchoredPosition: {x: 220, y: -80}
   m_SizeDelta: {x: 120, y: 40}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &348443097529838017
@@ -1344,7 +1346,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 27.5, y: -80}
+  m_AnchoredPosition: {x: 60, y: -80}
   m_SizeDelta: {x: 120, y: 40}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1517299064670911481

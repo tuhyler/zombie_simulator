@@ -102,6 +102,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 7b6cf6b8f6c3b4e45b83818a2d4d8ac6, type: 3}
   - {fileID: 21300000, guid: cb4973c8dc95db441a2b19ea8c2dd6be, type: 3}
   - {fileID: 21300000, guid: 582da869dd2205a41bc0788c0d17b213, type: 3}
+  - {fileID: 21300000, guid: 43312f2a6be55854e9ac83e79c09ef0b, type: 3}
   - {fileID: 21300000, guid: 84a27e7aa33ecb5438c2eff2ed602483, type: 3}
   - {fileID: 21300000, guid: 0256638ab96cd0948b80ba1e4bcfa1d6, type: 3}
   - {fileID: 21300000, guid: f38c00aa9a643e243b06a0b8983b96f9, type: 3}
@@ -206,6 +207,7 @@ SpriteAtlas:
   - bar_progresswhitegold
   - scrollbar_gold01
   - panel_lighterblue
+  - grip_blue
   - button_left
   - button_up
   - button_minus

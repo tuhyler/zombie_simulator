@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UITradeResourceTask : MonoBehaviour
+public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField]
     private TMP_Dropdown resourceList;
@@ -17,12 +18,25 @@ public class UITradeResourceTask : MonoBehaviour
     [SerializeField]
     private Toggle allToggle;
 
+    [SerializeField]
+    public TMP_Text counter;
+
+    [SerializeField]
+    private Image background;
+
     //[SerializeField]
     //private Image resourceIcon;
 
-    private UITradeStopHandler uiTradeStopHandler;
+    //for moving resource task
+    [HideInInspector]
+    public int loc;
+    [HideInInspector]
+    public Transform originalParent, tempParent;
+    [HideInInspector]
+    public UITradeRouteResourceHolder resourceHolder;
 
-    private List<string> resources = new();
+    [HideInInspector]
+    public List<string> resources = new();
 
     private string chosenResource;
     private int chosenMultiple = 1;
@@ -41,7 +55,30 @@ public class UITradeResourceTask : MonoBehaviour
     {
         //for checking if number is positive and integer
         inputStorageAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
-        //inputStorageAmount.interactable = true;
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        originalParent = transform.parent;
+        transform.SetParent(tempParent);
+        transform.SetAsLastSibling();
+        background.raycastTarget = false;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector3 p = Input.mousePosition;
+        p.z = 935;
+        Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+        pos.x += 250;
+        transform.position = pos;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        transform.SetParent(originalParent);
+        transform.localPosition = Vector3.zero;
+        background.raycastTarget = true;
     }
 
     public void SetChosenResource(int value)
@@ -206,18 +243,13 @@ public class UITradeResourceTask : MonoBehaviour
         return resourceValue;
     }
 
-    internal void SetStop(UITradeStopHandler uiTradeStopHandler)
-    {
-        this.uiTradeStopHandler = uiTradeStopHandler;
-    }
+    //internal void SetStop(UITradeStopHandler uiTradeStopHandler)
+    //{
+    //    this.uiTradeStopHandler = uiTradeStopHandler;
+    //}
 
     public void CloseWindow()
     {
-        //resourceHolder = null;
-        uiTradeStopHandler.resourceCount--;
-        uiTradeStopHandler.RemoveResource(this);
-        resources.Clear();
-        Destroy(gameObject);
+        resourceHolder.CloseWindow();
     }
-
 }

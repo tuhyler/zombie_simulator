@@ -235,8 +235,11 @@ public class GridSearch
                 //if (!isSeaTrader && !world.IsRoadOnTileLocation(neighbor))
                 //    continue;
 
-                positionsToCheck.Add(neighbor);
-                priorityDictionary[neighbor] = ManhattanDistance(endPosition, neighbor);
+                if (!priorityDictionary.ContainsKey(neighbor))
+                {
+                    positionsToCheck.Add(neighbor);
+                    priorityDictionary[neighbor] = ManhattanDistance(endPosition, neighbor);
+                }
             }
         }
         return false;

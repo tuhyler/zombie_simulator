@@ -9,7 +9,7 @@ public class UILaborResourcePriority : MonoBehaviour
     private TMP_Dropdown resourceList;
 
     [SerializeField]
-    private TMP_Text priorityNumber;
+    public TMP_Text priorityNumber;
     [HideInInspector]
     public int currentPriorityNumber;
 
@@ -23,10 +23,10 @@ public class UILaborResourcePriority : MonoBehaviour
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
 
-    public void SetPriority()
+    public void SetInitialPriority(int priorityNumberInt)
     {
-        int priorityNumberInt = (transform.GetSiblingIndex() + 1);
-        priorityNumber.text = priorityNumberInt.ToString(); //adding one for more intuitive numbers
+        //int priorityNumberInt = (transform.GetSiblingIndex() + 1);
+        priorityNumber.text = priorityNumberInt.ToString(); 
         currentPriorityNumber = priorityNumberInt;
     }
 
@@ -40,32 +40,35 @@ public class UILaborResourcePriority : MonoBehaviour
     {
         //RepositionPanel(true);
         
-        int placement = transform.GetSiblingIndex();
-        if (placement == 0)
+        //int placement = transform.GetSiblingIndex();
+        if (currentPriorityNumber-1 == 0)
             return;
 
-        transform.SetSiblingIndex(placement - 1);
-        int priorityNumberInt = placement;
-        priorityNumber.text = priorityNumberInt.ToString(); //adding one for more intuitive numbers
+        //transform.SetSiblingIndex(placement - 1);
+        int priorityNumberInt = currentPriorityNumber-1; //placement;
+        priorityNumber.text = priorityNumberInt.ToString(); 
         currentPriorityNumber= priorityNumberInt;
 
-        uiLaborPrioritizationManager.MovePriorityUp(this, priorityNumberInt);
+        //uiLaborPrioritizationManager.MovePriorityUp(this, priorityNumberInt);
+        uiLaborPrioritizationManager.MovePriority(priorityNumberInt, true);
     }
 
     public void MovePriorityDown()
     {
         //RepositionPanel(false);
 
-        int placement = transform.GetSiblingIndex();
-        if (placement == transform.parent.childCount - 1)
+        //int placement = transform.GetSiblingIndex();
+        //if (currentPriorityNumber == transform.parent.childCount - 1)
+        if (currentPriorityNumber == uiLaborPrioritizationManager.resourcePriorityList.Count)
             return;
 
-        transform.SetSiblingIndex(placement + 1);
-        int priorityNumberInt = placement + 2;
-        priorityNumber.text = priorityNumberInt.ToString(); //adding one for more intuitive numbers
+        //transform.SetSiblingIndex(placement + 1);
+        int priorityNumberInt = currentPriorityNumber + 1; //placement + 2;
+        priorityNumber.text = priorityNumberInt.ToString(); 
         currentPriorityNumber = priorityNumberInt;
 
-        uiLaborPrioritizationManager.MovePriorityDown(this, priorityNumberInt);
+        //uiLaborPrioritizationManager.MovePriorityDown(this, priorityNumberInt);
+        uiLaborPrioritizationManager.MovePriority(priorityNumberInt, false);
     }
 
     public void SetPriority(int priority)

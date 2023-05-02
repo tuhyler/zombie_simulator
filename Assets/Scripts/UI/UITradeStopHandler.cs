@@ -2,14 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEditor.Experimental.GraphView;
 
 public class UITradeStopHandler : MonoBehaviour
 {
+    //[SerializeField]
+    //private RectTransform allContents;
+    
     [SerializeField]
     private TMP_Dropdown cityNameList;
 
     [SerializeField]
-    private GameObject tradeResourceTaskTemplate;
+    private GameObject tradeResourceHolder, tradeResourceTaskTemplate;
 
     [SerializeField]
     private TMP_InputField inputWaitTime;
@@ -17,7 +21,14 @@ public class UITradeStopHandler : MonoBehaviour
     [SerializeField]
     private Toggle waitForeverToggle;
 
+    [SerializeField]
+    public TMP_Text counter;
+
+    //[HideInInspector]
+    //public int loc;
+
     private UITradeRouteManager tradeRouteManager;
+    //private UITradeRouteStopHolder tradeStopHolder;
 
     //[SerializeField]
     //private Transform resourceDetailHolder;
@@ -30,11 +41,13 @@ public class UITradeStopHandler : MonoBehaviour
     //private string chosenWaitTime;
 
     //handling all the resource info for this stop
-    private List<UITradeResourceTask> uiResourceTasks = new();
+    [HideInInspector]
+    public List<UITradeResourceTask> uiResourceTasks = new();
     [HideInInspector]
     public int resourceCount;
 
     private List<TMP_Dropdown.OptionData> resources;
+    private Dictionary<int, UITradeRouteResourceHolder> resourceTaskDict = new();
 
     private int waitTime;
     private bool waitForever = true;
@@ -55,22 +68,36 @@ public class UITradeStopHandler : MonoBehaviour
         this.tradeRouteManager = tradeRouteManager;
     }
 
+    //public void SetStopHolder(UITradeRouteStopHolder tradeStopHolder)
+    //{
+    //    this.tradeStopHolder = tradeStopHolder;
+    //}
+
     public void MoveStopUp()
     {
         int placement = transform.GetSiblingIndex();
         if (placement == 0)
             return;
 
-        transform.SetSiblingIndex(placement-1);
+        ChangeCounter(placement);
+        transform.SetSiblingIndex(placement - 1);
+        tradeRouteManager.MoveStop(placement, true);
     }
 
     public void MoveStopDown()
     {
         int placement = transform.GetSiblingIndex();
-        if (placement == transform.parent.childCount - 1)
+        if (placement == tradeRouteManager.stopCount - 1)
             return;
 
+        ChangeCounter(placement + 2);
         transform.SetSiblingIndex(placement + 1);
+        tradeRouteManager.MoveStop(placement + 2, false);
+    }
+
+    public void ChangeCounter(int num)
+    {
+        counter.text = num.ToString();
     }
 
     public void AddResources(List<TMP_Dropdown.OptionData> resources)
@@ -119,16 +146,6 @@ public class UITradeStopHandler : MonoBehaviour
                 resourceTask.SetCaptionResourceInfo(resourceValue);
         }
     }
-
-    //public void SetInputWaitTime(string value)
-    //{
-    //    chosenWaitTime = value.Trim();
-    //}
-
-    //public void SetCargoStorageLimit(int cargoLimit)
-    //{
-    //    traderCargoStorageLimit = cargoLimit;
-    //}
 
     public void WaitForever(bool v)
     {
@@ -194,24 +211,75 @@ public class UITradeStopHandler : MonoBehaviour
         if (resourceCount >= 20)
         {
             Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f; //z must be more than 0, else just gives camera position
+            mousePos.z = 10f; 
             Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
             InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Hit resource limit");
 
             return null;
         }
+
+        //ChangeSize(true);
+
+        GameObject newHolder = Instantiate(tradeResourceHolder);
+        newHolder.transform.SetParent(transform, false);
+        UITradeRouteResourceHolder resourceHolder = newHolder.GetComponent<UITradeRouteResourceHolder>();
+        resourceHolder.SetStop(this);
+        resourceTaskDict[resourceCount] = resourceHolder;
+        resourceHolder.loc = resourceCount;
         
         GameObject newTask = Instantiate(tradeResourceTaskTemplate);
-        newTask.SetActive(true);
-        newTask.transform.SetParent(transform, false);
+        newTask.transform.SetParent(resourceHolder.transform, false);
+        //newTask.SetActive(true);
+        //newTask.transform.SetParent(transform, false);
+
 
         UITradeResourceTask newResourceTask = newTask.GetComponent<UITradeResourceTask>();
+        resourceHolder.resourceTask = newResourceTask;
+        newResourceTask.resourceHolder = resourceHolder; 
         newResourceTask.AddResources(resources);
-        newResourceTask.SetStop(this);
+        newResourceTask.tempParent = tradeRouteManager.transform;
+        newResourceTask.counter.text = (resourceCount + 1).ToString() + '.';
+        newResourceTask.loc = resourceCount;
         //newResourceTask.SetCargoStorageLimit(traderCargoStorageLimit);
         uiResourceTasks.Add(newResourceTask);
+        resourceCount++;
 
+        //newResourceTask.transform.localPosition = Vector3.zero;
+        //resourceHolder.transform.localPosition = Vector3.zero;
+        //resourceHolder.transform.localScale = Vector3.one;
+        //resourceHolder.transform.localEulerAngles = Vector3.zero;
         return newResourceTask;
+    }
+
+    public void MoveResourceTask(int oldNum, int newNum)
+    {
+        //shifting all the other resources
+        if (oldNum > newNum)
+        {
+            for (int i = oldNum; i > newNum; i--)
+            {
+                int next = i - 1;
+                resourceTaskDict[next].MoveResourceTask(resourceTaskDict[i]);
+            }
+        }
+        else
+        {
+            for (int i = oldNum; i < newNum; i++)
+            {
+                int next = i + 1;
+                resourceTaskDict[next].MoveResourceTask(resourceTaskDict[i]);
+            }
+        }
+    }
+
+    //for deleting resources
+    public void AdjustResources(int oldNum)
+    {
+        for (int i = oldNum; i < uiResourceTasks.Count; i++)
+        {
+            uiResourceTasks[i].loc -= 1;
+            uiResourceTasks[i].counter.text = (i + 1).ToString() + '.';
+        }
     }
 
     //sending all the resource information for each stop
@@ -264,17 +332,23 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void RemoveResource(UITradeResourceTask uiTradeResourceTask)
     {
+        //ChangeSize(false);
         uiResourceTasks.Remove(uiTradeResourceTask);
     }
 
     public void CloseWindow()
     {
         tradeRouteManager.stopCount--;
-        uiResourceTasks.Clear();
-        cityNames.Clear();
-        resources.Clear();
-        //gameObject.SetActive(false);
+        tradeRouteManager.tradeStopHandlerList.Remove(this);
         Destroy(gameObject);
     }
 
+    //public void ChangeSize(bool increase)
+    //{
+    //    int factor = increase ? 1 : -1;
+
+    //    Vector2 currentSize = allContents.rect.size;
+    //    currentSize.y += 70 * factor;
+    //    allContents.sizeDelta = currentSize;
+    //}
 }

@@ -241,9 +241,6 @@ public class Unit : MonoBehaviour
         //while (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) > threshold)
         //while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
         {
-            if (distance < threshold)
-                Debug.Log("True");
-            
             distance = Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z);
             timeElapsed += Time.deltaTime;
             float movementThisFrame = Time.deltaTime * moveSpeed;

@@ -10,7 +10,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     private CityBuilderManager cityBuilderManager;
 
     [SerializeField]
-    private GameObject uiLaborResourcePriority;
+    private GameObject uiLaborResourcePriorityHolder, uiLaborResourcePriority;
 
     [SerializeField]
     private Transform resourceHolder;
@@ -25,7 +25,9 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     private Vector3 originalLoc;
 
     //List of all displayed resource priorities
-    private List<UILaborResourcePriority> resourcePriorityList = new();
+    [HideInInspector]
+    public List<UILaborResourcePriority> resourcePriorityList = new();
+    private Dictionary<int, UILaborResourcePriorityHolder> resourcePriorityHolderDict = new();
 
     private City city;
 
@@ -75,9 +77,9 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             openPrioritizationImage.sprite = buttonLeft;
             activeStatus = true;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(-300f, 0, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(-400f, 0, 0);
 
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 300f, 0.3f).setEaseOutSine();
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 400f, 0.3f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear(); //don't like alpha fading here
         }
         else
@@ -87,9 +89,9 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             openPrioritizationImage.sprite = buttonRight;
             
             if (!exitCity)
-                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -300f, 0.3f).setOnComplete(SetActiveStatusFalse);
+                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -400f, 0.3f).setOnComplete(SetActiveStatusFalse);
             else
-                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -850f, 0.3f).setOnComplete(SetActiveStatusFalse);
+                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -950f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
     }
 
@@ -97,10 +99,16 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     {
         foreach (UILaborResourcePriority uiLaborResourcePriority in resourcePriorityList)
         {
-            uiLaborResourcePriority.RemoveWindow();
+            Destroy(uiLaborResourcePriority.gameObject);//.RemoveWindow();
+        }
+
+        foreach (int i in resourcePriorityHolderDict.Keys)
+        {
+            Destroy(resourcePriorityHolderDict[i].gameObject);
         }
 
         resourcePriorityList.Clear();
+        resourcePriorityHolderDict.Clear();
 
         gameObject.SetActive(false);
     }
@@ -114,7 +122,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     {
         if (resourcePriorityList.Count >= resources.Count) //limit
         {
-            InfoPopUpHandler.WarningMessage().Create(city.cityLoc, "Nope, too many");
+            InfoPopUpHandler.WarningMessage().Create(city.cityLoc, "Max resources");
             return;
         }
 
@@ -123,13 +131,20 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     private UILaborResourcePriority AddResourcePriority() //showing a new resource priority panel
     {
+        GameObject newHolder = Instantiate(uiLaborResourcePriorityHolder);
+        newHolder.transform.SetParent(resourceHolder, false);
+
+        UILaborResourcePriorityHolder newResourceHolder = newHolder.GetComponent<UILaborResourcePriorityHolder>();
+        newResourceHolder.loc = resourcePriorityList.Count;
+        resourcePriorityHolderDict[resourcePriorityList.Count] = newResourceHolder;
+
         GameObject newPriority = Instantiate(uiLaborResourcePriority);
-        newPriority.SetActive(true);
-        newPriority.transform.SetParent(resourceHolder, false);
+        newPriority.transform.SetParent(newHolder.transform, false);
 
         UILaborResourcePriority newResourcePriority = newPriority.GetComponent<UILaborResourcePriority>();
+        newResourceHolder.resource = newResourcePriority;
         newResourcePriority.AddResources(resources);
-        newResourcePriority.SetPriority(); //set priority before attaching to this
+        newResourcePriority.SetInitialPriority(resourcePriorityList.Count+1); //set priority before attaching to this
         newResourcePriority.SetCityLaborPrioritizationManager(this);
 
         return newResourcePriority;
@@ -146,7 +161,17 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         priorityAbove.SetPriority(priorityAbove.currentPriorityNumber + 1);
         resourcePriorityList.Remove(uiLaborResourcePriority);
         resourcePriorityList.Insert(priority-1, uiLaborResourcePriority);
+        resourcePriorityHolderDict[priority-1].MoveStop(resourcePriorityHolderDict[priority]);
+
+        priorityAbove.transform.SetParent(resourcePriorityHolderDict[priority - 1].transform, false);
+        Vector3 newLoc = resourcePriorityHolderDict[priority - 1].transform.position;
+        resourcePriorityHolderDict[priority - 1].resource = priorityAbove;
+        //priorityAbove.currentPriorityNumber = priority - 1;
+
+        LeanTween.move(priorityAbove.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priorityAbove); });
+        priorityAbove.transform.localPosition = Vector3.zero;
     }
+
 
     public void MovePriorityDown(UILaborResourcePriority uiLaborResourcePriority, int priority)
     {
@@ -154,12 +179,57 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         priorityBelow.SetPriority(priorityBelow.currentPriorityNumber - 1);
         resourcePriorityList.Remove(uiLaborResourcePriority);
         resourcePriorityList.Insert(priority-1, uiLaborResourcePriority);
+        resourcePriorityHolderDict[priority - 1].MoveStop(resourcePriorityHolderDict[priority-2]);
+
+        priorityBelow.transform.SetParent(resourcePriorityHolderDict[priority - 1].transform, false);
+        Vector3 newLoc = resourcePriorityHolderDict[priority - 1].transform.position;
+        resourcePriorityHolderDict[priority - 1].resource = priorityBelow;
+        //priorityAbove.currentPriorityNumber = priority - 1;
+
+        LeanTween.move(priorityBelow.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priorityBelow); });
+        priorityBelow.transform.localPosition = Vector3.zero;
+    }
+
+    public void MovePriority(int loc, bool up)
+    {
+        UILaborResourcePriority priority = up ? resourcePriorityList[loc] : resourcePriorityList[loc - 2];
+        resourcePriorityList.Remove(priority);
+        resourcePriorityList.Insert(loc - 1, priority);
+
+        if (up)
+        {
+            resourcePriorityList[loc].priorityNumber.text = (loc + 1).ToString();
+            resourcePriorityList[loc].currentPriorityNumber = loc + 1;
+            resourcePriorityHolderDict[loc - 1].MoveStop(resourcePriorityHolderDict[loc]);
+        }
+        else
+        {
+            resourcePriorityList[loc - 2].priorityNumber.text = (loc - 1).ToString();
+            resourcePriorityList[loc - 2].currentPriorityNumber = loc - 1;
+            resourcePriorityHolderDict[loc - 1].MoveStop(resourcePriorityHolderDict[loc - 2]);
+        }
+
+        priority.transform.SetParent(resourcePriorityHolderDict[loc - 1].transform);
+        Vector3 newLoc = resourcePriorityHolderDict[loc - 1].transform.position;
+        resourcePriorityHolderDict[loc - 1].resource = priority;
+
+        LeanTween.move(priority.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priority); });
+        //priority.transform.localPosition = Vector3.zero;
+    }
+
+    public void SetZeroLoc(UILaborResourcePriority resource)
+    {
+        resource.transform.localPosition = Vector3.zero;
     }
 
     public void RemoveFromResourcePriorityList(UILaborResourcePriority uiLaborResourcePriority)
     {
         int priority = resourcePriorityList.IndexOf(uiLaborResourcePriority);
         resourcePriorityList.Remove(uiLaborResourcePriority);
+        
+        UILaborResourcePriorityHolder holder = resourcePriorityHolderDict[priority];
+        resourcePriorityHolderDict.Remove(priority);
+        Destroy(holder.gameObject);
 
         //moving one down for the priority numbers for all resources below the one removed
         for (int i = priority; i < resourcePriorityList.Count; i++)

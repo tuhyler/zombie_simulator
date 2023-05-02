@@ -99,7 +99,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
-      value: worker_01
+      value: Worker1Data_1
       objectReference: {fileID: 0}
     - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -187,7 +187,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef3539db8ce8105408a48063c9f1361c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitDataSO: {fileID: 11400000, guid: 18c8b91359d031b4993718da17e9fc1f, type: 2}
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -200,6 +199,7 @@ MonoBehaviour:
   isBusy: 0
   isMoving: 0
   isBeached: 0
+  currentHealth: 0
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -209,5 +209,8 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  somethingToSay: 0
+  sayingSomething: 0
   unitAnimator: {fileID: 0}
   removing: 0
+  citiesBuilt: 0
