@@ -884,17 +884,18 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedTrader != null)
         {
+            selectedUnit.StopMovement();
             selectedTrader.BeginNextStepInRoute();
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+            uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
             uiCancelTradeRoute.ToggleTweenVisibility(true);
         }
-
-        //ClearSelection();
     }
 
     public void CancelTradeRoute() //stop following route but still keep route description
     {
         selectedTrader.CancelRoute();
+        selectedUnit.StopMovement();
         ShowIndividualCityButtonsUI();
         CancelContinuedMovementOrders();
         uiCancelTradeRoute.ToggleTweenVisibility(false);

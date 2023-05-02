@@ -16,6 +16,8 @@ public class UIDropLocation : MonoBehaviour, IDropHandler
     {
         GameObject dropped = eventData.pointerDrag;
         UIResources resource = dropped.GetComponent<UIResources>();
+        if (resource == null)
+            return;
         resource.originalParent = transform;
         resourceManager.MoveResources(resource.loc, gridLocation, resource.resourceType);
         this.resource = resource;

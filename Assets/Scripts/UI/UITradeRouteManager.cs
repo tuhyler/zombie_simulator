@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UITradeRouteManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject uiTradeStopPanel;
+    private GameObject uiTradeStopHolder, uiTradeStopPanel;
 
     [SerializeField]
     private UnitMovement unitMovement;
@@ -19,6 +19,10 @@ public class UITradeRouteManager : MonoBehaviour
     private Transform stopHolder;
     [HideInInspector]
     public int stopCount;
+
+    [HideInInspector]
+    public List<UITradeStopHandler> tradeStopHandlerList = new();
+    //private Dictionary<int, UITradeRouteStopHolder> tradeStopHolderDict = new();
 
     //for generating resource lists
     private List<TMP_Dropdown.OptionData> resources = new();
@@ -119,12 +123,14 @@ public class UITradeRouteManager : MonoBehaviour
 
         activeStatus = false;
         LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -600f, 0.3f).setOnComplete(SetActiveStatusFalse);
+        List<UITradeStopHandler> stopList = new(tradeStopHandlerList);
 
-        foreach (UITradeStopHandler stopHandler in transform.GetComponentsInChildren<UITradeStopHandler>())
+        foreach (UITradeStopHandler stopHandler in stopList)
         {
             stopHandler.CloseWindow();
         }
 
+        //tradeStopHolderDict.Clear();
         unitMovement.TurnOnInfoScreen();
     }
 
@@ -135,43 +141,91 @@ public class UITradeRouteManager : MonoBehaviour
 
     private UITradeStopHandler AddStopPanel() //showing a new resource task panel
     {
-        if (stopCount >= 2)
+        if (stopCount >= 20)
         {
             Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f; //z must be more than 0, else just gives camera position
+            mousePos.z = 10f;
             Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
             InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Hit stop limit");
 
             return null;
         }
-        
-        GameObject newStop = Instantiate(uiTradeStopPanel);
-        newStop.SetActive(true);
-        newStop.transform.SetParent(stopHolder, false);
 
+        //GameObject newHolder = Instantiate(uiTradeStopHolder);
+        //newHolder.transform.SetParent(stopHolder);
+        //UITradeRouteStopHolder newStopHolder = newHolder.GetComponent<UITradeRouteStopHolder>();
+        //tradeStopHolderDict[stopCount] = newStopHolder;
+        //newStopHolder.loc = stopCount;
+
+        GameObject newStop = Instantiate(uiTradeStopPanel);
+        newStop.transform.SetParent(stopHolder, false);
         UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
+        //newStopHolder.stopHandler = newStopHandler;
+        //newStopHandler.SetStopHolder(newStopHolder);
+        //newStopHandler.loc = stopCount;
+        newStopHandler.counter.text = (stopCount + 1).ToString();
         newStopHandler.SetTradeRouteManager(this);
         newStopHandler.AddCityNames(cityNames);
         newStopHandler.AddResources(resources);
+        tradeStopHandlerList.Add(newStopHandler);
         //newStopHandler.SetCargoStorageLimit(selectedTrader.CargoStorageLimit);
         stopCount++;
 
+        //newStop.transform.localPosition = Vector3.zero;
+        //newHolder.transform.localPosition = Vector3.zero;
+        //newHolder.transform.localScale = Vector3.one;
+        //newHolder.transform.localEulerAngles = Vector3.zero;
         return newStopHandler;
     }
+
+    public void MoveStop(int loc, bool up)
+    {
+        UITradeStopHandler currentStop = up ? tradeStopHandlerList[loc] : tradeStopHandlerList[loc - 2];
+        tradeStopHandlerList.Remove(currentStop);
+        tradeStopHandlerList.Insert(loc - 1, currentStop);
+
+        if (up)
+        {
+            tradeStopHandlerList[loc].ChangeCounter(loc + 1);
+            //tradeStopHolderDict[loc - 1].MoveStop(tradeStopHolderDict[loc]);
+        }
+        else
+        {
+            tradeStopHandlerList[loc - 2].ChangeCounter(loc - 1);
+            //tradeStopHolderDict[loc - 1].MoveStop(tradeStopHolderDict[loc - 2]);
+        }
+
+        //currentStop.transform.SetParent(tradeStopHolderDict[loc - 1].transform);
+        //Vector3 newLoc = tradeStopHolderDict[loc - 1].transform.position;
+        //tradeStopHolderDict[loc - 1].stopHandler = currentStop;
+        //currentStop.loc = loc - 1;
+
+        //LeanTween.move(currentStop.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(currentStop); });
+        //currentStop.transform.localPosition = Vector3.zero;
+    }
+
+    //public void SetZeroLoc(UITradeStopHandler currentStop)
+    //{
+    //    currentStop.transform.localPosition = Vector3.zero;
+    //}
+
+    //public void DestroyHolder(int loc)
+    //{
+    //    Destroy(tradeStopHolderDict[loc].gameObject);
+    //}
 
     public void CreateRoute()
     {
         List<string> destinations = new();
         List<List<ResourceValue>> resourceAssignments = new();
         List<int> waitTimes = new();
-        UITradeStopHandler[] stopInfoArray = transform.GetComponentsInChildren<UITradeStopHandler>();
 
         //checking for consecutive stops
         int i = 0;
-        int childCount = stopInfoArray.Length;
+        int childCount = tradeStopHandlerList.Count;
         bool consecFound = false;
 
-        foreach(UITradeStopHandler stopHandler in stopInfoArray)
+        foreach(UITradeStopHandler stopHandler in tradeStopHandlerList)
         {            
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
             if (destination == null)

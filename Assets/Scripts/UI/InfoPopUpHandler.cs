@@ -29,7 +29,7 @@ public class InfoPopUpHandler : MonoBehaviour
 
     private IEnumerator ShowMessage()
     {
-        float moveSpeed = 0.2f;
+        float moveSpeed = 0.1f;
         
         while (disappearTimer > 0)
         {
@@ -67,6 +67,7 @@ public class InfoPopUpHandler : MonoBehaviour
         if (co != null)
             StopCoroutine(co);
         gameObject.SetActive(true);
+        //position.x = Mathf.Clamp(position.x, 100f, Screen.width - 100);
         disappearTimer = visibleTime;
         warningMessage.transform.position = position;
         warningMessage.SetPopUpText(text);
