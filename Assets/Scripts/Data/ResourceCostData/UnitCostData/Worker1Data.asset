@@ -26,3 +26,9 @@ MonoBehaviour:
   unitDescription: Builds cities and roads
   availableInitially: 1
   locked: 0
+  movementPoints: 10
+  health: 10
+  attackStrength: 10
+  movementSpeed: 3
+  cargoCapacity: 0
+  transportationType: 0
