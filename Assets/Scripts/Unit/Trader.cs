@@ -28,6 +28,7 @@ public class Trader : Unit
     private void Awake()
     {
         AwakeMethods();
+        tradeRouteManager = GetComponent<TradeRouteManager>();
         isTrader = true;
     }
 
@@ -64,7 +65,6 @@ public class Trader : Unit
     //passing details of the trade route
     public void SetTradeRoute(List<string> cityNames, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes, UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
     {
-        tradeRouteManager = GetComponent<TradeRouteManager>();
         tradeRouteManager.SetTrader(this);
         tradeRouteManager.SetPersonalResourceManager(personalResourceManager, uiPersonalResourceInfoPanel);
 
@@ -86,16 +86,16 @@ public class Trader : Unit
         tradeRouteManager.SetTradeRoute(tradeStops, resourceAssignments, waitTimes);
     }
 
-    public List<Vector3Int> GetCityStops()
-    {
-        if (tradeRouteManager == null)
-        {
-            List<Vector3Int> cityStops = new();
-            return cityStops;
-        }
+    //public List<Vector3Int> GetCityStops()
+    //{
+    //    if (tradeRouteManager == null)
+    //    {
+    //        List<Vector3Int> cityStops = new();
+    //        return cityStops;
+    //    }
 
-        return tradeRouteManager.CityStops;
-    }
+    //    return tradeRouteManager.CityStops;
+    //}
 
     protected override void TradeRouteCheck(Vector3 endPosition)
     {

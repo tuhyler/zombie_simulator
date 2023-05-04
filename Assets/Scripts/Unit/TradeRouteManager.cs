@@ -5,19 +5,21 @@ using UnityEngine.Events;
 
 public class TradeRouteManager : MonoBehaviour
 {
-    private List<Vector3Int> cityStops;
-    public List<Vector3Int> CityStops { get { return cityStops; } }
+    [HideInInspector]
+    public List<Vector3Int> cityStops = new();
     private List<List<ResourceValue>> resourceAssignments;
     public List<List<ResourceValue>> ResourceAssignments { get { return resourceAssignments; } }
     private List<int> waitTimes;
     public List<int> WaitTimes { get { return waitTimes; } }
 
-    private int currentStop = 0;
+    [HideInInspector]
+    public int currentStop = 0;
     private Vector3Int currentDestination;
     public Vector3Int CurrentDestination { get { return currentDestination; } }
 
     private PersonalResourceManager personalResourceManager;
     private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
+    private UITradeRouteManager uiTradeRouteManager;
 
     //private List<bool> resourceStepComplete = new();
 
@@ -25,8 +27,8 @@ public class TradeRouteManager : MonoBehaviour
     public UnityEvent FinishedLoading; //listener is in Trader
     private Dictionary<ResourceType, int> resourcesAtArrival = new();
     private int secondIntervals = 1;
-    private int timeWaited = 0;
-    private int waitTime;
+    [HideInInspector]
+    public int timeWaited = 0, waitTime;
     //private Coroutine holdingPatternCo;
     [HideInInspector]
     public bool resourceCheck = false, waitForever = false;
@@ -60,6 +62,11 @@ public class TradeRouteManager : MonoBehaviour
     {
         this.personalResourceManager = personalResourceManager;
         this.uiPersonalResourceInfoPanel = uiPersonalResourceInfoPanel;
+    }
+
+    public void SetTradeRouteManager(UITradeRouteManager uiTradeRouteManager)
+    {
+        this.uiTradeRouteManager = uiTradeRouteManager;
     }
 
     public void SetTrader(Trader trader)
@@ -297,6 +304,8 @@ public class TradeRouteManager : MonoBehaviour
         {
             yield return new WaitForSeconds(secondIntervals);
             timeWaited += secondIntervals;
+            if (uiTradeRouteManager.activeStatus)
+                uiTradeRouteManager.tradeStopHandlerList[currentStop].SetTime(timeWaited, waitTime);
             //Debug.Log("waited " + timeWaited + " seconds");
         }
 
@@ -318,6 +327,25 @@ public class TradeRouteManager : MonoBehaviour
 
     private void FinishLoading()
     {
+        if (uiTradeRouteManager.activeStatus)
+        {
+            uiTradeRouteManager.tradeStopHandlerList[currentStop].progressBarHolder.SetActive(false);
+            uiTradeRouteManager.tradeStopHandlerList[currentStop].SetAsComplete();
+            //uiTradeRouteManager.trade
+            if (currentStop + 1 == cityStops.Count)
+            {
+                uiTradeRouteManager.tradeStopHandlerList[0].SetAsCurrent();
+                for (int i = 1; i < cityStops.Count; i++)
+                {
+                    uiTradeRouteManager.tradeStopHandlerList[i].SetAsNext();
+                }
+            }
+            else
+            {
+                uiTradeRouteManager.tradeStopHandlerList[currentStop + 1].SetAsCurrent();
+            }
+        }
+
         Debug.Log("Finished loading");
         resourceCheck = false;
         waitForever=false;

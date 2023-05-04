@@ -6,9 +6,12 @@ using UnityEditor.Experimental.GraphView;
 
 public class UITradeStopHandler : MonoBehaviour
 {
-    //[SerializeField]
-    //private RectTransform allContents;
-    
+    [SerializeField]
+    public Image background, resourceButton;
+
+    [SerializeField]
+    public Sprite nextStopSprite, currentStopSprite, completedStopSprite, nextResource, currentResource, completedResource;
+
     [SerializeField]
     private TMP_Dropdown cityNameList;
 
@@ -23,6 +26,15 @@ public class UITradeStopHandler : MonoBehaviour
 
     [SerializeField]
     public TMP_Text counter;
+
+    [SerializeField]
+    public GameObject progressBarHolder;
+
+    [SerializeField]
+    private TMP_Text timeText;
+
+    [SerializeField]
+    private Image progressBarMask;
 
     //[HideInInspector]
     //public int loc;
@@ -55,6 +67,13 @@ public class UITradeStopHandler : MonoBehaviour
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
+
+    private void Awake()
+    {
+        timeText.outlineWidth = 0.5f;
+        timeText.outlineColor = new Color(0, 0, 0, 255);
+        progressBarHolder.SetActive(false);
+    }
 
     private void Start() 
     {
@@ -137,13 +156,21 @@ public class UITradeStopHandler : MonoBehaviour
         cityNameList.RefreshShownValue();
     }
 
-    public void SetResourceAssignments(List<ResourceValue> resourceValues)
+    public void SetResourceAssignments(List<ResourceValue> resourceValues, bool completed, bool current)
     {
         foreach (ResourceValue resourceValue in resourceValues)
         {
             UITradeResourceTask resourceTask = AddResourceTaskPanel();
             if (resourceTask != null)
+            {
                 resourceTask.SetCaptionResourceInfo(resourceValue);
+                if (completed)
+                    resourceTask.background.sprite = completedStopSprite;
+                else if (current)
+                    resourceTask.background.sprite = currentStopSprite;
+                else
+                    resourceTask.background.sprite = nextStopSprite;
+            }
         }
     }
 
@@ -249,6 +276,43 @@ public class UITradeStopHandler : MonoBehaviour
         //resourceHolder.transform.localScale = Vector3.one;
         //resourceHolder.transform.localEulerAngles = Vector3.zero;
         return newResourceTask;
+    }
+
+    public void SetAsNext()
+    {
+        background.sprite = nextStopSprite;
+        resourceButton.sprite = nextResource;
+    }
+
+    public void SetAsComplete()
+    {
+        background.sprite = completedStopSprite;
+        resourceButton.sprite = completedResource;
+    }
+
+    public void SetAsCurrent()
+    {
+        background.sprite = currentStopSprite;
+        resourceButton.sprite = currentResource;
+    }
+
+    public void SetTime(int time, int totalTime)
+    {
+        timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
+        int nextTime = (totalTime - time) + 1;
+        float totalTimeFactor = 1f / totalTime;
+
+        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, nextTime * totalTimeFactor, 1f)
+            .setEase(LeanTweenType.linear)
+            .setOnUpdate((value) =>
+            {
+                progressBarMask.fillAmount = value;
+            });
+    }
+
+    public void SetProgressBarMask(int time, int totalTime)
+    {
+        progressBarMask.fillAmount = (totalTime - time) * (1f / totalTime);
     }
 
     public void MoveResourceTask(int oldNum, int newNum)

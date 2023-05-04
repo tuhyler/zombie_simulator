@@ -22,7 +22,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     public TMP_Text counter;
 
     [SerializeField]
-    private Image background;
+    public Image background;
 
     //[SerializeField]
     //private Image resourceIcon;
@@ -50,6 +50,11 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     private bool getAll;
 
+    private void Awake()
+    {
+        counter.outlineColor = Color.black;//new Color(0.2f, 0.2f, 0.2f);
+        counter.outlineWidth = 0.3f;
+    }
 
     private void Start()
     {

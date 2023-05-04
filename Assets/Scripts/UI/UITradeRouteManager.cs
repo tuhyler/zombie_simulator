@@ -48,7 +48,8 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void LoadTraderRouteInfo(Trader selectedTrader, MapWorld world)
     {
-        List<Vector3Int> cityStops = selectedTrader.GetCityStops();
+        List<Vector3Int> cityStops = selectedTrader.tradeRouteManager.cityStops;
+        int currentStop = selectedTrader.tradeRouteManager.currentStop;
 
         for (int i = 0; i < cityStops.Count; i++)
         {
@@ -56,9 +57,39 @@ public class UITradeRouteManager : MonoBehaviour
             UITradeStopHandler newStopHandler = AddStopPanel();
             if (newStopHandler != null)
             {
+                bool completed = i < currentStop;
+                bool current = i == currentStop;
+                
                 newStopHandler.SetCaptionCity(cityName);
-                newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i]);
+                newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i], completed, current);
                 newStopHandler.SetWaitTimes(selectedTrader.tradeRouteManager.WaitTimes[i]);
+
+                if (selectedTrader.followingRoute)
+                {
+                    if (completed)
+                    {
+                        newStopHandler.SetAsComplete();
+                    }
+                    else if (current)
+                    {
+                        if (selectedTrader.atStop)
+                        {
+                            newStopHandler.progressBarHolder.SetActive(true);
+                            newStopHandler.SetProgressBarMask(selectedTrader.tradeRouteManager.timeWaited, selectedTrader.tradeRouteManager.waitTime);
+                            newStopHandler.SetTime(selectedTrader.tradeRouteManager.timeWaited, selectedTrader.tradeRouteManager.waitTime);
+                        }
+                        newStopHandler.SetAsCurrent();
+                    }
+                    else
+                    {
+                        newStopHandler.SetAsNext();
+                    }
+                }
+                else
+                {
+                    newStopHandler.background.sprite = newStopHandler.nextStopSprite;
+                    newStopHandler.resourceButton.sprite = newStopHandler.nextResource;
+                }
             }
         }
     }
@@ -104,6 +135,7 @@ public class UITradeRouteManager : MonoBehaviour
     public void PrepareTradeRouteMenu(List<string> cityNames, Trader selectedTrader)
     {
         this.selectedTrader = selectedTrader;
+        this.selectedTrader.tradeRouteManager.SetTradeRouteManager(this);
         this.cityNames = cityNames;
     }
 
@@ -253,7 +285,7 @@ public class UITradeRouteManager : MonoBehaviour
 
             if (resourceAssignment.Count == 0 && waitTime < 0)
             {
-                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "No orders and no wait time max for stop");
+                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "No resource assignment with forever wait time for stop");
                 return;
             }
         }
