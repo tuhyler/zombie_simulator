@@ -22,7 +22,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     public TMP_Text counter;
 
     [SerializeField]
-    public Image background;
+    public Image background, completeImage, check;
 
     //[SerializeField]
     //private Image resourceIcon;
@@ -54,6 +54,8 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         counter.outlineColor = Color.black;//new Color(0.2f, 0.2f, 0.2f);
         counter.outlineWidth = 0.3f;
+        check.gameObject.SetActive(false);
+        completeImage.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -113,6 +115,50 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         if (value == 1)
             chosenMultiple = -1;
+    }
+
+    public void SetAmount(int amount, int totalAmount)
+    {
+        float perc = (float)(amount) / totalAmount;
+        
+        if (amount == totalAmount)
+        {
+            LeanTween.value(completeImage.gameObject, completeImage.fillAmount, perc, 1f)
+                .setEase(LeanTweenType.linear)
+                .setOnUpdate((value) =>
+                {
+                    completeImage.fillAmount = value;
+                }).setOnComplete(SetCheck);
+        }
+        else
+        {
+            LeanTween.value(completeImage.gameObject, completeImage.fillAmount, perc, 1f)
+                .setEase(LeanTweenType.linear)
+                .setOnUpdate((value) =>
+                {
+                    completeImage.fillAmount = value;
+                });
+        }
+    }
+
+    public void SetCompletePerc(int amount, int totalAmount)
+    {
+        if (totalAmount == 0)
+            totalAmount = 1;
+        completeImage.fillAmount = (float)amount / totalAmount;
+    }
+
+    public void SetCompleteFull()
+    {
+        completeImage.fillAmount = 1;
+        SetCheck();
+    }
+
+    public void SetCheck()
+    {
+        check.gameObject.SetActive(true);
+        check.transform.localScale = Vector3.zero;
+        LeanTween.scale(check.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
     }
 
     //public void SetChosenResourceAmount(string value)
