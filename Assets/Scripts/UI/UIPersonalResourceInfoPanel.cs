@@ -179,7 +179,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             unitStoragePercent.text = $"{Mathf.RoundToInt((level / unitStorageLimit) * 100)}%";
         }
 
-        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, unitStorageLevel / unitStorageLimit, 0.2f)
+        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, unitStorageLevel / unitStorageLimit, 1)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {

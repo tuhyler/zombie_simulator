@@ -217,9 +217,9 @@ MonoBehaviour:
   uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 4
-    resourceAmount: 10
+    resourceAmount: 100
   - resourceType: 5
-    resourceAmount: 10
+    resourceAmount: 100
   - resourceType: 17
     resourceAmount: 50
   - resourceType: 15
@@ -227,7 +227,7 @@ MonoBehaviour:
   - resourceType: 12
     resourceAmount: 50
   - resourceType: 14
-    resourceAmount: 50
+    resourceAmount: 2
   - resourceType: 11
     resourceAmount: 50
   - resourceType: 13

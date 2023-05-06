@@ -57,28 +57,26 @@ public class UITradeRouteManager : MonoBehaviour
             UITradeStopHandler newStopHandler = AddStopPanel();
             if (newStopHandler != null)
             {
-                bool completed = i < currentStop;
-                bool current = i == currentStop;
-                
                 newStopHandler.SetCaptionCity(cityName);
-                newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i], completed, current);
+                newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i]);
                 newStopHandler.SetWaitTimes(selectedTrader.tradeRouteManager.WaitTimes[i]);
 
                 if (selectedTrader.followingRoute)
                 {
-                    if (completed)
+                    if (i < currentStop)
                     {
                         newStopHandler.SetAsComplete();
                     }
-                    else if (current)
+                    else if (i == currentStop)
                     {
                         if (selectedTrader.atStop)
                         {
                             newStopHandler.progressBarHolder.SetActive(true);
                             newStopHandler.SetProgressBarMask(selectedTrader.tradeRouteManager.timeWaited, selectedTrader.tradeRouteManager.waitTime);
-                            newStopHandler.SetTime(selectedTrader.tradeRouteManager.timeWaited, selectedTrader.tradeRouteManager.waitTime);
+                            newStopHandler.SetTime(selectedTrader.tradeRouteManager.timeWaited, selectedTrader.tradeRouteManager.waitTime, newStopHandler.waitForever);
                         }
-                        newStopHandler.SetAsCurrent();
+
+                        newStopHandler.SetAsCurrent(selectedTrader.tradeRouteManager.currentResource, selectedTrader.tradeRouteManager.resourceCurrentAmount, selectedTrader.tradeRouteManager.resourceTotalAmount);
                     }
                     else
                     {

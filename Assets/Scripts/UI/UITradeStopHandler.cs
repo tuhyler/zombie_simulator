@@ -10,7 +10,7 @@ public class UITradeStopHandler : MonoBehaviour
     public Image background, resourceButton;
 
     [SerializeField]
-    public Sprite nextStopSprite, currentStopSprite, completedStopSprite, nextResource, currentResource, completedResource;
+    public Sprite nextStopSprite, currentStopSprite, nextResource, currentResource;
 
     [SerializeField]
     private TMP_Dropdown cityNameList;
@@ -56,13 +56,14 @@ public class UITradeStopHandler : MonoBehaviour
     [HideInInspector]
     public List<UITradeResourceTask> uiResourceTasks = new();
     [HideInInspector]
-    public int resourceCount;
+    public int resourceCount, currentResourceTask;
 
     private List<TMP_Dropdown.OptionData> resources;
     private Dictionary<int, UITradeRouteResourceHolder> resourceTaskDict = new();
 
     private int waitTime;
-    private bool waitForever = true;
+    [HideInInspector]
+    public bool waitForever = true;
 
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
@@ -156,7 +157,7 @@ public class UITradeStopHandler : MonoBehaviour
         cityNameList.RefreshShownValue();
     }
 
-    public void SetResourceAssignments(List<ResourceValue> resourceValues, bool completed, bool current)
+    public void SetResourceAssignments(List<ResourceValue> resourceValues)
     {
         foreach (ResourceValue resourceValue in resourceValues)
         {
@@ -164,12 +165,6 @@ public class UITradeStopHandler : MonoBehaviour
             if (resourceTask != null)
             {
                 resourceTask.SetCaptionResourceInfo(resourceValue);
-                if (completed)
-                    resourceTask.background.sprite = completedStopSprite;
-                else if (current)
-                    resourceTask.background.sprite = currentStopSprite;
-                else
-                    resourceTask.background.sprite = nextStopSprite;
             }
         }
     }
@@ -205,9 +200,13 @@ public class UITradeStopHandler : MonoBehaviour
         this.waitTime = waitTime;
 
         if (waitTime < 0)
+        {
             waitForeverToggle.isOn = true;
+            waitForever = true;
+        }
         else
         {
+            waitForever = false;
             inputWaitTime.interactable = true;
             waitForeverToggle.isOn = false;
             inputWaitTime.text = waitTime.ToString();
@@ -281,38 +280,76 @@ public class UITradeStopHandler : MonoBehaviour
     public void SetAsNext()
     {
         background.sprite = nextStopSprite;
+        background.color = new Color(1, 1, 1, 1);
         resourceButton.sprite = nextResource;
+        resourceButton.color = new Color(1, 1, 1, 1);
+        for (int i = 0; i < uiResourceTasks.Count; i++)
+        {
+            uiResourceTasks[i].background.sprite = nextStopSprite;
+            uiResourceTasks[i].background.color = new Color(1, 1, 1, 1);
+            uiResourceTasks[i].completeImage.gameObject.SetActive(false);
+        }
     }
 
     public void SetAsComplete()
     {
-        background.sprite = completedStopSprite;
-        resourceButton.sprite = completedResource;
+        background.color = new Color(1, 1, 1, 0.4f);
+        resourceButton.color = new Color(1, 1, 1, 0.4f);
+        for (int i = 0; i < uiResourceTasks.Count; i++)
+        {
+            uiResourceTasks[i].background.color = new Color(1, 1, 1, 0.2f);
+            uiResourceTasks[i].completeImage.gameObject.SetActive(false);
+        }
     }
 
-    public void SetAsCurrent()
+    public void SetAsCurrent(int currentResourceTask = 0, int amount = 0, int totalAmount = 0)
     {
         background.sprite = currentStopSprite;
+        background.color = new Color(1, 1, 1, 1);
         resourceButton.sprite = currentResource;
+        resourceButton.color = new Color(1, 1, 1, 1);
+
+        for (int i = 0; i < uiResourceTasks.Count; i++)
+        {
+            uiResourceTasks[i].background.sprite = currentStopSprite;
+            uiResourceTasks[i].background.color = new Color(1, 1, 1, 1);
+            if (i < currentResourceTask)
+            {
+                uiResourceTasks[i].completeImage.gameObject.SetActive(true);
+                uiResourceTasks[i].SetCompleteFull();
+            }
+            else if (i == currentResourceTask)
+            {
+                uiResourceTasks[i].completeImage.gameObject.SetActive(true);
+                uiResourceTasks[i].check.gameObject.SetActive(false);
+                uiResourceTasks[i].SetCompletePerc(amount, totalAmount);
+            }
+            else
+            {
+                uiResourceTasks[i].completeImage.gameObject.SetActive(false);
+            }
+        }
     }
 
-    public void SetTime(int time, int totalTime)
+    public void SetTime(int time, int totalTime, bool forever)
     {
         timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
-        int nextTime = (totalTime - time) + 1;
-        float totalTimeFactor = 1f / totalTime;
+        //int nextTime = (totalTime - time) + 1;
 
-        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, nextTime * totalTimeFactor, 1f)
-            .setEase(LeanTweenType.linear)
-            .setOnUpdate((value) =>
-            {
-                progressBarMask.fillAmount = value;
-            });
+        if (!forever)
+        {
+            LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, (float)time / totalTime, 1f)
+                .setEase(LeanTweenType.linear)
+                .setOnUpdate((value) =>
+                {
+                    progressBarMask.fillAmount = value;
+                });
+        }
     }
 
     public void SetProgressBarMask(int time, int totalTime)
     {
-        progressBarMask.fillAmount = (totalTime - time) * (1f / totalTime);
+        progressBarMask.fillAmount = (float)time / totalTime;
     }
 
     public void MoveResourceTask(int oldNum, int newNum)
