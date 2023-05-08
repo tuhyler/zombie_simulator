@@ -3793,6 +3793,10 @@ MonoBehaviour:
   waitForeverToggle: {fileID: 833721808914393911}
   counter: {fileID: 7070959661085318257}
   progressBarHolder: {fileID: 4211273783982287140}
+  addResourceButton: {fileID: 1929879540790425092}
+  arrowUpButton: {fileID: 5255706096600087459}
+  arrowDownButton: {fileID: 2158669005851315268}
+  citySelectArrow: {fileID: 3326221872405684985}
   timeText: {fileID: 3543029637206722349}
   progressBarMask: {fileID: 6149447453314069259}
   uiResourceTasks: []

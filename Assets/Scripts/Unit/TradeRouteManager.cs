@@ -6,11 +6,13 @@ using UnityEngine.Events;
 public class TradeRouteManager : MonoBehaviour
 {
     [HideInInspector]
+    public int startingStop;
+    [HideInInspector]
     public List<Vector3Int> cityStops = new();
-    private List<List<ResourceValue>> resourceAssignments;
-    public List<List<ResourceValue>> ResourceAssignments { get { return resourceAssignments; } }
-    private List<int> waitTimes;
-    public List<int> WaitTimes { get { return waitTimes; } }
+    [HideInInspector]
+    public List<List<ResourceValue>> resourceAssignments;
+    [HideInInspector]
+    public List<int> waitTimes;
 
     [HideInInspector]
     public int currentStop = 0, currentResource = 0, resourceCurrentAmount, resourceTotalAmount;
@@ -39,13 +41,18 @@ public class TradeRouteManager : MonoBehaviour
     private City city;
     private Wonder wonder;
 
-
-    public void SetTradeRoute(List<Vector3Int> cityStops, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
+    private void Awake()
     {
+        trader = GetComponent<Trader>();
+    }
+
+    public void SetTradeRoute(int startingStop, List<Vector3Int> cityStops, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
+    {
+        this.startingStop = startingStop;
         this.cityStops = cityStops;
         this.resourceAssignments = resourceAssignments;
         this.waitTimes = waitTimes;
-        currentStop = 0;
+        currentStop = startingStop;
     }
 
     public Vector3Int GoToNext()
@@ -58,10 +65,15 @@ public class TradeRouteManager : MonoBehaviour
         return cityStops[currentStop];
     }
 
-    public void SetPersonalResourceManager(PersonalResourceManager personalResourceManager, UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
+    public void SetUIPersonalResourceManager(UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
+    {
+        //this.personalResourceManager = personalResourceManager;
+        this.uiPersonalResourceInfoPanel = uiPersonalResourceInfoPanel;
+    }
+
+    public void SetPersonalResourceManager(PersonalResourceManager personalResourceManager)
     {
         this.personalResourceManager = personalResourceManager;
-        this.uiPersonalResourceInfoPanel = uiPersonalResourceInfoPanel;
     }
 
     public void SetTradeRouteManager(UITradeRouteManager uiTradeRouteManager)
@@ -139,6 +151,8 @@ public class TradeRouteManager : MonoBehaviour
                 //if trader wants more than it can store
                 int level = Mathf.CeilToInt(trader.personalResourceManager.GetResourceStorageLevel);
                 int limit = trader.cargoStorageLimit;
+                int currentAmount = trader.personalResourceManager.ResourceDict[resourceValue.resourceType];
+                resourceAmount -= currentAmount;
                 if (limit - level < resourceAmount)
                 {
                     resourceAmount = limit - level;
@@ -146,7 +160,7 @@ public class TradeRouteManager : MonoBehaviour
                 }
 
                 int amountMoved = 0;
-                resourceCurrentAmount = 0;
+                resourceCurrentAmount = currentAmount;
 
                 while (loadUnloadCheck)
                 {
@@ -294,6 +308,7 @@ public class TradeRouteManager : MonoBehaviour
         FinishLoading();
     }
 
+    //for waiting for resources to arrive to load
     private IEnumerator HoldingPatternCoroutine()
     {
         while (resourceCheck)
@@ -308,7 +323,18 @@ public class TradeRouteManager : MonoBehaviour
         StopCoroutine(HoldingPatternCoroutine());
     }
 
-    private void FinishLoading()
+    public void CancelLoad()
+    {
+        if (uiTradeRouteManager.activeStatus)
+            uiTradeRouteManager.tradeStopHandlerList[currentStop].progressBarHolder.SetActive(false);
+
+        timeWaited = 0;
+        trader.isWaiting = false;
+        resourceCurrentAmount = 0;
+        currentResource = 0;
+    }
+
+    public void FinishLoading()
     {
         if (uiTradeRouteManager.activeStatus)
         {

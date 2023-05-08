@@ -28,15 +28,17 @@ public class Trader : Unit
     private void Awake()
     {
         AwakeMethods();
-        tradeRouteManager = GetComponent<TradeRouteManager>();
-        isTrader = true;
     }
 
     protected override void AwakeMethods()
     {
         base.AwakeMethods();
         cargoStorageLimit = buildDataSO.cargoCapacity;
+        tradeRouteManager = GetComponent<TradeRouteManager>();
+        tradeRouteManager.SetTrader(this);
+        isTrader = true;
         personalResourceManager = GetComponent<PersonalResourceManager>();
+        tradeRouteManager.SetPersonalResourceManager(personalResourceManager);
         personalResourceManager.ResourceStorageLimit = cargoStorageLimit;
         if (bySea)
             ripples.SetActive(false);
@@ -63,10 +65,10 @@ public class Trader : Unit
     }
 
     //passing details of the trade route
-    public void SetTradeRoute(List<string> cityNames, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes, UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
+    public void SetTradeRoute(int startingStop, List<string> cityNames, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes, UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
     {
-        tradeRouteManager.SetTrader(this);
-        tradeRouteManager.SetPersonalResourceManager(personalResourceManager, uiPersonalResourceInfoPanel);
+        //tradeRouteManager.SetTrader(this);
+        tradeRouteManager.SetUIPersonalResourceManager(uiPersonalResourceInfoPanel);
 
         List<Vector3Int> tradeStops = new();
 
@@ -83,7 +85,7 @@ public class Trader : Unit
         else
             hasRoute = false;
 
-        tradeRouteManager.SetTradeRoute(tradeStops, resourceAssignments, waitTimes);
+        tradeRouteManager.SetTradeRoute(startingStop, tradeStops, resourceAssignments, waitTimes);
     }
 
     //public List<Vector3Int> GetCityStops()
@@ -189,11 +191,15 @@ public class Trader : Unit
         {
             //tradeRouteManager.StopHoldingPatternCoroutine();
             StopCoroutine(LoadUnloadCo);
+            tradeRouteManager.CancelLoad();
             tradeRouteManager.StopHoldingPatternCoroutine();
+            tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
         }
         if (WaitTimeCo != null)
         {
             StopCoroutine(WaitTimeCo);
+            tradeRouteManager.CancelLoad();
+            tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
         }
     }
 

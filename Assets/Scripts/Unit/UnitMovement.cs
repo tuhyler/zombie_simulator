@@ -4,7 +4,7 @@ using UnityEngine;
 public class UnitMovement : MonoBehaviour
 {
     [SerializeField]
-    private MapWorld world;
+    public MapWorld world;
     [SerializeField]
     private UIUnitTurnHandler turnHandler;
     [SerializeField]
@@ -374,7 +374,7 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
     {
-        if (queueMovementOrders /*&& unit.FinalDestinationLoc != location*/ && unit.isMoving)
+        if (queueMovementOrders /*&& unit.FinalDestinationLoc != location*/ && unit.isMoving && !world.workerOrders)
         {
             if (unit.FinalDestinationLoc == location)
                 return;
@@ -596,7 +596,7 @@ public class UnitMovement : MonoBehaviour
             uiTraderPanel.uiLoadUnload.ToggleButtonColor(true);
             selectedUnit.HidePath();
             movementSystem.ClearPaths();
-            uiTradeRouteManager.CloseWindow();
+            uiTradeRouteManager.ToggleVisibility(false);
             //selectedTile = null;
 
             //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
@@ -872,11 +872,11 @@ public class UnitMovement : MonoBehaviour
             List<string> cityNames = world.GetConnectedCityNames(traderLoc, selectedTrader.bySea); //only showing city names accessible by unit
             uiTradeRouteManager.PrepareTradeRouteMenu(cityNames, selectedTrader);
             uiTradeRouteManager.ToggleVisibility(true);
-            uiTradeRouteManager.LoadTraderRouteInfo(selectedTrader, world);
+            uiTradeRouteManager.LoadTraderRouteInfo(selectedTrader, selectedTrader.tradeRouteManager, world);
         }
         else
         {
-            uiTradeRouteManager.CloseWindow();
+            uiTradeRouteManager.ToggleVisibility(false);
         }
     }
 
@@ -889,6 +889,11 @@ public class UnitMovement : MonoBehaviour
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
             uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
             uiCancelTradeRoute.ToggleTweenVisibility(true);
+            uiTradeRouteManager.ToggleVisibility(false);
+            //if (uiTradeRouteManager.activeStatus)
+            //{
+            //    uiTradeRouteManager.PrepTradeRoute();
+            //}
         }
     }
 
@@ -981,7 +986,7 @@ public class UnitMovement : MonoBehaviour
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
             uiTraderPanel.ToggleVisibility(false);
             uiCancelTradeRoute.ToggleTweenVisibility(false);
-            uiTradeRouteManager.CloseWindow();
+            uiTradeRouteManager.ToggleVisibility(false);
             uiWorkerTask.ToggleVisibility(false);
             //if (selectedUnit != null)
             //{

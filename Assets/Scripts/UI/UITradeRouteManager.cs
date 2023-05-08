@@ -6,10 +6,13 @@ using UnityEngine.UI;
 public class UITradeRouteManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject uiTradeStopHolder, uiTradeStopPanel;
+    public GameObject uiTradeStopHolder, uiTradeStopPanel, startingStopGO, newStopButton, confirmButton, stopRouteButton;
 
     [SerializeField]
     private UnitMovement unitMovement;
+
+    [SerializeField]
+    public TMP_Dropdown chosenStop;
 
     private Trader selectedTrader;
 
@@ -18,7 +21,7 @@ public class UITradeRouteManager : MonoBehaviour
     [SerializeField]
     private Transform stopHolder;
     [HideInInspector]
-    public int stopCount;
+    public int stopCount, startingStop = 0;
 
     [HideInInspector]
     public List<UITradeStopHandler> tradeStopHandlerList = new();
@@ -46,20 +49,76 @@ public class UITradeRouteManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void LoadTraderRouteInfo(Trader selectedTrader, MapWorld world)
+    public void StopRoute()
     {
-        List<Vector3Int> cityStops = selectedTrader.tradeRouteManager.cityStops;
-        int currentStop = selectedTrader.tradeRouteManager.currentStop;
+        unitMovement.CancelTradeRoute();
+        ResetTradeRouteInfo(selectedTrader.tradeRouteManager);
+
+        chosenStop.enabled = true;
+        newStopButton.SetActive(true);
+        confirmButton.SetActive(true);
+        stopRouteButton.SetActive(false);
+    }
+
+    public void PrepTradeRoute()
+    {
+        for (int i = 0; i < tradeStopHandlerList.Count; i++)
+        {
+            PrepStop(tradeStopHandlerList[i]);
+            tradeStopHandlerList[i].PrepResources();
+
+            if (i < startingStop)
+                tradeStopHandlerList[i].SetAsComplete();
+            else if (i == startingStop)
+                tradeStopHandlerList[i].SetAsCurrent();
+        }
+
+        chosenStop.enabled = false;
+        newStopButton.SetActive(false);
+        confirmButton.SetActive(false);
+        stopRouteButton.SetActive(true);
+    }
+
+    private void ResetTradeRouteInfo(TradeRouteManager tradeRouteManager)
+    {
+        for (int i = 0; i < tradeStopHandlerList.Count; i++)
+        {
+            tradeStopHandlerList[i].addResourceButton.SetActive(true);
+            tradeStopHandlerList[i].arrowUpButton.SetActive(true);
+            tradeStopHandlerList[i].arrowDownButton.SetActive(true);
+            tradeStopHandlerList[i].waitForeverToggle.interactable = true;
+            tradeStopHandlerList[i].inputWaitTime.enabled = true;
+            tradeStopHandlerList[i].cityNameList.enabled = true;
+            tradeStopHandlerList[i].ResetResources();
+            tradeStopHandlerList[i].progressBarHolder.SetActive(false);
+
+            if (i <= tradeRouteManager.currentStop)
+                tradeStopHandlerList[i].SetAsNext();
+        }
+    }
+
+    public void SetChosenStop(int value)
+    {
+        startingStop = value;
+    }
+
+    public void LoadTraderRouteInfo(Trader selectedTrader, TradeRouteManager tradeRouteManager, MapWorld world)
+    {
+        startingStop = tradeRouteManager.startingStop;
+        List<Vector3Int> cityStops = tradeRouteManager.cityStops;
+        int currentStop = tradeRouteManager.currentStop;
+        if (cityStops.Count == 0)
+            startingStopGO.SetActive(false);
 
         for (int i = 0; i < cityStops.Count; i++)
         {
             string cityName = world.GetStopName(cityStops[i]);
-            UITradeStopHandler newStopHandler = AddStopPanel();
+            UITradeStopHandler newStopHandler = AddStopPanel(selectedTrader.followingRoute);
             if (newStopHandler != null)
             {
                 newStopHandler.SetCaptionCity(cityName);
-                newStopHandler.SetResourceAssignments(selectedTrader.tradeRouteManager.ResourceAssignments[i]);
-                newStopHandler.SetWaitTimes(selectedTrader.tradeRouteManager.WaitTimes[i]);
+                newStopHandler.SetResourceAssignments(tradeRouteManager.resourceAssignments[i], selectedTrader.followingRoute);
+                newStopHandler.SetWaitTimes(tradeRouteManager.waitTimes[i]);
 
                 if (selectedTrader.followingRoute)
                 {
@@ -72,11 +131,11 @@ public class UITradeRouteManager : MonoBehaviour
                         if (selectedTrader.atStop)
                         {
                             newStopHandler.progressBarHolder.SetActive(true);
-                            newStopHandler.SetProgressBarMask(selectedTrader.tradeRouteManager.timeWaited, selectedTrader.tradeRouteManager.waitTime);
-                            newStopHandler.SetTime(selectedTrader.tradeRouteManager.timeWaited, selectedTrader.tradeRouteManager.waitTime, newStopHandler.waitForever);
+                            newStopHandler.SetProgressBarMask(tradeRouteManager.timeWaited, tradeRouteManager.waitTime);
+                            newStopHandler.SetTime(tradeRouteManager.timeWaited, tradeRouteManager.waitTime, newStopHandler.waitForever);
                         }
 
-                        newStopHandler.SetAsCurrent(selectedTrader.tradeRouteManager.currentResource, selectedTrader.tradeRouteManager.resourceCurrentAmount, selectedTrader.tradeRouteManager.resourceTotalAmount);
+                        newStopHandler.SetAsCurrent(tradeRouteManager.currentResource, tradeRouteManager.resourceCurrentAmount, tradeRouteManager.resourceTotalAmount);
                     }
                     else
                     {
@@ -86,9 +145,25 @@ public class UITradeRouteManager : MonoBehaviour
                 else
                 {
                     newStopHandler.background.sprite = newStopHandler.nextStopSprite;
-                    newStopHandler.resourceButton.sprite = newStopHandler.nextResource;
+                    //newStopHandler.resourceButton.sprite = newStopHandler.nextResource;
                 }
             }
+        }
+
+        chosenStop.value = startingStop;
+        if (selectedTrader.followingRoute)
+        {
+            chosenStop.enabled = false;
+            newStopButton.SetActive(false);
+            confirmButton.SetActive(false);
+            stopRouteButton.SetActive(true);
+        }
+        else
+        {
+            chosenStop.enabled = true;
+            newStopButton.SetActive(true);
+            confirmButton.SetActive(true);
+            stopRouteButton.SetActive(false);
         }
     }
 
@@ -110,6 +185,8 @@ public class UITradeRouteManager : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
+            chosenStop.options.Clear();
+            //chosenStop.RefreshShownValue();
 
             activeStatus = true;
 
@@ -120,8 +197,19 @@ public class UITradeRouteManager : MonoBehaviour
         }
         else
         {
+            selectedTrader = null;
+            ToggleButtonColor(false);
+
             activeStatus = false;
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -600f, 0.3f).setOnComplete(SetActiveStatusFalse);
+            List<UITradeStopHandler> stopList = new(tradeStopHandlerList);
+
+            foreach (UITradeStopHandler stopHandler in stopList)
+            {
+                stopHandler.CloseWindow();
+            }
+
+            unitMovement.TurnOnInfoScreen();
         }
     }
 
@@ -145,31 +233,12 @@ public class UITradeRouteManager : MonoBehaviour
             buttonImage.color = originalButtonColor;
     }
 
-    public void CloseWindow()
-    {
-        selectedTrader = null;
-        ToggleButtonColor(false);
-        //gameObject.SetActive(false);
-
-        activeStatus = false;
-        LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -600f, 0.3f).setOnComplete(SetActiveStatusFalse);
-        List<UITradeStopHandler> stopList = new(tradeStopHandlerList);
-
-        foreach (UITradeStopHandler stopHandler in stopList)
-        {
-            stopHandler.CloseWindow();
-        }
-
-        //tradeStopHolderDict.Clear();
-        unitMovement.TurnOnInfoScreen();
-    }
-
     public void AddStopPanelButton() //added this as a method attached to button as it can't return anything
     {
-        AddStopPanel();
+        AddStopPanel(false);
     }
 
-    private UITradeStopHandler AddStopPanel() //showing a new resource task panel
+    private UITradeStopHandler AddStopPanel(bool onRoute) //showing a new resource task panel
     {
         if (stopCount >= 20)
         {
@@ -200,12 +269,31 @@ public class UITradeRouteManager : MonoBehaviour
         tradeStopHandlerList.Add(newStopHandler);
         //newStopHandler.SetCargoStorageLimit(selectedTrader.CargoStorageLimit);
         stopCount++;
+        chosenStop.options.Add(new TMP_Dropdown.OptionData(stopCount.ToString()));
+        if (stopCount == 1)
+        {
+            startingStopGO.SetActive(true);
+            //chosenStop.options.Remove(0); //removing top choice;
+        }
 
         //newStop.transform.localPosition = Vector3.zero;
         //newHolder.transform.localPosition = Vector3.zero;
         //newHolder.transform.localScale = Vector3.one;
         //newHolder.transform.localEulerAngles = Vector3.zero;
+        if (onRoute)
+            PrepStop(newStopHandler);
+        
         return newStopHandler;
+    }
+
+    private void PrepStop(UITradeStopHandler stop)
+    {
+        stop.addResourceButton.SetActive(false);
+        stop.arrowUpButton.SetActive(false);
+        stop.arrowDownButton.SetActive(false);
+        stop.waitForeverToggle.interactable = false;
+        stop.inputWaitTime.enabled = false;
+        stop.cityNameList.enabled = false;
     }
 
     public void MoveStop(int loc, bool up)
@@ -288,12 +376,12 @@ public class UITradeRouteManager : MonoBehaviour
             }
         }
 
-        selectedTrader.SetTradeRoute(destinations, resourceAssignments, waitTimes, unitMovement.GetUIPersonalResourceInfoPanel);
+        selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes, unitMovement.GetUIPersonalResourceInfoPanel);
 
-        if (selectedTrader.followingRoute)
-        {
-            unitMovement.CancelTradeRoute();
-        }
+        //if (selectedTrader.followingRoute)
+        //{
+        //    unitMovement.CancelTradeRoute();
+        //}
 
         if (destinations.Count > 0)
         {
@@ -305,7 +393,7 @@ public class UITradeRouteManager : MonoBehaviour
             unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
         }
 
-        CloseWindow();
+        ToggleVisibility(false);
     }
 
 }
