@@ -10,25 +10,25 @@ public class UITradeStopHandler : MonoBehaviour
     public Image background, resourceButton;
 
     [SerializeField]
-    public Sprite nextStopSprite, currentStopSprite, nextResource, currentResource;
+    public Sprite nextStopSprite, currentStopSprite;
 
     [SerializeField]
-    private TMP_Dropdown cityNameList;
+    public TMP_Dropdown cityNameList;
 
     [SerializeField]
     private GameObject tradeResourceHolder, tradeResourceTaskTemplate;
 
     [SerializeField]
-    private TMP_InputField inputWaitTime;
+    public TMP_InputField inputWaitTime;
 
     [SerializeField]
-    private Toggle waitForeverToggle;
+    public Toggle waitForeverToggle;
 
     [SerializeField]
     public TMP_Text counter;
 
     [SerializeField]
-    public GameObject progressBarHolder;
+    public GameObject progressBarHolder, addResourceButton, arrowUpButton, arrowDownButton;
 
     [SerializeField]
     private TMP_Text timeText;
@@ -157,11 +157,11 @@ public class UITradeStopHandler : MonoBehaviour
         cityNameList.RefreshShownValue();
     }
 
-    public void SetResourceAssignments(List<ResourceValue> resourceValues)
+    public void SetResourceAssignments(List<ResourceValue> resourceValues, bool onRoute)
     {
         foreach (ResourceValue resourceValue in resourceValues)
         {
-            UITradeResourceTask resourceTask = AddResourceTaskPanel();
+            UITradeResourceTask resourceTask = AddResourceTaskPanel(onRoute);
             if (resourceTask != null)
             {
                 resourceTask.SetCaptionResourceInfo(resourceValue);
@@ -229,10 +229,10 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void AddResourceTaskPanelButton() //added this as a method attached to button can't return anything
     {
-        AddResourceTaskPanel();
+        AddResourceTaskPanel(false);
     }
 
-    private UITradeResourceTask AddResourceTaskPanel() //showing a new resource task panel
+    private UITradeResourceTask AddResourceTaskPanel(bool onRoute) //showing a new resource task panel
     {
         if (resourceCount >= 20)
         {
@@ -274,6 +274,9 @@ public class UITradeStopHandler : MonoBehaviour
         //resourceHolder.transform.localPosition = Vector3.zero;
         //resourceHolder.transform.localScale = Vector3.one;
         //resourceHolder.transform.localEulerAngles = Vector3.zero;
+        if (onRoute)
+            PrepResource(newResourceTask);
+
         return newResourceTask;
     }
 
@@ -281,7 +284,6 @@ public class UITradeStopHandler : MonoBehaviour
     {
         background.sprite = nextStopSprite;
         background.color = new Color(1, 1, 1, 1);
-        resourceButton.sprite = nextResource;
         resourceButton.color = new Color(1, 1, 1, 1);
         for (int i = 0; i < uiResourceTasks.Count; i++)
         {
@@ -293,10 +295,12 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void SetAsComplete()
     {
+        background.sprite = nextStopSprite;
         background.color = new Color(1, 1, 1, 0.4f);
         resourceButton.color = new Color(1, 1, 1, 0.4f);
         for (int i = 0; i < uiResourceTasks.Count; i++)
         {
+            uiResourceTasks[i].background.sprite = nextStopSprite;
             uiResourceTasks[i].background.color = new Color(1, 1, 1, 0.2f);
             uiResourceTasks[i].completeImage.gameObject.SetActive(false);
         }
@@ -306,7 +310,6 @@ public class UITradeStopHandler : MonoBehaviour
     {
         background.sprite = currentStopSprite;
         background.color = new Color(1, 1, 1, 1);
-        resourceButton.sprite = currentResource;
         resourceButton.color = new Color(1, 1, 1, 1);
 
         for (int i = 0; i < uiResourceTasks.Count; i++)
@@ -370,6 +373,39 @@ public class UITradeStopHandler : MonoBehaviour
                 int next = i + 1;
                 resourceTaskDict[next].MoveResourceTask(resourceTaskDict[i]);
             }
+        }
+    }
+
+    //turns off functionality for going on route
+    public void PrepResource(UITradeResourceTask task)
+    {
+        task.allToggle.interactable = false;
+        task.inputStorageAmount.enabled = false;
+        task.draggable = false;
+        task.dragGrips.SetActive(false);
+        task.resourceList.enabled = false;
+        task.actionList.enabled = false;
+    }
+
+    public void PrepResources()
+    {
+        foreach (UITradeResourceTask task in uiResourceTasks)
+        {
+            PrepResource(task);
+        }
+    }
+
+    //setting everything active again
+    public void ResetResources()
+    {
+        foreach (UITradeResourceTask task in uiResourceTasks) 
+        {
+            task.allToggle.interactable = true;
+            task.inputStorageAmount.enabled = true;
+            task.draggable = true;
+            task.dragGrips.SetActive(true);
+            task.resourceList.enabled = true;
+            task.actionList.enabled = true;
         }
     }
 
@@ -439,7 +475,10 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void CloseWindow()
     {
+        tradeRouteManager.chosenStop.options.Remove(new TMP_Dropdown.OptionData(tradeRouteManager.stopCount.ToString()));
         tradeRouteManager.stopCount--;
+        if (tradeRouteManager.stopCount == 0)
+            tradeRouteManager.startingStopGO.SetActive(false);
         tradeRouteManager.tradeStopHandlerList.Remove(this);
         Destroy(gameObject);
     }

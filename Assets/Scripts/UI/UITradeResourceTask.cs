@@ -7,22 +7,25 @@ using UnityEngine.UI;
 public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField]
-    private TMP_Dropdown resourceList;
+    public TMP_Dropdown resourceList;
 
     [SerializeField]
-    private TMP_Dropdown actionList;
+    public TMP_Dropdown actionList;
 
     [SerializeField]
-    private TMP_InputField inputStorageAmount;
+    public TMP_InputField inputStorageAmount;
 
     [SerializeField]
-    private Toggle allToggle;
+    public Toggle allToggle;
 
     [SerializeField]
     public TMP_Text counter;
 
     [SerializeField]
     public Image background, completeImage, check;
+
+    [SerializeField]
+    public GameObject dragGrips;
 
     //[SerializeField]
     //private Image resourceIcon;
@@ -49,6 +52,8 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
     private bool getAll;
+    [HideInInspector]
+    public bool draggable = true;
 
     private void Awake()
     {
@@ -56,6 +61,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         counter.outlineWidth = 0.3f;
         check.gameObject.SetActive(false);
         completeImage.gameObject.SetActive(false);
+        allToggle.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -66,26 +72,35 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        originalParent = transform.parent;
-        transform.SetParent(tempParent);
-        transform.SetAsLastSibling();
-        background.raycastTarget = false;
+        if (draggable)
+        {
+            originalParent = transform.parent;
+            transform.SetParent(tempParent);
+            transform.SetAsLastSibling();
+            background.raycastTarget = false;
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector3 p = Input.mousePosition;
-        p.z = 935;
-        Vector3 pos = Camera.main.ScreenToWorldPoint(p);
-        pos.x += 250;
-        transform.position = pos;
+        if (draggable)
+        {
+            Vector3 p = Input.mousePosition;
+            p.z = 935;
+            Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+            pos.x += 250;
+            transform.position = pos;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        transform.SetParent(originalParent);
-        transform.localPosition = Vector3.zero;
-        background.raycastTarget = true;
+        if (draggable)
+        {
+            transform.SetParent(originalParent);
+            transform.localPosition = Vector3.zero;
+            background.raycastTarget = true;
+        }
     }
 
     public void SetChosenResource(int value)
@@ -114,7 +129,15 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     public void SetChosenResourceMultiple(int value)
     {
         if (value == 1)
+        {
             chosenMultiple = -1;
+            allToggle.gameObject.SetActive(true);
+        }
+        else
+        {
+            chosenMultiple = 1;
+            allToggle.gameObject.SetActive(false);
+        }
     }
 
     public void SetAmount(int amount, int totalAmount)
@@ -161,16 +184,6 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         LeanTween.scale(check.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
     }
 
-    //public void SetChosenResourceAmount(string value)
-    //{
-    //    chosenAmount = value;
-    //}
-
-    //public void SetCargoStorageLimit(int cargoLimit)
-    //{
-    //    traderCargoStorageLimit = cargoLimit;
-    //}
-
     private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
     {
         if (charToValidate != '1'
@@ -201,7 +214,10 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
                 chosenResource = resource.resourceName;
                 resourceList.value = resources.IndexOf(chosenResource);
                 if (resourceValue.resourceAmount < 0)
+                {
                     actionList.value = 1;
+                    allToggle.gameObject.SetActive(true);
+                }
                 resourceList.RefreshShownValue();
 
                 if (Mathf.Abs(resourceValue.resourceAmount) > 1000)

@@ -4,12 +4,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using TMPro;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class UIResearchTreePanel : MonoBehaviour
 {
     [SerializeField]
     private MapWorld world;
 
+    [SerializeField]
+    private UIUnitTurnHandler uiUnitTurn;
+    
     [SerializeField]
     private CameraController cameraController;
 
@@ -20,8 +25,19 @@ public class UIResearchTreePanel : MonoBehaviour
     //private RectTransform globalVolume;
 
     [SerializeField]
-    private Image queueButton; 
+    private Image queueButton;
 
+    //for switching between tabs
+    [SerializeField]
+    public TMP_Text titleText; 
+    [SerializeField]
+    private Transform researchTreeContents;
+    private List<GameObject> researchTreeList = new();
+    [SerializeField]
+    private Transform tabContents;
+    private List<UIResearchTab> tabList = new();
+    [HideInInspector]
+    public int selectedTab;
     //[SerializeField]
     //private UnitMovement unitMovement;
 
@@ -49,6 +65,9 @@ public class UIResearchTreePanel : MonoBehaviour
 
     private void Awake()
     {
+        //titleText.outlineColor = new Color(0.25f, 0.18f, 0f);
+        //titleText.outlineWidth = 0.3f;
+
         originalLoc = allContents.anchoredPosition3D;
         originalColor = queueButton.color;
         gameObject.SetActive(false);
@@ -67,7 +86,22 @@ public class UIResearchTreePanel : MonoBehaviour
                 researchItem.SetResearchTree(this);
                 researchItemList.Add(researchItem);
             }
-        }    
+        }
+
+        foreach (Transform tree in researchTreeContents)
+        {
+            researchTreeList.Add(tree.gameObject);
+        }
+
+        int i = 0;
+        foreach (Transform tab in tabContents)
+        {
+            UIResearchTab researchTab = tab.GetComponent<UIResearchTab>();
+            researchTab.tabLoc = i;
+            researchTab.SetResearchTree(this);
+            tabList.Add(researchTab);
+            i++;
+        }
     }
 
     public void HandleShiftDown()
@@ -92,6 +126,7 @@ public class UIResearchTreePanel : MonoBehaviour
         if (v)
         {
             world.UnselectAll();
+            uiUnitTurn.gameObject.SetActive(false);
             gameObject.SetActive(v);
             world.somethingSelected = true;
 
@@ -104,6 +139,7 @@ public class UIResearchTreePanel : MonoBehaviour
             }
 
             activeStatus = true;
+            SetTab();
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
 
@@ -127,6 +163,7 @@ public class UIResearchTreePanel : MonoBehaviour
             isQueueing = false;
             queueButton.color = originalColor;
             activeStatus = false;
+            uiUnitTurn.gameObject.SetActive(true);
 
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
             .setEase(LeanTweenType.easeOutSine)
@@ -197,6 +234,22 @@ public class UIResearchTreePanel : MonoBehaviour
         int count = researchItemQueue.Count;
         for (int i = 0; i < count; i++)
             researchItemQueue.Dequeue().EndQueue();
+    }
+
+    public void SetTab()
+    {
+        for (int i = 0; i < tabList.Count; i++)
+        {
+            if (i != selectedTab)
+            {
+                tabList[i].Unselect();
+                researchTreeList[i].SetActive(false);
+            }
+            else
+            {
+                researchTreeList[i].SetActive(true);
+            }
+        }
     }
 
     public void SetResearchItem(UIResearchItem researchItem)
