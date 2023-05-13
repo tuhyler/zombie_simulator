@@ -43,7 +43,7 @@ public class UnitMovement : MonoBehaviour
 
     private Unit selectedUnit;
     private Worker selectedWorker;
-    public Worker SetSelectedWorker { set { selectedWorker = value; } }
+    public Worker SelectedWorker { get { return selectedWorker; } set { selectedWorker = value; } }
     private Trader selectedTrader;
     //private TerrainData selectedTile;
     //private InfoProvider selectedUnitInfoProvider;

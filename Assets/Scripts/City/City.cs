@@ -42,6 +42,9 @@ public class City : MonoBehaviour
     public bool activeCity, hasHarbor;
 
     [HideInInspector]
+    public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
+
+    [HideInInspector]
     public Vector3Int harborLocation;
     
     private MapWorld world;

@@ -407,7 +407,7 @@ public class WorkerTaskManager : MonoBehaviour
         //unitMovement.uiConfirmBuildRoad.ToggleTweenVisibility(true);
         uiCancelTask.ToggleTweenVisibility(true);
         unitMovement.uiMoveUnit.ToggleTweenVisibility(false);
-        unitMovement.SetSelectedWorker = workerUnit;
+        unitMovement.SelectedWorker = workerUnit;
     }
 
     public void CloseBuildingRoadPanel()

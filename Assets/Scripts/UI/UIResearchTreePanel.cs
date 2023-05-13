@@ -156,7 +156,7 @@ public class UIResearchTreePanel : MonoBehaviour
         {
             if (chosenResearchItem == null)
             {
-                world.SetResearchName("No Current Research");
+                world.SetResearchName("No Research");
                 world.SetWorldResearchUI(0, 1);
             }
 

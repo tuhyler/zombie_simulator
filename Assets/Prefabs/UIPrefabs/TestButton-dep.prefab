@@ -131,7 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5260703463605753538}
   m_Layer: 0
-  m_Name: TestButton
+  m_Name: TestButton-dep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
