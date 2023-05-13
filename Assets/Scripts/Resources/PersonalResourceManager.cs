@@ -15,10 +15,17 @@ public class PersonalResourceManager : MonoBehaviour
     public float GetResourceStorageLevel { get { return resourceStorageLevel; } }
     //public List<ResourceIndividualSO> initialResourceData = new(); //list the resource data of resources to store
 
+    private Trader trader;
+
 
     private void Awake()
     {
         PrepareResourceDictionary();
+    }
+
+    public void SetTrader(Trader trader)
+    {
+        this.trader = trader;
     }
 
     private void PrepareResourceDictionary()
@@ -32,11 +39,14 @@ public class PersonalResourceManager : MonoBehaviour
         }
     }
 
-    public int CheckResource(ResourceType resourceType, int resourceAmount)
+    public int CheckResource(ResourceType type, int resourceAmount)
     {
-        if (CheckStorageSpaceForResource(resourceType, resourceAmount) && resourceDict.ContainsKey(resourceType))
+        if (CheckStorageSpaceForResource(type, resourceAmount) && resourceDict.ContainsKey(type))
         {
-            return AddResourceToStorage(resourceType, resourceAmount);
+            if (!trader.resourceGridDict.ContainsKey(type))
+                trader.AddToGrid(type);
+
+            return AddResourceToStorage(type, resourceAmount);
         }
         else
         {

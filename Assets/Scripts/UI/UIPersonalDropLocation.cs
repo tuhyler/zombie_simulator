@@ -1,22 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UIDropLocation : MonoBehaviour, IDropHandler
+public class UIPersonalDropLocation : MonoBehaviour, IDropHandler
 {
     [HideInInspector]
     public int gridLocation;
-    public UIResources resource;
+    public UIPersonalResources resource;
 
-    private UIResourceManager resourceManager;
+    private UIPersonalResourceInfoPanel resourceManager;
 
     public void OnDrop(PointerEventData eventData)
     {
         GameObject dropped = eventData.pointerDrag;
-        UIResources resource = dropped.GetComponent<UIResources>();
-        if (resource == null)
+        UIPersonalResources resource = dropped.GetComponent<UIPersonalResources>();
+        if (resource == null || resource.clickable)
             return;
         resource.originalParent = transform;
         resourceManager.MoveResources(resource.loc, gridLocation, resource.resourceType);
@@ -24,12 +23,12 @@ public class UIDropLocation : MonoBehaviour, IDropHandler
         resource.loc = gridLocation;
     }
 
-    public void SetUIResourceManager(UIResourceManager resourceManager)
+    public void SetUIResourceManager(UIPersonalResourceInfoPanel resourceManager)
     {
         this.resourceManager = resourceManager;
     }
 
-    public void MoveResource(UIDropLocation newDrop, bool left)
+    public void MoveResource(UIPersonalDropLocation newDrop, bool left)
     {
         resource.loc = newDrop.gridLocation;
         newDrop.resource = resource;

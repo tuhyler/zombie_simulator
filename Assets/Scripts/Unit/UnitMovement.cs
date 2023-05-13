@@ -313,10 +313,10 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isTrader)
         {
             selectedTrader = selectedUnit.GetComponent<Trader>();
-            uiPersonalResourceInfoPanel.PrepareResourceUI(selectedTrader.personalResourceManager.ResourceDict);
+            //uiPersonalResourceInfoPanel.PrepareResourceUI(selectedTrader.resourceGridDict);
             uiPersonalResourceInfoPanel.SetTitleInfo(selectedTrader.name,
                 selectedTrader.personalResourceManager.GetResourceStorageLevel, selectedTrader.cargoStorageLimit);
-            uiPersonalResourceInfoPanel.ToggleVisibility(true);
+            uiPersonalResourceInfoPanel.ToggleVisibility(true, selectedTrader);
             uiTraderPanel.ToggleVisibility(true);
             if (world.IsTradeLocOnTile(world.RoundToInt(selectedTrader.transform.position)) && !selectedTrader.followingRoute)
             {
@@ -374,7 +374,7 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
     {
-        if (queueMovementOrders /*&& unit.FinalDestinationLoc != location*/ && unit.isMoving && !world.workerOrders)
+        if (queueMovementOrders /*&& unit.FinalDestinationLoc != location*/ && unit.isMoving)
         {
             if (unit.FinalDestinationLoc == location)
                 return;
@@ -609,20 +609,23 @@ public class UnitMovement : MonoBehaviour
                 cityResourceManager = selectedCity.ResourceManager;
                 uiCityResourceInfoPanel.SetTitleInfo(selectedCity.cityName,
                     cityResourceManager.GetResourceStorageLevel, selectedCity.warehouseStorageLimit);
-                uiCityResourceInfoPanel.PrepareResourceUI(cityResourceManager.ResourceDict);
+                //uiCityResourceInfoPanel.PrepareResourceUI(selectedCity.resourceGridDict);
+                uiCityResourceInfoPanel.ToggleVisibility(true, null, world.GetCity(unitLoc));
+                uiCityResourceInfoPanel.SetPosition();
             }
             else
             {
                 wonder = world.GetWonder(unitLoc);
                 uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderName, 10000, 10000);
-                uiCityResourceInfoPanel.PrepareResourceUI(wonder.ResourceDict);
+                //uiCityResourceInfoPanel.PrepareResourceUI(wonder.ResourceDict);
                 uiCityResourceInfoPanel.HideInventoryLevel();
+                uiCityResourceInfoPanel.ToggleVisibility(true, null, null, wonder);
+                uiCityResourceInfoPanel.SetPosition();
+
             }
 
             uiPersonalResourceInfoPanel.SetPosition();
-            uiCityResourceInfoPanel.ToggleVisibility(true);
-            uiCityResourceInfoPanel.SetPosition();
-
+            
             loadScreenSet = true;
         }
         else
@@ -633,6 +636,8 @@ public class UnitMovement : MonoBehaviour
 
     public void ConfirmWorkerOrders()
     {
+        queueMovementOrders = false;
+        
         if (world.workerOrders)
         {
             ClearBuildRoad();
@@ -766,8 +771,8 @@ public class UnitMovement : MonoBehaviour
         if (loadScreenSet)
         {
             uiTraderPanel.uiLoadUnload.ToggleButtonColor(false);
-            if (uiCityResourceInfoPanel.inUse)
-                uiCityResourceInfoPanel.EmptyResourceUI();
+            //if (uiCityResourceInfoPanel.inUse)
+            //    uiCityResourceInfoPanel.EmptyResourceUI();
             uiPersonalResourceInfoPanel.RestorePosition(keepSelection);
             uiCityResourceInfoPanel.RestorePosition(keepSelection);
             cityResourceManager = null;
@@ -993,7 +998,7 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.Deselect();
             selectedUnit.HidePath();
             //}
-            uiPersonalResourceInfoPanel.ToggleVisibility(false);
+            uiPersonalResourceInfoPanel.ToggleVisibility(false, selectedTrader);
             LoadUnloadFinish(false); //clear load cargo screen
             infoManager.HideInfoPanel();
             //movementSystem.ClearPaths(); //necessary to queue movement orders

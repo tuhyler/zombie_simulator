@@ -40,6 +40,9 @@ public class Wonder : MonoBehaviour
     private Dictionary<ResourceType, int> resourceCostDict = new();
     public Dictionary<ResourceType, int> ResourceCostDict { get { return resourceCostDict; } }
 
+    private Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
+    public Dictionary<ResourceType, int> ResourceGridDict { get { return resourceGridDict; } set { resourceGridDict = value; } }
+
     private WonderDataSO wonderData;
     public WonderDataSO WonderData { get { return wonderData; } set { wonderData = value; } }
 
@@ -64,6 +67,8 @@ public class Wonder : MonoBehaviour
     {
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
         isConstructing = true;
+
+
     }
 
     public void SetPrefabs()
@@ -96,6 +101,7 @@ public class Wonder : MonoBehaviour
         {
             resourceDict[resource.resourceType] = 0;
             resourceCostDict[resource.resourceType] = resource.resourceAmount;
+            resourceGridDict[resource.resourceType] = resourceDict.Count;
             SetNextResourceThreshold(resource.resourceType);
         }
     }
@@ -177,17 +183,25 @@ public class Wonder : MonoBehaviour
         }
     }
 
-    internal int CheckResource(ResourceType resourceType, int newResourceAmount)
+    internal int CheckResource(ResourceType type, int newResourceAmount)
     {
-        if (resourceDict.ContainsKey(resourceType) && CheckStorageSpaceForResource(resourceType, newResourceAmount))
+        if (resourceDict.ContainsKey(type) && CheckStorageSpaceForResource(type, newResourceAmount))
         {
-            return AddResourceToStorage(resourceType, newResourceAmount);
+            if (!resourceGridDict.ContainsKey(type))
+                AddToGrid(type);
+
+            return AddResourceToStorage(type, newResourceAmount);
         }
         else
         {
-            InfoPopUpHandler.WarningMessage().Create(centerPos, "No storage space for " + resourceType);
+            InfoPopUpHandler.WarningMessage().Create(centerPos, "No storage space for " + type);
             return 0;
         }
+    }
+
+    private void AddToGrid(ResourceType type)
+    {
+        resourceGridDict[type] = resourceGridDict.Count;
     }
 
     private bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAmount)

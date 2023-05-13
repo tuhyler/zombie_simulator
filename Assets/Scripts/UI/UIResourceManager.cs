@@ -32,8 +32,8 @@ public class UIResourceManager : MonoBehaviour
     public RectTransform gridHolder, overflowGridHolder;
     private Dictionary<int, UIDropLocation> gridCellDict = new();
     private int activeCells;
-
     private Dictionary<ResourceType, int> resourceUIDict = new();
+    public int gridWidth = 10;
 
     private void Awake()
     {
@@ -42,6 +42,9 @@ public class UIResourceManager : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
         overflowOriginalLoc = overflowGridHolder.anchoredPosition3D;
         originalDown = buttonDown.sprite;
+
+        overflowGridHolder.sizeDelta = new Vector2(gridWidth * 90, 90);
+        buttonDown.transform.localPosition = new Vector3(gridWidth * 45 + 20, -80, 0);
 
         int total = 0;
         foreach (Transform selection in gridHolder)
@@ -84,9 +87,9 @@ public class UIResourceManager : MonoBehaviour
             foreach (ResourceType type in city.resourceGridDict.Keys)
                 ActivateCell(type);
 
-            if (activeCells > 10)
+            if (activeCells > gridWidth)
             {
-                gridHolder.sizeDelta = new Vector2(900, 90);
+                gridHolder.sizeDelta = new Vector2(90 * gridWidth, 90);
                 buttonDown.gameObject.SetActive(true);
             }
             else
@@ -110,6 +113,7 @@ public class UIResourceManager : MonoBehaviour
 
             this.city.ReshuffleGrid(); //gets rid of zeroed out resources
             this.city = null;
+            resourceUIDict.Clear();
 
             activeStatus = false;
             ToggleOverflowVisibility(false);
@@ -130,7 +134,7 @@ public class UIResourceManager : MonoBehaviour
             ToggleOverflowVisibility(true);
     }
 
-    public void ToggleOverflowVisibility(bool v)
+    private void ToggleOverflowVisibility(bool v)
     {
         if (overflowActiveStatus == v)
             return;
@@ -142,7 +146,7 @@ public class UIResourceManager : MonoBehaviour
             buttonDown.sprite = buttonUp;
             overflowGridHolder.gameObject.SetActive(v);
             overflowActiveStatus = true;
-            float size = Mathf.CeilToInt((activeCells - 10) * 0.1f) * 90;
+            float size = Mathf.CeilToInt((activeCells - gridWidth) / gridWidth) * 90;
 
             overflowGridHolder.anchoredPosition3D = overflowOriginalLoc + new Vector3(0, size, 0);
 
@@ -152,7 +156,7 @@ public class UIResourceManager : MonoBehaviour
         {
             buttonDown.sprite = originalDown;
             overflowActiveStatus = false;
-            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + Mathf.CeilToInt((activeCells - 10) * 0.1f) * 90, 0.2f).setOnComplete(SetOverflowStatusFalse);
+            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + Mathf.CeilToInt((activeCells - gridWidth) / gridWidth) * 90, 0.2f).setOnComplete(SetOverflowStatusFalse);
         }
     }
 
@@ -213,7 +217,7 @@ public class UIResourceManager : MonoBehaviour
         if (!resourceUIDict.ContainsKey(type))
         {
             ActivateCell(type);
-            if (activeCells > 10)
+            if (activeCells > gridWidth)
                 buttonDown.gameObject.SetActive(true);
             else
                 gridHolder.sizeDelta = new Vector2(activeCells * 90, 90);
