@@ -146,7 +146,7 @@ public class UIResourceManager : MonoBehaviour
             buttonDown.sprite = buttonUp;
             overflowGridHolder.gameObject.SetActive(v);
             overflowActiveStatus = true;
-            float size = Mathf.CeilToInt((activeCells - gridWidth) / gridWidth) * 90;
+            float size = Mathf.CeilToInt((activeCells - gridWidth) / (float)gridWidth) * 90;
 
             overflowGridHolder.anchoredPosition3D = overflowOriginalLoc + new Vector3(0, size, 0);
 
@@ -156,7 +156,7 @@ public class UIResourceManager : MonoBehaviour
         {
             buttonDown.sprite = originalDown;
             overflowActiveStatus = false;
-            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + Mathf.CeilToInt((activeCells - gridWidth) / gridWidth) * 90, 0.2f).setOnComplete(SetOverflowStatusFalse);
+            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + Mathf.CeilToInt((activeCells - gridWidth) / (float)gridWidth) * 90, 0.2f).setOnComplete(SetOverflowStatusFalse);
         }
     }
 

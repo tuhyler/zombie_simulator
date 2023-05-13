@@ -22,6 +22,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UICityImprovementTip uiCityImprovementTip;
     [SerializeField]
+    public UITomFinder uiTomFinder;
+    [SerializeField]
     private UnitMovement unitMovement;
     [SerializeField]
     public CityBuilderManager cityBuilderManager;
@@ -130,7 +132,7 @@ public class MapWorld : MonoBehaviour
         if (researching)
             SetResearchName(researchTree.GetChosenResearchName());
         else
-            SetResearchName("No Current Research");
+            SetResearchName("No Research");
         GameObject speechBubbleGO = Instantiate(GameAssets.Instance.speechBubble);
         speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
         speechBubble.gameObject.SetActive(false);

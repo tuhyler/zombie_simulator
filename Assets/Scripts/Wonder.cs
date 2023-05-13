@@ -6,6 +6,8 @@ public class Wonder : MonoBehaviour
 {
     private MapWorld world;
     private UIWonderSelection uiWonderSelection;
+    [HideInInspector]
+    public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
     public MeshRenderer mesh0Percent;
     public MeshRenderer mesh25Percent;
     public MeshRenderer mesh50Percent;
@@ -232,7 +234,10 @@ public class Wonder : MonoBehaviour
 
         if (isActive)
             uiWonderSelection.UpdateUI(resourceType, resourceDict[resourceType], resourceLimit);
-        
+
+        if (uiCityResourceInfoPanel)
+            uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
+
         if (newResourceAmount > 0)
             CheckResourceWaiter(resourceType);
         //else if (newResourceAmount < 0)

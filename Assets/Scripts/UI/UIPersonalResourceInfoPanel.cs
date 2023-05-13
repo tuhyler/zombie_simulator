@@ -82,11 +82,6 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         buttonDown.gameObject.SetActive(false);
         originalDown = buttonDown.sprite;
 
-        //for (int i = 0; i < gridWidth; i++)
-        //{
-
-        //}
-
         int total = 0;
         foreach (Transform selection in gridHolder)
         {
@@ -99,34 +94,6 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             GridCellPrep(selection, total);
             total++;
         }
-
-        //foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
-        //{
-        //    GameObject panel = Instantiate(resourcePersonalPanel);
-        //    panel.transform.SetParent(uiElementsParent);
-        //    panel.name = resource.resourceType.ToString();
-        //    UIPersonalResources personalResource = panel.GetComponent<UIPersonalResources>();
-        //    personalResource.SetButtonHandler(this);
-        //    personalResource.resourceImage.sprite = resource.resourceIcon;
-        //    personalResource.resourceType = resource.resourceType;
-
-
-        //    //fixing z location & x rotation
-        //    Vector3 loc = panel.transform.position;
-        //    loc.z = 0;
-        //    panel.transform.localPosition = loc;
-        //    Vector3 rot = panel.transform.eulerAngles;
-        //    rot.x = 0;
-        //    panel.transform.localEulerAngles = rot;
-
-        //    personalResources.Add(personalResource);
-        //}
-
-        //PrepareResourceDictionary();
-        //foreach (Transform selection in uiElementsParent) //populate list
-        //{   
-        //    personalResources.Add(selection.GetComponent<UIPersonalResources>());
-        //}
     }
 
     private void GridCellPrep(Transform selection, int total)
@@ -157,18 +124,28 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             if (isCity)
             {
                 if (city)
+                {
+                    city.uiCityResourceInfoPanel = this;
+                    
                     foreach (ResourceType type in city.resourceGridDict.Keys)
                         ActivateCell(type, true);
+                }
                 else
+                {
+                    wonder.uiCityResourceInfoPanel = this;
+                    
                     foreach (ResourceType type in wonder.ResourceGridDict.Keys)
                         ActivateCell(type, true);
+                }
             }
             else
+            {
                 foreach (ResourceType type in trader.resourceGridDict.Keys)
                 {
                     ActivateCell(type, true);
                     gridCellDict[resourceUIDict[type]].resource.clickable = false;
                 }
+            }
 
             if (activeCells > gridWidth)
             {
@@ -190,16 +167,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 allContents.anchoredPosition3D = originalLoc + new Vector3(0, 200f, 0);
 
                 LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -200f, 0.3f).setEaseOutSine();
-                //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
             }
 
-            //foreach (UIPersonalResources resources in personalResources) //ShowUI resources with more than 1
-            //{
-            //    resources.CheckVisibility();
-            //}
-
             progressBarMask.fillAmount = unitStorageLevel / unitStorageLimit;
-            //    ResourceHolderCheck();
         }
         else
         {
@@ -220,12 +190,15 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             }
             else if (this.city)
             {
+                this.city.uiCityResourceInfoPanel = null;
                 this.city.ReshuffleGrid();
                 this.city = null;
                 gameObject.SetActive(false);
             }
             else
             {
+                this.wonder.uiCityResourceInfoPanel = null;
+                this.wonder = null;
                 gameObject.SetActive(false);
             }
         }
@@ -251,7 +224,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             buttonDown.sprite = buttonUp;
             overflowGridHolder.gameObject.SetActive(v);
             overflowActiveStatus = true;
-            float size = Mathf.CeilToInt((activeCells - gridWidth) / gridWidth) * 90;
+            float size = Mathf.CeilToInt((activeCells - gridWidth) / (float)gridWidth) * 90;
 
             overflowGridHolder.anchoredPosition3D = overflowOriginalLoc + new Vector3(0, size, 0);
 
@@ -262,7 +235,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             buttonDown.sprite = originalDown;
             overflowActiveStatus = false;
-            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + Mathf.CeilToInt((activeCells - gridWidth) / gridWidth) * 90, 0.2f).setOnComplete(SetOverflowStatusFalse);
+            LeanTween.moveY(overflowGridHolder, overflowGridHolder.anchoredPosition3D.y + Mathf.CeilToInt((activeCells - gridWidth) / (float)gridWidth) * 90, 0.2f).setOnComplete(SetOverflowStatusFalse);
         }
     }
 

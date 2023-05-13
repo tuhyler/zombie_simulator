@@ -36,9 +36,9 @@ public class UIDropLocation : MonoBehaviour, IDropHandler
 
         Vector3 newLoc = newDrop.transform.position;
         resource.transform.SetParent(newDrop.transform);
-        int factor = left ? resourceManager.gridWidth : resourceManager.gridWidth - 1;
+        int remainder = left ? 0 : resourceManager.gridWidth - 1;
 
-        if (newDrop.gridLocation != 0 && newDrop.gridLocation % factor == 0)
+        if (newDrop.gridLocation != 0 && newDrop.gridLocation % resourceManager.gridWidth == remainder)
             resource.transform.localPosition = Vector3.zero;
         else
             LeanTween.moveX(resource.gameObject, newLoc.x, 0.2f).setEaseOutSine().setOnComplete(SetNewParent);
