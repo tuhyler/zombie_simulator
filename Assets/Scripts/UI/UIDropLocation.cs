@@ -36,7 +36,7 @@ public class UIDropLocation : MonoBehaviour, IDropHandler
 
         Vector3 newLoc = newDrop.transform.position;
         resource.transform.SetParent(newDrop.transform);
-        int factor = left ? 10 : 9;
+        int factor = left ? resourceManager.gridWidth : resourceManager.gridWidth - 1;
 
         if (newDrop.gridLocation != 0 && newDrop.gridLocation % factor == 0)
             resource.transform.localPosition = Vector3.zero;

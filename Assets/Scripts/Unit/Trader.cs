@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Trader : Unit
@@ -23,6 +24,10 @@ public class Trader : Unit
     private Coroutine LoadUnloadCo;
     private Coroutine WaitTimeCo;
 
+    [HideInInspector]
+    public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
+
+
     //private UnitMovement unitMovement;
 
     private void Awake()
@@ -38,6 +43,7 @@ public class Trader : Unit
         tradeRouteManager.SetTrader(this);
         isTrader = true;
         personalResourceManager = GetComponent<PersonalResourceManager>();
+        personalResourceManager.SetTrader(this);
         tradeRouteManager.SetPersonalResourceManager(personalResourceManager);
         personalResourceManager.ResourceStorageLimit = cargoStorageLimit;
         if (bySea)
@@ -203,13 +209,32 @@ public class Trader : Unit
         }
     }
 
-    //protected override void WaitTurnMethods()
-    //{
-    //    base.WaitTurnMethods();
-    //    if (followingRoute && atStop)
-    //    {
-    //        if (tradeRouteManager.GoToNextStopCheck())
-    //            BeginNextStepInRoute();
-    //    }
-    //}
+    public void AddToGrid(ResourceType type)
+    {
+        resourceGridDict[type] = resourceGridDict.Count;
+    }
+
+    public void ReshuffleGrid()
+    {
+        int i = 0;
+
+        //re-sorting
+        Dictionary<ResourceType, int> myDict = resourceGridDict.OrderBy(d => d.Value).ToDictionary(x => x.Key, x => x.Value);
+
+        List<ResourceType> types = new List<ResourceType>(myDict.Keys);
+
+        foreach (ResourceType type in types)
+        {
+            int amount = personalResourceManager.ResourceDict[type];
+            if (amount > 0)
+            {
+                resourceGridDict[type] = i;
+                i++;
+            }
+            else
+            {
+                resourceGridDict.Remove(type);
+            }
+        }
+    }
 }

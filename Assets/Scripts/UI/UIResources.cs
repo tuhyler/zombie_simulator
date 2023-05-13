@@ -12,9 +12,9 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     [SerializeField]
     public ResourceType resourceType;
 
+    //for moving panels on resource grid
     [HideInInspector]
-    public int resourceValue, loc; //for moving panels on resource grid
-
+    public int resourceValue, loc; 
     [HideInInspector]
     public Transform originalParent;
     public Transform tempParent;

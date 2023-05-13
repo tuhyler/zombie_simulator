@@ -74,8 +74,6 @@ public class City : MonoBehaviour
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
     [HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
-    [HideInInspector]
-    public int maxGridValue;
 
     //world resource info
     //private int goldPerMinute;
@@ -147,8 +145,6 @@ public class City : MonoBehaviour
             }
 
         }
-
-        maxGridValue = i;
     }
 
     public void InstantiateParticleSystems()
@@ -604,7 +600,7 @@ public class City : MonoBehaviour
 
     public void AddToGrid(ResourceType type)
     {
-        resourceGridDict[type] = maxGridValue;
+        resourceGridDict[type] = resourceGridDict.Count;
     }
 
     public void ReshuffleGrid()
@@ -621,17 +617,14 @@ public class City : MonoBehaviour
             int amount = resourceManager.ResourceDict[type];
             if (amount > 0)
             {
-                resourceGridDict[type] = resourceGridDict[type] - i;
+                resourceGridDict[type] = i;
+                i++;
             }
             else
             {
                 resourceGridDict.Remove(type);
-                i--;
             }
-
         }
-
-        maxGridValue = i;
     }
 
     public List<ResourceValue> GetResourceValues()
