@@ -265,7 +265,7 @@ public class UIResearchTreePanel : MonoBehaviour
             if (chosenResearchItem == researchItem)
             {
                 world.researching = false;
-                world.SetResearchName("No Current Research");
+                world.SetResearchName("No Research");
                 world.SetWorldResearchUI(0, 1);
                 chosenResearchItem = null;
                 return;

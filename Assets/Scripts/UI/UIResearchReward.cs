@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class UIResearchReward : MonoBehaviour
 {
     [SerializeField]
-    private Image rewardIcon, rewardBackground;
+    public Image rewardIcon, rewardBackground;
 
     [SerializeField]
     private Sprite selectedSprite;
@@ -33,6 +33,7 @@ public class UIResearchReward : MonoBehaviour
             tooltipInfo.produceTime = improvementData.producedResourceTime;
             tooltipInfo.costs = improvementData.improvementCost;
             tooltipInfo.unit = false;
+            tooltipInfo.description = improvementData.improvementDescription;
         }
         else if (unitData != null)
         {
@@ -64,5 +65,11 @@ public class UIResearchReward : MonoBehaviour
     public void Unselect()
     {
         rewardBackground.sprite = originalSprite;
+    }
+
+    public void Complete(Color completeColor)
+    {
+        rewardBackground.sprite = originalSprite;
+        rewardBackground.color = completeColor;
     }
 }

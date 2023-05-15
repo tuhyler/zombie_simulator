@@ -42,9 +42,11 @@ SpriteAtlas:
   - {fileID: 21300000, guid: e15c6450211bb9d4b9b2c129d30e54f0, type: 3}
   - {fileID: 21300000, guid: 0e145550ee3cb9d438689014f3891697, type: 3}
   - {fileID: 21300000, guid: 919625b08f58a3f4e8eb1324b814e146, type: 3}
+  - {fileID: 21300000, guid: 0bc86cc0a006dd444ae89ecd41da2d3b, type: 3}
   - {fileID: 21300000, guid: 6d74bec02454a0e4ca78c4bd1b9ec560, type: 3}
   - {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
   - {fileID: 21300000, guid: 23af44925d8146040a7102b0248cf945, type: 3}
+  - {fileID: 21300000, guid: 85009792ecfc4a644884ce6b4264e23a, type: 3}
   - {fileID: 21300000, guid: 124905a2765bb7241a7f8cdf2ad9f37b, type: 3}
   - {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   - {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
@@ -79,6 +81,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
   - {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
   - {fileID: 21300000, guid: bc97ab8c2bf5af245932e0b67b1b05f3, type: 3}
+  - {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
   - {fileID: 21300000, guid: 3083b8cdad8e636409c158262411ba5b, type: 3}
   - {fileID: 21300000, guid: a776a8ed1f177474c824cade83e4c593, type: 3}
   - {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
@@ -92,9 +95,11 @@ SpriteAtlas:
   - Housing03Img
   - Research03LittleImg
   - StoneCutter01Img
+  - Cavalry01Img
   - Research03Img
   - Farm00Img
   - Ceramist02LittleImg
+  - Ranged01Img
   - Infantry01Img
   - Quarry01Img
   - Research02Img
@@ -129,6 +134,7 @@ SpriteAtlas:
   - Sericulture01Img
   - BrickOvens01LittleImg
   - Sericulture01LittleImg
+  - WonderWorker01Img
   - Pasture01LittleImg
   - Research02LittleImg
   - Mine01Img

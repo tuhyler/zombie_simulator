@@ -26,6 +26,7 @@ public class ImprovementDataSO : ScriptableObject
     public List<int> producedResourceTime;
     public bool rawMaterials;
     public ResourceType rawResourceType; //used for highlight tiles in city
+    public bool isResearch; //to identify which improvements produce research
     public TerrainType terrainType;
     public float workEthicChange; 
     public int maxLabor; //max amount of labor
