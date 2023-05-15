@@ -43,8 +43,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private List<UIResearchReward> researchRewardList = new();
     private Color originalColor;
     private Color selectedColor = new Color(1f, .8f, .65f);
-    private Color lockedColor = new Color(.8f, .8f, .8f);
-    private Color completedColor = new Color(0f, 1f, 0f);
+    private Color lockedColor = new Color(.7f, .7f, .7f);
+    private Color completedColor = new Color(0f, 1f, 1f);
 
     private bool isSelected;
 
@@ -59,8 +59,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         queueNumberCheck.gameObject.SetActive(false);
 
         researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
-        //researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
-        //researchPercentDone.outlineWidth = 0.8f;
+        researchPercentDone.outlineColor = new Color(0f, 0f, 0f);
         //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
         researchPercentDone.text = totalResearchNeeded.ToString();
 
@@ -69,6 +68,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         originalTopBar = topBar.sprite;
         originalQueueSprite = queueNumberHolderImage.sprite;
         researchItemPanel.color = lockedColor;
+        topBar.color = lockedColor;
 
         //if (completed)
         //    canvasGroup.interactable = false;
@@ -77,7 +77,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             arrow.color = selectedColor;
 
         foreach (Transform transform in uiElementsParent)
-            researchRewardList.Add(transform.GetComponent<UIResearchReward>());
+        {
+            UIResearchReward reward = transform.GetComponent<UIResearchReward>();
+            reward.rewardBackground.color = lockedColor;
+            researchRewardList.Add(reward);
+        }
     }
 
     public void SetResearchTree(UIResearchTreePanel researchTree)
@@ -142,6 +146,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //canvasGroup.alpha = 1f;
         researchItemPanel.color = originalColor;
         topBar.color = originalColor;
+
+        foreach (UIResearchReward reward in researchRewardList)
+            reward.rewardBackground.color = originalColor;
     }
 
     public void ResearchComplete(MapWorld world)
@@ -156,7 +163,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         researchItemPanel.color = completedColor;
         topBar.color = completedColor;
         foreach (UIResearchReward reward in researchRewardList)
-            reward.Select();
+            reward.Complete(completedColor);
         queueNumber.gameObject.SetActive(false);
         queueNumberHolder.gameObject.SetActive(true);
         queueNumberCheck.gameObject.SetActive(true);
@@ -267,6 +274,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //researchPercentDone.outlineWidth = 0f;
         researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
         researchPercentDone.text = totalResearchNeeded.ToString();
+        //researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
+        researchPercentDone.outlineWidth = 0f;
         researchIcon.gameObject.SetActive(true);
     }
 
@@ -277,6 +286,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
         researchPercentDone.color = Color.white; 
         researchPercentDone.text = $"{researchReceived}/{totalResearchNeeded}";
+        researchPercentDone.outlineWidth = 0.4f;
 
         LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
             .setEase(LeanTweenType.easeOutSine)

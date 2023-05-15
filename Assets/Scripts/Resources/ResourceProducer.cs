@@ -167,7 +167,7 @@ public class ResourceProducer : MonoBehaviour
         CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
         CalculateResourceConsumedPerMinute();
 
-        if (improvementData.rawResourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
             return;
@@ -268,7 +268,7 @@ public class ResourceProducer : MonoBehaviour
         }
 
         //checking if still researching
-        if (improvementData.rawResourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
         {
             isWaitingToUnload = true;
             unloadLabor = tempLabor;
@@ -312,7 +312,7 @@ public class ResourceProducer : MonoBehaviour
         Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
-        if (improvementData.rawResourceType == ResourceType.Research && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
             //timeProgressBar.SetActive(false);

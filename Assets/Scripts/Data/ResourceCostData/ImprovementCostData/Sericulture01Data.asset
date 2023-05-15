@@ -22,7 +22,7 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
-  littleImage: {fileID: 21300000, guid: bc97ab8c2bf5af245932e0b67b1b05f3, type: 3}
+  littleImage: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
   improvementCost:
   - resourceType: 4
     resourceAmount: 25
@@ -39,6 +39,7 @@ MonoBehaviour:
   producedResourceTime: 28000000
   rawMaterials: 1
   rawResourceType: 16
+  isResearch: 0
   terrainType: 5
   workEthicChange: 0
   maxLabor: 2

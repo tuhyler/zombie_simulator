@@ -10,25 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: Worker1Data
+  m_Name: Ranged1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296, type: 3}
-  unitName: Worker
-  unitLevel: 0
-  image: {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
+  prefab: {fileID: 2321851027760307080, guid: 64d39453e5a6dd54497f80fb704d2ecc, type: 3}
+  unitName: Archer
+  unitLevel: 1
+  image: {fileID: 21300000, guid: 85009792ecfc4a644884ce6b4264e23a, type: 3}
   unitCost:
+  - resourceType: 5
+    resourceAmount: 15
   - resourceType: 4
+    resourceAmount: 15
+  - resourceType: 2
     resourceAmount: 10
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
-  unitType: 0
-  unitDescription: Builds cities and roads
+  unitType: 2
+  unitDescription: Ranged, weak unit
   availableInitially: 1
   locked: 0
   movementPoints: 10
-  health: 10
-  attackStrength: 10
-  movementSpeed: 3
+  health: 2
+  attackStrength: 20
+  movementSpeed: 1
   cargoCapacity: 0
   transportationType: 0

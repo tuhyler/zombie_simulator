@@ -10,21 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: Worker1Data
+  m_Name: Cavalry1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296, type: 3}
-  unitName: Worker
-  unitLevel: 0
-  image: {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
+  prefab: {fileID: 2321851027760307080, guid: cdaa8ec02277e2946ba1004376cce3f4, type: 3}
+  unitName: Horseman
+  unitLevel: 1
+  image: {fileID: 21300000, guid: 0bc86cc0a006dd444ae89ecd41da2d3b, type: 3}
   unitCost:
+  - resourceType: 5
+    resourceAmount: 40
   - resourceType: 4
     resourceAmount: 10
+  - resourceType: 2
+    resourceAmount: 5
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
-  unitType: 0
-  unitDescription: Builds cities and roads
-  availableInitially: 1
+  unitType: 3
+  unitDescription: Fast unit
+  availableInitially: 0
   locked: 0
   movementPoints: 10
   health: 10

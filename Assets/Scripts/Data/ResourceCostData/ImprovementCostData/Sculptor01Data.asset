@@ -22,7 +22,7 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 44ce2ee8b10e8ab4c9e7b51619528bc6, type: 3}
-  littleImage: {fileID: 21300000, guid: 0d54114862c14b644abc953c03242072, type: 3}
+  littleImage: {fileID: 21300000, guid: 44ce2ee8b10e8ab4c9e7b51619528bc6, type: 3}
   improvementCost:
   - resourceType: 5
     resourceAmount: 80
