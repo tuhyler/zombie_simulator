@@ -20,8 +20,8 @@ public class City : MonoBehaviour
     private List<CityImprovement> improvementList = new();
     public List<CityImprovement> ImprovementList { get { return improvementList; } }
 
-    private SelectionHighlight selectionHighlight;
-    public SelectionHighlight SelectionHighlight { get { return selectionHighlight; } }
+    //private SelectionHighlight selectionHighlight;
+    //public SelectionHighlight SelectionHighlight { get { return selectionHighlight; } }
     [SerializeField]
     public Transform subTransform;
 
@@ -105,7 +105,7 @@ public class City : MonoBehaviour
         //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
         world = FindObjectOfType<MapWorld>();
         cityPop = GetComponent<CityPopulation>();
-        selectionHighlight = GetComponentInChildren<SelectionHighlight>();
+        //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
         resourceManager = GetComponent<ResourceManager>();
         resourceManager.ResourceStorageLimit = warehouseStorageLimit;
         //resourceProducer = GetComponent<ResourceProducer>();
