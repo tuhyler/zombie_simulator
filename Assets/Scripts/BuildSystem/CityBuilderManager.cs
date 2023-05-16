@@ -85,6 +85,9 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private GameObject wonderHarbor;
 
+    //trade center management
+    private TradeCenter selectedTradeCenter;
+
     [SerializeField]
     private GameObject upgradeQueueGhost;
     private List<GameObject> queuedGhost = new();
@@ -200,6 +203,10 @@ public class CityBuilderManager : MonoBehaviour
         else if (selectedObject.TryGetComponent(out Wonder wonder))
         {
             SelectWonder(wonder);
+        }
+        else if (selectedObject.TryGetComponent(out TradeCenter center))
+        {
+            SelectTradeCenter(center);
         }
         //selecting improvements to remove or add/remove labor
         else if (selectedObject.TryGetComponent(out CityImprovement improvementSelected))
@@ -394,6 +401,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             ResetCityUI();
             UnselectWonder();
+            UnselectTradeCenter();
         }
     }
 
@@ -413,12 +421,35 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         ResetCityUI();
+        UnselectTradeCenter();
 
         uiWonderSelection.ToggleVisibility(true, wonderReference);
         selectedWonder = wonderReference;
         selectedWonder.SetUI(uiWonderSelection);
         selectedWonder.isActive = true;
         selectedWonder.TimeProgressBarSetActive(true);
+        CenterCamOnCity();
+    }
+
+    private void SelectTradeCenter(TradeCenter center)
+    {
+        if (selectedTradeCenter != null)
+        {
+            if (selectedTradeCenter != center)
+            {
+                UnselectTradeCenter();
+            }
+            else
+            {
+                UnselectTradeCenter();
+                return;
+            }
+        }
+
+        ResetCityUI();
+        UnselectWonder();
+
+        selectedTradeCenter = center;
         CenterCamOnCity();
     }
 
@@ -581,6 +612,7 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         UnselectWonder();
+        UnselectTradeCenter();
         PopulateUpgradeDictForTesting();
 
         selectedCity = cityReference;
@@ -3021,6 +3053,15 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
+    public void UnselectTradeCenter()
+    {
+        if (selectedTradeCenter != null)
+        {
+            world.somethingSelected = false;
+
+            selectedTradeCenter = null;
+        }
+    }
 
 
 

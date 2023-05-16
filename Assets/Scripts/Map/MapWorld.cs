@@ -35,7 +35,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private ParticleSystem lightBeam;
 
-    private WorldResourceManager worldResourceManager;
+    
+    //wonder info
     private WonderDataSO wonderData;
     [SerializeField]
     private UnityEvent<WonderDataSO> OnIconButtonClick;
@@ -49,9 +50,14 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, Wonder> wonderStopDict = new();
     private GameObject wonderGhost;
 
+    //trade center info
+    private Dictionary<string, TradeCenter> tradeCenterDict = new();
+    private List<string> tradeCenterNamePool = new();
+
+    //world resource info
+    private WorldResourceManager worldResourceManager;
     [HideInInspector]
     public bool researching;
-
     private List<City> researchWaitList = new();
     private List<City> goldCityWaitList = new();
     private List<Wonder> goldWonderWaitList = new();
@@ -136,6 +142,12 @@ public class MapWorld : MonoBehaviour
         GameObject speechBubbleGO = Instantiate(GameAssets.Instance.speechBubble);
         speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
         speechBubble.gameObject.SetActive(false);
+
+        tradeCenterNamePool.Add("Trade_Center_1");
+        tradeCenterNamePool.Add("Trade_Center_2");
+        tradeCenterNamePool.Add("Trade_Center_3");
+        tradeCenterNamePool.Add("Trade_Center_4");
+        tradeCenterNamePool.Add("Trade_Center_5");
     }
 
     private void Start()
@@ -244,6 +256,16 @@ public class MapWorld : MonoBehaviour
             resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
         }
 
+        int i = 0;
+        foreach(TradeCenter center in FindObjectsOfType<TradeCenter>())
+        {
+            center.SetWorld(this);
+            center.SetName(tradeCenterNamePool[i]);
+            center.ClaimSpotInWorld(increment);
+            tradeCenterDict[center.tradeCenterName] = center;
+            i++;
+        }
+
         CreateParticleSystems();
     }
 
@@ -266,6 +288,7 @@ public class MapWorld : MonoBehaviour
         cityBuilderManager.ResetCityUI();
         unitMovement.ClearSelection();
         cityBuilderManager.UnselectWonder();
+        cityBuilderManager.UnselectTradeCenter();
         //unitMovement.LoadUnloadFinish(false);
         researchTree.ToggleVisibility(false);
         wonderHandler.ToggleVisibility(false);
@@ -883,6 +906,19 @@ public class MapWorld : MonoBehaviour
             {
                 names.Add(name);
             } 
+        }
+
+        foreach (string name in tradeCenterDict.Keys)
+        {
+            Vector3Int destination;
+
+            if (bySea)
+                destination = tradeCenterDict[name].harborLoc;
+            else
+                destination = tradeCenterDict[name].mainLoc;
+
+            if (GridSearch.TraderMovementCheck(this, unitLoc, destination, bySea))
+                names.Add(name);
         }
 
         return names;
