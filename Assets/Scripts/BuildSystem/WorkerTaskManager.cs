@@ -322,13 +322,13 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!world.IsRoadOnTerrain(tile))
         {
-            InfoPopUpHandler.WarningMessage().Create(tile, "No road here");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No road here");
             worker.SkipRoadRemoval();
             return;
         }
         else if (world.IsCityOnTile(tile) || world.IsWonderOnTile(tile))
         {
-            InfoPopUpHandler.WarningMessage().Create(tile, "Can't remove this");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
             worker.SkipRoadRemoval();
             return;
         }

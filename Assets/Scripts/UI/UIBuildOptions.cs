@@ -289,11 +289,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         if (cannotAfford && !buttonHandler.isQueueing)
         {
             StartCoroutine(Shake());
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f; //z must be more than 0, else just gives camera position
-            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-
-            InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Can't afford");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
             return;
         }
 

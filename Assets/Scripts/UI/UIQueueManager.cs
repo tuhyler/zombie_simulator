@@ -120,12 +120,12 @@ public class UIQueueManager : MonoBehaviour
 
         if (unitBuildData == null && queueItemNames.Contains(buildName))
         {
-            GiveWarningMessage("Item already in queue");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Itetm already in queue");
             return false;
         }
         else if (loc != new Vector3Int(0, 0, 0) && world.CheckQueueLocation(worldLoc))
         {
-            GiveWarningMessage("Location already queued");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Location already queued");
             return false;
         }
 
@@ -355,15 +355,6 @@ public class UIQueueManager : MonoBehaviour
         }   
     }
     
-    private void GiveWarningMessage(string message)
-    {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = 10f; //z must be more than 0, else just gives camera position
-        Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-
-        InfoPopUpHandler.WarningMessage().Create(mouseLoc, message);
-    }
-
     public void HideQueueItems()
     {
         foreach (UIQueueItem queueItem in queueItems)

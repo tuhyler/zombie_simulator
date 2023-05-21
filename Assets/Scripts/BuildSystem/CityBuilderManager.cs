@@ -35,6 +35,8 @@ public class CityBuilderManager : MonoBehaviour
     private UIImprovementBuildPanel uiImprovementBuildInfoPanel;
     [SerializeField]
     private UICityNamer uiCityNamer;
+    [SerializeField]
+    public UITradeCenter uiTradeCenter;
     //[SerializeField]
     //private UICityResourceGrid uiCityResourceGrid;
     [SerializeField]
@@ -246,7 +248,7 @@ public class CityBuilderManager : MonoBehaviour
                     if (tilesToChange.Contains(terrainLocation) || terrainLocation == selectedCityLoc)
                         UpgradeSelectedImprovementQueueCheck(terrainLocation, improvementSelected);
                     else
-                        GiveWarningMessage("Not here");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
                 }
                 else if (removingImprovement)
                 {
@@ -268,12 +270,12 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     if (constructingTiles.Contains(terrainLocation))
                     {
-                        GiveWarningMessage("Still building...");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Still building...");
                         return;
                     }
                     else if (!tilesToChange.Contains(terrainLocation))
                     {
-                        GiveWarningMessage("Not here");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
                     }
                     else
                     {
@@ -303,7 +305,7 @@ public class CityBuilderManager : MonoBehaviour
 
             if (!tilesToChange.Contains(terrainLocation))
             {
-                GiveWarningMessage("Can't build here");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build here");
             }
             else
             {
@@ -311,7 +313,7 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
         //selecting terrain to show info
-        else if (selectedCity == null & selectedObject.TryGetComponent(out TerrainData td))
+        else if (selectedCity == null && selectedTradeCenter == null && selectedObject.TryGetComponent(out TerrainData td))
         {
             if (world.somethingSelected)
             {
@@ -389,7 +391,7 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     if (constructingTiles.Contains(terrainLocation))
                     {
-                        GiveWarningMessage("Still building...");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Still building...");
                         return;
                     }
 
@@ -449,7 +451,10 @@ public class CityBuilderManager : MonoBehaviour
         ResetCityUI();
         UnselectWonder();
 
+        uiTradeCenter.ToggleVisibility(true, center);
         selectedTradeCenter = center;
+        selectedTradeCenter.EnableHighlight(Color.white);
+        uiTradeCenter.SetName(selectedTradeCenter.tradeCenterName);
         CenterCamOnCity();
     }
 
@@ -473,7 +478,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (tilesToChange.Count == 0)
         {
-            InfoPopUpHandler.WarningMessage().Create(selectedWonder.centerPos, "No available spots");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No available spots");
         }
         else
         {
@@ -491,7 +496,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (selectedWonder.WorkersReceived == 0)
         {
-            InfoPopUpHandler.WarningMessage().Create(selectedWonder.unloadLoc, "No workers to unload");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No workers to unload");
             return;
         }
 
@@ -884,7 +889,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (!selectedCity.ResourceManager.CheckResourceAvailability(value))
             {
-                InfoPopUpHandler.WarningMessage().Create(tempBuildLocation, "Can't afford");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
                 return;
             }
         }
@@ -1617,7 +1622,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (!upgradingImprovement && !world.IsTileOpenCheck(tempBuildLocation))
         {
-            GiveWarningMessage("Something already here");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something already here");
             return;
         }
 
@@ -2812,7 +2817,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (city.cityPop.CurrentPop == 0)
             {
-                InfoPopUpHandler.WarningMessage().Create(city.cityLoc, "Not enough pop to make unit");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not enough pop to make unit");
                 city.GoToNextItemInQueue();
 
                 if (selectedCity != null && city == selectedCity)
@@ -3058,20 +3063,10 @@ public class CityBuilderManager : MonoBehaviour
         if (selectedTradeCenter != null)
         {
             world.somethingSelected = false;
-
+            uiTradeCenter.ToggleVisibility(false);
+            selectedTradeCenter.DisableHighlight();
             selectedTradeCenter = null;
         }
-    }
-
-
-
-    private void GiveWarningMessage(string message)
-    {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = 10f; //z must be more than 0, else just gives camera position
-        Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-
-        InfoPopUpHandler.WarningMessage().Create(mouseLoc, message);
     }
 
     public void CombineMeshes(City city, Transform cityTransform, bool upgrade)

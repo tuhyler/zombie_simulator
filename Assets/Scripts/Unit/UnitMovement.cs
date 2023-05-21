@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Resources;
 using UnityEngine;
 
 public class UnitMovement : MonoBehaviour
@@ -53,6 +54,7 @@ public class UnitMovement : MonoBehaviour
     //for transferring cargo to/from trader
     private ResourceManager cityResourceManager;
     private Wonder wonder;
+    private TradeCenter tradeCenter;
     public int cityTraderIncrement = 1;
 
     //for worker orders
@@ -142,11 +144,11 @@ public class UnitMovement : MonoBehaviour
             {
                 if (world.IsRoadOnTerrain(locationPos) || world.IsBuildLocationTaken(locationPos))
                 {
-                    GiveWarningMessage("Already something here");
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already something here");
                 }
                 else if (!td.terrainData.walkable)
                 {
-                    GiveWarningMessage("Can't build here");
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build here");
                 }
                 else
                 {
@@ -172,11 +174,11 @@ public class UnitMovement : MonoBehaviour
             {
                 if (!world.IsRoadOnTerrain(locationPos))
                 {
-                    GiveWarningMessage("No road here");
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No road here");
                 }
                 else if (world.IsCityOnTile(locationPos) || world.IsWonderOnTile(locationPos))
                 {
-                    GiveWarningMessage("Can't remove this");
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
                 }
                 else
                 {
@@ -473,7 +475,7 @@ public class UnitMovement : MonoBehaviour
         {
             if (!terrainSelected.GetTerrainData().sailable)
             {
-                GiveWarningMessage("Can't move there");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
                 return;
             }
 
@@ -481,19 +483,19 @@ public class UnitMovement : MonoBehaviour
         }
         else if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
         {
-            GiveWarningMessage("Can't move there");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
             return;
         }
 
         if (selectedTrader != null && selectedTrader.followingRoute) //can't change orders if following route
         {
-            GiveWarningMessage("Currently following route");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently following route");
             return;
         }
 
         if (selectedTrader != null && !selectedTrader.bySea && !world.IsRoadOnTileLocation(terrainPos))
         {
-            GiveWarningMessage("Must travel on road");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Must travel on road");
             return;
         }
 
@@ -511,15 +513,6 @@ public class UnitMovement : MonoBehaviour
         }
 
         HandleSelectedLocation(locationInt, terrainPos, selectedUnit);
-    }
-
-    private void GiveWarningMessage(string message)
-    {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = 10f; //z must be more than 0, else just gives camera position
-        Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-
-        InfoPopUpHandler.WarningMessage().Create(mouseLoc, message);
     }
 
     public void MoveUnitToggle()
@@ -613,16 +606,25 @@ public class UnitMovement : MonoBehaviour
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, world.GetCity(unitLoc));
                 uiCityResourceInfoPanel.SetPosition();
             }
-            else
+            else if (world.IsWonderOnTile(unitLoc))
             {
                 wonder = world.GetWonder(unitLoc);
-                uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderName, 10000, 10000);
+                uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderName, 10000, 10000); //not showing inventory levels
                 //uiCityResourceInfoPanel.PrepareResourceUI(wonder.ResourceDict);
                 uiCityResourceInfoPanel.HideInventoryLevel();
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, null, wonder);
                 uiCityResourceInfoPanel.SetPosition();
-
             }
+            else
+            {
+                tradeCenter = world.GetTradeCenter(unitLoc);
+                uiCityResourceInfoPanel.SetTitleInfo(tradeCenter.tradeCenterName, 10000, 10000); //not showing inventory levels
+                uiCityResourceInfoPanel.HideInventoryLevel();
+                uiCityResourceInfoPanel.ToggleVisibility(true, null, null, null, tradeCenter);
+                uiCityResourceInfoPanel.SetPosition();
+                world.cityBuilderManager.uiTradeCenter.ToggleVisibility(true, tradeCenter);
+            }
+
 
             uiPersonalResourceInfoPanel.SetPosition();
             
@@ -777,12 +779,75 @@ public class UnitMovement : MonoBehaviour
             uiCityResourceInfoPanel.RestorePosition(keepSelection);
             cityResourceManager = null;
             wonder = null;
+            if (tradeCenter)
+            {
+                world.cityBuilderManager.uiTradeCenter.ToggleVisibility(false);
+                tradeCenter = null;
+            }
             loadScreenSet = false;
         }
     }
 
     private void ChangeResourceManagersAndUIs(ResourceType resourceType, int resourceAmount)
     {
+        //for buying and selling resources in trade center (stand alone)
+        if (tradeCenter)
+        {
+            if (resourceAmount > 0) //buying 
+            {
+                int resourceAmountAdjusted = selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
+
+                if (resourceAmountAdjusted == 0)
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
+                    return;
+                }
+
+                if (!world.CheckWorldGold(tradeCenter.ResourceBuyDict[resourceType]))
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+                    return;
+                }
+
+                int buyAmount = -resourceAmountAdjusted * tradeCenter.ResourceBuyDict[resourceType];
+                world.UpdateWorldResources(ResourceType.Gold, buyAmount);
+                InfoResourcePopUpHandler.CreateResourceStat(selectedTrader.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+
+                uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), false);
+                uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
+            }
+            else if (resourceAmount <= 0) //selling
+            {
+                if (tradeCenter.ResourceSellDict.ContainsKey(resourceType))
+                {
+                    int remainingWithTrader = selectedTrader.personalResourceManager.GetResourceDictValue(resourceType);
+
+                    if (remainingWithTrader < Mathf.Abs(resourceAmount))
+                        resourceAmount = -remainingWithTrader;
+
+                    if (resourceAmount == 0)
+                        return;
+
+                    selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
+
+                    int sellAmount = -resourceAmount * tradeCenter.ResourceSellDict[resourceType];
+                    world.UpdateWorldResources(ResourceType.Gold, sellAmount);
+                    InfoResourcePopUpHandler.CreateResourceStat(selectedTrader.transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+
+                    uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), false);
+                    uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
+                }
+                else
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Doesn't want to buy " + resourceType);
+                }
+            }
+            
+            return;
+        }
+
+
+
         if (wonder != null)
         {
             if (!wonder.CheckResourceType(resourceType))

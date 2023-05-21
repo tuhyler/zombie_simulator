@@ -41,12 +41,18 @@ public class UITradeRouteManager : MonoBehaviour
     private Vector3 originalLoc;
 
 
+    private MapWorld world;
+
+
+
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
         originalButtonColor = buttonImage.color;
         AddResources();
         gameObject.SetActive(false);
+
+        world = FindObjectOfType<MapWorld>();
     }
 
     public void StopRoute()
@@ -242,10 +248,10 @@ public class UITradeRouteManager : MonoBehaviour
     {
         if (stopCount >= 20)
         {
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f;
-            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-            InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Hit stop limit");
+            //Vector3 mousePos = Input.mousePosition;
+            //mousePos.z = 935;
+            //Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Hit stop limit");
 
             return null;
         }
@@ -348,7 +354,7 @@ public class UITradeRouteManager : MonoBehaviour
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
             if (destination == null)
             {
-                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "No assigned city to stop");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No assigned city to stop");
                 return;
             }
 
@@ -365,13 +371,13 @@ public class UITradeRouteManager : MonoBehaviour
 
             if (consecFound)
             {
-                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "Consecutive stops for same city");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Consecutive stops for same stop");
                 return;
             }
 
             if (resourceAssignment.Count == 0 && waitTime < 0)
             {
-                InfoPopUpHandler.WarningMessage().Create(selectedTrader.transform.position, "No resource assignment with forever wait time for stop");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No resource assignment for stop");
                 return;
             }
         }

@@ -122,7 +122,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     {
         if (resourcePriorityList.Count >= resources.Count) //limit
         {
-            InfoPopUpHandler.WarningMessage().Create(city.cityLoc, "Max resources");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Max resources");
             return;
         }
 

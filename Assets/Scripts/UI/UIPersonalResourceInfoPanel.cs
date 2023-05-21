@@ -28,6 +28,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     private Trader trader;
     private City city;
     private Wonder wonder;
+    private TradeCenter tradeCenter;
 
     private float unitStorageLevel;
     private int unitStorageLimit;
@@ -106,7 +107,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         gridCellDict.Add(loc.gridLocation, loc);
     }
 
-    public void ToggleVisibility(bool v, Trader trader = null, City city = null, Wonder wonder = null)
+    public void ToggleVisibility(bool v, Trader trader = null, City city = null, Wonder wonder = null, TradeCenter tradeCenter = null)
     {
         if (activeStatus == v)
             return;
@@ -118,6 +119,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             this.trader = trader;
             this.city = city;
             this.wonder = wonder;
+            this.tradeCenter = tradeCenter;
             activeCells = 0;
             buttonDown.gameObject.SetActive(false);
 
@@ -130,11 +132,16 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                     foreach (ResourceType type in city.resourceGridDict.Keys)
                         ActivateCell(type, true);
                 }
-                else
+                else if (wonder)
                 {
                     wonder.uiCityResourceInfoPanel = this;
                     
                     foreach (ResourceType type in wonder.ResourceGridDict.Keys)
+                        ActivateCell(type, true);
+                }
+                else
+                {
+                    foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
                         ActivateCell(type, true);
                 }
             }
@@ -195,10 +202,15 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 this.city = null;
                 gameObject.SetActive(false);
             }
-            else
+            else if (this.wonder)
             {
                 this.wonder.uiCityResourceInfoPanel = null;
                 this.wonder = null;
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                this.tradeCenter = null;
                 gameObject.SetActive(false);
             }
         }
@@ -252,8 +264,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             if (city)
                 loc = city.resourceGridDict[type];
-            else
+            else if (wonder)
                 loc = wonder.ResourceGridDict[type];
+            else 
+                loc = tradeCenter.ResourceBuyGridDict[type];
         }
         else
             loc = trader.resourceGridDict[type];
@@ -267,8 +281,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             if (city)
                 gridCellDict[loc].resource.SetValue(city.ResourceManager.ResourceDict[type]);
-            else
+            else if (wonder)
                 gridCellDict[loc].resource.SetValue(wonder.ResourceDict[type]);
+            else
+                gridCellDict[loc].resource.SetValue(tradeCenter.ResourceBuyDict[type]);
         }
         else
             gridCellDict[loc].resource.SetValue(trader.personalResourceManager.ResourceDict[type]);
@@ -517,7 +533,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     {
         if (resourceUIDict.ContainsKey(type))//checking if resource is in dictionary
         {
-            gridCellDict[resourceUIDict[type]].resource.SetValue(val, true);
+            gridCellDict[resourceUIDict[type]].resource.SetValue(val);
         }
         else
         {

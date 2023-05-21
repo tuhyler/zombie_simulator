@@ -20,13 +20,24 @@ public class TradeCenter : MonoBehaviour
 
     private Dictionary<ResourceType, int> resourceBuyDict = new();
     public Dictionary<ResourceType, int> ResourceBuyDict { get { return resourceBuyDict; } set { resourceBuyDict = value; } }
+    private Dictionary<ResourceType, int> resourceBuyGridDict = new();
+    public Dictionary<ResourceType, int> ResourceBuyGridDict { get { return resourceBuyGridDict; } }
 
-    //initial resources
-    public List<ResourceValue> sellResources = new(); //resources to sell
+    //initial resources to buy & sell
+    public List<ResourceValue> buyResources = new();
+    public List<ResourceValue> sellResources = new(); 
 
     private void Awake()
     {
         highlight = GetComponent<SelectionHighlight>();
+
+        int i = 0;
+        foreach (ResourceValue value in buyResources)
+        {
+            resourceBuyDict[value.resourceType] = value.resourceAmount;
+            resourceBuyGridDict[value.resourceType] = i;
+            i++;
+        }
 
         foreach (ResourceValue value in sellResources)
             resourceSellDict[value.resourceType] = value.resourceAmount;
@@ -65,7 +76,7 @@ public class TradeCenter : MonoBehaviour
         if (highlight.isGlowing)
             return;
 
-        highlight.EnableHighlight(highlightColor, true);
+        highlight.EnableHighlight(highlightColor, false);
     }
 
     public void DisableHighlight()

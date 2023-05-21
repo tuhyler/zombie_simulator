@@ -6,7 +6,7 @@ public class InfoPopUpHandler : MonoBehaviour
 {
     private static InfoPopUpHandler warningMessage;
 
-    private GameObject uiPrefab;
+    //private GameObject uiPrefab;
 
     private TMP_Text popUpText;
     private float visibleTime = 2f;
@@ -34,14 +34,14 @@ public class InfoPopUpHandler : MonoBehaviour
         while (disappearTimer > 0)
         {
             disappearTimer -= Time.deltaTime;
-            transform.position += new Vector3(0, moveSpeed, moveSpeed*1.5f) * Time.deltaTime; //multiplying z to make sure message goes straight up in world space
+            transform.position += new Vector3(0, moveSpeed, 0) * Time.deltaTime; //multiplying z to make sure message goes straight up in world space
             
             yield return null;
         }
 
         while (textColor.a > 0)
         {
-            transform.position += new Vector3(0, moveSpeed, moveSpeed*1.5f) * Time.deltaTime;
+            transform.position += new Vector3(0, moveSpeed, 0) * Time.deltaTime;
             float disappearSpeed = 1f;
             textColor.a -= disappearSpeed * Time.deltaTime;
             popUpText.color = textColor;
@@ -71,6 +71,17 @@ public class InfoPopUpHandler : MonoBehaviour
         disappearTimer = visibleTime;
         warningMessage.transform.position = position;
         warningMessage.SetPopUpText(text);
+
+        co = StartCoroutine(ShowMessage());
+    }
+
+    public static void GetWarningMessage()
+    {
+
+    }
+
+    public void CreateWarning(Vector3 position, string text)
+    {
 
         co = StartCoroutine(ShowMessage());
     }

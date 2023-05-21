@@ -50,11 +50,7 @@ public class PersonalResourceManager : MonoBehaviour
         }
         else
         {
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f; //z must be more than 0, else just gives camera position
-            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-
-            InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Full inventory");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
             return 0;
         }
     }
