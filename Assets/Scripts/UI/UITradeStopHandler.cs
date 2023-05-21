@@ -236,11 +236,7 @@ public class UITradeStopHandler : MonoBehaviour
     {
         if (resourceCount >= 20)
         {
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 10f; 
-            Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-            InfoPopUpHandler.WarningMessage().Create(mouseLoc, "Hit resource limit");
-
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Hit resource limit");
             return null;
         }
 

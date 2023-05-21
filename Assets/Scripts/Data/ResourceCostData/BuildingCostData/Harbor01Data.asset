@@ -37,6 +37,7 @@ MonoBehaviour:
   producedResourceTime: 
   rawMaterials: 0
   rawResourceType: 0
+  isResearch: 0
   terrainType: 1
   workEthicChange: 0
   maxLabor: 0
@@ -46,7 +47,7 @@ MonoBehaviour:
   replaceRocks: 0
   returnProp: 0
   singleBuild: 1
-  buildTime: 60
+  buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
   hideAnimMesh: 0

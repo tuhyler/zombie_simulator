@@ -1,14 +1,15 @@
 using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 
-public class InfoPopUpHandler : MonoBehaviour
+public class UIInfoPopUpHandler : MonoBehaviour
 {
-    private static InfoPopUpHandler warningMessage;
+    private static UIInfoPopUpHandler warningMessage;
 
-    //private GameObject uiPrefab;
-
+    [SerializeField]
     private TMP_Text popUpText;
+
     private float visibleTime = 2f;
     private float disappearTimer;
     private Color textColor;
@@ -17,7 +18,8 @@ public class InfoPopUpHandler : MonoBehaviour
 
     private void Awake()
     {
-        popUpText = GetComponent<TMP_Text>();
+        warningMessage = FindObjectOfType<UIInfoPopUpHandler>();
+        
         popUpText.outlineWidth = 0.35f;
         popUpText.outlineColor = Color.black;
     }
@@ -29,19 +31,18 @@ public class InfoPopUpHandler : MonoBehaviour
 
     private IEnumerator ShowMessage()
     {
-        float moveSpeed = 0.1f;
-        
+        float moveSpeed = 20f;
+
         while (disappearTimer > 0)
         {
             disappearTimer -= Time.deltaTime;
-            transform.position += new Vector3(0, moveSpeed, 0) * Time.deltaTime; //multiplying z to make sure message goes straight up in world space
-            
+            transform.localPosition += new Vector3(0, moveSpeed, 0) * Time.deltaTime; 
             yield return null;
         }
 
         while (textColor.a > 0)
         {
-            transform.position += new Vector3(0, moveSpeed, 0) * Time.deltaTime;
+            transform.localPosition += new Vector3(0, moveSpeed, 0) * Time.deltaTime;
             float disappearSpeed = 1f;
             textColor.a -= disappearSpeed * Time.deltaTime;
             popUpText.color = textColor;
@@ -49,39 +50,39 @@ public class InfoPopUpHandler : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+        co = null;
     }
 
-    public static InfoPopUpHandler WarningMessage()
+    public static UIInfoPopUpHandler WarningMessage()
     {
-        if (warningMessage == null)
-        {
-            GameObject popUpGO = Instantiate(GameAssets.Instance.popUpTextPrefab, new Vector3(0, 0, 0), Quaternion.Euler(90, 0, 0));
-            warningMessage = popUpGO.GetComponent<InfoPopUpHandler>();
-        }
-
         return warningMessage;
     }
-    
-    public void Create(Vector3 position, string text)
+
+    public void Create(Vector3 position, string text, bool toWorld = true) //'true' if inputting mouse position
     {
         if (co != null)
+        {
             StopCoroutine(co);
+            gameObject.SetActive(false);
+        }
+
+        if (toWorld)
+        {
+            position.z = 935;
+            Vector3 positionWorld = Camera.main.ScreenToWorldPoint(position);
+            transform.position = positionWorld;
+        }
+        else
+        {
+            Vector3 positionScreen = Camera.main.WorldToScreenPoint(position);
+            positionScreen.z = 935;
+            Vector3 positionAgain = Camera.main.ScreenToWorldPoint(positionScreen);
+            transform.position = positionAgain;
+        }
+
         gameObject.SetActive(true);
-        //position.x = Mathf.Clamp(position.x, 100f, Screen.width - 100);
         disappearTimer = visibleTime;
-        warningMessage.transform.position = position;
-        warningMessage.SetPopUpText(text);
-
-        co = StartCoroutine(ShowMessage());
-    }
-
-    public static void GetWarningMessage()
-    {
-
-    }
-
-    public void CreateWarning(Vector3 position, string text)
-    {
+        SetPopUpText(text);
 
         co = StartCoroutine(ShowMessage());
     }

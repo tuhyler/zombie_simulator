@@ -24,6 +24,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public UITomFinder uiTomFinder;
     [SerializeField]
+    public UIInfoPopUpHandler uiInfoPopUpHandler;
+    [SerializeField]
     private UnitMovement unitMovement;
     [SerializeField]
     public CityBuilderManager cityBuilderManager;
@@ -52,6 +54,7 @@ public class MapWorld : MonoBehaviour
 
     //trade center info
     private Dictionary<string, TradeCenter> tradeCenterDict = new();
+    private Dictionary<Vector3Int, TradeCenter> tradeCenterStopDict = new();
     private List<string> tradeCenterNamePool = new();
 
     //world resource info
@@ -142,6 +145,8 @@ public class MapWorld : MonoBehaviour
         GameObject speechBubbleGO = Instantiate(GameAssets.Instance.speechBubble);
         speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
         speechBubble.gameObject.SetActive(false);
+
+        uiInfoPopUpHandler.gameObject.SetActive(false);
 
         tradeCenterNamePool.Add("Trade_Center_1");
         tradeCenterNamePool.Add("Trade_Center_2");
@@ -262,7 +267,9 @@ public class MapWorld : MonoBehaviour
             center.SetWorld(this);
             center.SetName(tradeCenterNamePool[i]);
             center.ClaimSpotInWorld(increment);
+            roadManager.BuildRoadAtPosition(center.mainLoc);
             tradeCenterDict[center.tradeCenterName] = center;
+            tradeCenterStopDict[center.mainLoc] = center;
             i++;
         }
 
@@ -293,15 +300,6 @@ public class MapWorld : MonoBehaviour
         researchTree.ToggleVisibility(false);
         wonderHandler.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
-    }
-
-    public void GiveWarningMessage(string message)
-    {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = 10f; //z must be more than 0, else just gives camera position
-        Vector3 mouseLoc = Camera.main.ScreenToWorldPoint(mousePos);
-
-        InfoPopUpHandler.WarningMessage().Create(mouseLoc, message);
     }
 
     //wonder info
@@ -372,19 +370,19 @@ public class MapWorld : MonoBehaviour
 
                     if (td.terrainData.type != wonderData.terrainType)
                     {
-                        GiveWarningMessage("Must build on " + wonderData.terrainType);
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Must build on " + wonderData.terrainType);
                         wonderPlacementLoc.Clear();
                         return;
                     }
                     else if (newPos - locationPos != unloadLoc && !IsTileOpenCheck(newPos))
                     {
-                        GiveWarningMessage("Something in the way");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
                         return;
                     }
                     else if (newPos - locationPos == unloadLoc && !IsTileOpenButRoadCheck(newPos))
                     {
-                        GiveWarningMessage("Something in the way");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Soemthing in the way");
                         wonderPlacementLoc.Clear();
                         return;
                     }
@@ -464,7 +462,7 @@ public class MapWorld : MonoBehaviour
 
             if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)))
             {
-                GiveWarningMessage("Something in the way");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                 wonderPlacementLoc.Clear();
                 return;
             }
@@ -797,6 +795,9 @@ public class MapWorld : MonoBehaviour
                 
                 if (WondersWaitingCheck())
                     RestartWonderConstruction();
+
+                if (cityBuilderManager.uiTradeCenter.activeStatus)
+                    cityBuilderManager.uiTradeCenter.UpdateColors();
             }
         }
     }
@@ -854,6 +855,11 @@ public class MapWorld : MonoBehaviour
     public Wonder GetWonder(Vector3Int tile)
     {
         return wonderStopDict[tile];
+    }
+
+    public TradeCenter GetTradeCenter(Vector3Int tile)
+    {
+        return tradeCenterStopDict[tile];
     }
 
     public List<string> GetConnectedCityNames(Vector3Int unitLoc, bool bySea)
@@ -1289,6 +1295,8 @@ public class MapWorld : MonoBehaviour
         if (cityDict.ContainsKey(tile))
             return true;
         else if (wonderStopDict.ContainsKey(tile) && wonderStopDict[tile].unloadLoc == tile)
+            return true;
+        else if (tradeCenterStopDict.ContainsKey(tile))
             return true;
 
         return false;

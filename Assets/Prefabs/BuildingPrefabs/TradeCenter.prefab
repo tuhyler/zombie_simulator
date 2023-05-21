@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2311649316462798009}
   - component: {fileID: 6297654911500261546}
   - component: {fileID: 7800520638858068917}
+  - component: {fileID: 3561812650956298930}
   m_Layer: 8
   m_Name: TradeCenter
   m_TagString: Player
@@ -54,7 +55,16 @@ MonoBehaviour:
   tradeCenterName: 
   harborLoc: {x: 0, y: 0, z: 0}
   mainLoc: {x: 0, y: 0, z: 0}
-  sellResources: []
+  buyResources:
+  - resourceType: 15
+    resourceAmount: 200
+  - resourceType: 10
+    resourceAmount: 30
+  sellResources:
+  - resourceType: 4
+    resourceAmount: 3
+  - resourceType: 5
+    resourceAmount: 5
 --- !u!65 &7800520638858068917
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -68,6 +78,23 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.8, y: 0.1, z: 1.8}
   m_Center: {x: 0, y: 0.1, z: 0}
+--- !u!114 &3561812650956298930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7185426163474996275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a,
+    type: 2}
+  isGlowing: 0
 --- !u!1001 &242167531976939344
 PrefabInstance:
   m_ObjectHideFlags: 0

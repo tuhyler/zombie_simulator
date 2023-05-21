@@ -134,7 +134,8 @@ public class ResourceProducer : MonoBehaviour
 
     public void HideConstructionProgressTimeBar()
     {
-        uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime[producedResourceIndex]);
+        if (improvementData.producedResourceTime.Count > 0)
+            uiTimeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime[producedResourceIndex]);
         uiTimeProgressBar.gameObject.SetActive(false);
     }
 
