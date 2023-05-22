@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,6 +41,7 @@ public class TradeRouteManager : MonoBehaviour
     private Trader trader;
     private City city;
     private Wonder wonder;
+    private TradeCenter tradeCenter;
 
     private void Awake()
     {
@@ -59,6 +61,7 @@ public class TradeRouteManager : MonoBehaviour
     {
         city = null;
         wonder = null;
+        tradeCenter = null;
         resourcesAtArrival.Clear();
         currentDestination = cityStops[currentStop];
         waitTime = waitTimes[currentStop];
@@ -98,6 +101,12 @@ public class TradeRouteManager : MonoBehaviour
         PrepareResourceDictionary();
     }
 
+    public void SetTradeCenter(TradeCenter tradeCenter)
+    {
+        this.tradeCenter = tradeCenter;
+        PrepareResourceDictionary();
+    }
+
     private void PrepareResourceDictionary()
     {
         resourcesAtArrival = new(personalResourceManager.ResourceDict);
@@ -109,11 +118,12 @@ public class TradeRouteManager : MonoBehaviour
         bool complete = false;
 
         int i = 0;
-        foreach (ResourceValue resourceValue in resourceAssignments[currentStop])
+        foreach (ResourceValue value in resourceAssignments[currentStop])
         {
             currentResource = i;
-            resourceTotalAmount = Mathf.Abs(resourceValue.resourceAmount);
-            int resourceAmount = resourceValue.resourceAmount;
+            i++;
+            resourceTotalAmount = Mathf.Abs(value.resourceAmount);
+            int resourceAmount = value.resourceAmount;
             bool loadUnloadCheck = true;
             if (uiTradeRouteManager.activeStatus)
             {
@@ -123,21 +133,50 @@ public class TradeRouteManager : MonoBehaviour
 
             if (wonder != null)
             {
-                if (!wonder.CheckResourceType(resourceValue.resourceType))
+                if (!wonder.CheckResourceType(value.resourceType))
                 {
-                    InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Wrong resource type: " + resourceValue.resourceType);
+                    InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Wrong resource type: " + value.resourceType);
+                    if (uiTradeRouteManager.activeStatus)
+                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
                     continue;
                 }
                 else if (resourceAmount > 0)
                 {
                     InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Can't move from wonder");
+                    if (uiTradeRouteManager.activeStatus)
+                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
                     continue;
+                }
+            }
+            else if (tradeCenter != null)
+            {
+                if (resourceAmount > 0)
+                {
+                    if (!tradeCenter.ResourceBuyDict.ContainsKey(value.resourceType))
+                    {
+                        InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't buy " + value.resourceType);
+                        if (uiTradeRouteManager.activeStatus)
+                            uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                        continue;
+                    }
+                }
+                else if (resourceAmount < 0)
+                {
+                    if (!tradeCenter.ResourceSellDict.ContainsKey(value.resourceType))
+                    {
+                        InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't sell " + value.resourceType);
+                        if (uiTradeRouteManager.activeStatus)
+                            uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                        continue;
+                    }
                 }
             }
 
             if (resourceAmount == 0)
             {
-                uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                if (uiTradeRouteManager.activeStatus)
+                    uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                complete = true;
                 continue;
             }
             else if (resourceAmount > 0) //moving from city to trader
@@ -151,7 +190,7 @@ public class TradeRouteManager : MonoBehaviour
                 //if trader wants more than it can store
                 int level = Mathf.CeilToInt(trader.personalResourceManager.GetResourceStorageLevel);
                 int limit = trader.cargoStorageLimit;
-                int currentAmount = trader.personalResourceManager.ResourceDict[resourceValue.resourceType];
+                int currentAmount = trader.personalResourceManager.ResourceDict[value.resourceType];
                 resourceAmount -= currentAmount;
                 if (limit - level < resourceAmount)
                 {
@@ -168,9 +207,16 @@ public class TradeRouteManager : MonoBehaviour
                     int resourceAmountAdjusted;
                     
                     if (city != null)
-                        resourceAmountAdjusted = Mathf.Abs(city.ResourceManager.CheckResource(resourceValue.resourceType, -loadUnloadRateMod));
+                        resourceAmountAdjusted = Mathf.Abs(city.ResourceManager.CheckResource(value.resourceType, -loadUnloadRateMod));
+                    else if (wonder != null)
+                        resourceAmountAdjusted = Mathf.Abs(wonder.CheckResource(value.resourceType, -loadUnloadRateMod));
                     else
-                        resourceAmountAdjusted = Mathf.Abs(wonder.CheckResource(resourceValue.resourceType, -loadUnloadRateMod));
+                    {
+                        if (tradeCenter.world.CheckWorldGold(loadUnloadRateMod * tradeCenter.ResourceBuyDict[value.resourceType]))
+                            resourceAmountAdjusted = loadUnloadRateMod;
+                        else
+                            resourceAmountAdjusted = 0;
+                    }
 
                     amountMoved += resourceAmountAdjusted;
                     resourceCurrentAmount += resourceAmountAdjusted;
@@ -178,16 +224,22 @@ public class TradeRouteManager : MonoBehaviour
                         uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(resourceCurrentAmount, resourceTotalAmount);
 
                     yield return new WaitForSeconds(secondIntervals);
-                    personalResourceManager.CheckResource(resourceValue.resourceType, resourceAmountAdjusted);
+                    personalResourceManager.CheckResource(value.resourceType, resourceAmountAdjusted);
 
                     if (trader.isSelected)
                     {
-                        uiPersonalResourceInfoPanel.UpdateResource(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
+                        uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, personalResourceManager.GetResourceDictValue(value.resourceType));
                         uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
                     }
 
                     if (resourceAmountAdjusted == 0)
                         resourceCheck = true;
+                    else if (tradeCenter)
+                    {
+                        int buyAmount = -resourceAmountAdjusted * tradeCenter.ResourceBuyDict[value.resourceType];
+                        tradeCenter.world.UpdateWorldResources(ResourceType.Gold, buyAmount);
+                        InfoResourcePopUpHandler.CreateResourceStat(transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+                    }
 
                     if (amountMoved >= resourceAmount)
                     {
@@ -196,9 +248,11 @@ public class TradeRouteManager : MonoBehaviour
                     else if (resourceAmountAdjusted == 0)
                     {
                         if (city != null)
-                            city.SetWaiter(this, resourceValue.resourceType);
+                            city.SetWaiter(this, value.resourceType);
+                        else if (wonder != null)
+                            wonder.SetWaiter(this, value.resourceType);
                         else
-                            wonder.SetWaiter(this, resourceValue.resourceType);
+                            tradeCenter.SetWaiter(this, loadUnloadRateMod * tradeCenter.ResourceBuyDict[value.resourceType]);
 
                         yield return HoldingPatternCoroutine();
                     }
@@ -209,7 +263,7 @@ public class TradeRouteManager : MonoBehaviour
             else if (resourceAmount < 0) //moving from trader to city
             {
                 //if trader holds less than what is asked to be dropped off
-                int remainingWithTrader = personalResourceManager.GetResourceDictValue(resourceValue.resourceType);
+                int remainingWithTrader = personalResourceManager.GetResourceDictValue(value.resourceType);
                 if (remainingWithTrader < Mathf.Abs(resourceAmount))
                 {
                     resourceAmount = -remainingWithTrader;
@@ -225,10 +279,12 @@ public class TradeRouteManager : MonoBehaviour
                     int resourceAmountAdjusted;
 
                     if (city != null)
-                        resourceAmountAdjusted = city.ResourceManager.CheckResource(resourceValue.resourceType, loadUnloadRateMod);
+                        resourceAmountAdjusted = city.ResourceManager.CheckResource(value.resourceType, loadUnloadRateMod);
+                    else if (wonder != null)
+                        resourceAmountAdjusted = wonder.CheckResource(value.resourceType, loadUnloadRateMod);
                     else
-                        resourceAmountAdjusted = wonder.CheckResource(resourceValue.resourceType, loadUnloadRateMod);
-                    
+                        resourceAmountAdjusted = loadUnloadRateMod;
+
                     amountMoved -= resourceAmountAdjusted;
                     resourceCurrentAmount += resourceAmountAdjusted;
                     if (uiTradeRouteManager.activeStatus)
@@ -236,15 +292,21 @@ public class TradeRouteManager : MonoBehaviour
 
                     yield return new WaitForSeconds(secondIntervals);
 
-                    personalResourceManager.CheckResource(resourceValue.resourceType, -resourceAmountAdjusted);
+                    personalResourceManager.CheckResource(value.resourceType, -resourceAmountAdjusted);
 
                     if (trader.isSelected)
                     {
-                        uiPersonalResourceInfoPanel.UpdateResource(resourceValue.resourceType, personalResourceManager.GetResourceDictValue(resourceValue.resourceType));
+                        uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, personalResourceManager.GetResourceDictValue(value.resourceType));
                         uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
                     }
                     if (resourceAmountAdjusted == 0)
                         resourceCheck = true;
+                    else if (tradeCenter)
+                    {
+                        int sellAmount = resourceAmountAdjusted * tradeCenter.ResourceSellDict[value.resourceType];
+                        tradeCenter.world.UpdateWorldResources(ResourceType.Gold, sellAmount);
+                        InfoResourcePopUpHandler.CreateResourceStat(transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+                    }
 
                     if (amountMoved <= resourceAmount)
                     {
@@ -254,8 +316,9 @@ public class TradeRouteManager : MonoBehaviour
                     {
                         if (city != null)
                             city.SetWaiter(this);
-                        else
+                        else if (wonder != null)
                             wonder.SetWaiter(this);
+                        //trade centers don't need to wait here
 
                         yield return HoldingPatternCoroutine();
                     }
@@ -263,8 +326,6 @@ public class TradeRouteManager : MonoBehaviour
 
                 complete = true;
             }
-
-            i++;
         }
 
         if (complete)
@@ -321,6 +382,8 @@ public class TradeRouteManager : MonoBehaviour
     {
         resourceCheck = false;
         StopCoroutine(HoldingPatternCoroutine());
+        if (tradeCenter != null)
+            tradeCenter.RemoveFromWaitList();
     }
 
     public void CancelLoad()
@@ -362,8 +425,10 @@ public class TradeRouteManager : MonoBehaviour
 
         if (city != null)
             city.CheckQueue();
-        else
+        else if (wonder != null)
             wonder.CheckQueue();
+        else
+            tradeCenter.CheckQueue();
 
         trader.isWaiting = false;
         IncreaseCurrentStop();
@@ -389,27 +454,4 @@ public class TradeRouteManager : MonoBehaviour
     {
         cityStops.Remove(stop);
     }
-
-
-
-    //public bool GoToNextStopCheck()
-    //{
-    //    CompleteTradeRouteOrders();
-
-    //    if (incomplete == 0 || timeWaited == waitTime)
-    //    {
-    //        IncreaseCurrentStop();
-    //        return true;
-    //    }
-    //    else //incomplete > 0
-    //    {
-    //        timeWaited++;
-    //        return false;
-    //    }
-    //}
-
-    //public void DumpResource(ResourceValue resourceValue)
-    //{
-
-    //}
 }

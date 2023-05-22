@@ -40,19 +40,12 @@ public class UITradeRouteManager : MonoBehaviour
     public bool activeStatus;
     private Vector3 originalLoc;
 
-
-    private MapWorld world;
-
-
-
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
         originalButtonColor = buttonImage.color;
         AddResources();
         gameObject.SetActive(false);
-
-        world = FindObjectOfType<MapWorld>();
     }
 
     public void StopRoute()

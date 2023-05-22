@@ -29,6 +29,11 @@ public class UIInfoPopUpHandler : MonoBehaviour
         transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
     }
 
+    public void SetWarningMessage(UIInfoPopUpHandler uiInfoPopUpHandler)
+    {
+        warningMessage = uiInfoPopUpHandler;
+    }
+
     private IEnumerator ShowMessage()
     {
         float moveSpeed = 20f;
@@ -55,6 +60,9 @@ public class UIInfoPopUpHandler : MonoBehaviour
 
     public static UIInfoPopUpHandler WarningMessage()
     {
+        if (!warningMessage)
+            warningMessage = FindObjectOfType<UIInfoPopUpHandler>();
+
         return warningMessage;
     }
 

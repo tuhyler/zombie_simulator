@@ -54,6 +54,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     private bool getAll;
     [HideInInspector]
     public bool draggable = true;
+    Vector3 diff;
 
     private void Awake()
     {
@@ -78,6 +79,14 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
             transform.SetParent(tempParent);
             transform.SetAsLastSibling();
             background.raycastTarget = false;
+
+            //for dragging based on where it was clicked
+            //Vector3 p = Input.mousePosition;
+            //p.z = 935;
+            //Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+
+            //diff = transform.position - pos;
+            diff = transform.position - dragGrips.transform.position;
         }
     }
 
@@ -88,7 +97,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
             Vector3 p = Input.mousePosition;
             p.z = 935;
             Vector3 pos = Camera.main.ScreenToWorldPoint(p);
-            pos.x += 250;
+            pos += diff;
             transform.position = pos;
         }
     }

@@ -326,7 +326,7 @@ public class WorkerTaskManager : MonoBehaviour
             worker.SkipRoadRemoval();
             return;
         }
-        else if (world.IsCityOnTile(tile) || world.IsWonderOnTile(tile))
+        else if (world.IsCityOnTile(tile) || world.IsWonderOnTile(tile) || world.IsTradeCenterOnTile(tile))
         {
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
             worker.SkipRoadRemoval();

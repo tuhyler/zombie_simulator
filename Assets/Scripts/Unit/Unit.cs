@@ -357,8 +357,11 @@ public class Unit : MonoBehaviour
         Vector3Int endPos = world.RoundToInt(endPosition);
         if (world.IsCityOnTile(endPos))
             world.GetCity(endPos).AddToWaitList(this);
-        else
+        else if (world.IsWonderOnTile(endPos))
             world.GetWonder(endPos).AddToWaitList(this);
+        else
+            world.GetTradeCenter(endPos).AddToWaitList(this);
+
         currentLocation = world.AddUnitPosition(endPosition, this);
         isWaiting = true;
         unitAnimator.SetBool(isMovingHash, false);
