@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 public class UIDropLocation : MonoBehaviour, IDropHandler
 {
@@ -41,10 +42,10 @@ public class UIDropLocation : MonoBehaviour, IDropHandler
         if (newDrop.gridLocation != 0 && newDrop.gridLocation % resourceManager.gridWidth == remainder)
             resource.transform.localPosition = Vector3.zero;
         else
-            LeanTween.moveX(resource.gameObject, newLoc.x, 0.2f).setEaseOutSine().setOnComplete(SetNewParent);
+            LeanTween.move(resource.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(SetToZero);
     }
 
-    public void SetNewParent()
+    public void SetToZero()
     {
         resource.transform.localPosition = Vector3.zero;
     }

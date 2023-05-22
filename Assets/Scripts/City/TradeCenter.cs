@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class TradeCenter : MonoBehaviour
 {
-    private MapWorld world;
+    [HideInInspector]
+    public MapWorld world;
     private SelectionHighlight highlight;
     [SerializeField]
     private CityNameField nameField;
@@ -25,7 +26,12 @@ public class TradeCenter : MonoBehaviour
 
     //initial resources to buy & sell
     public List<ResourceValue> buyResources = new();
-    public List<ResourceValue> sellResources = new(); 
+    public List<ResourceValue> sellResources = new();
+
+    //for queuing unloading
+    private Queue<Unit> waitList = new();
+    private TradeRouteManager tradeRouteWaiter;
+    private int waitingAmount;
 
     private void Awake()
     {
@@ -69,6 +75,61 @@ public class TradeCenter : MonoBehaviour
 
         world.AddToCityLabor(mainLoc, gameObject);
         world.AddStructure(mainLoc, gameObject);
+    }
+
+    public void SetWaiter(TradeRouteManager tradeRouteManager, int amount)
+    {
+        tradeRouteWaiter = tradeRouteManager;
+        waitingAmount = amount;
+        world.AddToGoldTradeCenterWaitList(this);
+    }
+
+    private void CheckGoldWaiter()
+    {
+        if (tradeRouteWaiter)
+        {
+            tradeRouteWaiter.resourceCheck = false;
+            tradeRouteWaiter = null;
+        }
+    }
+
+    public void AddToWaitList(Unit unit)
+    {
+        if (!waitList.Contains(unit))
+            waitList.Enqueue(unit);
+    }
+
+    public void CheckQueue()
+    {
+        if (waitList.Count > 0)
+        {
+            waitList.Dequeue().MoveUpInLine();
+        }
+
+        if (waitList.Count > 0)
+        {
+            foreach (Unit unit in waitList)
+            {
+                unit.MoveUpInLine();
+            }
+        }
+    }
+
+    public void GoldCheck()
+    {
+        if (world.CheckWorldGold(waitingAmount))
+        {
+            CheckGoldWaiter();
+        }
+        else
+        {
+            world.AddToGoldTradeCenterWaitList(this);
+        }
+    }
+
+    public void RemoveFromWaitList()
+    {
+        world.RemoveTradeCenterFromWaitList(this);
     }
 
     public void EnableHighlight(Color highlightColor)

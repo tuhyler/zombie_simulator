@@ -133,16 +133,16 @@ public class UnitMovement : MonoBehaviour
         world.CloseImprovementTooltip();
         location.y = 0;
 
-        Vector3Int locationPos = world.GetClosestTerrainLoc(location);
+        Vector3Int pos = world.GetClosestTerrainLoc(location);
 
         //if building road, can't select anything else
         if (world.workerOrders)
         {
-            TerrainData td = world.GetTerrainDataAt(locationPos);
+            TerrainData td = world.GetTerrainDataAt(pos);
             
             if (buildingRoad)
             {
-                if (world.IsRoadOnTerrain(locationPos) || world.IsBuildLocationTaken(locationPos))
+                if (world.IsRoadOnTerrain(pos) || world.IsBuildLocationTaken(pos))
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already something here");
                 }
@@ -152,7 +152,7 @@ public class UnitMovement : MonoBehaviour
                 }
                 else
                 {
-                    if (selectedWorker.AddToOrderQueue(locationPos))
+                    if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
                             uiConfirmWorkerOrders.ToggleTweenVisibility(true);
@@ -172,23 +172,23 @@ public class UnitMovement : MonoBehaviour
             }
             else if (removingRoad)
             {
-                if (!world.IsRoadOnTerrain(locationPos))
+                if (!world.IsRoadOnTerrain(pos))
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No road here");
                 }
-                else if (world.IsCityOnTile(locationPos) || world.IsWonderOnTile(locationPos))
+                else if (world.IsCityOnTile(pos) || world.IsWonderOnTile(pos) || world.IsTradeCenterOnTile(pos))
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
                 }
                 else
                 {
-                    if (selectedWorker.AddToOrderQueue(locationPos))
+                    if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
                             uiConfirmWorkerOrders.ToggleTweenVisibility(true);
 
                         td.EnableHighlight(Color.red);
-                        foreach (Road road in world.GetAllRoadsOnTile(locationPos))
+                        foreach (Road road in world.GetAllRoadsOnTile(pos))
                         {
                             if (road == null)
                                 continue;
@@ -203,7 +203,7 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmWorkerOrders.ToggleTweenVisibility(false);
 
                         td.DisableHighlight();
-                        foreach (Road road in world.GetAllRoadsOnTile(locationPos))
+                        foreach (Road road in world.GetAllRoadsOnTile(pos))
                         {
                             if (road == null)
                                 continue;
@@ -795,17 +795,17 @@ public class UnitMovement : MonoBehaviour
         {
             if (resourceAmount > 0) //buying 
             {
+                if (!world.CheckWorldGold(tradeCenter.ResourceBuyDict[resourceType]))
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+                    return;
+                }
+                
                 int resourceAmountAdjusted = selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
 
                 if (resourceAmountAdjusted == 0)
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
-                    return;
-                }
-
-                if (!world.CheckWorldGold(tradeCenter.ResourceBuyDict[resourceType]))
-                {
-                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
                     return;
                 }
 
@@ -839,7 +839,7 @@ public class UnitMovement : MonoBehaviour
                 }
                 else
                 {
-                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Doesn't want to buy " + resourceType);
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't sell " + resourceType);
                 }
             }
             

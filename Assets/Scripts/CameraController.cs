@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     public Transform cameraTransform;
     //CameraController.instance.followTransform = transform; //use this in other scripts to center and follow; 
+
+    //[SerializeField]
+    private GraphicRaycaster raycaster;
 
     [HideInInspector]
     public Transform followTransform;
@@ -41,6 +45,8 @@ public class CameraController : MonoBehaviour
         newZoom = cameraTransform.localPosition; //local position so that the text layer stays in rightful place
         newRotation = transform.rotation;
         scrolling = true;
+
+        raycaster = GetComponentInChildren<GraphicRaycaster>();
     }
 
     void LateUpdate() //Lateupdate to reduce jittering on camera 
@@ -143,10 +149,20 @@ public class CameraController : MonoBehaviour
         if (Input.GetKey(KeyCode.Q))
         {
             newRotation *= Quaternion.Euler(Vector3.up * rotationAmount);
+            
         }
         if (Input.GetKey(KeyCode.E))
         {
             newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
+        {
+            raycaster.enabled = false;
+        }
+        if (Input.GetKeyUp(KeyCode.Q) || Input.GetKeyUp(KeyCode.E))
+        {
+            raycaster.enabled = true;
         }
 
         MoveCamera();

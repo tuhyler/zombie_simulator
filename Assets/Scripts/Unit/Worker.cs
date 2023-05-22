@@ -267,7 +267,7 @@ public class Worker : Unit
             return;
         }
 
-        if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile))
+        if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile) || world.IsTradeCenterOnTile(workerTile))
         {
             InfoPopUpHandler.WarningMessage().Create(workerTile, "Can't remove this");
             return;

@@ -29,7 +29,7 @@ public class InfoPopUpHandler : MonoBehaviour
 
     private IEnumerator ShowMessage()
     {
-        float moveSpeed = 0.1f;
+        float moveSpeed = 0.2f;
         
         while (disappearTimer > 0)
         {

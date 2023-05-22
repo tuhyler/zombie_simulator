@@ -124,8 +124,10 @@ public class Trader : Unit
 
                 if (world.IsCityOnTile(endLoc))
                     tradeRouteManager.SetCity(world.GetCity(endLoc));
-                else
+                else if (world.IsWonderOnTile(endLoc))
                     tradeRouteManager.SetWonder(world.GetWonder(endLoc));
+                else
+                    tradeRouteManager.SetTradeCenter(world.GetTradeCenter(endLoc));
                 //if (bySea)
                 //    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
                 //else

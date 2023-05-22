@@ -3556,6 +3556,7 @@ MonoBehaviour:
   completeImage: {fileID: 4769286518043781059}
   check: {fileID: 5767683082277081305}
   dragGrips: {fileID: 1297426275736904307}
+  allContents: {fileID: 4664273602164976609}
   loc: 0
   originalParent: {fileID: 0}
   tempParent: {fileID: 0}

@@ -64,6 +64,7 @@ public class MapWorld : MonoBehaviour
     private List<City> researchWaitList = new();
     private List<City> goldCityWaitList = new();
     private List<Wonder> goldWonderWaitList = new();
+    private List<TradeCenter> goldTradeCenterWaitList = new();
 
     private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
@@ -146,9 +147,10 @@ public class MapWorld : MonoBehaviour
         speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
         speechBubble.gameObject.SetActive(false);
 
+        uiInfoPopUpHandler.SetWarningMessage(uiInfoPopUpHandler);
         uiInfoPopUpHandler.gameObject.SetActive(false);
 
-        tradeCenterNamePool.Add("Trade_Center_1");
+        tradeCenterNamePool.Add("Indus Valley");
         tradeCenterNamePool.Add("Trade_Center_2");
         tradeCenterNamePool.Add("Trade_Center_3");
         tradeCenterNamePool.Add("Trade_Center_4");
@@ -770,9 +772,36 @@ public class MapWorld : MonoBehaviour
         }
     }
 
+    public void AddToGoldTradeCenterWaitList(TradeCenter tradeCenter)
+    {
+        if (!goldTradeCenterWaitList.Contains(tradeCenter))
+            goldTradeCenterWaitList.Add(tradeCenter);
+    }
+
     private bool WondersWaitingCheck()
     {
         return goldWonderWaitList.Count > 0;
+    }
+
+    private void RestartTradeCenterRoutes()
+    {
+        List<TradeCenter> tradeCenterWaitList = new(goldTradeCenterWaitList);
+
+        foreach (TradeCenter tradeCenter in tradeCenterWaitList)
+        {
+            goldTradeCenterWaitList.Remove(tradeCenter);
+            tradeCenter.GoldCheck();
+        }
+    }
+
+    private bool TradeCentersWaitingCheck()
+    {
+        return goldTradeCenterWaitList.Count > 0;
+    }
+
+    public void RemoveTradeCenterFromWaitList(TradeCenter tradeCenter)
+    {
+        goldTradeCenterWaitList.Remove(tradeCenter);
     }
 
     //world resources management
@@ -796,9 +825,12 @@ public class MapWorld : MonoBehaviour
                 if (WondersWaitingCheck())
                     RestartWonderConstruction();
 
-                if (cityBuilderManager.uiTradeCenter.activeStatus)
-                    cityBuilderManager.uiTradeCenter.UpdateColors();
+                if (TradeCentersWaitingCheck())
+                    RestartTradeCenterRoutes();
             }
+
+            if (cityBuilderManager.uiTradeCenter.activeStatus)
+                cityBuilderManager.uiTradeCenter.UpdateColors();
         }
     }
 
@@ -934,8 +966,10 @@ public class MapWorld : MonoBehaviour
     {
         if (cityNameDict.ContainsKey(name))
             return cityNameDict[name];
-        else
+        else if (wonderConstructionDict.ContainsKey(name))
             return wonderConstructionDict[name].unloadLoc;
+        else
+            return tradeCenterDict[name].mainLoc;
     }
 
     public City GetHarborCity(Vector3Int harborLocation)
@@ -949,6 +983,8 @@ public class MapWorld : MonoBehaviour
             return true;
         else if (wonderStopDict.ContainsKey(location))
             return true;
+        else if (tradeCenterStopDict.ContainsKey(location))
+            return true;
 
         return false;
     }
@@ -957,19 +993,25 @@ public class MapWorld : MonoBehaviour
     {
         if (cityNameDict.ContainsKey(name))
             return cityDict[cityNameDict[name]].harborLocation;
-        else
+        else if (wonderConstructionDict.ContainsKey(name))
             return wonderConstructionDict[name].harborLoc;
+        else
+            return tradeCenterDict[name].harborLoc;
     }
 
-    public string GetStopName(Vector3Int cityLoc)
+    public string GetStopName(Vector3Int loc)
     {
-        if (cityDict.ContainsKey(cityLoc))
+        if (cityDict.ContainsKey(loc))
         {
-            return cityDict[cityLoc].cityName;
+            return cityDict[loc].cityName;
+        }
+        else if (wonderStopDict.ContainsKey(loc))
+        {
+            return wonderStopDict[loc].wonderName;
         }
         else
         {
-            return wonderStopDict[cityLoc].wonderName;
+            return tradeCenterStopDict[loc].tradeCenterName;
         }
     }
 
@@ -1288,6 +1330,11 @@ public class MapWorld : MonoBehaviour
     public bool IsWonderOnTile(Vector3Int tile)
     {
         return wonderStopDict.ContainsKey(tile);
+    }
+
+    public bool IsTradeCenterOnTile(Vector3Int tile)
+    {
+        return tradeCenterStopDict.ContainsKey(tile);
     }
 
     public bool IsTradeLocOnTile(Vector3Int tile)
