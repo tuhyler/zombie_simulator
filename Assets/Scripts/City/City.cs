@@ -340,6 +340,7 @@ public class City : MonoBehaviour
     public void AddCityNameToWorld()
     {
         world.AddCityName(cityName, cityLoc);
+        world.AddTradeLoc(cityLoc, cityName);
     }
 
     private void SetCityPop()
@@ -997,6 +998,7 @@ public class City : MonoBehaviour
                     hasHarbor = true;
                     harborLocation = tile;
                     world.SetCityHarbor(this, tile);
+                    world.AddTradeLoc(tile, name);
                 }
 
                 world.RemoveFromUnclaimedSingleBuild(tile);

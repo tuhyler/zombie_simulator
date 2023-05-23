@@ -593,22 +593,23 @@ public class UnitMovement : MonoBehaviour
             //selectedTile = null;
 
             //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
-            Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
+            //Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
+            Vector3Int tradeLoc = world.GetStopLocation(world.GetTradeLoc(world.GetClosestTerrainLoc(selectedUnit.transform.position)));
 
-            if (world.IsCityOnTile(unitLoc))
+            if (world.IsCityOnTile(tradeLoc))
             {
-                City selectedCity = world.GetCity(unitLoc);
+                City selectedCity = world.GetCity(tradeLoc);
 
                 cityResourceManager = selectedCity.ResourceManager;
                 uiCityResourceInfoPanel.SetTitleInfo(selectedCity.cityName,
                     cityResourceManager.GetResourceStorageLevel, selectedCity.warehouseStorageLimit);
                 //uiCityResourceInfoPanel.PrepareResourceUI(selectedCity.resourceGridDict);
-                uiCityResourceInfoPanel.ToggleVisibility(true, null, world.GetCity(unitLoc));
+                uiCityResourceInfoPanel.ToggleVisibility(true, null, selectedCity);
                 uiCityResourceInfoPanel.SetPosition();
             }
-            else if (world.IsWonderOnTile(unitLoc))
+            else if (world.IsWonderOnTile(tradeLoc))
             {
-                wonder = world.GetWonder(unitLoc);
+                wonder = world.GetWonder(tradeLoc);
                 uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderName, 10000, 10000); //not showing inventory levels
                 //uiCityResourceInfoPanel.PrepareResourceUI(wonder.ResourceDict);
                 uiCityResourceInfoPanel.HideInventoryLevel();
@@ -617,7 +618,7 @@ public class UnitMovement : MonoBehaviour
             }
             else
             {
-                tradeCenter = world.GetTradeCenter(unitLoc);
+                tradeCenter = world.GetTradeCenter(tradeLoc);
                 uiCityResourceInfoPanel.SetTitleInfo(tradeCenter.tradeCenterName, 10000, 10000); //not showing inventory levels
                 uiCityResourceInfoPanel.HideInventoryLevel();
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, null, null, tradeCenter);
@@ -976,6 +977,8 @@ public class UnitMovement : MonoBehaviour
         uiCancelTradeRoute.ToggleTweenVisibility(false);
         if (!selectedTrader.interruptedRoute)
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
+        if (uiTradeRouteManager.activeStatus)
+            uiTradeRouteManager.ToggleVisibility(false);
     }
 
     public void UninterruptedRoute()

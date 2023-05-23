@@ -142,10 +142,11 @@ public class TerrainData : MonoBehaviour
 
         isGlowing = true;
 
-        if (isCoast)
+        if (!isLand)
             ToggleHighlightPlane(true);
 
-        highlight.EnableHighlight(highlightColor);
+        if (highlight != null)
+            highlight.EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()
@@ -155,10 +156,11 @@ public class TerrainData : MonoBehaviour
         
         isGlowing = false;
         
-        if (isCoast)
+        if (!isLand)
             ToggleHighlightPlane(false);
 
-        highlight.DisableHighlight();
+        if (highlight != null)
+            highlight.DisableHighlight();
     }
 
     public void ResetMovementCost()

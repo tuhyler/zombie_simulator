@@ -545,12 +545,14 @@ public class CityBuilderManager : MonoBehaviour
         GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
         //for tweening
         harborGO.transform.localScale = new Vector3(1.5f, 0f, 1.5f);
+        harborGO.GetComponent<CityImprovement>().PlaySmokeSplash(false);
         LeanTween.scale(harborGO, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
         selectedWonder.hasHarbor = true;
         selectedWonder.harborLoc = loc;
 
         world.AddToCityLabor(loc, selectedWonder.gameObject);
         world.AddStructure(loc, harborGO);
+        world.AddTradeLoc(loc, selectedWonder.wonderName);
         uiWonderSelection.HideHarborButton();
 
         CloseImprovementBuildPanel();
@@ -585,9 +587,11 @@ public class CityBuilderManager : MonoBehaviour
             Destroy(harbor);
             world.RemoveSingleBuildFromCityLabor(selectedWonder.harborLoc);
             world.RemoveStructure(selectedWonder.harborLoc);
+            world.RemoveTradeLoc(selectedWonder.harborLoc);
         }
 
         world.RemoveWonderName(selectedWonder.wonderName);
+        world.RemoveTradeLoc(selectedWonder.unloadLoc);
 
         GameObject priorGO = world.GetStructure(selectedWonder.WonderLocs[2]);
         Destroy(priorGO);
@@ -1899,6 +1903,7 @@ public class CityBuilderManager : MonoBehaviour
             city.hasHarbor = true;
             city.harborLocation = tempBuildLocation;
             world.SetCityHarbor(city, tempBuildLocation);
+            world.AddTradeLoc(tempBuildLocation, city.cityName);
         }
 
         //setting labor info
@@ -2197,6 +2202,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             city.hasHarbor = false;
             world.RemoveHarbor(improvementLoc);
+            world.RemoveTradeLoc(improvementLoc);
         }
 
         //updating all the labor info
@@ -2927,6 +2933,7 @@ public class CityBuilderManager : MonoBehaviour
 
         world.RemoveStructure(selectedCityLoc);
         world.RemoveCityName(selectedCityLoc);
+        world.RemoveTradeLoc(selectedCityLoc);
 
         selectedCity.DestroyThisCity();
 
@@ -2965,7 +2972,12 @@ public class CityBuilderManager : MonoBehaviour
             }
 
             if (unclaimed)
+            {
+                if (singleImprovement == "Harbor")
+                    world.RemoveTradeLoc(improvementLoc);
+
                 world.AddToUnclaimedSingleBuild(improvementLoc);
+            }
         }
         Destroy(destroyedCity);
 
