@@ -354,13 +354,15 @@ public class Unit : MonoBehaviour
     private void GetInLine(Vector3 endPosition)
     {
         movingCo = null;
-        Vector3Int endPos = world.RoundToInt(endPosition);
-        if (world.IsCityOnTile(endPos))
-            world.GetCity(endPos).AddToWaitList(this);
-        else if (world.IsWonderOnTile(endPos))
-            world.GetWonder(endPos).AddToWaitList(this);
+        //Vector3Int endPos = world.RoundToInt(endPosition);
+        Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(endPosition)));
+
+        if (world.IsCityOnTile(tradePos))
+            world.GetCity(tradePos).AddToWaitList(this);
+        else if (world.IsWonderOnTile(tradePos))
+            world.GetWonder(tradePos).AddToWaitList(this);
         else
-            world.GetTradeCenter(endPos).AddToWaitList(this);
+            world.GetTradeCenter(tradePos).AddToWaitList(this);
 
         currentLocation = world.AddUnitPosition(endPosition, this);
         isWaiting = true;

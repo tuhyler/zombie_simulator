@@ -71,7 +71,7 @@ public class MapWorld : MonoBehaviour
     private List<Vector3Int> cityLocations = new();
 
     private Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
-    //private Dictionary<Vector3Int, City> cityHarborDict = new(); //cities and the respective locations of their harbors
+    private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
     private Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
     private Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
@@ -272,6 +272,8 @@ public class MapWorld : MonoBehaviour
             roadManager.BuildRoadAtPosition(center.mainLoc);
             tradeCenterDict[center.tradeCenterName] = center;
             tradeCenterStopDict[center.mainLoc] = center;
+            AddTradeLoc(center.mainLoc, center.tradeCenterName);
+            AddTradeLoc(center.harborLoc, center.tradeCenterName);
             i++;
         }
 
@@ -480,6 +482,7 @@ public class MapWorld : MonoBehaviour
         wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost);
         wonder.unloadLoc = finalUnloadLoc;
+        AddTradeLoc(finalUnloadLoc, wonder.wonderName);
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
         //wonder.Rotation = rotation;
         wonder.SetCenterPos(centerPos);
@@ -979,11 +982,13 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfStopStillExists(Vector3Int location)
     {
-        if (cityDict.ContainsKey(location))
+        Vector3Int loc = GetStopLocation(GetTradeLoc(location));
+        
+        if (cityDict.ContainsKey(loc))
             return true;
-        else if (wonderStopDict.ContainsKey(location))
+        else if (wonderStopDict.ContainsKey(loc))
             return true;
-        else if (tradeCenterStopDict.ContainsKey(location))
+        else if (tradeCenterStopDict.ContainsKey(loc))
             return true;
 
         return false;
@@ -999,8 +1004,25 @@ public class MapWorld : MonoBehaviour
             return tradeCenterDict[name].harborLoc;
     }
 
-    public string GetStopName(Vector3Int loc)
+    public void AddTradeLoc(Vector3Int loc, string name)
     {
+        tradeLocDict[loc] = name;
+    }
+
+    public void RemoveTradeLoc(Vector3Int loc)
+    {
+        tradeLocDict.Remove(loc);
+    }
+
+    public string GetTradeLoc(Vector3Int loc)
+    {
+        return tradeLocDict[loc];
+    }
+
+    public string GetStopName(Vector3Int location)
+    {
+        Vector3Int loc = GetStopLocation(GetTradeLoc(location));
+        
         if (cityDict.ContainsKey(loc))
         {
             return cityDict[loc].cityName;
@@ -1339,14 +1361,16 @@ public class MapWorld : MonoBehaviour
 
     public bool IsTradeLocOnTile(Vector3Int tile)
     {
-        if (cityDict.ContainsKey(tile))
-            return true;
-        else if (wonderStopDict.ContainsKey(tile) && wonderStopDict[tile].unloadLoc == tile)
-            return true;
-        else if (tradeCenterStopDict.ContainsKey(tile))
-            return true;
+        return tradeLocDict.ContainsKey(tile);
+        
+        //if (cityDict.ContainsKey(tile))
+        //    return true;
+        //else if (wonderStopDict.ContainsKey(tile) && wonderStopDict[tile].unloadLoc == tile)
+        //    return true;
+        //else if (tradeCenterStopDict.ContainsKey(tile))
+        //    return true;
 
-        return false;
+        //return false;
     }
 
     public bool IsBuildLocationTaken(Vector3Int buildLoc)

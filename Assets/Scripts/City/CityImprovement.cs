@@ -96,7 +96,7 @@ public class CityImprovement : MonoBehaviour
             //upgradeSwirlDown.Pause();
 
             //un-uncomment when finished testing
-            if (improvementData.hideAnimMesh)
+            if (improvementData != null && improvementData.hideAnimMesh)
                 animMesh.SetActive(false);
         }
     }

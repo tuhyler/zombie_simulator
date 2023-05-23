@@ -342,6 +342,16 @@ public class Wonder : MonoBehaviour
             world.RemoveWonderName(wonderName);
             if (isActive)
                 uiWonderSelection.HideCancelConstructionButton();
+            world.RemoveTradeLoc(unloadLoc);
+
+            if (hasHarbor)
+            {
+                GameObject harbor = world.GetStructure(harborLoc);
+                Destroy(harbor);
+                world.RemoveSingleBuildFromCityLabor(harborLoc);
+                world.RemoveStructure(harborLoc);
+                world.RemoveTradeLoc(harborLoc);
+            }
         }
 
         ThresholdCheck();

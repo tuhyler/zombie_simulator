@@ -27,7 +27,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8009293122658198294}
   m_Father: {fileID: 5287164924357551451}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -83,8 +84,9 @@ MonoBehaviour:
   terrainData: {fileID: 11400000, guid: 7ed7f8fed9391d846ae905b992515e62, type: 2}
   main: {fileID: 754207839284618797}
   prop: {fileID: 6424281992737964312}
-  highlightPlane: {fileID: 0}
+  highlightPlane: {fileID: 7236555643978856876}
   hasRoad: 0
+  resourceAmount: 0
 --- !u!64 &3888671027687571315
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -160,6 +162,87 @@ Transform:
   m_Father: {fileID: 5287164924357551451}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &7542404393060533501
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 6424281992737964312}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: cad2107ec4920f64ca11623c2afc00ae,
+        type: 3}
+      propertyPath: m_Name
+      value: flatland01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: cad2107ec4920f64ca11623c2afc00ae, type: 3}
+--- !u!1 &7236555643978856876 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cad2107ec4920f64ca11623c2afc00ae,
+    type: 3}
+  m_PrefabInstance: {fileID: 7542404393060533501}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8009293122658198294 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
+    type: 3}
+  m_PrefabInstance: {fileID: 7542404393060533501}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8662400321209410744
 PrefabInstance:
   m_ObjectHideFlags: 0

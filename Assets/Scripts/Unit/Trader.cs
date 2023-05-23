@@ -122,12 +122,13 @@ public class Trader : Unit
                     return;
                 }
 
-                if (world.IsCityOnTile(endLoc))
-                    tradeRouteManager.SetCity(world.GetCity(endLoc));
-                else if (world.IsWonderOnTile(endLoc))
-                    tradeRouteManager.SetWonder(world.GetWonder(endLoc));
+                Vector3Int stopLoc = world.GetStopLocation(world.GetTradeLoc(endLoc));
+                if (world.IsCityOnTile(stopLoc))
+                    tradeRouteManager.SetCity(world.GetCity(stopLoc));
+                else if (world.IsWonderOnTile(stopLoc))
+                    tradeRouteManager.SetWonder(world.GetWonder(stopLoc));
                 else
-                    tradeRouteManager.SetTradeCenter(world.GetTradeCenter(endLoc));
+                    tradeRouteManager.SetTradeCenter(world.GetTradeCenter(stopLoc));
                 //if (bySea)
                 //    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
                 //else
