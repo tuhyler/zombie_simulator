@@ -315,6 +315,8 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isTrader)
         {
             selectedTrader = selectedUnit.GetComponent<Trader>();
+            if (selectedUnit.interruptedRoute)
+                selectedUnit.InterruptedRouteMessage();
             //uiPersonalResourceInfoPanel.PrepareResourceUI(selectedTrader.resourceGridDict);
             uiPersonalResourceInfoPanel.SetTitleInfo(selectedTrader.name,
                 selectedTrader.personalResourceManager.GetResourceStorageLevel, selectedTrader.cargoStorageLimit);
@@ -329,7 +331,7 @@ public class UnitMovement : MonoBehaviour
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
             }
 
-            if (selectedTrader.hasRoute && !selectedTrader.followingRoute && !selectedTrader.interruptedRoute)
+            if (selectedTrader.hasRoute && !selectedTrader.followingRoute/* && !selectedTrader.interruptedRoute*/)
             {
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
             }
@@ -955,6 +957,8 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedTrader != null)
         {
+            if (!selectedTrader.tradeRouteManager.TradeRouteCheck())
+                return;
             selectedUnit.StopMovement();
             selectedTrader.BeginNextStepInRoute();
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
@@ -975,7 +979,7 @@ public class UnitMovement : MonoBehaviour
         ShowIndividualCityButtonsUI();
         CancelContinuedMovementOrders();
         uiCancelTradeRoute.ToggleTweenVisibility(false);
-        if (!selectedTrader.interruptedRoute)
+        if (!selectedTrader.followingRoute/*.interruptedRoute*/)
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
         if (uiTradeRouteManager.activeStatus)
             uiTradeRouteManager.ToggleVisibility(false);
@@ -983,7 +987,7 @@ public class UnitMovement : MonoBehaviour
 
     public void UninterruptedRoute()
     {
-        selectedTrader.interruptedRoute = false;
+        //selectedTrader.interruptedRoute = false;
     }
 
     public void ShowIndividualCityButtonsUI()

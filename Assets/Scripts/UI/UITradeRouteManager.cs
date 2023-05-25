@@ -104,7 +104,7 @@ public class UITradeRouteManager : MonoBehaviour
     public void LoadTraderRouteInfo(Trader selectedTrader, TradeRouteManager tradeRouteManager, MapWorld world)
     {
         startingStop = tradeRouteManager.startingStop;
-        List<Vector3Int> cityStops = tradeRouteManager.cityStops;
+        List<Vector3Int> cityStops = new(tradeRouteManager.cityStops);
         int currentStop = tradeRouteManager.currentStop;
         if (cityStops.Count == 0)
             startingStopGO.SetActive(false);
@@ -112,6 +112,13 @@ public class UITradeRouteManager : MonoBehaviour
         for (int i = 0; i < cityStops.Count; i++)
         {
             string cityName = world.GetStopName(cityStops[i]);
+
+            if (cityName == "")
+            {
+                tradeRouteManager.RemoveStop(cityStops[i]);
+                continue;
+            }
+
             UITradeStopHandler newStopHandler = AddStopPanel(selectedTrader.followingRoute);
             if (newStopHandler != null)
             {
@@ -192,7 +199,7 @@ public class UITradeRouteManager : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(-600f, 0, 0);
 
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.3f).setEaseOutSine();
-            LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {
@@ -215,6 +222,11 @@ public class UITradeRouteManager : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+    }
+
+    public void CloseMenu()
+    {
+        ToggleVisibility(false);
     }
 
     public void PrepareTradeRouteMenu(List<string> cityNames, Trader selectedTrader)

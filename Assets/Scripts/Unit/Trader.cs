@@ -14,7 +14,7 @@ public class Trader : Unit
     public int cargoStorageLimit;
 
     [HideInInspector]
-    public bool hasRoute, interruptedRoute; //for showing begin route, for cancelling/following route, and for picking/dropping load
+    public bool hasRoute;//, interruptedRoute;
 
     public int loadUnloadRate = 1;
 
@@ -119,6 +119,8 @@ public class Trader : Unit
                     CancelRoute();
                     tradeRouteManager.RemoveStop(endLoc);
                     interruptedRoute = true;
+                    if (isSelected)
+                        InterruptedRouteMessage();
                     return;
                 }
 
@@ -168,6 +170,8 @@ public class Trader : Unit
             CancelRoute();
             tradeRouteManager.RemoveStop(nextStop);
             interruptedRoute = true;
+            if (isSelected)
+                InterruptedRouteMessage();
             return;
         }
 
@@ -193,7 +197,7 @@ public class Trader : Unit
         }
     }
 
-    public void CancelRoute()
+    public override void CancelRoute()
     {
         followingRoute = false;
         if (LoadUnloadCo != null)

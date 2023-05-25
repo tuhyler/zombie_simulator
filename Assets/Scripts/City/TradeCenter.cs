@@ -58,6 +58,7 @@ public class TradeCenter : MonoBehaviour
     {
         tradeCenterName = name;
         nameField.cityName.text = name;
+        SetCityNameFieldSize(name);
     }
 
     public void ClaimSpotInWorld(int increment)
@@ -146,5 +147,10 @@ public class TradeCenter : MonoBehaviour
             return;
 
         highlight.DisableHighlight();
+    }
+
+    private void SetCityNameFieldSize(string cityName)
+    {
+        nameField.SetCityNameFieldSize(cityName);
     }
 }

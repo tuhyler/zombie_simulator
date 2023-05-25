@@ -30,7 +30,7 @@ public class Unit : MonoBehaviour
     private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
     private Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
-    public bool moreToMove, isBusy, isMoving, isBeached; //check if they're doing something
+    public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute; //if there's more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
     private Vector3 destinationLoc;
     private Vector3 finalDestinationLoc;
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
@@ -116,6 +116,12 @@ public class Unit : MonoBehaviour
         unitAnimator.SetBool(isMovingHash, false);
     }
 
+    public void InterruptedRouteMessage()
+    {
+        interruptedRoute = false;
+        InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
+    }
+
     //Methods for moving unit
     //Gets the path positions and starts the coroutines
     public void MoveThroughPath(List<Vector3Int> currentPath) 
@@ -140,20 +146,16 @@ public class Unit : MonoBehaviour
     //rotate unit before moving
     private IEnumerator MovementCoroutine(Vector3 endPosition)
     {
-        //Vector3 endPosition = endPositionTile.transform.position;
-        //Debug.Log("next stop is " + endPosition);
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
         TerrainData td = world.GetTerrainDataAt(endPositionInt);
         float y = 0f;
 
         if (bySea)
         {
-            //y = transform.position.y;
             y = -.45f;
 
             if (isBeached)
             {
-                //y = -.45f;
                 isBeached = false;
             }
             else if (world.CheckIfCoastCoast(endPositionInt))
@@ -182,23 +184,18 @@ public class Unit : MonoBehaviour
         {
             GetInLine(endPosition);
         }
-        else if (/*pathPositions.Count == 0 && !followingRoute && */world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+        else if (world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
             if (unitInTheWay.isBusy)
             {
-                //if (!isBusy)
-                //{
-                //    FinishMoving(endPosition);
-                //    yield break;
-                //}
                 if (isBusy)
                 {
                     SkipRoadBuild();
                     if (isSelected)
                         td.DisableHighlight();
-                        //world.GetTerrainDataAt(endPositionInt).DisableHighlight();
+
                     yield break;
                 }
             }
@@ -216,8 +213,17 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (/*(pathPositions.Count == 0 && world.IsUnitLocationTaken(endLoc)) || */(isTrader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition))))
+        if (isTrader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)))
         {
+            if (followingRoute)
+            {
+                CancelRoute();
+                interruptedRoute = true;
+                if (isSelected)
+                    InterruptedRouteMessage();
+            }
+                
+
             FinishMoving(endPosition);
             yield break;
         }
@@ -225,16 +231,10 @@ public class Unit : MonoBehaviour
         if (pathPositions.Count == 0)
             endPosition = finalDestinationLoc;
 
-        //endPosition.y = 0f; //fixed y position
-
         Quaternion startRotation = transform.rotation;
-        //endPosition.y = transform.position.y;
         endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
-        //Debug.Log("end: " + endPosition);
-        //if (Mathf.Approximately(Mathf.Abs(Quaternion.Dot(startRotation, endRotation)), 1.0f) == false)
-        //{
         float distance = 1f;
         float timeElapsed = 0;
         while (distance > threshold)
@@ -259,56 +259,15 @@ public class Unit : MonoBehaviour
             //    break;
 
             yield return null;
-        }
-        //transform.rotation = endRotation;
-        //}
-
-        //Vector3 startPosition = transform.position;
-        //int movementCost = endPositionTile.MovementCost;
-        //if (!world.GetTerrainDataAt(Vector3Int.FloorToInt(startPosition)).hasRoad) //for moving onto road from non-road
-        //    movementCost = endPositionTile.OriginalMovementCost; 
+        } 
 
         if (pathPositions.Count > 0)
         {
-            //Vector3Int nextStep = pathPositions.Peek();
-            
-            //if (followingRoute && world.IsUnitWaitingForSameCity(nextStep, finalDestinationLoc))
-            //{
-            //    GetInLine(endPosition);
-            //}
-            //else if (pathPositions.Count == 1 && !followingRoute && world.IsUnitLocationTaken(nextStep)) //don't occupy sqaure if another unit is there
-            //{
-            //    Unit unitInTheWay = world.GetUnit(nextStep);
-
-            //    if (unitInTheWay.isBusy)
-            //    {
-            //        if (!isBusy)
-            //        {
-            //            FinishMoving(endPosition);
-            //        }
-            //        else
-            //        {
-            //            SkipRoadBuild();
-            //        }
-            //    }
-            //    else
-            //    {
-            //        unitInTheWay.FindNewSpot(nextStep);
-            //        movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-            //        if (shoePrintQueue.Count > 0)
-            //        {
-            //            DequeueShoePrint();
-            //        }
-            //    }
-            //}
-            //else
-            //{
             movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
             if (pathQueue.Count > 0)
             {
                 DequeuePath();
             }
-            //}
         }
         else
         {
@@ -390,13 +349,13 @@ public class Unit : MonoBehaviour
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke();
-        TradeRouteCheck(endPosition);
         if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
         {
             FindNewSpot(currentLocation, new Vector3Int(0, -10, 0));
             return;
         }
         world.AddUnitPosition(currentLocation, this);
+        TradeRouteCheck(endPosition);
     }
 
     private void FindNewSpot(Vector3Int current, Vector3Int next)
@@ -440,6 +399,11 @@ public class Unit : MonoBehaviour
 
     //sends trader to next stop
     public virtual void BeginNextStepInRoute()
+    {
+
+    }
+
+    public virtual void CancelRoute()
     {
 
     }
