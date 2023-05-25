@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.Rendering.DebugUI;
 
 public class MapWorld : MonoBehaviour
 {
@@ -101,7 +102,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, ResourceProducer> cityImprovementProducerDict = new(); //all the improvements that have resource producers (for speed)
     private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingCurrentWorkedDict = new(); //current worked for buildings in city
 
-    private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingMaxWorkedDict = new(); //max labor of buildings within city
+    //private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingMaxWorkedDict = new(); //max labor of buildings within city
     private Dictionary<Vector3Int, List<string>> cityBuildingList = new(); //list of buildings on city tiles (here instead of City because buildings can be without a city)
     //private Dictionary<Vector3Int, Dictionary<string, ResourceProducer>> cityBuildingIsProducer = new(); //all the buildings that are resource producers (for speed)
 
@@ -304,6 +305,8 @@ public class MapWorld : MonoBehaviour
         researchTree.ToggleVisibility(false);
         wonderHandler.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
+        CloseTerrainTooltip();
+        CloseImprovementTooltip();
     }
 
     //wonder info
@@ -982,8 +985,13 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfStopStillExists(Vector3Int location)
     {
-        Vector3Int loc = GetStopLocation(GetTradeLoc(location));
-        
+        Vector3Int loc;
+
+        if (tradeLocDict.ContainsKey(location))
+            loc = GetStopLocation(GetTradeLoc(location));
+        else
+            return false;
+
         if (cityDict.ContainsKey(loc))
             return true;
         else if (wonderStopDict.ContainsKey(loc))
@@ -1021,8 +1029,13 @@ public class MapWorld : MonoBehaviour
 
     public string GetStopName(Vector3Int location)
     {
-        Vector3Int loc = GetStopLocation(GetTradeLoc(location));
-        
+        Vector3Int loc;
+
+        if (tradeLocDict.ContainsKey(location))
+            loc = GetStopLocation(GetTradeLoc(location));
+        else
+            return "";
+
         if (cityDict.ContainsKey(loc))
         {
             return cityDict[loc].cityName;
@@ -1031,9 +1044,13 @@ public class MapWorld : MonoBehaviour
         {
             return wonderStopDict[loc].wonderName;
         }
-        else
+        else if (tradeCenterStopDict.ContainsKey(loc))
         {
             return tradeCenterStopDict[loc].tradeCenterName;
+        }
+        else
+        {
+            return "";
         }
     }
 
@@ -1834,7 +1851,7 @@ public class MapWorld : MonoBehaviour
         cityBuildingGODict[cityTile] = new Dictionary<string, GameObject>();
         cityBuildingDict[cityTile] = new Dictionary<string, CityImprovement>();
         cityBuildingCurrentWorkedDict[cityTile] = new Dictionary<string, int>();
-        cityBuildingMaxWorkedDict[cityTile] = new Dictionary<string, int>();
+        //cityBuildingMaxWorkedDict[cityTile] = new Dictionary<string, int>();
         cityBuildingList[cityTile] = new List<string>();
         //cityBuildingIsProducer[cityTile] = new Dictionary<string, ResourceProducer>();
     }
@@ -1849,7 +1866,7 @@ public class MapWorld : MonoBehaviour
         cityBuildingGODict[cityTile].Remove(buildingName);
         cityBuildingDict[cityTile].Remove(buildingName);
         cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
-        cityBuildingMaxWorkedDict[cityTile].Remove(buildingName);
+        //cityBuildingMaxWorkedDict[cityTile].Remove(buildingName);
         cityBuildingList[cityTile].Remove(buildingName);
         //cityBuildingIsProducer[cityTile].Remove(buildingName);
     }
@@ -1887,7 +1904,7 @@ public class MapWorld : MonoBehaviour
             
             cityBuildingGODict.Remove(buildPosition);
             cityBuildingDict.Remove(buildPosition);
-            cityBuildingMaxWorkedDict.Remove(buildPosition);
+            //cityBuildingMaxWorkedDict.Remove(buildPosition);
             cityBuildingList.Remove(buildPosition);
             //cityBuildingIsProducer.Remove(buildPosition);
 
@@ -1918,6 +1935,13 @@ public class MapWorld : MonoBehaviour
     public Vector3Int AddUnitPosition(Vector3 unitPosition, Unit unit)
     {
         Vector3Int position = Vector3Int.RoundToInt(unitPosition);
+
+        //checking if same unit doesn't already have a tile occupied (just in case)
+        if (unitPosDict.ContainsValue(unit))
+        {
+            var item = unitPosDict.First(key => key.Value == unit);
+            unitPosDict.Remove(item.Key);
+        }
 
         unitPosDict[position] = unit;
 
@@ -1966,10 +1990,10 @@ public class MapWorld : MonoBehaviour
         maxWorkedTileDict[posInt] = max;
     }
 
-    public void AddToCityMaxLaborDict(Vector3Int cityTile, string buildingName, int max)
-    {
-        cityBuildingMaxWorkedDict[cityTile][buildingName] = max;
-    }
+    //public void AddToCityMaxLaborDict(Vector3Int cityTile, string buildingName, int max)
+    //{
+    //    cityBuildingMaxWorkedDict[cityTile][buildingName] = max;
+    //}
 
     //public void AddToCityBuildingList(Vector3Int cityTile, string buildingName)
     //{

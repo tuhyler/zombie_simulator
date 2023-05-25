@@ -115,6 +115,7 @@ public class UIWonderHandler : MonoBehaviour
             gameObject.SetActive(v);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
+            world.somethingSelected = true;
 
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.5f)
             .setEase(LeanTweenType.easeOutSine)

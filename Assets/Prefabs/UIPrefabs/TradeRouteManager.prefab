@@ -1418,7 +1418,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6796059212038396571}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.81333333
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1927,7 +1927,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: -8607919193828306377}
         m_TargetAssemblyTypeName: UITradeRouteManager, Assembly-CSharp
-        m_MethodName: CloseWindow
+        m_MethodName: CloseMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

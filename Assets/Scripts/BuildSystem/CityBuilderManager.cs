@@ -1345,7 +1345,7 @@ public class CityBuilderManager : MonoBehaviour
 
         string buildingName = buildingData.improvementName;
         world.SetCityBuilding(improvement, buildingData, city.cityLoc, building, city);
-        world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
+        //world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
         city.HousingCount += buildingData.housingIncrease;
 
         //for tweening
@@ -1743,29 +1743,6 @@ public class CityBuilderManager : MonoBehaviour
                 CloseImprovementBuildPanel();
             }
         }
-
-        //reset menu after one build
-        //if (city.activeCity && !upgradingImprovement)
-        //{
-        //    //if (!upgradingImprovement)
-        //    //{
-        //    //    ResetTileLists();
-        //    //    CloseImprovementBuildPanel();
-        //    //}
-        //}
-
-        //if (improvementData.replaceTerrain)
-        //{
-        //    world.GetTerrainDataAt(tempBuildLocation).gameObject.SetActive(false);
-        //}
-
-        ////setting labor info
-        //placesToWork++;
-        //uiLaborAssignment.UpdateUI(selectedCity.cityPop, placesToWork);
-        //ResetTileLists();
-        //UpdateLaborNumbers();
-
-        //CloseImprovementBuildPanel();
     }
 
     public void FinishImprovement(City city, ImprovementDataSO improvementData, Vector3Int tempBuildLocation)
@@ -1799,10 +1776,7 @@ public class CityBuilderManager : MonoBehaviour
 
         tempObject.transform.localScale = improvement.transform.localScale;
         cityImprovement.Embiggen();
-        
-        //GameObject tempObject = Instantiate(improvementData.prefab, cityImprovement.transform.position, cityImprovement.transform.rotation);
-        //CityImprovement tempImprovement = tempObject.GetComponent<CityImprovement>();
-        //MeshFilter[] meshes = tempObject.GetComponentsInChildren<MeshFilter>();
+
         city.AddToMeshFilterList(tempObject, meshes, false, tempBuildLocation);
         tempObject.transform.parent = city.transform;
         tempObject.SetActive(false);
@@ -1838,7 +1812,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             //for tweening
             improvement.transform.localScale = Vector3.zero;
-            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform, upgradingImprovement); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city); });
+            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform, upgradingImprovement); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city, improvementData.maxLabor); });
         }    
         //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
 
@@ -1906,9 +1880,9 @@ public class CityBuilderManager : MonoBehaviour
             world.AddTradeLoc(tempBuildLocation, city.cityName);
         }
 
-        //setting labor info
+        //setting labor info (harbors have no labor)
         world.AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
-        if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
+        if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0 && improvementData.maxLabor > 0)
             city.AutoAssignmentsForLabor();
 
         //no tweening, so must be done here
@@ -1916,11 +1890,11 @@ public class CityBuilderManager : MonoBehaviour
         {
             CombineMeshes(city, city.subTransform, upgradingImprovement); 
             cityImprovement.SetInactive();
-            TileCheck(tempBuildLocation, city);
+            TileCheck(tempBuildLocation, city, improvementData.maxLabor);
         }
     }
 
-    private void TileCheck(Vector3Int tempBuildLocation, City city)
+    private void TileCheck(Vector3Int tempBuildLocation, City city, int maxLabor)
     {
         if (selectedCity != null && cityTiles.Contains(tempBuildLocation))
         {
@@ -1935,8 +1909,11 @@ public class CityBuilderManager : MonoBehaviour
             }
             else
             {
-                placesToWork++;
-                UpdateCityLaborUIs();
+                if (maxLabor > 0)
+                {
+                    placesToWork++;
+                    UpdateCityLaborUIs();
+                }
 
                 if (laborChange != 0)
                 {
@@ -2459,7 +2436,7 @@ public class CityBuilderManager : MonoBehaviour
 
             CityImprovement improvement = world.GetCityDevelopment(tile);
             improvement.DisableHighlight();
-            if (improvement.isUpgrading)
+            if (improvement.isUpgrading || improvement.GetImprovementData.improvementName == "Harbor")
                 continue;
 
             if (laborChange > 0 && !world.CheckIfTileIsMaxxed(tile) && selectedCity.cityPop.UnusedLabor > 0) //for increasing labor, can't be maxxed out

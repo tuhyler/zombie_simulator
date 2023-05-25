@@ -454,4 +454,38 @@ public class TradeRouteManager : MonoBehaviour
     {
         cityStops.Remove(stop);
     }
+
+    public bool TradeRouteCheck()
+    {
+        List<Vector3Int> destinations = new();
+        
+        //checking for consecutive stops
+        int i = 0;
+        int childCount = cityStops.Count;
+        bool consecFound = false;
+
+        foreach (Vector3Int stop in cityStops)
+        {
+            destinations.Add(stop);
+
+            if (i == childCount - 1)
+                consecFound = destinations[i] == destinations[0];
+            else if (i > 0)
+                consecFound = destinations[i] == destinations[i - 1];
+
+            i++;
+
+            if (consecFound)
+            {
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Consecutive stops for same stop");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        return true;
+    }
 }
