@@ -837,6 +837,8 @@ public class MapWorld : MonoBehaviour
 
             if (cityBuilderManager.uiTradeCenter.activeStatus)
                 cityBuilderManager.uiTradeCenter.UpdateColors();
+            else if (unitMovement.uiCityResourceInfoPanel.activeStatus)
+                unitMovement.uiCityResourceInfoPanel.UpdatePriceColors(worldResourceManager.GetWorldGoldLevel());
         }
     }
 

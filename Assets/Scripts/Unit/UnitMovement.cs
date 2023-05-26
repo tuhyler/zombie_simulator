@@ -27,10 +27,9 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     public UIWorkerHandler uiWorkerTask;
     [SerializeField]
-    private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
-    public UIPersonalResourceInfoPanel GetUIPersonalResourceInfoPanel { get { return uiPersonalResourceInfoPanel; } }
+    public UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
     [SerializeField]
-    private UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
+    public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
     [SerializeField]
     private UITradeRouteManager uiTradeRouteManager;
     [SerializeField]
@@ -597,6 +596,7 @@ public class UnitMovement : MonoBehaviour
             //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
             //Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
             Vector3Int tradeLoc = world.GetStopLocation(world.GetTradeLoc(world.GetClosestTerrainLoc(selectedUnit.transform.position)));
+            bool atTradeCenter = false;
 
             if (world.IsCityOnTile(tradeLoc))
             {
@@ -625,11 +625,11 @@ public class UnitMovement : MonoBehaviour
                 uiCityResourceInfoPanel.HideInventoryLevel();
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, null, null, tradeCenter);
                 uiCityResourceInfoPanel.SetPosition();
-                world.cityBuilderManager.uiTradeCenter.ToggleVisibility(true, tradeCenter);
+                atTradeCenter = true;
+                //world.cityBuilderManager.uiTradeCenter.ToggleVisibility(true, tradeCenter);
             }
 
-
-            uiPersonalResourceInfoPanel.SetPosition();
+            uiPersonalResourceInfoPanel.SetPosition(atTradeCenter, tradeCenter);
             
             loadScreenSet = true;
         }
@@ -784,7 +784,7 @@ public class UnitMovement : MonoBehaviour
             wonder = null;
             if (tradeCenter)
             {
-                world.cityBuilderManager.uiTradeCenter.ToggleVisibility(false);
+                //world.cityBuilderManager.uiTradeCenter.ToggleVisibility(false);
                 tradeCenter = null;
             }
             loadScreenSet = false;

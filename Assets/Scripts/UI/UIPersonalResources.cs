@@ -32,6 +32,14 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
     public Transform originalParent;
     public Transform tempParent;
 
+    //for showing trade center pricing
+    [SerializeField]
+    private GameObject priceHolder;
+    [SerializeField]
+    private TMP_Text priceText;
+    [HideInInspector]
+    public int price;
+
     private void Awake()
     {
         SetButtonInteractable(false);
@@ -43,6 +51,8 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
 
         if (tempParent != null)
             buttonHandler = tempParent.GetComponent<UIPersonalResourceInfoPanel>();
+
+        priceHolder.SetActive(false);
     }
 
     public void SetButtonInteractable(bool v)
@@ -127,5 +137,24 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
             transform.localPosition = Vector3.zero;
             background.raycastTarget = true;
         }
+    }
+
+    public void SetPriceText(int price)
+    {
+        priceHolder.SetActive(true);
+        string str = price.ToString();
+        priceText.text = str;
+        this.price = price;
+        priceText.rectTransform.sizeDelta = new Vector2(15 + 10 * str.Length, 30);
+    }
+
+    public void SetPriceColor(Color color)
+    {
+        priceText.color = color;
+    }
+
+    public void HidePricing()
+    {
+        priceHolder.SetActive(false);
     }
 }
