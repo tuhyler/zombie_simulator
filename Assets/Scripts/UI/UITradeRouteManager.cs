@@ -387,7 +387,7 @@ public class UITradeRouteManager : MonoBehaviour
             }
         }
 
-        selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes, unitMovement.GetUIPersonalResourceInfoPanel);
+        selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes, unitMovement.uiPersonalResourceInfoPanel);
 
         //if (selectedTrader.followingRoute)
         //{
