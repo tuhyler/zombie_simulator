@@ -35,7 +35,7 @@ public class TradeCenter : MonoBehaviour
 
     private void Awake()
     {
-        highlight = GetComponent<SelectionHighlight>();
+        highlight = GetComponentInChildren<SelectionHighlight>();
 
         int i = 0;
         foreach (ResourceValue value in buyResources)
@@ -58,7 +58,13 @@ public class TradeCenter : MonoBehaviour
     {
         tradeCenterName = name;
         nameField.cityName.text = name;
-        SetCityNameFieldSize(name);
+        nameField.SetCityNameFieldSize(name);
+        nameField.SetNeutralBackground();
+    }
+
+    public void SetPop(int pop)
+    {
+        nameField.SetCityPop(pop);
     }
 
     public void ClaimSpotInWorld(int increment)
@@ -147,10 +153,5 @@ public class TradeCenter : MonoBehaviour
             return;
 
         highlight.DisableHighlight();
-    }
-
-    private void SetCityNameFieldSize(string cityName)
-    {
-        nameField.SetCityNameFieldSize(cityName);
     }
 }

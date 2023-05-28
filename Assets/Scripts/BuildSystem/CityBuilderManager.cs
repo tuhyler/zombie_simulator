@@ -165,29 +165,29 @@ public class CityBuilderManager : MonoBehaviour
             focusCam.CenterCameraNoFollow(selectedWonder.centerPos);
     }
 
-    private void CameraBirdsEyeRotation()
-    {
-        //focusCam.DisableMouse = true;
-        //originalRotation = focusCam.transform.rotation;
-        //originalZoom = focusCam.GetZoom();
-        //focusCam.centerTransform = selectedCity.transform;
-    }
+    //private void CameraBirdsEyeRotation()
+    //{
+    //    //focusCam.DisableMouse = true;
+    //    //originalRotation = focusCam.transform.rotation;
+    //    //originalZoom = focusCam.GetZoom();
+    //    //focusCam.centerTransform = selectedCity.transform;
+    //}
 
-    private void CameraBirdsEyeRotationWonder()
-    {
-        //originalRotation = focusCam.transform.rotation;
-        //originalZoom = focusCam.GetZoom();
-        //focusCam.centerTransform = selectedWonder.transform;
-    }
+    //private void CameraBirdsEyeRotationWonder()
+    //{
+    //    //originalRotation = focusCam.transform.rotation;
+    //    //originalZoom = focusCam.GetZoom();
+    //    //focusCam.centerTransform = selectedWonder.transform;
+    //}
 
-    private void CameraDefaultRotation()
-    {
-        //focusCam.DisableMouse = false;
-        //focusCam.centerTransform = null;
-        //focusCam.transform.rotation = Quaternion.Lerp(focusCam.transform.rotation, originalRotation, Time.deltaTime * 5);
-        //focusCam.SetZoom(originalZoom);
-        //focusCam.cameraTransform.localPosition += new Vector3(0, -1f, 1f);
-    }
+    //private void CameraDefaultRotation()
+    //{
+    //    //focusCam.DisableMouse = false;
+    //    //focusCam.centerTransform = null;
+    //    //focusCam.transform.rotation = Quaternion.Lerp(focusCam.transform.rotation, originalRotation, Time.deltaTime * 5);
+    //    //focusCam.SetZoom(originalZoom);
+    //    //focusCam.cameraTransform.localPosition += new Vector3(0, -1f, 1f);
+    //}
 
 
     public void HandleCitySelection(Vector3 location, GameObject selectedObject)
@@ -313,7 +313,7 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
         //selecting terrain to show info
-        else if (selectedCity == null && selectedTradeCenter == null && selectedObject.TryGetComponent(out TerrainData td))
+        else if (selectedCity == null && selectedWonder == null && selectedTradeCenter == null && selectedObject.TryGetComponent(out TerrainData td))
         {
             if (world.somethingSelected)
             {
@@ -430,6 +430,7 @@ public class CityBuilderManager : MonoBehaviour
         selectedWonder.SetUI(uiWonderSelection);
         selectedWonder.isActive = true;
         selectedWonder.TimeProgressBarSetActive(true);
+        selectedWonder.EnableHighlight(Color.white);
         CenterCamOnCity();
     }
 
@@ -483,7 +484,7 @@ public class CityBuilderManager : MonoBehaviour
         else
         {
             placingWonderHarbor = true;
-            CameraBirdsEyeRotationWonder();
+            //CameraBirdsEyeRotationWonder();
             uiImprovementBuildInfoPanel.SetText("Building Harbor");
             uiImprovementBuildInfoPanel.ToggleVisibility(true);
         }
@@ -531,8 +532,11 @@ public class CityBuilderManager : MonoBehaviour
 
         GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
         //for tweening
-        unit.transform.localScale = new Vector3(1.5f, 0f, 1.5f);
-        LeanTween.scale(unit, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        Vector3 goScale = unit.transform.localScale;
+        float scaleX = goScale.x;
+        float scaleZ = goScale.z;
+        unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+        LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
 
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
@@ -544,9 +548,10 @@ public class CityBuilderManager : MonoBehaviour
     {
         GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
         //for tweening
-        harborGO.transform.localScale = new Vector3(1.5f, 0f, 1.5f);
+        Vector3 goScale = harborGO.transform.localScale;
         harborGO.GetComponent<CityImprovement>().PlaySmokeSplash(false);
-        LeanTween.scale(harborGO, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        harborGO.transform.localScale = Vector3.zero;
+        LeanTween.scale(harborGO, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
         selectedWonder.hasHarbor = true;
         selectedWonder.harborLoc = loc;
 
@@ -566,6 +571,7 @@ public class CityBuilderManager : MonoBehaviour
 
     private void CancelWonderConstruction()
     {
+        selectedWonder.PlayRemoveEffect();
         uiDestroyCityWarning.ToggleVisibility(false);
         uiWonderSelection.ToggleVisibility(false, selectedWonder);
         selectedWonder.StopConstructing();
@@ -593,6 +599,7 @@ public class CityBuilderManager : MonoBehaviour
         world.RemoveWonderName(selectedWonder.wonderName);
         world.RemoveTradeLoc(selectedWonder.unloadLoc);
 
+
         GameObject priorGO = world.GetStructure(selectedWonder.WonderLocs[2]);
         Destroy(priorGO);
 
@@ -600,6 +607,12 @@ public class CityBuilderManager : MonoBehaviour
         {
             world.RemoveStructure(tile);
             world.RemoveSingleBuildFromCityLabor(tile);
+            world.RemoveWonder(tile);
+
+            TerrainData td = world.GetTerrainDataAt(tile);
+            if (td.prop != null)
+                td.prop.gameObject.SetActive(true);
+            td.main.gameObject.SetActive(true);
         }
 
         selectedWonder = null;
@@ -670,8 +683,9 @@ public class CityBuilderManager : MonoBehaviour
             GameObject ghost = selectedCity.buildingQueueGhostDict[building];
             ghost.SetActive(true);
             //for tweening
+            Vector3 goScale = ghost.transform.localScale;
             ghost.transform.localScale = Vector3.zero;
-            LeanTween.scale(ghost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+            LeanTween.scale(ghost, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
             queuedGhost.Add(selectedCity.buildingQueueGhostDict[building]);
         }
     }
@@ -698,8 +712,9 @@ public class CityBuilderManager : MonoBehaviour
 
         GameObject improvementGhost = Instantiate(improvementData.prefab, newLoc, Quaternion.identity);
         //for tweening
+        Vector3 goScale = improvementGhost.transform.localScale;
         improvementGhost.transform.localScale = Vector3.zero;
-        LeanTween.scale(improvementGhost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(improvementGhost, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
         MeshRenderer[] renderers = improvementGhost.GetComponentsInChildren<MeshRenderer>();
 
         foreach (MeshRenderer render in renderers)
@@ -735,8 +750,9 @@ public class CityBuilderManager : MonoBehaviour
         //setting up arrow ghost
         GameObject arrowGhost = Instantiate(upgradeQueueGhost, tempBuildLocation, Quaternion.Euler(0, 90f, 0));
         //for tweening
+        Vector3 goScale = arrowGhost.transform.localScale;
         arrowGhost.transform.localScale = Vector3.zero;
-        LeanTween.scale(arrowGhost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(arrowGhost, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
         if (isBuilding)
         {
             arrowGhost.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
@@ -1037,10 +1053,6 @@ public class CityBuilderManager : MonoBehaviour
         foreach (ResourceValue value in upgradeCost)
         {
             Vector3 panelPos = new Vector3(0, 0, 0);
-            //panelPos.z -= 1.5f;
-            //if (building)
-            //    panelPos.z += 1;
-            ////panelPos.y += 0.5f;
             panelPos.x -= .32f * (resourceCount - 1);
             panelPos.x += .64f * i;
 
@@ -1278,8 +1290,11 @@ public class CityBuilderManager : MonoBehaviour
 
         GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
         //for tweening
-        unit.transform.localScale = new Vector3(0.6f, 0f, 0.6f);
-        LeanTween.scale(unit, new Vector3(0.6f, 0.6f, 0.6f), 0.5f).setEase(LeanTweenType.easeOutBack);
+        Vector3 goScale = unitGO.transform.localScale;
+        float scaleX = goScale.x;
+        float scaleZ = goScale.z;
+        unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
 
@@ -1349,8 +1364,9 @@ public class CityBuilderManager : MonoBehaviour
         city.HousingCount += buildingData.housingIncrease;
 
         //for tweening
+        Vector3 goScale = building.transform.localScale;
         building.transform.localScale = Vector3.zero;
-        LeanTween.scale(building, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform, upgradingImprovement); improvement.SetInactive(); });
+        LeanTween.scale(building, goScale, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform, upgradingImprovement); improvement.SetInactive(); });
 
         if (buildingData.singleBuild)
         {
@@ -1529,8 +1545,8 @@ public class CityBuilderManager : MonoBehaviour
     {
         //CameraBirdsEyeRotationAsync();
         //StartCoroutine(CameraBirdsEyeRotation(5f));
-        if (!removingImprovement)
-            CameraBirdsEyeRotation();
+        //if (!removingImprovement)
+        //    CameraBirdsEyeRotation();
 
         tilesToChange.Clear();
 
@@ -1811,8 +1827,9 @@ public class CityBuilderManager : MonoBehaviour
         else
         {
             //for tweening
+            Vector3 goScale = improvement.transform.localScale;
             improvement.transform.localScale = Vector3.zero;
-            LeanTween.scale(improvement, new Vector3(1.5f, 1.5f, 1.5f), 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform, upgradingImprovement); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city, improvementData.maxLabor); });
+            LeanTween.scale(improvement, goScale, 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform, upgradingImprovement); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city, improvementData.maxLabor); });
         }    
         //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
 
@@ -2226,7 +2243,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (selectedWonder != null)
             {
-                CameraDefaultRotation();
+                //CameraDefaultRotation();
                 foreach (Vector3Int tile in tilesToChange)
                 {
                     world.GetTerrainDataAt(tile).DisableHighlight();
@@ -2237,8 +2254,8 @@ public class CityBuilderManager : MonoBehaviour
                 return;
             }
             
-            if (uiImprovementBuildInfoPanel.activeStatus && !removingImprovement && !upgradingImprovement)
-                CameraDefaultRotation();
+            //if (uiImprovementBuildInfoPanel.activeStatus && !removingImprovement && !upgradingImprovement)
+            //    CameraDefaultRotation();
             if (removingImprovement || upgradingImprovement)
                 uiCityTabs.CloseSelectedTab();
             removingImprovement = false;
@@ -3043,6 +3060,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedWonder.SetUI(null);
             if (placingWonderHarbor)
                 CloseImprovementBuildPanel();
+            selectedWonder.DisableHighlight();
             selectedWonder = null;
         }
     }

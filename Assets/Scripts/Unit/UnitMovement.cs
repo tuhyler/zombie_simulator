@@ -344,8 +344,6 @@ public class UnitMovement : MonoBehaviour
 
     public void PrepareMovement(Unit unit) //handling unit selection through the unit turn buttons
     {
-        world.CloseResearchTree();
-        
         if (selectedUnit != null) //clearing selection if a new unit is clicked
         {
             ClearSelection();
@@ -482,7 +480,7 @@ public class UnitMovement : MonoBehaviour
 
             selectedTrader.TurnOnRipples();
         }
-        else if (!terrainSelected.GetTerrainData().walkable) //cancel movement if terrain isn't walkable
+        else if (!world.CheckIfPositionIsValid(terrainPos)) //cancel movement if terrain isn't walkable
         {
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
             return;
@@ -576,7 +574,7 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-            world.GetWonder(unitLoc).AddWorker();
+            world.GetWonder(unitLoc).AddWorker(selectedUnit.transform.position);
         }
 
         selectedUnit.DestroyUnit();

@@ -9,6 +9,12 @@ public class CityNameField : MonoBehaviour
     [SerializeField]
     public TMP_Text cityName, cityPop;
 
+    [SerializeField]
+    private SpriteRenderer background;
+
+    [SerializeField]
+    private Sprite neutralBackground;
+
     //[SerializeField]
     //private Material cityNameMaterial;
     //private Material originalCityNameMaterial;
@@ -52,7 +58,7 @@ public class CityNameField : MonoBehaviour
     public void SetCityNameFieldSize(string cityName)
     {
         float wordLength = cityName.Length;
-        float width = Mathf.Max(wordLength * 0.18f + 0.7f, 2.7f);
+        float width = Mathf.Max(wordLength * 0.18f + 1f, 3f);
         cityNameField.size = new Vector2(width, 1.0f);
     }
 
@@ -64,5 +70,10 @@ public class CityNameField : MonoBehaviour
     public void SetCityPop(int pop)
     {
         cityPop.text = $"Population: {pop}";
+    }
+
+    public void SetNeutralBackground()
+    {
+        background.sprite = neutralBackground;
     }
 }

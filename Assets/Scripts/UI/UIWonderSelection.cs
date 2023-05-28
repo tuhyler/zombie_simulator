@@ -67,6 +67,7 @@ public class UIWonderSelection : MonoBehaviour
         if (v)
         {
             world.UnselectAll();
+            world.somethingSelected = true;
 
             SetWonderInfo(wonder);
             SetResources(wonder);

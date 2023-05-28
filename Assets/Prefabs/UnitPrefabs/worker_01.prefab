@@ -74,12 +74,6 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c502dbccb29c2ff43bee766cc448abfe, type: 3}
---- !u!137 &6129312657008750363 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: c502dbccb29c2ff43bee766cc448abfe,
-    type: 3}
-  m_PrefabInstance: {fileID: 4876850840603275849}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5338363066459411607
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -116,6 +110,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -205,6 +214,7 @@ MonoBehaviour:
   isBusy: 0
   isMoving: 0
   isBeached: 0
+  interruptedRoute: 0
   currentHealth: 0
   turnHandler: {fileID: 0}
   bySea: 0
@@ -220,4 +230,3 @@ MonoBehaviour:
   unitAnimator: {fileID: 0}
   removing: 0
   citiesBuilt: 0
-  renderer: {fileID: 6129312657008750363}
