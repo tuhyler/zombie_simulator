@@ -115,6 +115,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 5529a4a93e971f54fbe83c3da0146264, type: 3}
   - {fileID: 21300000, guid: d7d7340a95ab6534d94d038e61fd48e2, type: 3}
   - {fileID: 21300000, guid: 43312f2a6be55854e9ac83e79c09ef0b, type: 3}
+  - {fileID: 21300000, guid: c145a37aaeebf064a9b4b7e63e443ac1, type: 3}
   - {fileID: 21300000, guid: 84a27e7aa33ecb5438c2eff2ed602483, type: 3}
   - {fileID: 21300000, guid: 0256638ab96cd0948b80ba1e4bcfa1d6, type: 3}
   - {fileID: 21300000, guid: f38c00aa9a643e243b06a0b8983b96f9, type: 3}
@@ -236,6 +237,7 @@ SpriteAtlas:
   - tab_gold
   - tab_gold2
   - grip_blue
+  - bar_purple01
   - button_left
   - button_up
   - button_minus

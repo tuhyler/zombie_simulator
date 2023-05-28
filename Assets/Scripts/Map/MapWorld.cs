@@ -31,7 +31,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public CityBuilderManager cityBuilderManager;
     [SerializeField]
-    private RoadManager roadManager;
+    public RoadManager roadManager;
     [SerializeField]
     private Material transparentMat;
 
@@ -57,6 +57,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, TradeCenter> tradeCenterDict = new();
     private Dictionary<Vector3Int, TradeCenter> tradeCenterStopDict = new();
     private List<string> tradeCenterNamePool = new();
+    private List<int> tradeCenterPopPool = new();
 
     //world resource info
     private WorldResourceManager worldResourceManager;
@@ -156,6 +157,12 @@ public class MapWorld : MonoBehaviour
         tradeCenterNamePool.Add("Trade_Center_3");
         tradeCenterNamePool.Add("Trade_Center_4");
         tradeCenterNamePool.Add("Trade_Center_5");
+
+        tradeCenterPopPool.Add(5);
+        tradeCenterPopPool.Add(4);
+        tradeCenterPopPool.Add(7);
+        tradeCenterPopPool.Add(8);
+        tradeCenterPopPool.Add(6);
     }
 
     private void Start()
@@ -269,6 +276,7 @@ public class MapWorld : MonoBehaviour
         {
             center.SetWorld(this);
             center.SetName(tradeCenterNamePool[i]);
+            center.SetPop(tradeCenterPopPool[i]);
             center.ClaimSpotInWorld(increment);
             roadManager.BuildRoadAtPosition(center.mainLoc);
             tradeCenterDict[center.tradeCenterName] = center;
@@ -330,41 +338,15 @@ public class MapWorld : MonoBehaviour
                 if (locationPos == wonderPlacementLoc[0]) //reset if select same square twice
                 {
                     wonderPlacementLoc.Clear();
-                    //uiConfirmWonderBuild.ToggleTweenVisibility(false);
-                    //uiRotateWonder.ToggleTweenVisibility(false);
                     return;
                 }
             }
 
             List<Vector3Int> wonderLocList = new();
 
-            //foreach (Vector3Int tile in wonderPlacementLoc)
-            //{
-            //    Vector3Int newPos = locationPos + tile;
-            //    TerrainData td = GetTerrainDataAt(newPos);
-
-            //    if (td.terrainData.type != wonderData.terrainType)
-            //    {
-            //        GiveWarningMessage("Must build on " + wonderData.terrainType);
-            //        return;
-            //    }
-            //    else if (tile != unloadLoc && !IsTileOpenCheck(newPos))
-            //    {
-            //        GiveWarningMessage("Something in the way");
-            //        return;
-            //    }
-            //    else if (tile == unloadLoc && !IsTileOpenButRoadCheck(newPos))
-            //    {
-            //        GiveWarningMessage("Something in the way");
-            //        return;
-            //    }
-
-            //    wonderLocList.Add(newPos);
-            //}
-
             int width = sideways ? wonderData.sizeHeight : wonderData.sizeWidth;
             int height = sideways ? wonderData.sizeWidth : wonderData.sizeHeight;
-            Vector3 avgLoc = new Vector3(0, 0, 0);
+            Vector3 avgLoc = new Vector3(0, -0.01f, 0);
 
             for (int i = 0; i < width; i++)
             {
@@ -381,6 +363,12 @@ public class MapWorld : MonoBehaviour
                         wonderPlacementLoc.Clear();
                         return;
                     }
+                    else if (td.terrainData.hasRocks)
+                    {
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Resources in the way");
+                        wonderPlacementLoc.Clear();
+                        return;
+                    }
                     else if (newPos - locationPos != unloadLoc && !IsTileOpenCheck(newPos))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
@@ -389,7 +377,7 @@ public class MapWorld : MonoBehaviour
                     }
                     else if (newPos - locationPos == unloadLoc && !IsTileOpenButRoadCheck(newPos))
                     {
-                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Soemthing in the way");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
                         return;
                     }
@@ -400,9 +388,11 @@ public class MapWorld : MonoBehaviour
             }
 
             wonderGhost = Instantiate(wonderData.wonderPrefab, avgLoc / wonderLocList.Count, rotation);
-            Color newColor = new(1, 1, 1, .5f);
+            wonderGhost.GetComponent<Wonder>().SetLastPrefab(); //only showing 100 Perc prefab
+            Color newColor = new(1, 1, 1, .75f);
             MeshRenderer[] renderers = wonderGhost.GetComponentsInChildren<MeshRenderer>();
 
+            //assigning transparent material to all meshrenderers
             foreach (MeshRenderer render in renderers)
             {
                 Material[] newMats = render.materials;
@@ -422,7 +412,7 @@ public class MapWorld : MonoBehaviour
             {
                 if (tile-locationPos == unloadLoc)
                 {
-                    GetTerrainDataAt(tile).EnableHighlight(new Color(0, 1, 0, 1f));
+                    GetTerrainDataAt(tile).EnableHighlight(Color.blue);
                     finalUnloadLoc = tile;
                 }
                 else
@@ -447,7 +437,11 @@ public class MapWorld : MonoBehaviour
         {
             foreach (Vector3Int tile in wonderPlacementLoc)
             {
-                GetTerrainDataAt(tile).DisableHighlight();
+                TerrainData td = GetTerrainDataAt(tile);
+                td.DisableHighlight();
+                if (td.prop != null)
+                    td.prop.gameObject.SetActive(false);
+                td.main.gameObject.SetActive(false);
             }
         }
 
@@ -575,7 +569,7 @@ public class MapWorld : MonoBehaviour
             GetTerrainDataAt(tile).DisableHighlight();
 
             if (tile-placementLoc == wonderData.unloadLoc)
-                GetTerrainDataAt(tile).EnableHighlight(new Color(0, 1, 0, 1f));
+                GetTerrainDataAt(tile).EnableHighlight(Color.blue);
             else
                 GetTerrainDataAt(tile).EnableHighlight(Color.white);
         }
@@ -900,6 +894,11 @@ public class MapWorld : MonoBehaviour
     public TradeCenter GetTradeCenter(Vector3Int tile)
     {
         return tradeCenterStopDict[tile];
+    }
+
+    public void RemoveWonder(Vector3Int tile)
+    {
+        wonderStopDict.Remove(tile);
     }
 
     public List<string> GetConnectedCityNames(Vector3Int unitLoc, bool bySea)

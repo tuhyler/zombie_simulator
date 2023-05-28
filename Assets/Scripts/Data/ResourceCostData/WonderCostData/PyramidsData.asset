@@ -14,24 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wonderPrefab: {fileID: 741225248704783947, guid: 86919d8d2103eed4a84b1b9087b91e8d,
     type: 3}
-  mesh0Percent: {fileID: -7511558181221131132, guid: 55499c5756588b94095bfdf5fcd5ce37,
-    type: 3}
-  mesh25Percent: {fileID: -7511558181221131132, guid: 2b1ee3d18d834d74d8bc9b6cefe31625,
-    type: 3}
-  mesh50Percent: {fileID: -7511558181221131132, guid: bea3d1fb91124ac4093677fa37b84e42,
-    type: 3}
-  mesh75Percent: {fileID: -7511558181221131132, guid: 502da53437fc3e54794ebec9adca15d7,
-    type: 3}
-  meshComplete: {fileID: -7511558181221131132, guid: bdccd62bd3c0b1e4d982a957a0ad5b4f,
-    type: 3}
   wonderName: Pyramids
   wonderDecription: Fill in description
-  workersNeeded: 2
-  workerCost: 9
+  workersNeeded: 1
+  workerCost: 1
   sizeHeight: 2
   sizeWidth: 2
   unloadLoc: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: b67b48c5c655dc643b59828ac6baf045, type: 3}
+  image: {fileID: 21300000, guid: 8bfb5f75571ca6142b78992b8dc422d8, type: 3}
   wonderCost:
   - resourceType: 5
     resourceAmount: 100
@@ -41,6 +31,6 @@ MonoBehaviour:
   workEthicChange: 0
   replaceTerrain: 0
   replaceProp: 1
-  buildTimePerPercent: 5
+  buildTimePerPercent: 2
   locked: 0
   workerData: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
