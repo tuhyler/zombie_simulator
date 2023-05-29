@@ -24,23 +24,15 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
     private GameObject resourceInfoPanel;
 
     [SerializeField]
-    private Transform resourceProducedHolder, resourceCostHolder;
+    private RectTransform resourceCostAllHolder, resourceCostHolder, imageLine;
 
     [SerializeField]
-    private RectTransform resourceProduceAllHolder, imageLine;
+    private GridLayoutGroup resourceCostGrid;
 
-    [SerializeField]
-    private VerticalLayoutGroup resourceProduceLayout;
-
-    private List<Transform> produceConsumesHolders = new();
     [SerializeField]
     private TMP_Text description;
 
-    private bool cannotAfford, isShowing;//, produced = true, consumed = true;
-
-    //for checking if city can afford resource
-    private List<UIResourceInfoPanel> costResourcePanels = new();
-    //private bool ;
+    private bool isShowing;
 
     private void Awake()
     {
@@ -66,25 +58,21 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
 
         objectName.text = buildData.wonderName;
         objectImage.sprite = buildData.image;
-        objectCost = buildData.wonderCost;
+        objectCost = new(buildData.wonderCost);
         workEthicChange = buildData.workEthicChange;
         objectDescription = buildData.wonderDecription;
 
+        objectCost.Add(MakeResourceValue(ResourceType.Gold, buildData.workersNeeded * buildData.workerCost * 100));
+        objectCost.Add(MakeResourceValue(ResourceType.Food, buildData.workersNeeded));
+
         //cost info
-        GenerateResourceInfo(resourceCostHolder, objectCost, true, 60);
+        GenerateResourceInfo(resourceCostHolder, objectCost);
 
-        //producer and consumed info
-        for (int i = 0; i < produceConsumesHolders.Count; i++) //turning them all off initially
-            produceConsumesHolders[i].gameObject.SetActive(false);
-
-        int maxCount = objectCost.Count - 1;
+        int maxCount = Mathf.Min(objectCost.Count, 5);
 
         int resourcePanelSize = 90;
-        int produceHolderWidth = 330;
-        int produceHolderHeight = 80;
-        int produceContentsWidth = 350;
-        int produceContentsHeight = 110;
-        int produceLayoutPadding = -10;
+        int costHolderWidth = 300;
+        int costHolderHeight = 110;
         int imageLineWidth = 300;
 
         description.gameObject.SetActive(true);
@@ -93,22 +81,23 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
         else
             description.text = objectDescription;
 
+        resourceCostGrid.constraintCount = maxCount; 
+
         //adjusting width of panel
-        if (maxCount > 2)
+        if (maxCount > 3)
         {
-            int shift = resourcePanelSize * (maxCount - 2);
-            produceContentsWidth += shift;
-            imageLineWidth += shift;
+            int shift = resourcePanelSize * (maxCount - 3);
+            costHolderWidth += shift;
+            imageLineWidth += shift - 40;
+            costHolderHeight += Mathf.FloorToInt((objectCost.Count - 1) / 5) * resourcePanelSize;
         }
 
-        resourceProducedHolder.GetComponent<RectTransform>().sizeDelta = new Vector2(produceHolderWidth, produceHolderHeight);
-        resourceProduceAllHolder.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
-        resourceProduceLayout.padding.bottom = produceLayoutPadding;
+        resourceCostAllHolder.sizeDelta = new Vector2(costHolderWidth, costHolderHeight);
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
     }
 
-    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost, int producedResourceTime)
-    {
+    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources)
+    {        
         foreach (ResourceValue value in resources)
         {
             GameObject panel = Instantiate(resourceInfoPanel);
@@ -116,13 +105,19 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
             UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
             uiResourceCostPanel.transform.SetParent(transform, false);
 
-            uiResourceCostPanel.resourceAmount.text = Mathf.RoundToInt(value.resourceAmount * (60f / producedResourceTime)).ToString();
+            uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
             uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
             uiResourceCostPanel.resourceType = value.resourceType;
-
-            if (cost)
-                costResourcePanels.Add(uiResourceCostPanel);
         }
+    }
+
+    private ResourceValue MakeResourceValue(ResourceType type, int amount)
+    {
+        ResourceValue value;
+        value.resourceType = type;
+        value.resourceAmount = amount;
+
+        return value;
     }
 
     public void OnPointerClick(PointerEventData eventData)

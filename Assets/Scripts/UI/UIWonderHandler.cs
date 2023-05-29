@@ -117,13 +117,13 @@ public class UIWonderHandler : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
             world.somethingSelected = true;
 
-            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.5f)
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.4f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {
                 dof.focalLength.value = value;
             });
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.4f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
             PrepareBuildOptions();
@@ -132,14 +132,14 @@ public class UIWonderHandler : MonoBehaviour
         {
             activeStatus = false;
 
-            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
+            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {
                 dof.focalLength.value = value;
             });
             //LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.35f).setOnComplete(SetActiveStatusFalse);
         }
 
         cameraController.enabled = !v;

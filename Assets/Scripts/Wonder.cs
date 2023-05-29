@@ -70,13 +70,17 @@ public class Wonder : MonoBehaviour
 
     //particle systems
     [SerializeField]
-    private ParticleSystem heavenHighlight, smokeEmitter, smokeSplash, removeSplash;
+    private ParticleSystem heavenHighlight, smokeEmitter, smokeSplash, removeSplash, fireworks;
+
+    private CameraController focusCam;
 
     private void Awake()
     {
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
         isConstructing = true;
         highlight = GetComponent<SelectionHighlight>();
+        focusCam = FindObjectOfType<CameraController>();
+        fireworks.gameObject.SetActive(false);
 
         removeSplash = Instantiate(removeSplash, transform.position, Quaternion.Euler(-90, 0, 0));
         removeSplash.transform.localScale = new Vector3(2, 2, 2);
@@ -89,12 +93,14 @@ public class Wonder : MonoBehaviour
 
     public void SetPrefabs()
     {
-        //mesh0Percent.enabled = false;
+        mesh0Percent.enabled = false;
         mesh25Percent.enabled = false;
         mesh50Percent.enabled = false;
         mesh75Percent.enabled = false;
-        meshComplete.enabled = false;
+        //meshComplete.enabled = false;
         PlaySmokeSplash();
+        fireworks.gameObject.SetActive(true);
+        fireworks.Play();
     }
 
     public void SetLastPrefab()
@@ -373,6 +379,9 @@ public class Wonder : MonoBehaviour
         }
         else if (percentDone == 100)
         {
+            fireworks.gameObject.SetActive(true);
+            fireworks.Play();
+            focusCam.CenterCameraNoFollow(centerPos);
             SetNewGO(mesh75Percent,meshComplete);
             PlaySmokeSplash();
             isConstructing = false;
