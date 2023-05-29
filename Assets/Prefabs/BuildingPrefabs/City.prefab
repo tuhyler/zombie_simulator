@@ -165,13 +165,13 @@ MonoBehaviour:
   cityLoc: {x: 0, y: 0, z: 0}
   activeCity: 0
   hasHarbor: 0
+  uiCityResourceInfoPanel: {fileID: 0}
   harborLocation: {x: 0, y: 0, z: 0}
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 10
   workEthic: 1
   warehouseStorageLimit: 2000
-  maxGridValue: 0
   savedQueueItems: []
   savedQueueItemsNames: []
 --- !u!114 &-548530054223577924

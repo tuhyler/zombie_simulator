@@ -44,6 +44,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UnityEvent<WonderDataSO> OnIconButtonClick;
     private List<Vector3Int> wonderPlacementLoc = new();
+    private List<Vector3Int> unitPrevLoc = new();
     private int rotationCount;
     private Vector3Int unloadLoc;
     private Vector3Int finalUnloadLoc;
@@ -320,6 +321,8 @@ public class MapWorld : MonoBehaviour
     //wonder info
     public void HandleWonderPlacement(Vector3 location, GameObject detectedObject)
     {
+        uiRotateWonder.ToggleTweenVisibility(false);
+
         if (buildingWonder) //only thing that works is placing wonder
         {
             if (wonderPlacementLoc != null)
@@ -338,6 +341,7 @@ public class MapWorld : MonoBehaviour
                 if (locationPos == wonderPlacementLoc[0]) //reset if select same square twice
                 {
                     wonderPlacementLoc.Clear();
+                    unitPrevLoc.Clear();
                     return;
                 }
             }
@@ -347,6 +351,11 @@ public class MapWorld : MonoBehaviour
             int width = sideways ? wonderData.sizeHeight : wonderData.sizeWidth;
             int height = sideways ? wonderData.sizeWidth : wonderData.sizeHeight;
             Vector3 avgLoc = new Vector3(0, -0.01f, 0);
+
+            //for checking for units
+            int k = 0;
+            int[] xArray = new int[width * height];
+            int[] zArray = new int[width * height];
 
             for (int i = 0; i < width; i++)
             {
@@ -361,31 +370,66 @@ public class MapWorld : MonoBehaviour
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Must build on " + wonderData.terrainType);
                         wonderPlacementLoc.Clear();
+                        unitPrevLoc.Clear();
                         return;
                     }
                     else if (td.terrainData.hasRocks)
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Resources in the way");
                         wonderPlacementLoc.Clear();
+                        unitPrevLoc.Clear();
                         return;
                     }
                     else if (newPos - locationPos != unloadLoc && !IsTileOpenCheck(newPos))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
+                        unitPrevLoc.Clear();
                         return;
                     }
                     else if (newPos - locationPos == unloadLoc && !IsTileOpenButRoadCheck(newPos))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
+                        unitPrevLoc.Clear();
                         return;
                     }
-
+ 
+                    xArray[k] = newPos.x;
+                    zArray[k] = newPos.z;
+                    k++;
                     avgLoc += newPos;
                     wonderLocList.Add(newPos);
                 }
             }
+
+            int xMin = Mathf.Min(xArray) - 1;
+            int xMax = Mathf.Max(xArray) + 1;
+            int zMin = Mathf.Min(zArray) - 1;
+            int zMax = Mathf.Max(zArray) + 1;
+
+            foreach (Vector3Int tile in wonderLocList)
+            {
+                foreach (Vector3Int neighbor in GetNeighborsFor(tile, State.EIGHTWAY))
+                {
+                    if (neighbor.x == xMin || neighbor.x == xMax || neighbor.z == zMin || neighbor.z == zMax)
+                        continue;
+
+                    if (IsUnitLocationTaken(neighbor))
+                    {
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Unit in the way");
+                        wonderPlacementLoc.Clear();
+                        unitPrevLoc.Clear();
+                        return;
+                    }
+
+                    unitPrevLoc.Add(neighbor);
+                }
+
+                unitPrevLoc.Add(tile);
+            }
+
+            uiRotateWonder.ToggleTweenVisibility(true);
 
             wonderGhost = Instantiate(wonderData.wonderPrefab, avgLoc / wonderLocList.Count, rotation);
             wonderGhost.GetComponent<Wonder>().SetLastPrefab(); //only showing 100 Perc prefab
@@ -431,18 +475,12 @@ public class MapWorld : MonoBehaviour
     public void SetWonderConstruction()
     {
         Destroy(wonderGhost);
-        
+
         //resetting ui
         if (wonderPlacementLoc.Count > 0)
         {
             foreach (Vector3Int tile in wonderPlacementLoc)
-            {
-                TerrainData td = GetTerrainDataAt(tile);
-                td.DisableHighlight();
-                if (td.prop != null)
-                    td.prop.gameObject.SetActive(false);
-                td.main.gameObject.SetActive(false);
-            }
+                GetTerrainDataAt(tile).DisableHighlight();
         }
 
         unitMovement.ToggleCancelButton(false);
@@ -457,18 +495,37 @@ public class MapWorld : MonoBehaviour
         Vector3 avgLoc = new Vector3(0, 0, 0);
 
         //double checking if it's blocked
-        foreach (Vector3Int tile in wonderPlacementLoc)
+        foreach (Vector3Int tile in unitPrevLoc)
         {
-            avgLoc += tile;
-
-            if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)))
+            if (IsUnitLocationTaken(tile))
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Unit in the way");
                 wonderPlacementLoc.Clear();
                 return;
             }
+
+            if (wonderPlacementLoc.Contains(tile))
+            {
+                avgLoc += tile;
+
+                if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)))
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
+                    wonderPlacementLoc.Clear();
+                    return;
+                }
+            }
         }
 
+        //hide ground
+        foreach(Vector3Int tile in wonderPlacementLoc)
+        {
+            TerrainData td = GetTerrainDataAt(tile);
+
+            if (td.prop != null)
+                td.prop.gameObject.SetActive(false);
+            td.main.gameObject.SetActive(false);
+        }
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
         GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, rotation);
@@ -517,6 +574,7 @@ public class MapWorld : MonoBehaviour
 
         wonder.PossibleHarborLocs = harborTiles;
         wonderPlacementLoc.Clear();
+        unitPrevLoc.Clear();
     }
 
     public void PlaceWonder(WonderDataSO wonderData)
@@ -530,7 +588,6 @@ public class MapWorld : MonoBehaviour
 
         uiBuildingSomething.SetText("Building " + wonderData.wonderName);
         uiBuildingSomething.ToggleVisibility(true);
-        uiRotateWonder.ToggleTweenVisibility(true);
         unitMovement.ToggleCancelButton(true);
     }
 

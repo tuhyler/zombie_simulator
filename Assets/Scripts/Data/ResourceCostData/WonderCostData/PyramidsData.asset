@@ -27,6 +27,20 @@ MonoBehaviour:
     resourceAmount: 100
   - resourceType: 4
     resourceAmount: 100
+  - resourceType: 11
+    resourceAmount: 5
+  - resourceType: 15
+    resourceAmount: 1001
+  - resourceType: 10
+    resourceAmount: 5
+  - resourceType: 9
+    resourceAmount: 6
+  - resourceType: 20
+    resourceAmount: 1001
+  - resourceType: 6
+    resourceAmount: 5
+  - resourceType: 21
+    resourceAmount: 5
   terrainType: 5
   workEthicChange: 0
   replaceTerrain: 0
