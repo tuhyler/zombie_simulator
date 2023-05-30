@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: FoodData
   m_EditorClassIdentifier: 
-  resourceType: 1
+  resourceType: 2
   resourceStorageMultiplier: 1
   resourceName: Food
   resourceIcon: {fileID: 21300000, guid: 136bc68a438e3414f83037321e2a4016, type: 3}

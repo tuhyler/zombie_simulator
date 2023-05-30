@@ -53,14 +53,14 @@ MonoBehaviour:
   harborLoc: {x: 0, y: 0, z: 0}
   mainLoc: {x: 0, y: 0, z: 0}
   buyResources:
-  - resourceType: 15
+  - resourceType: 16
     resourceAmount: 200
-  - resourceType: 10
+  - resourceType: 11
     resourceAmount: 30
   sellResources:
-  - resourceType: 4
-    resourceAmount: 3
   - resourceType: 5
+    resourceAmount: 3
+  - resourceType: 6
     resourceAmount: 5
 --- !u!65 &7800520638858068917
 BoxCollider:

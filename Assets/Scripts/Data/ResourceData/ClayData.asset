@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: ClayData
   m_EditorClassIdentifier: 
-  resourceType: 7
+  resourceType: 8
   resourceStorageMultiplier: 1
   resourceName: Clay
   resourceIcon: {fileID: 21300000, guid: 202609d109b3de44695e860e6736f919, type: 3}

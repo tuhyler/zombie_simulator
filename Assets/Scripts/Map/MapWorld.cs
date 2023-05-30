@@ -37,14 +37,13 @@ public class MapWorld : MonoBehaviour
 
     [SerializeField]
     private ParticleSystem lightBeam;
-
     
     //wonder info
     private WonderDataSO wonderData;
     [SerializeField]
     private UnityEvent<WonderDataSO> OnIconButtonClick;
     private List<Vector3Int> wonderPlacementLoc = new();
-    private List<Vector3Int> unitPrevLoc = new();
+    private List<Vector3Int> wonderNoWalkLoc = new();
     private int rotationCount;
     private Vector3Int unloadLoc;
     private Vector3Int finalUnloadLoc;
@@ -71,6 +70,7 @@ public class MapWorld : MonoBehaviour
 
     private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
+    private List<Vector3Int> wonderNoWalkList = new(); //tiles where wonders are and units can't walk
     private List<Vector3Int> cityLocations = new();
 
     private Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
@@ -341,7 +341,7 @@ public class MapWorld : MonoBehaviour
                 if (locationPos == wonderPlacementLoc[0]) //reset if select same square twice
                 {
                     wonderPlacementLoc.Clear();
-                    unitPrevLoc.Clear();
+                    wonderNoWalkLoc.Clear();
                     return;
                 }
             }
@@ -370,28 +370,28 @@ public class MapWorld : MonoBehaviour
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Must build on " + wonderData.terrainType);
                         wonderPlacementLoc.Clear();
-                        unitPrevLoc.Clear();
+                        wonderNoWalkLoc.Clear();
                         return;
                     }
                     else if (td.terrainData.hasRocks)
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Resources in the way");
                         wonderPlacementLoc.Clear();
-                        unitPrevLoc.Clear();
+                        wonderNoWalkLoc.Clear();
                         return;
                     }
                     else if (newPos - locationPos != unloadLoc && !IsTileOpenCheck(newPos))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
-                        unitPrevLoc.Clear();
+                        wonderNoWalkLoc.Clear();
                         return;
                     }
                     else if (newPos - locationPos == unloadLoc && !IsTileOpenButRoadCheck(newPos))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
-                        unitPrevLoc.Clear();
+                        wonderNoWalkLoc.Clear();
                         return;
                     }
  
@@ -419,14 +419,14 @@ public class MapWorld : MonoBehaviour
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Unit in the way");
                         wonderPlacementLoc.Clear();
-                        unitPrevLoc.Clear();
+                        wonderNoWalkLoc.Clear();
                         return;
                     }
 
-                    unitPrevLoc.Add(neighbor);
+                    wonderNoWalkLoc.Add(neighbor);
                 }
 
-                unitPrevLoc.Add(tile);
+                wonderNoWalkLoc.Add(tile);
             }
 
             uiRotateWonder.ToggleTweenVisibility(true);
@@ -495,7 +495,7 @@ public class MapWorld : MonoBehaviour
         Vector3 avgLoc = new Vector3(0, 0, 0);
 
         //double checking if it's blocked
-        foreach (Vector3Int tile in unitPrevLoc)
+        foreach (Vector3Int tile in wonderNoWalkLoc)
         {
             if (IsUnitLocationTaken(tile))
             {
@@ -537,6 +537,7 @@ public class MapWorld : MonoBehaviour
         wonder.SetResourceDict(wonderData.wonderCost);
         wonder.unloadLoc = finalUnloadLoc;
         AddTradeLoc(finalUnloadLoc, wonder.wonderName);
+        wonderNoWalkLoc.Remove(finalUnloadLoc);
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
         //wonder.Rotation = rotation;
         wonder.SetCenterPos(centerPos);
@@ -573,8 +574,10 @@ public class MapWorld : MonoBehaviour
         }
 
         wonder.PossibleHarborLocs = harborTiles;
+
+        wonderNoWalkList.AddRange(wonderNoWalkLoc);
         wonderPlacementLoc.Clear();
-        unitPrevLoc.Clear();
+        wonderNoWalkLoc.Clear();
     }
 
     public void PlaceWonder(WonderDataSO wonderData)
@@ -649,6 +652,7 @@ public class MapWorld : MonoBehaviour
             }
 
             wonderPlacementLoc.Clear();
+            wonderNoWalkLoc.Clear();
         }
         
         unitMovement.ToggleCancelButton(false);
@@ -687,6 +691,18 @@ public class MapWorld : MonoBehaviour
             wonderHandler.ToggleVisibility(false);
             wonderButton.ToggleButtonColor(false);
         }
+    }
+
+    //add unload zone when finishing wonder
+    public void AddToNoWalkList(Vector3Int loc)
+    {
+        wonderNoWalkList.Add(loc);
+    }
+
+    //when cancelling a wonder
+    public void RemoveFromNoWalkList(Vector3Int loc)
+    {
+        wonderNoWalkList.Remove(loc);
     }
 
     //Research info
@@ -1502,12 +1518,12 @@ public class MapWorld : MonoBehaviour
     //for movement
     public bool CheckIfPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].GetTerrainData().walkable;
+        return world.ContainsKey(tile) && world[tile].GetTerrainData().walkable && !wonderNoWalkList.Contains(tile);
     }
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].GetTerrainData().sailable;
+        return world.ContainsKey(tile) && world[tile].GetTerrainData().sailable && !wonderNoWalkList.Contains(tile);
     }
 
     public bool CheckIfCoastCoast(Vector3Int tile)
@@ -2306,3 +2322,13 @@ public class MapWorld : MonoBehaviour
     }
 }
 
+public enum Era
+{
+    BronzeAge,
+    IronAge,
+    ClassicAge,
+    MedievalAge,
+    Renaissance,
+    IndustrialEra,
+    ModernEra
+}

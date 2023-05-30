@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
 public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
 {
@@ -15,7 +17,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
     private UIWonderHandler buttonHandler;
 
     [SerializeField]
-    private TMP_Text objectName;
+    private TMP_Text objectName, objectDesc;
 
     [SerializeField]
     private Image objectImage;
@@ -57,6 +59,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
         List<ResourceValue> objectCost;
 
         objectName.text = buildData.wonderName;
+        objectDesc.text = Regex.Replace(buildData.wonderEra.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1") + " Wonder";
         objectImage.sprite = buildData.image;
         objectCost = new(buildData.wonderCost);
         workEthicChange = buildData.workEthicChange;

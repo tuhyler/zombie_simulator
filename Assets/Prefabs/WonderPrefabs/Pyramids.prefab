@@ -39,6 +39,7 @@ Transform:
   - {fileID: 248806543408310869}
   - {fileID: 2015399938439327121}
   - {fileID: 8992455553938299966}
+  - {fileID: 5487283234844752671}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -75,7 +76,8 @@ MonoBehaviour:
   smokeSplash: {fileID: 415809957732700419}
   removeSplash: {fileID: 392546873931958410, guid: a6c6127933384f24298b33e29cc8648b,
     type: 3}
-  fireworks: {fileID: 7131166105577742508}
+  fireworks1: {fileID: 7131166105577742508}
+  fireworks2: {fileID: 5916564855411689357}
 --- !u!65 &3977166035329916925
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -383,6 +385,87 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 5813679871301567308}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6531287505826389967
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 3239887488483095770}
+    m_Modifications:
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4000157101387074691, guid: f45f3759fa34b3c49bc980c53db1eb75,
+        type: 3}
+      propertyPath: m_Name
+      value: Fireworks (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f45f3759fa34b3c49bc980c53db1eb75, type: 3}
+--- !u!4 &5487283234844752671 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
+    type: 3}
+  m_PrefabInstance: {fileID: 6531287505826389967}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &5916564855411689357 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 628277446984423490, guid: f45f3759fa34b3c49bc980c53db1eb75,
+    type: 3}
+  m_PrefabInstance: {fileID: 6531287505826389967}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6976057058409992422
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -489,7 +572,7 @@ PrefabInstance:
     - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 1622831224929789136, guid: f45f3759fa34b3c49bc980c53db1eb75,
         type: 3}

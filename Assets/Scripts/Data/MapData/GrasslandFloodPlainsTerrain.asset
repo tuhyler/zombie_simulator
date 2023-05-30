@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: GrasslandFloodPlainsTerrain
   m_EditorClassIdentifier: 
+  title: 
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   isFloodPlain: 1
@@ -22,4 +23,6 @@ MonoBehaviour:
   isSeaCorner: 0
   movementCost: 10
   type: 5
-  resourceType: 1
+  resourceType: 2
+  hasRocks: 0
+  keepProp: 0

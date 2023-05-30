@@ -825,6 +825,7 @@ public struct ResourceValue
 public enum ResourceType
 {
     None,
+    Labor,
     Food,
     Gold,
     Research,

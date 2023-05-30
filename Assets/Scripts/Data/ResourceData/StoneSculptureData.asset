@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: StoneSculptureData
   m_EditorClassIdentifier: 
-  resourceType: 10
+  resourceType: 11
   resourceStorageMultiplier: 1
   resourceName: Sculpture
   resourceIcon: {fileID: 21300000, guid: 07dd4ba4945215b41adc1da71d9fdd07, type: 3}
