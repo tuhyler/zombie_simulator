@@ -603,6 +603,11 @@ public class CityBuilderManager : MonoBehaviour
         GameObject priorGO = world.GetStructure(selectedWonder.WonderLocs[2]);
         Destroy(priorGO);
 
+        //for no walk zone
+        int k = 0;
+        int[] xArray = new int[selectedWonder.WonderLocs.Count];
+        int[] zArray = new int[selectedWonder.WonderLocs.Count];
+
         foreach (Vector3Int tile in selectedWonder.WonderLocs)
         {
             world.RemoveStructure(tile);
@@ -613,6 +618,26 @@ public class CityBuilderManager : MonoBehaviour
             if (td.prop != null)
                 td.prop.gameObject.SetActive(true);
             td.main.gameObject.SetActive(true);
+
+            xArray[k] = tile.x;
+            zArray[k] = tile.z;
+            k++;
+        }
+
+        int xMin = Mathf.Min(xArray) - 1;
+        int xMax = Mathf.Max(xArray) + 1;
+        int zMin = Mathf.Min(zArray) - 1;
+        int zMax = Mathf.Max(zArray) + 1;
+
+        foreach (Vector3Int tile in selectedWonder.WonderLocs)
+        {
+            foreach (Vector3Int neighbor in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAY))
+            {
+                if (neighbor.x == xMin || neighbor.x == xMax || neighbor.z == zMin || neighbor.z == zMax)
+                    continue;
+
+                world.RemoveFromNoWalkList(neighbor);
+            }
         }
 
         selectedWonder = null;

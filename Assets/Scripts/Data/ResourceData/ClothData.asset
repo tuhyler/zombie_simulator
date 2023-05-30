@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: ClothData
   m_EditorClassIdentifier: 
-  resourceType: 17
+  resourceType: 18
   resourceStorageMultiplier: 1
   resourceName: Cloth
   resourceIcon: {fileID: 21300000, guid: bbc1d93f10f62054083b2125b93e8b2f, type: 3}

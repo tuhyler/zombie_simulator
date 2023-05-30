@@ -216,43 +216,39 @@ MonoBehaviour:
   fullInventory: 0
   uiInfoPanelCity: {fileID: 0}
   initialResources:
-  - resourceType: 4
-    resourceAmount: 100
   - resourceType: 5
     resourceAmount: 100
-  - resourceType: 17
-    resourceAmount: 50
-  - resourceType: 15
-    resourceAmount: 50
-  - resourceType: 12
-    resourceAmount: 50
-  - resourceType: 14
-    resourceAmount: 2
-  - resourceType: 11
-    resourceAmount: 50
-  - resourceType: 13
-    resourceAmount: 50
-  - resourceType: 10
-    resourceAmount: 50
+  - resourceType: 6
+    resourceAmount: 100
   - resourceType: 18
     resourceAmount: 50
   - resourceType: 16
     resourceAmount: 50
-  - resourceType: 1
+  - resourceType: 15
+    resourceAmount: 2
+  - resourceType: 12
     resourceAmount: 50
-  - resourceType: 8
+  - resourceType: 14
+    resourceAmount: 50
+  - resourceType: 11
+    resourceAmount: 50
+  - resourceType: 19
+    resourceAmount: 50
+  - resourceType: 17
     resourceAmount: 50
   - resourceType: 9
     resourceAmount: 50
-  - resourceType: 7
+  - resourceType: 10
     resourceAmount: 50
-  - resourceType: 20
+  - resourceType: 8
     resourceAmount: 50
   - resourceType: 21
     resourceAmount: 50
-  - resourceType: 6
+  - resourceType: 22
     resourceAmount: 50
-  - resourceType: 12
+  - resourceType: 7
+    resourceAmount: 50
+  - resourceType: 13
     resourceAmount: 50
   city: {fileID: 0}
 --- !u!114 &350781982696099274

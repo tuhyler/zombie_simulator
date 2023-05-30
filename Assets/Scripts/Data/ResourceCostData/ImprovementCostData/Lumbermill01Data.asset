@@ -24,33 +24,24 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
   littleImage: {fileID: 21300000, guid: 2eb3cee7396469e49b3dacfdd001054c, type: 3}
   improvementCost:
-  - resourceType: 5
+  - resourceType: 6
     resourceAmount: 5
   consumedResources:
-  - resourceType: 5
+  - resourceType: 6
     resourceAmount: 4
-  - resourceType: 2
+  - resourceType: 3
     resourceAmount: 1
-  consumedResources1:
-  - resourceType: 4
-    resourceAmount: 1
-  - resourceType: 5
-    resourceAmount: 1
-  - resourceType: 12
-    resourceAmount: 1
+  consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 4
-    resourceAmount: 5
-  - resourceType: 17
-    resourceAmount: 5
-  - resourceType: 14
+  - resourceType: 5
     resourceAmount: 5
   producedResourceTime: 050000000500000005000000
   rawMaterials: 1
-  rawResourceType: 4
+  rawResourceType: 5
+  isResearch: 0
   terrainType: 7
   workEthicChange: 0
   maxLabor: 2

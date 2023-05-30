@@ -70,7 +70,7 @@ public class Wonder : MonoBehaviour
 
     //particle systems
     [SerializeField]
-    private ParticleSystem heavenHighlight, smokeEmitter, smokeSplash, removeSplash, fireworks;
+    private ParticleSystem heavenHighlight, smokeEmitter, smokeSplash, removeSplash, fireworks1, fireworks2;
 
     private CameraController focusCam;
 
@@ -80,7 +80,8 @@ public class Wonder : MonoBehaviour
         isConstructing = true;
         highlight = GetComponent<SelectionHighlight>();
         focusCam = FindObjectOfType<CameraController>();
-        fireworks.gameObject.SetActive(false);
+        fireworks1.gameObject.SetActive(false);
+        fireworks2.gameObject.SetActive(false);
 
         removeSplash = Instantiate(removeSplash, transform.position, Quaternion.Euler(-90, 0, 0));
         removeSplash.transform.localScale = new Vector3(2, 2, 2);
@@ -93,14 +94,13 @@ public class Wonder : MonoBehaviour
 
     public void SetPrefabs()
     {
-        mesh0Percent.enabled = false;
+        //mesh0Percent.enabled = false;
         mesh25Percent.enabled = false;
         mesh50Percent.enabled = false;
         mesh75Percent.enabled = false;
-        //meshComplete.enabled = false;
+        meshComplete.enabled = false;
         PlaySmokeSplash();
-        fireworks.gameObject.SetActive(true);
-        fireworks.Play();
+        //PlayFireworks();
     }
 
     public void SetLastPrefab()
@@ -176,15 +176,6 @@ public class Wonder : MonoBehaviour
             resourceWaiter = ResourceType.None;
         }
     }
-
-    //public void CheckLimitWaiter()
-    //{
-    //    if (tradeRouteWaiter != null && resourceWaiter == ResourceType.None)
-    //    {
-    //        tradeRouteWaiter.resourceCheck = false;
-    //        tradeRouteWaiter = null;
-    //    }
-    //}
 
     public void AddToWaitList(Unit unit)
     {
@@ -287,14 +278,6 @@ public class Wonder : MonoBehaviour
         return workersReceived < wonderData.workersNeeded;
     }
 
-    //private void ThresholdUpdate(ResourceType resourceType)
-    //{
-    //    int nextLevel = (percentDone + 1) * resourceThreshold[resourceType];
-    //    resourceThresholdMet[resourceType] = resourceDict[resourceType] / nextLevel >= 1;
-
-    //    ThresholdCheck();
-    //}
-
     public void ThresholdCheck()
     {
         foreach (ResourceType type in resourceThreshold.Keys)
@@ -379,8 +362,7 @@ public class Wonder : MonoBehaviour
         }
         else if (percentDone == 100)
         {
-            fireworks.gameObject.SetActive(true);
-            fireworks.Play();
+            PlayFireworks();
             focusCam.CenterCameraNoFollow(centerPos);
             SetNewGO(mesh75Percent,meshComplete);
             PlaySmokeSplash();
@@ -400,9 +382,18 @@ public class Wonder : MonoBehaviour
             }
 
             world.roadManager.RemoveRoadAtPosition(unloadLoc);
+            world.AddToNoWalkList(unloadLoc);
         }
 
         ThresholdCheck();
+    }
+
+    private void PlayFireworks()
+    {
+        fireworks1.gameObject.SetActive(true);
+        fireworks1.Play();
+        fireworks2.gameObject.SetActive(true);
+        fireworks2.Play();
     }
 
     private void SetNewGO(MeshRenderer prevMesh, MeshRenderer newMesh)

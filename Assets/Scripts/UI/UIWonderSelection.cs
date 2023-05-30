@@ -38,7 +38,7 @@ public class UIWonderSelection : MonoBehaviour
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
-        percentDone.outlineWidth = 0.35f;
+        percentDone.outlineWidth = 0.5f;
         percentDone.outlineColor = new Color(0, 0, 0, 255);
         buttonsAreWorking = true;
 

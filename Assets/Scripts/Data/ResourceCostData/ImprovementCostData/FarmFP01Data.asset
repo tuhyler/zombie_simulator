@@ -24,7 +24,7 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   littleImage: {fileID: 0}
   improvementCost:
-  - resourceType: 4
+  - resourceType: 5
     resourceAmount: 10
   consumedResources: []
   consumedResources1: []
@@ -32,11 +32,12 @@ MonoBehaviour:
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 1
+  - resourceType: 2
     resourceAmount: 2
   producedResourceTime: 14000000
   rawMaterials: 1
-  rawResourceType: 1
+  rawResourceType: 2
+  isResearch: 0
   terrainType: 5
   workEthicChange: 0
   maxLabor: 1
