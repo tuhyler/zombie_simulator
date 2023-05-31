@@ -1674,7 +1674,7 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-increment,0,2*increment), //up up left
     };
 
-    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYTWODEEP, CITYRADIUS };
+    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYTWODEEP, EIGHTWAYINCREMENT, CITYRADIUS };
 
     public List<Vector3Int> GetNeighborsFor(Vector3Int worldTilePosition, State criteria)
     {
@@ -1693,6 +1693,9 @@ public class MapWorld : MonoBehaviour
                 break;
             case State.EIGHTWAYTWODEEP:
                 listToUse = new(neighborsEightDirectionsTwoDeep);
+                break;
+            case State.EIGHTWAYINCREMENT:
+                listToUse = new(neighborsEightDirectionsIncrement);
                 break;
             case State.CITYRADIUS:
                 listToUse = new(cityRadius);

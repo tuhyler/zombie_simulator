@@ -368,8 +368,9 @@ public class Wonder : MonoBehaviour
             PlaySmokeSplash();
             isConstructing = false;
             world.RemoveWonderName(wonderName);
-            if (isActive)
-                uiWonderSelection.HideCancelConstructionButton();
+            uiWonderSelection.HideCancelConstructionButton();
+            uiWonderSelection.HideHarborButton();
+            uiWonderSelection.HideWorkerCounts();
             world.RemoveTradeLoc(unloadLoc);
 
             if (hasHarbor)
@@ -383,6 +384,12 @@ public class Wonder : MonoBehaviour
 
             world.roadManager.RemoveRoadAtPosition(unloadLoc);
             world.AddToNoWalkList(unloadLoc);
+            RemoveUnits();
+
+            for (int i = 0; i < workersReceived; i++)
+            {
+                world.cityBuilderManager.CreateWorker();
+            }
         }
 
         ThresholdCheck();
@@ -394,6 +401,28 @@ public class Wonder : MonoBehaviour
         fireworks1.Play();
         fireworks2.gameObject.SetActive(true);
         fireworks2.Play();
+    }
+
+    private void RemoveUnits()
+    {
+        if (world.IsUnitLocationTaken(unloadLoc))
+        {
+            Unit unit = world.GetUnit(unloadLoc);
+            if (unit.isTrader)
+                unit.TeleportToLastRoad(unloadLoc);
+            else
+                unit.FindNewSpot(unloadLoc, new Vector3Int(0, -10, 0));
+        }
+
+        foreach (Vector3Int neighbor in world.GetNeighborsFor(unloadLoc, MapWorld.State.EIGHTWAY))
+        {
+            if (world.IsUnitLocationTaken(neighbor))
+            {
+                Unit unit = world.GetUnit(neighbor);
+                if (unit.isTrader)
+                    unit.TeleportToLastRoad(neighbor);
+            }
+        }
     }
 
     private void SetNewGO(MeshRenderer prevMesh, MeshRenderer newMesh)

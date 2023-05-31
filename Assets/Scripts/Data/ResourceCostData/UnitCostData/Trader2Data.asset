@@ -32,5 +32,5 @@ MonoBehaviour:
   health: 10
   attackStrength: 10
   movementSpeed: 0.5
-  cargoCapacity: 25
+  cargoCapacity: 200
   transportationType: 0

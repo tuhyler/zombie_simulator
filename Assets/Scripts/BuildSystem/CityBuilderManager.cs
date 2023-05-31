@@ -511,23 +511,20 @@ public class CityBuilderManager : MonoBehaviour
         workerGO.name = selectedWonder.WonderData.workerData.name.Split("_")[0] + "_" + world.workerCount;
 
         Vector3Int buildPosition = selectedWonder.unloadLoc;
-        if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
+        int lostWorkersCount = 0;
+        if (world.IsUnitLocationTaken(buildPosition) || !world.CheckIfPositionIsValid(buildPosition)) //placing unit in world after building in city
         {
             //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
             foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
             {
-                if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).GetTerrainData().walkable)
+                if (!world.IsUnitLocationTaken(pos) && world.CheckIfPositionIsValid(pos))
                 {
                     buildPosition = pos;
                     break;
                 }
             }
 
-            if (buildPosition == Vector3Int.RoundToInt(transform.position))
-            {
-                Debug.Log("No suitable locations to build unit");
-                return;
-            }
+            lostWorkersCount++;
         }
 
         GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
@@ -542,6 +539,9 @@ public class CityBuilderManager : MonoBehaviour
         Unit newUnit = unit.GetComponent<Unit>();
 
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+
+        if (lostWorkersCount > 0)
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Lost worker due to no available space");
     }
 
     public void BuildWonderHarbor(Vector3Int loc)

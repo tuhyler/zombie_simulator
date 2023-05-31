@@ -1928,8 +1928,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 748243877529823560}
   m_HandleRect: {fileID: 7113548548052977731}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.98541665
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2038,6 +2038,7 @@ MonoBehaviour:
   world: {fileID: 0}
   wonderTitle: {fileID: 2926525760722353551}
   wonderDescription: {fileID: 5134958914513701796}
+  workerText: {fileID: 4320253661069262837}
   workerCount: {fileID: 1456372295634074818}
   workerTotal: {fileID: 7114913893221241352}
   percentDone: {fileID: 8083031660761089231}
@@ -2045,6 +2046,7 @@ MonoBehaviour:
   wonderCostHolder: {fileID: 4490594283110212000}
   uiWonderResourcePanel: {fileID: 624308965952619012, guid: 5332ec37ab2834548b791f60ea1bab29,
     type: 3}
+  removeWorkerButton: {fileID: 2860645898063418964}
   addHarborButton: {fileID: 3271033771185688363}
   cancelConstructionButton: {fileID: 398968066760029010}
   buttonsAreWorking: 0
