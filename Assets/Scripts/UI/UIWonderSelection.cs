@@ -9,7 +9,7 @@ public class UIWonderSelection : MonoBehaviour
     private MapWorld world;
 
     [SerializeField]
-    private TMP_Text wonderTitle, wonderDescription, workerCount, workerTotal, percentDone;
+    private TMP_Text wonderTitle, wonderDescription, workerText, workerCount, workerTotal, percentDone;
 
     [SerializeField]
     private Image progressBarMask;
@@ -18,7 +18,7 @@ public class UIWonderSelection : MonoBehaviour
     private Transform wonderCostHolder;
 
     [SerializeField]
-    private GameObject uiWonderResourcePanel;
+    private GameObject uiWonderResourcePanel, removeWorkerButton;
     private Dictionary<ResourceType, UIWonderResource> resourceOptions = new();
 
     [SerializeField]
@@ -76,7 +76,7 @@ public class UIWonderSelection : MonoBehaviour
             else
                 cancelConstructionButton.SetActive(true);
 
-            if (wonder.canBuildHarbor && !wonder.hasHarbor)
+            if (wonder.canBuildHarbor && !wonder.hasHarbor && wonder.isConstructing)
                 addHarborButton.SetActive(true);
 
             gameObject.SetActive(v);
@@ -157,6 +157,14 @@ public class UIWonderSelection : MonoBehaviour
     public void HideCancelConstructionButton()
     {
         cancelConstructionButton.SetActive(false);
+    }
+
+    public void HideWorkerCounts()
+    {
+        workerText.gameObject.SetActive(false);
+        workerCount.gameObject.SetActive(false);
+        workerTotal.gameObject.SetActive(false);
+        removeWorkerButton.SetActive(false);
     }
 
     internal void UpdateUIWorkers(int workersReceived)

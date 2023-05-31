@@ -36,6 +36,7 @@ public class Unit : MonoBehaviour
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
+    private Vector3Int prevRoadTile; //for traders, in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     private Coroutine movingCo;
     private MovementSystem movementSystem;
@@ -223,7 +224,6 @@ public class Unit : MonoBehaviour
                     InterruptedRouteMessage();
             }
                 
-
             FinishMoving(endPosition);
             yield break;
         }
@@ -263,6 +263,9 @@ public class Unit : MonoBehaviour
 
         if (pathPositions.Count > 0)
         {
+            if (isTrader && world.IsRoadOnTerrain(world.RoundToInt(endPosition)))
+                prevRoadTile = world.RoundToInt(endPosition);
+            
             movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
             if (pathQueue.Count > 0)
             {
@@ -349,6 +352,13 @@ public class Unit : MonoBehaviour
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke();
+        if (isTrader)
+        {
+            if (!world.IsRoadOnTileLocation(world.RoundToInt(endPosition)))
+            {
+                TeleportToLastRoad(world.RoundToInt(currentLocation));
+            }
+        }
         if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
         {
             FindNewSpot(currentLocation, new Vector3Int(0, -10, 0));
@@ -358,7 +368,7 @@ public class Unit : MonoBehaviour
         TradeRouteCheck(endPosition);
     }
 
-    private void FindNewSpot(Vector3Int current, Vector3Int next)
+    public void FindNewSpot(Vector3Int current, Vector3Int next)
     {
         //Vector3Int lastTile = current;        
         
@@ -389,6 +399,61 @@ public class Unit : MonoBehaviour
         //    newSpotTry++;
         //    FindNewSpot(lastTile); //keep going until finding new spot
         //}
+    }
+
+    public void TeleportToLastRoad(Vector3Int loc)
+    {
+        foreach (Vector3Int neighbor in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAY))
+        {
+            if (world.IsRoadOnTileLocation(neighbor))
+                return;
+        }
+
+        if (world.IsRoadOnTileLocation(prevRoadTile))
+        {
+            if (world.IsUnitLocationTaken(prevRoadTile))
+            {
+                Vector3Int locDiff = loc - prevRoadTile;
+                locDiff.x -= 1 * Math.Sign(locDiff.x);
+                locDiff.z -= 1 * Math.Sign(locDiff.z);
+                Vector3Int newSpot = loc - locDiff;
+                Teleport(newSpot);
+                //MoveThroughPath(new List<Vector3Int> { newSpot });
+            }
+            else
+            {
+                Teleport(prevRoadTile);
+                //MoveThroughPath(new List<Vector3Int> { prevRoadTile });
+            }
+        }
+        else
+        {
+            Vector3Int newSpot = loc;
+            
+            foreach (Vector3Int neighbor in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAYINCREMENT))
+            {
+                if (world.CheckIfPositionIsValid(neighbor))
+                {
+                    newSpot = neighbor;
+                    if (world.IsRoadOnTileLocation(neighbor))
+                    {
+                        Teleport(neighbor);
+                        //MoveThroughPath(new List<Vector3Int> { neighbor });
+                        return;
+                    }
+                }
+            }
+
+            Teleport(newSpot);
+            //MoveThroughPath(new List<Vector3Int> { newSpot }); //last resort, move somewhere else that's available
+        }
+    }
+
+    private void Teleport(Vector3Int loc)
+    {
+        currentLocation = loc;
+        transform.position = loc;
+        world.AddUnitPosition(currentLocation, this);
     }
 
     //sees if trader is at trade route stop and has finished trade orders
