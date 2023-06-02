@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: ResearchData
   m_EditorClassIdentifier: 
-  resourceType: 4
+  resourceType: 5
   resourceStorageMultiplier: 0
   resourceName: Research
   resourceIcon: {fileID: 21300000, guid: fbc34e2d528690c4b99228f5ac0bd952, type: 3}
+  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 5
   resourcePrice: 1
   resourceQuantityPerPop: 1

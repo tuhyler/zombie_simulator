@@ -17,9 +17,9 @@ MonoBehaviour:
   unitLevel: 1
   image: {fileID: 21300000, guid: 83e96c5aac2dc7e46aa556dcd51f90de, type: 3}
   unitCost:
-  - resourceType: 5
-    resourceAmount: 10
   - resourceType: 6
+    resourceAmount: 10
+  - resourceType: 7
     resourceAmount: 3
   consumedResources:
   - resourceType: 2

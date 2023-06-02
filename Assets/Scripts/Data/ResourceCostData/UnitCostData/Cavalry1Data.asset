@@ -17,11 +17,11 @@ MonoBehaviour:
   unitLevel: 1
   image: {fileID: 21300000, guid: 0bc86cc0a006dd444ae89ecd41da2d3b, type: 3}
   unitCost:
-  - resourceType: 6
+  - resourceType: 7
     resourceAmount: 40
-  - resourceType: 5
+  - resourceType: 6
     resourceAmount: 10
-  - resourceType: 3
+  - resourceType: 4
     resourceAmount: 5
   consumedResources:
   - resourceType: 2

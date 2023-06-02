@@ -30,7 +30,8 @@ public class TerrainData : MonoBehaviour
     public bool IsCoast { get { return isCoast; } }
     private bool isSeaCorner = false;
     public bool IsSeaCorner { get { return isSeaCorner; } }
-    private bool isGlowing = false;
+    [HideInInspector]
+    public bool isGlowing = false;
 
     private ResourceGraphicHandler resourceGraphic;
 

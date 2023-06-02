@@ -178,6 +178,18 @@ public class Worker : Unit
         }
     }
 
+    public void RoadHighlightCheck()
+    {
+        foreach (Vector3Int loc in orderList)
+        {
+            foreach (Road road in world.GetAllRoadsOnTile(loc))
+            {
+                if (road != null)
+                    road.MeshFilter.gameObject.SetActive(true);
+            }
+        }
+    }
+
     public void SetRoadQueue()
     {
         if (orderList.Count > 0)

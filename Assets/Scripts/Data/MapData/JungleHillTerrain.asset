@@ -24,6 +24,6 @@ MonoBehaviour:
   isSeaCorner: 0
   movementCost: 30
   type: 8
-  resourceType: 5
+  resourceType: 6
   hasRocks: 0
   keepProp: 0

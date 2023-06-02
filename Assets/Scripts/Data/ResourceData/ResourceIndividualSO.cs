@@ -9,6 +9,7 @@ public class ResourceIndividualSO : ScriptableObject
     public float resourceStorageMultiplier;
     public string resourceName;
     public Sprite resourceIcon;
+    public Sprite secondaryIcon;
     public int ResourceGatheringTime = 5;
     public int resourcePrice;
     public int resourceQuantityPerPop = 1;

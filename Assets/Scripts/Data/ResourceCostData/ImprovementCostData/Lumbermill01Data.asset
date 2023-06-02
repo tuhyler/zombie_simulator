@@ -27,20 +27,20 @@ MonoBehaviour:
   - resourceType: 6
     resourceAmount: 5
   consumedResources:
-  - resourceType: 6
+  - resourceType: 7
     resourceAmount: 4
-  - resourceType: 3
+  - resourceType: 4
     resourceAmount: 1
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 5
+  - resourceType: 6
     resourceAmount: 5
   producedResourceTime: 050000000500000005000000
   rawMaterials: 1
-  rawResourceType: 5
+  rawResourceType: 6
   isResearch: 0
   terrainType: 7
   workEthicChange: 0

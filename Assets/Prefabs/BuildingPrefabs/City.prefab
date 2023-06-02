@@ -216,15 +216,15 @@ MonoBehaviour:
   fullInventory: 0
   uiInfoPanelCity: {fileID: 0}
   initialResources:
-  - resourceType: 5
-    resourceAmount: 100
   - resourceType: 6
+    resourceAmount: 100
+  - resourceType: 7
     resourceAmount: 100
   - resourceType: 18
     resourceAmount: 50
-  - resourceType: 16
-    resourceAmount: 50
   - resourceType: 15
+    resourceAmount: 50
+  - resourceType: 16
     resourceAmount: 2
   - resourceType: 12
     resourceAmount: 50
@@ -240,13 +240,13 @@ MonoBehaviour:
     resourceAmount: 50
   - resourceType: 10
     resourceAmount: 50
-  - resourceType: 8
+  - resourceType: 23
     resourceAmount: 50
   - resourceType: 21
     resourceAmount: 50
   - resourceType: 22
     resourceAmount: 50
-  - resourceType: 7
+  - resourceType: 8
     resourceAmount: 50
   - resourceType: 13
     resourceAmount: 50
