@@ -24,10 +24,10 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   littleImage: {fileID: 21300000, guid: 5757ef8f018e3af4d9108a6b9c72c500, type: 3}
   improvementCost:
-  - resourceType: 5
+  - resourceType: 6
     resourceAmount: 50
   consumedResources:
-  - resourceType: 3
+  - resourceType: 4
     resourceAmount: 1
   consumedResources1: []
   consumedResources2: []

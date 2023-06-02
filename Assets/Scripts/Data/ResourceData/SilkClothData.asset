@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: SilkClothData
   m_EditorClassIdentifier: 
-  resourceType: 19
+  resourceType: 20
   resourceStorageMultiplier: 1
   resourceName: Silk Cloth
   resourceIcon: {fileID: 21300000, guid: 00e962550b4c6c0408f1bd04572e3e72, type: 3}
+  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50

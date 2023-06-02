@@ -192,6 +192,7 @@ public class UnitMovement : MonoBehaviour
                             if (road == null)
                                 continue;
                             road.MeshFilter.gameObject.SetActive(true);
+                            road.Embiggen();
                             road.SelectionHighlight.EnableHighlight(Color.white);
                         }
                         //highlightedTiles.Add(td);
@@ -734,6 +735,7 @@ public class UnitMovement : MonoBehaviour
                         if (road == null)
                             continue;
                         road.MeshFilter.gameObject.SetActive(true);
+                        road.Embiggen();
                         road.SelectionHighlight.EnableHighlight(Color.white);
                     }
                 }

@@ -301,6 +301,9 @@ public class ResourceManager : MonoBehaviour
 
     public int CheckResource(ResourceType type, int amount)
     {
+        if (type == ResourceType.Fish)
+            type = ResourceType.Food;
+        
         if (type == ResourceType.Food && amount > 0)
         {
             return AddFood(amount);
@@ -822,11 +825,12 @@ public struct ResourceValue
     public int resourceAmount;
 }
 
-public enum ResourceType
+public enum ResourceType    
 {
     None,
     Labor,
     Food,
+    Fish,
     Gold,
     Research,
     Lumber,

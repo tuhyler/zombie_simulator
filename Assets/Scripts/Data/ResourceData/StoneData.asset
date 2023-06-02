@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: StoneData
   m_EditorClassIdentifier: 
-  resourceType: 6
+  resourceType: 7
   resourceStorageMultiplier: 1
   resourceName: Stone
   resourceIcon: {fileID: 21300000, guid: 8cb0883a9920bd545bacccade1e5d661, type: 3}
+  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 5
   resourcePrice: 2
   resourceQuantityPerPop: 50

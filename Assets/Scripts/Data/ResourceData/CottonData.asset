@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03fb2bbb95a7d94487fc94eadb99e61, type: 3}
   m_Name: CottonData
   m_EditorClassIdentifier: 
-  resourceType: 22
+  resourceType: 23
   resourceStorageMultiplier: 1
   resourceName: Cotton
   resourceIcon: {fileID: 21300000, guid: bb9795a4945c9084d9422d9f885f01d7, type: 3}
+  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50
