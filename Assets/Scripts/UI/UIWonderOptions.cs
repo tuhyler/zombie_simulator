@@ -66,7 +66,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
         objectDescription = buildData.wonderDecription;
 
         objectCost.Add(MakeResourceValue(ResourceType.Gold, buildData.workersNeeded * buildData.workerCost * 100));
-        objectCost.Add(MakeResourceValue(ResourceType.Food, buildData.workersNeeded));
+        objectCost.Add(MakeResourceValue(ResourceType.Labor, buildData.workersNeeded));
 
         //cost info
         GenerateResourceInfo(resourceCostHolder, objectCost);

@@ -374,25 +374,71 @@ public class Wonder : MonoBehaviour
             world.RemoveTradeLoc(unloadLoc);
 
             if (hasHarbor)
-            {
-                GameObject harbor = world.GetStructure(harborLoc);
-                Destroy(harbor);
-                world.RemoveSingleBuildFromCityLabor(harborLoc);
-                world.RemoveStructure(harborLoc);
-                world.RemoveTradeLoc(harborLoc);
-            }
+                DestroyHarbor();
 
             world.roadManager.RemoveRoadAtPosition(unloadLoc);
             world.AddToNoWalkList(unloadLoc);
             RemoveUnits();
 
-            for (int i = 0; i < workersReceived; i++)
-            {
-                world.cityBuilderManager.CreateWorker();
-            }
+            world.cityBuilderManager.CreateAllWorkers(this);
         }
 
         ThresholdCheck();
+    }
+
+    public void DestroyHarbor()
+    {
+        hasHarbor = false;
+        GameObject harbor = world.GetStructure(harborLoc);
+        harbor.GetComponent<CityImprovement>().PlayRemoveEffect(false);
+        Destroy(harbor);
+        world.RemoveSingleBuildFromCityLabor(harborLoc);
+        world.RemoveStructure(harborLoc);
+        world.RemoveTradeLoc(harborLoc);
+    }
+
+    public List<Vector3Int> OuterRim()
+    {
+        List<Vector3Int> locs = new();
+
+        int k = 0;
+        int[] xArray = new int[wonderLocs.Count];
+        int[] zArray = new int[wonderLocs.Count];
+
+        foreach (Vector3Int loc in wonderLocs)
+        {
+            xArray[k] = loc.x;
+            zArray[k] = loc.z;
+            k++;
+        }
+
+        int xMin = Mathf.Min(xArray) - 1;
+        int xMax = Mathf.Max(xArray) + 1;
+        int zMin = Mathf.Min(zArray) - 1;
+        int zMax = Mathf.Max(zArray) + 1;
+
+        //looping around the wonder counter clockwise
+        for (int i = 0; i < xMax - xMin; i++)
+        {
+            locs.Add(new Vector3Int(xMin + i, 0, zMin));
+        }
+
+        for (int i = 0; i < zMax - zMin; i++)
+        {
+            locs.Add(new Vector3Int(xMax, 0, zMin + i));
+        }
+
+        for (int i = 0; i < xMax - xMin; i++)
+        {
+            locs.Add(new Vector3Int(xMax - i, 0, zMax));
+        }
+
+        for (int i = 0; i < zMax - zMin; i++)
+        {
+            locs.Add(new Vector3Int(xMin, 0, zMax - i));
+        }
+
+        return locs;
     }
 
     private void PlayFireworks()

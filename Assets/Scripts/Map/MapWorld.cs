@@ -889,8 +889,12 @@ public class MapWorld : MonoBehaviour
         }
         else
         {
+            int prevAmount = worldResourceManager.GetWorldGoldLevel();
+
             worldResourceManager.SetResource(resourceType, amount);
-            if (amount > 0)
+            bool pos = amount > 0;
+
+            if (pos)
             {
                 if (CitiesGoldWaitingCheck())
                     RestartCityProduction();
@@ -902,10 +906,13 @@ public class MapWorld : MonoBehaviour
                     RestartTradeCenterRoutes();
             }
 
+            int currentAmount = worldResourceManager.GetWorldGoldLevel();
             if (cityBuilderManager.uiTradeCenter.activeStatus)
-                cityBuilderManager.uiTradeCenter.UpdateColors();
+                cityBuilderManager.uiTradeCenter.UpdateColors(prevAmount, currentAmount, pos);
             else if (unitMovement.uiCityResourceInfoPanel.activeStatus)
-                unitMovement.uiCityResourceInfoPanel.UpdatePriceColors(worldResourceManager.GetWorldGoldLevel());
+                unitMovement.uiCityResourceInfoPanel.UpdatePriceColors(prevAmount, currentAmount, pos);
+            else if (cityBuilderManager.uiUnitBuilder.activeStatus)
+                cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Gold, prevAmount, currentAmount, pos, cityBuilderManager.SelectedCity.ResourceManager);
         }
     }
 

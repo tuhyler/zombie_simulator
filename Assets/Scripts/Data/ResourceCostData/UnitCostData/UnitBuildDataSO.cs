@@ -10,12 +10,12 @@ public class UnitBuildDataSO : ScriptableObject
     public Sprite image;
     public List<ResourceValue> unitCost;
     public List<ResourceValue> consumedResources;
+    public int laborCost;
     public UnitType unitType;
     public string unitDescription;
     public bool availableInitially = false;
     [HideInInspector]
     public bool locked = true;
-    public int movementPoints = 10; //remove
     public int health = 10;
     public int attackStrength = 10;
     public float movementSpeed = 1f;

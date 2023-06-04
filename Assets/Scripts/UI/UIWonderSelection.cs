@@ -9,7 +9,7 @@ public class UIWonderSelection : MonoBehaviour
     private MapWorld world;
 
     [SerializeField]
-    private TMP_Text wonderTitle, wonderDescription, workerText, workerCount, workerTotal, percentDone;
+    private TMP_Text wonderTitle, wonderDescription, workerText, workerCount, workerTotal, percentDone, harborText;
 
     [SerializeField]
     private Image progressBarMask;
@@ -76,8 +76,14 @@ public class UIWonderSelection : MonoBehaviour
             else
                 cancelConstructionButton.SetActive(true);
 
-            if (wonder.canBuildHarbor && !wonder.hasHarbor && wonder.isConstructing)
+            if (wonder.canBuildHarbor && wonder.isConstructing)
+            {
                 addHarborButton.SetActive(true);
+                if (wonder.hasHarbor)
+                    harborText.text = "Remove Harbor";
+                else
+                    harborText.text = "Add Harbor";
+            }
 
             gameObject.SetActive(v);
 
@@ -152,6 +158,14 @@ public class UIWonderSelection : MonoBehaviour
     public void HideHarborButton()
     {
         addHarborButton.SetActive(false);
+    }
+
+    public void UpdateHarborButton(bool v)
+    {
+        if (v)
+            harborText.text = "Remove Harbor";
+        else
+            harborText.text = "Add Harbor";
     }
 
     public void HideCancelConstructionButton()

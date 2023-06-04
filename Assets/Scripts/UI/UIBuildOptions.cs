@@ -113,9 +113,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             objectName.text = unitBuildData.unitName;
             objectLevel.text = "Level " + unitBuildData.unitLevel + " " + unitBuildData.unitType.ToString();
             objectImage.sprite = unitBuildData.image;
-            objectCost = unitBuildData.unitCost;
+            objectCost = new(unitBuildData.unitCost);
             objectProduced = new();
             objectDescription = unitBuildData.unitDescription;
+
+            ResourceValue laborCost;
+            laborCost.resourceType = ResourceType.Labor;
+            laborCost.resourceAmount = unitBuildData.laborCost;
+            objectCost.Add(laborCost);
         }
         else
         {
