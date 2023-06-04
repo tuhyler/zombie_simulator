@@ -14,7 +14,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public UIMarketPlaceManager uiMarketPlaceManager;
     [SerializeField]
-    private UIBuilderHandler uiUnitBuilder;
+    public UIBuilderHandler uiUnitBuilder;
     [SerializeField]
     private UIResourceManager uiResourceManager;
     [SerializeField]
@@ -126,6 +126,10 @@ public class CityBuilderManager : MonoBehaviour
 
     private bool removingImprovement, upgradingImprovement, isQueueing, placingWonderHarbor; //flags thrown when doing specific tasks
     private bool isActive; //when looking at a city
+    [HideInInspector]
+    public bool buildOptionsActive;
+    [HideInInspector]
+    public UIBuilderHandler activeBuilderHandler;
 
     [SerializeField]
     private Transform improvementHolder;
@@ -461,6 +465,13 @@ public class CityBuilderManager : MonoBehaviour
 
     public void BuildHarbor()
     {
+        if (selectedWonder.hasHarbor)
+        {
+            selectedWonder.DestroyHarbor();
+            uiWonderSelection.UpdateHarborButton(false);
+            return;
+        }
+        
         if (!uiWonderSelection.buttonsAreWorking)
             return;
 
@@ -490,7 +501,7 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    public void CreateWorker()
+    public void CreateWorkerButton()
     {
         if (!uiWonderSelection.buttonsAreWorking)
             return;
@@ -503,7 +514,9 @@ public class CityBuilderManager : MonoBehaviour
 
         selectedWonder.StopConstructing();
         selectedWonder.WorkersReceived--; //decrease worker count 
-        uiWonderSelection.UpdateUIWorkers(selectedWonder.WorkersReceived);
+
+        if (uiWonderSelection.activeStatus)
+            uiWonderSelection.UpdateUIWorkers(selectedWonder.WorkersReceived);
 
         GameObject workerGO = selectedWonder.WonderData.workerData.prefab;
 
@@ -511,7 +524,6 @@ public class CityBuilderManager : MonoBehaviour
         workerGO.name = selectedWonder.WonderData.workerData.name.Split("_")[0] + "_" + world.workerCount;
 
         Vector3Int buildPosition = selectedWonder.unloadLoc;
-        int lostWorkersCount = 0;
         if (world.IsUnitLocationTaken(buildPosition) || !world.CheckIfPositionIsValid(buildPosition)) //placing unit in world after building in city
         {
             //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
@@ -523,8 +535,6 @@ public class CityBuilderManager : MonoBehaviour
                     break;
                 }
             }
-
-            lostWorkersCount++;
         }
 
         GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
@@ -539,9 +549,61 @@ public class CityBuilderManager : MonoBehaviour
         Unit newUnit = unit.GetComponent<Unit>();
 
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+    }
+
+    public void CreateAllWorkers(Wonder wonder)
+    {
+        int workers = wonder.WorkersReceived;
+        
+        wonder.StopConstructing();
+        wonder.WorkersReceived = 0; //decrease worker count 
+
+        if (uiWonderSelection.activeStatus)
+            uiWonderSelection.UpdateUIWorkers(0);
+
+        int lostWorkersCount = 0;
+        List<Vector3Int> locs = wonder.OuterRim();
+
+        for (int i = 0; i < workers; i++)
+        {
+            GameObject workerGO = wonder.WonderData.workerData.prefab;
+            world.workerCount++;
+            workerGO.name = wonder.WonderData.workerData.name.Split("_")[0] + "_" + world.workerCount;
+
+            if (locs.Count == 0)
+                lostWorkersCount++;
+            else
+            {
+                List<Vector3Int> tempLocs = new(locs);
+
+                foreach (Vector3Int loc in tempLocs)
+                {
+                    locs.Remove(loc);
+
+                    if (world.IsUnitLocationTaken(loc) || !world.CheckIfPositionIsValid(loc))
+                        continue;
+
+                    GameObject unit = Instantiate(workerGO, loc, Quaternion.identity); //produce unit at specified position
+                    //for tweening
+                    Vector3 goScale = unit.transform.localScale;
+                    float scaleX = goScale.x;
+                    float scaleZ = goScale.z;
+                    unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+                    LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+                    unit.transform.LookAt(wonder.centerPos);
+
+                    unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
+                    Unit newUnit = unit.GetComponent<Unit>();
+
+                    newUnit.CurrentLocation = world.AddUnitPosition(loc, newUnit);
+
+                    break;
+                }
+            }
+        }
 
         if (lostWorkersCount > 0)
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Lost worker due to no available space");
+            InfoPopUpHandler.WarningMessage().Create(wonder.unloadLoc, "Lost " + lostWorkersCount.ToString() + " worker(s) due to no available space");
     }
 
     public void BuildWonderHarbor(Vector3Int loc)
@@ -558,7 +620,7 @@ public class CityBuilderManager : MonoBehaviour
         world.AddToCityLabor(loc, selectedWonder.gameObject);
         world.AddStructure(loc, harborGO);
         world.AddTradeLoc(loc, selectedWonder.wonderName);
-        uiWonderSelection.HideHarborButton();
+        uiWonderSelection.UpdateHarborButton(true);
 
         CloseImprovementBuildPanel();
     }
@@ -576,10 +638,7 @@ public class CityBuilderManager : MonoBehaviour
         uiWonderSelection.ToggleVisibility(false, selectedWonder);
         selectedWonder.StopConstructing();
 
-        for (int i = 0; i < selectedWonder.WorkersReceived; i++)
-        {
-            CreateWorker();
-        }
+        CreateAllWorkers(selectedWonder);
         
         if (!selectedWonder.roadPreExisted)
         {
@@ -588,14 +647,8 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         if (selectedWonder.hasHarbor)
-        {
-            GameObject harbor = world.GetStructure(selectedWonder.harborLoc);
-            Destroy(harbor);
-            world.RemoveSingleBuildFromCityLabor(selectedWonder.harborLoc);
-            world.RemoveStructure(selectedWonder.harborLoc);
-            world.RemoveTradeLoc(selectedWonder.harborLoc);
-        }
-
+            selectedWonder.DestroyHarbor();
+     
         world.RemoveWonderName(selectedWonder.wonderName);
         world.RemoveTradeLoc(selectedWonder.unloadLoc);
 
@@ -1262,10 +1315,12 @@ public class CityBuilderManager : MonoBehaviour
 
     private void CreateUnit(UnitBuildDataSO unitData, City city)
     {
-        city.PopulationDeclineCheck(); //decrease population before creating unit so we can see where labor will be lost
-        //CheckForWork(); //not necessary
-
         city.ResourceManager.SpendResource(unitData.unitCost, city.cityLoc);
+
+        for (int i = 0; i < unitData.laborCost; i++)
+        {
+            city.PopulationDeclineCheck(); //decrease population before creating unit so we can see where labor will be lost
+        }
 
         //updating uis after losing pop
         if (selectedCity != null && selectedCity == city)
@@ -1323,6 +1378,9 @@ public class CityBuilderManager : MonoBehaviour
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
 
+        Vector3 mainCamLoc = Camera.main.transform.position;
+        mainCamLoc.y = 0;
+        unit.transform.LookAt(mainCamLoc);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
     }
 

@@ -584,10 +584,18 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         resourceUIDict[type] = newNum;
     }
 
-    public void UpdatePriceColors(int goldAmount)
+    public void UpdatePriceColors(int prevAmount, int goldAmount, bool pos)
     {
-        if (goldAmount > maxBuyCost)
-            return;
+        if (pos)
+        {
+            if (prevAmount > maxBuyCost)
+                return;
+        }
+        else
+        {
+            if (goldAmount > maxBuyCost)
+                return;
+        }
 
         foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
             gridCellDict[tradeCenter.ResourceBuyGridDict[type]].resource.SetPriceColor(goldAmount >= tradeCenter.ResourceBuyDict[type] ? Color.white : Color.red);

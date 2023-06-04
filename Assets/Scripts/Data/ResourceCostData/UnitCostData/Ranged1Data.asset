@@ -26,11 +26,11 @@ MonoBehaviour:
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
+  laborCost: 1
   unitType: 2
   unitDescription: Ranged, weak unit
   availableInitially: 1
   locked: 0
-  movementPoints: 10
   health: 2
   attackStrength: 20
   movementSpeed: 1

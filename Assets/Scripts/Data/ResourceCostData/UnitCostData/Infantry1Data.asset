@@ -26,11 +26,11 @@ MonoBehaviour:
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
+  laborCost: 1
   unitType: 1
   unitDescription: Strong, fast unit
   availableInitially: 1
   locked: 0
-  movementPoints: 10
   health: 10
   attackStrength: 10
   movementSpeed: 1

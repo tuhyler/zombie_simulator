@@ -405,11 +405,17 @@ public class City : MonoBehaviour
 
     public void PopulationGrowthCheck(bool joinCity)
     {
+        int prevPop = cityPop.CurrentPop;
+
         cityPop.IncreasePopulationAndLabor();
         housingCount--;
         heavenHighlight.Play();
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
+
+        if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
+            cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, true, resourceManager);
+
         if (cityPop.CurrentPop > 1)
             resourceManager.IncreaseFoodConsumptionPerTurn(true);
         
@@ -440,10 +446,16 @@ public class City : MonoBehaviour
 
     public void PopulationDeclineCheck()
     {
+        int prevPop = cityPop.CurrentPop;
+        
         cityPop.CurrentPop--;
         housingCount++;
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
+
+        if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
+            cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, false, resourceManager);
+
         if (cityPop.CurrentPop == 0)
         {
             StopAllCoroutines();
@@ -453,6 +465,7 @@ public class City : MonoBehaviour
                 cityBuilderManager.abandonCityButton.interactable = true;
             }
         }
+
 
         if (cityPop.UnusedLabor > 0) //if unused labor, get rid of first
             cityPop.UnusedLabor--;
@@ -661,6 +674,12 @@ public class City : MonoBehaviour
             else
                 researchPerMinute += Mathf.RoundToInt(diffAmount);
         }
+    }
+
+    public void CheckBuildOptionsResource(ResourceType type, int prevAmount, int currentAmount, bool pos)
+    {
+        if (cityBuilderManager.buildOptionsActive)
+            cityBuilderManager.activeBuilderHandler.UpdateBuildOptions(type, prevAmount, currentAmount, pos, resourceManager);
     }
 
     public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)

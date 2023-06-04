@@ -34,7 +34,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 2
     resourceAmount: 2
-  producedResourceTime: 05000000
+  producedResourceTime: 02000000
   rawMaterials: 1
   rawResourceType: 2
   isResearch: 0
@@ -47,7 +47,7 @@ MonoBehaviour:
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 10
+  buildTime: 3
   availableInitially: 1
   workAnimLoop: 0
   hideAnimMesh: 1

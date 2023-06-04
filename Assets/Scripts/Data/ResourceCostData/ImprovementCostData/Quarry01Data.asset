@@ -26,8 +26,6 @@ MonoBehaviour:
   improvementCost:
   - resourceType: 6
     resourceAmount: 15
-  - resourceType: 7
-    resourceAmount: 5
   consumedResources: []
   consumedResources1: []
   consumedResources2: []

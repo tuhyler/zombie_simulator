@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Mono.Cecil;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -231,10 +232,6 @@ public class ResourceManager : MonoBehaviour
                 resourceDict[resourceType] -= consumedAmount;
                 resourceStorageLevel -= consumedAmount;
                 CheckProducerUnloadWaitList();
-                if (city.resourceGridDict.ContainsKey(value.resourceType))
-                {
-
-                }
                 city.CheckLimitWaiter();
                 UpdateUI(resourceType);
             }
@@ -322,7 +319,6 @@ public class ResourceManager : MonoBehaviour
         }
         else
         {
-            //Debug.Log($"Error moving {resourceType}!");
             return 0;
         }
     }
@@ -333,6 +329,9 @@ public class ResourceManager : MonoBehaviour
 
         if (newResourceBalance >= 0 && city.HousingCount > 0)
         {
+            if (!city.resourceGridDict.ContainsKey(ResourceType.Food))
+                city.AddToGrid(ResourceType.Food);
+
             growth = true;
             resourceAmount -= newResourceBalance;
             foodGrowthLevel += resourceAmount;
@@ -353,16 +352,18 @@ public class ResourceManager : MonoBehaviour
     }
 
     //returns how much is actually moved
-    private int AddResourceToStorage(ResourceType resourceType, int resourceAmount)
+    private int AddResourceToStorage(ResourceType type, int resourceAmount)
     {
+        int prevAmount = resourceDict[type];
+        
         //check to ensure you don't take out more resources than are available in dictionary
-        if (resourceAmount < 0 && -resourceAmount > resourceDict[resourceType])
+        if (resourceAmount < 0 && -resourceAmount > prevAmount)
         {
-            resourceAmount = -resourceDict[resourceType];
+            resourceAmount = -prevAmount;
         }
         
-        if (resourceStorageMultiplierDict.ContainsKey(resourceType))
-            resourceAmount = Mathf.CeilToInt(resourceAmount * resourceStorageMultiplierDict[resourceType]);
+        if (resourceStorageMultiplierDict.ContainsKey(type))
+            resourceAmount = Mathf.CeilToInt(resourceAmount * resourceStorageMultiplierDict[type]);
 
         //adjusting resource amount to move based on how much space is available
         int newResourceAmount = resourceAmount;
@@ -372,38 +373,41 @@ public class ResourceManager : MonoBehaviour
             newResourceAmount -= newResourceBalance;
         }
 
-        int resourceAmountAdjusted = Mathf.RoundToInt(newResourceAmount / resourceStorageMultiplierDict[resourceType]);
+        int resourceAmountAdjusted = Mathf.RoundToInt(newResourceAmount / resourceStorageMultiplierDict[type]);
 
-        resourceDict[resourceType] += resourceAmountAdjusted; //updating the dictionary
+        resourceDict[type] += resourceAmountAdjusted; //updating the dictionary
 
         resourceStorageLevel += newResourceAmount;
         if (resourceStorageLevel >= resourceStorageLimit)
             fullInventory = true;
         if (newResourceAmount < 0)
             CheckProducerUnloadWaitList();
-        else if (resourcesNeededForProduction.Contains(resourceType))
-            CheckProducerResourceWaitList(resourceType);
+        else if (resourcesNeededForProduction.Contains(type))
+            CheckProducerResourceWaitList(type);
 
         int wasteCheck = 0;
-        if (resourceStorageMultiplierDict.ContainsKey(resourceType) && resourceStorageMultiplierDict[resourceType] > 0)
-            wasteCheck = Mathf.RoundToInt((resourceAmount - newResourceAmount) / resourceStorageMultiplierDict[resourceType]);
+        if (resourceStorageMultiplierDict.ContainsKey(type) && resourceStorageMultiplierDict[type] > 0)
+            wasteCheck = Mathf.RoundToInt((resourceAmount - newResourceAmount) / resourceStorageMultiplierDict[type]);
 
         if (wasteCheck > 0)
         {
             Vector3 loc = city.cityLoc;
             loc.z += -.5f * resourceCount;
-            InfoResourcePopUpHandler.CreateResourceStat(loc, wasteCheck, ResourceHolder.Instance.GetIcon(resourceType), true);
-            Debug.Log($"Wasted {wasteCheck} of {resourceType}");
+            InfoResourcePopUpHandler.CreateResourceStat(loc, wasteCheck, ResourceHolder.Instance.GetIcon(type), true);
+            Debug.Log($"Wasted {wasteCheck} of {type}");
             resourceCount++;
         }
 
-        if (queuedResourceTypesToCheck.Contains(resourceType))
+        if (queuedResourceTypesToCheck.Contains(type))
             CheckResourcesForQueue();
-        UpdateUI(resourceType);
+        UpdateUI(type);
         if (city.activeCity)
+        {
             city.UpdateResourceInfo();
+            city.CheckBuildOptionsResource(type, prevAmount, resourceDict[type], resourceAmount > 0);
+        }
         if (newResourceAmount > 0)
-            city.CheckResourceWaiter(resourceType);
+            city.CheckResourceWaiter(type);
         else if (newResourceAmount < 0)
             city.CheckLimitWaiter();
         
@@ -430,7 +434,11 @@ public class ResourceManager : MonoBehaviour
         int i = 0;
         foreach (ResourceValue resourceValue in buildCost)
         {
-            SpendResource(resourceValue.resourceType, resourceValue.resourceAmount);
+            if (resourceValue.resourceType == ResourceType.Gold)
+                city.UpdateWorldResources(resourceValue.resourceType, -resourceValue.resourceAmount);
+            else
+                SpendResource(resourceValue.resourceType, resourceValue.resourceAmount);
+    
             loc.z += -.5f * i;
             InfoResourcePopUpHandler.CreateResourceStat(loc, -resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
             i++;
@@ -462,6 +470,9 @@ public class ResourceManager : MonoBehaviour
     {
         foreach (ResourceValue value in values)
         {
+            if (value.resourceType == ResourceType.Gold)
+                continue;
+            
             UpdateUI(value.resourceType);
         }
     }

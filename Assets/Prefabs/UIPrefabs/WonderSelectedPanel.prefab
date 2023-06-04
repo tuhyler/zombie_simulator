@@ -746,7 +746,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Add Harbor
+  m_text: Remove Harbor
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -1112,7 +1112,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -190}
-  m_SizeDelta: {x: 160, y: 30}
+  m_SizeDelta: {x: 220, y: 30}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &5543533842687206665
 CanvasRenderer:
@@ -2042,6 +2042,7 @@ MonoBehaviour:
   workerCount: {fileID: 1456372295634074818}
   workerTotal: {fileID: 7114913893221241352}
   percentDone: {fileID: 8083031660761089231}
+  harborText: {fileID: 1355372711891568926}
   progressBarMask: {fileID: 5442637331205887091}
   wonderCostHolder: {fileID: 4490594283110212000}
   uiWonderResourcePanel: {fileID: 624308965952619012, guid: 5332ec37ab2834548b791f60ea1bab29,

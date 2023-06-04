@@ -218,8 +218,6 @@ MonoBehaviour:
   initialResources:
   - resourceType: 6
     resourceAmount: 100
-  - resourceType: 7
-    resourceAmount: 100
   - resourceType: 18
     resourceAmount: 50
   - resourceType: 15

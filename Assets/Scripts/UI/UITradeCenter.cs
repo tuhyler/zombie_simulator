@@ -109,11 +109,19 @@ public class UITradeCenter : MonoBehaviour
         }
     }
 
-    public void UpdateColors()
+    public void UpdateColors(int prevGold, int currentGold, bool pos)
     {
-        if (world.CheckWorldGold(maxBuyCost))
-            return;
-        
+        if (pos)
+        {
+            if (prevGold > maxBuyCost)
+                return;
+        }
+        else
+        {
+            if (currentGold > maxBuyCost)
+                return;
+        }
+       
         foreach (UITradeResource resource in activeBuyResources)
             resource.SetColor(world.CheckWorldGold(resource.resourceAmount) ? Color.white : Color.red);
     }

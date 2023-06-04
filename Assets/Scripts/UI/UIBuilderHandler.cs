@@ -10,6 +10,7 @@ public class UIBuilderHandler : MonoBehaviour
 {
     private ImprovementDataSO buildData;
     private UnitBuildDataSO unitBuildData;
+    private CityBuilderManager cityBuilderManager;
 
     [SerializeField]
     private CameraController cameraController;
@@ -46,6 +47,11 @@ public class UIBuilderHandler : MonoBehaviour
     [HideInInspector]
     public bool isQueueing;
 
+    //for updating resources
+    private int maxResource;
+    private int maxLabor;
+    private int maxGold;
+
     //for object pooling
     //private Queue<UIResourceInfoPanel> resourceInfoPanelQueue = new();
     //[SerializeField]
@@ -74,6 +80,7 @@ public class UIBuilderHandler : MonoBehaviour
         }
 
         originalLoc = allContents.anchoredPosition3D;
+        cityBuilderManager = FindObjectOfType<CityBuilderManager>();
 
         //GrowResourceInfoPanelPool();
     }
@@ -134,6 +141,8 @@ public class UIBuilderHandler : MonoBehaviour
         {
             gameObject.SetActive(v);
             activeStatus = true;
+            cityBuilderManager.buildOptionsActive = true;
+            cityBuilderManager.activeBuilderHandler = this;
 
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.4f)
             .setEase(LeanTweenType.easeOutSine)
@@ -166,6 +175,12 @@ public class UIBuilderHandler : MonoBehaviour
         else
         {
             activeStatus = false;
+            maxResource = 0;
+            maxLabor = 0;
+            maxGold = 0;
+            cityBuilderManager.buildOptionsActive = false;
+            cityBuilderManager.activeBuilderHandler = null;
+
             //dof.focalLength.value = 15;
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
             .setEase(LeanTweenType.easeOutSine)
@@ -213,6 +228,11 @@ public class UIBuilderHandler : MonoBehaviour
                 itemName = buildItem.UnitBuildData.unitName;
                 resourceCosts = new(buildItem.UnitBuildData.unitCost);
                 locked = buildItem.UnitBuildData.locked;
+
+                ResourceValue laborCost;
+                laborCost.resourceType = ResourceType.Labor;
+                laborCost.resourceAmount = buildItem.UnitBuildData.laborCost;
+                resourceCosts.Add(laborCost);
             }
             else if (buildItem.BuildData != null)
             {
@@ -234,13 +254,77 @@ public class UIBuilderHandler : MonoBehaviour
 
             foreach (ResourceValue item in resourceCosts)
             {
-                if (!resourceManager.CheckResourceAvailability(item))
+                if (item.resourceType == ResourceType.Gold)
                 {
-                    //buildItem.ToggleInteractable(false); //deactivate if not enough resources
+                    if (item.resourceAmount > maxGold)
+                        maxGold = item.resourceAmount;
+                    
+                    if (!resourceManager.city.CheckWorldGold(item.resourceAmount))
+                        buildItem.SetResourceTextToRed(item);
+                }
+                else if (item.resourceType == ResourceType.Labor)
+                {
+                    if (item.resourceAmount > maxLabor)
+                        maxLabor = item.resourceAmount;
+
+                    int pop = resourceManager.city.cityPop.CurrentPop;
+                    if (pop < item.resourceAmount)
+                        buildItem.SetResourceTextToRed(item);
+                }
+                else if (!resourceManager.CheckResourceAvailability(item))
+                {
+                    if (item.resourceAmount > maxResource)
+                        maxResource = item.resourceAmount;
+
                     buildItem.SetResourceTextToRed(item);
-                    //break;
                 }
             }
         }
+    }
+
+    public void UpdateBuildOptions(ResourceType type, int prevAmount, int currentAmount, bool pos, ResourceManager resourceManager)
+    {
+        //checking if updating is necessary
+        if (type == ResourceType.Gold)
+        {
+            if (pos)
+            {
+                if (prevAmount > maxGold)
+                    return;
+            }
+            else
+            {
+                if (currentAmount > maxGold)
+                    return;
+            }
+        }
+        else if (type == ResourceType.Labor)
+        {
+            if (pos)
+            {
+                if (prevAmount > maxLabor)
+                    return;
+            }
+            else
+            {
+                if (currentAmount > maxLabor)
+                    return;
+            }
+        }
+        else
+        {
+            if (pos)
+            {
+                if (prevAmount > maxResource)
+                    return;
+            }
+            else
+            {
+                if (currentAmount > maxResource)
+                    return;
+            }
+        }
+
+        PrepareBuildOptions(resourceManager);
     }
 }

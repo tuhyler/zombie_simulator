@@ -352,9 +352,9 @@ public class Unit : MonoBehaviour
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
         FinishedMoving?.Invoke();
-        if (isTrader)
-        {
-            if (!world.IsRoadOnTileLocation(world.RoundToInt(endPosition)))
+        if (!bySea && isTrader)
+        {            
+            if (!world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
             {
                 TeleportToLastRoad(world.RoundToInt(currentLocation));
             }
