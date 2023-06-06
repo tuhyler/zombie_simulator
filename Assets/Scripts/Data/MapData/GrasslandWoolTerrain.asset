@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: SwampTerrain
+  m_Name: GrasslandWoolTerrain
   m_EditorClassIdentifier: 
-  title: Swamp
+  title: Grassland
   roadPrefab: {fileID: 0}
-  clearedForestData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
+  clearedForestData: {fileID: 0}
   walkable: 1
   sailable: 0
   isLand: 1
   isSeaCorner: 0
-  movementCost: 20
-  type: 7
+  movementCost: 10
+  type: 5
   specificTerrain: 0
-  rawResourceType: 0
-  resourceType: 0
-  keepProp: 0
+  rawResourceType: 5
+  resourceType: 17
+  keepProp: 1

@@ -47,11 +47,11 @@ public class TerrainData : MonoBehaviour
     {
         if (terrainData.type == TerrainType.Flatland)
             uvs = main.GetComponentInChildren<MeshFilter>().mesh.uv;
-        if (terrainData.hasRocks)
+        if (terrainData.rawResourceType == RawResourceType.Stone)
         {
             rockUVs = prop.GetComponentInChildren<MeshFilter>().mesh.uv[0];
             resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
-            resourceGraphic.isHill = terrainData.isHill;
+            resourceGraphic.isHill = terrainData.type == TerrainType.Hill;
 
             RocksCheck();
         }

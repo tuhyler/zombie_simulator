@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Housing01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 2413421541421609430, guid: 6161d90e38ce78d40b917c4495a50eea, type: 3}
-  secondaryData: {fileID: 0}
+  secondaryData: []
   isBuilding: 1
   improvementName: Housing
   improvementDisplayName: Tent
@@ -33,7 +33,9 @@ MonoBehaviour:
   producedResourceTime: 
   rawMaterials: 0
   rawResourceType: 0
+  isResearch: 0
   terrainType: 0
+  specificTerrain: 0
   workEthicChange: 0
   maxLabor: 5
   housingIncrease: 3

@@ -10,45 +10,62 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Ceramist01Data
+  m_Name: Smelter02Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 7480647496174222647, guid: b55141c95836bad45a34ee5c0ee9b7d5, type: 3}
-  secondaryData: {fileID: 0}
+  prefab: {fileID: 7480647496174222647, guid: 9ba220570e1f73c4c8f866ffd31dd8bf, type: 3}
+  secondaryData: []
   isBuilding: 0
-  improvementName: Ceramist
-  improvementDisplayName: Coil Ceramist
+  improvementName: Smelter
+  improvementDisplayName: Brick Oven
   improvementLevel: 1
-  improvementNameAndLevel: Ceramist-1
+  improvementNameAndLevel: Smelter-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 017a4b341d2d93245a74b5edfb806764, type: 3}
-  littleImage: {fileID: 21300000, guid: 28050d7914c51a54e8ef2e7d7a601ca4, type: 3}
+  image: {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
+  littleImage: {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 65
-  - resourceType: 6
-    resourceAmount: 10
+    resourceAmount: 50
   consumedResources:
-  - resourceType: 9
+  - resourceType: 8
     resourceAmount: 5
+  - resourceType: 6
+    resourceAmount: 4
+  - resourceType: 4
+    resourceAmount: 2
+  consumedResources1:
+  - resourceType: 7
+    resourceAmount: 1
+  - resourceType: 13
+    resourceAmount: 7
   - resourceType: 6
     resourceAmount: 3
   - resourceType: 4
     resourceAmount: 2
-  consumedResources1: []
-  consumedResources2: []
+  consumedResources2:
+  - resourceType: 26
+    resourceAmount: 10
+  - resourceType: 6
+    resourceAmount: 4
+  - resourceType: 4
+    resourceAmount: 2
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 10
+  - resourceType: 13
     resourceAmount: 1
-  producedResourceTime: 1e000000
+  - resourceType: 15
+    resourceAmount: 1
+  - resourceType: 14
+    resourceAmount: 1
+  producedResourceTime: 050000000500000005000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
   terrainType: 5
+  specificTerrain: 0
   workEthicChange: 0
-  maxLabor: 1
+  maxLabor: 5
   housingIncrease: 0
   cityHousing: 0
   replaceTerrain: 0
@@ -56,6 +73,6 @@ MonoBehaviour:
   returnProp: 1
   singleBuild: 0
   buildTime: 45
-  availableInitially: 1
+  availableInitially: 0
   workAnimLoop: 0
   hideAnimMesh: 0

@@ -10,50 +10,61 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Sculptor01Data
+  m_Name: Smelter01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5122609563439273834, guid: b71524e6ed412884b9ccd9b523db4933, type: 3}
-  secondaryData: {fileID: 0}
+  prefab: {fileID: 7480647496174222647, guid: 9ba220570e1f73c4c8f866ffd31dd8bf, type: 3}
+  secondaryData: []
   isBuilding: 0
-  improvementName: Sculptor
-  improvementDisplayName: Sculptor
+  improvementName: Smelter
+  improvementDisplayName: Brick Oven
   improvementLevel: 1
-  improvementNameAndLevel: Sculptor-1
+  improvementNameAndLevel: Smelter-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 44ce2ee8b10e8ab4c9e7b51619528bc6, type: 3}
-  littleImage: {fileID: 21300000, guid: 44ce2ee8b10e8ab4c9e7b51619528bc6, type: 3}
+  image: {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
+  littleImage: {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 80
-  - resourceType: 6
-    resourceAmount: 10
+    resourceAmount: 50
   consumedResources:
-  - resourceType: 7
-    resourceAmount: 8
+  - resourceType: 8
+    resourceAmount: 5
+  - resourceType: 6
+    resourceAmount: 4
   - resourceType: 4
     resourceAmount: 2
-  consumedResources1: []
+  consumedResources1:
+  - resourceType: 7
+    resourceAmount: 1
+  - resourceType: 13
+    resourceAmount: 7
+  - resourceType: 6
+    resourceAmount: 3
+  - resourceType: 4
+    resourceAmount: 2
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 12
+  - resourceType: 13
     resourceAmount: 1
-  producedResourceTime: 2d000000
+  - resourceType: 15
+    resourceAmount: 1
+  producedResourceTime: 0500000005000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
   terrainType: 5
+  specificTerrain: 0
   workEthicChange: 0
-  maxLabor: 1
+  maxLabor: 5
   housingIncrease: 0
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 50
+  buildTime: 45
   availableInitially: 0
   workAnimLoop: 0
   hideAnimMesh: 0

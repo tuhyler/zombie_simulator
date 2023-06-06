@@ -10,48 +10,57 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: StoneCutter01Data
+  m_Name: Weaver02Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5122609563439273834, guid: 22469ebc534b2394e89834fc324a1702, type: 3}
-  secondaryData: {fileID: 0}
+  prefab: {fileID: 5122609563439273834, guid: 3993f2e203871824f9ae6497ee5a3bb9, type: 3}
+  secondaryData: []
   isBuilding: 0
-  improvementName: Stone Cutter
-  improvementDisplayName: Stone Cutter
-  improvementLevel: 1
-  improvementNameAndLevel: StoneCutter-1
+  improvementName: Weaver
+  improvementDisplayName: Silkweaver
+  improvementLevel: 2
+  improvementNameAndLevel: Weaver-2
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 919625b08f58a3f4e8eb1324b814e146, type: 3}
-  littleImage: {fileID: 21300000, guid: c0b0e059cf465f640aa77f88b96d28c5, type: 3}
+  image: {fileID: 21300000, guid: 60db64a4fe685214ca14a2c9ee244972, type: 3}
+  littleImage: {fileID: 21300000, guid: c49e03ef81a1c3e4e969861ea75baa41, type: 3}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 40
+    resourceAmount: 10
+  - resourceType: 6
+    resourceAmount: 60
   consumedResources:
-  - resourceType: 7
+  - resourceType: 17
+    resourceAmount: 10
+  - resourceType: 4
+    resourceAmount: 2
+  consumedResources1:
+  - resourceType: 18
     resourceAmount: 20
   - resourceType: 4
-    resourceAmount: 1
-  consumedResources1: []
+    resourceAmount: 3
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 21
+  - resourceType: 19
     resourceAmount: 1
-  producedResourceTime: 18000000
+  - resourceType: 20
+    resourceAmount: 1
+  producedResourceTime: 1e0000002d000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
   terrainType: 5
+  specificTerrain: 0
   workEthicChange: 0
-  maxLabor: 5
+  maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 45
+  buildTime: 35
   availableInitially: 0
   workAnimLoop: 0
   hideAnimMesh: 0

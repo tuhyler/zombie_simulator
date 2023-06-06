@@ -10,48 +10,47 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Research03Data
+  m_Name: Sericulture01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1611013192853869202, guid: e812acfc0fe5ac54a90fb2f4b6e5922f, type: 3}
-  secondaryData: {fileID: 0}
+  prefab: {fileID: 5838738910640936402, guid: 369be2d742135794abc67b7b087a07ba, type: 3}
+  secondaryData: []
   isBuilding: 0
-  improvementName: Research
-  improvementDisplayName: Research
-  improvementLevel: 3
-  improvementNameAndLevel: Research-3
+  improvementName: Sericulture
+  improvementDisplayName: Sericulture
+  improvementLevel: 1
+  improvementNameAndLevel: Sericulture-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 6d74bec02454a0e4ca78c4bd1b9ec560, type: 3}
-  littleImage: {fileID: 21300000, guid: 6d74bec02454a0e4ca78c4bd1b9ec560, type: 3}
+  image: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
+  littleImage: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
   improvementCost:
-  - resourceType: 7
-    resourceAmount: 150
   - resourceType: 6
-    resourceAmount: 40
+    resourceAmount: 25
   consumedResources:
   - resourceType: 4
-    resourceAmount: 5
+    resourceAmount: 2
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 5
-    resourceAmount: 20
-  producedResourceTime: 14000000
-  rawMaterials: 0
-  rawResourceType: 0
-  isResearch: 1
+  - resourceType: 18
+    resourceAmount: 2
+  producedResourceTime: 28000000
+  rawMaterials: 1
+  rawResourceType: 5
+  isResearch: 0
   terrainType: 5
+  specificTerrain: 0
   workEthicChange: 0
-  maxLabor: 3
+  maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
-  replaceTerrain: 1
+  replaceTerrain: 0
   replaceRocks: 0
   returnProp: 1
-  singleBuild: 1
-  buildTime: 60
+  singleBuild: 0
+  buildTime: 25
   availableInitially: 0
   workAnimLoop: 0
-  hideAnimMesh: 0
+  hideAnimMesh: 1

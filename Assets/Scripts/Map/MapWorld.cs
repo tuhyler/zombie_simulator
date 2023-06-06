@@ -322,6 +322,7 @@ public class MapWorld : MonoBehaviour
     public void HandleWonderPlacement(Vector3 location, GameObject detectedObject)
     {
         uiRotateWonder.ToggleTweenVisibility(false);
+        wonderNoWalkLoc.Clear();
 
         if (buildingWonder) //only thing that works is placing wonder
         {
@@ -341,7 +342,6 @@ public class MapWorld : MonoBehaviour
                 if (locationPos == wonderPlacementLoc[0]) //reset if select same square twice
                 {
                     wonderPlacementLoc.Clear();
-                    wonderNoWalkLoc.Clear();
                     return;
                 }
             }
@@ -370,28 +370,25 @@ public class MapWorld : MonoBehaviour
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Must build on " + wonderData.terrainType);
                         wonderPlacementLoc.Clear();
-                        wonderNoWalkLoc.Clear();
                         return;
                     }
-                    else if (td.terrainData.hasRocks)
-                    {
-                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Resources in the way");
-                        wonderPlacementLoc.Clear();
-                        wonderNoWalkLoc.Clear();
-                        return;
-                    }
+                    //else if (td.terrainData.hasRocks)
+                    //{
+                    //    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Resources in the way");
+                    //    wonderPlacementLoc.Clear();
+                    //    wonderNoWalkLoc.Clear();
+                    //    return;
+                    //}
                     else if (newPos - locationPos != unloadLoc && !IsTileOpenCheck(newPos))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
-                        wonderNoWalkLoc.Clear();
                         return;
                     }
                     else if (newPos - locationPos == unloadLoc && !IsTileOpenButRoadCheck(newPos))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
                         wonderPlacementLoc.Clear();
-                        wonderNoWalkLoc.Clear();
                         return;
                     }
  
@@ -499,7 +496,7 @@ public class MapWorld : MonoBehaviour
         {
             if (IsUnitLocationTaken(tile))
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Unit in the way");
+                InfoPopUpHandler.WarningMessage().Create(tile, "Unit in the way");
                 wonderPlacementLoc.Clear();
                 return;
             }
@@ -510,7 +507,7 @@ public class MapWorld : MonoBehaviour
 
                 if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)))
                 {
-                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something in the way");
+                    InfoPopUpHandler.WarningMessage().Create(tile, "Something in the way");
                     wonderPlacementLoc.Clear();
                     return;
                 }
@@ -629,9 +626,14 @@ public class MapWorld : MonoBehaviour
             GetTerrainDataAt(tile).DisableHighlight();
 
             if (tile-placementLoc == wonderData.unloadLoc)
+            {
                 GetTerrainDataAt(tile).EnableHighlight(Color.blue);
+                finalUnloadLoc = tile;
+            }
             else
+            {
                 GetTerrainDataAt(tile).EnableHighlight(Color.white);
+            }
         }
 
         rotation = Quaternion.Euler(0, rotationCount * 90, 0);
@@ -941,6 +943,13 @@ public class MapWorld : MonoBehaviour
         worldResourceManager.SetResearch(researchReceived);
         uiWorldResources.ResearchLimit = totalResearch;
         uiWorldResources.SetResearchValue(researchReceived);
+    }
+
+    //updating builder handlers if one is selected
+    public void BuilderHandlerCheck()
+    {
+        if (cityBuilderManager.activeBuilderHandler)
+            cityBuilderManager.activeBuilderHandler.PrepareBuildOptions(cityBuilderManager.SelectedCity.ResourceManager);
     }
 
     public Unit GetUnit(Vector3Int tile)
@@ -1977,7 +1986,7 @@ public class MapWorld : MonoBehaviour
         }
         if (cityBuildingGODict.ContainsKey(buildPosition)) //if destroying city, destroy all buildings within
         {
-            bool isHill = GetTerrainDataAt(buildPosition).terrainData.isHill;
+            bool isHill = GetTerrainDataAt(buildPosition).terrainData.type == TerrainType.Hill;
             foreach (string building in cityBuildingGODict[buildPosition].Keys)
             {
                 CityImprovement improvement = cityBuildingDict[buildPosition][building];

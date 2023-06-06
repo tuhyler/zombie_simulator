@@ -15,14 +15,13 @@ MonoBehaviour:
   title: Hill
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
-  isFloodPlain: 0
   walkable: 1
   sailable: 0
-  isHill: 1
   isLand: 1
   isSeaCorner: 0
   movementCost: 20
   type: 6
+  specificTerrain: 0
+  rawResourceType: 3
   resourceType: 7
-  hasRocks: 1
   keepProp: 1

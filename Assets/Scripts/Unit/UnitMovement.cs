@@ -568,7 +568,8 @@ public class UnitMovement : MonoBehaviour
             {
                 int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
                 Vector3 cityLoc = joinedCity.cityLoc;
-                cityLoc.z += -.5f * i;
+                cityLoc.y += selectedUnit.buildDataSO.unitCost.Count * 0.4f;
+                cityLoc.y += -0.4f * i;
                 InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
                 i++;
             }

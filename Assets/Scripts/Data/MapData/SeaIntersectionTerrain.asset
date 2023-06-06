@@ -15,14 +15,13 @@ MonoBehaviour:
   title: Sea
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
-  isFloodPlain: 0
   walkable: 0
   sailable: 1
-  isHill: 0
   isLand: 0
   isSeaCorner: 1
   movementCost: 30
   type: 3
+  specificTerrain: 0
+  rawResourceType: 2
   resourceType: 3
-  hasRocks: 0
   keepProp: 0

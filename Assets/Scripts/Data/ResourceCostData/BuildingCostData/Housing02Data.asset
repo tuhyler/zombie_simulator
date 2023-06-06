@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Housing02Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 797404626622159405, guid: f95cd2d29c3d35844b009967768a14a4, type: 3}
-  secondaryData: {fileID: 0}
+  secondaryData: []
   isBuilding: 1
   improvementName: Housing
   improvementDisplayName: Small Stone House
@@ -39,6 +39,7 @@ MonoBehaviour:
   rawResourceType: 0
   isResearch: 0
   terrainType: 0
+  specificTerrain: 0
   workEthicChange: 0
   maxLabor: 5
   housingIncrease: 2

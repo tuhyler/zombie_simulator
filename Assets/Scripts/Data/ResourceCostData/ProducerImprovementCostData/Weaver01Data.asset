@@ -10,44 +10,51 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: FarmFP01Data
+  m_Name: Weaver01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1818493788481445142, guid: 6a43a771a1a04414ba2d5252353b7d76, type: 3}
-  secondaryData: {fileID: 0}
+  prefab: {fileID: 5122609563439273834, guid: ea0671f0b267dd6498d939def4338a32, type: 3}
+  secondaryData: []
   isBuilding: 0
-  improvementName: FarmFP
-  improvementDisplayName: Farm
+  improvementName: Weaver
+  improvementDisplayName: Weaver
   improvementLevel: 1
-  improvementNameAndLevel: FarmFP-1
+  improvementNameAndLevel: Weaver-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
-  littleImage: {fileID: 0}
+  image: {fileID: 21300000, guid: 74a25673e928bef45bf2d3a7ba082f11, type: 3}
+  littleImage: {fileID: 21300000, guid: e5e8f29745fb17d4786d8440a72963eb, type: 3}
   improvementCost:
-  - resourceType: 6
+  - resourceType: 7
     resourceAmount: 10
-  consumedResources: []
+  - resourceType: 6
+    resourceAmount: 60
+  consumedResources:
+  - resourceType: 17
+    resourceAmount: 10
+  - resourceType: 4
+    resourceAmount: 2
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 2
-    resourceAmount: 2
-  producedResourceTime: 14000000
-  rawMaterials: 1
-  rawResourceType: 2
+  - resourceType: 19
+    resourceAmount: 1
+  producedResourceTime: 1e000000
+  rawMaterials: 0
+  rawResourceType: 0
   isResearch: 0
   terrainType: 5
+  specificTerrain: 0
   workEthicChange: 0
   maxLabor: 1
   housingIncrease: 0
   cityHousing: 0
-  replaceTerrain: 1
+  replaceTerrain: 0
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 10
-  availableInitially: 1
+  buildTime: 30
+  availableInitially: 0
   workAnimLoop: 0
-  hideAnimMesh: 1
+  hideAnimMesh: 0

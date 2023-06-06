@@ -495,7 +495,7 @@ public class Wonder : MonoBehaviour
         int amount = -wonderData.workerCost * workersReceived;
         world.UpdateWorldResources(ResourceType.Gold, amount);
         Vector3 loc = centerPos;
-        loc.y += 0.5f;
+        loc.y += 0.4f;
         if (isActive)
             InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
     }

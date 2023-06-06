@@ -205,7 +205,8 @@ public class ResourceManager : MonoBehaviour
     public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location)
     {
         int i = 0;
-        location.z += 0.5f;
+        location.y += consumedResource.Count * 0.4f;
+
         foreach (ResourceValue value in consumedResource)
         {
             int consumedAmount = Mathf.RoundToInt(value.resourceAmount * currentLabor);
@@ -238,8 +239,9 @@ public class ResourceManager : MonoBehaviour
 
             if (city.activeCity && consumedAmount > 0 && value.resourceType != ResourceType.Food)
             {
-                location.z -= 0.5f * i;
-                InfoResourcePopUpHandler.CreateResourceStat(location, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
+                Vector3 loc = location;
+                loc.y -= 0.4f * i;
+                InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
                 i++;
             }
         }
@@ -272,7 +274,7 @@ public class ResourceManager : MonoBehaviour
     public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
     {
         int i = 0;
-        producerLoc.z += 1.0f;
+        producerLoc.y += producedResource.Count * 0.4f;
         resourceCount = 0;
         foreach (ResourceValue resourceVal in producedResource)
         {
@@ -288,10 +290,11 @@ public class ResourceManager : MonoBehaviour
             }
 
             int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
-            producerLoc.z += 0.5f * i;
+            Vector3 loc = producerLoc;
+            loc.y += 0.4f * i;
 
             if (resourceAmount != 0)
-                InfoResourcePopUpHandler.CreateResourceStat(producerLoc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
+                InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
             i++;
         }
     }
@@ -392,7 +395,8 @@ public class ResourceManager : MonoBehaviour
         if (wasteCheck > 0)
         {
             Vector3 loc = city.cityLoc;
-            loc.z += -.5f * resourceCount;
+            loc.y += 2f; //limit of 5 resources at once wasted
+            loc.y += -.4f * resourceCount;
             InfoResourcePopUpHandler.CreateResourceStat(loc, wasteCheck, ResourceHolder.Instance.GetIcon(type), true);
             Debug.Log($"Wasted {wasteCheck} of {type}");
             resourceCount++;
@@ -432,15 +436,19 @@ public class ResourceManager : MonoBehaviour
     public void SpendResource(List<ResourceValue> buildCost, Vector3 loc)
     {
         int i = 0;
+        loc.y += buildCost.Count * 0.4f;
+
         foreach (ResourceValue resourceValue in buildCost)
         {
+            Vector3 newLoc = loc;
+            
             if (resourceValue.resourceType == ResourceType.Gold)
                 city.UpdateWorldResources(resourceValue.resourceType, -resourceValue.resourceAmount);
             else
                 SpendResource(resourceValue.resourceType, resourceValue.resourceAmount);
     
-            loc.z += -.5f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(loc, -resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+            newLoc.y += -.4f * i;
+            InfoResourcePopUpHandler.CreateResourceStat(newLoc, -resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
             i++;
         }
     }
@@ -516,6 +524,7 @@ public class ResourceManager : MonoBehaviour
     {
         int goldAdded = 0;
         int i = 0;
+        int length = Mathf.Max(resourceSellDict.Count,2);
 
         foreach (ResourceType resourceType in resourceSellDict.Keys)
         {
@@ -530,8 +539,8 @@ public class ResourceManager : MonoBehaviour
                     CheckResource(resourceType, -sellAmount);
 
                     Vector3 cityLoc = city.cityLoc;
-                    cityLoc.z += 0.5f;
-                    cityLoc.z += -0.5f * i;
+                    cityLoc.y += length * 0.4f;
+                    cityLoc.y += -0.4f * i;
                     if (city.activeCity)
                         InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(resourceType));
                     i++;
@@ -542,7 +551,7 @@ public class ResourceManager : MonoBehaviour
         if (goldAdded > 0)
         {
             Vector3 cityLoc = city.cityLoc;
-            cityLoc.z += 1.0f;
+            cityLoc.y += length * 0.4f + 0.4f;
             InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
         }
 
@@ -863,5 +872,16 @@ public enum ResourceType
     Jewel,
     Cotton,
     IronOre,
-    IronIngot
+    Iron,
+    GoldOre
+}
+
+public enum RawResourceType
+{
+    None,
+    Food,
+    Fish,
+    Stone,
+    Lumber,
+    Thread
 }

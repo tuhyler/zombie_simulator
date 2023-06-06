@@ -96,6 +96,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         float workEthicChange = 0;
         string objectDescription = "";
         List<ResourceValue> objectProduced;
+        List<int> producedResourceTime;
         List<List<ResourceValue>> objectConsumed = new();
         List<ResourceValue> objectCost;
 
@@ -115,6 +116,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             objectImage.sprite = unitBuildData.image;
             objectCost = new(unitBuildData.unitCost);
             objectProduced = new();
+            producedResourceTime = new();
             objectDescription = unitBuildData.unitDescription;
 
             ResourceValue laborCost;
@@ -132,14 +134,40 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 objectLevel.text = "Level " + buildData.improvementLevel + " " + buildData.improvementName;
             objectImage.sprite = buildData.image;
             objectCost = buildData.improvementCost;
-            objectProduced = buildData.producedResources;
+            objectProduced = new(buildData.producedResources);
+            producedResourceTime = new(buildData.producedResourceTime);
             objectConsumed.Add(buildData.consumedResources);
-            objectConsumed.Add(buildData.consumedResources1);
-            objectConsumed.Add(buildData.consumedResources2);
-            objectConsumed.Add(buildData.consumedResources3);
-            objectConsumed.Add(buildData.consumedResources4);
+            if (buildData.consumedResources1.Count > 0)
+                objectConsumed.Add(buildData.consumedResources1);
+            if (buildData.consumedResources2.Count > 0)
+                objectConsumed.Add(buildData.consumedResources2);
+            if (buildData.consumedResources3.Count > 0)
+                objectConsumed.Add(buildData.consumedResources3);
+            if (buildData.consumedResources4.Count > 0)
+                objectConsumed.Add(buildData.consumedResources4);
             workEthicChange = buildData.workEthicChange;
             objectDescription = buildData.improvementDescription;
+
+            if (buildData.secondaryData.Count > 0)
+            {
+                foreach (ImprovementDataSO tempData in buildData.secondaryData)
+                {
+                    if (tempData.producedResources[0].resourceType == buildData.producedResources[0].resourceType)
+                        continue;
+                    
+                    objectProduced.AddRange(tempData.producedResources);
+                    producedResourceTime.AddRange(tempData.producedResourceTime);
+                    objectConsumed.Add(tempData.consumedResources);
+                    if (tempData.consumedResources1.Count > 1)
+                        objectConsumed.Add(tempData.consumedResources1);
+                    if (tempData.consumedResources2.Count > 0)
+                        objectConsumed.Add(tempData.consumedResources2);
+                    if (tempData.consumedResources3.Count > 0) 
+                        objectConsumed.Add(tempData.consumedResources3);
+                    if (tempData.consumedResources4.Count > 0) 
+                        objectConsumed.Add(tempData.consumedResources4);
+                }
+            }
         }
 
         //cost info
@@ -152,10 +180,10 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         int producedCount = objectProduced.Count;
         int maxCount = objectCost.Count-1;
 
-        for (int i = 0; i < objectProduced.Count; i++)
+        for (int i = 0; i < producedCount; i++)
         {
             produceConsumesHolders[i].gameObject.SetActive(true);
-            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], buildData.producedResourceTime[i], objectConsumed[i]);
+            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], producedResourceTime[i], objectConsumed[i]);
 
             if (maxCount < objectConsumed[i].Count)
                 maxCount = objectConsumed[i].Count;

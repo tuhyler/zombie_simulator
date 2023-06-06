@@ -5,7 +5,7 @@ using UnityEngine;
 public class ImprovementDataSO : ScriptableObject
 {
     public GameObject prefab;
-    public ImprovementDataSO secondaryData;
+    public List<ImprovementDataSO> secondaryData;
     public bool isBuilding;
     public string improvementName;
     public string improvementDisplayName;
@@ -25,9 +25,10 @@ public class ImprovementDataSO : ScriptableObject
     public List<ResourceValue> producedResources;
     public List<int> producedResourceTime;
     public bool rawMaterials;
-    public ResourceType rawResourceType; //used for highlight tiles in city
+    public RawResourceType rawResourceType; //used for highlight tiles in city
     public bool isResearch; //to identify which improvements produce research
     public TerrainType terrainType;
+    public SpecificTerrain specificTerrain;
     public float workEthicChange; 
     public int maxLabor; //max amount of labor
     //public int laborCost; //how much gold to charge labor

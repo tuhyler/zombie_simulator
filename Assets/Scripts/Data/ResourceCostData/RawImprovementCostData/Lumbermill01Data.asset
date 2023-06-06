@@ -10,37 +10,40 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Sericulture01Data
+  m_Name: Lumbermill01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5838738910640936402, guid: 369be2d742135794abc67b7b087a07ba, type: 3}
-  secondaryData: {fileID: 0}
+  prefab: {fileID: 2382750124830825709, guid: 31232bb530b2618478df7e6dc3d950e2, type: 3}
+  secondaryData: []
   isBuilding: 0
-  improvementName: Sericulture
-  improvementDisplayName: Sericulture
+  improvementName: Lumbermill
+  improvementDisplayName: Lumbermill
   improvementLevel: 1
-  improvementNameAndLevel: Sericulture-1
+  improvementNameAndLevel: Lumbermill-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
-  littleImage: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
+  image: {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
+  littleImage: {fileID: 21300000, guid: 2eb3cee7396469e49b3dacfdd001054c, type: 3}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 25
+    resourceAmount: 5
   consumedResources:
+  - resourceType: 7
+    resourceAmount: 4
   - resourceType: 4
-    resourceAmount: 2
+    resourceAmount: 1
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 18
-    resourceAmount: 2
-  producedResourceTime: 28000000
+  - resourceType: 6
+    resourceAmount: 5
+  producedResourceTime: 050000000500000005000000
   rawMaterials: 1
-  rawResourceType: 18
+  rawResourceType: 4
   isResearch: 0
-  terrainType: 5
+  terrainType: 7
+  specificTerrain: 0
   workEthicChange: 0
   maxLabor: 2
   housingIncrease: 0
@@ -49,7 +52,7 @@ MonoBehaviour:
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 25
-  availableInitially: 0
+  buildTime: 5
+  availableInitially: 1
   workAnimLoop: 0
-  hideAnimMesh: 1
+  hideAnimMesh: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Bazaar01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 2047896648242801043, guid: 96bbcee1e4d2d3c47b0587e9066766a8, type: 3}
-  secondaryData: {fileID: 0}
+  secondaryData: []
   isBuilding: 1
   improvementName: Market
   improvementDisplayName: Bazaar
@@ -39,6 +39,7 @@ MonoBehaviour:
   rawResourceType: 0
   isResearch: 0
   terrainType: 0
+  specificTerrain: 0
   workEthicChange: 0
   maxLabor: 0
   housingIncrease: 0

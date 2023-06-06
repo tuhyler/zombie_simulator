@@ -10,46 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: FarmFP02Data
+  m_Name: FarmFP01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1818493788481445142, guid: 6ac760f8d92380a4db62a30110e8354a, type: 3}
-  secondaryData: {fileID: 0}
+  prefab: {fileID: 1818493788481445142, guid: 6a43a771a1a04414ba2d5252353b7d76, type: 3}
+  secondaryData: []
   isBuilding: 0
   improvementName: FarmFP
   improvementDisplayName: Farm
-  improvementLevel: 2
-  improvementNameAndLevel: FarmFP-2
+  improvementLevel: 1
+  improvementNameAndLevel: FarmFP-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   littleImage: {fileID: 0}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 50
-  consumedResources:
-  - resourceType: 4
-    resourceAmount: 1
+    resourceAmount: 10
+  consumedResources: []
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 2
-    resourceAmount: 10
+    resourceAmount: 5
   producedResourceTime: 14000000
   rawMaterials: 1
-  rawResourceType: 2
+  rawResourceType: 1
   isResearch: 0
   terrainType: 5
+  specificTerrain: 1
   workEthicChange: 0
-  maxLabor: 2
+  maxLabor: 1
   housingIncrease: 0
   cityHousing: 0
   replaceTerrain: 1
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 20
-  availableInitially: 0
+  buildTime: 10
+  availableInitially: 1
   workAnimLoop: 0
   hideAnimMesh: 1

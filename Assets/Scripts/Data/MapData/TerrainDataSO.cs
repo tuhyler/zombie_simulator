@@ -7,16 +7,15 @@ public class TerrainDataSO : ScriptableObject
     public string title;
     public GameObject roadPrefab; //only for changing forest terrain when a road is built
     public TerrainDataSO clearedForestData; //for clearing a forest
-    public bool isFloodPlain = false;
     public bool walkable = false;
     public bool sailable = false;
-    public bool isHill = false;
     public bool isLand = false;
     public bool isSeaCorner = false;
     public int movementCost = 10;
     public TerrainType type = TerrainType.Flatland;
+    public SpecificTerrain specificTerrain;
+    public RawResourceType rawResourceType;
     public ResourceType resourceType;
-    public bool hasRocks = false;
     public bool keepProp = false;
 
     public void MovementCostCheck()
@@ -40,5 +39,10 @@ public enum TerrainType
     Hill,
     Forest,
     ForestHill
+}
 
+public enum SpecificTerrain
+{
+    None,
+    FloodPlain,
 }
