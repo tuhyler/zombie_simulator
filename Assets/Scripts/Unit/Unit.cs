@@ -166,7 +166,7 @@ public class Unit : MonoBehaviour
                 isBeached = true;
             }
         }
-        else if (td.terrainData.isHill)
+        else if (td.terrainData.type == TerrainType.Hill)
         {
             if (endPositionInt.x % 3 == 0)
                 y = .4f;

@@ -15,14 +15,13 @@ MonoBehaviour:
   title: Flood Plains
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
-  isFloodPlain: 1
   walkable: 1
   sailable: 0
-  isHill: 0
   isLand: 1
   isSeaCorner: 0
   movementCost: 10
   type: 5
+  specificTerrain: 1
+  rawResourceType: 1
   resourceType: 2
-  hasRocks: 0
   keepProp: 0

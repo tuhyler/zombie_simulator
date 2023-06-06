@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Monument01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 7952248765643111094, guid: df4e94bcbf2d38b4e96290f27dde2be2, type: 3}
-  secondaryData: {fileID: 0}
+  secondaryData: []
   isBuilding: 1
   improvementName: Monument
   improvementDisplayName: Monument
@@ -26,6 +26,10 @@ MonoBehaviour:
   improvementCost:
   - resourceType: 7
     resourceAmount: 80
+  - resourceType: 6
+    resourceAmount: 10
+  - resourceType: 17
+    resourceAmount: 4
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -37,6 +41,7 @@ MonoBehaviour:
   rawResourceType: 0
   isResearch: 0
   terrainType: 0
+  specificTerrain: 0
   workEthicChange: 0.1
   maxLabor: 0
   housingIncrease: 0

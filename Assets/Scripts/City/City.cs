@@ -1043,7 +1043,7 @@ public class City : MonoBehaviour
     public void DestroyThisCity()
     {
         //initialHouse.DestroyPS();
-        initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).terrainData.isHill);
+        initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).terrainData.type == TerrainType.Hill);
         StopAllCoroutines();
         Destroy(uiTimeProgressBar.gameObject);
     }

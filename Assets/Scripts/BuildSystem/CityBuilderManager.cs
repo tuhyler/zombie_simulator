@@ -267,7 +267,7 @@ public class CityBuilderManager : MonoBehaviour
                     }
 
                     if (!improvementSelected.isConstruction && !improvementSelected.isUpgrading)
-                        improvementSelected.PlayRemoveEffect(world.GetTerrainDataAt(terrainLocation).terrainData.isHill);
+                        improvementSelected.PlayRemoveEffect(world.GetTerrainDataAt(terrainLocation).terrainData.type == TerrainType.Hill);
                     RemoveImprovement(terrainLocation, improvementSelected, selectedCity, false);
                 }
                 else if (laborChange != 0) //for changing labor counts in tile
@@ -388,7 +388,7 @@ public class CityBuilderManager : MonoBehaviour
                     }
 
                     if (!improvement.isConstruction && !improvement.isUpgrading)
-                        improvement.PlayRemoveEffect(terrainSelected.terrainData.isHill);
+                        improvement.PlayRemoveEffect(terrainSelected.terrainData.type == TerrainType.Hill);
                     RemoveImprovement(terrainLocation, improvement, selectedCity, false);
                 }
                 else if (laborChange != 0)
@@ -1086,7 +1086,7 @@ public class CityBuilderManager : MonoBehaviour
             if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
                 city.AutoAssignmentsForLabor();
 
-            selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, upgradeLoc, this, data, world.GetTerrainDataAt(upgradeLoc).terrainData.isHill);
+            selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, upgradeLoc, this, data, world.GetTerrainDataAt(upgradeLoc).terrainData.type == TerrainType.Hill);
         }
     }
 
@@ -1543,12 +1543,15 @@ public class CityBuilderManager : MonoBehaviour
         if (!upgradingImprovement)
         {
             int i = 0;
+            Vector3 cityLoc = city.cityLoc;
+            cityLoc.y += data.improvementCost.Count * 0.4f;
+
             foreach (ResourceValue resourceValue in data.improvementCost)
             {
                 int resourcesReturned = resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
-                Vector3 cityLoc = city.cityLoc;
-                cityLoc.z += -.5f * i;
-                InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+                Vector3 cityLoc2 = cityLoc;
+                cityLoc2.y += -.4f * i;
+                InfoResourcePopUpHandler.CreateResourceStat(cityLoc2, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
                 i++;
             }
         }
@@ -1682,7 +1685,7 @@ public class CityBuilderManager : MonoBehaviour
                 
                 if (world.IsTileOpenCheck(tile) && td.GetTerrainData().type == improvementData.terrainType)
                 {
-                    if (improvementData.rawMaterials && td.GetTerrainData().resourceType == improvementData.rawResourceType)
+                    if (improvementData.rawMaterials && td.GetTerrainData().rawResourceType == improvementData.rawResourceType)
                     {
                         td.EnableHighlight(Color.white);
                         tilesToChange.Add(tile);
@@ -1759,13 +1762,26 @@ public class CityBuilderManager : MonoBehaviour
         //adding improvement to world dictionaries
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
 
-        if (td.terrainData.isFloodPlain)
+        if (improvementData.secondaryData.Count > 0)
         {
+            foreach (ImprovementDataSO tempData in improvementData.secondaryData)
+            {
+                if (improvementData.producedResources[0].resourceType == tempData.producedResources[0].resourceType)
+                {
+                    if (td.terrainData.specificTerrain == tempData.specificTerrain)
+                    {
+                        improvementData = tempData;
+                        break;
+                    }
+                }
+                else if (td.GetTerrainData().resourceType == tempData.producedResources[0].resourceType)
+                {   
+                    improvementData = tempData;
+                    break;
+                }
+            }
+            
             rotation = (int)td.transform.eulerAngles.y;
-            improvementData = improvementData.secondaryData;
-            //if (td.terrainData.isDesert)
-            //else
-            //    improvementData = improvementData.tertiaryData;
         }
 
         //if (improvementData.replaceTerrain)
@@ -1782,7 +1798,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //    }
         //}
-        bool isHill = td.terrainData.isHill;
+        bool isHill = td.terrainData.type == TerrainType.Hill;
         GameObject improvement;
         if (isHill)
         {
@@ -1854,7 +1870,7 @@ public class CityBuilderManager : MonoBehaviour
         cityImprovement.meshCity = city;
         cityImprovement.transform.parent = city.transform;
         city.AddToImprovementList(cityImprovement);
-        cityImprovement.PlaySmokeSplash(td.terrainData.isHill);
+        cityImprovement.PlaySmokeSplash(td.terrainData.type == TerrainType.Hill);
 
         //making two objects, this one for the parent mesh
         GameObject tempObject = Instantiate(emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);
@@ -2207,7 +2223,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 TerrainData td = world.GetTerrainDataAt(improvementLoc);
                 td.prop.gameObject.SetActive(true);
-                if (td.terrainData.hasRocks)
+                if (td.terrainData.rawResourceType == RawResourceType.Stone)
                     td.RocksCheck();
             }
 
@@ -2297,14 +2313,16 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    private void ReplaceImprovementCost(List<ResourceValue> replaceCost, Vector3Int improvementLoc)
+    private void ReplaceImprovementCost(List<ResourceValue> replaceCost, Vector3 improvementLoc)
     {
         int i = 0;
+        improvementLoc.y += replaceCost.Count * 0.4f; 
+
         foreach (ResourceValue resourceValue in replaceCost) //adding back 100% of cost (if there's room)
         {
             int resourcesReturned = resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
             Vector3 loc = improvementLoc;
-            loc.z += -.5f * i;
+            loc.y += -.4f * i;
             i++;
             if (resourcesReturned == 0)
             {

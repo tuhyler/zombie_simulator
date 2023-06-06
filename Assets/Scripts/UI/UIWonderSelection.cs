@@ -9,7 +9,7 @@ public class UIWonderSelection : MonoBehaviour
     private MapWorld world;
 
     [SerializeField]
-    private TMP_Text wonderTitle, wonderDescription, workerText, workerCount, workerTotal, percentDone, harborText;
+    private TMP_Text wonderTitle, wonderDescription, workerText, workerCount, workerTotal, percentDone, harborText, workerCostText;
 
     [SerializeField]
     private Image progressBarMask;
@@ -18,7 +18,7 @@ public class UIWonderSelection : MonoBehaviour
     private Transform wonderCostHolder;
 
     [SerializeField]
-    private GameObject uiWonderResourcePanel, removeWorkerButton;
+    private GameObject uiWonderResourcePanel, removeWorkerButton, goldImage;
     private Dictionary<ResourceType, UIWonderResource> resourceOptions = new();
 
     [SerializeField]
@@ -72,9 +72,15 @@ public class UIWonderSelection : MonoBehaviour
             SetWonderInfo(wonder);
             SetResources(wonder);
             if (!wonder.isConstructing)
+            {
                 cancelConstructionButton.SetActive(false);
+                HideWorkerCounts();
+            }
             else
+            {
                 cancelConstructionButton.SetActive(true);
+                ShowWorkerCounts();
+            }
 
             if (wonder.canBuildHarbor && wonder.isConstructing)
             {
@@ -116,6 +122,12 @@ public class UIWonderSelection : MonoBehaviour
         workerCount.text = $"{wonder.WorkersReceived}";
         workerTotal.text = $"/{wonder.WonderData.workersNeeded}";
         percentDone.text = $"{wonder.PercentDone}%";
+        workerCostText.text = $"Cost per Worker: {wonder.WonderData.workerCost}";
+        int shift = (workerCostText.text.Length - 18) * 8;
+        Vector3 pos = goldImage.transform.localPosition;
+        pos.x = 410 + shift;
+        goldImage.transform.localPosition = pos;
+
         progressBarMask.fillAmount = wonder.PercentDone / 100f;
 
         if (wonder.WorkersReceived < wonder.WonderData.workersNeeded)
@@ -178,7 +190,19 @@ public class UIWonderSelection : MonoBehaviour
         workerText.gameObject.SetActive(false);
         workerCount.gameObject.SetActive(false);
         workerTotal.gameObject.SetActive(false);
+        workerCostText.gameObject.SetActive(false);
+        goldImage.SetActive(false);
         removeWorkerButton.SetActive(false);
+    }
+
+    public void ShowWorkerCounts()
+    {
+        workerText.gameObject.SetActive(true);
+        workerCount.gameObject.SetActive(true);
+        workerTotal.gameObject.SetActive(true);
+        workerCostText.gameObject.SetActive(true);
+        goldImage.SetActive(true);
+        removeWorkerButton.SetActive(true);
     }
 
     internal void UpdateUIWorkers(int workersReceived)

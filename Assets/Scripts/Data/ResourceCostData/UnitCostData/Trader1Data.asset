@@ -21,7 +21,7 @@ MonoBehaviour:
     resourceAmount: 10
   - resourceType: 7
     resourceAmount: 3
-  - resourceType: 4
+  - resourceType: 13
     resourceAmount: 10
   consumedResources:
   - resourceType: 2

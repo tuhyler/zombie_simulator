@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Harbor01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 4908702689438750486, guid: b6670cb09cf2bc749b3032f64f208bcc, type: 3}
-  secondaryData: {fileID: 0}
+  secondaryData: []
   isBuilding: 0
   improvementName: Harbor
   improvementDisplayName: Harbor
@@ -39,6 +39,7 @@ MonoBehaviour:
   rawResourceType: 0
   isResearch: 0
   terrainType: 1
+  specificTerrain: 0
   workEthicChange: 0
   maxLabor: 0
   housingIncrease: 0

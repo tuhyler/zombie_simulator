@@ -205,6 +205,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //unlocking research items down further in tree
         foreach (UIResearchItem researchItem in researchUnlocked)
             researchItem.UnlockCheck();
+
+        world.BuilderHandlerCheck();
     }
 
     private void UnlockCheck()

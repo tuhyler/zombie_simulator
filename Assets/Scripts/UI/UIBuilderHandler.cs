@@ -210,7 +210,7 @@ public class UIBuilderHandler : MonoBehaviour
         this.unitBuildData = unitBuildData;
     }
 
-    private void PrepareBuildOptions(ResourceManager resourceManager)
+    public void PrepareBuildOptions(ResourceManager resourceManager)
     {
         List<string> improvementSingleBuildList = resourceManager.city.singleBuildImprovementsBuildingsDict.Keys.ToList();
 
