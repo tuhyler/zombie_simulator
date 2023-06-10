@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
 
 public class Trader : Unit
 {
@@ -27,6 +28,10 @@ public class Trader : Unit
     [HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
 
+    //animations
+    private int isInterruptedHash;
+    private int isLoadingHash;
+    private int isUnloadingHash;
 
     //private UnitMovement unitMovement;
 
@@ -38,6 +43,9 @@ public class Trader : Unit
     protected override void AwakeMethods()
     {
         base.AwakeMethods();
+        isInterruptedHash = Animator.StringToHash("isInterrupted");
+        isLoadingHash = Animator.StringToHash("isLoading");
+        isUnloadingHash = Animator.StringToHash("isUnloading");
         cargoStorageLimit = buildDataSO.cargoCapacity;
         tradeRouteManager = GetComponent<TradeRouteManager>();
         tradeRouteManager.SetTrader(this);
@@ -68,6 +76,22 @@ public class Trader : Unit
     private void SetActiveStatusFalse()
     {
         ripples.SetActive(false);
+    }
+
+    //animations
+    public override void SetInterruptedAnimation(bool v)
+    {
+        unitAnimator.SetBool(isInterruptedHash, v);
+    }
+
+    public void SetLoadingAnimation(bool v)
+    {
+        unitAnimator.SetBool(isLoadingHash, v);
+    }
+
+    public void SetUnloadingAnimation(bool v)
+    {
+        unitAnimator.SetBool(isUnloadingHash, v);
     }
 
     //passing details of the trade route
@@ -121,16 +145,38 @@ public class Trader : Unit
                     interruptedRoute = true;
                     if (isSelected)
                         InterruptedRouteMessage();
+                    else
+                        SetInterruptedAnimation(true);
                     return;
                 }
 
                 Vector3Int stopLoc = world.GetStopLocation(world.GetTradeLoc(endLoc));
+                Vector3 harborRot = Vector3.zero;
+
                 if (world.IsCityOnTile(stopLoc))
+                {
                     tradeRouteManager.SetCity(world.GetCity(stopLoc));
+                    if (bySea)
+                        harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
+                }
                 else if (world.IsWonderOnTile(stopLoc))
+                {
                     tradeRouteManager.SetWonder(world.GetWonder(stopLoc));
+                    if (bySea)
+                        harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
+                }
                 else
+                {
                     tradeRouteManager.SetTradeCenter(world.GetTradeCenter(stopLoc));
+                    if (bySea)
+                        harborRot = world.GetTradeCenter(stopLoc).transform.localEulerAngles;
+                }
+
+                if (bySea)
+                {
+                    harborRot.y += 90;
+                    transform.localEulerAngles = harborRot; 
+                }
                 //if (bySea)
                 //    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
                 //else
@@ -172,25 +218,30 @@ public class Trader : Unit
             interruptedRoute = true;
             if (isSelected)
                 InterruptedRouteMessage();
+            else
+                SetInterruptedAnimation(true);
             return;
         }
 
         List<Vector3Int> currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader, bySea);
 
-        //List<TerrainData> paths = new();
-
         if (currentPath.Count == 0)
         {
-            TradeRouteCheck(transform.position);
-            return;
+            if (tradeRouteManager.CurrentDestination == world.RoundToInt(transform.position))
+                TradeRouteCheck(transform.position);
+            else
+            {
+                CancelRoute();
+
+                interruptedRoute = true;
+                if (isSelected)
+                    InterruptedRouteMessage();
+                else
+                    SetInterruptedAnimation(true);
+                return;
+            }
         }
-
-        //foreach (Vector3Int path in currentPath)
-        //{
-        //    paths.Add(world.GetTerrainDataAt(path));
-        //}
-
-        if (currentPath.Count > 0)
+        else if (currentPath.Count > 0)
         {
             FinalDestinationLoc = nextStop;
             MoveThroughPath(currentPath);

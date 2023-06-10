@@ -133,10 +133,10 @@ public class RoadManager : MonoBehaviour
                 Destroy(td.prop.GetChild(0).gameObject);
             }
         }
-        else if (td.prop != null && !td.terrainData.keepProp) //for replacing decor (could destroy)
-        {
-            td.prop.gameObject.SetActive(false);
-        }
+        //else if (td.prop != null && !td.terrainData.keepProp) //for replacing decor (could destroy)
+        //{
+        //    td.prop.gameObject.SetActive(false);
+        //}
 
         
         world.InitializeRoads(roadPosition);

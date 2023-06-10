@@ -186,6 +186,7 @@ public class TradeRouteManager : MonoBehaviour
                 //if city has less than what's needed
                 //if (remainingInCity < resourceAmount)
                 //    resourceAmount = remainingInCity;
+                trader.SetLoadingAnimation(true);
 
                 //if trader wants more than it can store
                 int level = Mathf.CeilToInt(trader.personalResourceManager.GetResourceStorageLevel);
@@ -254,6 +255,7 @@ public class TradeRouteManager : MonoBehaviour
                         else
                             tradeCenter.SetWaiter(this, loadUnloadRateMod * tradeCenter.ResourceBuyDict[value.resourceType]);
 
+                        trader.SetLoadingAnimation(false);
                         yield return HoldingPatternCoroutine();
                     }
                 }
@@ -262,6 +264,8 @@ public class TradeRouteManager : MonoBehaviour
             }
             else if (resourceAmount < 0) //moving from trader to city
             {
+                trader.SetUnloadingAnimation(true);
+
                 //if trader holds less than what is asked to be dropped off
                 int remainingWithTrader = personalResourceManager.GetResourceDictValue(value.resourceType);
                 if (remainingWithTrader < Mathf.Abs(resourceAmount))
@@ -320,6 +324,7 @@ public class TradeRouteManager : MonoBehaviour
                             wonder.SetWaiter(this);
                         //trade centers don't need to wait here
 
+                        trader.SetUnloadingAnimation(true);
                         yield return HoldingPatternCoroutine();
                     }
                 }
@@ -329,7 +334,11 @@ public class TradeRouteManager : MonoBehaviour
         }
 
         if (complete)
+        {
+            trader.SetLoadingAnimation(false);
+            trader.SetUnloadingAnimation(false);
             FinishLoading();
+        }
     }
 
     public IEnumerator WaitTimeCoroutine()

@@ -1800,7 +1800,7 @@ public class CityBuilderManager : MonoBehaviour
         //}
         bool isHill = td.terrainData.type == TerrainType.Hill;
         GameObject improvement;
-        if (isHill)
+        if (improvementData.isBuilding && isHill)
         {
             Vector3 buildLocationHill = buildLocation;
             buildLocationHill.y += .6f;

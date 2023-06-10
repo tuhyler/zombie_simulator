@@ -120,6 +120,7 @@ public class Unit : MonoBehaviour
     public void InterruptedRouteMessage()
     {
         interruptedRoute = false;
+        SetInterruptedAnimation(false);
         InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
     }
 
@@ -144,7 +145,6 @@ public class Unit : MonoBehaviour
         movingCo = StartCoroutine(MovementCoroutine(firstTarget));
     }
 
-    //rotate unit before moving
     private IEnumerator MovementCoroutine(Vector3 endPosition)
     {
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
@@ -222,6 +222,8 @@ public class Unit : MonoBehaviour
                 interruptedRoute = true;
                 if (isSelected)
                     InterruptedRouteMessage();
+                else
+                    SetInterruptedAnimation(true);
             }
                 
             FinishMoving(endPosition);
@@ -354,7 +356,7 @@ public class Unit : MonoBehaviour
         FinishedMoving?.Invoke();
         if (!bySea && isTrader)
         {            
-            if (!world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
+            if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
             {
                 TeleportToLastRoad(world.RoundToInt(currentLocation));
             }
@@ -486,6 +488,12 @@ public class Unit : MonoBehaviour
     }
 
     public virtual void TurnOffRipples()
+    {
+
+    }
+
+    //for animations
+    public virtual void SetInterruptedAnimation(bool v)
     {
 
     }

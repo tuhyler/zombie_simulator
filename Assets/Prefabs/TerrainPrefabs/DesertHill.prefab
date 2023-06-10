@@ -129,6 +129,8 @@ MonoBehaviour:
   prop: {fileID: 2245400654677337466}
   highlightPlane: {fileID: 0}
   hasRoad: 0
+  isGlowing: 0
+  resourceAmount: 0
 --- !u!114 &-7069180112018482579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,3 +145,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 0}
+  originalShader: {fileID: 2100000, guid: f0c17da8868040e48950cbe1a04aa03c, type: 2}
+  isGlowing: 0
