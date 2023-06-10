@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
+  m_Name: Farm01Data
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 5838738910640936402, guid: 50fad77f197d6cb4caa1fb0219d88212, type: 3}
+  secondaryData:
+  - {fileID: 11400000, guid: b960112883363494884a086f2586a31c, type: 2}
+  isBuilding: 0
+  improvementName: Farm
+  improvementDisplayName: Farm
+  improvementLevel: 1
+  improvementNameAndLevel: Farm-1
+  improvementDescription: 
+  buildingLocation: {x: 0, y: 0, z: 0}
+  image: {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
+  littleImage: {fileID: 21300000, guid: 8e1dc726ba6b99b4cabc4f93b0d4b5f4, type: 3}
+  improvementCost:
+  - resourceType: 6
+    resourceAmount: 10
+  consumedResources:
+  - resourceType: 4
+    resourceAmount: 5
+  - resourceType: 6
+    resourceAmount: 2
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
+  producedResources:
+  - resourceType: 2
+    resourceAmount: 2
+  producedResourceTime: 02000000
+  rawMaterials: 1
+  rawResourceType: 1
+  isResearch: 0
+  terrainType: 5
+  specificTerrain: 0
+  workEthicChange: 0
+  maxLabor: 1
+  housingIncrease: 0
+  cityHousing: 0
+  replaceTerrain: 0
+  replaceRocks: 0
+  returnProp: 1
+  singleBuild: 0
+  buildTime: 3
+  availableInitially: 1
+  workAnimLoop: 0
+  hideAnimMesh: 1

@@ -4,7 +4,7 @@ using UnityEngine;
 public class SelectionHighlight : MonoBehaviour
 {
     [SerializeField]
-    private Material glowMaterial, originalMaterial, secondaryGlowMaterial; //first one is for textures, 2nd is regular material, 3rd is alternate
+    private Material glowMaterial, originalMaterial, secondaryGlowMaterial, originalShader; //first one is for textures, 2nd is regular material, 3rd is alternate
 
     //[SerializeField]
     //private Material glowMaterialColor; //for colors
@@ -13,6 +13,8 @@ public class SelectionHighlight : MonoBehaviour
 
     List<MeshRenderer> renderers = new();
     List<SkinnedMeshRenderer> renderersSkinned = new();
+
+    List<int> shaderLoc = new();
 
     //private Color glowColor;
 
@@ -32,11 +34,15 @@ public class SelectionHighlight : MonoBehaviour
             if (secondaryGlowMaterial != null)
                 secondaryGlowMaterial.mainTexture = originalMaterial.mainTexture;
         }
-        
+
+        int i = 0;
         //first meshrenderers then skinnedmeshrenderers
         foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
         {
+            if (originalShader != null && renderer.material.shader.name == originalShader.shader.name)
+                shaderLoc.Add(i); 
             renderers.Add(renderer);
+            i++;
         }
 
         foreach (SkinnedMeshRenderer renderer in GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -148,10 +154,16 @@ public class SelectionHighlight : MonoBehaviour
     public void DisableHighlight()
     {
         isGlowing = false;
-        
+
+        int i = 0;
         foreach (MeshRenderer renderer in renderers)
         {
-            renderer.material = originalMaterial;
+            if (shaderLoc.Contains(i))
+                renderer.material = originalShader;
+            else
+                renderer.material = originalMaterial;
+
+            i++;
         }
 
         foreach (SkinnedMeshRenderer renderer in renderersSkinned)
