@@ -85,12 +85,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Avatar
       value: 
-      objectReference: {fileID: 9000000, guid: 2dd9a12db621e7440af57c575d9e4f84, type: 3}
+      objectReference: {fileID: 9000000, guid: 2677a3a0147e96c4bb1e6ed81e5e0f0f, type: 3}
     - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 18ae4d02522dde34687f94f4bf96c46e, type: 2}
+      objectReference: {fileID: 9100000, guid: 1f2e39f8e17c0174296f020a1facde7e, type: 2}
     - target: {fileID: 1309350269883409193, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -99,7 +99,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
-      value: Worker1Data_1
+      value: Laborer1Data_8
       objectReference: {fileID: 0}
     - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -190,7 +190,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 5338363066459411607}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1431444887025749929
+--- !u!114 &719557995407178415
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -199,7 +199,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8266383177558337226}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef3539db8ce8105408a48063c9f1361c, type: 3}
+  m_Script: {fileID: 11500000, guid: 91b2f0dd01370eb45ab3c3efa1835e25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
@@ -222,11 +222,10 @@ MonoBehaviour:
   atStop: 0
   followingRoute: 0
   isWorker: 0
+  isLaborer: 0
   isSelected: 0
   isWaiting: 0
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
   unitAnimator: {fileID: 0}
-  removing: 0
-  citiesBuilt: 0

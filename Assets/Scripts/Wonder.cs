@@ -344,7 +344,7 @@ public class Wonder : MonoBehaviour
     }
 
     private void NextPhaseCheck()
-    {
+    {   
         if (percentDone == 25)
         {
             SetNewGO(mesh0Percent, mesh25Percent);
@@ -368,9 +368,12 @@ public class Wonder : MonoBehaviour
             PlaySmokeSplash();
             isConstructing = false;
             world.RemoveWonderName(wonderName);
-            uiWonderSelection.HideCancelConstructionButton();
-            uiWonderSelection.HideHarborButton();
-            uiWonderSelection.HideWorkerCounts();
+            if (isActive)
+            {
+                uiWonderSelection.HideCancelConstructionButton();
+                uiWonderSelection.HideHarborButton();
+                uiWonderSelection.HideWorkerCounts();
+            }
             world.RemoveTradeLoc(unloadLoc);
 
             if (hasHarbor)
@@ -455,7 +458,7 @@ public class Wonder : MonoBehaviour
         {
             Unit unit = world.GetUnit(unloadLoc);
             if (unit.isTrader)
-                unit.TeleportToLastRoad(unloadLoc);
+                unit.TeleportToNearestRoad(unloadLoc);
             else
                 unit.FindNewSpot(unloadLoc, new Vector3Int(0, -10, 0));
         }
@@ -466,7 +469,7 @@ public class Wonder : MonoBehaviour
             {
                 Unit unit = world.GetUnit(neighbor);
                 if (unit.isTrader)
-                    unit.TeleportToLastRoad(neighbor);
+                    unit.TeleportToNearestRoad(neighbor);
             }
         }
     }

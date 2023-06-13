@@ -98,7 +98,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Avatar
       value: 
-      objectReference: {fileID: 9000000, guid: 2a37114b3fc98264c9b8038a9396e08c, type: 3}
+      objectReference: {fileID: 9000000, guid: 2677a3a0147e96c4bb1e6ed81e5e0f0f, type: 3}
     - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Controller
@@ -246,6 +246,7 @@ MonoBehaviour:
   isBusy: 0
   isMoving: 0
   isBeached: 0
+  interruptedRoute: 0
   currentHealth: 0
   turnHandler: {fileID: 0}
   bySea: 0
@@ -253,6 +254,7 @@ MonoBehaviour:
   atStop: 0
   followingRoute: 0
   isWorker: 0
+  isLaborer: 0
   isSelected: 0
   isWaiting: 0
   harvested: 0

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -175,7 +176,8 @@ public class Trader : Unit
                 if (bySea)
                 {
                     harborRot.y += 90;
-                    transform.localEulerAngles = harborRot; 
+                    StartCoroutine(RotateCoroutine(harborRot));
+                    //transform.localEulerAngles = harborRot; 
                 }
                 //if (bySea)
                 //    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
@@ -194,6 +196,23 @@ public class Trader : Unit
                 //Deselect(); //lots of repetition here. 
                 //routeManager.CompleteTradeRouteOrders();
             }
+        }
+    }
+
+    private IEnumerator RotateCoroutine(Vector3 rot)
+    {
+        Quaternion startRotation = transform.rotation;
+        Quaternion endRotation = new Quaternion();
+        endRotation.eulerAngles = rot;
+        float timeElapsed = 0;
+
+        while (timeElapsed < 0.2f)
+        {
+            timeElapsed += Time.deltaTime;
+            float lerpStep = timeElapsed / 0.2f;
+            transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
+
+            yield return null;
         }
     }
 
@@ -232,6 +251,7 @@ public class Trader : Unit
             else
             {
                 CancelRoute();
+                tradeRouteManager.CheckQueues();
 
                 interruptedRoute = true;
                 if (isSelected)
@@ -245,6 +265,7 @@ public class Trader : Unit
         {
             FinalDestinationLoc = nextStop;
             MoveThroughPath(currentPath);
+            tradeRouteManager.CheckQueues();
         }
     }
 
