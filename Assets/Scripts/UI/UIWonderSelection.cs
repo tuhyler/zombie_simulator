@@ -122,7 +122,7 @@ public class UIWonderSelection : MonoBehaviour
         workerCount.text = $"{wonder.WorkersReceived}";
         workerTotal.text = $"/{wonder.WonderData.workersNeeded}";
         percentDone.text = $"{wonder.PercentDone}%";
-        workerCostText.text = $"Cost per Worker: {wonder.WonderData.workerCost}";
+        workerCostText.text = $"Cost per Laborer: {wonder.WonderData.workerCost}";
         int shift = (workerCostText.text.Length - 18) * 8;
         Vector3 pos = goldImage.transform.localPosition;
         pos.x = 410 + shift;

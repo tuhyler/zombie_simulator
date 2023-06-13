@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class CityBuilderManager : MonoBehaviour
 {
     [SerializeField]
-    private UIWonderSelection uiWonderSelection;
+    public UIWonderSelection uiWonderSelection;
     [SerializeField]
     private UICityBuildTabHandler uiCityTabs;
     [SerializeField]
@@ -591,7 +591,8 @@ public class CityBuilderManager : MonoBehaviour
                     unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
                     LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
                     unit.transform.LookAt(wonder.centerPos);
-
+                    unit.GetComponent<Laborer>().StartLaborAnimations();
+                    
                     unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
                     Unit newUnit = unit.GetComponent<Unit>();
 

@@ -258,6 +258,7 @@ public class UnitMovement : MonoBehaviour
             }
 
             uiMoveUnit.ToggleTweenVisibility(true);
+            SelectLaborer();
             SelectWorker();
             SelectTrader();
             PrepareMovement();
@@ -293,6 +294,19 @@ public class UnitMovement : MonoBehaviour
 
         //if (selectedUnit == null)
         //    return;
+    }
+
+    private void SelectLaborer()
+    {
+        if (selectedUnit.isLaborer)
+        {
+            Laborer laborer = selectedUnit.GetComponent<Laborer>();
+            if (laborer.co != null)
+            {
+                StopCoroutine(laborer.Celebrate());
+                laborer.StopLaborAnimations();
+            }
+        }
     }
 
     private void SelectWorker()
@@ -352,6 +366,7 @@ public class UnitMovement : MonoBehaviour
 
         selectedUnit = unit;
 
+        SelectLaborer();
         SelectWorker();
         SelectTrader();
         PrepareMovement();
@@ -960,6 +975,8 @@ public class UnitMovement : MonoBehaviour
         {
             if (!selectedTrader.tradeRouteManager.TradeRouteCheck())
                 return;
+            if (selectedUnit.LineCutterCheck())
+                return;
             selectedUnit.StopMovement();
             selectedTrader.BeginNextStepInRoute();
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
@@ -1015,7 +1032,7 @@ public class UnitMovement : MonoBehaviour
             {
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(true);
             }
-            else if (selectedUnit.isWorker && world.IsWonderOnTile(currentLoc))
+            else if (selectedUnit.isLaborer && world.IsWonderOnTile(currentLoc))
             {
                 if (world.GetWonder(currentLoc).StillNeedsWorkers())
                     uiJoinCity.ToggleTweenVisibility(true);

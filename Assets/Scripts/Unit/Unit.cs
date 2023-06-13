@@ -36,7 +36,6 @@ public class Unit : MonoBehaviour
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
-    private Vector3Int prevRoadTile; //for traders, in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     private Coroutine movingCo;
     private MovementSystem movementSystem;
@@ -56,7 +55,7 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isWorker, isSelected, isWaiting, harvested, somethingToSay, sayingSomething;
+    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething;
 
     //animation
     [HideInInspector]
@@ -136,6 +135,12 @@ public class Unit : MonoBehaviour
         pathPositions = new Queue<Vector3Int>(currentPath);
 
         //ShowPath(currentPath);
+        if (followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+        {
+            GetInLine(pathPositions.Peek());
+            return;
+        }
+
         Vector3 firstTarget = pathPositions.Dequeue();
 
         moreToMove = true;
@@ -181,15 +186,16 @@ public class Unit : MonoBehaviour
                 y = transform.position.y;
         }
 
-        if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
-        {
-            GetInLine(endPosition);
-        }
-        else if (world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+        //if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
+        //{
+        //    GetInLine(endPosition);
+        //    yield break;
+        //}
+        if (world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
-            if (unitInTheWay.isBusy)
+            if (unitInTheWay.isBusy || unitInTheWay.followingRoute)
             {
                 if (isBusy)
                 {
@@ -265,9 +271,12 @@ public class Unit : MonoBehaviour
 
         if (pathPositions.Count > 0)
         {
-            if (isTrader && world.IsRoadOnTerrain(world.RoundToInt(endPosition)))
-                prevRoadTile = world.RoundToInt(endPosition);
-            
+            if (followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+            {
+                GetInLine(pathPositions.Peek());
+                yield break;
+            }
+
             movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
             if (pathQueue.Count > 0)
             {
@@ -316,7 +325,7 @@ public class Unit : MonoBehaviour
     }
 
     private void GetInLine(Vector3 endPosition)
-    {
+    {        
         movingCo = null;
         //Vector3Int endPos = world.RoundToInt(endPosition);
         Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(endPosition)));
@@ -328,17 +337,35 @@ public class Unit : MonoBehaviour
         else
             world.GetTradeCenter(tradePos).AddToWaitList(this);
 
-        currentLocation = world.AddUnitPosition(endPosition, this);
+        currentLocation = world.AddUnitPosition(transform.position, this);
         isWaiting = true;
         unitAnimator.SetBool(isMovingHash, false);
     }
 
     public void MoveUpInLine()
     {
+        if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+        {
+            GetInLine(pathPositions.Peek());
+            return;
+        }
+
         world.RemoveUnitPosition(currentLocation);//removing previous location
         //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         unitAnimator.SetBool(isMovingHash, true);
         movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+    }
+
+    public bool LineCutterCheck()
+    {
+        if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), finalDestinationLoc))
+        {
+            CancelRoute();
+            InfoPopUpHandler.WarningMessage().Create(transform.position, "No cutting in line");
+            return true;
+        }
+
+        return false;
     }
 
     private void FinishMoving(Vector3 endPosition)
@@ -358,7 +385,7 @@ public class Unit : MonoBehaviour
         {            
             if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
             {
-                TeleportToLastRoad(world.RoundToInt(currentLocation));
+                TeleportToNearestRoad(world.RoundToInt(currentLocation));
             }
         }
         if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
@@ -403,7 +430,7 @@ public class Unit : MonoBehaviour
         //}
     }
 
-    public void TeleportToLastRoad(Vector3Int loc)
+    public void TeleportToNearestRoad(Vector3Int loc)
     {
         foreach (Vector3Int neighbor in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAY))
         {
@@ -411,44 +438,23 @@ public class Unit : MonoBehaviour
                 return;
         }
 
-        if (world.IsRoadOnTileLocation(prevRoadTile))
+        Vector3Int newSpot = loc;
+        Vector3Int terrainLoc = world.GetClosestTerrainLoc(loc);    
+
+        foreach (Vector3Int neighbor in world.GetNeighborsFor(terrainLoc, MapWorld.State.EIGHTWAYINCREMENT))
         {
-            if (world.IsUnitLocationTaken(prevRoadTile))
+            if (world.CheckIfPositionIsValid(neighbor))
             {
-                Vector3Int locDiff = loc - prevRoadTile;
-                locDiff.x -= 1 * Math.Sign(locDiff.x);
-                locDiff.z -= 1 * Math.Sign(locDiff.z);
-                Vector3Int newSpot = loc - locDiff;
-                Teleport(newSpot);
-                //MoveThroughPath(new List<Vector3Int> { newSpot });
-            }
-            else
-            {
-                Teleport(prevRoadTile);
-                //MoveThroughPath(new List<Vector3Int> { prevRoadTile });
-            }
-        }
-        else
-        {
-            Vector3Int newSpot = loc;
-            
-            foreach (Vector3Int neighbor in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAYINCREMENT))
-            {
-                if (world.CheckIfPositionIsValid(neighbor))
+                newSpot = neighbor;
+                if (world.IsRoadOnTerrain(neighbor))
                 {
-                    newSpot = neighbor;
-                    if (world.IsRoadOnTileLocation(neighbor))
-                    {
-                        Teleport(neighbor);
-                        //MoveThroughPath(new List<Vector3Int> { neighbor });
-                        return;
-                    }
+                    Teleport(neighbor);
+                    return;
                 }
             }
-
-            Teleport(newSpot);
-            //MoveThroughPath(new List<Vector3Int> { newSpot }); //last resort, move somewhere else that's available
         }
+
+        Teleport(newSpot);
     }
 
     private void Teleport(Vector3Int loc)
