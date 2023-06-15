@@ -589,18 +589,25 @@ public class City : MonoBehaviour
             waitList.Enqueue(unit);
     }
 
+    public void RemoveFromWaitList(Unit unit)
+    {
+        waitList = new Queue<Unit>(waitList.Where(x => x != unit));
+    }
+
     public void CheckQueue()
     {
         if (waitList.Count > 0)
         {
-            waitList.Dequeue().MoveUpInLine();
+            waitList.Dequeue().ExitLine();
         }
 
         if (waitList.Count > 0)
         {
+            int i = 0;
             foreach(Unit unit in waitList)
             {
-                unit.MoveUpInLine();
+                i++;
+                unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
             }
         }
     }

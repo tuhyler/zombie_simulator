@@ -55,7 +55,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 14fb863266373a54a9a3f027c9a448bd, type: 3}
   - {fileID: 21300000, guid: 7ac14442cda2b9e47bff6c2975dab795, type: 3}
   - {fileID: 21300000, guid: 529060620ffd4bf47ac93c2cf4525841, type: 3}
-  - {fileID: 21300000, guid: 72e594a27c4eac34ba680e570b636043, type: 3}
   - {fileID: 21300000, guid: 822743b25cab34745a2116a0b8523271, type: 3}
   - {fileID: 21300000, guid: 9797a6b24c423304a960e7e186a9e842, type: 3}
   - {fileID: 21300000, guid: 04c57cc29a6a88b469d57adb0feef78b, type: 3}
@@ -81,7 +80,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 713228e4162c39c43aa1069a8fa2a615, type: 3}
   - {fileID: 21300000, guid: 58099a051206a8b408abd7bb62633bb7, type: 3}
   - {fileID: 21300000, guid: 28dfe8154404b2440b891890427b755d, type: 3}
-  - {fileID: 21300000, guid: 2b77fa356cfaf55449916524c8d0e94c, type: 3}
   - {fileID: 21300000, guid: b30e2f35ff95b0b45b75d894b5390e93, type: 3}
   - {fileID: 21300000, guid: f611fc459debb5345bc8233d67b8b261, type: 3}
   - {fileID: 21300000, guid: ebde9c85d4a26cb42af362f125c70af8, type: 3}
@@ -178,7 +176,6 @@ SpriteAtlas:
   - button_round1
   - button_removeroad
   - panel_bluegray
-  - TomIcon2
   - button_canceltrade
   - button_round_gold
   - arrow_down
@@ -204,7 +201,6 @@ SpriteAtlas:
   - button_longred2
   - mask_white_fadededges
   - button_longgold
-  - TomIcon3
   - button_gather
   - button_longblue2
   - button_round_bar01

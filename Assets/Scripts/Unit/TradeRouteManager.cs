@@ -401,7 +401,6 @@ public class TradeRouteManager : MonoBehaviour
             uiTradeRouteManager.tradeStopHandlerList[currentStop].progressBarHolder.SetActive(false);
 
         timeWaited = 0;
-        trader.isWaiting = false;
         resourceCurrentAmount = 0;
         currentResource = 0;
     }

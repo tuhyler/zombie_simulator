@@ -64,6 +64,7 @@ MonoBehaviour:
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
   secondaryGlowMaterial: {fileID: 0}
+  originalShader: {fileID: 0}
   isGlowing: 0
 --- !u!95 &-1569295495130398200
 Animator:
@@ -74,7 +75,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4084126454760206941}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: e830136ddcfc19d4f8b4b007d9cafcab, type: 3}
+  m_Avatar: {fileID: 9000000, guid: 0e35b6d5a7d65fe42bd2a0b8b4c6affb, type: 3}
   m_Controller: {fileID: 0}
   m_CullingMode: 1
   m_UpdateMode: 0

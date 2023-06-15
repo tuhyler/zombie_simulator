@@ -633,7 +633,7 @@ public class UnitMovement : MonoBehaviour
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, null, wonder);
                 uiCityResourceInfoPanel.SetPosition();
             }
-            else
+            else if (world.IsTradeCenterOnTile(tradeLoc))
             {
                 tradeCenter = world.GetTradeCenter(tradeLoc);
                 uiCityResourceInfoPanel.SetTitleInfo(tradeCenter.tradeCenterName, 10000, 10000); //not showing inventory levels

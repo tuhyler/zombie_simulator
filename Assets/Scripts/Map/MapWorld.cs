@@ -954,7 +954,7 @@ public class MapWorld : MonoBehaviour
 
     public Unit GetUnit(Vector3Int tile)
     {
-        return unitPosDict[tile].GetComponent<Unit>();
+        return unitPosDict[tile];
     }
 
     public bool IsUnitWaitingForSameStop(Vector3Int tile, Vector3 finalDestination)
@@ -2027,7 +2027,7 @@ public class MapWorld : MonoBehaviour
 
     public Vector3Int AddUnitPosition(Vector3 unitPosition, Unit unit)
     {
-        Vector3Int position = Vector3Int.RoundToInt(unitPosition);
+        Vector3Int position = RoundToInt(unitPosition);
 
         //checking if same unit doesn't already have a tile occupied (just in case)
         if (unitPosDict.ContainsValue(unit))
@@ -2039,6 +2039,14 @@ public class MapWorld : MonoBehaviour
         unitPosDict[position] = unit;
 
         return position;
+    }
+
+    public bool UnitAlreadyThere(Unit unit, Vector3Int position)
+    {
+        if (unitPosDict.ContainsKey(position))
+            return unitPosDict[position] == unit;
+
+        return false;
     }
 
     public void RemoveUnitPosition(Vector3Int position/*, GameObject unitGO*/)
