@@ -22,7 +22,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -3100369314251171874, guid: 2dd9a12db621e7440af57c575d9e4f84,
+  m_Motion: {fileID: -3100369314251171874, guid: 0e35b6d5a7d65fe42bd2a0b8b4c6affb,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -50,7 +50,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -1980686935512954512, guid: 2677a3a0147e96c4bb1e6ed81e5e0f0f,
+  m_Motion: {fileID: -1980686935512954512, guid: 0e35b6d5a7d65fe42bd2a0b8b4c6affb,
     type: 3}
   m_Tag: 
   m_SpeedParameter: speed
@@ -78,7 +78,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -8163121216841370927, guid: 2677a3a0147e96c4bb1e6ed81e5e0f0f,
+  m_Motion: {fileID: -8163121216841370927, guid: 0e35b6d5a7d65fe42bd2a0b8b4c6affb,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -138,7 +138,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -8723385505276923084, guid: 2677a3a0147e96c4bb1e6ed81e5e0f0f,
+  m_Motion: {fileID: -8723385505276923084, guid: 0e35b6d5a7d65fe42bd2a0b8b4c6affb,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -173,25 +173,25 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: speed
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isCelebrating
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isJumping
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Base Layer

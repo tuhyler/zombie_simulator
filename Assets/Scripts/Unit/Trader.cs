@@ -166,7 +166,7 @@ public class Trader : Unit
                     if (bySea)
                         harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
                 }
-                else
+                else if (world.IsTradeCenterOnTile(stopLoc))
                 {
                     tradeRouteManager.SetTradeCenter(world.GetTradeCenter(stopLoc));
                     if (bySea)
@@ -272,6 +272,22 @@ public class Trader : Unit
     public override void CancelRoute()
     {
         followingRoute = false;
+        if (waitingCo != null)
+            StopCoroutine(waitingCo);
+
+        if (isWaiting)
+        {
+            Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(finalDestinationLoc)));
+
+            if (world.IsCityOnTile(tradePos))
+                world.GetCity(tradePos).RemoveFromWaitList(this);
+            else if (world.IsWonderOnTile(tradePos))
+                world.GetWonder(tradePos).RemoveFromWaitList(this);
+            else if (world.IsTradeCenterOnTile(tradePos))
+                world.GetTradeCenter(tradePos).RemoveFromWaitList(this);
+        }
+
+        isWaiting = false;
         if (LoadUnloadCo != null)
         {
             //tradeRouteManager.StopHoldingPatternCoroutine();
