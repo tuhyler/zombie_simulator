@@ -50,7 +50,8 @@ public class PersonalResourceManager : MonoBehaviour
         }
         else
         {
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
+            if (!trader.followingRoute)
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
             return 0;
         }
     }

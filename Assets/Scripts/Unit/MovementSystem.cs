@@ -54,10 +54,15 @@ public class MovementSystem : MonoBehaviour
         currentPath.Clear();
     }
 
-    public void MoveUnit(Unit selectedUnit)
+    public bool MoveUnit(Unit selectedUnit)
     {        
         if (currentPath.Count > 0)
+        {
             selectedUnit.MoveThroughPath(currentPath);
+            return true;
+        }
+
+        return false;
     }
 
 

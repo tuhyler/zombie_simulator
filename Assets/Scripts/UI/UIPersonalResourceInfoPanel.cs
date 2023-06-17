@@ -145,7 +145,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                     foreach (ResourceType type in wonder.ResourceGridDict.Keys)
                         ActivateCell(type, true);
                 }
-                else
+                else if (tradeCenter)
                 {
                     foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
                         ActivateCell(type, true, true);
@@ -313,7 +313,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             else if (wonder)
                 gridCellDict[loc].resource.SetValue(wonder.ResourceDict[type]);
             else
-                gridCellDict[loc].resource.SetValue(tradeCenter.ResourceBuyDict[type]);
+                gridCellDict[loc].resource.SetText(" ", tradeCenter.ResourceBuyDict[type]);
         }
         else
             gridCellDict[loc].resource.SetValue(trader.personalResourceManager.ResourceDict[type]);
@@ -431,7 +431,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             if (atTradeCenter)
             {
                 foreach (ResourceType type in tradeCenter.ResourceSellDict.Keys)
-                    gridCellDict[trader.resourceGridDict[type]].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+                {
+                    if (trader.resourceGridDict.ContainsKey(type))
+                        gridCellDict[trader.resourceGridDict[type]].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+                }
 
                 this.tradeCenter = tradeCenter;
                 this.atTradeCenter = atTradeCenter;
@@ -474,6 +477,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
             if (atTradeCenter)
             {
+                foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
+                {
+                    int typeLoc = tradeCenter.ResourceBuyGridDict[type];
+                    gridCellDict[typeLoc].resource.HidePricing();
+                }
+
                 atTradeCenter = false;
                 tradeCenter = null;
                 gridGrid.cellSize = new Vector2(90, 90);
@@ -529,6 +538,11 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 gridHolder.sizeDelta = new Vector2(activeCells * 90, 90);
             }
         }
+    }
+
+    public void FlashResource(ResourceType type)
+    {
+        gridCellDict[resourceUIDict[type]].resource.FlashResource();
     }
 
     public void UpdateResource(ResourceType type, int val) //Set the resources to a value

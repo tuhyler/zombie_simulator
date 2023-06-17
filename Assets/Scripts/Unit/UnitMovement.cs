@@ -442,9 +442,10 @@ public class UnitMovement : MonoBehaviour
         {
             moveUnit = false;
             uiMoveUnit.ToggleButtonColor(false);
-            movementSystem.MoveUnit(unit);
+            if (!movementSystem.MoveUnit(unit))
+                return;
         }
-        //movementSystem.HidePath();
+
         movementSystem.ClearPaths();
         uiJoinCity.ToggleTweenVisibility(false);
         uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
@@ -517,7 +518,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isMoving && !queueMovementOrders)
             selectedUnit.StopAnimation();
 
-        location.y += .1f;
+        location.y += .01f;
         starshine.transform.position = location;
         starshine.Play();
 
@@ -832,7 +833,7 @@ public class UnitMovement : MonoBehaviour
                 world.UpdateWorldResources(ResourceType.Gold, buyAmount);
                 InfoResourcePopUpHandler.CreateResourceStat(selectedTrader.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
 
-                uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), false);
+                uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), true);
                 uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
             }
             else if (resourceAmount <= 0) //selling
@@ -854,6 +855,7 @@ public class UnitMovement : MonoBehaviour
                     InfoResourcePopUpHandler.CreateResourceStat(selectedTrader.transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
 
                     uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), false);
+                    uiCityResourceInfoPanel.FlashResource(resourceType);
                     uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
                 }
                 else

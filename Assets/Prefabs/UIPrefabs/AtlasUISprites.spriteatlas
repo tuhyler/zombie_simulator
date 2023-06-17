@@ -23,7 +23,7 @@ SpriteAtlas:
     platformSettings: []
     packingSettings:
       serializedVersion: 2
-      padding: 4
+      padding: 8
       blockOffset: 1
       allowAlphaSplitting: 0
       enableRotation: 0
@@ -74,7 +74,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 45cd7584879d1574a94e2a02e6852e6f, type: 3}
   - {fileID: 21300000, guid: 954d6894757d3bf4085ffb8357a804e2, type: 3}
   - {fileID: 21300000, guid: c35d24a4ae5a50d44ac9def303b305ec, type: 3}
-  - {fileID: 21300000, guid: 199b82b414e0fc641a3947e9fcea5456, type: 3}
   - {fileID: 21300000, guid: 35ec9dc42a660f5409dcf8d7243e1cf6, type: 3}
   - {fileID: 21300000, guid: 0bfe95d46a8f8b3488631cdddf72b280, type: 3}
   - {fileID: 21300000, guid: 713228e4162c39c43aa1069a8fa2a615, type: 3}
@@ -195,7 +194,6 @@ SpriteAtlas:
   - panel_lighterblue_bar
   - button_arrow
   - button_buildcity
-  - TomIcon
   - button_wonders
   - research01
   - button_longred2

@@ -37,6 +37,7 @@ public class Unit : MonoBehaviour
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
+    private Vector3Int prevRoadTile; //for traders, in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo, waitingCo;
@@ -91,6 +92,8 @@ public class Unit : MonoBehaviour
         shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
             selectionCircle.SetActive(false);
+        if (isTrader)
+            prevRoadTile = world.RoundToInt(transform.position);
 
         currentHealth = buildDataSO.health;
     }
@@ -268,6 +271,9 @@ public class Unit : MonoBehaviour
 
         if (pathPositions.Count > 0)
         {
+            if (isTrader)
+                prevRoadTile = world.RoundToInt(endPosition);
+
             if (followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
             {
                 GetInLine();
@@ -324,13 +330,20 @@ public class Unit : MonoBehaviour
     private void GetInLine()
     {
         Vector3Int currentLoc = world.RoundToInt(transform.position);
-        if (world.IsUnitWaitingForSameStop(currentLoc, finalDestinationLoc))
-            GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLoc);
 
         if (world.UnitAlreadyThere(this, currentLoc))
             currentLocation = currentLoc;
         else
+        {
+            if (world.IsUnitWaitingForSameStop(currentLoc, finalDestinationLoc))
+            {
+                GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLoc);
+                GetInLine();
+                return;
+            }
+
             currentLocation = world.AddUnitPosition(currentLoc, this);
+        }
         isWaiting = true;
         movingCo = null;
         unitAnimator.SetBool(isMovingHash, false);
@@ -347,40 +360,76 @@ public class Unit : MonoBehaviour
 
     private void GoToBackOfLine(Vector3Int finalLoc, Vector3Int currentLoc)
     {
-        List<Vector3Int> positionsToCheck = new(){currentLoc};
+        List<Vector3Int> positionsToCheck = new(){ currentLoc };
         bool success = false;
+        bool prevPath = true;
+        List<Vector3Int> newPath = new();
 
         while (positionsToCheck.Count > 0)
         {
             Vector3Int current = positionsToCheck[0];
             positionsToCheck.Remove(current);
-
-            foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+            newPath.Add(current);
+            
+            if (prevPath) //first check the tile the trader came from
             {
-                if (!world.IsRoadOnTileLocation(neighbor))
-                    continue;
+                prevPath = false;
 
-                if (world.IsUnitWaitingForSameStop(neighbor, finalLoc)) //going away from final loc
+                if (!world.IsUnitWaitingForSameStop(prevRoadTile, finalLoc))
                 {
-                    if (ManhattanDistance(finalLoc, current) < ManhattanDistance(finalLoc, neighbor))
-                    {
-                        positionsToCheck.Add(neighbor);
-                        break;
-                    }
+                    Teleport(prevRoadTile);
+                    positionsToCheck.Clear();
+                    success = true;
                 }
                 else
                 {
-                    //teleport to back of line
-                    Teleport(current);
-                    positionsToCheck.Clear();
-                    success = true;
-                    break;
+                    positionsToCheck.Add(prevRoadTile);
+                }
+            }
+            else
+            {
+                foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+                {
+                    if (!bySea)
+                    {
+                        if (!world.IsRoadOnTileLocation(neighbor))
+                            continue;
+                    }
+                    else
+                    {
+                        if (!world.CheckIfSeaPositionIsValid(neighbor))
+                            continue;
+                    }
+
+                    if (world.IsUnitWaitingForSameStop(neighbor, finalLoc)) //going away from final loc
+                    {
+                        if (ManhattanDistance(finalLoc, current) < ManhattanDistance(finalLoc, neighbor))
+                        {
+                            positionsToCheck.Add(neighbor);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        //teleport to back of line
+                        Teleport(neighbor);
+                        positionsToCheck.Clear();
+                        success = true;
+                        break;
+                    }
                 }
             }
         }
 
         if (!success)
             InterruptRoute();
+        else
+        {
+            List<Vector3Int> oldPath = new(pathPositions);
+            newPath.Reverse();
+            newPath.AddRange(oldPath);
+            pathPositions = new Queue<Vector3Int>(newPath);
+        }
     }
 
     public void InterruptRoute()
@@ -442,7 +491,7 @@ public class Unit : MonoBehaviour
         queueCount = 0;
         moreToMove = false;
         isMoving = false;
-        currentLocation = Vector3Int.RoundToInt(transform.position);
+        currentLocation = world.RoundToInt(transform.position);
         HidePath();
         pathPositions.Clear();
         unitAnimator.SetBool(isMovingHash, false);
@@ -457,13 +506,23 @@ public class Unit : MonoBehaviour
                     if (followingRoute)
                         InterruptRoute();
                     TeleportToNearestRoad(world.RoundToInt(currentLocation));
+                    prevRoadTile = currentLocation;
                     return;
                 }
             }
 
             if (followingRoute)
+            {
                 if (world.IsUnitWaitingForSameStop(currentLocation, finalDestinationLoc))
+                {
                     GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLocation);
+                    GetInLine();
+                    prevRoadTile = currentLocation;
+                    return;
+                }
+            }
+
+            prevRoadTile = currentLocation;            
         }
         if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
         {
@@ -539,6 +598,7 @@ public class Unit : MonoBehaviour
         currentLocation = loc;
         transform.position = loc;
         world.AddUnitPosition(currentLocation, this);
+        transform.rotation = Quaternion.LookRotation(finalDestinationLoc - transform.position, Vector3.up);
     }
 
     //sees if trader is at trade route stop and has finished trade orders
