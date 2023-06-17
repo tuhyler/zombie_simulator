@@ -66,9 +66,10 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
         resourceAmount = val;
     }
 
-    public void SetColor(Color color)
+    public void SetText(string text, int val)
     {
-        resourceAmountText.color = color;
+        resourceAmountText.text = text;
+        resourceAmount = val;
     }
 
     public void Activate(bool instant)
@@ -78,7 +79,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
         float speed = instant ? 0 : 0.2f;
         LeanTween.scale(allContents, Vector3.one, speed).setEase(LeanTweenType.easeOutBack);
     }
-
+        
     public void UpdateValue(int val, bool positive)
     {
         if (positive)
@@ -88,6 +89,12 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
         }
         resourceAmountText.text = val.ToString();
         resourceAmount = val;
+    }
+
+    public void FlashResource()
+    {
+        buttonHighlight.transform.localPosition = Vector3.zero;
+        buttonHighlight.Play();
     }
 
     public void OnPointerClick()

@@ -2919,7 +2919,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (city.cityPop.CurrentPop == 0)
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not enough pop to make unit");
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not enough population to make unit");
                 city.GoToNextItemInQueue();
 
                 if (selectedCity != null && city == selectedCity)

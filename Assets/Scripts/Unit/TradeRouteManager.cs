@@ -138,6 +138,7 @@ public class TradeRouteManager : MonoBehaviour
                     InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Wrong resource type: " + value.resourceType);
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
                         uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                    complete = true;
                     continue;
                 }
                 else if (resourceAmount > 0)
@@ -145,6 +146,7 @@ public class TradeRouteManager : MonoBehaviour
                     InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Can't move from wonder");
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
                         uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                    complete = true;
                     continue;
                 }
             }
@@ -157,6 +159,7 @@ public class TradeRouteManager : MonoBehaviour
                         InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't buy " + value.resourceType);
                         if (uiTradeRouteManager.activeStatus && trader.isSelected)
                             uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                        complete = true;
                         continue;
                     }
                 }
@@ -167,6 +170,7 @@ public class TradeRouteManager : MonoBehaviour
                         InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't sell " + value.resourceType);
                         if (uiTradeRouteManager.activeStatus && trader.isSelected)
                             uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                        complete = true;
                         continue;
                     }
                 }
@@ -186,7 +190,6 @@ public class TradeRouteManager : MonoBehaviour
                 //if city has less than what's needed
                 //if (remainingInCity < resourceAmount)
                 //    resourceAmount = remainingInCity;
-                trader.SetLoadingAnimation(true);
 
                 //if trader wants more than it can store
                 int level = Mathf.CeilToInt(trader.personalResourceManager.GetResourceStorageLevel);
@@ -223,6 +226,9 @@ public class TradeRouteManager : MonoBehaviour
                     resourceCurrentAmount += resourceAmountAdjusted;
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
                         uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(resourceCurrentAmount, resourceTotalAmount);
+
+                    if (resourceAmountAdjusted != 0)
+                        trader.SetLoadingAnimation(true);
 
                     yield return new WaitForSeconds(secondIntervals);
                     personalResourceManager.CheckResource(value.resourceType, resourceAmountAdjusted);
@@ -264,8 +270,6 @@ public class TradeRouteManager : MonoBehaviour
             }
             else if (resourceAmount < 0) //moving from trader to city
             {
-                trader.SetUnloadingAnimation(true);
-
                 //if trader holds less than what is asked to be dropped off
                 int remainingWithTrader = personalResourceManager.GetResourceDictValue(value.resourceType);
                 if (remainingWithTrader < Mathf.Abs(resourceAmount))
@@ -293,6 +297,9 @@ public class TradeRouteManager : MonoBehaviour
                     resourceCurrentAmount += resourceAmountAdjusted;
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
                         uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(resourceCurrentAmount, resourceTotalAmount);
+
+                    if (resourceAmountAdjusted != 0)
+                        trader.SetUnloadingAnimation(true);
 
                     yield return new WaitForSeconds(secondIntervals);
 
@@ -324,7 +331,7 @@ public class TradeRouteManager : MonoBehaviour
                             wonder.SetWaiter(this);
                         //trade centers don't need to wait here
 
-                        trader.SetUnloadingAnimation(true);
+                        trader.SetUnloadingAnimation(false);
                         yield return HoldingPatternCoroutine();
                     }
                 }

@@ -120,7 +120,7 @@ public class UIQueueManager : MonoBehaviour
 
         if (unitBuildData == null && queueItemNames.Contains(buildName))
         {
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Itetm already in queue");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Item already in queue");
             return false;
         }
         else if (loc != new Vector3Int(0, 0, 0) && world.CheckQueueLocation(worldLoc))
