@@ -14,6 +14,7 @@ public class TerrainDataSO : ScriptableObject
     public int movementCost = 10;
     public TerrainType type = TerrainType.Flatland;
     public SpecificTerrain specificTerrain;
+    public TerrainDesc terrainDesc;
     public RawResourceType rawResourceType;
     public ResourceType resourceType;
     public bool keepProp = false;
@@ -46,3 +47,7 @@ public enum SpecificTerrain
     None,
     FloodPlain,
 }
+
+//for making map panel
+public enum TerrainDesc { Grassland, Desert, GrasslandHill, DesertHill, GrasslandFloodPlain, DesertFloodPlain, Forest, ForestHill, Jungle, JungleHill, Swamp, Mountain, Sea, River };
+

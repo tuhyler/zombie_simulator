@@ -22,6 +22,7 @@ MonoBehaviour:
   movementCost: 20
   type: 7
   specificTerrain: 0
+  terrainDesc: 10
   rawResourceType: 0
   resourceType: 0
   keepProp: 0

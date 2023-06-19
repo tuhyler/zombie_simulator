@@ -85,6 +85,7 @@ MonoBehaviour:
   prop: {fileID: 6424281992737964312}
   highlightPlane: {fileID: 1203423572148938155}
   hasRoad: 0
+  isGlowing: 0
   resourceAmount: 0
 --- !u!65 &4305036326747826313
 BoxCollider:
@@ -114,6 +115,7 @@ MonoBehaviour:
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
   secondaryGlowMaterial: {fileID: 0}
+  originalShader: {fileID: 0}
   isGlowing: 0
 --- !u!1 &7947533954490412569
 GameObject:
@@ -167,7 +169,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.03
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: cad2107ec4920f64ca11623c2afc00ae,
         type: 3}

@@ -21,7 +21,7 @@ public class HandlePlayerInput : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())  //second check is so you don't click behind the UI
+        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) //second check is so you don't click behind the UI
             HandleLeftMouseClick();
 
         if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())  //second check is so you don't click behind the UI

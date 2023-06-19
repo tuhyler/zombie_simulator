@@ -518,7 +518,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isMoving && !queueMovementOrders)
             selectedUnit.StopAnimation();
 
-        location.y += .01f;
+        location.y += .1f;
         starshine.transform.position = location;
         starshine.Play();
 

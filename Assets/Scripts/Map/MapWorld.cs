@@ -13,6 +13,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UIResearchTreePanel researchTree;
     [SerializeField]
+    private UIMapPanel mapPanel;
+    [SerializeField]
     private UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder;
     [SerializeField]
     private UIWonderHandler wonderHandler;
@@ -121,9 +123,10 @@ public class MapWorld : MonoBehaviour
     public TerrainDataSO flatland, forest, hill, forestHill;
     //for boats to avoid traveling the coast
     private List<Vector3Int> coastCoastList = new();
-    
+
     //for expanding gameobject size
     private static int increment = 3;
+    public int Increment { get { return increment; } }
 
     private SpeechBubbleHandler speechBubble;
 
@@ -178,7 +181,11 @@ public class MapWorld : MonoBehaviour
                 coastalTerrain.Add(td);
             td.SetTileCoordinates(this);
             Vector3Int tileCoordinate = td.GetTileCoordinates();
-            world[tileCoordinate] = td; 
+            world[tileCoordinate] = td;
+            //Vector3Int mod = tileCoordinate / increment;
+            //mod.y = mod.z;
+            //mod.z = 0;
+            //mapPanel.SetTile(mod, td.GetTerrainData().terrainDesc);
 
             foreach (Vector3Int tile in neighborsEightDirections)
             {
@@ -288,6 +295,7 @@ public class MapWorld : MonoBehaviour
         }
 
         CreateParticleSystems();
+        mapPanel.CreateMap();
     }
 
     private void CreateParticleSystems()
@@ -722,6 +730,22 @@ public class MapWorld : MonoBehaviour
     public void CloseResearchTree()
     {
         researchTree.ToggleVisibility(false);
+    }
+
+    public void OpenMap()
+    {
+        if (workerOrders)
+            return;
+
+        if (mapPanel.activeStatus)
+            mapPanel.ToggleVisibility(false);
+        else
+            mapPanel.ToggleVisibility(true);
+    }
+
+    public void CloseMap()
+    {
+        mapPanel.ToggleVisibility(false);
     }
     
     //terrain tooltip

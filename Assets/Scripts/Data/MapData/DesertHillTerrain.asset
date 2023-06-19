@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: HillStoneTerrain
+  m_Name: DesertHillTerrain
   m_EditorClassIdentifier: 
   title: Hill
   roadPrefab: {fileID: 0}
@@ -22,6 +22,7 @@ MonoBehaviour:
   movementCost: 20
   type: 6
   specificTerrain: 0
-  rawResourceType: 3
-  resourceType: 7
-  keepProp: 1
+  terrainDesc: 3
+  rawResourceType: 0
+  resourceType: 0
+  keepProp: 0
