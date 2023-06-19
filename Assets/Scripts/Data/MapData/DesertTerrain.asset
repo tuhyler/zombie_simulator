@@ -15,14 +15,14 @@ MonoBehaviour:
   title: Desert
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
-  isFloodPlain: 0
   walkable: 1
   sailable: 0
-  isHill: 0
   isLand: 1
   isSeaCorner: 0
   movementCost: 10
   type: 5
+  specificTerrain: 0
+  terrainDesc: 1
+  rawResourceType: 0
   resourceType: 0
-  hasRocks: 0
   keepProp: 0

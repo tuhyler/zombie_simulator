@@ -115,6 +115,13 @@ public class CameraController : MonoBehaviour
         newPosition = pos;
     }
 
+    public void CenterCameraInstantly(Vector3 pos)
+    {
+        followTransform = null;
+        newPosition = pos;
+        transform.position = pos;
+    }
+
     public void SetZoom(Vector3 zoom)
     {
         newZoom = zoom;
