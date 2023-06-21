@@ -16,11 +16,14 @@ public class UIMapPanelTile : MonoBehaviour, IPointerDownHandler
     [SerializeField]
     private GameObject resourceHolder;
     
-    [SerializeField]
-    private Sprite grassland, desert, grasslandHill, desertHill, grasslandFloodPlain, desertFloodPlain, forest, forestHill, jungle, jungleHill, mountain, swamp, sea, undiscovered;
-
     [HideInInspector]
     public Vector3Int coordinates;
+
+    [HideInInspector]
+    public Vector3 localCoordinates;
+
+    [HideInInspector]
+    public bool isDiscovered;
 
 
     public void SetMapPanel(UIMapPanel uiMapPanel)
@@ -33,58 +36,19 @@ public class UIMapPanelTile : MonoBehaviour, IPointerDownHandler
         uiMapPanel.CenterCamera(coordinates);
     }
 
-    public void SetTile(Vector3Int loc, TerrainDesc desc)
+    public void SetTile(Vector3Int pos, Sprite sprite, int increment)
     {
-        Sprite sprite = null;
-
-        switch (desc)
-        {
-            case TerrainDesc.Grassland:
-                sprite = grassland;
-                break;
-            case TerrainDesc.Desert:
-                sprite = desert;
-                break;
-            case TerrainDesc.GrasslandHill:
-                sprite = grasslandHill;
-                break;
-            case TerrainDesc.DesertHill:
-                sprite = desertHill;
-                break;
-            case TerrainDesc.GrasslandFloodPlain:
-                sprite = grasslandFloodPlain;
-                break;
-            case TerrainDesc.DesertFloodPlain:
-                sprite = desertFloodPlain;
-                break;
-            case TerrainDesc.Forest:
-                sprite = forest;
-                break;
-            case TerrainDesc.ForestHill:
-                sprite = forestHill;
-                break;
-            case TerrainDesc.Jungle:
-                sprite = jungle;
-                break;
-            case TerrainDesc.JungleHill:
-                sprite = jungleHill;
-                break;
-            case TerrainDesc.Swamp:
-                sprite = swamp;
-                break;
-            case TerrainDesc.Mountain:
-                sprite = mountain;
-                break;
-            case TerrainDesc.Sea:
-                sprite = sea;
-                break;
-            case TerrainDesc.River:
-                sprite = sea;
-                break;
-        }
-
-        coordinates = loc;
+        coordinates = pos;
         terrainImage.sprite = sprite;
+
+        Vector3 loc = pos;
+        loc /= increment;
+        loc *= 75;
+        loc.x += 37.5f;
+        loc.z += -37.5f;
+        loc.y = loc.z;
+        loc.z = 0;
+        localCoordinates = loc;
     }
 
     public void SetResource(Sprite sprite)
