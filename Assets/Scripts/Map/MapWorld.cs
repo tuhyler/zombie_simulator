@@ -182,6 +182,7 @@ public class MapWorld : MonoBehaviour
             td.SetTileCoordinates(this);
             Vector3Int tileCoordinate = td.GetTileCoordinates();
             world[tileCoordinate] = td;
+            mapPanel.AddTileToMap(tileCoordinate);
             //Vector3Int mod = tileCoordinate / increment;
             //mod.y = mod.z;
             //mod.z = 0;
@@ -295,7 +296,6 @@ public class MapWorld : MonoBehaviour
         }
 
         CreateParticleSystems();
-        mapPanel.CreateMap();
     }
 
     private void CreateParticleSystems()

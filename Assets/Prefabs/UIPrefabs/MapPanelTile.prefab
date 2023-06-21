@@ -62,7 +62,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -93,22 +93,9 @@ MonoBehaviour:
   terrainImage: {fileID: 4642447121332846515}
   resourceImage: {fileID: 368816188006402865}
   resourceHolder: {fileID: 6223006583305625747}
-  grassland: {fileID: 21300000, guid: 1f916e76d9311e14da9502f92ea29f7f, type: 3}
-  desert: {fileID: 21300000, guid: 3ea70044d789c1a4d86e1e03b6ad6458, type: 3}
-  grasslandHill: {fileID: 21300000, guid: 0a76b4a079ea3164d943ec686b66bc74, type: 3}
-  desertHill: {fileID: 21300000, guid: 707cc06803da3384db0894fb551535bb, type: 3}
-  grasslandFloodPlain: {fileID: 21300000, guid: 355430100380f444098f486e364ed526,
-    type: 3}
-  desertFloodPlain: {fileID: 21300000, guid: 5709996ba5e2e6c419b4708c9ab5f27f, type: 3}
-  forest: {fileID: 21300000, guid: 9786514f106d0ea4d98643d0a683f670, type: 3}
-  forestHill: {fileID: 21300000, guid: 7ec382462a38d0a419ddf3bab198634d, type: 3}
-  jungle: {fileID: 21300000, guid: 83d3ee8ab58fe464bbf4558764244435, type: 3}
-  jungleHill: {fileID: 21300000, guid: b84ed0894e27d8d4f8d6fb888a313ebe, type: 3}
-  mountain: {fileID: 21300000, guid: 29bebe718f0ea714ca5e4d151ece910b, type: 3}
-  swamp: {fileID: 21300000, guid: 104b014279845c24a974e324dc9ac4fe, type: 3}
-  sea: {fileID: 21300000, guid: 1c13b84f78d1d3046bfe24c35f2dfc82, type: 3}
-  undiscovered: {fileID: 21300000, guid: 7775619ef7ade6140a7e4455b0a7c6ba, type: 3}
   coordinates: {x: 0, y: 0, z: 0}
+  localCoordinates: {x: 0, y: 0, z: 0}
+  isDiscovered: 0
 --- !u!1 &6158910677470160321
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,7 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -246,7 +233,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
