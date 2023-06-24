@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using static UnityEditor.PlayerSettings;
+using TMPro;
 
 public class UIMapPanel : MonoBehaviour, IPointerDownHandler
 {
@@ -14,39 +16,31 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
     [SerializeField]
     private CameraController cameraController;
 
-    //[SerializeField]
-    //private Tilemap tilemap;
-
-    //private Grid grid;
+    [SerializeField]
+    private RectTransform mainRect, gridRect;
 
     [SerializeField]
-    private RectTransform mainRect;
+    private Transform unitHolder, cityNameHolder;
 
     [SerializeField]
     private Image panel;
 
     [SerializeField]
-    private GameObject mapPanelTile;
+    private GameObject mapPanelTile, mapUnitIcon, mapCityText;
 
     [SerializeField]
     private GridLayoutGroup grid;
 
-    [SerializeField]
-    private GridLayout gridLayout;
-
-    [SerializeField]
-    private ParticleSystem workerIcon;
-
-    private Dictionary<Vector3Int, UIMapPanelTile> mapDict = new();
-
-    [SerializeField]
-    private Sprite grassland, desert, grasslandHill, desertHill, grasslandFloodPlain, desertFloodPlain, forest, forestHill, jungle, jungleHill, mountain, swamp, sea, undiscovered;
-
     //[SerializeField]
-    //private Tile grassland, desert, grasslandHill, desertHill, grasslandFloodPlain, desertFloodPlain, forest, forestHill, jungle, jungleHill, swamp, mountain, sea, river, undiscovered;
+    //private SpriteRenderer workerIcon;
+
+    private Dictionary<Vector3Int, UIMapPanelTile> mapTileDict = new();
+    private Dictionary<Vector3Int, Vector3> mapLocDict = new();
+
+    [SerializeField]
+    private Sprite grassland, desert, grasslandHill, desertHill, grasslandFloodPlain, desertFloodPlain, forest, forestHill, jungle, jungleHill, mountain, swamp, sea, undiscovered, city, wonder, tradeCenter;
 
     private Vector3 newPosition;
-    //private Vector3 zoomAmount = new Vector3(0, 0, -0.3f);
     public float movementSpeed = 1, movementTime, zoomTime;
 
     public int mapWidth = 50, mapHeight = 50, offset = 25; //offset if tile values are less than 0 on map
@@ -55,21 +49,28 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
     //private RectTransform allContents;
     [HideInInspector]
     public bool activeStatus;
-    //private Vector3 originalLoc;
+    private Vector3 originalLoc;
 
     private void Awake()
     {
         CreateDictionary();
 
-        if (Screen.height > 1080)
-            workerIcon.transform.localScale = new Vector3(50f, 50f, 50f);
-        else if (Screen.height < 1080)
-            workerIcon.transform.localScale = new Vector3(70f, 70f, 70f);
-        //grid = GetComponent<Grid>();
+        //if (Screen.height > 1080)
+        //    workerIcon.transform.localScale = new Vector3(50f, 50f, 50f);
+        //else if (Screen.height < 1080)
+        //    workerIcon.transform.localScale = new Vector3(70f, 70f, 70f);
 
         newPosition = transform.localPosition; //set static position that doesn't default to 0
 
-        //originalLoc = allContents.anchoredPosition3D;
+        //originalLoc = mainRect.anchoredPosition3D;
+        //gameObject.SetActive(false);
+        //mainRect.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+
+        //Vector3 minimapLoc = new Vector3(-35, -95, 0);
+        //Vector3 ugh = Camera.main.WorldToScreenPoint(minimapLoc);
+        //ugh.z = 1000;
+        //Vector3 ugh2 = Camera.main.ScreenToWorldPoint(ugh);
+        //transform.position = ugh;
         gameObject.SetActive(false);
     }
 
@@ -81,71 +82,111 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
 
     public void CreateDictionary()
     {
-        int increment = world.Increment;
-
         for (int z = mapHeight; z >= 0; z--)
         {
             for (int x = 0; x < mapWidth; x++)
             {
-                Vector3Int tileCoordinates = new Vector3Int(-offset * increment + x * increment, 0, -offset * increment + z * increment);
+                Vector3Int tileCoordinates = new Vector3Int(-offset * world.Increment + x * world.Increment, 0, -offset * world.Increment + z * world.Increment);
                 GameObject tile = Instantiate(mapPanelTile);
                 UIMapPanelTile panelTile = tile.GetComponent<UIMapPanelTile>();
-                panelTile.SetMapPanel(this);
-                panelTile.SetTile(tileCoordinates, undiscovered, world.Increment);
+                panelTile.SetTile(undiscovered);
                 panelTile.gameObject.transform.SetParent(grid.transform, false);
-                mapDict[tileCoordinates] = panelTile;
+                mapTileDict[tileCoordinates] = panelTile;
+                SetDictLocValue(tileCoordinates);
+
+                foreach (Vector3Int neighbor in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+                {
+                    Vector3Int newTile = neighbor + tileCoordinates;
+                    SetDictLocValue(newTile);
+                }
             }
         }
 
-        mainRect.sizeDelta = new Vector2(mapWidth * 75, mapHeight * 75);
+        mainRect.sizeDelta = new Vector2(mapWidth * grid.cellSize.x, mapHeight * grid.cellSize.y);
+        gridRect.sizeDelta = new Vector2(mapWidth * grid.cellSize.x, mapHeight * grid.cellSize.y);
         grid.constraintCount = mapWidth;
     }
 
-    //private void CreateMap()
-    //{
-    //    for (int x = 0; x < mapWidth; x++)
-    //    {
-    //        for (int y = 0; y < mapHeight; y++)
-    //        {
-    //            Vector3Int loc = new Vector3Int(x-25, y-25, 0);
-    //            tilemap.SetTile(loc, undiscovered);
-    //        }
-    //    }
-    //}
+    private void SetDictLocValue(Vector3Int pos)
+    {
+        Vector3 loc = pos;
+        loc *= grid.cellSize.x / 3;
+        loc.x += grid.cellSize.x * 0.5f;
+        loc.z += -grid.cellSize.x * 0.5f;
+        loc.y = loc.z;
+        loc.z = 0;
 
-    //public void CreateMap()
-    //{
-
-
-    //    for (int z = mapHeight - 1; z >= 0; z--)
-    //    {
-    //        for (int x = 0; x < mapWidth; x++)
-    //        {
-    //            TerrainData td = world.GetTerrainDataAt(tileCoordinates);
-    //            GameObject tile = Instantiate(mapPanelTile);
-
-    //            UIMapPanelTile panelTile = tile.GetComponent<UIMapPanelTile>();
-    //            panelTile.SetMapPanel(this);
-    //            panelTile.SetTile(td.GetTileCoordinates(), td.terrainData.terrainDesc);
-    //            panelTile.gameObject.transform.SetParent(grid.transform, false);
-                
-    //            if (td.terrainData.resourceType != ResourceType.Food && td.terrainData.resourceType != ResourceType.None && td.terrainData.resourceType != ResourceType.Lumber && td.terrainData.resourceType != ResourceType.Fish)
-    //                panelTile.SetResource(ResourceHolder.Instance.GetIcon(td.terrainData.resourceType));
-    //        }
-    //    }
-
-    //    mainRect.sizeDelta = new Vector2(mapWidth * 50, mapHeight * 50);
-    //    grid.constraintCount = mapWidth;
-    //}
+        mapLocDict[pos] = loc;
+    }
 
     public void AddTileToMap(Vector3Int loc)
     {
         TerrainData td = world.GetTerrainDataAt(loc);
-        mapDict[loc].SetTile(td.GetTileCoordinates(), GetSprite(td.terrainData.terrainDesc), world.Increment);
-        //mapDict[loc].TurnOnRayCast();
+        mapTileDict[loc].SetTile(GetSprite(td.terrainData.terrainDesc));
 
         if (td.terrainData.resourceType != ResourceType.Food && td.terrainData.resourceType != ResourceType.None && td.terrainData.resourceType != ResourceType.Lumber && td.terrainData.resourceType != ResourceType.Fish)
-            mapDict[loc].SetResource(ResourceHolder.Instance.GetIcon(td.terrainData.resourceType));
+            mapTileDict[loc].SetResource(ResourceHolder.Instance.GetIcon(td.terrainData.resourceType));
+    }
+
+    public void ToggleVisibility(bool v)
+    {
+        if (activeStatus == v)
+            return;
+
+        LeanTween.cancel(gameObject);
+
+        if (v)
+        {
+            world.UnselectAll();
+            uiUnitTurn.gameObject.SetActive(false);
+            gameObject.SetActive(v);
+            world.showingMap = true;
+
+            activeStatus = true;
+
+            Vector3 loc = cameraController.transform.position;
+            loc /= world.Increment;
+            loc.x *= -75f;
+            loc.z *= -100f;
+            loc.x = Mathf.Clamp(loc.x, -280f, 280);
+            loc.z = Mathf.Clamp(loc.z, -240f, 240f);
+
+            newPosition = new Vector3(loc.x, loc.z, -700f);
+            mainRect.localPosition = new Vector3(loc.x, loc.z, -700f);
+            //mainRect.localScale = Vector3.one;
+
+            //allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
+
+            //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine();
+            //LeanTween.alpha(allContents, 1f, 0.5f).setFrom(0f).setEaseLinear();
+        }
+        else
+        {
+            activeStatus = false;
+            world.showingMap = false;
+            uiUnitTurn.gameObject.SetActive(true);
+            gameObject.SetActive(v);
+            //transform.position = originalLoc;
+
+            //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
+        }
+
+        cameraController.enabled = !v;
+    }
+
+    public void SetImprovement(Vector3Int pos, Sprite sprite)
+    {
+        mapTileDict[pos].SetImprovement(sprite);
+    }
+
+    public void RemoveImprovement(Vector3Int pos)
+    {
+        mapTileDict[pos].RemoveImprovement();
+    }
+
+    public void SetTileSprite(Vector3Int pos, TerrainDesc terrainDesc)
+    {
+        mapTileDict[pos].SetTile(GetSprite(terrainDesc));
     }
 
     public Sprite GetSprite(TerrainDesc desc)
@@ -197,156 +238,54 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
             case TerrainDesc.River:
                 sprite = sea;
                 break;
+            case TerrainDesc.City:
+                sprite = city;
+                break;
+            case TerrainDesc.Wonder:
+                sprite = wonder;
+                break;
+            case TerrainDesc.TradeCenter:
+                sprite = tradeCenter;
+                break;
         }
 
         return sprite;
     }
 
-    //public void SetTile(Vector3Int loc, TerrainDesc desc)
-    //{
-    //    Tile tile = null;
-
-    //    switch (desc)
-    //    {
-    //        case TerrainDesc.Grassland:
-    //            tile = grassland;
-    //            break;
-    //        case TerrainDesc.Desert:
-    //            tile = desert;
-    //            break;
-    //        case TerrainDesc.GrasslandHill:
-    //            tile = grasslandHill;
-    //            break;
-    //        case TerrainDesc.DesertHill:
-    //            tile = desertHill;
-    //            break;
-    //        case TerrainDesc.GrasslandFloodPlain:
-    //            tile = grasslandFloodPlain;
-    //            break;
-    //        case TerrainDesc.DesertFloodPlain:
-    //            tile = desertFloodPlain;
-    //            break;
-    //        case TerrainDesc.Forest:
-    //            tile = forest;
-    //            break;
-    //        case TerrainDesc.ForestHill:
-    //            tile = forestHill;
-    //            break;
-    //        case TerrainDesc.Jungle:
-    //            tile = jungle;
-    //            break;
-    //        case TerrainDesc.JungleHill:
-    //            tile = jungleHill;
-    //            break;
-    //        case TerrainDesc.Swamp:
-    //            tile = swamp;
-    //            break;
-    //        case TerrainDesc.Mountain:
-    //            tile = mountain;
-    //            break;
-    //        case TerrainDesc.Sea:
-    //            tile = sea;
-    //            break;
-    //        case TerrainDesc.River:
-    //            tile = river;
-    //            break;
-    //    }
-
-    //    tilemap.SetTile(loc, tile);
-    //}
-
-    public void ToggleVisibility(bool v)
+    public TMP_Text CreateCityText(Vector3Int loc, string text)
     {
-        if (activeStatus == v)
-            return;
+        GameObject cityTextGO = Instantiate(mapCityText);
+        cityTextGO.gameObject.transform.SetParent(cityNameHolder, false);
+        TMP_Text cityText = cityTextGO.GetComponent<TMP_Text>();
+        cityText.text = text;
+        cityText.outlineWidth = 0.35f;
+        cityText.outlineColor = Color.black;
+        Vector3 textLoc = mapLocDict[loc];
+        textLoc.y -= grid.cellSize.x * 0.5f;
+        cityText.transform.localPosition = textLoc;
 
-        LeanTween.cancel(gameObject);
-
-        if (v)
-        {
-            world.UnselectAll();
-            uiUnitTurn.gameObject.SetActive(false);
-            gameObject.SetActive(v);
-            world.somethingSelected = true;
-
-            activeStatus = true;
-
-            Vector3 loc = cameraController.transform.position;
-            loc /= world.Increment;
-            loc.x *= -75f;
-            loc.z *= -100f;
-            loc.x = Mathf.Clamp(loc.x, -280f, 280);
-            loc.z = Mathf.Clamp(loc.z, -240f, 240f);
-
-            newPosition = new Vector3(loc.x, loc.z, -700f);
-            mainRect.localPosition = new Vector3(loc.x, loc.z, -700f);
-
-            FindWorker();
-            workerIcon.Play();
-            //allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
-
-            //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine();
-            //LeanTween.alpha(allContents, 1f, 0.5f).setFrom(0f).setEaseLinear();
-        }
-        else
-        {
-            workerIcon.Pause();
-            activeStatus = false;
-            uiUnitTurn.gameObject.SetActive(true);
-            gameObject.SetActive(v);
-
-            //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
-        }
-
-        cameraController.enabled = !v;
+        return cityText;
     }
 
-    public void FindWorker()
+    public void SetIconTile(Vector3Int loc, GameObject icon)
     {
-        Worker worker = FindObjectOfType<Worker>();
-        //Vector3 loc = world.GetClosestTerrainLoc(worker.transform.position) / world.Increment;
-        //loc *= 75;
-        //loc.x += 37.5f;
-        //loc.z += -37.5f;
-        //loc.y = loc.z;
-        //loc.z = 0;
-
-        workerIcon.transform.localPosition = mapDict[world.GetClosestTerrainLoc(worker.transform.position)].localCoordinates;
-        //workerIcon.Play();
+        icon.transform.localPosition = mapLocDict[loc];
     }
 
-    //private void SetActiveStatusFalse()
+    //public void MoveWorker(Vector3Int newLoc, float movement)
     //{
-    //    gameObject.SetActive(false);
+    //    workerIcon.transform.position = Vector3.MoveTowards(workerIcon.transform.position, mapLocDict[newLoc], movement);
     //}
 
-
-    //private void Ugh()
-    //{
-    //    // save the camera as public field if you using not the main camera
-
-    //    //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-    //    Vector3 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    //    //worldPoint.z = 935;
-    //    Vector3 position = tilemap.WorldToCell(worldPoint);
-    //    Debug.Log(position * world.Increment);
-    //    // get the collision point of the ray with the z = 0 plane
-    //    //Vector3 worldPoint = ray.GetPoint(-ray.origin.z / ray.direction.z);
-    //    //Vector3Int position = grid.WorldToCell(worldPoint);
-    //}
-
-    //public void HandleMapClick(Vector3 location, GameObject selectedObject)
-    //{
-    //    if (!activeStatus)
-    //        return;
-
-    //    Vector3Int position = grid.WorldToCell(location);
-    //    position.z = position.y;
-    //    position.y = 0;
-    //    Debug.Log(position * world.Increment);
-    //    cameraController.CenterCameraInstantly(position * world.Increment);
-    //    ToggleVisibility(false);
-    //}
+    public GameObject CreateUnitIcon(Sprite sprite)
+    {
+        GameObject unitIconGO = Instantiate(mapUnitIcon);
+        unitIconGO.gameObject.transform.SetParent(unitHolder, false);
+        //unitIconGO.transform.SetAsLastSibling();
+        Image unitIcon = unitIconGO.GetComponent<Image>();
+        unitIcon.sprite = sprite;
+        return unitIconGO;
+    }
 
     public void CenterCamera(Vector3 location)
     {
@@ -354,13 +293,16 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         ToggleVisibility(false);
     }
 
-    //public void CloseMapPanel()
-    //{
-    //    ToggleVisibility(false);
-    //}
+    public void CloseMapPanel()
+    {
+        ToggleVisibility(false);
+    }
 
     private void HandleKeyboardInput()
     {
+        if (!activeStatus)
+            return;
+
         //assigning keys
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
@@ -384,6 +326,9 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
 
     private void Zoom()
     {
+        if (!activeStatus)
+            return;
+        
         if (Input.mouseScrollDelta.y != 0)
         {
             newPosition += Input.mouseScrollDelta.y * new Vector3(0,0,-30);
@@ -410,11 +355,11 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(mainRect, Input.mousePosition, Camera.main, out Vector2 localPoint))
         {
             Vector3 centerPoint = localPoint;
-            centerPoint.x += -37.5f;
-            centerPoint.y += 37.5f;
+            centerPoint.x += -grid.cellSize.x * 0.5f;
+            centerPoint.y += grid.cellSize.x * 0.5f;
             centerPoint.z = centerPoint.y;
             centerPoint.y = 0;
-            centerPoint /= 75f;
+            centerPoint /= grid.cellSize.x;
             centerPoint *= world.Increment;
 
             CenterCamera(centerPoint);

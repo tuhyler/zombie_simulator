@@ -665,6 +665,8 @@ public class CityBuilderManager : MonoBehaviour
         foreach (Vector3Int tile in selectedWonder.WonderLocs)
         {
             world.RemoveStructure(tile);
+            world.RemoveStructureMap(tile);
+            world.ResetTileMap(tile);
             world.RemoveSingleBuildFromCityLabor(tile);
             world.RemoveWonder(tile);
 
@@ -1865,6 +1867,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         //activating structure
         GameObject improvement = world.GetStructure(tempBuildLocation);
+        world.AddStructureMap(tempBuildLocation, improvementData.mapIcon);
         improvement.SetActive(true);
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
         CityImprovement cityImprovement = world.GetCityDevelopment(tempBuildLocation);
@@ -2277,6 +2280,7 @@ public class CityBuilderManager : MonoBehaviour
             world.RemoveFromMaxWorked(improvementLoc);
         }
         world.RemoveStructure(improvementLoc);
+        world.RemoveStructureMap(improvementLoc);
         developedTiles.Remove(improvementLoc);
 
         if (upgradingImprovement) //stop here if upgrading
@@ -3028,8 +3032,11 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         world.RemoveStructure(selectedCityLoc);
+        world.RemoveStructureMap(selectedCityLoc);
+        world.ResetTileMap(selectedCityLoc);
         world.RemoveCityName(selectedCityLoc);
         world.RemoveTradeLoc(selectedCityLoc);
+        selectedCity.DestroyMapText();
 
         selectedCity.DestroyThisCity();
 

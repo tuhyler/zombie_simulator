@@ -49,5 +49,5 @@ public enum SpecificTerrain
 }
 
 //for making map panel
-public enum TerrainDesc { Grassland, Desert, GrasslandHill, DesertHill, GrasslandFloodPlain, DesertFloodPlain, Forest, ForestHill, Jungle, JungleHill, Swamp, Mountain, Sea, River };
+public enum TerrainDesc { Grassland, Desert, GrasslandHill, DesertHill, GrasslandFloodPlain, DesertFloodPlain, Forest, ForestHill, Jungle, JungleHill, Swamp, Mountain, Sea, River, City, Wonder, TradeCenter };
 

@@ -23,6 +23,7 @@ MonoBehaviour:
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   littleImage: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
+  mapIcon: {fileID: 21300000, guid: fff3e4b24fa45f24596d35a5472ab796, type: 3}
   improvementCost:
   - resourceType: 6
     resourceAmount: 15

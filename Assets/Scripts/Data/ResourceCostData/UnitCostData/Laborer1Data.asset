@@ -16,6 +16,7 @@ MonoBehaviour:
   unitName: Laborer
   unitLevel: 0
   image: {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
+  mapIcon: {fileID: 21300000, guid: 9b23ce138e88b6d4190fc1a4ee56ab20, type: 3}
   unitCost: []
   consumedResources:
   - resourceType: 2

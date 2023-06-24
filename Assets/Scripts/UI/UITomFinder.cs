@@ -21,6 +21,7 @@ public class UITomFinder : MonoBehaviour
     {
         world.CloseResearchTree();
         world.CloseWonders();
+        world.CloseMap();
         world.CloseTerrainTooltip();
         world.CloseImprovementTooltip();
         cityBuilderManager.ResetCityUI();

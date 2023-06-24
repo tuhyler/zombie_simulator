@@ -16,6 +16,7 @@ MonoBehaviour:
   unitName: Trader
   unitLevel: 1
   image: {fileID: 21300000, guid: 83e96c5aac2dc7e46aa556dcd51f90de, type: 3}
+  mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
     resourceAmount: 10

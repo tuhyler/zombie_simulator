@@ -41,17 +41,24 @@ public class PersonalResourceManager : MonoBehaviour
 
     public int CheckResource(ResourceType type, int resourceAmount)
     {
-        if (CheckStorageSpaceForResource(type, resourceAmount) && resourceDict.ContainsKey(type))
+        if (resourceDict.ContainsKey(type))
         {
-            if (!trader.resourceGridDict.ContainsKey(type))
-                trader.AddToGrid(type);
+            if (CheckStorageSpaceForResource(type, resourceAmount))
+            {
+                if (!trader.resourceGridDict.ContainsKey(type))
+                    trader.AddToGrid(type);
 
-            return AddResourceToStorage(type, resourceAmount);
+                return AddResourceToStorage(type, resourceAmount);
+            }
+            else
+            {
+                if (!trader.followingRoute)
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
+                return 0;
+            }
         }
         else
         {
-            if (!trader.followingRoute)
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
             return 0;
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -44,6 +45,8 @@ public class MapWorld : MonoBehaviour
     private WonderDataSO wonderData;
     [SerializeField]
     private UnityEvent<WonderDataSO> OnIconButtonClick;
+    [SerializeField]
+    private Sprite wonderMapIcon;
     private List<Vector3Int> wonderPlacementLoc = new();
     private List<Vector3Int> wonderNoWalkLoc = new();
     private int rotationCount;
@@ -56,6 +59,8 @@ public class MapWorld : MonoBehaviour
     private GameObject wonderGhost;
 
     //trade center info
+    [SerializeField]
+    private Sprite tradeCenterMapIcon;
     private Dictionary<string, TradeCenter> tradeCenterDict = new();
     private Dictionary<Vector3Int, TradeCenter> tradeCenterStopDict = new();
     private List<string> tradeCenterNamePool = new();
@@ -134,7 +139,7 @@ public class MapWorld : MonoBehaviour
     private bool showGizmo;
 
     [HideInInspector]
-    public bool workerOrders, buildingWonder, tooltip, somethingSelected;
+    public bool workerOrders, buildingWonder, tooltip, somethingSelected, showingMap;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -287,6 +292,8 @@ public class MapWorld : MonoBehaviour
             center.SetName(tradeCenterNamePool[i]);
             center.SetPop(tradeCenterPopPool[i]);
             center.ClaimSpotInWorld(increment);
+            mapPanel.SetImprovement(center.mainLoc, tradeCenterMapIcon);
+            mapPanel.SetTileSprite(center.mainLoc, TerrainDesc.TradeCenter);
             roadManager.BuildRoadAtPosition(center.mainLoc);
             tradeCenterDict[center.tradeCenterName] = center;
             tradeCenterStopDict[center.mainLoc] = center;
@@ -321,6 +328,7 @@ public class MapWorld : MonoBehaviour
         //unitMovement.LoadUnloadFinish(false);
         researchTree.ToggleVisibility(false);
         wonderHandler.ToggleVisibility(false);
+        mapPanel.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
         CloseTerrainTooltip();
         CloseImprovementTooltip();
@@ -561,6 +569,8 @@ public class MapWorld : MonoBehaviour
         {
             AddToCityLabor(tile, wonderGO); //so cities can't take the spot
             AddStructure(tile, wonderGO); //so nothing else can be built there
+            AddStructureMap(tile, wonderMapIcon);
+            mapPanel.SetTileSprite(tile, TerrainDesc.Wonder);
 
             //checking if there's a spot to build harbor
             foreach (Vector3Int neighbor in GetNeighborsFor(tile, State.FOURWAYINCREMENT))
@@ -1943,6 +1953,42 @@ public class MapWorld : MonoBehaviour
 
         buildingPosDict[position] = structure;
     }
+
+    public void AddStructureMap(Vector3Int pos, Sprite sprite)
+    {
+        mapPanel.SetImprovement(pos, sprite);
+    }
+
+    public void RemoveStructureMap(Vector3Int pos)
+    {
+        mapPanel.RemoveImprovement(pos);
+    }
+
+    public TMP_Text SetCityTileMap(Vector3Int pos, string name)
+    {
+        mapPanel.SetTileSprite(pos, TerrainDesc.City);
+        return mapPanel.CreateCityText(pos, name);
+    }
+
+    public void ResetTileMap(Vector3Int pos)
+    {
+        mapPanel.SetTileSprite(pos, GetTerrainDataAt(pos).terrainData.terrainDesc);
+    }
+
+    public GameObject CreateMapIcon(Sprite sprite)
+    {
+        return mapPanel.CreateUnitIcon(sprite);
+    }
+
+    public void SetMapIconLoc(Vector3Int loc, GameObject icon)
+    {
+        mapPanel.SetIconTile(loc, icon);
+    }
+
+    //public void MoveWorkerIcon(Vector3Int pos, float movement)
+    //{
+    //    mapPanel.MoveWorker(pos, movement);
+    //}
 
     public void AddCity(Vector3 buildPosition, City city)
     {
