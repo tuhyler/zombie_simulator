@@ -115,6 +115,7 @@ public class UICityNamer : MonoBehaviour
 
         tempCity.RemoveCityName();
         tempCity.UpdateCityName(tempText);
+        tempCity.cityMapName.text = tempText;
         uiInfoPanelCity.UpdateCityName(tempText);
         ToggleVisibility(false);
     }

@@ -16,6 +16,7 @@ MonoBehaviour:
   unitName: Archer
   unitLevel: 1
   image: {fileID: 21300000, guid: 85009792ecfc4a644884ce6b4264e23a, type: 3}
+  mapIcon: {fileID: 21300000, guid: 96ad298f88c370347b8f53c2b3351112, type: 3}
   unitCost:
   - resourceType: 7
     resourceAmount: 15

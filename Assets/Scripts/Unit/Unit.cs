@@ -46,6 +46,7 @@ public class Unit : MonoBehaviour
     private int queueCount = 0;
     public int QueueCount { set { queueCount = value; } }
     private Vector3 shoePrintScale;
+    private GameObject mapIcon;
 
     //combat info
     [HideInInspector]
@@ -88,6 +89,7 @@ public class Unit : MonoBehaviour
         hillSpeed = world.hill.movementCost;
         forestHillSpeed = world.forestHill.movementCost;
         originalMoveSpeed = buildDataSO.movementSpeed;
+        mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
         bySea = buildDataSO.transportationType == TransportationType.Sea;
         shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
@@ -108,6 +110,8 @@ public class Unit : MonoBehaviour
         lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0,0,0));
         lightBeam.transform.parent = transform;
         lightBeam.Play();
+
+        world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
         //Physics.IgnoreLayerCollision(8, 10);
     }
 
@@ -267,7 +271,10 @@ public class Unit : MonoBehaviour
             //    break;
 
             yield return null;
-        } 
+        }
+
+        //if (world.showingMap)
+        world.SetMapIconLoc(endPositionInt, mapIcon);
 
         if (pathPositions.Count > 0)
         {

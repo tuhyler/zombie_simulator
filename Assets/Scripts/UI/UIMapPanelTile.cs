@@ -1,59 +1,49 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
-public class UIMapPanelTile : MonoBehaviour, IPointerDownHandler
+public class UIMapPanelTile : MonoBehaviour
 {
-    private UIMapPanel uiMapPanel;
-    
     [SerializeField]
-    private Image terrainImage, resourceImage;
+    private Image terrainImage, improvementImage, resourceImage;
 
     [SerializeField]
     private GameObject resourceHolder;
     
     [HideInInspector]
-    public Vector3Int coordinates;
-
-    [HideInInspector]
-    public Vector3 localCoordinates;
-
-    [HideInInspector]
-    public bool isDiscovered;
+    public bool isDiscovered, hasResources;
 
 
-    public void SetMapPanel(UIMapPanel uiMapPanel)
+    public void SetTile(Sprite sprite)
     {
-        this.uiMapPanel = uiMapPanel;
-    }
-
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        uiMapPanel.CenterCamera(coordinates);
-    }
-
-    public void SetTile(Vector3Int pos, Sprite sprite, int increment)
-    {
-        coordinates = pos;
         terrainImage.sprite = sprite;
-
-        Vector3 loc = pos;
-        loc /= increment;
-        loc *= 75;
-        loc.x += 37.5f;
-        loc.z += -37.5f;
-        loc.y = loc.z;
-        loc.z = 0;
-        localCoordinates = loc;
     }
 
     public void SetResource(Sprite sprite)
     {
         resourceHolder.SetActive(true);
         resourceImage.sprite = sprite;
+        hasResources = true;
+    }
+
+    public void SetImprovement(Sprite sprite)
+    {
+        improvementImage.gameObject.SetActive(true);
+        improvementImage.sprite = sprite;
+        if (!hasResources)
+            improvementImage.transform.localPosition = new Vector3(0, 0, 0);
+    }
+
+    public void RemoveImprovement()
+    {
+        improvementImage.gameObject.SetActive(false);
+    }
+
+    public void RemoveResource()
+    {
+        hasResources = false;
+        improvementImage.transform.localPosition = new Vector3(0, 0, 0);
+        resourceHolder.SetActive(false);
     }
 }

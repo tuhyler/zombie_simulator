@@ -8,6 +8,7 @@ public class UnitBuildDataSO : ScriptableObject
     public string unitName;
     public int unitLevel;
     public Sprite image;
+    public Sprite mapIcon;
     public List<ResourceValue> unitCost;
     public List<ResourceValue> consumedResources;
     public int laborCost;

@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class City : MonoBehaviour
@@ -32,9 +34,14 @@ public class City : MonoBehaviour
     [SerializeField]
     private ParticleSystem heavenHighlight, resourceSplash, lightBullet;
 
+    [SerializeField]
+    public Sprite mapIcon;
+
     //city info
     [HideInInspector]
     public string cityName;
+    [HideInInspector]
+    public TMP_Text cityMapName;
     
     [HideInInspector]
     public Vector3Int cityLoc;
@@ -1053,5 +1060,10 @@ public class City : MonoBehaviour
         initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).terrainData.type == TerrainType.Hill);
         StopAllCoroutines();
         Destroy(uiTimeProgressBar.gameObject);
+    }
+
+    internal void DestroyMapText()
+    {
+        Destroy(cityMapName.gameObject);
     }
 }
