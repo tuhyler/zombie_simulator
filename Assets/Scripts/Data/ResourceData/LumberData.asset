@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Lumber
   resourceIcon: {fileID: 21300000, guid: c1ec745f2914dd447ae9605fdd236faf, type: 3}
-  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 5
   resourcePrice: 3
   resourceQuantityPerPop: 50
+  rawResource: 1

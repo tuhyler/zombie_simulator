@@ -1845,7 +1845,7 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
-    public (List<(Vector3Int, bool, int[])>, int[], int[]) GetRoadNeighborsFor(Vector3Int position)
+    public (List<(Vector3Int, bool, int[])>, int[], int[]) GetRoadNeighborsFor(Vector3Int position, bool removing)
     {
         List<(Vector3Int, bool, int[])> neighbors = new();
         int[] straightRoads = { 0, 0, 0, 0 };
@@ -1855,11 +1855,27 @@ public class MapWorld : MonoBehaviour
         {
             Vector3Int neighbor = direction + position;
             bool straightFlag = i % 2 == 0;
+
             if (roadTileDict.ContainsKey(neighbor))
             {
                 int j = 0;
                 int[] neighborRoads = { 0, 0, 0, 0 };
-                int neighborCount = 0;
+                //int neighborCount = 0;
+                if (removing)
+                {
+                    if (i > 3)
+                        RemoveRoadMapIcon(neighbor, i - 3);
+                    else
+                        RemoveRoadMapIcon(neighbor, i + 5);
+                }
+                else
+                {
+                    SetRoadMapIcon(position, i + 1);
+                    if (i > 3)
+                        SetRoadMapIcon(neighbor, i - 3);
+                    else
+                        SetRoadMapIcon(neighbor, i + 5);
+                }
 
                 List<Vector3Int> neighborDirectionList = straightFlag ? neighborsFourDirectionsIncrement : neighborsDiagFourDirectionsIncrement;
                 foreach (Vector3Int neighborDirection in neighborDirectionList)
@@ -1867,7 +1883,7 @@ public class MapWorld : MonoBehaviour
                     if (roadTileDict.ContainsKey(neighbor + neighborDirection))
                     {
                         neighborRoads[j] = 1;
-                        neighborCount++;
+                        //neighborCount++;
                     }
                     j++;
                 }
@@ -1983,6 +1999,21 @@ public class MapWorld : MonoBehaviour
     public void SetMapIconLoc(Vector3Int loc, GameObject icon)
     {
         mapPanel.SetIconTile(loc, icon);
+    }
+
+    public void SetRoadMapIcon(Vector3Int loc, int num)
+    {
+        mapPanel.SetRoad(loc, num);
+    }
+
+    public void RemoveRoadMapIcon(Vector3Int loc, int num)
+    {
+        mapPanel.RemoveRoad(loc, num);
+    }
+
+    public void RemoveAllRoadIcons(Vector3Int loc)
+    {
+        mapPanel.RemoveAllRoads(loc);
     }
 
     //public void MoveWorkerIcon(Vector3Int pos, float movement)

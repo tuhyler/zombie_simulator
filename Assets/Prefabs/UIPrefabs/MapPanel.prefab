@@ -8,7 +8,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8661278408126042338}
+  - component: {fileID: 8529910926168182867}
   m_Layer: 0
   m_Name: NameHolder
   m_TagString: Untagged
@@ -16,8 +16,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8661278408126042338
-Transform:
+--- !u!224 &8529910926168182867
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -29,8 +29,49 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4664273602164976609}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &580537534155444353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2084642440924876588}
+  m_Layer: 0
+  m_Name: ResourceHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2084642440924876588
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580537534155444353}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4664273602164976609}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1130210197750875787
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,6 +133,78 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 50
+--- !u!1 &1301387873587963623
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1660145169192918581}
+  m_Layer: 0
+  m_Name: ImprovementHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1660145169192918581
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1301387873587963623}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4664273602164976609}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &6141764041549016669
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2836355529335899916}
+  m_Layer: 0
+  m_Name: RoadHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2836355529335899916
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6141764041549016669}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4664273602164976609}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6221806411041363504
 GameObject:
   m_ObjectHideFlags: 0
@@ -100,7 +213,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8460499283633435332}
+  - component: {fileID: 534471033448251236}
   m_Layer: 0
   m_Name: UnitHolder
   m_TagString: Untagged
@@ -108,8 +221,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8460499283633435332
-Transform:
+--- !u!224 &534471033448251236
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -121,8 +234,13 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4664273602164976609}
-  m_RootOrder: 1
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &7389737143294441261
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,8 +273,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4482114740361121681}
-  - {fileID: 8460499283633435332}
-  - {fileID: 8661278408126042338}
+  - {fileID: 2836355529335899916}
+  - {fileID: 2084642440924876588}
+  - {fileID: 1660145169192918581}
+  - {fileID: 534471033448251236}
+  - {fileID: 8529910926168182867}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -190,8 +311,11 @@ MonoBehaviour:
   cameraController: {fileID: 0}
   mainRect: {fileID: 4664273602164976609}
   gridRect: {fileID: 4482114740361121681}
-  unitHolder: {fileID: 8460499283633435332}
-  cityNameHolder: {fileID: 8661278408126042338}
+  unitHolder: {fileID: 534471033448251236}
+  cityNameHolder: {fileID: 8529910926168182867}
+  roadHolder: {fileID: 2836355529335899916}
+  improvementHolder: {fileID: 1660145169192918581}
+  resourceHolder: {fileID: 2084642440924876588}
   panel: {fileID: 3321621651594768154}
   mapPanelTile: {fileID: 5511820233972656666, guid: 70bcabf4c3f916441bdf00f4eec8c6c3,
     type: 3}
@@ -199,7 +323,12 @@ MonoBehaviour:
     type: 3}
   mapCityText: {fileID: 8519350798629157842, guid: 9029042ffa110424daee54a5cedbc48f,
     type: 3}
+  mapPanelImage: {fileID: 6243229140755887110, guid: 84ce798c9d401784c953f03e56e3abde,
+    type: 3}
+  mapPanelResource: {fileID: 988626617097594400, guid: 5a104d3c7d32c4548b0abed59e66a7c4,
+    type: 3}
   grid: {fileID: 5744578657898286642}
+  resourceSearch: {fileID: 0}
   grassland: {fileID: 21300000, guid: 1f916e76d9311e14da9502f92ea29f7f, type: 3}
   desert: {fileID: 21300000, guid: 3ea70044d789c1a4d86e1e03b6ad6458, type: 3}
   grasslandHill: {fileID: 21300000, guid: 0a76b4a079ea3164d943ec686b66bc74, type: 3}
@@ -215,9 +344,13 @@ MonoBehaviour:
   swamp: {fileID: 21300000, guid: 104b014279845c24a974e324dc9ac4fe, type: 3}
   sea: {fileID: 21300000, guid: 1c13b84f78d1d3046bfe24c35f2dfc82, type: 3}
   undiscovered: {fileID: 21300000, guid: 7775619ef7ade6140a7e4455b0a7c6ba, type: 3}
+  highlight: {fileID: 21300000, guid: 3cbb8738ef6f9d34f8f953041b2b2581, type: 3}
   city: {fileID: 21300000, guid: 236b2c8edc7a1194aa3692f6edd632a2, type: 3}
   wonder: {fileID: 21300000, guid: 790cdd537b20d2946bbf7b3fda015a38, type: 3}
   tradeCenter: {fileID: 21300000, guid: d635a48147c36a0488311fc51a1b156b, type: 3}
+  roadSolo: {fileID: 21300000, guid: 5f465ffddd943794eb27babc3a9a32f3, type: 3}
+  roadStraight: {fileID: 21300000, guid: 6b854b7d583e8f24cad6c0c305b05e07, type: 3}
+  roadDiagonal: {fileID: 21300000, guid: 822a3705b79e66f42999a141a1af07ac, type: 3}
   movementSpeed: 1
   movementTime: 5
   zoomTime: 5
