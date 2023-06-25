@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using static UnityEditor.PlayerSettings;
 using TMPro;
+using System.Linq;
 
 public class UIMapPanel : MonoBehaviour, IPointerDownHandler
 {
@@ -20,25 +20,33 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
     private RectTransform mainRect, gridRect;
 
     [SerializeField]
-    private Transform unitHolder, cityNameHolder;
+    private Transform unitHolder, cityNameHolder, roadHolder, improvementHolder, resourceHolder;
 
     [SerializeField]
     private Image panel;
 
     [SerializeField]
-    private GameObject mapPanelTile, mapUnitIcon, mapCityText;
+    private GameObject mapPanelTile, mapUnitIcon, mapCityText, mapPanelImage, mapPanelResource;
 
     [SerializeField]
     private GridLayoutGroup grid;
 
-    //[SerializeField]
-    //private SpriteRenderer workerIcon;
+    [SerializeField]
+    private UIMapResourceSearch resourceSearch;
 
     private Dictionary<Vector3Int, UIMapPanelTile> mapTileDict = new();
     private Dictionary<Vector3Int, Vector3> mapLocDict = new();
+    private Dictionary<ResourceType, List<Vector3Int>> resourceLocDict = new();
+    private ResourceType highlightType = ResourceType.None;
+    private Dictionary<Vector3Int, GameObject> resourceImageDict = new();
+    private Dictionary<Vector3Int, GameObject> improvementImageDict = new();
+    private Dictionary<Vector3Int, GameObject[]> roadImageDict = new();
 
     [SerializeField]
-    private Sprite grassland, desert, grasslandHill, desertHill, grasslandFloodPlain, desertFloodPlain, forest, forestHill, jungle, jungleHill, mountain, swamp, sea, undiscovered, city, wonder, tradeCenter;
+    private Sprite grassland, desert, grasslandHill, desertHill, grasslandFloodPlain, desertFloodPlain, forest, forestHill, jungle, jungleHill, mountain, swamp, sea, undiscovered, highlight, city, wonder, tradeCenter;
+
+    [SerializeField]
+    public Sprite roadSolo, roadStraight, roadDiagonal;// roadUp, roadUpRight, roadRight, roadDownRight, roadDown, roadDownLeft, roadLeft, roadUpLeft;
 
     private Vector3 newPosition;
     public float movementSpeed = 1, movementTime, zoomTime;
@@ -54,6 +62,7 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
     private void Awake()
     {
         CreateDictionary();
+        resourceSearch.mapPanel = this;
 
         //if (Screen.height > 1080)
         //    workerIcon.transform.localScale = new Vector3(50f, 50f, 50f);
@@ -92,12 +101,13 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
                 panelTile.SetTile(undiscovered);
                 panelTile.gameObject.transform.SetParent(grid.transform, false);
                 mapTileDict[tileCoordinates] = panelTile;
-                SetDictLocValue(tileCoordinates);
+                mapLocDict[tileCoordinates] = SetDictLocValue(tileCoordinates);
+                //SetDictLocValue(tileCoordinates);
 
                 foreach (Vector3Int neighbor in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
                 {
                     Vector3Int newTile = neighbor + tileCoordinates;
-                    SetDictLocValue(newTile);
+                    mapLocDict[newTile] = SetDictLocValue(newTile);
                 }
             }
         }
@@ -107,7 +117,7 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         grid.constraintCount = mapWidth;
     }
 
-    private void SetDictLocValue(Vector3Int pos)
+    private Vector3 SetDictLocValue(Vector3Int pos)
     {
         Vector3 loc = pos;
         loc *= grid.cellSize.x / 3;
@@ -116,16 +126,33 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         loc.y = loc.z;
         loc.z = 0;
 
-        mapLocDict[pos] = loc;
+        return loc;
+        //mapLocDict[pos] = loc;
     }
 
     public void AddTileToMap(Vector3Int loc)
     {
         TerrainData td = world.GetTerrainDataAt(loc);
         mapTileDict[loc].SetTile(GetSprite(td.terrainData.terrainDesc));
+        mapTileDict[loc].TileDesc = td.terrainData.terrainDesc;
 
         if (td.terrainData.resourceType != ResourceType.Food && td.terrainData.resourceType != ResourceType.None && td.terrainData.resourceType != ResourceType.Lumber && td.terrainData.resourceType != ResourceType.Fish)
-            mapTileDict[loc].SetResource(ResourceHolder.Instance.GetIcon(td.terrainData.resourceType));
+        {
+            GameObject resourceGO = Instantiate(mapPanelResource);
+            resourceGO.gameObject.transform.SetParent(resourceHolder, false);
+            Vector3 pos = mapLocDict[loc];// SetDictLocValue(loc);
+            pos.y -= grid.cellSize.x * 0.5f;
+            resourceGO.transform.localPosition = pos;
+            resourceGO.GetComponent<UIMapResourceImage>().resourceImage.sprite = ResourceHolder.Instance.GetIcon(td.terrainData.resourceType);
+            resourceImageDict[loc] = resourceGO;
+            //mapTileDict[loc].SetResource(ResourceHolder.Instance.GetIcon(td.terrainData.resourceType));
+            mapTileDict[loc].isDiscovered = true; //currently everything is discovered
+
+            if (!resourceLocDict.ContainsKey(td.terrainData.resourceType))
+                resourceLocDict[td.terrainData.resourceType] = new List<Vector3Int>();
+
+            resourceLocDict[td.terrainData.resourceType].Add(loc);
+        }
     }
 
     public void ToggleVisibility(bool v)
@@ -140,6 +167,7 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
             world.UnselectAll();
             uiUnitTurn.gameObject.SetActive(false);
             gameObject.SetActive(v);
+            resourceSearch.gameObject.SetActive(true);
             world.showingMap = true;
 
             activeStatus = true;
@@ -162,6 +190,10 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         }
         else
         {
+            RemoveTileHighlights();
+            highlightType = ResourceType.None;
+            resourceSearch.ResetDropdown();
+            resourceSearch.gameObject.SetActive(false);
             activeStatus = false;
             world.showingMap = false;
             uiUnitTurn.gameObject.SetActive(true);
@@ -174,19 +206,64 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         cameraController.enabled = !v;
     }
 
-    public void SetImprovement(Vector3Int pos, Sprite sprite)
+    public void SetImprovement(Vector3Int loc, Sprite sprite)
     {
-        mapTileDict[pos].SetImprovement(sprite);
+        GameObject improvementGO = Instantiate(mapPanelImage);
+        improvementGO.gameObject.transform.SetParent(improvementHolder, false);
+        Vector3 pos = mapLocDict[loc];
+        improvementGO.transform.localPosition = pos;
+        //improvementGO.transform.position = SetDictLocValue(loc);
+        improvementGO.GetComponent<Image>().sprite = sprite;
+        improvementImageDict[loc] = improvementGO;
+
+        //mapTileDict[loc].SetImprovement(sprite);
     }
 
-    public void RemoveImprovement(Vector3Int pos)
+    public void RemoveImprovement(Vector3Int loc)
     {
-        mapTileDict[pos].RemoveImprovement();
+        //mapTileDict[loc].RemoveImprovement();
+        Destroy(improvementImageDict[loc]);
     }
 
-    public void SetTileSprite(Vector3Int pos, TerrainDesc terrainDesc)
+    public void RemoveResource(Vector3Int loc)
     {
-        mapTileDict[pos].SetTile(GetSprite(terrainDesc));
+        Destroy(resourceImageDict[loc]);
+    }
+
+    public void SetTileSprite(Vector3Int loc, TerrainDesc terrainDesc)
+    {
+        mapTileDict[loc].SetTile(GetSprite(terrainDesc));
+    }
+
+    public void HighlightTile(ResourceType type)
+    {
+        RemoveTileHighlights();
+
+        if (!resourceLocDict.ContainsKey(type))
+            return;
+
+        highlightType = type;
+
+        if (highlightType == ResourceType.None)
+            return;
+
+        foreach (Vector3Int tile in resourceLocDict[highlightType])
+        {
+            if (mapTileDict[tile].isDiscovered)
+                mapTileDict[tile].SetTile(highlight);
+        }
+    }
+
+    public void RemoveTileHighlights()
+    {
+        if (highlightType == ResourceType.None)
+            return;
+
+        foreach (Vector3Int tile in resourceLocDict[highlightType])
+        {
+            if (mapTileDict[tile].isDiscovered)
+                mapTileDict[tile].SetTile(GetSprite(mapTileDict[tile].TileDesc));
+        }
     }
 
     public Sprite GetSprite(TerrainDesc desc)
@@ -252,6 +329,70 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         return sprite;
     }
 
+    private (Sprite, Vector3, Vector2, int) GetRoad(int i)
+    {
+        Sprite road = roadSolo;
+        Vector3 shift = Vector3.zero;
+        Vector2 size = Vector2.zero;
+        int rotation = 0;
+
+        switch (i)
+        {
+            case 0:
+                road = roadSolo;
+                size = new Vector2(20, 20);
+                break;
+            case 1:
+                road = roadStraight;
+                shift = new Vector3(0, 13.5f, 0);
+                size = new Vector2(48, 21);
+                rotation = 270;
+                break;
+            case 2:
+                road = roadDiagonal;
+                shift = new Vector3(23f, 13.5f, 0);
+                size = new Vector2(48, 48);
+                rotation = 180;
+                break;
+            case 3:
+                road = roadStraight;
+                shift = new Vector3(13.5f, 0, 0);
+                size = new Vector2(48, 21);
+                rotation = 180;
+                break;
+            case 4:
+                road = roadDiagonal;
+                shift = new Vector3(23f, -13.5f, 0);
+                size = new Vector2(48, 48);
+                rotation = 270;
+                break;
+            case 5:
+                road = roadStraight;
+                shift = new Vector3(0, -13.5f, 0);
+                size = new Vector2(48, 21);
+                rotation = 90;
+                break;
+            case 6:
+                road = roadDiagonal;
+                shift = new Vector3(-23f, -13.5f, 0);
+                size = new Vector2(48, 48);
+                break;
+            case 7:
+                road = roadStraight;
+                shift = new Vector3(-13.5f, 0, 0);
+                size = new Vector2(48, 21);
+                break;
+            case 8:
+                road = roadDiagonal;
+                shift = new Vector3(-23f, 13.5f, 0);
+                size = new Vector2(48, 48);
+                rotation = 90;
+                break;
+        }
+
+        return (road, shift, size, rotation);
+    }
+
     public TMP_Text CreateCityText(Vector3Int loc, string text)
     {
         GameObject cityTextGO = Instantiate(mapCityText);
@@ -272,10 +413,67 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         icon.transform.localPosition = mapLocDict[loc];
     }
 
-    //public void MoveWorker(Vector3Int newLoc, float movement)
-    //{
-    //    workerIcon.transform.position = Vector3.MoveTowards(workerIcon.transform.position, mapLocDict[newLoc], movement);
-    //}
+    public void SetRoad(Vector3Int loc, int num)
+    {
+        GameObject roadGO = Instantiate(mapPanelImage);
+        roadGO.gameObject.transform.SetParent(roadHolder, false);
+        (Sprite sprite, Vector3 shift, Vector2 size, int rotation) = GetRoad(num);
+        roadGO.GetComponent<RectTransform>().sizeDelta = size;
+        Vector3 pos = mapLocDict[loc];
+        roadGO.transform.localEulerAngles = new Vector3Int(0, 0, rotation);
+        roadGO.transform.localPosition = pos + shift;
+        roadGO.GetComponent<Image>().sprite = sprite;
+
+        if (!roadImageDict.ContainsKey(loc))
+            roadImageDict[loc] = new GameObject[9];
+
+        roadImageDict[loc][num] = roadGO;
+
+        if (num > 0)
+            ClearSoloRoad(loc);
+        //mapTileDict[loc].TurnOnRoad(num);
+    }
+
+    public void RemoveRoad(Vector3Int loc, int num)
+    {
+        GameObject road = roadImageDict[loc][num];
+        Destroy(road);
+        roadImageDict[loc][num] = null;
+
+        if (roadImageDict[loc].Count(x => x != null) == 0)
+            SetRoad(loc, 0); //adding solo road if there's none left
+        //mapTileDict[loc].TurnOffRoad(num);
+    }
+
+    public void RemoveAllRoads(Vector3Int loc)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            if (roadImageDict[loc][i] != null)
+            {
+                Destroy(roadImageDict[loc][i]);
+                roadImageDict[loc][i] = null;
+            }
+        }
+
+        //foreach (GameObject road in roadImageDict[loc])
+        //{
+        //    if (road != null)
+        //        Destroy(road);
+        //}
+
+        roadImageDict.Remove(loc);
+        //mapTileDict[loc].TurnOffAllRoads();
+    }
+
+    private void ClearSoloRoad(Vector3Int loc)
+    {
+        if (roadImageDict[loc][0] != null)
+        {
+            Destroy(roadImageDict[loc][0]);
+            roadImageDict[loc][0] = null;
+        }
+    }
 
     public GameObject CreateUnitIcon(Sprite sprite)
     {

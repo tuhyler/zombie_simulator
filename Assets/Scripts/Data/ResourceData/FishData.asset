@@ -16,7 +16,7 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Fish
   resourceIcon: {fileID: 21300000, guid: 1690ec111a2aa164a8cf0ceca05a283b, type: 3}
-  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 5
   resourcePrice: 1
   resourceQuantityPerPop: 1
+  rawResource: 1

@@ -90,6 +90,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 35ec9dc42a660f5409dcf8d7243e1cf6, type: 3}
   - {fileID: 21300000, guid: 0bfe95d46a8f8b3488631cdddf72b280, type: 3}
   - {fileID: 21300000, guid: 713228e4162c39c43aa1069a8fa2a615, type: 3}
+  - {fileID: 21300000, guid: 822a3705b79e66f42999a141a1af07ac, type: 3}
   - {fileID: 21300000, guid: 58099a051206a8b408abd7bb62633bb7, type: 3}
   - {fileID: 21300000, guid: 28dfe8154404b2440b891890427b755d, type: 3}
   - {fileID: 21300000, guid: b30e2f35ff95b0b45b75d894b5390e93, type: 3}
@@ -121,6 +122,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8f0dc8b7bc4f1c74290a3fc91cd5059c, type: 3}
   - {fileID: 21300000, guid: 89b5a3e781d40574489734b720235afd, type: 3}
   - {fileID: 21300000, guid: a47aa928dd3f3114f95bf61ddcf7107f, type: 3}
+  - {fileID: 21300000, guid: 3cbb8738ef6f9d34f8f953041b2b2581, type: 3}
   - {fileID: 21300000, guid: 4ee705485766f314a84ab4207ce54dc8, type: 3}
   - {fileID: 21300000, guid: c4a8fb580091c8f409477b7c369708a9, type: 3}
   - {fileID: 21300000, guid: 707cc06803da3384db0894fb551535bb, type: 3}
@@ -168,9 +170,11 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 2a8713fc6b0c5694f841c5b5eb75aa0b, type: 3}
   - {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
   - {fileID: 21300000, guid: 42edba2def6915d47b9a065009ca1cd5, type: 3}
+  - {fileID: 21300000, guid: 6b854b7d583e8f24cad6c0c305b05e07, type: 3}
   - {fileID: 21300000, guid: 30dd6a9db936fbe47815ac9bd5ce72de, type: 3}
   - {fileID: 21300000, guid: 5b8136cdb151eb24fada3f92a3bd885f, type: 3}
   - {fileID: 21300000, guid: e71a60dd97e4bbb4cbb9011ef3f3a250, type: 3}
+  - {fileID: 21300000, guid: 5f465ffddd943794eb27babc3a9a32f3, type: 3}
   - {fileID: 21300000, guid: 846ff20ee8921b64984b0d660f868b3b, type: 3}
   - {fileID: 21300000, guid: 78c4621eac3e89649aa49b690d193acc, type: 3}
   - {fileID: 21300000, guid: 7657c92e33834514aa553e39fcdeb24a, type: 3}
@@ -255,6 +259,7 @@ SpriteAtlas:
   - button_wonders
   - research01
   - button_longred2
+  - roaddiagonal_mapicon
   - mask_white_fadededges
   - button_longgold
   - button_gather
@@ -286,6 +291,7 @@ SpriteAtlas:
   - button_right
   - background_image
   - button_lumbermill
+  - tile_highlight
   - button_trade
   - arrow_researchdown_lightblue
   - tile_deserthill
@@ -333,9 +339,11 @@ SpriteAtlas:
   - button_loadunload
   - icon_infantry
   - panel_darkgold02
+  - road_mapicon
   - mask_clear
   - bar_progresswhitered
   - button_arrowright
+  - roadsolo_mapicon
   - button_abandon
   - bar_lighbluehalfpipe
   - icon_health

@@ -142,14 +142,17 @@ public class RoadManager : MonoBehaviour
         world.InitializeRoads(roadPosition);
         //td.MovementCost = basicRoadMovementCost;
         td.hasRoad = true;
-        (List<(Vector3Int, bool, int[])> roadNeighbors, int[] straightRoads, int[] diagRoads) = world.GetRoadNeighborsFor(roadPosition);
+        (List<(Vector3Int, bool, int[])> roadNeighbors, int[] straightRoads, int[] diagRoads) = world.GetRoadNeighborsFor(roadPosition, false);
 
         int straightRoadsCount = straightRoads.Sum(); //number of roads in straight neighbors
         int diagRoadsCount = diagRoads.Sum(); //number of roads in diagonal neighbors
 
         //making road shape based on how many of its neighbors have roads, and where the roads are
         if (straightRoadsCount + diagRoadsCount == 0)
+        {
             CreateRoadSolo(roadPosition, hill, false);
+            world.SetRoadMapIcon(roadPosition, 0);
+        }
 
         world.SetRoadLocations(roadPosition);
 
@@ -386,13 +389,14 @@ public class RoadManager : MonoBehaviour
         world.RemoveRoad(tile);
         world.RemoveRoadLocation(tile);
         world.RemoveSoloRoadLocation(tile);
+        world.RemoveAllRoadIcons(tile);
 
         foreach (Vector3Int neighbor in neighborsFourDirections)
             world.RemoveRoadLocation(tile + neighbor);
         foreach (Vector3Int neighbor in neighborsDiagFourDirections)
             world.RemoveRoadLocation(tile + neighbor);
 
-        (List<(Vector3Int, bool, int[])> removedRoadNeighbors, int[] straightRoads, int[] diagRoads) = world.GetRoadNeighborsFor(tile);
+        (List<(Vector3Int, bool, int[])> removedRoadNeighbors, int[] straightRoads, int[] diagRoads) = world.GetRoadNeighborsFor(tile, true);
         FixNeighborRoads(removedRoadNeighbors);
         CombineMeshes();
     }
