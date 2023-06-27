@@ -43,7 +43,7 @@ public class UITraderOrderHandler : MonoBehaviour
         }
     }
 
-    public void ToggleVisibility(bool val) 
+    public void ToggleVisibility(bool val, MapWorld world = null) //pass in world for canvas
     {
         if (activeStatus == val)
             return;
@@ -62,7 +62,7 @@ public class UITraderOrderHandler : MonoBehaviour
         else
         {
             activeStatus = false;
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world));
         }
     }
 
@@ -71,9 +71,10 @@ public class UITraderOrderHandler : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    private void SetActiveStatusFalse()
+    private void SetActiveStatusFalse(MapWorld world)
     {
         gameObject.SetActive(false);
+        world.traderCanvas.gameObject.SetActive(false);
     }
 
 }

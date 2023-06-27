@@ -50,6 +50,7 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
 
     private Vector3 newPosition;
     public float movementSpeed = 1, movementTime, zoomTime;
+    private float prevZoom = -500f;
 
     public int mapWidth = 50, mapHeight = 50, offset = 25; //offset if tile values are less than 0 on map
 
@@ -80,7 +81,7 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         //ugh.z = 1000;
         //Vector3 ugh2 = Camera.main.ScreenToWorldPoint(ugh);
         //transform.position = ugh;
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
     void LateUpdate()
@@ -166,7 +167,8 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
         {
             world.UnselectAll();
             uiUnitTurn.gameObject.SetActive(false);
-            gameObject.SetActive(v);
+            world.mapCanvas.gameObject.SetActive(true);
+            //gameObject.SetActive(v);
             resourceSearch.gameObject.SetActive(true);
             world.showingMap = true;
 
@@ -179,8 +181,8 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
             loc.x = Mathf.Clamp(loc.x, -280f, 280);
             loc.z = Mathf.Clamp(loc.z, -240f, 240f);
 
-            newPosition = new Vector3(loc.x, loc.z, -700f);
-            mainRect.localPosition = new Vector3(loc.x, loc.z, -700f);
+            newPosition = new Vector3(loc.x, loc.z, prevZoom);
+            mainRect.localPosition = new Vector3(loc.x, loc.z, prevZoom);
             //mainRect.localScale = Vector3.one;
 
             //allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
@@ -197,7 +199,9 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
             activeStatus = false;
             world.showingMap = false;
             uiUnitTurn.gameObject.SetActive(true);
-            gameObject.SetActive(v);
+            //gameObject.SetActive(v);
+            world.mapCanvas.gameObject.SetActive(false);
+            prevZoom = mainRect.localPosition.z;
             //transform.position = originalLoc;
 
             //LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.3f).setOnComplete(SetActiveStatusFalse);
@@ -532,7 +536,7 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
             newPosition += Input.mouseScrollDelta.y * new Vector3(0,0,-30);
         }
 
-        newPosition.z = Mathf.Clamp(newPosition.z, -700, 80);
+        newPosition.z = Mathf.Clamp(newPosition.z, -700, 70);
 
         mainRect.localPosition = Vector3.Lerp(mainRect.localPosition, newPosition, Time.deltaTime * movementTime);
         //transform.localPosition = Vector3.Lerp(transform.localPosition, newPosition, Time.deltaTime * movementTime);

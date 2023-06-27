@@ -198,6 +198,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
+  minimapIcon: {fileID: 501373686551265237, guid: 076131e88d6a5794e9fd3077c725d75e,
+    type: 3}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   selectionCircle: {fileID: 0}
@@ -210,6 +212,7 @@ MonoBehaviour:
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
+  finalDestinationLoc: {x: 0, y: 0, z: 0}
   currentHealth: 0
   turnHandler: {fileID: 0}
   bySea: 0

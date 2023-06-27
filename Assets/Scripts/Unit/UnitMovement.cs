@@ -315,6 +315,7 @@ public class UnitMovement : MonoBehaviour
         {
             selectedWorker = selectedUnit.GetComponent<Worker>();
             workerTaskManager.SetWorkerUnit(selectedWorker);
+            world.workerCanvas.gameObject.SetActive(true);
             uiWorkerTask.ToggleVisibility(true);
             if (selectedWorker.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(true);
@@ -335,6 +336,7 @@ public class UnitMovement : MonoBehaviour
             uiPersonalResourceInfoPanel.SetTitleInfo(selectedTrader.name,
                 selectedTrader.personalResourceManager.GetResourceStorageLevel, selectedTrader.cargoStorageLimit);
             uiPersonalResourceInfoPanel.ToggleVisibility(true, selectedTrader);
+            world.traderCanvas.gameObject.SetActive(true);
             uiTraderPanel.ToggleVisibility(true);
             if (world.IsTradeLocOnTile(world.RoundToInt(selectedTrader.transform.position)) && !selectedTrader.followingRoute)
             {
@@ -1079,23 +1081,28 @@ public class UnitMovement : MonoBehaviour
             uiJoinCity.ToggleTweenVisibility(false);
 
             if (selectedWorker != null)
+            {
                 uiCancelTask.ToggleTweenVisibility(false);
-            uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
-            uiTraderPanel.ToggleVisibility(false);
-            uiCancelTradeRoute.ToggleTweenVisibility(false);
-            uiTradeRouteManager.ToggleVisibility(false);
-            uiWorkerTask.ToggleVisibility(false);
+                uiWorkerTask.ToggleVisibility(false, null, world);
+                workerTaskManager.NullWorkerUnit();
+            }
+            if (selectedTrader != null)
+            {
+                uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+                uiTraderPanel.ToggleVisibility(false, world);
+                uiCancelTradeRoute.ToggleTweenVisibility(false);
+                uiTradeRouteManager.ToggleVisibility(false);
+                uiPersonalResourceInfoPanel.ToggleVisibility(false, selectedTrader);
+                LoadUnloadFinish(false); //clear load cargo screen
+            }
             //if (selectedUnit != null)
             //{
             selectedUnit.Deselect();
             selectedUnit.HidePath();
             //}
-            uiPersonalResourceInfoPanel.ToggleVisibility(false, selectedTrader);
-            LoadUnloadFinish(false); //clear load cargo screen
             infoManager.HideInfoPanel();
             //movementSystem.ClearPaths(); //necessary to queue movement orders
             //selectedUnitInfoProvider = null;
-            workerTaskManager.NullWorkerUnit();
             selectedTrader = null;
             selectedWorker = null;
             selectedUnit = null;

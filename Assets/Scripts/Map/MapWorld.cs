@@ -10,6 +10,10 @@ using static UnityEngine.Rendering.DebugUI;
 public class MapWorld : MonoBehaviour
 {
     [SerializeField]
+    public Canvas mapCanvas, immoveableCanvas, cityCanvas, workerCanvas, traderCanvas;
+    [SerializeField]
+    private Transform mapIconHolder;
+    [SerializeField]
     private UIWorldResources uiWorldResources;
     [SerializeField]
     private UIResearchTreePanel researchTree;
@@ -303,6 +307,14 @@ public class MapWorld : MonoBehaviour
         }
 
         CreateParticleSystems();
+        DeactivateCanvases();
+    }
+
+    private void DeactivateCanvases()
+    {
+        mapCanvas.gameObject.SetActive(false);
+        immoveableCanvas.gameObject.SetActive(false);
+        cityCanvas.gameObject.SetActive(false);
     }
 
     private void CreateParticleSystems()
@@ -758,6 +770,11 @@ public class MapWorld : MonoBehaviour
         mapPanel.ToggleVisibility(false);
     }
     
+    public void AddToMinimap(GameObject icon)
+    {
+        icon.gameObject.transform.SetParent(mapIconHolder, false);
+    }
+
     //terrain tooltip
     public void OpenTerrainTooltip(TerrainData td)
     {

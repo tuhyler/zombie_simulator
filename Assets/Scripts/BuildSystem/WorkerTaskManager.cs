@@ -399,7 +399,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     private void OrdersPrep()
     {
-        uiWorkerHandler.ToggleVisibility(false);
+        uiWorkerHandler.ToggleVisibility(false, null, world);
         uiBuildingSomething.ToggleVisibility(true);
 
         world.workerOrders = true;

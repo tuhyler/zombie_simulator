@@ -13,6 +13,9 @@ public class Unit : MonoBehaviour
 
     [SerializeField]
     public UnitBuildDataSO buildDataSO;
+
+    [SerializeField]
+    private GameObject minimapIcon;
     
     [SerializeField]
     private ParticleSystem lightBeam;
@@ -112,6 +115,7 @@ public class Unit : MonoBehaviour
         lightBeam.Play();
 
         world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
+        SetMinimapIcon();
         //Physics.IgnoreLayerCollision(8, 10);
     }
 
@@ -130,6 +134,13 @@ public class Unit : MonoBehaviour
         interruptedRoute = false;
         SetInterruptedAnimation(false);
         InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
+    }
+
+    public void SetMinimapIcon()
+    {
+        GameObject icon = Instantiate(minimapIcon);
+        icon.GetComponent<FollowNoRotate>().objectToFollow = transform;
+        world.AddToMinimap(icon);
     }
 
     //Methods for moving unit

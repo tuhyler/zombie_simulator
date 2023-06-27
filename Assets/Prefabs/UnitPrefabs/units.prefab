@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5338010617480299587}
   - component: {fileID: 3412779968788641202}
-  - component: {fileID: 4778263574884209705}
   - component: {fileID: -1569295495130398200}
   - component: {fileID: -4726697187126261968}
+  - component: {fileID: 8497576317380012912}
   m_Layer: 7
   m_Name: units
   m_TagString: Player
@@ -49,23 +49,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &4778263574884209705
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4084126454760206941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
-  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
-  secondaryGlowMaterial: {fileID: 0}
-  originalShader: {fileID: 0}
-  isGlowing: 0
 --- !u!95 &-1569295495130398200
 Animator:
   serializedVersion: 4
@@ -102,3 +85,20 @@ Rigidbody:
   m_Interpolate: 2
   m_Constraints: 122
   m_CollisionDetection: 0
+--- !u!114 &8497576317380012912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4084126454760206941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cbb783e521ebc944a0cd86e05dc85cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  secondaryGlowMaterial: {fileID: 0}
+  originalShader: {fileID: 0}
+  isGlowing: 0
