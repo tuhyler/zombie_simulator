@@ -167,6 +167,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+        cityBuilderManager.world.cityCanvas.gameObject.SetActive(false);
     }
 
     //public void ToggleInteractable(bool v)

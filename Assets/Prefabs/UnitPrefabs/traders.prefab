@@ -67,6 +67,7 @@ MonoBehaviour:
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
   secondaryGlowMaterial: {fileID: 0}
+  originalShader: {fileID: 0}
   isGlowing: 0
 --- !u!114 &-2285914093244530181
 MonoBehaviour:
@@ -81,7 +82,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 0}
-  lightBeam: {fileID: 6841559248971666239, guid: 9b46cb8e8220ddd428f5785751c57fad,
+  minimapIcon: {fileID: 501373686551265237, guid: 0b31cb0826218ee4d9070f926934cc8a,
+    type: 3}
+  lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   selectionCircle: {fileID: 0}
   world: {fileID: 0}
@@ -92,12 +95,16 @@ MonoBehaviour:
   isBusy: 0
   isMoving: 0
   isBeached: 0
+  interruptedRoute: 0
+  finalDestinationLoc: {x: 0, y: 0, z: 0}
+  currentHealth: 0
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
   atStop: 0
   followingRoute: 0
   isWorker: 0
+  isLaborer: 0
   isSelected: 0
   isWaiting: 0
   harvested: 0
@@ -108,7 +115,6 @@ MonoBehaviour:
   tradeRouteManager: {fileID: 0}
   cargoStorageLimit: 0
   hasRoute: 0
-  interruptedRoute: 0
   loadUnloadRate: 1
   ripples: {fileID: 0}
 --- !u!114 &9082481739774170290
@@ -135,9 +141,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0e06e69bbb06324d9568e2e3c0c1923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startingStop: 0
+  cityStops: []
+  waitTimes: 
+  currentStop: 0
+  currentResource: 0
+  resourceCurrentAmount: 0
+  resourceTotalAmount: 0
   FinishedLoading:
     m_PersistentCalls:
       m_Calls: []
+  timeWaited: 0
+  waitTime: 0
   resourceCheck: 0
   waitForever: 0
   loadUnloadRate: 0

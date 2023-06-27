@@ -86,6 +86,8 @@ MonoBehaviour:
   prop: {fileID: 6424281992737964312}
   highlightPlane: {fileID: 4549355761318083129}
   hasRoad: 0
+  isGlowing: 0
+  resourceAmount: 0
 --- !u!64 &5708230851959658450
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -128,6 +130,7 @@ MonoBehaviour:
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
   secondaryGlowMaterial: {fileID: 0}
+  originalShader: {fileID: 0}
   isGlowing: 0
 --- !u!1 &7947533954490412569
 GameObject:
@@ -338,6 +341,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: OceanStraightCornerLeftDesert01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ab9267fc1bb8cca439a728a948efa777,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: ab9267fc1bb8cca439a728a948efa777,
         type: 3}

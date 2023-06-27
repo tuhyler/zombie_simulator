@@ -54,7 +54,7 @@ public class UIWorkerHandler : MonoBehaviour
         OnIconButtonClick?.Invoke(buildData);
     }
 
-    public void ToggleVisibility(bool val, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
+    public void ToggleVisibility(bool val, ResourceManager resourceManager = null, MapWorld world = null) //pass resources to know if affordable in the UI (optional), pass world for canvas
     {
         if (activeStatus == val)
             return;
@@ -80,13 +80,14 @@ public class UIWorkerHandler : MonoBehaviour
         {
             activeStatus = false;
             uiWorkerRemovalOptions.ToggleVisibility(false, true);
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world));
         }
     }
 
-    private void SetActiveStatusFalse()
+    private void SetActiveStatusFalse(MapWorld world)
     {
         gameObject.SetActive(false);
+        world.workerCanvas.gameObject.SetActive(false);
     }
 
     public void PrepareBuild(ImprovementDataSO buildData)

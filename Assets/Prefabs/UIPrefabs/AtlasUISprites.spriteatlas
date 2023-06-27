@@ -56,6 +56,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 63cde1b1df029314fb5b48d23fd206cb, type: 3}
   - {fileID: 21300000, guid: f8eb67b1bfae8064cb8abf01306fd204, type: 3}
   - {fileID: 21300000, guid: c69ca7b161275b54ab7966809f786ec4, type: 3}
+  - {fileID: 21300000, guid: c22a69f1a5e08dc4db8b72ef31ba9a02, type: 3}
   - {fileID: 21300000, guid: d35d180233d47c645916450be3c1ac0d, type: 3}
   - {fileID: 21300000, guid: 7b662902c50a27c48b59e63b10c5b5c2, type: 3}
   - {fileID: 21300000, guid: 4a6c203212fb59840833d48efe6afcf9, type: 3}
@@ -155,6 +156,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f38c00aa9a643e243b06a0b8983b96f9, type: 3}
   - {fileID: 21300000, guid: 0a0cb9dab3b52cd4f9a598795745fb84, type: 3}
   - {fileID: 21300000, guid: 41c5510bf7b82f44c97d28693fb51d09, type: 3}
+  - {fileID: 21300000, guid: fe70d81b48075de428e533b96974befe, type: 3}
   - {fileID: 21300000, guid: 5709996ba5e2e6c419b4708c9ab5f27f, type: 3}
   - {fileID: 21300000, guid: ae9eeadb467a7bb42a370e8e0ab7f86b, type: 3}
   - {fileID: 21300000, guid: d974480c9cc6a494486edd9848fdc0cb, type: 3}
@@ -225,6 +227,7 @@ SpriteAtlas:
   - bar_gray
   - arrow_downblack
   - button_buildroad
+  - circle_white
   - icon_cavalry
   - button_longblue
   - button_longprettyblue
@@ -324,6 +327,7 @@ SpriteAtlas:
   - button_minus
   - button_arrowleft
   - laborIconMale1
+  - circle_gold
   - tile_desertfloodplain
   - icon_speed
   - button_lumber01

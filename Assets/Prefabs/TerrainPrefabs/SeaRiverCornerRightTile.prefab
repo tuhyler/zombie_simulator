@@ -86,6 +86,7 @@ MonoBehaviour:
   prop: {fileID: 6424281992737964312}
   highlightPlane: {fileID: 7705466404499642209}
   hasRoad: 0
+  isGlowing: 0
   resourceAmount: 0
 --- !u!64 &4721036613727578686
 MeshCollider:
@@ -129,6 +130,7 @@ MonoBehaviour:
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
   secondaryGlowMaterial: {fileID: 0}
+  originalShader: {fileID: 0}
   isGlowing: 0
 --- !u!1 &7947533954490412569
 GameObject:
@@ -238,6 +240,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: OceanRiverCornerRight01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 292d3625c57875b41bb75f7ccdc070cc,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 292d3625c57875b41bb75f7ccdc070cc,
         type: 3}

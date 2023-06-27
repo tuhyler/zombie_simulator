@@ -113,6 +113,7 @@ public class UIWonderHandler : MonoBehaviour
         {
             world.UnselectAll();
             gameObject.SetActive(v);
+            world.immoveableCanvas.gameObject.SetActive(true);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
             world.somethingSelected = true;
@@ -148,6 +149,7 @@ public class UIWonderHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+        world.immoveableCanvas.gameObject.SetActive(false);
     }
 
     public void PrepareBuild(WonderDataSO buildData)

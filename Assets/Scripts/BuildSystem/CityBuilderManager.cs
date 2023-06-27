@@ -55,7 +55,7 @@ public class CityBuilderManager : MonoBehaviour
     private UICityLaborPrioritizationManager uiLaborPrioritizationManager;
 
     [SerializeField]
-    private MapWorld world;
+    public MapWorld world;
 
     [SerializeField]
     private CameraController focusCam;
@@ -720,6 +720,7 @@ public class CityBuilderManager : MonoBehaviour
 
         selectedCity = cityReference;
 
+        world.cityCanvas.gameObject.SetActive(true);
         isActive = true;
         selectedCity.activeCity = true;
         selectedCityLoc = world.GetClosestTerrainLoc(location);

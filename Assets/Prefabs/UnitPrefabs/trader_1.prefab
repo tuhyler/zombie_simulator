@@ -9,12 +9,6 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
         type: 3}
-      propertyPath: lightBeam
-      value: 
-      objectReference: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
-        type: 3}
-    - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
-        type: 3}
       propertyPath: unitDataSO
       value: 
       objectReference: {fileID: 11400000, guid: aed5d9f369e1fc142bc5b2f127a97be2,

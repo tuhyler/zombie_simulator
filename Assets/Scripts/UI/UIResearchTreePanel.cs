@@ -127,6 +127,7 @@ public class UIResearchTreePanel : MonoBehaviour
         {
             world.UnselectAll();
             uiUnitTurn.gameObject.SetActive(false);
+            world.immoveableCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
             world.somethingSelected = true;
 
@@ -180,6 +181,7 @@ public class UIResearchTreePanel : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+        world.immoveableCanvas.gameObject.SetActive(false);
     }
 
     public void CloseResearchTree()

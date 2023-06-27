@@ -35,17 +35,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 63bc608f398b7c641a71c5bc39707436,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 63bc608f398b7c641a71c5bc39707436,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 63bc608f398b7c641a71c5bc39707436,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 63bc608f398b7c641a71c5bc39707436,
         type: 3}
@@ -90,6 +90,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2820876683925829841, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -198,6 +203,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: da9cd2aafc783be45a7f6e6a64344493, type: 2}
+  minimapIcon: {fileID: 501373686551265237, guid: d7e33e1726ee29f4bb9b268771097f89,
+    type: 3}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   selectionCircle: {fileID: 0}
@@ -210,6 +217,7 @@ MonoBehaviour:
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
+  finalDestinationLoc: {x: 0, y: 0, z: 0}
   currentHealth: 0
   turnHandler: {fileID: 0}
   bySea: 0
