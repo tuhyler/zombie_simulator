@@ -73,6 +73,11 @@ PrefabInstance:
       propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5378143918301295818, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: terrainMesh
+      value: 
+      objectReference: {fileID: 6750235872599650943}
     - target: {fileID: 8566338253770776186, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_Enabled
@@ -180,3 +185,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe5ad1a255c9a2f47aa18de8b6fc8bbf, type: 3}
+--- !u!33 &6750235872599650943 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: fe5ad1a255c9a2f47aa18de8b6fc8bbf,
+    type: 3}
+  m_PrefabInstance: {fileID: 7892775136260315697}
+  m_PrefabAsset: {fileID: 0}

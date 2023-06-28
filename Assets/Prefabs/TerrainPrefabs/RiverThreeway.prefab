@@ -73,6 +73,11 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5378143918301295818, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: terrainMesh
+      value: 
+      objectReference: {fileID: 6322986530744627038}
     - target: {fileID: 6338745557346647870, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -195,3 +200,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d129ce43e17217544bc471d8d5bde386, type: 3}
+--- !u!33 &6322986530744627038 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: d129ce43e17217544bc471d8d5bde386,
+    type: 3}
+  m_PrefabInstance: {fileID: 7465455632073525008}
+  m_PrefabAsset: {fileID: 0}

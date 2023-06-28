@@ -76,8 +76,8 @@ public class UITerrainTooltip : MonoBehaviour
 
     private void SetData(TerrainData td)
     {
-        title.text = td.GetTerrainData().title;
-        ResourceType type = td.GetTerrainData().resourceType;
+        title.text = td.terrainData.title;
+        ResourceType type = td.terrainData.resourceType;
 
         if (type == ResourceType.None)
         {

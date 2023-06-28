@@ -117,11 +117,11 @@ public class RoadManager : MonoBehaviour
     public void BuildRoadAtPosition(Vector3Int roadPosition) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
-        bool hill = td.GetTerrainData().type == TerrainType.Hill || td.GetTerrainData().type == TerrainType.ForestHill;
+        bool hill = td.terrainData.type == TerrainType.Hill || td.terrainData.type == TerrainType.ForestHill;
 
-        if (td.GetTerrainData().type == TerrainType.Forest || td.GetTerrainData().type == TerrainType.ForestHill)
+        if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
         {
-            GameObject newPropPF = td.GetTerrainData().roadPrefab;
+            GameObject newPropPF = td.terrainData.roadPrefab;
             if (newPropPF != null)
             {
                 GameObject newProp = Instantiate(newPropPF, Vector3Int.zero, td.prop.GetChild(0).transform.rotation);
@@ -178,7 +178,7 @@ public class RoadManager : MonoBehaviour
             int roadCount = roads.Sum();
             TerrainData td = world.GetTerrainDataAt(roadLoc);
             bool highlight = td.isGlowing;
-            bool hill = td.GetTerrainData().type == TerrainType.Hill || world.GetTerrainDataAt(roadLoc).GetTerrainData().type == TerrainType.ForestHill;
+            bool hill = td.terrainData.type == TerrainType.Hill || world.GetTerrainDataAt(roadLoc).terrainData.type == TerrainType.ForestHill;
 
             Road road = world.GetRoads(roadLoc, straight);
             if (road != null)

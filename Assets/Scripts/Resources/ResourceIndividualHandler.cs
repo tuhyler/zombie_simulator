@@ -63,7 +63,7 @@ public class ResourceIndividualHandler : MonoBehaviour
     public ResourceIndividualSO GetResourcePrefab(Vector3Int workerPos)
     {
         TerrainData td = world.GetTerrainDataAt(workerPos);
-        ResourceType rt = td.GetTerrainData().resourceType;
+        ResourceType rt = td.terrainData.resourceType;
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -8795209696621121151}
   - component: {fileID: 2322797847508675287}
   m_Layer: 6
-  m_Name: Desert
+  m_Name: Flatland
   m_TagString: Flatland
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,8 +26,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 132575383675425759}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -35,7 +35,7 @@ Transform:
   - {fileID: 8847728230643572033}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7905120374366962800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48,12 +48,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1494dc149f65d8469be6dd2791edb02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrainData: {fileID: 11400000, guid: 4a2652ae68ab5404db9f8f6d177583d4, type: 2}
+  terrainData: {fileID: 0}
   main: {fileID: 2997620081912887924}
   prop: {fileID: 8847728230643572033}
   highlightPlane: {fileID: 0}
   hasRoad: 0
   isGlowing: 0
+  terrainMesh: {fileID: 0}
   resourceAmount: 0
 --- !u!114 &-8795209696621121151
 MonoBehaviour:

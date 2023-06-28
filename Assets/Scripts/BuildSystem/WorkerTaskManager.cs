@@ -471,7 +471,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         TerrainData td = world.GetTerrainDataAt(tile);
-        bool clearForest = td.GetTerrainData().type == TerrainType.Forest;
+        bool clearForest = td.terrainData.type == TerrainType.Forest;
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
         worker.citiesBuilt++;
@@ -519,7 +519,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (clearForest)
         {
             Destroy(td.prop.GetChild(0).gameObject);
-            td.terrainData = td.GetTerrainData().clearedForestData;
+            td.terrainData = td.terrainData.clearedForestData;
             td.gameObject.tag = "Flatland";
         }
 

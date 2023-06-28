@@ -89,6 +89,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a9f431a243b45fe4f86b668326a18dc1, type: 3}
+--- !u!33 &2139346658578566295 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: a9f431a243b45fe4f86b668326a18dc1,
+    type: 3}
+  m_PrefabInstance: {fileID: 3284565157447787737}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4646675000189713243
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -162,6 +168,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5378143918301295818, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: terrainMesh
+      value: 
+      objectReference: {fileID: 2139346658578566295}
     - target: {fileID: 5378143918301295818, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: highlightPlane

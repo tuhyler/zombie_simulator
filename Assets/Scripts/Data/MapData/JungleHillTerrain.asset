@@ -16,6 +16,7 @@ MonoBehaviour:
   roadPrefab: {fileID: 9073605623283122857, guid: daa293a6370d4d946880b36c2f235117,
     type: 3}
   clearedForestData: {fileID: 11400000, guid: 1fddc1ef6099212409811e55da512a76, type: 2}
+  grassland: 1
   walkable: 1
   sailable: 0
   isLand: 1
