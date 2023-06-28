@@ -491,7 +491,7 @@ public class UnitMovement : MonoBehaviour
 
         if (selectedUnit.bySea)
         {
-            if (!terrainSelected.GetTerrainData().sailable)
+            if (!terrainSelected.terrainData.sailable)
             {
                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
                 return;

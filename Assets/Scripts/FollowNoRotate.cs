@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class FollowNoRotate : MonoBehaviour
 {
-    [HideInInspector]
-    public Transform objectToFollow;
+    [SerializeField]
+    public Transform objectToFollow; //in case it can't be specified programmatically
     
     void LateUpdate()
     {

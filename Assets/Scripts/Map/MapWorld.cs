@@ -12,6 +12,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Canvas mapCanvas, immoveableCanvas, cityCanvas, workerCanvas, traderCanvas;
     [SerializeField]
+    public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
+    [SerializeField]
     private Transform mapIconHolder;
     [SerializeField]
     private UIWorldResources uiWorldResources;
@@ -183,15 +185,18 @@ public class MapWorld : MonoBehaviour
         wonderButton.ToggleTweenVisibility(true);
         uiWorldResources.SetActiveStatus(true);
         List<TerrainData> coastalTerrain = new();
+        List<TerrainData> terrainToCheck = new();
 
         foreach (TerrainData td in FindObjectsOfType<TerrainData>())
         {
             if (td.IsSeaCorner && !coastalTerrain.Contains(td))
                 coastalTerrain.Add(td);
             td.SetTileCoordinates(this);
-            Vector3Int tileCoordinate = td.GetTileCoordinates();
+            Vector3Int tileCoordinate = td.TileCoordinates;
             world[tileCoordinate] = td;
+            terrainToCheck.Add(td);
             mapPanel.AddTileToMap(tileCoordinate);
+
             //Vector3Int mod = tileCoordinate / increment;
             //mod.y = mod.z;
             //mod.z = 0;
@@ -308,6 +313,12 @@ public class MapWorld : MonoBehaviour
 
         CreateParticleSystems();
         DeactivateCanvases();
+
+        foreach (TerrainData td in terrainToCheck)
+        {
+            if (td.TileCoordinates == new Vector3Int(-9, 0, 0))
+                ConfigureUVs(td);
+        }
     }
 
     private void DeactivateCanvases()
@@ -315,6 +326,194 @@ public class MapWorld : MonoBehaviour
         mapCanvas.gameObject.SetActive(false);
         immoveableCanvas.gameObject.SetActive(false);
         cityCanvas.gameObject.SetActive(false);
+    }
+
+    public void ConfigureUVs(TerrainData td)
+    {
+        TerrainDesc desc = td.terrainData.terrainDesc;
+        int[] grasslandCount = new int[4];
+        int i = 0;
+
+        if (desc == TerrainDesc.Grassland || desc == TerrainDesc.GrasslandFloodPlain || desc == TerrainDesc.Forest || desc == TerrainDesc.Jungle || desc == TerrainDesc.GrasslandHill || desc == TerrainDesc.Swamp)
+        {
+            foreach (Vector3Int neighbor in GetNeighborsFor(td.TileCoordinates, State.FOURWAYINCREMENT))
+            {
+                if (GetTerrainDataAt(neighbor).terrainData.grassland || GetTerrainDataAt(neighbor).terrainData.desert)
+                    grasslandCount[i] = 0;
+                else
+                    grasslandCount[i] = 1;
+
+                i++;
+            }
+        }
+        else if (desc == TerrainDesc.Desert || desc == TerrainDesc.DesertFloodPlain || desc == TerrainDesc.DesertHill || desc == TerrainDesc.River)
+        {
+            foreach (Vector3Int neighbor in GetNeighborsFor(td.TileCoordinates, State.FOURWAYINCREMENT))
+            {
+                if (GetTerrainDataAt(neighbor).terrainData.grassland)
+                    grasslandCount[i] = 1;
+                else
+                    grasslandCount[i] = 0;
+
+                i++;
+            }
+        }
+        else
+            return;
+        
+        if (grasslandCount.Sum() == 0)
+            return;
+
+        (Vector2[] uvs, int rotation) = SetUVMap(grasslandCount, SetUVShift(desc));
+        if (td.UVs.Length > 4)
+            uvs = NormalizeUVs(uvs, td.UVs);
+        td.SetUVs(uvs, rotation);
+    }
+
+    private float SetUVShift(TerrainDesc desc)
+    {
+        float interval = 256f / 4096;
+        float shift = 0;
+        
+        switch (desc)
+        {
+            case TerrainDesc.Desert:
+                shift = interval;
+                break;
+            case TerrainDesc.GrasslandFloodPlain:
+                shift = interval * 2;
+                break;
+            case TerrainDesc.DesertFloodPlain:
+                shift = interval * 3;
+                break;
+            case TerrainDesc.River:
+                shift = interval * 3;
+                break;
+            case TerrainDesc.GrasslandHill:
+                shift = interval * 7;
+                break;
+            case TerrainDesc.DesertHill:
+                shift = interval * 8;
+                break;
+        }
+
+        return shift;
+    }
+
+    private (Vector2[], int) SetUVMap(int[] count, float shift)
+    {
+        Vector2[] uvMap = new Vector2[4];
+        int rotation = 0;
+
+        if (count.Sum() == 1)
+        {
+            rotation = Array.FindIndex(count, x => x == 1);
+            uvMap = borderOne.sharedMesh.uv;
+        }
+        else if (count.Sum() == 2)
+        {
+            int sum = count[1] + count[3];
+
+            if (count[0] == 0)
+            {    
+                if (sum == 2)
+                {
+                    rotation = 1;
+                    uvMap = borderTwoCross.sharedMesh.uv;
+                }
+                else
+                {
+                    rotation = count[1] == 1 ? 3 : 0;
+                    uvMap = borderTwoCorner.sharedMesh.uv;
+                }
+            }
+            else
+            {
+                if (sum == 0)
+                {
+                    rotation = 0;
+                    uvMap = borderTwoCross.sharedMesh.uv;
+                }
+                else
+                {
+                    rotation = count[1] == 1 ? 2 : 1;
+                    uvMap = borderTwoCorner.sharedMesh.uv;
+                }
+            }
+            
+        }
+        else if (count.Sum() == 3)
+        {
+            rotation = Array.FindIndex(count, x => x == 0);
+            uvMap = borderThree.sharedMesh.uv;
+        }
+        else if (count.Sum() == 4)
+        {
+            uvMap = borderFour.sharedMesh.uv;
+        }
+
+        for (int i = 0; i < uvMap.Length; i++)
+            uvMap[i] += new Vector2(shift, 0);
+
+        return (uvMap, rotation);
+    }
+
+    //for reassigning UVs when the Vector2 counts don't match
+    public Vector2[] NormalizeUVs(Vector2[] terrainUVs, Vector2[] newUVs)
+    {
+        int i = 0;
+        float maxX = 0;
+        float minX = 1;
+        float maxY = 0;
+        float minY = 1;
+        float newMaxX = 0;
+        float newMinX = 1;
+        float newMaxY = 0;
+        float newMinY = 1;
+        while (i < terrainUVs.Length)
+        {
+            Vector2 vector = terrainUVs[i];
+            if (maxX < vector.x)
+                maxX = vector.x;
+            if (maxY < vector.y)
+                maxY = vector.y;
+            if (minX > vector.x)
+                minX = vector.x;
+            if (minY > vector.y)
+                minY = vector.y;
+            i++;
+        }
+
+        i = 0;
+        while (i < newUVs.Length)
+        {
+            Vector2 vector = newUVs[i];
+            if (newMaxX < vector.x)
+                newMaxX = vector.x;
+            if (newMaxY < vector.y)
+                newMaxY = vector.y;
+            if (newMinX > vector.x)
+                newMinX = vector.x;
+            if (newMinY > vector.y)
+                newMinY = vector.y;
+            i++;
+        }
+
+        i = 0;
+        float rangeX = maxX - minX;
+        float rangeY = maxY - minY;
+        float newRangeX = newMaxX - newMinX;
+        float newRangeY = newMaxY - newMinY;
+        while (i < newUVs.Length)
+        {
+            Vector2 uv = newUVs[i];
+            uv.x = minX + rangeX * ((uv.x - newMinX) / newRangeX);
+            uv.y = minY + rangeY * ((uv.y - newMinY) / newRangeY);
+            newUVs[i] = uv;
+            i++;
+        }
+
+        return newUVs;
     }
 
     private void CreateParticleSystems()
@@ -1585,12 +1784,12 @@ public class MapWorld : MonoBehaviour
     //for movement
     public bool CheckIfPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].GetTerrainData().walkable && !wonderNoWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].terrainData.walkable && !wonderNoWalkList.Contains(tile);
     }
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].GetTerrainData().sailable && !wonderNoWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].terrainData.sailable && !wonderNoWalkList.Contains(tile);
     }
 
     public bool CheckIfCoastCoast(Vector3Int tile)
@@ -1956,7 +2155,7 @@ public class MapWorld : MonoBehaviour
         vInt.x = (int)Math.Round(v.x, MidpointRounding.AwayFromZero);
         vInt.z = (int)Math.Round(v.z, MidpointRounding.AwayFromZero);
 
-        return world[vInt].GetTileCoordinates();
+        return world[vInt].TileCoordinates;
     }
 
     public Vector3Int RoundToInt(Vector3 v)

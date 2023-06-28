@@ -7,6 +7,8 @@ public class TerrainDataSO : ScriptableObject
     public string title;
     public GameObject roadPrefab; //only for changing forest terrain when a road is built
     public TerrainDataSO clearedForestData; //for clearing a forest
+    public bool grassland = false;
+    public bool desert = false;
     public bool walkable = false;
     public bool sailable = false;
     public bool isLand = false;

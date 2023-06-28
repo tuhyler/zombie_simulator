@@ -15,6 +15,7 @@ public class TerrainData : MonoBehaviour
     private SelectionHighlight highlight;
 
     private Vector3Int tileCoordinates;
+    public Vector3Int TileCoordinates { get { return tileCoordinates; } }
 
     //private int originalMovementCost;
     //public int OriginalMovementCost { get { return originalMovementCost; } }
@@ -35,7 +36,10 @@ public class TerrainData : MonoBehaviour
 
     private ResourceGraphicHandler resourceGraphic;
 
-    private List<MeshRenderer> renderers = new();
+    //private List<MeshRenderer> renderers = new();
+
+    [SerializeField]
+    private MeshFilter terrainMesh;
     private Vector2[] uvs;
     public Vector2[] UVs { get { return uvs; } }
     private Vector2 rockUVs;
@@ -45,7 +49,7 @@ public class TerrainData : MonoBehaviour
 
     private void Awake()
     {
-        if (terrainData.type == TerrainType.Flatland)
+        if (terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
             uvs = main.GetComponentInChildren<MeshFilter>().mesh.uv;
         if (terrainData.rawResourceType == RawResourceType.Stone)
         {
@@ -56,7 +60,7 @@ public class TerrainData : MonoBehaviour
             RocksCheck();
         }
 
-        PrepareRenderers();
+        //PrepareRenderers();
         
         isLand = terrainData.isLand;
         isSeaCorner = terrainData.isSeaCorner;
@@ -70,12 +74,19 @@ public class TerrainData : MonoBehaviour
         }
     }
 
-    private void PrepareRenderers()
+    //private void PrepareRenderers()
+    //{
+    //    foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
+    //    {
+    //        renderers.Add(renderer);
+    //    }
+    //}
+
+    public void SetUVs(Vector2[] uvs, int rotation)
     {
-        foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
-        {
-            renderers.Add(renderer);
-        }
+        this.uvs = uvs;
+        terrainMesh.mesh.uv = uvs;
+        main.localEulerAngles += new Vector3(0, rotation * 90, 0);
     }
 
     public void SetRockUVs(Vector2 uv)
@@ -123,14 +134,6 @@ public class TerrainData : MonoBehaviour
         tileCoordinates = world.RoundToInt(transform.position);
     }
 
-    public Vector3Int GetTileCoordinates()
-    {
-        //tileCoordinates = Vector3Int.RoundToInt(transform.position);
-        return tileCoordinates;
-    }
-
-    public TerrainDataSO GetTerrainData() => terrainData;
-
     public void SetNewRenderer(MeshRenderer[] oldRenderer, MeshRenderer[] newRenderer)
     {
         highlight.SetNewRenderer(oldRenderer, newRenderer);
@@ -166,18 +169,18 @@ public class TerrainData : MonoBehaviour
 
     public void ResetMovementCost()
     {
-        movementCost = GetTerrainData().movementCost;
+        movementCost = terrainData.movementCost;
         //originalMovementCost = movementCost;
     }
 
     public void AddTerrainToWorld(MapWorld world)
     {
-        world.SetTerrainData(GetTileCoordinates(), this);
+        world.SetTerrainData(tileCoordinates, this);
     }
 
     public void DestroyTile(MapWorld world)
     {
-        world.RemoveTerrain(GetTileCoordinates());
+        world.RemoveTerrain(tileCoordinates);
         Destroy(gameObject);
     }
     

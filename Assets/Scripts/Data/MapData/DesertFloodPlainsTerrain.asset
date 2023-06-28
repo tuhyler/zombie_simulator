@@ -15,6 +15,8 @@ MonoBehaviour:
   title: Flood Plains
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
+  grassland: 0
+  desert: 1
   walkable: 1
   sailable: 0
   isLand: 1

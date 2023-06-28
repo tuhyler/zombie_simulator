@@ -305,7 +305,7 @@ public class CityBuilderManager : MonoBehaviour
         }
         else if (selectedWonder != null && placingWonderHarbor && selectedObject.TryGetComponent(out TerrainData terrainForHarbor)) //for placing harbor
         {
-            Vector3Int terrainLocation = terrainForHarbor.GetTileCoordinates();
+            Vector3Int terrainLocation = terrainForHarbor.TileCoordinates;
 
             if (!tilesToChange.Contains(terrainLocation))
             {
@@ -331,7 +331,7 @@ public class CityBuilderManager : MonoBehaviour
         //selecting tiles to place improvements
         else if (selectedCity != null && selectedObject.TryGetComponent(out TerrainData terrainSelected))
         {
-            Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
+            Vector3Int terrainLocation = terrainSelected.TileCoordinates;
 
             //deselecting if choosing tile outside of city
             if (!cityTiles.Contains(terrainLocation))
@@ -1358,7 +1358,7 @@ public class CityBuilderManager : MonoBehaviour
             //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
             foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
             {
-                if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).GetTerrainData().walkable)
+                if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).terrainData.walkable)
                 {
                     buildPosition = pos;
                     break;
@@ -1687,9 +1687,9 @@ public class CityBuilderManager : MonoBehaviour
                 if (isQueueing && world.CheckQueueLocation(tile))
                     continue;
                 
-                if (world.IsTileOpenCheck(tile) && td.GetTerrainData().type == improvementData.terrainType)
+                if (world.IsTileOpenCheck(tile) && td.terrainData.type == improvementData.terrainType)
                 {
-                    if (improvementData.rawMaterials && td.GetTerrainData().rawResourceType == improvementData.rawResourceType)
+                    if (improvementData.rawMaterials && td.terrainData.rawResourceType == improvementData.rawResourceType)
                     {
                         td.EnableHighlight(Color.white);
                         tilesToChange.Add(tile);
@@ -1778,7 +1778,7 @@ public class CityBuilderManager : MonoBehaviour
                         break;
                     }
                 }
-                else if (td.GetTerrainData().resourceType == tempData.producedResources[0].resourceType)
+                else if (td.terrainData.resourceType == tempData.producedResources[0].resourceType)
                 {   
                     improvementData = tempData;
                     break;
@@ -1912,7 +1912,7 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     Vector2[] terrainUVs = td.UVs;
                     Vector2[] newUVs = mesh.mesh.uv;
-                    Vector2[] finalUVs = NormalizeUVs(terrainUVs, newUVs);
+                    Vector2[] finalUVs = world.NormalizeUVs(terrainUVs, newUVs);
                     //mesh.mesh.uv = finalUVs;
 
                     foreach (MeshFilter mesh2 in meshes)
@@ -2053,64 +2053,6 @@ public class CityBuilderManager : MonoBehaviour
 
             }
         }
-    }
-
-    //for reassigning UVs when the Vector2 counts don't match
-    private Vector2[] NormalizeUVs(Vector2[] terrainUVs, Vector2[] newUVs)
-    {
-        int i = 0;
-        float maxX = 0;
-        float minX = 1;
-        float maxY = 0;
-        float minY = 1;
-        float newMaxX = 0;
-        float newMinX = 1;
-        float newMaxY = 0;
-        float newMinY = 1;
-        while (i < terrainUVs.Length)
-        {
-            Vector2 vector = terrainUVs[i];
-            if (maxX < vector.x)
-                maxX = vector.x;
-            if (maxY < vector.y)
-                maxY = vector.y;
-            if (minX > vector.x)
-                minX = vector.x;
-            if (minY > vector.y)
-                minY = vector.y;
-            i++;
-        }
-
-        i = 0;
-        while (i < newUVs.Length)
-        {
-            Vector2 vector = newUVs[i];
-            if (newMaxX < vector.x)
-                newMaxX = vector.x;
-            if (newMaxY < vector.y)
-                newMaxY = vector.y;
-            if (newMinX > vector.x)
-                newMinX = vector.x;
-            if (newMinY > vector.y)
-                newMinY = vector.y;
-            i++;
-        }
-
-        i = 0;
-        float rangeX = maxX - minX;
-        float rangeY = maxY - minY;
-        float newRangeX = newMaxX - newMinX;
-        float newRangeY = newMaxY - newMinY;
-        while (i < newUVs.Length)
-        {
-            Vector2 uv = newUVs[i];
-            uv.x = minX + rangeX * ((uv.x - newMinX) / newRangeX);
-            uv.y = minY + rangeY * ((uv.y - newMinY) / newRangeY);
-            newUVs[i] = uv;
-            i++;
-        }
-
-        return newUVs;
     }
 
     private int HarborRotation(Vector3Int tempBuildLocation, Vector3Int originationLocation)
