@@ -6,9 +6,14 @@ public class FollowNoRotate : MonoBehaviour
 {
     [SerializeField]
     public Transform objectToFollow; //in case it can't be specified programmatically
-    
+
+    [SerializeField]
+    float yShift = 0.03f;
+
     void LateUpdate()
     {
-        gameObject.transform.position = objectToFollow.transform.position;
+        Vector3 follow = objectToFollow.transform.position;
+        follow.y += yShift;
+        gameObject.transform.position = follow;
     }
 }
