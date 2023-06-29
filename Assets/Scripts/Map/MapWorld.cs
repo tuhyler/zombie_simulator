@@ -316,8 +316,8 @@ public class MapWorld : MonoBehaviour
 
         foreach (TerrainData td in terrainToCheck)
         {
-            if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
-                ConfigureUVs(td);
+            //if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
+            ConfigureUVs(td);
         }
     }
 
@@ -364,9 +364,10 @@ public class MapWorld : MonoBehaviour
         if (grasslandCount.Sum() == 0)
             return;
 
-        bool rotate = desc != TerrainDesc.River;
+        bool river = desc == TerrainDesc.River;
+        int eulerAngle = Mathf.RoundToInt(td.main.transform.eulerAngles.y);
 
-        (Vector2[] uvs, int rotation) = SetUVMap(grasslandCount, SetUVShift(desc), rotate);
+        (Vector2[] uvs, int rotation) = SetUVMap(grasslandCount, SetUVShift(desc), river, eulerAngle);
         if (td.UVs.Length > 4)
             uvs = NormalizeUVs(uvs, td.UVs);
         td.SetUVs(uvs, rotation);
@@ -403,19 +404,24 @@ public class MapWorld : MonoBehaviour
     }
 
     //for setting the uv map to transition between terrains, also includes manual rotation
-    private (Vector2[], int) SetUVMap(int[] count, float shift, bool rotate)
+    private (Vector2[], int) SetUVMap(int[] count, float shift, bool river, int eulerAngle)
     {
         Vector2[] uvMap = new Vector2[4];
         int rotation = 0;
         float change = 0.0025f;
+        int currentRot = 0;
+        if (river) //to offset river rotation
+            currentRot = eulerAngle / 90;
 
         switch (count.Sum())
         {
             case 1:
-                rotation = Array.FindIndex(count, x => x == 1);
+                rotation = Array.FindIndex(count, x => x == 1) - currentRot;
+                if (rotation < 0)
+                    rotation += 4;
                 uvMap = borderOne.sharedMesh.uv;
 
-                if (rotate && rotation > 0)
+                if (rotation > 0)
                 {
                     uvMap[0].y -= change;
                     uvMap[3].y -= change;
@@ -445,13 +451,13 @@ public class MapWorld : MonoBehaviour
                 {
                     if (sum == 2)
                     {
-                        rotation = 1;
+                        rotation = 1 - currentRot;
                         uvMap = borderTwoCross.sharedMesh.uv;
                         cross = true;
                     }
                     else
                     {
-                        rotation = count[1] == 1 ? 3 : 0;
+                        rotation = (count[1] == 1 ? 3 : 0) - currentRot;
                         uvMap = borderTwoCorner.sharedMesh.uv;
                     }
                 }
@@ -459,16 +465,19 @@ public class MapWorld : MonoBehaviour
                 {
                     if (sum == 0)
                     {
-                        rotation = 0;
+                        rotation = 0 - currentRot;
                         uvMap = borderTwoCross.sharedMesh.uv;
                         cross = true;
                     }
                     else
                     {
-                        rotation = count[1] == 1 ? 2 : 1;
+                        rotation = (count[1] == 1 ? 2 : 1) - currentRot;
                         uvMap = borderTwoCorner.sharedMesh.uv;
                     }
                 }
+
+                if (rotation < 0)
+                    rotation += 4;
 
                 if (rotation > 0)
                 {
@@ -507,10 +516,12 @@ public class MapWorld : MonoBehaviour
                 }
                 break;
             case 3:
-                rotation = Array.FindIndex(count, x => x == 0);
+                rotation = Array.FindIndex(count, x => x == 0) - currentRot;
+                if (rotation < 0)
+                    rotation += 4;
                 uvMap = borderThree.sharedMesh.uv;
 
-                if (rotate && rotation > 0)
+                if (rotation > 0)
                 {
                     uvMap[0].y += change;
                     uvMap[3].y += change;
