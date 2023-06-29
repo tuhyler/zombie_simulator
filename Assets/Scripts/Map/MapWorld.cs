@@ -316,7 +316,7 @@ public class MapWorld : MonoBehaviour
 
         foreach (TerrainData td in terrainToCheck)
         {
-            if (td.TileCoordinates == new Vector3Int(-9, 0, 0))
+            if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
                 ConfigureUVs(td);
         }
     }
@@ -364,7 +364,9 @@ public class MapWorld : MonoBehaviour
         if (grasslandCount.Sum() == 0)
             return;
 
-        (Vector2[] uvs, int rotation) = SetUVMap(grasslandCount, SetUVShift(desc));
+        bool rotate = desc != TerrainDesc.River;
+
+        (Vector2[] uvs, int rotation) = SetUVMap(grasslandCount, SetUVShift(desc), rotate);
         if (td.UVs.Length > 4)
             uvs = NormalizeUVs(uvs, td.UVs);
         td.SetUVs(uvs, rotation);
@@ -400,60 +402,143 @@ public class MapWorld : MonoBehaviour
         return shift;
     }
 
-    private (Vector2[], int) SetUVMap(int[] count, float shift)
+    //for setting the uv map to transition between terrains, also includes manual rotation
+    private (Vector2[], int) SetUVMap(int[] count, float shift, bool rotate)
     {
         Vector2[] uvMap = new Vector2[4];
         int rotation = 0;
+        float change = 0.0025f;
 
-        if (count.Sum() == 1)
+        switch (count.Sum())
         {
-            rotation = Array.FindIndex(count, x => x == 1);
-            uvMap = borderOne.sharedMesh.uv;
-        }
-        else if (count.Sum() == 2)
-        {
-            int sum = count[1] + count[3];
+            case 1:
+                rotation = Array.FindIndex(count, x => x == 1);
+                uvMap = borderOne.sharedMesh.uv;
 
-            if (count[0] == 0)
-            {    
-                if (sum == 2)
+                if (rotate && rotation > 0)
                 {
-                    rotation = 1;
-                    uvMap = borderTwoCross.sharedMesh.uv;
+                    uvMap[0].y -= change;
+                    uvMap[3].y -= change;
+
+                    switch (rotation)
+                    {
+                        case 1:
+                            uvMap[0].x += change;
+                            uvMap[1].x += change;
+                            break;
+                        case 2:
+                            uvMap[1].y -= change;
+                            uvMap[2].y -= change;
+                            break;
+                        case 3:
+                            uvMap[2].x -= change;
+                            uvMap[3].x -= change;
+                            break;
+                    }
+                }
+                break;
+            case 2:
+                int sum = count[1] + count[3];
+                bool cross = false;
+
+                if (count[0] == 0)
+                {
+                    if (sum == 2)
+                    {
+                        rotation = 1;
+                        uvMap = borderTwoCross.sharedMesh.uv;
+                        cross = true;
+                    }
+                    else
+                    {
+                        rotation = count[1] == 1 ? 3 : 0;
+                        uvMap = borderTwoCorner.sharedMesh.uv;
+                    }
                 }
                 else
                 {
-                    rotation = count[1] == 1 ? 3 : 0;
-                    uvMap = borderTwoCorner.sharedMesh.uv;
+                    if (sum == 0)
+                    {
+                        rotation = 0;
+                        uvMap = borderTwoCross.sharedMesh.uv;
+                        cross = true;
+                    }
+                    else
+                    {
+                        rotation = count[1] == 1 ? 2 : 1;
+                        uvMap = borderTwoCorner.sharedMesh.uv;
+                    }
                 }
-            }
-            else
-            {
-                if (sum == 0)
-                {
-                    rotation = 0;
-                    uvMap = borderTwoCross.sharedMesh.uv;
-                }
-                else
-                {
-                    rotation = count[1] == 1 ? 2 : 1;
-                    uvMap = borderTwoCorner.sharedMesh.uv;
-                }
-            }
-            
-        }
-        else if (count.Sum() == 3)
-        {
-            rotation = Array.FindIndex(count, x => x == 0);
-            uvMap = borderThree.sharedMesh.uv;
-        }
-        else if (count.Sum() == 4)
-        {
-            uvMap = borderFour.sharedMesh.uv;
-        }
 
+                if (rotation > 0)
+                {
+                    if (cross)
+                    {
+                        uvMap[0] += new Vector2(change, -change);
+                        uvMap[1] += new Vector2(change, change);
+                        uvMap[2] += new Vector2(-change, change);
+                        uvMap[3] += new Vector2(-change, -change);
+                    }
+                    else
+                    {
+                        switch (rotation)
+                        {
+                            case 1:
+                                uvMap[0].y += change;
+                                uvMap[1].y += change;
+                                uvMap[2].y += change;
+                                uvMap[3].y += change;
+                                break;
+                            case 2:
+                                Vector2 change2 = new Vector2(change, change);
+                                uvMap[0] += change2;
+                                uvMap[1] += change2;
+                                uvMap[2] += change2;
+                                uvMap[3] += change2;
+                                break;
+                            case 3:
+                                uvMap[0].x += change;
+                                uvMap[1].x += change;
+                                uvMap[2].x += change;
+                                uvMap[3].x += change;
+                                break;
+                        }
+                    }
+                }
+                break;
+            case 3:
+                rotation = Array.FindIndex(count, x => x == 0);
+                uvMap = borderThree.sharedMesh.uv;
+
+                if (rotate && rotation > 0)
+                {
+                    uvMap[0].y += change;
+                    uvMap[3].y += change;
+
+                    switch (rotation)
+                    {
+                        case 1:
+                            uvMap[0].x -= change;
+                            uvMap[1].x -= change;
+                            break;
+                        case 2:
+                            uvMap[1].y += change;
+                            uvMap[2].y += change;
+                            break;
+                        case 3:
+                            uvMap[2].x += change;
+                            uvMap[3].x += change;
+                            break;
+                    }
+                }
+                break;
+            case 4:
+                uvMap = borderFour.sharedMesh.uv;
+                break;
+        }
+        
         for (int i = 0; i < uvMap.Length; i++)
-            uvMap[i] += new Vector2(shift, 0);
+            uvMap[i].x += shift;
 
         return (uvMap, rotation);
     }

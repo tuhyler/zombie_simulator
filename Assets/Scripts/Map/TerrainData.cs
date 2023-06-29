@@ -72,6 +72,9 @@ public class TerrainData : MonoBehaviour
             highlightPlane.SetActive(false);
             isCoast = true;
         }
+
+        if (isLand && terrainMesh == null)
+            Debug.Log(transform.position);
     }
 
     //private void PrepareRenderers()
@@ -86,7 +89,7 @@ public class TerrainData : MonoBehaviour
     {
         this.uvs = uvs;
         terrainMesh.mesh.uv = uvs;
-        main.localEulerAngles += new Vector3(0, rotation * 90, 0);
+        //main.localEulerAngles += new Vector3(0, rotation * 90, 0);
     }
 
     public void SetRockUVs(Vector2 uv)

@@ -67,6 +67,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6051414428208956364, guid: 11b3c04a4bdfe7441baf9aa337c9189e,
+        type: 3}
+      propertyPath: terrainMesh
+      value: 
+      objectReference: {fileID: 68756602532424977}
     - target: {fileID: 6123598419421723694, guid: 11b3c04a4bdfe7441baf9aa337c9189e,
         type: 3}
       propertyPath: m_Name
@@ -174,3 +179,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 60475c8e13a082b41bd6a77c28994aa2, type: 3}
+--- !u!33 &68756602532424977 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 60475c8e13a082b41bd6a77c28994aa2,
+    type: 3}
+  m_PrefabInstance: {fileID: 3517635854914422111}
+  m_PrefabAsset: {fileID: 0}

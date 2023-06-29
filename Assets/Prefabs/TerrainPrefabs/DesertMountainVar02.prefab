@@ -84,6 +84,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: da5a5150a9f11fc44a9818abbba884ef, type: 3}
+--- !u!33 &2963362479773243342 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: da5a5150a9f11fc44a9818abbba884ef,
+    type: 3}
+  m_PrefabInstance: {fileID: 1817933151140888448}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8059800370627206519
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -151,6 +157,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6051414428208956364, guid: 11b3c04a4bdfe7441baf9aa337c9189e,
+        type: 3}
+      propertyPath: terrainMesh
+      value: 
+      objectReference: {fileID: 2963362479773243342}
     - target: {fileID: 6123598419421723694, guid: 11b3c04a4bdfe7441baf9aa337c9189e,
         type: 3}
       propertyPath: m_Name
