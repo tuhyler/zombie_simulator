@@ -56,7 +56,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 63cde1b1df029314fb5b48d23fd206cb, type: 3}
   - {fileID: 21300000, guid: f8eb67b1bfae8064cb8abf01306fd204, type: 3}
   - {fileID: 21300000, guid: c69ca7b161275b54ab7966809f786ec4, type: 3}
-  - {fileID: 21300000, guid: c22a69f1a5e08dc4db8b72ef31ba9a02, type: 3}
   - {fileID: 21300000, guid: d35d180233d47c645916450be3c1ac0d, type: 3}
   - {fileID: 21300000, guid: 7b662902c50a27c48b59e63b10c5b5c2, type: 3}
   - {fileID: 21300000, guid: 4a6c203212fb59840833d48efe6afcf9, type: 3}
@@ -227,7 +226,6 @@ SpriteAtlas:
   - bar_gray
   - arrow_downblack
   - button_buildroad
-  - circle_white
   - icon_cavalry
   - button_longblue
   - button_longprettyblue
