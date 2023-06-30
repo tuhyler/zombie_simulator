@@ -34,18 +34,11 @@ public class TerrainGenerator : MonoBehaviour
 
     [Header("Tiles")]
     [SerializeField]
-    private GameObject grasslandVar00; //separate here so that header isn't on every line
+    private GameObject grassland; //separate here so that header isn't on every line
     [SerializeField]
-    private GameObject grasslandVar01, grasslandVar02, grasslandVar03, grasslandVar04, grasslandVar05,
-        grasslandHillVar00, grasslandHillVar01, grasslandHillVar02, grasslandHillVar03, grasslandHillVar04, grasslandHillVar05,
-        /*forest, jungle, forestHill, jungleHill, */
-        grasslandFloodPlainVar00, grasslandFloodPlainVar01, grasslandFloodPlainVar02, grasslandFloodPlainVar03, grasslandFloodPlainVar04, grasslandFloodPlainVar05,
-        desertFloodPlainVar0, desertFloodPlainVar1, desertFloodPlainVar2, desertFloodPlainVar3, desertFloodPlainVar4, desertFloodPlainVar5,
-        desertVar0, desertVar1, desertVar2, desertVar3, desertVar4, desertVar5,
-        desertHillVar0, desertHillVar1, desertHillVar2, desertHillVar3, desertHillVar4, desertHillVar5,
+    private GameObject grasslandHill, grasslandFloodPlain, desertFloodPlain, desert, desertHill, swamp,
         grasslandMountain1, grasslandMountain2, grasslandMountain3, grasslandMountain4, desertMountain1, desertMountain2, desertMountain3, desertMountain4,
-        swampVar0, swampVar1, swampVar2, swampVar3, swampVar4, swampVar5,
-        riverSolo,  riverEnd, riverStraightVar1, riverStraightVar2, riverStraightVar3, riverCurve, riverThreeWay, riverFourWay,
+        riverEnd, riverStraightVar1, riverStraightVar2, riverStraightVar3, riverCurve, riverThreeWay, riverFourWay,
         ocean, oceanStraightCoastVar1, oceanCurve, oceanCurveDiagonal, oceanCurveRiverLeft, oceanCurveRiverRight, oceanRiver, oceanThreeWay, 
         oceanCorner, oceanKittyCorner, oceanStraightCornerLeft, oceanStraightCornerRight, oceanRiverCornerLeft, oceanRiverCornerRight;
 
@@ -259,37 +252,39 @@ public class TerrainGenerator : MonoBehaviour
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandHill)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
-                    grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject grasslandHill);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
+                //    grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject grasslandHill);
 
                 grasslandHill.tag = "Hill";
-                GenerateTile(grasslandHill, position, rotation);
+                GenerateTile(grasslandHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
             }
             else if (mainMap[position] == ProceduralGeneration.desertHill)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, false, desertHillVar0, desertHillVar1, desertHillVar2, desertHillVar3,
-                    desertHillVar4, desertHillVar5, out Quaternion rotation, out GameObject desertHill);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, false, desertHillVar0, desertHillVar1, desertHillVar2, desertHillVar3,
+                //    desertHillVar4, desertHillVar5, out Quaternion rotation, out GameObject desertHill);
 
                 desertHill.tag = "Hill";
-                GenerateTile(desertHill, position, rotation);
+                GenerateTile(desertHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
             }
             else if (mainMap[position] == ProceduralGeneration.forestHill)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
-                    grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject forestHill);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
+                //    grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject forestHill);
 
+                GameObject forestHill = grasslandHill;
                 forestHill.tag = "Forest Hill";
-                GameObject newTile = GenerateTile(forestHill, position, rotation);
+                GameObject newTile = GenerateTile(forestHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 AddProp(random, newTile, forestHillProps, forestHillSO);
             }
             else if (mainMap[position] == ProceduralGeneration.jungleHill)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
-                    grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject jungleHill);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandHillVar00, grasslandHillVar01, grasslandHillVar02,
+                //    grasslandHillVar03, grasslandHillVar04, grasslandHillVar05, out Quaternion rotation, out GameObject jungleHill);
 
+                GameObject jungleHill = grasslandHill;
                 jungleHill.tag = "Forest Hill";
-                GameObject newTile = GenerateTile(jungleHill, position, rotation);
+                GameObject newTile = GenerateTile(jungleHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 AddProp(random, newTile, jungleHillProps, jungleHillSO);
             }
@@ -307,57 +302,59 @@ public class TerrainGenerator : MonoBehaviour
             }
             else if (mainMap[position] == ProceduralGeneration.grassland)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
-                   grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject grassland);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
+                //   grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject grassland);
 
-                GameObject newTile = GenerateTile(grassland, position, rotation);
+                GameObject newTile = GenerateTile(grassland, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 if (random.Next(0, 10) < 3)
                     AddProp(random, newTile, grasslandProps);
             }
             else if (mainMap[position] == ProceduralGeneration.desert)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, false, desertVar0, desertVar1, desertVar2, desertVar3,
-                    desertVar4, desertVar5, out Quaternion rotation, out GameObject desert);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, false, desertVar0, desertVar1, desertVar2, desertVar3,
+                //    desertVar4, desertVar5, out Quaternion rotation, out GameObject desert);
 
-                GameObject newTile = GenerateTile(desert, position, rotation);
+                GameObject newTile = GenerateTile(desert, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 if (random.Next(0, 10) < 3)
                     AddProp(random, newTile, desertProps);
             }
             else if (mainMap[position] == ProceduralGeneration.forest)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
-                    grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject forest);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
+                //    grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject forest);
 
+                GameObject forest = grassland;
                 forest.tag = "Forest";
-                GameObject newTile = GenerateTile(forest, position, rotation);
+                GameObject newTile = GenerateTile(forest, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 AddProp(random, newTile, forestProps, forestSO);
             }
             else if (mainMap[position] == ProceduralGeneration.jungle)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
-                    grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject jungle);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandVar00, grasslandVar01, grasslandVar02,
+                //    grasslandVar03, grasslandVar04, grasslandVar05, out Quaternion rotation, out GameObject jungle);
 
+                GameObject jungle = grassland;
                 jungle.tag = "Forest";
-                GameObject newTile = GenerateTile(jungle, position, rotation);
+                GameObject newTile = GenerateTile(jungle, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 AddProp(random, newTile, jungleProps, jungleSO);
             }
             else if (mainMap[position] == ProceduralGeneration.swamp)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, false, swampVar0, swampVar1, swampVar2,
-                    swampVar3, swampVar4, swampVar5, out Quaternion rotation, out GameObject swamp);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, false, swampVar0, swampVar1, swampVar2,
+                //    swampVar3, swampVar4, swampVar5, out Quaternion rotation, out GameObject swamp);
 
-                swamp.tag = "Forest";
-                GameObject newTile = GenerateTile(swamp, position, rotation);
+                //swamp.tag = "Forest";
+                GameObject newTile = GenerateTile(swamp, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 //AddProp(random, newTile, swampProps, swampSO);
             }
             else if (mainMap[position] == ProceduralGeneration.river)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, true, false, riverSolo, riverEnd, riverCurve, riverThreeWay,
+                FadeAndRotateTerrain(random, rotate, mainMap, position, false, true, false, grassland, riverEnd, riverCurve, riverThreeWay,
                     riverFourWay, riverStraightVar1, out Quaternion rotation, out GameObject river);
 
                 if (river == riverStraightVar1)
@@ -367,28 +364,28 @@ public class TerrainGenerator : MonoBehaviour
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandFloodPlain)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandFloodPlainVar00, grasslandFloodPlainVar01,
-                    grasslandFloodPlainVar02, grasslandFloodPlainVar03, grasslandFloodPlainVar04, grasslandFloodPlainVar05, 
-                    out Quaternion rotation, out GameObject grasslandFloodPlain);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, false, false, true, grasslandFloodPlainVar00, grasslandFloodPlainVar01,
+                //    grasslandFloodPlainVar02, grasslandFloodPlainVar03, grasslandFloodPlainVar04, grasslandFloodPlainVar05, 
+                //    out Quaternion rotation, out GameObject grasslandFloodPlain);
 
-                GameObject newTile = GenerateTile(grasslandFloodPlain, position, rotation);
+                GameObject newTile = GenerateTile(grasslandFloodPlain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 if (random.Next(0, 10) < 3)
                     AddProp(random, newTile, grasslandProps);
             }
             else if (mainMap[position] == ProceduralGeneration.desertFloodPlain)
             {
-                FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, false, desertFloodPlainVar0, desertFloodPlainVar1, desertFloodPlainVar2,
-                    desertFloodPlainVar3, desertFloodPlainVar4, desertFloodPlainVar5, out Quaternion rotation, out GameObject desertFloodPlain);
+                //FadeAndRotateTerrain(random, rotate, mainMap, position, true, false, false, desertFloodPlainVar0, desertFloodPlainVar1, desertFloodPlainVar2,
+                //    desertFloodPlainVar3, desertFloodPlainVar4, desertFloodPlainVar5, out Quaternion rotation, out GameObject desertFloodPlain);
 
-                GameObject newTile = GenerateTile(desertFloodPlain, position, rotation);
+                GameObject newTile = GenerateTile(desertFloodPlain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
                 if (random.Next(0, 10) < 3)
                     AddProp(random, newTile, desertFloodPlainProps);
             }
             else
             {
-                GenerateTile(grasslandVar00, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
+                GenerateTile(grassland, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
             }
         }
 

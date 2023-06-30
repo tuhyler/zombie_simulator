@@ -85,11 +85,10 @@ public class TerrainData : MonoBehaviour
     //    }
     //}
 
-    public void SetUVs(Vector2[] uvs, int rotation)
+    public void SetUVs(Vector2[] uvs)
     {
         this.uvs = uvs;
         terrainMesh.mesh.uv = uvs;
-        //main.localEulerAngles += new Vector3(0, rotation * 90, 0);
     }
 
     public void SetRockUVs(Vector2 uv)

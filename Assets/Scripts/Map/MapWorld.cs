@@ -364,13 +364,12 @@ public class MapWorld : MonoBehaviour
         if (grasslandCount.Sum() == 0)
             return;
 
-        bool river = desc == TerrainDesc.River;
         int eulerAngle = Mathf.RoundToInt(td.main.transform.eulerAngles.y);
 
-        (Vector2[] uvs, int rotation) = SetUVMap(grasslandCount, SetUVShift(desc), river, eulerAngle);
+        Vector2[] uvs = SetUVMap(grasslandCount, SetUVShift(desc), eulerAngle);
         if (td.UVs.Length > 4)
             uvs = NormalizeUVs(uvs, td.UVs);
-        td.SetUVs(uvs, rotation);
+        td.SetUVs(uvs);
     }
 
     private float SetUVShift(TerrainDesc desc)
@@ -403,15 +402,14 @@ public class MapWorld : MonoBehaviour
         return shift;
     }
 
-    //for setting the uv map to transition between terrains, also includes manual rotation
-    private (Vector2[], int) SetUVMap(int[] count, float shift, bool river, int eulerAngle)
+    //for setting the uv map to transition between terrains, also includes uv coordinates rotation
+    private Vector2[] SetUVMap(int[] count, float shift, int eulerAngle)
     {
         Vector2[] uvMap = new Vector2[4];
         int rotation = 0;
         float change = 0.0025f;
-        int currentRot = 0;
-        if (river) //to offset river rotation
-            currentRot = eulerAngle / 90;
+        //if (river) 
+        int currentRot = eulerAngle / 90; //to offset tile rotation
 
         switch (count.Sum())
         {
@@ -551,7 +549,7 @@ public class MapWorld : MonoBehaviour
         for (int i = 0; i < uvMap.Length; i++)
             uvMap[i].x += shift;
 
-        return (uvMap, rotation);
+        return uvMap;
     }
 
     //for reassigning UVs when the Vector2 counts don't match
