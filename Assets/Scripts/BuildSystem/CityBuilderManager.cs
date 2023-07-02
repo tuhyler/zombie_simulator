@@ -56,6 +56,8 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     public MapWorld world;
+    [SerializeField]
+    public Transform objectPoolHolder, friendlyUnitHolder;
 
     [SerializeField]
     private CameraController focusCam;
@@ -1373,6 +1375,7 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
+        unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
         Vector3 goScale = unitGO.transform.localScale;
         float scaleX = goScale.x;
@@ -3195,6 +3198,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 12; i++) //grow pool 12 at a time
         {
             GameObject laborNumber = Instantiate(GameAssets.Instance.laborNumberPrefab);
+            laborNumber.gameObject.transform.SetParent(objectPoolHolder, false);
             CityLaborTileNumber cityLaborNumber = laborNumber.GetComponent<CityLaborTileNumber>();
             cityLaborNumber.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToLaborNumbersPool(cityLaborNumber);
@@ -3234,6 +3238,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 20; i++) //grow pool 20 at a time
         {
             GameObject border = Instantiate(GameAssets.Instance.cityBorderPrefab);
+            border.gameObject.transform.SetParent(objectPoolHolder, false);
             AddToBorderPool(border);
         }
     }
@@ -3273,6 +3278,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 2; i++) //grow pool 2 at a time
         {
             GameObject constructionTileGO = Instantiate(constructionTilePrefab);
+            constructionTileGO.gameObject.transform.SetParent(objectPoolHolder, false);
             CityImprovement constructionImprovement = constructionTileGO.GetComponent<CityImprovement>();
             constructionImprovement.isConstruction = true;
             AddToConstructionTilePool(constructionImprovement);
@@ -3301,6 +3307,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 10; i++) //grow pool 20 at a time
         {
             GameObject resourceInfoHolderGO = Instantiate(GameAssets.Instance.resourceInfoHolder);
+            resourceInfoHolderGO.gameObject.transform.SetParent(objectPoolHolder, false);
             ResourceInfoHolder resourceInfoHolder = resourceInfoHolderGO.GetComponent<ResourceInfoHolder>();
             //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToResourceInfoHolderPool(resourceInfoHolder);
@@ -3329,6 +3336,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 20; i++) //grow pool 20 at a time
         {
             GameObject resourceInfoPanelGO = Instantiate(GameAssets.Instance.resourceInfoPanel);
+            resourceInfoPanelGO.gameObject.transform.SetParent(objectPoolHolder, false);
             ResourceInfoPanel resourceInfoPanel = resourceInfoPanelGO.GetComponent<ResourceInfoPanel>();
             //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToResourceInfoPanelPool(resourceInfoPanel);
@@ -3357,6 +3365,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 6; i++) //grow pool 6 at a time
         {
             GameObject improvementResource = Instantiate(GameAssets.Instance.improvementResource);
+            improvementResource.gameObject.transform.SetParent(objectPoolHolder, false);
             ImprovementResource resource = improvementResource.GetComponent<ImprovementResource>();
             resource.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToImprovementResourcePool(resource);

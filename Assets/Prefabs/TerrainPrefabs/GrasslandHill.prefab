@@ -43,8 +43,29 @@ PrefabInstance:
       propertyPath: terrainMesh
       value: 
       objectReference: {fileID: 7681464966485163139}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2322797847508675287, guid: 5902d28cc6acff84d9befec7c10a1d34, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 5902d28cc6acff84d9befec7c10a1d34, type: 3}
+--- !u!1 &608616143501096269 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
+    type: 3}
+  m_PrefabInstance: {fileID: 695029558723487378}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &2564636690709205555
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 608616143501096269}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -5495902117074765545, guid: 4d006f76e41cb1149b9603cbfa36485c, type: 3}
 --- !u!4 &2322892202371620070 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2997620081912887924, guid: 5902d28cc6acff84d9befec7c10a1d34,
@@ -68,6 +89,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ca825818efc3364a98655e3a00d4985,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ca825818efc3364a98655e3a00d4985,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4ca825818efc3364a98655e3a00d4985,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4ca825818efc3364a98655e3a00d4985,
         type: 3}
@@ -217,6 +253,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: grasslandhill01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 41ce09229ef74ca44a6a18eac4cd78b3,
+        type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 41ce09229ef74ca44a6a18eac4cd78b3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 41ce09229ef74ca44a6a18eac4cd78b3, type: 3}

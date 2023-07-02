@@ -21,7 +21,7 @@ public class RoadManager : MonoBehaviour
     public int roadMovementCost = 5, roadBuildingTime = 5, roadRemovingTime = 1;
 
     [SerializeField]
-    private Transform roadHolder;
+    private Transform roadHolder, roadHolderMinimap;
     private List<MeshFilter> roadMeshList = new();
     
     public readonly static List<Vector3Int> neighborsFourDirections = new()
@@ -425,6 +425,11 @@ public class RoadManager : MonoBehaviour
         meshFilter.mesh = new Mesh();
         meshFilter.mesh.CombineMeshes(combine);
         roadHolder.GetComponent<MeshCollider>().sharedMesh = meshFilter.sharedMesh;
+
+        //for minimap roads
+        MeshFilter meshFilterMinimap = roadHolderMinimap.GetComponent<MeshFilter>();
+        meshFilterMinimap.mesh = new Mesh();
+        meshFilterMinimap.mesh.CombineMeshes(combine);
 
         roadHolder.transform.gameObject.SetActive(true);
     }

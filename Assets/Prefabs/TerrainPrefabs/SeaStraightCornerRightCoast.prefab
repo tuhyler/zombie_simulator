@@ -87,6 +87,8 @@ MonoBehaviour:
   highlightPlane: {fileID: 6508842996673171777}
   hasRoad: 0
   isGlowing: 0
+  terrainMesh: {fileID: 0}
+  minimapIconMesh: {fileID: 0}
   resourceAmount: 0
 --- !u!64 &3157772629512719765
 MeshCollider:
@@ -244,7 +246,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 6b95419d2dea20f42949ae3369a97aba,
         type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 6b95419d2dea20f42949ae3369a97aba,
         type: 3}
