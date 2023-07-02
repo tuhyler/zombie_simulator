@@ -133,8 +133,29 @@ PrefabInstance:
       propertyPath: terrainMesh
       value: 
       objectReference: {fileID: 3972685378587340419}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 2322797847508675287, guid: 5902d28cc6acff84d9befec7c10a1d34, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 5902d28cc6acff84d9befec7c10a1d34, type: 3}
+--- !u!1 &608616143501096269 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
+    type: 3}
+  m_PrefabInstance: {fileID: 695029558723487378}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &6665085895316468641
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 608616143501096269}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -5495902117074765545, guid: 4d006f76e41cb1149b9603cbfa36485c, type: 3}
 --- !u!4 &2322892202371620070 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2997620081912887924, guid: 5902d28cc6acff84d9befec7c10a1d34,

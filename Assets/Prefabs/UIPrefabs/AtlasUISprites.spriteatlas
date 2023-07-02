@@ -135,6 +135,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 582da869dd2205a41bc0788c0d17b213, type: 3}
   - {fileID: 21300000, guid: b84ed0894e27d8d4f8d6fb888a313ebe, type: 3}
   - {fileID: 21300000, guid: 5529a4a93e971f54fbe83c3da0146264, type: 3}
+  - {fileID: 21300000, guid: e9dab4f9a7b063d44a953ec6a60331eb, type: 3}
   - {fileID: 21300000, guid: d7d7340a95ab6534d94d038e61fd48e2, type: 3}
   - {fileID: -1286446745, guid: 7458f31a3224650419572c5ee50c3492, type: 3}
   - {fileID: 1235051173, guid: 7458f31a3224650419572c5ee50c3492, type: 3}
@@ -305,6 +306,7 @@ SpriteAtlas:
   - panel_lighterblue
   - tile_junglehill
   - tab_gold
+  - cone_faded
   - tab_gold2
   - maptiles_10
   - maptiles_8

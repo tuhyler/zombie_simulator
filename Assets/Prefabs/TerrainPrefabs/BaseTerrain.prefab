@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -8795209696621121151}
   - component: {fileID: 2322797847508675287}
   m_Layer: 6
-  m_Name: Flatland
+  m_Name: BaseTerrain
   m_TagString: Flatland
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -55,6 +55,7 @@ MonoBehaviour:
   hasRoad: 0
   isGlowing: 0
   terrainMesh: {fileID: 0}
+  minimapIconMesh: {fileID: 0}
   resourceAmount: 0
 --- !u!114 &-8795209696621121151
 MonoBehaviour:

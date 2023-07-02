@@ -39,7 +39,7 @@ public class TerrainData : MonoBehaviour
     //private List<MeshRenderer> renderers = new();
 
     [SerializeField]
-    private MeshFilter terrainMesh;
+    private MeshFilter terrainMesh, minimapIconMesh;
     private Vector2[] uvs;
     public Vector2[] UVs { get { return uvs; } }
     private Vector2 rockUVs;
@@ -85,10 +85,18 @@ public class TerrainData : MonoBehaviour
     //    }
     //}
 
+    public void SetMinimapIcon()
+    {
+        if (minimapIconMesh)
+            minimapIconMesh.mesh.uv = terrainMesh.mesh.uv;
+    }
+
     public void SetUVs(Vector2[] uvs)
     {
         this.uvs = uvs;
         terrainMesh.mesh.uv = uvs;
+        if (minimapIconMesh)
+            minimapIconMesh.mesh.uv = uvs;
     }
 
     public void SetRockUVs(Vector2 uv)

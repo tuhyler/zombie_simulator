@@ -6,7 +6,7 @@ public class CameraController : MonoBehaviour
     //public static CameraController instance; //for only one time use in another class
 
     [SerializeField]
-    public Transform cameraTransform;
+    public Transform cameraTransform, camPointer;
     //CameraController.instance.followTransform = transform; //use this in other scripts to center and follow; 
 
     //[SerializeField]
@@ -32,9 +32,9 @@ public class CameraController : MonoBehaviour
     private float edgeSize = 40f; //pixel buffer size
 
     public float movementSpeed, movementTime, rotationAmount, zoomTime;
-    public Vector3 zoomAmount;
+    public Vector3 zoomAmount, camPointAmount, camPositionAmount;
 
-    public Vector3 newPosition, newZoom;
+    public Vector3 newPosition, newZoom, camPointScale, camZPosition;
     public Quaternion newRotation;
 
     void Start()
@@ -43,6 +43,8 @@ public class CameraController : MonoBehaviour
 
         newPosition = transform.position; //set static position that doesn't default to 0
         newZoom = cameraTransform.localPosition; //local position so that the text layer stays in rightful place
+        camPointScale = camPointer.localScale;
+        camZPosition = camPointer.localPosition;
         newRotation = transform.rotation;
         scrolling = true;
 
@@ -218,6 +220,8 @@ public class CameraController : MonoBehaviour
         if (Input.mouseScrollDelta.y != 0)
         {
             newZoom += Input.mouseScrollDelta.y * zoomAmount;
+            camPointScale += Input.mouseScrollDelta.y * camPointAmount;
+            camZPosition += Input.mouseScrollDelta.y * camPositionAmount;
         }
 
         ZoomCamera();
@@ -227,10 +231,15 @@ public class CameraController : MonoBehaviour
     {
         //zooming limits (set manually)
         newZoom.y = Mathf.Clamp(newZoom.y, 3f, 11); //for perfect diagonal, needs to be linear. if starting zoom y=5.5, z=-4.5, then 2.5 to bottom and 5.5 to top for both. 
-        newZoom.z = Mathf.Clamp(newZoom.z, -10f, -2f); 
+        newZoom.z = Mathf.Clamp(newZoom.z, -10f, -2f);
+        camPointScale.x = Mathf.Clamp(camPointScale.x, 8f, 30f);
+        camPointScale.z = Mathf.Clamp(camPointScale.z, 8f, 30f);
+        camZPosition.z = Mathf.Clamp(camZPosition.z, 0f, 4.5f);
 
         //smoothing zoom
         cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * zoomTime);
+        camPointer.localScale = Vector3.Lerp(camPointer.localScale, camPointScale, Time.deltaTime * zoomTime);
+        camPointer.localPosition = Vector3.Lerp(camPointer.localPosition, camZPosition, Time.deltaTime * zoomTime);
     }
 
     private void RotateCamera()

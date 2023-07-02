@@ -46,7 +46,10 @@ public class MapWorld : MonoBehaviour
 
     [SerializeField]
     private ParticleSystem lightBeam;
-    
+
+    [SerializeField]
+    public Transform cityHolder, wonderHolder, tradeCenterHolder;
+
     //wonder info
     private WonderDataSO wonderData;
     [SerializeField]
@@ -362,7 +365,10 @@ public class MapWorld : MonoBehaviour
             return;
         
         if (grasslandCount.Sum() == 0)
+        {
+            td.SetMinimapIcon();
             return;
+        }
 
         int eulerAngle = Mathf.RoundToInt(td.main.transform.eulerAngles.y);
 
@@ -847,6 +853,7 @@ public class MapWorld : MonoBehaviour
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
         GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, rotation);
+        wonderGO.gameObject.transform.SetParent(wonderHolder, false);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
         wonder.SetWorld(this);
         wonder.WonderData = wonderData;
