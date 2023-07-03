@@ -12,6 +12,51 @@ PrefabInstance:
       propertyPath: m_Name
       value: Desert
       objectReference: {fileID: 0}
+    - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715452913932692106, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4676175562013748920, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5595022816629027392, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6001265225856577931, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6001265225856577931, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6001265225856577931, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 6001265225856577931, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 7178868358704398055, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 7687956695361648898, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_RootOrder
@@ -148,6 +193,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e592aaf8772008144bd8dfee2828c4b3,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e592aaf8772008144bd8dfee2828c4b3, type: 3}
 --- !u!33 &2981270323137599988 stripped
@@ -242,6 +292,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e592aaf8772008144bd8dfee2828c4b3,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e592aaf8772008144bd8dfee2828c4b3, type: 3}

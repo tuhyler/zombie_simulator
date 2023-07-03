@@ -87,14 +87,17 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 45cd7584879d1574a94e2a02e6852e6f, type: 3}
   - {fileID: 21300000, guid: 954d6894757d3bf4085ffb8357a804e2, type: 3}
   - {fileID: 21300000, guid: c35d24a4ae5a50d44ac9def303b305ec, type: 3}
+  - {fileID: 21300000, guid: 334b12b4e6a61b54a9c6102e8dd3b236, type: 3}
   - {fileID: 21300000, guid: 35ec9dc42a660f5409dcf8d7243e1cf6, type: 3}
   - {fileID: 21300000, guid: 0bfe95d46a8f8b3488631cdddf72b280, type: 3}
   - {fileID: 21300000, guid: 713228e4162c39c43aa1069a8fa2a615, type: 3}
   - {fileID: 21300000, guid: 822a3705b79e66f42999a141a1af07ac, type: 3}
   - {fileID: 21300000, guid: 58099a051206a8b408abd7bb62633bb7, type: 3}
   - {fileID: 21300000, guid: 28dfe8154404b2440b891890427b755d, type: 3}
+  - {fileID: 21300000, guid: 6ae55915990ebc14cab652feb1ae27b6, type: 3}
   - {fileID: 21300000, guid: b30e2f35ff95b0b45b75d894b5390e93, type: 3}
   - {fileID: 21300000, guid: f611fc459debb5345bc8233d67b8b261, type: 3}
+  - {fileID: 21300000, guid: cbaf4785a80e539408ffd2b8cafc56ae, type: 3}
   - {fileID: 21300000, guid: ebde9c85d4a26cb42af362f125c70af8, type: 3}
   - {fileID: 21300000, guid: 2bdf2fa5e18d81d4eaf3c313f9a70383, type: 3}
   - {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}
@@ -258,14 +261,17 @@ SpriteAtlas:
   - panel_lighterblue_bar
   - button_arrow
   - button_buildcity
+  - icon_wonder
   - button_wonders
   - research01
   - button_longred2
   - roaddiagonal_mapicon
   - mask_white_fadededges
   - button_longgold
+  - icon_tradecenter
   - button_gather
   - button_longblue2
+  - icon_city
   - button_round_bar01
   - panel_blue_transparent
   - button_harbor

@@ -10,7 +10,10 @@ public class TerrainData : MonoBehaviour
     public Transform main, prop;
 
     [SerializeField]
-    private GameObject highlightPlane;
+    private GameObject highlightPlane, resourceIcon;
+
+    [SerializeField]
+    private SpriteRenderer resourceIconSprite;
 
     private SelectionHighlight highlight;
 
@@ -88,7 +91,16 @@ public class TerrainData : MonoBehaviour
     public void SetMinimapIcon()
     {
         if (minimapIconMesh)
-            minimapIconMesh.mesh.uv = terrainMesh.mesh.uv;
+            minimapIconMesh.mesh.uv = terrainMesh.mesh.uv;   
+    }
+
+    public void CheckMinimapResource()
+    {
+        if (terrainData.resourceType != ResourceType.None && terrainData.resourceType != ResourceType.Food && terrainData.resourceType != ResourceType.Lumber && terrainData.resourceType != ResourceType.Fish)
+        {
+            resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(terrainData.resourceType);
+            resourceIcon.SetActive(true);
+        }
     }
 
     public void SetUVs(Vector2[] uvs)

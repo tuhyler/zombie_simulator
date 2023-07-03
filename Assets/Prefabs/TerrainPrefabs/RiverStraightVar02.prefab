@@ -82,6 +82,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a58343e5cad840f4db526780f43a7935,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a58343e5cad840f4db526780f43a7935, type: 3}
 --- !u!33 &3296394510285006077 stripped
@@ -158,11 +163,26 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -462981019419857548, guid: b8345eacdc7da4d49a4e0bc67dd499d4,
         type: 3}
+    - target: {fileID: 3732238957214512906, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4547352987120683383, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 5378143918301295818, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: terrainMesh
       value: 
       objectReference: {fileID: 3296394510285006077}
+    - target: {fileID: 6611612031084933056, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 8566338253770776186, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_Enabled
@@ -172,6 +192,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: RiverStraightVar02
+      objectReference: {fileID: 0}
+    - target: {fileID: 9203405519390938773, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f72558895b6c8e746b5598f21c9dcdaf, type: 3}
@@ -262,6 +287,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a58343e5cad840f4db526780f43a7935,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a58343e5cad840f4db526780f43a7935, type: 3}

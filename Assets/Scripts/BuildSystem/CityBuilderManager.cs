@@ -57,6 +57,8 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public MapWorld world;
     [SerializeField]
+    public MovementSystem movementSystem;
+    [SerializeField]
     public Transform objectPoolHolder, friendlyUnitHolder;
 
     [SerializeField]
@@ -541,15 +543,15 @@ public class CityBuilderManager : MonoBehaviour
 
         GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
         //for tweening
-        Vector3 goScale = unit.transform.localScale;
-        float scaleX = goScale.x;
-        float scaleZ = goScale.z;
-        unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-        LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+        //Vector3 goScale = unit.transform.localScale;
+        //float scaleX = goScale.x;
+        //float scaleZ = goScale.z;
+        //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+        //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
 
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
-
+        newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
     }
 
@@ -587,17 +589,17 @@ public class CityBuilderManager : MonoBehaviour
 
                     GameObject unit = Instantiate(workerGO, loc, Quaternion.identity); //produce unit at specified position
                     //for tweening
-                    Vector3 goScale = unit.transform.localScale;
-                    float scaleX = goScale.x;
-                    float scaleZ = goScale.z;
-                    unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-                    LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+                    //Vector3 goScale = unit.transform.localScale;
+                    //float scaleX = goScale.x;
+                    //float scaleZ = goScale.z;
+                    //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+                    //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
                     unit.transform.LookAt(wonder.centerPos);
                     unit.GetComponent<Laborer>().StartLaborAnimations();
                     
                     unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
                     Unit newUnit = unit.GetComponent<Unit>();
-
+                    newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
                     newUnit.CurrentLocation = world.AddUnitPosition(loc, newUnit);
 
                     break;
@@ -667,8 +669,8 @@ public class CityBuilderManager : MonoBehaviour
         foreach (Vector3Int tile in selectedWonder.WonderLocs)
         {
             world.RemoveStructure(tile);
-            world.RemoveStructureMap(tile);
-            world.ResetTileMap(tile);
+            //world.RemoveStructureMap(tile);
+            //world.ResetTileMap(tile);
             world.RemoveSingleBuildFromCityLabor(tile);
             world.RemoveWonder(tile);
 
@@ -1377,13 +1379,15 @@ public class CityBuilderManager : MonoBehaviour
         GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
         unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
-        Vector3 goScale = unitGO.transform.localScale;
-        float scaleX = goScale.x;
-        float scaleZ = goScale.z;
-        unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+        //Vector3 goScale = unitGO.transform.localScale;
+        //float scaleX = goScale.x;
+        //float scaleZ = goScale.z;
+        //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+        //LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
+        newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
+        newUnit.SetMinimapIcon(friendlyUnitHolder);
 
         Vector3 mainCamLoc = Camera.main.transform.position;
         mainCamLoc.y = 0;
@@ -1871,10 +1875,11 @@ public class CityBuilderManager : MonoBehaviour
     {
         //activating structure
         GameObject improvement = world.GetStructure(tempBuildLocation);
-        world.AddStructureMap(tempBuildLocation, improvementData.mapIcon);
+        //world.AddStructureMap(tempBuildLocation, improvementData.mapIcon);
         improvement.SetActive(true);
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
         CityImprovement cityImprovement = world.GetCityDevelopment(tempBuildLocation);
+        cityImprovement.SetMinimapIcon(td);
         cityImprovement.meshCity = city;
         cityImprovement.transform.parent = city.transform;
         city.AddToImprovementList(cityImprovement);
@@ -2226,7 +2231,7 @@ public class CityBuilderManager : MonoBehaviour
             world.RemoveFromMaxWorked(improvementLoc);
         }
         world.RemoveStructure(improvementLoc);
-        world.RemoveStructureMap(improvementLoc);
+        //world.RemoveStructureMap(improvementLoc);
         developedTiles.Remove(improvementLoc);
 
         if (upgradingImprovement) //stop here if upgrading
@@ -2978,8 +2983,8 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         world.RemoveStructure(selectedCityLoc);
-        world.RemoveStructureMap(selectedCityLoc);
-        world.ResetTileMap(selectedCityLoc);
+        //world.RemoveStructureMap(selectedCityLoc);
+        //world.ResetTileMap(selectedCityLoc);
         world.RemoveCityName(selectedCityLoc);
         world.RemoveTradeLoc(selectedCityLoc);
         selectedCity.DestroyMapText();

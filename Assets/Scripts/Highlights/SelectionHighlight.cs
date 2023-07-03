@@ -14,7 +14,7 @@ public class SelectionHighlight : MonoBehaviour
     List<MeshRenderer> renderers = new();
     List<SkinnedMeshRenderer> renderersSkinned = new();
 
-    List<int> shaderLoc = new();
+    private List<int> shaderLoc = new(); //give mesh renderer locations for renderers that are using a different material than standard atlas
 
     //private Color glowColor;
 
@@ -26,8 +26,8 @@ public class SelectionHighlight : MonoBehaviour
 
     private void PrepareMaterialDictionaries() //puts glowing and original materials in dictionaries at the beginning
     {
-        //careful working with materials in this, could eliminate static status
-        
+        //careful working with materials in this, could eliminate static status, accessing info on materials creates a new material
+
         if (originalMaterial != null)
         {
             glowMaterial.mainTexture = originalMaterial.mainTexture;
@@ -39,8 +39,8 @@ public class SelectionHighlight : MonoBehaviour
         //first meshrenderers then skinnedmeshrenderers
         foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
         {
-            if (originalShader != null && renderer.material.shader.name == originalShader.shader.name)
-                shaderLoc.Add(i); 
+            if (originalShader != null && renderer.name == "Flowers")
+                shaderLoc.Add(i);
             renderers.Add(renderer);
             i++;
         }
