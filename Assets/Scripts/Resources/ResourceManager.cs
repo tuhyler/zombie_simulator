@@ -882,6 +882,5 @@ public enum RawResourceType
     Food,
     Fish,
     Stone,
-    Lumber,
-    Thread
+    Lumber
 }

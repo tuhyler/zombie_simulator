@@ -532,8 +532,8 @@ public class WorkerTaskManager : MonoBehaviour
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
         City city = newCity.GetComponent<City>();
         city.SetNewCityName();
-        world.AddStructureMap(workerTile, city.mapIcon);
-        city.cityMapName = world.SetCityTileMap(workerTile, city.name);
+        //world.AddStructureMap(workerTile, city.mapIcon);
+        //city.cityMapName = world.SetCityTileMap(workerTile, city.name);
         world.AddCity(workerTile, city);
         city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
         city.CheckForAvailableSingleBuilds();

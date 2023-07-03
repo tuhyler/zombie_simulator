@@ -35,8 +35,8 @@ public class UIMapHandler : MonoBehaviour
     [SerializeField]
     private Camera minimapCamera;
 
-    private Vector3 originalMaskPos, originalMaskSize, newPosition;
-    private float orthoSize, movementLimit = 40f;
+    private Vector3 originalMaskPos, originalMaskSize, newPosition, prevRotation;
+    private float orthoSize, movementLimit = 40f, canvasRatio;
     public float movementSpeed = 1, movementTime, zoomTime;
 
     [HideInInspector]
@@ -48,6 +48,8 @@ public class UIMapHandler : MonoBehaviour
         originalMaskSize = minimapMask.sizeDelta;
         newPosition = transform.localPosition;
         orthoSize = minimapCamera.orthographicSize;
+
+        canvasRatio = GetComponentInParent<CanvasUpdate>().newCanvasWidth / Screen.width;
     }
 
     private void LateUpdate()
@@ -67,7 +69,7 @@ public class UIMapHandler : MonoBehaviour
             ToggleVisibility(true);
     }
 
-    private void ToggleVisibility(bool v)
+    public void ToggleVisibility(bool v)
     {
         if (activeStatus == v)
             return;
@@ -77,8 +79,11 @@ public class UIMapHandler : MonoBehaviour
 
         if (v)
         {
+            prevRotation = cameraController.transform.localEulerAngles;
+            cameraController.transform.localEulerAngles = Vector3.zero;
             activeStatus = true;
-            Vector3 enlargedSize = new Vector3(Screen.width * 1.25f, Screen.height * 1.25f, 0);
+            
+            Vector3 enlargedSize = new Vector3(Screen.width * canvasRatio, Screen.height * canvasRatio, 0);
             world.UnselectAll();
             uiUnitTurn.gameObject.SetActive(false);
 
@@ -106,6 +111,7 @@ public class UIMapHandler : MonoBehaviour
         }
         else
         {
+            cameraController.transform.localEulerAngles = prevRotation;
             activeStatus = false;
             uiUnitTurn.gameObject.SetActive(true);
 

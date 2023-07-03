@@ -21,6 +21,11 @@ PrefabInstance:
         type: 2}
     - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
         type: 3}
+      propertyPath: minimapIcon
+      value: 
+      objectReference: {fileID: 9038815406982150529}
+    - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
+        type: 3}
       propertyPath: loadUnloadRate
       value: 1
       objectReference: {fileID: 0}
@@ -119,11 +124,22 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 7c5722b5e77e5cf4db0bbe5286741353, type: 2}
+    - target: {fileID: 8415718028059287244, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09fdbc0b6325bbc4db4d71f4a6223376, type: 3}
 --- !u!4 &5304958516240478958 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5338010617480299587, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
+    type: 3}
+  m_PrefabInstance: {fileID: 255179013715080877}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &9038815406982150529 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 9149838138303090476, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
     type: 3}
   m_PrefabInstance: {fileID: 255179013715080877}
   m_PrefabAsset: {fileID: 0}

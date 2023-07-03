@@ -151,7 +151,7 @@ public class RoadManager : MonoBehaviour
         if (straightRoadsCount + diagRoadsCount == 0)
         {
             CreateRoadSolo(roadPosition, hill, false);
-            world.SetRoadMapIcon(roadPosition, 0);
+            //world.SetRoadMapIcon(roadPosition, 0);
         }
 
         world.SetRoadLocations(roadPosition);
@@ -389,7 +389,7 @@ public class RoadManager : MonoBehaviour
         world.RemoveRoad(tile);
         world.RemoveRoadLocation(tile);
         world.RemoveSoloRoadLocation(tile);
-        world.RemoveAllRoadIcons(tile);
+        //world.RemoveAllRoadIcons(tile);
 
         foreach (Vector3Int neighbor in neighborsFourDirections)
             world.RemoveRoadLocation(tile + neighbor);

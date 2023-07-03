@@ -6,8 +6,10 @@ using UnityEngine;
 
 public class UIMapResourceSearch : MonoBehaviour
 {
-    [HideInInspector]
-    public UIMapPanel mapPanel;
+    [SerializeField]
+    private UIMapHandler mapHandler;
+    //[HideInInspector]
+    //public UIMapPanel mapPanel;
     
     [SerializeField]
     private TMP_Dropdown resourceList;
@@ -50,7 +52,7 @@ public class UIMapResourceSearch : MonoBehaviour
         resourceList.value = value;
         resourceList.RefreshShownValue();
         
-        mapPanel.HighlightTile(GetChosenResource(chosenResource));
+        //mapPanel.HighlightTile(GetChosenResource(chosenResource));
     }
 
     public void ResetDropdown()

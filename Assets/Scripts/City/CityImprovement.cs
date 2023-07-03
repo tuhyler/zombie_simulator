@@ -55,6 +55,9 @@ public class CityImprovement : MonoBehaviour
     [SerializeField]
     private GameObject animMesh;
 
+    [SerializeField]
+    private SpriteRenderer mapIcon;
+
     private void Awake()
     {
         foreach (Light light in workLights)
@@ -109,6 +112,13 @@ public class CityImprovement : MonoBehaviour
         allConsumedResources.Add(data.consumedResources2);
         allConsumedResources.Add(data.consumedResources3);
         allConsumedResources.Add(data.consumedResources4);
+    }
+
+    public void SetMinimapIcon(TerrainData td)
+    {
+        mapIcon.sprite = improvementData.mapIcon;
+        if (td.terrainData.resourceType != ResourceType.Food && td.terrainData.resourceType != ResourceType.None && td.terrainData.resourceType != ResourceType.Lumber && td.terrainData.resourceType != ResourceType.Fish)
+            mapIcon.transform.position += new Vector3(0, 0, 0.5f);
     }
 
     public void StartWork(int seconds)

@@ -63,7 +63,7 @@ public class UIMapPanel : MonoBehaviour, IPointerDownHandler
     private void Awake()
     {
         CreateDictionary();
-        resourceSearch.mapPanel = this;
+        //resourceSearch.mapPanel = this;
 
         //if (Screen.height > 1080)
         //    workerIcon.transform.localScale = new Vector3(50f, 50f, 50f);
