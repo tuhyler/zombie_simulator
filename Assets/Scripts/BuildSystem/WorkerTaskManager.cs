@@ -34,6 +34,7 @@ public class WorkerTaskManager : MonoBehaviour
     private Coroutine taskCoroutine;
 
     private int cityBuildingTime = 1;
+    private WaitForSeconds cityBuildTime = new WaitForSeconds(1);
 
     private void Awake()
     {
@@ -493,7 +494,7 @@ public class WorkerTaskManager : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return cityBuildTime;
             timePassed--;
             worker.SetTime(timePassed);
         }

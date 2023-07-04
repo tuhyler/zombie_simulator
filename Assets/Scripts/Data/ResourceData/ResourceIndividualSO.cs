@@ -12,6 +12,6 @@ public class ResourceIndividualSO : ScriptableObject
     public int ResourceGatheringTime = 5;
     public int resourcePrice;
     public int resourceQuantityPerPop = 1;
-    public bool rawResource;
+    public RawResourceType rawResource;
     //public ResourceValue resourceValue;
 }

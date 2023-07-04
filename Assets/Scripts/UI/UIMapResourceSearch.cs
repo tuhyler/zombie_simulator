@@ -7,6 +7,9 @@ using UnityEngine;
 public class UIMapResourceSearch : MonoBehaviour
 {
     [SerializeField]
+    private MapWorld world;
+    
+    [SerializeField]
     private UIMapHandler mapHandler;
     //[HideInInspector]
     //public UIMapPanel mapPanel;
@@ -17,6 +20,9 @@ public class UIMapResourceSearch : MonoBehaviour
 
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
+
+    private Dictionary<ResourceType, List<Vector3Int>> resourceLocDict = new();
+    private ResourceType selectedResource;
 
     private void Awake()
     {
@@ -30,14 +36,32 @@ public class UIMapResourceSearch : MonoBehaviour
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
-            if (resource.resourceType == ResourceType.Food || resource.resourceType == ResourceType.None || resource.resourceType == ResourceType.Lumber || resource.resourceType == ResourceType.Fish)
-                continue;
+            if (resource.rawResource != RawResourceType.None)
+            {
+                if (resource.resourceType == ResourceType.Food || resource.resourceType == ResourceType.None || resource.resourceType == ResourceType.Lumber || resource.resourceType == ResourceType.Fish)
+                    continue;
 
-            if (resource.rawResource)
                 allResources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
+            }
         }
 
         AddResources(allResources);
+    }
+
+    public void AddResourceToDict(Vector3Int loc, ResourceType type)
+    {
+        if (!resourceLocDict.ContainsKey(type))
+            resourceLocDict[type] = new List<Vector3Int>();
+
+        resourceLocDict[type].Add(loc);
+    }
+
+    public void RemoveResourceFromDict(Vector3Int loc, ResourceType type)
+    {
+        resourceLocDict[type].Remove(loc);
+
+        if (resourceLocDict[type].Count == 0)
+            resourceLocDict.Remove(type);
     }
 
     public void SetChosenResource(int value)
@@ -52,7 +76,28 @@ public class UIMapResourceSearch : MonoBehaviour
         resourceList.value = value;
         resourceList.RefreshShownValue();
         
-        //mapPanel.HighlightTile(GetChosenResource(chosenResource));
+        DisableHighlights();
+        
+        //highlighting tiles
+        if (chosenResource != "None")
+        {
+
+            ResourceType type = GetChosenResource(chosenResource);
+
+            if (!resourceLocDict.ContainsKey(type))
+                return;
+
+            selectedResource = type;
+
+            foreach (Vector3Int tile in resourceLocDict[type])
+            {
+                world.GetTerrainDataAt(tile).EnableHighlight(Color.white);
+            }
+        }
+        else
+        {
+            selectedResource = ResourceType.None;
+        }
     }
 
     public void ResetDropdown()
@@ -93,5 +138,18 @@ public class UIMapResourceSearch : MonoBehaviour
         }
 
         resourceList.AddOptions(resources);
+    }
+
+    public void DisableHighlights()
+    {
+        if (selectedResource == ResourceType.None)
+            return;
+        
+        foreach (Vector3Int tile in resourceLocDict[selectedResource])
+        {
+            world.GetTerrainDataAt(tile).DisableHighlight();
+        }
+
+        selectedResource = ResourceType.None;
     }
 }

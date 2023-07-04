@@ -54,6 +54,9 @@ public class CityImprovement : MonoBehaviour
     Coroutine co;
     [SerializeField]
     private GameObject animMesh;
+    private WaitForSeconds startWorkWait = new WaitForSeconds(0.001f);
+    private WaitForSeconds buildingTimeWait = new WaitForSeconds(1);
+    private WaitForSeconds upgradeTimeWait = new WaitForSeconds(1);
 
     [SerializeField]
     private SpriteRenderer mapIcon;
@@ -77,26 +80,8 @@ public class CityImprovement : MonoBehaviour
 
         if (!isConstruction)
         {
-            //upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
-            //particleSystems.Add(upgradeSwirl);
-            //upgradeSwirl.Stop();
-
             removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
             removeSplash.Stop();
-
-            //loc.y += 0.1f;
-            //upgradeFlash.transform.position = loc;
-            //upgradeFlash = Instantiate(upgradeFlash, loc, Quaternion.Euler(0, 0, 0));
-            //particleSystems.Add(upgradeFlash);
-            //upgradeFlash.Pause();
-
-
-            //loc.y += 1.5f;
-            //upgradeSwirlDown.transform.position = loc;
-            //upgradeSwirlDown.transform.rotation = Quaternion.Euler(-270, 0, 0);
-            //upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
-            //particleSystems.Add(upgradeSwirlDown);
-            //upgradeSwirlDown.Pause();
 
             //un-uncomment when finished testing
             if (improvementData != null && improvementData.hideAnimMesh)
@@ -156,7 +141,7 @@ public class CityImprovement : MonoBehaviour
     private IEnumerator StartWorkAnimation(int seconds)
     {
         improvementAnimator.SetBool(isWorkingHash, false); //stop animation first
-        yield return new WaitForSeconds(0.001f);
+        yield return startWorkWait;
         improvementAnimator.SetBool(isWorkingHash, true);
         improvementAnimator.SetFloat("speed", 1f / seconds);
     }
@@ -411,7 +396,7 @@ public class CityImprovement : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return buildingTimeWait;
             timePassed--;
             producer.SetConstructionTime(timePassed);
         }
@@ -449,7 +434,7 @@ public class CityImprovement : MonoBehaviour
         //upgradeFlash.Play();
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return upgradeTimeWait;
             timePassed--;
             producer.SetConstructionTime(timePassed);
         }

@@ -35,7 +35,7 @@ public class TerrainData : MonoBehaviour
     private bool isSeaCorner = false;
     public bool IsSeaCorner { get { return isSeaCorner; } }
     [HideInInspector]
-    public bool isGlowing = false;
+    public bool isGlowing = false, isDiscovered = true;
 
     private ResourceGraphicHandler resourceGraphic;
 
@@ -94,13 +94,20 @@ public class TerrainData : MonoBehaviour
             minimapIconMesh.mesh.uv = terrainMesh.mesh.uv;   
     }
 
-    public void CheckMinimapResource()
+    public void CheckMinimapResource(UIMapHandler uiMapHandler)
     {
         if (terrainData.resourceType != ResourceType.None && terrainData.resourceType != ResourceType.Food && terrainData.resourceType != ResourceType.Lumber && terrainData.resourceType != ResourceType.Fish)
         {
             resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(terrainData.resourceType);
             resourceIcon.SetActive(true);
+            uiMapHandler.AddResourceToMap(tileCoordinates, terrainData.resourceType);
         }
+    }
+
+    public void RemoveMinimapResource(UIMapHandler uiMapHandler)
+    {
+        uiMapHandler.RemoveResourceFromMap(tileCoordinates, terrainData.resourceType);
+        resourceIcon.SetActive(false);
     }
 
     public void SetUVs(Vector2[] uvs)
@@ -161,9 +168,19 @@ public class TerrainData : MonoBehaviour
         highlight.SetNewRenderer(oldRenderer, newRenderer);
     }
 
+    public void HideTerrainMesh()
+    {
+        terrainMesh.gameObject.SetActive(false);
+    }
+
+    public void RestoreTerrainMesh()
+    {
+        terrainMesh.gameObject.SetActive(true);
+    }
+
     public void EnableHighlight(Color highlightColor)
     {
-        if (isGlowing)
+        if (isGlowing || !isDiscovered)
             return;
 
         isGlowing = true;

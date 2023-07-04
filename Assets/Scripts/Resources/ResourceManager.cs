@@ -882,5 +882,13 @@ public enum RawResourceType
     Food,
     Fish,
     Stone,
-    Lumber
+    Lumber,
+    Wool,
+    Cotton,
+    Silk,
+    Clay,
+    CopperOre,
+    IronOre,
+    Gold,
+    Jewel
 }
