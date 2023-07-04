@@ -9,7 +9,7 @@ public class City : MonoBehaviour
 {
     //city praphics
     [SerializeField]
-    private GameObject housingPrefab;
+    public GameObject housingPrefab, cityNameMap;
     [SerializeField]
     private ImprovementDataSO housingData;
     private CityImprovement initialHouse;
@@ -40,8 +40,6 @@ public class City : MonoBehaviour
     //city info
     [HideInInspector]
     public string cityName;
-    [HideInInspector]
-    public TMP_Text cityMapName;
     
     [HideInInspector]
     public Vector3Int cityLoc;
@@ -129,6 +127,8 @@ public class City : MonoBehaviour
         resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
         resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
         resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
+        cityNameMap.GetComponentInChildren<TMP_Text>().outlineWidth = 0.35f;
+        cityNameMap.GetComponentInChildren<TMP_Text>().outlineColor = Color.black;
     }
 
     private void Start()
@@ -327,6 +327,7 @@ public class City : MonoBehaviour
             }
         }
 
+        cityNameMap.GetComponentInChildren<TMP_Text>().text = cityName;
         SetCityNameFieldSize(cityName);
         SetCityName(cityName);
         SetCityPop();
@@ -362,6 +363,9 @@ public class City : MonoBehaviour
 
     public void UpdateCityName(string newCityName)
     {
+        cityNameMap.GetComponentInChildren<TMP_Text>().text = newCityName;
+        if (!world.showingMap)
+            cityNameMap.SetActive(false);
         SetCityNameFieldSize(newCityName);
         SetCityName(newCityName);
         AddCityNameToWorld();
@@ -1060,10 +1064,5 @@ public class City : MonoBehaviour
         initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).terrainData.type == TerrainType.Hill);
         StopAllCoroutines();
         Destroy(uiTimeProgressBar.gameObject);
-    }
-
-    internal void DestroyMapText()
-    {
-        Destroy(cityMapName.gameObject);
     }
 }

@@ -19,6 +19,7 @@ public class RoadManager : MonoBehaviour
     private WorkerTaskManager workerTaskManager;
 
     public int roadMovementCost = 5, roadBuildingTime = 5, roadRemovingTime = 1;
+    private WaitForSeconds roadBuildingTimeWait, roadRemovingTimeWait;
 
     [SerializeField]
     private Transform roadHolder, roadHolderMinimap;
@@ -43,6 +44,8 @@ public class RoadManager : MonoBehaviour
     private void Awake()
     {
         world.SetRoadCost(roadMovementCost);
+        roadBuildingTimeWait = new WaitForSeconds(roadBuildingTime);
+        roadRemovingTimeWait = new WaitForSeconds(roadRemovingTime);
     }
 
     private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool highlight) //placing road prefabs
@@ -77,7 +80,7 @@ public class RoadManager : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return roadBuildingTimeWait;
             timePassed--;
             worker.SetTime(timePassed);
         }
@@ -344,7 +347,7 @@ public class RoadManager : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return roadRemovingTimeWait;
             timePassed--;
             worker.SetTime(timePassed);
         }

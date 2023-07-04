@@ -12,10 +12,13 @@ public class UIMapHandler : MonoBehaviour
     private UIUnitTurnHandler uiUnitTurn;
 
     [SerializeField]
+    private UIMapResourceSearch resourceSearch;
+
+    [SerializeField]
     private CameraController cameraController;
 
     [SerializeField]
-    private GameObject minimapRing, camDirection;
+    private GameObject minimapRing, camDirection, tomFinderButton, mapPanelButton, mainMenuButton, wonderButton;
 
     [SerializeField]
     private RectTransform minimapHolder, minimapMask, minimapImage;
@@ -63,6 +66,9 @@ public class UIMapHandler : MonoBehaviour
 
     public void ToggleMap()
     {
+        if (world.workerOrders)
+            return;
+        
         if (activeStatus)
             ToggleVisibility(false);
         else
@@ -76,15 +82,19 @@ public class UIMapHandler : MonoBehaviour
 
         Vector2 anchorChange = v ? new Vector2(0.5f, 0.5f) : new Vector2(1f, 1f);
         cameraController.enabled = !v;
+        ToggleButtons();
 
         if (v)
         {
+            world.UnselectAll();
+            world.showingMap = true;
+            world.ShowCityNamesMap();
+            resourceSearch.gameObject.SetActive(true);
             prevRotation = cameraController.transform.localEulerAngles;
             cameraController.transform.localEulerAngles = Vector3.zero;
             activeStatus = true;
             
             Vector3 enlargedSize = new Vector3(Screen.width * canvasRatio, Screen.height * canvasRatio, 0);
-            world.UnselectAll();
             uiUnitTurn.gameObject.SetActive(false);
 
             minimapRing.SetActive(false);
@@ -107,10 +117,18 @@ public class UIMapHandler : MonoBehaviour
             minimapMask.sizeDelta = enlargedSize;
             minimapImage.sizeDelta = enlargedSize;
 
-            minimapCamera.transform.position = newPosition;
+            newPosition = cameraController.transform.position;
+            //minimapCamera.transform.position = newPosition;
         }
         else
         {
+            world.showingMap = false;
+            world.HideCityNamesMap();
+
+            resourceSearch.DisableHighlights();
+            resourceSearch.ResetDropdown();
+            resourceSearch.gameObject.SetActive(false);
+
             cameraController.transform.localEulerAngles = prevRotation;
             activeStatus = false;
             uiUnitTurn.gameObject.SetActive(true);
@@ -134,6 +152,34 @@ public class UIMapHandler : MonoBehaviour
             minimapImage.sizeDelta = originalMaskSize;
 
         }
+    }
+
+    private void ToggleButtons()
+    {
+        if (activeStatus)
+        {
+            tomFinderButton.SetActive(true);
+            mapPanelButton.SetActive(true);
+            wonderButton.SetActive(true);
+            mainMenuButton.SetActive(true);
+        }
+        else
+        {
+            tomFinderButton.SetActive(false);
+            mapPanelButton.SetActive(false);
+            wonderButton.SetActive(false);
+            mainMenuButton.SetActive(false);
+        }
+    }
+
+    public void AddResourceToMap(Vector3Int loc, ResourceType type)
+    {
+        resourceSearch.AddResourceToDict(loc, type);
+    }
+
+    public void RemoveResourceFromMap(Vector3Int loc, ResourceType type)
+    {
+        resourceSearch.RemoveResourceFromDict(loc, type);
     }
 
     private void HandleKeyboardInput()

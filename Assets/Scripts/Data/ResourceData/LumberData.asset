@@ -19,4 +19,4 @@ MonoBehaviour:
   ResourceGatheringTime: 5
   resourcePrice: 3
   resourceQuantityPerPop: 50
-  rawResource: 1
+  rawResource: 4

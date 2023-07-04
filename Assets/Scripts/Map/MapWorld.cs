@@ -10,7 +10,7 @@ using static UnityEngine.Rendering.DebugUI;
 public class MapWorld : MonoBehaviour
 {
     [SerializeField]
-    public Canvas mapCanvas, immoveableCanvas, cityCanvas, workerCanvas, traderCanvas;
+    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas;
     [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
     [SerializeField]
@@ -90,6 +90,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
     private List<Vector3Int> wonderNoWalkList = new(); //tiles where wonders are and units can't walk
     private List<Vector3Int> cityLocations = new();
+    private List<GameObject> cityNamesMaps = new();
 
     private Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
     private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
@@ -200,7 +201,7 @@ public class MapWorld : MonoBehaviour
             Vector3Int tileCoordinate = td.TileCoordinates;
             world[tileCoordinate] = td;
             terrainToCheck.Add(td);
-            td.CheckMinimapResource();
+            td.CheckMinimapResource(mapHandler);
             //mapPanel.AddTileToMap(tileCoordinate);
 
             //Vector3Int mod = tileCoordinate / increment;
@@ -219,7 +220,7 @@ public class MapWorld : MonoBehaviour
 
         foreach (Unit unit in FindObjectsOfType<Unit>()) //adds all units and their locations to start game.
         {
-            unit.SetReferences(FindObjectOfType<MapWorld>(), FindObjectOfType<CameraController>(), FindObjectOfType<UIUnitTurnHandler>(), FindObjectOfType<MovementSystem>());
+            unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
             unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
             Vector3 unitPos = unit.transform.position;
             if (!unitPosDict.ContainsKey(Vector3Int.RoundToInt(unitPos))) //just in case dictionary was missing any
@@ -322,18 +323,19 @@ public class MapWorld : MonoBehaviour
         CreateParticleSystems();
         DeactivateCanvases();
 
-        foreach (TerrainData td in terrainToCheck)
-        {
-            //if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
-            ConfigureUVs(td);
-        }
+        //foreach (TerrainData td in terrainToCheck)
+        //{
+        //    //if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
+        //    ConfigureUVs(td);
+        //}
     }
 
     private void DeactivateCanvases()
     {
-        mapCanvas.gameObject.SetActive(false);
         immoveableCanvas.gameObject.SetActive(false);
         cityCanvas.gameObject.SetActive(false);
+        traderCanvas.gameObject.SetActive(false);
+        workerCanvas.gameObject.SetActive(false);
     }
 
     public void ConfigureUVs(TerrainData td)
@@ -371,7 +373,7 @@ public class MapWorld : MonoBehaviour
         
         if (grasslandCount.Sum() == 0)
         {
-            //td.SetMinimapIcon();
+            td.SetMinimapIcon();
             return;
         }
 
@@ -380,7 +382,7 @@ public class MapWorld : MonoBehaviour
         Vector2[] uvs = SetUVMap(grasslandCount, SetUVShift(desc), eulerAngle);
         if (td.UVs.Length > 4)
             uvs = NormalizeUVs(uvs, td.UVs);
-        //td.SetUVs(uvs);
+        td.SetUVs(uvs);
     }
 
     private float SetUVShift(TerrainDesc desc)
@@ -646,6 +648,7 @@ public class MapWorld : MonoBehaviour
         wonderHandler.ToggleVisibility(false);
         //mapPanel.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
+        CloseMap();
         CloseTerrainTooltip();
         CloseImprovementTooltip();
     }
@@ -853,14 +856,14 @@ public class MapWorld : MonoBehaviour
 
             if (td.prop != null)
                 td.prop.gameObject.SetActive(false);
-            td.main.gameObject.SetActive(false);
+            td.HideTerrainMesh();
         }
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
         GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, rotation);
         wonderGO.gameObject.transform.SetParent(wonderHolder, false);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
-        wonder.SetWorld(this);
+        wonder.SetReferences(this, cityBuilderManager.focusCam);
         wonder.WonderData = wonderData;
         wonder.SetPrefabs();
         wonder.wonderName = "Wonder - " + wonderData.wonderName;
@@ -2349,10 +2352,27 @@ public class MapWorld : MonoBehaviour
         Vector3Int position = Vector3Int.RoundToInt(buildPosition);
         cityLocations.Add(position);
         cityDict[position] = city;
+        cityNamesMaps.Add(city.cityNameMap);
 
         foreach (Vector3Int tile in neighborsFourDirections)
         {
             cityLocations.Add(tile + position);
+        }
+    }
+
+    public void ShowCityNamesMap()
+    {
+        foreach (GameObject go in cityNamesMaps)
+        {
+            go.SetActive(true);
+        }
+    }
+
+    public void HideCityNamesMap()
+    {
+        foreach (GameObject go in cityNamesMaps)
+        {
+            go.SetActive(false);
         }
     }
 
@@ -2393,6 +2413,11 @@ public class MapWorld : MonoBehaviour
         string cityName = cityLocDict[cityLoc];
         cityNameDict.Remove(cityName);
         cityLocDict.Remove(cityLoc);
+    }
+
+    public void RemoveCityNameMap(Vector3Int cityLoc)
+    {
+        cityNamesMaps.Remove(GetCity(cityLoc).cityNameMap);
     }
 
     public void RemoveWonderName(string name)

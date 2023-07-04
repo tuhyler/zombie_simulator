@@ -26,7 +26,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private UIInfoPanelCity uiInfoPanelCity;
     [SerializeField]
-    private UIUnitTurnHandler uiUnitTurn;
+    public UIUnitTurnHandler uiUnitTurn;
     [SerializeField]
     private UILaborAssignment uiLaborAssignment;
     [SerializeField]
@@ -62,7 +62,7 @@ public class CityBuilderManager : MonoBehaviour
     public Transform objectPoolHolder, friendlyUnitHolder;
 
     [SerializeField]
-    private CameraController focusCam;
+    public CameraController focusCam;
     private Quaternion originalRotation;
     private Vector3 originalZoom;
 
@@ -677,7 +677,7 @@ public class CityBuilderManager : MonoBehaviour
             TerrainData td = world.GetTerrainDataAt(tile);
             if (td.prop != null)
                 td.prop.gameObject.SetActive(true);
-            td.main.gameObject.SetActive(true);
+            td.RestoreTerrainMesh();
 
             xArray[k] = tile.x;
             zArray[k] = tile.z;
@@ -1912,7 +1912,7 @@ public class CityBuilderManager : MonoBehaviour
         //resetting ground UVs is necessary
         if (improvementData.replaceTerrain)
         {
-            td.main.gameObject.SetActive(false);
+            td.HideTerrainMesh();
 
             foreach (MeshFilter mesh in cityImprovement.MeshFilter)
             {
@@ -2171,7 +2171,7 @@ public class CityBuilderManager : MonoBehaviour
 
             if (improvementData.replaceTerrain)
             {
-                world.GetTerrainDataAt(improvementLoc).main.gameObject.SetActive(true);
+                world.GetTerrainDataAt(improvementLoc).RestoreTerrainMesh();
             }
 
             if (improvementData.returnProp)
@@ -2982,12 +2982,12 @@ public class CityBuilderManager : MonoBehaviour
             RemoveImprovement(constructionTile, construction, selectedCity, false);
         }
 
+        world.RemoveCityNameMap(selectedCityLoc);
         world.RemoveStructure(selectedCityLoc);
         //world.RemoveStructureMap(selectedCityLoc);
         //world.ResetTileMap(selectedCityLoc);
         world.RemoveCityName(selectedCityLoc);
         world.RemoveTradeLoc(selectedCityLoc);
-        selectedCity.DestroyMapText();
 
         selectedCity.DestroyThisCity();
 
