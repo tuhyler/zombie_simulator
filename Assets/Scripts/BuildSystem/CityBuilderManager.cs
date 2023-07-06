@@ -1990,7 +1990,11 @@ public class CityBuilderManager : MonoBehaviour
                         cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
 
                         if (cityImprovement.SkinnedMesh.name == "RocksAnim")
-                            cityImprovement.SkinnedMesh.material = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+                        {
+                            Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+                            cityImprovement.SkinnedMesh.material = mat;
+                            cityImprovement.SetNewMaterial(mat);
+                        }
                     }
 
                     break;
