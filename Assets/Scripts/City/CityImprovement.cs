@@ -240,6 +240,11 @@ public class CityImprovement : MonoBehaviour
     //    //    Destroy(ps.gameObject);
     //}
 
+    public void SetNewMaterial(Material mat)
+    {
+        highlight.SetNewMaterial(mat, skinnedMesh);
+    }
+
     public void EnableHighlight(Color highlightColor, bool secondary = false)
     {
         if (highlight.isGlowing)

@@ -47,6 +47,12 @@ public class SelectionHighlight : MonoBehaviour
         }
     }
 
+    public void SetNewMaterial(Material mat, SkinnedMeshRenderer mesh)
+    {
+        int index = renderersSkinned.IndexOf(mesh);
+        materialsToUse[index + renderers.Count] = mat;
+    }
+
     public void EnableHighlight(Color highlightColor)
     {
         isGlowing = true;
