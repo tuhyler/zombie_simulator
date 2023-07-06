@@ -167,7 +167,6 @@ MonoBehaviour:
     type: 3}
   mapIcon: {fileID: 21300000, guid: c35d24a4ae5a50d44ac9def303b305ec, type: 3}
   cityName: 
-  cityMapName: {fileID: 0}
   cityLoc: {x: 0, y: 0, z: 0}
   activeCity: 0
   hasHarbor: 0
@@ -704,11 +703,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6249270667086199081, guid: c389d25df9e8d5f4cbc5b411881753d8,
         type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 6249270667086199081, guid: c389d25df9e8d5f4cbc5b411881753d8,
-        type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 90
       objectReference: {fileID: 0}
@@ -826,26 +820,6 @@ PrefabInstance:
     - target: {fileID: 7710663386937454018, guid: c1f977fbda4cdbb4ea227f342fcf02c5,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903813512237669196, guid: c1f977fbda4cdbb4ea227f342fcf02c5,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903813512237669196, guid: c1f977fbda4cdbb4ea227f342fcf02c5,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903813512237669196, guid: c1f977fbda4cdbb4ea227f342fcf02c5,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903813512237669196, guid: c1f977fbda4cdbb4ea227f342fcf02c5,
-        type: 3}
-      propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7903813512237669196, guid: c1f977fbda4cdbb4ea227f342fcf02c5,

@@ -20,6 +20,7 @@ public class TerrainDataSO : ScriptableObject
     public RawResourceType rawResourceType;
     public ResourceType resourceType;
     public bool keepProp = false;
+    public bool hasRocks = false;
 
     public void MovementCostCheck()
     {

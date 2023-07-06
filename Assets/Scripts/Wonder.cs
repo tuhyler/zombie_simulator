@@ -569,7 +569,7 @@ public class Wonder : MonoBehaviour
         if (highlight.isGlowing)
             return;
 
-        highlight.EnableHighlight(highlightColor, false);
+        highlight.EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()

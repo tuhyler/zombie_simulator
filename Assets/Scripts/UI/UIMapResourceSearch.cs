@@ -11,6 +11,9 @@ public class UIMapResourceSearch : MonoBehaviour
     
     [SerializeField]
     private UIMapHandler mapHandler;
+
+    [SerializeField]
+    private Sprite originalResourceBackground, highlightResourceBackground;
     //[HideInInspector]
     //public UIMapPanel mapPanel;
     
@@ -91,7 +94,9 @@ public class UIMapResourceSearch : MonoBehaviour
 
             foreach (Vector3Int tile in resourceLocDict[type])
             {
-                world.GetTerrainDataAt(tile).EnableHighlight(Color.white);
+                TerrainData td = world.GetTerrainDataAt(tile);
+                td.EnableHighlight(Color.white);
+                td.HighlightResource(highlightResourceBackground);
             }
         }
         else
@@ -147,7 +152,9 @@ public class UIMapResourceSearch : MonoBehaviour
         
         foreach (Vector3Int tile in resourceLocDict[selectedResource])
         {
-            world.GetTerrainDataAt(tile).DisableHighlight();
+            TerrainData td = world.GetTerrainDataAt(tile);
+            td.DisableHighlight();
+            td.RestoreResource(originalResourceBackground);
         }
 
         selectedResource = ResourceType.None;

@@ -13,5 +13,6 @@ public class ResourceIndividualSO : ScriptableObject
     public int resourcePrice;
     public int resourceQuantityPerPop = 1;
     public RawResourceType rawResource;
+    public Vector2 uvCoordinatesForRocks;
     //public ResourceValue resourceValue;
 }

@@ -14,6 +14,7 @@ public class CityImprovement : MonoBehaviour
     private MeshFilter[] meshFilter;
     public MeshFilter[] MeshFilter { get { return meshFilter; } }
     public SkinnedMeshRenderer skinnedMesh;
+    public SkinnedMeshRenderer SkinnedMesh { get { return skinnedMesh; } }
 
     private SelectionHighlight highlight;
     private ImprovementDataSO improvementData;
@@ -250,7 +251,7 @@ public class CityImprovement : MonoBehaviour
             meshFilter[i].gameObject.SetActive(true);
         }
         
-        highlight.EnableHighlight(highlightColor, secondary);
+        highlight.EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()
