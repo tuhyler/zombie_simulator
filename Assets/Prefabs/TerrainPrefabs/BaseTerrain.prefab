@@ -54,9 +54,15 @@ MonoBehaviour:
   prop: {fileID: 8847728230643572033}
   highlightPlane: {fileID: 0}
   resourceIcon: {fileID: 7178868358704398055}
+  resourceBackgroundSprite: {fileID: 6447084660192600171}
   resourceIconSprite: {fileID: 1889967045544533187}
+  originalResourceBackground: {fileID: 21300000, guid: 89415485680c96043aaed6d544ed2343,
+    type: 3}
+  highlightResourceBackground: {fileID: 21300000, guid: d74aa47b565702d4ca0350aeaf17df87,
+    type: 3}
   hasRoad: 0
   isGlowing: 0
+  isDiscovered: 1
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
   resourceAmount: 0
@@ -251,11 +257,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6249270667086199081, guid: 13f363835113aee48b622a3857f9e5a0,
         type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 6249270667086199081, guid: 13f363835113aee48b622a3857f9e5a0,
-        type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 90
       objectReference: {fileID: 0}
@@ -295,6 +296,12 @@ SpriteRenderer:
 --- !u!224 &6001265225856577931 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6249270667086199081, guid: 13f363835113aee48b622a3857f9e5a0,
+    type: 3}
+  m_PrefabInstance: {fileID: 428150251160144034}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &6447084660192600171 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6668068761066760393, guid: 13f363835113aee48b622a3857f9e5a0,
     type: 3}
   m_PrefabInstance: {fileID: 428150251160144034}
   m_PrefabAsset: {fileID: 0}

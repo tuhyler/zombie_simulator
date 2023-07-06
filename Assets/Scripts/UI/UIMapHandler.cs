@@ -68,6 +68,8 @@ public class UIMapHandler : MonoBehaviour
     {
         if (world.workerOrders)
             return;
+        if (world.buildingWonder)
+            world.CloseBuildingSomethingPanel();
         
         if (activeStatus)
             ToggleVisibility(false);

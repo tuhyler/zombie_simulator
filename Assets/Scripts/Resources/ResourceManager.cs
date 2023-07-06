@@ -869,26 +869,22 @@ public enum ResourceType
     Cloth,
     SilkCloth,
     StoneSlab,
-    Jewel,
+    Ruby,
     Cotton,
     IronOre,
     Iron,
-    GoldOre
+    GoldOre,
+    Emerald,
+    Diamond
 }
 
 public enum RawResourceType
 {
     None,
-    Food,
-    Fish,
-    Stone,
+    FoodLand,
+    FoodSea,
+    Rocks,
     Lumber,
-    Wool,
-    Cotton,
-    Silk,
+    ThreadForCloth,
     Clay,
-    CopperOre,
-    IronOre,
-    Gold,
-    Jewel
 }

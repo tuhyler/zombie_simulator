@@ -633,7 +633,9 @@ public class CityBuilderManager : MonoBehaviour
     public void OpenCancelWonderConstructionWarning()
     {
         if (uiWonderSelection.buttonsAreWorking)
+        {
             uiDestroyCityWarning.ToggleVisibility(true);
+        }
     }
 
     private void CancelWonderConstruction()
@@ -678,6 +680,8 @@ public class CityBuilderManager : MonoBehaviour
             if (td.prop != null)
                 td.prop.gameObject.SetActive(true);
             td.RestoreTerrainMesh();
+            if (td.hasResourceMap)
+                td.RestoreResourceMap();
 
             xArray[k] = tile.x;
             zArray[k] = tile.z;
@@ -1972,10 +1976,10 @@ public class CityBuilderManager : MonoBehaviour
                         }
                     }
 
-                    if (cityImprovement.skinnedMesh != null)
+                    if (cityImprovement.SkinnedMesh != null)
                     {
                         int j = 0;
-                        Vector2[] skinnedUVs = cityImprovement.skinnedMesh.sharedMesh.uv;
+                        Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
 
                         while (j < skinnedUVs.Length)
                         {
@@ -1983,7 +1987,10 @@ public class CityBuilderManager : MonoBehaviour
                             j++;
                         }
 
-                        cityImprovement.skinnedMesh.sharedMesh.uv = skinnedUVs;
+                        cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
+
+                        if (cityImprovement.SkinnedMesh.name == "RocksAnim")
+                            cityImprovement.SkinnedMesh.material = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
                     }
 
                     break;
@@ -2178,7 +2185,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 TerrainData td = world.GetTerrainDataAt(improvementLoc);
                 td.prop.gameObject.SetActive(true);
-                if (td.terrainData.rawResourceType == RawResourceType.Stone)
+                if (td.terrainData.hasRocks)
                     td.RocksCheck();
             }
 

@@ -13,7 +13,7 @@ public class TerrainData : MonoBehaviour
     private GameObject highlightPlane, resourceIcon;
 
     [SerializeField]
-    private SpriteRenderer resourceIconSprite;
+    private SpriteRenderer resourceBackgroundSprite, resourceIconSprite;
 
     private SelectionHighlight highlight;
 
@@ -27,7 +27,7 @@ public class TerrainData : MonoBehaviour
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
 
     [HideInInspector]
-    public bool hasRoad;
+    public bool hasRoad, hasResourceMap;
 
     private bool isLand = true;
     private bool isCoast = false;
@@ -54,12 +54,26 @@ public class TerrainData : MonoBehaviour
     {
         if (terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
             uvs = main.GetComponentInChildren<MeshFilter>().mesh.uv;
-        if (terrainData.rawResourceType == RawResourceType.Stone)
+        if (terrainData.hasRocks)
         {
-            rockUVs = prop.GetComponentInChildren<MeshFilter>().mesh.uv[0];
+            if (terrainData.rawResourceType == RawResourceType.Rocks)
+                rockUVs = ResourceHolder.Instance.GetUVs(terrainData.resourceType);
+            //rockUVs = prop.GetComponentInChildren<MeshFilter>().mesh.uv[0];
+
+            foreach (MeshFilter mesh in prop.GetComponentsInChildren<MeshFilter>())
+            {
+                Vector2[] newUVs = mesh.mesh.uv;
+                int i = 0;
+                while (i < newUVs.Length)
+                {
+                    newUVs[i] = rockUVs;
+                    i++;
+                }
+                mesh.mesh.uv = newUVs;
+            }
+
             resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
             resourceGraphic.isHill = terrainData.type == TerrainType.Hill;
-
             RocksCheck();
         }
 
@@ -98,6 +112,7 @@ public class TerrainData : MonoBehaviour
     {
         if (terrainData.resourceType != ResourceType.None && terrainData.resourceType != ResourceType.Food && terrainData.resourceType != ResourceType.Lumber && terrainData.resourceType != ResourceType.Fish)
         {
+            hasResourceMap = true;
             resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(terrainData.resourceType);
             resourceIcon.SetActive(true);
             uiMapHandler.AddResourceToMap(tileCoordinates, terrainData.resourceType);
@@ -107,6 +122,7 @@ public class TerrainData : MonoBehaviour
     public void RemoveMinimapResource(UIMapHandler uiMapHandler)
     {
         uiMapHandler.RemoveResourceFromMap(tileCoordinates, terrainData.resourceType);
+        hasResourceMap = false;
         resourceIcon.SetActive(false);
     }
 
@@ -176,6 +192,26 @@ public class TerrainData : MonoBehaviour
     public void RestoreTerrainMesh()
     {
         terrainMesh.gameObject.SetActive(true);
+    }
+
+    public void HighlightResource(Sprite sprite)
+    {
+        resourceBackgroundSprite.sprite = sprite;
+    }
+
+    public void RestoreResource(Sprite sprite)
+    {
+        resourceBackgroundSprite.sprite = sprite;
+    }
+
+    public void HideResourceMap()
+    {
+        resourceIcon.SetActive(false);
+    }
+
+    public void RestoreResourceMap()
+    {
+        resourceIcon.SetActive(true);
     }
 
     public void EnableHighlight(Color highlightColor)

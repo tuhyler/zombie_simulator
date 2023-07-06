@@ -857,6 +857,8 @@ public class MapWorld : MonoBehaviour
             if (td.prop != null)
                 td.prop.gameObject.SetActive(false);
             td.HideTerrainMesh();
+            if (td.hasResourceMap)
+                td.HideResourceMap();
         }
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
@@ -1011,7 +1013,10 @@ public class MapWorld : MonoBehaviour
     {
         if (workerOrders)
             return;
-        
+
+        if (buildingWonder)
+            CloseBuildingSomethingPanel();
+
         if (wonderHandler.activeStatus)
         {
             wonderHandler.ToggleVisibility(false);
@@ -1050,6 +1055,9 @@ public class MapWorld : MonoBehaviour
     {
         if (workerOrders)
             return;
+
+        if (buildingWonder)
+            CloseBuildingSomethingPanel();
         
         if (researchTree.activeStatus)
             researchTree.ToggleVisibility(false);
@@ -2346,6 +2354,10 @@ public class MapWorld : MonoBehaviour
     //{
     //    mapPanel.MoveWorker(pos, movement);
     //}
+    public void AddTradeCenterName(GameObject nameMap)
+    {
+        cityNamesMaps.Add(nameMap);
+    }
 
     public void AddCity(Vector3 buildPosition, City city)
     {
