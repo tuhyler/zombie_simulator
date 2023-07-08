@@ -164,6 +164,14 @@ public class CameraController : MonoBehaviour
         {
             newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
         }
+        //if (Input.GetKey(KeyCode.CapsLock))
+        //{
+        //    newRotation *= Quaternion.Euler(Vector3.left * rotationAmount);
+        //}
+        //if (Input.GetKey(KeyCode.F))
+        //{
+        //    newRotation *= Quaternion.Euler(Vector3.left * -rotationAmount);
+        //}
 
         if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
         {
@@ -207,6 +215,7 @@ public class CameraController : MonoBehaviour
         //movement limits
         newPosition.x = Mathf.Clamp(newPosition.x, -movementLimit, movementLimit);
         newPosition.z = Mathf.Clamp(newPosition.z, -movementLimit, movementLimit); //change to edge
+        newRotation.x = Mathf.Clamp(newRotation.x, 0, 10);
 
         //smoothing camera movement
         //transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, Time.deltaTime * movementTime);

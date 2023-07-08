@@ -18,7 +18,9 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private UIResourceManager uiResourceManager;
     [SerializeField]
-    private UIBuilderHandler uiImprovementBuilder;
+    private UIBuilderHandler uiRawGoodsBuilder;
+    [SerializeField]
+    private UIBuilderHandler uiProducerBuilder;
     [SerializeField]
     private UIBuilderHandler uiBuildingBuilder;
     [SerializeField]
@@ -2863,7 +2865,8 @@ public class CityBuilderManager : MonoBehaviour
 
         isQueueing = v;
         uiUnitBuilder.isQueueing = v;
-        uiImprovementBuilder.isQueueing = v;
+        uiRawGoodsBuilder.isQueueing = v;
+        uiProducerBuilder.isQueueing = v;
         uiBuildingBuilder.isQueueing = v;
     }
 
