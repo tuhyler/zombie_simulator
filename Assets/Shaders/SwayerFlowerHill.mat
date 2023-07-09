@@ -43,7 +43,7 @@ Material:
     - _WindDensity: 2
     - _WindStrength: 0.3
     m_Colors:
-    - _WindMovement: {r: 1, g: 1, b: 0, a: 0}
+    - _WindMovement: {r: 0.1, g: 0.1, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &1050354290974397100
 MonoBehaviour:
