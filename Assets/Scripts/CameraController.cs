@@ -215,7 +215,7 @@ public class CameraController : MonoBehaviour
         //movement limits
         newPosition.x = Mathf.Clamp(newPosition.x, -movementLimit, movementLimit);
         newPosition.z = Mathf.Clamp(newPosition.z, -movementLimit, movementLimit); //change to edge
-        newRotation.x = Mathf.Clamp(newRotation.x, 0, 10);
+        //newRotation.x = Mathf.Clamp(newRotation.x, 0, 10);
 
         //smoothing camera movement
         //transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, Time.deltaTime * movementTime);
