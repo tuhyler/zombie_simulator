@@ -26,7 +26,7 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 110
+    resourceAmount: 80
   - resourceType: 6
     resourceAmount: 10
   consumedResources:
@@ -39,6 +39,10 @@ MonoBehaviour:
   consumedResources1:
   - resourceType: 9
     resourceAmount: 7
+  - resourceType: 18
+    resourceAmount: 3
+  - resourceType: 7
+    resourceAmount: 3
   - resourceType: 6
     resourceAmount: 3
   - resourceType: 4
@@ -65,7 +69,7 @@ MonoBehaviour:
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 45
-  availableInitially: 0
+  buildTime: 5
+  availableInitially: 1
   workAnimLoop: 0
   hideAnimMesh: 0

@@ -14,8 +14,6 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
     [SerializeField]
-    private Transform mapIconHolder;
-    [SerializeField]
     private UIWorldResources uiWorldResources;
     [SerializeField]
     private UIResearchTreePanel researchTree;
@@ -25,6 +23,8 @@ public class MapWorld : MonoBehaviour
     //private UIMapPanel mapPanel;
     [SerializeField]
     private UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder;
+    [SerializeField]
+    private RectTransform mapPanelButton, mainMenuButton;
     [SerializeField]
     private UIWonderHandler wonderHandler;
     [SerializeField]
@@ -188,7 +188,7 @@ public class MapWorld : MonoBehaviour
 
     private void Start()
     {
-        wonderButton.ToggleTweenVisibility(true);
+        wonderButton.gameObject.SetActive(true);
         uiWorldResources.SetActiveStatus(true);
         List<TerrainData> coastalTerrain = new();
         List<TerrainData> terrainToCheck = new();
@@ -651,6 +651,28 @@ public class MapWorld : MonoBehaviour
         CloseMap();
         CloseTerrainTooltip();
         CloseImprovementTooltip();
+    }
+
+    public void ToggleMinimap(bool v)
+    {
+        if (v)
+        {
+            LeanTween.moveX(mapHandler.minimapHolder, mapHandler.minimapHolder.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(mapHandler.minimapRing, mapHandler.minimapRing.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+        }
+        else
+        {
+            LeanTween.moveX(mapHandler.minimapHolder, mapHandler.minimapHolder.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(mapHandler.minimapRing, mapHandler.minimapRing.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + 400f, 0.3f);
+        }
     }
 
     //wonder info

@@ -18,10 +18,10 @@ public class UIMapHandler : MonoBehaviour
     private CameraController cameraController;
 
     [SerializeField]
-    private GameObject minimapRing, camDirection, tomFinderButton, mapPanelButton, mainMenuButton, wonderButton;
+    private GameObject camDirection, tomFinderButton, mapPanelButton, mainMenuButton, wonderButton;
 
     [SerializeField]
-    private RectTransform minimapHolder, minimapMask, minimapImage;
+    public RectTransform minimapHolder, minimapMask, minimapImage, minimapRing;
 
     [SerializeField]
     private Image minimapMaskImage;
@@ -99,7 +99,7 @@ public class UIMapHandler : MonoBehaviour
             Vector3 enlargedSize = new Vector3(Screen.width * canvasRatio, Screen.height * canvasRatio, 0);
             uiUnitTurn.gameObject.SetActive(false);
 
-            minimapRing.SetActive(false);
+            minimapRing.gameObject.SetActive(false);
             camDirection.SetActive(false);
 
             minimapMaskImage.sprite = squareMask;
@@ -135,7 +135,7 @@ public class UIMapHandler : MonoBehaviour
             activeStatus = false;
             uiUnitTurn.gameObject.SetActive(true);
 
-            minimapRing.SetActive(true);
+            minimapRing.gameObject.SetActive(true);
             camDirection.SetActive(true);
 
             minimapMaskImage.sprite = roundMask;
