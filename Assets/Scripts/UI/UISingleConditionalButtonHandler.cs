@@ -7,7 +7,7 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
     private CanvasGroup button;
 
     [SerializeField] //for tweening
-    private RectTransform allContents;
+    public RectTransform allContents;
     [HideInInspector]
     public bool activeStatus;
 
