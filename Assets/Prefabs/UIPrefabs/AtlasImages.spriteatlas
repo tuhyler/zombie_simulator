@@ -44,6 +44,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 919625b08f58a3f4e8eb1324b814e146, type: 3}
   - {fileID: 21300000, guid: 0bc86cc0a006dd444ae89ecd41da2d3b, type: 3}
   - {fileID: 21300000, guid: 6d74bec02454a0e4ca78c4bd1b9ec560, type: 3}
+  - {fileID: 21300000, guid: c2b19f31381193e4c961b69ac564c4f6, type: 3}
   - {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
   - {fileID: 21300000, guid: 23af44925d8146040a7102b0248cf945, type: 3}
   - {fileID: 21300000, guid: 85009792ecfc4a644884ce6b4264e23a, type: 3}
@@ -98,6 +99,7 @@ SpriteAtlas:
   - StoneCutter01Img
   - Cavalry01Img
   - Research03Img
+  - Smelter01Img
   - Farm00Img
   - Ceramist02LittleImg
   - Ranged01Img
