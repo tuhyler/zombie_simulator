@@ -1,14 +1,23 @@
 fileFormatVersion: 2
-guid: 2fe793dbc9ee30043878d75142532dad
+guid: 57f3d2948a1f5014cb24810d8a3db8af
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable:
   - first:
-      74: 4108106558368618973
-    second: Armature|Workin
+      74: 6042651797000048310
+    second: SmelterBase|Working
   - first:
-      74: 758313870698249472
-    second: Workin
+      74: 3145700126242964221
+    second: Armature|Working
+  - first:
+      74: -3141545029934827905
+    second: Armature|Working.001
+  - first:
+      74: -5401204174463824589
+    second: Smelter|Working.001
+  - first:
+      74: -8945691123924629249
+    second: Armature|Idle
   externalObjects: {}
   materials:
     materialImportMode: 2

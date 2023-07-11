@@ -16,13 +16,13 @@ MonoBehaviour:
   secondaryData: []
   isBuilding: 0
   improvementName: Smelter
-  improvementDisplayName: Brick Oven
+  improvementDisplayName: Smelter
   improvementLevel: 1
   improvementNameAndLevel: Smelter-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
-  littleImage: {fileID: 21300000, guid: 268b0dfa54aee1d4f8e68792586aa0a1, type: 3}
+  image: {fileID: 21300000, guid: c2b19f31381193e4c961b69ac564c4f6, type: 3}
+  littleImage: {fileID: 21300000, guid: c2b19f31381193e4c961b69ac564c4f6, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
@@ -65,7 +65,7 @@ MonoBehaviour:
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 45
+  buildTime: 5
   availableInitially: 0
   workAnimLoop: 0
   hideAnimMesh: 0
