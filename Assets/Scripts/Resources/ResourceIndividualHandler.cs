@@ -8,6 +8,7 @@ public class ResourceIndividualHandler : MonoBehaviour
     [SerializeField]
     private WorkerTaskManager workerTaskManager;
 
+    private WaitForSeconds gatherResourceWait = new WaitForSeconds(1);
     //private City tempCity;
     //private Worker workerUnit;
     //private ResourceIndividualSO resourceIndividual;
@@ -87,7 +88,7 @@ public class ResourceIndividualHandler : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return gatherResourceWait;
             timePassed--;
             worker.SetTime(timePassed);
         }

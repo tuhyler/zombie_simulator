@@ -23,7 +23,7 @@ MonoBehaviour:
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   littleImage: {fileID: 0}
-  mapIcon: {fileID: 21300000, guid: a4cf146f60f7b874cbfa2fcbe4fb4d33, type: 3}
+  mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
   - resourceType: 6
     resourceAmount: 50
@@ -37,7 +37,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 2
     resourceAmount: 10
-  producedResourceTime: 14000000
+  producedResourceTime: 05000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
@@ -51,7 +51,7 @@ MonoBehaviour:
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 20
+  buildTime: 5
   availableInitially: 0
   workAnimLoop: 0
   hideAnimMesh: 1

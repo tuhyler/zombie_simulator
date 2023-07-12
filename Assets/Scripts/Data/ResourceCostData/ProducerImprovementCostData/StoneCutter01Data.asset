@@ -53,7 +53,7 @@ MonoBehaviour:
   replaceRocks: 0
   returnProp: 1
   singleBuild: 0
-  buildTime: 45
+  buildTime: 5
   availableInitially: 0
   workAnimLoop: 0
   hideAnimMesh: 0

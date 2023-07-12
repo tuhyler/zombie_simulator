@@ -109,6 +109,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: cotton_raw
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9dd8b4e861a973c42adb3514c40ea7d1,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9dd8b4e861a973c42adb3514c40ea7d1, type: 3}
 --- !u!4 &7914862798408445654 stripped

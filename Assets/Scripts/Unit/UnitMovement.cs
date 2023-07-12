@@ -64,6 +64,7 @@ public class UnitMovement : MonoBehaviour
     private void Awake()
     {
         movementSystem = GetComponent<MovementSystem>();
+        movementSystem.GrowObjectPools(this);
     }
 
     private void Start()

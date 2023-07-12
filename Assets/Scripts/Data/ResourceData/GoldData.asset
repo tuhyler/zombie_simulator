@@ -19,4 +19,5 @@ MonoBehaviour:
   ResourceGatheringTime: 5
   resourcePrice: 1
   resourceQuantityPerPop: 1
-  rawResource: 1
+  rawResource: 0
+  uvCoordinatesForRocks: {x: 0, y: 0}

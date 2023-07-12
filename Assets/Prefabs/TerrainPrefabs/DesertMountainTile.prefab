@@ -84,9 +84,13 @@ MonoBehaviour:
   main: {fileID: 8986312242665854341}
   prop: {fileID: 3451188020812559024}
   highlightPlane: {fileID: 0}
+  resourceIcon: {fileID: 0}
+  resourceIconSprite: {fileID: 0}
   hasRoad: 0
   isGlowing: 0
+  isDiscovered: 1
   terrainMesh: {fileID: 0}
+  minimapIconMesh: {fileID: 0}
   resourceAmount: 0
 --- !u!114 &5216273259340257018
 MonoBehaviour:
@@ -230,6 +234,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4e8fa1aa776243645b4e65838c0889f9,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4e8fa1aa776243645b4e65838c0889f9, type: 3}

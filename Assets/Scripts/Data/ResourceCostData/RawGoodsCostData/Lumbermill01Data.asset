@@ -32,12 +32,20 @@ MonoBehaviour:
     resourceAmount: 4
   - resourceType: 4
     resourceAmount: 1
-  consumedResources1: []
-  consumedResources2: []
+  consumedResources1:
+  - resourceType: 11
+    resourceAmount: 2
+  consumedResources2:
+  - resourceType: 13
+    resourceAmount: 3
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 6
+    resourceAmount: 5
+  - resourceType: 17
+    resourceAmount: 5
+  - resourceType: 19
     resourceAmount: 5
   producedResourceTime: 050000000500000005000000
   rawMaterials: 1

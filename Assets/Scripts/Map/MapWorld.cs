@@ -10,19 +10,21 @@ using static UnityEngine.Rendering.DebugUI;
 public class MapWorld : MonoBehaviour
 {
     [SerializeField]
-    public Canvas mapCanvas, immoveableCanvas, cityCanvas, workerCanvas, traderCanvas;
+    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas;
     [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
-    [SerializeField]
-    private Transform mapIconHolder;
     [SerializeField]
     private UIWorldResources uiWorldResources;
     [SerializeField]
     private UIResearchTreePanel researchTree;
     [SerializeField]
-    private UIMapPanel mapPanel;
+    private UIMapHandler mapHandler;
+    //[SerializeField]
+    //private UIMapPanel mapPanel;
     [SerializeField]
     private UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder;
+    [SerializeField]
+    private RectTransform mapPanelButton, mainMenuButton;
     [SerializeField]
     private UIWonderHandler wonderHandler;
     [SerializeField]
@@ -46,7 +48,10 @@ public class MapWorld : MonoBehaviour
 
     [SerializeField]
     private ParticleSystem lightBeam;
-    
+
+    [SerializeField]
+    public Transform cityHolder, wonderHolder, tradeCenterHolder;
+
     //wonder info
     private WonderDataSO wonderData;
     [SerializeField]
@@ -85,6 +90,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
     private List<Vector3Int> wonderNoWalkList = new(); //tiles where wonders are and units can't walk
     private List<Vector3Int> cityLocations = new();
+    private List<GameObject> cityNamesMaps = new();
 
     private Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
     private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
@@ -182,7 +188,7 @@ public class MapWorld : MonoBehaviour
 
     private void Start()
     {
-        wonderButton.ToggleTweenVisibility(true);
+        wonderButton.gameObject.SetActive(true);
         uiWorldResources.SetActiveStatus(true);
         List<TerrainData> coastalTerrain = new();
         List<TerrainData> terrainToCheck = new();
@@ -195,7 +201,8 @@ public class MapWorld : MonoBehaviour
             Vector3Int tileCoordinate = td.TileCoordinates;
             world[tileCoordinate] = td;
             terrainToCheck.Add(td);
-            mapPanel.AddTileToMap(tileCoordinate);
+            td.CheckMinimapResource(mapHandler);
+            //mapPanel.AddTileToMap(tileCoordinate);
 
             //Vector3Int mod = tileCoordinate / increment;
             //mod.y = mod.z;
@@ -213,6 +220,8 @@ public class MapWorld : MonoBehaviour
 
         foreach (Unit unit in FindObjectsOfType<Unit>()) //adds all units and their locations to start game.
         {
+            unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+            unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
             Vector3 unitPos = unit.transform.position;
             if (!unitPosDict.ContainsKey(Vector3Int.RoundToInt(unitPos))) //just in case dictionary was missing any
                 unit.CurrentLocation = AddUnitPosition(unitPos, unit);
@@ -301,8 +310,8 @@ public class MapWorld : MonoBehaviour
             center.SetName(tradeCenterNamePool[i]);
             center.SetPop(tradeCenterPopPool[i]);
             center.ClaimSpotInWorld(increment);
-            mapPanel.SetImprovement(center.mainLoc, tradeCenterMapIcon);
-            mapPanel.SetTileSprite(center.mainLoc, TerrainDesc.TradeCenter);
+            //mapPanel.SetImprovement(center.mainLoc, tradeCenterMapIcon);
+            //mapPanel.SetTileSprite(center.mainLoc, TerrainDesc.TradeCenter);
             roadManager.BuildRoadAtPosition(center.mainLoc);
             tradeCenterDict[center.tradeCenterName] = center;
             tradeCenterStopDict[center.mainLoc] = center;
@@ -314,18 +323,19 @@ public class MapWorld : MonoBehaviour
         CreateParticleSystems();
         DeactivateCanvases();
 
-        foreach (TerrainData td in terrainToCheck)
-        {
-            //if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
-            ConfigureUVs(td);
-        }
+        //foreach (TerrainData td in terrainToCheck)
+        //{
+        //    //if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
+        //    ConfigureUVs(td);
+        //}
     }
 
     private void DeactivateCanvases()
     {
-        mapCanvas.gameObject.SetActive(false);
         immoveableCanvas.gameObject.SetActive(false);
         cityCanvas.gameObject.SetActive(false);
+        traderCanvas.gameObject.SetActive(false);
+        workerCanvas.gameObject.SetActive(false);
     }
 
     public void ConfigureUVs(TerrainData td)
@@ -362,15 +372,17 @@ public class MapWorld : MonoBehaviour
             return;
         
         if (grasslandCount.Sum() == 0)
+        {
+            td.SetMinimapIcon();
             return;
+        }
 
-        bool river = desc == TerrainDesc.River;
         int eulerAngle = Mathf.RoundToInt(td.main.transform.eulerAngles.y);
 
-        (Vector2[] uvs, int rotation) = SetUVMap(grasslandCount, SetUVShift(desc), river, eulerAngle);
+        Vector2[] uvs = SetUVMap(grasslandCount, SetUVShift(desc), eulerAngle);
         if (td.UVs.Length > 4)
             uvs = NormalizeUVs(uvs, td.UVs);
-        td.SetUVs(uvs, rotation);
+        td.SetUVs(uvs);
     }
 
     private float SetUVShift(TerrainDesc desc)
@@ -403,15 +415,14 @@ public class MapWorld : MonoBehaviour
         return shift;
     }
 
-    //for setting the uv map to transition between terrains, also includes manual rotation
-    private (Vector2[], int) SetUVMap(int[] count, float shift, bool river, int eulerAngle)
+    //for setting the uv map to transition between terrains, also includes uv coordinates rotation
+    private Vector2[] SetUVMap(int[] count, float shift, int eulerAngle)
     {
         Vector2[] uvMap = new Vector2[4];
         int rotation = 0;
         float change = 0.0025f;
-        int currentRot = 0;
-        if (river) //to offset river rotation
-            currentRot = eulerAngle / 90;
+        //if (river) 
+        int currentRot = eulerAngle / 90; //to offset tile rotation
 
         switch (count.Sum())
         {
@@ -551,7 +562,7 @@ public class MapWorld : MonoBehaviour
         for (int i = 0; i < uvMap.Length; i++)
             uvMap[i].x += shift;
 
-        return (uvMap, rotation);
+        return uvMap;
     }
 
     //for reassigning UVs when the Vector2 counts don't match
@@ -635,10 +646,33 @@ public class MapWorld : MonoBehaviour
         //unitMovement.LoadUnloadFinish(false);
         researchTree.ToggleVisibility(false);
         wonderHandler.ToggleVisibility(false);
-        mapPanel.ToggleVisibility(false);
+        //mapPanel.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
+        CloseMap();
         CloseTerrainTooltip();
         CloseImprovementTooltip();
+    }
+
+    public void ToggleMinimap(bool v)
+    {
+        if (v)
+        {
+            LeanTween.moveX(mapHandler.minimapHolder, mapHandler.minimapHolder.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(mapHandler.minimapRing, mapHandler.minimapRing.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+        }
+        else
+        {
+            LeanTween.moveX(mapHandler.minimapHolder, mapHandler.minimapHolder.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(mapHandler.minimapRing, mapHandler.minimapRing.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + 400f, 0.3f);
+        }
     }
 
     //wonder info
@@ -844,13 +878,16 @@ public class MapWorld : MonoBehaviour
 
             if (td.prop != null)
                 td.prop.gameObject.SetActive(false);
-            td.main.gameObject.SetActive(false);
+            td.HideTerrainMesh();
+            if (td.hasResourceMap)
+                td.HideResourceMap();
         }
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
         GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, rotation);
+        wonderGO.gameObject.transform.SetParent(wonderHolder, false);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
-        wonder.SetWorld(this);
+        wonder.SetReferences(this, cityBuilderManager.focusCam);
         wonder.WonderData = wonderData;
         wonder.SetPrefabs();
         wonder.wonderName = "Wonder - " + wonderData.wonderName;
@@ -876,8 +913,8 @@ public class MapWorld : MonoBehaviour
         {
             AddToCityLabor(tile, wonderGO); //so cities can't take the spot
             AddStructure(tile, wonderGO); //so nothing else can be built there
-            AddStructureMap(tile, wonderMapIcon);
-            mapPanel.SetTileSprite(tile, TerrainDesc.Wonder);
+            //AddStructureMap(tile, wonderMapIcon);
+            //mapPanel.SetTileSprite(tile, TerrainDesc.Wonder);
 
             //checking if there's a spot to build harbor
             foreach (Vector3Int neighbor in GetNeighborsFor(tile, State.FOURWAYINCREMENT))
@@ -998,7 +1035,10 @@ public class MapWorld : MonoBehaviour
     {
         if (workerOrders)
             return;
-        
+
+        if (buildingWonder)
+            CloseBuildingSomethingPanel();
+
         if (wonderHandler.activeStatus)
         {
             wonderHandler.ToggleVisibility(false);
@@ -1037,6 +1077,9 @@ public class MapWorld : MonoBehaviour
     {
         if (workerOrders)
             return;
+
+        if (buildingWonder)
+            CloseBuildingSomethingPanel();
         
         if (researchTree.activeStatus)
             researchTree.ToggleVisibility(false);
@@ -1049,26 +1092,27 @@ public class MapWorld : MonoBehaviour
         researchTree.ToggleVisibility(false);
     }
 
-    public void OpenMap()
-    {
-        if (workerOrders)
-            return;
+    //public void OpenMap()
+    //{
+    //    if (workerOrders)
+    //        return;
 
-        if (mapPanel.activeStatus)
-            mapPanel.ToggleVisibility(false);
-        else
-            mapPanel.ToggleVisibility(true);
-    }
+    //    if (mapPanel.activeStatus)
+    //        mapPanel.ToggleVisibility(false);
+    //    else
+    //        mapPanel.ToggleVisibility(true);
+    //}
 
     public void CloseMap()
     {
-        mapPanel.ToggleVisibility(false);
+        mapHandler.ToggleVisibility(false);
+        //mapPanel.ToggleVisibility(false);
     }
     
-    public void AddToMinimap(GameObject icon)
-    {
-        icon.gameObject.transform.SetParent(mapIconHolder, false);
-    }
+    //public void AddToMinimap(GameObject icon)
+    //{
+    //    icon.gameObject.transform.SetParent(mapIconHolder, false);
+    //}
 
     //terrain tooltip
     public void OpenTerrainTooltip(TerrainData td)
@@ -2173,21 +2217,21 @@ public class MapWorld : MonoBehaviour
                 int j = 0;
                 int[] neighborRoads = { 0, 0, 0, 0 };
                 //int neighborCount = 0;
-                if (removing)
-                {
-                    if (i > 3)
-                        RemoveRoadMapIcon(neighbor, i - 3);
-                    else
-                        RemoveRoadMapIcon(neighbor, i + 5);
-                }
-                else
-                {
-                    SetRoadMapIcon(position, i + 1);
-                    if (i > 3)
-                        SetRoadMapIcon(neighbor, i - 3);
-                    else
-                        SetRoadMapIcon(neighbor, i + 5);
-                }
+                //if (removing)
+                //{
+                //    if (i > 3)
+                //        RemoveRoadMapIcon(neighbor, i - 3);
+                //    else
+                //        RemoveRoadMapIcon(neighbor, i + 5);
+                //}
+                //else
+                //{
+                //    SetRoadMapIcon(position, i + 1);
+                //    if (i > 3)
+                //        SetRoadMapIcon(neighbor, i - 3);
+                //    else
+                //        SetRoadMapIcon(neighbor, i + 5);
+                //}
 
                 List<Vector3Int> neighborDirectionList = straightFlag ? neighborsFourDirectionsIncrement : neighborsDiagFourDirectionsIncrement;
                 foreach (Vector3Int neighborDirection in neighborDirectionList)
@@ -2282,66 +2326,87 @@ public class MapWorld : MonoBehaviour
         buildingPosDict[position] = structure;
     }
 
-    public void AddStructureMap(Vector3Int pos, Sprite sprite)
-    {
-        mapPanel.SetImprovement(pos, sprite);
-    }
+    //public void AddStructureMap(Vector3Int pos, Sprite sprite)
+    //{
+    //    mapPanel.SetImprovement(pos, sprite);
+    //}
 
-    public void RemoveStructureMap(Vector3Int pos)
-    {
-        mapPanel.RemoveImprovement(pos);
-    }
+    //public void RemoveStructureMap(Vector3Int pos)
+    //{
+    //    mapPanel.RemoveImprovement(pos);
+    //}
 
-    public TMP_Text SetCityTileMap(Vector3Int pos, string name)
-    {
-        mapPanel.SetTileSprite(pos, TerrainDesc.City);
-        return mapPanel.CreateCityText(pos, name);
-    }
+    //public TMP_Text SetCityTileMap(Vector3Int pos, string name)
+    //{
+    //    //mapPanel.SetTileSprite(pos, TerrainDesc.City);
+    //    //return mapPanel.CreateCityText(pos, name);
+    //}
 
-    public void ResetTileMap(Vector3Int pos)
-    {
-        mapPanel.SetTileSprite(pos, GetTerrainDataAt(pos).terrainData.terrainDesc);
-    }
+    //public void ResetTileMap(Vector3Int pos)
+    //{
+    //    mapPanel.SetTileSprite(pos, GetTerrainDataAt(pos).terrainData.terrainDesc);
+    //}
 
-    public GameObject CreateMapIcon(Sprite sprite)
-    {
-        return mapPanel.CreateUnitIcon(sprite);
-    }
+    //public GameObject CreateMapIcon(Sprite sprite)
+    //{
+    //    return mapPanel.CreateUnitIcon(sprite);
+    //}
 
-    public void SetMapIconLoc(Vector3Int loc, GameObject icon)
-    {
-        mapPanel.SetIconTile(loc, icon);
-    }
+    //public void SetMapIconLoc(Vector3Int loc, GameObject icon)
+    //{
+    //    mapPanel.SetIconTile(loc, icon);
+    //}
 
-    public void SetRoadMapIcon(Vector3Int loc, int num)
-    {
-        mapPanel.SetRoad(loc, num);
-    }
+    //public void SetRoadMapIcon(Vector3Int loc, int num)
+    //{
+    //    mapPanel.SetRoad(loc, num);
+    //}
 
-    public void RemoveRoadMapIcon(Vector3Int loc, int num)
-    {
-        mapPanel.RemoveRoad(loc, num);
-    }
+    //public void RemoveRoadMapIcon(Vector3Int loc, int num)
+    //{
+    //    mapPanel.RemoveRoad(loc, num);
+    //}
 
-    public void RemoveAllRoadIcons(Vector3Int loc)
-    {
-        mapPanel.RemoveAllRoads(loc);
-    }
+    //public void RemoveAllRoadIcons(Vector3Int loc)
+    //{
+    //    mapPanel.RemoveAllRoads(loc);
+    //}
 
     //public void MoveWorkerIcon(Vector3Int pos, float movement)
     //{
     //    mapPanel.MoveWorker(pos, movement);
     //}
+    public void AddTradeCenterName(GameObject nameMap)
+    {
+        cityNamesMaps.Add(nameMap);
+    }
 
     public void AddCity(Vector3 buildPosition, City city)
     {
         Vector3Int position = Vector3Int.RoundToInt(buildPosition);
         cityLocations.Add(position);
         cityDict[position] = city;
+        cityNamesMaps.Add(city.cityNameMap);
 
         foreach (Vector3Int tile in neighborsFourDirections)
         {
             cityLocations.Add(tile + position);
+        }
+    }
+
+    public void ShowCityNamesMap()
+    {
+        foreach (GameObject go in cityNamesMaps)
+        {
+            go.SetActive(true);
+        }
+    }
+
+    public void HideCityNamesMap()
+    {
+        foreach (GameObject go in cityNamesMaps)
+        {
+            go.SetActive(false);
         }
     }
 
@@ -2382,6 +2447,11 @@ public class MapWorld : MonoBehaviour
         string cityName = cityLocDict[cityLoc];
         cityNameDict.Remove(cityName);
         cityLocDict.Remove(cityLoc);
+    }
+
+    public void RemoveCityNameMap(Vector3Int cityLoc)
+    {
+        cityNamesMaps.Remove(GetCity(cityLoc).cityNameMap);
     }
 
     public void RemoveWonderName(string name)

@@ -126,6 +126,7 @@ public class UIResearchTreePanel : MonoBehaviour
         if (v)
         {
             world.UnselectAll();
+            world.ToggleMinimap(false);
             uiUnitTurn.gameObject.SetActive(false);
             world.immoveableCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
@@ -161,6 +162,7 @@ public class UIResearchTreePanel : MonoBehaviour
                 world.SetWorldResearchUI(0, 1);
             }
 
+            world.ToggleMinimap(true);
             isQueueing = false;
             queueButton.color = originalColor;
             activeStatus = false;

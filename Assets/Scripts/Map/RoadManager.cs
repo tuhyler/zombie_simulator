@@ -19,9 +19,10 @@ public class RoadManager : MonoBehaviour
     private WorkerTaskManager workerTaskManager;
 
     public int roadMovementCost = 5, roadBuildingTime = 5, roadRemovingTime = 1;
+    private WaitForSeconds roadBuildingTimeWait = new WaitForSeconds(1), roadRemovingTimeWait = new WaitForSeconds(1);
 
     [SerializeField]
-    private Transform roadHolder;
+    private Transform roadHolder, roadHolderMinimap;
     private List<MeshFilter> roadMeshList = new();
     
     public readonly static List<Vector3Int> neighborsFourDirections = new()
@@ -77,7 +78,7 @@ public class RoadManager : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return roadBuildingTimeWait;
             timePassed--;
             worker.SetTime(timePassed);
         }
@@ -151,7 +152,7 @@ public class RoadManager : MonoBehaviour
         if (straightRoadsCount + diagRoadsCount == 0)
         {
             CreateRoadSolo(roadPosition, hill, false);
-            world.SetRoadMapIcon(roadPosition, 0);
+            //world.SetRoadMapIcon(roadPosition, 0);
         }
 
         world.SetRoadLocations(roadPosition);
@@ -344,7 +345,7 @@ public class RoadManager : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return roadRemovingTimeWait;
             timePassed--;
             worker.SetTime(timePassed);
         }
@@ -389,7 +390,7 @@ public class RoadManager : MonoBehaviour
         world.RemoveRoad(tile);
         world.RemoveRoadLocation(tile);
         world.RemoveSoloRoadLocation(tile);
-        world.RemoveAllRoadIcons(tile);
+        //world.RemoveAllRoadIcons(tile);
 
         foreach (Vector3Int neighbor in neighborsFourDirections)
             world.RemoveRoadLocation(tile + neighbor);
@@ -425,6 +426,11 @@ public class RoadManager : MonoBehaviour
         meshFilter.mesh = new Mesh();
         meshFilter.mesh.CombineMeshes(combine);
         roadHolder.GetComponent<MeshCollider>().sharedMesh = meshFilter.sharedMesh;
+
+        //for minimap roads
+        MeshFilter meshFilterMinimap = roadHolderMinimap.GetComponent<MeshFilter>();
+        meshFilterMinimap.mesh = new Mesh();
+        meshFilterMinimap.mesh.CombineMeshes(combine);
 
         roadHolder.transform.gameObject.SetActive(true);
     }
