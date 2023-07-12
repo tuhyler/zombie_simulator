@@ -13,7 +13,7 @@ public class CityImprovement : MonoBehaviour
 
     private MeshFilter[] meshFilter;
     public MeshFilter[] MeshFilter { get { return meshFilter; } }
-    public SkinnedMeshRenderer skinnedMesh;
+    private SkinnedMeshRenderer skinnedMesh;
     public SkinnedMeshRenderer SkinnedMesh { get { return skinnedMesh; } }
 
     private SelectionHighlight highlight;
@@ -54,7 +54,7 @@ public class CityImprovement : MonoBehaviour
     //private int isWaitingHash;
     Coroutine co;
     [SerializeField]
-    private GameObject animMesh;
+    private GameObject animMesh; //for making inactive when not working
     private WaitForSeconds startWorkWait = new WaitForSeconds(0.001f);
     private WaitForSeconds buildingTimeWait = new WaitForSeconds(1);
     private WaitForSeconds upgradeTimeWait = new WaitForSeconds(1);
