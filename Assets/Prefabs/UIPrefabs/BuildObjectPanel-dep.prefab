@@ -198,18 +198,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildData: {fileID: 0}
   unitBuildData: {fileID: 0}
-  canvasGroup: {fileID: 4408959299730940420}
   objectName: {fileID: 2927087752969563087}
   objectLevel: {fileID: 6883745626334442899}
+  producesTitle: {fileID: 0}
+  health: {fileID: 0}
+  speed: {fileID: 0}
+  strength: {fileID: 0}
   objectImage: {fileID: 3355032083150064776}
+  strengthImage: {fileID: 0}
+  inventorySprite: {fileID: 0}
   resourceInfoPanel: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
     type: 3}
   resourceProducedHolder: {fileID: 5892023623257131259}
-  resourceConsumedHolder: {fileID: 5618232202636696049}
   resourceCostHolder: {fileID: 4248947161074216305}
-  resourceProducedContents: {fileID: 1292233296121455834}
-  resourceConsumedContents: {fileID: 6736260194648849172}
-  resourceCostContents: {fileID: 4987195523665830144}
+  unitDescription: {fileID: 0}
+  resourceProduceAllHolder: {fileID: 0}
+  imageLine: {fileID: 0}
+  resourceProduceLayout: {fileID: 0}
 --- !u!1 &1425045695668889974
 GameObject:
   m_ObjectHideFlags: 0

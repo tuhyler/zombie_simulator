@@ -8,7 +8,7 @@ public class ResourceHolder : MonoBehaviour
 
     public List<ResourceIndividualSO> allStorableResources = new(); //not static so as to populate lists in inspector
     public List<ResourceIndividualSO> allWorldResources = new();
-    private Dictionary<ResourceType, Sprite> resourceIconDict = new();
+    private Dictionary<ResourceType, ResourceIndividualSO> resourceDict = new();
 
     private void Awake()
     {
@@ -20,12 +20,18 @@ public class ResourceHolder : MonoBehaviour
     {
         foreach (var resource in allStorableResources.Concat(allWorldResources))
         {
-            resourceIconDict[resource.resourceType] = resource.resourceIcon;
+            resourceDict[resource.resourceType] = resource;
+
         }
     }
 
     public Sprite GetIcon(ResourceType resourceType)
     {
-        return resourceIconDict[resourceType];
+        return resourceDict[resourceType].resourceIcon;
+    }
+
+    public Vector2 GetUVs(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].uvCoordinatesForRocks;
     }
 }

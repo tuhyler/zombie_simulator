@@ -34,6 +34,7 @@ public class WorkerTaskManager : MonoBehaviour
     private Coroutine taskCoroutine;
 
     private int cityBuildingTime = 1;
+    private WaitForSeconds cityBuildTime = new WaitForSeconds(1);
 
     private void Awake()
     {
@@ -493,7 +494,7 @@ public class WorkerTaskManager : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return cityBuildTime;
             timePassed--;
             worker.SetTime(timePassed);
         }
@@ -528,11 +529,12 @@ public class WorkerTaskManager : MonoBehaviour
 
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); //creates building unit position.
+        newCity.gameObject.transform.SetParent(world.cityHolder, false);
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
         City city = newCity.GetComponent<City>();
         city.SetNewCityName();
-        world.AddStructureMap(workerTile, city.mapIcon);
-        city.cityMapName = world.SetCityTileMap(workerTile, city.name);
+        //world.AddStructureMap(workerTile, city.mapIcon);
+        //city.cityMapName = world.SetCityTileMap(workerTile, city.name);
         world.AddCity(workerTile, city);
         city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
         city.CheckForAvailableSingleBuilds();

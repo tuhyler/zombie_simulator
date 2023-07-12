@@ -8,7 +8,10 @@ public class CanvasUpdate : MonoBehaviour
     public int defaultHeight = 1080;
     public int maxNumerator = 21; 
     public int denominator = 18; 
-    public int stepSize = 640; 
+    public int stepSize = 640;
+
+    [HideInInspector]
+    public float newCanvasWidth; //to pass in case some UI elements define their own size
 
     //0. 0 7/6 21/18 (maxNumerator / denominator)
     // + 640 (step size)
@@ -47,7 +50,7 @@ public class CanvasUpdate : MonoBehaviour
 
         //setting the aspect ratio
         float canvasHeight = rt.rect.height;
-        float newCanvasWidth = canvasHeight * Camera.main.aspect;
+        newCanvasWidth = canvasHeight * Camera.main.aspect;
         rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newCanvasWidth);
     }
 }

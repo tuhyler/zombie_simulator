@@ -186,3 +186,4 @@ MonoBehaviour:
   unitMovement: {fileID: 0}
   cityBuilderManager: {fileID: 0}
   world: {fileID: 0}
+  allContents: {fileID: 5260703463605753538}

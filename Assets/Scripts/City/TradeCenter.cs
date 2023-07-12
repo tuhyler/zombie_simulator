@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class TradeCenter : MonoBehaviour
@@ -10,6 +11,9 @@ public class TradeCenter : MonoBehaviour
     private SelectionHighlight highlight;
     [SerializeField]
     private CityNameField nameField;
+
+    [SerializeField]
+    private GameObject nameMap;
 
     //basic info
     [HideInInspector]
@@ -48,6 +52,9 @@ public class TradeCenter : MonoBehaviour
 
         foreach (ResourceValue value in sellResources)
             resourceSellDict[value.resourceType] = value.resourceAmount;
+
+        nameMap.GetComponentInChildren<TMP_Text>().outlineWidth = 0.35f;
+        nameMap.GetComponentInChildren<TMP_Text>().outlineColor = Color.black;
     }
 
     public void SetWorld(MapWorld world)
@@ -61,6 +68,9 @@ public class TradeCenter : MonoBehaviour
         nameField.cityName.text = name;
         nameField.SetCityNameFieldSize(name);
         nameField.SetNeutralBackground();
+        nameMap.GetComponentInChildren<TMP_Text>().text = name;
+        world.AddTradeCenterName(nameMap);
+        nameMap.gameObject.SetActive(false);
     }
 
     public void SetPop(int pop)
@@ -152,7 +162,7 @@ public class TradeCenter : MonoBehaviour
         if (highlight.isGlowing)
             return;
 
-        highlight.EnableHighlight(highlightColor, false);
+        highlight.EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()

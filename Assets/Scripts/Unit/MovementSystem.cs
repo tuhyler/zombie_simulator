@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class MovementSystem : MonoBehaviour
 {
+    private UnitMovement unitMovement;
     private List<Vector3Int> currentPath = new();
-    //public int CurrentPathLength { get { return currentPath.Count; } }
-
+    
     //for order queueing
     private Vector3 priorPath; //used for order queueing
     private bool orderQueueing;
@@ -16,11 +16,6 @@ public class MovementSystem : MonoBehaviour
     //private List<GameObject> shoePrintList = new(); //gathering the shoe prints to repool
     private Vector3 currentLoc;
 
-
-    private void Awake()
-    {
-        GrowShoePrintPool(); GrowChevronPool();
-    }
 
     public void GetPathToMove(MapWorld world, Unit selectedUnit, Vector3Int endPosition, bool isTrader) //Using AStar movement
     {
@@ -67,12 +62,21 @@ public class MovementSystem : MonoBehaviour
 
 
     #region object pooling
+    public void GrowObjectPools(UnitMovement unitMovement)
+    {
+        this.unitMovement = unitMovement;
+        GrowShoePrintPool(); 
+        GrowChevronPool();
+    }
+
     //pooling for shoe prints
     private void GrowShoePrintPool()
     {
         for (int i = 0; i < 30; i++) //grow pool 30 at a time
         {
-            AddToShoePrintPool(Instantiate(GameAssets.Instance.shoePrintPrefab));
+            GameObject print = Instantiate(GameAssets.Instance.shoePrintPrefab);
+            print.gameObject.transform.SetParent(unitMovement.world.cityBuilderManager.objectPoolHolder, false);
+            AddToShoePrintPool(print);
         }
     }
 
@@ -97,7 +101,9 @@ public class MovementSystem : MonoBehaviour
     {
         for (int i = 0; i < 30; i++) //grow pool 30 at a time
         {
-            AddToChevronPool(Instantiate(GameAssets.Instance.chevronPrefab));
+            GameObject chevron = Instantiate(GameAssets.Instance.chevronPrefab);
+            chevron.gameObject.transform.SetParent(unitMovement.world.cityBuilderManager.objectPoolHolder, false);
+            AddToChevronPool(chevron);
         }
     }
 

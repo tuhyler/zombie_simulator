@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1593723560535403670}
   - component: {fileID: 417502576539513934}
   - component: {fileID: 8778636733477809833}
-  m_Layer: 11
+  m_Layer: 5
   m_Name: uiBorderHighlightFlash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4837,8 +4837,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -963163287
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0

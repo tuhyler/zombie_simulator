@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.Events;
 
 public class Unit : MonoBehaviour
@@ -14,8 +15,11 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public UnitBuildDataSO buildDataSO;
 
+    //[SerializeField]
+    //private GameObject minimapIcon;
+
     [SerializeField]
-    private GameObject minimapIcon;
+    private SpriteRenderer minimapIcon;
     
     [SerializeField]
     private ParticleSystem lightBeam;
@@ -77,36 +81,31 @@ public class Unit : MonoBehaviour
 
     protected virtual void AwakeMethods()
     {
-        turnHandler = FindObjectOfType<UIUnitTurnHandler>();
-        focusCam = FindObjectOfType<CameraController>();
-        world = FindObjectOfType<MapWorld>();
-        movementSystem = FindObjectOfType<MovementSystem>();
+        //turnHandler = FindObjectOfType<UIUnitTurnHandler>();
+        //focusCam = FindObjectOfType<CameraController>();
+        //world = FindObjectOfType<MapWorld>();
+        //movementSystem = FindObjectOfType<MovementSystem>();
         highlight = GetComponent<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
         //unitRigidbody = GetComponent<Rigidbody>();
 
-        //caching terrain costs
-        flatlandSpeed = world.flatland.movementCost;
-        forestSpeed = world.forest.movementCost;
-        hillSpeed = world.hill.movementCost;
-        forestHillSpeed = world.forestHill.movementCost;
         originalMoveSpeed = buildDataSO.movementSpeed;
-        mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
+        //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
         bySea = buildDataSO.transportationType == TransportationType.Sea;
         shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
             selectionCircle.SetActive(false);
         if (isTrader)
-            prevRoadTile = world.RoundToInt(transform.position);
+            prevRoadTile = Vector3Int.RoundToInt(transform.position); //world hasn't been initialized yet
 
         currentHealth = buildDataSO.health;
     }
 
     private void Start()
     {
-        turnHandler.turnHandler.AddToTurnList(this);
-        roadSpeed = world.GetRoadCost();
+        //turnHandler.turnHandler.AddToTurnList(this);
+        //roadSpeed = world.GetRoadCost();
 
         Vector3 loc = transform.position;
         loc.y += 0.1f;
@@ -114,9 +113,25 @@ public class Unit : MonoBehaviour
         lightBeam.transform.parent = transform;
         lightBeam.Play();
 
-        world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
-        SetMinimapIcon();
+        //world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
+        //SetMinimapIcon();
         //Physics.IgnoreLayerCollision(8, 10);
+    }
+
+    public void SetReferences(MapWorld world, CameraController focusCam, UIUnitTurnHandler turnHandler, MovementSystem movementSystem)
+    {
+        this.world = world;
+        this.focusCam = focusCam;
+        this.turnHandler = turnHandler;
+        this.movementSystem = movementSystem;
+
+        turnHandler.turnHandler.AddToTurnList(this);
+        //caching terrain costs
+        roadSpeed = world.GetRoadCost();
+        flatlandSpeed = world.flatland.movementCost;
+        forestSpeed = world.forest.movementCost;
+        hillSpeed = world.hill.movementCost;
+        forestHillSpeed = world.forestHill.movementCost;
     }
 
     public void CenterCamera()
@@ -136,11 +151,20 @@ public class Unit : MonoBehaviour
         InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
     }
 
-    public void SetMinimapIcon()
+    public void SetMinimapIcon(Transform parent)
     {
-        GameObject icon = Instantiate(minimapIcon);
-        icon.GetComponent<FollowNoRotate>().objectToFollow = transform;
-        world.AddToMinimap(icon);
+        minimapIcon.sprite = buildDataSO.mapIcon;
+        ConstraintSource constraintSource = new();
+        constraintSource.sourceTransform = parent;
+        constraintSource.weight = 1;
+        RotationConstraint ugh = minimapIcon.GetComponent<RotationConstraint>();
+        ugh.rotationAtRest = new Vector3(90, 0, 0);
+        ugh.rotationOffset = new Vector3(90, 0, 0);
+        ugh.AddSource(constraintSource);
+        
+        //GameObject icon = Instantiate(minimapIcon);
+        //minimapIcon.GetComponent<FollowNoRotate>().objectToFollow = transform;
+        //world.AddToMinimap(minimapIcon.gameObject);
     }
 
     //Methods for moving unit
@@ -285,7 +309,7 @@ public class Unit : MonoBehaviour
         }
 
         //if (world.showingMap)
-        world.SetMapIconLoc(endPositionInt, mapIcon);
+        //world.SetMapIconLoc(endPositionInt, mapIcon);
 
         if (pathPositions.Count > 0)
         {

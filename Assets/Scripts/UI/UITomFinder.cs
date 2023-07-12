@@ -11,6 +11,8 @@ public class UITomFinder : MonoBehaviour
     [SerializeField]
     private MapWorld world;
     private Worker worker;
+    [SerializeField]
+    public RectTransform allContents;
 
     private void Awake()
     {

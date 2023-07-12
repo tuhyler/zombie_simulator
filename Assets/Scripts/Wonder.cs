@@ -16,6 +16,7 @@ public class Wonder : MonoBehaviour
     public MeshRenderer mesh50Percent;
     public MeshRenderer mesh75Percent;
     public MeshRenderer meshComplete;
+    public GameObject mapIcon;
 
     private SelectionHighlight highlight;
 
@@ -63,6 +64,7 @@ public class Wonder : MonoBehaviour
     private int totalTime;
     private int timePassed;
     private bool isBuilding;
+    private WaitForSeconds stepBuildTime = new WaitForSeconds(1);
 
     //for queuing unloading
     private Queue<Unit> waitList = new();
@@ -80,7 +82,6 @@ public class Wonder : MonoBehaviour
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
         isConstructing = true;
         highlight = GetComponent<SelectionHighlight>();
-        focusCam = FindObjectOfType<CameraController>();
         fireworks1.gameObject.SetActive(false);
         fireworks2.gameObject.SetActive(false);
 
@@ -93,6 +94,12 @@ public class Wonder : MonoBehaviour
         heavenHighlight.Pause();
     }
 
+    public void SetReferences(MapWorld world, CameraController focusCam)
+    {
+        this.world = world;
+        this.focusCam = focusCam;
+    }
+
     public void SetPrefabs()
     {
         //mesh0Percent.enabled = false;
@@ -101,6 +108,7 @@ public class Wonder : MonoBehaviour
         mesh75Percent.enabled = false;
         meshComplete.enabled = false;
         PlaySmokeSplash();
+        mapIcon.SetActive(true);
         //PlayFireworks();
     }
 
@@ -145,11 +153,6 @@ public class Wonder : MonoBehaviour
 
         foreach (ResourceType resourceType in resourceDict.Keys)
             SetNextResourceThreshold(resourceType);
-    }
-
-    public void SetWorld(MapWorld world)
-    {
-        this.world = world;
     }
 
     public void SetUI(UIWonderSelection uiWonderSelection)
@@ -335,7 +338,7 @@ public class Wonder : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return stepBuildTime;
             timePassed--;
             if (isActive)
                 uiTimeProgressBar.SetTime(timePassed);
@@ -566,7 +569,7 @@ public class Wonder : MonoBehaviour
         if (highlight.isGlowing)
             return;
 
-        highlight.EnableHighlight(highlightColor, false);
+        highlight.EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()

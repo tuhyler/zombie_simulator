@@ -18,7 +18,9 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private UIResourceManager uiResourceManager;
     [SerializeField]
-    private UIBuilderHandler uiImprovementBuilder;
+    private UIBuilderHandler uiRawGoodsBuilder;
+    [SerializeField]
+    private UIBuilderHandler uiProducerBuilder;
     [SerializeField]
     private UIBuilderHandler uiBuildingBuilder;
     [SerializeField]
@@ -26,7 +28,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private UIInfoPanelCity uiInfoPanelCity;
     [SerializeField]
-    private UIUnitTurnHandler uiUnitTurn;
+    public UIUnitTurnHandler uiUnitTurn;
     [SerializeField]
     private UILaborAssignment uiLaborAssignment;
     [SerializeField]
@@ -56,9 +58,13 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     public MapWorld world;
+    [SerializeField]
+    public MovementSystem movementSystem;
+    [SerializeField]
+    public Transform objectPoolHolder, friendlyUnitHolder;
 
     [SerializeField]
-    private CameraController focusCam;
+    public CameraController focusCam;
     private Quaternion originalRotation;
     private Vector3 originalZoom;
 
@@ -539,15 +545,15 @@ public class CityBuilderManager : MonoBehaviour
 
         GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
         //for tweening
-        Vector3 goScale = unit.transform.localScale;
-        float scaleX = goScale.x;
-        float scaleZ = goScale.z;
-        unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-        LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+        //Vector3 goScale = unit.transform.localScale;
+        //float scaleX = goScale.x;
+        //float scaleZ = goScale.z;
+        //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+        //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
 
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
-
+        newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
     }
 
@@ -585,17 +591,17 @@ public class CityBuilderManager : MonoBehaviour
 
                     GameObject unit = Instantiate(workerGO, loc, Quaternion.identity); //produce unit at specified position
                     //for tweening
-                    Vector3 goScale = unit.transform.localScale;
-                    float scaleX = goScale.x;
-                    float scaleZ = goScale.z;
-                    unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-                    LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+                    //Vector3 goScale = unit.transform.localScale;
+                    //float scaleX = goScale.x;
+                    //float scaleZ = goScale.z;
+                    //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+                    //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
                     unit.transform.LookAt(wonder.centerPos);
                     unit.GetComponent<Laborer>().StartLaborAnimations();
                     
                     unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
                     Unit newUnit = unit.GetComponent<Unit>();
-
+                    newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
                     newUnit.CurrentLocation = world.AddUnitPosition(loc, newUnit);
 
                     break;
@@ -629,7 +635,9 @@ public class CityBuilderManager : MonoBehaviour
     public void OpenCancelWonderConstructionWarning()
     {
         if (uiWonderSelection.buttonsAreWorking)
+        {
             uiDestroyCityWarning.ToggleVisibility(true);
+        }
     }
 
     private void CancelWonderConstruction()
@@ -665,15 +673,17 @@ public class CityBuilderManager : MonoBehaviour
         foreach (Vector3Int tile in selectedWonder.WonderLocs)
         {
             world.RemoveStructure(tile);
-            world.RemoveStructureMap(tile);
-            world.ResetTileMap(tile);
+            //world.RemoveStructureMap(tile);
+            //world.ResetTileMap(tile);
             world.RemoveSingleBuildFromCityLabor(tile);
             world.RemoveWonder(tile);
 
             TerrainData td = world.GetTerrainDataAt(tile);
             if (td.prop != null)
                 td.prop.gameObject.SetActive(true);
-            td.main.gameObject.SetActive(true);
+            td.RestoreTerrainMesh();
+            if (td.hasResourceMap)
+                td.RestoreResourceMap();
 
             xArray[k] = tile.x;
             zArray[k] = tile.z;
@@ -1373,14 +1383,17 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
+        unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
-        Vector3 goScale = unitGO.transform.localScale;
-        float scaleX = goScale.x;
-        float scaleZ = goScale.z;
-        unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+        //Vector3 goScale = unitGO.transform.localScale;
+        //float scaleX = goScale.x;
+        //float scaleZ = goScale.z;
+        //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
+        //LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
+        newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
+        newUnit.SetMinimapIcon(friendlyUnitHolder);
 
         Vector3 mainCamLoc = Camera.main.transform.position;
         mainCamLoc.y = 0;
@@ -1868,10 +1881,11 @@ public class CityBuilderManager : MonoBehaviour
     {
         //activating structure
         GameObject improvement = world.GetStructure(tempBuildLocation);
-        world.AddStructureMap(tempBuildLocation, improvementData.mapIcon);
+        //world.AddStructureMap(tempBuildLocation, improvementData.mapIcon);
         improvement.SetActive(true);
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
         CityImprovement cityImprovement = world.GetCityDevelopment(tempBuildLocation);
+        cityImprovement.SetMinimapIcon(td);
         cityImprovement.meshCity = city;
         cityImprovement.transform.parent = city.transform;
         city.AddToImprovementList(cityImprovement);
@@ -1904,7 +1918,7 @@ public class CityBuilderManager : MonoBehaviour
         //resetting ground UVs is necessary
         if (improvementData.replaceTerrain)
         {
-            td.main.gameObject.SetActive(false);
+            td.HideTerrainMesh();
 
             foreach (MeshFilter mesh in cityImprovement.MeshFilter)
             {
@@ -1964,10 +1978,10 @@ public class CityBuilderManager : MonoBehaviour
                         }
                     }
 
-                    if (cityImprovement.skinnedMesh != null)
+                    if (cityImprovement.SkinnedMesh != null)
                     {
                         int j = 0;
-                        Vector2[] skinnedUVs = cityImprovement.skinnedMesh.sharedMesh.uv;
+                        Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
 
                         while (j < skinnedUVs.Length)
                         {
@@ -1975,7 +1989,14 @@ public class CityBuilderManager : MonoBehaviour
                             j++;
                         }
 
-                        cityImprovement.skinnedMesh.sharedMesh.uv = skinnedUVs;
+                        cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
+
+                        if (cityImprovement.SkinnedMesh.name == "RocksAnim")
+                        {
+                            Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+                            cityImprovement.SkinnedMesh.material = mat;
+                            cityImprovement.SetNewMaterial(mat);
+                        }
                     }
 
                     break;
@@ -2163,14 +2184,14 @@ public class CityBuilderManager : MonoBehaviour
 
             if (improvementData.replaceTerrain)
             {
-                world.GetTerrainDataAt(improvementLoc).main.gameObject.SetActive(true);
+                world.GetTerrainDataAt(improvementLoc).RestoreTerrainMesh();
             }
 
             if (improvementData.returnProp)
             {
                 TerrainData td = world.GetTerrainDataAt(improvementLoc);
                 td.prop.gameObject.SetActive(true);
-                if (td.terrainData.rawResourceType == RawResourceType.Stone)
+                if (td.terrainData.hasRocks)
                     td.RocksCheck();
             }
 
@@ -2223,7 +2244,7 @@ public class CityBuilderManager : MonoBehaviour
             world.RemoveFromMaxWorked(improvementLoc);
         }
         world.RemoveStructure(improvementLoc);
-        world.RemoveStructureMap(improvementLoc);
+        //world.RemoveStructureMap(improvementLoc);
         developedTiles.Remove(improvementLoc);
 
         if (upgradingImprovement) //stop here if upgrading
@@ -2844,7 +2865,8 @@ public class CityBuilderManager : MonoBehaviour
 
         isQueueing = v;
         uiUnitBuilder.isQueueing = v;
-        uiImprovementBuilder.isQueueing = v;
+        uiRawGoodsBuilder.isQueueing = v;
+        uiProducerBuilder.isQueueing = v;
         uiBuildingBuilder.isQueueing = v;
     }
 
@@ -2974,12 +2996,12 @@ public class CityBuilderManager : MonoBehaviour
             RemoveImprovement(constructionTile, construction, selectedCity, false);
         }
 
+        world.RemoveCityNameMap(selectedCityLoc);
         world.RemoveStructure(selectedCityLoc);
-        world.RemoveStructureMap(selectedCityLoc);
-        world.ResetTileMap(selectedCityLoc);
+        //world.RemoveStructureMap(selectedCityLoc);
+        //world.ResetTileMap(selectedCityLoc);
         world.RemoveCityName(selectedCityLoc);
         world.RemoveTradeLoc(selectedCityLoc);
-        selectedCity.DestroyMapText();
 
         selectedCity.DestroyThisCity();
 
@@ -3195,6 +3217,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 12; i++) //grow pool 12 at a time
         {
             GameObject laborNumber = Instantiate(GameAssets.Instance.laborNumberPrefab);
+            laborNumber.gameObject.transform.SetParent(objectPoolHolder, false);
             CityLaborTileNumber cityLaborNumber = laborNumber.GetComponent<CityLaborTileNumber>();
             cityLaborNumber.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToLaborNumbersPool(cityLaborNumber);
@@ -3234,6 +3257,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 20; i++) //grow pool 20 at a time
         {
             GameObject border = Instantiate(GameAssets.Instance.cityBorderPrefab);
+            border.gameObject.transform.SetParent(objectPoolHolder, false);
             AddToBorderPool(border);
         }
     }
@@ -3273,6 +3297,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 2; i++) //grow pool 2 at a time
         {
             GameObject constructionTileGO = Instantiate(constructionTilePrefab);
+            constructionTileGO.gameObject.transform.SetParent(objectPoolHolder, false);
             CityImprovement constructionImprovement = constructionTileGO.GetComponent<CityImprovement>();
             constructionImprovement.isConstruction = true;
             AddToConstructionTilePool(constructionImprovement);
@@ -3301,6 +3326,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 10; i++) //grow pool 20 at a time
         {
             GameObject resourceInfoHolderGO = Instantiate(GameAssets.Instance.resourceInfoHolder);
+            resourceInfoHolderGO.gameObject.transform.SetParent(objectPoolHolder, false);
             ResourceInfoHolder resourceInfoHolder = resourceInfoHolderGO.GetComponent<ResourceInfoHolder>();
             //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToResourceInfoHolderPool(resourceInfoHolder);
@@ -3329,6 +3355,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 20; i++) //grow pool 20 at a time
         {
             GameObject resourceInfoPanelGO = Instantiate(GameAssets.Instance.resourceInfoPanel);
+            resourceInfoPanelGO.gameObject.transform.SetParent(objectPoolHolder, false);
             ResourceInfoPanel resourceInfoPanel = resourceInfoPanelGO.GetComponent<ResourceInfoPanel>();
             //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToResourceInfoPanelPool(resourceInfoPanel);
@@ -3357,6 +3384,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < 6; i++) //grow pool 6 at a time
         {
             GameObject improvementResource = Instantiate(GameAssets.Instance.improvementResource);
+            improvementResource.gameObject.transform.SetParent(objectPoolHolder, false);
             ImprovementResource resource = improvementResource.GetComponent<ImprovementResource>();
             resource.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
             AddToImprovementResourcePool(resource);

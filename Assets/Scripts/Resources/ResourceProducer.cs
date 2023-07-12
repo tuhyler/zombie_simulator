@@ -36,6 +36,7 @@ public class ResourceProducer : MonoBehaviour
     public List<ResourceValue> consumedResources = new();
     [HideInInspector]
     public List<ResourceType> consumedResourceTypes = new();
+    private WaitForSeconds workTimeWait = new WaitForSeconds(1);
 
     public void InitializeImprovementData(ImprovementDataSO data)
     {
@@ -261,7 +262,7 @@ public class ResourceProducer : MonoBehaviour
         
         while (productionTimer > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return workTimeWait;
             productionTimer--;
             if (resourceManager.city.activeCity)
                 uiTimeProgressBar.SetTime(productionTimer);

@@ -1215,7 +1215,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b21dc9743fc6514a81c0e3a4178e363, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapPanel: {fileID: 0}
+  world: {fileID: 0}
+  mapHandler: {fileID: 0}
+  originalResourceBackground: {fileID: 21300000, guid: 89415485680c96043aaed6d544ed2343,
+    type: 3}
+  highlightResourceBackground: {fileID: 21300000, guid: d74aa47b565702d4ca0350aeaf17df87,
+    type: 3}
   resourceList: {fileID: 7562694439721318140}
   defaultFirstChoice:
     m_Text: Select...

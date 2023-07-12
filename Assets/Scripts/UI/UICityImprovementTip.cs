@@ -20,7 +20,7 @@ public class UICityImprovementTip : MonoBehaviour
 
     [SerializeField]
     private Transform producesRect, consumesRect;
-    private int producesCount;
+    private int producesCount, maxCount;
 
     private List<UIResourceInfoPanel> producesInfo = new(), consumesInfo = new();
     private List<int> produceTimeList = new();
@@ -31,7 +31,7 @@ public class UICityImprovementTip : MonoBehaviour
 
     //for tweening
     [SerializeField]
-    private RectTransform allContents;
+    private RectTransform allContents, lineImage;
     private bool activeStatus;
 
     private void Awake()
@@ -130,6 +130,15 @@ public class UICityImprovementTip : MonoBehaviour
     private void SetData(CityImprovement improvement)
     {
         ImprovementDataSO data = improvement.GetImprovementData;
+        producesCount = data.producedResources.Count;
+        maxCount = producesCount;
+
+        for (int i = 0; i < improvement.allConsumedResources.Count; i++)
+        {
+            if (improvement.allConsumedResources[i].Count > maxCount)
+                maxCount = improvement.allConsumedResources[i].Count;
+        }
+
         title.text = data.improvementDisplayName;
         if (data.improvementName == data.improvementDisplayName)
             level.text = "Level " + data.improvementLevel.ToString();
@@ -142,6 +151,13 @@ public class UICityImprovementTip : MonoBehaviour
 
         SetResourcePanelInfo(producesInfo, data.producedResources, producedTime, true, data.workEthicChange);
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[index], producedTime, false);
+
+        int multiple = Mathf.Max(maxCount - 3, 0) * 90;
+        int panelWidth = 310 + multiple;
+        int lineWidth = 280 + multiple;
+
+        allContents.sizeDelta = new Vector2(panelWidth, 435);
+        lineImage.sizeDelta = new Vector2(lineWidth, 4);
     }
 
     private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, int producedTime, bool produces, float workEthic = 0)

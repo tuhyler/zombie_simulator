@@ -13,7 +13,8 @@ public class CityImprovement : MonoBehaviour
 
     private MeshFilter[] meshFilter;
     public MeshFilter[] MeshFilter { get { return meshFilter; } }
-    public SkinnedMeshRenderer skinnedMesh;
+    private SkinnedMeshRenderer skinnedMesh;
+    public SkinnedMeshRenderer SkinnedMesh { get { return skinnedMesh; } }
 
     private SelectionHighlight highlight;
     private ImprovementDataSO improvementData;
@@ -53,7 +54,13 @@ public class CityImprovement : MonoBehaviour
     //private int isWaitingHash;
     Coroutine co;
     [SerializeField]
-    private GameObject animMesh;
+    private GameObject animMesh; //for making inactive when not working
+    private WaitForSeconds startWorkWait = new WaitForSeconds(0.001f);
+    private WaitForSeconds buildingTimeWait = new WaitForSeconds(1);
+    private WaitForSeconds upgradeTimeWait = new WaitForSeconds(1);
+
+    [SerializeField]
+    private SpriteRenderer mapIcon;
 
     private void Awake()
     {
@@ -74,26 +81,8 @@ public class CityImprovement : MonoBehaviour
 
         if (!isConstruction)
         {
-            //upgradeSwirl = Instantiate(upgradeSwirl, loc, Quaternion.Euler(-90, 0, 0));
-            //particleSystems.Add(upgradeSwirl);
-            //upgradeSwirl.Stop();
-
             removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
             removeSplash.Stop();
-
-            //loc.y += 0.1f;
-            //upgradeFlash.transform.position = loc;
-            //upgradeFlash = Instantiate(upgradeFlash, loc, Quaternion.Euler(0, 0, 0));
-            //particleSystems.Add(upgradeFlash);
-            //upgradeFlash.Pause();
-
-
-            //loc.y += 1.5f;
-            //upgradeSwirlDown.transform.position = loc;
-            //upgradeSwirlDown.transform.rotation = Quaternion.Euler(-270, 0, 0);
-            //upgradeSwirlDown = Instantiate(upgradeSwirlDown, loc, Quaternion.Euler(-270, 0, 0));
-            //particleSystems.Add(upgradeSwirlDown);
-            //upgradeSwirlDown.Pause();
 
             //un-uncomment when finished testing
             if (improvementData != null && improvementData.hideAnimMesh)
@@ -109,6 +98,13 @@ public class CityImprovement : MonoBehaviour
         allConsumedResources.Add(data.consumedResources2);
         allConsumedResources.Add(data.consumedResources3);
         allConsumedResources.Add(data.consumedResources4);
+    }
+
+    public void SetMinimapIcon(TerrainData td)
+    {
+        mapIcon.sprite = improvementData.mapIcon;
+        if (td.terrainData.resourceType != ResourceType.Food && td.terrainData.resourceType != ResourceType.None && td.terrainData.resourceType != ResourceType.Lumber && td.terrainData.resourceType != ResourceType.Fish)
+            mapIcon.transform.position += new Vector3(0, 0, 0.5f);
     }
 
     public void StartWork(int seconds)
@@ -146,7 +142,7 @@ public class CityImprovement : MonoBehaviour
     private IEnumerator StartWorkAnimation(int seconds)
     {
         improvementAnimator.SetBool(isWorkingHash, false); //stop animation first
-        yield return new WaitForSeconds(0.001f);
+        yield return startWorkWait;
         improvementAnimator.SetBool(isWorkingHash, true);
         improvementAnimator.SetFloat("speed", 1f / seconds);
     }
@@ -244,6 +240,11 @@ public class CityImprovement : MonoBehaviour
     //    //    Destroy(ps.gameObject);
     //}
 
+    public void SetNewMaterial(Material mat)
+    {
+        highlight.SetNewMaterial(mat, skinnedMesh);
+    }
+
     public void EnableHighlight(Color highlightColor, bool secondary = false)
     {
         if (highlight.isGlowing)
@@ -255,7 +256,7 @@ public class CityImprovement : MonoBehaviour
             meshFilter[i].gameObject.SetActive(true);
         }
         
-        highlight.EnableHighlight(highlightColor, secondary);
+        highlight.EnableHighlight(highlightColor);
     }
 
     public void DisableHighlight()
@@ -401,7 +402,7 @@ public class CityImprovement : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return buildingTimeWait;
             timePassed--;
             producer.SetConstructionTime(timePassed);
         }
@@ -439,7 +440,7 @@ public class CityImprovement : MonoBehaviour
         //upgradeFlash.Play();
         while (timePassed > 0)
         {
-            yield return new WaitForSeconds(1);
+            yield return upgradeTimeWait;
             timePassed--;
             producer.SetConstructionTime(timePassed);
         }

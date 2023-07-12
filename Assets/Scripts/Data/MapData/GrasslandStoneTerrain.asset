@@ -16,6 +16,7 @@ MonoBehaviour:
   roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   grassland: 1
+  desert: 0
   walkable: 1
   sailable: 0
   isLand: 1
@@ -27,3 +28,4 @@ MonoBehaviour:
   rawResourceType: 3
   resourceType: 7
   keepProp: 1
+  hasRocks: 1

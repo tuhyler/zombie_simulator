@@ -63,6 +63,7 @@ public class UIWonderSelection : MonoBehaviour
             return;
 
         LeanTween.cancel(gameObject);
+        world.cityCanvas.gameObject.SetActive(v);
 
         if (v)
         {

@@ -6,6 +6,9 @@ ModelImporter:
   - first:
       74: 4108106558368618973
     second: Armature|Workin
+  - first:
+      74: 758313870698249472
+    second: Workin
   externalObjects: {}
   materials:
     materialImportMode: 2

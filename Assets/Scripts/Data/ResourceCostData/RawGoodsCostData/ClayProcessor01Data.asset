@@ -43,7 +43,7 @@ MonoBehaviour:
     resourceAmount: 3
   producedResourceTime: 0a000000
   rawMaterials: 1
-  rawResourceType: 5
+  rawResourceType: 6
   isResearch: 0
   terrainType: 5
   specificTerrain: 0
