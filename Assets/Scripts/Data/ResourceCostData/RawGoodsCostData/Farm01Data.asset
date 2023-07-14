@@ -52,9 +52,10 @@ MonoBehaviour:
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
-  returnProp: 1
   singleBuild: 0
   buildTime: 3
   availableInitially: 1
   workAnimLoop: 0
-  hideAnimMesh: 1
+  hideIdleMesh: 1
+  noWalkAreas:
+  - {x: 0, y: 0, z: 0}

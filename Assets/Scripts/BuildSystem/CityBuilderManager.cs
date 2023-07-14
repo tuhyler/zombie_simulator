@@ -1978,7 +1978,7 @@ public class CityBuilderManager : MonoBehaviour
                         }
                     }
 
-                    if (cityImprovement.SkinnedMesh != null)
+                    if (cityImprovement.SkinnedMesh != null && cityImprovement.SkinnedMesh.name == "RocksAnim")
                     {
                         int j = 0;
                         Vector2[] skinnedUVs = cityImprovement.SkinnedMesh.sharedMesh.uv;
@@ -1991,12 +1991,12 @@ public class CityBuilderManager : MonoBehaviour
 
                         cityImprovement.SkinnedMesh.sharedMesh.uv = skinnedUVs;
 
-                        if (cityImprovement.SkinnedMesh.name == "RocksAnim")
-                        {
-                            Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
-                            cityImprovement.SkinnedMesh.material = mat;
-                            cityImprovement.SetNewMaterial(mat);
-                        }
+                        //if (cityImprovement.SkinnedMesh.name == "RocksAnim")
+                        //{
+                        Material mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+                        cityImprovement.SkinnedMesh.material = mat;
+                        cityImprovement.SetNewMaterial(mat);
+                        //}
                     }
 
                     break;
@@ -2026,6 +2026,10 @@ public class CityBuilderManager : MonoBehaviour
         world.AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
         if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0 && improvementData.maxLabor > 0)
             city.AutoAssignmentsForLabor();
+
+        //removing areas to work
+        foreach (Vector3Int loc in improvementData.noWalkAreas)
+            world.AddToNoWalkList(loc + tempBuildLocation);
 
         //no tweening, so must be done here
         if (improvementData.replaceTerrain)
@@ -2187,13 +2191,10 @@ public class CityBuilderManager : MonoBehaviour
                 world.GetTerrainDataAt(improvementLoc).RestoreTerrainMesh();
             }
 
-            if (improvementData.returnProp)
-            {
-                TerrainData td = world.GetTerrainDataAt(improvementLoc);
-                td.prop.gameObject.SetActive(true);
-                if (td.terrainData.hasRocks)
-                    td.RocksCheck();
-            }
+            TerrainData td = world.GetTerrainDataAt(improvementLoc);
+            td.prop.gameObject.SetActive(true);
+            if (td.terrainData.hasRocks)
+                td.RocksCheck();
 
             if (improvementData.singleBuild)
             {
@@ -2210,6 +2211,9 @@ public class CityBuilderManager : MonoBehaviour
                 city.cityPop.UsedLabor -= currentLabor;
             }
         }
+        
+        foreach (Vector3Int loc in improvementData.noWalkAreas)
+            world.RemoveFromNoWalkList(loc + improvementLoc);
 
         //updating city graphic
         if (!selectedImprovement.isConstruction)

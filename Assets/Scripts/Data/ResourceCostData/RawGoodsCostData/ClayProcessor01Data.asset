@@ -13,9 +13,7 @@ MonoBehaviour:
   m_Name: ClayProcessor01Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 5122609563439273834, guid: 61c058284376da3419d032ccc63e6070, type: 3}
-  secondaryData:
-  - {fileID: 11400000, guid: ef3aeddc5b0cf7c44a90fa5ad634429f, type: 2}
-  - {fileID: 11400000, guid: 607004a0cb0d69749a18d60786adbaee, type: 2}
+  secondaryData: []
   isBuilding: 0
   improvementName: Clay Processor
   improvementDisplayName: Clay Processor
@@ -41,9 +39,9 @@ MonoBehaviour:
   producedResources:
   - resourceType: 9
     resourceAmount: 3
-  producedResourceTime: 0a000000
+  producedResourceTime: 05000000
   rawMaterials: 1
-  rawResourceType: 6
+  rawResourceType: 5
   isResearch: 0
   terrainType: 5
   specificTerrain: 0
@@ -53,9 +51,10 @@ MonoBehaviour:
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
-  returnProp: 1
   singleBuild: 0
-  buildTime: 25
-  availableInitially: 0
+  buildTime: 5
+  availableInitially: 1
   workAnimLoop: 0
-  hideAnimMesh: 0
+  hideIdleMesh: 0
+  noWalkAreas:
+  - {x: 0, y: 0, z: 1}

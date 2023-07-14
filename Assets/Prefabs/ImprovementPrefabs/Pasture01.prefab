@@ -176,7 +176,7 @@ PrefabInstance:
         type: 3}
       propertyPath: animMesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 4996097726758232658}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: workFire
@@ -206,7 +206,7 @@ PrefabInstance:
     - target: {fileID: 7511712854581192242, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8568417478804482300, guid: 5af237387799660428805ee8b0755933,
         type: 3}
@@ -341,3 +341,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d06a26531accc544894f3e6cc3d97586, type: 3}
+--- !u!1 &4996097726758232658 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -7358975577898938215, guid: d06a26531accc544894f3e6cc3d97586,
+    type: 3}
+  m_PrefabInstance: {fileID: 6668176123853058763}
+  m_PrefabAsset: {fileID: 0}

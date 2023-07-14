@@ -3,16 +3,25 @@ using UnityEngine.EventSystems;
 
 public class UIScrollingHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [SerializeField]
+    //[SerializeField]
     private CameraController cameraController;
+    private UIMapHandler mapHandler;
+
+    private void Awake()
+    {
+        cameraController = FindObjectOfType<CameraController>();
+        mapHandler = FindObjectOfType<UIMapHandler>();
+    }
 
     public void OnPointerEnter(PointerEventData eventData) //for scrolling the menu
     {
-        cameraController.Scrolling = false;
+        cameraController.scrolling = false;
+        mapHandler.scrolling = false;
     }
 
     public void OnPointerExit(PointerEventData eventData) //for scrolling the world
     {
-        cameraController.Scrolling = true;
+        cameraController.scrolling = true;
+        mapHandler.scrolling = true;
     }
 }

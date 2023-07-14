@@ -537,7 +537,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 5
   m_Viewport: {fileID: 3684804753449171082}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 644814384794346712}
@@ -2270,7 +2270,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 250, y: 0}
-  m_SizeDelta: {x: 100, y: 30}
+  m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &912778441939713383
 CanvasRenderer:
@@ -3212,7 +3212,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 365, y: 0}
+  m_AnchoredPosition: {x: 340, y: 0}
   m_SizeDelta: {x: 110, y: 30}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &833721808914393911
@@ -3782,8 +3782,6 @@ MonoBehaviour:
   resourceButton: {fileID: 9038024077202361083}
   nextStopSprite: {fileID: 21300000, guid: ac9b05b7dd0c0c543947f5dcb4be0616, type: 3}
   currentStopSprite: {fileID: 21300000, guid: 348e4844b44894d45944f025be33ecb7, type: 3}
-  nextResource: {fileID: 21300000, guid: f611fc459debb5345bc8233d67b8b261, type: 3}
-  currentResource: {fileID: 21300000, guid: 4a6c203212fb59840833d48efe6afcf9, type: 3}
   cityNameList: {fileID: 141785340113631775}
   tradeResourceHolder: {fileID: 7389737143294441261, guid: 91afff7dedd520e40a2abd552747e812,
     type: 3}
@@ -3796,7 +3794,6 @@ MonoBehaviour:
   addResourceButton: {fileID: 1929879540790425092}
   arrowUpButton: {fileID: 5255706096600087459}
   arrowDownButton: {fileID: 2158669005851315268}
-  citySelectArrow: {fileID: 3326221872405684985}
   timeText: {fileID: 3543029637206722349}
   progressBarMask: {fileID: 6149447453314069259}
   uiResourceTasks: []

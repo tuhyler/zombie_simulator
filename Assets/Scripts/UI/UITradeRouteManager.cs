@@ -21,7 +21,7 @@ public class UITradeRouteManager : MonoBehaviour
     [SerializeField]
     private Transform stopHolder;
     [HideInInspector]
-    public int stopCount, startingStop = 0;
+    public int stopCount, startingStop = 0, traderCargoLimit;
 
     [HideInInspector]
     public List<UITradeStopHandler> tradeStopHandlerList = new();
@@ -40,11 +40,15 @@ public class UITradeRouteManager : MonoBehaviour
     public bool activeStatus;
     private Vector3 originalLoc;
 
+    //for object pooling
+    private Queue<UITradeStopHandler> tradeStopHandlerQueue = new();
+
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
         originalButtonColor = buttonImage.color;
         AddResources();
+        GrowTradeStopPool();
         gameObject.SetActive(false);
     }
 
@@ -173,7 +177,7 @@ public class UITradeRouteManager : MonoBehaviour
         }
     }
 
-    public void AddResources()
+    private void AddResources()
     {
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
@@ -212,9 +216,10 @@ public class UITradeRouteManager : MonoBehaviour
 
             foreach (UITradeStopHandler stopHandler in stopList)
             {
-                stopHandler.CloseWindow();
+                stopHandler.CloseWindow(false);
             }
 
+            tradeStopHandlerList.Clear();
             unitMovement.TurnOnInfoScreen();
         }
     }
@@ -232,6 +237,7 @@ public class UITradeRouteManager : MonoBehaviour
     public void PrepareTradeRouteMenu(List<string> cityNames, Trader selectedTrader)
     {
         this.selectedTrader = selectedTrader;
+        traderCargoLimit = selectedTrader.cargoStorageLimit;
         this.selectedTrader.tradeRouteManager.SetTradeRouteManager(this);
         this.cityNames = cityNames;
     }
@@ -267,14 +273,15 @@ public class UITradeRouteManager : MonoBehaviour
         //tradeStopHolderDict[stopCount] = newStopHolder;
         //newStopHolder.loc = stopCount;
 
-        GameObject newStop = Instantiate(uiTradeStopPanel);
-        newStop.transform.SetParent(stopHolder, false);
-        UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
+        //GameObject newStop = Instantiate(uiTradeStopPanel);
+        //UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
+        UITradeStopHandler newStopHandler = GetFromTradeStopPool();
+        newStopHandler.gameObject.transform.SetParent(stopHolder, false);
         //newStopHolder.stopHandler = newStopHandler;
         //newStopHandler.SetStopHolder(newStopHolder);
         //newStopHandler.loc = stopCount;
-        newStopHandler.counter.text = (stopCount + 1).ToString();
-        newStopHandler.SetTradeRouteManager(this);
+        newStopHandler.ChangeCounter(stopCount + 1); //counter.text = (stopCount + 1).ToString();
+        //newStopHandler.SetTradeRouteManager(this);
         newStopHandler.AddCityNames(cityNames);
         newStopHandler.AddResources(resources);
         tradeStopHandlerList.Add(newStopHandler);
@@ -343,6 +350,14 @@ public class UITradeRouteManager : MonoBehaviour
     //    Destroy(tradeStopHolderDict[loc].gameObject);
     //}
 
+    public void UpdateStopNumbers(int removedStop)
+    {
+        for (int i = removedStop; i < tradeStopHandlerList.Count; i++)
+        {
+            tradeStopHandlerList[i].ChangeCounter(i);
+        }
+    }
+
     public void CreateRoute()
     {
         List<string> destinations = new();
@@ -407,4 +422,45 @@ public class UITradeRouteManager : MonoBehaviour
         ToggleVisibility(false);
     }
 
+
+    //Object pooling stops
+    private void GrowTradeStopPool()
+    {
+        for (int i = 0; i < 5; i++) //grow pool 5 at a time
+        {
+            GameObject newStop = Instantiate(uiTradeStopPanel);
+            //newStop.transform.SetParent(transform, false);
+            UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
+            newStopHandler.SetTradeRouteManager(this);
+            AddToTradeStopPool(newStopHandler);
+        }
+    }
+
+    public void AddToTradeStopPool(UITradeStopHandler newStopHandler)
+    {
+        newStopHandler.gameObject.transform.SetParent(transform, false);
+        newStopHandler.gameObject.SetActive(false);
+        tradeStopHandlerQueue.Enqueue(newStopHandler);
+    }
+
+    private UITradeStopHandler GetFromTradeStopPool()
+    {
+        if (tradeStopHandlerQueue.Count == 0)
+            GrowTradeStopPool();
+
+        UITradeStopHandler newStopHandler = tradeStopHandlerQueue.Dequeue();
+        newStopHandler.gameObject.SetActive(true);
+        return newStopHandler;
+    }
+
+    public void ReturnTradeStop(UITradeStopHandler stop)
+    {
+        //foreach (UITradeStopHandler stop in tradeStopHandlerList)
+        //{
+        
+        AddToTradeStopPool(stop);
+        //}
+
+        //tradeStopHandlerList.Clear();
+    }
 }

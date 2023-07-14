@@ -133,7 +133,7 @@ public class UIMapResourceSearch : MonoBehaviour
         resourceList.options.Add(defaultFirstChoice);
     }
 
-    public void AddResources(List<TMP_Dropdown.OptionData> resources)
+    private void AddResources(List<TMP_Dropdown.OptionData> resources)
     {
         PrepareResourceList();
 

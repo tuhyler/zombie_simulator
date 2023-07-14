@@ -37,12 +37,12 @@ public class ImprovementDataSO : ScriptableObject
     public bool cityHousing;
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceRocks = false; //setting rocks as the same color as the prop
-    public bool returnProp = false; //return terrain prop when removing it
     public bool singleBuild = false; //only one per city
     public int buildTime;
     public bool availableInitially = false;
     private bool locked = true;
     public bool Locked { get { return locked; } set { locked = value; } }
     public bool workAnimLoop = false;
-    public bool hideAnimMesh = false;
+    public bool hideIdleMesh = false;
+    public List<Vector3Int> noWalkAreas;
 }

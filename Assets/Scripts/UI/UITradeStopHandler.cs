@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEditor.Experimental.GraphView;
+using static UnityEngine.Rendering.DebugUI;
 
 public class UITradeStopHandler : MonoBehaviour
 {
@@ -26,6 +27,7 @@ public class UITradeStopHandler : MonoBehaviour
 
     [SerializeField]
     public TMP_Text counter;
+    private int counterInt;
 
     [SerializeField]
     public GameObject progressBarHolder, addResourceButton, arrowUpButton, arrowDownButton;
@@ -38,8 +40,8 @@ public class UITradeStopHandler : MonoBehaviour
 
     //[HideInInspector]
     //public int loc;
-
-    private UITradeRouteManager tradeRouteManager;
+    [HideInInspector]
+    public UITradeRouteManager tradeRouteManager;
     //private UITradeRouteStopHolder tradeStopHolder;
 
     //[SerializeField]
@@ -68,12 +70,16 @@ public class UITradeStopHandler : MonoBehaviour
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
+    //for object pooling
+    //private Queue<UITradeRouteResourceHolder> uiResourceTaskQueue = new();
+
 
     private void Awake()
     {
         timeText.outlineWidth = 0.5f;
         timeText.outlineColor = new Color(0, 0, 0, 255);
         progressBarHolder.SetActive(false);
+        //GrowResourceTaskPool();
     }
 
     private void Start() 
@@ -118,6 +124,7 @@ public class UITradeStopHandler : MonoBehaviour
     public void ChangeCounter(int num)
     {
         counter.text = num.ToString();
+        counterInt = num;
     }
 
     public void AddResources(List<TMP_Dropdown.OptionData> resources)
@@ -234,7 +241,7 @@ public class UITradeStopHandler : MonoBehaviour
 
     private UITradeResourceTask AddResourceTaskPanel(bool onRoute) //showing a new resource task panel
     {
-        if (resourceCount >= 20)
+        if (resourceCount >= 10)
         {
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Hit resource limit");
             return null;
@@ -246,6 +253,8 @@ public class UITradeStopHandler : MonoBehaviour
         newHolder.transform.SetParent(transform, false);
         UITradeRouteResourceHolder resourceHolder = newHolder.GetComponent<UITradeRouteResourceHolder>();
         resourceHolder.SetStop(this);
+
+        //UITradeRouteResourceHolder resourceHolder = GetFromResourceTaskPool();
         resourceTaskDict[resourceCount] = resourceHolder;
         resourceHolder.loc = resourceCount;
         
@@ -255,6 +264,7 @@ public class UITradeStopHandler : MonoBehaviour
         //newTask.transform.SetParent(transform, false);
 
 
+        //UITradeResourceTask newResourceTask = resourceHolder.GetComponentInChildren<UITradeResourceTask>();
         UITradeResourceTask newResourceTask = newTask.GetComponent<UITradeResourceTask>();
         resourceHolder.resourceTask = newResourceTask;
         newResourceTask.resourceHolder = resourceHolder; 
@@ -262,6 +272,7 @@ public class UITradeStopHandler : MonoBehaviour
         newResourceTask.tempParent = tradeRouteManager.transform;
         newResourceTask.counter.text = (resourceCount + 1).ToString() + '.';
         newResourceTask.loc = resourceCount;
+        newResourceTask.cargoLimit = tradeRouteManager.traderCargoLimit;
         //newResourceTask.SetCargoStorageLimit(traderCargoStorageLimit);
         uiResourceTasks.Add(newResourceTask);
         resourceCount++;
@@ -411,8 +422,12 @@ public class UITradeStopHandler : MonoBehaviour
         for (int i = oldNum; i < uiResourceTasks.Count; i++)
         {
             uiResourceTasks[i].loc -= 1;
+            uiResourceTasks[i].resourceHolder.loc -= 1;
             uiResourceTasks[i].counter.text = (i + 1).ToString() + '.';
+            resourceTaskDict[i] = resourceTaskDict[i + 1];
         }
+
+        resourceTaskDict.Remove(uiResourceTasks.Count); //remove last one
     }
 
     //sending all the resource information for each stop
@@ -469,22 +484,73 @@ public class UITradeStopHandler : MonoBehaviour
         uiResourceTasks.Remove(uiTradeResourceTask);
     }
 
+    private void ResetStop()
+    {
+        cityNameList.options.Insert(0, defaultFirstChoice);
+        cityNameList.value = 0;
+        cityNameList.RefreshShownValue();
+        waitForeverToggle.isOn = true;
+        waitForever = true;
+        waitTime = 0;
+        inputWaitTime.interactable = false;
+        inputWaitTime.text = "";
+    }
+
     public void CloseWindow()
     {
-        tradeRouteManager.chosenStop.options.Remove(new TMP_Dropdown.OptionData(tradeRouteManager.stopCount.ToString()));
+        CloseWindow(true);
+    }
+
+    public void CloseWindow(bool justOne)
+    {
+        if (justOne)
+        {
+            TMP_Dropdown.OptionData option = tradeRouteManager.chosenStop.options.Find((x) => x.text == tradeRouteManager.stopCount.ToString());
+            tradeRouteManager.chosenStop.options.Remove(option);
+            tradeRouteManager.UpdateStopNumbers(counterInt);
+        }
+
+        int taskCount = uiResourceTasks.Count;
+        for (int i = 0; i < taskCount; i++)
+            uiResourceTasks[0].resourceHolder.CloseWindow(false); //do the first one till list is empty
+
         tradeRouteManager.stopCount--;
         if (tradeRouteManager.stopCount == 0)
             tradeRouteManager.startingStopGO.SetActive(false);
+        ResetStop();
         tradeRouteManager.tradeStopHandlerList.Remove(this);
-        Destroy(gameObject);
+        tradeRouteManager.AddToTradeStopPool(this);
+        //Destroy(gameObject);
     }
 
-    //public void ChangeSize(bool increase)
+    //Object pooling resources //no object pooling for resource tasks because otherwise UI moves too slowly (even when inactive)
+    //private void GrowResourceTaskPool()
     //{
-    //    int factor = increase ? 1 : -1;
+    //    for (int i = 0; i < 5; i++) //grow pool 5 at a time
+    //    {
+    //        GameObject newHolder = Instantiate(tradeResourceHolder);
+    //        newHolder.transform.SetParent(transform, false);
+    //        UITradeRouteResourceHolder resourceHolder = newHolder.GetComponent<UITradeRouteResourceHolder>();
+    //        resourceHolder.SetStop(this);
+    //        GameObject newTask = Instantiate(tradeResourceTaskTemplate);
+    //        newTask.transform.SetParent(resourceHolder.transform, false);
+    //        AddToResourceTaskPool(resourceHolder);
+    //    }
+    //}
 
-    //    Vector2 currentSize = allContents.rect.size;
-    //    currentSize.y += 70 * factor;
-    //    allContents.sizeDelta = currentSize;
+    //public void AddToResourceTaskPool(UITradeRouteResourceHolder newResourceTask)
+    //{
+    //    newResourceTask.gameObject.SetActive(false);
+    //    uiResourceTaskQueue.Enqueue(newResourceTask);
+    //}
+
+    //private UITradeRouteResourceHolder GetFromResourceTaskPool()
+    //{
+    //    if (uiResourceTaskQueue.Count == 0)
+    //        GrowResourceTaskPool();
+
+    //    UITradeRouteResourceHolder newResourceTask = uiResourceTaskQueue.Dequeue();
+    //    newResourceTask.gameObject.SetActive(true);
+    //    return newResourceTask;
     //}
 }

@@ -10,8 +10,8 @@ public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler
     public int loc;
     [HideInInspector]
     public UITradeResourceTask resourceTask;
-
-    private UITradeStopHandler tradeStopHandler;
+    [HideInInspector]
+    public UITradeStopHandler tradeStopHandler;
 
     public void OnDrop(PointerEventData eventData)
     {
@@ -24,6 +24,7 @@ public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler
         tradeStopHandler.uiResourceTasks.Insert(loc, resourceTask); 
         tradeStopHandler.MoveResourceTask(resourceTask.loc, loc);
         this.resourceTask = resourceTask;
+        this.resourceTask.resourceHolder = this;
         resourceTask.loc = loc;
         resourceTask.counter.text = (loc + 1).ToString() + '.';
     }
@@ -32,6 +33,8 @@ public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler
     {
         resourceTask.loc = newDrop.loc;
         resourceTask.counter.text = (resourceTask.loc + 1).ToString() + '.';
+        //newDrop.resourceTask.resourceHolder = this;
+        resourceTask.resourceHolder = newDrop;
         newDrop.resourceTask = resourceTask;
 
         Vector3 newLoc = newDrop.transform.position;
@@ -51,12 +54,17 @@ public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler
         this.tradeStopHandler = tradeStopHandler;
     }
 
-    public void CloseWindow()
+    public void CloseWindow(bool justOne)
     {
-        //resourceHolder = null;
         tradeStopHandler.resourceCount--;
         tradeStopHandler.RemoveResource(resourceTask);
-        tradeStopHandler.AdjustResources(loc);
+
+        if (justOne)
+        {
+            tradeStopHandler.AdjustResources(loc);
+        }
+
+        //tradeStopHandler.AddToResourceTaskPool(this);
         //resourceTask.resources.Clear();
         Destroy(gameObject);
     }

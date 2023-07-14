@@ -23,6 +23,7 @@ MonoBehaviour:
   buildingLocation: {x: 1, y: 0, z: 1}
   image: {fileID: 21300000, guid: 8bd59da9c5a94dc4b84097eaa5b094ce, type: 3}
   littleImage: {fileID: 21300000, guid: 8bd59da9c5a94dc4b84097eaa5b094ce, type: 3}
+  mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 7
     resourceAmount: 120
@@ -44,9 +45,9 @@ MonoBehaviour:
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
-  returnProp: 0
   singleBuild: 1
   buildTime: 0
-  availableInitially: 0
+  availableInitially: 1
   workAnimLoop: 0
-  hideAnimMesh: 0
+  hideIdleMesh: 0
+  noWalkAreas: []

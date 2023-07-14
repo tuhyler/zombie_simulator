@@ -32,7 +32,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     //for moving resource task
     [HideInInspector]
-    public int loc;
+    public int loc, cargoLimit;
     [HideInInspector]
     public Transform originalParent, tempParent;
     [HideInInspector]
@@ -51,7 +51,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
-    private bool getAll;
+    private bool getAll = true;
     [HideInInspector]
     public bool draggable = true;
     Vector3 diff;
@@ -141,6 +141,11 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         {
             chosenMultiple = -1;
             allToggle.gameObject.SetActive(true);
+            if (getAll)
+            {
+                inputStorageAmount.interactable = false;
+                inputStorageAmount.text = "";
+            }
         }
         else
         {
@@ -191,6 +196,14 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         check.gameObject.SetActive(true);
         check.transform.localScale = Vector3.zero;
         LeanTween.scale(check.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
+    }
+
+    public void CheckMaxValue()
+    {
+        string amount = inputStorageAmount.text;
+        if (int.TryParse(amount, out int result))
+            if (result > cargoLimit)
+                inputStorageAmount.text = cargoLimit.ToString();
     }
 
     private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
@@ -284,7 +297,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
         string chosenAmount = inputStorageAmount.text;
 
-        if (getAll) //get all of the resource
+        if (chosenMultiple < 0 && getAll) //get all of the resource
         {
             resourceValue.resourceAmount = 99999;
         }
@@ -326,6 +339,6 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     public void CloseWindow()
     {
-        resourceHolder.CloseWindow();
+        resourceHolder.CloseWindow(true);
     }
 }
