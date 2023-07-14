@@ -88,7 +88,7 @@ public class MapWorld : MonoBehaviour
 
     private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
-    private List<Vector3Int> wonderNoWalkList = new(); //tiles where wonders are and units can't walk
+    private List<Vector3Int> noWalkList = new(); //tiles where wonders are and units can't walk
     private List<Vector3Int> cityLocations = new();
     private List<GameObject> cityNamesMaps = new();
 
@@ -934,7 +934,7 @@ public class MapWorld : MonoBehaviour
 
         wonder.PossibleHarborLocs = harborTiles;
 
-        wonderNoWalkList.AddRange(wonderNoWalkLoc);
+        noWalkList.AddRange(wonderNoWalkLoc);
         wonderPlacementLoc.Clear();
         wonderNoWalkLoc.Clear();
     }
@@ -1060,16 +1060,16 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    //add unload zone when finishing wonder
+    //add unload zone when finishing wonder, also for improvements
     public void AddToNoWalkList(Vector3Int loc)
     {
-        wonderNoWalkList.Add(loc);
+        noWalkList.Add(loc);
     }
 
-    //when cancelling a wonder
+    //when cancelling a wonder or removing improvement
     public void RemoveFromNoWalkList(Vector3Int loc)
     {
-        wonderNoWalkList.Remove(loc);
+        noWalkList.Remove(loc);
     }
 
     //Research info
@@ -1924,12 +1924,12 @@ public class MapWorld : MonoBehaviour
     //for movement
     public bool CheckIfPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].terrainData.walkable && !wonderNoWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].terrainData.walkable && !noWalkList.Contains(tile);
     }
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].terrainData.sailable && !wonderNoWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].terrainData.sailable && !noWalkList.Contains(tile);
     }
 
     public bool CheckIfCoastCoast(Vector3Int tile)

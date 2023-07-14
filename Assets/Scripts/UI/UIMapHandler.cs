@@ -43,7 +43,7 @@ public class UIMapHandler : MonoBehaviour
     public float movementSpeed = 1, movementTime, zoomTime;
 
     [HideInInspector]
-    public bool activeStatus;
+    public bool activeStatus, scrolling = true;
 
     private void Awake()
     {
@@ -60,7 +60,9 @@ public class UIMapHandler : MonoBehaviour
         if (activeStatus)
         {
             HandleKeyboardInput();
-            Zoom();
+
+            if (scrolling)
+                Zoom();
         }
     }
 

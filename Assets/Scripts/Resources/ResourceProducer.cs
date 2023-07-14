@@ -444,6 +444,9 @@ public class ResourceProducer : MonoBehaviour
     {
         //foreach (ResourceValue resourceValue in improvementData.producedResources)
         //{
+        if (improvementData.producedResourceTime.Count == 0)
+            return;
+
         if (!generatedPerMinute.ContainsKey(producedResource.resourceType))
             generatedPerMinute[producedResource.resourceType] = 0;
         else

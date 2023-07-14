@@ -22,8 +22,8 @@ public class CameraController : MonoBehaviour
     //for lerping (smooth damp)
     private Vector3 velocity = Vector3.zero;
 
-    private bool scrolling;
-    public bool Scrolling { set { scrolling = value; } }
+    [HideInInspector]
+    public bool scrolling;
 
     private bool disableMouse;
     public bool DisableMouse { set { disableMouse = value; } }

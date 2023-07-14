@@ -53,7 +53,6 @@ public class CityImprovement : MonoBehaviour
     private int isWorkingHash;
     //private int isWaitingHash;
     Coroutine co;
-    [SerializeField]
     private GameObject animMesh; //for making inactive when not working
     private WaitForSeconds startWorkWait = new WaitForSeconds(0.001f);
     private WaitForSeconds buildingTimeWait = new WaitForSeconds(1);
@@ -70,6 +69,8 @@ public class CityImprovement : MonoBehaviour
         highlight = GetComponent<SelectionHighlight>();
         meshFilter = GetComponentsInChildren<MeshFilter>();
         skinnedMesh = GetComponentInChildren<SkinnedMeshRenderer>();
+        if (skinnedMesh != null)
+            animMesh = skinnedMesh.gameObject;
         improvementAnimator = GetComponent<Animator>();
         isWorkingHash = Animator.StringToHash("isWorking");
         //isWaitingHash = Animator.StringToHash("isWaiting");
@@ -85,7 +86,7 @@ public class CityImprovement : MonoBehaviour
             removeSplash.Stop();
 
             //un-uncomment when finished testing
-            if (improvementData != null && improvementData.hideAnimMesh)
+            if (improvementData != null && improvementData.hideIdleMesh)
                 animMesh.SetActive(false);
         }
     }
@@ -120,12 +121,12 @@ public class CityImprovement : MonoBehaviour
             if (improvementData.workAnimLoop)
             {
                 improvementAnimator.SetBool(isWorkingHash, true);
-                if (improvementData.hideAnimMesh)
+                if (improvementData.hideIdleMesh)
                     animMesh.SetActive(true);
             }
             else
             {
-                if (improvementData.hideAnimMesh)
+                if (improvementData.hideIdleMesh)
                     animMesh.SetActive(true);
                 co = StartCoroutine(StartWorkAnimation(seconds));
             }
@@ -160,7 +161,7 @@ public class CityImprovement : MonoBehaviour
             if (improvementData.workAnimLoop)
             {
                 improvementAnimator.SetBool(isWorkingHash, false);
-                if (improvementData.hideAnimMesh)
+                if (improvementData.hideIdleMesh)
                     animMesh.SetActive(false);
             }
             else
@@ -168,7 +169,7 @@ public class CityImprovement : MonoBehaviour
                 if (co != null)
                     StopCoroutine(co);
                 improvementAnimator.SetBool(isWorkingHash, false);
-                if (improvementData.hideAnimMesh)
+                if (improvementData.hideIdleMesh)
                     animMesh.SetActive(false);
             }
         }

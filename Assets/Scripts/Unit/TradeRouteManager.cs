@@ -482,6 +482,8 @@ public class TradeRouteManager : MonoBehaviour
 
         if (currentStop == cityStops.Count)
             currentStop = 0;
+
+        startingStop = currentStop;
     }
 
     public void RemoveStop(Vector3Int stop)

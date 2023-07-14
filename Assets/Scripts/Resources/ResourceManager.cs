@@ -885,6 +885,8 @@ public enum RawResourceType
     FoodSea,
     Rocks,
     Lumber,
-    ThreadForCloth,
     Clay,
+    Silk,
+    Wool,
+    Cotton
 }
