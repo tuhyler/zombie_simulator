@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,10 +8,13 @@ public class TerrainData : MonoBehaviour
     public TerrainDataSO terrainData;
 
     [SerializeField]
-    public Transform main, prop;
+    public Transform main, prop, nonstatic;
 
     [SerializeField]
-    private GameObject highlightPlane, resourceIcon;
+    public GameObject fog, highlightPlane, resourceIcon;
+
+    [SerializeField]
+    private UnexploredTerrain fogNonStatic;
 
     [SerializeField]
     private SpriteRenderer resourceBackgroundSprite, resourceIconSprite;
@@ -114,7 +118,7 @@ public class TerrainData : MonoBehaviour
         {
             hasResourceMap = true;
             resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(terrainData.resourceType);
-            resourceIcon.SetActive(true);
+            //resourceIcon.SetActive(true);
             uiMapHandler.AddResourceToMap(tileCoordinates, terrainData.resourceType);
         }
     }
@@ -182,6 +186,77 @@ public class TerrainData : MonoBehaviour
     public void SetNewRenderer(MeshRenderer[] oldRenderer, MeshRenderer[] newRenderer)
     {
         highlight.SetNewRenderer(oldRenderer, newRenderer);
+    }
+
+    public void Hide()
+    {
+        isDiscovered = false;
+        main.gameObject.SetActive(false);
+        prop.gameObject.SetActive(false);
+        Vector3 offsetY = new Vector3(0, -.01f, 0);
+
+        if ((tileCoordinates.x % 2 == 0 && tileCoordinates.z % 2 == 0) || (tileCoordinates.x % 2 == 1 && tileCoordinates.z % 2 == 1))
+            fog.transform.localPosition += offsetY;
+    }
+
+    public void Reveal(MapWorld world)
+    {
+        if (isDiscovered)
+            return;
+
+        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.FOURWAYINCREMENT))
+        //{
+        //    if (!world.GetTerrainDataAt(neighbor).isDiscovered)
+        //        continue;
+        //}
+
+        isDiscovered = true;
+        //fog.SetActive(false);
+        if (hasResourceMap)
+            resourceIcon.SetActive(true);
+
+        fog.SetActive(false);
+        fogNonStatic.gameObject.SetActive(true);
+        StartCoroutine(fogNonStatic.FadeFog());
+        if (nonstatic.childCount > 0)
+          StartCoroutine(PopUp());
+        else
+        {
+            main.gameObject.SetActive(true);
+            prop.gameObject.SetActive(true);
+        }
+    }
+
+    public void Discover()
+    {
+        fog.gameObject.SetActive(false);
+    }
+
+    private IEnumerator PopUp()
+    {
+        Vector3 scale = nonstatic.localScale;
+        float growSpeed = 2f;
+        nonstatic.gameObject.SetActive(true);
+
+        while (nonstatic.localScale.y < 1.2f)
+        {
+            scale.y += 4 * Time.deltaTime;
+            nonstatic.localScale = scale; 
+            
+            yield return null;
+        }
+
+        while (nonstatic.localScale.y > 1f)
+        {
+            scale.y -= growSpeed * Time.deltaTime;
+            nonstatic.localScale = scale;
+
+            yield return null;
+        }
+
+        main.gameObject.SetActive(true);
+        prop.gameObject.SetActive(true);
+        nonstatic.gameObject.SetActive(false);
     }
 
     public void HideTerrainMesh()
