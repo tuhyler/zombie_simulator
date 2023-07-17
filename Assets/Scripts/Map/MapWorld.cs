@@ -147,8 +147,7 @@ public class MapWorld : MonoBehaviour
 
     private SpeechBubbleHandler speechBubble;
 
-    [SerializeField] //for gizmos
-    private bool showGizmo;
+    public bool showGizmo, hideTerrain = true;
 
     [HideInInspector]
     public bool workerOrders, buildingWonder, tooltip, somethingSelected, showingMap;
@@ -202,6 +201,8 @@ public class MapWorld : MonoBehaviour
             world[tileCoordinate] = td;
             terrainToCheck.Add(td);
             td.CheckMinimapResource(mapHandler);
+            if (!hideTerrain && td.hasResourceMap)
+                td.resourceIcon.SetActive(true);
             //mapPanel.AddTileToMap(tileCoordinate);
 
             //Vector3Int mod = tileCoordinate / increment;
@@ -218,10 +219,20 @@ public class MapWorld : MonoBehaviour
         foreach (TerrainData td in coastalTerrain)
             td.SetCoastCoordinates(this);
 
+        foreach (TerrainData td in terrainToCheck)
+        {
+            //ConfigureUVs(td);
+            if (hideTerrain)
+                td.Hide();
+            else
+                td.Discover();
+        }
+
         foreach (Unit unit in FindObjectsOfType<Unit>()) //adds all units and their locations to start game.
         {
             unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
             unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
+            unit.Reveal();
             Vector3 unitPos = unit.transform.position;
             if (!unitPosDict.ContainsKey(Vector3Int.RoundToInt(unitPos))) //just in case dictionary was missing any
                 unit.CurrentLocation = AddUnitPosition(unitPos, unit);
@@ -322,12 +333,6 @@ public class MapWorld : MonoBehaviour
 
         CreateParticleSystems();
         DeactivateCanvases();
-
-        //foreach (TerrainData td in terrainToCheck)
-        //{
-        //    //if (td.TileCoordinates == new Vector3Int(15, 0, 3) || td.TileCoordinates == new Vector3Int(-9, 0, 0))
-        //    ConfigureUVs(td);
-        //}
     }
 
     private void DeactivateCanvases()

@@ -643,6 +643,26 @@ public class Unit : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(finalDestinationLoc - transform.position, Vector3.up);
     }
 
+    public void Reveal()
+    {
+        Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+        TerrainData td = world.GetTerrainDataAt(pos);
+        td.Reveal(world);
+
+        foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.EIGHTWAYINCREMENT))
+        {
+            world.GetTerrainDataAt(loc).Reveal(world);
+        }
+    }
+
+    public void RevealCheck(Vector3Int pos)
+    {
+        foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.EIGHTWAYINCREMENT))
+        {
+            world.GetTerrainDataAt(loc).Reveal(world);
+        }
+    }
+
     //sees if trader is at trade route stop and has finished trade orders
     protected virtual void TradeRouteCheck(Vector3 endPosition)
     {
@@ -681,6 +701,14 @@ public class Unit : MonoBehaviour
     public virtual void SetInterruptedAnimation(bool v)
     {
 
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (isTrader && !bySea && !world.hideTerrain)
+            return;
+
+        RevealCheck(world.GetTerrainDataAt(world.GetClosestTerrainLoc(collision.transform.position)).TileCoordinates);
     }
 
     private void OnCollisionStay(Collision collision)
