@@ -331,7 +331,8 @@ public class CityBuilderManager : MonoBehaviour
             }
             else
             {
-                world.OpenTerrainTooltip(td);
+                if (td.isDiscovered)
+                    world.OpenTerrainTooltip(td);
             }
         }
         //selecting tiles to place improvements

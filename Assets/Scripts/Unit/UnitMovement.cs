@@ -139,6 +139,8 @@ public class UnitMovement : MonoBehaviour
         if (world.workerOrders)
         {
             TerrainData td = world.GetTerrainDataAt(pos);
+            if (!td.isDiscovered)
+                return;
             
             if (buildingRoad)
             {
@@ -481,6 +483,8 @@ public class UnitMovement : MonoBehaviour
         Vector3 locationInt = location;
         locationInt.y = 0f;
         TerrainData terrainSelected = world.GetTerrainDataAt(world.RoundToInt(locationInt));
+        if (!terrainSelected.isDiscovered)
+            return;
         Vector3Int terrainPos = world.RoundToInt(locationInt);
         //if (world.RoundToInt(selectedUnit.transform.position) == world.GetClosestTerrainLoc(locationInt)) //won't move within same tile
         //    return;

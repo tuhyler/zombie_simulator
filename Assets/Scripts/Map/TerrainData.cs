@@ -31,7 +31,7 @@ public class TerrainData : MonoBehaviour
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
 
     [HideInInspector]
-    public bool hasRoad, hasResourceMap;
+    public bool isHill, hasRoad, hasResourceMap;
 
     private bool isLand = true;
     private bool isCoast = false;
@@ -42,6 +42,9 @@ public class TerrainData : MonoBehaviour
     public bool isGlowing = false, isDiscovered = true;
 
     private ResourceGraphicHandler resourceGraphic;
+    private TreeHandler treeHandler;
+    [SerializeField]
+    private ParticleSystem godRays;
 
     //private List<MeshRenderer> renderers = new();
 
@@ -56,6 +59,9 @@ public class TerrainData : MonoBehaviour
 
     private void Awake()
     {
+        if (terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill)
+            isHill = true;
+        
         if (terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
             uvs = main.GetComponentInChildren<MeshFilter>().mesh.uv;
         if (terrainData.hasRocks)
@@ -75,10 +81,6 @@ public class TerrainData : MonoBehaviour
                 }
                 mesh.mesh.uv = newUVs;
             }
-
-            resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
-            resourceGraphic.isHill = terrainData.type == TerrainType.Hill;
-            RocksCheck();
         }
 
         //PrepareRenderers();
@@ -87,7 +89,7 @@ public class TerrainData : MonoBehaviour
         isSeaCorner = terrainData.isSeaCorner;
         terrainData.MovementCostCheck();
         ResetMovementCost();
-        highlight = GetComponent<SelectionHighlight>();
+        highlight = GetComponentInChildren<SelectionHighlight>();
         if (highlightPlane != null)
         {
             highlightPlane.SetActive(false);
@@ -98,6 +100,24 @@ public class TerrainData : MonoBehaviour
             Debug.Log(transform.position);
     }
 
+    private void Start()
+    {
+        if (terrainData.hasRocks)
+        {
+            resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
+            resourceGraphic.isHill = isHill;
+            RocksCheck();
+        }
+        
+        if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
+        {
+            treeHandler = prop.GetComponentInChildren<TreeHandler>();
+            treeHandler.TurnOffGraphics(false);
+            treeHandler.SwitchFromRoad(isHill);
+            treeHandler.SetMapIcon(isHill);
+        }
+    }
+
     //private void PrepareRenderers()
     //{
     //    foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
@@ -105,6 +125,15 @@ public class TerrainData : MonoBehaviour
     //        renderers.Add(renderer);
     //    }
     //}
+
+    public void PrepParticleSystem()
+    {
+        godRays = Instantiate(godRays);
+        //godRays.transform.parent = transform;
+        //godRays.transform.position = transform.position;
+        //godRays.transform.SetParent(transform, false);
+        godRays.Pause();
+    }
 
     public void SetMinimapIcon()
     {
@@ -193,27 +222,21 @@ public class TerrainData : MonoBehaviour
         isDiscovered = false;
         main.gameObject.SetActive(false);
         prop.gameObject.SetActive(false);
-        Vector3 offsetY = new Vector3(0, -.01f, 0);
+        //Vector3 offsetY = new Vector3(0, -.01f, 0);
 
-        if ((tileCoordinates.x % 2 == 0 && tileCoordinates.z % 2 == 0) || (tileCoordinates.x % 2 == 1 && tileCoordinates.z % 2 == 1))
-            fog.transform.localPosition += offsetY;
+        //if ((tileCoordinates.x % 2 == 0 && tileCoordinates.z % 2 == 0) || (tileCoordinates.x % 2 == 1 && tileCoordinates.z % 2 == 1))
+        //    fog.transform.localPosition += offsetY;
     }
 
-    public void Reveal(MapWorld world)
+    public void Reveal()
     {
-        if (isDiscovered)
-            return;
-
-        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.FOURWAYINCREMENT))
-        //{
-        //    if (!world.GetTerrainDataAt(neighbor).isDiscovered)
-        //        continue;
-        //}
-
         isDiscovered = true;
-        //fog.SetActive(false);
         if (hasResourceMap)
+        {
             resourceIcon.SetActive(true);
+            godRays.transform.position = tileCoordinates + new Vector3(1, 2, 0);
+            godRays.Play();
+        }
 
         fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);
@@ -364,4 +387,13 @@ public class TerrainData : MonoBehaviour
         }
     }
 
+    public void SwitchToRoad()
+    {
+        treeHandler.SwitchToRoad(isHill);
+    }
+
+    public void SwitchFromRoad()
+    {
+        treeHandler.SwitchFromRoad(isHill);
+    }
 }

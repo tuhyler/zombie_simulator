@@ -203,6 +203,8 @@ public class MapWorld : MonoBehaviour
             td.CheckMinimapResource(mapHandler);
             if (!hideTerrain && td.hasResourceMap)
                 td.resourceIcon.SetActive(true);
+            if (td.hasResourceMap)
+                td.PrepParticleSystem();
             //mapPanel.AddTileToMap(tileCoordinate);
 
             //Vector3Int mod = tileCoordinate / increment;
@@ -323,11 +325,12 @@ public class MapWorld : MonoBehaviour
             center.ClaimSpotInWorld(increment);
             //mapPanel.SetImprovement(center.mainLoc, tradeCenterMapIcon);
             //mapPanel.SetTileSprite(center.mainLoc, TerrainDesc.TradeCenter);
-            roadManager.BuildRoadAtPosition(center.mainLoc);
+            //roadManager.BuildRoadAtPosition(center.mainLoc);
             tradeCenterDict[center.tradeCenterName] = center;
             tradeCenterStopDict[center.mainLoc] = center;
             AddTradeLoc(center.mainLoc, center.tradeCenterName);
             AddTradeLoc(center.harborLoc, center.tradeCenterName);
+            center.Hide();
             i++;
         }
 
@@ -728,7 +731,13 @@ public class MapWorld : MonoBehaviour
                     newPos.x += j * increment;
                     TerrainData td = GetTerrainDataAt(newPos);
 
-                    if (td.terrainData.type != wonderData.terrainType)
+                    if (!td.isDiscovered)
+                    {
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Must explore here");
+                        wonderPlacementLoc.Clear();
+                        return;
+                    }
+                    else if (td.terrainData.type != wonderData.terrainType)
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Must build on " + wonderData.terrainType);
                         wonderPlacementLoc.Clear();

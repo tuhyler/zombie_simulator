@@ -27,7 +27,7 @@ Material:
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3032
+  m_CustomRenderQueue: 3021
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -54,9 +54,9 @@ Material:
     - _Alpha: 1
     - _Multiple: 2
     - _QueueControl: 0
-    - _QueueOffset: 32
+    - _QueueOffset: 21
     - _WindDensity: 2
-    - _WindStrength: 2
+    - _WindStrength: 4
     m_Colors:
     - _WindMovement: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _WindMovement2: {r: 0, g: 0, b: 0.15, a: 0}
