@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1547425620333918306}
+  - component: {fileID: 1759942462932805327}
   m_Layer: 0
   m_Name: SwampProp
   m_TagString: Untagged
@@ -32,6 +33,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1759942462932805327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9073605623283122857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bc69556c4264ae4dbc48e3167d48960, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treeFlat: {fileID: 0}
+  treeHill: {fileID: 0}
+  treeFlatRoad: {fileID: 0}
+  treeHillRoad: {fileID: 0}
+  treeFlatIcon: {fileID: 0}
+  treeHillIcon: {fileID: 0}
+  keepTrees: 1
 --- !u!1001 &5697931932043174388
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -78,7 +78,8 @@ public class UICityImprovementTip : MonoBehaviour
             xChange = 0;
             yChange = 0;
 
-            p.z = 935;
+            //p.z = 935;
+            p.z = 1;
             if (p.y + allContents.rect.height * 0.5f > Screen.height)
             {
                 y = 1f;

@@ -524,8 +524,8 @@ public class WorkerTaskManager : MonoBehaviour
             td.gameObject.tag = "Flatland";
         }
 
-        if (!world.IsRoadOnTerrain(workerTile)) //build road where city is placed
-            roadManager.BuildRoadAtPosition(workerTile);
+        //if (!world.IsRoadOnTerrain(workerTile)) //build road where city is placed
+        //    roadManager.BuildRoadAtPosition(workerTile);
 
         //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); //creates building unit position.

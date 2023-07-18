@@ -57,6 +57,16 @@ public class TradeCenter : MonoBehaviour
         nameMap.GetComponentInChildren<TMP_Text>().outlineColor = Color.black;
     }
 
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void Reveal()
+    {
+        gameObject.SetActive(true);
+    }
+
     public void SetWorld(MapWorld world)
     {
         this.world = world;

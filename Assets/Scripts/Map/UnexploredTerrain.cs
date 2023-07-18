@@ -8,7 +8,6 @@ public class UnexploredTerrain : MonoBehaviour
 {
     private MeshRenderer[] fogMesh;
 
-
     private void Awake()
     {
         fogMesh = GetComponentsInChildren<MeshRenderer>();
@@ -28,7 +27,7 @@ public class UnexploredTerrain : MonoBehaviour
 
                 while (color.a > 0)
                 {
-                    float disappearSpeed = 2f;
+                    float disappearSpeed = 3f;
                     color.a -= disappearSpeed * Time.deltaTime;
                     mat.color = color;
 

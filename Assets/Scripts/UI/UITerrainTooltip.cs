@@ -45,7 +45,8 @@ public class UITerrainTooltip : MonoBehaviour
             float x = 0.5f;
             float y = 0f;
 
-            p.z = 935;
+            //p.z = 935;
+            p.z = 1f;
             if (p.y + allContents.rect.height > Screen.height)
                 y = 1f;
 

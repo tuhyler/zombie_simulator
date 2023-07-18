@@ -185,7 +185,7 @@ public class UIBuilderHandler : MonoBehaviour
             cityBuilderManager.buildOptionsActive = false;
             cityBuilderManager.activeBuilderHandler = null;
 
-            dof.focalLength.value = 15;
+            //dof.focalLength.value = 15;
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>

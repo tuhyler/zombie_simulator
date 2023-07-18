@@ -87,6 +87,16 @@ public class RoadManager : MonoBehaviour
         worker.SetWorkAnimation(false);
         BuildRoadAtPosition(roadPosition);
         world.RemoveWorkerWorkLocation(roadPosition);
+        
+        foreach (Vector3Int loc in world.GetNeighborsFor(roadPosition, MapWorld.State.EIGHTWAYINCREMENT))
+        {
+            if (world.IsRoadOnTerrain(loc))
+                continue;
+            
+            if (world.IsTradeCenterOnTile(loc) || world.IsCityOnTile(loc))
+                BuildRoadAtPosition(loc);
+        }
+
 
         //moving worker up a smidge to be on top of road
         Vector3 moveUp = worker.transform.position;
@@ -118,22 +128,10 @@ public class RoadManager : MonoBehaviour
     public void BuildRoadAtPosition(Vector3Int roadPosition) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
-        bool hill = td.terrainData.type == TerrainType.Hill || td.terrainData.type == TerrainType.ForestHill;
+        bool hill = td.isHill;
 
         if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
-        {
-            GameObject newPropPF = td.terrainData.roadPrefab;
-            if (newPropPF != null)
-            {
-                GameObject newProp = Instantiate(newPropPF, Vector3Int.zero, td.prop.GetChild(0).transform.rotation);
-                newProp.transform.SetParent(td.prop, false);
-                MeshRenderer[] oldRenderer = td.prop.GetChild(0).GetComponentsInChildren<MeshRenderer>();
-                MeshRenderer[] newRenderer = newProp.GetComponentsInChildren<MeshRenderer>();
-                td.SetNewRenderer(oldRenderer, newRenderer);
-
-                Destroy(td.prop.GetChild(0).gameObject);
-            }
-        }
+            td.SwitchToRoad();
         //else if (td.prop != null && !td.terrainData.keepProp) //for replacing decor (could destroy)
         //{
         //    td.prop.gameObject.SetActive(false);
@@ -358,6 +356,26 @@ public class RoadManager : MonoBehaviour
         RemoveRoadAtPosition(tile);
         world.RemoveWorkerWorkLocation(tile);
 
+        foreach (Vector3Int loc in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYINCREMENT))
+        {
+            if (world.IsTradeCenterOnTile(loc) || world.IsCityOnTile(loc))
+            {
+                int i = 0;
+
+                foreach (Vector3Int pos in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAYINCREMENT))
+                {
+                    if (world.IsRoadOnTerrain(pos))
+                    {
+                        i++;
+                        break;
+                    }
+                }
+
+                if (i == 0)
+                    RemoveRoadAtPosition(loc);
+            }
+        }
+
         if (worker.MoreOrdersToFollow())
         {
             worker.RoadHighlightCheck();
@@ -377,6 +395,9 @@ public class RoadManager : MonoBehaviour
         TerrainData td = world.GetTerrainDataAt(tile);
         td.ResetMovementCost();
         td.hasRoad = false;
+
+        if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
+            td.SwitchFromRoad();
 
         foreach (Road road in world.GetAllRoadsOnTile(tile))
         {

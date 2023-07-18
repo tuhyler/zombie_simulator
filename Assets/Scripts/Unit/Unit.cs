@@ -44,7 +44,7 @@ public class Unit : MonoBehaviour
     public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
-    private Vector3Int prevRoadTile; //for traders, in case road they're on is removed
+    private Vector3Int prevRoadTile, prevTerrainTile; //first one is for traders, in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo, waitingCo;
@@ -308,6 +308,17 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
+        //exploring
+        if (isTrader && !bySea && !world.hideTerrain)
+        {
+
+        }
+        else
+        {
+            Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+            if (pos != prevTerrainTile)
+                RevealCheck(pos);
+        }
         //if (world.showingMap)
         //world.SetMapIconLoc(endPositionInt, mapIcon);
 
@@ -646,20 +657,26 @@ public class Unit : MonoBehaviour
     public void Reveal()
     {
         Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+        //prevTerrainTile = pos;
         TerrainData td = world.GetTerrainDataAt(pos);
-        td.Reveal(world);
+        td.Reveal();
 
-        foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.EIGHTWAYINCREMENT))
-        {
-            world.GetTerrainDataAt(loc).Reveal(world);
-        }
+        RevealCheck(pos);
     }
 
     public void RevealCheck(Vector3Int pos)
     {
-        foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.EIGHTWAYINCREMENT))
+        prevTerrainTile = pos;
+        
+        foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.CITYRADIUS))
         {
-            world.GetTerrainDataAt(loc).Reveal(world);
+            TerrainData td = world.GetTerrainDataAt(loc);
+            if (td.isDiscovered)
+                continue;
+
+            world.GetTerrainDataAt(loc).Reveal();
+            if (world.IsTradeCenterOnTile(loc))
+                world.GetTradeCenter(loc).Reveal();
         }
     }
 
@@ -703,13 +720,14 @@ public class Unit : MonoBehaviour
 
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (isTrader && !bySea && !world.hideTerrain)
-            return;
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (isTrader && !bySea && !world.hideTerrain)
+    //        return;
 
-        RevealCheck(world.GetTerrainDataAt(world.GetClosestTerrainLoc(collision.transform.position)).TileCoordinates);
-    }
+    //    if (collision.transform.position != Vector3Int.zero)
+    //        RevealCheck(world.GetTerrainDataAt(world.RoundToInt(collision.transform.position)).TileCoordinates);
+    //}
 
     private void OnCollisionStay(Collision collision)
     {
