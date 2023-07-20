@@ -20,7 +20,6 @@ public class MovementSystem : MonoBehaviour
     public void GetPathToMove(MapWorld world, Unit selectedUnit, Vector3Int endPosition, bool isTrader) //Using AStar movement
     {
         currentLoc = selectedUnit.transform.position;
-        currentLoc.y = 0;
 
         if (orderQueueing) //adding lists to each other for order queueing, turn counter starts at 1 each time
         {

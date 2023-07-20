@@ -139,10 +139,13 @@ MonoBehaviour:
   fogNonStatic: {fileID: 4306825774400549271}
   resourceBackgroundSprite: {fileID: 0}
   resourceIconSprite: {fileID: 0}
+  white: {fileID: 2100000, guid: d87f9a8b5b7c8024798ff452a1540ec5, type: 2}
+  isHill: 0
   hasRoad: 0
   hasResourceMap: 0
   isGlowing: 0
   isDiscovered: 1
+  godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
   resourceAmount: 0

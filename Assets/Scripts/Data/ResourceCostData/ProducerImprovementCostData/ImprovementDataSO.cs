@@ -38,6 +38,9 @@ public class ImprovementDataSO : ScriptableObject
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceRocks = false; //setting rocks as the same color as the prop
     public bool singleBuild = false; //only one per city
+    public bool oneTerrain = true; //can only be built on one type of terrain
+    public bool adjustForHill = true; //shift the improvement up when built on hill
+    public float hillAdjustment = 0.6f;
     public int buildTime;
     public bool availableInitially = false;
     private bool locked = true;

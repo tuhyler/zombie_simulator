@@ -20,9 +20,10 @@ MonoBehaviour:
   improvementLevel: 1
   improvementNameAndLevel: Housing-1
   improvementDescription: Increases housing by 3
-  buildingLocation: {x: 0, y: 0, z: -1}
+  buildingLocation: {x: 0, y: 0, z: 1}
   image: {fileID: 0}
   littleImage: {fileID: 0}
+  mapIcon: {fileID: 0}
   improvementCost: []
   consumedResources: []
   consumedResources1: []
@@ -42,9 +43,12 @@ MonoBehaviour:
   cityHousing: 1
   replaceTerrain: 0
   replaceRocks: 0
-  returnProp: 0
   singleBuild: 1
+  oneTerrain: 1
+  adjustForHill: 1
+  hillAdjustment: 0.4
   buildTime: 0
   availableInitially: 0
   workAnimLoop: 0
-  hideAnimMesh: 0
+  hideIdleMesh: 0
+  noWalkAreas: []

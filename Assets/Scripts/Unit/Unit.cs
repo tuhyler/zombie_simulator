@@ -659,9 +659,22 @@ public class Unit : MonoBehaviour
         Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
         //prevTerrainTile = pos;
         TerrainData td = world.GetTerrainDataAt(pos);
-        td.Reveal();
+        td.HardReveal();
 
-        RevealCheck(pos);
+        prevTerrainTile = pos;
+        foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.CITYRADIUS))
+        {
+            TerrainData td2 = world.GetTerrainDataAt(loc);
+            if (td2.isDiscovered)
+                continue;
+
+            td2.HardReveal();
+            focusCam.CheckLoc(loc);
+            if (world.IsTradeCenterOnTile(loc))
+                world.GetTradeCenter(loc).Reveal();
+        }
+
+        //RevealCheck(pos);
     }
 
     public void RevealCheck(Vector3Int pos)
@@ -674,7 +687,8 @@ public class Unit : MonoBehaviour
             if (td.isDiscovered)
                 continue;
 
-            world.GetTerrainDataAt(loc).Reveal();
+            td.Reveal();
+            focusCam.CheckLoc(loc);
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
         }

@@ -63,6 +63,7 @@ public class UIWorkerHandler : MonoBehaviour
 
         if (val)
         {
+            world.workerCanvas.gameObject.SetActive(true);
             removalOptions.ToggleColor(false);
             gameObject.SetActive(val);
             activeStatus = true;

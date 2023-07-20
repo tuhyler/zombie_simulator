@@ -74,16 +74,16 @@ public class ResourceManager : MonoBehaviour
     private void Awake()
     {
         CalculateAndChangeFoodLimit();
-        PrepareResourceDictionary();
-        SetInitialResourceValues();
-        SetPrices();
+        //PrepareResourceDictionary();
+        //SetInitialResourceValues();
+        //SetPrices();
 
         //only relevant during editing
         if (resourceStorageLevel >= resourceStorageLimit)
             fullInventory = true;
     }
 
-    private void PrepareResourceDictionary()
+    public void PrepareResourceDictionary()
     {
         foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
@@ -107,7 +107,7 @@ public class ResourceManager : MonoBehaviour
         this.city = city;
     }
 
-    private void SetInitialResourceValues()
+    public void SetInitialResourceValues()
     {
         foreach (ResourceValue resourceData in initialResources)
         {
@@ -560,7 +560,7 @@ public class ResourceManager : MonoBehaviour
         return goldAdded;
     }
 
-    private void SetPrices()
+    public void SetPrices()
     {
         int currentPop = city.cityPop.CurrentPop;
         float populationFactor = 0.2f; //ratio of how much a new pop increases prices
@@ -875,7 +875,9 @@ public enum ResourceType
     Iron,
     GoldOre,
     Emerald,
-    Diamond
+    Diamond,
+    Jewelry,
+    Time
 }
 
 public enum RawResourceType

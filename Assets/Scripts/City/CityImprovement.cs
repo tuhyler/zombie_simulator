@@ -216,7 +216,7 @@ public class CityImprovement : MonoBehaviour
     //doing this so that the highlight doesn't mix with the combinedmesh.
     public void Embiggen()
     {
-        Vector3 newScale = new Vector3(1.01f, 1.01f, 1.01f);
+        Vector3 newScale = new Vector3(1.02f, 1.02f, 1.02f);
 
         int count = meshFilter.Length;
         for (int i = 0; i < count; i++)

@@ -5602,7 +5602,7 @@ PrefabInstance:
     - target: {fileID: 624308965952619012, guid: 8dae60fa210c2594e8bdd532c3943853,
         type: 3}
       propertyPath: m_Name
-      value: BrickOven01Panel2
+      value: Smelter01Panel2
       objectReference: {fileID: 0}
     - target: {fileID: 732574731867193409, guid: 8dae60fa210c2594e8bdd532c3943853,
         type: 3}
@@ -12432,7 +12432,7 @@ PrefabInstance:
     - target: {fileID: 624308965952619012, guid: 8dae60fa210c2594e8bdd532c3943853,
         type: 3}
       propertyPath: m_Name
-      value: Sculptor02Panel2
+      value: Smith01Panel2
       objectReference: {fileID: 0}
     - target: {fileID: 732574731867193409, guid: 8dae60fa210c2594e8bdd532c3943853,
         type: 3}

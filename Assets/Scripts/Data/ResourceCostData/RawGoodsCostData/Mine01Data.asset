@@ -41,7 +41,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 7
     resourceAmount: 10
-  producedResourceTime: 0a000000
+  producedResourceTime: 05000000
   rawMaterials: 1
   rawResourceType: 3
   isResearch: 0
@@ -54,9 +54,12 @@ MonoBehaviour:
   replaceTerrain: 0
   replaceRocks: 1
   singleBuild: 0
+  oneTerrain: 1
+  adjustForHill: 0
   buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
   noWalkAreas:
+  - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: -1}

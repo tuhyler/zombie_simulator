@@ -21,6 +21,9 @@ public class UITomFinder : MonoBehaviour
 
     public void FindTom()
     {
+        if (world.workerOrders || world.buildingWonder)
+            return;
+        
         world.CloseResearchTree();
         world.CloseWonders();
         world.CloseMap();

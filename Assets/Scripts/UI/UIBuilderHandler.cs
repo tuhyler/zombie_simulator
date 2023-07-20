@@ -108,7 +108,7 @@ public class UIBuilderHandler : MonoBehaviour
     {
         if (optionsScroller.horizontalNormalizedPosition >= 0f)
         {
-            optionsScroller.horizontalNormalizedPosition -= 0.05f;
+            optionsScroller.horizontalNormalizedPosition -= 0.007f;
         }
     }
 
@@ -116,7 +116,7 @@ public class UIBuilderHandler : MonoBehaviour
     {
         if (optionsScroller.horizontalNormalizedPosition <= 1f)
         {
-            optionsScroller.horizontalNormalizedPosition += 0.05f;
+            optionsScroller.horizontalNormalizedPosition += 0.007f;
         }
     }
 

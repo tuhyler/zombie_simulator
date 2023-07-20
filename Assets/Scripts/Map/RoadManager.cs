@@ -93,8 +93,14 @@ public class RoadManager : MonoBehaviour
             if (world.IsRoadOnTerrain(loc))
                 continue;
             
-            if (world.IsTradeCenterOnTile(loc) || world.IsCityOnTile(loc))
+            if (world.IsTradeCenterOnTile(loc))
                 BuildRoadAtPosition(loc);
+
+            if (world.IsCityOnTile(loc))
+            {
+                BuildRoadAtPosition(loc);
+                world.GetCity(loc).ExtinguishFire();
+            }
         }
 
 
@@ -358,7 +364,7 @@ public class RoadManager : MonoBehaviour
 
         foreach (Vector3Int loc in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYINCREMENT))
         {
-            if (world.IsTradeCenterOnTile(loc) || world.IsCityOnTile(loc))
+            if (world.IsTradeCenterOnTile(loc)/* || world.IsCityOnTile(loc)*/)
             {
                 int i = 0;
 

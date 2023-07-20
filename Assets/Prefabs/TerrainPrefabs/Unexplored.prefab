@@ -46,7 +46,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95791540f6f385049acf404a9fb14e52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fogBase: {fileID: 3239590643840742069}
 --- !u!1 &7507260364860740809
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,12 +279,6 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: f67a156403a72ed4a824fb86198b0bff, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d8c3acc598cfccb488b5b17417e8d569, type: 3}
---- !u!4 &3239590643840742069 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -1041432804771984714, guid: d8c3acc598cfccb488b5b17417e8d569,
-    type: 3}
-  m_PrefabInstance: {fileID: 6735486080636614659}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6553856322697404392 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d8c3acc598cfccb488b5b17417e8d569,

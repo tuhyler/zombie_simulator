@@ -35,7 +35,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 7
     resourceAmount: 5
-  producedResourceTime: 14000000
+  producedResourceTime: 05000000
   rawMaterials: 1
   rawResourceType: 3
   isResearch: 0
@@ -47,9 +47,10 @@ MonoBehaviour:
   cityHousing: 0
   replaceTerrain: 1
   replaceRocks: 1
-  returnProp: 1
   singleBuild: 0
-  buildTime: 20
+  buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
-  hideAnimMesh: 0
+  hideIdleMesh: 0
+  noWalkAreas:
+  - {x: 0, y: 0, z: 0}

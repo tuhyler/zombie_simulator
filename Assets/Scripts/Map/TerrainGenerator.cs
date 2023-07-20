@@ -47,7 +47,7 @@ public class TerrainGenerator : MonoBehaviour
     private GameObject grasslandProp01;
     [SerializeField]
     private GameObject grasslandProp02, grasslandProp03, desertProp01, desertProp02, desertFloodPlainProp01, desertFloodPlainProp02, forestPropVar01,
-        junglePropVar01, forestHillPropVar01, jungleHillVar01, swampPropVar01;
+        junglePropVar01, swampPropVar01;
 
     [Header("Water")]
     [SerializeField]
@@ -63,7 +63,7 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private TerrainDataSO jungleSO, forestHillSO, jungleHillSO, swampSO;
 
-    private GameObject[] grasslandMountains, desertMountains, grasslandProps, forestProps, jungleProps, swampProps, forestHillProps, jungleHillProps, desertProps,
+    private GameObject[] grasslandMountains, desertMountains, grasslandProps, forestProps, jungleProps, swampProps, desertProps,
         desertFloodPlainProps, riverStraights, oceanCurves;
 
     private List<GameObject> allTiles = new();
@@ -275,7 +275,7 @@ public class TerrainGenerator : MonoBehaviour
                 forestHill.tag = "Forest Hill";
                 GameObject newTile = GenerateTile(forestHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
-                AddProp(random, newTile, forestHillProps, forestHillSO);
+                AddProp(random, newTile, forestProps, forestHillSO);
             }
             else if (mainMap[position] == ProceduralGeneration.jungleHill)
             {
@@ -286,7 +286,7 @@ public class TerrainGenerator : MonoBehaviour
                 jungleHill.tag = "Forest Hill";
                 GameObject newTile = GenerateTile(jungleHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0));
 
-                AddProp(random, newTile, jungleHillProps, jungleHillSO);
+                AddProp(random, newTile, jungleProps, jungleHillSO);
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
             {
@@ -545,8 +545,6 @@ public class TerrainGenerator : MonoBehaviour
         forestProps = new GameObject[1] { forestPropVar01 };
         jungleProps = new GameObject[1] { junglePropVar01 };
         swampProps = new GameObject[1] { swampPropVar01 };
-        forestHillProps = new GameObject[1] { forestHillPropVar01 };
-        jungleHillProps = new GameObject[1] { jungleHillVar01 };
         oceanCurves = new GameObject[2] { oceanCurve, oceanCurveDiagonal };
     }
 

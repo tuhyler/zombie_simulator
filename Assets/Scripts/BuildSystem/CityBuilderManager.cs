@@ -736,6 +736,7 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.activeCity = true;
         selectedCityLoc = world.GetClosestTerrainLoc(location);
         (cityTiles, developedTiles, constructingTiles) = GetThisCityRadius();
+        focusCam.SetCityLimit(cityTiles, selectedCityLoc);
         ResourceProducerTimeProgressBarsSetActive(true);
         ToggleBuildingHighlight(true);
         DrawBorders();
@@ -1445,8 +1446,19 @@ public class CityBuilderManager : MonoBehaviour
         //uiInfoPanelCityWarehouse.SetWarehouseStorageLevel(selectedCity.ResourceManager.GetResourceStorageLevel);
         //Debug.Log("Placing structure in " + selectedCity.CityName);
 
+        GameObject building;
+        if (world.GetTerrainDataAt(city.cityLoc).isHill)
+        {
+            cityPos.y += buildingData.hillAdjustment;
+            building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+        }
+        else
+        {
+            building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+        }
+
         //setting world data
-        GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+        //GameObject building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
         CityImprovement improvement = building.GetComponent<CityImprovement>();
         improvement.loc = city.cityLoc;
         //if (!upgradingImprovement)
@@ -1701,15 +1713,21 @@ public class CityBuilderManager : MonoBehaviour
                 if (isQueueing && world.CheckQueueLocation(tile))
                     continue;
                 
-                if (world.IsTileOpenCheck(tile) && td.terrainData.type == improvementData.terrainType)
+                if (world.IsTileOpenCheck(tile))
                 {
                     if (improvementData.rawMaterials && td.terrainData.rawResourceType == improvementData.rawResourceType)
                     {
+                        if (improvementData.oneTerrain && td.terrainData.type != improvementData.terrainType)
+                            continue;
+                        
                         td.EnableHighlight(Color.white);
                         tilesToChange.Add(tile);
                     }
                     else if (!improvementData.rawMaterials)
                     {
+                        if (improvementData.oneTerrain && td.terrainData.type != improvementData.terrainType)
+                            continue;
+
                         td.EnableHighlight(Color.white);
                         tilesToChange.Add(tile);
                     }
@@ -1816,12 +1834,11 @@ public class CityBuilderManager : MonoBehaviour
 
         //    }
         //}
-        bool isHill = td.terrainData.type == TerrainType.Hill;
         GameObject improvement;
-        if (improvementData.isBuilding && isHill)
+        if (td.isHill && improvementData.adjustForHill)
         {
             Vector3 buildLocationHill = buildLocation;
-            buildLocationHill.y += .6f;
+            buildLocationHill.y += improvementData.hillAdjustment;
             improvement = Instantiate(improvementData.prefab, buildLocationHill, Quaternion.Euler(0, rotation, 0));
         }
         else
@@ -1867,7 +1884,7 @@ public class CityBuilderManager : MonoBehaviour
             world.SetCityImprovementConstruction(tempBuildLocation, constructionTile);
             constructionTile.transform.position = tempBuildLocation;
             //TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
-            constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this, isHill);
+            constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, this, td.isHill);
 
             if (city.activeCity)
             {
@@ -2977,9 +2994,10 @@ public class CityBuilderManager : MonoBehaviour
 
         selectedCity.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
+        world.GetTerrainDataAt(selectedCityLoc).prop.gameObject.SetActive(true);
 
         //destroying queued objects
-        foreach(UIQueueItem queueItem in selectedCity.savedQueueItems)
+        foreach (UIQueueItem queueItem in selectedCity.savedQueueItems)
         {
             if (queueItem.buildLoc.x == 0 && queueItem.buildLoc.z == 0)
                 RemoveQueueGhostBuilding(queueItem.buildingName, selectedCity);
@@ -3124,6 +3142,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedCityLoc = new();
             selectedCity.activeCity = false;
             selectedCity = null;
+            focusCam.RestoreWorldLimit();
         }
     }
 
