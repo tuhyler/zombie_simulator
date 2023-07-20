@@ -84,6 +84,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2050705500241568073, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
         type: 3}
+      propertyPath: smokeSplash
+      value: 
+      objectReference: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
+        type: 3}
+    - target: {fileID: 2050705500241568073, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
+        type: 3}
+      propertyPath: improvementData
+      value: 
+      objectReference: {fileID: 11400000, guid: 42b13ed0d99811a47b556be96cbb0dd6,
+        type: 2}
+    - target: {fileID: 2050705500241568073, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
+        type: 3}
       propertyPath: improvementDataSO
       value: 
       objectReference: {fileID: 11400000, guid: 9b61fa9939b08fc4d88dcb7cb6c79525,

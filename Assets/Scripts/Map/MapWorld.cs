@@ -1019,6 +1019,12 @@ public class MapWorld : MonoBehaviour
 
     public void CloseBuildingSomethingPanel()
     {
+        if (workerOrders)
+        {
+            unitMovement.CloseBuildingSomethingPanel();
+            return;
+        }
+        
         if (wonderGhost != null)
             Destroy(wonderGhost);
         
@@ -1047,10 +1053,10 @@ public class MapWorld : MonoBehaviour
 
     public void OpenWonders()
     {
-        if (workerOrders)
-            return;
+        //if (workerOrders)
+        //    return;
 
-        if (buildingWonder)
+        if (buildingWonder || workerOrders)
             CloseBuildingSomethingPanel();
 
         if (wonderHandler.activeStatus)
@@ -1089,10 +1095,10 @@ public class MapWorld : MonoBehaviour
     //Research info
     public void OpenResearchTree()
     {
-        if (workerOrders)
-            return;
+        //if (workerOrders)
+        //    return;
 
-        if (buildingWonder)
+        if (workerOrders || buildingWonder)
             CloseBuildingSomethingPanel();
         
         if (researchTree.activeStatus)

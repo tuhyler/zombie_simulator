@@ -54,4 +54,5 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 1
-  noWalkAreas: []
+  noWalkAreas:
+  - {x: 0, y: 0, z: 0}

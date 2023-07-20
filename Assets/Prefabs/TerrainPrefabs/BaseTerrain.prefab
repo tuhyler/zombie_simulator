@@ -60,6 +60,8 @@ MonoBehaviour:
   fogNonStatic: {fileID: 567022985356090824}
   resourceBackgroundSprite: {fileID: 6447084660192600171}
   resourceIconSprite: {fileID: 1889967045544533187}
+  white: {fileID: 2100000, guid: d87f9a8b5b7c8024798ff452a1540ec5, type: 2}
+  isHill: 0
   hasRoad: 0
   hasResourceMap: 0
   isGlowing: 0

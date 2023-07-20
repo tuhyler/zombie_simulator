@@ -32,7 +32,7 @@ public class City : MonoBehaviour
 
     //particle systems
     [SerializeField]
-    private ParticleSystem heavenHighlight, resourceSplash, lightBullet;
+    private ParticleSystem heavenHighlight, resourceSplash, lightBullet, fire;
 
     [SerializeField]
     public Sprite mapIcon;
@@ -108,7 +108,7 @@ public class City : MonoBehaviour
     private void Awake()
     {
         //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
-        world = FindObjectOfType<MapWorld>();
+        //world = FindObjectOfType<MapWorld>();
         cityPop = GetComponent<CityPopulation>();
         //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
         resourceManager = GetComponent<ResourceManager>();
@@ -122,11 +122,11 @@ public class City : MonoBehaviour
         SetProgressTimeBar();
         //highlight = GetComponent<SelectionHighlight>();
 
-        resourceManager.ResourceDict = new(world.GetBlankResourceDict());
-        resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
-        resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
-        resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
-        resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
+        //resourceManager.ResourceDict = new(world.GetBlankResourceDict());
+        //resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
+        //resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
+        //resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
+        //resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
         cityNameMap.GetComponentInChildren<TMP_Text>().outlineWidth = 0.35f;
         cityNameMap.GetComponentInChildren<TMP_Text>().outlineColor = Color.black;
     }
@@ -144,6 +144,31 @@ public class City : MonoBehaviour
         InstantiateParticleSystems();
         //Physics.IgnoreLayerCollision(6,7);
 
+        //int i = 0;
+        //foreach (ResourceType type in resourceManager.ResourceDict.Keys)
+        //{
+        //    int amount = resourceManager.ResourceDict[type];
+        //    if (amount > 0)
+        //    {
+        //        resourceGridDict[type] = i;
+        //        i++;
+        //    }
+
+        //}
+    }
+
+    public void SetWorld(MapWorld world)
+    {
+        this.world = world;
+        resourceManager.ResourceDict = new(world.GetBlankResourceDict());
+        resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
+        resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
+        resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
+        resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
+        resourceManager.PrepareResourceDictionary();
+        resourceManager.SetInitialResourceValues();
+        resourceManager.SetPrices();
+
         int i = 0;
         foreach (ResourceType type in resourceManager.ResourceDict.Keys)
         {
@@ -159,8 +184,10 @@ public class City : MonoBehaviour
 
     public void InstantiateParticleSystems()
     {
+        bool isHill = world.GetTerrainDataAt(cityLoc).isHill;
+        
         Vector3 pos = transform.position;
-        pos.y = .2f;
+        pos.y = isHill ? .8f : .2f;
         resourceSplash = Instantiate(resourceSplash, pos, Quaternion.Euler(-90, 0, 0));
         resourceSplash.transform.parent = transform;
         resourceSplash.Pause();
@@ -168,10 +195,30 @@ public class City : MonoBehaviour
         lightBullet = Instantiate(lightBullet, pos, Quaternion.Euler(90, 0, 0));
         lightBullet.transform.parent = transform;
         lightBullet.Pause();
-        pos.y = 3f;
+        pos.y = isHill ? 3.6f : 3f;
         heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
         heavenHighlight.transform.parent = transform;
         heavenHighlight.Pause();
+    }
+
+    public void LightFire(bool isHill)
+    {
+        Vector3 loc = cityLoc;
+        if (isHill)
+            loc.y += .6f;
+
+        fire = Instantiate(fire, loc, Quaternion.Euler(-90, 0, 0));
+        fire.transform.SetParent(subTransform.transform, false);
+        fire.Play();
+    }
+
+    public void ExtinguishFire()
+    {
+        if (fire != null)
+        {
+            //fire.Stop();
+            Destroy(fire.gameObject);
+        }
     }
 
     public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
@@ -394,14 +441,19 @@ public class City : MonoBehaviour
         //}
     }
 
-    public void SetHouse(Vector3Int cityLoc)
+    public void SetHouse(Vector3Int cityLoc, bool isHill)
     {
         if (currentHouse != null)
             Destroy(currentHouse);
 
         Vector3 houseLoc = cityLoc;
-        houseLoc.z -= 1f;
-        GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity);
+        houseLoc += housingData.buildingLocation;
+
+        if (isHill)
+            houseLoc.y += housingData.hillAdjustment;
+
+        GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity); //underground temporarily
+        housing.transform.position = houseLoc;
         CityImprovement improvement = housing.GetComponent<CityImprovement>();
         //improvement.DestroyUpgradeSplash();
         initialHouse = improvement;

@@ -136,15 +136,15 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             objectCost = buildData.improvementCost;
             objectProduced = new(buildData.producedResources);
             producedResourceTime = new(buildData.producedResourceTime);
-            objectConsumed.Add(buildData.consumedResources);
+            objectConsumed.Add(new(buildData.consumedResources));
             if (buildData.consumedResources1.Count > 0)
-                objectConsumed.Add(buildData.consumedResources1);
+                objectConsumed.Add(new(buildData.consumedResources1));
             if (buildData.consumedResources2.Count > 0)
-                objectConsumed.Add(buildData.consumedResources2);
+                objectConsumed.Add(new(buildData.consumedResources2));
             if (buildData.consumedResources3.Count > 0)
-                objectConsumed.Add(buildData.consumedResources3);
+                objectConsumed.Add(new(buildData.consumedResources3));
             if (buildData.consumedResources4.Count > 0)
-                objectConsumed.Add(buildData.consumedResources4);
+                objectConsumed.Add(new(buildData.consumedResources4));
             workEthicChange = buildData.workEthicChange;
             objectDescription = buildData.improvementDescription;
 
@@ -171,7 +171,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
 
         //cost info
-        GenerateResourceInfo(resourceCostHolder, objectCost, true, 60);
+        GenerateResourceInfo(resourceCostHolder, objectCost, true/*, 60*/);
 
         //producer and consumed info
         for (int i = 0; i < produceConsumesHolders.Count; i++) //turning them all off initially
@@ -182,8 +182,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
         for (int i = 0; i < producedCount; i++)
         {
+            ResourceValue productionTime;
+            productionTime.resourceType = ResourceType.Time;
+            productionTime.resourceAmount = producedResourceTime[i];
+            objectConsumed[i].Add(productionTime);
+
             produceConsumesHolders[i].gameObject.SetActive(true);
-            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], producedResourceTime[i], objectConsumed[i]);
+            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i]);
 
             if (maxCount < objectConsumed[i].Count)
                 maxCount = objectConsumed[i].Count;
@@ -251,7 +256,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
     }
 
-    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost, int producedResourceTime)
+    private void GenerateResourceInfo(Transform transform, List<ResourceValue> resources, bool cost/*, int producedResourceTime*/)
     {
         foreach (ResourceValue value in resources)
         {
@@ -260,7 +265,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
             uiResourceCostPanel.transform.SetParent(transform, false);
 
-            uiResourceCostPanel.resourceAmount.text = Mathf.RoundToInt(value.resourceAmount * (60f / producedResourceTime)).ToString();
+            //uiResourceCostPanel.resourceAmount.text = Mathf.RoundToInt(value.resourceAmount * (60f / producedResourceTime)).ToString();
+            uiResourceCostPanel.resourceAmount.text = value.resourceAmount.ToString();
             uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
             uiResourceCostPanel.resourceType = value.resourceType;
 
@@ -269,13 +275,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, int producedResourceTime, List<ResourceValue> consumedResources)
+    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, /*int producedResourceTime, */List<ResourceValue> consumedResources)
     {
         foreach (Transform selection in transform)
         {
             if (selection.TryGetComponent(out UIResourceInfoPanel uiResourceInfoPanel))
             {
-                uiResourceInfoPanel.resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / producedResourceTime)).ToString();
+                //uiResourceInfoPanel.resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / producedResourceTime)).ToString();
+                uiResourceInfoPanel.resourceAmount.text = producedResource.resourceAmount.ToString();
                 uiResourceInfoPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
                 uiResourceInfoPanel.resourceType = producedResource.resourceType;
             }
@@ -293,7 +300,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
         }
 
-        GenerateResourceInfo(transform, consumedResources, false, producedResourceTime);
+        GenerateResourceInfo(transform, consumedResources, false);
     }
 
     public void SetResourceTextToDefault()

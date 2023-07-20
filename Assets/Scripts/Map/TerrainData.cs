@@ -19,6 +19,11 @@ public class TerrainData : MonoBehaviour
     [SerializeField]
     private SpriteRenderer resourceBackgroundSprite, resourceIconSprite;
 
+    [SerializeField]
+    private Material white;
+    private List<MeshRenderer> whiteMesh = new();
+    private List<Material> materials = new();
+
     private SelectionHighlight highlight;
 
     private Vector3Int tileCoordinates;
@@ -60,7 +65,29 @@ public class TerrainData : MonoBehaviour
     private void Awake()
     {
         if (terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill)
-            isHill = true;
+            isHill = true; 
+        
+        if (terrainData.type == TerrainType.Obstacle || isHill)
+        {
+            foreach (MeshRenderer renderer in main.GetComponentsInChildren<MeshRenderer>())
+            {
+                whiteMesh.Add(renderer);
+                materials.Add(renderer.sharedMaterial);
+            }
+        }
+
+        foreach (MeshRenderer renderer in prop.GetComponentsInChildren<MeshRenderer>())
+        {
+            whiteMesh.Add(renderer);
+            materials.Add(renderer.sharedMaterial);
+        }
+
+        //foreach (MeshRenderer renderer in nonstatic.GetComponentsInChildren<MeshRenderer>())
+        //{
+        //    renderer.material = white;
+        //    //whiteMesh.Add(renderer);
+        //    //materials.Add(renderer.sharedMaterial);
+        //}
         
         if (terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
             uvs = main.GetComponentInChildren<MeshFilter>().mesh.uv;
@@ -220,35 +247,130 @@ public class TerrainData : MonoBehaviour
     public void Hide()
     {
         isDiscovered = false;
-        main.gameObject.SetActive(false);
-        prop.gameObject.SetActive(false);
+
+        foreach (MeshRenderer renderer in whiteMesh)
+        {
+            renderer.material = white;
+        }
+
+        //main.gameObject.SetActive(false);
+        //prop.gameObject.SetActive(false);
         //Vector3 offsetY = new Vector3(0, -.01f, 0);
 
         //if ((tileCoordinates.x % 2 == 0 && tileCoordinates.z % 2 == 0) || (tileCoordinates.x % 2 == 1 && tileCoordinates.z % 2 == 1))
         //    fog.transform.localPosition += offsetY;
     }
 
-    public void Reveal()
+    public void HardReveal()
     {
         isDiscovered = true;
+
+        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
+        //{
+        //    TerrainData td = world.GetTerrainDataAt(neighbor);
+        //    if (td.isDiscovered)
+        //        continue;
+
+        //    td.HardSemiReveal();
+        //}
+
         if (hasResourceMap)
         {
             resourceIcon.SetActive(true);
-            godRays.transform.position = tileCoordinates + new Vector3(1, 2, 0);
+            godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
+            godRays.Play();
+        }
+
+        int i = 0;
+        foreach (MeshRenderer renderer in whiteMesh)
+        {
+            renderer.material = materials[i];
+            i++;
+        }
+
+        fog.SetActive(false);
+        fogNonStatic.gameObject.SetActive(true);
+        StartCoroutine(fogNonStatic.FadeFog());
+
+        whiteMesh.Clear();
+        materials.Clear();
+
+        main.gameObject.SetActive(true);
+        prop.gameObject.SetActive(true);
+    }
+
+    //public void HardSemiReveal()
+    //{
+    //    foreach (MeshRenderer renderer in whiteMesh)
+    //    {
+    //        renderer.material = white;
+    //    }
+
+    //    main.gameObject.SetActive(true);
+    //    prop.gameObject.SetActive(true);
+    //}
+
+    public void Reveal()
+    {
+        isDiscovered = true;
+
+        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
+        //{
+        //    TerrainData td = world.GetTerrainDataAt(neighbor);
+        //    if (td.isDiscovered)
+        //        continue;
+
+        //    td.SemiReveal();
+        //}
+
+        if (hasResourceMap)
+        {
+            resourceIcon.SetActive(true);
+            godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
             godRays.Play();
         }
 
         fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);
         StartCoroutine(fogNonStatic.FadeFog());
-        if (nonstatic.childCount > 0)
-          StartCoroutine(PopUp());
-        else
+
+        int i = 0;
+        foreach (MeshRenderer renderer in whiteMesh)
         {
-            main.gameObject.SetActive(true);
-            prop.gameObject.SetActive(true);
+            renderer.material = materials[i];
+            i++;
         }
+
+        whiteMesh.Clear();
+        materials.Clear();
+        if (nonstatic.childCount > 0)
+        {
+            main.gameObject.SetActive(false);
+            prop.gameObject.SetActive(false);
+            StartCoroutine(PopUp());
+        }
+        //else
+        //{
+        //    main.gameObject.SetActive(true);
+        //    prop.gameObject.SetActive(true);
+        //}
     }
+
+    //public void SemiReveal()
+    //{
+    //    foreach (MeshRenderer renderer in whiteMesh)
+    //    {
+    //        renderer.material = white;
+    //    }
+        
+    //    //if (nonstatic.childCount > 0)
+    //    //    StartCoroutine(PopUp());
+    //    //else
+    //    //{
+    //    main.gameObject.SetActive(true);
+    //    prop.gameObject.SetActive(true);
+    //    //}
+    //}
 
     public void Discover()
     {

@@ -152,6 +152,10 @@ public class UnitMovement : MonoBehaviour
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build here");
                 }
+                else if (td.terrainData.type == TerrainType.River)
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Research bridge building first");
+                }
                 else
                 {
                     if (selectedWorker.AddToOrderQueue(pos))
@@ -318,8 +322,7 @@ public class UnitMovement : MonoBehaviour
         {
             selectedWorker = selectedUnit.GetComponent<Worker>();
             workerTaskManager.SetWorkerUnit(selectedWorker);
-            world.workerCanvas.gameObject.SetActive(true);
-            uiWorkerTask.ToggleVisibility(true);
+            uiWorkerTask.ToggleVisibility(true, null, world);
             if (selectedWorker.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(true);
 
@@ -705,6 +708,7 @@ public class UnitMovement : MonoBehaviour
 
             selectedWorker.ResetOrderQueue();
             selectedWorker.isBusy = false;
+            uiWorkerTask.ToggleVisibility(true, null, world);
             workerTaskManager.TurnOffCancelTask();
         }
         else if (world.buildingWonder)
@@ -718,7 +722,7 @@ public class UnitMovement : MonoBehaviour
         world.workerOrders = false;
         uiConfirmWorkerOrders.ToggleTweenVisibility(false);
         uiMoveUnit.ToggleTweenVisibility(true);
-        uiWorkerTask.ToggleVisibility(true);
+        uiWorkerTask.ToggleVisibility(true, null, world);
         workerTaskManager.CloseBuildingRoadPanel();
         //workerTaskManager.ToggleRoadBuild(false);
         //foreach (TerrainData td in highlightedTiles)

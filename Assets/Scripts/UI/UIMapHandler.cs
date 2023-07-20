@@ -39,7 +39,7 @@ public class UIMapHandler : MonoBehaviour
     private Camera minimapCamera;
 
     private Vector3 originalMaskPos, originalMaskSize, newPosition, prevRotation;
-    private float orthoSize, movementLimit = 40f, canvasRatio;
+    private float orthoSize, xMin, xMax, zMin, zMax, canvasRatio;
     public float movementSpeed = 1, movementTime, zoomTime;
 
     [HideInInspector]
@@ -68,9 +68,9 @@ public class UIMapHandler : MonoBehaviour
 
     public void ToggleMap()
     {
-        if (world.workerOrders)
-            return;
-        if (world.buildingWonder)
+        //if (world.workerOrders)
+        //    return;
+        if (world.workerOrders || world.buildingWonder)
             world.CloseBuildingSomethingPanel();
         
         if (activeStatus)
@@ -85,6 +85,11 @@ public class UIMapHandler : MonoBehaviour
             return;
 
         Vector2 anchorChange = v ? new Vector2(0.5f, 0.5f) : new Vector2(1f, 1f);
+        xMin = cameraController.xMin;
+        xMax = cameraController.xMax;
+        zMin = cameraController.zMin;
+        zMax = cameraController.zMax;
+
         cameraController.enabled = !v;
         ToggleButtons();
 
@@ -224,9 +229,9 @@ public class UIMapHandler : MonoBehaviour
     private void MoveMap()
     {
         //Clamps in ToggleVisibility method as well
-        newPosition.x = Mathf.Clamp(newPosition.x, -movementLimit, movementLimit);
+        newPosition.x = Mathf.Clamp(newPosition.x, xMin, xMax);
         newPosition.y = 10;
-        newPosition.z = Mathf.Clamp(newPosition.z, -movementLimit, movementLimit);
+        newPosition.z = Mathf.Clamp(newPosition.z, zMin, zMax);
 
         minimapCamera.transform.position = Vector3.Lerp(minimapCamera.transform.position, newPosition, Time.deltaTime * movementTime);
     }

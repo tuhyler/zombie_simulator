@@ -50,8 +50,11 @@ MonoBehaviour:
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
+  oneTerrain: 0
+  adjustForHill: 1
   buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
-  noWalkAreas: []
+  noWalkAreas:
+  - {x: 0, y: 0, z: 0}

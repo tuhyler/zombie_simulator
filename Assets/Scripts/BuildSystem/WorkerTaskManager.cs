@@ -472,7 +472,22 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         TerrainData td = world.GetTerrainDataAt(tile);
-        bool clearForest = td.terrainData.type == TerrainType.Forest;
+        TerrainType type = td.terrainData.type;
+
+        if (type == TerrainType.Forest || type == TerrainType.ForestHill)
+        {
+            InfoPopUpHandler.WarningMessage().Create(tile, "Trees in the way");
+            worker.isBusy = false;
+            return;
+        }
+        else if (type == TerrainType.River)
+        {
+            InfoPopUpHandler.WarningMessage().Create(tile, "Not in water...");
+            worker.isBusy = false;
+            return;
+        }
+
+        bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
         worker.citiesBuilt++;
@@ -507,9 +522,9 @@ public class WorkerTaskManager : MonoBehaviour
         world.RemoveWorkerWorkLocation(workerTile);
 
         //moving worker up a smidge to be on top of road
-        Vector3 moveUp = worker.transform.position;
-        moveUp.y += .2f;
-        worker.transform.position = moveUp;
+        //Vector3 moveUp = worker.transform.position;
+        //moveUp.y += .2f;
+        //worker.transform.position = moveUp;
     }
 
     private void BuildCity(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td)
@@ -524,14 +539,13 @@ public class WorkerTaskManager : MonoBehaviour
             td.gameObject.tag = "Flatland";
         }
 
-        //if (!world.IsRoadOnTerrain(workerTile)) //build road where city is placed
-        //    roadManager.BuildRoadAtPosition(workerTile);
+        td.prop.gameObject.SetActive(false);
 
-        //Vector3Int workerTile = Vector3Int.FloorToInt(workerPos);
-        GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); //creates building unit position.
+        GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); 
         newCity.gameObject.transform.SetParent(world.cityHolder, false);
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
         City city = newCity.GetComponent<City>();
+        city.SetWorld(world);
         city.SetNewCityName();
         //world.AddStructureMap(workerTile, city.mapIcon);
         //city.cityMapName = world.SetCityTileMap(workerTile, city.name);
@@ -539,7 +553,27 @@ public class WorkerTaskManager : MonoBehaviour
         city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
         city.CheckForAvailableSingleBuilds();
 
+        //build road where city is placed
+        if (!world.IsRoadOnTerrain(workerTile))
+        {
+            bool lightFire = true;
+            foreach (Vector3Int loc in world.GetNeighborsFor(workerTile, MapWorld.State.EIGHTWAYINCREMENT))
+            {
+                if (world.IsRoadOnTerrain(loc))
+                {
+                    //moving worker up a smidge to be on top of road
+                    Vector3 moveUp = worker.transform.position;
+                    moveUp.y += .2f;
+                    worker.transform.position = moveUp;
+                    roadManager.BuildRoadAtPosition(workerTile);
+                    lightFire = false;
+                    break;
+                }
+            }
 
+            if (lightFire)
+                city.LightFire(td.isHill);
+        }
         //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
         //world.AddResourceProducer(workerTile, resourceProducer);
         //resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
@@ -562,7 +596,7 @@ public class WorkerTaskManager : MonoBehaviour
         //else //if no currently existing buildings, set up dictionaries
         //{
         world.AddCityBuildingDict(workerTile);
-        city.SetHouse(workerTile);
+        city.SetHouse(workerTile, td.isHill);
         //}
 
         //showing join city button

@@ -46,6 +46,9 @@ MonoBehaviour:
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 1
+  oneTerrain: 1
+  adjustForHill: 1
+  hillAdjustment: 0.4
   buildTime: 0
   availableInitially: 1
   workAnimLoop: 0

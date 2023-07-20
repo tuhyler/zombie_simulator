@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +11,7 @@ public class CameraController : MonoBehaviour
     public Transform cameraTransform, camPointer;
     //CameraController.instance.followTransform = transform; //use this in other scripts to center and follow; 
 
-    //[SerializeField]
+    [SerializeField]
     private GraphicRaycaster raycaster;
 
     [HideInInspector]
@@ -28,7 +30,10 @@ public class CameraController : MonoBehaviour
     private bool disableMouse;
     public bool DisableMouse { set { disableMouse = value; } }
 
-    private float movementLimit = 40f;
+    [HideInInspector]
+    public float xMin, xMax, zMin, zMax;
+    private float xMinTemp, xMaxTemp, zMinTemp, zMaxTemp;
+    private bool inCity;
     private float edgeSize = 40f; //pixel buffer size
 
     public float movementSpeed, movementTime, rotationAmount, zoomTime;
@@ -47,8 +52,6 @@ public class CameraController : MonoBehaviour
         camZPosition = camPointer.localPosition;
         newRotation = transform.rotation;
         scrolling = true;
-
-        raycaster = GetComponentInChildren<GraphicRaycaster>();
     }
 
     void LateUpdate() //Lateupdate to reduce jittering on camera 
@@ -213,8 +216,8 @@ public class CameraController : MonoBehaviour
     private void MoveCamera()
     {
         //movement limits
-        newPosition.x = Mathf.Clamp(newPosition.x, -movementLimit, movementLimit);
-        newPosition.z = Mathf.Clamp(newPosition.z, -movementLimit, movementLimit); //change to edge
+        newPosition.x = Mathf.Clamp(newPosition.x, xMin, xMax);
+        newPosition.z = Mathf.Clamp(newPosition.z, zMin, zMax); //change to edge
         //newRotation.x = Mathf.Clamp(newRotation.x, 0, 10);
 
         //smoothing camera movement
@@ -254,5 +257,57 @@ public class CameraController : MonoBehaviour
     private void RotateCamera()
     {
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
+    }
+
+    public void CheckLoc(Vector3Int loc)
+    {
+        if (inCity)
+        {
+            xMinTemp = Math.Min(xMinTemp, loc.x);
+            xMaxTemp = Math.Max(xMaxTemp, loc.x);
+            zMinTemp = Math.Min(zMinTemp, loc.z);
+            zMaxTemp = Math.Max(zMaxTemp, loc.z);
+        }
+        else
+        {
+            xMin = Math.Min(xMin, loc.x);
+            xMax = Math.Max(xMax, loc.x);
+            zMin = Math.Min(zMin, loc.z);
+            zMax = Math.Max(zMax, loc.z);
+        }
+    }
+
+    public void SetCityLimit(List<Vector3Int> tiles, Vector3Int cityLoc)
+    {
+        inCity = true;
+        xMinTemp = xMin;
+        xMaxTemp = xMax;
+        zMinTemp = zMin;
+        zMaxTemp = zMax;
+        xMin = cityLoc.x;
+        xMax = cityLoc.x;
+        zMin = cityLoc.z;
+        zMax = cityLoc.z;
+
+        foreach (Vector3Int tile in tiles)
+        {
+            if (tile.x < xMin)
+                xMin = tile.x;
+            else if (tile.x > xMax)
+                xMax = tile.x;
+            else if (tile.z < zMin)
+                zMin = tile.z;
+            else if (tile.z > zMax)
+                zMax = tile.z;
+        }
+    }
+
+    public void RestoreWorldLimit()
+    {
+        inCity = false;
+        xMin = xMinTemp;
+        xMax = xMaxTemp;
+        zMin = zMinTemp;
+        zMax = zMaxTemp;
     }
 }
