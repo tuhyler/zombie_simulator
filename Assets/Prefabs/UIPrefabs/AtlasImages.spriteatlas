@@ -52,7 +52,9 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   - {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
   - {fileID: 21300000, guid: e6aa6313eaf50024890ed0293ab4262d, type: 3}
+  - {fileID: 21300000, guid: cdc75d235c91c4040b418de92323a99d, type: 3}
   - {fileID: 21300000, guid: 74a25673e928bef45bf2d3a7ba082f11, type: 3}
+  - {fileID: 21300000, guid: 8bf82434787c08e4f92718ad30afd9b1, type: 3}
   - {fileID: 21300000, guid: 017a4b341d2d93245a74b5edfb806764, type: 3}
   - {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
   - {fileID: 21300000, guid: 60db64a4fe685214ca14a2c9ee244972, type: 3}
@@ -107,7 +109,9 @@ SpriteAtlas:
   - Quarry01Img
   - Research02Img
   - BrickOvens01Img
+  - Smith01Img
   - Weaver01Img
+  - Plantation01Img
   - Ceramist01Img
   - FishingBoats01Img
   - Weaver02Img

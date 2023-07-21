@@ -10,34 +10,36 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Quarry01Data
+  m_Name: Plantation01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5122609563439273834, guid: 45c7a726668d70146bb0e424c867ad6f, type: 3}
+  prefab: {fileID: 5838738910640936402, guid: 8527a29077f2e8b408f3ac100dcdb957, type: 3}
   secondaryData: []
   isBuilding: 0
-  improvementName: Quarry
-  improvementDisplayName: Quarry
+  improvementName: Plantation
+  improvementDisplayName: Plantation
   improvementLevel: 1
-  improvementNameAndLevel: Quarry-1
+  improvementNameAndLevel: Plantation-1
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
-  littleImage: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
-  mapIcon: {fileID: 21300000, guid: fff3e4b24fa45f24596d35a5472ab796, type: 3}
+  image: {fileID: 21300000, guid: 8bf82434787c08e4f92718ad30afd9b1, type: 3}
+  littleImage: {fileID: 21300000, guid: 8bf82434787c08e4f92718ad30afd9b1, type: 3}
+  mapIcon: {fileID: 21300000, guid: 00c4548fae792af459d5c61422663a50, type: 3}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 15
-  consumedResources: []
+    resourceAmount: 25
+  consumedResources:
+  - resourceType: 4
+    resourceAmount: 2
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 7
-    resourceAmount: 5
+  - resourceType: 23
+    resourceAmount: 2
   producedResourceTime: 05000000
   rawMaterials: 1
-  rawResourceType: 3
+  rawResourceType: 8
   isResearch: 0
   terrainType: 5
   specificTerrain: 0
@@ -45,8 +47,8 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
-  replaceTerrain: 1
-  replaceRocks: 1
+  replaceTerrain: 0
+  replaceRocks: 0
   singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
@@ -54,5 +56,5 @@ MonoBehaviour:
   buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
-  hideIdleMesh: 0
+  hideIdleMesh: 1
   noWalkAreas: []
