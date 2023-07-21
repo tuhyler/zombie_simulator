@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8797325714701718084}
   - component: {fileID: 4953528115713912327}
   - component: {fileID: 3956988236211695482}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: StarMovement
   m_TagString: Untagged
   m_Icon: {fileID: 0}

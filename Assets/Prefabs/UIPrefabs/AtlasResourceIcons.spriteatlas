@@ -51,6 +51,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 00e962550b4c6c0408f1bd04572e3e72, type: 3}
   - {fileID: 21300000, guid: 1563f8c6d8bfe9a40b5f5f53a318b89b, type: 3}
   - {fileID: 21300000, guid: 32c59fa742b58e047af6576bc551a2ad, type: 3}
+  - {fileID: 21300000, guid: c5126c7844ad7784c8d0104fa1356feb, type: 3}
   - {fileID: 21300000, guid: 8cb0883a9920bd545bacccade1e5d661, type: 3}
   - {fileID: 21300000, guid: 136bc68a438e3414f83037321e2a4016, type: 3}
   - {fileID: 21300000, guid: bb9210dbeb5c29f409dfecf134330837, type: 3}
@@ -75,6 +76,7 @@ SpriteAtlas:
   - icon_silkcloth01
   - icon_copperore01
   - icon_pottery1
+  - icon_goldraw
   - icon_stone02
   - icon_food01
   - icon_bronzeware01
