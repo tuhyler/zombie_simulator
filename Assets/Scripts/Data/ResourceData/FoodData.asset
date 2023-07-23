@@ -20,3 +20,5 @@ MonoBehaviour:
   resourcePrice: 1
   resourceQuantityPerPop: 1
   rawResource: 1
+  requirement: Farm
+  uvCoordinatesForRocks: {x: 0, y: 0}

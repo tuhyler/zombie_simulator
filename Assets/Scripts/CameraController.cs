@@ -310,4 +310,12 @@ public class CameraController : MonoBehaviour
         zMin = zMinTemp;
         zMax = zMaxTemp;
     }
+
+    public void SetDefaultLimits()
+    {
+        xMin = -edgeSize;
+        xMax = edgeSize;
+        zMin = -edgeSize;
+        zMax = edgeSize;
+    }
 }

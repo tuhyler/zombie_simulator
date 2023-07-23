@@ -20,3 +20,5 @@ MonoBehaviour:
   resourcePrice: 3
   resourceQuantityPerPop: 50
   rawResource: 4
+  requirement: Lumbermill
+  uvCoordinatesForRocks: {x: 0, y: 0}

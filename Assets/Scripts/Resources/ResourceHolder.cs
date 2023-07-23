@@ -34,4 +34,9 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].uvCoordinatesForRocks;
     }
+
+    public string GetRequirement(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].requirement;
+    }
 }

@@ -2388,6 +2388,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   inUse: 0
+  overflowCanvas: {fileID: 0}
   gridHolder: {fileID: 8553122132583012548}
   overflowGridHolder: {fileID: 7617430844625013660}
   gridWidth: 10

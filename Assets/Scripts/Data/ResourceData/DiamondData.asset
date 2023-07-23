@@ -15,9 +15,10 @@ MonoBehaviour:
   resourceType: 28
   resourceStorageMultiplier: 1
   resourceName: Diamond
-  resourceIcon: {fileID: 21300000, guid: e99158de73b9ae245a60f41d8d59651e, type: 3}
+  resourceIcon: {fileID: 21300000, guid: 3707d13fe0680ae4daed6629952c8902, type: 3}
   ResourceGatheringTime: 20
   resourcePrice: 2
   resourceQuantityPerPop: 50
   rawResource: 3
+  requirement: Mine/Quarry
   uvCoordinatesForRocks: {x: 0.013986, y: 0.997646}
