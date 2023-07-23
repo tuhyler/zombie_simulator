@@ -15,9 +15,10 @@ MonoBehaviour:
   resourceType: 22
   resourceStorageMultiplier: 1
   resourceName: Ruby
-  resourceIcon: {fileID: 21300000, guid: e99158de73b9ae245a60f41d8d59651e, type: 3}
+  resourceIcon: {fileID: 21300000, guid: 6faa20e8af5f1454d888d4cbcd4cae45, type: 3}
   ResourceGatheringTime: 20
   resourcePrice: 2
   resourceQuantityPerPop: 50
   rawResource: 3
+  requirement: Mine/Quarry
   uvCoordinatesForRocks: {x: 0.030106, y: 0.983877}

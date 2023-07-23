@@ -10,7 +10,7 @@ using static UnityEngine.Rendering.DebugUI;
 public class MapWorld : MonoBehaviour
 {
     [SerializeField]
-    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas;
+    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
     [SerializeField]
@@ -159,6 +159,9 @@ public class MapWorld : MonoBehaviour
 
     private void Awake()
     {
+        if (!hideTerrain)
+            cityBuilderManager.focusCam.SetDefaultLimits();
+        
         worldResourceManager = GetComponent<WorldResourceManager>();
         worldResourceManager.SetUI(uiWorldResources);
         if (researching)
@@ -344,6 +347,9 @@ public class MapWorld : MonoBehaviour
         cityCanvas.gameObject.SetActive(false);
         traderCanvas.gameObject.SetActive(false);
         workerCanvas.gameObject.SetActive(false);
+        tradeRouteManagerCanvas.gameObject.SetActive(false);
+        infoPopUpCanvas.gameObject.SetActive(false);
+        overflowGridCanvas.gameObject.SetActive(false);
     }
 
     public void ConfigureUVs(TerrainData td)
@@ -1146,6 +1152,7 @@ public class MapWorld : MonoBehaviour
         }
         
         tooltip = true;
+        infoPopUpCanvas.gameObject.SetActive(true);
         uiTerrainTooltip.ToggleVisibility(true, td);
         //uiTerrainTooltip.SetData(td);
     }
@@ -1153,11 +1160,13 @@ public class MapWorld : MonoBehaviour
     public void CloseTerrainTooltipButton()
     {
         tooltip = false;
+        infoPopUpCanvas.gameObject.SetActive(false);
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
     public void CloseTerrainTooltip()
     {
+        infoPopUpCanvas.gameObject.SetActive(false);
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
@@ -1173,6 +1182,7 @@ public class MapWorld : MonoBehaviour
         }
 
         tooltip = true;
+        infoPopUpCanvas.gameObject.SetActive(true);
         uiCityImprovementTip.ToggleVisibility(true, improvement);
         //uiTerrainTooltip.SetData(td);
     }
@@ -1180,11 +1190,13 @@ public class MapWorld : MonoBehaviour
     public void CloseImprovementTooltipButton()
     {
         tooltip = false;
+        infoPopUpCanvas.gameObject.SetActive(false);
         uiCityImprovementTip.ToggleVisibility(false);
     }
 
     public void CloseImprovementTooltip()
     {
+        infoPopUpCanvas.gameObject.SetActive(false);
         uiCityImprovementTip.ToggleVisibility(false);
     }
 

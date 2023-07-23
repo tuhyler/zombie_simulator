@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class UITerrainTooltip : MonoBehaviour
 {
     [SerializeField]
-    public TMP_Text title, resourceNone, resourceCount, resourceCountTitle;
+    public TMP_Text title, resourceNone, resourceCount, resourceCountTitle, requiresText;
 
     [SerializeField]
     private Image resourceImage;
@@ -86,6 +86,8 @@ public class UITerrainTooltip : MonoBehaviour
             resourceImage.gameObject.SetActive(false);
             resourceCountTitle.gameObject.SetActive(false);
             resourceCount.gameObject.SetActive(false);
+            requiresText.gameObject.SetActive(false);
+            allContents.sizeDelta = new Vector2(290,250);
         }
         else
         {
@@ -93,7 +95,10 @@ public class UITerrainTooltip : MonoBehaviour
             resourceImage.gameObject.SetActive(true);
             resourceCountTitle.gameObject.SetActive(true);
             resourceCount.gameObject.SetActive(true);
-            resourceImage.sprite = ResourceHolder.Instance.GetIcon(type); ;    
+            requiresText.gameObject.SetActive(true);
+            requiresText.text = "Requres " + ResourceHolder.Instance.GetRequirement(type);
+            allContents.sizeDelta = new Vector2(290, 300);
+            resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
 
             if (td.resourceAmount < 0)
             {

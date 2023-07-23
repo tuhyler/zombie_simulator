@@ -31,19 +31,31 @@ MonoBehaviour:
     resourceAmount: 10
   consumedResources:
   - resourceType: 22
-    resourceAmount: 8
-  - resourceType: 7
+    resourceAmount: 2
+  - resourceType: 26
     resourceAmount: 5
+  - resourceType: 6
+    resourceAmount: 10
   - resourceType: 4
     resourceAmount: 5
-  consumedResources1: []
+  consumedResources1:
+  - resourceType: 27
+    resourceAmount: 2
+  - resourceType: 26
+    resourceAmount: 5
+  - resourceType: 6
+    resourceAmount: 10
+  - resourceType: 4
+    resourceAmount: 5
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 29
     resourceAmount: 1
-  producedResourceTime: 2d000000
+  - resourceType: 29
+    resourceAmount: 1
+  producedResourceTime: 0500000005000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0

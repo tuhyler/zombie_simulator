@@ -153,7 +153,7 @@ public class UICityImprovementTip : MonoBehaviour
         SetResourcePanelInfo(producesInfo, data.producedResources, producedTime, true, data.workEthicChange);
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[index], producedTime, false);
 
-        int multiple = Mathf.Max(maxCount - 3, 0) * 90;
+        int multiple = Mathf.Max(maxCount - 2, 0) * 90; //allowing one extra for production time ResourceValue
         int panelWidth = 310 + multiple;
         int lineWidth = 280 + multiple;
 
@@ -209,33 +209,38 @@ public class UICityImprovementTip : MonoBehaviour
             }
         }
 
-        int indexSelect = 0;
+        //int indexSelect = 0;
 
         for (int i = 0; i < panelList.Count; i++)
         {
-            if (i >= resourcesCount)
+            if (i > resourcesCount)
             {
                 panelList[i].gameObject.SetActive(false);
+            }
+            else if (i == resourcesCount) //for adding time
+            {
+                if (!produces)
+                {
+                    panelList[i].gameObject.SetActive(true);
+                    panelList[i].resourceAmount.text = producedTime.ToString();
+                    panelList[i].resourceType = ResourceType.Time;
+                    panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
+                }
             }
             else
             {
                 panelList[i].gameObject.SetActive(true);
-                panelList[i].resourceAmount.text = Mathf.RoundToInt(resourceList[i].resourceAmount * (60f / producedTime)).ToString();
+                //panelList[i].resourceAmount.text = Mathf.RoundToInt(resourceList[i].resourceAmount * (60f / producedTime)).ToString();
+                panelList[i].resourceAmount.text = resourceList[i].resourceAmount.ToString();
                 panelList[i].resourceType = resourceList[i].resourceType;
                 panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
-
-                if (produces)
-                {
-                    if (resourceList[i].resourceType == improvement.producedResource)
-                        indexSelect = i;
-                }
             }
         }
 
         if (produces)
         {
             float xShiftLeft = (resourcesCount-1) * 45;
-            float xShiftRight = indexSelect * 90;
+            float xShiftRight = improvement.producedResourceIndex * 90;
             //xShiftRight -= 1.5f;
 
             //Vector2 loc = panelList[0].transform.localPosition;

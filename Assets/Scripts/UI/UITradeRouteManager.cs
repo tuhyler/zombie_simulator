@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class UITradeRouteManager : MonoBehaviour
 {
     [SerializeField]
+    private MapWorld world;
+    
+    [SerializeField]
     public GameObject uiTradeStopHolder, uiTradeStopPanel, startingStopGO, newStopButton, confirmButton, stopRouteButton;
 
     [SerializeField]
@@ -195,6 +198,7 @@ public class UITradeRouteManager : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
+            world.tradeRouteManagerCanvas.gameObject.SetActive(true);
             chosenStop.options.Clear();
             //chosenStop.RefreshShownValue();
 
@@ -227,6 +231,7 @@ public class UITradeRouteManager : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+        world.tradeRouteManagerCanvas.gameObject.SetActive(false);
     }
 
     public void CloseMenu()

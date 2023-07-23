@@ -20,4 +20,5 @@ MonoBehaviour:
   resourcePrice: 2
   resourceQuantityPerPop: 50
   rawResource: 5
+  requirement: Plantation
   uvCoordinatesForRocks: {x: 0, y: 0}
