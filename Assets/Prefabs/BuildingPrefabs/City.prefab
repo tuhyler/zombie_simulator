@@ -241,19 +241,21 @@ MonoBehaviour:
   - resourceType: 17
     resourceAmount: 50
   - resourceType: 9
-    resourceAmount: 50
+    resourceAmount: 1
   - resourceType: 10
-    resourceAmount: 50
+    resourceAmount: 1
   - resourceType: 23
-    resourceAmount: 50
+    resourceAmount: 1
   - resourceType: 21
-    resourceAmount: 50
+    resourceAmount: 1
   - resourceType: 22
-    resourceAmount: 50
+    resourceAmount: 1
   - resourceType: 8
-    resourceAmount: 50
+    resourceAmount: 1
   - resourceType: 13
-    resourceAmount: 50
+    resourceAmount: 1
+  - resourceType: 26
+    resourceAmount: 10
   city: {fileID: 0}
 --- !u!114 &350781982696099274
 MonoBehaviour:

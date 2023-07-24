@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GoldOreData
   m_EditorClassIdentifier: 
   resourceType: 26
-  resourceStorageMultiplier: 0
+  resourceStorageMultiplier: 1
   resourceName: Gold Ore
   resourceIcon: {fileID: 21300000, guid: c5126c7844ad7784c8d0104fa1356feb, type: 3}
   ResourceGatheringTime: 5
