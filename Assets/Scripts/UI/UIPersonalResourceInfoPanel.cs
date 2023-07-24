@@ -22,10 +22,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     private Sprite originalDown;
 
     [SerializeField] //for tweening
-    private RectTransform allContents;
+    private RectTransform allContents, overflowGridAll;
     [HideInInspector]
     public bool activeStatus, overflowActiveStatus;
-    private Vector3 originalLoc, overflowOriginalLoc;
+    private Vector3 originalLoc, overflowOriginalLoc, overflowAllOriginalLoc;
     private Vector3 loadUnloadPosition;
 
     public bool isCity; //indicate which window is for the city or trader
@@ -65,7 +65,6 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     //for pricing
     private int maxBuyCost;
     public GridLayoutGroup gridGrid, overflowGrid;
-    public Transform mask;
 
     private void Awake()
     {
@@ -73,6 +72,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         { //whole sequence is to determine where trader resource window goes during unload/load (changes based on resolution)
             originalLoc = allContents.anchoredPosition3D;
             overflowOriginalLoc = overflowGridHolder.anchoredPosition3D;
+            overflowAllOriginalLoc = overflowGridAll.anchoredPosition3D;
             allContents.anchorMin = new Vector2(0.5f, 0.5f);
             allContents.anchorMax = new Vector2(0.5f, 0.5f);
             allContents.anchoredPosition3D = new Vector3(0f, 235f, 0f);
@@ -131,6 +131,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
             if (isCity)
             {
+                world.overflowGridCanvas.gameObject.SetActive(true);
+
                 if (city)
                 {
                     city.uiCityResourceInfoPanel = this;
@@ -156,7 +158,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                     overflowGrid.cellSize = new Vector2(90, 110);
                     overflowGrid.padding.top = -10;
                     overflowGrid.padding.bottom = 10;
-                    mask.transform.localPosition = new Vector3(0, -160, 0);
+                    //overflowGridAll.anchoredPosition3D = new Vector3(0, -160, 0);
                 }
             }
             else
@@ -237,7 +239,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 overflowGrid.padding.top = 0;
                 overflowGrid.padding.bottom = 0;
 
-                mask.transform.localPosition = new Vector3(0, -140, 0);
+                overflowGridAll.anchoredPosition3D = overflowAllOriginalLoc;
                 maxBuyCost = 0;
                 this.tradeCenter = null;
                 gameObject.SetActive(false);
@@ -250,7 +252,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         if (overflowActiveStatus)
             ToggleOverflowVisibility(false);
         else
+        {
+            overflowGridAll.anchoredPosition3D = overflowAllOriginalLoc;
             ToggleOverflowVisibility(true);
+        }
     }
 
     public void ToggleOverflowVisibility(bool v, bool instant = false)
@@ -263,6 +268,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         if (v)
         {
             buttonDown.sprite = buttonUp;
+            world.overflowGridCanvas.gameObject.SetActive(true);
             overflowGridHolder.gameObject.SetActive(v);
             overflowActiveStatus = true;
             float size = Mathf.CeilToInt((activeCells - gridWidth) / (float)gridWidth) * 90;
@@ -282,6 +288,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     private void SetOverflowStatusFalse()
     {
+        if (!isCity)
+            world.overflowGridCanvas.gameObject.SetActive(false);
         overflowGridHolder.gameObject.SetActive(false);
     }
 
@@ -295,7 +303,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 loc = city.resourceGridDict[type];
             else if (wonder)
                 loc = wonder.ResourceGridDict[type];
-            else 
+            else
                 loc = tradeCenter.ResourceBuyGridDict[type];
         }
         else
@@ -326,7 +334,13 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             if (activeCells == gridWidth + 1)
                 ToggleOverflowVisibility(true, true);
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 90, 0).setEase(LeanTweenType.easeOutSine);
+
+            if (!isCity)
+            {
+                int increment = pricing ? 110 : 90;
+                allContents.anchoredPosition3D += new Vector3(0, increment, 0);
+                overflowGridAll.anchoredPosition3D += new Vector3(0, increment, 0);
+            }
         }
 
         if (pricing)
@@ -419,14 +433,21 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             ToggleVisibility(true);
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
+            if (atTradeCenter)
+                overflowGridAll.anchoredPosition3D = originalLoc + new Vector3(0, -360f, 0);
+            else
+                overflowGridAll.anchoredPosition3D = originalLoc + new Vector3(0, -340f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 260f, 0.4f).setEase(LeanTweenType.easeOutSine);
+            LeanTween.moveY(overflowGridAll, overflowGridAll.anchoredPosition3D.y + 260f, 0.4f).setEase(LeanTweenType.easeOutSine);
         }
         else
         {
             allContents.anchoredPosition3D = originalLoc;
+            overflowGridAll.anchoredPosition3D = overflowAllOriginalLoc;
             float unloadLoadShift = allContents.transform.localPosition.y - loadUnloadPosition.y; //how much to decrease 
-            unloadLoadShift -= Mathf.FloorToInt(activeCells / gridWidth) * 90;
+            int increment = atTradeCenter ? 110 : 90;
+            unloadLoadShift -= activeCells == 0 ? 0 : (Mathf.CeilToInt(activeCells / (float)gridWidth) - 1) * increment;
 
             if (atTradeCenter)
             {
@@ -444,11 +465,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 overflowGrid.cellSize = new Vector2(90, 110);
                 overflowGrid.padding.top = -10;
                 overflowGrid.padding.bottom = 10;
-                mask.transform.localPosition = new Vector3(0, -160, 0);
+                overflowGridAll.anchoredPosition3D = new Vector3(0, -160, 0);
             }
 
             buttonDown.gameObject.SetActive(false);
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - unloadLoadShift, 0.4f).setEase(LeanTweenType.easeOutSine);
+            LeanTween.moveY(overflowGridAll, overflowGridAll.anchoredPosition3D.y - unloadLoadShift, 0.4f).setEase(LeanTweenType.easeOutSine);
             ToggleButtonInteractable(true);
         }
         if (activeCells > gridWidth)
@@ -464,16 +486,26 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 800f, 0.4f)
                 .setEase(LeanTweenType.easeOutSine)
                 .setOnComplete(SetVisibilityFalse);
+            LeanTween.moveY(overflowGridAll, overflowGridAll.anchoredPosition3D.y - 800f, 0.4f)
+                .setEase(LeanTweenType.easeOutSine)
+                .setOnComplete(SetVisibilityFalse);
             //LeanTween.alpha(allContents, 0f, 0.4f).setEaseLinear();
         }
         else
         {
             ToggleButtonInteractable(false);
-            Vector3 loc;
+            float loc, loc2;
             if (keepSelection)
-                loc = originalLoc;
+            {
+                loc = originalLoc.y;
+                loc2 = overflowAllOriginalLoc.y;
+            }
             else
-                loc = originalLoc + new Vector3(0, 200f, 0);
+            {
+                int yShift = 200;
+                loc = originalLoc.y + yShift;
+                loc2 = overflowAllOriginalLoc.y + yShift;
+            }
 
             if (atTradeCenter)
             {
@@ -491,10 +523,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 overflowGrid.cellSize = new Vector2(90, 90);
                 overflowGrid.padding.top = 0;
                 overflowGrid.padding.bottom = 0;
-                mask.transform.localPosition = new Vector3(0, -140, 0);
             }
 
-            LeanTween.moveY(allContents, loc.y, 0.4f).setEase(LeanTweenType.easeOutSine).setOnComplete(ShowButtonDown);
+            LeanTween.moveY(allContents, loc, 0.4f).setEase(LeanTweenType.easeOutSine).setOnComplete(ShowButtonDown);
+            LeanTween.moveY(overflowGridAll, loc2, 0.4f).setEase(LeanTweenType.easeOutSine).setOnComplete(ShowButtonDown);
         }
 
         inUse = false;

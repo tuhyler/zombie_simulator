@@ -495,11 +495,11 @@ public class ResourceManager : MonoBehaviour
             if (uiMarketPlaceManager.activeStatus)
                 uiMarketPlaceManager.UpdateMarketResourceNumbers(resourceType, resourcePriceDict[resourceType], resourceDict[resourceType], resourceSellHistoryDict[resourceType]);
         }
-        else if (city.uiCityResourceInfoPanel)
-        {
-            city.uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
-            city.uiCityResourceInfoPanel.UpdateStorageLevel(GetResourceStorageLevel);
-        }
+        //else if (city.uiCityResourceInfoPanel) //don't know why this was here
+        //{
+        //    city.uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
+        //    city.uiCityResourceInfoPanel.UpdateStorageLevel(GetResourceStorageLevel);
+        //}
     }
 
     public void IncreaseFoodConsumptionPerTurn(bool v) //only used when increasing pop when joining city, growth, or building city
