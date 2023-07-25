@@ -58,6 +58,9 @@ public class UIMinimapHandler : MonoBehaviour, IPointerDownHandler
                 centerPoint = new Vector3(camLoc.x + minimapCamSize * percX, 0, camLoc.z + minimapCamSize * percY);
             //Vector3 centerPoint = new Vector3(camLoc.x + minimapCamSize - percX * minimapCamSize * 2, 0, camLoc.z + minimapCamSize - percY * minimapCamSize * 2);
 
+            if (!cameraController.BoundaryCheck(centerPoint))
+                return;
+
             CenterCamera(centerPoint);
         }
     }

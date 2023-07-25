@@ -259,6 +259,14 @@ public class CameraController : MonoBehaviour
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
     }
 
+    public bool BoundaryCheck(Vector3 loc)
+    {
+        if (loc.x < xMin-1 || loc.x > xMax+1 || loc.z < zMin-1 || loc.z > zMax+1)
+            return false;
+        else
+            return true;
+    }
+
     public void CheckLoc(Vector3Int loc)
     {
         if (inCity)

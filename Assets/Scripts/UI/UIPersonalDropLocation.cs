@@ -3,25 +3,48 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UIPersonalDropLocation : MonoBehaviour, IDropHandler
+public class UIPersonalDropLocation : MonoBehaviour, /*IDropHandler, */IPointerEnterHandler, IPointerExitHandler
 {
     [HideInInspector]
     public int gridLocation;
     public UIPersonalResources resource;
+    private bool main;
 
     private UIPersonalResourceInfoPanel resourceManager;
 
-    public void OnDrop(PointerEventData eventData)
+
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        GameObject dropped = eventData.pointerDrag;
-        UIPersonalResources resource = dropped.GetComponent<UIPersonalResources>();
-        if (resource == null || resource.clickable)
-            return;
-        resource.originalParent = transform;
-        resourceManager.MoveResources(resource.loc, gridLocation, resource.resourceType);
-        this.resource = resource;
-        resource.loc = gridLocation;
+        if (resourceManager.dragging)
+        {
+            main = true;
+            GameObject dropped = eventData.pointerDrag;
+            UIPersonalResources resource = dropped.GetComponent<UIPersonalResources>();
+            if (resource == null || resource.clickable)
+                return;
+            resource.originalParent = transform;
+            resourceManager.MoveResources(resource.loc, gridLocation, resource.resourceType);
+            this.resource = resource;
+            resource.loc = gridLocation;
+        }
     }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        main = false;
+    }
+
+    //public void OnDrop(PointerEventData eventData)
+    //{
+    //    GameObject dropped = eventData.pointerDrag;
+    //    UIPersonalResources resource = dropped.GetComponent<UIPersonalResources>();
+    //    if (resource == null || resource.clickable)
+    //        return;
+    //    resource.originalParent = transform;
+    //    resourceManager.MoveResources(resource.loc, gridLocation, resource.resourceType);
+    //    this.resource = resource;
+    //    resource.loc = gridLocation;
+    //}
 
     public void SetUIResourceManager(UIPersonalResourceInfoPanel resourceManager)
     {
@@ -45,6 +68,7 @@ public class UIPersonalDropLocation : MonoBehaviour, IDropHandler
 
     public void SetNewParent()
     {
-        resource.transform.localPosition = Vector3.zero;
+        if (!main)
+            resource.transform.localPosition = Vector3.zero;
     }
 }

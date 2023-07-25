@@ -607,8 +607,15 @@ public class WorkerTaskManager : MonoBehaviour
     private bool CheckForNearbyCity(Vector3 workerPos)
     {
         Vector3Int workerTile = Vector3Int.RoundToInt(workerPos);
+        int i = 0;
         foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
         {
+            if (i < 8 && world.IsTradeCenterOnTile(tile))
+            {
+                InfoPopUpHandler.WarningMessage().Create(workerUnit.transform.position, "Too close to another city");
+                return true;
+            }
+            i++;
             if (!world.IsCityOnTile(tile))
             {
                 continue;

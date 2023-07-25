@@ -912,7 +912,7 @@ public class UnitMovement : MonoBehaviour
             personalFull = resourceAmountAdjusted == 0;
 
             if (cityResourceManager != null)
-                cityResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
+                cityResourceManager.CheckResource(resourceType, -resourceAmountAdjusted, false);
             else
                 wonder.CheckResource(resourceType, -resourceAmountAdjusted);
         }
@@ -928,7 +928,7 @@ public class UnitMovement : MonoBehaviour
 
             int resourceAmountAdjusted;
             if (cityResourceManager != null)
-                resourceAmountAdjusted = cityResourceManager.CheckResource(resourceType, -resourceAmount);
+                resourceAmountAdjusted = cityResourceManager.CheckResource(resourceType, -resourceAmount, false);
             else
                 resourceAmountAdjusted = wonder.CheckResource(resourceType, -resourceAmount);
 
