@@ -118,6 +118,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
     {
         if (!clickable)
         {
+            buttonHandler.dragging = true;
             originalParent = transform.parent;
             transform.SetParent(tempParent);
             transform.SetAsLastSibling();
@@ -140,6 +141,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
     {
         if (!clickable)
         {
+            buttonHandler.dragging = false;
             transform.SetParent(originalParent);
             transform.localPosition = Vector3.zero;
             background.raycastTarget = true;

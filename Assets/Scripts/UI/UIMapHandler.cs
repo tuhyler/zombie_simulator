@@ -43,7 +43,7 @@ public class UIMapHandler : MonoBehaviour
     public float movementSpeed = 1, movementTime, zoomTime;
 
     [HideInInspector]
-    public bool activeStatus, scrolling = true;
+    public bool activeStatus;
 
     private void Awake()
     {
@@ -60,10 +60,15 @@ public class UIMapHandler : MonoBehaviour
         if (activeStatus)
         {
             HandleKeyboardInput();
-
-            if (scrolling)
-                Zoom();
+            Zoom();
+            HandleEsc();
         }
+    }
+
+    public void HandleEsc()
+    {
+        if (Input.GetKey(KeyCode.Escape))
+            ToggleMap();
     }
 
     public void ToggleMap()

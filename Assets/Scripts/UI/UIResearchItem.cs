@@ -22,7 +22,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     //[SerializeField]
     //private CanvasGroup canvasGroup;
 
-    private UIResearchTreePanel researchTree;
+    [HideInInspector]
+    public UIResearchTreePanel researchTree;
 
     //private string researchName;
     public string ResearchName { get { return researchName.text; } }
@@ -223,6 +224,12 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (researchTree.researchTooltip.activeStatus)
+        {
+            researchTree.researchTooltip.ToggleVisibility(false);
+            return;
+        }
+
         if (researchTree.isQueueing)
         {
             if (!researchTree.QueueContainsCheck(this) && (!locked || tempUnlocked))

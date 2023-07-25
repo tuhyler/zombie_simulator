@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -19,6 +20,13 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public Transform originalParent;
     public Transform tempParent;
 
+    private UIResourceManager resourceManager;
+
+    public void SetResourceManager(UIResourceManager resourceManager)
+    {
+        this.resourceManager = resourceManager;
+    }
+
     public void SetValue(int val)
     {
         resourceValue = val;
@@ -27,6 +35,7 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        resourceManager.dragging = true;
         originalParent = transform.parent;
         transform.SetParent(tempParent);
         transform.SetAsLastSibling();
@@ -36,13 +45,14 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnDrag(PointerEventData eventData)
     {
         Vector3 p = Input.mousePosition;
-        p.z = 935;
+        p.z = 1;
         Vector3 pos = Camera.main.ScreenToWorldPoint(p);
         transform.position = pos;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        resourceManager.dragging = false;
         transform.SetParent(originalParent);
         transform.localPosition = Vector3.zero;
         background.raycastTarget = true;

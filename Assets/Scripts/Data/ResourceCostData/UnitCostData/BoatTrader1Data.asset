@@ -20,9 +20,7 @@ MonoBehaviour:
   unitCost:
   - resourceType: 6
     resourceAmount: 40
-  consumedResources:
-  - resourceType: 2
-    resourceAmount: 1
+  consumedResources: []
   laborCost: 2
   unitType: 6
   unitDescription: Water transport for cargo

@@ -15,8 +15,10 @@ MonoBehaviour:
   resourceType: 14
   resourceStorageMultiplier: 1
   resourceName: Gold Ingot
-  resourceIcon: {fileID: 21300000, guid: f43cf053c94bc1048a640d33368cc20f, type: 3}
-  secondaryIcon: {fileID: 0}
+  resourceIcon: {fileID: 21300000, guid: 96b1b5f9ec9e13f45bf2bfcb55ff8957, type: 3}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50
+  rawResource: 0
+  requirement: 
+  uvCoordinatesForRocks: {x: 0, y: 0}

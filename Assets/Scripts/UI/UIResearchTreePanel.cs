@@ -5,12 +5,15 @@ using UnityEngine.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using TMPro;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
+using UnityEngine.EventSystems;
 
-public class UIResearchTreePanel : MonoBehaviour
+public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
     private MapWorld world;
+
+    [SerializeField]
+    public UIResearchTooltip researchTooltip;
 
     [SerializeField]
     private UIUnitTurnHandler uiUnitTurn;
@@ -161,6 +164,9 @@ public class UIResearchTreePanel : MonoBehaviour
                 world.SetResearchName("No Research");
                 world.SetWorldResearchUI(0, 1);
             }
+
+            if (researchTooltip.activeStatus)
+                researchTooltip.ToggleVisibility(false);
 
             world.ToggleMinimap(true);
             isQueueing = false;
@@ -344,5 +350,11 @@ public class UIResearchTreePanel : MonoBehaviour
     public string GetChosenResearchName()
     {
         return chosenResearchItem.ResearchName;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (researchTooltip.activeStatus)
+            researchTooltip.ToggleVisibility(false);
     }
 }

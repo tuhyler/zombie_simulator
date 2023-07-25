@@ -34,6 +34,8 @@ public class UIResourceManager : MonoBehaviour
     private int activeCells;
     private Dictionary<ResourceType, int> resourceUIDict = new();
     public int gridWidth = 10;
+    [HideInInspector]
+    public bool dragging;
 
     private void Awake()
     {

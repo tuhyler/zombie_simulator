@@ -299,7 +299,7 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public int CheckResource(ResourceType type, int amount)
+    public int CheckResource(ResourceType type, int amount, bool updateUI = true)
     {
         if (type == ResourceType.Fish)
             type = ResourceType.Food;
@@ -318,7 +318,7 @@ public class ResourceManager : MonoBehaviour
             if (!city.resourceGridDict.ContainsKey(type))
                 city.AddToGrid(type);
 
-            return AddResourceToStorage(type, amount);
+            return AddResourceToStorage(type, amount, updateUI);
         }
         else
         {
@@ -340,7 +340,7 @@ public class ResourceManager : MonoBehaviour
             foodGrowthLevel += resourceAmount;
             if (city.activeCity)
                 uiInfoPanelCity.UpdateFoodGrowth(foodGrowthLevel);
-            int addedResource = AddResourceToStorage(ResourceType.Food, newResourceBalance);
+            int addedResource = AddResourceToStorage(ResourceType.Food, newResourceBalance, true);
             if (city.cityPop.CurrentPop == 0)
                 CheckForPopGrowth();
             return resourceAmount + addedResource;
@@ -355,7 +355,7 @@ public class ResourceManager : MonoBehaviour
     }
 
     //returns how much is actually moved
-    private int AddResourceToStorage(ResourceType type, int resourceAmount)
+    private int AddResourceToStorage(ResourceType type, int resourceAmount, bool updateUI)
     {
         int prevAmount = resourceDict[type];
         
@@ -404,7 +404,8 @@ public class ResourceManager : MonoBehaviour
 
         if (queuedResourceTypesToCheck.Contains(type))
             CheckResourcesForQueue();
-        UpdateUI(type);
+        if (updateUI)
+            UpdateUI(type);
         if (city.activeCity)
         {
             city.UpdateResourceInfo();
@@ -495,11 +496,11 @@ public class ResourceManager : MonoBehaviour
             if (uiMarketPlaceManager.activeStatus)
                 uiMarketPlaceManager.UpdateMarketResourceNumbers(resourceType, resourcePriceDict[resourceType], resourceDict[resourceType], resourceSellHistoryDict[resourceType]);
         }
-        //else if (city.uiCityResourceInfoPanel) //don't know why this was here
-        //{
-        //    city.uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
-        //    city.uiCityResourceInfoPanel.UpdateStorageLevel(GetResourceStorageLevel);
-        //}
+        else if (city.uiCityResourceInfoPanel) //in case it's open while trader is unloading during route
+        {
+            city.uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false); //false so it doesn't play ps
+            city.uiCityResourceInfoPanel.UpdateStorageLevel(GetResourceStorageLevel);
+        }
     }
 
     public void IncreaseFoodConsumptionPerTurn(bool v) //only used when increasing pop when joining city, growth, or building city

@@ -1160,13 +1160,13 @@ public class MapWorld : MonoBehaviour
     public void CloseTerrainTooltipButton()
     {
         tooltip = false;
-        infoPopUpCanvas.gameObject.SetActive(false);
+        //infoPopUpCanvas.gameObject.SetActive(false);
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
     public void CloseTerrainTooltip()
     {
-        infoPopUpCanvas.gameObject.SetActive(false);
+        //infoPopUpCanvas.gameObject.SetActive(false);
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
@@ -1190,13 +1190,13 @@ public class MapWorld : MonoBehaviour
     public void CloseImprovementTooltipButton()
     {
         tooltip = false;
-        infoPopUpCanvas.gameObject.SetActive(false);
+        //infoPopUpCanvas.gameObject.SetActive(false);
         uiCityImprovementTip.ToggleVisibility(false);
     }
 
     public void CloseImprovementTooltip()
     {
-        infoPopUpCanvas.gameObject.SetActive(false);
+        //infoPopUpCanvas.gameObject.SetActive(false);
         uiCityImprovementTip.ToggleVisibility(false);
     }
 

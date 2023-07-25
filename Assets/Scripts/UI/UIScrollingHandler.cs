@@ -16,12 +16,10 @@ public class UIScrollingHandler : MonoBehaviour, IPointerEnterHandler, IPointerE
     public void OnPointerEnter(PointerEventData eventData) //for scrolling the menu
     {
         cameraController.scrolling = false;
-        mapHandler.scrolling = false;
     }
 
     public void OnPointerExit(PointerEventData eventData) //for scrolling the world
     {
         cameraController.scrolling = true;
-        mapHandler.scrolling = true;
     }
 }

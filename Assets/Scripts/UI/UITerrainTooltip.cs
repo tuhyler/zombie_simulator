@@ -9,6 +9,9 @@ using UnityEngine.UI;
 public class UITerrainTooltip : MonoBehaviour
 {
     [SerializeField]
+    private MapWorld world;
+    
+    [SerializeField]
     public TMP_Text title, resourceNone, resourceCount, resourceCountTitle, requiresText;
 
     [SerializeField]
@@ -72,6 +75,7 @@ public class UITerrainTooltip : MonoBehaviour
 
     private void SetActiveStatusFalse()
     {
+        world.infoPopUpCanvas.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
 

@@ -53,7 +53,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     private ResourceType resourceType;
     
     [HideInInspector]
-    public bool inUse; //for clicking off screen to exit trade screen
+    public bool inUse, dragging; //for clicking off screen to exit trade screen
 
     //resource grid
     public RectTransform gridHolder, overflowGridHolder;
