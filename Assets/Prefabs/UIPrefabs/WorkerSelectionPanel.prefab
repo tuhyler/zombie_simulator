@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4382634860799491496}
   - component: {fileID: 9012161218714560926}
   - component: {fileID: 5413135460159653962}
+  - component: {fileID: 8313148618265676875}
   m_Layer: 5
   m_Name: WorkerSelectionPanel
   m_TagString: Untagged
@@ -175,6 +176,19 @@ MonoBehaviour:
   buildData: {fileID: 0}
   canvasGroup: {fileID: 4382634860799491496}
   buttonImage: {fileID: 339274342687367354}
+--- !u!114 &8313148618265676875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624308965952619012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: 
 --- !u!1 &4871339309576906425
 GameObject:
   m_ObjectHideFlags: 0

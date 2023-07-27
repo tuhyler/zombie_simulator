@@ -375,6 +375,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+        type: 3}
+      propertyPath: message
+      value: Build Road (R)
+      objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -629,6 +634,11 @@ PrefabInstance:
       propertyPath: canvasGroup
       value: 
       objectReference: {fileID: 8606848476787000763}
+    - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+        type: 3}
+      propertyPath: message
+      value: Gather Resources (G)
+      objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -888,6 +898,11 @@ PrefabInstance:
       propertyPath: interactable
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+        type: 3}
+      propertyPath: message
+      value: Build City (B)
+      objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -1141,6 +1156,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+        type: 3}
+      propertyPath: message
+      value: Remove Road (X)
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}

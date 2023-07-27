@@ -39,4 +39,9 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].requirement;
     }
+
+    public string GetName(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].resourceName;
+    }
 }

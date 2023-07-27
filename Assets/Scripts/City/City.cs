@@ -654,7 +654,26 @@ public class City : MonoBehaviour
 
     public void RemoveFromWaitList(Unit unit)
     {
-        waitList = new Queue<Unit>(waitList.Where(x => x != unit));
+        List<Unit> waitListList = waitList.ToList();
+        
+        if (!waitListList.Contains(unit))
+        {
+            CheckQueue();
+            return;
+        }
+
+        int index = waitListList.IndexOf(unit);
+        waitListList.Remove(unit);
+
+        int j = 0;
+        for (int i = index; i < waitListList.Count; i++)
+        {
+            j++;
+            waitListList[i].waitingCo = StartCoroutine(waitListList[i].MoveUpInLine(j));
+        }
+
+        waitList = new Queue<Unit>(waitListList);
+        //waitList = new Queue<Unit>(waitList.Where(x => x != unit));
     }
 
     public void CheckQueue()

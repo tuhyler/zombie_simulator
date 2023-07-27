@@ -16,6 +16,7 @@ public class UITerrainTooltip : MonoBehaviour
 
     [SerializeField]
     private Image resourceImage;
+    private UITooltipTrigger tooltipTrigger; 
 
     //cached TerrainData for turning off highlight
     private TerrainData td;
@@ -28,6 +29,7 @@ public class UITerrainTooltip : MonoBehaviour
     private void Awake()
     {
         gameObject.SetActive(false);
+        tooltipTrigger = GetComponentInChildren<UITooltipTrigger>();
     }
 
     public void ToggleVisibility(bool val, TerrainData td = null)
@@ -103,6 +105,7 @@ public class UITerrainTooltip : MonoBehaviour
             requiresText.text = "Requres " + ResourceHolder.Instance.GetRequirement(type);
             allContents.sizeDelta = new Vector2(290, 300);
             resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
+            tooltipTrigger.SetMessage(ResourceHolder.Instance.GetName(type));
 
             if (td.resourceAmount < 0)
             {

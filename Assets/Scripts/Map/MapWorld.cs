@@ -9,6 +9,7 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class MapWorld : MonoBehaviour
 {
+    //public float test = 0.4f;
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [SerializeField]

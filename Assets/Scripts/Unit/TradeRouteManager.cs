@@ -42,10 +42,13 @@ public class TradeRouteManager : MonoBehaviour
     private City city;
     private Wonder wonder;
     private TradeCenter tradeCenter;
+    private WaitForSeconds resourceWait = new WaitForSeconds(1);
+    private WaitForSeconds loadWait;// = new WaitForSeconds(1);
 
     private void Awake()
     {
         trader = GetComponent<Trader>();
+        loadWait = new WaitForSeconds(secondIntervals);
     }
 
     public void SetTradeRoute(int startingStop, List<Vector3Int> cityStops, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
@@ -204,6 +207,7 @@ public class TradeRouteManager : MonoBehaviour
 
                 int amountMoved = 0;
                 resourceCurrentAmount = currentAmount;
+                bool isPlaying = false;
 
                 while (loadUnloadCheck)
                 {
@@ -227,10 +231,31 @@ public class TradeRouteManager : MonoBehaviour
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
                         uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(resourceCurrentAmount, resourceTotalAmount);
 
-                    if (resourceAmountAdjusted != 0)
-                        trader.SetLoadingAnimation(true);
+                    if (resourceAmountAdjusted == 0)
+                    {
+                        resourceCheck = true;
+                        if (city != null)
+                            city.SetWaiter(this, value.resourceType);
+                        else if (wonder != null)
+                            wonder.SetWaiter(this, value.resourceType);
+                        else
+                            tradeCenter.SetWaiter(this, loadUnloadRateMod * tradeCenter.ResourceBuyDict[value.resourceType]);
 
-                    yield return new WaitForSeconds(secondIntervals);
+                        trader.SetLoadingAnimation(false);
+                        isPlaying = false;
+                        yield return HoldingPatternCoroutine();
+                        continue; //start loop over once resources have been found again
+                    }
+                    else
+                    {
+                        if (!isPlaying)
+                        {
+                            trader.SetLoadingAnimation(true);
+                            isPlaying = true;
+                        }
+                    }
+
+                    yield return loadWait;
                     personalResourceManager.CheckResource(value.resourceType, resourceAmountAdjusted);
 
                     if (trader.isSelected)
@@ -239,9 +264,7 @@ public class TradeRouteManager : MonoBehaviour
                         uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
                     }
 
-                    if (resourceAmountAdjusted == 0)
-                        resourceCheck = true;
-                    else if (tradeCenter)
+                    if (tradeCenter)
                     {
                         int buyAmount = -resourceAmountAdjusted * tradeCenter.ResourceBuyDict[value.resourceType];
                         tradeCenter.world.UpdateWorldResources(ResourceType.Gold, buyAmount);
@@ -251,18 +274,6 @@ public class TradeRouteManager : MonoBehaviour
                     if (amountMoved >= resourceAmount)
                     {
                         loadUnloadCheck = false;
-                    }
-                    else if (resourceAmountAdjusted == 0)
-                    {
-                        if (city != null)
-                            city.SetWaiter(this, value.resourceType);
-                        else if (wonder != null)
-                            wonder.SetWaiter(this, value.resourceType);
-                        else
-                            tradeCenter.SetWaiter(this, loadUnloadRateMod * tradeCenter.ResourceBuyDict[value.resourceType]);
-
-                        trader.SetLoadingAnimation(false);
-                        yield return HoldingPatternCoroutine();
                     }
                 }
 
@@ -280,6 +291,7 @@ public class TradeRouteManager : MonoBehaviour
 
                 int amountMoved = 0;
                 resourceCurrentAmount = 0;
+                bool isPlaying = false;
 
                 while (loadUnloadCheck)
                 {
@@ -298,10 +310,34 @@ public class TradeRouteManager : MonoBehaviour
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
                         uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(resourceCurrentAmount, resourceTotalAmount);
 
-                    if (resourceAmountAdjusted != 0)
-                        trader.SetUnloadingAnimation(true);
+                    //if (resourceAmountAdjusted != 0)
+                    //    trader.SetUnloadingAnimation(true);
+                    //else
+                    //    trader.SetUnloadingAnimation(false);
 
-                    yield return new WaitForSeconds(secondIntervals);
+                    if (resourceAmountAdjusted == 0)
+                    {
+                        if (city != null)
+                            city.SetWaiter(this);
+                        else if (wonder != null)
+                            wonder.SetWaiter(this);
+                        //trade centers don't need to wait here
+
+                        trader.SetUnloadingAnimation(false);
+                        isPlaying = false;
+                        yield return HoldingPatternCoroutine();
+                        continue; //restart loop once there's storage room
+                    }
+                    else
+                    {
+                        if (!isPlaying)
+                        {
+                            trader.SetUnloadingAnimation(true);
+                            isPlaying = true;
+                        }
+                    }
+
+                    yield return loadWait;
 
                     personalResourceManager.CheckResource(value.resourceType, -resourceAmountAdjusted);
 
@@ -390,7 +426,7 @@ public class TradeRouteManager : MonoBehaviour
     {
         while (resourceCheck)
         {
-            yield return new WaitForSeconds(1);        
+            yield return resourceWait;        
         }
     }
 
