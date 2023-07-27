@@ -5,37 +5,22 @@ using UnityEngine.EventSystems;
 
 public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [HideInInspector]
-    public string title, displayTitle;
-
-    [HideInInspector]
-    public int level, health, strength, cargo;
-
-    [HideInInspector]
-    public float workEthic, speed;
-
-    [HideInInspector]
-    public string description;
-
-    [HideInInspector]
-    public List<ResourceValue> produces, costs;
-
-    [HideInInspector]
-    public List<List<ResourceValue>> consumes = new();
-
-    [HideInInspector]
-    public List<int> produceTime;
-
-    [HideInInspector]
-    public bool unit;
+    private static LTDescr delay;
+    public string message;
     
     public void OnPointerEnter(PointerEventData eventData)
     {
-        UITooltipSystem.Show(transform.position, title, displayTitle, level, workEthic, description, costs, produces, consumes, produceTime, unit, health, speed, strength, cargo);
+        delay = LeanTween.delayedCall(1f, () => { UITooltipSystem.Show(message); }); 
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        LeanTween.cancel(delay.uniqueId);
         UITooltipSystem.Hide();
+    }
+
+    public void SetMessage(string message)
+    {
+        this.message = message;
     }
 }

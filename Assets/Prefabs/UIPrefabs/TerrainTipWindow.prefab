@@ -446,6 +446,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b0bbc15616ff0340954c65480f8c8bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  world: {fileID: 0}
   title: {fileID: 7114318892010882442}
   resourceNone: {fileID: 3974580655932618712}
   resourceCount: {fileID: 8785915359902844024}
@@ -464,6 +465,7 @@ GameObject:
   - component: {fileID: 4339619381366954956}
   - component: {fileID: 848471368762458752}
   - component: {fileID: 2163281106275857859}
+  - component: {fileID: 3094197079142872479}
   m_Layer: 0
   m_Name: ResourceImage
   m_TagString: Untagged
@@ -529,6 +531,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3094197079142872479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5472092955665517220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: 
 --- !u!1 &6076609533319556090
 GameObject:
   m_ObjectHideFlags: 0

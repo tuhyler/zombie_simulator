@@ -988,11 +988,12 @@ public class UnitMovement : MonoBehaviour
         {
             if (!selectedTrader.tradeRouteManager.TradeRouteCheck())
                 return;
-            if (selectedUnit.LineCutterCheck())
+            if (selectedTrader.LineCutterCheck())
                 return;
             selectedUnit.StopMovement();
             selectedTrader.BeginNextStepInRoute();
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+            LoadUnloadFinish(true);
             uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
             uiCancelTradeRoute.ToggleTweenVisibility(true);
             uiTradeRouteManager.ToggleVisibility(false);
@@ -1005,8 +1006,9 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelTradeRoute() //stop following route but still keep route description
     {
-        selectedTrader.CancelRoute();
+        selectedTrader.followingRoute = false; //done earlier as it's in stopmovement
         selectedUnit.StopMovement();
+        selectedTrader.CancelRoute();
         ShowIndividualCityButtonsUI();
         CancelContinuedMovementOrders();
         uiCancelTradeRoute.ToggleTweenVisibility(false);

@@ -34,6 +34,6 @@ MonoBehaviour:
   locked: 0
   health: 10
   attackStrength: 10
-  movementSpeed: 3
+  movementSpeed: 2
   cargoCapacity: 0
   transportationType: 0

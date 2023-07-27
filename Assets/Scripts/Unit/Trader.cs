@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
@@ -268,6 +269,18 @@ public class Trader : Unit
         }
     }
 
+    public bool LineCutterCheck()
+    {
+        if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), tradeRouteManager.GoToNext()))
+        {
+            CancelRoute();
+            InfoPopUpHandler.WarningMessage().Create(transform.position, "No cutting in line");
+            return true;
+        }
+
+        return false;
+    }
+
     public override void CancelRoute()
     {
         followingRoute = false;
@@ -279,11 +292,23 @@ public class Trader : Unit
             Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(finalDestinationLoc)));
 
             if (world.IsCityOnTile(tradePos))
-                world.GetCity(tradePos).RemoveFromWaitList(this);
+            {
+                City city = world.GetCity(tradePos);
+                city.RemoveFromWaitList(this);
+                //city.CheckQueue();
+            }
             else if (world.IsWonderOnTile(tradePos))
-                world.GetWonder(tradePos).RemoveFromWaitList(this);
+            {
+                Wonder wonder = world.GetWonder(tradePos);
+                wonder.RemoveFromWaitList(this);
+                //wonder.CheckQueue();
+            }
             else if (world.IsTradeCenterOnTile(tradePos))
-                world.GetTradeCenter(tradePos).RemoveFromWaitList(this);
+            {
+                TradeCenter center = world.GetTradeCenter(tradePos);
+                center.RemoveFromWaitList(this);
+                //center.CheckQueue();
+            }
         }
 
         isWaiting = false;
@@ -294,6 +319,8 @@ public class Trader : Unit
             tradeRouteManager.CancelLoad();
             tradeRouteManager.StopHoldingPatternCoroutine();
             tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
+            SetLoadingAnimation(false);
+            SetUnloadingAnimation(false);
         }
         if (WaitTimeCo != null)
         {

@@ -54,6 +54,7 @@ public class Unit : MonoBehaviour
     public int QueueCount { set { queueCount = value; } }
     private Vector3 shoePrintScale;
     private GameObject mapIcon;
+    private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
 
     //combat info
     [HideInInspector]
@@ -72,7 +73,6 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public Animator unitAnimator;
     private int isMovingHash;
-
 
     private void Awake()
     {
@@ -217,8 +217,8 @@ public class Unit : MonoBehaviour
         }
         else if (td.terrainData.type == TerrainType.Hill)
         {
-            if (endPositionInt.x % 3 == 0)
-                y = .4f;
+            if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
+                y = .5f;//world.test;
             else
                 y = .2f;
         }
@@ -284,6 +284,7 @@ public class Unit : MonoBehaviour
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
         float distance = 1f;
         float timeElapsed = 0;
+
         while (distance > threshold)
         //while (Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z) > threshold)
         //while (Mathf.Pow(transform.localPosition.x - endPosition.x, 2) + Mathf.Pow(transform.localPosition.z - endPosition.z, 2) > threshold)
@@ -309,10 +310,7 @@ public class Unit : MonoBehaviour
         }
 
         //exploring
-        if (isTrader && !bySea && !world.hideTerrain)
-        {
-
-        }
+        if (isTrader && !bySea && !world.hideTerrain) {}
         else
         {
             Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
@@ -512,29 +510,40 @@ public class Unit : MonoBehaviour
         if (pathPositions.Count == 1)
             yield break;
 
-        yield return new WaitForSeconds(0.5f * placeInLine);
+        float pause = 0.5f * placeInLine;
+
+        while (pause > 0)
+        {
+            yield return moveInLinePause;// new WaitForSeconds(0.5f * placeInLine);
+            pause -= 0.5f;
+        }
 
         if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
             yield break;
 
         Vector3Int nextSpot = pathPositions.Dequeue();
         world.RemoveUnitPosition(currentLocation);
+        if (world.IsUnitLocationTaken(nextSpot))
+        {
+            Unit unitInTheWay = world.GetUnit(nextSpot);
+            unitInTheWay.FindNewSpot(nextSpot, pathPositions.Peek());
+        }
         world.AddUnitPosition(nextSpot, this);
         unitAnimator.SetBool(isMovingHash, true);
         movingCo = StartCoroutine(MovementCoroutine(nextSpot));
     }
 
-    public bool LineCutterCheck()
-    {
-        if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), finalDestinationLoc))
-        {
-            CancelRoute();
-            InfoPopUpHandler.WarningMessage().Create(transform.position, "No cutting in line");
-            return true;
-        }
+    //public bool LineCutterCheck()
+    //{
+    //    if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), finalDestinationLoc))
+    //    {
+    //        CancelRoute();
+    //        InfoPopUpHandler.WarningMessage().Create(transform.position, "No cutting in line");
+    //        return true;
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     private void FinishMoving(Vector3 endPosition)
     {
@@ -579,7 +588,21 @@ public class Unit : MonoBehaviour
         }
         if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
         {
-            FindNewSpot(currentLocation, new Vector3Int(0, -10, 0));
+            Unit unitInTheWay = world.GetUnit(currentLocation);
+            if (unitInTheWay == this)
+            {
+                world.AddUnitPosition(currentLocation, this);
+                TradeRouteCheck(endPosition);
+                return; 
+            }
+
+            Vector3Int loc;
+            if (unitInTheWay.pathPositions.Count > 0)
+                loc = unitInTheWay.pathPositions.Peek();
+            else
+                loc = new Vector3Int(0, -10, 0);
+
+            FindNewSpot(currentLocation, loc);
             return;
         }
         world.AddUnitPosition(currentLocation, this);
@@ -589,9 +612,15 @@ public class Unit : MonoBehaviour
     public void FindNewSpot(Vector3Int current, Vector3Int next)
     {
         //Vector3Int lastTile = current;        
-        
-        foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+
+        int i = 0;
+        bool outerRing = false;
+        foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYTWODEEP))
         {
+            i++;
+            if (i > 8)
+                outerRing = true;
+
             if (isTrader && !world.IsRoadOnTileLocation(tile))
                 continue;
 
@@ -608,7 +637,11 @@ public class Unit : MonoBehaviour
             //}
 
             finalDestinationLoc = tile;
-            MoveThroughPath(new List<Vector3Int> { tile });
+
+            if (outerRing)
+                MoveThroughPath(new List<Vector3Int> { (current + tile) / 2, tile });
+            else
+                MoveThroughPath(new List<Vector3Int> { tile });
             return;
         }
 

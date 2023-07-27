@@ -253,6 +253,8 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
                     inputStorageAmount.interactable = true;
                     allToggle.isOn = false;
                 }
+
+                break;
             }
         }
     }
