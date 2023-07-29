@@ -4,7 +4,7 @@ using System.Resources;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler
+public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [HideInInspector]
     public int loc;
@@ -12,21 +12,47 @@ public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler
     public UITradeResourceTask resourceTask;
     [HideInInspector]
     public UITradeStopHandler tradeStopHandler;
+    private bool main;
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (tradeStopHandler.dragging)
+        {
+            main = true;
+            GameObject dropped = eventData.pointerDrag;
+            UITradeResourceTask resourceTask = dropped.GetComponent<UITradeResourceTask>();
+            if (resourceTask == null || !tradeStopHandler.uiResourceTasks.Contains(resourceTask))
+                return;
+            resourceTask.originalParent = transform;
+            tradeStopHandler.uiResourceTasks.Remove(resourceTask);
+            tradeStopHandler.uiResourceTasks.Insert(loc, resourceTask);
+            tradeStopHandler.MoveResourceTask(resourceTask.loc, loc);
+            this.resourceTask = resourceTask;
+            this.resourceTask.resourceHolder = this;
+            resourceTask.loc = loc;
+            resourceTask.counter.text = (loc + 1).ToString() + '.';
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        main = false;
+    }
 
     public void OnDrop(PointerEventData eventData)
     {
-        GameObject dropped = eventData.pointerDrag;
-        UITradeResourceTask resourceTask = dropped.GetComponent<UITradeResourceTask>();
-        if (resourceTask == null || !tradeStopHandler.uiResourceTasks.Contains(resourceTask))
-            return;
-        resourceTask.originalParent = transform;
-        tradeStopHandler.uiResourceTasks.Remove(resourceTask);
-        tradeStopHandler.uiResourceTasks.Insert(loc, resourceTask); 
-        tradeStopHandler.MoveResourceTask(resourceTask.loc, loc);
-        this.resourceTask = resourceTask;
-        this.resourceTask.resourceHolder = this;
-        resourceTask.loc = loc;
-        resourceTask.counter.text = (loc + 1).ToString() + '.';
+        //GameObject dropped = eventData.pointerDrag;
+        //UITradeResourceTask resourceTask = dropped.GetComponent<UITradeResourceTask>();
+        //if (resourceTask == null || !tradeStopHandler.uiResourceTasks.Contains(resourceTask))
+        //    return;
+        //resourceTask.originalParent = transform;
+        //tradeStopHandler.uiResourceTasks.Remove(resourceTask);
+        //tradeStopHandler.uiResourceTasks.Insert(loc, resourceTask); 
+        //tradeStopHandler.MoveResourceTask(resourceTask.loc, loc);
+        //this.resourceTask = resourceTask;
+        //this.resourceTask.resourceHolder = this;
+        //resourceTask.loc = loc;
+        //resourceTask.counter.text = (loc + 1).ToString() + '.';
     }
 
     public void MoveResourceTask(UITradeRouteResourceHolder newDrop)
@@ -46,7 +72,11 @@ public class UITradeRouteResourceHolder : MonoBehaviour, IDropHandler
     public void SetNewParent(UITradeRouteResourceHolder newDrop)
     {
         newDrop.resourceTask.transform.localPosition = Vector3.zero;
-        resourceTask.transform.localPosition = Vector3.zero;
+        
+        if (!main)
+        {
+            resourceTask.transform.localPosition = Vector3.zero;
+        }
     }
 
     public void SetStop(UITradeStopHandler tradeStopHandler)

@@ -15,24 +15,30 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     [SerializeField]
     public TMP_InputField inputStorageAmount;
 
-    [SerializeField]
-    public Toggle allToggle;
+    //[SerializeField]
+    //public Toggle allToggle;
 
     [SerializeField]
-    public TMP_Text counter;
+    public TMP_Text counter, resourceCount;
 
     [SerializeField]
-    public Image background, completeImage, check;
+    public Slider resourceCountSlider;
+
+    [SerializeField]
+    public Image background, completeImage, check, chosenResourceSprite, grips;
 
     [SerializeField]
     public GameObject dragGrips;
+
+    [SerializeField]
+    public Transform resourceDropdown;
 
     //[SerializeField]
     //private Image resourceIcon;
 
     //for moving resource task
     [HideInInspector]
-    public int loc, cargoLimit;
+    public int loc;//, cargoLimit;
     [HideInInspector]
     public Transform originalParent, tempParent;
     [HideInInspector]
@@ -41,8 +47,11 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     [HideInInspector]
     public List<string> resources = new();
 
-    private string chosenResource;
+    //private string chosenResource;
+    [HideInInspector]
+    public ResourceType chosenResource;
     private int chosenMultiple = 1;
+    private int chosenResourceAmount;
     //private string chosenAmount;
     //private int traderCargoStorageLimit;
 
@@ -62,23 +71,25 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         counter.outlineWidth = 0.3f;
         check.gameObject.SetActive(false);
         completeImage.gameObject.SetActive(false);
-        allToggle.gameObject.SetActive(false);
+        //allToggle.gameObject.SetActive(false);
     }
 
     private void Start()
     {
         //for checking if number is positive and integer
-        inputStorageAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
+        //inputStorageAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (draggable)
         {
+            resourceHolder.tradeStopHandler.dragging = true;
             originalParent = transform.parent;
             transform.SetParent(tempParent);
             transform.SetAsLastSibling();
-            background.raycastTarget = false;
+            //background.raycastTarget = false;
+            grips.raycastTarget = false;
 
             //for dragging based on where it was clicked
             //Vector3 p = Input.mousePosition;
@@ -106,51 +117,54 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         if (draggable)
         {
+            resourceHolder.tradeStopHandler.dragging = false;
             transform.SetParent(originalParent);
             transform.localPosition = Vector3.zero;
-            background.raycastTarget = true;
+            //background.raycastTarget = true;
+            grips.raycastTarget = true;
         }
     }
 
-    public void SetChosenResource(int value)
-    {
-        bool newValue = false;
+    //public void SetChosenResource(int value)
+    //{
+    //    //bool newValue = false;
 
-        if (resourceList.options.Contains(defaultFirstChoice))
-        {
-            newValue = true;
-            if (value == 0) return;
-            chosenResource = resources[value - 1];
-        }
-        else
-        {
-            chosenResource = resources[value];
-        }
+    //    //if (resourceList.options.Contains(defaultFirstChoice))
+    //    //{
+    //    //    newValue = true;
+    //    //    if (value == 0) return;
+    //    //    chosenResource = resources[value - 1];
+    //    //}
+    //    //else
+    //    //{
+    //    //    chosenResource = resources[value];
+    //    //}
 
-        resourceList.options.Remove(defaultFirstChoice); //removing first choice command from list
-        if (newValue)
-        {
-            resourceList.value = value - 1;
-            resourceList.RefreshShownValue();
-        }
-    }
+    //    //resourceList.options.Remove(defaultFirstChoice); //removing first choice command from list
+    //    //if (newValue)
+    //    //{
+    //    //    resourceList.value = value - 1;
+    //    //    resourceList.RefreshShownValue();
+    //    //}
+    //}
 
     public void SetChosenResourceMultiple(int value)
     {
         if (value == 1)
         {
             chosenMultiple = -1;
-            allToggle.gameObject.SetActive(true);
-            if (getAll)
-            {
-                inputStorageAmount.interactable = false;
-                inputStorageAmount.text = "";
-            }
+            resourceCountSlider.value = resourceCountSlider.maxValue;
+            //allToggle.gameObject.SetActive(true);
+            //if (getAll)
+            //{
+            //    inputStorageAmount.interactable = false;
+            //    inputStorageAmount.text = "";
+            //}
         }
         else
         {
             chosenMultiple = 1;
-            allToggle.gameObject.SetActive(false);
+            //allToggle.gameObject.SetActive(false);
         }
     }
 
@@ -198,89 +212,115 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         LeanTween.scale(check.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
     }
 
-    public void CheckMaxValue()
-    {
-        string amount = inputStorageAmount.text;
-        if (int.TryParse(amount, out int result))
-            if (result > cargoLimit)
-                inputStorageAmount.text = cargoLimit.ToString();
-    }
+    //public void CheckMaxValue()
+    //{
+    //    string amount = inputStorageAmount.text;
+    //    if (int.TryParse(amount, out int result))
+    //        if (result > cargoLimit)
+    //            inputStorageAmount.text = cargoLimit.ToString();
+    //}
 
-    private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
-    {
-        if (charToValidate != '1'
-            && charToValidate != '2'
-            && charToValidate != '3'
-            && charToValidate != '4'
-            && charToValidate != '5'
-            && charToValidate != '6'
-            && charToValidate != '7'
-            && charToValidate != '8'
-            && charToValidate != '9'
-            && charToValidate != '0')
-        {
-            charToValidate = '\0';
-        }
+    //private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
+    //{
+    //    if (charToValidate != '1'
+    //        && charToValidate != '2'
+    //        && charToValidate != '3'
+    //        && charToValidate != '4'
+    //        && charToValidate != '5'
+    //        && charToValidate != '6'
+    //        && charToValidate != '7'
+    //        && charToValidate != '8'
+    //        && charToValidate != '9'
+    //        && charToValidate != '0')
+    //    {
+    //        charToValidate = '\0';
+    //    }
 
-        return charToValidate;
-    }
+    //    return charToValidate;
+    //}
 
     public void SetCaptionResourceInfo(ResourceValue resourceValue)
     {
-        resourceList.options.Remove(defaultFirstChoice); //removing top choice
+        //resourceList.options.Remove(defaultFirstChoice); //removing top choice
+        chosenResource = resourceValue.resourceType;
+        chosenResourceSprite.sprite = ResourceHolder.Instance.GetIcon(chosenResource);
+        chosenResourceAmount = resourceValue.resourceAmount;
+        resourceCount.text = chosenResourceAmount.ToString();
+        resourceCountSlider.value = chosenResourceAmount;
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        if (resourceValue.resourceAmount < 0)
         {
-            if (resourceValue.resourceType == resource.resourceType)
-            {
-                chosenResource = resource.resourceName;
-                resourceList.value = resources.IndexOf(chosenResource);
-                if (resourceValue.resourceAmount < 0)
-                {
-                    actionList.value = 1;
-                    allToggle.gameObject.SetActive(true);
-                }
-                resourceList.RefreshShownValue();
-
-                if (Mathf.Abs(resourceValue.resourceAmount) > 1000)
-                {
-                    inputStorageAmount.interactable = false;
-                    allToggle.isOn = true;
-                }
-                else
-                {
-                    inputStorageAmount.text = Mathf.Abs(resourceValue.resourceAmount).ToString();
-                    inputStorageAmount.interactable = true;
-                    allToggle.isOn = false;
-                }
-
-                break;
-            }
+            actionList.value = 1;
+            //allToggle.gameObject.SetActive(true);
+            chosenMultiple = -1;
         }
+        //if (Mathf.Abs(resourceValue.resourceAmount) >= 9999)
+        //{
+        //    allToggle.isOn = true;
+        //}
+        //foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        //{
+        //    if (resourceValue.resourceType == resource.resourceType)
+        //    {
+        //        chosenResource = resource.resourceName;
+        //        resourceList.value = resources.IndexOf(chosenResource);
+        //        if (resourceValue.resourceAmount < 0)
+        //        {
+        //            actionList.value = 1;
+        //            allToggle.gameObject.SetActive(true);
+        //        }
+        //        resourceList.RefreshShownValue();
+
+            //        if (Mathf.Abs(resourceValue.resourceAmount) > 1000)
+            //        {
+            //            inputStorageAmount.interactable = false;
+            //            allToggle.isOn = true;
+            //        }
+            //        else
+            //        {
+            //            inputStorageAmount.text = Mathf.Abs(resourceValue.resourceAmount).ToString();
+            //            inputStorageAmount.interactable = true;
+            //            allToggle.isOn = false;
+            //        }
+
+            //        break;
+            //    }
+            //}
     }
 
-    private void PrepareResourceList()
+    //private void PrepareResourceList()
+    //{
+    //    //resourceList.ClearOptions();
+    //    //resourceList.options.Add(defaultFirstChoice);
+    //}
+
+    public void OpenResourceGrid()
     {
-        resourceList.ClearOptions();
-        resourceList.options.Add(defaultFirstChoice);
+        resourceHolder.tradeStopHandler.tradeRouteManager.resourceSelectionGrid.ToggleVisibility(true, this);
     }
 
-    public void AddResources(List<TMP_Dropdown.OptionData> resources)
+    //public void AddResources(List<TMP_Dropdown.OptionData> resources)
+    //{
+    //    //PrepareResourceList();
+
+    //    //foreach (var resource in resources)
+    //    //{
+    //    //    this.resources.Add(resource.text);
+    //    //}
+
+    //    //resourceList.AddOptions(resources);
+    //}
+
+    public void ChangeSlider(float value)
     {
-        PrepareResourceList();
-
-        foreach (var resource in resources)
-        {
-            this.resources.Add(resource.text);
-        }
-
-        resourceList.AddOptions(resources);
+        chosenResourceAmount = Mathf.RoundToInt(value);
+        resourceCount.text = chosenResourceAmount.ToString();
     }
 
     public void GetAllOfResource(bool v)
     {
-        inputStorageAmount.interactable = !v;
-        inputStorageAmount.text = "";
+        //inputStorageAmount.interactable = !v;
+        //inputStorageAmount.text = "";
         getAll = v;
     }
 
@@ -288,47 +328,48 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         ResourceValue resourceValue;
 
-        resourceValue.resourceType = ResourceType.None;
-        resourceValue.resourceAmount = 0;
+        resourceValue.resourceType = chosenResource;
+        resourceValue.resourceAmount = chosenResourceAmount;
+        //resourceValue.resourceType = ResourceType.None;
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
-        {
-            if (chosenResource == resource.resourceName)
-                resourceValue.resourceType = resource.resourceType;
-        }
+        //foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+        //{
+        //    if (chosenResource == resource.resourceName)
+        //        resourceValue.resourceType = resource.resourceType;
+        //}
 
-        string chosenAmount = inputStorageAmount.text;
+        //string chosenAmount = 0.ToString();// inputStorageAmount.text;
 
         if (chosenMultiple < 0 && getAll) //get all of the resource
         {
             resourceValue.resourceAmount = 99999;
         }
-        else
-        {
-            if (int.TryParse(chosenAmount, out int result))
-            {
-                //if (inputAmount == "")
-                //    result = 0;
-                resourceValue.resourceAmount = result;
-            }
-            else //silly workaround to remove trailing invisible char ("Trim" doesn't work)
-            {
-                string stringAmount = "0";
-                int i = 0;
+        //else
+        //{
+        //    if (int.TryParse(chosenAmount, out int result))
+        //    {
+        //        //if (inputAmount == "")
+        //        //    result = 0;
+        //        resourceValue.resourceAmount = result;
+        //    }
+        //    else //silly workaround to remove trailing invisible char ("Trim" doesn't work)
+        //    {
+        //        string stringAmount = "0";
+        //        int i = 0;
 
-                foreach (char c in chosenAmount)
-                {
-                    if (i == chosenAmount.Length - 1)
-                        continue;
+        //        foreach (char c in chosenAmount)
+        //        {
+        //            if (i == chosenAmount.Length - 1)
+        //                continue;
 
-                    stringAmount += c;
-                    Debug.Log("letter " + c);
-                    i++;
-                }
+        //            stringAmount += c;
+        //            Debug.Log("letter " + c);
+        //            i++;
+        //        }
 
-                resourceValue.resourceAmount = int.Parse(stringAmount);
-            }
-        }
+        //        resourceValue.resourceAmount = int.Parse(stringAmount);
+        //    }
+        //}
 
         resourceValue.resourceAmount *= chosenMultiple;
         return resourceValue;

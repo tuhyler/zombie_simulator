@@ -20,5 +20,6 @@ MonoBehaviour:
   resourcePrice: 2
   resourceQuantityPerPop: 50
   rawResource: 3
+  resourceCategory: 1
   requirement: Mine/Quarry
   uvCoordinatesForRocks: {x: 0.051958, y: 0.951491}

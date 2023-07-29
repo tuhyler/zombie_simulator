@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UITradeRouteManager : MonoBehaviour
 {
     [SerializeField]
-    private MapWorld world;
+    public MapWorld world;
     
     [SerializeField]
     public GameObject uiTradeStopHolder, uiTradeStopPanel, startingStopGO, newStopButton, confirmButton, stopRouteButton;
@@ -18,6 +18,11 @@ public class UITradeRouteManager : MonoBehaviour
     public TMP_Dropdown chosenStop;
 
     private Trader selectedTrader;
+    [HideInInspector]
+    public Canvas rootCanvas;
+
+    [SerializeField]
+    public UIResourceSelectionGrid resourceSelectionGrid; 
 
     List<string> cityNames;
 
@@ -31,7 +36,7 @@ public class UITradeRouteManager : MonoBehaviour
     //private Dictionary<int, UITradeRouteStopHolder> tradeStopHolderDict = new();
 
     //for generating resource lists
-    private List<TMP_Dropdown.OptionData> resources = new();
+    //private List<TMP_Dropdown.OptionData> resources = new();
 
     [SerializeField] //changing color of button when selected
     private Image buttonImage;
@@ -48,9 +53,10 @@ public class UITradeRouteManager : MonoBehaviour
 
     private void Awake()
     {
+        rootCanvas = GetComponentInParent<Canvas>();
         originalLoc = allContents.anchoredPosition3D;
         originalButtonColor = buttonImage.color;
-        AddResources();
+        //AddResources();
         GrowTradeStopPool();
         gameObject.SetActive(false);
     }
@@ -93,7 +99,8 @@ public class UITradeRouteManager : MonoBehaviour
             tradeStopHandlerList[i].arrowUpButton.SetActive(true);
             tradeStopHandlerList[i].arrowDownButton.SetActive(true);
             tradeStopHandlerList[i].waitForeverToggle.interactable = true;
-            tradeStopHandlerList[i].inputWaitTime.enabled = true;
+            //tradeStopHandlerList[i].inputWaitTime.enabled = true;
+            tradeStopHandlerList[i].waitSlider.interactable = true;
             tradeStopHandlerList[i].cityNameList.enabled = true;
             tradeStopHandlerList[i].ResetResources();
             tradeStopHandlerList[i].progressBarHolder.SetActive(false);
@@ -180,13 +187,13 @@ public class UITradeRouteManager : MonoBehaviour
         }
     }
 
-    private void AddResources()
-    {
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
-        {
-            resources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
-        }
-    }
+    //private void AddResources()
+    //{
+    //    foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+    //    {
+    //        resources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
+    //    }
+    //}
 
     public void ToggleVisibility(bool v) 
     {
@@ -211,6 +218,9 @@ public class UITradeRouteManager : MonoBehaviour
         }
         else
         {
+            if (resourceSelectionGrid.activeStatus)
+                resourceSelectionGrid.ToggleVisibility(false);
+
             selectedTrader = null;
             ToggleButtonColor(false);
 
@@ -288,7 +298,7 @@ public class UITradeRouteManager : MonoBehaviour
         newStopHandler.ChangeCounter(stopCount + 1); //counter.text = (stopCount + 1).ToString();
         //newStopHandler.SetTradeRouteManager(this);
         newStopHandler.AddCityNames(cityNames);
-        newStopHandler.AddResources(resources);
+        //newStopHandler.AddResources(resources);
         tradeStopHandlerList.Add(newStopHandler);
         //newStopHandler.SetCargoStorageLimit(selectedTrader.CargoStorageLimit);
         stopCount++;
@@ -315,7 +325,8 @@ public class UITradeRouteManager : MonoBehaviour
         stop.arrowUpButton.SetActive(false);
         stop.arrowDownButton.SetActive(false);
         stop.waitForeverToggle.interactable = false;
-        stop.inputWaitTime.enabled = false;
+        stop.waitSlider.interactable = false;
+        //stop.inputWaitTime.enabled = false;
         stop.cityNameList.enabled = false;
     }
 

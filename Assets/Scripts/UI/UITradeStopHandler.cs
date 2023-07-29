@@ -19,14 +19,17 @@ public class UITradeStopHandler : MonoBehaviour
     [SerializeField]
     private GameObject tradeResourceHolder, tradeResourceTaskTemplate;
 
+    //[SerializeField]
+    //public TMP_InputField inputWaitTime;
+
     [SerializeField]
-    public TMP_InputField inputWaitTime;
+    public Slider waitSlider;
 
     [SerializeField]
     public Toggle waitForeverToggle;
 
     [SerializeField]
-    public TMP_Text counter;
+    public TMP_Text counter, waitTimeText;
     private int counterInt;
 
     [SerializeField]
@@ -60,12 +63,12 @@ public class UITradeStopHandler : MonoBehaviour
     [HideInInspector]
     public int resourceCount, currentResourceTask;
 
-    private List<TMP_Dropdown.OptionData> resources;
+    //private List<TMP_Dropdown.OptionData> resources;
     private Dictionary<int, UITradeRouteResourceHolder> resourceTaskDict = new();
 
     private int waitTime;
     [HideInInspector]
-    public bool waitForever = true;
+    public bool waitForever = true, dragging;
 
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
@@ -85,7 +88,7 @@ public class UITradeStopHandler : MonoBehaviour
     private void Start() 
     {
         //for checking if number is positive and integer
-        inputWaitTime.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
+        //inputWaitTime.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
         //inputWaitTime.interactable = false;
     }
 
@@ -127,10 +130,10 @@ public class UITradeStopHandler : MonoBehaviour
         counterInt = num;
     }
 
-    public void AddResources(List<TMP_Dropdown.OptionData> resources)
-    {
-        this.resources = new(resources);
-    }
+    //public void AddResources(List<TMP_Dropdown.OptionData> resources)
+    //{
+    //    this.resources = new(resources);
+    //}
 
     public void SetChosenCity(int value)
     {
@@ -178,29 +181,31 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void WaitForever(bool v)
     {
-        inputWaitTime.interactable = !v;
-        inputWaitTime.text = "";
+        //inputWaitTime.interactable = !v;
+        //inputWaitTime.text = "";
+        waitSlider.gameObject.SetActive(!v);
+        waitTimeText.gameObject.SetActive(!v);
         waitForever = v;
     }
 
-    private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
-    {
-        if (charToValidate != '1'
-            && charToValidate != '2'
-            && charToValidate != '3'
-            && charToValidate != '4'
-            && charToValidate != '5'
-            && charToValidate != '6'
-            && charToValidate != '7'
-            && charToValidate != '8'
-            && charToValidate != '9'
-            && charToValidate != '0')
-        {
-            charToValidate = '\0';
-        }
+    //private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
+    //{
+    //    if (charToValidate != '1'
+    //        && charToValidate != '2'
+    //        && charToValidate != '3'
+    //        && charToValidate != '4'
+    //        && charToValidate != '5'
+    //        && charToValidate != '6'
+    //        && charToValidate != '7'
+    //        && charToValidate != '8'
+    //        && charToValidate != '9'
+    //        && charToValidate != '0')
+    //    {
+    //        charToValidate = '\0';
+    //    }
 
-        return charToValidate;
-    }
+    //    return charToValidate;
+    //}
 
     public void SetWaitTimes(int waitTime)
     {
@@ -210,14 +215,30 @@ public class UITradeStopHandler : MonoBehaviour
         {
             waitForeverToggle.isOn = true;
             waitForever = true;
+            waitSlider.gameObject.SetActive(false);
+            waitTimeText.gameObject.SetActive(false);
         }
         else
         {
             waitForever = false;
-            inputWaitTime.interactable = true;
+            waitSlider.gameObject.SetActive(true);
+            waitTimeText.gameObject.SetActive(true);
+            waitSlider.value = waitTime;
+            waitTimeText.text = waitTime.ToString();
+            //inputWaitTime.interactable = true;
             waitForeverToggle.isOn = false;
-            inputWaitTime.text = waitTime.ToString();
+            //inputWaitTime.text = waitTime.ToString();
         }
+    }
+
+    public void SetSlider(float value)
+    {
+        float value2 = value * 0.01f;
+        float b = 1.475561021f;
+        float c = 8.821349657f;
+        
+        waitTime = Mathf.RoundToInt(b * (Mathf.Exp(c * value2) - 1));
+        waitTimeText.text = waitTime.ToString();
     }
 
     private void PrepareNameList()
@@ -268,11 +289,12 @@ public class UITradeStopHandler : MonoBehaviour
         UITradeResourceTask newResourceTask = newTask.GetComponent<UITradeResourceTask>();
         resourceHolder.resourceTask = newResourceTask;
         newResourceTask.resourceHolder = resourceHolder; 
-        newResourceTask.AddResources(resources);
+        //newResourceTask.AddResources(resources);
         newResourceTask.tempParent = tradeRouteManager.transform;
         newResourceTask.counter.text = (resourceCount + 1).ToString() + '.';
         newResourceTask.loc = resourceCount;
-        newResourceTask.cargoLimit = tradeRouteManager.traderCargoLimit;
+        //newResourceTask.cargoLimit = tradeRouteManager.traderCargoLimit;
+        newResourceTask.resourceCountSlider.maxValue = tradeRouteManager.traderCargoLimit;
         //newResourceTask.SetCargoStorageLimit(traderCargoStorageLimit);
         uiResourceTasks.Add(newResourceTask);
         resourceCount++;
@@ -386,11 +408,12 @@ public class UITradeStopHandler : MonoBehaviour
     //turns off functionality for going on route
     public void PrepResource(UITradeResourceTask task)
     {
-        task.allToggle.interactable = false;
-        task.inputStorageAmount.enabled = false;
+        //task.allToggle.interactable = false;
+        task.resourceCountSlider.interactable = false;
+        //task.inputStorageAmount.enabled = false;
         task.draggable = false;
         task.dragGrips.SetActive(false);
-        task.resourceList.enabled = false;
+        //task.resourceList.enabled = false;
         task.actionList.enabled = false;
     }
 
@@ -407,11 +430,12 @@ public class UITradeStopHandler : MonoBehaviour
     {
         foreach (UITradeResourceTask task in uiResourceTasks) 
         {
-            task.allToggle.interactable = true;
-            task.inputStorageAmount.enabled = true;
+            //task.allToggle.interactable = true;
+            task.resourceCountSlider.interactable = true;
+            //task.inputStorageAmount.enabled = true;
             task.draggable = true;
             task.dragGrips.SetActive(true);
-            task.resourceList.enabled = true;
+            //task.resourceList.enabled = true;
             task.actionList.enabled = true;
         }
     }
@@ -444,36 +468,36 @@ public class UITradeStopHandler : MonoBehaviour
             chosenResourceValues.Add(resourceValue);
         }
 
-        string chosenWaitTime = inputWaitTime.text;
+        //waitTime = int.Parse(waitTimeText.text);
 
         if (waitForever)
         {
             waitTime = -1;
         }
-        else
-        {
-            if (int.TryParse(chosenWaitTime, out int result))
-            {
-                waitTime = result;
-            }
-            else //silly workaround to remove trailing invisible char ("Trim" doesn't work)
-            {
-                string stringAmount = "0";
-                int i = 0;
+        //else
+        //{
+        //    if (int.TryParse(chosenWaitTime, out int result))
+        //    {
+        //        waitTime = result;
+        //    }
+        //    else //silly workaround to remove trailing invisible char ("Trim" doesn't work)
+        //    {
+        //        string stringAmount = "0";
+        //        int i = 0;
 
-                foreach (char c in chosenWaitTime)
-                {
-                    if (i == chosenWaitTime.Length - 1)
-                        continue;
+        //        foreach (char c in chosenWaitTime)
+        //        {
+        //            if (i == chosenWaitTime.Length - 1)
+        //                continue;
 
-                    stringAmount += c;
-                    Debug.Log("letter " + c);
-                    i++;
-                }
+        //            stringAmount += c;
+        //            Debug.Log("letter " + c);
+        //            i++;
+        //        }
 
-                waitTime = int.Parse(stringAmount);
-            }
-        }
+        //        waitTime = int.Parse(stringAmount);
+        //    }
+        //}
 
         return (chosenCity, chosenResourceValues, waitTime);
     }
@@ -492,8 +516,10 @@ public class UITradeStopHandler : MonoBehaviour
         waitForeverToggle.isOn = true;
         waitForever = true;
         waitTime = 0;
-        inputWaitTime.interactable = false;
-        inputWaitTime.text = "";
+        waitSlider.gameObject.SetActive(true);
+        waitTimeText.gameObject.SetActive(true);
+        //inputWaitTime.interactable = false;
+        //inputWaitTime.text = "";
     }
 
     public void CloseWindow()

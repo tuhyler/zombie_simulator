@@ -16,7 +16,10 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Stone Slab
   resourceIcon: {fileID: 21300000, guid: 0954982f4065e604193f8c37a14ae8ca, type: 3}
-  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50
+  rawResource: 0
+  resourceCategory: 2
+  requirement: 
+  uvCoordinatesForRocks: {x: 0, y: 0}

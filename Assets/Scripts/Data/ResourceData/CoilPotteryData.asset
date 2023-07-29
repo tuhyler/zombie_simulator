@@ -16,7 +16,10 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Coil Pottery
   resourceIcon: {fileID: 21300000, guid: 663c0941c68f71b4badacab98cd53fad, type: 3}
-  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50
+  rawResource: 0
+  resourceCategory: 3
+  requirement: 
+  uvCoordinatesForRocks: {x: 0, y: 0}
