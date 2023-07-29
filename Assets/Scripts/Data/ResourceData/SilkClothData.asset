@@ -16,7 +16,10 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Silk Cloth
   resourceIcon: {fileID: 21300000, guid: 00e962550b4c6c0408f1bd04572e3e72, type: 3}
-  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50
+  rawResource: 0
+  resourceCategory: 4
+  requirement: 
+  uvCoordinatesForRocks: {x: 0, y: 0}

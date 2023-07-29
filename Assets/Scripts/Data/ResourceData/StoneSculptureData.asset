@@ -16,7 +16,10 @@ MonoBehaviour:
   resourceStorageMultiplier: 1
   resourceName: Sculpture
   resourceIcon: {fileID: 21300000, guid: 07dd4ba4945215b41adc1da71d9fdd07, type: 3}
-  secondaryIcon: {fileID: 0}
   ResourceGatheringTime: 0
   resourcePrice: 2
   resourceQuantityPerPop: 50
+  rawResource: 0
+  resourceCategory: 3
+  requirement: 
+  uvCoordinatesForRocks: {x: 0, y: 0}

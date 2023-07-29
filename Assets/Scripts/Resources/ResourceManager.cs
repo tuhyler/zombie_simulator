@@ -893,3 +893,13 @@ public enum RawResourceType
     Wool,
     Cotton
 }
+
+public enum ResourceCategory
+{
+    Raw,
+    Rock,
+    BuildingBlock,
+    SoldGood,
+    LuxuryGood,
+    None
+}

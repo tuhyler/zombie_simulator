@@ -20,5 +20,6 @@ MonoBehaviour:
   resourcePrice: 2
   resourceQuantityPerPop: 50
   rawResource: 0
+  resourceCategory: 4
   requirement: 
   uvCoordinatesForRocks: {x: 0, y: 0}
