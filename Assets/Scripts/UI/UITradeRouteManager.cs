@@ -57,56 +57,68 @@ public class UITradeRouteManager : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
         originalButtonColor = buttonImage.color;
         //AddResources();
-        GrowTradeStopPool();
+        //GrowTradeStopPool();
         gameObject.SetActive(false);
     }
 
     public void StopRoute()
     {
         unitMovement.CancelTradeRoute();
-        ResetTradeRouteInfo(selectedTrader.tradeRouteManager);
+    }
 
+    public void ResetButtons()
+    {
         chosenStop.enabled = true;
         newStopButton.SetActive(true);
         confirmButton.SetActive(true);
         stopRouteButton.SetActive(false);
     }
 
-    public void PrepTradeRoute()
-    {
-        for (int i = 0; i < tradeStopHandlerList.Count; i++)
-        {
-            PrepStop(tradeStopHandlerList[i]);
-            tradeStopHandlerList[i].PrepResources();
+    //public void PrepTradeRoute()
+    //{
+    //    for (int i = 0; i < tradeStopHandlerList.Count; i++)
+    //    {
+    //        PrepStop(tradeStopHandlerList[i]);
+    //        tradeStopHandlerList[i].PrepResources();
 
-            if (i < startingStop)
-                tradeStopHandlerList[i].SetAsComplete();
-            else if (i == startingStop)
-                tradeStopHandlerList[i].SetAsCurrent();
-        }
+    //        if (i < startingStop)
+    //            tradeStopHandlerList[i].SetAsComplete();
+    //        else if (i == startingStop)
+    //            tradeStopHandlerList[i].SetAsCurrent();
+    //    }
 
-        chosenStop.enabled = false;
-        newStopButton.SetActive(false);
-        confirmButton.SetActive(false);
-        stopRouteButton.SetActive(true);
-    }
+    //    chosenStop.enabled = false;
+    //    newStopButton.SetActive(false);
+    //    confirmButton.SetActive(false);
+    //    stopRouteButton.SetActive(true);
+    //}
 
-    private void ResetTradeRouteInfo(TradeRouteManager tradeRouteManager)
+    public void ResetTradeRouteInfo(TradeRouteManager tradeRouteManager)
     {
         for (int i = 0; i < tradeStopHandlerList.Count; i++)
         {
             tradeStopHandlerList[i].addResourceButton.SetActive(true);
             tradeStopHandlerList[i].arrowUpButton.SetActive(true);
+            tradeStopHandlerList[i].closeButton.SetActive(true);
             tradeStopHandlerList[i].arrowDownButton.SetActive(true);
+            tradeStopHandlerList[i].waitForeverToggle.gameObject.SetActive(true);
             tradeStopHandlerList[i].waitForeverToggle.interactable = true;
+            
             //tradeStopHandlerList[i].inputWaitTime.enabled = true;
-            tradeStopHandlerList[i].waitSlider.interactable = true;
+
+            if (!tradeStopHandlerList[i].waitForever)
+            {
+                tradeStopHandlerList[i].waitSlider.gameObject.SetActive(true);
+                tradeStopHandlerList[i].SetWaitTimeValue();
+                tradeStopHandlerList[i].waitTimeText.transform.localPosition = new Vector3(550, 15, 0);
+            }
+    
             tradeStopHandlerList[i].cityNameList.enabled = true;
             tradeStopHandlerList[i].ResetResources();
             tradeStopHandlerList[i].progressBarHolder.SetActive(false);
 
             if (i <= tradeRouteManager.currentStop)
-                tradeStopHandlerList[i].SetAsNext();
+                tradeStopHandlerList[i].SetAsNext(false);
         }
     }
 
@@ -138,28 +150,33 @@ public class UITradeRouteManager : MonoBehaviour
             {
                 newStopHandler.SetCaptionCity(cityName);
                 newStopHandler.SetResourceAssignments(tradeRouteManager.resourceAssignments[i], selectedTrader.followingRoute);
-                newStopHandler.SetWaitTimes(tradeRouteManager.waitTimes[i]);
+                newStopHandler.SetWaitTimes(tradeRouteManager.waitTimes[i], selectedTrader.followingRoute);
 
                 if (selectedTrader.followingRoute)
                 {
                     if (i < currentStop)
                     {
-                        newStopHandler.SetAsComplete();
+                        newStopHandler.SetAsComplete(true, tradeRouteManager.resourceCompletion[i]);
                     }
                     else if (i == currentStop)
                     {
                         if (selectedTrader.atStop)
                         {
                             newStopHandler.progressBarHolder.SetActive(true);
-                            newStopHandler.SetProgressBarMask(tradeRouteManager.timeWaited, tradeRouteManager.waitTime);
-                            newStopHandler.SetTime(tradeRouteManager.timeWaited, tradeRouteManager.waitTime, newStopHandler.waitForever);
+                            newStopHandler.SetProgressBarValue(tradeRouteManager.waitTime);
+                            newStopHandler.SetProgressBarMask(tradeRouteManager.waitTime - tradeRouteManager.timeWaited, newStopHandler.waitForever);
+
+                            if (newStopHandler.waitForever)
+                                newStopHandler.SetTime(tradeRouteManager.timeWaited, newStopHandler.waitForever);
+                            else
+                                newStopHandler.SetTime(tradeRouteManager.waitTime - tradeRouteManager.timeWaited, newStopHandler.waitForever);
                         }
 
-                        newStopHandler.SetAsCurrent(tradeRouteManager.currentResource, tradeRouteManager.resourceCurrentAmount, tradeRouteManager.resourceTotalAmount);
+                        newStopHandler.SetAsCurrent(tradeRouteManager.resourceCompletion[i], tradeRouteManager.currentResource, tradeRouteManager.resourceCurrentAmount, tradeRouteManager.resourceTotalAmount);
                     }
                     else
                     {
-                        newStopHandler.SetAsNext();
+                        newStopHandler.SetAsNext(true, tradeRouteManager.resourceCompletion[i]);
                     }
                 }
                 else
@@ -187,6 +204,11 @@ public class UITradeRouteManager : MonoBehaviour
         }
     }
 
+    public void SetChosenStopLive(int value)
+    {
+        startingStop = value;
+        chosenStop.value = startingStop;
+    }
     //private void AddResources()
     //{
     //    foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
@@ -282,21 +304,31 @@ public class UITradeRouteManager : MonoBehaviour
             return null;
         }
 
+        //for tweening (doesn't currently work as stop sizes aren't consistent)
         //GameObject newHolder = Instantiate(uiTradeStopHolder);
         //newHolder.transform.SetParent(stopHolder);
         //UITradeRouteStopHolder newStopHolder = newHolder.GetComponent<UITradeRouteStopHolder>();
         //tradeStopHolderDict[stopCount] = newStopHolder;
         //newStopHolder.loc = stopCount;
+        //for tweening
 
-        //GameObject newStop = Instantiate(uiTradeStopPanel);
-        //UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
-        UITradeStopHandler newStopHandler = GetFromTradeStopPool();
+        GameObject newStop = Instantiate(uiTradeStopPanel);
+        UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
         newStopHandler.gameObject.transform.SetParent(stopHolder, false);
+
+        //object pooling
+        //UITradeStopHandler newStopHandler = GetFromTradeStopPool();
+        //newStopHandler.gameObject.transform.SetParent(stopHolder, false);
+        //object pooling
+
+        //for tweening
         //newStopHolder.stopHandler = newStopHandler;
         //newStopHandler.SetStopHolder(newStopHolder);
         //newStopHandler.loc = stopCount;
+        //for tweening
+
         newStopHandler.ChangeCounter(stopCount + 1); //counter.text = (stopCount + 1).ToString();
-        //newStopHandler.SetTradeRouteManager(this);
+        newStopHandler.SetTradeRouteManager(this);
         newStopHandler.AddCityNames(cityNames);
         //newStopHandler.AddResources(resources);
         tradeStopHandlerList.Add(newStopHandler);
@@ -324,9 +356,8 @@ public class UITradeRouteManager : MonoBehaviour
         stop.addResourceButton.SetActive(false);
         stop.arrowUpButton.SetActive(false);
         stop.arrowDownButton.SetActive(false);
+        stop.closeButton.SetActive(false);
         stop.waitForeverToggle.interactable = false;
-        stop.waitSlider.interactable = false;
-        //stop.inputWaitTime.enabled = false;
         stop.cityNameList.enabled = false;
     }
 
@@ -440,43 +471,43 @@ public class UITradeRouteManager : MonoBehaviour
 
 
     //Object pooling stops
-    private void GrowTradeStopPool()
-    {
-        for (int i = 0; i < 5; i++) //grow pool 5 at a time
-        {
-            GameObject newStop = Instantiate(uiTradeStopPanel);
-            //newStop.transform.SetParent(transform, false);
-            UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
-            newStopHandler.SetTradeRouteManager(this);
-            AddToTradeStopPool(newStopHandler);
-        }
-    }
+    //private void GrowTradeStopPool()
+    //{
+    //    for (int i = 0; i < 5; i++) //grow pool 5 at a time
+    //    {
+    //        GameObject newStop = Instantiate(uiTradeStopPanel);
+    //        //newStop.transform.SetParent(transform, false);
+    //        UITradeStopHandler newStopHandler = newStop.GetComponent<UITradeStopHandler>();
+    //        newStopHandler.SetTradeRouteManager(this);
+    //        AddToTradeStopPool(newStopHandler);
+    //    }
+    //}
 
-    public void AddToTradeStopPool(UITradeStopHandler newStopHandler)
-    {
-        newStopHandler.gameObject.transform.SetParent(transform, false);
-        newStopHandler.gameObject.SetActive(false);
-        tradeStopHandlerQueue.Enqueue(newStopHandler);
-    }
+    //public void AddToTradeStopPool(UITradeStopHandler newStopHandler)
+    //{
+    //    newStopHandler.gameObject.transform.SetParent(transform, false);
+    //    newStopHandler.gameObject.SetActive(false);
+    //    tradeStopHandlerQueue.Enqueue(newStopHandler);
+    //}
 
-    private UITradeStopHandler GetFromTradeStopPool()
-    {
-        if (tradeStopHandlerQueue.Count == 0)
-            GrowTradeStopPool();
+    //private UITradeStopHandler GetFromTradeStopPool()
+    //{
+    //    if (tradeStopHandlerQueue.Count == 0)
+    //        GrowTradeStopPool();
 
-        UITradeStopHandler newStopHandler = tradeStopHandlerQueue.Dequeue();
-        newStopHandler.gameObject.SetActive(true);
-        return newStopHandler;
-    }
+    //    UITradeStopHandler newStopHandler = tradeStopHandlerQueue.Dequeue();
+    //    newStopHandler.gameObject.SetActive(true);
+    //    return newStopHandler;
+    //}
 
-    public void ReturnTradeStop(UITradeStopHandler stop)
-    {
-        //foreach (UITradeStopHandler stop in tradeStopHandlerList)
-        //{
+    //public void ReturnTradeStop(UITradeStopHandler stop)
+    //{
+    //    //foreach (UITradeStopHandler stop in tradeStopHandlerList)
+    //    //{
         
-        AddToTradeStopPool(stop);
-        //}
+    //    AddToTradeStopPool(stop);
+    //    //}
 
-        //tradeStopHandlerList.Clear();
-    }
+    //    //tradeStopHandlerList.Clear();
+    //}
 }

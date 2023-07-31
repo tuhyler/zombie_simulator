@@ -30,6 +30,8 @@ MonoBehaviour:
   - resourceType: 6
     resourceAmount: 15
   consumedResources:
+  - resourceType: 7
+    resourceAmount: 1
   - resourceType: 4
     resourceAmount: 1
   consumedResources1: []
@@ -52,6 +54,9 @@ MonoBehaviour:
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
+  oneTerrain: 1
+  adjustForHill: 1
+  hillAdjustment: 0.6
   buildTime: 5
   availableInitially: 1
   workAnimLoop: 0

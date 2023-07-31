@@ -1,6 +1,7 @@
 using Mono.Cecil;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,6 +13,8 @@ public class TradeRouteManager : MonoBehaviour
     public List<Vector3Int> cityStops = new();
     [HideInInspector]
     public List<List<ResourceValue>> resourceAssignments;
+    [HideInInspector]
+    public List<List<int>> resourceCompletion = new();
     [HideInInspector]
     public List<int> waitTimes;
 
@@ -42,13 +45,17 @@ public class TradeRouteManager : MonoBehaviour
     private City city;
     private Wonder wonder;
     private TradeCenter tradeCenter;
-    private WaitForSeconds resourceWait = new WaitForSeconds(1);
-    private WaitForSeconds loadWait;// = new WaitForSeconds(1);
+    private WaitForSeconds totalWait;
+    private float percDone;
+    //private WaitForSeconds resourceWait = new WaitForSeconds(1);
+    //private WaitForSeconds loadWait;// = new WaitForSeconds(1);
+
 
     private void Awake()
     {
         trader = GetComponent<Trader>();
-        loadWait = new WaitForSeconds(secondIntervals);
+        //loadWait = new WaitForSeconds(secondIntervals);
+        totalWait = new WaitForSeconds(secondIntervals);
     }
 
     public void SetTradeRoute(int startingStop, List<Vector3Int> cityStops, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
@@ -56,6 +63,10 @@ public class TradeRouteManager : MonoBehaviour
         this.startingStop = startingStop;
         this.cityStops = cityStops;
         this.resourceAssignments = resourceAssignments;
+
+        for (int i = 0; i < cityStops.Count; i++)
+            resourceCompletion.Add(new List<int>());
+
         this.waitTimes = waitTimes;
         currentStop = startingStop;
     }
@@ -128,27 +139,24 @@ public class TradeRouteManager : MonoBehaviour
             resourceTotalAmount = Mathf.Abs(value.resourceAmount);
             int resourceAmount = value.resourceAmount;
             bool loadUnloadCheck = true;
+            percDone = 0;
+            
             if (uiTradeRouteManager.activeStatus && trader.isSelected)
-            {
-                uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].completeImage.gameObject.SetActive(true);
                 uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompletePerc(0, resourceTotalAmount);
-            }
 
             if (wonder != null)
             {
                 if (!wonder.CheckResourceType(value.resourceType))
                 {
                     InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Wrong resource type: " + value.resourceType);
-                    if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                    SuddenFinish(true);
                     complete = true;
                     continue;
                 }
                 else if (resourceAmount > 0)
                 {
                     InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Can't move from wonder");
-                    if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                    SuddenFinish(true);
                     complete = true;
                     continue;
                 }
@@ -160,8 +168,7 @@ public class TradeRouteManager : MonoBehaviour
                     if (!tradeCenter.ResourceBuyDict.ContainsKey(value.resourceType))
                     {
                         InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't buy " + value.resourceType);
-                        if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                            uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                        SuddenFinish(true);
                         complete = true;
                         continue;
                     }
@@ -171,8 +178,7 @@ public class TradeRouteManager : MonoBehaviour
                     if (!tradeCenter.ResourceSellDict.ContainsKey(value.resourceType))
                     {
                         InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't sell " + value.resourceType);
-                        if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                            uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                        SuddenFinish(true);
                         complete = true;
                         continue;
                     }
@@ -181,8 +187,7 @@ public class TradeRouteManager : MonoBehaviour
 
             if (resourceAmount == 0)
             {
-                if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                    uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull();
+                SuddenFinish(false);
                 complete = true;
                 continue;
             }
@@ -199,10 +204,27 @@ public class TradeRouteManager : MonoBehaviour
                 int limit = trader.cargoStorageLimit;
                 int currentAmount = trader.personalResourceManager.ResourceDict[value.resourceType];
                 resourceAmount -= currentAmount;
+
+                //for when trader already has requisite amount
+                if (resourceAmount == 0)
+                {
+                    SuddenFinish(false);
+                    complete = true;
+                    continue;
+                }
+
                 if (limit - level < resourceAmount)
                 {
                     resourceAmount = limit - level;
-                    resourceTotalAmount = resourceAmount;
+                    //resourceTotalAmount = resourceAmount;
+
+                    //for when inventory is full
+                    if (resourceAmount == 0)
+                    {
+                        SuddenFinish(true);
+                        complete = true;
+                        continue;
+                    }
                 }
 
                 int amountMoved = 0;
@@ -228,8 +250,10 @@ public class TradeRouteManager : MonoBehaviour
 
                     amountMoved += resourceAmountAdjusted;
                     resourceCurrentAmount += resourceAmountAdjusted;
+                    percDone = (float)resourceCurrentAmount / resourceTotalAmount;
+
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(resourceCurrentAmount, resourceTotalAmount);
+                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(percDone);
 
                     if (resourceAmountAdjusted == 0)
                     {
@@ -255,7 +279,7 @@ public class TradeRouteManager : MonoBehaviour
                         }
                     }
 
-                    yield return loadWait;
+                    yield return totalWait;
                     personalResourceManager.CheckResource(value.resourceType, resourceAmountAdjusted);
 
                     if (trader.isSelected)
@@ -277,6 +301,7 @@ public class TradeRouteManager : MonoBehaviour
                     }
                 }
 
+                trader.SetLoadingAnimation(false);
                 complete = true;
             }
             else if (resourceAmount < 0) //moving from trader to city
@@ -286,7 +311,15 @@ public class TradeRouteManager : MonoBehaviour
                 if (remainingWithTrader < Mathf.Abs(resourceAmount))
                 {
                     resourceAmount = -remainingWithTrader;
-                    resourceTotalAmount = remainingWithTrader;
+                    //resourceTotalAmount = remainingWithTrader;
+                    
+                    //for when trader isn't carrying any
+                    if (resourceAmount == 0)
+                    {
+                        SuddenFinish(true); 
+                        complete = true;
+                        continue;
+                    }
                 }
 
                 int amountMoved = 0;
@@ -307,8 +340,10 @@ public class TradeRouteManager : MonoBehaviour
 
                     amountMoved -= resourceAmountAdjusted;
                     resourceCurrentAmount += resourceAmountAdjusted;
+                    percDone = (float)resourceCurrentAmount / resourceTotalAmount;
+
                     if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(resourceCurrentAmount, resourceTotalAmount);
+                        uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(percDone);
 
                     //if (resourceAmountAdjusted != 0)
                     //    trader.SetUnloadingAnimation(true);
@@ -317,6 +352,7 @@ public class TradeRouteManager : MonoBehaviour
 
                     if (resourceAmountAdjusted == 0)
                     {
+                        resourceCheck = true;
                         if (city != null)
                             city.SetWaiter(this);
                         else if (wonder != null)
@@ -337,7 +373,7 @@ public class TradeRouteManager : MonoBehaviour
                         }
                     }
 
-                    yield return loadWait;
+                    yield return totalWait;
 
                     personalResourceManager.CheckResource(value.resourceType, -resourceAmountAdjusted);
 
@@ -346,9 +382,9 @@ public class TradeRouteManager : MonoBehaviour
                         uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, personalResourceManager.GetResourceDictValue(value.resourceType));
                         uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
                     }
-                    if (resourceAmountAdjusted == 0)
-                        resourceCheck = true;
-                    else if (tradeCenter)
+                    //if (resourceAmountAdjusted == 0)
+                    //    resourceCheck = true;
+                    if (tradeCenter)
                     {
                         int sellAmount = resourceAmountAdjusted * tradeCenter.ResourceSellDict[value.resourceType];
                         tradeCenter.world.UpdateWorldResources(ResourceType.Gold, sellAmount);
@@ -372,37 +408,64 @@ public class TradeRouteManager : MonoBehaviour
                     }
                 }
 
+                trader.SetUnloadingAnimation(false);
                 complete = true;
             }
+
+            if (resourceCompletion[currentStop].Count < currentResource + 1)
+                resourceCompletion[currentStop].Add(Mathf.RoundToInt(percDone * 100));
+            else
+                resourceCompletion[currentStop][currentResource] = Mathf.RoundToInt(percDone * 100);
         }
 
         if (complete)
         {
-            trader.SetLoadingAnimation(false);
-            trader.SetUnloadingAnimation(false);
+            //trader.SetLoadingAnimation(false);
+            //trader.SetUnloadingAnimation(false);
             FinishLoading();
         }
     }
 
+    private void SuddenFinish(bool fail)
+    {
+        int num = fail ? 0 : 100;
+
+        if (resourceCompletion[currentStop].Count < currentResource + 1)
+            resourceCompletion[currentStop].Add(num);
+        else
+            resourceCompletion[currentStop][currentResource] = num;
+
+        if (uiTradeRouteManager.activeStatus && trader.isSelected)
+            uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull(fail, false);
+    }
+
     public IEnumerator WaitTimeCoroutine()
     {
+        bool forever = waitTime < 0;
+        
         if (uiTradeRouteManager.activeStatus && trader.isSelected)
         {
-            uiTradeRouteManager.tradeStopHandlerList[currentStop].progressBarHolder.SetActive(true);
-            uiTradeRouteManager.tradeStopHandlerList[currentStop].SetProgressBarMask(0, waitTime);
-            uiTradeRouteManager.tradeStopHandlerList[currentStop].SetTime(0, waitTime, true);
+            UITradeStopHandler stop = uiTradeRouteManager.tradeStopHandlerList[currentStop];
+            stop.progressBarHolder.SetActive(true);
+            stop.SetProgressBarValue(waitTime);
+            stop.SetProgressBarMask(waitTime, forever);
+            
+            if (forever)
+                stop.SetTime(0, forever);
+            else
+                stop.SetTime(waitTime, forever);
         }
         
-        if (waitTime < 0)
+        if (forever)
         {
             waitForever = true;
             
             while (waitForever)
             {
-                yield return new WaitForSeconds(secondIntervals);
+                yield return totalWait;
                 timeWaited += secondIntervals;
                 if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                    uiTradeRouteManager.tradeStopHandlerList[currentStop].SetTime(timeWaited, waitTime, true);
+                    uiTradeRouteManager.tradeStopHandlerList[currentStop].SetTime(timeWaited, true);
                 //Debug.Log("waited " + timeWaited + " seconds");
             }
 
@@ -411,13 +474,35 @@ public class TradeRouteManager : MonoBehaviour
 
         while (timeWaited < waitTime)
         {
-            yield return new WaitForSeconds(secondIntervals);
+            yield return totalWait;
             timeWaited += secondIntervals;
             if (uiTradeRouteManager.activeStatus && trader.isSelected)
-                uiTradeRouteManager.tradeStopHandlerList[currentStop].SetTime(timeWaited, waitTime, false);
+                uiTradeRouteManager.tradeStopHandlerList[currentStop].SetTime(waitTime - timeWaited, false);
             //Debug.Log("waited " + timeWaited + " seconds");
         }
 
+        percDone = (float)trader.personalResourceManager.ResourceDict[resourceAssignments[currentStop][currentResource].resourceType] / resourceTotalAmount;
+        if (uiTradeRouteManager.activeStatus && trader.isSelected)
+            uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(percDone);
+
+        if (resourceCompletion[currentStop].Count < currentResource + 1)
+            resourceCompletion[currentStop].Add(Mathf.RoundToInt(percDone * 100));
+        else
+            resourceCompletion[currentStop][currentResource] = Mathf.RoundToInt(percDone * 100);
+
+        for (int i = currentResource + 1; i < resourceAssignments[currentStop].Count; i++)
+        {
+            if (resourceCompletion[currentStop].Count < i + 1)
+                resourceCompletion[currentStop].Add(0);
+            else
+                resourceCompletion[currentStop][i] = 0;
+
+            if (uiTradeRouteManager.activeStatus && trader.isSelected)
+                uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[i].SetCompleteFull(true, true);
+        }
+
+        trader.SetLoadingAnimation(false);
+        trader.SetUnloadingAnimation(false);
         FinishLoading();
     }
 
@@ -426,7 +511,7 @@ public class TradeRouteManager : MonoBehaviour
     {
         while (resourceCheck)
         {
-            yield return resourceWait;        
+            yield return totalWait;        
         }
     }
 
@@ -453,25 +538,25 @@ public class TradeRouteManager : MonoBehaviour
         if (uiTradeRouteManager.activeStatus && trader.isSelected)
         {
             uiTradeRouteManager.tradeStopHandlerList[currentStop].progressBarHolder.SetActive(false);
-            uiTradeRouteManager.tradeStopHandlerList[currentStop].SetAsComplete();
+            uiTradeRouteManager.tradeStopHandlerList[currentStop].SetAsComplete(false);
 
             if (currentStop + 1 == cityStops.Count) //if last stop
             {
-                uiTradeRouteManager.tradeStopHandlerList[0].SetAsCurrent();
+                uiTradeRouteManager.tradeStopHandlerList[0].SetAsCurrent(resourceCompletion[currentStop]);
                 for (int i = 1; i < cityStops.Count; i++)
                 {
-                    uiTradeRouteManager.tradeStopHandlerList[i].SetAsNext();
+                    uiTradeRouteManager.tradeStopHandlerList[i].SetAsNext(true, resourceCompletion[i]);
                 }
             }
             else
             {
-                uiTradeRouteManager.tradeStopHandlerList[currentStop + 1].SetAsCurrent();
+                uiTradeRouteManager.tradeStopHandlerList[currentStop + 1].SetAsCurrent(resourceCompletion[currentStop + 1]);
             }
         }
 
         //Debug.Log("Finished loading");
         resourceCheck = false;
-        waitForever=false;
+        waitForever = false;
         timeWaited = 0;
 
         //if (city != null)
@@ -520,6 +605,8 @@ public class TradeRouteManager : MonoBehaviour
             currentStop = 0;
 
         startingStop = currentStop;
+        if (uiTradeRouteManager.activeStatus && trader.isSelected)
+            uiTradeRouteManager.SetChosenStopLive(currentStop);
     }
 
     public void RemoveStop(Vector3Int stop)

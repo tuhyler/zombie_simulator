@@ -25,7 +25,7 @@ public class Unit : MonoBehaviour
     private ParticleSystem lightBeam;
 
     [SerializeField]
-    private GameObject selectionCircle;
+    private GameObject selectionCircle, mesh;
 
     [HideInInspector]
     public MapWorld world;
@@ -55,6 +55,7 @@ public class Unit : MonoBehaviour
     private Vector3 shoePrintScale;
     private GameObject mapIcon;
     private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
+    private bool onTop; //if on city tile and is on top
 
     //combat info
     [HideInInspector]
@@ -316,6 +317,13 @@ public class Unit : MonoBehaviour
             Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
             if (pos != prevTerrainTile)
                 RevealCheck(pos);
+        }
+
+        if (onTop && world.GetTerrainDataAt(endPositionInt).gameObject.tag != "City")
+        {
+            Debug.Log("success!");
+            onTop = false;
+            mesh.layer = LayerMask.NameToLayer("Default");
         }
         //if (world.showingMap)
         //world.SetMapIconLoc(endPositionInt, mapIcon);
@@ -767,13 +775,29 @@ public class Unit : MonoBehaviour
 
     }
 
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (isTrader && !bySea && !world.hideTerrain)
-    //        return;
+    private void OnCollisionEnter(Collision collision)
+    {    
+        //if (collision.gameObject.CompareTag("City"))
+        //{
+        //    onTop = true;
+        //    Debug.Log("worked");
+        //    mesh.layer = LayerMask.NameToLayer("Agent");
+        //}
+        
+        //if (isTrader && !bySea && !world.hideTerrain)
+        //    return;
 
-    //    if (collision.transform.position != Vector3Int.zero)
-    //        RevealCheck(world.GetTerrainDataAt(world.RoundToInt(collision.transform.position)).TileCoordinates);
+        //if (collision.transform.position != Vector3Int.zero)
+        //    RevealCheck(world.GetTerrainDataAt(world.RoundToInt(collision.transform.position)).TileCoordinates);
+    }
+
+    //private void OnCollisionExit(Collision collision)
+    //{
+    //    if (onTop && !collision.gameObject.CompareTag("City"))
+    //    {
+    //        onTop = false;
+    //        mesh.layer = LayerMask.NameToLayer("Default");
+    //    }
     //}
 
     private void OnCollisionStay(Collision collision)
@@ -788,6 +812,11 @@ public class Unit : MonoBehaviour
             unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
             threshold = 0.1f;
             //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+        }
+        else if (collision.gameObject.CompareTag("City"))
+        {
+            moveSpeed = flatlandSpeed * .1f * originalMoveSpeed;
+            unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
         }
         else if (collision.gameObject.CompareTag("Flatland"))
         {

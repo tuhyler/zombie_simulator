@@ -2994,7 +2994,9 @@ public class CityBuilderManager : MonoBehaviour
 
         selectedCity.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
-        world.GetTerrainDataAt(selectedCityLoc).prop.gameObject.SetActive(true);
+        TerrainData td = world.GetTerrainDataAt(selectedCityLoc);
+        td.prop.gameObject.SetActive(true);
+        td.gameObject.tag = td.originalTag;
 
         //destroying queued objects
         foreach (UIQueueItem queueItem in selectedCity.savedQueueItems)

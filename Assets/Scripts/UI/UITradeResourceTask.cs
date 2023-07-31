@@ -28,7 +28,10 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     public Image background, completeImage, check, chosenResourceSprite, grips;
 
     [SerializeField]
-    public GameObject dragGrips;
+    private Sprite redX, blueCheck;
+
+    [SerializeField]
+    public GameObject dragGrips, closeButton;
 
     [SerializeField]
     public Transform resourceDropdown;
@@ -60,7 +63,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
-    private bool getAll = true;
+    //private bool getAll = true;
     [HideInInspector]
     public bool draggable = true;
     Vector3 diff;
@@ -74,11 +77,11 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         //allToggle.gameObject.SetActive(false);
     }
 
-    private void Start()
-    {
-        //for checking if number is positive and integer
-        //inputStorageAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
-    }
+    //private void Start()
+    //{
+    //    //for checking if number is positive and integer
+    //    //inputStorageAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
+    //}
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -154,6 +157,7 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         {
             chosenMultiple = -1;
             resourceCountSlider.value = resourceCountSlider.maxValue;
+            chosenResourceAmount = (int)resourceCountSlider.maxValue;
             //allToggle.gameObject.SetActive(true);
             //if (getAll)
             //{
@@ -168,11 +172,11 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         }
     }
 
-    public void SetAmount(int amount, int totalAmount)
+    public void SetAmount(float perc)
     {
-        float perc = (float)(amount) / totalAmount;
+        //float perc = (float)(amount) / totalAmount;
         
-        if (amount == totalAmount)
+        if (perc == 1)
         {
             LeanTween.value(completeImage.gameObject, completeImage.fillAmount, perc, 1f)
                 .setEase(LeanTweenType.linear)
@@ -194,15 +198,42 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     public void SetCompletePerc(int amount, int totalAmount)
     {
+        completeImage.gameObject.SetActive(true);
+        check.gameObject.SetActive(false);
+        completeImage.sprite = blueCheck;
+
         if (totalAmount == 0)
             totalAmount = 1;
         completeImage.fillAmount = (float)amount / totalAmount;
     }
 
-    public void SetCompleteFull()
+    public void SetCompleteFull(bool failed, bool activate)
+    {
+        if (activate)
+            completeImage.gameObject.SetActive(true);
+        
+        completeImage.fillAmount = 1;
+
+        if (failed)
+        {
+            completeImage.sprite = redX;
+            completeImage.transform.localScale = Vector3.zero;
+            LeanTween.scale(completeImage.gameObject, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
+        }
+        else
+            SetCheck();
+    }
+
+    public void SetComplete(float compPerc)
     {
         completeImage.fillAmount = 1;
-        SetCheck();
+
+        if (compPerc == 0)
+            completeImage.sprite = redX;
+        else if (compPerc == 100)
+            check.gameObject.SetActive(true);
+        else
+            completeImage.fillAmount = compPerc * .01f;
     }
 
     public void SetCheck()
@@ -241,19 +272,21 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     public void SetCaptionResourceInfo(ResourceValue resourceValue)
     {
-        //resourceList.options.Remove(defaultFirstChoice); //removing top choice
-        chosenResource = resourceValue.resourceType;
-        chosenResourceSprite.sprite = ResourceHolder.Instance.GetIcon(chosenResource);
-        chosenResourceAmount = resourceValue.resourceAmount;
-        resourceCount.text = chosenResourceAmount.ToString();
-        resourceCountSlider.value = chosenResourceAmount;
-
         if (resourceValue.resourceAmount < 0)
         {
             actionList.value = 1;
             //allToggle.gameObject.SetActive(true);
             chosenMultiple = -1;
         }
+        
+        //resourceList.options.Remove(defaultFirstChoice); //removing top choice
+        chosenResource = resourceValue.resourceType;
+        chosenResourceSprite.sprite = ResourceHolder.Instance.GetIcon(chosenResource);
+        chosenResourceAmount = Mathf.Abs(resourceValue.resourceAmount);
+        //resourceCount.text = chosenResourceAmount.ToString();
+        resourceCountSlider.value = chosenResourceAmount;
+
+
         //if (Mathf.Abs(resourceValue.resourceAmount) >= 9999)
         //{
         //    allToggle.isOn = true;
@@ -317,12 +350,12 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
         resourceCount.text = chosenResourceAmount.ToString();
     }
 
-    public void GetAllOfResource(bool v)
-    {
-        //inputStorageAmount.interactable = !v;
-        //inputStorageAmount.text = "";
-        getAll = v;
-    }
+    //public void GetAllOfResource(bool v)
+    //{
+    //    //inputStorageAmount.interactable = !v;
+    //    //inputStorageAmount.text = "";
+    //    getAll = v;
+    //}
 
     public ResourceValue GetResourceTasks()
     {
@@ -340,10 +373,10 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
         //string chosenAmount = 0.ToString();// inputStorageAmount.text;
 
-        if (chosenMultiple < 0 && getAll) //get all of the resource
-        {
-            resourceValue.resourceAmount = 99999;
-        }
+        //if (chosenMultiple < 0 && getAll) //get all of the resource
+        //{
+        //    resourceValue.resourceAmount = 99999;
+        //}
         //else
         //{
         //    if (int.TryParse(chosenAmount, out int result))

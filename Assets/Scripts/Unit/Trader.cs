@@ -186,8 +186,8 @@ public class Trader : Unit
                 atStop = true;
                 isWaiting = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
-                LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
                 WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
+                LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
 
                 //if (tradeRouteManager.GoToNextStopCheck(loadUnloadRate))
                 //{

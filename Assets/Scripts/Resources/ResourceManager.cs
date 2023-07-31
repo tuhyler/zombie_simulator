@@ -274,7 +274,7 @@ public class ResourceManager : MonoBehaviour
     public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
     {
         int i = 0;
-        producerLoc.y += producedResource.Count * 0.4f;
+        //producerLoc.y += producedResource.Count * 0.4f;
         resourceCount = 0;
         foreach (ResourceValue resourceVal in producedResource)
         {

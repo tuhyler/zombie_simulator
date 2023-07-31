@@ -127,6 +127,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   - {fileID: 21300000, guid: 582da869dd2205a41bc0788c0d17b213, type: 3}
   - {fileID: 21300000, guid: 5529a4a93e971f54fbe83c3da0146264, type: 3}
+  - {fileID: 21300000, guid: 910eb3d9676ddda4bb1e087077168c0f, type: 3}
   - {fileID: 21300000, guid: e9dab4f9a7b063d44a953ec6a60331eb, type: 3}
   - {fileID: 21300000, guid: d7d7340a95ab6534d94d038e61fd48e2, type: 3}
   - {fileID: 21300000, guid: 43312f2a6be55854e9ac83e79c09ef0b, type: 3}
@@ -274,6 +275,7 @@ SpriteAtlas:
   - button_farm
   - panel_lighterblue
   - tab_gold
+  - circle_red_x
   - cone_faded
   - tab_gold2
   - grip_blue
