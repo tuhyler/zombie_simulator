@@ -2064,7 +2064,6 @@ MonoBehaviour:
   resourceList: {fileID: 0}
   actionList: {fileID: 1721689694268467826}
   inputStorageAmount: {fileID: 0}
-  allToggle: {fileID: 0}
   counter: {fileID: 3124657103445832680}
   resourceCount: {fileID: 3799644067751160962}
   resourceCountSlider: {fileID: 3594931368595362315}
@@ -2073,7 +2072,10 @@ MonoBehaviour:
   check: {fileID: 5767683082277081305}
   chosenResourceSprite: {fileID: 2944221740962738102}
   grips: {fileID: 7368297087339939795}
+  redX: {fileID: 21300000, guid: 910eb3d9676ddda4bb1e087077168c0f, type: 3}
+  blueCheck: {fileID: 21300000, guid: 6a7fb92cfef49634791f84fc9512424e, type: 3}
   dragGrips: {fileID: 1297426275736904307}
+  closeButton: {fileID: 1766852457296095444}
   resourceDropdown: {fileID: 3692947959459090735}
   loc: 0
   originalParent: {fileID: 0}

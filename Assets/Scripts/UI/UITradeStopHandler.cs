@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEditor.Experimental.GraphView;
 using static UnityEngine.Rendering.DebugUI;
+using UnityEditor;
 
 public class UITradeStopHandler : MonoBehaviour
 {
@@ -32,11 +33,14 @@ public class UITradeStopHandler : MonoBehaviour
     public TMP_Text counter, waitTimeText;
     private int counterInt;
 
+    //things to turn off when loading screen
     [SerializeField]
-    public GameObject progressBarHolder, addResourceButton, arrowUpButton, arrowDownButton;
+    public GameObject progressBarHolder, addResourceButton, arrowUpButton, arrowDownButton, closeButton;
 
     [SerializeField]
     private TMP_Text timeText;
+    private int totalTime;
+    private float totalTimeFactor;
 
     [SerializeField]
     private Image progressBarMask;
@@ -73,6 +77,8 @@ public class UITradeStopHandler : MonoBehaviour
     [SerializeField]
     private TMP_Dropdown.OptionData defaultFirstChoice;
 
+    private int[] secondPool = new int[64] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,35,40,45,50,55,60,70,80,90,100,110,120,150,180,240,300,600,900,1200,1500,1800,2400,3000,3600,5400,7200,
+    9000, 10800, 14400, 28800, 43200, 57600, 72000, 86400};
     //for object pooling
     //private Queue<UITradeRouteResourceHolder> uiResourceTaskQueue = new();
 
@@ -85,12 +91,12 @@ public class UITradeStopHandler : MonoBehaviour
         //GrowResourceTaskPool();
     }
 
-    private void Start() 
-    {
-        //for checking if number is positive and integer
-        //inputWaitTime.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
-        //inputWaitTime.interactable = false;
-    }
+    //private void Start() 
+    //{
+    //    //for checking if number is positive and integer
+    //    //inputWaitTime.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
+    //    //inputWaitTime.interactable = false;
+    //}
 
     public void SetTradeRouteManager(UITradeRouteManager tradeRouteManager)
     {
@@ -207,13 +213,14 @@ public class UITradeStopHandler : MonoBehaviour
     //    return charToValidate;
     //}
 
-    public void SetWaitTimes(int waitTime)
+    public void SetWaitTimes(int waitTime, bool followingRoute)
     {
         this.waitTime = waitTime;
 
         if (waitTime < 0)
         {
             waitForeverToggle.isOn = true;
+            waitForeverToggle.interactable = !followingRoute;
             waitForever = true;
             waitSlider.gameObject.SetActive(false);
             waitTimeText.gameObject.SetActive(false);
@@ -221,23 +228,43 @@ public class UITradeStopHandler : MonoBehaviour
         else
         {
             waitForever = false;
-            waitSlider.gameObject.SetActive(true);
+            //waitSlider.gameObject.SetActive(true);
             waitTimeText.gameObject.SetActive(true);
-            waitSlider.value = waitTime;
+            waitSlider.value = ArrayUtility.IndexOf(secondPool, waitTime);
             waitTimeText.text = waitTime.ToString();
             //inputWaitTime.interactable = true;
             waitForeverToggle.isOn = false;
             //inputWaitTime.text = waitTime.ToString();
+
+            if (followingRoute)
+            {
+                waitSlider.gameObject.SetActive(false);
+                waitForeverToggle.gameObject.SetActive(false);
+                waitTimeText.transform.localPosition = new Vector3(190, 15, 0);
+            }
+            else
+            {
+                waitSlider.gameObject.SetActive(true);
+                waitForeverToggle.gameObject.SetActive(true);
+                waitTimeText.transform.localPosition = new Vector3(550, 15, 0);
+            }
         }
+    }
+
+    public void SetWaitTimeValue()
+    {
+        waitSlider.value = ArrayUtility.IndexOf(secondPool, waitTime);
+        waitTimeText.text = waitTime.ToString();
     }
 
     public void SetSlider(float value)
     {
-        float value2 = value * 0.01f;
-        float b = 1.475561021f;
-        float c = 8.821349657f;
-        
-        waitTime = Mathf.RoundToInt(b * (Mathf.Exp(c * value2) - 1));
+        //float value2 = value * 0.01f;
+        //float b = 1.475561021f;
+        //float c = 8.821349657f;
+
+        //waitTime = Mathf.RoundToInt(b * (Mathf.Exp(c * value2) - 1));
+        waitTime = secondPool[(int)value];
         waitTimeText.text = waitTime.ToString();
     }
 
@@ -309,7 +336,7 @@ public class UITradeStopHandler : MonoBehaviour
         return newResourceTask;
     }
 
-    public void SetAsNext()
+    public void SetAsNext(bool onRoute, List<int> resourceComp = null)
     {
         background.sprite = nextStopSprite;
         background.color = new Color(1, 1, 1, 1);
@@ -318,24 +345,39 @@ public class UITradeStopHandler : MonoBehaviour
         {
             uiResourceTasks[i].background.sprite = nextStopSprite;
             uiResourceTasks[i].background.color = new Color(1, 1, 1, 1);
-            uiResourceTasks[i].completeImage.gameObject.SetActive(false);
+
+            if (onRoute && resourceComp.Count > 0)
+            {
+                uiResourceTasks[i].completeImage.gameObject.SetActive(true);
+                uiResourceTasks[i].SetComplete(resourceComp[i]);
+            }
+            else
+            {
+                uiResourceTasks[i].completeImage.gameObject.SetActive(false);
+            }
         }
     }
 
-    public void SetAsComplete()
+    public void SetAsComplete(bool update, List<int> resourceComp = null)
     {
         background.sprite = nextStopSprite;
-        background.color = new Color(1, 1, 1, 0.4f);
-        resourceButton.color = new Color(1, 1, 1, 0.4f);
+        background.color = new Color(1, 1, 1, 1); //new Color(1, 1, 1, 0.4f);
+        resourceButton.color = resourceButton.color = new Color(1, 1, 1, 1); //new Color(1, 1, 1, 0.4f);
         for (int i = 0; i < uiResourceTasks.Count; i++)
         {
             uiResourceTasks[i].background.sprite = nextStopSprite;
             uiResourceTasks[i].background.color = new Color(1, 1, 1, 0.2f);
-            uiResourceTasks[i].completeImage.gameObject.SetActive(false);
+
+            if (update)
+            {
+                uiResourceTasks[i].completeImage.gameObject.SetActive(true);
+                uiResourceTasks[i].SetComplete(resourceComp[i]);
+            }
+            //uiResourceTasks[i].completeImage.gameObject.SetActive(false);
         }
     }
 
-    public void SetAsCurrent(int currentResourceTask = 0, int amount = 0, int totalAmount = 0)
+    public void SetAsCurrent(List<int> resourceComp, int currentResourceTask = 0, int amount = 0, int totalAmount = 0)
     {
         background.sprite = currentStopSprite;
         background.color = new Color(1, 1, 1, 1);
@@ -348,7 +390,7 @@ public class UITradeStopHandler : MonoBehaviour
             if (i < currentResourceTask)
             {
                 uiResourceTasks[i].completeImage.gameObject.SetActive(true);
-                uiResourceTasks[i].SetCompleteFull();
+                uiResourceTasks[i].SetComplete(resourceComp[i]);
             }
             else if (i == currentResourceTask)
             {
@@ -363,14 +405,14 @@ public class UITradeStopHandler : MonoBehaviour
         }
     }
 
-    public void SetTime(int time, int totalTime, bool forever)
+    public void SetTime(int time, bool forever)
     {
         timeText.text = string.Format("{0:00}:{1:00}", time / 60, time % 60);
-        //int nextTime = (totalTime - time) + 1;
 
         if (!forever)
         {
-            LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, (float)time / totalTime, 1f)
+            int nextTime = totalTime - time + 1;
+            LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, nextTime * totalTimeFactor, 1f)
                 .setEase(LeanTweenType.linear)
                 .setOnUpdate((value) =>
                 {
@@ -379,9 +421,18 @@ public class UITradeStopHandler : MonoBehaviour
         }
     }
 
-    public void SetProgressBarMask(int time, int totalTime)
+    public void SetProgressBarValue(int totalTime)
     {
-        progressBarMask.fillAmount = (float)time / totalTime;
+        this.totalTime = totalTime;
+        totalTimeFactor = 1f / totalTime;
+    }
+
+    public void SetProgressBarMask(int time, bool forever)
+    {
+        if (forever)
+            progressBarMask.fillAmount = 0;
+        else
+            progressBarMask.fillAmount = (totalTime - time) * totalTimeFactor;
     }
 
     public void MoveResourceTask(int oldNum, int newNum)
@@ -413,6 +464,7 @@ public class UITradeStopHandler : MonoBehaviour
         //task.inputStorageAmount.enabled = false;
         task.draggable = false;
         task.dragGrips.SetActive(false);
+        task.closeButton.SetActive(false);
         //task.resourceList.enabled = false;
         task.actionList.enabled = false;
     }
@@ -435,8 +487,10 @@ public class UITradeStopHandler : MonoBehaviour
             //task.inputStorageAmount.enabled = true;
             task.draggable = true;
             task.dragGrips.SetActive(true);
+            task.closeButton.SetActive(true);
             //task.resourceList.enabled = true;
             task.actionList.enabled = true;
+            task.completeImage.gameObject.SetActive(false);
         }
     }
 
@@ -536,17 +590,21 @@ public class UITradeStopHandler : MonoBehaviour
             tradeRouteManager.UpdateStopNumbers(counterInt);
         }
 
-        int taskCount = uiResourceTasks.Count;
-        for (int i = 0; i < taskCount; i++)
-            uiResourceTasks[0].resourceHolder.CloseWindow(false); //do the first one till list is empty
-
         tradeRouteManager.stopCount--;
         if (tradeRouteManager.stopCount == 0)
             tradeRouteManager.startingStopGO.SetActive(false);
-        ResetStop();
         tradeRouteManager.tradeStopHandlerList.Remove(this);
-        tradeRouteManager.AddToTradeStopPool(this);
-        //Destroy(gameObject);
+        
+        //object pooling
+        //int taskCount = uiResourceTasks.Count;
+        //for (int i = 0; i < taskCount; i++)
+        //    uiResourceTasks[0].resourceHolder.CloseWindow(false); //do the first one till list is empty
+
+        //ResetStop();
+        //tradeRouteManager.AddToTradeStopPool(this);
+        //object pooling
+
+        Destroy(gameObject);
     }
 
     //Object pooling resources //no object pooling for resource tasks because otherwise UI moves too slowly (even when inactive)

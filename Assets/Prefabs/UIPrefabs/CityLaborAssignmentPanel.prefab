@@ -1180,6 +1180,11 @@ PrefabInstance:
       propertyPath: interactable
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+        type: 3}
+      propertyPath: message
+      value: Add labor to improvement
+      objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -1194,6 +1199,7 @@ PrefabInstance:
     - {fileID: 7569234164273575448, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+    - {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
 --- !u!224 &343121510960962830 stripped
 RectTransform:
@@ -1446,6 +1452,7 @@ PrefabInstance:
     - {fileID: 7569234164273575448, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+    - {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
 --- !u!114 &5817053707937968223 stripped
 MonoBehaviour:

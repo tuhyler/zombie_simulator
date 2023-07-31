@@ -135,7 +135,8 @@ public class UIResourceSelectionGrid : MonoBehaviour
         {
             this.resourceTask = resourceTask;
             transform.position = resourceTask.resourceDropdown.position;
-            //PositionCheck();
+
+            closeButton.pivot = new Vector2((allContents.localPosition.x + allContents.sizeDelta.x * 0.5f) / closeButton.sizeDelta.x, (allContents.localPosition.y + allContents.sizeDelta.y * 0.5f) / closeButton.sizeDelta.y);
         }
         else
         {
@@ -154,13 +155,13 @@ public class UIResourceSelectionGrid : MonoBehaviour
 
     private void PositionCheck()
     {
-        if (transform.localPosition.y - allContents.rect.height < Screen.height * 0.5)
+        if (transform.localPosition.y + allContents.rect.height > Screen.height)
         {
-            allContents.pivot = new Vector2(0, 0);
+            allContents.pivot = new Vector2(0, 1);
         }
         else
         {
-            allContents.pivot = new Vector2(0, 1);
+            allContents.pivot = new Vector2(0, 0);
         }
     }
 }

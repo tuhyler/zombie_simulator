@@ -1015,7 +1015,11 @@ public class UnitMovement : MonoBehaviour
         if (!selectedTrader.followingRoute/*.interruptedRoute*/)
             uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
         if (uiTradeRouteManager.activeStatus)
-            uiTradeRouteManager.ToggleVisibility(false);
+        {
+            uiTradeRouteManager.ResetTradeRouteInfo(selectedTrader.tradeRouteManager);
+            uiTradeRouteManager.ResetButtons();
+        }
+        //    uiTradeRouteManager.ToggleVisibility(false);
     }
 
     public void UninterruptedRoute()

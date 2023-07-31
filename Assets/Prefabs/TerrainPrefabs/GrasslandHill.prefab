@@ -14,8 +14,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
+      propertyPath: m_TagString
+      value: Hill
+      objectReference: {fileID: 0}
+    - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 2578192507249685741, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2715452913932692106, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -25,7 +35,7 @@ PrefabInstance:
     - target: {fileID: 4206797140657438167, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4676175562013748920, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -40,7 +50,7 @@ PrefabInstance:
     - target: {fileID: 6001265225856577931, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7178868358704398055, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}

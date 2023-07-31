@@ -377,6 +377,7 @@ public class ResourceProducer : MonoBehaviour
         else if (producingCo != null)
         {
             StopCoroutine(producingCo);
+            producingCo = null;
             if (allLabor)
                 resourceManager.PrepareResource(consumedResources, tempLabor, producerLoc, true);
             else
