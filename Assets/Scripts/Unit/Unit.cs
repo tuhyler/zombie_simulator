@@ -27,6 +27,9 @@ public class Unit : MonoBehaviour
     [SerializeField]
     private GameObject selectionCircle, mesh;
 
+    [SerializeField]
+    private UnitMarker marker;
+
     [HideInInspector]
     public MapWorld world;
     [HideInInspector]
@@ -41,7 +44,6 @@ public class Unit : MonoBehaviour
     private Vector3 destinationLoc;
     [HideInInspector]
     public Vector3 finalDestinationLoc;
-    public Vector3 FinalDestinationLoc { get { return finalDestinationLoc; } set { finalDestinationLoc = value; } }
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
     private Vector3Int prevRoadTile, prevTerrainTile; //first one is for traders, in case road they're on is removed
@@ -52,10 +54,10 @@ public class Unit : MonoBehaviour
     private Queue<GameObject> pathQueue = new();
     private int queueCount = 0;
     public int QueueCount { set { queueCount = value; } }
-    private Vector3 shoePrintScale;
-    private GameObject mapIcon;
+    //private Vector3 shoePrintScale;
+    //private GameObject mapIcon;
     private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
-    private bool onTop; //if on city tile and is on top
+    //private bool onTop; //if on city tile and is on top
 
     //combat info
     [HideInInspector]
@@ -86,6 +88,8 @@ public class Unit : MonoBehaviour
         //focusCam = FindObjectOfType<CameraController>();
         //world = FindObjectOfType<MapWorld>();
         //movementSystem = FindObjectOfType<MovementSystem>();
+        if (!bySea)
+            marker.Unit = this;
         highlight = GetComponent<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
@@ -94,7 +98,7 @@ public class Unit : MonoBehaviour
         originalMoveSpeed = buildDataSO.movementSpeed;
         //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
         bySea = buildDataSO.transportationType == TransportationType.Sea;
-        shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
+        //shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
             selectionCircle.SetActive(false);
         if (isTrader)
@@ -219,17 +223,22 @@ public class Unit : MonoBehaviour
         else if (td.terrainData.type == TerrainType.Hill)
         {
             if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
-                y = .5f;//world.test;
+                y = 0f;//world.test;
             else
-                y = .2f;
+                y = 0f;
         }
-        else if (td.IsSeaCorner) //walking the beach in rivers
-        {
-            if (world.CheckIfCoastCoast(endPositionInt))
-                y = -.10f;
-            else
-                y = transform.position.y;
-        }
+
+        //if (world.IsRoadOnTileLocation(endPositionInt))
+        //{
+        //    marker.ToggleVisibility(false);
+        //}
+        //else if (td.IsSeaCorner) //walking the beach in rivers
+        //{
+        //    if (world.CheckIfCoastCoast(endPositionInt))
+        //        y = -.10f;
+        //    else
+        //        y = transform.position.y;
+        //}
 
         //if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
         //{
@@ -282,6 +291,7 @@ public class Unit : MonoBehaviour
         Quaternion startRotation = transform.rotation;
         endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
+        direction.y = 0;
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
         float distance = 1f;
         float timeElapsed = 0;
@@ -319,12 +329,12 @@ public class Unit : MonoBehaviour
                 RevealCheck(pos);
         }
 
-        if (onTop && world.GetTerrainDataAt(endPositionInt).gameObject.tag != "City")
-        {
-            Debug.Log("success!");
-            onTop = false;
-            mesh.layer = LayerMask.NameToLayer("Default");
-        }
+        //if (onTop && world.GetTerrainDataAt(endPositionInt).gameObject.tag != "City")
+        //{
+        //    Debug.Log("success!");
+        //    onTop = false;
+        //    mesh.layer = LayerMask.NameToLayer("Default");
+        //}
         //if (world.showingMap)
         //world.SetMapIconLoc(endPositionInt, mapIcon);
 
@@ -776,29 +786,34 @@ public class Unit : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision collision)
-    {    
+    {
+        //Debug.Log(collision.gameObject.tag);
+
+        if (!bySea)
+        {
+            if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || collision.gameObject.CompareTag("City"))
+            {
+                marker.ToggleVisibility(true);
+            }
+            else
+            {
+                marker.ToggleVisibility(false);
+            }
+        }
+        
         //if (collision.gameObject.CompareTag("City"))
         //{
         //    onTop = true;
         //    Debug.Log("worked");
         //    mesh.layer = LayerMask.NameToLayer("Agent");
         //}
-        
+
         //if (isTrader && !bySea && !world.hideTerrain)
         //    return;
 
         //if (collision.transform.position != Vector3Int.zero)
         //    RevealCheck(world.GetTerrainDataAt(world.RoundToInt(collision.transform.position)).TileCoordinates);
     }
-
-    //private void OnCollisionExit(Collision collision)
-    //{
-    //    if (onTop && !collision.gameObject.CompareTag("City"))
-    //    {
-    //        onTop = false;
-    //        mesh.layer = LayerMask.NameToLayer("Default");
-    //    }
-    //}
 
     private void OnCollisionStay(Collision collision)
     {
@@ -977,22 +992,17 @@ public class Unit : MonoBehaviour
             prevPosition.y = 0.01f;
             GameObject path;
 
-            if (bySea)
+            if (bySea || isTrader)
                 path = movementSystem.GetFromChevronPool();
             else
                 path = movementSystem.GetFromShoePrintPool();
 
             path.transform.position = (turnCountPosition + prevPosition) / 2;
-            float xDiff = turnCountPosition.x - prevPosition.x;
-            float zDiff = turnCountPosition.z - prevPosition.z;
+            float xDiff = turnCountPosition.x - Mathf.Round(prevPosition.x);
+            float zDiff = turnCountPosition.z - Mathf.Round(prevPosition.z);
 
-            float x = 0;
+            //float x = 0;
             int z = 0;
-
-            //if (Mathf.Abs(xDiff) + Mathf.Abs(zDiff) == 1)
-            //{
-            //    x = .2f;
-            //}
 
             //checking tile placements to see how to rotate shoe prints
             if (xDiff < 0)
@@ -1024,9 +1034,9 @@ public class Unit : MonoBehaviour
             path.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
 
             //squishing the sprite a little for straights
-            Vector3 scale = path.transform.localScale; 
-            scale.x += x;
-            path.transform.localScale = scale;
+            //Vector3 scale = path.transform.localScale; 
+            //scale.x += x;
+            //path.transform.localScale = scale;
 
             pathQueue.Enqueue(path);
         }
@@ -1050,10 +1060,14 @@ public class Unit : MonoBehaviour
     private void DequeuePath()
     {
         GameObject path = pathQueue.Dequeue();
-        path.transform.localScale = shoePrintScale;
-        if (bySea)
+        if (bySea || isTrader)
+        {
             movementSystem.AddToChevronPool(path);
+        }
         else
+        {
+            //path.transform.localScale = shoePrintScale;
             movementSystem.AddToShoePrintPool(path);
+        }
     }
 }

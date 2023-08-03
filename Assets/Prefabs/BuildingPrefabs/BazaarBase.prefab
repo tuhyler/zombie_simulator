@@ -1,5 +1,50 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4733699848765897115
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8470949505997628452}
+  - component: {fileID: 8488641161655043705}
+  m_Layer: 0
+  m_Name: CityCollider
+  m_TagString: City
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8470949505997628452
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4733699848765897115}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1686765677576597183}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8488641161655043705
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4733699848765897115}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.6, y: 0, z: 0.3}
+  m_Center: {x: 0, y: 0.13, z: 0}
 --- !u!1 &8789389234130458407
 GameObject:
   m_ObjectHideFlags: 0
@@ -30,7 +75,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8470949505997628452}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -46,7 +92,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skinnedMesh: {fileID: 0}
   meshCity: {fileID: 0}
   initialCityHouse: 0
   queued: 0
@@ -56,7 +101,6 @@ MonoBehaviour:
   loc: {x: 0, y: 0, z: 0}
   producedResource: 0
   producedResourceIndex: 0
-  smokeSlow: {fileID: 0}
   smokeEmitter: {fileID: 0}
   smokeSplash: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
     type: 3}
@@ -64,7 +108,7 @@ MonoBehaviour:
     type: 3}
   workPS: []
   workLights: []
-  animMesh: {fileID: 0}
+  mapIcon: {fileID: 0}
 --- !u!114 &7796438051319544572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,9 +122,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
-  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
-  secondaryGlowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a,
-    type: 2}
   isGlowing: 0
 --- !u!65 &4530263000516872463
 BoxCollider:

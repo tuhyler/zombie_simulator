@@ -58,6 +58,9 @@ MonoBehaviour:
   uiElementsParent: {fileID: 5692392777766943667}
   allContents: {fileID: 8176205272096839203}
   allContents2: {fileID: 1284994052711315060}
+  beginText: {fileID: 7150747489842729948}
+  beginRoute: {fileID: 21300000, guid: 9220d71c9a3330e4bae68d22b1dbe70f, type: 3}
+  stopRoute: {fileID: 21300000, guid: b4af0e27e55246c46be131f03b7aad4b, type: 3}
 --- !u!222 &2995966642887100004
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -670,7 +673,7 @@ PrefabInstance:
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
-      value: Begin trade route
+      value: Begin/stop trade route
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
@@ -758,6 +761,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7150747489842729948 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2927087752969563087, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+    type: 3}
+  m_PrefabInstance: {fileID: 5450362947198138387}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!224 &7290007807526202081 stripped

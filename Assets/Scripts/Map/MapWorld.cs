@@ -1387,7 +1387,7 @@ public class MapWorld : MonoBehaviour
 
         Unit tempUnit = unitPosDict[tile];
 
-        if (tempUnit.isWaiting && tempUnit.FinalDestinationLoc == finalDestination)
+        if (tempUnit.isWaiting && tempUnit.finalDestinationLoc == finalDestination)
             return true;
         else
             return false;
