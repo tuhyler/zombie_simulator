@@ -15,17 +15,17 @@ public class ResourceIndividualHandler : MonoBehaviour
     //private GameObject resourceGO;
 
 
-    public void HandleResourceBubbleSelection(Vector3 location, GameObject selectedObject)
-    {
-        if (selectedObject == null)
-            return;
+    //public void HandleResourceBubbleSelection(Vector3 location, GameObject selectedObject)
+    //{
+    //    if (selectedObject == null)
+    //        return;
 
-        if (selectedObject.TryGetComponent(out Resource resource))
-        {
-            if (resource != null)
-                StartCoroutine(resource.SendResourceToCity());
-        }
-    }
+    //    if (selectedObject.TryGetComponent(out Resource resource))
+    //    {
+    //        if (resource != null)
+    //            StartCoroutine(resource.SendResourceToCity());
+    //    }
+    //}
 
     //public (City city, ResourceIndividualSO resourceIndividual) GetResourceGatheringDetails()
     //{

@@ -263,7 +263,7 @@ public class Trader : Unit
         }
         else if (currentPath.Count > 0)
         {
-            FinalDestinationLoc = nextStop;
+            finalDestinationLoc = nextStop;
             MoveThroughPath(currentPath);
             tradeRouteManager.CheckQueues();
         }

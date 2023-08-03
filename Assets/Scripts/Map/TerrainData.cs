@@ -61,12 +61,12 @@ public class TerrainData : MonoBehaviour
     public Vector2 RockUVs { get { return rockUVs; } }
 
     public int resourceAmount;
-    [HideInInspector]
-    public string originalTag;
+    //[HideInInspector]
+    //public string originalTag;
 
     private void Awake()
     {
-        originalTag = gameObject.tag;
+        //originalTag = gameObject.tag;
         if (terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill)
             isHill = true; 
         

@@ -597,7 +597,7 @@ public class WorkerTaskManager : MonoBehaviour
         //{
         world.AddCityBuildingDict(workerTile);
         city.SetHouse(workerTile, td.isHill);
-        td.gameObject.tag = "City";
+        //td.gameObject.tag = "City";
         //}
 
         //showing join city button

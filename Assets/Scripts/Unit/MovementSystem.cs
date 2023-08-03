@@ -39,7 +39,7 @@ public class MovementSystem : MonoBehaviour
 
     public void AppendNewPath(Unit selectedUnit)
     {
-        priorPath = selectedUnit.FinalDestinationLoc;
+        priorPath = selectedUnit.finalDestinationLoc;
         orderQueueing = true;
     }
 

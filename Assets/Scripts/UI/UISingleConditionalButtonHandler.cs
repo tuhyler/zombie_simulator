@@ -12,7 +12,7 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
     public bool activeStatus;
 
     [SerializeField] //changing color of button when selected
-    private Image buttonImage;
+    public Image buttonImage;
     private Color originalButtonColor;
 
 

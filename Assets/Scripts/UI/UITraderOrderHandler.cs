@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class UITraderOrderHandler : MonoBehaviour
@@ -19,6 +20,12 @@ public class UITraderOrderHandler : MonoBehaviour
 
     [SerializeField]
     private CanvasGroup allContents2;
+
+    [SerializeField]
+    private TMP_Text beginText; 
+
+    [SerializeField]
+    private Sprite beginRoute, stopRoute;
 
     private Vector3 originalLoc;
 
@@ -77,4 +84,14 @@ public class UITraderOrderHandler : MonoBehaviour
         world.traderCanvas.gameObject.SetActive(false);
     }
 
+    public void SwitchRouteIcons(bool v)
+    {
+        uiBeginTradeRoute.ToggleButtonColor(v);
+        beginText.text = v ? "Stop" : "Begin";
+
+        if (v)
+            uiBeginTradeRoute.buttonImage.sprite = stopRoute;
+        else
+            uiBeginTradeRoute.buttonImage.sprite = beginRoute;
+    }
 }

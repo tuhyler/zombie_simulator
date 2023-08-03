@@ -483,7 +483,12 @@ public class TradeRouteManager : MonoBehaviour
 
         percDone = (float)trader.personalResourceManager.ResourceDict[resourceAssignments[currentStop][currentResource].resourceType] / resourceTotalAmount;
         if (uiTradeRouteManager.activeStatus && trader.isSelected)
-            uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(percDone);
+        {
+            if (percDone == 0)
+                uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompleteFull(true, true);
+            else
+                uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(percDone);
+        }
 
         if (resourceCompletion[currentStop].Count < currentResource + 1)
             resourceCompletion[currentStop].Add(Mathf.RoundToInt(percDone * 100));

@@ -71,6 +71,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: d0532483b6b4a654da574f36b0378efb, type: 3}
   - {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   - {fileID: 21300000, guid: 329309d3e5a93a440ac95d22cb9257e5, type: 3}
+  - {fileID: 21300000, guid: 99d242e3ec7bf85419ddab4e13817654, type: 3}
   - {fileID: 21300000, guid: 2c7224e3dc0db5c42b5c9c530c30439b, type: 3}
   - {fileID: 21300000, guid: b82919f30ea37bf49ab7c4f5b445ceed, type: 3}
   - {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
@@ -108,6 +109,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   - {fileID: 21300000, guid: 44cd4d07c81b20f42a249f2c1f7eaadc, type: 3}
   - {fileID: 21300000, guid: 86a7a527d4f181e4e8e11875d636b24b, type: 3}
+  - {fileID: 21300000, guid: b4af0e27e55246c46be131f03b7aad4b, type: 3}
   - {fileID: 21300000, guid: dbbed537c569b1f489881e51e8fe3909, type: 3}
   - {fileID: 21300000, guid: 7e3ba8579e3d2d943bc5d24a8c2a8b67, type: 3}
   - {fileID: 21300000, guid: eb63926735324254098e0f80e66c4630, type: 3}
@@ -219,6 +221,7 @@ SpriteAtlas:
   - button_food01
   - button_specialist
   - button_stone02
+  - map_unitmarker
   - button_longred
   - button_remove
   - icon_cargo
@@ -256,6 +259,7 @@ SpriteAtlas:
   - icon_trader
   - scrollbar_gold02_hor
   - button_square02
+  - button_stoproute
   - scroll_arrowright
   - panel_bluegold_transparent
   - panel_lightgold

@@ -11,11 +11,11 @@ public class Wonder : MonoBehaviour
     private UIWonderSelection uiWonderSelection;
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
-    public MeshRenderer mesh0Percent;
-    public MeshRenderer mesh25Percent;
-    public MeshRenderer mesh50Percent;
-    public MeshRenderer mesh75Percent;
-    public MeshRenderer meshComplete;
+    public GameObject mesh0Percent;
+    public GameObject mesh25Percent;
+    public GameObject mesh50Percent;
+    public GameObject mesh75Percent;
+    public GameObject meshComplete;
     public GameObject mapIcon;
 
     private SelectionHighlight highlight;
@@ -103,10 +103,10 @@ public class Wonder : MonoBehaviour
     public void SetPrefabs()
     {
         //mesh0Percent.enabled = false;
-        mesh25Percent.enabled = false;
-        mesh50Percent.enabled = false;
-        mesh75Percent.enabled = false;
-        meshComplete.enabled = false;
+        mesh25Percent.SetActive(false);
+        mesh50Percent.SetActive(false);
+        mesh75Percent.SetActive(false);
+        meshComplete.SetActive(false);
         PlaySmokeSplash();
         mapIcon.SetActive(true);
         //PlayFireworks();
@@ -114,10 +114,10 @@ public class Wonder : MonoBehaviour
 
     public void SetLastPrefab()
     {
-        mesh0Percent.enabled = false;
-        mesh25Percent.enabled = false;
-        mesh50Percent.enabled = false;
-        mesh75Percent.enabled = false;
+        mesh0Percent.SetActive(false);
+        mesh25Percent.SetActive(false);
+        mesh50Percent.SetActive(false);
+        mesh75Percent.SetActive(false);
     }
 
     public void SetCenterPos(Vector3 centerPos)
@@ -514,10 +514,10 @@ public class Wonder : MonoBehaviour
         }
     }
 
-    private void SetNewGO(MeshRenderer prevMesh, MeshRenderer newMesh)
+    private void SetNewGO(GameObject prevMesh, GameObject newMesh)
     {
-        prevMesh.enabled = false;
-        newMesh.enabled = true;
+        prevMesh.SetActive(false);
+        newMesh.SetActive(true);
     }
 
     public void TimeProgressBarSetActive(bool v)

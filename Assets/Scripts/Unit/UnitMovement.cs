@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Resources;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
 
 public class UnitMovement : MonoBehaviour
 {
@@ -32,8 +33,8 @@ public class UnitMovement : MonoBehaviour
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
     [SerializeField]
     private UITradeRouteManager uiTradeRouteManager;
-    [SerializeField]
-    private UISingleConditionalButtonHandler uiCancelTradeRoute;
+    //[SerializeField]
+    //private UISingleConditionalButtonHandler uiCancelTradeRoute;
 
     [SerializeField]
     private ParticleSystem starshine;
@@ -237,43 +238,18 @@ public class UnitMovement : MonoBehaviour
         }
         else if (detectedObject.TryGetComponent(out Unit unitReference) && unitReference.CompareTag("Player"))
         {
-            if (selectedUnit == unitReference) //Unselect when clicking same unit
-            {
-                if (selectedWorker != null && selectedWorker.harvested)
-                    selectedWorker.SendResourceToCity();
-                else
-                    ClearSelection();
-                
-                return;
-            }
-            else if (selectedUnit != null) //Change to a different unit
-            {
-                ClearSelection();
-                selectedUnit = unitReference;
-            }
-            else //Select unit for the first time
-            {
-                selectedUnit = unitReference;
-            }
+            SelectUnitPrep(unitReference, location);
+        }
+        else if (detectedObject.TryGetComponent(out UnitMarker unitMarker) && unitMarker.CompareTag("Player"))
+        {
+            Unit unit = unitMarker.Unit;
 
-            if (unitReference.somethingToSay)
-            {
-                unitReference.somethingToSay = false;
-                unitReference.sayingSomething = true;
-                world.PlayMessage(location);
-                CenterCamOnUnit();
-            }
-
-            uiMoveUnit.ToggleTweenVisibility(true);
-            SelectLaborer();
-            SelectWorker();
-            SelectTrader();
-            PrepareMovement();
+            SelectUnitPrep(unit, location);
         }
         else if (detectedObject.TryGetComponent(out Resource resource))
         {
             Worker tempWorker = resource.GetHarvestingWorker();
-            
+
             if (tempWorker == null)
             {
                 ClearSelection();
@@ -288,19 +264,14 @@ public class UnitMovement : MonoBehaviour
                 tempWorker.SendResourceToCity();
                 selectedUnit = tempWorker;
                 uiMoveUnit.ToggleTweenVisibility(true);
-                SelectWorker(); 
+                SelectWorker();
                 PrepareMovement();
-            }            
+            }
         }
         else
         {
-            //selectedUnit = null;
-            //selectedTrader = null;
             ClearSelection();
         }
-
-        //if (selectedUnit == null)
-        //    return;
     }
 
     private void SelectLaborer()
@@ -314,6 +285,42 @@ public class UnitMovement : MonoBehaviour
                 laborer.StopLaborAnimations();
             }
         }
+    }
+
+    private void SelectUnitPrep(Unit unitReference, Vector3 location)
+    {
+        if (selectedUnit == unitReference) //Unselect when clicking same unit
+        {
+            if (selectedWorker != null && selectedWorker.harvested)
+                selectedWorker.SendResourceToCity();
+            else
+                ClearSelection();
+
+            return;
+        }
+        else if (selectedUnit != null) //Change to a different unit
+        {
+            ClearSelection();
+            selectedUnit = unitReference;
+        }
+        else //Select unit for the first time
+        {
+            selectedUnit = unitReference;
+        }
+
+        if (unitReference.somethingToSay)
+        {
+            unitReference.somethingToSay = false;
+            unitReference.sayingSomething = true;
+            world.PlayMessage(location);
+            CenterCamOnUnit();
+        }
+
+        uiMoveUnit.ToggleTweenVisibility(true);
+        SelectLaborer();
+        SelectWorker();
+        SelectTrader();
+        PrepareMovement();
     }
 
     private void SelectWorker()
@@ -353,15 +360,18 @@ public class UnitMovement : MonoBehaviour
                 uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
             }
 
-            if (selectedTrader.hasRoute && !selectedTrader.followingRoute/* && !selectedTrader.interruptedRoute*/)
+            if (selectedTrader.hasRoute/* && !selectedTrader.followingRoute && !selectedTrader.interruptedRoute*/)
             {
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
+
+                if (selectedTrader.followingRoute)
+                    uiTraderPanel.SwitchRouteIcons(true);
             }
 
-            if (selectedTrader.followingRoute)
-            {
-                uiCancelTradeRoute.ToggleTweenVisibility(true);
-            }
+            //if (selectedTrader.followingRoute)
+            //{
+            //    uiCancelTradeRoute.ToggleTweenVisibility(true);
+            //}
         }
     }
 
@@ -401,7 +411,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (queueMovementOrders /*&& unit.FinalDestinationLoc != location*/ && unit.isMoving)
         {
-            if (unit.FinalDestinationLoc == location)
+            if (unit.finalDestinationLoc == location)
                 return;
             
             movementSystem.AppendNewPath(selectedUnit);
@@ -439,7 +449,7 @@ public class UnitMovement : MonoBehaviour
         unit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
         movementSystem.GetPathToMove(world, unit, terrainPos, unit.isTrader); //Call AStar movement
 
-        unit.FinalDestinationLoc = location;
+        unit.finalDestinationLoc = location;
         //uiJoinCity.ToggleTweenVisibility(false);
         if (unit.isBusy)
             uiCancelMove.ToggleTweenVisibility(false);
@@ -986,16 +996,23 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedTrader != null)
         {
+            if (selectedTrader.followingRoute)
+            {
+                CancelTradeRoute();
+                return;
+            }
+
             if (!selectedTrader.tradeRouteManager.TradeRouteCheck())
                 return;
             if (selectedTrader.LineCutterCheck())
                 return;
             selectedUnit.StopMovement();
             selectedTrader.BeginNextStepInRoute();
-            uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+            //uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+            uiTraderPanel.SwitchRouteIcons(true);
             LoadUnloadFinish(true);
             uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
-            uiCancelTradeRoute.ToggleTweenVisibility(true);
+            //uiCancelTradeRoute.ToggleTweenVisibility(true);
             uiTradeRouteManager.ToggleVisibility(false);
             //if (uiTradeRouteManager.activeStatus)
             //{
@@ -1011,9 +1028,10 @@ public class UnitMovement : MonoBehaviour
         selectedTrader.CancelRoute();
         ShowIndividualCityButtonsUI();
         CancelContinuedMovementOrders();
-        uiCancelTradeRoute.ToggleTweenVisibility(false);
+        //uiCancelTradeRoute.ToggleTweenVisibility(false);
         if (!selectedTrader.followingRoute/*.interruptedRoute*/)
-            uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
+            uiTraderPanel.SwitchRouteIcons(false);
+            //uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
         if (uiTradeRouteManager.activeStatus)
         {
             uiTradeRouteManager.ResetTradeRouteInfo(selectedTrader.tradeRouteManager);
@@ -1042,7 +1060,7 @@ public class UnitMovement : MonoBehaviour
 
         if (!selectedUnit.followingRoute && !selectedUnit.isMoving)
         {
-            if (world.IsCityOnTile(currentLoc))
+            if (world.IsCityOnTile(currentLoc) && !selectedUnit.isWorker)
             {
                 uiJoinCity.ToggleTweenVisibility(true);
             }
@@ -1104,8 +1122,9 @@ public class UnitMovement : MonoBehaviour
             if (selectedTrader != null)
             {
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+                uiTraderPanel.SwitchRouteIcons(false);
                 uiTraderPanel.ToggleVisibility(false, world);
-                uiCancelTradeRoute.ToggleTweenVisibility(false);
+                //uiCancelTradeRoute.ToggleTweenVisibility(false);
                 uiTradeRouteManager.ToggleVisibility(false);
                 uiPersonalResourceInfoPanel.ToggleVisibility(false, selectedTrader);
                 LoadUnloadFinish(false); //clear load cargo screen
