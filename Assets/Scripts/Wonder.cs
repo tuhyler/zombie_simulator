@@ -102,11 +102,11 @@ public class Wonder : MonoBehaviour
 
     public void SetPrefabs()
     {
-        //mesh0Percent.enabled = false;
+        mesh0Percent.SetActive(false);
         mesh25Percent.SetActive(false);
         mesh50Percent.SetActive(false);
         mesh75Percent.SetActive(false);
-        meshComplete.SetActive(false);
+        //meshComplete.SetActive(false);
         PlaySmokeSplash();
         mapIcon.SetActive(true);
         //PlayFireworks();
