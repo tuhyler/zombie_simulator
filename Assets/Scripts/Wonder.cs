@@ -17,6 +17,7 @@ public class Wonder : MonoBehaviour
     public GameObject mesh75Percent;
     public GameObject meshComplete;
     public GameObject mapIcon;
+    public List<Light> wonderLights = new();
 
     private SelectionHighlight highlight;
 
@@ -98,6 +99,10 @@ public class Wonder : MonoBehaviour
     {
         this.world = world;
         this.focusCam = focusCam;
+
+        if (world.dayNightCycle.timeODay > 18 || world.dayNightCycle.timeODay < 6)
+            foreach (Light light in wonderLights)
+                light.gameObject.SetActive(true);
     }
 
     public void SetPrefabs()
