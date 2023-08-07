@@ -14,7 +14,7 @@ public class DayNightCycle : MonoBehaviour
     private bool day = true;
     
     [SerializeField, Range(0, 24)]
-    private float timeODay;
+    public float timeODay;
 
     [SerializeField]
     private float baseIntensity;

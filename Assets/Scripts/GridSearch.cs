@@ -66,37 +66,44 @@ public class GridSearch
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
 
-                bool isRoadOnTileLocation;// = world.IsRoadOnTileLocation(neighbor);
+                bool hasRoad;// = world.IsRoadOnTileLocation(neighbor);
                 int tempCost;
 
                 //below is for units staying on roads
                 if (!centerRoad)
                 {
                     if (xzRoad && xzRoads.Contains(tile))
-                        isRoadOnTileLocation = world.IsRoadOnTileLocation(neighbor);
+                        hasRoad = world.IsRoadOnTileLocation(neighbor);
                     else if (xRoad && xRoads.Contains(tile))
-                        isRoadOnTileLocation = world.IsRoadOnTileLocation(neighbor);
+                        hasRoad = world.IsRoadOnTileLocation(neighbor);
                     else if (zRoad && zRoads.Contains(tile))
-                        isRoadOnTileLocation = world.IsRoadOnTileLocation(neighbor);
+                        hasRoad = world.IsRoadOnTileLocation(neighbor);
                     else
-                        isRoadOnTileLocation = false;
+                        hasRoad = false;
                 }
                 else
                 {
-                    isRoadOnTileLocation = world.IsRoadOnTileLocation(neighbor);
+                    hasRoad = world.IsRoadOnTileLocation(neighbor);
                 }
                 //above is for units staying on roads
 
-                if (isTrader && !isRoadOnTileLocation) //If it's a trader and not on road, ignore
+                if (isTrader && !hasRoad) //If it's a trader and not on road, ignore
                     continue;
 
-                if (isRoadOnTileLocation)
+                if (hasRoad)
                     tempCost = world.GetRoadCost();
                 else
                     tempCost = world.GetMovementCost(neighbor);
 
                 if (tile.sqrMagnitude == 2)
-                    tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+                {
+                    Vector3Int temp = neighbor - current;
+
+                    if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+                        continue;
+
+                    tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+                }
 
                 int newCost = costDictionary[current] + tempCost;
                 if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])

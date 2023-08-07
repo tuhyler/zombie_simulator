@@ -409,11 +409,13 @@ public class TerrainData : MonoBehaviour
 
     public void HideTerrainMesh()
     {
-        terrainMesh.gameObject.SetActive(false);
+        if (terrainMesh != null)
+            terrainMesh.gameObject.SetActive(false);
     }
 
     public void RestoreTerrainMesh()
     {
+        if (terrainMesh != null)
         terrainMesh.gameObject.SetActive(true);
     }
 

@@ -13,6 +13,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [SerializeField]
+    public DayNightCycle dayNightCycle;
+    [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
     [SerializeField]
     private UIWorldResources uiWorldResources;

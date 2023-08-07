@@ -53,6 +53,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
   - {fileID: 21300000, guid: e6aa6313eaf50024890ed0293ab4262d, type: 3}
   - {fileID: 21300000, guid: cdc75d235c91c4040b418de92323a99d, type: 3}
+  - {fileID: 21300000, guid: 7c5a63637eb16ae4b922bbcdcd640c2d, type: 3}
   - {fileID: 21300000, guid: 74a25673e928bef45bf2d3a7ba082f11, type: 3}
   - {fileID: 21300000, guid: 8bf82434787c08e4f92718ad30afd9b1, type: 3}
   - {fileID: 21300000, guid: 017a4b341d2d93245a74b5edfb806764, type: 3}
@@ -88,10 +89,12 @@ SpriteAtlas:
   - {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
   - {fileID: 21300000, guid: 3083b8cdad8e636409c158262411ba5b, type: 3}
   - {fileID: 21300000, guid: a776a8ed1f177474c824cade83e4c593, type: 3}
+  - {fileID: 21300000, guid: 2bf3411e6f934e44792edcccfd338d56, type: 3}
   - {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
   - {fileID: 21300000, guid: 5757ef8f018e3af4d9108a6b9c72c500, type: 3}
   - {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
   - {fileID: 21300000, guid: 1fe8c0bf99e862f4193dc969b97d0551, type: 3}
+  - {fileID: 21300000, guid: c03f2dbf53bf46f46ad2e22bbc580b43, type: 3}
   - {fileID: 21300000, guid: c49e03ef81a1c3e4e969861ea75baa41, type: 3}
   - {fileID: 21300000, guid: b1e8d9efd187143438b3866c2ebcfc2c, type: 3}
   m_PackedSpriteNamesToIndex:
@@ -110,6 +113,7 @@ SpriteAtlas:
   - Research02Img
   - BrickOvens01Img
   - Smith01Img
+  - GreatZigguratImg
   - Weaver01Img
   - Plantation01Img
   - Ceramist01Img
@@ -145,10 +149,12 @@ SpriteAtlas:
   - WonderWorker01Img
   - Pasture01LittleImg
   - Research02LittleImg
+  - HangingGardensImg
   - Mine01Img
   - Farm01LittleImg
   - Farm01Img
   - Mine01LittleImg
+  - GreatLighthouseImg
   - Weaver02LittleImg
   - Research01Img
   m_RenderDataMap: {}
