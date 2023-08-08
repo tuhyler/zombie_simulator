@@ -352,6 +352,12 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
         return chosenResearchItem.ResearchName;
     }
 
+    public void CloseTip()
+    {
+        if (researchTooltip.activeStatus)
+            researchTooltip.ToggleVisibility(false);
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         if (researchTooltip.activeStatus)

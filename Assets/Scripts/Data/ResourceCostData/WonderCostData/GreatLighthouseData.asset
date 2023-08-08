@@ -34,4 +34,5 @@ MonoBehaviour:
   replaceProp: 1
   buildTimePerPercent: 2
   locked: 0
+  isSea: 1
   workerData: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}

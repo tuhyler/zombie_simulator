@@ -87,9 +87,9 @@ public class UIWonderSelection : MonoBehaviour
             {
                 addHarborButton.SetActive(true);
                 if (wonder.hasHarbor)
-                    harborText.text = "Remove Harbor";
+                    harborText.text = "Remove Dock";
                 else
-                    harborText.text = "Add Harbor";
+                    harborText.text = "Add Dock";
             }
 
             gameObject.SetActive(v);
@@ -176,9 +176,9 @@ public class UIWonderSelection : MonoBehaviour
     public void UpdateHarborButton(bool v)
     {
         if (v)
-            harborText.text = "Remove Harbor";
+            harborText.text = "Remove Dock";
         else
-            harborText.text = "Add Harbor";
+            harborText.text = "Add Dock";
     }
 
     public void HideCancelConstructionButton()

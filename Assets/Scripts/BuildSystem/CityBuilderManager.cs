@@ -1370,7 +1370,7 @@ public class CityBuilderManager : MonoBehaviour
             //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
             foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
             {
-                if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).terrainData.walkable)
+                if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).walkable)
                 {
                     buildPosition = pos;
                     break;
@@ -2106,7 +2106,7 @@ public class CityBuilderManager : MonoBehaviour
 
         foreach (Vector3Int neighbor in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.FOURWAYINCREMENT))
         {
-            if (!world.GetTerrainDataAt(neighbor).terrainData.sailable) //don't place harbor on neighboring water tiles
+            if (!world.GetTerrainDataAt(neighbor).sailable) //don't place harbor on neighboring water tiles
             {
                 //int distanceFromCity = neighbor.sqrMagnitude - originationLocation.sqrMagnitude;
                 int distanceFromCity = Math.Abs(neighbor.x - originationLocation.x) + Math.Abs(neighbor.z - originationLocation.z);

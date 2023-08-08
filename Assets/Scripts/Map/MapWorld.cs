@@ -894,16 +894,24 @@ public class MapWorld : MonoBehaviour
             }
         }
 
-        //hide ground
+        //prep terrain
         foreach(Vector3Int tile in wonderPlacementLoc)
         {
             TerrainData td = GetTerrainDataAt(tile);
 
-            if (td.prop != null)
-                td.prop.gameObject.SetActive(false);
-            td.HideTerrainMesh();
-            if (td.hasResourceMap)
-                td.HideResourceMap();
+            if (wonderData.isSea)
+            {
+                td.sailable = false;
+                td.walkable = true;
+            }
+            else
+            {
+                if (td.prop != null)
+                    td.prop.gameObject.SetActive(false);
+                td.HideTerrainMesh();
+                if (td.hasResourceMap)
+                    td.HideResourceMap();
+            }
         }
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
@@ -947,12 +955,20 @@ public class MapWorld : MonoBehaviour
 
                 TerrainData td = GetTerrainDataAt(neighbor);
 
-                if (td.terrainData.type == TerrainType.Coast || td.terrainData.type == TerrainType.River)
+                if (wonderData.isSea)
                 {
-                    wonder.canBuildHarbor = true;
-                    harborTiles.Add(neighbor);
+                    if (td.terrainData.type == TerrainType.Coast || td.terrainData.type == TerrainType.Sea)
+                        harborTiles.Add(neighbor);
+                }
+                else
+                {
+                    if (td.terrainData.type == TerrainType.Coast || td.terrainData.type == TerrainType.River)
+                        harborTiles.Add(neighbor);
                 }
             }
+
+            if (harborTiles.Count > 0)
+                wonder.canBuildHarbor = true;
         }
 
         wonder.PossibleHarborLocs = harborTiles;
@@ -1959,12 +1975,12 @@ public class MapWorld : MonoBehaviour
     //for movement
     public bool CheckIfPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].terrainData.walkable && !noWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile);
     }
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].terrainData.sailable && !noWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].sailable && !noWalkList.Contains(tile);
     }
 
     public bool CheckIfCoastCoast(Vector3Int tile)
