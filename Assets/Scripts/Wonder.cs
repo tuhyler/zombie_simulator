@@ -12,9 +12,9 @@ public class Wonder : MonoBehaviour
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
     public GameObject mesh0Percent;
-    public GameObject mesh25Percent;
-    public GameObject mesh50Percent;
-    public GameObject mesh75Percent;
+    //public GameObject mesh25Percent;
+    public GameObject mesh33Percent;
+    public GameObject mesh67Percent;
     public GameObject meshComplete;
     public GameObject mapIcon;
     public List<Light> wonderLights = new();
@@ -99,30 +99,27 @@ public class Wonder : MonoBehaviour
     {
         this.world = world;
         this.focusCam = focusCam;
-
-        if (world.dayNightCycle.timeODay > 18 || world.dayNightCycle.timeODay < 6)
-            foreach (Light light in wonderLights)
-                light.gameObject.SetActive(true);
     }
 
     public void SetPrefabs()
     {
         mesh0Percent.SetActive(false);
-        mesh25Percent.SetActive(false);
-        mesh50Percent.SetActive(false);
-        mesh75Percent.SetActive(false);
-        //meshComplete.SetActive(false);
+        //mesh33Percent.SetActive(false);
+        mesh67Percent.SetActive(false);
+        meshComplete.SetActive(false);
         PlaySmokeSplash();
         mapIcon.SetActive(true);
         //PlayFireworks();
+
+        //mesh25Percent.SetActive(false);
     }
 
     public void SetLastPrefab()
     {
         mesh0Percent.SetActive(false);
-        mesh25Percent.SetActive(false);
-        mesh50Percent.SetActive(false);
-        mesh75Percent.SetActive(false);
+        //mesh25Percent.SetActive(false);
+        mesh33Percent.SetActive(false);
+        mesh67Percent.SetActive(false);
     }
 
     public void SetCenterPos(Vector3 centerPos)
@@ -148,6 +145,13 @@ public class Wonder : MonoBehaviour
     private void SetNextResourceThreshold(ResourceType resourceType)
     {
         resourceThreshold[resourceType] = (percentDone + 1) * Mathf.RoundToInt(resourceCostDict[resourceType] * 0.01f);
+    }
+
+    private void LightCheck()
+    {
+        if (world.dayNightCycle.timeODay > 18 || world.dayNightCycle.timeODay < 6)
+            foreach (Light light in wonderLights)
+                light.gameObject.SetActive(true);
     }
 
     private void IncreasePercentDone()
@@ -380,26 +384,27 @@ public class Wonder : MonoBehaviour
 
     private void NextPhaseCheck()
     {   
-        if (percentDone == 25)
+        if (percentDone == 33)
         {
-            SetNewGO(mesh0Percent, mesh25Percent);
+            SetNewGO(mesh0Percent, mesh33Percent);
             PlaySmokeSplash();
         }
-        else if (percentDone == 50)
+        else if (percentDone == 67)
         {
-            SetNewGO(mesh25Percent, mesh50Percent);
+            SetNewGO(mesh33Percent, mesh67Percent);
             PlaySmokeSplash();
         }
-        else if (percentDone == 75)
-        {
-            SetNewGO(mesh50Percent, mesh75Percent);
-            PlaySmokeSplash();
-        }
+        //else if (percentDone == 75)
+        //{
+        //    SetNewGO(mesh50Percent, mesh75Percent);
+        //    PlaySmokeSplash();
+        //}
         else if (percentDone == 100)
         {
             PlayFireworks();
             focusCam.CenterCameraNoFollow(centerPos);
-            SetNewGO(mesh75Percent,meshComplete);
+            SetNewGO(mesh67Percent,meshComplete);
+            LightCheck();
             PlaySmokeSplash();
             isConstructing = false;
             world.RemoveWonderName(wonderName);

@@ -36,7 +36,7 @@ public class TerrainData : MonoBehaviour
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
 
     [HideInInspector]
-    public bool isHill, hasRoad, hasResourceMap;
+    public bool isHill, hasRoad, hasResourceMap, walkable, sailable;
 
     private bool isLand = true;
     private bool isCoast = false;
@@ -68,7 +68,10 @@ public class TerrainData : MonoBehaviour
     {
         //originalTag = gameObject.tag;
         if (terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill)
-            isHill = true; 
+            isHill = true;
+
+        walkable = terrainData.walkable;
+        sailable = terrainData.sailable;
         
         if (terrainData.type == TerrainType.Obstacle || isHill)
         {

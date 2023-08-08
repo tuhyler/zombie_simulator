@@ -274,18 +274,20 @@ public class UIResearchTooltip : MonoBehaviour
     {
         Vector3 p = Input.mousePosition;
         float x = 0.5f;
-        float y = 0f;
+        float y = 0.5f;
         //float xChange = 0;
         //float yChange = 0;
 
         p.z = 935;
         //p.z = 1;
-        if (p.y + allContents.rect.height > Screen.height)
+        if (p.y + allContents.rect.height * 0.5f > Screen.height - 100)
             y = 1f;
+        else if (p.y - + allContents.rect.height * 0.5f < 0)
+            y = 0f;
 
-        if (p.x + allContents.rect.width * 0.5f > Screen.width)
+        if (p.x + allContents.rect.width > Screen.width)
             x = 1f;
-        else if (p.x - allContents.rect.width * 0.5 < 0)
+        else if (p.x - allContents.rect.width < 0)
             x = 0f;
 
         allContents.pivot = new Vector2(x, y);

@@ -149,7 +149,7 @@ public class UnitMovement : MonoBehaviour
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already something here");
                 }
-                else if (!td.terrainData.walkable)
+                else if (!td.walkable)
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build here");
                 }

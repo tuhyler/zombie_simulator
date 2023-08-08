@@ -295,7 +295,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
         researchPercentDone.color = Color.white; 
         researchPercentDone.text = $"{researchReceived}/{totalResearchNeeded}";
-        researchPercentDone.outlineWidth = 0.4f;
+        //researchPercentDone.outlineWidth = 0.4f; //this makes the text appear outside of the scroll rect for some reason
 
         LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
             .setEase(LeanTweenType.easeOutSine)
