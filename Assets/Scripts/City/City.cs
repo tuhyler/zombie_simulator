@@ -102,6 +102,8 @@ public class City : MonoBehaviour
     public List<string> savedQueueItemsNames = new();
     [HideInInspector]
     public Dictionary<string, GameObject> buildingQueueGhostDict = new();
+    [HideInInspector]
+    public List<Vector3Int> improvementQueueLocs = new();
 
     //private SelectionHighlight highlight; //Highlight doesn't work on city name text
 
@@ -456,6 +458,7 @@ public class City : MonoBehaviour
         housing.transform.position = houseLoc;
         CityImprovement improvement = housing.GetComponent<CityImprovement>();
         //improvement.DestroyUpgradeSplash();
+        improvement.loc = cityLoc;
         initialHouse = improvement;
         housingCount += housingData.housingIncrease;
         world.SetCityBuilding(improvement, housingData, cityLoc, housing, this);

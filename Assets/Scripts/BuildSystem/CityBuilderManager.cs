@@ -36,6 +36,8 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private UIImprovementBuildPanel uiImprovementBuildInfoPanel;
     [SerializeField]
+    private UICityUpgradePanel uiCityUpgradePanel;
+    [SerializeField]
     private UICityNamer uiCityNamer;
     [SerializeField]
     public UITradeCenter uiTradeCenter;
@@ -123,17 +125,17 @@ public class CityBuilderManager : MonoBehaviour
     public Material transparentMat;
 
     //for object pooling resource info holders
-    private Queue<ResourceInfoHolder> resourceInfoHolderQueue = new();
-    private Dictionary<Vector3, ResourceInfoHolder> resourceInfoHolderDict = new();
+    //private Queue<ResourceInfoHolder> resourceInfoHolderQueue = new();
+    //private Dictionary<Vector3, ResourceInfoHolder> resourceInfoHolderDict = new();
 
     //for object pooling of resource info panels
-    private Queue<ResourceInfoPanel> resourceInfoPanelQueue = new();
-    private Dictionary<Vector3, List<ResourceInfoPanel>> resourceInfoPanelDict = new();
+    //private Queue<ResourceInfoPanel> resourceInfoPanelQueue = new();
+    //private Dictionary<Vector3, List<ResourceInfoPanel>> resourceInfoPanelDict = new();
 
-    private bool removingImprovement, upgradingImprovement, isQueueing, placingWonderHarbor; //flags thrown when doing specific tasks
+    private bool removingImprovement, upgradingImprovement, placingWonderHarbor; //flags thrown when doing specific tasks
     private bool isActive; //when looking at a city
     [HideInInspector]
-    public bool buildOptionsActive;
+    public bool buildOptionsActive, isQueueing;
     [HideInInspector]
     public UIBuilderHandler activeBuilderHandler;
 
@@ -152,8 +154,8 @@ public class CityBuilderManager : MonoBehaviour
         GrowLaborNumbersPool();
         GrowBordersPool();
         GrowConstructionTilePool(); 
-        GrowResourceInfoHolderPool();
-        GrowResourceInfoPanelPool();
+        //GrowResourceInfoHolderPool();
+        //GrowResourceInfoPanelPool();
         GrowImprovementResourcePool();
         //openAssignmentPriorityMenu.interactable = false;
     }
@@ -256,7 +258,8 @@ public class CityBuilderManager : MonoBehaviour
                 if (upgradingImprovement)
                 {
                     if (tilesToChange.Contains(terrainLocation) || terrainLocation == selectedCityLoc)
-                        UpgradeSelectedImprovementQueueCheck(terrainLocation, improvementSelected);
+                        uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvementSelected);
+                    //UpgradeSelectedImprovementQueueCheck(terrainLocation, improvementSelected);
                     else
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
                 }
@@ -381,8 +384,8 @@ public class CityBuilderManager : MonoBehaviour
                 else if (upgradingImprovement)
                 {
                     CityImprovement improvement = world.GetCityDevelopment(terrainLocation);
-
-                    UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
+                    uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvement);
+                    //UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
                 }
                 else if (removingImprovement)
                 {
@@ -766,7 +769,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ShowQueuedGhost()
     {
-        foreach (Vector3Int tile in cityTiles) //improvements
+        foreach (Vector3Int tile in selectedCity.improvementQueueLocs) //improvements
         {
             if (world.ShowQueueGhost(tile))
                 queuedGhost.Add(world.GetQueueGhost(tile));
@@ -944,9 +947,9 @@ public class CityBuilderManager : MonoBehaviour
             
             TerrainData td = world.GetTerrainDataAt(tile);
             td.DisableHighlight(); //turning off all highlights first
-            PoolResourceInfoPanel(tile);
-            resourceInfoHolderDict.Remove(tile);
-            resourceInfoPanelDict.Remove(tile);
+            //PoolResourceInfoPanel(tile);
+            //resourceInfoHolderDict.Remove(tile);
+            //resourceInfoPanelDict.Remove(tile);
 
             CityImprovement improvement = world.GetCityDevelopment(tile); 
             improvement.DisableHighlight();
@@ -957,7 +960,7 @@ public class CityBuilderManager : MonoBehaviour
                 improvement.EnableHighlight(Color.green);
                 tilesToChange.Add(tile);
 
-                SetUpResourceInfoPanel(improvement, tile);
+                //SetUpResourceInfoPanel(improvement, tile);
             }
         }
     }
@@ -965,21 +968,28 @@ public class CityBuilderManager : MonoBehaviour
     //for updating resource info while choosing upgrade options
     public void UpdateResourceInfo()
     {
-        if (upgradingImprovement)
+        if (uiCityUpgradePanel.activeStatus)
         {
-            foreach (Vector3 location in resourceInfoHolderDict.Keys)
-                PoolResourceInfoPanel(location);    
-            resourceInfoHolderDict.Clear();
-            resourceInfoPanelDict.Clear();
+            uiCityUpgradePanel.CheckCosts(selectedCity.ResourceManager);
+            
+            //foreach (Vector3 location in resourceInfoHolderDict.Keys)
+            //    PoolResourceInfoPanel(location);    
+            //resourceInfoHolderDict.Clear();
+            //resourceInfoPanelDict.Clear();
 
-            foreach (Vector3Int tile in tilesToChange)
-            {
-                CityImprovement improvement = world.GetCityDevelopment(tile);
-                SetUpResourceInfoPanel(improvement, tile);
-            }
+            //foreach (Vector3Int tile in tilesToChange)
+            //{
+            //    CityImprovement improvement = world.GetCityDevelopment(tile);
+            //    //SetUpResourceInfoPanel(improvement, tile);
+            //}
 
-            ToggleBuildingResourceInfo();
+            //ToggleBuildingResourceInfo();
         }
+    }
+
+    public void UpgradeUnit()
+    {
+
     }
 
     public void UpgradeSelectedImprovementQueueCheck(Vector3Int tempBuildLocation, CityImprovement selectedImprovement)
@@ -996,6 +1006,8 @@ public class CityBuilderManager : MonoBehaviour
             selectedImprovement.SetQueueCity(selectedCity);
             if (!uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, new(world.GetUpgradeCost(nameAndLevel))))
                 return; //checks if queue item already exists
+            else
+                selectedCity.improvementQueueLocs.Add(tempBuildLocation);
             return;
         }
 
@@ -1019,21 +1031,21 @@ public class CityBuilderManager : MonoBehaviour
         {
             selectedImprovement.DisableHighlight();
                 
-            if (upgradeLoc == selectedCityLoc)
-            {
-                PoolResourceInfoPanel(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc);
-                resourceInfoHolderDict.Remove(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc);
-                resourceInfoPanelDict.Remove(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc); //can't be in previous method
-            }
-            else
-            {
-                PoolResourceInfoPanel(upgradeLoc);
-                resourceInfoHolderDict.Remove(upgradeLoc);
-                resourceInfoPanelDict.Remove(upgradeLoc);
+            //if (upgradeLoc == selectedCityLoc)
+            //{
+            //    PoolResourceInfoPanel(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc);
+            //    resourceInfoHolderDict.Remove(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc);
+            //    resourceInfoPanelDict.Remove(selectedImprovement.GetImprovementData.buildingLocation + selectedCityLoc); //can't be in previous method
+            //}
+            //else
+            //{
+            //    PoolResourceInfoPanel(upgradeLoc);
+            //    resourceInfoHolderDict.Remove(upgradeLoc);
+            //    resourceInfoPanelDict.Remove(upgradeLoc);
              
-                //placesToWork--;
-                //UpdateCityLaborUIs();
-            }
+            //    //placesToWork--;
+            //    //UpdateCityLaborUIs();
+            //}
         }
 
         string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
@@ -1129,50 +1141,50 @@ public class CityBuilderManager : MonoBehaviour
         //}
     }
 
-    private void SetUpResourceInfoPanel(CityImprovement improvement, Vector3 tile, bool building = false)
-    {
-        //setting up the resourceInfoPanels to appear below improvement
-        List<ResourceInfoPanel> resourceInfoPanelList = new();
-        List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel));
-        int resourceCount = upgradeCost.Count;
-        Vector3 holderPos = tile;
-        //holderPos.y -= 1f;
-        holderPos.z -= 1.5f;
-        if (building)
-            holderPos.z += 1;
-        ResourceInfoHolder resourceInfoHolder = GetFromResourceInfoHolderPool();
-        resourceInfoHolder.transform.position = holderPos;
+    //private void SetUpResourceInfoPanel(CityImprovement improvement, Vector3 tile, bool building = false)
+    //{
+    //    //setting up the resourceInfoPanels to appear below improvement
+    //    List<ResourceInfoPanel> resourceInfoPanelList = new();
+    //    List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel));
+    //    int resourceCount = upgradeCost.Count;
+    //    Vector3 holderPos = tile;
+    //    //holderPos.y -= 1f;
+    //    holderPos.z -= 1.5f;
+    //    if (building)
+    //        holderPos.z += 1;
+    //    ResourceInfoHolder resourceInfoHolder = GetFromResourceInfoHolderPool();
+    //    resourceInfoHolder.transform.position = holderPos;
 
-        int i = 0;
-        foreach (ResourceValue value in upgradeCost)
-        {
-            Vector3 panelPos = new Vector3(0, 0, 0);
-            panelPos.x -= .32f * (resourceCount - 1);
-            panelPos.x += .64f * i;
+    //    int i = 0;
+    //    foreach (ResourceValue value in upgradeCost)
+    //    {
+    //        Vector3 panelPos = new Vector3(0, 0, 0);
+    //        panelPos.x -= .32f * (resourceCount - 1);
+    //        panelPos.x += .64f * i;
 
-            ResourceInfoPanel resourceInfoPanel = GetFromResourceInfoPanelPool();
-            bool haveEnough = selectedCity.ResourceManager.CheckResourceAvailability(value);
-            resourceInfoPanel.SetResourcePanel(world.GetResourceIcon(value.resourceType), value.resourceAmount, haveEnough);
-            resourceInfoPanel.transform.SetParent(resourceInfoHolder.transform);
-            resourceInfoPanel.transform.localPosition = panelPos;
-            resourceInfoPanelList.Add(resourceInfoPanel);
-            i++;
-        }
+    //        ResourceInfoPanel resourceInfoPanel = GetFromResourceInfoPanelPool();
+    //        bool haveEnough = selectedCity.ResourceManager.CheckResourceAvailability(value);
+    //        resourceInfoPanel.SetResourcePanel(world.GetResourceIcon(value.resourceType), value.resourceAmount, haveEnough);
+    //        resourceInfoPanel.transform.SetParent(resourceInfoHolder.transform);
+    //        resourceInfoPanel.transform.localPosition = panelPos;
+    //        resourceInfoPanelList.Add(resourceInfoPanel);
+    //        i++;
+    //    }
 
-        resourceInfoHolderDict[tile] = resourceInfoHolder;
-        resourceInfoPanelDict[tile] = resourceInfoPanelList;
-    }
+    //    resourceInfoHolderDict[tile] = resourceInfoHolder;
+    //    resourceInfoPanelDict[tile] = resourceInfoPanelList;
+    //}
 
-    private void PoolResourceInfoPanel(Vector3 location)
-    {
-        if (!resourceInfoHolderDict.ContainsKey(location))
-            return;
+    //private void PoolResourceInfoPanel(Vector3 location)
+    //{
+    //    if (!resourceInfoHolderDict.ContainsKey(location))
+    //        return;
 
-        AddToResourceInfoHolderPool(resourceInfoHolderDict[location]);
+    //    AddToResourceInfoHolderPool(resourceInfoHolderDict[location]);
 
-        foreach (ResourceInfoPanel resourceInfoPanel in resourceInfoPanelDict[location])
-            AddToResourceInfoPanelPool(resourceInfoPanel);
-    }
+    //    foreach (ResourceInfoPanel resourceInfoPanel in resourceInfoPanelDict[location])
+    //        AddToResourceInfoPanelPool(resourceInfoPanel);
+    //}
 
     private void ToggleBuildingHighlight(bool v)
     {
@@ -1197,7 +1209,7 @@ public class CityBuilderManager : MonoBehaviour
                     if (building.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(building.GetImprovementData.improvementName))
                     {
                         building.EnableHighlight(Color.green, true);
-                        SetUpResourceInfoPanel(building, building.GetImprovementData.buildingLocation+selectedCityLoc, true);
+                        //SetUpResourceInfoPanel(building, building.GetImprovementData.buildingLocation+selectedCityLoc, true);
                     }
                     else
                     {
@@ -1225,18 +1237,18 @@ public class CityBuilderManager : MonoBehaviour
     }
 
     //a bit faster than using above method
-    private void ToggleBuildingResourceInfo()
-    {
-        foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
-        {
-            CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
+    //private void ToggleBuildingResourceInfo()
+    //{
+    //    foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
+    //    {
+    //        CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
 
-            if (building.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(building.GetImprovementData.improvementName))
-            {
-                SetUpResourceInfoPanel(building, building.GetImprovementData.buildingLocation + selectedCityLoc, true);
-            }
-        }
-    }
+    //        if (building.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(building.GetImprovementData.improvementName))
+    //        {
+    //            SetUpResourceInfoPanel(building, building.GetImprovementData.buildingLocation + selectedCityLoc, true);
+    //        }
+    //    }
+    //}
 
     private (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetThisCityRadius() //radius just for selected city
     {
@@ -1743,6 +1755,8 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (!uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, improvementData))
                 return;
+            else
+                SelectedCity.improvementQueueLocs.Add(tempBuildLocation);
             tilesToChange.Remove(tempBuildLocation);
             world.GetTerrainDataAt(tempBuildLocation).DisableHighlight();
             return;
@@ -2355,6 +2369,7 @@ public class CityBuilderManager : MonoBehaviour
             ResetTileLists();
             ToggleBuildingHighlight(true);
             uiImprovementBuildInfoPanel.ToggleVisibility(false);
+            uiCityUpgradePanel.ToggleVisibility(false);
         }
     }
 
@@ -2961,7 +2976,6 @@ public class CityBuilderManager : MonoBehaviour
         if (uiQueueManager.activeStatus)
         {
             (selectedCity.savedQueueItems, selectedCity.savedQueueItemsNames) = uiQueueManager.SetQueueItems();
-
         }
     }
 
@@ -3088,10 +3102,10 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ResetTileLists()
     {
-        foreach (Vector3 location in resourceInfoHolderDict.Keys)
-            PoolResourceInfoPanel(location);
-        resourceInfoHolderDict.Clear();
-        resourceInfoPanelDict.Clear();
+        //foreach (Vector3 location in resourceInfoHolderDict.Keys)
+        //    PoolResourceInfoPanel(location);
+        //resourceInfoHolderDict.Clear();
+        //resourceInfoPanelDict.Clear();
 
         foreach (Vector3Int tile in tilesToChange)
         {
@@ -3347,62 +3361,62 @@ public class CityBuilderManager : MonoBehaviour
     }
 
     //object pooling the resource info holders
-    private void GrowResourceInfoHolderPool()
-    {
-        for (int i = 0; i < 10; i++) //grow pool 20 at a time
-        {
-            GameObject resourceInfoHolderGO = Instantiate(GameAssets.Instance.resourceInfoHolder);
-            resourceInfoHolderGO.gameObject.transform.SetParent(objectPoolHolder, false);
-            ResourceInfoHolder resourceInfoHolder = resourceInfoHolderGO.GetComponent<ResourceInfoHolder>();
-            //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
-            AddToResourceInfoHolderPool(resourceInfoHolder);
-        }
-    }
+    //private void GrowResourceInfoHolderPool()
+    //{
+    //    for (int i = 0; i < 10; i++) //grow pool 20 at a time
+    //    {
+    //        GameObject resourceInfoHolderGO = Instantiate(GameAssets.Instance.resourceInfoHolder);
+    //        resourceInfoHolderGO.gameObject.transform.SetParent(objectPoolHolder, false);
+    //        ResourceInfoHolder resourceInfoHolder = resourceInfoHolderGO.GetComponent<ResourceInfoHolder>();
+    //        //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
+    //        AddToResourceInfoHolderPool(resourceInfoHolder);
+    //    }
+    //}
 
-    private void AddToResourceInfoHolderPool(ResourceInfoHolder resourceInfoHolder)
-    {
-        resourceInfoHolder.gameObject.SetActive(false);
-        resourceInfoHolderQueue.Enqueue(resourceInfoHolder);
-    }
+    //private void AddToResourceInfoHolderPool(ResourceInfoHolder resourceInfoHolder)
+    //{
+    //    resourceInfoHolder.gameObject.SetActive(false);
+    //    resourceInfoHolderQueue.Enqueue(resourceInfoHolder);
+    //}
 
-    private ResourceInfoHolder GetFromResourceInfoHolderPool()
-    {
-        if (resourceInfoHolderQueue.Count == 0)
-            GrowResourceInfoHolderPool();
+    //private ResourceInfoHolder GetFromResourceInfoHolderPool()
+    //{
+    //    if (resourceInfoHolderQueue.Count == 0)
+    //        GrowResourceInfoHolderPool();
 
-        var resourceInfoHolder = resourceInfoHolderQueue.Dequeue();
-        resourceInfoHolder.gameObject.SetActive(true);
-        return resourceInfoHolder;
-    } 
+    //    var resourceInfoHolder = resourceInfoHolderQueue.Dequeue();
+    //    resourceInfoHolder.gameObject.SetActive(true);
+    //    return resourceInfoHolder;
+    //} 
 
     //object pooling the resource info panels
-    private void GrowResourceInfoPanelPool()
-    {
-        for (int i = 0; i < 20; i++) //grow pool 20 at a time
-        {
-            GameObject resourceInfoPanelGO = Instantiate(GameAssets.Instance.resourceInfoPanel);
-            resourceInfoPanelGO.gameObject.transform.SetParent(objectPoolHolder, false);
-            ResourceInfoPanel resourceInfoPanel = resourceInfoPanelGO.GetComponent<ResourceInfoPanel>();
-            //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
-            AddToResourceInfoPanelPool(resourceInfoPanel);
-        }
-    }
+    //private void GrowResourceInfoPanelPool()
+    //{
+    //    for (int i = 0; i < 20; i++) //grow pool 20 at a time
+    //    {
+    //        GameObject resourceInfoPanelGO = Instantiate(GameAssets.Instance.resourceInfoPanel);
+    //        resourceInfoPanelGO.gameObject.transform.SetParent(objectPoolHolder, false);
+    //        ResourceInfoPanel resourceInfoPanel = resourceInfoPanelGO.GetComponent<ResourceInfoPanel>();
+    //        //resourceInfoPanel.transform.rotation = Quaternion.Euler(90, 0, 0); //rotating to lie flat on tile
+    //        AddToResourceInfoPanelPool(resourceInfoPanel);
+    //    }
+    //}
 
-    private void AddToResourceInfoPanelPool(ResourceInfoPanel resourceInfoPanel)
-    {
-        resourceInfoPanel.gameObject.SetActive(false);
-        resourceInfoPanelQueue.Enqueue(resourceInfoPanel);
-    }
+    //private void AddToResourceInfoPanelPool(ResourceInfoPanel resourceInfoPanel)
+    //{
+    //    resourceInfoPanel.gameObject.SetActive(false);
+    //    resourceInfoPanelQueue.Enqueue(resourceInfoPanel);
+    //}
 
-    private ResourceInfoPanel GetFromResourceInfoPanelPool()
-    {
-        if (resourceInfoPanelQueue.Count == 0)
-            GrowResourceInfoPanelPool();
+    //private ResourceInfoPanel GetFromResourceInfoPanelPool()
+    //{
+    //    if (resourceInfoPanelQueue.Count == 0)
+    //        GrowResourceInfoPanelPool();
 
-        var resourceInfoPanel = resourceInfoPanelQueue.Dequeue();
-        resourceInfoPanel.gameObject.SetActive(true);
-        return resourceInfoPanel;
-    }
+    //    var resourceInfoPanel = resourceInfoPanelQueue.Dequeue();
+    //    resourceInfoPanel.gameObject.SetActive(true);
+    //    return resourceInfoPanel;
+    //}
 
 
     private void GrowImprovementResourcePool()

@@ -6,11 +6,11 @@ using UnityEngine.UI;
 
 public class UIResearchTooltip : MonoBehaviour
 {
+    public MapWorld world;
     public TMP_Text title, level, producesTitle, health, speed, strength;
     private TMP_Text producesText;
     public Image mainImage, strengthImage;
     public Sprite inventorySprite, strengthSprite;
-    //private int screenHeightNegHalf = -750;
     public RectTransform allContents, resourceProduceAllHolder, imageLine, resourceProducedHolder, resourceCostHolder, unitInfo;
     public VerticalLayoutGroup resourceProduceLayout;
     private List<Transform> produceConsumesHolders = new();
@@ -75,6 +75,7 @@ public class UIResearchTooltip : MonoBehaviour
 
         if (v)
         {
+            world.infoPopUpCanvas.gameObject.SetActive(true);
             activeStatus = true;
             gameObject.SetActive(v);
 
@@ -90,6 +91,7 @@ public class UIResearchTooltip : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+        world.infoPopUpCanvas.gameObject.SetActive(false);
     }
 
     public void SetInfo(Vector3 position, Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
@@ -273,24 +275,24 @@ public class UIResearchTooltip : MonoBehaviour
     private void PositionCheck()
     {
         Vector3 p = Input.mousePosition;
-        float x = 0.5f;
-        float y = 0.5f;
+        //float x = 0.5f;
+        //float y = 0.5f;
         //float xChange = 0;
         //float yChange = 0;
 
-        p.z = 935;
+        p.z = 1;
         //p.z = 1;
-        if (p.y + allContents.rect.height * 0.5f > Screen.height - 100)
-            y = 1f;
-        else if (p.y - + allContents.rect.height * 0.5f < 0)
-            y = 0f;
+        //if (p.y + allContents.rect.height * 0.4f > Screen.height - 100)
+        //    y = 1f;
+        //else if (p.y - allContents.rect.height * 0.4f < 0)
+        //    y = 0f;
 
-        if (p.x + allContents.rect.width > Screen.width)
-            x = 1f;
-        else if (p.x - allContents.rect.width < 0)
-            x = 0f;
+        //if (p.x + allContents.rect.width * 0.5f > Screen.width)
+        //    x = 1f;
+        //else if (p.x - allContents.rect.width * 0.5f < 0)
+        //    x = 0f;
 
-        allContents.pivot = new Vector2(x, y);
+        allContents.pivot = new Vector2(p.x / Screen.width, p.y / Screen.height);
 
         Vector3 pos = Camera.main.ScreenToWorldPoint(p);
         allContents.transform.position = pos;
