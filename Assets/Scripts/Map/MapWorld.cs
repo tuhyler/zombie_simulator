@@ -1719,6 +1719,11 @@ public class MapWorld : MonoBehaviour
         return upgradeableObjectDataDict[nameAndLevel];
     }
 
+    public UnitBuildDataSO GetUnitUpgradeData(string nameAndLevel)
+    {
+        return null;
+    }
+
     public ImprovementDataSO GetImprovementData(string nameAndLevel)
     {
         return improvementDataDict[nameAndLevel];

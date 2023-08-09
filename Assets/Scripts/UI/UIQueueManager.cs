@@ -165,7 +165,10 @@ public class UIQueueManager : MonoBehaviour
             if (selectedQueueItem.buildLoc.x == 0 && selectedQueueItem.buildLoc.z == 0)
                 cityBuilderManager.RemoveQueueGhostBuilding(selectedQueueItem.buildingName, cityBuilderManager.SelectedCity);
             else
+            {
                 cityBuilderManager.RemoveQueueGhostImprovement(selectedQueueItem.buildLoc + cityBuilderManager.SelectedCityLoc, cityBuilderManager.SelectedCity);
+                cityBuilderManager.SelectedCity.improvementQueueLocs.Remove(selectedQueueItem.buildLoc + cityBuilderManager.SelectedCityLoc);
+            }
 
             RemoveFromQueue(selectedQueueItem, cityBuilderManager.SelectedCityLoc);
         }
