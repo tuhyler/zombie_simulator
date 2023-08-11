@@ -1770,16 +1770,15 @@ public class MapWorld : MonoBehaviour
         cityImprovementConstructionDict[tile] = cityDevelopment;
     }
 
-    public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city)
+    public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, string buildingName)
     {
         //CityImprovement improvement = building.GetComponent<CityImprovement>();
         improvement.building = improvementData.isBuilding;
         improvement.PlaySmokeSplashBuilding();
         improvement.InitializeImprovementData(improvementData);
-        string buildingName = improvementData.improvementName;
+        //string buildingName = improvementData.improvementName;
         improvement.SetCity(city);
         improvement.transform.parent = city.transform;
-        improvement.initialCityHouse = improvementData.cityHousing;
         city.workEthic += improvementData.workEthicChange;
         cityBuildingGODict[cityTile][buildingName] = building;
         cityBuildingDict[cityTile][buildingName] = improvement;

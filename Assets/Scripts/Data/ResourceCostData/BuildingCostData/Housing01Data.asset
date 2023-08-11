@@ -16,15 +16,17 @@ MonoBehaviour:
   secondaryData: []
   isBuilding: 1
   improvementName: Housing
-  improvementDisplayName: Tent
+  improvementDisplayName: Small Wood House
   improvementLevel: 1
   improvementNameAndLevel: Housing-1
   improvementDescription: Increases housing by 3
-  buildingLocation: {x: 0, y: 0, z: 1}
+  buildingLocation: {x: -1.2, y: 0, z: 0.7}
   image: {fileID: 0}
   littleImage: {fileID: 0}
   mapIcon: {fileID: 0}
-  improvementCost: []
+  improvementCost:
+  - resourceType: 6
+    resourceAmount: 10
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -39,16 +41,16 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   maxLabor: 5
-  housingIncrease: 3
+  housingIncrease: 1
   cityHousing: 1
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 1
+  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hillAdjustment: 0.4
   buildTime: 0
-  availableInitially: 0
+  availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
   noWalkAreas: []

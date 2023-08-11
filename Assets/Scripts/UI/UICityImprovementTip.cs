@@ -39,6 +39,7 @@ public class UICityImprovementTip : MonoBehaviour
 
     private void Awake()
     {
+        transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
 
         foreach (Transform selection in producesRect)

@@ -47,7 +47,7 @@ MonoBehaviour:
   cityHousing: 1
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 1
+  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hillAdjustment: 0.4

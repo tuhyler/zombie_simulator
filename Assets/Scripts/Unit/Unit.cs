@@ -25,7 +25,7 @@ public class Unit : MonoBehaviour
     private ParticleSystem lightBeam;
 
     [SerializeField]
-    private GameObject selectionCircle, mesh;
+    private GameObject selectionCircle;
 
     [SerializeField]
     private UnitMarker marker;

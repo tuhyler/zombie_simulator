@@ -28,19 +28,15 @@ MonoBehaviour:
   improvementCost:
   - resourceType: 6
     resourceAmount: 10
-  consumedResources:
-  - resourceType: 4
-    resourceAmount: 5
-  - resourceType: 6
-    resourceAmount: 2
+  consumedResources: []
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 2
-    resourceAmount: 2
-  producedResourceTime: 02000000
+    resourceAmount: 1
+  producedResourceTime: 0a000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
@@ -55,6 +51,7 @@ MonoBehaviour:
   singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
+  hillAdjustment: 0.6
   buildTime: 3
   availableInitially: 1
   workAnimLoop: 0

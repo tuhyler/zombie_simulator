@@ -103,14 +103,15 @@ public class ResourceIndividualHandler : MonoBehaviour
         worker.harvested = true;
         //unitPos.x += 1f;
         //unitPos.z += 1f;
-        unitPos.y += 2f;
+        unitPos.y += 1.5f;
         //unitPos += Vector3.one; //setting it up to float above worker's head
         GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
         Resource resource = resourceGO.GetComponent<Resource>();
         resource.SetSprites(resourceIndividual.resourceIcon);
         resource.SetInfo(worker, city, resourceIndividual);
+        Vector3 localScale = resourceGO.transform.localScale;
         resourceGO.transform.localScale = Vector3.zero;
-        LeanTween.scale(resourceGO, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(resourceGO, localScale, 0.25f).setEase(LeanTweenType.easeOutBack);
         //ShowHarvestedResource(unitPos, worker);
     }
 

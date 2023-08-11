@@ -28,6 +28,7 @@ public class UITerrainTooltip : MonoBehaviour
 
     private void Awake()
     {
+        transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
         tooltipTrigger = GetComponentInChildren<UITooltipTrigger>();
     }
@@ -63,7 +64,6 @@ public class UITerrainTooltip : MonoBehaviour
             allContents.pivot = new Vector2(x, y);
             Vector3 pos = Camera.main.ScreenToWorldPoint(p);
             allContents.transform.position = pos;
-            allContents.localScale = Vector3.zero;
             LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
         }
         else

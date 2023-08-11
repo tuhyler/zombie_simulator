@@ -1517,60 +1517,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &2641935759052354871
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3953001879759045210}
-  - component: {fileID: 1074048907551558444}
-  m_Layer: 0
-  m_Name: Global Volume
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &3953001879759045210
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2641935759052354871}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4664273602164976609}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1074048907551558444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2641935759052354871}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IsGlobal: 1
-  priority: 0
-  blendDistance: 0
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: dcd86da4b4f2d214792a8b13019f2881, type: 2}
 --- !u!1 &2688149516977620251
 GameObject:
   m_ObjectHideFlags: 0
@@ -3942,7 +3888,7 @@ RectTransform:
   - {fileID: 1263865650124916407}
   - {fileID: 7527545842687266426}
   m_Father: {fileID: 4664273602164976609}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -5078,7 +5024,6 @@ RectTransform:
   - {fileID: 6103194034937244805}
   - {fileID: 1803608227163503083}
   - {fileID: 8733097358242420723}
-  - {fileID: 3953001879759045210}
   - {fileID: 3373247998822472794}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -5148,7 +5093,7 @@ MonoBehaviour:
   researchTreeContents: {fileID: 8733097358242420723}
   tabContents: {fileID: 3373247998822472794}
   selectedTab: 0
-  globalVolume: {fileID: 1074048907551558444}
+  globalVolume: {fileID: 0}
   isQueueing: 0
   allContents: {fileID: 4664273602164976609}
   activeStatus: 0

@@ -218,6 +218,9 @@ public class UIResourceManager : MonoBehaviour
     {
         if (!resourceUIDict.ContainsKey(type))
         {
+            if (!city.resourceGridDict.ContainsKey(type))
+                city.AddToGrid(type);
+
             ActivateCell(type);
             if (activeCells > gridWidth)
                 buttonDown.gameObject.SetActive(true);

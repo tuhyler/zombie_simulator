@@ -130,7 +130,7 @@ public class UIBuilderHandler : MonoBehaviour
         OnUnitIconButtonClick?.Invoke(unitBuildData);
     }
 
-    public void ToggleVisibility(bool v, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
+    public void ToggleVisibility(bool v, bool openTab, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
     {
         if (activeStatus == v)
             return;
@@ -139,24 +139,31 @@ public class UIBuilderHandler : MonoBehaviour
 
         if (v)
         {
-            cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
             activeStatus = true;
             cityBuilderManager.buildOptionsActive = true;
             cityBuilderManager.activeBuilderHandler = this;
 
-            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.4f)
-            .setEase(LeanTweenType.easeOutSine)
-            .setOnUpdate((value) =>
+            if (!openTab)
             {
-                dof.focalLength.value = value;
-            });
+                cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(true);
+                LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 1f)
+                .setEase(LeanTweenType.easeOutSine)
+                .setOnUpdate((value) =>
+                {
+                    dof.focalLength.value = value;
+                });
+            }
+            //else
+            //{
+            //    dof.focalLength.value = 45;
+            //}
 
             //dof.focalLength.value = 45;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1000f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1000f, 0.5f).setEaseOutSine();
             LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
             if (resourceManager != null)
@@ -177,7 +184,6 @@ public class UIBuilderHandler : MonoBehaviour
         }
         else
         {
-            cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
             activeStatus = false;
             maxResource = 0;
             maxLabor = 0;
@@ -186,16 +192,24 @@ public class UIBuilderHandler : MonoBehaviour
             cityBuilderManager.activeBuilderHandler = null;
 
             //dof.focalLength.value = 15;
-            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
-            .setEase(LeanTweenType.easeOutSine)
-            .setOnUpdate((value) =>
+            if (!openTab)
             {
-                dof.focalLength.value = value;
-            });
+                LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
+                .setEase(LeanTweenType.easeOutSine)
+                .setOnUpdate((value) =>
+                {
+                    dof.focalLength.value = value;
+                });
+
+                LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
+                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.35f).setOnComplete(SetActiveStatusFalse);
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
 
             //dof.focalLength.value = 15;
-            LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.35f).setOnComplete(SetActiveStatusFalse);
             //gameObject.SetActive(false);
         }
 
@@ -205,6 +219,7 @@ public class UIBuilderHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+        cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
     }
 
     public void PrepareBuild(ImprovementDataSO buildData)
@@ -250,7 +265,7 @@ public class UIBuilderHandler : MonoBehaviour
 
             buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (locked || improvementSingleBuildList.Contains(itemName))
+            if (locked || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingAtMax))
             {
                 buildItem.ToggleVisibility(false);
                 continue;

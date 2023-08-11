@@ -24,6 +24,7 @@ public class UIResearchTooltip : MonoBehaviour
 
     private void Awake()
     {
+        transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
 
         foreach (Transform selection in resourceProducedHolder)
