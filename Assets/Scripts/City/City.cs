@@ -9,11 +9,16 @@ public class City : MonoBehaviour
 {
     //city praphics
     [SerializeField]
-    public GameObject housingPrefab, cityNameMap;
+    public GameObject cityNameMap;
     [SerializeField]
-    private ImprovementDataSO housingData;
+    public ImprovementDataSO housingData;
+    //private int housingCenterCount;
+    [HideInInspector]
+    public bool housingAtMax;
+    private int[] housingIndex = new[] { 0, 0, 0, 0 };
+    private List<Vector3> housingLocs = new() { new Vector3(0.7f, 0, 1.2f) , new Vector3(-1.2f, 0, 0.7f), new Vector3(-1.2f, 0, -0.7f), new Vector3(0.7f, 0, -1.2f) };
     private CityImprovement initialHouse;
-    private GameObject currentHouse;
+    //private GameObject currentHouse;
     private CityBuilderManager cityBuilderManager;
     private List<MeshFilter> cityMeshFilters = new();
     public List<MeshFilter> CityMeshFilters { get { return cityMeshFilters; } }
@@ -64,8 +69,9 @@ public class City : MonoBehaviour
     public CityPopulation cityPop;
 
     //foodConsumed info
-    public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60; //how much foodConsumed one unit eats per turn
-    private int foodConsumptionPerMinute; //total 
+    public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60, initialGrowthFood = 3; //how much foodConsumed one unit eats per turn
+    [HideInInspector]
+    public int foodConsumptionPerMinute; //total 
     private UITimeProgressBar uiTimeProgressBar;
     private int countDownTimer;
 
@@ -139,7 +145,7 @@ public class City : MonoBehaviour
         if (cityPop.CurrentPop >= 1)
             StartCoroutine(FoodConsumptionCoroutine());
 
-        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1; //first pop is free
+        foodConsumptionPerMinute = cityPop.CurrentPop == 0 ? 0 : (cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1); //first pop is free
         countDownTimer = secondsTillGrowthCheck;
 
         cityNameField.ToggleVisibility(false);
@@ -426,8 +432,8 @@ public class City : MonoBehaviour
         //cityPopText.text = cityPop.CurrentPop.ToString();
         //cityLaborText.text = cityPop.UnusedLabor.ToString();
         resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, foodConsumptionPerMinute, true);
-        float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
-        int foodStorage = resourceManager.FoodGrowthLevel;
+        //float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
+        //int foodStorage = foodConsumptionPerMinute;
 
         //if (foodPerMinute > 0)
         //{
@@ -443,30 +449,63 @@ public class City : MonoBehaviour
         //}
     }
 
-    public void SetHouse(Vector3Int cityLoc, bool isHill)
+    public void SetHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, bool upgrade)
     {
-        if (currentHouse != null)
-            Destroy(currentHouse);
+        //if (currentHouse != null)
+        //    Destroy(currentHouse);
 
         Vector3 houseLoc = cityLoc;
-        houseLoc += housingData.buildingLocation;
+        int index = Array.FindIndex(housingIndex, x => x == 0);
+        housingIndex[index] = 1;
+        houseLoc += housingLocs[index];
+        //housingCenterCount++;
+        if (housingIndex.Sum() == housingLocs.Count)
+            housingAtMax = true;
 
         if (isHill)
             houseLoc.y += housingData.hillAdjustment;
 
-        GameObject housing = Instantiate(housingPrefab, houseLoc, Quaternion.identity); //underground temporarily
-        housing.transform.position = houseLoc;
+        Vector3 direction = houseLoc - cityLoc;
+        direction.y = 0;
+        Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        GameObject housing = Instantiate(housingData.prefab, houseLoc, endRotation); //underground temporarily
+        //housing.transform.position = houseLoc;
         CityImprovement improvement = housing.GetComponent<CityImprovement>();
         //improvement.DestroyUpgradeSplash();
         improvement.loc = cityLoc;
-        initialHouse = improvement;
+        improvement.housingIndex = index;
+        if (index == 0)
+        {
+            initialHouse = improvement;
+            improvement.initialCityHouse = true;
+        }
+        else
+            resourceManager.SpendResource(housingData.improvementCost, cityLoc);
         housingCount += housingData.housingIncrease;
-        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this);
+        string buildingName = housingData.improvementName + index.ToString();
+        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, buildingName);
         //for tweening
         housing.transform.localScale = Vector3.zero;
         LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { 
-            cityBuilderManager.CombineMeshes(this, subTransform, false); improvement.SetInactive(); 
+            cityBuilderManager.CombineMeshes(this, subTransform, upgrade); improvement.SetInactive(); cityBuilderManager.ToggleBuildingHighlight(true);
         });
+    }
+
+    public string DecreaseHousingCount(int index)
+    {
+        housingIndex[index] = 0;
+        housingAtMax = false;
+
+        return housingData.improvementName + index.ToString();
+    }
+
+    public int GetGrowthNumber()
+    {
+        if (cityPop.CurrentPop == 0)
+            return initialGrowthFood;
+        else
+            return unitFoodConsumptionPerMinute;
     }
 
     public void PopulationGrowthCheck(bool joinCity)
@@ -482,8 +521,8 @@ public class City : MonoBehaviour
         if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
             cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, true, resourceManager);
 
-        if (cityPop.CurrentPop > 1)
-            resourceManager.IncreaseFoodConsumptionPerTurn(true);
+        //if (cityPop.CurrentPop > 1)
+        //    resourceManager.IncreaseFoodConsumptionPerTurn(true);
         
         if (joinCity)
             UpdateCityPopInfo();
@@ -503,6 +542,7 @@ public class City : MonoBehaviour
             {
                 CityGrowthProgressBarSetActive(true);
                 cityBuilderManager.abandonCityButton.interactable = false;
+                cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
             }
             cityNameField.ToggleVisibility(true);
             resourceManager.SellResources();
@@ -547,8 +587,8 @@ public class City : MonoBehaviour
             //    RemoveRandomCityLaborer(random);
         }
 
-        if (cityPop.CurrentPop > 0)
-            resourceManager.IncreaseFoodConsumptionPerTurn(false);
+        //if (cityPop.CurrentPop > 0)
+        //    resourceManager.IncreaseFoodConsumptionPerTurn(false);
         UpdateCityPopInfo();
     }
 
@@ -724,7 +764,7 @@ public class City : MonoBehaviour
         foreach (ResourceType type in types)
         {
             int amount = resourceManager.ResourceDict[type];
-            if (amount > 0)
+            if (amount > 0  || type == ResourceType.Food)
             {
                 resourceGridDict[type] = i;
                 i++;

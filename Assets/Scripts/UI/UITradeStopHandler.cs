@@ -562,19 +562,19 @@ public class UITradeStopHandler : MonoBehaviour
         uiResourceTasks.Remove(uiTradeResourceTask);
     }
 
-    private void ResetStop()
-    {
-        cityNameList.options.Insert(0, defaultFirstChoice);
-        cityNameList.value = 0;
-        cityNameList.RefreshShownValue();
-        waitForeverToggle.isOn = true;
-        waitForever = true;
-        waitTime = 0;
-        waitSlider.gameObject.SetActive(true);
-        waitTimeText.gameObject.SetActive(true);
-        //inputWaitTime.interactable = false;
-        //inputWaitTime.text = "";
-    }
+    //private void ResetStop()
+    //{
+    //    cityNameList.options.Insert(0, defaultFirstChoice);
+    //    cityNameList.value = 0;
+    //    cityNameList.RefreshShownValue();
+    //    waitForeverToggle.isOn = true;
+    //    waitForever = true;
+    //    waitTime = 0;
+    //    waitSlider.gameObject.SetActive(true);
+    //    waitTimeText.gameObject.SetActive(true);
+    //    //inputWaitTime.interactable = false;
+    //    //inputWaitTime.text = "";
+    //}
 
     public void CloseWindow()
     {

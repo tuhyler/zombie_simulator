@@ -596,7 +596,7 @@ public class WorkerTaskManager : MonoBehaviour
         //else //if no currently existing buildings, set up dictionaries
         //{
         world.AddCityBuildingDict(workerTile);
-        city.SetHouse(workerTile, td.isHill);
+        city.SetHouse(city.housingData, workerTile, td.isHill, false);
         //td.gameObject.tag = "City";
         //}
 

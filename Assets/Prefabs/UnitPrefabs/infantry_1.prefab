@@ -193,7 +193,7 @@ PrefabInstance:
     - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6568893320125822013, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -235,11 +235,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
-  minimapIcon: {fileID: 501373686551265237, guid: 736a95f02cd5c734489d02ea9f1a27a4,
-    type: 3}
+  minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   selectionCircle: {fileID: 0}
+  mesh: {fileID: 0}
+  marker: {fileID: 5104034567501558109}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
@@ -264,6 +265,24 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   unitAnimator: {fileID: 0}
+--- !u!114 &5104034567501558109 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1771432436929309141}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19261c7a249f40b4caafba3ac3f37bcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!212 &5473824532600306361 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6008798074786485100, guid: cb2720df9ba71c948a71f90c55a9188b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1771432436929309141}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5945042009464761750 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,

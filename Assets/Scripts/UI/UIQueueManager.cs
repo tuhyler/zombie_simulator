@@ -285,6 +285,7 @@ public class UIQueueManager : MonoBehaviour
         {
             int index = city.savedQueueItemsNames.IndexOf(builtName);
             city.savedQueueItemsNames.Remove(builtName);
+            city.improvementQueueLocs.Remove(worldLoc);
             world.RemoveLocationFromQueueList(worldLoc);
             UIQueueItem queueItem = city.savedQueueItems[index];
             city.savedQueueItems.Remove(queueItem);

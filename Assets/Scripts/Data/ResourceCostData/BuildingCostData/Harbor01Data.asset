@@ -47,9 +47,12 @@ MonoBehaviour:
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
-  returnProp: 0
-  singleBuild: 1
+  singleBuild: 0
+  oneTerrain: 1
+  adjustForHill: 1
+  hillAdjustment: 0.6
   buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
-  hideAnimMesh: 0
+  hideIdleMesh: 0
+  noWalkAreas: []

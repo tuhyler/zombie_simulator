@@ -33,6 +33,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
     private void Awake()
     {
+        transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
 
         foreach (Transform selection in resourceProducedHolder)
@@ -74,14 +75,15 @@ public class UICityUpgradePanel : MonoBehaviour
 
     public void ToggleVisibility(bool v, ResourceManager resourceManager = null, CityImprovement improvement = null, Unit unit = null)
     {
-        if (activeStatus == v)
+        if (!activeStatus && !v)
             return;
-        
-        activeStatus = v;
+
+        LeanTween.cancel(gameObject);
 
         if (v)
         {
             world.infoPopUpCanvas.gameObject.SetActive(true);
+            activeStatus = true;
             
             this.improvement = improvement;
             if (improvement != null)
@@ -135,6 +137,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
     private void ResetData()
     {
+        activeStatus = false;
         this.improvement = null;
         this.unit = null;
         produces.Clear();

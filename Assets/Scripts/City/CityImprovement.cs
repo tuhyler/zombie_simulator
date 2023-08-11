@@ -27,6 +27,8 @@ public class CityImprovement : MonoBehaviour
     public bool initialCityHouse, queued, building, isConstruction, isUpgrading;
     private List<ResourceValue> upgradeCost = new();
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
+    [HideInInspector]
+    public int housingIndex; //for city centeer housing only
 
     [HideInInspector]
     public Vector3Int loc;

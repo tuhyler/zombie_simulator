@@ -15,7 +15,7 @@ public class UICityBuildTabHandler : MonoBehaviour
 
     private UIBuilderHandler builderUI;
     private UIShowTabHandler currentTabSelected;
-    private bool sameUI;
+    private bool sameUI, openTab;
     private ResourceManager resourceManager;
 
     [HideInInspector]
@@ -41,20 +41,22 @@ public class UICityBuildTabHandler : MonoBehaviour
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
+        bool openTab = true;
 
         //bool currentlyActive = uiBuilder.activeStatus;
         if (builderUI == uiBuilder) //turn off if same tab is clicked
         {
             sameUI = true; //so it doesn't reopen selected tab
+            openTab = false;
         }
         
         if (builderUI != null) //checking if new tab is clicked 
         {
-            HideSelectedTab();
+            HideSelectedTab(openTab);
         }
         else if (isRemoving || isUpgrading || isSelling) //turning off side buttons
         {
-            HideSelectedTab();
+            HideSelectedTab(openTab);
         }
 
         builderUI = uiBuilder;
@@ -71,7 +73,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
-        HideSelectedTab();
+        HideSelectedTab(false);
     }
 
     public void StartRightSideButton(bool option)
@@ -98,7 +100,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
-        HideSelectedTab();
+        HideSelectedTab(false);
     }
 
     public void SetSelectedTab(UIShowTabHandler selectedTab)
@@ -109,11 +111,12 @@ public class UICityBuildTabHandler : MonoBehaviour
             sameUI = false;
     }
 
-    public void HideSelectedTab()
+    public void HideSelectedTab(bool newTab)
     {
         if (builderUI != null)
         {
-            builderUI.ToggleVisibility(false);
+            openTab = newTab;
+            builderUI.ToggleVisibility(false, openTab);
         }
         if (currentTabSelected != null)
         {
@@ -188,7 +191,8 @@ public class UICityBuildTabHandler : MonoBehaviour
             builderUI = null;
             return;
         }
-        builderUI.ToggleVisibility(true, resourceManager);
+        builderUI.ToggleVisibility(true, openTab, resourceManager);
+        openTab = true;
         //tabUI.ToggleInteractable(false);
     }
 

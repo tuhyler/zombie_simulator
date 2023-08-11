@@ -94,7 +94,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
-      value: laborer_1a
+      value: Laborer1Data_2
       objectReference: {fileID: 0}
     - target: {fileID: 4969060398838131313, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -159,13 +159,31 @@ PrefabInstance:
     - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
 --- !u!4 &493350885888212 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
+    type: 3}
+  m_PrefabInstance: {fileID: 5338363066459411607}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1465328918421097503 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
+    type: 3}
+  m_PrefabInstance: {fileID: 5338363066459411607}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19261c7a249f40b4caafba3ac3f37bcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!212 &1834696708367566843 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6008798074786485100, guid: cb2720df9ba71c948a71f90c55a9188b,
     type: 3}
   m_PrefabInstance: {fileID: 5338363066459411607}
   m_PrefabAsset: {fileID: 0}
@@ -188,11 +206,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
-  minimapIcon: {fileID: 501373686551265237, guid: 076131e88d6a5794e9fd3077c725d75e,
-    type: 3}
+  minimapIcon: {fileID: 1834696708367566843}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   selectionCircle: {fileID: 0}
+  marker: {fileID: 1465328918421097503}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:

@@ -1,17 +1,23 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TextMeshProUGUI nameText, cityPop, availableHousing, unusedLabor, workEthic, foodLevelAndLimit, foodPerMinute;
+    private TextMeshProUGUI nameText, cityPop, availableHousing, unusedLabor, workEthic, foodLevelText, foodGrowthText, foodPerMinute;
+
+    [SerializeField]
+    private Toggle pauseGrowthToggle;
+
+    private int foodPerUnit = 1;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
     private bool activeStatus;
     private Vector3 originalLoc;
 
-    int foodLimit;
+    //int foodLimit;
 
     private void Awake()
     {
@@ -20,11 +26,16 @@ public class UIInfoPanelCity : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void SetData(string name, int pop, int housing, int labor, float ethic, int foodLevel, int foodLimit, float food)
+    public void SetGrowthNumber(int growth)
+    {
+        foodPerUnit = growth;
+    }
+
+    public void SetData(string name, int pop, int housing, int labor, float ethic, int foodLevel, float food)
     {
         nameText.text = name;
 
-        SetCityAndFoodStats(pop, foodLevel, foodLimit, food);
+        SetCityAndFoodStats(pop, foodLevel, food);
 
         if (housing < 0)
         {
@@ -58,33 +69,32 @@ public class UIInfoPanelCity : MonoBehaviour
     //    growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
     //}
 
-    public void UpdateFoodStats(int pop, int foodLevel, int foodLimit, float food)
+    public void UpdateFoodStats(int pop, int foodLevel, float food)
     {
-        SetCityAndFoodStats(pop, foodLevel, foodLimit, food);
+        SetCityAndFoodStats(pop, foodLevel, food);
     }
 
-    private void SetCityAndFoodStats(int pop, int foodLevel, int foodLimit, float food)
+    private void SetCityAndFoodStats(int pop, int foodLevel, float food)
     {
-        this.foodLimit = foodLimit;
+        //this.foodLimit = foodLimit;
+        //int foodLevelAdj = Mathf.Max(0, foodLevel);
 
         cityPop.text = $"Size: {pop}";
-        foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
+        foodLevelText.text = foodLevel.ToString();
+        foodPerMinute.text = food.ToString();
+        foodGrowthText.text = (foodLevel + foodPerUnit).ToString();
 
-        if (food > 0)
-        {
-            foodPerMinute.text = $"+{food}";
+        if (food - foodLevel > 0)
             foodPerMinute.color = Color.green;
-        }
-        else if (food < 0)
-        {
-            foodPerMinute.text = $"-{food}";
+        else if (food - foodLevel < 0)
             foodPerMinute.color = Color.red;
-        }
         else
-        {
-            foodPerMinute.text = $"{food}";
             foodPerMinute.color = Color.white;
-        }
+    }
+
+    public void SetGrowthPauseToggle(bool v)
+    {
+        pauseGrowthToggle.isOn = v;
     }
 
     public void UpdateCityName(string name)
@@ -92,10 +102,10 @@ public class UIInfoPanelCity : MonoBehaviour
         nameText.text = name;
     }
 
-    public void UpdateFoodGrowth(int foodLevel)
-    {
-        foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
-    }
+    //public void UpdateFoodGrowth(int foodLevel)
+    //{
+    //    foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
+    //}
 
     public void UpdateHousing(int housing)
     {
