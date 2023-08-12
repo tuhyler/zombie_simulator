@@ -24,7 +24,7 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool initialCityHouse, queued, building, isConstruction, isUpgrading;
+    public bool initialCityHouse, queued, building, isConstruction, isUpgrading, canBeUpgraded;
     private List<ResourceValue> upgradeCost = new();
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
     [HideInInspector]

@@ -33,7 +33,8 @@ public class UICityNamer : MonoBehaviour
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
 
     private string placeHolderText;
 
@@ -80,12 +81,12 @@ public class UICityNamer : MonoBehaviour
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
         }
 
-        playerInput.enabled = !v;
-        cameraController.enabled = !v;
-        uiCityBuildTabHandler.ToggleEnable(!v);
-        uiLaborAssignment.ToggleEnable(!v);
-        uiInfoPanelCity.enabled = !v;
-        turnHandler.ToggleEnable(!v);
+        //playerInput.enabled = !v;
+        //cameraController.enabled = !v;
+        //uiCityBuildTabHandler.ToggleEnable(!v);
+        //uiLaborAssignment.ToggleEnable(!v);
+        //uiInfoPanelCity.enabled = !v;
+        //turnHandler.ToggleEnable(!v);
         tempCity = city;
     }
 

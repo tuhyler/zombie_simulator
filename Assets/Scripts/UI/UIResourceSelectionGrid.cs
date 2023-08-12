@@ -10,11 +10,12 @@ public class UIResourceSelectionGrid : MonoBehaviour
     private GameObject resourceSquare;
 
     [SerializeField]
-    private RectTransform allContents, closeButton, resourceHolder, rawHolder, rockHolder, buildingHolder, soldHolder, luxuryHolder;
+    private RectTransform allContents, closeButton, rawHolder, rockHolder, buildingHolder, soldHolder, luxuryHolder;
 
     [HideInInspector]
     public bool activeStatus;
     private UITradeResourceTask resourceTask;
+    private UILaborResourcePriority laborResourcePriority;
 
     private void Awake()
     {
@@ -24,6 +25,9 @@ public class UIResourceSelectionGrid : MonoBehaviour
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
+            if (resource.forVisual)
+                continue;
+
             GameObject resourceGO = Instantiate(resourceSquare);
             AssignParent(resource.resourceCategory, resourceGO);
             UIResourceSquare uiResourceSquare = resourceGO.GetComponent<UIResourceSquare>();
@@ -124,7 +128,7 @@ public class UIResourceSelectionGrid : MonoBehaviour
         UITooltipSystem.Hide();
     }
 
-    public void ToggleVisibility(bool v, UITradeResourceTask resourceTask = null)
+    public void ToggleVisibility(bool v, UITradeResourceTask resourceTask = null, UILaborResourcePriority laborResourcePriority = null)
     {
         if (activeStatus == v)
             return;
@@ -133,14 +137,23 @@ public class UIResourceSelectionGrid : MonoBehaviour
         
         if (v)
         {
-            this.resourceTask = resourceTask;
-            transform.position = resourceTask.resourceDropdown.position;
+            if (resourceTask != null)
+            {
+                this.resourceTask = resourceTask;
+                transform.position = resourceTask.resourceDropdown.position;
+            }
+            else if (laborResourcePriority != null)
+            {
+                this.laborResourcePriority = laborResourcePriority;
+                transform.position = laborResourcePriority.resourceDropdown.position;
+            }
 
             closeButton.pivot = new Vector2((allContents.localPosition.x + allContents.sizeDelta.x * 0.5f) / closeButton.sizeDelta.x, (allContents.localPosition.y + allContents.sizeDelta.y * 0.5f) / closeButton.sizeDelta.y);
         }
         else
         {
             this.resourceTask = null;
+            this.laborResourcePriority = null;
         }
 
         gameObject.SetActive(v);
@@ -148,8 +161,19 @@ public class UIResourceSelectionGrid : MonoBehaviour
 
     public void ChooseResourceType(ResourceType resourceType)
     {
-        resourceTask.chosenResourceSprite.sprite = ResourceHolder.Instance.GetIcon(resourceType);
-        resourceTask.chosenResource = resourceType;
+        Sprite icon = ResourceHolder.Instance.GetIcon(resourceType);
+
+        if (resourceTask != null)
+        {
+            resourceTask.chosenResourceSprite.sprite = icon;
+            resourceTask.chosenResource = resourceType;
+        }
+        else if (laborResourcePriority != null)
+        {
+            laborResourcePriority.chosenResourceSprite.sprite = icon;
+            laborResourcePriority.chosenResource = resourceType;
+        }
+
         CloseGrid();
     }
 

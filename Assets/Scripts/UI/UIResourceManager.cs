@@ -9,6 +9,9 @@ using UnityEngine.UI;
 public class UIResourceManager : MonoBehaviour
 {
     [SerializeField]
+    private CityBuilderManager cityBuilderManager;
+    
+    [SerializeField]
     private TMP_Text cityStorageInfo, cityStoragePercent, cityLevelAndLimit;
 
     [SerializeField]
@@ -23,7 +26,8 @@ public class UIResourceManager : MonoBehaviour
     private bool activeStatus, overflowActiveStatus;
 
     //city info
-    private City city;
+    [HideInInspector]
+    public City city;
     private string cityName;
     private int cityStorageLimit;
     private float cityStorageLevel;
@@ -131,12 +135,17 @@ public class UIResourceManager : MonoBehaviour
     public void ToggleOverflow()
     {
         if (overflowActiveStatus)
+        {
             ToggleOverflowVisibility(false);
+        }
         else
+        {
+            cityBuilderManager.ResetCityUIToBase();
             ToggleOverflowVisibility(true);
+        }
     }
 
-    private void ToggleOverflowVisibility(bool v)
+    public void ToggleOverflowVisibility(bool v)
     {
         if (overflowActiveStatus == v)
             return;

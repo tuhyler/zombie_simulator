@@ -25,7 +25,8 @@ public class UIDestroyCityWarning : MonoBehaviour
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
 
 
     private void Start()
@@ -54,13 +55,13 @@ public class UIDestroyCityWarning : MonoBehaviour
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
         }
 
-        playerInput.enabled = !v;
-        cameraController.enabled = !v;
-        uiCityBuildTabHandler.ToggleEnable(!v);
-        uiLaborAssignment.ToggleEnable(!v);
-        uiInfoPanelCity.enabled = !v;
-        turnHandler.ToggleEnable(!v);
-        uiWonderSelection.ToggleEnable(!v);
+        //playerInput.enabled = !v;
+        //cameraController.enabled = !v;
+        //uiCityBuildTabHandler.ToggleEnable(!v);
+        //uiLaborAssignment.ToggleEnable(!v);
+        //uiInfoPanelCity.enabled = !v;
+        //turnHandler.ToggleEnable(!v);
+        //uiWonderSelection.ToggleEnable(!v);
     }
 
     public void SetActiveStatusFalse()

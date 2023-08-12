@@ -29,7 +29,7 @@ public class ResourceProducer : MonoBehaviour
     [HideInInspector]
     public ResourceValue producedResource; //too see what this producer is making
     [HideInInspector]
-    public List<ResourceType> producedResources; 
+    public List<ResourceValue> producedResources; 
     private Dictionary<ResourceType, float> generatedPerMinute = new();
     private Dictionary<ResourceType, float> consumedPerMinute = new();
     [HideInInspector]
@@ -38,7 +38,7 @@ public class ResourceProducer : MonoBehaviour
     public List<ResourceType> consumedResourceTypes = new();
     private WaitForSeconds workTimeWait = new WaitForSeconds(1);
 
-    public void InitializeImprovementData(ImprovementDataSO data)
+    public void InitializeImprovementData(ImprovementDataSO data, ResourceType type)
     {
         improvementData = data;
         //ResourceValue laborCost;
@@ -46,15 +46,35 @@ public class ResourceProducer : MonoBehaviour
         //laborCost.resourceAmount = data.laborCost;
         //consumedResources.Insert(0, laborCost);
 
+
+        if (data.getTerrainResource)
+        {
+            int i = 0;
+            foreach (ResourceValue value in data.producedResources)
+            {
+                if (value.resourceType == type)
+                {
+                    producedResource = value;
+                    producedResources.Add(value);
+                    producedResourceIndex = i;
+                    break;
+                }
+
+                i++;
+            }
+            
+            return;
+        }
+
         if (data.producedResources.Count > 0)
         {
             producedResource = data.producedResources[0];
             producedResourceIndex = 0;
         }
 
-        foreach(ResourceValue resourceValue in data.producedResources)
+        foreach(ResourceValue value in data.producedResources)
         {
-            producedResources.Add(resourceValue.resourceType);
+            producedResources.Add(value);
         }
     }
 
@@ -74,10 +94,10 @@ public class ResourceProducer : MonoBehaviour
     public void SetCityImprovement(CityImprovement cityImprovement)
     {
         this.cityImprovement = cityImprovement;
-        consumedResources = new(cityImprovement.allConsumedResources[0]);
+        consumedResources = new(cityImprovement.allConsumedResources[producedResourceIndex]);
         SetConsumedResourceTypes();
         cityImprovement.producedResource = producedResource.resourceType;
-        cityImprovement.producedResourceIndex = 0;
+        cityImprovement.producedResourceIndex = producedResourceIndex;
     }
 
     public void SetLocation(Vector3Int loc)
@@ -311,7 +331,7 @@ public class ResourceProducer : MonoBehaviour
     private void RestartProductionCheck(float labor)
     {
         resourceManager.PrepareResource(new List<ResourceValue>() { producedResource }, labor, producerLoc);
-        Debug.Log("Resources for " + improvementData.prefab.name);
+        //Debug.Log("Resources for " + improvementData.prefab.name);
 
         //checking storage again after loading
         if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())

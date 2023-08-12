@@ -220,7 +220,7 @@ public class Unit : MonoBehaviour
                 isBeached = true;
             }
         }
-        else if (td.terrainData.type == TerrainType.Hill)
+        else if (td.isHill)
         {
             if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
                 y = 0f;//world.test;

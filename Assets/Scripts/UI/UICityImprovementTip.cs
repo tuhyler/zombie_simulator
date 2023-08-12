@@ -137,6 +137,7 @@ public class UICityImprovementTip : MonoBehaviour
     private void SetData(CityImprovement improvement)
     {
         ImprovementDataSO data = improvement.GetImprovementData;
+        ResourceProducer producer = world.GetResourceProducer(improvement.loc);
         producesCount = data.producedResources.Count;
         maxCount = producesCount;
 
@@ -156,8 +157,13 @@ public class UICityImprovementTip : MonoBehaviour
         highlightIndex = improvement.producedResourceIndex;
         int producedTime = produceTimeList[highlightIndex];
 
-        SetResourcePanelInfo(producesInfo, data.producedResources, producedTime, true, data.workEthicChange);
+        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, data.workEthicChange);
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);
+
+        if (data.getTerrainResource)
+            highlightIndex = 0;
+
+        highlightList[highlightIndex].gameObject.SetActive(true);
 
         int multiple = Mathf.Max(maxCount - 2, 0) * 90; //allowing one extra for production time ResourceValue
         int panelWidth = 310 + multiple;
@@ -247,23 +253,26 @@ public class UICityImprovementTip : MonoBehaviour
             }
         }
 
-        if (produces)
-        {
-            highlightList[highlightIndex].gameObject.SetActive(true);
-            //float xShiftLeft = (resourcesCount-1) * 45;
-            //float xShiftRight = improvement.producedResourceIndex * 90;
-            //xShiftRight -= 1.5f;
+        //if (produces)
+        //{
+        //    highlightList[highlightIndex].gameObject.SetActive(true);
+        //    //float xShiftLeft = (resourcesCount-1) * 45;
+        //    //float xShiftRight = improvement.producedResourceIndex * 90;
+        //    //xShiftRight -= 1.5f;
 
-            //Vector2 loc = Vector2.zero;
-            //loc.x -= xShiftLeft + xChange;
-            //loc.x += xShiftRight;
-            //loc.y = -40 + yChange;
-            //produceHighlight.transform.localPosition = loc;
-        }
+        //    //Vector2 loc = Vector2.zero;
+        //    //loc.x -= xShiftLeft + xChange;
+        //    //loc.x += xShiftRight;
+        //    //loc.y = -40 + yChange;
+        //    //produceHighlight.transform.localPosition = loc;
+        //}
     }
 
     public void ChangeResourceProduced(int a)
     {
+        if (highlightIndex == a)
+            return;
+        
         ResourceProducer producer = world.GetResourceProducer(improvement.loc);
         highlightList[producer.producedResourceIndex].gameObject.SetActive(false);
         if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources || producer.isWaitingToUnload)

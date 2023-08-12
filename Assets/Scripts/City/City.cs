@@ -7,14 +7,14 @@ using UnityEngine;
 
 public class City : MonoBehaviour
 {
-    //city praphics
+    //city graphics
     [SerializeField]
-    public GameObject cityNameMap;
+    public GameObject cityNameMap, exclamationPoint;
     [SerializeField]
     public ImprovementDataSO housingData;
     //private int housingCenterCount;
     [HideInInspector]
-    public bool housingAtMax;
+    public bool housingLocsAtMax;
     private int[] housingIndex = new[] { 0, 0, 0, 0 };
     private List<Vector3> housingLocs = new() { new Vector3(0.7f, 0, 1.2f) , new Vector3(-1.2f, 0, 0.7f), new Vector3(-1.2f, 0, -0.7f), new Vector3(0.7f, 0, -1.2f) };
     private CityImprovement initialHouse;
@@ -37,7 +37,7 @@ public class City : MonoBehaviour
 
     //particle systems
     [SerializeField]
-    private ParticleSystem heavenHighlight, resourceSplash, lightBullet, fire;
+    private ParticleSystem heavenHighlight, hellHighlight, resourceSplash, lightBullet, fire;
 
     [SerializeField]
     public Sprite mapIcon;
@@ -207,6 +207,10 @@ public class City : MonoBehaviour
         heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
         heavenHighlight.transform.parent = transform;
         heavenHighlight.Pause();
+        hellHighlight = Instantiate(hellHighlight, pos, Quaternion.identity);
+        hellHighlight.transform.parent = transform;
+        hellHighlight.Pause();
+
     }
 
     public void LightFire(bool isHill)
@@ -460,7 +464,7 @@ public class City : MonoBehaviour
         houseLoc += housingLocs[index];
         //housingCenterCount++;
         if (housingIndex.Sum() == housingLocs.Count)
-            housingAtMax = true;
+            housingLocsAtMax = true;
 
         if (isHill)
             houseLoc.y += housingData.hillAdjustment;
@@ -495,7 +499,7 @@ public class City : MonoBehaviour
     public string DecreaseHousingCount(int index)
     {
         housingIndex[index] = 0;
-        housingAtMax = false;
+        housingLocsAtMax = false;
 
         return housingData.improvementName + index.ToString();
     }
@@ -550,12 +554,13 @@ public class City : MonoBehaviour
         }
     }
 
-    public void PopulationDeclineCheck()
+    public void PopulationDeclineCheck(bool any)
     {
         int prevPop = cityPop.CurrentPop;
         
         cityPop.CurrentPop--;
         housingCount++;
+        hellHighlight.Play();
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
 
@@ -578,11 +583,10 @@ public class City : MonoBehaviour
         else
         {
             //StopFoodConsumptionCoroutine();
-            System.Random random = new();
             //int randomLabor = random.Next(cityPop.UsedLabor); //randomly choosing by weight between field and city labor
 
             //if (randomLabor < cityPop.GetSetFieldLaborers)
-            RemoveRandomFieldLaborer(random);
+            RemoveRandomFieldLaborer(any);
             //else
             //    RemoveRandomCityLaborer(random);
         }
@@ -592,8 +596,9 @@ public class City : MonoBehaviour
         UpdateCityPopInfo();
     }
 
-    private void RemoveRandomFieldLaborer(System.Random random)
+    private void RemoveRandomFieldLaborer(bool any)
     {
+        System.Random random = new();
         List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(cityLoc, gameObject);
 
         //below is giving every labor in any tile equal chance of being chosen
@@ -601,6 +606,9 @@ public class City : MonoBehaviour
         Dictionary<int, Vector3Int> laborByTile = new();
         foreach (Vector3Int tile in workedTiles)
         {
+            if (!any && world.GetCityDevelopment(tile).GetImprovementData.housingIncrease > 0)
+                continue;
+            
             int prevLabor = currentLabor;
             currentLabor += world.GetCurrentLaborForTile(tile);
             for (int i = prevLabor; i < currentLabor; i++)
@@ -878,13 +886,11 @@ public class City : MonoBehaviour
         //sell before growing
         world.UpdateWorldResources(ResourceType.Gold, resourceManager.SellResources());
 
-        ResourceValue foodConsumed;
-        foodConsumed.resourceType = ResourceType.Food;
-        foodConsumed.resourceAmount = foodConsumptionPerMinute;
+        //ResourceValue foodConsumed;
+        //foodConsumed.resourceType = ResourceType.Food;
+        //foodConsumed.resourceAmount = foodConsumptionPerMinute;
 
-        //consume before checking for growth
-        resourceManager.ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, cityLoc);
-        resourceManager.CheckForPopGrowth();
+        resourceManager.CheckForPopGrowth(/*foodConsumed*/);
         resourceManager.CycleCount++;
 
         Debug.Log(cityName + " is checking for growth");
@@ -1175,7 +1181,7 @@ public class City : MonoBehaviour
     public void DestroyThisCity()
     {
         //initialHouse.DestroyPS();
-        initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).terrainData.type == TerrainType.Hill);
+        initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).isHill);
         StopAllCoroutines();
         Destroy(uiTimeProgressBar.gameObject);
     }

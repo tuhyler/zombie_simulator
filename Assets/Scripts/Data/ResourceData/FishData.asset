@@ -20,5 +20,7 @@ MonoBehaviour:
   resourcePrice: 1
   resourceQuantityPerPop: 1
   rawResource: 2
+  resourceCategory: 0
   requirement: Fishing Boat
   uvCoordinatesForRocks: {x: 0, y: 0}
+  forVisual: 1
