@@ -41,6 +41,8 @@ public class UICityBuildTabHandler : MonoBehaviour
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
+        cityBuilderManager.CloseSingleWindows();
+        cityBuilderManager.uiResourceManager.ToggleOverflowVisibility(false);
         bool openTab = true;
 
         //bool currentlyActive = uiBuilder.activeStatus;
@@ -73,6 +75,8 @@ public class UICityBuildTabHandler : MonoBehaviour
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
+        cityBuilderManager.CloseSingleWindows();
+        cityBuilderManager.uiResourceManager.ToggleOverflowVisibility(false);
         HideSelectedTab(false);
     }
 
@@ -100,6 +104,8 @@ public class UICityBuildTabHandler : MonoBehaviour
         cityBuilderManager.CloseLaborMenus();
         cityBuilderManager.CloseImprovementTooltipButton();
         cityBuilderManager.CloseImprovementBuildPanel();
+        cityBuilderManager.CloseSingleWindows();
+        cityBuilderManager.uiResourceManager.ToggleOverflowVisibility(false);
         HideSelectedTab(false);
     }
 

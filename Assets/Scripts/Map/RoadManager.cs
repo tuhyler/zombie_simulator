@@ -87,22 +87,6 @@ public class RoadManager : MonoBehaviour
         worker.SetWorkAnimation(false);
         BuildRoadAtPosition(roadPosition);
         world.RemoveWorkerWorkLocation(roadPosition);
-        
-        foreach (Vector3Int loc in world.GetNeighborsFor(roadPosition, MapWorld.State.EIGHTWAYINCREMENT))
-        {
-            if (world.IsRoadOnTerrain(loc))
-                continue;
-            
-            if (world.IsTradeCenterOnTile(loc))
-                BuildRoadAtPosition(loc);
-
-            if (world.IsCityOnTile(loc))
-            {
-                BuildRoadAtPosition(loc);
-                world.GetCity(loc).ExtinguishFire();
-            }
-        }
-
 
         //moving worker up a smidge to be on top of road
         Vector3 moveUp = worker.transform.position;
@@ -174,6 +158,25 @@ public class RoadManager : MonoBehaviour
         //changing neighbor roads to meet up with new road
         FixNeighborRoads(roadNeighbors);
         CombineMeshes();
+        AddCityRoads(roadPosition);
+    }
+
+    public void AddCityRoads(Vector3Int roadPosition)
+    {
+        foreach (Vector3Int loc in world.GetNeighborsFor(roadPosition, MapWorld.State.EIGHTWAYINCREMENT))
+        {
+            if (world.IsRoadOnTerrain(loc))
+                continue;
+
+            if (world.IsTradeCenterOnTile(loc))
+                BuildRoadAtPosition(loc);
+
+            if (world.IsCityOnTile(loc))
+            {
+                BuildRoadAtPosition(loc);
+                world.GetCity(loc).ExtinguishFire();
+            }
+        }
     }
 
     private void FixNeighborRoads(List<(Vector3Int, bool, int[])> roadNeighbors)
@@ -183,7 +186,7 @@ public class RoadManager : MonoBehaviour
             int roadCount = roads.Sum();
             TerrainData td = world.GetTerrainDataAt(roadLoc);
             bool highlight = td.isGlowing;
-            bool hill = td.terrainData.type == TerrainType.Hill || world.GetTerrainDataAt(roadLoc).terrainData.type == TerrainType.ForestHill;
+            bool hill = td.isHill;
 
             Road road = world.GetRoads(roadLoc, straight);
             if (road != null)

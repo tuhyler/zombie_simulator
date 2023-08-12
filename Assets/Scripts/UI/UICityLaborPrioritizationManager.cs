@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public class UICityLaborPrioritizationManager : MonoBehaviour
 {
-    [SerializeField]
-    private CityBuilderManager cityBuilderManager;
+    //[SerializeField]
+    //private CityBuilderManager cityBuilderManager;
 
     [SerializeField]
     private GameObject uiLaborResourcePriorityHolder, uiLaborResourcePriority;
@@ -15,8 +15,11 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     [SerializeField]
     private Transform resourceHolder;
 
+    [SerializeField]
+    public UIResourceSelectionGrid resourceSelectionGrid;
+
     //for generating resource lists
-    private List<TMP_Dropdown.OptionData> resources = new();
+    //private List<TMP_Dropdown.OptionData> resources = new();
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -40,7 +43,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
-        AddResources();
+        //AddResources();
         buttonRight = openPrioritizationImage.sprite;
         gameObject.SetActive(false);
     }
@@ -56,13 +59,13 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         }
     }
 
-    private void AddResources()
-    {
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
-        {
-            resources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
-        }
-    }
+    //private void AddResources()
+    //{
+    //    foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
+    //    {
+    //        resources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
+    //    }
+    //}
 
     public void ToggleVisibility(bool v, bool exitCity = false)
     {
@@ -77,9 +80,9 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             openPrioritizationImage.sprite = buttonLeft;
             activeStatus = true;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(-400f, 0, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(-260f, 0, 0);
 
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 400f, 0.3f).setEaseOutSine();
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 260f, 0.3f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear(); //don't like alpha fading here
         }
         else
@@ -89,7 +92,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             openPrioritizationImage.sprite = buttonRight;
             
             if (!exitCity)
-                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -400f, 0.3f).setOnComplete(SetActiveStatusFalse);
+                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -300f, 0.3f).setOnComplete(SetActiveStatusFalse);
             else
                 LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -950f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
@@ -120,7 +123,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     public void AddResourcePriorityButton() //added this as a method attached to button as it can't return anything
     {
-        if (resourcePriorityList.Count >= resources.Count) //limit
+        if (resourcePriorityList.Count >= 10) //limit
         {
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Max resources");
             return;
@@ -143,7 +146,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
         UILaborResourcePriority newResourcePriority = newPriority.GetComponent<UILaborResourcePriority>();
         newResourceHolder.resource = newResourcePriority;
-        newResourcePriority.AddResources(resources);
+        //newResourcePriority.AddResources(resources);
         newResourcePriority.SetInitialPriority(resourcePriorityList.Count+1); //set priority before attaching to this
         newResourcePriority.SetCityLaborPrioritizationManager(this);
 

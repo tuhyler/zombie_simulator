@@ -54,7 +54,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _WindDensity: 1
-    - _WindStrength: 4
+    - _WindStrength: 2
     m_Colors:
     - _WindMovement: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _WindMovement2: {r: 0, g: 0, b: 0.15, a: 0}

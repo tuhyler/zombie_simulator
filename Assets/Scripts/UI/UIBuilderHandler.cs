@@ -265,7 +265,7 @@ public class UIBuilderHandler : MonoBehaviour
 
             buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (locked || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingAtMax))
+            if (locked || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
             {
                 buildItem.ToggleVisibility(false);
                 continue;

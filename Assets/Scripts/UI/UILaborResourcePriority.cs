@@ -2,11 +2,18 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UILaborResourcePriority : MonoBehaviour
 {
+    //[SerializeField]
+    //private TMP_Dropdown resourceList;
+
     [SerializeField]
-    private TMP_Dropdown resourceList;
+    public Transform resourceDropdown;
+
+    [SerializeField]
+    public Image chosenResourceSprite;
 
     [SerializeField]
     public TMP_Text priorityNumber;
@@ -15,12 +22,13 @@ public class UILaborResourcePriority : MonoBehaviour
 
     private UICityLaborPrioritizationManager uiLaborPrioritizationManager;
 
-    private List<string> resources = new();
+    //private List<string> resources = new();
 
-    private string chosenResource;
+    [HideInInspector]
+    public ResourceType chosenResource;
 
-    [SerializeField]
-    private TMP_Dropdown.OptionData defaultFirstChoice;
+    //[SerializeField]
+    //private TMP_Dropdown.OptionData defaultFirstChoice;
 
 
     public void SetInitialPriority(int priorityNumberInt)
@@ -77,73 +85,81 @@ public class UILaborResourcePriority : MonoBehaviour
         priorityNumber.text = priority.ToString();
     }
 
-    public void SetChosenResource(int value)
-    {
-        bool newValue = false;
+    //public void SetChosenResource(int value)
+    //{
+    //    bool newValue = false;
 
-        if (resourceList.options.Contains(defaultFirstChoice))
-        {
-            newValue = true;
-            if (value == 0) return;
-            chosenResource = resources[value - 1];
-        }
-        else
-        {
-            chosenResource = resources[value];
-        }
+    //    if (resourceList.options.Contains(defaultFirstChoice))
+    //    {
+    //        newValue = true;
+    //        if (value == 0) return;
+    //        chosenResource = resources[value - 1];
+    //    }
+    //    else
+    //    {
+    //        chosenResource = resources[value];
+    //    }
 
-        resourceList.options.Remove(defaultFirstChoice); //removing first choice command from list
-        if (newValue)
-        {
-            resourceList.value = value - 1;
-            resourceList.RefreshShownValue();
-        }
-    }
+    //    resourceList.options.Remove(defaultFirstChoice); //removing first choice command from list
+    //    if (newValue)
+    //    {
+    //        resourceList.value = value - 1;
+    //        resourceList.RefreshShownValue();
+    //    }
+    //}
 
     public void SetCaptionResourceInfo(ResourceType resourceType)
     {
-        resourceList.options.Remove(defaultFirstChoice); //removing top choice
+        chosenResource = resourceType;
+        chosenResourceSprite.sprite = ResourceHolder.Instance.GetIcon(resourceType);
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
-        {
-            if (resourceType == resource.resourceType)
-            {
-                chosenResource = resource.resourceName;
-                resourceList.value = resources.IndexOf(chosenResource);
-                resourceList.RefreshShownValue();
-            }
-        }
+        //resourceList.options.Remove(defaultFirstChoice); //removing top choice
+
+        //foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
+        //{
+        //    if (resourceType == resource.resourceType)
+        //    {
+        //        chosenResource = resource.resourceName;
+        //        resourceList.value = resources.IndexOf(chosenResource);
+        //        resourceList.RefreshShownValue();
+        //    }
+        //}
     }
 
     public ResourceType GetChosenResource()
     {
-        ResourceType chosenResourceType = ResourceType.None;
+        //ResourceType chosenResourceType = ResourceType.None;
         
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
-        {
-            if (chosenResource == resource.resourceName)
-                chosenResourceType = resource.resourceType;
-        }
+        //foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
+        //{
+        //    if (chosenResource == resource.resourceName)
+        //        chosenResourceType = resource.resourceType;
+        //}
 
-        return chosenResourceType;
+        return chosenResource;
     }
 
-    private void PrepareResourceList()
+    //private void PrepareResourceList()
+    //{
+    //    resourceList.ClearOptions();
+    //    resourceList.options.Add(defaultFirstChoice);
+    //}
+
+    //public void AddResources(List<TMP_Dropdown.OptionData> resources)
+    //{
+    //    PrepareResourceList();
+
+    //    foreach (var resource in resources)
+    //    {
+    //        this.resources.Add(resource.text);
+    //    }
+
+    //    resourceList.AddOptions(resources);
+    //}
+
+    public void OpenResourceGrid()
     {
-        resourceList.ClearOptions();
-        resourceList.options.Add(defaultFirstChoice);
-    }
-
-    public void AddResources(List<TMP_Dropdown.OptionData> resources)
-    {
-        PrepareResourceList();
-
-        foreach (var resource in resources)
-        {
-            this.resources.Add(resource.text);
-        }
-
-        resourceList.AddOptions(resources);
+        uiLaborPrioritizationManager.resourceSelectionGrid.ToggleVisibility(true, null, this);
     }
 
     //used for closing priortizations individually

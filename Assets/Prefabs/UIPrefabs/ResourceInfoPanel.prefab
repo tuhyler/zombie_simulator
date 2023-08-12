@@ -1061,6 +1061,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca8fc096fbeb6e49b4099e0a26007b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cityBuilderManager: {fileID: 0}
   cityStorageInfo: {fileID: 4595488942853610281}
   cityStoragePercent: {fileID: 233984975482793274}
   cityLevelAndLimit: {fileID: 6993156507238795849}
@@ -1068,9 +1069,11 @@ MonoBehaviour:
   buttonDown: {fileID: 4427400254098136365}
   buttonUp: {fileID: 21300000, guid: 0256638ab96cd0948b80ba1e4bcfa1d6, type: 3}
   allContents: {fileID: 3976798977697293034}
+  city: {fileID: 0}
   gridHolder: {fileID: 1975825375314791532}
   overflowGridHolder: {fileID: 7716628364891721041}
   gridWidth: 10
+  dragging: 0
 --- !u!1 &3947951323488459071
 GameObject:
   m_ObjectHideFlags: 0

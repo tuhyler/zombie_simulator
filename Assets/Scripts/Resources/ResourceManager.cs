@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Mono.Cecil;
+using System.Resources;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -58,12 +59,13 @@ public class ResourceManager : MonoBehaviour
     //private bool growth;
     [HideInInspector]
     public bool pauseGrowth;
-    private int starvationCount;
+    public int cyclesToWait = 2;
+    private int starvationCount, noHousingCount;
     //private int foodGrowthLevel;
     //public int FoodGrowthLevel { get { return foodGrowthLevel; } }
     //private int foodGrowthLimit;
     //public int FoodGrowthLimit { get { return foodGrowthLimit; } }
-    public float FoodPerMinute { get { return resourceGenerationPerMinuteDict[ResourceType.Food]; } }
+    //public float FoodPerMinute { get { return resourceGenerationPerMinuteDict[ResourceType.Food]; } }
     private int cycleCount;
     public int CycleCount { get { return cycleCount; } set { cycleCount = value; } }
 
@@ -600,23 +602,58 @@ public class ResourceManager : MonoBehaviour
     //checking if enough food to grow
     public void CheckForPopGrowth()
     {
+        ResourceValue foodConsumed;
+        foodConsumed.resourceType = ResourceType.Food;
+        foodConsumed.resourceAmount = city.foodConsumptionPerMinute;
+
         if (resourceDict[ResourceType.Food] >= city.foodConsumptionPerMinute)
         {
-            resourceDict[ResourceType.Food] -= city.foodConsumptionPerMinute;
+            starvationCount = 0;
+            city.exclamationPoint.SetActive(false);
 
-            if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && !pauseGrowth) //if enough food left over to grow
+            if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth) //if enough food left over to grow
                 city.PopulationGrowthCheck(false);
         }
         else
         {
-            resourceDict[ResourceType.Food] = 0;
+            foodConsumed.resourceAmount = resourceDict[ResourceType.Food];
             starvationCount++;
 
-            if (starvationCount >= 2) //decreasing if starving for 2 cycles
+            if (!city.activeCity)
+                city.exclamationPoint.SetActive(true);
+
+            if (starvationCount >= cyclesToWait) //decreasing if starving for 2 cycles
             {
-                city.PopulationDeclineCheck();
+                city.PopulationDeclineCheck(true);
                 starvationCount = 0;
+                noHousingCount = 0;
+                city.exclamationPoint.SetActive(false);
             }
+        }
+
+        ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, city.cityLoc);
+
+
+        if (city.HousingCount < 0)
+        {
+            noHousingCount++;
+
+            if (!city.activeCity)
+               city.exclamationPoint.SetActive(true);
+
+            if (noHousingCount >= cyclesToWait)
+            {
+                city.PopulationDeclineCheck(false);
+                starvationCount = 0;
+                noHousingCount = 0;
+                city.exclamationPoint.SetActive(false);
+            }
+
+        }
+        else
+        {
+            noHousingCount = 0;
+            city.exclamationPoint.SetActive(false);
         }
 
         CheckProducerUnloadWaitList();
@@ -625,7 +662,10 @@ public class ResourceManager : MonoBehaviour
         UpdateUI(ResourceType.Food);
 
         if (city.activeCity)
-            uiInfoPanelCity.UpdateFoodStats(city.cityPop.CurrentPop, city.foodConsumptionPerMinute, FoodPerMinute);
+        {
+            uiInfoPanelCity.UpdateHousing(city.HousingCount);
+            uiInfoPanelCity.UpdateFoodStats(city.cityPop.CurrentPop, city.foodConsumptionPerMinute/*, FoodPerMinute*/);
+        }
 
         //if (growth) //increasing pop if food over or equal to max
         //{

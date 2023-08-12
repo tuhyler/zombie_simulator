@@ -2524,7 +2524,7 @@ public class MapWorld : MonoBehaviour
         }
         if (cityBuildingGODict.ContainsKey(buildPosition)) //if destroying city, destroy all buildings within
         {
-            bool isHill = GetTerrainDataAt(buildPosition).terrainData.type == TerrainType.Hill;
+            bool isHill = GetTerrainDataAt(buildPosition).isHill;
             foreach (string building in cityBuildingGODict[buildPosition].Keys)
             {
                 CityImprovement improvement = cityBuildingDict[buildPosition][building];

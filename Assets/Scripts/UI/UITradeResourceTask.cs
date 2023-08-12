@@ -6,14 +6,14 @@ using UnityEngine.UI;
 
 public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField]
-    public TMP_Dropdown resourceList;
+    //[SerializeField]
+    //public TMP_Dropdown resourceList;
 
     [SerializeField]
     public TMP_Dropdown actionList;
 
-    [SerializeField]
-    public TMP_InputField inputStorageAmount;
+    //[SerializeField]
+    //public TMP_InputField inputStorageAmount;
 
     //[SerializeField]
     //public Toggle allToggle;

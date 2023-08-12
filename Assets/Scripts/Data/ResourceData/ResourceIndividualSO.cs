@@ -16,5 +16,6 @@ public class ResourceIndividualSO : ScriptableObject
     public ResourceCategory resourceCategory;
     public string requirement;
     public Vector2 uvCoordinatesForRocks;
+    public bool forVisual = false; //for resources that are just a different picture for another resource (such as fish)
     //public ResourceValue resourceValue;
 }

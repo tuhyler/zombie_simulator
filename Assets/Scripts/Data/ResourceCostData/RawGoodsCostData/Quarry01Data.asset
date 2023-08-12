@@ -27,15 +27,25 @@ MonoBehaviour:
   improvementCost:
   - resourceType: 6
     resourceAmount: 15
-  consumedResources: []
-  consumedResources1: []
+  consumedResources:
+  - resourceType: 4
+    resourceAmount: 5
+  consumedResources1:
+  - resourceType: 6
+    resourceAmount: 2
+  - resourceType: 7
+    resourceAmount: 2
+  - resourceType: 4
+    resourceAmount: 5
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 7
     resourceAmount: 5
-  producedResourceTime: 05000000
+  - resourceType: 26
+    resourceAmount: 5
+  producedResourceTime: 0a0000000f000000
   rawMaterials: 1
   rawResourceType: 3
   isResearch: 0
@@ -55,4 +65,5 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 1
   noWalkAreas: []
