@@ -16,13 +16,13 @@ MonoBehaviour:
   secondaryData: []
   isBuilding: 1
   improvementName: Housing
-  improvementDisplayName: Small Wood House
+  improvementDisplayName: Small Hut
   improvementLevel: 1
   improvementNameAndLevel: Housing-1
   improvementDescription: Increases housing by 3
   buildingLocation: {x: -1.2, y: 0, z: 0.7}
-  image: {fileID: 0}
-  littleImage: {fileID: 0}
+  image: {fileID: 21300000, guid: 51b2795880069ed4cb730380a5ca6810, type: 3}
+  littleImage: {fileID: 21300000, guid: 51b2795880069ed4cb730380a5ca6810, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 6
@@ -53,4 +53,5 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas: []
