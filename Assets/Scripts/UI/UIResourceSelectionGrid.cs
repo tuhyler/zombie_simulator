@@ -16,7 +16,7 @@ public class UIResourceSelectionGrid : MonoBehaviour
     public bool activeStatus;
     private IResourceGridUser resourceGridUser;
     //private UITradeResourceTask resourceTask;
-    private UILaborResourcePriority laborResourcePriority;
+    //private UILaborResourcePriority laborResourcePriority;
 
     private void Awake()
     {
@@ -160,7 +160,7 @@ public class UIResourceSelectionGrid : MonoBehaviour
         {
             this.resourceGridUser = null;
             //this.resourceTask = null;
-            this.laborResourcePriority = null;
+            //this.laborResourcePriority = null;
         }
 
         gameObject.SetActive(v);
