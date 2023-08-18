@@ -16,7 +16,7 @@ MonoBehaviour:
   secondaryData: []
   isBuilding: 1
   improvementName: Housing
-  improvementDisplayName: Large Stone House
+  improvementDisplayName: Large Hut
   improvementLevel: 3
   improvementNameAndLevel: Housing-3
   improvementDescription: Increases housing by 2
@@ -55,4 +55,5 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas: []
