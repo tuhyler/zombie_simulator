@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UILaborResourcePriority : MonoBehaviour
+public class UILaborResourcePriority : MonoBehaviour, IResourceGridUser
 {
     //[SerializeField]
     //private TMP_Dropdown resourceList;
@@ -27,11 +27,13 @@ public class UILaborResourcePriority : MonoBehaviour
     [HideInInspector]
     public ResourceType chosenResource;
 
-    //[SerializeField]
-    //private TMP_Dropdown.OptionData defaultFirstChoice;
+	public Vector3 GridPosition { get { return resourceDropdown.position; } }
+
+	//[SerializeField]
+	//private TMP_Dropdown.OptionData defaultFirstChoice;
 
 
-    public void SetInitialPriority(int priorityNumberInt)
+	public void SetInitialPriority(int priorityNumberInt)
     {
         //int priorityNumberInt = (transform.GetSiblingIndex() + 1);
         priorityNumber.text = priorityNumberInt.ToString(); 
@@ -159,7 +161,7 @@ public class UILaborResourcePriority : MonoBehaviour
 
     public void OpenResourceGrid()
     {
-        uiLaborPrioritizationManager.resourceSelectionGrid.ToggleVisibility(true, null, this);
+        uiLaborPrioritizationManager.resourceSelectionGrid.ToggleVisibility(true, this);
     }
 
     //used for closing priortizations individually
@@ -175,4 +177,10 @@ public class UILaborResourcePriority : MonoBehaviour
     {
         Destroy(gameObject);
     }
+
+	public void SetData(Sprite icon, ResourceType resourceType)
+	{
+		chosenResourceSprite.sprite = icon;
+		chosenResource = resourceType;
+	}
 }

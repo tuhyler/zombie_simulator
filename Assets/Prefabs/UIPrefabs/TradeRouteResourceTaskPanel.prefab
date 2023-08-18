@@ -2015,7 +2015,7 @@ GameObject:
   - component: {fileID: 22254397571531008}
   - component: {fileID: 6904199785745763953}
   m_Layer: 5
-  m_Name: TradeRouteResourceTaskPanel2
+  m_Name: TradeRouteResourceTaskPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     //[SerializeField]
     //public TMP_Dropdown resourceList;
@@ -60,15 +60,16 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     //private ResourceHolder resourceHolder;
 
-    [SerializeField]
-    private TMP_Dropdown.OptionData defaultFirstChoice;
+    //[SerializeField]
+    //private TMP_Dropdown.OptionData defaultFirstChoice;
 
     //private bool getAll = true;
     [HideInInspector]
     public bool draggable = true;
     Vector3 diff;
+    public Vector3 GridPosition { get { return resourceDropdown.position; } }
 
-    private void Awake()
+	private void Awake()
     {
         counter.outlineColor = Color.black;//new Color(0.2f, 0.2f, 0.2f);
         counter.outlineWidth = 0.3f;
@@ -417,4 +418,10 @@ public class UITradeResourceTask : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         resourceHolder.CloseWindow(true);
     }
+
+	public void SetData(Sprite icon, ResourceType resourceType)
+	{
+        chosenResourceSprite.sprite = icon;
+        chosenResource = resourceType;
+	}
 }
