@@ -665,7 +665,7 @@ public class CityBuilderManager : MonoBehaviour
         world.RemoveTradeLoc(selectedWonder.unloadLoc);
 
 
-        GameObject priorGO = world.GetStructure(selectedWonder.WonderLocs[2]);
+        GameObject priorGO = world.GetStructure(selectedWonder.unloadLoc);
         Destroy(priorGO);
 
         //for no walk zone
@@ -682,6 +682,13 @@ public class CityBuilderManager : MonoBehaviour
             world.RemoveWonder(tile);
 
             TerrainData td = world.GetTerrainDataAt(tile);
+
+            if (selectedWonder.WonderData.isSea)
+            {
+                td.sailable = true;
+                td.walkable = false;
+            }
+			
             if (td.prop != null)
                 td.prop.gameObject.SetActive(true);
             td.RestoreTerrainMesh();
@@ -700,6 +707,8 @@ public class CityBuilderManager : MonoBehaviour
 
         foreach (Vector3Int tile in selectedWonder.WonderLocs)
         {
+            world.RemoveFromNoWalkList(tile);
+            
             foreach (Vector3Int neighbor in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAY))
             {
                 if (neighbor.x == xMin || neighbor.x == xMax || neighbor.z == zMin || neighbor.z == zMax)
@@ -708,6 +717,9 @@ public class CityBuilderManager : MonoBehaviour
                 world.RemoveFromNoWalkList(neighbor);
             }
         }
+
+        foreach (Vector3Int tile in selectedWonder.CoastTiles)
+            world.RemoveFromCoastList(tile);
 
         selectedWonder = null;
     }

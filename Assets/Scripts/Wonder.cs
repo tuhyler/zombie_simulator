@@ -42,6 +42,9 @@ public class Wonder : MonoBehaviour
     private List<Vector3Int> possibleHarborLocs = new();
     public List<Vector3Int> PossibleHarborLocs { get { return possibleHarborLocs; } set { possibleHarborLocs = value; } }
 
+    private List<Vector3Int> coastTiles = new();
+    public List<Vector3Int> CoastTiles { get { return coastTiles; } set { coastTiles = value; } }
+
     private Dictionary<ResourceType, int> resourceDict = new();
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
 
@@ -103,16 +106,16 @@ public class Wonder : MonoBehaviour
 
     public void SetPrefabs()
     {
-        //mesh0Percent.SetActive(false);
+        mesh0Percent.SetActive(false);
         mesh33Percent.SetActive(false);
         mesh67Percent.SetActive(false);
-        meshComplete.SetActive(false);
+        //meshComplete.SetActive(false);
         PlaySmokeSplash();
         mapIcon.SetActive(true);
-        //PlayFireworks();
+		//PlayFireworks();
 
-        //mesh25Percent.SetActive(false);
-    }
+		//mesh25Percent.SetActive(false);
+	}
 
     public void SetLastPrefab()
     {
@@ -416,7 +419,30 @@ public class Wonder : MonoBehaviour
             }
             world.RemoveTradeLoc(unloadLoc);
 
-            if (hasHarbor)
+			int grasslandCount = 0;
+			foreach (Vector3Int tile in wonderLocs)
+			{
+				if (world.GetTerrainDataAt(tile).terrainData.grassland)
+					grasslandCount++;
+			}
+
+			if (grasslandCount == Mathf.Ceil(wonderLocs.Count * 0.5f)) //turn to grassland if all are grassland
+			{
+				foreach (MeshFilter mesh in meshComplete.GetComponentsInChildren<MeshFilter>())
+				{
+					if (mesh.name == "Ground")
+					{
+						Vector2[] newUVs = mesh.mesh.uv;
+						for (int i = 0; i < newUVs.Length; i++)
+							newUVs[i].x -= 0.625f; //shift over one tile in atlas
+
+						mesh.mesh.uv = newUVs;
+						break;
+					}
+				}
+			}
+
+			if (hasHarbor)
                 DestroyHarbor();
 
             world.roadManager.RemoveRoadAtPosition(unloadLoc);

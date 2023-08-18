@@ -666,6 +666,16 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 5447331667604542231, guid: 68dec3c15ce79164bbed601ba08ea7fb,
+        type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5447331667604542231, guid: 68dec3c15ce79164bbed601ba08ea7fb,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     - target: {fileID: 5759482691758718240, guid: 68dec3c15ce79164bbed601ba08ea7fb,
         type: 3}
       propertyPath: m_Layer
