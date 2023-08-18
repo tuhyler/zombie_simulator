@@ -920,6 +920,7 @@ public class MapWorld : MonoBehaviour
         Wonder wonder = wonderGO.GetComponent<Wonder>();
         wonder.SetReferences(this, cityBuilderManager.focusCam);
         wonder.WonderData = wonderData;
+        wonder.WonderLocs = new(wonderPlacementLoc);
         wonder.SetPrefabs();
         wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost);
@@ -929,7 +930,6 @@ public class MapWorld : MonoBehaviour
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
         //wonder.Rotation = rotation;
         wonder.SetCenterPos(centerPos);
-        wonder.WonderLocs = new(wonderPlacementLoc);
         wonderConstructionDict[wonder.wonderName] = wonder;
         foreach (Vector3Int tile in wonderPlacementLoc)
             wonderStopDict[tile] = wonder;
@@ -958,7 +958,29 @@ public class MapWorld : MonoBehaviour
                 if (wonderData.isSea)
                 {
                     if (td.terrainData.type == TerrainType.Coast || td.terrainData.type == TerrainType.Sea)
+                    {
                         harborTiles.Add(neighbor);
+
+                        //adding new coast tiles for boat travel
+                        Vector3Int newCoastFinder = (tile - neighbor) / 3;
+                        coastCoastList.Add(neighbor + newCoastFinder);
+                        wonder.CoastTiles.Add(neighbor + newCoastFinder);
+                        if (newCoastFinder.x != 0)
+                        {
+                            coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, 1));
+                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, 1));
+                            coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, -1));
+                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, -1));
+                        }
+                        else if (newCoastFinder.z != 0)
+                        {
+						    coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(1, 0, 0));
+                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(1, 0, 0));
+                            coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(-1, 0, 0));
+                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(-1, 0, 0));
+					    }
+                    }
+
                 }
                 else
                 {
@@ -1996,6 +2018,11 @@ public class MapWorld : MonoBehaviour
     {
         coastCoastList.Add(tile);
     }
+
+    public void RemoveFromCoastList(Vector3Int tile)
+    {
+        coastCoastList.Remove(tile);
+    } 
     //public bool CheckIfIsCoast(Vector3Int tileWorldPosition)
     //{
     //    return GetTerrainDataAt(tileWorldPosition).IsCoast;
