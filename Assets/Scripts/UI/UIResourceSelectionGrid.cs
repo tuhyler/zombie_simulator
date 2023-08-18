@@ -14,7 +14,8 @@ public class UIResourceSelectionGrid : MonoBehaviour
 
     [HideInInspector]
     public bool activeStatus;
-    private UITradeResourceTask resourceTask;
+    private IResourceGridUser resourceGridUser;
+    //private UITradeResourceTask resourceTask;
     private UILaborResourcePriority laborResourcePriority;
 
     private void Awake()
@@ -128,7 +129,7 @@ public class UIResourceSelectionGrid : MonoBehaviour
         UITooltipSystem.Hide();
     }
 
-    public void ToggleVisibility(bool v, UITradeResourceTask resourceTask = null, UILaborResourcePriority laborResourcePriority = null)
+    public void ToggleVisibility(bool v, IResourceGridUser resourceGridUser = null /*UITradeResourceTask resourceTask = null, *//*UILaborResourcePriority laborResourcePriority = null*/)
     {
         if (activeStatus == v)
             return;
@@ -137,22 +138,28 @@ public class UIResourceSelectionGrid : MonoBehaviour
         
         if (v)
         {
-            if (resourceTask != null)
+            if (resourceGridUser != null)
             {
-                this.resourceTask = resourceTask;
-                transform.position = resourceTask.resourceDropdown.position;
+                this.resourceGridUser = resourceGridUser;
+                transform.position = resourceGridUser.GridPosition;
             }
-            else if (laborResourcePriority != null)
-            {
-                this.laborResourcePriority = laborResourcePriority;
-                transform.position = laborResourcePriority.resourceDropdown.position;
-            }
+            //else if (resourceTask != null)
+            //{
+            //    this.resourceTask = resourceTask;
+            //    transform.position = resourceTask.resourceDropdown.position;
+            //}
+            //else if (laborResourcePriority != null)
+            //{
+            //    this.laborResourcePriority = laborResourcePriority;
+            //    transform.position = laborResourcePriority.resourceDropdown.position;
+            //}
 
             closeButton.pivot = new Vector2((allContents.localPosition.x + allContents.sizeDelta.x * 0.5f) / closeButton.sizeDelta.x, (allContents.localPosition.y + allContents.sizeDelta.y * 0.5f) / closeButton.sizeDelta.y);
         }
         else
         {
-            this.resourceTask = null;
+            this.resourceGridUser = null;
+            //this.resourceTask = null;
             this.laborResourcePriority = null;
         }
 
@@ -163,16 +170,20 @@ public class UIResourceSelectionGrid : MonoBehaviour
     {
         Sprite icon = ResourceHolder.Instance.GetIcon(resourceType);
 
-        if (resourceTask != null)
+        if (resourceGridUser != null)
         {
-            resourceTask.chosenResourceSprite.sprite = icon;
-            resourceTask.chosenResource = resourceType;
+            resourceGridUser.SetData(icon, resourceType);
         }
-        else if (laborResourcePriority != null)
-        {
-            laborResourcePriority.chosenResourceSprite.sprite = icon;
-            laborResourcePriority.chosenResource = resourceType;
-        }
+        //else if (resourceTask != null)
+        //{
+        //    resourceTask.chosenResourceSprite.sprite = icon;
+        //    resourceTask.chosenResource = resourceType;
+        //}
+        //else if (laborResourcePriority != null)
+        //{
+        //    laborResourcePriority.chosenResourceSprite.sprite = icon;
+        //    laborResourcePriority.chosenResource = resourceType;
+        //}
 
         CloseGrid();
     }
@@ -187,5 +198,11 @@ public class UIResourceSelectionGrid : MonoBehaviour
         {
             allContents.pivot = new Vector2(0, 0);
         }
-    }
+    }    
+}
+
+public interface IResourceGridUser
+{
+    Vector3 GridPosition { get; }
+    void SetData(Sprite icon, ResourceType resourceType);
 }
