@@ -22,8 +22,7 @@ MonoBehaviour:
   improvementNameAndLevel: Barracks-1
   improvementDescription: Trains and Stations Military Units
   buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 0}
-  littleImage: {fileID: 0}
+  image: {fileID: 21300000, guid: 8b1ff124bc6ffae45aae89c45cf51cb8, type: 3}
   mapIcon: {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}
   improvementCost:
   - resourceType: 6

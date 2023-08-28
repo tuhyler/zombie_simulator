@@ -15,7 +15,6 @@ public class ImprovementDataSO : ScriptableObject
     public string improvementDescription;
     public Vector3 buildingLocation;
     public Sprite image;
-    public Sprite littleImage;
     public Sprite mapIcon;
     public List<ResourceValue> improvementCost;
     //for each produced resource, set consumed resources in the same order as the produced resources
