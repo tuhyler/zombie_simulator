@@ -29,7 +29,8 @@ MonoBehaviour:
   availableInitially: 1
   locked: 0
   health: 10
-  attackStrength: 0
+  baseAttackStrength: 0
+  baseAttackSpeed: 0.5
   movementSpeed: 1
   cargoCapacity: 0
   transportationType: 0

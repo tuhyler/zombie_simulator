@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4908702689438750486, guid: b6670cb09cf2bc749b3032f64f208bcc, type: 3}
   secondaryData: []
-  isBuilding: 0
+  isBuilding: 1
+  isBuildingImprovement: 1
   improvementName: Harbor
   improvementDisplayName: Harbor
   improvementLevel: 1
@@ -49,10 +50,11 @@ MonoBehaviour:
   replaceRocks: 0
   singleBuild: 0
   oneTerrain: 1
-  adjustForHill: 1
-  hillAdjustment: 0.6
+  adjustForHill: 0
+  hillAdjustment: 0
   buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas: []

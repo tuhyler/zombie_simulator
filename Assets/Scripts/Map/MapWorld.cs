@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using static UnityEngine.Rendering.DebugUI;
 
 public class MapWorld : MonoBehaviour
 {
@@ -48,6 +45,8 @@ public class MapWorld : MonoBehaviour
     public RoadManager roadManager;
     [SerializeField]
     private Material transparentMat;
+    [SerializeField]
+    private GameObject selectionIcon;
 
     [SerializeField]
     private ParticleSystem lightBeam;
@@ -133,6 +132,9 @@ public class MapWorld : MonoBehaviour
     //for workers
     private List<Vector3Int> workerBusyLocations = new();
 
+    //for PathFinding
+    private PathNode[,] grid;
+
     //for roads
     private Dictionary<Vector3Int, List<Road>> roadTileDict = new(); //stores road GOs, only on terrain locations
     private List<Vector3Int> soloRoadLocsList = new(); //indicates which tiles have solo roads on them
@@ -144,6 +146,9 @@ public class MapWorld : MonoBehaviour
     //for boats to avoid traveling the coast
     private List<Vector3Int> coastCoastList = new();
 
+    //for enemy
+    private Dictionary<Vector3Int, List<Unit>> enemyCampDict = new();
+
     //for expanding gameobject size
     private static int increment = 3;
     public int Increment { get { return increment; } }
@@ -153,7 +158,7 @@ public class MapWorld : MonoBehaviour
     public bool showGizmo, hideTerrain = true;
 
     [HideInInspector]
-    public bool workerOrders, buildingWonder, tooltip, somethingSelected, showingMap;
+    public bool unitOrders, buildingWonder, tooltip, somethingSelected, showingMap;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -189,6 +194,9 @@ public class MapWorld : MonoBehaviour
         tradeCenterPopPool.Add(7);
         tradeCenterPopPool.Add(8);
         tradeCenterPopPool.Add(6);
+
+        selectionIcon = Instantiate(selectionIcon);
+        selectionIcon.SetActive(false);
     }
 
     private void Start()
@@ -200,7 +208,7 @@ public class MapWorld : MonoBehaviour
 
         foreach (TerrainData td in FindObjectsOfType<TerrainData>())
         {
-            if (td.IsSeaCorner && !coastalTerrain.Contains(td))
+            if (td.isSeaCorner && !coastalTerrain.Contains(td))
                 coastalTerrain.Add(td);
             td.SetTileCoordinates(this);
             Vector3Int tileCoordinate = td.TileCoordinates;
@@ -239,12 +247,58 @@ public class MapWorld : MonoBehaviour
         foreach (Unit unit in FindObjectsOfType<Unit>()) //adds all units and their locations to start game.
         {
             unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
-            unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
+
             unit.Reveal();
-            Vector3 unitPos = unit.transform.position;
-            if (!unitPosDict.ContainsKey(Vector3Int.RoundToInt(unitPos))) //just in case dictionary was missing any
+            Vector3Int unitPos = RoundToInt(unit.transform.position);
+            if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
                 unit.CurrentLocation = AddUnitPosition(unitPos, unit);
+
+            unit.CurrentLocation = unitPos;
+
+            if (unit.CompareTag("Player"))
+                unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
+            else
+            {
+                Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitPos);
+                if (!enemyCampDict.ContainsKey(unitTerrainLoc))
+                {
+                    enemyCampDict[unitTerrainLoc] = new();
+                    GetTerrainDataAt(unitTerrainLoc).enemyCamp = true;
+                }
+                    
+                enemyCampDict[unitTerrainLoc].Add(unit);
+                unit.enemyAI.SetCampLoc(unitTerrainLoc);
+                unit.SetMinimapIcon(cityBuilderManager.enemyUnitHolder);
+            }
         }
+
+        //foreach (Vector3Int tile in enemyCampDict.Keys)
+        //{
+        //    List<Vector3Int> roamPool = new();
+            
+        //    foreach (Vector3Int loc in GetNeighborsFor(tile, State.EIGHTWAY))
+        //    {
+        //        if (!IsUnitLocationTaken(loc))
+        //            roamPool.Add(loc);
+        //    }
+
+        //    int roamPoolCount = roamPool.Count;
+
+        //    while (roamPoolCount > 0)
+        //    {
+        //        foreach (Unit unit in enemyCampDict[tile])
+        //        {
+        //            if (roamPoolCount == 0)
+        //                continue;
+
+        //            Vector3Int pos = roamPool[0];
+        //            unit.enemyAI.AddToRoamRange(pos);
+        //            roamPool.Remove(pos);
+        //            roamPoolCount--;
+        //        }
+        //    }
+
+        //}
 
         string upgradeableObjectName = "";
         List<ResourceValue> upgradeableObjectTotalCost = new();
@@ -342,6 +396,7 @@ public class MapWorld : MonoBehaviour
 
         CreateParticleSystems();
         DeactivateCanvases();
+        CreateGrid();
     }
 
     private void DeactivateCanvases()
@@ -638,6 +693,35 @@ public class MapWorld : MonoBehaviour
         }
 
         return newUVs;
+    }
+
+    private void CreateGrid()
+    {
+        int gridSizeX = 54, gridSizeY = 39; //temporary size for testing
+        int offsetX = 22, offsetY = 16;  
+        
+        grid = new PathNode[gridSizeX, gridSizeY];
+
+        for (int i = 0; i < gridSizeX; i++)
+        {
+            for (int j = 0; j < gridSizeY; j++)
+            {
+                int x = i - offsetX;
+                int y = j - offsetY;
+                
+                Vector3Int pos = new Vector3Int(x, 0, y);
+                Vector3Int terrainPos = GetClosestTerrainLoc(pos);
+                bool isObstacle = GetTerrainDataAt(terrainPos).terrainData.type == TerrainType.Obstacle;
+                bool isSea = !GetTerrainDataAt(terrainPos).terrainData.isLand;
+
+                grid[i, j] = new PathNode(isObstacle, isSea, pos, x, y, world[pos].MovementCost);
+            }
+        }
+    }
+
+    public PathNode GetPathNode(Vector3Int loc)
+    {
+        return grid[loc.x + 22, loc.z + 16];
     }
 
     private void CreateParticleSystems()
@@ -1066,7 +1150,7 @@ public class MapWorld : MonoBehaviour
 
     public void CloseBuildingSomethingPanel()
     {
-        if (workerOrders)
+        if (unitOrders)
         {
             unitMovement.CloseBuildingSomethingPanel();
             return;
@@ -1103,7 +1187,7 @@ public class MapWorld : MonoBehaviour
         //if (workerOrders)
         //    return;
 
-        if (buildingWonder || workerOrders)
+        if (buildingWonder || unitOrders)
             CloseBuildingSomethingPanel();
 
         if (wonderHandler.activeStatus)
@@ -1145,7 +1229,7 @@ public class MapWorld : MonoBehaviour
         //if (workerOrders)
         //    return;
 
-        if (workerOrders || buildingWonder)
+        if (unitOrders || buildingWonder)
             CloseBuildingSomethingPanel();
         
         if (researchTree.activeStatus)
@@ -1718,6 +1802,102 @@ public class MapWorld : MonoBehaviour
         return roadTileDict[tile];
     }
 
+    public void SetSelectionCircleLocation(Vector3Int loc)
+    {
+        Vector3 pos = GetClosestTerrainLoc(loc);
+        pos.y += 0.07f;
+        selectionIcon.transform.position = pos;
+        selectionIcon.SetActive(true);
+    }
+
+    public void HideSelectionCircles()
+    {
+        selectionIcon.SetActive(false);
+    }
+
+    public List<Unit> GetEnemyCamp(Vector3Int loc)
+    {
+        return enemyCampDict[loc];
+    }
+
+    public void WakeUpCamp(Vector3Int campLoc, Unit target)
+    {
+        //determining which one is closest first        
+        Unit closest = null;
+
+        for (int i = 0; i < enemyCampDict[campLoc].Count; i++)
+        {
+            Unit enemy = enemyCampDict[campLoc][i];
+            
+            if (closest == null)
+            {
+                closest = enemy;
+                continue;
+            }
+
+            if (Vector3.SqrMagnitude(target.transform.position - enemy.transform.position) < Vector3.SqrMagnitude(target.transform.position - closest.transform.position))
+                closest = enemy;
+        }
+
+        closest.enemyAI.WakeUp(target, true);
+    }
+
+    public void MoveCamp(List<Vector3Int> leaderPath, Vector3Int campLoc, Unit leader, Unit target)
+    {
+        foreach (Unit unit in enemyCampDict[campLoc])
+        {
+            if (unit == leader)
+                continue;
+
+            Vector3Int leaderDiff = RoundToInt(unit.transform.position - leader.transform.position);
+            unit.enemyAI.FollowLeader(leaderPath, leaderDiff, target);
+        }
+    }
+
+    public void ConvergeCamp(Unit leader, Vector3Int campLoc)
+    {
+        foreach (Unit unit in enemyCampDict[campLoc])
+        {
+            if (unit == leader)
+                continue;
+
+            unit.enemyAI.Converge();
+        }
+    }
+
+    public void HighlightAllEnemyCamps()
+    {
+        foreach (Vector3Int tile in enemyCampDict.Keys)
+        {
+            TerrainData td = GetTerrainDataAt(tile);
+            if (!td.isDiscovered)
+                continue;
+
+            td.EnableHighlight(Color.red);
+            foreach (Unit unit in enemyCampDict[tile])
+                unit.Select(Color.red);
+        }
+    }
+
+    public bool CheckIfEnemyCamp(Vector3Int loc)
+    {
+        return enemyCampDict.ContainsKey(loc) && GetTerrainDataAt(loc).isDiscovered;
+    }
+
+    public void UnhighlightAllEnemyCamps()
+    {
+		foreach (Vector3Int tile in enemyCampDict.Keys)
+		{
+			TerrainData td = GetTerrainDataAt(tile);
+			if (!td.isDiscovered)
+				continue;
+
+			td.DisableHighlight();
+			foreach (Unit unit in enemyCampDict[tile])
+				unit.Deselect();
+		}
+	}
+
     public int GetUpgradeableObjectMaxLevel(string name)
     {
         return upgradeableObjectMaxLevelDict[name];
@@ -2162,7 +2342,20 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(-increment,0,2*increment), //up up left
     };
 
-    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYTWODEEP, EIGHTWAYINCREMENT, CITYRADIUS };
+    private readonly static List<Vector3Int> centerAndNeighborsEightDirectionsArmy = new()
+    {
+        new Vector3Int(0,0,-1), //down
+        new Vector3Int(-1,0,-1), //lower left
+        new Vector3Int(1,0,-1), //lower right
+        new Vector3Int(0, 0, 0), //center
+        new Vector3Int(-1,0,0), //left
+        new Vector3Int(1,0,0), //right
+		new Vector3Int(0,0,1), //up
+        new Vector3Int(-1,0,1), //upper left
+        new Vector3Int(1,0,1), //upper right
+    };
+
+    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYARMY, EIGHTWAYTWODEEP, EIGHTWAYINCREMENT, CITYRADIUS };
 
     public List<Vector3Int> GetNeighborsFor(Vector3Int worldTilePosition, State criteria)
     {
@@ -2178,6 +2371,9 @@ public class MapWorld : MonoBehaviour
                 break;
             case State.EIGHTWAY:
                 listToUse = new(neighborsEightDirections);
+                break;
+            case State.EIGHTWAYARMY:
+                listToUse = new(centerAndNeighborsEightDirectionsArmy);
                 break;
             case State.EIGHTWAYTWODEEP:
                 listToUse = new(neighborsEightDirectionsTwoDeep);
@@ -2210,7 +2406,9 @@ public class MapWorld : MonoBehaviour
                 return new(neighborsFourDirectionsIncrement);
             case State.EIGHTWAY:
                 return new(neighborsEightDirections);
-            case State.EIGHTWAYTWODEEP:
+			case State.EIGHTWAYINCREMENT:
+				return new(neighborsEightDirectionsIncrement);
+			case State.EIGHTWAYTWODEEP:
                 return new(neighborsEightDirectionsTwoDeep);
             case State.CITYRADIUS:
                 return new(cityRadius);

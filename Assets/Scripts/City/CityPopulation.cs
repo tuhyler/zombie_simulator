@@ -11,10 +11,10 @@ public class CityPopulation : MonoBehaviour
     private int usedLabor;
     public int UsedLabor { get { return usedLabor; } set { usedLabor = value; } }
 
-    public void IncreasePopulationAndLabor()
+    public void IncreasePopulationAndLabor(int amount)
     {
-        currentPop++;
-        unusedLabor++;
+        currentPop += amount;
+        unusedLabor += amount;
     }
 
     //private int fieldLaborers;

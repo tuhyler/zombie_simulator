@@ -45,6 +45,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     private bool isUnitPanel, cannotAfford, isShowing;
 
+    [HideInInspector]
+    public bool needsBarracks;
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
     //private bool ;
@@ -104,7 +106,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         {
             health.text = unitBuildData.health.ToString();
             speed.text = Mathf.RoundToInt(unitBuildData.movementSpeed * 2).ToString();
-            strength.text = unitBuildData.attackStrength.ToString();
+            strength.text = unitBuildData.baseAttackStrength.ToString();
             if (unitBuildData.cargoCapacity > 0)
             {
                 strengthImage.sprite = inventorySprite;
@@ -326,7 +328,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (cannotAfford && !buttonHandler.isQueueing)
+        if (needsBarracks)
+        {
+			StartCoroutine(Shake());
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks required");
+			return;
+		}
+        else if (cannotAfford && !buttonHandler.isQueueing)
         {
             StartCoroutine(Shake());
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");

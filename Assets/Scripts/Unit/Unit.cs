@@ -22,7 +22,7 @@ public class Unit : MonoBehaviour
     private SpriteRenderer minimapIcon;
     
     [SerializeField]
-    private ParticleSystem lightBeam;
+    private ParticleSystem lightBeam, deathSplash;
 
     [SerializeField]
     private GameObject selectionCircle;
@@ -30,10 +30,15 @@ public class Unit : MonoBehaviour
     [SerializeField]
     private UnitMarker marker;
 
+    [SerializeField]
+    private Healthbar healthbar;
+
     [HideInInspector]
     public MapWorld world;
     [HideInInspector]
     public UnityEvent FinishedMoving; //listeners are worker tasks and show individualcity buttons
+
+    private InfoManager infoManager;
 
     //movement details
     //private Rigidbody unitRigidbody;
@@ -45,7 +50,7 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public Vector3 finalDestinationLoc;
     private Vector3Int currentLocation;
-    public Vector3Int CurrentLocation { get { return CurrentLocation; } set { currentLocation = value; } }
+    public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     private Vector3Int prevRoadTile, prevTerrainTile; //first one is for traders, in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
@@ -57,11 +62,21 @@ public class Unit : MonoBehaviour
     //private Vector3 shoePrintScale;
     //private GameObject mapIcon;
     private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
+    private WaitForSeconds attackedWait = new(5);
     //private bool onTop; //if on city tile and is on top
 
     //combat info
     [HideInInspector]
+    public City homeBase;
+    [HideInInspector]
     public int currentHealth;
+    [HideInInspector]
+    public BasicEnemyAI enemyAI;
+    private int healthMax;
+    [HideInInspector]
+    public float baseSpeed, attackSpeed;
+    [HideInInspector]
+    public int attackStrength;
 
     //selection indicators
     private SelectionHighlight highlight;
@@ -70,12 +85,13 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething;
+    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething, isDead, isAttacked, inArmy, atHome, repositioning;
 
     //animation
     [HideInInspector]
     public Animator unitAnimator;
     private int isMovingHash;
+    private int isAttackingHash;
 
     private void Awake()
     {
@@ -93,18 +109,34 @@ public class Unit : MonoBehaviour
         highlight = GetComponent<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
+        isAttackingHash = Animator.StringToHash("isAttacking");
         //unitRigidbody = GetComponent<Rigidbody>();
+        baseSpeed = 1;
 
         originalMoveSpeed = buildDataSO.movementSpeed;
         //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
         bySea = buildDataSO.transportationType == TransportationType.Sea;
+
+        deathSplash = Instantiate(deathSplash);
+        deathSplash.Stop();
+        healthMax = buildDataSO.health;
+        currentHealth = healthMax;
+        attackSpeed = buildDataSO.baseAttackSpeed;
+        attackStrength = buildDataSO.baseAttackStrength;
+        inArmy = attackStrength > 0 && CompareTag("Player");
+        healthbar.SetUnit(this);
+
+        enemyAI = GetComponent<BasicEnemyAI>();
+        if (enemyAI != null)
+            enemyAI.SetAttackSpeed(attackSpeed);
         //shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
             selectionCircle.SetActive(false);
         if (isTrader)
             prevRoadTile = Vector3Int.RoundToInt(transform.position); //world hasn't been initialized yet
 
-        currentHealth = buildDataSO.health;
+        if (currentHealth == healthMax)
+            healthbar.gameObject.SetActive(false);
     }
 
     private void Start()
@@ -112,11 +144,14 @@ public class Unit : MonoBehaviour
         //turnHandler.turnHandler.AddToTurnList(this);
         //roadSpeed = world.GetRoadCost();
 
-        Vector3 loc = transform.position;
-        loc.y += 0.1f;
-        lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0,0,0));
-        lightBeam.transform.parent = transform;
-        lightBeam.Play();
+        if (CompareTag("Player"))
+        {
+            Vector3 loc = transform.position;
+            loc.y += 0.1f;
+            lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0,0,0));
+            lightBeam.transform.parent = transform;
+            lightBeam.Play();
+        }
 
         //world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
         //SetMinimapIcon();
@@ -129,8 +164,12 @@ public class Unit : MonoBehaviour
         this.focusCam = focusCam;
         this.turnHandler = turnHandler;
         this.movementSystem = movementSystem;
+        infoManager = movementSystem.unitMovement.infoManager;
 
-        turnHandler.turnHandler.AddToTurnList(this);
+        if (CompareTag("Player"))
+            turnHandler.turnHandler.AddToTurnList(this);
+        else
+            enemyAI.SetStartingPosition();
         //caching terrain costs
         roadSpeed = world.GetRoadCost();
         flatlandSpeed = world.flatland.movementCost;
@@ -144,9 +183,17 @@ public class Unit : MonoBehaviour
         focusCam.followTransform = transform;
     }
 
+    public void StartAttackingAnimation()
+    {
+        unitAnimator.SetBool(isAttackingHash, true);
+        unitAnimator.SetFloat("attackSpeed", 1);
+    }
+
     public void StopAnimation()
     {
         unitAnimator.SetBool(isMovingHash, false);
+        if (attackStrength > 0)
+            unitAnimator.SetBool(isAttackingHash, false);
     }
 
     public void InterruptedRouteMessage()
@@ -162,20 +209,66 @@ public class Unit : MonoBehaviour
         ConstraintSource constraintSource = new();
         constraintSource.sourceTransform = parent;
         constraintSource.weight = 1;
-        RotationConstraint ugh = minimapIcon.GetComponent<RotationConstraint>();
-        ugh.rotationAtRest = new Vector3(90, 0, 0);
-        ugh.rotationOffset = new Vector3(90, 0, 0);
-        ugh.AddSource(constraintSource);
+        RotationConstraint rotation = minimapIcon.GetComponent<RotationConstraint>();
+		rotation.rotationAtRest = new Vector3(90, 0, 0);
+		rotation.rotationOffset = new Vector3(90, 0, 0);
+		rotation.AddSource(constraintSource);
         
         //GameObject icon = Instantiate(minimapIcon);
         //minimapIcon.GetComponent<FollowNoRotate>().objectToFollow = transform;
         //world.AddToMinimap(minimapIcon.gameObject);
     }
 
+    //taking damage
+    public void ReduceHealth(int damage, Vector3 rotation)
+    {
+        if (isDead)
+            return;
+
+		baseSpeed = .1f;
+
+		healthbar.gameObject.SetActive(true);
+
+        currentHealth -= damage;
+
+        if (currentHealth <= 0)
+        {
+            StartCoroutine(DestroyUnitWait(rotation));
+            return;
+        }
+            //DestroyUnit();
+
+        if (isSelected)
+            infoManager.SetHealth(currentHealth, healthMax);
+
+        healthbar.SetHealthLevel(currentHealth, healthMax);
+    }
+
+    public void UpdateHealth(float healthLevel)
+    {
+        currentHealth = Mathf.FloorToInt(healthLevel * healthMax);
+        //this.currentHealth = currentHealth;
+
+        if (isSelected)
+			infoManager.SetHealth(currentHealth, healthMax);
+	}
+
+    //private IEnumerator SlowMovement()
+    //{
+
+    //}
+
+    public void HideBar()
+    {
+        healthbar.gameObject.SetActive(false);
+    }
+
     //Methods for moving unit
     //Gets the path positions and starts the coroutines
     public void MoveThroughPath(List<Vector3Int> currentPath) 
     {
+        if (isDead)
+            return;
         //CenterCamera(); //focus to start moving
 
         world.RemoveUnitPosition(currentLocation);//removing previous location
@@ -203,30 +296,30 @@ public class Unit : MonoBehaviour
     {
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
         TerrainData td = world.GetTerrainDataAt(endPositionInt);
-        float y = 0f;
+        //float y = 0f;
 
-        if (bySea)
-        {
-            y = -.45f;
+        //if (bySea)
+        //{
+        //    y = -.45f;
 
-            if (isBeached)
-            {
-                isBeached = false;
-            }
-            else if (world.CheckIfCoastCoast(endPositionInt))
-            {
-                y = -.3f;
-                TurnOffRipples();
-                isBeached = true;
-            }
-        }
-        else if (td.isHill)
-        {
-            if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
-                y = 0f;//world.test;
-            else
-                y = 0f;
-        }
+        //    if (isBeached)
+        //    {
+        //        isBeached = false;
+        //    }
+        //    else if (world.CheckIfCoastCoast(endPositionInt))
+        //    {
+        //        y = -.3f;
+        //        TurnOffRipples();
+        //        isBeached = true;
+        //    }
+        //}
+        //else if (td.isHill)
+        //{
+        //    if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
+        //        y = 0f;//world.test;
+        //    else
+        //        y = 0f;
+        //}
 
         //if (world.IsRoadOnTileLocation(endPositionInt))
         //{
@@ -245,7 +338,7 @@ public class Unit : MonoBehaviour
         //    GetInLine(endPosition);
         //    yield break;
         //}
-        if (world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+        if (!enemyAI && !inArmy && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
@@ -289,7 +382,7 @@ public class Unit : MonoBehaviour
             endPosition = finalDestinationLoc;
 
         Quaternion startRotation = transform.rotation;
-        endPosition.y = y;
+        //endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
         direction.y = 0;
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
@@ -305,6 +398,7 @@ public class Unit : MonoBehaviour
             float movementThisFrame = Time.deltaTime * moveSpeed;
             float lerpStep = timeElapsed / rotationDuration; //Value between 0 and 1
             transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
+            //unitRigidbody.MovePosition(Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame));
             //transform.localPosition = newPosition;
             transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
             //Debug.Log("distance: " + distance);
@@ -322,11 +416,17 @@ public class Unit : MonoBehaviour
 
         //exploring
         if (isTrader && !bySea && !world.hideTerrain) {}
-        else
+        else if (!enemyAI)
         {
             Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
             if (pos != prevTerrainTile)
                 RevealCheck(pos);
+        }
+
+        if (enemyAI)
+        {
+            if (enemyAI.ResetTarget())
+                yield break;
         }
 
         //if (onTop && world.GetTerrainDataAt(endPositionInt).gameObject.tag != "City")
@@ -607,6 +707,7 @@ public class Unit : MonoBehaviour
         if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
         {
             Unit unitInTheWay = world.GetUnit(currentLocation);
+
             if (unitInTheWay == this)
             {
                 world.AddUnitPosition(currentLocation, this);
@@ -625,7 +726,28 @@ public class Unit : MonoBehaviour
         }
         world.AddUnitPosition(currentLocation, this);
         TradeRouteCheck(endPosition);
+        if (repositioning)
+        {
+            repositioning = false;
+            homeBase.army.UnitReady();
+        }
+
+        if (enemyAI)
+            enemyAI.needsDestination = true;
     }
+
+ //   public void EnemyAttackSetup()
+ //   {
+ //       isMoving = false;
+	//	currentLocation = world.RoundToInt(transform.position);
+
+ //       if (world.IsUnitLocationTaken(currentLocation))
+ //       {
+ //           enemyAI.ReadjustAttack();
+ //       }
+
+	//	world.AddUnitPosition(currentLocation, this);
+	//}
 
     public void FindNewSpot(Vector3Int current, Vector3Int next)
     {
@@ -707,6 +829,9 @@ public class Unit : MonoBehaviour
 
     public void Reveal()
     {
+        if (!CompareTag("Player"))
+            return;
+        
         Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
         //prevTerrainTile = pos;
         TerrainData td = world.GetTerrainDataAt(pos);
@@ -731,10 +856,19 @@ public class Unit : MonoBehaviour
     public void RevealCheck(Vector3Int pos)
     {
         prevTerrainTile = pos;
-        
+
+        int i = 0;
         foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.CITYRADIUS))
         {
+            i++;
+            
             TerrainData td = world.GetTerrainDataAt(loc);
+            if (!bySea && i < 9)
+            {
+                if (td.enemyCamp)
+                    world.WakeUpCamp(loc, this);
+            }
+            
             if (td.isDiscovered)
                 continue;
 
@@ -823,54 +957,54 @@ public class Unit : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Road"))
         {
-            moveSpeed = roadSpeed * .1f * originalMoveSpeed * 2.5f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
+            moveSpeed = baseSpeed * roadSpeed * originalMoveSpeed * .25f;
+            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
             threshold = 0.1f;
             //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
         }
         else if (collision.gameObject.CompareTag("City"))
         {
-            moveSpeed = flatlandSpeed * .1f * originalMoveSpeed;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
+            moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
         }
         else if (collision.gameObject.CompareTag("Flatland"))
         {
-            moveSpeed = flatlandSpeed * .1f * originalMoveSpeed;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 18f);
+            moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
         }
         else if (collision.gameObject.CompareTag("Forest"))
         {
-            moveSpeed = forestSpeed * .1f * originalMoveSpeed * 0.25f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 9f);
+            moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * 0.025f;
+            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
         }
         else if (collision.gameObject.CompareTag("Hill"))
         {
-            moveSpeed = hillSpeed * .1f * originalMoveSpeed * 0.25f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 9f);
+            moveSpeed = baseSpeed * hillSpeed * originalMoveSpeed * 0.025f;
+            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
             threshold = 0.1f;
         }
         else if (collision.gameObject.CompareTag("Forest Hill"))
         {
-            moveSpeed = forestHillSpeed * .1f * originalMoveSpeed * 0.125f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 5f);
+            moveSpeed = baseSpeed * forestHillSpeed * originalMoveSpeed * 0.02f;
+            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
         }
         else if (collision.gameObject.CompareTag("Water"))
         {
             if (bySea)
             {
-                moveSpeed = flatlandSpeed * .1f * originalMoveSpeed;
-                unitAnimator.SetFloat("speed", originalMoveSpeed * 12f);
+                moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+                unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 12f);
             }
             else
             {
-                moveSpeed = flatlandSpeed * .1f * originalMoveSpeed * 0.25f;
-                unitAnimator.SetFloat("speed", originalMoveSpeed * 3f);
+                moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * 0.025f;
+                unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 3f);
             }
         }
         else if (collision.gameObject.CompareTag("Swamp"))
         {
-            moveSpeed = forestSpeed * .1f * originalMoveSpeed * .125f;
-            unitAnimator.SetFloat("speed", originalMoveSpeed * 5f);
+            moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * .0125f;
+            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
         }
         //else if (collision.gameObject.CompareTag("Player"))
         //{
@@ -894,14 +1028,14 @@ public class Unit : MonoBehaviour
 
 
     //Methods for selecting and unselecting unit
-    public void Select()
+    public void Select(Color color)
     {
         //selectionCircle.enabled = true;
         //highlight.ToggleGlow(true, Color.white);
         isSelected = true;
         if (bySea)
             selectionCircle.SetActive(true);
-        highlight.EnableHighlight(Color.white);
+        highlight.EnableHighlight(color);
         //CenterCamera();
     }
 
@@ -921,13 +1055,28 @@ public class Unit : MonoBehaviour
     //    turnHandler.GoToNextUnit();
     //}
 
-    public void DestroyUnit()
+    public IEnumerator DestroyUnitWait(Vector3 rotation)
     {
+        isDead = true;
+        deathSplash.transform.position = transform.position;
+        rotation.x = -90;
+        deathSplash.transform.eulerAngles = rotation;
+        deathSplash.Play();
+        gameObject.SetActive(false);
         RemoveUnitFromData();
         Deselect();
+
+        yield return attackedWait;
+
         Destroy(gameObject);
     }
 
+    public void DestroyUnit()
+    {
+		RemoveUnitFromData();
+		Deselect();
+		Destroy(gameObject);
+	}
 
 
     //Methods for movement order information 

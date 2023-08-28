@@ -424,7 +424,7 @@ public class ResourceManager : MonoBehaviour
         if (city.cityPop.CurrentPop == 0 && type == ResourceType.Food && resourceDict[type] >= city.initialGrowthFood && !pauseGrowth)
         {
             resourceDict[type] -= city.initialGrowthFood;
-            city.PopulationGrowthCheck(false);
+            city.PopulationGrowthCheck(false, 1);
         }
 
         return resourceAmountAdjusted;
@@ -612,7 +612,7 @@ public class ResourceManager : MonoBehaviour
             city.exclamationPoint.SetActive(false);
 
             if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth) //if enough food left over to grow
-                city.PopulationGrowthCheck(false);
+                city.PopulationGrowthCheck(false, 1);
         }
         else
         {

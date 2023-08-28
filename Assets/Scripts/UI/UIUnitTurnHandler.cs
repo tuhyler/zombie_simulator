@@ -47,7 +47,7 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void NextUnitToMove() //used on right button
     {
-        if (!buttonsAreWorking || world.workerOrders)
+        if (!buttonsAreWorking || world.unitOrders)
             return;
         
         IncreaseIndex();
@@ -57,7 +57,7 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void PrevUnitToMove() //used on left button
     {
-        if (!buttonsAreWorking || world.workerOrders)
+        if (!buttonsAreWorking || world.unitOrders)
             return;
         
         DecreaseIndex();

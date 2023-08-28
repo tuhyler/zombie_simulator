@@ -193,7 +193,7 @@ PrefabInstance:
     - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6568893320125822013, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -216,6 +216,18 @@ PrefabInstance:
     - {fileID: 8577568048053697432, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
     - {fileID: 6568893320125822013, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: cb2720df9ba71c948a71f90c55a9188b, type: 3}
+--- !u!114 &886464836172312869 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1502020260812445936, guid: cb2720df9ba71c948a71f90c55a9188b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1771432436929309141}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 183ac18ed17ef5744beae352ae60076b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2321851027760307080 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -238,8 +250,11 @@ MonoBehaviour:
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
+  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
+    type: 3}
   selectionCircle: {fileID: 0}
   marker: {fileID: 5104034567501558109}
+  healthbar: {fileID: 886464836172312869}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
@@ -251,6 +266,10 @@ MonoBehaviour:
   interruptedRoute: 0
   finalDestinationLoc: {x: 0, y: 0, z: 0}
   currentHealth: 0
+  enemyAI: {fileID: 0}
+  baseSpeed: 0
+  attackSpeed: 0
+  attackStrength: 0
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -263,6 +282,9 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
+  isDead: 0
+  isAttacked: 0
+  inArmy: 0
   unitAnimator: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:

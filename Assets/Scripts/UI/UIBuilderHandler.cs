@@ -22,7 +22,7 @@ public class UIBuilderHandler : MonoBehaviour
 
     [SerializeField]
     private Transform uiElementsParent;
-    private List<UIBuildOptions> buildOptions;
+    private List<UIBuildOptions> buildOptions = new();
 
     //for blurring background
     [SerializeField]
@@ -72,11 +72,12 @@ public class UIBuilderHandler : MonoBehaviour
         }
         dof.focalLength.value = 15;
 
-        buildOptions = new List<UIBuildOptions>(); //instantiate
-
         foreach (Transform selection in uiElementsParent) //populate list
         {
-            buildOptions.Add(selection.GetComponent<UIBuildOptions>());
+            UIBuildOptions option = selection.GetComponent<UIBuildOptions>();
+
+            if (option)
+    			buildOptions.Add(option);
         }
 
         originalLoc = allContents.anchoredPosition3D;
@@ -238,8 +239,8 @@ public class UIBuilderHandler : MonoBehaviour
 
         foreach (UIBuildOptions buildItem in buildOptions)
         {
-            if (buildItem == null)
-                continue;
+            //if (buildItem == null)
+            //    continue;
 
             string itemName = "";
             List<ResourceValue> resourceCosts = new();
@@ -250,6 +251,9 @@ public class UIBuilderHandler : MonoBehaviour
                 itemName = buildItem.UnitBuildData.unitName;
                 resourceCosts = new(buildItem.UnitBuildData.unitCost);
                 locked = buildItem.UnitBuildData.locked;
+
+                if (buildItem.UnitBuildData.baseAttackStrength > 0)
+                    buildItem.needsBarracks = !resourceManager.city.hasBarracks;
 
                 ResourceValue laborCost;
                 laborCost.resourceType = ResourceType.Labor;
@@ -349,4 +353,15 @@ public class UIBuilderHandler : MonoBehaviour
 
         PrepareBuildOptions(resourceManager);
     }
+
+    public void UpdateBarracksStatus()
+    {
+        foreach (UIBuildOptions buildItem in buildOptions)
+        {
+			//if (buildItem == null)
+			//	continue;
+
+			buildItem.needsBarracks = false;
+        }
+	}
 }

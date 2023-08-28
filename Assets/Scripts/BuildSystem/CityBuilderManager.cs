@@ -63,12 +63,10 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public MovementSystem movementSystem;
     [SerializeField]
-    public Transform objectPoolHolder, friendlyUnitHolder;
+    public Transform objectPoolHolder, friendlyUnitHolder, enemyUnitHolder;
 
     [SerializeField]
     public CameraController focusCam;
-    private Quaternion originalRotation;
-    private Vector3 originalZoom;
 
     private City selectedCity;
     public City SelectedCity { get { return selectedCity; } }
@@ -203,7 +201,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void HandleCitySelection(Vector3 location, GameObject selectedObject)
     {
-        if (world.workerOrders || world.buildingWonder)
+        if (world.unitOrders || world.buildingWonder)
             return;
 
         if (selectedObject == null)
@@ -227,7 +225,7 @@ public class CityBuilderManager : MonoBehaviour
             City city = improvementSelected.GetCity();
             if (improvementSelected.building && !removingImprovement && !upgradingImprovement && city != null)
             {
-                SelectCity(location, city);
+                SelectCity(city.cityLoc, city);
                 return;
             }
             
@@ -1039,7 +1037,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (!selectedCity.ResourceManager.CheckResourceAvailability(value))
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+                //UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
                 return;
             }
         }
@@ -1409,7 +1407,12 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         Vector3Int buildPosition = selectedCityLoc;
-        if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
+
+        if (unitData.baseAttackStrength > 0)
+        {
+            buildPosition = selectedCity.army.GetAvailablePosition();
+        }
+        else if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
         {
             //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
             foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
@@ -1440,6 +1443,11 @@ public class CityBuilderManager : MonoBehaviour
         Unit newUnit = unit.GetComponent<Unit>();
         newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
         newUnit.SetMinimapIcon(friendlyUnitHolder);
+        if (unitData.baseAttackStrength > 0)
+        {
+            selectedCity.army.AddToArmy(newUnit);
+            newUnit.homeBase = selectedCity;
+        }
 
         Vector3 mainCamLoc = Camera.main.transform.position;
         mainCamLoc.y = 0;
@@ -1481,7 +1489,7 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
         //for some non buildings in the building selection list (eg harbor)
-        if (!buildingData.isBuilding)
+        if (buildingData.isBuildingImprovement)
         {
             CreateImprovement(buildingData);
             return;
@@ -1919,6 +1927,8 @@ public class CityBuilderManager : MonoBehaviour
         cityImprovement.InitializeImprovementData(improvementData);
         //cityImprovement.SetPSLocs();
         cityImprovement.SetQueueCity(null);
+        cityImprovement.building = improvementData.isBuilding;
+        cityImprovement.SetCity(city);
 
         world.SetCityDevelopment(tempBuildLocation, cityImprovement);
         improvement.SetActive(false);
@@ -2105,6 +2115,19 @@ public class CityBuilderManager : MonoBehaviour
             city.harborLocation = tempBuildLocation;
             world.SetCityHarbor(city, tempBuildLocation);
             world.AddTradeLoc(tempBuildLocation, city.cityName);
+        }
+        else if (improvementData.improvementName == "Barracks")
+        {
+            city.hasBarracks = true;
+            city.barracksLocation = tempBuildLocation;
+
+			foreach (Vector3Int tile in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.EIGHTWAYARMY))
+                city.army.SetArmySpots(tile);
+
+            city.army.SetLoc(tempBuildLocation);
+
+            if (uiUnitBuilder.activeStatus)
+                uiUnitBuilder.UpdateBarracksStatus();
         }
 
         //setting labor info (harbors have no labor)
@@ -2354,6 +2377,10 @@ public class CityBuilderManager : MonoBehaviour
             city.hasHarbor = false;
             world.RemoveHarbor(improvementLoc);
             world.RemoveTradeLoc(improvementLoc);
+        }
+        else if (improvementLoc == city.barracksLocation)
+        {
+            city.hasBarracks = false;
         }
 
         //updating all the labor info
@@ -2614,7 +2641,7 @@ public class CityBuilderManager : MonoBehaviour
 
             CityImprovement improvement = world.GetCityDevelopment(tile);
             improvement.DisableHighlight();
-            if (improvement.isUpgrading || improvement.GetImprovementData.improvementName == "Harbor")
+            if (improvement.isUpgrading || improvement.GetImprovementData.improvementName == "Harbor" || improvement.GetImprovementData.improvementName == "Barracks")
                 continue;
 
             if (laborChange > 0 && !world.CheckIfTileIsMaxxed(tile) && selectedCity.cityPop.UnusedLabor > 0) //for increasing labor, can't be maxxed out
@@ -3145,6 +3172,11 @@ public class CityBuilderManager : MonoBehaviour
                             tempCity.harborLocation = improvementLoc;
                             world.SetCityHarbor(tempCity, improvementLoc);
                         }
+                        else if (singleImprovement == "Barracks")
+                        {
+                            tempCity.hasBarracks = true;
+                            tempCity.barracksLocation = improvementLoc;
+                        }
 
                         unclaimed = false;
                         break;
@@ -3202,7 +3234,8 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedCity != null)
         {
-            world.somethingSelected = false;
+            if (!movementSystem.unitMovement.unitSelected)
+                world.somethingSelected = false;
             ResourceProducerTimeProgressBarsSetActive(false);
             isActive = false;
             cityTiles.Clear();

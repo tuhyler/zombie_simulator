@@ -173,4 +173,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 0}
   allContents: {fileID: 5260703463605753538}
+  activeStatus: 0
   buttonImage: {fileID: 3278592179122087433}

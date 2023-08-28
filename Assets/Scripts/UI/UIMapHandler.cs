@@ -75,7 +75,7 @@ public class UIMapHandler : MonoBehaviour
     {
         //if (world.workerOrders)
         //    return;
-        if (world.workerOrders || world.buildingWonder)
+        if (world.unitOrders || world.buildingWonder)
             world.CloseBuildingSomethingPanel();
         
         if (activeStatus)

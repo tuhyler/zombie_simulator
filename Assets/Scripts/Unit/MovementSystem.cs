@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class MovementSystem : MonoBehaviour
 {
-    private UnitMovement unitMovement;
+    [HideInInspector]
+    public UnitMovement unitMovement;
     private List<Vector3Int> currentPath = new();
     
     //for order queueing
@@ -31,8 +32,9 @@ public class MovementSystem : MonoBehaviour
         {
             selectedUnit.QueueCount = 0;
             currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader, selectedUnit.bySea);
+			//currentPath = PathFinder.FindPath(world, world.RoundToInt(currentLoc), endPosition, isTrader, selectedUnit.bySea);
 
-            if (world.RoundToInt(currentLoc) == endPosition) //if moving within current square
+			if (world.RoundToInt(currentLoc) == endPosition) //if moving within current square
                 currentPath.Add(endPosition);
         }
     }

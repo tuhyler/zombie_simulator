@@ -1,14 +1,19 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 public class GridSearch
 {
-    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea)
+    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea, bool attack = false)
     {
         if (bySea)
             return AStarSearchSea(world, startLocation, endPosition);
+        
+
+        List <Vector3Int> path = new();
         
         Vector3Int startPosition = world.RoundToInt(startLocation);
 
@@ -17,8 +22,6 @@ public class GridSearch
         List<Vector3Int> zRoads = new() { new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1) };
         List<Vector3Int> xzRoads = new() { new Vector3Int(1, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, -1), new Vector3Int(-1, 0, -1) };
         //above is for units staying on road
-
-        List <Vector3Int> path = new();
 
         List<Vector3Int> positionsToCheck = new();
         Dictionary<Vector3Int, int> costDictionary = new();
@@ -35,7 +38,7 @@ public class GridSearch
             Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
 
             positionsToCheck.Remove(current);
-            if (current.Equals(endPosition))
+            if (current == endPosition)
             {
                 path = GeneratePath(parentsDictionary, current);
                 return path;
@@ -65,6 +68,18 @@ public class GridSearch
                 
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
+
+                if (attack && world.IsUnitLocationTaken(neighbor))
+                {
+                    if (neighbor == endPosition)
+                    {
+						path = GeneratePath(parentsDictionary, current);
+                        path.Add(neighbor);
+                        return path;
+                    }
+                    
+                    continue;
+                }
 
                 bool hasRoad;// = world.IsRoadOnTileLocation(neighbor);
                 int tempCost;
@@ -203,6 +218,68 @@ public class GridSearch
         InfoPopUpHandler.WarningMessage().Create(startLocation, "Cannot reach selected area");
         return path;
     }
+
+    public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain)
+    {
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startTerrain);
+		priorityDictionary.Add(startTerrain, 0);
+		costDictionary.Add(startTerrain, 0);
+		parentsDictionary.Add(startTerrain, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endTerrain)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAYINCREMENT))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+					continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 2)
+				{
+					Vector3Int temp = neighbor - current;
+
+					if (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z)))
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endTerrain, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		InfoPopUpHandler.WarningMessage().Create(endTerrain, "Cannot reach selected area");
+		return path;
+	}
 
 
     public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isSeaTrader = true)
