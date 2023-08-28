@@ -36,15 +36,7 @@ public class TerrainData : MonoBehaviour
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
 
     [HideInInspector]
-    public bool isHill, hasRoad, hasResourceMap, walkable, sailable;
-
-    private bool isLand = true;
-    private bool isCoast = false;
-    public bool IsCoast { get { return isCoast; } }
-    private bool isSeaCorner = false;
-    public bool IsSeaCorner { get { return isSeaCorner; } }
-    [HideInInspector]
-    public bool isGlowing = false, isDiscovered = true;
+    public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true;
 
     private ResourceGraphicHandler resourceGraphic;
     private TreeHandler treeHandler;
@@ -124,10 +116,7 @@ public class TerrainData : MonoBehaviour
         ResetMovementCost();
         highlight = GetComponentInChildren<SelectionHighlight>();
         if (highlightPlane != null)
-        {
             highlightPlane.SetActive(false);
-            isCoast = true;
-        }
 
         if (isLand && terrainMesh == null)
             Debug.Log(transform.position);

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Trader1Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108, type: 3}
+  secondaryPrefab: {fileID: 0}
   unitName: Trader
   unitLevel: 1
   image: {fileID: 21300000, guid: 83e96c5aac2dc7e46aa556dcd51f90de, type: 3}
@@ -33,7 +34,8 @@ MonoBehaviour:
   availableInitially: 1
   locked: 0
   health: 10
-  attackStrength: 10
+  baseAttackStrength: 0
+  baseAttackSpeed: 0.5
   movementSpeed: 0.5
   cargoCapacity: 10
   transportationType: 0

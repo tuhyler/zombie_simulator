@@ -101,7 +101,7 @@ public class UIResearchReward : MonoBehaviour
                 improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0);
         else if (unitData != null)
             researchItem.researchTree.researchTooltip.SetInfo(transform.position, unitData.image, unitData.unitType.ToString(), unitData.unitName, unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, 
-                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.attackStrength, unitData.cargoCapacity);
+                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity);
 
         researchItem.researchTree.researchTooltip.ToggleVisibility(true);
     }

@@ -8,16 +8,27 @@ public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExi
     private static LTDescr delay;
     public string message;
     public float secondDelay = 1f;
+    private Coroutine co;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        delay = LeanTween.delayedCall(secondDelay, () => { UITooltipSystem.Show(message); });
+        co = StartCoroutine(ShowMessage());
+        //delay = LeanTween.delayedCall(secondDelay, () => { UITooltipSystem.Show(message); });
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        LeanTween.cancel(delay.uniqueId);
+        //LeanTween.cancel(delay.uniqueId);
+        if (co != null)
+            StopCoroutine(co);
         UITooltipSystem.Hide();
+    }
+
+    private IEnumerator ShowMessage()
+    {
+        yield return new WaitForSeconds(1);
+
+        UITooltipSystem.Show(message);
     }
 
     public void SetMessage(string message)

@@ -403,7 +403,7 @@ public class WorkerTaskManager : MonoBehaviour
         uiWorkerHandler.ToggleVisibility(false, null, world);
         uiBuildingSomething.ToggleVisibility(true);
 
-        world.workerOrders = true;
+        world.unitOrders = true;
         workerUnit.isBusy = true;
         //unitMovement.uiConfirmBuildRoad.ToggleTweenVisibility(true);
         uiCancelTask.ToggleTweenVisibility(true);
@@ -411,10 +411,10 @@ public class WorkerTaskManager : MonoBehaviour
         unitMovement.SelectedWorker = workerUnit;
     }
 
-    public void CloseBuildingRoadPanel()
-    {
-        uiBuildingSomething.ToggleVisibility(false);
-    }
+    //public void CloseBuildingRoadPanel()
+    //{
+    //    uiBuildingSomething.ToggleVisibility(false);
+    //}
 
     public void MoveToCompleteOrders(Vector3Int workerTile, Worker workerUnit)
     {
@@ -633,11 +633,15 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void CancelTask()
     {
-        if (world.workerOrders)
+        if (!workerUnit)
+            return;
+        
+        if (world.unitOrders)
         {
             unitMovement.ToggleOrderHighlights(false);
             unitMovement.ClearBuildRoad();
-            unitMovement.ResetOrderFlags();
+			uiBuildingSomething.ToggleVisibility(false);
+			unitMovement.ResetOrderFlags();
             //workerUnit.ResetRoadQueue();
         }
         else if (workerUnit.isMoving)

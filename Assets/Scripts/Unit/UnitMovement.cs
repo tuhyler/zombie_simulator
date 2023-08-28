@@ -10,19 +10,11 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     private UIUnitTurnHandler turnHandler;
     [SerializeField]
-    private InfoManager infoManager;
+    public InfoManager infoManager;
     [SerializeField]
     private WorkerTaskManager workerTaskManager;
     [SerializeField]
-    private UISingleConditionalButtonHandler uiCancelMove; //cancel movement orders
-    [SerializeField]
-    public UISingleConditionalButtonHandler uiJoinCity;
-    [SerializeField]
-    public UISingleConditionalButtonHandler uiMoveUnit;
-    [SerializeField]
-    public UISingleConditionalButtonHandler uiCancelTask;
-    [SerializeField]
-    public UISingleConditionalButtonHandler uiConfirmWorkerOrders;
+    public UISingleConditionalButtonHandler uiCancelMove, uiJoinCity, uiMoveUnit, uiCancelTask, uiConfirmOrders, uiDeployArmy, uiSwapPosition; 
     [SerializeField]
     public UITraderOrderHandler uiTraderPanel;
     [SerializeField]
@@ -33,6 +25,8 @@ public class UnitMovement : MonoBehaviour
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
     [SerializeField]
     private UITradeRouteManager uiTradeRouteManager;
+    [SerializeField]
+    private UIBuildingSomething uiBuildingSomething;
     //[SerializeField]
     //private UISingleConditionalButtonHandler uiCancelTradeRoute;
 
@@ -59,7 +53,7 @@ public class UnitMovement : MonoBehaviour
 
     //for worker orders
     [HideInInspector]
-    public bool buildingRoad, removingAll, removingRoad, removingLiquid, removingPower; 
+    public bool buildingRoad, removingAll, removingRoad, removingLiquid, removingPower, unitSelected, swappingArmy, deployingArmy; 
     //private List<TerrainData> highlightedTiles = new();
 
     private void Awake()
@@ -94,7 +88,7 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleEnter()
     {
-        if (selectedWorker != null && world.workerOrders)
+        if (selectedWorker != null && world.unitOrders)
             ConfirmWorkerOrders();
     }
 
@@ -137,7 +131,7 @@ public class UnitMovement : MonoBehaviour
         Vector3Int pos = world.GetClosestTerrainLoc(location);
 
         //if building road, can't select anything else
-        if (world.workerOrders)
+        if (world.unitOrders)
         {
             TerrainData td = world.GetTerrainDataAt(pos);
             if (!td.isDiscovered)
@@ -162,7 +156,7 @@ public class UnitMovement : MonoBehaviour
                     if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmWorkerOrders.ToggleTweenVisibility(true);
+                            uiConfirmOrders.ToggleTweenVisibility(true);
 
                         td.EnableHighlight(Color.white);
                         //highlightedTiles.Add(td);
@@ -170,7 +164,7 @@ public class UnitMovement : MonoBehaviour
                     else
                     {
                         if (!selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmWorkerOrders.ToggleTweenVisibility(false);
+                            uiConfirmOrders.ToggleTweenVisibility(false);
 
                         td.DisableHighlight();
                         //highlightedTiles.Remove(td);
@@ -192,7 +186,7 @@ public class UnitMovement : MonoBehaviour
                     if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmWorkerOrders.ToggleTweenVisibility(true);
+                            uiConfirmOrders.ToggleTweenVisibility(true);
 
                         td.EnableHighlight(Color.red);
                         foreach (Road road in world.GetAllRoadsOnTile(pos))
@@ -208,7 +202,7 @@ public class UnitMovement : MonoBehaviour
                     else
                     {
                         if (!selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmWorkerOrders.ToggleTweenVisibility(false);
+                            uiConfirmOrders.ToggleTweenVisibility(false);
 
                         td.DisableHighlight();
                         foreach (Road road in world.GetAllRoadsOnTile(pos))
@@ -221,6 +215,50 @@ public class UnitMovement : MonoBehaviour
                         //highlightedTiles.Remove(td);
                     }
                 }
+            }
+            else if (swappingArmy)
+            {
+				Vector3Int loc = world.RoundToInt(location);
+
+				if (selectedUnit.isMoving)
+                {
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not ready yet");
+				}
+                else if (selectedUnit.homeBase.army.CheckIfInBase(loc))
+                {
+                    if (loc == selectedUnit.CurrentLocation)
+                        return;
+
+                    bool swapping = false;
+
+                    if (world.IsUnitLocationTaken(loc))
+                    {
+                        Unit unit = world.GetUnit(loc);
+                        swapping = true;
+                        unit.finalDestinationLoc = selectedUnit.CurrentLocation;
+						unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.CurrentLocation, false, unit.bySea));
+					}
+
+                    if (!swapping)
+					    selectedUnit.homeBase.army.UpdateLocation(selectedUnit.CurrentLocation, loc);
+                    selectedUnit.finalDestinationLoc = loc;
+					selectedUnit.MoveThroughPath(GridSearch.AStarSearch(world, selectedUnit.CurrentLocation, loc, false, selectedUnit.bySea));
+                }
+                else
+                {
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Outside of barracks");
+				}
+            }
+            else if (deployingArmy)
+            {
+                if (world.CheckIfEnemyCamp(pos))
+                {
+                    selectedUnit.homeBase.army.MoveArmy(world, pos, true);
+                }
+                else
+                {
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No enemy camp here");
+				}
             }
 
             return;            
@@ -236,15 +274,21 @@ public class UnitMovement : MonoBehaviour
             //TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
             MoveUnit(location);
         }
-        else if (detectedObject.TryGetComponent(out Unit unitReference) && unitReference.CompareTag("Player"))
+        else if (detectedObject.TryGetComponent(out Unit unitReference))
         {
-            SelectUnitPrep(unitReference, location);
+            if (unitReference.CompareTag("Player"))
+                SelectUnitPrep(unitReference, location);
+            else if (unitReference.CompareTag("Enemy"))
+                SelectEnemy(unitReference);
         }
-        else if (detectedObject.TryGetComponent(out UnitMarker unitMarker) && unitMarker.CompareTag("Player"))
+        else if (detectedObject.TryGetComponent(out UnitMarker unitMarker))
         {
             Unit unit = unitMarker.Unit;
 
-            SelectUnitPrep(unit, location);
+            if (unitMarker.CompareTag("Player"))
+                SelectUnitPrep(unit, location);
+            else if (unitMarker.CompareTag("Enemy"))
+                SelectEnemy(unit);
         }
         else if (detectedObject.TryGetComponent(out Resource resource))
         {
@@ -293,6 +337,8 @@ public class UnitMovement : MonoBehaviour
         {
             if (selectedWorker != null && selectedWorker.harvested)
                 selectedWorker.SendResourceToCity();
+            else if (selectedUnit.inArmy)
+                selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
             else
                 ClearSelection();
 
@@ -316,12 +362,43 @@ public class UnitMovement : MonoBehaviour
             CenterCamOnUnit();
         }
 
-        uiMoveUnit.ToggleTweenVisibility(true);
+        if (!selectedUnit.inArmy)
+            uiMoveUnit.ToggleTweenVisibility(true);
+        
         SelectLaborer();
         SelectWorker();
         SelectTrader();
         PrepareMovement();
     }
+
+    private void SelectEnemy(Unit unitReference)
+    {
+		if (selectedUnit == unitReference) //Unselect when clicking same unit
+		{
+			ClearSelection();
+			return;
+		}
+		else if (selectedUnit != null) //Change to a different unit
+		{
+			ClearSelection();
+			selectedUnit = unitReference;
+		}
+		else //Select unit for the first time
+		{
+			selectedUnit = unitReference;
+		}
+
+		//if (unitReference.somethingToSay)
+		//{
+		//	unitReference.somethingToSay = false;
+		//	unitReference.sayingSomething = true;
+		//	world.PlayMessage(location);
+		//	CenterCamOnUnit();
+		//}
+		world.somethingSelected = true;
+		selectedUnit.Select(Color.red);
+		infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
+	}
 
     private void SelectWorker()
     {
@@ -394,7 +471,11 @@ public class UnitMovement : MonoBehaviour
     {
         //Debug.Log("Sel. unit is " + selectedUnit.name);
         world.somethingSelected = true;
-        selectedUnit.Select();
+        unitSelected = true;
+        if (selectedUnit.inArmy)
+			selectedUnit.homeBase.army.SelectArmy(selectedUnit);
+		else
+			selectedUnit.Select(Color.white);
         turnHandler.SetIndex(selectedUnit);
         //selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
         infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
@@ -409,6 +490,9 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
     {
+        if (!selectedUnit.CompareTag("Player"))
+            return;
+
         if (queueMovementOrders /*&& unit.FinalDestinationLoc != location*/ && unit.isMoving)
         {
             if (unit.finalDestinationLoc == location)
@@ -471,8 +555,11 @@ public class UnitMovement : MonoBehaviour
 
     public void MoveUnitRightClick(Vector3 location, GameObject detectedObject)
     {
-        //if nothing detected, nothing selected
-        if (detectedObject == null)
+		if (selectedUnit == null || !selectedUnit.CompareTag("Player") || selectedUnit.inArmy)
+			return;
+
+		//if nothing detected, nothing selected
+		if (detectedObject == null)
         {
             selectedUnit = null;
             selectedTrader = null;
@@ -535,15 +622,13 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        if (selectedUnit.isMoving && !queueMovementOrders)
-            selectedUnit.StopAnimation();
-
         location.y += .1f;
         starshine.transform.position = location;
         starshine.Play();
 
         if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders if new ones
         {
+            selectedUnit.StopAnimation();
             selectedUnit.ShiftMovement();
             selectedUnit.FinishedMoving.RemoveAllListeners();
         }
@@ -596,19 +681,12 @@ public class UnitMovement : MonoBehaviour
 
         if (world.IsCityOnTile(unitLoc))
         {
-            City joinedCity = world.GetCity(unitLoc);
-            joinedCity.PopulationGrowthCheck(true);
-
-            int i = 0;
-            foreach (ResourceValue resourceValue in selectedUnit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
-            {
-                int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
-                Vector3 cityLoc = joinedCity.cityLoc;
-                cityLoc.y += selectedUnit.buildDataSO.unitCost.Count * 0.4f;
-                cityLoc.y += -0.4f * i;
-                InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
-                i++;
-            }
+            AddToCity(world.GetCity(unitLoc));
+        }
+        else if (selectedUnit.homeBase)
+        {
+            AddToCity(selectedUnit.homeBase);
+            selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.CurrentLocation);
         }
         else
         {
@@ -618,6 +696,48 @@ public class UnitMovement : MonoBehaviour
         selectedUnit.DestroyUnit();
         ClearSelection();
     }
+
+    public void RepositionArmy()
+    {
+        //selectedUnit.CenterCamera();
+        uiSwapPosition.ToggleTweenVisibility(false);
+        uiJoinCity.ToggleTweenVisibility(false);
+        uiDeployArmy.ToggleTweenVisibility(false);
+        uiConfirmOrders.ToggleTweenVisibility(true);
+		uiBuildingSomething.ToggleVisibility(true);
+        uiBuildingSomething.SetText("Repositioning Unit");
+		world.unitOrders = true;
+        swappingArmy = true;
+        world.SetSelectionCircleLocation(selectedUnit.CurrentLocation);
+    }
+
+    public void CancelReposition()
+    {
+		uiSwapPosition.ToggleTweenVisibility(true);
+		uiJoinCity.ToggleTweenVisibility(true);
+		uiDeployArmy.ToggleTweenVisibility(true);
+		uiConfirmOrders.ToggleTweenVisibility(false);
+		uiBuildingSomething.ToggleVisibility(false);
+		world.unitOrders = false;
+        swappingArmy = false;
+        world.HideSelectionCircles();
+    }
+
+    private void AddToCity(City joinedCity)
+    {
+		joinedCity.PopulationGrowthCheck(true, selectedUnit.buildDataSO.laborCost);
+
+		int i = 0;
+		foreach (ResourceValue resourceValue in selectedUnit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
+		{
+			int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+			Vector3 cityLoc = joinedCity.cityLoc;
+			cityLoc.y += selectedUnit.buildDataSO.unitCost.Count * 0.4f;
+			cityLoc.y += -0.4f * i;
+			InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+			i++;
+		}
+	}
 
     public void LoadUnloadPrep() //for loadunload button for traders
     {
@@ -679,8 +799,16 @@ public class UnitMovement : MonoBehaviour
     {
         queueMovementOrders = false;
         
-        if (world.workerOrders)
+        if (world.unitOrders)
         {
+			uiBuildingSomething.ToggleVisibility(false);
+
+			if (swappingArmy)
+            {
+                CancelReposition();
+                return;
+            }
+            
             ClearBuildRoad();
             if (buildingRoad)
             {
@@ -710,8 +838,23 @@ public class UnitMovement : MonoBehaviour
 
     public void CloseBuildingSomethingPanel()
     {
-        if (world.workerOrders)
+        if (world.unitOrders)
         {
+            workerTaskManager.TurnOffCancelTask();
+			uiBuildingSomething.ToggleVisibility(false);
+
+			if (swappingArmy)
+            {
+                swappingArmy = false;
+                uiConfirmOrders.ToggleTweenVisibility(false);
+                return;
+            }
+            if (deployingArmy)
+            {
+                deployingArmy = false;
+                return;
+            }
+            
             ToggleOrderHighlights(false);
             ClearBuildRoad();
             ResetOrderFlags();
@@ -719,7 +862,6 @@ public class UnitMovement : MonoBehaviour
             selectedWorker.ResetOrderQueue();
             selectedWorker.isBusy = false;
             uiWorkerTask.ToggleVisibility(true, null, world);
-            workerTaskManager.TurnOffCancelTask();
         }
         else if (world.buildingWonder)
         {
@@ -729,11 +871,10 @@ public class UnitMovement : MonoBehaviour
 
     public void ClearBuildRoad()
     {
-        world.workerOrders = false;
-        uiConfirmWorkerOrders.ToggleTweenVisibility(false);
+        world.unitOrders = false;
+        uiConfirmOrders.ToggleTweenVisibility(false);
         uiMoveUnit.ToggleTweenVisibility(true);
         uiWorkerTask.ToggleVisibility(true, null, world);
-        workerTaskManager.CloseBuildingRoadPanel();
         //workerTaskManager.ToggleRoadBuild(false);
         //foreach (TerrainData td in highlightedTiles)
         //{
@@ -785,7 +926,7 @@ public class UnitMovement : MonoBehaviour
             {
                 world.GetTerrainDataAt(tile).DisableHighlight();
 
-                if ((selectedWorker.removing || world.workerOrders) && world.IsRoadOnTerrain(tile))
+                if ((selectedWorker.removing || world.unitOrders) && world.IsRoadOnTerrain(tile))
                 {
                     foreach (Road road in world.GetAllRoadsOnTile(tile))
                     {
@@ -1074,6 +1215,12 @@ public class UnitMovement : MonoBehaviour
                 if (world.GetWonder(currentLoc).StillNeedsWorkers())
                     uiJoinCity.ToggleTweenVisibility(true);
             }
+            else if (selectedUnit.atHome)
+            {
+				uiJoinCity.ToggleTweenVisibility(true);
+                uiSwapPosition.ToggleTweenVisibility(true);
+                uiDeployArmy.ToggleTweenVisibility(true);
+			}
         }
         else
         {
@@ -1099,6 +1246,35 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
+    public void DeployArmyLocation()
+    {
+        uiJoinCity.ToggleTweenVisibility(false);
+        uiSwapPosition.ToggleTweenVisibility(false);
+        uiBuildingSomething.ToggleVisibility(true);
+		uiBuildingSomething.SetText("Deploying Army");
+        uiCancelTask.ToggleTweenVisibility(true);
+		world.unitOrders = true;
+        deployingArmy = true;
+        world.HighlightAllEnemyCamps();
+    }
+
+    public void CancelArmyDeployment()
+    {
+		uiJoinCity.ToggleTweenVisibility(true);
+		uiSwapPosition.ToggleTweenVisibility(true);
+		uiBuildingSomething.ToggleVisibility(false);
+		uiCancelTask.ToggleTweenVisibility(false);
+        world.unitOrders = false;
+        deployingArmy = false;
+        world.UnhighlightAllEnemyCamps();
+    }
+
+    public void CancelOrders()
+    {
+        if (world.unitOrders && deployingArmy)
+            CancelArmyDeployment();
+    }
+
     public void ClearSelection()
     {
         //selectedTile = null;
@@ -1112,6 +1288,8 @@ public class UnitMovement : MonoBehaviour
             uiMoveUnit.ToggleTweenVisibility(false);
             uiCancelMove.ToggleTweenVisibility(false);
             uiJoinCity.ToggleTweenVisibility(false);
+            uiSwapPosition.ToggleTweenVisibility(false);
+            uiDeployArmy.ToggleTweenVisibility(false);
 
             if (selectedWorker != null)
             {
@@ -1129,6 +1307,8 @@ public class UnitMovement : MonoBehaviour
                 uiPersonalResourceInfoPanel.ToggleVisibility(false, selectedTrader);
                 LoadUnloadFinish(false); //clear load cargo screen
             }
+            if (selectedUnit.inArmy)
+                selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
             //if (selectedUnit != null)
             //{
             selectedUnit.Deselect();
@@ -1140,6 +1320,7 @@ public class UnitMovement : MonoBehaviour
             selectedTrader = null;
             selectedWorker = null;
             selectedUnit = null;
+            unitSelected = false;
         }
     }
 

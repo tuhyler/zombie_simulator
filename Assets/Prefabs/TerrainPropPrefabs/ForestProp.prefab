@@ -56,6 +56,7 @@ MonoBehaviour:
   treeHillRoad: {fileID: 7601276562175720623}
   treeFlatIcon: {fileID: 2130586279291307428}
   treeHillIcon: {fileID: 1708152815276911594}
+  keepTrees: 0
 --- !u!1001 &1247555642025572597
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -542,6 +543,16 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 22
       objectReference: {fileID: 0}
+    - target: {fileID: -6304696654657080883, guid: 21009a6e8de58c941bcc44fc295d1b58,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ef6477ad285d1394390dd1e475b0d530, type: 2}
+    - target: {fileID: -4138996735265624189, guid: 21009a6e8de58c941bcc44fc295d1b58,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ef6477ad285d1394390dd1e475b0d530, type: 2}
     - target: {fileID: 919132149155446097, guid: 21009a6e8de58c941bcc44fc295d1b58,
         type: 3}
       propertyPath: m_Name
@@ -562,6 +573,11 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 22
       objectReference: {fileID: 0}
+    - target: {fileID: 7349200244140212583, guid: 21009a6e8de58c941bcc44fc295d1b58,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ef6477ad285d1394390dd1e475b0d530, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21009a6e8de58c941bcc44fc295d1b58, type: 3}
 --- !u!1 &5903775059858390221 stripped

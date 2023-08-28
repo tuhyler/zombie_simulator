@@ -19,7 +19,8 @@ public class UnitBuildDataSO : ScriptableObject
     [HideInInspector]
     public bool locked = true;
     public int health = 10;
-    public int attackStrength = 10;
+    public int baseAttackStrength = 10;
+    public float baseAttackSpeed = 0.5f;
     public float movementSpeed = 1f;
     public int cargoCapacity;
     public TransportationType transportationType = TransportationType.Land;

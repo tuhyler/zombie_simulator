@@ -49,13 +49,16 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Vector3Int cityLoc;
     [HideInInspector]
-    public bool activeCity, hasHarbor;
+    public bool activeCity, hasHarbor, hasBarracks;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
 
     [HideInInspector]
-    public Vector3Int harborLocation;
+    public Vector3Int harborLocation, barracksLocation;
+
+    [HideInInspector]
+    public Army army;
     
     private MapWorld world;
 
@@ -118,6 +121,7 @@ public class City : MonoBehaviour
         //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
         //world = FindObjectOfType<MapWorld>();
         cityPop = GetComponent<CityPopulation>();
+        army = GetComponent<Army>();
         //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
         resourceManager = GetComponent<ResourceManager>();
         resourceManager.ResourceStorageLimit = warehouseStorageLimit;
@@ -512,12 +516,12 @@ public class City : MonoBehaviour
             return unitFoodConsumptionPerMinute;
     }
 
-    public void PopulationGrowthCheck(bool joinCity)
+    public void PopulationGrowthCheck(bool joinCity, int amount)
     {
         int prevPop = cityPop.CurrentPop;
 
-        cityPop.IncreasePopulationAndLabor();
-        housingCount--;
+        cityPop.IncreasePopulationAndLabor(amount);
+        housingCount -= amount;
         heavenHighlight.Play();
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
@@ -531,26 +535,29 @@ public class City : MonoBehaviour
         if (joinCity)
             UpdateCityPopInfo();
 
-        if (autoAssignLabor)
+        for (int i = 0; i < amount; i++)
         {
-            AutoAssignmentsForLabor();
-            if (activeCity)
+            if (autoAssignLabor)
             {
-                cityBuilderManager.UpdateCityLaborUIs();
+                AutoAssignmentsForLabor();
+                if (activeCity)
+                {
+                    cityBuilderManager.UpdateCityLaborUIs();
+                }
             }
-        }
 
-        if (cityPop.CurrentPop == 1)
-        {
-            if (activeCity)
+            if (cityPop.CurrentPop == 1)
             {
-                CityGrowthProgressBarSetActive(true);
-                cityBuilderManager.abandonCityButton.interactable = false;
-                cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+                if (activeCity)
+                {
+                    CityGrowthProgressBarSetActive(true);
+                    cityBuilderManager.abandonCityButton.interactable = false;
+                    cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+                }
+                cityNameField.ToggleVisibility(true);
+                resourceManager.SellResources();
+                StartCoroutine(FoodConsumptionCoroutine());
             }
-            cityNameField.ToggleVisibility(true);
-            resourceManager.SellResources();
-            StartCoroutine(FoodConsumptionCoroutine());
         }
     }
 
@@ -1157,6 +1164,16 @@ public class City : MonoBehaviour
                     world.SetCityHarbor(this, tile);
                     world.AddTradeLoc(tile, name);
                 }
+                else if (name == "Barracks")
+                {
+                    hasBarracks = true;
+                    barracksLocation = tile;
+
+					foreach (Vector3Int pos in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYARMY))
+						army.SetArmySpots(pos);
+
+					army.SetLoc(tile);
+				}
 
                 world.RemoveFromUnclaimedSingleBuild(tile);
             }

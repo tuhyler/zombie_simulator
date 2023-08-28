@@ -7,6 +7,7 @@ public class ImprovementDataSO : ScriptableObject
     public GameObject prefab;
     public List<ImprovementDataSO> secondaryData;
     public bool isBuilding;
+    public bool isBuildingImprovement;
     public string improvementName;
     public string improvementDisplayName;
     public int improvementLevel;

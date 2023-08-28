@@ -38,6 +38,11 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
         }
     }
 
+    public void SetHealth(int currentHealth, int maxHealth)
+    {
+        health.text = currentHealth.ToString() + '/' + maxHealth.ToString();
+    }
+
     public void ToggleVisibility(bool v)
     {
         if (activeStatus == v)

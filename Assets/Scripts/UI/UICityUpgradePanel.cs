@@ -98,7 +98,7 @@ public class UICityUpgradePanel : MonoBehaviour
                 UnitBuildDataSO unitData = world.GetUnitUpgradeData(name);
                 List<int> produceTime = new();
                 SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitName, unitData.unitLevel, 0, unitData.unitDescription,
-                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.attackStrength, unitData.cargoCapacity, resourceManager);
+                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, resourceManager);
             }
             else
             {
