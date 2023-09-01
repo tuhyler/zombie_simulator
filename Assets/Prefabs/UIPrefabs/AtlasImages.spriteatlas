@@ -56,6 +56,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8bf82434787c08e4f92718ad30afd9b1, type: 3}
   - {fileID: 21300000, guid: 017a4b341d2d93245a74b5edfb806764, type: 3}
   - {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
+  - {fileID: 21300000, guid: 38c96c942e8bff6448b8933a40ad9a8d, type: 3}
   - {fileID: 21300000, guid: 60db64a4fe685214ca14a2c9ee244972, type: 3}
   - {fileID: 21300000, guid: 8bfb5f75571ca6142b78992b8dc422d8, type: 3}
   - {fileID: 21300000, guid: 7dd37b564630879458f62e18a7bef051, type: 3}
@@ -74,7 +75,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
   - {fileID: 21300000, guid: 83e96c5aac2dc7e46aa556dcd51f90de, type: 3}
   - {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
-  - {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
   - {fileID: 21300000, guid: 2bf3411e6f934e44792edcccfd338d56, type: 3}
   - {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
   - {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
@@ -99,6 +99,7 @@ SpriteAtlas:
   - Plantation01Img
   - Ceramist01Img
   - FishingBoats01Img
+  - Laborer01Img
   - Weaver02Img
   - PyramidsImg
   - Trader02Img
@@ -117,7 +118,6 @@ SpriteAtlas:
   - Lumbermill01Img
   - Trader01Img
   - Sericulture01Img
-  - WonderWorker01Img
   - HangingGardensImg
   - Mine01Img
   - Farm01Img

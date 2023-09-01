@@ -253,7 +253,12 @@ public class UIBuilderHandler : MonoBehaviour
                 locked = buildItem.UnitBuildData.locked;
 
                 if (buildItem.UnitBuildData.baseAttackStrength > 0)
+                {
                     buildItem.needsBarracks = !resourceManager.city.hasBarracks;
+                    buildItem.fullBarracks = resourceManager.city.army.isFull;
+                    buildItem.trainingBarracks = resourceManager.city.army.isTraining;
+                    buildItem.travelingBarracks = resourceManager.city.army.IsGone();
+                }
 
                 ResourceValue laborCost;
                 laborCost.resourceType = ResourceType.Labor;
@@ -358,10 +363,9 @@ public class UIBuilderHandler : MonoBehaviour
     {
         foreach (UIBuildOptions buildItem in buildOptions)
         {
-			//if (buildItem == null)
-			//	continue;
-
 			buildItem.needsBarracks = false;
+            buildItem.travelingBarracks = false;
+            buildItem.trainingBarracks = false;
         }
 	}
 }

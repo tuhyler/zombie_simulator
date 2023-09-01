@@ -40,6 +40,7 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
         else
         {
             activeStatus = false;
+            //gameObject.SetActive(false);
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setDelay(0.125f).setOnComplete(SetActiveStatusFalse);
         }
     }

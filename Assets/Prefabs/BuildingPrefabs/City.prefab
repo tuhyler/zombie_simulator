@@ -155,6 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cityNameMap: {fileID: 2227715402058901382}
   exclamationPoint: {fileID: 2672808880277793004}
+  cityBase: {fileID: 7014532266241225156}
   housingData: {fileID: 11400000, guid: 42b13ed0d99811a47b556be96cbb0dd6, type: 2}
   housingLocsAtMax: 0
   subTransform: {fileID: 943069764017133060}
@@ -174,9 +175,11 @@ MonoBehaviour:
   activeCity: 0
   hasHarbor: 0
   hasBarracks: 0
+  highlighted: 0
   uiCityResourceInfoPanel: {fileID: 0}
   harborLocation: {x: 0, y: 0, z: 0}
   barracksLocation: {x: 0, y: 0, z: 0}
+  army: {fileID: 0}
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 10
@@ -201,7 +204,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   producedResourceIndex: 0
   currentLabor: 0
-  productionTimer: 0
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
   isWaitingToUnload: 0
@@ -305,6 +307,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576e02dd72dc5df418aa9cf49eb5195f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isEmpty: 1
+  isFull: 0
+  isTraining: 0
+  traveling: 0
+  inBattle: 0
+  returning: 0
+  atHome: 0
 --- !u!1001 &242167531976939344
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -986,7 +995,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: e8827e58b2bfe494aa5376fde0bb5d43,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.35
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e8827e58b2bfe494aa5376fde0bb5d43,
         type: 3}
@@ -1040,6 +1049,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e8827e58b2bfe494aa5376fde0bb5d43, type: 3}
+--- !u!1 &7014532266241225156 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: e8827e58b2bfe494aa5376fde0bb5d43,
+    type: 3}
+  m_PrefabInstance: {fileID: 7897614174679714965}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7643540141228862334 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e8827e58b2bfe494aa5376fde0bb5d43,

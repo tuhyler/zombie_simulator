@@ -48,6 +48,8 @@ public class Unit : MonoBehaviour
     public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute; //if there's more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
     private Vector3 destinationLoc;
     [HideInInspector]
+    public Vector3Int barracksBunk;
+    [HideInInspector]
     public Vector3 finalDestinationLoc;
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
@@ -85,12 +87,17 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething, isDead, isAttacked, inArmy, atHome, repositioning;
+    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething, isDead, isAttacked;
+
+    //military booleans
+    [HideInInspector]
+    public bool readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning;
 
     //animation
     [HideInInspector]
     public Animator unitAnimator;
     private int isMovingHash;
+    private int isMarchingHash;
     private int isAttackingHash;
 
     private void Awake()
@@ -109,6 +116,7 @@ public class Unit : MonoBehaviour
         highlight = GetComponent<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
+        isMarchingHash = Animator.StringToHash("isMarching");
         isAttackingHash = Animator.StringToHash("isAttacking");
         //unitRigidbody = GetComponent<Rigidbody>();
         baseSpeed = 1;
@@ -147,7 +155,7 @@ public class Unit : MonoBehaviour
         if (CompareTag("Player"))
         {
             Vector3 loc = transform.position;
-            loc.y += 0.1f;
+            loc.y += 0.05f;
             lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0,0,0));
             lightBeam.transform.parent = transform;
             lightBeam.Play();
@@ -191,7 +199,11 @@ public class Unit : MonoBehaviour
 
     public void StopAnimation()
     {
-        unitAnimator.SetBool(isMovingHash, false);
+        if (isMarching)
+            unitAnimator.SetBool(isMarchingHash, false);
+        else
+            unitAnimator.SetBool(isMovingHash, false);
+    
         if (attackStrength > 0)
             unitAnimator.SetBool(isAttackingHash, false);
     }
@@ -263,6 +275,14 @@ public class Unit : MonoBehaviour
         healthbar.gameObject.SetActive(false);
     }
 
+    private void StartAnimation()
+    {
+        if (isMarching)
+            unitAnimator.SetBool(isMarchingHash, true);
+        else
+            unitAnimator.SetBool(isMovingHash, true);
+    }
+
     //Methods for moving unit
     //Gets the path positions and starts the coroutines
     public void MoveThroughPath(List<Vector3Int> currentPath) 
@@ -288,7 +308,7 @@ public class Unit : MonoBehaviour
         moreToMove = true;
         isMoving = true;
         //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-        unitAnimator.SetBool(isMovingHash, true);
+        StartAnimation();
         movingCo = StartCoroutine(MovementCoroutine(firstTarget));
     }
 
@@ -296,29 +316,33 @@ public class Unit : MonoBehaviour
     {
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
         TerrainData td = world.GetTerrainDataAt(endPositionInt);
-        //float y = 0f;
+        float y = 0f;
 
-        //if (bySea)
+        if (bySea)
+        {
+            y = -.45f;
+
+            if (isBeached)
+            {
+                isBeached = false;
+            }
+            else if (world.CheckIfCoastCoast(endPositionInt))
+            {
+                y = -.3f;
+                TurnOffRipples();
+                isBeached = true;
+            }
+        }
+        else if (td.isHill)
+        {
+            if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
+                y = 0.4f;//world.test;
+            else
+                y = 0.2f;
+        }
+        //else if (!td.isLand)
         //{
         //    y = -.45f;
-
-        //    if (isBeached)
-        //    {
-        //        isBeached = false;
-        //    }
-        //    else if (world.CheckIfCoastCoast(endPositionInt))
-        //    {
-        //        y = -.3f;
-        //        TurnOffRipples();
-        //        isBeached = true;
-        //    }
-        //}
-        //else if (td.isHill)
-        //{
-        //    if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
-        //        y = 0f;//world.test;
-        //    else
-        //        y = 0f;
         //}
 
         //if (world.IsRoadOnTileLocation(endPositionInt))
@@ -382,7 +406,7 @@ public class Unit : MonoBehaviour
             endPosition = finalDestinationLoc;
 
         Quaternion startRotation = transform.rotation;
-        //endPosition.y = y;
+        endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
         direction.y = 0;
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
@@ -428,6 +452,20 @@ public class Unit : MonoBehaviour
             if (enemyAI.ResetTarget())
                 yield break;
         }
+
+        if (isMarching)
+        {
+            readyToMarch = false;
+            homeBase.army.UnitNextStep();
+
+			unitAnimator.SetBool(isMarchingHash, false);
+			while (!readyToMarch)
+            {
+                yield return null;
+            }
+			unitAnimator.SetBool(isMarchingHash, true);
+			//StartCoroutine(MarchingInPlace());
+		}
 
         //if (onTop && world.GetTerrainDataAt(endPositionInt).gameObject.tag != "City")
         //{
@@ -496,7 +534,30 @@ public class Unit : MonoBehaviour
         }
     }
 
-    private void GetInLine()
+    //private IEnumerator MarchingInPlace()
+    //{
+    //    while (!readyToMarch)
+    //    {
+    //        yield return null;
+    //    }
+    //}
+
+	public IEnumerator RotateTowardsPosition(Vector3 lookAtTarget)
+	{
+		Vector3 direction = lookAtTarget - transform.position;
+		direction.y = 0;
+
+		float totalTime = 0;
+		while (totalTime < 0.3f)
+		{
+			float timePassed = Time.deltaTime;
+			transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction, Vector3.up), timePassed * 12);
+			totalTime += timePassed;
+			yield return null;
+		}
+	}
+
+	private void GetInLine()
     {
         Vector3Int currentLoc = world.RoundToInt(transform.position);
 
@@ -674,7 +735,7 @@ public class Unit : MonoBehaviour
         currentLocation = world.RoundToInt(transform.position);
         HidePath();
         pathPositions.Clear();
-        unitAnimator.SetBool(isMovingHash, false);
+        StopAnimation();
         FinishedMoving?.Invoke();
         if (isTrader)
         {
@@ -726,14 +787,67 @@ public class Unit : MonoBehaviour
         }
         world.AddUnitPosition(currentLocation, this);
         TradeRouteCheck(endPosition);
-        if (repositioning)
+
+		if (inArmy)
         {
-            repositioning = false;
-            homeBase.army.UnitReady();
+            //specifically for military units
+            if (preparingToMoveOut)
+            {
+                preparingToMoveOut = false;
+                homeBase.army.UnitReady();
+            }
+            else if (isMarching)
+            {
+                isMarching = false;
+
+                if (currentLocation == barracksBunk)
+                {
+                    atHome = true;
+                    if (isSelected && !world.unitOrders)
+                        world.unitMovement.ShowIndividualCityButtonsUI();
+
+					StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
+				}
+
+                homeBase.army.UnitArrived(world.GetClosestTerrainLoc(endPosition));
+            }
+            else if (transferring)
+            {
+                if (endPosition != barracksBunk)
+                    GoToBunk();
+                else
+                {
+                    transferring = false;
+                    atHome = true;
+
+					StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
+					if (isSelected && !world.unitOrders)
+						world.unitMovement.ShowIndividualCityButtonsUI();
+				}
+            }
+            else if (repositioning)
+            {
+                repositioning = false;
+                StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
+            }
+        }
+        else if (isLaborer)
+        {
+            if (world.RoundToInt(finalDestinationLoc) == endPosition)
+                world.unitMovement.JoinCity(this);
         }
 
         if (enemyAI)
             enemyAI.needsDestination = true;
+
+        if (isSelected && !inArmy)
+            world.unitMovement.ShowIndividualCityButtonsUI();
+    }
+
+    private void GoToBunk()
+    {
+        finalDestinationLoc = barracksBunk;
+        MoveThroughPath(GridSearch.AStarSearch(world, CurrentLocation, barracksBunk, isTrader, bySea, true));
     }
 
  //   public void EnemyAttackSetup()
@@ -866,7 +980,12 @@ public class Unit : MonoBehaviour
             if (!bySea && i < 9)
             {
                 if (td.enemyCamp)
-                    world.WakeUpCamp(loc, this);
+                {
+                    if (inArmy)
+                        world.BattleStations(loc, currentLocation);
+                    else
+                        world.WakeUpCamp(loc, this);
+                }
             }
             
             if (td.isDiscovered)
@@ -952,8 +1071,15 @@ public class Unit : MonoBehaviour
     private void OnCollisionStay(Collision collision)
     {
         //Debug.Log("colliding with " + collision.gameObject.tag);
-        
+
         //threshold = 0.001f;
+
+        if (isMarching)
+        {
+            moveSpeed = baseSpeed * flatlandSpeed * .05f;
+            unitAnimator.SetFloat("speed", baseSpeed * 18f);
+            return;
+        }
 
         if (collision.gameObject.CompareTag("Road"))
         {

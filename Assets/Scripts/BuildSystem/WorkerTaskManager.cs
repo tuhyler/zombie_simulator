@@ -596,10 +596,11 @@ public class WorkerTaskManager : MonoBehaviour
         //else //if no currently existing buildings, set up dictionaries
         //{
         world.AddCityBuildingDict(workerTile);
-        city.SetHouse(city.housingData, workerTile, td.isHill, false);
+        //city.SetHouse(city.housingData, workerTile, td.isHill, false);
         //td.gameObject.tag = "City";
         //}
 
+        city.CombineFire();
         //showing join city button
         unitMovement.ShowIndividualCityButtonsUI();
     }

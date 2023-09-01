@@ -8,10 +8,11 @@ public class Army : MonoBehaviour
     private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new();
     
     private List<Unit> unitsInArmy = new();
+    public List<Unit> UnitsInArmy { get { return unitsInArmy; } }
     private int unitsReady;
 
     [HideInInspector]
-    public bool isFull, traveling, inBattle, atHome;
+    public bool isEmpty = true, isFull, isTraining, traveling, inBattle, returning, atHome, selected;
 
 	private void Awake()
 	{
@@ -32,25 +33,39 @@ public class Army : MonoBehaviour
     {
         Vector3Int openSpot = openSpots[0];
         openSpots.Remove(openSpot);
+
+        if (openSpots.Count == 0)
+            isFull = true;
+        if (isEmpty)
+            isEmpty = false;
+
         return openSpot;
     }
 
     public void UpdateLocation(Vector3Int oldLoc, Vector3Int newLoc)
     {
 		int index = totalSpots.IndexOf(oldLoc);
-		openSpots.Insert(index, oldLoc);
+
+        if (index > totalSpots.Count - openSpots.Count) 
+            openSpots.Add(oldLoc);
+        else
+		    openSpots.Insert(index, oldLoc);
 		openSpots.Remove(newLoc);
     }
 
     public void AddToArmy(Unit unit)
     {
-        unit.atHome = true;
         unitsInArmy.Add(unit);
     }
 
     public void RemoveFromArmy(Unit unit, Vector3Int loc)
     {
         unitsInArmy.Remove(unit);
+
+        if (unitsInArmy.Count == 0)
+            isEmpty = true;
+        if (isFull)
+            isFull = false;
 
         int index = totalSpots.IndexOf(loc);
         openSpots.Insert(index,loc);
@@ -69,17 +84,18 @@ public class Army : MonoBehaviour
         Vector3Int diff = (targetZone - attackZone) / 3;
         int rotation;
 
-        if (diff.x == 1)
+        if (diff.x == -1)
             rotation = 1;
         else if (diff.z == 1)
             rotation = 2;
-        else if (diff.x == -1)
+        else if (diff.x == 1)
             rotation = 3;
         else
             rotation = 0;
 
         foreach (Unit unit in unitsInArmy)
         {
+            unit.atHome = false;
             Vector3Int unitDiff = unit.CurrentLocation - loc;
 
             if (rotation == 0)
@@ -130,29 +146,62 @@ public class Army : MonoBehaviour
 
             if (path.Count > 0)
             {
-                unit.repositioning = true;
+                unit.preparingToMoveOut = true;
                 unit.finalDestinationLoc = loc + unitDiff;
     			unit.MoveThroughPath(path);
+            }
+            else
+            {
+                UnitReady();
             }
         }
     }
 
-    public void MoveArmy(MapWorld world, Vector3Int target, bool deploying)
+    public bool MoveArmy(MapWorld world, Vector3Int current, Vector3Int target, bool deploying)
     {
-        atHome = false;
-        traveling = true;
-
         Vector3Int destination = deploying ? target : loc;
-        Vector3Int current = deploying ? loc : target;
 
-        pathToTarget = GridSearch.TerrainSearch(world, current, destination);
+        List<Vector3Int> exemptList = new();
+        if (deploying)
+        {
+            exemptList.Add(target);
+            
+            foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
+                exemptList.Add(tile);
+        }
+
+        pathToTarget = GridSearch.TerrainSearch(world, current, destination, exemptList);
 
         if (pathToTarget.Count == 0)
-            return;
+        {
+            if (deploying)
+                return false;
+            else
+                pathToTarget.Add(target);
+        }
 
-        Vector3Int penultimate = pathToTarget[pathToTarget.Count-2];
+        unitsReady = 0;
 
-        RealignUnits(world, destination, penultimate);
+        if (deploying)
+        {
+            pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
+            atHome = false;
+            traveling = true;
+            Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
+
+            if (returning)
+                DeployArmy(true);
+            else
+                RealignUnits(world, destination, penultimate);
+        }
+        else
+        {
+            traveling = false;
+            returning = true;
+            DeployArmy(false);
+        }
+
+        return true;
     }
 
     public void UnitReady()
@@ -160,20 +209,71 @@ public class Army : MonoBehaviour
         unitsReady++;
 
         if (unitsReady == unitsInArmy.Count)
-            DeployArmy();
+        {
+            unitsReady = 0;
+            DeployArmy(true);
+        }
     }
 
-    private void DeployArmy()
+    public void UnitArrived(Vector3Int loc)
+    {
+        unitsReady++;
+
+        if (unitsReady == unitsInArmy.Count)
+        {
+            unitsReady = 0;
+            
+            if (this.loc == loc)
+            {
+                if (openSpots.Count == 0)
+                    isFull = true;
+
+                atHome = true;
+                returning = false;
+            }
+            else
+                Charge();
+        }
+    }
+
+    public void UnitNextStep()
+    {
+        unitsReady++;
+
+        if (unitsReady == unitsInArmy.Count)
+        {
+            unitsReady = 0;
+            BeginNextStep();
+        }
+    }
+
+    public void BeginNextStep()
+    {
+        foreach (Unit unit in unitsInArmy)
+            unit.readyToMarch = true;
+    }
+
+    private void DeployArmy(bool deploying)
     {
 		foreach (Unit unit in unitsInArmy)
 		{
-			Vector3Int diff = unit.CurrentLocation - loc;
+            unit.isMarching = true;
+            Vector3Int diff = unit.CurrentLocation - loc;
 			List<Vector3Int> path = new();
 
 			foreach (Vector3Int tile in pathToTarget)
 				path.Add(tile + diff);
 
-            unit.finalDestinationLoc = path[path.Count - 1];
+            if (!deploying)
+                path[path.Count - 1] = unit.barracksBunk;
+
+			if (unit.isMoving)
+			{
+				unit.StopAnimation();
+				unit.ShiftMovement();
+			}
+
+			unit.finalDestinationLoc = path[path.Count - 1];
 			unit.MoveThroughPath(path);
 		}
 	}
@@ -186,8 +286,18 @@ public class Army : MonoBehaviour
         }
     }
 
+    public bool IsGone()
+    {
+        if (traveling || returning)
+            return true;
+
+        return false;
+    }
+
     public void SelectArmy(Unit selectedUnit)
     {
+        selected = true;
+        
         foreach (Unit unit in unitsInArmy)
         {
             Color color = unit == selectedUnit ? Color.green : Color.white;
@@ -195,9 +305,22 @@ public class Army : MonoBehaviour
         }
     }
 
+    public bool AllAreHomeCheck()
+    {
+        foreach (Unit unit in unitsInArmy)
+        {
+            if (!unit.atHome)
+                return false;
+        }
+
+        return true;
+    }
+
     public void UnselectArmy(Unit selectedUnit)
     {
-		foreach (Unit unit in unitsInArmy)
+        selected = false;
+        
+        foreach (Unit unit in unitsInArmy)
         {
             if (unit == selectedUnit)
                 continue;
@@ -205,4 +328,15 @@ public class Army : MonoBehaviour
             unit.Deselect();
         }
 	}
+
+    public Vector3 GetRandomSpot(Vector3Int current)
+    {
+        int random = Random.Range(0, totalSpots.Count);
+        Vector3Int spot = totalSpots[random];
+
+        if (spot == current)
+            spot = totalSpots[3];
+
+        return spot;
+    }
 }

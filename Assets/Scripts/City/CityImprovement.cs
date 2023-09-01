@@ -24,11 +24,11 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool initialCityHouse, queued, building, isConstruction, isUpgrading, canBeUpgraded;
+    public bool initialCityHouse, queued, building, isConstruction, isUpgrading, canBeUpgraded, isTraining;
     private List<ResourceValue> upgradeCost = new();
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
     [HideInInspector]
-    public int housingIndex; //for city centeer housing only
+    public int housingIndex, laborCost; //for city centeer housing only, and for canceling training in barracks
 
     [HideInInspector]
     public Vector3Int loc;
@@ -57,8 +57,7 @@ public class CityImprovement : MonoBehaviour
     Coroutine co;
     private GameObject animMesh; //for making inactive when not working
     private WaitForSeconds startWorkWait = new WaitForSeconds(0.001f);
-    private WaitForSeconds buildingTimeWait = new WaitForSeconds(1);
-    private WaitForSeconds upgradeTimeWait = new WaitForSeconds(1);
+    private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
 
     [SerializeField]
     private SpriteRenderer mapIcon;
@@ -248,7 +247,7 @@ public class CityImprovement : MonoBehaviour
         highlight.SetNewMaterial(mat, skinnedMesh);
     }
 
-    public void EnableHighlight(Color highlightColor, bool secondary = false)
+    public void EnableHighlight(Color highlightColor)
     {
         if (highlight.isGlowing)
             return;
@@ -405,7 +404,7 @@ public class CityImprovement : MonoBehaviour
 
         while (timePassed > 0)
         {
-            yield return buildingTimeWait;
+            yield return oneSecondWait;
             timePassed--;
             producer.SetConstructionTime(timePassed);
         }
@@ -443,7 +442,7 @@ public class CityImprovement : MonoBehaviour
         //upgradeFlash.Play();
         while (timePassed > 0)
         {
-            yield return upgradeTimeWait;
+            yield return oneSecondWait;
             timePassed--;
             producer.SetConstructionTime(timePassed);
         }
@@ -457,17 +456,54 @@ public class CityImprovement : MonoBehaviour
         StopCoroutine(constructionCo);
     }
 
-    public void StopUpgradeProcess(ResourceProducer producer)
+	public void StopUpgradeProcess(ResourceProducer producer)
+	{
+		//StopUpgradeSwirls();
+		StopSmokeEmitter();
+		isUpgrading = false;
+		producer.isUpgrading = false;
+		upgradeCost.Clear();
+		producer.HideConstructionProgressTimeBar();
+	}
+
+	public void BeginTraining(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager)
     {
-        //StopUpgradeSwirls();
-        StopSmokeEmitter();
-        isUpgrading = false;
-        producer.isUpgrading = false;
-        upgradeCost.Clear();
-        producer.HideConstructionProgressTimeBar();
+        upgradeCost = new List<ResourceValue>(data.unitCost);
+        laborCost = data.laborCost;
+        constructionCo = StartCoroutine(TrainUnitCoroutine(city, producer, tempBuildLocation, data, cityBuilderManager));
     }
 
-    public void RemoveConstruction(CityBuilderManager cityBuilderManager, Vector3Int tempBuildLocation)
+    private IEnumerator TrainUnitCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager)
+    {
+		timePassed = data.trainTime;
+		PlaySmokeEmitter(tempBuildLocation);
+		producer.ShowConstructionProgressTimeBar(timePassed, city.activeCity);
+		producer.SetConstructionTime(timePassed);
+        isTraining = true;
+		producer.isUpgrading = true;
+
+		while (timePassed > 0)
+		{
+			yield return oneSecondWait;
+			timePassed--;
+			producer.SetConstructionTime(timePassed);
+		}
+
+        StopTraining(producer);
+        cityBuilderManager.BuildUnit(city, data);
+	}
+
+    public void StopTraining(ResourceProducer producer)
+    {
+		StopSmokeEmitter();
+		isTraining = false;
+		producer.isUpgrading = false;
+		upgradeCost.Clear();
+		producer.HideConstructionProgressTimeBar();
+
+	}
+
+	public void RemoveConstruction(CityBuilderManager cityBuilderManager, Vector3Int tempBuildLocation)
     {
         StopCoroutine(constructionCo);
         StopSmokeEmitter();

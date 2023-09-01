@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class GridSearch
 {
-    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea, bool attack = false)
+    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea, bool enemy = false)
     {
         if (bySea)
             return AStarSearchSea(world, startLocation, endPosition);
@@ -69,17 +69,22 @@ public class GridSearch
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
 
-                if (attack && world.IsUnitLocationTaken(neighbor))
+                if (enemy)
                 {
-                    if (neighbor == endPosition)
-                    {
-						path = GeneratePath(parentsDictionary, current);
-                        path.Add(neighbor);
-                        return path;
-                    }
-                    
-                    continue;
+                    if (world.CheckIfEnemyTerritory(neighbor))
+                        continue;
                 }
+      //          if (attack && world.IsUnitLocationTaken(neighbor))
+      //          {
+      //              if (neighbor == endPosition)
+      //              {
+						//path = GeneratePath(parentsDictionary, current);
+      //                  path.Add(neighbor);
+      //                  return path;
+      //              }
+                    
+      //              continue;
+      //          }
 
                 bool hasRoad;// = world.IsRoadOnTileLocation(neighbor);
                 int tempCost;
@@ -219,7 +224,7 @@ public class GridSearch
         return path;
     }
 
-    public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain)
+    public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
     {
 		List<Vector3Int> path = new();
 
@@ -251,13 +256,16 @@ public class GridSearch
 				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
 					continue;
 
+                if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
+                    continue;
+
 				int tempCost = world.GetMovementCost(neighbor);
 
-				if (tile.sqrMagnitude == 2)
+				if (tile.sqrMagnitude == 18)
 				{
 					Vector3Int temp = neighbor - current;
 
-					if (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z)))
+					if (!world.CheckIfPositionIsArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsArmyValid(current + new Vector3Int(0, 0, temp.z)))
 						continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares

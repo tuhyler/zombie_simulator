@@ -46,7 +46,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private bool isUnitPanel, cannotAfford, isShowing;
 
     [HideInInspector]
-    public bool needsBarracks;
+    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks;
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
     //private bool ;
@@ -332,6 +332,24 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         {
 			StartCoroutine(Shake());
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks required");
+			return;
+		}
+        else if (travelingBarracks)
+        {
+			StartCoroutine(Shake());
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks currently deployed");
+			return;
+		}
+        else if (fullBarracks)
+        {
+			StartCoroutine(Shake());
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks full");
+			return;
+		}
+        else if (trainingBarracks)
+        {
+			StartCoroutine(Shake());
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
 			return;
 		}
         else if (cannotAfford && !buttonHandler.isQueueing)

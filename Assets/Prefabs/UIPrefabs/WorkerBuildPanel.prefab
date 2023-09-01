@@ -720,7 +720,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: c35d24a4ae5a50d44ac9def303b305ec,
+      objectReference: {fileID: 21300000, guid: ea1f07604f5c0ff4cbfb5275ffe27c5c,
         type: 3}
     - target: {fileID: 624308965952619012, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
@@ -730,7 +730,7 @@ PrefabInstance:
     - target: {fileID: 2927087752969563087, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: m_text
-      value: City
+      value: Camp
       objectReference: {fileID: 0}
     - target: {fileID: 3353171004290388722, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
@@ -901,7 +901,7 @@ PrefabInstance:
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
-      value: Build City (B)
+      value: Make Camp (B)
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
