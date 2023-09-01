@@ -18,7 +18,7 @@ public class ResourceProducer : MonoBehaviour
 
     //for production info
     private Coroutine producingCo;
-    public int productionTimer;
+    private int productionTimer;
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
     [HideInInspector]

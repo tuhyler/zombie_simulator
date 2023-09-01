@@ -147,6 +147,16 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7560862657327812247, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7560862657327812247, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
+        type: 3}
+      propertyPath: m_Size.z
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 8789389234130458407, guid: 7ba81f6de1dd17546881bcc7bc8c1e78,
         type: 3}
       propertyPath: m_Name

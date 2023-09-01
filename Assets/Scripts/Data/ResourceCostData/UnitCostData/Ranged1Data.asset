@@ -19,10 +19,8 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: 85009792ecfc4a644884ce6b4264e23a, type: 3}
   mapIcon: {fileID: 21300000, guid: 96ad298f88c370347b8f53c2b3351112, type: 3}
   unitCost:
-  - resourceType: 7
-    resourceAmount: 15
   - resourceType: 6
-    resourceAmount: 15
+    resourceAmount: 10
   consumedResources:
   - resourceType: 2
     resourceAmount: 1
@@ -35,5 +33,6 @@ MonoBehaviour:
   baseAttackStrength: 10
   baseAttackSpeed: 0.5
   movementSpeed: 1
+  trainTime: 3
   cargoCapacity: 0
   transportationType: 0

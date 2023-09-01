@@ -9,7 +9,7 @@ public class City : MonoBehaviour
 {
     //city graphics
     [SerializeField]
-    public GameObject cityNameMap, exclamationPoint;
+    public GameObject cityNameMap, exclamationPoint, cityBase;
     [SerializeField]
     public ImprovementDataSO housingData;
     //private int housingCenterCount;
@@ -17,7 +17,7 @@ public class City : MonoBehaviour
     public bool housingLocsAtMax;
     private int[] housingIndex = new[] { 0, 0, 0, 0 };
     private List<Vector3> housingLocs = new() { new Vector3(0.7f, 0, 1.2f) , new Vector3(-1.2f, 0, 0.7f), new Vector3(-1.2f, 0, -0.7f), new Vector3(0.7f, 0, -1.2f) };
-    private CityImprovement initialHouse;
+    //private CityImprovement initialHouse;
     //private GameObject currentHouse;
     private CityBuilderManager cityBuilderManager;
     private List<MeshFilter> cityMeshFilters = new();
@@ -49,7 +49,7 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Vector3Int cityLoc;
     [HideInInspector]
-    public bool activeCity, hasHarbor, hasBarracks;
+    public bool activeCity, hasHarbor, hasBarracks, highlighted;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
@@ -220,8 +220,14 @@ public class City : MonoBehaviour
     public void LightFire(bool isHill)
     {
         Vector3 loc = cityLoc;
+        loc.z += -0.35f;
         if (isHill)
+        {
             loc.y += .6f;
+            Vector3 cityBaseLoc = cityBase.transform.localPosition;
+            cityBaseLoc.y += .6f;
+            cityBase.transform.localPosition = cityBaseLoc;
+        }
 
         fire = Instantiate(fire, loc, Quaternion.Euler(-90, 0, 0));
         fire.transform.SetParent(subTransform.transform, false);
@@ -462,6 +468,7 @@ public class City : MonoBehaviour
         //if (currentHouse != null)
         //    Destroy(currentHouse);
 
+        //seeing which house will be build first
         Vector3 houseLoc = cityLoc;
         int index = Array.FindIndex(housingIndex, x => x == 0);
         housingIndex[index] = 1;
@@ -483,13 +490,13 @@ public class City : MonoBehaviour
         //improvement.DestroyUpgradeSplash();
         improvement.loc = cityLoc;
         improvement.housingIndex = index;
-        if (index == 0)
-        {
-            initialHouse = improvement;
-            improvement.initialCityHouse = true;
-        }
-        else
-            resourceManager.SpendResource(housingData.improvementCost, cityLoc);
+        //if (index == 0)
+        //{
+        //    initialHouse = improvement;
+        //    improvement.initialCityHouse = true;
+        //}
+        //else
+        resourceManager.SpendResource(housingData.improvementCost, cityLoc);
         housingCount += housingData.housingIncrease;
         string buildingName = housingData.improvementName + index.ToString();
         world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, buildingName);
@@ -499,6 +506,11 @@ public class City : MonoBehaviour
             cityBuilderManager.CombineMeshes(this, subTransform, upgrade); improvement.SetInactive(); cityBuilderManager.ToggleBuildingHighlight(true);
         });
     }
+
+    public void CombineFire()
+    {
+		cityBuilderManager.CombineMeshes(this, subTransform, false);
+	}
 
     public string DecreaseHousingCount(int index)
     {
@@ -1181,24 +1193,37 @@ public class City : MonoBehaviour
     }
 
 
-    internal void Select()
+    public void Select(Color color)
     {
-        EnableHighlight();
-        //selectionCircle.enabled = true;
-        //highlight.ToggleGlow(true);
-    }
+		//EnableHighlight();
+		foreach (string name in world.GetBuildingListForCity(cityLoc))
+        {
+			CityImprovement building = world.GetBuildingData(cityLoc, name);
+			building.DisableHighlight();
+			building.EnableHighlight(color);
+		}
+
+        highlighted = true;
+        world.GetTerrainDataAt(cityLoc).EnableHighlight(color);
+	}
 
     public void Deselect()
     {
-        DisableHighlight();
-        //selectionCircle.enabled = false;
-        //highlight.ToggleGlow(false);
-    }
+		//DisableHighlight();
+		foreach (string name in world.GetBuildingListForCity(cityLoc))
+		{
+			CityImprovement building = world.GetBuildingData(cityLoc, name);
+			building.DisableHighlight();
+		}
+
+        highlighted = false;
+        world.GetTerrainDataAt(cityLoc).DisableHighlight();
+	}
 
     public void DestroyThisCity()
     {
         //initialHouse.DestroyPS();
-        initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).isHill);
+        //initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).isHill);
         StopAllCoroutines();
         Destroy(uiTimeProgressBar.gameObject);
     }

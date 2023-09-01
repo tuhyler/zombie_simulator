@@ -85,6 +85,8 @@ MonoBehaviour:
   minimapIcon: {fileID: 9149838138303090476}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
+  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
+    type: 3}
   selectionCircle: {fileID: 0}
   marker: {fileID: 103100230671984584}
   healthbar: {fileID: 5032910586026060206}
@@ -97,9 +99,14 @@ MonoBehaviour:
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
+  barracksBunk: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  homeBase: {fileID: 0}
   currentHealth: 0
   enemyAI: {fileID: 0}
+  baseSpeed: 0
+  attackSpeed: 0
+  attackStrength: 0
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -112,6 +119,13 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
+  isDead: 0
+  isAttacked: 0
+  inArmy: 0
+  atHome: 0
+  repositioning: 0
+  isMarching: 0
+  transferring: 0
   unitAnimator: {fileID: 0}
   personalResourceManager: {fileID: 0}
   tradeRouteManager: {fileID: 0}

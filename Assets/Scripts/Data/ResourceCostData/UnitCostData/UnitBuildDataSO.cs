@@ -22,6 +22,7 @@ public class UnitBuildDataSO : ScriptableObject
     public int baseAttackStrength = 10;
     public float baseAttackSpeed = 0.5f;
     public float movementSpeed = 1f;
+    public int trainTime = 0;
     public int cargoCapacity;
     public TransportationType transportationType = TransportationType.Land;
 }

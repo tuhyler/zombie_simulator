@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -204,17 +205,33 @@ public class CityBuilderManager : MonoBehaviour
         if (world.unitOrders || world.buildingWonder)
             return;
 
+        if (world.citySelected) //just so the city isn't selected when being chosen to move units (also works with wonders)
+        {
+            world.citySelected = false;
+            return;
+        }
+
         if (selectedObject == null)
             return;
 
-        if (selectedObject.CompareTag("Player") && selectedObject.TryGetComponent(out City cityReference))
+		Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
+
+	    //selecting terrain of city
+		if (world.IsCityOnTile(terrainLocation) && selectedObject.TryGetComponent(out TerrainData tdno))
+		{
+            SelectCity(location, world.GetCity(terrainLocation));
+		}
+        //selecting city
+		else if (selectedObject.CompareTag("Player") && selectedObject.TryGetComponent(out City cityReference))
         {
             SelectCity(location, cityReference);
         }
+        //selecting wonder
         else if (selectedObject.TryGetComponent(out Wonder wonder))
         {
             SelectWonder(wonder);
         }
+        //selecting trade center
         else if (selectedObject.TryGetComponent(out TradeCenter center))
         {
             SelectTradeCenter(center);
@@ -232,7 +249,7 @@ public class CityBuilderManager : MonoBehaviour
             if (selectedCity != null)
             {
                 //Vector3Int terrainLocation = terrainSelected.GetTileCoordinates();
-                Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
+                //Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
                 //TerrainData terrainSelected = world.GetTerrainDataAt(terrainLocation);
 
                 //deselecting if choosing improvement outside of city
@@ -272,8 +289,8 @@ public class CityBuilderManager : MonoBehaviour
                         improvementSelected.RemoveConstruction(this, terrainLocation);
                     }
 
-                    if (!improvementSelected.isConstruction && !improvementSelected.isUpgrading)
-                        improvementSelected.PlayRemoveEffect(world.GetTerrainDataAt(terrainLocation).isHill);
+                    //if (!improvementSelected.isConstruction && !improvementSelected.isUpgrading && !improvementSelected.isTraining)
+                    //    improvementSelected.PlayRemoveEffect(world.GetTerrainDataAt(terrainLocation).isHill);
                     RemoveImprovement(terrainLocation, improvementSelected, selectedCity, false);
                 }
                 else if (laborChange != 0) //for changing labor counts in tile
@@ -311,19 +328,19 @@ public class CityBuilderManager : MonoBehaviour
         }
         else if (selectedWonder != null && placingWonderHarbor && selectedObject.TryGetComponent(out TerrainData terrainForHarbor)) //for placing harbor
         {
-            Vector3Int terrainLocation = terrainForHarbor.TileCoordinates;
+            Vector3Int terrainLoc = terrainForHarbor.TileCoordinates;
 
-            if (!tilesToChange.Contains(terrainLocation))
+            if (!tilesToChange.Contains(terrainLoc))
             {
                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build here");
             }
             else
             {
-                BuildWonderHarbor(terrainLocation);
+                BuildWonderHarbor(terrainLoc);
             }
         }
         //selecting terrain to show info
-        else if (selectedCity == null && selectedWonder == null && selectedTradeCenter == null && selectedObject.TryGetComponent(out TerrainData td))
+        else if (!world.unitOrders && selectedCity == null && selectedWonder == null && selectedTradeCenter == null && selectedObject.TryGetComponent(out TerrainData td))
         {
             if (world.somethingSelected)
             {
@@ -338,17 +355,17 @@ public class CityBuilderManager : MonoBehaviour
         //selecting tiles to place improvements
         else if (selectedCity != null && selectedObject.TryGetComponent(out TerrainData terrainSelected))
         {
-            Vector3Int terrainLocation = terrainSelected.TileCoordinates;
+            Vector3Int terrainLoc = terrainSelected.TileCoordinates;
 
             //deselecting if choosing tile outside of city
-            if (!cityTiles.Contains(terrainLocation))
+            if (!cityTiles.Contains(terrainLoc))
             {
                 ResetCityUI();
                 //world.OpenTerrainTooltip(terrainSelected);
                 return;
             }
 
-            if (!tilesToChange.Contains(terrainLocation))
+            if (!tilesToChange.Contains(terrainLoc))
             {
                 ResetCityUIToBase();
 
@@ -376,37 +393,37 @@ public class CityBuilderManager : MonoBehaviour
             {
                 if (improvementData != null)
                 {
-                    BuildImprovementQueueCheck(improvementData, terrainLocation); //passing the data here as method requires it
+                    BuildImprovementQueueCheck(improvementData, terrainLoc); //passing the data here as method requires it
                 }
                 else if (upgradingImprovement)
                 {
-                    CityImprovement improvement = world.GetCityDevelopment(terrainLocation);
+                    CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
                     uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvement);
                     //UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
                 }
                 else if (removingImprovement)
                 {
-                    CityImprovement improvement = world.GetCityDevelopment(terrainLocation);
+                    CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
                     
-                    if (world.CheckIfTileIsUnderConstruction(terrainLocation))
+                    if (world.CheckIfTileIsUnderConstruction(terrainLoc))
                     {
-                        improvement = world.GetCityDevelopmentConstruction(terrainLocation);
-                        improvement.RemoveConstruction(this, terrainLocation);
+                        improvement = world.GetCityDevelopmentConstruction(terrainLoc);
+                        improvement.RemoveConstruction(this, terrainLoc);
                     }
 
-                    if (!improvement.isConstruction && !improvement.isUpgrading)
-                        improvement.PlayRemoveEffect(terrainSelected.isHill);
-                    RemoveImprovement(terrainLocation, improvement, selectedCity, false);
+                    //if (!improvement.isConstruction && !improvement.isUpgrading && !improvement.isTraining)
+                    //    improvement.PlayRemoveEffect(terrainSelected.isHill);
+                    RemoveImprovement(terrainLoc, improvement, selectedCity, false);
                 }
                 else if (laborChange != 0)
                 {
-                    if (constructingTiles.Contains(terrainLocation))
+                    if (constructingTiles.Contains(terrainLoc))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Still building...");
                         return;
                     }
 
-                    ChangeLaborCount(terrainLocation);
+                    ChangeLaborCount(terrainLoc);
                 }
             }
         }
@@ -752,6 +769,7 @@ public class CityBuilderManager : MonoBehaviour
         focusCam.SetCityLimit(cityTiles, selectedCityLoc);
         ResourceProducerTimeProgressBarsSetActive(true);
         ToggleBuildingHighlight(true);
+        world.GetTerrainDataAt(selectedCityLoc).EnableHighlight(Color.white);
         DrawBorders();
         CheckForWork();
         autoAssign.isOn = selectedCity.AutoAssignLabor;
@@ -1209,7 +1227,7 @@ public class CityBuilderManager : MonoBehaviour
     //}
 
     public void ToggleBuildingHighlight(bool v)
-    {
+    {        
         if (v)
         {
             foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
@@ -1221,17 +1239,17 @@ public class CityBuilderManager : MonoBehaviour
                 if (removingImprovement)
                 {
                     //don't highlight the buildings that can't be removed
-                    if (building.initialCityHouse)
-                        building.EnableHighlight(Color.white);
-                    else
-                        building.EnableHighlight(Color.red, true);
+                    //if (building.initialCityHouse)
+                    //    building.EnableHighlight(Color.white);
+                    //else
+                    building.EnableHighlight(Color.red);
                 }
                 else if (upgradingImprovement)
                 {
                     if (building.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(building.GetImprovementData.improvementName))
                     {
                         building.canBeUpgraded = true;
-                        building.EnableHighlight(Color.green, true);
+                        building.EnableHighlight(Color.green);
                         //SetUpResourceInfoPanel(building, building.GetImprovementData.buildingLocation+selectedCityLoc, true);
                     }
                     else
@@ -1246,7 +1264,13 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
-            foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
+			if (world.laborerSelected) //in case a laborer is selected while city is selected
+			{
+				world.laborerSelected = false;
+				return;
+			}
+
+			foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
                 CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
                 //int count = building.MeshFilter.Length;
@@ -1260,19 +1284,6 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    //a bit faster than using above method
-    //private void ToggleBuildingResourceInfo()
-    //{
-    //    foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
-    //    {
-    //        CityImprovement building = world.GetBuildingData(selectedCityLoc, name);
-
-    //        if (building.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(building.GetImprovementData.improvementName))
-    //        {
-    //            SetUpResourceInfoPanel(building, building.GetImprovementData.buildingLocation + selectedCityLoc, true);
-    //        }
-    //    }
-    //}
 
     private (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetThisCityRadius() //radius just for selected city
     {
@@ -1395,22 +1406,24 @@ public class CityBuilderManager : MonoBehaviour
                 unitGO = unitData.secondaryPrefab;
         }
 
-        if (unitData.unitType == UnitType.Worker)
-        {
-            world.workerCount++;
-            unitGO.name = unitData.name.Split("_")[0] + "_" + world.workerCount;
-        }
-        if (unitData.unitType == UnitType.Infantry)
-        {
-            world.infantryCount++;
-            unitGO.name = unitData.name.Split("_")[0] + "_" + world.infantryCount;
-        }
+        //if (unitData.unitType == UnitType.Worker)
+        //{
+        //    world.workerCount++;
+        //    unitGO.name = unitData.name.Split("_")[0] + "_" + world.workerCount;
+        //}
+        //if (unitData.unitType == UnitType.Infantry)
+        //{
+        //    world.infantryCount++;
+        //    unitGO.name = unitData.name.Split("_")[0] + "_" + world.infantryCount;
+        //}
 
         Vector3Int buildPosition = selectedCityLoc;
 
         if (unitData.baseAttackStrength > 0)
         {
-            buildPosition = selectedCity.army.GetAvailablePosition();
+            world.GetCityDevelopment(city.barracksLocation).BeginTraining(city, world.GetResourceProducer(city.barracksLocation), city.barracksLocation, unitData, this);
+            selectedCity.army.isTraining = true;
+            return;
         }
         else if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
         {
@@ -1434,26 +1447,62 @@ public class CityBuilderManager : MonoBehaviour
         GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
         unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
-        //Vector3 goScale = unitGO.transform.localScale;
-        //float scaleX = goScale.x;
-        //float scaleZ = goScale.z;
-        //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-        //LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
-        unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
+        Vector3 goScale = unitGO.transform.localScale;
+        float scaleX = goScale.x;
+        float scaleZ = goScale.z;
+        unit.transform.localScale = new Vector3(scaleX, 0.2f, scaleZ);
+        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+        //unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
         newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
         newUnit.SetMinimapIcon(friendlyUnitHolder);
-        if (unitData.baseAttackStrength > 0)
-        {
-            selectedCity.army.AddToArmy(newUnit);
-            newUnit.homeBase = selectedCity;
-        }
+        //if (unitData.baseAttackStrength > 0)
+        //{
+        //    city.army.AddToArmy(newUnit);
+        //    newUnit.homeBase = city;
+        //}
 
         Vector3 mainCamLoc = Camera.main.transform.position;
         mainCamLoc.y = 0;
         unit.transform.LookAt(mainCamLoc);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
     }
+
+    public void BuildUnit(City city, UnitBuildDataSO unitData)
+    {
+        city.army.isTraining = false;
+		if (uiUnitBuilder.activeStatus)
+			uiUnitBuilder.UpdateBarracksStatus();
+
+		Vector3Int buildPosition = city.army.GetAvailablePosition();
+        GameObject unitGO = unitData.prefab;
+		GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
+		unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
+
+		//for tweening
+		Vector3 goScale = unitGO.transform.localScale;
+        float scaleX = goScale.x;
+        float scaleZ = goScale.z;
+        unit.transform.localScale = new Vector3(scaleX, 0.2f, scaleZ); //don't start at 0, otherwise lightbeam meshes with ground
+        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+
+		//unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
+		Unit newUnit = unit.GetComponent<Unit>();
+		newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
+		newUnit.SetMinimapIcon(friendlyUnitHolder);
+		newUnit.atHome = true;
+		city.army.AddToArmy(newUnit);
+		newUnit.homeBase = city;
+        newUnit.barracksBunk = buildPosition;
+
+        if (newUnit.homeBase.army.selected)
+            newUnit.Select(Color.white);
+
+		Vector3 mainCamLoc = Camera.main.transform.position;
+		mainCamLoc.y = 0;
+		unit.transform.LookAt(mainCamLoc);
+		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+	}
 
     public void CreateBuildingQueueCheck(ImprovementDataSO buildingData)
     {
@@ -1622,8 +1671,11 @@ public class CityBuilderManager : MonoBehaviour
 
     private void RemoveBuilding(CityImprovement improvement, ImprovementDataSO data, City city, bool upgradingImprovement)
     {
-        //putting the resources and labor back
-        string selectedBuilding = data.improvementName;
+		if (!upgradingImprovement)
+            improvement.PlayRemoveEffect(world.GetTerrainDataAt(city.cityLoc).isHill);
+
+		//putting the resources and labor back
+		string selectedBuilding = data.improvementName;
         if (selectedBuilding == city.housingData.improvementName)
             selectedBuilding = city.DecreaseHousingCount(improvement.housingIndex);
 
@@ -2216,9 +2268,9 @@ public class CityBuilderManager : MonoBehaviour
     private void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement)
     {
         ImprovementDataSO improvementData = selectedImprovement.GetImprovementData;
-        //selectedImprovement.DestroyPS();
+		//selectedImprovement.DestroyPS();
 
-        if (selectedImprovement.queued)
+		if (selectedImprovement.queued)
         {
             if(uiQueueManager.CheckIfBuiltItemIsQueued(improvementLoc, improvementLoc-city.cityLoc, true, improvementData, selectedImprovement.GetQueueCity()))
             {
@@ -2244,9 +2296,10 @@ public class CityBuilderManager : MonoBehaviour
         }
         
         ResourceProducer resourceProducer = world.GetResourceProducer(improvementLoc);
+		TerrainData td = world.GetTerrainDataAt(improvementLoc);
 
-        //if removing/canceling upgrade process, stop here
-        if (selectedImprovement.isUpgrading)
+		//if removing/canceling upgrade process, stop here
+		if (selectedImprovement.isUpgrading)
         {
             ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
             selectedImprovement.StopUpgradeProcess(resourceProducer);
@@ -2263,7 +2316,29 @@ public class CityBuilderManager : MonoBehaviour
 
             return;
         }
-        else if (!upgradingImprovement) //not redundant, for when actually removing
+        //if cancelling training in a barracks, stop here
+        else if (selectedImprovement.isTraining)
+        {
+            ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
+			resourceManager.UpdateUI(selectedImprovement.UpgradeCost);
+            selectedImprovement.StopTraining(resourceProducer);
+            selectedImprovement.StopUpgrade();
+
+			city.PopulationGrowthCheck(true, selectedImprovement.laborCost);
+			UpdateCityLaborUIs();
+			
+            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+			ImprovementTileHighlight();
+
+            return;
+        }
+		//can't remove barracks if army holding army
+		else if (improvementData.improvementName == "Barracks" && !city.army.isEmpty)
+        {
+			InfoPopUpHandler.WarningMessage().Create(improvementLoc, "Can't remove with units within");
+			return;
+		}
+		else if (!upgradingImprovement) //not redundant, for when actually removing
         {
             //putting the labor back
             //foreach (ResourceType resourceType in resourceProducer.producedResources)
@@ -2299,7 +2374,6 @@ public class CityBuilderManager : MonoBehaviour
                 world.GetTerrainDataAt(improvementLoc).RestoreTerrainMesh();
             }
 
-            TerrainData td = world.GetTerrainDataAt(improvementLoc);
             td.prop.gameObject.SetActive(true);
             if (td.terrainData.hasRocks)
                 td.RocksCheck();
@@ -2319,8 +2393,11 @@ public class CityBuilderManager : MonoBehaviour
                 city.cityPop.UsedLabor -= currentLabor;
             }
         }
-        
-        foreach (Vector3Int loc in improvementData.noWalkAreas)
+
+        if (!upgradingImprovement)
+		    selectedImprovement.PlayRemoveEffect(td.isHill);
+
+		foreach (Vector3Int loc in improvementData.noWalkAreas)
             world.RemoveFromNoWalkList(loc + improvementLoc);
 
         //updating city graphic
@@ -3234,8 +3311,8 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedCity != null)
         {
-            if (!movementSystem.unitMovement.unitSelected)
-                world.somethingSelected = false;
+            //if (!movementSystem.unitMovement.unitSelected)
+            //    world.somethingSelected = false;
             ResourceProducerTimeProgressBarsSetActive(false);
             isActive = false;
             cityTiles.Clear();
@@ -3256,8 +3333,10 @@ public class CityBuilderManager : MonoBehaviour
             HideImprovementResources();
             uiLaborHandler.ResetUI();
             HideBorders();
-            //CloseResourceGrid();
-            ToggleBuildingHighlight(false);
+			//CloseResourceGrid();
+            if (!world.laborerSelected)
+			    world.GetTerrainDataAt(selectedCityLoc).DisableHighlight();
+			ToggleBuildingHighlight(false);
             //ToggleCityHighlight(false);
             //selectedCity.Deselect();
             selectedCity.HideCityGrowthProgressTimeBar();

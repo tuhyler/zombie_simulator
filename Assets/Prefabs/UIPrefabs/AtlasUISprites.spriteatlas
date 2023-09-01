@@ -40,6 +40,7 @@ SpriteAtlas:
   m_PackedSprites:
   - {fileID: 21300000, guid: 5879b620cc2d05e44bb8fa627e1a74da, type: 3}
   - {fileID: 21300000, guid: d01f7150303ce8742829df1482136c9a, type: 3}
+  - {fileID: 21300000, guid: ea1f07604f5c0ff4cbfb5275ffe27c5c, type: 3}
   - {fileID: 21300000, guid: edbc0e60f779ef147a5ac4f898a06d9d, type: 3}
   - {fileID: 21300000, guid: 8486d880e04a89142b6ed543b2904529, type: 3}
   - {fileID: 21300000, guid: fbcdb2a0f26417a4684d20bc6364eec4, type: 3}
@@ -123,6 +124,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: eb63926735324254098e0f80e66c4630, type: 3}
   - {fileID: 21300000, guid: e9b1597703ed2a049b2078908be40c4a, type: 3}
   - {fileID: 21300000, guid: ac9b05b7dd0c0c543947f5dcb4be0616, type: 3}
+  - {fileID: 21300000, guid: ea4606b76f9fbcf46956a5fd5d83ccbc, type: 3}
   - {fileID: 21300000, guid: 8f0dc8b7bc4f1c74290a3fc91cd5059c, type: 3}
   - {fileID: 21300000, guid: 89b5a3e781d40574489734b720235afd, type: 3}
   - {fileID: 21300000, guid: a47aa928dd3f3114f95bf61ddcf7107f, type: 3}
@@ -202,6 +204,7 @@ SpriteAtlas:
   m_PackedSpriteNamesToIndex:
   - button_pasture
   - scrollbar_gold01_hor
+  - button_camp
   - panel_darkgold
   - button_sell
   - laborIconFemale1
@@ -285,6 +288,7 @@ SpriteAtlas:
   - panel_lightgold
   - button_fishing
   - panel_lightblue
+  - button_changecity
   - button_right
   - background_image
   - button_lumbermill

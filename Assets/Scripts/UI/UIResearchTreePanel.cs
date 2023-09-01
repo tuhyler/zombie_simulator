@@ -195,9 +195,10 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     public void CloseResearchTree()
     {
         ToggleVisibility(false);
-    }
+		world.somethingSelected = false;
+	}
 
-    public void StartQueue()
+	public void StartQueue()
     {
         if (isQueueing)
         {

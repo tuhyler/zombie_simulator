@@ -38,7 +38,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public UIInfoPopUpHandler uiInfoPopUpHandler;
     [SerializeField]
-    private UnitMovement unitMovement;
+    public UnitMovement unitMovement;
     [SerializeField]
     public CityBuilderManager cityBuilderManager;
     [SerializeField]
@@ -158,7 +158,7 @@ public class MapWorld : MonoBehaviour
     public bool showGizmo, hideTerrain = true;
 
     [HideInInspector]
-    public bool unitOrders, buildingWonder, tooltip, somethingSelected, showingMap;
+    public bool unitOrders, buildingWonder, tooltip, somethingSelected, showingMap, citySelected, laborerSelected;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -264,6 +264,13 @@ public class MapWorld : MonoBehaviour
                 {
                     enemyCampDict[unitTerrainLoc] = new();
                     GetTerrainDataAt(unitTerrainLoc).enemyCamp = true;
+
+                    foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
+                    {
+                        TerrainData td = GetTerrainDataAt(tile);
+						if (td.walkable)
+                            td.enemyCamp = true;
+                    }
                 }
                     
                 enemyCampDict[unitTerrainLoc].Add(unit);
@@ -779,10 +786,16 @@ public class MapWorld : MonoBehaviour
     //wonder info
     public void HandleWonderPlacement(Vector3 location, GameObject detectedObject)
     {
+        if (!buildingWonder)
+            return;
+
+        somethingSelected = false;
         uiRotateWonder.ToggleTweenVisibility(false);
         wonderNoWalkLoc.Clear();
+		rotation = Quaternion.Euler(0, 0, 0);
+        unloadLoc = Vector3Int.zero;
 
-        if (buildingWonder) //only thing that works is placing wonder
+		if (buildingWonder) //only thing that works is placing wonder
         {
             if (wonderPlacementLoc != null)
                 Destroy(wonderGhost);
@@ -1208,11 +1221,18 @@ public class MapWorld : MonoBehaviour
         {
             wonderHandler.ToggleVisibility(false);
             wonderButton.ToggleButtonColor(false);
-        }
-    }
+		}
+	}
 
-    //add unload zone when finishing wonder, also for improvements
-    public void AddToNoWalkList(Vector3Int loc)
+    public void CloseWondersButton()
+    {
+		wonderHandler.ToggleVisibility(false);
+		wonderButton.ToggleButtonColor(false);
+		somethingSelected = false;
+	}
+
+	//add unload zone when finishing wonder, also for improvements
+	public void AddToNoWalkList(Vector3Int loc)
     {
         noWalkList.Add(loc);
     }
@@ -1815,7 +1835,57 @@ public class MapWorld : MonoBehaviour
         selectionIcon.SetActive(false);
     }
 
-    public List<Unit> GetEnemyCamp(Vector3Int loc)
+    public void HighlightCitiesWithBarracks(City homeCity)
+    {
+        foreach (City city in cityDict.Values)
+        {
+            if (city == homeCity)
+                continue;
+
+            if (city.hasBarracks && !city.army.isFull)
+            {
+
+                city.Select(Color.green);
+            }
+        }
+    }
+
+    public void UnhighlightCitiesWithBarracks()
+    {
+        foreach (City city in cityDict.Values)
+        {
+            if (city.hasBarracks)
+                city.Deselect();
+        }
+    }
+
+    public void HighlightCitiesAndWonders()
+    {
+        foreach (City city in cityDict.Values)
+        {
+            city.Select(Color.white);
+        }
+
+       foreach (Wonder wonder in wonderConstructionDict.Values)
+        {
+            wonder.EnableHighlight(Color.white);
+        }
+    }
+
+    public void UnhighlightCitiesAndWonders()
+    {
+        foreach (City city in cityDict.Values)
+        {
+            city.Deselect();
+        }
+
+        foreach (Wonder wonder in wonderConstructionDict.Values)
+        {
+            wonder.DisableHighlight();
+        }
+    }
+
+	public List<Unit> GetEnemyCamp(Vector3Int loc)
     {
         return enemyCampDict[loc];
     }
@@ -1840,6 +1910,11 @@ public class MapWorld : MonoBehaviour
         }
 
         closest.enemyAI.WakeUp(target, true);
+    }
+
+    public void BattleStations(Vector3Int campLoc, Vector3Int armyDirection)
+    {
+        Vector3Int direction = campLoc - GetClosestTerrainLoc(armyDirection);
     }
 
     public void MoveCamp(List<Vector3Int> leaderPath, Vector3Int campLoc, Unit leader, Unit target)
@@ -1882,6 +1957,11 @@ public class MapWorld : MonoBehaviour
     public bool CheckIfEnemyCamp(Vector3Int loc)
     {
         return enemyCampDict.ContainsKey(loc) && GetTerrainDataAt(loc).isDiscovered;
+    }
+    
+    public bool CheckIfEnemyTerritory(Vector3Int loc)
+    {
+        return GetTerrainDataAt(loc).enemyCamp;
     }
 
     public void UnhighlightAllEnemyCamps()
@@ -2181,12 +2261,17 @@ public class MapWorld : MonoBehaviour
     //for movement
     public bool CheckIfPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable && !noWalkList.Contains(tile);
     }
+
+    public bool CheckIfPositionIsArmyValid(Vector3Int tile)
+    {
+		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyCamp;
+	}
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].sailable && !noWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].sailable && !noWalkList.Contains(tile);
     }
 
     public bool CheckIfCoastCoast(Vector3Int tile)

@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Worker : Unit
 {
@@ -333,7 +335,14 @@ public class Worker : Unit
     public void BuildCity()
     {
         Vector3 workerPos = transform.position;
-        Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+
+		Vector3 lookAtTarget = workerPos;
+		lookAtTarget.z -= 1;
+
+        //rotating towards fire
+		StartCoroutine(RotateTowardsPosition(lookAtTarget));
+
+		Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(BuildCity);
 
         StopMovement();

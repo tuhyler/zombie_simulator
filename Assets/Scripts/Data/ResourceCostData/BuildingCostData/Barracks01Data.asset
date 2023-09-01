@@ -51,7 +51,7 @@ MonoBehaviour:
   oneTerrain: 1
   adjustForHill: 0
   hillAdjustment: 0
-  buildTime: 5
+  buildTime: 2
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
