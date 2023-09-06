@@ -1500,7 +1500,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		Vector3 mainCamLoc = Camera.main.transform.position;
 		mainCamLoc.y = 0;
-		unit.transform.LookAt(mainCamLoc);
+		newUnit.Rotate(city.army.GetRandomSpot(newUnit.barracksBunk));
 		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
 	}
 
@@ -2177,6 +2177,7 @@ public class CityBuilderManager : MonoBehaviour
                 city.army.SetArmySpots(tile);
 
             city.army.SetLoc(tempBuildLocation);
+            city.army.SetWorld(world);
 
             if (uiUnitBuilder.activeStatus)
                 uiUnitBuilder.UpdateBarracksStatus();

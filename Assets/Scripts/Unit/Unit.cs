@@ -48,15 +48,13 @@ public class Unit : MonoBehaviour
     public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute; //if there's more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
     private Vector3 destinationLoc;
     [HideInInspector]
-    public Vector3Int barracksBunk;
-    [HideInInspector]
     public Vector3 finalDestinationLoc;
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     private Vector3Int prevRoadTile, prevTerrainTile; //first one is for traders, in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
-    public Coroutine movingCo, waitingCo;
+    public Coroutine movingCo, waitingCo, attackCo;
     private MovementSystem movementSystem;
     private Queue<GameObject> pathQueue = new();
     private int queueCount = 0;
@@ -70,15 +68,20 @@ public class Unit : MonoBehaviour
     //combat info
     [HideInInspector]
     public City homeBase;
-    [HideInInspector]
+	[HideInInspector]
+	public Vector3Int barracksBunk, marchPosition; //setting their position in the army based on bunk and barracks loc
+	[HideInInspector]
     public int currentHealth;
     [HideInInspector]
     public BasicEnemyAI enemyAI;
+    [HideInInspector]
+    public EnemyCamp enemyCamp;
     private int healthMax;
     [HideInInspector]
     public float baseSpeed, attackSpeed;
     [HideInInspector]
     public int attackStrength;
+    private WaitForSeconds attackPause;
 
     //selection indicators
     private SelectionHighlight highlight;
@@ -87,11 +90,11 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething, isDead, isAttacked;
+    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething;
 
     //military booleans
     [HideInInspector]
-    public bool readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning;
+    public bool readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, attacking, targetSearching, isDead;
 
     //animation
     [HideInInspector]
@@ -130,6 +133,7 @@ public class Unit : MonoBehaviour
         healthMax = buildDataSO.health;
         currentHealth = healthMax;
         attackSpeed = buildDataSO.baseAttackSpeed;
+        attackPause = new(attackSpeed);
         attackStrength = buildDataSO.baseAttackStrength;
         inArmy = attackStrength > 0 && CompareTag("Player");
         healthbar.SetUnit(this);
@@ -176,8 +180,7 @@ public class Unit : MonoBehaviour
 
         if (CompareTag("Player"))
             turnHandler.turnHandler.AddToTurnList(this);
-        else
-            enemyAI.SetStartingPosition();
+
         //caching terrain costs
         roadSpeed = world.GetRoadCost();
         flatlandSpeed = world.flatland.movementCost;
@@ -366,7 +369,7 @@ public class Unit : MonoBehaviour
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
-            if (unitInTheWay.isBusy || unitInTheWay.followingRoute)
+            if (unitInTheWay.isBusy || unitInTheWay.followingRoute || unitInTheWay.inArmy)
             {
                 if (isBusy)
                 {
@@ -453,6 +456,7 @@ public class Unit : MonoBehaviour
                 yield break;
         }
 
+        //making sure army is all in line
         if (isMarching)
         {
             readyToMarch = false;
@@ -464,19 +468,18 @@ public class Unit : MonoBehaviour
                 yield return null;
             }
 			unitAnimator.SetBool(isMarchingHash, true);
-			//StartCoroutine(MarchingInPlace());
 		}
 
-        //if (onTop && world.GetTerrainDataAt(endPositionInt).gameObject.tag != "City")
-        //{
-        //    Debug.Log("success!");
-        //    onTop = false;
-        //    mesh.layer = LayerMask.NameToLayer("Default");
-        //}
-        //if (world.showingMap)
-        //world.SetMapIconLoc(endPositionInt, mapIcon);
+		//if (onTop && world.GetTerrainDataAt(endPositionInt).gameObject.tag != "City")
+		//{
+		//    Debug.Log("success!");
+		//    onTop = false;
+		//    mesh.layer = LayerMask.NameToLayer("Default");
+		//}
+		//if (world.showingMap)
+		//world.SetMapIconLoc(endPositionInt, mapIcon);
 
-        if (pathPositions.Count > 0)
+		if (pathPositions.Count > 0)
         {
             if (isTrader)
                 prevRoadTile = world.RoundToInt(endPosition);
@@ -541,6 +544,11 @@ public class Unit : MonoBehaviour
     //        yield return null;
     //    }
     //}
+
+    public void Rotate(Vector3 lookAtTarget)
+    {
+        StartCoroutine(RotateTowardsPosition(lookAtTarget));
+    }
 
 	public IEnumerator RotateTowardsPosition(Vector3 lookAtTarget)
 	{
@@ -672,7 +680,7 @@ public class Unit : MonoBehaviour
             SetInterruptedAnimation(true);
     }
 
-    private int ManhattanDistance(Vector3Int endPos, Vector3Int point) //assigns priority for each tile, lower is higher priority
+    private int ManhattanDistance(Vector3Int endPos, Vector3Int point) 
     {
         return Math.Abs(endPos.x - point.x) + Math.Abs(endPos.z - point.z);
     }
@@ -791,7 +799,11 @@ public class Unit : MonoBehaviour
 		if (inArmy)
         {
             //specifically for military units
-            if (preparingToMoveOut)
+            if (attacking)
+            {
+                AggroCheck();
+            }
+            else if (preparingToMoveOut)
             {
                 preparingToMoveOut = false;
                 homeBase.army.UnitReady();
@@ -807,9 +819,20 @@ public class Unit : MonoBehaviour
                         world.unitMovement.ShowIndividualCityButtonsUI();
 
 					StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
+                    return;
 				}
 
-                homeBase.army.UnitArrived(world.GetClosestTerrainLoc(endPosition));
+                Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
+                homeBase.army.UnitArrived(endTerrain, world);
+                
+                //turning to face enemy
+                Vector3Int diff = endTerrain - homeBase.army.EnemyTarget;
+                if (Math.Abs(diff.x) == 3)
+                    diff.z = 0;
+                else if (Math.Abs(diff.z) == 3)
+                    diff.x = 0;
+
+                StartCoroutine(RotateTowardsPosition(endPosition - diff));
             }
             else if (transferring)
             {
@@ -823,6 +846,9 @@ public class Unit : MonoBehaviour
 					StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
 					if (isSelected && !world.unitOrders)
 						world.unitMovement.ShowIndividualCityButtonsUI();
+
+                    if (homeBase.army.AllAreHomeCheck())
+                        homeBase.army.isTransferring = false;
 				}
             }
             else if (repositioning)
@@ -837,8 +863,21 @@ public class Unit : MonoBehaviour
                 world.unitMovement.JoinCity(this);
         }
 
+        //enemy combat orders
         if (enemyAI)
-            enemyAI.needsDestination = true;
+        {
+            if (preparingToMoveOut)
+            {
+                preparingToMoveOut = false;
+                enemyCamp.EnemyReady(this);
+            }
+            //else
+            //{
+            //    enemyAI.StateCheck(world);
+            //}
+
+            //enemyAI.needsDestination = true;
+        }
 
         if (isSelected && !inArmy)
             world.unitMovement.ShowIndividualCityButtonsUI();
@@ -847,7 +886,7 @@ public class Unit : MonoBehaviour
     private void GoToBunk()
     {
         finalDestinationLoc = barracksBunk;
-        MoveThroughPath(GridSearch.AStarSearch(world, CurrentLocation, barracksBunk, isTrader, bySea, true));
+        MoveThroughPath(GridSearch.AStarSearch(world, CurrentLocation, barracksBunk, isTrader, bySea));
     }
 
  //   public void EnemyAttackSetup()
@@ -982,9 +1021,9 @@ public class Unit : MonoBehaviour
                 if (td.enemyCamp)
                 {
                     if (inArmy)
-                        world.BattleStations(loc, currentLocation);
-                    else
-                        world.WakeUpCamp(loc, this);
+                        world.BattleStations(loc, pos);
+                    //else
+                    //    world.WakeUpCamp(loc, this);
                 }
             }
             
@@ -998,8 +1037,139 @@ public class Unit : MonoBehaviour
         }
     }
 
-    //sees if trader is at trade route stop and has finished trade orders
-    protected virtual void TradeRouteCheck(Vector3 endPosition)
+    public void StartAttack(Unit target)
+    {
+        Rotate(target.transform.position);
+        attackCo = StartCoroutine(Attack(target));
+	}
+
+	public IEnumerator Attack(Unit target)
+	{
+		//if (targetUnit == null)
+		//	yield break;
+
+		while (target.currentHealth > 0)
+		{
+			StartAttackingAnimation();
+			yield return new WaitForSeconds(.1f);
+			target.ReduceHealth(attackStrength, transform.eulerAngles);
+			yield return attackPause;
+		}
+
+		StopMovement();
+		StopAnimation();
+        AggroCheck();
+	}
+
+    public void AggroCheck()
+    {
+		UnitType type = buildDataSO.unitType;
+
+		if (!homeBase.army.FinishAttack())
+		{
+			if (type == UnitType.Infantry)
+				InfantryAggroCheck();
+			else if (type == UnitType.Ranged)
+				RangedAggroCheck();
+			else if (type == UnitType.Cavalry)
+				CavalryAggroCheck();
+		}
+	}
+
+    public void InfantryAggroCheck()
+    {
+		List<Vector3Int> attackingZones = new();
+
+		Vector3Int forward = world.RoundToInt(transform.forward);
+		attackingZones.Add(forward + CurrentLocation);
+		if (forward.z != 0)
+		{
+			attackingZones.Add(new Vector3Int(1, 0, forward.z) + CurrentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + CurrentLocation);
+		}
+		else
+		{
+			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + CurrentLocation);
+			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + CurrentLocation);
+		}
+
+		foreach (Vector3Int zone in attackingZones)
+		{
+            if (!homeBase.army.movementRange.Contains(zone))
+                continue;
+            
+            if (world.IsUnitLocationTaken(zone))
+			{
+				Unit enemy = world.GetUnit(zone);
+				if (enemy.enemyAI)
+				{
+                    attacking = true;
+                    if (!homeBase.army.attackingSpots.Contains(CurrentLocation))
+                        homeBase.army.attackingSpots.Add(CurrentLocation);
+					StartAttack(enemy);
+					return;
+				}
+			}
+		}
+
+        homeBase.army.attackingSpots.Remove(CurrentLocation);
+        
+        Unit newEnemy = homeBase.army.FindClosestTarget(this);
+        List<Vector3Int> path = homeBase.army.PathToEnemy(CurrentLocation, world.RoundToInt(newEnemy.transform.position));
+
+        if (path.Count > 0)
+        {
+            attacking = true;
+            
+            if (path.Count >= 2)
+            {
+                List<Vector3Int> shortPath = new() { path[0] };
+                finalDestinationLoc = shortPath[0]; 
+                MoveThroughPath(shortPath);
+                homeBase.army.attackingSpots.Add(path[0]);
+            }
+            else if (path.Count == 1)
+                StartAttack(newEnemy);
+        }
+        else
+        {
+            attacking = false;
+            targetSearching = true;
+        }
+    }
+
+    public void RangedAggroCheck()
+    {
+        Unit enemy = homeBase.army.FindClosestTarget(this);
+
+        if (enemy != null)
+    		Attack(enemy);
+	}
+
+	public void CavalryAggroCheck()
+	{
+		for (int i = 0; i < homeBase.army.targetCamp.UnitsInCamp.Count; i++)
+		{
+			Unit enemy = homeBase.army.targetCamp.UnitsInCamp[i];
+
+			if (enemy.buildDataSO.unitType == UnitType.Ranged)
+			{
+
+			}
+		}
+	}
+
+    public void StopAttacking()
+    {
+        attacking = false;
+        targetSearching = false;
+        StopMovement();
+		StopAnimation();
+	}
+
+
+	//sees if trader is at trade route stop and has finished trade orders
+	protected virtual void TradeRouteCheck(Vector3 endPosition)
     {
         
     }
@@ -1189,6 +1359,11 @@ public class Unit : MonoBehaviour
         deathSplash.transform.eulerAngles = rotation;
         deathSplash.Play();
         gameObject.SetActive(false);
+        if (enemyAI)
+            enemyCamp.UnitsInCamp.Remove(this);
+        else
+            homeBase.army.UnitsInArmy.Remove(this);
+
         RemoveUnitFromData();
         Deselect();
 

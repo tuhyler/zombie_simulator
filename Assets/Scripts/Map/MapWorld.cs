@@ -147,7 +147,7 @@ public class MapWorld : MonoBehaviour
     private List<Vector3Int> coastCoastList = new();
 
     //for enemy
-    private Dictionary<Vector3Int, List<Unit>> enemyCampDict = new();
+    private Dictionary<Vector3Int, EnemyCamp> enemyCampDict = new();
 
     //for expanding gameobject size
     private static int increment = 3;
@@ -262,21 +262,34 @@ public class MapWorld : MonoBehaviour
                 Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitPos);
                 if (!enemyCampDict.ContainsKey(unitTerrainLoc))
                 {
-                    enemyCampDict[unitTerrainLoc] = new();
+                    EnemyCamp camp = new();
+                    camp.world = this;
+                    camp.loc = unitTerrainLoc;
+                    
                     GetTerrainDataAt(unitTerrainLoc).enemyCamp = true;
 
                     foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
                     {
                         TerrainData td = GetTerrainDataAt(tile);
 						if (td.walkable)
-                            td.enemyCamp = true;
+                            td.enemyZone = true;
                     }
+
+                    enemyCampDict[unitTerrainLoc] = camp;
                 }
                     
-                enemyCampDict[unitTerrainLoc].Add(unit);
-                unit.enemyAI.SetCampLoc(unitTerrainLoc);
-                unit.SetMinimapIcon(cityBuilderManager.enemyUnitHolder);
+                enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unit);
+                unit.enemyAI.CampLoc = unitTerrainLoc;
+                unit.enemyAI.CampSpot = unitPos;
+                unit.enemyCamp = enemyCampDict[unitTerrainLoc];
+                //unit.enemyAI.SetCampLoc(unitTerrainLoc);
+                //unit.SetMinimapIcon(cityBuilderManager.enemyUnitHolder);
             }
+        }
+
+        foreach (Vector3Int loc in enemyCampDict.Keys)
+        {
+            enemyCampDict[loc].FormBattlePositions();
         }
 
         //foreach (Vector3Int tile in enemyCampDict.Keys)
@@ -1885,53 +1898,67 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-	public List<Unit> GetEnemyCamp(Vector3Int loc)
+	public EnemyCamp GetEnemyCamp(Vector3Int loc)
     {
         return enemyCampDict[loc];
     }
 
-    public void WakeUpCamp(Vector3Int campLoc, Unit target)
+    //public void WakeUpCamp(Vector3Int campLoc, Unit target)
+    //{
+    //    enemyCampDict[campLoc].threatQueue.Enqueue(GetClosestTerrainLoc(target.transform.position));
+
+    //    //determining which one is closest first        
+    //    Unit closest = null;
+    //    for (int i = 0; i < enemyCampDict[campLoc].UnitsInCamp.Count; i++)
+    //    {
+    //        Unit enemy = enemyCampDict[campLoc].UnitsInCamp[i];
+    //        if (enemy.buildDataSO.unitType == UnitType.Ranged)
+    //        {
+    //            enemy.enemyAI.Attack();
+    //            continue;
+    //        }
+
+    //        if (closest == null)
+    //        {
+    //            closest = enemy;
+    //            continue;
+    //        }
+
+    //        if (Vector3.SqrMagnitude(target.transform.position - enemy.transform.position) < Vector3.SqrMagnitude(target.transform.position - closest.transform.position))
+    //            closest = enemy;
+    //    }
+
+    //    if (closest != null)
+    //        closest.enemyAI.WakeUp(target);
+    //}
+
+    public void BattleStations(Vector3Int campLoc, Vector3Int armyLoc)
     {
-        //determining which one is closest first        
-        Unit closest = null;
-
-        for (int i = 0; i < enemyCampDict[campLoc].Count; i++)
-        {
-            Unit enemy = enemyCampDict[campLoc][i];
-            
-            if (closest == null)
-            {
-                closest = enemy;
-                continue;
-            }
-
-            if (Vector3.SqrMagnitude(target.transform.position - enemy.transform.position) < Vector3.SqrMagnitude(target.transform.position - closest.transform.position))
-                closest = enemy;
-        }
-
-        closest.enemyAI.WakeUp(target, true);
+        enemyCampDict[campLoc].threatLoc = armyLoc;
+        enemyCampDict[campLoc].BattleStations();
     }
 
-    public void BattleStations(Vector3Int campLoc, Vector3Int armyDirection)
+    public void EnemyCampReturn(Vector3Int loc)
     {
-        Vector3Int direction = campLoc - GetClosestTerrainLoc(armyDirection);
+        enemyCampDict[loc].ResetStatus();
+    	enemyCampDict[loc].ReturnToCamp();
     }
 
-    public void MoveCamp(List<Vector3Int> leaderPath, Vector3Int campLoc, Unit leader, Unit target)
-    {
-        foreach (Unit unit in enemyCampDict[campLoc])
-        {
-            if (unit == leader)
-                continue;
+    //public void MoveCamp(List<Vector3Int> leaderPath, Vector3Int campLoc, Unit leader, Unit target)
+    //{
+    //    foreach (Unit unit in enemyCampDict[campLoc].UnitsInCamp)
+    //    {
+    //        if (unit == leader)
+    //            continue;
 
-            Vector3Int leaderDiff = RoundToInt(unit.transform.position - leader.transform.position);
-            unit.enemyAI.FollowLeader(leaderPath, leaderDiff, target);
-        }
-    }
+    //        Vector3Int leaderDiff = RoundToInt(unit.transform.position - leader.transform.position);
+    //        unit.enemyAI.FollowLeader(leaderPath, leaderDiff, target);
+    //    }
+    //}
 
     public void ConvergeCamp(Unit leader, Vector3Int campLoc)
     {
-        foreach (Unit unit in enemyCampDict[campLoc])
+        foreach (Unit unit in enemyCampDict[campLoc].UnitsInCamp)
         {
             if (unit == leader)
                 continue;
@@ -1949,7 +1976,7 @@ public class MapWorld : MonoBehaviour
                 continue;
 
             td.EnableHighlight(Color.red);
-            foreach (Unit unit in enemyCampDict[tile])
+            foreach (Unit unit in enemyCampDict[tile].UnitsInCamp)
                 unit.Select(Color.red);
         }
     }
@@ -1961,7 +1988,7 @@ public class MapWorld : MonoBehaviour
     
     public bool CheckIfEnemyTerritory(Vector3Int loc)
     {
-        return GetTerrainDataAt(loc).enemyCamp;
+        return GetTerrainDataAt(loc).enemyZone;
     }
 
     public void UnhighlightAllEnemyCamps()
@@ -1973,10 +2000,21 @@ public class MapWorld : MonoBehaviour
 				continue;
 
 			td.DisableHighlight();
-			foreach (Unit unit in enemyCampDict[tile])
+			foreach (Unit unit in enemyCampDict[tile].UnitsInCamp)
 				unit.Deselect();
 		}
 	}
+
+    public bool CheckIfEnemyAlreadyAttacked(Vector3Int loc)
+    {
+        return enemyCampDict[loc].attacked;
+    }
+
+    public void SetEnemyCampAsAttacked(Vector3Int loc, Army army)
+    {
+        enemyCampDict[loc].attacked = true;
+        enemyCampDict[loc].attackingArmy = army;
+    }
 
     public int GetUpgradeableObjectMaxLevel(string name)
     {
@@ -2266,7 +2304,7 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfPositionIsArmyValid(Vector3Int tile)
     {
-		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyCamp;
+		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyZone;
 	}
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)

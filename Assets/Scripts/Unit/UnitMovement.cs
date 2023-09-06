@@ -153,6 +153,10 @@ public class UnitMovement : MonoBehaviour
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Research bridge building first");
                 }
+                else if (world.CheckIfEnemyTerritory(pos))
+                {
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not in enemy territory");
+				}
                 else
                 {
                     if (selectedWorker.AddToOrderQueue(pos))
@@ -244,7 +248,7 @@ public class UnitMovement : MonoBehaviour
                         if (unit.atHome)
                         {
                             unit.finalDestinationLoc = selectedUnit.CurrentLocation;
-						    unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.CurrentLocation, false, unit.bySea, true));
+						    unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.CurrentLocation, false, unit.bySea));
                         }
 					}
                     else
@@ -266,7 +270,7 @@ public class UnitMovement : MonoBehaviour
 								}
 
                                 unit.finalDestinationLoc = selectedUnit.CurrentLocation;
-                                unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.CurrentLocation, false, unit.bySea, true));
+                                unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.CurrentLocation, false, unit.bySea));
 
 								break;
                             }
@@ -289,6 +293,12 @@ public class UnitMovement : MonoBehaviour
             {
                 if (world.CheckIfEnemyCamp(pos))
                 {
+                    if (world.CheckIfEnemyAlreadyAttacked(pos))
+                    {
+						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already sending troops");
+						return;
+                    }
+                    
                     if (selectedUnit.homeBase.army.MoveArmy(world, world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos, true))
                     {
     					uiBuildingSomething.ToggleVisibility(false);
@@ -296,6 +306,8 @@ public class UnitMovement : MonoBehaviour
                         world.citySelected = true;
 						world.unitOrders = false;
 						deployingArmy = false;
+                        world.SetEnemyCampAsAttacked(pos, selectedUnit.homeBase.army);
+                        selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(pos);
 					}
 				}
                 else
@@ -310,7 +322,7 @@ public class UnitMovement : MonoBehaviour
                 {
                     City newCity = world.GetCity(pos);
                     Vector3Int newLoc = newCity.army.GetAvailablePosition();
-                    List<Vector3Int> path = GridSearch.AStarSearch(world, selectedUnit.CurrentLocation, newLoc, false, selectedUnit.bySea, true);
+                    List<Vector3Int> path = GridSearch.AStarSearch(world, selectedUnit.CurrentLocation, newLoc, false, selectedUnit.bySea);
 
                     if (path.Count > 0)
                     {
@@ -319,6 +331,7 @@ public class UnitMovement : MonoBehaviour
                         newCity.army.AddToArmy(selectedUnit);
                         selectedUnit.barracksBunk = newLoc;
                         selectedUnit.transferring = true;
+                        selectedUnit.homeBase.army.isTransferring = true;
 
 						selectedUnit.finalDestinationLoc = newLoc;
                         selectedUnit.MoveThroughPath(path);
@@ -732,6 +745,11 @@ public class UnitMovement : MonoBehaviour
         {
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
             return;
+        }
+        else if (world.CheckIfEnemyTerritory(locationInt))
+        {
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not there silly, that's enemy territory");
+			return;
         }
 
         if (selectedTrader != null && selectedTrader.followingRoute) //can't change orders if following route
@@ -1428,7 +1446,7 @@ public class UnitMovement : MonoBehaviour
             UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still training");
 			return;
         }
-        else if (!selectedUnit.homeBase.army.AllAreHomeCheck())
+        else if (selectedUnit.homeBase.army.isTransferring)
         {
 			Vector3 mousePosition = Input.mousePosition;
 			mousePosition.x -= 150;
@@ -1455,8 +1473,13 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.homeBase.army.traveling)
         {
             selectedUnit.homeBase.army.MoveArmy(world, world.GetClosestTerrainLoc(selectedUnit.transform.position), selectedUnit.homeBase.barracksLocation, false);
+            world.EnemyCampReturn(selectedUnit.homeBase.army.EnemyTarget);
             uiDeployArmy.ToggleTweenVisibility(true);
         }
+        else if (selectedUnit.homeBase.army.inBattle)
+        {
+			selectedUnit.homeBase.army.MoveArmy(world, world.GetClosestTerrainLoc(selectedUnit.transform.position), selectedUnit.homeBase.barracksLocation, false);
+		}
         else if (selectedUnit.homeBase.army.atHome)
         {
             if (changingCity)
