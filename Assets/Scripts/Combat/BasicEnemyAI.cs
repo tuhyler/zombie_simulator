@@ -6,12 +6,13 @@ using UnityEngine;
 public class BasicEnemyAI : MonoBehaviour
 {
     private Vector3Int campLoc;
-    private Vector3Int startingPosition;
+    public Vector3Int CampLoc { get { return campLoc; } set { campLoc = value; } }
+    private Vector3Int campSpot;
+    public Vector3Int CampSpot { get { return campSpot; } set { campSpot = value; } } 
     private Unit unit;
-    private List<Vector3Int> moveRange = new();
     private State state;
     [HideInInspector]
-    public bool needsDestination = true, isLeader;
+    public bool needsDestination = true;
     private Vector3Int currentDestination;
     private Coroutine roamCo, attackCo;
     private float attackSpeed;
@@ -31,7 +32,7 @@ public class BasicEnemyAI : MonoBehaviour
 		switch (state)
 		{
             default:
-            case State.Roaming:
+            case State.Camping:
 				if (needsDestination)
                 {
                     needsDestination = false;
@@ -49,8 +50,6 @@ public class BasicEnemyAI : MonoBehaviour
                     StopMovement();
                     state = State.Attacking;
 					unit.world.AddUnitPosition(transform.position, unit);
-					if (isLeader)
-                        unit.world.ConvergeCamp(unit, campLoc);
                 }
                 
                 if (Mathf.Abs(transform.position.x - campLoc.x) + Mathf.Abs(transform.position.z - campLoc.z) > 10)
@@ -96,70 +95,24 @@ public class BasicEnemyAI : MonoBehaviour
                     if (attackCo != null)
 						StopCoroutine(attackCo);
 					StartReturn();
-                    state = State.Roaming;
                 }
 				break;
 		}
 	}
 
-
-	public void SetStartingPosition()
+    public void StateCheck(MapWorld world)
     {
-		startingPosition = unit.world.RoundToInt(transform.position);
-		moveRange.Add(startingPosition);
-	}
-
-    public void SetCampLoc(Vector3Int campLoc)
-    {
-        this.campLoc = campLoc;
+        if (state == State.Returning)
+        {
+            state = State.Camping;
+        }
     }
-
-    //public void SetPosition()
-    //{
-    //    unit.EnemyAttackSetup();
-    //}
-
-	//public void AddToRoamRange(Vector3Int tile)
- //   {
- //       moveRange.Add(tile);
- //   }
 
     public void SetAttackSpeed(float speed)
     {
         attackSpeed = speed;
         attackPause = new(attackSpeed);
 	}
-
-    //public void StartRoaming()
-    //{
-    //    needsDestination = false;
-    //    roamCo = StartCoroutine(RoamAbout());
-    //} 
-
-    //private IEnumerator RoamAbout()
-    //{
-    //    int roamWait = Random.Range(4, 9);
-    //    int timeWaited = 0;
-
-    //    while (timeWaited < roamWait)
-    //    {
-    //        yield return roamingPause;
-    //        timeWaited++;
-    //    }
-
-    //    roamCo = null;
-    //    EnemyMove(NewRoamingPosition());
-    //}
-
-    //public Vector3Int NewRoamingPosition()
-    //{
-    //    Vector3Int newLoc = unit.CurrentLocation;
-        
-    //    while (newLoc == unit.CurrentLocation)
-    //        newLoc = moveRange[Random.Range(0, moveRange.Count)];
-
-    //    return newLoc;
-    //}
 
     private void AggroCheck()
     {
@@ -183,19 +136,18 @@ public class BasicEnemyAI : MonoBehaviour
         }
     }
 
-    public void WakeUp(Unit targetUnit, bool isLeader)
-    {
-        if (state == State.Roaming)
-        {
-            //Debug.Log("wake up");
-            this.isLeader = isLeader;
-            if (roamCo != null)
-                StopCoroutine(roamCo);
-            this.targetUnit = targetUnit;
-            StopMovement();
-            state = State.Chasing;
-        }
-    }
+    //public void WakeUp(Unit targetUnit)
+    //{
+    //    if (state == State.Camping)
+    //    {
+    //        //Debug.Log("wake up");
+    //        if (roamCo != null)
+    //            StopCoroutine(roamCo);
+    //        this.targetUnit = targetUnit;
+    //        StopMovement();
+    //        state = State.Chasing;
+    //    }
+    //}
 
     public void StopMovement()
     {
@@ -210,7 +162,7 @@ public class BasicEnemyAI : MonoBehaviour
 
     public bool ResetTarget()
     {
-        if (isLeader && state == State.Chasing)
+        if (state == State.Chasing)
         {
             if (unit.world.RoundToInt(targetUnit.transform.position) != currentDestination)
             {
@@ -225,51 +177,43 @@ public class BasicEnemyAI : MonoBehaviour
 
     public void StartChase()
     {
-        //Debug.Log("chasing");
-        if (isLeader)
-        {
-    		needsDestination = false;
-            List<Vector3Int> path = GetPath(targetUnit.transform.position);
+    	needsDestination = false;
+        List<Vector3Int> path = GetPath(targetUnit.transform.position);
 
-            if (path.Count == 0)
-            {
-                needsDestination = true;
-				return;
-            }
-            
-            unit.world.MoveCamp(path, campLoc, unit, targetUnit);
-			unit.MoveThroughPath(path);
-		}
-
-
-        //EnemyMove(targetUnit.transform.position);
-	}
-
-    public void FollowLeader(List<Vector3Int> path, Vector3Int leaderDiff, Unit targetUnit)
-    {
-        StopMovement();
         if (path.Count == 0)
         {
             needsDestination = true;
-            return;
-        }
-        
-        List<Vector3Int> newPath = new();
-        
-        foreach (Vector3Int tile in path)
-        {
-            newPath.Add(tile + leaderDiff);
+			return;
         }
 
-        needsDestination = false;
-        this.targetUnit = targetUnit;
-        state = State.Chasing;
-
-		unit.finalDestinationLoc = newPath[newPath.Count - 1];
-		currentDestination = newPath[newPath.Count - 1];
-
-		unit.MoveThroughPath(newPath);
+    	unit.MoveThroughPath(path);
 	}
+
+ //   public void FollowLeader(List<Vector3Int> path, Vector3Int leaderDiff, Unit targetUnit)
+ //   {
+ //       StopMovement();
+ //       if (path.Count == 0)
+ //       {
+ //           needsDestination = true;
+ //           return;
+ //       }
+        
+ //       List<Vector3Int> newPath = new();
+        
+ //       foreach (Vector3Int tile in path)
+ //       {
+ //           newPath.Add(tile + leaderDiff);
+ //       }
+
+ //       needsDestination = false;
+ //       this.targetUnit = targetUnit;
+ //       state = State.Chasing;
+
+	//	unit.finalDestinationLoc = newPath[newPath.Count - 1];
+	//	currentDestination = newPath[newPath.Count - 1];
+
+	//	unit.MoveThroughPath(newPath);
+	//}
 
     public void StartAttack()
     {
@@ -302,7 +246,7 @@ public class BasicEnemyAI : MonoBehaviour
     {
         targetUnit = null;
         needsDestination = false;
-        EnemyMove(startingPosition, false);
+        EnemyMove(campSpot, false);
     }
 
     public void Converge()
@@ -312,17 +256,12 @@ public class BasicEnemyAI : MonoBehaviour
 		EnemyMove(targetUnit.transform.position, true);
     }
 
-    //public void ReadjustAttack()
-    //{
-    //    EnemyMove(targetUnit.transform.position, true);
-    //}
-
 	private void EnemyMove(Vector3 destination, bool attack)
     {
         unit.finalDestinationLoc = destination;
         currentDestination = unit.world.RoundToInt(destination);
         //Debug.Log(currentDestination);
-        List<Vector3Int> path = GridSearch.AStarSearch(unit.world, unit.world.RoundToInt(unit.transform.position), currentDestination, unit.isTrader, unit.bySea, attack);
+        List<Vector3Int> path = GridSearch.AStarSearch(unit.world, unit.world.RoundToInt(unit.transform.position), currentDestination, unit.isTrader, unit.bySea);
 		
         if (path.Count == 0)
         {
@@ -345,7 +284,7 @@ public class BasicEnemyAI : MonoBehaviour
 
     private enum State
     {
-        Roaming,
+        Camping,
         Chasing,
         Attacking,
         Returning,

@@ -1,18 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Army : MonoBehaviour
 {
+    private MapWorld world;
+    
     private Vector3Int loc;
+
+    [HideInInspector]
+    public EnemyCamp targetCamp;
+    private Vector3Int enemyTarget, attackZone;
+    public Vector3Int EnemyTarget { get { return enemyTarget; } }
     private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new();
+    [HideInInspector]
+    public List<Vector3Int> attackingSpots = new(), movementRange = new();
     
     private List<Unit> unitsInArmy = new();
     public List<Unit> UnitsInArmy { get { return unitsInArmy; } }
     private int unitsReady;
 
+    private WaitForSeconds waitOneSec = new(0.01f);
+
     [HideInInspector]
-    public bool isEmpty = true, isFull, isTraining, traveling, inBattle, returning, atHome, selected;
+    public bool isEmpty = true, isFull, isTraining, isTransferring, traveling, inBattle, returning, atHome, selected, enemyReady;
 
 	private void Awake()
 	{
@@ -22,6 +34,11 @@ public class Army : MonoBehaviour
     public void SetLoc(Vector3Int loc)
     {
         this.loc = loc;
+    }
+
+    public void SetWorld(MapWorld world)
+    {
+        this.world = world;
     }
 
     public bool CheckIfInBase(Vector3Int loc)
@@ -101,6 +118,7 @@ public class Army : MonoBehaviour
             if (rotation == 0)
             {
                 UnitReady();
+                unit.marchPosition = unit.barracksBunk - loc;
                 continue;
             }
             else if (rotation == 1)
@@ -143,6 +161,7 @@ public class Army : MonoBehaviour
 			}
 
             List<Vector3Int> path = GridSearch.AStarSearch(world, unit.CurrentLocation, loc + unitDiff, false, false);
+            unit.marchPosition = unitDiff;
 
             if (path.Count > 0)
             {
@@ -184,10 +203,12 @@ public class Army : MonoBehaviour
 
         if (deploying)
         {
+            enemyTarget = destination;
             pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
             atHome = false;
             traveling = true;
             Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
+            attackZone = penultimate;
 
             if (returning)
                 DeployArmy(true);
@@ -198,6 +219,7 @@ public class Army : MonoBehaviour
         {
             traveling = false;
             returning = true;
+            targetCamp = null;
             DeployArmy(false);
         }
 
@@ -215,7 +237,7 @@ public class Army : MonoBehaviour
         }
     }
 
-    public void UnitArrived(Vector3Int loc)
+    public void UnitArrived(Vector3Int loc, MapWorld world)
     {
         unitsReady++;
 
@@ -232,7 +254,12 @@ public class Army : MonoBehaviour
                 returning = false;
             }
             else
-                Charge();
+            {
+                targetCamp.armyReady = true;
+
+                if (targetCamp.attackReady)
+                    Charge();
+            }
         }
     }
 
@@ -258,11 +285,10 @@ public class Army : MonoBehaviour
 		foreach (Unit unit in unitsInArmy)
 		{
             unit.isMarching = true;
-            Vector3Int diff = unit.CurrentLocation - loc;
 			List<Vector3Int> path = new();
 
 			foreach (Vector3Int tile in pathToTarget)
-				path.Add(tile + diff);
+				path.Add(tile + unit.marchPosition);
 
             if (!deploying)
                 path[path.Count - 1] = unit.barracksBunk;
@@ -280,10 +306,110 @@ public class Army : MonoBehaviour
 
     public void Charge()
     {
+        movementRange.Clear();
+        movementRange.Add(attackZone);
+        movementRange.Add(enemyTarget);
+
+        foreach (Vector3Int tile in world.GetNeighborsFor(attackZone, MapWorld.State.EIGHTWAY))
+            movementRange.Add(tile);
+
+        foreach (Vector3Int tile in world.GetNeighborsFor(enemyTarget, MapWorld.State.EIGHTWAY))
+            movementRange.Add(tile);
+        StartCoroutine(WaitOneSec());
+    }
+
+    private IEnumerator WaitOneSec()
+    {
+        yield return waitOneSec;
+
+        ArmyCharge();
+        targetCamp.Charge();
+    }
+
+    private void ArmyCharge()
+    {
+        inBattle = true;
+        
         foreach (Unit unit in unitsInArmy)
         {
+            UnitType type = unit.buildDataSO.unitType;
 
+            if (type == UnitType.Infantry)
+                unit.InfantryAggroCheck();
+            //InfantryAttack(unit);
+            else if (type == UnitType.Ranged)
+                unit.RangedAggroCheck();
+            else if (type == UnitType.Cavalry)
+                unit.CavalryAggroCheck();
         }
+    }
+
+    public Unit FindClosestTarget(Unit unit)
+    {        
+        Unit closestEnemy = null;
+        float dist = 0;
+
+        //find closest target
+        for (int i = 0; i < targetCamp.UnitsInCamp.Count; i++)
+        {
+            Unit enemy = targetCamp.UnitsInCamp[i];
+
+            if (i == 0)
+            {
+                closestEnemy = enemy;
+                dist = (closestEnemy.transform.position - unit.transform.position).sqrMagnitude;
+                continue;
+            }
+
+            float nextDist = (closestEnemy.transform.position - unit.transform.position).sqrMagnitude;
+
+			if (nextDist < dist)
+            {
+                closestEnemy = enemy;
+                dist = nextDist;
+            }
+        }
+
+        return closestEnemy;
+    }
+
+    public List<Vector3Int> PathToEnemy(Vector3Int pos, Vector3Int target)
+	{
+        return GridSearch.BattleMove(world, pos, target, movementRange, attackingSpots);
+
+	}
+	public bool FinishAttack()
+	{
+		if (targetCamp.UnitsInCamp.Count == 0)
+		{        
+            foreach (Unit unit in unitsInArmy)
+            {
+                unit.StopAttacking();
+            }
+
+            world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
+            world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
+            inBattle = false;
+            DeployArmy(false);
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+	public void Retreat()
+    {
+        foreach (Unit unit in unitsInArmy)
+        {
+            unit.attacking = false;
+        }
+        
+        
+        //targetCamp.ResetStatus();
+        //targetCamp.ReturnToCamp();
     }
 
     public bool IsGone()

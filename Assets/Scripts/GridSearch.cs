@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class GridSearch
 {
-    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea, bool enemy = false)
+    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea)
     {
         if (bySea)
             return AStarSearchSea(world, startLocation, endPosition);
@@ -69,11 +69,8 @@ public class GridSearch
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
 
-                if (enemy)
-                {
-                    if (world.CheckIfEnemyTerritory(neighbor))
-                        continue;
-                }
+                if (world.CheckIfEnemyTerritory(neighbor))
+                    continue;
       //          if (attack && world.IsUnitLocationTaken(neighbor))
       //          {
       //              if (neighbor == endPosition)
@@ -224,6 +221,7 @@ public class GridSearch
         return path;
     }
 
+    //for moving entire army
     public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
     {
 		List<Vector3Int> path = new();
@@ -289,8 +287,78 @@ public class GridSearch
 		return path;
 	}
 
+	//for battle movements
+	public static List<Vector3Int> BattleMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> movementList, List<Vector3Int> excludeList)
+	{
+		List<Vector3Int> path = new();
 
-    public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isSeaTrader = true)
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endPosition)
+			{
+				path = GeneratePath(parentsDictionary, current);
+                return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+
+                if (!movementList.Contains(neighbor))
+                    continue;
+
+				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+					continue;
+
+                if (excludeList.Contains(neighbor))
+                    continue;
+
+		        int tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 2)
+				{
+					//Vector3Int temp = neighbor - current;
+
+					//if (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z)))
+					//	continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		return path;
+	}
+
+
+	public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isSeaTrader = true)
     {
         List<Vector3Int> positionsToCheck = new();
         Dictionary<Vector3Int, int> priorityDictionary = new();
