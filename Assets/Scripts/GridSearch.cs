@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class GridSearch
 {
-    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea)
+    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea, bool isEnemy = false)
     {
         if (bySea)
             return AStarSearchSea(world, startLocation, endPosition);
@@ -69,7 +69,7 @@ public class GridSearch
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
 
-                if (world.CheckIfEnemyTerritory(neighbor))
+                if (!isEnemy && world.CheckIfEnemyTerritory(neighbor))
                     continue;
       //          if (attack && world.IsUnitLocationTaken(neighbor))
       //          {
@@ -315,29 +315,32 @@ public class GridSearch
                 return path;
 			}
 
+			//foreach (Vector3Int tile in world.GenerateForwardsTiles(forward))
 			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
-			{
+				{
 				Vector3Int neighbor = tile + current;
 
-                if (!movementList.Contains(neighbor))
-                    continue;
+                if (neighbor != endPosition)
+                {
+				    if (!world.CheckIfPositionIsValid(neighbor))
+					    continue;
 
-				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
-					continue;
+                    if (!movementList.Contains(neighbor))
+                        continue;
 
-                if (excludeList.Contains(neighbor))
-                    continue;
+                    if (world.IsUnitLocationTaken(neighbor))
+                        continue;
+
+                    if (excludeList.Contains(neighbor))
+                        continue;
+                }
+                
 
 		        int tempCost = world.GetMovementCost(neighbor);
 
 				if (tile.sqrMagnitude == 2)
 				{
-					//Vector3Int temp = neighbor - current;
-
-					//if (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z)))
-					//	continue;
-
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f);
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -345,7 +348,7 @@ public class GridSearch
 				{
 					costDictionary[neighbor] = newCost;
 
-					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					int priority = newCost + ManhattanDistance(endPosition, neighbor);
 					positionsToCheck.Add(neighbor);
 					priorityDictionary[neighbor] = priority;
 
