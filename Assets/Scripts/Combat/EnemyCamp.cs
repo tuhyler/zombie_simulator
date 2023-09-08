@@ -7,11 +7,11 @@ public class EnemyCamp
 {
 	public MapWorld world;
 	
-	public Vector3Int loc;
+	public Vector3Int loc, forward;
 	private Vector3Int armyDiff;
 
 	private int enemyReady;
-	public bool attacked, attackReady, armyReady;
+	public bool prepping, attacked, attackReady = false, armyReady, inBattle, returning;
 	public Army attackingArmy;
 
 	public Queue<Vector3Int> threatQueue = new();
@@ -31,8 +31,8 @@ public class EnemyCamp
 	public void FormBattlePositions()
     {
         int infantry = 0;
-        int cavalry;
-        int ranged;
+        int cavalry = 0;
+        int ranged = 0;
         
         //first only position the infantry
         foreach (Unit unit in unitsInCamp)
@@ -50,48 +50,56 @@ public class EnemyCamp
             }
 		}
 
-        cavalry = infantry;
-
-        if (cavalry == 0)
-            return;
-
         foreach (Unit unit in unitsInCamp)
         {
             
             if (unit.buildDataSO.unitType == UnitType.Cavalry)
             {
-				if (cavalry < 3)
-					unit.barracksBunk = loc + frontLines[cavalry];
-				else if (cavalry < 6)
-					unit.barracksBunk = loc + midLines[cavalry - 3];
+				if (cavalry + infantry < 3)
+					unit.barracksBunk = loc + frontLines[cavalry + infantry];
+				else if (cavalry + infantry < 6)
+					unit.barracksBunk = loc + midLines[cavalry + infantry - 3];
 				else
-					unit.barracksBunk = loc + backLines[cavalry - 6];
+					unit.barracksBunk = loc + backLines[cavalry + infantry - 6];
 
 				cavalry++;
             }
         }
-
-        ranged = 9 - (cavalry + infantry);
-
-        if (ranged == 0)
-            return;
 
 		foreach (Unit unit in unitsInCamp)
         {
 			if (unit.buildDataSO.unitType == UnitType.Ranged)
 			{
 				if (ranged < 3)
-                    unit.barracksBunk = loc + backLines[3 - ranged];
-                if (ranged < 6)
-                    unit.barracksBunk = loc + backLines[ranged];
-	
-                ranged--;
+				{
+                    if (infantry+cavalry > 6)
+						unit.barracksBunk = loc + backLines[2 - ranged];
+					else
+						unit.barracksBunk = loc + backLines[ranged];
+				}
+                else if (ranged < 6)
+				{
+					if (infantry+cavalry > 3)
+	                    unit.barracksBunk = loc + midLines[5 - ranged];
+					else
+						unit.barracksBunk = loc + midLines[ranged];
+				}
+				else if (ranged < 9)
+					unit.barracksBunk = loc + frontLines[8 - ranged];
+
+				ranged++;
 			}
         }
     }
 
     public void BattleStations()
     {
+		if (prepping)
+			return;
+
+		returning = false;
+		prepping = true;
+		
 		Vector3Int diff = (threatLoc - loc) / 3;
 
 		armyDiff = diff;
@@ -149,7 +157,7 @@ public class EnemyCamp
 				}
 			}
 
-			List<Vector3Int> path = GridSearch.AStarSearch(world, unit.CurrentLocation, loc + unitDiff, false, false);
+			List<Vector3Int> path = GridSearch.AStarSearch(world, unit.CurrentLocation, loc + unitDiff, false, false, true);
 
 			if (path.Count > 0)
 			{
@@ -177,6 +185,7 @@ public class EnemyCamp
 
 		if (enemyReady == unitsInCamp.Count)
 		{
+			prepping = false;
 			attackReady = true;
 
 			if (armyReady)
@@ -186,7 +195,90 @@ public class EnemyCamp
 
 	public void Charge()
 	{
+		inBattle = true;
+
+		foreach (Unit unit in unitsInCamp)
+		{
+			UnitType type = unit.buildDataSO.unitType;
+
+			if (type == UnitType.Infantry)
+				unit.enemyAI.InfantryAggroCheck();
+			else if (type == UnitType.Ranged)
+				unit.enemyAI.RangedAggroCheck();
+			else if (type == UnitType.Cavalry)
+				unit.enemyAI.CavalryAggroCheck();
+		}
+	}
+
+	public Unit FindClosestTarget(Unit unit)
+	{
+		Unit closestEnemy = null;
+		float dist = 0;
+
+		//find closest target
+		for (int i = 0; i < attackingArmy.UnitsInArmy.Count; i++)
+		{
+			Unit enemy = attackingArmy.UnitsInArmy[i];
+
+			if (i == 0)
+			{
+				closestEnemy = enemy;
+				dist = (closestEnemy.transform.position - unit.transform.position).sqrMagnitude;
+				continue;
+			}
+
+			float nextDist = (enemy.transform.position - unit.transform.position).sqrMagnitude;
+
+			if (nextDist < dist)
+			{
+				closestEnemy = enemy;
+				dist = nextDist;
+			}
+		}
+
+		return closestEnemy;
+	}
+
+	public List<Vector3Int> PathToEnemy(Vector3Int pos, Vector3Int target)
+	{
+		return GridSearch.BattleMove(world, pos, target, attackingArmy.movementRange, attackingArmy.attackingSpots);
+	}
+
+	public bool FinishAttack()
+	{
+		if (returning)
+			return true;
 		
+		if (attackingArmy != null && attackingArmy.UnitsInArmy.Count == 0)
+		{
+			returning = true;
+			
+			foreach (Unit unit in unitsInCamp)
+				unit.StopAttacking();
+
+			inBattle = false;
+			ResetStatus();
+			ReturnToCamp();
+
+			if (attackingArmy != null)
+			{
+				attackingArmy.inBattle = false;
+				attackingArmy.atHome = true;
+				attackingArmy = null;
+			}
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public void ClearCampCheck()
+	{
+		if (unitsInCamp.Count == 0)
+			world.RemoveEnemyCamp(loc);
 	}
 
 	public void ResetStatus()
@@ -195,6 +287,7 @@ public class EnemyCamp
 		attackReady = false;
 		armyReady = false;
 		attackingArmy = null;
+		prepping = false;
 	}
 
 	public void ReturnToCamp()

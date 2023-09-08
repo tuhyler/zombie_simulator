@@ -614,7 +614,7 @@ public class CityBuilderManager : MonoBehaviour
                     //float scaleZ = goScale.z;
                     //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
                     //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
-                    unit.transform.LookAt(wonder.centerPos);
+                    unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
                     unit.GetComponent<Laborer>().StartLaborAnimations();
                     
                     unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
@@ -1464,7 +1464,7 @@ public class CityBuilderManager : MonoBehaviour
 
         Vector3 mainCamLoc = Camera.main.transform.position;
         mainCamLoc.y = 0;
-        unit.transform.LookAt(mainCamLoc);
+        unit.transform.rotation = Quaternion.LookRotation(mainCamLoc - unit.transform.position);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
     }
 
@@ -1500,7 +1500,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		Vector3 mainCamLoc = Camera.main.transform.position;
 		mainCamLoc.y = 0;
-		newUnit.Rotate(city.army.GetRandomSpot(newUnit.barracksBunk));
+        newUnit.transform.rotation = Quaternion.LookRotation(city.army.GetRandomSpot(newUnit.barracksBunk) - newUnit.transform.position); 
 		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
 	}
 

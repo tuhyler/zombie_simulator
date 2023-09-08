@@ -7,15 +7,31 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: unitMesh
+      value: 
+      objectReference: {fileID: 8260038644402624232}
+    - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: buildDataSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 3f21eff7a997d3d419df2bb72ad88906,
+        type: 2}
     - target: {fileID: -1569295495130398200, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: beb0d01647e78244bb3461e559ec3f95, type: 2}
+    - target: {fileID: 240526427685250993, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: m_Name
-      value: Infantry_1_enemy
+      value: infantry_1_enemy
       objectReference: {fileID: 0}
     - target: {fileID: 4398903823511709350, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
@@ -159,3 +175,9 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0e35b6d5a7d65fe42bd2a0b8b4c6affb, type: 3}
+--- !u!137 &8260038644402624232 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: 0e35b6d5a7d65fe42bd2a0b8b4c6affb,
+    type: 3}
+  m_PrefabInstance: {fileID: 7205814383676017594}
+  m_PrefabAsset: {fileID: 0}

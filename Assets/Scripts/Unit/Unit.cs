@@ -19,6 +19,9 @@ public class Unit : MonoBehaviour
     //private GameObject minimapIcon;
 
     [SerializeField]
+    private SkinnedMeshRenderer unitMesh;
+
+    [SerializeField]
     private SpriteRenderer minimapIcon;
     
     [SerializeField]
@@ -82,6 +85,8 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public int attackStrength;
     private WaitForSeconds attackPause;
+    [HideInInspector]
+    public Projectile projectile;
 
     //selection indicators
     private SelectionHighlight highlight;
@@ -128,8 +133,6 @@ public class Unit : MonoBehaviour
         //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
         bySea = buildDataSO.transportationType == TransportationType.Sea;
 
-        deathSplash = Instantiate(deathSplash);
-        deathSplash.Stop();
         healthMax = buildDataSO.health;
         currentHealth = healthMax;
         attackSpeed = buildDataSO.baseAttackSpeed;
@@ -137,6 +140,13 @@ public class Unit : MonoBehaviour
         attackStrength = buildDataSO.baseAttackStrength;
         inArmy = attackStrength > 0 && CompareTag("Player");
         healthbar.SetUnit(this);
+
+        if (buildDataSO.unitType == UnitType.Ranged)
+        {
+            projectile = GetComponentInChildren<Projectile>();
+            projectile.SetProjectilePos();
+            projectile.gameObject.SetActive(false);
+        } 
 
         enemyAI = GetComponent<BasicEnemyAI>();
         if (enemyAI != null)
@@ -240,7 +250,7 @@ public class Unit : MonoBehaviour
         if (isDead)
             return;
 
-		baseSpeed = .1f;
+		baseSpeed = .8f;
 
 		healthbar.gameObject.SetActive(true);
 
@@ -248,6 +258,7 @@ public class Unit : MonoBehaviour
 
         if (currentHealth <= 0)
         {
+			StopAttacking();
             StartCoroutine(DestroyUnitWait(rotation));
             return;
         }
@@ -450,11 +461,11 @@ public class Unit : MonoBehaviour
                 RevealCheck(pos);
         }
 
-        if (enemyAI)
-        {
-            if (enemyAI.ResetTarget())
-                yield break;
-        }
+        //if (enemyAI)
+        //{
+        //    if (enemyAI.ResetTarget())
+        //        yield break;
+        //}
 
         //making sure army is all in line
         if (isMarching)
@@ -556,7 +567,7 @@ public class Unit : MonoBehaviour
 		direction.y = 0;
 
 		float totalTime = 0;
-		while (totalTime < 0.3f)
+		while (totalTime < 0.35f)
 		{
 			float timePassed = Time.deltaTime;
 			transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction, Vector3.up), timePassed * 12);
@@ -866,7 +877,11 @@ public class Unit : MonoBehaviour
         //enemy combat orders
         if (enemyAI)
         {
-            if (preparingToMoveOut)
+            if (attacking)
+            {
+                enemyAI.AggroCheck();
+            }
+            else if (preparingToMoveOut)
             {
                 preparingToMoveOut = false;
                 enemyCamp.EnemyReady(this);
@@ -1039,27 +1054,49 @@ public class Unit : MonoBehaviour
 
     public void StartAttack(Unit target)
     {
+        targetSearching = false;
         Rotate(target.transform.position);
         attackCo = StartCoroutine(Attack(target));
 	}
 
 	public IEnumerator Attack(Unit target)
 	{
-		//if (targetUnit == null)
-		//	yield break;
+        //if (targetUnit == null)
+        //	yield break;
+
+        if (target.targetSearching)
+            target.enemyAI.StartAttack(this);
 
 		while (target.currentHealth > 0)
 		{
-			StartAttackingAnimation();
-			yield return new WaitForSeconds(.1f);
-			target.ReduceHealth(attackStrength, transform.eulerAngles);
+            StartAttackingAnimation();
+            //yield return new WaitForSeconds(.1f);
 			yield return attackPause;
+            target.ReduceHealth(attackStrength, transform.eulerAngles);
 		}
 
+        attackCo = null;
 		StopMovement();
 		StopAnimation();
         AggroCheck();
 	}
+
+    private IEnumerator RangedAttack(Unit target)
+    {
+		Rotate(target.transform.position);
+
+		while (target.currentHealth > 0)
+        {
+            //StartAttackingAnimation();
+			projectile.SetPoints(transform.position, target.transform.position);
+            StartCoroutine(projectile.Shoot(this, target));
+            yield return attackPause;
+        }
+
+        attackCo = null;
+        StopAnimation();
+        AggroCheck();
+    }
 
     public void AggroCheck()
     {
@@ -1078,9 +1115,11 @@ public class Unit : MonoBehaviour
 
     public void InfantryAggroCheck()
     {
-		List<Vector3Int> attackingZones = new();
+        targetSearching = false;
 
-		Vector3Int forward = world.RoundToInt(transform.forward);
+        List<Vector3Int> attackingZones = new();
+
+		Vector3Int forward = homeBase.army.forward;
 		attackingZones.Add(forward + CurrentLocation);
 		if (forward.z != 0)
 		{
@@ -1119,6 +1158,16 @@ public class Unit : MonoBehaviour
 
         if (path.Count > 0)
         {
+            //moving unit behind if stuck
+            Vector3Int positionBehind = homeBase.army.forward * -1 + CurrentLocation;
+
+            if (world.IsUnitLocationTaken(positionBehind))
+            {
+    			Unit unitBehind = world.GetUnit(positionBehind);
+                if (unitBehind.inArmy && unitBehind.targetSearching)
+                    unitBehind.AggroCheck();
+            }
+
             attacking = true;
             
             if (path.Count >= 2)
@@ -1133,6 +1182,14 @@ public class Unit : MonoBehaviour
         }
         else
         {
+            Vector3Int tileInFront = CurrentLocation + homeBase.army.forward;
+            if (!world.IsUnitLocationTaken(tileInFront))
+            {
+                finalDestinationLoc = tileInFront;
+                List<Vector3Int> newPath = new() { tileInFront };
+                MoveThroughPath(newPath);
+            }    
+
             attacking = false;
             targetSearching = true;
         }
@@ -1143,12 +1200,14 @@ public class Unit : MonoBehaviour
         Unit enemy = homeBase.army.FindClosestTarget(this);
 
         if (enemy != null)
-    		Attack(enemy);
+    		attackCo = StartCoroutine(RangedAttack(enemy));
 	}
 
 	public void CavalryAggroCheck()
 	{
-		for (int i = 0; i < homeBase.army.targetCamp.UnitsInCamp.Count; i++)
+        targetSearching = false;
+        
+        for (int i = 0; i < homeBase.army.targetCamp.UnitsInCamp.Count; i++)
 		{
 			Unit enemy = homeBase.army.targetCamp.UnitsInCamp[i];
 
@@ -1161,6 +1220,8 @@ public class Unit : MonoBehaviour
 
     public void StopAttacking()
     {
+        if (inArmy && attackCo != null)
+            StopCoroutine(attackCo);
         attacking = false;
         targetSearching = false;
         StopMovement();
@@ -1358,14 +1419,49 @@ public class Unit : MonoBehaviour
         rotation.x = -90;
         deathSplash.transform.eulerAngles = rotation;
         deathSplash.Play();
-        gameObject.SetActive(false);
+        minimapIcon.gameObject.SetActive(false);
+        unitMesh.gameObject.SetActive(false);
+        healthbar.gameObject.SetActive(false);
         if (enemyAI)
+        {
             enemyCamp.UnitsInCamp.Remove(this);
-        else
-            homeBase.army.UnitsInArmy.Remove(this);
+            enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
+            enemyCamp.ClearCampCheck();
+			world.RemoveUnitPosition(currentLocation);
 
-        RemoveUnitFromData();
-        Deselect();
+			Vector3Int tileBehind = currentLocation + enemyCamp.forward * -1;
+			if (world.IsUnitLocationTaken(tileBehind))
+			{
+				Unit unitBehind = world.GetUnit(tileBehind);
+				if (unitBehind.enemyAI)
+					unitBehind.enemyAI.AggroCheck();
+			}
+		}
+        else
+        {
+            homeBase.army.UnitsInArmy.Remove(this);
+			homeBase.army.attackingSpots.Remove(currentLocation);
+			RemoveUnitFromData();
+            //homeBase.army.TargetCheck();
+
+            Vector3Int tileBehind = currentLocation + homeBase.army.forward * -1;
+            if (world.IsUnitLocationTaken(tileBehind))
+            {
+                Unit unitBehind = world.GetUnit(tileBehind);
+                if (unitBehind.inArmy)
+                    unitBehind.AggroCheck();
+            }
+        }
+
+		if (isSelected)
+		{
+			if (homeBase.army.UnitsInArmy.Count > 0)
+				world.unitMovement.PrepareMovement(homeBase.army.UnitsInArmy[0]);
+			else
+				world.unitMovement.ClearSelection();
+		}
+
+		Deselect();
 
         yield return attackedWait;
 

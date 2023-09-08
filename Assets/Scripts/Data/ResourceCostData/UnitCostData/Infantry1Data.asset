@@ -31,9 +31,9 @@ MonoBehaviour:
   unitDescription: Strong, fast unit
   availableInitially: 1
   locked: 0
-  health: 10
-  baseAttackStrength: 2
-  baseAttackSpeed: 1
+  health: 300
+  baseAttackStrength: 25
+  baseAttackSpeed: 2
   movementSpeed: 1
   trainTime: 2
   cargoCapacity: 0

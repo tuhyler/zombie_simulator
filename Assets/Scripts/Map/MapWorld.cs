@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+//using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class MapWorld : MonoBehaviour
 {
@@ -265,8 +266,10 @@ public class MapWorld : MonoBehaviour
                     EnemyCamp camp = new();
                     camp.world = this;
                     camp.loc = unitTerrainLoc;
-                    
-                    GetTerrainDataAt(unitTerrainLoc).enemyCamp = true;
+
+                    TerrainData tdCamp = GetTerrainDataAt(unitTerrainLoc);
+					tdCamp.enemyCamp = true;
+                    tdCamp.enemyZone = true;
 
                     foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
                     {
@@ -1956,16 +1959,16 @@ public class MapWorld : MonoBehaviour
     //    }
     //}
 
-    public void ConvergeCamp(Unit leader, Vector3Int campLoc)
-    {
-        foreach (Unit unit in enemyCampDict[campLoc].UnitsInCamp)
-        {
-            if (unit == leader)
-                continue;
+    //public void ConvergeCamp(Unit leader, Vector3Int campLoc)
+    //{
+    //    foreach (Unit unit in enemyCampDict[campLoc].UnitsInCamp)
+    //    {
+    //        if (unit == leader)
+    //            continue;
 
-            unit.enemyAI.Converge();
-        }
-    }
+    //        unit.enemyAI.Converge();
+    //    }
+    //}
 
     public void HighlightAllEnemyCamps()
     {
@@ -1988,7 +1991,8 @@ public class MapWorld : MonoBehaviour
     
     public bool CheckIfEnemyTerritory(Vector3Int loc)
     {
-        return GetTerrainDataAt(loc).enemyZone;
+        TerrainData td = GetTerrainDataAt(loc);
+		return td.enemyZone;
     }
 
     public void UnhighlightAllEnemyCamps()
@@ -2014,7 +2018,38 @@ public class MapWorld : MonoBehaviour
     {
         enemyCampDict[loc].attacked = true;
         enemyCampDict[loc].attackingArmy = army;
+        enemyCampDict[loc].forward = army.forward * -1;
     }
+
+    public void RemoveEnemyCamp(Vector3Int loc)
+    {
+        TerrainData camp = GetTerrainDataAt(loc);
+		camp.enemyCamp = false;
+        camp.enemyZone = false;
+
+		foreach (Vector3Int tile in GetNeighborsFor(loc, State.EIGHTWAYINCREMENT))
+		{
+            bool skip = false;
+            
+            foreach (Vector3Int neighborTile in GetNeighborsFor(tile, State.EIGHTWAYINCREMENT))
+            {
+                if (GetTerrainDataAt(neighborTile).enemyCamp)
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            
+            if (!skip)
+            {
+                TerrainData td = GetTerrainDataAt(tile);
+			    if (td.walkable)
+				    td.enemyZone = false;
+            }
+		}
+
+        enemyCampDict.Remove(loc);
+	}
 
     public int GetUpgradeableObjectMaxLevel(string name)
     {
@@ -2478,7 +2513,59 @@ public class MapWorld : MonoBehaviour
         new Vector3Int(1,0,1), //upper right
     };
 
-    public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYARMY, EIGHTWAYTWODEEP, EIGHTWAYINCREMENT, CITYRADIUS };
+ //   private readonly static List<Vector3Int> neighborsUp = new()
+ //   {
+ //       new Vector3Int(-1,0,0), //left
+ //       new Vector3Int(-1,0,1), //upper left
+	//	new Vector3Int(0,0,1), //up
+ //       new Vector3Int(1,0,1), //upper right
+ //       new Vector3Int(1,0,0), //right
+ //   };
+
+	//private readonly static List<Vector3Int> neighborsDown = new()
+	//{
+ //       new Vector3Int(1,0,0), //right
+ //       new Vector3Int(1,0,-1), //lower right
+	//	new Vector3Int(0,0,-1), //down
+ //       new Vector3Int(-1,0,-1), //lower left
+ //       new Vector3Int(-1,0,0), //left
+ //   };
+
+	//private readonly static List<Vector3Int> neighborsRight = new()
+	//{
+	//	new Vector3Int(0,0,-1), //down
+ //       new Vector3Int(1,0,-1), //lower right
+ //       new Vector3Int(1,0,0), //right
+ //       new Vector3Int(1,0,1), //upper right
+	//	new Vector3Int(0,0,1), //up
+ //   };
+
+	//private readonly static List<Vector3Int> neighborsLeft = new()
+	//{
+	//	new Vector3Int(0,0,-1), //down
+ //       new Vector3Int(-1,0,-1), //lower left
+ //       new Vector3Int(-1,0,0), //left
+ //       new Vector3Int(-1,0,1), //upper left
+	//	new Vector3Int(0,0,1), //up
+ //   };
+
+	public enum State { FOURWAY, FOURWAYINCREMENT, EIGHTWAY, EIGHTWAYARMY, EIGHTWAYTWODEEP, EIGHTWAYINCREMENT, CITYRADIUS };
+
+ //   public List<Vector3Int> GenerateForwardsTiles(Vector3Int forward)
+ //   {
+ //       List<Vector3Int> listToUse = new();
+
+ //       if (forward.z == 1)
+ //           listToUse = new(neighborsUp);
+ //       else if (forward.z == -1)
+ //           listToUse = new(neighborsDown);
+ //       else if (forward.x == 1)
+ //           listToUse = new(neighborsRight);
+ //       else if (forward.x == -1)
+ //           listToUse = new(neighborsLeft);
+
+	//	return listToUse;
+	//}
 
     public List<Vector3Int> GetNeighborsFor(Vector3Int worldTilePosition, State criteria)
     {

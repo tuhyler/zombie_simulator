@@ -373,6 +373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: da9cd2aafc783be45a7f6e6a64344493, type: 2}
+  unitMesh: {fileID: 0}
   minimapIcon: {fileID: 1834696708367566843}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -391,10 +392,15 @@ MonoBehaviour:
   isBeached: 0
   interruptedRoute: 0
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  homeBase: {fileID: 0}
+  barracksBunk: {x: 0, y: 0, z: 0}
+  marchPosition: {x: 0, y: 0, z: 0}
   currentHealth: 0
   enemyAI: {fileID: 0}
+  baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
+  projectile: {fileID: 0}
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -407,6 +413,16 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
+  readyToMarch: 0
+  inArmy: 0
+  atHome: 0
+  preparingToMoveOut: 0
+  isMarching: 0
+  transferring: 0
+  repositioning: 0
+  attacking: 0
+  targetSearching: 0
+  isDead: 0
   unitAnimator: {fileID: 0}
   removing: 0
   citiesBuilt: 0

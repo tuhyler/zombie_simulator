@@ -588,8 +588,8 @@ public class UnitMovement : MonoBehaviour
         {
             if (selectedUnit.homeBase.army.traveling)
                 uiCancelTask.ToggleTweenVisibility(true);
-            else if (selectedUnit.homeBase.army.returning)
-                uiDeployArmy.ToggleTweenVisibility(true);
+            //else if (selectedUnit.homeBase.army.returning)
+            //    uiDeployArmy.ToggleTweenVisibility(true);
             else if (selectedUnit.transferring)
                 uiChangeCity.ToggleTweenVisibility(true);
         }
@@ -685,7 +685,9 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit != null && selectedUnit.sayingSomething)
             SpeakingCheck();
 
-        MoveUnit(location, detectedObject);
+        selectedUnit.projectile.SetPoints(selectedUnit.transform.position, location);
+        StartCoroutine(selectedUnit.projectile.ShootTest());
+        //MoveUnit(location, detectedObject);
     }
 
     private void MoveUnit(Vector3 location, GameObject detectedObject)
@@ -748,7 +750,7 @@ public class UnitMovement : MonoBehaviour
         }
         else if (world.CheckIfEnemyTerritory(locationInt))
         {
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not there silly, that's enemy territory");
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
 			return;
         }
 
@@ -1478,7 +1480,7 @@ public class UnitMovement : MonoBehaviour
         }
         else if (selectedUnit.homeBase.army.inBattle)
         {
-			selectedUnit.homeBase.army.MoveArmy(world, world.GetClosestTerrainLoc(selectedUnit.transform.position), selectedUnit.homeBase.barracksLocation, false);
+            selectedUnit.homeBase.army.Retreat();
 		}
         else if (selectedUnit.homeBase.army.atHome)
         {
