@@ -5,6 +5,7 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     public float speed = 2, archHeight = 2.5f;
+    public Vector3 adjustment;
 
     private float flightSpeed;
     private Vector3 originalPosition, startPoint, endPoint, archTop;
@@ -16,7 +17,8 @@ public class Projectile : MonoBehaviour
 
     public void SetPoints(Vector3 startPoint, Vector3 endPoint)
     {
-        startPoint.y += 0.5f;
+        
+        startPoint += adjustment;
         this.startPoint = startPoint;
         endPoint.y += 0.5f;
         this.endPoint = endPoint;
@@ -37,9 +39,13 @@ public class Projectile : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        transform.rotation = Quaternion.LookRotation(endPoint - transform.position);
+        Vector3 lookAtTarget = endPoint - transform.position;
+        if (lookAtTarget == endPoint)
+            lookAtTarget += new Vector3(0, 0.05f, 0);
 
-        transform.LookAt(endPoint);
+        transform.rotation = Quaternion.LookRotation(lookAtTarget);
+
+        //transform.LookAt(endPoint);
         
         float sampleTime = 0;
 

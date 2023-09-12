@@ -32,8 +32,8 @@ MonoBehaviour:
   availableInitially: 1
   locked: 0
   health: 300
-  baseAttackStrength: 25
-  baseAttackSpeed: 2
+  baseAttackStrength: 5
+  baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 2
   cargoCapacity: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
+//using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class EnemyCamp 
 {
@@ -11,21 +12,21 @@ public class EnemyCamp
 	private Vector3Int armyDiff;
 
 	private int enemyReady;
+	public int campCount, deathCount;
 	public bool prepping, attacked, attackReady = false, armyReady, inBattle, returning;
 	public Army attackingArmy;
 
-	public Queue<Vector3Int> threatQueue = new();
+	//public Queue<Vector3Int> threatQueue = new();
 	public Vector3Int threatLoc;
 
-	private List<Unit> unitsInCamp = new();
+	private List<Unit> unitsInCamp = new(), deadList = new();
     public List<Unit> UnitsInCamp { get { return unitsInCamp; } set { unitsInCamp = value; } }
+	public List<Unit> DeadList { get { return deadList; } set { deadList = value; } }
     Vector3Int[] frontLines = { new Vector3Int(0, 0, -1), new Vector3Int(-1, 0, -1), new Vector3Int(1, 0, -1) };
 	Vector3Int[] midLines = { new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0) };
 	Vector3Int[] backLines = { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1) };
 
-	private SpriteRenderer minimapIcon;
-
-	private Coroutine co;
+	public GameObject minimapIcon;
 
 
 	public void FormBattlePositions()
@@ -90,6 +91,8 @@ public class EnemyCamp
 				ranged++;
 			}
         }
+
+		campCount = unitsInCamp.Count;
     }
 
     public void BattleStations()
@@ -178,18 +181,41 @@ public class EnemyCamp
 		}
 	}
 
+	//getting ready to attack
 	public void EnemyReady(Unit unit)
 	{
 		unit.Rotate(unit.CurrentLocation + armyDiff);
 		enemyReady++;
 
-		if (enemyReady == unitsInCamp.Count)
+		if (enemyReady == campCount)
 		{
+			enemyReady = 0;
 			prepping = false;
 			attackReady = true;
 
 			if (armyReady)
+			{
+				armyReady = false;
+				attackReady = false;
 				attackingArmy.Charge();
+			}
+		}
+	}
+
+	//getting ready to camp
+	public void EnemyReturn(Unit unit)
+	{
+		enemyReady++;
+
+		if (unit.currentHealth < unit.buildDataSO.health)
+			unit.healthbar.RegenerateHealth();
+
+		if (enemyReady == campCount - deathCount)
+		{
+			inBattle = false;
+			enemyReady = 0;
+			ResetStatus();
+			ResurrectCamp();
 		}
 	}
 
@@ -199,6 +225,7 @@ public class EnemyCamp
 
 		foreach (Unit unit in unitsInCamp)
 		{
+			unit.inBattle = true;
 			UnitType type = unit.buildDataSO.unitType;
 
 			if (type == UnitType.Infantry)
@@ -214,14 +241,20 @@ public class EnemyCamp
 	{
 		Unit closestEnemy = null;
 		float dist = 0;
+		List<Unit> tempList = new(attackingArmy.UnitsInArmy);
+		bool firstOne = true;
 
 		//find closest target
-		for (int i = 0; i < attackingArmy.UnitsInArmy.Count; i++)
+		for (int i = 0; i < tempList.Count; i++)
 		{
-			Unit enemy = attackingArmy.UnitsInArmy[i];
+			Unit enemy = tempList[i];
 
-			if (i == 0)
+			if (enemy.isDead)
+				continue;
+
+			if (firstOne)
 			{
+				firstOne = false;
 				closestEnemy = enemy;
 				dist = (closestEnemy.transform.position - unit.transform.position).sqrMagnitude;
 				continue;
@@ -249,16 +282,17 @@ public class EnemyCamp
 		if (returning)
 			return true;
 		
-		if (attackingArmy != null && attackingArmy.UnitsInArmy.Count == 0)
+		if (attackingArmy != null && attackingArmy.armyCount == 0)
 		{
 			returning = true;
 			
 			foreach (Unit unit in unitsInCamp)
 				unit.StopAttacking();
 
-			inBattle = false;
-			ResetStatus();
+			//ResetStatus();
 			ReturnToCamp();
+			//attackingArmy.deathCount = 0;
+			//attackingArmy.armyCount = 0;
 
 			if (attackingArmy != null)
 			{
@@ -277,7 +311,7 @@ public class EnemyCamp
 
 	public void ClearCampCheck()
 	{
-		if (unitsInCamp.Count == 0)
+		if (deathCount == campCount)
 			world.RemoveEnemyCamp(loc);
 	}
 
@@ -294,19 +328,36 @@ public class EnemyCamp
 	{
 		foreach (Unit unit in unitsInCamp)
 		{
+			unit.inBattle = false; //leaving it here just in case
 			unit.enemyAI.StartReturn();
 		}
 	}
 
-    public void SetMinimapIcon(Transform parent)
-    {
-        //minimapIcon.sprite = buildDataSO.mapIcon;
-        ConstraintSource constraintSource = new();
-        constraintSource.sourceTransform = parent;
-        constraintSource.weight = 1;
-        RotationConstraint rotation = minimapIcon.GetComponent<RotationConstraint>();
-		rotation.rotationAtRest = new Vector3(90, 0, 0);
-		rotation.rotationOffset = new Vector3(90, 0, 0);
-		rotation.AddSource(constraintSource);
-    }
+	private void ResurrectCamp()
+	{
+		foreach (Unit unit in deadList)
+		{
+			unit.transform.position = unit.enemyAI.CampSpot;
+			unit.moreToMove = false;
+			unit.isMoving = false;
+			unit.CurrentLocation = unit.enemyAI.CampSpot;
+			unit.isDead = false;
+			unit.currentHealth = unit.buildDataSO.health;
+			unit.healthbar.gameObject.SetActive(false);
+
+			Vector3 goScale = unit.transform.localScale;
+			float scaleX = goScale.x;
+			float scaleZ = goScale.z;
+			unit.transform.localScale = new Vector3(scaleX, 0.2f, scaleZ); //don't start at 0, otherwise lightbeam meshes with ground
+			//unit.minimapIcon.gameObject.SetActive(true);
+			//unit.unitMesh.gameObject.SetActive(true);
+			unit.gameObject.SetActive(true);
+			unit.lightBeam.Play();
+			//unit.healthbar.gameObject.SetActive(true);
+			LeanTween.scale(unit.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+		}
+
+		deathCount = 0;
+		deadList.Clear();
+	}
 }

@@ -19,13 +19,13 @@ public class Unit : MonoBehaviour
     //private GameObject minimapIcon;
 
     [SerializeField]
-    private SkinnedMeshRenderer unitMesh;
+    public SkinnedMeshRenderer unitMesh;
 
     [SerializeField]
-    private SpriteRenderer minimapIcon;
+    public SpriteRenderer minimapIcon;
     
     [SerializeField]
-    private ParticleSystem lightBeam, deathSplash;
+    public ParticleSystem lightBeam, deathSplash;
 
     [SerializeField]
     private GameObject selectionCircle;
@@ -34,7 +34,7 @@ public class Unit : MonoBehaviour
     private UnitMarker marker;
 
     [SerializeField]
-    private Healthbar healthbar;
+    public Healthbar healthbar;
 
     [HideInInspector]
     public MapWorld world;
@@ -99,7 +99,7 @@ public class Unit : MonoBehaviour
 
     //military booleans
     [HideInInspector]
-    public bool readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, attacking, targetSearching, isDead;
+    public bool readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, isDead;
 
     //animation
     [HideInInspector]
@@ -149,8 +149,8 @@ public class Unit : MonoBehaviour
         } 
 
         enemyAI = GetComponent<BasicEnemyAI>();
-        if (enemyAI != null)
-            enemyAI.SetAttackSpeed(attackSpeed);
+        //if (enemyAI != null)
+        //    enemyAI.SetAttackSpeed(attackSpeed);
         //shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
             selectionCircle.SetActive(false);
@@ -163,15 +163,15 @@ public class Unit : MonoBehaviour
 
     private void Start()
     {
-        //turnHandler.turnHandler.AddToTurnList(this);
-        //roadSpeed = world.GetRoadCost();
-
-        if (CompareTag("Player"))
+		//turnHandler.turnHandler.AddToTurnList(this);
+		//roadSpeed = world.GetRoadCost();
+		Vector3 loc = transform.position;
+		loc.y += 0.1f;
+		lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
+		lightBeam.transform.parent = transform;
+		
+		if (CompareTag("Player"))
         {
-            Vector3 loc = transform.position;
-            loc.y += 0.05f;
-            lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0,0,0));
-            lightBeam.transform.parent = transform;
             lightBeam.Play();
         }
 
@@ -180,7 +180,17 @@ public class Unit : MonoBehaviour
         //Physics.IgnoreLayerCollision(8, 10);
     }
 
-    public void SetReferences(MapWorld world, CameraController focusCam, UIUnitTurnHandler turnHandler, MovementSystem movementSystem)
+    private void SetDeathSplash()
+    {
+		if (inArmy || enemyAI)
+		{
+			deathSplash = Instantiate(deathSplash);
+			deathSplash.transform.parent = world.psHolder;
+			deathSplash.Stop();
+		}
+	}
+
+	public void SetReferences(MapWorld world, CameraController focusCam, UIUnitTurnHandler turnHandler, MovementSystem movementSystem)
     {
         this.world = world;
         this.focusCam = focusCam;
@@ -197,6 +207,7 @@ public class Unit : MonoBehaviour
         forestSpeed = world.forest.movementCost;
         hillSpeed = world.hill.movementCost;
         forestHillSpeed = world.forestHill.movementCost;
+        SetDeathSplash();
     }
 
     public void CenterCamera()
@@ -206,11 +217,16 @@ public class Unit : MonoBehaviour
 
     public void StartAttackingAnimation()
     {
-        unitAnimator.SetBool(isAttackingHash, true);
+		unitAnimator.SetBool(isAttackingHash, true);
         unitAnimator.SetFloat("attackSpeed", 1);
     }
 
-    public void StopAnimation()
+ //   private void StopAttackingAnimation()
+ //   {
+	//	unitAnimator.SetBool(isAttackingHash, false);
+	//}
+
+	public void StopAnimation()
     {
         if (isMarching)
             unitAnimator.SetBool(isMarchingHash, false);
@@ -238,6 +254,7 @@ public class Unit : MonoBehaviour
 		rotation.rotationAtRest = new Vector3(90, 0, 0);
 		rotation.rotationOffset = new Vector3(90, 0, 0);
 		rotation.AddSource(constraintSource);
+        minimapIcon.gameObject.SetActive(true);
         
         //GameObject icon = Instantiate(minimapIcon);
         //minimapIcon.GetComponent<FollowNoRotate>().objectToFollow = transform;
@@ -259,7 +276,7 @@ public class Unit : MonoBehaviour
         if (currentHealth <= 0)
         {
 			StopAttacking();
-            StartCoroutine(DestroyUnitWait(rotation));
+            KillUnit(rotation);
             return;
         }
             //DestroyUnit();
@@ -267,7 +284,7 @@ public class Unit : MonoBehaviour
         if (isSelected)
             infoManager.SetHealth(currentHealth, healthMax);
 
-        healthbar.SetHealthLevel(currentHealth, healthMax);
+        healthbar.SetHealthLevel(currentHealth);
     }
 
     public void UpdateHealth(float healthLevel)
@@ -284,10 +301,6 @@ public class Unit : MonoBehaviour
 
     //}
 
-    public void HideBar()
-    {
-        healthbar.gameObject.SetActive(false);
-    }
 
     private void StartAnimation()
     {
@@ -563,7 +576,10 @@ public class Unit : MonoBehaviour
 
 	public IEnumerator RotateTowardsPosition(Vector3 lookAtTarget)
 	{
-		Vector3 direction = lookAtTarget - transform.position;
+        if (lookAtTarget == CurrentLocation)
+            lookAtTarget += new Vector3(0, 0.05f, 0);
+        
+        Vector3 direction = lookAtTarget - transform.position;
 		direction.y = 0;
 
 		float totalTime = 0;
@@ -784,48 +800,41 @@ public class Unit : MonoBehaviour
 
             prevRoadTile = currentLocation;            
         }
-        if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
-        {
-            Unit unitInTheWay = world.GetUnit(currentLocation);
 
-            if (unitInTheWay == this)
-            {
-                world.AddUnitPosition(currentLocation, this);
-                TradeRouteCheck(endPosition);
-                return; 
-            }
-
-            Vector3Int loc;
-            if (unitInTheWay.pathPositions.Count > 0)
-                loc = unitInTheWay.pathPositions.Peek();
-            else
-                loc = new Vector3Int(0, -10, 0);
-
-            FindNewSpot(currentLocation, loc);
-            return;
-        }
-        world.AddUnitPosition(currentLocation, this);
         TradeRouteCheck(endPosition);
 
 		if (inArmy)
         {
             //specifically for military units
-            if (attacking)
+            if (inBattle)
             {
-                AggroCheck();
+                if (world.IsUnitLocationTaken(currentLocation))
+                    FindNewBattleSpot(currentLocation);
+                else
+					world.AddUnitPosition(currentLocation, this);
+
+				AggroCheck();
             }
             else if (preparingToMoveOut)
             {
-                preparingToMoveOut = false;
+				world.AddUnitPosition(currentLocation, this);
+				preparingToMoveOut = false;
                 homeBase.army.UnitReady();
             }
             else if (isMarching)
             {
-                isMarching = false;
+				world.AddUnitPosition(currentLocation, this);
+				isMarching = false;
 
-                if (currentLocation == barracksBunk)
+				Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
+				homeBase.army.UnitArrived(endTerrain);
+
+				if (currentLocation == barracksBunk)
                 {
-                    atHome = true;
+					if (currentHealth < buildDataSO.health)
+                        healthbar.RegenerateHealth();
+
+					atHome = true;
                     if (isSelected && !world.unitOrders)
                         world.unitMovement.ShowIndividualCityButtonsUI();
 
@@ -833,9 +842,6 @@ public class Unit : MonoBehaviour
                     return;
 				}
 
-                Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
-                homeBase.army.UnitArrived(endTerrain, world);
-                
                 //turning to face enemy
                 Vector3Int diff = endTerrain - homeBase.army.EnemyTarget;
                 if (Math.Abs(diff.x) == 3)
@@ -847,7 +853,8 @@ public class Unit : MonoBehaviour
             }
             else if (transferring)
             {
-                if (endPosition != barracksBunk)
+				world.AddUnitPosition(currentLocation, this);
+				if (endPosition != barracksBunk)
                     GoToBunk();
                 else
                 {
@@ -864,28 +871,38 @@ public class Unit : MonoBehaviour
             }
             else if (repositioning)
             {
-                repositioning = false;
+                world.AddUnitPosition(currentLocation, this);
+                atHome = true;
+				repositioning = false;
                 StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
+				if (homeBase.army.AllAreHomeCheck())
+					homeBase.army.isRepositioning = false;
             }
         }
-        else if (isLaborer)
-        {
-            if (world.RoundToInt(finalDestinationLoc) == endPosition)
-                world.unitMovement.JoinCity(this);
-        }
-
         //enemy combat orders
-        if (enemyAI)
+        else if (enemyAI)
         {
-            if (attacking)
+            if (inBattle)
             {
-                enemyAI.AggroCheck();
+				if (world.IsUnitLocationTaken(currentLocation))
+					FindNewBattleSpot(currentLocation);
+                else
+					world.AddUnitPosition(currentLocation, this);
+
+				enemyAI.AggroCheck();
             }
             else if (preparingToMoveOut)
             {
+                world.AddUnitPosition(currentLocation, this);
                 preparingToMoveOut = false;
                 enemyCamp.EnemyReady(this);
             }
+            else if (repositioning)
+            {
+				world.AddUnitPosition(currentLocation, this);
+				repositioning = false;
+                enemyCamp.EnemyReturn(this);
+			}
             //else
             //{
             //    enemyAI.StateCheck(world);
@@ -893,9 +910,37 @@ public class Unit : MonoBehaviour
 
             //enemyAI.needsDestination = true;
         }
+        else if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
+		{
+			Unit unitInTheWay = world.GetUnit(currentLocation);
 
-        if (isSelected && !inArmy)
-            world.unitMovement.ShowIndividualCityButtonsUI();
+			if (unitInTheWay == this)
+			{
+				world.AddUnitPosition(currentLocation, this);
+				TradeRouteCheck(endPosition);
+				return;
+			}
+
+			Vector3Int loc;
+			if (unitInTheWay.pathPositions.Count > 0)
+				loc = unitInTheWay.pathPositions.Peek();
+			else
+				loc = new Vector3Int(0, -10, 0);
+
+			FindNewSpot(currentLocation, loc);
+			return;
+		}
+        else
+        {
+            if (isSelected)
+                world.unitMovement.ShowIndividualCityButtonsUI();
+
+            if (isLaborer)
+				if (world.RoundToInt(finalDestinationLoc) == endPosition)
+					world.unitMovement.JoinCity(this);
+
+			world.AddUnitPosition(currentLocation, this);
+        }
     }
 
     private void GoToBunk()
@@ -917,7 +962,7 @@ public class Unit : MonoBehaviour
 	//	world.AddUnitPosition(currentLocation, this);
 	//}
 
-    public void FindNewSpot(Vector3Int current, Vector3Int next)
+    public void FindNewSpot(Vector3Int current, Vector3Int? next)
     {
         //Vector3Int lastTile = current;        
 
@@ -935,7 +980,7 @@ public class Unit : MonoBehaviour
             if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile))
                 continue;
 
-            if (tile == next && tile != new Vector3Int(0, -10, 0)) //this just means null
+            if (tile == next && tile != null) 
                 continue;
 
             //if (world.IsUnitLocationTaken(tile))
@@ -959,6 +1004,26 @@ public class Unit : MonoBehaviour
         //    FindNewSpot(lastTile); //keep going until finding new spot
         //}
     }
+
+    public void FindNewBattleSpot(Vector3Int current)
+    {
+        Army army;
+
+        if (inArmy)
+            army = homeBase.army;
+        else
+            army = enemyCamp.attackingArmy;
+        
+        foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+		{
+			if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile) || !army.movementRange.Contains(current) || army.attackingSpots.Contains(current))
+				continue;
+			
+            MoveThroughPath(new List<Vector3Int> { tile });
+			return;
+		}
+	}
+
 
     public void TeleportToNearestRoad(Vector3Int loc)
     {
@@ -1061,20 +1126,21 @@ public class Unit : MonoBehaviour
 
 	public IEnumerator Attack(Unit target)
 	{
-        //if (targetUnit == null)
-        //	yield break;
+        attacking = true;
 
         if (target.targetSearching)
             target.enemyAI.StartAttack(this);
 
 		while (target.currentHealth > 0)
 		{
-            StartAttackingAnimation();
-            //yield return new WaitForSeconds(.1f);
-			yield return attackPause;
+			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
+			StartAttackingAnimation();
+            yield return new WaitForSeconds(.25f);
             target.ReduceHealth(attackStrength, transform.eulerAngles);
+			yield return new WaitForSeconds(1);
 		}
 
+        attacking = false;
         attackCo = null;
 		StopMovement();
 		StopAnimation();
@@ -1083,17 +1149,20 @@ public class Unit : MonoBehaviour
 
     private IEnumerator RangedAttack(Unit target)
     {
-		Rotate(target.transform.position);
+        attacking = true;
+        Rotate(target.transform.position);
 
 		while (target.currentHealth > 0)
         {
-            //StartAttackingAnimation();
+            StartAttackingAnimation();
+			yield return new WaitForSeconds(.25f);
 			projectile.SetPoints(transform.position, target.transform.position);
             StartCoroutine(projectile.Shoot(this, target));
-            yield return attackPause;
+            yield return new WaitForSeconds(1);
         }
 
         attackCo = null;
+        attacking = false;
         StopAnimation();
         AggroCheck();
     }
@@ -1101,6 +1170,8 @@ public class Unit : MonoBehaviour
     public void AggroCheck()
     {
 		UnitType type = buildDataSO.unitType;
+        if (attacking)
+            return;
 
 		if (!homeBase.army.FinishAttack())
 		{
@@ -1120,7 +1191,9 @@ public class Unit : MonoBehaviour
         List<Vector3Int> attackingZones = new();
 
 		Vector3Int forward = homeBase.army.forward;
-		attackingZones.Add(forward + CurrentLocation);
+		Vector3Int forwardTile = forward + currentLocation;
+
+		attackingZones.Add(forwardTile);
 		if (forward.z != 0)
 		{
 			attackingZones.Add(new Vector3Int(1, 0, forward.z) + CurrentLocation);
@@ -1142,24 +1215,31 @@ public class Unit : MonoBehaviour
 				Unit enemy = world.GetUnit(zone);
 				if (enemy.enemyAI)
 				{
-                    attacking = true;
+                    //attacking = true;
                     if (!homeBase.army.attackingSpots.Contains(CurrentLocation))
                         homeBase.army.attackingSpots.Add(CurrentLocation);
-					StartAttack(enemy);
-					return;
+
+					if (!attacking)
+                        StartAttack(enemy);
+					else
+						if (enemy.targetSearching)
+    						enemy.enemyAI.StartAttack(this);
 				}
 			}
 		}
 
-        homeBase.army.attackingSpots.Remove(CurrentLocation);
-        
-        Unit newEnemy = homeBase.army.FindClosestTarget(this);
-        List<Vector3Int> path = homeBase.army.PathToEnemy(CurrentLocation, world.RoundToInt(newEnemy.transform.position));
+        if (attacking)
+            return;
+
+		Unit newEnemy = homeBase.army.FindClosestTarget(this);
+		List<Vector3Int> path = homeBase.army.PathToEnemy(CurrentLocation, world.RoundToInt(newEnemy.transform.position));
 
         if (path.Count > 0)
         {
-            //moving unit behind if stuck
-            Vector3Int positionBehind = homeBase.army.forward * -1 + CurrentLocation;
+			homeBase.army.attackingSpots.Remove(currentLocation);
+
+			//moving unit behind if stuck
+			Vector3Int positionBehind = homeBase.army.forward * -1 + CurrentLocation;
 
             if (world.IsUnitLocationTaken(positionBehind))
             {
@@ -1168,8 +1248,6 @@ public class Unit : MonoBehaviour
                     unitBehind.AggroCheck();
             }
 
-            attacking = true;
-            
             if (path.Count >= 2)
             {
                 List<Vector3Int> shortPath = new() { path[0] };
@@ -1182,15 +1260,13 @@ public class Unit : MonoBehaviour
         }
         else
         {
-            Vector3Int tileInFront = CurrentLocation + homeBase.army.forward;
-            if (!world.IsUnitLocationTaken(tileInFront))
+            if (!world.IsUnitLocationTaken(forwardTile) && !homeBase.army.attackingSpots.Contains(forwardTile))
             {
-                finalDestinationLoc = tileInFront;
-                List<Vector3Int> newPath = new() { tileInFront };
+                finalDestinationLoc = forwardTile;
+                List<Vector3Int> newPath = new() { forwardTile };
                 MoveThroughPath(newPath);
             }    
 
-            attacking = false;
             targetSearching = true;
         }
     }
@@ -1207,22 +1283,15 @@ public class Unit : MonoBehaviour
 	{
         targetSearching = false;
         
-        for (int i = 0; i < homeBase.army.targetCamp.UnitsInCamp.Count; i++)
-		{
-			Unit enemy = homeBase.army.targetCamp.UnitsInCamp[i];
 
-			if (enemy.buildDataSO.unitType == UnitType.Ranged)
-			{
-
-			}
-		}
 	}
 
     public void StopAttacking()
     {
         if (inArmy && attackCo != null)
             StopCoroutine(attackCo);
-        attacking = false;
+		attacking = false;
+		inBattle = false;
         targetSearching = false;
         StopMovement();
 		StopAnimation();
@@ -1412,60 +1481,91 @@ public class Unit : MonoBehaviour
     //    turnHandler.GoToNextUnit();
     //}
 
-    public IEnumerator DestroyUnitWait(Vector3 rotation)
+    public void KillUnit(Vector3 rotation)
     {
         isDead = true;
+        attacking = false;
+        targetSearching = false;
+
         deathSplash.transform.position = transform.position;
         rotation.x = -90;
         deathSplash.transform.eulerAngles = rotation;
         deathSplash.Play();
-        minimapIcon.gameObject.SetActive(false);
-        unitMesh.gameObject.SetActive(false);
-        healthbar.gameObject.SetActive(false);
+
+        gameObject.SetActive(false);
+        //unitMesh.gameObject.SetActive(false);
+        //healthbar.gameObject.SetActive(false);
         if (enemyAI)
         {
-            enemyCamp.UnitsInCamp.Remove(this);
+            //enemyCamp.UnitsInCamp.Remove(this);
+            enemyCamp.deathCount++;
             enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
             enemyCamp.ClearCampCheck();
 			world.RemoveUnitPosition(currentLocation);
 
-			Vector3Int tileBehind = currentLocation + enemyCamp.forward * -1;
-			if (world.IsUnitLocationTaken(tileBehind))
-			{
-				Unit unitBehind = world.GetUnit(tileBehind);
-				if (unitBehind.enemyAI)
-					unitBehind.enemyAI.AggroCheck();
-			}
+            foreach (Unit unit in enemyCamp.UnitsInCamp)
+            {
+                if (unit.targetSearching)
+                    unit.enemyAI.AggroCheck();
+            }
+			//Vector3Int tileBehind = currentLocation + enemyCamp.forward * -1;
+			//if (world.IsUnitLocationTaken(tileBehind))
+			//{
+			//	Unit unitBehind = world.GetUnit(tileBehind);
+			//	if (unitBehind.enemyAI)
+			//		unitBehind.enemyAI.AggroCheck();
+			//}
+
+            if (isSelected)
+				world.unitMovement.ClearSelection();
 		}
         else
         {
+            minimapIcon.gameObject.SetActive(false);
+            //homeBase.army.deathCount++;
             homeBase.army.UnitsInArmy.Remove(this);
 			homeBase.army.attackingSpots.Remove(currentLocation);
 			RemoveUnitFromData();
             //homeBase.army.TargetCheck();
 
-            Vector3Int tileBehind = currentLocation + homeBase.army.forward * -1;
-            if (world.IsUnitLocationTaken(tileBehind))
+            foreach (Unit unit in homeBase.army.UnitsInArmy)
             {
-                Unit unitBehind = world.GetUnit(tileBehind);
-                if (unitBehind.inArmy)
-                    unitBehind.AggroCheck();
+                if (unit.targetSearching)
+                    unit.AggroCheck();
             }
+            //Vector3Int tileBehind = currentLocation + homeBase.army.forward * -1;
+            //if (world.IsUnitLocationTaken(tileBehind))
+            //{
+            //    Unit unitBehind = world.GetUnit(tileBehind);
+            //    if (unitBehind.inArmy)
+            //        unitBehind.AggroCheck();
+            //}
+
+		    if (isSelected)
+		    {
+			    if (homeBase.army.UnitsInArmy.Count > 0)//armyCount isn't changed until after battle
+				{
+                    Unit nextUnitUp = homeBase.army.GetNextLivingUnit();
+                    if (nextUnitUp != null)
+    				    world.unitMovement.PrepareMovement(nextUnitUp);
+                    else
+						world.unitMovement.ClearSelection();
+				}
+			    else
+				    world.unitMovement.ClearSelection();
+		    }
         }
 
-		if (isSelected)
-		{
-			if (homeBase.army.UnitsInArmy.Count > 0)
-				world.unitMovement.PrepareMovement(homeBase.army.UnitsInArmy[0]);
-			else
-				world.unitMovement.ClearSelection();
-		}
 
 		Deselect();
 
-        yield return attackedWait;
-
-        Destroy(gameObject);
+        if (enemyAI)
+            enemyCamp.DeadList.Add(this);
+        else
+        {
+            homeBase.army.RemoveFromArmy(this, barracksBunk);
+            homeBase.army.DeadList.Add(this);
+        }
     }
 
     public void DestroyUnit()

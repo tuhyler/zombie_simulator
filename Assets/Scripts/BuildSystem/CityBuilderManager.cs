@@ -2336,7 +2336,7 @@ public class CityBuilderManager : MonoBehaviour
 		//can't remove barracks if army holding army
 		else if (improvementData.improvementName == "Barracks" && !city.army.isEmpty)
         {
-			InfoPopUpHandler.WarningMessage().Create(improvementLoc, "Can't remove with units within");
+			InfoPopUpHandler.WarningMessage().Create(improvementLoc, "Currently stationing troops");
 			return;
 		}
 		else if (!upgradingImprovement) //not redundant, for when actually removing
@@ -2459,6 +2459,7 @@ public class CityBuilderManager : MonoBehaviour
         else if (improvementLoc == city.barracksLocation)
         {
             city.hasBarracks = false;
+            city.army.ClearArmySpots();
         }
 
         //updating all the labor info

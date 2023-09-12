@@ -47,13 +47,13 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private Material transparentMat;
     [SerializeField]
-    private GameObject selectionIcon;
+    private GameObject selectionIcon, enemyCampIcon;
 
     [SerializeField]
     private ParticleSystem lightBeam;
 
     [SerializeField]
-    public Transform cityHolder, wonderHolder, tradeCenterHolder;
+    public Transform cityHolder, wonderHolder, tradeCenterHolder, psHolder;
 
     //wonder info
     private WonderDataSO wonderData;
@@ -270,9 +270,11 @@ public class MapWorld : MonoBehaviour
                     TerrainData tdCamp = GetTerrainDataAt(unitTerrainLoc);
 					tdCamp.enemyCamp = true;
                     tdCamp.enemyZone = true;
+                    AddToCityLabor(unitTerrainLoc, null);
 
                     foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
                     {
+                        AddToCityLabor(tile, null);
                         TerrainData td = GetTerrainDataAt(tile);
 						if (td.walkable)
                             td.enemyZone = true;
@@ -293,6 +295,12 @@ public class MapWorld : MonoBehaviour
         foreach (Vector3Int loc in enemyCampDict.Keys)
         {
             enemyCampDict[loc].FormBattlePositions();
+            Vector3 position = Vector3.zero;
+            position.y += 1;
+            GameObject icon = Instantiate(enemyCampIcon);
+            icon.transform.position = position;
+            icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
+            enemyCampDict[loc].minimapIcon = icon;
         }
 
         //foreach (Vector3Int tile in enemyCampDict.Keys)
@@ -1943,7 +1951,6 @@ public class MapWorld : MonoBehaviour
 
     public void EnemyCampReturn(Vector3Int loc)
     {
-        enemyCampDict[loc].ResetStatus();
     	enemyCampDict[loc].ReturnToCamp();
     }
 
@@ -2026,6 +2033,7 @@ public class MapWorld : MonoBehaviour
         TerrainData camp = GetTerrainDataAt(loc);
 		camp.enemyCamp = false;
         camp.enemyZone = false;
+		RemoveSingleBuildFromCityLabor(loc);
 
 		foreach (Vector3Int tile in GetNeighborsFor(loc, State.EIGHTWAYINCREMENT))
 		{
@@ -2045,9 +2053,16 @@ public class MapWorld : MonoBehaviour
                 TerrainData td = GetTerrainDataAt(tile);
 			    if (td.walkable)
 				    td.enemyZone = false;
-            }
+
+				RemoveSingleBuildFromCityLabor(tile);
+			}
 		}
 
+        foreach (Unit unit in enemyCampDict[loc].DeadList)
+            Destroy(unit.gameObject);
+
+        Destroy(enemyCampDict[loc].minimapIcon);
+        enemyCampDict[loc].DeadList.Clear();
         enemyCampDict.Remove(loc);
 	}
 

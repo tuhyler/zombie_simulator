@@ -429,9 +429,8 @@ public class GridSearch
 
     public static List<Vector3Int> GeneratePath(Dictionary<Vector3Int, Vector3Int?> parentMap, Vector3Int endState)
     {
-        List<Vector3Int> path = new();
-        path.Add(endState);
-        while (parentMap[endState] != null)
+		List<Vector3Int> path = new() {	endState };
+		while (parentMap[endState] != null)
         {
             Vector3Int nextPos = parentMap[endState].Value;
             path.Add(nextPos);
