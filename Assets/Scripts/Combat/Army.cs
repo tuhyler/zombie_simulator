@@ -13,20 +13,23 @@ public class Army : MonoBehaviour
 
     [HideInInspector]
     public EnemyCamp targetCamp;
+    [HideInInspector]
+    public int armyCount;
     private Vector3Int enemyTarget, attackZone;
     public Vector3Int EnemyTarget { get { return enemyTarget; } }
-    private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new();
+    private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new(), pathTraveled = new();
     [HideInInspector]
     public List<Vector3Int> attackingSpots = new(), movementRange = new();
     
-    private List<Unit> unitsInArmy = new();
+    private List<Unit> unitsInArmy = new(), deadList = new();
     public List<Unit> UnitsInArmy { get { return unitsInArmy; } }
-    private int unitsReady;
+    public List<Unit> DeadList { get { return deadList; } set { deadList = value; } }
+    private int unitsReady, stepCount;
 
     private WaitForSeconds waitOneSec = new(0.01f);
 
     [HideInInspector]
-    public bool isEmpty = true, isFull, isTraining, isTransferring, traveling, inBattle, returning, atHome, selected, enemyReady;
+    public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady;
 
 	private void Awake()
 	{
@@ -75,13 +78,15 @@ public class Army : MonoBehaviour
     public void AddToArmy(Unit unit)
     {
         unitsInArmy.Add(unit);
+        armyCount++;
     }
 
     public void RemoveFromArmy(Unit unit, Vector3Int loc)
     {
         unitsInArmy.Remove(unit);
+        armyCount--;
 
-        if (unitsInArmy.Count == 0)
+        if (armyCount == 0)
             isEmpty = true;
         if (isFull)
             isFull = false;
@@ -101,6 +106,12 @@ public class Army : MonoBehaviour
         openSpots.Add(tile);
     }
 
+    public void ClearArmySpots()
+    {
+        totalSpots.Clear();
+        openSpots.Clear();
+    }
+
     //realigning units to battle positions before moving out
     public void RealignUnits(MapWorld world, Vector3Int targetZone, Vector3Int attackZone)
     {
@@ -118,6 +129,7 @@ public class Army : MonoBehaviour
 
         foreach (Unit unit in unitsInArmy)
         {
+            unit.healthbar.CancelRegeneration();
             unit.atHome = false;
             Vector3Int unitDiff = unit.CurrentLocation - loc;
 
@@ -182,20 +194,24 @@ public class Army : MonoBehaviour
         }
     }
 
-    public bool MoveArmy(MapWorld world, Vector3Int current, Vector3Int target, bool deploying)
+    public bool MoveArmy(Vector3Int current, Vector3Int target, bool deploying)
     {
         Vector3Int destination = deploying ? target : loc;
 
-        List<Vector3Int> exemptList = new();
         if (deploying)
         {
-            exemptList.Add(target);
+            List<Vector3Int> exemptList = new() { target };
             
             foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
                 exemptList.Add(tile);
+            
+            pathToTarget = GridSearch.TerrainSearch(world, current, destination, exemptList);
         }
-
-        pathToTarget = GridSearch.TerrainSearch(world, current, destination, exemptList);
+        else
+        {
+            pathTraveled.Reverse();
+			pathToTarget = pathTraveled;
+        }
 
         if (pathToTarget.Count == 0)
         {
@@ -226,6 +242,7 @@ public class Army : MonoBehaviour
         {
             traveling = false;
             returning = true;
+            DestroyDeadList();
             targetCamp = null;
             DeployArmy(false);
         }
@@ -237,18 +254,18 @@ public class Army : MonoBehaviour
     {
         unitsReady++;
 
-        if (unitsReady == unitsInArmy.Count)
+        if (unitsReady == armyCount)
         {
             unitsReady = 0;
             DeployArmy(true);
         }
     }
 
-    public void UnitArrived(Vector3Int loc, MapWorld world)
+    public void UnitArrived(Vector3Int loc)
     {
         unitsReady++;
 
-        if (unitsReady == unitsInArmy.Count)
+        if (unitsReady == armyCount)
         {
             unitsReady = 0;
             
@@ -259,6 +276,9 @@ public class Army : MonoBehaviour
 
                 atHome = true;
                 returning = false;
+                
+                pathTraveled.Clear();
+                stepCount = 0;
             }
             else
             {
@@ -266,7 +286,11 @@ public class Army : MonoBehaviour
                 traveling = false;
 
                 if (targetCamp.attackReady)
+                {
+                    targetCamp.attackReady = false;
+                    targetCamp.armyReady = false;
                     Charge();
+                }
             }
         }
     }
@@ -275,9 +299,15 @@ public class Army : MonoBehaviour
     {
         unitsReady++;
 
-        if (unitsReady == unitsInArmy.Count)
+        if (unitsReady == armyCount)
         {
             unitsReady = 0;
+            if (traveling)
+            {
+                pathTraveled.Add(pathToTarget[stepCount]);
+                stepCount++;
+            }
+
             BeginNextStep();
         }
     }
@@ -290,11 +320,19 @@ public class Army : MonoBehaviour
 
     private void DeployArmy(bool deploying)
     {
-		foreach (Unit unit in unitsInArmy)
+        //if (!deploying)
+        //{
+        //    armyCount -= deathCount;
+        //    deathCount = 0;
+        //}
+        
+        foreach (Unit unit in unitsInArmy)
 		{
             if (unit.attackCo != null)
                 StopCoroutine(unit.attackCo);
-            
+
+            unit.attacking = false;
+            unit.attackCo = null;
             unit.isMarching = true;
 			List<Vector3Int> path = new();
 
@@ -302,7 +340,7 @@ public class Army : MonoBehaviour
 				path.Add(tile + unit.marchPosition);
 
             if (!deploying)
-                path[path.Count - 1] = unit.barracksBunk;
+                path.Add(unit.barracksBunk);
 
 			if (unit.isMoving)
 			{
@@ -347,6 +385,7 @@ public class Army : MonoBehaviour
         
         foreach (Unit unit in unitsInArmy)
         {
+            unit.inBattle = true;
             UnitType type = unit.buildDataSO.unitType;
 
             if (type == UnitType.Infantry)
@@ -358,27 +397,33 @@ public class Army : MonoBehaviour
         }
     }
 
-    public void TargetCheck()
-    {
-        for (int i = 0; i < unitsInArmy.Count; i++)
-        {
-            if (unitsInArmy[i].targetSearching)
-                unitsInArmy[i].AggroCheck();
-        }
-    }
+    //public void TargetCheck()
+    //{
+    //    for (int i = 0; i < unitsInArmy.Count; i++)
+    //    {
+    //        if (unitsInArmy[i].targetSearching)
+    //            unitsInArmy[i].AggroCheck();
+    //    }
+    //}
 
     public Unit FindClosestTarget(Unit unit)
     {        
         Unit closestEnemy = null;
         float dist = 0;
+        List<Unit> tempList = new(targetCamp.UnitsInCamp);
+        bool firstOne = true;
 
         //find closest target
-        for (int i = 0; i < targetCamp.UnitsInCamp.Count; i++)
+        for (int i = 0; i < tempList.Count; i++)
         {
-            Unit enemy = targetCamp.UnitsInCamp[i];
+            Unit enemy = tempList[i];
 
-            if (i == 0)
+            if (enemy.isDead)
+                continue;
+
+            if (firstOne)
             {
+                firstOne = false;
                 closestEnemy = enemy;
                 dist = (closestEnemy.transform.position - unit.transform.position).sqrMagnitude;
                 continue;
@@ -406,9 +451,10 @@ public class Army : MonoBehaviour
         if (returning)
             return true;
         
-        if (targetCamp.UnitsInCamp.Count == 0)
+        if (targetCamp.deathCount == targetCamp.campCount)
 		{        
             returning = true;
+            DestroyDeadList();
 
             foreach (Unit unit in unitsInArmy)
             {
@@ -418,7 +464,7 @@ public class Army : MonoBehaviour
             world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
             //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
             inBattle = false;
-            DeployArmy(false);
+            MoveArmy(enemyTarget, loc, false);
 
             return true;
         }
@@ -438,7 +484,8 @@ public class Army : MonoBehaviour
 		world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
         inBattle = false;
         returning = true;
-        DeployArmy(false);
+        DestroyDeadList();
+        MoveArmy(attackZone, loc, false);
 
 		//targetCamp.ResetStatus();
 		//targetCamp.ReturnToCamp();
@@ -446,7 +493,7 @@ public class Army : MonoBehaviour
 
     public bool IsGone()
     {
-        if (traveling || returning)
+        if (traveling || returning || inBattle)
             return true;
 
         return false;
@@ -474,6 +521,14 @@ public class Army : MonoBehaviour
         return true;
     }
 
+    private void DestroyDeadList()
+    {
+        foreach (Unit unit in deadList)
+            Destroy(unit.gameObject);
+
+        deadList.Clear();
+    }
+
     public void UnselectArmy(Unit selectedUnit)
     {
         selected = false;
@@ -496,5 +551,18 @@ public class Army : MonoBehaviour
             spot = totalSpots[3];
 
         return spot;
+    }
+
+    public Unit GetNextLivingUnit()
+    {
+        List<Unit> tempList = new();
+        
+        for (int i = 0; i < tempList.Count; i++)
+        {
+            if (!tempList[i].isDead)
+                return tempList[i];
+        }
+
+        return null;
     }
 }

@@ -1,80 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &662359348735704255
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 5945042009464761750}
-    m_Modifications:
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -90
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 2541008483618137126, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7872122735579793442, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-        type: 3}
-      propertyPath: m_Name
-      value: DeathSplash
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ed4f054d45ce19945ab25e7e27a8d6a0, type: 3}
---- !u!198 &6550271301737495589 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-    type: 3}
-  m_PrefabInstance: {fileID: 662359348735704255}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1771432436929309141
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -169,6 +94,11 @@ PrefabInstance:
       propertyPath: FinishedMoving.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: e4d49efcedf62164c999de024f6d1e9a, type: 3}
     - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Controller
@@ -285,6 +215,11 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6568893320125822013, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Mesh
@@ -341,7 +276,8 @@ MonoBehaviour:
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
-  deathSplash: {fileID: 6550271301737495589}
+  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
+    type: 3}
   selectionCircle: {fileID: 0}
   marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
@@ -383,6 +319,7 @@ MonoBehaviour:
   isMarching: 0
   transferring: 0
   repositioning: 0
+  inBattle: 0
   attacking: 0
   targetSearching: 0
   isDead: 0

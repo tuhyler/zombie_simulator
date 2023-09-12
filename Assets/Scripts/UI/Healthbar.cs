@@ -13,18 +13,13 @@ public class Healthbar : MonoBehaviour
     private int currentHealth;
     private int healthMax;
     private float regenerationRate = 2;
+    private int enemyBoost = 8;
     private int outOfCombatWait = 3;
     private WaitForSeconds wait = new WaitForSeconds(1);
 
     float lerpSpeed;
+    
     private Coroutine co;
-
-
-	private void Update()
-	{
-        //lerpSpeed = 3 * Time.deltaTime;
-        //bar.localScale = new Vector3(currentHealth, 1f);
-	}
 
 	private void LateUpdate()
 	{
@@ -35,33 +30,48 @@ public class Healthbar : MonoBehaviour
     public void SetUnit(Unit unit)
     {
         this.unit = unit;
+        healthMax = unit.buildDataSO.health;
+		regenerationRate = .01f * healthMax * regenerationRate;
+
+        if (unit.enemyAI)
+            regenerationRate *= enemyBoost;
     }
 
-	public void SetHealthLevel(int health, int max)
+	public void SetHealthLevel(int health)
     {
-        float perc = (float)health / max;
+        float perc = (float)health / healthMax;
 		bar.localScale = new Vector3(perc, 1f);
 		barImage.color = Color.Lerp(Color.red, Color.green, perc);
 		currentHealth = health;
-        healthMax = max;
 
-        if (co != null)
-            StopCoroutine(co);
-        co = StartCoroutine(Regenerate());
+        StartCoroutine(SpeedUp());
+        //if (co != null)
+        //    StopCoroutine(co);
+        //co = StartCoroutine(Regenerate());
     }
 
-    private IEnumerator Regenerate()
+    public void RegenerateHealth()
     {
-        float startingHealth = currentHealth;
-        int timeWaited = 0;
+        co = StartCoroutine(Regenerate());
+	}
 
-        while (timeWaited < outOfCombatWait)
-        {
-            yield return wait;
-            timeWaited++;
-        }
+    private IEnumerator SpeedUp()
+    {
+		int timeWaited = 0;
 
-        unit.baseSpeed = 1;
+		while (timeWaited < outOfCombatWait)
+		{
+			yield return wait;
+			timeWaited++;
+		}
+
+		unit.baseSpeed = 1;
+	}
+
+	private IEnumerator Regenerate()
+    {
+        //float startingHealth = currentHealth;
+
         //float currentLerpTime = 0;
         float healthFloat = currentHealth;
         float perc = currentHealth / healthMax; 
@@ -78,6 +88,17 @@ public class Healthbar : MonoBehaviour
             yield return null;
         }
 
-        unit.HideBar();
+        co = null;
+        gameObject.SetActive(false);
+    }
+
+    public void CancelRegeneration()
+    {
+        if (co != null)
+            StopCoroutine(co);
+
+        co = null;
+        if (unit.currentHealth == healthMax)
+            gameObject.SetActive(false);
     }
 }

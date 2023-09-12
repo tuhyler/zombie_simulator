@@ -531,7 +531,7 @@ public class Wonder : MonoBehaviour
                 unit.TeleportToNearestRoad(unloadLoc);
             }
             else
-                unit.FindNewSpot(unloadLoc, new Vector3Int(0, -10, 0));
+                unit.FindNewSpot(unloadLoc, null);
         }
 
         foreach (Vector3Int neighbor in world.GetNeighborsFor(unloadLoc, MapWorld.State.EIGHTWAY))

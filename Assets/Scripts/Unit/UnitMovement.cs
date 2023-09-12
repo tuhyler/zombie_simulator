@@ -100,6 +100,12 @@ public class UnitMovement : MonoBehaviour
             JoinCity();
     }
 
+    public void HandleR()
+    {
+        if (uiSwapPosition.activeStatus)
+            RepositionArmy();
+    }
+
     public void CenterCamOnUnit()
     {
         if (selectedUnit != null)
@@ -236,8 +242,10 @@ public class UnitMovement : MonoBehaviour
                     if (loc == selectedUnit.CurrentLocation)
                         return;
 
-                    bool swapping = false;
+					selectedUnit.homeBase.army.isRepositioning = true;
+					bool swapping = false;
                     selectedUnit.repositioning = true;
+                    selectedUnit.atHome = false;
 
                     if (world.IsUnitLocationTaken(loc))
                     {
@@ -253,7 +261,12 @@ public class UnitMovement : MonoBehaviour
 					}
                     else
                     {
-                        foreach (Unit unit in selectedUnit.homeBase.army.UnitsInArmy)
+                        Vector3 starLoc = loc;
+                        starLoc.y += .1f;
+						starshine.transform.position = starLoc;
+						starshine.Play();
+
+						foreach (Unit unit in selectedUnit.homeBase.army.UnitsInArmy)
                         {
                             if (unit == selectedUnit)
                                 continue;
@@ -282,6 +295,9 @@ public class UnitMovement : MonoBehaviour
                     selectedUnit.barracksBunk = loc;
                     selectedUnit.finalDestinationLoc = loc;
 					selectedUnit.MoveThroughPath(GridSearch.AStarSearch(world, selectedUnit.CurrentLocation, loc, false, selectedUnit.bySea));
+
+                    world.citySelected = true;
+                    ConfirmWorkerOrders();
                 }
                 else
                 {
@@ -299,7 +315,7 @@ public class UnitMovement : MonoBehaviour
 						return;
                     }
                     
-                    if (selectedUnit.homeBase.army.MoveArmy(world, world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos, true))
+                    if (selectedUnit.homeBase.army.MoveArmy(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos, true))
                     {
     					uiBuildingSomething.ToggleVisibility(false);
 						world.UnhighlightAllEnemyCamps();
@@ -592,6 +608,8 @@ public class UnitMovement : MonoBehaviour
             //    uiDeployArmy.ToggleTweenVisibility(true);
             else if (selectedUnit.transferring)
                 uiChangeCity.ToggleTweenVisibility(true);
+            else if (selectedUnit.inBattle)
+                uiCancelTask.ToggleTweenVisibility(true);
         }
 
         ShowIndividualCityButtonsUI();
@@ -685,9 +703,9 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit != null && selectedUnit.sayingSomething)
             SpeakingCheck();
 
-        selectedUnit.projectile.SetPoints(selectedUnit.transform.position, location);
-        StartCoroutine(selectedUnit.projectile.ShootTest());
-        //MoveUnit(location, detectedObject);
+        //selectedUnit.projectile.SetPoints(selectedUnit.transform.position, location); // just for testing projectiles
+        //StartCoroutine(selectedUnit.projectile.ShootTest());
+        MoveUnit(location, detectedObject);
     }
 
     private void MoveUnit(Vector3 location, GameObject detectedObject)
@@ -830,7 +848,7 @@ public class UnitMovement : MonoBehaviour
         else if (selectedUnit.homeBase)
         {
             AddToCity(selectedUnit.homeBase);
-            selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.CurrentLocation);
+            selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
         }
         else
         {
@@ -1455,6 +1473,13 @@ public class UnitMovement : MonoBehaviour
 			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still transferring");
             return;
 		}
+        else if (selectedUnit.homeBase.army.isRepositioning)
+        {
+			Vector3 mousePosition = Input.mousePosition;
+			mousePosition.x -= 150;
+			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still repositioning");
+            return;
+		}
         
         uiJoinCity.ToggleTweenVisibility(false);
         uiSwapPosition.ToggleTweenVisibility(false);
@@ -1474,9 +1499,9 @@ public class UnitMovement : MonoBehaviour
 		
         if (selectedUnit.homeBase.army.traveling)
         {
-            selectedUnit.homeBase.army.MoveArmy(world, world.GetClosestTerrainLoc(selectedUnit.transform.position), selectedUnit.homeBase.barracksLocation, false);
+            selectedUnit.homeBase.army.MoveArmy(world.GetClosestTerrainLoc(selectedUnit.transform.position), selectedUnit.homeBase.barracksLocation, false);
             world.EnemyCampReturn(selectedUnit.homeBase.army.EnemyTarget);
-            uiDeployArmy.ToggleTweenVisibility(true);
+            //uiDeployArmy.ToggleTweenVisibility(true);
         }
         else if (selectedUnit.homeBase.army.inBattle)
         {
