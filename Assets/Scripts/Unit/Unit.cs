@@ -139,7 +139,6 @@ public class Unit : MonoBehaviour
         attackPause = new(attackSpeed);
         attackStrength = buildDataSO.baseAttackStrength;
         inArmy = attackStrength > 0 && CompareTag("Player");
-        healthbar.SetUnit(this);
 
         if (buildDataSO.unitType == UnitType.Ranged)
         {
@@ -149,6 +148,7 @@ public class Unit : MonoBehaviour
         } 
 
         enemyAI = GetComponent<BasicEnemyAI>();
+        healthbar.SetUnit(this);
         //if (enemyAI != null)
         //    enemyAI.SetAttackSpeed(attackSpeed);
         //shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
@@ -580,7 +580,7 @@ public class Unit : MonoBehaviour
             lookAtTarget += new Vector3(0, 0.05f, 0);
         
         Vector3 direction = lookAtTarget - transform.position;
-		direction.y = 0;
+		//direction.y = 0;
 
 		float totalTime = 0;
 		while (totalTime < 0.35f)
@@ -803,7 +803,9 @@ public class Unit : MonoBehaviour
 
         TradeRouteCheck(endPosition);
 
-		if (inArmy)
+        if (isDead)
+            return;
+        else if (inArmy)
         {
             //specifically for military units
             if (inBattle)
@@ -1100,7 +1102,7 @@ public class Unit : MonoBehaviour
             {
                 if (td.enemyCamp)
                 {
-                    if (inArmy)
+                    if (inArmy && homeBase.army.traveling)
                         world.BattleStations(loc, pos);
                     //else
                     //    world.WakeUpCamp(loc, this);
@@ -1290,9 +1292,11 @@ public class Unit : MonoBehaviour
     {
         if (inArmy && attackCo != null)
             StopCoroutine(attackCo);
+        attackCo = null;
 		attacking = false;
 		inBattle = false;
         targetSearching = false;
+        isMarching = false;
         StopMovement();
 		StopAnimation();
 	}
@@ -1486,6 +1490,8 @@ public class Unit : MonoBehaviour
         isDead = true;
         attacking = false;
         targetSearching = false;
+        isMarching = false;
+        inBattle = false;
 
         deathSplash.transform.position = transform.position;
         rotation.x = -90;

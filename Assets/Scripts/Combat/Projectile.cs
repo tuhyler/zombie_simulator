@@ -17,7 +17,6 @@ public class Projectile : MonoBehaviour
 
     public void SetPoints(Vector3 startPoint, Vector3 endPoint)
     {
-        
         startPoint += adjustment;
         this.startPoint = startPoint;
         endPoint.y += 0.5f;
@@ -25,7 +24,7 @@ public class Projectile : MonoBehaviour
         float distance = (startPoint - endPoint).sqrMagnitude;
         flightSpeed = speed * 4 - ((speed * 4 - speed) * distance / 30);
         float flightHeight = archHeight * (distance / 30);
-        archTop = new Vector3((startPoint.x + endPoint.x) * 0.5f, flightHeight, (startPoint.z + endPoint.z) * 0.5f); //adjust y to adjust arch height
+        archTop = new Vector3((startPoint.x + endPoint.x) * 0.5f, flightHeight, (startPoint.z + endPoint.z) * 0.5f); 
     }
 
     private Vector3 Evaluate(float t)

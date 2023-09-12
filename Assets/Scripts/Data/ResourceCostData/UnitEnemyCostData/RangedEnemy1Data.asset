@@ -26,7 +26,7 @@ MonoBehaviour:
   availableInitially: 0
   locked: 1
   health: 50
-  baseAttackStrength: 5
+  baseAttackStrength: 2
   baseAttackSpeed: 2
   movementSpeed: 2
   trainTime: 0

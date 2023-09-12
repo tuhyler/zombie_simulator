@@ -356,6 +356,7 @@ public class Army : MonoBehaviour
     public void Charge()
     {
         movementRange.Clear();
+        attackingSpots.Clear();
         movementRange.Add(attackZone);
         movementRange.Add(enemyTarget);
 
@@ -461,6 +462,7 @@ public class Army : MonoBehaviour
                 unit.StopAttacking();
             }
 
+            attackingSpots.Clear();
             world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
             //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
             inBattle = false;
@@ -481,9 +483,11 @@ public class Army : MonoBehaviour
             unit.StopAttacking();
         }
 
+        StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
         inBattle = false;
         returning = true;
+        attackingSpots.Clear();
         DestroyDeadList();
         MoveArmy(attackZone, loc, false);
 

@@ -315,6 +315,15 @@ public class EnemyCamp
 			world.RemoveEnemyCamp(loc);
 	}
 
+	public void TargetSearchCheck()
+	{
+		foreach (Unit unit in UnitsInCamp)
+		{
+			if (unit.targetSearching)
+				unit.enemyAI.StartReturn();
+		}
+	}
+
 	public void ResetStatus()
 	{
 		attacked = false;
@@ -333,11 +342,28 @@ public class EnemyCamp
 		}
 	}
 
+	public IEnumerator RetreatTimer()
+	{
+		yield return new WaitForSeconds(10);
+
+		foreach (Unit unit in unitsInCamp)
+		{
+			if (unit.attacking)
+				unit.enemyAI.StartReturn();
+		}
+	}
+
 	private void ResurrectCamp()
 	{
 		foreach (Unit unit in deadList)
 		{
-			unit.transform.position = unit.enemyAI.CampSpot;
+			Vector3 rebornSpot;
+			if (world.GetTerrainDataAt(unit.enemyAI.CampSpot).isHill)
+				rebornSpot = unit.enemyAI.CampSpot + new Vector3(0, 0.6f, 0);
+			else
+				rebornSpot = unit.enemyAI.CampSpot;
+
+            unit.transform.position = rebornSpot;
 			unit.moreToMove = false;
 			unit.isMoving = false;
 			unit.CurrentLocation = unit.enemyAI.CampSpot;

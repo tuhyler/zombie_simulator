@@ -329,24 +329,31 @@ public class BasicEnemyAI : MonoBehaviour
     {
 		unit.attacking = true;
 		float dist = 0;
+		float distThreshold;
+
+		if (Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z) < 1.2f)
+			distThreshold = 1.2f;
+		else
+			distThreshold = 2.2f;
+
 		if (target.targetSearching)
 			target.StartAttack(unit);
 		
-		while (!unit.isDead && target.currentHealth > 0 && dist < 2.1f)
+		while (!unit.isDead && target.currentHealth > 0 && dist < distThreshold)
         {
 			unit.transform.rotation = Quaternion.LookRotation(target.transform.position - unit.transform.position);
 			unit.StartAttackingAnimation();
 			yield return new WaitForSeconds(.25f);
 	        target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles);
 			yield return new WaitForSeconds(1f);
-			dist = (target.transform.position - unit.transform.position).sqrMagnitude;
-		}
+			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
+        }
 
 		unit.attacking = false;
-		if (dist >= 2.1f && unit.enemyCamp.attackingArmy.returning)
+		if (dist >= distThreshold && unit.enemyCamp.attackingArmy.returning)
 		{
-			//unit.enemyCamp.ResetStatus();
-			StartReturn();
+            unit.enemyCamp.TargetSearchCheck();
+            StartReturn();
 		}
 		else if (!unit.isDead) //won't let me stop coroutine for enemies
 		{
@@ -363,20 +370,21 @@ public class BasicEnemyAI : MonoBehaviour
 		float dist = 0;
 		unit.Rotate(target.transform.position);
 
-		while (!unit.isDead && target.currentHealth > 0 && dist < 30)
+		while (!unit.isDead && target.currentHealth > 0 && dist < 7.5)
 		{
 			unit.StartAttackingAnimation();
 			yield return new WaitForSeconds(.25f);
 			unit.projectile.SetPoints(transform.position, target.transform.position);
 			StartCoroutine(unit.projectile.Shoot(unit, target));
 			yield return new WaitForSeconds(1f);
-			dist = (target.transform.position - unit.transform.position).sqrMagnitude;
-		}
+			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
+        }
 
 		unit.attacking = false;
-		if (dist >= 30 && unit.enemyCamp.attackingArmy.returning)
+		if (dist >= 7.5 && unit.enemyCamp.attackingArmy.returning)
 		{
-			StartReturn();
+            unit.enemyCamp.TargetSearchCheck();
+            StartReturn();
 		}
 		else if (!unit.isDead)
 		{
@@ -388,13 +396,12 @@ public class BasicEnemyAI : MonoBehaviour
 
 	public void StartReturn()
     {
+		//unit.StopAttacking();
 		if (unit.attackCo != null)
 			StopCoroutine(unit.attackCo);
 
 		unit.attackCo = null;
-		//targetUnit = null;
-		//needsDestination = false;
-		//EnemyMove(campSpot, false);
+		unit.inBattle = false;
 		unit.attacking = false;
 		unit.targetSearching = false;
 		unit.repositioning = true;
