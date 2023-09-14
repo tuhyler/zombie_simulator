@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -256,11 +257,11 @@ public class EnemyCamp
 			{
 				firstOne = false;
 				closestEnemy = enemy;
-				dist = (closestEnemy.transform.position - unit.transform.position).sqrMagnitude;
+				dist = Mathf.Abs(enemy.transform.position.x - unit.transform.position.x) + Mathf.Abs(enemy.transform.position.z - unit.transform.position.z); //not using sqrMagnitude in case of hill
 				continue;
 			}
 
-			float nextDist = (enemy.transform.position - unit.transform.position).sqrMagnitude;
+			float nextDist = Mathf.Abs(enemy.transform.position.x - unit.transform.position.x) + Mathf.Abs(enemy.transform.position.z - unit.transform.position.z);
 
 			if (nextDist < dist)
 			{
@@ -272,9 +273,73 @@ public class EnemyCamp
 		return closestEnemy;
 	}
 
+	//return closest target if no ranged
+	public Unit FindEdgeRanged(Vector3Int currentLoc)
+	{
+		Vector3Int battleDiff = (threatLoc - loc) / 3;
+		List<Vector3Int> tilesToCheck = new();
+
+		if (battleDiff.z != 0)
+		{
+			int currentOffset = Math.Sign(currentLoc.x - loc.x);
+
+			//ignore if in middle
+			if (currentOffset == 0)
+				return null;
+
+			tilesToCheck.Add(new Vector3Int(1 * currentOffset, 0, 0) + threatLoc);
+			tilesToCheck.Add(threatLoc);
+			tilesToCheck.Add(new Vector3Int(1 * currentOffset, 0, 1 * battleDiff.z) + threatLoc);
+			tilesToCheck.Add(new Vector3Int(0, 0, 1 * battleDiff.z) + threatLoc);
+		}
+		else
+		{
+			int currentOffset = Math.Sign(currentLoc.z - loc.z);
+
+			if (currentOffset == 0)
+				return null;
+
+			tilesToCheck.Add(new Vector3Int(0, 0, 1 * currentOffset) + threatLoc);
+			tilesToCheck.Add(threatLoc);
+			tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, 1 * currentOffset) + threatLoc);
+			tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, 0) + threatLoc);
+		}
+
+		int i = 0;
+		bool skipMiddle = false;
+		foreach (Vector3Int tile in tilesToCheck)
+		{
+			if (skipMiddle)
+			{
+				skipMiddle = false;
+				continue;
+			}
+
+			if (world.IsUnitLocationTaken(tile))
+			{
+				Unit potential = world.GetUnit(tile);
+
+				if (potential.buildDataSO.unitType == UnitType.Ranged)
+					return potential;
+
+				if (i % 2 == 0)
+					skipMiddle = true;
+			}
+
+			i++;
+		}
+
+		return null;
+	}
+
 	public List<Vector3Int> PathToEnemy(Vector3Int pos, Vector3Int target)
 	{
 		return GridSearch.BattleMove(world, pos, target, attackingArmy.movementRange, attackingArmy.attackingSpots);
+	}
+
+	public List<Vector3Int> CavalryPathToEnemy(Vector3Int pos, Vector3Int target)
+	{
+		return GridSearch.BattleMove(world, pos, target, attackingArmy.cavalryRange, attackingArmy.attackingSpots);
 	}
 
 	public bool FinishAttack()
@@ -296,6 +361,9 @@ public class EnemyCamp
 
 			if (attackingArmy != null)
 			{
+				if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
+					world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(attackingArmy.isFull);
+				attackingArmy.ClearTraveledPath();
 				attackingArmy.inBattle = false;
 				attackingArmy.atHome = true;
 				attackingArmy = null;
@@ -378,6 +446,8 @@ public class EnemyCamp
 			//unit.minimapIcon.gameObject.SetActive(true);
 			//unit.unitMesh.gameObject.SetActive(true);
 			unit.gameObject.SetActive(true);
+			rebornSpot.y += 0.07f;
+			unit.lightBeam.transform.position = rebornSpot;
 			unit.lightBeam.Play();
 			//unit.healthbar.gameObject.SetActive(true);
 			LeanTween.scale(unit.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);

@@ -1450,7 +1450,7 @@ public class CityBuilderManager : MonoBehaviour
         Vector3 goScale = unitGO.transform.localScale;
         float scaleX = goScale.x;
         float scaleZ = goScale.z;
-        unit.transform.localScale = new Vector3(scaleX, 0.2f, scaleZ);
+        unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
         LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
         //unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
@@ -1471,8 +1471,6 @@ public class CityBuilderManager : MonoBehaviour
     public void BuildUnit(City city, UnitBuildDataSO unitData)
     {
         city.army.isTraining = false;
-		if (uiUnitBuilder.activeStatus)
-			uiUnitBuilder.UpdateBarracksStatus();
 
 		Vector3Int buildPosition = city.army.GetAvailablePosition();
         GameObject unitGO = unitData.prefab;
@@ -1483,7 +1481,7 @@ public class CityBuilderManager : MonoBehaviour
 		Vector3 goScale = unitGO.transform.localScale;
         float scaleX = goScale.x;
         float scaleZ = goScale.z;
-        unit.transform.localScale = new Vector3(scaleX, 0.2f, scaleZ); //don't start at 0, otherwise lightbeam meshes with ground
+        unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
         LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 
 		//unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
@@ -1500,11 +1498,19 @@ public class CityBuilderManager : MonoBehaviour
 
 		Vector3 mainCamLoc = Camera.main.transform.position;
 		mainCamLoc.y = 0;
-        newUnit.transform.rotation = Quaternion.LookRotation(city.army.GetRandomSpot(newUnit.barracksBunk) - newUnit.transform.position); 
+        Vector3 rot = city.army.GetRandomSpot(newUnit.barracksBunk) - newUnit.transform.position;
+        rot += new Vector3(0, 0.05f, 0); //to avoid the warning message
+
+        //if (rot == newUnit.transform.position)
+
+		newUnit.transform.rotation = Quaternion.LookRotation(rot); 
 		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+
+		if (uiUnitBuilder.activeStatus)
+			uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
 	}
 
-    public void CreateBuildingQueueCheck(ImprovementDataSO buildingData)
+	public void CreateBuildingQueueCheck(ImprovementDataSO buildingData)
     {
         //Queue info
         if (isQueueing)
@@ -2180,7 +2186,7 @@ public class CityBuilderManager : MonoBehaviour
             city.army.SetWorld(world);
 
             if (uiUnitBuilder.activeStatus)
-                uiUnitBuilder.UpdateBarracksStatus();
+                uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
         }
 
         //setting labor info (harbors have no labor)

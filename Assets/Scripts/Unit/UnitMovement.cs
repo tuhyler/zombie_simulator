@@ -443,8 +443,6 @@ public class UnitMovement : MonoBehaviour
         {
             if (selectedWorker != null && selectedWorker.harvested)
                 selectedWorker.SendResourceToCity();
-            else if (selectedUnit.inArmy)
-                selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
             else
                 ClearSelection();
 

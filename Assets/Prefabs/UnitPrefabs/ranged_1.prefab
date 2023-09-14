@@ -302,7 +302,10 @@ MonoBehaviour:
   inBattle: 0
   attacking: 0
   targetSearching: 0
+  flanking: 0
+  flankedOnce: 0
   isDead: 0
+  targetLocation: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
@@ -393,22 +396,27 @@ PrefabInstance:
     - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
         type: 3}
       propertyPath: speed
-      value: 1.75
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
+        type: 3}
+      propertyPath: archHeight
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
         type: 3}
       propertyPath: adjustment.x
-      value: 0.3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
         type: 3}
       propertyPath: adjustment.y
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
         type: 3}
       propertyPath: adjustment.z
-      value: 0.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4867220987080145181, guid: 0501d85e9bd32fd4682956580fa925ac,
         type: 3}
