@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: InfantryEnemy1Data 1
+  m_Name: CavalryEnemy1Data
   m_EditorClassIdentifier: 
   prefab: {fileID: 0}
   secondaryPrefab: {fileID: 0}
@@ -21,7 +21,7 @@ MonoBehaviour:
   unitCost: []
   consumedResources: []
   laborCost: 0
-  unitType: 1
+  unitType: 3
   unitDescription: 
   availableInitially: 0
   locked: 1

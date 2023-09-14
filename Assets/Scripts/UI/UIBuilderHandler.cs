@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using System.Resources;
 
 public class UIBuilderHandler : MonoBehaviour
 {
@@ -359,13 +360,16 @@ public class UIBuilderHandler : MonoBehaviour
         PrepareBuildOptions(resourceManager);
     }
 
-    public void UpdateBarracksStatus()
+    public void UpdateBarracksStatus(bool isFull)
     {
         foreach (UIBuildOptions buildItem in buildOptions)
         {
 			buildItem.needsBarracks = false;
             buildItem.travelingBarracks = false;
             buildItem.trainingBarracks = false;
-        }
+			buildItem.fullBarracks = isFull;
+		}
 	}
+
+
 }

@@ -21,9 +21,9 @@ public class Projectile : MonoBehaviour
         this.startPoint = startPoint;
         endPoint.y += 0.5f;
         this.endPoint = endPoint;
-        float distance = (startPoint - endPoint).sqrMagnitude;
-        flightSpeed = speed * 4 - ((speed * 4 - speed) * distance / 30);
-        float flightHeight = archHeight * (distance / 30);
+        float distance = Mathf.Abs(startPoint.x - endPoint.x) + Mathf.Abs(startPoint.z - endPoint.z);
+        flightSpeed = Mathf.Max(speed * 4 - ((speed * 4 - speed) * distance / 7),speed); 
+		float flightHeight = Mathf.Min(archHeight * (distance / 7), archHeight);
         archTop = new Vector3((startPoint.x + endPoint.x) * 0.5f, flightHeight, (startPoint.z + endPoint.z) * 0.5f); 
     }
 

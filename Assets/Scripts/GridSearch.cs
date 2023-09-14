@@ -334,7 +334,6 @@ public class GridSearch
                     if (excludeList.Contains(neighbor))
                         continue;
                 }
-                
 
 		        int tempCost = world.GetMovementCost(neighbor);
 

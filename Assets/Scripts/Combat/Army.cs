@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -19,7 +20,7 @@ public class Army : MonoBehaviour
     public Vector3Int EnemyTarget { get { return enemyTarget; } }
     private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new(), pathTraveled = new();
     [HideInInspector]
-    public List<Vector3Int> attackingSpots = new(), movementRange = new();
+    public List<Vector3Int> attackingSpots = new(), movementRange = new(), cavalryRange = new();
     
     private List<Unit> unitsInArmy = new(), deadList = new();
     public List<Unit> UnitsInArmy { get { return unitsInArmy; } }
@@ -279,6 +280,9 @@ public class Army : MonoBehaviour
                 
                 pathTraveled.Clear();
                 stepCount = 0;
+
+                if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
+                    world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(isFull);
             }
             else
             {
@@ -359,12 +363,27 @@ public class Army : MonoBehaviour
         attackingSpots.Clear();
         movementRange.Add(attackZone);
         movementRange.Add(enemyTarget);
+        int i = 0;
 
-        foreach (Vector3Int tile in world.GetNeighborsFor(attackZone, MapWorld.State.EIGHTWAY))
-            movementRange.Add(tile);
+        foreach (Vector3Int tile in world.GetNeighborsFor(attackZone, MapWorld.State.EIGHTWAYTWODEEP))
+        {
+            if (i < 8)
+                movementRange.Add(tile);
 
-        foreach (Vector3Int tile in world.GetNeighborsFor(enemyTarget, MapWorld.State.EIGHTWAY))
-            movementRange.Add(tile);
+            cavalryRange.Add(tile);
+            i++;
+        }
+
+        i = 0;
+        foreach (Vector3Int tile in world.GetNeighborsFor(enemyTarget, MapWorld.State.EIGHTWAYTWODEEP))
+        {
+            if (i < 8)
+                movementRange.Add(tile);
+
+            if (!cavalryRange.Contains(tile))
+                cavalryRange.Add(tile);
+            i++;
+        }
 
         StartCoroutine(WaitOneSec());
     }
@@ -426,11 +445,11 @@ public class Army : MonoBehaviour
             {
                 firstOne = false;
                 closestEnemy = enemy;
-                dist = (closestEnemy.transform.position - unit.transform.position).sqrMagnitude;
+                dist = Math.Abs(enemy.transform.position.x - unit.transform.position.x) + Math.Abs(enemy.transform.position.z - unit.transform.position.z); //not using sqrmagnitude in case of hill
                 continue;
             }
 
-            float nextDist = (enemy.transform.position - unit.transform.position).sqrMagnitude;
+            float nextDist = Math.Abs(enemy.transform.position.x - unit.transform.position.x) + Math.Abs(enemy.transform.position.z - unit.transform.position.z);
 
 			if (nextDist < dist)
             {
@@ -442,10 +461,92 @@ public class Army : MonoBehaviour
         return closestEnemy;
     }
 
-    public List<Vector3Int> PathToEnemy(Vector3Int pos, Vector3Int target)
+    //return closest target if no ranged
+	public Unit FindEdgeRanged(Vector3Int currentLoc)
+	{
+        Vector3Int battleDiff = (enemyTarget - attackZone) / 3;
+        List<Vector3Int> tilesToCheck = new();
+
+        if (battleDiff.z != 0)
+        {
+            int currentOffset = Math.Sign(currentLoc.x - attackZone.x);
+
+            //ignore if in middle
+            if (currentOffset == 0)
+                return null;
+
+			tilesToCheck.Add(new Vector3Int(1 * currentOffset, 0, 0) + enemyTarget);
+			tilesToCheck.Add(enemyTarget);
+			tilesToCheck.Add(new Vector3Int(1 * currentOffset, 0, 1 * battleDiff.z) + enemyTarget);
+            tilesToCheck.Add(new Vector3Int(0, 0, 1 * battleDiff.z) + enemyTarget);
+
+            ///check both sides if in middle
+            //if (currentOffset == 0)
+            //{
+                //tilesToCheck.Add(new Vector3Int(-1 * currentOffset, 0, 0) + enemyTarget);
+			    //tilesToCheck.Add(new Vector3Int(-1 * currentOffset, 0, 1 * battleDiff.z) + enemyTarget);
+            //}
+		}
+        else
+        {
+            int currentOffset = Math.Sign(currentLoc.z - attackZone.z);
+
+            if (currentOffset == 0)
+                return null;
+
+			tilesToCheck.Add(new Vector3Int(0, 0, 1 * currentOffset) + enemyTarget);
+			tilesToCheck.Add(enemyTarget);
+			tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, 1 * currentOffset) + enemyTarget);
+			tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, 0) + enemyTarget);
+
+			//if (currentOffset == 0)
+			//{
+			    //tilesToCheck.Add(new Vector3Int(0, 0, -1 * currentOffset) + enemyTarget);
+			    //tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, -1 * currentOffset) + enemyTarget);
+			//}
+		}
+
+        int i = 0;
+        bool skipMiddle = false;
+        foreach (Vector3Int tile in tilesToCheck)
+        {
+            if (skipMiddle)
+            {
+				skipMiddle = false;
+                continue;
+            }
+            
+            if (world.IsUnitLocationTaken(tile))
+            {
+                Unit potential = world.GetUnit(tile);
+
+                if (potential.buildDataSO.unitType == UnitType.Ranged)
+                    return potential;
+
+                if (i % 2 == 0)
+                    skipMiddle = true;
+            }
+    
+            i++;
+		}
+
+		return null;
+	}
+
+	public List<Vector3Int> PathToEnemy(Vector3Int pos, Vector3Int target)
 	{
         return GridSearch.BattleMove(world, pos, target, movementRange, attackingSpots);
 	}
+
+    public List<Vector3Int> CavalryPathToEnemy(Vector3Int pos, Vector3Int target)
+    {
+		return GridSearch.BattleMove(world, pos, target, cavalryRange, attackingSpots);
+	}
+
+    public void ClearTraveledPath()
+    {
+        pathTraveled.Clear();
+    }
 
 	public bool FinishAttack()
 	{
@@ -548,11 +649,13 @@ public class Army : MonoBehaviour
 
     public Vector3 GetRandomSpot(Vector3Int current)
     {
-        int random = Random.Range(0, totalSpots.Count);
+        int random = UnityEngine.Random.Range(0, totalSpots.Count);
         Vector3Int spot = totalSpots[random];
 
         if (spot == current)
             spot = totalSpots[3];
+        if (current == spot)
+            spot = totalSpots[0];
 
         return spot;
     }

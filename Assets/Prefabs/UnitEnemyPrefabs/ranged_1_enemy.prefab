@@ -144,6 +144,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
         type: 3}
+      propertyPath: speed
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
+        type: 3}
+      propertyPath: archHeight
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 863511641645448753, guid: 0501d85e9bd32fd4682956580fa925ac,
+        type: 3}
       propertyPath: adjustment.x
       value: 0
       objectReference: {fileID: 0}

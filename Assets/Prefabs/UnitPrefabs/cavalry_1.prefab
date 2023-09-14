@@ -98,7 +98,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Avatar
       value: 
-      objectReference: {fileID: 9000000, guid: 2364d553e33633b43b306b55547b9f45, type: 3}
+      objectReference: {fileID: 9000000, guid: bf32e93cd2c6ab84e94435c042d6b5b6, type: 3}
     - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Controller
@@ -148,17 +148,17 @@ PrefabInstance:
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.4
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.4
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.4
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -267,6 +267,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: 64487691ef3e08b48b32d3c4a634dc54, type: 2}
+  unitMesh: {fileID: 0}
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -285,11 +286,15 @@ MonoBehaviour:
   isBeached: 0
   interruptedRoute: 0
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  homeBase: {fileID: 0}
+  barracksBunk: {x: 0, y: 0, z: 0}
+  marchPosition: {x: 0, y: 0, z: 0}
   currentHealth: 0
   enemyAI: {fileID: 0}
   baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
+  projectile: {fileID: 0}
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -302,9 +307,20 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
-  isDead: 0
-  isAttacked: 0
+  readyToMarch: 0
   inArmy: 0
+  atHome: 0
+  preparingToMoveOut: 0
+  isMarching: 0
+  transferring: 0
+  repositioning: 0
+  inBattle: 0
+  attacking: 0
+  targetSearching: 0
+  flanking: 0
+  flankedOnce: 0
+  isDead: 0
+  targetLocation: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
