@@ -174,7 +174,9 @@ public class RoadManager : MonoBehaviour
             if (world.IsCityOnTile(loc))
             {
                 BuildRoadAtPosition(loc);
-                world.GetCity(loc).ExtinguishFire();
+
+                if (loc - roadPosition == new Vector3Int(0, 0, 3))
+                    world.GetCity(loc).RepositionFire();
             }
         }
     }

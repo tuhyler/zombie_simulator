@@ -14,6 +14,8 @@ public class TradeCenter : MonoBehaviour
 
     [SerializeField]
     private GameObject nameMap;
+    [SerializeField]
+    private List<Light> nightLights = new();
 
     //basic info
     [HideInInspector]
@@ -103,6 +105,14 @@ public class TradeCenter : MonoBehaviour
 
         world.AddToCityLabor(mainLoc, gameObject);
         world.AddStructure(mainLoc, gameObject);
+    }
+
+    public void ToggleLights(bool v)
+    {
+        foreach (Light light in nightLights)
+        {
+            light.gameObject.SetActive(v);
+        }
     }
 
     public void SetWaiter(TradeRouteManager tradeRouteManager, int amount)

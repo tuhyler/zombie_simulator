@@ -1161,6 +1161,8 @@ public class Unit : MonoBehaviour
             {
                 if (td.enemyCamp)
                 {
+                    world.RevealEnemyCamp(loc);
+                    
                     if (inArmy && homeBase.army.traveling)
                         world.BattleStations(loc, pos);
                     //else

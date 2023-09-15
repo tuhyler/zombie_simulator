@@ -220,27 +220,73 @@ public class City : MonoBehaviour
     public void LightFire(bool isHill)
     {
         Vector3 loc = cityLoc;
-        loc.z += -0.35f;
+        loc.y += 0.1f;
+        loc.z += -0.6f;
         if (isHill)
         {
-            loc.y += .6f;
+            loc.y += .5f;
             Vector3 cityBaseLoc = cityBase.transform.localPosition;
-            cityBaseLoc.y += .6f;
+            cityBaseLoc.y += .5f;
             cityBase.transform.localPosition = cityBaseLoc;
         }
 
         fire = Instantiate(fire, loc, Quaternion.Euler(-90, 0, 0));
-        fire.transform.SetParent(subTransform.transform, false);
+        fire.transform.SetParent(world.psHolder, false);
         fire.Play();
     }
 
+    private void ReigniteFire()
+    {
+        bool alreadyRoad = fire.transform.position.y == 0.2f || fire.transform.position.y == 0.8f; 
+        fire.Play();
+        cityBase.gameObject.SetActive(true);
+
+        if (!alreadyRoad && world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was added since growth
+        {
+            Vector3 fireLoc = fire.transform.position;
+            fireLoc.y += 0.1f;
+            fire.transform.position = fireLoc;
+            Vector3 cityBaseLoc = cityBase.transform.localPosition;
+            cityBaseLoc.y += 0.1f;
+            cityBase.transform.localPosition = cityBaseLoc;
+        }
+        else if (alreadyRoad && !world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was deleted since growth
+        {
+            Vector3 fireLoc = fire.transform.position;
+            fireLoc.y -= 0.1f;
+            fire.transform.position = fireLoc;
+            Vector3 cityBaseLoc = cityBase.transform.localPosition;
+            cityBaseLoc.y -= 0.1f;
+            cityBase.transform.localPosition = cityBaseLoc;
+        }
+    }
+    
     public void ExtinguishFire()
     {
-        if (fire != null)
+        fire.Stop();
+        cityBase.gameObject.SetActive(false);    
+    }
+
+    public void DestroyFire()
+    {
+        Destroy(fire.gameObject);
+    }
+
+    public void RepositionFire()
+    {
+        Vector3 cityBaseLoc = cityBase.transform.localPosition;
+        Vector3 fireLoc = fire.transform.position;
+        cityBaseLoc.y += 0.1f;
+        if (world.GetTerrainDataAt(cityLoc).isHill)
         {
-            //fire.Stop();
-            Destroy(fire.gameObject);
+            cityBaseLoc.y += 0.1f;
+            fireLoc.y += 0.1f;
         }
+
+        fireLoc.y += 0.1f;
+        cityBase.transform.localPosition = cityBaseLoc;
+        fire.transform.position = fireLoc;
+        //CombineFire();
     }
 
     public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
@@ -570,6 +616,10 @@ public class City : MonoBehaviour
                 resourceManager.SellResources();
                 StartCoroutine(FoodConsumptionCoroutine());
             }
+            else if (cityPop.CurrentPop == 4)
+            {
+                ExtinguishFire();
+            }
         }
     }
 
@@ -595,7 +645,10 @@ public class City : MonoBehaviour
                 cityBuilderManager.abandonCityButton.interactable = true;
             }
         }
-
+        else if (cityPop.CurrentPop == 3)
+        {
+            ReigniteFire();
+        }
 
         if (cityPop.UnusedLabor > 0) //if unused labor, get rid of first
             cityPop.UnusedLabor--;
