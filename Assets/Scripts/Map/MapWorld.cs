@@ -1945,8 +1945,11 @@ public class MapWorld : MonoBehaviour
 
     public void BattleStations(Vector3Int campLoc, Vector3Int armyLoc)
     {
-        enemyCampDict[campLoc].threatLoc = armyLoc;
-        enemyCampDict[campLoc].BattleStations();
+        if (enemyCampDict[campLoc].attackingArmy != null) //only get ready if army is intending to go attack
+        {
+            enemyCampDict[campLoc].threatLoc = armyLoc;
+            enemyCampDict[campLoc].BattleStations();
+        }
     }
 
     public void EnemyCampReturn(Vector3Int loc)

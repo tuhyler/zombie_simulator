@@ -29,6 +29,7 @@ public class EnemyCamp
 
 	public GameObject minimapIcon;
 
+	private WaitForSeconds retreatTime = new(8);
 
 	public void FormBattlePositions()
     {
@@ -412,11 +413,11 @@ public class EnemyCamp
 
 	public IEnumerator RetreatTimer()
 	{
-		yield return new WaitForSeconds(10);
+		yield return retreatTime;
 
 		foreach (Unit unit in unitsInCamp)
 		{
-			if (unit.attacking)
+			if (unit.attacking || unit.targetSearching)
 				unit.enemyAI.StartReturn();
 		}
 	}

@@ -23,7 +23,7 @@ public class Unit : MonoBehaviour
 
     [SerializeField]
     public SpriteRenderer minimapIcon;
-    
+
     [SerializeField]
     public ParticleSystem lightBeam, deathSplash;
 
@@ -65,15 +65,14 @@ public class Unit : MonoBehaviour
     //private Vector3 shoePrintScale;
     //private GameObject mapIcon;
     private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
-    private WaitForSeconds attackedWait = new(5);
     //private bool onTop; //if on city tile and is on top
 
     //combat info
     [HideInInspector]
     public City homeBase;
-	[HideInInspector]
-	public Vector3Int barracksBunk, marchPosition; //setting their position in the army based on bunk and barracks loc
-	[HideInInspector]
+    [HideInInspector]
+    public Vector3Int barracksBunk, marchPosition; //setting their position in the army based on bunk and barracks loc
+    [HideInInspector]
     public int currentHealth;
     [HideInInspector]
     public BasicEnemyAI enemyAI;
@@ -84,7 +83,9 @@ public class Unit : MonoBehaviour
     public float baseSpeed, attackSpeed;
     [HideInInspector]
     public int attackStrength;
-    private WaitForSeconds attackPause;
+    [HideInInspector]
+    public float[] attackPause = new[] { .75f, 1f, 1.25f };
+    public WaitForSeconds[] attackPauses = new WaitForSeconds[4];
     [HideInInspector]
     public Projectile projectile;
 
@@ -128,8 +129,12 @@ public class Unit : MonoBehaviour
         isMovingHash = Animator.StringToHash("isMoving");
         isMarchingHash = Animator.StringToHash("isMarching");
         isAttackingHash = Animator.StringToHash("isAttacking");
-        //unitRigidbody = GetComponent<Rigidbody>();
-        baseSpeed = 1;
+        attackPauses[0] = new WaitForSeconds(.75f);
+		attackPauses[1] = new WaitForSeconds(1f);
+		attackPauses[2] = new WaitForSeconds(1.25f);
+        attackPauses[3] = new WaitForSeconds(.25f);
+		//unitRigidbody = GetComponent<Rigidbody>();
+		baseSpeed = 1;
 
         originalMoveSpeed = buildDataSO.movementSpeed;
         //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
@@ -138,7 +143,7 @@ public class Unit : MonoBehaviour
         healthMax = buildDataSO.health;
         currentHealth = healthMax;
         attackSpeed = buildDataSO.baseAttackSpeed;
-        attackPause = new(attackSpeed);
+        //attackPause = new(attackSpeed);
         attackStrength = buildDataSO.baseAttackStrength;
         inArmy = attackStrength > 0 && CompareTag("Player");
 
@@ -283,7 +288,7 @@ public class Unit : MonoBehaviour
 
 		healthbar.gameObject.SetActive(true);
 
-        currentHealth -= damage;
+        currentHealth -= (damage - 1 + UnityEngine.Random.Range(0, 3));
 
         if (currentHealth <= 0)
         {
@@ -1191,9 +1196,9 @@ public class Unit : MonoBehaviour
 		{
 			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
 			StartAttackingAnimation();
-            yield return new WaitForSeconds(.25f);
-            target.ReduceHealth(attackStrength, transform.eulerAngles);
-			yield return new WaitForSeconds(1);
+			yield return attackPauses[3];
+			target.ReduceHealth(attackStrength, transform.eulerAngles);
+			yield return attackPauses[UnityEngine.Random.Range(0,3)];
 		}
 
         attacking = false;
@@ -1210,12 +1215,13 @@ public class Unit : MonoBehaviour
 
 		while (target.currentHealth > 0)
         {
-            StartAttackingAnimation();
-			yield return new WaitForSeconds(.25f);
+			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
+			StartAttackingAnimation();
+			yield return attackPauses[3];
 			projectile.SetPoints(transform.position, target.transform.position);
             StartCoroutine(projectile.Shoot(this, target));
-            yield return new WaitForSeconds(1);
-        }
+			yield return attackPauses[UnityEngine.Random.Range(0, 3)];
+		}
 
         attackCo = null;
         attacking = false;
@@ -1321,11 +1327,13 @@ public class Unit : MonoBehaviour
 		}
 		else
 		{
-			if (!world.IsUnitLocationTaken(forwardTile) && !homeBase.army.attackingSpots.Contains(forwardTile))
+            Vector3Int scoochCloser = new Vector3Int(Math.Sign(targetLocation.x - currentLocation.x), 0, Math.Sign(targetLocation.z - currentLocation.z)) + currentLocation;
+            
+            if (homeBase.army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !homeBase.army.attackingSpots.Contains(scoochCloser))
 			{
-				finalDestinationLoc = forwardTile;
-				List<Vector3Int> newPath = new() { forwardTile };
-				MoveThroughPath(newPath);
+				finalDestinationLoc = scoochCloser;
+				//List<Vector3Int> newPath = new() { scoochCloser };
+				MoveThroughPath(new List<Vector3Int> { scoochCloser });
 			}
 
 			targetSearching = true;
@@ -1367,7 +1375,7 @@ public class Unit : MonoBehaviour
 
 		foreach (Vector3Int zone in attackingZones)
 		{
-			if (!homeBase.army.movementRange.Contains(zone))
+			if (!homeBase.army.cavalryRange.Contains(zone))
 				continue;
 
 			if (world.IsUnitLocationTaken(zone))
@@ -1461,11 +1469,13 @@ public class Unit : MonoBehaviour
 		}
 		else
 		{
-			if (!world.IsUnitLocationTaken(forwardTile) && !homeBase.army.attackingSpots.Contains(forwardTile))
+			Vector3Int scoochCloser = new Vector3Int(Math.Sign(targetLocation.x - currentLocation.x), 0, Math.Sign(targetLocation.z - currentLocation.z)) + currentLocation;
+
+			if (homeBase.army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !homeBase.army.attackingSpots.Contains(scoochCloser))
 			{
-				finalDestinationLoc = forwardTile;
-				List<Vector3Int> newPath = new() { forwardTile };
-				MoveThroughPath(newPath);
+				finalDestinationLoc = scoochCloser;
+				//List<Vector3Int> newPath = new() { scoochCloser };
+				MoveThroughPath(new List<Vector3Int> { scoochCloser });
 			}
 
 			targetSearching = true;

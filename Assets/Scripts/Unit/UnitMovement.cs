@@ -328,7 +328,7 @@ public class UnitMovement : MonoBehaviour
 				}
                 else
                 {
-					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Selected enemy camp");
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Select enemy camp");
 				}
             }
             //changing barracks
