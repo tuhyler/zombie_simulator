@@ -3192,6 +3192,7 @@ public class CityBuilderManager : MonoBehaviour
             improvement.transform.parent = improvementHolder.transform;
         }
 
+        selectedCity.DestroyFire();
         selectedCity.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
         TerrainData td = world.GetTerrainDataAt(selectedCityLoc);

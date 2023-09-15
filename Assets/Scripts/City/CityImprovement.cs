@@ -182,6 +182,11 @@ public class CityImprovement : MonoBehaviour
         }
     }
 
+    public void ToggleLights(bool v)
+    {
+        foreach (Light light in workLights)
+            light.gameObject.SetActive(v);
+    }
     //public void StartWorkAnimation(int seconds = 1)
     //{
     //    if (improvementAnimator != null)

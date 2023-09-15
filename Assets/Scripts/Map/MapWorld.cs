@@ -287,6 +287,7 @@ public class MapWorld : MonoBehaviour
                 unit.enemyAI.CampLoc = unitTerrainLoc;
                 unit.enemyAI.CampSpot = unitPos;
                 unit.enemyCamp = enemyCampDict[unitTerrainLoc];
+                unit.gameObject.SetActive(false);
                 //unit.enemyAI.SetCampLoc(unitTerrainLoc);
                 //unit.SetMinimapIcon(cityBuilderManager.enemyUnitHolder);
             }
@@ -411,6 +412,7 @@ public class MapWorld : MonoBehaviour
         foreach(TradeCenter center in FindObjectsOfType<TradeCenter>())
         {
             center.SetWorld(this);
+            center.ToggleLights(false);
             center.SetName(tradeCenterNamePool[i]);
             center.SetPop(tradeCenterPopPool[i]);
             center.ClaimSpotInWorld(increment);
@@ -1470,6 +1472,26 @@ public class MapWorld : MonoBehaviour
         goldTradeCenterWaitList.Remove(tradeCenter);
     }
 
+    //lights in the world
+    public void ToggleWorldLights(bool v)
+    {
+        foreach (TradeCenter center in tradeCenterDict.Values)
+        {
+            center.ToggleLights(v);
+        }
+
+        foreach (Wonder wonder in wonderConstructionDict.Values)
+        {
+            if (wonder.PercentDone != 100)
+                continue;
+
+            foreach (Light light in wonder.wonderLights)
+            {
+                light.gameObject.SetActive(v);
+            }    
+        }
+    }
+
     //world resources management
     public void UpdateWorldResources(ResourceType resourceType, int amount)
     {
@@ -1942,6 +1964,14 @@ public class MapWorld : MonoBehaviour
     //    if (closest != null)
     //        closest.enemyAI.WakeUp(target);
     //}
+
+    public void RevealEnemyCamp(Vector3Int loc)
+    {
+        foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
+        {
+            unit.gameObject.SetActive(true);
+        }
+    }
 
     public void BattleStations(Vector3Int campLoc, Vector3Int armyLoc)
     {

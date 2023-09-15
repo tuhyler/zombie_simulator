@@ -600,7 +600,7 @@ public class WorkerTaskManager : MonoBehaviour
         //td.gameObject.tag = "City";
         //}
 
-        city.CombineFire();
+        //city.CombineFire();
         //showing join city button
         unitMovement.ShowIndividualCityButtonsUI();
     }

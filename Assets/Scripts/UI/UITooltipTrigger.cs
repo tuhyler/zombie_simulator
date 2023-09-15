@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private static LTDescr delay;
+    //private static LTDescr delay;
     public string message;
     public float secondDelay = 1f;
     private Coroutine co;
@@ -38,6 +38,9 @@ public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     public void CancelCall()
     {
-        LeanTween.cancel(delay.uniqueId);
+        //LeanTween.cancel(delay.uniqueId);
+        if (co != null)
+            StopCoroutine(co);
+        UITooltipSystem.Hide();
     }
 }

@@ -5,6 +5,8 @@ using UnityEngine;
 public class DayNightCycle : MonoBehaviour
 {
     [SerializeField]
+    private MapWorld world;
+    [SerializeField]
     private Light directionalLight;
 
     //[SerializeField]
@@ -42,11 +44,17 @@ public class DayNightCycle : MonoBehaviour
 
             if (Mathf.RoundToInt(timeODay) == 18)
             {
+                if (day)
+                    world.ToggleWorldLights(true);
+
                 day = false;
                 SetFloatieCount(2.5f, new Color(1f, 1f, 0.666f));
             }
             else if (Mathf.RoundToInt(timeODay) == 6)
             {
+                if (!day)
+                    world.ToggleWorldLights(false);
+
                 day = true;
                 SetFloatieCount(0.5f, Color.white);
             }
