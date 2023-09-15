@@ -27,7 +27,7 @@ public class Army : MonoBehaviour
     public List<Unit> DeadList { get { return deadList; } set { deadList = value; } }
     private int unitsReady, stepCount;
 
-    private WaitForSeconds waitOneSec = new(0.01f);
+    //private WaitForSeconds waitOneSec = new(0.1f);
 
     [HideInInspector]
     public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady;
@@ -287,7 +287,6 @@ public class Army : MonoBehaviour
             else
             {
                 targetCamp.armyReady = true;
-                traveling = false;
 
                 if (targetCamp.attackReady)
                 {
@@ -335,9 +334,9 @@ public class Army : MonoBehaviour
             if (unit.attackCo != null)
                 StopCoroutine(unit.attackCo);
 
+            unit.preparingToMoveOut = false;
             unit.attacking = false;
             unit.attackCo = null;
-            unit.isMarching = true;
 			List<Vector3Int> path = new();
 
 			foreach (Vector3Int tile in pathToTarget)
@@ -352,6 +351,7 @@ public class Army : MonoBehaviour
 				unit.ShiftMovement();
 			}
 
+            unit.isMarching = true;
 			unit.finalDestinationLoc = path[path.Count - 1];
 			unit.MoveThroughPath(path);
 		}
@@ -359,10 +359,13 @@ public class Army : MonoBehaviour
 
     public void Charge()
     {
-        movementRange.Clear();
+		traveling = false;
+		movementRange.Clear();
         attackingSpots.Clear();
         movementRange.Add(attackZone);
+        cavalryRange.Add(attackZone);
         movementRange.Add(enemyTarget);
+        cavalryRange.Add(enemyTarget);
         int i = 0;
 
         foreach (Vector3Int tile in world.GetNeighborsFor(attackZone, MapWorld.State.EIGHTWAYTWODEEP))
@@ -385,19 +388,23 @@ public class Army : MonoBehaviour
             i++;
         }
 
-        StartCoroutine(WaitOneSec());
-    }
+		if (!inBattle)
+			ArmyCharge();
 
-    private IEnumerator WaitOneSec()
-    {
-        yield return waitOneSec;
+		if (!targetCamp.inBattle)
+			targetCamp.Charge();
+	}
 
-        if (!inBattle)
-            ArmyCharge();
+    //private IEnumerator WaitOneSec()
+    //{
+    //    yield return waitOneSec;
 
-        if (!targetCamp.inBattle)
-            targetCamp.Charge();
-    }
+    //    if (!inBattle)
+    //        ArmyCharge();
+
+    //    if (!targetCamp.inBattle)
+    //        targetCamp.Charge();
+    //}
 
     private void ArmyCharge()
     {

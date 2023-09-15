@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -19,7 +20,7 @@ public class BasicEnemyAI : MonoBehaviour
 
     //private Unit targetUnit;
 
-    private WaitForSeconds attackPause;
+    //private WaitForSeconds attackPause;
 
 
 	private void Awake()
@@ -214,11 +215,13 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else //a little redundant, in case path ends up being zero again
 		{
-			if (!unit.world.IsUnitLocationTaken(forwardTile) && !unit.enemyCamp.attackingArmy.attackingSpots.Contains(forwardTile))
+			Vector3Int scoochCloser = new Vector3Int(Math.Sign(unit.targetLocation.x - unit.CurrentLocation.x), 0, Math.Sign(unit.targetLocation.z - unit.CurrentLocation.z)) + unit.CurrentLocation;
+
+			if (unit.enemyCamp.attackingArmy.movementRange.Contains(scoochCloser) && !unit.world.IsUnitLocationTaken(scoochCloser) && !unit.enemyCamp.attackingArmy.attackingSpots.Contains(scoochCloser))
 			{
-				unit.finalDestinationLoc = forwardTile;
-				List<Vector3Int> newPath = new() { forwardTile };
-				unit.MoveThroughPath(newPath);
+				unit.finalDestinationLoc = scoochCloser;
+				//List<Vector3Int> newPath = new() { scoochCloser };
+				unit.MoveThroughPath(new List<Vector3Int> { scoochCloser });
 			}
 
 			unit.targetSearching = true;
@@ -349,11 +352,13 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else
 		{
-			if (!unit.world.IsUnitLocationTaken(forwardTile) && !unit.enemyCamp.attackingArmy.attackingSpots.Contains(forwardTile))
+			Vector3Int scoochCloser = new Vector3Int(Math.Sign(unit.targetLocation.x - unit.CurrentLocation.x), 0, Math.Sign(unit.targetLocation.z - unit.CurrentLocation.z)) + unit.CurrentLocation;
+
+			if (unit.enemyCamp.attackingArmy.cavalryRange.Contains(scoochCloser) && !unit.world.IsUnitLocationTaken(scoochCloser) && !unit.enemyCamp.attackingArmy.attackingSpots.Contains(scoochCloser))
 			{
-				unit.finalDestinationLoc = forwardTile;
-				List<Vector3Int> newPath = new() { forwardTile };
-				unit.MoveThroughPath(newPath);
+				unit.finalDestinationLoc = scoochCloser;
+				//List<Vector3Int> newPath = new() { scoochCloser };
+				unit.MoveThroughPath(new List<Vector3Int> { scoochCloser });
 			}
 
 			unit.targetSearching = true;
@@ -462,9 +467,9 @@ public class BasicEnemyAI : MonoBehaviour
         {
 			unit.transform.rotation = Quaternion.LookRotation(target.transform.position - unit.transform.position);
 			unit.StartAttackingAnimation();
-			yield return new WaitForSeconds(.25f);
+			yield return unit.attackPauses[3];
 	        target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles);
-			yield return new WaitForSeconds(1f);
+			yield return unit.attackPauses[UnityEngine.Random.Range(0,3)];
 			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
         }
 
@@ -496,10 +501,10 @@ public class BasicEnemyAI : MonoBehaviour
 		while (!unit.isDead && target.currentHealth > 0 && dist < 7.5)
 		{
 			unit.StartAttackingAnimation();
-			yield return new WaitForSeconds(.25f);
+			yield return unit.attackPauses[3];
 			unit.projectile.SetPoints(transform.position, target.transform.position);
 			StartCoroutine(unit.projectile.Shoot(unit, target));
-			yield return new WaitForSeconds(1f);
+			yield return unit.attackPauses[UnityEngine.Random.Range(0,3)];
 			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
         }
 
@@ -530,6 +535,13 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.flanking = false;
 		unit.flankedOnce = false;
 		unit.repositioning = true;
+
+		if (unit.isMoving)
+		{
+			unit.StopAnimation();
+			unit.ShiftMovement();
+		}
+
 		unit.finalDestinationLoc = campSpot;
 		List<Vector3Int> path = GridSearch.AStarSearch(unit.world, unit.world.RoundToInt(unit.transform.position), campSpot, unit.isTrader, unit.bySea, true);
 
