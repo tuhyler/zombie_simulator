@@ -9,57 +9,6 @@ public class ResourceIndividualHandler : MonoBehaviour
     private WorkerTaskManager workerTaskManager;
 
     private WaitForSeconds gatherResourceWait = new WaitForSeconds(1);
-    //private City tempCity;
-    //private Worker workerUnit;
-    //private ResourceIndividualSO resourceIndividual;
-    //private GameObject resourceGO;
-
-
-    //public void HandleResourceBubbleSelection(Vector3 location, GameObject selectedObject)
-    //{
-    //    if (selectedObject == null)
-    //        return;
-
-    //    if (selectedObject.TryGetComponent(out Resource resource))
-    //    {
-    //        if (resource != null)
-    //            StartCoroutine(resource.SendResourceToCity());
-    //    }
-    //}
-
-    //public (City city, ResourceIndividualSO resourceIndividual) GetResourceGatheringDetails()
-    //{
-    //    return (tempCity, resourceIndividual);
-    //}
-
-    //private void SendResourceToCity()
-    //{
-    //    //Unit harvestingUnit = world.GetUnit(world.GetClosestTile(resource.transform.position));
-    //    workerUnit.SendResourceToCity();
-    //}
-
-    //public bool CheckForCity(Vector3Int workerPos) //finds if city is nearby, returns it (interface? in WorkerTaskManager)
-    //{
-    //    foreach (Vector3Int tile in world.GetNeighborsFor(workerPos, MapWorld.State.EIGHTWAYTWODEEP))
-    //    {
-    //        if (!world.IsCityOnTile(tile))
-    //        {
-    //            continue;
-    //        }
-    //        else
-    //        {
-    //            tempCity = world.GetCity(tile);
-    //            return true;
-    //        }
-    //    }
-
-    //    return false;
-    //}
-
-    //internal void SetResourceActive()
-    //{
-    //    resourceGO.SetActive(true);
-    //}
 
     public ResourceIndividualSO GetResourcePrefab(Vector3Int workerPos)
     {
@@ -69,15 +18,11 @@ public class ResourceIndividualHandler : MonoBehaviour
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
             if (rt == resource.resourceType)
-            {
-                //resourceIndividual = resource;
                 return resource;
-            }
         }
 
         return null; //returns nothing in case nothing is found
     }
-
 
     public IEnumerator GenerateHarvestedResource(Vector3 unitPos, Worker worker, City city, ResourceIndividualSO resourceIndividual)
     {
@@ -99,12 +44,8 @@ public class ResourceIndividualHandler : MonoBehaviour
             workerTaskManager.TurnOffCancelTask();
 
         //showing harvested resource
-        //worker.PrepResourceGathering(this);
         worker.harvested = true;
-        //unitPos.x += 1f;
-        //unitPos.z += 1f;
         unitPos.y += 1.5f;
-        //unitPos += Vector3.one; //setting it up to float above worker's head
         GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
         Resource resource = resourceGO.GetComponent<Resource>();
         resource.SetSprites(resourceIndividual.resourceIcon);
@@ -112,58 +53,5 @@ public class ResourceIndividualHandler : MonoBehaviour
         Vector3 localScale = resourceGO.transform.localScale;
         resourceGO.transform.localScale = Vector3.zero;
         LeanTween.scale(resourceGO, localScale, 0.25f).setEase(LeanTweenType.easeOutBack);
-        //ShowHarvestedResource(unitPos, worker);
     }
-
-
-    //public void GenerateHarvestedResource(Vector3 unitPos, Worker workerUnit)
-    //{
-    //    this.workerUnit = workerUnit;
-    //    workerUnit.PrepResourceGathering(this);
-    //    unitPos.y += 1.0f; //setting it up to float above worker's head
-    //    resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
-    //    //resourceGO = Instantiate(resourceIndividual.prefab, unitPos, Quaternion.Euler(90,0,0));
-    //    //workerUnit.resourceIsNotNull = true;
-    //    resourceGO.SetActive(false);
-    //    this.workerUnit.harvesting = true;
-    //}
-
-    //public void SetWorker(Worker workerUnit)
-    //{
-    //    this.workerUnit = workerUnit;
-    //}
-
-    //private void ShowHarvestedResource(Vector3 unitPos)
-    //{
-    //    workerUnit.PrepResourceGathering(this);
-    //    workerUnit.harvested = true;
-    //    unitPos.x += 1f;
-    //    unitPos.z += 1f;
-    //    //unitPos += Vector3.one; //setting it up to float above worker's head
-    //    resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
-    //    Resource resource = resourceGO.GetComponent<Resource>();
-    //    resource.SetResourcePanel(resourceIndividual.resourceIcon);
-    //    resourceGO.transform.localScale = Vector3.zero;
-    //    LeanTween.scale(resourceGO, Vector3.one, 0.25f).setEase(LeanTweenType.easeOutBack);
-    //}
-
-    //public void ResetHarvestValues() //nulling out all the values used to harvest resources
-    //{
-    //    //LeanTween.scale(resourceGO, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
-    //    //tempCity = null;
-    //    //resourceIndividual = null;
-    //    //workerUnit = null;
-    //}
-
-    //public void NullHarvestValues()
-    //{
-    //    //tempCity = null;
-    //    //resourceIndividual = null;
-    //    //workerUnit = null;
-    //}
-
-    //private void DestroyResourceIcon()
-    //{
-    //    Destroy(resourceGO);
-    //}
 }

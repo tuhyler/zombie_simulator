@@ -27,8 +27,9 @@ public class UITomFinder : MonoBehaviour
         world.CloseResearchTree();
         world.CloseWonders();
         world.CloseMap();
-        world.CloseTerrainTooltip();
-        world.CloseImprovementTooltip();
+        world.CloseTerrainTooltipButton();
+        world.CloseImprovementTooltipButton();
+        world.CloseCampTooltipButton();
         cityBuilderManager.ResetCityUI();
         if (unitMovement.SelectedWorker != null)
             unitMovement.ClearSelection();

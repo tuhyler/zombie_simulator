@@ -21,9 +21,12 @@ MonoBehaviour:
   unitCost:
   - resourceType: 6
     resourceAmount: 10
-  consumedResources:
-  - resourceType: 2
-    resourceAmount: 1
+  cycleCost:
+  - resourceType: 4
+    resourceAmount: 2
+  battleCost:
+  - resourceType: 6
+    resourceAmount: 101
   laborCost: 0
   unitType: 2
   unitDescription: Ranged with low health
