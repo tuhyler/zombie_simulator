@@ -207,7 +207,7 @@ public class ResourceManager : MonoBehaviour
             throw new InvalidOperationException("Can't have resources less than 0 " + resourceType);
     }
 
-    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location)
+    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location, bool military = false, bool showAlways = false)
     {
         int i = 0;
         location.y += consumedResource.Count * 0.4f;
@@ -221,6 +221,12 @@ public class ResourceManager : MonoBehaviour
 
             if (resourceType == ResourceType.Gold)
             {
+                if (military && !city.CheckWorldGold(value.resourceAmount))
+                {
+                    consumedAmount = city.GetWorldGoldLevel();
+                    city.army.AWOLCheck();
+                }
+
                 city.UpdateWorldResources(resourceType, -consumedAmount);
             }
             else
@@ -242,7 +248,14 @@ public class ResourceManager : MonoBehaviour
                 UpdateUI(resourceType);
             }
 
-            if (city.activeCity && consumedAmount > 0 && value.resourceType != ResourceType.Food)
+            if (showAlways)
+            {
+				Vector3 loc = location;
+				loc.y -= 0.4f * i;
+				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
+				i++;
+			}
+            else if (city.activeCity && consumedAmount > 0 && value.resourceType != ResourceType.Food)
             {
                 Vector3 loc = location;
                 loc.y -= 0.4f * i;
@@ -416,12 +429,15 @@ public class ResourceManager : MonoBehaviour
             city.UpdateResourceInfo();
             city.CheckBuildOptionsResource(type, prevAmount, resourceDict[type], resourceAmount > 0);
         }
+        else if (city.army.DeployBattleScreenCheck())
+            city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[type], type);
+
         if (newResourceAmount > 0)
             city.CheckResourceWaiter(type);
         else if (newResourceAmount < 0)
             city.CheckLimitWaiter();
 
-        if (city.cityPop.CurrentPop == 0 && type == ResourceType.Food && resourceDict[type] >= city.initialGrowthFood && !pauseGrowth)
+        if (city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && type == ResourceType.Food && resourceDict[type] >= city.initialGrowthFood && !pauseGrowth)
         {
             resourceDict[type] -= city.initialGrowthFood;
             city.PopulationGrowthCheck(false, 1);
@@ -624,7 +640,11 @@ public class ResourceManager : MonoBehaviour
 
             if (starvationCount >= cyclesToWait) //decreasing if starving for 2 cycles
             {
-                city.PopulationDeclineCheck(true);
+                if (city.army.UnitsInArmy.Count > 0)
+                    city.PlayHellHighlight(city.army.RemoveRandomArmyUnit());
+                else
+                    city.PopulationDeclineCheck(true);
+    
                 starvationCount = 0;
                 noHousingCount = 0;
                 city.exclamationPoint.SetActive(false);

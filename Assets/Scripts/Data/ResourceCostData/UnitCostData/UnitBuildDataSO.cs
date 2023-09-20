@@ -10,8 +10,9 @@ public class UnitBuildDataSO : ScriptableObject
     public int unitLevel;
     public Sprite image;
     public Sprite mapIcon;
-    public List<ResourceValue> unitCost;
-    public List<ResourceValue> consumedResources;
+    public List<ResourceValue> unitCost; //cost to build
+    public List<ResourceValue> cycleCost; //cost per city cycle
+    public List<ResourceValue> battleCost; //cost per battle
     public int laborCost;
     public UnitType unitType;
     public string unitDescription;

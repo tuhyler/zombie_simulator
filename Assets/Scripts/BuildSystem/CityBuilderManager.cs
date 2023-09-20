@@ -240,10 +240,16 @@ public class CityBuilderManager : MonoBehaviour
         else if (selectedObject.TryGetComponent(out CityImprovement improvementSelected))
         {
             City city = improvementSelected.GetCity();
+            bool isBarracks = false;
             if (improvementSelected.building && !removingImprovement && !upgradingImprovement && city != null)
             {
-                SelectCity(city.cityLoc, city);
-                return;
+                if (improvementSelected.GetImprovementData.improvementName == "Barracks")
+                    isBarracks = true;
+                else
+                {
+                    SelectCity(city.cityLoc, city);
+                    return;
+                }
             }
             
             if (selectedCity != null)
@@ -265,7 +271,10 @@ public class CityBuilderManager : MonoBehaviour
                     if (terrainLocation == selectedCityLoc)
                         ResetCityUI();
                     ResetCityUIToBase();
-                    world.OpenImprovementTooltip(improvementSelected);
+                    if (isBarracks)
+                        world.OpenCampTooltip(improvementSelected);
+                    else
+                        world.OpenImprovementTooltip(improvementSelected);
                     return;
                 }
 
@@ -311,7 +320,10 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else
                 {
-                    world.OpenImprovementTooltip(improvementSelected);
+                    if (isBarracks)
+                        world.OpenCampTooltip(improvementSelected);
+                    else
+                        world.OpenImprovementTooltip(improvementSelected);
                 }
             }
             else
@@ -322,7 +334,10 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else
                 {
-                    world.OpenImprovementTooltip(improvementSelected);
+                    if (isBarracks)
+                        world.OpenCampTooltip(improvementSelected);
+                    else
+                        world.OpenImprovementTooltip(improvementSelected);
                 }
             }
         }
@@ -762,6 +777,7 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.exclamationPoint.SetActive(false);
 
         world.cityCanvas.gameObject.SetActive(true);
+        world.somethingSelected = false; //cities aren't considered "selected" due to intricate selection code
         isActive = true;
         selectedCity.activeCity = true;
         selectedCityLoc = world.GetClosestTerrainLoc(location);
@@ -1506,8 +1522,10 @@ public class CityBuilderManager : MonoBehaviour
 		newUnit.transform.rotation = Quaternion.LookRotation(rot); 
 		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
 
-		if (uiUnitBuilder.activeStatus)
-			uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
+        if (uiUnitBuilder.activeStatus)
+            uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
+        else if (world.uiCampTooltip.activeStatus)
+            world.uiCampTooltip.RefreshData();
 	}
 
 	public void CreateBuildingQueueCheck(ImprovementDataSO buildingData)
@@ -2182,7 +2200,7 @@ public class CityBuilderManager : MonoBehaviour
 			foreach (Vector3Int tile in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.EIGHTWAYARMY))
                 city.army.SetArmySpots(tile);
 
-            city.army.SetLoc(tempBuildLocation);
+            city.army.SetLoc(tempBuildLocation, city);
             city.army.SetWorld(world);
 
             if (uiUnitBuilder.activeStatus)
@@ -2506,6 +2524,7 @@ public class CityBuilderManager : MonoBehaviour
     public void CloseImprovementTooltipButton()
     {
         world.CloseImprovementTooltipButton();
+        world.CloseCampTooltipButton();
     }
 
     public void CloseImprovementBuildPanel()
@@ -2563,6 +2582,7 @@ public class CityBuilderManager : MonoBehaviour
         //uiLaborHandler.ShowUI(selectedCity);
         //ResetTileLists();
         world.CloseImprovementTooltipButton();
+        world.CloseCampTooltipButton();
         CloseImprovementBuildPanel();
 
         //removingBuilding = false;
@@ -2928,6 +2948,7 @@ public class CityBuilderManager : MonoBehaviour
     public void ResetCityUIToBase()
     {
         world.CloseImprovementTooltipButton();
+        world.CloseCampTooltipButton();
         CloseImprovementBuildPanel();
         uiLaborAssignment.ResetLaborAssignment();
         CloseQueueUI();
@@ -2948,6 +2969,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             CloseCityTab();
             world.CloseImprovementTooltipButton();
+            world.CloseCampTooltipButton();
             CloseImprovementBuildPanel();
             CloseQueueUI();
             ResetTileLists();
@@ -3029,6 +3051,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             CloseLaborMenus();
             world.CloseImprovementTooltipButton();
+            world.CloseCampTooltipButton();
             CloseImprovementBuildPanel();
             uiCityTabs.HideSelectedTab(false);
             CloseQueueUI();
@@ -3262,6 +3285,10 @@ public class CityBuilderManager : MonoBehaviour
                         {
                             tempCity.hasBarracks = true;
                             tempCity.barracksLocation = improvementLoc;
+                            tempCity.army.city = tempCity;
+
+                            foreach (Vector3Int armySpot in world.GetNeighborsFor(improvementLoc, MapWorld.State.EIGHTWAYARMY))
+                                tempCity.army.SetArmySpots(armySpot);
                         }
 
                         unclaimed = false;
@@ -3274,6 +3301,8 @@ public class CityBuilderManager : MonoBehaviour
             {
                 if (singleImprovement == "Harbor")
                     world.RemoveTradeLoc(improvementLoc);
+                else if (singleImprovement == "Barracks")
+                    selectedCity.army.city = null;
 
                 world.AddToUnclaimedSingleBuild(improvementLoc);
             }

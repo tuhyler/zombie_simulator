@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Resources;
 using UnityEngine;
 using static UnityEditor.FilePathAttribute;
+using static UnityEditor.PlayerSettings;
 
 public class UnitMovement : MonoBehaviour
 {
@@ -52,6 +53,9 @@ public class UnitMovement : MonoBehaviour
     private Wonder wonder;
     private TradeCenter tradeCenter;
     public int cityTraderIncrement = 1;
+
+    //for deploying army
+    private Vector3Int potentialAttackLoc;
 
     //for worker orders
     [HideInInspector]
@@ -134,6 +138,7 @@ public class UnitMovement : MonoBehaviour
         world.CloseWonders();
         world.CloseTerrainTooltip();
         world.CloseImprovementTooltip();
+        world.CloseCampTooltip();
         location.y = 0;
 
         Vector3Int pos = world.GetClosestTerrainLoc(location);
@@ -315,15 +320,21 @@ public class UnitMovement : MonoBehaviour
 						return;
                     }
                     
-                    if (selectedUnit.homeBase.army.MoveArmy(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos, true))
+                    if (selectedUnit.homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos))
                     {
-    					uiBuildingSomething.ToggleVisibility(false);
-						world.UnhighlightAllEnemyCamps();
-                        world.citySelected = true;
-						world.unitOrders = false;
-						deployingArmy = false;
-                        world.SetEnemyCampAsAttacked(pos, selectedUnit.homeBase.army);
-                        selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(pos);
+                        selectedUnit.homeBase.army.ShowBattlePath(selectedUnit);
+                        world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
+                        world.HighlightEnemyCamp(pos, Color.white);
+						world.infoPopUpCanvas.gameObject.SetActive(true);
+						world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCamp(pos), selectedUnit.homeBase.army);
+                        potentialAttackLoc = pos;
+      //                  uiBuildingSomething.ToggleVisibility(false);
+						//world.UnhighlightAllEnemyCamps();
+      //                  world.citySelected = true;
+						//world.unitOrders = false;
+						//deployingArmy = false;
+      //                  world.SetEnemyCampAsAttacked(pos, selectedUnit.homeBase.army);
+      //                  selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(pos);
 					}
 				}
                 else
@@ -342,6 +353,7 @@ public class UnitMovement : MonoBehaviour
 
                     if (path.Count > 0)
                     {
+                        selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
                         selectedUnit.homeBase = newCity; 
                         selectedUnit.atHome = false;
                         newCity.army.AddToArmy(selectedUnit);
@@ -841,11 +853,11 @@ public class UnitMovement : MonoBehaviour
 
         if (world.IsCityOnTile(unitLoc))
         {
-            AddToCity(world.GetCity(unitLoc));
+            AddToCity(world.GetCity(unitLoc), selectedUnit);
         }
-        else if (selectedUnit.homeBase)
+        else if (selectedUnit.inArmy)
         {
-            AddToCity(selectedUnit.homeBase);
+            AddToCity(selectedUnit.homeBase, selectedUnit);
             selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
         }
         else
@@ -863,7 +875,7 @@ public class UnitMovement : MonoBehaviour
 
 		if (world.IsCityOnTile(unitLoc))
 		{
-			AddToCity(world.GetCity(unitLoc));
+			AddToCity(world.GetCity(unitLoc), selectedUnit);
 		}
 		else
 		{
@@ -907,16 +919,16 @@ public class UnitMovement : MonoBehaviour
         world.HideSelectionCircles();
     }
 
-    private void AddToCity(City joinedCity)
+    public void AddToCity(City joinedCity, Unit unit)
     {
-		joinedCity.PopulationGrowthCheck(true, selectedUnit.buildDataSO.laborCost);
+		joinedCity.PopulationGrowthCheck(true, unit.buildDataSO.laborCost);
 
 		int i = 0;
-		foreach (ResourceValue resourceValue in selectedUnit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
+		foreach (ResourceValue resourceValue in unit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
 		{
 			int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
 			Vector3 cityLoc = joinedCity.cityLoc;
-			cityLoc.y += selectedUnit.buildDataSO.unitCost.Count * 0.4f;
+			cityLoc.y += unit.buildDataSO.unitCost.Count * 0.4f;
 			cityLoc.y += -0.4f * i;
 			InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
 			i++;
@@ -1494,10 +1506,11 @@ public class UnitMovement : MonoBehaviour
     public void CancelArmyDeployment()
     {
 		uiCancelTask.ToggleTweenVisibility(false);
+        world.uiCampTooltip.ToggleVisibility(false);
 		
         if (selectedUnit.homeBase.army.traveling)
         {
-            selectedUnit.homeBase.army.MoveArmy(world.GetClosestTerrainLoc(selectedUnit.transform.position), selectedUnit.homeBase.barracksLocation, false);
+            selectedUnit.homeBase.army.MoveArmyHome(selectedUnit.homeBase.barracksLocation);
             world.EnemyCampReturn(selectedUnit.homeBase.army.EnemyTarget);
             //uiDeployArmy.ToggleTweenVisibility(true);
         }
@@ -1523,6 +1536,36 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
+    public void DeployArmy()
+    {
+        if (world.uiCampTooltip.cantAfford)
+        {
+			StartCoroutine(world.uiCampTooltip.Shake());
+			//UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+			return;
+        }
+
+		HideBattlePath();
+        selectedUnit.homeBase.army.DeployArmy();
+        world.uiCampTooltip.ToggleVisibility(false, null, null, null, false);
+        uiBuildingSomething.ToggleVisibility(false);
+		world.UnhighlightAllEnemyCamps();
+		world.citySelected = true;
+		world.unitOrders = false;
+		deployingArmy = false;
+		world.SetEnemyCampAsAttacked(potentialAttackLoc, selectedUnit.homeBase.army);
+		selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(potentialAttackLoc);
+	}
+
+    public void HideBattlePath()
+    {
+        if (selectedUnit != null)
+        {
+            selectedUnit.HidePath();
+		    world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
+        }
+	}
+
     public void CancelOrders()
     {
         if (selectedUnit.inArmy)
@@ -1534,6 +1577,7 @@ public class UnitMovement : MonoBehaviour
         //selectedTile = null;
         if (selectedUnit != null)
         {
+            world.somethingSelected = false;
             if (selectedUnit.isBusy && selectedWorker.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(false);
 

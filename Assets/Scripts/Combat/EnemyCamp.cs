@@ -13,8 +13,8 @@ public class EnemyCamp
 	private Vector3Int armyDiff;
 
 	private int enemyReady;
-	public int campCount, deathCount;
-	public bool prepping, attacked, attackReady = false, armyReady, inBattle, returning;
+	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength;
+	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning;
 	public Army attackingArmy;
 
 	//public Queue<Vector3Int> threatQueue = new();
@@ -42,7 +42,11 @@ public class EnemyCamp
         {
             if (unit.buildDataSO.unitType == UnitType.Infantry)
             {
-                if (infantry < 3)
+				infantryCount++;
+				health += unit.buildDataSO.health;
+				strength += unit.buildDataSO.baseAttackStrength;
+				
+				if (infantry < 3)
                     unit.barracksBunk = loc + frontLines[infantry];
                 else if (infantry < 6)
 					unit.barracksBunk = loc + midLines[infantry - 3];
@@ -58,6 +62,10 @@ public class EnemyCamp
             
             if (unit.buildDataSO.unitType == UnitType.Cavalry)
             {
+				cavalryCount++;
+				health += unit.buildDataSO.health;
+				strength += unit.buildDataSO.baseAttackStrength;
+
 				if (cavalry + infantry < 3)
 					unit.barracksBunk = loc + frontLines[cavalry + infantry];
 				else if (cavalry + infantry < 6)
@@ -73,6 +81,10 @@ public class EnemyCamp
         {
 			if (unit.buildDataSO.unitType == UnitType.Ranged)
 			{
+				rangedCount++;
+				health += unit.buildDataSO.health;
+				strength += unit.buildDataSO.baseAttackStrength;
+
 				if (ranged < 3)
 				{
                     if (infantry+cavalry > 6)
@@ -96,6 +108,13 @@ public class EnemyCamp
 
 		campCount = unitsInCamp.Count;
     }
+
+	public List<ResourceValue> GetAttackCost()
+	{
+		List<ResourceValue> totalCost = new();
+
+		return totalCost;
+	}
 
     public void BattleStations()
     {
@@ -367,6 +386,7 @@ public class EnemyCamp
 				attackingArmy.ClearTraveledPath();
 				attackingArmy.inBattle = false;
 				attackingArmy.atHome = true;
+				attackingArmy.cyclesGone = 0;
 				attackingArmy = null;
 			}
 

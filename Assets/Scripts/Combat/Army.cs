@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 public class Army : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class Army : MonoBehaviour
     [HideInInspector]
     public EnemyCamp targetCamp;
     [HideInInspector]
-    public int armyCount;
+    public int armyCount, cyclesGone, infantryCount, rangedCount, cavalryCount, seigeCount, strength, health;
     private Vector3Int enemyTarget, attackZone;
     public Vector3Int EnemyTarget { get { return enemyTarget; } }
     private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new(), pathTraveled = new();
@@ -25,21 +26,32 @@ public class Army : MonoBehaviour
     private List<Unit> unitsInArmy = new(), deadList = new();
     public List<Unit> UnitsInArmy { get { return unitsInArmy; } }
     public List<Unit> DeadList { get { return deadList; } set { deadList = value; } }
-    private int unitsReady, stepCount;
+    private int unitsReady, stepCount, noMoneyCycles;
+
+    //army maintenance and battle costs
+    private Dictionary<ResourceType, int> armyCycleCostDict = new();
+    private Dictionary<ResourceType, int> armyBattleCostDict = new();
+    private List<ResourceValue> totalBattleCosts = new();
+
+    [HideInInspector]
+    public City city;
+    //private Dictionary<ResourceType, int> armyStagingCostDict = new();
+    //private List<Unit> stagingUnit = new();
 
     //private WaitForSeconds waitOneSec = new(0.1f);
 
     [HideInInspector]
-    public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady;
+    public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady, issueRefund = true;
 
 	private void Awake()
 	{
         atHome = true;
 	}
 
-    public void SetLoc(Vector3Int loc)
+    public void SetLoc(Vector3Int loc, City city)
     {
         this.loc = loc;
+        this.city = city;
     }
 
     public void SetWorld(MapWorld world)
@@ -80,14 +92,137 @@ public class Army : MonoBehaviour
     {
         unitsInArmy.Add(unit);
         armyCount++;
+        UnitType type = unit.buildDataSO.unitType;
+
+        if (type == UnitType.Infantry)
+            infantryCount++;
+        else if (type == UnitType.Ranged)
+            rangedCount++;
+        else if (type == UnitType.Cavalry)
+            cavalryCount++;
+        else if (type == UnitType.Seige)
+            seigeCount++;
+
+		strength += unit.buildDataSO.baseAttackStrength;
+		health += unit.buildDataSO.health;
+
+		//if (unit.newlyJoined)
+		//{
+		//    AddToStagingCost(unit.buildDataSO.cycleCost);
+		//    stagingUnit.Add(unit);
+		//}
+		//else
+		AddToCycleCost(unit.buildDataSO.cycleCost);
+        AddToBattleCost(unit.buildDataSO.battleCost);
+
+		if (city.cityPop.CurrentPop == 0 && unitsInArmy.Count == 1)
+			city.StartFoodCycle();
+	}
+
+	//   private void AddToStagingCost(List<ResourceValue> costs)
+	//   {
+	//       for (int i = 0; i < costs.Count; i++)
+	//           armyStagingCostDict[costs[i].resourceType] += costs[i].resourceAmount;
+	//}
+
+	private void AddToCycleCost(List<ResourceValue> costs)
+    {
+		for (int i = 0; i < costs.Count; i++)
+        {
+            if (!armyCycleCostDict.ContainsKey(costs[i].resourceType))
+                armyCycleCostDict[costs[i].resourceType] = costs[i].resourceAmount;
+            else
+                armyCycleCostDict[costs[i].resourceType] += costs[i].resourceAmount;
+        }
+	}
+
+    private void AddToBattleCost(List<ResourceValue> costs)
+    {
+		for (int i = 0; i < costs.Count; i++)
+		{
+			if (!armyBattleCostDict.ContainsKey(costs[i].resourceType))
+				armyBattleCostDict[costs[i].resourceType] = costs[i].resourceAmount;
+			else
+				armyBattleCostDict[costs[i].resourceType] += costs[i].resourceAmount;
+		}
+	}
+
+	//public void AddStagingCostToCycle()
+ //   {
+ //       foreach (ResourceType type in armyStagingCostDict.Keys)
+ //           armyCycleCostDict[type] += armyStagingCostDict[type];
+
+ //       armyStagingCostDict.Clear();
+
+ //       foreach (Unit unit in stagingUnit)
+ //           unit.newlyJoined = false;
+
+ //       stagingUnit.Clear();
+ //   }
+
+	private void RemoveFromCycleCost(List<ResourceValue> costs)
+	{
+		for (int i = 0; i < costs.Count; i++)
+			armyCycleCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
+	}
+
+	//private void RemoveFromStagingCost(List<ResourceValue> costs)
+ //   {
+ //       for (int i = 0; i < costs.Count; i++)
+ //           armyStagingCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
+ //   }
+
+    private void RemoveFromBattleCost(List<ResourceValue> costs)
+    {
+		for (int i = 0; i < costs.Count; i++)
+			armyBattleCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
+	}
+
+
+	public List<ResourceValue> GetArmyCycleCost()
+    {
+        List<ResourceValue> costs = new();
+
+        foreach (ResourceType type in armyCycleCostDict.Keys)
+        {
+            ResourceValue value;
+            value.resourceType = type;
+            value.resourceAmount = armyCycleCostDict[type];
+            costs.Add(value);
+        }
+
+        return costs;
     }
 
     public void RemoveFromArmy(Unit unit, Vector3Int loc)
     {
         unitsInArmy.Remove(unit);
-        armyCount--;
+        //if (unit.newlyJoined)
+        //{
+        //    RemoveFromStagingCost(unit.buildDataSO.cycleCost);
+        //    stagingUnit.Remove(unit);
+        //}
+        //else
+        //{
+		RemoveFromCycleCost(unit.buildDataSO.cycleCost);
+		RemoveFromBattleCost(unit.buildDataSO.battleCost);
+		//}
+		armyCount--;
+		UnitType type = unit.buildDataSO.unitType;
 
-        if (armyCount == 0)
+		if (type == UnitType.Infantry)
+			infantryCount--;
+		else if (type == UnitType.Ranged)
+			rangedCount--;
+		else if (type == UnitType.Cavalry)
+			cavalryCount--;
+		else if (type == UnitType.Seige)
+			seigeCount--;
+
+        strength -= unit.buildDataSO.baseAttackStrength;
+        health -= unit.buildDataSO.health;
+
+		if (armyCount == 0)
             isEmpty = true;
         if (isFull)
             isFull = false;
@@ -98,7 +233,10 @@ public class Army : MonoBehaviour
             openSpots.Add(loc);
         else
             openSpots.Insert(index,loc);
-    }
+
+		if (city.cityPop.CurrentPop == 0 && unitsInArmy.Count == 0)
+			city.StopFoodCycle();
+	}
 
     //preparing positions lists
     public void SetArmySpots(Vector3Int tile)
@@ -195,60 +333,137 @@ public class Army : MonoBehaviour
         }
     }
 
-    public bool MoveArmy(Vector3Int current, Vector3Int target, bool deploying)
+    public bool DeployArmyCheck(Vector3Int current, Vector3Int target)
     {
-        Vector3Int destination = deploying ? target : loc;
+		List<Vector3Int> exemptList = new() { target };
+        enemyTarget = target;
 
-        if (deploying)
-        {
-            List<Vector3Int> exemptList = new() { target };
-            
-            foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
-                exemptList.Add(tile);
-            
-            pathToTarget = GridSearch.TerrainSearch(world, current, destination, exemptList);
-        }
-        else
-        {
-            pathTraveled.Reverse();
-			pathToTarget = pathTraveled;
-        }
+		foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
+			exemptList.Add(tile);
+
+		pathToTarget = GridSearch.TerrainSearch(world, current, target, exemptList);
 
         if (pathToTarget.Count == 0)
-        {
-            if (deploying)
-                return false;
-            else
-                pathToTarget.Add(target);
-        }
+            return false;
+        else
+            return true;
+	}
+
+    public void DeployArmy()
+    {
+        ConsumeBattleCosts();
+        unitsReady = 0;
+		pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
+		atHome = false;
+		traveling = true;
+		Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
+		attackZone = penultimate;
+		forward = (enemyTarget - attackZone) / 3;
+
+		if (returning)
+			DeployArmy(true);
+		else
+			RealignUnits(world, enemyTarget, penultimate);
+	}
+
+    public void ShowBattlePath(Unit unit)
+    {
+        unit.ShowBattlePath(pathToTarget, loc);
+    }
+
+    public void MoveArmyHome(Vector3Int target)
+    {
+        pathTraveled.Reverse();
+		pathToTarget = pathTraveled;
+
+        if (pathToTarget.Count == 0)
+            pathToTarget.Add(target);
 
         unitsReady = 0;
+        traveling = false;
+        returning = true;
+        DestroyDeadList();
+        targetCamp = null;
+        DeployArmy(false);
+    }
 
-        if (deploying)
+    public bool DeployBattleScreenCheck()
+    {
+        return world.uiCampTooltip.activeStatus && this == world.uiCampTooltip.army;
+    }
+
+    public List<ResourceValue> CalculateBattleCost()
+    {
+        totalBattleCosts.Clear();
+        int cycles = Mathf.CeilToInt(pathToTarget.Count * 2 * 4f / city.secondsTillGrowthCheck); //*2 for there and back, 2.5 as seconds per tile rate
+
+        foreach (ResourceType type in armyCycleCostDict.Keys)
         {
-            enemyTarget = destination;
-            pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
-            atHome = false;
-            traveling = true;
-            Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
-            attackZone = penultimate;
-            forward = (enemyTarget - attackZone) / 3;
+            ResourceValue value;
+            value.resourceType = type;
+            value.resourceAmount = armyCycleCostDict[type] * cycles;
+            totalBattleCosts.Add(value);
+        }
 
-            if (returning)
-                DeployArmy(true);
-            else
-                RealignUnits(world, destination, penultimate);
+        foreach (ResourceType type in armyBattleCostDict.Keys)
+        {
+			ResourceValue value;
+			value.resourceType = type;
+			value.resourceAmount = armyBattleCostDict[type];
+			totalBattleCosts.Add(value);
+		}
+
+		return totalBattleCosts;
+    }
+
+    public List<ResourceValue> GetBattleCost()
+    {
+        return totalBattleCosts;
+    }
+
+    private void ConsumeBattleCosts()
+    {
+        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.barracksLocation, false, true);
+        //totalBattleCosts.Clear();
+    }
+
+    public void ClearBattleCosts()
+    {
+        totalBattleCosts.Clear();
+    }
+
+    private void IssueBattleRefund()
+    {
+        
+        if (issueRefund)
+        {
+            int i = 0;
+			foreach (ResourceValue value in totalBattleCosts)
+			{
+                int amount;
+
+                if (armyCycleCostDict.ContainsKey(value.resourceType))
+                    amount = value.resourceAmount - cyclesGone * armyCycleCostDict[value.resourceType];
+                else
+                    amount = armyBattleCostDict[value.resourceType];
+
+                if (amount > 0)
+                {
+                    city.ResourceManager.CheckResource(value.resourceType, amount);
+					Vector3 cityLoc = city.barracksLocation;
+					cityLoc.y += totalBattleCosts.Count * 0.4f;
+					cityLoc.y += -0.4f * i;
+					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(value.resourceType));
+					i++;
+				}
+            }
         }
         else
         {
-            traveling = false;
-            returning = true;
-            DestroyDeadList();
-            targetCamp = null;
-            DeployArmy(false);
+            issueRefund = true;
         }
 
-        return true;
+        totalBattleCosts.Clear();
     }
 
     public void UnitReady()
@@ -275,7 +490,9 @@ public class Army : MonoBehaviour
                 if (openSpots.Count == 0)
                     isFull = true;
 
+                IssueBattleRefund();
                 atHome = true;
+                cyclesGone = 0;
                 returning = false;
                 
                 pathTraveled.Clear();
@@ -323,12 +540,6 @@ public class Army : MonoBehaviour
 
     private void DeployArmy(bool deploying)
     {
-        //if (!deploying)
-        //{
-        //    armyCount -= deathCount;
-        //    deathCount = 0;
-        //}
-        
         foreach (Unit unit in unitsInArmy)
 		{
             if (unit.attackCo != null)
@@ -359,7 +570,8 @@ public class Army : MonoBehaviour
 
     public void Charge()
     {
-		traveling = false;
+        issueRefund = false;
+        traveling = false;
 		movementRange.Clear();
         attackingSpots.Clear();
         movementRange.Add(attackZone);
@@ -574,7 +786,7 @@ public class Army : MonoBehaviour
             world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
             //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
             inBattle = false;
-            MoveArmy(enemyTarget, loc, false);
+            MoveArmyHome(loc);
 
             return true;
         }
@@ -597,7 +809,7 @@ public class Army : MonoBehaviour
         returning = true;
         attackingSpots.Clear();
         DestroyDeadList();
-        MoveArmy(attackZone, loc, false);
+        MoveArmyHome(loc);
 
 		//targetCamp.ResetStatus();
 		//targetCamp.ReturnToCamp();
@@ -653,6 +865,38 @@ public class Army : MonoBehaviour
             unit.Deselect();
         }
 	}
+
+    public void AWOLCheck()
+    {
+        if (noMoneyCycles < 1) //get only one chance
+        {
+            noMoneyCycles++;
+            return;
+        }
+
+        noMoneyCycles = 0;
+        int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
+		Unit unit = unitsInArmy[random];
+        world.unitMovement.AddToCity(unit.homeBase, unit);
+		RemoveFromArmy(unit, unit.barracksBunk);
+        if (unit.isSelected)
+            world.unitMovement.ClearSelection();
+		
+        unit.DestroyUnit();
+	}
+
+	public Vector3Int RemoveRandomArmyUnit()
+    {
+        int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
+        Unit unit = unitsInArmy[random];
+        Vector3Int loc = unit.barracksBunk;
+        RemoveFromArmy(unit, loc);
+        if (unit.isSelected)
+            world.unitMovement.ClearSelection();
+
+        unit.DestroyUnit();
+        return loc;
+    }
 
     public Vector3 GetRandomSpot(Vector3Int current)
     {

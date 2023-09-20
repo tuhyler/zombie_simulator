@@ -23,9 +23,10 @@ MonoBehaviour:
     resourceAmount: 6
   - resourceType: 7
     resourceAmount: 6
-  consumedResources:
-  - resourceType: 2
+  cycleCost:
+  - resourceType: 4
     resourceAmount: 1
+  battleCost: []
   laborCost: 0
   unitType: 3
   unitDescription: Fast unit

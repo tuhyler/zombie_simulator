@@ -35,6 +35,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UICityImprovementTip uiCityImprovementTip;
     [SerializeField]
+    public UICampTip uiCampTooltip;
+    [SerializeField]
     public UITomFinder uiTomFinder;
     [SerializeField]
     public UIInfoPopUpHandler uiInfoPopUpHandler;
@@ -287,7 +289,8 @@ public class MapWorld : MonoBehaviour
                 unit.enemyAI.CampLoc = unitTerrainLoc;
                 unit.enemyAI.CampSpot = unitPos;
                 unit.enemyCamp = enemyCampDict[unitTerrainLoc];
-                unit.gameObject.SetActive(false);
+                if (hideTerrain)
+                    unit.gameObject.SetActive(false);
                 //unit.enemyAI.SetCampLoc(unitTerrainLoc);
                 //unit.SetMinimapIcon(cityBuilderManager.enemyUnitHolder);
             }
@@ -423,7 +426,8 @@ public class MapWorld : MonoBehaviour
             tradeCenterStopDict[center.mainLoc] = center;
             AddTradeLoc(center.mainLoc, center.tradeCenterName);
             AddTradeLoc(center.harborLoc, center.tradeCenterName);
-            center.Hide();
+            if (hideTerrain)
+                center.Hide();
             i++;
         }
 
@@ -783,8 +787,9 @@ public class MapWorld : MonoBehaviour
         //mapPanel.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
         CloseMap();
-        CloseTerrainTooltip();
-        CloseImprovementTooltip();
+        CloseTerrainTooltipButton();
+        CloseImprovementTooltipButton();
+        CloseCampTooltipButton();
     }
 
     public void ToggleMinimap(bool v)
@@ -1314,62 +1319,76 @@ public class MapWorld : MonoBehaviour
     //terrain tooltip
     public void OpenTerrainTooltip(TerrainData td)
     {
-        if (tooltip)
-        {
-            CloseTerrainTooltip();
-            CloseImprovementTooltip();
-            tooltip = false;
-            return;
-        }
-        
-        tooltip = true;
-        infoPopUpCanvas.gameObject.SetActive(true);
+		if (TooltipCheck())
+			return;
+
         uiTerrainTooltip.ToggleVisibility(true, td);
-        //uiTerrainTooltip.SetData(td);
     }
 
     public void CloseTerrainTooltipButton()
     {
         tooltip = false;
-        //infoPopUpCanvas.gameObject.SetActive(false);
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
     public void CloseTerrainTooltip()
     {
-        //infoPopUpCanvas.gameObject.SetActive(false);
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
     //city improvement tooltip
     public void OpenImprovementTooltip(CityImprovement improvement)
     {
-        if (tooltip)
-        {
-            CloseTerrainTooltip();
-            CloseImprovementTooltip();
-            tooltip = false;
+        if (TooltipCheck())
             return;
-        }
 
-        tooltip = true;
-        infoPopUpCanvas.gameObject.SetActive(true);
         uiCityImprovementTip.ToggleVisibility(true, improvement);
-        //uiTerrainTooltip.SetData(td);
     }
 
     public void CloseImprovementTooltipButton()
     {
         tooltip = false;
-        //infoPopUpCanvas.gameObject.SetActive(false);
         uiCityImprovementTip.ToggleVisibility(false);
     }
 
     public void CloseImprovementTooltip()
     {
-        //infoPopUpCanvas.gameObject.SetActive(false);
         uiCityImprovementTip.ToggleVisibility(false);
     }
+
+    public void OpenCampTooltip(CityImprovement improvement)
+    {
+		if (TooltipCheck())
+			return;
+
+		uiCampTooltip.ToggleVisibility(true, improvement);
+    }
+
+    public void CloseCampTooltipButton()
+    {
+		tooltip = false;
+		uiCampTooltip.ToggleVisibility(false);
+	}
+
+    public void CloseCampTooltip()
+    {
+        uiCampTooltip.ToggleVisibility(false);
+    }
+
+    private bool TooltipCheck()
+    {
+		if (tooltip)
+		{
+			CloseTerrainTooltipButton();
+			CloseImprovementTooltipButton();
+			CloseCampTooltipButton();
+			return true;
+		}
+
+        tooltip = true;
+        infoPopUpCanvas.gameObject.SetActive(true);
+        return false;
+	}
 
     public void SetResearchName(string name)
     {
@@ -1528,6 +1547,8 @@ public class MapWorld : MonoBehaviour
                 unitMovement.uiCityResourceInfoPanel.UpdatePriceColors(prevAmount, currentAmount, pos);
             else if (cityBuilderManager.uiUnitBuilder.activeStatus)
                 cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Gold, prevAmount, currentAmount, pos, cityBuilderManager.SelectedCity.ResourceManager);
+            else if (uiCampTooltip.activeStatus)
+                uiCampTooltip.UpdateBattleCostCheck(currentAmount, ResourceType.Gold);
         }
     }
 
@@ -1540,6 +1561,11 @@ public class MapWorld : MonoBehaviour
     {
         return worldResourceManager.GetWorldGoldLevel() >= amount;
     }
+
+    public int GetWorldGoldLevel()
+    {
+        return worldResourceManager.GetWorldGoldLevel();
+	}
 
     public List<ResourceType> WorldResourcePrep()
     {
@@ -1967,6 +1993,11 @@ public class MapWorld : MonoBehaviour
 
     public void RevealEnemyCamp(Vector3Int loc)
     {
+        if (enemyCampDict[loc].revealed)
+            return;
+        else
+            enemyCampDict[loc].revealed = true;
+        
         foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
         {
             unit.gameObject.SetActive(true);
@@ -2023,6 +2054,18 @@ public class MapWorld : MonoBehaviour
                 unit.Select(Color.red);
         }
     }
+
+    public void HighlightEnemyCamp(Vector3Int loc, Color color)
+    {
+        if (!enemyCampDict.ContainsKey(loc))
+            return;
+
+        TerrainData td = GetTerrainDataAt(loc);
+		td.DisableHighlight();
+		td.EnableHighlight(color);
+		foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
+			unit.Select(color);
+	}
 
     public bool CheckIfEnemyCamp(Vector3Int loc)
     {

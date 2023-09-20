@@ -100,7 +100,7 @@ public class Unit : MonoBehaviour
 
     //military booleans
     [HideInInspector]
-    public bool readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead;
+    public bool newlyJoined = true, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead;
     [HideInInspector]
     public Vector3Int targetLocation; //in case units overlap on same tile
 
@@ -129,9 +129,9 @@ public class Unit : MonoBehaviour
         isMovingHash = Animator.StringToHash("isMoving");
         isMarchingHash = Animator.StringToHash("isMarching");
         isAttackingHash = Animator.StringToHash("isAttacking");
-        attackPauses[0] = new WaitForSeconds(.75f);
+        attackPauses[0] = new WaitForSeconds(.9f);
 		attackPauses[1] = new WaitForSeconds(1f);
-		attackPauses[2] = new WaitForSeconds(1.25f);
+		attackPauses[2] = new WaitForSeconds(1.1f);
         attackPauses[3] = new WaitForSeconds(.25f);
 		//unitRigidbody = GetComponent<Rigidbody>();
 		baseSpeed = 1;
@@ -1151,13 +1151,13 @@ public class Unit : MonoBehaviour
     {
         prevTerrainTile = pos;
 
-        int i = 0;
+        //int i = 0;
         foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.CITYRADIUS))
         {
-            i++;
+            //i++;
             
             TerrainData td = world.GetTerrainDataAt(loc);
-            if (!bySea && i < 9)
+            if (!bySea)
             {
                 if (td.enemyCamp)
                 {
@@ -1697,9 +1697,8 @@ public class Unit : MonoBehaviour
         deathSplash.Play();
 
         gameObject.SetActive(false);
-        //unitMesh.gameObject.SetActive(false);
-        //healthbar.gameObject.SetActive(false);
-        if (enemyAI)
+
+		if (enemyAI)
         {
             //enemyCamp.UnitsInCamp.Remove(this);
             enemyCamp.deathCount++;
@@ -1722,6 +1721,8 @@ public class Unit : MonoBehaviour
 
             if (isSelected)
 				world.unitMovement.ClearSelection();
+
+			enemyCamp.DeadList.Add(this);
 		}
         else
         {
@@ -1758,18 +1759,25 @@ public class Unit : MonoBehaviour
 			    else
 				    world.unitMovement.ClearSelection();
 		    }
-        }
 
+			homeBase.army.RemoveFromArmy(this, barracksBunk);
+			homeBase.army.DeadList.Add(this);
+
+			if (world.uiCampTooltip.activeStatus)
+				world.uiCampTooltip.RefreshData();
+		}
 
 		Deselect();
 
-        if (enemyAI)
-            enemyCamp.DeadList.Add(this);
-        else
-        {
-            homeBase.army.RemoveFromArmy(this, barracksBunk);
-            homeBase.army.DeadList.Add(this);
-        }
+		//if (enemyAI)
+  //          enemyCamp.DeadList.Add(this);
+  //      else
+  //      {
+  //          homeBase.army.RemoveFromArmy(this, barracksBunk);
+  //          homeBase.army.DeadList.Add(this);
+  //          if (world.uiCampTooltip.activeStatus)
+  //              world.uiCampTooltip.RefreshData();
+  //      }
     }
 
     public void DestroyUnit()
@@ -1847,7 +1855,7 @@ public class Unit : MonoBehaviour
             else
                 path = movementSystem.GetFromShoePrintPool();
 
-            path.transform.position = (turnCountPosition + prevPosition) / 2;
+            path.transform.position = (turnCountPosition + prevPosition) * 0.5f;
             float xDiff = turnCountPosition.x - Mathf.Round(prevPosition.x);
             float zDiff = turnCountPosition.z - Mathf.Round(prevPosition.z);
 
@@ -1892,7 +1900,85 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void HidePath()
+    public void ShowBattlePath(List<Vector3Int> currentPath, Vector3Int startingPoint)
+    {
+        //interpolating path gaps
+        List<Vector3Int> pathToShow = new();
+
+        Vector3Int diff = (currentPath[0] - startingPoint) / 3;
+        pathToShow.Add(startingPoint + new Vector3Int(diff.x, 0, diff.z));
+		pathToShow.Add(startingPoint + new Vector3Int(diff.x, 0, diff.z) * 2);
+
+		for (int i = 0; i < currentPath.Count - 1; i++)
+        {
+            pathToShow.Add(currentPath[i]);
+            Vector3Int nextDiff = (currentPath[i + 1] - currentPath[i]) / 3;
+            pathToShow.Add(currentPath[i] + new Vector3Int(nextDiff.x, 0, nextDiff.z));
+			pathToShow.Add(currentPath[i] + new Vector3Int(nextDiff.x, 0, nextDiff.z) * 2);
+		}
+        
+        for (int i = 0; i < pathToShow.Count; i++)
+		{
+			//position to place chevron
+			Vector3 turnCountPosition = pathToShow[i];
+			//turnCountPosition.y += 0.01f;
+
+			Vector3 prevPosition;
+
+			if (i == 0)
+			{
+				prevPosition = startingPoint;
+			}
+			else
+			{
+				prevPosition = pathToShow[i - 1];
+			}
+
+			//prevPosition.y = 0.01f;
+			GameObject path;
+
+			path = movementSystem.GetFromChevronPool();
+
+			path.transform.position = (turnCountPosition + prevPosition) * 0.5f;
+			float xDiff = turnCountPosition.x - Mathf.Round(prevPosition.x);
+			float zDiff = turnCountPosition.z - Mathf.Round(prevPosition.z);
+
+			int z = 0;
+
+			//checking tile placements to see how to rotate chevrons
+			if (xDiff < 0)
+			{
+				if (zDiff > 0)
+					z = 135;
+				else if (zDiff == 0)
+					z = 180;
+				else if (zDiff < 0)
+					z = 225;
+			}
+			else if (xDiff == 0)
+			{
+				if (zDiff > 0)
+					z = 90;
+				else if (zDiff < 0)
+					z = 270;
+			}
+			else //xDiff > 0
+			{
+				if (zDiff < 0)
+					z = 315;
+				else if (zDiff == 0)
+					z = 0;
+				else
+					z = 45;
+			}
+
+			path.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
+
+			pathQueue.Enqueue(path);
+		}
+	}
+
+	public void HidePath()
     {
         if (pathQueue.Count > 0)
         {
