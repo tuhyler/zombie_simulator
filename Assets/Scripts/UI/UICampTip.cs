@@ -32,12 +32,16 @@ public class UICampTip : MonoBehaviour
 	private CityImprovement improvement;
 	[HideInInspector]
 	public Army army;
+	private EnemyCamp enemyCamp;
+
+	[HideInInspector]
+	public bool cantAfford;
 
 	//for tweening
 	[SerializeField]
 	private RectTransform allContents, lineImage;
 	[HideInInspector]
-	public bool activeStatus, cantAfford;
+	public bool activeStatus;
 
 	private void Awake()
 	{
@@ -72,7 +76,8 @@ public class UICampTip : MonoBehaviour
 			else
 			{
 				this.army = army;
-				SetData(false, army.CalculateBattleCost(), enemyCamp.infantryCount, enemyCamp.rangedCount, enemyCamp.cavalryCount, enemyCamp.seigeCount, enemyCamp.health, enemyCamp.strength);
+				this.enemyCamp = enemyCamp;
+				SetData(false, army.CalculateBattleCost(enemyCamp.strength), enemyCamp.infantryCount, enemyCamp.rangedCount, enemyCamp.cavalryCount, enemyCamp.seigeCount, enemyCamp.health, enemyCamp.strength);
 			}
 
 			gameObject.SetActive(val);
@@ -107,6 +112,10 @@ public class UICampTip : MonoBehaviour
 				this.improvement.DisableHighlight();
 				this.improvement = null;
 			}
+			else
+			{
+				this.enemyCamp = null;
+			}
 
 			world.unitMovement.HideBattlePath();
 			cantAffordList.Clear();
@@ -126,10 +135,22 @@ public class UICampTip : MonoBehaviour
 		world.infoPopUpCanvas.gameObject.SetActive(false);
 	}
 
+	public bool ArmyScreenActive()
+	{
+		return activeStatus && improvement != null;
+	}
+
+	public bool EnemyScreenActive()
+	{
+		return activeStatus && improvement == null;
+	}
+
 	public void RefreshData()
 	{
 		if (improvement != null)
 			SetData(true, army.GetArmyCycleCost(), army.infantryCount, army.rangedCount, army.cavalryCount, army.seigeCount, army.health, army.strength);
+		else
+			SetData(false, army.CalculateBattleCost(enemyCamp.strength), enemyCamp.infantryCount, enemyCamp.rangedCount, enemyCamp.cavalryCount, enemyCamp.seigeCount, enemyCamp.health, enemyCamp.strength);
 	}
 
 	private void SetData(bool isArmy, List<ResourceValue> costs, int infantry, int ranged, int cavalry, int seige, int health, int strength)
@@ -309,7 +330,11 @@ public class UICampTip : MonoBehaviour
 					}
 					else
 						panelList[i].resourceAmount.color = Color.white;
-				} 
+				}
+				else
+				{
+					panelList[i].resourceAmount.color = Color.white;
+				}
 			}
 		}
 	}

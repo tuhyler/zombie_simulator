@@ -100,7 +100,7 @@ public class Unit : MonoBehaviour
 
     //military booleans
     [HideInInspector]
-    public bool newlyJoined = true, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead;
+    public bool newlyJoined = true, isLeader, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead;
     [HideInInspector]
     public Vector3Int targetLocation; //in case units overlap on same tile
 
@@ -485,14 +485,21 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
-        //exploring
-        if (isTrader && !bySea && !world.hideTerrain) {}
-        else if (!enemyAI)
+        if (isWorker || isLeader || bySea)
         {
-            Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
-            if (pos != prevTerrainTile)
-                RevealCheck(pos);
-        }
+			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+			if (pos != prevTerrainTile)
+				RevealCheck(pos);
+		}
+
+		//exploring
+		//if (isTrader && !bySea && !world.hideTerrain) {}
+  //      else if (!enemyAI)
+  //      {
+  //          Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+  //          if (pos != prevTerrainTile)
+  //              RevealCheck(pos);
+  //      }
 
         //if (enemyAI)
         //{
@@ -1147,7 +1154,7 @@ public class Unit : MonoBehaviour
         //RevealCheck(pos);
     }
 
-    public void RevealCheck(Vector3Int pos)
+    private void RevealCheck(Vector3Int pos)
     {
         prevTerrainTile = pos;
 
@@ -1164,7 +1171,7 @@ public class Unit : MonoBehaviour
                     world.RevealEnemyCamp(loc);
                     
                     if (inArmy && homeBase.army.traveling)
-                        world.BattleStations(loc, pos);
+                        world.BattleStations(loc, homeBase.army.attackZone);
                     //else
                     //    world.WakeUpCamp(loc, this);
                 }
@@ -1262,11 +1269,15 @@ public class Unit : MonoBehaviour
 		{
 			attackingZones.Add(new Vector3Int(1, 0, forward.z) + currentLocation);
 			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + currentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, 0) + currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, 0) + currentLocation);
 		}
 		else
 		{
 			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + currentLocation);
 			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, 1) + currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -1) + currentLocation);
 		}
 
 		foreach (Vector3Int zone in attackingZones)
@@ -1756,15 +1767,15 @@ public class Unit : MonoBehaviour
                     else
 						world.unitMovement.ClearSelection();
 				}
-			    else
+                else
+                {
+                    world.somethingSelected = false;
 				    world.unitMovement.ClearSelection();
+                }
 		    }
 
 			homeBase.army.RemoveFromArmy(this, barracksBunk);
 			homeBase.army.DeadList.Add(this);
-
-			if (world.uiCampTooltip.activeStatus)
-				world.uiCampTooltip.RefreshData();
 		}
 
 		Deselect();
@@ -1850,10 +1861,10 @@ public class Unit : MonoBehaviour
             prevPosition.y = 0.01f;
             GameObject path;
 
-            if (bySea || isTrader)
-                path = movementSystem.GetFromChevronPool();
-            else
+            if (isWorker)
                 path = movementSystem.GetFromShoePrintPool();
+            else
+                path = movementSystem.GetFromChevronPool();
 
             path.transform.position = (turnCountPosition + prevPosition) * 0.5f;
             float xDiff = turnCountPosition.x - Mathf.Round(prevPosition.x);
@@ -1900,84 +1911,6 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void ShowBattlePath(List<Vector3Int> currentPath, Vector3Int startingPoint)
-    {
-        //interpolating path gaps
-        List<Vector3Int> pathToShow = new();
-
-        Vector3Int diff = (currentPath[0] - startingPoint) / 3;
-        pathToShow.Add(startingPoint + new Vector3Int(diff.x, 0, diff.z));
-		pathToShow.Add(startingPoint + new Vector3Int(diff.x, 0, diff.z) * 2);
-
-		for (int i = 0; i < currentPath.Count - 1; i++)
-        {
-            pathToShow.Add(currentPath[i]);
-            Vector3Int nextDiff = (currentPath[i + 1] - currentPath[i]) / 3;
-            pathToShow.Add(currentPath[i] + new Vector3Int(nextDiff.x, 0, nextDiff.z));
-			pathToShow.Add(currentPath[i] + new Vector3Int(nextDiff.x, 0, nextDiff.z) * 2);
-		}
-        
-        for (int i = 0; i < pathToShow.Count; i++)
-		{
-			//position to place chevron
-			Vector3 turnCountPosition = pathToShow[i];
-			//turnCountPosition.y += 0.01f;
-
-			Vector3 prevPosition;
-
-			if (i == 0)
-			{
-				prevPosition = startingPoint;
-			}
-			else
-			{
-				prevPosition = pathToShow[i - 1];
-			}
-
-			//prevPosition.y = 0.01f;
-			GameObject path;
-
-			path = movementSystem.GetFromChevronPool();
-
-			path.transform.position = (turnCountPosition + prevPosition) * 0.5f;
-			float xDiff = turnCountPosition.x - Mathf.Round(prevPosition.x);
-			float zDiff = turnCountPosition.z - Mathf.Round(prevPosition.z);
-
-			int z = 0;
-
-			//checking tile placements to see how to rotate chevrons
-			if (xDiff < 0)
-			{
-				if (zDiff > 0)
-					z = 135;
-				else if (zDiff == 0)
-					z = 180;
-				else if (zDiff < 0)
-					z = 225;
-			}
-			else if (xDiff == 0)
-			{
-				if (zDiff > 0)
-					z = 90;
-				else if (zDiff < 0)
-					z = 270;
-			}
-			else //xDiff > 0
-			{
-				if (zDiff < 0)
-					z = 315;
-				else if (zDiff == 0)
-					z = 0;
-				else
-					z = 45;
-			}
-
-			path.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
-
-			pathQueue.Enqueue(path);
-		}
-	}
-
 	public void HidePath()
     {
         if (pathQueue.Count > 0)
@@ -1996,14 +1929,13 @@ public class Unit : MonoBehaviour
     private void DequeuePath()
     {
         GameObject path = pathQueue.Dequeue();
-        if (bySea || isTrader)
+        if (isWorker)
         {
-            movementSystem.AddToChevronPool(path);
+            movementSystem.AddToShoePrintPool(path);
         }
         else
         {
-            //path.transform.localScale = shoePrintScale;
-            movementSystem.AddToShoePrintPool(path);
+            movementSystem.AddToChevronPool(path);
         }
     }
 }

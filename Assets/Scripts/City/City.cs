@@ -9,7 +9,7 @@ public class City : MonoBehaviour
 {
     //city graphics
     [SerializeField]
-    public GameObject cityNameMap, exclamationPoint, cityBase;
+    public GameObject cityNameMap, exclamationPoint, cityBase, battleIcon;
     [SerializeField]
     public ImprovementDataSO housingData;
     //private int housingCenterCount;
@@ -36,7 +36,10 @@ public class City : MonoBehaviour
     private ParticleSystem heavenHighlight, hellHighlight, resourceSplash, lightBullet, fire;
 
     [SerializeField]
-    public Sprite mapIcon;
+    private SpriteRenderer minimapIcon;
+
+    [SerializeField]
+    public Sprite campIcon, cityIcon;
 
     //city info
     [HideInInspector]
@@ -176,7 +179,8 @@ public class City : MonoBehaviour
     public void SetWorld(MapWorld world)
     {
         this.world = world;
-        resourceManager.ResourceDict = new(world.GetBlankResourceDict());
+		army.SetWorld(world);
+		resourceManager.ResourceDict = new(world.GetBlankResourceDict());
         resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
         resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
         resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
@@ -516,7 +520,7 @@ public class City : MonoBehaviour
     public void SetHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, bool upgrade)
     {
         houseCount++;
-        if (cityPop.CurrentPop == 0 && resourceManager.ResourceDict[ResourceType.Food] > 0)
+        if (cityPop.CurrentPop == 0 && resourceManager.ResourceDict[ResourceType.Food] >= initialGrowthFood)
             PopulationGrowthCheck(false , 1);
 
         //seeing which house will be build first
@@ -635,6 +639,7 @@ public class City : MonoBehaviour
                 }
                 else if (cityPop.CurrentPop == 4)
                 {
+                    minimapIcon.sprite = cityIcon;
                     ExtinguishFire();
                 }
             }
@@ -684,7 +689,8 @@ public class City : MonoBehaviour
             }
             else if (cityPop.CurrentPop == 3)
             {
-                ReigniteFire();
+				minimapIcon.sprite = campIcon;
+				ReigniteFire();
             }
         }
 

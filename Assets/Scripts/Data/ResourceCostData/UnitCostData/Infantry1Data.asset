@@ -25,7 +25,7 @@ MonoBehaviour:
     resourceAmount: 5
   cycleCost:
   - resourceType: 4
-    resourceAmount: 45
+    resourceAmount: 1
   battleCost: []
   laborCost: 0
   unitType: 1

@@ -556,7 +556,6 @@ public class WorkerTaskManager : MonoBehaviour
         //build road where city is placed
         if (!world.IsRoadOnTerrain(workerTile))
         {
-            bool lightFire = true;
             foreach (Vector3Int loc in world.GetNeighborsFor(workerTile, MapWorld.State.EIGHTWAYINCREMENT))
             {
                 if (world.IsRoadOnTerrain(loc))
@@ -566,14 +565,12 @@ public class WorkerTaskManager : MonoBehaviour
                     moveUp.y += .2f;
                     worker.transform.position = moveUp;
                     roadManager.BuildRoadAtPosition(workerTile);
-                    lightFire = false;
                     break;
                 }
             }
-
-            if (lightFire)
-                city.LightFire(td.isHill);
         }
+        
+        city.LightFire(td.isHill);
         //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
         //world.AddResourceProducer(workerTile, resourceProducer);
         //resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources

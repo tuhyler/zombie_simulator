@@ -147,11 +147,15 @@ public class BasicEnemyAI : MonoBehaviour
 		{
 			attackingZones.Add(new Vector3Int(1, 0, forward.z) + unit.CurrentLocation);
 			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, 0) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, 0) + unit.CurrentLocation);
 		}
 		else
 		{
 			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + unit.CurrentLocation);
 			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.CurrentLocation);
 		}
 
 		foreach (Vector3Int zone in attackingZones)
@@ -524,6 +528,9 @@ public class BasicEnemyAI : MonoBehaviour
 
 	public void StartReturn()
     {
+		if (unit.isDead)
+			return;
+		
 		//unit.StopAttacking();
 		if (unit.attackCo != null)
 			StopCoroutine(unit.attackCo);

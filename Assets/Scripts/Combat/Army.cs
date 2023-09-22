@@ -11,13 +11,13 @@ public class Army : MonoBehaviour
     
     private Vector3Int loc;
     [HideInInspector]
-    public Vector3Int forward;
+    public Vector3Int forward, attackZone;
 
     [HideInInspector]
     public EnemyCamp targetCamp;
     [HideInInspector]
     public int armyCount, cyclesGone, infantryCount, rangedCount, cavalryCount, seigeCount, strength, health;
-    private Vector3Int enemyTarget, attackZone;
+    private Vector3Int enemyTarget;
     public Vector3Int EnemyTarget { get { return enemyTarget; } }
     private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new(), pathTraveled = new();
     [HideInInspector]
@@ -35,12 +35,13 @@ public class Army : MonoBehaviour
 
     [HideInInspector]
     public City city;
-    //private Dictionary<ResourceType, int> armyStagingCostDict = new();
-    //private List<Unit> stagingUnit = new();
+	private Queue<GameObject> pathQueue = new();
+	//private Dictionary<ResourceType, int> armyStagingCostDict = new();
+	//private List<Unit> stagingUnit = new();
 
-    //private WaitForSeconds waitOneSec = new(0.1f);
+	//private WaitForSeconds waitOneSec = new(0.1f);
 
-    [HideInInspector]
+	[HideInInspector]
     public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady, issueRefund = true;
 
 	private void Awake()
@@ -91,6 +92,10 @@ public class Army : MonoBehaviour
     public void AddToArmy(Unit unit)
     {
         unitsInArmy.Add(unit);
+
+        if (unitsInArmy.IndexOf(unit) == 0)
+            unit.isLeader = true;
+
         armyCount++;
         UnitType type = unit.buildDataSO.unitType;
 
@@ -163,7 +168,12 @@ public class Army : MonoBehaviour
 	private void RemoveFromCycleCost(List<ResourceValue> costs)
 	{
 		for (int i = 0; i < costs.Count; i++)
+        {
 			armyCycleCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
+
+            if (armyCycleCostDict[costs[i].resourceType] == 0)
+                armyCycleCostDict.Remove(costs[i].resourceType);
+        }
 	}
 
 	//private void RemoveFromStagingCost(List<ResourceValue> costs)
@@ -175,7 +185,12 @@ public class Army : MonoBehaviour
     private void RemoveFromBattleCost(List<ResourceValue> costs)
     {
 		for (int i = 0; i < costs.Count; i++)
+        {
 			armyBattleCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
+
+			if (armyBattleCostDict[costs[i].resourceType] == 0)
+				armyBattleCostDict.Remove(costs[i].resourceType);
+		}
 	}
 
 
@@ -223,8 +238,30 @@ public class Army : MonoBehaviour
         health -= unit.buildDataSO.health;
 
 		if (armyCount == 0)
-            isEmpty = true;
-        if (isFull)
+        {
+            if (world.uiCampTooltip.EnemyScreenActive())
+            {
+                HidePath();
+                world.unitMovement.CancelArmyDeployment();
+            }
+            else
+            {
+				if (world.uiCampTooltip.activeStatus)
+					world.uiCampTooltip.RefreshData();
+			}
+
+			isEmpty = true;
+        }
+        else
+        {
+			if (unit.isLeader)
+				unitsInArmy[0].isLeader = true;
+
+			if (world.uiCampTooltip.activeStatus)
+				world.uiCampTooltip.RefreshData();
+		}
+
+		if (isFull)
             isFull = false;
 
         int index = totalSpots.IndexOf(loc);
@@ -234,7 +271,7 @@ public class Army : MonoBehaviour
         else
             openSpots.Insert(index,loc);
 
-		if (city.cityPop.CurrentPop == 0 && unitsInArmy.Count == 0)
+		if (city.cityPop.CurrentPop == 0 && armyCount == 0)
 			city.StopFoodCycle();
 	}
 
@@ -366,9 +403,9 @@ public class Army : MonoBehaviour
 			RealignUnits(world, enemyTarget, penultimate);
 	}
 
-    public void ShowBattlePath(Unit unit)
+    public void ShowBattlePath()
     {
-        unit.ShowBattlePath(pathToTarget, loc);
+        ShowBattlePath(pathToTarget, loc);
     }
 
     public void MoveArmyHome(Vector3Int target)
@@ -389,10 +426,10 @@ public class Army : MonoBehaviour
 
     public bool DeployBattleScreenCheck()
     {
-        return world.uiCampTooltip.activeStatus && this == world.uiCampTooltip.army;
+        return world.uiCampTooltip.EnemyScreenActive() && this == world.uiCampTooltip.army;
     }
 
-    public List<ResourceValue> CalculateBattleCost()
+    public List<ResourceValue> CalculateBattleCost(int enemyStrength)
     {
         totalBattleCosts.Clear();
         int cycles = Mathf.CeilToInt(pathToTarget.Count * 2 * 4f / city.secondsTillGrowthCheck); //*2 for there and back, 2.5 as seconds per tile rate
@@ -409,7 +446,10 @@ public class Army : MonoBehaviour
         {
 			ResourceValue value;
 			value.resourceType = type;
-			value.resourceAmount = armyBattleCostDict[type];
+
+            float perc = Mathf.Min(enemyStrength / strength,1);
+
+			value.resourceAmount = Mathf.CeilToInt(armyBattleCostDict[type] * perc);
 			totalBattleCosts.Add(value);
 		}
 
@@ -423,7 +463,7 @@ public class Army : MonoBehaviour
 
     private void ConsumeBattleCosts()
     {
-        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.barracksLocation, false, true);
+        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.barracksLocation, false);
         //totalBattleCosts.Clear();
     }
 
@@ -578,6 +618,14 @@ public class Army : MonoBehaviour
         cavalryRange.Add(attackZone);
         movementRange.Add(enemyTarget);
         cavalryRange.Add(enemyTarget);
+
+        //setting battle icon at battle loc
+        city.battleIcon.SetActive(true);
+        city.battleIcon.transform.position = new Vector3((attackZone.x + enemyTarget.x) * 0.5f, 4, (attackZone.z + enemyTarget.z) * 0.5f) ;
+        Vector3 goScale = city.battleIcon.transform.localScale;
+        city.battleIcon.transform.localScale = Vector3.zero;
+        LeanTween.scale(city.battleIcon, goScale, 0.5f);
+        
         int i = 0;
 
         foreach (Vector3Int tile in world.GetNeighborsFor(attackZone, MapWorld.State.EIGHTWAYTWODEEP))
@@ -762,7 +810,7 @@ public class Army : MonoBehaviour
 		return GridSearch.BattleMove(world, pos, target, cavalryRange, attackingSpots);
 	}
 
-    public void ClearTraveledPath()
+    private void ClearTraveledPath()
     {
         pathTraveled.Clear();
     }
@@ -785,6 +833,7 @@ public class Army : MonoBehaviour
             attackingSpots.Clear();
             world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
             //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
+            city.battleIcon.SetActive(false);
             inBattle = false;
             MoveArmyHome(loc);
 
@@ -805,7 +854,8 @@ public class Army : MonoBehaviour
 
         StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
-        inBattle = false;
+		city.battleIcon.SetActive(false);
+		inBattle = false;
         returning = true;
         attackingSpots.Clear();
         DestroyDeadList();
@@ -855,7 +905,7 @@ public class Army : MonoBehaviour
 
     public void UnselectArmy(Unit selectedUnit)
     {
-        selected = false;
+		selected = false;
         
         foreach (Unit unit in unitsInArmy)
         {
@@ -875,12 +925,18 @@ public class Army : MonoBehaviour
         }
 
         noMoneyCycles = 0;
-        int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
-		Unit unit = unitsInArmy[random];
+        //int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
+        Unit unit = GetMostExpensiveUnit(); ;
         world.unitMovement.AddToCity(unit.homeBase, unit);
 		RemoveFromArmy(unit, unit.barracksBunk);
         if (unit.isSelected)
-            world.unitMovement.ClearSelection();
+        {
+			Unit nextUnitUp = GetNextLivingUnit();
+			if (nextUnitUp != null)
+				world.unitMovement.PrepareMovement(nextUnitUp);
+            else
+                world.unitMovement.ClearSelection();
+		}
 		
         unit.DestroyUnit();
 	}
@@ -892,7 +948,13 @@ public class Army : MonoBehaviour
         Vector3Int loc = unit.barracksBunk;
         RemoveFromArmy(unit, loc);
         if (unit.isSelected)
-            world.unitMovement.ClearSelection();
+        {
+			Unit nextUnitUp = GetNextLivingUnit();
+			if (nextUnitUp != null)
+				world.unitMovement.PrepareMovement(nextUnitUp);
+			else
+				world.unitMovement.ClearSelection();
+		}
 
         unit.DestroyUnit();
         return loc;
@@ -913,7 +975,7 @@ public class Army : MonoBehaviour
 
     public Unit GetNextLivingUnit()
     {
-        List<Unit> tempList = new();
+        List<Unit> tempList = new(unitsInArmy);
         
         for (int i = 0; i < tempList.Count; i++)
         {
@@ -923,4 +985,144 @@ public class Army : MonoBehaviour
 
         return null;
     }
+
+    private Unit GetMostExpensiveUnit()
+    {
+        Unit unit = null;
+        int gold = 0;
+
+        for (int i = 0; i < unitsInArmy.Count; i++)
+        {
+            if (i == 0)
+            {
+                unit = unitsInArmy[i];
+
+                foreach (ResourceValue value in unit.buildDataSO.cycleCost)
+                {
+                    if (value.resourceType == ResourceType.Gold)
+                        gold = value.resourceAmount;
+                }
+            }
+
+            foreach (ResourceValue value in unitsInArmy[i].buildDataSO.cycleCost)
+            {
+				if (value.resourceType == ResourceType.Gold && value.resourceAmount > gold)
+                {
+                    unit = unitsInArmy[i];
+					gold = value.resourceAmount;
+                }
+			}
+		}
+
+        return unit;
+    }
+
+    public void ResetArmy()
+    {
+		ClearTraveledPath();
+        city.battleIcon.SetActive(false);
+		inBattle = false;
+		atHome = true;
+		cyclesGone = 0;
+		stepCount = 0;
+	}
+
+	public void ShowBattlePath(List<Vector3Int> currentPath, Vector3Int startingPoint)
+	{
+		//interpolating path gaps
+		List<Vector3Int> pathToShow = new();
+
+		Vector3Int diff = (currentPath[0] - startingPoint) / 3;
+		pathToShow.Add(startingPoint + new Vector3Int(diff.x, 0, diff.z));
+		pathToShow.Add(startingPoint + new Vector3Int(diff.x, 0, diff.z) * 2);
+
+		for (int i = 0; i < currentPath.Count - 1; i++)
+		{
+			pathToShow.Add(currentPath[i]);
+			Vector3Int nextDiff = (currentPath[i + 1] - currentPath[i]) / 3;
+			pathToShow.Add(currentPath[i] + new Vector3Int(nextDiff.x, 0, nextDiff.z));
+			pathToShow.Add(currentPath[i] + new Vector3Int(nextDiff.x, 0, nextDiff.z) * 2);
+		}
+
+		for (int i = 0; i < pathToShow.Count; i++)
+		{
+			//position to place chevron
+			Vector3 turnCountPosition = pathToShow[i];
+			//turnCountPosition.y += 0.01f;
+
+			Vector3 prevPosition;
+
+			if (i == 0)
+			{
+				prevPosition = startingPoint;
+			}
+			else
+			{
+				prevPosition = pathToShow[i - 1];
+			}
+
+			//prevPosition.y = 0.01f;
+			GameObject path;
+
+			path = world.unitMovement.movementSystem.GetFromChevronPool();
+
+			path.transform.position = (turnCountPosition + prevPosition) * 0.5f;
+			float xDiff = turnCountPosition.x - Mathf.Round(prevPosition.x);
+			float zDiff = turnCountPosition.z - Mathf.Round(prevPosition.z);
+
+			int z = 0;
+
+			//checking tile placements to see how to rotate chevrons
+			if (xDiff < 0)
+			{
+				if (zDiff > 0)
+					z = 135;
+				else if (zDiff == 0)
+					z = 180;
+				else if (zDiff < 0)
+					z = 225;
+			}
+			else if (xDiff == 0)
+			{
+				if (zDiff > 0)
+					z = 90;
+				else if (zDiff < 0)
+					z = 270;
+			}
+			else //xDiff > 0
+			{
+				if (zDiff < 0)
+					z = 315;
+				else if (zDiff == 0)
+					z = 0;
+				else
+					z = 45;
+			}
+
+			path.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
+
+			pathQueue.Enqueue(path);
+		}
+	}
+
+	public void HidePath()
+	{
+		if (pathQueue.Count > 0)
+		{
+			int count = pathQueue.Count; //can't decrease count while using it
+
+			for (int i = 0; i < count; i++)
+			{
+				DequeuePath();
+			}
+
+			pathQueue.Clear();
+		}
+	}
+
+	private void DequeuePath()
+	{
+		GameObject path = pathQueue.Dequeue();
+        world.unitMovement.movementSystem.AddToChevronPool(path);
+	}
 }
