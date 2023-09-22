@@ -25,7 +25,7 @@ MonoBehaviour:
     resourceAmount: 6
   cycleCost:
   - resourceType: 4
-    resourceAmount: 1
+    resourceAmount: 3
   battleCost: []
   laborCost: 0
   unitType: 3
@@ -33,7 +33,7 @@ MonoBehaviour:
   availableInitially: 1
   locked: 0
   health: 10
-  baseAttackStrength: 10
+  baseAttackStrength: 20
   baseAttackSpeed: 0.5
   movementSpeed: 2
   trainTime: 4

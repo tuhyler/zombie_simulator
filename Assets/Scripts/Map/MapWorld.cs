@@ -1547,7 +1547,7 @@ public class MapWorld : MonoBehaviour
                 unitMovement.uiCityResourceInfoPanel.UpdatePriceColors(prevAmount, currentAmount, pos);
             else if (cityBuilderManager.uiUnitBuilder.activeStatus)
                 cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Gold, prevAmount, currentAmount, pos, cityBuilderManager.SelectedCity.ResourceManager);
-            else if (uiCampTooltip.activeStatus)
+            else if (uiCampTooltip.EnemyScreenActive())
                 uiCampTooltip.UpdateBattleCostCheck(currentAmount, ResourceType.Gold);
         }
     }

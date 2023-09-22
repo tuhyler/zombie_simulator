@@ -37,7 +37,8 @@ public class UnitMovement : MonoBehaviour
     private ParticleSystem starshine;
 
     private bool queueMovementOrders;
-    private MovementSystem movementSystem;
+    [HideInInspector]
+    public MovementSystem movementSystem;
 
     private Unit selectedUnit;
     private Worker selectedWorker;
@@ -322,7 +323,7 @@ public class UnitMovement : MonoBehaviour
                     
                     if (selectedUnit.homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos))
                     {
-                        selectedUnit.homeBase.army.ShowBattlePath(selectedUnit);
+                        selectedUnit.homeBase.army.ShowBattlePath();
                         world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
                         world.HighlightEnemyCamp(pos, Color.white);
 						world.infoPopUpCanvas.gameObject.SetActive(true);
@@ -1550,7 +1551,7 @@ public class UnitMovement : MonoBehaviour
         world.uiCampTooltip.ToggleVisibility(false, null, null, null, false);
         uiBuildingSomething.ToggleVisibility(false);
 		world.UnhighlightAllEnemyCamps();
-		world.citySelected = true;
+		//world.citySelected = true;
 		world.unitOrders = false;
 		deployingArmy = false;
 		world.SetEnemyCampAsAttacked(potentialAttackLoc, selectedUnit.homeBase.army);
@@ -1561,7 +1562,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedUnit != null)
         {
-            selectedUnit.HidePath();
+            selectedUnit.homeBase.army.HidePath();
 		    world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
         }
 	}
@@ -1577,7 +1578,7 @@ public class UnitMovement : MonoBehaviour
         //selectedTile = null;
         if (selectedUnit != null)
         {
-            world.somethingSelected = false;
+            //world.somethingSelected = false;
             if (selectedUnit.isBusy && selectedWorker.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(false);
 
@@ -1611,7 +1612,7 @@ public class UnitMovement : MonoBehaviour
             }
             if (selectedUnit.inArmy)
             {
-                uiCancelTask.ToggleTweenVisibility(false);
+				uiCancelTask.ToggleTweenVisibility(false);
                 selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
             }
             //if (selectedUnit != null)

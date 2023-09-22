@@ -1409,11 +1409,11 @@ MonoBehaviour:
   armyInfantry: {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
   armyRanged: {fileID: 21300000, guid: 96ad298f88c370347b8f53c2b3351112, type: 3}
   armyCavalry: {fileID: 21300000, guid: d35d180233d47c645916450be3c1ac0d, type: 3}
-  armySeige: {fileID: 21300000, guid: 96ad298f88c370347b8f53c2b3351112, type: 3}
+  armySeige: {fileID: 21300000, guid: 263d1d329e72264428b32cd398e375d8, type: 3}
   enemyInfantry: {fileID: 21300000, guid: b54eab4db8eba204c9f8f31fee95053f, type: 3}
   enemyRanged: {fileID: 21300000, guid: ac8806db73224c641bbcbd8f1e3dd47f, type: 3}
   enemyCavalry: {fileID: 21300000, guid: dc76964902761f94c935417a2a80ac87, type: 3}
-  enemySeige: {fileID: 21300000, guid: ac8806db73224c641bbcbd8f1e3dd47f, type: 3}
+  enemySeige: {fileID: 21300000, guid: 24ee2f493f480714ab8ff397f7f71c0b, type: 3}
   title: {fileID: 7114318892010882442}
   costsText: {fileID: 3911790699682694516}
   healthText: {fileID: 6175727684761838663}
@@ -1433,9 +1433,10 @@ MonoBehaviour:
   cavalryHolder: {fileID: 6518252208921575728}
   seigeHolder: {fileID: 2473028806794811829}
   attackButton: {fileID: 2465387125752736728}
+  army: {fileID: 0}
+  cantAfford: 0
   allContents: {fileID: 7172269090546766210}
   lineImage: {fileID: 3590024809595329857}
-  activeStatus: 0
 --- !u!1 &5447804929531429158
 GameObject:
   m_ObjectHideFlags: 0

@@ -1524,7 +1524,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (uiUnitBuilder.activeStatus)
             uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
-        else if (world.uiCampTooltip.activeStatus)
+        else if (world.uiCampTooltip.ArmyScreenActive())
             world.uiCampTooltip.RefreshData();
 	}
 
@@ -2201,7 +2201,6 @@ public class CityBuilderManager : MonoBehaviour
                 city.army.SetArmySpots(tile);
 
             city.army.SetLoc(tempBuildLocation, city);
-            city.army.SetWorld(world);
 
             if (uiUnitBuilder.activeStatus)
                 uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);

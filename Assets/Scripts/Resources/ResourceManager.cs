@@ -207,7 +207,7 @@ public class ResourceManager : MonoBehaviour
             throw new InvalidOperationException("Can't have resources less than 0 " + resourceType);
     }
 
-    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location, bool military = false, bool showAlways = false)
+    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location, bool military = false)
     {
         int i = 0;
         location.y += consumedResource.Count * 0.4f;
@@ -248,14 +248,7 @@ public class ResourceManager : MonoBehaviour
                 UpdateUI(resourceType);
             }
 
-            if (showAlways)
-            {
-				Vector3 loc = location;
-				loc.y -= 0.4f * i;
-				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
-				i++;
-			}
-            else if (city.activeCity && consumedAmount > 0 && value.resourceType != ResourceType.Food)
+            if (city.activeCity && consumedAmount > 0)
             {
                 Vector3 loc = location;
                 loc.y -= 0.4f * i;

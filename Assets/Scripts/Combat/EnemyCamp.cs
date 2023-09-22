@@ -118,7 +118,7 @@ public class EnemyCamp
 
     public void BattleStations()
     {
-		if (prepping)
+		if (attackReady || prepping)
 			return;
 
 		returning = false;
@@ -126,7 +126,6 @@ public class EnemyCamp
 		
 		Vector3Int diff = (threatLoc - loc) / 3;
 
-		armyDiff = diff;
 		int rotation;
 
 		if (diff.x == -1)
@@ -205,7 +204,7 @@ public class EnemyCamp
 	//getting ready to attack
 	public void EnemyReady(Unit unit)
 	{
-		unit.Rotate(unit.CurrentLocation + armyDiff);
+		unit.Rotate(unit.CurrentLocation + forward);
 		enemyReady++;
 
 		if (enemyReady == campCount)
@@ -371,24 +370,18 @@ public class EnemyCamp
 		{
 			returning = true;
 			
-			foreach (Unit unit in unitsInCamp)
-				unit.StopAttacking();
-
-			//ResetStatus();
-			ReturnToCamp();
-			//attackingArmy.deathCount = 0;
-			//attackingArmy.armyCount = 0;
-
 			if (attackingArmy != null)
 			{
 				if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
 					world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(attackingArmy.isFull);
-				attackingArmy.ClearTraveledPath();
-				attackingArmy.inBattle = false;
-				attackingArmy.atHome = true;
-				attackingArmy.cyclesGone = 0;
+				attackingArmy.ResetArmy();
 				attackingArmy = null;
 			}
+
+			foreach (Unit unit in unitsInCamp)
+				unit.StopAttacking();
+
+			ReturnToCamp();
 
 			return true;
 		}
