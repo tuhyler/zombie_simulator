@@ -176,7 +176,8 @@ public class ResourceProducer : MonoBehaviour
         if (resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
         {
             isWaitingforResources = false;
-            resourceManager.RemoveFromResourceWaitList(this);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false);
+			resourceManager.RemoveFromResourceWaitList(this);
             resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
 
             StartProducing();
@@ -243,11 +244,11 @@ public class ResourceProducer : MonoBehaviour
                 float tempLaborRemoved = tempLaborPercsList[tempLaborPercCount-1]; //LIFO
                 tempLaborPercsList.RemoveAt(tempLaborPercCount-1);
                 tempLabor -= tempLaborRemoved;
-                resourceManager.PrepareResource(consumedResources, tempLaborRemoved, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, tempLaborRemoved, producerLoc, true);
             }
             else
             {
-                resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc, true);
             }
         }
     }
@@ -330,8 +331,14 @@ public class ResourceProducer : MonoBehaviour
 
     private void RestartProductionCheck(float labor)
     {
-        resourceManager.PrepareResource(new List<ResourceValue>() { producedResource }, labor, producerLoc);
+        bool destroy = resourceManager.PrepareResource(new List<ResourceValue>() { producedResource }, labor, producerLoc, cityImprovement);
         //Debug.Log("Resources for " + improvementData.prefab.name);
+
+        if (destroy)
+        {
+            cityImprovement.DestroyImprovement();
+            return;
+        }
 
         //checking storage again after loading
         if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
@@ -383,25 +390,26 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.RemoveFromResourceWaitList(this);
             resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
             isWaitingforResources = false;
-        }
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false);
+		}
         else if (isWaitingToUnload)
         {
             resourceManager.RemoveFromWaitUnloadQueue(this);
             resourceManager.RemoveFromWaitUnloadResearchQueue(this);
             isWaitingToUnload = false;
             if (allLabor)
-                resourceManager.PrepareResource(consumedResources, tempLabor, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, tempLabor, producerLoc, true);
             else
-                resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc, true);
         }
         else if (producingCo != null)
         {
             StopCoroutine(producingCo);
             producingCo = null;
             if (allLabor)
-                resourceManager.PrepareResource(consumedResources, tempLabor, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, tempLabor, producerLoc, true);
             else
-                resourceManager.PrepareResource(consumedResources, 1, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc, true);
         }
 
         cityImprovement.StopWork();
@@ -426,6 +434,7 @@ public class ResourceProducer : MonoBehaviour
     private void AddToResourceWaitList()
     {
         isWaitingforResources = true;
+        resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true);
         resourceManager.AddToResourceWaitList(this);
         resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
     }

@@ -515,4 +515,35 @@ public class TerrainData : MonoBehaviour
     {
         treeHandler.SwitchFromRoad(isHill);
     }
+
+    public int GatherResourceAmount(int amount, Worker worker)
+    {
+        if (resourceAmount < 0)
+            return amount;
+        
+        if (amount >= resourceAmount)
+        {
+            amount = resourceAmount;
+            resourceAmount = -1;
+        }
+        else
+        {
+            resourceAmount -= amount; 
+        }
+
+        if (terrainData.hasRocks)
+            RocksCheck();
+
+        if (resourceAmount < 0)
+        {
+			if (terrainData.grassland)
+				terrainData = isHill ? worker.world.grasslandHillTerrain : worker.world.grasslandTerrain;
+			else
+				terrainData = isHill ? worker.world.desertHillTerrain : worker.world.desertTerrain;
+
+            prop.gameObject.SetActive(false);
+		}
+
+        return amount;
+    }
 }

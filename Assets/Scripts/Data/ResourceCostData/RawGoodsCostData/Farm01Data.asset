@@ -15,7 +15,9 @@ MonoBehaviour:
   prefab: {fileID: 5838738910640936402, guid: 50fad77f197d6cb4caa1fb0219d88212, type: 3}
   secondaryData:
   - {fileID: 11400000, guid: b960112883363494884a086f2586a31c, type: 2}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Farm
   improvementDisplayName: Farm
   improvementLevel: 1
@@ -23,20 +25,35 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
-  littleImage: {fileID: 21300000, guid: 8e1dc726ba6b99b4cabc4f93b0d4b5f4, type: 3}
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
   - resourceType: 6
     resourceAmount: 10
-  consumedResources: []
-  consumedResources1: []
+  - resourceType: 7
+    resourceAmount: 10
+  - resourceType: 8
+    resourceAmount: 10
+  - resourceType: 12
+    resourceAmount: 10
+  - resourceType: 17
+    resourceAmount: 10
+  consumedResources:
+  - resourceType: 4
+    resourceAmount: 0
+  consumedResources1:
+  - resourceType: 9
+    resourceAmount: 0
+  - resourceType: 14
+    resourceAmount: 0
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 2
     resourceAmount: 1
-  producedResourceTime: 0a000000
+  - resourceType: 27
+    resourceAmount: 1
+  producedResourceTime: 0a0000000a000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
@@ -56,5 +73,6 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 1
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 0}

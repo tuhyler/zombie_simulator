@@ -14,15 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5122609563439273834, guid: 6bee360a46af0f74f93396a13fb852ef, type: 3}
   secondaryData: []
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Smith
   improvementDisplayName: Jewel Smith
   improvementLevel: 1
   improvementNameAndLevel: Smith-1
-  improvementDescription: 
+  improvementDescription: +1 Housing
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: cdc75d235c91c4040b418de92323a99d, type: 3}
-  littleImage: {fileID: 21300000, guid: 15f8d08954928c34ebb8a053b24eed41, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
@@ -73,7 +74,7 @@ MonoBehaviour:
   specificTerrain: 0
   workEthicChange: 0
   maxLabor: 1
-  housingIncrease: 0
+  housingIncrease: 1
   cityHousing: 0
   replaceTerrain: 0
   replaceRocks: 0
@@ -85,6 +86,7 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 1}
   - {x: -1, y: 0, z: -1}

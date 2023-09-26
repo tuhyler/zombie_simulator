@@ -17,7 +17,7 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool removing;
+    public bool removing, clearingForest;
 
     //animations
     private int isWorkingHash;
@@ -63,7 +63,14 @@ public class Worker : Unit
         //isBusy = false;
         //(City city, ResourceIndividualSO resourceIndividual) = resourceIndividualHandler.GetResourceGatheringDetails();
         world.CreateLightBeam(transform.position);
-        StartCoroutine(resource.SendResourceToCity());
+        
+        int gatheringAmount;
+        if (clearingForest)
+            gatheringAmount = 100;
+        else
+            gatheringAmount = resource.resourceIndividual.ResourceGatheringAmount;
+
+		StartCoroutine(resource.SendResourceToCity(gatheringAmount));
         //resourceIndividualHandler.ResetHarvestValues();
         //resourceIndividualHandler = null;
     }
@@ -324,8 +331,41 @@ public class Worker : Unit
         unitAnimator.SetBool(isWorkingHash, true);
         isBusy = true;
         //resourceIndividualHandler.SetWorker(this);
-        workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual);
+        workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual, false);
     }
+
+    public void ClearForest()
+    {
+		Vector3 workerPos = transform.position;
+		workerPos.y = 0;
+		Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+
+		if (!world.IsTileOpenCheck(workerTile))
+		{
+			InfoPopUpHandler.WarningMessage().Create(workerPos, "Must be open tile");
+			return;
+		}
+
+		if (!CheckForCity(workerTile))
+		{
+			InfoPopUpHandler.WarningMessage().Create(workerPos, "No nearby city");
+			return;
+		}
+
+        if (world.GetTerrainDataAt(workerTile).terrainData.type != TerrainType.Forest && world.GetTerrainDataAt(workerTile).terrainData.type != TerrainType.ForestHill)
+        {
+			InfoPopUpHandler.WarningMessage().Create(workerPos, "Nothing to clear here");
+			return;
+		}
+
+		City city = world.GetCity(resourceCityLoc);
+		ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
+
+		StopMovement();
+		unitAnimator.SetBool(isWorkingHash, true);
+		isBusy = true;
+		workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual, true);
+	}
 
     public void RemoveWorkLocation()
     {

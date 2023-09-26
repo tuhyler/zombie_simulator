@@ -16,10 +16,11 @@ public class UITerrainTooltip : MonoBehaviour
 
     [SerializeField]
     private Image resourceImage;
-    private UITooltipTrigger tooltipTrigger; 
+    private UITooltipTrigger tooltipTrigger;
 
     //cached TerrainData for turning off highlight
-    private TerrainData td;
+    [HideInInspector]
+    public TerrainData td;
 
     //for tweening
     [SerializeField]

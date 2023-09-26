@@ -30,7 +30,8 @@ public class UITomFinder : MonoBehaviour
         world.CloseTerrainTooltipButton();
         world.CloseImprovementTooltipButton();
         world.CloseCampTooltipButton();
-        cityBuilderManager.ResetCityUI();
+        world.CloseTradeRouteBeginTooltipButton();
+		cityBuilderManager.ResetCityUI();
         if (unitMovement.SelectedWorker != null)
             unitMovement.ClearSelection();
         unitMovement.HandleUnitSelectionAndMovement(worker.transform.position, worker.gameObject);

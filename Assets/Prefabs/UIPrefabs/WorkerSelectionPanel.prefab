@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 3353171004290388722}
   - component: {fileID: 5312760064009643363}
   - component: {fileID: 339274342687367354}
-  - component: {fileID: 4382634860799491496}
   - component: {fileID: 9012161218714560926}
   - component: {fileID: 5413135460159653962}
   - component: {fileID: 8313148618265676875}
+  - component: {fileID: 8220064854805942531}
   m_Layer: 5
   m_Name: WorkerSelectionPanel
   m_TagString: Untagged
@@ -81,18 +81,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 2
---- !u!225 &4382634860799491496
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 624308965952619012}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!114 &9012161218714560926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,31 +124,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 339274342687367354}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIBuildOptions, Assembly-CSharp
-        m_MethodName: OnPointerClick
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &5413135460159653962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,9 +137,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed225f282be383345b3443dc40479c26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildData: {fileID: 0}
-  canvasGroup: {fileID: 4382634860799491496}
   buttonImage: {fileID: 339274342687367354}
+  toggleColor: 0
+  showRemovalOptions: 0
 --- !u!114 &8313148618265676875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,6 +153,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   message: 
+  secondDelay: 1
+--- !u!225 &8220064854805942531
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624308965952619012}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4871339309576906425
 GameObject:
   m_ObjectHideFlags: 0

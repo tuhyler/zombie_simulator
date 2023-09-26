@@ -48,6 +48,8 @@ public class UIBuilderHandler : MonoBehaviour
     [HideInInspector]
     public bool isQueueing;
 
+    [SerializeField]
+    public Transform objectHolder, finalSpaceHolder;
     //for updating resources
     private int maxResource;
     private int maxLabor;
@@ -131,6 +133,17 @@ public class UIBuilderHandler : MonoBehaviour
     {
         OnUnitIconButtonClick?.Invoke(unitBuildData);
     }
+
+    public void FinishMenuSetup()
+    {
+        finalSpaceHolder.SetAsLastSibling();
+
+		foreach (Transform selection in uiElementsParent) //populate list
+		{
+			if (selection.TryGetComponent(out UIBuildOptions option))
+				buildOptions.Add(option);
+		}
+	}
 
     public void ToggleVisibility(bool v, bool openTab, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
     {

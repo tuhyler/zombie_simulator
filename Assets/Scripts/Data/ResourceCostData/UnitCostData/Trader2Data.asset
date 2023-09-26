@@ -23,9 +23,12 @@ MonoBehaviour:
     resourceAmount: 50
   - resourceType: 7
     resourceAmount: 10
-  consumedResources:
+  cycleCost:
+  - resourceType: 4
+    resourceAmount: 250
   - resourceType: 2
     resourceAmount: 1
+  battleCost: []
   laborCost: 1
   unitType: 5
   unitDescription: Transports cargo on land, holds more
@@ -35,5 +38,6 @@ MonoBehaviour:
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 0.5
+  trainTime: 0
   cargoCapacity: 200
   transportationType: 0

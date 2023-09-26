@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 1818493788481445142, guid: 6ac760f8d92380a4db62a30110e8354a, type: 3}
   secondaryData: []
+  isSecondary: 1
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: FarmFP
   improvementDisplayName: Farm
   improvementLevel: 2
@@ -22,7 +24,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 741a89afd37a9574e8f8700d3d8487e2, type: 3}
-  littleImage: {fileID: 0}
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
   - resourceType: 6
@@ -50,9 +51,13 @@ MonoBehaviour:
   replaceTerrain: 1
   replaceRocks: 0
   singleBuild: 0
+  oneTerrain: 1
+  adjustForHill: 1
+  hillAdjustment: 0.6
   buildTime: 5
   availableInitially: 0
   workAnimLoop: 0
   hideIdleMesh: 1
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 0}

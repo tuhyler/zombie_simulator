@@ -6,6 +6,7 @@ public class ImprovementDataSO : ScriptableObject
 {
     public GameObject prefab;
     public List<ImprovementDataSO> secondaryData;
+    public bool isSecondary;
     public bool isBuilding;
     public bool isBuildingImprovement;
     public string improvementName;

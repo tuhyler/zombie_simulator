@@ -56,7 +56,7 @@ public class UICityLaborCostPanel : MonoBehaviour
 
             resourceOption.resourceImage.sprite = resource.resourceIcon;
             resourceOption.resourceType = resource.resourceType;
-            resourceOption.resourceAmount.color = Color.red;
+            resourceOption.resourceAmountText.color = Color.red;
             resourceOption.gameObject.SetActive(false);
 
             //resourceOptions.Add(resourceOption);
@@ -135,7 +135,7 @@ public class UICityLaborCostPanel : MonoBehaviour
             
             resourceOptionsDict[resourceType].gameObject.SetActive(true);
             resourceOptions.Add(resourceOptionsDict[resourceType]);
-            resourceOptionsDict[resourceType].resourceAmount.text = $"-{consumedResourcesDict[resourceType]}";
+            resourceOptionsDict[resourceType].resourceAmountText.text = $"-{consumedResourcesDict[resourceType]}";
         }
 
         //foreach (UIResourceInfoPanel resourceOption in resourceOptions)
@@ -164,7 +164,7 @@ public class UICityLaborCostPanel : MonoBehaviour
                     resourceOptions.Add(resourceOptionsDict[resourceType]);
                 }
 
-                resourceOptionsDict[resourceType].resourceAmount.text = $"-{consumedResourcesDict[resourceType]}";
+                resourceOptionsDict[resourceType].resourceAmountText.text = $"-{consumedResourcesDict[resourceType]}";
             }
             else if (consumedResourcesDict[resourceType] == 0 && resourceOptions.Contains(resourceOptionsDict[resourceType]))
             {

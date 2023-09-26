@@ -19,11 +19,11 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public UIResourceManager uiResourceManager;
     [SerializeField]
-    private UIBuilderHandler uiRawGoodsBuilder;
+    public UIBuilderHandler uiRawGoodsBuilder;
     [SerializeField]
-    private UIBuilderHandler uiProducerBuilder;
+    public UIBuilderHandler uiProducerBuilder;
     [SerializeField]
-    private UIBuilderHandler uiBuildingBuilder;
+    public UIBuilderHandler uiBuildingBuilder;
     [SerializeField]
     private UIQueueManager uiQueueManager;
     [SerializeField]
@@ -719,7 +719,7 @@ public class CityBuilderManager : MonoBehaviour
                 td.walkable = false;
             }
 			
-            if (td.prop != null)
+            if (td.prop != null && td.resourceAmount > 0)
                 td.prop.gameObject.SetActive(true);
             td.RestoreTerrainMesh();
             if (td.hasResourceMap)
@@ -2289,7 +2289,7 @@ public class CityBuilderManager : MonoBehaviour
         return rotation;
     }
 
-    private void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement)
+    public void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement)
     {
         ImprovementDataSO improvementData = selectedImprovement.GetImprovementData;
 		//selectedImprovement.DestroyPS();
@@ -2398,10 +2398,21 @@ public class CityBuilderManager : MonoBehaviour
                 world.GetTerrainDataAt(improvementLoc).RestoreTerrainMesh();
             }
 
-            td.prop.gameObject.SetActive(true);
+            if (td.resourceAmount > 0)
+                td.prop.gameObject.SetActive(true);
+            else
+            {
+                if (td.terrainData.grassland)
+                    td.terrainData = td.isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
+                else
+                    td.terrainData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
+
+				td.prop.gameObject.SetActive(false);
+			}
+
             if (td.terrainData.hasRocks)
                 td.RocksCheck();
-
+            
             if (improvementData.singleBuild)
             {
                 city.singleBuildImprovementsBuildingsDict.Remove(improvementData.improvementName);
@@ -2493,10 +2504,10 @@ public class CityBuilderManager : MonoBehaviour
 
         if (city.activeCity && !upgradingImprovement)
         {
-            uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
-                selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
+            uiInfoPanelCity.SetData(city.cityName, city.cityPop.CurrentPop, city.HousingCount, city.cityPop.UnusedLabor, city.workEthic,
+                city.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
             UpdateLaborNumbers();
-            uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+            uiLaborAssignment.UpdateUI(city, placesToWork);
         }
     }
 
@@ -3218,7 +3229,8 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
         TerrainData td = world.GetTerrainDataAt(selectedCityLoc);
-        td.prop.gameObject.SetActive(true);
+        if (td.resourceAmount > 0)
+           td.prop.gameObject.SetActive(true);
         //td.gameObject.tag = td.originalTag;
 
         //destroying queued objects

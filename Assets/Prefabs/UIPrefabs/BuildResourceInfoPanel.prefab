@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c427be6d0fb15eb4a8ad1bc135f99683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceAmount: {fileID: 1245424484425196480}
+  resourceAmountText: {fileID: 1245424484425196480}
   image: {fileID: 7315062529990214195}
   resourceImage: {fileID: 3347234897448638389}
   backgroundCanvas: {fileID: 4834448168911250375}

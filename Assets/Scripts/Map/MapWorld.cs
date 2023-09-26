@@ -31,11 +31,13 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private UIBuildingSomething uiBuildingSomething;
     [SerializeField]
-    private UITerrainTooltip uiTerrainTooltip;
+    public UITerrainTooltip uiTerrainTooltip;
     [SerializeField]
-    private UICityImprovementTip uiCityImprovementTip;
+    public UICityImprovementTip uiCityImprovementTip;
     [SerializeField]
     public UICampTip uiCampTooltip;
+    [SerializeField]
+    public UITradeRouteBeginTooltip uiTradeRouteBeginTooltip;
     [SerializeField]
     public UITomFinder uiTomFinder;
     [SerializeField]
@@ -49,7 +51,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private Material transparentMat;
     [SerializeField]
-    private GameObject selectionIcon, enemyCampIcon;
+    private GameObject selectionIcon, enemyCampIcon, buildPanel;
 
     [SerializeField]
     private ParticleSystem lightBeam;
@@ -88,6 +90,7 @@ public class MapWorld : MonoBehaviour
     public bool researching;
     private List<City> researchWaitList = new();
     private List<City> goldCityWaitList = new();
+    private List<City> goldCityRouteWaitList = new();
     private List<Wonder> goldWonderWaitList = new();
     private List<TradeCenter> goldTradeCenterWaitList = new();
 
@@ -167,6 +170,10 @@ public class MapWorld : MonoBehaviour
     //for naming of units
     [HideInInspector]
     public int workerCount, infantryCount;
+
+    //for when terrain runs out of resources
+    [SerializeField]
+    public TerrainDataSO grasslandTerrain, grasslandHillTerrain, desertTerrain, desertHillTerrain;
 
     private void Awake()
     {
@@ -341,6 +348,24 @@ public class MapWorld : MonoBehaviour
 
         foreach (ImprovementDataSO data in UpgradeableObjectHolder.Instance.allBuildingsAndImprovements)
         {
+            if (!data.isSecondary)
+            {
+                GameObject buildPanelGO = Instantiate(buildPanel);
+                UIBuilderHandler builderHandler;
+
+                if (data.rawMaterials)
+                    builderHandler = cityBuilderManager.uiRawGoodsBuilder;
+                else if (data.isBuilding)
+				    builderHandler = cityBuilderManager.uiBuildingBuilder;
+                else
+				    builderHandler = cityBuilderManager.uiProducerBuilder;
+            
+                UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
+                buildOption.BuildData = data;
+			    buildPanelGO.transform.SetParent(builderHandler.objectHolder, false);
+			    buildOption.SetBuildOptionData(builderHandler);
+            }
+            
             improvementDataDict[data.improvementName + "-" + data.improvementLevel] = data;
             
             if (data.availableInitially)
@@ -386,10 +411,24 @@ public class MapWorld : MonoBehaviour
             upgradeableObjectLevel = data.improvementLevel;
         }
 
-        //populating the upgradeableobjectdict, every one starts at level 1. 
-        foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
+        cityBuilderManager.uiRawGoodsBuilder.FinishMenuSetup();
+		cityBuilderManager.uiBuildingBuilder.FinishMenuSetup();
+		cityBuilderManager.uiProducerBuilder.FinishMenuSetup();
+
+		//populating the upgradeableobjectdict, every one starts at level 1. 
+		foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
         {
-            unitBuildDataDict[data.unitName + "-" + data.unitLevel] = data;
+			if (!data.isSecondary)
+            {
+                GameObject buildPanelGO = Instantiate(buildPanel);
+			
+			    UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
+			    buildOption.UnitBuildData = data;
+			    buildPanelGO.transform.SetParent(cityBuilderManager.uiUnitBuilder.objectHolder, false);
+			    buildOption.SetBuildOptionData(cityBuilderManager.uiUnitBuilder);
+            }
+
+			unitBuildDataDict[data.unitName + "-" + data.unitLevel] = data;
             
             if (data.availableInitially)
                 data.locked = false;
@@ -398,7 +437,9 @@ public class MapWorld : MonoBehaviour
             upgradeableObjectMaxLevelDict[data.unitName] = 1;
         }
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+		cityBuilderManager.uiUnitBuilder.FinishMenuSetup();
+
+		foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
             resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
             defaultResourcePriceDict[resource.resourceType] = resource.resourcePrice;
@@ -434,6 +475,11 @@ public class MapWorld : MonoBehaviour
         CreateParticleSystems();
         DeactivateCanvases();
         CreateGrid();
+    }
+
+    public void AaddGold()
+    {
+        UpdateWorldResources(ResourceType.Gold, 100);
     }
 
     private void DeactivateCanvases()
@@ -790,7 +836,8 @@ public class MapWorld : MonoBehaviour
         CloseTerrainTooltipButton();
         CloseImprovementTooltipButton();
         CloseCampTooltipButton();
-    }
+        CloseTradeRouteBeginTooltipButton();
+	}
 
     public void ToggleMinimap(bool v)
     {
@@ -1375,7 +1422,17 @@ public class MapWorld : MonoBehaviour
         uiCampTooltip.ToggleVisibility(false);
     }
 
-    private bool TooltipCheck()
+    public void CloseTradeRouteBeginTooltipButton()
+    {
+        uiTradeRouteBeginTooltip.ToggleVisibility(false);
+    }
+
+	public void CloseTradeRouteBeginTooltip()
+	{
+		uiTradeRouteBeginTooltip.ToggleVisibility(false);
+	}
+
+	private bool TooltipCheck()
     {
 		if (tooltip)
 		{
@@ -1420,10 +1477,19 @@ public class MapWorld : MonoBehaviour
         return researchWaitList.Count > 0;
     }
 
-    public void AddToGoldCityWaitList(City city)
+    public void AddToGoldCityWaitList(City city, bool trader)
     {
-        if (!goldCityWaitList.Contains(city))
-            goldCityWaitList.Add(city);
+        if (trader)
+        {
+			if (!goldCityRouteWaitList.Contains(city))
+				goldCityRouteWaitList.Add(city);
+		}
+        else
+        {
+            if (!goldCityWaitList.Contains(city))
+                goldCityWaitList.Add(city);
+        }
+        
     }
 
     public void RestartCityProduction()
@@ -1459,17 +1525,16 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void AddToGoldTradeCenterWaitList(TradeCenter tradeCenter)
-    {
-        if (!goldTradeCenterWaitList.Contains(tradeCenter))
-            goldTradeCenterWaitList.Add(tradeCenter);
-    }
-
     private bool WondersWaitingCheck()
     {
         return goldWonderWaitList.Count > 0;
     }
 
+    public void AddToGoldTradeCenterWaitList(TradeCenter tradeCenter)
+    {
+        if (!goldTradeCenterWaitList.Contains(tradeCenter))
+            goldTradeCenterWaitList.Add(tradeCenter);
+    }
     private void RestartTradeCenterRoutes()
     {
         List<TradeCenter> tradeCenterWaitList = new(goldTradeCenterWaitList);
@@ -1489,6 +1554,27 @@ public class MapWorld : MonoBehaviour
     public void RemoveTradeCenterFromWaitList(TradeCenter tradeCenter)
     {
         goldTradeCenterWaitList.Remove(tradeCenter);
+    }
+
+    public void RestartCityRoutes()
+    {
+        List<City> traderWaitList = new(goldCityRouteWaitList);
+
+        for (int i = 0; i < traderWaitList.Count; i++)
+        {
+			goldCityRouteWaitList.Remove(traderWaitList[i]);
+            traderWaitList[i].ResourceManager.CheckTraderWaitList(ResourceType.Gold);
+		}
+    }
+
+    private bool TraderWaitingCheck()
+    {
+        return goldCityRouteWaitList.Count > 0;
+    }
+
+    public void RemoveTraderFromWaitList(City city)
+    {
+        goldCityRouteWaitList.Remove(city);
     }
 
     //lights in the world
@@ -1530,6 +1616,9 @@ public class MapWorld : MonoBehaviour
 
             if (pos)
             {
+                if (TraderWaitingCheck())
+                    RestartCityRoutes();
+
                 if (CitiesGoldWaitingCheck())
                     RestartCityProduction();
                 
@@ -1549,6 +1638,8 @@ public class MapWorld : MonoBehaviour
                 cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Gold, prevAmount, currentAmount, pos, cityBuilderManager.SelectedCity.ResourceManager);
             else if (uiCampTooltip.EnemyScreenActive())
                 uiCampTooltip.UpdateBattleCostCheck(currentAmount, ResourceType.Gold);
+            else if (uiTradeRouteBeginTooltip.activeStatus)
+                uiTradeRouteBeginTooltip.UpdateRouteCost(currentAmount, ResourceType.Gold);
         }
     }
 

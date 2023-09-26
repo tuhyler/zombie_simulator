@@ -279,7 +279,7 @@ public class UICityUpgradePanel : MonoBehaviour
                 if (produceTime > 0)
                 {
                     resourcesToShow[i].gameObject.SetActive(true);
-                    resourcesToShow[i].resourceAmount.text = produceTime.ToString();
+                    resourcesToShow[i].resourceAmountText.text = produceTime.ToString();
                     resourcesToShow[i].resourceType = ResourceType.Time;
                     resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
                 }
@@ -292,7 +292,7 @@ public class UICityUpgradePanel : MonoBehaviour
             {
                 resourcesToShow[i].gameObject.SetActive(true);
 
-                resourcesToShow[i].resourceAmount.text = resourcesInfo[i].resourceAmount.ToString();
+                resourcesToShow[i].resourceAmountText.text = resourcesInfo[i].resourceAmount.ToString();
                 resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourcesInfo[i].resourceType);
                 resourcesToShow[i].resourceType = resourcesInfo[i].resourceType;
 
@@ -300,12 +300,12 @@ public class UICityUpgradePanel : MonoBehaviour
                 {
                     if (resourceManager.CheckResourceAvailability(resourcesInfo[i]))
                     {
-                        resourcesToShow[i].resourceAmount.color = Color.white;
+                        resourcesToShow[i].resourceAmountText.color = Color.white;
                     }
                     else
                     {
                         cannotAfford = true;
-                        resourcesToShow[i].resourceAmount.color = Color.red;
+                        resourcesToShow[i].resourceAmountText.color = Color.red;
                     }
                 }
             }
@@ -314,7 +314,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
     private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime)
     {
-        producesInfo[produceIndex].resourceAmount.text = producedResource.resourceAmount.ToString();
+        producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
         producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
         producesInfo[produceIndex].resourceType = producedResource.resourceType;
 
@@ -376,12 +376,12 @@ public class UICityUpgradePanel : MonoBehaviour
         {
             if (resourceManager.CheckResourceAvailability(value))
             {
-                costsInfo[i].resourceAmount.color = Color.white;
+                costsInfo[i].resourceAmountText.color = Color.white;
             }
             else
             {
                 cannotAffordTemp = true;
-                costsInfo[i].resourceAmount.color = Color.red;
+                costsInfo[i].resourceAmountText.color = Color.red;
             }
 
             i++;

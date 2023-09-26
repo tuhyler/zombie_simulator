@@ -375,7 +375,7 @@ PrefabInstance:
         type: 3}
       propertyPath: canvasGroup
       value: 
-      objectReference: {fileID: 4158149396796058016}
+      objectReference: {fileID: 0}
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
@@ -465,7 +465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2983af276bf4cc24087e37f8dcd2f4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 4158149396796058016}
+  button: {fileID: 8607786919790331147}
   allContents: {fileID: 0}
   activeStatus: 0
   buttonImage: {fileID: 131679438440117426}
@@ -475,9 +475,9 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 389150116012545032}
   m_PrefabAsset: {fileID: 0}
---- !u!225 &4158149396796058016 stripped
+--- !u!225 &8607786919790331147 stripped
 CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 4382634860799491496, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+  m_CorrespondingSourceObject: {fileID: 8220064854805942531, guid: 8eccb49dcab704e46a7d42f7e9046c93,
     type: 3}
   m_PrefabInstance: {fileID: 389150116012545032}
   m_PrefabAsset: {fileID: 0}
@@ -669,7 +669,7 @@ PrefabInstance:
         type: 3}
       propertyPath: canvasGroup
       value: 
-      objectReference: {fileID: 8606848476787000763}
+      objectReference: {fileID: 0}
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
@@ -729,6 +729,12 @@ PrefabInstance:
     - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+--- !u!225 &4156854711834880272 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 8220064854805942531, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+    type: 3}
+  m_PrefabInstance: {fileID: 5450362947198138387}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4830789597187324439 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 624308965952619012, guid: 8eccb49dcab704e46a7d42f7e9046c93,
@@ -747,7 +753,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2983af276bf4cc24087e37f8dcd2f4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 8606848476787000763}
+  button: {fileID: 4156854711834880272}
   allContents: {fileID: 0}
   activeStatus: 0
   buttonImage: {fileID: 5698966741971556521}
@@ -778,12 +784,6 @@ MonoBehaviour:
 --- !u!224 &7290007807526202081 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3353171004290388722, guid: 8eccb49dcab704e46a7d42f7e9046c93,
-    type: 3}
-  m_PrefabInstance: {fileID: 5450362947198138387}
-  m_PrefabAsset: {fileID: 0}
---- !u!225 &8606848476787000763 stripped
-CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 4382634860799491496, guid: 8eccb49dcab704e46a7d42f7e9046c93,
     type: 3}
   m_PrefabInstance: {fileID: 5450362947198138387}
   m_PrefabAsset: {fileID: 0}
@@ -975,7 +975,7 @@ PrefabInstance:
         type: 3}
       propertyPath: canvasGroup
       value: 
-      objectReference: {fileID: 8062591903732130713}
+      objectReference: {fileID: 0}
     - target: {fileID: 7569234164273575448, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: interactable
@@ -1040,6 +1040,12 @@ PrefabInstance:
     - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
     - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+--- !u!225 &2388494255945879346 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 8220064854805942531, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+    type: 3}
+  m_PrefabInstance: {fileID: 5996027997341523505}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6306010924383633035 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 339274342687367354, guid: 8eccb49dcab704e46a7d42f7e9046c93,
@@ -1070,16 +1076,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2983af276bf4cc24087e37f8dcd2f4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 8062591903732130713}
+  button: {fileID: 2388494255945879346}
   allContents: {fileID: 0}
   activeStatus: 0
   buttonImage: {fileID: 6306010924383633035}
---- !u!225 &8062591903732130713 stripped
-CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 4382634860799491496, guid: 8eccb49dcab704e46a7d42f7e9046c93,
-    type: 3}
-  m_PrefabInstance: {fileID: 5996027997341523505}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &9060944425861565635 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3353171004290388722, guid: 8eccb49dcab704e46a7d42f7e9046c93,

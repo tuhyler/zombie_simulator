@@ -230,10 +230,18 @@ public class City : MonoBehaviour
         Vector3 loc = cityLoc;
         loc.y += 0.1f;
         loc.z += -0.6f;
+        Vector3 cityBaseLoc = cityBase.transform.localPosition;
+
+        if (world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3)))
+        {
+            loc.y += 0.1f;
+            cityBaseLoc.y += 0.1f;
+            cityBase.transform.localPosition = cityBaseLoc;
+        }
+
         if (isHill)
         {
             loc.y += .5f;
-            Vector3 cityBaseLoc = cityBase.transform.localPosition;
             cityBaseLoc.y += .5f;
             cityBase.transform.localPosition = cityBaseLoc;
         }
@@ -413,9 +421,9 @@ public class City : MonoBehaviour
         world.AddToResearchWaitList(this);
     }
 
-    public void AddToWorldGoldWaitList()
+    public void AddToWorldGoldWaitList(bool trader = false)
     {
-        world.AddToGoldCityWaitList(this);
+        world.AddToGoldCityWaitList(this, trader);
     }
 
     //private void EnableHighlight()
