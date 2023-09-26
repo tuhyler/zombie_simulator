@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class UIResourceInfoPanel : MonoBehaviour
 {
     [SerializeField]
-    public TMP_Text resourceAmount;
+    public TMP_Text resourceAmountText;
 
     [SerializeField]
     public Image image;
@@ -23,10 +23,10 @@ public class UIResourceInfoPanel : MonoBehaviour
     public RectTransform resourceTransform, allContents;
 
     public ResourceType resourceType;
-
+    
     private void Awake()
     {
-        resourceAmount.outlineColor = new Color(0f, 0f, 0f);
-        resourceAmount.outlineWidth = .1f;
+        resourceAmountText.outlineColor = new Color(0f, 0f, 0f);
+        resourceAmountText.outlineWidth = .1f;
     }
 }

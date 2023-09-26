@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class WorkerTaskManager : MonoBehaviour
 {
@@ -31,7 +32,8 @@ public class WorkerTaskManager : MonoBehaviour
     private ResourceIndividualHandler resourceIndividualHandler;
     private RoadManager roadManager;
 
-    private Coroutine taskCoroutine;
+    [HideInInspector]
+    public Coroutine taskCoroutine;
 
     private int cityBuildingTime = 1;
     private WaitForSeconds cityBuildTime = new WaitForSeconds(1);
@@ -159,59 +161,95 @@ public class WorkerTaskManager : MonoBehaviour
             uiCancelTask.ToggleTweenVisibility(true);
     }
 
-    //public void HandleCitySelection(GameObject selectedObject)
-    //{
-    //    if (selectedObject == null)
-    //        return;
+	//public void HandleCitySelection(GameObject selectedObject)
+	//{
+	//    if (selectedObject == null)
+	//        return;
 
-    //    //for deselecting unit
-    //    //Unit unitReference = selectedObject.GetComponent<Unit>();
-    //    //if (CheckIfSameUnitSelected(unitReference) && unitReference != null)
-    //    //{
-    //    //    //workerTaskUI.ToggleVisibility(false);
-    //    //    workerUnit = null;
-    //    //    return;
-    //    //}
+	//    //for deselecting unit
+	//    //Unit unitReference = selectedObject.GetComponent<Unit>();
+	//    //if (CheckIfSameUnitSelected(unitReference) && unitReference != null)
+	//    //{
+	//    //    //workerTaskUI.ToggleVisibility(false);
+	//    //    workerUnit = null;
+	//    //    return;
+	//    //}
 
-    //    workerUnit = null;
+	//    workerUnit = null;
 
-    //    workerUnit = selectedObject.GetComponent<Worker>(); //checks if unit is worker
+	//    workerUnit = selectedObject.GetComponent<Worker>(); //checks if unit is worker
 
-    //    if (workerUnit != null)
-    //    {
-    //        //HandleUnitSelection();
-    //    }
-    //}
+	//    if (workerUnit != null)
+	//    {
+	//        //HandleUnitSelection();
+	//    }
+	//}
 
-    //public void HandleUnitSelection(Unit unit) //for unit turn handler
-    //{
-    //    if (workerUnit != null)
-    //    {
-    //        workerUnit = null;
-    //    }
-    //    workerUnit = unit.GetComponent<Worker>(); 
-    //    if (workerUnit != null)
-    //    {
-    //        HandleUnitSelection();
-    //    }
-    //}
+	//public void HandleUnitSelection(Unit unit) //for unit turn handler
+	//{
+	//    if (workerUnit != null)
+	//    {
+	//        workerUnit = null;
+	//    }
+	//    workerUnit = unit.GetComponent<Worker>(); 
+	//    if (workerUnit != null)
+	//    {
+	//        HandleUnitSelection();
+	//    }
+	//}
 
-    //private void HandleUnitSelection()
-    //{
-    //    //workerUnit = worker.GetComponent<Unit>();
-    //    if (workerUnit.harvested) //if unit just finished harvesting something, can't move until resource is sent to city
-    //        workerUnit.SendResourceToCity();
-    //    //if (workerUnit != null) //Because warrior doesn't have worker component, it won't see the build UI
-    //    //{
-    //    //    workerTaskUI.ToggleVisibility(true);
-    //    //    //workerUnit.FinishedMoving.AddListener(ResetWorkerTaskSystem); //hides the UI here without needing to connect to unit class
-    //    //}
-    //}
+	//private void HandleUnitSelection()
+	//{
+	//    //workerUnit = worker.GetComponent<Unit>();
+	//    if (workerUnit.harvested) //if unit just finished harvesting something, can't move until resource is sent to city
+	//        workerUnit.SendResourceToCity();
+	//    //if (workerUnit != null) //Because warrior doesn't have worker component, it won't see the build UI
+	//    //{
+	//    //    workerTaskUI.ToggleVisibility(true);
+	//    //    //workerUnit.FinishedMoving.AddListener(ResetWorkerTaskSystem); //hides the UI here without needing to connect to unit class
+	//    //}
+	//}
 
-    //private bool CheckIfSameUnitSelected(Unit unitReference) //for deselection
-    //{
-    //    return workerUnit == unitReference;
-    //}
+	//private bool CheckIfSameUnitSelected(Unit unitReference) //for deselection
+	//{
+	//    return workerUnit == unitReference;
+	//}
+
+	public void BuildCityButton()
+    {
+		Vector3 pos = workerUnit.transform.position;
+		pos.y = 0;
+		Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+
+		if (Vector3Int.RoundToInt(pos) == workerTile)
+		{
+			//add to finish animation listener
+			workerUnit.BuildCity();
+		}
+		else
+		{
+			MoveToCenterOfTile(workerTile);
+			workerUnit.FinishedMoving.AddListener(workerUnit.BuildCity);
+		}
+	}
+
+    public void GatherResourceButton()
+    {
+		workerUnit.GatherResource();
+	}
+
+    public void BuildUtilityButton()
+    {
+		unitMovement.buildingRoad = true;
+		uiBuildingSomething.SetText("Building Road");
+		OrdersPrep();
+		workerUnit.WorkerOrdersPreparations();
+	}
+
+    public void ClearForestButton()
+    {
+        workerUnit.ClearForest();
+    }
 
     public void PerformTask(ImprovementDataSO improvementData) //don't actually use "improvementData".
     {
@@ -359,48 +397,16 @@ public class WorkerTaskManager : MonoBehaviour
         //Debug.Log("Removing road at " + workerTile);
     }
 
-    public void GatherResource(Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual)
+    public void GatherResource(Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
-        //Vector3 workerPos = workerUnit.transform.position;
-        //workerPos.y = 0;
-        //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
-        //workerUnit.FinishedMoving.RemoveListener(GatherResource);
-
-        //if (world.IsBuildLocationTaken(workerTile) || world.IsRoadOnTerrain(workerTile))
-        //{
-        //    InfoPopUpHandler.Create(workerPos, "Harvest on open tile");
-        //    return;
-        //}
-
-        //if (!resourceIndividualHandler.CheckForCity(workerTile))
-        //{
-        //    InfoPopUpHandler.Create(workerPos, "No nearby city");
-        //    return;
-        //} 
-
-        //ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
-        //if (resourceIndividual == null)
-        //{
-        //    InfoPopUpHandler.Create(workerPos, "No resource to harvest here");
-        //    return;
-        //}
-        //Debug.Log("Harvesting resource at " + workerPos);
-
-        ////resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
-        //workerUnit.StopMovement();
-        //workerUnit.isBusy = true;
-        //resourceIndividualHandler.SetWorker(workerUnit);
         world.SetWorkerWorkLocation(world.RoundToInt(workerPos));
         uiCancelTask.ToggleTweenVisibility(true);
-        taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual));
-
-
-        //workerUnit.HidePath();
+        taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual, clearForest));
     }
 
     private void OrdersPrep()
     {
-        uiWorkerHandler.ToggleVisibility(false, null, world);
+        uiWorkerHandler.ToggleVisibility(false, world);
         uiBuildingSomething.ToggleVisibility(true);
 
         world.unitOrders = true;
@@ -514,6 +520,7 @@ public class WorkerTaskManager : MonoBehaviour
             worker.SetTime(timePassed);
         }
 
+        taskCoroutine = null;
         worker.HideProgressTimeBar();
         worker.SetWorkAnimation(false);
         if (worker.isSelected)
@@ -650,7 +657,9 @@ public class WorkerTaskManager : MonoBehaviour
         else
         {
             workerUnit.SetWorkAnimation(false);
-            StopCoroutine(taskCoroutine);
+
+            if (taskCoroutine != null)
+                StopCoroutine(taskCoroutine);
             workerUnit.HideProgressTimeBar();
             world.RemoveWorkerWorkLocation(world.RoundToInt(workerUnit.transform.position));
         }

@@ -300,7 +300,7 @@ public class UICampTip : MonoBehaviour
 			else
 			{
 				panelList[i].gameObject.SetActive(true);
-				panelList[i].resourceAmount.text = resourceList[i].resourceAmount.ToString();
+				panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
 				panelList[i].resourceType = resourceList[i].resourceType;
 				panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 
@@ -310,11 +310,11 @@ public class UICampTip : MonoBehaviour
 					{
 						if (world.CheckWorldGold(resourceList[i].resourceAmount))
 						{
-							panelList[i].resourceAmount.color = Color.white;
+							panelList[i].resourceAmountText.color = Color.white;
 						}
 						else
 						{
-							panelList[i].resourceAmount.color = Color.red;
+							panelList[i].resourceAmountText.color = Color.red;
 							cantAfford = true;
 							cantAffordList.Add(resourceList[i].resourceType);
 						}
@@ -324,16 +324,16 @@ public class UICampTip : MonoBehaviour
 					
 					if (!manager.CheckResourceAvailability(resourceList[i]))
 					{
-						panelList[i].resourceAmount.color = Color.red;
+						panelList[i].resourceAmountText.color = Color.red;
 						cantAfford = true;
 						cantAffordList.Add(resourceList[i].resourceType);
 					}
 					else
-						panelList[i].resourceAmount.color = Color.white;
+						panelList[i].resourceAmountText.color = Color.white;
 				}
 				else
 				{
-					panelList[i].resourceAmount.color = Color.white;
+					panelList[i].resourceAmountText.color = Color.white;
 				}
 			}
 		}
@@ -352,11 +352,11 @@ public class UICampTip : MonoBehaviour
 
 			if (amount >= resourceList[i].resourceAmount)
 			{
-				costsInfo[i].resourceAmount.color = Color.white;
+				costsInfo[i].resourceAmountText.color = Color.white;
 			}
 			else
 			{
-				costsInfo[i].resourceAmount.color = Color.red;
+				costsInfo[i].resourceAmountText.color = Color.red;
 				tempCantAfford = true;
 			}
 		}

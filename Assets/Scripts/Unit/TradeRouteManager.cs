@@ -1,4 +1,5 @@
 using Mono.Cecil;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
@@ -11,6 +12,8 @@ public class TradeRouteManager : MonoBehaviour
     public int startingStop;
     [HideInInspector]
     public List<Vector3Int> cityStops = new();
+    private Dictionary<int, List<Vector3Int>> routePathsDict = new();
+    public Dictionary<int, List<Vector3Int>> RoutePathsDict { get { return routePathsDict; } }
     [HideInInspector]
     public List<List<ResourceValue>> resourceAssignments;
     [HideInInspector]
@@ -71,6 +74,27 @@ public class TradeRouteManager : MonoBehaviour
         currentStop = startingStop;
     }
 
+    public int CalculateRoutePaths(MapWorld world)
+    {
+        routePathsDict.Clear();
+        int length = 0;
+        
+        for (int i = 0; i < cityStops.Count; i++)
+        {
+            int j;
+            if (i == cityStops.Count - 1)
+                j = 0;
+            else
+                j = i + 1;
+
+			List<Vector3Int> currentPath = GridSearch.AStarSearch(world, cityStops[i], cityStops[j], true, trader.bySea);
+            routePathsDict[i] = currentPath;
+            length += currentPath.Count;
+		}
+
+        return length;
+    }
+
     public Vector3Int GoToNext()
     {
         //city = null;
@@ -80,6 +104,17 @@ public class TradeRouteManager : MonoBehaviour
         currentDestination = cityStops[currentStop];
         waitTime = waitTimes[currentStop];
         return cityStops[currentStop];
+    }
+
+    public List<Vector3Int> GetNextPath()
+    {
+        int nextPath;
+        if (currentStop == 0)
+            nextPath = cityStops.Count - 1;
+        else
+            nextPath = currentStop - 1;
+        
+        return routePathsDict[nextPath];
     }
 
     public void SetUIPersonalResourceManager(UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)

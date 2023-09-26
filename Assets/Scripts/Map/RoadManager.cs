@@ -83,6 +83,7 @@ public class RoadManager : MonoBehaviour
             worker.SetTime(timePassed);
         }
 
+        workerTaskManager.taskCoroutine = null;
         worker.HideProgressTimeBar();
         worker.SetWorkAnimation(false);
         BuildRoadAtPosition(roadPosition);
@@ -359,6 +360,7 @@ public class RoadManager : MonoBehaviour
             worker.SetTime(timePassed);
         }
 
+        workerTaskManager.taskCoroutine = null;
         //worker.PlaySplash(tile, isHill);
         worker.HideProgressTimeBar();
         worker.SetWorkAnimation(false);

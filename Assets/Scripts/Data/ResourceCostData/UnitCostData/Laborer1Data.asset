@@ -15,14 +15,16 @@ MonoBehaviour:
   prefab: {fileID: 8266383177558337226, guid: cb350d5765272fc44b256dd944294073, type: 3}
   secondaryPrefab: {fileID: 8266383177558337226, guid: deea346bcc32ad1469f6e06830ec36f0,
     type: 3}
+  isSecondary: 0
   unitName: Laborer
   unitLevel: 0
   image: {fileID: 21300000, guid: 38c96c942e8bff6448b8933a40ad9a8d, type: 3}
   mapIcon: {fileID: 21300000, guid: 9b23ce138e88b6d4190fc1a4ee56ab20, type: 3}
   unitCost: []
-  consumedResources:
+  cycleCost:
   - resourceType: 2
     resourceAmount: 1
+  battleCost: []
   laborCost: 0
   unitType: 0
   unitDescription: Labor for wonders or other cities

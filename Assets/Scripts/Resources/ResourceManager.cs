@@ -43,6 +43,8 @@ public class ResourceManager : MonoBehaviour
     //consuming resources
     private List<ResourceProducer> waitingforResourceProducerList = new();
     private List<ResourceType> resourcesNeededForProduction = new();
+    private List<Trader> waitingForTraderList = new();
+    private List<ResourceType> resourcesNeededForRoute = new();
 
     //UIs to update
     private UIResourceManager uiResourceManager;
@@ -207,7 +209,7 @@ public class ResourceManager : MonoBehaviour
             throw new InvalidOperationException("Can't have resources less than 0 " + resourceType);
     }
 
-    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location, bool military = false)
+    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location, bool military = false, bool showSpend = false)
     {
         int i = 0;
         location.y += consumedResource.Count * 0.4f;
@@ -248,18 +250,30 @@ public class ResourceManager : MonoBehaviour
                 UpdateUI(resourceType);
             }
 
-            if (city.activeCity && consumedAmount > 0)
+            if (showSpend)
+            {
+				Vector3 loc = location;
+				loc.y -= 0.4f * i;
+				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
+				i++;
+			}
+			else if (city.activeCity && consumedAmount > 0)
             {
                 Vector3 loc = location;
                 loc.y -= 0.4f * i;
                 InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
                 i++;
             }
-        }
+			else if (city.army.DeployBattleScreenCheck())
+				city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[resourceType], resourceType);
+			else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
+				city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[resourceType], resourceType);
 
-        if (city.activeCity)
+		}
+
+		if (city.activeCity)
             city.UpdateResourceInfo();
-    }
+	}
 
     public bool ConsumeResourcesCheck(List<ResourceValue> consumeResources, int labor)
     {
@@ -282,8 +296,31 @@ public class ResourceManager : MonoBehaviour
         return true;
     }
 
-    public void PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
+    public bool ConsumeResourcesForRouteCheck(List<ResourceValue> consumeResources)
     {
+        for (int i = 0; i < consumeResources.Count; i++)
+        {
+            if (consumeResources[i].resourceType == ResourceType.Gold)
+            {
+                if (!city.CheckWorldGold(consumeResources[i].resourceAmount))
+                {
+                    city.AddToWorldGoldWaitList(true);
+                    return false;
+                }
+            }
+            else if (resourceDict[consumeResources[i].resourceType] < consumeResources[i].resourceAmount)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool PrepareConsumedResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
+    {
+        bool destroy = false;
+        
         int i = 0;
         //producerLoc.y += producedResource.Count * 0.4f;
         resourceCount = 0;
@@ -301,6 +338,7 @@ public class ResourceManager : MonoBehaviour
             }
 
             int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
+
             Vector3 loc = producerLoc;
             loc.y += 0.4f * i;
 
@@ -308,9 +346,50 @@ public class ResourceManager : MonoBehaviour
                 InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
             i++;
         }
+
+        return destroy;
     }
 
-    public int CheckResource(ResourceType type, int amount, bool updateUI = true)
+	public bool PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, CityImprovement improvement = null)
+	{
+		bool destroy = false;
+
+		int i = 0;
+		//producerLoc.y += producedResource.Count * 0.4f;
+		resourceCount = 0;
+		foreach (ResourceValue resourceVal in producedResource)
+		{
+			int newResourceAmount = CalculateResourceGeneration(resourceVal.resourceAmount, currentLabor);	
+
+			if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0 && improvement.td.resourceAmount < newResourceAmount)
+				newResourceAmount = improvement.td.resourceAmount;
+
+			int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
+
+			if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0)
+			{
+				improvement.td.resourceAmount -= resourceAmount;
+				city.world.uiCityImprovementTip.UpdateResourceAmount(improvement);
+
+				if (improvement.td.resourceAmount <= 0)
+				{
+					improvement.td.resourceAmount = -1;
+					destroy = true;
+				}
+			}
+
+			Vector3 loc = producerLoc;
+			loc.y += 0.4f * i;
+
+			if (resourceAmount != 0)
+				InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
+			i++;
+		}
+
+		return destroy;
+	}
+
+	public int CheckResource(ResourceType type, int amount, bool updateUI = true)
     {
         if (type == ResourceType.Fish)
             type = ResourceType.Food;
@@ -396,6 +475,8 @@ public class ResourceManager : MonoBehaviour
             fullInventory = true;
         if (newResourceAmount < 0)
             CheckProducerUnloadWaitList();
+        else if (resourcesNeededForRoute.Contains(type))
+            CheckTraderWaitList(type);
         else if (resourcesNeededForProduction.Contains(type))
             CheckProducerResourceWaitList(type);
 
@@ -424,6 +505,8 @@ public class ResourceManager : MonoBehaviour
         }
         else if (city.army.DeployBattleScreenCheck())
             city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[type], type);
+        else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
+            city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[type], type);
 
         if (newResourceAmount > 0)
             city.CheckResourceWaiter(type);
@@ -825,7 +908,19 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void CheckProducerResourceWaitList(ResourceType resourceType)
+    public void CheckTraderWaitList(ResourceType resourceType)
+    {
+        List<Trader> tempWaitingForTrader = new(waitingForTraderList);
+
+        for (int i = 0; i < tempWaitingForTrader.Count; i++)
+        {
+            if (tempWaitingForTrader[i].routeCostTypes.Contains(resourceType))
+                tempWaitingForTrader[i].RestartRoute(city.cityLoc);
+        }
+    }
+
+
+	public void CheckProducerResourceWaitList(ResourceType resourceType)
     {
         List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
         
@@ -878,13 +973,35 @@ public class ResourceManager : MonoBehaviour
             resourcesNeededForProduction.Remove(type);
     }
 
-    //public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
-    //{
-    //    this.cityBuilderManager = cityBuilderManager;
-    //}
+    public void AddToTraderWaitList(Trader trader)
+    {
+        waitingForTraderList.Add(trader);
+    }
 
-    //for queued build orders in cities
-    public void SetQueueResources(List<ResourceValue> resourceList, CityBuilderManager cityBuilderManager)
+    public void RemoveFromTraderWaitList(Trader trader)
+    {
+        waitingForTraderList.Remove(trader);
+    }
+
+	public void AddToResourcesNeededForTrader(List<ResourceType> consumedResources)
+	{
+		foreach (ResourceType type in consumedResources)
+			resourcesNeededForRoute.Add(type);
+	}
+
+	public void RemoveFromResourcesNeededForTrader(List<ResourceType> consumedResources)
+	{
+		foreach (ResourceType type in consumedResources)
+			resourcesNeededForRoute.Remove(type);
+	}
+
+	//public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
+	//{
+	//    this.cityBuilderManager = cityBuilderManager;
+	//}
+
+	//for queued build orders in cities
+	public void SetQueueResources(List<ResourceValue> resourceList, CityBuilderManager cityBuilderManager)
     {
         queuedResourcesToCheck = resourceList;
         this.cityBuilderManager = cityBuilderManager;

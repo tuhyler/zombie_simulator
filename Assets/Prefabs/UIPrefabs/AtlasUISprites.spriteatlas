@@ -139,6 +139,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 7b6cf6b8f6c3b4e45b83818a2d4d8ac6, type: 3}
   - {fileID: 21300000, guid: cb4973c8dc95db441a2b19ea8c2dd6be, type: 3}
   - {fileID: 21300000, guid: ab105bd816ed46a4094a657d66e70f11, type: 3}
+  - {fileID: 21300000, guid: 8dd14509544858849802bacb4a448997, type: 3}
   - {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   - {fileID: 21300000, guid: dc76964902761f94c935417a2a80ac87, type: 3}
   - {fileID: 21300000, guid: 24ee2f493f480714ab8ff397f7f71c0b, type: 3}
@@ -308,6 +309,7 @@ SpriteAtlas:
   - bar_progresswhitegold
   - scrollbar_gold01
   - bar_progresswhiteblue
+  - button_clearforest
   - button_farm
   - icon_cavalry_enemy
   - icon_seige_enemy

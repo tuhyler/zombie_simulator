@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,12 @@ public class UICityImprovementTip : MonoBehaviour
     private MapWorld world;
     
     [SerializeField]
-    public TMP_Text title, level;
+    public TMP_Text title, level, resourceCount;
     private TMP_Text producesText, consumesNone;
+
+    [SerializeField]
+    private GameObject waitingForText, resourceCountGO;
+    private bool waiting;
 
     [SerializeField]
     private Image improvementImage;//, produceHighlight;
@@ -77,7 +82,19 @@ public class UICityImprovementTip : MonoBehaviour
         {
             highlightList[highlightIndex].gameObject.SetActive(false); // turn off previous one
             this.improvement = improvement;
-            SetData(this.improvement);
+
+			if (world.GetResourceProducer(improvement.loc).isWaitingforResources)
+			{
+				waiting = true;
+				waitingForText.SetActive(true);
+			}
+			else
+			{
+				waiting = false;
+				waitingForText.SetActive(false);
+			}
+
+			SetData(this.improvement);
             this.improvement.EnableHighlight(Color.white);
             gameObject.SetActive(val);
             activeStatus = true;
@@ -165,11 +182,26 @@ public class UICityImprovementTip : MonoBehaviour
 
         highlightList[highlightIndex].gameObject.SetActive(true);
 
+        bool showCount;
+
+        if (data.rawMaterials && improvement.td.resourceAmount >= 0)
+        {
+            showCount = true;
+            resourceCountGO.SetActive(true);
+            resourceCount.text = improvement.td.resourceAmount.ToString();
+        }
+        else
+        {
+            showCount = false;
+            resourceCountGO.SetActive(false);
+        }
+
         int multiple = Mathf.Max(maxCount - 2, 0) * 90; //allowing one extra for production time ResourceValue
         int panelWidth = 310 + multiple;
+        int panelHeight = showCount ? 525 : 450;
         int lineWidth = 280 + multiple;
 
-        allContents.sizeDelta = new Vector2(panelWidth, 435);
+        allContents.sizeDelta = new Vector2(panelWidth, panelHeight);
         lineImage.sizeDelta = new Vector2(lineWidth, 4);
     }
 
@@ -234,7 +266,7 @@ public class UICityImprovementTip : MonoBehaviour
                 if (!produces)
                 {
                     panelList[i].gameObject.SetActive(true);
-                    panelList[i].resourceAmount.text = producedTime.ToString();
+                    panelList[i].resourceAmountText.text = producedTime.ToString();
                     panelList[i].resourceType = ResourceType.Time;
                     panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
                 }
@@ -247,10 +279,16 @@ public class UICityImprovementTip : MonoBehaviour
             {
                 panelList[i].gameObject.SetActive(true);
                 //panelList[i].resourceAmount.text = Mathf.RoundToInt(resourceList[i].resourceAmount * (60f / producedTime)).ToString();
-                panelList[i].resourceAmount.text = resourceList[i].resourceAmount.ToString();
+                //panelList[i].SetResourceAmount(resourceList[i].resourceAmount);
+                panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
                 panelList[i].resourceType = resourceList[i].resourceType;
                 panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
-            }
+
+				if (waiting && resourceList[i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[resourceList[i].resourceType])
+					panelList[i].resourceAmountText.color = Color.red;
+				else
+					panelList[i].resourceAmountText.color = Color.white;
+			}
         }
 
         //if (produces)
@@ -306,4 +344,33 @@ public class UICityImprovementTip : MonoBehaviour
         if (world.cityBuilderManager.SelectedCity != null)
             world.cityBuilderManager.UpdateLaborNumbers();
     }
+
+    public void ToggleWaiting(bool v)
+    {
+        if (activeStatus)
+        {
+            waiting = v;
+            waitingForText.SetActive(v);
+
+			for (int i = 0; i < improvement.allConsumedResources[highlightIndex].Count; i++)
+            {
+                if (v && improvement.allConsumedResources[highlightIndex][i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[consumesInfo[i].resourceType])
+                    consumesInfo[i].resourceAmountText.color = Color.red;
+                else
+				    consumesInfo[i].resourceAmountText.color = Color.white;
+		    }
+        }
+    }
+
+    public void UpdateResourceAmount(CityImprovement improvement)
+    {
+        if (activeStatus && improvement.GetImprovementData.rawMaterials && this.improvement == improvement && improvement.td.resourceAmount >= 0)
+            resourceCount.text = improvement.td.resourceAmount.ToString();
+    }
+
+	internal void CloseCheck(CityImprovement improvement)
+	{
+        if (activeStatus && this.improvement == improvement)
+            ToggleVisibility(false);
+	}
 }

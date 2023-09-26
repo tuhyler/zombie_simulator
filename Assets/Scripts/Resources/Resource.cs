@@ -8,10 +8,11 @@ public class Resource : MonoBehaviour
     [SerializeField]
     private SpriteMask spriteMask;
 
-    public int gatheringAmount = 1;
     private Worker worker;
     private City city;
-    private ResourceIndividualSO resourceIndividual;
+    [HideInInspector]
+    public ResourceIndividualSO resourceIndividual;
+    bool clearForest;
 
 
     void LateUpdate()
@@ -25,31 +26,37 @@ public class Resource : MonoBehaviour
         spriteMask.sprite = sprite;
     }
 
-    public void SetInfo(Worker worker, City city, ResourceIndividualSO resourceIndividual)
+    public void SetInfo(Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
         this.worker = worker;
+        this.clearForest = clearForest;
         worker.SetResource(this);
         this.city = city;
         this.resourceIndividual = resourceIndividual;
     }
 
-    public IEnumerator SendResourceToCity()
+    public IEnumerator SendResourceToCity(int gatheringAmount)
     {
         worker.harvested = false;
         worker.isBusy = false;
+
+        if (clearForest) //ammount of wood received for clearing forest / jungle
+            gatheringAmount = 100;
+
+        int amount = worker.world.GetTerrainDataAt(worker.world.RoundToInt(worker.transform.position)).GatherResourceAmount(gatheringAmount, worker);
         worker.RemoveWorkLocation();
         LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
         yield return new WaitForSeconds(0.5f);
         city.PlayLightBullet();
         yield return new WaitForSeconds(0.5f);
 
-        int gatheredResource = city.ResourceManager.CheckResource(resourceIndividual.resourceType, gatheringAmount); //only add one of respective resource
+        int gatheredResource = city.ResourceManager.CheckResource(resourceIndividual.resourceType, amount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
         bool wasted = false;
         if (gatheredResource == 0)
             wasted = true;
 
-        InfoResourcePopUpHandler.CreateResourceStat(loc, gatheringAmount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), wasted);
+        InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), wasted);
         city.PlayResourceSplash();
     }
 

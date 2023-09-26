@@ -253,7 +253,7 @@ MonoBehaviour:
   - resourceType: 14
     resourceAmount: 50
   - resourceType: 11
-    resourceAmount: 50
+    resourceAmount: 100
   - resourceType: 19
     resourceAmount: 50
   - resourceType: 17
@@ -313,6 +313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forward: {x: 0, y: 0, z: 0}
+  attackZone: {x: 0, y: 0, z: 0}
   armyCount: 0
   cyclesGone: 0
   infantryCount: 0

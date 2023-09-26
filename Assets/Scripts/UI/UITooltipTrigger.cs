@@ -8,7 +8,8 @@ public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExi
     //private static LTDescr delay;
     public string message;
     public float secondDelay = 1f;
-    private Coroutine co;
+    private Coroutine co, co2;
+    private WaitForSeconds wait = new(1);
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -20,15 +21,37 @@ public class UITooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExi
     {
         //LeanTween.cancel(delay.uniqueId);
         if (co != null)
+        {
             StopCoroutine(co);
+            co = null;
+        }
+        else if (co2 != null)
+        {
+            StopCoroutine(co2);
+            co2 = null;
+        }
         UITooltipSystem.Hide();
     }
 
     private IEnumerator ShowMessage()
     {
-        yield return new WaitForSeconds(1);
+        yield return wait;
+        co = null;
 
         UITooltipSystem.Show(message);
+        co2 = StartCoroutine(DisplayMessage());
+    }
+
+    private IEnumerator DisplayMessage()
+    {
+        int waitTime = 0;
+        while (waitTime < 2)
+        {
+            yield return wait;
+            waitTime++;
+        }
+
+        UITooltipSystem.Hide();
     }
 
     public void SetMessage(string message)

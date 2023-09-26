@@ -46,6 +46,9 @@ public class CityImprovement : MonoBehaviour
     [SerializeField]
     private List<Light> workLights = new();
 
+    [HideInInspector]
+    public TerrainData td;
+
     private Coroutine constructionCo;
     private int timePassed;
     public int GetTimePassed { get { return timePassed; } }
@@ -104,6 +107,7 @@ public class CityImprovement : MonoBehaviour
 
     public void SetMinimapIcon(TerrainData td)
     {
+        this.td = td;
         mapIcon.sprite = improvementData.mapIcon;
         if (td.terrainData.resourceType != ResourceType.Food && td.terrainData.resourceType != ResourceType.None && td.terrainData.resourceType != ResourceType.Lumber && td.terrainData.resourceType != ResourceType.Fish)
             mapIcon.transform.position += new Vector3(0, 0, 0.5f);
@@ -514,5 +518,11 @@ public class CityImprovement : MonoBehaviour
         StopSmokeEmitter();
         cityBuilderManager.RemoveConstruction(tempBuildLocation);
         cityBuilderManager.AddToConstructionTilePool(this);
+    }
+
+    public void DestroyImprovement()
+    {
+        city.world.uiCityImprovementTip.CloseCheck(this);
+        city.world.cityBuilderManager.RemoveImprovement(loc, this, city, false);
     }
 }

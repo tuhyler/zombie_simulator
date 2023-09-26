@@ -9,7 +9,7 @@ public class UITradeRouteManager : MonoBehaviour
     public MapWorld world;
     
     [SerializeField]
-    public GameObject uiTradeStopHolder, uiTradeStopPanel, startingStopGO, newStopButton, confirmButton, stopRouteButton;
+    public GameObject uiTradeStopHolder, uiTradeStopPanel, startingStopGO, newStopButton, confirmButton, stopRouteButton, waitingForText, costHolder;
 
     [SerializeField]
     private UnitMovement unitMovement;
@@ -27,11 +27,12 @@ public class UITradeRouteManager : MonoBehaviour
     List<string> cityNames;
 
     [SerializeField]
-    private Transform stopHolder;
-    [HideInInspector]
+    private Transform stopHolder, costRect;
+	[HideInInspector]
     public int stopCount, startingStop = 0, traderCargoLimit;
+	private List<UIResourceInfoPanel> costsInfo = new();
 
-    [HideInInspector]
+	[HideInInspector]
     public List<UITradeStopHandler> tradeStopHandlerList = new();
     //private Dictionary<int, UITradeRouteStopHolder> tradeStopHolderDict = new();
 
@@ -43,13 +44,14 @@ public class UITradeRouteManager : MonoBehaviour
     private Color originalButtonColor;
 
     [SerializeField] //for tweening
-    private RectTransform allContents;
+    private RectTransform allContents, stopScroller;
     [HideInInspector]
     public bool activeStatus;
     private Vector3 originalLoc;
+    private Vector2 originalSize, originalPos;
 
     //for object pooling
-    private Queue<UITradeStopHandler> tradeStopHandlerQueue = new();
+    //private Queue<UITradeStopHandler> tradeStopHandlerQueue = new();
 
     private void Awake()
     {
@@ -59,9 +61,20 @@ public class UITradeRouteManager : MonoBehaviour
         //AddResources();
         //GrowTradeStopPool();
         gameObject.SetActive(false);
-    }
 
-    public void StopRoute()
+		foreach (Transform selection in costRect)
+		{
+			if (selection.TryGetComponent(out UIResourceInfoPanel panel))
+			{
+				costsInfo.Add(panel);
+			}
+		}
+
+        originalSize = stopScroller.sizeDelta;
+        originalPos = stopScroller.transform.localPosition;
+	}
+
+	public void StopRoute()
     {
         unitMovement.CancelTradeRoute();
     }
@@ -72,6 +85,18 @@ public class UITradeRouteManager : MonoBehaviour
         newStopButton.SetActive(true);
         confirmButton.SetActive(true);
         stopRouteButton.SetActive(false);
+
+		startingStopGO.SetActive(true);
+		costHolder.SetActive(false);
+		waitingForText.SetActive(false);
+		stopScroller.sizeDelta = originalSize;
+		stopScroller.transform.localPosition = originalPos;
+	}
+
+    public void ShowRouteCostFlag(bool show)
+    {
+        if (activeStatus)
+            waitingForText.SetActive(show);
     }
 
     //public void PrepTradeRoute()
@@ -134,8 +159,31 @@ public class UITradeRouteManager : MonoBehaviour
         int currentStop = tradeRouteManager.currentStop;
         if (cityStops.Count == 0)
             startingStopGO.SetActive(false);
+        
+        if (selectedTrader.followingRoute)
+        {
+            startingStopGO.SetActive(false);
+            stopScroller.sizeDelta += new Vector2(0, -100);
+			Vector2 currentPos = originalPos;
+			currentPos.y -= 100;
+			stopScroller.transform.localPosition = currentPos;
 
-        for (int i = 0; i < cityStops.Count; i++)
+			ShowRouteCosts(selectedTrader.totalRouteCosts);	
+			costHolder.SetActive(true);
+            if (selectedTrader.waitingOnRouteCosts)
+                waitingForText.SetActive(true);
+            else
+				waitingForText.SetActive(false);
+		}
+        else
+        {
+            costHolder.SetActive(false);
+			waitingForText.SetActive(false);
+            stopScroller.sizeDelta = originalSize;
+            stopScroller.transform.localPosition = originalPos;
+		}
+
+		for (int i = 0; i < cityStops.Count; i++)
         {
             string cityName = world.GetStopName(cityStops[i]);
 
@@ -204,7 +252,25 @@ public class UITradeRouteManager : MonoBehaviour
         }
     }
 
-    public void SetChosenStopLive(int value)
+    private void ShowRouteCosts(List<ResourceValue> resourceList)
+    {
+		for (int i = 0; i < costsInfo.Count; i++)
+		{
+			if (i >= resourceList.Count)
+			{
+				costsInfo[i].gameObject.SetActive(false);
+			}
+			else
+			{
+				costsInfo[i].gameObject.SetActive(true);
+				costsInfo[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
+				costsInfo[i].resourceType = resourceList[i].resourceType;
+				costsInfo[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
+			}
+		}
+	}
+
+	public void SetChosenStopLive(int value)
     {
         startingStop = value;
         chosenStop.value = startingStop;
@@ -335,7 +401,7 @@ public class UITradeRouteManager : MonoBehaviour
         //newStopHandler.SetCargoStorageLimit(selectedTrader.CargoStorageLimit);
         stopCount++;
         chosenStop.options.Add(new TMP_Dropdown.OptionData(stopCount.ToString()));
-        if (stopCount == 1)
+        if (stopCount == 1 && !selectedTrader.followingRoute)
         {
             startingStopGO.SetActive(true);
             //chosenStop.options.Remove(0); //removing top choice;
@@ -419,6 +485,12 @@ public class UITradeRouteManager : MonoBehaviour
         foreach(UITradeStopHandler stopHandler in tradeStopHandlerList)
         {            
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
+            if (i == 0 && !world.CheckCityName(destination))
+            {
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "First stop must be city");
+                return;
+            }
+
             if (destination == null)
             {
                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No assigned city to stop");
