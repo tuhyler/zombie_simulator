@@ -30,7 +30,6 @@ Transform:
   m_Children:
   - {fileID: 7520340027991800466}
   - {fileID: 8377469580678281909}
-  - {fileID: 2806483699159966366}
   m_Father: {fileID: 2311649316462798009}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -131,9 +130,12 @@ MonoBehaviour:
   world: {fileID: 0}
   nameField: {fileID: 8342028981247781059}
   nameMap: {fileID: 3197290604571725139}
+  nightLights: []
+  harborImprovement: {fileID: 0}
   tradeCenterName: 
   harborLoc: {x: 0, y: 0, z: 0}
   mainLoc: {x: 0, y: 0, z: 0}
+  isDiscovered: 0
   buyResources:
   - resourceType: 17
     resourceAmount: 200
@@ -185,7 +187,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2806483699159966366}
   m_Father: {fileID: 8986118546131875751}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -556,12 +559,12 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 8986118546131875751}
+    m_TransformParent: {fileID: 8377469580678281909}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: a58a0f7089fd8e242bcaabb7b37c287e,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a58a0f7089fd8e242bcaabb7b37c287e,
         type: 3}

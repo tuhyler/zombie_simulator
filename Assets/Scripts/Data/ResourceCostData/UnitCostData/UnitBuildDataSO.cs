@@ -8,6 +8,7 @@ public class UnitBuildDataSO : ScriptableObject
     public GameObject secondaryPrefab;
     public bool isSecondary;
     public string unitName;
+    public string unitDisplayName;
     public int unitLevel;
     public Sprite image;
     public Sprite mapIcon;

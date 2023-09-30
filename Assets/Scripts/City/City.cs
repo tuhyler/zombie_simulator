@@ -83,7 +83,7 @@ public class City : MonoBehaviour
 	//housingInfo
 	[HideInInspector]
 	public bool housingLocsAtMax;
-	private int[] housingIndex = new[] { 0, 0, 0, 0 };
+	//private int[] housingIndex = new[] { 0, 0, 0, 0 };
 	private List<Vector3> housingLocs = new() { new Vector3(0.7f, 0, 1.2f), new Vector3(-1.2f, 0, 0.7f), new Vector3(-1.2f, 0, -0.7f), new Vector3(0.7f, 0, -1.2f) };
 	private int housingCount = 0, houseCount, upgradeIndex;
     public int HousingCount { get { return housingCount; } set { housingCount = value; } }
@@ -110,6 +110,10 @@ public class City : MonoBehaviour
     public bool AutoAssignLabor { get { return autoAssignLabor; } set { autoAssignLabor = value; } }
     private List<ResourceType> resourcePriorities = new();
     public List<ResourceType> ResourcePriorities { get { return resourcePriorities; } set { resourcePriorities = value; } }
+
+    //for upgrading traders
+    [HideInInspector]
+    public List<Unit> tradersHere = new();
 
     //stored queue items
     [HideInInspector]

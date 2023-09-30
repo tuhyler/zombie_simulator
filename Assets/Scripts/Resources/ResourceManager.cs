@@ -248,6 +248,11 @@ public class ResourceManager : MonoBehaviour
                 CheckProducerUnloadWaitList();
                 city.CheckLimitWaiter();
                 UpdateUI(resourceType);
+
+			    if (city.army.DeployBattleScreenCheck())
+				    city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[resourceType], resourceType);
+			    else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
+				    city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[resourceType], resourceType);
             }
 
             if (showSpend)
@@ -264,11 +269,6 @@ public class ResourceManager : MonoBehaviour
                 InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
                 i++;
             }
-			else if (city.army.DeployBattleScreenCheck())
-				city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[resourceType], resourceType);
-			else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
-				city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[resourceType], resourceType);
-
 		}
 
 		if (city.activeCity)

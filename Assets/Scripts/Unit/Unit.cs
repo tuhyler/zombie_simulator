@@ -100,7 +100,7 @@ public class Unit : MonoBehaviour
 
     //military booleans
     [HideInInspector]
-    public bool newlyJoined = true, isLeader, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead;
+    public bool newlyJoined = true, isLeader, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading;
     [HideInInspector]
     public Vector3Int targetLocation; //in case units overlap on same tile
 
@@ -211,7 +211,10 @@ public class Unit : MonoBehaviour
     {
         this.world = world;
         this.focusCam = focusCam;
-        this.turnHandler = turnHandler;
+
+        if (!enemyAI)
+            this.turnHandler = turnHandler;
+
         this.movementSystem = movementSystem;
         infoManager = movementSystem.unitMovement.infoManager;
 
@@ -345,6 +348,20 @@ public class Unit : MonoBehaviour
         {
             GetInLine();
             return;
+        }
+
+        if (isTrader && !followingRoute)
+        {
+            if (bySea)
+            {
+                if (world.IsCityHarborOnTile(currentLocation))
+                    world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+            }
+            else
+            {
+                if (world.IsCityOnTile(currentLocation))
+                    world.GetCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+            }
         }
 
         Vector3 firstTarget = pathPositions.Dequeue();
@@ -563,6 +580,20 @@ public class Unit : MonoBehaviour
             if (isMoving) //check here twice in case still moving after stopping coroutine
                 FinishMoving(destinationLoc);
         }
+        else 
+        {
+            if (bySea)
+            {
+                if (world.IsCityHarborOnTile(currentLocation))
+					world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+            }
+            else
+            {
+				if (world.IsCityOnTile(currentLocation))
+					world.GetCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+			}
+        }
+
     }
 
     public void ShiftMovement()
@@ -801,8 +832,25 @@ public class Unit : MonoBehaviour
         FinishedMoving?.Invoke();
         if (isTrader)
         {
-            if (!bySea)
+            if (bySea)
             {
+				if (!followingRoute && world.IsCityHarborOnTile(currentLocation))
+                {
+                    City city = world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation));
+					city.tradersHere.Add(this);
+                    if (world.unitMovement.upgradingUnit)
+						world.unitMovement.ToggleUnitHighlights(true, city);
+                }
+			}
+			else
+            {
+                if (!followingRoute && world.IsCityOnTile(currentLocation))
+                {
+                    City city = world.GetCity(world.GetClosestTerrainLoc(currentLocation));
+					city.tradersHere.Add(this);
+					if (world.unitMovement.upgradingUnit)
+						world.unitMovement.ToggleUnitHighlights(true, city);
+				}
                 //if location has been taken away (such as when wonder finishes)
                 if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
                 {
@@ -1664,7 +1712,10 @@ public class Unit : MonoBehaviour
 
     //}
 
-
+    public void SoftSelect(Color color)
+    {
+        highlight.EnableHighlight(color);
+    }
 
     //Methods for selecting and unselecting unit
     public void Select(Color color)
@@ -1819,7 +1870,7 @@ public class Unit : MonoBehaviour
         moreToMove = false;
     }
 
-    private void RemoveUnitFromData()
+    public void RemoveUnitFromData()
     {
         ResetMovementOrders();
         turnHandler.turnHandler.RemoveUnitFromTurnList(this);

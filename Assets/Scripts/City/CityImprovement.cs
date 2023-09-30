@@ -475,14 +475,17 @@ public class CityImprovement : MonoBehaviour
 		producer.HideConstructionProgressTimeBar();
 	}
 
-	public void BeginTraining(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager)
+	public void BeginTraining(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager, bool upgrading)
     {
-        upgradeCost = new List<ResourceValue>(data.unitCost);
+        if (!upgrading)
+			upgradeCost = new List<ResourceValue>(data.unitCost);
+		
+        isUpgrading = upgrading;
         laborCost = data.laborCost;
-        constructionCo = StartCoroutine(TrainUnitCoroutine(city, producer, tempBuildLocation, data, cityBuilderManager));
+        constructionCo = StartCoroutine(TrainUnitCoroutine(city, producer, tempBuildLocation, data, cityBuilderManager, upgrading));
     }
 
-    private IEnumerator TrainUnitCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager)
+    private IEnumerator TrainUnitCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager, bool upgrading)
     {
 		timePassed = data.trainTime;
 		PlaySmokeEmitter(tempBuildLocation);
@@ -499,17 +502,35 @@ public class CityImprovement : MonoBehaviour
 		}
 
         StopTraining(producer);
-        cityBuilderManager.BuildUnit(city, data);
+        cityBuilderManager.BuildUnit(city, data, upgrading);
 	}
 
-    public void StopTraining(ResourceProducer producer)
+    private void StopTraining(ResourceProducer producer)
     {
 		StopSmokeEmitter();
 		isTraining = false;
 		producer.isUpgrading = false;
 		upgradeCost.Clear();
 		producer.HideConstructionProgressTimeBar();
+	}
 
+    public void CancelTraining(ResourceProducer producer)
+    {
+		if (isUpgrading)
+		{
+			foreach (Unit unit in city.army.UnitsInArmy)
+			{
+				if (unit.isUpgrading)
+				{
+					unit.isUpgrading = false;
+					break;
+				}
+			}
+
+			isUpgrading = false;
+		}
+
+        StopTraining(producer);
 	}
 
 	public void RemoveConstruction(CityBuilderManager cityBuilderManager, Vector3Int tempBuildLocation)

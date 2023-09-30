@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Resources;
@@ -61,7 +62,13 @@ public class UnitMovement : MonoBehaviour
 
     //for worker orders
     [HideInInspector]
-    public bool buildingRoad, removingAll, removingRoad, removingLiquid, removingPower, unitSelected, swappingArmy, deployingArmy, changingCity; 
+    public bool buildingRoad, removingAll, removingRoad, removingLiquid, removingPower, unitSelected, swappingArmy, deployingArmy, changingCity;
+
+    //for upgrading units
+    [HideInInspector]
+    public List<Unit> highlightedUnitList = new();
+    [HideInInspector]
+	public bool upgradingUnit;
     //private List<TerrainData> highlightedTiles = new();
 
     private void Awake()
@@ -118,7 +125,51 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.CenterCamera();
     }
 
-    public void HandleUnitSelectionAndMovement(Vector3 location, GameObject detectedObject)
+	public void ToggleUnitHighlights(bool v, City city = null)
+	{
+        upgradingUnit = v;
+
+		if (v)
+		{
+			foreach (Unit unit in city.tradersHere)
+            {
+				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitName))
+                {
+					highlightedUnitList.Add(unit);
+					unit.SoftSelect(Color.green);
+				}
+			}
+            
+            if (!city.army.atHome || city.army.isTraining) //only upgrade when at home or not busy
+				return;
+
+			foreach (Unit unit in city.army.UnitsInArmy)
+			{
+				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitName))
+				{
+                    highlightedUnitList.Add(unit);
+                    unit.SoftSelect(Color.green);
+				}
+			}
+		}
+		else
+		{
+			foreach (Unit unit in highlightedUnitList)
+			{
+				if (!unit.isSelected)
+                {
+                    if (unit.inArmy && !unit.homeBase.army.selected)
+                        unit.Deselect();
+                    else if (unit.isTrader)
+                        unit.Deselect();
+                }
+			}
+
+            highlightedUnitList.Clear();
+		}
+	}
+
+	public void HandleUnitSelectionAndMovement(Vector3 location, GameObject detectedObject)
     {
         if (world.buildingWonder)
             return;
@@ -455,6 +506,12 @@ public class UnitMovement : MonoBehaviour
 
     private void SelectUnitPrep(Unit unitReference, Vector3 location)
     {
+        if (upgradingUnit && highlightedUnitList.Contains(unitReference))
+        {
+            world.cityBuilderManager.UpgradeUnitWindow(unitReference);
+            return;
+        }
+        
         if (selectedUnit == unitReference) //Unselect when clicking same unit
         {
             if (selectedWorker != null && selectedWorker.harvested)
@@ -603,6 +660,11 @@ public class UnitMovement : MonoBehaviour
                 world.laborerSelected = true;
             
             world.HighlightCitiesAndWonders();
+        }
+        else if (selectedUnit.isTrader)
+        {
+            if (!selectedUnit.followingRoute)
+                world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
         }
 
         turnHandler.SetIndex(selectedUnit);
@@ -758,7 +820,7 @@ public class UnitMovement : MonoBehaviour
 			}
 			else
 			{
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Select only a city or a wonder");
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city or a wonder");
 				return;
 			}
 
@@ -798,7 +860,64 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        location.y += .1f;
+		if (selectedUnit.isTrader)
+		{
+			if (selectedUnit.bySea)
+			{
+				Vector3Int terrainInt = world.GetClosestTerrainLoc(locationInt);
+				if (world.IsCityHarborOnTile(terrainInt))
+				{
+                    locationInt = world.GetCity(terrainInt).harborLocation;
+                    world.citySelected = true;
+				}
+				else if (world.IsWonderHarborOnTile(terrainInt))
+				{
+                    locationInt = world.GetWonder(terrainInt).harborLoc;
+                    world.citySelected = true;
+				}
+				else if (world.IsTradeCenterHarborOnTile(terrainInt))
+				{
+                    locationInt = world.GetTradeCenter(terrainInt).harborLoc;
+                    world.citySelected = true;
+				}
+				else
+				{
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to harbor of city, trade center, or wonder");
+					return;
+				}
+			}
+			else
+			{
+				if (detectedObject.TryGetComponent(out City city) && detectedObject.CompareTag("Player"))
+				{
+					locationInt = city.cityLoc;
+					world.citySelected = true;
+				}
+				else if (detectedObject.TryGetComponent(out Wonder wonder))
+				{
+					locationInt = wonder.unloadLoc;
+					world.citySelected = true;
+				}
+				else if (world.IsWonderOnTile(world.GetClosestTerrainLoc(locationInt)))
+				{
+					Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
+					locationInt = wonderLoc.unloadLoc;
+					world.citySelected = true;
+				}
+				else if (detectedObject.TryGetComponent(out TradeCenter center))
+				{
+					locationInt = tradeCenter.mainLoc;
+					world.citySelected = true;
+				}
+				else
+				{
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city, trade center, or a wonder");
+					return;
+				}
+			}
+		}
+
+		location.y += .1f;
         starshine.transform.position = location;
         starshine.Play();
 
@@ -853,11 +972,21 @@ public class UnitMovement : MonoBehaviour
 
     public void JoinCity() //for Join City button
     {
+        if (selectedUnit.isUpgrading)
+        {
+			InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Currently upgrading");
+			return;
+        }
+        
         Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
         if (world.IsCityOnTile(unitLoc))
         {
             AddToCity(world.GetCity(unitLoc), selectedUnit);
+        }
+        else if (world.IsCityHarborOnTile(unitLoc))
+        {
+            AddToCity(world.GetHarborCity(unitLoc), selectedUnit);
         }
         else if (selectedUnit.inArmy)
         {
@@ -1370,6 +1499,17 @@ public class UnitMovement : MonoBehaviour
 			//if (selectedTrader.LineCutterCheck())
 			//    return;
 
+            if (selectedUnit.bySea)
+            {
+                if (world.IsCityHarborOnTile(selectedUnit.CurrentLocation))
+                    world.GetHarborCity(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation)).tradersHere.Remove(selectedUnit);
+            }
+            else
+            {
+                if (world.IsCityOnTile(selectedUnit.CurrentLocation))
+                    world.GetCity(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation)).tradersHere.Remove(selectedUnit);
+            }
+
 			selectedUnit.StopMovement();
             selectedTrader.BeginNextStepInRoute();
             uiTraderPanel.SwitchRouteIcons(true);
@@ -1424,6 +1564,11 @@ public class UnitMovement : MonoBehaviour
             {
                 uiJoinCity.ToggleTweenVisibility(true);
             }
+
+            if (selectedUnit.bySea && world.IsCityHarborOnTile(currentLoc))
+            {
+				uiJoinCity.ToggleTweenVisibility(true);
+			}
             
             if (selectedTrader != null && world.IsTradeLocOnTile(currentLoc))
             {
@@ -1607,6 +1752,8 @@ public class UnitMovement : MonoBehaviour
 
             if (selectedUnit.isLaborer)
                 world.UnhighlightCitiesAndWonders();
+            else if (selectedUnit.isTrader)
+                world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
 
             SpeakingCheck();
             moveUnit = false;

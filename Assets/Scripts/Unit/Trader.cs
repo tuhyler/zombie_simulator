@@ -61,7 +61,7 @@ public class Trader : Unit
         isTrader = true;
         personalResourceManager = GetComponent<PersonalResourceManager>();
         personalResourceManager.SetTrader(this);
-        tradeRouteManager.SetPersonalResourceManager(personalResourceManager);
+        //tradeRouteManager.SetPersonalResourceManager(personalResourceManager);
         personalResourceManager.ResourceStorageLimit = cargoStorageLimit;
         if (bySea)
             ripples.SetActive(false);

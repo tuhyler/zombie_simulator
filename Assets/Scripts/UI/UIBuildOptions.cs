@@ -112,7 +112,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 strength.text = unitBuildData.cargoCapacity.ToString();
             }
 
-            objectName.text = unitBuildData.unitName;
+            objectName.text = unitBuildData.unitDisplayName;
             objectLevel.text = "Level " + unitBuildData.unitLevel + " " + unitBuildData.unitType.ToString();
             objectImage.sprite = unitBuildData.image;
             objectCost = new(unitBuildData.unitCost);
@@ -222,10 +222,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         int allContentsWidth = 370;
         int allContentsHeight = 520;
         int produceHolderWidth = 220;
-        //int produceHolderHeight = 80;
-        //int produceContentsWidth = 320;
-        //int produceContentsHeight = 110;
-        //int produceLayoutPadding = -10;
         int imageLineWidth = 300;
 
         if (objectDescription.Length > 0)
@@ -233,9 +229,9 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             descriptionPanel.SetActive(true);
 
             if (!isUnitPanel && objectDescription.Length < 23)
-                allContentsHeight += 80;
+                allContentsHeight += 85;
             else
-				allContentsHeight += 130;
+				allContentsHeight += 120;
 
 			if (isUnitPanel)
             {
@@ -243,8 +239,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 description.text = objectDescription;
                 producesTitle.text = "Cost per Growth Cycle";
                 descriptionTitle.text = "Unit Info";
-                //produceHolderHeight = 160;
-                //produceContentsHeight = 180;
             }
             else
             {
@@ -256,17 +250,10 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 descriptionTitle.text = "Additional Info";
             }
 
-            //producesTitle.horizontalAlignment = HorizontalAlignmentOptions.Center;
             if (producedCount == 0)
             {
                 productionPanel.SetActive(false);
                 allContentsHeight -= 140;
-                //produceContentsWidth = 350;
-                //produceHolderWidth = 330;
-            }
-            else
-            {
-                descriptionPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 110);
             }
         }
         else
@@ -276,33 +263,17 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
         //adjusting height of panel
         if (producedCount > 1)
-        {
-            int shift = resourcePanelSize * (producedCount - 1);
-            allContentsHeight += shift;
-            //produceContentsHeight += shift;
-            //produceLayoutPadding += shift;
-        }
-
+            allContentsHeight += resourcePanelSize * (producedCount - 1);
+       
         //adjusting width of panel
         if (maxCount > 4)
-        {
-            int shift = resourcePanelSize * (maxCount - 4);
-            allContentsWidth += shift; 
-            //if (producedCount > 0)
-            //    produceHolderWidth += shift;
-        }
+            allContentsWidth += resourcePanelSize * (maxCount - 4); 
 
         if (maxConsumed > 1)
             produceHolderWidth += resourcePanelSize * (maxConsumed - 1);
-		//if (maxCount > 2)
-		//{
-		//    int shift = resourcePanelSize * (maxCount - 2);
-		//    //produceContentsWidth += shift;
-		//    imageLineWidth += shift;
-		//}
 
 		if (isUnitPanel)
-            allContentsHeight += 50;
+            allContentsHeight += 60;
 
         if (arrowBuffer)
         {
@@ -318,8 +289,6 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         else
 			descriptionShift.y -= resourcePanelSize * (producedCount - 1);
 		descriptionPanel.transform.localPosition = descriptionShift;
-        //resourceProduceAllHolder.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
-        //resourceProduceLayout.padding.bottom = produceLayoutPadding;
         imageLine.sizeDelta = new Vector2(imageLineWidth, 4);
         if (isUnitPanel)
             resourceProducedHolder.GetComponent<VerticalLayoutGroup>().childAlignment = TextAnchor.UpperCenter;

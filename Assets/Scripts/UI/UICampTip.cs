@@ -359,6 +359,8 @@ public class UICampTip : MonoBehaviour
 				costsInfo[i].resourceAmountText.color = Color.red;
 				tempCantAfford = true;
 			}
+
+			break;
 		}
 
 		if (cantAffordList.Contains(type))

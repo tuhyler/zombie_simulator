@@ -13,7 +13,7 @@ public class TradeRouteManager : MonoBehaviour
     [HideInInspector]
     public List<Vector3Int> cityStops = new();
     private Dictionary<int, List<Vector3Int>> routePathsDict = new();
-    public Dictionary<int, List<Vector3Int>> RoutePathsDict { get { return routePathsDict; } }
+    public Dictionary<int, List<Vector3Int>> RoutePathsDict { get { return routePathsDict; } set { routePathsDict = value; } }
     [HideInInspector]
     public List<List<ResourceValue>> resourceAssignments;
     [HideInInspector]
@@ -26,7 +26,7 @@ public class TradeRouteManager : MonoBehaviour
     private Vector3Int currentDestination;
     public Vector3Int CurrentDestination { get { return currentDestination; } }
 
-    private PersonalResourceManager personalResourceManager;
+    //private PersonalResourceManager personalResourceManager;
     private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
     private UITradeRouteManager uiTradeRouteManager;
 
@@ -52,6 +52,11 @@ public class TradeRouteManager : MonoBehaviour
     private float percDone;
     //private WaitForSeconds resourceWait = new WaitForSeconds(1);
     //private WaitForSeconds loadWait;// = new WaitForSeconds(1);
+
+    //public TradeRouteManager(TradeRouteManager tradeRouteManager)
+    //{
+    //    this = tradeRouteManager;
+    //}
 
 
     private void Awake()
@@ -125,7 +130,7 @@ public class TradeRouteManager : MonoBehaviour
 
     public void SetPersonalResourceManager(PersonalResourceManager personalResourceManager)
     {
-        this.personalResourceManager = personalResourceManager;
+        //this.personalResourceManager = personalResourceManager;
     }
 
     public void SetTradeRouteManager(UITradeRouteManager uiTradeRouteManager)
@@ -158,7 +163,7 @@ public class TradeRouteManager : MonoBehaviour
 
     private void PrepareResourceDictionary()
     {
-        resourcesAtArrival = new(personalResourceManager.ResourceDict);
+        resourcesAtArrival = new(trader.personalResourceManager.ResourceDict);
     }
 
     public IEnumerator LoadUnloadCoroutine(int loadUnloadRate)
@@ -315,12 +320,12 @@ public class TradeRouteManager : MonoBehaviour
                     }
 
                     yield return totalWait;
-                    personalResourceManager.CheckResource(value.resourceType, resourceAmountAdjusted);
+                    trader.personalResourceManager.CheckResource(value.resourceType, resourceAmountAdjusted);
 
                     if (trader.isSelected)
                     {
-                        uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, personalResourceManager.GetResourceDictValue(value.resourceType));
-                        uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
+                        uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, trader.personalResourceManager.GetResourceDictValue(value.resourceType));
+                        uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.GetResourceStorageLevel);
                     }
 
                     if (tradeCenter)
@@ -342,7 +347,7 @@ public class TradeRouteManager : MonoBehaviour
             else if (resourceAmount < 0) //moving from trader to city
             {
                 //if trader holds less than what is asked to be dropped off
-                int remainingWithTrader = personalResourceManager.GetResourceDictValue(value.resourceType);
+                int remainingWithTrader = trader.personalResourceManager.GetResourceDictValue(value.resourceType);
                 if (remainingWithTrader < Mathf.Abs(resourceAmount))
                 {
                     resourceAmount = -remainingWithTrader;
@@ -410,12 +415,12 @@ public class TradeRouteManager : MonoBehaviour
 
                     yield return totalWait;
 
-                    personalResourceManager.CheckResource(value.resourceType, -resourceAmountAdjusted);
+                    trader.personalResourceManager.CheckResource(value.resourceType, -resourceAmountAdjusted);
 
                     if (trader.isSelected)
                     {
-                        uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, personalResourceManager.GetResourceDictValue(value.resourceType));
-                        uiPersonalResourceInfoPanel.UpdateStorageLevel(personalResourceManager.GetResourceStorageLevel);
+                        uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, trader.personalResourceManager.GetResourceDictValue(value.resourceType));
+                        uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.GetResourceStorageLevel);
                     }
                     //if (resourceAmountAdjusted == 0)
                     //    resourceCheck = true;

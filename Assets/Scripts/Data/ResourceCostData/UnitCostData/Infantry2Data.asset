@@ -10,34 +10,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: Cavalry1Data
+  m_Name: Infantry2Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2321851027760307080, guid: cdaa8ec02277e2946ba1004376cce3f4, type: 3}
+  prefab: {fileID: 2321851027760307080, guid: 64d39453e5a6dd54497f80fb704d2ecc, type: 3}
   secondaryPrefab: {fileID: 0}
   isSecondary: 0
-  unitName: Cavalry
-  unitDisplayName: Horseman
-  unitLevel: 1
-  image: {fileID: 21300000, guid: 0bc86cc0a006dd444ae89ecd41da2d3b, type: 3}
-  mapIcon: {fileID: 21300000, guid: d35d180233d47c645916450be3c1ac0d, type: 3}
+  unitName: Infantry
+  unitDisplayName: Spearman
+  unitLevel: 2
+  image: {fileID: 21300000, guid: 124905a2765bb7241a7f8cdf2ad9f37b, type: 3}
+  mapIcon: {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 6
+    resourceAmount: 12
   - resourceType: 7
-    resourceAmount: 6
+    resourceAmount: 12
   cycleCost:
   - resourceType: 4
-    resourceAmount: 3
+    resourceAmount: 2
   battleCost: []
   laborCost: 0
-  unitType: 3
-  unitDescription: Fast unit
+  unitType: 1
+  unitDescription: Strong, fast unit
   availableInitially: 1
   locked: 0
-  health: 10
-  baseAttackStrength: 20
-  baseAttackSpeed: 0.5
-  movementSpeed: 2
-  trainTime: 4
+  health: 300
+  baseAttackStrength: 5
+  baseAttackSpeed: 1
+  movementSpeed: 1
+  trainTime: 5
   cargoCapacity: 0
   transportationType: 0

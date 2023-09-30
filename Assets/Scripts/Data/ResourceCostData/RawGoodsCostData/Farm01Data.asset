@@ -29,31 +29,17 @@ MonoBehaviour:
   improvementCost:
   - resourceType: 6
     resourceAmount: 10
-  - resourceType: 7
-    resourceAmount: 10
-  - resourceType: 8
-    resourceAmount: 10
-  - resourceType: 12
-    resourceAmount: 10
-  - resourceType: 17
-    resourceAmount: 10
   consumedResources:
   - resourceType: 4
-    resourceAmount: 0
-  consumedResources1:
-  - resourceType: 9
-    resourceAmount: 0
-  - resourceType: 14
-    resourceAmount: 0
+    resourceAmount: 1
+  consumedResources1: []
   consumedResources2: []
   consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 2
     resourceAmount: 1
-  - resourceType: 27
-    resourceAmount: 1
-  producedResourceTime: 0a0000000a000000
+  producedResourceTime: 0a000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0

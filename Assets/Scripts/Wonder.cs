@@ -35,6 +35,8 @@ public class Wonder : MonoBehaviour
     public Vector3 centerPos;
     [HideInInspector]
     public string wonderName;
+    [HideInInspector]
+    public CityImprovement harborImprovement;
 
     private List<Vector3Int> wonderLocs = new();
     public List<Vector3Int> WonderLocs { get { return wonderLocs; } set { wonderLocs = value; } }
@@ -460,6 +462,7 @@ public class Wonder : MonoBehaviour
         hasHarbor = false;
         GameObject harbor = world.GetStructure(harborLoc);
         harbor.GetComponent<CityImprovement>().PlayRemoveEffect(false);
+        harborImprovement = null;
         Destroy(harbor);
         world.RemoveSingleBuildFromCityLabor(harborLoc);
         world.RemoveStructure(harborLoc);

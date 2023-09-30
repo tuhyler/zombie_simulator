@@ -262,7 +262,7 @@ public class UIBuilderHandler : MonoBehaviour
 
             if (buildItem.UnitBuildData != null)
             {
-                itemName = buildItem.UnitBuildData.unitName;
+                itemName = buildItem.UnitBuildData.unitDisplayName;
                 resourceCosts = new(buildItem.UnitBuildData.unitCost);
                 locked = buildItem.UnitBuildData.locked;
 
