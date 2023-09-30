@@ -116,6 +116,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
     private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new(); 
     private Dictionary<string, ImprovementDataSO> upgradeableObjectDataDict = new();
+    private Dictionary<string, UnitBuildDataSO> upgradeableUnitDataDict = new();
     private Dictionary<ResourceType, Sprite> resourceSpriteDict = new();
     private Dictionary<ResourceType, int> defaultResourcePriceDict = new();
     private Dictionary<ResourceType, int> blankResourceDict = new();
@@ -415,6 +416,10 @@ public class MapWorld : MonoBehaviour
 		cityBuilderManager.uiBuildingBuilder.FinishMenuSetup();
 		cityBuilderManager.uiProducerBuilder.FinishMenuSetup();
 
+		upgradeableObjectName = "";
+		upgradeableObjectTotalCost.Clear();
+		upgradeableObjectLevel = 9999;
+
 		//populating the upgradeableobjectdict, every one starts at level 1. 
 		foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
         {
@@ -435,7 +440,43 @@ public class MapWorld : MonoBehaviour
             else
                 data.locked = true;
             upgradeableObjectMaxLevelDict[data.unitName] = 1;
-        }
+
+			if (upgradeableObjectLevel < data.unitLevel) //skip if reached max level
+			{
+				upgradeableUnitDataDict[upgradeableObjectName] = data; //adding the data necessary to upgrade the object to
+
+				//calculating costs to improve
+				Dictionary<ResourceType, int> prevResourceCosts = new(); //making dict to more easily find the data
+				List<ResourceValue> upgradeableObjectCost = new();
+
+				foreach (ResourceValue prevResourceValue in upgradeableObjectTotalCost)
+				{
+					prevResourceCosts[prevResourceValue.resourceType] = prevResourceValue.resourceAmount;
+				}
+
+				foreach (ResourceValue resourceValue in data.unitCost)
+				{
+					if (prevResourceCosts.ContainsKey(resourceValue.resourceType))
+					{
+						ResourceValue newResourceValue;
+						newResourceValue.resourceType = resourceValue.resourceType;
+						newResourceValue.resourceAmount = resourceValue.resourceAmount - prevResourceCosts[resourceValue.resourceType];
+						if (newResourceValue.resourceAmount > 0)
+							upgradeableObjectCost.Add(newResourceValue);
+					}
+					else //if it doesn't have the resourceType, then add the whole thing
+					{
+						upgradeableObjectCost.Add(resourceValue);
+					}
+				}
+
+				upgradeableObjectPriceDict[upgradeableObjectName] = upgradeableObjectCost;
+			}
+
+			upgradeableObjectName = data.unitName + "-" + data.unitLevel; //needs to be last to compare to following data
+			upgradeableObjectTotalCost = data.unitCost;
+			upgradeableObjectLevel = data.unitLevel;
+		}
 
 		cityBuilderManager.uiUnitBuilder.FinishMenuSetup();
 
@@ -465,6 +506,7 @@ public class MapWorld : MonoBehaviour
             //roadManager.BuildRoadAtPosition(center.mainLoc);
             tradeCenterDict[center.tradeCenterName] = center;
             tradeCenterStopDict[center.mainLoc] = center;
+            tradeCenterStopDict[center.harborLoc] = center;
             AddTradeLoc(center.mainLoc, center.tradeCenterName);
             AddTradeLoc(center.harborLoc, center.tradeCenterName);
             if (hideTerrain)
@@ -1273,6 +1315,11 @@ public class MapWorld : MonoBehaviour
         return wonderConstructionDict.Keys.ToList().Contains(name);
     }
 
+    public void AddToWondersDict(Vector3Int harborLoc, Wonder wonder)
+    {
+		wonderStopDict[harborLoc] = wonder;
+	}
+
     public void OpenWonders()
     {
         //if (workerOrders)
@@ -1600,6 +1647,9 @@ public class MapWorld : MonoBehaviour
     //world resources management
     public void UpdateWorldResources(ResourceType resourceType, int amount)
     {
+        if (amount == 0)
+            return;
+        
         if (resourceType == ResourceType.Research)
         {
             amount = researchTree.AddResearch(amount);
@@ -1801,6 +1851,21 @@ public class MapWorld : MonoBehaviour
     public City GetHarborCity(Vector3Int harborLocation)
     {
         return cityDict[harborLocation];
+    }
+
+    public bool IsCityHarborOnTile(Vector3Int loc)
+    {
+        return cityDict.ContainsKey(loc);
+    }
+
+    public bool IsWonderHarborOnTile(Vector3Int loc)
+    {
+        return wonderStopDict.ContainsKey(loc);
+    }
+
+    public bool IsTradeCenterHarborOnTile(Vector3Int loc)
+    {
+        return tradeCenterStopDict.ContainsKey(loc);
     }
 
     public bool CheckIfStopStillExists(Vector3Int location)
@@ -2026,12 +2091,12 @@ public class MapWorld : MonoBehaviour
     {
         foreach (City city in cityDict.Values)
         {
-            city.Select(Color.white);
+            city.Select(Color.green);
         }
 
        foreach (Wonder wonder in wonderConstructionDict.Values)
         {
-            wonder.EnableHighlight(Color.white);
+            wonder.EnableHighlight(Color.green);
         }
     }
 
@@ -2047,6 +2112,71 @@ public class MapWorld : MonoBehaviour
             wonder.DisableHighlight();
         }
     }
+
+    public void HighlightCitiesAndWondersAndTradeCenters(bool bySea)
+    {
+		if (bySea)
+        {
+            foreach(City city in cityDict.Values)
+            {
+                if (city.hasHarbor)
+                    GetCityDevelopment(city.harborLocation).EnableHighlight(Color.green);
+            }
+
+            foreach(Wonder wonder in wonderConstructionDict.Values)
+            {
+                if (wonder.hasHarbor)
+                    wonder.harborImprovement.EnableHighlight(Color.green);
+            }
+        }
+        else
+        {
+            foreach (City city in cityDict.Values)
+			    city.Select(Color.green);
+
+		    foreach (Wonder wonder in wonderConstructionDict.Values)
+			    wonder.EnableHighlight(Color.green);
+
+        }
+
+        foreach (TradeCenter center in tradeCenterStopDict.Values)
+        {
+            if (center.isDiscovered)
+                center.EnableHighlight(Color.green);
+        }
+	}
+
+    public void UnhighlightCitiesAndWondersAndTradeCenters(bool bySea)
+    {
+		if (bySea)
+        {
+			foreach (City city in cityDict.Values)
+			{
+				if (city.hasHarbor)
+					GetCityDevelopment(city.harborLocation).DisableHighlight();
+			}
+
+			foreach (Wonder wonder in wonderConstructionDict.Values)
+			{
+				if (wonder.hasHarbor)
+					wonder.harborImprovement.DisableHighlight();
+			}
+		}
+        else
+        {
+            foreach (City city in cityDict.Values)
+			    city.Deselect();
+
+		    foreach (Wonder wonder in wonderConstructionDict.Values)
+			    wonder.DisableHighlight();
+        }
+        
+		foreach (TradeCenter center in tradeCenterStopDict.Values)
+        {
+            if (center.isDiscovered)
+    			center.DisableHighlight();
+        }
+	}
 
 	public EnemyCamp GetEnemyCamp(Vector3Int loc)
     {
@@ -2142,7 +2272,7 @@ public class MapWorld : MonoBehaviour
 
             td.EnableHighlight(Color.red);
             foreach (Unit unit in enemyCampDict[tile].UnitsInCamp)
-                unit.Select(Color.red);
+                unit.SoftSelect(Color.red);
         }
     }
 
@@ -2155,7 +2285,7 @@ public class MapWorld : MonoBehaviour
 		td.DisableHighlight();
 		td.EnableHighlight(color);
 		foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
-			unit.Select(color);
+			unit.SoftSelect(color);
 	}
 
     public bool CheckIfEnemyCamp(Vector3Int loc)
@@ -2258,7 +2388,7 @@ public class MapWorld : MonoBehaviour
 
     public UnitBuildDataSO GetUnitUpgradeData(string nameAndLevel)
     {
-        return null;
+        return upgradeableUnitDataDict[nameAndLevel];
     }
 
     public ImprovementDataSO GetImprovementData(string nameAndLevel)

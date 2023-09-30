@@ -244,8 +244,8 @@ public class UIQueueManager : MonoBehaviour
             buildName = "Upgrade";
         else if (improvementData != null)
             buildName = improvementData.improvementName;
-        else if (unitBuildData != null)
-            buildName = unitBuildData.unitName;
+        //else if (unitBuildData != null)
+        //    buildName = unitBuildData.unitName;
 
         if (!(loc.x == 0 && loc.z == 0))
         {

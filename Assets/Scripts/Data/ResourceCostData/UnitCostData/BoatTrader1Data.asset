@@ -16,6 +16,7 @@ MonoBehaviour:
   secondaryPrefab: {fileID: 0}
   isSecondary: 0
   unitName: Boat Trader
+  unitDisplayName: Sail Boat Trader
   unitLevel: 1
   image: {fileID: 21300000, guid: 8ae616c7b21c83149a25565fa87efa77, type: 3}
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
@@ -24,9 +25,9 @@ MonoBehaviour:
     resourceAmount: 40
   cycleCost:
   - resourceType: 4
-    resourceAmount: 5
+    resourceAmount: 1
   - resourceType: 2
-    resourceAmount: 3
+    resourceAmount: 1
   battleCost: []
   laborCost: 2
   unitType: 6

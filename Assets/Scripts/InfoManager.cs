@@ -9,7 +9,7 @@ public class InfoManager : MonoBehaviour
     {
         //HideInfoPanel();
         infoPanel.ToggleVisibility(true);
-        infoPanel.SetData(data.unitName, data.unitLevel, data.unitType.ToString(), currentHealth, data.health, data.movementSpeed, data.baseAttackStrength, data.cargoCapacity);
+        infoPanel.SetData(data.unitDisplayName, data.unitLevel, data.unitType.ToString(), currentHealth, data.health, data.movementSpeed, data.baseAttackStrength, data.cargoCapacity);
     }
 
     public void SetHealth(int currentHealth, int maxHealth)

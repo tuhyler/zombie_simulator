@@ -34,38 +34,19 @@ public class UIResearchReward : MonoBehaviour
             produces = improvementData.producedResources;
             produceTime = improvementData.producedResourceTime;
         }
+        else if (unitData != null)
+        {
+            if (unitData.cycleCost.Count > 0)
+            {
+                ResourceValue value;
+                value.resourceType = ResourceType.None;
+                value.resourceAmount = 0;
+                produces.Add(value);
+                produceTime.Add(0);
+            }
 
-        //tooltipInfo = GetComponent<UITooltipTrigger>();
-        //if (improvementData != null)
-        //{
-        //    tooltipInfo.title = improvementData.improvementName;
-        //    tooltipInfo.displayTitle = improvementData.improvementDisplayName;
-        //    tooltipInfo.level = improvementData.improvementLevel;
-        //    tooltipInfo.workEthic = improvementData.workEthicChange;
-        //    tooltipInfo.produces = improvementData.producedResources;
-        //    tooltipInfo.consumes.Add(improvementData.consumedResources);
-        //    tooltipInfo.consumes.Add(improvementData.consumedResources1);
-        //    tooltipInfo.consumes.Add(improvementData.consumedResources2);
-        //    tooltipInfo.consumes.Add(improvementData.consumedResources3);
-        //    tooltipInfo.consumes.Add(improvementData.consumedResources4);
-        //    tooltipInfo.produceTime = improvementData.producedResourceTime;
-        //    tooltipInfo.costs = improvementData.improvementCost;
-        //    tooltipInfo.unit = false;
-        //    tooltipInfo.description = improvementData.improvementDescription;
-        //}
-        //else if (unitData != null)
-        //{
-        //    tooltipInfo.title = unitData.unitType.ToString();
-        //    tooltipInfo.displayTitle = unitData.unitName;
-        //    tooltipInfo.level = unitData.unitLevel;
-        //    tooltipInfo.description = unitData.unitDescription;
-        //    tooltipInfo.health = unitData.health;
-        //    tooltipInfo.speed = unitData.movementSpeed;
-        //    tooltipInfo.strength = unitData.attackStrength;
-        //    tooltipInfo.cargo = unitData.cargoCapacity;
-        //    tooltipInfo.costs = unitData.unitCost;
-        //    tooltipInfo.unit = true;
-        //}
+            consumes.Add(unitData.cycleCost);
+        }
 
         if (improvementData != null)
             rewardIcon.sprite = improvementData.image;
@@ -97,10 +78,10 @@ public class UIResearchReward : MonoBehaviour
             return;
 
         if (improvementData != null)
-            researchItem.researchTree.researchTooltip.SetInfo(transform.position, improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel, 
+            researchItem.researchTree.researchTooltip.SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel, 
                 improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0);
         else if (unitData != null)
-            researchItem.researchTree.researchTooltip.SetInfo(transform.position, unitData.image, unitData.unitType.ToString(), unitData.unitName, unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, 
+            researchItem.researchTree.researchTooltip.SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, 
                 produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity);
 
         researchItem.researchTree.researchTooltip.ToggleVisibility(true);

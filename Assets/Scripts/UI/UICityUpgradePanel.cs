@@ -8,22 +8,24 @@ public class UICityUpgradePanel : MonoBehaviour
 {
     public MapWorld world;
     public CityBuilderManager cityBuilderManager;
-    public TMP_Text title, level, producesTitle, health, speed, strength;
-    private TMP_Text producesText;
+    public TMP_Text title, level, producesTitle, health, speed, strength, descriptionTitle, descriptionText;
+    //private TMP_Text producesText;
     public Image mainImage, strengthImage;
     public Sprite inventorySprite, strengthSprite;
-    public RectTransform allContents, resourceProduceAllHolder, imageLine, resourceProducedHolder, resourceCostHolder, unitInfo;
+    public GameObject descriptionHolder, produceHolder;
+    public RectTransform allContents, resourceProduceAllHolder, imageLine, resourceProducedHolder, resourceCostHolder, unitInfo, spaceHolder;
     public VerticalLayoutGroup resourceProduceLayout;
-    private List<Transform> produceConsumesHolders = new();
+	public HorizontalLayoutGroup firstResourceProduceLayout;
+	private List<Transform> produceConsumesHolders = new();
     private List<UIResourceInfoPanel> costsInfo = new(), producesInfo = new();
     private List<List<UIResourceInfoPanel>> consumesInfo = new();
+    private GameObject firstArrow;
 
     private Vector3Int improvementLoc;
     private CityImprovement improvement;
     private Unit unit;
     private bool cannotAfford;
     private List<ResourceValue> upgradeCost = new();
-    private List<ResourceValue> produces = new();
     List<List<ResourceValue>> consumes = new();
     List<int> produceTime = new();
 
@@ -37,16 +39,7 @@ public class UICityUpgradePanel : MonoBehaviour
         gameObject.SetActive(false);
 
         foreach (Transform selection in resourceProducedHolder)
-        {
-            if (selection.TryGetComponent(out TMP_Text text))
-            {
-                producesText = text;
-            }
-            else
-            {
-                produceConsumesHolders.Add(selection);
-            }
-        }
+            produceConsumesHolders.Add(selection);
 
         for (int i = 0; i < produceConsumesHolders.Count; i++)
         {
@@ -55,8 +48,11 @@ public class UICityUpgradePanel : MonoBehaviour
 
             foreach (Transform selection in produceConsumesHolders[i])
             {
-                //first one is for showing produces
-                if (j == 0)
+				if (i == 0 && j == 1)
+					firstArrow = selection.gameObject; //getting first arrow to hide for units
+
+				//first one is for showing produces
+				if (j == 0)
                     producesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
                 //after first two is for showing consumes
                 else if (j >= 2 /*&& j <= 7*/)
@@ -82,22 +78,41 @@ public class UICityUpgradePanel : MonoBehaviour
 
         if (v)
         {
+            string name;
             world.infoPopUpCanvas.gameObject.SetActive(true);
             activeStatus = true;
             
             this.improvement = improvement;
             if (improvement != null)
+            {
                 improvementLoc = improvement.loc;
+                name = improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel;
+            }
+            else
+            {
+                name = unit.buildDataSO.unitName + '-' + unit.buildDataSO.unitLevel;
+			}
+
             this.unit = unit;
 
-            string name = improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel;
             upgradeCost = new(world.GetUpgradeCost(name));
 
             if (unit != null)
             {
+                List<ResourceValue> produces = new();
+                
+                if (unit.buildDataSO.cycleCost.Count > 0)
+                {
+                    ResourceValue value;
+                    value.resourceType = ResourceType.None;
+                    value.resourceAmount = 0;
+                    produces.Add(value);
+                    consumes.Add(new(unit.buildDataSO.cycleCost));
+                }
+                
                 UnitBuildDataSO unitData = world.GetUnitUpgradeData(name);
-                List<int> produceTime = new();
-                SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitName, unitData.unitLevel, 0, unitData.unitDescription,
+                List<int> produceTime = new() { 0 };
+                SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription,
                 produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, resourceManager);
             }
             else
@@ -140,7 +155,6 @@ public class UICityUpgradePanel : MonoBehaviour
         activeStatus = false;
         this.improvement = null;
         this.unit = null;
-        produces.Clear();
         consumes.Clear();
         produceTime.Clear();
     }
@@ -156,29 +170,37 @@ public class UICityUpgradePanel : MonoBehaviour
             this.level.text = "Level " + level.ToString() + " " + title;
 
         int producesCount = produces.Count;
-        int maxCount = upgradeCost.Count - 2;
-        int resourcePanelSize = 90;
+        int maxCount = upgradeCost.Count;
+		int maxConsumed = 0;
+		int resourcePanelSize = 90;
         resourcePanelSize += 0; //for gap
         int produceHolderWidth = 220;
-        int produceHolderHeight = 110;
-        int produceContentsWidth = 340;
-        int produceContentsHeight = 120;
+        int produceHolderHeight = 160;
+        int produceContentsWidth = 370;
+        int produceContentsHeight = 510;
+		bool arrowBuffer = false;
 
-        //reseting produce section layout
-        resourceProduceLayout.padding.top = 0;
-        resourceProduceLayout.spacing = 0;
+		//reseting produce section layout
+		//resourceProduceLayout.padding.top = 0;
+  //      resourceProduceLayout.spacing = 0;
 
         producesTitle.text = "Produces / Requires";
 
-        if (producesCount == 0)
+        if (description.Length > 0)
         {
-            producesText.gameObject.SetActive(true);
+			descriptionHolder.SetActive(true);
 
-            if (unit)
+			if (!unit && description.Length < 23)
+				produceContentsHeight += 85;
+			else
+				produceContentsHeight += 120;
+
+			if (unit)
             {
-                producesText.text = description;
-                producesTitle.text = "Unit Info";
-                this.health.text = health.ToString();
+				descriptionText.text = description;
+				producesTitle.text = "Cost per Growth Cycle";
+				descriptionTitle.text = "Unit Info";
+				this.health.text = health.ToString();
                 this.speed.text = Mathf.RoundToInt(speed * 2).ToString();
                 if (cargoCapacity > 0)
                 {
@@ -191,30 +213,61 @@ public class UICityUpgradePanel : MonoBehaviour
                     strengthImage.sprite = strengthSprite;
                 }
 
-                resourceProduceLayout.padding.top = -5;
-                resourceProduceLayout.spacing = 15;
-                produceContentsHeight = 160;
-                produceHolderHeight = 110;
-            }
+				unitInfo.gameObject.SetActive(true);
+				produceContentsHeight += 50;
+				resourceProduceLayout.childAlignment = TextAnchor.UpperCenter;
+				//resourceProduceLayout.padding.top = -5;
+				//resourceProduceLayout.spacing = 15;
+				//produceContentsHeight = 160;
+				//produceHolderHeight = 110;
+			}
             else
             {
-                if (workEthic > 0)
-                    producesText.text = "Work Ethic +" + Mathf.RoundToInt(workEthic * 100) + "%";
-                else
-                    producesText.text = description;
-                producesTitle.text = "Produces";
-            }
+				descriptionTitle.text = "Additional Info";
 
-            produceContentsWidth = 370;
-            produceHolderWidth = 340;
+				if (workEthic > 0)
+					descriptionText.text = "Work Ethic +" + Mathf.RoundToInt(workEthic * 100) + "%";
+				else
+					descriptionText.text = description;
+				producesTitle.text = "Produces";
+			}
+
+            //produceContentsWidth = 370;
+            //produceHolderWidth = 340;
         }
         else
         {
-            producesText.gameObject.SetActive(false);
-            unitInfo.gameObject.SetActive(false);
+			descriptionHolder.SetActive(false);
+			unitInfo.gameObject.SetActive(false);
+		}
+
+		if (unit)
+		{
+			unitInfo.gameObject.SetActive(true);
+			produceContentsHeight += 10;
+            resourceProduceLayout.childAlignment = TextAnchor.UpperCenter;
+
+			if (consumes.Count > 0)
+                firstResourceProduceLayout.padding.left = -(consumes[0].Count - 1) * (resourcePanelSize / 2);
+		}
+		else
+		{
+			unitInfo.gameObject.SetActive(false);
+			resourceProduceLayout.childAlignment = TextAnchor.UpperLeft;
+			firstResourceProduceLayout.padding.left = 0;
         }
 
-        for (int i = 0; i < produceConsumesHolders.Count; i++)
+		if (producesCount > 0)
+		{
+			produceHolder.SetActive(true);
+		}
+		else
+		{
+			produceHolder.SetActive(false);
+			produceContentsHeight -= 140;
+		}
+
+		for (int i = 0; i < produceConsumesHolders.Count; i++)
         {
             if (i >= producesCount)
             {
@@ -225,42 +278,68 @@ public class UICityUpgradePanel : MonoBehaviour
                 produceConsumesHolders[i].gameObject.SetActive(true);
                 GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i]);
 
-                if (maxCount < consumes[i].Count + 1)
-                    maxCount = consumes[i].Count + 1;
-            }
+				//if (maxCount < consumes[i].Count + 1)
+				//    maxCount = consumes[i].Count + 1;
+
+				int one = produceTimeList[i] > 0 ? 1 : 0;
+
+				if (maxCount < consumes[i].Count + one + 1)
+				{
+					arrowBuffer = true;
+					maxCount = consumes[i].Count + one + 1;
+				}
+
+				if (maxConsumed < consumes[i].Count + one)
+					maxConsumed = consumes[i].Count + one;
+			}
         }
 
         //must be below produce consumes holder activations
-        if (unit)
-            unitInfo.gameObject.SetActive(true);
+        //if (unit)
+        //    unitInfo.gameObject.SetActive(true);
 
         GenerateResourceInfo(upgradeCost, costsInfo, 0, true, resourceManager); //0 means don't show produce time
 
-        //adjusting height of panel
-        if (producesCount > 1)
-        {
-            int shift = resourcePanelSize * (producesCount - 1);
-            produceContentsHeight += shift;
-        }
+		////adjusting height of panel
+		//if (producesCount > 1)
+		//{
+		//    int shift = resourcePanelSize * (producesCount - 1);
+		//    produceContentsHeight += shift;
+		//}
 
-        //adjusting width of panel
-        if (maxCount > 1)
-        {
-            int shift = resourcePanelSize * (maxCount - 1);
-            if (producesCount > 0)
-                produceHolderWidth += shift;
-        }
-        if (maxCount > 2)
-        {
-            int shift = resourcePanelSize * (maxCount - 2);
-            produceContentsWidth += shift;
-        }
+		////adjusting width of panel
+		//if (maxCount > 1)
+		//{
+		//    int shift = resourcePanelSize * (maxCount - 1);
+		//    if (producesCount > 0)
+		//        produceHolderWidth += shift;
+		//}
+		//if (maxCount > 2)
+		//{
+		//    int shift = resourcePanelSize * (maxCount - 2);
+		//    produceContentsWidth += shift;
+		//}
 
-        resourceProducedHolder.sizeDelta = new Vector2(produceHolderWidth, produceHolderHeight);
-        allContents.sizeDelta = new Vector2(produceContentsWidth, 390 + produceContentsHeight);
+		//adjusting height of panel
+		if (producesCount > 1)
+			produceContentsHeight += resourcePanelSize * (producesCount - 1);
+
+		//adjusting width of panel
+		if (maxCount > 4)
+			produceContentsWidth += resourcePanelSize * (maxCount - 4);
+
+		if (maxConsumed > 1)
+			produceHolderWidth += resourcePanelSize * (maxConsumed - 1);
+
+		if (arrowBuffer)
+			produceContentsWidth += 40;
+
+		resourceProducedHolder.sizeDelta = new Vector2(produceHolderWidth, produceHolderHeight);
+		allContents.sizeDelta = new Vector2(produceContentsWidth, produceContentsHeight);
+		spaceHolder.sizeDelta = new Vector2(100, Mathf.Max(resourcePanelSize * (producesCount - 1), 0));
         imageLine.sizeDelta = new Vector2(produceContentsWidth - 20, 4);
 
-        PositionCheck();
+		PositionCheck();
     }
 
     private void GenerateResourceInfo(List<ResourceValue> resourcesInfo, List<UIResourceInfoPanel> resourcesToShow, int produceTime, bool cost, ResourceManager resourceManager = null)
@@ -314,11 +393,24 @@ public class UICityUpgradePanel : MonoBehaviour
 
     private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime)
     {
-        producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
-        producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
-        producesInfo[produceIndex].resourceType = producedResource.resourceType;
+        if (producedResource.resourceType != ResourceType.None)
+        {
+            if (produceIndex == 0)
+                producesInfo[0].gameObject.SetActive(true);
 
-        GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime, false);
+            producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
+            producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
+            producesInfo[produceIndex].resourceType = producedResource.resourceType;
+
+			firstArrow.SetActive(true);
+			GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime, false);
+        }
+        else
+        {
+            producesInfo[produceIndex].gameObject.SetActive(false);
+            firstArrow.SetActive(false);
+            GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime, false);
+		}
     }
 
     private void PositionCheck()
@@ -340,11 +432,11 @@ public class UICityUpgradePanel : MonoBehaviour
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
             return;
         }
-
+            
         if (improvement != null)
             cityBuilderManager.UpgradeSelectedImprovementQueueCheck(improvementLoc, improvement);
         else if (unit != null)
-            cityBuilderManager.UpgradeUnit();
+            cityBuilderManager.UpgradeUnit(unit);
 
         ResetData();
         gameObject.SetActive(false);

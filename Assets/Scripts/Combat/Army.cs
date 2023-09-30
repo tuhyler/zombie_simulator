@@ -78,6 +78,16 @@ public class Army : MonoBehaviour
         return openSpot;
     }
 
+    public void AddToOpenSpots(Vector3Int spot)
+    {
+        openSpots.Remove(spot);
+
+		if (openSpots.Count == 0)
+			isFull = true;
+		if (isEmpty)
+			isEmpty = false;
+	}
+
     public void UpdateLocation(Vector3Int oldLoc, Vector3Int newLoc)
     {
 		int index = totalSpots.IndexOf(oldLoc);
@@ -311,8 +321,8 @@ public class Army : MonoBehaviour
 
             if (rotation == 0)
             {
-                UnitReady();
                 unit.marchPosition = unit.barracksBunk - loc;
+                UnitReady();
                 continue;
             }
             else if (rotation == 1)
@@ -348,7 +358,7 @@ public class Army : MonoBehaviour
 				else
 				{
 					if (unitDiff.x != 0)
-						unitDiff += unitDiff.x * new Vector3Int(1, 0, -1);
+						unitDiff += unitDiff.x * new Vector3Int(-1, 0, 1);
 					else
 						unitDiff += unitDiff.z * new Vector3Int(-1, 0, -1);
 				}
@@ -879,8 +889,10 @@ public class Army : MonoBehaviour
         
         foreach (Unit unit in unitsInArmy)
         {
-            Color color = unit == selectedUnit ? Color.green : Color.white;
-            unit.Select(color);
+            if (unit == selectedUnit)
+                unit.Select(Color.green);
+            else
+                unit.SoftSelect(Color.white);
         }
     }
 

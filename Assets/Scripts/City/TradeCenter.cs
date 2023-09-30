@@ -22,6 +22,8 @@ public class TradeCenter : MonoBehaviour
     public string tradeCenterName;
     [HideInInspector]
     public Vector3Int harborLoc, mainLoc;
+    [HideInInspector]
+    public bool isDiscovered;
     
     private Dictionary<ResourceType, int> resourceSellDict = new();
     public Dictionary<ResourceType, int> ResourceSellDict { get { return resourceSellDict; } set { resourceSellDict = value; } }

@@ -14,15 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 1611013192853869202, guid: 70de2c43b80231141b9cc01573a379b5, type: 3}
   secondaryData: []
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Research
   improvementDisplayName: Research
   improvementLevel: 2
   improvementNameAndLevel: Research-2
-  improvementDescription: 
+  improvementDescription: item does this and this and this
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
-  littleImage: {fileID: 21300000, guid: 5b5e1fb250441d146980c57c7efe52f2, type: 3}
   mapIcon: {fileID: 21300000, guid: b0beed5a901ae8c47b3709565dd4358b, type: 3}
   improvementCost:
   - resourceType: 7
@@ -87,6 +88,7 @@ MonoBehaviour:
   availableInitially: 0
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 1}

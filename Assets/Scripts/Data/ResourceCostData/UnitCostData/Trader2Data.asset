@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4262420279640114416, guid: 801743abbaa111446b985a226fad7b99, type: 3}
   secondaryPrefab: {fileID: 0}
+  isSecondary: 0
   unitName: Trader
+  unitDisplayName: Cart Trader
   unitLevel: 2
   image: {fileID: 21300000, guid: 7dd37b564630879458f62e18a7bef051, type: 3}
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
@@ -25,7 +27,7 @@ MonoBehaviour:
     resourceAmount: 10
   cycleCost:
   - resourceType: 4
-    resourceAmount: 250
+    resourceAmount: 2
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
