@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Timeline;
 using static UnityEditor.PlayerSettings;
 
 public class WorkerTaskManager : MonoBehaviour
@@ -480,13 +481,13 @@ public class WorkerTaskManager : MonoBehaviour
         TerrainData td = world.GetTerrainDataAt(tile);
         TerrainType type = td.terrainData.type;
 
-        if (type == TerrainType.Forest || type == TerrainType.ForestHill)
-        {
-            InfoPopUpHandler.WarningMessage().Create(tile, "Trees in the way");
-            worker.isBusy = false;
-            return;
-        }
-        else if (type == TerrainType.River)
+        //if (type == TerrainType.Forest || type == TerrainType.ForestHill)
+        //{
+        //    InfoPopUpHandler.WarningMessage().Create(tile, "Trees in the way");
+        //    worker.isBusy = false;
+        //    return;
+        //}
+        if (type == TerrainType.River)
         {
             InfoPopUpHandler.WarningMessage().Create(tile, "Not in water...");
             worker.isBusy = false;
@@ -507,7 +508,7 @@ public class WorkerTaskManager : MonoBehaviour
         //int timeLimit = cityBuildingTime;
 
         if (clearForest)
-            timePassed *= 2;
+            timePassed += worker.clearingForestTime;
 
         worker.ShowProgressTimeBar(timePassed);
         worker.SetWorkAnimation(true);
@@ -538,14 +539,6 @@ public class WorkerTaskManager : MonoBehaviour
     {
         worker.isBusy = false;
 
-        //clear the forest if building on forest tile
-        if (clearForest)
-        {
-            Destroy(td.prop.GetChild(0).gameObject);
-            td.terrainData = td.terrainData.clearedForestData;
-            td.gameObject.tag = "Flatland";
-        }
-
         td.prop.gameObject.SetActive(false);
 
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); 
@@ -560,8 +553,28 @@ public class WorkerTaskManager : MonoBehaviour
         city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
         city.CheckForAvailableSingleBuilds();
 
-        //build road where city is placed
-        if (!world.IsRoadOnTerrain(workerTile))
+		//clear the forest if building on forest tile
+		if (clearForest)
+		{
+			td.prop.gameObject.SetActive(false);
+			worker.marker.ToggleVisibility(false);
+
+			if (td.isHill)
+			{
+				td.terrainData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
+				td.gameObject.tag = "Hill";
+			}
+			else
+			{
+				td.terrainData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
+				td.gameObject.tag = "Flatland";
+			}
+
+			city.ResourceManager.CheckResource(ResourceType.Lumber, worker.clearedForestlumberAmount); 
+		}
+
+		//build road where city is placed
+		if (!world.IsRoadOnTerrain(workerTile))
         {
             foreach (Vector3Int loc in world.GetNeighborsFor(workerTile, MapWorld.State.EIGHTWAYINCREMENT))
             {
@@ -578,6 +591,46 @@ public class WorkerTaskManager : MonoBehaviour
         }
         
         city.LightFire(td.isHill);
+
+        foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
+        {
+            TerrainData tData = world.GetTerrainDataAt(tile);
+
+			if (tData.terrainData.type == TerrainType.River)
+            {
+                city.hasWater = true;
+                city.hasFreshWater = true;
+            }
+            
+            if (tData.terrainData.type == TerrainType.Coast)
+                city.hasWater = true;
+
+            if (tData.terrainData.hasRocks)
+            {
+                if (tData.isHill)
+                    city.hasRocksHill = true;
+                else
+                    city.hasRocksFlat = true;
+            }
+
+            if (tData.terrainData.resourceType == ResourceType.Clay)
+                city.hasClay = true;
+
+			if (tData.terrainData.resourceType == ResourceType.Wool)
+				city.hasWool = true; 
+            
+            if (tData.terrainData.resourceType == ResourceType.Silk)
+                city.hasSilk = true;
+
+            if (tData.terrainData.resourceType == ResourceType.Lumber)
+                city.hasTrees = true;
+
+            if ((tData.terrainData.grassland && tData.terrainData.type == TerrainType.Flatland) || tData.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
+                city.hasFood = true;
+        }
+
+        city.reachedWaterLimit = !city.hasFreshWater;
+        city.waterMaxPop = city.hasFreshWater ? 9999 : 0;
         //ResourceProducer resourceProducer = newCity.GetComponent<ResourceProducer>();
         //world.AddResourceProducer(workerTile, resourceProducer);
         //resourceProducer.InitializeImprovementData(improvementData); //allows the new structure to also start generating resources
@@ -656,6 +709,11 @@ public class WorkerTaskManager : MonoBehaviour
         }
         else
         {
+            if (workerUnit.clearingForest)
+            {
+                workerUnit.clearingForest = false;
+                world.GetTerrainDataAt(world.GetClosestTerrainLoc(workerUnit.transform.position)).beingCleared = false;
+            }
             workerUnit.SetWorkAnimation(false);
 
             if (taskCoroutine != null)

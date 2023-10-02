@@ -259,6 +259,7 @@ public class UIBuilderHandler : MonoBehaviour
             string itemName = "";
             List<ResourceValue> resourceCosts = new();
             bool locked = false;
+            bool hide = false;
 
             if (buildItem.UnitBuildData != null)
             {
@@ -266,29 +267,51 @@ public class UIBuilderHandler : MonoBehaviour
                 resourceCosts = new(buildItem.UnitBuildData.unitCost);
                 locked = buildItem.UnitBuildData.locked;
 
-                if (buildItem.UnitBuildData.baseAttackStrength > 0)
+                if (buildItem.UnitBuildData.transportationType == TransportationType.Sea)
                 {
-                    buildItem.needsBarracks = !resourceManager.city.hasBarracks;
-                    buildItem.fullBarracks = resourceManager.city.army.isFull;
-                    buildItem.trainingBarracks = resourceManager.city.army.isTraining;
-                    buildItem.travelingBarracks = resourceManager.city.army.IsGone();
+                    buildItem.trainingBarracks = resourceManager.city.harborTraining;
+                }
+                else
+                {
+                    if (buildItem.UnitBuildData.baseAttackStrength > 0)
+                    {
+                        buildItem.needsBarracks = !resourceManager.city.hasBarracks;
+                        buildItem.fullBarracks = resourceManager.city.army.isFull;
+                        buildItem.trainingBarracks = resourceManager.city.army.isTraining;
+                        buildItem.travelingBarracks = resourceManager.city.army.IsGone();
+                    }
                 }
 
                 ResourceValue laborCost;
                 laborCost.resourceType = ResourceType.Labor;
                 laborCost.resourceAmount = buildItem.UnitBuildData.laborCost;
                 resourceCosts.Add(laborCost);
+
+                if (!resourceManager.city.hasHarbor && buildItem.UnitBuildData.transportationType == TransportationType.Sea)
+                    hide = true;
             }
             else if (buildItem.BuildData != null)
             {
                 itemName = buildItem.BuildData.improvementName;
                 resourceCosts = new(buildItem.BuildData.improvementCost);
                 locked = buildItem.BuildData.Locked;
-            }
+
+                buildItem.waterMax = resourceManager.city.reachedWaterLimit;
+
+                if (buildItem.BuildData.rawResourceType == RawResourceType.None)
+                {								
+					if (!resourceManager.city.hasWater && buildItem.BuildData.terrainType == TerrainType.Coast)
+						hide = true;
+                }
+                else
+                {
+					hide = HideBuildOptionCheck(buildItem.BuildData.rawResourceType, buildItem.BuildData.terrainType, resourceManager.city);
+                }
+			}
 
             buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (locked || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
+            if (locked || hide || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
             {
                 buildItem.ToggleVisibility(false);
                 continue;
@@ -326,6 +349,45 @@ public class UIBuilderHandler : MonoBehaviour
             }
         }
     }
+
+    private bool HideBuildOptionCheck(RawResourceType rawResourceType, TerrainType terrainType, City city)
+    {
+        bool hide = false;
+        switch (rawResourceType)
+        {
+            case RawResourceType.Clay:
+                if (!city.hasClay)
+                    hide = true;
+                    break;
+            case RawResourceType.Wool:
+                if (!city.hasWool)
+                    hide = true;
+                    break;
+            case RawResourceType.Silk:
+                if (!city.hasSilk)
+                    hide = true;
+                    break;
+            case RawResourceType.Rocks:
+                if ((!city.hasRocksFlat && terrainType == TerrainType.Flatland) || (!city.hasRocksHill && terrainType == TerrainType.Hill))
+                    hide = true;
+                    break;
+            case RawResourceType.FoodLand:
+                if (!city.hasFood)
+                    hide = true;
+                    break;
+            case RawResourceType.Lumber:
+                if (!city.hasTrees)
+                    hide = true;
+                    break;
+            case RawResourceType.FoodSea:
+                if (!city.hasWater)
+                    hide = true;
+                    break;
+        }
+
+        return hide;
+    }
+
 
     public void UpdateBuildOptions(ResourceType type, int prevAmount, int currentAmount, bool pos, ResourceManager resourceManager)
     {
@@ -372,6 +434,14 @@ public class UIBuilderHandler : MonoBehaviour
 
         PrepareBuildOptions(resourceManager);
     }
+
+    public void UpdateHarborStatus()
+    {
+		foreach (UIBuildOptions buildItem in buildOptions)
+		{
+			buildItem.trainingBarracks = false;
+		}
+	}
 
     public void UpdateBarracksStatus(bool isFull)
     {

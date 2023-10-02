@@ -400,6 +400,10 @@ MonoBehaviour:
   baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
+  attackPause:
+  - 0.75
+  - 1
+  - 1.25
   projectile: {fileID: 0}
   turnHandler: {fileID: 0}
   bySea: 0
@@ -413,6 +417,8 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
+  newlyJoined: 1
+  isLeader: 0
   readyToMarch: 0
   inArmy: 0
   atHome: 0
@@ -420,9 +426,18 @@ MonoBehaviour:
   isMarching: 0
   transferring: 0
   repositioning: 0
+  inBattle: 0
   attacking: 0
   targetSearching: 0
+  flanking: 0
+  flankedOnce: 0
+  cavalryLine: 0
   isDead: 0
+  isUpgrading: 0
+  targetLocation: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
   removing: 0
+  clearingForest: 0
+  clearingForestTime: 10
+  clearedForestlumberAmount: 100
   citiesBuilt: 0

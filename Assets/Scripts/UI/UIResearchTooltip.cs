@@ -91,7 +91,7 @@ public class UIResearchTooltip : MonoBehaviour
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
-        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity)
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, bool rocks = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -199,8 +199,6 @@ public class UIResearchTooltip : MonoBehaviour
 			produceContentsHeight -= 140;
 		}
 
-
-
 		for (int i = 0; i < produceConsumesHolders.Count; i++)
         {   
             if (i >= producesCount)
@@ -210,7 +208,7 @@ public class UIResearchTooltip : MonoBehaviour
             else
             {
                 produceConsumesHolders[i].gameObject.SetActive(true);
-                GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i]);
+                GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i], rocks);
 
                 //if (maxCount < consumes[i].Count + 1)
                 //    maxCount = consumes[i].Count + 1;
@@ -336,7 +334,7 @@ public class UIResearchTooltip : MonoBehaviour
         }
     }
 
-    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime)
+    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime, bool rocks)
     {
         if (producedResource.resourceType != ResourceType.None)
         {
@@ -345,7 +343,24 @@ public class UIResearchTooltip : MonoBehaviour
 
             producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
             //producesInfo[produceIndex].resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / produceTime)).ToString();
-            producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
+            if (rocks)
+            {
+                RocksType rocksType = ResourceHolder.Instance.GetRocksType(producedResource.resourceType);
+                Sprite tempImage;
+
+                if (rocksType == RocksType.Normal)
+                    tempImage = world.rocksNormal;
+                else if (rocksType == RocksType.Luxury)
+                    tempImage = world.rocksLuxury;
+                else
+                    tempImage = world.rocksChemical;
+
+                producesInfo[produceIndex].resourceImage.sprite = tempImage;
+			}
+            else
+            {
+                producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
+            }
             producesInfo[produceIndex].resourceType = producedResource.resourceType;
 
 			firstArrow.SetActive(true);

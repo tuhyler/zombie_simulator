@@ -445,12 +445,20 @@ public class UnitMovement : MonoBehaviour
 
             //location.y = 0;
             //TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
-            MoveUnit(location, detectedObject);
+            MoveUnit(location, detectedObject, true);
         }
         else if (detectedObject.TryGetComponent(out Unit unitReference))
         {
             if (unitReference.CompareTag("Player"))
-                SelectUnitPrep(unitReference, location);
+            {
+				if (unitReference.isUpgrading)
+				{
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently being upgraded");
+					return;
+				}
+
+				SelectUnitPrep(unitReference, location);
+            }
             else if (unitReference.CompareTag("Enemy"))
                 SelectEnemy(unitReference);
         }
@@ -459,9 +467,19 @@ public class UnitMovement : MonoBehaviour
             Unit unit = unitMarker.Unit;
 
             if (unitMarker.CompareTag("Player"))
-                SelectUnitPrep(unit, location);
+            {
+				if (unit.isUpgrading)
+				{
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently being upgraded");
+					return;
+				}
+
+				SelectUnitPrep(unit, location);
+            }
             else if (unitMarker.CompareTag("Enemy"))
+            {
                 SelectEnemy(unit);
+            }
         }
         else if (detectedObject.TryGetComponent(out Resource resource))
         {
@@ -645,7 +663,7 @@ public class UnitMovement : MonoBehaviour
     }
 
     private void PrepareMovement()
-    {
+    {        
         //Debug.Log("Sel. unit is " + selectedUnit.name);
         world.somethingSelected = true;
         unitSelected = true;
@@ -657,13 +675,16 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isLaborer)
         {
             if (world.cityBuilderManager.SelectedCity != null)
-                world.laborerSelected = true;
+                world.cityUnitSelected = true;
             
             world.HighlightCitiesAndWonders();
         }
         else if (selectedUnit.isTrader)
         {
-            if (!selectedUnit.followingRoute)
+			if (world.cityBuilderManager.SelectedCity != null)
+				world.cityUnitSelected = true;
+
+			if (!selectedUnit.followingRoute)
                 world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
         }
 
@@ -781,10 +802,10 @@ public class UnitMovement : MonoBehaviour
 
         //selectedUnit.projectile.SetPoints(selectedUnit.transform.position, location); // just for testing projectiles
         //StartCoroutine(selectedUnit.projectile.ShootTest());
-        MoveUnit(location, detectedObject);
+        MoveUnit(location, detectedObject, false);
     }
 
-    private void MoveUnit(Vector3 location, GameObject detectedObject)
+    private void MoveUnit(Vector3 location, GameObject detectedObject, bool leftClick)
     {
         Vector3 locationFlat = location;
         locationFlat.y = 0f;
@@ -805,18 +826,18 @@ public class UnitMovement : MonoBehaviour
 			if (detectedObject.TryGetComponent(out City city) && detectedObject.CompareTag("Player"))
 			{
                 locationInt = city.cityLoc;
-                world.citySelected = true;
+                world.citySelected = leftClick;
 			}
 			else if (detectedObject.TryGetComponent(out Wonder wonder))
 			{
                 locationInt = wonder.unloadLoc;
-                world.citySelected = true;
+                world.citySelected = leftClick;
 			}
             else if (world.IsWonderOnTile(world.GetClosestTerrainLoc(locationInt)))
             {
                 Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
                 locationInt = wonderLoc.unloadLoc;
-				world.citySelected = true;
+				world.citySelected = leftClick;
 			}
 			else
 			{
@@ -868,17 +889,17 @@ public class UnitMovement : MonoBehaviour
 				if (world.IsCityHarborOnTile(terrainInt))
 				{
                     locationInt = world.GetCity(terrainInt).harborLocation;
-                    world.citySelected = true;
+                    world.citySelected = leftClick;
 				}
 				else if (world.IsWonderHarborOnTile(terrainInt))
 				{
                     locationInt = world.GetWonder(terrainInt).harborLoc;
-                    world.citySelected = true;
+                    world.citySelected = leftClick;
 				}
 				else if (world.IsTradeCenterHarborOnTile(terrainInt))
 				{
                     locationInt = world.GetTradeCenter(terrainInt).harborLoc;
-                    world.citySelected = true;
+                    world.citySelected = leftClick;
 				}
 				else
 				{
@@ -888,26 +909,22 @@ public class UnitMovement : MonoBehaviour
 			}
 			else
 			{
-				if (detectedObject.TryGetComponent(out City city) && detectedObject.CompareTag("Player"))
+				Vector3Int terrainInt = world.GetClosestTerrainLoc(locationInt);
+				if (world.IsCityOnTile(terrainInt))
 				{
-					locationInt = city.cityLoc;
-					world.citySelected = true;
+					locationInt = terrainInt;
+					world.citySelected = leftClick;
 				}
-				else if (detectedObject.TryGetComponent(out Wonder wonder))
+				else if (world.IsWonderOnTile(terrainInt))
 				{
-					locationInt = wonder.unloadLoc;
-					world.citySelected = true;
-				}
-				else if (world.IsWonderOnTile(world.GetClosestTerrainLoc(locationInt)))
-				{
-					Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
+					Wonder wonderLoc = world.GetWonder(terrainInt);
 					locationInt = wonderLoc.unloadLoc;
-					world.citySelected = true;
+					world.citySelected = leftClick;
 				}
-				else if (detectedObject.TryGetComponent(out TradeCenter center))
+				else if (world.IsTradeCenterOnTile(terrainInt))
 				{
-					locationInt = tradeCenter.mainLoc;
-					world.citySelected = true;
+					locationInt = terrainInt;
+					world.citySelected = leftClick;
 				}
 				else
 				{
@@ -982,15 +999,37 @@ public class UnitMovement : MonoBehaviour
 
         if (world.IsCityOnTile(unitLoc))
         {
-            AddToCity(world.GetCity(unitLoc), selectedUnit);
+            City city = world.GetCity(unitLoc);
+
+            if (city.reachedWaterLimit)
+            {
+				InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
+				return;
+			}
+
+			AddToCity(city, selectedUnit);
         }
         else if (world.IsCityHarborOnTile(unitLoc))
         {
-            AddToCity(world.GetHarborCity(unitLoc), selectedUnit);
+            City city = world.GetHarborCity(unitLoc);
+
+			if (city.reachedWaterLimit)
+			{
+				InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
+				return;
+			}
+
+			AddToCity(city, selectedUnit);
         }
         else if (selectedUnit.inArmy)
         {
-            AddToCity(selectedUnit.homeBase, selectedUnit);
+			if (selectedUnit.homeBase.reachedWaterLimit)
+			{
+				InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
+				return;
+			}
+
+			AddToCity(selectedUnit.homeBase, selectedUnit);
             selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
         }
         else

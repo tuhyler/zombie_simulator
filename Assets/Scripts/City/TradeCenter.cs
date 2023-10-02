@@ -64,11 +64,13 @@ public class TradeCenter : MonoBehaviour
     public void Hide()
     {
         gameObject.SetActive(false);
+        isDiscovered = false;
     }
 
     public void Reveal()
     {
         gameObject.SetActive(true);
+        isDiscovered = true;
     }
 
     public void SetWorld(MapWorld world)

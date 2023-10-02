@@ -18,6 +18,8 @@ public class Worker : Unit
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
     public bool removing, clearingForest;
+    public int clearingForestTime = 1;
+    public int clearedForestlumberAmount = 100;
 
     //animations
     private int isWorkingHash;
@@ -358,6 +360,7 @@ public class Worker : Unit
 			return;
 		}
 
+        clearingForest = true;
 		City city = world.GetCity(resourceCityLoc);
 		ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
 

@@ -84,6 +84,10 @@ public class MapWorld : MonoBehaviour
     private List<string> tradeCenterNamePool = new();
     private List<int> tradeCenterPopPool = new();
 
+    //miscellaneous sprites
+    [SerializeField]
+    public Sprite rocksNormal, rocksLuxury, rocksChemical;
+
     //world resource info
     private WorldResourceManager worldResourceManager;
     [HideInInspector]
@@ -165,7 +169,7 @@ public class MapWorld : MonoBehaviour
     public bool showGizmo, hideTerrain = true;
 
     [HideInInspector]
-    public bool unitOrders, buildingWonder, tooltip, somethingSelected, showingMap, citySelected, laborerSelected;
+    public bool unitOrders, buildingWonder, tooltip, somethingSelected, showingMap, citySelected, cityUnitSelected;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for naming of units
@@ -511,6 +515,8 @@ public class MapWorld : MonoBehaviour
             AddTradeLoc(center.harborLoc, center.tradeCenterName);
             if (hideTerrain)
                 center.Hide();
+            else
+                center.isDiscovered = true;
             i++;
         }
 

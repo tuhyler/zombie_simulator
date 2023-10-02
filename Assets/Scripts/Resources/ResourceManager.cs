@@ -60,9 +60,9 @@ public class ResourceManager : MonoBehaviour
     //for managing food consumption
     //private bool growth;
     [HideInInspector]
-    public bool pauseGrowth;
+    public bool pauseGrowth, growthDeclineDanger;
     public int cyclesToWait = 2;
-    private int starvationCount, noHousingCount;
+    private int starvationCount, noHousingCount, noWaterCount;
     //private int foodGrowthLevel;
     //public int FoodGrowthLevel { get { return foodGrowthLevel; } }
     //private int foodGrowthLimit;
@@ -513,7 +513,7 @@ public class ResourceManager : MonoBehaviour
         else if (newResourceAmount < 0)
             city.CheckLimitWaiter();
 
-        if (city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && type == ResourceType.Food && resourceDict[type] >= city.initialGrowthFood && !pauseGrowth)
+        if (city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && !city.reachedWaterLimit && type == ResourceType.Food && resourceDict[type] >= city.initialGrowthFood && !pauseGrowth)
         {
             resourceDict[type] -= city.initialGrowthFood;
             city.PopulationGrowthCheck(false, 1);
@@ -700,10 +700,14 @@ public class ResourceManager : MonoBehaviour
 
         if (resourceDict[ResourceType.Food] >= city.foodConsumptionPerMinute)
         {
-            starvationCount = 0;
-            city.exclamationPoint.SetActive(false);
+            if (growthDeclineDanger)
+            {
+                starvationCount = 0;
+                growthDeclineDanger = false;
+                city.exclamationPoint.SetActive(false);
+            }
 
-            if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth) //if enough food left over to grow
+            if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
                 city.PopulationGrowthCheck(false, 1);
         }
         else
@@ -712,7 +716,10 @@ public class ResourceManager : MonoBehaviour
             starvationCount++;
 
             if (!city.activeCity)
+            {
+                growthDeclineDanger = true;
                 city.exclamationPoint.SetActive(true);
+            }
 
             if (starvationCount >= cyclesToWait) //decreasing if starving for 2 cycles
             {
@@ -723,6 +730,8 @@ public class ResourceManager : MonoBehaviour
     
                 starvationCount = 0;
                 noHousingCount = 0;
+                noWaterCount = 0;
+                growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
             }
         }
@@ -735,22 +744,61 @@ public class ResourceManager : MonoBehaviour
             noHousingCount++;
 
             if (!city.activeCity)
-               city.exclamationPoint.SetActive(true);
+            {
+                growthDeclineDanger = true;
+                city.exclamationPoint.SetActive(true);
+            }
 
             if (noHousingCount >= cyclesToWait)
             {
                 city.PopulationDeclineCheck(false);
                 starvationCount = 0;
                 noHousingCount = 0;
+                noWaterCount = 0;
+                growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
             }
 
         }
         else
         {
-            noHousingCount = 0;
-            city.exclamationPoint.SetActive(false);
+            if (growthDeclineDanger)
+            {
+                noHousingCount = 0;
+                growthDeclineDanger = false;
+                city.exclamationPoint.SetActive(false);
+            }
         }
+
+        if (city.waterMaxPop < city.cityPop.CurrentPop)
+        {
+            noWaterCount++;
+
+            if (!city.activeCity)
+            {
+                growthDeclineDanger = true;
+                city.exclamationPoint.SetActive(true);
+            }
+
+            if (noHousingCount >= cyclesToWait)
+            {
+				city.PopulationDeclineCheck(false);
+				starvationCount = 0;
+				noHousingCount = 0;
+				noWaterCount = 0;
+                growthDeclineDanger = false;
+				city.exclamationPoint.SetActive(false);
+			}
+        }
+        else
+        {
+            if (growthDeclineDanger)
+            {
+    			noHousingCount = 0;
+                growthDeclineDanger = false;
+    			city.exclamationPoint.SetActive(false);
+            }
+		}
 
         CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
@@ -1108,4 +1156,12 @@ public enum ResourceCategory
     SoldGood,
     LuxuryGood,
     None
+}
+
+public enum RocksType
+{
+    None,
+    Normal,
+    Luxury,
+    Chemical
 }

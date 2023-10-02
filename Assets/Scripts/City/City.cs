@@ -48,7 +48,7 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Vector3Int cityLoc;
     [HideInInspector]
-    public bool activeCity, hasHarbor, hasBarracks, highlighted;
+    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
@@ -88,6 +88,8 @@ public class City : MonoBehaviour
 	private int housingCount = 0, houseCount, upgradeIndex;
     public int HousingCount { get { return housingCount; } set { housingCount = value; } }
     private CityImprovement[] housingArray = new CityImprovement[4];
+    [HideInInspector]
+    public int waterMaxPop;
 
     //resource info
     public float workEthic = 0.75f;
@@ -613,6 +615,9 @@ public class City : MonoBehaviour
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
 
+        if (waterMaxPop <= cityPop.CurrentPop)
+            reachedWaterLimit = true;
+
         if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
             cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, true, resourceManager);
 
@@ -677,7 +682,10 @@ public class City : MonoBehaviour
         SetCityPop();
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
 
-        if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
+		if (waterMaxPop > cityPop.CurrentPop)
+			reachedWaterLimit = false;
+
+		if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
             cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, false, resourceManager);
 
         if (cityPop.CurrentPop <= 3)
@@ -1239,8 +1247,89 @@ public class City : MonoBehaviour
         return (remainingLabor, maxxed);
     }
 
-    //for queued build items
-    public void GoToNextItemInQueue()
+    public void UpdateCityBools(ResourceType type, RawResourceType rawResourceType = RawResourceType.None, TerrainType terrainType = TerrainType.Flatland)
+    {
+        if (rawResourceType == RawResourceType.Rocks)
+        {
+			if (terrainType == TerrainType.Flatland)
+            {
+                hasRocksFlat = false;
+                
+                foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.CITYRADIUS))
+                {
+				    TerrainData td = world.GetTerrainDataAt(tile);
+
+                    if (td.terrainData.rawResourceType == rawResourceType)
+                    {
+                        hasRocksFlat = true;
+                        break;
+                    }
+			    }
+            }
+            else
+            {
+                hasRocksHill = false;
+                
+                foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.CITYRADIUS))
+				{
+					TerrainData td = world.GetTerrainDataAt(tile);
+
+					if (td.terrainData.rawResourceType == rawResourceType)
+                    {
+						hasRocksHill = true;
+                        break;
+                    }
+				}
+			}
+		}
+        else
+        {
+            CheckResourceType(type, false);
+            
+            foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.CITYRADIUS))
+            {
+                TerrainData td = world.GetTerrainDataAt(tile);
+
+                if (td.terrainData.resourceType == type)
+                {
+                    CheckResourceType(type, true);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void CheckResourceType(ResourceType type, bool v)
+    {
+        switch (type)
+        {
+            case ResourceType.Lumber:
+                hasTrees = v;
+                break;
+            case ResourceType.Wool:
+                hasWool = v;
+                break;
+            case ResourceType.Clay:
+                hasClay = v;
+                break;
+            case ResourceType.Silk:
+                hasSilk = v;
+                break;
+        }
+    }
+
+    public void SetNewTerrainData(Vector3Int loc)
+    {
+		TerrainData td = world.GetTerrainDataAt(loc);
+
+		if (td.isHill)
+			td.terrainData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
+		else
+			td.terrainData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
+	}
+
+	//for queued build items
+	public void GoToNextItemInQueue()
     {
         //UIQueueItem item = savedQueueItems[0];
         //savedQueueItems.Remove(item);
@@ -1356,12 +1445,12 @@ public class City : MonoBehaviour
     public void Select(Color color)
     {
 		//EnableHighlight();
-		foreach (string name in world.GetBuildingListForCity(cityLoc))
-        {
-			CityImprovement building = world.GetBuildingData(cityLoc, name);
-			building.DisableHighlight();
-			building.EnableHighlight(color);
-		}
+		//foreach (string name in world.GetBuildingListForCity(cityLoc))
+  //      {
+		//	CityImprovement building = world.GetBuildingData(cityLoc, name);
+		//	building.DisableHighlight();
+		//	building.EnableHighlight(color);
+		//}
 
         highlighted = true;
         world.GetTerrainDataAt(cityLoc).EnableHighlight(color);
@@ -1370,11 +1459,11 @@ public class City : MonoBehaviour
     public void Deselect()
     {
 		//DisableHighlight();
-		foreach (string name in world.GetBuildingListForCity(cityLoc))
-		{
-			CityImprovement building = world.GetBuildingData(cityLoc, name);
-			building.DisableHighlight();
-		}
+		//foreach (string name in world.GetBuildingListForCity(cityLoc))
+		//{
+		//	CityImprovement building = world.GetBuildingData(cityLoc, name);
+		//	building.DisableHighlight();
+		//}
 
         highlighted = false;
         world.GetTerrainDataAt(cityLoc).DisableHighlight();

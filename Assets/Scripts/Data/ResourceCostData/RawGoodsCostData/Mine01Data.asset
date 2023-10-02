@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2163178250855241649, guid: 30e5e8222071e5a40ba7e955464007dd, type: 3}
   secondaryData: []
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Mine
   improvementDisplayName: Mine
   improvementLevel: 1
@@ -22,7 +24,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 0ef6e27e6e2050e46a31bbc6fb4a8326, type: 3}
-  littleImage: {fileID: 21300000, guid: 1fe8c0bf99e862f4193dc969b97d0551, type: 3}
   mapIcon: {fileID: 21300000, guid: fff3e4b24fa45f24596d35a5472ab796, type: 3}
   improvementCost:
   - resourceType: 6
@@ -44,7 +45,7 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 7
-    resourceAmount: 10
+    resourceAmount: 1
   - resourceType: 26
     resourceAmount: 1
   producedResourceTime: 0a00000014000000

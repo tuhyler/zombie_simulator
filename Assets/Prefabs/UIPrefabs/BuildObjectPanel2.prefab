@@ -474,7 +474,10 @@ MonoBehaviour:
   objectImage: {fileID: 3355032083150064776}
   strengthImage: {fileID: 909802123960938854}
   inventorySprite: {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
-  resourceInfoPanel: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
+  rocksNormal: {fileID: 21300000, guid: a9e00241de0a0344b90c338d6f6ad7ad, type: 3}
+  rocksLuxury: {fileID: 21300000, guid: 6b5b7a5b5246769439048e9724d7e301, type: 3}
+  rocksChemical: {fileID: 21300000, guid: f450e4abfc1a1bd438c7b5645ff1c934, type: 3}
+  resourceInfoPanel: {fileID: 624308965952619012, guid: b05e5795d27dfbe4e8ad1f72f3524c6e,
     type: 3}
   productionPanel: {fileID: 8060467306141513032}
   descriptionPanel: {fileID: 782222132665763097}

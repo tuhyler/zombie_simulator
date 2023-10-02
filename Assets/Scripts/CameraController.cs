@@ -232,8 +232,8 @@ public class CameraController : MonoBehaviour
         if (Input.mouseScrollDelta.y != 0)
         {
             newZoom += Input.mouseScrollDelta.y * zoomAmount;
-            camPointScale += Input.mouseScrollDelta.y * camPointAmount;
-            camZPosition += Input.mouseScrollDelta.y * camPositionAmount;
+            //camPointScale += Input.mouseScrollDelta.y * camPointAmount;
+            //camZPosition += Input.mouseScrollDelta.y * camPositionAmount;
         }
 
         ZoomCamera();
@@ -242,16 +242,16 @@ public class CameraController : MonoBehaviour
     private void ZoomCamera()
     {
         //zooming limits (set manually)
-        newZoom.y = Mathf.Clamp(newZoom.y, 4f, 11); //for perfect diagonal, needs to be linear. if starting zoom y=5.5, z=-4.5, then 2.5 to bottom and 5.5 to top for both. 
-        newZoom.z = Mathf.Clamp(newZoom.z, -9f, -2f);
-        camPointScale.x = Mathf.Clamp(camPointScale.x, 8f, 30f);
-        camPointScale.z = Mathf.Clamp(camPointScale.z, 8f, 30f);
-        camZPosition.z = Mathf.Clamp(camZPosition.z, 0f, 4.5f);
+        newZoom.y = Mathf.Clamp(newZoom.y, 4.5f, 10.5f); //for perfect diagonal, needs to be linear based on main camera rotation. Main camera starting position also needs to match
+        newZoom.z = Mathf.Clamp(newZoom.z, -8.5f, -2.5f);
+        //camPointScale.x = Mathf.Clamp(camPointScale.x, 8f, 30f);
+        //camPointScale.z = Mathf.Clamp(camPointScale.z, 8f, 30f);
+        //camZPosition.z = Mathf.Clamp(camZPosition.z, 0f, 4.5f);
 
         //smoothing zoom
         cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * zoomTime);
-        camPointer.localScale = Vector3.Lerp(camPointer.localScale, camPointScale, Time.deltaTime * zoomTime);
-        camPointer.localPosition = Vector3.Lerp(camPointer.localPosition, camZPosition, Time.deltaTime * zoomTime);
+        //camPointer.localScale = Vector3.Lerp(camPointer.localScale, camPointScale, Time.deltaTime * zoomTime);
+        //camPointer.localPosition = Vector3.Lerp(camPointer.localPosition, camZPosition, Time.deltaTime * zoomTime);
     }
 
     private void RotateCamera()

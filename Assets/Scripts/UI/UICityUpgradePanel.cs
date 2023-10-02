@@ -130,7 +130,7 @@ public class UICityUpgradePanel : MonoBehaviour
                     consumes.Add(new(improvementData.consumedResources4));
 
                 SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel, improvementData.workEthicChange, 
-                    improvementData.improvementDescription, improvementData.producedResources, consumes, improvementData.producedResourceTime, false, 0, 0, 0, 0, resourceManager);
+                    improvementData.improvementDescription, improvementData.producedResources, consumes, improvementData.producedResourceTime, false, 0, 0, 0, 0, resourceManager, improvementData.rawResourceType == RawResourceType.Rocks);
             }
 
             gameObject.SetActive(true);
@@ -142,6 +142,15 @@ public class UICityUpgradePanel : MonoBehaviour
             ResetData();
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
         }
+    }
+
+    public void CurrentImprovementCheck(CityImprovement improvement)
+    {
+        if (!activeStatus)
+            return;
+        
+        if (improvement == this.improvement)
+            ToggleVisibility(false);
     }
 
     private void SetActiveStatusFalse()
@@ -160,7 +169,7 @@ public class UICityUpgradePanel : MonoBehaviour
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> produces,
-        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, ResourceManager resourceManager)
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, ResourceManager resourceManager, bool rocks = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -276,7 +285,7 @@ public class UICityUpgradePanel : MonoBehaviour
             else
             {
                 produceConsumesHolders[i].gameObject.SetActive(true);
-                GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i]);
+                GenerateProduceInfo(produces[i], consumes[i], i, produceTimeList[i], rocks);
 
 				//if (maxCount < consumes[i].Count + 1)
 				//    maxCount = consumes[i].Count + 1;
@@ -391,7 +400,7 @@ public class UICityUpgradePanel : MonoBehaviour
         }
     }
 
-    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime)
+    private void GenerateProduceInfo(ResourceValue producedResource, List<ResourceValue> consumedResources, int produceIndex, int produceTime, bool rocks)
     {
         if (producedResource.resourceType != ResourceType.None)
         {
@@ -399,7 +408,24 @@ public class UICityUpgradePanel : MonoBehaviour
                 producesInfo[0].gameObject.SetActive(true);
 
             producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
-            producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
+			if (rocks)
+			{
+				RocksType rocksType = ResourceHolder.Instance.GetRocksType(producedResource.resourceType);
+				Sprite tempImage;
+
+				if (rocksType == RocksType.Normal)
+					tempImage = world.rocksNormal;
+				else if (rocksType == RocksType.Luxury)
+					tempImage = world.rocksLuxury;
+				else
+					tempImage = world.rocksChemical;
+
+				producesInfo[produceIndex].resourceImage.sprite = tempImage;
+			}
+            else
+            {
+    			producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
+            }
             producesInfo[produceIndex].resourceType = producedResource.resourceType;
 
 			firstArrow.SetActive(true);

@@ -21,7 +21,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     private Color originalButtonColor;
     private bool leftSideButton;
     private bool rightSideButton;
-    public bool isSelling, isRemoving, isUpgrading;
+    public bool isSelling, isRemoving, isUpgrading, isUnits;
 
     private void Awake()
     {
@@ -64,6 +64,10 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
         else
         {
             uiBuildTabHandler.PassUI(uiBuilder);
+
+            if (isUnits)
+                uiBuildTabHandler.cityBuilderManager.CloseQueueUI();
+
             uiBuildTabHandler.ShowUI();
         }
 

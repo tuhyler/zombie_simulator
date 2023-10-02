@@ -29,9 +29,14 @@ public class ResourceIndividualHandler : MonoBehaviour
         int timePassed;
 
         if (clearForest)
-            timePassed = 1;
+        {
+            world.GetTerrainDataAt(world.RoundToInt(unitPos)).beingCleared = true;
+			timePassed = worker.clearingForestTime;
+        }
         else
+        {
             timePassed = resourceIndividual.ResourceGatheringTime;
+        }
 
         worker.ShowProgressTimeBar(timePassed);
         worker.SetWorkAnimation(true);
@@ -52,10 +57,13 @@ public class ResourceIndividualHandler : MonoBehaviour
 
         if (clearForest)
         {
+            worker.clearingForest = false;
             TerrainData td = world.GetTerrainDataAt(world.RoundToInt(unitPos));
+            td.beingCleared = false;
 			td.prop.gameObject.SetActive(false);
+			worker.marker.ToggleVisibility(false);
 
-            if (td.isHill)
+			if (td.isHill)
             {
                 td.terrainData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
                 td.gameObject.tag = "Hill";
@@ -65,6 +73,8 @@ public class ResourceIndividualHandler : MonoBehaviour
                 td.terrainData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
 				td.gameObject.tag = "Flatland";
             }
+
+            city.UpdateCityBools(ResourceType.Lumber);
 		}
 
         //showing harvested resource
