@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TextMeshProUGUI nameText, cityPop, availableHousing, unusedLabor, workEthic, foodLevelText, foodGrowthText/*, foodPerMinute*/;
+    private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel, foodLevelText, foodGrowthText/*, foodPerMinute*/;
 
     [SerializeField]
     private Toggle pauseGrowthToggle;
@@ -137,6 +137,31 @@ public class UIInfoPanelCity : MonoBehaviour
             workEthic.color = Color.yellow;
         else
             workEthic.color = Color.green;
+    }
+
+    public void UpdateWater(int maxWaterPop)
+    {
+        if (maxWaterPop == 9999)
+        {
+            waterLevel.color = Color.green;
+            waterLevel.text = "Fresh water";
+        }
+        else if (maxWaterPop > 0)
+        {
+			waterLevel.color = Color.yellow;
+			waterLevel.text = "Max pop of " + maxWaterPop;
+		}
+        else
+        {
+            waterLevel.color = Color.red;
+            waterLevel.text = "NONE";
+        }
+    }
+
+    public void LimitedWater()
+    {
+        waterLevel.color = Color.yellow;
+        waterLevel.text = "Max pop of 4";
     }
 
     public void ToggleVisibility(bool v)

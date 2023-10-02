@@ -41,7 +41,7 @@ public class Resource : MonoBehaviour
         worker.isBusy = false;
 
         if (clearForest) //ammount of wood received for clearing forest / jungle
-            gatheringAmount = 100;
+            gatheringAmount = worker.clearedForestlumberAmount;
 
         int amount = worker.world.GetTerrainDataAt(worker.world.RoundToInt(worker.transform.position)).GatherResourceAmount(gatheringAmount, worker);
         worker.RemoveWorkLocation();

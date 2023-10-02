@@ -44,4 +44,14 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].resourceName;
     }
+
+    public RawResourceType GetRawResourceType(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].rawResource;
+    }
+
+    public RocksType GetRocksType(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].rocksType;
+    }
 }

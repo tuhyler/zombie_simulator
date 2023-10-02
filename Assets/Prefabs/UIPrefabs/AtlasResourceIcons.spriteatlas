@@ -40,6 +40,7 @@ SpriteAtlas:
   m_PackedSprites:
   - {fileID: 21300000, guid: 575bd4902587c214b977a0de9bc2adf8, type: 3}
   - {fileID: 21300000, guid: 1690ec111a2aa164a8cf0ceca05a283b, type: 3}
+  - {fileID: 21300000, guid: a9e00241de0a0344b90c338d6f6ad7ad, type: 3}
   - {fileID: 21300000, guid: 663c0941c68f71b4badacab98cd53fad, type: 3}
   - {fileID: 21300000, guid: 333d35d1975cad64aa17bc4b21803953, type: 3}
   - {fileID: 21300000, guid: 202609d109b3de44695e860e6736f919, type: 3}
@@ -57,6 +58,8 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 96b1b5f9ec9e13f45bf2bfcb55ff8957, type: 3}
   - {fileID: 21300000, guid: 8cb0883a9920bd545bacccade1e5d661, type: 3}
   - {fileID: 21300000, guid: 136bc68a438e3414f83037321e2a4016, type: 3}
+  - {fileID: 21300000, guid: 6b5b7a5b5246769439048e9724d7e301, type: 3}
+  - {fileID: 21300000, guid: f450e4abfc1a1bd438c7b5645ff1c934, type: 3}
   - {fileID: 21300000, guid: 659559ab9e48c0146a1bb37628d551d9, type: 3}
   - {fileID: 21300000, guid: 06b8c2cb02362d8419ea4aa64d760990, type: 3}
   - {fileID: 21300000, guid: bb9210dbeb5c29f409dfecf134330837, type: 3}
@@ -71,6 +74,7 @@ SpriteAtlas:
   m_PackedSpriteNamesToIndex:
   - icon_gold01
   - icon_food02
+  - icon_rocks_normal
   - icon_coilpottery01
   - icon_ironore01
   - icon_clay
@@ -88,6 +92,8 @@ SpriteAtlas:
   - icon_goldingot
   - icon_stone02
   - icon_food01
+  - icon_rocks_luxury
+  - icon_rocks_chemical
   - icon_jewelry
   - icon_time
   - icon_bronzeware01

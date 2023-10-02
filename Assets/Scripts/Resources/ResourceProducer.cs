@@ -49,18 +49,40 @@ public class ResourceProducer : MonoBehaviour
 
         if (data.getTerrainResource)
         {
-            int i = 0;
-            foreach (ResourceValue value in data.producedResources)
+            if (data.rawResourceType == RawResourceType.Rocks)
             {
-                if (value.resourceType == type)
+                int i = 0;
+                foreach (ResourceValue value in data.producedResources)
                 {
-                    producedResource = value;
-                    producedResources.Add(value);
-                    producedResourceIndex = i;
-                    break;
-                }
+                    if (ResourceHolder.Instance.GetRocksType(value.resourceType) == ResourceHolder.Instance.GetRocksType(type))
+                    {
+                        ResourceValue newValue;
+                        newValue.resourceType = type;
+                        newValue.resourceAmount = value.resourceAmount;
 
-                i++;
+                        producedResource = newValue;
+                        producedResources.Add(newValue);
+                        producedResourceIndex = i;
+                    }
+
+                    i++;
+                }
+            }
+            else
+            {
+                int i = 0;
+                foreach (ResourceValue value in data.producedResources)
+                {
+                    if (value.resourceType == type)
+                    {
+                        producedResource = value;
+                        producedResources.Add(value);
+                        producedResourceIndex = i;
+                        break;
+                    }
+
+                    i++;
+                }
             }
             
             return;

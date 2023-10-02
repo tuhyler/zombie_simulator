@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: BoatTrader1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5269694401452621163, guid: 93eeea04b2503ca4b8e3df5751f2495a, type: 3}
+  prefab: {fileID: 5390864583482608459, guid: e7017b509bde15c47924ddef24528d00, type: 3}
   secondaryPrefab: {fileID: 0}
   isSecondary: 0
   unitName: Boat Trader
@@ -29,7 +29,7 @@ MonoBehaviour:
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
-  laborCost: 2
+  laborCost: 0
   unitType: 6
   unitDescription: Water transport for cargo
   availableInitially: 1
@@ -38,6 +38,6 @@ MonoBehaviour:
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 1
-  trainTime: 0
+  trainTime: 5
   cargoCapacity: 250
   transportationType: 1

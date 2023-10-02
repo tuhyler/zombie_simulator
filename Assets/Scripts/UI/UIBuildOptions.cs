@@ -26,7 +26,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private Image objectImage, strengthImage;
 
     [SerializeField]
-    private Sprite inventorySprite;
+    private Sprite inventorySprite, rocksNormal, rocksLuxury, rocksChemical;
 
     [SerializeField]
     private GameObject resourceInfoPanel, productionPanel, descriptionPanel;
@@ -45,7 +45,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private bool isUnitPanel, cannotAfford, isShowing;
 
     [HideInInspector]
-    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks;
+    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax;
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
     //private bool ;
@@ -206,7 +206,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
 
             produceConsumesHolders[i].gameObject.SetActive(true);
-            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i]);
+            
+            bool rocks = false;
+            if (buildData != null && buildData.rawResourceType == RawResourceType.Rocks)
+                rocks = true;
+
+            GenerateProduceInfo(produceConsumesHolders[i], objectProduced[i], objectConsumed[i], rocks);
 
             if (maxCount < objectConsumed[i].Count + 1)
             {
@@ -318,7 +323,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, /*int producedResourceTime, */List<ResourceValue> consumedResources)
+    private void GenerateProduceInfo(Transform transform, ResourceValue producedResource, /*int producedResourceTime, */List<ResourceValue> consumedResources, bool rocks)
     {
         int i = 0;
         foreach (Transform selection in transform)
@@ -333,7 +338,22 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 else
                 {
                     uiResourceInfoPanel.resourceAmountText.text = producedResource.resourceAmount.ToString();
-                    uiResourceInfoPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
+                    if (rocks)
+                    {
+                        RocksType rocksType = ResourceHolder.Instance.GetRocksType(producedResource.resourceType);
+                        Sprite tempImage;
+
+                        if (rocksType == RocksType.Normal)
+                            tempImage = rocksNormal;
+                        else if (rocksType == RocksType.Luxury)
+                            tempImage = rocksLuxury;
+                        else
+                            tempImage = rocksChemical;
+
+						uiResourceInfoPanel.resourceImage.sprite = tempImage;
+                    }
+                    else
+					    uiResourceInfoPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
                     uiResourceInfoPanel.resourceType = producedResource.resourceType;
                 }
             }
@@ -383,31 +403,50 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (needsBarracks)
+        if (unitBuildData != null)
         {
-			StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks required");
-			return;
-		}
-        else if (travelingBarracks)
-        {
-			StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks currently deployed");
-			return;
-		}
-        else if (fullBarracks)
-        {
-			StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks full");
-			return;
-		}
-        else if (trainingBarracks)
-        {
-			StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
-			return;
-		}
-        else if (cannotAfford && !buttonHandler.isQueueing)
+            if (unitBuildData.transportationType == TransportationType.Sea)
+            {
+                if (trainingBarracks)
+                {
+					StartCoroutine(Shake());
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
+					return;
+				}
+            }
+            else
+            {
+                if (unitBuildData.baseAttackStrength > 0)
+                {
+                    if (needsBarracks)
+                    {
+			            StartCoroutine(Shake());
+			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks required");
+			            return;
+		            }
+                    else if (travelingBarracks)
+                    {
+			            StartCoroutine(Shake());
+			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks currently deployed");
+			            return;
+		            }
+                    else if (fullBarracks)
+                    {
+			            StartCoroutine(Shake());
+			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks full");
+			            return;
+		            }
+                    else if (trainingBarracks)
+                    {
+			            StartCoroutine(Shake());
+			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
+			            return;
+		            }
+                }
+            }
+        }
+        
+        if (cannotAfford && !buttonHandler.isQueueing)
         {
             StartCoroutine(Shake());
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
@@ -421,6 +460,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
         else
         {
+            if (buildData.housingIncrease > 0 && waterMax)
+            {
+				StartCoroutine(Shake());
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Reached water limit. Build well or have river in boundaries");
+				return;
+			}
+            
             buttonHandler.PrepareBuild(buildData);
             buttonHandler.HandleButtonClick();
         }

@@ -117,6 +117,12 @@ public class UICityBuildTabHandler : MonoBehaviour
             sameUI = false;
     }
 
+    public void HideUnitsTab()
+    {
+        if (currentTabSelected != null && currentTabSelected.isUnits)
+            HideSelectedTab(false);
+    }
+
     public void HideSelectedTab(bool newTab)
     {
         if (builderUI != null)

@@ -31,7 +31,7 @@ public class Unit : MonoBehaviour
     private GameObject selectionCircle;
 
     [SerializeField]
-    private UnitMarker marker;
+    public UnitMarker marker;
 
     [SerializeField]
     public Healthbar healthbar;
@@ -122,9 +122,9 @@ public class Unit : MonoBehaviour
         //focusCam = FindObjectOfType<CameraController>();
         //world = FindObjectOfType<MapWorld>();
         //movementSystem = FindObjectOfType<MovementSystem>();
-        if (!bySea)
-            marker.Unit = this;
         highlight = GetComponent<SelectionHighlight>();
+        if (highlight == null)
+            highlight = GetComponentInChildren<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
         isMarchingHash = Animator.StringToHash("isMarching");
@@ -139,8 +139,10 @@ public class Unit : MonoBehaviour
         originalMoveSpeed = buildDataSO.movementSpeed;
         //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
         bySea = buildDataSO.transportationType == TransportationType.Sea;
+		if (!bySea)
+			marker.Unit = this;
 
-        healthMax = buildDataSO.health;
+		healthMax = buildDataSO.health;
         currentHealth = healthMax;
         attackSpeed = buildDataSO.baseAttackSpeed;
         //attackPause = new(attackSpeed);

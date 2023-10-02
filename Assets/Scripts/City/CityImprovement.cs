@@ -475,17 +475,17 @@ public class CityImprovement : MonoBehaviour
 		producer.HideConstructionProgressTimeBar();
 	}
 
-	public void BeginTraining(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager, bool upgrading)
+	public void BeginTraining(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager, bool upgrading, Unit upgradedUnit)
     {
         if (!upgrading)
 			upgradeCost = new List<ResourceValue>(data.unitCost);
 		
         isUpgrading = upgrading;
         laborCost = data.laborCost;
-        constructionCo = StartCoroutine(TrainUnitCoroutine(city, producer, tempBuildLocation, data, cityBuilderManager, upgrading));
+        constructionCo = StartCoroutine(TrainUnitCoroutine(city, producer, tempBuildLocation, data, cityBuilderManager, upgrading, upgradedUnit));
     }
 
-    private IEnumerator TrainUnitCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager, bool upgrading)
+    private IEnumerator TrainUnitCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, CityBuilderManager cityBuilderManager, bool upgrading, Unit upgradedUnit)
     {
 		timePassed = data.trainTime;
 		PlaySmokeEmitter(tempBuildLocation);
@@ -502,7 +502,7 @@ public class CityImprovement : MonoBehaviour
 		}
 
         StopTraining(producer);
-        cityBuilderManager.BuildUnit(city, data, upgrading);
+        cityBuilderManager.BuildUnit(city, data, upgrading, upgradedUnit);
 	}
 
     private void StopTraining(ResourceProducer producer)
@@ -543,6 +543,18 @@ public class CityImprovement : MonoBehaviour
 
     public void DestroyImprovement()
     {
+        TerrainData td = city.world.GetTerrainDataAt(loc);
+        
+        if (city.activeCity)
+        {
+            city.world.cityBuilderManager.tilesToChange.Remove(loc);
+            td.DisableHighlight();
+
+            city.world.cityBuilderManager.uiCityUpgradePanel.CurrentImprovementCheck(this);
+        }
+
+        city.SetNewTerrainData(loc);
+		city.UpdateCityBools(producedResource, ResourceHolder.Instance.GetRawResourceType(producedResource), td.terrainData.type);
         city.world.uiCityImprovementTip.CloseCheck(this);
         city.world.cityBuilderManager.RemoveImprovement(loc, this, city, false);
     }

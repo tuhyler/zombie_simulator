@@ -40,6 +40,7 @@ public class UIQueueButton : MonoBehaviour, IPointerDownHandler
             buttonImage.color = Color.green;
             uiBuildTabHandler.CloseImprovementTooltipButton();
             uiBuildTabHandler.CloseRemovalWindow();
+            uiBuildTabHandler.HideUnitsTab();
             uiQueueManager.ToggleVisibility(true);
         }
         else

@@ -14,6 +14,7 @@ public class ResourceIndividualSO : ScriptableObject
     public int resourcePrice;
     public int resourceQuantityPerPop = 1;
     public RawResourceType rawResource;
+    public RocksType rocksType = RocksType.None;
     public ResourceCategory resourceCategory;
     public string requirement;
     public Vector2 uvCoordinatesForRocks;
