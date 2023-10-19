@@ -13,7 +13,8 @@ public class DayNightCycle : MonoBehaviour
     //private DayNightPresetSO preset;
 
     public float speed = 0.1f;
-    private bool day = true;
+    [HideInInspector]
+    public bool day = true;
     
     [SerializeField, Range(0, 24)]
     public float timeODay;
