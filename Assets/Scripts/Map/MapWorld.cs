@@ -9,6 +9,8 @@ public class MapWorld : MonoBehaviour
 {
     //public float test = 0.4f;
     [SerializeField]
+    private CameraController cameraController;
+    [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [SerializeField]
     public DayNightCycle dayNightCycle;
@@ -3553,6 +3555,21 @@ public class MapWorld : MonoBehaviour
             cityWorkedTileDict.Remove(pos);
     }
 
+    public bool CameraLocCheck()
+    {
+        if (GetTerrainDataAt(RoundToInt(cameraController.transform.position)).isLand)
+            return true;
+        else
+            return false;
+    }
+
+    public bool DayTimeCheck()
+    {
+        if (dayNightCycle.day)
+            return true;
+        else
+            return false;
+    }
     public void PlayMessage(Vector3 loc)
     {
         speechBubble.SetText(loc, "This is a test. This is only a test.");
