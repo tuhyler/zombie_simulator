@@ -117,6 +117,12 @@ public class UILaborHandler : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    public void ToggleCityLaborCostButton()
+    {
+        city.world.cityBuilderManager.PlaySelectAudio(true);
+        ToggleCityLaborCost();
+    }
+
     public void ToggleCityLaborCost()
     {
         if (uiCityLaborCostPanel.activeStatus)

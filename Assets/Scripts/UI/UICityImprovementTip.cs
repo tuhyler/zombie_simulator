@@ -80,6 +80,8 @@ public class UICityImprovementTip : MonoBehaviour
 
         if (val)
         {
+            world.cityBuilderManager.PlayAudioClip(improvement.GetImprovementData.audio);
+            
             highlightList[highlightIndex].gameObject.SetActive(false); // turn off previous one
             this.improvement = improvement;
 

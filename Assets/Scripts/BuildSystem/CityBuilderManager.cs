@@ -147,8 +147,15 @@ public class CityBuilderManager : MonoBehaviour
     [HideInInspector]
     public GameObject emptyGO;
 
+    [SerializeField]
+    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip;
+    [SerializeField]
+    private AudioClip[] acknowledgements;
+    private AudioSource audioSource;
+
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         emptyGO = new GameObject("NewImprovement");
         emptyGO.SetActive(false);
         GrowLaborNumbersPool();
@@ -285,7 +292,10 @@ public class CityBuilderManager : MonoBehaviour
                 if (upgradingImprovement)
                 {
                     if (tilesToChange.Contains(terrainLocation) || (terrainLocation == selectedCityLoc && improvementSelected.canBeUpgraded))
-                        uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvementSelected);
+                    {
+                        PlaySelectAudio(true);
+						uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvementSelected);
+                    }
                     //UpgradeSelectedImprovementQueueCheck(terrainLocation, improvementSelected);
                     else
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
@@ -302,9 +312,10 @@ public class CityBuilderManager : MonoBehaviour
                         improvementSelected.RemoveConstruction(this, terrainLocation);
                     }
 
-                    //if (!improvementSelected.isConstruction && !improvementSelected.isUpgrading && !improvementSelected.isTraining)
-                    //    improvementSelected.PlayRemoveEffect(world.GetTerrainDataAt(terrainLocation).isHill);
-                    RemoveImprovement(terrainLocation, improvementSelected, selectedCity, false);
+					//if (!improvementSelected.isConstruction && !improvementSelected.isUpgrading && !improvementSelected.isTraining)
+					//    improvementSelected.PlayRemoveEffect(world.GetTerrainDataAt(terrainLocation).isHill);
+					PlayAudioClip(removeClip);
+					RemoveImprovement(terrainLocation, improvementSelected, selectedCity, false);
                 }
                 else if (laborChange != 0) //for changing labor counts in tile
                 {
@@ -401,15 +412,17 @@ public class CityBuilderManager : MonoBehaviour
 						return;
                     }
 
+                    PlaySelectAudio(false);
                     BuildImprovementQueueCheck(improvementData, terrainLoc); //passing the data here as method requires it
                 }
                 else if (upgradingImprovement)
                 {
                     CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
                     uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvement);
-                    //UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
-                }
-                else if (removingImprovement)
+                    PlaySelectAudio(true);
+					//UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
+				}
+				else if (removingImprovement)
                 {
                     CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
                     
@@ -421,7 +434,8 @@ public class CityBuilderManager : MonoBehaviour
 
                     //if (!improvement.isConstruction && !improvement.isUpgrading && !improvement.isTraining)
                     //    improvement.PlayRemoveEffect(terrainSelected.isHill);
-                    RemoveImprovement(terrainLoc, improvement, selectedCity, false);
+                    PlayAudioClip(removeClip);
+					RemoveImprovement(terrainLoc, improvement, selectedCity, false);
                 }
                 else if (laborChange != 0)
                 {
@@ -503,6 +517,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (selectedWonder.hasHarbor)
         {
+            PlayAudioClip(removeClip);
             selectedWonder.DestroyHarbor();
             uiWonderSelection.UpdateHarborButton(false);
             return;
@@ -511,6 +526,7 @@ public class CityBuilderManager : MonoBehaviour
         if (!uiWonderSelection.buttonsAreWorking)
             return;
 
+        PlaySelectAudio(true);
         tilesToChange.Clear();
 
         foreach (Vector3Int loc in selectedWonder.PossibleHarborLocs)
@@ -547,6 +563,8 @@ public class CityBuilderManager : MonoBehaviour
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No workers to unload");
             return;
         }
+
+        PlaySelectAudio(true);
 
         selectedWonder.StopConstructing();
         selectedWonder.WorkersReceived--; //decrease worker count 
@@ -669,6 +687,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (uiWonderSelection.buttonsAreWorking)
         {
+            PlaySelectAudio(true);
             uiDestroyCityWarning.ToggleVisibility(true);
         }
     }
@@ -754,7 +773,63 @@ public class CityBuilderManager : MonoBehaviour
         selectedWonder = null;
     }
 
-    private void SelectCity(Vector3 location, City cityReference)
+    public void PlaySelectAudio(bool select)
+    {
+        AudioClip clip = select ? selectClip : buildClip;
+        
+        audioSource.clip = clip;
+        audioSource.Play();
+    }
+
+    public void PlayCloseAudio()
+    {
+        audioSource.clip = closeClip;
+        audioSource.Play();
+    }
+
+    public void PlayCheckAudio()
+    {
+        audioSource.clip = checkClip;
+        audioSource.Play();
+    }
+
+    public void PlayMoveAudio()
+    {
+        audioSource.clip = moveClip;
+        audioSource.Play();
+    }
+
+    public void PlayPickUpAudio()
+    {
+		audioSource.clip = pickUpClip;
+		audioSource.Play();
+	}
+
+    public void PlayPutDownAudio()
+    {
+		audioSource.clip = putDownClip;
+		audioSource.Play();
+	}
+
+    public void PlayMarchAudio()
+    {
+        audioSource.clip = marchClip;
+        audioSource.Play();
+    }
+
+    public void PlayAudioClip(AudioClip clip)
+    {
+        audioSource.clip = clip;
+        audioSource.Play();
+    }
+
+	public void MoveUnitAudio()
+	{
+		audioSource.clip = acknowledgements[UnityEngine.Random.Range(0, acknowledgements.Length)];
+		audioSource.Play();
+	}
+
+	private void SelectCity(Vector3 location, City cityReference)
     {
         if (selectedCity != null)
         {
@@ -816,6 +891,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ToggleCityGrowthPause(bool v)
     {
+        PlayCheckAudio();
         selectedCity.ResourceManager.pauseGrowth = v;
     }
 
@@ -960,6 +1036,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void CloseSellResources()
     {
+        PlayCloseAudio();
         uiMarketPlaceManager.ToggleVisibility(false);
         uiCityTabs.CloseSelectedTab();
     }
@@ -2706,6 +2783,12 @@ public class CityBuilderManager : MonoBehaviour
         world.CloseCampTooltipButton();
     }
 
+    public void CloseImprovementBuildPanelButton()
+    {
+        PlayCloseAudio();
+        CloseImprovementBuildPanel();
+    }
+
     public void CloseImprovementBuildPanel()
     {
         if (uiImprovementBuildInfoPanel.activeStatus)
@@ -3110,6 +3193,7 @@ public class CityBuilderManager : MonoBehaviour
     public void CloseCityTab()
     {
         uiCityTabs.HideSelectedTab(false);
+        PlayCloseAudio();
     }
 
     //public void OpenResourceGrid()
@@ -3141,6 +3225,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ToggleLaborHandlerMenu()
     {
+        PlaySelectAudio(true);
+        
         if (uiLaborHandler.activeStatus)
         {
             CloseLaborMenus();
@@ -3156,6 +3242,12 @@ public class CityBuilderManager : MonoBehaviour
             CloseSingleWindows();
             uiLaborHandler.ToggleVisibility(true);
         }
+    }
+
+    public void CloseLaborMenusButton()
+    {
+        PlayCloseAudio();
+        CloseLaborMenus();
     }
 
     public void CloseLaborMenus()
@@ -3178,6 +3270,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCityWarning()
     {
+        PlaySelectAudio(true);
+        
         if (uiDestroyCityWarning.activeStatus)
         {
             uiDestroyCityWarning.ToggleVisibility(false);
@@ -3196,6 +3290,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ToggleAutoAssign()
     {
+        PlayCheckAudio();
+        
         if (autoAssign.isOn)
         {
             CloseLaborMenus();
@@ -3222,11 +3318,14 @@ public class CityBuilderManager : MonoBehaviour
     {
         //openAssignmentPriorityMenu.interactable = false;
         //selectedCity.AutoAssignLabor = false;
+        PlayCloseAudio();
         uiLaborPrioritizationManager.ToggleVisibility(false);
     }
 
     public void TogglePrioritizationMenu()
     {
+        PlaySelectAudio(true);
+        
         if (!uiLaborPrioritizationManager.activeStatus)
         {
             CloseLaborMenus();
@@ -3253,6 +3352,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ToggleQueue()
     {
+        PlaySelectAudio(true);
+        
         if (!isQueueing)
             BeginBuildQueue();
         else
@@ -3336,6 +3437,12 @@ public class CityBuilderManager : MonoBehaviour
         return selectedCity.savedQueueItems;
     }
 
+    public void CloseQueueUIButton()
+    {
+        PlayCloseAudio();
+        CloseQueueUI();
+    }
+
     public void CloseQueueUI()
     {
         if (uiQueueManager.activeStatus)
@@ -3362,6 +3469,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void RunCityNamerUI()
     {
+        PlaySelectAudio(true);
+        
         if (uiCityNamer.activeStatus)
         {
             uiCityNamer.ToggleVisibility(false);
@@ -3382,6 +3491,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCity() //set on destroy city warning message
     {
+        PlaySelectAudio(true);
+        
         if (selectedWonder != null)
         {
             CancelWonderConstruction();
@@ -3497,6 +3608,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void NoDestroyCity() //in case user chickens out
     {
+        PlayCloseAudio();
+        
         uiDestroyCityWarning.ToggleVisibility(false);
         if (selectedCity != null)
             uiCityTabs.HideSelectedTab(false);
@@ -3565,6 +3678,12 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity = null;
             focusCam.RestoreWorldLimit();
         }
+    }
+
+    public void UnselectWonderButton()
+    {
+        PlayCloseAudio();
+        UnselectWonder();
     }
 
     public void UnselectWonder()

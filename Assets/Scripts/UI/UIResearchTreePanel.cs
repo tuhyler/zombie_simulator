@@ -10,7 +10,7 @@ using UnityEngine.EventSystems;
 public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
-    private MapWorld world;
+    public   MapWorld world;
 
     [SerializeField]
     public UIResearchTooltip researchTooltip;
@@ -194,12 +194,15 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 
     public void CloseResearchTree()
     {
+        world.cityBuilderManager.PlayCloseAudio();
         ToggleVisibility(false);
 		world.somethingSelected = false;
 	}
 
 	public void StartQueue()
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        
         if (isQueueing)
         {
             isQueueing = false;

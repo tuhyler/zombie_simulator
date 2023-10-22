@@ -102,6 +102,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
             //diff = transform.position - pos;
             diff = transform.position - dragGrips.transform.position;
+            resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlayPickUpAudio();
         }
     }
 
@@ -126,7 +127,8 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
             transform.localPosition = Vector3.zero;
             //background.raycastTarget = true;
             grips.raycastTarget = true;
-        }
+			resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlayPutDownAudio();
+		}
     }
 
     //public void SetChosenResource(int value)
@@ -417,7 +419,8 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     public void CloseWindow()
     {
         resourceHolder.CloseWindow(true);
-    }
+		resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlayCloseAudio();
+	}
 
 	public void SetData(Sprite icon, ResourceType resourceType)
 	{

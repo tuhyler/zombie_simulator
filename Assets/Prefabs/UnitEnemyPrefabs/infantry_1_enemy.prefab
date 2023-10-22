@@ -92,6 +92,26 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 3f21eff7a997d3d419df2bb72ad88906,
         type: 2}
+    - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: attacks.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: attacks.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: c500c255fec9ac642b54b7e344f77a83, type: 3}
+    - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: attacks.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 2f8f99e3b452ed44abc520a098ebc7c1, type: 3}
+    - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: attacks.Array.data[2]
+      value: 
+      objectReference: {fileID: 8300000, guid: 326861291430e354c9d289f281ca5c93, type: 3}
     - target: {fileID: -1569295495130398200, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: m_Controller

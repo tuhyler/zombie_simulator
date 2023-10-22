@@ -45,8 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f05f39d3bccbd2438342e9194bbf247, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  launches:
+  - {fileID: 8300000, guid: 610e1e086c4891b46a91d8a54b644920, type: 3}
+  attacks:
+  - {fileID: 8300000, guid: 23585d6d21d31c24a86b0e030f18bde7, type: 3}
+  - {fileID: 8300000, guid: 80be7f233ca93e5479242a4ae9b0bff9, type: 3}
+  - {fileID: 8300000, guid: f2304d72fb511664b8767b34536a859b, type: 3}
   speed: 1.75
   archHeight: 5
+  adjustment: {x: 0, y: 0, z: 0}
 --- !u!1001 &2475255893229500089
 PrefabInstance:
   m_ObjectHideFlags: 0

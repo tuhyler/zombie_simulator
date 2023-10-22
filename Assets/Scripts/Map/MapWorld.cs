@@ -182,8 +182,12 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public TerrainDataSO grasslandTerrain, grasslandHillTerrain, desertTerrain, desertHillTerrain;
 
+    private AudioSource audioSource;
+
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
+        
         if (!hideTerrain)
             cityBuilderManager.focusCam.SetDefaultLimits();
         
@@ -1223,10 +1227,12 @@ public class MapWorld : MonoBehaviour
         noWalkList.AddRange(wonderNoWalkLoc);
         wonderPlacementLoc.Clear();
         wonderNoWalkLoc.Clear();
+        cityBuilderManager.PlaySelectAudio(false);
     }
 
     public void PlaceWonder(WonderDataSO wonderData)
     {
+        cityBuilderManager.PlayCloseAudio();
         buildingWonder = true;
         this.wonderData = wonderData;
         CloseWonders();
@@ -1241,6 +1247,8 @@ public class MapWorld : MonoBehaviour
 
     public void RotateWonderPlacement()
     {
+        cityBuilderManager.PlaySelectAudio(true);
+        
         rotationCount++;
 
         Vector3Int tempPlacementLoc;
@@ -1330,8 +1338,7 @@ public class MapWorld : MonoBehaviour
 
     public void OpenWonders()
     {
-        //if (workerOrders)
-        //    return;
+        cityBuilderManager.PlaySelectAudio(true);
 
         if (buildingWonder || unitOrders)
             CloseBuildingSomethingPanel();
@@ -1379,10 +1386,11 @@ public class MapWorld : MonoBehaviour
     //Research info
     public void OpenResearchTree()
     {
-        //if (workerOrders)
-        //    return;
+		//if (workerOrders)
+		//    return;
+		cityBuilderManager.PlaySelectAudio(true);
 
-        if (unitOrders || buildingWonder)
+		if (unitOrders || buildingWonder)
             CloseBuildingSomethingPanel();
         
         if (researchTree.activeStatus)
@@ -1427,9 +1435,16 @@ public class MapWorld : MonoBehaviour
         uiTerrainTooltip.ToggleVisibility(true, td);
     }
 
-    public void CloseTerrainTooltipButton()
+    public void CloseTerrainTooltipCloseButton()
     {
-        tooltip = false;
+		cityBuilderManager.PlayCloseAudio();
+		tooltip = false;
+		uiTerrainTooltip.ToggleVisibility(false);
+	}
+
+	public void CloseTerrainTooltipButton()
+    {
+		tooltip = false;
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
@@ -1447,6 +1462,13 @@ public class MapWorld : MonoBehaviour
         uiCityImprovementTip.ToggleVisibility(true, improvement);
     }
 
+    public void CloseImprovementTooltipCloseButton()
+    {
+		cityBuilderManager.PlayCloseAudio();
+		tooltip = false;
+		uiCityImprovementTip.ToggleVisibility(false);
+	}
+    
     public void CloseImprovementTooltipButton()
     {
         tooltip = false;
@@ -1476,6 +1498,12 @@ public class MapWorld : MonoBehaviour
     {
         uiCampTooltip.ToggleVisibility(false);
     }
+
+    public void CloseTradeRouteBeginTooltipCloseButton()
+    {
+        cityBuilderManager.PlayCloseAudio();
+        uiTradeRouteBeginTooltip.ToggleVisibility(false);
+	}
 
     public void CloseTradeRouteBeginTooltipButton()
     {
@@ -3557,10 +3585,15 @@ public class MapWorld : MonoBehaviour
 
     public bool CameraLocCheck()
     {
-        if (GetTerrainDataAt(RoundToInt(cameraController.transform.position)).isLand)
-            return true;
-        else
+        TerrainData td = GetTerrainDataAt(RoundToInt(cameraController.transform.position));
+
+        if (td == null)
             return false;
+
+		if (td.terrainData.type == TerrainType.Sea)
+            return false;
+        else
+            return true;
     }
 
     public bool DayTimeCheck()
@@ -3570,6 +3603,19 @@ public class MapWorld : MonoBehaviour
         else
             return false;
     }
+    
+    public City FindVisibleCity()
+    {
+        foreach (City city in cityDict.Values)
+        {
+            if (city.cityRenderer.isVisible && city.ImprovementList.Count > 0)
+                return city;
+        }
+
+        return null;
+    }
+    
+    
     public void PlayMessage(Vector3 loc)
     {
         speechBubble.SetText(loc, "This is a test. This is only a test.");

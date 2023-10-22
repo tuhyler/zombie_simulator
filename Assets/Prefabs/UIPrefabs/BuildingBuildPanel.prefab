@@ -284,7 +284,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -36.5, y: 0}
+  m_AnchoredPosition: {x: -36.5, y: 260}
   m_SizeDelta: {x: 0, y: 520}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &3091085387870539367
@@ -1084,6 +1084,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraController: {fileID: 0}
+  selectClip: {fileID: 8300000, guid: 5d0c74cebb0944249a1b55f2f5264f62, type: 3}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls: []

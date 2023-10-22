@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
+    public AudioClip[] launches, attacks;
+    
     public float speed = 2, archHeight = 2.5f;
     public Vector3 adjustment;
 
@@ -36,6 +38,7 @@ public class Projectile : MonoBehaviour
 
     public IEnumerator Shoot(Unit unit, Unit target)
     {
+        unit.PlayAudioClip(launches[0]);
         gameObject.SetActive(true);
 
         Vector3 lookAtTarget = endPoint - transform.position;
@@ -58,7 +61,7 @@ public class Projectile : MonoBehaviour
 
         gameObject.SetActive(false);
 		transform.localPosition = originalPosition;
-		target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles);
+		target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles, attacks[Random.Range(0,attacks.Length)]);
 	}
 
 	public IEnumerator ShootTest()

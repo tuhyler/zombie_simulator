@@ -85,5 +85,6 @@ public class UIResearchReward : MonoBehaviour
                 produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity);
 
         researchItem.researchTree.researchTooltip.ToggleVisibility(true);
+        researchItem.researchTree.world.cityBuilderManager.PlaySelectAudio(true);
     }
 }

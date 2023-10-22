@@ -472,7 +472,7 @@ public class BasicEnemyAI : MonoBehaviour
 			unit.transform.rotation = Quaternion.LookRotation(target.transform.position - unit.transform.position);
 			unit.StartAttackingAnimation();
 			yield return unit.attackPauses[3];
-	        target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles);
+	        target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
 			yield return unit.attackPauses[UnityEngine.Random.Range(0,3)];
 			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
         }

@@ -7,7 +7,7 @@ using UnityEngine.Events;
 public class UIPersonalResourceInfoPanel : MonoBehaviour
 {
     [SerializeField]
-    private MapWorld world;
+    public MapWorld world;
     
     [SerializeField]
     private TMP_Text unitNameTitle, unitStoragePercent, unitLevelAndLimit;
@@ -249,6 +249,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     public void ToggleOverflow()
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        
         if (overflowActiveStatus)
             ToggleOverflowVisibility(false);
         else

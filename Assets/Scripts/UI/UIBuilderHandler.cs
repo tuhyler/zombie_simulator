@@ -127,11 +127,13 @@ public class UIBuilderHandler : MonoBehaviour
     public void HandleButtonClick()
     {
         OnIconButtonClick?.Invoke(buildData);
+        cityBuilderManager.PlaySelectAudio(buildData.isBuildingImprovement);
     }
 
     public void HandleUnitButtonClick()
     {
         OnUnitIconButtonClick?.Invoke(unitBuildData);
+        cityBuilderManager.PlaySelectAudio(false);
     }
 
     public void FinishMenuSetup()

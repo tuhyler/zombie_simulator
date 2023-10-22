@@ -160,6 +160,8 @@ public class UIQueueManager : MonoBehaviour
 
     public void RemoveFromQueue()
     {
+        cityBuilderManager.PlaySelectAudio(true);
+        
         if (selectedQueueItem != null)
         {
             if (selectedQueueItem.buildLoc.x == 0 && selectedQueueItem.buildLoc.z == 0)
@@ -211,6 +213,8 @@ public class UIQueueManager : MonoBehaviour
 
     public void MoveItemUp()
     {
+        cityBuilderManager.PlaySelectAudio(true);
+        
         if (selectedQueueItem != null)
         {
             int index = selectedQueueItem.MoveItemUp();
@@ -225,7 +229,9 @@ public class UIQueueManager : MonoBehaviour
 
     public void MoveItemDown()
     {
-        if (selectedQueueItem != null)
+		cityBuilderManager.PlaySelectAudio(true);
+
+		if (selectedQueueItem != null)
         {
             int index = selectedQueueItem.MoveItemDown();
             if (index == -1)

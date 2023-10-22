@@ -36,6 +36,12 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public Healthbar healthbar;
 
+    [SerializeField]
+    public AudioClip[] greetings, attacks, kills;
+
+    [HideInInspector]
+    public AudioSource audioSource;
+
     [HideInInspector]
     public MapWorld world;
     [HideInInspector]
@@ -122,6 +128,7 @@ public class Unit : MonoBehaviour
         //focusCam = FindObjectOfType<CameraController>();
         //world = FindObjectOfType<MapWorld>();
         //movementSystem = FindObjectOfType<MovementSystem>();
+        audioSource = GetComponent<AudioSource>();
         highlight = GetComponent<SelectionHighlight>();
         if (highlight == null)
             highlight = GetComponentInChildren<SelectionHighlight>();
@@ -237,6 +244,18 @@ public class Unit : MonoBehaviour
         focusCam.followTransform = transform;
     }
 
+    public void SayHello()
+    {
+        audioSource.clip = greetings[0];// [UnityEngine.Random.Range(0, greetings.Length)];
+        audioSource.Play();
+    }
+
+    //public void SayOK()
+    //{
+    //    audioSource.clip = acknowledges[0];// [UnityEngine.Random.Range(0, acknowledges.Length)];
+    //    audioSource.Play();
+    //}
+
     public void StartAttackingAnimation()
     {
 		unitAnimator.SetBool(isAttackingHash, true);
@@ -284,8 +303,11 @@ public class Unit : MonoBehaviour
     }
 
     //taking damage
-    public void ReduceHealth(int damage, Vector3 rotation)
+    public void ReduceHealth(int damage, Vector3 rotation, AudioClip audio)
     {
+        audioSource.clip = audio;
+        audioSource.Play();
+        
         if (isDead)
             return;
 
@@ -1256,7 +1278,7 @@ public class Unit : MonoBehaviour
 			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
 			StartAttackingAnimation();
 			yield return attackPauses[3];
-			target.ReduceHealth(attackStrength, transform.eulerAngles);
+			target.ReduceHealth(attackStrength, transform.eulerAngles, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
 			yield return attackPauses[UnityEngine.Random.Range(0,3)];
 		}
 
@@ -1747,6 +1769,12 @@ public class Unit : MonoBehaviour
     //    turnHandler.GoToNextUnit();
     //}
 
+    public void PlayAudioClip(AudioClip clip)
+    {
+        audioSource.clip = clip;
+        audioSource.Play();
+    }
+
     public void KillUnit(Vector3 rotation)
     {
         isDead = true;
@@ -1759,6 +1787,8 @@ public class Unit : MonoBehaviour
         rotation.x = -90;
         deathSplash.transform.eulerAngles = rotation;
         deathSplash.Play();
+        audioSource.clip = kills[UnityEngine.Random.Range(0, kills.Length)];
+        audioSource.Play();
 
         gameObject.SetActive(false);
 

@@ -23,7 +23,8 @@ public class UITomFinder : MonoBehaviour
     {
         if (world.unitOrders || world.buildingWonder)
             return;
-        
+
+        world.cityBuilderManager.PlaySelectAudio(true);
         world.CloseResearchTree();
         world.CloseWonders();
         world.CloseMap();

@@ -133,7 +133,8 @@ public class UITradeCenter : MonoBehaviour
 
     public void CloseUITradeCenter()
     {
-        world.cityBuilderManager.UnselectTradeCenter();
+        world.cityBuilderManager.PlayCloseAudio();
+		world.cityBuilderManager.UnselectTradeCenter();
     }
 
     public void SetName(string name)

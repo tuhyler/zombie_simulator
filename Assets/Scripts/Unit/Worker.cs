@@ -28,6 +28,9 @@ public class Worker : Unit
     [HideInInspector]
     public int citiesBuilt;
 
+    private Coroutine workingCo;
+    private WaitForSeconds workingWait = new(0.6111f), workingWait2 = new(0.6111f);
+
     //[SerializeField]
     //private ParticleSystem removeSplash;
 
@@ -58,6 +61,31 @@ public class Worker : Unit
     public void SetWorkAnimation(bool v)
     {
         unitAnimator.SetBool(isWorkingHash, v);
+
+        if (v)
+        {
+            workingCo = StartCoroutine(PlayWorkSound());
+        }
+        else
+        {
+            if (workingCo != null)
+                StopCoroutine(workingCo);
+
+            workingCo = null;
+        }
+    }
+
+    private IEnumerator PlayWorkSound()
+    {
+        while (true)
+        {
+            yield return workingWait;
+        
+            audioSource.clip = attacks[Random.Range(0, attacks.Length)];
+            audioSource.Play();
+
+            yield return workingWait2;
+        }
     }
 
     public override void SendResourceToCity()
@@ -251,7 +279,7 @@ public class Worker : Unit
 
     private void BuildRoad()
     {
-        unitAnimator.SetBool(isWorkingHash, true);
+        //unitAnimator.SetBool(isWorkingHash, true);
 
         Vector3Int workerTile = orderQueue.Peek();
         //orderList.Remove(workerTile);
@@ -330,7 +358,7 @@ public class Worker : Unit
 
         //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
         StopMovement();
-        unitAnimator.SetBool(isWorkingHash, true);
+        //unitAnimator.SetBool(isWorkingHash, true);
         isBusy = true;
         //resourceIndividualHandler.SetWorker(this);
         workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual, false);
@@ -365,7 +393,7 @@ public class Worker : Unit
 		ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
 
 		StopMovement();
-		unitAnimator.SetBool(isWorkingHash, true);
+        SetWorkAnimation(true);
 		isBusy = true;
 		workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual, true);
 	}

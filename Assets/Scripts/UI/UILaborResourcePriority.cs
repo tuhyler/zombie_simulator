@@ -49,9 +49,9 @@ public class UILaborResourcePriority : MonoBehaviour, IResourceGridUser
     public void MovePriorityUp()
     {
         //RepositionPanel(true);
-        
-        //int placement = transform.GetSiblingIndex();
-        if (currentPriorityNumber-1 == 0)
+        uiLaborPrioritizationManager.city.world.cityBuilderManager.PlayMoveAudio();
+		//int placement = transform.GetSiblingIndex();
+		if (currentPriorityNumber-1 == 0)
             return;
 
         //transform.SetSiblingIndex(placement - 1);
@@ -65,11 +65,11 @@ public class UILaborResourcePriority : MonoBehaviour, IResourceGridUser
 
     public void MovePriorityDown()
     {
-        //RepositionPanel(false);
-
-        //int placement = transform.GetSiblingIndex();
-        //if (currentPriorityNumber == transform.parent.childCount - 1)
-        if (currentPriorityNumber == uiLaborPrioritizationManager.resourcePriorityList.Count)
+		//RepositionPanel(false);
+		uiLaborPrioritizationManager.city.world.cityBuilderManager.PlayMoveAudio();
+		//int placement = transform.GetSiblingIndex();
+		//if (currentPriorityNumber == transform.parent.childCount - 1)
+		if (currentPriorityNumber == uiLaborPrioritizationManager.resourcePriorityList.Count)
             return;
 
         //transform.SetSiblingIndex(placement + 1);
@@ -167,7 +167,8 @@ public class UILaborResourcePriority : MonoBehaviour, IResourceGridUser
     //used for closing priortizations individually
     public void CloseWindow()
     {
-        uiLaborPrioritizationManager.RemoveFromResourcePriorityList(this);
+        uiLaborPrioritizationManager.city.world.cityBuilderManager.PlayCloseAudio();
+		uiLaborPrioritizationManager.RemoveFromResourcePriorityList(this);
         //resources.Clear();
         Destroy(gameObject);
     }

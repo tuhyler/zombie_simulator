@@ -40,6 +40,7 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         transform.SetParent(tempParent);
         transform.SetAsLastSibling();
         background.raycastTarget = false;
+        resourceManager.cityBuilderManager.PlayPickUpAudio();
      }
 
     public void OnDrag(PointerEventData eventData)
@@ -56,5 +57,6 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         transform.SetParent(originalParent);
         transform.localPosition = Vector3.zero;
         background.raycastTarget = true;
-    }
+		resourceManager.cityBuilderManager.PlayPickUpAudio();
+	}
 }

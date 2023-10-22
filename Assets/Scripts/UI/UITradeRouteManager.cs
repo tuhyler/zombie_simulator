@@ -76,6 +76,7 @@ public class UITradeRouteManager : MonoBehaviour
 
 	public void StopRoute()
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
         unitMovement.CancelTradeRoute();
     }
 
@@ -334,6 +335,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void CloseMenu()
     {
+        world.cityBuilderManager.PlayCloseAudio();
         ToggleVisibility(false);
     }
 
@@ -355,6 +357,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void AddStopPanelButton() //added this as a method attached to button as it can't return anything
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
         AddStopPanel(false);
     }
 
@@ -473,6 +476,8 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void CreateRoute()
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        
         List<string> destinations = new();
         List<List<ResourceValue>> resourceAssignments = new();
         List<int> waitTimes = new();
