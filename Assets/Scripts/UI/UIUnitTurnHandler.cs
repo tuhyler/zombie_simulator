@@ -49,8 +49,9 @@ public class UIUnitTurnHandler : MonoBehaviour
     {
         if (!buttonsAreWorking || world.unitOrders)
             return;
-        
-        IncreaseIndex();
+
+		world.cityBuilderManager.PlaySelectAudio(true);
+		IncreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
         buttonClicked?.Invoke();
     }
@@ -59,7 +60,8 @@ public class UIUnitTurnHandler : MonoBehaviour
     {
         if (!buttonsAreWorking || world.unitOrders)
             return;
-        
+
+        world.cityBuilderManager.PlaySelectAudio(true);
         DecreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
         buttonClicked?.Invoke();

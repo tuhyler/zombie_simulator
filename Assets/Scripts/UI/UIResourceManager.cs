@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class UIResourceManager : MonoBehaviour
 {
     [SerializeField]
-    private CityBuilderManager cityBuilderManager;
+    public CityBuilderManager cityBuilderManager;
     
     [SerializeField]
     private TMP_Text cityStorageInfo, cityStoragePercent, cityLevelAndLimit;
@@ -134,6 +134,8 @@ public class UIResourceManager : MonoBehaviour
 
     public void ToggleOverflow()
     {
+        cityBuilderManager.PlaySelectAudio(true);
+        
         if (overflowActiveStatus)
         {
             ToggleOverflowVisibility(false);

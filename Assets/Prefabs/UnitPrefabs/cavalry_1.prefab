@@ -291,6 +291,17 @@ MonoBehaviour:
   selectionCircle: {fileID: 0}
   marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
+  greetings:
+  - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
+  acknowledges: []
+  attacks:
+  - {fileID: 8300000, guid: c6325542aca7be743b0cb6098531b114, type: 3}
+  - {fileID: 8300000, guid: 3856f315685528e4db3016bcc1325670, type: 3}
+  - {fileID: 8300000, guid: 2132349055b854740a7ee321f69c3a88, type: 3}
+  kills:
+  - {fileID: 8300000, guid: d1cd745df852aae4793cf663a10d41a4, type: 3}
+  - {fileID: 8300000, guid: 393859288a5084d43a7218308ee7d54e, type: 3}
+  audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
@@ -326,6 +337,8 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
+  newlyJoined: 1
+  isLeader: 0
   readyToMarch: 0
   inArmy: 0
   atHome: 0
@@ -340,6 +353,7 @@ MonoBehaviour:
   flankedOnce: 0
   cavalryLine: 0
   isDead: 0
+  isUpgrading: 0
   targetLocation: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped

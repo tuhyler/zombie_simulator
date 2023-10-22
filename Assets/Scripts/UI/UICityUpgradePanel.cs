@@ -464,6 +464,7 @@ public class UICityUpgradePanel : MonoBehaviour
         else if (unit != null)
             cityBuilderManager.UpgradeUnit(unit);
 
+        cityBuilderManager.PlaySelectAudio(false);
         ResetData();
         gameObject.SetActive(false);
         world.infoPopUpCanvas.gameObject.SetActive(false);
@@ -511,6 +512,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
     public void CloseWindow()
     {
+        cityBuilderManager.PlayCloseAudio();
         ToggleVisibility(false);
     }
 }

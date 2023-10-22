@@ -32,7 +32,8 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     public List<UILaborResourcePriority> resourcePriorityList = new();
     private Dictionary<int, UILaborResourcePriorityHolder> resourcePriorityHolderDict = new();
 
-    private City city;
+    [HideInInspector]
+    public City city;
 
     [SerializeField]
     private Image openPrioritizationImage;
@@ -123,6 +124,8 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     public void AddResourcePriorityButton() //added this as a method attached to button as it can't return anything
     {
+        city.world.cityBuilderManager.PlaySelectAudio(true);
+        
         if (resourcePriorityList.Count >= 10) //limit
         {
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Max resources");
@@ -244,6 +247,8 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     public void SetLaborPriorities()
     {
+        city.world.cityBuilderManager.PlaySelectAudio(true);
+        
         List<ResourceType> resourcePriorities = new();
 
         foreach (UILaborResourcePriority uiLaborResource in resourcePriorityList)

@@ -117,7 +117,8 @@ public class UITradeStopHandler : MonoBehaviour
         ChangeCounter(placement);
         transform.SetSiblingIndex(placement - 1);
         tradeRouteManager.MoveStop(placement, true);
-    }
+		tradeRouteManager.world.cityBuilderManager.PlayMoveAudio();
+	}
 
     public void MoveStopDown()
     {
@@ -128,7 +129,8 @@ public class UITradeStopHandler : MonoBehaviour
         ChangeCounter(placement + 2);
         transform.SetSiblingIndex(placement + 1);
         tradeRouteManager.MoveStop(placement + 2, false);
-    }
+		tradeRouteManager.world.cityBuilderManager.PlayMoveAudio();
+	}
 
     public void ChangeCounter(int num)
     {
@@ -192,7 +194,8 @@ public class UITradeStopHandler : MonoBehaviour
         waitSlider.gameObject.SetActive(!v);
         waitTimeText.gameObject.SetActive(!v);
         waitForever = v;
-    }
+		tradeRouteManager.world.cityBuilderManager.PlayCheckAudio();
+	}
 
     //private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
     //{
@@ -284,7 +287,8 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void AddResourceTaskPanelButton() //added this as a method attached to button can't return anything
     {
-        AddResourceTaskPanel(false);
+		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(true);
+		AddResourceTaskPanel(false);
     }
 
     private UITradeResourceTask AddResourceTaskPanel(bool onRoute) //showing a new resource task panel
@@ -578,7 +582,8 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void CloseWindow()
     {
-        CloseWindow(true);
+		tradeRouteManager.world.cityBuilderManager.PlayCloseAudio();
+		CloseWindow(true);
     }
 
     public void CloseWindow(bool justOne)

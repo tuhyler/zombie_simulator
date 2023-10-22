@@ -382,6 +382,14 @@ MonoBehaviour:
   selectionCircle: {fileID: 0}
   marker: {fileID: 1465328918421097503}
   healthbar: {fileID: 6831278477032459367}
+  greetings:
+  - {fileID: 8300000, guid: ffb8e9c131370d5409e54d58770305df, type: 3}
+  attacks:
+  - {fileID: 8300000, guid: 24db9d98a022b814199a822748439140, type: 3}
+  - {fileID: 8300000, guid: 01e88c2cc97d1c24a94f3fd77857423d, type: 3}
+  - {fileID: 8300000, guid: e92ce6446362fd642912c078efe46f00, type: 3}
+  kills: []
+  audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:

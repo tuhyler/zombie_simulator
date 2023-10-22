@@ -773,6 +773,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraController: {fileID: 0}
+  selectClip: {fileID: 8300000, guid: ffb8e9c131370d5409e54d58770305df, type: 3}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls:

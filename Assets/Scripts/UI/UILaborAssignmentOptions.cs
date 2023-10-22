@@ -77,6 +77,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
             cityBuilderManager.CloseLaborMenus();
         }
 
+        cityBuilderManager.PlaySelectAudio(true);
         //buttonHandler.PrepareLaborChange(laborChange);
         //buttonHandler.HandleButtonClick();
     }

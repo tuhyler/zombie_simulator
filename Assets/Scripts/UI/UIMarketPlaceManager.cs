@@ -22,7 +22,8 @@ public class UIMarketPlaceManager : MonoBehaviour
     private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortTotalsUp, sortSellUp;
     private Color sortButtonOriginalColor;
 
-    private City city;
+    [HideInInspector]
+    public City city;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -206,6 +207,7 @@ public class UIMarketPlaceManager : MonoBehaviour
     //sorting algos
     public void SortResources()
     {
+        city.world.cityBuilderManager.PlaySelectAudio(true);
         ChangeSortButtonsColors("resources");
 
         if (sortResourcesUp)
@@ -241,7 +243,8 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortPrices()
     {
-        ChangeSortButtonsColors("prices");
+		city.world.cityBuilderManager.PlaySelectAudio(true);
+		ChangeSortButtonsColors("prices");
             
         if (sortPricesUp)
             sortPrices.sprite = buttonUp;
@@ -294,7 +297,8 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortAmounts()
     {
-        ChangeSortButtonsColors("amount");
+		city.world.cityBuilderManager.PlaySelectAudio(true);
+		ChangeSortButtonsColors("amount");
 
         if (sortAmountUp)
             sortAmounts.sprite = buttonUp;
@@ -347,7 +351,8 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortTotals()
     {
-        ChangeSortButtonsColors("total");
+		city.world.cityBuilderManager.PlaySelectAudio(true);
+		ChangeSortButtonsColors("total");
 
         if (sortTotalsUp)
             sortTotals.sprite = buttonUp;
@@ -400,7 +405,8 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortSell()
     {
-        ChangeSortButtonsColors("sell");
+		city.world.cityBuilderManager.PlaySelectAudio(true);
+		ChangeSortButtonsColors("sell");
 
         if (sortSellUp)
             sortSell.sprite = buttonUp;

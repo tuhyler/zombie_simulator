@@ -583,13 +583,15 @@ public class UnitMovement : MonoBehaviour
 			selectedUnit = unitReference;
 		}
 
-		//if (unitReference.somethingToSay)
-		//{
-		//	unitReference.somethingToSay = false;
-		//	unitReference.sayingSomething = true;
-		//	world.PlayMessage(location);
-		//	CenterCamOnUnit();
-		//}
+        //if (unitReference.somethingToSay)
+        //{
+        //	unitReference.somethingToSay = false;
+        //	unitReference.sayingSomething = true;
+        //	world.PlayMessage(location);
+        //	CenterCamOnUnit();
+        //}
+
+        selectedUnit.SayHello();
 		world.somethingSelected = true;
 		selectedUnit.Select(Color.red);
 		infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
@@ -663,8 +665,9 @@ public class UnitMovement : MonoBehaviour
     }
 
     private void PrepareMovement()
-    {        
-        //Debug.Log("Sel. unit is " + selectedUnit.name);
+    {
+        selectedUnit.SayHello();
+	
         world.somethingSelected = true;
         unitSelected = true;
         if (selectedUnit.inArmy)
@@ -772,6 +775,8 @@ public class UnitMovement : MonoBehaviour
             if (!movementSystem.MoveUnit(unit))
                 return;
         }
+
+        world.cityBuilderManager.MoveUnitAudio();
 
         movementSystem.ClearPaths();
         uiJoinCity.ToggleTweenVisibility(false);
@@ -950,6 +955,8 @@ public class UnitMovement : MonoBehaviour
 
     public void MoveUnitToggle()
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        
         if (!moveUnit)
             moveUnit = true;
         else
@@ -973,6 +980,12 @@ public class UnitMovement : MonoBehaviour
         uiCancelMove.ToggleTweenVisibility(v);
     }
 
+    public void CancelContinuedMovementOrdersButton()
+    {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        CancelContinuedMovementOrders();
+    }
+
     public void CancelContinuedMovementOrders()
     {
         if (selectedUnit != null)
@@ -989,6 +1002,8 @@ public class UnitMovement : MonoBehaviour
 
     public void JoinCity() //for Join City button
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
+
         if (selectedUnit.isUpgrading)
         {
 			InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Currently upgrading");
@@ -1065,6 +1080,7 @@ public class UnitMovement : MonoBehaviour
 
     public void RepositionArmy()
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
         focusCam.CenterCameraNoFollow(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation));
         uiSwapPosition.ToggleTweenVisibility(false);
         uiJoinCity.ToggleTweenVisibility(false);
@@ -1109,7 +1125,9 @@ public class UnitMovement : MonoBehaviour
 
     public void LoadUnloadPrep() //for loadunload button for traders
     {
-        if (!loadScreenSet)
+		world.cityBuilderManager.PlaySelectAudio(true);
+
+		if (!loadScreenSet)
         {
             uiTraderPanel.uiLoadUnload.ToggleButtonColor(true);
             selectedUnit.HidePath();
@@ -1163,6 +1181,12 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
+    public void ConfirmWorkerOrdersButton()
+    {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        ConfirmWorkerOrders();
+    }
+
     public void ConfirmWorkerOrders()
     {
         queueMovementOrders = false;
@@ -1202,6 +1226,12 @@ public class UnitMovement : MonoBehaviour
         removingRoad = false;
         removingLiquid = false;
         removingPower = false;
+    }
+
+    public void CloseBuildingSomethingPanelButton()
+    {
+        world.cityBuilderManager.PlayCloseAudio();
+        CloseBuildingSomethingPanel();
     }
 
     public void CloseBuildingSomethingPanel()
@@ -1481,6 +1511,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedTrader == null)
             return;
 
+        world.cityBuilderManager.PlaySelectAudio(true);
         if (!uiTradeRouteManager.activeStatus)
         {
             LoadUnloadFinish(true);
@@ -1502,6 +1533,8 @@ public class UnitMovement : MonoBehaviour
 
     public void ShowTradeRouteCost()
     {
+		world.cityBuilderManager.PlaySelectAudio(true);
+
 		if (selectedTrader.followingRoute)
 		{
 			CancelTradeRoute();
@@ -1517,6 +1550,8 @@ public class UnitMovement : MonoBehaviour
 
 	public void BeginTradeRoute() //start going trade route
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        
         if (selectedTrader != null)
         {
 			if (selectedTrader.LineCutterCheck())
@@ -1663,7 +1698,8 @@ public class UnitMovement : MonoBehaviour
 
     public void ChangeHomeBase()
     {
-		uiJoinCity.ToggleTweenVisibility(false);
+        world.cityBuilderManager.PlaySelectAudio(true);
+        uiJoinCity.ToggleTweenVisibility(false);
 		uiSwapPosition.ToggleTweenVisibility(false);
 		uiDeployArmy.ToggleTweenVisibility(false);
 		uiChangeCity.ToggleTweenVisibility(false);
@@ -1677,6 +1713,8 @@ public class UnitMovement : MonoBehaviour
 
 	public void DeployArmyLocation()
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
+        
         if (selectedUnit.homeBase.army.isTraining)
         {
             Vector3 mousePosition = Input.mousePosition;
@@ -1709,6 +1747,12 @@ public class UnitMovement : MonoBehaviour
 		world.unitOrders = true;
         deployingArmy = true;
         world.HighlightAllEnemyCamps();
+    }
+
+    public void CancelArmyDeploymentButton()
+    {
+        world.cityBuilderManager.PlayCloseAudio();
+        CancelArmyDeployment();
     }
 
     public void CancelArmyDeployment()
@@ -1752,6 +1796,8 @@ public class UnitMovement : MonoBehaviour
 			//UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
 			return;
         }
+
+        world.cityBuilderManager.PlayMarchAudio();
 
 		HideBattlePath();
         selectedUnit.homeBase.army.DeployArmy();

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class UIWonderHandler : MonoBehaviour
 {
     [SerializeField]
-    private MapWorld world;
+    public MapWorld world;
 
     [SerializeField]
     private CameraController cameraController;

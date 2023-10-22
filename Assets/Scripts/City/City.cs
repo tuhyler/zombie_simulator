@@ -26,6 +26,9 @@ public class City : MonoBehaviour
     //private SelectionHighlight selectionHighlight;
     //public SelectionHighlight SelectionHighlight { get { return selectionHighlight; } }
     [SerializeField]
+    public Renderer cityRenderer;
+    
+    [SerializeField]
     public Transform subTransform;
 
     [SerializeField]

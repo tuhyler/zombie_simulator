@@ -123,6 +123,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
             transform.SetParent(tempParent);
             transform.SetAsLastSibling();
             background.raycastTarget = false;
+            buttonHandler.world.cityBuilderManager.PlayPickUpAudio();
         }
     }
 
@@ -145,7 +146,8 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
             transform.SetParent(originalParent);
             transform.localPosition = Vector3.zero;
             background.raycastTarget = true;
-        }
+			buttonHandler.world.cityBuilderManager.PlayPutDownAudio();
+		}
     }
 
     public void SetPriceText(int price)

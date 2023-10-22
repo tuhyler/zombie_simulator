@@ -410,6 +410,7 @@ public class UIResearchTooltip : MonoBehaviour
 
     public void CloseWindow()
     {
+        world.cityBuilderManager.PlayCloseAudio();
         ToggleVisibility(false);
     }
 }

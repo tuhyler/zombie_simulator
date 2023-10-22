@@ -45,6 +45,7 @@ public class UIMarketResourcePanel : MonoBehaviour
     {
         if (uiMarketPlaceManager != null)
         {
+            uiMarketPlaceManager.city.world.cityBuilderManager.PlayCheckAudio();
             bool isOn = sellToggle.isOn;
             minimumAmount.interactable = isOn;
             minimumAmountText.color = isOn ? Color.black : Color.gray;

@@ -57,7 +57,8 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy)
         {
-            unitMovement.buildingRoad = true;
+			world.cityBuilderManager.PlaySelectAudio(true);
+			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
             OrdersPrep();
             workerUnit.WorkerOrdersPreparations();
@@ -82,7 +83,8 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy && !unitMovement.uiJoinCity.activeStatus)
         {
-            Vector3 pos = workerUnit.transform.position;
+			world.cityBuilderManager.PlaySelectAudio(true);
+			Vector3 pos = workerUnit.transform.position;
             pos.y = 0;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
@@ -103,10 +105,10 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy)
         {
-            //Vector3 pos = workerUnit.transform.position;
-            //Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
-
-            workerUnit.StopMovement();
+			//Vector3 pos = workerUnit.transform.position;
+			//Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+			world.cityBuilderManager.PlaySelectAudio(true);
+			workerUnit.StopMovement();
             workerUnit.GatherResource();
 
             //if (Vector3Int.RoundToInt(pos) == workerTile)
@@ -128,7 +130,8 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy)
         {
-            unitMovement.removingRoad = true;
+			world.cityBuilderManager.PlaySelectAudio(true);
+			unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
             OrdersPrep();
             workerUnit.WorkerOrdersPreparations();
@@ -218,6 +221,7 @@ public class WorkerTaskManager : MonoBehaviour
 
 	public void BuildCityButton()
     {
+		world.cityBuilderManager.PlaySelectAudio(true);
 		Vector3 pos = workerUnit.transform.position;
 		pos.y = 0;
 		Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -236,11 +240,13 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void GatherResourceButton()
     {
+		world.cityBuilderManager.PlaySelectAudio(true);
 		workerUnit.GatherResource();
 	}
 
     public void BuildUtilityButton()
     {
+		world.cityBuilderManager.PlaySelectAudio(true);
 		unitMovement.buildingRoad = true;
 		uiBuildingSomething.SetText("Building Road");
 		OrdersPrep();
@@ -249,7 +255,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void ClearForestButton()
     {
-        workerUnit.ClearForest();
+		world.cityBuilderManager.PlaySelectAudio(true);
+		workerUnit.ClearForest();
     }
 
     public void PerformTask(ImprovementDataSO improvementData) //don't actually use "improvementData".
@@ -318,7 +325,8 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
-            unitMovement.removingAll = true;
+			world.cityBuilderManager.PlaySelectAudio(true);
+			unitMovement.removingAll = true;
             uiBuildingSomething.SetText("Removing All");
             OrdersPrep();
             workerUnit.WorkerOrdersPreparations();
@@ -329,6 +337,7 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
+            world.cityBuilderManager.PlaySelectAudio(true);
             unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
             OrdersPrep();
@@ -340,7 +349,8 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
-            unitMovement.removingLiquid = true;
+			world.cityBuilderManager.PlaySelectAudio(true);
+			unitMovement.removingLiquid = true;
             uiBuildingSomething.SetText("Removing Liquid");
             OrdersPrep();
             workerUnit.WorkerOrdersPreparations();
@@ -351,7 +361,8 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
-            unitMovement.removingPower = true;
+			world.cityBuilderManager.PlaySelectAudio(true);
+			unitMovement.removingPower = true;
             uiBuildingSomething.SetText("Removing Power");
             OrdersPrep(); 
             workerUnit.WorkerOrdersPreparations();

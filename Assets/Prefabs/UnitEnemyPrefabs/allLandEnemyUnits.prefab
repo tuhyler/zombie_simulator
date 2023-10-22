@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8497576317380012912}
   - component: {fileID: -5324076436044738225}
   - component: {fileID: 548835204452299567}
+  - component: {fileID: 612185225615181041}
   m_Layer: 9
   m_Name: allLandEnemyUnits
   m_TagString: Enemy
@@ -125,6 +126,11 @@ MonoBehaviour:
   selectionCircle: {fileID: 0}
   marker: {fileID: 6791507471362431112}
   healthbar: {fileID: 5651578593497634161}
+  greetings:
+  - {fileID: 8300000, guid: 5159acf4b440a3e47b135004ee162ef8, type: 3}
+  acknowledges: []
+  attacks: []
+  audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
@@ -143,6 +149,10 @@ MonoBehaviour:
   baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
+  attackPause:
+  - 0.75
+  - 1
+  - 1.25
   projectile: {fileID: 0}
   turnHandler: {fileID: 0}
   bySea: 0
@@ -156,6 +166,8 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
+  newlyJoined: 1
+  isLeader: 0
   readyToMarch: 0
   inArmy: 0
   atHome: 0
@@ -166,7 +178,12 @@ MonoBehaviour:
   inBattle: 0
   attacking: 0
   targetSearching: 0
+  flanking: 0
+  flankedOnce: 0
+  cavalryLine: 0
   isDead: 0
+  isUpgrading: 0
+  targetLocation: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &548835204452299567
 MonoBehaviour:
@@ -180,6 +197,103 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26fa0a85022c2b943891f5a2e0df6f29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &612185225615181041
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4084126454760206941}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -3988828231276096640, guid: bce416043a3972e42aa24d33b7fee9bb,
+    type: 2}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 20
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &2130188238699016324
 PrefabInstance:
   m_ObjectHideFlags: 0
