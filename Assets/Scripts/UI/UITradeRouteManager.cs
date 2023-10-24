@@ -150,6 +150,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void SetChosenStop(int value)
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
         startingStop = value;
     }
 

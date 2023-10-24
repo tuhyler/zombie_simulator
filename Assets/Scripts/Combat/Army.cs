@@ -909,11 +909,18 @@ public class Army : MonoBehaviour
 
     private void DestroyDeadList()
     {
-        foreach (Unit unit in deadList)
-            Destroy(unit.gameObject);
-
-        deadList.Clear();
+        StartCoroutine(DestroyWait());
     }
+
+    private IEnumerator DestroyWait()
+    {
+        yield return new WaitForSeconds(5);
+
+		foreach (Unit unit in deadList)
+			Destroy(unit.gameObject);
+
+		deadList.Clear();
+	}
 
     public void UnselectArmy(Unit selectedUnit)
     {

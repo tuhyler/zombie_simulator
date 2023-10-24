@@ -80,10 +80,9 @@ MonoBehaviour:
   marker: {fileID: 0}
   healthbar: {fileID: 5032910586026060206}
   greetings:
-  - {fileID: 8300000, guid: ffb8e9c131370d5409e54d58770305df, type: 3}
-  acknowledges:
-  - {fileID: 8300000, guid: 5159acf4b440a3e47b135004ee162ef8, type: 3}
+  - {fileID: 8300000, guid: 71e6c039d5774b44ebf4170e00817bcb, type: 3}
   attacks: []
+  kills: []
   audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
@@ -236,7 +235,7 @@ AudioSource:
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.099
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0

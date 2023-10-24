@@ -74,6 +74,12 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e4d49efcedf62164c999de024f6d1e9a, type: 3}
+--- !u!137 &176378410014670659 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: e4d49efcedf62164c999de024f6d1e9a,
+    type: 3}
+  m_PrefabInstance: {fileID: 1500578669952639505}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1771432436929309141
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -356,7 +362,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
-  unitMesh: {fileID: 0}
+  unitMesh: {fileID: 176378410014670659}
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -367,7 +373,6 @@ MonoBehaviour:
   healthbar: {fileID: 886464836172312869}
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
-  acknowledges: []
   attacks:
   - {fileID: 8300000, guid: c500c255fec9ac642b54b7e344f77a83, type: 3}
   - {fileID: 8300000, guid: 2f8f99e3b452ed44abc520a098ebc7c1, type: 3}

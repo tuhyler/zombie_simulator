@@ -127,9 +127,11 @@ MonoBehaviour:
   marker: {fileID: 6791507471362431112}
   healthbar: {fileID: 5651578593497634161}
   greetings:
-  - {fileID: 8300000, guid: 5159acf4b440a3e47b135004ee162ef8, type: 3}
-  acknowledges: []
+  - {fileID: 8300000, guid: ffb8e9c131370d5409e54d58770305df, type: 3}
   attacks: []
+  kills:
+  - {fileID: 8300000, guid: d1cd745df852aae4793cf663a10d41a4, type: 3}
+  - {fileID: 8300000, guid: 393859288a5084d43a7218308ee7d54e, type: 3}
   audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:

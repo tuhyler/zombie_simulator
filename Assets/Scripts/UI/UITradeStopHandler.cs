@@ -145,7 +145,8 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void SetChosenCity(int value)
     {
-        bool newValue = false;
+		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(true);
+		bool newValue = false;
 
         if (cityNameList.options.Contains(defaultFirstChoice))
         {

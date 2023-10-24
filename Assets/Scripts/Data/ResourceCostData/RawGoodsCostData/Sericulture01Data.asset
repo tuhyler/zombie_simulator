@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5838738910640936402, guid: 369be2d742135794abc67b7b087a07ba, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: ab865f026075ed94fa419ce00b081277, type: 3}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Sericulture
   improvementDisplayName: Sericulture
   improvementLevel: 1
@@ -22,7 +25,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
-  littleImage: {fileID: 21300000, guid: d0697aca04427ed4898a75cd9dfe8413, type: 3}
   mapIcon: {fileID: 21300000, guid: 00c4548fae792af459d5c61422663a50, type: 3}
   improvementCost:
   - resourceType: 6
@@ -47,6 +49,7 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
@@ -57,4 +60,5 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 1
+  getTerrainResource: 0
   noWalkAreas: []

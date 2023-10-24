@@ -225,12 +225,15 @@ public class UnitMovement : MonoBehaviour
 				}
                 else
                 {
+                    
+                    
                     if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
                             uiConfirmOrders.ToggleTweenVisibility(true);
 
                         td.EnableHighlight(Color.white);
+                        world.cityBuilderManager.PlaySelectAudio(false);
                         //highlightedTiles.Add(td);
                     }
                     else
@@ -239,6 +242,7 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmOrders.ToggleTweenVisibility(false);
 
                         td.DisableHighlight();
+                        world.cityBuilderManager.PlaySelectAudio(true);
                         //highlightedTiles.Remove(td);
                     }
                 }
@@ -269,8 +273,10 @@ public class UnitMovement : MonoBehaviour
                             road.Embiggen();
                             road.SelectionHighlight.EnableHighlight(Color.white);
                         }
-                        //highlightedTiles.Add(td);
-                    }
+
+						world.cityBuilderManager.PlaySelectAudio(false);
+						//highlightedTiles.Add(td);
+					}
                     else
                     {
                         if (!selectedWorker.IsOrderListMoreThanZero())
@@ -284,8 +290,10 @@ public class UnitMovement : MonoBehaviour
                             road.MeshFilter.gameObject.SetActive(false);
                             road.SelectionHighlight.DisableHighlight();
                         }
-                        //highlightedTiles.Remove(td);
-                    }
+
+						world.cityBuilderManager.PlaySelectAudio(true);
+						//highlightedTiles.Remove(td);
+					}
                 }
             }
             //moving positions within barracks
@@ -358,6 +366,7 @@ public class UnitMovement : MonoBehaviour
 
                     world.citySelected = true;
                     ConfirmWorkerOrders();
+                    world.cityBuilderManager.MoveUnitAudio();
                 }
                 else
                 {
@@ -427,6 +436,8 @@ public class UnitMovement : MonoBehaviour
                         world.unitOrders = false;
 						changingCity = false;
                     }
+
+                    world.cityBuilderManager.MoveUnitAudio();
                 }
                 else
                 {
@@ -776,8 +787,6 @@ public class UnitMovement : MonoBehaviour
                 return;
         }
 
-        world.cityBuilderManager.MoveUnitAudio();
-
         movementSystem.ClearPaths();
         uiJoinCity.ToggleTweenVisibility(false);
         uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
@@ -942,8 +951,9 @@ public class UnitMovement : MonoBehaviour
 		location.y += .1f;
         starshine.transform.position = location;
         starshine.Play();
+		world.cityBuilderManager.MoveUnitAudio();
 
-        if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders if new ones
+		if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders if new ones
         {
             selectedUnit.StopAnimation();
             selectedUnit.ShiftMovement();
@@ -1550,7 +1560,7 @@ public class UnitMovement : MonoBehaviour
 
 	public void BeginTradeRoute() //start going trade route
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlayCoinsAudio();
         
         if (selectedTrader != null)
         {
@@ -1759,7 +1769,10 @@ public class UnitMovement : MonoBehaviour
     {
 		uiCancelTask.ToggleTweenVisibility(false);
         world.uiCampTooltip.ToggleVisibility(false);
-		
+
+        if (selectedUnit == null)
+            return;
+
         if (selectedUnit.homeBase.army.traveling)
         {
             selectedUnit.homeBase.army.MoveArmyHome(selectedUnit.homeBase.barracksLocation);

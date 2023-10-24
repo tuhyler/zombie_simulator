@@ -29,6 +29,7 @@ public class UIResourceSquare : MonoBehaviour
 
     public void ChooseResourceType()
     {
+        resourceGrid.world.cityBuilderManager.PlaySelectAudio(true);
         resourceGrid.ChooseResourceType(resourceType);
         tooltipTrigger.CancelCall();
     }

@@ -156,7 +156,9 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void SetChosenResourceMultiple(int value)
     {
-        if (value == 1)
+		resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(true);
+
+		if (value == 1)
         {
             chosenMultiple = -1;
             resourceCountSlider.value = resourceCountSlider.maxValue;
@@ -332,7 +334,8 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void OpenResourceGrid()
     {
-        resourceHolder.tradeStopHandler.tradeRouteManager.resourceSelectionGrid.ToggleVisibility(true, this);
+		//resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlayCheckAudio();
+		resourceHolder.tradeStopHandler.tradeRouteManager.resourceSelectionGrid.ToggleVisibility(true, this);
     }
 
     //public void AddResources(List<TMP_Dropdown.OptionData> resources)

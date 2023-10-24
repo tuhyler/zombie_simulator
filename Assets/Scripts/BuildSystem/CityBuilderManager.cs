@@ -148,7 +148,7 @@ public class CityBuilderManager : MonoBehaviour
     public GameObject emptyGO;
 
     [SerializeField]
-    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip;
+    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, fireClip, smallTownClip, largeTownClip, laborInClip, laborOutClip, metalSplashClip;
     [SerializeField]
     private AudioClip[] acknowledgements;
     private AudioSource audioSource;
@@ -293,7 +293,7 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     if (tilesToChange.Contains(terrainLocation) || (terrainLocation == selectedCityLoc && improvementSelected.canBeUpgraded))
                     {
-                        PlaySelectAudio(true);
+						PlayAudioClip(metalSplashClip);
 						uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvementSelected);
                     }
                     //UpgradeSelectedImprovementQueueCheck(terrainLocation, improvementSelected);
@@ -412,14 +412,14 @@ public class CityBuilderManager : MonoBehaviour
 						return;
                     }
 
-                    PlaySelectAudio(false);
+                    PlayAudioClip(metalSplashClip);
                     BuildImprovementQueueCheck(improvementData, terrainLoc); //passing the data here as method requires it
                 }
                 else if (upgradingImprovement)
                 {
                     CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
                     uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvement);
-                    PlaySelectAudio(true);
+					PlayAudioClip(metalSplashClip);
 					//UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
 				}
 				else if (removingImprovement)
@@ -811,15 +811,49 @@ public class CityBuilderManager : MonoBehaviour
 		audioSource.Play();
 	}
 
-    public void PlayMarchAudio()
+    public void PlayQueueAudio()
+    {
+		audioSource.clip = queueClip;
+		audioSource.Play();
+	}
+
+	public void PlayMarchAudio()
     {
         audioSource.clip = marchClip;
         audioSource.Play();
     }
 
+    public void PlayCoinsAudio()
+    {
+        audioSource.clip = coinsClip;
+        audioSource.Play();
+    }
+
+    public void PlayRingAudio()
+    {
+		audioSource.clip = ringClip;
+		audioSource.Play();
+	}
+
+    public void PlayOpenCityAudio()
+    {
+        if (selectedCity.cityPop.CurrentPop < 5)
+            world.PlayCityAudio(fireClip);
+        else if (selectedCity.cityPop.CurrentPop < 12)
+			world.PlayCityAudio(smallTownClip);
+        else
+			world.PlayCityAudio(largeTownClip);
+    }
+
     public void PlayAudioClip(AudioClip clip)
     {
         audioSource.clip = clip;
+        audioSource.Play();
+    }
+
+    public void PlayLaborAudio(bool add)
+    {
+        audioSource.clip = add ? laborInClip : laborOutClip;
         audioSource.Play();
     }
 
@@ -850,6 +884,7 @@ public class CityBuilderManager : MonoBehaviour
 
         selectedCity = cityReference;
         selectedCity.exclamationPoint.SetActive(false);
+        PlayOpenCityAudio();
 
         world.cityCanvas.gameObject.SetActive(true);
         world.somethingSelected = false; //cities aren't considered "selected" due to intricate selection code
@@ -1574,6 +1609,7 @@ public class CityBuilderManager : MonoBehaviour
         LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
         //unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
+        newUnit.PlayAudioClip(buildClip);
 
         //transferring all previous trader info to new one
 		if (upgrading)
@@ -1686,6 +1722,7 @@ public class CityBuilderManager : MonoBehaviour
 		Unit newUnit = unit.GetComponent<Unit>();
 		newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
 		newUnit.SetMinimapIcon(friendlyUnitHolder);
+        newUnit.PlayAudioClip(buildClip);
 
 		Vector3 mainCamLoc = Camera.main.transform.position;
 		mainCamLoc.y = 0;
@@ -1824,6 +1861,7 @@ public class CityBuilderManager : MonoBehaviour
         //if (!upgradingImprovement)
         //    improvement.DestroyUpgradeSplash();
         building.transform.parent = city.subTransform;
+        improvement.PlayPlacementAudio(buildClip);
 
         //if (upgradingImprovement)
         //{
@@ -2302,6 +2340,7 @@ public class CityBuilderManager : MonoBehaviour
         cityImprovement.transform.parent = city.transform;
         city.AddToImprovementList(cityImprovement);
         cityImprovement.PlaySmokeSplash(td.isHill);
+        cityImprovement.PlayPlacementAudio(buildClip);
 
         //making two objects, this one for the parent mesh
         GameObject tempObject = Instantiate(emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);
@@ -3086,6 +3125,7 @@ public class CityBuilderManager : MonoBehaviour
         resourceProducer.UpdateCurrentLaborData(labor);
         //if (!resourceProducer.CheckResourceManager(resourceManager))
         //    resourceProducer.SetResourceManager(resourceManager);
+        PlayLaborAudio(laborChange > 0);
 
         if (labor == 0) //removing from world dicts when zeroed out
         {
@@ -3677,6 +3717,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity.activeCity = false;
             selectedCity = null;
             focusCam.RestoreWorldLimit();
+            world.StopAudio();
         }
     }
 

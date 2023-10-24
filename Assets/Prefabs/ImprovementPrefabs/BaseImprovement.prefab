@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2050705500241568073}
   - component: {fileID: 718474908050057380}
   - component: {fileID: 1359330119388014317}
+  - component: {fileID: 5478510230272222765}
   m_Layer: 8
   m_Name: BaseImprovement
   m_TagString: Untagged
@@ -52,7 +53,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   producedResourceIndex: 0
   currentLabor: 0
-  productionTimer: 0
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
   isWaitingToUnload: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
   producedResource:
     resourceType: 0
     resourceAmount: 0
-  producedResources: 
+  producedResources: []
   consumedResources: []
   consumedResourceTypes: 
 --- !u!114 &2050705500241568073
@@ -77,13 +77,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skinnedMesh: {fileID: 0}
   meshCity: {fileID: 0}
   initialCityHouse: 0
   queued: 0
   building: 0
   isConstruction: 0
   isUpgrading: 0
+  canBeUpgraded: 0
+  isTraining: 0
+  housingIndex: 0
+  laborCost: 0
   loc: {x: 0, y: 0, z: 0}
   producedResource: 0
   producedResourceIndex: 0
@@ -93,7 +96,7 @@ MonoBehaviour:
     type: 3}
   workPS: []
   workLights: []
-  animMesh: {fileID: 0}
+  td: {fileID: 0}
   mapIcon: {fileID: 1377123484203077431}
 --- !u!114 &718474908050057380
 MonoBehaviour:
@@ -108,9 +111,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
-  secondaryGlowMaterial: {fileID: 0}
-  originalShader: {fileID: 0}
   isGlowing: 0
 --- !u!65 &1359330119388014317
 BoxCollider:
@@ -125,6 +125,103 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 0.1, z: 2}
   m_Center: {x: 0, y: 0.1, z: 0}
+--- !u!82 &5478510230272222765
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8789389234130458407}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -3988828231276096640, guid: bce416043a3972e42aa24d33b7fee9bb,
+    type: 2}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 20
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &5734555356190124030
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -7,6 +7,9 @@ using UnityEngine.UI;
 public class UIResourceSelectionGrid : MonoBehaviour
 {
     [SerializeField]
+    public MapWorld world;
+    
+    [SerializeField]
     private GameObject resourceSquare;
 
     [SerializeField]

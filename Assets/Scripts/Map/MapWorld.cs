@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -182,13 +183,15 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public TerrainDataSO grasslandTerrain, grasslandHillTerrain, desertTerrain, desertHillTerrain;
 
+    [SerializeField]
+    private AudioManager ambienceAudio;
     private AudioSource audioSource;
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
-        
-        if (!hideTerrain)
+		audioSource = GetComponent<AudioSource>();
+
+		if (!hideTerrain)
             cityBuilderManager.focusCam.SetDefaultLimits();
         
         worldResourceManager = GetComponent<WorldResourceManager>();
@@ -531,9 +534,23 @@ public class MapWorld : MonoBehaviour
         CreateGrid();
     }
 
-    public void AaddGold()
+    public void AaddGold() //for testing, on a button
     {
         UpdateWorldResources(ResourceType.Gold, 100);
+    }
+
+    public void PlayCityAudio(AudioClip clip)
+    {
+        audioSource.clip = clip;
+        audioSource.Play();
+        ambienceAudio.PauseAmbience();
+    }
+
+    public void StopAudio()
+    {
+        audioSource.Stop();
+        ambienceAudio.RestartAmbience();
+        ambienceAudio.AmbienceCheck();
     }
 
     private void DeactivateCanvases()
@@ -2391,15 +2408,23 @@ public class MapWorld : MonoBehaviour
 			}
 		}
 
-        foreach (Unit unit in enemyCampDict[loc].DeadList)
-            Destroy(unit.gameObject);
-
+        StartCoroutine(EnemyCampDestroyWait(loc));
         Destroy(enemyCampDict[loc].minimapIcon);
-        enemyCampDict[loc].DeadList.Clear();
+        
         enemyCampDict.Remove(loc);
 	}
 
-    public int GetUpgradeableObjectMaxLevel(string name)
+    private IEnumerator EnemyCampDestroyWait(Vector3Int loc)
+    {
+        yield return new WaitForSeconds(5);
+        
+        foreach (Unit unit in enemyCampDict[loc].DeadList)
+			Destroy(unit.gameObject);
+
+		enemyCampDict[loc].DeadList.Clear();
+	}
+
+	public int GetUpgradeableObjectMaxLevel(string name)
     {
         return upgradeableObjectMaxLevelDict[name];
     }

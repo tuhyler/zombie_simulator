@@ -65,8 +65,12 @@ public class CityImprovement : MonoBehaviour
     [SerializeField]
     private SpriteRenderer mapIcon;
 
+    private AudioSource audioSource;
+
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
+        
         foreach (Light light in workLights)
             light.gameObject.SetActive(false);
 
@@ -103,6 +107,12 @@ public class CityImprovement : MonoBehaviour
         allConsumedResources.Add(data.consumedResources2);
         allConsumedResources.Add(data.consumedResources3);
         allConsumedResources.Add(data.consumedResources4);
+    }
+
+    public void PlayPlacementAudio(AudioClip clip)
+    {
+        audioSource.clip = clip;
+        audioSource.Play();
     }
 
     public void SetMinimapIcon(TerrainData td)
