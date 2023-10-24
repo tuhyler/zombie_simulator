@@ -98,6 +98,10 @@ MonoBehaviour:
   building: 0
   isConstruction: 0
   isUpgrading: 0
+  canBeUpgraded: 0
+  isTraining: 0
+  housingIndex: 0
+  laborCost: 0
   loc: {x: 0, y: 0, z: 0}
   producedResource: 0
   producedResourceIndex: 0
@@ -108,6 +112,7 @@ MonoBehaviour:
     type: 3}
   workPS: []
   workLights: []
+  td: {fileID: 0}
   mapIcon: {fileID: 0}
 --- !u!114 &7796438051319544572
 MonoBehaviour:

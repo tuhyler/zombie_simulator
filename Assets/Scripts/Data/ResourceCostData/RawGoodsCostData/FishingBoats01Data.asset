@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2382750124830825709, guid: 58c8d61894811fe44bb05ebc48d93b4a, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: 8b90d20adfd43d745b63387d9ef6e9d0, type: 3}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Fishing Boats
   improvementDisplayName: Fishing Boats
   improvementLevel: 1
@@ -22,7 +25,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
-  littleImage: {fileID: 21300000, guid: 371cef4425deee04badf830697150afb, type: 3}
   mapIcon: {fileID: 21300000, guid: e9b1597703ed2a049b2078908be40c4a, type: 3}
   improvementCost:
   - resourceType: 6
@@ -47,13 +49,18 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
+  oneTerrain: 1
+  adjustForHill: 1
+  hillAdjustment: 0.6
   buildTime: 5
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 1
+  getTerrainResource: 0
   noWalkAreas:
   - {x: -1, y: 0, z: -1}
   - {x: 1, y: 0, z: 0}

@@ -1790,7 +1790,9 @@ public class Unit : MonoBehaviour
         audioSource.clip = kills[UnityEngine.Random.Range(0, kills.Length)];
         audioSource.Play();
 
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
+        unitMesh.gameObject.SetActive(false);
+        healthbar.gameObject.SetActive(false);
 
 		if (enemyAI)
         {

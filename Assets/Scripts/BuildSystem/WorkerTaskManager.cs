@@ -57,7 +57,6 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy)
         {
-			world.cityBuilderManager.PlaySelectAudio(true);
 			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
             OrdersPrep();
@@ -83,7 +82,6 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy && !unitMovement.uiJoinCity.activeStatus)
         {
-			world.cityBuilderManager.PlaySelectAudio(true);
 			Vector3 pos = workerUnit.transform.position;
             pos.y = 0;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -107,7 +105,6 @@ public class WorkerTaskManager : MonoBehaviour
         {
 			//Vector3 pos = workerUnit.transform.position;
 			//Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
-			world.cityBuilderManager.PlaySelectAudio(true);
 			workerUnit.StopMovement();
             workerUnit.GatherResource();
 
@@ -130,7 +127,6 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy)
         {
-			world.cityBuilderManager.PlaySelectAudio(true);
 			unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
             OrdersPrep();
@@ -325,7 +321,7 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
-			world.cityBuilderManager.PlaySelectAudio(true);
+			world.cityBuilderManager.PlaySelectAudio(false);
 			unitMovement.removingAll = true;
             uiBuildingSomething.SetText("Removing All");
             OrdersPrep();
@@ -337,7 +333,7 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
-            world.cityBuilderManager.PlaySelectAudio(true);
+            world.cityBuilderManager.PlaySelectAudio(false);
             unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
             OrdersPrep();
@@ -349,7 +345,7 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
-			world.cityBuilderManager.PlaySelectAudio(true);
+			world.cityBuilderManager.PlaySelectAudio(false);
 			unitMovement.removingLiquid = true;
             uiBuildingSomething.SetText("Removing Liquid");
             OrdersPrep();
@@ -361,7 +357,7 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!workerUnit.isBusy)
         {
-			world.cityBuilderManager.PlaySelectAudio(true);
+			world.cityBuilderManager.PlaySelectAudio(false);
 			unitMovement.removingPower = true;
             uiBuildingSomething.SetText("Removing Power");
             OrdersPrep(); 
@@ -411,7 +407,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void GatherResource(Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
-        world.SetWorkerWorkLocation(world.RoundToInt(workerPos));
+		world.SetWorkerWorkLocation(world.RoundToInt(workerPos));
         uiCancelTask.ToggleTweenVisibility(true);
         taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual, clearForest));
     }
@@ -469,7 +465,7 @@ public class WorkerTaskManager : MonoBehaviour
             return;
         }
 
-        worker.RemoveFromOrderQueue();
+		worker.RemoveFromOrderQueue();
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
         taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
@@ -505,7 +501,7 @@ public class WorkerTaskManager : MonoBehaviour
             return;
         }
 
-        bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
+		bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
         worker.citiesBuilt++;

@@ -8,6 +8,8 @@ public class UIWorkerHandler : MonoBehaviour
 
     //[SerializeField]
     //private UnityEvent<ImprovementDataSO> OnIconButtonClick;
+    [SerializeField]
+    private MapWorld world;
 
     [SerializeField]
     private UIWorkerRemovalOptions uiWorkerRemovalOptions;
@@ -41,6 +43,7 @@ public class UIWorkerHandler : MonoBehaviour
 
     public void ToggleRemovalOptions(bool v)
     {
+        world.cityBuilderManager.PlaySelectAudio(true);
         uiWorkerRemovalOptions.ToggleVisibility(v, false);
     }
 

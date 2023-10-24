@@ -141,6 +141,8 @@ public class UIQueueManager : MonoBehaviour
         queueItemNames.Add(buildName);
         if (improvementData != null)
         {
+            cityBuilderManager.PlayQueueAudio();
+            
             if (upgrading)
                 cityBuilderManager.CreateQueuedArrow(improvementData, worldLoc, building);
             else

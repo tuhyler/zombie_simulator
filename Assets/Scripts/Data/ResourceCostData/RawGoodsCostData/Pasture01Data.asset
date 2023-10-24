@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5838738910640936402, guid: 50e948a4b0d6df04f936d096275067d5, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: 94088e9cd82a59646accab37d4f79f00, type: 3}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Pasture
   improvementDisplayName: Pasture
   improvementLevel: 1
@@ -22,7 +25,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: b1aa17e9570b60945bee5be96ef6cd83, type: 3}
-  littleImage: {fileID: 21300000, guid: b1aa17e9570b60945bee5be96ef6cd83, type: 3}
   mapIcon: {fileID: 21300000, guid: 5879b620cc2d05e44bb8fa627e1a74da, type: 3}
   improvementCost:
   - resourceType: 6
@@ -47,6 +49,7 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
@@ -57,4 +60,5 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas: []

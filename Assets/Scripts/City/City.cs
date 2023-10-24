@@ -902,6 +902,7 @@ public class City : MonoBehaviour
 
     public void PlayResourceSplash()
     {
+        world.cityBuilderManager.PlayCoinsAudio();
         resourceSplash.Play();
     }
 

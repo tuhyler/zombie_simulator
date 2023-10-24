@@ -57,6 +57,6 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         transform.SetParent(originalParent);
         transform.localPosition = Vector3.zero;
         background.raycastTarget = true;
-		resourceManager.cityBuilderManager.PlayPickUpAudio();
+		resourceManager.cityBuilderManager.PlayPutDownAudio();
 	}
 }

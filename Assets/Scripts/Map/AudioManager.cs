@@ -63,7 +63,7 @@ public class AudioManager : MonoBehaviour
 		else if (isAmbience)
 		{
 			if (!mute)
-				ambienceCo = StartCoroutine(AmbiencePlay());
+				AmbienceCheck();
 		}
 		else
 		{
@@ -79,23 +79,21 @@ public class AudioManager : MonoBehaviour
 	{
 		yield return ambienceCheck;
 
-		if (resetCount == 0)
-		{
-			onLandDay = false;
-			onLandNight = false;
-			onWater = false;
-		}
+		AmbienceCheck();
+	}
 
-		//checking where camera is to determine which ambience to play
+	//checking where camera is to determine which ambience to play
+	public void AmbienceCheck()
+	{
 		if (world.CameraLocCheck())
 		{
 			if (world.DayTimeCheck())
 			{
 				if (onLandDay)
 				{
-					resetCount--;
+					//resetCount--;
 					ambienceCo = StartCoroutine(AmbiencePlay());
-					yield break;
+					return;
 				}
 
 				onLandDay = true;
@@ -106,9 +104,9 @@ public class AudioManager : MonoBehaviour
 			{
 				if (onLandNight)
 				{
-					resetCount--;
+					//resetCount--;
 					ambienceCo = StartCoroutine(AmbiencePlay());
-					yield break;
+					return;
 				}
 
 				onLandNight = true;
@@ -120,9 +118,9 @@ public class AudioManager : MonoBehaviour
 		{
 			if (onWater)
 			{
-				resetCount--;
+				//resetCount--;
 				ambienceCo = StartCoroutine(AmbiencePlay());
-				yield break;
+				return;
 			}
 
 			onWater = true;
@@ -139,13 +137,23 @@ public class AudioManager : MonoBehaviour
 		else
 			audioSource.clip = audioClips[2];
 
-		resetCount = Mathf.RoundToInt(audioSource.clip.length * 0.2f);
+		//resetCount = Mathf.RoundToInt(audioSource.clip.length * 0.2f);
 
 		audioSource.Play();
 
 		ambienceCo = StartCoroutine(AmbiencePlay());
 	}
-	
+
+	public void PauseAmbience()
+	{
+		audioSource.Pause();
+	}
+
+	public void RestartAmbience()
+	{
+		audioSource.Play();
+	}
+
 	private IEnumerator MusicPlay()
 	{
 		AudioClip song = musicList.Dequeue();

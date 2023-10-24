@@ -459,7 +459,7 @@ public class EnemyCamp
 			unit.transform.localScale = new Vector3(scaleX, 0.2f, scaleZ); //don't start at 0, otherwise lightbeam meshes with ground
 			//unit.minimapIcon.gameObject.SetActive(true);
 			//unit.unitMesh.gameObject.SetActive(true);
-			unit.gameObject.SetActive(true);
+			unit.unitMesh.gameObject.SetActive(true);
 			rebornSpot.y += 0.07f;
 			unit.lightBeam.transform.position = rebornSpot;
 			unit.lightBeam.Play();

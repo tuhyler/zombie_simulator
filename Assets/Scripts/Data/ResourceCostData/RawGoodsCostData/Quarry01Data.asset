@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5122609563439273834, guid: 45c7a726668d70146bb0e424c867ad6f, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: 380676899f3eecb449c32042adabf3ce, type: 3}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Quarry
   improvementDisplayName: Quarry
   improvementLevel: 1
@@ -22,7 +25,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
-  littleImage: {fileID: 21300000, guid: 8cd53ea27b761d347b0adcd3079d36fe, type: 3}
   mapIcon: {fileID: 21300000, guid: fff3e4b24fa45f24596d35a5472ab796, type: 3}
   improvementCost:
   - resourceType: 6
@@ -55,6 +57,7 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 1
   replaceRocks: 1
   singleBuild: 0

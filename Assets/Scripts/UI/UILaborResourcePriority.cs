@@ -161,7 +161,8 @@ public class UILaborResourcePriority : MonoBehaviour, IResourceGridUser
 
     public void OpenResourceGrid()
     {
-        uiLaborPrioritizationManager.resourceSelectionGrid.ToggleVisibility(true, this);
+		//uiLaborPrioritizationManager.city.world.cityBuilderManager.PlayCheckAudio();
+		uiLaborPrioritizationManager.resourceSelectionGrid.ToggleVisibility(true, this);
     }
 
     //used for closing priortizations individually

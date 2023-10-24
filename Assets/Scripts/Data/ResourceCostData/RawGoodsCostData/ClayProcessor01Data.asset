@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5122609563439273834, guid: 61c058284376da3419d032ccc63e6070, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: dc677b5329c60454aa2c4ef90ccfaf3a, type: 3}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Clay Processor
   improvementDisplayName: Clay Processor
   improvementLevel: 1
@@ -22,7 +25,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 870610969b9ed714c850a3c8d8ae06af, type: 3}
-  littleImage: {fileID: 21300000, guid: 870610969b9ed714c850a3c8d8ae06af, type: 3}
   mapIcon: {fileID: 21300000, guid: fff3e4b24fa45f24596d35a5472ab796, type: 3}
   improvementCost:
   - resourceType: 7
@@ -51,6 +53,7 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
@@ -61,5 +64,6 @@ MonoBehaviour:
   availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 1}
