@@ -145,7 +145,7 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void SetChosenCity(int value)
     {
-		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(true);
+		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
 		bool newValue = false;
 
         if (cityNameList.options.Contains(defaultFirstChoice))
@@ -288,7 +288,7 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void AddResourceTaskPanelButton() //added this as a method attached to button can't return anything
     {
-		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(true);
+		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
 		AddResourceTaskPanel(false);
     }
 

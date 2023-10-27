@@ -97,7 +97,7 @@ public class UICityNamer : MonoBehaviour
 
     public void StoreName() //method for 'confirm' button
     {
-        tempCity.world.cityBuilderManager.PlaySelectAudio(true);   
+        tempCity.world.cityBuilderManager.PlaySelectAudio();   
         
         string tempText = inputField.text;
 

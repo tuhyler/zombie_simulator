@@ -72,7 +72,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
         }
 
         uiBuildTabHandler.SetSelectedTab(this);
-        uiBuildTabHandler.cityBuilderManager.PlaySelectAudio(true);
+        uiBuildTabHandler.cityBuilderManager.PlaySelectAudio();
     }
 
     public void ToggleButtonSelection(bool v)

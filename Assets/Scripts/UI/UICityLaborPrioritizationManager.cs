@@ -124,7 +124,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     public void AddResourcePriorityButton() //added this as a method attached to button as it can't return anything
     {
-        city.world.cityBuilderManager.PlaySelectAudio(true);
+        city.world.cityBuilderManager.PlaySelectAudio();
         
         if (resourcePriorityList.Count >= 10) //limit
         {
@@ -247,7 +247,7 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
 
     public void SetLaborPriorities()
     {
-        city.world.cityBuilderManager.PlaySelectAudio(true);
+        city.world.cityBuilderManager.PlaySelectAudio();
         
         List<ResourceType> resourcePriorities = new();
 

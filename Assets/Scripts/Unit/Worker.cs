@@ -100,7 +100,7 @@ public class Worker : Unit
         else
             gatheringAmount = resource.resourceIndividual.ResourceGatheringAmount;
 
-        world.cityBuilderManager.PlayRingAudio();
+        //world.cityBuilderManager.PlayRingAudio();
 		StartCoroutine(resource.SendResourceToCity(gatheringAmount));
         //resourceIndividualHandler.ResetHarvestValues();
         //resourceIndividualHandler = null;

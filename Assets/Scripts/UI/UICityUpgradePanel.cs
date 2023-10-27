@@ -464,7 +464,7 @@ public class UICityUpgradePanel : MonoBehaviour
         else if (unit != null)
             cityBuilderManager.UpgradeUnit(unit);
 
-        cityBuilderManager.PlaySelectAudio(false);
+        cityBuilderManager.PlayBoomAudio();
         ResetData();
         gameObject.SetActive(false);
         world.infoPopUpCanvas.gameObject.SetActive(false);

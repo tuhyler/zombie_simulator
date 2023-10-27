@@ -1044,6 +1044,7 @@ public class Army : MonoBehaviour
 		atHome = true;
 		cyclesGone = 0;
 		stepCount = 0;
+        DestroyDeadList();
 	}
 
 	public void ShowBattlePath(List<Vector3Int> currentPath, Vector3Int startingPoint)

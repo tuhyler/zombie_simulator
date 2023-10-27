@@ -82,7 +82,7 @@ public class UIMapHandler : MonoBehaviour
             ToggleVisibility(false);
         else
         {
-            world.cityBuilderManager.PlaySelectAudio(true);
+            world.cityBuilderManager.PlaySelectAudio();
             ToggleVisibility(true);
         }
     }

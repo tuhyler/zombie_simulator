@@ -125,7 +125,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        buttonHandler.world.cityBuilderManager.PlaySelectAudio(true);
+        buttonHandler.world.cityBuilderManager.PlaySelectAudio();
         buttonHandler.PrepareBuild(buildData);
         buttonHandler.HandleButtonClick();
     }

@@ -148,7 +148,8 @@ public class CityBuilderManager : MonoBehaviour
     public GameObject emptyGO;
 
     [SerializeField]
-    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, fireClip, smallTownClip, largeTownClip, laborInClip, laborOutClip, metalSplashClip;
+    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, fireClip, smallTownClip, largeTownClip, 
+        laborInClip, laborOutClip, constructionClip, trainingClip;
     [SerializeField]
     private AudioClip[] acknowledgements;
     private AudioSource audioSource;
@@ -293,7 +294,7 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     if (tilesToChange.Contains(terrainLocation) || (terrainLocation == selectedCityLoc && improvementSelected.canBeUpgraded))
                     {
-						PlayAudioClip(metalSplashClip);
+                        PlayConstructionAudio();
 						uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvementSelected);
                     }
                     //UpgradeSelectedImprovementQueueCheck(terrainLocation, improvementSelected);
@@ -412,14 +413,14 @@ public class CityBuilderManager : MonoBehaviour
 						return;
                     }
 
-                    PlayAudioClip(metalSplashClip);
+                    PlayConstructionAudio();
                     BuildImprovementQueueCheck(improvementData, terrainLoc); //passing the data here as method requires it
                 }
                 else if (upgradingImprovement)
                 {
                     CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
                     uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvement);
-					PlayAudioClip(metalSplashClip);
+					PlayConstructionAudio();
 					//UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
 				}
 				else if (removingImprovement)
@@ -526,7 +527,7 @@ public class CityBuilderManager : MonoBehaviour
         if (!uiWonderSelection.buttonsAreWorking)
             return;
 
-        PlaySelectAudio(true);
+        PlaySelectAudio();
         tilesToChange.Clear();
 
         foreach (Vector3Int loc in selectedWonder.PossibleHarborLocs)
@@ -564,7 +565,7 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
 
-        PlaySelectAudio(true);
+        PlaySelectAudio();
 
         selectedWonder.StopConstructing();
         selectedWonder.WorkersReceived--; //decrease worker count 
@@ -687,7 +688,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (uiWonderSelection.buttonsAreWorking)
         {
-            PlaySelectAudio(true);
+            PlaySelectAudio();
             uiDestroyCityWarning.ToggleVisibility(true);
         }
     }
@@ -773,11 +774,15 @@ public class CityBuilderManager : MonoBehaviour
         selectedWonder = null;
     }
 
-    public void PlaySelectAudio(bool select)
+    public void PlaySelectAudio()
     {
-        AudioClip clip = select ? selectClip : buildClip;
-        
-        audioSource.clip = clip;
+        audioSource.clip = selectClip;
+        audioSource.Play();
+    }
+
+    public void PlayBoomAudio()
+    {
+        audioSource.clip = buildClip;
         audioSource.Play();
     }
 
@@ -829,11 +834,11 @@ public class CityBuilderManager : MonoBehaviour
         audioSource.Play();
     }
 
-    public void PlayRingAudio()
-    {
-		audioSource.clip = ringClip;
-		audioSource.Play();
-	}
+ //   public void PlayRingAudio()
+ //   {
+	//	audioSource.clip = ringClip;
+	//	audioSource.Play();
+	//}
 
     public void PlayOpenCityAudio()
     {
@@ -862,6 +867,18 @@ public class CityBuilderManager : MonoBehaviour
 		audioSource.clip = acknowledgements[UnityEngine.Random.Range(0, acknowledgements.Length)];
 		audioSource.Play();
 	}
+
+    public void PlayTrainingAudio()
+    {
+        audioSource.clip = trainingClip;
+        audioSource.Play();
+    }
+
+    public void PlayConstructionAudio()
+    {
+        audioSource.clip = constructionClip;
+        audioSource.Play();
+    }
 
 	private void SelectCity(Vector3 location, City cityReference)
     {
@@ -3265,7 +3282,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ToggleLaborHandlerMenu()
     {
-        PlaySelectAudio(true);
+        PlaySelectAudio();
         
         if (uiLaborHandler.activeStatus)
         {
@@ -3310,7 +3327,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCityWarning()
     {
-        PlaySelectAudio(true);
+        PlaySelectAudio();
         
         if (uiDestroyCityWarning.activeStatus)
         {
@@ -3364,7 +3381,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void TogglePrioritizationMenu()
     {
-        PlaySelectAudio(true);
+        PlaySelectAudio();
         
         if (!uiLaborPrioritizationManager.activeStatus)
         {
@@ -3392,7 +3409,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ToggleQueue()
     {
-        PlaySelectAudio(true);
+        PlaySelectAudio();
         
         if (!isQueueing)
             BeginBuildQueue();
@@ -3509,7 +3526,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void RunCityNamerUI()
     {
-        PlaySelectAudio(true);
+        PlaySelectAudio();
         
         if (uiCityNamer.activeStatus)
         {
@@ -3531,7 +3548,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCity() //set on destroy city warning message
     {
-        PlaySelectAudio(true);
+        PlaySelectAudio();
         
         if (selectedWonder != null)
         {

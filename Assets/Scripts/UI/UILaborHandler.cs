@@ -119,7 +119,7 @@ public class UILaborHandler : MonoBehaviour
 
     public void ToggleCityLaborCostButton()
     {
-        city.world.cityBuilderManager.PlaySelectAudio(true);
+        city.world.cityBuilderManager.PlaySelectAudio();
         ToggleCityLaborCost();
     }
 

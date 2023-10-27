@@ -201,7 +201,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 
 	public void StartQueue()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         
         if (isQueueing)
         {

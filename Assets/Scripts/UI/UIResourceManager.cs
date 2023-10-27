@@ -134,7 +134,7 @@ public class UIResourceManager : MonoBehaviour
 
     public void ToggleOverflow()
     {
-        cityBuilderManager.PlaySelectAudio(true);
+        cityBuilderManager.PlaySelectAudio();
         
         if (overflowActiveStatus)
         {

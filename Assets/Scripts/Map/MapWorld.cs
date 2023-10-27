@@ -1244,7 +1244,7 @@ public class MapWorld : MonoBehaviour
         noWalkList.AddRange(wonderNoWalkLoc);
         wonderPlacementLoc.Clear();
         wonderNoWalkLoc.Clear();
-        cityBuilderManager.PlaySelectAudio(false);
+        cityBuilderManager.PlayBoomAudio();
     }
 
     public void PlaceWonder(WonderDataSO wonderData)
@@ -1264,7 +1264,7 @@ public class MapWorld : MonoBehaviour
 
     public void RotateWonderPlacement()
     {
-        cityBuilderManager.PlaySelectAudio(true);
+        cityBuilderManager.PlaySelectAudio();
         
         rotationCount++;
 
@@ -1355,7 +1355,7 @@ public class MapWorld : MonoBehaviour
 
     public void OpenWonders()
     {
-        cityBuilderManager.PlaySelectAudio(true);
+        cityBuilderManager.PlaySelectAudio();
 
         if (buildingWonder || unitOrders)
             CloseBuildingSomethingPanel();
@@ -1405,7 +1405,7 @@ public class MapWorld : MonoBehaviour
     {
 		//if (workerOrders)
 		//    return;
-		cityBuilderManager.PlaySelectAudio(true);
+		cityBuilderManager.PlaySelectAudio();
 
 		if (unitOrders || buildingWonder)
             CloseBuildingSomethingPanel();
@@ -2409,9 +2409,7 @@ public class MapWorld : MonoBehaviour
 		}
 
         StartCoroutine(EnemyCampDestroyWait(loc));
-        Destroy(enemyCampDict[loc].minimapIcon);
-        
-        enemyCampDict.Remove(loc);
+        Destroy(enemyCampDict[loc].minimapIcon);        
 	}
 
     private IEnumerator EnemyCampDestroyWait(Vector3Int loc)
@@ -2422,6 +2420,7 @@ public class MapWorld : MonoBehaviour
 			Destroy(unit.gameObject);
 
 		enemyCampDict[loc].DeadList.Clear();
+        enemyCampDict.Remove(loc);
 	}
 
 	public int GetUpgradeableObjectMaxLevel(string name)

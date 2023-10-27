@@ -128,9 +128,10 @@ public class UIBuilderHandler : MonoBehaviour
     {
         OnIconButtonClick?.Invoke(buildData);
 
-        bool select = buildData.isBuilding && !buildData.isBuildingImprovement;
-
-        cityBuilderManager.PlaySelectAudio(!select);
+        if (buildData.isBuilding && !buildData.isBuildingImprovement)
+			cityBuilderManager.PlayBoomAudio();
+        else
+		    cityBuilderManager.PlaySelectAudio();
     }
 
     public void HandleUnitButtonClick()
@@ -138,7 +139,13 @@ public class UIBuilderHandler : MonoBehaviour
         OnUnitIconButtonClick?.Invoke(unitBuildData);
 
         if (unitBuildData.trainTime > 0)
-            cityBuilderManager.PlaySelectAudio(true);
+        {
+            if (unitBuildData.transportationType == TransportationType.Sea)
+                cityBuilderManager.PlayConstructionAudio();
+            else
+                cityBuilderManager.PlayTrainingAudio();
+
+        }
     }
 
     public void FinishMenuSetup()

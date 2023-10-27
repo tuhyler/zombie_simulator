@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7480647496174222647, guid: b55141c95836bad45a34ee5c0ee9b7d5, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: 67e2dcfdb0e95d24e800aa8b53da8ea3, type: 3}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Ceramist
   improvementDisplayName: Coil Ceramist
   improvementLevel: 1
@@ -22,7 +25,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 017a4b341d2d93245a74b5edfb806764, type: 3}
-  littleImage: {fileID: 21300000, guid: 28050d7914c51a54e8ef2e7d7a601ca4, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
@@ -53,6 +55,7 @@ MonoBehaviour:
   maxLabor: 1
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
@@ -63,6 +66,7 @@ MonoBehaviour:
   availableInitially: 0
   workAnimLoop: 0
   hideIdleMesh: 1
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 1}
   - {x: 0, y: 0, z: -1}
