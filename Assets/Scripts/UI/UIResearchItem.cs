@@ -256,7 +256,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             SelectResearchItem();
         }
 
-        researchTree.world.cityBuilderManager.PlaySelectAudio(true);
+        researchTree.world.cityBuilderManager.PlaySelectAudio();
     }
 
     public void TempUnlockCheck()

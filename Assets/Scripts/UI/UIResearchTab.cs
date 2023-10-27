@@ -27,7 +27,7 @@ public class UIResearchTab : MonoBehaviour
         uiResearchTree.selectedTab = tabLoc;
         uiResearchTree.SetTab();
         uiResearchTree.titleText.text = tabText.text;
-        uiResearchTree.world.cityBuilderManager.PlaySelectAudio(true);
+        uiResearchTree.world.cityBuilderManager.PlaySelectAudio();
     }
 
     public void SetResearchTree(UIResearchTreePanel uiResearchTree)

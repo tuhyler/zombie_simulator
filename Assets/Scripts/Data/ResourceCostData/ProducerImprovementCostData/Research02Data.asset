@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 1611013192853869202, guid: 70de2c43b80231141b9cc01573a379b5, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: 4b903425d0583734b9e3d2b48e7d064f, type: 3}
   isSecondary: 0
   isBuilding: 0
   isBuildingImprovement: 0
@@ -78,6 +79,7 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 1
   replaceRocks: 0
   singleBuild: 1

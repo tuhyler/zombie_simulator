@@ -207,7 +207,7 @@ public class UIMarketPlaceManager : MonoBehaviour
     //sorting algos
     public void SortResources()
     {
-        city.world.cityBuilderManager.PlaySelectAudio(true);
+        city.world.cityBuilderManager.PlaySelectAudio();
         ChangeSortButtonsColors("resources");
 
         if (sortResourcesUp)
@@ -243,7 +243,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortPrices()
     {
-		city.world.cityBuilderManager.PlaySelectAudio(true);
+		city.world.cityBuilderManager.PlaySelectAudio();
 		ChangeSortButtonsColors("prices");
             
         if (sortPricesUp)
@@ -297,7 +297,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortAmounts()
     {
-		city.world.cityBuilderManager.PlaySelectAudio(true);
+		city.world.cityBuilderManager.PlaySelectAudio();
 		ChangeSortButtonsColors("amount");
 
         if (sortAmountUp)
@@ -351,7 +351,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortTotals()
     {
-		city.world.cityBuilderManager.PlaySelectAudio(true);
+		city.world.cityBuilderManager.PlaySelectAudio();
 		ChangeSortButtonsColors("total");
 
         if (sortTotalsUp)
@@ -405,7 +405,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     public void SortSell()
     {
-		city.world.cityBuilderManager.PlaySelectAudio(true);
+		city.world.cityBuilderManager.PlaySelectAudio();
 		ChangeSortButtonsColors("sell");
 
         if (sortSellUp)

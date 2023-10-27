@@ -233,7 +233,7 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmOrders.ToggleTweenVisibility(true);
 
                         td.EnableHighlight(Color.white);
-                        world.cityBuilderManager.PlaySelectAudio(false);
+                        world.cityBuilderManager.PlaySelectAudio();
                         //highlightedTiles.Add(td);
                     }
                     else
@@ -242,7 +242,7 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmOrders.ToggleTweenVisibility(false);
 
                         td.DisableHighlight();
-                        world.cityBuilderManager.PlaySelectAudio(true);
+                        world.cityBuilderManager.PlaySelectAudio();
                         //highlightedTiles.Remove(td);
                     }
                 }
@@ -274,7 +274,7 @@ public class UnitMovement : MonoBehaviour
                             road.SelectionHighlight.EnableHighlight(Color.white);
                         }
 
-						world.cityBuilderManager.PlaySelectAudio(false);
+						world.cityBuilderManager.PlaySelectAudio();
 						//highlightedTiles.Add(td);
 					}
                     else
@@ -291,7 +291,7 @@ public class UnitMovement : MonoBehaviour
                             road.SelectionHighlight.DisableHighlight();
                         }
 
-						world.cityBuilderManager.PlaySelectAudio(true);
+						world.cityBuilderManager.PlaySelectAudio();
 						//highlightedTiles.Remove(td);
 					}
                 }
@@ -965,7 +965,7 @@ public class UnitMovement : MonoBehaviour
 
     public void MoveUnitToggle()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         
         if (!moveUnit)
             moveUnit = true;
@@ -992,7 +992,7 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelContinuedMovementOrdersButton()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         CancelContinuedMovementOrders();
     }
 
@@ -1012,7 +1012,7 @@ public class UnitMovement : MonoBehaviour
 
     public void JoinCity() //for Join City button
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
 
         if (selectedUnit.isUpgrading)
         {
@@ -1090,7 +1090,7 @@ public class UnitMovement : MonoBehaviour
 
     public void RepositionArmy()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         focusCam.CenterCameraNoFollow(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation));
         uiSwapPosition.ToggleTweenVisibility(false);
         uiJoinCity.ToggleTweenVisibility(false);
@@ -1135,7 +1135,7 @@ public class UnitMovement : MonoBehaviour
 
     public void LoadUnloadPrep() //for loadunload button for traders
     {
-		world.cityBuilderManager.PlaySelectAudio(true);
+		world.cityBuilderManager.PlaySelectAudio();
 
 		if (!loadScreenSet)
         {
@@ -1193,7 +1193,7 @@ public class UnitMovement : MonoBehaviour
 
     public void ConfirmWorkerOrdersButton()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlayBoomAudio();
         ConfirmWorkerOrders();
     }
 
@@ -1521,7 +1521,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedTrader == null)
             return;
 
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         if (!uiTradeRouteManager.activeStatus)
         {
             LoadUnloadFinish(true);
@@ -1543,7 +1543,7 @@ public class UnitMovement : MonoBehaviour
 
     public void ShowTradeRouteCost()
     {
-		world.cityBuilderManager.PlaySelectAudio(true);
+		world.cityBuilderManager.PlaySelectAudio();
 
 		if (selectedTrader.followingRoute)
 		{
@@ -1708,7 +1708,7 @@ public class UnitMovement : MonoBehaviour
 
     public void ChangeHomeBase()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         uiJoinCity.ToggleTweenVisibility(false);
 		uiSwapPosition.ToggleTweenVisibility(false);
 		uiDeployArmy.ToggleTweenVisibility(false);
@@ -1723,7 +1723,7 @@ public class UnitMovement : MonoBehaviour
 
 	public void DeployArmyLocation()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         
         if (selectedUnit.homeBase.army.isTraining)
         {
@@ -1810,7 +1810,7 @@ public class UnitMovement : MonoBehaviour
 			return;
         }
 
-        world.cityBuilderManager.PlayMarchAudio();
+        world.cityBuilderManager.PlayBoomAudio();
 
 		HideBattlePath();
         selectedUnit.homeBase.army.DeployArmy();

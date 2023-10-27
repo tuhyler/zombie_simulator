@@ -249,7 +249,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     public void ToggleOverflow()
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         
         if (overflowActiveStatus)
             ToggleOverflowVisibility(false);

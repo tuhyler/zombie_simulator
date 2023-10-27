@@ -43,7 +43,7 @@ public class UIWorkerHandler : MonoBehaviour
 
     public void ToggleRemovalOptions(bool v)
     {
-        world.cityBuilderManager.PlaySelectAudio(true);
+        world.cityBuilderManager.PlaySelectAudio();
         uiWorkerRemovalOptions.ToggleVisibility(v, false);
     }
 

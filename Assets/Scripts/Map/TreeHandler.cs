@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TreeHandler : MonoBehaviour
 {
+    public MeshFilter leafMesh;
     public GameObject treeFlat, treeHill, treeFlatRoad, treeHillRoad, treeFlatIcon, treeHillIcon;
     public bool keepTrees;
 

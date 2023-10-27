@@ -189,6 +189,57 @@ public class TerrainData : MonoBehaviour
             minimapIconMesh.mesh.uv = uvs;
     }
 
+    public void ChangeLeafColors(int color, bool coniferous)
+    {
+        float xChange = 0;
+        float yChange = 0;
+        
+        if (coniferous)
+        {
+            xChange = 0;
+            yChange = 0;
+        }
+        else if (color == 0)
+        {
+            xChange = 0.031153f;
+        }
+        else if (color == 1)
+        {
+            yChange = -0.031351f;
+        }
+        else
+        {
+			xChange = 0.031153f;
+			yChange = -0.031351f;
+		}
+
+        Vector2[] leafUVs = treeHandler.leafMesh.mesh.uv;
+        int i = 0;
+
+        while (i < leafUVs.Length)
+        {
+            leafUVs[i].x += xChange;
+            leafUVs[i].y += yChange;
+            i++;
+        }
+
+        treeHandler.leafMesh.mesh.uv = leafUVs;
+    }
+
+    public void ChangeMountainSnow()
+    {
+        Vector2[] mountainUVs = uvs;
+        int i = 0;
+
+        while (i < mountainUVs.Length)
+        {
+            mountainUVs[i].x += 0.375031f;
+			i++;
+        }
+
+        main.GetComponentInChildren<MeshFilter>().mesh.uv = mountainUVs;
+    }
+
     public void SetRockUVs(Vector2 uv)
     {
         MeshFilter mesh = prop.GetComponentInChildren<MeshFilter>();

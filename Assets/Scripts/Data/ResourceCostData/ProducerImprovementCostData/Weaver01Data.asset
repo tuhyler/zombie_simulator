@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5122609563439273834, guid: ea0671f0b267dd6498d939def4338a32, type: 3}
   secondaryData: []
+  audio: {fileID: 8300000, guid: 8597ed8c6dfb1354a82fd559ad4e03f1, type: 3}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Weaver
   improvementDisplayName: Weaver
   improvementLevel: 1
@@ -22,7 +25,6 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 74a25673e928bef45bf2d3a7ba082f11, type: 3}
-  littleImage: {fileID: 21300000, guid: e5e8f29745fb17d4786d8440a72963eb, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
@@ -51,6 +53,7 @@ MonoBehaviour:
   maxLabor: 1
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
@@ -61,6 +64,7 @@ MonoBehaviour:
   availableInitially: 0
   workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 1, y: 0, z: 1}
   - {x: -1, y: 0, z: 1}
