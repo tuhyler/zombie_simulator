@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class UIUnitTurnHandler : MonoBehaviour
 {
@@ -13,18 +15,18 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     [HideInInspector]
     public UnitTurnListHandler turnHandler;
+    [SerializeField]
+    public List<Button> buttons;
 
     [HideInInspector]
     public int currentListIndex;
     [HideInInspector]
     public UnityEvent buttonClicked; //only listener in CityBuilderManager to ResetUI
 
-    private bool buttonsAreWorking; //because enable only works this way
 
     private void Awake()
     {
         turnHandler = GetComponent<UnitTurnListHandler>();
-        buttonsAreWorking = true;
     }
 
     private void SelectUnit(Unit unit) => turnHandler.SelectUnit(unit);
@@ -47,7 +49,7 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void NextUnitToMove() //used on right button
     {
-        if (!buttonsAreWorking || world.unitOrders)
+        if (world.unitOrders)
             return;
 
 		world.cityBuilderManager.PlaySelectAudio();
@@ -58,7 +60,7 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void PrevUnitToMove() //used on left button
     {
-        if (!buttonsAreWorking || world.unitOrders)
+        if (world.unitOrders)
             return;
 
         world.cityBuilderManager.PlaySelectAudio();
@@ -100,6 +102,9 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     public void ToggleEnable(bool v)
     {
-        buttonsAreWorking = v;
+        foreach (Button button in buttons)
+        {
+            button.enabled = v;
+        }
     }
 }

@@ -336,6 +336,9 @@ MonoBehaviour:
   researchResourceAmount: {fileID: 4892509974790505081}
   researchTitle: {fileID: 7605256306408603558}
   progressBarMask: {fileID: 2464266305560037824}
+  buttons:
+  - {fileID: 8005530639970263236}
+  - {fileID: 3078847175791887794}
 --- !u!1 &8868279007131145576
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,6 +768,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 4245645771385136827}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8005530639970263236 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6193236626766956159, guid: a905eeb931ee1cf4e8c8148f4cac6df0,
+    type: 3}
+  m_PrefabInstance: {fileID: 4245645771385136827}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &9171731101270950861
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -916,6 +931,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 9171731101270950861}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3078847175791887794 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6193236626766956159, guid: a905eeb931ee1cf4e8c8148f4cac6df0,
+    type: 3}
+  m_PrefabInstance: {fileID: 9171731101270950861}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &6631907351896108327 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2540536303946690282, guid: a905eeb931ee1cf4e8c8148f4cac6df0,

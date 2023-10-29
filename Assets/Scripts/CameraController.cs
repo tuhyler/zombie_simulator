@@ -25,7 +25,7 @@ public class CameraController : MonoBehaviour
     private Vector3 velocity = Vector3.zero;
 
     [HideInInspector]
-    public bool scrolling;
+    public bool scrolling, paused;
 
     private bool disableMouse;
     public bool DisableMouse { set { disableMouse = value; } }
@@ -56,6 +56,9 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate() //Lateupdate to reduce jittering on camera 
     {
+        if (paused)
+            return;
+        
         if (followTransform != null) //to center on something
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * 5);

@@ -14,6 +14,9 @@ public class UIMinimapHandler : MonoBehaviour, IPointerDownHandler
 
     [SerializeField]
     private UIMapHandler mapHandler;
+
+    [HideInInspector]
+    public bool paused;
     
     private Image image;
     
@@ -39,6 +42,9 @@ public class UIMinimapHandler : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (paused)
+            return;
+        
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(mainRect, Input.mousePosition, Camera.main, out Vector2 localPoint))
         {
             //Debug.Log(localPoint);

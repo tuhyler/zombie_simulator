@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UITomFinder : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class UITomFinder : MonoBehaviour
     private Worker worker;
     [SerializeField]
     public RectTransform allContents;
+    [SerializeField]
+    private Button button;
 
     private void Awake()
     {
@@ -37,5 +40,10 @@ public class UITomFinder : MonoBehaviour
             unitMovement.ClearSelection();
         unitMovement.HandleUnitSelectionAndMovement(worker.transform.position, worker.gameObject);
         worker.CenterCamera();
+    }
+
+    public void ToggleButtonOn(bool v)
+    {
+        button.enabled = v;
     }
 }

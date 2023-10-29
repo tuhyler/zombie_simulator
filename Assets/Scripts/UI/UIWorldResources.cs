@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +9,8 @@ public class UIWorldResources : MonoBehaviour
     private TMP_Text goldResourceAmount, researchResourceAmount, researchTitle;//, resourceGenerationAmount;
     [SerializeField]
     private Image progressBarMask;
+    [SerializeField]
+    public List<Button> buttons;
 
     private int researchLimit = 10;
     public int ResearchLimit { set { researchLimit = value; } } 
@@ -52,5 +55,14 @@ public class UIWorldResources : MonoBehaviour
             {
                 progressBarMask.fillAmount = value;
             });
+    }
+
+    public void SetInteractable(bool v)
+    {
+        foreach (Button button in buttons)
+        {
+            //button.interactable = v;
+            button.enabled = v;
+        }
     }
 }

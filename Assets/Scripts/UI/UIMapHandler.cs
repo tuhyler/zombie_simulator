@@ -18,6 +18,9 @@ public class UIMapHandler : MonoBehaviour
     private CameraController cameraController;
 
     [SerializeField]
+    private Button mapButton;
+
+    [SerializeField]
     private GameObject camDirection, tomFinderButton, mapPanelButton, mainMenuButton, wonderButton;
 
     [SerializeField]
@@ -242,5 +245,10 @@ public class UIMapHandler : MonoBehaviour
         newPosition.z = Mathf.Clamp(newPosition.z, zMin, zMax);
 
         minimapCamera.transform.position = Vector3.Lerp(minimapCamera.transform.position, newPosition, Time.deltaTime * movementTime);
+    }
+
+    public void SetInteractable(bool v)
+    {
+        mapButton.enabled = v;
     }
 }
