@@ -6,6 +6,9 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
     [SerializeField]
     private CanvasGroup button;
 
+    [SerializeField]
+    private Button buttonButton;
+
     [SerializeField] //for tweening
     public RectTransform allContents;
     [HideInInspector]
@@ -66,5 +69,10 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
     public void ToggleInteractable(bool v)
     {
         button.interactable = v;
+    }
+
+    public void ToggleEnable(bool v)
+    {
+        buttonButton.enabled = v;
     }
 }

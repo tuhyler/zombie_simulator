@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4856377909197465507}
   - component: {fileID: 3278592179122087433}
   - component: {fileID: 2315983313483041500}
+  - component: {fileID: 6470309053708108074}
   m_Layer: 0
   m_Name: WonderButton
   m_TagString: Untagged
@@ -121,6 +122,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &6470309053708108074
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3602268415410727909}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4893172533956454280
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,7 +184,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2983af276bf4cc24087e37f8dcd2f4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 0}
+  button: {fileID: 6470309053708108074}
+  buttonButton: {fileID: 2315983313483041500}
   allContents: {fileID: 5260703463605753538}
   activeStatus: 0
   buttonImage: {fileID: 3278592179122087433}

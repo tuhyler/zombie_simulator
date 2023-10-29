@@ -10,7 +10,7 @@ public class MapWorld : MonoBehaviour
 {
     //public float test = 0.4f;
     [SerializeField]
-    private CameraController cameraController;
+    public CameraController cameraController;
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [SerializeField]
@@ -18,20 +18,22 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
     [SerializeField]
-    private UIWorldResources uiWorldResources;
+    public UIWorldResources uiWorldResources;
     [SerializeField]
     private UIResearchTreePanel researchTree;
     [SerializeField]
-    private UIMapHandler mapHandler;
+    public UIMapHandler mapHandler;
     //[SerializeField]
     //private UIMapPanel mapPanel;
     [SerializeField]
-    private UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder;
+    public UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder, uiMainMenuButton;
     [SerializeField]
     private RectTransform mapPanelButton, mainMenuButton;
     [SerializeField]
     private UIWonderHandler wonderHandler;
     [SerializeField]
+    private UIMainMenu uiMainMenu;
+	[SerializeField]
     private UIBuildingSomething uiBuildingSomething;
     [SerializeField]
     public UITerrainTooltip uiTerrainTooltip;
@@ -226,6 +228,7 @@ public class MapWorld : MonoBehaviour
     private void Start()
     {
         wonderButton.gameObject.SetActive(true);
+        uiMainMenuButton.gameObject.SetActive(true);
         uiWorldResources.SetActiveStatus(true);
         List<TerrainData> coastalTerrain = new();
         List<TerrainData> terrainToCheck = new();
@@ -847,6 +850,21 @@ public class MapWorld : MonoBehaviour
         }
 
         return newUVs;
+    }
+
+    public void OpenMainMenu()
+    {
+        if (uiMainMenu.activeStatus)
+        {
+            cityBuilderManager.PlayCloseAudio();
+            uiMainMenu.ToggleVisibility(false);
+		}
+        else
+        {
+            unitMovement.ClearSelection();
+            cityBuilderManager.ResetCityUI();
+            uiMainMenu.ToggleVisibility(true);
+        }
     }
 
     private void CreateGrid()

@@ -6,6 +6,8 @@ public class HandlePlayerInput : MonoBehaviour
 {
     public Camera mainCamera;
     public LayerMask layerMask;
+    [HideInInspector]
+    public bool paused;
 
     private Vector3 mousePositionClick;
 
@@ -21,6 +23,9 @@ public class HandlePlayerInput : MonoBehaviour
 
     private void Update()
     {
+        if (paused)
+            return;
+        
         if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject()) //second check is so you don't click behind the UI
             HandleLeftMouseClick();
 

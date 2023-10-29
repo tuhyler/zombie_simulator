@@ -157,6 +157,7 @@ public class CityBuilderManager : MonoBehaviour
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+        audioSource.ignoreListenerPause = true;
         emptyGO = new GameObject("NewImprovement");
         emptyGO.SetActive(false);
         GrowLaborNumbersPool();
@@ -1878,7 +1879,7 @@ public class CityBuilderManager : MonoBehaviour
         //if (!upgradingImprovement)
         //    improvement.DestroyUpgradeSplash();
         building.transform.parent = city.subTransform;
-        improvement.PlayPlacementAudio(buildClip);
+        PlayBoomAudio();
 
         //if (upgradingImprovement)
         //{
