@@ -469,3 +469,15 @@ public class RoadManager : MonoBehaviour
         roadHolder.transform.gameObject.SetActive(true);
     }
 }
+
+public enum RoadType
+{
+    Dirt,
+}
+
+public enum UtilityType
+{
+    Road,
+    Water,
+    Power
+}

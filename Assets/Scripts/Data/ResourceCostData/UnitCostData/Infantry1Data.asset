@@ -18,6 +18,7 @@ MonoBehaviour:
   unitName: Infantry
   unitDisplayName: Warrior
   unitLevel: 1
+  unitNameAndLevel: Infantry-1
   image: {fileID: 21300000, guid: 124905a2765bb7241a7f8cdf2ad9f37b, type: 3}
   mapIcon: {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
   unitCost:

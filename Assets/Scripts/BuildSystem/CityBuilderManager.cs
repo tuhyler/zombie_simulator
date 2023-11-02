@@ -741,7 +741,8 @@ public class CityBuilderManager : MonoBehaviour
             }
 			
             if (td.prop != null && td.resourceAmount > 0)
-                td.prop.gameObject.SetActive(true);
+                td.ShowProp(true);
+
             td.RestoreTerrainMesh();
             if (td.hasResourceMap)
                 td.RestoreResourceMap();
@@ -1178,7 +1179,7 @@ public class CityBuilderManager : MonoBehaviour
     public void UpgradeUnit(Unit unit) //can't queue, don't need to pass in city
     {
         unit.isUpgrading = true;
-        string nameAndLevel = unit.buildDataSO.unitName + "-" + unit.buildDataSO.unitLevel;
+        string nameAndLevel = unit.buildDataSO.unitNameAndLevel;
 		List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
 		selectedCity.ResourceManager.SpendResource(upgradeCost, unit.transform.position);
 
@@ -1302,7 +1303,7 @@ public class CityBuilderManager : MonoBehaviour
                 uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
 
                 resourceManager.UpdateUI(city.GetResourceValues());
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
             }
             else
             {
@@ -1557,7 +1558,7 @@ public class CityBuilderManager : MonoBehaviour
                 uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
                     selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
                 resourceManager.UpdateUI(unitData.unitCost);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
                 uiCityTabs.HideSelectedTab(false);
             }
         }
@@ -1827,7 +1828,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 uiInfoPanelCity.UpdateHousing(city.HousingCount);
                 resourceManager.UpdateUI(buildingData.improvementCost);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
 
                 if (!upgradingImprovement)
                     uiCityTabs.HideSelectedTab(false);
@@ -1888,7 +1889,8 @@ public class CityBuilderManager : MonoBehaviour
         //}
 
         string buildingName = buildingData.improvementName;
-        world.SetCityBuilding(improvement, buildingData, city.cityLoc, building, city, buildingName);
+		improvement.PlaySmokeSplashBuilding();
+		world.SetCityBuilding(improvement, buildingData, city.cityLoc, building, city, buildingName);
         //world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
         city.HousingCount += buildingData.housingIncrease;
         if (buildingData.waterIncrease > 0)
@@ -1941,7 +1943,7 @@ public class CityBuilderManager : MonoBehaviour
             }
      
             resourceManager.UpdateUI(buildingData.improvementCost);
-            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
 
             //setting labor data (no labor for buildings)
             //if (buildingData.maxLabor > 0)
@@ -2052,7 +2054,7 @@ public class CityBuilderManager : MonoBehaviour
             if (data.workEthicChange > 0)
                 UpdateCityWorkEthic();
             resourceManager.UpdateUI(data.improvementCost);
-            uiResourceManager.SetCityCurrentStorage(resourceManager.GetResourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(resourceManager.ResourceStorageLevel);
             uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
                 selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
             //uiCityTabs.HideSelectedTab();
@@ -2233,7 +2235,7 @@ public class CityBuilderManager : MonoBehaviour
         if (city.activeCity)
         {
             resourceManager.UpdateUI(improvementData.improvementCost);
-            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
         }
 
         //rotating harbor so it's closest to city
@@ -2258,7 +2260,7 @@ public class CityBuilderManager : MonoBehaviour
                         break;
                     }
                 }
-                else if (td.terrainData.resourceType == tempData.producedResources[0].resourceType)
+                else if (td.resourceType == tempData.producedResources[0].resourceType)
                 {   
                     improvementData = tempData;
                     break;
@@ -2318,7 +2320,7 @@ public class CityBuilderManager : MonoBehaviour
         buildLocation.y = 0;
         world.AddResourceProducer(buildLocation, resourceProducer);
         resourceProducer.SetResourceManager(city.ResourceManager);
-        resourceProducer.InitializeImprovementData(improvementData, td.terrainData.resourceType); //allows the new structure to also start generating resources
+        resourceProducer.InitializeImprovementData(improvementData, td.resourceType); //allows the new structure to also start generating resources
         resourceProducer.SetCityImprovement(cityImprovement);
         resourceProducer.SetLocation(tempBuildLocation);
 
@@ -2475,7 +2477,7 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         if (td.prop != null)
-            td.prop.gameObject.SetActive(false);
+            td.ShowProp(false);
 
         //if (improvementData.replaceTerrain)
         //{
@@ -2562,7 +2564,7 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    private int HarborRotation(Vector3Int tempBuildLocation, Vector3Int originationLocation)
+    public int HarborRotation(Vector3Int tempBuildLocation, Vector3Int originationLocation)
     {
         int rotation = 0;
         int minimum = 99999;
@@ -2636,7 +2638,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity.harborTraining = false;
 			selectedImprovement.CancelTraining(resourceProducer);
 			selectedImprovement.StopUpgrade();
-			uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+			uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
 			ImprovementTileHighlight();
 
 			return;
@@ -2653,7 +2655,7 @@ public class CityBuilderManager : MonoBehaviour
                 placesToWork++;
                 UpdateCityLaborUIs();
                 resourceManager.UpdateUI(selectedImprovement.UpgradeCost);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
                 ImprovementTileHighlight();
             }
 
@@ -2693,7 +2695,7 @@ public class CityBuilderManager : MonoBehaviour
             if (city.activeCity)
             {
                 resourceManager.UpdateUI(improvementData.improvementCost);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.GetResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
             }
 
             if (improvementData.replaceTerrain)
@@ -2702,7 +2704,10 @@ public class CityBuilderManager : MonoBehaviour
             }
 
             if (td.resourceAmount > 0)
+            {
                 td.prop.gameObject.SetActive(true);
+                td.ShowProp(true);
+            }
             else
             {
                 if (td.terrainData.grassland)
@@ -2710,7 +2715,7 @@ public class CityBuilderManager : MonoBehaviour
                 else
                     td.terrainData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
 
-				td.prop.gameObject.SetActive(false);
+                td.ShowProp(false);
 			}
 
             if (td.terrainData.hasRocks)
@@ -3569,8 +3574,7 @@ public class CityBuilderManager : MonoBehaviour
         CombineMeshes();
         TerrainData td = world.GetTerrainDataAt(selectedCityLoc);
         if (td.resourceAmount > 0)
-           td.prop.gameObject.SetActive(true);
-        //td.gameObject.tag = td.originalTag;
+            td.ShowProp(true);            
 
         //destroying queued objects
         foreach (UIQueueItem queueItem in selectedCity.savedQueueItems)

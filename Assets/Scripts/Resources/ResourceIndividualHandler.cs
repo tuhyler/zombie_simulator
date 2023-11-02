@@ -13,7 +13,7 @@ public class ResourceIndividualHandler : MonoBehaviour
     public ResourceIndividualSO GetResourcePrefab(Vector3Int workerPos)
     {
         TerrainData td = world.GetTerrainDataAt(workerPos);
-        ResourceType rt = td.terrainData.resourceType;
+        ResourceType rt = td.resourceType;
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
@@ -60,7 +60,7 @@ public class ResourceIndividualHandler : MonoBehaviour
             worker.clearingForest = false;
             TerrainData td = world.GetTerrainDataAt(world.RoundToInt(unitPos));
             td.beingCleared = false;
-			td.prop.gameObject.SetActive(false);
+            td.ShowProp(false);
 			worker.marker.ToggleVisibility(false);
 
 			if (td.isHill)

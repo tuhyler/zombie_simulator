@@ -12,8 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: GrasslandSilkTerrain
   m_EditorClassIdentifier: 
+  terrainName: GrasslandSilkTerrain
+  prefabs:
+  - {fileID: 608616143501096269, guid: 06e4506da3202984d9fbc3005d1b3810, type: 3}
+  decors:
+  - {fileID: 9073605623283122857, guid: 6ced5d8e9bd765c4c8e30201d55fa2d7, type: 3}
   title: Grassland
-  roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   grassland: 1
   desert: 0

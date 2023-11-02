@@ -546,7 +546,7 @@ public class WorkerTaskManager : MonoBehaviour
     {
         worker.isBusy = false;
 
-        td.prop.gameObject.SetActive(false);
+        td.ShowProp(false);
 
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); 
         newCity.gameObject.transform.SetParent(world.cityHolder, false);
@@ -557,13 +557,13 @@ public class WorkerTaskManager : MonoBehaviour
         //world.AddStructureMap(workerTile, city.mapIcon);
         //city.cityMapName = world.SetCityTileMap(workerTile, city.name);
         world.AddCity(workerTile, city);
-        city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
+        //city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
         city.CheckForAvailableSingleBuilds();
 
 		//clear the forest if building on forest tile
 		if (clearForest)
 		{
-			td.prop.gameObject.SetActive(false);
+            td.ShowProp(false);
 			worker.marker.ToggleVisibility(false);
 
 			if (td.isHill)
@@ -620,16 +620,16 @@ public class WorkerTaskManager : MonoBehaviour
                     city.hasRocksFlat = true;
             }
 
-            if (tData.terrainData.resourceType == ResourceType.Clay)
+            if (tData.resourceType == ResourceType.Clay)
                 city.hasClay = true;
 
-			if (tData.terrainData.resourceType == ResourceType.Wool)
+			if (tData.resourceType == ResourceType.Wool)
 				city.hasWool = true; 
             
-            if (tData.terrainData.resourceType == ResourceType.Silk)
+            if (tData.resourceType == ResourceType.Silk)
                 city.hasSilk = true;
 
-            if (tData.terrainData.resourceType == ResourceType.Lumber)
+            if (tData.resourceType == ResourceType.Lumber)
                 city.hasTrees = true;
 
             if ((tData.terrainData.grassland && tData.terrainData.type == TerrainType.Flatland) || tData.terrainData.specificTerrain == SpecificTerrain.FloodPlain)

@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Map/TerrainData")]
 public class TerrainDataSO : ScriptableObject
 {
+    public string terrainName;
+    public List<GameObject> prefabs;
+    public List<GameObject> decors;
     public string title;
     public TerrainDataSO clearedForestData; //for clearing a forest
     public bool grassland = false;

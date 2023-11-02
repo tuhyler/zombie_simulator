@@ -90,7 +90,7 @@ public class UICityUpgradePanel : MonoBehaviour
             }
             else
             {
-                name = unit.buildDataSO.unitName + '-' + unit.buildDataSO.unitLevel;
+                name = unit.buildDataSO.unitNameAndLevel;
 			}
 
             this.unit = unit;

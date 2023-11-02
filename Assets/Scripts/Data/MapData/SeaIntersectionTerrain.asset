@@ -12,9 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: SeaIntersectionTerrain
   m_EditorClassIdentifier: 
+  terrainName: SeaIntersectionTerrain
+  prefabs:
+  - {fileID: 1082500630910529086, guid: 80259e759bbee2e4eb233e9b247ab8ab, type: 3}
+  - {fileID: 7874710709089217200, guid: 9717eecb8e655ec40a712a679c8418dd, type: 3}
+  - {fileID: 250388208734905188, guid: 86e8361a129ed114db1a6563b9ed71b8, type: 3}
+  - {fileID: 5523305075486023055, guid: 54837df3a31fcb348acb8ba1c67d5a68, type: 3}
+  - {fileID: 2117843459189776674, guid: 0b39e77639901e14ba1f6ad1a3142f16, type: 3}
+  - {fileID: 8037020374292714346, guid: 88e5dcc01456f8f4a831785e139e2db9, type: 3}
+  decors:
+  - {fileID: 0}
   title: Sea
-  roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
+  grassland: 0
+  desert: 0
   walkable: 0
   sailable: 1
   isLand: 0
@@ -26,3 +37,4 @@ MonoBehaviour:
   rawResourceType: 2
   resourceType: 3
   keepProp: 0
+  hasRocks: 0

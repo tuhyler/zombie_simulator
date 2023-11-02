@@ -12,9 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: CoastTerrain
   m_EditorClassIdentifier: 
+  terrainName: CoastTerrain
+  prefabs:
+  - {fileID: 8166236539334904498, guid: b0bbac0aa2effbc448f685ddd2742895, type: 3}
+  - {fileID: 5867581104419295757, guid: b36d11a109f2f944182c810b26925b45, type: 3}
+  - {fileID: 4993992035777215833, guid: d8eaefef94e09b04c89e0daa5d1e4577, type: 3}
+  - {fileID: 713162806298622478, guid: a548fb90e02b8df4c944c9bdaa234a89, type: 3}
+  - {fileID: 3455331938153700027, guid: c7ce269d92436f844a9dc8a048f61e8c, type: 3}
+  - {fileID: 1166231501064251213, guid: 1ac80a1c970be4c4ea1bb79fc05380b1, type: 3}
+  - {fileID: 8558974081812087695, guid: 3bab5ff1c97f8904a90ffea9b1b62ef4, type: 3}
+  decors:
+  - {fileID: 0}
   title: Coast
-  roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
+  grassland: 0
+  desert: 0
   walkable: 0
   sailable: 1
   isLand: 0
@@ -26,3 +38,4 @@ MonoBehaviour:
   rawResourceType: 2
   resourceType: 3
   keepProp: 0
+  hasRocks: 0

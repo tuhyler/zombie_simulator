@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: DesertTerrain
   m_EditorClassIdentifier: 
+  terrainName: DesertTerrain
+  prefabs:
+  - {fileID: 608616143501096269, guid: c7ba8ac0e5b4573408cc37e28c658260, type: 3}
+  decors:
+  - {fileID: 0}
+  - {fileID: 9073605623283122857, guid: 958ea9c5f011fd44e8b05c51b580875d, type: 3}
+  - {fileID: 9073605623283122857, guid: 6fd3d4ee77ac3b94c90193632c865751, type: 3}
   title: Desert
-  roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   grassland: 0
   desert: 1
@@ -28,3 +34,4 @@ MonoBehaviour:
   rawResourceType: 0
   resourceType: 0
   keepProp: 0
+  hasRocks: 0

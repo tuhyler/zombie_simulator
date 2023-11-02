@@ -12,10 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: DesertClayTerrain
   m_EditorClassIdentifier: 
+  terrainName: DesertClayTerrain
+  prefabs:
+  - {fileID: 608616143501096269, guid: c7ba8ac0e5b4573408cc37e28c658260, type: 3}
+  decors:
+  - {fileID: 9073605623283122857, guid: 55b0efc0129f1554b91275e7744001af, type: 3}
   title: Grassland
   clearedForestData: {fileID: 0}
   grassland: 0
-  desert: 0
+  desert: 1
   walkable: 1
   sailable: 0
   isLand: 1

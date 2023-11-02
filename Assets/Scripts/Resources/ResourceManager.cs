@@ -26,7 +26,7 @@ public class ResourceManager : MonoBehaviour
     private int resourceStorageLimit; 
     public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
     private float resourceStorageLevel;
-    public float GetResourceStorageLevel { get { return resourceStorageLevel; } }
+    public float ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
     [HideInInspector]
     public Queue<ResourceProducer> waitingToUnloadProducers = new();
     [HideInInspector]
@@ -62,7 +62,8 @@ public class ResourceManager : MonoBehaviour
     [HideInInspector]
     public bool pauseGrowth, growthDeclineDanger;
     public int cyclesToWait = 2;
-    private int starvationCount, noHousingCount, noWaterCount;
+    [HideInInspector]
+    public int starvationCount, noHousingCount, noWaterCount;
     //private int foodGrowthLevel;
     //public int FoodGrowthLevel { get { return foodGrowthLevel; } }
     //private int foodGrowthLimit;
@@ -602,7 +603,7 @@ public class ResourceManager : MonoBehaviour
         else if (city.uiCityResourceInfoPanel) //in case it's open while trader is unloading during route
         {
             city.uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false); //false so it doesn't play ps
-            city.uiCityResourceInfoPanel.UpdateStorageLevel(GetResourceStorageLevel);
+            city.uiCityResourceInfoPanel.UpdateStorageLevel(ResourceStorageLevel);
         }
     }
 

@@ -10,6 +10,7 @@ public class UnitBuildDataSO : ScriptableObject
     public string unitName;
     public string unitDisplayName;
     public int unitLevel;
+    public string unitNameAndLevel;
     public Sprite image;
     public Sprite mapIcon;
     public List<ResourceValue> unitCost; //cost to build

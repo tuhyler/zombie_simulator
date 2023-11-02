@@ -1156,7 +1156,7 @@ public class UnitMovement : MonoBehaviour
 
                 cityResourceManager = selectedCity.ResourceManager;
                 uiCityResourceInfoPanel.SetTitleInfo(selectedCity.cityName,
-                    cityResourceManager.GetResourceStorageLevel, selectedCity.warehouseStorageLimit);
+                    cityResourceManager.ResourceStorageLevel, selectedCity.warehouseStorageLimit);
                 //uiCityResourceInfoPanel.PrepareResourceUI(selectedCity.resourceGridDict);
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, selectedCity);
                 uiCityResourceInfoPanel.SetPosition();
@@ -1501,7 +1501,7 @@ public class UnitMovement : MonoBehaviour
             if (cityResourceManager != null)
             {
                 uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, cityResourceManager.GetResourceDictValue(resourceType), !toTrader);
-                uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.GetResourceStorageLevel);
+                uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.ResourceStorageLevel);
             }
             else
             {

@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Events;
 
+[System.Serializable]
 public class Unit : MonoBehaviour
 {
     //[SerializeField]
@@ -65,6 +66,8 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public Coroutine movingCo, waitingCo, attackCo;
     private MovementSystem movementSystem;
+
+    //showing footprints
     private Queue<GameObject> pathQueue = new();
     private int queueCount = 0;
     public int QueueCount { set { queueCount = value; } }
@@ -90,7 +93,7 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public int attackStrength;
     [HideInInspector]
-    public float[] attackPause = new[] { .75f, 1f, 1.25f };
+    public float[] attackPause = new[] { 1f, 1f, 1f };
     public WaitForSeconds[] attackPauses = new WaitForSeconds[4];
     [HideInInspector]
     public Projectile projectile;
@@ -2021,6 +2024,132 @@ public class Unit : MonoBehaviour
         else
         {
             movementSystem.AddToChevronPool(path);
+        }
+    }
+
+    public UnitData SaveUnitData()
+    {
+        UnitData data = new();
+
+        data.id = gameObject.name;
+        data.position = transform.position;
+        data.rotation = transform.rotation;
+        data.destinationLoc = destinationLoc;
+        data.finalDestinationLoc = finalDestinationLoc;
+        data.currentLocation = currentLocation;
+        data.prevRoadTile = prevRoadTile;
+        data.prevTerrainTile = prevTerrainTile;
+        data.moveOrders = pathPositions.ToList();
+        data.isMoving = isMoving;
+        data.moreToMove = moreToMove;
+        data.isBusy = isBusy;
+        data.isBeached = isBeached;
+        data.interruptedRoute = interruptedRoute;
+        data.atStop = atStop;
+        data.followingRoute = followingRoute;
+        data.isWaiting = isWaiting;
+        data.harvested = harvested;
+        data.somethingToSay = somethingToSay;
+
+        //combat
+        if (inArmy)
+        {
+            data.cityHomeBase = homeBase.cityLoc;
+            data.barracksBunk = barracksBunk;
+            data.marchPosition = marchPosition;
+            data.currentHealth = currentHealth;
+            data.baseSpeed = baseSpeed;
+            data.newlyJoined = newlyJoined;
+            data.isLeader = isLeader;
+            data.readyToMarch = readyToMarch;
+            data.atHome = atHome;
+            data.preparingToMoveOut = preparingToMoveOut;
+            data.isMarching = isMarching;
+            data.transferring = transferring;
+            data.repositioning = repositioning;
+            data.inBattle = inBattle;
+            data.attacking = attacking;
+            data.targetSearching = targetSearching;
+            data.flanking = flanking;
+            data.flankedOnce = flankedOnce;
+            data.cavalryLine = cavalryLine;
+            data.isDead = isDead;
+            data.isUpgrading = isUpgrading;
+        }
+
+        return data;
+    }
+
+    public void LoadUnitData(UnitData data)
+    {
+        transform.position = data.position;
+        transform.rotation = data.rotation;
+        destinationLoc = data.destinationLoc;
+        finalDestinationLoc = data.finalDestinationLoc;
+        currentLocation = data.currentLocation;
+        prevRoadTile = data.prevRoadTile;
+        prevTerrainTile = data.prevTerrainTile;
+        isMoving = data.isMoving;
+        if (isMoving)
+        {
+            if (data.moveOrders.Count == 0)
+                data.moveOrders.Add(world.RoundToInt(finalDestinationLoc));
+
+            MoveThroughPath(data.moveOrders);
+        }
+
+        moreToMove = data.moreToMove;
+        isBusy = data.isBusy;
+
+        //if (isBusy)
+        isBeached = data.isBeached;
+        interruptedRoute = data.interruptedRoute;
+        atStop = data.atStop;
+
+        //if (atStop)
+        followingRoute = data.followingRoute;
+
+        //if (followingRoute)
+        isWaiting = data.isWaiting;
+
+        //if (isWaiting)
+        harvested = data.harvested;
+
+        //if (harvested)
+        somethingToSay = data.somethingToSay;
+
+        //if (somethingToSay)
+        if (inArmy)
+        {
+            homeBase = world.GetCity(data.cityHomeBase);
+            barracksBunk = data.barracksBunk;
+            marchPosition = data.marchPosition;
+            currentHealth = data.currentHealth;
+
+            //if (currentHealth < healthMax)
+            baseSpeed = data.baseSpeed; //coroutine
+            newlyJoined = data.newlyJoined;
+            isLeader = data.isLeader;
+            readyToMarch = data.readyToMarch;
+            atHome = data.atHome;
+            preparingToMoveOut = data.preparingToMoveOut;
+            isMarching = data.isMarching;
+            transferring = data.transferring;
+            repositioning = data.repositioning;
+            inBattle = data.inBattle;
+            attacking = data.attacking;
+
+            //if (attacking)
+            targetSearching = data.targetSearching;
+
+            //if (targetSearching)
+            flanking = data.flanking;
+            flankedOnce = data.flankedOnce;
+            cavalryLine = data.cavalryLine;
+            isDead = data.isDead;
+            isUpgrading = data.isUpgrading;
+
+            //if (isUpgrading)
         }
     }
 }

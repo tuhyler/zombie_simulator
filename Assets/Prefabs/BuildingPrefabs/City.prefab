@@ -159,6 +159,7 @@ MonoBehaviour:
   cityBase: {fileID: 7014532266241225156}
   battleIcon: {fileID: 402408124033454827}
   housingData: {fileID: 11400000, guid: 42b13ed0d99811a47b556be96cbb0dd6, type: 2}
+  cityRenderer: {fileID: 0}
   subTransform: {fileID: 943069764017133060}
   cityNameField: {fileID: 8342028981247781059}
   heavenHighlight: {fileID: 4953528115713912327, guid: a11824c75395cb942965c0ed24f8949d,
@@ -175,10 +176,21 @@ MonoBehaviour:
   cityIcon: {fileID: 21300000, guid: cbaf4785a80e539408ffd2b8cafc56ae, type: 3}
   cityName: 
   cityLoc: {x: 0, y: 0, z: 0}
+  hasWater: 0
+  hasFreshWater: 0
+  reachedWaterLimit: 0
+  hasRocksFlat: 0
+  hasRocksHill: 0
+  hasTrees: 0
+  hasFood: 0
+  hasWool: 0
+  hasSilk: 0
+  hasClay: 0
   activeCity: 0
   hasHarbor: 0
   hasBarracks: 0
   highlighted: 0
+  harborTraining: 0
   uiCityResourceInfoPanel: {fileID: 0}
   harborLocation: {x: 0, y: 0, z: 0}
   barracksLocation: {x: 0, y: 0, z: 0}
@@ -190,8 +202,10 @@ MonoBehaviour:
   initialGrowthFood: 3
   foodConsumptionPerMinute: 0
   housingLocsAtMax: 0
+  waterMaxPop: 0
   workEthic: 1
   warehouseStorageLimit: 2000
+  tradersHere: []
   savedQueueItems: []
   savedQueueItemsNames: []
   improvementQueueLocs: []
@@ -239,42 +253,16 @@ MonoBehaviour:
   - resourceType: 2
     resourceAmount: 2
   - resourceType: 6
-    resourceAmount: 100
+    resourceAmount: 500
   - resourceType: 7
-    resourceAmount: 100
-  - resourceType: 18
-    resourceAmount: 50
-  - resourceType: 15
-    resourceAmount: 50
-  - resourceType: 16
-    resourceAmount: 2
-  - resourceType: 12
-    resourceAmount: 50
-  - resourceType: 14
-    resourceAmount: 50
-  - resourceType: 11
-    resourceAmount: 100
-  - resourceType: 19
-    resourceAmount: 50
-  - resourceType: 17
-    resourceAmount: 50
-  - resourceType: 9
-    resourceAmount: 1
-  - resourceType: 10
-    resourceAmount: 1
-  - resourceType: 23
-    resourceAmount: 1
-  - resourceType: 21
-    resourceAmount: 1
-  - resourceType: 22
-    resourceAmount: 1
-  - resourceType: 8
-    resourceAmount: 1
-  - resourceType: 26
-    resourceAmount: 10
+    resourceAmount: 500
   city: {fileID: 0}
   pauseGrowth: 0
+  growthDeclineDanger: 0
   cyclesToWait: 2
+  starvationCount: 0
+  noHousingCount: 0
+  noWaterCount: 0
 --- !u!114 &350781982696099274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,6 +310,10 @@ MonoBehaviour:
   seigeCount: 0
   strength: 0
   health: 0
+  totalSpots: []
+  openSpots: []
+  pathToTarget: []
+  pathTraveled: []
   attackingSpots: []
   movementRange: []
   cavalryRange: []

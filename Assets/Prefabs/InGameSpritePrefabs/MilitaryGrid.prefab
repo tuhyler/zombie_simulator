@@ -598,7 +598,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6249270667086199081}
   m_Layer: 0
-  m_Name: Test 1
+  m_Name: MilitaryGrid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

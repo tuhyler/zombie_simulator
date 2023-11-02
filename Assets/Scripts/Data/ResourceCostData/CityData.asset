@@ -13,30 +13,46 @@ MonoBehaviour:
   m_Name: CityData
   m_EditorClassIdentifier: 
   prefab: {fileID: 7185426163474996275, guid: f4bc35ea5c784c1419f0d93e07c35dd5, type: 3}
-  secondaryData: {fileID: 0}
-  tertiaryData: {fileID: 0}
+  secondaryData: []
+  audio: {fileID: 0}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: City
+  improvementDisplayName: 
   improvementLevel: 0
-  improvementNameAndLevel: 
-  rawMaterials: 0
+  improvementNameAndLevel: City-0
+  improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 0}
+  mapIcon: {fileID: 0}
   improvementCost: []
   consumedResources: []
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
   producedResources: []
-  producedResourceTime: 60
-  resourceType: 1
+  producedResourceTime: 
+  rawMaterials: 0
+  rawResourceType: 0
+  isResearch: 0
   terrainType: 0
+  specificTerrain: 0
   workEthicChange: 0
   maxLabor: 1
-  laborCost: 0
+  housingIncrease: 0
+  cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
-  returnProp: 0
+  replaceRocks: 0
   singleBuild: 0
+  oneTerrain: 1
+  adjustForHill: 1
+  hillAdjustment: 0.6
   buildTime: 0
   availableInitially: 0
-  locked: 1
-  workFire1Loc: {x: 0, y: 0, z: 0}
-  workFire2Loc: {x: 0, y: 0, z: 0}
-  workSmokeLoc: {x: 0, y: 0, z: 0}
+  workAnimLoop: 0
+  hideIdleMesh: 0
+  getTerrainResource: 0
+  noWalkAreas: []
