@@ -67,10 +67,10 @@ public class AudioManager : MonoBehaviour
 		}
 		else
 		{
-			if (!mute)
-			{
-				world.FindVisibleCity();
-			}
+			//if (!mute)
+			//{
+			//	world.FindVisibleCity();
+			//}
 		}
 
 	}

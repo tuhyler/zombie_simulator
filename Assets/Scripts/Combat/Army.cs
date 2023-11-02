@@ -18,8 +18,9 @@ public class Army : MonoBehaviour
     [HideInInspector]
     public int armyCount, cyclesGone, infantryCount, rangedCount, cavalryCount, seigeCount, strength, health;
     private Vector3Int enemyTarget;
-    public Vector3Int EnemyTarget { get { return enemyTarget; } }
-    private List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new(), pathTraveled = new();
+    public Vector3Int EnemyTarget { get { return enemyTarget; } set { enemyTarget = value; } }
+    [HideInInspector]
+    public List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new(), pathTraveled = new();
     [HideInInspector]
     public List<Vector3Int> attackingSpots = new(), movementRange = new(), cavalryRange = new();
     

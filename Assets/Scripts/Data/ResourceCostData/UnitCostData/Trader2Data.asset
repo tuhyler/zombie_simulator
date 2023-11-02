@@ -18,6 +18,7 @@ MonoBehaviour:
   unitName: Trader
   unitDisplayName: Cart Trader
   unitLevel: 2
+  unitNameAndLevel: Trader-2
   image: {fileID: 21300000, guid: 7dd37b564630879458f62e18a7bef051, type: 3}
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:

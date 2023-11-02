@@ -12,10 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: GrasslandTerrain
   m_EditorClassIdentifier: 
+  terrainName: GrasslandTerrain
+  prefabs:
+  - {fileID: 608616143501096269, guid: 06e4506da3202984d9fbc3005d1b3810, type: 3}
+  decors:
+  - {fileID: 0}
+  - {fileID: 9073605623283122857, guid: b46832f06bbb3ef439028bb021b5ae44, type: 3}
+  - {fileID: 9073605623283122857, guid: 9f80b0b37224d0543a8cc0ee69633cf3, type: 3}
+  - {fileID: 9073605623283122857, guid: de8ace443689126458de5a893508f4a5, type: 3}
+  - {fileID: 9073605623283122857, guid: 2dc685712af5ad24c95d5e30df94db69, type: 3}
   title: Grassland
-  roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   grassland: 1
+  desert: 0
   walkable: 1
   sailable: 0
   isLand: 1
@@ -27,3 +36,4 @@ MonoBehaviour:
   rawResourceType: 1
   resourceType: 2
   keepProp: 0
+  hasRocks: 0

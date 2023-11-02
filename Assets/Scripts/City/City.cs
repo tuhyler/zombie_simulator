@@ -15,7 +15,7 @@ public class City : MonoBehaviour
     //private int housingCenterCount;
     //private CityImprovement initialHouse;
     //private GameObject currentHouse;
-    private CityBuilderManager cityBuilderManager;
+    //private CityBuilderManager cityBuilderManager;
     private List<MeshFilter> cityMeshFilters = new();
     public List<MeshFilter> CityMeshFilters { get { return cityMeshFilters; } }
     private Dictionary<string, (MeshFilter[], GameObject)> buildingMeshes = new(); //for removing meshes
@@ -314,14 +314,14 @@ public class City : MonoBehaviour
         //CombineFire();
     }
 
-    public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
-    {
-        this.cityBuilderManager = cityBuilderManager;
-    }
+    //public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
+    //{
+    //    this.cityBuilderManager = cityBuilderManager;
+    //}
 
     public void UpdateResourceInfo()
     {
-        cityBuilderManager.UpdateResourceInfo();
+        world.cityBuilderManager.UpdateResourceInfo();
     }
 
     public void AddToMeshFilterList(GameObject go, MeshFilter[] meshFilter, bool building, Vector3Int loc, string name = "")
@@ -576,17 +576,57 @@ public class City : MonoBehaviour
         resourceManager.SpendResource(housingData.improvementCost, cityLoc);
         housingCount += housingData.housingIncrease;
         string buildingName = housingData.improvementName + index.ToString();
-        world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, buildingName);
+		improvement.PlaySmokeSplashBuilding();
+		world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, buildingName);
         //for tweening
         housing.transform.localScale = Vector3.zero;
         LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { 
-            cityBuilderManager.CombineMeshes(this, subTransform, upgrade); improvement.SetInactive(); cityBuilderManager.ToggleBuildingHighlight(true);
+            world.cityBuilderManager.CombineMeshes(this, subTransform, upgrade); improvement.SetInactive(); world.cityBuilderManager.ToggleBuildingHighlight(true);
         });
     }
 
-    public void CombineFire()
+    //for loading up hosuing
+	public void LoadHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, int houseIndex)
+	{
+		houseCount++;
+
+		//seeing which house will be build first
+		Vector3 houseLoc = cityLoc;
+		int index = houseIndex;
+
+		houseLoc += housingLocs[index];
+		
+		if (houseCount == housingLocs.Count)
+			housingLocsAtMax = true;
+
+		if (isHill)
+			houseLoc.y += housingData.hillAdjustment;
+
+		Vector3 direction = houseLoc - cityLoc;
+		direction.y = 0;
+		Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
+
+		GameObject housing = Instantiate(housingData.prefab, houseLoc, endRotation); //underground temporarily
+																					 //housing.transform.position = houseLoc;
+		CityImprovement improvement = housing.GetComponent<CityImprovement>();
+		housingArray[index] = improvement;
+		HouseLightCheck();
+		//improvement.DestroyUpgradeSplash();
+		improvement.loc = cityLoc;
+		improvement.housingIndex = index;
+
+		housingCount += housingData.housingIncrease;
+		string buildingName = housingData.improvementName + index.ToString();
+		world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, buildingName);
+		
+		world.cityBuilderManager.CombineMeshes(this, subTransform, false);
+		improvement.SetInactive();
+	}
+
+
+	public void CombineFire()
     {
-		cityBuilderManager.CombineMeshes(this, subTransform, false);
+		world.cityBuilderManager.CombineMeshes(this, subTransform, false);
 	}
 
     public string DecreaseHousingCount(int index)
@@ -621,8 +661,8 @@ public class City : MonoBehaviour
         if (waterMaxPop <= cityPop.CurrentPop)
             reachedWaterLimit = true;
 
-        if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
-            cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, true, resourceManager);
+        if (activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
+            world.cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, true, resourceManager);
 
         //if (cityPop.CurrentPop > 1)
         //    resourceManager.IncreaseFoodConsumptionPerTurn(true);
@@ -637,7 +677,7 @@ public class City : MonoBehaviour
                 AutoAssignmentsForLabor();
                 if (activeCity)
                 {
-                    cityBuilderManager.UpdateCityLaborUIs();
+                    world.cityBuilderManager.UpdateCityLaborUIs();
                 }
             }
 
@@ -650,8 +690,8 @@ public class City : MonoBehaviour
                     if (activeCity)
                     {
                         CityGrowthProgressBarSetActive(true);
-                        cityBuilderManager.abandonCityButton.interactable = false;
-                        cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+                        world.cityBuilderManager.abandonCityButton.interactable = false;
+                        world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
                     }
                     cityNameField.ToggleVisibility(true);
                     resourceManager.SellResources();
@@ -688,8 +728,8 @@ public class City : MonoBehaviour
 		if (waterMaxPop > cityPop.CurrentPop)
 			reachedWaterLimit = false;
 
-		if (activeCity && cityBuilderManager.uiUnitBuilder.activeStatus)
-            cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, false, resourceManager);
+		if (activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
+            world.cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, false, resourceManager);
 
         if (cityPop.CurrentPop <= 3)
         {
@@ -707,7 +747,7 @@ public class City : MonoBehaviour
                 if (activeCity)
                 {
                     CityGrowthProgressBarSetActive(false);
-                    cityBuilderManager.abandonCityButton.interactable = true;
+                    world.cityBuilderManager.abandonCityButton.interactable = true;
                 }
             }
             else if (cityPop.CurrentPop == 3)
@@ -974,8 +1014,8 @@ public class City : MonoBehaviour
 
     public void CheckBuildOptionsResource(ResourceType type, int prevAmount, int currentAmount, bool pos)
     {
-        if (cityBuilderManager.buildOptionsActive)
-            cityBuilderManager.activeBuilderHandler.UpdateBuildOptions(type, prevAmount, currentAmount, pos, resourceManager);
+        if (world.cityBuilderManager.buildOptionsActive)
+            world.cityBuilderManager.activeBuilderHandler.UpdateBuildOptions(type, prevAmount, currentAmount, pos, resourceManager);
     }
 
     public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)
@@ -1031,8 +1071,8 @@ public class City : MonoBehaviour
 		if (activeCity)
         {
 			CityGrowthProgressBarSetActive(true);
-			cityBuilderManager.abandonCityButton.interactable = false;
-			cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+			world.cityBuilderManager.abandonCityButton.interactable = false;
+			world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
 		}
 
 		co = StartCoroutine(FoodConsumptionCoroutine());
@@ -1239,7 +1279,7 @@ public class City : MonoBehaviour
         {
             ChangeResourcesWorked(resourceType, 1);
             int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
-            cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
+            world.cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
         }
         //}
 
@@ -1294,7 +1334,7 @@ public class City : MonoBehaviour
             {
                 TerrainData td = world.GetTerrainDataAt(tile);
 
-                if (td.terrainData.resourceType == type)
+                if (td.resourceType == type)
                 {
                     CheckResourceType(type, true);
                     break;
@@ -1401,7 +1441,7 @@ public class City : MonoBehaviour
         else if (nextItem.improvementData != null)
             resourceCosts = new(nextItem.improvementData.improvementCost);
 
-        resourceManager.SetQueueResources(resourceCosts, cityBuilderManager);
+        resourceManager.SetQueueResources(resourceCosts, world.cityBuilderManager);
     }
 
     public UIQueueItem GetBuildInfo()
@@ -1485,4 +1525,149 @@ public class City : MonoBehaviour
         }
         Destroy(uiTimeProgressBar.gameObject);
     }
+
+    public CityData SaveCityData()
+    {
+        CityData data = new();
+
+        data.name = cityName;
+        data.location = cityLoc;
+        data.reachedWaterLimit = reachedWaterLimit;
+        data.harborTraining = harborTraining;
+        data.autoAssignLabor = autoAssignLabor;
+        data.hasWater = hasWater;
+        data.hasFreshWater = hasFreshWater;
+        data.hasRocksFlat = hasRocksFlat;
+        data.hasRocksHill = hasRocksHill;
+        data.hasTrees = hasTrees;
+        data.hasFood = hasFood;
+        data.hasWool = hasWool;
+        data.hasSilk = hasSilk;
+        data.hasClay = hasClay;
+        data.hasBarracks = hasBarracks;
+        data.hasHarbor = hasHarbor;
+		data.waterMaxPop = waterMaxPop;
+        data.currentPop = cityPop.CurrentPop;
+        data.unusedLabor = cityPop.UnusedLabor;
+        data.usedLabor = cityPop.UsedLabor;
+        data.resourcePriorities = resourcePriorities;
+
+        //resource manager
+        data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
+		data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
+        data.fullInventory = resourceManager.fullInventory;
+		data.resourceDict = resourceManager.ResourceDict;
+        data.resourcePriceDict = resourceManager.ResourcePriceDict;
+        data.resourceSellDict = resourceManager.ResourceSellDict;
+        data.resourceMinHoldDict = resourceManager.ResourceMinHoldDict;
+        data.resourceSellHistoryDict = resourceManager.ResourceSellHistoryDict;
+        data.pauseGrowth = resourceManager.pauseGrowth;
+        data.growthDeclineDanger = resourceManager.growthDeclineDanger;
+        data.starvationCount = resourceManager.starvationCount;
+        data.noHousingCount = resourceManager.noHousingCount;
+        data.noWaterCount = resourceManager.noWaterCount;
+        data.cycleCount = resourceManager.CycleCount;
+        data.resourceGridDict = resourceGridDict;
+
+        List<string> buildingList = world.GetBuildingListForCity(cityLoc);
+        //for buildings
+        for (int i = 0; i < buildingList.Count; i++)
+            data.cityBuildings.Add(world.GetBuildingData(cityLoc, buildingList[i]).SaveData());
+
+		//army data
+		if (hasBarracks)
+        {
+            data.armyForward = army.forward;
+            data.armyAttackZone = army.attackZone;
+            data.enemyTarget = army.EnemyTarget;
+            data.cyclesGone = army.cyclesGone;
+            data.armyPathToTarget = army.pathToTarget;
+            data.armyPathTraveled = army.pathTraveled;
+            data.armyAttackingSpots = army.attackingSpots;
+            data.armyMovementRange = army.movementRange;
+            data.armyCavalryRange = army.cavalryRange;
+            data.isEmpty = army.isEmpty;
+            data.isFull = army.isFull;
+            data.isTransferring = army.isTransferring;
+            data.isRepositioning = army.isRepositioning;
+            data.traveling = army.traveling;
+            data.inBattle = army.inBattle;
+            data.returning = army.returning;
+            data.atHome = army.atHome;
+            data.enemyReady = army.enemyReady;
+            data.issueRefund = army.issueRefund;
+        }
+
+        return data;
+    }
+
+    public void LoadCityData(CityData data)
+    {
+        cityName = data.name;
+        cityLoc = data.location;
+        reachedWaterLimit = data.reachedWaterLimit;
+        harborTraining = data.harborTraining;
+        autoAssignLabor = data.autoAssignLabor;
+		hasWater = data.hasWater;
+		hasFreshWater = data.hasFreshWater;
+		hasRocksFlat = data.hasRocksFlat;
+		hasRocksHill = data.hasRocksHill;
+		hasTrees = data.hasTrees;
+		hasFood = data.hasFood;
+		hasWool = data.hasWool;
+		hasSilk = data.hasSilk;
+		hasClay = data.hasClay;
+        hasBarracks = data.hasBarracks;
+        hasHarbor = data.hasHarbor;
+        waterMaxPop = data.waterMaxPop;
+		cityPop.CurrentPop = data.currentPop;
+        cityPop.UnusedLabor = data.unusedLabor;
+        cityPop.UsedLabor = data.usedLabor;
+        resourcePriorities = data.resourcePriorities;
+
+        //resource manager
+        warehouseStorageLimit = data.warehouseStorageLimit;
+        resourceManager.ResourceStorageLimit = data.warehouseStorageLimit;
+        resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
+        resourceManager.fullInventory = data.fullInventory;
+        resourceManager.ResourceDict = data.resourceDict;
+        resourceManager.ResourcePriceDict = data.resourcePriceDict;
+        resourceManager.ResourceSellDict = data.resourceSellDict;
+        resourceManager.ResourceMinHoldDict = data.resourceMinHoldDict;
+        resourceManager.ResourceSellHistoryDict = data.resourceSellHistoryDict;
+        resourceManager.pauseGrowth = data.pauseGrowth;
+        resourceManager.growthDeclineDanger = data.growthDeclineDanger;
+		resourceManager.starvationCount = data.starvationCount;
+		resourceManager.noHousingCount = data.noHousingCount;
+		resourceManager.noWaterCount = data.noWaterCount;
+		resourceManager.CycleCount = data.cycleCount;
+		resourceGridDict = data.resourceGridDict;
+
+		//army data
+        if (hasBarracks)
+        {
+		    army.forward = data.armyForward;
+		    army.attackZone = data.armyAttackZone;
+		    army.EnemyTarget = data.enemyTarget;
+			army.cyclesGone = data.cyclesGone;
+			army.pathToTarget = data.armyPathToTarget;
+			army.pathTraveled = data.armyPathTraveled;
+			army.attackingSpots = data.armyAttackingSpots;
+			army.movementRange = data.armyMovementRange;
+			army.cavalryRange = data.armyCavalryRange;
+			army.isEmpty = data.isEmpty;
+			army.isFull = data.isFull;
+			army.isTransferring = data.isTransferring;
+			army.isRepositioning = data.isRepositioning;
+			army.traveling = data.traveling;
+			army.inBattle = data.inBattle;
+			army.returning = data.returning;
+			army.atHome = data.atHome;
+			army.enemyReady = data.enemyReady;
+			army.issueRefund = data.issueRefund;
+
+            if (army.traveling || army.inBattle || army.enemyReady)
+                army.targetCamp = world.GetEnemyCamp(army.EnemyTarget);
+		}
+	}
 }

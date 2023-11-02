@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: JungleTerrain
   m_EditorClassIdentifier: 
+  terrainName: JungleTerrain
+  prefabs:
+  - {fileID: 608616143501096269, guid: 06e4506da3202984d9fbc3005d1b3810, type: 3}
+  decors:
+  - {fileID: 9073605623283122857, guid: d9ebf97fa0239104c9b2721b3f2aed90, type: 3}
   title: Jungle
-  roadPrefab: {fileID: 9073605623283122857, guid: 5fd48facefa45864097549b52c8cabbf,
-    type: 3}
   clearedForestData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
   grassland: 1
+  desert: 0
   walkable: 1
   sailable: 0
   isLand: 1
@@ -28,3 +32,4 @@ MonoBehaviour:
   rawResourceType: 4
   resourceType: 6
   keepProp: 0
+  hasRocks: 0

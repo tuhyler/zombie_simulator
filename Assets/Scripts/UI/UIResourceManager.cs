@@ -86,7 +86,7 @@ public class UIResourceManager : MonoBehaviour
         if (v)
         {
             this.city = city;
-            SetCityInfo(city.cityName, city.warehouseStorageLimit, city.ResourceManager.GetResourceStorageLevel);
+            SetCityInfo(city.cityName, city.warehouseStorageLimit, city.ResourceManager.ResourceStorageLevel);
             activeCells = 0;
             buttonDown.gameObject.SetActive(false);
 

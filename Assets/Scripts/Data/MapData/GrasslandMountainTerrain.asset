@@ -12,8 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
   m_Name: GrasslandMountainTerrain
   m_EditorClassIdentifier: 
+  terrainName: GrasslandMountainTerrain
+  prefabs:
+  - {fileID: 5677375415287477985, guid: 7e31725cbb88d1c4087229a45da4bc10, type: 3}
+  - {fileID: 4088824286547333909, guid: 989852db0ede0a64786540ecfa60e400, type: 3}
+  - {fileID: 4632051853856769168, guid: 47b612d09e0bd86428f6ef906d15fa9c, type: 3}
+  - {fileID: 103996674289910368, guid: 417f0913fc58b014a8ebd0cadfba206c, type: 3}
+  decors:
+  - {fileID: 0}
   title: Mountain
-  roadPrefab: {fileID: 0}
   clearedForestData: {fileID: 0}
   grassland: 1
   desert: 0
@@ -28,3 +35,4 @@ MonoBehaviour:
   rawResourceType: 0
   resourceType: 0
   keepProp: 0
+  hasRocks: 0

@@ -18,6 +18,7 @@ MonoBehaviour:
   unitName: Boat Trader
   unitDisplayName: Large Sail Trader
   unitLevel: 2
+  unitNameAndLevel: Boat Trader-2
   image: {fileID: 21300000, guid: 8ae616c7b21c83149a25565fa87efa77, type: 3}
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:

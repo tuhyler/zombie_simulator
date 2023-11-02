@@ -18,6 +18,7 @@ MonoBehaviour:
   unitName: Cavalry
   unitDisplayName: Horseman
   unitLevel: 1
+  unitNameAndLevel: Cavalry-1
   image: {fileID: 21300000, guid: 0bc86cc0a006dd444ae89ecd41da2d3b, type: 3}
   mapIcon: {fileID: 21300000, guid: d35d180233d47c645916450be3c1ac0d, type: 3}
   unitCost:

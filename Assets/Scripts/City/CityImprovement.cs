@@ -24,7 +24,7 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool initialCityHouse, queued, building, isConstruction, isUpgrading, canBeUpgraded, isTraining;
+    public bool queued, building, isConstruction, isUpgrading, canBeUpgraded, isTraining;
     private List<ResourceValue> upgradeCost = new();
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
     [HideInInspector]
@@ -119,7 +119,7 @@ public class CityImprovement : MonoBehaviour
     {
         this.td = td;
         mapIcon.sprite = improvementData.mapIcon;
-        if (td.terrainData.resourceType != ResourceType.Food && td.terrainData.resourceType != ResourceType.None && td.terrainData.resourceType != ResourceType.Lumber && td.terrainData.resourceType != ResourceType.Fish)
+        if (td.resourceType != ResourceType.Food && td.resourceType != ResourceType.None && td.resourceType != ResourceType.Lumber && td.resourceType != ResourceType.Fish)
             mapIcon.transform.position += new Vector3(0, 0, 0.5f);
     }
 
@@ -567,5 +567,40 @@ public class CityImprovement : MonoBehaviour
 		city.UpdateCityBools(producedResource, ResourceHolder.Instance.GetRawResourceType(producedResource), td.terrainData.type);
         city.world.uiCityImprovementTip.CloseCheck(this);
         city.world.cityBuilderManager.RemoveImprovement(loc, this, city, false);
+    }
+
+    public CityImprovementData SaveData()
+    {
+        CityImprovementData data = new();
+
+        data.name = improvementData.improvementNameAndLevel;
+        data.location = loc;
+        data.queued = queued;
+        data.isConstruction = isConstruction;
+        data.isUpgrading = isUpgrading;
+        data.isTraining = isTraining;
+        data.housingIndex = housingIndex;
+        data.laborCost = laborCost;
+        data.producedResourceIndex = producedResourceIndex;
+        data.producedResource = producedResource;
+
+        return data;
+    }
+
+    public void LoadData(CityImprovementData data)
+    {
+        loc = data.location;
+        queued = data.queued;
+        isConstruction = data.isConstruction;
+        isUpgrading = data.isUpgrading;
+
+        //if (isUpgrading)
+        isTraining = data.isTraining;
+
+        //if (isTraining)
+        housingIndex = data.housingIndex;
+        laborCost = data.laborCost;
+        producedResourceIndex = data.producedResourceIndex;
+        producedResource = data.producedResource;
     }
 }
