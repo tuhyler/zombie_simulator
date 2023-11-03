@@ -125,7 +125,7 @@ PrefabInstance:
     - target: {fileID: 5233621569976294960, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5595022816629027392, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -173,6 +173,11 @@ PrefabInstance:
       propertyPath: minimapIconMesh
       value: 
       objectReference: {fileID: 4061181082955895313}
+    - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: rawResourceType
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5902d28cc6acff84d9befec7c10a1d34, type: 3}
 --- !u!4 &2322892202371620070 stripped

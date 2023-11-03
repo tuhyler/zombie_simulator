@@ -10,17 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: GrasslandHillGoldTerrain
+  m_Name: DesertHillResourceTerrain
   m_EditorClassIdentifier: 
-  terrainName: GrasslandHillGoldTerrain
+  terrainName: DesertHillResourceTerrain
+  tag: Hill
   prefabs:
-  - {fileID: 608616143501096269, guid: 73000a15118557a4695bbab999efcf45, type: 3}
+  - {fileID: 608616143501096269, guid: df7ca8ac4304f2d4a8378557df401442, type: 3}
   decors:
+  - {fileID: 1941623388544208782, guid: c07ada8850d13394cabad60d11421dcb, type: 3}
+  - {fileID: 1941623388544208782, guid: 1265c508be199ab42928c357d557b26a, type: 3}
   - {fileID: 1941623388544208782, guid: 56b22681ab7101c4dacf816658aa3e5e, type: 3}
   title: Hill
   clearedForestData: {fileID: 0}
-  grassland: 1
-  desert: 0
+  grassland: 0
+  desert: 1
   walkable: 1
   sailable: 0
   isLand: 1
@@ -28,8 +31,7 @@ MonoBehaviour:
   movementCost: 20
   type: 6
   specificTerrain: 0
-  terrainDesc: 2
-  rawResourceType: 3
-  resourceType: 26
+  terrainDesc: 3
+  rawResourceType: 0
+  resourceType: 0
   keepProp: 1
-  hasRocks: 1

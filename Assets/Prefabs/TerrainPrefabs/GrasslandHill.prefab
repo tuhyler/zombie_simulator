@@ -15,7 +15,7 @@ PrefabInstance:
     - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_TagString
-      value: Forest Hill
+      value: Hill
       objectReference: {fileID: 0}
     - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -45,7 +45,7 @@ PrefabInstance:
     - target: {fileID: 5233621569976294960, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5595022816629027392, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CoastTerrain
   m_EditorClassIdentifier: 
   terrainName: CoastTerrain
+  tag: Water
   prefabs:
   - {fileID: 8166236539334904498, guid: b0bbac0aa2effbc448f685ddd2742895, type: 3}
   - {fileID: 5867581104419295757, guid: b36d11a109f2f944182c810b26925b45, type: 3}

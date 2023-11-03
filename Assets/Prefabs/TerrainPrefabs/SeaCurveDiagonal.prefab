@@ -107,6 +107,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: SeaCurveDiagonal
       objectReference: {fileID: 0}
+    - target: {fileID: 2466234295217164166, guid: cf88eb4e5c462594ca288fa073e479f8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5287164924357551451, guid: cf88eb4e5c462594ca288fa073e479f8,
         type: 3}
       propertyPath: m_RootOrder
@@ -160,6 +165,11 @@ PrefabInstance:
     - target: {fileID: 5287164924357551451, guid: cf88eb4e5c462594ca288fa073e479f8,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6167328160135489842, guid: cf88eb4e5c462594ca288fa073e479f8,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

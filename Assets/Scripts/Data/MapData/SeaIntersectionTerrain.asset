@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SeaIntersectionTerrain
   m_EditorClassIdentifier: 
   terrainName: SeaIntersectionTerrain
+  tag: Water
   prefabs:
   - {fileID: 1082500630910529086, guid: 80259e759bbee2e4eb233e9b247ab8ab, type: 3}
   - {fileID: 7874710709089217200, guid: 9717eecb8e655ec40a712a679c8418dd, type: 3}

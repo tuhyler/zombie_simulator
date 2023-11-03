@@ -14,11 +14,13 @@ public class GameLoader : MonoBehaviour
 	[HideInInspector]
 	public GameData gameData;
 	[HideInInspector]
-	public bool isDone;
+	public bool isLoading, isDone;
 
 	private void Awake()
 	{
 		Instance = this;
+
+		//LoadData();
 	}
 
 	public void SaveGame()
@@ -30,8 +32,8 @@ public class GameLoader : MonoBehaviour
 		//GameData gameData = new();
 
 		//Terrain
-		//foreach (TerrainData td in finiteResourceList)
-		//	gameData.allTerrain[td.TileCoordinates].resourceAmount = td.resourceAmount;
+		foreach (TerrainData td in world.finiteResourceList)
+			gameData.allTerrain[td.TileCoordinates].resourceAmount = td.resourceAmount;
 
 		gameData.allCities.Clear();
 		//foreach (City city in cityDict.Values)
@@ -54,6 +56,8 @@ public class GameLoader : MonoBehaviour
 
 	public void LoadData()
 	{
+		isLoading = true;
+		
 		foreach (Transform go in world.terrainHolder)
 			Destroy(go.gameObject);
 
@@ -67,6 +71,7 @@ public class GameLoader : MonoBehaviour
 		world.dayNightCycle.timeODay = gameData.timeODay;
 
 		world.GenerateMap(gameData.allTerrain);
+		world.GenerateTradeCenters(gameData.allTradeCenters);
 		//      //create trade centers
 
 		//      WorldStartOrders();
@@ -99,6 +104,7 @@ public class GameLoader : MonoBehaviour
 		yield return new WaitForSeconds(0.5f);
 
 		isDone = true;
+		isLoading = false;
 	}
 
 

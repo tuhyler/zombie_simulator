@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DesertMountainTerrain
   m_EditorClassIdentifier: 
   terrainName: DesertMountainTerrain
+  tag: Forest Hill
   prefabs:
   - {fileID: 4260772404836278617, guid: d7e6df89eba4929478bd6591c8a32759, type: 3}
   - {fileID: 6460864204287615191, guid: aa60328909ba45140857d3561d7905e1, type: 3}
@@ -22,8 +23,8 @@ MonoBehaviour:
   - {fileID: 0}
   title: Mountain
   clearedForestData: {fileID: 0}
-  grassland: 1
-  desert: 0
+  grassland: 0
+  desert: 1
   walkable: 0
   sailable: 0
   isLand: 1
@@ -35,4 +36,3 @@ MonoBehaviour:
   rawResourceType: 0
   resourceType: 0
   keepProp: 0
-  hasRocks: 0

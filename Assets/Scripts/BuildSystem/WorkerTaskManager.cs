@@ -612,7 +612,7 @@ public class WorkerTaskManager : MonoBehaviour
             if (tData.terrainData.type == TerrainType.Coast)
                 city.hasWater = true;
 
-            if (tData.terrainData.hasRocks)
+            if (tData.rawResourceType == RawResourceType.Rocks)
             {
                 if (tData.isHill)
                     city.hasRocksHill = true;

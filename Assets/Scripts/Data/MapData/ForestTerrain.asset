@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ForestTerrain
   m_EditorClassIdentifier: 
   terrainName: ForestTerrain
+  tag: Forest
   prefabs:
   - {fileID: 608616143501096269, guid: 06e4506da3202984d9fbc3005d1b3810, type: 3}
   decors:

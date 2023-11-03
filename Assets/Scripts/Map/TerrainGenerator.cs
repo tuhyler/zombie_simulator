@@ -64,8 +64,8 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private TerrainDataSO coastSO;
     [SerializeField]
-    private TerrainDataSO desertClaySO, desertFloodPlainsSO, desertHillStoneSO, desertHillSO, desertMountainSO, desertSO, forestHillSO, forestSO, grasslandClaySO, grasslandCottonSO, grasslandFloodPlainsSO, 
-        grasslandGoldSO, grasslandHillGoldSO, grasslandHillJewelSO, grasslandHillStoneSO, grasslandHillSO, grasslandJewelSO, grasslandMountainSO, grasslandSilkSO, grasslandStoneSO, grasslandSO, grasslandWoolSO, 
+    private TerrainDataSO desertFloodPlainsSO, desertHillResourceSO, desertHillSO, desertMountainSO, desertResourceSO, desertSO, forestHillSO, forestSO, 
+        grasslandFloodPlainsSO, grasslandHillResourceSO, grasslandHillSO, grasslandMountainSO, grasslandResourceSO, grasslandSO, 
         jungleHillSO, jungleSO, riverSO, seaIntersectionSO, seaSO, swampSO;
 
     //private GameObject[] grasslandMountains, desertMountains, grasslandProps, forestProps, jungleProps, swampProps, desertProps,

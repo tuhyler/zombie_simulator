@@ -1303,7 +1303,7 @@ public class City : MonoBehaviour
                 {
 				    TerrainData td = world.GetTerrainDataAt(tile);
 
-                    if (td.terrainData.rawResourceType == rawResourceType)
+                    if (td.rawResourceType == rawResourceType)
                     {
                         hasRocksFlat = true;
                         break;
@@ -1318,7 +1318,7 @@ public class City : MonoBehaviour
 				{
 					TerrainData td = world.GetTerrainDataAt(tile);
 
-					if (td.terrainData.rawResourceType == rawResourceType)
+					if (td.rawResourceType == rawResourceType)
                     {
 						hasRocksHill = true;
                         break;

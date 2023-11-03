@@ -7,6 +7,7 @@ public class TerrainSaveData
 	public string name;
 	public Vector3Int tileCoordinates;
 	public Quaternion rotation, propRotation;
+	public RawResourceType rawResourceType;
 	public ResourceType resourceType;
 
 	public bool showProp = true;
