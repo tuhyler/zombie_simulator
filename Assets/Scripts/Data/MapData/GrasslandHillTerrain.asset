@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GrasslandHillTerrain
   m_EditorClassIdentifier: 
   terrainName: GrasslandHillTerrain
+  tag: Hill
   prefabs:
   - {fileID: 608616143501096269, guid: 73000a15118557a4695bbab999efcf45, type: 3}
   decors:

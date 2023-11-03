@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GrasslandFloodPlainsTerrain
   m_EditorClassIdentifier: 
   terrainName: GrasslandFloodPlainsTerrain
+  tag: Flatland
   prefabs:
   - {fileID: 608616143501096269, guid: c08770104436a0f4fa8c6e44489dd406, type: 3}
   decors:

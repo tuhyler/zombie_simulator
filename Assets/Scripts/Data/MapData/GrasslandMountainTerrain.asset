@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GrasslandMountainTerrain
   m_EditorClassIdentifier: 
   terrainName: GrasslandMountainTerrain
+  tag: Forest Hill
   prefabs:
   - {fileID: 5677375415287477985, guid: 7e31725cbb88d1c4087229a45da4bc10, type: 3}
   - {fileID: 4088824286547333909, guid: 989852db0ede0a64786540ecfa60e400, type: 3}

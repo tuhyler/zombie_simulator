@@ -2163,7 +2163,7 @@ public class CityBuilderManager : MonoBehaviour
                 
                 if (world.IsTileOpenCheck(tile))
                 {
-                    if (improvementData.rawMaterials && td.terrainData.rawResourceType == improvementData.rawResourceType)
+                    if (improvementData.rawMaterials && td.rawResourceType == improvementData.rawResourceType)
                     {
                         if (improvementData.oneTerrain && td.terrainData.type != improvementData.terrainType)
                             continue;
@@ -2718,7 +2718,7 @@ public class CityBuilderManager : MonoBehaviour
                 td.ShowProp(false);
 			}
 
-            if (td.terrainData.hasRocks)
+            if (td.rawResourceType == RawResourceType.Rocks)
                 td.RocksCheck();
             
             if (improvementData.singleBuild)
@@ -3482,7 +3482,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             Vector3Int tile = queuedItem.buildLoc + city.cityLoc;
 
-            if (world.IsBuildLocationTaken(tile) || world.IsRoadOnTerrain(tile) || queuedItem.improvementData.rawResourceType != world.GetTerrainDataAt(tile).terrainData.rawResourceType)
+            if (world.IsBuildLocationTaken(tile) || world.IsRoadOnTerrain(tile) || queuedItem.improvementData.rawResourceType != world.GetTerrainDataAt(tile).rawResourceType)
             {
                 city.GoToNextItemInQueue();
                 if (uiQueueManager.CheckIfBuiltItemIsQueued(tile, queuedItem.buildLoc, false, queuedItem.improvementData, city))

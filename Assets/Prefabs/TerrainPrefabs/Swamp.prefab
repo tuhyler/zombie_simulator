@@ -112,6 +112,11 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Forest
       objectReference: {fileID: 0}
+    - target: {fileID: 5233621569976294960, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7687956695361648898, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_RootOrder

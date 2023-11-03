@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SeaTerrain
   m_EditorClassIdentifier: 
   terrainName: SeaTerrain
+  tag: Water
   prefabs:
   - {fileID: 7699209488126057301, guid: 0ea3403f37c1d744795c3431abbcb834, type: 3}
   decors:

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SwampTerrain
   m_EditorClassIdentifier: 
   terrainName: SwampTerrain
+  tag: Forest
   prefabs:
   - {fileID: 608616143501096269, guid: bde44bafef687604fb22cc1d09d0f6d0, type: 3}
   decors:

@@ -16,10 +16,14 @@ public class TradeCenter : MonoBehaviour
     private GameObject nameMap;
     [SerializeField]
     private List<Light> nightLights = new();
+    [SerializeField]
+    private GameObject tradeCenterPrefab;
 
     //basic info
     [HideInInspector]
     public string tradeCenterName;
+    [HideInInspector]
+    public int cityPop;
     [HideInInspector]
     public Vector3Int harborLoc, mainLoc;
     [HideInInspector]
@@ -91,21 +95,25 @@ public class TradeCenter : MonoBehaviour
 
     public void SetPop(int pop)
     {
+        cityPop = pop;
         nameField.SetCityPop(pop);
     }
 
-    public void ClaimSpotInWorld(int increment)
+    public void ClaimSpotInWorld(int increment, bool loading)
     {
-        mainLoc = world.RoundToInt(transform.position);
-        harborLoc = mainLoc;
-        if (transform.rotation.eulerAngles.y == 0)
-            harborLoc.z += -increment;
-        else if (transform.rotation.eulerAngles.y == 90)
-            harborLoc.x += -increment;
-        else if (transform.rotation.eulerAngles.y == 180)
-            harborLoc.z += increment;
-        else if (transform.rotation.eulerAngles.y == 270)
-            harborLoc.x += increment;
+        if (!loading)
+        {
+            mainLoc = world.RoundToInt(transform.position);
+            harborLoc = mainLoc;
+            if (transform.rotation.eulerAngles.y == 0)
+                harborLoc.z += -increment;
+            else if (transform.rotation.eulerAngles.y == 90)
+                harborLoc.x += -increment;
+            else if (transform.rotation.eulerAngles.y == 180)
+                harborLoc.z += increment;
+            else if (transform.rotation.eulerAngles.y == 270)
+                harborLoc.x += increment;
+        }
 
         world.AddToCityLabor(mainLoc, gameObject);
         world.AddStructure(mainLoc, gameObject);
@@ -215,4 +223,35 @@ public class TradeCenter : MonoBehaviour
 
         highlight.DisableHighlight();
     }
+
+    public void SetData()
+    {
+
+    }
+
+    public TradeCenterData SaveData()
+    {
+        TradeCenterData data = new();
+        
+        data.mainLoc = mainLoc;
+        data.harborLoc = harborLoc;
+        data.rotation = transform.rotation;
+        data.prefab = tradeCenterPrefab;
+        data.name = tradeCenterName;
+        data.cityPop = cityPop;
+        data.isDiscovered = isDiscovered;
+
+        return data;
+    }
+
+    public void LoadData(TradeCenterData data)
+    {
+		mainLoc = data.mainLoc;
+		harborLoc = data.harborLoc;
+		transform.rotation = data.rotation;
+		tradeCenterPrefab = data.prefab;
+		//tradeCenterName = data.name; //done elsewhere
+  //      cityPop = data.cityPop;
+		isDiscovered = data.isDiscovered;
+	}
 }

@@ -6,6 +6,7 @@ using UnityEngine;
 public class TerrainDataSO : ScriptableObject
 {
     public string terrainName;
+    public string tag;
     public List<GameObject> prefabs;
     public List<GameObject> decors;
     public string title;
@@ -23,7 +24,7 @@ public class TerrainDataSO : ScriptableObject
     public RawResourceType rawResourceType;
     public ResourceType resourceType;
     public bool keepProp = false;
-    public bool hasRocks = false;
+    //public bool hasRocks = false;
 
     public void MovementCostCheck()
     {

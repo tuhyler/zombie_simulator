@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DesertHillTerrain
   m_EditorClassIdentifier: 
   terrainName: DesertHillTerrain
+  tag: Hill
   prefabs:
   - {fileID: 608616143501096269, guid: df7ca8ac4304f2d4a8378557df401442, type: 3}
   decors:

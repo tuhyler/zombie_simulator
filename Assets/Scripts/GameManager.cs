@@ -7,36 +7,38 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public GameObject loadingScreen;
+	public bool isLoading;
 	private List<AsyncOperation> scenesLoading = new();
 
 	private void Awake()
 	{
 		Instance = this;
 
-		//SceneManager.LoadSceneAsync("LoadingScreen", LoadSceneMode.Additive);
+		SceneManager.LoadSceneAsync((int)SceneIndexes.TITLE_SCREEN, LoadSceneMode.Additive);
+		SceneManager.UnloadSceneAsync((int)SceneIndexes.MANAGER);
 	}
 
 	public void NewGame()
 	{
 		loadingScreen.SetActive(true);
 
-		scenesLoading.Add(SceneManager.LoadSceneAsync("ScarcityMainMap", LoadSceneMode.Additive));
-		StartCoroutine(GetSceneLoadProgress());
+		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
+		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
+		StartCoroutine(GetSceneLoadProgress(true));
 	}
 
 	public void LoadGame()
 	{
+		isLoading = true;
 		loadingScreen.SetActive(true);
 
-		GameLoader.Instance.LoadData();
-		scenesLoading.Add(SceneManager.UnloadSceneAsync("LoadingScreen"));
-		scenesLoading.Add(SceneManager.LoadSceneAsync("ScarcityMainMap", LoadSceneMode.Additive));
+		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
+		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
 
-		StartCoroutine(GetSceneLoadProgress());
-		StartCoroutine(GetDataLoadProgress());
+		StartCoroutine(GetSceneLoadProgress(false));
 	}
 
-	public IEnumerator GetSceneLoadProgress()
+	public IEnumerator GetSceneLoadProgress(bool newGame)
 	{
 		for (int i = 0; i < scenesLoading.Count; i++)
 		{
@@ -46,9 +48,15 @@ public class GameManager : MonoBehaviour
 			}
 		}
 
-		SceneManager.SetActiveScene(SceneManager.GetSceneByName("ScarcityMainMap"));
-		SceneManager.UnloadSceneAsync("LoadingScreen");
-		loadingScreen.SetActive(false);
+		//SceneManager.SetActiveScene(SceneManager.GetSceneByName("ScarcityMainMap"));
+		//SceneManager.UnloadSceneAsync("TitleScreen");
+		if (newGame)
+			loadingScreen.SetActive(false);
+		else
+		{
+			GameLoader.Instance.LoadData();
+			StartCoroutine(GetDataLoadProgress());
+		}
 	}
 
 	public IEnumerator GetDataLoadProgress()
@@ -59,5 +67,13 @@ public class GameManager : MonoBehaviour
 		}
 
 		loadingScreen.SetActive(false);
+		isLoading = false;
 	}
+}
+
+public enum SceneIndexes
+{
+	MANAGER = 0,
+	TITLE_SCREEN = 1,
+	MAIN = 2
 }

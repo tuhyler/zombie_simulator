@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: RiverData
   m_EditorClassIdentifier: 
   terrainName: RiverData
+  tag: Water
   prefabs:
   - {fileID: 1898653719436405044, guid: c817dee11469c8f4a8592620e301fadd, type: 3}
   - {fileID: 5289996565718370138, guid: 9eb5cfb85db36f34686a9b0d5659e389, type: 3}

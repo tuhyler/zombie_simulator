@@ -129,6 +129,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 11400000, guid: ba7d2165cd2acc24b9fcfb758105308a, type: 2}
+  prefabIndex: 0
+  decorIndex: 0
   main: {fileID: 478413442398559047}
   prop: {fileID: 6193421569473789042}
   nonstatic: {fileID: 5121927371962656800}
@@ -142,11 +144,20 @@ MonoBehaviour:
   isHill: 0
   hasRoad: 0
   hasResourceMap: 0
+  walkable: 0
+  sailable: 0
+  enemyCamp: 0
+  enemyZone: 0
+  isSeaCorner: 0
+  isLand: 1
   isGlowing: 0
   isDiscovered: 1
+  beingCleared: 0
+  showProp: 1
   godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
+  resourceType: 0
   resourceAmount: 0
 --- !u!65 &5870712689763546697
 BoxCollider:
@@ -361,7 +372,7 @@ PrefabInstance:
     - target: {fileID: 132575383675425759, guid: 467b5d36d61624c4fac5ac4e1db4b184,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7687956695361648898, guid: 467b5d36d61624c4fac5ac4e1db4b184,
         type: 3}
