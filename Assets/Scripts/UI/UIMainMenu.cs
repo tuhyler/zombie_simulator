@@ -24,6 +24,7 @@ public class UIMainMenu : MonoBehaviour
 	[HideInInspector]
 	public bool activeStatus;
 	private Vector3 originalLoc;
+	private bool opening; //if closing the main menu too fast after opening (time freezes)
 
 	private void Awake()
 	{
@@ -43,8 +44,12 @@ public class UIMainMenu : MonoBehaviour
 		if (activeStatus == v)
 			return;
 
+		if (opening)
+			return;
+
 		if (v)
 		{
+			opening = true;
 			world.cameraController.paused = true;
 			playerInput.paused = true;
 			minimapHandler.paused = true;
@@ -68,7 +73,7 @@ public class UIMainMenu : MonoBehaviour
 			{
 				dof.focalLength.value = value;
 			});
-			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine().setOnComplete(FreezeTime);
+			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine().setOnComplete(FreezeTime); //so menu doesn't freeze while tweening
 			//dof.focalLength.value = 45;
 		}
 		else
@@ -104,6 +109,7 @@ public class UIMainMenu : MonoBehaviour
 	{
 		Time.timeScale = 0f;
 		AudioListener.pause = true;
+		opening = false;
 	}
 
 	private void SetActiveStatusFalse()

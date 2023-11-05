@@ -470,9 +470,10 @@ public class RoadManager : MonoBehaviour
     }
 }
 
-public enum RoadType
+public enum UtilityLevel
 {
-    Dirt,
+    None,
+    One
 }
 
 public enum UtilityType

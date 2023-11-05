@@ -33,7 +33,6 @@ public class Wonder : MonoBehaviour
     public Vector3Int unloadLoc, harborLoc;
     [HideInInspector]
     public Vector3 centerPos;
-    [HideInInspector]
     public string wonderName;
     [HideInInspector]
     public CityImprovement harborImprovement;
@@ -53,7 +52,7 @@ public class Wonder : MonoBehaviour
     private Dictionary<ResourceType, int> resourceCostDict = new();
     public Dictionary<ResourceType, int> ResourceCostDict { get { return resourceCostDict; } }
 
-    private Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
+    private Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown for when trader manually unldoads
     public Dictionary<ResourceType, int> ResourceGridDict { get { return resourceGridDict; } set { resourceGridDict = value; } }
 
     private WonderDataSO wonderData;
@@ -106,13 +105,38 @@ public class Wonder : MonoBehaviour
         this.focusCam = focusCam;
     }
 
-    public void SetPrefabs()
+    public void SetPrefabs(bool load)
     {
         //mesh0Percent.SetActive(false);
-        mesh33Percent.SetActive(false);
-        mesh67Percent.SetActive(false);
-        meshComplete.SetActive(false);
-        PlaySmokeSplash();
+        if (isConstructing)
+        {
+            meshComplete.SetActive(false);
+            
+            if (percentDone < 33)
+            {
+                mesh33Percent.SetActive(false);
+                mesh67Percent.SetActive(false);
+            }
+            else if (percentDone < 67)
+            {
+				mesh0Percent.SetActive(false);
+				mesh67Percent.SetActive(false);
+			}
+            else
+            {
+				mesh0Percent.SetActive(false);
+				mesh33Percent.SetActive(false);
+			}
+		}
+        else
+        {
+            mesh0Percent.SetActive(false);
+			mesh33Percent.SetActive(false);
+			mesh67Percent.SetActive(false);
+		}
+
+        if (!load)
+            PlaySmokeSplash();
         mapIcon.SetActive(true);
 		//PlayFireworks();
 
@@ -421,28 +445,7 @@ public class Wonder : MonoBehaviour
             }
             world.RemoveTradeLoc(unloadLoc);
 
-			int grasslandCount = 0;
-			foreach (Vector3Int tile in wonderLocs)
-			{
-				if (world.GetTerrainDataAt(tile).terrainData.grassland)
-					grasslandCount++;
-			}
-
-			if (grasslandCount == Mathf.Ceil(wonderLocs.Count * 0.5f)) //turn to grassland if all are grassland
-			{
-				foreach (MeshFilter mesh in meshComplete.GetComponentsInChildren<MeshFilter>())
-				{
-					if (mesh.name == "Ground")
-					{
-						Vector2[] newUVs = mesh.mesh.uv;
-						for (int i = 0; i < newUVs.Length; i++)
-							newUVs[i].x -= 0.625f; //shift over one tile in atlas
-
-						mesh.mesh.uv = newUVs;
-						break;
-					}
-				}
-			}
+            MeshCheck();
 
 			if (hasHarbor)
                 DestroyHarbor();
@@ -452,10 +455,37 @@ public class Wonder : MonoBehaviour
             RemoveUnits();
 
             world.cityBuilderManager.CreateAllWorkers(this);
+            return;
         }
 
         ThresholdCheck();
     }
+
+    public void MeshCheck()
+    {
+		int grasslandCount = 0;
+		foreach (Vector3Int tile in wonderLocs)
+		{
+			if (world.GetTerrainDataAt(tile).terrainData.grassland)
+				grasslandCount++;
+		}
+
+		if (grasslandCount == Mathf.Ceil(wonderLocs.Count * 0.5f)) //turn to grassland if all are grassland
+		{
+			foreach (MeshFilter mesh in meshComplete.GetComponentsInChildren<MeshFilter>())
+			{
+				if (mesh.name == "Ground")
+				{
+					Vector2[] newUVs = mesh.mesh.uv;
+					for (int i = 0; i < newUVs.Length; i++)
+						newUVs[i].x -= 0.625f; //shift over one tile in atlas
+
+					mesh.mesh.uv = newUVs;
+					break;
+				}
+			}
+		}
+	}
 
     public void DestroyHarbor()
     {
@@ -637,4 +667,57 @@ public class Wonder : MonoBehaviour
 
         highlight.DisableHighlight();
     }
+
+    public WonderData SaveData()
+    {
+        WonderData data = new();
+
+        data.name = wonderName;
+        data.centerPos = centerPos;
+        data.rotation = transform.rotation;
+        data.unloadLoc = unloadLoc;
+        data.harborLoc = harborLoc;
+        data.percentDone = percentDone;
+        data.workersReceived = workersReceived;
+        data.isConstructing = isConstructing;
+        data.canBuildHarbor = canBuildHarbor;
+        data.hasHarbor = hasHarbor;
+        data.roadPreExisted = roadPreExisted;
+        data.wonderLocs = wonderLocs;
+        data.possibleHarborLocs = possibleHarborLocs;
+        data.coastTiles = coastTiles;
+        data.resourceGridDict = resourceGridDict;
+
+	//public Dictionary<ResourceType, int> resourceDict, resourceCostDict, resourceGridDict;
+
+        return data;
+    }
+
+    public void LoadData(WonderData data)
+    {
+        //centerPos = data.centerPos; //done elsewhere
+        wonderName = data.name;
+		unloadLoc = data.unloadLoc;
+		harborLoc = data.harborLoc;
+		percentDone = data.percentDone;
+		workersReceived = data.workersReceived;
+		isConstructing = data.isConstructing;
+		canBuildHarbor = data.canBuildHarbor;
+		hasHarbor = data.hasHarbor;
+		roadPreExisted = data.roadPreExisted;
+		wonderLocs = data.wonderLocs;
+		possibleHarborLocs = data.possibleHarborLocs;
+		coastTiles = data.coastTiles;
+        resourceGridDict = data.resourceGridDict;
+	}
+
+    public void DestroyParticleSystems()
+    {
+        Destroy(heavenHighlight.gameObject);
+        Destroy(smokeEmitter.gameObject);
+        Destroy(smokeSplash.gameObject);
+        Destroy(removeSplash.gameObject);
+        Destroy(fireworks1.gameObject);
+        Destroy(fireworks2.gameObject);
+	}
 }

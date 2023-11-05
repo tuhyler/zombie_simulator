@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class TerrainData : MonoBehaviour
 {
@@ -75,10 +76,10 @@ public class TerrainData : MonoBehaviour
             highlightPlane.SetActive(false);
     }
 
-    private void Start()
-    {
-        SetProp();
-    }
+    //private void Start()
+    //{
+    //    SetProp();
+    //}
 
     public void SetWorld(MapWorld world)
     {
@@ -188,6 +189,7 @@ public class TerrainData : MonoBehaviour
     public void PrepParticleSystem()
     {
         godRays = Instantiate(godRays);
+        godRays.transform.SetParent(world.psHolder, false);
         //godRays.transform.parent = transform;
         //godRays.transform.position = transform.position;
         //godRays.transform.SetParent(transform, false);
@@ -325,11 +327,14 @@ public class TerrainData : MonoBehaviour
     public void Hide()
     {
         isDiscovered = false;
+		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = false;
+        fog.SetActive(true);
 
-        foreach (MeshRenderer renderer in whiteMesh)
+		foreach (MeshRenderer renderer in whiteMesh)
         {
             renderer.material = white;
         }
+
 
         //main.gameObject.SetActive(false);
         //prop.gameObject.SetActive(false);
@@ -342,29 +347,26 @@ public class TerrainData : MonoBehaviour
     public void HardReveal()
     {
         isDiscovered = true;
+		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
-        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
-        //{
-        //    TerrainData td = world.GetTerrainDataAt(neighbor);
-        //    if (td.isDiscovered)
-        //        continue;
+		//foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
+		//{
+		//    TerrainData td = world.GetTerrainDataAt(neighbor);
+		//    if (td.isDiscovered)
+		//        continue;
 
-        //    td.HardSemiReveal();
-        //}
+		//    td.HardSemiReveal();
+		//}
 
-        if (hasResourceMap)
+		if (hasResourceMap)
         {
             resourceIcon.SetActive(true);
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
             godRays.Play();
         }
 
-        int i = 0;
-        foreach (MeshRenderer renderer in whiteMesh)
-        {
-            renderer.material = materials[i];
-            i++;
-        }
+        for (int i = 0; i < whiteMesh.Count; i++)
+            whiteMesh[i].material = materials[i];
 
         fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);
@@ -391,17 +393,18 @@ public class TerrainData : MonoBehaviour
     public void Reveal()
     {
         isDiscovered = true;
+		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
-        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
-        //{
-        //    TerrainData td = world.GetTerrainDataAt(neighbor);
-        //    if (td.isDiscovered)
-        //        continue;
+		//foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
+		//{
+		//    TerrainData td = world.GetTerrainDataAt(neighbor);
+		//    if (td.isDiscovered)
+		//        continue;
 
-        //    td.SemiReveal();
-        //}
+		//    td.SemiReveal();
+		//}
 
-        if (hasResourceMap)
+		if (hasResourceMap)
         {
             resourceIcon.SetActive(true);
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
@@ -427,35 +430,14 @@ public class TerrainData : MonoBehaviour
 			ShowProp(false);
             StartCoroutine(PopUp());
         }
-        //else
-        //{
-        //    main.gameObject.SetActive(true);
-        //    prop.gameObject.SetActive(true);
-        //}
     }
-
-    //public void SemiReveal()
-    //{
-    //    foreach (MeshRenderer renderer in whiteMesh)
-    //    {
-    //        renderer.material = white;
-    //    }
-        
-    //    //if (nonstatic.childCount > 0)
-    //    //    StartCoroutine(PopUp());
-    //    //else
-    //    //{
-    //    main.gameObject.SetActive(true);
-    //    prop.gameObject.SetActive(true);
-    //    //}
-    //}
 
     public void Discover()
     {
-        fog.gameObject.SetActive(false);
-    }
+        fog.SetActive(false);
+	}
 
-    private IEnumerator PopUp()
+	private IEnumerator PopUp()
     {
         Vector3 scale = nonstatic.localScale;
         float growSpeed = 2f;
@@ -624,10 +606,16 @@ public class TerrainData : MonoBehaviour
 			else
 				terrainData = isHill ? world.desertHillTerrain : world.desertTerrain;
 
+			GameLoader.Instance.gameData.allTerrain[tileCoordinates] = SaveData();
 			ShowProp(false);
 		}
+		else //only updating resource amount
+		{
+			GameLoader.Instance.gameData.allTerrain[tileCoordinates].resourceAmount = resourceAmount;
+		}
 
-        return amount;
+
+		return amount;
     }
 
     public TerrainSaveData SaveData()

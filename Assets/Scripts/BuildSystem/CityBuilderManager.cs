@@ -351,6 +351,14 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else
                 {
+                    if (improvementSelected.wonderHarbor)
+                    {
+                        if (selectedWonder != null)
+							UnselectWonder();
+
+						return;
+                    }
+                    
                     if (isBarracks)
                         world.OpenCampTooltip(improvementSelected);
                     else
@@ -669,6 +677,7 @@ public class CityBuilderManager : MonoBehaviour
         //for tweening
         Vector3 goScale = harborGO.transform.localScale;
         CityImprovement harbor = harborGO.GetComponent<CityImprovement>();
+        harbor.wonderHarbor = true;
         harbor.PlaySmokeSplash(false);
         selectedWonder.harborImprovement = harbor;
         harborGO.transform.localScale = Vector3.zero;
@@ -684,6 +693,18 @@ public class CityBuilderManager : MonoBehaviour
 
         CloseImprovementBuildPanel();
     }
+
+    public void LoadWonderHarbor(Vector3Int loc, Wonder wonder)
+    {
+		GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, wonder.unloadLoc), 0));
+		CityImprovement harbor = harborGO.GetComponent<CityImprovement>();
+		wonder.harborImprovement = harbor;
+		
+		world.AddToCityLabor(loc, wonder.gameObject);
+		world.AddStructure(loc, harborGO);
+		world.AddTradeLoc(loc, wonder.wonderName);
+		world.AddToWondersDict(loc, wonder);
+	}
 
     public void OpenCancelWonderConstructionWarning()
     {
@@ -2715,6 +2736,7 @@ public class CityBuilderManager : MonoBehaviour
                 else
                     td.terrainData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
 
+                GameLoader.Instance.gameData.allTerrain[improvementLoc] = td.SaveData();
                 td.ShowProp(false);
 			}
 

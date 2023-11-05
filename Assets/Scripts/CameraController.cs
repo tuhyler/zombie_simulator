@@ -123,6 +123,11 @@ public class CameraController : MonoBehaviour
         newPosition = pos;
     }
 
+    public void RotateCameraNoFollow()
+    {
+        followTransform = null;
+    }
+
     public void CenterCameraInstantly(Vector3 pos)
     {
         followTransform = null;
@@ -328,5 +333,13 @@ public class CameraController : MonoBehaviour
         xMax = edgeSize;
         zMin = -edgeSize;
         zMax = edgeSize;
+    }
+
+    public void LoadCameraLimits(float xMin, float xMax, float zMin, float zMax)
+    {
+        this.xMin = xMin;
+        this.xMax = xMax;
+        this.zMin = zMin;
+        this.zMax = zMax;
     }
 }

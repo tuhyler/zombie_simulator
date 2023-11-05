@@ -27,10 +27,12 @@ public class ResourceIndividualHandler : MonoBehaviour
     public IEnumerator GenerateHarvestedResource(Vector3 unitPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
         int timePassed;
+        Vector3Int pos = world.RoundToInt(unitPos);
 
-        if (clearForest)
+		if (clearForest)
         {
-            world.GetTerrainDataAt(world.RoundToInt(unitPos)).beingCleared = true;
+            world.GetTerrainDataAt(pos).beingCleared = true;
+			GameLoader.Instance.gameData.allTerrain[pos].beingCleared = true;
 			timePassed = worker.clearingForestTime;
         }
         else
@@ -58,7 +60,7 @@ public class ResourceIndividualHandler : MonoBehaviour
         if (clearForest)
         {
             worker.clearingForest = false;
-            TerrainData td = world.GetTerrainDataAt(world.RoundToInt(unitPos));
+            TerrainData td = world.GetTerrainDataAt(pos);
             td.beingCleared = false;
             td.ShowProp(false);
 			worker.marker.ToggleVisibility(false);
@@ -74,6 +76,7 @@ public class ResourceIndividualHandler : MonoBehaviour
 				td.gameObject.tag = "Flatland";
             }
 
+            GameLoader.Instance.gameData.allTerrain[pos] = td.SaveData();
             city.UpdateCityBools(ResourceType.Lumber);
 		}
 

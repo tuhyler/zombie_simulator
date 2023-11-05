@@ -67,10 +67,6 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
 
-    //for saving terrain info
-    [HideInInspector]
-    public List<TerrainData> finiteResourceList = new();
-
     //wonder info
     private WonderDataSO wonderData;
     [SerializeField]
@@ -84,7 +80,9 @@ public class MapWorld : MonoBehaviour
     private Vector3Int finalUnloadLoc;
     private Quaternion rotation;
     private bool sideways;
-    private Dictionary<string, Wonder> wonderConstructionDict = new();
+    [HideInInspector]
+    public List<Wonder> allWonders = new();
+    public Dictionary<string, Wonder> wonderConstructionDict = new();
     private Dictionary<Vector3Int, Wonder> wonderStopDict = new();
     private GameObject wonderGhost;
 
@@ -93,8 +91,6 @@ public class MapWorld : MonoBehaviour
     private Sprite tradeCenterMapIcon;
     private Dictionary<string, TradeCenter> tradeCenterDict = new();
     private Dictionary<Vector3Int, TradeCenter> tradeCenterStopDict = new();
-    private List<string> tradeCenterNamePool = new();
-    private List<int> tradeCenterPopPool = new();
 
     //miscellaneous sprites
     [SerializeField]
@@ -116,7 +112,7 @@ public class MapWorld : MonoBehaviour
     private List<Vector3Int> cityLocations = new();
     private List<GameObject> cityNamesMaps = new();
 
-    private Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
+    public Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
     private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
     private Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
     private Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
@@ -159,7 +155,7 @@ public class MapWorld : MonoBehaviour
     private PathNode[,] grid;
 
     //for roads
-    private Dictionary<Vector3Int, List<Road>> roadTileDict = new(); //stores road GOs, only on terrain locations
+    public Dictionary<Vector3Int, List<Road>> roadTileDict = new(); //stores road GOs, only on terrain locations
     private List<Vector3Int> soloRoadLocsList = new(); //indicates which tiles have solo roads on them
     private List<Vector3Int> roadLocsList = new(); //indicates which tiles have roads on them
     private int roadCost; //set in road manager
@@ -227,18 +223,6 @@ public class MapWorld : MonoBehaviour
         uiInfoPopUpHandler.SetWarningMessage(uiInfoPopUpHandler);
         uiInfoPopUpHandler.gameObject.SetActive(false);
 
-        tradeCenterNamePool.Add("Indus Valley");
-        tradeCenterNamePool.Add("Trade_Center_2");
-        tradeCenterNamePool.Add("Trade_Center_3");
-        tradeCenterNamePool.Add("Trade_Center_4");
-        tradeCenterNamePool.Add("Trade_Center_5");
-
-        tradeCenterPopPool.Add(5);
-        tradeCenterPopPool.Add(4);
-        tradeCenterPopPool.Add(7);
-        tradeCenterPopPool.Add(8);
-        tradeCenterPopPool.Add(6);
-
         selectionIcon = Instantiate(selectionIcon);
         selectionIcon.transform.SetParent(gameObject.transform, false);
         selectionIcon.SetActive(false);
@@ -261,14 +245,13 @@ public class MapWorld : MonoBehaviour
             if (go.TryGetComponent(out TerrainData td))
             {
 			    td.SetWorld(this);
+                td.SetProp();
 
 			    if (td.isSeaCorner && !coastalTerrain.Contains(td))
 				    coastalTerrain.Add(td);
 			    td.SetTileCoordinates();
 			    Vector3Int tileCoordinate = td.TileCoordinates;
 				GameLoader.Instance.gameData.allTerrain[tileCoordinate] = td.SaveData();
-			    if (td.resourceAmount > 0)
-				    finiteResourceList.Add(td);
 
 			    world[tileCoordinate] = td;
 			    terrainToCheck.Add(td);
@@ -306,7 +289,7 @@ public class MapWorld : MonoBehaviour
 		unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
 
 		unit.Reveal();
-		Vector3Int unitPos = RoundToInt(unit.transform.position);
+        Vector3Int unitPos = RoundToInt(unit.transform.position);
 		if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
 			unit.CurrentLocation = AddUnitPosition(unitPos, unit);
 
@@ -539,11 +522,11 @@ public class MapWorld : MonoBehaviour
 
 			center.SetWorld(this);
 			center.ToggleLights(false);
-			center.SetName(tradeCenterNamePool[i]);
-			center.SetPop(tradeCenterPopPool[i]);
+			center.SetName();
+			center.SetPop(UnityEngine.Random.Range(4,9));
 			center.ClaimSpotInWorld(increment, false);
             GameLoader.Instance.gameData.allTradeCenters.Add(center.SaveData());
-			tradeCenterDict[center.tradeCenterName] = center;
+            tradeCenterDict[center.tradeCenterName] = center;
 			tradeCenterStopDict[center.mainLoc] = center;
 			tradeCenterStopDict[center.harborLoc] = center;
 			AddTradeLoc(center.mainLoc, center.tradeCenterName);
@@ -700,16 +683,27 @@ public class MapWorld : MonoBehaviour
 			if (td.isSeaCorner && !coastalTerrain.Contains(td))
 				coastalTerrain.Add(td);
 
-			if (td.resourceAmount > 0)
-				finiteResourceList.Add(td);
-
 			world[data.tileCoordinates] = td;
 			terrainToCheck.Add(td);
 			td.CheckMinimapResource(mapHandler);
+
+            if (td.isDiscovered)
+            {
+                td.Discover();
+
+                if (td.hasResourceMap)
+					td.resourceIcon.SetActive(true);
+			}
+			else
+            {
+                td.Hide();
+
+                if (td.hasResourceMap)
+                    td.PrepParticleSystem();
+            }
+
 			if (!hideTerrain && td.hasResourceMap)
 				td.resourceIcon.SetActive(true);
-			if (td.hasResourceMap)
-				td.PrepParticleSystem();
 
 			foreach (Vector3Int tile in neighborsEightDirections)
 			{
@@ -722,11 +716,6 @@ public class MapWorld : MonoBehaviour
 
 		foreach (TerrainData td in terrainToCheck)
 		{
-			if (hideTerrain)
-				td.Hide();
-			else
-				td.Discover();
-
             ConfigureUVs(td);
 		}
 	}
@@ -735,13 +724,13 @@ public class MapWorld : MonoBehaviour
     {
         foreach (TradeCenterData centerData in centers)
         {
-            GameObject go = Instantiate(centerData.prefab, centerData.mainLoc, centerData.rotation);
+            GameObject go = Instantiate(UpgradeableObjectHolder.Instance.tradeCenterDict[centerData.name], centerData.mainLoc, centerData.rotation);
             go.transform.SetParent(tradeCenterHolder, false);
             TradeCenter center = go.GetComponent<TradeCenter>();
             center.LoadData(centerData);
 			center.SetWorld(this);
 			center.ToggleLights(false);
-			center.SetName(centerData.name);
+			center.SetName();
             center.SetPop(centerData.cityPop);
 			center.ClaimSpotInWorld(increment, true);
 			
@@ -757,7 +746,7 @@ public class MapWorld : MonoBehaviour
 		}
 	}
 
-	private void BuildCity(Vector3Int cityTile, TerrainData td, GameObject prefab, CityData data)
+	public void BuildCity(Vector3Int cityTile, TerrainData td, GameObject prefab, CityData data)
 	{
         td.ShowProp(false);
 
@@ -1066,6 +1055,24 @@ public class MapWorld : MonoBehaviour
 
             cityImprovement.LoadData(data);
 		}
+	}
+
+    public void ClearMap()
+    {
+		foreach (Transform go in terrainHolder)
+			Destroy(go.gameObject);
+
+        world.Clear();
+
+		foreach (Transform go in tradeCenterHolder)
+			Destroy(go.gameObject);
+
+        tradeCenterDict.Clear();
+        tradeCenterStopDict.Clear(); 
+        cityWorkedTileDict.Clear();
+        buildingPosDict.Clear();
+        cityNamesMaps.Clear();
+        tradeLocDict.Clear();
 	}
 
 	public void AaddGold() //for testing, on a button
@@ -1714,14 +1721,16 @@ public class MapWorld : MonoBehaviour
         GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, rotation);
         wonderGO.gameObject.transform.SetParent(wonderHolder, false);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
+        wonder.wonderName = wonderData.wonderName;
+        allWonders.Add(wonder);
         wonder.SetReferences(this, cityBuilderManager.focusCam);
         wonder.WonderData = wonderData;
         wonder.WonderLocs = new(wonderPlacementLoc);
-        wonder.SetPrefabs();
-        wonder.wonderName = "Wonder - " + wonderData.wonderName;
+        wonder.SetPrefabs(false);
+        //wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost);
         wonder.unloadLoc = finalUnloadLoc;
-        AddTradeLoc(finalUnloadLoc, wonder.wonderName);
+        AddTradeLoc(finalUnloadLoc, "Wonder - " + wonder.wonderName);
         wonderNoWalkLoc.Remove(finalUnloadLoc);
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
         //wonder.Rotation = rotation;
@@ -1797,7 +1806,76 @@ public class MapWorld : MonoBehaviour
         cityBuilderManager.PlayBoomAudio();
     }
 
-    public void PlaceWonder(WonderDataSO wonderData)
+	public void LoadWonder(List<WonderData> allWonderData)
+	{
+		foreach (WonderData data in allWonderData)
+        {
+            WonderDataSO wonderData = UpgradeableObjectHolder.Instance.wonderDict[data.name];
+
+			//prep terrain
+			foreach (Vector3Int tile in data.wonderLocs)
+			{
+				TerrainData td = GetTerrainDataAt(tile);
+
+				if (wonderData.isSea)
+				{
+					td.sailable = false;
+					td.walkable = true;
+				}
+				else
+				{
+					if (td.prop != null)
+						td.ShowProp(false);
+
+					td.HideTerrainMesh();
+					if (td.hasResourceMap)
+						td.HideResourceMap();
+				}
+			}
+
+    		//setting up wonder info
+    		GameObject wonderGO = Instantiate(wonderData.wonderPrefab, data.centerPos, data.rotation);
+    		wonderGO.gameObject.transform.SetParent(wonderHolder, false);
+		    Wonder wonder = wonderGO.GetComponent<Wonder>();
+            wonder.LoadData(data);
+            allWonders.Add(wonder);
+		    wonder.SetReferences(this, cityBuilderManager.focusCam);
+		    wonder.WonderData = wonderData;
+		    wonder.SetPrefabs(true);
+    		wonder.SetResourceDict(wonderData.wonderCost);
+		    AddTradeLoc(finalUnloadLoc, "Wonder - " + wonder.wonderName);
+		    wonder.SetCenterPos(data.centerPos);
+    		wonderConstructionDict[wonder.wonderName] = wonder;
+	
+            foreach (Vector3Int tile in data.wonderLocs)
+			    wonderStopDict[tile] = wonder;
+
+		    //building road in unload area
+            if (data.isConstructing)
+            {
+    			roadManager.BuildRoadAtPosition(data.unloadLoc);
+
+                if (data.hasHarbor)
+                    cityBuilderManager.LoadWonderHarbor(data.harborLoc, wonder);
+            }
+            else
+            {
+                wonder.MeshCheck();
+                wonder.DestroyParticleSystems();
+            }
+
+			//claiming the area for the wonder
+			foreach (Vector3Int tile in wonderPlacementLoc)
+			{
+				AddToCityLabor(tile, wonderGO); //so cities can't take the spot
+				AddStructure(tile, wonderGO); //so nothing else can be built there
+			}
+    
+            noWalkList.AddRange(wonderNoWalkLoc);
+		}
+	}
+
+	public void PlaceWonder(WonderDataSO wonderData)
     {
         cityBuilderManager.PlayCloseAudio();
         buildingWonder = true;

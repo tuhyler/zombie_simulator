@@ -1370,6 +1370,8 @@ public class City : MonoBehaviour
 			td.terrainData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
 		else
 			td.terrainData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
+
+        GameLoader.Instance.gameData.allTerrain[loc] = td.SaveData();
 	}
 
 	//for queued build items

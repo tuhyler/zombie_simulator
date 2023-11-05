@@ -5,6 +5,6 @@ using UnityEngine;
 public class RoadData 
 {
     public Vector3Int position;
-    //utility type
-    //road type
+    public UtilityType utilityType;
+    public UtilityLevel utilityLevel;
 }
