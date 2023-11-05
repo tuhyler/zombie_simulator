@@ -577,6 +577,7 @@ public class WorkerTaskManager : MonoBehaviour
 				td.gameObject.tag = "Flatland";
 			}
 
+            GameLoader.Instance.gameData.allTerrain[workerTile] = td.SaveData();
 			city.ResourceManager.CheckResource(ResourceType.Lumber, worker.clearedForestlumberAmount); 
 		}
 
@@ -719,8 +720,10 @@ public class WorkerTaskManager : MonoBehaviour
             if (workerUnit.clearingForest)
             {
                 workerUnit.clearingForest = false;
-                world.GetTerrainDataAt(world.GetClosestTerrainLoc(workerUnit.transform.position)).beingCleared = false;
-            }
+                Vector3Int pos = world.GetClosestTerrainLoc(workerUnit.transform.position);
+				world.GetTerrainDataAt(pos).beingCleared = false;
+				GameLoader.Instance.gameData.allTerrain[pos].beingCleared = false;
+			}
             workerUnit.SetWorkAnimation(false);
 
             if (taskCoroutine != null)

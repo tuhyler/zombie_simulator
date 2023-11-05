@@ -12,6 +12,9 @@ public class Road : MonoBehaviour
 
     private bool embiggened;
 
+    public UtilityLevel roadType = UtilityLevel.One;
+    private UtilityType type = UtilityType.Road;
+
     private void Awake()
     {
         meshFilter = GetComponentInChildren<MeshFilter>();
@@ -30,4 +33,21 @@ public class Road : MonoBehaviour
         pos.y += 0.01f;
         meshFilter.transform.position = pos;
     }
+
+    public RoadData SaveData(Vector3Int loc)
+    {
+        RoadData data = new();
+
+        data.position = loc;
+        data.utilityType = type;
+        data.utilityLevel = roadType; 
+
+        return data;
+    }
+
+    public void LoadData(RoadData data)
+    {
+		type = data.utilityType;
+		roadType = data.utilityLevel;
+	}
 }

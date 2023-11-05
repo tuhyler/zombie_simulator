@@ -9,10 +9,14 @@ public class UpgradeableObjectHolder : MonoBehaviour
     public List<ImprovementDataSO> allBuildingsAndImprovements = new(); //not static so as to populate lists in inspector
     public List<UnitBuildDataSO> allUnits = new(); //not static so as to populate lists in inspector
     public List<TerrainDataSO> allTerrain = new();
+    public List<GameObject> allTradeCenters = new();
+    public List<WonderDataSO> allWonders = new();
 
     public Dictionary<string, ImprovementDataSO> improvementDict = new();
     public Dictionary<string, UnitBuildDataSO> unitDict = new();
     public Dictionary<string, TerrainDataSO> terrainDict = new();
+    public Dictionary<string, GameObject> tradeCenterDict = new();
+    public Dictionary<string, WonderDataSO> wonderDict = new();
 
     private void Awake()
     {
@@ -30,5 +34,17 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
         foreach (TerrainDataSO terrain in allTerrain)
             terrainDict[terrain.name] = terrain;
+
+        foreach (GameObject center in allTradeCenters)
+        {
+            string name = center.GetComponent<TradeCenter>().tradeCenterName;
+            if (name == "")
+                Debug.LogError("Trade Center must be given name");
+
+			tradeCenterDict[name] = center;
+        }
+
+        foreach (WonderDataSO wonder in allWonders)
+            wonderDict[wonder.wonderName] = wonder;
     }
 }

@@ -20,9 +20,7 @@ public class TradeCenter : MonoBehaviour
     private GameObject tradeCenterPrefab;
 
     //basic info
-    [HideInInspector]
     public string tradeCenterName;
-    [HideInInspector]
     public int cityPop;
     [HideInInspector]
     public Vector3Int harborLoc, mainLoc;
@@ -82,13 +80,12 @@ public class TradeCenter : MonoBehaviour
         this.world = world;
     }
 
-    public void SetName(string name)
+    public void SetName()
     {
-        tradeCenterName = name;
-        nameField.cityName.text = name;
-        nameField.SetCityNameFieldSize(name);
+        nameField.cityName.text = tradeCenterName;
+        nameField.SetCityNameFieldSize(tradeCenterName);
         nameField.SetNeutralBackground();
-        nameMap.GetComponentInChildren<TMP_Text>().text = name;
+        nameMap.GetComponentInChildren<TMP_Text>().text = tradeCenterName;
         world.AddTradeCenterName(nameMap);
         nameMap.gameObject.SetActive(false);
     }
@@ -233,11 +230,10 @@ public class TradeCenter : MonoBehaviour
     {
         TradeCenterData data = new();
         
+        data.name = tradeCenterName;
         data.mainLoc = mainLoc;
         data.harborLoc = harborLoc;
         data.rotation = transform.rotation;
-        data.prefab = tradeCenterPrefab;
-        data.name = tradeCenterName;
         data.cityPop = cityPop;
         data.isDiscovered = isDiscovered;
 
@@ -249,7 +245,6 @@ public class TradeCenter : MonoBehaviour
 		mainLoc = data.mainLoc;
 		harborLoc = data.harborLoc;
 		transform.rotation = data.rotation;
-		tradeCenterPrefab = data.prefab;
 		//tradeCenterName = data.name; //done elsewhere
   //      cityPop = data.cityPop;
 		isDiscovered = data.isDiscovered;

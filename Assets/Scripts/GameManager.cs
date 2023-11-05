@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 	{
 		loadingScreen.SetActive(true);
 
+		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
 		StartCoroutine(GetSceneLoadProgress(true));
@@ -32,10 +33,41 @@ public class GameManager : MonoBehaviour
 		isLoading = true;
 		loadingScreen.SetActive(true);
 
+		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
 
 		StartCoroutine(GetSceneLoadProgress(false));
+	}
+
+	public void BackToMainMenu(bool load)
+	{
+		//loadingScreen.SetActive(true);
+		scenesLoading.Clear();
+		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.MAIN));
+		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.TITLE_SCREEN, LoadSceneMode.Additive));
+
+		StartCoroutine(GetMainMenuReturnProgress(load));
+	}
+
+	public IEnumerator GetMainMenuReturnProgress(bool load)
+	{
+		for (int i = 0; i < scenesLoading.Count; i++)
+		{
+			while (!scenesLoading[i].isDone)
+			{
+				yield return null;
+			}
+		}
+
+		if (load)
+		{
+			LoadGame();
+		}
+		else
+		{
+			//loadingScreen.SetActive(false);
+		}
 	}
 
 	public IEnumerator GetSceneLoadProgress(bool newGame)
@@ -48,13 +80,14 @@ public class GameManager : MonoBehaviour
 			}
 		}
 
-		//SceneManager.SetActiveScene(SceneManager.GetSceneByName("ScarcityMainMap"));
-		//SceneManager.UnloadSceneAsync("TitleScreen");
 		if (newGame)
+		{
 			loadingScreen.SetActive(false);
+			scenesLoading.Clear();
+		}
 		else
 		{
-			GameLoader.Instance.LoadData();
+			GameLoader.Instance.LoadData("/game_data.save");
 			StartCoroutine(GetDataLoadProgress());
 		}
 	}
@@ -68,6 +101,7 @@ public class GameManager : MonoBehaviour
 
 		loadingScreen.SetActive(false);
 		isLoading = false;
+		scenesLoading.Clear();
 	}
 }
 
