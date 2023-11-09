@@ -10,9 +10,9 @@ public class EnemyCamp
 	public MapWorld world;
 	
 	public Vector3Int loc, forward;
-	private Vector3Int armyDiff;
+	public Vector3Int armyDiff;
 
-	private int enemyReady;
+	public int enemyReady;
 	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength;
 	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning;
 	public Army attackingArmy;
@@ -108,6 +108,51 @@ public class EnemyCamp
 
 		campCount = unitsInCamp.Count;
     }
+
+	public Dictionary<Vector3Int, string> SendCampData()
+	{
+		Dictionary<Vector3Int, string> campDict = new();
+
+		for (int i = 0; i < unitsInCamp.Count; i++)
+		{
+			campDict[unitsInCamp[i].enemyAI.CampSpot] = unitsInCamp[i].buildDataSO.unitNameAndLevel;
+		}
+		
+		return campDict;
+	}
+
+	public EnemyCampData SendCampUnitData()
+	{
+		EnemyCampData campData = new();
+		
+		List<UnitData> campList = new();
+
+		for (int i = 0; i < unitsInCamp.Count; i++)
+		{
+			campList.Add(unitsInCamp[i].SaveUnitData());
+		}
+
+		campData.enemyReady = enemyReady;
+		campData.threatLoc = threatLoc;
+		campData.forward = forward;
+		campData.revealed = revealed;
+		campData.prepping = prepping;
+		campData.attacked = attacked;
+		campData.attackReady = attackReady;
+		campData.armyReady = armyReady;
+		campData.inBattle = inBattle;
+		campData.returning = returning;
+		campData.allUnits = campList;
+		campData.campCount = campCount;
+		campData.infantryCount = infantryCount;
+		campData.rangedCount = rangedCount;
+		campData.cavalryCount = cavalryCount;
+		campData.seigeCount = seigeCount;
+		campData.health = health;
+		campData.strength = strength;	
+
+		return campData;
+	}
 
 	public List<ResourceValue> GetAttackCost()
 	{
@@ -469,5 +514,6 @@ public class EnemyCamp
 
 		deathCount = 0;
 		deadList.Clear();
+		GameLoader.Instance.gameData.attackedEnemyBases.Remove(loc);
 	}
 }

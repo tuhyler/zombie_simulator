@@ -1365,12 +1365,14 @@ public class City : MonoBehaviour
     public void SetNewTerrainData(Vector3Int loc)
     {
 		TerrainData td = world.GetTerrainDataAt(loc);
+        TerrainDataSO tempData;
 
 		if (td.isHill)
-			td.terrainData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
+			tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
 		else
-			td.terrainData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
+			tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
 
+        td.SetNewData(tempData);
         GameLoader.Instance.gameData.allTerrain[loc] = td.SaveData();
 	}
 
@@ -1579,25 +1581,31 @@ public class City : MonoBehaviour
 		//army data
 		if (hasBarracks)
         {
-            data.armyForward = army.forward;
-            data.armyAttackZone = army.attackZone;
-            data.enemyTarget = army.EnemyTarget;
-            data.cyclesGone = army.cyclesGone;
-            data.armyPathToTarget = army.pathToTarget;
-            data.armyPathTraveled = army.pathTraveled;
-            data.armyAttackingSpots = army.attackingSpots;
-            data.armyMovementRange = army.movementRange;
-            data.armyCavalryRange = army.cavalryRange;
-            data.isEmpty = army.isEmpty;
-            data.isFull = army.isFull;
-            data.isTransferring = army.isTransferring;
-            data.isRepositioning = army.isRepositioning;
-            data.traveling = army.traveling;
-            data.inBattle = army.inBattle;
-            data.returning = army.returning;
-            data.atHome = army.atHome;
-            data.enemyReady = army.enemyReady;
-            data.issueRefund = army.issueRefund;
+            ArmyData armyData = new();
+            
+            GameLoader.Instance.gameData.militaryUnits[barracksLocation] = army.SendData();
+			armyData.forward = army.forward;
+			armyData.attackZone = army.attackZone;
+			armyData.enemyTarget = army.EnemyTarget;
+			armyData.cyclesGone = army.cyclesGone;
+            armyData.unitsReady = army.unitsReady;
+            armyData.stepCount = army.stepCount;
+            armyData.noMoneyCycles = army.noMoneyCycles;
+			armyData.pathToTarget = army.pathToTarget;
+			armyData.pathTraveled = army.pathTraveled;
+			armyData.attackingSpots = army.attackingSpots;
+			armyData.movementRange = army.movementRange;
+			armyData.cavalryRange = army.cavalryRange;
+			armyData.isTransferring = army.isTransferring;
+			armyData.isRepositioning = army.isRepositioning;
+			armyData.traveling = army.traveling;
+			armyData.inBattle = army.inBattle;
+			armyData.returning = army.returning;
+			armyData.atHome = army.atHome;
+			armyData.enemyReady = army.enemyReady;
+			armyData.issueRefund = army.issueRefund;
+
+            GameLoader.Instance.gameData.allArmies[cityLoc] = armyData;
         }
 
         return data;
@@ -1648,28 +1656,33 @@ public class City : MonoBehaviour
 		//army data
         if (hasBarracks)
         {
-		    army.forward = data.armyForward;
-		    army.attackZone = data.armyAttackZone;
-		    army.EnemyTarget = data.enemyTarget;
-			army.cyclesGone = data.cyclesGone;
-			army.pathToTarget = data.armyPathToTarget;
-			army.pathTraveled = data.armyPathTraveled;
-			army.attackingSpots = data.armyAttackingSpots;
-			army.movementRange = data.armyMovementRange;
-			army.cavalryRange = data.armyCavalryRange;
-			army.isEmpty = data.isEmpty;
-			army.isFull = data.isFull;
-			army.isTransferring = data.isTransferring;
-			army.isRepositioning = data.isRepositioning;
-			army.traveling = data.traveling;
-			army.inBattle = data.inBattle;
-			army.returning = data.returning;
-			army.atHome = data.atHome;
-			army.enemyReady = data.enemyReady;
-			army.issueRefund = data.issueRefund;
+            ArmyData armyData = GameLoader.Instance.gameData.allArmies[cityLoc];
+            army.forward = armyData.forward;
+		    army.attackZone = armyData.attackZone;
+		    army.EnemyTarget = armyData.enemyTarget;
+			army.cyclesGone = armyData.cyclesGone;
+            army.unitsReady = armyData.unitsReady;
+            army.stepCount = armyData.stepCount;
+            army.noMoneyCycles = armyData.noMoneyCycles;
+			army.pathToTarget = armyData.pathToTarget;
+			army.pathTraveled = armyData.pathTraveled;
+			army.attackingSpots = armyData.attackingSpots;
+			army.movementRange = armyData.movementRange;
+			army.cavalryRange = armyData.cavalryRange;
+			army.isTransferring = armyData.isTransferring;
+			army.isRepositioning = armyData.isRepositioning;
+			army.traveling = armyData.traveling;
+			army.inBattle = armyData.inBattle;
+			army.returning = armyData.returning;
+			army.atHome = armyData.atHome;
+			army.enemyReady = armyData.enemyReady;
+			army.issueRefund = armyData.issueRefund;
 
             if (army.traveling || army.inBattle || army.enemyReady)
+            {
                 army.targetCamp = world.GetEnemyCamp(army.EnemyTarget);
+				world.GetEnemyCamp(army.EnemyTarget).attackingArmy = army;
+			}
 		}
 	}
 }

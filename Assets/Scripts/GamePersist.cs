@@ -18,7 +18,7 @@ public class GamePersist
 
 			using FileStream stream = File.Create(path);
 			stream.Close();
-			File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
+			File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.None));
 
 			return true;
 		}
@@ -52,6 +52,53 @@ public class GamePersist
 		}
 	}
 
+	public void SaveSettings(SettingsData data)
+	{
+		string path = Application.persistentDataPath + "/settings.game";
+
+		try
+		{
+			if (File.Exists(path))
+				File.Delete(path);
+
+			using FileStream stream = File.Create(path);
+			stream.Close();
+			File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.None));
+		}
+		catch (Exception e)
+		{
+			Debug.LogError($"Unable to save data due to {e.Message} {e.StackTrace}");
+		}
+	}
+
+	public bool SettingsFileCheck()
+	{
+		string path = Application.persistentDataPath + "/settings.game";
+
+		return File.Exists(path);
+	}
+
+	public SettingsData LoadSettings()
+	{
+		string path = Application.persistentDataPath + "/settings.game";
+
+		if (!File.Exists(path))
+		{
+			Debug.Log($"Cannot find file at {path}");
+			throw new FileNotFoundException($"{path} does not exists");
+		}
+
+		try
+		{
+			SettingsData data = JsonConvert.DeserializeObject<SettingsData>(File.ReadAllText(path));
+			return data;
+		}
+		catch (Exception e)
+		{
+			Debug.LogError($"Failed to load file due to {e.Message} {e.StackTrace}");
+			throw e;
+		}
+	}
 }
 
 //public interface ISaveSystem

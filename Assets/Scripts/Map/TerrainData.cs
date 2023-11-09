@@ -437,6 +437,14 @@ public class TerrainData : MonoBehaviour
         fog.SetActive(false);
 	}
 
+    public void SetNewData(TerrainDataSO data)
+    {
+        terrainData = data;
+        rawResourceType = data.rawResourceType;
+        resourceType = data.resourceType;
+        gameObject.tag = data.tag;
+    }
+
 	private IEnumerator PopUp()
     {
         Vector3 scale = nonstatic.localScale;
@@ -494,6 +502,11 @@ public class TerrainData : MonoBehaviour
     public void RestoreResourceMap()
     {
         resourceIcon.SetActive(true);
+    }
+
+    public void SetHighlightMesh()
+    {
+        highlight.PrepareMaterialDictionaries();
     }
 
     public void EnableHighlight(Color highlightColor)
@@ -601,11 +614,13 @@ public class TerrainData : MonoBehaviour
 
         if (resourceAmount < 0)
         {
-			if (terrainData.grassland)
-				terrainData = isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
+            TerrainDataSO tempData;
+            if (terrainData.grassland)
+				tempData = isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
 			else
-				terrainData = isHill ? world.desertHillTerrain : world.desertTerrain;
+				tempData = isHill ? world.desertHillTerrain : world.desertTerrain;
 
+            SetNewData(tempData);
 			GameLoader.Instance.gameData.allTerrain[tileCoordinates] = SaveData();
 			ShowProp(false);
 		}

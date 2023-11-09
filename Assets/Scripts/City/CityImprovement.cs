@@ -136,7 +136,7 @@ public class CityImprovement : MonoBehaviour
             if (improvementData.workAnimLoop)
             {
                 improvementAnimator.SetBool(isWorkingHash, true);
-                if (improvementData.hideIdleMesh)
+				if (improvementData.hideIdleMesh)
                     animMesh.SetActive(true);
             }
             else
@@ -201,37 +201,6 @@ public class CityImprovement : MonoBehaviour
         foreach (Light light in workLights)
             light.gameObject.SetActive(v);
     }
-    //public void StartWorkAnimation(int seconds = 1)
-    //{
-    //    if (improvementAnimator != null)
-    //    {
-    //        improvementAnimator.SetBool(isWorkingHash, true);
-    //        improvementAnimator.SetFloat("speed", 1f / (seconds-1));
-    //    }
-
-    //    //if (animators.Count > 0)
-    //    //{
-    //    //    foreach (ImprovementAnimators animator in animators)
-    //    //        animator.StopAnimation(false);
-    //    //}
-    //}
-
-    //public void StopWorkAnimation()
-    //{
-    //    if (improvementAnimator != null)
-    //        improvementAnimator.SetBool(isWorkingHash, false);
-    //}
-
-    //public void StopWaiting()
-    //{
-    //    improvementAnimator.SetBool(isWaitingHash, false);
-
-    //    //if (animators.Count > 0)
-    //    //{
-    //    //    foreach (ImprovementAnimators animator in animators)
-    //    //        animator.StopAnimation(true);
-    //    //}
-    //}
 
     //doing this so that the highlight doesn't mix with the combinedmesh.
     public void Embiggen()
@@ -254,12 +223,6 @@ public class CityImprovement : MonoBehaviour
         for (int i = 0; i < count; i++)
             meshFilter[i].gameObject.SetActive(false);
     }
-
-    //public void DestroyPS()
-    //{
-    //    //foreach (ParticleSystem ps in particleSystems)
-    //    //    Destroy(ps.gameObject);
-    //}
 
     public void SetNewMaterial(Material mat)
     {
@@ -292,17 +255,6 @@ public class CityImprovement : MonoBehaviour
         highlight.DisableHighlight();
     }
 
-    //in case object has two of this script (such as in buildings)
-    //public void EnableHighlight2(Color highlightColor)
-    //{
-    //    highlight[1].EnableHighlight(highlightColor);
-    //}
-
-    //public void DisableHighlight2()
-    //{
-    //    highlight[1].DisableHighlight();
-    //}
-
     public void SetCity(City city)
     {
         this.city = city;
@@ -322,25 +274,6 @@ public class CityImprovement : MonoBehaviour
     {
         return queueCity;
     }
-
-    //public void PlayUpgradeSwirl(int time)
-    //{
-    //    //upgradeSwirl.gameObject.SetActive(true);
-    //    //var main = upgradeSwirl.main;
-    //    ////start delay is a function of whatever the simulation speed is
-    //    //main.startDelay = time * 0.5f * 0.2f;
-    //    //upgradeSwirl.Play();
-    //}
-
-    //public void PlayUpgradeSplash()
-    //{
-    //    upgradeSplash.Play();
-    //}
-
-    //public void DestroyUpgradeSplash()
-    //{
-    //    Destroy(upgradeSplash);
-    //}
 
     public void PlayRemoveEffect(bool isHill)
     {
@@ -575,6 +508,7 @@ public class CityImprovement : MonoBehaviour
 
         data.name = improvementData.improvementNameAndLevel;
         data.location = loc;
+        data.cityLoc = city.cityLoc;
         data.queued = queued;
         data.isConstruction = isConstruction;
         data.isUpgrading = isUpgrading;
@@ -583,6 +517,8 @@ public class CityImprovement : MonoBehaviour
         data.laborCost = laborCost;
         data.producedResourceIndex = producedResourceIndex;
         data.producedResource = producedResource;
+        //updating resource amounts
+        GameLoader.Instance.gameData.allTerrain[loc].resourceAmount = city.world.GetTerrainDataAt(loc).resourceAmount;
 
         return data;
     }

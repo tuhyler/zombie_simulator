@@ -218,6 +218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildDataSO: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}
+  unitMesh: {fileID: 0}
   minimapIcon: {fileID: 1834696708367566843}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -226,6 +227,11 @@ MonoBehaviour:
   selectionCircle: {fileID: 0}
   marker: {fileID: 1465328918421097503}
   healthbar: {fileID: 6831278477032459367}
+  greetings:
+  - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
+  attacks: []
+  kills: []
+  audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
@@ -235,14 +241,20 @@ MonoBehaviour:
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
-  barracksBunk: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
+  barracksBunk: {x: 0, y: 0, z: 0}
+  marchPosition: {x: 0, y: 0, z: 0}
   currentHealth: 0
   enemyAI: {fileID: 0}
   baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
+  attackPause:
+  - 1
+  - 1
+  - 1
+  projectile: {fileID: 0}
   turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -255,9 +267,21 @@ MonoBehaviour:
   harvested: 0
   somethingToSay: 0
   sayingSomething: 0
-  isDead: 0
-  isAttacked: 0
+  isLeader: 0
+  readyToMarch: 0
   inArmy: 0
   atHome: 0
+  preparingToMoveOut: 0
+  isMarching: 0
+  transferring: 0
   repositioning: 0
+  inBattle: 0
+  attacking: 0
+  targetSearching: 0
+  flanking: 0
+  flankedOnce: 0
+  cavalryLine: 0
+  isDead: 0
+  isUpgrading: 0
+  targetLocation: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}

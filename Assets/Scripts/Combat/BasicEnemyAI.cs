@@ -455,6 +455,7 @@ public class BasicEnemyAI : MonoBehaviour
 
     public IEnumerator Attack(Unit target)
     {
+		unit.targetBunk = target.barracksBunk;
 		unit.attacking = true;
 		float dist = 0;
 		float distThreshold;
@@ -496,8 +497,9 @@ public class BasicEnemyAI : MonoBehaviour
 		}
     }
 
-	private IEnumerator RangedAttack(Unit target)
+	public IEnumerator RangedAttack(Unit target)
 	{
+		unit.targetBunk = target.barracksBunk;
 		unit.attacking = true;
 		float dist = 0;
 		unit.Rotate(target.transform.position);

@@ -8,12 +8,14 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
     public List<ImprovementDataSO> allBuildingsAndImprovements = new(); //not static so as to populate lists in inspector
     public List<UnitBuildDataSO> allUnits = new(); //not static so as to populate lists in inspector
+    public List<UnitBuildDataSO> allEnemyUnits = new();
     public List<TerrainDataSO> allTerrain = new();
     public List<GameObject> allTradeCenters = new();
     public List<WonderDataSO> allWonders = new();
 
     public Dictionary<string, ImprovementDataSO> improvementDict = new();
     public Dictionary<string, UnitBuildDataSO> unitDict = new();
+    public Dictionary<string, UnitBuildDataSO> enemyUnitDict = new();
     public Dictionary<string, TerrainDataSO> terrainDict = new();
     public Dictionary<string, GameObject> tradeCenterDict = new();
     public Dictionary<string, WonderDataSO> wonderDict = new();
@@ -31,6 +33,9 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
         foreach (UnitBuildDataSO unit in allUnits)
             unitDict[unit.unitNameAndLevel] = unit;
+
+        foreach (UnitBuildDataSO unit in allEnemyUnits)
+            enemyUnitDict[unit.unitNameAndLevel] = unit;
 
         foreach (TerrainDataSO terrain in allTerrain)
             terrainDict[terrain.name] = terrain;
