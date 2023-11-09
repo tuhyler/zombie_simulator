@@ -8,7 +8,10 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     public GameObject loadingScreen;
 	public bool isLoading;
+	public UISaveGame uiLoadGame;
 	private List<AsyncOperation> scenesLoading = new();
+	public GamePersist gamePersist = new();
+	public SettingsData settingsData = new();
 
 	private void Awake()
 	{
@@ -28,7 +31,7 @@ public class GameManager : MonoBehaviour
 		StartCoroutine(GetSceneLoadProgress(true));
 	}
 
-	public void LoadGame()
+	public void LoadGame(string loadName)
 	{
 		isLoading = true;
 		loadingScreen.SetActive(true);
@@ -37,20 +40,25 @@ public class GameManager : MonoBehaviour
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
 
-		StartCoroutine(GetSceneLoadProgress(false));
+		StartCoroutine(GetSceneLoadProgress(false, loadName));
 	}
 
-	public void BackToMainMenu(bool load)
+	public GameData GetLoadInfo(string loadName)
+	{
+		return gamePersist.LoadData(loadName, false);
+	}
+
+	public void BackToMainMenu(bool load, string loadName = "")
 	{
 		//loadingScreen.SetActive(true);
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.MAIN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.TITLE_SCREEN, LoadSceneMode.Additive));
 
-		StartCoroutine(GetMainMenuReturnProgress(load));
+		StartCoroutine(GetMainMenuReturnProgress(load, loadName));
 	}
 
-	public IEnumerator GetMainMenuReturnProgress(bool load)
+	public IEnumerator GetMainMenuReturnProgress(bool load, string loadName = "")
 	{
 		for (int i = 0; i < scenesLoading.Count; i++)
 		{
@@ -62,7 +70,7 @@ public class GameManager : MonoBehaviour
 
 		if (load)
 		{
-			LoadGame();
+			LoadGame(loadName);
 		}
 		else
 		{
@@ -70,7 +78,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public IEnumerator GetSceneLoadProgress(bool newGame)
+	public IEnumerator GetSceneLoadProgress(bool newGame, string loadName = "")
 	{
 		for (int i = 0; i < scenesLoading.Count; i++)
 		{
@@ -87,7 +95,8 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			GameLoader.Instance.LoadData("/game_data.save");
+			string totalLoadName = "/" + loadName + ".save";
+			GameLoader.Instance.LoadData(totalLoadName);
 			StartCoroutine(GetDataLoadProgress());
 		}
 	}

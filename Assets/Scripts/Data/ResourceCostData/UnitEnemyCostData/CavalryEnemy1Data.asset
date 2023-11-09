@@ -12,14 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: CavalryEnemy1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
+  prefab: {fileID: 5472208631966679460, guid: f3efaa925e7c6c34790f26f3c03c9ab9, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Bandit
+  isSecondary: 0
+  unitName: Cavalry
+  unitDisplayName: Horse Bandit
   unitLevel: 1
+  unitNameAndLevel: Cavalry-1
   image: {fileID: 0}
   mapIcon: {fileID: 0}
   unitCost: []
-  consumedResources: []
+  cycleCost: []
+  battleCost: []
   laborCost: 0
   unitType: 3
   unitDescription: 

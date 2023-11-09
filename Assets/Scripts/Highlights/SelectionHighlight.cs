@@ -18,9 +18,12 @@ public class SelectionHighlight : MonoBehaviour
         PrepareMaterialDictionaries();
     }
 
-    private void PrepareMaterialDictionaries()
+    public void PrepareMaterialDictionaries()
     {
         //can only do one material per renderer
+        renderers.Clear();
+        materialsToUse.Clear();
+        renderersSkinned.Clear();
         foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
         {
             renderers.Add(renderer);

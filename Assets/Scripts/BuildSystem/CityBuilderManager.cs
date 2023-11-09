@@ -2731,11 +2731,14 @@ public class CityBuilderManager : MonoBehaviour
             }
             else
             {
+                TerrainDataSO tempData;
+                
                 if (td.terrainData.grassland)
-                    td.terrainData = td.isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
+                    tempData = td.isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
                 else
-                    td.terrainData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
+                    tempData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
 
+                td.SetNewData(tempData);
                 GameLoader.Instance.gameData.allTerrain[improvementLoc] = td.SaveData();
                 td.ShowProp(false);
 			}

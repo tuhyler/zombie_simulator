@@ -27,7 +27,8 @@ public class Army : MonoBehaviour
     private List<Unit> unitsInArmy = new(), deadList = new();
     public List<Unit> UnitsInArmy { get { return unitsInArmy; } }
     public List<Unit> DeadList { get { return deadList; } set { deadList = value; } }
-    private int unitsReady, stepCount, noMoneyCycles;
+    [HideInInspector]
+    public int unitsReady, stepCount, noMoneyCycles;
 
     //army maintenance and battle costs
     private Dictionary<ResourceType, int> armyCycleCostDict = new();
@@ -59,6 +60,18 @@ public class Army : MonoBehaviour
     public void SetWorld(MapWorld world)
     {
         this.world = world;
+    }
+
+    public List<UnitData> SendData()
+    {
+        List<UnitData> armyData = new();
+
+        for (int i = 0; i < unitsInArmy.Count; i++)
+        {
+            armyData.Add(unitsInArmy[i].SaveUnitData());
+        }
+
+        return armyData;
     }
 
     public bool CheckIfInBase(Vector3Int loc)

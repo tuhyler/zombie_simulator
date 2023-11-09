@@ -109,9 +109,9 @@ public class Unit : MonoBehaviour
 
     //military booleans
     [HideInInspector]
-    public bool newlyJoined = true, isLeader, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading;
+    public bool isLeader, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading;
     [HideInInspector]
-    public Vector3Int targetLocation; //in case units overlap on same tile
+    public Vector3Int targetLocation, targetBunk; //targetLocation is in case units overlap on same tile
 
     //animation
     [HideInInspector]
@@ -1271,6 +1271,7 @@ public class Unit : MonoBehaviour
 
 	public IEnumerator Attack(Unit target)
 	{
+        targetBunk = target.barracksBunk;
         attacking = true;
 
         if (target.targetSearching)
@@ -1294,6 +1295,7 @@ public class Unit : MonoBehaviour
 
     private IEnumerator RangedAttack(Unit target)
     {
+        targetBunk = target.barracksBunk;
         attacking = true;
         Rotate(target.transform.position);
 
@@ -2031,7 +2033,7 @@ public class Unit : MonoBehaviour
     {
         UnitData data = new();
 
-        data.id = gameObject.name;
+        data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
         data.position = transform.position;
         data.rotation = transform.rotation;
         data.destinationLoc = destinationLoc;
@@ -2050,23 +2052,32 @@ public class Unit : MonoBehaviour
         data.isWaiting = isWaiting;
         data.harvested = harvested;
         data.somethingToSay = somethingToSay;
+        data.isUpgrading = isUpgrading;
 
         //combat
-        if (inArmy)
+        if (inArmy || enemyAI)
         {
-            data.cityHomeBase = homeBase.cityLoc;
+            if (inArmy)
+            {
+                data.cityHomeBase = homeBase.cityLoc;
+                data.transferring = transferring;
+                data.repositioning = repositioning;
+            }
+            else
+            {
+                data.campSpot = enemyAI.CampSpot;
+            }
+
             data.barracksBunk = barracksBunk;
             data.marchPosition = marchPosition;
+            data.targetBunk = targetBunk;
             data.currentHealth = currentHealth;
             data.baseSpeed = baseSpeed;
-            data.newlyJoined = newlyJoined;
             data.isLeader = isLeader;
             data.readyToMarch = readyToMarch;
             data.atHome = atHome;
             data.preparingToMoveOut = preparingToMoveOut;
             data.isMarching = isMarching;
-            data.transferring = transferring;
-            data.repositioning = repositioning;
             data.inBattle = inBattle;
             data.attacking = attacking;
             data.targetSearching = targetSearching;
@@ -2074,7 +2085,6 @@ public class Unit : MonoBehaviour
             data.flankedOnce = flankedOnce;
             data.cavalryLine = cavalryLine;
             data.isDead = isDead;
-            data.isUpgrading = isUpgrading;
         }
 
         return data;
@@ -2090,13 +2100,6 @@ public class Unit : MonoBehaviour
         prevRoadTile = data.prevRoadTile;
         prevTerrainTile = data.prevTerrainTile;
         isMoving = data.isMoving;
-        if (isMoving)
-        {
-            if (data.moveOrders.Count == 0)
-                data.moveOrders.Add(world.RoundToInt(finalDestinationLoc));
-
-            MoveThroughPath(data.moveOrders);
-        }
 
         moreToMove = data.moreToMove;
         isBusy = data.isBusy;
@@ -2117,29 +2120,38 @@ public class Unit : MonoBehaviour
 
         //if (harvested)
         somethingToSay = data.somethingToSay;
+        isUpgrading = data.isUpgrading;
 
         //if (somethingToSay)
-        if (inArmy)
+        if (inArmy || enemyAI)
         {
-            homeBase = world.GetCity(data.cityHomeBase);
+            if (inArmy)
+            {
+                transferring = data.transferring;
+                repositioning = data.repositioning;
+            }
+            else
+            {
+                enemyAI.CampSpot = data.campSpot;
+            }
+            
             barracksBunk = data.barracksBunk;
             marchPosition = data.marchPosition;
+            targetBunk = data.targetBunk;
             currentHealth = data.currentHealth;
 
-            //if (currentHealth < healthMax)
+            if (currentHealth < healthMax)
+                healthbar.gameObject.SetActive(true);
+
             baseSpeed = data.baseSpeed; //coroutine
-            newlyJoined = data.newlyJoined;
             isLeader = data.isLeader;
             readyToMarch = data.readyToMarch;
             atHome = data.atHome;
             preparingToMoveOut = data.preparingToMoveOut;
             isMarching = data.isMarching;
-            transferring = data.transferring;
-            repositioning = data.repositioning;
             inBattle = data.inBattle;
             attacking = data.attacking;
 
-            //if (attacking)
             targetSearching = data.targetSearching;
 
             //if (targetSearching)
@@ -2147,9 +2159,99 @@ public class Unit : MonoBehaviour
             flankedOnce = data.flankedOnce;
             cavalryLine = data.cavalryLine;
             isDead = data.isDead;
-            isUpgrading = data.isUpgrading;
 
-            //if (isUpgrading)
+            if (isDead)
+            {
+				unitMesh.gameObject.SetActive(false);
+				healthbar.gameObject.SetActive(false);
+
+                if (enemyAI)
+                {
+					enemyCamp.deathCount++;
+					enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
+					enemyCamp.ClearCampCheck();
+					enemyCamp.DeadList.Add(this);
+                }
+                else
+                {
+					minimapIcon.gameObject.SetActive(false);
+					homeBase.army.UnitsInArmy.Remove(this);
+					homeBase.army.attackingSpots.Remove(currentLocation);
+					RemoveUnitFromData();
+					homeBase.army.RemoveFromArmy(this, barracksBunk);
+					homeBase.army.DeadList.Add(this);
+				}
+			}
+		}
+
+		if (isMoving)
+		{
+			if (data.moveOrders.Count == 0)
+				data.moveOrders.Add(world.RoundToInt(finalDestinationLoc));
+
+			MoveThroughPath(data.moveOrders);
+		}
+
+		if (attacking)
+        {
+            GameLoader.Instance.attackingUnitList.Add(this);	
         }
-    }
+	}
+
+    public void LoadAttack()
+    {
+		Unit target = null;
+		if (enemyAI)
+		{
+			List<Unit> units = enemyCamp.attackingArmy.UnitsInArmy;
+
+			for (int i = 0; i < units.Count; i++)
+			{
+				if (units[i].barracksBunk == targetBunk)
+				{
+					target = units[i];
+					break;
+				}
+			}
+		}
+		else
+		{
+			List<Unit> units = homeBase.army.targetCamp.UnitsInCamp;
+
+			for (int i = 0; i < units.Count; i++)
+			{
+				if (units[i].barracksBunk == targetBunk)
+				{
+					target = units[i];
+					break;
+				}
+			}
+		}
+
+		if (target == null)
+		{
+			attacking = false;
+            if (inArmy)
+                AggroCheck();
+            else
+                enemyAI.AggroCheck();
+            
+            return;
+		}
+
+		if (inArmy)
+        {
+            if (buildDataSO.unitType == UnitType.Ranged)
+			    attackCo = StartCoroutine(RangedAttack(target));
+		    else
+			    attackCo = StartCoroutine(Attack(target));
+        }
+        else
+        {
+			if (buildDataSO.unitType == UnitType.Ranged)
+				attackCo = StartCoroutine(enemyAI.RangedAttack(target));
+			else
+				attackCo = StartCoroutine(enemyAI.Attack(target));
+		}
+	}
 }

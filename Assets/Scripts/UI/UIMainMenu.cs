@@ -10,6 +10,12 @@ public class UIMainMenu : MonoBehaviour
 	private MapWorld world;
 
 	[SerializeField]
+	public UISaveGame uiSaveGame;
+
+	[SerializeField]
+	private UISettings uiSettings;
+
+	[SerializeField]
 	private HandlePlayerInput playerInput;
 
 	[SerializeField]
@@ -46,6 +52,8 @@ public class UIMainMenu : MonoBehaviour
 
 		if (opening)
 			return;
+
+		LeanTween.cancel(gameObject);
 
 		if (v)
 		{
@@ -118,9 +126,27 @@ public class UIMainMenu : MonoBehaviour
 		world.immoveableCanvas.gameObject.SetActive(false);
 	}
 
+	public void SaveGameButton()
+	{
+		world.cityBuilderManager.PlaySelectAudio();
+		uiSaveGame.ToggleVisibility(true);
+	}
+
+	public void LoadGameButton()
+	{
+		world.cityBuilderManager.PlaySelectAudio();
+		uiSaveGame.ToggleVisibility(true, true);
+	}
+
+	public void OpenSettingsButton()
+	{
+		world.cityBuilderManager.PlaySelectAudio();
+		uiSettings.ToggleVisibility(true);
+	}
+
 	public void CloseMenuButton()
 	{
-		world.cityBuilderManager.PlayCloseAudio();
+		world.cityBuilderManager.PlaySelectAudio();
 		ToggleVisibility(false);
 	}
 }

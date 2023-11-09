@@ -161,6 +161,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadingScreen: {fileID: 930506253}
+  isLoading: 0
+  uiLoadGame: {fileID: 0}
 --- !u!4 &1087803693
 Transform:
   m_ObjectHideFlags: 0

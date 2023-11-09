@@ -371,7 +371,7 @@ public class Worker : Unit
 		workerPos.y = 0;
 		Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
 
-		if (!world.IsTileOpenCheck(workerTile))
+		if (!world.IsTileOpenButRoadCheck(workerTile))
 		{
 			InfoPopUpHandler.WarningMessage().Create(workerPos, "Must be open tile");
 			return;

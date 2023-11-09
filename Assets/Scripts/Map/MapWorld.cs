@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Resources;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -9,6 +11,8 @@ using UnityEngine.SceneManagement;
 
 public class MapWorld : MonoBehaviour
 {
+    private string version = "0.1";
+    DateTime currentTime;
     //public float test = 0.4f;
     [SerializeField]
     public Unit mainPlayer;
@@ -59,7 +63,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private Material transparentMat;
     [SerializeField]
-    private GameObject selectionIcon, enemyCampIcon, buildPanel;
+    private GameObject selectionIcon, enemyCampIcon, buildPanel, canvasHolder;
 
     [SerializeField]
     private ParticleSystem lightBeam;
@@ -114,8 +118,8 @@ public class MapWorld : MonoBehaviour
 
     public Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
     private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
-    private Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
-    private Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
+    public Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development prefabs
+    public Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
     private List<Vector3Int> cityImprovementQueueList = new();
@@ -201,7 +205,8 @@ public class MapWorld : MonoBehaviour
 
     private void Awake()
     {
-		audioSource = GetComponent<AudioSource>();
+        currentTime = DateTime.Now;
+        audioSource = GetComponent<AudioSource>();
 
         //if (gameData.allTerrain.Count == 0)
         //    loadNewGame = true;
@@ -281,7 +286,81 @@ public class MapWorld : MonoBehaviour
 				td.Discover();
 		}
 
-		WorldStartOrders();
+		foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
+		{
+			Unit unitEnemy = go.GetComponent<Unit>();
+			unitEnemy.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+
+			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
+			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
+				unitEnemy.CurrentLocation = AddUnitPosition(unitLoc, unitEnemy);
+
+			unitEnemy.CurrentLocation = unitLoc;
+
+			Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitLoc);
+			if (!enemyCampDict.ContainsKey(unitTerrainLoc))
+			{
+				EnemyCamp camp = new();
+				camp.world = this;
+				camp.loc = unitTerrainLoc;
+
+				TerrainData tdCamp = GetTerrainDataAt(unitTerrainLoc);
+				tdCamp.enemyCamp = true;
+				tdCamp.enemyZone = true;
+				AddToCityLabor(unitTerrainLoc, null);
+
+				foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
+				{
+					AddToCityLabor(tile, null);
+					TerrainData td = GetTerrainDataAt(tile);
+					if (td.walkable)
+						td.enemyZone = true;
+				}
+
+				enemyCampDict[unitTerrainLoc] = camp;
+			}
+
+			enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unitEnemy);
+			unitEnemy.enemyAI.CampLoc = unitTerrainLoc;
+			unitEnemy.enemyAI.CampSpot = unitLoc;
+			unitEnemy.enemyCamp = enemyCampDict[unitTerrainLoc];
+			if (hideTerrain)
+			    unitEnemy.gameObject.SetActive(false);
+		}
+
+		foreach (Vector3Int loc in enemyCampDict.Keys)
+		{
+			enemyCampDict[loc].FormBattlePositions();
+			GameLoader.Instance.gameData.enemyCampLocs[loc] = enemyCampDict[loc].SendCampData();
+			Vector3 position = Vector3.zero;
+			position.y += 1;
+			GameObject icon = Instantiate(enemyCampIcon);
+			icon.transform.position = position;
+			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
+			enemyCampDict[loc].minimapIcon = icon;
+		}
+
+		GameLoader.Instance.gameData.allTradeCenters.Clear();
+		foreach (Transform go in tradeCenterHolder)
+		{
+			TradeCenter center = go.GetComponent<TradeCenter>();
+
+			center.SetWorld(this);
+			center.ToggleLights(false);
+			center.SetName();
+			center.SetPop(UnityEngine.Random.Range(4, 9));
+			center.ClaimSpotInWorld(increment, false);
+			GameLoader.Instance.gameData.allTradeCenters.Add(center.SaveData());
+			tradeCenterDict[center.tradeCenterName] = center;
+			tradeCenterStopDict[center.mainLoc] = center;
+			tradeCenterStopDict[center.harborLoc] = center;
+			AddTradeLoc(center.mainLoc, center.tradeCenterName);
+			AddTradeLoc(center.harborLoc, center.tradeCenterName);
+			if (hideTerrain)
+				center.Hide();
+			else
+				center.isDiscovered = true;
+		}
 
 		//foreach (GameObject go in unitHolder) //adds all friendly units and their locations to start game.
 		//{
@@ -450,6 +529,7 @@ public class MapWorld : MonoBehaviour
         }
 
         CreateParticleSystems();
+        uiMainMenu.uiSaveGame.PopulateSaveItems();
         DeactivateCanvases();
         //CreateGrid(); //for alternative grid search method
         //if (gamePersist.loadNewGame)
@@ -458,202 +538,6 @@ public class MapWorld : MonoBehaviour
         //    LoadData();
         //}
     }
-
-    public void WorldStartOrders()
-    {		
-        foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
-        {
-            Unit unit = go.GetComponent<Unit>();
-            unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
-
-            Vector3Int unitPos = RoundToInt(unit.transform.position);
-            if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
-                unit.CurrentLocation = AddUnitPosition(unitPos, unit);
-
-            unit.CurrentLocation = unitPos;
-
-            Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitPos);
-            if (!enemyCampDict.ContainsKey(unitTerrainLoc))
-            {
-                EnemyCamp camp = new();
-                camp.world = this;
-                camp.loc = unitTerrainLoc;
-
-                TerrainData tdCamp = GetTerrainDataAt(unitTerrainLoc);
-                tdCamp.enemyCamp = true;
-                tdCamp.enemyZone = true;
-                AddToCityLabor(unitTerrainLoc, null);
-
-                foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
-                {
-                    AddToCityLabor(tile, null);
-                    TerrainData td = GetTerrainDataAt(tile);
-                    if (td.walkable)
-                        td.enemyZone = true;
-                }
-
-                enemyCampDict[unitTerrainLoc] = camp;
-            }
-
-            enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unit);
-            unit.enemyAI.CampLoc = unitTerrainLoc;
-            unit.enemyAI.CampSpot = unitPos;
-            unit.enemyCamp = enemyCampDict[unitTerrainLoc];
-            //if (hideTerrain)
-            unit.gameObject.SetActive(false);
-        }
-
-        foreach (Vector3Int loc in enemyCampDict.Keys)
-		{
-			enemyCampDict[loc].FormBattlePositions();
-			Vector3 position = Vector3.zero;
-			position.y += 1;
-			GameObject icon = Instantiate(enemyCampIcon);
-			icon.transform.position = position;
-			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
-			enemyCampDict[loc].minimapIcon = icon;
-		}
-
-		int i = 0;
-        GameLoader.Instance.gameData.allTradeCenters.Clear();
-		foreach (Transform go in tradeCenterHolder)
-		{
-			TradeCenter center = go.GetComponent<TradeCenter>();
-
-			center.SetWorld(this);
-			center.ToggleLights(false);
-			center.SetName();
-			center.SetPop(UnityEngine.Random.Range(4,9));
-			center.ClaimSpotInWorld(increment, false);
-            GameLoader.Instance.gameData.allTradeCenters.Add(center.SaveData());
-            tradeCenterDict[center.tradeCenterName] = center;
-			tradeCenterStopDict[center.mainLoc] = center;
-			tradeCenterStopDict[center.harborLoc] = center;
-			AddTradeLoc(center.mainLoc, center.tradeCenterName);
-			AddTradeLoc(center.harborLoc, center.tradeCenterName);
-			if (hideTerrain)
-				center.Hide();
-			else
-				center.isDiscovered = true;
-			i++;
-		}
-	}
-
-	//public void SaveGame()
- //   {
- //       //GamePersist persist = new GamePersist();
- //       gameData.camPosition = cameraController.transform.position;
- //       gameData.camRotation = cameraController.transform.rotation;
- //       gameData.timeODay = dayNightCycle.timeODay;
- //       //GameData gameData = new();
-
- //       //Terrain
- //       foreach (TerrainData td in finiteResourceList)
- //           gameData.allTerrain[td.TileCoordinates].resourceAmount = td.resourceAmount;
-
- //       gameData.allCities.Clear();
- //       foreach (City city in cityDict.Values)
- //       {
- //            gameData.allCities.Add(city.SaveCityData());
- //       }
-
- //       //CityImprovements
- //       //Roads
- //       //Wonders
-
-
- //       gameData.playerUnit = mainPlayer.SaveUnitData();
-
- //       //Units, enemy and player
-
- //       gamePersist.SaveData("/game_data.save", gameData, false);
- //       uiMainMenu.ToggleVisibility(false);
- //   }
-
-    public void LoadGame()
-    {
-        //destroy all existing objects
-        //gamePersist.loadNewGame = true;
-        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
-		//SceneManager.LoadScene("LoadingScreen", LoadSceneMode.Single);
-        //foreach (Transform go in terrainHolder)
-        //    Destroy(go.gameObject);
-
-        //foreach (Transform go in tradeCenterHolder)
-        //    Destroy(go.gameObject);
-
-        //GamePersist persist = new GamePersist();
-        //gameData = persist.LoadData("/game_data.save", false);
-
-        //cameraController.transform.position = gameData.camPosition;
-        //cameraController.transform.rotation = gameData.camRotation;
-        //dayNightCycle.timeODay = gameData.timeODay;
-
-        //GenerateMap(gameData.allTerrain);
-        ////      //create trade centers
-
-        ////      WorldStartOrders();
-
-        ////      //create wonders
-
-        //foreach (CityData cityData in gameData.allCities)
-        //{
-        //    BuildCity(cityData.location, GetTerrainDataAt(cityData.location), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, cityData);
-        //}
-        //gameData.allCities.Clear();
-
-        ////      //create cities
-        ////      //create city improvements
-        ////      //assign labor
-        ////      //create roads
-
-        //mainPlayer.LoadUnitData(gameData.playerUnit);
-
-        //////create units
-        //////populate dictionaries
-
-        uiMainMenu.ToggleVisibility(false);
-    }
-
- //   private void LoadData()
- //   {
-	//	foreach (Transform go in terrainHolder)
-	//		Destroy(go.gameObject);
-
-	//	foreach (Transform go in tradeCenterHolder)
-	//		Destroy(go.gameObject);
-
-	//	gameData = gamePersist.LoadData("/game_data.save", false);
-
-	//	cameraController.transform.position = gameData.camPosition;
-	//	cameraController.transform.rotation = gameData.camRotation;
-	//	dayNightCycle.timeODay = gameData.timeODay;
-
-	//	GenerateMap(gameData.allTerrain);
-	//	//      //create trade centers
-
-	//	//      WorldStartOrders();
-
-	//	//      //create wonders
-
-	//	foreach (CityData cityData in gameData.allCities)
-	//	{
-	//		BuildCity(cityData.location, GetTerrainDataAt(cityData.location), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, cityData);
-	//	}
-	//	gameData.allCities.Clear();
-
-	//	//      //create cities
-	//	//      //create city improvements
-	//	//      //assign labor
-	//	//      //create roads
-
-	//	mainPlayer.LoadUnitData(gameData.playerUnit);
-
-	//	////create units
-	//	////populate dictionaries
-
-	//	//uiMainMenu.ToggleVisibility(false);
-	//}
 
     public void GenerateMap(Dictionary<Vector3Int, TerrainSaveData> mainMap)
     {
@@ -709,6 +593,8 @@ public class MapWorld : MonoBehaviour
 			{
 				world[data.tileCoordinates + tile] = td;
 			}
+
+            td.SetHighlightMesh();
 		}
 
 		foreach (TerrainData td in coastalTerrain)
@@ -782,7 +668,7 @@ public class MapWorld : MonoBehaviour
 		//for some non buildings in the building selection list (eg harbor)
 		if (buildingData.isBuildingImprovement)
 		{
-			CreateImprovement(buildingData, data.location, city, data);
+			CreateImprovement(city, data);
 			return;
 		}
 
@@ -819,9 +705,11 @@ public class MapWorld : MonoBehaviour
 			city.singleBuildImprovementsBuildingsDict[buildingData.improvementName] = city.cityLoc;
 	}
 
-	private void CreateImprovement(ImprovementDataSO improvementData, Vector3Int tempBuildLocation, City city, CityImprovementData data)
+	public void CreateImprovement(City city, CityImprovementData data)
 	{
-		//spending resources to build
+        //spending resources to build
+        ImprovementDataSO improvementData = UpgradeableObjectHolder.Instance.improvementDict[data.name];
+        Vector3Int tempBuildLocation = data.location;
 		Vector3Int buildLocation = tempBuildLocation;
 		buildLocation.y = 0;
 
@@ -909,6 +797,8 @@ public class MapWorld : MonoBehaviour
         }
         else
         {
+			if (!improvementData.isBuildingImprovement)
+                resourceProducer.SetNewProgressTime();
 			cityImprovement.SetMinimapIcon(td);
 			cityImprovement.meshCity = city;
 			cityImprovement.transform.parent = city.transform;
@@ -1042,12 +932,19 @@ public class MapWorld : MonoBehaviour
 					city.army.SetArmySpots(tile);
 
 				city.army.SetLoc(tempBuildLocation, city);
+
+                List<UnitData> militaryUnits = GameLoader.Instance.gameData.militaryUnits[tempBuildLocation];
+
+				for (int i = 0; i < militaryUnits.Count; i++)
+                {
+                    CreateUnit(militaryUnits[i], city);
+                }
 			}
 
 			//setting labor info (harbors have no labor)
 			AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
-			if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0 && improvementData.maxLabor > 0)
-				city.AutoAssignmentsForLabor();
+			//if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0 && improvementData.maxLabor > 0)
+			//	city.AutoAssignmentsForLabor();
 
 			//removing areas to work
 			foreach (Vector3Int loc in improvementData.noWalkAreas)
@@ -1057,7 +954,155 @@ public class MapWorld : MonoBehaviour
 		}
 	}
 
-    public void ClearMap()
+	internal void MakeEnemyCamps(Dictionary<Vector3Int, Dictionary<Vector3Int, string>> enemyCampLocs, List<Vector3Int> discovered)
+	{
+        foreach (Vector3Int loc in enemyCampLocs.Keys)
+        {
+            bool attacked = false;
+            Dictionary<Vector3Int, UnitData> fightingEnemies = new();
+
+            EnemyCamp camp = new();
+			camp.world = this;
+			camp.loc = loc;
+			TerrainData tdCamp = GetTerrainDataAt(loc);
+			tdCamp.enemyCamp = true;
+			tdCamp.enemyZone = true;
+			AddToCityLabor(loc, null);
+
+			foreach (Vector3Int tile in GetNeighborsFor(loc, State.EIGHTWAYINCREMENT))
+			{
+				AddToCityLabor(tile, null);
+				TerrainData td = GetTerrainDataAt(tile);
+				if (td.walkable)
+					td.enemyZone = true;
+			}
+
+			enemyCampDict[loc] = camp;
+
+			if (GameLoader.Instance.gameData.attackedEnemyBases.ContainsKey(loc))
+			{
+				attacked = true;
+				EnemyCampData enemyData = GameLoader.Instance.gameData.attackedEnemyBases[loc];
+
+				for (int i = 0; i < enemyData.allUnits.Count; i++)
+				{
+					fightingEnemies[enemyData.allUnits[i].campSpot] = enemyData.allUnits[i];
+				}
+
+				camp.enemyReady = enemyData.enemyReady;
+				camp.threatLoc = enemyData.threatLoc;
+				camp.forward = enemyData.forward;
+				camp.revealed = enemyData.revealed;
+				camp.prepping = enemyData.prepping;
+				camp.attacked = enemyData.attacked;
+				camp.attackReady = enemyData.attackReady;
+				camp.armyReady = enemyData.armyReady;
+				camp.inBattle = enemyData.inBattle;
+				camp.returning = enemyData.returning;
+                camp.campCount = enemyData.campCount;
+				camp.infantryCount = enemyData.infantryCount;
+				camp.rangedCount = enemyData.rangedCount;
+				camp.cavalryCount = enemyData.cavalryCount;
+				camp.seigeCount = enemyData.seigeCount;
+				camp.health = enemyData.health;
+				camp.strength = enemyData.strength;
+			}
+
+			bool reveal = false;
+            if (discovered.Contains(loc))
+                reveal = true;
+
+            foreach(Vector3Int unitLoc in enemyCampLocs[loc].Keys)
+            {
+                UnitBuildDataSO enemyData = UpgradeableObjectHolder.Instance.enemyUnitDict[enemyCampLocs[loc][unitLoc]];
+                GameObject enemyGO = Instantiate(enemyData.prefab, unitLoc, Quaternion.Euler(0,UnityEngine.Random.Range(0,360),0));
+                enemyGO.transform.SetParent(enemyUnitHolder, false);
+                if (!reveal)
+                    enemyGO.SetActive(false);
+
+                Unit unit = enemyGO.GetComponent<Unit>();
+		        unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+		        if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
+			        unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
+		        unit.CurrentLocation = unitLoc;
+                enemyCampDict[loc].UnitsInCamp.Add(unit);
+		        unit.enemyAI.CampLoc = loc;
+		        unit.enemyAI.CampSpot = unitLoc;
+        		unit.enemyCamp = enemyCampDict[loc];
+
+                if (attacked)
+                {
+                    RemoveUnitPosition(unitLoc);
+                    unit.LoadUnitData(fightingEnemies[unitLoc]);
+                    AddUnitPosition(unit.CurrentLocation, unit);
+                }
+            }
+
+            if (!attacked)
+    			enemyCampDict[loc].FormBattlePositions();
+	        Vector3 position = Vector3.zero;
+	        position.y += 1;
+			GameObject icon = Instantiate(enemyCampIcon);
+	        icon.transform.position = position;
+			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
+			enemyCampDict[loc].minimapIcon = icon;
+        }
+	}
+
+    private void CreateUnit(UnitData data, City city)
+    {
+        UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
+		GameObject unitGO = unitData.prefab;
+
+        if (data.secondaryPrefab)
+            unitGO = unitData.secondaryPrefab;
+
+		GameObject unit = Instantiate(unitGO, data.currentLocation, data.rotation); //produce unit at specified position
+		unit.gameObject.transform.SetParent(unitHolder, false);
+		Unit newUnit = unit.GetComponent<Unit>();
+		newUnit.SetReferences(this, cameraController, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+		AddUnitPosition(newUnit.CurrentLocation, newUnit);
+		newUnit.SetMinimapIcon(unitHolder);
+
+		//assigning army details and rotation
+		if (newUnit.inArmy)
+        {
+            newUnit.homeBase = city;
+			city.army.AddToArmy(newUnit);
+            city.army.AddToOpenSpots(data.barracksBunk);
+        }
+
+        newUnit.LoadUnitData(data);
+	}
+
+	public void StartSaveProcess(string saveName)
+    {
+        canvasHolder.SetActive(false);
+        StartCoroutine(TakeScreenshot(saveName));
+    }
+
+    private IEnumerator TakeScreenshot(string saveName)
+    {
+        yield return new WaitForEndOfFrame();
+
+        int height = Mathf.RoundToInt(Screen.width * 0.625f);
+        int width = height / 4 * 3;
+        Texture2D texture = new Texture2D(height, width, TextureFormat.ARGB32, false);
+        texture.ReadPixels(new Rect((Screen.width - height) * 0.5f, (Screen.height - width) * 0.5f, texture.width, texture.height), 0, 0);
+        texture.Apply();
+        byte[] bytes = texture.EncodeToPNG();
+        string bytesString = Convert.ToBase64String(bytes);
+        //File.WriteAllBytes(Application.persistentDataPath + "/Screenshot.png", bytes);
+        Texture2D newTexture = texture;
+
+        canvasHolder.SetActive(true);
+        float playTime = (DateTime.Now - currentTime).Seconds;
+		uiMainMenu.uiSaveGame.UpdateSaveItems(saveName, playTime, version, newTexture);
+        //Destroy(texture);
+        GameLoader.Instance.SaveGame(saveName, playTime, version, bytesString);
+    }
+
+	public void ClearMap()
     {
 		foreach (Transform go in terrainHolder)
 			Destroy(go.gameObject);
@@ -1067,12 +1112,20 @@ public class MapWorld : MonoBehaviour
 		foreach (Transform go in tradeCenterHolder)
 			Destroy(go.gameObject);
 
+        foreach (Transform go in enemyUnitHolder)
+            Destroy(go.gameObject);
+
+        foreach (Vector3Int loc in enemyCampDict.Keys)
+            Destroy(enemyCampDict[loc].minimapIcon);
+
         tradeCenterDict.Clear();
         tradeCenterStopDict.Clear(); 
         cityWorkedTileDict.Clear();
         buildingPosDict.Clear();
         cityNamesMaps.Clear();
         tradeLocDict.Clear();
+        enemyCampDict.Clear();
+        unitPosDict.Clear();
 	}
 
 	public void AaddGold() //for testing, on a button
@@ -2899,7 +2952,8 @@ public class MapWorld : MonoBehaviour
             return;
         else
             enemyCampDict[loc].revealed = true;
-        
+
+        GameLoader.Instance.gameData.discoveredEnemyCampLocs.Add(loc);
         foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
         {
             unit.gameObject.SetActive(true);
@@ -3004,6 +3058,7 @@ public class MapWorld : MonoBehaviour
         enemyCampDict[loc].attacked = true;
         enemyCampDict[loc].attackingArmy = army;
         enemyCampDict[loc].forward = army.forward * -1;
+        GameLoader.Instance.gameData.attackedEnemyBases[loc] = new();
     }
 
     public void RemoveEnemyCamp(Vector3Int loc)
@@ -3037,7 +3092,8 @@ public class MapWorld : MonoBehaviour
 		}
 
         StartCoroutine(EnemyCampDestroyWait(loc));
-        Destroy(enemyCampDict[loc].minimapIcon);        
+        Destroy(enemyCampDict[loc].minimapIcon);
+        GameLoader.Instance.RemoveEnemyCamp(loc);
 	}
 
     private IEnumerator EnemyCampDestroyWait(Vector3Int loc)

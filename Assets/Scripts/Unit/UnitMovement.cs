@@ -1775,6 +1775,7 @@ public class UnitMovement : MonoBehaviour
 
         if (selectedUnit.homeBase.army.traveling)
         {
+            GameLoader.Instance.gameData.attackedEnemyBases.Remove(selectedUnit.homeBase.army.EnemyTarget);
             selectedUnit.homeBase.army.MoveArmyHome(selectedUnit.homeBase.barracksLocation);
             world.EnemyCampReturn(selectedUnit.homeBase.army.EnemyTarget);
             //uiDeployArmy.ToggleTweenVisibility(true);

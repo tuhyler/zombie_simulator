@@ -49,7 +49,7 @@ MonoBehaviour:
     resourceAmount: 1
   - resourceType: 26
     resourceAmount: 1
-  producedResourceTime: 0a00000014000000
+  producedResourceTime: 0a0000000a000000
   rawMaterials: 1
   rawResourceType: 3
   isResearch: 0

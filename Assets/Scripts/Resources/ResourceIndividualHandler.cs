@@ -27,7 +27,7 @@ public class ResourceIndividualHandler : MonoBehaviour
     public IEnumerator GenerateHarvestedResource(Vector3 unitPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
         int timePassed;
-        Vector3Int pos = world.RoundToInt(unitPos);
+        Vector3Int pos = world.GetClosestTerrainLoc(unitPos);
 
 		if (clearForest)
         {
@@ -64,18 +64,18 @@ public class ResourceIndividualHandler : MonoBehaviour
             td.beingCleared = false;
             td.ShowProp(false);
 			worker.marker.ToggleVisibility(false);
+            TerrainDataSO tempData;
 
 			if (td.isHill)
             {
-                td.terrainData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
-                td.gameObject.tag = "Hill";
+                tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
             }
             else
             {
-                td.terrainData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
-				td.gameObject.tag = "Flatland";
+                tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
             }
 
+            td.SetNewData(tempData);
             GameLoader.Instance.gameData.allTerrain[pos] = td.SaveData();
             city.UpdateCityBools(ResourceType.Lumber);
 		}
