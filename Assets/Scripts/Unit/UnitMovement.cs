@@ -413,10 +413,17 @@ public class UnitMovement : MonoBehaviour
                 {
                     City newCity = world.GetCity(pos);
                     Vector3Int newLoc = newCity.army.GetAvailablePosition();
-                    List<Vector3Int> path = GridSearch.AStarSearch(world, selectedUnit.CurrentLocation, newLoc, false, selectedUnit.bySea);
+                    List<Vector3Int> path = GridSearch.AStarSearch(world, selectedUnit.transform.position, newLoc, false, selectedUnit.bySea);
 
                     if (path.Count > 0)
                     {
+                        if (selectedUnit.isMoving)
+                        {
+							selectedUnit.StopAnimation();
+							selectedUnit.ShiftMovement();
+							selectedUnit.FinishedMoving.RemoveAllListeners();
+						}
+
                         selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
                         selectedUnit.homeBase = newCity; 
                         selectedUnit.atHome = false;
@@ -632,7 +639,7 @@ public class UnitMovement : MonoBehaviour
                 selectedUnit.InterruptedRouteMessage();
             //uiPersonalResourceInfoPanel.PrepareResourceUI(selectedTrader.resourceGridDict);
             uiPersonalResourceInfoPanel.SetTitleInfo(selectedTrader.name,
-                selectedTrader.personalResourceManager.GetResourceStorageLevel, selectedTrader.cargoStorageLimit);
+                selectedTrader.personalResourceManager.ResourceStorageLevel, selectedTrader.cargoStorageLimit);
             uiPersonalResourceInfoPanel.ToggleVisibility(true, selectedTrader);
             world.traderCanvas.gameObject.SetActive(true);
             uiTraderPanel.ToggleVisibility(true);
@@ -1060,6 +1067,7 @@ public class UnitMovement : MonoBehaviour
         else
         {
             world.GetWonder(unitLoc).AddWorker(selectedUnit.transform.position);
+            world.laborerList.Remove(selectedUnit.GetComponent<Laborer>());
         }
 
         selectedUnit.DestroyUnit();
@@ -1072,7 +1080,7 @@ public class UnitMovement : MonoBehaviour
 
 		if (world.IsCityOnTile(unitLoc))
 		{
-			AddToCity(world.GetCity(unitLoc), selectedUnit);
+			AddToCity(world.GetCity(unitLoc), unit);
 		}
 		else
 		{
@@ -1119,7 +1127,12 @@ public class UnitMovement : MonoBehaviour
 
     public void AddToCity(City joinedCity, Unit unit)
     {
-		joinedCity.PopulationGrowthCheck(true, unit.buildDataSO.laborCost);
+        if (unit.isTrader)
+            world.traderList.Remove(unit.GetComponent<Trader>());
+        else if (unit.isLaborer)
+            world.laborerList.Remove(unit.GetComponent<Laborer>());
+        
+        joinedCity.PopulationGrowthCheck(true, unit.buildDataSO.laborCost);
 
 		int i = 0;
 		foreach (ResourceValue resourceValue in unit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
@@ -1380,6 +1393,8 @@ public class UnitMovement : MonoBehaviour
     private void ChangeResourceManagersAndUIs(ResourceType resourceType, int resourceAmount)
     {
         //for buying and selling resources in trade center (stand alone)
+        selectedTrader.personalResourceManager.DictCheckSolo(resourceType);
+
         if (tradeCenter)
         {
             if (resourceAmount > 0) //buying 
@@ -1403,7 +1418,7 @@ public class UnitMovement : MonoBehaviour
                 InfoResourcePopUpHandler.CreateResourceStat(selectedTrader.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
 
                 uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), true);
-                uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
+                uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.ResourceStorageLevel);
             }
             else if (resourceAmount <= 0) //selling
             {
@@ -1425,7 +1440,7 @@ public class UnitMovement : MonoBehaviour
 
                     uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), false);
                     uiCityResourceInfoPanel.FlashResource(resourceType);
-                    uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
+                    uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.ResourceStorageLevel);
                 }
                 else
                 {
@@ -1512,8 +1527,10 @@ public class UnitMovement : MonoBehaviour
         if (!personalFull)
         {
             uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, selectedTrader.personalResourceManager.GetResourceDictValue(resourceType), toTrader);
-            uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.GetResourceStorageLevel);
+            uiPersonalResourceInfoPanel.UpdateStorageLevel(selectedTrader.personalResourceManager.ResourceStorageLevel);
         }
+
+        selectedTrader.personalResourceManager.ResetDictSolo(resourceType);
     }
 
     public void SetUpTradeRoute()

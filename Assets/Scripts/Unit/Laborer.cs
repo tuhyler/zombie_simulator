@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Laborer : Unit
@@ -61,4 +62,47 @@ public class Laborer : Unit
         unitAnimator.SetBool(isCelebratingHash, false);
         unitAnimator.SetBool(isJumpingHash, false);
     }
+
+	public LaborerData SaveLaborerData()
+	{
+		LaborerData data = new();
+
+		data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
+		data.secondaryPrefab = secondaryPrefab;
+		data.position = transform.position;
+		data.rotation = transform.rotation;
+		data.destinationLoc = destinationLoc;
+		data.finalDestinationLoc = finalDestinationLoc;
+		data.currentLocation = CurrentLocation;
+		data.prevTerrainTile = prevTerrainTile;
+		data.moveOrders = pathPositions.ToList();
+		data.isMoving = isMoving;
+		data.moreToMove = moreToMove;
+
+		return data;
+	}
+
+    public void LoadLaborerData(LaborerData data)
+    {
+		secondaryPrefab = data.secondaryPrefab;
+		transform.position = data.position;
+		transform.rotation = data.rotation;
+		destinationLoc = data.destinationLoc;
+		finalDestinationLoc = data.finalDestinationLoc;
+		CurrentLocation = data.currentLocation;
+		prevTerrainTile = data.prevTerrainTile;
+		isMoving = data.isMoving;
+		moreToMove = data.moreToMove;
+		somethingToSay = data.somethingToSay;
+
+		if (isMoving)
+		{
+			Vector3Int endPosition = world.RoundToInt(finalDestinationLoc);
+
+			if (data.moveOrders.Count == 0)
+				data.moveOrders.Add(endPosition);
+
+			MoveThroughPath(data.moveOrders);
+		}
+	}
 }

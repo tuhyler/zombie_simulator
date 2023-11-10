@@ -68,7 +68,8 @@ public class Army : MonoBehaviour
 
         for (int i = 0; i < unitsInArmy.Count; i++)
         {
-            armyData.Add(unitsInArmy[i].SaveUnitData());
+            if (!unitsInArmy[i].isDead) //only save living units
+                armyData.Add(unitsInArmy[i].SaveMilitaryUnitData());
         }
 
         return armyData;
@@ -959,7 +960,7 @@ public class Army : MonoBehaviour
 
         noMoneyCycles = 0;
         //int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
-        Unit unit = GetMostExpensiveUnit(); ;
+        Unit unit = GetMostExpensiveUnit();
         world.unitMovement.AddToCity(unit.homeBase, unit);
 		RemoveFromArmy(unit, unit.barracksBunk);
         if (unit.isSelected)

@@ -6,7 +6,7 @@ public class ResourceIndividualSO : ScriptableObject
 {
     //public GameObject prefab;
     public ResourceType resourceType;
-    public float resourceStorageMultiplier;
+    public float resourceStorageMultiplier = 1;
     public string resourceName;
     public Sprite resourceIcon;
     public int ResourceGatheringTime = 5;

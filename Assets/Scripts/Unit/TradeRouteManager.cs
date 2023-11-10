@@ -24,7 +24,7 @@ public class TradeRouteManager : MonoBehaviour
     [HideInInspector]
     public int currentStop = 0, currentResource = 0, resourceCurrentAmount, resourceTotalAmount;
     private Vector3Int currentDestination;
-    public Vector3Int CurrentDestination { get { return currentDestination; } }
+    public Vector3Int CurrentDestination { get { return currentDestination; } set { currentDestination = value; } }
 
     //private PersonalResourceManager personalResourceManager;
     private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
@@ -49,7 +49,8 @@ public class TradeRouteManager : MonoBehaviour
     private Wonder wonder;
     private TradeCenter tradeCenter;
     private WaitForSeconds totalWait;
-    private float percDone;
+    [HideInInspector]
+    public float percDone;
     //private WaitForSeconds resourceWait = new WaitForSeconds(1);
     //private WaitForSeconds loadWait;// = new WaitForSeconds(1);
 
@@ -128,10 +129,10 @@ public class TradeRouteManager : MonoBehaviour
         this.uiPersonalResourceInfoPanel = uiPersonalResourceInfoPanel;
     }
 
-    public void SetPersonalResourceManager(PersonalResourceManager personalResourceManager)
-    {
-        //this.personalResourceManager = personalResourceManager;
-    }
+    //public void SetPersonalResourceManager(PersonalResourceManager personalResourceManager)
+    //{
+    //    //this.personalResourceManager = personalResourceManager;
+    //}
 
     public void SetTradeRouteManager(UITradeRouteManager uiTradeRouteManager)
     {
@@ -172,6 +173,8 @@ public class TradeRouteManager : MonoBehaviour
         bool complete = false;
 
         int i = 0;
+        trader.personalResourceManager.DictCheck(resourceAssignments[currentStop]);
+
         foreach (ResourceValue value in resourceAssignments[currentStop])
         {
             currentResource = i;
@@ -240,7 +243,7 @@ public class TradeRouteManager : MonoBehaviour
                 //    resourceAmount = remainingInCity;
 
                 //if trader wants more than it can store
-                int level = Mathf.CeilToInt(trader.personalResourceManager.GetResourceStorageLevel);
+                int level = Mathf.CeilToInt(trader.personalResourceManager.ResourceStorageLevel);
                 int limit = trader.cargoStorageLimit;
                 int currentAmount = trader.personalResourceManager.ResourceDict[value.resourceType];
                 resourceAmount -= currentAmount;
@@ -325,7 +328,7 @@ public class TradeRouteManager : MonoBehaviour
                     if (trader.isSelected)
                     {
                         uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, trader.personalResourceManager.GetResourceDictValue(value.resourceType));
-                        uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.GetResourceStorageLevel);
+                        uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.ResourceStorageLevel);
                     }
 
                     if (tradeCenter)
@@ -420,7 +423,7 @@ public class TradeRouteManager : MonoBehaviour
                     if (trader.isSelected)
                     {
                         uiPersonalResourceInfoPanel.UpdateResource(value.resourceType, trader.personalResourceManager.GetResourceDictValue(value.resourceType));
-                        uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.GetResourceStorageLevel);
+                        uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.ResourceStorageLevel);
                     }
                     //if (resourceAmountAdjusted == 0)
                     //    resourceCheck = true;
@@ -462,6 +465,7 @@ public class TradeRouteManager : MonoBehaviour
         {
             //trader.SetLoadingAnimation(false);
             //trader.SetUnloadingAnimation(false);
+            trader.personalResourceManager.ResetDict(resourceAssignments[currentStop]);
             FinishLoading();
         }
     }

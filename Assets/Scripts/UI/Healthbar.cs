@@ -101,4 +101,12 @@ public class Healthbar : MonoBehaviour
         if (unit.currentHealth == healthMax)
             gameObject.SetActive(false);
     }
+
+    public void LoadHealthLevel(int health)
+    {
+		float perc = (float)health / healthMax;
+		bar.localScale = new Vector3(perc, 1f);
+		barImage.color = Color.Lerp(Color.red, Color.green, perc);
+		currentHealth = health;
+	}
 }

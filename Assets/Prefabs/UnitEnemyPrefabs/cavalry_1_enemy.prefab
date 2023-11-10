@@ -26,23 +26,28 @@ PrefabInstance:
     - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: greetings.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: attacks.Array.data[0]
       value: 
-      objectReference: {fileID: 8300000, guid: 5d3e817c866391340a32fa287a07b29f, type: 3}
+      objectReference: {fileID: 8300000, guid: c6325542aca7be743b0cb6098531b114, type: 3}
     - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: attacks.Array.data[1]
       value: 
-      objectReference: {fileID: 8300000, guid: 2582f120fdc984d42aaaa7b205bb4660, type: 3}
+      objectReference: {fileID: 8300000, guid: 3856f315685528e4db3016bcc1325670, type: 3}
     - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: attacks.Array.data[2]
       value: 
-      objectReference: {fileID: 8300000, guid: a98bb4598a5764c40a472c225799f04a, type: 3}
+      objectReference: {fileID: 8300000, guid: 2132349055b854740a7ee321f69c3a88, type: 3}
+    - target: {fileID: -5324076436044738225, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: greetings.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: ffb8e9c131370d5409e54d58770305df, type: 3}
     - target: {fileID: -1569295495130398200, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: m_Avatar

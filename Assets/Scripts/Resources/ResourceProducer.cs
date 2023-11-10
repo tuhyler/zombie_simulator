@@ -14,7 +14,8 @@ public class ResourceProducer : MonoBehaviour
     public int currentLabor;
     private float tempLabor; //if adding labor during production process
     List<float> tempLaborPercsList = new();
-    private Vector3 producerLoc;
+    [HideInInspector]
+    public Vector3Int producerLoc;
 
     //for production info
     private Coroutine producingCo;

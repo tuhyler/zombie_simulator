@@ -135,7 +135,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
                 if (city)
                 {
-                    city.uiCityResourceInfoPanel = this;
+					city.ReshuffleGrid();
+					city.uiCityResourceInfoPanel = this;
                     
                     foreach (ResourceType type in city.resourceGridDict.Keys)
                         ActivateCell(type, true);
@@ -163,7 +164,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             }
             else
             {
-                foreach (ResourceType type in trader.resourceGridDict.Keys)
+				trader.ReshuffleGrid();
+
+				foreach (ResourceType type in trader.resourceGridDict.Keys)
                 {
                     ActivateCell(type, true);
                     gridCellDict[resourceUIDict[type]].resource.clickable = false;
@@ -326,7 +329,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 gridCellDict[loc].resource.SetText(" ", tradeCenter.ResourceBuyDict[type]);
         }
         else
+        {
             gridCellDict[loc].resource.SetValue(trader.personalResourceManager.ResourceDict[type]);
+        }
 
         gridCellDict[loc].resource.resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
         resourceUIDict[type] = loc;
