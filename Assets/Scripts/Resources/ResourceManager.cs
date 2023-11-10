@@ -8,7 +8,6 @@ using System.Resources;
 public class ResourceManager : MonoBehaviour
 {
     private Dictionary<ResourceType, int> resourceDict = new(); //need this later for save system
-    private Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
     private Dictionary<ResourceType, float> resourceGenerationPerMinuteDict = new(); //for resource generation stats
     private Dictionary<ResourceType, float> resourceConsumedPerMinuteDict = new(); //for resource consumption stats
     private Dictionary<ResourceType, int> resourcePriceDict = new();
@@ -41,10 +40,14 @@ public class ResourceManager : MonoBehaviour
     private List<ResourceProducer> waitingForStorageRoomProducerList = new();
 
     //consuming resources
-    private List<ResourceProducer> waitingforResourceProducerList = new();
-    private List<ResourceType> resourcesNeededForProduction = new();
-    private List<Trader> waitingForTraderList = new();
-    private List<ResourceType> resourcesNeededForRoute = new();
+    [HideInInspector]
+    public List<ResourceProducer> waitingforResourceProducerList = new();
+    [HideInInspector]
+    public List<ResourceType> resourcesNeededForProduction = new();
+    [HideInInspector]
+    public List<Trader> waitingForTraderList = new();
+    [HideInInspector]
+    public List<ResourceType> resourcesNeededForRoute = new();
 
     //UIs to update
     private UIResourceManager uiResourceManager;
@@ -102,9 +105,6 @@ public class ResourceManager : MonoBehaviour
 
             if (resourceData.resourceType != ResourceType.Research)
             {
-                if (resourceData.resourceStorageMultiplier <= 0) //absolutely cannot be zero or less
-                    resourceStorageMultiplierDict[resourceData.resourceType] = 1;
-                resourceStorageMultiplierDict[resourceData.resourceType] = resourceData.resourceStorageMultiplier;
                 resourceConsumedPerMinuteDict[resourceData.resourceType] = 0;
             }
         }
@@ -121,10 +121,7 @@ public class ResourceManager : MonoBehaviour
         {
             ResourceType resourceType = resourceData.resourceType;
             resourceDict[resourceType] = resourceData.resourceAmount; //assigns the initial values for each resource
-            if (resourceStorageMultiplierDict.ContainsKey(resourceType))
-            {
-                resourceStorageLevel += resourceData.resourceAmount * resourceStorageMultiplierDict[resourceType];
-            }
+            resourceStorageLevel += resourceData.resourceAmount * city.world.resourceStorageMultiplierDict[resourceType];
         }
     }
 
@@ -196,8 +193,8 @@ public class ResourceManager : MonoBehaviour
             return true;
         else if (resourceAdded < 0 && resourceDict[resourceType] == 0)
             return false;
-        else if (resourceStorageMultiplierDict[resourceType] < 1)
-            return Mathf.CeilToInt(resourceStorageLevel + resourceStorageMultiplierDict[resourceType]) <= resourceStorageLimit;
+        else if (city.world.resourceStorageMultiplierDict[resourceType] < 1)
+            return Mathf.CeilToInt(resourceStorageLevel + city.world.resourceStorageMultiplierDict[resourceType]) <= resourceStorageLimit;
         else if (resourceAdded > 0 && resourceStorageLimit <= 0) //for infinite storage
             return true;
 
@@ -456,8 +453,7 @@ public class ResourceManager : MonoBehaviour
             resourceAmount = -prevAmount;
         }
         
-        if (resourceStorageMultiplierDict.ContainsKey(type))
-            resourceAmount = Mathf.CeilToInt(resourceAmount * resourceStorageMultiplierDict[type]);
+        resourceAmount = Mathf.CeilToInt(resourceAmount * city.world.resourceStorageMultiplierDict[type]);
 
         //adjusting resource amount to move based on how much space is available
         int newResourceAmount = resourceAmount;
@@ -467,7 +463,7 @@ public class ResourceManager : MonoBehaviour
             newResourceAmount -= newResourceBalance;
         }
 
-        int resourceAmountAdjusted = Mathf.RoundToInt(newResourceAmount / resourceStorageMultiplierDict[type]);
+        int resourceAmountAdjusted = Mathf.RoundToInt(newResourceAmount / city.world.resourceStorageMultiplierDict[type]);
 
         resourceDict[type] += resourceAmountAdjusted; //updating the dictionary
 
@@ -482,8 +478,7 @@ public class ResourceManager : MonoBehaviour
             CheckProducerResourceWaitList(type);
 
         int wasteCheck = 0;
-        if (resourceStorageMultiplierDict.ContainsKey(type) && resourceStorageMultiplierDict[type] > 0)
-            wasteCheck = Mathf.RoundToInt((resourceAmount - newResourceAmount) / resourceStorageMultiplierDict[type]);
+        wasteCheck = Mathf.RoundToInt((resourceAmount - newResourceAmount) / city.world.resourceStorageMultiplierDict[type]);
 
         if (wasteCheck > 0)
         {
@@ -562,11 +557,8 @@ public class ResourceManager : MonoBehaviour
     {
         //ResourceType resourceValue = resourceValue.resourceValue; 
         resourceDict[resourceType] -= resourceAmount; //subtract cost
-        if (resourceStorageMultiplierDict.ContainsKey(resourceType))
-        {
-            resourceStorageLevel -= resourceAmount * resourceStorageMultiplierDict[resourceType];
-            CheckProducerUnloadWaitList();
-        }
+        resourceStorageLevel -= resourceAmount * city.world.resourceStorageMultiplierDict[resourceType];
+        CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
         VerifyResourceAmount(resourceType);
         //UpdateUI(resourceValue);

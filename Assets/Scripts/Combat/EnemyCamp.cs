@@ -129,7 +129,7 @@ public class EnemyCamp
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
 		{
-			campList.Add(unitsInCamp[i].SaveUnitData());
+			campList.Add(unitsInCamp[i].SaveMilitaryUnitData());
 		}
 
 		campData.enemyReady = enemyReady;
@@ -490,7 +490,8 @@ public class EnemyCamp
 			else
 				rebornSpot = unit.enemyAI.CampSpot;
 
-            unit.transform.position = rebornSpot;
+			unit.unitRigidbody.useGravity = true;
+			unit.transform.position = rebornSpot;
 			unit.moreToMove = false;
 			unit.isMoving = false;
 			unit.CurrentLocation = unit.enemyAI.CampSpot;

@@ -315,6 +315,10 @@ public class BasicEnemyAI : MonoBehaviour
 			if (unit.world.IsUnitLocationTaken(forwardTile) && unit.world.GetUnit(forwardTile).enemyAI)
 				newEnemy = unit.enemyCamp.FindEdgeRanged(unit.CurrentLocation);
 		}
+		else
+		{
+			unit.flanking = false;
+		}
 
 		if (newEnemy == null)
 			newEnemy = unit.enemyCamp.FindClosestTarget(unit);
@@ -340,7 +344,8 @@ public class BasicEnemyAI : MonoBehaviour
 
 			if (unit.flanking)
 			{
-				path.RemoveAt(path.Count - 1); //remove last one
+				if (path.Count > 1)
+					path.RemoveAt(path.Count - 1); //remove last one
 				unit.finalDestinationLoc = path[path.Count - 1];
 				unit.MoveThroughPath(path);
 			}
@@ -503,8 +508,9 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.attacking = true;
 		float dist = 0;
 		unit.Rotate(target.transform.position);
+		float distThreshold = 7.5f;
 
-		while (!unit.isDead && target.currentHealth > 0 && dist < 7.5)
+		while (!unit.isDead && target.currentHealth > 0 && dist < distThreshold)
 		{
 			unit.StartAttackingAnimation();
 			yield return unit.attackPauses[3];
@@ -523,7 +529,7 @@ public class BasicEnemyAI : MonoBehaviour
 		else if (!unit.isDead)
 		{
 			unit.attackCo = null;
-			unit.StopAnimation();
+			unit.StopAttackAnimation();
 			AggroCheck();
 		}
 	}

@@ -20,6 +20,9 @@ public class GameData
     public Dictionary<Vector3Int, EnemyCampData> attackedEnemyBases = new();
     public Dictionary<Vector3Int, List<UnitData>> militaryUnits = new();
 
+    public List<TraderData> allTraders = new();
+    public List<LaborerData> allLaborers = new();
+
     public UnitData playerUnit;
     public Dictionary<Vector3Int, TerrainSaveData> allTerrain = new();
     public List<TradeCenterData> allTradeCenters = new();

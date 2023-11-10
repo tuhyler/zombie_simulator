@@ -207,6 +207,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ceramist01
       objectReference: {fileID: 0}
+    - target: {fileID: 8789389234130458407, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_TagString
+      value: Flatland
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5af237387799660428805ee8b0755933, type: 3}
 --- !u!4 &667148203612308655 stripped

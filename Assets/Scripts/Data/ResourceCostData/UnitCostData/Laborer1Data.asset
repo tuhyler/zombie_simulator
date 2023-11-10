@@ -18,8 +18,8 @@ MonoBehaviour:
   isSecondary: 0
   unitName: Laborer
   unitDisplayName: Laborer
-  unitLevel: 0
-  unitNameAndLevel: Laborer-0
+  unitLevel: 1
+  unitNameAndLevel: Laborer-1
   image: {fileID: 21300000, guid: 38c96c942e8bff6448b8933a40ad9a8d, type: 3}
   mapIcon: {fileID: 21300000, guid: 9b23ce138e88b6d4190fc1a4ee56ab20, type: 3}
   unitCost: []

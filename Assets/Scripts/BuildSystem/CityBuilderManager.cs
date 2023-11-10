@@ -584,9 +584,6 @@ public class CityBuilderManager : MonoBehaviour
 
         GameObject workerGO = selectedWonder.WonderData.workerData.prefab;
 
-        world.workerCount++;
-        workerGO.name = selectedWonder.WonderData.workerData.name.Split("_")[0] + "_" + world.workerCount;
-
         Vector3Int buildPosition = selectedWonder.unloadLoc;
         if (world.IsUnitLocationTaken(buildPosition) || !world.CheckIfPositionIsValid(buildPosition)) //placing unit in world after building in city
         {
@@ -631,9 +628,7 @@ public class CityBuilderManager : MonoBehaviour
         for (int i = 0; i < workers; i++)
         {
             GameObject workerGO = wonder.WonderData.workerData.prefab;
-            world.workerCount++;
-            workerGO.name = wonder.WonderData.workerData.name.Split("_")[0] + "_" + world.workerCount;
-
+ 
             if (locs.Count == 0)
                 lostWorkersCount++;
             else
@@ -655,7 +650,9 @@ public class CityBuilderManager : MonoBehaviour
                     //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
                     //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
                     unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
-                    unit.GetComponent<Laborer>().StartLaborAnimations();
+                    Laborer laborer = unit.GetComponent<Laborer>();
+                    world.laborerList.Add(laborer);
+                    laborer.StartLaborAnimations();
                     
                     unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
                     Unit newUnit = unit.GetComponent<Unit>();
@@ -799,20 +796,20 @@ public class CityBuilderManager : MonoBehaviour
 
     public void PlaySelectAudio()
     {
-        audioSource.clip = selectClip;
-        audioSource.Play();
+        //audioSource.clip = selectClip;
+        audioSource.PlayOneShot(selectClip);
     }
 
     public void PlayBoomAudio()
     {
-        audioSource.clip = buildClip;
-        audioSource.Play();
+        //audioSource.clip = buildClip;
+        audioSource.PlayOneShot(buildClip);
     }
 
     public void PlayCloseAudio()
     {
-        audioSource.clip = closeClip;
-        audioSource.Play();
+        //audioSource.clip = closeClip;
+        audioSource.PlayOneShot(closeClip);
     }
 
     public void PlayCheckAudio()
@@ -1632,11 +1629,15 @@ public class CityBuilderManager : MonoBehaviour
         }
 
 		GameObject unitGO = unitData.prefab;
+        bool secondaryPrefab = false;
 
 		if (unitData.secondaryPrefab != null)
 		{
 			if (UnityEngine.Random.Range(0, 2) == 1)
+            {
+                secondaryPrefab = true;
 				unitGO = unitData.secondaryPrefab;
+            }
 		}
 
 		GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
@@ -1649,13 +1650,16 @@ public class CityBuilderManager : MonoBehaviour
         LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
         //unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
+        newUnit.secondaryPrefab = secondaryPrefab;
         newUnit.PlayAudioClip(buildClip);
 
         //transferring all previous trader info to new one
 		if (upgrading)
 		{
             Trader oldTrader = upgradedUnit.GetComponent<Trader>();
+            world.traderList.Remove(oldTrader);
             Trader newTrader = newUnit.GetComponent<Trader>();
+            world.traderList.Add(newTrader);
             newTrader.hasRoute = oldTrader.hasRoute;
             newTrader.tradeRouteManager = oldTrader.tradeRouteManager;
             newTrader.tradeRouteManager.SetTrader(newTrader);
@@ -1668,7 +1672,16 @@ public class CityBuilderManager : MonoBehaviour
         }
  
         if (newUnit.isTrader)
+        {
+            world.traderCount++;
+            Trader newTrader = newUnit.GetComponent<Trader>();
+            newTrader.id = world.traderCount;
+            world.traderList.Add(newTrader);
             selectedCity.tradersHere.Add(newUnit);
+        }
+
+        if (newUnit.isLaborer)
+            world.laborerList.Add(newUnit.GetComponent<Laborer>());
 
 		newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
         newUnit.SetMinimapIcon(friendlyUnitHolder);
@@ -1768,11 +1781,13 @@ public class CityBuilderManager : MonoBehaviour
 		mainCamLoc.y = 0;
 		Vector3 rot = mainCamLoc - unit.transform.position;
 
+		Trader newTrader = newUnit.GetComponent<Trader>();
 		//transferring all previous trader info to new one
 		if (bySea && upgrading)
 		{
 			Trader oldTrader = upgradedUnit.GetComponent<Trader>();
-			Trader newTrader = newUnit.GetComponent<Trader>();
+            world.traderList.Remove(oldTrader);
+            newTrader.id = oldTrader.id;
 			newTrader.hasRoute = oldTrader.hasRoute;
 			newTrader.tradeRouteManager = oldTrader.tradeRouteManager;
 			newTrader.tradeRouteManager.SetTrader(newTrader);
@@ -1785,7 +1800,12 @@ public class CityBuilderManager : MonoBehaviour
 		}
 
 		if (newUnit.isTrader)
-			city.tradersHere.Add(newUnit);
+        {
+            world.traderCount++;
+            newTrader.id = world.traderCount;
+            world.traderList.Add(newTrader);
+            city.tradersHere.Add(newUnit);
+        }
 
 		//assigning army details and rotation
 		if (newUnit.inArmy)

@@ -1556,6 +1556,11 @@ public class City : MonoBehaviour
         data.usedLabor = cityPop.UsedLabor;
         data.resourcePriorities = resourcePriorities;
 
+        for (int i = 0; i < tradersHere.Count; i++)
+        {
+            data.tradersHere.Add(tradersHere[i].id);
+        }
+
         //resource manager
         data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
 		data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
@@ -1608,7 +1613,19 @@ public class City : MonoBehaviour
             GameLoader.Instance.gameData.allArmies[cityLoc] = armyData;
         }
 
-        return data;
+
+
+        for (int i = 0; i < resourceManager.waitingforResourceProducerList.Count; i++)
+            data.waitingforResourceProducerList.Add(resourceManager.waitingforResourceProducerList[i].producerLoc);
+
+        data.resourcesNeededForProduction = resourceManager.resourcesNeededForProduction;
+
+		for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
+            data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
+
+        data.resourcesNeededForRoute = resourceManager.resourcesNeededForRoute;
+
+		return data;
     }
 
     public void LoadCityData(CityData data)
@@ -1653,8 +1670,12 @@ public class City : MonoBehaviour
 		resourceManager.CycleCount = data.cycleCount;
 		resourceGridDict = data.resourceGridDict;
 
+		//waiting lists
+		resourceManager.resourcesNeededForProduction = data.resourcesNeededForProduction;
+		resourceManager.resourcesNeededForRoute = data.resourcesNeededForRoute;
+
 		//army data
-        if (hasBarracks)
+		if (hasBarracks)
         {
             ArmyData armyData = GameLoader.Instance.gameData.allArmies[cityLoc];
             army.forward = armyData.forward;
@@ -1685,4 +1706,42 @@ public class City : MonoBehaviour
 			}
 		}
 	}
+
+    public void SetProducerWaitingList(List<Vector3Int> producerWaiting)
+    {
+        for (int i = 0; i < producerWaiting.Count; i++)
+        {
+            
+        }
+    }
+
+    public void SetTraderRouteWaitingList(List<int> tradersWaiting)
+    {
+        for (int i = 0; i < tradersWaiting.Count; i++)
+        {
+            for (int j = 0; j < world.traderList.Count; j++)
+            {
+                if (world.traderList[j].id == tradersWaiting[i])
+                {
+                    resourceManager.waitingForTraderList.Add(world.traderList[j]);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void SetTradersHereList(List<int> tradersHere)
+    {
+        for (int i = 0; i < tradersHere.Count; i++)
+        {
+			for (int j = 0; j < world.traderList.Count; j++)
+			{
+				if (world.traderList[j].id == tradersHere[i])
+				{
+					this.tradersHere.Add(world.traderList[j]);
+					break;
+				}
+			}
+		}
+    }
 }

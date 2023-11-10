@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -474,42 +475,46 @@ public class Worker : Unit
             somethingToSay = true;
     }
 
-    //public IEnumerator BuildRoad(Vector3Int roadPosition, RoadManager roadManager)
-    //{
-    //    int timePassed = 0;
-    //    Debug.Log("building road at " + roadPosition);
+    public WorkerData SaveWorkerData()
+    {
+        WorkerData data = new();
 
-    //    while (timePassed < roadManager.roadBuildingTime)
-    //    {
-    //        yield return new WaitForSeconds(1);
-    //        timePassed++;
-    //    }
+		data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
+		data.secondaryPrefab = secondaryPrefab;
+		data.position = transform.position;
+		data.rotation = transform.rotation;
+		data.destinationLoc = destinationLoc;
+		data.finalDestinationLoc = finalDestinationLoc;
+		data.currentLocation = CurrentLocation;
+		data.prevTerrainTile = prevTerrainTile;
+		data.moveOrders = pathPositions.ToList();
+		data.isMoving = isMoving;
+		data.moreToMove = moreToMove;
 
-    //    isBusy = false;
-    //    workerTaskManager.TurnOffCancelTask();
-    //    roadManager.BuildRoadAtPosition(roadPosition);
-    //}
+		return data;
+    }
 
-    //private void HarvestResource()
-    //{
-    //    if (harvesting)
-    //    {
-    //        harvesting = false;
-    //        harvested = true;
-    //        resourceIsNotNull = false;
-    //        resourceIndividualHandler.SetResourceActive();
-    //    }
-    //}
+    public void LoadWorkerData(WorkerData data)
+    {
+		secondaryPrefab = data.secondaryPrefab;
+		transform.position = data.position;
+		transform.rotation = data.rotation;
+		destinationLoc = data.destinationLoc;
+		finalDestinationLoc = data.finalDestinationLoc;
+		CurrentLocation = data.currentLocation;
+		prevTerrainTile = data.prevTerrainTile;
+		isMoving = data.isMoving;
+		moreToMove = data.moreToMove;
+		somethingToSay = data.somethingToSay;
 
-    //protected override void WaitTurnMethods()
-    //{
-    //    base.WaitTurnMethods();
-    //    if (harvesting && resourceIsNotNull)
-    //        HarvestResource();
-    //}
+		if (isMoving)
+		{
+			Vector3Int endPosition = world.RoundToInt(finalDestinationLoc);
 
-    //public new void WaitTurn()
-    //{
-    //    WaitTurnMethods();
-    //}
+			if (data.moveOrders.Count == 0)
+				data.moveOrders.Add(endPosition);
+
+			MoveThroughPath(data.moveOrders);
+		}
+	}
 }

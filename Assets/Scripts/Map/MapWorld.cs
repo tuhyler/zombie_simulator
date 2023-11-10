@@ -109,8 +109,11 @@ public class MapWorld : MonoBehaviour
     private List<City> goldCityRouteWaitList = new();
     private List<Wonder> goldWonderWaitList = new();
     private List<TradeCenter> goldTradeCenterWaitList = new();
+    //resource multiplier
+    [HideInInspector]
+    public Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
 
-    private Dictionary<Vector3Int, TerrainData> world = new();
+	private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
     private List<Vector3Int> noWalkList = new(); //tiles where wonders are and units can't walk
     private List<Vector3Int> cityLocations = new();
@@ -127,6 +130,10 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
+    [HideInInspector]
+    public List<Laborer> laborerList = new();
+    [HideInInspector]
+    public List<Trader> traderList = new();
     private Dictionary<string, ImprovementDataSO> improvementDataDict = new();
     private Dictionary<string, UnitBuildDataSO> unitBuildDataDict = new();
     private Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
@@ -185,7 +192,7 @@ public class MapWorld : MonoBehaviour
 
     //for naming of units
     [HideInInspector]
-    public int workerCount, infantryCount;
+    public int traderCount;
 
     //for when terrain runs out of resources
     [SerializeField]
@@ -208,10 +215,17 @@ public class MapWorld : MonoBehaviour
         currentTime = DateTime.Now;
         audioSource = GetComponent<AudioSource>();
 
-        //if (gameData.allTerrain.Count == 0)
-        //    loadNewGame = true;
+		foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources) //Enum.GetValues(typeof(ResourceType)) 
+		{
+			if (resourceData.resourceType == ResourceType.None)
+				continue;
+			resourceStorageMultiplierDict[resourceData.resourceType] = resourceData.resourceStorageMultiplier;
+		}
 
-        if (!hideTerrain)
+		//if (gameData.allTerrain.Count == 0)
+		//    loadNewGame = true;
+
+		if (!hideTerrain)
             cameraController.SetDefaultLimits();
         
         worldResourceManager = GetComponent<WorldResourceManager>();
@@ -655,6 +669,8 @@ public class MapWorld : MonoBehaviour
         //building buildings
         foreach (CityImprovementData improvementData in data.cityBuildings)
             CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[improvementData.name], city, improvementData);
+
+        GameLoader.Instance.cityWaitingDict[city] = (data.waitingforResourceProducerList, data.waitingForTraderList, data.tradersHere);
 	}
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, CityImprovementData data)
@@ -1022,7 +1038,7 @@ public class MapWorld : MonoBehaviour
 
                 Unit unit = enemyGO.GetComponent<Unit>();
 		        unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
-		        if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
+		        if (!attacked) //just in case dictionary was missing any
 			        unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
 		        unit.CurrentLocation = unitLoc;
                 enemyCampDict[loc].UnitsInCamp.Add(unit);
@@ -1032,7 +1048,7 @@ public class MapWorld : MonoBehaviour
 
                 if (attacked)
                 {
-                    RemoveUnitPosition(unitLoc);
+                    //RemoveUnitPosition(unitLoc);
                     unit.LoadUnitData(fightingEnemies[unitLoc]);
                     AddUnitPosition(unit.CurrentLocation, unit);
                 }
@@ -1049,7 +1065,7 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
-    private void CreateUnit(UnitData data, City city)
+    public void CreateUnit(IUnitData data, City city = null)
     {
         UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
 		GameObject unitGO = unitData.prefab;
@@ -1061,7 +1077,7 @@ public class MapWorld : MonoBehaviour
 		unit.gameObject.transform.SetParent(unitHolder, false);
 		Unit newUnit = unit.GetComponent<Unit>();
 		newUnit.SetReferences(this, cameraController, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
-		AddUnitPosition(newUnit.CurrentLocation, newUnit);
+		AddUnitPosition(data.currentLocation, newUnit);
 		newUnit.SetMinimapIcon(unitHolder);
 
 		//assigning army details and rotation
@@ -1072,7 +1088,27 @@ public class MapWorld : MonoBehaviour
             city.army.AddToOpenSpots(data.barracksBunk);
         }
 
-        newUnit.LoadUnitData(data);
+        if (newUnit.isWorker)
+        {
+            newUnit.GetComponent<Worker>().LoadWorkerData(data.GetWorkerData());
+        }
+        else if (newUnit.isTrader)
+        {
+            Trader trader = newUnit.GetComponent<Trader>();
+            trader.SetRouteManagers(unitMovement.uiTradeRouteManager, unitMovement.uiPersonalResourceInfoPanel); //start method is too slow and awake is too fast
+            traderList.Add(trader);
+            trader.LoadTraderData(data.GetTraderData());
+        }
+        else if (newUnit.isLaborer)
+        {
+            Laborer laborer = newUnit.GetComponent<Laborer>();
+            laborerList.Add(laborer);
+            laborer.LoadLaborerData(data.GetLaborerData());
+        }
+        else
+        {
+            newUnit.LoadUnitData(data.GetUnitData());
+        }
 	}
 
 	public void StartSaveProcess(string saveName)

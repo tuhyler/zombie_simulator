@@ -94,9 +94,9 @@ public class UITradeRouteManager : MonoBehaviour
 		stopScroller.transform.localPosition = originalPos;
 	}
 
-    public void ShowRouteCostFlag(bool show)
+    public void ShowRouteCostFlag(bool show, Trader trader)
     {
-        if (activeStatus)
+        if (activeStatus && selectedTrader == trader)
             waitingForText.SetActive(show);
     }
 
@@ -344,7 +344,7 @@ public class UITradeRouteManager : MonoBehaviour
     {
         this.selectedTrader = selectedTrader;
         traderCargoLimit = selectedTrader.cargoStorageLimit;
-        this.selectedTrader.tradeRouteManager.SetTradeRouteManager(this);
+        //this.selectedTrader.tradeRouteManager.SetTradeRouteManager(this);
         this.cityNames = cityNames;
     }
 
@@ -527,7 +527,7 @@ public class UITradeRouteManager : MonoBehaviour
             }
         }
 
-        selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes, unitMovement.uiPersonalResourceInfoPanel);
+        selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes);
 
         //if (selectedTrader.followingRoute)
         //{

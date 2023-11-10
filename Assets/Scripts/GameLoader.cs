@@ -17,6 +17,7 @@ public class GameLoader : MonoBehaviour
 	public bool isLoading, isDone;
 	[HideInInspector]
 	public List<Unit> attackingUnitList = new();
+	public Dictionary<City, (List<Vector3Int>, List<int>, List<int>)> cityWaitingDict = new();
 
 	private void Awake()
 	{
@@ -82,9 +83,17 @@ public class GameLoader : MonoBehaviour
 		}
 		
 		//main player
-		gameData.playerUnit = world.mainPlayer.SaveUnitData();
+		gameData.playerUnit = world.mainPlayer.SaveMilitaryUnitData();
 
-		//Units, enemy
+		//traders
+		gameData.allTraders.Clear();
+		for (int i = 0; i < world.traderList.Count; i++)
+			gameData.allTraders.Add(world.traderList[i].SaveTraderData());
+
+		//laborers
+		gameData.allLaborers.Clear();
+		for (int i = 0; i < world.laborerList.Count; i++)
+			gameData.allLaborers.Add(world.laborerList[i].SaveLaborerData());
 
 		if (gamePersist.SaveData(saveName, gameData, false))
 		{
@@ -121,45 +130,70 @@ public class GameLoader : MonoBehaviour
 		world.GenerateTradeCenters(gameData.allTradeCenters);
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
 		world.LoadWonder(gameData.allWonders);
-		gameData.allWonders.Clear();
-		
-		foreach (CityData cityData in gameData.allCities)
-		{
-			world.BuildCity(cityData.location, world.GetTerrainDataAt(cityData.location), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, cityData);
-		}
-		gameData.allCities.Clear();
-		gameData.allArmies.Clear();
 
-		foreach (CityImprovementData improvementData in gameData.allCityImprovements)
+		for (int i = 0; i < gameData.allCities.Count; i++)
 		{
-			world.CreateImprovement(world.GetCity(improvementData.cityLoc),improvementData);
+			world.BuildCity(gameData.allCities[i].location, world.GetTerrainDataAt(gameData.allCities[i].location), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, gameData.allCities[i]);
 		}
-		gameData.allCityImprovements.Clear();
-		gameData.militaryUnits.Clear();
 
-		foreach (RoadData roadData in gameData.allRoads)
+		for (int i = 0; i < gameData.allCityImprovements.Count; i++)
 		{
-			if (!world.roadTileDict.ContainsKey(roadData.position))
-				world.roadManager.BuildRoadAtPosition(roadData.position);
+			world.CreateImprovement(world.GetCity(gameData.allCityImprovements[i].cityLoc), gameData.allCityImprovements[i]);
 		}
-		gameData.allRoads.Clear();
+
+		for (int i = 0; i < gameData.allRoads.Count; i++)
+		{
+			if (!world.roadTileDict.ContainsKey(gameData.allRoads[i].position))
+				world.roadManager.BuildRoadAtPosition(gameData.allRoads[i].position);
+		}
 
 		//      //assign labor
 
 
 		world.mainPlayer.LoadUnitData(gameData.playerUnit);
 
+		//traders
+		for (int i = 0; i < gameData.allTraders.Count; i++)
+		{
+			world.CreateUnit(gameData.allTraders[i]);
+		}
+
+		//laborers
+		for (int i = 0; i < gameData.allLaborers.Count; i++)
+		{
+			world.CreateUnit(gameData.allLaborers[i]);
+		}
+
 		//world.cameraController.transform.position = gameData.camPosition;
 		world.cameraController.newPosition = gameData.camPosition;
 		world.cameraController.newRotation = gameData.camRotation;
 		world.dayNightCycle.timeODay = gameData.timeODay;
 		world.cameraController.LoadCameraLimits(gameData.camLimits[0], gameData.camLimits[1], gameData.camLimits[2], gameData.camLimits[3]);
-		gameData.camLimits.Clear();
 
 		for (int i = 0; i < attackingUnitList.Count; i++)
+		{
 			attackingUnitList[i].LoadAttack();
+		}
 
+		//city waiting lists
+		foreach (City city in cityWaitingDict.Keys)
+		{
+			(List<Vector3Int> producersWaiting, List<int> tradersWaiting, List<int> tradersHere) = cityWaitingDict[city];
+			city.SetProducerWaitingList(producersWaiting);
+			city.SetTraderRouteWaitingList(tradersWaiting);
+			city.SetTradersHereList(tradersHere);
+		}
+			
+
+		gameData.allWonders.Clear();
+		gameData.allCities.Clear();
+		gameData.allArmies.Clear();
+		gameData.allCityImprovements.Clear();
+		gameData.militaryUnits.Clear();
+		gameData.allRoads.Clear();
+		gameData.camLimits.Clear();
 		attackingUnitList.Clear();
+		cityWaitingDict.Clear();
 
 		Time.timeScale = 1f;
 		AudioListener.pause = false;

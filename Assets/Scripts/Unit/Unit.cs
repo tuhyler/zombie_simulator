@@ -9,11 +9,10 @@ using UnityEngine.Events;
 [System.Serializable]
 public class Unit : MonoBehaviour
 {
-    //[SerializeField]
-    //private UnitDataSO unitDataSO;
-    //public UnitDataSO GetUnitData() => unitDataSO;
+	[HideInInspector]
+	public int id;
 
-    [SerializeField]
+	[SerializeField]
     public UnitBuildDataSO buildDataSO;
 
     //[SerializeField]
@@ -51,17 +50,21 @@ public class Unit : MonoBehaviour
     private InfoManager infoManager;
 
     //movement details
-    //private Rigidbody unitRigidbody;
-    private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
-    private Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
-    public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute; //if there's more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
-    private Vector3 destinationLoc;
+    public Rigidbody unitRigidbody;
+    private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
+    [HideInInspector]
+    public Queue<Vector3Int> pathPositions = new();
+    [HideInInspector]
+    public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute, secondaryPrefab; //if there's more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
+    [HideInInspector]
+    public Vector3 destinationLoc;
     [HideInInspector]
     public Vector3 finalDestinationLoc;
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
-    private Vector3Int prevRoadTile, prevTerrainTile; //first one is for traders, in case road they're on is removed
+    [HideInInspector]
+    public Vector3Int prevRoadTile, prevTerrainTile; //first one is for traders, in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo, waitingCo, attackCo;
@@ -93,7 +96,7 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public int attackStrength;
     [HideInInspector]
-    public float[] attackPause = new[] { 1f, 1f, 1f };
+    public float[] attackPause = new[] { 0.8f, 1f, 1.2f };
     public WaitForSeconds[] attackPauses = new WaitForSeconds[4];
     [HideInInspector]
     public Projectile projectile;
@@ -109,7 +112,7 @@ public class Unit : MonoBehaviour
 
     //military booleans
     [HideInInspector]
-    public bool isLeader, readyToMarch, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading;
+    public bool isLeader, readyToMarch = true, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading;
     [HideInInspector]
     public Vector3Int targetLocation, targetBunk; //targetLocation is in case units overlap on same tile
 
@@ -143,8 +146,8 @@ public class Unit : MonoBehaviour
 		attackPauses[1] = new WaitForSeconds(1f);
 		attackPauses[2] = new WaitForSeconds(1.1f);
         attackPauses[3] = new WaitForSeconds(.25f);
-		//unitRigidbody = GetComponent<Rigidbody>();
-		baseSpeed = 1;
+		unitRigidbody = GetComponent<Rigidbody>();
+        baseSpeed = 1;
 
         originalMoveSpeed = buildDataSO.movementSpeed;
         //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
@@ -167,6 +170,7 @@ public class Unit : MonoBehaviour
         } 
 
         enemyAI = GetComponent<BasicEnemyAI>();
+        readyToMarch = true;
         healthbar.SetUnit(this);
         //if (enemyAI != null)
         //    enemyAI.SetAttackSpeed(attackSpeed);
@@ -280,6 +284,11 @@ public class Unit : MonoBehaviour
         if (attackStrength > 0)
             unitAnimator.SetBool(isAttackingHash, false);
     }
+
+    public void StopAttackAnimation()
+    {
+		unitAnimator.SetBool(isAttackingHash, false);
+	}
 
     public void InterruptedRouteMessage()
     {
@@ -939,6 +948,7 @@ public class Unit : MonoBehaviour
                         healthbar.RegenerateHealth();
 
 					atHome = true;
+                    marker.ToggleVisibility(false);
                     if (isSelected && !world.unitOrders)
                         world.unitMovement.ShowIndividualCityButtonsUI();
 
@@ -1516,6 +1526,10 @@ public class Unit : MonoBehaviour
                 newEnemy = homeBase.army.FindEdgeRanged(currentLocation);
             }
         }
+        else
+        {
+            flanking = false;
+        }
 
         if (newEnemy == null)
             newEnemy = homeBase.army.FindClosestTarget(this);
@@ -1543,7 +1557,8 @@ public class Unit : MonoBehaviour
 
             if (flanking)
             {
-                path.RemoveAt(path.Count - 1); //remove last one
+                if (path.Count > 1)
+                    path.RemoveAt(path.Count - 1); //remove last one
                 finalDestinationLoc = path[path.Count - 1];
                 MoveThroughPath(path);
             }
@@ -1798,6 +1813,10 @@ public class Unit : MonoBehaviour
         //gameObject.SetActive(false);
         unitMesh.gameObject.SetActive(false);
         healthbar.gameObject.SetActive(false);
+        Vector3 sixFeetUnder = transform.position;
+        sixFeetUnder.y -= 6f;
+        transform.position = sixFeetUnder;
+        unitRigidbody.useGravity = false;
 
 		if (enemyAI)
         {
@@ -2029,7 +2048,7 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public UnitData SaveUnitData()
+    public UnitData SaveMilitaryUnitData()
     {
         UnitData data = new();
 
@@ -2039,18 +2058,14 @@ public class Unit : MonoBehaviour
         data.destinationLoc = destinationLoc;
         data.finalDestinationLoc = finalDestinationLoc;
         data.currentLocation = currentLocation;
-        data.prevRoadTile = prevRoadTile;
         data.prevTerrainTile = prevTerrainTile;
         data.moveOrders = pathPositions.ToList();
         data.isMoving = isMoving;
+
+        if (isMoving && readyToMarch)
+            data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
+
         data.moreToMove = moreToMove;
-        data.isBusy = isBusy;
-        data.isBeached = isBeached;
-        data.interruptedRoute = interruptedRoute;
-        data.atStop = atStop;
-        data.followingRoute = followingRoute;
-        data.isWaiting = isWaiting;
-        data.harvested = harvested;
         data.somethingToSay = somethingToSay;
         data.isUpgrading = isUpgrading;
 
@@ -2097,28 +2112,10 @@ public class Unit : MonoBehaviour
         destinationLoc = data.destinationLoc;
         finalDestinationLoc = data.finalDestinationLoc;
         currentLocation = data.currentLocation;
-        prevRoadTile = data.prevRoadTile;
         prevTerrainTile = data.prevTerrainTile;
         isMoving = data.isMoving;
-
         moreToMove = data.moreToMove;
-        isBusy = data.isBusy;
 
-        //if (isBusy)
-        isBeached = data.isBeached;
-        interruptedRoute = data.interruptedRoute;
-        atStop = data.atStop;
-
-        //if (atStop)
-        followingRoute = data.followingRoute;
-
-        //if (followingRoute)
-        isWaiting = data.isWaiting;
-
-        //if (isWaiting)
-        harvested = data.harvested;
-
-        //if (harvested)
         somethingToSay = data.somethingToSay;
         isUpgrading = data.isUpgrading;
 
@@ -2141,7 +2138,10 @@ public class Unit : MonoBehaviour
             currentHealth = data.currentHealth;
 
             if (currentHealth < healthMax)
+            {
+                healthbar.LoadHealthLevel(currentHealth);
                 healthbar.gameObject.SetActive(true);
+            }
 
             baseSpeed = data.baseSpeed; //coroutine
             isLeader = data.isLeader;
@@ -2153,105 +2153,143 @@ public class Unit : MonoBehaviour
             attacking = data.attacking;
 
             targetSearching = data.targetSearching;
-
-            //if (targetSearching)
             flanking = data.flanking;
             flankedOnce = data.flankedOnce;
             cavalryLine = data.cavalryLine;
             isDead = data.isDead;
 
-            if (isDead)
-            {
-				unitMesh.gameObject.SetActive(false);
-				healthbar.gameObject.SetActive(false);
-
-                if (enemyAI)
-                {
-					enemyCamp.deathCount++;
-					enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
-					enemyCamp.ClearCampCheck();
-					enemyCamp.DeadList.Add(this);
-                }
-                else
-                {
-					minimapIcon.gameObject.SetActive(false);
-					homeBase.army.UnitsInArmy.Remove(this);
-					homeBase.army.attackingSpots.Remove(currentLocation);
-					RemoveUnitFromData();
-					homeBase.army.RemoveFromArmy(this, barracksBunk);
-					homeBase.army.DeadList.Add(this);
-				}
-			}
+			GameLoader.Instance.attackingUnitList.Add(this);
 		}
 
 		if (isMoving)
 		{
-			if (data.moveOrders.Count == 0)
-				data.moveOrders.Add(world.RoundToInt(finalDestinationLoc));
+            Vector3Int endPosition = world.RoundToInt(finalDestinationLoc);
+			
+            if (!readyToMarch)
+            {
+				if (data.moveOrders.Count == 0)
+					data.moveOrders.Add(endPosition);
+
+				pathPositions = new Queue<Vector3Int>(data.moveOrders);
+
+				StartCoroutine(WaitForOthers(endPosition));
+                return;
+            }
+            
+            if (data.moveOrders.Count == 0)
+				data.moveOrders.Add(endPosition);
 
 			MoveThroughPath(data.moveOrders);
 		}
-
-		if (attacking)
-        {
-            GameLoader.Instance.attackingUnitList.Add(this);	
-        }
 	}
 
     public void LoadAttack()
     {
-		Unit target = null;
-		if (enemyAI)
-		{
-			List<Unit> units = enemyCamp.attackingArmy.UnitsInArmy;
+		if (attacking)
+        {
+            Unit target = null;
+		    if (enemyAI)
+		    {
+			    List<Unit> units = enemyCamp.attackingArmy.UnitsInArmy;
 
-			for (int i = 0; i < units.Count; i++)
+			    for (int i = 0; i < units.Count; i++)
+			    {
+				    if (units[i].barracksBunk == targetBunk)
+				    {
+					    target = units[i];
+					    break;
+				    }
+			    }
+		    }
+		    else
+		    {
+			    List<Unit> units = homeBase.army.targetCamp.UnitsInCamp;
+
+			    for (int i = 0; i < units.Count; i++)
+			    {
+				    if (units[i].barracksBunk == targetBunk)
+				    {
+					    target = units[i];
+					    break;
+				    }
+			    }
+		    }
+
+		    if (target == null)
+		    {
+			    attacking = false;
+                if (inArmy)
+                    AggroCheck();
+                else
+                    enemyAI.AggroCheck();
+            
+                return;
+		    }
+
+		    if (inArmy)
+            {
+                if (buildDataSO.unitType == UnitType.Ranged)
+			        attackCo = StartCoroutine(RangedAttack(target));
+		        else
+			        attackCo = StartCoroutine(Attack(target));
+            }
+            else
+            {
+			    if (buildDataSO.unitType == UnitType.Ranged)
+				    attackCo = StartCoroutine(enemyAI.RangedAttack(target));
+			    else
+				    attackCo = StartCoroutine(enemyAI.Attack(target));
+		    }
+        }
+        else if (isDead)
+        {
+			unitMesh.gameObject.SetActive(false);
+			healthbar.gameObject.SetActive(false);
+            Vector3 sixFeetUnder = transform.position;
+            sixFeetUnder.y -= 6;
+            transform.position = sixFeetUnder;
+            unitRigidbody.useGravity = false;
+
+			if (enemyAI)
 			{
-				if (units[i].barracksBunk == targetBunk)
-				{
-					target = units[i];
-					break;
-				}
+				enemyCamp.deathCount++;
+				enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
+				enemyCamp.ClearCampCheck();
+				world.RemoveUnitPosition(currentLocation);
+				enemyCamp.DeadList.Add(this);
+			}
+			else
+			{
+				minimapIcon.gameObject.SetActive(false);
+				homeBase.army.UnitsInArmy.Remove(this);
+				homeBase.army.attackingSpots.Remove(currentLocation);
+				RemoveUnitFromData();
+				homeBase.army.RemoveFromArmy(this, barracksBunk);
+				homeBase.army.DeadList.Add(this);
+				world.RemoveUnitPosition(currentLocation);
+			}
+		}
+	}
+
+    private IEnumerator WaitForOthers(Vector3Int endPosition)
+    {
+		while (!readyToMarch)
+		{
+			yield return null;
+		}
+		unitAnimator.SetBool(isMarchingHash, true);
+
+		if (pathPositions.Count > 0)
+		{
+			movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+			if (pathQueue.Count > 0)
+			{
+				DequeuePath();
 			}
 		}
 		else
 		{
-			List<Unit> units = homeBase.army.targetCamp.UnitsInCamp;
-
-			for (int i = 0; i < units.Count; i++)
-			{
-				if (units[i].barracksBunk == targetBunk)
-				{
-					target = units[i];
-					break;
-				}
-			}
-		}
-
-		if (target == null)
-		{
-			attacking = false;
-            if (inArmy)
-                AggroCheck();
-            else
-                enemyAI.AggroCheck();
-            
-            return;
-		}
-
-		if (inArmy)
-        {
-            if (buildDataSO.unitType == UnitType.Ranged)
-			    attackCo = StartCoroutine(RangedAttack(target));
-		    else
-			    attackCo = StartCoroutine(Attack(target));
-        }
-        else
-        {
-			if (buildDataSO.unitType == UnitType.Ranged)
-				attackCo = StartCoroutine(enemyAI.RangedAttack(target));
-			else
-				attackCo = StartCoroutine(enemyAI.Attack(target));
+			FinishMoving(endPosition);
 		}
 	}
 }
