@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 public class MapWorld : MonoBehaviour
 {
     private string version = "0.1";
-    DateTime currentTime;
+    private DateTime currentTime;
     //public float test = 0.4f;
     [SerializeField]
     public Unit mainPlayer;
@@ -20,6 +20,8 @@ public class MapWorld : MonoBehaviour
     public CameraController cameraController;
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
+    [HideInInspector]
+    public bool openingImmoveable, openingCity;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -93,7 +95,8 @@ public class MapWorld : MonoBehaviour
     //trade center info
     [SerializeField]
     private Sprite tradeCenterMapIcon;
-    private Dictionary<string, TradeCenter> tradeCenterDict = new();
+    [HideInInspector]
+    public Dictionary<string, TradeCenter> tradeCenterDict = new();
     private Dictionary<Vector3Int, TradeCenter> tradeCenterStopDict = new();
 
     //miscellaneous sprites
@@ -364,10 +367,10 @@ public class MapWorld : MonoBehaviour
 			center.SetName();
 			center.SetPop(UnityEngine.Random.Range(4, 9));
 			center.ClaimSpotInWorld(increment, false);
-			GameLoader.Instance.gameData.allTradeCenters.Add(center.SaveData());
+            GameLoader.Instance.gameData.allTradeCenters[center.mainLoc] = center.SaveData();
 			tradeCenterDict[center.tradeCenterName] = center;
 			tradeCenterStopDict[center.mainLoc] = center;
-			tradeCenterStopDict[center.harborLoc] = center;
+			//tradeCenterStopDict[center.harborLoc] = center;
 			AddTradeLoc(center.mainLoc, center.tradeCenterName);
 			AddTradeLoc(center.harborLoc, center.tradeCenterName);
 			if (hideTerrain)
@@ -612,7 +615,9 @@ public class MapWorld : MonoBehaviour
 		}
 
 		foreach (TerrainData td in coastalTerrain)
+        {
 			td.SetCoastCoordinates();
+        }
 
 		foreach (TerrainData td in terrainToCheck)
 		{
@@ -620,9 +625,9 @@ public class MapWorld : MonoBehaviour
 		}
 	}
 
-    public void GenerateTradeCenters(List<TradeCenterData> centers)
+    public void GenerateTradeCenters(Dictionary<Vector3Int, TradeCenterData> centers)
     {
-        foreach (TradeCenterData centerData in centers)
+        foreach (TradeCenterData centerData in centers.Values)
         {
             GameObject go = Instantiate(UpgradeableObjectHolder.Instance.tradeCenterDict[centerData.name], centerData.mainLoc, centerData.rotation);
             go.transform.SetParent(tradeCenterHolder, false);
@@ -636,13 +641,15 @@ public class MapWorld : MonoBehaviour
 			
 			tradeCenterDict[center.tradeCenterName] = center;
 			tradeCenterStopDict[center.mainLoc] = center;
-			tradeCenterStopDict[center.harborLoc] = center;
+			//tradeCenterStopDict[center.harborLoc] = center;
 			AddTradeLoc(center.mainLoc, center.tradeCenterName);
 			AddTradeLoc(center.harborLoc, center.tradeCenterName);
 			if (hideTerrain)
 				center.Hide();
 			else
 				center.isDiscovered = true;
+
+			GameLoader.Instance.centerWaitingDict[center] = (centerData.waitList, centerData.seaWaitList);
 		}
 	}
 
@@ -670,7 +677,7 @@ public class MapWorld : MonoBehaviour
         foreach (CityImprovementData improvementData in data.cityBuildings)
             CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[improvementData.name], city, improvementData);
 
-        GameLoader.Instance.cityWaitingDict[city] = (data.waitingforResourceProducerList, data.waitingForTraderList, data.tradersHere);
+        GameLoader.Instance.cityWaitingDict[city] = (data.waitingforResourceProducerList, data.waitList, data.seaWaitList, data.waitingForTraderList, data.tradersHere);
 	}
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, CityImprovementData data)
@@ -936,8 +943,8 @@ public class MapWorld : MonoBehaviour
 			{
 				city.hasHarbor = true;
 				city.harborLocation = tempBuildLocation;
-				SetCityHarbor(city, tempBuildLocation);
-				AddTradeLoc(tempBuildLocation, city.cityName);
+				//SetCityHarbor(city, tempBuildLocation);
+                AddTradeLoc(tempBuildLocation, city.cityName);
 			}
 			else if (improvementData.improvementName == "Barracks")
 			{
@@ -1185,8 +1192,14 @@ public class MapWorld : MonoBehaviour
 
     private void DeactivateCanvases()
     {
-        immoveableCanvas.gameObject.SetActive(false);
-        cityCanvas.gameObject.SetActive(false);
+        if (!openingImmoveable)
+            immoveableCanvas.gameObject.SetActive(false);
+        else
+			openingImmoveable = false;
+        if (!openingCity)
+            cityCanvas.gameObject.SetActive(false);
+        else
+            openingCity = false;
         traderCanvas.gameObject.SetActive(false);
         workerCanvas.gameObject.SetActive(false);
         tradeRouteManagerCanvas.gameObject.SetActive(false);
@@ -1819,7 +1832,7 @@ public class MapWorld : MonoBehaviour
         //wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost);
         wonder.unloadLoc = finalUnloadLoc;
-        AddTradeLoc(finalUnloadLoc, "Wonder - " + wonder.wonderName);
+        AddTradeLoc(finalUnloadLoc, wonder.wonderName);
         wonderNoWalkLoc.Remove(finalUnloadLoc);
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
         //wonder.Rotation = rotation;
@@ -1932,7 +1945,7 @@ public class MapWorld : MonoBehaviour
 		    wonder.WonderData = wonderData;
 		    wonder.SetPrefabs(true);
     		wonder.SetResourceDict(wonderData.wonderCost);
-		    AddTradeLoc(finalUnloadLoc, "Wonder - " + wonder.wonderName);
+		    AddTradeLoc(data.unloadLoc, wonder.wonderName);
 		    wonder.SetCenterPos(data.centerPos);
     		wonderConstructionDict[wonder.wonderName] = wonder;
 	
@@ -1961,6 +1974,8 @@ public class MapWorld : MonoBehaviour
 			}
     
             noWalkList.AddRange(wonderNoWalkLoc);
+
+			GameLoader.Instance.wonderWaitingDict[wonder] = (data.waitList, data.seaWaitList);
 		}
 	}
 
@@ -1974,7 +1989,7 @@ public class MapWorld : MonoBehaviour
         rotationCount = 0;
         unloadLoc = wonderData.unloadLoc;
 
-        uiBuildingSomething.SetText("Building " + wonderData.wonderName);
+        uiBuildingSomething.SetText("Building " + wonderData.wonderDisplayName);
         uiBuildingSomething.ToggleVisibility(true);
         unitMovement.ToggleCancelButton(true);
     }
@@ -2065,10 +2080,10 @@ public class MapWorld : MonoBehaviour
         return wonderConstructionDict.Keys.ToList().Contains(name);
     }
 
-    public void AddToWondersDict(Vector3Int harborLoc, Wonder wonder)
-    {
-		wonderStopDict[harborLoc] = wonder;
-	}
+ //   public void AddToWondersDict(Vector3Int harborLoc, Wonder wonder)
+ //   {
+	//	wonderStopDict[harborLoc] = wonder;
+	//}
 
     public void OpenWonders()
     {
@@ -2592,6 +2607,7 @@ public class MapWorld : MonoBehaviour
             } 
         }
 
+        //trade center names third
         foreach (string name in tradeCenterDict.Keys)
         {
             Vector3Int destination;
@@ -2620,18 +2636,28 @@ public class MapWorld : MonoBehaviour
 
     public City GetHarborCity(Vector3Int harborLocation)
     {
-        return cityDict[harborLocation];
+        return cityImprovementDict[harborLocation].GetCity();
     }
 
     public bool IsCityHarborOnTile(Vector3Int loc)
     {
-        return cityDict.ContainsKey(loc);
+        if (cityImprovementDict.ContainsKey(loc))
+        {
+            if (cityImprovementDict[loc].GetImprovementData.improvementName == "Harbor")
+                return true;
+            else
+                return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 
-    public bool IsWonderHarborOnTile(Vector3Int loc)
-    {
-        return wonderStopDict.ContainsKey(loc);
-    }
+    //public bool IsWonderHarborOnTile(Vector3Int loc)
+    //{
+    //    return wonderStopDict.ContainsKey(loc);
+    //}
 
     public bool IsTradeCenterHarborOnTile(Vector3Int loc)
     {
@@ -2648,11 +2674,21 @@ public class MapWorld : MonoBehaviour
             return false;
 
         if (cityDict.ContainsKey(loc))
+        {
             return true;
+        }
         else if (wonderStopDict.ContainsKey(loc))
+        {
             return true;
+        }
         else if (tradeCenterStopDict.ContainsKey(loc))
+        {
             return true;
+        }
+        else if (cityImprovementDict.ContainsKey(loc) && cityImprovementDict[loc].GetImprovementData.improvementName == "Harbor" && cityImprovementDict[loc].GetCity() != null)
+        {
+            return true;
+        }
 
         return false;
     }
@@ -2702,6 +2738,10 @@ public class MapWorld : MonoBehaviour
         else if (tradeCenterStopDict.ContainsKey(loc))
         {
             return tradeCenterStopDict[loc].tradeCenterName;
+        }
+        else if (cityImprovementDict.ContainsKey(loc))
+        {
+            return cityImprovementDict[loc].GetCity().cityName;
         }
         else
         {
@@ -2866,7 +2906,7 @@ public class MapWorld : MonoBehaviour
 
        foreach (Wonder wonder in wonderConstructionDict.Values)
         {
-            wonder.EnableHighlight(Color.green);
+            wonder.EnableHighlight(Color.green, true);
         }
     }
 
@@ -2905,14 +2945,14 @@ public class MapWorld : MonoBehaviour
 			    city.Select(Color.green);
 
 		    foreach (Wonder wonder in wonderConstructionDict.Values)
-			    wonder.EnableHighlight(Color.green);
+			    wonder.EnableHighlight(Color.green, true);
 
         }
 
         foreach (TradeCenter center in tradeCenterStopDict.Values)
         {
             if (center.isDiscovered)
-                center.EnableHighlight(Color.green);
+                center.EnableHighlight(Color.green, true);
         }
 	}
 
@@ -3257,10 +3297,10 @@ public class MapWorld : MonoBehaviour
         tempObject.SetActive(false);
     }
 
-    public void SetCityHarbor(City city, Vector3Int harborLoc)
-    {
-        cityDict[harborLoc] = city;
-    }
+    //public void SetCityHarbor(City city, Vector3Int harborLoc)
+    //{
+    //    cityDict[city.cityLoc].harborLocation = harborLoc;
+    //}
 
     public void AddLocationToQueueList(Vector3Int location)
     {
@@ -3360,15 +3400,6 @@ public class MapWorld : MonoBehaviour
     public bool IsTradeLocOnTile(Vector3Int tile)
     {
         return tradeLocDict.ContainsKey(tile);
-        
-        //if (cityDict.ContainsKey(tile))
-        //    return true;
-        //else if (wonderStopDict.ContainsKey(tile) && wonderStopDict[tile].unloadLoc == tile)
-        //    return true;
-        //else if (tradeCenterStopDict.ContainsKey(tile))
-        //    return true;
-
-        //return false;
     }
 
     public bool IsBuildLocationTaken(Vector3Int buildLoc)
@@ -4079,10 +4110,10 @@ public class MapWorld : MonoBehaviour
         cityImprovementConstructionDict.Remove(tile);   
     }
 
-    public void RemoveHarbor(Vector3Int harborLoc)
-    {
-        cityDict.Remove(harborLoc);
-    }
+    //public void RemoveHarbor(Vector3Int harborLoc)
+    //{
+    //    cityDict.Remove(harborLoc);
+    //}
 
     public void RemoveRoad(Vector3Int buildPosition)
     {

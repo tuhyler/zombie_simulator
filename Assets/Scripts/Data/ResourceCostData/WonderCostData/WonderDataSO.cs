@@ -6,6 +6,7 @@ public class WonderDataSO : ScriptableObject
 {
     public GameObject wonderPrefab;
     public string wonderName;
+    public string wonderDisplayName;
     public string wonderDecription = "Fill in description";
     public Era wonderEra;
     public int workersNeeded = 1;

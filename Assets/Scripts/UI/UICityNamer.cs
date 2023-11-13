@@ -68,7 +68,6 @@ public class UICityNamer : MonoBehaviour
 
             if (city != null)
             {
-                //placeHolderText = $"City_{cityDataSO.GetCountOf() + 1}"; //Do this until you get a list of names to use
                 placeHolderText = city.cityName;
                 placeHolder.text = city.cityName;
                 placeHolder.alpha = 0.5f;
@@ -80,13 +79,6 @@ public class UICityNamer : MonoBehaviour
             activeStatus = false;
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
         }
-
-        //playerInput.enabled = !v;
-        //cameraController.enabled = !v;
-        //uiCityBuildTabHandler.ToggleEnable(!v);
-        //uiLaborAssignment.ToggleEnable(!v);
-        //uiInfoPanelCity.enabled = !v;
-        //turnHandler.ToggleEnable(!v);
         tempCity = city;
     }
 
@@ -142,16 +134,4 @@ public class UICityNamer : MonoBehaviour
 
         transform.localPosition = originalPosition;
     }
-
-    //public void HandleCityName(/*string tempText*/)
-    //{
-    //    //cityDataSO.TempCityName = tempText;
-    //    cityDataSO.SetNewCityName();
-    //    cityDataSO.AddCityToDict();
-    //    cityDataSO.SetCityNameData();
-    //    //City newCity = cityDataSO.TempCity;
-    //    //newCity.SetCityName(cityDataSO.TempCityName);
-    //    //newCity.AddCityNameToWorld();
-    //    cityDataSO.NullCityData();
-    //}
 }

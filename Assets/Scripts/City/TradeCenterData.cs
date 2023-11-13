@@ -9,4 +9,5 @@ public class TradeCenterData
     public Quaternion rotation;
     public int cityPop;
     public bool isDiscovered;
+    public List<int> waitList = new(), seaWaitList = new();
 }

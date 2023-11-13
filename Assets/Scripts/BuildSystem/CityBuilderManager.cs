@@ -229,11 +229,19 @@ public class CityBuilderManager : MonoBehaviour
 
 		Vector3Int terrainLocation = world.GetClosestTerrainLoc(location);
 
-	    //selecting terrain of city
-		if (world.IsCityOnTile(terrainLocation) && selectedObject.TryGetComponent(out TerrainData tdno))
-		{
+        //selecting terrain of city
+        if (world.IsCityOnTile(terrainLocation) && selectedObject.TryGetComponent(out TerrainData tdno1))
+        {
             SelectCity(location, world.GetCity(terrainLocation));
+        }
+        else if (world.IsWonderOnTile(terrainLocation) && selectedObject.TryGetComponent(out TerrainData tdno2))
+        {
+			SelectWonder(world.GetWonder(terrainLocation));
 		}
+        else if (world.IsTradeCenterOnTile(terrainLocation) && selectedObject.TryGetComponent(out TerrainData tdno3))
+        {
+            SelectTradeCenter(world.GetTradeCenter(terrainLocation));
+        }
         //selecting city
 		else if (selectedObject.CompareTag("Player") && selectedObject.TryGetComponent(out City cityReference))
         {
@@ -494,7 +502,7 @@ public class CityBuilderManager : MonoBehaviour
         selectedWonder.SetUI(uiWonderSelection);
         selectedWonder.isActive = true;
         selectedWonder.TimeProgressBarSetActive(true);
-        selectedWonder.EnableHighlight(Color.white);
+        selectedWonder.EnableHighlight(Color.white, false);
         CenterCamOnCity();
     }
 
@@ -518,8 +526,8 @@ public class CityBuilderManager : MonoBehaviour
 
         uiTradeCenter.ToggleVisibility(true, center);
         selectedTradeCenter = center;
-        selectedTradeCenter.EnableHighlight(Color.white);
-        uiTradeCenter.SetName(selectedTradeCenter.tradeCenterName);
+        selectedTradeCenter.EnableHighlight(Color.white, false);
+        uiTradeCenter.SetName(selectedTradeCenter.tradeCenterDisplayName);
         CenterCamOnCity();
     }
 
@@ -685,7 +693,6 @@ public class CityBuilderManager : MonoBehaviour
         world.AddToCityLabor(loc, selectedWonder.gameObject);
         world.AddStructure(loc, harborGO);
         world.AddTradeLoc(loc, selectedWonder.wonderName);
-        world.AddToWondersDict(loc, selectedWonder);
         uiWonderSelection.UpdateHarborButton(true);
 
         CloseImprovementBuildPanel();
@@ -700,7 +707,6 @@ public class CityBuilderManager : MonoBehaviour
 		world.AddToCityLabor(loc, wonder.gameObject);
 		world.AddStructure(loc, harborGO);
 		world.AddTradeLoc(loc, wonder.wonderName);
-		world.AddToWondersDict(loc, wonder);
 	}
 
     public void OpenCancelWonderConstructionWarning()
@@ -923,6 +929,7 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.exclamationPoint.SetActive(false);
         PlayOpenCityAudio();
 
+        world.openingCity = true;
         world.cityCanvas.gameObject.SetActive(true);
         world.somethingSelected = false; //cities aren't considered "selected" due to intricate selection code
         isActive = true;
@@ -2530,7 +2537,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             city.hasHarbor = true;
             city.harborLocation = tempBuildLocation;
-            world.SetCityHarbor(city, tempBuildLocation);
+            //world.SetCityHarbor(city, tempBuildLocation);
             world.AddTradeLoc(tempBuildLocation, city.cityName);
         }
         else if (improvementData.improvementName == "Barracks")
@@ -2840,7 +2847,7 @@ public class CityBuilderManager : MonoBehaviour
         if (improvementLoc == city.harborLocation)
         {
             city.hasHarbor = false;
-            world.RemoveHarbor(improvementLoc);
+            //world.RemoveHarbor(improvementLoc);
             world.RemoveTradeLoc(improvementLoc);
         }
         else if (improvementLoc == city.barracksLocation)
@@ -3582,12 +3589,14 @@ public class CityBuilderManager : MonoBehaviour
         if (uiCityNamer.activeStatus)
         {
             uiCityNamer.ToggleVisibility(false);
+            focusCam.paused = false;
         }
         else
         {
             ResetCityUIToBase();
             ResetTileLists();
             uiCityNamer.ToggleVisibility(true, selectedCity);
+            focusCam.paused = true;
         }
     }
 
@@ -3595,6 +3604,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         uiDestroyCityWarning.ToggleVisibility(false);
         uiCityNamer.ToggleVisibility(false);
+        focusCam.paused = false;
     }
 
     public void DestroyCity() //set on destroy city warning message
@@ -3675,10 +3685,10 @@ public class CityBuilderManager : MonoBehaviour
 
                         if (singleImprovement == "Harbor") //is also done in City object
                         {
-                            world.RemoveHarbor(improvementLoc);
+                            //world.RemoveHarbor(improvementLoc);
                             tempCity.hasHarbor = true;
                             tempCity.harborLocation = improvementLoc;
-                            world.SetCityHarbor(tempCity, improvementLoc);
+                            //world.SetCityHarbor(tempCity, improvementLoc);
                         }
                         else if (singleImprovement == "Barracks")
                         {

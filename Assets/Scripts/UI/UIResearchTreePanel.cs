@@ -131,7 +131,8 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             world.UnselectAll();
             world.ToggleMinimap(false);
             uiUnitTurn.gameObject.SetActive(false);
-            world.immoveableCanvas.gameObject.SetActive(true);
+			world.openingImmoveable = true;
+			world.immoveableCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
             world.somethingSelected = true;
 
@@ -168,7 +169,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             if (researchTooltip.activeStatus)
                 researchTooltip.ToggleVisibility(false);
 
-            world.ToggleMinimap(true);
+			world.ToggleMinimap(true);
             isQueueing = false;
             queueButton.color = originalColor;
             activeStatus = false;
@@ -189,8 +190,11 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        world.immoveableCanvas.gameObject.SetActive(false);
-    }
+        if (!world.openingImmoveable)
+            world.immoveableCanvas.gameObject.SetActive(false);
+        else
+			world.openingImmoveable = false;
+	}
 
     public void CloseResearchTree()
     {

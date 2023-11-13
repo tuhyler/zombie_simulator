@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wonderPrefab: {fileID: 741225248704783947, guid: 8e965df06144fb64397a21179c17dfff,
     type: 3}
-  wonderName: Hanging Gardens
+  wonderName: Wonder - Hanging Gardens
+  wonderDisplayName: Hanging Gardens
   wonderDecription: Fill in description
   wonderEra: 0
   workersNeeded: 4

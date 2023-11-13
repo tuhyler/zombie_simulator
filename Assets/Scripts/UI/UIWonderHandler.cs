@@ -113,6 +113,7 @@ public class UIWonderHandler : MonoBehaviour
         {
             world.UnselectAll();
             gameObject.SetActive(v);
+            world.openingImmoveable = true;
             world.immoveableCanvas.gameObject.SetActive(true);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
@@ -149,8 +150,11 @@ public class UIWonderHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        world.immoveableCanvas.gameObject.SetActive(false);
-    }
+        if (!world.openingImmoveable)
+            world.immoveableCanvas.gameObject.SetActive(false);
+        else
+			world.openingImmoveable = false;
+	}
 
     public void PrepareBuild(WonderDataSO buildData)
     {
@@ -164,13 +168,13 @@ public class UIWonderHandler : MonoBehaviour
             if (buildItem == null)
                 continue;
 
-            string itemName = buildItem.BuildData.wonderName;
+            //string itemName = buildItem.BuildData.wonderDisplayName;
             List<ResourceValue> resourceCosts = new(buildItem.BuildData.wonderCost);
             bool locked = buildItem.BuildData.locked;
 
             buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (locked || world.GetWondersConstruction("Wonder - " + itemName))
+            if (locked || world.GetWondersConstruction(buildItem.BuildData.wonderName))
             {
                 buildItem.ToggleVisibility(false);
                 continue;

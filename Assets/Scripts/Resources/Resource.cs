@@ -43,7 +43,7 @@ public class Resource : MonoBehaviour
         if (clearForest) //ammount of wood received for clearing forest / jungle
             gatheringAmount = worker.clearedForestlumberAmount;
 
-        int amount = worker.world.GetTerrainDataAt(worker.world.RoundToInt(worker.transform.position)).GatherResourceAmount(gatheringAmount, worker);
+        int amount = worker.world.GetTerrainDataAt(worker.world.RoundToInt(worker.transform.position)).GatherResourceAmount(gatheringAmount);
         worker.RemoveWorkLocation();
         LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
         yield return new WaitForSeconds(0.5f);

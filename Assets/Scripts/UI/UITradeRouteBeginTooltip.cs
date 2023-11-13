@@ -53,7 +53,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 		if (val)
 		{
 			this.trader = trader;
-			city = world.GetCity(trader.GetStartingCity());
+			city = trader.GetStartingCity();
 			SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), city.ResourceManager);
 
 			gameObject.SetActive(val);

@@ -4,7 +4,7 @@ using UnityEngine;
 public class SelectionHighlight : MonoBehaviour
 {
     [SerializeField]
-    private Material glowMaterial; 
+    private Material glowMaterial, glowMaterial2; 
 
     [HideInInspector]
     public bool isGlowing;
@@ -56,11 +56,13 @@ public class SelectionHighlight : MonoBehaviour
         materialsToUse[index + renderers.Count] = mat;
     }
 
-    public void EnableHighlight(Color highlightColor)
+    public void EnableHighlight(Color highlightColor, bool newGlow = false)
     {
         isGlowing = true;
 
         Material glow = glowMaterial;
+        if (newGlow)
+            glow = glowMaterial2;
 
         foreach (MeshRenderer renderer in renderers)
         {

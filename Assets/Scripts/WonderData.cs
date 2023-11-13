@@ -12,4 +12,5 @@ public class WonderData
 	public bool isConstructing, canBuildHarbor, hasHarbor, roadPreExisted;
 	public List<Vector3Int> wonderLocs, possibleHarborLocs, coastTiles;
 	public Dictionary<ResourceType, int> resourceGridDict;
+	public List<int> waitList = new(), seaWaitList = new();
 }

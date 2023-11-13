@@ -30,7 +30,8 @@ public class UISaveGame : MonoBehaviour
     private GameObject uiSaveItemGO, screenshotParent, deleteButton;
     private UISaveItem selectedSaveItem;
 
-    private List<string> currentSaves = new();
+    [HideInInspector]
+    public List<string> currentSaves = new();
     private bool newItem, load, populated;
     [HideInInspector]
     public bool activeStatus;
@@ -44,6 +45,8 @@ public class UISaveGame : MonoBehaviour
 
 	public void PopulateSaveItems()
     {
+        DateTime prevDateTime = new DateTime(1986, 11, 22, 0, 0, 0);
+        
         foreach (string fullSavedName in Directory.GetFiles(Application.persistentDataPath, "*.save"))
 		{
             string[] saveBreaks = fullSavedName.Split("\\");
@@ -77,6 +80,14 @@ public class UISaveGame : MonoBehaviour
             Rect rect = new Rect(0, 0, texture.width, texture.height);    
             texture.LoadImage(Convert.FromBase64String(gameData.saveScreenshot));
             uiSaveItem.screenshot = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+
+            DateTime curDateTime = Convert.ToDateTime(gameData.saveDate);
+
+            if (curDateTime > prevDateTime)
+            {
+                prevDateTime = curDateTime;
+                item.transform.SetAsFirstSibling();
+            }
 		}
 
         populated = true;
@@ -262,6 +273,7 @@ public class UISaveGame : MonoBehaviour
 
     public void ConfirmOverWrite()
     {
+        selectedSaveItem.transform.SetAsFirstSibling();
         world.StartSaveProcess(selectedSaveItem.saveName);
 	}
 }

@@ -175,6 +175,7 @@ public class UIBuilderHandler : MonoBehaviour
 
             if (!openTab)
             {
+                cityBuilderManager.world.openingImmoveable = true;
                 cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(true);
                 LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 1f)
                 .setEase(LeanTweenType.easeOutSine)
@@ -223,7 +224,7 @@ public class UIBuilderHandler : MonoBehaviour
             //dof.focalLength.value = 15;
             if (!openTab)
             {
-                LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
+				LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
                 .setEase(LeanTweenType.easeOutSine)
                 .setOnUpdate((value) =>
                 {
@@ -248,8 +249,11 @@ public class UIBuilderHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
-    }
+        if (!cityBuilderManager.world.openingImmoveable)
+            cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
+        else
+			cityBuilderManager.world.openingImmoveable = false;
+	}
 
     public void PrepareBuild(ImprovementDataSO buildData)
     {

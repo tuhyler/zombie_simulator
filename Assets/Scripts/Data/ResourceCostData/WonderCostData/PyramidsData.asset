@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wonderPrefab: {fileID: 741225248704783947, guid: 86919d8d2103eed4a84b1b9087b91e8d,
     type: 3}
-  wonderName: Pyramids
+  wonderName: Wonder - Pyramids
+  wonderDisplayName: Pyramids
   wonderDecription: Fill in description
   wonderEra: 0
   workersNeeded: 4
