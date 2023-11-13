@@ -626,18 +626,30 @@ public class TradeRouteManager : MonoBehaviour
     {
         if (city != null)
         {
-            city.CheckQueue();
-            city = null;
+            if (trader.bySea)
+                city.CheckSeaQueue();
+            else
+				city.CheckQueue();
+
+			city = null;
         }
         else if (wonder != null)
         {
-            wonder.CheckQueue();
+            if (trader.bySea)
+				wonder.CheckSeaQueue();
+            else
+			    wonder.CheckQueue();
+            
             wonder = null;
         }
         else if (tradeCenter != null)
         {
-            tradeCenter.CheckQueue();
-            tradeCenter = null;
+            if (trader.bySea)
+                tradeCenter.CheckSeaQueue();
+            else
+				tradeCenter.CheckQueue();
+
+			tradeCenter = null;
         }
     }
 

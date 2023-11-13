@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wonderPrefab: {fileID: 741225248704783947, guid: 254dfd7b3f294e946b88f44d9047b532,
     type: 3}
-  wonderName: Great Lighthouse
+  wonderName: Wonder - Great Lighthouse
+  wonderDisplayName: Great Lighthouse
   wonderDecription: Fill in description
   wonderEra: 0
   workersNeeded: 4

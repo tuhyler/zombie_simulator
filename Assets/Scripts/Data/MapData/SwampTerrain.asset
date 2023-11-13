@@ -17,7 +17,7 @@ MonoBehaviour:
   prefabs:
   - {fileID: 608616143501096269, guid: bde44bafef687604fb22cc1d09d0f6d0, type: 3}
   decors:
-  - {fileID: 0}
+  - {fileID: 9073605623283122857, guid: 62a97f02621f4ac4b832334746e610e9, type: 3}
   title: Swamp
   clearedForestData: {fileID: 11400000, guid: 0c5dc52cfa32d4f4b9e34390c81e4c14, type: 2}
   grassland: 1
@@ -33,4 +33,3 @@ MonoBehaviour:
   rawResourceType: 0
   resourceType: 0
   keepProp: 0
-  hasRocks: 0

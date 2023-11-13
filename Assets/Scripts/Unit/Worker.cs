@@ -30,7 +30,7 @@ public class Worker : Unit
     public int citiesBuilt;
 
     private Coroutine workingCo;
-    private WaitForSeconds workingWait = new(0.6111f), workingWait2 = new(0.6111f);
+    private WaitForSeconds workingWait = new(0.6111f); //for sound effects
 
     //[SerializeField]
     //private ParticleSystem removeSplash;
@@ -85,7 +85,7 @@ public class Worker : Unit
             audioSource.clip = attacks[Random.Range(0, attacks.Length)];
             audioSource.Play();
 
-            yield return workingWait2;
+            yield return workingWait;
         }
     }
 
@@ -490,6 +490,7 @@ public class Worker : Unit
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
+        data.isBusy = isBusy;
 
 		return data;
     }

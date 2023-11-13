@@ -165,9 +165,12 @@ public class Trader : Unit
 		}
 	}
 
-    public Vector3Int GetStartingCity()
+    public City GetStartingCity()
     {
-        return tradeRouteManager.cityStops[0];
+        if (bySea)
+            return world.GetHarborCity(tradeRouteManager.cityStops[0]);
+        else
+            return world.GetCity(tradeRouteManager.cityStops[0]);
     }
 
     //public List<Vector3Int> GetCityStops()
@@ -192,7 +195,7 @@ public class Trader : Unit
         {
 			if (tradeRouteManager.currentStop == 0)
             {
-                City city = world.GetCity(GetStartingCity());
+                City city = GetStartingCity();
 				if (city.ResourceManager.ConsumeResourcesForRouteCheck(totalRouteCosts))
                 {
                     waitingOnRouteCosts = false;
@@ -236,20 +239,20 @@ public class Trader : Unit
                 {
                     tradeRouteManager.SetCity(world.GetCity(stopLoc));
                     if (bySea)
-                        harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
-                }
+						harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
+				}
                 else if (world.IsWonderOnTile(stopLoc))
                 {
                     tradeRouteManager.SetWonder(world.GetWonder(stopLoc));
                     if (bySea)
-                        harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
-                }
+						harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
+				}
                 else if (world.IsTradeCenterOnTile(stopLoc))
                 {
                     tradeRouteManager.SetTradeCenter(world.GetTradeCenter(stopLoc));
                     if (bySea)
-                        harborRot = world.GetTradeCenter(stopLoc).transform.localEulerAngles;
-                }
+						harborRot = world.GetTradeCenter(stopLoc).transform.localEulerAngles;
+				}
 
                 if (bySea)
                 {
@@ -330,7 +333,10 @@ public class Trader : Unit
         if (currentPath.Count == 0)
         {
             if (tradeRouteManager.CurrentDestination == world.RoundToInt(transform.position))
+            {
+                finalDestinationLoc = tradeRouteManager.CurrentDestination;
                 TradeRouteCheck(transform.position);
+            }
             else
             {
                 CancelRoute();
@@ -448,7 +454,7 @@ public class Trader : Unit
 
     public void SpendRouteCosts(int stop)
     {
-		City city = world.GetCity(tradeRouteManager.cityStops[0]);
+        City city = GetStartingCity();
 
         List<ResourceValue> newCosts = new();
 		float multiple = (totalRouteLength - CalculateTilesTraveled(stop)) / (buildDataSO.movementSpeed * 24);
@@ -461,14 +467,14 @@ public class Trader : Unit
 			newCosts.Add(value);
 		}
 
-		world.GetCity(tradeRouteManager.cityStops[0]).ResourceManager.ConsumeResources(newCosts, 1, city.cityLoc, false, true);
+		city.ResourceManager.ConsumeResources(newCosts, 1, city.cityLoc, false, true);
 
     }
 
     public void RefundRouteCosts()
     {
 		float multiple = (totalRouteLength - CalculateTilesTraveled(tradeRouteManager.currentStop)) / (buildDataSO.movementSpeed * 24);
-        City city = world.GetCity(tradeRouteManager.cityStops[0]);
+        City city = GetStartingCity();
 
 		for (int i = 0; i < buildDataSO.cycleCost.Count; i++)
 		{
@@ -520,7 +526,7 @@ public class Trader : Unit
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
 
-		if (isMoving)
+		if (isMoving && !isWaiting)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
 
 		data.moreToMove = moreToMove;
@@ -604,7 +610,10 @@ public class Trader : Unit
 			if (data.moveOrders.Count == 0)
 				data.moveOrders.Add(endPosition);
 
-			MoveThroughPath(data.moveOrders);
+            if (!isWaiting)
+                MoveThroughPath(data.moveOrders);
+            else
+                pathPositions = new Queue<Vector3Int>(data.moveOrders);
 		}
 
         if (followingRoute)
@@ -614,23 +623,23 @@ public class Trader : Unit
 
             if (atStop && !waitingOnRouteCosts)
             {
-                if (world.IsCityOnTile(CurrentLocation))
-				{
-					tradeRouteManager.SetCity(world.GetCity(CurrentLocation));
-				}
-				else if (world.IsWonderOnTile(CurrentLocation))
-				{
-					tradeRouteManager.SetWonder(world.GetWonder(CurrentLocation));
-				}
-				else if (world.IsTradeCenterOnTile(CurrentLocation))
-				{
-					tradeRouteManager.SetTradeCenter(world.GetTradeCenter(CurrentLocation));
-				}
+				Vector3Int stopLoc = world.GetStopLocation(world.GetTradeLoc(CurrentLocation));
+
+				if (world.IsCityOnTile(stopLoc))
+					tradeRouteManager.SetCity(world.GetCity(stopLoc));
+				else if (world.IsWonderOnTile(stopLoc))
+					tradeRouteManager.SetWonder(world.GetWonder(stopLoc));
+				else if (world.IsTradeCenterOnTile(stopLoc))
+					tradeRouteManager.SetTradeCenter(world.GetTradeCenter(stopLoc));
 
 				tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
 				WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
 				LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
 			}
+            else if (isWaiting)
+            {
+
+            }
 		}
 	}
 }

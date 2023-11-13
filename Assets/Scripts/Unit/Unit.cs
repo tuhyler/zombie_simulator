@@ -380,27 +380,35 @@ public class Unit : MonoBehaviour
         pathPositions = new Queue<Vector3Int>(currentPath);
 
         //ShowPath(currentPath);
-        if (followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
-        {
-            GetInLine();
-            return;
-        }
 
-        if (isTrader && !followingRoute)
+        if (isTrader)
         {
-            if (bySea)
+		    if (followingRoute)
             {
-                if (world.IsCityHarborOnTile(currentLocation))
-                    world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+			    if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+			    {
+                    moreToMove = true;
+                    isMoving = true;
+                    GetInLine();
+				    return;
+			    }
             }
             else
             {
-                if (world.IsCityOnTile(currentLocation))
-                    world.GetCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+                if (bySea)
+                {
+                    if (world.IsCityHarborOnTile(currentLocation))
+                        world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+                }
+                else
+                {
+                    if (world.IsCityOnTile(currentLocation))
+                        world.GetCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+                }
             }
-        }
+        }  
 
-        Vector3 firstTarget = pathPositions.Dequeue();
+		Vector3 firstTarget = pathPositions.Dequeue();
 
         moreToMove = true;
         isMoving = true;
@@ -459,7 +467,7 @@ public class Unit : MonoBehaviour
         //    GetInLine(endPosition);
         //    yield break;
         //}
-        if (!enemyAI && !inArmy && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+        if (pathPositions.Count == 0 && !enemyAI && !inArmy && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
@@ -709,12 +717,12 @@ public class Unit : MonoBehaviour
 
         Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(finalDestinationLoc)));
 
-        if (world.IsCityOnTile(tradePos))
-            world.GetCity(tradePos).AddToWaitList(this);
-        else if (world.IsWonderOnTile(tradePos))
-            world.GetWonder(tradePos).AddToWaitList(this);
-        else if (world.IsTradeCenterOnTile(tradePos))
-            world.GetTradeCenter(tradePos).AddToWaitList(this);
+		if (world.IsCityOnTile(tradePos))
+			world.GetCity(tradePos).AddToWaitList(this);
+		else if (world.IsWonderOnTile(tradePos))
+			world.GetWonder(tradePos).AddToWaitList(this);
+		else if (world.IsTradeCenterOnTile(tradePos))
+			world.GetTradeCenter(tradePos).AddToWaitList(this);
     }
 
     private void GoToBackOfLine(Vector3Int finalLoc, Vector3Int currentLoc)

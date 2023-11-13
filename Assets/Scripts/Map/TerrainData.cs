@@ -586,7 +586,7 @@ public class TerrainData : MonoBehaviour
 
     public void SwitchToRoad()
     {
-        treeHandler.SwitchToRoad(isHill);
+		treeHandler.SwitchToRoad(isHill);
     }
 
     public void SwitchFromRoad()
@@ -594,7 +594,7 @@ public class TerrainData : MonoBehaviour
         treeHandler.SwitchFromRoad(isHill);
     }
 
-    public int GatherResourceAmount(int amount, Worker worker)
+    public int GatherResourceAmount(int amount)
     {
         if (resourceAmount < 0)
             return amount;

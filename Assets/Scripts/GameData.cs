@@ -4,6 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class GameData
 {
+    public string saveDate;
     public string saveName;
     public float savePlayTime = 0;
     public string saveVersion;
@@ -25,7 +26,7 @@ public class GameData
 
     public UnitData playerUnit;
     public Dictionary<Vector3Int, TerrainSaveData> allTerrain = new();
-    public List<TradeCenterData> allTradeCenters = new();
+    public Dictionary<Vector3Int, TradeCenterData> allTradeCenters = new();
     public List<WonderData> allWonders = new();
     public List<CityData> allCities = new();
     public Dictionary<Vector3Int, ArmyData> allArmies = new();

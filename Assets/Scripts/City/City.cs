@@ -99,7 +99,7 @@ public class City : MonoBehaviour
     public int warehouseStorageLimit = 200;
     private TradeRouteManager tradeRouteWaiter;
     private ResourceType resourceWaiter = ResourceType.None;
-    private Queue<Unit> waitList = new();
+    private Queue<Unit> waitList = new(), seaWaitList = new();
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
     [HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
@@ -894,17 +894,29 @@ public class City : MonoBehaviour
 
     public void AddToWaitList(Unit unit)
     {
-        if (!waitList.Contains(unit))
-            waitList.Enqueue(unit);
+        if (unit.bySea)
+        {
+            if (!seaWaitList.Contains(unit))
+                seaWaitList.Enqueue(unit);
+        }
+        else
+        {
+            if (!waitList.Contains(unit))
+                waitList.Enqueue(unit);
+        }
     }
 
     public void RemoveFromWaitList(Unit unit)
     {
-        List<Unit> waitListList = waitList.ToList();
+        List<Unit> waitListList = unit.bySea ? seaWaitList.ToList() : waitList.ToList();
         
         if (!waitListList.Contains(unit))
         {
-            CheckQueue();
+            if (unit.bySea)
+                CheckSeaQueue();
+            else
+                CheckQueue();
+
             return;
         }
 
@@ -918,9 +930,11 @@ public class City : MonoBehaviour
             waitListList[i].waitingCo = StartCoroutine(waitListList[i].MoveUpInLine(j));
         }
 
-        waitList = new Queue<Unit>(waitListList);
-        //waitList = new Queue<Unit>(waitList.Where(x => x != unit));
-    }
+        if (unit.bySea)
+            seaWaitList = new Queue<Unit>(waitListList);
+        else
+			waitList = new Queue<Unit>(waitListList);
+	}
 
     public void CheckQueue()
     {
@@ -939,6 +953,24 @@ public class City : MonoBehaviour
             }
         }
     }
+
+    public void CheckSeaQueue()
+    {
+		if (seaWaitList.Count > 0)
+		{
+			seaWaitList.Dequeue().ExitLine();
+		}
+
+		if (seaWaitList.Count > 0)
+		{
+			int i = 0;
+			foreach (Unit unit in seaWaitList)
+			{
+				i++;
+				unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
+			}
+		}
+	}
 
     public void PlayResourceSplash()
     {
@@ -1470,7 +1502,7 @@ public class City : MonoBehaviour
                 {
                     hasHarbor = true;
                     harborLocation = tile;
-                    world.SetCityHarbor(this, tile);
+                    //world.SetCityHarbor(this, tile);
                     world.AddTradeLoc(tile, name);
                 }
                 else if (name == "Barracks")
@@ -1613,9 +1645,20 @@ public class City : MonoBehaviour
             GameLoader.Instance.gameData.allArmies[cityLoc] = armyData;
         }
 
+        List<Unit> tempWaitList = waitList.ToList();
 
+		for (int i = 0; i < tempWaitList.Count; i++)
+			data.waitList.Add(tempWaitList[i].id);
 
-        for (int i = 0; i < resourceManager.waitingforResourceProducerList.Count; i++)
+		List<Unit> tempSeaWaitList = seaWaitList.ToList();
+
+		for (int i = 0; i < tempSeaWaitList.Count; i++)
+			data.seaWaitList.Add(tempSeaWaitList[i].id);
+
+		for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
+			data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
+
+		for (int i = 0; i < resourceManager.waitingforResourceProducerList.Count; i++)
             data.waitingforResourceProducerList.Add(resourceManager.waitingforResourceProducerList[i].producerLoc);
 
         data.resourcesNeededForProduction = resourceManager.resourcesNeededForProduction;
@@ -1715,7 +1758,37 @@ public class City : MonoBehaviour
         }
     }
 
-    public void SetTraderRouteWaitingList(List<int> tradersWaiting)
+    public void SetWaitList(List<int> waitList)
+    {
+        for (int i = 0; i < waitList.Count; i++)
+        {
+			for (int j = 0; j < world.traderList.Count; j++)
+			{
+				if (world.traderList[j].id == waitList[i])
+				{
+					this.waitList.Enqueue(world.traderList[j]);
+					break;
+				}
+			}
+		}
+    }
+
+	public void SetSeaWaitList(List<int> seaWaitList)
+	{
+		for (int i = 0; i < seaWaitList.Count; i++)
+		{
+			for (int j = 0; j < world.traderList.Count; j++)
+			{
+				if (world.traderList[j].id == seaWaitList[i])
+				{
+					this.seaWaitList.Enqueue(world.traderList[j]);
+					break;
+				}
+			}
+		}
+	}
+
+	public void SetTraderRouteWaitingList(List<int> tradersWaiting)
     {
         for (int i = 0; i < tradersWaiting.Count; i++)
         {

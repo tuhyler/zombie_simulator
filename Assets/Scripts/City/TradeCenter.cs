@@ -21,6 +21,7 @@ public class TradeCenter : MonoBehaviour
 
     //basic info
     public string tradeCenterName;
+    public string tradeCenterDisplayName;
     public int cityPop;
     [HideInInspector]
     public Vector3Int harborLoc, mainLoc;
@@ -40,7 +41,7 @@ public class TradeCenter : MonoBehaviour
     public List<ResourceValue> sellResources = new();
 
     //for queuing unloading
-    private Queue<Unit> waitList = new();
+    private Queue<Unit> waitList = new(), seaWaitList = new();
     private TradeRouteManager tradeRouteWaiter;
     private int waitingAmount;
 
@@ -73,6 +74,7 @@ public class TradeCenter : MonoBehaviour
     {
         gameObject.SetActive(true);
         isDiscovered = true;
+        world.GetTerrainDataAt(harborLoc).Reveal();
     }
 
     public void SetWorld(MapWorld world)
@@ -82,10 +84,10 @@ public class TradeCenter : MonoBehaviour
 
     public void SetName()
     {
-        nameField.cityName.text = tradeCenterName;
-        nameField.SetCityNameFieldSize(tradeCenterName);
+        nameField.cityName.text = tradeCenterDisplayName;
+        nameField.SetCityNameFieldSize(tradeCenterDisplayName);
         nameField.SetNeutralBackground();
-        nameMap.GetComponentInChildren<TMP_Text>().text = tradeCenterName;
+        nameMap.GetComponentInChildren<TMP_Text>().text = tradeCenterDisplayName;
         world.AddTradeCenterName(nameMap);
         nameMap.gameObject.SetActive(false);
     }
@@ -114,6 +116,9 @@ public class TradeCenter : MonoBehaviour
 
         world.AddToCityLabor(mainLoc, gameObject);
         world.AddStructure(mainLoc, gameObject);
+
+        foreach (Vector3Int loc in world.GetNeighborsFor(mainLoc, MapWorld.State.EIGHTWAYINCREMENT))
+            world.AddToCityLabor(loc, gameObject);
     }
 
     public void ToggleLights(bool v)
@@ -142,18 +147,30 @@ public class TradeCenter : MonoBehaviour
 
     public void AddToWaitList(Unit unit)
     {
-        if (!waitList.Contains(unit))
-            waitList.Enqueue(unit);
+        if (unit.bySea)
+        {
+			if (!seaWaitList.Contains(unit))
+				seaWaitList.Enqueue(unit);
+		}
+        else
+        {
+            if (!waitList.Contains(unit))
+                waitList.Enqueue(unit);
+        }
     }
 
     public void RemoveFromWaitList(Unit unit)
     {
-        List<Unit> waitListList = waitList.ToList();
+        List<Unit> waitListList = unit.bySea ? seaWaitList.ToList() : waitList.ToList();
 
         if (!waitListList.Contains(unit))
         {
-            CheckQueue();
-            return;
+            if (unit.bySea)
+                CheckSeaQueue();
+            else
+				CheckQueue();
+
+			return;
         }
 
         int index = waitListList.IndexOf(unit);
@@ -166,9 +183,12 @@ public class TradeCenter : MonoBehaviour
             waitListList[i].waitingCo = StartCoroutine(waitListList[i].MoveUpInLine(j));
         }
 
-        waitList = new Queue<Unit>(waitListList);
-        //waitList = new Queue<Unit>(waitList.Where(x => x != unit));
-    }
+        if (unit.bySea)
+            seaWaitList = new Queue<Unit>(waitListList);
+        else
+			waitList = new Queue<Unit>(waitListList);
+		//waitList = new Queue<Unit>(waitList.Where(x => x != unit));
+	}
 
     public void CheckQueue()
     {
@@ -188,6 +208,24 @@ public class TradeCenter : MonoBehaviour
         }
     }
 
+    public void CheckSeaQueue()
+    {
+		if (seaWaitList.Count > 0)
+		{
+			seaWaitList.Dequeue().ExitLine();
+		}
+
+		if (seaWaitList.Count > 0)
+		{
+			int i = 0;
+			foreach (Unit unit in seaWaitList)
+			{
+				i++;
+				unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
+			}
+		}
+	}
+
     public void GoldCheck()
     {
         if (world.CheckWorldGold(waitingAmount))
@@ -205,12 +243,12 @@ public class TradeCenter : MonoBehaviour
         world.RemoveTradeCenterFromWaitList(this);
     }
 
-    public void EnableHighlight(Color highlightColor)
+    public void EnableHighlight(Color highlightColor, bool newGlow)
     {
         if (highlight.isGlowing)
             return;
 
-        highlight.EnableHighlight(highlightColor);
+        highlight.EnableHighlight(highlightColor, newGlow);
     }
 
     public void DisableHighlight()
@@ -237,10 +275,21 @@ public class TradeCenter : MonoBehaviour
         data.cityPop = cityPop;
         data.isDiscovered = isDiscovered;
 
-        return data;
+		return data;
     }
 
-    public void LoadData(TradeCenterData data)
+    public List<int> SaveWaitListData(bool bySea)
+    {
+		List<Unit> tempWaitList = bySea ? seaWaitList.ToList() : waitList.ToList();
+        List<int> waitListOrder = new();
+
+		for (int i = 0; i < tempWaitList.Count; i++)
+			waitListOrder.Add(tempWaitList[i].id);
+
+        return waitListOrder;
+	}
+
+	public void LoadData(TradeCenterData data)
     {
 		mainLoc = data.mainLoc;
 		harborLoc = data.harborLoc;
@@ -248,5 +297,35 @@ public class TradeCenter : MonoBehaviour
 		//tradeCenterName = data.name; //done elsewhere
   //      cityPop = data.cityPop;
 		isDiscovered = data.isDiscovered;
+	}
+
+	public void SetWaitList(List<int> waitList)
+	{
+		for (int i = 0; i < waitList.Count; i++)
+		{
+			for (int j = 0; j < world.traderList.Count; j++)
+			{
+				if (world.traderList[j].id == waitList[i])
+				{
+					this.waitList.Enqueue(world.traderList[j]);
+					break;
+				}
+			}
+		}
+	}
+
+	public void SetSeaWaitList(List<int> seaWaitList)
+	{
+		for (int i = 0; i < seaWaitList.Count; i++)
+		{
+			for (int j = 0; j < world.traderList.Count; j++)
+			{
+				if (world.traderList[j].id == seaWaitList[i])
+				{
+					this.seaWaitList.Enqueue(world.traderList[j]);
+					break;
+				}
+			}
+		}
 	}
 }

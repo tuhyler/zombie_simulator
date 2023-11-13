@@ -12,7 +12,7 @@ public class CityData
 	public float warehouseStorageLevel;
 	public List<ResourceType> resourcePriorities;
 	public Dictionary<ResourceType, int> resourceGridDict;
-	public List<int> tradersHere;
+	public List<int> tradersHere = new();
 
 	//resource manager data
 	public Dictionary<ResourceType, int> resourceDict;
@@ -33,8 +33,8 @@ public class CityData
 	public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, enemyReady, issueRefund = true;
 
 	//waiting lists
-	public List<Vector3Int> waitingforResourceProducerList;
+	public List<Vector3Int> waitingforResourceProducerList = new();
 	public List<ResourceType> resourcesNeededForProduction;
-	public List<int> waitingForTraderList;
+	public List<int> waitingForTraderList = new(), waitList = new(), seaWaitList = new();
 	public List<ResourceType> resourcesNeededForRoute;
 }

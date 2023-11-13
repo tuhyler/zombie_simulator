@@ -17,17 +17,20 @@ public class GameLoader : MonoBehaviour
 	public bool isLoading, isDone;
 	[HideInInspector]
 	public List<Unit> attackingUnitList = new();
-	public Dictionary<City, (List<Vector3Int>, List<int>, List<int>)> cityWaitingDict = new();
+	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
+	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
+	public Dictionary<City, (List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
 
 	private void Awake()
 	{
 		Instance = this;
 	}
 
-	public void SaveGame(string saveName, float playTime, string version, string screenshot)
+	public void SaveGame(string saveNameRaw, float playTime, string version, string screenshot)
 	{
 		//string saveName = "game_data";
-		saveName = "/" + saveName + ".save";
+		gameData.saveDate = System.DateTime.Now.ToString();
+		string saveName = "/" + saveNameRaw + ".save";
 		gameData.saveName = saveName;
 		gameData.savePlayTime += playTime;
 		gameData.saveVersion = version;
@@ -45,6 +48,13 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < enemyCampLocs.Count; i++)
 		{
 			gameData.attackedEnemyBases[enemyCampLocs[i]] = world.GetEnemyCamp(enemyCampLocs[i]).SendCampUnitData();
+		}
+
+		//trade centers (waiting lists)
+		foreach (TradeCenter center in world.tradeCenterDict.Values)
+		{
+			gameData.allTradeCenters[center.mainLoc].waitList = center.SaveWaitListData(false);
+			gameData.allTradeCenters[center.mainLoc].seaWaitList = center.SaveWaitListData(true);
 		}
 
 		//wonders
@@ -95,17 +105,19 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < world.laborerList.Count; i++)
 			gameData.allLaborers.Add(world.laborerList[i].SaveLaborerData());
 
+		Vector3 middle = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 		if (gamePersist.SaveData(saveName, gameData, false))
 		{
-			UIInfoPopUpHandler.WarningMessage().Create(Vector3.zero, "Game Saved!");
+			UIInfoPopUpHandler.WarningMessage().Create(middle, "Game Saved!");
 		}
 		else
 		{
-			UIInfoPopUpHandler.WarningMessage().Create(Vector3.zero, "Failed to save...");
+			UIInfoPopUpHandler.WarningMessage().Create(middle, "Failed to save...");
 		}
 
 		Resources.UnloadUnusedAssets();
 		world.uiMainMenu.uiSaveGame.ToggleVisibility(false);
+		world.uiMainMenu.uiSaveGame.currentSaves.Add(saveNameRaw);
 		world.uiMainMenu.ToggleVisibility(false);
 	}
 
@@ -130,22 +142,28 @@ public class GameLoader : MonoBehaviour
 		world.GenerateTradeCenters(gameData.allTradeCenters);
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
 		world.LoadWonder(gameData.allWonders);
+		gameData.allWonders.Clear();
 
 		for (int i = 0; i < gameData.allCities.Count; i++)
 		{
 			world.BuildCity(gameData.allCities[i].location, world.GetTerrainDataAt(gameData.allCities[i].location), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, gameData.allCities[i]);
 		}
+		gameData.allCities.Clear();
+		gameData.allArmies.Clear();
 
 		for (int i = 0; i < gameData.allCityImprovements.Count; i++)
 		{
 			world.CreateImprovement(world.GetCity(gameData.allCityImprovements[i].cityLoc), gameData.allCityImprovements[i]);
 		}
+		gameData.allCityImprovements.Clear();
+		gameData.militaryUnits.Clear();
 
 		for (int i = 0; i < gameData.allRoads.Count; i++)
 		{
 			if (!world.roadTileDict.ContainsKey(gameData.allRoads[i].position))
 				world.roadManager.BuildRoadAtPosition(gameData.allRoads[i].position);
 		}
+		gameData.allRoads.Clear();
 
 		//      //assign labor
 
@@ -169,31 +187,45 @@ public class GameLoader : MonoBehaviour
 		world.cameraController.newRotation = gameData.camRotation;
 		world.dayNightCycle.timeODay = gameData.timeODay;
 		world.cameraController.LoadCameraLimits(gameData.camLimits[0], gameData.camLimits[1], gameData.camLimits[2], gameData.camLimits[3]);
+		gameData.camLimits.Clear();
 
 		for (int i = 0; i < attackingUnitList.Count; i++)
 		{
 			attackingUnitList[i].LoadAttack();
 		}
+		attackingUnitList.Clear();
+
+		//trade center waiting lists
+		foreach (TradeCenter center in centerWaitingDict.Keys)
+		{
+			(List<int> waitList, List<int> seaWaitList) = centerWaitingDict[center];
+			center.SetWaitList(waitList);
+			center.SetSeaWaitList(seaWaitList);
+		}
+		centerWaitingDict.Clear();
+
+		//wonder waiting lists
+		foreach (Wonder wonder in wonderWaitingDict.Keys)
+		{
+			(List<int> waitList, List<int> seaWaitList) = wonderWaitingDict[wonder];
+			wonder.SetWaitList(waitList);
+			wonder.SetSeaWaitList(seaWaitList);
+		}
+		wonderWaitingDict.Clear();
 
 		//city waiting lists
 		foreach (City city in cityWaitingDict.Keys)
 		{
-			(List<Vector3Int> producersWaiting, List<int> tradersWaiting, List<int> tradersHere) = cityWaitingDict[city];
+			(List<Vector3Int> producersWaiting, List<int> waitList, List<int> seaWaitList, List<int> tradersWaiting, List<int> tradersHere) = cityWaitingDict[city];
 			city.SetProducerWaitingList(producersWaiting);
+			city.SetWaitList(waitList);
+			city.SetSeaWaitList(seaWaitList);
 			city.SetTraderRouteWaitingList(tradersWaiting);
 			city.SetTradersHereList(tradersHere);
 		}
+		cityWaitingDict.Clear();
 			
 
-		gameData.allWonders.Clear();
-		gameData.allCities.Clear();
-		gameData.allArmies.Clear();
-		gameData.allCityImprovements.Clear();
-		gameData.militaryUnits.Clear();
-		gameData.allRoads.Clear();
-		gameData.camLimits.Clear();
-		attackingUnitList.Clear();
-		cityWaitingDict.Clear();
 
 		Time.timeScale = 1f;
 		AudioListener.pause = false;

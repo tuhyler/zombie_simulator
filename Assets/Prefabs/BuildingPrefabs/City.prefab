@@ -223,6 +223,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   producedResourceIndex: 0
   currentLabor: 0
+  producerLoc: {x: 0, y: 0, z: 0}
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
   isWaitingToUnload: 0
@@ -248,10 +249,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fullInventory: 0
+  waitingforResourceProducerList: []
+  resourcesNeededForProduction: 
+  waitingForTraderList: []
+  resourcesNeededForRoute: 
   uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 2
-    resourceAmount: 2
+    resourceAmount: 50
   - resourceType: 6
     resourceAmount: 500
   - resourceType: 7
@@ -317,6 +322,9 @@ MonoBehaviour:
   attackingSpots: []
   movementRange: []
   cavalryRange: []
+  unitsReady: 0
+  stepCount: 0
+  noMoneyCycles: 0
   city: {fileID: 0}
   isEmpty: 1
   isFull: 0

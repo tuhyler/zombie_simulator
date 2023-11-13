@@ -702,7 +702,7 @@ public class UnitMovement : MonoBehaviour
         }
         else if (selectedUnit.isTrader)
         {
-			if (world.cityBuilderManager.SelectedCity != null)
+			if (world.cityBuilderManager.SelectedCity != null && !selectedUnit.bySea)
 				world.cityUnitSelected = true;
 
 			if (!selectedUnit.followingRoute)
@@ -744,47 +744,13 @@ public class UnitMovement : MonoBehaviour
                 return;
             
             movementSystem.AppendNewPath(unit);
-            //movementSystem.GetPathToMove(world, selectedUnit, terrainPos, isTrader); //Call AStar movement
-            //movementSystem.ClearPaths();
-            //return;
         }
         else if (unit.isMoving)
         {
             unit.ResetMovementOrders();
         }
-
-
-        //selectedTile = terrainSelected; //sets selectedTile value
-        //bool isTrader = selectedTrader != null;
-        //movementSystem.GetPathToMove(world, selectedUnit, terrainPos, isTrader); //Call AStar movement
-        //else //moving unit
-        //{
-        //    //if (movementSystem.CurrentPathLength == 0)
-        //    //{
-        //    //    Debug.Log("No defined path.");
-        //    //    return;
-        //    //}
-
-        //    uiJoinCity.ToggleTweenVisibility(false);
-
-        //    movementSystem.MoveUnitToggle(selectedUnit, world);
-        //    movementSystem.HidePath();
-        //    movementSystem.ClearPaths();
-        //    //selectedTile = null;
-        //}
-
-        //bool isTrader = selectedTrader != null;
-
-        //unit.FinishedMoving.AddListener(ShowIndividualCityButtonsUI);
         
         movementSystem.GetPathToMove(world, unit, terrainPos, unit.isTrader); //Call AStar movement
-
-        unit.finalDestinationLoc = location;
-        //uiJoinCity.ToggleTweenVisibility(false);
-        if (unit.isBusy)
-            uiCancelMove.ToggleTweenVisibility(false);
-        else
-            uiCancelMove.ToggleTweenVisibility(true);
 
         if (!queueMovementOrders)
         {
@@ -794,6 +760,10 @@ public class UnitMovement : MonoBehaviour
                 return;
         }
 
+        unit.finalDestinationLoc = location;
+
+        uiCancelMove.ToggleTweenVisibility(!unit.isBusy);
+        
         movementSystem.ClearPaths();
         uiJoinCity.ToggleTweenVisibility(false);
         uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
@@ -904,54 +874,36 @@ public class UnitMovement : MonoBehaviour
 
 		if (selectedUnit.isTrader)
 		{
-			if (selectedUnit.bySea)
+            Vector3Int terrainLoc = world.GetClosestTerrainLoc(locationInt);
+
+			if (!world.IsTradeLocOnTile(terrainLoc))
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city, trade center, or a wonder");
+				return;
+			}
+
+			Vector3Int terrainInt = world.GetStopLocation(world.GetTradeLoc(terrainLoc));
+
+			if (world.IsCityOnTile(terrainInt))
 			{
-				Vector3Int terrainInt = world.GetClosestTerrainLoc(locationInt);
-				if (world.IsCityHarborOnTile(terrainInt))
-				{
-                    locationInt = world.GetCity(terrainInt).harborLocation;
-                    world.citySelected = leftClick;
-				}
-				else if (world.IsWonderHarborOnTile(terrainInt))
-				{
-                    locationInt = world.GetWonder(terrainInt).harborLoc;
-                    world.citySelected = leftClick;
-				}
-				else if (world.IsTradeCenterHarborOnTile(terrainInt))
-				{
-                    locationInt = world.GetTradeCenter(terrainInt).harborLoc;
-                    world.citySelected = leftClick;
-				}
-				else
-				{
-					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to harbor of city, trade center, or wonder");
-					return;
-				}
+				locationInt = selectedUnit.bySea ? world.GetCity(terrainInt).harborLocation : terrainInt;
+				world.citySelected = leftClick;
+			}
+			else if (world.IsWonderOnTile(terrainInt))
+			{
+				Wonder wonderLoc = world.GetWonder(terrainInt);
+				locationInt = selectedUnit.bySea ? wonderLoc.harborLoc : wonderLoc.unloadLoc;
+				world.citySelected = leftClick;
+			}
+			else if (world.IsTradeCenterOnTile(terrainInt))
+			{
+				locationInt = selectedUnit.bySea ? world.GetTradeCenter(terrainInt).harborLoc : terrainInt;
+				world.citySelected = leftClick;
 			}
 			else
 			{
-				Vector3Int terrainInt = world.GetClosestTerrainLoc(locationInt);
-				if (world.IsCityOnTile(terrainInt))
-				{
-					locationInt = terrainInt;
-					world.citySelected = leftClick;
-				}
-				else if (world.IsWonderOnTile(terrainInt))
-				{
-					Wonder wonderLoc = world.GetWonder(terrainInt);
-					locationInt = wonderLoc.unloadLoc;
-					world.citySelected = leftClick;
-				}
-				else if (world.IsTradeCenterOnTile(terrainInt))
-				{
-					locationInt = terrainInt;
-					world.citySelected = leftClick;
-				}
-				else
-				{
-					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city, trade center, or a wonder");
-					return;
-				}
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city, trade center, or a wonder");
+				return;
 			}
 		}
 
@@ -1005,6 +957,12 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelContinuedMovementOrders()
     {
+        if (selectedUnit.isTrader && selectedUnit.followingRoute)
+        {
+            CancelTradeRoute();
+            return;
+        }
+        
         if (selectedUnit != null)
         {
             selectedUnit.ResetMovementOrders();
@@ -1177,7 +1135,7 @@ public class UnitMovement : MonoBehaviour
             else if (world.IsWonderOnTile(tradeLoc))
             {
                 wonder = world.GetWonder(tradeLoc);
-                uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderName, 10000, 10000); //not showing inventory levels
+                uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderDisplayName, 10000, 10000); //not showing inventory levels
                 //uiCityResourceInfoPanel.PrepareResourceUI(wonder.ResourceDict);
                 uiCityResourceInfoPanel.HideInventoryLevel();
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, null, wonder);
@@ -1186,7 +1144,7 @@ public class UnitMovement : MonoBehaviour
             else if (world.IsTradeCenterOnTile(tradeLoc))
             {
                 tradeCenter = world.GetTradeCenter(tradeLoc);
-                uiCityResourceInfoPanel.SetTitleInfo(tradeCenter.tradeCenterName, 10000, 10000); //not showing inventory levels
+                uiCityResourceInfoPanel.SetTitleInfo(tradeCenter.tradeCenterDisplayName, 10000, 10000); //not showing inventory levels
                 uiCityResourceInfoPanel.HideInventoryLevel();
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, null, null, tradeCenter);
                 uiCityResourceInfoPanel.SetPosition(true);
@@ -1855,6 +1813,8 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedUnit.inArmy)
             CancelArmyDeployment();
+        else if (selectedUnit.isTrader)
+            CancelTradeRoute();
     }
 
     public void ClearSelection()

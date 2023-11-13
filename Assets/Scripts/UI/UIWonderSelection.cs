@@ -63,14 +63,15 @@ public class UIWonderSelection : MonoBehaviour
             return;
 
         LeanTween.cancel(gameObject);
-        world.cityCanvas.gameObject.SetActive(v);
-
+        
         if (v)
         {
             world.UnselectAll();
             world.somethingSelected = true;
 
-            SetWonderInfo(wonder);
+            world.openingCity = true;
+			world.cityCanvas.gameObject.SetActive(true);
+			SetWonderInfo(wonder);
             SetResources(wonder);
             if (!wonder.isConstructing)
             {
@@ -113,12 +114,16 @@ public class UIWonderSelection : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         addHarborButton.SetActive(false);
+        if (!world.openingCity)
+            world.cityCanvas.gameObject.SetActive(false);
+        else
+            world.openingCity = false;
         gameObject.SetActive(false);
     }
 
     private void SetWonderInfo(Wonder wonder)
     {
-        wonderTitle.text = wonder.WonderData.wonderName;
+        wonderTitle.text = wonder.WonderData.wonderDisplayName;
         wonderDescription.text = wonder.WonderData.wonderDecription;
         workerCount.text = $"{wonder.WorkersReceived}";
         workerTotal.text = $"/{wonder.WonderData.workersNeeded}";

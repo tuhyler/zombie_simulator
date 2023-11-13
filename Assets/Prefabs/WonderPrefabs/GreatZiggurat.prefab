@@ -79,6 +79,7 @@ MonoBehaviour:
   harborLoc: {x: 0, y: 0, z: 0}
   centerPos: {x: 0, y: 0, z: 0}
   wonderName: 
+  harborImprovement: {fileID: 0}
   heavenHighlight: {fileID: 4953528115713912327, guid: a11824c75395cb942965c0ed24f8949d,
     type: 3}
   smokeEmitter: {fileID: 1051715053847212574}
@@ -113,6 +114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterial2: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   isGlowing: 0
 --- !u!1 &2090944206423074333
 GameObject:

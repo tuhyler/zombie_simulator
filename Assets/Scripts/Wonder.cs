@@ -72,7 +72,7 @@ public class Wonder : MonoBehaviour
     private WaitForSeconds stepBuildTime = new WaitForSeconds(1);
 
     //for queuing unloading
-    private Queue<Unit> waitList = new();
+    private Queue<Unit> waitList = new(), seaWaitList = new();
     private TradeRouteManager tradeRouteWaiter;
     private ResourceType resourceWaiter = ResourceType.None;
 
@@ -221,17 +221,29 @@ public class Wonder : MonoBehaviour
 
     public void AddToWaitList(Unit unit)
     {
-        if (!waitList.Contains(unit))
-            waitList.Enqueue(unit);
+        if (unit.bySea)
+        {
+			if (!seaWaitList.Contains(unit))
+				seaWaitList.Enqueue(unit);
+		}
+		else
+        {
+            if (!waitList.Contains(unit))
+                waitList.Enqueue(unit);
+        }
     }
 
     public void RemoveFromWaitList(Unit unit)
     {
-        List<Unit> waitListList = waitList.ToList();
+        List<Unit> waitListList = unit.bySea ? seaWaitList.ToList() : waitList.ToList();
         
         if (!waitListList.Contains(unit))
         {
-            CheckQueue();
+            if (unit.bySea)
+                CheckSeaQueue();
+            else
+                CheckQueue();
+            
             return;
         }
 
@@ -245,9 +257,12 @@ public class Wonder : MonoBehaviour
             waitListList[i].waitingCo = StartCoroutine(waitListList[i].MoveUpInLine(j));
         }
 
-        waitList = new Queue<Unit>(waitListList);
-        //waitList = new Queue<Unit>(waitList.Where(x => x != unit));
-    }
+        if (unit.bySea)
+            seaWaitList = new Queue<Unit>(waitListList);
+        else
+			waitList = new Queue<Unit>(waitListList);
+		//waitList = new Queue<Unit>(waitList.Where(x => x != unit));
+	}
 
     internal void CheckQueue()
     {
@@ -266,6 +281,24 @@ public class Wonder : MonoBehaviour
             }
         }
     }
+
+    internal void CheckSeaQueue()
+    {
+		if (seaWaitList.Count > 0)
+		{
+			seaWaitList.Dequeue().ExitLine();
+		}
+
+		if (seaWaitList.Count > 0)
+		{
+			int i = 0;
+			foreach (Unit unit in seaWaitList)
+			{
+				i++;
+				unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
+			}
+		}
+	}
 
     internal int CheckResource(ResourceType type, int newResourceAmount)
     {
@@ -652,12 +685,12 @@ public class Wonder : MonoBehaviour
         smokeEmitter.gameObject.SetActive(false);
     }
 
-    public void EnableHighlight(Color highlightColor)
+    public void EnableHighlight(Color highlightColor, bool newGlow)
     {
         if (highlight.isGlowing)
             return;
 
-        highlight.EnableHighlight(highlightColor);
+        highlight.EnableHighlight(highlightColor, newGlow);
     }
 
     public void DisableHighlight()
@@ -688,9 +721,19 @@ public class Wonder : MonoBehaviour
         data.coastTiles = coastTiles;
         data.resourceGridDict = resourceGridDict;
 
-	//public Dictionary<ResourceType, int> resourceDict, resourceCostDict, resourceGridDict;
+		List<Unit> tempWaitList = waitList.ToList();
 
-        return data;
+		for (int i = 0; i < tempWaitList.Count; i++)
+			data.waitList.Add(tempWaitList[i].id);
+
+		List<Unit> tempSeaWaitList = seaWaitList.ToList();
+
+		for (int i = 0; i < tempSeaWaitList.Count; i++)
+			data.seaWaitList.Add(tempSeaWaitList[i].id);
+
+		//public Dictionary<ResourceType, int> resourceDict, resourceCostDict, resourceGridDict;
+
+		return data;
     }
 
     public void LoadData(WonderData data)
@@ -709,6 +752,8 @@ public class Wonder : MonoBehaviour
 		possibleHarborLocs = data.possibleHarborLocs;
 		coastTiles = data.coastTiles;
         resourceGridDict = data.resourceGridDict;
+
+
 	}
 
     public void DestroyParticleSystems()
@@ -719,5 +764,35 @@ public class Wonder : MonoBehaviour
         Destroy(removeSplash.gameObject);
         Destroy(fireworks1.gameObject);
         Destroy(fireworks2.gameObject);
+	}
+
+	public void SetWaitList(List<int> waitList)
+	{
+		for (int i = 0; i < waitList.Count; i++)
+		{
+			for (int j = 0; j < world.traderList.Count; j++)
+			{
+				if (world.traderList[j].id == waitList[i])
+				{
+					this.waitList.Enqueue(world.traderList[j]);
+					break;
+				}
+			}
+		}
+	}
+
+	public void SetSeaWaitList(List<int> seaWaitList)
+	{
+		for (int i = 0; i < seaWaitList.Count; i++)
+		{
+			for (int j = 0; j < world.traderList.Count; j++)
+			{
+				if (world.traderList[j].id == seaWaitList[i])
+				{
+					this.seaWaitList.Enqueue(world.traderList[j]);
+					break;
+				}
+			}
+		}
 	}
 }

@@ -417,10 +417,15 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 4622788906157094150, guid: 39897835633fd954caa8bfc5f2428842,
+        type: 3}
+      propertyPath: glowMaterial2
+      value: 
+      objectReference: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
       propertyPath: tradeCenterName
-      value: Indus Valley
+      value: Trader - Indus Valley
       objectReference: {fileID: 0}
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
@@ -431,6 +436,11 @@ PrefabInstance:
         type: 3}
       propertyPath: nightLights.Array.size
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
+        type: 3}
+      propertyPath: tradeCenterDisplayName
+      value: Indus Valley
       objectReference: {fileID: 0}
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
