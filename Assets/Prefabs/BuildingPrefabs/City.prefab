@@ -97,6 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterial2: {fileID: 0}
   isGlowing: 0
 --- !u!1 &7185426163474996275
 GameObject:
@@ -206,9 +207,6 @@ MonoBehaviour:
   workEthic: 1
   warehouseStorageLimit: 2000
   tradersHere: []
-  savedQueueItems: []
-  savedQueueItemsNames: []
-  improvementQueueLocs: []
 --- !u!114 &-548530054223577924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256,11 +254,11 @@ MonoBehaviour:
   uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 2
-    resourceAmount: 50
+    resourceAmount: 1
   - resourceType: 6
-    resourceAmount: 500
+    resourceAmount: 10
   - resourceType: 7
-    resourceAmount: 500
+    resourceAmount: 10
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0

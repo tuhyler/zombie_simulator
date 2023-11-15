@@ -19,7 +19,9 @@ public class RoadManager : MonoBehaviour
     private WorkerTaskManager workerTaskManager;
 
     public int roadMovementCost = 5, roadBuildingTime = 5, roadRemovingTime = 1;
-    private WaitForSeconds roadBuildingTimeWait = new WaitForSeconds(1), roadRemovingTimeWait = new WaitForSeconds(1);
+    [HideInInspector]
+    public int timePassed;
+    private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
 
     [SerializeField]
     private Transform roadHolder, roadHolderMinimap;
@@ -71,14 +73,13 @@ public class RoadManager : MonoBehaviour
 
     public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)
     {
-        int timePassed = roadBuildingTime;
-        worker.ShowProgressTimeBar(timePassed);
+        worker.ShowProgressTimeBar(roadBuildingTime);
         worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
         while (timePassed > 0)
         {
-            yield return roadBuildingTimeWait;
+            yield return oneSecondWait;
             timePassed--;
             worker.SetTime(timePassed);
         }
@@ -348,14 +349,13 @@ public class RoadManager : MonoBehaviour
 
     public IEnumerator RemoveRoad(Vector3Int tile, Worker worker)
     {
-        int timePassed = roadRemovingTime;
-        worker.ShowProgressTimeBar(timePassed);
+        worker.ShowProgressTimeBar(roadRemovingTime);
         worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
         while (timePassed > 0)
         {
-            yield return roadRemovingTimeWait;
+            yield return oneSecondWait;
             timePassed--;
             worker.SetTime(timePassed);
         }

@@ -225,8 +225,6 @@ public class UnitMovement : MonoBehaviour
 				}
                 else
                 {
-                    
-                    
                     if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
@@ -752,6 +750,8 @@ public class UnitMovement : MonoBehaviour
         
         movementSystem.GetPathToMove(world, unit, terrainPos, unit.isTrader); //Call AStar movement
 
+        unit.finalDestinationLoc = location;
+
         if (!queueMovementOrders)
         {
             moveUnit = false;
@@ -759,8 +759,6 @@ public class UnitMovement : MonoBehaviour
             if (!movementSystem.MoveUnit(unit))
                 return;
         }
-
-        unit.finalDestinationLoc = location;
 
         uiCancelMove.ToggleTweenVisibility(!unit.isBusy);
         
@@ -1534,9 +1532,7 @@ public class UnitMovement : MonoBehaviour
 	}
 
 	public void BeginTradeRoute() //start going trade route
-    {
-        world.cityBuilderManager.PlayCoinsAudio();
-        
+    {    
         if (selectedTrader != null)
         {
 			if (selectedTrader.LineCutterCheck())
@@ -1545,6 +1541,7 @@ public class UnitMovement : MonoBehaviour
             if (!world.uiTradeRouteBeginTooltip.AffordCheck())
                 return;
 
+            world.cityBuilderManager.PlayCoinsAudio();
             world.uiTradeRouteBeginTooltip.ToggleVisibility(false);
             selectedTrader.SpendRouteCosts(selectedTrader.tradeRouteManager.startingStop);
 			//if (selectedTrader.followingRoute)

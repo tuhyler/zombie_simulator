@@ -38,6 +38,7 @@ public class Resource : MonoBehaviour
     public IEnumerator SendResourceToCity(int gatheringAmount)
     {
         worker.harvested = false;
+        worker.harvestedForest = false;
         worker.isBusy = false;
 
         if (clearForest) //ammount of wood received for clearing forest / jungle
@@ -72,6 +73,7 @@ public class Resource : MonoBehaviour
 
     private void DestroyResourceIcon()
     {
+        GameLoader.Instance.textList.Remove(gameObject);
         Destroy(gameObject);
     }
 }

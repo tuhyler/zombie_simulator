@@ -108,7 +108,7 @@ public class Unit : MonoBehaviour
     public UIUnitTurnHandler turnHandler;
 
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, somethingToSay, sayingSomething;
+    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething;
 
     //military booleans
     [HideInInspector]
@@ -384,8 +384,8 @@ public class Unit : MonoBehaviour
         if (isTrader)
         {
 		    if (followingRoute)
-            {
-			    if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+            {                
+                if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
 			    {
                     moreToMove = true;
                     isMoving = true;

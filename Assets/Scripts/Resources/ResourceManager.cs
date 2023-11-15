@@ -76,9 +76,9 @@ public class ResourceManager : MonoBehaviour
     public int CycleCount { get { return cycleCount; } set { cycleCount = value; } }
 
     //for queued build orders
-    private List<ResourceValue> queuedResourcesToCheck = new();
-    private List<ResourceType> queuedResourceTypesToCheck = new(); //have this to check if the queue type has recently been added (can't check values easily)   
-    private CityBuilderManager cityBuilderManager; //only instantiated through queue build
+    public Dictionary<ResourceType, int> queuedResourcesToCheck = new();
+    //private List<ResourceType> queuedResourceTypesToCheck = new(); //have this to check if the queue type has recently been added (can't check values easily)   
+    //private CityBuilderManager cityBuilderManager; //only instantiated through queue build
 
     private int resourceCount; //for counting wasted resources
 
@@ -98,7 +98,7 @@ public class ResourceManager : MonoBehaviour
     {
         foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
-            if (resourceData.resourceType == ResourceType.None)
+            if (resourceData.resourceType == ResourceType.None || !resourceData.isDiscovered)
                 continue;
             resourceDict[resourceData.resourceType] = 0;
             resourceGenerationPerMinuteDict[resourceData.resourceType] = 0;
@@ -186,6 +186,11 @@ public class ResourceManager : MonoBehaviour
     {
         return resourceDict[resourceRequired.resourceType] >= resourceRequired.resourceAmount;
     }
+
+    public bool CheckResourceTypeAvailability(ResourceType type, int amount)
+    {
+		return resourceDict[type] >= amount;
+	} 
 
     public bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAdded)
     {
@@ -490,7 +495,7 @@ public class ResourceManager : MonoBehaviour
             resourceCount++;
         }
 
-        if (queuedResourceTypesToCheck.Contains(type))
+        if (queuedResourcesToCheck.ContainsKey(type))
             CheckResourcesForQueue();
         if (updateUI)
             UpdateUI(type);
@@ -1042,14 +1047,14 @@ public class ResourceManager : MonoBehaviour
 	//}
 
 	//for queued build orders in cities
-	public void SetQueueResources(List<ResourceValue> resourceList, CityBuilderManager cityBuilderManager)
+	public void SetQueueResources(List<ResourceValue> resourceList)
     {
-        queuedResourcesToCheck = resourceList;
-        this.cityBuilderManager = cityBuilderManager;
+        //queuedResourcesToCheck = resourceList;
+        //this.cityBuilderManager = cityBuilderManager;
 
         foreach (ResourceValue resource in resourceList)
         {
-            queuedResourceTypesToCheck.Add(resource.resourceType);
+            queuedResourcesToCheck[resource.resourceType] = resource.resourceAmount;
         }
 
         CheckResourcesForQueue();
@@ -1058,23 +1063,22 @@ public class ResourceManager : MonoBehaviour
     public void ClearQueueResources()
     {
         queuedResourcesToCheck.Clear();
-        queuedResourceTypesToCheck.Clear();
     }
 
     private void CheckResourcesForQueue()
     {
-        if (queuedResourcesToCheck.Count > 0)
+        if (queuedResourcesToCheck.Keys.Count > 0)
         {
-            foreach (ResourceValue resource in queuedResourcesToCheck)
+            foreach (ResourceType type in queuedResourcesToCheck.Keys)
             {
-                if (!CheckResourceAvailability(resource))
+                if (!CheckResourceTypeAvailability(type, queuedResourcesToCheck[type]))
                 {
                     return;
                 }
             }
 
             ClearQueueResources();
-            cityBuilderManager.BuildQueuedBuilding(city, this);
+            city.world.cityBuilderManager.BuildQueuedBuilding(city, this);
         }
     }
 

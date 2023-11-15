@@ -36,6 +36,7 @@ public class InfoResourcePopUpHandler : MonoBehaviour
 
             if (textColor.a < 0)
             {
+                GameLoader.Instance.textList.Remove(gameObject);
                 Destroy(gameObject);
             }
         }
@@ -49,6 +50,7 @@ public class InfoResourcePopUpHandler : MonoBehaviour
     public static InfoResourcePopUpHandler CreateResourceStat(Vector3 position, int number, Sprite image, bool waste = false)
     {
         GameObject popUpGO = Instantiate(GameAssets.Instance.popUpResourceNumbersPrefab, position, Quaternion.Euler(90, 0, 0));
+        GameLoader.Instance.textList.Add(popUpGO);
 
         InfoResourcePopUpHandler popUpResourceNumbers = popUpGO.GetComponent<InfoResourcePopUpHandler>();
         popUpResourceNumbers.SetPopUpResourceNumber(number, image, waste);

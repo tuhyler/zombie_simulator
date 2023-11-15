@@ -1393,7 +1393,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dd848630f8a8cb49b649bed9ca7e1ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiQueueItem: {fileID: 0}
+  uiQueueItemPrefab: {fileID: 7389737143294441261, guid: dda7e75a585f344419214da649a75099,
+    type: 3}
   queueItemHolder: {fileID: 4302559256220706527}
   uiQueueButton: {fileID: 0}
   cityBuilderManager: {fileID: 0}

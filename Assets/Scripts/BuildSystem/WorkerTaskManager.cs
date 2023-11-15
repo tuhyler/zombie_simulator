@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Timeline;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class WorkerTaskManager : MonoBehaviour
 {
@@ -30,13 +31,17 @@ public class WorkerTaskManager : MonoBehaviour
     [SerializeField]
     private UIBuildingSomething uiBuildingSomething;
 
-    private ResourceIndividualHandler resourceIndividualHandler;
-    private RoadManager roadManager;
+    [HideInInspector]
+    public ResourceIndividualHandler resourceIndividualHandler;
+    [HideInInspector]
+    public RoadManager roadManager;
 
     [HideInInspector]
     public Coroutine taskCoroutine;
 
     private int cityBuildingTime = 1;
+    [HideInInspector]
+    public int timePassed;
     private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
 
     private void Awake()
@@ -258,16 +263,35 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         world.SetWorkerWorkLocation(tile);
-        world.RemoveQueueItemCheck(tile);
-        taskCoroutine = StartCoroutine(roadManager.RemoveRoad(tile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
+        //world.RemoveQueueItemCheck(tile);
+        roadManager.timePassed = roadManager.roadRemovingTime;
+        taskCoroutine = StartCoroutine(roadManager.RemoveRoad(tile, worker));
     }
+
+    public void LoadRemoveRoadCoroutine(int timePassed, Vector3Int tile, Worker worker)
+    {
+		world.SetWorkerWorkLocation(tile);
+		roadManager.timePassed = timePassed;
+        taskCoroutine = StartCoroutine(roadManager.RemoveRoad(tile, worker));
+	}
 
     public void GatherResource(Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
 		world.SetWorkerWorkLocation(world.RoundToInt(workerPos));
         uiCancelTask.ToggleTweenVisibility(true);
+        if (clearForest)
+            resourceIndividualHandler.timePassed = worker.clearingForestTime;
+        else
+            resourceIndividualHandler.timePassed = resourceIndividual.ResourceGatheringTime;
         taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual, clearForest));
     }
+
+    public void LoadGatherResourceCoroutine(int timePassed, Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
+    {
+		world.SetWorkerWorkLocation(world.RoundToInt(workerPos));
+        resourceIndividualHandler.timePassed = timePassed;
+		taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual, clearForest));
+	}
 
     private void OrdersPrep()
     {
@@ -297,8 +321,16 @@ public class WorkerTaskManager : MonoBehaviour
 		worker.RemoveFromOrderQueue();
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
-        taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
+		roadManager.timePassed = roadManager.roadBuildingTime;
+		taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
     }
+
+    public void LoadRoadBuildCoroutine(int timePassed, Vector3Int tile, Worker worker)
+    {
+		world.SetWorkerWorkLocation(tile);
+		roadManager.timePassed = timePassed;
+		taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker));
+	}
 
     public void BuildCityPreparations(Vector3Int tile, Worker worker)
     {
@@ -329,18 +361,32 @@ public class WorkerTaskManager : MonoBehaviour
         world.RemoveQueueItemCheck(tile);
         worker.citiesBuilt++;
         worker.SpeechCheck();
-        taskCoroutine = StartCoroutine(BuildCityCoroutine(tile, worker, clearForest, td));   
+        int totalTime = cityBuildingTime;
+        if (clearForest)
+            totalTime += worker.clearingForestTime;
+            
+		timePassed = totalTime;
+		taskCoroutine = StartCoroutine(BuildCityCoroutine(tile, worker, clearForest, td, totalTime));   
     }
 
-    private IEnumerator BuildCityCoroutine(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td)
+    public void LoadBuildCityCoroutine(int timePassed, Vector3Int workerTile, Worker worker)
     {
-        int timePassed = cityBuildingTime;
-        //int timeLimit = cityBuildingTime;
-
+		TerrainData td = world.GetTerrainDataAt(workerTile);
+		TerrainType type = td.terrainData.type;
+		bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
+		world.SetWorkerWorkLocation(workerTile);
+        int totalTime = cityBuildingTime;
         if (clearForest)
-            timePassed += worker.clearingForestTime;
+            totalTime += worker.clearingForestTime;
 
-        worker.ShowProgressTimeBar(timePassed);
+        this.timePassed = timePassed;
+        taskCoroutine = StartCoroutine(BuildCityCoroutine(workerTile, worker, clearForest, td, totalTime));
+	}
+
+    private IEnumerator BuildCityCoroutine(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td, int totalTime)
+    {
+        worker.buildingCity = true;
+        worker.ShowProgressTimeBar(totalTime);
         worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
@@ -363,6 +409,7 @@ public class WorkerTaskManager : MonoBehaviour
     private void BuildCity(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td)
     {
         worker.isBusy = false;
+        worker.buildingCity = false;
 
         td.ShowProp(false);
 
@@ -524,6 +571,8 @@ public class WorkerTaskManager : MonoBehaviour
         workerUnit.ResetOrderQueue();
         workerUnit.isBusy = false;
         workerUnit.removing = false;
+        workerUnit.gathering = false;
+        workerUnit.buildingCity = false;
         TurnOffCancelTask();
     }
 

@@ -9,8 +9,12 @@ public class GameData
     public float savePlayTime = 0;
     public string saveVersion;
     public string saveScreenshot;
-    
-    public Vector3 camPosition;
+
+    //world misc lists
+    public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
+    public List<Vector3Int> unclaimedSingleBuildList;
+
+	public Vector3 camPosition;
     public Quaternion camRotation;
     public float timeODay;
     public List<float> camLimits = new();
@@ -24,7 +28,7 @@ public class GameData
     public List<TraderData> allTraders = new();
     public List<LaborerData> allLaborers = new();
 
-    public UnitData playerUnit;
+    public WorkerData playerUnit;
     public Dictionary<Vector3Int, TerrainSaveData> allTerrain = new();
     public Dictionary<Vector3Int, TradeCenterData> allTradeCenters = new();
     public List<WonderData> allWonders = new();

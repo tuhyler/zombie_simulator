@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceIndividualHandler : MonoBehaviour
@@ -8,7 +9,9 @@ public class ResourceIndividualHandler : MonoBehaviour
     [SerializeField]
     private WorkerTaskManager workerTaskManager;
 
-    private WaitForSeconds gatherResourceWait = new WaitForSeconds(1);
+    [SerializeField]
+    public int timePassed;
+    private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
 
     public ResourceIndividualSO GetResourcePrefab(Vector3Int workerPos)
     {
@@ -26,27 +29,28 @@ public class ResourceIndividualHandler : MonoBehaviour
 
     public IEnumerator GenerateHarvestedResource(Vector3 unitPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
-        int timePassed;
+        //int timePassed;
         Vector3Int pos = world.GetClosestTerrainLoc(unitPos);
 
 		if (clearForest)
         {
             world.GetTerrainDataAt(pos).beingCleared = true;
 			GameLoader.Instance.gameData.allTerrain[pos].beingCleared = true;
-			timePassed = worker.clearingForestTime;
-        }
+			//timePassed = worker.clearingForestTime;
+			worker.ShowProgressTimeBar(worker.clearingForestTime);
+		}
         else
         {
-            timePassed = resourceIndividual.ResourceGatheringTime;
+            //timePassed = resourceIndividual.ResourceGatheringTime;
+            worker.ShowProgressTimeBar(resourceIndividual.ResourceGatheringTime);
         }
 
-        worker.ShowProgressTimeBar(timePassed);
         worker.SetWorkAnimation(true);
         worker.SetTime(timePassed);
 
         while (timePassed > 0)
         {
-            yield return gatherResourceWait;
+            yield return oneSecondWait;
             timePassed--;
             worker.SetTime(timePassed);
         }
@@ -81,9 +85,12 @@ public class ResourceIndividualHandler : MonoBehaviour
 		}
 
         //showing harvested resource
+        worker.gathering = false;
         worker.harvested = true;
+        worker.harvestedForest = clearForest;
         unitPos.y += 1.5f;
         GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+        GameLoader.Instance.textList.Add(resourceGO);
         Resource resource = resourceGO.GetComponent<Resource>();
         resource.SetSprites(resourceIndividual.resourceIcon);
         resource.SetInfo(worker, city, resourceIndividual, clearForest);
@@ -91,4 +98,17 @@ public class ResourceIndividualHandler : MonoBehaviour
         resourceGO.transform.localScale = Vector3.zero;
         LeanTween.scale(resourceGO, localScale, 0.25f).setEase(LeanTweenType.easeOutBack);
     }
+
+    public void LoadHarvestedResource(Vector3 unitPos, ResourceIndividualSO resourceIndividual, City city, Worker worker, bool clearForest)
+    {
+		unitPos.y += 1.5f;
+		GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+		GameLoader.Instance.textList.Add(resourceGO);
+		Resource resource = resourceGO.GetComponent<Resource>();
+		resource.SetSprites(resourceIndividual.resourceIcon);
+		resource.SetInfo(worker, city, resourceIndividual, clearForest);
+		Vector3 localScale = resourceGO.transform.localScale;
+		resourceGO.transform.localScale = Vector3.zero;
+		LeanTween.scale(resourceGO, localScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+	}
 }

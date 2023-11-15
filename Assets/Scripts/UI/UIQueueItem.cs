@@ -16,13 +16,15 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
 
     private UIQueueManager uiQueueManager;
 
-    [HideInInspector] 
-    public UnitBuildDataSO unitBuildData;
-    [HideInInspector] 
-    public ImprovementDataSO improvementData;
-    [HideInInspector] 
-    public List<ResourceValue> upgradeCosts;
-    [HideInInspector] 
+    [HideInInspector]
+    public QueueItem item;
+    //[HideInInspector] 
+    //public UnitBuildDataSO unitBuildData;
+    //[HideInInspector] 
+    //public ImprovementDataSO improvementData;
+    //[HideInInspector] 
+    //public List<ResourceValue> upgradeCosts;
+    [HideInInspector]
     public Vector3Int buildLoc;
 
     //for unselecting
@@ -30,7 +32,7 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
     private Color originalBackgroundColor;
 
     [HideInInspector]
-    public bool isSelected, upgrading;
+    public bool isSelected/*, upgrading*/;
 
     private void Awake()
     {
@@ -40,21 +42,22 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
         //    uiQueueManager.SetFirstQueueItem(this);
     }
 
-    public void CreateQueueItem(string text, Vector3Int loc, UnitBuildDataSO unitBuildData, ImprovementDataSO improvementData, List<ResourceValue> upgradeCosts)
+    public void CreateQueueItem(string text, string displayText, Vector3Int loc, bool upgrade)
     {
-        itemText.text = text;
-        itemName = text;
-        buildLoc = loc;
-        this.unitBuildData = unitBuildData;
+        itemText.text = displayText;
+        item.queueName = text;
+        item.queueLoc = loc;
+        item.upgrade = upgrade;
+        //this.unitBuildData = unitBuildData;
 
-        if (upgradeCosts == null)
-            this.improvementData = improvementData;
-        this.upgradeCosts = upgradeCosts;
+        //if (upgradeCosts == null)
+        //    this.improvementData = improvementData;
+        //this.upgradeCosts = upgradeCosts;
     }
 
-    public (ImprovementDataSO, UnitBuildDataSO, List<ResourceValue>) GetQueueItemData()
+    public QueueItem GetQueueItemData()
     {
-        return (improvementData, unitBuildData, upgradeCosts);
+        return item;
     }
 
     public void SetQueueManager(UIQueueManager uiQueueManager)
