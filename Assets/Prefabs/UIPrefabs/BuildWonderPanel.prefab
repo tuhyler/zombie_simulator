@@ -200,7 +200,7 @@ MonoBehaviour:
   objectName: {fileID: 2927087752969563087}
   objectDesc: {fileID: 836564035169561832}
   objectImage: {fileID: 3355032083150064776}
-  resourceInfoPanel: {fileID: 624308965952619012, guid: 4448a9d92b910fc40a4280aecbdf94ad,
+  resourceInfoPanel: {fileID: 624308965952619012, guid: b05e5795d27dfbe4e8ad1f72f3524c6e,
     type: 3}
   resourceCostAllHolder: {fileID: 4987195523665830144}
   resourceCostHolder: {fileID: 4248947161074216305}
@@ -1074,9 +1074,9 @@ RectTransform:
   m_Father: {fileID: 4987195523665830144}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 150, y: -80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -30, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1791655221343105199

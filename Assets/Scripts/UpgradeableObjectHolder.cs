@@ -42,7 +42,7 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
         foreach (GameObject center in allTradeCenters)
         {
-            string name = center.GetComponent<TradeCenter>().tradeCenterDisplayName;
+            string name = center.GetComponent<TradeCenter>().tradeCenterName;
             if (name == "")
                 Debug.LogError("Trade Center must be given name");
 

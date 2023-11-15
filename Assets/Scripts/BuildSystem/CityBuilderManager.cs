@@ -25,7 +25,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public UIBuilderHandler uiBuildingBuilder;
     [SerializeField]
-    private UIQueueManager uiQueueManager;
+    public UIQueueManager uiQueueManager;
     [SerializeField]
     public UIInfoPanelCity uiInfoPanelCity;
     [SerializeField]
@@ -100,7 +100,7 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     private GameObject upgradeQueueGhost;
-    private List<GameObject> queuedGhost = new();
+    //private List<GameObject> queuedGhost = new();
     //private Dictionary<string, GameObject> buildingQueueGhostDict = new();
 
     //for object pooling of labor numbers
@@ -120,9 +120,13 @@ public class CityBuilderManager : MonoBehaviour
     private Queue<ImprovementResource> improvementResourceQueue = new();
     private List<ImprovementResource> improvementResourceList = new();
 
-    //for making objects transparent
-    [SerializeField]
+	//for making objects transparent
+	[SerializeField]
     public Material transparentMat;
+
+    //queue ghost tracker
+    [HideInInspector]
+    public Dictionary<QueueItem, GameObject> queueGhostDict = new();
 
     //for object pooling resource info holders
     //private Queue<ResourceInfoHolder> resourceInfoHolderQueue = new();
@@ -979,37 +983,42 @@ public class CityBuilderManager : MonoBehaviour
         uiInfoPanelCity.SetGrowthNumber(num);
     }
 
-    public void ShowQueuedGhost()
+    //public void ShowQueuedGhost()
+    //{
+    //    foreach (Vector3Int tile in selectedCity.improvementQueueLocs) //improvements
+    //    {
+    //        if (world.ShowQueueGhost(tile))
+    //            queuedGhost.Add(world.GetQueueGhost(tile));
+    //    }
+
+    //    foreach (string building in selectedCity.buildingQueueGhostDict.Keys) //buildings
+    //    {
+    //        GameObject ghost = selectedCity.buildingQueueGhostDict[building];
+    //        ghost.SetActive(true);
+    //        //for tweening
+    //        Vector3 goScale = ghost.transform.localScale;
+    //        ghost.transform.localScale = Vector3.zero;
+    //        LeanTween.scale(ghost, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+    //        queuedGhost.Add(selectedCity.buildingQueueGhostDict[building]);
+    //    }
+    //}
+
+    public void DestroyQueuedGhost()
     {
-        foreach (Vector3Int tile in selectedCity.improvementQueueLocs) //improvements
+        foreach (QueueItem item in queueGhostDict.Keys)
         {
-            if (world.ShowQueueGhost(tile))
-                queuedGhost.Add(world.GetQueueGhost(tile));
+            Destroy(queueGhostDict[item]);
         }
 
-        foreach (string building in selectedCity.buildingQueueGhostDict.Keys) //buildings
-        {
-            GameObject ghost = selectedCity.buildingQueueGhostDict[building];
-            ghost.SetActive(true);
-            //for tweening
-            Vector3 goScale = ghost.transform.localScale;
-            ghost.transform.localScale = Vector3.zero;
-            LeanTween.scale(ghost, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
-            queuedGhost.Add(selectedCity.buildingQueueGhostDict[building]);
-        }
+        //foreach (GameObject go in queuedGhost)
+        //{
+        //    go.SetActive(false);
+        //}
+
+        //queuedGhost.Clear();
     }
 
-    public void HideQueuedGhost()
-    {
-        foreach (GameObject go in queuedGhost)
-        {
-            go.SetActive(false);
-        }
-
-        queuedGhost.Clear();
-    }
-
-    public void CreateQueuedGhost(ImprovementDataSO improvementData, Vector3Int loc, bool isBuilding)
+    public void CreateQueuedGhost(QueueItem item, ImprovementDataSO improvementData, Vector3Int loc, bool isBuilding)
     {
         Color newColor = new(0, 1f, 0, 0.8f);
         Vector3 newLoc = loc;
@@ -1041,22 +1050,23 @@ public class CityBuilderManager : MonoBehaviour
             render.materials = newMats;
         }
 
-        if (isBuilding)
-            selectedCity.buildingQueueGhostDict[improvementData.improvementName] = improvementGhost;
-        else
-        {
-            CityImprovement improvement = improvementGhost.GetComponent<CityImprovement>();
-            improvement.SetCity(selectedCity);
-            world.SetQueueGhost(loc, improvementGhost);
+        //if (isBuilding)
+        //    selectedCity.buildingQueueGhostDict[improvementData.improvementName] = improvementGhost;
+        //else
+        //{
+        CityImprovement improvement = improvementGhost.GetComponent<CityImprovement>();
+        improvement.SetCity(selectedCity);
+            //world.SetQueueGhost(loc, improvementGhost);
             //world.SetQueueImprovement()
-        }
+        //}
 
-        queuedGhost.Add(improvementGhost);
+        //queuedGhost.Add(improvementGhost);
+        queueGhostDict[item] = improvementGhost;
     }
 
-    public void CreateQueuedArrow(ImprovementDataSO improvementData, Vector3Int tempBuildLocation, bool isBuilding)
+    public void CreateQueuedArrow(QueueItem item, ImprovementDataSO improvementData, Vector3Int tempBuildLocation, bool isBuilding)
     {
-        //setting up arrow ghost
+        //setting up ghost
         GameObject arrowGhost = Instantiate(upgradeQueueGhost, tempBuildLocation, Quaternion.Euler(0, 90f, 0));
         //for tweening
         Vector3 goScale = arrowGhost.transform.localScale;
@@ -1068,45 +1078,46 @@ public class CityBuilderManager : MonoBehaviour
             Vector3 newLoc = tempBuildLocation + improvementData.buildingLocation;
             newLoc.y += .5f;
             arrowGhost.transform.position = newLoc;
-            selectedCity.buildingQueueGhostDict[improvementData.improvementName] = arrowGhost;
+            //selectedCity.buildingQueueGhostDict[improvementData.improvementName] = arrowGhost;
         }
-        else
-        {
-            world.SetQueueGhost(tempBuildLocation, arrowGhost);
-        }
+        //else
+        //{
+        //    world.SetQueueGhost(tempBuildLocation, arrowGhost);
+        //}
 
-        queuedGhost.Add(arrowGhost);
+        //queuedGhost.Add(arrowGhost);
+        queueGhostDict[item] = arrowGhost;
     }
 
-    public void RemoveQueueGhostImprovement(Vector3Int loc, City city)
+    public void RemoveQueueGhostImprovement(QueueItem item)
     {
-        GameObject go = world.GetQueueGhost(loc);
-        bool upgrading = false;
-        if (go.CompareTag("Upgrade"))
-            upgrading = true;
-        if (city.activeCity)
-            queuedGhost.Remove(go);
+        GameObject go = queueGhostDict[item];
+        //bool upgrading = false;
+        //if (go.CompareTag("Upgrade"))
+        //    upgrading = true;
+        //if (city.activeCity)
+        //    queuedGhost.Remove(go);
         Destroy(go);
-        world.RemoveQueueGhost(loc);
+        //world.RemoveQueueGhost(loc);
 
-        if (city.activeCity && cityTiles.Contains(loc))
-        {
-            if (upgrading && upgradingImprovement)
-            {
-                tilesToChange.Add(loc);
-                world.GetTerrainDataAt(loc).EnableHighlight(Color.green);
-            }
-        }
+        //if (city.activeCity && cityTiles.Contains(loc))
+        //{
+        //    if (upgrading && upgradingImprovement)
+        //    {
+        //        tilesToChange.Add(loc);
+        //        world.GetTerrainDataAt(loc).EnableHighlight(Color.green);
+        //    }
+        //}
     }
 
-    public void RemoveQueueGhostBuilding(string building, City city)
-    {
-        GameObject go = city.buildingQueueGhostDict[building];
-        if (city.activeCity)
-            queuedGhost.Remove(go);
-        Destroy(go);
-        city.buildingQueueGhostDict.Remove(building);
-    }
+    //public void RemoveQueueGhostBuilding(string building, City city)
+    //{
+    //    QueueItem item = city.buildingQueueGhostDict[building];
+    //    if (city.activeCity)
+    //        Destroy(queueGhostDict[item]);
+    //    //Destroy(go);
+    //    //city.buildingQueueGhostDict.Remove(building);
+    //}
 
     public void SellResources()
     {
@@ -1230,10 +1241,11 @@ public class CityBuilderManager : MonoBehaviour
             world.GetTerrainDataAt(tempBuildLocation).DisableHighlight();
             selectedImprovement.queued = true;
             selectedImprovement.SetQueueCity(selectedCity);
-            if (!uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, new(world.GetUpgradeCost(nameAndLevel))))
+            //if (!uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, new(world.GetUpgradeCost(nameAndLevel))))
+            if (!selectedCity.AddToQueue(world.GetUpgradeData(nameAndLevel), tempBuildLocation, tempBuildLocation - selectedCityLoc, true))  
                 return; //checks if queue item already exists
-            else
-                selectedCity.improvementQueueLocs.Add(tempBuildLocation);
+            //else
+            //    selectedCity.improvementQueueLocs.Add(tempBuildLocation);
             return;
         }
 
@@ -1577,7 +1589,7 @@ public class CityBuilderManager : MonoBehaviour
             //updating uis after losing pop
             if (selectedCity != null && selectedCity == city)
             {
-                uiQueueManager.CheckIfBuiltUnitIsQueued(unitData, city.cityLoc);
+                //uiQueueManager.CheckIfBuiltUnitIsQueued(unitData, city.cityLoc);
                 UpdateLaborNumbers();
                 uiLaborAssignment.UpdateUI(city, placesToWork);
                 uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
@@ -1856,7 +1868,8 @@ public class CityBuilderManager : MonoBehaviour
         //Queue info
         if (isQueueing)
         {
-            uiQueueManager.AddToQueue(selectedCityLoc, new Vector3Int(0, 0, 0), buildingData);
+            //uiQueueManager.AddToQueue(selectedCityLoc, new Vector3Int(0, 0, 0), selectedCityLoc, buildingData);
+            selectedCity.AddToQueue(buildingData, selectedCityLoc, Vector3Int.zero, false);
             return;
         }
 
@@ -1865,8 +1878,8 @@ public class CityBuilderManager : MonoBehaviour
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, bool upgradingImprovement)
     {
-        if(uiQueueManager.CheckIfBuiltItemIsQueued(city.cityLoc, new Vector3Int(0, 0, 0), upgradingImprovement, buildingData, city))
-            RemoveQueueGhostBuilding(buildingData.improvementName, city);
+        uiQueueManager.CheckIfBuiltItemIsQueued(city.cityLoc, new Vector3Int(0, 0, 0), upgradingImprovement, buildingData, city);
+            //RemoveQueueGhostBuilding(buildingData.improvementName, city);
 
         if (buildingData.improvementName == city.housingData.improvementName)
         {
@@ -2237,10 +2250,11 @@ public class CityBuilderManager : MonoBehaviour
         //queue information
         if (isQueueing)
         {
-            if (!uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, improvementData))
+            //if (!uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, selectedCityLoc, improvementData))
+            if (!selectedCity.AddToQueue(improvementData, tempBuildLocation, tempBuildLocation - selectedCityLoc, false))
                 return;
-            else
-                SelectedCity.improvementQueueLocs.Add(tempBuildLocation);
+            //else
+            //    SelectedCity.improvementQueueLocs.Add(tempBuildLocation);
             tilesToChange.Remove(tempBuildLocation);
             world.GetTerrainDataAt(tempBuildLocation).DisableHighlight();
             return;
@@ -2251,8 +2265,8 @@ public class CityBuilderManager : MonoBehaviour
 
     private void BuildImprovement(ImprovementDataSO improvementData, Vector3Int tempBuildLocation, City city, bool upgradingImprovement)
     {
-        if (uiQueueManager.CheckIfBuiltItemIsQueued(tempBuildLocation, tempBuildLocation - city.cityLoc, upgradingImprovement, improvementData, city))
-            RemoveQueueGhostImprovement(tempBuildLocation, city);
+        uiQueueManager.CheckIfBuiltItemIsQueued(tempBuildLocation, tempBuildLocation - city.cityLoc, upgradingImprovement, improvementData, city);
+            //RemoveQueueGhostImprovement(tempBuildLocation, city);
 
         //if (tempBuildLocation == city.cityLoc)
         //{
@@ -2644,13 +2658,13 @@ public class CityBuilderManager : MonoBehaviour
 
 		if (selectedImprovement.queued)
         {
-            if(uiQueueManager.CheckIfBuiltItemIsQueued(improvementLoc, improvementLoc-city.cityLoc, true, improvementData, selectedImprovement.GetQueueCity()))
-            {
-                if (improvementLoc == city.cityLoc)
-                    RemoveQueueGhostBuilding(improvementData.improvementName, city);
-                else
-                    RemoveQueueGhostImprovement(improvementLoc, city);
-            }
+            uiQueueManager.CheckIfBuiltItemIsQueued(improvementLoc, improvementLoc - city.cityLoc, true, improvementData, selectedImprovement.GetQueueCity());
+            //{
+            //    if (improvementLoc == city.cityLoc)
+            //        RemoveQueueGhostBuilding(improvementData.improvementName, city);
+            //    else
+            //        RemoveQueueGhostImprovement(improvementLoc, city);
+            //}
         }
 
         //remove building
@@ -3501,55 +3515,45 @@ public class CityBuilderManager : MonoBehaviour
 
     public void BuildQueuedBuilding(City city, ResourceManager resourceManager)
     {
-        UIQueueItem queuedItem = city.GetBuildInfo();
+        QueueItem item = city.GetBuildInfo();
         this.resourceManager = resourceManager;
+        bool building = item.queueLoc == Vector3Int.zero;
         //selectedCity = city;
         //selectedCityLoc = city.cityLoc;
-        if (queuedItem.upgrading)
+        
+        if (item.upgrade)
         {
-            Vector3Int tile = queuedItem.buildLoc + city.cityLoc;
-            if (queuedItem.buildLoc.x == 0 && queuedItem.buildLoc.z == 0)
-                UpgradeSelectedImprovementPrep(city.cityLoc, world.GetBuildingData(tile, queuedItem.buildingName), city);
+            Vector3Int tile = item.queueLoc + city.cityLoc;
+            if (building)
+                UpgradeSelectedImprovementPrep(city.cityLoc, world.GetBuildingData(tile, item.queueName), city);
             else
                 UpgradeSelectedImprovementPrep(tile, world.GetCityDevelopment(tile), city);
         }
-        //else if (queuedItem.unitBuildData != null) //build unit
-        //{
-        //    if (city.cityPop.CurrentPop == 0)
-        //    {
-        //        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not enough population to make unit");
-        //        city.GoToNextItemInQueue();
-
-        //        if (city.activeCity)
-        //            uiQueueManager.CheckIfBuiltUnitIsQueued(queuedItem.unitBuildData, city.cityLoc);
-        //        return;
-        //    }
-        //    CreateUnit(queuedItem.unitBuildData, city);
-        //}
-        else if (queuedItem.buildLoc.x == 0 && queuedItem.buildLoc.z == 0) //build building
+		else if (building) //build building
         {
-            CreateBuilding(queuedItem.improvementData, city, false);
+            CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[item.queueName], city, false);
         }
         else //build improvement
         {
-            Vector3Int tile = queuedItem.buildLoc + city.cityLoc;
+			ImprovementDataSO improvementData = UpgradeableObjectHolder.Instance.improvementDict[item.queueName];
+			Vector3Int tile = item.queueLoc + city.cityLoc;
 
-            if (world.IsBuildLocationTaken(tile) || world.IsRoadOnTerrain(tile) || queuedItem.improvementData.rawResourceType != world.GetTerrainDataAt(tile).rawResourceType)
+            if (world.IsBuildLocationTaken(tile) || world.IsRoadOnTerrain(tile) || improvementData.rawResourceType != world.GetTerrainDataAt(tile).rawResourceType)
             {
                 city.GoToNextItemInQueue();
-                if (uiQueueManager.CheckIfBuiltItemIsQueued(tile, queuedItem.buildLoc, false, queuedItem.improvementData, city))
-                    RemoveQueueGhostImprovement(tile, city);
+                uiQueueManager.CheckIfBuiltItemIsQueued(tile, item.queueLoc, false, improvementData, city);
+                    //RemoveQueueGhostImprovement(tile, city);
                 return;
             }
-            BuildImprovement(queuedItem.improvementData, tile, city, false);
+            BuildImprovement(improvementData, tile, city, false);
         }
 
         city.GoToNextItemInQueue();
     }
 
-    public List<UIQueueItem> GetQueueItems()
+    public List<QueueItem> GetQueueItems()
     {
-        return selectedCity.savedQueueItems;
+        return selectedCity.queueItemList;
     }
 
     public void CloseQueueUIButton()
@@ -3564,18 +3568,18 @@ public class CityBuilderManager : MonoBehaviour
         {
             SetQueueStatus(false);
             uiQueueManager.UnselectQueueItem();
-            SetCityQueueItems();
+            //SetCityQueueItems();
             uiQueueManager.ToggleVisibility(false);
         }
     }
 
-    public void SetCityQueueItems()
-    {
-        if (uiQueueManager.activeStatus)
-        {
-            (selectedCity.savedQueueItems, selectedCity.savedQueueItemsNames) = uiQueueManager.SetQueueItems();
-        }
-    }
+    //public void SetCityQueueItems()
+    //{
+    //    if (uiQueueManager.activeStatus)
+    //    {
+    //        (selectedCity.savedQueueItems, selectedCity.savedQueueItemsNames) = uiQueueManager.SetQueueItems();
+    //    }
+    //}
 
 
 
@@ -3632,15 +3636,15 @@ public class CityBuilderManager : MonoBehaviour
             td.ShowProp(true);            
 
         //destroying queued objects
-        foreach (UIQueueItem queueItem in selectedCity.savedQueueItems)
-        {
-            if (queueItem.buildLoc.x == 0 && queueItem.buildLoc.z == 0)
-                RemoveQueueGhostBuilding(queueItem.buildingName, selectedCity);
-            else
-                RemoveQueueGhostImprovement(queueItem.buildLoc + selectedCityLoc, selectedCity);
+        //foreach (UIQueueItem queueItem in selectedCity.savedQueueItems)
+        //{
+        //    if (queueItem.buildLoc.x == 0 && queueItem.buildLoc.z == 0)
+        //        RemoveQueueGhostBuilding(queueItem.buildingName, selectedCity);
+        //    else
+        //        RemoveQueueGhostImprovement(queueItem.buildLoc + selectedCityLoc, selectedCity);
 
-            world.RemoveLocationFromQueueList(queueItem.buildLoc + selectedCityLoc);
-        }
+        //    world.RemoveLocationFromQueueList(queueItem.buildLoc + selectedCityLoc);
+        //}
 
         GameObject destroyedCity = world.GetStructure(selectedCityLoc);
 

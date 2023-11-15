@@ -15,7 +15,7 @@ public class MapWorld : MonoBehaviour
     private DateTime currentTime;
     //public float test = 0.4f;
     [SerializeField]
-    public Unit mainPlayer;
+    public Worker mainPlayer;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
@@ -128,9 +128,10 @@ public class MapWorld : MonoBehaviour
     public Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     private Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
-    private List<Vector3Int> cityImprovementQueueList = new();
-    private List<Vector3Int> unclaimedSingleBuildList = new();
-    private Dictionary<string, Vector3Int> cityNameDict = new();
+    public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList = new();
+    [HideInInspector]
+    public List<Vector3Int> unclaimedSingleBuildList = new ();
+	private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     private Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
     [HideInInspector]
@@ -147,7 +148,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<ResourceType, int> defaultResourcePriceDict = new();
     private Dictionary<ResourceType, int> blankResourceDict = new();
     private Dictionary<ResourceType, bool> boolResourceDict = new();
-    private Dictionary<Vector3Int, GameObject> queueGhostsDict = new(); //for displaying samples for queued items
+    //private Dictionary<Vector3Int, GameObject> queueGhostsDict = new(); //for displaying samples for queued items
     //private Dictionary<Vector3Int, GameObject> traderPosDict = new(); //to track trader locations 
     //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
@@ -2749,40 +2750,40 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void SetQueueGhost(Vector3Int loc, GameObject gameObject)
-    {
-        queueGhostsDict[loc] = gameObject;
-    }
+    //public void SetQueueGhost(Vector3Int loc, GameObject gameObject)
+    //{
+    //    queueGhostsDict[loc] = gameObject;
+    //}
 
-    public bool ShowQueueGhost(Vector3Int loc)
-    {
-        if (queueGhostsDict.ContainsKey(loc))
-        {
-            GameObject ghost = queueGhostsDict[loc];
-            ghost.SetActive(true);
-            //for tweening
-            ghost.transform.localScale = Vector3.zero;
-            LeanTween.scale(ghost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
-            return true;
-        }
+    //public bool ShowQueueGhost(Vector3Int loc)
+    //{
+    //    if (queueGhostsDict.ContainsKey(loc))
+    //    {
+    //        GameObject ghost = queueGhostsDict[loc];
+    //        ghost.SetActive(true);
+    //        //for tweening
+    //        ghost.transform.localScale = Vector3.zero;
+    //        LeanTween.scale(ghost, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack);
+    //        return true;
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
-    public bool IsLocationQueued(Vector3Int loc)
-    {
-        return queueGhostsDict.ContainsKey(loc);
-    }
+    //public bool IsLocationQueued(Vector3Int loc)
+    //{
+    //    return queueGhostsDict.ContainsKey(loc);
+    //}
 
-    public GameObject GetQueueGhost(Vector3Int loc)
-    {
-        return queueGhostsDict[loc];
-    }
+    //public GameObject GetQueueGhost(Vector3Int loc)
+    //{
+    //    return queueGhostsDict[loc];
+    //}
 
-    public void RemoveQueueGhost(Vector3Int loc)
-    {
-        queueGhostsDict.Remove(loc);
-    }
+    //public void RemoveQueueGhost(Vector3Int loc)
+    //{
+    //    queueGhostsDict.Remove(loc);
+    //}
 
     public GameObject GetStructure(Vector3Int tile)
     {
@@ -3302,39 +3303,43 @@ public class MapWorld : MonoBehaviour
     //    cityDict[city.cityLoc].harborLocation = harborLoc;
     //}
 
-    public void AddLocationToQueueList(Vector3Int location)
+    public void AddLocationToQueueList(Vector3Int location, Vector3Int cityLoc)
     {
-        cityImprovementQueueList.Add(location);
+        cityImprovementQueueList[location] = cityLoc;
     }
 
     public bool CheckQueueLocation(Vector3Int location)
     {
-        return cityImprovementQueueList.Contains(location);
+        return cityImprovementQueueList.ContainsKey(location);
     }
 
-    public City GetQueuedImprovementCity(Vector3Int loc)
-    {
-        return queueGhostsDict[loc].GetComponent<CityImprovement>().GetCity();
-    }
+    //public City GetQueuedImprovementCity(Vector3Int loc)
+    //{
+    //    return GetCity(cityImprovementQueueList[loc]);
+    //}
 
     public void RemoveLocationFromQueueList(Vector3Int location)
     {
         cityImprovementQueueList.Remove(location);  
     }
 
-    public void RemoveQueueGhostImprovement(Vector3Int location, City city)
-    {
-        cityBuilderManager.RemoveQueueGhostImprovement(location, city);
-    }
+    //public void RemoveQueueGhostImprovement(Vector3Int location, City city)
+    //{
+    //    cityBuilderManager.RemoveQueueGhostImprovement(location, city);
+    //}
 
     public void RemoveQueueItemCheck(Vector3Int location)
     {
-        if (CheckQueueLocation(location))
+        if (cityImprovementQueueList.ContainsKey(location))
         {
-            RemoveLocationFromQueueList(location);
-            City city = GetQueuedImprovementCity(location);
-            RemoveQueueGhostImprovement(location, city);
-            city.RemoveFromQueue(location - city.cityLoc);
+            cityImprovementQueueList.Remove(location);
+            City city = GetCity(cityImprovementQueueList[location]);
+
+            if (city.activeCity && cityBuilderManager.uiQueueManager.activeStatus)
+            {
+                cityBuilderManager.RemoveQueueGhostImprovement(city.improvementQueueDict[location]);
+				city.RemoveFromQueue(location - city.cityLoc);
+            }
         }
     }
 

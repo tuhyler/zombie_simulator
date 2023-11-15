@@ -122,13 +122,19 @@ public class City : MonoBehaviour
 
     //stored queue items
     [HideInInspector]
-    public List<UIQueueItem> savedQueueItems = new();
+    public Dictionary<Vector3Int, QueueItem> improvementQueueDict = new();
     [HideInInspector]
-    public List<string> savedQueueItemsNames = new();
-    [HideInInspector]
-    public Dictionary<string, GameObject> buildingQueueGhostDict = new();
-    [HideInInspector]
-    public List<Vector3Int> improvementQueueLocs = new();
+    public List<QueueItem> queueItemList = new();
+	//[HideInInspector]
+	//public Dictionary<string, bool> buildingQueueDict = new();
+	//[HideInInspector]
+ //   public List<UIQueueItem> savedQueueItems = new();
+ //   [HideInInspector]
+ //   public List<string> savedQueueItemsNames = new();
+ //   [HideInInspector]
+ //   public Dictionary<string, GameObject> buildingQueueGhostDict = new();
+ //   [HideInInspector]
+ //   public List<Vector3Int> improvementQueueLocs = new();
 
     //private SelectionHighlight highlight; //Highlight doesn't work on city name text
 
@@ -1416,7 +1422,7 @@ public class City : MonoBehaviour
         //savedQueueItemsNames.RemoveAt(0);
         //Destroy(item);
 
-        if (savedQueueItems.Count > 0)
+        if (queueItemList.Count > 0)
             GoToNextItemInBuildQueue();
     }
 
@@ -1446,16 +1452,16 @@ public class City : MonoBehaviour
     public void RemoveFromQueue(Vector3Int loc)
     {
         int index = 0;
-        foreach (UIQueueItem item in savedQueueItems)
+        foreach (QueueItem item in queueItemList)
         {
-            if (item.buildLoc == loc)
+            if (item.queueLoc == loc)
             {
-                savedQueueItems.Remove(item);
-                savedQueueItemsNames.RemoveAt(index);
+                //savedQueueItems.Remove(item);
+                //savedQueueItemsNames.RemoveAt(index);
                 resourceManager.ClearQueueResources();
                 world.RemoveLocationFromQueueList(loc);
-                Destroy(item);
-                if (index == 0 && savedQueueItems.Count > 0)
+                //Destroy(item);
+                if (index == 0 && queueItemList.Count > 0)
                     GoToNextItemInBuildQueue();
                 break;
             }
@@ -1466,23 +1472,28 @@ public class City : MonoBehaviour
 
     private void GoToNextItemInBuildQueue()
     {
-        UIQueueItem nextItem = savedQueueItems[0];
+        //UIQueueItem nextItem = savedQueueItems[0];
+        QueueItem item = queueItemList[0];
 
-        List<ResourceValue> resourceCosts = new();
+        List<ResourceValue> resourceCosts;
 
-        if (nextItem.unitBuildData != null)
-            resourceCosts = new(nextItem.unitBuildData.unitCost);
-        else if (nextItem.upgradeCosts != null)
-            resourceCosts = new(nextItem.upgradeCosts);
-        else if (nextItem.improvementData != null)
-            resourceCosts = new(nextItem.improvementData.improvementCost);
+        if (item.upgrade)
+            resourceCosts = new(world.GetUpgradeCost(item.queueName));
+        else
+            resourceCosts = new(UpgradeableObjectHolder.Instance.improvementDict[item.queueName].improvementCost);
+        //if (nextItem.unitBuildData != null)
+        //    resourceCosts = new(nextItem.unitBuildData.unitCost);
+        //if (nextItem.upgradeCosts != null)
+        //    resourceCosts = new(nextItem.upgradeCosts);
+        //else if (nextItem.improvementData != null)
+        //    resourceCosts = new(nextItem.improvementData.improvementCost);
 
-        resourceManager.SetQueueResources(resourceCosts, world.cityBuilderManager);
+        resourceManager.SetQueueResources(resourceCosts);
     }
 
-    public UIQueueItem GetBuildInfo()
+    public QueueItem GetBuildInfo()
     {
-        return savedQueueItems[0];
+        return queueItemList[0];
     }
 
     //looking to see if there are any unclaimed single builds in the area to lay claim to
@@ -1521,6 +1532,48 @@ public class City : MonoBehaviour
         }
     }
 
+    public bool AddToQueue(ImprovementDataSO improvementData, Vector3Int worldLoc, Vector3Int loc, bool upgrade)
+    {
+        QueueItem item;
+        item.queueName = improvementData.improvementNameAndLevel;
+        item.queueLoc = loc;
+        item.upgrade = upgrade;
+        
+        bool building = false;
+
+		if (loc == Vector3Int.zero)
+        {
+            if (queueItemList.Contains(item))
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Item already in queue");
+				return false;
+			}
+
+            building = true;
+        }
+        else
+        {
+            if (improvementQueueDict.ContainsKey(loc) || world.CheckQueueLocation(worldLoc))
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Location already queued");
+				return false;
+			}
+
+            improvementQueueDict[loc] = item;
+        }
+
+        queueItemList.Add(item);
+		world.cityBuilderManager.PlayQueueAudio();
+		world.AddLocationToQueueList(worldLoc, cityLoc);
+
+		if (upgrade)
+			world.cityBuilderManager.CreateQueuedArrow(item, improvementData, worldLoc, building);
+		else
+			world.cityBuilderManager.CreateQueuedGhost(item, improvementData, worldLoc, building);
+
+        world.cityBuilderManager.uiQueueManager.AddToQueueList(item, cityLoc);
+		return true;
+    }
 
     public void Select(Color color)
     {
@@ -1610,7 +1663,10 @@ public class City : MonoBehaviour
         data.cycleCount = resourceManager.CycleCount;
         data.resourceGridDict = resourceGridDict;
 
-        List<string> buildingList = world.GetBuildingListForCity(cityLoc);
+		//queue lists
+		data.queuedResourcesToCheck = resourceManager.queuedResourcesToCheck;
+
+		List<string> buildingList = world.GetBuildingListForCity(cityLoc);
         //for buildings
         for (int i = 0; i < buildingList.Count; i++)
             data.cityBuildings.Add(world.GetBuildingData(cityLoc, buildingList[i]).SaveData());
@@ -1712,6 +1768,9 @@ public class City : MonoBehaviour
 		resourceManager.noWaterCount = data.noWaterCount;
 		resourceManager.CycleCount = data.cycleCount;
 		resourceGridDict = data.resourceGridDict;
+
+        //queue lists
+        resourceManager.queuedResourcesToCheck = data.queuedResourcesToCheck;
 
 		//waiting lists
 		resourceManager.resourcesNeededForProduction = data.resourcesNeededForProduction;

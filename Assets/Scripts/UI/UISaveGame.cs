@@ -205,6 +205,12 @@ public class UISaveGame : MonoBehaviour
         {
             if (selectedSaveItem == null)
                 return;
+
+            if (world != null)
+            {
+                foreach (GameObject go in GameLoader.Instance.textList)
+                    Destroy(go);
+            }
             
             if (GameLoader.Instance == null)
             {

@@ -20,6 +20,8 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<City, (List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
+	[HideInInspector]
+	public List<GameObject> textList = new();
 
 	private void Awake()
 	{
@@ -35,6 +37,8 @@ public class GameLoader : MonoBehaviour
 		gameData.savePlayTime += playTime;
 		gameData.saveVersion = version;
 		gameData.saveScreenshot = screenshot;
+		gameData.cityImprovementQueueList = world.cityImprovementQueueList;
+		gameData.unclaimedSingleBuildList = world.unclaimedSingleBuildList;
 		gameData.camPosition = world.cameraController.transform.position;
 		gameData.camRotation = world.cameraController.transform.rotation;
 		gameData.timeODay = world.dayNightCycle.timeODay;
@@ -93,7 +97,7 @@ public class GameLoader : MonoBehaviour
 		}
 		
 		//main player
-		gameData.playerUnit = world.mainPlayer.SaveMilitaryUnitData();
+		gameData.playerUnit = world.mainPlayer.SaveWorkerData();
 
 		//traders
 		gameData.allTraders.Clear();
@@ -141,6 +145,8 @@ public class GameLoader : MonoBehaviour
 		world.GenerateMap(gameData.allTerrain);
 		world.GenerateTradeCenters(gameData.allTradeCenters);
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
+		world.cityImprovementQueueList = gameData.cityImprovementQueueList;
+		world.unclaimedSingleBuildList = gameData.unclaimedSingleBuildList;
 		world.LoadWonder(gameData.allWonders);
 		gameData.allWonders.Clear();
 
@@ -167,8 +173,7 @@ public class GameLoader : MonoBehaviour
 
 		//      //assign labor
 
-
-		world.mainPlayer.LoadUnitData(gameData.playerUnit);
+		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 
 		//traders
 		for (int i = 0; i < gameData.allTraders.Count; i++)

@@ -23,6 +23,10 @@ public class CityData
 	public bool pauseGrowth, growthDeclineDanger;
 	public int starvationCount, noHousingCount, noWaterCount, cycleCount;
 
+	//queueing
+	public Dictionary<string, (Vector3Int, bool)> queuedItems;
+	public Dictionary<ResourceType, int> queuedResourcesToCheck;
+
 	//city building data
 	public List<CityImprovementData> cityBuildings = new();
 
