@@ -39,6 +39,6 @@ MonoBehaviour:
   baseAttackStrength: 20
   baseAttackSpeed: 0.5
   movementSpeed: 2
-  trainTime: 4
+  trainTime: 10
   cargoCapacity: 0
   transportationType: 0

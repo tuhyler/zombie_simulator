@@ -211,10 +211,13 @@ public class UIWonderSelection : MonoBehaviour
         removeWorkerButton.SetActive(true);
     }
 
-    internal void UpdateUIWorkers(int workersReceived)
+    internal void UpdateUIWorkers(int workersReceived, Wonder wonder)
     {
         workerCount.text = $"{workersReceived}";
-        workerCount.color = Color.red;
+		if (workersReceived < wonder.WonderData.workersNeeded)
+			workerCount.color = Color.red;
+		else
+			workerCount.color = Color.white;
     }
 
     internal void ToggleEnable(bool v)

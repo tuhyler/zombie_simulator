@@ -12,19 +12,23 @@ public class ResourceProducer : MonoBehaviour
     private ImprovementDataSO improvementData;
     [HideInInspector]
     public int currentLabor;
-    private float tempLabor; //if adding labor during production process
-    List<float> tempLaborPercsList = new();
+    [HideInInspector]
+    public float tempLabor; //if adding labor during production process
+    [HideInInspector]
+    public List<float> tempLaborPercsList = new();
     [HideInInspector]
     public Vector3Int producerLoc;
 
     //for production info
     private Coroutine producingCo;
-    private int productionTimer;
+    [HideInInspector]
+    public int productionTimer;
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
     [HideInInspector]
     public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch, isUpgrading;
-    private float unloadLabor;
+    [HideInInspector]
+    public float unloadLabor;
     [HideInInspector]
     public bool isProducing;
     [HideInInspector]
@@ -212,6 +216,7 @@ public class ResourceProducer : MonoBehaviour
     {
         CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
         CalculateResourceConsumedPerMinute();
+        cityImprovement.firstStart = true;
 
         if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
         {
@@ -232,9 +237,19 @@ public class ResourceProducer : MonoBehaviour
         if (resourceManager.city.activeCity)
             uiTimeProgressBar.gameObject.SetActive(true);
 
-        producingCo = StartCoroutine(ProducingCoroutine());
+		productionTimer = improvementData.producedResourceTime[producedResourceIndex];
+		producingCo = StartCoroutine(ProducingCoroutine());
         isProducing = true;
     }
+
+    public void LoadProducingCoroutine()
+    {
+		CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
+		CalculateResourceConsumedPerMinute();
+		cityImprovement.firstStart = true;
+        float percLeft = (float)productionTimer / improvementData.producedResourceTime[producedResourceIndex];
+        producingCo = StartCoroutine(ProducingCoroutine(percLeft, true));
+	}
 
     public void AddLaborMidProduction()
     {
@@ -289,10 +304,10 @@ public class ResourceProducer : MonoBehaviour
     }
 
     //timer for producing resources 
-    private IEnumerator ProducingCoroutine()
+    private IEnumerator ProducingCoroutine(float offset = 0, bool load = false)
     {
-        productionTimer = improvementData.producedResourceTime[producedResourceIndex];
-        cityImprovement.StartWork(productionTimer);
+        //productionTimer = improvementData.producedResourceTime[producedResourceIndex];
+        cityImprovement.StartWork(offset, load);
         if (resourceManager.city.activeCity)
         {
             //timeProgressBar.SetProgressBarBeginningPosition();
@@ -388,8 +403,9 @@ public class ResourceProducer : MonoBehaviour
         else
         {
             tempLaborPercsList.Clear();
-            //cityImprovement.StopWorkAnimation();
-            producingCo = StartCoroutine(ProducingCoroutine());
+			//cityImprovement.StopWorkAnimation();
+			productionTimer = improvementData.producedResourceTime[producedResourceIndex];
+			producingCo = StartCoroutine(ProducingCoroutine());
         }
     }
 

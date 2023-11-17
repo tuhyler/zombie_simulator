@@ -114,11 +114,11 @@ public class TradeCenter : MonoBehaviour
                 harborLoc.x += increment;
         }
 
-        world.AddToCityLabor(mainLoc, gameObject);
+        world.AddToCityLabor(mainLoc, null);
         world.AddStructure(mainLoc, gameObject);
 
         foreach (Vector3Int loc in world.GetNeighborsFor(mainLoc, MapWorld.State.EIGHTWAYINCREMENT))
-            world.AddToCityLabor(loc, gameObject);
+            world.AddToCityLabor(loc, null);
     }
 
     public void ToggleLights(bool v)

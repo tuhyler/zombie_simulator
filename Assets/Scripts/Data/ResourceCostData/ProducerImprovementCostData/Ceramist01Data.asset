@@ -28,7 +28,7 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 65
+    resourceAmount: 20
   - resourceType: 6
     resourceAmount: 10
   consumedResources:
@@ -63,7 +63,7 @@ MonoBehaviour:
   adjustForHill: 1
   hillAdjustment: 0.6
   buildTime: 5
-  availableInitially: 0
+  availableInitially: 1
   workAnimLoop: 0
   hideIdleMesh: 1
   getTerrainResource: 0

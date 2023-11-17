@@ -34,9 +34,13 @@ public class UIQueueManager : MonoBehaviour
     [SerializeField]
     private MapWorld world;
 
+    [HideInInspector]
+    public List<ResourceValue> upgradeCosts;
+
 	//for object pooling of UIQueueItems
 	private Queue<UIQueueItem> uiQueueItemQueue = new();
-	private List<UIQueueItem> uiQueueItemList = new();
+    [HideInInspector]
+    public List<UIQueueItem> uiQueueItemList = new();
 
 	private void Awake()
     {
@@ -45,7 +49,7 @@ public class UIQueueManager : MonoBehaviour
         originalButtonColor = addQueueImage.color;
     }
 
-    public void ToggleVisibility(bool v, City city = null)
+    public void ToggleVisibility(bool v)
     {
         if (activeStatus == v)
             return;
@@ -55,8 +59,8 @@ public class UIQueueManager : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
-            //cityBuilderManager.ShowQueuedGhost();
-            uiQueueButton.ToggleButtonSelection(true);
+			//cityBuilderManager.ShowQueuedGhost();
+			uiQueueButton.ToggleButtonSelection(true);
             cityBuilderManager.CloseLaborMenus();
             List<QueueItem> tempQueueItems = cityBuilderManager.GetQueueItems();
             for (int i = 0; i < tempQueueItems.Count; i++)
@@ -226,20 +230,21 @@ public class UIQueueManager : MonoBehaviour
         }
     }
 
-    private void RemoveFromQueue(UIQueueItem queueItem, Vector3Int cityLoc)
+    public void RemoveFromQueue(UIQueueItem queueItem, Vector3Int cityLoc)
     {
-        //queueItems.Remove(queueItem);
-        Vector3Int worldLoc = queueItem.buildLoc + cityLoc;
-		AddToUIQueueItemPool(selectedQueueItem);
-        uiQueueItemList.Remove(selectedQueueItem);
+        uiQueueItemList.Remove(queueItem);
+        Vector3Int worldLoc = queueItem.item.queueLoc + cityLoc;
         //queueItemNames.Remove(queueItem.itemName);
-        City city = world.GetCity(cityLoc);
-        city.queueItemList.Remove(queueItem.item);
         //city.savedQueueItems.Remove(queueItem);
         //city.savedQueueItemsNames.Remove(queueItem.itemName);
-        world.RemoveLocationFromQueueList(worldLoc);
-        if (world.TileHasCityImprovement(worldLoc))
-            world.GetCityDevelopment(worldLoc).queued = false;
+        if (queueItem.item.queueLoc != Vector3Int.zero)
+        {
+            City city = world.GetCity(cityLoc);
+            city.queueItemList.Remove(queueItem.item);
+            world.RemoveLocationFromQueueList(worldLoc);
+            if (world.TileHasCityImprovement(worldLoc))
+                world.GetCityDevelopment(worldLoc).queued = false;
+        }
 
         if (queueItem == firstQueueItem)
         {
@@ -249,20 +254,28 @@ public class UIQueueManager : MonoBehaviour
                 cityBuilderManager.resourceManager.ClearQueueResources();
         }
 
-        if (queueItem == selectedQueueItem)
+		//select the next item when this one is removed
+        if (queueItem == selectedQueueItem && uiQueueItemList.Count > 1)
         {
-            selectedQueueItem.ToggleItemSelection(false);
-            int nextItemIndex = -1;
-            if (uiQueueItemList.Count > 0) //select the next item when this one is removed
-                nextItemIndex = selectedQueueItem.GetNextItemIndex();
-            Destroy(selectedQueueItem.gameObject);
-            selectedQueueItem = null;
-            if (nextItemIndex >= 0)
-                queueItemHolder.GetChild(nextItemIndex).GetComponent<UIQueueItem>().ToggleItemSelection(true);
+			queueItem.ToggleItemSelection(false);
+            //int nextItemIndex = -1;
+            int nextItemIndex = queueItem.GetNextItemIndex();
+            UIQueueItem nextItem = queueItemHolder.GetChild(nextItemIndex).GetComponent<UIQueueItem>();
+		    AddToUIQueueItemPool(queueItem);
+            //uiQueueItemList.Remove(queueItem);
+            nextItem.ToggleItemSelection(true); //must be last
             return;
+		    //Destroy(selectedQueueItem.gameObject);
+		    //selectedQueueItem = null;
+		    //if (nextItemIndex >= 0)
+            //return;
         }
 
-        Destroy(queueItem.gameObject);
+		AddToUIQueueItemPool(queueItem);
+		//uiQueueItemList.Remove(queueItem);
+        //uiQueueItemList.Remove(selectedQueueItem);
+        //AddToUIQueueItemPool(selectedQueueItem);
+        //Destroy(queueItem.gameObject);
     }
 
     public void MoveItemUp()
@@ -276,9 +289,9 @@ public class UIQueueManager : MonoBehaviour
                 return;
             cityBuilderManager.SelectedCity.queueItemList.Remove(selectedQueueItem.item);
             cityBuilderManager.SelectedCity.queueItemList.Insert(index, selectedQueueItem.item);
-			//queueItems.Remove(selectedQueueItem);
-			//queueItems.Insert(index, selectedQueueItem);
-			if (index == 0)
+			uiQueueItemList.Remove(selectedQueueItem);
+			uiQueueItemList.Insert(index, selectedQueueItem);
+            if (index == 0)
                 SetFirstQueueItem();
         }
     }
@@ -293,9 +306,17 @@ public class UIQueueManager : MonoBehaviour
             if (index == -1)
                 return;
             cityBuilderManager.SelectedCity.queueItemList.Remove(selectedQueueItem.item);
-            cityBuilderManager.SelectedCity.queueItemList.Insert(index, selectedQueueItem.item);
-			//queueItems.Remove(selectedQueueItem);
-			//queueItems.Insert(index, selectedQueueItem);
+			uiQueueItemList.Remove(selectedQueueItem);
+            if (index >= cityBuilderManager.SelectedCity.queueItemList.Count)
+            {
+                cityBuilderManager.SelectedCity.queueItemList.Add(selectedQueueItem.item);
+    			uiQueueItemList.Add(selectedQueueItem);
+            }
+            else
+            {
+                cityBuilderManager.SelectedCity.queueItemList.Insert(index, selectedQueueItem.item);
+				uiQueueItemList.Insert(index, selectedQueueItem);
+			}
 			if (index == 1)
                 SetFirstQueueItem();
         }
@@ -372,8 +393,9 @@ public class UIQueueManager : MonoBehaviour
                 {
                     if (item.queueLoc == tempQueueItems[i].item.queueLoc && item.queueName == tempQueueItems[i].item.queueName)
                     {
-                        AddToUIQueueItemPool(tempQueueItems[i]);
-                        uiQueueItemList.Remove(tempQueueItems[i]);
+                        RemoveFromQueue(tempQueueItems[i], cityBuilderManager.SelectedCityLoc);
+                        //AddToUIQueueItemPool(tempQueueItems[i]);
+                        //uiQueueItemList.Remove(tempQueueItems[i]);
                         break;
                     }
                 }
@@ -400,14 +422,14 @@ public class UIQueueManager : MonoBehaviour
 
     private void SetResourcesToCheck()
     {
-        QueueItem item = firstQueueItem.GetQueueItemData();
+        //QueueItem item = firstQueueItem.item;
 
         List<ResourceValue> resourceCosts;
 
-        if (item.upgrade)
-            resourceCosts = new(world.GetUpgradeCost(item.queueName));
+        if (firstQueueItem.item.upgrade)
+            resourceCosts = new(upgradeCosts);
         else
-            resourceCosts = new(UpgradeableObjectHolder.Instance.improvementDict[item.queueName].improvementCost);
+            resourceCosts = new(UpgradeableObjectHolder.Instance.improvementDict[firstQueueItem.item.queueName].improvementCost);
         //if (unitBuildData != null)
         //    resourceCosts = new(unitBuildData.unitCost);
         //else if (upgradeCosts != null)
@@ -468,7 +490,7 @@ public class UIQueueManager : MonoBehaviour
 		for (int i = 0; i < 5; i++) //grow pool 5 at a time
 		{
 			GameObject uiQueueItem = Instantiate(uiQueueItemPrefab);
-			uiQueueItem.gameObject.transform.SetParent(queueItemHolder, false);
+			//uiQueueItem.gameObject.transform.SetParent(queueItemHolder, false);
 			UIQueueItem uiItem = uiQueueItem.GetComponent<UIQueueItem>();
 			uiItem.SetQueueManager(this);
 			AddToUIQueueItemPool(uiItem);
@@ -477,7 +499,8 @@ public class UIQueueManager : MonoBehaviour
 
 	private void AddToUIQueueItemPool(UIQueueItem uiItem)
 	{
-		uiItem.gameObject.SetActive(false); //inactivate it when adding to pool
+        uiItem.transform.SetParent(transform, false);
+        uiItem.gameObject.SetActive(false); //inactivate it when adding to pool
 		uiQueueItemQueue.Enqueue(uiItem);
 	}
 
@@ -488,6 +511,7 @@ public class UIQueueManager : MonoBehaviour
 
 		UIQueueItem uiItem = uiQueueItemQueue.Dequeue();
 		uiItem.gameObject.SetActive(true);
+        uiItem.transform.SetParent(queueItemHolder, false);
         uiQueueItemList.Add(uiItem);
 		return uiItem;
 	}

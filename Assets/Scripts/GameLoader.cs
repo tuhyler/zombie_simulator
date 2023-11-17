@@ -20,6 +20,7 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<City, (List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
+	public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
 	public List<GameObject> textList = new();
 
@@ -37,6 +38,8 @@ public class GameLoader : MonoBehaviour
 		gameData.savePlayTime += playTime;
 		gameData.saveVersion = version;
 		gameData.saveScreenshot = screenshot;
+		gameData.currentWorkedTileDict = world.currentWorkedTileDict;
+		gameData.cityWorkedTileDict = world.cityWorkedTileDict;
 		gameData.cityImprovementQueueList = world.cityImprovementQueueList;
 		gameData.unclaimedSingleBuildList = world.unclaimedSingleBuildList;
 		gameData.camPosition = world.cameraController.transform.position;
@@ -145,6 +148,8 @@ public class GameLoader : MonoBehaviour
 		world.GenerateMap(gameData.allTerrain);
 		world.GenerateTradeCenters(gameData.allTradeCenters);
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
+		world.currentWorkedTileDict = gameData.currentWorkedTileDict;
+		world.cityWorkedTileDict = gameData.cityWorkedTileDict;
 		world.cityImprovementQueueList = gameData.cityImprovementQueueList;
 		world.unclaimedSingleBuildList = gameData.unclaimedSingleBuildList;
 		world.LoadWonder(gameData.allWonders);
@@ -230,7 +235,10 @@ public class GameLoader : MonoBehaviour
 		}
 		cityWaitingDict.Clear();
 			
-
+		foreach (CityImprovement improvement in improvementUnitUpgradeDict.Keys)
+		{
+			improvement.ResumeTraining(improvementUnitUpgradeDict[improvement]);
+		}
 
 		Time.timeScale = 1f;
 		AudioListener.pause = false;

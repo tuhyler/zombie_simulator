@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using Mono.Cecil;
 using System.Resources;
+using UnityEditor.iOS;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -1051,11 +1052,9 @@ public class ResourceManager : MonoBehaviour
     {
         //queuedResourcesToCheck = resourceList;
         //this.cityBuilderManager = cityBuilderManager;
-
-        foreach (ResourceValue resource in resourceList)
-        {
-            queuedResourcesToCheck[resource.resourceType] = resource.resourceAmount;
-        }
+        queuedResourcesToCheck.Clear();
+        for (int i = 0; i < resourceList.Count; i++)
+            queuedResourcesToCheck[resourceList[i].resourceType] = resourceList[i].resourceAmount;
 
         CheckResourcesForQueue();
     }

@@ -1022,8 +1022,7 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-            world.GetWonder(unitLoc).AddWorker(selectedUnit.transform.position);
-            world.laborerList.Remove(selectedUnit.GetComponent<Laborer>());
+            world.GetWonder(unitLoc).AddWorker(selectedUnit);
         }
 
         selectedUnit.DestroyUnit();
@@ -1040,7 +1039,7 @@ public class UnitMovement : MonoBehaviour
 		}
 		else
 		{
-			world.GetWonder(unitLoc).AddWorker(unit.transform.position);
+			world.GetWonder(unitLoc).AddWorker(unit);
 		}
 
         if (unit.isSelected)

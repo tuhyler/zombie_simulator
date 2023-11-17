@@ -8,8 +8,8 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
     public TMP_Text itemText;
-    [HideInInspector]
-    public string itemName, buildingName; //first string name only used to check if already on queue list
+    //[HideInInspector]
+    //public string itemName, buildingName; //first string name only used to check if already on queue list
 
     [SerializeField]
     private Image background;
@@ -24,8 +24,8 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
     //public ImprovementDataSO improvementData;
     //[HideInInspector] 
     //public List<ResourceValue> upgradeCosts;
-    [HideInInspector]
-    public Vector3Int buildLoc;
+    //[HideInInspector]
+    //public Vector3Int buildLoc;
 
     //for unselecting
     private Color originalTextColor;
@@ -55,10 +55,10 @@ public class UIQueueItem : MonoBehaviour, IPointerDownHandler
         //this.upgradeCosts = upgradeCosts;
     }
 
-    public QueueItem GetQueueItemData()
-    {
-        return item;
-    }
+    //public QueueItem GetQueueItemData()
+    //{
+    //    return item;
+    //}
 
     public void SetQueueManager(UIQueueManager uiQueueManager)
     {

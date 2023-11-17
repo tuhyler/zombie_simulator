@@ -320,6 +320,7 @@ public class UICityImprovementTip : MonoBehaviour
 
         improvement.producedResource = producesInfo[a].resourceType;
         improvement.producedResourceIndex = a;
+        improvement.CalculateWorkCycleLimit();
         producer.producedResourceIndex = a;
         highlightIndex = a;
         producer.SetNewProgressTime();

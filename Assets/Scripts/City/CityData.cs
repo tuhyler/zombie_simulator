@@ -24,7 +24,7 @@ public class CityData
 	public int starvationCount, noHousingCount, noWaterCount, cycleCount;
 
 	//queueing
-	public Dictionary<string, (Vector3Int, bool)> queuedItems;
+	public List<QueueItem> queueItemList;
 	public Dictionary<ResourceType, int> queuedResourcesToCheck;
 
 	//city building data
