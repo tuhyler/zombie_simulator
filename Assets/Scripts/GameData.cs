@@ -11,6 +11,8 @@ public class GameData
     public string saveScreenshot;
 
     //world misc lists
+    public Dictionary<Vector3Int, int> currentWorkedTileDict;
+    public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
     public List<Vector3Int> unclaimedSingleBuildList;
 

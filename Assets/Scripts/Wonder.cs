@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
@@ -69,7 +70,7 @@ public class Wonder : MonoBehaviour
     private int totalTime;
     private int timePassed;
     private bool isBuilding;
-    private WaitForSeconds stepBuildTime = new WaitForSeconds(1);
+    private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
 
     //for queuing unloading
     private Queue<Unit> waitList = new(), seaWaitList = new();
@@ -363,14 +364,19 @@ public class Wonder : MonoBehaviour
         return resourceAmount;
     }
 
-    public void AddWorker(Vector3 pos)
+    public void AddWorker(Unit unit)
     {
-        pos.y = 3f;
-        workersReceived++;
+        Vector3 pos = unit.transform.position;
+		pos.y = 3f;
+		world.laborerList.Remove(unit.GetComponent<Laborer>());
+
+		workersReceived++;
         heavenHighlight.transform.position = pos;
         heavenHighlight.Play();
+        if (uiWonderSelection.activeStatus)
+			uiWonderSelection.UpdateUIWorkers(workersReceived, this);
 
-        if (!StillNeedsWorkers())
+		if (!StillNeedsWorkers())
             ThresholdCheck();
     }
 
@@ -406,14 +412,20 @@ public class Wonder : MonoBehaviour
             return;
         }
 
-        buildingCo = StartCoroutine(BuildNextPortionOfWonder());
+        timePassed = totalTime;
+		ConsumeWorkerCost();
+		buildingCo = StartCoroutine(BuildNextPortionOfWonder(false));
     }
 
-    public IEnumerator BuildNextPortionOfWonder()
+	public void LoadWonderBuild()
+	{
+		buildingCo = StartCoroutine(BuildNextPortionOfWonder(false));
+	}
+
+	public IEnumerator BuildNextPortionOfWonder(bool load)
     {
-        timePassed = totalTime;
         if (!smokeEmitter.isPlaying)
-            PlaySmokeEmitter();
+            PlaySmokeEmitter(load);
         
         if (isActive)
         {
@@ -424,11 +436,9 @@ public class Wonder : MonoBehaviour
 
         isBuilding = true;
 
-        ConsumeWorkerCost();
-
         while (timePassed > 0)
         {
-            yield return stepBuildTime;
+            yield return oneSecondWait;
             timePassed--;
             if (isActive)
                 uiTimeProgressBar.SetTime(timePassed);
@@ -664,11 +674,14 @@ public class Wonder : MonoBehaviour
         removeSplash.Play();
     }
 
-    private void PlaySmokeEmitter()
+    private void PlaySmokeEmitter(bool load)
     {
         int time = wonderData.buildTimePerPercent;
         var emission = smokeEmitter.emission;
         emission.rateOverTime = 10f / (time * 6); //a bit of a delay so the smoke isn't too overwhelming so fast
+
+        if (load)
+            smokeEmitter.time = totalTime - timePassed;
 
         smokeEmitter.gameObject.SetActive(true);
         smokeEmitter.Play();
@@ -712,10 +725,12 @@ public class Wonder : MonoBehaviour
         data.harborLoc = harborLoc;
         data.percentDone = percentDone;
         data.workersReceived = workersReceived;
+        data.timePassed = timePassed;
         data.isConstructing = isConstructing;
         data.canBuildHarbor = canBuildHarbor;
         data.hasHarbor = hasHarbor;
         data.roadPreExisted = roadPreExisted;
+        data.isBuilding = isBuilding;
         data.wonderLocs = wonderLocs;
         data.possibleHarborLocs = possibleHarborLocs;
         data.coastTiles = coastTiles;
@@ -744,6 +759,7 @@ public class Wonder : MonoBehaviour
 		harborLoc = data.harborLoc;
 		percentDone = data.percentDone;
 		workersReceived = data.workersReceived;
+        timePassed = data.timePassed;
 		isConstructing = data.isConstructing;
 		canBuildHarbor = data.canBuildHarbor;
 		hasHarbor = data.hasHarbor;

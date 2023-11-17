@@ -48,7 +48,6 @@ public class ImprovementDataSO : ScriptableObject
     public bool availableInitially = false;
     private bool locked = true;
     public bool Locked { get { return locked; } set { locked = value; } }
-    public bool workAnimLoop = false;
     public bool hideIdleMesh = false;
     public bool getTerrainResource = false; //for mines and quarries to provide resource where they're placed
     public List<Vector3Int> noWalkAreas;

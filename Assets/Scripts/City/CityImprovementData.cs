@@ -4,10 +4,11 @@ using UnityEngine;
 [System.Serializable]
 public class CityImprovementData
 {
-    public string name;
+    public string name, trainingUnitName;
     public Vector3Int location, cityLoc;
-	public bool queued, isConstruction, isUpgrading, isTraining;
-	public int housingIndex, laborCost, producedResourceIndex;
+	public bool queued, isConstruction, isUpgrading, isTraining, isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch, isProducing;
+	public int housingIndex, laborCost, timePassed, producedResourceIndex, currentLabor, productionTimer;
+    public float tempLabor, unloadLabor;
     public ResourceType producedResource;
-
+    public List<float> tempLaborPercsList;
 }

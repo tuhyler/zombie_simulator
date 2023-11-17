@@ -221,12 +221,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   producedResourceIndex: 0
   currentLabor: 0
+  tempLabor: 0
+  tempLaborPercsList: []
   producerLoc: {x: 0, y: 0, z: 0}
+  productionTimer: 0
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
   isWaitingToUnload: 0
   isWaitingForResearch: 0
   isUpgrading: 0
+  unloadLabor: 0
   isProducing: 0
   producedResource:
     resourceType: 0
@@ -256,9 +260,9 @@ MonoBehaviour:
   - resourceType: 2
     resourceAmount: 1
   - resourceType: 6
-    resourceAmount: 10
+    resourceAmount: 500
   - resourceType: 7
-    resourceAmount: 10
+    resourceAmount: 500
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0

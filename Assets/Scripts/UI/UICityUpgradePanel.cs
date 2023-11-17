@@ -78,7 +78,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
         if (v)
         {
-            string name;
+            string nameAndLevel;
             world.infoPopUpCanvas.gameObject.SetActive(true);
             activeStatus = true;
             
@@ -86,16 +86,16 @@ public class UICityUpgradePanel : MonoBehaviour
             if (improvement != null)
             {
                 improvementLoc = improvement.loc;
-                name = improvement.GetImprovementData.improvementName + '-' + improvement.GetImprovementData.improvementLevel;
+                nameAndLevel = improvement.GetImprovementData.improvementNameAndLevel;
             }
             else
             {
-                name = unit.buildDataSO.unitNameAndLevel;
+                nameAndLevel = unit.buildDataSO.unitNameAndLevel;
 			}
 
             this.unit = unit;
 
-            upgradeCost = new(world.GetUpgradeCost(name));
+            upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
 
             if (unit != null)
             {
@@ -110,14 +110,14 @@ public class UICityUpgradePanel : MonoBehaviour
                     consumes.Add(new(unit.buildDataSO.cycleCost));
                 }
                 
-                UnitBuildDataSO unitData = world.GetUnitUpgradeData(name);
+                UnitBuildDataSO unitData = world.GetUnitUpgradeData(nameAndLevel);
                 List<int> produceTime = new() { 0 };
                 SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription,
                 produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, resourceManager);
             }
             else
             {
-                ImprovementDataSO improvementData = world.GetUpgradeData(name);
+                ImprovementDataSO improvementData = world.GetUpgradeData(nameAndLevel);
 
                 consumes.Add(new(improvementData.consumedResources));
                 if (improvementData.consumedResources1.Count > 0)
@@ -464,7 +464,7 @@ public class UICityUpgradePanel : MonoBehaviour
         else if (unit != null)
             cityBuilderManager.UpgradeUnit(unit);
 
-        cityBuilderManager.PlayBoomAudio();
+        //cityBuilderManager.PlayBoomAudio();
         ResetData();
         gameObject.SetActive(false);
         world.infoPopUpCanvas.gameObject.SetActive(false);

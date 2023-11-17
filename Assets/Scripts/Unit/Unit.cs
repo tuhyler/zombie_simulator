@@ -1054,14 +1054,14 @@ public class Unit : MonoBehaviour
 		}
         else
         {
+			world.AddUnitPosition(currentLocation, this);
+            
             if (isSelected)
                 world.unitMovement.ShowIndividualCityButtonsUI();
 
             if (isLaborer)
 				if (world.RoundToInt(finalDestinationLoc) == endPosition)
 					world.unitMovement.JoinCity(this);
-
-			world.AddUnitPosition(currentLocation, this);
         }
     }
 

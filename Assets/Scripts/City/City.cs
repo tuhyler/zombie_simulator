@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class City : MonoBehaviour
 {
@@ -587,7 +588,7 @@ public class City : MonoBehaviour
         //for tweening
         housing.transform.localScale = Vector3.zero;
         LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { 
-            world.cityBuilderManager.CombineMeshes(this, subTransform, upgrade); improvement.SetInactive(); world.cityBuilderManager.ToggleBuildingHighlight(true);
+            world.cityBuilderManager.CombineMeshes(this, subTransform, world.cityBuilderManager.upgradingImprovement); improvement.SetInactive(); world.cityBuilderManager.ToggleBuildingHighlight(true);
         });
     }
 
@@ -632,7 +633,7 @@ public class City : MonoBehaviour
 
 	public void CombineFire()
     {
-		world.cityBuilderManager.CombineMeshes(this, subTransform, false);
+		world.cityBuilderManager.CombineMeshes(this, subTransform, world.cityBuilderManager.upgradingImprovement);
 	}
 
     public string DecreaseHousingCount(int index)
@@ -800,7 +801,7 @@ public class City : MonoBehaviour
     private void RemoveRandomFieldLaborer(bool any)
     {
         System.Random random = new();
-        List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(cityLoc, gameObject);
+        List<Vector3Int> workedTiles = world.GetWorkedCityRadiusFor(cityLoc);
 
         //below is giving every labor in any tile equal chance of being chosen
         int currentLabor = 0;
@@ -1221,7 +1222,7 @@ public class City : MonoBehaviour
         int unusedLabor = cityPop.UnusedLabor;
         bool maxxed;
 
-        List<Vector3Int> laborLocs = world.GetPotentialLaborLocationsForCity(cityLoc, gameObject);
+        List<Vector3Int> laborLocs = world.GetPotentialLaborLocationsForCity(cityLoc);
 
         if (laborLocs.Count == 0)
             return;
@@ -1291,7 +1292,7 @@ public class City : MonoBehaviour
 
         if (labor == 0) //assigning city to location if working for first time
         {
-            world.AddToCityLabor(terrainLocation, gameObject);
+            world.AddToCityLabor(terrainLocation, cityLoc);
             resourceProducer.SetResourceManager(resourceManager);
             resourceProducer.StartProducing();
         }
@@ -1451,23 +1452,18 @@ public class City : MonoBehaviour
 
     public void RemoveFromQueue(Vector3Int loc)
     {
-        int index = 0;
-        foreach (QueueItem item in queueItemList)
-        {
-            if (item.queueLoc == loc)
-            {
-                //savedQueueItems.Remove(item);
-                //savedQueueItemsNames.RemoveAt(index);
-                resourceManager.ClearQueueResources();
-                world.RemoveLocationFromQueueList(loc);
-                //Destroy(item);
-                if (index == 0 && queueItemList.Count > 0)
-                    GoToNextItemInBuildQueue();
-                break;
-            }
+        QueueItem item = improvementQueueDict[loc];
+		world.RemoveLocationFromQueueList(loc);
+        int index = queueItemList.IndexOf(item);
+        queueItemList.Remove(item);
 
-            index++;
-        }
+        if (index == 0)
+        {
+			resourceManager.ClearQueueResources();
+
+			if (queueItemList.Count > 0)
+				GoToNextItemInBuildQueue();
+		}
     }
 
     private void GoToNextItemInBuildQueue()
@@ -1507,7 +1503,7 @@ public class City : MonoBehaviour
 
                 string name = cityImprovement.GetImprovementData.improvementName;
                 singleBuildImprovementsBuildingsDict[name] = tile;
-                world.AddToCityLabor(tile, gameObject);
+                world.AddToCityLabor(tile, cityLoc);
 
                 if (name == "Harbor")
                 {
@@ -1564,7 +1560,8 @@ public class City : MonoBehaviour
 
         queueItemList.Add(item);
 		world.cityBuilderManager.PlayQueueAudio();
-		world.AddLocationToQueueList(worldLoc, cityLoc);
+		if (!building)
+            world.AddLocationToQueueList(worldLoc, cityLoc);
 
 		if (upgrade)
 			world.cityBuilderManager.CreateQueuedArrow(item, improvementData, worldLoc, building);
@@ -1663,7 +1660,8 @@ public class City : MonoBehaviour
         data.cycleCount = resourceManager.CycleCount;
         data.resourceGridDict = resourceGridDict;
 
-		//queue lists
+        //queue lists
+        data.queueItemList = queueItemList;
 		data.queuedResourcesToCheck = resourceManager.queuedResourcesToCheck;
 
 		List<string> buildingList = world.GetBuildingListForCity(cityLoc);
@@ -1770,6 +1768,11 @@ public class City : MonoBehaviour
 		resourceGridDict = data.resourceGridDict;
 
         //queue lists
+        queueItemList = data.queueItemList;
+
+        for (int i = 0; i < queueItemList.Count; i++)
+            improvementQueueDict[queueItemList[i].queueLoc] = queueItemList[i];
+
         resourceManager.queuedResourcesToCheck = data.queuedResourcesToCheck;
 
 		//waiting lists
@@ -1875,5 +1878,37 @@ public class City : MonoBehaviour
 				}
 			}
 		}
+    }
+
+    public Unit FindUpgradingLandUnit()
+    {
+        Unit upgradedUnit = null;
+        
+        for (int i = 0; i < army.UnitsInArmy.Count; i++)
+        {
+            if (army.UnitsInArmy[i].isUpgrading)
+            {
+                upgradedUnit = army.UnitsInArmy[i];
+                break;
+            }
+        }
+
+        return upgradedUnit;
+    }
+
+    public Unit FindUpgradingSeaTraderUnit()
+    {
+        Unit upgradedUnit = null;
+
+		for (int i = 0; i < tradersHere.Count; i++)
+		{
+			if (tradersHere[i].isUpgrading)
+			{
+				upgradedUnit = tradersHere[i];
+				break;
+			}
+		}
+
+		return upgradedUnit;
     }
 }

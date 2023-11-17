@@ -153,11 +153,11 @@ public class MapWorld : MonoBehaviour
     //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
     //for assigning labor in cities
-    private Dictionary<Vector3Int, int> currentWorkedTileDict = new(); //to see how much labor is assigned to tile
+    public Dictionary<Vector3Int, int> currentWorkedTileDict = new(); //to see how much labor is assigned to tile
     private Dictionary<Vector3Int, int> maxWorkedTileDict = new(); //the max amount of labor that can be assigned to tile
-    private Dictionary<Vector3Int, GameObject> cityWorkedTileDict = new(); //the city worked tiles belong to
+    public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict = new(); //the city worked tiles belong to
     private Dictionary<Vector3Int, ResourceProducer> cityImprovementProducerDict = new(); //all the improvements that have resource producers (for speed)
-    private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingCurrentWorkedDict = new(); //current worked for buildings in city
+    //private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingCurrentWorkedDict = new(); //current worked for buildings in city
 
     //private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingMaxWorkedDict = new(); //max labor of buildings within city
     private Dictionary<Vector3Int, List<string>> cityBuildingList = new(); //list of buildings on city tiles (here instead of City because buildings can be without a city)
@@ -457,10 +457,11 @@ public class MapWorld : MonoBehaviour
                     }
                 }
 
+                upgradeableObjectMaxLevelDict[data.improvementName] = data.improvementLevel;
                 upgradeableObjectPriceDict[upgradeableObjectName] = upgradeableObjectCost;
             }
 
-            upgradeableObjectName = data.improvementName + "-" + data.improvementLevel; //needs to be last to compare to following data
+            upgradeableObjectName = data.improvementNameAndLevel; //needs to be last to compare to following data
             upgradeableObjectTotalCost = data.improvementCost;
             upgradeableObjectLevel = data.improvementLevel;
         }
@@ -799,7 +800,7 @@ public class MapWorld : MonoBehaviour
 		if (improvementData.singleBuild)
 		{
 			city.singleBuildImprovementsBuildingsDict[improvementData.improvementName] = tempBuildLocation;
-			AddToCityLabor(tempBuildLocation, city.gameObject);
+			AddToCityLabor(tempBuildLocation, city.cityLoc);
 		}
 
 		//resource production
@@ -813,11 +814,13 @@ public class MapWorld : MonoBehaviour
 
         if (data.isConstruction)
         {
-		    CityImprovement constructionTile = cityBuilderManager.GetFromConstructionTilePool();
-		    constructionTile.InitializeImprovementData(improvementData);
+            cityImprovement.LoadData(data, city);
+            CityImprovement constructionTile = cityBuilderManager.GetFromConstructionTilePool();
+            constructionTile.timePassed = data.timePassed; 
+            constructionTile.InitializeImprovementData(improvementData);
 		    SetCityImprovementConstruction(tempBuildLocation, constructionTile);
 		    constructionTile.transform.position = tempBuildLocation;
-		    constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, cityBuilderManager, td.isHill);		
+		    constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, cityBuilderManager, td.isHill, true);		
         }
         else
         {
@@ -974,8 +977,19 @@ public class MapWorld : MonoBehaviour
 			foreach (Vector3Int loc in improvementData.noWalkAreas)
 				AddToNoWalkList(loc + tempBuildLocation);
 
-            cityImprovement.LoadData(data);
+            cityImprovement.LoadData(data, city);
 		}
+	}
+
+	public void CreateUpgradedImprovement(Vector3Int upgradeLoc, CityImprovement selectedImprovement, City city)
+	{
+		string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
+		List<ResourceValue> upgradeCost = new(GetUpgradeCost(nameAndLevel));
+		selectedImprovement.UpgradeCost = upgradeCost;
+		ImprovementDataSO data = GetUpgradeData(nameAndLevel);
+
+		ResourceProducer resourceProducer = GetResourceProducer(upgradeLoc);
+		selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, upgradeLoc, data, true);
 	}
 
 	internal void MakeEnemyCamps(Dictionary<Vector3Int, Dictionary<Vector3Int, string>> enemyCampLocs, List<Vector3Int> discovered)
@@ -1850,7 +1864,7 @@ public class MapWorld : MonoBehaviour
         List<Vector3Int> harborTiles = new();
         foreach (Vector3Int tile in wonderPlacementLoc)
         {
-            AddToCityLabor(tile, wonderGO); //so cities can't take the spot
+            AddToCityLabor(tile, null); //so cities can't take the spot
             AddStructure(tile, wonderGO); //so nothing else can be built there
             //AddStructureMap(tile, wonderMapIcon);
             //mapPanel.SetTileSprite(tile, TerrainDesc.Wonder);
@@ -1970,11 +1984,14 @@ public class MapWorld : MonoBehaviour
 			//claiming the area for the wonder
 			foreach (Vector3Int tile in wonderPlacementLoc)
 			{
-				AddToCityLabor(tile, wonderGO); //so cities can't take the spot
+				AddToCityLabor(tile, null); //so cities can't take the spot
 				AddStructure(tile, wonderGO); //so nothing else can be built there
 			}
     
             noWalkList.AddRange(wonderNoWalkLoc);
+
+            if (data.isBuilding)
+                wonder.LoadWonderBuild();
 
 			GameLoader.Instance.wonderWaitingDict[wonder] = (data.waitList, data.seaWaitList);
 		}
@@ -3330,15 +3347,29 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveQueueItemCheck(Vector3Int location)
     {
-        if (cityImprovementQueueList.ContainsKey(location))
+		if (cityImprovementQueueList.ContainsKey(location))
         {
-            cityImprovementQueueList.Remove(location);
             City city = GetCity(cityImprovementQueueList[location]);
+            Vector3Int localLocation = location - city.cityLoc;
 
             if (city.activeCity && cityBuilderManager.uiQueueManager.activeStatus)
             {
-                cityBuilderManager.RemoveQueueGhostImprovement(city.improvementQueueDict[location]);
-				city.RemoveFromQueue(location - city.cityLoc);
+                QueueItem item = city.improvementQueueDict[localLocation];
+                cityBuilderManager.RemoveQueueGhostImprovement(item);
+
+				List<UIQueueItem> tempQueueItemList = new(cityBuilderManager.uiQueueManager.uiQueueItemList);
+				for (int i = 0; i < tempQueueItemList.Count; i++)
+				{
+					if (tempQueueItemList[i].item.queueLoc == item.queueLoc)
+					{
+                        cityBuilderManager.uiQueueManager.RemoveFromQueue(tempQueueItemList[i], city.cityLoc);
+						break;
+					}
+				}
+            }
+            else
+            {
+    			city.RemoveFromQueue(localLocation);
             }
         }
     }
@@ -3754,7 +3785,7 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
-    public (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition, GameObject city) //two ring layer around specific city
+    public (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition) //two ring layer around specific city
     {
         List<Vector3Int> neighbors = new();
         List<Vector3Int> developed = new();
@@ -3764,7 +3795,7 @@ public class MapWorld : MonoBehaviour
             Vector3Int checkPosition = worldTilePosition + direction;
             if (world.ContainsKey(checkPosition)) //checking if it exists in world
             {
-                if (cityWorkedTileDict.ContainsKey(checkPosition) && GetCityLaborForTile(checkPosition) != city)
+                if (cityWorkedTileDict.ContainsKey(checkPosition) && GetCityLaborForTile(checkPosition) != worldTilePosition)
                     continue;
 
                 if (unclaimedSingleBuildList.Contains(checkPosition))
@@ -3781,7 +3812,7 @@ public class MapWorld : MonoBehaviour
         return (neighbors, developed, constructing);
     }
 
-    public List<Vector3Int> GetWorkedCityRadiusFor(Vector3Int worldTilePosition, GameObject city) //two ring layer around specific city
+    public List<Vector3Int> GetWorkedCityRadiusFor(Vector3Int worldTilePosition) //two ring layer around specific city
     {
         List<Vector3Int> neighbors = new();
         foreach (Vector3Int direction in cityRadius)
@@ -3789,7 +3820,7 @@ public class MapWorld : MonoBehaviour
             Vector3Int checkPosition = worldTilePosition + direction;
             if (world.ContainsKey(checkPosition)) //checking if it exists in world
             {
-                if (cityWorkedTileDict.ContainsKey(checkPosition) && GetCityLaborForTile(checkPosition) == city)//if city has worked tiles, add to list
+                if (cityWorkedTileDict.ContainsKey(checkPosition) && GetCityLaborForTile(checkPosition) == worldTilePosition)//if city has worked tiles, add to list
                     neighbors.Add(checkPosition);
             }
 
@@ -3798,7 +3829,7 @@ public class MapWorld : MonoBehaviour
     }
 
     //to see what is developed for a city and what's worked for the city specifically
-    public List<Vector3Int> GetPotentialLaborLocationsForCity(Vector3Int cityTile, GameObject city)
+    public List<Vector3Int> GetPotentialLaborLocationsForCity(Vector3Int cityTile)
     {
         List<Vector3Int> neighbors = new();
 
@@ -3808,7 +3839,7 @@ public class MapWorld : MonoBehaviour
 
             if (world.ContainsKey(neighbor) && CheckIfTileIsImproved(neighbor))
             {
-                if ((cityWorkedTileDict.ContainsKey(neighbor) && GetCityLaborForTile(neighbor) != city) || CheckIfTileIsMaxxed(neighbor))
+                if ((cityWorkedTileDict.ContainsKey(neighbor) && GetCityLaborForTile(neighbor) != cityTile) || CheckIfTileIsMaxxed(neighbor))
                     continue;
 
                 neighbors.Add(neighbor);
@@ -3942,57 +3973,6 @@ public class MapWorld : MonoBehaviour
 
         buildingPosDict[position] = structure;
     }
-
-    //public void AddStructureMap(Vector3Int pos, Sprite sprite)
-    //{
-    //    mapPanel.SetImprovement(pos, sprite);
-    //}
-
-    //public void RemoveStructureMap(Vector3Int pos)
-    //{
-    //    mapPanel.RemoveImprovement(pos);
-    //}
-
-    //public TMP_Text SetCityTileMap(Vector3Int pos, string name)
-    //{
-    //    //mapPanel.SetTileSprite(pos, TerrainDesc.City);
-    //    //return mapPanel.CreateCityText(pos, name);
-    //}
-
-    //public void ResetTileMap(Vector3Int pos)
-    //{
-    //    mapPanel.SetTileSprite(pos, GetTerrainDataAt(pos).terrainData.terrainDesc);
-    //}
-
-    //public GameObject CreateMapIcon(Sprite sprite)
-    //{
-    //    return mapPanel.CreateUnitIcon(sprite);
-    //}
-
-    //public void SetMapIconLoc(Vector3Int loc, GameObject icon)
-    //{
-    //    mapPanel.SetIconTile(loc, icon);
-    //}
-
-    //public void SetRoadMapIcon(Vector3Int loc, int num)
-    //{
-    //    mapPanel.SetRoad(loc, num);
-    //}
-
-    //public void RemoveRoadMapIcon(Vector3Int loc, int num)
-    //{
-    //    mapPanel.RemoveRoad(loc, num);
-    //}
-
-    //public void RemoveAllRoadIcons(Vector3Int loc)
-    //{
-    //    mapPanel.RemoveAllRoads(loc);
-    //}
-
-    //public void MoveWorkerIcon(Vector3Int pos, float movement)
-    //{
-    //    mapPanel.MoveWorker(pos, movement);
-    //}
     public void AddTradeCenterName(GameObject nameMap)
     {
         cityNamesMaps.Add(nameMap);
@@ -4038,7 +4018,7 @@ public class MapWorld : MonoBehaviour
         Vector3Int cityTile = Vector3Int.RoundToInt(cityPos);
         cityBuildingGODict[cityTile] = new Dictionary<string, GameObject>();
         cityBuildingDict[cityTile] = new Dictionary<string, CityImprovement>();
-        cityBuildingCurrentWorkedDict[cityTile] = new Dictionary<string, int>();
+        //cityBuildingCurrentWorkedDict[cityTile] = new Dictionary<string, int>();
         //cityBuildingMaxWorkedDict[cityTile] = new Dictionary<string, int>();
         cityBuildingList[cityTile] = new List<string>();
         //cityBuildingIsProducer[cityTile] = new Dictionary<string, ResourceProducer>();
@@ -4053,7 +4033,7 @@ public class MapWorld : MonoBehaviour
     {
         cityBuildingGODict[cityTile].Remove(buildingName);
         cityBuildingDict[cityTile].Remove(buildingName);
-        cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
+        //cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
         //cityBuildingMaxWorkedDict[cityTile].Remove(buildingName);
         cityBuildingList[cityTile].Remove(buildingName);
         //cityBuildingIsProducer[cityTile].Remove(buildingName);
@@ -4180,10 +4160,10 @@ public class MapWorld : MonoBehaviour
         currentWorkedTileDict[pos] = current;
     }
 
-    public void AddToCurrentBuildingLabor(Vector3Int cityTile, string buildingName, int current)
-    {
-        cityBuildingCurrentWorkedDict[cityTile][buildingName] = current;
-    }
+    //public void AddToCurrentBuildingLabor(Vector3Int cityTile, string buildingName, int current)
+    //{
+    //    cityBuildingCurrentWorkedDict[cityTile][buildingName] = current;
+    //}
 
     public void AddToMaxLaborDict(Vector3 pos, int max) //only adding to max labor when improvements are built, hence Vector3
     {
@@ -4206,9 +4186,9 @@ public class MapWorld : MonoBehaviour
     //    cityBuildingIsProducer[cityTile][buildingName] = resourceProducer;
     //}
 
-    public void AddToCityLabor(Vector3Int pos, GameObject city)
+    public void AddToCityLabor(Vector3Int pos, Vector3Int? cityLoc)
     {
-        cityWorkedTileDict[pos] = city;
+        cityWorkedTileDict[pos] = cityLoc;
     }
 
     //public bool CheckIfCityOwnsTile(Vector3Int pos, GameObject city)
@@ -4229,12 +4209,12 @@ public class MapWorld : MonoBehaviour
         return 0;
     }
 
-    public int GetCurrentLaborForBuilding(Vector3Int cityTile, string buildingName)
-    {
-        if (cityBuildingCurrentWorkedDict[cityTile].ContainsKey(buildingName))
-            return cityBuildingCurrentWorkedDict[cityTile][buildingName];
-        return 0;
-    }
+    //public int GetCurrentLaborForBuilding(Vector3Int cityTile, string buildingName)
+    //{
+    //    if (cityBuildingCurrentWorkedDict[cityTile].ContainsKey(buildingName))
+    //        return cityBuildingCurrentWorkedDict[cityTile][buildingName];
+    //    return 0;
+    //}
 
     public int GetMaxLaborForTile(Vector3Int pos)
     {
@@ -4267,7 +4247,7 @@ public class MapWorld : MonoBehaviour
     //    return cityBuildingIsProducer[cityTile].ContainsKey(buildingName);
     //}
 
-    private GameObject GetCityLaborForTile(Vector3Int pos)
+    private Vector3Int? GetCityLaborForTile(Vector3Int pos)
     {
         return cityWorkedTileDict[pos];
     }
@@ -4334,13 +4314,13 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void RemoveFromBuildingCurrentWorked(Vector3Int cityTile, string buildingName)
-    {
-        if (cityBuildingCurrentWorkedDict[cityTile].ContainsKey(buildingName))
-        {
-            cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
-        }
-    }
+    //public void RemoveFromBuildingCurrentWorked(Vector3Int cityTile, string buildingName)
+    //{
+    //    if (cityBuildingCurrentWorkedDict[cityTile].ContainsKey(buildingName))
+    //    {
+    //        cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
+    //    }
+    //}
 
     public void RemoveFromMaxWorked(Vector3Int pos) //only removing when improvements are destroyed
     {
