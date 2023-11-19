@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
-    private TMP_Text researchName, researchPercentDone, queueNumber;
+    private TMP_Text researchNameText, researchPercentDone, queueNumber;
 
     [SerializeField]
     private Image progressBarMask, researchItemPanel, topBar, queueNumberHolderImage, queueNumberCheck, researchIcon;
@@ -26,7 +26,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     public UIResearchTreePanel researchTree;
 
     //private string researchName;
-    public string ResearchName { get { return researchName.text; } }
+    private string researchName;
+    public string ResearchName { get { return researchName; } }
 
     private int researchReceived;
     public int ResearchReceived { get { return researchReceived; } set { researchReceived = value; } }
@@ -54,6 +55,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     private void Awake()
     {
+        researchName = researchNameText.text;
         progressBarMask.fillAmount = 0;
         progressBarHolder.gameObject.SetActive(false);
         queueNumberHolder.gameObject.SetActive(false);
@@ -208,6 +210,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             researchItem.UnlockCheck();
 
         world.BuilderHandlerCheck();
+        GameLoader.Instance.gameData.completedResearch.Add(ResearchName);
     }
 
     private void UnlockCheck()

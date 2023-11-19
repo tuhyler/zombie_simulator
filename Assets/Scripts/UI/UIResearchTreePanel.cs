@@ -6,11 +6,12 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
-    public   MapWorld world;
+    public MapWorld world;
 
     [SerializeField]
     public UIResearchTooltip researchTooltip;
@@ -107,7 +108,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
         }
     }
 
-    public void HandleShiftDown()
+	public void HandleShiftDown()
     {
         if (activeStatus)
             isQueueing = true;
@@ -371,4 +372,56 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
         if (researchTooltip.activeStatus)
             researchTooltip.ToggleVisibility(false);
     }
+
+	public List<string> SaveResearch()
+	{
+		List<string> currentResearch = new();
+    
+		if (chosenResearchItem != null)
+		{
+            GameLoader.Instance.gameData.researchAmount = chosenResearchItem.ResearchReceived;
+			currentResearch.Add(chosenResearchItem.ResearchName);
+
+			List<UIResearchItem> queuedResearch = new(researchItemQueue.ToList());
+			for (int i = 0; i < queuedResearch.Count; i++)
+			{
+				currentResearch.Add(queuedResearch[i].ResearchName);
+			}
+		}
+
+		return currentResearch;
+	}
+
+	public void LoadCompletedResearch(List<string> completedResearch)
+	{
+		List<UIResearchItem> tempResearchItemList = new(researchItemList);
+		for (int i = 0; i < tempResearchItemList.Count; i++)
+		{
+			if (completedResearch.Contains(tempResearchItemList[i].ResearchName))
+				tempResearchItemList[i].ResearchComplete(world);
+		}
+	}
+
+	public void LoadCurrentResearch(List<string> currentResearch, int researchAmount)
+	{
+		for (int i = 0; i < currentResearch.Count; i++)
+		{
+			for (int j = 0; j < researchItemList.Count; j++)
+			{
+				if (researchItemList[j].ResearchName == currentResearch[0])
+				{
+					if (i == 0)
+					{
+						chosenResearchItem = researchItemList[j];
+						world.SetResearchName(chosenResearchItem.ResearchName);
+						chosenResearchItem.ResearchReceived = researchAmount;
+						world.SetWorldResearchUI(chosenResearchItem.ResearchReceived, chosenResearchItem.totalResearchNeeded);
+                        world.researching = true;
+					}
+					else
+						researchItemQueue.Enqueue(researchItemList[j]);
+				}
+			}
+		}
+	}
 }

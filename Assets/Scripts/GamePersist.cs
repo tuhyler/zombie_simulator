@@ -2,10 +2,14 @@ using System.IO;
 using System;
 using Newtonsoft.Json;
 using UnityEngine;
+using System.Security.Cryptography;
+using System.Text;
 
 public class GamePersist
 {
 	public bool loadNewGame;
+	private const string KEY = "DXDnfYABkQ6w96nqLIjAZM0JGMl5vNx/iJH86d0vN2M=";
+	private const string IV = "mBWbRm5jUWvdaAh8UzS2NQ==";
 
 	public bool SaveData(string relativePath, GameData data, bool encrypted)
 	{
@@ -17,8 +21,15 @@ public class GamePersist
 				File.Delete(path);
 
 			using FileStream stream = File.Create(path);
-			stream.Close();
-			File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.None));
+			if (encrypted)
+			{
+				WriteEncryptedData(data, stream);
+			}
+			else
+			{
+				stream.Close();
+				File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.None));
+			}
 
 			return true;
 		}
@@ -28,6 +39,19 @@ public class GamePersist
 
 			return false;
 		}
+	}
+
+	private void WriteEncryptedData(GameData data, FileStream stream)
+	{
+		using Aes aesProvider = Aes.Create();
+		//Debug.Log($"Initialization Vector: {Convert.ToBase64String(aesProvider.IV)}");
+		//Debug.Log($"Key: {Convert.ToBase64String(aesProvider.Key)}");
+		aesProvider.Key = Convert.FromBase64String(KEY);
+		aesProvider.IV = Convert.FromBase64String(IV);
+		using ICryptoTransform cryptoTransform = aesProvider.CreateEncryptor();
+		using CryptoStream cryptoStream = new CryptoStream(stream, cryptoTransform, CryptoStreamMode.Write);
+
+		cryptoStream.Write(Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(data)));
 	}
 
 	public GameData LoadData(string relativePath, bool encrypted)
@@ -42,7 +66,17 @@ public class GamePersist
 
 		try
 		{
-			GameData data = JsonConvert.DeserializeObject<GameData>(File.ReadAllText(path));
+			GameData data;
+
+			if (encrypted)
+			{
+				data = ReadEncryptedData(path);
+			}
+			else
+			{
+				data = JsonConvert.DeserializeObject<GameData>(File.ReadAllText(path));
+			}
+
 			return data;
 		}
 		catch (Exception e)
@@ -50,6 +84,23 @@ public class GamePersist
 			Debug.LogError($"Failed to load file due to {e.Message} {e.StackTrace}");
 			throw e;
 		}
+	}
+
+	private GameData ReadEncryptedData(string path)
+	{
+		byte[] fileBytes = File.ReadAllBytes(path);
+		using Aes aesProvider = Aes.Create();
+
+		aesProvider.Key = Convert.FromBase64String(KEY);
+		aesProvider.IV = Convert.FromBase64String(IV);
+
+		using ICryptoTransform cryptoTransform = aesProvider.CreateDecryptor(aesProvider.Key, aesProvider.IV);
+		using MemoryStream decryptionStream = new(fileBytes);
+		using CryptoStream cryptoStream = new CryptoStream(decryptionStream, cryptoTransform, CryptoStreamMode.Read);
+		using StreamReader reader = new StreamReader(cryptoStream);
+		string result = reader.ReadToEnd();
+
+		return JsonConvert.DeserializeObject<GameData>(result); ;
 	}
 
 	public void SaveSettings(SettingsData data)
@@ -91,6 +142,7 @@ public class GamePersist
 		try
 		{
 			SettingsData data = JsonConvert.DeserializeObject<SettingsData>(File.ReadAllText(path));
+
 			return data;
 		}
 		catch (Exception e)
@@ -100,14 +152,3 @@ public class GamePersist
 		}
 	}
 }
-
-//public interface ISaveSystem
-//{
-//	void SaveData(GamePersist savedData);
-
-//	void LoadData(GamePersist savedData);
-
-//    //bool SaveData<T>(string relativePath, T data, bool encrypted);
-
-//    //T LoadData<T>(string relativePath, bool encrypted);
-//}

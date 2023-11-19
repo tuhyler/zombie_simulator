@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,7 +46,7 @@ public class UISaveGame : MonoBehaviour
 
 	public void PopulateSaveItems()
     {
-        DateTime prevDateTime = new DateTime(1986, 11, 22, 0, 0, 0);
+        List<UISaveItem> saveItems = new();
         
         foreach (string fullSavedName in Directory.GetFiles(Application.persistentDataPath, "*.save"))
 		{
@@ -67,7 +68,7 @@ public class UISaveGame : MonoBehaviour
             }
 
 			GameObject item = Instantiate(uiSaveItemGO);
-			item.transform.SetParent(saveHolder, false);
+			//item.transform.SetParent(saveHolder, false);
 			UISaveItem uiSaveItem = item.GetComponent<UISaveItem>();
 			uiSaveItem.SetSaveGameMenu(this);
 
@@ -80,15 +81,14 @@ public class UISaveGame : MonoBehaviour
             Rect rect = new Rect(0, 0, texture.width, texture.height);    
             texture.LoadImage(Convert.FromBase64String(gameData.saveScreenshot));
             uiSaveItem.screenshot = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
-
-            DateTime curDateTime = Convert.ToDateTime(gameData.saveDate);
-
-            if (curDateTime > prevDateTime)
-            {
-                prevDateTime = curDateTime;
-                item.transform.SetAsFirstSibling();
-            }
+            uiSaveItem.dateTime = Convert.ToDateTime(gameData.saveDate);
+            saveItems.Add(uiSaveItem);
 		}
+
+        List<UISaveItem> newSaveItems = saveItems.OrderByDescending(s => s.dateTime).ToList();
+
+        for (int i = 0; i < newSaveItems.Count; i++)
+            newSaveItems[i].transform.SetParent(saveHolder, false);
 
         populated = true;
         Resources.UnloadUnusedAssets();

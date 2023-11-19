@@ -601,8 +601,11 @@ public class CityImprovement : MonoBehaviour
 
         if (producer.isProducing)
         {
-			producer.SetResourceManager(city.ResourceManager);
-            producer.LoadProducingCoroutine();
+			if (!producer.isWaitingforResources && !producer.isWaitingForStorageRoom && !producer.isWaitingToUnload && !producer.isWaitingForResearch)
+            {
+                producer.SetResourceManager(city.ResourceManager);
+                producer.LoadProducingCoroutine();
+            }
         }
         else if (isTraining)
         {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,6 +10,9 @@ public class UISaveItem : MonoBehaviour, IPointerDownHandler
 {
     [SerializeField]
     public TMP_Text saveItemText;
+
+	[HideInInspector]
+	public DateTime dateTime;
 
     [SerializeField]
     private Image background;
