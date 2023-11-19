@@ -8,7 +8,7 @@ public class CityData
     public string name;
 	public Vector3Int location;
 	public bool reachedWaterLimit, harborTraining, autoAssignLabor, hasWater, hasFreshWater, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, hasBarracks, hasHarbor, fullInventory;
-	public int waterMaxPop, currentPop, unusedLabor, usedLabor, warehouseStorageLimit;
+	public int waterMaxPop, currentPop, unusedLabor, usedLabor, warehouseStorageLimit, countDownTimer;
 	public float warehouseStorageLevel;
 	public List<ResourceType> resourcePriorities;
 	public Dictionary<ResourceType, int> resourceGridDict;
@@ -37,7 +37,7 @@ public class CityData
 	public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, enemyReady, issueRefund = true;
 
 	//waiting lists
-	public List<Vector3Int> waitingforResourceProducerList = new();
+	public List<Vector3Int> waitingforResourceProducerList = new(), waitingForProducerStorageList = new(), waitingToUnloadProducerList = new(), waitingToUnloadResearchList = new();
 	public List<ResourceType> resourcesNeededForProduction;
 	public List<int> waitingForTraderList = new(), waitList = new(), seaWaitList = new();
 	public List<ResourceType> resourcesNeededForRoute;

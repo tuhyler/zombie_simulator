@@ -169,11 +169,12 @@ public class City : MonoBehaviour
     private void Start()
     {
         UpdateCityPopInfo();
-        if (cityPop.CurrentPop >= 1)
-            co = StartCoroutine(FoodConsumptionCoroutine());
+        //if (cityPop.CurrentPop >= 1 || army.UnitsInArmy.Count > 0)
+        //{
+        //    StartGrowthCycle(false);
+        //}
 
         foodConsumptionPerMinute = cityPop.CurrentPop == 0 ? 0 : (cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1); //first pop is free
-        countDownTimer = secondsTillGrowthCheck;
 
         cityNameField.ToggleVisibility(false);
         InstantiateParticleSystems();
@@ -422,19 +423,19 @@ public class City : MonoBehaviour
         return world.researching;
     }
 
-    public void RestartResearch()
-    {
-        resourceManager.CheckProducerUnloadResearchWaitList();
-    }
+    //public void RestartResearch()
+    //{
+    //    resourceManager.CheckProducerUnloadResearchWaitList();
+    //}
 
     public void RestartProduction()
     {
         resourceManager.CheckProducerResourceWaitList(ResourceType.Gold);
     }
 
-    public void AddToWorldResearchWaitList()
+    public void AddToWorldResearchWaitList(ResourceProducer producer)
     {
-        world.AddToResearchWaitList(this);
+        world.AddToResearchWaitList(producer);
     }
 
     public void AddToWorldGoldWaitList(bool trader = false)
@@ -702,7 +703,7 @@ public class City : MonoBehaviour
                     }
                     cityNameField.ToggleVisibility(true);
                     resourceManager.SellResources();
-                    co = StartCoroutine(FoodConsumptionCoroutine());
+                    StartGrowthCycle(false);
                 }
                 else if (cityPop.CurrentPop == 4)
                 {
@@ -742,12 +743,12 @@ public class City : MonoBehaviour
         {
             HouseLightCheck();
 
-			if (cityPop.CurrentPop == 0)
+			if (cityPop.CurrentPop == 0 && army.UnitsInArmy.Count == 0)
             {
                 if (co != null)
                 {
                     StopCoroutine(co);
-                    countDownTimer = secondsTillGrowthCheck;
+                    //countDownTimer = secondsTillGrowthCheck;
                     co = null;
                 }
 
@@ -1105,24 +1106,23 @@ public class City : MonoBehaviour
         return world.GetWorldGoldLevel();
     }
 
-    public void StartFoodCycle()
-    {
-		if (activeCity)
-        {
-			CityGrowthProgressBarSetActive(true);
-			world.cityBuilderManager.abandonCityButton.interactable = false;
-			world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
-		}
+ //   public void StartFoodCycle()
+ //   {
+	//	if (activeCity)
+ //       {
+	//		CityGrowthProgressBarSetActive(true);
+	//		world.cityBuilderManager.abandonCityButton.interactable = false;
+	//		world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+	//	}
 
-		co = StartCoroutine(FoodConsumptionCoroutine());
-	}
+	//	co = StartCoroutine(FoodConsumptionCoroutine());
+	//}
 
-    public void StopFoodCycle()
+    public void StopGrowthCycle()
     {
-        if (co != null && cityPop.CurrentPop == 0)
+        if (co != null)
         {
             StopCoroutine(co);
-			countDownTimer = secondsTillGrowthCheck;
             co = null;
 		}
 
@@ -1130,8 +1130,29 @@ public class City : MonoBehaviour
             CityGrowthProgressBarSetActive(false);
     }
 
+    public void StartGrowthCycle(bool load)
+    {
+		if (activeCity)
+		{
+			CityGrowthProgressBarSetActive(true);
+			world.cityBuilderManager.abandonCityButton.interactable = false;
+			world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+		}
+
+		if (!load)
+            countDownTimer = secondsTillGrowthCheck;
+
+        co = StartCoroutine(GrowthCycleCoroutine());
+    }
+
+    private void ContinueGrowthCycle()
+    {
+		countDownTimer = secondsTillGrowthCheck;
+		co = StartCoroutine(GrowthCycleCoroutine());
+	}
+
     //Time generator to consume food
-    private IEnumerator FoodConsumptionCoroutine()
+    private IEnumerator GrowthCycleCoroutine()
     {
         if (activeCity)
         {
@@ -1162,10 +1183,10 @@ public class City : MonoBehaviour
         resourceManager.CycleCount++;
 
         Debug.Log(cityName + " is checking for growth");
-        countDownTimer = secondsTillGrowthCheck;
+        //countDownTimer = secondsTillGrowthCheck;
 
-        if (cityPop.CurrentPop > 0 || army.UnitsInArmy.Count > 0)
-            co = StartCoroutine(FoodConsumptionCoroutine());
+        ContinueGrowthCycle();
+            //co = StartCoroutine(FoodConsumptionCoroutine());
     }
 
     private void SetProgressTimeBar()
@@ -1606,7 +1627,7 @@ public class City : MonoBehaviour
         if (co != null)
         {
             StopCoroutine(co);
-			countDownTimer = secondsTillGrowthCheck;
+			//countDownTimer = secondsTillGrowthCheck;
 			co = null;
         }
         Destroy(uiTimeProgressBar.gameObject);
@@ -1637,6 +1658,7 @@ public class City : MonoBehaviour
         data.unusedLabor = cityPop.UnusedLabor;
         data.usedLabor = cityPop.UsedLabor;
         data.resourcePriorities = resourcePriorities;
+        data.countDownTimer = countDownTimer;
 
         for (int i = 0; i < tradersHere.Count; i++)
         {
@@ -1715,7 +1737,18 @@ public class City : MonoBehaviour
 		for (int i = 0; i < resourceManager.waitingforResourceProducerList.Count; i++)
             data.waitingforResourceProducerList.Add(resourceManager.waitingforResourceProducerList[i].producerLoc);
 
-        data.resourcesNeededForProduction = resourceManager.resourcesNeededForProduction;
+		for (int i = 0; i < resourceManager.waitingForStorageRoomProducerList.Count; i++)
+			data.waitingForProducerStorageList.Add(resourceManager.waitingForStorageRoomProducerList[i].producerLoc);
+
+        List<ResourceProducer> waitingToUnload = new(resourceManager.waitingToUnloadProducers.ToList());
+		for (int i = 0; i < waitingToUnload.Count; i++)
+			data.waitingToUnloadProducerList.Add(waitingToUnload[i].producerLoc);
+
+  //      List<ResourceProducer> waitingToUnloadResearch = new(resourceManager.waitingToUnloadResearch.ToList());
+		//for (int i = 0; i < waitingToUnloadResearch.Count; i++)
+		//	data.waitingToUnloadResearchList.Add(waitingToUnloadResearch[i].producerLoc);
+
+		data.resourcesNeededForProduction = resourceManager.resourcesNeededForProduction;
 
 		for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
             data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
@@ -1748,6 +1781,10 @@ public class City : MonoBehaviour
         cityPop.UnusedLabor = data.unusedLabor;
         cityPop.UsedLabor = data.usedLabor;
         resourcePriorities = data.resourcePriorities;
+        countDownTimer = data.countDownTimer;
+
+        if (cityPop.CurrentPop > 0)
+            StartGrowthCycle(true);
 
         //resource manager
         warehouseStorageLimit = data.warehouseStorageLimit;
@@ -1816,11 +1853,35 @@ public class City : MonoBehaviour
     {
         for (int i = 0; i < producerWaiting.Count; i++)
         {
-            
+            resourceManager.waitingforResourceProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
         }
     }
 
-    public void SetWaitList(List<int> waitList)
+    public void SetProducerStorageRoomWaitingList(List<Vector3Int> producerWaiting)
+    {
+		for (int i = 0; i < producerWaiting.Count; i++)
+		{
+			resourceManager.waitingForStorageRoomProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
+		}
+	}
+
+    public void SetWaitingToUnloadProducerList(List<Vector3Int> producerWaiting)
+    {
+		for (int i = 0; i < producerWaiting.Count; i++)
+		{
+			resourceManager.waitingToUnloadProducers.Enqueue(world.GetResourceProducer(producerWaiting[i]));
+		}
+	}
+
+ //   public void SetWaitingToUnloadResearchList(List<Vector3Int> producerWaiting)
+ //   {
+	//	for (int i = 0; i < producerWaiting.Count; i++)
+	//	{
+	//		resourceManager.waitingToUnloadResearch.Add(world.GetResourceProducer(producerWaiting[i]));
+	//	}
+	//}
+
+	public void SetWaitList(List<int> waitList)
     {
         for (int i = 0; i < waitList.Count; i++)
         {

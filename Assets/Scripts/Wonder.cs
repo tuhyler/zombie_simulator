@@ -9,7 +9,7 @@ using static UnityEditor.PlayerSettings;
 public class Wonder : MonoBehaviour
 {
     private MapWorld world;
-    private UIWonderSelection uiWonderSelection;
+    //private UIWonderSelection uiWonderSelection;
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
     public GameObject mesh0Percent;
@@ -47,10 +47,10 @@ public class Wonder : MonoBehaviour
     private List<Vector3Int> coastTiles = new();
     public List<Vector3Int> CoastTiles { get { return coastTiles; } set { coastTiles = value; } }
 
-    private Dictionary<ResourceType, int> resourceDict = new();
+    private Dictionary<ResourceType, int> resourceDict = new(); //how much that has been added
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
 
-    private Dictionary<ResourceType, int> resourceCostDict = new();
+    private Dictionary<ResourceType, int> resourceCostDict = new(); //total cost to build wonder
     public Dictionary<ResourceType, int> ResourceCostDict { get { return resourceCostDict; } }
 
     private Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown for when trader manually unldoads
@@ -68,6 +68,7 @@ public class Wonder : MonoBehaviour
     private UITimeProgressBar uiTimeProgressBar;
     private Coroutine buildingCo;
     private int totalTime;
+    private int totalGoldCost;
     private int timePassed;
     private bool isBuilding;
     private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
@@ -161,15 +162,21 @@ public class Wonder : MonoBehaviour
 
     }
 
-    public void SetResourceDict(List<ResourceValue> resources)
+    public void SetResourceDict(List<ResourceValue> resources, bool load)
     {
         foreach (ResourceValue resource in resources)
         {
-            resourceDict[resource.resourceType] = 0;
+            if (!load)
+            {
+                resourceDict[resource.resourceType] = 0;
+                resourceGridDict[resource.resourceType] = resourceDict.Count;
+            }
+
             resourceCostDict[resource.resourceType] = resource.resourceAmount;
-            resourceGridDict[resource.resourceType] = resourceDict.Count;
             SetNextResourceThreshold(resource.resourceType);
         }
+
+        totalGoldCost = wonderData.workerCost * wonderData.workersNeeded;
     }
 
     private void SetNextResourceThreshold(ResourceType resourceType)
@@ -194,10 +201,10 @@ public class Wonder : MonoBehaviour
             SetNextResourceThreshold(resourceType);
     }
 
-    public void SetUI(UIWonderSelection uiWonderSelection)
-    {
-        this.uiWonderSelection = uiWonderSelection;
-    }
+    //public void SetUI(UIWonderSelection uiWonderSelection)
+    //{
+    //    this.uiWonderSelection = uiWonderSelection;
+    //}
 
     public bool CheckResourceType(ResourceType resourceType)
     {
@@ -349,7 +356,7 @@ public class Wonder : MonoBehaviour
         resourceDict[resourceType] += newResourceAmount; //updating the dictionary
 
         if (isActive)
-            uiWonderSelection.UpdateUI(resourceType, resourceDict[resourceType], resourceLimit);
+            world.cityBuilderManager.uiWonderSelection.UpdateUI(resourceType, resourceDict[resourceType], resourceLimit);
 
         if (uiCityResourceInfoPanel)
             uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
@@ -373,8 +380,8 @@ public class Wonder : MonoBehaviour
 		workersReceived++;
         heavenHighlight.transform.position = pos;
         heavenHighlight.Play();
-        if (uiWonderSelection.activeStatus)
-			uiWonderSelection.UpdateUIWorkers(workersReceived, this);
+        if (world.cityBuilderManager.uiWonderSelection.activeStatus)
+			world.cityBuilderManager.uiWonderSelection.UpdateUIWorkers(workersReceived, this);
 
 		if (!StillNeedsWorkers())
             ThresholdCheck();
@@ -387,16 +394,6 @@ public class Wonder : MonoBehaviour
 
     public void ThresholdCheck()
     {
-        foreach (ResourceType type in resourceThreshold.Keys)
-        {
-            if (resourceDict[type] < resourceThreshold[type])
-            {
-                if (smokeEmitter.isPlaying)
-                    StopSmokeEmitter();
-                return;
-            }
-        }
-
         if (StillNeedsWorkers())
         {
             if (smokeEmitter.isPlaying)
@@ -404,7 +401,7 @@ public class Wonder : MonoBehaviour
             return;
         }
 
-        if (!world.CheckWorldGold(wonderData.workerCost * workersReceived))
+        if (!world.CheckWorldGold(totalGoldCost))
         {
             world.AddToGoldWonderWaitList(this);
             if (smokeEmitter.isPlaying)
@@ -412,7 +409,17 @@ public class Wonder : MonoBehaviour
             return;
         }
 
-        timePassed = totalTime;
+		foreach (ResourceType type in resourceThreshold.Keys)
+		{
+			if (resourceDict[type] < resourceThreshold[type])
+			{
+				if (smokeEmitter.isPlaying)
+					StopSmokeEmitter();
+				return;
+			}
+		}
+
+		timePassed = totalTime;
 		ConsumeWorkerCost();
 		buildingCo = StartCoroutine(BuildNextPortionOfWonder(false));
     }
@@ -449,7 +456,7 @@ public class Wonder : MonoBehaviour
             uiTimeProgressBar.gameObject.SetActive(false);
         IncreasePercentDone();
         if (isActive)
-            uiWonderSelection.UpdateUIPercent(percentDone);
+			world.cityBuilderManager.uiWonderSelection.UpdateUIPercent(percentDone);
 
         NextPhaseCheck();
     }
@@ -482,9 +489,9 @@ public class Wonder : MonoBehaviour
             world.RemoveWonderName(wonderName);
             if (isActive)
             {
-                uiWonderSelection.HideCancelConstructionButton();
-                uiWonderSelection.HideHarborButton();
-                uiWonderSelection.HideWorkerCounts();
+				world.cityBuilderManager.uiWonderSelection.HideCancelConstructionButton();
+				world.cityBuilderManager.uiWonderSelection.HideHarborButton();
+				world.cityBuilderManager.uiWonderSelection.HideWorkerCounts();
             }
             world.RemoveTradeLoc(unloadLoc);
 
@@ -496,8 +503,10 @@ public class Wonder : MonoBehaviour
             world.roadManager.RemoveRoadAtPosition(unloadLoc);
             world.AddToNoWalkList(unloadLoc);
             RemoveUnits();
+			if (smokeEmitter.isPlaying)
+				StopSmokeEmitter();
 
-            world.cityBuilderManager.CreateAllWorkers(this);
+			world.cityBuilderManager.CreateAllWorkers(this);
             return;
         }
 
@@ -546,42 +555,81 @@ public class Wonder : MonoBehaviour
     {
         List<Vector3Int> locs = new();
 
+        int yAngle = Mathf.RoundToInt(transform.localEulerAngles.y);
+
         int k = 0;
         int[] xArray = new int[wonderLocs.Count];
         int[] zArray = new int[wonderLocs.Count];
 
-        foreach (Vector3Int loc in wonderLocs)
+        for (int i = 0; i < wonderLocs.Count; i++)
         {
-            xArray[k] = loc.x;
-            zArray[k] = loc.z;
-            k++;
-        }
+			xArray[k] = wonderLocs[i].x;
+			zArray[k] = wonderLocs[i].z;
+			k++;
+		}
 
         int xMin = Mathf.Min(xArray) - 1;
         int xMax = Mathf.Max(xArray) + 1;
         int zMin = Mathf.Min(zArray) - 1;
         int zMax = Mathf.Max(zArray) + 1;
 
-        //looping around the wonder counter clockwise
-        for (int i = 0; i < xMax - xMin; i++)
+		//looping around the wonder counter clockwise, starting at front left corner
+        if (yAngle == 270)
         {
-            locs.Add(new Vector3Int(xMin + i, 0, zMin));
-        }
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMax, 0, zMin + i));
 
-        for (int i = 0; i < zMax - zMin; i++)
-        {
-            locs.Add(new Vector3Int(xMax, 0, zMin + i));
-        }
+			for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMax - i, 0, zMax));
 
-        for (int i = 0; i < xMax - xMin; i++)
-        {
-            locs.Add(new Vector3Int(xMax - i, 0, zMax));
-        }
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMin, 0, zMax - i));
 
-        for (int i = 0; i < zMax - zMin; i++)
+			for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+		}
+		else if (yAngle == 180)
         {
-            locs.Add(new Vector3Int(xMin, 0, zMax - i));
-        }
+			for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMax - i, 0, zMax));
+
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMin, 0, zMax - i));
+	
+            for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMax, 0, zMin + i));
+		}
+		else if (yAngle == 90)
+        {
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMin, 0, zMax - i));
+
+			for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMax, 0, zMin + i));
+
+			for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMax - i, 0, zMax));
+		}
+		else
+        {
+			for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMax, 0, zMin + i));
+
+			for (int i = 0; i < xMax - xMin; i++)
+				locs.Add(new Vector3Int(xMax - i, 0, zMax));
+
+			for (int i = 0; i < zMax - zMin; i++)
+				locs.Add(new Vector3Int(xMin, 0, zMax - i));
+		}
 
         return locs;
     }
@@ -647,7 +695,7 @@ public class Wonder : MonoBehaviour
 
     private void ConsumeWorkerCost()
     {
-        int amount = -wonderData.workerCost * workersReceived;
+        int amount = -totalGoldCost;
         world.UpdateWorldResources(ResourceType.Gold, amount);
         Vector3 loc = centerPos;
         loc.y += 0.4f;
@@ -662,7 +710,7 @@ public class Wonder : MonoBehaviour
             StopSmokeEmitter();
             uiTimeProgressBar.gameObject.SetActive(false);
             StopCoroutine(buildingCo);
-            int amount = wonderData.workerCost * workersReceived;
+            int amount = totalGoldCost;
             world.UpdateWorldResources(ResourceType.Gold, amount);
             InfoResourcePopUpHandler.CreateResourceStat(centerPos, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
             isBuilding = false;
@@ -734,6 +782,7 @@ public class Wonder : MonoBehaviour
         data.wonderLocs = wonderLocs;
         data.possibleHarborLocs = possibleHarborLocs;
         data.coastTiles = coastTiles;
+        data.resourceDict = resourceDict;
         data.resourceGridDict = resourceGridDict;
 
 		List<Unit> tempWaitList = waitList.ToList();
@@ -767,9 +816,8 @@ public class Wonder : MonoBehaviour
 		wonderLocs = data.wonderLocs;
 		possibleHarborLocs = data.possibleHarborLocs;
 		coastTiles = data.coastTiles;
+        resourceDict = data.resourceDict;
         resourceGridDict = data.resourceGridDict;
-
-
 	}
 
     public void DestroyParticleSystems()

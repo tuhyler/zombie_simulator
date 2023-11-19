@@ -426,6 +426,10 @@ public class UnitMovement : MonoBehaviour
                         selectedUnit.homeBase = newCity; 
                         selectedUnit.atHome = false;
                         newCity.army.AddToArmy(selectedUnit);
+
+                        if (newCity.cityPop.CurrentPop == 0)
+                            newCity.StartGrowthCycle(false);
+
                         selectedUnit.barracksBunk = newLoc;
                         selectedUnit.transferring = true;
                         selectedUnit.homeBase.army.isTransferring = true;
@@ -812,17 +816,24 @@ public class UnitMovement : MonoBehaviour
 
 		if (selectedUnit.isLaborer)
 		{
+            Vector3Int terrainLoc = world.GetClosestTerrainLoc(locationInt);
+
 			if (detectedObject.TryGetComponent(out City city) && detectedObject.CompareTag("Player"))
 			{
                 locationInt = city.cityLoc;
                 world.citySelected = leftClick;
+			}
+            else if (world.IsCityOnTile(terrainLoc))
+            {
+                locationInt = terrainLoc;
+				world.citySelected = leftClick;
 			}
 			else if (detectedObject.TryGetComponent(out Wonder wonder))
 			{
                 locationInt = wonder.unloadLoc;
                 world.citySelected = leftClick;
 			}
-            else if (world.IsWonderOnTile(world.GetClosestTerrainLoc(locationInt)))
+            else if (world.IsWonderOnTile(terrainLoc))
             {
                 Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
                 locationInt = wonderLoc.unloadLoc;
@@ -989,11 +1000,11 @@ public class UnitMovement : MonoBehaviour
         {
             City city = world.GetCity(unitLoc);
 
-            if (city.reachedWaterLimit)
-            {
-				InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
-				return;
-			}
+   //         if (city.reachedWaterLimit)
+   //         {
+			//	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
+			//	return;
+			//}
 
 			AddToCity(city, selectedUnit);
         }
@@ -1001,21 +1012,21 @@ public class UnitMovement : MonoBehaviour
         {
             City city = world.GetHarborCity(unitLoc);
 
-			if (city.reachedWaterLimit)
-			{
-				InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
-				return;
-			}
+			//if (city.reachedWaterLimit)
+			//{
+			//	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
+			//	return;
+			//}
 
 			AddToCity(city, selectedUnit);
         }
         else if (selectedUnit.inArmy)
         {
-			if (selectedUnit.homeBase.reachedWaterLimit)
-			{
-				InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
-				return;
-			}
+			//if (selectedUnit.homeBase.reachedWaterLimit)
+			//{
+			//	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
+			//	return;
+			//}
 
 			AddToCity(selectedUnit.homeBase, selectedUnit);
             selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
@@ -1035,7 +1046,12 @@ public class UnitMovement : MonoBehaviour
 
 		if (world.IsCityOnTile(unitLoc))
 		{
-			AddToCity(world.GetCity(unitLoc), unit);
+            City city = world.GetCity(unitLoc);
+
+			if (city.reachedWaterLimit)
+                return;
+			
+            AddToCity(city, unit);
 		}
 		else
 		{

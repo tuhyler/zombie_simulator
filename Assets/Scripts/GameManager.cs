@@ -1,17 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+//using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public GameObject loadingScreen;
+	public Image loadingBackground, loadingProgress;
+	public CanvasGroup alphaCanvas;
+	public TMP_Text tipsText;
+	[HideInInspector]
+	public float currentProgress;
+	private int totalToLoad = 100;
+	[HideInInspector]
 	public bool isLoading;
-	public UISaveGame uiLoadGame;
 	private List<AsyncOperation> scenesLoading = new();
 	public GamePersist gamePersist = new();
+	[HideInInspector]
 	public SettingsData settingsData = new();
+	public List<Sprite> loadingScreenImages = new();
+	public List<string> loadingTips = new();
 
 	private void Awake()
 	{
@@ -24,6 +36,10 @@ public class GameManager : MonoBehaviour
 	public void NewGame()
 	{
 		loadingScreen.SetActive(true);
+		loadingBackground.sprite = loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
+		StartCoroutine(GenerateTip());
+		tipsText.outlineColor = Color.black;
+		tipsText.outlineWidth = 0.3f;
 
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
@@ -35,6 +51,10 @@ public class GameManager : MonoBehaviour
 	{
 		isLoading = true;
 		loadingScreen.SetActive(true);
+		loadingBackground.sprite = loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
+		StartCoroutine(GenerateTip());
+		tipsText.outlineColor = Color.black;
+		tipsText.outlineWidth = 0.3f;
 
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
@@ -111,6 +131,47 @@ public class GameManager : MonoBehaviour
 		loadingScreen.SetActive(false);
 		isLoading = false;
 		scenesLoading.Clear();
+	}
+
+	public void ResetProgress()
+	{
+		currentProgress = 0;
+		loadingProgress.fillAmount = 0;
+	}
+
+	public void UpdateProgress(int v)
+	{
+		currentProgress += v;
+		loadingProgress.fillAmount = currentProgress / totalToLoad;
+
+		//can't really do this, don't know how fast it will load
+		//LeanTween.value(loadingProgress.gameObject, loadingProgress.fillAmount, currentProgress / totalToLoad, 1f)
+		//	.setEase(LeanTweenType.linear)
+		//	.setOnUpdate((value) =>
+		//	{
+		//		loadingProgress.fillAmount = value;
+		//	});
+	}
+
+	private IEnumerator GenerateTip()
+	{
+		List<string> tips = new(loadingTips);
+		alphaCanvas.alpha = 0;
+
+		while (isLoading && tips.Count > 0)
+		{	
+			string shownTip = tips[Random.Range(0, tips.Count)];
+			tipsText.text = shownTip;
+			tips.Remove(shownTip);
+
+			LeanTween.alphaCanvas(alphaCanvas, 1, 0.5f);
+
+			yield return new WaitForSeconds(5f);
+
+			LeanTween.alphaCanvas(alphaCanvas, 0, 0.5f);
+
+			yield return new WaitForSeconds(0.5f);
+		}
 	}
 }
 

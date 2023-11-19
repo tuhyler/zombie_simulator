@@ -19,7 +19,7 @@ public class GameLoader : MonoBehaviour
 	public List<Unit> attackingUnitList = new();
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
-	public Dictionary<City, (List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
+	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
 	public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
 	public List<GameObject> textList = new();
@@ -50,6 +50,23 @@ public class GameLoader : MonoBehaviour
 		gameData.camLimits.Add(world.cameraController.xMax);
 		gameData.camLimits.Add(world.cameraController.zMin);
 		gameData.camLimits.Add(world.cameraController.zMax);
+		gameData.goldAmount = world.worldResourceManager.GetWorldGoldLevel();
+		gameData.currentResearch = world.researchTree.SaveResearch();
+
+		for (int i = 0; i < world.researchWaitList.Count; i++)
+			gameData.researchWaitList.Add(world.researchWaitList[i].producerLoc);
+
+		for (int i = 0; i < world.goldCityWaitList.Count; i++)
+			gameData.goldCityWaitList.Add(world.goldCityWaitList[i].cityLoc);
+
+		for (int i = 0; i < world.goldCityRouteWaitList.Count; i++)
+			gameData.goldCityRouteWaitList.Add(world.goldCityRouteWaitList[i].cityLoc);
+
+		for (int i = 0; i < world.goldWonderWaitList.Count; i++)
+			gameData.goldWonderWaitList.Add(world.goldWonderWaitList[i].unloadLoc);
+
+		for (int i = 0; i < world.goldTradeCenterWaitList.Count; i++)
+			gameData.goldTradeCenterWaitList.Add(world.goldTradeCenterWaitList[i].mainLoc);
 
 		List<Vector3Int> enemyCampLocs = new List<Vector3Int>(gameData.attackedEnemyBases.Keys);
 		for (int i = 0; i < enemyCampLocs.Count; i++)
@@ -137,6 +154,7 @@ public class GameLoader : MonoBehaviour
 
 	public void LoadData(string saveName)
 	{
+		GameManager.Instance.ResetProgress();
 		isLoading = true;
 		Time.timeScale = 0f;
 		AudioListener.pause = true;
@@ -146,14 +164,28 @@ public class GameLoader : MonoBehaviour
 		gameData = gamePersist.LoadData(saveName, false);
 
 		world.GenerateMap(gameData.allTerrain);
+
+		//updating progress
+		GameManager.Instance.UpdateProgress(20);
+
 		world.GenerateTradeCenters(gameData.allTradeCenters);
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
+		
+		//updating progress
+		GameManager.Instance.UpdateProgress(15);
+
+		world.researchTree.LoadCompletedResearch(gameData.completedResearch);
+		world.worldResourceManager.SetWorldGoldLevel(gameData.goldAmount);
+		world.researchTree.LoadCurrentResearch(gameData.currentResearch, gameData.researchAmount);
 		world.currentWorkedTileDict = gameData.currentWorkedTileDict;
 		world.cityWorkedTileDict = gameData.cityWorkedTileDict;
 		world.cityImprovementQueueList = gameData.cityImprovementQueueList;
 		world.unclaimedSingleBuildList = gameData.unclaimedSingleBuildList;
 		world.LoadWonder(gameData.allWonders);
 		gameData.allWonders.Clear();
+
+		//updating progress
+		GameManager.Instance.UpdateProgress(5);
 
 		for (int i = 0; i < gameData.allCities.Count; i++)
 		{
@@ -162,12 +194,18 @@ public class GameLoader : MonoBehaviour
 		gameData.allCities.Clear();
 		gameData.allArmies.Clear();
 
+		//updating progress
+		GameManager.Instance.UpdateProgress(10);
+
 		for (int i = 0; i < gameData.allCityImprovements.Count; i++)
 		{
 			world.CreateImprovement(world.GetCity(gameData.allCityImprovements[i].cityLoc), gameData.allCityImprovements[i]);
 		}
 		gameData.allCityImprovements.Clear();
 		gameData.militaryUnits.Clear();
+
+		//updating progress
+		GameManager.Instance.UpdateProgress(20);
 
 		for (int i = 0; i < gameData.allRoads.Count; i++)
 		{
@@ -176,6 +214,8 @@ public class GameLoader : MonoBehaviour
 		}
 		gameData.allRoads.Clear();
 
+		//updating progress
+		GameManager.Instance.UpdateProgress(10);
 		//      //assign labor
 
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
@@ -186,16 +226,24 @@ public class GameLoader : MonoBehaviour
 			world.CreateUnit(gameData.allTraders[i]);
 		}
 
+		//updating progress
+		GameManager.Instance.UpdateProgress(5);
+
 		//laborers
 		for (int i = 0; i < gameData.allLaborers.Count; i++)
 		{
 			world.CreateUnit(gameData.allLaborers[i]);
 		}
 
+		//updating progress
+		GameManager.Instance.UpdateProgress(5);
+
 		//world.cameraController.transform.position = gameData.camPosition;
 		world.cameraController.newPosition = gameData.camPosition;
 		world.cameraController.newRotation = gameData.camRotation;
 		world.dayNightCycle.timeODay = gameData.timeODay;
+		if (gameData.timeODay > 18 || gameData.timeODay < 6)
+			world.ToggleWorldLights(true);
 		world.cameraController.LoadCameraLimits(gameData.camLimits[0], gameData.camLimits[1], gameData.camLimits[2], gameData.camLimits[3]);
 		gameData.camLimits.Clear();
 
@@ -204,6 +252,26 @@ public class GameLoader : MonoBehaviour
 			attackingUnitList[i].LoadAttack();
 		}
 		attackingUnitList.Clear();
+
+		//research wait list
+		for (int i = 0; i < gameData.researchWaitList.Count; i++)
+			world.researchWaitList.Add(world.GetResourceProducer(gameData.researchWaitList[i]));
+
+		//gold city wait list
+		for (int i = 0; i < gameData.goldCityWaitList.Count; i++)
+			world.goldCityWaitList.Add(world.GetCity(gameData.goldCityWaitList[i]));
+
+		//gold city route wait list
+		for (int i = 0; i < gameData.goldCityRouteWaitList.Count; i++)
+			world.goldCityRouteWaitList.Add(world.GetCity(gameData.goldCityRouteWaitList[i]));
+
+		//gold wonder wait list
+		for (int i = 0; i < gameData.goldWonderWaitList.Count; i++)
+			world.goldWonderWaitList.Add(world.GetWonder(gameData.goldWonderWaitList[i]));
+
+		//gold trade center wait list
+		for (int i = 0; i < gameData.goldTradeCenterWaitList.Count; i++)
+			world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
 
 		//trade center waiting lists
 		foreach (TradeCenter center in centerWaitingDict.Keys)
@@ -226,8 +294,12 @@ public class GameLoader : MonoBehaviour
 		//city waiting lists
 		foreach (City city in cityWaitingDict.Keys)
 		{
-			(List<Vector3Int> producersWaiting, List<int> waitList, List<int> seaWaitList, List<int> tradersWaiting, List<int> tradersHere) = cityWaitingDict[city];
+			(List<Vector3Int> producersWaiting, List<Vector3Int> producersStorageWaiting, List<Vector3Int> producersUnloadWaiting,
+				List<int> waitList, List<int> seaWaitList, List<int> tradersWaiting, List<int> tradersHere) = cityWaitingDict[city];
 			city.SetProducerWaitingList(producersWaiting);
+			city.SetProducerStorageRoomWaitingList(producersStorageWaiting);
+			city.SetWaitingToUnloadProducerList(producersUnloadWaiting);
+			//city.SetWaitingToUnloadResearchList(researchUnloadWaiting);
 			city.SetWaitList(waitList);
 			city.SetSeaWaitList(seaWaitList);
 			city.SetTraderRouteWaitingList(tradersWaiting);
@@ -239,6 +311,9 @@ public class GameLoader : MonoBehaviour
 		{
 			improvement.ResumeTraining(improvementUnitUpgradeDict[improvement]);
 		}
+
+		//updating progress
+		GameManager.Instance.UpdateProgress(10);
 
 		Time.timeScale = 1f;
 		AudioListener.pause = false;
@@ -257,6 +332,7 @@ public class GameLoader : MonoBehaviour
 
 		isDone = true;
 		isLoading = false;
+		GameManager.Instance.isLoading = false;
 	}
 
 	public void QuitToMenu()

@@ -92,6 +92,12 @@ public class WorldResourceManager : MonoBehaviour
         return resourceDict[ResourceType.Gold];
     }
 
+    public void SetWorldGoldLevel(int gold)
+    {
+        resourceDict[ResourceType.Gold] = gold;
+        UpdateUI();
+    }
+
     //methods for managing world resource UI
     public void SetUI(UIWorldResources uiWorldResources)
     {

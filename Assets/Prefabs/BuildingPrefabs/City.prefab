@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fullInventory: 0
+  waitingForStorageRoomProducerList: []
   waitingforResourceProducerList: []
   resourcesNeededForProduction: 
   waitingForTraderList: []
@@ -258,9 +259,9 @@ MonoBehaviour:
   uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 2
-    resourceAmount: 1
+    resourceAmount: 2
   - resourceType: 6
-    resourceAmount: 500
+    resourceAmount: 1498
   - resourceType: 7
     resourceAmount: 500
   city: {fileID: 0}

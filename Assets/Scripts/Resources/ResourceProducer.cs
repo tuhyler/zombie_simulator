@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceProducer : MonoBehaviour
@@ -333,11 +334,11 @@ public class ResourceProducer : MonoBehaviour
         {
             isWaitingToUnload = true;
             unloadLabor = tempLabor;
-            resourceManager.waitingToUnloadResearch.Enqueue(this);
+            //resourceManager.waitingToUnloadResearch.Add(this);
             //timeProgressBar.SetToZero();
             uiTimeProgressBar.SetToFull();
             cityImprovement.StopWork();
-            resourceManager.city.AddToWorldResearchWaitList();
+            resourceManager.city.AddToWorldResearchWaitList(this);
         }
         //checking if storage is free to unload
         else if (resourceManager.fullInventory)
@@ -369,7 +370,7 @@ public class ResourceProducer : MonoBehaviour
 
     private void RestartProductionCheck(float labor)
     {
-        bool destroy = resourceManager.PrepareResource(new List<ResourceValue>() { producedResource }, labor, producerLoc, cityImprovement);
+        bool destroy = resourceManager.PrepareResource(producedResource, labor, producerLoc, cityImprovement);
         //Debug.Log("Resources for " + improvementData.prefab.name);
 
         if (destroy)
@@ -434,7 +435,7 @@ public class ResourceProducer : MonoBehaviour
         else if (isWaitingToUnload)
         {
             resourceManager.RemoveFromWaitUnloadQueue(this);
-            resourceManager.RemoveFromWaitUnloadResearchQueue(this);
+            //resourceManager.RemoveFromWaitUnloadResearchQueue(this);
             isWaitingToUnload = false;
             if (allLabor)
                 resourceManager.PrepareConsumedResource(consumedResources, tempLabor, producerLoc, true);
@@ -457,11 +458,27 @@ public class ResourceProducer : MonoBehaviour
         isProducing = false;
     }
 
-    private void AddToResearchWaitList()
+	public void CheckProducerResearchWaitList()
+	{
+		if (resourceManager.city.WorldResearchingCheck())
+		{
+			isWaitingForResearch = false;
+
+            if (isWaitingToUnload)
+            {
+                isWaitingToUnload = false;
+				resourceManager.PrepareResource(producedResource, unloadLabor, producerLoc, cityImprovement);
+            }
+
+			StartProducing();
+		}
+	}
+
+	private void AddToResearchWaitList()
     {
         isWaitingForResearch = true;
-        resourceManager.AddToResearchWaitList(this);
-        resourceManager.city.AddToWorldResearchWaitList();
+        //resourceManager.AddToResearchWaitList(this);
+        resourceManager.city.AddToWorldResearchWaitList(this);
     }
 
     private void AddToStorageRoomWaitList()

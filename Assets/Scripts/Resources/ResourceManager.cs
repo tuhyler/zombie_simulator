@@ -29,16 +29,17 @@ public class ResourceManager : MonoBehaviour
     public float ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
     [HideInInspector]
     public Queue<ResourceProducer> waitingToUnloadProducers = new();
-    [HideInInspector]
-    public Queue<ResourceProducer> waitingToUnloadResearch = new();
+    //[HideInInspector]
+    //public List<ResourceProducer> waitingToUnloadResearch = new();
     [HideInInspector]
     public bool fullInventory;
 
     //wait list for research
-    private List<ResourceProducer> waitingForResearchProducerList = new();
+    //private List<ResourceProducer> waitingForResearchProducerList = new();
 
     //wait list for inventory space
-    private List<ResourceProducer> waitingForStorageRoomProducerList = new();
+    [HideInInspector]
+    public List<ResourceProducer> waitingForStorageRoomProducerList = new();
 
     //consuming resources
     [HideInInspector]
@@ -354,21 +355,21 @@ public class ResourceManager : MonoBehaviour
         return destroy;
     }
 
-	public bool PrepareResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, CityImprovement improvement = null)
+	public bool PrepareResource(ResourceValue producedResource, float currentLabor, Vector3 producerLoc, CityImprovement improvement = null)
 	{
 		bool destroy = false;
 
 		int i = 0;
 		//producerLoc.y += producedResource.Count * 0.4f;
 		resourceCount = 0;
-		foreach (ResourceValue resourceVal in producedResource)
-		{
-			int newResourceAmount = CalculateResourceGeneration(resourceVal.resourceAmount, currentLabor);	
+		//foreach (ResourceValue resourceVal in producedResource)
+		//{
+			int newResourceAmount = CalculateResourceGeneration(producedResource.resourceAmount, currentLabor);	
 
 			if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0 && improvement.td.resourceAmount < newResourceAmount)
 				newResourceAmount = improvement.td.resourceAmount;
 
-			int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
+			int resourceAmount = CheckResource(producedResource.resourceType, newResourceAmount);
 
 			if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0)
 			{
@@ -386,9 +387,9 @@ public class ResourceManager : MonoBehaviour
 			loc.y += 0.4f * i;
 
 			if (resourceAmount != 0)
-				InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
+				InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(producedResource.resourceType));
 			i++;
-		}
+		//}
 
 		return destroy;
 	}
@@ -890,36 +891,36 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void CheckProducerUnloadResearchWaitList()
-    {
-        if (city.WorldResearchingCheck())
-        {
-            int queueCount = waitingToUnloadResearch.Count;
+    //public void CheckProducerUnloadResearchWaitList()
+    //{
+    //    if (city.WorldResearchingCheck())
+    //    {
+    //        int queueCount = waitingToUnloadResearch.Count;
 
-            for (int i = 0; i < queueCount; i++)
-            {
-                if (city.WorldResearchingCheck())
-                    waitingToUnloadResearch.Dequeue().UnloadAndRestart();
-                else
-                    break;
-            }
+    //        for (int i = 0; i < queueCount; i++)
+    //        {
+    //            if (city.WorldResearchingCheck())
+    //                waitingToUnloadResearch.Dequeue().UnloadAndRestart();
+    //            else
+    //                break;
+    //        }
 
-            if (city.WorldResearchingCheck())
-                RestartResearchWaitProduction();
-        }
-    }
+    //        if (city.WorldResearchingCheck())
+    //            RestartResearchWaitProduction();
+    //    }
+    //}
 
-    public void RestartResearchWaitProduction()
-    {
-        List<ResourceProducer> tempProducers = new(waitingForResearchProducerList);
+    //public void RestartResearchWaitProduction()
+    //{
+    //    List<ResourceProducer> tempProducers = new(waitingForResearchProducerList);
 
-        foreach (ResourceProducer producer in tempProducers)
-        {
-            producer.isWaitingForResearch = false;
-            producer.StartProducing();
-            waitingForResearchProducerList.Remove(producer);
-        }
-    }
+    //    foreach (ResourceProducer producer in tempProducers)
+    //    {
+    //        producer.isWaitingForResearch = false;
+    //        producer.StartProducing();
+    //        waitingForResearchProducerList.Remove(producer);
+    //    }
+    //}
 
     public void RestartStorageRoomWaitProduction()
     {
@@ -933,11 +934,10 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void RemoveFromWaitUnloadResearchQueue(ResourceProducer resourceProducer)
-    {
-        if (waitingToUnloadResearch.Contains(resourceProducer))
-            waitingToUnloadResearch = new Queue<ResourceProducer>(waitingToUnloadResearch.Where(x => x != resourceProducer));
-    }
+    //public void RemoveFromWaitUnloadResearchQueue(ResourceProducer resourceProducer)
+    //{
+    //    waitingToUnloadResearch.Remove(resourceProducer);
+    //}
 
     public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
     {
@@ -978,14 +978,14 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void AddToResearchWaitList(ResourceProducer resourceProducer)
-    {
-        waitingForResearchProducerList.Add(resourceProducer);
-    }
+    //public void AddToResearchWaitList(ResourceProducer resourceProducer)
+    //{
+    //    waitingForResearchProducerList.Add(resourceProducer);
+    //}
 
     public void RemoveFromResearchWaitlist(ResourceProducer resourceProducer)
     {
-        waitingForResearchProducerList.Remove(resourceProducer);
+        city.world.RemoveFromResearchWaitList(resourceProducer);
     }
 
     public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)

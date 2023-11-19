@@ -503,7 +503,6 @@ public class CityBuilderManager : MonoBehaviour
 
         uiWonderSelection.ToggleVisibility(true, wonderReference);
         selectedWonder = wonderReference;
-        selectedWonder.SetUI(uiWonderSelection);
         selectedWonder.isActive = true;
         selectedWonder.TimeProgressBarSetActive(true);
         selectedWonder.EnableHighlight(Color.white, false);
@@ -639,9 +638,14 @@ public class CityBuilderManager : MonoBehaviour
 
         for (int i = 0; i < workers; i++)
         {
-            GameObject workerGO = wonder.WonderData.workerData.prefab;
- 
-            if (locs.Count == 0)
+            GameObject workerGO;
+            
+            if (UnityEngine.Random.Range(0,2) == 0)
+                workerGO = wonder.WonderData.workerData.prefab;
+            else
+				workerGO = wonder.WonderData.workerData.secondaryPrefab;
+
+			if (locs.Count == 0)
                 lostWorkersCount++;
             else
             {
@@ -655,14 +659,9 @@ public class CityBuilderManager : MonoBehaviour
                         continue;
 
                     GameObject unit = Instantiate(workerGO, loc, Quaternion.identity); //produce unit at specified position
-                    //for tweening
-                    //Vector3 goScale = unit.transform.localScale;
-                    //float scaleX = goScale.x;
-                    //float scaleZ = goScale.z;
-                    //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-                    //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
                     unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
                     Laborer laborer = unit.GetComponent<Laborer>();
+                    laborer.marker.gameObject.SetActive(true);
                     world.laborerList.Add(laborer);
                     laborer.StartLaborAnimations();
                     
@@ -1780,6 +1779,8 @@ public class CityBuilderManager : MonoBehaviour
         {
 		    newUnit.atHome = true;
 		    city.army.AddToArmy(newUnit);
+            if (city.cityPop.CurrentPop == 0)
+                city.StartGrowthCycle(false);
 		    newUnit.homeBase = city;
             newUnit.barracksBunk = buildPosition;
 
@@ -3631,7 +3632,6 @@ public class CityBuilderManager : MonoBehaviour
             selectedWonder.isActive = false;
             selectedWonder.TimeProgressBarSetActive(false);
             uiWonderSelection.ToggleVisibility(false, selectedWonder);
-            selectedWonder.SetUI(null);
             if (placingWonderHarbor)
                 CloseImprovementBuildPanel();
             selectedWonder.DisableHighlight();

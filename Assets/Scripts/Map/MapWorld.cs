@@ -29,7 +29,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public UIWorldResources uiWorldResources;
     [SerializeField]
-    private UIResearchTreePanel researchTree;
+    public UIResearchTreePanel researchTree;
     [SerializeField]
     public UIMapHandler mapHandler;
     //[SerializeField]
@@ -104,14 +104,20 @@ public class MapWorld : MonoBehaviour
     public Sprite rocksNormal, rocksLuxury, rocksChemical;
 
     //world resource info
-    private WorldResourceManager worldResourceManager;
+    [HideInInspector]
+    public WorldResourceManager worldResourceManager;
     [HideInInspector]
     public bool researching;
-    private List<City> researchWaitList = new();
-    private List<City> goldCityWaitList = new();
-    private List<City> goldCityRouteWaitList = new();
-    private List<Wonder> goldWonderWaitList = new();
-    private List<TradeCenter> goldTradeCenterWaitList = new();
+    [HideInInspector]
+    public List<ResourceProducer> researchWaitList = new();
+    [HideInInspector]
+    public List<City> goldCityWaitList = new();
+    [HideInInspector]
+    public List<City> goldCityRouteWaitList = new();
+    [HideInInspector]
+    public List<Wonder> goldWonderWaitList = new();
+    [HideInInspector]
+    public List<TradeCenter> goldTradeCenterWaitList = new();
     //resource multiplier
     [HideInInspector]
     public Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
@@ -679,7 +685,8 @@ public class MapWorld : MonoBehaviour
         foreach (CityImprovementData improvementData in data.cityBuildings)
             CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[improvementData.name], city, improvementData);
 
-        GameLoader.Instance.cityWaitingDict[city] = (data.waitingforResourceProducerList, data.waitList, data.seaWaitList, data.waitingForTraderList, data.tradersHere);
+        GameLoader.Instance.cityWaitingDict[city] = (data.waitingforResourceProducerList, data.waitingForProducerStorageList, data.waitingToUnloadProducerList,
+            data.waitList, data.seaWaitList, data.waitingForTraderList, data.tradersHere);
 	}
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, CityImprovementData data)
@@ -1107,6 +1114,8 @@ public class MapWorld : MonoBehaviour
         {
             newUnit.homeBase = city;
 			city.army.AddToArmy(newUnit);
+            if (city.cityPop.CurrentPop == 0)
+                city.StartGrowthCycle(true);
             city.army.AddToOpenSpots(data.barracksBunk);
         }
 
@@ -1845,7 +1854,7 @@ public class MapWorld : MonoBehaviour
         wonder.WonderLocs = new(wonderPlacementLoc);
         wonder.SetPrefabs(false);
         //wonder.wonderName = "Wonder - " + wonderData.wonderName;
-        wonder.SetResourceDict(wonderData.wonderCost);
+        wonder.SetResourceDict(wonderData.wonderCost, false);
         wonder.unloadLoc = finalUnloadLoc;
         AddTradeLoc(finalUnloadLoc, wonder.wonderName);
         wonderNoWalkLoc.Remove(finalUnloadLoc);
@@ -1959,7 +1968,7 @@ public class MapWorld : MonoBehaviour
 		    wonder.SetReferences(this, cityBuilderManager.focusCam);
 		    wonder.WonderData = wonderData;
 		    wonder.SetPrefabs(true);
-    		wonder.SetResourceDict(wonderData.wonderCost);
+    		wonder.SetResourceDict(wonderData.wonderCost, true);
 		    AddTradeLoc(data.unloadLoc, wonder.wonderName);
 		    wonder.SetCenterPos(data.centerPos);
     		wonderConstructionDict[wonder.wonderName] = wonder;
@@ -2302,24 +2311,29 @@ public class MapWorld : MonoBehaviour
         uiWorldResources.SetResearchName(name);
     }
 
-    public void AddToResearchWaitList(City city)
+    public void AddToResearchWaitList(ResourceProducer producer)
     {
-        if (!researchWaitList.Contains(city))
-            researchWaitList.Add(city);
+        if (!researchWaitList.Contains(producer))
+            researchWaitList.Add(producer);
+    }
+
+    public void RemoveFromResearchWaitList(ResourceProducer producer)
+    {
+        researchWaitList.Remove(producer);
     }
 
     public void RestartResearch()
     {
-        List<City> cityResearchWaitList = new(researchWaitList);
-        
-        foreach (City city in cityResearchWaitList)
+        List<ResourceProducer> producerResearchWaitList = new(researchWaitList);
+
+        for (int i = 0; i < producerResearchWaitList.Count; i++)
         {
-            if (researching)
-            {
-                researchWaitList.Remove(city);
-                city.RestartResearch();
-            }
-        }
+			if (researching)
+			{
+                researchWaitList.Remove(producerResearchWaitList[i]);
+				producerResearchWaitList[i].CheckProducerResearchWaitList();
+			}
+		}
     }
 
     public bool CitiesResearchWaitingCheck()

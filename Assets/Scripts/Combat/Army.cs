@@ -145,8 +145,8 @@ public class Army : MonoBehaviour
 		AddToCycleCost(unit.buildDataSO.cycleCost);
         AddToBattleCost(unit.buildDataSO.battleCost);
 
-		if (city.cityPop.CurrentPop == 0 && unitsInArmy.Count == 1)
-			city.StartFoodCycle();
+		//if (city.cityPop.CurrentPop == 0 && unitsInArmy.Count > 0)
+		//	city.StartGrowthCycle(false);
 	}
 
 	//   private void AddToStagingCost(List<ResourceValue> costs)
@@ -297,7 +297,7 @@ public class Army : MonoBehaviour
             openSpots.Insert(index,loc);
 
 		if (city.cityPop.CurrentPop == 0 && armyCount == 0)
-			city.StopFoodCycle();
+			city.StopGrowthCycle();
 	}
 
     //preparing positions lists

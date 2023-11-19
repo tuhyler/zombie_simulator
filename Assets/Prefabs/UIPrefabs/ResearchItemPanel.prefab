@@ -714,7 +714,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07a4f9b7407dbb04a885c459174d4722, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  researchName: {fileID: 7776417680890247901}
+  researchNameText: {fileID: 7776417680890247901}
   researchPercentDone: {fileID: 7900892925514391650}
   queueNumber: {fileID: 5210410097749402310}
   progressBarMask: {fileID: 4799452501487868085}
@@ -731,6 +731,7 @@ MonoBehaviour:
   selectedTopBar: {fileID: 21300000, guid: 029c0dae0c146744d9e6add84e3671a9, type: 3}
   selectedQueueSprite: {fileID: 21300000, guid: b00f12718ccff3b4da39bb3eea52dc69,
     type: 3}
+  researchTree: {fileID: 0}
   totalResearchNeeded: 100
   locked: 1
   researchUnlocked: []
