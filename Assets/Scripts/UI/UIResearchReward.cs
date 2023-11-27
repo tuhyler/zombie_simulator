@@ -66,10 +66,10 @@ public class UIResearchReward : MonoBehaviour
         rewardBackground.sprite = originalSprite;
     }
 
-    public void Complete(Color completeColor)
+    public void Complete(Sprite newBackground)
     {
         rewardBackground.sprite = originalSprite;
-        rewardBackground.color = completeColor;
+        rewardBackground.sprite = newBackground;
     }
 
     public void OnClick()

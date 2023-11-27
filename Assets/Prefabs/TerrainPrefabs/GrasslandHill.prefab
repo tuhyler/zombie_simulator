@@ -15,12 +15,12 @@ PrefabInstance:
     - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_TagString
-      value: Hill
+      value: Forest Hill
       objectReference: {fileID: 0}
     - target: {fileID: 132575383675425759, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2578192507249685741, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -30,7 +30,7 @@ PrefabInstance:
     - target: {fileID: 2715452913932692106, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4206797140657438167, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -40,7 +40,7 @@ PrefabInstance:
     - target: {fileID: 4676175562013748920, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5233621569976294960, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -50,7 +50,7 @@ PrefabInstance:
     - target: {fileID: 5595022816629027392, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6001265225856577931, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -60,7 +60,7 @@ PrefabInstance:
     - target: {fileID: 7178868358704398055, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7687956695361648898, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
@@ -333,7 +333,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 4ca825818efc3364a98655e3a00d4985,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4ca825818efc3364a98655e3a00d4985, type: 3}
@@ -427,7 +427,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 41ce09229ef74ca44a6a18eac4cd78b3,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 41ce09229ef74ca44a6a18eac4cd78b3, type: 3}

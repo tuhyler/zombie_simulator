@@ -15,7 +15,7 @@ GameObject:
   m_TagString: Flatland
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &7687956695361648898
 Transform:
@@ -61,7 +61,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!224 &2764019394825689100
 RectTransform:
@@ -230,7 +230,7 @@ PrefabInstance:
     - target: {fileID: -3993543497616850490, guid: d8c3acc598cfccb488b5b17417e8d569,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d8c3acc598cfccb488b5b17417e8d569,
         type: 3}
@@ -250,12 +250,12 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: d8c3acc598cfccb488b5b17417e8d569,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3881991012334459619, guid: d8c3acc598cfccb488b5b17417e8d569,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3960140455969270906, guid: d8c3acc598cfccb488b5b17417e8d569,
         type: 3}

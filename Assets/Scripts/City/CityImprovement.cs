@@ -605,7 +605,16 @@ public class CityImprovement : MonoBehaviour
             {
                 producer.SetResourceManager(city.ResourceManager);
                 producer.LoadProducingCoroutine();
-            }
+
+                //work around to get lights showing on all polys, something to do with combinemeshes
+                if (workLights.Count > 0)
+                {
+					for (int i = 0; i < meshFilter.Length; i++)
+						meshFilter[i].gameObject.SetActive(true);
+					for (int i = 0; i < meshFilter.Length; i++)
+						meshFilter[i].gameObject.SetActive(false);
+				}
+			}
         }
         else if (isTraining)
         {

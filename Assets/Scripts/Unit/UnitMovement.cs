@@ -1384,7 +1384,8 @@ public class UnitMovement : MonoBehaviour
                     return;
                 }
 
-                int buyAmount = -resourceAmountAdjusted * tradeCenter.ResourceBuyDict[resourceType];
+				world.cityBuilderManager.PlayRingAudio();
+				int buyAmount = -resourceAmountAdjusted * tradeCenter.ResourceBuyDict[resourceType];
                 world.UpdateWorldResources(ResourceType.Gold, buyAmount);
                 InfoResourcePopUpHandler.CreateResourceStat(selectedTrader.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
 
@@ -1403,6 +1404,7 @@ public class UnitMovement : MonoBehaviour
                     if (resourceAmount == 0)
                         return;
 
+                    world.cityBuilderManager.PlayRingAudio();
                     selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
 
                     int sellAmount = -resourceAmount * tradeCenter.ResourceSellDict[resourceType];
@@ -1443,8 +1445,9 @@ public class UnitMovement : MonoBehaviour
         if (resourceAmount > 0) //moving from city to trader
         {
             int remainingInCity;
-            
-            if (cityResourceManager != null)
+			world.cityBuilderManager.PlayRingAudio();
+
+			if (cityResourceManager != null)
                 remainingInCity = cityResourceManager.GetResourceDictValue(resourceType);
             else
                 remainingInCity = wonder.ResourceDict[resourceType];
@@ -1465,7 +1468,8 @@ public class UnitMovement : MonoBehaviour
 
         if (resourceAmount <= 0) //moving from trader to city
         {
-            int remainingWithTrader = selectedTrader.personalResourceManager.GetResourceDictValue(resourceType);
+			world.cityBuilderManager.PlayRingAudio();
+			int remainingWithTrader = selectedTrader.personalResourceManager.GetResourceDictValue(resourceType);
 
             if (remainingWithTrader < Mathf.Abs(resourceAmount))
                 resourceAmount = -remainingWithTrader;

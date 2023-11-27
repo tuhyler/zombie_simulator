@@ -121,8 +121,13 @@ public class City : MonoBehaviour
     [HideInInspector]
     public List<Unit> tradersHere = new();
 
-    //stored queue items
-    [HideInInspector]
+    //audio
+    [SerializeField]
+    private AudioClip popGainClip, popLoseClip;
+    private AudioSource audioSource;
+
+	//stored queue items
+	[HideInInspector]
     public Dictionary<Vector3Int, QueueItem> improvementQueueDict = new();
     [HideInInspector]
     public List<QueueItem> queueItemList = new();
@@ -144,6 +149,7 @@ public class City : MonoBehaviour
         //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
         //world = FindObjectOfType<MapWorld>();
         cityPop = GetComponent<CityPopulation>();
+        audioSource = GetComponent<AudioSource>();
         army = GetComponent<Army>();
         //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
         resourceManager = GetComponent<ResourceManager>();
@@ -193,7 +199,19 @@ public class City : MonoBehaviour
         //}
     }
 
-    public void SetWorld(MapWorld world)
+	public void PlayPopGainAudio()
+	{
+		audioSource.clip = popGainClip;
+		audioSource.Play();
+	}
+
+	public void PlayPopLossAudio()
+	{
+		audioSource.clip = popLoseClip;
+		audioSource.Play();
+	}
+
+	public void SetWorld(MapWorld world)
     {
         this.world = world;
 		army.SetWorld(world);
@@ -659,6 +677,7 @@ public class City : MonoBehaviour
     public void PopulationGrowthCheck(bool joinCity, int amount)
     {
         int prevPop = cityPop.CurrentPop;
+        PlayPopGainAudio();
 
         cityPop.IncreasePopulationAndLabor(amount);
         housingCount -= amount;
@@ -717,7 +736,8 @@ public class City : MonoBehaviour
     public void PopulationDeclineCheck(bool any)
     {
         int prevPop = cityPop.CurrentPop;
-        
+        PlayPopLossAudio();
+
         cityPop.CurrentPop--;
         housingCount++;
 		if (world.GetTerrainDataAt(cityLoc).isHill)
@@ -982,7 +1002,7 @@ public class City : MonoBehaviour
 
     public void PlayResourceSplash()
     {
-        world.cityBuilderManager.PlayCoinsAudio();
+        world.cityBuilderManager.PlayRingAudio();
         resourceSplash.Play();
     }
 

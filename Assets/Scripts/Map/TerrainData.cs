@@ -62,6 +62,7 @@ public class TerrainData : MonoBehaviour
     public RawResourceType rawResourceType;
     public ResourceType resourceType;
     public int resourceAmount;
+    private int[] rotations = new int[4] { 0, 90, 180, 270 };
     //[HideInInspector]
     //public string originalTag;
 
@@ -156,18 +157,46 @@ public class TerrainData : MonoBehaviour
 
 			resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
 			resourceGraphic.isHill = isHill;
-			RocksCheck();
+			//RocksCheck();
         }
 
 		if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
 		{
 			treeHandler = prop.GetComponentInChildren<TreeHandler>();
-			treeHandler.TurnOffGraphics(false);
-			treeHandler.SwitchFromRoad(isHill);
-			treeHandler.SetMapIcon(isHill);
+			//treeHandler.TurnOffGraphics(false);
+			//treeHandler.SwitchFromRoad(isHill);
+			//treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
                 ChangeLeafColors(uvMapIndex);
+		}
+	}
+
+    public void SetNonStatic()
+    {
+		if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
+		{
+			TreeHandler treeHandler = nonstatic.GetComponentInChildren<TreeHandler>();
+            treeHandler.TurnOffGraphics(false);
+            treeHandler.SwitchFromRoad(isHill);
+            //treeHandler.SetMapIcon(isHill);
+
+            if (changeLeafColor)
+				ChangeLeafColors(uvMapIndex);
+		}
+	}
+
+    public void SetVisibleProp()
+    {
+		if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
+        {
+			treeHandler.TurnOffGraphics(false);
+			treeHandler.SwitchFromRoad(isHill);
+			treeHandler.SetMapIcon(isHill);
+		}
+        else if (rawResourceType == RawResourceType.Rocks)
+        {
+			RocksCheck();
 		}
 	}
 
@@ -329,6 +358,8 @@ public class TerrainData : MonoBehaviour
         isDiscovered = false;
 		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = false;
         fog.SetActive(true);
+        Vector3 newRot = new Vector3(0, rotations[Random.Range(0, 4)], 0);
+        fog.transform.localEulerAngles = newRot;
 
 		foreach (MeshRenderer renderer in whiteMesh)
         {
@@ -408,7 +439,7 @@ public class TerrainData : MonoBehaviour
         {
             resourceIcon.SetActive(true);
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
-            godRays.Play();
+			godRays.Play();
         }
 
         fog.SetActive(false);
@@ -427,7 +458,9 @@ public class TerrainData : MonoBehaviour
         if (nonstatic.childCount > 0)
         {
             main.gameObject.SetActive(false);
-			ShowProp(false);
+            //ShowProp(false);
+			prop.gameObject.SetActive(false);
+			GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = true;
             StartCoroutine(PopUp());
         }
     }

@@ -165,6 +165,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             {
                 world.SetResearchName("No Research");
                 world.SetWorldResearchUI(0, 1);
+                world.SetResearchBackground(false);
             }
 
             if (researchTooltip.activeStatus)
@@ -286,6 +287,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
                 world.researching = false;
                 world.SetResearchName("No Research");
                 world.SetWorldResearchUI(0, 1);
+                world.SetResearchBackground(false);
                 chosenResearchItem = null;
                 return;
             }
@@ -293,7 +295,8 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 
         researchItem.ChangeColor();
         world.SetResearchName(researchItem.ResearchName);
-        chosenResearchItem = researchItem;
+		world.SetResearchBackground(false);
+		chosenResearchItem = researchItem;
         chosenResearchItem.UpdateProgressBar();
         if (extraResearch > 0)
             AddResearch(extraResearch);
@@ -398,7 +401,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 		for (int i = 0; i < tempResearchItemList.Count; i++)
 		{
 			if (completedResearch.Contains(tempResearchItemList[i].ResearchName))
-				tempResearchItemList[i].ResearchComplete(world);
+				tempResearchItemList[i].LoadResearchComplete(world);
 		}
 	}
 
@@ -408,18 +411,23 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 		{
 			for (int j = 0; j < researchItemList.Count; j++)
 			{
-				if (researchItemList[j].ResearchName == currentResearch[0])
+				if (researchItemList[j].ResearchName == currentResearch[i])
 				{
 					if (i == 0)
 					{
-						chosenResearchItem = researchItemList[j];
+                        SetResearchItem(researchItemList[j]);
+                        chosenResearchItem = researchItemList[j];
 						world.SetResearchName(chosenResearchItem.ResearchName);
 						chosenResearchItem.ResearchReceived = researchAmount;
 						world.SetWorldResearchUI(chosenResearchItem.ResearchReceived, chosenResearchItem.totalResearchNeeded);
                         world.researching = true;
+                        break;
 					}
-					else
-						researchItemQueue.Enqueue(researchItemList[j]);
+                    else
+                    {
+                        researchItemList[j].LoadQueue();
+                        break;
+                    }
 				}
 			}
 		}
