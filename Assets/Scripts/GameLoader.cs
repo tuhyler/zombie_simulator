@@ -156,10 +156,11 @@ public class GameLoader : MonoBehaviour
 	{
 		GameManager.Instance.ResetProgress();
 		isLoading = true;
-		Time.timeScale = 0f;
-		AudioListener.pause = true;
+		//Time.timeScale = 0f;
+		//AudioListener.pause = true;
 
 		world.ClearMap();
+		world.test = true;
 		
 		gameData = gamePersist.LoadData(saveName, false);
 
@@ -315,8 +316,8 @@ public class GameLoader : MonoBehaviour
 		//updating progress
 		GameManager.Instance.UpdateProgress(10);
 
-		Time.timeScale = 1f;
-		AudioListener.pause = false;
+		//Time.timeScale = 1f;
+		//AudioListener.pause = false;
 		StartCoroutine(WaitASec());
 
 		////create units

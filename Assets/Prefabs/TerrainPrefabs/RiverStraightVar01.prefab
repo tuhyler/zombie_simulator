@@ -85,7 +85,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: fe5ad1a255c9a2f47aa18de8b6fc8bbf,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe5ad1a255c9a2f47aa18de8b6fc8bbf, type: 3}
@@ -171,12 +171,12 @@ PrefabInstance:
     - target: {fileID: 3732238957214512906, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4547352987120683383, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5378143918301295818, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
@@ -186,7 +186,7 @@ PrefabInstance:
     - target: {fileID: 6611612031084933056, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7494950873433822262, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
@@ -206,7 +206,7 @@ PrefabInstance:
     - target: {fileID: 9203405519390938773, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f72558895b6c8e746b5598f21c9dcdaf, type: 3}
@@ -301,7 +301,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: fe5ad1a255c9a2f47aa18de8b6fc8bbf,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe5ad1a255c9a2f47aa18de8b6fc8bbf, type: 3}

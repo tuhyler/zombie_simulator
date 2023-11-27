@@ -19,6 +19,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1627574910764654738, guid: e9fbb305868b2af4ba8a0ae64264bfb4,
         type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 1627574910764654738, guid: e9fbb305868b2af4ba8a0ae64264bfb4,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 20
       objectReference: {fileID: 0}
@@ -187,6 +192,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: RoadEnd01
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 023adbc09122ba74d84f8d03141bfd46,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 023adbc09122ba74d84f8d03141bfd46,
         type: 3}

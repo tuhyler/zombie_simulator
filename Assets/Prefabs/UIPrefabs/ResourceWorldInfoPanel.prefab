@@ -336,9 +336,12 @@ MonoBehaviour:
   researchResourceAmount: {fileID: 4892509974790505081}
   researchTitle: {fileID: 7605256306408603558}
   progressBarMask: {fileID: 2464266305560037824}
+  researchBackground: {fileID: 8344483015698969907}
   buttons:
   - {fileID: 8005530639970263236}
   - {fileID: 3078847175791887794}
+  completedBackground: {fileID: 21300000, guid: 38ab9eeaab4cb7244abeb37fe5a67c9c,
+    type: 3}
 --- !u!1 &8868279007131145576
 GameObject:
   m_ObjectHideFlags: 0
@@ -949,3 +952,15 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 9171731101270950861}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8344483015698969907 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 902135822573909758, guid: a905eeb931ee1cf4e8c8148f4cac6df0,
+    type: 3}
+  m_PrefabInstance: {fileID: 9171731101270950861}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

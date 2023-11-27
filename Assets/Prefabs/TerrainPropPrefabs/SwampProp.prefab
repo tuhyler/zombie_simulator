@@ -15,7 +15,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 22
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &1547425620333918306
 Transform:
@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bc69556c4264ae4dbc48e3167d48960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leafMesh: {fileID: 0}
   treeFlat: {fileID: 0}
   treeHill: {fileID: 0}
   treeFlatRoad: {fileID: 0}
@@ -142,7 +143,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 22
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2560095358516857325, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}

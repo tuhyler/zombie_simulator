@@ -16,7 +16,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private Transform uiElementsParent, progressBarHolder, queueNumberHolder;
 
     [SerializeField]
-    private Sprite selectedResearchSprite, selectedTopBar, selectedQueueSprite;
+    private Sprite selectedResearchSprite, selectedTopBar, selectedQueueSprite, completedResearchSprite, completedTopBar, completedCircle, completedCheck, completedRewardBackground;
     private Sprite originalResearchSprite, originalTopBar, originalQueueSprite;
 
     //[SerializeField]
@@ -46,7 +46,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private Color originalColor;
     private Color selectedColor = new Color(1f, .8f, .65f);
     private Color lockedColor = new Color(.7f, .7f, .7f);
-    private Color completedColor = new Color(0f, 1f, 1f);
+    //private Color completedColor = new Color(0.3431471f, 0.3625781f, 0.764151f);
 
     private bool isSelected;
 
@@ -62,7 +62,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         queueNumberCheck.gameObject.SetActive(false);
 
         researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
-        researchPercentDone.outlineColor = new Color(0f, 0f, 0f);
+        researchPercentDone.outlineColor = Color.black;
+        //researchPercentDone.outlineWidth = .4f;
         //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
         researchPercentDone.text = totalResearchNeeded.ToString();
 
@@ -156,6 +157,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void ResearchComplete(MapWorld world)
     {
+        researchTree.world.cityBuilderManager.PlayChimeAudio();
         ChangeColor();
         HideProgressBar();
         researchIcon.gameObject.SetActive(false);
@@ -163,19 +165,21 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         completed = true;
         locked = true;
         tempUnlocked = true;
-        researchItemPanel.color = completedColor;
-        topBar.color = completedColor;
-        foreach (UIResearchReward reward in researchRewardList)
-            reward.Complete(completedColor);
+        researchItemPanel.sprite = completedResearchSprite;
+        topBar.sprite = completedTopBar;
+        researchNameText.color = Color.white;
+
+        for (int i = 0; i < researchRewardList.Count; i++)
+            researchRewardList[i].Complete(completedRewardBackground);
+
         queueNumber.gameObject.SetActive(false);
         queueNumberHolder.gameObject.SetActive(true);
         queueNumberCheck.gameObject.SetActive(true);
-        queueNumberHolderImage.color = completedColor;
+        queueNumberHolderImage.sprite = completedCircle;
+		queueNumberCheck.sprite = completedCheck;
 
-        foreach (Image arrow in arrows)
-        {
-            arrow.color = completedColor;
-        }
+		//foreach (Image arrow in arrows)
+  //          arrow.color = completedColor;
         //canvasGroup.alpha = 0.5f;
 
         //unlocking all research rewards
@@ -210,10 +214,70 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             researchItem.UnlockCheck();
 
         world.BuilderHandlerCheck();
+        world.SetResearchBackground(true);
         GameLoader.Instance.gameData.completedResearch.Add(ResearchName);
     }
 
-    private void UnlockCheck()
+	public void LoadResearchComplete(MapWorld world)
+	{
+        ResetAlpha();
+        HideProgressBar();
+		researchIcon.gameObject.SetActive(false);
+		researchPercentDone.gameObject.SetActive(false);
+        completed = true;
+		locked = true;
+		tempUnlocked = true;
+		researchItemPanel.sprite = completedResearchSprite;
+		topBar.sprite = completedTopBar;
+		researchNameText.color = Color.white;
+
+		for (int i = 0; i < researchRewardList.Count; i++)
+			researchRewardList[i].Complete(completedRewardBackground);
+
+		queueNumber.gameObject.SetActive(false);
+		queueNumberHolder.gameObject.SetActive(true);
+		queueNumberCheck.gameObject.SetActive(true);
+		queueNumberHolderImage.sprite = completedCircle;
+        queueNumberCheck.sprite = completedCheck;
+
+   //     foreach (Image arrow in arrows)
+			//arrow.color = completedColor;
+		//canvasGroup.alpha = 0.5f;
+
+		//unlocking all research rewards
+		foreach (UIResearchReward researchReward in researchRewardList)
+		{
+			if (researchReward.improvementData != null)
+			{
+				ImprovementDataSO data = researchReward.improvementData;
+				data.Locked = false;
+				world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
+				if (data.improvementLevel > 1)
+				{
+					string nameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
+					world.GetImprovementData(nameAndLevel).Locked = true;
+				}
+			}
+			else if (researchReward.unitData != null)
+			{
+				UnitBuildDataSO data = researchReward.unitData;
+				data.locked = false;
+				world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
+				if (data.unitLevel > 1)
+				{
+					string nameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
+					world.GetUnitBuildData(nameAndLevel).locked = true;
+				}
+			}
+		}
+
+		//unlocking research items down further in tree
+		foreach (UIResearchItem researchItem in researchUnlocked)
+			researchItem.UnlockCheck();
+	}
+
+
+	private void UnlockCheck()
     {
         foreach (UIResearchItem researchItem in researchDependent)
         {
@@ -262,6 +326,16 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         researchTree.world.cityBuilderManager.PlaySelectAudio();
     }
 
+    public void LoadQueue()
+    {
+		researchTree.AddToQueue(this);
+		queueNumberHolder.gameObject.SetActive(true);
+		queueNumber.text = (researchTree.QueueCount() + 1).ToString();
+
+		foreach (UIResearchItem researchItem in researchUnlocked)
+			researchItem.TempUnlockCheck();
+	}
+
     public void TempUnlockCheck()
     {
         foreach (UIResearchItem researchItem in researchDependent)
@@ -287,7 +361,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         progressBarHolder.gameObject.SetActive(false);
         //researchPercentDone.outlineWidth = 0f;
         researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
-        researchPercentDone.text = totalResearchNeeded.ToString();
+		researchPercentDone.outlineWidth = 0f;
+		researchPercentDone.text = totalResearchNeeded.ToString();
         //researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
         researchPercentDone.outlineWidth = 0f;
         researchIcon.gameObject.SetActive(true);
@@ -298,7 +373,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         progressBarHolder.gameObject.SetActive(true);
         float researchPerc = (float)researchReceived / totalResearchNeeded;
         //researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
-        researchPercentDone.color = Color.white; 
+        researchPercentDone.color = Color.white;
+		researchPercentDone.outlineWidth = .4f;
         researchPercentDone.text = $"{researchReceived}/{totalResearchNeeded}";
         //researchPercentDone.outlineWidth = 0.4f; //this makes the text appear outside of the scroll rect for some reason
 

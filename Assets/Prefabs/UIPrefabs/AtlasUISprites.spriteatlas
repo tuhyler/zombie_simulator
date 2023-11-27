@@ -155,6 +155,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 0256638ab96cd0948b80ba1e4bcfa1d6, type: 3}
   - {fileID: 21300000, guid: f38c00aa9a643e243b06a0b8983b96f9, type: 3}
   - {fileID: 21300000, guid: 0a0cb9dab3b52cd4f9a598795745fb84, type: 3}
+  - {fileID: 21300000, guid: 38ab9eeaab4cb7244abeb37fe5a67c9c, type: 3}
   - {fileID: 21300000, guid: 41c5510bf7b82f44c97d28693fb51d09, type: 3}
   - {fileID: 21300000, guid: fe70d81b48075de428e533b96974befe, type: 3}
   - {fileID: 21300000, guid: d74aa47b565702d4ca0350aeaf17df87, type: 3}
@@ -325,6 +326,7 @@ SpriteAtlas:
   - button_up
   - button_minus
   - button_arrowleft
+  - bar_gold01
   - laborIconMale1
   - circle_gold
   - circle_resourcemaphighlight

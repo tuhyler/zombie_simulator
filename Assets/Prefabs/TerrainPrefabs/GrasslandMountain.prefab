@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 22
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &6193421569473789042
 Transform:
@@ -46,7 +46,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &138495324743355252
 Transform:
@@ -78,6 +78,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
+  glowMaterial2: {fileID: 0}
   isGlowing: 0
 --- !u!1 &3381364887944033004
 GameObject:
@@ -95,7 +96,7 @@ GameObject:
   m_TagString: Hill
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 22
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &5011132036053948465
 Transform:
@@ -131,6 +132,7 @@ MonoBehaviour:
   terrainData: {fileID: 11400000, guid: ba7d2165cd2acc24b9fcfb758105308a, type: 2}
   prefabIndex: 0
   decorIndex: 0
+  uvMapIndex: 0
   main: {fileID: 478413442398559047}
   prop: {fileID: 6193421569473789042}
   nonstatic: {fileID: 5121927371962656800}
@@ -141,6 +143,7 @@ MonoBehaviour:
   resourceBackgroundSprite: {fileID: 0}
   resourceIconSprite: {fileID: 0}
   white: {fileID: 2100000, guid: d87f9a8b5b7c8024798ff452a1540ec5, type: 2}
+  changeLeafColor: 0
   isHill: 0
   hasRoad: 0
   hasResourceMap: 0
@@ -157,6 +160,7 @@ MonoBehaviour:
   godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
+  rawResourceType: 0
   resourceType: 0
   resourceAmount: 0
 --- !u!65 &5870712689763546697
@@ -186,7 +190,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 22
+  m_StaticEditorFlags: 0
   m_IsActive: 0
 --- !u!4 &5121927371962656800
 Transform:
@@ -217,7 +221,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 22
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &478413442398559047
 Transform:
@@ -529,7 +533,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 4e8fa1aa776243645b4e65838c0889f9,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4e8fa1aa776243645b4e65838c0889f9, type: 3}

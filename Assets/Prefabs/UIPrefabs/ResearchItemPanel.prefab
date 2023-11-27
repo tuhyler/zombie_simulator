@@ -731,6 +731,13 @@ MonoBehaviour:
   selectedTopBar: {fileID: 21300000, guid: 029c0dae0c146744d9e6add84e3671a9, type: 3}
   selectedQueueSprite: {fileID: 21300000, guid: b00f12718ccff3b4da39bb3eea52dc69,
     type: 3}
+  completedResearchSprite: {fileID: 21300000, guid: ac9b05b7dd0c0c543947f5dcb4be0616,
+    type: 3}
+  completedTopBar: {fileID: 21300000, guid: ac9b05b7dd0c0c543947f5dcb4be0616, type: 3}
+  completedCircle: {fileID: 21300000, guid: b6c6c6c651ced324e84cb9105fa7457a, type: 3}
+  completedCheck: {fileID: 21300000, guid: 839202966388072458c2287e7f056bed, type: 3}
+  completedRewardBackground: {fileID: 21300000, guid: 460b7f5c7fc92e942868452fc88c6264,
+    type: 3}
   researchTree: {fileID: 0}
   totalResearchNeeded: 100
   locked: 1

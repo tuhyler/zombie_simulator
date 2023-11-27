@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 
 public class MapWorld : MonoBehaviour
 {
+    public bool test;
     private string version = "0.1";
     private DateTime currentTime;
     //public float test = 0.4f;
@@ -275,6 +276,8 @@ public class MapWorld : MonoBehaviour
             {
 			    td.SetWorld(this);
                 td.SetProp();
+                //StaticBatchingUtility.Combine(terrainHolder.gameObject);
+                td.SetVisibleProp();
 
 			    if (td.isSeaCorner && !coastalTerrain.Contains(td))
 				    coastalTerrain.Add(td);
@@ -568,6 +571,7 @@ public class MapWorld : MonoBehaviour
     {
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
+        List<TerrainData> terrainPropsToModify = new();
 
 		foreach (Vector3Int position in mainMap.Keys)
 		{
@@ -583,9 +587,17 @@ public class MapWorld : MonoBehaviour
             if (terrainData.decors[data.decor] != null)
             {
                 GameObject prop = Instantiate(terrainData.decors[data.decor], Vector3.zero, data.propRotation);
-                prop.transform.SetParent(td.prop.transform, false);
+                prop.transform.SetParent(td.prop, false);
                 td.SetProp();
-            }
+                terrainPropsToModify.Add(td);
+
+				if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
+                {
+					GameObject nonStaticProp = Instantiate(terrainData.decors[data.decor], Vector3.zero, data.propRotation);
+                    nonStaticProp.transform.SetParent(td.nonstatic, false);
+                    td.SetNonStatic();
+				}
+			}
 
 			td.SetWorld(this);
 
@@ -622,15 +634,19 @@ public class MapWorld : MonoBehaviour
             td.SetHighlightMesh();
 		}
 
-		foreach (TerrainData td in coastalTerrain)
-        {
-			td.SetCoastCoordinates();
-        }
+        for (int i = 0; i < coastalTerrain.Count; i++)
+            coastalTerrain[i].SetCoastCoordinates();
 
-		foreach (TerrainData td in terrainToCheck)
-		{
-            ConfigureUVs(td);
-		}
+        for (int i = 0; i < terrainToCheck.Count; i++)
+            ConfigureUVs(terrainToCheck[i]);
+
+        StaticBatchingUtility.Combine(terrainHolder.gameObject);
+
+        //after combine, then hide mesh
+        for (int i = 0; i < terrainPropsToModify.Count; i++)
+            terrainPropsToModify[i].SetVisibleProp();
+
+        ambienceAudio.AmbienceCheck();
 	}
 
     public void GenerateTradeCenters(Dictionary<Vector3Int, TradeCenterData> centers)
@@ -2540,6 +2556,11 @@ public class MapWorld : MonoBehaviour
         worldResourceManager.SetResearch(researchReceived);
         uiWorldResources.ResearchLimit = totalResearch;
         uiWorldResources.SetResearchValue(researchReceived);
+    }
+
+    public void SetResearchBackground(bool complete)
+    {
+        uiWorldResources.SetResearchBackground(complete);
     }
 
     //updating builder handlers if one is selected

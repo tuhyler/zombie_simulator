@@ -46,7 +46,35 @@ public class ProceduralGeneration
         new Vector3Int(-increment,0,increment), //upper left
     };
 
-    public static Dictionary<Vector3Int, float> PerlinNoiseGenerator(Dictionary<Vector3Int, int> positions, 
+	public readonly static List<Vector3Int> neighborsCityRadius = new()
+	{
+		new Vector3Int(0,0,increment), //up
+        new Vector3Int(increment,0,increment), //upper right
+        new Vector3Int(increment,0,0), //right
+        new Vector3Int(increment,0,-increment), //lower right
+        new Vector3Int(0,0,-increment), //down
+        new Vector3Int(-increment,0,-increment), //lower left
+        new Vector3Int(-increment,0,0), //left
+        new Vector3Int(-increment,0,increment), //upper left
+        new Vector3Int(0,0,2*increment), //up up
+        new Vector3Int(increment,0,2*increment), //up up right
+        new Vector3Int(2*increment,0,2*increment), //upper right corner
+        new Vector3Int(2*increment,0,increment), //up right right
+        new Vector3Int(2*increment,0,0), //right right
+        new Vector3Int(2*increment,0,-increment), //right right down
+        new Vector3Int(2*increment,0,-2*increment), //lower right corner
+        new Vector3Int(increment,0,-2*increment), //down down right
+        new Vector3Int(0,0,-2*increment), //down down
+        new Vector3Int(-increment,0,-2*increment), //down down left
+        new Vector3Int(-2*increment,0,-2*increment), //lower left corner
+        new Vector3Int(-2*increment,0,-increment), //left left down
+        new Vector3Int(-2*increment,0,0), //left left
+        new Vector3Int(-2*increment,0,increment), //left left up
+        new Vector3Int(-2*increment,0,2*increment), //upper left corner
+        new Vector3Int(-increment,0,2*increment), //up up left
+    };
+
+	public static Dictionary<Vector3Int, float> PerlinNoiseGenerator(Dictionary<Vector3Int, int> positions, 
         float scale, int octaves, float persistance, float lacunarity, int seed, float offset)
     {
         List<float> noiseList = new();
@@ -932,7 +960,7 @@ public class ProceduralGeneration
         }
 
         //generating rivers
-        while (riverStarts.Count > 0)
+        while (riverStarts.Count > 0 && potentialStartTiles.Count > 0)
         {
             Queue<Vector3Int> newRiver = new();
             Vector3Int newRiverStart = riverStarts.Dequeue();
@@ -1056,7 +1084,7 @@ public class ProceduralGeneration
             }
 
             riverCount++;
-            if (riverCount < riverCountMin) //(riverTileCount < riverTileTotal)
+            if (riverCount < riverCountMin && potentialStartTiles.Count > 0) //(riverTileCount < riverTileTotal)
             {
                 Vector3Int newStart = potentialStartTiles[random.Next(0, potentialStartTiles.Count)];
                 riverStarts.Enqueue(newStart);

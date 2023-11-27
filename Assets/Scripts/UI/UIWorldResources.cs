@@ -8,9 +8,13 @@ public class UIWorldResources : MonoBehaviour
     [SerializeField]
     private TMP_Text goldResourceAmount, researchResourceAmount, researchTitle;//, resourceGenerationAmount;
     [SerializeField]
-    private Image progressBarMask;
+    private Image progressBarMask, researchBackground;
     [SerializeField]
     public List<Button> buttons;
+    [SerializeField]
+    private Sprite completedBackground;
+
+    private Sprite originalBackground;
 
     private int researchLimit = 10;
     public int ResearchLimit { set { researchLimit = value; } } 
@@ -21,6 +25,7 @@ public class UIWorldResources : MonoBehaviour
     private void Awake()
     {
         SetResearchValue(researchAmount);
+        originalBackground = researchBackground.sprite;
     }
 
     public void SetActiveStatus(bool v)
@@ -55,6 +60,22 @@ public class UIWorldResources : MonoBehaviour
             {
                 progressBarMask.fillAmount = value;
             });
+    }
+
+    public void SetResearchBackground(bool complete)
+    {
+        if (complete)
+        {
+            researchTitle.color = Color.black;
+            researchResourceAmount.color = Color.black;
+            researchBackground.sprite = completedBackground;
+        }
+        else
+        {
+            researchTitle.color = Color.white;
+			researchResourceAmount.color = Color.white;
+			researchBackground.sprite = originalBackground;
+        }
     }
 
     public void SetInteractable(bool v)

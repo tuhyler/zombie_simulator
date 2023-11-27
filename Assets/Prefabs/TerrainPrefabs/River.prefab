@@ -14,7 +14,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 0
 --- !u!4 &385685607343810745
 Transform:
@@ -46,7 +46,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &3945087105842468661
 Transform:
@@ -78,6 +78,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
+  glowMaterial2: {fileID: 0}
   isGlowing: 0
 --- !u!1 &3732238957214512906
 GameObject:
@@ -93,7 +94,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &6338745557346647870
 Transform:
@@ -124,7 +125,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &335344345692592139
 Transform:
@@ -158,7 +159,7 @@ GameObject:
   m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &1503933946542963784
 Transform:
@@ -194,6 +195,7 @@ MonoBehaviour:
   terrainData: {fileID: 11400000, guid: 2c4809890581b1e45b3c81593b416fcb, type: 2}
   prefabIndex: 0
   decorIndex: 0
+  uvMapIndex: 0
   main: {fileID: 6338745557346647870}
   prop: {fileID: 335344345692592139}
   nonstatic: {fileID: 385685607343810745}
@@ -204,6 +206,7 @@ MonoBehaviour:
   resourceBackgroundSprite: {fileID: 0}
   resourceIconSprite: {fileID: 0}
   white: {fileID: 2100000, guid: d87f9a8b5b7c8024798ff452a1540ec5, type: 2}
+  changeLeafColor: 0
   isHill: 0
   hasRoad: 0
   hasResourceMap: 0
@@ -322,7 +325,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: cad2107ec4920f64ca11623c2afc00ae,
         type: 3}
       propertyPath: m_StaticEditorFlags
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cad2107ec4920f64ca11623c2afc00ae, type: 3}

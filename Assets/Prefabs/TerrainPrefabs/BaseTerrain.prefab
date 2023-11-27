@@ -16,7 +16,7 @@ GameObject:
   m_TagString: Flatland
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &7687956695361648898
 Transform:
@@ -51,6 +51,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainData: {fileID: 0}
+  prefabIndex: 0
+  decorIndex: 0
+  uvMapIndex: 0
   main: {fileID: 2997620081912887924}
   prop: {fileID: 8847728230643572033}
   nonstatic: {fileID: 4206797140657438167}
@@ -61,14 +64,25 @@ MonoBehaviour:
   resourceBackgroundSprite: {fileID: 6447084660192600171}
   resourceIconSprite: {fileID: 1889967045544533187}
   white: {fileID: 2100000, guid: d87f9a8b5b7c8024798ff452a1540ec5, type: 2}
+  changeLeafColor: 0
   isHill: 0
   hasRoad: 0
   hasResourceMap: 0
+  walkable: 0
+  sailable: 0
+  enemyCamp: 0
+  enemyZone: 0
+  isSeaCorner: 0
+  isLand: 1
   isGlowing: 0
   isDiscovered: 1
+  beingCleared: 0
+  showProp: 1
   godRays: {fileID: 4703613511086933491, guid: fcf546ba0dba6d84784e7ca7b99b5dad, type: 3}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
+  rawResourceType: 0
+  resourceType: 0
   resourceAmount: 0
 --- !u!65 &2322797847508675287
 BoxCollider:
@@ -97,7 +111,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &8847728230643572033
 Transform:
@@ -129,7 +143,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 10
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &8080289765940615436
 Transform:
@@ -161,6 +175,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
+  glowMaterial2: {fileID: 0}
   isGlowing: 0
 --- !u!1 &5595022816629027392
 GameObject:
@@ -176,7 +191,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &2997620081912887924
 Transform:
@@ -207,7 +222,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 0
 --- !u!4 &4206797140657438167
 Transform:
@@ -349,6 +364,11 @@ PrefabInstance:
     - target: {fileID: 7372795965402052165, guid: 13f363835113aee48b622a3857f9e5a0,
         type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7372795965402052165, guid: 13f363835113aee48b622a3857f9e5a0,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

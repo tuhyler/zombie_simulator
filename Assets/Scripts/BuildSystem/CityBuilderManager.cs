@@ -152,8 +152,8 @@ public class CityBuilderManager : MonoBehaviour
     public GameObject emptyGO;
 
     [SerializeField]
-    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, fireClip, smallTownClip, largeTownClip, 
-        laborInClip, laborOutClip, constructionClip, trainingClip;
+    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
+        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip;
     [SerializeField]
     private AudioClip[] acknowledgements;
     private AudioSource audioSource;
@@ -863,11 +863,17 @@ public class CityBuilderManager : MonoBehaviour
         audioSource.Play();
     }
 
- //   public void PlayRingAudio()
- //   {
-	//	audioSource.clip = ringClip;
-	//	audioSource.Play();
-	//}
+    public void PlayRingAudio()
+    {
+        audioSource.clip = ringClip;
+        audioSource.Play();
+    }
+
+    public void PlayChimeAudio()
+    {
+        audioSource.clip = chimeClip;
+        audioSource.Play();
+    }
 
     public void PlayOpenCityAudio()
     {
