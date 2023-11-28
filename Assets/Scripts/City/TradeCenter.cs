@@ -18,6 +18,8 @@ public class TradeCenter : MonoBehaviour
     private List<Light> nightLights = new();
     [SerializeField]
     private GameObject tradeCenterPrefab;
+    [SerializeField]
+    public Transform minimapIcon;
 
     //basic info
     public string tradeCenterName;

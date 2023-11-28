@@ -14,7 +14,7 @@ public class TerrainData : MonoBehaviour
     public int prefabIndex = 0, decorIndex = 0, uvMapIndex;
 
     [SerializeField]
-    public Transform main, prop, nonstatic;
+    public Transform main, prop, nonstatic/*, minimapIcon*/;
 
     [SerializeField]
     public GameObject fog, highlightPlane, resourceIcon;
@@ -192,7 +192,7 @@ public class TerrainData : MonoBehaviour
         {
 			treeHandler.TurnOffGraphics(false);
 			treeHandler.SwitchFromRoad(isHill);
-			treeHandler.SetMapIcon(isHill);
+			treeHandler.SetMapIcon(isHill/*, transform.rotation*/);
 		}
         else if (rawResourceType == RawResourceType.Rocks)
         {

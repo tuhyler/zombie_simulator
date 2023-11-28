@@ -21,15 +21,21 @@ public class TreeHandler : MonoBehaviour
         }
     }
 
-    public void SetMapIcon(bool isHill)
+    public void SetMapIcon(bool isHill/*, Quaternion rotation*/)
     {
         if (keepTrees)
             return;
         
         if (isHill)
+        {
             treeHillIcon.SetActive(true);
+            //treeHillIcon.transform.rotation = rotation/*Quaternion.Inverse(rotation)*/;
+        }
         else
+        {
             treeFlatIcon.SetActive(true);
+            //treeFlatIcon.transform.rotation = rotation/*Quaternion.Inverse(rotation)*/;
+        }
     }
 
     public void SwitchToRoad(bool isHill)

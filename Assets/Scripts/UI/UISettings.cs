@@ -124,9 +124,15 @@ public class UISettings : MonoBehaviour
     public void SetResolution(int index)
     {
 		if (world != null)
-            world.cityBuilderManager.PlaySelectAudio();
-		else
+        {
+            if (world.cityBuilderManager.audioSource != null)
+                world.cityBuilderManager.PlaySelectAudio();
+        }
+        else
+        {
 			titleScreen.PlaySelectAudio();
+        }
+
 		Resolution resolution = resolutions[index];
         Screen.SetResolution(resolution.width, resolution.height, true);
     }

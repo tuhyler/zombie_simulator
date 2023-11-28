@@ -131,8 +131,11 @@ MonoBehaviour:
   nameField: {fileID: 8342028981247781059}
   nameMap: {fileID: 3197290604571725139}
   nightLights: []
-  harborImprovement: {fileID: 0}
+  tradeCenterPrefab: {fileID: 0}
+  minimapIcon: {fileID: 7859377017847871662}
   tradeCenterName: 
+  tradeCenterDisplayName: 
+  cityPop: 0
   harborLoc: {x: 0, y: 0, z: 0}
   mainLoc: {x: 0, y: 0, z: 0}
   isDiscovered: 0
@@ -210,6 +213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterial2: {fileID: 0}
   isGlowing: 0
 --- !u!1001 &242167531976939344
 PrefabInstance:

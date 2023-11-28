@@ -84,6 +84,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
+      propertyPath: minimapIcon
+      value: 
+      objectReference: {fileID: 3349490344957877403}
+    - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
       propertyPath: terrainData
       value: 
       objectReference: {fileID: 11400000, guid: 1fddc1ef6099212409811e55da512a76,
@@ -337,6 +342,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4ca825818efc3364a98655e3a00d4985, type: 3}
+--- !u!4 &3349490344957877403 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4ca825818efc3364a98655e3a00d4985,
+    type: 3}
+  m_PrefabInstance: {fileID: 3022336211989429104}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6539061012275320013
 PrefabInstance:
   m_ObjectHideFlags: 0
