@@ -67,6 +67,7 @@ public class UIMainMenu : MonoBehaviour
 			world.uiWorldResources.SetInteractable(false);
 			world.cityBuilderManager.uiUnitTurn.ToggleEnable(false);
 			world.uiMainMenuButton.ToggleButtonColor(true);
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, " ");
 
 			activeStatus = true;
 			world.UnselectAll();

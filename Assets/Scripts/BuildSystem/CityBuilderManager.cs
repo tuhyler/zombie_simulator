@@ -1470,36 +1470,35 @@ public class CityBuilderManager : MonoBehaviour
     {
         List<Vector3Int> tempCityTiles = new(cityTiles) {selectedCityLoc};
 
-        foreach (Vector3Int tile in tempCityTiles)
+        for (int i = 0; i < tempCityTiles.Count; i++)
         {
-            //finding border neighbors for tile
-            List<Vector3Int> neighborList = world.GetNeighborsFor(tile, MapWorld.State.FOURWAYINCREMENT);
-            foreach (Vector3Int neighbor in neighborList)
-            {
-                if (!tempCityTiles.Contains(neighbor)) //only draw borders on areas that aren't city tiles
-                {
-                    //Object pooling set up
-                    GameObject tempObject = GetFromBorderPool();
-                    borderList.Add(tempObject);
+			//finding border neighbors for tile
+			List<Vector3Int> neighborList = world.GetNeighborsFor(tempCityTiles[i], MapWorld.State.FOURWAYINCREMENT);
+            for (int j = 0; j < neighborList.Count; j++)
+			{
+				if (!tempCityTiles.Contains(neighborList[j])) //only draw borders on areas that aren't city tiles
+				{
+					//Object pooling set up
+					GameObject tempObject = GetFromBorderPool();
+					borderList.Add(tempObject);
+					Vector3Int borderLocation = neighborList[j] - tempCityTiles[i]; //used to determine where on tile border should be
+					Vector3 borderPosition = tempCityTiles[i];
+					borderPosition.y = 0f;
 
-                    Vector3Int borderLocation = neighbor - tile; //used to determine where on tile border should be
-                    Vector3 borderPosition = tile;
-                    borderPosition.y = 0f;
+					if (borderLocation.x != 0)
+					{
+						borderPosition.x += (0.5f * borderLocation.x);
+						tempObject.transform.rotation = Quaternion.Euler(0, 90, 0); //rotating to make it look like city wall
+					}
+					else if (borderLocation.z != 0)
+					{
+						borderPosition.z += (0.5f * borderLocation.z);
+					}
 
-                    if (borderLocation.x != 0)
-                    {
-                        borderPosition.x += (0.5f * borderLocation.x);
-                        tempObject.transform.rotation = Quaternion.Euler(0, 90, 0); //rotating to make it look like city wall
-                    }
-                    if (borderLocation.z != 0)
-                    {
-                        borderPosition.z += (0.5f * borderLocation.z);
-                    }
-
-                    tempObject.transform.position = borderPosition;
-                }
-            }
-        }
+					tempObject.transform.position = borderPosition;
+				}
+			}
+		}
     }
 
     public void CheckPopForUnit(UnitBuildDataSO unitData)

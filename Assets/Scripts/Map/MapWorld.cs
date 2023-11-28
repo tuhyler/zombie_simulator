@@ -66,7 +66,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     private Material transparentMat;
     [SerializeField]
-    private GameObject selectionIcon, enemyCampIcon, buildPanel, canvasHolder;
+    private GameObject selectionIcon, enemyCampIcon, buildPanel, canvasHolder, enemyBorder;
 
     [SerializeField]
     private ParticleSystem lightBeam;
@@ -313,6 +313,7 @@ public class MapWorld : MonoBehaviour
 				td.Discover();
 		}
 
+        List<Vector3Int> enemyLocs = new();
 		foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
 		{
 			Unit unitEnemy = go.GetComponent<Unit>();
@@ -325,6 +326,7 @@ public class MapWorld : MonoBehaviour
 			unitEnemy.CurrentLocation = unitLoc;
 
 			Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitLoc);
+
 			if (!enemyCampDict.ContainsKey(unitTerrainLoc))
 			{
 				EnemyCamp camp = new();
@@ -340,11 +342,11 @@ public class MapWorld : MonoBehaviour
 				{
 					AddToCityLabor(tile, null);
 					TerrainData td = GetTerrainDataAt(tile);
-					if (td.walkable)
-						td.enemyZone = true;
+					td.enemyZone = true;
 				}
 
 				enemyCampDict[unitTerrainLoc] = camp;
+                enemyLocs.Add(unitTerrainLoc);
 			}
 
 			enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unitEnemy);
@@ -365,6 +367,7 @@ public class MapWorld : MonoBehaviour
 			icon.transform.position = position;
 			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
 			enemyCampDict[loc].minimapIcon = icon;
+            LoadEnemyBorders(loc);
 		}
 
 		GameLoader.Instance.gameData.allTradeCenters.Clear();
@@ -1017,8 +1020,11 @@ public class MapWorld : MonoBehaviour
 
 	internal void MakeEnemyCamps(Dictionary<Vector3Int, Dictionary<Vector3Int, string>> enemyCampLocs, List<Vector3Int> discovered)
 	{
+        List<Vector3Int> enemyCampPos = new();
+        
         foreach (Vector3Int loc in enemyCampLocs.Keys)
         {
+            enemyCampPos.Add(loc);
             bool attacked = false;
             Dictionary<Vector3Int, UnitData> fightingEnemies = new();
 
@@ -1034,8 +1040,7 @@ public class MapWorld : MonoBehaviour
 			{
 				AddToCityLabor(tile, null);
 				TerrainData td = GetTerrainDataAt(tile);
-				if (td.walkable)
-					td.enemyZone = true;
+				td.enemyZone = true;
 			}
 
 			enemyCampDict[loc] = camp;
@@ -1075,8 +1080,17 @@ public class MapWorld : MonoBehaviour
 
             foreach(Vector3Int unitLoc in enemyCampLocs[loc].Keys)
             {
+                Vector3 unitSpawn = unitLoc;
+                if (tdCamp.isHill)
+                {
+                    unitSpawn.y += 0.15f;
+
+                    if (unitLoc == loc)
+                        unitSpawn.y += 0.5f;
+                }
+
                 UnitBuildDataSO enemyData = UpgradeableObjectHolder.Instance.enemyUnitDict[enemyCampLocs[loc][unitLoc]];
-                GameObject enemyGO = Instantiate(enemyData.prefab, unitLoc, Quaternion.Euler(0,UnityEngine.Random.Range(0,360),0));
+                GameObject enemyGO = Instantiate(enemyData.prefab, unitSpawn, Quaternion.Euler(0,UnityEngine.Random.Range(0,360),0));
                 enemyGO.transform.SetParent(enemyUnitHolder, false);
                 if (!reveal)
                     enemyGO.SetActive(false);
@@ -1107,6 +1121,11 @@ public class MapWorld : MonoBehaviour
 	        icon.transform.position = position;
 			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
 			enemyCampDict[loc].minimapIcon = icon;
+        }
+
+        for (int i = 0; i < enemyCampPos.Count; i++)
+        {
+            LoadEnemyBorders(enemyCampPos[i]);
         }
 	}
 
@@ -1209,6 +1228,43 @@ public class MapWorld : MonoBehaviour
         tradeLocDict.Clear();
         enemyCampDict.Clear();
         unitPosDict.Clear();
+	}
+
+	private void LoadEnemyBorders(Vector3Int enemyLoc)
+	{
+		for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
+		{
+			Vector3Int tile = enemyLoc + ProceduralGeneration.neighborsEightDirections[j];
+
+			for (int k = 0; k < ProceduralGeneration.neighborsFourDirections.Count; k++)
+			{
+				Vector3Int newTile = tile + ProceduralGeneration.neighborsFourDirections[k];
+
+				if (!world[newTile].enemyZone)
+				{
+					Vector3 borderPosition = newTile - tile;
+					borderPosition.y = -0.1f;
+					Quaternion rotation = Quaternion.identity;
+
+					if (borderPosition.x != 0)
+					{
+						borderPosition.x = (borderPosition.x / 3 * 0.99f);
+						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
+					}
+					else if (borderPosition.z != 0)
+					{
+						borderPosition.z = (borderPosition.z / 3 * 0.99f);
+					}
+
+					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+					border.transform.SetParent(world[tile].transform, false);
+
+                    if (!world[tile].isDiscovered)
+    					border.SetActive(false);
+					world[tile].enemyBorders.Add(border);
+				}
+			}
+		}
 	}
 
 	public void AaddGold() //for testing, on a button
@@ -3197,27 +3253,43 @@ public class MapWorld : MonoBehaviour
         camp.enemyZone = false;
 		RemoveSingleBuildFromCityLabor(loc);
 
-		foreach (Vector3Int tile in GetNeighborsFor(loc, State.EIGHTWAYINCREMENT))
-		{
-            bool skip = false;
-            
-            foreach (Vector3Int neighborTile in GetNeighborsFor(tile, State.EIGHTWAYINCREMENT))
+        List<Vector3Int> enemyZones = GetNeighborsFor(loc, State.EIGHTWAYINCREMENT);
+        for (int i = 0; i < enemyZones.Count; i++)
+        {
+            List<Vector3Int> neighborTiles = GetNeighborsFor(enemyZones[i], State.FOURWAYINCREMENT);
+            for (int j = 0; j < neighborTiles.Count; j++)
             {
-                if (GetTerrainDataAt(neighborTile).enemyCamp)
-                {
-                    skip = true;
-                    break;
-                }
-            }
-            
-            if (!skip)
-            {
-                TerrainData td = GetTerrainDataAt(tile);
-			    if (td.walkable)
-				    td.enemyZone = false;
+				if (enemyZones.Contains(neighborTiles[j]))
+                    continue;
 
-				RemoveSingleBuildFromCityLabor(tile);
+                TerrainData nextTD = GetTerrainDataAt(neighborTiles[j]);
+				if (nextTD.enemyZone)
+				{
+					Vector3 borderPosition = enemyZones[i] - neighborTiles[j];
+					borderPosition.y = -0.1f;
+					Quaternion rotation = Quaternion.identity;
+
+					if (borderPosition.x != 0)
+					{
+						borderPosition.x = (borderPosition.x / 3 * 0.99f);
+						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
+					}
+					else if (borderPosition.z != 0)
+					{
+						borderPosition.z = (borderPosition.z / 3 * 0.99f);
+					}
+
+					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+					border.transform.SetParent(world[neighborTiles[j]].transform, false);
+					world[neighborTiles[j]].enemyBorders.Add(border);
+				}
 			}
+
+			TerrainData td = GetTerrainDataAt(enemyZones[i]);
+            td.DestroyBorders();
+            td.enemyZone = false;
+
+			RemoveSingleBuildFromCityLabor(enemyZones[i]);
 		}
 
         StartCoroutine(EnemyCampDestroyWait(loc));

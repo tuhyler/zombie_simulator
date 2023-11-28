@@ -97,6 +97,11 @@ public class UIInfoPopUpHandler : MonoBehaviour
         co = StartCoroutine(ShowMessage());
     }
 
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+
     private void SetPopUpText(string text)
     {
         popUpText.text = text;
