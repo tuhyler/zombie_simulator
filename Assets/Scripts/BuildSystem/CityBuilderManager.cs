@@ -156,7 +156,8 @@ public class CityBuilderManager : MonoBehaviour
         largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip;
     [SerializeField]
     private AudioClip[] acknowledgements;
-    private AudioSource audioSource;
+    [HideInInspector]
+    public AudioSource audioSource;
 
     private void Awake()
     {

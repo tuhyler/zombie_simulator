@@ -136,6 +136,7 @@ MonoBehaviour:
   main: {fileID: 478413442398559047}
   prop: {fileID: 6193421569473789042}
   nonstatic: {fileID: 5121927371962656800}
+  minimapIcon: {fileID: 5153426905070947525}
   fog: {fileID: 3131998354976745433}
   highlightPlane: {fileID: 0}
   resourceIcon: {fileID: 0}

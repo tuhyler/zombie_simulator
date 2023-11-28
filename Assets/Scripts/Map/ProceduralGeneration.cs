@@ -46,6 +46,18 @@ public class ProceduralGeneration
         new Vector3Int(-increment,0,increment), //upper left
     };
 
+	public readonly static List<Vector3Int> neighborsEightDirectionsOneStep = new()
+	{
+		new Vector3Int(0,0,1), //up
+        new Vector3Int(1,0,1), //upper right
+        new Vector3Int(1,0,0), //right
+        new Vector3Int(1,0,-1), //lower right
+        new Vector3Int(0,0,-1), //down
+        new Vector3Int(-1,0,-1), //lower left
+        new Vector3Int(-1,0,0), //left
+        new Vector3Int(-1,0,1), //upper left
+    };
+
 	public readonly static List<Vector3Int> neighborsCityRadius = new()
 	{
 		new Vector3Int(0,0,increment), //up
