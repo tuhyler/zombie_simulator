@@ -45,6 +45,9 @@ public class TerrainData : MonoBehaviour
     [HideInInspector]
     public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, showProp = true;
 
+    [HideInInspector]
+    public List<GameObject> enemyBorders = new();
+
     private ResourceGraphicHandler resourceGraphic;
     private TreeHandler treeHandler;
     [SerializeField]
@@ -399,6 +402,9 @@ public class TerrainData : MonoBehaviour
         for (int i = 0; i < whiteMesh.Count; i++)
             whiteMesh[i].material = materials[i];
 
+        for (int i = 0; i < enemyBorders.Count; i++)
+            enemyBorders[i].SetActive(true);
+
         fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);
         StartCoroutine(fogNonStatic.FadeFog());
@@ -446,14 +452,13 @@ public class TerrainData : MonoBehaviour
         fogNonStatic.gameObject.SetActive(true);
         StartCoroutine(fogNonStatic.FadeFog());
 
-        int i = 0;
-        foreach (MeshRenderer renderer in whiteMesh)
-        {
-            renderer.material = materials[i];
-            i++;
-        }
+        for (int i = 0; i < whiteMesh.Count; i++)
+            whiteMesh[i].material = materials[i];
 
-        whiteMesh.Clear();
+		for (int i = 0; i < enemyBorders.Count; i++)
+			enemyBorders[i].SetActive(true);
+
+		whiteMesh.Clear();
         materials.Clear();
         if (nonstatic.childCount > 0)
         {
@@ -664,6 +669,16 @@ public class TerrainData : MonoBehaviour
 
 
 		return amount;
+    }
+
+    public void DestroyBorders()
+    {
+        for (int i = 0; i < enemyBorders.Count; i++)
+        {
+            Destroy(enemyBorders[i]);
+        }
+
+        enemyBorders.Clear();
     }
 
     public TerrainSaveData SaveData()
