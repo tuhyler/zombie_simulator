@@ -59,7 +59,6 @@ public class EnemyCamp
 
         foreach (Unit unit in unitsInCamp)
         {
-            
             if (unit.buildDataSO.unitType == UnitType.Cavalry)
             {
 				cavalryCount++;

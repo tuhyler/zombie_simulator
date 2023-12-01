@@ -43,6 +43,7 @@ public class ImprovementDataSO : ScriptableObject
     public bool singleBuild = false; //only one per city
     public bool oneTerrain = true; //can only be built on one type of terrain
     public bool adjustForHill = true; //shift the improvement up when built on hill
+    public bool hideProp = true; //hiding the prop already on terrain
     public float hillAdjustment = 0.6f;
     public int buildTime;
     public bool availableInitially = false;

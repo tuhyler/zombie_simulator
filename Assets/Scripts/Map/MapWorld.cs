@@ -17,7 +17,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Worker mainPlayer;
     [SerializeField]
-    public GameObject water;
+    public Water water;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
@@ -999,6 +999,8 @@ public class MapWorld : MonoBehaviour
 				}
 			}
 
+			if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
+				td.SwitchToRoad();
 			cityBuilderManager.CombineMeshes(city, city.subTransform, false);
 
 			//reseting rock UVs 
@@ -1055,7 +1057,7 @@ public class MapWorld : MonoBehaviour
 
 			}
 
-			if (td.prop != null)
+			if (td.prop != null && improvementData.hideProp)
                 td.ShowProp(false);
 
 			//setting harbor info
@@ -1434,17 +1436,17 @@ public class MapWorld : MonoBehaviour
             return;
         }
 
-        int eulerAngle = Mathf.RoundToInt(td.main.transform.eulerAngles.y);
+        int eulerAngle = Mathf.RoundToInt(td.main.eulerAngles.y);
 
         Vector2[] uvs = SetUVMap(grasslandCount, SetUVShift(desc), eulerAngle);
         if (td.UVs.Length > 4)
             uvs = NormalizeUVs(uvs, td.UVs);
         td.SetUVs(uvs);
-    }
+	}
 
     private float SetUVShift(TerrainDesc desc)
     {
-        float interval = 256f / 4096;
+        float interval = .0625f; //256/4096
         float shift = 0;
         
         switch (desc)
@@ -1551,10 +1553,13 @@ public class MapWorld : MonoBehaviour
                 {
                     if (cross)
                     {
-                        uvMap[0] += new Vector2(change, -change);
-                        uvMap[1] += new Vector2(change, change);
-                        uvMap[2] += new Vector2(-change, change);
-                        uvMap[3] += new Vector2(-change, -change);
+                        if (rotation != 2)
+                        {
+                            uvMap[0] += new Vector2(change, -change);
+                            uvMap[1] += new Vector2(change, change);
+                            uvMap[2] += new Vector2(-change, change);
+                            uvMap[3] += new Vector2(-change, -change);
+                        }
                     }
                     else
                     {

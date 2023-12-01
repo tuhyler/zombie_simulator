@@ -193,7 +193,7 @@ public class UIBuilderHandler : MonoBehaviour
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1000f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1000f, 0.5f).setEaseOutSine();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1000f, 0.5f).setEaseOutSine().setOnComplete(OpeningComplete);
             LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
             if (resourceManager != null)
@@ -253,6 +253,11 @@ public class UIBuilderHandler : MonoBehaviour
             cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
         else
 			cityBuilderManager.world.openingImmoveable = false;
+	}
+
+    private void OpeningComplete()
+    {
+		cityBuilderManager.world.openingImmoveable = false;
 	}
 
     public void PrepareBuild(ImprovementDataSO buildData)

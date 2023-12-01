@@ -61,6 +61,7 @@ MonoBehaviour:
   singleBuild: 0
   oneTerrain: 0
   adjustForHill: 1
+  hideProp: 0
   hillAdjustment: 0.6
   buildTime: 10
   availableInitially: 1

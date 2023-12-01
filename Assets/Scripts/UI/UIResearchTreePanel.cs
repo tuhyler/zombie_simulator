@@ -156,7 +156,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             {
                 dof.focalLength.value = value;
             });
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine().setOnComplete(OpeningComplete);
             //LeanTween.alpha(allContents, 1f, 0.5f).setFrom(0f).setEaseLinear();
         }
         else
@@ -196,6 +196,11 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             world.immoveableCanvas.gameObject.SetActive(false);
         else
 			world.openingImmoveable = false;
+	}
+
+    private void OpeningComplete()
+    {
+		world.openingImmoveable = false;
 	}
 
     public void CloseResearchTree()

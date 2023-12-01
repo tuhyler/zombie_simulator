@@ -2299,11 +2299,14 @@ public class CityBuilderManager : MonoBehaviour
             Vector3 goScale = improvement.transform.localScale;
             improvement.transform.localScale = Vector3.zero;
             LeanTween.scale(improvement, goScale, 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform, this.upgradingImprovement); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city, improvementData.maxLabor); });
-        }    
-        //LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
+        }
 
-        //reseting rock UVs 
-        if (improvementData.replaceRocks)
+		if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
+			td.SwitchToRoad();
+		//LeanTween.moveLocalY(td.gameObject, -0.5f, 0.4f).setEase(LeanTweenType.linear);
+
+		//reseting rock UVs 
+		if (improvementData.replaceRocks)
         {
             foreach (MeshFilter mesh in cityImprovement.MeshFilter)
             {
@@ -2356,7 +2359,7 @@ public class CityBuilderManager : MonoBehaviour
 
         }
 
-        if (td.prop != null)
+        if (td.prop != null && improvementData.hideProp)
             td.ShowProp(false);
 
         //if (improvementData.replaceTerrain)
@@ -2583,27 +2586,34 @@ public class CityBuilderManager : MonoBehaviour
                 world.GetTerrainDataAt(improvementLoc).RestoreTerrainMesh();
             }
 
-            if (td.resourceAmount > 0)
+            if (td.rawResourceType == RawResourceType.Rocks)
             {
-                td.prop.gameObject.SetActive(true);
-                td.ShowProp(true);
+                if (td.resourceAmount > 0)
+                {
+                    td.prop.gameObject.SetActive(true);
+                    td.ShowProp(true);
+					td.RocksCheck();
+				}
+                else
+                {
+                    TerrainDataSO tempData;
+                
+                    if (td.terrainData.grassland)
+                        tempData = td.isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
+                    else
+                        tempData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
+
+                    td.SetNewData(tempData);
+                    GameLoader.Instance.gameData.allTerrain[improvementLoc] = td.SaveData();
+                    td.ShowProp(false);
+			    }
             }
             else
             {
-                TerrainDataSO tempData;
-                
-                if (td.terrainData.grassland)
-                    tempData = td.isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
-                else
-                    tempData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
-
-                td.SetNewData(tempData);
-                GameLoader.Instance.gameData.allTerrain[improvementLoc] = td.SaveData();
-                td.ShowProp(false);
+				td.ShowProp(true);
+				if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
+					td.SwitchFromRoad();
 			}
-
-            if (td.rawResourceType == RawResourceType.Rocks)
-                td.RocksCheck();
             
             if (improvementData.singleBuild)
             {

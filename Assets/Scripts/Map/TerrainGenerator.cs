@@ -450,6 +450,9 @@ public class TerrainGenerator : MonoBehaviour
                 if (riverInt == 3)
                     riverInt += random.Next(0, 3);
 
+                if (position == new Vector3Int(45, 0, 57))
+                    riverInt = 5;
+
                 if (riverInt == 9999)
                 {
                     river = grasslandSO.prefabs[0];
@@ -1914,7 +1917,8 @@ public class TerrainGenerator : MonoBehaviour
         world.mainPlayer.transform.position = startingPlace;
 		world.mainPlayer.CenterCamera();
         world.cameraController.ResetCamLimits(world.RoundToInt(world.mainPlayer.transform.position));
-        world.water.transform.position = new Vector3(width / 2f, yCoord - 0.06f, height / 2f);
+        world.water.transform.position = new Vector3(width / 2f * 3, yCoord - 0.06f, height / 2f * 3);
+        world.water.minimapIcon.localScale = new Vector3(0.14f * width, 1.8f, 0.14f * height);
 	}
 
     public void SetYCoord(int yCoord)

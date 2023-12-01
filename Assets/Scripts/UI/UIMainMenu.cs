@@ -117,6 +117,7 @@ public class UIMainMenu : MonoBehaviour
 
 	private void FreezeTime()
 	{
+		world.openingImmoveable = false;
 		Time.timeScale = 0f;
 		AudioListener.pause = true;
 		opening = false;
