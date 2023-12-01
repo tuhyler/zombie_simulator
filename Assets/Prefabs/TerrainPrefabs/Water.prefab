@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4701728611484424442}
   - component: {fileID: 4701728611484424443}
   - component: {fileID: 4701728611484424388}
+  - component: {fileID: 1528190164627482703}
   m_Layer: 0
   m_Name: Water
   m_TagString: Untagged
@@ -99,6 +100,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1528190164627482703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4701728611484424389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: deea4cd05aebcba4d83a944eb9831c2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minimapIcon: {fileID: 6020157510531050173}
 --- !u!1001 &6053220672805997910
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -175,6 +189,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 57f42d77bb89e91429e6ab27bc5a4873,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 57f42d77bb89e91429e6ab27bc5a4873,
         type: 3}

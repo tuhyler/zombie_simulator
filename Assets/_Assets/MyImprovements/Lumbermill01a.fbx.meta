@@ -1,48 +1,12 @@
 fileFormatVersion: 2
-guid: 535132a6c2baa164286b227714118a44
+guid: 7bbcb0e26a4a12047b1cd49838c8649f
 ModelImporter:
   serializedVersion: 21202
   internalIDToNameTable:
   - first:
-      74: 4743084820616853705
-    second: Armature|CameraAction
-  - first:
       74: 3145700126242964221
     second: Armature|Working
-  - first:
-      74: -3141545029934827905
-    second: Armature|Working.001
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Bark
-    second: {fileID: 2100000, guid: 2e4fbf3cfe0cfbd4087ba80812b57d13, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: BrownDark.003
-    second: {fileID: 2100000, guid: 989f104f56d33ce41b83465457d90dec, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: FrameWoodDark
-    second: {fileID: 2100000, guid: ce7df0037c6bbcd42b672776ed2d7955, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: GradientGreen
-    second: {fileID: 2100000, guid: 8b951ac7bcd9e994abfe5711ea840cd3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Stone
-    second: {fileID: 2100000, guid: 2e4fbf3cfe0cfbd4087ba80812b57d13, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: StumpTop
-    second: {fileID: 2100000, guid: 2e4fbf3cfe0cfbd4087ba80812b57d13, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

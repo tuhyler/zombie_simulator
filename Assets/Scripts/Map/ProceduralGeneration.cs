@@ -441,8 +441,9 @@ public class ProceduralGeneration
             }
         }
 
-        //mainTiles = RemoveSingles(mainTiles, width, height, yCoord, desert, grassland, false);
-        mainTiles = GenerateSwamps(mainTiles, width, height, yCoord, seed);
+        mainTiles = RemoveSingles2(mainTiles, width, height, yCoord);
+		mainTiles = RemoveSingles2(mainTiles, width, height, yCoord);
+		mainTiles = GenerateSwamps(mainTiles, width, height, yCoord, seed);
 
         return mainTiles;
     }
@@ -526,17 +527,19 @@ public class ProceduralGeneration
 
     private static Dictionary<Vector3Int, int> RemoveSingles2(Dictionary<Vector3Int, int> mapDict, int width, int height, int yCoord)
     {
+        Dictionary<Vector3Int, int> newMapDict = new(mapDict);
         List<int> desertList = new() { desert, desertFloodPlain, desertHill, desertMountain };
         List<int> grasslandList = new() { grassland, grasslandFloodPlain, grasslandHill, grasslandMountain, forest, forestHill, jungle, jungleHill, swamp };
         List<int> waterList = new() { sea, river };
+        List<int> exemptionList = new() { sea, river, forest, forestHill, jungle, jungleHill, swamp };
 
-        for (int i = 0; i < height; i++)
+        for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
                 Vector3Int currentTile = new Vector3Int(i * increment, yCoord, j * increment);
 
-                if (waterList.Contains(mapDict[currentTile]))
+                if (exemptionList.Contains(mapDict[currentTile]))
                     continue;
 
                 bool isDesert = false;
@@ -547,26 +550,91 @@ public class ProceduralGeneration
                 int desertCount = 0;
                 int grasslandCount = 0;
                 int waterCount = 0;
+                int desertPriority = 0;
+                int grasslandPriority = 0;
+
                 for (int k = 0; k < neighborsEightDirections.Count; k++)
                 {
                     Vector3Int tile = currentTile + neighborsEightDirections[k];
+                    if (!mapDict.ContainsKey(tile))
+                        continue;
 
                     if (grasslandList.Contains(mapDict[tile]))
+                    {
                         grasslandCount++;
+                        if (k % 2 == 0)
+                            grasslandPriority++;
+                    }
                     else if (desertList.Contains(mapDict[tile]))
+                    {
                         desertCount++;
+                        if (k % 2 == 0)
+                            desertPriority++;
+                    }
                     else if (waterList.Contains(mapDict[tile]))
                         waterCount++;
                 }
 
-                int total = grasslandCount + desertCount;
+                //switching to more common terrain
+                if (isDesert)
+                {
+                    int diff = grasslandCount - desertCount;
 
-                if (isDesert && grasslandCount > total / 2)
-                    mapDict[currentTile] = grassland;
-            }
+                    if (diff > 1)
+                    {
+						int currentTerrain = mapDict[currentTile];
+						int reverseTerrain = grassland;
+
+						if (currentTerrain == desert)
+							reverseTerrain = grassland;
+						else if (currentTerrain == desertFloodPlain)
+							reverseTerrain = grasslandFloodPlain;
+						else if (currentTerrain == desertHill)
+							reverseTerrain = grasslandHill;
+						else if (currentTerrain == desertMountain)
+							reverseTerrain = grasslandMountain;
+
+						if (diff > 2)
+							newMapDict[currentTile] = reverseTerrain;
+                        else if (diff == 2)
+                        {
+                            if (desertPriority < 2)
+								newMapDict[currentTile] = reverseTerrain;
+                        }
+                    }
+                }
+				else
+				{
+					int diff = desertCount - grasslandCount;
+
+                    if (diff > 1)
+                    {
+						int currentTerrain = mapDict[currentTile];
+						int reverseTerrain = desert;
+
+						if (currentTerrain == grassland)
+							reverseTerrain = desert;
+						else if (currentTerrain == grasslandFloodPlain)
+							reverseTerrain = desertFloodPlain;
+						else if (currentTerrain == grasslandHill)
+							reverseTerrain = desertHill;
+						else if (currentTerrain == grasslandMountain)
+							reverseTerrain = desertMountain;
+
+						if (diff > 2)
+							newMapDict[currentTile] = reverseTerrain;
+						else if (diff == 2)
+						{
+							if (grasslandPriority < 2)
+								newMapDict[currentTile] = reverseTerrain;
+						}
+					}
+				}
+
+			}
         }
 
-        return mapDict;
+        return newMapDict;
     }
 
     private static Dictionary<Vector3Int, int> RandomFillMap(int width, int height, int randomFillPercent, int seed, int yCoord)
