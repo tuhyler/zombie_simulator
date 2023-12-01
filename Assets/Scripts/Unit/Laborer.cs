@@ -78,6 +78,7 @@ public class Laborer : Unit
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
+        data.somethingToSay = somethingToSay;
 
 		return data;
 	}

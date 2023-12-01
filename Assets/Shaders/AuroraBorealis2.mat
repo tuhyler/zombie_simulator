@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AuroraBorealis
+  m_Name: AuroraBorealis2
   m_Shader: {fileID: -6465566751694194690, guid: 09960b137ee48a247a648ac9bd27a452,
     type: 3}
   m_ShaderKeywords: 
@@ -62,7 +62,7 @@ Material:
     - _WobbleFrequency: 1
     - _WobbleSpeed: 0.5
     m_Colors:
-    - _Color: {r: 3.3429034, g: 39.905907, b: 5.4322176, a: 1}
+    - _Color: {r: 9.86937, g: 3.3429027, b: 39.905907, a: 1}
     - _NoiseSpeed: {r: 0, g: 0.02, b: 0, a: 0}
     - _NoiseTiling: {r: 7, g: 0.1, b: 0, a: 0}
   m_BuildTextureStacks: []

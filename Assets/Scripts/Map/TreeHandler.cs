@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class TreeHandler : MonoBehaviour
 {
-    public MeshFilter leafMesh;
+    //public MeshFilter leafMesh, hillLeafMesh, roadLeafMesh, roadHillLeafMesh;
+    public List<MeshFilter> leafMeshList, hillLeafMeshList, roadLeafMeshList, roadHillLeafMeshList = new();
     public GameObject treeFlat, treeHill, treeFlatRoad, treeHillRoad, treeFlatIcon, treeHillIcon;
     public bool keepTrees;
+    public Transform propMesh;
 
     public void TurnOffGraphics(bool clearForest)
     {

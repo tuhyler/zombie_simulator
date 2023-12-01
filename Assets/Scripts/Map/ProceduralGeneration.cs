@@ -441,7 +441,7 @@ public class ProceduralGeneration
             }
         }
 
-        mainTiles = RemoveSingles(mainTiles, width, height, yCoord, desert, grassland, false);
+        //mainTiles = RemoveSingles(mainTiles, width, height, yCoord, desert, grassland, false);
         mainTiles = GenerateSwamps(mainTiles, width, height, yCoord, seed);
 
         return mainTiles;
@@ -524,6 +524,51 @@ public class ProceduralGeneration
         return newTiles;
     }
 
+    private static Dictionary<Vector3Int, int> RemoveSingles2(Dictionary<Vector3Int, int> mapDict, int width, int height, int yCoord)
+    {
+        List<int> desertList = new() { desert, desertFloodPlain, desertHill, desertMountain };
+        List<int> grasslandList = new() { grassland, grasslandFloodPlain, grasslandHill, grasslandMountain, forest, forestHill, jungle, jungleHill, swamp };
+        List<int> waterList = new() { sea, river };
+
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                Vector3Int currentTile = new Vector3Int(i * increment, yCoord, j * increment);
+
+                if (waterList.Contains(mapDict[currentTile]))
+                    continue;
+
+                bool isDesert = false;
+
+                if (desertList.Contains(mapDict[currentTile]))
+                    isDesert = true;
+
+                int desertCount = 0;
+                int grasslandCount = 0;
+                int waterCount = 0;
+                for (int k = 0; k < neighborsEightDirections.Count; k++)
+                {
+                    Vector3Int tile = currentTile + neighborsEightDirections[k];
+
+                    if (grasslandList.Contains(mapDict[tile]))
+                        grasslandCount++;
+                    else if (desertList.Contains(mapDict[tile]))
+                        desertCount++;
+                    else if (waterList.Contains(mapDict[tile]))
+                        waterCount++;
+                }
+
+                int total = grasslandCount + desertCount;
+
+                if (isDesert && grasslandCount > total / 2)
+                    mapDict[currentTile] = grassland;
+            }
+        }
+
+        return mapDict;
+    }
+
     private static Dictionary<Vector3Int, int> RandomFillMap(int width, int height, int randomFillPercent, int seed, int yCoord)
     {
         Dictionary<Vector3Int, int> randomTiles = new();
@@ -560,8 +605,8 @@ public class ProceduralGeneration
                 boundary2 = width;
             }
 
-            Vector3Int currentTile = new(0, 0, 0);
-            Vector3Int prevTile = new(0, 0, 0);
+            Vector3Int currentTile;
+            Vector3Int prevTile = Vector3Int.zero;
             int firstPrevType = 0;
             int secondPrevType = 0;
 
@@ -594,7 +639,7 @@ public class ProceduralGeneration
         return mapDict;
     }
 
-    private static Dictionary<int, List<Vector3Int>> GetLandMasses(Dictionary<Vector3Int, int> mapDict)
+	public static Dictionary<int, List<Vector3Int>> GetLandMasses(Dictionary<Vector3Int, int> mapDict)
     {
         Dictionary<int, List<Vector3Int>> landMassDict = new();
         List<Vector3Int> checkedPositions = new();
@@ -704,13 +749,13 @@ public class ProceduralGeneration
         return landMassDict;
     }
 
-    public static Dictionary<Vector3Int, int> GenerateMountainRanges(Dictionary<Vector3Int, int> mapDict, 
+    public static Dictionary<Vector3Int, int> GenerateMountainRanges(Dictionary<Vector3Int, int> mapDict, Dictionary<int, List<Vector3Int>> landMassDict,
         int mountainPerc, int mountainousPerc, int mountainRangeLength, int width, int height, int yCoord, int seed) 
     {
         System.Random random = new System.Random(seed);
 
         Dictionary<Vector3Int, int> mainTiles = new(mapDict);
-        Dictionary<int, List<Vector3Int>> landMassDict = GetLandMasses(mainTiles);
+        //Dictionary<int, List<Vector3Int>> landMassDict = GetLandMasses(mainTiles);
         Queue<Vector3Int> mountainStarts = new();
         List<Vector3Int> allTiles = new();
         bool justHills = false;

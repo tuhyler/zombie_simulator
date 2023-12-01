@@ -6,9 +6,10 @@ public class TerrainSaveData
 {
 	public string name;
 	public Vector3Int tileCoordinates;
-	public Quaternion rotation, propRotation;
+	public Quaternion rotation, mainRotation, propRotation;
 	public RawResourceType rawResourceType;
 	public ResourceType resourceType;
+	public List<int> uvMapIndex;
 
 	public bool showProp = true;
 	public int variant = 0;

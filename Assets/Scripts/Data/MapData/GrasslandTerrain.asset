@@ -20,8 +20,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 9073605623283122857, guid: b46832f06bbb3ef439028bb021b5ae44, type: 3}
   - {fileID: 9073605623283122857, guid: 9f80b0b37224d0543a8cc0ee69633cf3, type: 3}
-  - {fileID: 9073605623283122857, guid: de8ace443689126458de5a893508f4a5, type: 3}
-  - {fileID: 9073605623283122857, guid: 2dc685712af5ad24c95d5e30df94db69, type: 3}
   title: Grassland
   clearedForestData: {fileID: 0}
   grassland: 1

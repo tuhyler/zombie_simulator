@@ -175,7 +175,7 @@ public class UnitMovement : MonoBehaviour
             return;
 
         if (selectedUnit != null && selectedUnit.sayingSomething)
-            SpeakingCheck();
+            //SpeakingCheck();
         //else if (loadScreenSet)
         //    LoadUnloadFinish(false);
 
@@ -573,7 +573,6 @@ public class UnitMovement : MonoBehaviour
         {
             unitReference.somethingToSay = false;
             unitReference.sayingSomething = true;
-            world.PlayMessage(location);
             CenterCamOnUnit();
         }
 
@@ -790,8 +789,8 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.isBusy)
             return;
 
-        if (selectedUnit != null && selectedUnit.sayingSomething)
-            SpeakingCheck();
+        //if (selectedUnit != null && selectedUnit.sayingSomething)
+        //    SpeakingCheck();
 
         //selectedUnit.projectile.SetPoints(selectedUnit.transform.position, location); // just for testing projectiles
         //StartCoroutine(selectedUnit.projectile.ShootTest());
@@ -1688,14 +1687,14 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    private void SpeakingCheck()
-    {
-        if (selectedUnit.sayingSomething)
-        {
-            selectedUnit.sayingSomething = false;
-            world.StopMessage();
-        }
-    }
+    //private void SpeakingCheck()
+    //{
+    //    if (selectedUnit.sayingSomething)
+    //    {
+    //        selectedUnit.sayingSomething = false;
+    //        world.StopMessage();
+    //    }
+    //}
 
     public void ChangeHomeBase()
     {
@@ -1847,7 +1846,7 @@ public class UnitMovement : MonoBehaviour
             else if (selectedUnit.isTrader)
                 world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
 
-            SpeakingCheck();
+            //SpeakingCheck();
             moveUnit = false;
             uiMoveUnit.ToggleTweenVisibility(false);
             uiCancelMove.ToggleTweenVisibility(false);

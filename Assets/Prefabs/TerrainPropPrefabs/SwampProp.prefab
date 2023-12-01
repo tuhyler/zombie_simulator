@@ -53,6 +53,7 @@ MonoBehaviour:
   treeFlatIcon: {fileID: 0}
   treeHillIcon: {fileID: 0}
   keepTrees: 1
+  propMesh: {fileID: 0}
 --- !u!1001 &5697931932043174388
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -88,17 +89,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5ac7c61e0405b464b90136687bb6b3ff,
         type: 3}

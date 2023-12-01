@@ -94,7 +94,7 @@ public class EnemyCamp
 				}
                 else if (ranged < 6)
 				{
-					if (infantry+cavalry > 3)
+					if (infantry+cavalry+ranged > 3)
 	                    unit.barracksBunk = loc + midLines[5 - ranged];
 					else
 						unit.barracksBunk = loc + midLines[ranged];

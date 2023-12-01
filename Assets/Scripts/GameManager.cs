@@ -110,8 +110,10 @@ public class GameManager : MonoBehaviour
 
 		if (newGame)
 		{
-			loadingScreen.SetActive(false);
-			scenesLoading.Clear();
+			GameLoader.Instance.NewGame();
+			StartCoroutine(GetNewGameProgress());
+			//loadingScreen.SetActive(false);
+			//scenesLoading.Clear();
 		}
 		else
 		{
@@ -119,6 +121,17 @@ public class GameManager : MonoBehaviour
 			GameLoader.Instance.LoadData(totalLoadName);
 			StartCoroutine(GetDataLoadProgress());
 		}
+	}
+
+	public IEnumerator GetNewGameProgress()
+	{
+		while (GameLoader.Instance == null || !GameLoader.Instance.isDone)
+		{
+			yield return null;
+		}
+
+		loadingScreen.SetActive(false);
+		scenesLoading.Clear();
 	}
 
 	public IEnumerator GetDataLoadProgress()
