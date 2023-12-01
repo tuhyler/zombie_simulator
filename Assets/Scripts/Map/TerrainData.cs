@@ -11,7 +11,10 @@ public class TerrainData : MonoBehaviour
     public TerrainDataSO terrainData;
 
     [SerializeField]
-    public int prefabIndex = 0, decorIndex = 0, uvMapIndex;
+    public int prefabIndex = 0, decorIndex = 0;
+
+    [HideInInspector]
+    public List<int> uvMapIndex = new();
 
     [SerializeField]
     public Transform main, prop, nonstatic/*, minimapIcon*/;
@@ -171,21 +174,22 @@ public class TerrainData : MonoBehaviour
 			//treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-                ChangeLeafColors(uvMapIndex);
+                ChangeLeafColors(false, treeHandler);
 		}
 	}
 
+    //used for non-static mesh, ie should not be included in staticbatchingutility
     public void SetNonStatic()
     {
 		if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
 		{
-			TreeHandler treeHandler = nonstatic.GetComponentInChildren<TreeHandler>();
+			TreeHandler treeHandler = nonstatic.GetComponentInChildren<TreeHandler>(); //must be its own treehandler
             treeHandler.TurnOffGraphics(false);
             treeHandler.SwitchFromRoad(isHill);
             //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-				ChangeLeafColors(uvMapIndex);
+                ChangeLeafColors(true, treeHandler);
 		}
 	}
 
@@ -260,36 +264,54 @@ public class TerrainData : MonoBehaviour
             minimapIconMesh.mesh.uv = uvs;
     }
 
-    public void ChangeLeafColors(int color)
+    public void ChangeLeafColors(bool nonstatic, TreeHandler treeHandler)
     {
-        float xChange = 0;
-        float yChange = 0;
-        
-        if (color == 1)
-        {
-            xChange = 0.031153f;
-        }
-        else if (color == 2)
-        {
-            yChange = -0.031351f;
-        }
-        else
-        {
-			xChange = 0.031153f;
-			yChange = -0.031351f;
+		for (int i = 0; i < treeHandler.hillLeafMeshList.Count; i++)
+		{
+			float xChange = 0;
+			float yChange = 0;
+
+			int newColor = uvMapIndex[i];
+
+			if (newColor == 1)
+			{
+				xChange = 0.031153f;
+			}
+			else if (newColor == 2)
+			{
+				yChange = -0.031351f;
+			}
+			else
+			{
+				xChange = 0.031153f;
+				yChange = -0.031351f;
+			}
+
+			Vector2[] leafUVs = treeHandler.hillLeafMeshList[i].mesh.uv;
+            Vector2[] changedUVs = ChangeLeafMeshUVs(leafUVs, xChange, yChange);
+            treeHandler.leafMeshList[i].mesh.uv = changedUVs;
+			treeHandler.hillLeafMeshList[i].mesh.uv = changedUVs;
+
+            if (i < treeHandler.hillLeafMeshList.Count - 2)
+            {
+                treeHandler.roadLeafMeshList[i].mesh.uv = changedUVs;
+                treeHandler.roadHillLeafMeshList[i].mesh.uv = changedUVs;
+            }
+		}
+    }
+
+    private Vector2[] ChangeLeafMeshUVs(Vector2[] leafUVs, float xChange, float yChange)
+    {
+		int i = 0;
+
+		while (i < leafUVs.Length)
+		{
+			leafUVs[i].x += xChange;
+			leafUVs[i].y += yChange;
+			i++;
 		}
 
-        Vector2[] leafUVs = treeHandler.leafMesh.mesh.uv;
-        int i = 0;
-
-        while (i < leafUVs.Length)
-        {
-            leafUVs[i].x += xChange;
-            leafUVs[i].y += yChange;
-            i++;
-        }
-
-        treeHandler.leafMesh.mesh.uv = leafUVs;
+		return leafUVs;
     }
 
     public void ChangeMountainSnow()
@@ -688,12 +710,15 @@ public class TerrainData : MonoBehaviour
         data.name = terrainData.terrainName;
         data.tileCoordinates = tileCoordinates;
         data.rotation = transform.rotation;
-        data.propRotation = prop.rotation;
+        data.mainRotation = main.rotation;
+        if (treeHandler != null && treeHandler.propMesh != null)
+            data.propRotation = treeHandler.propMesh.rotation;
         data.rawResourceType = rawResourceType;
         data.resourceType = resourceType;
         data.showProp = showProp;
         data.variant = prefabIndex;
         data.decor = decorIndex;
+        data.uvMapIndex = uvMapIndex;
 
         data.isDiscovered = isDiscovered;
         data.beingCleared = beingCleared;
@@ -713,5 +738,8 @@ public class TerrainData : MonoBehaviour
         showProp = data.showProp;
         prefabIndex = data.variant;
         decorIndex = data.decor;
+        main.rotation = data.mainRotation;
+        nonstatic.rotation = data.mainRotation;
+        uvMapIndex = data.uvMapIndex;
 	}
 }

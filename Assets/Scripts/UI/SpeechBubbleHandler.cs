@@ -12,10 +12,17 @@ public class SpeechBubbleHandler : MonoBehaviour
 
     public float wordPause = 0.1f;
     public float sentencePause = 0.4f;
+    private WaitForSeconds wordWait, sentenceWait;
 
     private Coroutine co;
 
-    void LateUpdate()
+	private void Awake()
+	{
+        wordWait = new WaitForSeconds(wordPause);
+        sentenceWait = new WaitForSeconds(sentencePause);
+	}
+
+	void LateUpdate()
     {
         transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
     }
@@ -38,9 +45,9 @@ public class SpeechBubbleHandler : MonoBehaviour
         for (int i = 1; i < textArray.Length; i++)
         {
             if (speech.text.EndsWith('.'))
-                yield return new WaitForSeconds(sentencePause);
+                yield return sentenceWait;
             else
-                yield return new WaitForSeconds(wordPause);
+                yield return wordWait;
 
             speech.text += " " + textArray[i];
         }

@@ -359,8 +359,6 @@ public class WorkerTaskManager : MonoBehaviour
 		bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
         world.SetWorkerWorkLocation(tile);
         world.RemoveQueueItemCheck(tile);
-        worker.citiesBuilt++;
-        worker.SpeechCheck();
         int totalTime = cityBuildingTime;
         if (clearForest)
             totalTime += worker.clearingForestTime;

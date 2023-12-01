@@ -143,7 +143,7 @@ MonoBehaviour:
   fogNonStatic: {fileID: 4306825774400549271}
   resourceBackgroundSprite: {fileID: 0}
   resourceIconSprite: {fileID: 0}
-  white: {fileID: 2100000, guid: d87f9a8b5b7c8024798ff452a1540ec5, type: 2}
+  white: {fileID: 2100000, guid: 74b4e3b23c1555c4589c22411ec6f610, type: 2}
   changeLeafColor: 0
   isHill: 0
   hasRoad: 0
@@ -158,6 +158,7 @@ MonoBehaviour:
   isDiscovered: 1
   beingCleared: 0
   showProp: 1
+  enemyBorders: []
   godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}

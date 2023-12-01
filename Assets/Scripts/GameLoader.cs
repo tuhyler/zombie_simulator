@@ -9,6 +9,8 @@ public class GameLoader : MonoBehaviour
 
 	public MapWorld world;
 
+	public TerrainGenerator terrainGenerator;
+
 	[HideInInspector]
 	public GamePersist gamePersist = new();
 	[HideInInspector]
@@ -27,6 +29,19 @@ public class GameLoader : MonoBehaviour
 	private void Awake()
 	{
 		Instance = this;
+	}
+
+	public void NewGame()
+	{
+		GameManager.Instance.ResetProgress();
+		world.ClearMap();
+
+		terrainGenerator.SetYCoord(0);
+		Dictionary<Vector3Int, TerrainData> terrainDict = terrainGenerator.RunProceduralGeneration(true);
+		terrainGenerator.SetMainPlayerLoc();
+		world.NewGamePrep(true, terrainDict);
+		terrainGenerator.Clear();
+		StartCoroutine(WaitASec());
 	}
 
 	public void SaveGame(string saveNameRaw, float playTime, string version, string screenshot)
@@ -160,7 +175,6 @@ public class GameLoader : MonoBehaviour
 		//AudioListener.pause = true;
 
 		world.ClearMap();
-		world.test = true;
 		
 		gameData = gamePersist.LoadData(saveName, false);
 

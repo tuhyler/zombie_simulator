@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Resources;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -11,18 +12,18 @@ using UnityEngine.SceneManagement;
 
 public class MapWorld : MonoBehaviour
 {
-    public bool test;
     private string version = "0.1";
     private DateTime currentTime;
-    //public float test = 0.4f;
     [SerializeField]
     public Worker mainPlayer;
+    [SerializeField]
+    public GameObject water;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [HideInInspector]
-    public bool openingImmoveable, openingCity;
+    public bool openingImmoveable, openingCity, tutorial;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -245,10 +246,10 @@ public class MapWorld : MonoBehaviour
             SetResearchName(researchTree.GetChosenResearchName());
         else
             SetResearchName("No Research");
-        GameObject speechBubbleGO = Instantiate(GameAssets.Instance.speechBubble);
-		speechBubbleGO.transform.SetParent(gameObject.transform, false);
-		speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
-        speechBubble.gameObject.SetActive(false);
+  //      GameObject speechBubbleGO = Instantiate(GameAssets.Instance.speechBubble);
+		//speechBubbleGO.transform.SetParent(gameObject.transform, false);
+		//speechBubble = speechBubbleGO.GetComponent<SpeechBubbleHandler>();
+  //      speechBubble.gameObject.SetActive(false);
 
         uiInfoPopUpHandler.SetWarningMessage(uiInfoPopUpHandler);
         uiInfoPopUpHandler.gameObject.SetActive(false);
@@ -260,155 +261,9 @@ public class MapWorld : MonoBehaviour
 
     private void Start()
     {
-		wonderButton.gameObject.SetActive(true);
-		uiMainMenuButton.gameObject.SetActive(true);
-		uiWorldResources.SetActiveStatus(true);
-		List<TerrainData> coastalTerrain = new();
-		List<TerrainData> terrainToCheck = new();
-
-		//bool saveData = true;
-
-		//if (GameLoader.Instance.gameData.allTerrain.Count == 0)
-		//	saveData = true;
-		foreach (Transform go in terrainHolder)
-		{
-            if (go.TryGetComponent(out TerrainData td))
-            {
-			    td.SetWorld(this);
-                td.SetProp();
-                //StaticBatchingUtility.Combine(terrainHolder.gameObject);
-                td.SetVisibleProp();
-
-			    if (td.isSeaCorner && !coastalTerrain.Contains(td))
-				    coastalTerrain.Add(td);
-			    td.SetTileCoordinates();
-			    Vector3Int tileCoordinate = td.TileCoordinates;
-				GameLoader.Instance.gameData.allTerrain[tileCoordinate] = td.SaveData();
-
-			    world[tileCoordinate] = td;
-			    terrainToCheck.Add(td);
-			    td.CheckMinimapResource(mapHandler);
-			    if (!hideTerrain && td.hasResourceMap)
-				    td.resourceIcon.SetActive(true);
-			    if (td.hasResourceMap)
-				    td.PrepParticleSystem();
-
-			    foreach (Vector3Int tile in neighborsEightDirections)
-			    {
-				    world[tileCoordinate + tile] = td;
-			    }
-            }
-            //TerrainData td = go.GetComponent<TerrainData>();
-		}
-
-		foreach (TerrainData td in coastalTerrain)
-			td.SetCoastCoordinates();
-
-		foreach (TerrainData td in terrainToCheck)
-		{
-			//ConfigureUVs(td);
-			if (hideTerrain)
-				td.Hide();
-			else
-				td.Discover();
-		}
-
-        List<Vector3Int> enemyLocs = new();
-		foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
-		{
-			Unit unitEnemy = go.GetComponent<Unit>();
-			unitEnemy.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
-
-			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
-			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
-				unitEnemy.CurrentLocation = AddUnitPosition(unitLoc, unitEnemy);
-
-			unitEnemy.CurrentLocation = unitLoc;
-
-			Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitLoc);
-
-			if (!enemyCampDict.ContainsKey(unitTerrainLoc))
-			{
-				EnemyCamp camp = new();
-				camp.world = this;
-				camp.loc = unitTerrainLoc;
-
-				TerrainData tdCamp = GetTerrainDataAt(unitTerrainLoc);
-				tdCamp.enemyCamp = true;
-				tdCamp.enemyZone = true;
-				AddToCityLabor(unitTerrainLoc, null);
-
-				foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
-				{
-					AddToCityLabor(tile, null);
-					TerrainData td = GetTerrainDataAt(tile);
-					td.enemyZone = true;
-				}
-
-				enemyCampDict[unitTerrainLoc] = camp;
-                enemyLocs.Add(unitTerrainLoc);
-			}
-
-			enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unitEnemy);
-			unitEnemy.enemyAI.CampLoc = unitTerrainLoc;
-			unitEnemy.enemyAI.CampSpot = unitLoc;
-			unitEnemy.enemyCamp = enemyCampDict[unitTerrainLoc];
-			if (hideTerrain)
-			    unitEnemy.gameObject.SetActive(false);
-		}
-
-		foreach (Vector3Int loc in enemyCampDict.Keys)
-		{
-			enemyCampDict[loc].FormBattlePositions();
-			GameLoader.Instance.gameData.enemyCampLocs[loc] = enemyCampDict[loc].SendCampData();
-			Vector3 position = Vector3.zero;
-			position.y += 1;
-			GameObject icon = Instantiate(enemyCampIcon);
-			icon.transform.position = position;
-			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
-			enemyCampDict[loc].minimapIcon = icon;
-            LoadEnemyBorders(loc);
-		}
-
-		GameLoader.Instance.gameData.allTradeCenters.Clear();
-		foreach (Transform go in tradeCenterHolder)
-		{
-			TradeCenter center = go.GetComponent<TradeCenter>();
-
-			center.SetWorld(this);
-			center.ToggleLights(false);
-			center.SetName();
-			center.SetPop(UnityEngine.Random.Range(4, 9));
-			center.ClaimSpotInWorld(increment, false);
-            GameLoader.Instance.gameData.allTradeCenters[center.mainLoc] = center.SaveData();
-			tradeCenterDict[center.tradeCenterName] = center;
-			tradeCenterStopDict[center.mainLoc] = center;
-			//tradeCenterStopDict[center.harborLoc] = center;
-			AddTradeLoc(center.mainLoc, center.tradeCenterName);
-			AddTradeLoc(center.harborLoc, center.tradeCenterName);
-			if (hideTerrain)
-				center.Hide();
-			else
-				center.isDiscovered = true;
-		}
-
-		//foreach (GameObject go in unitHolder) //adds all friendly units and their locations to start game.
-		//{
-		Unit unit = mainPlayer.GetComponent<Unit>();
-		unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
-
-		unit.Reveal();
-        Vector3Int unitPos = RoundToInt(unit.transform.position);
-		if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
-			unit.CurrentLocation = AddUnitPosition(unitPos, unit);
-
-		unit.CurrentLocation = unitPos;
-
-		unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
+        NewGamePrep(false);
         
-		//}
-
-		string upgradeableObjectName = "";
+        string upgradeableObjectName = "";
         List<ResourceValue> upgradeableObjectTotalCost = new();
         int upgradeableObjectLevel = 9999;
 
@@ -570,7 +425,241 @@ public class MapWorld : MonoBehaviour
         //}
     }
 
-    public void GenerateMap(Dictionary<Vector3Int, TerrainSaveData> mainMap)
+    public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null)
+    {
+		wonderButton.gameObject.SetActive(true);
+		uiMainMenuButton.gameObject.SetActive(true);
+		uiWorldResources.SetActiveStatus(true);
+		List<TerrainData> coastalTerrain = new();
+		List<TerrainData> terrainToCheck = new();
+
+        if (newGame)
+        {
+            NewMap(terrainDict);
+        }
+        else
+        {
+		    foreach (Transform go in terrainHolder)
+		    {
+			    if (go.TryGetComponent(out TerrainData td))
+			    {
+				    td.SetWorld(this);
+				    td.SetProp();
+				    //StaticBatchingUtility.Combine(terrainHolder.gameObject);
+				    td.SetVisibleProp();
+
+				    if (td.isSeaCorner && !coastalTerrain.Contains(td))
+					    coastalTerrain.Add(td);
+				    td.SetTileCoordinates();
+				    Vector3Int tileCoordinate = td.TileCoordinates;
+				    GameLoader.Instance.gameData.allTerrain[tileCoordinate] = td.SaveData();
+
+				    world[tileCoordinate] = td;
+				    terrainToCheck.Add(td);
+				    td.CheckMinimapResource(mapHandler);
+
+                    if (hideTerrain)
+                    {
+					    td.Hide();
+				    }
+                    else
+                    {
+                        td.Discover();
+                    
+                        if (td.hasResourceMap)
+						    td.resourceIcon.SetActive(true);
+                    }
+
+				    //if (!hideTerrain && td.hasResourceMap)
+				    //	td.resourceIcon.SetActive(true);
+				    if (td.hasResourceMap)
+					    td.PrepParticleSystem();
+
+				    foreach (Vector3Int tile in neighborsEightDirections)
+				    {
+					    world[tileCoordinate + tile] = td;
+				    }
+			    }
+		    }
+
+            for (int i = 0; i < coastalTerrain.Count; i++)
+                coastalTerrain[i].SetCoastCoordinates();
+
+		    for (int i = 0; i < terrainToCheck.Count; i++)
+                terrainToCheck[i].SetVisibleProp();
+		    //foreach (TerrainData td in terrainToCheck)
+		    //{
+		    //	//ConfigureUVs(td);
+		    //	if (hideTerrain)
+		    //		td.Hide();
+		    //	else
+		    //		td.Discover();
+		    //}
+        }
+
+		List<Vector3Int> enemyLocs = new();
+		foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
+		{
+			Unit unitEnemy = go.GetComponent<Unit>();
+			unitEnemy.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+
+			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
+			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
+				unitEnemy.CurrentLocation = AddUnitPosition(unitLoc, unitEnemy);
+
+			unitEnemy.CurrentLocation = unitLoc;
+
+			Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitLoc);
+
+			if (!enemyCampDict.ContainsKey(unitTerrainLoc))
+			{
+				EnemyCamp camp = new();
+				camp.world = this;
+				camp.loc = unitTerrainLoc;
+
+				TerrainData tdCamp = GetTerrainDataAt(unitTerrainLoc);
+				tdCamp.enemyCamp = true;
+				tdCamp.enemyZone = true;
+				AddToCityLabor(unitTerrainLoc, null);
+
+				foreach (Vector3Int tile in GetNeighborsFor(unitTerrainLoc, State.EIGHTWAYINCREMENT))
+				{
+					AddToCityLabor(tile, null);
+					TerrainData td = GetTerrainDataAt(tile);
+					td.enemyZone = true;
+				}
+
+				enemyCampDict[unitTerrainLoc] = camp;
+				enemyLocs.Add(unitTerrainLoc);
+			}
+
+			enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unitEnemy);
+			unitEnemy.enemyAI.CampLoc = unitTerrainLoc;
+			unitEnemy.enemyAI.CampSpot = unitLoc;
+			unitEnemy.enemyCamp = enemyCampDict[unitTerrainLoc];
+			if (hideTerrain)
+				unitEnemy.gameObject.SetActive(false);
+		}
+
+		foreach (Vector3Int loc in enemyCampDict.Keys)
+		{
+            enemyCampDict[loc].FormBattlePositions();
+			GameLoader.Instance.gameData.enemyCampLocs[loc] = enemyCampDict[loc].SendCampData();
+			Vector3 position = Vector3.zero;
+			position.y += 1;
+			GameObject icon = Instantiate(enemyCampIcon);
+			icon.transform.position = position;
+			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
+			enemyCampDict[loc].minimapIcon = icon;
+			LoadEnemyBorders(loc);
+		}
+
+		GameLoader.Instance.gameData.allTradeCenters.Clear();
+		foreach (Transform go in tradeCenterHolder)
+		{
+			TradeCenter center = go.GetComponent<TradeCenter>();
+
+			center.SetWorld(this);
+			center.ToggleLights(false);
+			center.SetName();
+			center.SetPop(UnityEngine.Random.Range(4, 9));
+			center.ClaimSpotInWorld(increment, false);
+			GameLoader.Instance.gameData.allTradeCenters[center.mainLoc] = center.SaveData();
+			tradeCenterDict[center.tradeCenterName] = center;
+			tradeCenterStopDict[center.mainLoc] = center;
+			//tradeCenterStopDict[center.harborLoc] = center;
+			AddTradeLoc(center.mainLoc, center.tradeCenterName);
+			AddTradeLoc(center.harborLoc, center.tradeCenterName);
+			if (hideTerrain)
+				center.Hide();
+			else
+				center.isDiscovered = true;
+		}
+
+		Unit unit = mainPlayer.GetComponent<Unit>();
+		unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+
+		unit.Reveal();
+		Vector3Int unitPos = RoundToInt(unit.transform.position);
+		if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
+			unit.CurrentLocation = AddUnitPosition(unitPos, unit);
+
+		unit.CurrentLocation = unitPos;
+
+		unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
+	}
+
+    public void NewMap(Dictionary<Vector3Int, TerrainData> terrainDict)
+    {
+		List<TerrainData> coastalTerrain = new();
+		List<TerrainData> terrainToCheck = new();
+		List<TerrainData> terrainPropsToModify = new();
+
+		foreach (Vector3Int position in terrainDict.Keys)
+		{
+            TerrainData td = terrainDict[position];
+			GameLoader.Instance.gameData.allTerrain[td.TileCoordinates] = td.SaveData();
+			TerrainDataSO terrainData = td.terrainData;
+
+			td.SetData(terrainData);
+
+			if (terrainData.decors[td.decorIndex] != null)
+			{
+				td.SetProp();
+				terrainPropsToModify.Add(td);
+			}
+
+			td.SetWorld(this);
+
+			if (td.isSeaCorner && !coastalTerrain.Contains(td))
+				coastalTerrain.Add(td);
+
+			world[td.TileCoordinates] = td;
+			terrainToCheck.Add(td);
+			td.CheckMinimapResource(mapHandler);
+
+			td.SetHighlightMesh();
+
+			if (hideTerrain)
+			{
+				td.Hide();
+
+				if (td.hasResourceMap)
+					td.PrepParticleSystem();
+			}
+			else
+			{
+				td.Discover();
+
+				if (td.hasResourceMap)
+					td.resourceIcon.SetActive(true);
+			}
+
+			if (!hideTerrain && td.hasResourceMap)
+				td.resourceIcon.SetActive(true);
+
+			foreach (Vector3Int tile in neighborsEightDirections)
+			{
+				world[td.TileCoordinates + tile] = td;
+			}
+		}
+
+		for (int i = 0; i < coastalTerrain.Count; i++)
+			coastalTerrain[i].SetCoastCoordinates();
+
+		for (int i = 0; i < terrainToCheck.Count; i++)
+            ConfigureUVs(terrainToCheck[i]);
+
+        StaticBatchingUtility.Combine(terrainHolder.gameObject);
+
+		//after combine, then hide mesh
+		for (int i = 0; i < terrainPropsToModify.Count; i++)
+			terrainPropsToModify[i].SetVisibleProp();
+
+		ambienceAudio.AmbienceCheck();
+	}
+
+	public void GenerateMap(Dictionary<Vector3Int, TerrainSaveData> mainMap)
     {
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
@@ -596,8 +685,9 @@ public class MapWorld : MonoBehaviour
 
 				if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
                 {
-					GameObject nonStaticProp = Instantiate(terrainData.decors[data.decor], Vector3.zero, data.propRotation);
+					GameObject nonStaticProp = Instantiate(terrainData.decors[data.decor], Vector3.zero, Quaternion.identity);
                     nonStaticProp.transform.SetParent(td.nonstatic, false);
+                    td.nonstatic.rotation = data.propRotation;
                     td.SetNonStatic();
 				}
 			}
@@ -611,6 +701,8 @@ public class MapWorld : MonoBehaviour
 			terrainToCheck.Add(td);
 			td.CheckMinimapResource(mapHandler);
 
+            td.SetHighlightMesh();
+            
             if (td.isDiscovered)
             {
                 td.Discover();
@@ -633,8 +725,6 @@ public class MapWorld : MonoBehaviour
 			{
 				world[data.tileCoordinates + tile] = td;
 			}
-
-            td.SetHighlightMesh();
 		}
 
         for (int i = 0; i < coastalTerrain.Count; i++)
@@ -1096,6 +1186,8 @@ public class MapWorld : MonoBehaviour
                     enemyGO.SetActive(false);
 
                 Unit unit = enemyGO.GetComponent<Unit>();
+                if (tdCamp.CompareTag("Forest") || tdCamp.CompareTag("Forest Hill"))
+                    unit.marker.gameObject.SetActive(true);
 		        unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
 		        if (!attacked) //just in case dictionary was missing any
 			        unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
@@ -4080,6 +4172,7 @@ public class MapWorld : MonoBehaviour
 
         buildingPosDict[position] = structure;
     }
+
     public void AddTradeCenterName(GameObject nameMap)
     {
         cityNamesMaps.Add(nameMap);
@@ -4481,16 +4574,10 @@ public class MapWorld : MonoBehaviour
     //    return null;
     //}
     
-    
-    public void PlayMessage(Vector3 loc)
-    {
-        speechBubble.SetText(loc, "This is a test. This is only a test.");
-    }
-
-    public void StopMessage()
-    {
-        speechBubble.CancelText();
-    }
+    //public void StopMessage()
+    //{
+    //    speechBubble.CancelText();
+    //}
 
 
     //debug gizmos

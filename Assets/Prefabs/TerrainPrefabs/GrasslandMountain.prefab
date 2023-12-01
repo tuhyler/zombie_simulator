@@ -29,7 +29,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 138495324743355252}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2052521121343093163
 GameObject:
@@ -61,6 +61,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 478413442398559047}
+  - {fileID: 5153426905070947525}
   - {fileID: 6193421569473789042}
   m_Father: {fileID: 5011132036053948465}
   m_RootOrder: 0
@@ -136,14 +137,13 @@ MonoBehaviour:
   main: {fileID: 478413442398559047}
   prop: {fileID: 6193421569473789042}
   nonstatic: {fileID: 5121927371962656800}
-  minimapIcon: {fileID: 5153426905070947525}
   fog: {fileID: 3131998354976745433}
   highlightPlane: {fileID: 0}
   resourceIcon: {fileID: 0}
   fogNonStatic: {fileID: 8086462904628602706}
   resourceBackgroundSprite: {fileID: 0}
   resourceIconSprite: {fileID: 0}
-  white: {fileID: 2100000, guid: d87f9a8b5b7c8024798ff452a1540ec5, type: 2}
+  white: {fileID: 2100000, guid: 74b4e3b23c1555c4589c22411ec6f610, type: 2}
   changeLeafColor: 0
   isHill: 0
   hasRoad: 0
@@ -158,6 +158,7 @@ MonoBehaviour:
   isDiscovered: 1
   beingCleared: 0
   showProp: 1
+  enemyBorders: []
   godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
@@ -235,8 +236,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5153426905070947525}
+  m_Children: []
   m_Father: {fileID: 138495324743355252}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -454,12 +454,12 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 478413442398559047}
+    m_TransformParent: {fileID: 138495324743355252}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 4e8fa1aa776243645b4e65838c0889f9,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4e8fa1aa776243645b4e65838c0889f9,
         type: 3}

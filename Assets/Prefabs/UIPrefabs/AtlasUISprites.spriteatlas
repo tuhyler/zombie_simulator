@@ -90,6 +90,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 954d6894757d3bf4085ffb8357a804e2, type: 3}
   - {fileID: 21300000, guid: c35d24a4ae5a50d44ac9def303b305ec, type: 3}
   - {fileID: 21300000, guid: 334b12b4e6a61b54a9c6102e8dd3b236, type: 3}
+  - {fileID: 21300000, guid: b1adddb46d32ab34cb027878b09e29c8, type: 3}
   - {fileID: 21300000, guid: 35ec9dc42a660f5409dcf8d7243e1cf6, type: 3}
   - {fileID: 21300000, guid: 0bfe95d46a8f8b3488631cdddf72b280, type: 3}
   - {fileID: 21300000, guid: 713228e4162c39c43aa1069a8fa2a615, type: 3}
@@ -134,6 +135,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 4ee705485766f314a84ab4207ce54dc8, type: 3}
   - {fileID: 21300000, guid: c4a8fb580091c8f409477b7c369708a9, type: 3}
   - {fileID: 21300000, guid: aa6b8968fbfea3242b916a72b18db2fd, type: 3}
+  - {fileID: 21300000, guid: 7e50f29838f42fd45add7b827212477e, type: 3}
   - {fileID: 21300000, guid: 184d4d987444ce044955250a9ef1e8c7, type: 3}
   - {fileID: 21300000, guid: f18793b88229fcc498c5ce73553a072b, type: 3}
   - {fileID: 21300000, guid: 7b6cf6b8f6c3b4e45b83818a2d4d8ac6, type: 3}
@@ -193,6 +195,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 029c0dae0c146744d9e6add84e3671a9, type: 3}
   - {fileID: 21300000, guid: b2fbc0ce5e113834380380cb28475506, type: 3}
   - {fileID: 21300000, guid: 8eae10de91d218342bedbba7b0cc418d, type: 3}
+  - {fileID: 21300000, guid: d5864fee2e72f304bb652bd7e553317a, type: 3}
   - {fileID: 21300000, guid: 86daecfeebeae6745ae66a7f9492e8c0, type: 3}
   - {fileID: 21300000, guid: cc1fb70fe5b91cd4583be2867448673d, type: 3}
   - {fileID: 21300000, guid: beb2716fa8063b14791ff797dc15f75a, type: 3}
@@ -261,6 +264,7 @@ SpriteAtlas:
   - button_arrow
   - button_buildcity
   - icon_wonder
+  - speechbubble
   - button_wonders
   - research01
   - button_longred2
@@ -305,6 +309,7 @@ SpriteAtlas:
   - button_trade
   - arrow_researchdown_lightblue
   - tomMapIcon
+  - KoaIcon
   - panel_clear01
   - button_removelabor_gold
   - bar_progresswhitegold
@@ -364,6 +369,7 @@ SpriteAtlas:
   - panel_lightblue01
   - circle_blue
   - button_cancel
+  - AzaiIcon
   - gold03
   - panel_minimap_frame
   - laborIconManyColor

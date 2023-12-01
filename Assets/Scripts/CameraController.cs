@@ -342,4 +342,12 @@ public class CameraController : MonoBehaviour
         this.zMin = zMin;
         this.zMax = zMax;
     }
+
+    public void ResetCamLimits(Vector3Int loc)
+    {
+        xMin = loc.x;
+        xMax = loc.x;
+        zMin = loc.z;
+        zMax = loc.z;
+    }
 }

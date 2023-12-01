@@ -26,8 +26,6 @@ public class Worker : Unit
     private int isWorkingHash;
 
     //dialogue stats
-    [HideInInspector]
-    public int citiesBuilt;
 
     private Coroutine workingCo;
     private WaitForSeconds workingWait = new(0.6111f); //for sound effects
@@ -470,12 +468,6 @@ public class Worker : Unit
         uiTimeProgressBar.SetTime(time);
     }
 
-    public void SpeechCheck()
-    {
-        if (citiesBuilt == 1)
-            somethingToSay = true;
-    }
-
     public WorkerData SaveWorkerData()
     {
         WorkerData data = new();
@@ -491,6 +483,7 @@ public class Worker : Unit
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
+        data.somethingToSay = somethingToSay;
         data.isBusy = isBusy;
         data.removing = removing;
         data.gathering = gathering;
