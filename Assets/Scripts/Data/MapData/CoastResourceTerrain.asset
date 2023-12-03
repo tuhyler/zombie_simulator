@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: CoastTerrain
+  m_Name: CoastResourceTerrain
   m_EditorClassIdentifier: 
   terrainName: CoastTerrain
   tag: Water
@@ -23,7 +23,7 @@ MonoBehaviour:
   - {fileID: 1166231501064251213, guid: 1ac80a1c970be4c4ea1bb79fc05380b1, type: 3}
   - {fileID: 8558974081812087695, guid: 3bab5ff1c97f8904a90ffea9b1b62ef4, type: 3}
   decors:
-  - {fileID: 0}
+  - {fileID: 9073605623283122857, guid: b625e4f74d4af944b8a35ced4c90376d, type: 3}
   title: Coast
   clearedForestData: {fileID: 0}
   grassland: 0
@@ -36,6 +36,6 @@ MonoBehaviour:
   type: 1
   specificTerrain: 0
   terrainDesc: 12
-  rawResourceType: 0
-  resourceType: 0
+  rawResourceType: 2
+  resourceType: 3
   keepProp: 0
