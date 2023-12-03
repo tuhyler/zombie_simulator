@@ -35,7 +35,6 @@ MonoBehaviour:
   type: 3
   specificTerrain: 0
   terrainDesc: 12
-  rawResourceType: 2
-  resourceType: 3
+  rawResourceType: 0
+  resourceType: 0
   keepProp: 0
-  hasRocks: 0
