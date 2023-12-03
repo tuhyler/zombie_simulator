@@ -583,14 +583,15 @@ public class TerrainGenerator : MonoBehaviour
         }
 
         this.startingPlace = startingPlace;
+		FloodPlainCheck(startingPlace);
 
-        //Finish it all off by placing water
-        //Vector3 waterLoc = new Vector3(width*3 / 2 - .5f, yCoord - .02f, height*3 / 2 - .5f);
-        //      GameObject water = Instantiate(this.water, waterLoc, Quaternion.identity);
-        //      water.transform.SetParent(groundTiles.transform, false);
-        //      allTiles.Add(water);
-        //      water.transform.localScale = new Vector3((width*3 + oceanRingDepth * 2)/10f, 1, (height*3 + oceanRingDepth * 2)/10f);
-        return terrainDict;
+		//Finish it all off by placing water
+		//Vector3 waterLoc = new Vector3(width*3 / 2 - .5f, yCoord - .02f, height*3 / 2 - .5f);
+		//      GameObject water = Instantiate(this.water, waterLoc, Quaternion.identity);
+		//      water.transform.SetParent(groundTiles.transform, false);
+		//      allTiles.Add(water);
+		//      water.transform.localScale = new Vector3((width*3 + oceanRingDepth * 2)/10f, 1, (height*3 + oceanRingDepth * 2)/10f);
+		return terrainDict;
     }
 
 	//only used for rivers now

@@ -1689,14 +1689,18 @@ public class MapWorld : MonoBehaviour
     {
         if (uiMainMenu.activeStatus)
         {
-            cityBuilderManager.PlayCloseAudio();
+            cityBuilderManager.PlaySelectAudio();
             uiMainMenu.ToggleVisibility(false);
 		}
         else
         {
-            unitMovement.ClearSelection();
-            cityBuilderManager.ResetCityUI();
-            uiMainMenu.ToggleVisibility(true);
+            //unitMovement.ClearSelection();
+            //cityBuilderManager.ResetCityUI();
+
+			if (unitOrders || buildingWonder)
+				CloseBuildingSomethingPanel();
+
+			uiMainMenu.ToggleVisibility(true);
         }
     }
 
