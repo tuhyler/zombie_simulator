@@ -428,19 +428,21 @@ public class WorkerTaskManager : MonoBehaviour
 		{
             td.ShowProp(false);
 			worker.marker.ToggleVisibility(false);
-            TerrainDataSO tempData;
+			//Destroy(td.treeHandler.gameObject);
+			//         TerrainDataSO tempData;
 
-			if (td.isHill)
-			{
-				tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
-			}
-			else
-			{
-				tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
-			}
+			//if (td.isHill)
+			//{
+			//	tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
+			//}
+			//else
+			//{
+			//	tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
+			//}
 
-            td.SetNewData(tempData);
-            GameLoader.Instance.gameData.allTerrain[workerTile] = td.SaveData();
+			city.SetNewTerrainData(td);
+            //td.SetNewData(tempData);
+            //GameLoader.Instance.gameData.allTerrain[workerTile] = td.SaveData();
 			city.ResourceManager.CheckResource(ResourceType.Lumber, worker.clearedForestlumberAmount); 
 		}
 

@@ -62,7 +62,7 @@ public class UIWonderHandler : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
     }
 
-    private void Update()
+	private void Update()
     {
         if (scrollLeft != null)
         {
@@ -113,7 +113,7 @@ public class UIWonderHandler : MonoBehaviour
         {
             world.UnselectAll();
             gameObject.SetActive(v);
-            world.openingImmoveable = true;
+            //world.openingImmoveable = true;
             world.immoveableCanvas.gameObject.SetActive(true);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
@@ -125,7 +125,7 @@ public class UIWonderHandler : MonoBehaviour
             {
                 dof.focalLength.value = value;
             });
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.4f).setEaseOutSine().setOnComplete(OpeningComplete);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.4f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
             PrepareBuildOptions();
@@ -150,16 +150,17 @@ public class UIWonderHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        if (!world.openingImmoveable)
-            world.immoveableCanvas.gameObject.SetActive(false);
-        else
-			world.openingImmoveable = false;
+		world.ImmoveableCheck();
+		//     if (!world.openingImmoveable)
+		//         world.immoveableCanvas.gameObject.SetActive(false);
+		//     else
+		//world.openingImmoveable = false;
 	}
 
-    private void OpeningComplete()
-    {
-		world.openingImmoveable = false;
-	}
+    //private void OpeningComplete()
+    //{
+    //    world.openingImmoveable = false;
+    //}
 
     public void PrepareBuild(WonderDataSO buildData)
     {

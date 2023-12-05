@@ -524,7 +524,9 @@ public class CityImprovement : MonoBehaviour
             city.world.cityBuilderManager.uiCityUpgradePanel.CurrentImprovementCheck(this);
         }
 
-        city.SetNewTerrainData(loc);
+        td.RemoveMinimapResource(city.world.mapHandler);
+        city.world.RemoveResourceIcon(loc);
+        //city.SetNewTerrainData(loc);
 		city.UpdateCityBools(producedResource, ResourceHolder.Instance.GetRawResourceType(producedResource), td.terrainData.type);
         city.world.uiCityImprovementTip.CloseCheck(this);
         city.world.cityBuilderManager.RemoveImprovement(loc, this, city, false);

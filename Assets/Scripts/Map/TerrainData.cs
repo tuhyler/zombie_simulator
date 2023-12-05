@@ -20,13 +20,10 @@ public class TerrainData : MonoBehaviour
     public Transform main, prop, nonstatic/*, minimapIcon*/;
 
     [SerializeField]
-    public GameObject fog, highlightPlane, resourceIcon;
+    public GameObject fog, highlightPlane, highlightPlaneIcon;
 
     [SerializeField]
     private UnexploredTerrain fogNonStatic;
-
-    [SerializeField]
-    private SpriteRenderer resourceBackgroundSprite, resourceIconSprite;
 
     [SerializeField]
     private Material white;
@@ -48,11 +45,13 @@ public class TerrainData : MonoBehaviour
     [HideInInspector]
     public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, showProp = true;
 
-    [HideInInspector]
-    public List<GameObject> enemyBorders = new();
+    //[HideInInspector]
+    //public List<GameObject> enemyBorders = new();
 
-    private ResourceGraphicHandler resourceGraphic;
-    private TreeHandler treeHandler;
+    [HideInInspector]
+    public ResourceGraphicHandler resourceGraphic;
+    [HideInInspector]
+    public TreeHandler treeHandler;
     [SerializeField]
     private ParticleSystem godRays;
 
@@ -80,7 +79,10 @@ public class TerrainData : MonoBehaviour
         ResetMovementCost();
         highlight = GetComponentInChildren<SelectionHighlight>();
         if (highlightPlane != null)
+        {
             highlightPlane.SetActive(false);
+			highlightPlaneIcon.SetActive(false);
+		}
     }
 
     //private void Start()
@@ -135,6 +137,12 @@ public class TerrainData : MonoBehaviour
 
 		}
 
+		if (resourceType == ResourceType.Food && terrainData.terrainDesc == TerrainDesc.Grassland)
+        {
+            if (uvMapIndex.Count == 2)
+                SetFlowers(uvMapIndex[0], uvMapIndex[1]);
+        }
+
 		isLand = terrainData.isLand;
 		isSeaCorner = terrainData.isSeaCorner;
 	}
@@ -149,7 +157,10 @@ public class TerrainData : MonoBehaviour
 
         if (rawResourceType == RawResourceType.Rocks)
         {
-		    foreach (MeshFilter mesh in prop.GetComponentsInChildren<MeshFilter>())
+			resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
+			resourceGraphic.isHill = isHill;
+
+		    foreach (MeshFilter mesh in resourceGraphic.GetComponentsInChildren<MeshFilter>())
 		    {
                 Vector2[] newUVs = mesh.mesh.uv;
 			    int i = 0;
@@ -161,8 +172,6 @@ public class TerrainData : MonoBehaviour
 			    mesh.mesh.uv = newUVs;
 		    }
 
-			resourceGraphic = prop.GetComponentInChildren<ResourceGraphicHandler>();
-			resourceGraphic.isHill = isHill;
 			//RocksCheck();
         }
 
@@ -240,10 +249,10 @@ public class TerrainData : MonoBehaviour
 
     public void CheckMinimapResource(UIMapHandler uiMapHandler)
     {
-        if (resourceType != ResourceType.None && resourceType != ResourceType.Food && resourceType != ResourceType.Lumber && resourceType != ResourceType.Fish)
+        if (resourceType != ResourceType.None /*&& resourceType != ResourceType.Food*/ && resourceType != ResourceType.Lumber /*&& resourceType != ResourceType.Fish*/)
         {
             hasResourceMap = true;
-            resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(resourceType);
+            //resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(resourceType);
             //resourceIcon.SetActive(true);
             uiMapHandler.AddResourceToMap(tileCoordinates, resourceType);
         }
@@ -253,7 +262,7 @@ public class TerrainData : MonoBehaviour
     {
         uiMapHandler.RemoveResourceFromMap(tileCoordinates, resourceType);
         hasResourceMap = false;
-        resourceIcon.SetActive(false);
+        world.ToggleResourceIcon(tileCoordinates, false);
     }
 
     public void SetUVs(Vector2[] uvs)
@@ -264,7 +273,52 @@ public class TerrainData : MonoBehaviour
             minimapIconMesh.mesh.uv = uvs;
     }
 
-    public void ChangeLeafColors(bool nonstatic, TreeHandler treeHandler)
+    //coordinates range from 0 to 2 for each
+    private void SetFlowers(int flowerCoordX, int flowerCoordY)
+    {
+		foreach (MeshFilter mesh in prop.GetComponentsInChildren<MeshFilter>())
+		{
+            if (mesh.name == "Flowers")
+            {
+                float shiftConstant = 0.0208333f;
+                float shiftX = 0;
+                float shiftY = 0;
+
+                switch (flowerCoordX)
+                {
+                    case 1:
+                        shiftX = shiftConstant;
+                        break;
+                    case 2:
+                        shiftX = shiftConstant * 2;
+                        break;
+				}
+
+                switch (flowerCoordY)
+                {
+                    case 1:
+                        shiftY = shiftConstant;
+                        break;
+                    case 2:
+                        shiftY = shiftConstant * 2;
+                        break;
+                }
+                
+                Vector2[] oldUVs = mesh.mesh.uv;
+
+                for (int i = 0; i < oldUVs.Length; i++)
+                {
+                    oldUVs[i].x = oldUVs[i].x + shiftX;
+                    oldUVs[i].y = oldUVs[i].y - shiftY;
+                }
+
+                mesh.mesh.uv = oldUVs;
+            }
+
+        }
+	}
+
+	public void ChangeLeafColors(bool nonstatic, TreeHandler treeHandler)
     {
 		for (int i = 0; i < treeHandler.hillLeafMeshList.Count; i++)
 		{
@@ -405,27 +459,28 @@ public class TerrainData : MonoBehaviour
         isDiscovered = true;
 		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
-		//foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
-		//{
-		//    TerrainData td = world.GetTerrainDataAt(neighbor);
-		//    if (td.isDiscovered)
-		//        continue;
+        //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
+        //{
+        //    TerrainData td = world.GetTerrainDataAt(neighbor);
+        //    if (td.isDiscovered)
+        //        continue;
 
-		//    td.HardSemiReveal();
-		//}
+        //    td.HardSemiReveal();
+        //}
 
-		if (hasResourceMap)
+		if (rawResourceType == RawResourceType.Rocks)
         {
-            resourceIcon.SetActive(true);
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
             godRays.Play();
         }
 
-        for (int i = 0; i < whiteMesh.Count; i++)
+        if (hasResourceMap)
+			world.ToggleResourceIcon(tileCoordinates, true);
+
+		for (int i = 0; i < whiteMesh.Count; i++)
             whiteMesh[i].material = materials[i];
 
-        for (int i = 0; i < enemyBorders.Count; i++)
-            enemyBorders[i].SetActive(true);
+        world.TurnOnEnemyBorders(tileCoordinates);
 
         fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);
@@ -463,22 +518,23 @@ public class TerrainData : MonoBehaviour
 		//    td.SemiReveal();
 		//}
 
-		if (hasResourceMap)
+		if (rawResourceType == RawResourceType.Rocks)
         {
-            resourceIcon.SetActive(true);
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
 			godRays.Play();
         }
 
-        fog.SetActive(false);
+        if (hasResourceMap)
+			world.ToggleResourceIcon(tileCoordinates, true);
+        
+		fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);
         StartCoroutine(fogNonStatic.FadeFog());
 
         for (int i = 0; i < whiteMesh.Count; i++)
             whiteMesh[i].material = materials[i];
 
-		for (int i = 0; i < enemyBorders.Count; i++)
-			enemyBorders[i].SetActive(true);
+        world.TurnOnEnemyBorders(tileCoordinates);
 
 		whiteMesh.Clear();
         materials.Clear();
@@ -503,6 +559,7 @@ public class TerrainData : MonoBehaviour
         rawResourceType = data.rawResourceType;
         resourceType = data.resourceType;
         gameObject.tag = data.tag;
+        decorIndex = 0;
     }
 
 	private IEnumerator PopUp()
@@ -544,25 +601,25 @@ public class TerrainData : MonoBehaviour
         terrainMesh.gameObject.SetActive(true);
     }
 
-    public void HighlightResource(Sprite sprite)
-    {
-        resourceBackgroundSprite.sprite = sprite;
-    }
+    //public void HighlightResource(Sprite sprite)
+    //{
+    //    resourceBackgroundSprite.sprite = sprite;
+    //}
 
-    public void RestoreResource(Sprite sprite)
-    {
-        resourceBackgroundSprite.sprite = sprite;
-    }
+    //public void RestoreResourceIcon(Sprite sprite)
+    //{
+    //    resourceBackgroundSprite.sprite = sprite;
+    //}
 
     public void HideResourceMap()
     {
-        resourceIcon.SetActive(false);
-    }
+		world.ToggleResourceIcon(tileCoordinates, false);
+	}
 
     public void RestoreResourceMap()
     {
-        resourceIcon.SetActive(true);
-    }
+		world.ToggleResourceIcon(tileCoordinates, true);
+	}
 
     public void SetHighlightMesh()
     {
@@ -617,7 +674,10 @@ public class TerrainData : MonoBehaviour
     private void ToggleHighlightPlane(bool v)
     {
         if (highlightPlane != null)
+        {
             highlightPlane.SetActive(v);
+            highlightPlaneIcon.SetActive(v);
+        }
     }
 
     public void RocksCheck()
@@ -681,8 +741,8 @@ public class TerrainData : MonoBehaviour
 				tempData = isHill ? world.desertHillTerrain : world.desertTerrain;
 
             SetNewData(tempData);
-			GameLoader.Instance.gameData.allTerrain[tileCoordinates] = SaveData();
 			ShowProp(false);
+			GameLoader.Instance.gameData.allTerrain[tileCoordinates] = SaveData();
 		}
 		else //only updating resource amount
 		{
@@ -693,15 +753,15 @@ public class TerrainData : MonoBehaviour
 		return amount;
     }
 
-    public void DestroyBorders()
-    {
-        for (int i = 0; i < enemyBorders.Count; i++)
-        {
-            Destroy(enemyBorders[i]);
-        }
+    //public void DestroyBorders()
+    //{
+    //    for (int i = 0; i < enemyBorders.Count; i++)
+    //    {
+    //        Destroy(enemyBorders[i]);
+    //    }
 
-        enemyBorders.Clear();
-    }
+    //    enemyBorders.Clear();
+    //}
 
     public TerrainSaveData SaveData()
     {
@@ -715,6 +775,7 @@ public class TerrainData : MonoBehaviour
             data.propRotation = treeHandler.propMesh.rotation;
         data.rawResourceType = rawResourceType;
         data.resourceType = resourceType;
+        data.changeLeafColor = changeLeafColor;
         data.showProp = showProp;
         data.variant = prefabIndex;
         data.decor = decorIndex;
@@ -735,6 +796,7 @@ public class TerrainData : MonoBehaviour
 		resourceAmount = data.resourceAmount;
         rawResourceType = data.rawResourceType;
         resourceType = data.resourceType;
+        changeLeafColor = data.changeLeafColor;
         showProp = data.showProp;
         prefabIndex = data.variant;
         decorIndex = data.decor;

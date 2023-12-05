@@ -19,11 +19,13 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Water water;
     [SerializeField]
+    public GameObject resourceIcon;
+    [SerializeField]
     public CameraController cameraController;
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [HideInInspector]
-    public bool openingImmoveable, openingCity, tutorial;
+    public bool tutorial;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -190,6 +192,10 @@ public class MapWorld : MonoBehaviour
 
     //for enemy
     private Dictionary<Vector3Int, EnemyCamp> enemyCampDict = new();
+    private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
+
+    //for resource icons on minimap (so they're rotated correctly)
+    private Dictionary<Vector3Int, ResourceMinimapIcon> resourceIconDict = new();
 
     //for expanding gameobject size
     private static int increment = 3;
@@ -218,9 +224,7 @@ public class MapWorld : MonoBehaviour
 
     [HideInInspector]
     public GamePersist gamePersist = new();
-    //[HideInInspector]
-    //public GameData gameData = new();
-    //bool loadNewGame = false;
+
 
     private void Awake()
     {
@@ -458,7 +462,10 @@ public class MapWorld : MonoBehaviour
 				    terrainToCheck.Add(td);
 				    td.CheckMinimapResource(mapHandler);
 
-                    if (hideTerrain)
+                    if (td.hasResourceMap)
+						SetResourceMinimapIcon(td);
+
+					if (hideTerrain)
                     {
 					    td.Hide();
 				    }
@@ -467,12 +474,12 @@ public class MapWorld : MonoBehaviour
                         td.Discover();
                     
                         if (td.hasResourceMap)
-						    td.resourceIcon.SetActive(true);
-                    }
+							ToggleResourceIcon(td.TileCoordinates, true);
+					}
 
 				    //if (!hideTerrain && td.hasResourceMap)
 				    //	td.resourceIcon.SetActive(true);
-				    if (td.hasResourceMap)
+				    if (td.rawResourceType == RawResourceType.Rocks)
 					    td.PrepParticleSystem();
 
 				    foreach (Vector3Int tile in neighborsEightDirections)
@@ -620,11 +627,14 @@ public class MapWorld : MonoBehaviour
 
 			td.SetHighlightMesh();
 
+			if (td.hasResourceMap)
+				SetResourceMinimapIcon(td);
+
 			if (hideTerrain)
 			{
 				td.Hide();
 
-				if (td.hasResourceMap)
+				if (td.rawResourceType == RawResourceType.Rocks)
 					td.PrepParticleSystem();
 			}
 			else
@@ -632,11 +642,11 @@ public class MapWorld : MonoBehaviour
 				td.Discover();
 
 				if (td.hasResourceMap)
-					td.resourceIcon.SetActive(true);
+					ToggleResourceIcon(td.TileCoordinates, true);
 			}
 
 			if (!hideTerrain && td.hasResourceMap)
-				td.resourceIcon.SetActive(true);
+				ToggleResourceIcon(td.TileCoordinates, true);
 
 			foreach (Vector3Int tile in neighborsEightDirections)
 			{
@@ -702,24 +712,27 @@ public class MapWorld : MonoBehaviour
 			td.CheckMinimapResource(mapHandler);
 
             td.SetHighlightMesh();
-            
-            if (td.isDiscovered)
+
+			if (td.hasResourceMap)
+                SetResourceMinimapIcon(td);
+
+			if (td.isDiscovered)
             {
                 td.Discover();
 
                 if (td.hasResourceMap)
-					td.resourceIcon.SetActive(true);
+					ToggleResourceIcon(td.TileCoordinates, true);
 			}
 			else
             {
                 td.Hide();
 
-                if (td.hasResourceMap)
+                if (td.rawResourceType == RawResourceType.Rocks)
                     td.PrepParticleSystem();
             }
 
-			if (!hideTerrain && td.hasResourceMap)
-				td.resourceIcon.SetActive(true);
+            if (!hideTerrain && td.hasResourceMap)
+                ToggleResourceIcon(td.TileCoordinates, true);
 
 			foreach (Vector3Int tile in neighborsEightDirections)
 			{
@@ -1314,6 +1327,9 @@ public class MapWorld : MonoBehaviour
         foreach (Vector3Int loc in enemyCampDict.Keys)
             Destroy(enemyCampDict[loc].minimapIcon);
 
+        foreach (Vector3Int loc in resourceIconDict.Keys)
+            Destroy(resourceIconDict[loc].gameObject);
+
         tradeCenterDict.Clear();
         tradeCenterStopDict.Clear(); 
         cityWorkedTileDict.Clear();
@@ -1322,6 +1338,8 @@ public class MapWorld : MonoBehaviour
         tradeLocDict.Clear();
         enemyCampDict.Clear();
         unitPosDict.Clear();
+        resourceIconDict.Clear();
+        mapHandler.ResetResourceLocDict();
 	}
 
 	private void LoadEnemyBorders(Vector3Int enemyLoc)
@@ -1336,26 +1354,34 @@ public class MapWorld : MonoBehaviour
 
 				if (!world[newTile].enemyZone)
 				{
-					Vector3 borderPosition = newTile - tile;
-					borderPosition.y = -0.1f;
+                    Vector3Int borderLocation = newTile - tile;
+                    Vector3 borderPosition = tile;
+					//borderPosition.y = -0.1f;
 					Quaternion rotation = Quaternion.identity;
 
-					if (borderPosition.x != 0)
+					if (borderLocation.x != 0)
 					{
-						borderPosition.x = (borderPosition.x / 3 * 0.99f);
+                        borderPosition.x += 0.5f * borderLocation.x;//(borderPosition.x / 3 * 0.99f);
 						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
+                        borderPosition.x -= borderLocation.x > 0 ? -.01f : .01f;
 					}
-					else if (borderPosition.z != 0)
+					else if (borderLocation.z != 0)
 					{
-						borderPosition.z = (borderPosition.z / 3 * 0.99f);
+                        borderPosition.z += 0.5f * borderLocation.z;//(borderPosition.z / 3 * 0.99f);
+                        borderPosition.z -= borderLocation.z > 0 ? -.01f : .01f;
 					}
 
 					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
-					border.transform.SetParent(world[tile].transform, false);
+					border.transform.SetParent(terrainHolder, false);
+
+                    if (!enemyBordersDict.ContainsKey(tile))
+                        enemyBordersDict[tile] = new();
+
+                    enemyBordersDict[tile].Add(border);
 
                     if (!world[tile].isDiscovered)
     					border.SetActive(false);
-					world[tile].enemyBorders.Add(border);
+					//world[tile].enemyBorders.Add(border);
 				}
 			}
 		}
@@ -1382,14 +1408,14 @@ public class MapWorld : MonoBehaviour
 
     private void DeactivateCanvases()
     {
-        if (!openingImmoveable)
-            immoveableCanvas.gameObject.SetActive(false);
-        else
-			openingImmoveable = false;
-        if (!openingCity)
-            cityCanvas.gameObject.SetActive(false);
-        else
-            openingCity = false;
+   //     if (!openingImmoveable)
+        immoveableCanvas.gameObject.SetActive(false);
+   //     else
+			//openingImmoveable = false;
+        //if (!openingCity)
+        cityCanvas.gameObject.SetActive(false);
+        //else
+        //    openingCity = false;
         traderCanvas.gameObject.SetActive(false);
         workerCanvas.gameObject.SetActive(false);
         tradeRouteManagerCanvas.gameObject.SetActive(false);
@@ -1454,14 +1480,14 @@ public class MapWorld : MonoBehaviour
             case TerrainDesc.Desert:
                 shift = interval;
                 break;
-            case TerrainDesc.GrasslandFloodPlain:
-                shift = interval * 2;
-                break;
+            //case TerrainDesc.GrasslandFloodPlain:
+            //    shift = interval * 2;
+            //    break;
             case TerrainDesc.DesertFloodPlain:
-                shift = interval * 3;
+                shift = interval;/* * 3;*/
                 break;
             case TerrainDesc.River:
-                shift = interval * 3;
+                shift = interval /** 3*/;
                 break;
             case TerrainDesc.GrasslandHill:
                 shift = interval * 7;
@@ -3366,28 +3392,38 @@ public class MapWorld : MonoBehaviour
                 TerrainData nextTD = GetTerrainDataAt(neighborTiles[j]);
 				if (nextTD.enemyZone)
 				{
-					Vector3 borderPosition = enemyZones[i] - neighborTiles[j];
-					borderPosition.y = -0.1f;
+                    Vector3Int borderLocation = enemyZones[i] - neighborTiles[j];
+                    Vector3 borderPosition = neighborTiles[j];
+					//borderPosition.y = -0.1f;
 					Quaternion rotation = Quaternion.identity;
 
 					if (borderPosition.x != 0)
 					{
-						borderPosition.x = (borderPosition.x / 3 * 0.99f);
+                        borderPosition.x += 0.5f * borderLocation.x;// (borderPosition.x / 3 * 0.99f);
 						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
+						borderPosition.x -= borderLocation.x > 0 ? -.01f : .01f;
 					}
 					else if (borderPosition.z != 0)
 					{
-						borderPosition.z = (borderPosition.z / 3 * 0.99f);
+                        borderPosition.z += 0.5f * borderLocation.z;// (borderPosition.z / 3 * 0.99f);
+						borderPosition.z -= borderLocation.z > 0 ? -.01f : .01f;
 					}
 
 					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
-					border.transform.SetParent(world[neighborTiles[j]].transform, false);
-					world[neighborTiles[j]].enemyBorders.Add(border);
+					border.transform.SetParent(terrainHolder, false);
+
+                    if (!enemyBordersDict.ContainsKey(neighborTiles[j]))
+                        enemyBordersDict[neighborTiles[j]] = new();
+
+                    enemyBordersDict[neighborTiles[j]].Add(border);
+
+					//world[neighborTiles[j]].enemyBorders.Add(border);
 				}
 			}
 
 			TerrainData td = GetTerrainDataAt(enemyZones[i]);
-            td.DestroyBorders();
+            DestroyBorders(enemyZones[i]);
+            //td.DestroyBorders();
             td.enemyZone = false;
 
 			RemoveSingleBuildFromCityLabor(enemyZones[i]);
@@ -4551,7 +4587,95 @@ public class MapWorld : MonoBehaviour
             cityWorkedTileDict.Remove(pos);
     }
 
-    public bool CameraLocCheck()
+    public void CityCanvasCheck()
+    {
+        bool turnOff = true;
+
+        if (cityBuilderManager.uiWonderSelection.activeStatus)
+            turnOff = false;
+        if (cityBuilderManager.uiCityTabs.activeStatus)
+            turnOff = false;
+
+		if (turnOff)
+			cityCanvas.gameObject.SetActive(false);
+	}
+
+    public void ImmoveableCheck()
+    {
+        bool turnOff = true;
+
+        if (cityBuilderManager.activeBuilderHandler != null)
+            turnOff = false;
+  //      if (cityBuilderManager.uiRawGoodsBuilder.activeStatus)
+		//	turnOff = false;
+		//if (cityBuilderManager.uiUnitBuilder.activeStatus)
+		//	turnOff = false;
+		//if (cityBuilderManager.uiProducerBuilder.activeStatus)
+		//	turnOff = false;
+		if (uiMainMenu.activeStatus)
+			turnOff = false;
+		if (researchTree.activeStatus)
+			turnOff = false;
+		if (wonderHandler.activeStatus)
+			turnOff = false;
+
+		if (turnOff)
+            immoveableCanvas.gameObject.SetActive(false);
+    }
+
+    public void TurnOnEnemyBorders(Vector3Int loc)
+    {
+        if (enemyBordersDict.ContainsKey(loc))
+        {
+            foreach (GameObject border in enemyBordersDict[loc])
+                border.SetActive(true);
+        }
+    }
+
+    public void DestroyBorders(Vector3Int loc)
+    {
+        if (enemyBordersDict.ContainsKey(loc))
+        {
+            foreach (GameObject border in enemyBordersDict[loc])
+                Destroy(border);
+
+            enemyBordersDict[loc].Clear();
+            enemyBordersDict.Remove(loc);
+        }
+    }
+
+	private void SetResourceMinimapIcon(TerrainData td)
+    {
+		GameObject resourceIconGO = Instantiate(this.resourceIcon, new Vector3(0, 1.5f, -0.5f) + td.TileCoordinates, Quaternion.Euler(90, 0, 0));
+		resourceIconGO.transform.SetParent(terrainHolder, false);
+		ResourceMinimapIcon resourceIcon = resourceIconGO.GetComponent<ResourceMinimapIcon>();
+		resourceIcon.resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(td.resourceType);
+		resourceIconDict[td.TileCoordinates] = resourceIcon;
+		resourceIconGO.SetActive(false);
+	}
+
+	public void ToggleResourceIcon(Vector3Int loc, bool v)
+    {
+        resourceIconDict[loc].gameObject.SetActive(v);
+    }
+
+	public void HighlightResourceIcon(Vector3Int loc, Sprite sprite)
+	{
+		resourceIconDict[loc].resourceBackgroundSprite.sprite = sprite;
+	}
+
+	public void RestoreResourceIcon(Vector3Int loc, Sprite sprite)
+	{
+		resourceIconDict[loc].resourceBackgroundSprite.sprite = sprite;
+	}
+
+    public void RemoveResourceIcon(Vector3Int loc)
+    {
+        Destroy(resourceIconDict[loc].gameObject);
+        resourceIconDict.Remove(loc);
+    }
+
+	public bool CameraLocCheck()
     {
         TerrainData td = GetTerrainDataAt(RoundToInt(cameraController.transform.position));
 

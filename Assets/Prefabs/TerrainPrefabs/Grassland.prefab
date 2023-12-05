@@ -49,6 +49,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7178868358704398055, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7178868358704398055, guid: 5902d28cc6acff84d9befec7c10a1d34,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
@@ -88,11 +93,6 @@ PrefabInstance:
       propertyPath: minimapIconMesh
       value: 
       objectReference: {fileID: 1631158527849482925}
-    - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
-        type: 3}
-      propertyPath: rawResourceType
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8603261838018215154, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: m_IsActive

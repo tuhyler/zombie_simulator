@@ -328,7 +328,10 @@ public class UICityImprovementTip : MonoBehaviour
         producer.consumedResources = improvement.allConsumedResources[a];
         producer.SetConsumedResourceTypes();
         if (producer.currentLabor > 0)
-            producer.StartProducing();
+        {
+			producer.UpdateResourceGenerationData();
+			producer.StartProducing();
+        }
 
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[a], produceTimeList[a], false);
 

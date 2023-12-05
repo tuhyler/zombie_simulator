@@ -81,7 +81,7 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private TerrainDataSO desertFloodPlainsSO, desertHillResourceSO, desertHillSO, desertMountainSO, desertResourceSO, desertSO, forestHillSO, forestSO, 
         grasslandFloodPlainsSO, grasslandHillResourceSO, grasslandHillSO, grasslandMountainSO, grasslandResourceSO, grasslandSO, 
-        jungleHillSO, jungleSO, riverSO, seaIntersectionSO, seaSO, seaResourceSO, swampSO;
+        jungleHillSO, jungleSO, riverSO, riverResourceSO, seaIntersectionSO, seaSO, seaResourceSO, swampSO;
 
     [Header("Trade Center Prefabs")]
     [SerializeField]
@@ -125,6 +125,7 @@ public class TerrainGenerator : MonoBehaviour
         List<Vector3Int> landLocs = new();
         List<Vector3Int> riverTiles = new();
         List<Vector3Int> coastTiles = new();
+        List<Vector3Int> grasslandTiles = new();
         List<TerrainData> propTiles = new();
 
         Dictionary<Vector3Int, int> mainMap = 
@@ -359,7 +360,7 @@ public class TerrainGenerator : MonoBehaviour
                     }
                 }
 
-                GenerateTile(sea, position, rotation, prefabIndex);
+                GenerateTile(sea, position, rotation, prefabIndex, true);
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandHill)
             {
@@ -378,6 +379,7 @@ public class TerrainGenerator : MonoBehaviour
                 TerrainData td = GenerateTile(forestHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest Hill";
                 td.terrainData = forestHillSO;
+                td.resourceAmount = -1;
                 propTiles.Add(td);
             }
             else if (mainMap[position] == ProceduralGeneration.jungleHill)
@@ -387,6 +389,7 @@ public class TerrainGenerator : MonoBehaviour
                 TerrainData td = GenerateTile(jungleHill, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest Hill";
                 td.terrainData = jungleHillSO;
+                td.resourceAmount = -1;
 				propTiles.Add(td);
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
@@ -407,8 +410,9 @@ public class TerrainGenerator : MonoBehaviour
             {
 				landLocs.Add(position);
 				TerrainData td = GenerateTile(grasslandSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
-				propTiles.Add(td);
-            }
+				//propTiles.Add(td);
+				grasslandTiles.Add(position);
+			}
             else if (mainMap[position] == ProceduralGeneration.desert)
             {
 				landLocs.Add(position);
@@ -422,6 +426,7 @@ public class TerrainGenerator : MonoBehaviour
                 TerrainData td = GenerateTile(forest, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest";
                 td.terrainData = forestSO;
+                td.resourceAmount = -1;
 				propTiles.Add(td);
             }
             else if (mainMap[position] == ProceduralGeneration.jungle)
@@ -431,6 +436,7 @@ public class TerrainGenerator : MonoBehaviour
                 TerrainData td = GenerateTile(jungle, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
                 td.gameObject.tag = "Forest";
                 td.terrainData = jungleSO;
+                td.resourceAmount = -1;
 				propTiles.Add(td);
             }
             else if (mainMap[position] == ProceduralGeneration.swamp)
@@ -439,6 +445,7 @@ public class TerrainGenerator : MonoBehaviour
 				TerrainData td = GenerateTile(swampSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
 				td.gameObject.tag = "Forest";
 				td.terrainData = swampSO;
+                td.resourceAmount = -1;
                 propTiles.Add(td);
             }
             else if (mainMap[position] == ProceduralGeneration.river)
@@ -450,9 +457,6 @@ public class TerrainGenerator : MonoBehaviour
                 if (riverInt == 3)
                     riverInt += random.Next(0, 3);
 
-                if (position == new Vector3Int(45, 0, 57))
-                    riverInt = 5;
-
                 if (riverInt == 9999)
                 {
                     river = grasslandSO.prefabs[0];
@@ -463,24 +467,27 @@ public class TerrainGenerator : MonoBehaviour
                     river = riverSO.prefabs[riverInt];
                 }
 
-                GenerateTile(river, position, rotation, riverInt);
+                GenerateTile(river, position, rotation, riverInt, true);
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandFloodPlain)
             {
 				landLocs.Add(position);
 				TerrainData td = GenerateTile(grasslandFloodPlainsSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+                td.resourceAmount = -1;
 				propTiles.Add(td);
             }
             else if (mainMap[position] == ProceduralGeneration.desertFloodPlain)
             {
 				landLocs.Add(position);
 				TerrainData td = GenerateTile(desertFloodPlainsSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
-				propTiles.Add(td);
+                td.resourceAmount = -1;
+                propTiles.Add(td);
             }
             else
             {
 				landLocs.Add(position);
 				GenerateTile(grasslandSO.prefabs[0], position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), 0);
+                grasslandTiles.Add(position);
             }
         }
 
@@ -515,14 +522,17 @@ public class TerrainGenerator : MonoBehaviour
             
         tradeCenterLocs = PlaceTradeCenters(random, tradeCenterLocs, startingPlace, coastTiles, riverTiles);
 
-        (List<Vector3Int> luxuryLocs, List<Vector3Int> resourceLocs) = GenerateResources(random, startingPlace, tradeCenterLocs);
-		(List<TerrainData> newPropTiles, List<Vector3Int> newResourceLocs) = SetStartingResources(random, startingPlace);
+        (List<Vector3Int> luxuryLocs, List<Vector3Int> foodLocs, List<Vector3Int> waterLocs, List<Vector3Int> resourceLocs) = 
+            GenerateResources(random, startingPlace, tradeCenterLocs, grasslandTiles, riverTiles, coastTiles);
+		(List<TerrainData> newPropTiles, List<Vector3Int> newFoodLocs, List<Vector3Int> newWaterLocs, List<Vector3Int> newResourceLocs) = SetStartingResources(random, startingPlace);
         propTiles.AddRange(newPropTiles);
+        foodLocs.AddRange(newFoodLocs);
+        waterLocs.AddRange(newWaterLocs);
         resourceLocs.AddRange(newResourceLocs);
 
 		for (int i = 0; i < propTiles.Count; i++)
         {
-            if (resourceLocs.Contains(propTiles[i].TileCoordinates))
+            if (resourceLocs.Contains(propTiles[i].TileCoordinates) || foodLocs.Contains(propTiles[i].TileCoordinates))
                 continue;
 
             bool swamp = propTiles[i].terrainData.terrainDesc == TerrainDesc.Swamp;
@@ -530,13 +540,17 @@ public class TerrainGenerator : MonoBehaviour
             AddProp(random, propTiles[i], propTiles[i].terrainData.decors, swamp, forest, newGame);
         }
 
-        for (int i = 0; i < resourceLocs.Count; i++)
-        {
+        for (int i = 0; i < foodLocs.Count; i++)
+			AddResource(random, terrainDict[foodLocs[i]]);
+
+		for (int i = 0; i < waterLocs.Count; i++)
+			AddResource(random, terrainDict[waterLocs[i]]);
+
+		for (int i = 0; i < resourceLocs.Count; i++)
             AddResource(random, terrainDict[resourceLocs[i]]);
-        }
 
         List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
-        SetEnemyBorders(enemyLocs);
+        //SetEnemyBorders(enemyLocs);
 
         for (int i = 0; i < tradeCenterLocs.Count; i++)
         {
@@ -676,6 +690,7 @@ public class TerrainGenerator : MonoBehaviour
         if (forest && !swamp)
         {
             int propInt = 0;
+            bool changeLeafColor = false;
             
             if (propArray.Count > 1)
 			{
@@ -686,6 +701,7 @@ public class TerrainGenerator : MonoBehaviour
 					if (terrainDict[ProceduralGeneration.neighborsEightDirections[i] + td.TileCoordinates].terrainData.terrainDesc == TerrainDesc.Mountain)
 					{
 						propInt = random.Next(0, 2);
+                        changeLeafColor = true;
 						break;
 					}
 				}
@@ -695,23 +711,23 @@ public class TerrainGenerator : MonoBehaviour
 
 			if (propInt == 1 && newGame)
 			{
-				td.changeLeafColor = true;
+				td.changeLeafColor = changeLeafColor;
 
-				for (int i = 0; i < 10; i++)
-					td.uvMapIndex.Add(random.Next(1, 4));
+                if (changeLeafColor)
+                {
+				    for (int i = 0; i < 10; i++)
+					    td.uvMapIndex.Add(random.Next(1, 4));
+                }
 			}
 
 			GameObject newProp = Instantiate(propArray[propInt], Vector3Int.zero, Quaternion.identity);
 			newProp.transform.SetParent(td.prop, false);
 			newProp.GetComponent<TreeHandler>().propMesh.rotation = rotation;
 
-			if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-			{
-				GameObject nonStaticProp = Instantiate(td.terrainData.decors[td.decorIndex], Vector3.zero, Quaternion.identity);
-				nonStaticProp.transform.SetParent(td.nonstatic, false);
-				td.nonstatic.rotation = rotation;
-				td.SetNonStatic();
-			}
+			GameObject nonStaticProp = Instantiate(td.terrainData.decors[td.decorIndex], Vector3.zero, Quaternion.identity);
+			nonStaticProp.transform.SetParent(td.nonstatic, false);
+			td.nonstatic.rotation = rotation;
+			td.SetNonStatic();
 		}
         else
         {
@@ -738,7 +754,7 @@ public class TerrainGenerator : MonoBehaviour
 		}
 	}
 
-    private TerrainData GenerateTile(GameObject tile, Vector3Int position, Quaternion rotation, int prefabIndex)
+    private TerrainData GenerateTile(GameObject tile, Vector3Int position, Quaternion rotation, int prefabIndex, bool water = false)
     {
         GameObject newTile = Instantiate(tile, position, Quaternion.identity);
         newTile.transform.SetParent(groundTiles.transform, false);
@@ -748,7 +764,12 @@ public class TerrainGenerator : MonoBehaviour
         td.TileCoordinates = position;
         td.TerrainDataPrep();
         terrainDict[position] = td;
-        td.main.rotation = rotation;
+        //must keep collision in parent for some reason
+        if (water)
+            newTile.transform.rotation = rotation;
+        else
+            td.main.rotation = rotation;
+
         td.nonstatic.rotation = rotation;
 
         if (explored)
@@ -851,7 +872,7 @@ public class TerrainGenerator : MonoBehaviour
         return startingLoc;
     }
 
-    private (List<TerrainData>, List<Vector3Int>) SetStartingResources(System.Random random, Vector3Int startingPlace)
+    private (List<TerrainData>, List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) SetStartingResources(System.Random random, Vector3Int startingPlace)
     {
         List<Vector3Int> forestTiles = new();
         List<Vector3Int> hillTiles = new();
@@ -859,7 +880,11 @@ public class TerrainGenerator : MonoBehaviour
         List<Vector3Int> grasslandTiles = new();
         List<Vector3Int> resourceTiles = new();
         List<Vector3Int> mountainTiles = new();
+        List<Vector3Int> floodPlainTiles = new();
+        List<Vector3Int> riverCoastTiles = new();
         List<TerrainData> propTiles = new();
+        List<Vector3Int> foodLocs = new();
+        List<Vector3Int> waterLocs = new();
         
         for (int i = 0; i < ProceduralGeneration.neighborsCityRadius.Count; i++)
         {
@@ -878,10 +903,105 @@ public class TerrainGenerator : MonoBehaviour
                 flatlandTiles.Add(tile);
                 if (terrainDict[tile].terrainData.grassland)
                     grasslandTiles.Add(tile);
+                
+                if (terrainDict[tile].terrainData.specificTerrain == SpecificTerrain.FloodPlain)
+                    floodPlainTiles.Add(tile);
+            }
+            else if (terrainDict[tile].terrainData.type == TerrainType.River || terrainDict[tile].terrainData.type == TerrainType.Coast)
+            {
+                riverCoastTiles.Add(tile);
             }
             else if (terrainDict[tile].terrainData.terrainDesc == TerrainDesc.Mountain)
             {
                 mountainTiles.Add(tile);
+            }
+        }
+
+        //making sure every starting spot has at least x floodplains
+        int minimumFloodPlainTiles = 1;
+        int remainingFloodPlainTiles = minimumFloodPlainTiles - floodPlainTiles.Count;
+        if (remainingFloodPlainTiles > 0)
+        {
+            for (int i = 0; i < floodPlainTiles.Count; i++)
+            {
+				Vector3Int floodPlainsTile = floodPlainTiles[random.Next(0, floodPlainTiles.Count)];
+
+				flatlandTiles.Remove(floodPlainsTile);
+				grasslandTiles.Remove(floodPlainsTile);
+				floodPlainTiles.Remove(floodPlainsTile);
+			}
+            
+            List<Vector3Int> potentialMountainTiles = new();
+            List<Vector3Int> potentialHillTiles = new();
+            List<Vector3Int> potentialForestTiles = new();
+
+            for (int i = 0; i < riverCoastTiles.Count; i++)
+            {
+                if (terrainDict[riverCoastTiles[i]].terrainData.type == TerrainType.Coast)
+                    continue;
+
+                for (int j = 0; j < ProceduralGeneration.neighborsFourDirections.Count; j++)
+                {
+                    Vector3Int tile = ProceduralGeneration.neighborsFourDirections[j] + riverCoastTiles[i];
+
+                    if (mountainTiles.Contains(tile))
+                    {
+                        potentialMountainTiles.Add(tile);
+                    }
+                    else if (hillTiles.Contains(tile))
+                    {
+                        potentialHillTiles.Add(tile);
+                    }
+                    else if (forestTiles.Contains(tile))
+                    {
+                        potentialForestTiles.Add(tile);
+                    }
+				}
+            }
+
+            for (int i = 0; i < remainingFloodPlainTiles; i++)
+            {
+                if (potentialMountainTiles.Count > 0)
+                {
+                    Vector3Int tile = potentialMountainTiles[random.Next(0, potentialMountainTiles.Count)];
+                    
+                    DestroyImmediate(terrainDict[tile].gameObject);
+					GenerateTile(grasslandFloodPlainsSO.prefabs[0], tile, Quaternion.identity, 0);
+					mountainTiles.Remove(tile);
+                    potentialMountainTiles.Remove(tile);
+					floodPlainTiles.Add(tile);
+				}
+				else if (potentialHillTiles.Count > 0)
+                {
+                    Vector3Int tile = potentialHillTiles[random.Next(0, potentialHillTiles.Count)];
+
+                    DestroyImmediate(terrainDict[tile].gameObject);
+                    GenerateTile(grasslandFloodPlainsSO.prefabs[0], tile, Quaternion.identity, 0);
+                    hillTiles.Remove(tile);
+                    potentialHillTiles.Remove(tile);
+                    floodPlainTiles.Add(tile);
+                }
+                else
+                {
+				    Vector3Int tile = potentialForestTiles[random.Next(0, potentialForestTiles.Count)];
+
+				    DestroyImmediate(terrainDict[tile].gameObject);
+				    GenerateTile(grasslandFloodPlainsSO.prefabs[0], tile, Quaternion.identity, 0);
+				    forestTiles.Remove(tile);
+                    potentialForestTiles.Remove(tile);
+				    floodPlainTiles.Add(tile);
+			    }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < minimumFloodPlainTiles; i++)
+            {
+                Vector3Int floodPlainsTile = floodPlainTiles[random.Next(0, floodPlainTiles.Count)];
+
+                flatlandTiles.Remove(floodPlainsTile);
+                grasslandTiles.Remove(floodPlainsTile);
+                floodPlainTiles.Remove(floodPlainsTile);
             }
         }
 
@@ -939,7 +1059,8 @@ public class TerrainGenerator : MonoBehaviour
 
             terrainDict[newForest].gameObject.tag = tag;
             terrainDict[newForest].terrainData = data;
-            propTiles.Add(terrainDict[newForest]);
+			terrainDict[newForest].resourceAmount = -1;
+			propTiles.Add(terrainDict[newForest]);
         }
 
         //making sure starting loc has cloth
@@ -947,6 +1068,7 @@ public class TerrainGenerator : MonoBehaviour
         if (grasslandTiles.Count == 0)
         {
 			newCloth = flatlandTiles[random.Next(0, flatlandTiles.Count)];
+            FloodPlainCheck(newCloth);
 			DestroyImmediate(terrainDict[newCloth].gameObject);
 			GenerateTile(grasslandSO.prefabs[0], newCloth, Quaternion.identity, 0);
 		}
@@ -984,6 +1106,7 @@ public class TerrainGenerator : MonoBehaviour
         else
         {
             newClay = flatlandTiles[random.Next(0, flatlandTiles.Count)];
+            FloodPlainCheck(newClay);
             grassland = terrainDict[newClay].terrainData.grassland;
         }
 
@@ -992,7 +1115,8 @@ public class TerrainGenerator : MonoBehaviour
 		terrainDict[newClay].rawResourceType = RawResourceType.Clay;
 		terrainDict[newClay].decorIndex = 3;
         terrainDict[newClay].gameObject.tag = "Flatland";
-        resourceTiles.Add(newClay);
+		terrainDict[newClay].resourceAmount = -1;
+		resourceTiles.Add(newClay);
         flatlandTiles.Remove(newClay);
         grasslandTiles.Remove(newClay);
 
@@ -1014,12 +1138,14 @@ public class TerrainGenerator : MonoBehaviour
             FloodPlainCheck(newStone);
 			isHill = false;
             flatlandTiles.Remove(newStone);
+            grasslandTiles.Remove(newStone);
         }
 
         if (isHill)
 		    terrainDict[newStone].terrainData = stoneGrassland ? grasslandHillResourceSO : desertHillResourceSO;
         else
 			terrainDict[newStone].terrainData = stoneGrassland ? grasslandResourceSO : desertResourceSO;
+
 		terrainDict[newStone].resourceType = ResourceType.Stone;
 		terrainDict[newStone].rawResourceType = RawResourceType.Rocks;
         terrainDict[newStone].resourceAmount = random.Next(stoneAmounts.Item1, stoneAmounts.Item2);
@@ -1035,6 +1161,7 @@ public class TerrainGenerator : MonoBehaviour
 				DestroyImmediate(terrainDict[mountain].gameObject);
 				TerrainData td = GenerateTile(grasslandSO.prefabs[0], mountain, Quaternion.identity, 0);
                 td.gameObject.tag = "Flatland";
+                grasslandTiles.Add(mountain);
 			}
             else if (hillTiles.Count > 0)
             {
@@ -1042,6 +1169,7 @@ public class TerrainGenerator : MonoBehaviour
 				DestroyImmediate(terrainDict[hill].gameObject);
 				TerrainData td = GenerateTile(grasslandSO.prefabs[0], hill, Quaternion.identity, 0);
 				td.gameObject.tag = "Flatland";
+				grasslandTiles.Add(hill);
 			}
             else if (flatlandTiles.Count > 0)
             {
@@ -1050,12 +1178,50 @@ public class TerrainGenerator : MonoBehaviour
                 if (terrainDict[flatland].terrainData.specificTerrain != SpecificTerrain.FloodPlain)
                 {
 				    DestroyImmediate(terrainDict[flatland].gameObject);
-				    TerrainData td = GenerateTile(grasslandSO.prefabs[0], flatland, Quaternion.identity, 0);
+				    GenerateTile(grasslandSO.prefabs[0], flatland, Quaternion.identity, 0);
+					grasslandTiles.Add(flatland);
 				}
 			}
         }
 
-        return (propTiles, resourceTiles);
+        //adding food, max of two per start
+        for (int i = 0; i < 2; i++)
+        {
+			Vector3Int newFood = grasslandTiles[random.Next(0, grasslandTiles.Count)];
+
+            FloodPlainCheck(newFood);
+			terrainDict[newFood].terrainData = grasslandResourceSO;
+			terrainDict[newFood].resourceType = ResourceType.Food;
+			terrainDict[newFood].rawResourceType = RawResourceType.FoodLand;
+			terrainDict[newFood].decorIndex = 4;
+			terrainDict[newFood].resourceAmount = -1;
+            terrainDict[newFood].uvMapIndex.Add(random.Next(0, 0));
+			terrainDict[newFood].uvMapIndex.Add(random.Next(0, 2));
+
+			grasslandTiles.Remove(newFood);
+
+			//don't add to resourcetiles
+			foodLocs.Add(newFood);
+		}
+
+        //adding fish, max of two per start
+        for (int i = 0; i < 2; i++)
+        {
+            Vector3Int newWater = riverCoastTiles[random.Next(0, riverCoastTiles.Count)];
+            bool river = terrainDict[newWater].terrainData.type == TerrainType.River;
+
+            terrainDict[newWater].terrainData = river ? riverResourceSO : seaResourceSO;
+			terrainDict[newWater].resourceType = ResourceType.Fish;
+			terrainDict[newWater].rawResourceType = RawResourceType.FoodSea;
+			terrainDict[newWater].decorIndex = 0;
+			terrainDict[newWater].resourceAmount = -1;
+			riverCoastTiles.Remove(newWater);
+
+            //don't add to resourcetiles
+            waterLocs.Add(newWater);
+		}
+
+        return (propTiles, foodLocs, waterLocs, resourceTiles);
 	}
 
     private Vector3Int PlaceNeighborTradeCenter(System.Random random, Vector3Int startingPlace, List<Vector3Int> coastTiles, List<Vector3Int> riverTiles)
@@ -1224,22 +1390,38 @@ public class TerrainGenerator : MonoBehaviour
         return tradeCenterLocs;
     }
 
-    private (List<Vector3Int>, List<Vector3Int>) GenerateResources(System.Random random, Vector3Int startingPlace, List<Vector3Int> tradeCenterLocs)
+    private (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GenerateResources(System.Random random, 
+        Vector3Int startingPlace, List<Vector3Int> tradeCenterLocs, List<Vector3Int> grasslandLocs, List<Vector3Int> riverTiles, List<Vector3Int> coastTiles)
     {
         List<Vector3Int> startingPlaceRange = new() { startingPlace };
         List<Vector3Int> tradeCenterRange = new();
         List<Vector3Int> finalResourceLocs = new();
+        List<Vector3Int> finalWaterLocs = new();
+        List<Vector3Int> finalFoodLocs = new();
         List<Vector3Int> luxuryResourceLocs = new();
+        List<Vector3Int> potentialWaterResourceLocs = new(riverTiles);
+        List<Vector3Int> newCoastTiles = new(coastTiles); 
+        potentialWaterResourceLocs.AddRange(newCoastTiles);
 
         for (int i = 0; i < ProceduralGeneration.neighborsCityRadius.Count; i++)
-            startingPlaceRange.Add(ProceduralGeneration.neighborsCityRadius[i] + startingPlace);
+        {
+            Vector3Int tile = ProceduralGeneration.neighborsCityRadius[i] + startingPlace;
+
+			startingPlaceRange.Add(tile);
+            potentialWaterResourceLocs.Remove(tile);
+            grasslandLocs.Remove(tile);
+        }
 
         for (int i = 0; i < tradeCenterLocs.Count; i++)
         {
             tradeCenterRange.Add(tradeCenterLocs[i]);
 
-            for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
-                tradeCenterRange.Add(ProceduralGeneration.neighborsEightDirections[j] + tradeCenterLocs[i]);
+			for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
+            {
+                Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + tradeCenterLocs[i];
+                tradeCenterRange.Add(tile);
+				potentialWaterResourceLocs.Remove(tile);
+			}
         }
 
         int xCount = width / resourceFrequency - 1;
@@ -1263,7 +1445,10 @@ public class TerrainGenerator : MonoBehaviour
                 Vector3Int potentialLoc = new Vector3Int(i * random.Next(resourceFrequency-1, resourceFrequency + 1) * 3, 
                     yCoord, j * random.Next(resourceFrequency - 1, resourceFrequency + 1) * 3);
 
-                if (terrainDict[potentialLoc].isLand && terrainDict[potentialLoc].walkable && !startingPlaceRange.Contains(potentialLoc) && !tradeCenterRange.Contains(potentialLoc))
+                if (startingPlaceRange.Contains(potentialLoc) || tradeCenterRange.Contains(potentialLoc))
+                    continue;
+
+                if (terrainDict[potentialLoc].isLand && terrainDict[potentialLoc].walkable)
                 {
                     potentialResourceLocs.Add(potentialLoc);
                 }
@@ -1320,6 +1505,7 @@ public class TerrainGenerator : MonoBehaviour
 					foundLocation = true;
 					selectedTile = randomTile;
 					potentialResourceLocs.Remove(randomTile);
+                    grasslandLocs.Remove(randomTile);
 				}
 				else
 				{
@@ -1383,6 +1569,7 @@ public class TerrainGenerator : MonoBehaviour
                     foundLocation = true;
                     selectedTile = randomTile;
 					potentialResourceLocs.Remove(randomTile);
+					grasslandLocs.Remove(randomTile);
 				}
 
                 if (!foundLocation)
@@ -1398,6 +1585,7 @@ public class TerrainGenerator : MonoBehaviour
 			    terrainDict[selectedTile].rawResourceType = RawResourceType.Clay;
 			    terrainDict[selectedTile].decorIndex = 3;
                 terrainDict[selectedTile].gameObject.tag = "Flatland";
+                terrainDict[selectedTile].resourceAmount = -1;
 				if (!finalResourceLocs.Contains(selectedTile))
 					finalResourceLocs.Add(selectedTile);
             }
@@ -1494,13 +1682,51 @@ public class TerrainGenerator : MonoBehaviour
                         luxuryResourceLocs.Add(newTile);
 					if (!finalResourceLocs.Contains(newTile))
 						finalResourceLocs.Add(newTile);
-                }                
+
+					grasslandLocs.Remove(newTile);
+				}                
 			}
 
 			potentialResourceLocs.Remove(randomTile);
+			grasslandLocs.Remove(randomTile);
+		}
+
+        //put food every 3rd remaining grasslandtile
+        int grasslandCount = grasslandLocs.Count / 3;
+        for (int i = 0; i < grasslandCount; i++)
+        {
+			Vector3Int newFood = grasslandLocs[random.Next(0, grasslandLocs.Count)];
+
+			terrainDict[newFood].terrainData = grasslandResourceSO;
+			terrainDict[newFood].resourceType = ResourceType.Food;
+			terrainDict[newFood].rawResourceType = RawResourceType.FoodLand;
+			terrainDict[newFood].decorIndex = 4;
+			terrainDict[newFood].resourceAmount = -1;
+			terrainDict[newFood].uvMapIndex.Add(random.Next(0, 0)); //for determining what flowers to show
+			terrainDict[newFood].uvMapIndex.Add(random.Next(0, 2));
+
+			grasslandLocs.Remove(newFood);
+            finalFoodLocs.Add(newFood);
+		}
+
+        //put fish every fourth tile on average
+        int fishCount = potentialWaterResourceLocs.Count / 4;
+        for (int i = 0; i < fishCount; i++)
+        {
+            Vector3Int newWater = potentialWaterResourceLocs[random.Next(0, potentialWaterResourceLocs.Count)];
+			bool river = terrainDict[newWater].terrainData.type == TerrainType.River;
+
+			terrainDict[newWater].terrainData = river ? riverResourceSO : seaResourceSO;
+			terrainDict[newWater].resourceType = ResourceType.Fish;
+			terrainDict[newWater].rawResourceType = RawResourceType.FoodSea;
+			terrainDict[newWater].decorIndex = 0;
+			terrainDict[newWater].resourceAmount = -1;
+
+			potentialWaterResourceLocs.Remove(newWater);
+            finalWaterLocs.Add(newWater);
         }
 
-        return (luxuryResourceLocs, finalResourceLocs);
+		return (luxuryResourceLocs, finalFoodLocs, finalWaterLocs, finalResourceLocs);
     }
 
     private void GenerateClothTile(System.Random random, Vector3Int loc)
@@ -1514,19 +1740,19 @@ public class TerrainGenerator : MonoBehaviour
 		{
 			type = ResourceType.Wool;
 			rawType = RawResourceType.Wool;
-			index = 6;
+			index = 7;
 		}
 		else if (clothType == 1)
 		{
 			type = ResourceType.Cotton;
 			rawType = RawResourceType.Cotton;
-			index = 4;
+			index = 5;
 		}
 		else
 		{
 			type = ResourceType.Silk;
 			rawType = RawResourceType.Silk;
-			index = 5;
+			index = 6;
 		}
 
 		terrainDict[loc].terrainData = grasslandResourceSO;
@@ -1534,6 +1760,7 @@ public class TerrainGenerator : MonoBehaviour
 		terrainDict[loc].rawResourceType = rawType;
 		terrainDict[loc].decorIndex = index;
         terrainDict[loc].gameObject.tag = "Flatland";
+		terrainDict[loc].resourceAmount = -1;
 	}
 
     private void SwampCheck(Vector3Int tile)
@@ -1874,44 +2101,44 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-	private void SetEnemyBorders(List<Vector3Int> enemyLocs)
-	{
-        for (int i = 0; i < enemyLocs.Count; i++)
-        {
-            for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
-            {
-                Vector3Int tile = enemyLocs[i] + ProceduralGeneration.neighborsEightDirections[j];
+	//private void SetEnemyBorders(List<Vector3Int> enemyLocs)
+	//{
+ //       for (int i = 0; i < enemyLocs.Count; i++)
+ //       {
+ //           for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
+ //           {
+ //               Vector3Int tile = enemyLocs[i] + ProceduralGeneration.neighborsEightDirections[j];
 
-                for (int k = 0; k < ProceduralGeneration.neighborsFourDirections.Count; k++)
-                {
-                    Vector3Int newTile = tile + ProceduralGeneration.neighborsFourDirections[k];
+ //               for (int k = 0; k < ProceduralGeneration.neighborsFourDirections.Count; k++)
+ //               {
+ //                   Vector3Int newTile = tile + ProceduralGeneration.neighborsFourDirections[k];
 
-					if (!terrainDict[newTile].enemyZone)
-                    {
-						Vector3 borderPosition = newTile - tile;
-						borderPosition.y = -0.1f;
-                        Quaternion rotation = Quaternion.identity;
+	//				if (!terrainDict[newTile].enemyZone)
+ //                   {
+	//					Vector3 borderPosition = newTile - tile;
+	//					borderPosition.y = -0.1f;
+ //                       Quaternion rotation = Quaternion.identity;
 
-						if (borderPosition.x != 0)
-						{
-							borderPosition.x = (borderPosition.x / 3 * 0.99f);
-							rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
-						}
-						else if (borderPosition.z != 0)
-						{
-							borderPosition.z = (borderPosition.z / 3 * 0.99f);
-						}
+	//					if (borderPosition.x != 0)
+	//					{
+	//						borderPosition.x = (borderPosition.x / 3 * 0.99f);
+	//						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
+	//					}
+	//					else if (borderPosition.z != 0)
+	//					{
+	//						borderPosition.z = (borderPosition.z / 3 * 0.99f);
+	//					}
 
-                        GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
-                        allTiles.Add(border);
-                        border.transform.SetParent(terrainDict[tile].transform, false);
-                        border.SetActive(false);
-                        terrainDict[tile].enemyBorders.Add(border);
-                    }
-                }
-            }
-        }
-	}
+ //                       GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+ //                       allTiles.Add(border);
+ //                       border.transform.SetParent(terrainDict[tile].transform, false);
+ //                       border.SetActive(false);
+ //                       terrainDict[tile].enemyBorders.Add(border);
+ //                   }
+ //               }
+ //           }
+ //       }
+	//}
 
     public void SetMainPlayerLoc() 
     {

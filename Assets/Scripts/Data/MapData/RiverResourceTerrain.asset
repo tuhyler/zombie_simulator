@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
+  m_Name: RiverResourceTerrain
+  m_EditorClassIdentifier: 
+  terrainName: RiverResourceTerrain
+  tag: Water
+  prefabs:
+  - {fileID: 1898653719436405044, guid: c817dee11469c8f4a8592620e301fadd, type: 3}
+  - {fileID: 5289996565718370138, guid: 9eb5cfb85db36f34686a9b0d5659e389, type: 3}
+  - {fileID: 7540867309128215004, guid: e3456a88e982a384a8da44517b3758fa, type: 3}
+  - {fileID: 5667035513099244503, guid: 8d10be57b8cc1be42a05c37c64982f5a, type: 3}
+  - {fileID: 5894983979756663941, guid: b33038b422ae5e842af67159fa260919, type: 3}
+  - {fileID: 4814251837628501178, guid: bce8a8c3a383fc94e8aa9b8670d3314d, type: 3}
+  - {fileID: 2054824714848026540, guid: dd79c5a4aab607847920d65422213e94, type: 3}
+  decors:
+  - {fileID: 9073605623283122857, guid: b625e4f74d4af944b8a35ced4c90376d, type: 3}
+  title: River
+  clearedForestData: {fileID: 0}
+  grassland: 0
+  desert: 1
+  walkable: 1
+  sailable: 1
+  isLand: 0
+  isSeaCorner: 1
+  movementCost: 30
+  type: 4
+  specificTerrain: 0
+  terrainDesc: 13
+  rawResourceType: 2
+  resourceType: 3
+  keepProp: 0

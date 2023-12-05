@@ -24,7 +24,8 @@ public class UICityBuildTabHandler : MonoBehaviour
     [SerializeField] // for tweening
     private RectTransform allContents;
     private Vector3 originalLoc;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
 
     //for side buttons
     private bool isRemoving, isUpgrading, isSelling;
@@ -182,10 +183,11 @@ public class UICityBuildTabHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        if (!cityBuilderManager.world.openingCity)
-            cityBuilderManager.world.cityCanvas.gameObject.SetActive(false);
-        else
-            cityBuilderManager.world.openingCity = true;
+        cityBuilderManager.world.CityCanvasCheck();
+        //if (!cityBuilderManager.world.openingCity)
+        //    cityBuilderManager.world.cityCanvas.gameObject.SetActive(false);
+        //else
+        //    cityBuilderManager.world.openingCity = true;
     }
 
     //public void ToggleInteractable(bool v)

@@ -11,7 +11,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public UIWonderSelection uiWonderSelection;
     [SerializeField]
-    private UICityBuildTabHandler uiCityTabs;
+    public UICityBuildTabHandler uiCityTabs;
     [SerializeField]
     public UIMarketPlaceManager uiMarketPlaceManager;
     [SerializeField]
@@ -939,7 +939,7 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.exclamationPoint.SetActive(false);
         PlayOpenCityAudio();
 
-        world.openingCity = true;
+        //world.openingCity = true;
         world.cityCanvas.gameObject.SetActive(true);
         world.somethingSelected = false; //cities aren't considered "selected" due to intricate selection code
         isActive = true;
@@ -1326,7 +1326,7 @@ public class CityBuilderManager : MonoBehaviour
             //}
 
             resourceProducer.UpdateCurrentLaborData(0);
-            resourceProducer.UpdateResourceGenerationData();
+            //resourceProducer.UpdateResourceGenerationData();
             resourceProducer.StopProducing();
 
             if (city.activeCity)
@@ -2065,17 +2065,26 @@ public class CityBuilderManager : MonoBehaviour
                 
                 if (world.IsTileOpenCheck(tile))
                 {
-                    if (improvementData.rawMaterials && td.rawResourceType == improvementData.rawResourceType)
+                    TerrainType type = td.terrainData.type;
+
+                    //for building sea improvements on rivers
+                    if (type == TerrainType.River)
+                        type = TerrainType.Coast;
+
+                    if (improvementData.rawMaterials)
                     {
-                        if (improvementData.oneTerrain && td.terrainData.type != improvementData.terrainType)
-                            continue;
+                        if (td.rawResourceType == improvementData.rawResourceType)
+                        {
+                            if (improvementData.oneTerrain && type!= improvementData.terrainType)
+                                continue;
                         
-                        td.EnableHighlight(Color.white);
-                        tilesToChange.Add(tile);
+                            td.EnableHighlight(Color.white);
+                            tilesToChange.Add(tile);
+                        }
                     }
-                    else if (!improvementData.rawMaterials)
+                    else
                     {
-                        if (improvementData.oneTerrain && td.terrainData.type != improvementData.terrainType)
+                        if (improvementData.oneTerrain && type != improvementData.terrainType)
                             continue;
 
                         td.EnableHighlight(Color.white);
@@ -2569,7 +2578,7 @@ public class CityBuilderManager : MonoBehaviour
             //}
 
             resourceProducer.UpdateCurrentLaborData(0);
-            resourceProducer.UpdateResourceGenerationData();
+            //resourceProducer.UpdateResourceGenerationData();
             resourceProducer.StopProducing();
 
             //replacing the cost
@@ -2596,16 +2605,18 @@ public class CityBuilderManager : MonoBehaviour
 				}
                 else
                 {
-                    TerrainDataSO tempData;
+                    //TerrainDataSO tempData;
                 
-                    if (td.terrainData.grassland)
-                        tempData = td.isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
-                    else
-                        tempData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
+                    //if (td.terrainData.grassland)
+                    //    tempData = td.isHill ? world.grasslandHillTerrain : world.grasslandTerrain;
+                    //else
+                    //    tempData = td.isHill ? world.desertHillTerrain : world.desertTerrain;
 
-                    td.SetNewData(tempData);
-                    GameLoader.Instance.gameData.allTerrain[improvementLoc] = td.SaveData();
                     td.ShowProp(false);
+                    //Destroy(td.resourceGraphic.gameObject);
+                    city.SetNewTerrainData(td);
+                    //td.SetNewData(tempData);
+                    //GameLoader.Instance.gameData.allTerrain[improvementLoc] = td.SaveData();
 			    }
             }
             else
@@ -3078,6 +3089,7 @@ public class CityBuilderManager : MonoBehaviour
 
 				world.AddToCityLabor(terrainLocation, selectedCity.cityLoc);
 				resourceProducer.SetResourceManager(selectedCity.ResourceManager);
+                resourceProducer.UpdateResourceGenerationData();
 				resourceProducer.StartProducing();
 			}
             else
