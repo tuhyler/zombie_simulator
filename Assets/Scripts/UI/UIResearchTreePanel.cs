@@ -132,7 +132,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             world.UnselectAll();
             world.ToggleMinimap(false);
             uiUnitTurn.gameObject.SetActive(false);
-			world.openingImmoveable = true;
+			//world.openingImmoveable = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
             world.somethingSelected = true;
@@ -156,7 +156,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             {
                 dof.focalLength.value = value;
             });
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine().setOnComplete(OpeningComplete);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.5f).setFrom(0f).setEaseLinear();
         }
         else
@@ -192,16 +192,17 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        if (!world.openingImmoveable)
-            world.immoveableCanvas.gameObject.SetActive(false);
-        else
-			world.openingImmoveable = false;
+		world.ImmoveableCheck();
+		//     if (!world.openingImmoveable)
+		//         world.immoveableCanvas.gameObject.SetActive(false);
+		//     else
+		//world.openingImmoveable = false;
 	}
 
-    private void OpeningComplete()
-    {
-		world.openingImmoveable = false;
-	}
+ //   private void OpeningComplete()
+ //   {
+	//	world.openingImmoveable = false;
+	//}
 
     public void CloseResearchTree()
     {

@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6249270667086199081}
   - component: {fileID: 6668068761066760393}
+  - component: {fileID: 2465675756621829251}
   m_Layer: 12
   m_Name: ResourceMinimapIcon
   m_TagString: Untagged
@@ -174,3 +175,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2465675756621829251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7372795965402052165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39da2e48b7fe3b244b4a92468fc778d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceBackgroundSprite: {fileID: 6668068761066760393}
+  resourceIconSprite: {fileID: 2291095677369144417}

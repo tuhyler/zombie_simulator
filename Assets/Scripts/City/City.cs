@@ -1335,7 +1335,8 @@ public class City : MonoBehaviour
         {
             world.AddToCityLabor(terrainLocation, cityLoc);
             resourceProducer.SetResourceManager(resourceManager);
-            resourceProducer.StartProducing();
+            resourceProducer.UpdateResourceGenerationData();
+			resourceProducer.StartProducing();
         }
         else
         {
@@ -1442,9 +1443,8 @@ public class City : MonoBehaviour
         }
     }
 
-    public void SetNewTerrainData(Vector3Int loc)
+    public void SetNewTerrainData(TerrainData td)
     {
-		TerrainData td = world.GetTerrainDataAt(loc);
         TerrainDataSO tempData;
 
 		if (td.isHill)
@@ -1453,7 +1453,7 @@ public class City : MonoBehaviour
 			tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
 
         td.SetNewData(tempData);
-        GameLoader.Instance.gameData.allTerrain[loc] = td.SaveData();
+        GameLoader.Instance.gameData.allTerrain[td.TileCoordinates] = td.SaveData();
 	}
 
 	//for queued build items

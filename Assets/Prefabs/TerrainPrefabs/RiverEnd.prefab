@@ -101,6 +101,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1500265935061300247, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -462981019419857548, guid: beeeeeaeeb17f5446a1b0aa6cca3b71c,
+        type: 3}
     - target: {fileID: 1503933946542963784, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_RootOrder
@@ -192,6 +198,12 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7060674250574112008, guid: f72558895b6c8e746b5598f21c9dcdaf,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -462981019419857548, guid: beeeeeaeeb17f5446a1b0aa6cca3b71c,
+        type: 3}
     - target: {fileID: 7494950873433822262, guid: f72558895b6c8e746b5598f21c9dcdaf,
         type: 3}
       propertyPath: m_IsActive

@@ -41,7 +41,7 @@ public class UIMapResourceSearch : MonoBehaviour
         {
             if (resource.rawResource != RawResourceType.None)
             {
-                if (resource.resourceType == ResourceType.Food || resource.resourceType == ResourceType.None || resource.resourceType == ResourceType.Lumber || resource.resourceType == ResourceType.Fish)
+                if (/*resource.resourceType == ResourceType.Food || */resource.resourceType == ResourceType.None || resource.resourceType == ResourceType.Lumber /*|| resource.resourceType == ResourceType.Fish*/)
                     continue;
 
                 allResources.Add(new TMP_Dropdown.OptionData(resource.resourceName, resource.resourceIcon));
@@ -65,6 +65,11 @@ public class UIMapResourceSearch : MonoBehaviour
 
         if (resourceLocDict[type].Count == 0)
             resourceLocDict.Remove(type);
+    }
+
+    public void ResetResourceLocDict()
+    {
+        resourceLocDict.Clear();
     }
 
     public void SetChosenResource(int value)
@@ -96,7 +101,7 @@ public class UIMapResourceSearch : MonoBehaviour
             {
                 TerrainData td = world.GetTerrainDataAt(tile);
                 td.EnableHighlight(Color.white);
-                td.HighlightResource(highlightResourceBackground);
+                world.HighlightResourceIcon(td.TileCoordinates, highlightResourceBackground);
             }
         }
         else
@@ -154,7 +159,7 @@ public class UIMapResourceSearch : MonoBehaviour
         {
             TerrainData td = world.GetTerrainDataAt(tile);
             td.DisableHighlight();
-            td.RestoreResource(originalResourceBackground);
+            world.RestoreResourceIcon(td.TileCoordinates, originalResourceBackground);
         }
 
         selectedResource = ResourceType.None;

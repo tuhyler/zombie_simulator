@@ -67,6 +67,7 @@ public class ResourceIndividualHandler : MonoBehaviour
             TerrainData td = world.GetTerrainDataAt(pos);
             td.beingCleared = false;
             td.ShowProp(false);
+            //Destroy(td.treeHandler.gameObject);
 			worker.marker.ToggleVisibility(false);
             TerrainDataSO tempData;
 

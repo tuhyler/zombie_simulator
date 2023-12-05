@@ -18,7 +18,7 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool removing, gathering, clearingForest, buildingCity;
+    public bool removing, gathering, clearingForest, buildingCity, working;
     public int clearingForestTime = 1;
     public int clearedForestlumberAmount = 100;
 
@@ -63,6 +63,7 @@ public class Worker : Unit
 
         if (v)
         {
+            working = true;
             workingCo = StartCoroutine(PlayWorkSound());
         }
         else
@@ -70,13 +71,14 @@ public class Worker : Unit
             if (workingCo != null)
                 StopCoroutine(workingCo);
 
+            working = false;
             workingCo = null;
         }
     }
 
     private IEnumerator PlayWorkSound()
     {
-        while (true)
+        while (working)
         {
             yield return workingWait;
         

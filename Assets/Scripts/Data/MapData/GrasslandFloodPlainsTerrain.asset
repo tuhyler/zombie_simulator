@@ -17,8 +17,6 @@ MonoBehaviour:
   prefabs:
   - {fileID: 608616143501096269, guid: c08770104436a0f4fa8c6e44489dd406, type: 3}
   decors:
-  - {fileID: 0}
-  - {fileID: 9073605623283122857, guid: b984d21b1b49d9c489009f5620bcffa7, type: 3}
   - {fileID: 9073605623283122857, guid: 02b031797ed30594296fc5d285446f33, type: 3}
   title: Flood Plains
   clearedForestData: {fileID: 0}

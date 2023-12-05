@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a69b3ff5575a9b240b2828965ddaf072, type: 3}
-  m_Name: RiverData
+  m_Name: RiverTerrain
   m_EditorClassIdentifier: 
-  terrainName: RiverData
+  terrainName: RiverTerrain
   tag: Water
   prefabs:
   - {fileID: 1898653719436405044, guid: c817dee11469c8f4a8592620e301fadd, type: 3}
@@ -36,7 +36,6 @@ MonoBehaviour:
   type: 4
   specificTerrain: 0
   terrainDesc: 13
-  rawResourceType: 2
-  resourceType: 3
+  rawResourceType: 0
+  resourceType: 0
   keepProp: 0
-  hasRocks: 0

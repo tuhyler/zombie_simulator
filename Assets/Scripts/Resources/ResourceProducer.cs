@@ -215,8 +215,8 @@ public class ResourceProducer : MonoBehaviour
     //for producing resources
     public void StartProducing()
     {
-        CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
-        CalculateResourceConsumedPerMinute();
+        //CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
+        //CalculateResourceConsumedPerMinute();
         cityImprovement.firstStart = true;
 
         if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
@@ -245,8 +245,7 @@ public class ResourceProducer : MonoBehaviour
 
     public void LoadProducingCoroutine()
     {
-		CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
-		CalculateResourceConsumedPerMinute();
+		UpdateResourceGenerationData();
 		cityImprovement.firstStart = true;
         float percLeft = (float)productionTimer / improvementData.producedResourceTime[producedResourceIndex];
         producingCo = StartCoroutine(ProducingCoroutine(percLeft, true));
@@ -254,10 +253,9 @@ public class ResourceProducer : MonoBehaviour
 
     public void AddLaborMidProduction()
     {
-        CalculateResourceGenerationPerMinute();
-        CalculateResourceConsumedPerMinute();
+		UpdateResourceGenerationData();
 
-        float percWorked;
+		float percWorked;
         if (isWaitingforResources || resourceManager.fullInventory)
             percWorked = 0;
         else if (!ConsumeResourcesCheck())
@@ -271,10 +269,9 @@ public class ResourceProducer : MonoBehaviour
 
     public void RemoveLaborMidProduction()
     {
-        CalculateResourceGenerationPerMinute();
-        CalculateResourceConsumedPerMinute();
+		UpdateResourceGenerationData();
 
-        if (!isWaitingForResearch && !isWaitingforResources && !isWaitingForStorageRoom)
+		if (!isWaitingForResearch && !isWaitingforResources && !isWaitingForStorageRoom)
         {
             int tempLaborPercCount = tempLaborPercsList.Count;
 
@@ -292,11 +289,11 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
-    public void RestartMidProduction()
-    {
-        StopProducing(true);
-        StartProducing();
-    }
+    //public void RestartMidProduction()
+    //{
+    //    StopProducing(true);
+    //    StartProducing();
+    //}
 
     //checking if one more labor can be added
     public bool ConsumeResourcesCheck()
@@ -412,10 +409,9 @@ public class ResourceProducer : MonoBehaviour
 
     public void StopProducing(bool allLabor = false)
     {
-        CalculateResourceGenerationPerMinute();
-        CalculateResourceConsumedPerMinute();
+		UpdateResourceGenerationData();
 
-        if (isWaitingForResearch)
+		if (isWaitingForResearch)
         {
             resourceManager.RemoveFromResearchWaitlist(this);
             isWaitingForResearch = false;

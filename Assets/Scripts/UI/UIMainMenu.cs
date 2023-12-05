@@ -71,7 +71,7 @@ public class UIMainMenu : MonoBehaviour
 
 			activeStatus = true;
 			world.UnselectAll();
-			world.openingImmoveable = true;
+			//world.openingImmoveable = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
 			gameObject.SetActive(true);
 
@@ -117,7 +117,6 @@ public class UIMainMenu : MonoBehaviour
 
 	private void FreezeTime()
 	{
-		world.openingImmoveable = false;
 		Time.timeScale = 0f;
 		AudioListener.pause = true;
 		opening = false;
@@ -126,10 +125,11 @@ public class UIMainMenu : MonoBehaviour
 	private void SetActiveStatusFalse()
 	{
 		gameObject.SetActive(false);
-		if (!world.openingImmoveable)
-			world.immoveableCanvas.gameObject.SetActive(false);
-		else
-			world.openingImmoveable = false;
+		world.ImmoveableCheck();
+		//if (!world.openingImmoveable)
+		//	world.immoveableCanvas.gameObject.SetActive(false);
+		//else
+		//	world.openingImmoveable = false;
 	}
 
 	public void SaveGameButton()

@@ -202,6 +202,11 @@ public class UIMapHandler : MonoBehaviour
         resourceSearch.RemoveResourceFromDict(loc, type);
     }
 
+    public void ResetResourceLocDict()
+    {
+        resourceSearch.ResetResourceLocDict();
+    }
+
     private void HandleKeyboardInput()
     {
         //assigning keys
