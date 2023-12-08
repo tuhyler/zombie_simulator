@@ -69,6 +69,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterial2: {fileID: 0}
   isGlowing: 0
 --- !u!114 &-2285914093244530181
 MonoBehaviour:
@@ -82,6 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76ae84f6f81aa574e949818be2e4db73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 9149838138303090476}
@@ -101,12 +103,17 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  unitRigidbody: {fileID: 0}
   moreToMove: 0
   isBusy: 0
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
+  secondaryPrefab: 0
+  destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  prevRoadTile: {x: 0, y: 0, z: 0}
+  prevTerrainTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -130,9 +137,9 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
-  newlyJoined: 1
   isLeader: 0
   readyToMarch: 0
   inArmy: 0
@@ -150,6 +157,7 @@ MonoBehaviour:
   isDead: 0
   isUpgrading: 0
   targetLocation: {x: 0, y: 0, z: 0}
+  targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
   personalResourceManager: {fileID: 0}
   tradeRouteManager: {fileID: 0}
@@ -199,6 +207,7 @@ MonoBehaviour:
   resourceCheck: 0
   waitForever: 0
   loadUnloadRate: 0
+  percDone: 0
 --- !u!95 &8160468823899162694
 Animator:
   serializedVersion: 4
@@ -255,11 +264,11 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
+  DopplerLevel: 0
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 20
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -292,7 +301,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

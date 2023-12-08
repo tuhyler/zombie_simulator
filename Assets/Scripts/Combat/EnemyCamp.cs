@@ -12,6 +12,8 @@ public class EnemyCamp
 	public Vector3Int loc, forward;
 	public Vector3Int armyDiff;
 
+	public GameObject campfire;
+
 	public int enemyReady;
 	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength;
 	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning;
@@ -30,6 +32,18 @@ public class EnemyCamp
 	public GameObject minimapIcon;
 
 	private WaitForSeconds retreatTime = new(8);
+
+	public void SetCampfire(GameObject campfire, bool isHill, bool discovered)
+	{
+		Vector3 campfireLoc = loc;
+		if (isHill)
+			campfireLoc.y += 0.65f;
+		campfire.transform.position = campfireLoc;
+		this.campfire = campfire;
+
+		if (!discovered)
+			this.campfire.SetActive(false);
+	}
 
 	public void FormBattlePositions()
     {
@@ -165,6 +179,8 @@ public class EnemyCamp
 		if (attackReady || prepping)
 			return;
 
+		if (campfire != null)
+			campfire.SetActive(false);
 		returning = false;
 		prepping = true;
 		
@@ -183,6 +199,9 @@ public class EnemyCamp
 
 		foreach (Unit unit in unitsInCamp)
 		{
+			if (unit.buildDataSO.unitType != UnitType.Cavalry)
+				unit.ToggleSitting(false);
+			
 			Vector3Int unitDiff = unit.barracksBunk - loc;
 
 			if (rotation == 1)
@@ -270,6 +289,9 @@ public class EnemyCamp
 	public void EnemyReturn(Unit unit)
 	{
 		enemyReady++;
+		unit.Rotate(loc);
+		if (unit.buildDataSO.unitType != UnitType.Cavalry)
+			unit.ToggleSitting(true);
 
 		if (unit.currentHealth < unit.buildDataSO.health)
 			unit.healthbar.RegenerateHealth();
@@ -481,6 +503,9 @@ public class EnemyCamp
 
 	private void ResurrectCamp()
 	{
+		if (campfire != null)
+			campfire.SetActive(true);
+		
 		foreach (Unit unit in deadList)
 		{
 			Vector3 rebornSpot;
@@ -510,6 +535,10 @@ public class EnemyCamp
 			unit.lightBeam.Play();
 			//unit.healthbar.gameObject.SetActive(true);
 			LeanTween.scale(unit.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+
+			unit.Rotate(loc);
+			if (unit.buildDataSO.unitType != UnitType.Cavalry)
+				unit.ToggleSitting(true);
 		}
 
 		deathCount = 0;

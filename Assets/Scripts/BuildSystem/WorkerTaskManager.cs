@@ -59,7 +59,7 @@ public class WorkerTaskManager : MonoBehaviour
     //Methods to run when pressing certain keys
     public void HandleR()
     {
-        if (workerUnit != null && !workerUnit.isBusy)
+        if (workerUnit != null && !workerUnit.isBusy && !workerUnit.sayingSomething)
         {
 			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
@@ -70,7 +70,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleB()
     {
-        if (workerUnit != null && !workerUnit.isBusy && !unitMovement.uiJoinCity.activeStatus)
+        if (workerUnit != null && !workerUnit.isBusy && !unitMovement.uiJoinCity.activeStatus && !workerUnit.sayingSomething)
         {
 			Vector3 pos = workerUnit.transform.position;
             pos.y = 0;
@@ -91,7 +91,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleG()
     {
-        if (workerUnit != null && !workerUnit.isBusy)
+        if (workerUnit != null && !workerUnit.isBusy && !workerUnit.sayingSomething)
         {
 			workerUnit.StopMovement();
             workerUnit.GatherResource();
@@ -100,7 +100,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleX()
     {
-        if (workerUnit != null && !workerUnit.isBusy)
+        if (workerUnit != null && !workerUnit.isBusy && !workerUnit.sayingSomething)
         {
 			unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");

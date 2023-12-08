@@ -25,10 +25,13 @@ public class Unit : MonoBehaviour
     public SpriteRenderer minimapIcon;
 
     [SerializeField]
+    public Sprite unitImage;
+
+    [SerializeField]
     public ParticleSystem lightBeam, deathSplash;
 
     [SerializeField]
-    private GameObject selectionCircle;
+    private GameObject selectionCircle, questionMark;
 
     [SerializeField]
     public UnitMarker marker;
@@ -109,6 +112,8 @@ public class Unit : MonoBehaviour
 
     [HideInInspector]
     public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething;
+    [HideInInspector]
+    public string conversationTopic;
 
     //military booleans
     [HideInInspector]
@@ -122,13 +127,15 @@ public class Unit : MonoBehaviour
     private int isMovingHash;
     private int isMarchingHash;
     private int isAttackingHash;
+    private int isSittingHash;
+    private int isDiscoveredHash;
 
     private void Awake()
     {
         AwakeMethods();
     }
 
-    protected virtual void AwakeMethods()
+	protected virtual void AwakeMethods()
     {
         //turnHandler = FindObjectOfType<UIUnitTurnHandler>();
         //focusCam = FindObjectOfType<CameraController>();
@@ -142,6 +149,8 @@ public class Unit : MonoBehaviour
         isMovingHash = Animator.StringToHash("isMoving");
         isMarchingHash = Animator.StringToHash("isMarching");
         isAttackingHash = Animator.StringToHash("isAttacking");
+        isSittingHash = Animator.StringToHash("isSitting");
+        isDiscoveredHash = Animator.StringToHash("isDiscovered");
         attackPauses[0] = new WaitForSeconds(.9f);
 		attackPauses[1] = new WaitForSeconds(1f);
 		attackPauses[2] = new WaitForSeconds(1.1f);
@@ -184,24 +193,62 @@ public class Unit : MonoBehaviour
             healthbar.gameObject.SetActive(false);
     }
 
-  //  private void Start()
-  //  {
-		////turnHandler.turnHandler.AddToTurnList(this);
-		////roadSpeed = world.GetRoadCost();
-		////Vector3 loc = transform.position;
-		////loc.y += 0.04f;
-		////lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
-		////lightBeam.transform.parent = world.psHolder;
-		
-		////if (CompareTag("Player"))
-  ////      {
-  ////          lightBeam.Play();
-  ////      }
+	public void SetSomethingToSay(string conversationTopic)
+	{
+        this.conversationTopic = conversationTopic;
+        somethingToSay = true;
+		questionMark.SetActive(true);
+	}
 
-  //      //world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
-  //      //SetMinimapIcon();
-  //      //Physics.IgnoreLayerCollision(8, 10);
-  //  }
+    public void SpeakingCheck()
+    {
+        somethingToSay = false;
+        sayingSomething = true;
+        focusCam.CenterCameraNoFollow(transform.position);
+        focusCam.someoneSpeaking = true;
+        questionMark.SetActive(false);
+        world.playerInput.paused = true;
+        world.uiSpeechWindow.ToggleVisibility(true);
+        world.uiSpeechWindow.SetConversation(conversationTopic, true);
+    }
+
+    public void SetSpeechBubble()
+    {
+        world.speechBubble.SetActive(true);
+        Vector3 loc = transform.position;
+        loc.y += 1.3f;
+        world.speechBubble.transform.position = loc;
+    }
+
+    public void SaidSomething()
+    {
+        sayingSomething = false;
+        conversationTopic = "";
+    }
+
+    public void ToggleSpeakingAnimation(bool v)
+    {
+
+    }
+
+	//  private void Start()
+	//  {
+	////turnHandler.turnHandler.AddToTurnList(this);
+	////roadSpeed = world.GetRoadCost();
+	////Vector3 loc = transform.position;
+	////loc.y += 0.04f;
+	////lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
+	////lightBeam.transform.parent = world.psHolder;
+
+	////if (CompareTag("Player"))
+	////      {
+	////          lightBeam.Play();
+	////      }
+
+	//      //world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
+	//      //SetMinimapIcon();
+	//      //Physics.IgnoreLayerCollision(8, 10);
+	//  }
 
 	private void SetParticleSystems()
     {
@@ -273,6 +320,19 @@ public class Unit : MonoBehaviour
  //   {
 	//	unitAnimator.SetBool(isAttackingHash, false);
 	//}
+
+    public void DiscoverSitting()
+    {
+		unitAnimator.SetBool(isDiscoveredHash, true);
+    }
+
+    public void ToggleSitting(bool v)
+    {
+        if (!v)
+            unitAnimator.SetBool(isDiscoveredHash, false);
+		
+        unitAnimator.SetBool(isSittingHash, v);
+    }
 
 	public void StopAnimation()
     {
@@ -514,10 +574,17 @@ public class Unit : MonoBehaviour
         endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
         direction.y = 0;
-        if (world.RoundToInt(direction) == world.RoundToInt(transform.position))
-            direction += new Vector3(0, 0.05f, 0);
+        
+        //if (world.RoundToInt(direction) == world.RoundToInt(transform.position))
+        //    direction += new Vector3(0, 0.05f, 0);
 
-        Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
+        Quaternion endRotation;
+        if (direction == Vector3.zero)
+            endRotation = Quaternion.identity;
+        else
+            endRotation = Quaternion.LookRotation(direction, Vector3.up);
+
+
         float distance = 1f;
         float timeElapsed = 0;
 
@@ -678,17 +745,23 @@ public class Unit : MonoBehaviour
 
 	public IEnumerator RotateTowardsPosition(Vector3 lookAtTarget)
 	{
-        if (lookAtTarget == CurrentLocation)
-            lookAtTarget += new Vector3(0, 0.05f, 0);
+        //if (lookAtTarget == CurrentLocation)
+        //    lookAtTarget += new Vector3(0, 0.05f, 0);
         
         Vector3 direction = lookAtTarget - transform.position;
+        Quaternion endRotation;
+		if (direction == Vector3.zero)
+			endRotation = Quaternion.identity;
+		else
+			endRotation = Quaternion.LookRotation(direction, Vector3.up);
+
 		//direction.y = 0;
 
 		float totalTime = 0;
 		while (totalTime < 0.35f)
 		{
 			float timePassed = Time.deltaTime;
-			transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction, Vector3.up), timePassed * 12);
+			transform.rotation = Quaternion.Lerp(transform.rotation, endRotation, timePassed * 12);
 			totalTime += timePassed;
 			yield return null;
 		}
@@ -2075,6 +2148,7 @@ public class Unit : MonoBehaviour
 
         data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
+        data.conversationTopic = conversationTopic;
         data.isUpgrading = isUpgrading;
 
         //combat
@@ -2123,11 +2197,11 @@ public class Unit : MonoBehaviour
         prevTerrainTile = data.prevTerrainTile;
         isMoving = data.isMoving;
         moreToMove = data.moreToMove;
-
-        somethingToSay = data.somethingToSay;
         isUpgrading = data.isUpgrading;
 
-        //if (somethingToSay)
+        if (data.somethingToSay)
+            SetSomethingToSay(data.conversationTopic);
+
         if (inArmy || enemyAI)
         {
             if (inArmy)

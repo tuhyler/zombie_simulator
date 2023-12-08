@@ -42,10 +42,16 @@ public class Projectile : MonoBehaviour
         gameObject.SetActive(true);
 
         Vector3 lookAtTarget = endPoint - transform.position;
-        if (lookAtTarget == endPoint)
-            lookAtTarget += new Vector3(0, 0.05f, 0);
 
-        transform.rotation = Quaternion.LookRotation(lookAtTarget);
+        Quaternion rotation;
+        if (lookAtTarget == Vector3.zero)
+            rotation = Quaternion.identity;
+        else
+            rotation = Quaternion.LookRotation(lookAtTarget);
+		//if (lookAtTarget == endPoint)
+		//    lookAtTarget += new Vector3(0, 0.05f, 0);
+
+		transform.rotation = rotation;
 
         //transform.LookAt(endPoint);
         

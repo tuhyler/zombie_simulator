@@ -88,6 +88,26 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 35aa8a19ef15c0c42b3625976d280369,
         type: 2}
+    - target: {fileID: 251174149814157828, guid: 46cc514076b805546acca95ada66c02c,
+        type: 3}
+      propertyPath: MaxDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 251174149814157828, guid: 46cc514076b805546acca95ada66c02c,
+        type: 3}
+      propertyPath: rolloffMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 251174149814157828, guid: 46cc514076b805546acca95ada66c02c,
+        type: 3}
+      propertyPath: DopplerLevel
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 251174149814157828, guid: 46cc514076b805546acca95ada66c02c,
+        type: 3}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2708977017892983092, guid: 46cc514076b805546acca95ada66c02c,
         type: 3}
       propertyPath: m_LocalScale.x

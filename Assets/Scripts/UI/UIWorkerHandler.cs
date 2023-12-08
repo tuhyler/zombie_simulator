@@ -47,11 +47,6 @@ public class UIWorkerHandler : MonoBehaviour
         uiWorkerRemovalOptions.ToggleVisibility(v, false);
     }
 
-    //public void HandleButtonClick()
-    //{
-    //    OnIconButtonClick?.Invoke(buildData);
-    //}
-
     public void ToggleVisibility(bool val, MapWorld world) //pass resources to know if affordable in the UI (optional), pass world for canvas
     {
         if (activeStatus == val)
@@ -83,8 +78,12 @@ public class UIWorkerHandler : MonoBehaviour
         world.workerCanvas.gameObject.SetActive(false);
     }
 
-    //public void PrepareBuild(ImprovementDataSO buildData)
-    //{
-    //    this.buildData = buildData;
-    //}
+    public void FlashButton(string buttonName)
+    {
+        for (int i = 0; i < buildOptions.Count; i++)
+        {
+            if (buildOptions[i].buttonName == buttonName)
+                buildOptions[i].FlashButton();
+        }
+    }
 }

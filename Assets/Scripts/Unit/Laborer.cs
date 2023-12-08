@@ -79,6 +79,7 @@ public class Laborer : Unit
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
+        data.conversationTopic = conversationTopic;
 
 		return data;
 	}
@@ -94,7 +95,9 @@ public class Laborer : Unit
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
 		moreToMove = data.moreToMove;
-		somethingToSay = data.somethingToSay;
+
+        if (data.somethingToSay)
+            SetSomethingToSay(data.conversationTopic);
 
 		if (isMoving)
 		{

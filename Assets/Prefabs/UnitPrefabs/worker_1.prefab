@@ -204,6 +204,86 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 63bc608f398b7c641a71c5bc39707436, type: 3}
+--- !u!1001 &2487916775400558866
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 493350885888212}
+    m_Modifications:
+    - target: {fileID: 918213226758697082, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_Name
+      value: QuestionMark
+      objectReference: {fileID: 0}
+    - target: {fileID: 918213226758697082, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: cfead3106494e0548b7cd683cb12370b, type: 3}
+--- !u!1 &3330690310085288296 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 918213226758697082, guid: cfead3106494e0548b7cd683cb12370b,
+    type: 3}
+  m_PrefabInstance: {fileID: 2487916775400558866}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5338363066459411607
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -211,6 +291,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: 134b754945409f5408d1bf49164f6adb, type: 3}
     - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Controller
@@ -372,14 +457,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef3539db8ce8105408a48063c9f1361c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   buildDataSO: {fileID: 11400000, guid: da9cd2aafc783be45a7f6e6a64344493, type: 2}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 1834696708367566843}
+  unitImage: {fileID: 21300000, guid: 7e50f29838f42fd45add7b827212477e, type: 3}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
     type: 3}
   selectionCircle: {fileID: 0}
+  questionMark: {fileID: 3330690310085288296}
   marker: {fileID: 1465328918421097503}
   healthbar: {fileID: 6831278477032459367}
   greetings:
@@ -394,12 +482,17 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  unitRigidbody: {fileID: 0}
   moreToMove: 0
   isBusy: 0
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
+  secondaryPrefab: 0
+  destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  prevRoadTile: {x: 0, y: 0, z: 0}
+  prevTerrainTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -423,9 +516,9 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
-  newlyJoined: 1
   isLeader: 0
   readyToMarch: 0
   inArmy: 0
@@ -443,9 +536,12 @@ MonoBehaviour:
   isDead: 0
   isUpgrading: 0
   targetLocation: {x: 0, y: 0, z: 0}
+  targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
   removing: 0
+  gathering: 0
   clearingForest: 0
+  buildingCity: 0
+  working: 0
   clearingForestTime: 10
   clearedForestlumberAmount: 100
-  citiesBuilt: 0

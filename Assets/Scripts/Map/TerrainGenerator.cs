@@ -2054,9 +2054,13 @@ public class TerrainGenerator : MonoBehaviour
         if (terrainDict[campLoc].isHill)
             centerLoc.y += .65f;
 
-        List<Vector3> campLocs = new() { centerLoc };
+        List<Vector3> campLocs;
+        if (campCount < 9)
+    		campLocs = new();
+        else
+			campLocs = new() { centerLoc };
 
-        if (terrainDict[campLoc].isHill)
+		if (terrainDict[campLoc].isHill)
             centerLoc.y -= 0.5f;
 
         for (int i = 0; i < ProceduralGeneration.neighborsEightDirectionsOneStep.Count; i++)
@@ -2093,9 +2097,22 @@ public class TerrainGenerator : MonoBehaviour
 					unitList.Remove(2);
 			}
 
-			Quaternion rotation = Quaternion.Euler(0, random.Next(0,8) * 45, 0);
+            Quaternion rotation;
+            if (campCount == 9)
+            {
+                rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
+            }
+            else
+            {
+			    Vector3 direction = centerLoc - spawnLoc;
 
-            GameObject enemyGO = Instantiate(enemy, spawnLoc, rotation);
+                if (direction == Vector3.zero)
+			        rotation = Quaternion.identity;
+			    else
+                    rotation = Quaternion.LookRotation(direction, Vector3.up);
+            }
+
+			GameObject enemyGO = Instantiate(enemy, spawnLoc, rotation);
             allTiles.Add(enemyGO);
             enemyGO.transform.SetParent(enemyHolder, false);
         }
@@ -2143,7 +2160,11 @@ public class TerrainGenerator : MonoBehaviour
     public void SetMainPlayerLoc() 
     {
         world.mainPlayer.transform.position = startingPlace;
-		world.mainPlayer.CenterCamera();
+        Vector3Int cameraLoc = startingPlace;
+        cameraLoc.y += 5;
+        world.startingSpotlight.transform.position = cameraLoc;
+        world.spotlight.transform.position = startingPlace;
+        world.cameraController.CenterCameraNoFollow(startingPlace);
         world.cameraController.ResetCamLimits(world.RoundToInt(world.mainPlayer.transform.position));
         world.water.transform.position = new Vector3(width / 2f * 3, yCoord - 0.06f, height / 2f * 3);
         world.water.minimapIcon.localScale = new Vector3(0.14f * width, 1.8f, 0.14f * height);
