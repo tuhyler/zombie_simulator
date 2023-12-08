@@ -18,6 +18,7 @@ public class UnitData : IUnitData
     public Vector3 finalDestinationLoc;
     public Vector3Int currentLocation;
 	public Vector3Int prevTerrainTile;
+	public string conversationTopic;
 
 	//combat
 	public Vector3Int cityHomeBase, barracksBunk, marchPosition, targetBunk;

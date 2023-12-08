@@ -19,7 +19,12 @@ public class UISettings : MonoBehaviour
     private Slider masterVolume, musicVolume, soundVolume, ambienceVolume;
 
     [SerializeField]
-    private TMP_Dropdown graphicsDropdown, resolutionDropdown; 
+    private TMP_Dropdown graphicsDropdown, resolutionDropdown;
+
+    [SerializeField]
+    private Toggle tutorialToggle;
+    [HideInInspector]
+    public bool tutorial = true;
 
     [HideInInspector]
     public bool activeStatus;
@@ -137,6 +142,15 @@ public class UISettings : MonoBehaviour
         Screen.SetResolution(resolution.width, resolution.height, true);
     }
 
+    public void SetTutorialToggle(bool v)
+    {
+        tutorialToggle.isOn = v;
+        if (world != null)
+            world.tutorial = v;
+
+        tutorial = v;
+    }
+
     public void SaveSettings()
     {
         SettingsData data = new();
@@ -147,6 +161,7 @@ public class UISettings : MonoBehaviour
         data.ambienceVolume = ambienceVolume.value;
         data.graphics = graphicsDropdown.value;
         data.resolution = resolutionDropdown.value;
+        data.tutorial = tutorialToggle.isOn;
 
 		GameManager.Instance.gamePersist.SaveSettings(data);
     }
@@ -173,5 +188,7 @@ public class UISettings : MonoBehaviour
 		resolutionDropdown.RefreshShownValue();
 		Resolution resolution = resolutions[data.resolution];
 		Screen.SetResolution(resolution.width, resolution.height, true);
+
+        SetTutorialToggle(data.tutorial);
 	}
 }

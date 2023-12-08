@@ -42,7 +42,8 @@ public class UnitMovement : MonoBehaviour
     [HideInInspector]
     public MovementSystem movementSystem;
 
-    private Unit selectedUnit;
+    [HideInInspector]
+    public Unit selectedUnit;
     private Worker selectedWorker;
     public Worker SelectedWorker { get { return selectedWorker; } set { selectedWorker = value; } }
     private Trader selectedTrader;
@@ -174,7 +175,7 @@ public class UnitMovement : MonoBehaviour
         if (world.buildingWonder)
             return;
 
-        if (selectedUnit != null && selectedUnit.sayingSomething)
+        //if (selectedUnit != null && selectedUnit.sayingSomething)
             //SpeakingCheck();
         //else if (loadScreenSet)
         //    LoadUnloadFinish(false);
@@ -518,9 +519,12 @@ public class UnitMovement : MonoBehaviour
                 ClearSelection();
                 tempWorker.SendResourceToCity();
                 selectedUnit = tempWorker;
-                uiMoveUnit.ToggleTweenVisibility(true);
                 SelectWorker();
-                PrepareMovement();
+				if (!selectedUnit.sayingSomething)
+                {
+                    uiMoveUnit.ToggleTweenVisibility(true);
+					PrepareMovement();
+                }
             }
         }
         else
@@ -571,18 +575,21 @@ public class UnitMovement : MonoBehaviour
 
         if (unitReference.somethingToSay)
         {
-            unitReference.somethingToSay = false;
-            unitReference.sayingSomething = true;
-            CenterCamOnUnit();
+            unitReference.SpeakingCheck();
         }
 
-        if (!selectedUnit.inArmy)
-            uiMoveUnit.ToggleTweenVisibility(true);
         
         SelectLaborer();
         SelectWorker();
         SelectTrader();
-        PrepareMovement();
+
+		if (!selectedUnit.sayingSomething)
+        {
+            if (!selectedUnit.inArmy)
+                uiMoveUnit.ToggleTweenVisibility(true);
+		
+            PrepareMovement();
+        }
     }
 
     private void SelectEnemy(Unit unitReference)
@@ -622,7 +629,8 @@ public class UnitMovement : MonoBehaviour
         {
             selectedWorker = selectedUnit.GetComponent<Worker>();
             workerTaskManager.SetWorkerUnit(selectedWorker);
-            uiWorkerTask.ToggleVisibility(true, world);
+            if (!selectedUnit.sayingSomething)
+                uiWorkerTask.ToggleVisibility(true, world);
             if (selectedWorker.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(true);
 
@@ -683,7 +691,7 @@ public class UnitMovement : MonoBehaviour
         PrepareMovement();
     }
 
-    private void PrepareMovement()
+    public void PrepareMovement()
     {
         selectedUnit.SayHello();
 	

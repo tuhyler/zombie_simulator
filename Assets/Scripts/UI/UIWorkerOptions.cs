@@ -4,20 +4,28 @@ using UnityEngine.UI;
 
 public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
 {
+    public string buttonName;
     private UIWorkerHandler buttonHandler;
 
     [SerializeField] //changing color of button when selected
     private Image buttonImage;
+    public ParticleSystem buttonHighlight;
     public bool toggleColor;
     public bool showRemovalOptions;
     private Color originalButtonColor;
-    private bool isSelected;
+    private bool isSelected, isFlashing;
 
     private void Awake()
     {
         if (showRemovalOptions)
             buttonHandler = GetComponentInParent<UIWorkerHandler>();
         originalButtonColor = buttonImage.color;
+    }
+
+    public void FlashButton()
+    {
+        isFlashing = true;
+        buttonHighlight.Play();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -28,6 +36,12 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
                 ToggleColor(false);
             else
                 ToggleColor(true);
+        }
+
+        if (isFlashing)
+        {
+            buttonHighlight.Stop();
+            isFlashing = false;
         }
     }
 

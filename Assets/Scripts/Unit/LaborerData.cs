@@ -14,6 +14,7 @@ public class LaborerData : IUnitData
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation;
 	public Vector3Int prevTerrainTile;
+	public string conversationTopic;
 
 	public LaborerData GetLaborerData()
 	{

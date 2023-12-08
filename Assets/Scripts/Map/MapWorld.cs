@@ -15,11 +15,15 @@ public class MapWorld : MonoBehaviour
     private string version = "0.1";
     private DateTime currentTime;
     [SerializeField]
+    public HandlePlayerInput playerInput;
+    [SerializeField]
     public Worker mainPlayer;
+    [SerializeField]
+    public Light startingSpotlight;
     [SerializeField]
     public Water water;
     [SerializeField]
-    public GameObject resourceIcon;
+    public GameObject resourceIcon, campfire, spotlight, dizzyMarker, speechBubble;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
@@ -60,6 +64,8 @@ public class MapWorld : MonoBehaviour
     public UITomFinder uiTomFinder;
     [SerializeField]
     public UIInfoPopUpHandler uiInfoPopUpHandler;
+    [SerializeField]
+    public UISpeechWindow uiSpeechWindow;
     [SerializeField]
     public UnitMovement unitMovement;
     [SerializeField]
@@ -201,9 +207,6 @@ public class MapWorld : MonoBehaviour
     private static int increment = 3;
     public int Increment { get { return increment; } }
 
-    private SpeechBubbleHandler speechBubble;
-
-
     [HideInInspector]
     public bool unitOrders, buildingWonder, tooltip, somethingSelected, showingMap, citySelected, cityUnitSelected;
     //private bool showObstacle, showDifficult, showGround, showSea;
@@ -229,6 +232,9 @@ public class MapWorld : MonoBehaviour
     private void Awake()
     {
         currentTime = DateTime.Now;
+        tutorial = uiMainMenu.uiSettings.tutorial;
+        uiSpeechWindow.AddToSpeakingDict("Camera", null);
+        speechBubble.SetActive(false);
         audioSource = GetComponent<AudioSource>();
 
 		foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources) //Enum.GetValues(typeof(ResourceType)) 
@@ -544,13 +550,30 @@ public class MapWorld : MonoBehaviour
 			unitEnemy.enemyAI.CampLoc = unitTerrainLoc;
 			unitEnemy.enemyAI.CampSpot = unitLoc;
 			unitEnemy.enemyCamp = enemyCampDict[unitTerrainLoc];
+
+
 			if (hideTerrain)
-				unitEnemy.gameObject.SetActive(false);
+            {
+                unitEnemy.gameObject.SetActive(false);
+            }
+            else
+            {
+			    if (unitEnemy.buildDataSO.unitType != UnitType.Cavalry)
+				    unitEnemy.ToggleSitting(true);
+            }
 		}
 
 		foreach (Vector3Int loc in enemyCampDict.Keys)
 		{
             enemyCampDict[loc].FormBattlePositions();
+            
+            if (enemyCampDict[loc].campCount < 9)
+            {
+                GameObject fire = Instantiate(campfire);
+                fire.transform.SetParent(terrainHolder, false);
+				enemyCampDict[loc].SetCampfire(fire, world[loc].isHill, !hideTerrain);
+            }
+
 			GameLoader.Instance.gameData.enemyCampLocs[loc] = enemyCampDict[loc].SendCampData();
 			Vector3 position = Vector3.zero;
 			position.y += 1;
@@ -584,19 +607,79 @@ public class MapWorld : MonoBehaviour
 		}
 
 		Unit unit = mainPlayer.GetComponent<Unit>();
-		unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+        uiSpeechWindow.AddToSpeakingDict("Koa", mainPlayer);
+		unit.SetReferences(this, cameraController, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
 
 		unit.Reveal();
 		Vector3Int unitPos = RoundToInt(unit.transform.position);
-		if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
-			unit.CurrentLocation = AddUnitPosition(unitPos, unit);
+        //if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
+        //	unit.CurrentLocation = AddUnitPosition(unitPos, unit);
 
-		unit.CurrentLocation = unitPos;
-
+        unit.CurrentLocation = unitPos;
 		unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
+        if (newGame)
+        {
+            ToggleMinimap(false);
+            ToggleWorldResourceUI(false);
+			cityBuilderManager.uiUnitTurn.gameObject.SetActive(false);
+            playerInput.paused = true;
+			Physics.gravity = new Vector3(0, -10, 0);
+            Vector3 skyRotation = unit.transform.localEulerAngles;
+            skyRotation.y += 180;
+            unit.transform.rotation = Quaternion.Euler(skyRotation);
+            Vector3 skyLoc = unitPos;
+            skyLoc.y += 200f;
+            unit.transform.position = skyLoc;
+            Worker worker = unit.GetComponent<Worker>();
+		    worker.ToggleFalling(true);
+            StartCoroutine(StartingSpotlight());
+            StartCoroutine(worker.FallingCoroutine(unitPos));
+        }
 	}
 
-    public void NewMap(Dictionary<Vector3Int, TerrainData> terrainDict)
+    private IEnumerator StartingSpotlight()
+    {
+        Unit main = mainPlayer.GetComponent<Unit>();
+        main.unitRigidbody.useGravity = false;
+        yield return new WaitForSeconds(2);
+
+        //cityBuilderManager.PlayRingAudio();
+		main.unitRigidbody.useGravity = true;
+		spotlight.SetActive(true);
+        Vector3 scale = spotlight.transform.localScale;
+        startingSpotlight.gameObject.SetActive(true);
+
+        while (startingSpotlight.spotAngle < 20)
+        {
+            float lightScale = Time.deltaTime * 1.5f;
+            float increase = lightScale * 2;
+            startingSpotlight.innerSpotAngle += increase;
+            startingSpotlight.spotAngle += increase;
+            scale.x += lightScale;
+            scale.z += lightScale;
+            spotlight.transform.localScale = scale;
+
+            yield return null;
+        }
+
+        while (mainPlayer.transform.position.y > 0)
+        {
+            yield return null;
+        }
+
+		//cityBuilderManager.PlayBoomAudio();
+		Destroy(startingSpotlight.gameObject);
+        Destroy(spotlight);
+	}
+
+    public void ResetMainUI()
+    {
+		ToggleMinimap(true);
+		ToggleWorldResourceUI(true);
+		cityBuilderManager.uiUnitTurn.gameObject.SetActive(true);
+	}
+
+	public void NewMap(Dictionary<Vector3Int, TerrainData> terrainDict)
     {
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
@@ -1183,7 +1266,14 @@ public class MapWorld : MonoBehaviour
             if (discovered.Contains(loc))
                 reveal = true;
 
-            foreach(Vector3Int unitLoc in enemyCampLocs[loc].Keys)
+			bool fullCamp = enemyCampDict[loc].campCount == 9;
+			if (!fullCamp)
+            {
+                GameObject fire = Instantiate(campfire);
+                fire.transform.SetParent(terrainHolder, false);
+				enemyCampDict[loc].SetCampfire(fire, world[loc].isHill, reveal);
+            }
+			foreach (Vector3Int unitLoc in enemyCampLocs[loc].Keys)
             {
                 Vector3 unitSpawn = unitLoc;
                 if (tdCamp.isHill)
@@ -1195,7 +1285,22 @@ public class MapWorld : MonoBehaviour
                 }
 
                 UnitBuildDataSO enemyData = UpgradeableObjectHolder.Instance.enemyUnitDict[enemyCampLocs[loc][unitLoc]];
-                GameObject enemyGO = Instantiate(enemyData.prefab, unitSpawn, Quaternion.Euler(0,UnityEngine.Random.Range(0,360),0));
+                
+                Quaternion rotation;
+                if (fullCamp)
+                {
+                    rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
+                }
+                else
+                {
+					Vector3 direction = loc - unitLoc;
+
+					if (direction == Vector3.zero)
+						rotation = Quaternion.identity;
+					else
+						rotation = Quaternion.LookRotation(direction, Vector3.up);
+				}
+				GameObject enemyGO = Instantiate(enemyData.prefab, unitSpawn, rotation);
                 enemyGO.transform.SetParent(enemyUnitHolder, false);
                 if (!reveal)
                     enemyGO.SetActive(false);
@@ -1212,17 +1317,25 @@ public class MapWorld : MonoBehaviour
 		        unit.enemyAI.CampSpot = unitLoc;
         		unit.enemyCamp = enemyCampDict[loc];
 
-                if (attacked)
+				if (attacked)
                 {
                     //RemoveUnitPosition(unitLoc);
                     unit.LoadUnitData(fightingEnemies[unitLoc]);
                     AddUnitPosition(unit.CurrentLocation, unit);
+                    if (camp.campfire != null)
+                        camp.campfire.SetActive(false);
+                }
+                else if (reveal)
+                {
+                    if (unit.buildDataSO.unitType != UnitType.Cavalry)
+                        unit.ToggleSitting(true);
                 }
             }
 
             if (!attacked)
     			enemyCampDict[loc].FormBattlePositions();
-	        Vector3 position = Vector3.zero;
+
+			Vector3 position = Vector3.zero;
 	        position.y += 1;
 			GameObject icon = Instantiate(enemyCampIcon);
 	        icon.transform.position = position;
@@ -1810,6 +1923,18 @@ public class MapWorld : MonoBehaviour
             LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + 400f, 0.3f);
+        }
+    }
+
+    public void ToggleWorldResourceUI(bool v)
+    {
+        if (v)
+        {
+            LeanTween.moveY(uiWorldResources.allContents, uiWorldResources.allContents.anchoredPosition3D.y + -400f, 0.3f);
+        }
+        else
+        {
+            LeanTween.moveY(uiWorldResources.allContents, uiWorldResources.allContents.anchoredPosition3D.y + 400f, 0.5f);
         }
     }
 
@@ -3265,11 +3390,17 @@ public class MapWorld : MonoBehaviour
         else
             enemyCampDict[loc].revealed = true;
 
+        enemyCampDict[loc].campfire.SetActive(true);
         GameLoader.Instance.gameData.discoveredEnemyCampLocs.Add(loc);
-        foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
-        {
+
+		for (int i = 0; i < enemyCampDict[loc].UnitsInCamp.Count; i++)
+		{
+			Unit unit = enemyCampDict[loc].UnitsInCamp[i];
             unit.gameObject.SetActive(true);
-        }
+
+			if (unit.buildDataSO.unitType != UnitType.Cavalry)
+                unit.DiscoverSitting();
+		}
     }
 
     public void BattleStations(Vector3Int campLoc, Vector3Int armyLoc)
@@ -3430,6 +3561,8 @@ public class MapWorld : MonoBehaviour
 		}
 
         StartCoroutine(EnemyCampDestroyWait(loc));
+        if (enemyCampDict[loc].campfire != null)
+            Destroy(enemyCampDict[loc].campfire);
         Destroy(enemyCampDict[loc].minimapIcon);
         GameLoader.Instance.RemoveEnemyCamp(loc);
 	}
@@ -4696,6 +4829,23 @@ public class MapWorld : MonoBehaviour
             return false;
     }
     
+    public void CheckPostConvoStep(string topic)
+    {
+        switch (topic)
+        {
+            case "just_landed":
+                if (tutorial)
+                    unitMovement.uiWorkerTask.FlashButton("Build");
+                break;
+            case "tutorial1":
+                break;
+			case "tutorial2":
+				break;
+			case "tutorial3":
+				break;
+		}
+    }
+
     //public City FindVisibleCity()
     //{
     //    foreach (City city in cityDict.Values)

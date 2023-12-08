@@ -968,7 +968,7 @@ public class CityBuilderManager : MonoBehaviour
         uiInfoPanelCity.ToggleVisibility(true);
         uiLaborAssignment.ShowUI(selectedCity, placesToWork);
         uiLaborHandler.SetCity(selectedCity);
-        uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
+        //uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
         if (selectedCity.cityPop.CurrentPop > 0)
             abandonCityButton.interactable = false;
         else
@@ -1794,7 +1794,7 @@ public class CityBuilderManager : MonoBehaviour
                 newUnit.SoftSelect(Color.white);
         
             rot = city.army.GetRandomSpot(newUnit.barracksBunk) - newUnit.transform.position;
-            rot += new Vector3(0, 0.05f, 0); //to avoid the warning message
+            //rot += new Vector3(0, 0.05f, 0); //to avoid the warning message
 
 			if (uiUnitBuilder.activeStatus)
 				uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
@@ -1804,7 +1804,12 @@ public class CityBuilderManager : MonoBehaviour
 				newUnit.SoftSelect(Color.white);
 		}
 
-		newUnit.transform.rotation = Quaternion.LookRotation(rot); 
+        Quaternion rotation;
+        if (rot == Vector3.zero)
+            rotation = Quaternion.identity;
+        else
+            rotation = Quaternion.LookRotation(rot);
+        newUnit.transform.rotation = rotation;
 		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
 
         if (world.unitMovement.upgradingUnit)
@@ -3624,7 +3629,7 @@ public class CityBuilderManager : MonoBehaviour
             uiResourceManager.ToggleVisibility(false);
             uiInfoPanelCity.ToggleVisibility(false);
             uiLaborAssignment.HideUI();
-            uiUnitTurn.buttonClicked.RemoveListener(ResetCityUI);
+            //uiUnitTurn.buttonClicked.RemoveListener(ResetCityUI);
             HideLaborNumbers();
             HideImprovementResources();
             uiLaborHandler.ResetUI();

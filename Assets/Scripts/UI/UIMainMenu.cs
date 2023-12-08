@@ -13,10 +13,10 @@ public class UIMainMenu : MonoBehaviour
 	public UISaveGame uiSaveGame;
 
 	[SerializeField]
-	private UISettings uiSettings;
+	public UISettings uiSettings;
 
 	[SerializeField]
-	private HandlePlayerInput playerInput;
+	public HandlePlayerInput playerInput;
 
 	[SerializeField]
 	private UIMinimapHandler minimapHandler;

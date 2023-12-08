@@ -20,8 +20,8 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     [HideInInspector]
     public int currentListIndex;
-    [HideInInspector]
-    public UnityEvent buttonClicked; //only listener in CityBuilderManager to ResetUI
+    //[HideInInspector]
+    //public UnityEvent buttonClicked; //only listener in CityBuilderManager to ResetUI
 
 
     private void Awake()
@@ -55,7 +55,8 @@ public class UIUnitTurnHandler : MonoBehaviour
 		world.cityBuilderManager.PlaySelectAudio();
 		IncreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
-        buttonClicked?.Invoke();
+        world.cityBuilderManager.ResetCityUI();
+        //buttonClicked?.Invoke();
     }
 
     public void PrevUnitToMove() //used on left button
@@ -66,7 +67,8 @@ public class UIUnitTurnHandler : MonoBehaviour
         world.cityBuilderManager.PlaySelectAudio();
         DecreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
-        buttonClicked?.Invoke();
+        world.cityBuilderManager.ResetCityUI();
+        //buttonClicked?.Invoke();
     }
 
     private void IncreaseIndex()

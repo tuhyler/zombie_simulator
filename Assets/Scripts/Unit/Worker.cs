@@ -24,6 +24,8 @@ public class Worker : Unit
 
     //animations
     private int isWorkingHash;
+    private int isFallingHash;
+    private int isDizzyHash;
 
     //dialogue stats
 
@@ -37,6 +39,8 @@ public class Worker : Unit
     {
         AwakeMethods();
         isWorkingHash = Animator.StringToHash("isWorking");
+        isFallingHash = Animator.StringToHash("isFalling");
+        isDizzyHash = Animator.StringToHash("isDizzy");
         isWorker = true;
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
         resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
@@ -57,7 +61,56 @@ public class Worker : Unit
     //    removeSplash.Play();
     //}
 
-    public void SetWorkAnimation(bool v)
+#region gameBegin
+    public void ToggleDizzy(bool v)
+    {
+        unitAnimator.SetBool(isDizzyHash, v);
+    }
+
+    public void ToggleFalling(bool v)
+    {
+        unitAnimator.SetBool(isFallingHash, v);
+    }
+
+    public IEnumerator FallingCoroutine(Vector3 pos)
+    {
+        while (transform.position.y > 0)
+        {
+            yield return null;
+        }
+
+		Physics.gravity = new Vector3(0, -100, 0);
+		transform.position = pos;
+        Vector3 camPos = Camera.main.transform.position;
+        camPos.y = 0;
+        ToggleFalling(false);
+        Rotate(camPos);
+
+        yield return new WaitForSeconds(0.25f);
+
+        StartCoroutine(DizzyCoroutine());
+    }
+
+    private IEnumerator DizzyCoroutine()
+    {
+        Vector3 loc = Vector3.zero;
+        loc.y += 2.5f;
+        Quaternion rotation = Quaternion.Euler(90, 0, 0);
+        GameObject dizzy = Instantiate(world.dizzyMarker, loc, rotation);
+        dizzy.transform.SetParent(transform, false);
+
+        ToggleDizzy(true);
+        
+        yield return new WaitForSeconds(4);
+
+        Destroy(dizzy);
+		ToggleDizzy(false);
+        world.playerInput.paused = false;
+        SetSomethingToSay("just_landed");
+    }
+	#endregion
+
+	public void SetWorkAnimation(bool v)
     {
         unitAnimator.SetBool(isWorkingHash, v);
 
@@ -486,6 +539,7 @@ public class Worker : Unit
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
+        data.conversationTopic = conversationTopic;
         data.isBusy = isBusy;
         data.removing = removing;
         data.gathering = gathering;
@@ -527,8 +581,7 @@ public class Worker : Unit
 		isMoving = data.isMoving;
         isBusy = data.isBusy;
 		moreToMove = data.moreToMove;
-		somethingToSay = data.somethingToSay;
-        removing = data.removing;
+		removing = data.removing;
         gathering = data.gathering;
         clearingForest = data.clearingForest;
         buildingCity = data.buildingCity;
@@ -536,6 +589,9 @@ public class Worker : Unit
         harvestedForest = data.harvestedForest;
         orderList = data.orderList;
 		orderQueue = new Queue<Vector3Int>(orderList);
+
+        if (data.somethingToSay)
+            SetSomethingToSay(data.conversationTopic);
 
 		if (isMoving)
 		{

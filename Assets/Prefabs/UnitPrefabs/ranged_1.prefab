@@ -98,7 +98,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Avatar
       value: 
-      objectReference: {fileID: 9000000, guid: e4d49efcedf62164c999de024f6d1e9a, type: 3}
+      objectReference: {fileID: 9000000, guid: 134b754945409f5408d1bf49164f6adb, type: 3}
     - target: {fileID: -1569295495130398200, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Controller
@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da11ff3b20aa482448c3718d71bba364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   buildDataSO: {fileID: 11400000, guid: fca55126933018046be6dcebc9f31fd4, type: 2}
   unitMesh: {fileID: 8644063425216199312}
   minimapIcon: {fileID: 5473824532600306361}
@@ -263,7 +264,6 @@ MonoBehaviour:
   healthbar: {fileID: 886464836172312869}
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
-  acknowledges: []
   attacks: []
   kills:
   - {fileID: 8300000, guid: d1cd745df852aae4793cf663a10d41a4, type: 3}
@@ -273,12 +273,17 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  unitRigidbody: {fileID: 0}
   moreToMove: 0
   isBusy: 0
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
+  secondaryPrefab: 0
+  destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  prevRoadTile: {x: 0, y: 0, z: 0}
+  prevTerrainTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -302,9 +307,9 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
-  newlyJoined: 1
   isLeader: 0
   readyToMarch: 0
   inArmy: 0
@@ -322,6 +327,7 @@ MonoBehaviour:
   isDead: 0
   isUpgrading: 0
   targetLocation: {x: 0, y: 0, z: 0}
+  targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:

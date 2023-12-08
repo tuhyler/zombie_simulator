@@ -13,6 +13,8 @@ public class UIWorldResources : MonoBehaviour
     public List<Button> buttons;
     [SerializeField]
     private Sprite completedBackground;
+    [SerializeField]
+    public RectTransform allContents;
 
     private Sprite originalBackground;
 
