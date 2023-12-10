@@ -46,7 +46,7 @@ public class UILaborAssignment : MonoBehaviour
         OnIconButtonClick?.Invoke(laborChange);
     }
 
-    public void ShowUI(City city, int placesToWork) //pass data to know if can show in the UI
+    public void ShowUI(City city, int placesToWork, bool update = true) //pass data to know if can show in the UI
     {
         if (activeStatus)
             return;
@@ -57,7 +57,7 @@ public class UILaborAssignment : MonoBehaviour
         activeStatus = true;
         allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
-        LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f);//.setEaseOutSine();
+        LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
         //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
         //if (city.AutoAssignLabor)
@@ -66,7 +66,8 @@ public class UILaborAssignment : MonoBehaviour
         //    return;
         //}
 
-        PrepareLaborChangeOptions(city.cityPop, placesToWork, city.AutoAssignLabor);
+        if (update)
+            PrepareLaborChangeOptions(city.cityPop, placesToWork, city.AutoAssignLabor);
     }
 
     public void UpdateUI(City city, int placesToWork)

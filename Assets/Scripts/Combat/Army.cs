@@ -856,7 +856,7 @@ public class Army : MonoBehaviour
             }
 
             attackingSpots.Clear();
-            world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
+            world.unitMovement.uiCancelTask.ToggleVisibility(false);
             //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
             city.battleIcon.SetActive(false);
             inBattle = false;
@@ -878,7 +878,7 @@ public class Army : MonoBehaviour
         }
 
         StartCoroutine(targetCamp.RetreatTimer());
-		world.unitMovement.uiCancelTask.ToggleTweenVisibility(false);
+		world.unitMovement.uiCancelTask.ToggleVisibility(false);
 		city.battleIcon.SetActive(false);
 		inBattle = false;
         returning = true;

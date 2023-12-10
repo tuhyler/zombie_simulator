@@ -1,9 +1,14 @@
+using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class UICityBuildTabHandler : MonoBehaviour
 {
     [SerializeField]
     public CityBuilderManager cityBuilderManager;
+
+    [SerializeField]
+    public GameObject marketTabHolder, queueButton;
 
     //[SerializeField]
 
@@ -17,6 +22,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     private UIShowTabHandler currentTabSelected;
     private bool sameUI, openTab;
     private ResourceManager resourceManager;
+    private List<UIShowTabHandler> tabList = new();
 
     [HideInInspector]
     public bool buttonsAreWorking;
@@ -27,6 +33,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     [HideInInspector]
     public bool activeStatus;
 
+    
     //for side buttons
     private bool isRemoving, isUpgrading, isSelling;
 
@@ -34,8 +41,17 @@ public class UICityBuildTabHandler : MonoBehaviour
     {
         gameObject.SetActive(false);
         originalLoc = allContents.anchoredPosition3D;
-        buttonsAreWorking = true; 
-    }
+        buttonsAreWorking = true;
+
+		foreach (Transform selection in allContents)
+		{
+			foreach (Transform nextSelection in selection)
+            {
+                if (nextSelection.TryGetComponent(out UIShowTabHandler tabHandler))
+                    tabList.Add(tabHandler);
+            }
+		}
+	}
 
     public void PassUI(UIBuilderHandler uiBuilder)
     {
@@ -154,7 +170,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         }
     }
 
-    public void ToggleVisibility(bool v, ResourceManager resourceManager = null)
+    public void ToggleVisibility(bool v, bool market = false, bool queue = true, ResourceManager resourceManager = null)
     {
         if (activeStatus == v)
             return;
@@ -164,11 +180,13 @@ public class UICityBuildTabHandler : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
+            marketTabHolder.SetActive(market);
+
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
-            LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else
         {
@@ -236,6 +254,19 @@ public class UICityBuildTabHandler : MonoBehaviour
             cityBuilderManager.RemoveImprovements();
         else
             cityBuilderManager.UpgradeImprovements();
+    }
+
+    public UIShowTabHandler GetTab(string tabName)
+    {
+        for (int i = 0; i < tabList.Count; i++)
+        {
+            if (tabList[i].tabName == tabName)
+            {
+                return tabList[i];
+            }
+        }
+
+        return null;
     }
 
     public void CloseSelectedTab()

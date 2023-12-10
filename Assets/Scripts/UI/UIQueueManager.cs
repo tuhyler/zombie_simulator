@@ -80,7 +80,7 @@ public class UIQueueManager : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(300f, 0, 0);
 
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -300, 0.4f).setEase(LeanTweenType.easeOutSine);
-            LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {

@@ -133,16 +133,14 @@ MonoBehaviour:
   terrainData: {fileID: 11400000, guid: ba7d2165cd2acc24b9fcfb758105308a, type: 2}
   prefabIndex: 0
   decorIndex: 0
-  uvMapIndex: 0
+  uvMapIndex: 
   main: {fileID: 478413442398559047}
   prop: {fileID: 6193421569473789042}
   nonstatic: {fileID: 5121927371962656800}
   fog: {fileID: 3131998354976745433}
   highlightPlane: {fileID: 0}
-  resourceIcon: {fileID: 0}
+  highlightPlaneIcon: {fileID: 0}
   fogNonStatic: {fileID: 8086462904628602706}
-  resourceBackgroundSprite: {fileID: 0}
-  resourceIconSprite: {fileID: 0}
   white: {fileID: 2100000, guid: 74b4e3b23c1555c4589c22411ec6f610, type: 2}
   changeLeafColor: 0
   isHill: 0
@@ -158,7 +156,8 @@ MonoBehaviour:
   isDiscovered: 1
   beingCleared: 0
   showProp: 1
-  enemyBorders: []
+  resourceGraphic: {fileID: 0}
+  treeHandler: {fileID: 0}
   godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}

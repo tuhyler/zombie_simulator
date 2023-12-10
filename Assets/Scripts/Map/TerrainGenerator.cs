@@ -525,7 +525,7 @@ public class TerrainGenerator : MonoBehaviour
         (List<Vector3Int> luxuryLocs, List<Vector3Int> foodLocs, List<Vector3Int> waterLocs, List<Vector3Int> resourceLocs) = 
             GenerateResources(random, startingPlace, tradeCenterLocs, grasslandTiles, riverTiles, coastTiles);
 		(List<TerrainData> newPropTiles, List<Vector3Int> newFoodLocs, List<Vector3Int> newWaterLocs, List<Vector3Int> newResourceLocs) = SetStartingResources(random, startingPlace);
-        propTiles.AddRange(newPropTiles);
+		propTiles.AddRange(newPropTiles);
         foodLocs.AddRange(newFoodLocs);
         waterLocs.AddRange(newWaterLocs);
         resourceLocs.AddRange(newResourceLocs);
@@ -894,7 +894,7 @@ public class TerrainGenerator : MonoBehaviour
             {
                 forestTiles.Add(tile);
             }
-            else if (terrainDict[tile].CompareTag("Hill"))
+            else if (terrainDict[tile].isHill)
             {
                 hillTiles.Add(tile);
             }
@@ -1794,12 +1794,9 @@ public class TerrainGenerator : MonoBehaviour
         {
             Vector3Int tile = ProceduralGeneration.neighborsCityRadius[i] + startingPlace;
 
-            if (locsLeft.Contains(tile))
-            {
-				locsLeft.Remove(tile);
-				resourceLocs.Remove(tile);
-				luxuryLocs.Remove(tile);
-			}
+			locsLeft.Remove(tile);
+			resourceLocs.Remove(tile);
+			luxuryLocs.Remove(tile);
 
             if (i > 7)
             {
@@ -1807,12 +1804,9 @@ public class TerrainGenerator : MonoBehaviour
                 {
                     Vector3Int newTile = ProceduralGeneration.neighborsCityRadius[j] + tile;
 
-                    if (locsLeft.Contains(newTile))
-                    {
-						locsLeft.Remove(newTile);
-                        resourceLocs.Remove(newTile);
-                        luxuryLocs.Remove(newTile);
-                    }
+					locsLeft.Remove(newTile);
+                    resourceLocs.Remove(newTile);
+                    luxuryLocs.Remove(newTile);
                 }
                 
             }

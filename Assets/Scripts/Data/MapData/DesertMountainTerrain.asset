@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DesertMountainTerrain
   m_EditorClassIdentifier: 
   terrainName: DesertMountainTerrain
-  tag: Forest Hill
+  tag: Mountain
   prefabs:
   - {fileID: 4260772404836278617, guid: d7e6df89eba4929478bd6591c8a32759, type: 3}
   - {fileID: 6460864204287615191, guid: aa60328909ba45140857d3561d7905e1, type: 3}

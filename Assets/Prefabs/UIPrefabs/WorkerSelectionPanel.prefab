@@ -35,7 +35,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4894115440877292127}
-  - {fileID: 7685078765748556426}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -138,8 +137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed225f282be383345b3443dc40479c26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buttonName: 
   buttonImage: {fileID: 339274342687367354}
-  buttonHighlight: {fileID: 8751528890230868562}
   toggleColor: 0
   showRemovalOptions: 0
 --- !u!114 &8313148618265676875
@@ -304,94 +303,3 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!1001 &8987189560063901212
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 3353171004290388722}
-    m_Modifications:
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 110
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 110
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 6.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8228656117895002949, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-        type: 3}
-      propertyPath: m_Name
-      value: uiBorderHighlightStrobe
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 2769f37af4bc11b48bf13ea2e85521d8, type: 3}
---- !u!4 &7685078765748556426 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1593723560535403670, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-    type: 3}
-  m_PrefabInstance: {fileID: 8987189560063901212}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &8751528890230868562 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 417502576539513934, guid: 2769f37af4bc11b48bf13ea2e85521d8,
-    type: 3}
-  m_PrefabInstance: {fileID: 8987189560063901212}
-  m_PrefabAsset: {fileID: 0}

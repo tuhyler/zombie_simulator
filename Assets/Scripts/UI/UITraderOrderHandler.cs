@@ -64,7 +64,7 @@ public class UITraderOrderHandler : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
-            LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else
         {

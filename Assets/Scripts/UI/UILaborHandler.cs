@@ -80,7 +80,7 @@ public class UILaborHandler : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(500f, 0, 0);
 
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 500f, 0.3f).setEaseOutSine();
-            LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {

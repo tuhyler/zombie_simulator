@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
 {
+    public string tabName;
+    
     [SerializeField]
     private UIBuilderHandler uiBuilder;
     public UIBuilderHandler UIBuilder { get { return uiBuilder; } }
@@ -21,7 +23,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     private Color originalButtonColor;
     private bool leftSideButton;
     private bool rightSideButton;
-    public bool isSelling, isRemoving, isUpgrading, isUnits;
+    public bool isSelling, isRemoving, isUpgrading, isUnits, isFlashing;
 
     private void Awake()
     {
@@ -48,8 +50,18 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     {
         if (!uiBuildTabHandler.buttonsAreWorking)
             return;
-        
-        ToggleButtonSelection(true);
+
+        if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
+        {
+            if (isFlashing)
+            {
+                isFlashing = false;
+                uiBuildTabHandler.cityBuilderManager.world.ButtonFlashCheck();
+            }
+            uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open Build Tab");
+        }
+
+		ToggleButtonSelection(true);
 
         if (leftSideButton)
         {

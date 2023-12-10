@@ -31,7 +31,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public UIUnitTurnHandler uiUnitTurn;
     [SerializeField]
-    private UILaborAssignment uiLaborAssignment;
+    public UILaborAssignment uiLaborAssignment;
     [SerializeField]
     public UILaborHandler uiLaborHandler;
     [SerializeField]
@@ -931,6 +931,7 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
+        world.TutorialCheck("Open City");
         UnselectWonder();
         UnselectTradeCenter();
         PopulateUpgradeDictForTesting();
@@ -957,7 +958,7 @@ public class CityBuilderManager : MonoBehaviour
         resourceManager.SetUI(uiResourceManager, uiMarketPlaceManager, uiInfoPanelCity);
         //uiResourceManager.SetCityInfo(selectedCity.cityName, selectedCity.warehouseStorageLimit, selectedCity.ResourceManager.GetResourceStorageLevel);
         resourceManager.UpdateUI(selectedCity.GetResourceValues());
-        uiCityTabs.ToggleVisibility(true, resourceManager);
+        uiCityTabs.ToggleVisibility(true, selectedCity.hasMarket, resourceManager);
         uiResourceManager.ToggleVisibility(true, selectedCity);
         CenterCamOnCity();
         uiInfoPanelCity.SetGrowthNumber(selectedCity.GetGrowthNumber());
@@ -965,8 +966,17 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
         uiInfoPanelCity.SetGrowthPauseToggle(selectedCity.ResourceManager.pauseGrowth);
         uiInfoPanelCity.UpdateWater(selectedCity.waterMaxPop);
-        uiInfoPanelCity.ToggleVisibility(true);
-        uiLaborAssignment.ShowUI(selectedCity, placesToWork);
+
+        if (selectedCity.cityPop.CurrentPop > 0)
+        {
+            uiInfoPanelCity.ToggleVisibility(true);
+            uiLaborAssignment.ShowUI(selectedCity, placesToWork);
+        }
+        else
+        {
+            uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+        }
+
         uiLaborHandler.SetCity(selectedCity);
         //uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
         if (selectedCity.cityPop.CurrentPop > 0)
@@ -1517,7 +1527,7 @@ public class CityBuilderManager : MonoBehaviour
     //    CreateUnit(unitData, selectedCity);
     //}
 
-    private void CreateUnit(UnitBuildDataSO unitData, City city, bool upgrading, Unit upgradedUnit = null)
+    public void CreateUnit(UnitBuildDataSO unitData, City city, bool upgrading, Unit upgradedUnit = null)
     {
         if (!upgrading)
         {
@@ -1542,7 +1552,7 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
-		Vector3Int buildPosition = selectedCityLoc;
+		Vector3Int buildPosition = city.cityLoc;
 
         if (unitData.baseAttackStrength > 0)
         {
@@ -1592,7 +1602,7 @@ public class CityBuilderManager : MonoBehaviour
 		GameObject unitGO = unitData.prefab;
         bool secondaryPrefab = false;
 
-		if (unitData.secondaryPrefab != null)
+		if (unitData.secondaryPrefab != null && !world.tutorialGoing)
 		{
 			if (UnityEngine.Random.Range(0, 2) == 1)
             {
@@ -1656,7 +1666,15 @@ public class CityBuilderManager : MonoBehaviour
         mainCamLoc.y = 0;
         unit.transform.rotation = Quaternion.LookRotation(mainCamLoc - unit.transform.position);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
-    }
+
+		if (world.tutorialGoing)
+		{
+			world.uiSpeechWindow.AddToSpeakingDict("Scott", newUnit);
+
+			if (world.tutorialStep == "tutorial6")
+				newUnit.SetSomethingToSay("first_labor");
+		}
+	}
 
     public void BuildUnit(City city, UnitBuildDataSO unitData, bool upgrading, Unit upgradedUnit)
     {
@@ -1918,6 +1936,14 @@ public class CityBuilderManager : MonoBehaviour
             city.singleBuildImprovementsBuildingsDict[buildingData.improvementName] = city.cityLoc;
         }
 
+        if (buildingData.improvementName == "Market")
+        {
+            city.hasMarket = true;
+ 
+            if (city.activeCity)
+                uiCityTabs.marketTabHolder.SetActive(true);
+        }
+
         //updating uis
         if (city.activeCity)
         {
@@ -1980,7 +2006,13 @@ public class CityBuilderManager : MonoBehaviour
 				city.reachedWaterLimit = false;
         }
 
-        if (city.singleBuildImprovementsBuildingsDict.ContainsKey(selectedBuilding))
+		if (data.improvementName == "Market")
+		{
+			city.hasMarket = false;
+			uiCityTabs.marketTabHolder.SetActive(false);
+		}
+
+		if (city.singleBuildImprovementsBuildingsDict.ContainsKey(selectedBuilding))
             city.singleBuildImprovementsBuildingsDict.Remove(selectedBuilding);
 
         //updating ui

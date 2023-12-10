@@ -91,7 +91,7 @@ public class UICityLaborCostPanel : MonoBehaviour
                 LeanTween.moveX(allContents, allContents.anchoredPosition3D.x - 150f, 0.3f).setEaseOutSine();
             }
 
-            LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {

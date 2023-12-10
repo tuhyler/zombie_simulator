@@ -9,7 +9,7 @@ public class UIWorkerHandler : MonoBehaviour
     //[SerializeField]
     //private UnityEvent<ImprovementDataSO> OnIconButtonClick;
     [SerializeField]
-    private MapWorld world;
+    public MapWorld world;
 
     [SerializeField]
     private UIWorkerRemovalOptions uiWorkerRemovalOptions;
@@ -78,12 +78,14 @@ public class UIWorkerHandler : MonoBehaviour
         world.workerCanvas.gameObject.SetActive(false);
     }
 
-    public void FlashButton(string buttonName)
+    public UIWorkerOptions GetButton(string buttonName)
     {
         for (int i = 0; i < buildOptions.Count; i++)
         {
             if (buildOptions[i].buttonName == buttonName)
-                buildOptions[i].FlashButton();
+                return buildOptions[i];
         }
+
+        return null;
     }
 }

@@ -466,7 +466,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Reached water limit. Build well or have river in boundaries");
 				return;
 			}
-            
+
+            buttonHandler.cityBuilderManager.world.TutorialCheck("Building Something");
             buttonHandler.PrepareBuild(buildData);
             buttonHandler.HandleButtonClick();
         }

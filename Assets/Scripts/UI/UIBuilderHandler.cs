@@ -11,7 +11,8 @@ public class UIBuilderHandler : MonoBehaviour
 {
     private ImprovementDataSO buildData;
     private UnitBuildDataSO unitBuildData;
-    private CityBuilderManager cityBuilderManager;
+    [HideInInspector]
+    public CityBuilderManager cityBuilderManager;
 
     [SerializeField]
     private CameraController cameraController;
@@ -23,7 +24,8 @@ public class UIBuilderHandler : MonoBehaviour
 
     [SerializeField]
     private Transform uiElementsParent;
-    private List<UIBuildOptions> buildOptions = new();
+    [HideInInspector]
+    public List<UIBuildOptions> buildOptions = new();
 
     //for blurring background
     [SerializeField]
@@ -194,7 +196,9 @@ public class UIBuilderHandler : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1000f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1000f, 0.5f).setEaseOutSine();
-            LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+            
+            //this could break things
+            //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
             if (resourceManager != null)
             {
@@ -224,15 +228,18 @@ public class UIBuilderHandler : MonoBehaviour
             //dof.focalLength.value = 15;
             if (!openTab)
             {
-				LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
-                .setEase(LeanTweenType.easeOutSine)
-                .setOnUpdate((value) =>
-                {
-                    dof.focalLength.value = value;
-                });
+                //dof.focalLength.value = 15;
+                //gameObject.SetActive(false);
+                LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.05f)
+                            .setEase(LeanTweenType.easeOutSine)
+                            .setOnUpdate((value) =>
+                            {
+                                dof.focalLength.value = value;
+                            });
 
-                LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
-                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.35f).setOnComplete(SetActiveStatusFalse);
+                //this could break things
+                //LeanTween.alpha(allContents, 0f, 0.2f).setEaseLinear();
+                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.05f).setOnComplete(SetActiveStatusFalse);
             }
             else
             {

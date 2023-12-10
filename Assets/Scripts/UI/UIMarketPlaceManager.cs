@@ -80,7 +80,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1200f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.4f).setEaseOutBack();
-            LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
         {

@@ -12,11 +12,12 @@ public class GameData
 
     //world misc lists
     public List<string> completedResearch, currentResearch;
-    public int goldAmount, researchAmount;
+    public int goldAmount, researchAmount, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, food, lumber;
     public Dictionary<Vector3Int, int> currentWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
     public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new(), goldCityWaitList = new(), goldCityRouteWaitList = new(), goldWonderWaitList = new(), goldTradeCenterWaitList = new();
+    public string tutorialStep;
 
 	public Vector3 camPosition;
     public Quaternion camRotation;
