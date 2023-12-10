@@ -103,7 +103,7 @@ public class UITerrainTooltip : MonoBehaviour
             resourceCountTitle.gameObject.SetActive(true);
             resourceCount.gameObject.SetActive(true);
             requiresText.gameObject.SetActive(true);
-            requiresText.text = "Requres " + ResourceHolder.Instance.GetRequirement(type);
+            requiresText.text = "Requires " + ResourceHolder.Instance.GetRequirement(type);
             allContents.sizeDelta = new Vector2(290, 300);
             resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
             tooltipTrigger.SetMessage(ResourceHolder.Instance.GetName(type));

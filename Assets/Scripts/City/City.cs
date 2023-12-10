@@ -52,7 +52,8 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Vector3Int cityLoc;
     [HideInInspector]
-    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining;
+    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining,
+        hasMarket;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
@@ -676,6 +677,11 @@ public class City : MonoBehaviour
 
     public void PopulationGrowthCheck(bool joinCity, int amount)
     {
+        if (world.tutorialGoing)
+        {
+            return;
+        }
+        
         int prevPop = cityPop.CurrentPop;
         PlayPopGainAudio();
 
@@ -716,6 +722,8 @@ public class City : MonoBehaviour
                 {
                     if (activeCity)
                     {
+                        world.cityBuilderManager.uiInfoPanelCity.ToggleVisibility(true);
+                        world.cityBuilderManager.uiLaborAssignment.ShowUI(this, 0, false);
                         CityGrowthProgressBarSetActive(true);
                         world.cityBuilderManager.abandonCityButton.interactable = false;
                         world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);

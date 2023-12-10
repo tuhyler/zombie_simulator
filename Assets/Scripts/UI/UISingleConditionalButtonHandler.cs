@@ -25,7 +25,7 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
         originalButtonColor = buttonImage.color;
     }
 
-    public void ToggleTweenVisibility(bool v)
+    public void ToggleVisibility(bool v)
     {
         if (activeStatus == v)
             return;

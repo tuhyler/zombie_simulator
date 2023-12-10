@@ -229,7 +229,7 @@ public class UnitMovement : MonoBehaviour
                     if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmOrders.ToggleTweenVisibility(true);
+                            uiConfirmOrders.ToggleVisibility(true);
 
                         td.EnableHighlight(Color.white);
                         world.cityBuilderManager.PlaySelectAudio();
@@ -238,7 +238,7 @@ public class UnitMovement : MonoBehaviour
                     else
                     {
                         if (!selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmOrders.ToggleTweenVisibility(false);
+                            uiConfirmOrders.ToggleVisibility(false);
 
                         td.DisableHighlight();
                         world.cityBuilderManager.PlaySelectAudio();
@@ -261,7 +261,7 @@ public class UnitMovement : MonoBehaviour
                     if (selectedWorker.AddToOrderQueue(pos))
                     {
                         if (selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmOrders.ToggleTweenVisibility(true);
+                            uiConfirmOrders.ToggleVisibility(true);
 
                         td.EnableHighlight(Color.red);
                         foreach (Road road in world.GetAllRoadsOnTile(pos))
@@ -279,7 +279,7 @@ public class UnitMovement : MonoBehaviour
                     else
                     {
                         if (!selectedWorker.IsOrderListMoreThanZero())
-                            uiConfirmOrders.ToggleTweenVisibility(false);
+                            uiConfirmOrders.ToggleVisibility(false);
 
                         td.DisableHighlight();
                         foreach (Road road in world.GetAllRoadsOnTile(pos))
@@ -440,9 +440,9 @@ public class UnitMovement : MonoBehaviour
                         world.citySelected = true;
 
 						world.UnhighlightCitiesWithBarracks();
-                        uiChangeCity.ToggleTweenVisibility(true);
+                        uiChangeCity.ToggleVisibility(true);
 						uiBuildingSomething.ToggleVisibility(false);
-                        uiCancelTask.ToggleTweenVisibility(false);
+                        uiCancelTask.ToggleVisibility(false);
                         world.unitOrders = false;
 						changingCity = false;
                     }
@@ -522,7 +522,7 @@ public class UnitMovement : MonoBehaviour
                 SelectWorker();
 				if (!selectedUnit.sayingSomething)
                 {
-                    uiMoveUnit.ToggleTweenVisibility(true);
+                    uiMoveUnit.ToggleVisibility(true);
 					PrepareMovement();
                 }
             }
@@ -578,19 +578,26 @@ public class UnitMovement : MonoBehaviour
             unitReference.SpeakingCheck();
         }
 
-        
-        SelectLaborer();
-        SelectWorker();
-        SelectTrader();
-
 		if (!selectedUnit.sayingSomething)
         {
+            SelectLaborer();
+            SelectWorker();
+            SelectTrader();
+
             if (!selectedUnit.inArmy)
-                uiMoveUnit.ToggleTweenVisibility(true);
+                uiMoveUnit.ToggleVisibility(true);
 		
             PrepareMovement();
         }
     }
+
+    //for selecting worker for speaking when already selected
+    public void QuickSelect(Unit unitReference)
+    {
+		ClearSelection();
+		selectedUnit = unitReference;
+		//SelectWorker();
+	}
 
     private void SelectEnemy(Unit unitReference)
     {
@@ -623,7 +630,7 @@ public class UnitMovement : MonoBehaviour
 		infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
 	}
 
-    private void SelectWorker()
+    public void SelectWorker()
     {
         if (selectedUnit.isWorker)
         {
@@ -723,20 +730,20 @@ public class UnitMovement : MonoBehaviour
         infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
         if (selectedUnit.moreToMove && !selectedUnit.inArmy)
         {
-            uiCancelMove.ToggleTweenVisibility(true);
+            uiCancelMove.ToggleVisibility(true);
             //movementSystem.ShowPathToMove(selectedUnit);
             selectedUnit.ShowContinuedPath();
         }
         else if (selectedUnit.inArmy)
         {
             if (selectedUnit.homeBase.army.traveling)
-                uiCancelTask.ToggleTweenVisibility(true);
+                uiCancelTask.ToggleVisibility(true);
             //else if (selectedUnit.homeBase.army.returning)
             //    uiDeployArmy.ToggleTweenVisibility(true);
             else if (selectedUnit.transferring)
-                uiChangeCity.ToggleTweenVisibility(true);
+                uiChangeCity.ToggleVisibility(true);
             else if (selectedUnit.inBattle)
-                uiCancelTask.ToggleTweenVisibility(true);
+                uiCancelTask.ToggleVisibility(true);
         }
 
         ShowIndividualCityButtonsUI();
@@ -771,10 +778,10 @@ public class UnitMovement : MonoBehaviour
                 return;
         }
 
-        uiCancelMove.ToggleTweenVisibility(!unit.isBusy);
+        uiCancelMove.ToggleVisibility(!unit.isBusy);
         
         movementSystem.ClearPaths();
-        uiJoinCity.ToggleTweenVisibility(false);
+        uiJoinCity.ToggleVisibility(false);
         uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
     }
 
@@ -962,7 +969,7 @@ public class UnitMovement : MonoBehaviour
 
     public void ToggleCancelButton(bool v)
     {
-        uiCancelMove.ToggleTweenVisibility(v);
+        uiCancelMove.ToggleVisibility(v);
     }
 
     public void CancelContinuedMovementOrdersButton()
@@ -982,7 +989,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit != null)
         {
             selectedUnit.ResetMovementOrders();
-            uiCancelMove.ToggleTweenVisibility(false);
+            uiCancelMove.ToggleVisibility(false);
             selectedUnit.HidePath();
         }
         else if (world.buildingWonder)
@@ -1078,11 +1085,11 @@ public class UnitMovement : MonoBehaviour
     {
         world.cityBuilderManager.PlaySelectAudio();
         focusCam.CenterCameraNoFollow(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation));
-        uiSwapPosition.ToggleTweenVisibility(false);
-        uiJoinCity.ToggleTweenVisibility(false);
-        uiDeployArmy.ToggleTweenVisibility(false);
-		uiChangeCity.ToggleTweenVisibility(false);
-		uiConfirmOrders.ToggleTweenVisibility(true);
+        uiSwapPosition.ToggleVisibility(false);
+        uiJoinCity.ToggleVisibility(false);
+        uiDeployArmy.ToggleVisibility(false);
+		uiChangeCity.ToggleVisibility(false);
+		uiConfirmOrders.ToggleVisibility(true);
 		uiBuildingSomething.ToggleVisibility(true);
         uiBuildingSomething.SetText("Repositioning Unit");
 		world.unitOrders = true;
@@ -1092,11 +1099,11 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelReposition()
     {
-		uiSwapPosition.ToggleTweenVisibility(true);
-		uiJoinCity.ToggleTweenVisibility(true);
-		uiDeployArmy.ToggleTweenVisibility(true);
-        uiChangeCity.ToggleTweenVisibility(true);
-		uiConfirmOrders.ToggleTweenVisibility(false);
+		uiSwapPosition.ToggleVisibility(true);
+		uiJoinCity.ToggleVisibility(true);
+		uiDeployArmy.ToggleVisibility(true);
+        uiChangeCity.ToggleVisibility(true);
+		uiConfirmOrders.ToggleVisibility(false);
 		uiBuildingSomething.ToggleVisibility(false);
 		world.unitOrders = false;
         swappingArmy = false;
@@ -1270,8 +1277,8 @@ public class UnitMovement : MonoBehaviour
     public void ClearBuildRoad()
     {
         world.unitOrders = false;
-        uiConfirmOrders.ToggleTweenVisibility(false);
-        uiMoveUnit.ToggleTweenVisibility(true);
+        uiConfirmOrders.ToggleVisibility(false);
+        uiMoveUnit.ToggleVisibility(true);
         uiWorkerTask.ToggleVisibility(true, world);
         //workerTaskManager.ToggleRoadBuild(false);
         //foreach (TerrainData td in highlightedTiles)
@@ -1635,7 +1642,7 @@ public class UnitMovement : MonoBehaviour
         if (!selectedUnit.moreToMove)
         {
             //selectedUnit.FinishedMoving.RemoveListener(ShowIndividualCityButtonsUI);
-            uiCancelMove.ToggleTweenVisibility(false);
+            uiCancelMove.ToggleVisibility(false);
         }
 
         Vector3Int currentLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
@@ -1644,12 +1651,12 @@ public class UnitMovement : MonoBehaviour
         {
             if (world.IsCityOnTile(currentLoc) && !selectedUnit.isWorker)
             {
-                uiJoinCity.ToggleTweenVisibility(true);
+                uiJoinCity.ToggleVisibility(true);
             }
 
             if (selectedUnit.bySea && world.IsCityHarborOnTile(currentLoc))
             {
-				uiJoinCity.ToggleTweenVisibility(true);
+				uiJoinCity.ToggleVisibility(true);
 			}
             
             if (selectedTrader != null && world.IsTradeLocOnTile(currentLoc))
@@ -1659,30 +1666,30 @@ public class UnitMovement : MonoBehaviour
             else if (selectedUnit.isLaborer && world.IsWonderOnTile(currentLoc))
             {
                 if (world.GetWonder(currentLoc).StillNeedsWorkers())
-                    uiJoinCity.ToggleTweenVisibility(true);
+                    uiJoinCity.ToggleVisibility(true);
             }
             else if (selectedUnit.inArmy)
             {
 				if (selectedUnit.atHome)
                 {
-                    uiJoinCity.ToggleTweenVisibility(true);
-                    uiSwapPosition.ToggleTweenVisibility(true);
-                    uiDeployArmy.ToggleTweenVisibility(true);
-                    uiChangeCity.ToggleTweenVisibility(true);
+                    uiJoinCity.ToggleVisibility(true);
+                    uiSwapPosition.ToggleVisibility(true);
+                    uiDeployArmy.ToggleVisibility(true);
+                    uiChangeCity.ToggleVisibility(true);
                 }
                 else if (selectedUnit.transferring)
                 {
-                    uiChangeCity.ToggleTweenVisibility(true);
+                    uiChangeCity.ToggleVisibility(true);
                 }
                 else
                 {
-                    uiCancelTask.ToggleTweenVisibility(true);
+                    uiCancelTask.ToggleVisibility(true);
                 }
 			}
         }
         else
         {
-            uiJoinCity.ToggleTweenVisibility(false);
+            uiJoinCity.ToggleVisibility(false);
             uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
         }
     }
@@ -1707,14 +1714,14 @@ public class UnitMovement : MonoBehaviour
     public void ChangeHomeBase()
     {
         world.cityBuilderManager.PlaySelectAudio();
-        uiJoinCity.ToggleTweenVisibility(false);
-		uiSwapPosition.ToggleTweenVisibility(false);
-		uiDeployArmy.ToggleTweenVisibility(false);
-		uiChangeCity.ToggleTweenVisibility(false);
+        uiJoinCity.ToggleVisibility(false);
+		uiSwapPosition.ToggleVisibility(false);
+		uiDeployArmy.ToggleVisibility(false);
+		uiChangeCity.ToggleVisibility(false);
 		world.HighlightCitiesWithBarracks(selectedUnit.homeBase);
         uiBuildingSomething.ToggleVisibility(true);
         uiBuildingSomething.SetText("Changing Home Base");
-		uiCancelTask.ToggleTweenVisibility(true);
+		uiCancelTask.ToggleVisibility(true);
 		world.unitOrders = true;
         changingCity = true;
     }
@@ -1745,13 +1752,13 @@ public class UnitMovement : MonoBehaviour
             return;
 		}
         
-        uiJoinCity.ToggleTweenVisibility(false);
-        uiSwapPosition.ToggleTweenVisibility(false);
-        uiDeployArmy.ToggleTweenVisibility(false);
-        uiChangeCity.ToggleTweenVisibility(false);
+        uiJoinCity.ToggleVisibility(false);
+        uiSwapPosition.ToggleVisibility(false);
+        uiDeployArmy.ToggleVisibility(false);
+        uiChangeCity.ToggleVisibility(false);
         uiBuildingSomething.ToggleVisibility(true);
 		uiBuildingSomething.SetText("Deploying Army");
-        uiCancelTask.ToggleTweenVisibility(true);
+        uiCancelTask.ToggleVisibility(true);
 		world.unitOrders = true;
         deployingArmy = true;
         world.HighlightAllEnemyCamps();
@@ -1765,7 +1772,7 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelArmyDeployment()
     {
-		uiCancelTask.ToggleTweenVisibility(false);
+		uiCancelTask.ToggleVisibility(false);
         world.uiCampTooltip.ToggleVisibility(false);
 
         if (selectedUnit == null)
@@ -1789,10 +1796,10 @@ public class UnitMovement : MonoBehaviour
             else if (deployingArmy)
                 world.UnhighlightAllEnemyCamps();
                 
-            uiJoinCity.ToggleTweenVisibility(true);
-		    uiSwapPosition.ToggleTweenVisibility(true);
-            uiDeployArmy.ToggleTweenVisibility(true);
-			uiChangeCity.ToggleTweenVisibility(true);
+            uiJoinCity.ToggleVisibility(true);
+		    uiSwapPosition.ToggleVisibility(true);
+            uiDeployArmy.ToggleVisibility(true);
+			uiChangeCity.ToggleVisibility(true);
 			uiBuildingSomething.ToggleVisibility(false);
             world.unitOrders = false;
             deployingArmy = false;
@@ -1856,16 +1863,16 @@ public class UnitMovement : MonoBehaviour
 
             //SpeakingCheck();
             moveUnit = false;
-            uiMoveUnit.ToggleTweenVisibility(false);
-            uiCancelMove.ToggleTweenVisibility(false);
-            uiJoinCity.ToggleTweenVisibility(false);
-            uiSwapPosition.ToggleTweenVisibility(false);
-            uiDeployArmy.ToggleTweenVisibility(false);
-            uiChangeCity.ToggleTweenVisibility(false);
+            uiMoveUnit.ToggleVisibility(false);
+            uiCancelMove.ToggleVisibility(false);
+            uiJoinCity.ToggleVisibility(false);
+            uiSwapPosition.ToggleVisibility(false);
+            uiDeployArmy.ToggleVisibility(false);
+            uiChangeCity.ToggleVisibility(false);
 
             if (selectedWorker != null)
             {
-                uiCancelTask.ToggleTweenVisibility(false);
+                uiCancelTask.ToggleVisibility(false);
                 uiWorkerTask.ToggleVisibility(false, world);
                 workerTaskManager.NullWorkerUnit();
             }
@@ -1881,7 +1888,7 @@ public class UnitMovement : MonoBehaviour
             }
             if (selectedUnit.inArmy)
             {
-				uiCancelTask.ToggleTweenVisibility(false);
+				uiCancelTask.ToggleVisibility(false);
                 selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
             }
             //if (selectedUnit != null)

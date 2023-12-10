@@ -58,7 +58,9 @@ public class Resource : MonoBehaviour
             wasted = true;
 
         InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), wasted);
+        city.world.StatsCheck(resourceIndividual.resourceType, amount);
         city.PlayResourceSplash();
+        city.world.TutorialCheck("Resource");
     }
 
     public Worker GetHarvestingWorker()

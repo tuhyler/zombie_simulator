@@ -59,7 +59,7 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack();
-            LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+            //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else
         {

@@ -195,9 +195,23 @@ public class Unit : MonoBehaviour
 
 	public void SetSomethingToSay(string conversationTopic)
 	{
-        this.conversationTopic = conversationTopic;
-        somethingToSay = true;
+        StartCoroutine(SetSomethingToSayCoroutine(conversationTopic));
+	}
+
+    //wait till everything's done before setting up something to say
+    private IEnumerator SetSomethingToSayCoroutine(string conversationTopic)
+    {
+        yield return new WaitForEndOfFrame();
+
+		this.conversationTopic = conversationTopic;
+		somethingToSay = true;
 		questionMark.SetActive(true);
+
+		if (isSelected)
+		{
+			world.unitMovement.QuickSelect(this);
+			SpeakingCheck();
+		}
 	}
 
     public void SpeakingCheck()
@@ -208,8 +222,8 @@ public class Unit : MonoBehaviour
         focusCam.someoneSpeaking = true;
         questionMark.SetActive(false);
         world.playerInput.paused = true;
+        world.uiSpeechWindow.SetConversation(conversationTopic);
         world.uiSpeechWindow.ToggleVisibility(true);
-        world.uiSpeechWindow.SetConversation(conversationTopic, true);
     }
 
     public void SetSpeechBubble()
@@ -531,6 +545,13 @@ public class Unit : MonoBehaviour
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
+            if (buildDataSO.unitName == "Worker" && unitInTheWay.somethingToSay)
+            {
+                unitInTheWay.SpeakingCheck();
+                FinishMoving(transform.position);
+				yield break;
+            }
+
             if (unitInTheWay.isBusy || unitInTheWay.followingRoute || unitInTheWay.inArmy)
             {
                 if (isBusy)
@@ -563,7 +584,7 @@ public class Unit : MonoBehaviour
                 InterruptRoute();
             }
                 
-            FinishMoving(endPosition);
+            FinishMoving(transform.position);
             yield break;
         }
 
@@ -1127,6 +1148,7 @@ public class Unit : MonoBehaviour
 		}
         else
         {
+			world.TutorialCheck("Finished Movement");
 			world.AddUnitPosition(currentLocation, this);
             
             if (isSelected)

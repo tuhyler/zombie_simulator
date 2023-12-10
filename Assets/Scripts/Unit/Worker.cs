@@ -101,7 +101,7 @@ public class Worker : Unit
 
         ToggleDizzy(true);
         
-        yield return new WaitForSeconds(4);
+        yield return new WaitForSeconds(3);
 
         Destroy(dizzy);
 		ToggleDizzy(false);
@@ -481,11 +481,7 @@ public class Worker : Unit
     {
         foreach (Vector3Int tile in world.GetNeighborsFor(workerPos, MapWorld.State.CITYRADIUS))
         {
-            if (!world.IsCityOnTile(tile))
-            {
-                continue;
-            }
-            else
+            if (world.IsCityOnTile(tile))
             {
                 resourceCityLoc = tile;
                 return true;

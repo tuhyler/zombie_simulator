@@ -65,7 +65,16 @@ public class GameLoader : MonoBehaviour
 		gameData.camLimits.Add(world.cameraController.xMax);
 		gameData.camLimits.Add(world.cameraController.zMin);
 		gameData.camLimits.Add(world.cameraController.zMax);
+		gameData.tutorialStep = world.tutorialStep;
 		gameData.goldAmount = world.worldResourceManager.GetWorldGoldLevel();
+		gameData.cityCount = world.cityCount;
+		gameData.infantryCount = world.infantryCount;
+		gameData.rangedCount = world.rangedCount;
+		gameData.cavalryCount = world.cavalryCount;
+		gameData.traderCount = world.traderCount;
+		gameData.boatTraderCount = world.boatTraderCount;
+		gameData.food = world.food;
+		gameData.lumber = world.lumber;
 		gameData.currentResearch = world.researchTree.SaveResearch();
 
 		for (int i = 0; i < world.researchWaitList.Count; i++)
@@ -190,7 +199,16 @@ public class GameLoader : MonoBehaviour
 		GameManager.Instance.UpdateProgress(15);
 
 		world.researchTree.LoadCompletedResearch(gameData.completedResearch);
+		world.tutorialStep = gameData.tutorialStep;
 		world.worldResourceManager.SetWorldGoldLevel(gameData.goldAmount);
+		world.cityCount = gameData.cityCount;
+		world.infantryCount = gameData.infantryCount;
+		world.rangedCount = gameData.rangedCount;
+		world.cavalryCount = gameData.cavalryCount;
+		world.traderCount = gameData.traderCount;
+		world.boatTraderCount = gameData.boatTraderCount;
+		world.food = gameData.food;
+		world.lumber = gameData.lumber;
 		world.researchTree.LoadCurrentResearch(gameData.currentResearch, gameData.researchAmount);
 		world.currentWorkedTileDict = gameData.currentWorkedTileDict;
 		world.cityWorkedTileDict = gameData.cityWorkedTileDict;

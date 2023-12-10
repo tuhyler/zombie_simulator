@@ -9,23 +9,16 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
 
     [SerializeField] //changing color of button when selected
     private Image buttonImage;
-    public ParticleSystem buttonHighlight;
     public bool toggleColor;
     public bool showRemovalOptions;
     private Color originalButtonColor;
-    private bool isSelected, isFlashing;
+    [HideInInspector]
+    public bool isSelected, isFlashing;
 
     private void Awake()
     {
-        if (showRemovalOptions)
-            buttonHandler = GetComponentInParent<UIWorkerHandler>();
+        buttonHandler = GetComponentInParent<UIWorkerHandler>();
         originalButtonColor = buttonImage.color;
-    }
-
-    public void FlashButton()
-    {
-        isFlashing = true;
-        buttonHighlight.Play();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -38,11 +31,7 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
                 ToggleColor(true);
         }
 
-        if (isFlashing)
-        {
-            buttonHighlight.Stop();
-            isFlashing = false;
-        }
+        FlashCheck();
     }
 
     public void ToggleColor(bool v)
@@ -67,4 +56,13 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
                 buttonHandler.ToggleRemovalOptions(true);
         }
     }
+
+    public void FlashCheck()
+    {
+		if (isFlashing)
+		{
+			isFlashing = false;
+			buttonHandler.world.ButtonFlashCheck();
+		}
+	}
 }

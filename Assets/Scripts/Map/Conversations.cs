@@ -56,9 +56,29 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaHappy,
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "Ok great! That will keep me warm for like a few seconds, but now I need some lumber for some shelter."
+			speakerText = "Ok great! That will keep me warm for like a few seconds, but now I need to find some lumber for some shelter."
 		};
 		conversationDict["tutorial1"].Add(tutorial11);
+
+		ConversationItem tutorial12 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "(Explore the world by moving the camera around using the arrow or WASD keys. Use Q and E to rotate.)",
+			action = true
+		};
+		conversationDict["tutorial1"].Add(tutorial12);
+
+		ConversationItem tutorial13 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "(Move to the highlighted tile by selecting the button on the right or by right-clicking on the tile.)",
+			action = true
+		};
+		conversationDict["tutorial1"].Add(tutorial13);
 		#endregion
 		#region tutorial2
 		conversationDict["tutorial2"] = new();
@@ -68,7 +88,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaHappy,
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "Perfect, I have all the materials I need, now to build."
+			speakerText = "OK, here's a forest, now I just need to gather some lumber."
 		};
 		conversationDict["tutorial2"].Add(tutorial21);
 		#endregion
@@ -80,9 +100,77 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaHappy,
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "Right, now I just need to go get some food, I probably have to harvest it myself..."
+			speakerText = "OK, that's one lumber down... Now I need to get 4 more lumber to build a hut."
 		};
 		conversationDict["tutorial3"].Add(tutorial31);
+		#endregion
+		#region tutorial4
+		conversationDict["tutorial4"] = new();
+
+		ConversationItem tutorial41 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "Ugh... that was tedious, but that should be enough! I'll need to go to the camp now and build the hut."
+		};
+		conversationDict["tutorial4"].Add(tutorial41);
+
+		ConversationItem tutorial42 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "(Click on the camp to perform actions within the camp.)",
+			action = true
+		};
+		conversationDict["tutorial4"].Add(tutorial42);
+		#endregion
+		#region tutorial5
+		conversationDict["tutorial5"] = new();
+
+		ConversationItem tutorial51 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "Cool house! It's a little small...but that's okay, I won't be here long. Now to get some food."
+		};
+		conversationDict["tutorial5"].Add(tutorial51);
+		#endregion
+		#region tutorial6
+		conversationDict["tutorial6"] = new();
+
+		ConversationItem tutorial61 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "This is an excellent place for food, seems all the locations with long grass have resources to harvest. " +
+			"Let's get some food."
+		};
+		conversationDict["tutorial6"].Add(tutorial61);
+		#endregion
+		#region tutorial7
+		conversationDict["tutorial7"] = new();
+
+		ConversationItem tutorial71 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "Who's that guy?"
+		};
+		conversationDict["tutorial7"].Add(tutorial71);
+
+		ConversationItem tutorial72 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Camera",
+			speakerText = "(Walk over to someone to talk to them if they have something to say)"
+		};
+		conversationDict["tutorial7"].Add(tutorial72);
 		#endregion
 		#region first_labor
 		conversationDict["first_labor"] = new();
@@ -92,7 +180,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaHappy,
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "Oh hello, who are you?"
+			speakerText = "Oh hello... who are you?"
 		};
 		conversationDict["first_labor"].Add(first_labor1);
 
@@ -128,7 +216,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaSerious,
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "So I'm guessing you showed up when I gathered some food. Say, could you help me get home?"
+			speakerText = "So I'm guessing you showed up when you saw I had some food. Say... could you help me get home?"
 		};
 		conversationDict["first_labor"].Add(first_labor5);
 
@@ -173,7 +261,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaEvil,
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "*quietly to himself* hmm, if I get more food, then I can get more of these people and get them to gather all the material I need..."
+			speakerText = "*quietly to himself* hmm, if I get more food, then I can get more of these guys and use them to gather all the material I need..."
 		};
 		conversationDict["first_labor"].Add(first_labor10);
 
@@ -182,7 +270,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = laborerHappy,
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "*leaning in, clearly eavesdropping* Sounds like fun! Just make sure we have housing and water and we'll gladly stick around to help!"
+			speakerText = "*leaning in, clearly listening* Sounds like fun! Just make sure we have housing and water and we'll gladly stick around to help!"
 		};
 		conversationDict["first_labor"].Add(first_labor11);
 
@@ -205,4 +293,5 @@ public struct ConversationItem
     public string speakerName;
 	public string speakerDirection;
     public string speakerText;
+	public bool action;
 }

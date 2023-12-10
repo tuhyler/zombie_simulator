@@ -15,6 +15,7 @@ TagManager:
   - Swamp
   - MainCanvas
   - City
+  - Mountain
   layers:
   - Default
   - TransparentFX

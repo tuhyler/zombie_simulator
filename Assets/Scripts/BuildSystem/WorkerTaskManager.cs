@@ -72,6 +72,9 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy && !unitMovement.uiJoinCity.activeStatus && !workerUnit.sayingSomething)
         {
+			if (world.tutorialGoing)
+				unitMovement.uiWorkerTask.GetButton("Build").FlashCheck();
+
 			Vector3 pos = workerUnit.transform.position;
             pos.y = 0;
             Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
@@ -93,6 +96,9 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (workerUnit != null && !workerUnit.isBusy && !workerUnit.sayingSomething)
         {
+			if (world.tutorialGoing)
+				unitMovement.uiWorkerTask.GetButton("Gather").FlashCheck();
+
 			workerUnit.StopMovement();
             workerUnit.GatherResource();
         }
@@ -119,47 +125,59 @@ public class WorkerTaskManager : MonoBehaviour
     {
         this.workerUnit = workerUnit;
         if (workerUnit.isBusy)
-            uiCancelTask.ToggleTweenVisibility(true);
+            uiCancelTask.ToggleVisibility(true);
     }
 
 	public void BuildCityButton()
     {
-		world.cityBuilderManager.PlaySelectAudio();
-		Vector3 pos = workerUnit.transform.position;
-		pos.y = 0;
-		Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
+        if (!workerUnit.isBusy)
+        {
+			world.cityBuilderManager.PlaySelectAudio();
+		    Vector3 pos = workerUnit.transform.position;
+		    pos.y = 0;
+		    Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
-		if (Vector3Int.RoundToInt(pos) == workerTile)
-		{
-			//add to finish animation listener
-			workerUnit.BuildCity();
-		}
-		else
-		{
-			MoveToCenterOfTile(workerTile);
-			workerUnit.FinishedMoving.AddListener(workerUnit.BuildCity);
-		}
+		    if (Vector3Int.RoundToInt(pos) == workerTile)
+		    {
+			    //add to finish animation listener
+			    workerUnit.BuildCity();
+		    }
+		    else
+		    {
+			    MoveToCenterOfTile(workerTile);
+			    workerUnit.FinishedMoving.AddListener(workerUnit.BuildCity);
+		    }
+        }
 	}
 
     public void GatherResourceButton()
     {
-		world.cityBuilderManager.PlaySelectAudio();
-		workerUnit.GatherResource();
+        if (!workerUnit.isBusy)
+        {
+		    world.cityBuilderManager.PlaySelectAudio();
+		    workerUnit.GatherResource();
+        }
 	}
 
     public void BuildUtilityButton()
     {
-		world.cityBuilderManager.PlaySelectAudio();
-		unitMovement.buildingRoad = true;
-		uiBuildingSomething.SetText("Building Road");
-		OrdersPrep();
-		workerUnit.WorkerOrdersPreparations();
+		if (!workerUnit.isBusy)
+        {
+            world.cityBuilderManager.PlaySelectAudio();
+		    unitMovement.buildingRoad = true;
+		    uiBuildingSomething.SetText("Building Road");
+		    OrdersPrep();
+		    workerUnit.WorkerOrdersPreparations();
+        }
 	}
 
     public void ClearForestButton()
     {
-		world.cityBuilderManager.PlaySelectAudio();
-		workerUnit.ClearForest();
+		if (!workerUnit.isBusy)
+        {
+            world.cityBuilderManager.PlaySelectAudio();
+		    workerUnit.ClearForest();
+        }
     }
 
     public void PerformTask(ImprovementDataSO improvementData) //don't actually use "improvementData".
@@ -278,7 +296,7 @@ public class WorkerTaskManager : MonoBehaviour
     public void GatherResource(Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
 		world.SetWorkerWorkLocation(world.RoundToInt(workerPos));
-        uiCancelTask.ToggleTweenVisibility(true);
+        uiCancelTask.ToggleVisibility(true);
         if (clearForest)
             resourceIndividualHandler.timePassed = worker.clearingForestTime;
         else
@@ -300,8 +318,8 @@ public class WorkerTaskManager : MonoBehaviour
 
         world.unitOrders = true;
         workerUnit.isBusy = true;
-        uiCancelTask.ToggleTweenVisibility(true);
-        unitMovement.uiMoveUnit.ToggleTweenVisibility(false);
+        uiCancelTask.ToggleVisibility(true);
+        unitMovement.uiMoveUnit.ToggleVisibility(false);
         unitMovement.SelectedWorker = workerUnit;
     }
 
@@ -505,6 +523,8 @@ public class WorkerTaskManager : MonoBehaviour
         city.reachedWaterLimit = !city.hasFreshWater;
         city.waterMaxPop = city.hasFreshWater ? 9999 : 0;
         world.AddCityBuildingDict(workerTile);
+        world.cityCount++;
+        world.TutorialCheck("Build City");
         unitMovement.ShowIndividualCityButtonsUI();
     }
 
@@ -578,7 +598,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void TurnOffCancelTask()
     {
-        uiCancelTask.ToggleTweenVisibility(false);
+        uiCancelTask.ToggleVisibility(false);
     }
 
     public void NullWorkerUnit()

@@ -33,7 +33,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 	[SerializeField] //for tweening
 	private RectTransform allContents;
 	[HideInInspector]
-	private bool activeStatus, showingText, hideUI;
+	private bool activeStatus, showingText;
 	private Vector3 originalLoc;
 	private string conversationTopic;
 
@@ -68,18 +68,21 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		if (v)
 		{
 			ResetTextBlocks();
-			
+			world.ToggleMainUI(false);
+
 			gameObject.SetActive(v);
 
 			activeStatus = true;
 
 			allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
-			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack().setOnComplete(StartSpeech);
-			LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+			PrepNextSpeech();
+			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack().setOnComplete(StartNextSpeech);
+			//LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 		}
 		else
 		{
+			world.ToggleMainUI(true);
 			activeStatus = false;
 			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -600f, 0.2f).setOnComplete(SetActiveStatusFalse);
 		}
@@ -92,7 +95,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 	private void ResetTextBlocks()
 	{
-		LeanTween.cancelAll();
+		//LeanTween.cancelAll();
 		
 		if (co != null)
 		{
@@ -102,18 +105,18 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		
 		for (int i = 0; i < textBlock.Length; i++)
 		{
+			LeanTween.cancel(textBlock[i]);
 			textBlock[i].anchoredPosition3D = originalLocs[i];
 		}
 	}
 
-	public void SetConversation(string conversationTopic, bool hideUI = false)
+	public void SetConversation(string conversationTopic)
 	{
 		this.conversationTopic = conversationTopic;
-		this.hideUI = hideUI;
 		conversationItems = Conversations.Instance.conversationDict[conversationTopic];
 	}
 
-	private void StartSpeech()
+	private void PrepNextSpeech()
 	{
 		speakerImage.sprite = conversationItems[conversationPlace].speakerImage;
 		string name = conversationItems[conversationPlace].speakerName;
@@ -128,10 +131,24 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			if (!unitsSpeaking.Contains(unit))
 				unitsSpeaking.Add(unit);
 
-			if (conversationItems[conversationPlace].speakerDirection != "Camera")
+			if (conversationItems[conversationPlace].speakerDirection == "Camera")
+			{
+				Vector3 loc = Camera.main.transform.position;
+				loc.y = 0;
+				unit.Rotate(loc);
+			}
+			else
+			{
 				unit.Rotate(speakerDict[conversationItems[conversationPlace].speakerDirection].transform.position);
+			}
 		}
 
+		if (conversationItems[conversationPlace].action)
+			world.ConversationActionCheck(conversationTopic, conversationPlace);
+	}
+
+	private void StartNextSpeech()
+	{
 		co = StartCoroutine(ShowSpeech());
 	}
 
@@ -168,11 +185,12 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		
 		if (conversationPlace >= conversationItems.Count)
 		{
-			CancelText();
+			FinishText();
 		}
 		else
 		{
-			StartSpeech();
+			PrepNextSpeech();
+			StartNextSpeech();
 		}
 	}
 
@@ -194,7 +212,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		}
 	}
 
-	public void CancelText()
+	public void FinishText()
 	{
 		ToggleVisibility(false);
 
@@ -205,22 +223,23 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		}
 		showingText = false;
 
+		world.unitMovement.SelectWorker();
 		world.unitMovement.uiWorkerTask.ToggleVisibility(true, world);
 		world.unitMovement.PrepareMovement();
+		world.unitMovement.uiMoveUnit.ToggleVisibility(true);
 		world.playerInput.paused = false;
 		world.cameraController.someoneSpeaking = false;
 		world.speechBubble.SetActive(false);
-		if (hideUI)
-			world.ResetMainUI();
 		conversationItems.Clear();
-		conversationPlace = 0;
 
 		for (int i = 0; i < unitsSpeaking.Count; i++)
 			unitsSpeaking[i].SaidSomething();
 
 		unitsSpeaking.Clear();
 
-		world.CheckPostConvoStep(conversationTopic);
+		//checking if action immediately after conversation needs to take place
+		world.ConversationActionCheck(conversationTopic, conversationPlace);
+		conversationPlace = 0;
 
 		conversationTopic = "";
 	}
