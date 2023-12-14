@@ -43,7 +43,8 @@ public class TerrainData : MonoBehaviour
 
     public bool changeLeafColor;
     [HideInInspector]
-    public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, showProp = true;
+    public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
+        showProp = true, hasNonstatic;
 
     //[HideInInspector]
     //public List<GameObject> enemyBorders = new();
@@ -99,9 +100,12 @@ public class TerrainData : MonoBehaviour
     {
         terrainData = data;
         TerrainDataPrep();
-    }
 
-    public void TerrainDataPrep()
+        if (CompareTag("Forest") || CompareTag("Forest Hill") || CompareTag("Hill") || CompareTag("Mountain"))
+    		hasNonstatic = true;
+	}
+
+	public void TerrainDataPrep()
     {
         gameObject.tag = terrainData.tag;
         
@@ -454,6 +458,7 @@ public class TerrainData : MonoBehaviour
         //    fog.transform.localPosition += offsetY;
     }
 
+    //no nonstatic movement
     public void HardReveal()
     {
         isDiscovered = true;
@@ -468,11 +473,11 @@ public class TerrainData : MonoBehaviour
         //    td.HardSemiReveal();
         //}
 
-		if (rawResourceType == RawResourceType.Rocks)
-        {
-            godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
-            godRays.Play();
-        }
+		//if (rawResourceType == RawResourceType.Rocks)
+  //      {
+  //          godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
+  //          godRays.Play();
+		//}
 
         if (hasResourceMap)
 			world.ToggleResourceIcon(tileCoordinates, true);
@@ -522,7 +527,11 @@ public class TerrainData : MonoBehaviour
         {
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
 			godRays.Play();
-        }
+            if (isHill)
+                resourceGraphic.PlaySoundHill();
+            else
+                resourceGraphic.PlaySound();
+		}
 
         if (hasResourceMap)
 			world.ToggleResourceIcon(tileCoordinates, true);
@@ -538,11 +547,12 @@ public class TerrainData : MonoBehaviour
 
 		whiteMesh.Clear();
         materials.Clear();
-        if (nonstatic.childCount > 0)
+        if (hasNonstatic)
         {
             main.gameObject.SetActive(false);
             //ShowProp(false);
-			prop.gameObject.SetActive(false);
+			if (!isHill)
+                prop.gameObject.SetActive(false);
 			GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = true;
             StartCoroutine(PopUp());
         }
@@ -586,6 +596,9 @@ public class TerrainData : MonoBehaviour
 
         main.gameObject.SetActive(true);
 		ShowProp(true);
+        if (isHill && rawResourceType == RawResourceType.Rocks)
+            RocksCheck();
+
         nonstatic.gameObject.SetActive(false);
     }
 

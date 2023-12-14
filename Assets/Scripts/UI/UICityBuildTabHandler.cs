@@ -170,7 +170,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         }
     }
 
-    public void ToggleVisibility(bool v, bool market = false, bool queue = true, ResourceManager resourceManager = null)
+    public void ToggleVisibility(bool v, bool market = false, ResourceManager resourceManager = null)
     {
         if (activeStatus == v)
             return;
@@ -180,12 +180,21 @@ public class UICityBuildTabHandler : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
-            marketTabHolder.SetActive(market);
+            //marketTabHolder.SetActive(market);
 
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
+			if (cityBuilderManager.world.tutorialGoing)
+			{
+				for (int i = 0; i < tabList.Count; i++)
+				{
+					if (tabList[i].isFlashing)
+						StartCoroutine(cityBuilderManager.world.EnableButtonHighlight(tabList[i].transform, true, false));
+				}
+			}
+
+			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
             //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else

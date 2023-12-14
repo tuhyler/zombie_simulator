@@ -58,8 +58,6 @@ public class UITradeRouteManager : MonoBehaviour
         rootCanvas = GetComponentInParent<Canvas>();
         originalLoc = allContents.anchoredPosition3D;
         originalButtonColor = buttonImage.color;
-        //AddResources();
-        //GrowTradeStopPool();
         gameObject.SetActive(false);
 
 		foreach (Transform selection in costRect)
@@ -100,25 +98,6 @@ public class UITradeRouteManager : MonoBehaviour
             waitingForText.SetActive(show);
     }
 
-    //public void PrepTradeRoute()
-    //{
-    //    for (int i = 0; i < tradeStopHandlerList.Count; i++)
-    //    {
-    //        PrepStop(tradeStopHandlerList[i]);
-    //        tradeStopHandlerList[i].PrepResources();
-
-    //        if (i < startingStop)
-    //            tradeStopHandlerList[i].SetAsComplete();
-    //        else if (i == startingStop)
-    //            tradeStopHandlerList[i].SetAsCurrent();
-    //    }
-
-    //    chosenStop.enabled = false;
-    //    newStopButton.SetActive(false);
-    //    confirmButton.SetActive(false);
-    //    stopRouteButton.SetActive(true);
-    //}
-
     public void ResetTradeRouteInfo(TradeRouteManager tradeRouteManager)
     {
         for (int i = 0; i < tradeStopHandlerList.Count; i++)
@@ -150,7 +129,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void SetChosenStop(int value)
     {
-        world.cityBuilderManager.PlaySelectAudio();
+        //world.cityBuilderManager.PlaySelectAudio();
         startingStop = value;
     }
 
@@ -165,7 +144,7 @@ public class UITradeRouteManager : MonoBehaviour
         if (selectedTrader.followingRoute)
         {
             startingStopGO.SetActive(false);
-            stopScroller.sizeDelta += new Vector2(0, -100);
+            //stopScroller.sizeDelta += new Vector2(0, -100);
 			Vector2 currentPos = originalPos;
 			currentPos.y -= 100;
 			stopScroller.transform.localPosition = currentPos;

@@ -144,7 +144,7 @@ GameObject:
   - component: {fileID: 5260703463605753538}
   - component: {fileID: 1417148771036434392}
   m_Layer: 0
-  m_Name: TomFinder
+  m_Name: KoaFinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -74,8 +74,15 @@ public class Worker : Unit
 
     public IEnumerator FallingCoroutine(Vector3 pos)
     {
+        bool playedOnce = false;
         while (transform.position.y > 0)
         {
+            if (!playedOnce && transform.position.y < 12)
+            {
+                playedOnce = true;
+                world.cityBuilderManager.PlayThudAudio();
+            }
+            
             yield return null;
         }
 

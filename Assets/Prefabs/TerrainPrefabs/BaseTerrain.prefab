@@ -76,6 +76,8 @@ MonoBehaviour:
   isDiscovered: 1
   beingCleared: 0
   showProp: 1
+  resourceGraphic: {fileID: 0}
+  treeHandler: {fileID: 0}
   godRays: {fileID: 4703613511086933491, guid: fcf546ba0dba6d84784e7ca7b99b5dad, type: 3}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}

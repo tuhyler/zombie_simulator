@@ -153,7 +153,7 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
-        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip;
+        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen;
     [SerializeField]
     private AudioClip[] acknowledgements;
     [HideInInspector]
@@ -916,6 +916,35 @@ public class CityBuilderManager : MonoBehaviour
         audioSource.Play();
     }
 
+    public void PlayThudAudio()
+    {
+        audioSource.clip = thudClip;
+        audioSource.Play();
+    }
+
+    public void PlayFieryOpen()
+    {
+        audioSource.clip = fieryOpen;
+        audioSource.Play();
+    }
+
+    public void StopAudio()
+    {
+        audioSource.Stop();
+    }
+
+
+    public void OpenAddPopWindow()
+    {
+        world.uiCityPopIncreasePanel.ToggleVisibility(true, 1, selectedCity);
+    }
+
+    public void CloseAddPopWindow()
+    {
+        PlayCloseAudio();
+        world.uiCityPopIncreasePanel.ToggleVisibility(false);
+    }
+
 	private void SelectCity(Vector3 location, City cityReference)
     {
         if (selectedCity != null)
@@ -967,15 +996,15 @@ public class CityBuilderManager : MonoBehaviour
         uiInfoPanelCity.SetGrowthPauseToggle(selectedCity.ResourceManager.pauseGrowth);
         uiInfoPanelCity.UpdateWater(selectedCity.waterMaxPop);
 
-        if (selectedCity.cityPop.CurrentPop > 0)
-        {
+        //if (selectedCity.cityPop.CurrentPop > 0)
+        //{
             uiInfoPanelCity.ToggleVisibility(true);
             uiLaborAssignment.ShowUI(selectedCity, placesToWork);
-        }
-        else
-        {
-            uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
-        }
+        //}
+        //else
+        //{
+        //    uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+        //}
 
         uiLaborHandler.SetCity(selectedCity);
         //uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
@@ -1166,6 +1195,7 @@ public class CityBuilderManager : MonoBehaviour
         //CloseLaborMenus();
         
         removingImprovement = true;
+        world.uiCityPopIncreasePanel.ToggleVisibility(false);
         CloseQueueUI();
         ToggleBuildingHighlight(true);
         ImprovementTileHighlight();
@@ -1936,13 +1966,13 @@ public class CityBuilderManager : MonoBehaviour
             city.singleBuildImprovementsBuildingsDict[buildingData.improvementName] = city.cityLoc;
         }
 
-        if (buildingData.improvementName == "Market")
-        {
-            city.hasMarket = true;
+        //if (buildingData.improvementName == "Market")
+        //{
+        //    city.hasMarket = true;
  
-            if (city.activeCity)
-                uiCityTabs.marketTabHolder.SetActive(true);
-        }
+        //    if (city.activeCity)
+        //        uiCityTabs.marketTabHolder.SetActive(true);
+        //}
 
         //updating uis
         if (city.activeCity)
@@ -2006,11 +2036,11 @@ public class CityBuilderManager : MonoBehaviour
 				city.reachedWaterLimit = false;
         }
 
-		if (data.improvementName == "Market")
-		{
-			city.hasMarket = false;
-			uiCityTabs.marketTabHolder.SetActive(false);
-		}
+		//if (data.improvementName == "Market")
+		//{
+		//	city.hasMarket = false;
+		//	uiCityTabs.marketTabHolder.SetActive(false);
+		//}
 
 		if (city.singleBuildImprovementsBuildingsDict.ContainsKey(selectedBuilding))
             city.singleBuildImprovementsBuildingsDict.Remove(selectedBuilding);
@@ -2288,8 +2318,36 @@ public class CityBuilderManager : MonoBehaviour
         cityImprovement.PlaySmokeSplash(td.isHill);
         cityImprovement.PlayPlacementAudio(buildClip);
 
-        //making two objects, this one for the parent mesh
-        GameObject tempObject = Instantiate(emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);
+        if (improvementData.housingIncrease > 0)
+        {
+			city.HousingCount += improvementData.housingIncrease;
+
+            if (city.activeCity)
+    			uiInfoPanelCity.UpdateHousing(city.HousingCount);
+
+			//must go last
+			if (world.uiCityPopIncreasePanel.CheckCity(city))
+                world.uiCityPopIncreasePanel.UpdateHousingCosts(city);
+        }
+
+        if (improvementData.waterIncrease > 0)
+        {
+			city.waterMaxPop += improvementData.waterIncrease;
+			if (city.activeCity)
+				uiInfoPanelCity.UpdateWater(city.waterMaxPop);
+
+			if (city.waterMaxPop <= city.cityPop.CurrentPop)
+				city.reachedWaterLimit = true;
+			else
+				city.reachedWaterLimit = false;
+
+			//must go last
+			if (world.uiCityPopIncreasePanel.CheckCity(city))
+				world.uiCityPopIncreasePanel.UpdateWaterCosts(city);
+		}
+
+		//making two objects, this one for the parent mesh
+		GameObject tempObject = Instantiate(emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);
         tempObject.name = improvement.name;
         MeshFilter[] improvementMeshes = cityImprovement.MeshFilter;
 
@@ -2843,7 +2901,8 @@ public class CityBuilderManager : MonoBehaviour
 
         //uiQueueManager.ToggleVisibility(false);
         CloseQueueUI();
-        uiCityTabs.HideSelectedTab(false);
+		world.uiCityPopIncreasePanel.ToggleVisibility(false);
+		uiCityTabs.HideSelectedTab(false);
         CloseSingleWindows();
         //uiLaborHandler.HideUI();
         //uiLaborHandler.ShowUI(selectedCity);
@@ -3224,7 +3283,8 @@ public class CityBuilderManager : MonoBehaviour
         world.CloseCampTooltipButton();
         CloseImprovementBuildPanel();
         uiLaborAssignment.ResetLaborAssignment();
-        CloseQueueUI();
+		world.uiCityPopIncreasePanel.ToggleVisibility(false);
+		CloseQueueUI();
         uiCityTabs.HideSelectedTab(false);
         CloseLaborMenus();
         CloseSingleWindows();
@@ -3246,7 +3306,8 @@ public class CityBuilderManager : MonoBehaviour
             world.CloseImprovementTooltipButton();
             world.CloseCampTooltipButton();
             CloseImprovementBuildPanel();
-            CloseQueueUI();
+			world.uiCityPopIncreasePanel.ToggleVisibility(false);
+			CloseQueueUI();
             ResetTileLists();
             CloseSingleWindows();
             uiLaborHandler.ToggleVisibility(true);
@@ -3342,7 +3403,8 @@ public class CityBuilderManager : MonoBehaviour
             world.CloseCampTooltipButton();
             CloseImprovementBuildPanel();
             uiCityTabs.HideSelectedTab(false);
-            CloseQueueUI();
+			world.uiCityPopIncreasePanel.ToggleVisibility(false);
+			CloseQueueUI();
             CloseSingleWindows();
             uiLaborPrioritizationManager.ToggleVisibility(true);
             uiLaborPrioritizationManager.PrepareLaborPrioritizationMenu(selectedCity);

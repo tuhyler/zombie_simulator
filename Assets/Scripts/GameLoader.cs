@@ -345,6 +345,11 @@ public class GameLoader : MonoBehaviour
 			improvement.ResumeTraining(improvementUnitUpgradeDict[improvement]);
 		}
 
+		//loading conversation task list
+		foreach (string task in gameData.conversationTaskDict.Keys)
+		{
+			world.uiConversationTaskManager.LoadConversationTask(task, gameData.conversationTaskDict[task].Item1, gameData.conversationTaskDict[task].Item2);
+		}
 		//updating progress
 		GameManager.Instance.UpdateProgress(10);
 

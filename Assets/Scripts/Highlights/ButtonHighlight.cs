@@ -4,24 +4,47 @@ using UnityEngine.UI;
 public class ButtonHighlight : MonoBehaviour
 {
     [SerializeField]
-    private CanvasGroup canvasGroup;
+    private Material buttonHighlight, bigButtonHighlight, circleButtonHighlight;
 
     [SerializeField]
-    private Image borderImage; 
+    private ParticleSystem buttonFlash;
 
-    private void Awake()
+    [SerializeField]
+    private ParticleSystemRenderer buttonFlashRenderer;
+
+    public void SetMaterial(bool button, bool big)
     {
-        canvasGroup.alpha = 0;
+        if (button)
+        {
+            if (big)
+            {
+				buttonFlashRenderer.material = bigButtonHighlight;
+				buttonFlash.transform.localScale = new Vector3(400, 400, 400);
+            }
+            else
+            {
+                buttonFlashRenderer.material = buttonHighlight;
+                buttonFlash.transform.localScale = new Vector3(100, 100, 100);
+			}
+		}
+        else
+        {
+			buttonFlashRenderer.material = circleButtonHighlight;
+			buttonFlash.transform.localScale = new Vector3(130, 130, 130);
+		}
+	}
+
+    public void PlayFlash(bool button, bool big)
+    {
+        gameObject.SetActive(true);
+        SetMaterial(button, big);
+        buttonFlash.Play();
     }
 
-    public void EnableHighlight(Color colorToChange)
+    public void StopFlash()
     {
-        canvasGroup.alpha = 1;
-        borderImage.color = colorToChange;
+        buttonFlash.Stop();
+        gameObject.SetActive(false);
     }
 
-    public void DisableHighlight()
-    {
-        canvasGroup.alpha = 0;
-    }
 }

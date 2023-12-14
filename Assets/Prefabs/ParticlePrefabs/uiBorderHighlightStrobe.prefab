@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1593723560535403670}
   - component: {fileID: 417502576539513934}
   - component: {fileID: 8778636733477809833}
+  - component: {fileID: 6302194979349458985}
   m_Layer: 5
   m_Name: uiBorderHighlightStrobe
   m_TagString: Untagged
@@ -4861,7 +4862,7 @@ ParticleSystemRenderer:
   m_FreeformStretching: 0
   m_RotateWithStretchDirection: 1
   m_VertexStreams: 00010304
-  m_Mesh: {fileID: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
@@ -4870,3 +4871,21 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &6302194979349458985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8228656117895002949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c6c22a098d986c4cbe97295e058d532, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonHighlight: {fileID: 2100000, guid: 11789dbea1994a34b8b15f8e78047de5, type: 2}
+  bigButtonHighlight: {fileID: 2100000, guid: c2d232908d78bb34b928d08ccf1758eb, type: 2}
+  circleButtonHighlight: {fileID: 2100000, guid: eb1cbf841365bd640a9c3a3c7e8736fc,
+    type: 2}
+  buttonFlash: {fileID: 417502576539513934}
+  buttonFlashRenderer: {fileID: 8778636733477809833}

@@ -18,6 +18,7 @@ public class GameData
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
     public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new(), goldCityWaitList = new(), goldCityRouteWaitList = new(), goldWonderWaitList = new(), goldTradeCenterWaitList = new();
     public string tutorialStep;
+    public Dictionary<string, (bool, bool)> conversationTaskDict = new();
 
 	public Vector3 camPosition;
     public Quaternion camRotation;

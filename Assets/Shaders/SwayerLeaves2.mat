@@ -38,13 +38,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BendStrength: 2
+    - _BendStrength: 1
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Scale: 5
-    - _Speed: 0.2
+    - _Scale: 20
+    - _Speed: 0.1
     m_Colors:
-    - _Direction: {r: 1, g: 0, b: 0, a: 0}
+    - _Direction: {r: 0.05, g: 0.05, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &5297629000266598339
 MonoBehaviour:

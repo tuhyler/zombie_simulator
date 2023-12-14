@@ -455,7 +455,7 @@ public class UICityUpgradePanel : MonoBehaviour
         if (cannotAfford && !cityBuilderManager.isQueueing)
         {
             StartCoroutine(Shake());
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford", true, false);
             return;
         }
             

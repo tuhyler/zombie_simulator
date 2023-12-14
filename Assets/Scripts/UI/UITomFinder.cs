@@ -29,6 +29,7 @@ public class UITomFinder : MonoBehaviour
 
         world.cityBuilderManager.PlaySelectAudio();
         world.CloseResearchTree();
+        world.CloseConversationList();
         world.CloseWonders();
         world.CloseMap();
         world.CloseTerrainTooltipButton();

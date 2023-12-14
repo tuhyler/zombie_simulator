@@ -21,12 +21,9 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Light startingSpotlight;
     [SerializeField]
-    public ParticleSystem uiButtonHighlight, uiCircleHighlight;
-    private bool flashingButton;
-    [SerializeField]
     public Water water;
     [SerializeField]
-    public GameObject resourceIcon, campfire, spotlight, dizzyMarker, speechBubble;
+    public GameObject resourceIcon, campfire, spotlight, dizzyMarker, speechBubble, unexploredTile;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
@@ -42,11 +39,13 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public UIResearchTreePanel researchTree;
     [SerializeField]
+    public ButtonHighlight buttonHighlight;
+    [SerializeField]
     public UIMapHandler mapHandler;
     //[SerializeField]
     //private UIMapPanel mapPanel;
     [SerializeField]
-    public UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder, uiMainMenuButton;
+    public UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder, uiMainMenuButton, conversationListButton;
     [SerializeField]
     private RectTransform mapPanelButton, mainMenuButton;
     [SerializeField]
@@ -64,11 +63,15 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public UITradeRouteBeginTooltip uiTradeRouteBeginTooltip;
     [SerializeField]
+    public UICityPopIncreasePanel uiCityPopIncreasePanel;
+    [SerializeField]
     public UITomFinder uiTomFinder;
     [SerializeField]
     public UIInfoPopUpHandler uiInfoPopUpHandler;
     [SerializeField]
     public UISpeechWindow uiSpeechWindow;
+    [SerializeField]
+    public UIConversationTaskManager uiConversationTaskManager;
     [SerializeField]
     public UnitMovement unitMovement;
     [SerializeField]
@@ -219,6 +222,7 @@ public class MapWorld : MonoBehaviour
     public int cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, food, lumber;
     [HideInInspector]
     public string tutorialStep;
+    private bool flashingButton;
 
     //for when terrain runs out of resources
     [SerializeField]
@@ -227,7 +231,7 @@ public class MapWorld : MonoBehaviour
     public bool showGizmo, hideTerrain = true;
 
     [SerializeField]
-    private AudioManager ambienceAudio;
+    public AudioManager ambienceAudio;
     private AudioSource audioSource;
 
     [HideInInspector]
@@ -444,6 +448,7 @@ public class MapWorld : MonoBehaviour
     {
 		wonderButton.gameObject.SetActive(true);
 		uiMainMenuButton.gameObject.SetActive(true);
+        conversationListButton.gameObject.SetActive(true);
 		uiWorldResources.SetActiveStatus(true);
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
@@ -622,7 +627,8 @@ public class MapWorld : MonoBehaviour
 
         unit.CurrentLocation = unitPos;
 		unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
-        if (newGame)
+
+		if (newGame)
         {
             ToggleMainUI(false);
             playerInput.paused = true;
@@ -637,7 +643,15 @@ public class MapWorld : MonoBehaviour
 		    worker.ToggleFalling(true);
             StartCoroutine(StartingSpotlight());
             StartCoroutine(worker.FallingCoroutine(unitPos));
+            StartCoroutine(StartingAmbience());
         }
+	}
+
+    private IEnumerator StartingAmbience()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+		ambienceAudio.AmbienceCheck();
 	}
 
     private IEnumerator StartingSpotlight()
@@ -650,6 +664,7 @@ public class MapWorld : MonoBehaviour
 		spotlight.SetActive(true);
         Vector3 scale = spotlight.transform.localScale;
         startingSpotlight.gameObject.SetActive(true);
+        cityBuilderManager.PlayFieryOpen();
 
         while (startingSpotlight.spotAngle < 20)
         {
@@ -663,6 +678,8 @@ public class MapWorld : MonoBehaviour
 
             yield return null;
         }
+
+        cityBuilderManager.StopAudio();
 
         while (mainPlayer.transform.position.y > 0)
         {
@@ -690,10 +707,17 @@ public class MapWorld : MonoBehaviour
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
 		List<TerrainData> terrainPropsToModify = new();
+        int maxX = 0;
+        int maxZ = 0;
 
 		foreach (Vector3Int position in terrainDict.Keys)
 		{
-            TerrainData td = terrainDict[position];
+			if (position.x > maxX)
+				maxX = position.x;
+			if (position.z > maxZ)
+				maxZ = position.z;
+
+			TerrainData td = terrainDict[position];
 			GameLoader.Instance.gameData.allTerrain[td.TileCoordinates] = td.SaveData();
 			TerrainDataSO terrainData = td.terrainData;
 
@@ -755,7 +779,7 @@ public class MapWorld : MonoBehaviour
 		for (int i = 0; i < terrainPropsToModify.Count; i++)
 			terrainPropsToModify[i].SetVisibleProp();
 
-		ambienceAudio.AmbienceCheck();
+		SetWorldBoundaries(maxX, maxZ);
 	}
 
 	public void GenerateMap(Dictionary<Vector3Int, TerrainSaveData> mainMap)
@@ -763,10 +787,17 @@ public class MapWorld : MonoBehaviour
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
         List<TerrainData> terrainPropsToModify = new();
+        int maxX = 0;
+        int maxZ = 0;
 
 		foreach (Vector3Int position in mainMap.Keys)
 		{
-			TerrainSaveData data = mainMap[position];
+            if (position.x > maxX)
+                maxX = position.x;
+            if (position.z > maxZ)
+                maxZ = position.z;
+            
+            TerrainSaveData data = mainMap[position];
             TerrainDataSO terrainData = UpgradeableObjectHolder.Instance.terrainDict[data.name];
 
             GameObject go = Instantiate(terrainData.prefabs[data.variant], data.tileCoordinates, data.rotation);
@@ -841,10 +872,30 @@ public class MapWorld : MonoBehaviour
         for (int i = 0; i < terrainPropsToModify.Count; i++)
             terrainPropsToModify[i].SetVisibleProp();
 
-        ambienceAudio.AmbienceCheck();
+        SetWorldBoundaries(maxX, maxZ);
+        StartCoroutine(StartingAmbience());
 	}
 
-    public void GenerateTradeCenters(Dictionary<Vector3Int, TradeCenterData> centers)
+	public void SetWorldBoundaries(int maxX, int maxZ)
+	{
+        int width = maxX + 3;
+        int height = maxZ + 3;
+        
+        Vector3Int[] locs = new Vector3Int[8] { new(width / 2, 0, height * 2 - 2), new(width * 2, 0, height * 2 - 2),
+												new(width * 2 - 2, 0, height / 2), new(width * 2 - 2, 0, -height - 9),
+												new(width / 2, 0, -height - 9), new(-width - 9, 0, -height - 9),
+												new(-width - 9, 0, height / 2), new(-width - 9, 0, height * 2)};
+
+		for (int i = 0; i < 8; i++)
+		{
+			Vector3Int loc = locs[i];
+			GameObject unexploredGO = Instantiate(unexploredTile, loc, Quaternion.identity);
+			unexploredGO.transform.SetParent(terrainHolder, false);
+			unexploredGO.transform.localScale = new Vector3(width, 1, height);
+		}
+	}
+
+	public void GenerateTradeCenters(Dictionary<Vector3Int, TradeCenterData> centers)
     {
         foreach (TradeCenterData centerData in centers.Values)
         {
@@ -1482,12 +1533,12 @@ public class MapWorld : MonoBehaviour
 					{
                         borderPosition.x += 0.5f * borderLocation.x;//(borderPosition.x / 3 * 0.99f);
 						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
-                        borderPosition.x -= borderLocation.x > 0 ? -.01f : .01f;
+                        borderPosition.x += borderLocation.x > 0 ? -.01f : .01f;
 					}
 					else if (borderLocation.z != 0)
 					{
                         borderPosition.z += 0.5f * borderLocation.z;//(borderPosition.z / 3 * 0.99f);
-                        borderPosition.z -= borderLocation.z > 0 ? -.01f : .01f;
+                        borderPosition.z += borderLocation.z > 0 ? -.01f : .01f;
 					}
 
 					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
@@ -1903,6 +1954,8 @@ public class MapWorld : MonoBehaviour
         wonderHandler.ToggleVisibility(false);
         //mapPanel.ToggleVisibility(false);
         wonderButton.ToggleButtonColor(false);
+        conversationListButton.ToggleButtonColor(false);
+        uiConversationTaskManager.ToggleVisibility(false);
         CloseMap();
         CloseTerrainTooltipButton();
         CloseImprovementTooltipButton();
@@ -1917,18 +1970,20 @@ public class MapWorld : MonoBehaviour
             LeanTween.moveX(mapHandler.minimapHolder, mapHandler.minimapHolder.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(mapHandler.minimapRing, mapHandler.minimapRing.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+			LeanTween.moveX(conversationListButton.allContents, conversationListButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
-        }
+		}
         else
         {
             LeanTween.moveX(mapHandler.minimapHolder, mapHandler.minimapHolder.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(mapHandler.minimapRing, mapHandler.minimapRing.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
+			LeanTween.moveX(conversationListButton.allContents, conversationListButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + 400f, 0.3f);
-            LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + 400f, 0.3f);
+			LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + 400f, 0.3f);
         }
     }
 
@@ -2442,6 +2497,35 @@ public class MapWorld : MonoBehaviour
 	//	wonderStopDict[harborLoc] = wonder;
 	//}
 
+    public void OpenConversationList()
+    {
+		cityBuilderManager.PlaySelectAudio();
+
+		if (buildingWonder || unitOrders)
+			CloseBuildingSomethingPanel();
+
+		if (uiConversationTaskManager.activeStatus)
+		{
+			uiConversationTaskManager.ToggleVisibility(false);
+			conversationListButton.ToggleButtonColor(false);
+            somethingSelected = false;
+		}
+		else
+		{
+			uiConversationTaskManager.ToggleVisibility(true);
+			conversationListButton.ToggleButtonColor(true);
+		}
+	}
+
+    public void CloseConversationList()
+    {
+		if (uiConversationTaskManager.activeStatus)
+		{
+			uiConversationTaskManager.ToggleVisibility(false);
+			conversationListButton.ToggleButtonColor(false);
+		}
+	}
+
     public void OpenWonders()
     {
         cityBuilderManager.PlaySelectAudio();
@@ -2453,6 +2537,7 @@ public class MapWorld : MonoBehaviour
         {
             wonderHandler.ToggleVisibility(false);
             wonderButton.ToggleButtonColor(false);
+            somethingSelected = false;
         }
         else
         {
@@ -2649,7 +2734,8 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveFromResearchWaitList(ResourceProducer producer)
     {
-        researchWaitList.Remove(producer);
+        if (researchWaitList.Contains(producer))
+            researchWaitList.Remove(producer);
     }
 
     public void RestartResearch()
@@ -4677,6 +4763,9 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckCityName(string cityName)
     {
+        if (cityName == null)
+            return false;
+        
         return cityNameDict.ContainsKey(cityName);
     }
 
@@ -4745,17 +4834,13 @@ public class MapWorld : MonoBehaviour
 
         if (cityBuilderManager.activeBuilderHandler != null)
             turnOff = false;
-  //      if (cityBuilderManager.uiRawGoodsBuilder.activeStatus)
-		//	turnOff = false;
-		//if (cityBuilderManager.uiUnitBuilder.activeStatus)
-		//	turnOff = false;
-		//if (cityBuilderManager.uiProducerBuilder.activeStatus)
-		//	turnOff = false;
 		if (uiMainMenu.activeStatus)
 			turnOff = false;
 		if (researchTree.activeStatus)
 			turnOff = false;
 		if (wonderHandler.activeStatus)
+			turnOff = false;
+        if (uiConversationTaskManager.activeStatus)
 			turnOff = false;
 
 		if (turnOff)
@@ -4858,10 +4943,11 @@ public class MapWorld : MonoBehaviour
         if (flashingButton)
         {
 			flashingButton = false;
-            uiButtonHighlight.Stop();
-            uiCircleHighlight.Stop();
-            uiButtonHighlight.gameObject.SetActive(false);
-			uiCircleHighlight.gameObject.SetActive(false);
+            buttonHighlight.StopFlash();
+   //         uiButtonHighlight.Stop();
+   //         uiCircleHighlight.Stop();
+   //         uiButtonHighlight.gameObject.SetActive(false);
+			//uiCircleHighlight.gameObject.SetActive(false);
 		}
     }
     
@@ -4919,7 +5005,7 @@ public class MapWorld : MonoBehaviour
 						}
                         else if (lumber > 1 && lumber < 5)
                         {
-							StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform));
+							StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
                             unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
 						}
                         else if (lumber == 5)
@@ -4934,9 +5020,16 @@ public class MapWorld : MonoBehaviour
                         if (source != "Open City")
                             return;
 
-                        StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Buildings").transform));
+                        StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Buildings").transform, true));
                         cityBuilderManager.uiCityTabs.GetTab("Buildings").isFlashing = true;
 						tutorialStep = "tutorial4a";
+
+						foreach (Vector3Int tile in cityDict.Keys)
+						{
+							if (!cityDict[tile].activeCity)
+                                cityDict[tile].Deselect();
+						}
+
 						break;
                     case "tutorial4a":
                         if (source != "Open Build Tab")
@@ -4946,7 +5039,8 @@ public class MapWorld : MonoBehaviour
                         {
                             if (cityBuilderManager.uiBuildingBuilder.buildOptions[i].BuildData.improvementName == "Housing")
                             {
-    						    StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiBuildingBuilder.buildOptions[i].transform));
+    						    StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiBuildingBuilder.buildOptions[i].transform, true, true));
+                                cityBuilderManager.uiBuildingBuilder.buildOptions[i].isFlashing = true;
                                 break;
                             }
                         }
@@ -5016,28 +5110,15 @@ public class MapWorld : MonoBehaviour
         unit.SetSomethingToSay(conversationTopic);
     }
 
-    private IEnumerator EnableButtonHighlight(Transform selection)
+    public IEnumerator EnableButtonHighlight(Transform selection, bool button, bool big = false)
     {
 		ButtonFlashCheck();
 
         //wait til end of frame to make sure everything is active
 		yield return new WaitForEndOfFrame();
 
-		uiButtonHighlight.transform.SetParent(selection, false);
-		uiButtonHighlight.gameObject.SetActive(true);
-		uiButtonHighlight.Play();
-		flashingButton = true;
-	}
-
-    private IEnumerator EnableCircleHighlight(Transform selection)
-    {
-		ButtonFlashCheck();
-
-		yield return new WaitForEndOfFrame();
-
-		uiCircleHighlight.transform.SetParent(selection, false);
-		uiCircleHighlight.gameObject.SetActive(true);
-		uiCircleHighlight.Play();
+        buttonHighlight.transform.SetParent(selection, false);
+        buttonHighlight.PlayFlash(button, big);
 		flashingButton = true;
 	}
 
@@ -5052,10 +5133,12 @@ public class MapWorld : MonoBehaviour
                 {
 				    if (tutorial)
 				    {
-						tutorialGoing = true;
+                        uiConversationTaskManager.CreateConversationTask("Tutorial");
+                        tutorialGoing = true;
                         tutorialStep = "just_landed";
-						StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Build").transform));
+						StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Build").transform, true));
 						unitMovement.uiWorkerTask.GetButton("Build").isFlashing = true;
+                        playerInput.paused = true;
 					}
                 }
 				break;
@@ -5068,7 +5151,7 @@ public class MapWorld : MonoBehaviour
                 else if (number == 2)
                 {
 					unitMovement.uiMoveUnit.ToggleVisibility(true);
-					StartCoroutine(EnableCircleHighlight(unitMovement.uiMoveUnit.transform));
+					StartCoroutine(EnableButtonHighlight(unitMovement.uiMoveUnit.transform, false));
 
 					//finding closest lumber
 					foreach (Vector3Int tile in GetNeighborsFor(RoundToInt(mainPlayer.transform.position), State.CITYRADIUS))
@@ -5085,14 +5168,14 @@ public class MapWorld : MonoBehaviour
             case "tutorial2":
                 if (number == 1)
                 {
-					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform));
+					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
 					unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
 				}
                 break;
             case "tutorial3":
                 if (number == 1)
                 {
-					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform));
+					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
 					unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
 				}
 				break;
@@ -5108,7 +5191,23 @@ public class MapWorld : MonoBehaviour
             case "tutorial5":
                 if (number == 1)
                 {
-					foreach (Vector3Int tile in GetNeighborsFor(RoundToInt(mainPlayer.transform.position), State.CITYRADIUS))
+                    //get closest city
+                    City city = null;
+
+                    // just get first one
+                    foreach (City cities in cityDict.Values)
+                    {
+                        city = cities;
+                        break;
+                    }
+
+                    if (city == null)
+                    {
+                        uiConversationTaskManager.CompleteTask("Tutorial", true);
+                        return;
+                    }
+                    
+                    foreach (Vector3Int tile in GetNeighborsFor(city.cityLoc, State.CITYRADIUS))
 					{
 						TerrainData td = GetTerrainDataAt(tile);
 						if (td.resourceType == ResourceType.Food)
@@ -5122,7 +5221,7 @@ public class MapWorld : MonoBehaviour
             case "tutorial6":
                 if (number == 1)
                 {
-					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform));
+					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
 					unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
 				}
                 break;

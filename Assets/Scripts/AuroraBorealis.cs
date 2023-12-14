@@ -20,6 +20,6 @@ public class AuroraBorealis : MonoBehaviour
 
 	private void Prepare()
 	{
-        mat = GetComponentInChildren<MeshRenderer>().material;
+        mat = GetComponentInChildren<MeshRenderer>().sharedMaterial; //shared material so they all disappear. Otherwise leaves a weird shadow on mesh
 	}
 }

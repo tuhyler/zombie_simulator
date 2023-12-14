@@ -189,6 +189,7 @@ public class UnitMovement : MonoBehaviour
         }
 
         world.CloseResearchTree();
+        world.CloseConversationList();
         world.CloseWonders();
         world.CloseTerrainTooltip();
         world.CloseImprovementTooltip();
@@ -1010,9 +1011,19 @@ public class UnitMovement : MonoBehaviour
         
         Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
+        if (world.IsWonderOnTile(unitLoc))
+        {
+			world.GetWonder(unitLoc).AddWorker(selectedUnit);
+            selectedUnit.DestroyUnit();
+            ClearSelection();
+			return;
+		}
+
+        City city = null;
+
         if (world.IsCityOnTile(unitLoc))
         {
-            City city = world.GetCity(unitLoc);
+            city = world.GetCity(unitLoc);
 
    //         if (city.reachedWaterLimit)
    //         {
@@ -1020,11 +1031,11 @@ public class UnitMovement : MonoBehaviour
 			//	return;
 			//}
 
-			AddToCity(city, selectedUnit);
+			//AddToCity(city, selectedUnit);
         }
         else if (world.IsCityHarborOnTile(unitLoc))
         {
-            City city = world.GetHarborCity(unitLoc);
+            city = world.GetHarborCity(unitLoc);
 
 			//if (city.reachedWaterLimit)
 			//{
@@ -1032,27 +1043,41 @@ public class UnitMovement : MonoBehaviour
 			//	return;
 			//}
 
-			AddToCity(city, selectedUnit);
+			//AddToCity(city, selectedUnit);
         }
         else if (selectedUnit.inArmy)
         {
-			//if (selectedUnit.homeBase.reachedWaterLimit)
-			//{
-			//	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
-			//	return;
-			//}
+            //if (selectedUnit.homeBase.reachedWaterLimit)
+            //{
+            //	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
+            //	return;
+            //}
 
-			AddToCity(selectedUnit.homeBase, selectedUnit);
-            selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
-        }
-        else
-        {
-            world.GetWonder(unitLoc).AddWorker(selectedUnit);
+            city = selectedUnit.homeBase;
+			//AddToCity(selectedUnit.homeBase, selectedUnit);
+            //selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
         }
 
-        selectedUnit.DestroyUnit();
-        ClearSelection();
+        if (city != null)
+            world.uiCityPopIncreasePanel.ToggleVisibility(true, selectedUnit.buildDataSO.laborCost, city, true);
+        //else
+        //{
+        //    world.GetWonder(unitLoc).AddWorker(selectedUnit);
+        //}
+
+        //selectedUnit.DestroyUnit();
+        //ClearSelection();
     }
+
+    public void JoinCityConfirm(City city)
+    {
+		if (selectedUnit.inArmy)
+			selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
+
+		AddToCity(city, selectedUnit);
+		selectedUnit.DestroyUnit();
+		ClearSelection();
+	}
 
     public void JoinCity(Unit unit)
     {

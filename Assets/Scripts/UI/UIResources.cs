@@ -46,7 +46,7 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnDrag(PointerEventData eventData)
     {
         Vector3 p = Input.mousePosition;
-        p.z = 1;
+        p.z = 935;
         Vector3 pos = Camera.main.ScreenToWorldPoint(p);
         transform.position = pos;
     }

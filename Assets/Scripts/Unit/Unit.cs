@@ -1154,9 +1154,9 @@ public class Unit : MonoBehaviour
             if (isSelected)
                 world.unitMovement.ShowIndividualCityButtonsUI();
 
-            if (isLaborer)
-				if (world.RoundToInt(finalDestinationLoc) == endPosition)
-					world.unitMovement.JoinCity(this);
+    //        if (isLaborer)
+				//if (world.RoundToInt(finalDestinationLoc) == endPosition)
+				//	world.unitMovement.JoinCity(this);
         }
     }
 
