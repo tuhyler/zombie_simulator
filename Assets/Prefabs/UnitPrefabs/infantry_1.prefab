@@ -285,11 +285,13 @@ MonoBehaviour:
   buildDataSO: {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
   unitMesh: {fileID: 8071510159929022241}
   minimapIcon: {fileID: 5473824532600306361}
+  unitImage: {fileID: 0}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
     type: 3}
   selectionCircle: {fileID: 0}
+  questionMark: {fileID: 0}
   marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
   greetings:
@@ -299,8 +301,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2f8f99e3b452ed44abc520a098ebc7c1, type: 3}
   - {fileID: 8300000, guid: 326861291430e354c9d289f281ca5c93, type: 3}
   kills:
-  - {fileID: 8300000, guid: d1cd745df852aae4793cf663a10d41a4, type: 3}
-  - {fileID: 8300000, guid: 393859288a5084d43a7218308ee7d54e, type: 3}
+  - {fileID: 8300000, guid: b9313b65e84c03a48b2d9403df4a6cc7, type: 3}
+  - {fileID: 8300000, guid: a009f6db8ae480e41888ba9d9f2ab41e, type: 3}
   audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
@@ -343,6 +345,7 @@ MonoBehaviour:
   harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
+  conversationTopic: 
   isLeader: 0
   readyToMarch: 0
   inArmy: 0

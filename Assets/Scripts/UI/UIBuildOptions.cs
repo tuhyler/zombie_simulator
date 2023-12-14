@@ -45,7 +45,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private bool isUnitPanel, cannotAfford, isShowing;
 
     [HideInInspector]
-    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax;
+    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, isFlashing;
     //for checking if city can afford resource
     private List<UIResourceInfoPanel> costResourcePanels = new();
     //private bool ;
@@ -452,6 +452,8 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
             return;
         }
+
+        isFlashing = false;
 
         if (isUnitPanel)
         {

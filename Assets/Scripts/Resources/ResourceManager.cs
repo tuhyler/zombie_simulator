@@ -5,6 +5,7 @@ using System.Linq;
 using Mono.Cecil;
 using System.Resources;
 using UnityEditor.iOS;
+using static UnityEngine.Rendering.DebugUI;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -254,10 +255,12 @@ public class ResourceManager : MonoBehaviour
                 city.CheckLimitWaiter();
                 UpdateUI(resourceType);
 
-			    if (city.army.DeployBattleScreenCheck())
-				    city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[resourceType], resourceType);
-			    else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
-				    city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[resourceType], resourceType);
+                if (city.army.DeployBattleScreenCheck())
+                    city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[resourceType], resourceType);
+                else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
+                    city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[resourceType], resourceType);
+                else if (value.resourceType == ResourceType.Food && city.world.uiCityPopIncreasePanel.CheckCity(city))
+                    city.world.uiCityPopIncreasePanel.UpdateFoodCosts(city);
             }
 
             if (showSpend)
@@ -510,8 +513,10 @@ public class ResourceManager : MonoBehaviour
             city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[type], type);
         else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
             city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[type], type);
+		else if (type == ResourceType.Food && city.world.uiCityPopIncreasePanel.CheckCity(city))
+			city.world.uiCityPopIncreasePanel.UpdateFoodCosts(city);
 
-        if (newResourceAmount > 0)
+		if (newResourceAmount > 0)
             city.CheckResourceWaiter(type);
         else if (newResourceAmount < 0)
             city.CheckLimitWaiter();
@@ -707,8 +712,8 @@ public class ResourceManager : MonoBehaviour
                 city.exclamationPoint.SetActive(false);
             }
 
-            if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
-                city.PopulationGrowthCheck(false, 1);
+            //if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
+            //    city.PopulationGrowthCheck(false, 1);
         }
         else
         {
@@ -739,66 +744,66 @@ public class ResourceManager : MonoBehaviour
         ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, city.cityLoc);
 
 
-        if (city.HousingCount < 0)
-        {
-            noHousingCount++;
+  //      if (city.HousingCount < 0)
+  //      {
+  //          noHousingCount++;
 
-            if (!city.activeCity)
-            {
-                growthDeclineDanger = true;
-                city.exclamationPoint.SetActive(true);
-            }
+  //          if (!city.activeCity)
+  //          {
+  //              growthDeclineDanger = true;
+  //              city.exclamationPoint.SetActive(true);
+  //          }
 
-            if (noHousingCount >= cyclesToWait)
-            {
-                city.PopulationDeclineCheck(false);
-                starvationCount = 0;
-                noHousingCount = 0;
-                noWaterCount = 0;
-                growthDeclineDanger = false;
-                city.exclamationPoint.SetActive(false);
-            }
+  //          if (noHousingCount >= cyclesToWait)
+  //          {
+  //              city.PopulationDeclineCheck(false);
+  //              starvationCount = 0;
+  //              noHousingCount = 0;
+  //              noWaterCount = 0;
+  //              growthDeclineDanger = false;
+  //              city.exclamationPoint.SetActive(false);
+  //          }
 
-        }
-        else
-        {
-            if (growthDeclineDanger)
-            {
-                noHousingCount = 0;
-                growthDeclineDanger = false;
-                city.exclamationPoint.SetActive(false);
-            }
-        }
+  //      }
+  //      else
+  //      {
+  //          if (growthDeclineDanger)
+  //          {
+  //              noHousingCount = 0;
+  //              growthDeclineDanger = false;
+  //              city.exclamationPoint.SetActive(false);
+  //          }
+  //      }
 
-        if (city.waterMaxPop < city.cityPop.CurrentPop)
-        {
-            noWaterCount++;
+  //      if (city.waterMaxPop < city.cityPop.CurrentPop)
+  //      {
+  //          noWaterCount++;
 
-            if (!city.activeCity)
-            {
-                growthDeclineDanger = true;
-                city.exclamationPoint.SetActive(true);
-            }
+  //          if (!city.activeCity)
+  //          {
+  //              growthDeclineDanger = true;
+  //              city.exclamationPoint.SetActive(true);
+  //          }
 
-            if (noHousingCount >= cyclesToWait)
-            {
-				city.PopulationDeclineCheck(false);
-				starvationCount = 0;
-				noHousingCount = 0;
-				noWaterCount = 0;
-                growthDeclineDanger = false;
-				city.exclamationPoint.SetActive(false);
-			}
-        }
-        else
-        {
-            if (growthDeclineDanger)
-            {
-    			noHousingCount = 0;
-                growthDeclineDanger = false;
-    			city.exclamationPoint.SetActive(false);
-            }
-		}
+  //          if (noHousingCount >= cyclesToWait)
+  //          {
+		//		city.PopulationDeclineCheck(false);
+		//		starvationCount = 0;
+		//		noHousingCount = 0;
+		//		noWaterCount = 0;
+  //              growthDeclineDanger = false;
+		//		city.exclamationPoint.SetActive(false);
+		//	}
+  //      }
+  //      else
+  //      {
+  //          if (growthDeclineDanger)
+  //          {
+  //  			noHousingCount = 0;
+  //              growthDeclineDanger = false;
+  //  			city.exclamationPoint.SetActive(false);
+  //          }
+		//}
 
         CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
@@ -990,56 +995,74 @@ public class ResourceManager : MonoBehaviour
 
     public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)
     {
-        waitingForStorageRoomProducerList.Add(resourceProducer);
+        if (!waitingForStorageRoomProducerList.Contains(resourceProducer))
+            waitingForStorageRoomProducerList.Add(resourceProducer);
     }
 
     public void RemoveFromStorageRoomWaitList(ResourceProducer resourceProducer)
     {
-        waitingForStorageRoomProducerList.Remove(resourceProducer);
+        if (waitingForStorageRoomProducerList.Contains(resourceProducer))
+            waitingForStorageRoomProducerList.Remove(resourceProducer);
     }
 
     public void AddToResourceWaitList(ResourceProducer resourceProducer)
     {
-        waitingforResourceProducerList.Add(resourceProducer);
+        if (!waitingforResourceProducerList.Contains(resourceProducer))
+            waitingforResourceProducerList.Add(resourceProducer);
     }
 
     public void RemoveFromResourceWaitList(ResourceProducer resourceProducer)
     {
-        waitingforResourceProducerList.Remove(resourceProducer);
+        if (waitingforResourceProducerList.Contains(resourceProducer))
+            waitingforResourceProducerList.Remove(resourceProducer);
     }
 
     public void AddToResourcesNeededForProduction(List<ResourceType> consumedResources)
     {
-        foreach (ResourceType type in consumedResources)
-            resourcesNeededForProduction.Add(type);
+        for (int i = 0; i < consumedResources.Count; i++)
+        {
+            if (!resourcesNeededForProduction.Contains(consumedResources[i]))
+                resourcesNeededForProduction.Add(consumedResources[i]);
+		}
     }
 
     public void RemoveFromResourcesNeededForProduction(List<ResourceType> consumedResources)
     {
-        foreach (ResourceType type in consumedResources)
-            resourcesNeededForProduction.Remove(type);
+        for (int i = 0; i < consumedResources.Count; i++)
+        {
+            if (resourcesNeededForProduction.Contains(consumedResources[i]))
+                resourcesNeededForProduction.Remove(consumedResources[i]);
+		}
     }
 
     public void AddToTraderWaitList(Trader trader)
     {
-        waitingForTraderList.Add(trader);
+        if (!waitingForTraderList.Contains(trader))
+            waitingForTraderList.Add(trader);
     }
 
     public void RemoveFromTraderWaitList(Trader trader)
     {
-        waitingForTraderList.Remove(trader);
+        if (waitingForTraderList.Contains(trader))
+            waitingForTraderList.Remove(trader);
     }
 
 	public void AddToResourcesNeededForTrader(List<ResourceType> consumedResources)
 	{
-		foreach (ResourceType type in consumedResources)
-			resourcesNeededForRoute.Add(type);
+        for (int i = 0; i < consumedResources.Count; i++)
+        {
+			if (!resourcesNeededForRoute.Contains(consumedResources[i]))
+				resourcesNeededForRoute.Add(consumedResources[i]);
+		}
 	}
 
 	public void RemoveFromResourcesNeededForTrader(List<ResourceType> consumedResources)
 	{
-		foreach (ResourceType type in consumedResources)
-			resourcesNeededForRoute.Remove(type);
+        for (int i = 0; i < consumedResources.Count; i++)
+        {
+			if (resourcesNeededForRoute.Contains(consumedResources[i]))
+                resourcesNeededForRoute.Remove(consumedResources[i]);
+		}
 	}
 
 	//public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)

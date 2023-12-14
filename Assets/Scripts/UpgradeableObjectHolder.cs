@@ -19,6 +19,7 @@ public class UpgradeableObjectHolder : MonoBehaviour
     public Dictionary<string, TerrainDataSO> terrainDict = new();
     public Dictionary<string, GameObject> tradeCenterDict = new();
     public Dictionary<string, WonderDataSO> wonderDict = new();
+    public Dictionary<string, string> conversationTaskDict = new();
 
     private void Awake()
     {
@@ -51,5 +52,10 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
         foreach (WonderDataSO wonder in allWonders)
             wonderDict[wonder.wonderName] = wonder;
+
+        //converation task creation
+        conversationTaskDict["Tutorial"] = "Finish tutorial by completing the following: " +
+							"\n\n - Make camp \n\n - Build a hut \n\n - Build research \n\n - Build a farm";
+
     }
 }

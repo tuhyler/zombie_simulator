@@ -281,14 +281,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da11ff3b20aa482448c3718d71bba364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  id: 0
   buildDataSO: {fileID: 11400000, guid: 64487691ef3e08b48b32d3c4a634dc54, type: 2}
   unitMesh: {fileID: 6690082716910241746}
   minimapIcon: {fileID: 5473824532600306361}
+  unitImage: {fileID: 0}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
     type: 3}
   selectionCircle: {fileID: 0}
+  questionMark: {fileID: 0}
   marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
   greetings:
@@ -298,19 +301,24 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 3856f315685528e4db3016bcc1325670, type: 3}
   - {fileID: 8300000, guid: 2132349055b854740a7ee321f69c3a88, type: 3}
   kills:
-  - {fileID: 8300000, guid: d1cd745df852aae4793cf663a10d41a4, type: 3}
-  - {fileID: 8300000, guid: 393859288a5084d43a7218308ee7d54e, type: 3}
+  - {fileID: 8300000, guid: b9313b65e84c03a48b2d9403df4a6cc7, type: 3}
+  - {fileID: 8300000, guid: a009f6db8ae480e41888ba9d9f2ab41e, type: 3}
   audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  unitRigidbody: {fileID: 0}
   moreToMove: 0
   isBusy: 0
   isMoving: 0
   isBeached: 0
   interruptedRoute: 0
+  secondaryPrefab: 0
+  destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  prevRoadTile: {x: 0, y: 0, z: 0}
+  prevTerrainTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -334,9 +342,10 @@ MonoBehaviour:
   isSelected: 0
   isWaiting: 0
   harvested: 0
+  harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
-  newlyJoined: 1
+  conversationTopic: 
   isLeader: 0
   readyToMarch: 0
   inArmy: 0
@@ -354,6 +363,7 @@ MonoBehaviour:
   isDead: 0
   isUpgrading: 0
   targetLocation: {x: 0, y: 0, z: 0}
+  targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:

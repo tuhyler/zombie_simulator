@@ -23,7 +23,6 @@ public class UISettings : MonoBehaviour
 
     [SerializeField]
     private Toggle tutorialToggle;
-    [HideInInspector]
     public bool tutorial = true;
 
     [HideInInspector]

@@ -85,6 +85,9 @@ public class AudioManager : MonoBehaviour
 	//checking where camera is to determine which ambience to play
 	public void AmbienceCheck()
 	{
+		if (world.cityBuilderManager.uiCityTabs.activeStatus)
+			return;
+
 		if (world.CameraLocCheck())
 		{
 			if (world.DayTimeCheck())

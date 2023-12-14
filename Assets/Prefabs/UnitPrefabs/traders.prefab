@@ -87,15 +87,17 @@ MonoBehaviour:
   buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 9149838138303090476}
+  unitImage: {fileID: 0}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
     type: 3}
   selectionCircle: {fileID: 0}
+  questionMark: {fileID: 0}
   marker: {fileID: 103100230671984584}
   healthbar: {fileID: 5032910586026060206}
   greetings:
-  - {fileID: 8300000, guid: cfe63eaa5525ff4418bb74017f08aa14, type: 3}
+  - {fileID: 8300000, guid: d1b31f500c1f70c42a68df20fea301b6, type: 3}
   attacks: []
   kills: []
   audioSource: {fileID: 0}
@@ -140,6 +142,7 @@ MonoBehaviour:
   harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
+  conversationTopic: 
   isLeader: 0
   readyToMarch: 0
   inArmy: 0

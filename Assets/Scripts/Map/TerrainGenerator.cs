@@ -549,7 +549,7 @@ public class TerrainGenerator : MonoBehaviour
 		for (int i = 0; i < resourceLocs.Count; i++)
             AddResource(random, terrainDict[resourceLocs[i]]);
 
-        List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
+        //List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
         //SetEnemyBorders(enemyLocs);
 
         for (int i = 0; i < tradeCenterLocs.Count; i++)
@@ -2158,8 +2158,8 @@ public class TerrainGenerator : MonoBehaviour
         cameraLoc.y += 5;
         world.startingSpotlight.transform.position = cameraLoc;
         world.spotlight.transform.position = startingPlace;
-        world.cameraController.CenterCameraNoFollow(startingPlace);
         world.cameraController.ResetCamLimits(world.RoundToInt(world.mainPlayer.transform.position));
+        world.cameraController.CenterCameraNoFollow(startingPlace);
         world.water.transform.position = new Vector3(width / 2f * 3, yCoord - 0.06f, height / 2f * 3);
         world.water.minimapIcon.localScale = new Vector3(0.14f * width, 1.8f, 0.14f * height);
 	}

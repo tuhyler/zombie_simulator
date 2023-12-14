@@ -156,7 +156,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
     public void SetChosenResourceMultiple(int value)
     {
-		resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
+		//resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
 
 		if (value == 1)
         {

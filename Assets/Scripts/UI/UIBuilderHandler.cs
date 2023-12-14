@@ -185,15 +185,27 @@ public class UIBuilderHandler : MonoBehaviour
                 {
                     dof.focalLength.value = value;
                 });
-            }
-            //else
-            //{
-            //    dof.focalLength.value = 45;
-            //}
 
-            //dof.focalLength.value = 45;
+				if (cityBuilderManager.world.tutorialGoing)
+				{
+					for (int i = 0; i < buildOptions.Count; i++)
+					{
+						if (buildOptions[i].isFlashing)
+                        {
+							StartCoroutine(cityBuilderManager.world.EnableButtonHighlight(buildOptions[i].transform, true, true));
+                            break;
+                        }   
+					}
+				}
+			}
+			//else
+			//{
+			//    dof.focalLength.value = 45;
+			//}
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1000f, 0);
+			//dof.focalLength.value = 45;
+
+			allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1000f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1000f, 0.5f).setEaseOutSine();
             
@@ -282,103 +294,197 @@ public class UIBuilderHandler : MonoBehaviour
     {
         List<string> improvementSingleBuildList = resourceManager.city.singleBuildImprovementsBuildingsDict.Keys.ToList();
 
-        foreach (UIBuildOptions buildItem in buildOptions)
+        for (int i = 0; i < buildOptions.Count; i++)
         {
-            //if (buildItem == null)
-            //    continue;
+			string itemName = "";
+			List<ResourceValue> resourceCosts = new();
+			bool locked = false;
+			bool hide = false;
 
-            string itemName = "";
-            List<ResourceValue> resourceCosts = new();
-            bool locked = false;
-            bool hide = false;
+			if (buildOptions[i].UnitBuildData != null)
+			{
+				itemName = buildOptions[i].UnitBuildData.unitDisplayName;
+				resourceCosts = new(buildOptions[i].UnitBuildData.unitCost);
+				locked = buildOptions[i].UnitBuildData.locked;
 
-            if (buildItem.UnitBuildData != null)
-            {
-                itemName = buildItem.UnitBuildData.unitDisplayName;
-                resourceCosts = new(buildItem.UnitBuildData.unitCost);
-                locked = buildItem.UnitBuildData.locked;
+				if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
+				{
+					buildOptions[i].trainingBarracks = resourceManager.city.harborTraining;
+				}
+				else
+				{
+					if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
+					{
+						buildOptions[i].needsBarracks = !resourceManager.city.hasBarracks;
+						buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
+						buildOptions[i].trainingBarracks = resourceManager.city.army.isTraining;
+						buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
+					}
+				}
 
-                if (buildItem.UnitBuildData.transportationType == TransportationType.Sea)
-                {
-                    buildItem.trainingBarracks = resourceManager.city.harborTraining;
-                }
-                else
-                {
-                    if (buildItem.UnitBuildData.baseAttackStrength > 0)
-                    {
-                        buildItem.needsBarracks = !resourceManager.city.hasBarracks;
-                        buildItem.fullBarracks = resourceManager.city.army.isFull;
-                        buildItem.trainingBarracks = resourceManager.city.army.isTraining;
-                        buildItem.travelingBarracks = resourceManager.city.army.IsGone();
-                    }
-                }
+				ResourceValue laborCost;
+				laborCost.resourceType = ResourceType.Labor;
+				laborCost.resourceAmount = buildOptions[i].UnitBuildData.laborCost;
+				resourceCosts.Add(laborCost);
 
-                ResourceValue laborCost;
-                laborCost.resourceType = ResourceType.Labor;
-                laborCost.resourceAmount = buildItem.UnitBuildData.laborCost;
-                resourceCosts.Add(laborCost);
+				if (!resourceManager.city.hasHarbor && buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
+					hide = true;
+			}
+			else if (buildOptions[i].BuildData != null)
+			{
+				itemName = buildOptions[i].BuildData.improvementName;
+				resourceCosts = new(buildOptions[i].BuildData.improvementCost);
+				locked = buildOptions[i].BuildData.Locked;
 
-                if (!resourceManager.city.hasHarbor && buildItem.UnitBuildData.transportationType == TransportationType.Sea)
-                    hide = true;
-            }
-            else if (buildItem.BuildData != null)
-            {
-                itemName = buildItem.BuildData.improvementName;
-                resourceCosts = new(buildItem.BuildData.improvementCost);
-                locked = buildItem.BuildData.Locked;
+				buildOptions[i].waterMax = resourceManager.city.reachedWaterLimit;
 
-                buildItem.waterMax = resourceManager.city.reachedWaterLimit;
-
-                if (buildItem.BuildData.rawResourceType == RawResourceType.None)
-                {								
-					if (!resourceManager.city.hasWater && buildItem.BuildData.terrainType == TerrainType.Coast)
+				if (buildOptions[i].BuildData.rawResourceType == RawResourceType.None)
+				{
+					if (!resourceManager.city.hasWater && buildOptions[i].BuildData.terrainType == TerrainType.Coast)
 						hide = true;
-                }
-                else
-                {
-					hide = HideBuildOptionCheck(buildItem.BuildData.rawResourceType, buildItem.BuildData.terrainType, resourceManager.city);
-                }
+				}
+				else
+				{
+					hide = HideBuildOptionCheck(buildOptions[i].BuildData.rawResourceType, buildOptions[i].BuildData.terrainType, resourceManager.city);
+				}
 			}
 
-            buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
+			buildOptions[i].ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (locked || hide || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
-            {
-                buildItem.ToggleVisibility(false);
-                continue;
-            }
+			if (locked || hide || improvementSingleBuildList.Contains(itemName) || (buildOptions[i].BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
+			{
+				buildOptions[i].ToggleVisibility(false);
+				continue;
+			}
 
-            //buildItem.ToggleInteractable(true);
-            buildItem.SetResourceTextToDefault();
+			//buildItem.ToggleInteractable(true);
+			buildOptions[i].SetResourceTextToDefault();
 
-            foreach (ResourceValue item in resourceCosts)
-            {
-                if (item.resourceType == ResourceType.Gold)
-                {
-                    if (item.resourceAmount > maxGold)
-                        maxGold = item.resourceAmount;
+			foreach (ResourceValue item in resourceCosts)
+			{
+				if (item.resourceType == ResourceType.Gold)
+				{
+					if (item.resourceAmount > maxGold)
+						maxGold = item.resourceAmount;
+
+					if (!resourceManager.city.CheckWorldGold(item.resourceAmount))
+						buildOptions[i].SetResourceTextToRed(item);
+				}
+				else if (item.resourceType == ResourceType.Labor)
+				{
+					if (item.resourceAmount > maxLabor)
+						maxLabor = item.resourceAmount;
+
+					int pop = resourceManager.city.cityPop.CurrentPop;
+					if (pop < item.resourceAmount)
+						buildOptions[i].SetResourceTextToRed(item);
+				}
+				else if (!resourceManager.CheckResourceAvailability(item))
+				{
+					if (item.resourceAmount > maxResource)
+						maxResource = item.resourceAmount;
+
+					buildOptions[i].SetResourceTextToRed(item);
+				}
+			}
+		}
+   //     foreach (UIBuildOptions buildItem in buildOptions)
+   //     {
+   //         //if (buildItem == null)
+   //         //    continue;
+
+   //         string itemName = "";
+   //         List<ResourceValue> resourceCosts = new();
+   //         bool locked = false;
+   //         bool hide = false;
+
+   //         if (buildItem.UnitBuildData != null)
+   //         {
+   //             itemName = buildItem.UnitBuildData.unitDisplayName;
+   //             resourceCosts = new(buildItem.UnitBuildData.unitCost);
+   //             locked = buildItem.UnitBuildData.locked;
+
+   //             if (buildItem.UnitBuildData.transportationType == TransportationType.Sea)
+   //             {
+   //                 buildItem.trainingBarracks = resourceManager.city.harborTraining;
+   //             }
+   //             else
+   //             {
+   //                 if (buildItem.UnitBuildData.baseAttackStrength > 0)
+   //                 {
+   //                     buildItem.needsBarracks = !resourceManager.city.hasBarracks;
+   //                     buildItem.fullBarracks = resourceManager.city.army.isFull;
+   //                     buildItem.trainingBarracks = resourceManager.city.army.isTraining;
+   //                     buildItem.travelingBarracks = resourceManager.city.army.IsGone();
+   //                 }
+   //             }
+
+   //             ResourceValue laborCost;
+   //             laborCost.resourceType = ResourceType.Labor;
+   //             laborCost.resourceAmount = buildItem.UnitBuildData.laborCost;
+   //             resourceCosts.Add(laborCost);
+
+   //             if (!resourceManager.city.hasHarbor && buildItem.UnitBuildData.transportationType == TransportationType.Sea)
+   //                 hide = true;
+   //         }
+   //         else if (buildItem.BuildData != null)
+   //         {
+   //             itemName = buildItem.BuildData.improvementName;
+   //             resourceCosts = new(buildItem.BuildData.improvementCost);
+   //             locked = buildItem.BuildData.Locked;
+
+   //             buildItem.waterMax = resourceManager.city.reachedWaterLimit;
+
+   //             if (buildItem.BuildData.rawResourceType == RawResourceType.None)
+   //             {								
+			//		if (!resourceManager.city.hasWater && buildItem.BuildData.terrainType == TerrainType.Coast)
+			//			hide = true;
+   //             }
+   //             else
+   //             {
+			//		hide = HideBuildOptionCheck(buildItem.BuildData.rawResourceType, buildItem.BuildData.terrainType, resourceManager.city);
+   //             }
+			//}
+
+   //         buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
+
+   //         if (locked || hide || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
+   //         {
+   //             buildItem.ToggleVisibility(false);
+   //             continue;
+   //         }
+
+   //         //buildItem.ToggleInteractable(true);
+   //         buildItem.SetResourceTextToDefault();
+
+   //         foreach (ResourceValue item in resourceCosts)
+   //         {
+   //             if (item.resourceType == ResourceType.Gold)
+   //             {
+   //                 if (item.resourceAmount > maxGold)
+   //                     maxGold = item.resourceAmount;
                     
-                    if (!resourceManager.city.CheckWorldGold(item.resourceAmount))
-                        buildItem.SetResourceTextToRed(item);
-                }
-                else if (item.resourceType == ResourceType.Labor)
-                {
-                    if (item.resourceAmount > maxLabor)
-                        maxLabor = item.resourceAmount;
+   //                 if (!resourceManager.city.CheckWorldGold(item.resourceAmount))
+   //                     buildItem.SetResourceTextToRed(item);
+   //             }
+   //             else if (item.resourceType == ResourceType.Labor)
+   //             {
+   //                 if (item.resourceAmount > maxLabor)
+   //                     maxLabor = item.resourceAmount;
 
-                    int pop = resourceManager.city.cityPop.CurrentPop;
-                    if (pop < item.resourceAmount)
-                        buildItem.SetResourceTextToRed(item);
-                }
-                else if (!resourceManager.CheckResourceAvailability(item))
-                {
-                    if (item.resourceAmount > maxResource)
-                        maxResource = item.resourceAmount;
+   //                 int pop = resourceManager.city.cityPop.CurrentPop;
+   //                 if (pop < item.resourceAmount)
+   //                     buildItem.SetResourceTextToRed(item);
+   //             }
+   //             else if (!resourceManager.CheckResourceAvailability(item))
+   //             {
+   //                 if (item.resourceAmount > maxResource)
+   //                     maxResource = item.resourceAmount;
 
-                    buildItem.SetResourceTextToRed(item);
-                }
-            }
-        }
+   //                 buildItem.SetResourceTextToRed(item);
+   //             }
+   //         }
+   //     }
     }
 
     private bool HideBuildOptionCheck(RawResourceType rawResourceType, TerrainType terrainType, City city)

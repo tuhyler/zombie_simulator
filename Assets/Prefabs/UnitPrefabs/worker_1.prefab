@@ -473,7 +473,6 @@ MonoBehaviour:
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
   attacks:
-  - {fileID: 8300000, guid: 24db9d98a022b814199a822748439140, type: 3}
   - {fileID: 8300000, guid: 01e88c2cc97d1c24a94f3fd77857423d, type: 3}
   - {fileID: 8300000, guid: e92ce6446362fd642912c078efe46f00, type: 3}
   kills: []
@@ -519,6 +518,7 @@ MonoBehaviour:
   harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
+  conversationTopic: 
   isLeader: 0
   readyToMarch: 0
   inArmy: 0

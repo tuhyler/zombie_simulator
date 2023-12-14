@@ -10,6 +10,9 @@ public class UIInfoPopUpHandler : MonoBehaviour
     [SerializeField]
     private TMP_Text popUpText;
 
+    [SerializeField]
+    private Transform mainCanvas, popUpCanvas;
+
     private float visibleTime = 2f;
     private float disappearTimer;
     private Color textColor;
@@ -66,7 +69,7 @@ public class UIInfoPopUpHandler : MonoBehaviour
         return warningMessage;
     }
 
-    public void Create(Vector3 position, string text, bool toWorld = true) //'true' if inputting mouse position
+    public void Create(Vector3 position, string text, bool toWorld = true, bool main = true) //'true' if inputting mouse position
     {
         if (co != null)
         {
@@ -76,16 +79,16 @@ public class UIInfoPopUpHandler : MonoBehaviour
 
         if (toWorld)
         {
-            //position.z = 935;
-            position.z = 1;
+            position.z = 935;
+            //position.z = 1;
             Vector3 positionWorld = Camera.main.ScreenToWorldPoint(position);
             transform.position = positionWorld;
         }
         else
         {
             Vector3 positionScreen = Camera.main.WorldToScreenPoint(position);
-            //positionScreen.z = 935;
-            position.z = 1;
+            positionScreen.z = 935;
+            //position.z = 1;
             Vector3 positionAgain = Camera.main.ScreenToWorldPoint(positionScreen);
             transform.position = positionAgain;
         }
@@ -93,6 +96,11 @@ public class UIInfoPopUpHandler : MonoBehaviour
         gameObject.SetActive(true);
         disappearTimer = visibleTime;
         SetPopUpText(text);
+
+        if (main)
+            transform.SetParent(mainCanvas, false);
+        else
+            transform.SetParent(popUpCanvas, false);
 
         co = StartCoroutine(ShowMessage());
     }

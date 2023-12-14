@@ -61,6 +61,15 @@ public class UIWorkerHandler : MonoBehaviour
             gameObject.SetActive(val);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
+            
+            if (world.tutorialGoing)
+            {
+                for (int i = 0; i < buildOptions.Count; i++)
+                {
+                    if (buildOptions[i].isFlashing)
+                        StartCoroutine(world.EnableButtonHighlight(buildOptions[i].transform, true, false));
+                }
+            }
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
         }
