@@ -233,7 +233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -772,8 +772,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84615fb1f33212e4b8aefef6608eff43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cityBuilderManager: {fileID: 0}
   cameraController: {fileID: 0}
-  selectClip: {fileID: 8300000, guid: ffb8e9c131370d5409e54d58770305df, type: 3}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls:
@@ -793,6 +793,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   uiElementsParent: {fileID: 5907547429230737570}
+  buildOptions: []
   globalVolume: {fileID: 0}
   allContents: {fileID: 1899261442799753696}
   activeStatus: 0

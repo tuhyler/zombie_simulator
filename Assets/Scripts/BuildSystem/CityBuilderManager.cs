@@ -29,8 +29,6 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public UIInfoPanelCity uiInfoPanelCity;
     [SerializeField]
-    public UIUnitTurnHandler uiUnitTurn;
-    [SerializeField]
     public UILaborAssignment uiLaborAssignment;
     [SerializeField]
     public UILaborHandler uiLaborHandler;
@@ -292,7 +290,7 @@ public class CityBuilderManager : MonoBehaviour
                 }
 
                 //if not manipulating buildings, exit out
-                if (improvementData == null && laborChange == 0 && !removingImprovement && !upgradingImprovement)
+                if (improvementData == null && laborChange == 0 && !removingImprovement && !upgradingImprovement && !uiCityTabs.openTab)
                 {
                     if (terrainLocation == selectedCityLoc)
                         ResetCityUI();
@@ -348,6 +346,10 @@ public class CityBuilderManager : MonoBehaviour
                         ChangeLaborCount(terrainLocation);
                     }
                 }
+                else if (uiCityTabs.openTab)
+                {
+                    uiCityTabs.HideSelectedTab(false);
+                }
                 else
                 {
                     if (isBarracks)
@@ -379,6 +381,7 @@ public class CityBuilderManager : MonoBehaviour
                 }
             }
         }
+        //placing wonder harbor
         else if (selectedWonder != null && placingWonderHarbor && selectedObject.TryGetComponent(out TerrainData terrainForHarbor)) //for placing harbor
         {
             Vector3Int terrainLoc = terrainForHarbor.TileCoordinates;
@@ -420,7 +423,10 @@ public class CityBuilderManager : MonoBehaviour
 
             if (!tilesToChange.Contains(terrainLoc))
             {
-                if (upgradingImprovement || removingImprovement || laborChange != 0 || improvementData != null)
+
+				if (uiCityTabs.openTab)
+					uiCityTabs.HideSelectedTab(false);
+				else if (upgradingImprovement || removingImprovement || laborChange != 0 || improvementData != null)
                     ResetCityUIToBase();
                 else
                     ResetCityUI();
@@ -620,7 +626,7 @@ public class CityBuilderManager : MonoBehaviour
 
         unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
-        newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
+        newUnit.SetReferences(world);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
     }
 
@@ -668,7 +674,7 @@ public class CityBuilderManager : MonoBehaviour
                     
                     unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
                     Unit newUnit = unit.GetComponent<Unit>();
-                    newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
+                    newUnit.SetReferences(world);
                     newUnit.CurrentLocation = world.AddUnitPosition(loc, newUnit);
 
                     break;
@@ -936,8 +942,23 @@ public class CityBuilderManager : MonoBehaviour
 
     public void OpenAddPopWindow()
     {
-        world.uiCityPopIncreasePanel.ToggleVisibility(true, 1, selectedCity);
-    }
+        if (world.uiCityPopIncreasePanel.activeStatus)
+        {
+    		world.uiCityPopIncreasePanel.ToggleVisibility(false);
+        }
+        else
+        {
+		    CloseLaborMenus();
+		    CloseImprovementTooltipButton();
+		    CloseImprovementBuildPanel();
+		    CloseSingleWindows();
+		    uiResourceManager.ToggleOverflowVisibility(false);
+		    world.uiCityPopIncreasePanel.ToggleVisibility(false);
+		    uiCityTabs.HideSelectedTab(false);
+			
+            world.uiCityPopIncreasePanel.ToggleVisibility(true, 1, selectedCity);
+        }
+	}
 
     public void CloseAddPopWindow()
     {
@@ -982,29 +1003,35 @@ public class CityBuilderManager : MonoBehaviour
         world.GetTerrainDataAt(selectedCityLoc).EnableHighlight(Color.green);
         DrawBorders();
         CheckForWork();
-        autoAssign.isOn = selectedCity.AutoAssignLabor;
-        resourceManager = selectedCity.ResourceManager;
-        resourceManager.SetUI(uiResourceManager, uiMarketPlaceManager, uiInfoPanelCity);
+        autoAssign.isOn = selectedCity.autoGrow;
+        //if (selectedCity.autoGrow)
+        //      {
+        //	uiLaborPrioritizationManager.ToggleVisibility(true, true);
+        //    uiLaborPrioritizationManager.PrepareLaborPrioritizationMenu(selectedCity);
+        //    uiLaborPrioritizationManager.LoadLaborPrioritizationInfo();
+        //      }
+		resourceManager = selectedCity.ResourceManager;
         //uiResourceManager.SetCityInfo(selectedCity.cityName, selectedCity.warehouseStorageLimit, selectedCity.ResourceManager.GetResourceStorageLevel);
         resourceManager.UpdateUI(selectedCity.GetResourceValues());
         uiCityTabs.ToggleVisibility(true, selectedCity.hasMarket, resourceManager);
         uiResourceManager.ToggleVisibility(true, selectedCity);
         CenterCamOnCity();
-        uiInfoPanelCity.SetGrowthNumber(selectedCity.GetGrowthNumber());
-        uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
-            selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
-        uiInfoPanelCity.SetGrowthPauseToggle(selectedCity.ResourceManager.pauseGrowth);
-        uiInfoPanelCity.UpdateWater(selectedCity.waterMaxPop);
+        //uiInfoPanelCity.SetGrowthNumber(selectedCity.GetGrowthNumber());
+        uiInfoPanelCity.SetAllData(selectedCity);
+        //uiInfoPanelCity.SetGrowthPauseToggle(selectedCity.ResourceManager.pauseGrowth);
+        uiInfoPanelCity.UpdateWater(selectedCity.waterCount);
 
-        //if (selectedCity.cityPop.CurrentPop > 0)
-        //{
-            uiInfoPanelCity.ToggleVisibility(true);
+        if (selectedCity.cityPop.CurrentPop > 0)
+        {
+            uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.autoGrow);
             uiLaborAssignment.ShowUI(selectedCity, placesToWork);
-        //}
-        //else
-        //{
-        //    uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
-        //}
+        }
+        else
+        {
+            uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+        }
+
+        uiInfoPanelCity.ToggleVisibility(true);
 
         uiLaborHandler.SetCity(selectedCity);
         //uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
@@ -1023,10 +1050,10 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.ResourceManager.pauseGrowth = v;
     }
 
-    public void SetGrowthNumber(int num)
-    {
-        uiInfoPanelCity.SetGrowthNumber(num);
-    }
+    //public void SetGrowthNumber(int num)
+    //{
+    //    uiInfoPanelCity.SetGrowthNumber(num);
+    //}
 
     //public void ShowQueuedGhost()
     //{
@@ -1318,7 +1345,8 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
-		PlayConstructionAudio();
+        if (!selectedImprovement.building)
+		    PlayConstructionAudio();
 		tilesToChange.Remove(tempBuildLocation);
         world.GetTerrainDataAt(tempBuildLocation).DisableHighlight();
         UpgradeSelectedImprovementPrep(tempBuildLocation, selectedImprovement, selectedCity);
@@ -1379,8 +1407,7 @@ public class CityBuilderManager : MonoBehaviour
 
                 RemoveLaborFromDicts(upgradeLoc);
                 UpdateCityLaborUIs();
-                uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
-                    selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
+                uiInfoPanelCity.SetAllData(selectedCity);
                 UpdateLaborNumbers();
                 uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
 
@@ -1445,12 +1472,12 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
-			if (world.cityUnitSelected) //in case a laborer is selected while city is selected
-			{
-                world.GetTerrainDataAt(SelectedCityLoc).EnableHighlight(Color.green);
-                world.cityUnitSelected = false;
-				return;
-			}
+			//if (world.cityUnitSelected) //in case a laborer is selected while city is selected
+			//{
+   //             world.GetTerrainDataAt(SelectedCityLoc).EnableHighlight(Color.green);
+   //             world.cityUnitSelected = false;
+			//	return;
+			//}
 
 			foreach (string name in world.GetBuildingListForCity(selectedCityLoc))
             {
@@ -1565,7 +1592,7 @@ public class CityBuilderManager : MonoBehaviour
 
             for (int i = 0; i < unitData.laborCost; i++)
             {
-                city.PopulationDeclineCheck(true); //decrease population before creating unit so we can see where labor will be lost
+                city.PopulationDeclineCheck(true, true); //decrease population before creating unit so we can see where labor will be lost
             }
 
             //updating uis after losing pop
@@ -1574,8 +1601,7 @@ public class CityBuilderManager : MonoBehaviour
                 //uiQueueManager.CheckIfBuiltUnitIsQueued(unitData, city.cityLoc);
                 UpdateLaborNumbers();
                 uiLaborAssignment.UpdateUI(city, placesToWork);
-                uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
-                    selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
+                uiInfoPanelCity.SetAllData(selectedCity);
                 resourceManager.UpdateUI(unitData.unitCost);
                 uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
                 uiCityTabs.HideSelectedTab(false);
@@ -1684,7 +1710,7 @@ public class CityBuilderManager : MonoBehaviour
         if (newUnit.isLaborer)
             world.laborerList.Add(newUnit.GetComponent<Laborer>());
 
-		newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
+		newUnit.SetReferences(world);
         newUnit.SetMinimapIcon(friendlyUnitHolder);
         //if (unitData.baseAttackStrength > 0)
         //{
@@ -1794,7 +1820,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		//unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
 		Unit newUnit = unit.GetComponent<Unit>();
-		newUnit.SetReferences(world, focusCam, uiUnitTurn, movementSystem);
+		newUnit.SetReferences(world);
 		newUnit.SetMinimapIcon(friendlyUnitHolder);
         newUnit.PlayAudioClip(buildClip);
 
@@ -1946,11 +1972,11 @@ public class CityBuilderManager : MonoBehaviour
         city.HousingCount += buildingData.housingIncrease;
         if (buildingData.waterIncrease > 0)
         {
-            city.waterMaxPop += buildingData.waterIncrease;
+            city.waterCount += buildingData.waterIncrease;
             if (city.activeCity)
-                uiInfoPanelCity.UpdateWater(city.waterMaxPop);
+                uiInfoPanelCity.UpdateWater(city.waterCount);
 
-			if (city.waterMaxPop <= city.cityPop.CurrentPop)
+			if (city.waterCount <= 0)
 				city.reachedWaterLimit = true;
 			else
 				city.reachedWaterLimit = false;
@@ -2027,10 +2053,10 @@ public class CityBuilderManager : MonoBehaviour
         
         if (data.waterIncrease > 0)
         {
-            city.waterMaxPop -= data.waterIncrease;
-			uiInfoPanelCity.UpdateWater(city.waterMaxPop);
+            city.waterCount -= data.waterIncrease;
+			uiInfoPanelCity.UpdateWater(city.waterCount);
             
-            if (city.waterMaxPop <= city.cityPop.CurrentPop)
+            if (city.waterCount <= 0)
                 city.reachedWaterLimit = true;
             else
 				city.reachedWaterLimit = false;
@@ -2054,8 +2080,7 @@ public class CityBuilderManager : MonoBehaviour
                 UpdateCityWorkEthic();
             resourceManager.UpdateUI(data.improvementCost);
             uiResourceManager.SetCityCurrentStorage(resourceManager.ResourceStorageLevel);
-            uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
-                selectedCity.foodConsumptionPerMinute);
+            uiInfoPanelCity.SetAllData(selectedCity);
         }
 
         city.RemoveFromMeshFilterList(true, Vector3Int.zero, selectedBuilding);
@@ -2332,11 +2357,11 @@ public class CityBuilderManager : MonoBehaviour
 
         if (improvementData.waterIncrease > 0)
         {
-			city.waterMaxPop += improvementData.waterIncrease;
+			city.waterCount += improvementData.waterIncrease;
 			if (city.activeCity)
-				uiInfoPanelCity.UpdateWater(city.waterMaxPop);
+				uiInfoPanelCity.UpdateWater(city.waterCount);
 
-			if (city.waterMaxPop <= city.cityPop.CurrentPop)
+			if (city.waterCount <= 0)
 				city.reachedWaterLimit = true;
 			else
 				city.reachedWaterLimit = false;
@@ -2593,7 +2618,7 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         //remove building
-        if (improvementLoc == city.cityLoc)
+        if (selectedImprovement.loc == city.cityLoc)
         {
             RemoveBuilding(selectedImprovement, improvementData, city, upgradingImprovement);
             return;
@@ -2812,8 +2837,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (city.activeCity && !upgradingImprovement)
         {
-            uiInfoPanelCity.SetData(city.cityName, city.cityPop.CurrentPop, city.HousingCount, city.cityPop.UnusedLabor, city.workEthic,
-                city.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
+            uiInfoPanelCity.SetAllData(city);
             UpdateLaborNumbers();
             uiLaborAssignment.UpdateUI(city, placesToWork);
         }
@@ -3225,8 +3249,7 @@ public class CityBuilderManager : MonoBehaviour
         //updating all the labor info
         selectedCity.UpdateCityPopInfo();
 
-        uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
-            selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
+        uiInfoPanelCity.SetAllData(selectedCity);
 
         UpdateLaborNumbers();
         //resourceManager.UpdateUIGeneration(terrainSelected.GetTerrainData().resourceType);
@@ -3253,8 +3276,7 @@ public class CityBuilderManager : MonoBehaviour
     public void UpdateCityLaborUIs()
     {
         UpdateLaborNumbers();
-        uiInfoPanelCity.SetData(selectedCity.cityName, selectedCity.cityPop.CurrentPop, selectedCity.HousingCount, selectedCity.cityPop.UnusedLabor, selectedCity.workEthic,
-            selectedCity.foodConsumptionPerMinute/*, resourceManager.FoodPerMinute*/);
+        uiInfoPanelCity.SetAllData(selectedCity);
         uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
     }
 
@@ -3364,8 +3386,9 @@ public class CityBuilderManager : MonoBehaviour
         
         if (autoAssign.isOn)
         {
-            CloseLaborMenus();
+            //CloseLaborMenus();
             //openAssignmentPriorityMenu.interactable = true;
+            selectedCity.autoGrow = true;
             selectedCity.AutoAssignLabor = true;
 
             if (selectedCity.cityPop.UnusedLabor > 0)
@@ -3375,13 +3398,16 @@ public class CityBuilderManager : MonoBehaviour
             }
 
             uiLaborAssignment.SetAssignmentOptionsInteractableOff();
+            uiLaborAssignment.showPrioritiesButton.SetActive(true);
         }
         else
         {
+            selectedCity.autoGrow = false;
             selectedCity.AutoAssignLabor = false;
             uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
             uiLaborPrioritizationManager.ToggleVisibility(false);
-        }
+			uiLaborAssignment.showPrioritiesButton.SetActive(false);
+		}
     }
 
     public void ClosePrioritizationManager()
@@ -3729,8 +3755,8 @@ public class CityBuilderManager : MonoBehaviour
             uiLaborHandler.ResetUI();
             HideBorders();
 			//CloseResourceGrid();
-            if (!world.cityUnitSelected)
-			    world.GetTerrainDataAt(selectedCityLoc).DisableHighlight();
+            //if (!world.cityUnitSelected)
+			world.GetTerrainDataAt(selectedCityLoc).DisableHighlight();
             world.unitMovement.ToggleUnitHighlights(false);
             ToggleBuildingHighlight(false);
             //ToggleCityHighlight(false);
@@ -3740,7 +3766,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity.activeCity = false;
             selectedCity = null;
             focusCam.RestoreWorldLimit();
-            world.StopAudio();
+			world.StopAudio();
         }
     }
 

@@ -52,12 +52,6 @@ public class ResourceManager : MonoBehaviour
     [HideInInspector]
     public List<ResourceType> resourcesNeededForRoute = new();
 
-    //UIs to update
-    private UIResourceManager uiResourceManager;
-    private UIMarketPlaceManager uiMarketPlaceManager;
-    [HideInInspector]
-    public UIInfoPanelCity uiInfoPanelCity;
-
     //initial resources
     public List<ResourceValue> initialResources = new(); //resources you start a city with
     [HideInInspector]
@@ -521,9 +515,9 @@ public class ResourceManager : MonoBehaviour
         else if (newResourceAmount < 0)
             city.CheckLimitWaiter();
 
-        if (city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && !city.reachedWaterLimit && type == ResourceType.Food && resourceDict[type] >= city.initialGrowthFood && !pauseGrowth)
+        if (city.autoGrow && city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && !city.reachedWaterLimit && type == ResourceType.Food && resourceDict[type] >= city.growthFood && !pauseGrowth)
         {
-            resourceDict[type] -= city.initialGrowthFood;
+            resourceDict[type] -= city.growthFood;
             city.PopulationGrowthCheck(false, 1);
         }
 
@@ -576,13 +570,6 @@ public class ResourceManager : MonoBehaviour
         //UpdateUI(resourceValue);
     }
 
-    public void SetUI(UIResourceManager uiResourceManager, UIMarketPlaceManager uiMarketPlaceManager, UIInfoPanelCity uiInfoPanelCity)
-    {
-        this.uiResourceManager = uiResourceManager;
-        this.uiMarketPlaceManager = uiMarketPlaceManager;
-        this.uiInfoPanelCity = uiInfoPanelCity;
-    }
-
     public void UpdateUI(List<ResourceValue> values) //updating the UI with the resource information in the dictionary
     {
         foreach (ResourceValue value in values)
@@ -598,11 +585,11 @@ public class ResourceManager : MonoBehaviour
     {
         if (city.activeCity) //only update UI for currently selected city
         {
-            uiResourceManager.SetResource(resourceType, resourceDict[resourceType]);
-            uiResourceManager.SetCityCurrentStorage(resourceStorageLevel);
+            city.world.cityBuilderManager.uiResourceManager.SetResource(resourceType, resourceDict[resourceType]);
+            city.world.cityBuilderManager.uiResourceManager.SetCityCurrentStorage(resourceStorageLevel);
 
-            if (uiMarketPlaceManager.activeStatus)
-                uiMarketPlaceManager.UpdateMarketResourceNumbers(resourceType, resourcePriceDict[resourceType], resourceDict[resourceType], resourceSellHistoryDict[resourceType]);
+            if (city.world.cityBuilderManager.uiMarketPlaceManager.activeStatus)
+                city.world.cityBuilderManager.uiMarketPlaceManager.UpdateMarketResourceNumbers(resourceType, resourcePriceDict[resourceType], resourceDict[resourceType], resourceSellHistoryDict[resourceType]);
         }
         else if (city.uiCityResourceInfoPanel) //in case it's open while trader is unloading during route
         {
@@ -712,8 +699,8 @@ public class ResourceManager : MonoBehaviour
                 city.exclamationPoint.SetActive(false);
             }
 
-            //if (resourceDict[ResourceType.Food] >= city.unitFoodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
-            //    city.PopulationGrowthCheck(false, 1);
+            if (city.autoGrow && resourceDict[ResourceType.Food] >= city.growthFood + city.foodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
+                city.PopulationGrowthCheck(false, 1);
         }
         else
         {
@@ -731,7 +718,7 @@ public class ResourceManager : MonoBehaviour
                 if (city.army.UnitsInArmy.Count > 0)
                     city.PlayHellHighlight(city.army.RemoveRandomArmyUnit());
                 else
-                    city.PopulationDeclineCheck(true);
+                    city.PopulationDeclineCheck(true, false);
     
                 starvationCount = 0;
                 noHousingCount = 0;
@@ -744,77 +731,71 @@ public class ResourceManager : MonoBehaviour
         ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, city.cityLoc);
 
 
-  //      if (city.HousingCount < 0)
-  //      {
-  //          noHousingCount++;
+        if (city.HousingCount < 0)
+        {
+            noHousingCount++;
 
-  //          if (!city.activeCity)
-  //          {
-  //              growthDeclineDanger = true;
-  //              city.exclamationPoint.SetActive(true);
-  //          }
+            if (!city.activeCity)
+            {
+                growthDeclineDanger = true;
+                city.exclamationPoint.SetActive(true);
+            }
 
-  //          if (noHousingCount >= cyclesToWait)
-  //          {
-  //              city.PopulationDeclineCheck(false);
-  //              starvationCount = 0;
-  //              noHousingCount = 0;
-  //              noWaterCount = 0;
-  //              growthDeclineDanger = false;
-  //              city.exclamationPoint.SetActive(false);
-  //          }
+            if (noHousingCount >= cyclesToWait)
+            {
+                city.PopulationDeclineCheck(false, false);
+                starvationCount = 0;
+                noHousingCount = 0;
+                noWaterCount = 0;
+                growthDeclineDanger = false;
+                city.exclamationPoint.SetActive(false);
+            }
 
-  //      }
-  //      else
-  //      {
-  //          if (growthDeclineDanger)
-  //          {
-  //              noHousingCount = 0;
-  //              growthDeclineDanger = false;
-  //              city.exclamationPoint.SetActive(false);
-  //          }
-  //      }
+        }
+        else
+        {
+            if (growthDeclineDanger)
+            {
+                noHousingCount = 0;
+                growthDeclineDanger = false;
+                city.exclamationPoint.SetActive(false);
+            }
+        }
 
-  //      if (city.waterMaxPop < city.cityPop.CurrentPop)
-  //      {
-  //          noWaterCount++;
+        if (city.waterCount < 0)
+        {
+            noWaterCount++;
 
-  //          if (!city.activeCity)
-  //          {
-  //              growthDeclineDanger = true;
-  //              city.exclamationPoint.SetActive(true);
-  //          }
+            if (!city.activeCity)
+            {
+                growthDeclineDanger = true;
+                city.exclamationPoint.SetActive(true);
+            }
 
-  //          if (noHousingCount >= cyclesToWait)
-  //          {
-		//		city.PopulationDeclineCheck(false);
-		//		starvationCount = 0;
-		//		noHousingCount = 0;
-		//		noWaterCount = 0;
-  //              growthDeclineDanger = false;
-		//		city.exclamationPoint.SetActive(false);
-		//	}
-  //      }
-  //      else
-  //      {
-  //          if (growthDeclineDanger)
-  //          {
-  //  			noHousingCount = 0;
-  //              growthDeclineDanger = false;
-  //  			city.exclamationPoint.SetActive(false);
-  //          }
-		//}
+            if (noHousingCount >= cyclesToWait)
+            {
+                city.PopulationDeclineCheck(false, false);
+                starvationCount = 0;
+                noHousingCount = 0;
+                noWaterCount = 0;
+                growthDeclineDanger = false;
+                city.exclamationPoint.SetActive(false);
+            }
+        }
+        else
+        {
+            if (growthDeclineDanger)
+            {
+                noHousingCount = 0;
+                growthDeclineDanger = false;
+                city.exclamationPoint.SetActive(false);
+            }
+        }
 
         CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
         city.UpdateCityPopInfo(); //update city info after correcting food info
         UpdateUI(ResourceType.Food);
-
-        if (city.activeCity)
-        {
-            uiInfoPanelCity.UpdateHousing(city.HousingCount);
-            uiInfoPanelCity.UpdateFoodStats(city.cityPop.CurrentPop, city.foodConsumptionPerMinute/*, FoodPerMinute*/);
-        }
 
         //if (growth) //increasing pop if food over or equal to max
         //{

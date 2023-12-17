@@ -177,7 +177,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 		if (cantAfford)
 		{
 			StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford", true, false);
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford", true);
 			return false;
 		}
 

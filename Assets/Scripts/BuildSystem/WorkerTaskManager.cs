@@ -521,7 +521,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
 
         city.reachedWaterLimit = !city.hasFreshWater;
-        city.waterMaxPop = city.hasFreshWater ? 9999 : 0;
+        city.waterCount = city.hasFreshWater ? 9999 : 0;
         world.AddCityBuildingDict(workerTile);
         world.cityCount++;
         world.TutorialCheck("Build City");

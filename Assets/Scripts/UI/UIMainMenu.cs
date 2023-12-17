@@ -66,7 +66,6 @@ public class UIMainMenu : MonoBehaviour
 			world.conversationListButton.ToggleEnable(false);
 			world.mapHandler.SetInteractable(false);
 			world.uiWorldResources.SetInteractable(false);
-			world.cityBuilderManager.uiUnitTurn.ToggleEnable(false);
 			world.uiMainMenuButton.ToggleButtonColor(true);
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, " ");
 
@@ -97,7 +96,6 @@ public class UIMainMenu : MonoBehaviour
 			world.conversationListButton.ToggleEnable(true);
 			world.mapHandler.SetInteractable(true);
 			world.uiWorldResources.SetInteractable(true);
-			world.cityBuilderManager.uiUnitTurn.ToggleEnable(true);
 			world.uiMainMenuButton.ToggleButtonColor(false);
 
 			//world.immoveableCanvas.gameObject.SetActive(false);

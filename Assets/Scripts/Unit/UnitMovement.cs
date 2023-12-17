@@ -11,10 +11,6 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     public MapWorld world;
     [SerializeField]
-    private CameraController focusCam;
-    [SerializeField]
-    private UIUnitTurnHandler turnHandler;
-    [SerializeField]
     public InfoManager infoManager;
     [SerializeField]
     private WorkerTaskManager workerTaskManager;
@@ -585,7 +581,7 @@ public class UnitMovement : MonoBehaviour
             SelectWorker();
             SelectTrader();
 
-            if (!selectedUnit.inArmy)
+            if (!selectedUnit.inArmy && !selectedUnit.followingRoute && !selectedUnit.isUpgrading)
                 uiMoveUnit.ToggleVisibility(true);
 		
             PrepareMovement();
@@ -710,23 +706,23 @@ public class UnitMovement : MonoBehaviour
 		else
 			selectedUnit.Select(Color.white);
 
-        if (selectedUnit.isLaborer)
-        {
-            if (world.cityBuilderManager.SelectedCity != null)
-                world.cityUnitSelected = true;
+        //so highlight of city doesn't go away
+   //     if (selectedUnit.isLaborer)
+   //     {
+   //         if (world.cityBuilderManager.SelectedCity != null)
+   //             world.cityUnitSelected = true;
             
-            world.HighlightCitiesAndWonders();
-        }
-        else if (selectedUnit.isTrader)
-        {
-			if (world.cityBuilderManager.SelectedCity != null && !selectedUnit.bySea)
-				world.cityUnitSelected = true;
+   //         //world.HighlightCitiesAndWonders();
+   //     }
+   //     else if (selectedUnit.isTrader)
+   //     {
+			//if (world.cityBuilderManager.SelectedCity != null && !selectedUnit.bySea)
+			//	world.cityUnitSelected = true;
 
-			if (!selectedUnit.followingRoute)
-                world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
-        }
+			////if (!selectedUnit.followingRoute)
+   ////             world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+   //     }
 
-        turnHandler.SetIndex(selectedUnit);
         //selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
         infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
         if (selectedUnit.moreToMove && !selectedUnit.inArmy)
@@ -775,7 +771,13 @@ public class UnitMovement : MonoBehaviour
         {
             moveUnit = false;
             uiMoveUnit.ToggleButtonColor(false);
-            if (!movementSystem.MoveUnit(unit))
+			if (unit.isTrader)
+				world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
+			else if (unit.isLaborer)
+				world.UnhighlightCitiesAndWonders();
+
+
+			if (!movementSystem.MoveUnit(unit))
                 return;
         }
 
@@ -835,23 +837,23 @@ public class UnitMovement : MonoBehaviour
 
 			if (detectedObject.TryGetComponent(out City city) && detectedObject.CompareTag("Player"))
 			{
-                locationInt = city.cityLoc;
+                //locationInt = city.cityLoc;
                 world.citySelected = leftClick;
 			}
             else if (world.IsCityOnTile(terrainLoc))
             {
-                locationInt = terrainLoc;
+                //locationInt = terrainLoc;
 				world.citySelected = leftClick;
 			}
 			else if (detectedObject.TryGetComponent(out Wonder wonder))
 			{
-                locationInt = wonder.unloadLoc;
+                //locationInt = wonder.unloadLoc;
                 world.citySelected = leftClick;
 			}
             else if (world.IsWonderOnTile(terrainLoc))
             {
-                Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
-                locationInt = wonderLoc.unloadLoc;
+                //Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
+                //locationInt = wonderLoc.unloadLoc;
 				world.citySelected = leftClick;
 			}
 			else
@@ -860,7 +862,7 @@ public class UnitMovement : MonoBehaviour
 				return;
 			}
 
-			locationFlat = locationInt;
+			//locationFlat = locationInt;
 		}
 
 		if (selectedUnit.bySea)
@@ -951,11 +953,26 @@ public class UnitMovement : MonoBehaviour
         world.cityBuilderManager.PlaySelectAudio();
         
         if (!moveUnit)
+        {
             moveUnit = true;
+
+            if (selectedUnit.isTrader)
+                world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+            else if (selectedUnit.isLaborer)
+                world.HighlightCitiesAndWonders();
+        }
         else
+        {
             moveUnit = false;
 
-        uiMoveUnit.ToggleButtonColor(moveUnit);
+			if (selectedUnit.isTrader)
+				world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+			else if (selectedUnit.isLaborer)
+				world.UnhighlightCitiesAndWonders();
+		}
+
+
+		uiMoveUnit.ToggleButtonColor(moveUnit);
     }
 
     public void HandleShiftDown()
@@ -1009,6 +1026,16 @@ public class UnitMovement : MonoBehaviour
 			return;
         }
         
+        if (moveUnit)
+        {
+            moveUnit = false;
+            uiMoveUnit.ToggleButtonColor(false);
+            if (selectedUnit.isTrader)
+                world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+            else if (selectedUnit.isLaborer)
+                world.UnhighlightCitiesAndWonders();
+        }
+
         Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
         if (world.IsWonderOnTile(unitLoc))
@@ -1109,7 +1136,7 @@ public class UnitMovement : MonoBehaviour
     public void RepositionArmy()
     {
         world.cityBuilderManager.PlaySelectAudio();
-        focusCam.CenterCameraNoFollow(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation));
+        world.cameraController.CenterCameraNoFollow(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation));
         uiSwapPosition.ToggleVisibility(false);
         uiJoinCity.ToggleVisibility(false);
         uiDeployArmy.ToggleVisibility(false);
@@ -1593,6 +1620,15 @@ public class UnitMovement : MonoBehaviour
     {    
         if (selectedTrader != null)
         {
+			if (moveUnit)
+            {
+                world.UnhighlightCitiesAndWondersAndTradeCenters(selectedTrader.bySea);
+                moveUnit = false;
+				uiMoveUnit.ToggleButtonColor(false);
+			}
+
+			uiMoveUnit.ToggleVisibility(false);
+
 			if (selectedTrader.LineCutterCheck())
 				return;
 
@@ -1881,10 +1917,13 @@ public class UnitMovement : MonoBehaviour
             if (selectedUnit.isBusy && selectedWorker.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(false);
 
-            if (selectedUnit.isLaborer)
-                world.UnhighlightCitiesAndWonders();
-            else if (selectedUnit.isTrader)
-                world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+            if (moveUnit)
+            {
+                if (selectedUnit.isLaborer)
+                    world.UnhighlightCitiesAndWonders();
+                else if (selectedUnit.isTrader)
+                    world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+            }
 
             //SpeakingCheck();
             moveUnit = false;

@@ -8,7 +8,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     public CityBuilderManager cityBuilderManager;
 
     [SerializeField]
-    public GameObject marketTabHolder, queueButton;
+    public GameObject marketButton, queueButton;
 
     //[SerializeField]
 
@@ -20,7 +20,8 @@ public class UICityBuildTabHandler : MonoBehaviour
 
     private UIBuilderHandler builderUI;
     private UIShowTabHandler currentTabSelected;
-    private bool sameUI, openTab;
+    [HideInInspector]
+    public bool sameUI, openTab;
     private ResourceManager resourceManager;
     private List<UIShowTabHandler> tabList = new();
 
@@ -55,12 +56,8 @@ public class UICityBuildTabHandler : MonoBehaviour
 
     public void PassUI(UIBuilderHandler uiBuilder)
     {
-        cityBuilderManager.CloseLaborMenus();
-        cityBuilderManager.CloseImprovementTooltipButton();
-        cityBuilderManager.CloseImprovementBuildPanel();
-        cityBuilderManager.CloseSingleWindows();
-        cityBuilderManager.uiResourceManager.ToggleOverflowVisibility(false);
-        bool openTab = true;
+        CloseOtherWindows();
+		bool openTab = true;
 
         //bool currentlyActive = uiBuilder.activeStatus;
         if (builderUI == uiBuilder) //turn off if same tab is clicked
@@ -89,12 +86,8 @@ public class UICityBuildTabHandler : MonoBehaviour
             sameUI = true;
 
         isSelling = true;
-        cityBuilderManager.CloseLaborMenus();
-        cityBuilderManager.CloseImprovementTooltipButton();
-        cityBuilderManager.CloseImprovementBuildPanel();
-        cityBuilderManager.CloseSingleWindows();
-        cityBuilderManager.uiResourceManager.ToggleOverflowVisibility(false);
-        HideSelectedTab(false);
+        CloseOtherWindows();
+		HideSelectedTab(false);
     }
 
     public void StartRightSideButton(bool option)
@@ -118,13 +111,19 @@ public class UICityBuildTabHandler : MonoBehaviour
             isUpgrading = true;
         }
 
-        cityBuilderManager.CloseLaborMenus();
-        cityBuilderManager.CloseImprovementTooltipButton();
-        cityBuilderManager.CloseImprovementBuildPanel();
-        cityBuilderManager.CloseSingleWindows();
-        cityBuilderManager.uiResourceManager.ToggleOverflowVisibility(false);
+        CloseOtherWindows();
         HideSelectedTab(false);
     }
+
+    private void CloseOtherWindows()
+    {
+		cityBuilderManager.CloseLaborMenus();
+		cityBuilderManager.CloseImprovementTooltipButton();
+		cityBuilderManager.CloseImprovementBuildPanel();
+		cityBuilderManager.CloseSingleWindows();
+		cityBuilderManager.uiResourceManager.ToggleOverflowVisibility(false);
+		cityBuilderManager.world.uiCityPopIncreasePanel.ToggleVisibility(false);
+	}
 
     public void SetSelectedTab(UIShowTabHandler selectedTab)
     {

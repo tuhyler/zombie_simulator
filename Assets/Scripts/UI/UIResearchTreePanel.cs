@@ -17,9 +17,6 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     public UIResearchTooltip researchTooltip;
 
     [SerializeField]
-    private UIUnitTurnHandler uiUnitTurn;
-    
-    [SerializeField]
     private CameraController cameraController;
 
     [SerializeField]
@@ -131,7 +128,6 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
         {
             world.UnselectAll();
             world.ToggleMinimap(false);
-            uiUnitTurn.gameObject.SetActive(false);
 			//world.openingImmoveable = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
@@ -175,7 +171,6 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             isQueueing = false;
             queueButton.color = originalColor;
             activeStatus = false;
-            uiUnitTurn.gameObject.SetActive(true);
 
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
             .setEase(LeanTweenType.easeOutSine)
@@ -294,7 +289,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
                 world.SetResearchName("No Research");
                 world.SetWorldResearchUI(0, 1);
                 world.SetResearchBackground(false);
-                chosenResearchItem = null;
+				chosenResearchItem = null;
                 return;
             }
         }

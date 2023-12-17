@@ -79,10 +79,11 @@ public class UIResearchReward : MonoBehaviour
 
         if (improvementData != null)
             researchItem.researchTree.researchTooltip.SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel, 
-                improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0, improvementData.rawResourceType == RawResourceType.Rocks);
+                improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0, 
+                improvementData.housingIncrease, improvementData.waterIncrease, improvementData.rawResourceType == RawResourceType.Rocks);
         else if (unitData != null)
             researchItem.researchTree.researchTooltip.SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, 
-                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity);
+                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, 0, 0);
 
         researchItem.researchTree.researchTooltip.ToggleVisibility(true);
         researchItem.researchTree.world.cityBuilderManager.PlaySelectAudio();

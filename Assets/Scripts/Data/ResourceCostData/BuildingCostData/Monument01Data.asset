@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7952248765643111094, guid: df4e94bcbf2d38b4e96290f27dde2be2, type: 3}
   secondaryData: []
+  audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
   isBuildingImprovement: 0
@@ -21,7 +22,7 @@ MonoBehaviour:
   improvementDisplayName: Monument
   improvementLevel: 1
   improvementNameAndLevel: Monument-1
-  improvementDescription: Increase work ethic
+  improvementDescription: 
   buildingLocation: {x: 1.2, y: 0, z: 0.7}
   image: {fileID: 21300000, guid: ee38b037c5c1b4e4f9e10a25cbd7818a, type: 3}
   mapIcon: {fileID: 0}
@@ -46,16 +47,16 @@ MonoBehaviour:
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0
-  waterIncrease: 4
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 1
   oneTerrain: 1
   adjustForHill: 1
+  hideProp: 1
   hillAdjustment: 0.2
   buildTime: 0
   availableInitially: 1
-  workAnimLoop: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   noWalkAreas: []

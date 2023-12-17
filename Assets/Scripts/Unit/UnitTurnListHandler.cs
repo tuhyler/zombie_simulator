@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class UnitTurnListHandler : MonoBehaviour
 {
-
-    [SerializeField]
-    private UIUnitTurnHandler uiUnitTurnHandler;
-
     [SerializeField]
     private UnitMovement unitMovement;
 
@@ -16,18 +12,6 @@ public class UnitTurnListHandler : MonoBehaviour
 
     private List<Unit> unitTurnList = new(); 
 
-
-    //public void ListCountCheck()
-    //{
-    //    if (CountOfList() > 0)
-    //    {
-    //        uiUnitTurnHandler.ToggleInteractable(true);
-    //    }
-    //    else
-    //    {
-    //        uiUnitTurnHandler.ToggleInteractable(false);
-    //    }
-    //}
 
     public int GetIndexOf(Unit unit)
     {
@@ -43,8 +27,6 @@ public class UnitTurnListHandler : MonoBehaviour
     {
         if (!unitTurnList.Contains(unit))
             unitTurnList.Add(unit);
-
-        uiUnitTurnHandler.ToggleInteractable(true);
     }
 
     public Unit GetFromTurnList(int index)
@@ -55,21 +37,10 @@ public class UnitTurnListHandler : MonoBehaviour
     public void RemoveUnitFromTurnList(Unit unit)
     {
         unitTurnList.Remove(unit);
-        if (unitTurnList.Count == 0)
-        {
-            uiUnitTurnHandler.ToggleInteractable(false);
-            //unitTurnList = new();
-        }
     }
 
     public int CountOfList()
     {
         return unitTurnList.Count;
     }
-
-    //public void WaitTurn()
-    //{
-    //    if (CountOfList() > 0)
-    //        uiUnitTurnHandler.ToggleInteractable(true);
-    //}
 }

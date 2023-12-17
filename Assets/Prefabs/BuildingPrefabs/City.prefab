@@ -193,6 +193,7 @@ MonoBehaviour:
   hasBarracks: 0
   highlighted: 0
   harborTraining: 0
+  hasMarket: 0
   uiCityResourceInfoPanel: {fileID: 0}
   harborLocation: {x: 0, y: 0, z: 0}
   barracksLocation: {x: 0, y: 0, z: 0}
@@ -200,13 +201,14 @@ MonoBehaviour:
   world: {fileID: 0}
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
-  secondsTillGrowthCheck: 10
-  initialGrowthFood: 3
+  secondsTillGrowthCheck: 60
+  growthFood: 3
   foodConsumptionPerMinute: 0
   housingLocsAtMax: 0
-  waterMaxPop: 0
+  waterCount: 0
   workEthic: 1
   warehouseStorageLimit: 2000
+  autoGrow: 0
   tradersHere: []
   popGainClip: {fileID: 8300000, guid: fcde351d843e08c44a77b6d265bfd7ef, type: 3}
   popLoseClip: {fileID: 8300000, guid: d0d74fce719734045aa5902107dc9b80, type: 3}
@@ -259,10 +261,9 @@ MonoBehaviour:
   resourcesNeededForProduction: 
   waitingForTraderList: []
   resourcesNeededForRoute: 
-  uiInfoPanelCity: {fileID: 0}
   initialResources:
   - resourceType: 2
-    resourceAmount: 2
+    resourceAmount: 100
   - resourceType: 6
     resourceAmount: 500
   - resourceType: 7

@@ -47,7 +47,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public UISingleConditionalButtonHandler wonderButton, uiConfirmWonderBuild, uiRotateWonder, uiMainMenuButton, conversationListButton;
     [SerializeField]
-    private RectTransform mapPanelButton, mainMenuButton;
+    public RectTransform mapPanelButton;
     [SerializeField]
     private UIWonderHandler wonderHandler;
     [SerializeField]
@@ -306,7 +306,7 @@ public class MapWorld : MonoBehaviour
 			    buildOption.SetBuildOptionData(builderHandler);
             }
             
-            improvementDataDict[data.improvementName + "-" + data.improvementLevel] = data;
+            improvementDataDict[data.improvementNameAndLevel] = data;
             
             if (data.availableInitially)
                 data.Locked = false;
@@ -348,7 +348,7 @@ public class MapWorld : MonoBehaviour
             }
 
             upgradeableObjectName = data.improvementNameAndLevel; //needs to be last to compare to following data
-            upgradeableObjectTotalCost = data.improvementCost;
+            upgradeableObjectTotalCost = new(data.improvementCost);
             upgradeableObjectLevel = data.improvementLevel;
         }
 
@@ -363,15 +363,12 @@ public class MapWorld : MonoBehaviour
 		//populating the upgradeableobjectdict, every one starts at level 1. 
 		foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
         {
-			if (!data.isSecondary)
-            {
-                GameObject buildPanelGO = Instantiate(buildPanel);
+            GameObject buildPanelGO = Instantiate(buildPanel);
 			
-			    UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
-			    buildOption.UnitBuildData = data;
-			    buildPanelGO.transform.SetParent(cityBuilderManager.uiUnitBuilder.objectHolder, false);
-			    buildOption.SetBuildOptionData(cityBuilderManager.uiUnitBuilder);
-            }
+			UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
+			buildOption.UnitBuildData = data;
+			buildPanelGO.transform.SetParent(cityBuilderManager.uiUnitBuilder.objectHolder, false);
+			buildOption.SetBuildOptionData(cityBuilderManager.uiUnitBuilder);
 
 			unitBuildDataDict[data.unitNameAndLevel] = data;
             
@@ -414,7 +411,7 @@ public class MapWorld : MonoBehaviour
 			}
 
 			upgradeableObjectName = data.unitNameAndLevel; //needs to be last to compare to following data
-			upgradeableObjectTotalCost = data.unitCost;
+			upgradeableObjectTotalCost = new(data.unitCost);
 			upgradeableObjectLevel = data.unitLevel;
 		}
 
@@ -524,7 +521,7 @@ public class MapWorld : MonoBehaviour
 		foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
 		{
 			Unit unitEnemy = go.GetComponent<Unit>();
-			unitEnemy.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+			unitEnemy.SetReferences(this);
 
 			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
 			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
@@ -618,7 +615,7 @@ public class MapWorld : MonoBehaviour
 
 		Unit unit = mainPlayer.GetComponent<Unit>();
         uiSpeechWindow.AddToSpeakingDict("Koa", mainPlayer);
-		unit.SetReferences(this, cameraController, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+		unit.SetReferences(this);
 
 		unit.Reveal();
 		Vector3Int unitPos = RoundToInt(unit.transform.position);
@@ -699,7 +696,6 @@ public class MapWorld : MonoBehaviour
         hideUI = !v;
         ToggleMinimap(v);
 		ToggleWorldResourceUI(v);
-		cityBuilderManager.uiUnitTurn.gameObject.SetActive(v);
 	}
 
 	public void NewMap(Dictionary<Vector3Int, TerrainData> terrainDict)
@@ -1365,7 +1361,7 @@ public class MapWorld : MonoBehaviour
                 Unit unit = enemyGO.GetComponent<Unit>();
                 if (tdCamp.CompareTag("Forest") || tdCamp.CompareTag("Forest Hill"))
                     unit.marker.gameObject.SetActive(true);
-		        unit.SetReferences(this, cityBuilderManager.focusCam, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+		        unit.SetReferences(this);
 		        if (!attacked) //just in case dictionary was missing any
 			        unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
 		        unit.CurrentLocation = unitLoc;
@@ -1417,7 +1413,7 @@ public class MapWorld : MonoBehaviour
 		GameObject unit = Instantiate(unitGO, data.currentLocation, data.rotation); //produce unit at specified position
 		unit.gameObject.transform.SetParent(unitHolder, false);
 		Unit newUnit = unit.GetComponent<Unit>();
-		newUnit.SetReferences(this, cameraController, cityBuilderManager.uiUnitTurn, cityBuilderManager.movementSystem);
+		newUnit.SetReferences(this);
 		AddUnitPosition(data.currentLocation, newUnit);
 		newUnit.SetMinimapIcon(unitHolder);
 
@@ -1972,7 +1968,7 @@ public class MapWorld : MonoBehaviour
             LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
 			LeanTween.moveX(conversationListButton.allContents, conversationListButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
-            LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(uiMainMenuButton.allContents, uiMainMenuButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
 		}
         else
@@ -1982,7 +1978,7 @@ public class MapWorld : MonoBehaviour
             LeanTween.moveX(wonderButton.allContents, wonderButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
 			LeanTween.moveX(conversationListButton.allContents, conversationListButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + 400f, 0.3f);
-            LeanTween.moveX(mainMenuButton, mainMenuButton.anchoredPosition3D.x + 400f, 0.3f);
+            LeanTween.moveX(uiMainMenuButton.allContents, uiMainMenuButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
 			LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + 400f, 0.3f);
         }
     }

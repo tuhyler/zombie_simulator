@@ -14,15 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2047896648242801043, guid: 96bbcee1e4d2d3c47b0587e9066766a8, type: 3}
   secondaryData: []
+  audio: {fileID: 0}
+  isSecondary: 0
   isBuilding: 1
+  isBuildingImprovement: 0
   improvementName: Market
   improvementDisplayName: Bazaar
   improvementLevel: 1
   improvementNameAndLevel: Market-1
-  improvementDescription: Allows trading
+  improvementDescription: Allows trading of crafted goods
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: fb5244d8238bfa24294e1f4cd843bf44, type: 3}
-  littleImage: {fileID: 21300000, guid: fb5244d8238bfa24294e1f4cd843bf44, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 7
@@ -45,14 +47,16 @@ MonoBehaviour:
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 1
   oneTerrain: 1
   adjustForHill: 1
+  hideProp: 1
   hillAdjustment: 0.6
   buildTime: 0
   availableInitially: 1
-  workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas: []

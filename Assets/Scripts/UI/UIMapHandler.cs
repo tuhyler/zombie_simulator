@@ -9,9 +9,6 @@ public class UIMapHandler : MonoBehaviour
     private MapWorld world;
 
     [SerializeField]
-    private UIUnitTurnHandler uiUnitTurn;
-
-    [SerializeField]
     private UIMapResourceSearch resourceSearch;
 
     [SerializeField]
@@ -21,7 +18,7 @@ public class UIMapHandler : MonoBehaviour
     private Button mapButton;
 
     [SerializeField]
-    private GameObject camDirection, tomFinderButton, mapPanelButton, mainMenuButton, wonderButton;
+    private GameObject camDirection;
 
     [SerializeField]
     public RectTransform minimapHolder, minimapMask, minimapImage, minimapRing;
@@ -76,8 +73,6 @@ public class UIMapHandler : MonoBehaviour
 
     public void ToggleMap()
     {
-        //if (world.workerOrders)
-        //    return;
         if (world.unitOrders || world.buildingWonder)
             world.CloseBuildingSomethingPanel();
         
@@ -115,7 +110,6 @@ public class UIMapHandler : MonoBehaviour
             activeStatus = true;
             
             Vector3 enlargedSize = new Vector3(Screen.width * canvasRatio, Screen.height * canvasRatio, 0);
-            uiUnitTurn.gameObject.SetActive(false);
 
             minimapRing.gameObject.SetActive(false);
             camDirection.SetActive(false);
@@ -151,7 +145,6 @@ public class UIMapHandler : MonoBehaviour
 
             cameraController.transform.localEulerAngles = prevRotation;
             activeStatus = false;
-            uiUnitTurn.gameObject.SetActive(true);
 
             minimapRing.gameObject.SetActive(true);
             camDirection.SetActive(true);
@@ -178,17 +171,19 @@ public class UIMapHandler : MonoBehaviour
     {
         if (activeStatus)
         {
-            tomFinderButton.SetActive(true);
-            mapPanelButton.SetActive(true);
-            wonderButton.SetActive(true);
-            mainMenuButton.SetActive(true);
-        }
+            world.uiTomFinder.gameObject.SetActive(true);
+            world.mapPanelButton.gameObject.SetActive(true);
+            world.wonderButton.gameObject.SetActive(true);
+            world.uiMainMenuButton.gameObject.SetActive(true);
+			world.conversationListButton.gameObject.SetActive(true);
+		}
         else
         {
-            tomFinderButton.SetActive(false);
-            mapPanelButton.SetActive(false);
-            wonderButton.SetActive(false);
-            mainMenuButton.SetActive(false);
+            world.uiTomFinder.gameObject.SetActive(false);
+            world.mapPanelButton.gameObject.SetActive(false);
+            world.wonderButton.gameObject.SetActive(false);
+            world.uiMainMenuButton.gameObject.SetActive(false);
+            world.conversationListButton.gameObject.SetActive(false);
         }
     }
 

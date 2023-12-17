@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4908702689438750486, guid: b6670cb09cf2bc749b3032f64f208bcc, type: 3}
   secondaryData: []
+  audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
   isBuildingImprovement: 1
@@ -52,10 +53,10 @@ MonoBehaviour:
   singleBuild: 1
   oneTerrain: 1
   adjustForHill: 0
+  hideProp: 1
   hillAdjustment: 0
   buildTime: 5
-  availableInitially: 1
-  workAnimLoop: 0
+  availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   noWalkAreas: []
