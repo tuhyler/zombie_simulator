@@ -6,9 +6,6 @@ public class UIDestroyCityWarning : MonoBehaviour
     private HandlePlayerInput playerInput;
 
     [SerializeField]
-    private UIUnitTurnHandler turnHandler;
-
-    [SerializeField]
     private UICityBuildTabHandler uiCityBuildTabHandler;
 
     [SerializeField]

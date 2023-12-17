@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UICityPopIncreasePanel : MonoBehaviour
 {
@@ -14,10 +15,14 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	[SerializeField]
 	private TMP_Text foodCostText, foodCycleCostText, housingCostText, waterCostText;
 
+	[SerializeField]
+	private Image buttonImage;
+
 	private City city;
 
 	private int foodCost, foodCycleCost, housingCost, waterCost, amount;
 	private ResourceValue food;
+	private Color originalButtonColor;
 
 	private bool cantAfford, needWater, needHousing;
 	
@@ -29,6 +34,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 
 	private void Awake()
 	{
+		originalButtonColor = buttonImage.color;
 		gameObject.SetActive(false);
 	}
 
@@ -45,6 +51,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 			this.amount = amount;
 			SetCosts(city);
 			SetCostPanelInfo(city, amount, joinCity);
+			ToggleColor(true);
 
 			world.infoPopUpCanvas.gameObject.SetActive(true);
 			gameObject.SetActive(val);
@@ -55,6 +62,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 		{
 			this.city = null;
 			activeStatus = false;
+			ToggleColor(false);
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
 		}
 	}
@@ -68,7 +76,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	//setting this in case cities differ on food costs
 	private void SetCosts(City city)
 	{
-		foodCost = city.initialGrowthFood;
+		foodCost = city.growthFood;
 		foodCycleCost = city.unitFoodConsumptionPerMinute + city.foodConsumptionPerMinute;
 		housingCost = 1;
 		waterCost = 1;
@@ -113,7 +121,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 			housingCostText.color = Color.white;
 		}
 
-		if (city.waterMaxPop - city.cityPop.CurrentPop < amount * waterCost)
+		if (city.waterCount < amount * waterCost)
 		{
 			cantAfford = true;
 			needWater = true;
@@ -162,7 +170,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 
 	public void UpdateWaterCosts(City city)
 	{
-		if (city.waterMaxPop - city.cityPop.CurrentPop < amount * waterCost)
+		if (city.waterCount < amount * waterCost)
 		{
 			cantAfford = false;
 			waterCostText.color = Color.red;
@@ -180,9 +188,21 @@ public class UICityPopIncreasePanel : MonoBehaviour
 			if (city.world.unitMovement.selectedUnit != null)
 				city.world.unitMovement.JoinCityConfirm(city);
 			else
-				city.PopulationGrowthCheck(true, amount);
+				city.PopulationGrowthCheck(false, amount);
 
 			ToggleVisibility(false);
+		}
+	}
+
+	public void ToggleColor(bool v)
+	{
+		if (v)
+		{
+			buttonImage.color = Color.green;
+		}
+		else
+		{
+			buttonImage.color = originalButtonColor;
 		}
 	}
 
@@ -192,11 +212,11 @@ public class UICityPopIncreasePanel : MonoBehaviour
 		{
 			StartCoroutine(Shake());
 			if (needWater)
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need water. Build camp with river in radius or build a well.", true, false);
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need water. Build camp with river in radius or build a well.", true);
 			else if (needHousing)
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need housing. Build more housing.", true, false);
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need housing. Build more housing.", true);
 			else
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need more food", true, false);
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need more food", true);
 
 			return false;
 		}

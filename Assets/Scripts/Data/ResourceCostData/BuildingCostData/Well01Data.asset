@@ -10,27 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Harbor01Data
+  m_Name: Well01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 4908702689438750486, guid: b6670cb09cf2bc749b3032f64f208bcc, type: 3}
+  prefab: {fileID: 7952248765643111094, guid: 86e1653ccae37404d808370b22a52b1a, type: 3}
   secondaryData: []
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
-  isBuildingImprovement: 1
-  improvementName: Harbor
-  improvementDisplayName: Harbor
+  isBuildingImprovement: 0
+  improvementName: Well
+  improvementDisplayName: Well
   improvementLevel: 1
-  improvementNameAndLevel: Harbor-1
-  improvementDescription: Allows Naval Trade Ports
-  buildingLocation: {x: 0, y: 0, z: 0}
-  image: {fileID: 21300000, guid: 566e6de9ae538ea4291b0ace6a811643, type: 3}
-  mapIcon: {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}
+  improvementNameAndLevel: Well-1
+  improvementDescription: 
+  buildingLocation: {x: -0.6, y: 0, z: -1.3}
+  image: {fileID: 21300000, guid: 6ca7e4c9d07a9bf4693721e45aadcad3, type: 3}
+  mapIcon: {fileID: 0}
   improvementCost:
-  - resourceType: 6
-    resourceAmount: 15
   - resourceType: 7
-    resourceAmount: 10
+    resourceAmount: 8
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -41,22 +39,22 @@ MonoBehaviour:
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
-  terrainType: 1
+  terrainType: 0
   specificTerrain: 0
   workEthicChange: 0
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0
-  waterIncrease: 0
+  waterIncrease: 4
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 1
   oneTerrain: 1
-  adjustForHill: 0
+  adjustForHill: 1
   hideProp: 1
-  hillAdjustment: 0
-  buildTime: 5
-  availableInitially: 0
+  hillAdjustment: 0.2
+  buildTime: 0
+  availableInitially: 1
   hideIdleMesh: 0
   getTerrainResource: 0
   noWalkAreas: []

@@ -58,6 +58,8 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             UILaborResourcePriority uiLaborResource = AddResourcePriority();
             uiLaborResource.SetCaptionResourceInfo(resourceType);
         }
+
+        //SetLaborPriorities();
     }
 
     //private void AddResources()
@@ -81,9 +83,10 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             openPrioritizationImage.sprite = buttonLeft;
             activeStatus = true;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(-260f, 0, 0);
+            int shift = 450;
 
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 260f, 0.3f).setEaseOutSine();
+            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -shift, 0);
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + shift, 0.3f).setEaseOutSine();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear(); //don't like alpha fading here
         }
         else
@@ -91,11 +94,9 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
             activeStatus = false;
             city = null;
             openPrioritizationImage.sprite = buttonRight;
-            
-            if (!exitCity)
-                LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -300f, 0.3f).setOnComplete(SetActiveStatusFalse);
-            else
-                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -950f, 0.3f).setOnComplete(SetActiveStatusFalse);
+
+            int shift = exitCity ? 950 : 450;
+			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -shift, 0.3f).setOnComplete(SetActiveStatusFalse);
         }
     }
 
@@ -126,14 +127,16 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     {
         city.world.cityBuilderManager.PlaySelectAudio();
         
-        if (resourcePriorityList.Count >= 10) //limit
+        if (resourcePriorityList.Count >= 5) //limit
         {
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Max resources");
+			Vector3 mousePosition = Input.mousePosition;
+			mousePosition.x += 150;
+			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Reached priority limit");
             return;
         }
 
         AddResourcePriority();
-    }
+	}
 
     private UILaborResourcePriority AddResourcePriority() //showing a new resource priority panel
     {
@@ -161,40 +164,40 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         resourcePriorityList.Insert(priority-1, uiLaborResourcePriority);
     }
 
-    public void MovePriorityUp(UILaborResourcePriority uiLaborResourcePriority, int priority)
-    {
-        UILaborResourcePriority priorityAbove = resourcePriorityList[priority - 1];
-        priorityAbove.SetPriority(priorityAbove.currentPriorityNumber + 1);
-        resourcePriorityList.Remove(uiLaborResourcePriority);
-        resourcePriorityList.Insert(priority-1, uiLaborResourcePriority);
-        resourcePriorityHolderDict[priority-1].MoveStop(resourcePriorityHolderDict[priority]);
+    //public void MovePriorityUp(UILaborResourcePriority uiLaborResourcePriority, int priority)
+    //{
+    //    UILaborResourcePriority priorityAbove = resourcePriorityList[priority - 1];
+    //    priorityAbove.SetPriority(priorityAbove.currentPriorityNumber + 1);
+    //    resourcePriorityList.Remove(uiLaborResourcePriority);
+    //    resourcePriorityList.Insert(priority-1, uiLaborResourcePriority);
+    //    resourcePriorityHolderDict[priority-1].MoveStop(resourcePriorityHolderDict[priority]);
 
-        priorityAbove.transform.SetParent(resourcePriorityHolderDict[priority - 1].transform, false);
-        Vector3 newLoc = resourcePriorityHolderDict[priority - 1].transform.position;
-        resourcePriorityHolderDict[priority - 1].resource = priorityAbove;
-        //priorityAbove.currentPriorityNumber = priority - 1;
+    //    priorityAbove.transform.SetParent(resourcePriorityHolderDict[priority - 1].transform, false);
+    //    Vector3 newLoc = resourcePriorityHolderDict[priority - 1].transform.position;
+    //    resourcePriorityHolderDict[priority - 1].resource = priorityAbove;
+    //    //priorityAbove.currentPriorityNumber = priority - 1;
 
-        LeanTween.move(priorityAbove.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priorityAbove); });
-        priorityAbove.transform.localPosition = Vector3.zero;
-    }
+    //    LeanTween.move(priorityAbove.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priorityAbove); });
+    //    priorityAbove.transform.localPosition = Vector3.zero;
+    //}
 
 
-    public void MovePriorityDown(UILaborResourcePriority uiLaborResourcePriority, int priority)
-    {
-        UILaborResourcePriority priorityBelow = resourcePriorityList[priority - 1];
-        priorityBelow.SetPriority(priorityBelow.currentPriorityNumber - 1);
-        resourcePriorityList.Remove(uiLaborResourcePriority);
-        resourcePriorityList.Insert(priority-1, uiLaborResourcePriority);
-        resourcePriorityHolderDict[priority - 1].MoveStop(resourcePriorityHolderDict[priority-2]);
+    //public void MovePriorityDown(UILaborResourcePriority uiLaborResourcePriority, int priority)
+    //{
+    //    UILaborResourcePriority priorityBelow = resourcePriorityList[priority - 1];
+    //    priorityBelow.SetPriority(priorityBelow.currentPriorityNumber - 1);
+    //    resourcePriorityList.Remove(uiLaborResourcePriority);
+    //    resourcePriorityList.Insert(priority-1, uiLaborResourcePriority);
+    //    resourcePriorityHolderDict[priority - 1].MoveStop(resourcePriorityHolderDict[priority-2]);
 
-        priorityBelow.transform.SetParent(resourcePriorityHolderDict[priority - 1].transform, false);
-        Vector3 newLoc = resourcePriorityHolderDict[priority - 1].transform.position;
-        resourcePriorityHolderDict[priority - 1].resource = priorityBelow;
-        //priorityAbove.currentPriorityNumber = priority - 1;
+    //    priorityBelow.transform.SetParent(resourcePriorityHolderDict[priority - 1].transform, false);
+    //    Vector3 newLoc = resourcePriorityHolderDict[priority - 1].transform.position;
+    //    resourcePriorityHolderDict[priority - 1].resource = priorityBelow;
+    //    //priorityAbove.currentPriorityNumber = priority - 1;
 
-        LeanTween.move(priorityBelow.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priorityBelow); });
-        priorityBelow.transform.localPosition = Vector3.zero;
-    }
+    //    LeanTween.move(priorityBelow.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priorityBelow); });
+    //    priorityBelow.transform.localPosition = Vector3.zero;
+    //}
 
     public void MovePriority(int loc, bool up)
     {
@@ -220,8 +223,8 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         resourcePriorityHolderDict[loc - 1].resource = priority;
 
         LeanTween.move(priority.gameObject, newLoc, 0.2f).setEaseOutSine().setOnComplete(() => { SetZeroLoc(priority); });
-        //priority.transform.localPosition = Vector3.zero;
-    }
+		//priority.transform.localPosition = Vector3.zero;
+	}
 
     public void SetZeroLoc(UILaborResourcePriority resource)
     {

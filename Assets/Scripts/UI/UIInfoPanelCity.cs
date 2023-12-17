@@ -5,12 +5,12 @@ using UnityEngine.UI;
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel, foodLevelText, foodGrowthText/*, foodPerMinute*/;
+    private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel/*, foodLevelText, foodGrowthText*//*, foodPerMinute*/;
 
-    [SerializeField]
-    private Toggle pauseGrowthToggle;
+    //[SerializeField]
+    //private Toggle pauseGrowthToggle;
 
-    private int foodPerUnit = 1;
+    //private int foodPerUnit = 1;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -27,76 +27,44 @@ public class UIInfoPanelCity : MonoBehaviour
     }
 
     //setting food goal to grow
-    public void SetGrowthNumber(int growth)
+    //public void SetGrowthNumber(int growth)
+    //{
+    //    foodPerUnit = growth;
+    //}
+
+    public void SetAllData(City city)
     {
-        foodPerUnit = growth;
+        nameText.text = city.cityName;
+
+		cityPop.text = city.cityPop.CurrentPop.ToString();
+
+        UpdateHousing(city.HousingCount);
+        UpdateWater(city.waterCount);
+
+        unusedLabor.text = city.cityPop.UnusedLabor.ToString();
+        UpdateWorkEthic(city.workEthic);
     }
 
-    public void SetData(string name, int pop, int housing, int labor, float ethic, int foodLevel/*, float food*/)
+    public void SetGrowthData(City city)
     {
-        nameText.text = name;
-
-        SetCityAndFoodStats(pop, foodLevel);
-
-        if (housing < 0)
-        {
-            availableHousing.text = $"-{housing}";
-            availableHousing.color = Color.red;
-        }
-        else if (housing == 0)
-        {
-            availableHousing.text = $"{housing}";
-            availableHousing.color = Color.white;
-
-        }
-        else
-        {
-            availableHousing.text = $"+{housing}";
-            availableHousing.color = Color.green;
-        }
-
-        unusedLabor.text = $"Unemployed: {labor}";
-        workEthic.text = $"{ethic * 100}%";
-        if (ethic < .5)
-            workEthic.color = Color.red;
-        else if (ethic < .8)
-            workEthic.color = Color.yellow;
-        else
-            workEthic.color = Color.green;
+		cityPop.text = city.cityPop.CurrentPop.ToString();
+		UpdateHousing(city.HousingCount);
+        UpdateWater(city.waterCount);
     }
-
     //public void SetTimer(int time)
     //{
     //    growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
     //}
 
-    public void UpdateFoodStats(int pop, int foodLevel/*, float food*/)
+    public void UpdateFoodStats(int pop/*, int foodLevel*//*, float food*/)
     {
-        SetCityAndFoodStats(pop, foodLevel);
-    }
+		cityPop.text = pop.ToString();
+	}
 
-    private void SetCityAndFoodStats(int pop, int foodLevel/*, float food*/)
-    {
-        //this.foodLimit = foodLimit;
-        //int foodLevelAdj = Mathf.Max(0, foodLevel);
-
-        cityPop.text = $"Size: {pop}";
-        foodLevelText.text = foodLevel.ToString();
-        //foodPerMinute.text = food.ToString();
-        foodGrowthText.text = (foodLevel + foodPerUnit).ToString();
-
-        //if (food - foodLevel > 0)
-        //    foodPerMinute.color = Color.green;
-        //else if (food - foodLevel < 0)
-        //    foodPerMinute.color = Color.red;
-        //else
-        //    foodPerMinute.color = Color.white;
-    }
-
-    public void SetGrowthPauseToggle(bool v)
-    {
-        pauseGrowthToggle.isOn = v;
-    }
+    //public void SetGrowthPauseToggle(bool v)
+    //{
+    //    pauseGrowthToggle.isOn = v;
+    //}
 
     public void UpdateCityName(string name)
     {
@@ -131,38 +99,41 @@ public class UIInfoPanelCity : MonoBehaviour
     public void UpdateWorkEthic(float ethic)
     {
         workEthic.text = $"{ethic * 100}%";
-        if (ethic < .5)
+        if (ethic < 1)
             workEthic.color = Color.red;
-        else if (ethic < .8)
-            workEthic.color = Color.yellow;
+        else if (ethic == 1)
+            workEthic.color = Color.white;
         else
             workEthic.color = Color.green;
     }
 
-    public void UpdateWater(int maxWaterPop)
+    public void UpdateWater(int waterPop)
     {
-        if (maxWaterPop == 9999)
+        if (waterPop >= 9000)
         {
             waterLevel.color = Color.green;
-            waterLevel.text = "Fresh water";
-        }
-        else if (maxWaterPop > 0)
+			waterLevel.text = "\u221E"; //infinity symbol
+			waterLevel.fontSize = 44;
+		}
+        else if (waterPop > 0)
         {
-			waterLevel.color = Color.yellow;
-			waterLevel.text = "Max pop of " + maxWaterPop;
+			waterLevel.color = Color.green;
+			waterLevel.text = "+" + waterPop.ToString();
+			waterLevel.fontSize = 26;
+		}
+        else if (waterPop == 0)
+        {
+            waterLevel.color = Color.white;
+            waterLevel.text = waterPop.ToString();
+			waterLevel.fontSize = 26;
 		}
         else
         {
-            waterLevel.color = Color.red;
-            waterLevel.text = "NONE";
-        }
-    }
-
-    public void LimitedWater()
-    {
-        waterLevel.color = Color.yellow;
-        waterLevel.text = "Max pop of 4";
-    }
+			waterLevel.color = Color.red;
+			waterLevel.text = waterPop.ToString();
+			waterLevel.fontSize = 26;
+		}
+	}
 
     public void ToggleVisibility(bool v)
     {
@@ -177,9 +148,9 @@ public class UIInfoPanelCity : MonoBehaviour
 
             activeStatus = true;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
             //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else

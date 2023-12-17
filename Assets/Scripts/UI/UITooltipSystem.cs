@@ -6,12 +6,12 @@ using UnityEngine;
 public class UITooltipSystem : MonoBehaviour
 {
     private static UITooltipSystem current;
-    private Canvas canvas;
+    //private Canvas canvas;
     public UITooltip tooltip;
 
     private void Awake()
     {
-        canvas = GetComponent<Canvas>();
+        //canvas = GetComponent<Canvas>();
         current = this;
     }
 
@@ -19,7 +19,7 @@ public class UITooltipSystem : MonoBehaviour
     {
         current.tooltip.SetInfo(message);
         current.tooltip.gameObject.SetActive(true);
-        current.canvas.gameObject.SetActive(true);
+        //current.canvas.gameObject.SetActive(true);
 
         Color fade = current.tooltip.messageText.color;
         LeanTween.alpha(current.tooltip.allContents, 1f, .2f).setFrom(0f).setEaseLinear();
@@ -36,6 +36,6 @@ public class UITooltipSystem : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         current.tooltip.gameObject.SetActive(false);
-        current.canvas.gameObject.SetActive(false);
+        //current.canvas.gameObject.SetActive(false);
     }
 }

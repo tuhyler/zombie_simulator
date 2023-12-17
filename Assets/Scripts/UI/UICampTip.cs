@@ -88,7 +88,8 @@ public class UICampTip : MonoBehaviour
 			float x = 0.5f;
 			float y = 0.5f;
 
-			p.z = 1;
+			p.z = 935;
+			//p.z = 1;
 			if (p.y + allContents.rect.height * 0.5f > Screen.height)
 				y = 1f;
 			else if (p.y - allContents.rect.height * 0.5f < 0)

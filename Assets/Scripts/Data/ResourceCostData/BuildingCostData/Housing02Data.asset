@@ -14,15 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 797404626622159405, guid: f95cd2d29c3d35844b009967768a14a4, type: 3}
   secondaryData: []
+  audio: {fileID: 0}
+  isSecondary: 0
   isBuilding: 1
+  isBuildingImprovement: 0
   improvementName: Housing
   improvementDisplayName: Medium Hut
   improvementLevel: 2
   improvementNameAndLevel: Housing-2
-  improvementDescription: Increases housing by 2
+  improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 1}
   image: {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
-  littleImage: {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 7
@@ -45,15 +47,16 @@ MonoBehaviour:
   maxLabor: 5
   housingIncrease: 2
   cityHousing: 1
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
+  hideProp: 1
   hillAdjustment: 0.4
   buildTime: 0
   availableInitially: 0
-  workAnimLoop: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   noWalkAreas: []

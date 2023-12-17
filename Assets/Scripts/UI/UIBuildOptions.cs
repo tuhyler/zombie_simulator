@@ -20,7 +20,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private UIBuilderHandler buttonHandler;
 
     [SerializeField]
-    private TMP_Text objectName, objectLevel, producesTitle, health, speed, strength, description, descriptionTitle;
+    private TMP_Text objectName, objectLevel, producesTitle, health, speed, strength, description, descriptionTitle, workEthicText, housingText, waterText;
 
     [SerializeField]
     private Image objectImage, strengthImage;
@@ -29,10 +29,10 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private Sprite inventorySprite, rocksNormal, rocksLuxury, rocksChemical;
 
     [SerializeField]
-    private GameObject resourceInfoPanel, productionPanel, descriptionPanel;
+    private GameObject resourceInfoPanel, productionPanel, descriptionPanel, workEthicImage, housingImage, waterImage;
 
     [SerializeField]
-    private Transform resourceProducedHolder, resourceCostHolder, unitDescription;
+    private Transform resourceProducedHolder, resourceCostHolder, unitDescription, cityStatsDecription;
 
     [SerializeField]
     private RectTransform /*resourceProduceAllHolder, */allContents, imageLine;
@@ -93,15 +93,15 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     //creating the menu card for each buildable object, showing name, function, cost, etc. 
     private void PopulateSelectionPanel()
     {
-        float workEthicChange = 0;
         string objectDescription = "";
         List<ResourceValue> objectProduced;
         List<int> producedResourceTime;
         List<List<ResourceValue>> objectConsumed = new();
         List<ResourceValue> objectCost;
         bool arrowBuffer = false;
+		bool showCityStatsDesc = false;
 
-        if (isUnitPanel)
+		if (isUnitPanel)
         {
             health.text = unitBuildData.health.ToString();
             speed.text = Mathf.RoundToInt(unitBuildData.movementSpeed * 2).ToString();
@@ -158,8 +158,34 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 objectConsumed.Add(new(buildData.consumedResources3));
             if (buildData.consumedResources4.Count > 0)
                 objectConsumed.Add(new(buildData.consumedResources4));
-            workEthicChange = buildData.workEthicChange;
             objectDescription = buildData.improvementDescription;
+
+            if (buildData.workEthicChange > 0)
+            {
+                workEthicImage.SetActive(true);
+                workEthicText.gameObject.SetActive(true);
+                workEthicText.text = "+" + Mathf.RoundToInt(buildData.workEthicChange * 100).ToString() + "%";
+                showCityStatsDesc = true;
+            }
+
+            if (buildData.housingIncrease > 0)
+            {
+                housingImage.SetActive(true);
+                housingText.gameObject.SetActive(true);
+                housingText.text = "+" + buildData.housingIncrease.ToString();
+				showCityStatsDesc = true;
+			}
+
+            if (buildData.waterIncrease > 0)
+            {
+                waterImage.SetActive(true);
+                waterText.gameObject.SetActive(true);
+                waterText.text = "+" + buildData.waterIncrease.ToString();
+				showCityStatsDesc = true;
+			}
+
+            if (showCityStatsDesc)
+                cityStatsDecription.gameObject.SetActive(true);
 
             if (buildData.secondaryData.Count > 0)
             {
@@ -229,30 +255,55 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         int produceHolderWidth = 220;
         int imageLineWidth = 300;
 
-        if (objectDescription.Length > 0)
+        if (objectDescription.Length > 0 || showCityStatsDesc)
         {
             descriptionPanel.SetActive(true);
 
-            if (!isUnitPanel && objectDescription.Length < 23)
-                allContentsHeight += 85;
+            if (objectDescription.Length > 0)
+            {
+                bool bigText;
+                
+                if (!isUnitPanel && objectDescription.Length < 23)
+                {
+                    allContentsHeight += 85;
+                    bigText = false;
+                }
+                else
+                {
+				    allContentsHeight += 120;
+                    bigText = true;
+                }
+
+                description.text = objectDescription;
+				descriptionTitle.text = "Additional Info";
+
+                if (showCityStatsDesc)
+                {
+                    Vector3 localPosition = cityStatsDecription.localPosition;
+                    localPosition.y += bigText ? -75 : -45;
+                    cityStatsDecription.localPosition = localPosition;
+                }
+            }
             else
-				allContentsHeight += 120;
+            {
+				description.gameObject.SetActive(false);
+            }
+            
+            if (showCityStatsDesc)
+            {
+				allContentsHeight += objectDescription.Length > 0 ? 60 : 100;
+                descriptionTitle.text = "Benefits";
+			}
 
 			if (isUnitPanel)
             {
                 unitDescription.gameObject.SetActive(true);
-                description.text = objectDescription;
                 producesTitle.text = "Cost per Growth Cycle";
                 descriptionTitle.text = "Unit Info";
             }
             else
             {
-                if (workEthicChange > 0)
-                    description.text = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
-                else
-                    description.text = objectDescription;
                 producesTitle.text = "Produces";
-                descriptionTitle.text = "Additional Info";
             }
 
             if (producedCount == 0)
@@ -462,12 +513,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            if (buildData.housingIncrease > 0 && waterMax)
-            {
-				StartCoroutine(Shake());
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Reached water limit. Build well or have river in boundaries");
-				return;
-			}
+   //         if (buildData.housingIncrease > 0 && waterMax)
+   //         {
+			//	StartCoroutine(Shake());
+			//	UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Reached water limit. Build well or have river in boundaries");
+			//	return;
+			//}
 
             buttonHandler.cityBuilderManager.world.TutorialCheck("Building Something");
             buttonHandler.PrepareBuild(buildData);

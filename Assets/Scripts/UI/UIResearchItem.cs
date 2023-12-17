@@ -316,7 +316,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                     researchItem.TempUnlockCheck();
             }
         }
-        else if (!locked)
+        else if (locked)
+        {
+
+        }
+        else
         {
             if (!researchTree.isQueueing && researchTree.QueueCount() > 0)
                 researchTree.EndQueue();
@@ -364,9 +368,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 		researchPercentDone.outlineWidth = 0f;
 		researchPercentDone.text = totalResearchNeeded.ToString();
         //researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
-        researchPercentDone.outlineWidth = 0f;
+        //researchPercentDone.outlineWidth = 0f;
+        researchPercentDone.gameObject.SetActive(false);
         researchIcon.gameObject.SetActive(true);
-    }
+		researchPercentDone.gameObject.SetActive(true); //work around to ensure changed outline width is updated. Outline width is very buggy
+	}
 
     public void UpdateProgressBar()
     {

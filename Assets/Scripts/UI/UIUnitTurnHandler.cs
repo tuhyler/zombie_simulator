@@ -5,13 +5,8 @@ using UnityEngine.UI;
 
 public class UIUnitTurnHandler : MonoBehaviour
 {
-    //[SerializeField]
-    //private AllUnitDataSO allUnitDataSO;
     [SerializeField]
     private MapWorld world;
-
-    [SerializeField]
-    private CanvasGroup canvasGroup;
 
     [HideInInspector]
     public UnitTurnListHandler turnHandler;
@@ -20,9 +15,6 @@ public class UIUnitTurnHandler : MonoBehaviour
 
     [HideInInspector]
     public int currentListIndex;
-    //[HideInInspector]
-    //public UnityEvent buttonClicked; //only listener in CityBuilderManager to ResetUI
-
 
     private void Awake()
     {
@@ -30,22 +22,6 @@ public class UIUnitTurnHandler : MonoBehaviour
     }
 
     private void SelectUnit(Unit unit) => turnHandler.SelectUnit(unit);
-
-    //public void GoToNextUnit() //for when a unit runs out of movement points
-    //{
-    //    int listCount = turnHandler.CountOfList();
-
-    //    if (listCount == 0) //if the last unit to move finishes
-    //    {
-    //        ToggleInteractable(false);
-    //        return;
-    //    }
-
-    //    if (currentListIndex >= listCount) //go to first in list if over list count
-    //        currentListIndex = 0;
-
-    //    SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
-    //}
 
     public void NextUnitToMove() //used on right button
     {
@@ -56,7 +32,6 @@ public class UIUnitTurnHandler : MonoBehaviour
 		IncreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
         world.cityBuilderManager.ResetCityUI();
-        //buttonClicked?.Invoke();
     }
 
     public void PrevUnitToMove() //used on left button
@@ -68,7 +43,6 @@ public class UIUnitTurnHandler : MonoBehaviour
         DecreaseIndex();
         SelectUnit(turnHandler.GetFromTurnList(currentListIndex));
         world.cityBuilderManager.ResetCityUI();
-        //buttonClicked?.Invoke();
     }
 
     private void IncreaseIndex()
@@ -95,11 +69,6 @@ public class UIUnitTurnHandler : MonoBehaviour
         if (tempIndex < 0) //in case a unit with no movement points is selected and isn't on list
             return;
         currentListIndex = tempIndex;
-    }
-
-    public void ToggleInteractable(bool v)
-    {
-        canvasGroup.interactable = v;
     }
 
     public void ToggleEnable(bool v)

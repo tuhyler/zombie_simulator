@@ -70,6 +70,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 44ce2ee8b10e8ab4c9e7b51619528bc6, type: 3}
   - {fileID: 21300000, guid: 59d183297328b8e40b8cfc67a79184c5, type: 3}
   - {fileID: 21300000, guid: 8bd59da9c5a94dc4b84097eaa5b094ce, type: 3}
+  - {fileID: 21300000, guid: 6ca7e4c9d07a9bf4693721e45aadcad3, type: 3}
   - {fileID: 21300000, guid: b1aa17e9570b60945bee5be96ef6cd83, type: 3}
   - {fileID: 21300000, guid: 566e6de9ae538ea4291b0ace6a811643, type: 3}
   - {fileID: 21300000, guid: a30f27f9cbe0cf0459b562e6f1ef9b99, type: 3}
@@ -113,6 +114,7 @@ SpriteAtlas:
   - Sculptor01Img
   - Housing02Img
   - Monument02Img
+  - Well01Img
   - Pasture01Img
   - Harbor01Img
   - Lumbermill01Img

@@ -60,7 +60,7 @@ public class UIWorkerHandler : MonoBehaviour
             removalOptions.ToggleColor(false);
             gameObject.SetActive(val);
             activeStatus = true;
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
             
             if (world.tutorialGoing)
             {
@@ -71,7 +71,7 @@ public class UIWorkerHandler : MonoBehaviour
                 }
             }
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack();
         }
         else
         {

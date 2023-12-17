@@ -19,6 +19,9 @@ public class UILaborAssignment : MonoBehaviour
     private Transform uiElementsParent;
     private List<UILaborAssignmentOptions> laborOptions;
 
+    [SerializeField]
+    public GameObject showPrioritiesButton;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     private bool activeStatus;
@@ -55,9 +58,9 @@ public class UILaborAssignment : MonoBehaviour
 
         gameObject.SetActive(true);
         activeStatus = true;
-        allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
+        allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
-        LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.3f).setEaseOutSine();
+        LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
         //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
 
         //if (city.AutoAssignLabor)

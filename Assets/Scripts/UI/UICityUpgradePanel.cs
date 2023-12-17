@@ -442,7 +442,8 @@ public class UICityUpgradePanel : MonoBehaviour
     private void PositionCheck()
     {
         Vector3 p = Input.mousePosition;
-        p.z = 1;
+        p.z = 935;
+        //p.z = 1;
         allContents.pivot = new Vector2(p.x / Screen.width, p.y / Screen.height);
 
         Vector3 pos = Camera.main.ScreenToWorldPoint(p);
@@ -455,7 +456,7 @@ public class UICityUpgradePanel : MonoBehaviour
         if (cannotAfford && !cityBuilderManager.isQueueing)
         {
             StartCoroutine(Shake());
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford", true, false);
+            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford", true);
             return;
         }
             

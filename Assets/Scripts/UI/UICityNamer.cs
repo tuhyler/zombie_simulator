@@ -17,9 +17,6 @@ public class UICityNamer : MonoBehaviour
     private HandlePlayerInput playerInput;
 
     [SerializeField]
-    private UIUnitTurnHandler turnHandler;
-
-    [SerializeField]
     private CameraController cameraController;
 
     [SerializeField]

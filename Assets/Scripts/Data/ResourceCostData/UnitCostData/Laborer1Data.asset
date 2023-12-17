@@ -15,7 +15,6 @@ MonoBehaviour:
   prefab: {fileID: 8266383177558337226, guid: cb350d5765272fc44b256dd944294073, type: 3}
   secondaryPrefab: {fileID: 8266383177558337226, guid: deea346bcc32ad1469f6e06830ec36f0,
     type: 3}
-  isSecondary: 0
   unitName: Laborer
   unitDisplayName: Laborer
   unitLevel: 1
@@ -27,7 +26,7 @@ MonoBehaviour:
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
-  laborCost: 0
+  laborCost: 1
   unitType: 0
   unitDescription: Labor for wonders or other cities
   availableInitially: 1

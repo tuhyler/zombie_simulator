@@ -947,7 +947,7 @@ GameObject:
   - component: {fileID: 7172269090546766210}
   - component: {fileID: 4110923457264492696}
   - component: {fileID: 1206341950984797692}
-  - component: {fileID: 8243963052616274402}
+  - component: {fileID: 7977745917647629954}
   m_Layer: 0
   m_Name: InfoPanelCity2
   m_TagString: Untagged
@@ -1017,7 +1017,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &8243963052616274402
+--- !u!114 &7977745917647629954
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1026,17 +1026,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 5444488816222520153}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3ef80724c8f5d849ab08d1e3ffc4fa5, type: 3}
+  m_Script: {fileID: 11500000, guid: 37384e5fc00832c46a9fdb2d0887f381, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitName: {fileID: 7114318892010882442}
-  level: {fileID: 6652781403043561167}
-  health: {fileID: 5195002763117848763}
-  speed: {fileID: 668980980810770053}
-  strength: {fileID: 1405833039591259639}
-  strengthImage: {fileID: 6686968668431240815}
-  strengthSprite: {fileID: 21300000, guid: f348982132094e94d8a089d5f8d3ea17, type: 3}
-  inventorySprite: {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
+  nameText: {fileID: 7114318892010882442}
+  cityPop: {fileID: 4613000399683034176}
+  availableHousing: {fileID: 668980980810770053}
+  unusedLabor: {fileID: 8668788418629836371}
+  workEthic: {fileID: 5195002763117848763}
+  waterLevel: {fileID: 1405833039591259639}
   allContents: {fileID: 7172269090546766210}
 --- !u!1 &6076609533319556090
 GameObject:

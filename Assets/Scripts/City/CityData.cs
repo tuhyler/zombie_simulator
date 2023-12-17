@@ -7,7 +7,7 @@ public class CityData
 {
     public string name;
 	public Vector3Int location;
-	public bool reachedWaterLimit, harborTraining, autoAssignLabor, hasWater, hasFreshWater, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, hasBarracks, hasHarbor, fullInventory;
+	public bool reachedWaterLimit, harborTraining, autoGrow, autoAssignLabor, hasWater, hasFreshWater, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, hasBarracks, hasHarbor, fullInventory;
 	public int waterMaxPop, currentPop, unusedLabor, usedLabor, warehouseStorageLimit, countDownTimer;
 	public float warehouseStorageLevel;
 	public List<ResourceType> resourcePriorities;

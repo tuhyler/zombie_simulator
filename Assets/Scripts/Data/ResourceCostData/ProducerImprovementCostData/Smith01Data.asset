@@ -22,7 +22,7 @@ MonoBehaviour:
   improvementDisplayName: Jewel Smith
   improvementLevel: 1
   improvementNameAndLevel: Smith-1
-  improvementDescription: +1 Housing
+  improvementDescription: This does this and this and that
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: cdc75d235c91c4040b418de92323a99d, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
@@ -83,10 +83,10 @@ MonoBehaviour:
   singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
+  hideProp: 1
   hillAdjustment: 0.6
   buildTime: 5
   availableInitially: 1
-  workAnimLoop: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   noWalkAreas:

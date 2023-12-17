@@ -77,13 +77,14 @@ public class City : MonoBehaviour
     public CityPopulation cityPop;
 
     //foodConsumed info
-    public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60, initialGrowthFood = 3; //how much foodConsumed one unit eats per turn
+    public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60, growthFood = 3; //how much foodConsumed one unit eats per turn
     [HideInInspector]
     public int foodConsumptionPerMinute; //total 
     private UITimeProgressBar uiTimeProgressBar;
     private int countDownTimer;
     private Coroutine co;
     private WaitForSeconds foodConsumptionWait = new(1);
+    ResourceValue foodValue;
 
 	//housingInfo
 	[HideInInspector]
@@ -94,7 +95,7 @@ public class City : MonoBehaviour
     public int HousingCount { get { return housingCount; } set { housingCount = value; } }
     private CityImprovement[] housingArray = new CityImprovement[4];
     [HideInInspector]
-    public int waterMaxPop;
+    public int waterCount;
 
     //resource info
     public float workEthic = 0.75f;
@@ -113,6 +114,8 @@ public class City : MonoBehaviour
     public int GetResearchPerMinute { get { return researchPerMinute; } }
 
     //resource priorities
+    [HideInInspector]
+    public bool autoGrow;
     private bool autoAssignLabor;
     public bool AutoAssignLabor { get { return autoAssignLabor; } set { autoAssignLabor = value; } }
     private List<ResourceType> resourcePriorities = new();
@@ -171,7 +174,10 @@ public class City : MonoBehaviour
         //resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
         cityNameMap.GetComponentInChildren<TMP_Text>().outlineWidth = 0.35f;
         cityNameMap.GetComponentInChildren<TMP_Text>().outlineColor = Color.black;
-    }
+
+		foodValue.resourceType = ResourceType.Food;
+		foodValue.resourceAmount = growthFood;
+	}
 
     private void Start()
     {
@@ -181,7 +187,7 @@ public class City : MonoBehaviour
         //    StartGrowthCycle(false);
         //}
 
-        foodConsumptionPerMinute = cityPop.CurrentPop == 0 ? 0 : (cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1); //first pop is free
+        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute; //first pop is no longer free
 
         cityNameField.ToggleVisibility(false);
         InstantiateParticleSystems();
@@ -564,7 +570,7 @@ public class City : MonoBehaviour
     public void SetHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, bool upgrade)
     {
         houseCount++;
-        if (cityPop.CurrentPop == 0 && resourceManager.ResourceDict[ResourceType.Food] >= initialGrowthFood)
+        if (autoGrow && cityPop.CurrentPop == 0 && resourceManager.ResourceDict[ResourceType.Food] >= growthFood) //growing if waiting on hosue to grow
             PopulationGrowthCheck(false , 1);
 
         //seeing which house will be build first
@@ -667,41 +673,49 @@ public class City : MonoBehaviour
         return housingData.improvementName + index.ToString();
     }
 
-    public int GetGrowthNumber()
-    {
-        if (cityPop.CurrentPop == 0)
-            return initialGrowthFood;
-        else
-            return unitFoodConsumptionPerMinute;
-    }
+    //public int GetGrowthNumber()
+    //{
+    //    if (cityPop.CurrentPop == 0)
+    //        return growthFood;
+    //    else
+    //        return unitFoodConsumptionPerMinute;
+    //}
 
     public void PopulationGrowthCheck(bool joinCity, int amount)
-    {
-        if (world.tutorialGoing)
-        {
-            return;
-        }
-        
+    {        
         int prevPop = cityPop.CurrentPop;
         PlayPopGainAudio();
 
         cityPop.IncreasePopulationAndLabor(amount);
         housingCount -= amount;
+        waterCount -= amount;
         heavenHighlight.Play();
         SetCityPop();
-        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
+        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute;
 
-        if (waterMaxPop <= cityPop.CurrentPop)
+        if (waterCount <= 0)
             reachedWaterLimit = true;
 
         if (activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
             world.cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, true, resourceManager);
 
-        //if (cityPop.CurrentPop > 1)
-        //    resourceManager.IncreaseFoodConsumptionPerTurn(true);
-        
-        if (joinCity)
+		//if (cityPop.CurrentPop > 1)
+		//    resourceManager.IncreaseFoodConsumptionPerTurn(true);
+
+		if (activeCity)
+		{
+            world.cityBuilderManager.uiInfoPanelCity.SetGrowthData(this);
+		}
+
+		if (joinCity)
+        {
             UpdateCityPopInfo();
+        }
+        else //spend food to grow
+        {
+			List<ResourceValue> valueList = new() { foodValue };
+            resourceManager.ConsumeResources(valueList, 1, cityLoc, false, true);
+        }
 
         for (int i = 0; i < amount; i++)
         {
@@ -722,11 +736,11 @@ public class City : MonoBehaviour
                 {
                     if (activeCity)
                     {
-                        world.cityBuilderManager.uiInfoPanelCity.ToggleVisibility(true);
+                        //world.cityBuilderManager.uiInfoPanelCity.ToggleVisibility(true);
                         world.cityBuilderManager.uiLaborAssignment.ShowUI(this, 0, false);
                         CityGrowthProgressBarSetActive(true);
                         world.cityBuilderManager.abandonCityButton.interactable = false;
-                        world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+                        //world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
                     }
                     cityNameField.ToggleVisibility(true);
                     resourceManager.SellResources();
@@ -741,33 +755,45 @@ public class City : MonoBehaviour
         }
     }
 
-    public void PopulationDeclineCheck(bool any)
+    public void PopulationDeclineCheck(bool any, bool building)
     {
         int prevPop = cityPop.CurrentPop;
-        PlayPopLossAudio();
 
         cityPop.CurrentPop--;
         housingCount++;
-		if (world.GetTerrainDataAt(cityLoc).isHill)
+        waterCount++;
+		
+        if (!building)
         {
-    		Vector3 loc = cityLoc;
-            loc.y += .6f;
-            PlayHellHighlight(loc);
-        }
-        else
-        {
-            PlayHellHighlight(cityLoc);
-        }
-        SetCityPop();
-        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute - 1;
+            PlayPopLossAudio();
 
-		if (waterMaxPop > cityPop.CurrentPop)
+            if (world.GetTerrainDataAt(cityLoc).isHill)
+            {
+    		    Vector3 loc = cityLoc;
+                loc.y += .6f;
+                PlayHellHighlight(loc);
+            }
+            else
+            {
+                PlayHellHighlight(cityLoc);
+            }
+        }
+
+        SetCityPop();
+        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute;
+
+		if (waterCount > 0)
 			reachedWaterLimit = false;
 
 		if (activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
             world.cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, false, resourceManager);
 
-        if (cityPop.CurrentPop <= 3)
+		if (activeCity)
+		{
+            world.cityBuilderManager.uiInfoPanelCity.SetGrowthData(this);
+		}
+
+		if (cityPop.CurrentPop <= 3)
         {
             HouseLightCheck();
 
@@ -1164,7 +1190,7 @@ public class City : MonoBehaviour
 		{
 			CityGrowthProgressBarSetActive(true);
 			world.cityBuilderManager.abandonCityButton.interactable = false;
-			world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+			//world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
 		}
 
 		if (!load)
@@ -1669,6 +1695,7 @@ public class City : MonoBehaviour
         data.location = cityLoc;
         data.reachedWaterLimit = reachedWaterLimit;
         data.harborTraining = harborTraining;
+        data.autoGrow = autoGrow;
         data.autoAssignLabor = autoAssignLabor;
         data.hasWater = hasWater;
         data.hasFreshWater = hasFreshWater;
@@ -1681,7 +1708,7 @@ public class City : MonoBehaviour
         data.hasClay = hasClay;
         data.hasBarracks = hasBarracks;
         data.hasHarbor = hasHarbor;
-		data.waterMaxPop = waterMaxPop;
+		data.waterMaxPop = waterCount;
         data.currentPop = cityPop.CurrentPop;
         data.unusedLabor = cityPop.UnusedLabor;
         data.usedLabor = cityPop.UsedLabor;
@@ -1792,6 +1819,7 @@ public class City : MonoBehaviour
         cityLoc = data.location;
         reachedWaterLimit = data.reachedWaterLimit;
         harborTraining = data.harborTraining;
+        autoGrow = data.autoGrow;
         autoAssignLabor = data.autoAssignLabor;
 		hasWater = data.hasWater;
 		hasFreshWater = data.hasFreshWater;
@@ -1804,7 +1832,7 @@ public class City : MonoBehaviour
 		hasClay = data.hasClay;
         hasBarracks = data.hasBarracks;
         hasHarbor = data.hasHarbor;
-        waterMaxPop = data.waterMaxPop;
+        waterCount = data.waterMaxPop;
 		cityPop.CurrentPop = data.currentPop;
         cityPop.UnusedLabor = data.unusedLabor;
         cityPop.UsedLabor = data.usedLabor;

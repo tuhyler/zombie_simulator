@@ -55,10 +55,10 @@ MonoBehaviour:
   singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
+  hideProp: 1
   hillAdjustment: 0.6
   buildTime: 5
-  availableInitially: 1
-  workAnimLoop: 0
+  availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0
   noWalkAreas: []

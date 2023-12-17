@@ -71,7 +71,6 @@ public class Unit : MonoBehaviour
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo, waitingCo, attackCo;
-    private MovementSystem movementSystem;
 
     //showing footprints
     private Queue<GameObject> pathQueue = new();
@@ -106,10 +105,7 @@ public class Unit : MonoBehaviour
 
     //selection indicators
     private SelectionHighlight highlight;
-    private CameraController focusCam;
-    [HideInInspector]
-    public UIUnitTurnHandler turnHandler;
-
+    
     [HideInInspector]
     public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething;
     [HideInInspector]
@@ -218,8 +214,8 @@ public class Unit : MonoBehaviour
     {
         somethingToSay = false;
         sayingSomething = true;
-        focusCam.CenterCameraNoFollow(transform.position);
-        focusCam.someoneSpeaking = true;
+        world.cameraController.CenterCameraNoFollow(transform.position);
+        world.cameraController.someoneSpeaking = true;
         questionMark.SetActive(false);
         world.playerInput.paused = true;
         world.uiSpeechWindow.SetConversation(conversationTopic);
@@ -284,19 +280,10 @@ public class Unit : MonoBehaviour
 		}
 	}
 
-	public void SetReferences(MapWorld world, CameraController focusCam, UIUnitTurnHandler turnHandler, MovementSystem movementSystem)
+	public void SetReferences(MapWorld world)
     {
         this.world = world;
-        this.focusCam = focusCam;
-
-        if (!enemyAI)
-            this.turnHandler = turnHandler;
-
-        this.movementSystem = movementSystem;
-        infoManager = movementSystem.unitMovement.infoManager;
-
-        if (CompareTag("Player"))
-            turnHandler.turnHandler.AddToTurnList(this);
+        infoManager = world.unitMovement.infoManager;
 
         //caching terrain costs
         roadSpeed = world.GetRoadCost();
@@ -309,7 +296,7 @@ public class Unit : MonoBehaviour
 
     public void CenterCamera()
     {
-        focusCam.followTransform = transform;
+        world.cameraController.followTransform = transform;
     }
 
     public void SayHello()
@@ -519,29 +506,35 @@ public class Unit : MonoBehaviour
             else
                 y = 0.2f;
         }
-        //else if (!td.isLand)
-        //{
-        //    y = -.45f;
-        //}
 
-        //if (world.IsRoadOnTileLocation(endPositionInt))
-        //{
-        //    marker.ToggleVisibility(false);
-        //}
-        //else if (td.IsSeaCorner) //walking the beach in rivers
-        //{
-        //    if (world.CheckIfCoastCoast(endPositionInt))
-        //        y = -.10f;
-        //    else
-        //        y = transform.position.y;
-        //}
+		if (td.hasRoad)
+		{
+			y += .1f;
+		}
 
-        //if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
-        //{
-        //    GetInLine(endPosition);
-        //    yield break;
-        //}
-        if (pathPositions.Count == 0 && !enemyAI && !inArmy && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+		//else if (!td.isLand)
+		//{
+		//    y = -.45f;
+		//}
+
+		//if (world.IsRoadOnTileLocation(endPositionInt))
+		//{
+		//    marker.ToggleVisibility(false);
+		//}
+		//else if (td.IsSeaCorner) //walking the beach in rivers
+		//{
+		//    if (world.CheckIfCoastCoast(endPositionInt))
+		//        y = -.10f;
+		//    else
+		//        y = transform.position.y;
+		//}
+
+		//if (followingRoute && world.IsUnitWaitingForSameStop(endPositionInt, finalDestinationLoc))
+		//{
+		//    GetInLine(endPosition);
+		//    yield break;
+		//}
+		if (pathPositions.Count == 0 && !enemyAI && !inArmy && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
@@ -1334,7 +1327,7 @@ public class Unit : MonoBehaviour
                 continue;
 
             td2.HardReveal();
-            focusCam.CheckLoc(loc);
+            world.cameraController.CheckLoc(loc);
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
         }
@@ -1369,7 +1362,7 @@ public class Unit : MonoBehaviour
                 continue;
 
             td.Reveal();
-            focusCam.CheckLoc(loc);
+            world.cameraController.CheckLoc(loc);
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
         }
@@ -2034,7 +2027,7 @@ public class Unit : MonoBehaviour
     public void RemoveUnitFromData()
     {
         ResetMovementOrders();
-        turnHandler.turnHandler.RemoveUnitFromTurnList(this);
+        //world.turnHandler.turnHandler.RemoveUnitFromTurnList(this);
         world.RemoveUnitPosition(currentLocation);
     }
 
@@ -2074,9 +2067,9 @@ public class Unit : MonoBehaviour
             GameObject path;
 
             if (isWorker)
-                path = movementSystem.GetFromShoePrintPool();
+                path = world.unitMovement.movementSystem.GetFromShoePrintPool();
             else
-                path = movementSystem.GetFromChevronPool();
+                path = world.unitMovement.movementSystem.GetFromChevronPool();
 
             path.transform.position = (turnCountPosition + prevPosition) * 0.5f;
             float xDiff = turnCountPosition.x - Mathf.Round(prevPosition.x);
@@ -2143,11 +2136,11 @@ public class Unit : MonoBehaviour
         GameObject path = pathQueue.Dequeue();
         if (isWorker)
         {
-            movementSystem.AddToShoePrintPool(path);
+            world.unitMovement.movementSystem.AddToShoePrintPool(path);
         }
         else
         {
-            movementSystem.AddToChevronPool(path);
+            world.unitMovement.movementSystem.AddToChevronPool(path);
         }
     }
 

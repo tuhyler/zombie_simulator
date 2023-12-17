@@ -7,17 +7,19 @@ using UnityEngine.UI;
 public class UIResearchTooltip : MonoBehaviour
 {
     public MapWorld world;
-    public TMP_Text title, level, producesTitle, descriptionTitle, descriptionText, health, speed, strength;
+    public TMP_Text title, level, producesTitle, descriptionTitle, descriptionText, health, speed, strength, workEthicText, housingText, waterText;
     public Image mainImage, strengthImage;
     public Sprite inventorySprite, strengthSprite;
-    public GameObject produceHolder, descriptionHolder;
-    public RectTransform allContents, /*resourceProduceAllHolder, */imageLine, resourceProducedHolder, resourceCostHolder, unitInfo, spaceHolder;
+    public GameObject produceHolder, descriptionHolder, workEthicImage, housingImage, waterImage;
+    public RectTransform allContents, /*resourceProduceAllHolder, */imageLine, resourceProducedHolder, resourceCostHolder, unitInfo, spaceHolder, cityStatsDescription;
     public VerticalLayoutGroup resourceProduceLayout;
     public HorizontalLayoutGroup firstResourceProduceLayout;
     private List<Transform> produceConsumesHolders = new();
     private List<UIResourceInfoPanel> costsInfo = new(), producesInfo = new();
     private GameObject firstArrow;
     private List<List<UIResourceInfoPanel>> consumesInfo = new();
+
+    Vector3 cityStatsOriginalLoc;
 
     //for tweening
     [HideInInspector]
@@ -27,6 +29,7 @@ public class UIResearchTooltip : MonoBehaviour
     private void Awake()
     {        
         transform.localScale = Vector3.zero;
+        cityStatsOriginalLoc = cityStatsDescription.localPosition;
         gameObject.SetActive(false);
 
         foreach (Transform selection in resourceProducedHolder)
@@ -91,7 +94,7 @@ public class UIResearchTooltip : MonoBehaviour
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
-        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, bool rocks = false)
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, bool rocks = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -110,22 +113,94 @@ public class UIResearchTooltip : MonoBehaviour
         int produceContentsWidth = 370;
         int produceContentsHeight = 460;
         bool arrowBuffer = false;
+        bool showCityStatsDesc = false;
 
-        //reseting produce section layout
-        //resourceProduceLayout.padding.top = 0;
-        //resourceProduceLayout.spacing = 0;
-        //int produceLayoutPadding = 10;
+		//reseting produce section layout
+		//resourceProduceLayout.padding.top = 0;
+		//resourceProduceLayout.spacing = 0;
+		//int produceLayoutPadding = 10;
 
-        producesTitle.text = "Produces / Requires";
+		if (workEthic > 0)
+		{
+			workEthicImage.SetActive(true);
+			workEthicText.gameObject.SetActive(true);
+			workEthicText.text = "+" + Mathf.RoundToInt(workEthic * 100).ToString() + "%";
+			showCityStatsDesc = true;
+		}
+        else
+        {
+            workEthicImage.SetActive(false);
+            workEthicText.gameObject.SetActive(false);
+        }
 
-        if (description.Length > 0)
+		if (housing > 0)
+		{
+			housingImage.SetActive(true);
+			housingText.gameObject.SetActive(true);
+			housingText.text = "+" + housing.ToString();
+			showCityStatsDesc = true;
+		}
+        else
+        {
+            housingImage.SetActive(false);
+            housingText.gameObject.SetActive(false);
+        }
+
+		if (water > 0)
+		{
+			waterImage.SetActive(true);
+			waterText.gameObject.SetActive(true);
+			waterText.text = "+" + water.ToString();
+			showCityStatsDesc = true;
+		}
+        else
+        {
+            waterImage.SetActive(false);
+            waterText.gameObject.SetActive(false);
+        }
+
+		cityStatsDescription.gameObject.SetActive(showCityStatsDesc);
+
+		producesTitle.text = "Produces / Requires";
+
+        if (description.Length > 0 || showCityStatsDesc)
         {
             descriptionHolder.SetActive(true);
+			cityStatsDescription.localPosition = cityStatsOriginalLoc;
 
-			if (!unit && description.Length < 23)
-				produceContentsHeight += 85;
-			else
-				produceContentsHeight += 120;
+			if (description.Length > 0)
+            {
+				descriptionText.gameObject.SetActive(true);
+				bool bigText;
+                
+                if (!unit && description.Length < 23)
+                {
+				    produceContentsHeight += 85;
+                    bigText = false;
+                }
+                else
+                {
+				    produceContentsHeight += 120;
+                    bigText = true;
+                }
+
+                if (showCityStatsDesc)
+                {
+					Vector3 localPosition = cityStatsOriginalLoc;
+					localPosition.y += bigText ? -75 : -45;
+					cityStatsDescription.localPosition = localPosition;
+				}
+            }
+            else
+            {
+                descriptionText.gameObject.SetActive(false);
+            }
+
+			if (showCityStatsDesc)
+			{
+				produceContentsHeight += description.Length > 0 ? 60 : 100;
+				descriptionTitle.text = "Benefits";
+			}
 
 			if (unit)
             {
@@ -382,7 +457,7 @@ public class UIResearchTooltip : MonoBehaviour
         //float xChange = 0;
         //float yChange = 0;
 
-        p.z = 1;
+        p.z = 935;
         //p.z = 1;
         //if (p.y + allContents.rect.height * 0.4f > Screen.height - 100)
         //    y = 1f;
