@@ -82,12 +82,12 @@ PrefabInstance:
         type: 3}
       propertyPath: terrainMesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8917349504582931665}
     - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: minimapIconMesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 3421397332596662595}
     - target: {fileID: 7905120374366962800, guid: 5902d28cc6acff84d9befec7c10a1d34,
         type: 3}
       propertyPath: rawResourceType
@@ -185,6 +185,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14c99c1c96d21984d9033b9fa6a04ae8, type: 3}
+--- !u!33 &3421397332596662595 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 14c99c1c96d21984d9033b9fa6a04ae8,
+    type: 3}
+  m_PrefabInstance: {fileID: 2260345592193927437}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5468962903452925087
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -264,3 +270,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14c99c1c96d21984d9033b9fa6a04ae8, type: 3}
+--- !u!33 &8917349504582931665 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 14c99c1c96d21984d9033b9fa6a04ae8,
+    type: 3}
+  m_PrefabInstance: {fileID: 5468962903452925087}
+  m_PrefabAsset: {fileID: 0}

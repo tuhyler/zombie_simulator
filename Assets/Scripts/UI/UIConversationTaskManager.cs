@@ -111,7 +111,7 @@ public class UIConversationTaskManager : MonoBehaviour
 		world.somethingSelected = false;
 	}
 
-	public void CreateConversationTask(string title)
+	public void CreateConversationTask(string title, bool loading = false)
 	{
 		GameObject taskGO = Instantiate(conversationTask);
 		taskGO.transform.SetParent(taskTitleHolder, false);
@@ -119,17 +119,18 @@ public class UIConversationTaskManager : MonoBehaviour
 		task.manager = this;
 		task.title = title;
 		task.taskText = UpgradeableObjectHolder.Instance.conversationTaskDict[title];
-		GameLoader.Instance.gameData.conversationTaskDict[title] = (false, false);
+		if (!loading)
+			GameLoader.Instance.gameData.conversationTaskDict[title] = (false, false);
 
 		conversationTasks.Add(task);
 	}
 
 	public void LoadConversationTask(string title, bool completed, bool failed)
 	{
-		CreateConversationTask(title);
+		CreateConversationTask(title, true);
 
 		if (completed)
-			CompleteTask(title, failed);
+			CompleteTask(title, failed, false);
 	}
 
 	public void SelectTask(UIConversationTask task)
@@ -148,7 +149,7 @@ public class UIConversationTaskManager : MonoBehaviour
 		textField.text = task.taskText;
 	}
 
-	public void CompleteTask(string title, bool failed)
+	public void CompleteTask(string title, bool failed, bool loading = false)
 	{
 		for (int i = 0; i < conversationTasks.Count; i++)
 		{
@@ -156,7 +157,8 @@ public class UIConversationTaskManager : MonoBehaviour
 			{
 				if (!conversationTasks[i].completed)
 				{
-					GameLoader.Instance.gameData.conversationTaskDict[title] = (true, failed);
+					if (!loading)
+						GameLoader.Instance.gameData.conversationTaskDict[title] = (true, failed);
 					conversationTasks[i].CompleteTask(failed);
 				}
 	

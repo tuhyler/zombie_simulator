@@ -517,7 +517,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2177287935674346125}
   - component: {fileID: 3299895136257763159}
-  - component: {fileID: 124029868137847446}
   m_Layer: 5
   m_Name: ResearchScroller
   m_TagString: Untagged
@@ -590,18 +589,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &124029868137847446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1066533237881289403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d403583b80604942b0502ca0c72aad7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1095284628875319989
 GameObject:
   m_ObjectHideFlags: 0
@@ -5638,7 +5625,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2400315509304008018}
   - component: {fileID: 514259701598147300}
-  - component: {fileID: 615950893009065948}
   m_Layer: 5
   m_Name: ResearchScroller (1)
   m_TagString: Untagged
@@ -5711,18 +5697,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &615950893009065948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8128681658959044689}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d403583b80604942b0502ca0c72aad7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8154165758744260192
 GameObject:
   m_ObjectHideFlags: 0

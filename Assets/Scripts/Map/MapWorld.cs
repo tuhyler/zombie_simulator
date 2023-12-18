@@ -1636,7 +1636,7 @@ public class MapWorld : MonoBehaviour
         td.SetUVs(uvs);
 	}
 
-    private float SetUVShift(TerrainDesc desc)
+    public float SetUVShift(TerrainDesc desc)
     {
         float interval = .0625f; //256/4096
         float shift = 0;
@@ -1667,7 +1667,7 @@ public class MapWorld : MonoBehaviour
     }
 
     //for setting the uv map to transition between terrains, also includes uv coordinates rotation
-    private Vector2[] SetUVMap(int[] count, float shift, int eulerAngle)
+    public Vector2[] SetUVMap(int[] count, float shift, int eulerAngle)
     {
         Vector2[] uvMap = new Vector2[4];
         int rotation = 0;
@@ -1844,6 +1844,7 @@ public class MapWorld : MonoBehaviour
                 minY = vector.y;
             i++;
         }
+        Debug.Log(maxX + " " + minX + " " + maxY + " " + minY);
 
         i = 0;
         while (i < newUVs.Length)
@@ -1895,6 +1896,39 @@ public class MapWorld : MonoBehaviour
 			uiMainMenu.ToggleVisibility(true);
         }
     }
+
+    public int[] GetGrasslandCount(Vector3Int loc, TerrainDesc desc)
+    {
+        int[] grasslandCount = new int[4];
+        int i = 0;
+        
+        if (desc == TerrainDesc.Grassland || desc == TerrainDesc.GrasslandFloodPlain || desc == TerrainDesc.Forest || desc == TerrainDesc.Jungle || desc == TerrainDesc.GrasslandHill || desc == TerrainDesc.Swamp)
+		{
+			foreach (Vector3Int neighbor in GetNeighborsFor(loc, State.FOURWAYINCREMENT))
+			{
+				if (GetTerrainDataAt(neighbor).terrainData.grassland || GetTerrainDataAt(neighbor).terrainData.desert) //grassland only fades edges for coast tiles
+					grasslandCount[i] = 0;
+				else
+					grasslandCount[i] = 1;
+
+				i++;
+			}
+		}
+		else if (desc == TerrainDesc.Desert || desc == TerrainDesc.DesertFloodPlain || desc == TerrainDesc.DesertHill || desc == TerrainDesc.River)
+		{
+			foreach (Vector3Int neighbor in GetNeighborsFor(loc, State.FOURWAYINCREMENT))
+			{
+				if (GetTerrainDataAt(neighbor).terrainData.grassland)
+					grasslandCount[i] = 1;
+				else
+					grasslandCount[i] = 0;
+
+				i++;
+			}
+		}
+
+        return grasslandCount;
+	}
 
     private void CreateGrid()
     {

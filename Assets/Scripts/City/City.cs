@@ -181,13 +181,13 @@ public class City : MonoBehaviour
 
     private void Start()
     {
-        UpdateCityPopInfo();
         //if (cityPop.CurrentPop >= 1 || army.UnitsInArmy.Count > 0)
         //{
         //    StartGrowthCycle(false);
         //}
 
         foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute; //first pop is no longer free
+        UpdateCityPopInfo();
 
         cityNameField.ToggleVisibility(false);
         InstantiateParticleSystems();
@@ -707,11 +707,8 @@ public class City : MonoBehaviour
             world.cityBuilderManager.uiInfoPanelCity.SetGrowthData(this);
 		}
 
-		if (joinCity)
-        {
-            UpdateCityPopInfo();
-        }
-        else //spend food to grow
+        UpdateCityPopInfo();
+        if (!joinCity) //spend food to grow
         {
 			List<ResourceValue> valueList = new() { foodValue };
             resourceManager.ConsumeResources(valueList, 1, cityLoc, false, true);

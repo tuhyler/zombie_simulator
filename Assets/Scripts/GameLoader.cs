@@ -356,12 +356,6 @@ public class GameLoader : MonoBehaviour
 		//Time.timeScale = 1f;
 		//AudioListener.pause = false;
 		StartCoroutine(WaitASec());
-
-		////create units
-		////populate dictionaries
-
-		//uiMainMenu.ToggleVisibility(false);
-
 	}
 
 	private IEnumerator WaitASec()

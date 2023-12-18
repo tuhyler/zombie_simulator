@@ -555,19 +555,22 @@ public class CityImprovement : MonoBehaviour
 
         data.producedResourceIndex = producedResourceIndex;
 
-        //Resource Producer
-        ResourceProducer producer = city.world.GetResourceProducer(loc);
-		data.currentLabor = producer.currentLabor;
-        data.tempLabor = producer.tempLabor;
-        data.unloadLabor = producer.unloadLabor;
-        data.isWaitingForStorageRoom = producer.isWaitingForStorageRoom;
-        data.isWaitingforResources = producer.isWaitingforResources;
-        data.isWaitingToUnload = producer.isWaitingToUnload;
-        data.isWaitingForResearch = producer.isWaitingForResearch;
-        data.isProducing = producer.isProducing;
-		data.productionTimer = producer.productionTimer;
-		data.producedResource = producedResource;
-		data.tempLaborPercsList = producer.tempLaborPercsList;
+        if (!building || improvementData.isBuildingImprovement)
+        {
+            //Resource Producer
+            ResourceProducer producer = city.world.GetResourceProducer(loc);
+		    data.currentLabor = producer.currentLabor;
+            data.tempLabor = producer.tempLabor;
+            data.unloadLabor = producer.unloadLabor;
+            data.isWaitingForStorageRoom = producer.isWaitingForStorageRoom;
+            data.isWaitingforResources = producer.isWaitingforResources;
+            data.isWaitingToUnload = producer.isWaitingToUnload;
+            data.isWaitingForResearch = producer.isWaitingForResearch;
+            data.isProducing = producer.isProducing;
+		    data.productionTimer = producer.productionTimer;
+		    data.producedResource = producedResource;
+		    data.tempLaborPercsList = producer.tempLaborPercsList;
+        }
 
 		//updating terrain resource amounts
 		GameLoader.Instance.gameData.allTerrain[loc].resourceAmount = city.world.GetTerrainDataAt(loc).resourceAmount;
@@ -587,38 +590,42 @@ public class CityImprovement : MonoBehaviour
 		timePassed = data.timePassed;
         producedResourceIndex = data.producedResourceIndex;
 
-		//Resource Producer
-		ResourceProducer producer = city.world.GetResourceProducer(loc);
-		producer.currentLabor = data.currentLabor;
-		producer.tempLabor = data.tempLabor;
-		producer.unloadLabor = data.unloadLabor;
-		producer.isWaitingForStorageRoom = data.isWaitingForStorageRoom;
-		producer.isWaitingforResources = data.isWaitingforResources;
-		producer.isWaitingToUnload = data.isWaitingToUnload;
-		producer.isWaitingForResearch = data.isWaitingForResearch;
-		producer.isProducing = data.isProducing;
-        producer.productionTimer = data.productionTimer;
-		producedResource = data.producedResource;
-        producer.tempLaborPercsList = data.tempLaborPercsList;
-
-        if (producer.isProducing)
+        if (!building || improvementData.isBuildingImprovement)
         {
-			if (!producer.isWaitingforResources && !producer.isWaitingForStorageRoom && !producer.isWaitingToUnload && !producer.isWaitingForResearch)
-            {
-                producer.SetResourceManager(city.ResourceManager);
-                producer.LoadProducingCoroutine();
+		    //Resource Producer
+		    ResourceProducer producer = city.world.GetResourceProducer(loc);
+		    producer.currentLabor = data.currentLabor;
+		    producer.tempLabor = data.tempLabor;
+		    producer.unloadLabor = data.unloadLabor;
+		    producer.isWaitingForStorageRoom = data.isWaitingForStorageRoom;
+		    producer.isWaitingforResources = data.isWaitingforResources;
+		    producer.isWaitingToUnload = data.isWaitingToUnload;
+		    producer.isWaitingForResearch = data.isWaitingForResearch;
+		    producer.isProducing = data.isProducing;
+            producer.productionTimer = data.productionTimer;
+		    producedResource = data.producedResource;
+            producer.tempLaborPercsList = data.tempLaborPercsList;
 
-                //work around to get lights showing on all polys, something to do with combinemeshes
-                if (workLights.Count > 0)
+            if (producer.isProducing)
+            {
+			    if (!producer.isWaitingforResources && !producer.isWaitingForStorageRoom && !producer.isWaitingToUnload && !producer.isWaitingForResearch)
                 {
-					for (int i = 0; i < meshFilter.Length; i++)
-						meshFilter[i].gameObject.SetActive(true);
-					for (int i = 0; i < meshFilter.Length; i++)
-						meshFilter[i].gameObject.SetActive(false);
-				}
-			}
+                    producer.SetResourceManager(city.ResourceManager);
+                    producer.LoadProducingCoroutine();
+
+                    //work around to get lights showing on all polys, something to do with combinemeshes
+                    if (workLights.Count > 0)
+                    {
+					    for (int i = 0; i < meshFilter.Length; i++)
+						    meshFilter[i].gameObject.SetActive(true);
+					    for (int i = 0; i < meshFilter.Length; i++)
+						    meshFilter[i].gameObject.SetActive(false);
+				    }
+			    }
+            }
         }
-        else if (isTraining)
+        
+        if (isTraining)
         {
             if (isUpgrading)
             {

@@ -39,6 +39,7 @@ SpriteAtlas:
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 5879b620cc2d05e44bb8fa627e1a74da, type: 3}
+  - {fileID: 21300000, guid: dee201407a659414b9c9039687e0001c, type: 3}
   - {fileID: 21300000, guid: d01f7150303ce8742829df1482136c9a, type: 3}
   - {fileID: 21300000, guid: ea1f07604f5c0ff4cbfb5275ffe27c5c, type: 3}
   - {fileID: 21300000, guid: edbc0e60f779ef147a5ac4f898a06d9d, type: 3}
@@ -157,6 +158,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: d7d7340a95ab6534d94d038e61fd48e2, type: 3}
   - {fileID: 21300000, guid: 43312f2a6be55854e9ac83e79c09ef0b, type: 3}
   - {fileID: 21300000, guid: b0beed5a901ae8c47b3709565dd4358b, type: 3}
+  - {fileID: 21300000, guid: 7e7dfd6a987167a4caedaaba90a377bf, type: 3}
   - {fileID: 21300000, guid: c145a37aaeebf064a9b4b7e63e443ac1, type: 3}
   - {fileID: 21300000, guid: 84a27e7aa33ecb5438c2eff2ed602483, type: 3}
   - {fileID: 21300000, guid: 0256638ab96cd0948b80ba1e4bcfa1d6, type: 3}
@@ -198,6 +200,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: ec868e9e93b6d454ca12c03e39dfedd6, type: 3}
   - {fileID: 21300000, guid: 36da66ae536253640909f074767f25c6, type: 3}
   - {fileID: 21300000, guid: 029c0dae0c146744d9e6add84e3671a9, type: 3}
+  - {fileID: 21300000, guid: de268cbecccae91488784e278469cb79, type: 3}
   - {fileID: 21300000, guid: b2fbc0ce5e113834380380cb28475506, type: 3}
   - {fileID: 21300000, guid: 8eae10de91d218342bedbba7b0cc418d, type: 3}
   - {fileID: 21300000, guid: 86daecfeebeae6745ae66a7f9492e8c0, type: 3}
@@ -219,6 +222,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: c0379ddf78ac66e4eb53759a9405802a, type: 3}
   m_PackedSpriteNamesToIndex:
   - button_pasture
+  - panel_lightgreen
   - scrollbar_gold01_hor
   - button_camp
   - panel_darkgold
@@ -337,6 +341,7 @@ SpriteAtlas:
   - tab_gold2
   - grip_blue
   - button_research
+  - circle_green
   - bar_purple01
   - button_left
   - button_up
@@ -378,6 +383,7 @@ SpriteAtlas:
   - button_tradecenter
   - button_confirm
   - panel_lightblue01
+  - button_longgreen
   - circle_blue
   - button_cancel
   - gold03

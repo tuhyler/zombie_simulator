@@ -2406,7 +2406,10 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     Vector2[] terrainUVs = td.UVs;
                     Vector2[] newUVs = mesh.mesh.uv;
-                    Vector2[] finalUVs = world.NormalizeUVs(terrainUVs, newUVs);
+
+                    TerrainDesc desc = td.terrainData.terrainDesc;
+					//Vector2[] terrainUVs = world.SetUVMap(world.GetGrasslandCount(td.TileCoordinates, desc), world.SetUVShift(desc), Mathf.RoundToInt(td.main.eulerAngles.y));
+					Vector2[] finalUVs = world.NormalizeUVs(terrainUVs, newUVs);
                     //mesh.mesh.uv = finalUVs;
 
                     foreach (MeshFilter mesh2 in meshes)
@@ -3239,6 +3242,9 @@ public class CityBuilderManager : MonoBehaviour
 
         int totalResourceLabor = selectedCity.GetResourcesWorkedResourceCount(resourceType);
 
+        //updating all the labor info
+        selectedCity.UpdateCityPopInfo();
+        UpdateLaborNumbers();
         uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType));
         uiLaborHandler.UpdateResourcesConsumed(resourceProducer.consumedResourceTypes, selectedCity.ResourceManager.ResourceConsumedPerMinuteDict);
 
@@ -3246,12 +3252,9 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity.RemoveFromResourcesWorked(resourceType);
         //}
 
-        //updating all the labor info
-        selectedCity.UpdateCityPopInfo();
 
         uiInfoPanelCity.SetAllData(selectedCity);
 
-        UpdateLaborNumbers();
         //resourceManager.UpdateUIGeneration(terrainSelected.GetTerrainData().resourceType);
         //BuildingButtonHighlight();
         LaborTileHighlight();
