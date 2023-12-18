@@ -309,6 +309,20 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
         world.SetWorldResearchUI(chosenResearchItem.ResearchReceived, chosenResearchItem.totalResearchNeeded);
     }
 
+    public void UnselectResearchItem()
+    {
+		if (chosenResearchItem != null)
+        {
+            chosenResearchItem.EndQueue();
+		    chosenResearchItem.ChangeColor();
+		    if (chosenResearchItem.ResearchReceived == 0)
+			    chosenResearchItem.HideProgressBar();
+
+            chosenResearchItem = null;
+
+		}
+	}
+
     public int AddResearch(int amount)
     {
         int diff = chosenResearchItem.totalResearchNeeded - chosenResearchItem.ResearchReceived;
@@ -417,7 +431,8 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 					if (i == 0)
 					{
                         SetResearchItem(researchItemList[j]);
-                        chosenResearchItem = researchItemList[j];
+						researchItemList[j].ResetAlpha();
+						chosenResearchItem = researchItemList[j];
 						world.SetResearchName(chosenResearchItem.ResearchName);
 						chosenResearchItem.ResearchReceived = researchAmount;
 						world.SetWorldResearchUI(chosenResearchItem.ResearchReceived, chosenResearchItem.totalResearchNeeded);

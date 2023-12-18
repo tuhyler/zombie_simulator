@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -100,9 +101,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void SelectResearchItem()
     {
-        tempUnlocked = true;
-        foreach (UIResearchItem researchItem in researchUnlocked)
-            researchItem.TempUnlockCheck();
+        //tempUnlocked = true;
+        //foreach (UIResearchItem researchItem in researchUnlocked)
+        //    researchItem.TempUnlockCheck();
 
         researchTree.SetResearchItem(this);
     }
@@ -164,7 +165,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         researchPercentDone.gameObject.SetActive(false);
         completed = true;
         locked = true;
-        tempUnlocked = true;
         researchItemPanel.sprite = completedResearchSprite;
         topBar.sprite = completedTopBar;
         researchNameText.color = Color.white;
@@ -226,7 +226,6 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 		researchPercentDone.gameObject.SetActive(false);
         completed = true;
 		locked = true;
-		tempUnlocked = true;
 		researchItemPanel.sprite = completedResearchSprite;
 		topBar.sprite = completedTopBar;
 		researchNameText.color = Color.white;
@@ -299,64 +298,155 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
         if (researchTree.isQueueing)
         {
-            if (!researchTree.QueueContainsCheck(this) && (!locked || tempUnlocked))
+            if (!isSelected && !researchTree.QueueContainsCheck(this))
             {
-                if (!researchTree.IsResearching())
+				researchTree.world.cityBuilderManager.PlaySelectAudio();
+
+				if (!researchTree.IsResearching() && !locked)
                 {
                     SelectResearchItem();
                     return;
                 }
-                
-                tempUnlocked = true;
-                researchTree.AddToQueue(this);
-                queueNumberHolder.gameObject.SetActive(true);
-                queueNumber.text = (researchTree.QueueCount() + 1).ToString();
 
-                foreach (UIResearchItem researchItem in researchUnlocked)
-                    researchItem.TempUnlockCheck();
-            }
+                bool canBeQueued = true;
+
+                for (int i = 0; i < researchDependent.Count; i++)
+                {
+                    if (!researchDependent[i].isSelected && !researchTree.QueueContainsCheck(researchDependent[i]))
+                    {
+                        canBeQueued = false;
+                        break;
+                    }
+                }
+
+                if (canBeQueued)
+                    AddToQueue();
+			}
         }
         else if (locked)
         {
-
-        }
+			researchTree.world.cityBuilderManager.PlaySelectAudio();
+            QueueToItem();
+		}
         else
         {
-            if (!researchTree.isQueueing && researchTree.QueueCount() > 0)
+			researchTree.world.cityBuilderManager.PlaySelectAudio();
+
+			if (researchTree.QueueCount() > 0)
                 researchTree.EndQueue();
             SelectResearchItem();
         }
-
-        researchTree.world.cityBuilderManager.PlaySelectAudio();
     }
+
+    private void QueueToItem()
+    {
+        researchTree.UnselectResearchItem();
+
+        if (researchTree.QueueCount() > 0)
+            researchTree.EndQueue();
+
+        List<UIResearchItem> itemsCheckList = new() { this };
+        List<UIResearchItem> branchList = new();
+        List<UIResearchItem> pathList = new();
+        bool firstSelection = true;
+
+		while (itemsCheckList.Count > 0)
+        {
+            UIResearchItem nextItem = itemsCheckList[0];
+            itemsCheckList.Remove(nextItem);
+            bool firstItem = true;
+            if (!pathList.Contains(nextItem))
+                pathList.Insert(0, nextItem); //always in front of line
+
+            bool branchUp = false;
+            int queuedCount = 0;
+            int dependentCount = nextItem.researchDependent.Count;
+			for (int i = 0; i < dependentCount; i++)
+            {            
+                if (nextItem.researchDependent[i].isSelected || researchTree.QueueContainsCheck(nextItem.researchDependent[i]))
+                {
+                    queuedCount++;
+                    continue;
+                }
+                else if (nextItem.researchDependent[i].locked)
+                {
+                    if (firstItem)
+                    {
+                        firstItem = false;
+                        itemsCheckList.Add(nextItem.researchDependent[i]);
+                    }
+                    else
+                    {
+                        branchList.Add(nextItem);
+                    }
+                }
+                else
+                {
+					if (!nextItem.researchDependent[i].isSelected)
+                    {
+					    if (firstSelection)
+                        {
+                            nextItem.researchDependent[i].SelectResearchItem();
+                            firstSelection = false;
+                        }
+                        else
+                        {
+                            nextItem.researchDependent[i].AddToQueue();
+                        }
+    
+                    }
+
+                    firstItem = false;
+                    branchUp = true;
+                }
+            }
+
+            //go up path if all dependents are already queued
+            if (queuedCount == dependentCount)
+                branchUp = true;
+            
+            if (branchUp)
+            {
+				List<UIResearchItem> tempList = new(pathList);
+				for (int j = 0; j < tempList.Count; j++)
+				{
+					if (!branchList.Contains(tempList[j]))
+					{
+						tempList[j].AddToQueue();
+						pathList.Remove(tempList[j]);
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				if (branchList.Count > 0)
+				{
+					UIResearchItem nextBranch = branchList[branchList.Count - 1];
+					branchList.Remove(nextBranch);
+					itemsCheckList.Add(nextBranch);
+				}
+			}
+        }
+    }
+
+	public void AddToQueue()
+    {
+		researchTree.AddToQueue(this);
+		queueNumberHolder.gameObject.SetActive(true);
+		queueNumber.text = (researchTree.QueueCount() + 1).ToString();
+	}
 
     public void LoadQueue()
     {
 		researchTree.AddToQueue(this);
 		queueNumberHolder.gameObject.SetActive(true);
 		queueNumber.text = (researchTree.QueueCount() + 1).ToString();
-
-		foreach (UIResearchItem researchItem in researchUnlocked)
-			researchItem.TempUnlockCheck();
 	}
-
-    public void TempUnlockCheck()
-    {
-        foreach (UIResearchItem researchItem in researchDependent)
-        {
-            if (!researchItem.tempUnlocked)
-                return;
-        }
-
-        tempUnlocked = true;
-    }
 
     public void EndQueue()
     {
-        foreach (UIResearchItem researchItem in researchUnlocked)
-            researchItem.tempUnlocked = false;
-
-        tempUnlocked = false;
         queueNumberHolder.gameObject.SetActive(false);
     }
 
@@ -382,9 +472,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         researchPercentDone.color = Color.white;
 		researchPercentDone.outlineWidth = .4f;
         researchPercentDone.text = $"{researchReceived}/{totalResearchNeeded}";
-        //researchPercentDone.outlineWidth = 0.4f; //this makes the text appear outside of the scroll rect for some reason
+        researchPercentDone.gameObject.SetActive(false);
+		researchPercentDone.gameObject.SetActive(true);
+		//researchPercentDone.outlineWidth = 0.4f; //this makes the text appear outside of the scroll rect for some reason
 
-        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
+		LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {
