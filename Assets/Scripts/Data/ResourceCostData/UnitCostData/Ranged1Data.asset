@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: 64d39453e5a6dd54497f80fb704d2ecc, type: 3}
   secondaryPrefab: {fileID: 0}
-  isSecondary: 0
   unitName: Ranged
   unitDisplayName: Archer
   unitLevel: 1
@@ -32,7 +31,7 @@ MonoBehaviour:
     resourceAmount: 5
   laborCost: 0
   unitType: 2
-  unitDescription: Ranged with low health
+  unitDescription: Ranged unit with low health
   availableInitially: 1
   locked: 0
   health: 50

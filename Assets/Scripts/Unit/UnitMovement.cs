@@ -847,18 +847,24 @@ public class UnitMovement : MonoBehaviour
 			}
 			else if (detectedObject.TryGetComponent(out Wonder wonder))
 			{
-                //locationInt = wonder.unloadLoc;
+                if (wonder.isConstructing)
+                {
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city or constructing wonder");
+					return;
+                }
+
+                locationInt = wonder.unloadLoc;
                 world.citySelected = leftClick;
 			}
             else if (world.IsWonderOnTile(terrainLoc))
             {
-                //Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
-                //locationInt = wonderLoc.unloadLoc;
+                Wonder wonderLoc = world.GetWonder(world.GetClosestTerrainLoc(locationInt));
+                locationInt = wonderLoc.unloadLoc;
 				world.citySelected = leftClick;
 			}
 			else
 			{
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city or a wonder");
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city or constructing wonder");
 				return;
 			}
 
@@ -869,17 +875,36 @@ public class UnitMovement : MonoBehaviour
         {
             if (!world.CheckIfSeaPositionIsValid(locationInt))
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
-                return;
+                Vector3Int trySpot = world.GetClosestMoveToSpot(locationInt, selectedUnit.transform.position, true);
+
+                //if (trySpot == locationInt)
+                //{
+                //    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
+                //    return;
+                //}
+
+                locationInt = trySpot;
+                locationFlat = trySpot;
             }
 
             selectedTrader.TurnOnRipples();
         }
         else if (!world.CheckIfPositionIsValid(locationInt) && !selectedUnit.isLaborer) //cancel movement if terrain isn't walkable
         {
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
-            return;
-        }
+			if (!world.CheckIfSeaPositionIsValid(locationInt))
+			{
+				Vector3Int trySpot = world.GetClosestMoveToSpot(locationInt, selectedUnit.transform.position, false);
+
+				//if (trySpot == locationInt)
+				//{
+				//	UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move there");
+				//	return;
+				//}
+
+				locationInt = trySpot;
+                locationFlat = trySpot;
+			}
+		}
         else if (world.CheckIfEnemyTerritory(locationInt))
         {
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
@@ -912,21 +937,21 @@ public class UnitMovement : MonoBehaviour
 
 			if (world.IsCityOnTile(terrainInt))
 			{
-				locationInt = selectedUnit.bySea ? world.GetCity(terrainInt).harborLocation : terrainInt;
+				//locationInt = selectedUnit.bySea ? world.GetCity(terrainInt).harborLocation : terrainInt;
 				world.citySelected = leftClick;
 			}
 			else if (world.IsWonderOnTile(terrainInt))
-			{
-				Wonder wonderLoc = world.GetWonder(terrainInt);
-				locationInt = selectedUnit.bySea ? wonderLoc.harborLoc : wonderLoc.unloadLoc;
-				world.citySelected = leftClick;
-			}
-			else if (world.IsTradeCenterOnTile(terrainInt))
-			{
-				locationInt = selectedUnit.bySea ? world.GetTradeCenter(terrainInt).harborLoc : terrainInt;
-				world.citySelected = leftClick;
-			}
-			else
+            {
+                Wonder wonderLoc = world.GetWonder(terrainInt);
+                locationInt = selectedUnit.bySea ? wonderLoc.harborLoc : wonderLoc.unloadLoc;
+                world.citySelected = leftClick;
+            }
+            else if (world.IsTradeCenterOnTile(terrainInt))
+            {
+                locationInt = selectedUnit.bySea ? world.GetTradeCenter(terrainInt).harborLoc : terrainInt;
+                world.citySelected = leftClick;
+            }
+            else
 			{
 				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Move to city, trade center, or a wonder");
 				return;
@@ -998,14 +1023,14 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelContinuedMovementOrders()
     {
-        if (selectedUnit.isTrader && selectedUnit.followingRoute)
-        {
-            CancelTradeRoute();
-            return;
-        }
-        
         if (selectedUnit != null)
         {
+            if (selectedUnit.isTrader && selectedUnit.followingRoute)
+            {
+                CancelTradeRoute();
+                return;
+            }
+
             selectedUnit.ResetMovementOrders();
             uiCancelMove.ToggleVisibility(false);
             selectedUnit.HidePath();
@@ -1040,7 +1065,9 @@ public class UnitMovement : MonoBehaviour
 
         if (world.IsWonderOnTile(unitLoc))
         {
-			world.GetWonder(unitLoc).AddWorker(selectedUnit);
+            Wonder wonder = world.GetWonder(unitLoc);
+			wonder.AddWorker(selectedUnit);
+            wonder.PlayPopGainAudio();
             selectedUnit.DestroyUnit();
             ClearSelection();
 			return;
@@ -1243,7 +1270,7 @@ public class UnitMovement : MonoBehaviour
 
     public void ConfirmWorkerOrdersButton()
     {
-        world.cityBuilderManager.PlayBoomAudio();
+        //world.cityBuilderManager.PlayBoomAudio(); //seems to double play
         ConfirmWorkerOrders();
     }
 
@@ -1450,7 +1477,7 @@ public class UnitMovement : MonoBehaviour
                     return;
                 }
 
-				world.cityBuilderManager.PlayRingAudio();
+				//world.cityBuilderManager.PlayRingAudio();
 				int buyAmount = -resourceAmountAdjusted * tradeCenter.ResourceBuyDict[resourceType];
                 world.UpdateWorldResources(ResourceType.Gold, buyAmount);
                 InfoResourcePopUpHandler.CreateResourceStat(selectedTrader.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
@@ -1470,7 +1497,7 @@ public class UnitMovement : MonoBehaviour
                     if (resourceAmount == 0)
                         return;
 
-                    world.cityBuilderManager.PlayRingAudio();
+                    //world.cityBuilderManager.PlayRingAudio();
                     selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
 
                     int sellAmount = -resourceAmount * tradeCenter.ResourceSellDict[resourceType];
@@ -1511,7 +1538,7 @@ public class UnitMovement : MonoBehaviour
         if (resourceAmount > 0) //moving from city to trader
         {
             int remainingInCity;
-			world.cityBuilderManager.PlayRingAudio();
+			//world.cityBuilderManager.PlayRingAudio();
 
 			if (cityResourceManager != null)
                 remainingInCity = cityResourceManager.GetResourceDictValue(resourceType);
@@ -1534,7 +1561,7 @@ public class UnitMovement : MonoBehaviour
 
         if (resourceAmount <= 0) //moving from trader to city
         {
-			world.cityBuilderManager.PlayRingAudio();
+			//world.cityBuilderManager.PlayRingAudio();
 			int remainingWithTrader = selectedTrader.personalResourceManager.GetResourceDictValue(resourceType);
 
             if (remainingWithTrader < Mathf.Abs(resourceAmount))

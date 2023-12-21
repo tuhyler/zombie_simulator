@@ -6,6 +6,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
 public class UISaveGame : MonoBehaviour
 {
@@ -41,7 +42,17 @@ public class UISaveGame : MonoBehaviour
 	{
         if (!populated)
             PopulateSaveItems();
-        gameObject.SetActive(false);
+		gameObject.SetActive(false);
+
+		saveField.onValidateInput += delegate (string input, int charIndex, char addedChar) { return AlphaNumericSpaceCheck(addedChar); };
+	}
+
+	private char AlphaNumericSpaceCheck(char c)
+	{
+		if (!Char.IsWhiteSpace(c) && !Char.IsLetter(c) && !Char.IsDigit(c))
+			c = '\0';
+
+		return c;
 	}
 
 	public void PopulateSaveItems()

@@ -581,6 +581,9 @@ public class Trader : Unit
 		waitingOnRouteCosts = data.waitingOnRouteCosts;
 		resourceGridDict = data.resourceGridDict;
 
+		if (!isMoving)
+			world.AddUnitPosition(CurrentLocation, this);
+
 		//personal resource info
 		personalResourceManager.ResourceDict = data.resourceDict;
 		personalResourceManager.ResourceStorageLevel = data.resourceStorageLevel;

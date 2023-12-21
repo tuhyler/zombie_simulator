@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.Rendering.DebugUI;
 
 public class Wonder : MonoBehaviour
 {
@@ -82,6 +83,9 @@ public class Wonder : MonoBehaviour
     [SerializeField]
     private ParticleSystem heavenHighlight, smokeEmitter, smokeSplash, removeSplash, fireworks1, fireworks2;
 
+    //audio
+    private AudioSource audioSource;
+
     private CameraController focusCam;
 
     private void Awake()
@@ -89,6 +93,7 @@ public class Wonder : MonoBehaviour
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
         isConstructing = true;
         highlight = GetComponent<SelectionHighlight>();
+        audioSource = GetComponent<AudioSource>();
         fireworks1.gameObject.SetActive(false);
         fireworks2.gameObject.SetActive(false);
 
@@ -191,7 +196,13 @@ public class Wonder : MonoBehaviour
                 light.gameObject.SetActive(true);
     }
 
-    private void IncreasePercentDone()
+	public void PlayPopGainAudio()
+	{
+		audioSource.clip = world.cityBuilderManager.popGainClip;
+		audioSource.Play();
+	}
+
+	private void IncreasePercentDone()
     {
         percentDone++;
         if (percentDone == 100)
@@ -507,6 +518,7 @@ public class Wonder : MonoBehaviour
 				StopSmokeEmitter();
 
 			world.cityBuilderManager.CreateAllWorkers(this);
+            ApplyWonderCompletionReward();
             return;
         }
 
@@ -522,7 +534,7 @@ public class Wonder : MonoBehaviour
 				grasslandCount++;
 		}
 
-		if (grasslandCount == Mathf.Ceil(wonderLocs.Count * 0.5f)) //turn to grassland if all are grassland
+		if (grasslandCount >= Mathf.Ceil(wonderLocs.Count * 0.5f)) //tie breaker goes to grassland
 		{
 			foreach (MeshFilter mesh in meshComplete.GetComponentsInChildren<MeshFilter>())
 			{
@@ -762,7 +774,68 @@ public class Wonder : MonoBehaviour
         highlight.DisableHighlight();
     }
 
-    public WonderData SaveData()
+    //manually applying benefits for now
+    public void ApplyWonderCompletionReward()
+    {
+        string wonderName = wonderData.wonderDisplayName;
+
+        switch (wonderName)
+        {
+            case "Pyramids":
+                world.AddToCityPermanentChanges("Warehouse Storage", wonderData.wonderBenefitChange);
+
+                foreach (City city in world.cityDict.Values)
+                {
+                    city.warehouseStorageLimit += (int)wonderData.wonderBenefitChange;
+                    city.ResourceManager.CheckProducerUnloadWaitList();
+                    city.ResourceManager.RestartStorageRoomWaitProduction();
+                }
+                break;
+            case "Great Lighthouse":
+				world.AddToUnitPermanentChanges("Boat Trader", "Movement Speed", wonderData.wonderBenefitChange);
+
+				foreach (Trader trader in world.traderList)
+                {
+                    if (trader.buildDataSO.unitName == "Boat Trader")
+                        trader.originalMoveSpeed *= 1f + wonderData.wonderBenefitChange;
+                }
+                break;
+            case "Great Ziggurat":
+                world.AddToCityImprovementChanges("Research", "Production Yield", ResourceType.Research, wonderData.wonderBenefitChange);
+
+                foreach (Vector3Int tile in world.cityImprovementDict.Keys)
+                {
+					if (world.GetCityDevelopment(tile).GetImprovementData.improvementName == "Research")
+                    {
+                        ResourceProducer producer = world.GetResourceProducer(tile);
+
+						for (int i = 0; i < producer.producedResources.Count; i++)
+						{
+							if (producer.producedResources[i].resourceType == ResourceType.Research)
+                            {
+                                ResourceValue oldValue = producer.producedResources[i];
+                                oldValue.resourceAmount = Mathf.RoundToInt(oldValue.resourceAmount * (1f + wonderData.wonderBenefitChange));
+                                producer.producedResources[i] = oldValue;
+
+                                if (producer.producedResource.resourceType == ResourceType.Research)
+                                    producer.producedResource = oldValue;
+							}
+						}
+                    }
+                }
+
+                break;
+            case "Hanging Gardens":
+                world.AddToCityPermanentChanges("Work Ethic", wonderData.wonderBenefitChange);
+
+                foreach (City city in world.cityDict.Values)
+                    city.workEthic += wonderData.wonderBenefitChange;
+                break;
+        }
+    }
+
+
+	public WonderData SaveData()
     {
         WonderData data = new();
 

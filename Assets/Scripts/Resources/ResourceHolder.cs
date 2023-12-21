@@ -25,6 +25,11 @@ public class ResourceHolder : MonoBehaviour
         }
     }
 
+    public ResourceIndividualSO GetData(ResourceType resourceType)
+    {
+        return resourceDict[resourceType];
+    }
+
     public Sprite GetIcon(ResourceType resourceType)
     {
         return resourceDict[resourceType].resourceIcon;

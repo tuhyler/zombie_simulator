@@ -7,6 +7,9 @@ public class UIInfoPanelCity : MonoBehaviour
     [SerializeField]
     private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel/*, foodLevelText, foodGrowthText*//*, foodPerMinute*/;
 
+    [SerializeField]
+    private GameObject cityWarning;
+
     //[SerializeField]
     //private Toggle pauseGrowthToggle;
 
@@ -14,7 +17,8 @@ public class UIInfoPanelCity : MonoBehaviour
 
     [SerializeField] //for tweening
     private RectTransform allContents;
-    private bool activeStatus;
+    [SerializeField]
+    public bool activeStatus;
     private Vector3 originalLoc;
 
     //int foodLimit;
@@ -163,5 +167,10 @@ public class UIInfoPanelCity : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+    }
+
+    public void TogglewWarning(bool v)
+    {
+        cityWarning.SetActive(v);
     }
 }

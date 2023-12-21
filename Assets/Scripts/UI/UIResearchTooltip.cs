@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 public class UIResearchTooltip : MonoBehaviour
 {
     public MapWorld world;
-    public TMP_Text title, level, producesTitle, descriptionTitle, descriptionText, health, speed, strength, workEthicText, housingText, waterText;
+    public TMP_Text title, level, costTitle, producesTitle, descriptionTitle, descriptionText, health, speed, strength, workEthicText, housingText, waterText;
     public Image mainImage, strengthImage;
     public Sprite inventorySprite, strengthSprite;
     public GameObject produceHolder, descriptionHolder, workEthicImage, housingImage, waterImage;
@@ -94,14 +95,25 @@ public class UIResearchTooltip : MonoBehaviour
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
-        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, bool rocks = false)
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, bool wonder, Era era, bool rocks = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
-        if (title == displayTitle)
-            this.level.text = "Level " + level.ToString();
+
+        if (wonder)
+        {
+            this.level.text = Regex.Replace(era.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1") + " Wonder";
+            costTitle.text = "Total Cost to Build";
+        }
         else
-            this.level.text = "Level " + level.ToString() + " " + title;
+        {
+            if (title == displayTitle)
+                this.level.text = "Level " + level.ToString();
+            else
+                this.level.text = "Level " + level.ToString() + " " + title;
+
+            costTitle.text = "Cost";
+        }
 
         int producesCount = produces.Count;
         int maxCount = costs.Count;
@@ -228,14 +240,20 @@ public class UIResearchTooltip : MonoBehaviour
 				//produceContentsHeight = 160;
 				//produceHolderHeight = 110;
 			}
+            else if (wonder)
+            {
+				descriptionTitle.text = "Reward";
+                producesTitle.text = "Cost per Percent";
+				descriptionText.text = description;
+			}
             else
             {
 				descriptionTitle.text = "Additional Info";
 
-				if (workEthic > 0)
-                    descriptionText.text = "Work Ethic +" + Mathf.RoundToInt(workEthic * 100) + "%";
-                else
-                    descriptionText.text = description;
+				//if (workEthic > 0)
+    //                descriptionText.text = "Work Ethic +" + Mathf.RoundToInt(workEthic * 100) + "%";
+    //            else
+                descriptionText.text = description;
                 producesTitle.text = "Produces";
 			}
 
@@ -256,6 +274,14 @@ public class UIResearchTooltip : MonoBehaviour
 
             if (consumes.Count > 0)
                 firstResourceProduceLayout.padding.left = -(consumes[0].Count - 1) * (resourcePanelSize / 2);
+		}
+        else if (wonder)
+        {
+			unitInfo.gameObject.SetActive(false);
+			resourceProduceLayout.childAlignment = TextAnchor.UpperCenter;
+
+			if (consumes.Count > 0)
+                firstResourceProduceLayout.padding.left = -(consumes[0].Count) * (resourcePanelSize / 2);
 		}
 		else
         {

@@ -549,7 +549,7 @@ public class TerrainGenerator : MonoBehaviour
 		for (int i = 0; i < resourceLocs.Count; i++)
             AddResource(random, terrainDict[resourceLocs[i]]);
 
-        //List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
+        List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
         //SetEnemyBorders(enemyLocs);
 
         for (int i = 0; i < tradeCenterLocs.Count; i++)
@@ -581,10 +581,12 @@ public class TerrainGenerator : MonoBehaviour
             terrainDict[tradeCenterLocs[i]].prop.gameObject.SetActive(false);
             terrainDict[tradeCenterLocs[i]].showProp = false;
 			Quaternion rotation = Quaternion.Euler(0, index * 90, 0);
-            GameObject tradeCenterGO = Instantiate(tradeCenters[i], tradeCenterLocs[i], rotation);
+            GameObject tradeCenterGO = Instantiate(tradeCenters[i], tradeCenterLocs[i], Quaternion.identity);
             tradeCenterGO.transform.SetParent(tradeCenterHolder, false);
             Quaternion miniRotation = Quaternion.Euler(90, 0, 0);
-            tradeCenterGO.GetComponent<TradeCenter>().minimapIcon.rotation = miniRotation;
+            TradeCenter center = tradeCenterGO.GetComponent<TradeCenter>();
+            center.main.rotation = rotation;
+            center.minimapIcon.rotation = miniRotation;
             allTiles.Add(tradeCenterGO);
         }
 
@@ -2160,8 +2162,8 @@ public class TerrainGenerator : MonoBehaviour
         world.spotlight.transform.position = startingPlace;
         world.cameraController.ResetCamLimits(world.RoundToInt(world.mainPlayer.transform.position));
         world.cameraController.CenterCameraNoFollow(startingPlace);
-        world.water.transform.position = new Vector3(width / 2f * 3, yCoord - 0.06f, height / 2f * 3);
-        world.water.minimapIcon.localScale = new Vector3(0.14f * width, 1.8f, 0.14f * height);
+        //world.water.transform.position = new Vector3(width / 2f * 3, yCoord - 0.06f, height / 2f * 3);
+        //world.water.minimapIcon.localScale = new Vector3(0.14f * width, 1.8f, 0.14f * height);
 	}
 
     public void SetYCoord(int yCoord)

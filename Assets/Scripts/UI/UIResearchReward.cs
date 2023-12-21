@@ -13,6 +13,7 @@ public class UIResearchReward : MonoBehaviour
     
     public ImprovementDataSO improvementData;
     public UnitBuildDataSO unitData;
+    public WonderDataSO wonderData;
 
     private UIResearchItem researchItem;
     private List<List<ResourceValue>> consumes = new();
@@ -47,11 +48,32 @@ public class UIResearchReward : MonoBehaviour
 
             consumes.Add(unitData.cycleCost);
         }
+        else if (wonderData != null)
+        {
+            ResourceValue cost;
+            cost.resourceType = ResourceType.Gold;
+            cost.resourceAmount = wonderData.workerCost * wonderData.workersNeeded;
+
+            ResourceValue labor;
+            labor.resourceType = ResourceType.Labor;
+            labor.resourceAmount = wonderData.workersNeeded;
+
+            List<ResourceValue> costList = new() { cost, labor };
+            consumes.Add(costList);
+
+            ResourceValue value;
+			value.resourceType = ResourceType.None;
+			value.resourceAmount = 0;
+			produces.Add(value);
+			produceTime.Add(wonderData.buildTimePerPercent);
+        }
 
         if (improvementData != null)
             rewardIcon.sprite = improvementData.image;
         else if (unitData != null)
             rewardIcon.sprite = unitData.image;
+        else if (wonderData != null)
+            rewardIcon.sprite = wonderData.image;
 
         originalSprite = rewardBackground.sprite;
     }
@@ -78,12 +100,15 @@ public class UIResearchReward : MonoBehaviour
             return;
 
         if (improvementData != null)
-            researchItem.researchTree.researchTooltip.SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel, 
-                improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0, 
-                improvementData.housingIncrease, improvementData.waterIncrease, improvementData.rawResourceType == RawResourceType.Rocks);
+            researchItem.researchTree.researchTooltip.SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel,
+                improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0,
+                improvementData.housingIncrease, improvementData.waterIncrease, false, Era.None, improvementData.rawResourceType == RawResourceType.Rocks);
         else if (unitData != null)
-            researchItem.researchTree.researchTooltip.SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, 
-                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, 0, 0);
+            researchItem.researchTree.researchTooltip.SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost,
+                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, 0, 0, false, Era.None);
+        else if (wonderData != null)
+            researchItem.researchTree.researchTooltip.SetInfo(wonderData.image, wonderData.wonderName, wonderData.wonderDisplayName, 0, 0, wonderData.wonderDecription, wonderData.wonderCost, produces, 
+                consumes, produceTime, false, 0, 0, 0, 0, 0, 0, true, wonderData.wonderEra);
 
         researchItem.researchTree.researchTooltip.ToggleVisibility(true);
         researchItem.researchTree.world.cityBuilderManager.PlaySelectAudio();

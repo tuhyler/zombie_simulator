@@ -292,7 +292,7 @@ GameObject:
   - component: {fileID: 2689822603064976481}
   - component: {fileID: 7766009657543446813}
   m_Layer: 0
-  m_Name: UpgradeButton
+  m_Name: AddPopButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -479,7 +479,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Increase
+  m_text: Add Pop
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -1097,6 +1097,7 @@ MonoBehaviour:
   foodCycleCostText: {fileID: 4435653350328581844}
   housingCostText: {fileID: 7011767467256278678}
   waterCostText: {fileID: 2295940817257381968}
+  buttonImage: {fileID: 0}
   allContents: {fileID: 7172269090546766210}
   activeStatus: 0
 --- !u!1 &6076609533319556090

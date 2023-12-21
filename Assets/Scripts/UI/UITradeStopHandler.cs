@@ -326,7 +326,8 @@ public class UITradeStopHandler : MonoBehaviour
         newResourceTask.counter.text = (resourceCount + 1).ToString() + '.';
         newResourceTask.loc = resourceCount;
         //newResourceTask.cargoLimit = tradeRouteManager.traderCargoLimit;
-        newResourceTask.resourceCountSlider.maxValue = tradeRouteManager.traderCargoLimit;
+        //newResourceTask.resourceCountSlider.maxValue = tradeRouteManager.traderCargoLimit;
+        newResourceTask.SetValuePool(tradeRouteManager.traderCargoLimit);
         //newResourceTask.SetCargoStorageLimit(traderCargoStorageLimit);
         uiResourceTasks.Add(newResourceTask);
         resourceCount++;

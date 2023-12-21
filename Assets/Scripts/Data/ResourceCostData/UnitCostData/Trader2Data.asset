@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4262420279640114416, guid: 801743abbaa111446b985a226fad7b99, type: 3}
   secondaryPrefab: {fileID: 0}
-  isSecondary: 0
   unitName: Trader
   unitDisplayName: Cart Trader
   unitLevel: 2

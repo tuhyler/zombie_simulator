@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -42,13 +43,27 @@ public class UICityNamer : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void Update()
+	private void Start()
+	{
+		inputField.onValidateInput += delegate (string input, int charIndex, char addedChar) { return AlphaNumericSpaceCheck(addedChar); };
+	}
+
+	private void Update()
     {
         if (Input.GetKeyUp(KeyCode.Return) || Input.GetKeyUp(KeyCode.KeypadEnter))
             StoreName();
     }
 
-    public void ToggleVisibility(bool v, City city = null)
+	private char AlphaNumericSpaceCheck(char c)
+    {
+        if (!Char.IsWhiteSpace(c) && !Char.IsLetter(c) && !Char.IsDigit(c))
+            c = '\0';
+
+        return c;
+    }
+
+
+	public void ToggleVisibility(bool v, City city = null)
     {
         if (activeStatus == v)
             return;
@@ -100,13 +115,14 @@ public class UICityNamer : MonoBehaviour
         if (tempCity.CheckCityName(tempText))
         {
             StartCoroutine(Shake(.25f, 10));
-
-            Debug.Log("Name already used.");
-            return;
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already taken", true);
+			return;
         }
 
         tempCity.RemoveCityName();
         tempCity.UpdateCityName(tempText);
+        tempCity.isNamed = true;
+
         uiInfoPanelCity.UpdateCityName(tempText);
         ToggleVisibility(false);
     }
@@ -119,8 +135,8 @@ public class UICityNamer : MonoBehaviour
 
         while (elapsed < duration)
         {
-            float x = Random.Range(-1f, 1f) * magnitude;
-            float y = Random.Range(-1f, 1f) * magnitude;
+            float x = UnityEngine.Random.Range(-1f, 1f) * magnitude;
+            float y = UnityEngine.Random.Range(-1f, 1f) * magnitude;
 
             transform.localPosition = new Vector3(x, y, originalPosition.z);
 

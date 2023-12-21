@@ -825,17 +825,17 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 5
+  m_ContentType: 0
   m_InputType: 0
   m_AsteriskChar: 42
   m_KeyboardType: 0
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 5
+  m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 14
-  m_CharacterLimit: 15
+  m_CharacterLimit: 17
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -1023,7 +1023,6 @@ MonoBehaviour:
   placeHolder: {fileID: 8880103112827573934}
   inputField: {fileID: 4968710092362001266}
   playerInput: {fileID: 0}
-  turnHandler: {fileID: 0}
   cameraController: {fileID: 0}
   uiCityBuildTabHandler: {fileID: 0}
   uiLaborAssignment: {fileID: 0}

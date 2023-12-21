@@ -22,8 +22,8 @@ public class UIBuilderHandler : MonoBehaviour
     [SerializeField]
     private UnityEvent<UnitBuildDataSO> OnUnitIconButtonClick;
 
-    [SerializeField]
-    private Transform uiElementsParent;
+    //[SerializeField]
+    //private Transform uiElementsParent;
     [HideInInspector]
     public List<UIBuildOptions> buildOptions = new();
 
@@ -77,13 +77,13 @@ public class UIBuilderHandler : MonoBehaviour
         }
         dof.focalLength.value = 15;
 
-        foreach (Transform selection in uiElementsParent) //populate list
-        {
-            UIBuildOptions option = selection.GetComponent<UIBuildOptions>();
+       // foreach (Transform selection in uiElementsParent) //populate list
+       // {
+       //     UIBuildOptions option = selection.GetComponent<UIBuildOptions>();
 
-            if (option)
-    			buildOptions.Add(option);
-        }
+       //     if (option)
+    			//buildOptions.Add(option);
+       // }
 
         originalLoc = allContents.anchoredPosition3D;
         cityBuilderManager = FindObjectOfType<CityBuilderManager>();
@@ -154,7 +154,7 @@ public class UIBuilderHandler : MonoBehaviour
     {
         finalSpaceHolder.SetAsLastSibling();
 
-		foreach (Transform selection in uiElementsParent) //populate list
+		foreach (Transform selection in objectHolder) //populate list
 		{
 			if (selection.TryGetComponent(out UIBuildOptions option))
 				buildOptions.Add(option);

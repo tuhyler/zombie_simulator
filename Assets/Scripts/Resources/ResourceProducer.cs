@@ -6,7 +6,8 @@ using UnityEngine;
 public class ResourceProducer : MonoBehaviour
 {
     private ResourceManager resourceManager;
-    private CityImprovement cityImprovement;
+    [HideInInspector]
+    public CityImprovement cityImprovement;
     [HideInInspector]
     public int producedResourceIndex;
     //private TaskDataSO taskData;
@@ -208,7 +209,8 @@ public class ResourceProducer : MonoBehaviour
 			resourceManager.RemoveFromResourceWaitList(this);
             resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
 
-            StartProducing();
+			cityImprovement.exclamationPoint.SetActive(false);
+			StartProducing();
         }
     }
 
@@ -330,7 +332,9 @@ public class ResourceProducer : MonoBehaviour
         if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
         {
             isWaitingToUnload = true;
-            unloadLabor = tempLabor;
+			cityImprovement.exclamationPoint.SetActive(true);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+			unloadLabor = tempLabor;
             //resourceManager.waitingToUnloadResearch.Add(this);
             //timeProgressBar.SetToZero();
             uiTimeProgressBar.SetToFull();
@@ -341,7 +345,9 @@ public class ResourceProducer : MonoBehaviour
         else if (resourceManager.fullInventory)
         {
             isWaitingToUnload = true;
-            unloadLabor = tempLabor;
+            cityImprovement.exclamationPoint.SetActive(true);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, true);
+			unloadLabor = tempLabor;
             resourceManager.waitingToUnloadProducers.Enqueue(this);
             //timeProgressBar.SetToZero();
             uiTimeProgressBar.SetToFull();
@@ -380,21 +386,27 @@ public class ResourceProducer : MonoBehaviour
         if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
         {
             AddToResearchWaitList();
-            //timeProgressBar.SetActive(false);
-            uiTimeProgressBar.gameObject.SetActive(false);
+			cityImprovement.exclamationPoint.SetActive(true);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+			//timeProgressBar.SetActive(false);
+			uiTimeProgressBar.gameObject.SetActive(false);
             cityImprovement.StopWork();
         }
         else if (resourceManager.fullInventory)
         {
             AddToStorageRoomWaitList();
-            uiTimeProgressBar.gameObject.SetActive(false);
+			cityImprovement.exclamationPoint.SetActive(true);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, true);
+			uiTimeProgressBar.gameObject.SetActive(false);
             cityImprovement.StopWork();
             //timeProgressBar.SetActive(false);
         }
         else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
         {
             AddToResourceWaitList();
-            uiTimeProgressBar.gameObject.SetActive(false);
+			cityImprovement.exclamationPoint.SetActive(true);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, true);
+			uiTimeProgressBar.gameObject.SetActive(false);
             cityImprovement.StopWork();
             //timeProgressBar.SetActive(false);
         }
@@ -410,6 +422,7 @@ public class ResourceProducer : MonoBehaviour
     public void StopProducing(bool allLabor = false)
     {
 		UpdateResourceGenerationData();
+		cityImprovement.exclamationPoint.SetActive(false);
 
 		if (isWaitingForResearch)
         {
@@ -466,6 +479,7 @@ public class ResourceProducer : MonoBehaviour
 				resourceManager.PrepareResource(producedResource, unloadLabor, producerLoc, cityImprovement);
             }
 
+			cityImprovement.exclamationPoint.SetActive(false);
 			StartProducing();
 		}
 	}
@@ -473,20 +487,25 @@ public class ResourceProducer : MonoBehaviour
 	private void AddToResearchWaitList()
     {
         isWaitingForResearch = true;
-        //resourceManager.AddToResearchWaitList(this);
-        resourceManager.city.AddToWorldResearchWaitList(this);
+		cityImprovement.exclamationPoint.SetActive(true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+		//resourceManager.AddToResearchWaitList(this);
+		resourceManager.city.AddToWorldResearchWaitList(this);
     }
 
     private void AddToStorageRoomWaitList()
     {
         isWaitingForStorageRoom = true;
-        resourceManager.AddToStorageRoomWaitList(this);
+		cityImprovement.exclamationPoint.SetActive(true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, true);
+		resourceManager.AddToStorageRoomWaitList(this);
     }
 
     private void AddToResourceWaitList()
     {
         isWaitingforResources = true;
-        resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true);
+		cityImprovement.exclamationPoint.SetActive(true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, true);
         resourceManager.AddToResourceWaitList(this);
         resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
     }

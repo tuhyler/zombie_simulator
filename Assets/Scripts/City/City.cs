@@ -53,7 +53,7 @@ public class City : MonoBehaviour
     public Vector3Int cityLoc;
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining,
-        hasMarket;
+        hasMarket, isNamed, stopCycle;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
@@ -126,8 +126,8 @@ public class City : MonoBehaviour
     public List<Unit> tradersHere = new();
 
     //audio
-    [SerializeField]
-    private AudioClip popGainClip, popLoseClip;
+    //[SerializeField]
+    //private AudioClip popGainClip, popLoseClip;
     private AudioSource audioSource;
 
 	//stored queue items
@@ -157,7 +157,7 @@ public class City : MonoBehaviour
         army = GetComponent<Army>();
         //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
         resourceManager = GetComponent<ResourceManager>();
-        resourceManager.ResourceStorageLimit = warehouseStorageLimit;
+        //resourceManager.ResourceStorageLimit = warehouseStorageLimit;
         //resourceProducer = GetComponent<ResourceProducer>();
         resourceManager.SetCity(this);
         //resourceProducer.SetResourceManager(resourceManager);
@@ -208,19 +208,20 @@ public class City : MonoBehaviour
 
 	public void PlayPopGainAudio()
 	{
-		audioSource.clip = popGainClip;
+		audioSource.clip = world.cityBuilderManager.popGainClip;
 		audioSource.Play();
 	}
 
 	public void PlayPopLossAudio()
 	{
-		audioSource.clip = popLoseClip;
+		audioSource.clip = world.cityBuilderManager.popLoseClip;
 		audioSource.Play();
 	}
 
 	public void SetWorld(MapWorld world)
     {
         this.world = world;
+		world.CheckCityPermanentChanges(this);
 		army.SetWorld(world);
 		resourceManager.ResourceDict = new(world.GetBlankResourceDict());
         resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
@@ -486,18 +487,19 @@ public class City : MonoBehaviour
     public void SetNewCityName()
     {
         bool approvedName = false;
-        int cityCount = world.CityCount();
+        int cityCount = world.cityCount;
         string cityName = "";
 
         while (!approvedName)
         {
-            cityCount++;
-            cityName = "City_" + cityCount.ToString();
+            cityName = "Camp " + cityCount.ToString();
 
             if (!world.CheckCityName(cityName))
             {
                 approvedName = true;
             }
+
+            cityCount++;
         }
 
         cityNameMap.GetComponentInChildren<TMP_Text>().text = cityName;
@@ -739,7 +741,6 @@ public class City : MonoBehaviour
                         world.cityBuilderManager.abandonCityButton.interactable = false;
                         //world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
                     }
-                    cityNameField.ToggleVisibility(true);
                     resourceManager.SellResources();
                     StartGrowthCycle(false);
                 }
@@ -748,6 +749,22 @@ public class City : MonoBehaviour
                     minimapIcon.sprite = cityIcon;
                     ExtinguishFire();
                 }
+            }
+            else
+            {
+                if (!isNamed)
+                {
+                    isNamed = true;
+                    string newName = world.GetNextCityName();
+
+					RemoveCityName();
+					UpdateCityName(newName);
+
+                    if (activeCity)
+    					world.cityBuilderManager.uiInfoPanelCity.UpdateCityName(newName);
+				}
+
+                cityNameField.ToggleVisibility(true);
             }
         }
     }
@@ -793,12 +810,14 @@ public class City : MonoBehaviour
 		if (cityPop.CurrentPop <= 3)
         {
             HouseLightCheck();
+			cityNameField.ToggleVisibility(false);
 
 			if (cityPop.CurrentPop == 0 && army.UnitsInArmy.Count == 0)
             {
                 if (co != null)
                 {
                     StopCoroutine(co);
+                    stopCycle = true;
                     //countDownTimer = secondsTillGrowthCheck;
                     co = null;
                 }
@@ -1177,6 +1196,8 @@ public class City : MonoBehaviour
             co = null;
 		}
 
+        stopCycle = true;
+
         if (activeCity)
             CityGrowthProgressBarSetActive(false);
     }
@@ -1193,7 +1214,8 @@ public class City : MonoBehaviour
 		if (!load)
             countDownTimer = secondsTillGrowthCheck;
 
-        co = StartCoroutine(GrowthCycleCoroutine());
+		stopCycle = false;
+		co = StartCoroutine(GrowthCycleCoroutine());
     }
 
     private void ContinueGrowthCycle()
@@ -1236,8 +1258,10 @@ public class City : MonoBehaviour
         Debug.Log(cityName + " is checking for growth");
         //countDownTimer = secondsTillGrowthCheck;
 
-        ContinueGrowthCycle();
-            //co = StartCoroutine(FoodConsumptionCoroutine());
+        if (stopCycle)
+            stopCycle = false;
+        else
+            ContinueGrowthCycle();         
     }
 
     private void SetProgressTimeBar()
@@ -1681,6 +1705,8 @@ public class City : MonoBehaviour
 			//countDownTimer = secondsTillGrowthCheck;
 			co = null;
         }
+        stopCycle = true;
+
         Destroy(uiTimeProgressBar.gameObject);
     }
 
@@ -1689,6 +1715,7 @@ public class City : MonoBehaviour
         CityData data = new();
 
         data.name = cityName;
+        data.isNamed = isNamed;
         data.location = cityLoc;
         data.reachedWaterLimit = reachedWaterLimit;
         data.harborTraining = harborTraining;
@@ -1719,7 +1746,7 @@ public class City : MonoBehaviour
 
         //resource manager
         data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
-		data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
+		//data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
         data.fullInventory = resourceManager.fullInventory;
 		data.resourceDict = resourceManager.ResourceDict;
         data.resourcePriceDict = resourceManager.ResourcePriceDict;
@@ -1813,6 +1840,7 @@ public class City : MonoBehaviour
     public void LoadCityData(CityData data)
     {
         cityName = data.name;
+        isNamed = data.isNamed;
         cityLoc = data.location;
         reachedWaterLimit = data.reachedWaterLimit;
         harborTraining = data.harborTraining;
@@ -1838,10 +1866,12 @@ public class City : MonoBehaviour
 
         if (cityPop.CurrentPop > 0)
             StartGrowthCycle(true);
+        else if (cityPop.CurrentPop > 4)
+			cityNameField.ToggleVisibility(true);
 
-        //resource manager
-        warehouseStorageLimit = data.warehouseStorageLimit;
-        resourceManager.ResourceStorageLimit = data.warehouseStorageLimit;
+		//resource manager
+		//warehouseStorageLimit = data.warehouseStorageLimit;
+        //resourceManager.ResourceStorageLimit = data.warehouseStorageLimit;
         resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
         resourceManager.fullInventory = data.fullInventory;
         resourceManager.ResourceDict = data.resourceDict;

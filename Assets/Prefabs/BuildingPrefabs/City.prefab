@@ -194,6 +194,8 @@ MonoBehaviour:
   highlighted: 0
   harborTraining: 0
   hasMarket: 0
+  isNamed: 0
+  stopCycle: 0
   uiCityResourceInfoPanel: {fileID: 0}
   harborLocation: {x: 0, y: 0, z: 0}
   barracksLocation: {x: 0, y: 0, z: 0}
@@ -210,8 +212,6 @@ MonoBehaviour:
   warehouseStorageLimit: 2000
   autoGrow: 0
   tradersHere: []
-  popGainClip: {fileID: 8300000, guid: fcde351d843e08c44a77b6d265bfd7ef, type: 3}
-  popLoseClip: {fileID: 8300000, guid: d0d74fce719734045aa5902107dc9b80, type: 3}
 --- !u!114 &-548530054223577924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,6 +224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae28bb5c725c1504ab89962d03a6f96a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cityImprovement: {fileID: 0}
   producedResourceIndex: 0
   currentLabor: 0
   tempLabor: 0
@@ -1039,6 +1040,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}

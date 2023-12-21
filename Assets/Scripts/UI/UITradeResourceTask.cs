@@ -55,6 +55,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     public ResourceType chosenResource;
     private int chosenMultiple = 1;
     private int chosenResourceAmount;
+    private int[] valuePool = new int[11];
     //private string chosenAmount;
     //private int traderCargoStorageLimit;
 
@@ -350,9 +351,17 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     //    //resourceList.AddOptions(resources);
     //}
 
+    public void SetValuePool(int inventoryMax)
+    {
+        int interval = inventoryMax / 10;
+        
+        for (int i = 0; i < 11; i++)
+            valuePool[i] = i * interval;
+    }
+
     public void ChangeSlider(float value)
     {
-        chosenResourceAmount = Mathf.RoundToInt(value);
+        chosenResourceAmount = valuePool[(int)value]/*Mathf.RoundToInt(value)*/;
         resourceCount.text = chosenResourceAmount.ToString();
     }
 

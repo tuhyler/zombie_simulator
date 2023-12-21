@@ -13,11 +13,11 @@ public class UICityImprovementTip : MonoBehaviour
     private MapWorld world;
     
     [SerializeField]
-    public TMP_Text title, level, resourceCount;
+    public TMP_Text title, level, resourceCount, waitingForText;
     private TMP_Text producesText, consumesNone;
 
     [SerializeField]
-    private GameObject waitingForText, resourceCountGO;
+    private GameObject /*waitingForText, */resourceCountGO;
     private bool waiting;
 
     [SerializeField]
@@ -84,16 +84,30 @@ public class UICityImprovementTip : MonoBehaviour
             
             highlightList[highlightIndex].gameObject.SetActive(false); // turn off previous one
             this.improvement = improvement;
+            ResourceProducer producer = world.GetResourceProducer(improvement.loc);
 
-			if (world.GetResourceProducer(improvement.loc).isWaitingforResources)
+			if (producer.isWaitingforResources)
 			{
 				waiting = true;
-				waitingForText.SetActive(true);
+				waitingForText.gameObject.SetActive(true);
+                waitingForText.text = "Waiting for Resources";
+			}
+            else if (improvement.GetImprovementData.isResearch && (producer.isWaitingForResearch || producer.isWaitingToUnload))
+            {
+				waiting = true;
+				waitingForText.gameObject.SetActive(true);
+				waitingForText.text = "Waiting for Assignment";
+			}
+            else if (producer.isWaitingForStorageRoom || producer.isWaitingToUnload)
+            {
+				waiting = true;
+				waitingForText.gameObject.SetActive(true);
+				waitingForText.text = "Waiting for Storage";
 			}
 			else
 			{
 				waiting = false;
-				waitingForText.SetActive(false);
+				waitingForText.gameObject.SetActive(false);
 			}
 
 			SetData(this.improvement);
@@ -200,7 +214,7 @@ public class UICityImprovementTip : MonoBehaviour
 
         int multiple = Mathf.Max(maxCount - 2, 0) * 90; //allowing one extra for production time ResourceValue
         int panelWidth = 310 + multiple;
-        int panelHeight = showCount ? 525 : 450;
+        int panelHeight = showCount ? 535 : 460;
         int lineWidth = 280 + multiple;
 
         allContents.sizeDelta = new Vector2(panelWidth, panelHeight);
@@ -320,16 +334,17 @@ public class UICityImprovementTip : MonoBehaviour
 
         improvement.producedResource = producesInfo[a].resourceType;
         improvement.producedResourceIndex = a;
-        improvement.CalculateWorkCycleLimit();
+        //improvement.CalculateWorkCycleLimit();
         producer.producedResourceIndex = a;
         highlightIndex = a;
         producer.SetNewProgressTime();
-        producer.producedResource = improvement.GetImprovementData.producedResources[a];
+        producer.producedResource = producer.producedResources[a];
         producer.consumedResources = improvement.allConsumedResources[a];
         producer.SetConsumedResourceTypes();
         if (producer.currentLabor > 0)
         {
 			producer.UpdateResourceGenerationData();
+            producer.cityImprovement.exclamationPoint.SetActive(false);
 			producer.StartProducing();
         }
 
@@ -351,12 +366,22 @@ public class UICityImprovementTip : MonoBehaviour
             world.cityBuilderManager.UpdateLaborNumbers();
     }
 
-    public void ToggleWaiting(bool v)
+    public void ToggleWaiting(bool v, bool resource = false, bool storage = false, bool research = false)
     {
         if (activeStatus)
         {
             waiting = v;
-            waitingForText.SetActive(v);
+            waitingForText.gameObject.SetActive(v);
+
+            if (v)
+            {
+                if (resource)
+                    waitingForText.text = "Waiting for Resources";
+                else if (storage)
+                    waitingForText.text = "Waiting for Storage";
+                else if (research)
+                    waitingForText.text = "Waiting for Assignment";
+            }
 
 			for (int i = 0; i < improvement.allConsumedResources[highlightIndex].Count; i++)
             {

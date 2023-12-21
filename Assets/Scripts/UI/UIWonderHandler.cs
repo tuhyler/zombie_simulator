@@ -19,8 +19,9 @@ public class UIWonderHandler : MonoBehaviour
     private UnityEvent<WonderDataSO> OnIconButtonClick;
    
     [SerializeField]
-    private Transform uiElementsParent;
-    private List<UIWonderOptions> buildOptions;
+    public Transform objectHolder, finalSpaceHolder;
+    [HideInInspector]
+    public List<UIWonderOptions> buildOptions = new();
 
     [SerializeField]
     public ScrollRect optionsScroller;
@@ -52,12 +53,12 @@ public class UIWonderHandler : MonoBehaviour
 
         dof.focalLength.value = 15;
 
-        buildOptions = new List<UIWonderOptions>();
+        //buildOptions = new List<UIWonderOptions>();
 
-        foreach (Transform selection in uiElementsParent)
-        {
-            buildOptions.Add(selection.GetComponent<UIWonderOptions>());
-        }
+        //foreach (Transform selection in uiElementsParent)
+        //{
+        //    buildOptions.Add(selection.GetComponent<UIWonderOptions>());
+        //}
 
         originalLoc = allContents.anchoredPosition3D;
     }
@@ -157,12 +158,23 @@ public class UIWonderHandler : MonoBehaviour
 		//world.openingImmoveable = false;
 	}
 
-    //private void OpeningComplete()
-    //{
-    //    world.openingImmoveable = false;
-    //}
+	//private void OpeningComplete()
+	//{
+	//    world.openingImmoveable = false;
+	//}
 
-    public void PrepareBuild(WonderDataSO buildData)
+	public void FinishMenuSetup()
+	{
+		finalSpaceHolder.SetAsLastSibling();
+
+		foreach (Transform selection in objectHolder) //populate list
+		{
+			if (selection.TryGetComponent(out UIWonderOptions option))
+				buildOptions.Add(option);
+		}
+	}
+
+	public void PrepareBuild(WonderDataSO buildData)
     {
         this.buildData = buildData;
     }
