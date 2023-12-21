@@ -76,6 +76,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 04c57cc29a6a88b469d57adb0feef78b, type: 3}
   - {fileID: 21300000, guid: dfaf7ad285048f346a13d0a1292d7f91, type: 3}
   - {fileID: 21300000, guid: 69825103158e1d04b82c99117738a0b0, type: 3}
+  - {fileID: 21300000, guid: 5f19e50365d7f984ca530f308b9dd939, type: 3}
   - {fileID: 21300000, guid: 9b23ce138e88b6d4190fc1a4ee56ab20, type: 3}
   - {fileID: 21300000, guid: a356be7367ccd6c44908e7f7b1c1f330, type: 3}
   - {fileID: 21300000, guid: 5accd08349a5eb74a88107f4e957b7c7, type: 3}
@@ -259,6 +260,7 @@ SpriteAtlas:
   - arrow_down
   - panel_blue01
   - button_rename
+  - icon_workethic
   - icon_laborer
   - scrollbar_blue02_hor
   - panel_gold01
