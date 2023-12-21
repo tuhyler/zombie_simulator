@@ -11,6 +11,8 @@ public class TradeCenter : MonoBehaviour
     private SelectionHighlight highlight;
     [SerializeField]
     private CityNameField nameField;
+    [SerializeField]
+    public Transform main;
 
     [SerializeField]
     private GameObject nameMap;
@@ -273,7 +275,7 @@ public class TradeCenter : MonoBehaviour
         data.name = tradeCenterName;
         data.mainLoc = mainLoc;
         data.harborLoc = harborLoc;
-        data.rotation = transform.rotation;
+        data.rotation = main.rotation;
         data.cityPop = cityPop;
         data.isDiscovered = isDiscovered;
 
@@ -295,7 +297,7 @@ public class TradeCenter : MonoBehaviour
     {
 		mainLoc = data.mainLoc;
 		harborLoc = data.harborLoc;
-		transform.rotation = data.rotation;
+		//transform.rotation = data.rotation;
 		//tradeCenterName = data.name; //done elsewhere
   //      cityPop = data.cityPop;
 		isDiscovered = data.isDiscovered;

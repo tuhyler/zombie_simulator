@@ -39,6 +39,8 @@ public class CityImprovement : MonoBehaviour
     public List<List<ResourceValue>> allConsumedResources = new();
 
     [SerializeField]
+    public GameObject exclamationPoint;
+    [SerializeField]
     private ParticleSystem smokeEmitter, smokeSplash, removeSplash;
     [SerializeField]
     private List<ParticleSystem> workPS = new();
@@ -99,15 +101,15 @@ public class CityImprovement : MonoBehaviour
 			if (improvementData != null && improvementData.hideIdleMesh && workCycles == 0)
 				animMesh.SetActive(false);
 
-            if (improvementData.producedResourceTime.Count > 0)
-    			CalculateWorkCycleLimit();
+       //     if (improvementData.producedResourceTime.Count > 0)
+    			//CalculateWorkCycleLimit();
 		}
 	}
 
-    public void CalculateWorkCycleLimit()
-    {
-        workCycleLimit = 30 / improvementData.producedResourceTime[producedResourceIndex];
-    }
+    //public void CalculateWorkCycleLimit()
+    //{
+    //    workCycleLimit = 30 / improvementData.producedResourceTime[producedResourceIndex];
+    //}
 
     public void InitializeImprovementData(ImprovementDataSO data)
     {
@@ -172,20 +174,21 @@ public class CityImprovement : MonoBehaviour
         {
             if (improvementAnimator != null)
             {
-                if (workCycles >= workCycleLimit)
-                {
-                    workCycles = 0;
-                    co = StartCoroutine(StartWorkAnimation(offset));
-                }
-                else
-                {
-                    workCycles++;
-                }
+				co = StartCoroutine(StartWorkAnimation(offset));
+				//if (workCycles >= workCycleLimit)
+    //            {
+    //                workCycles = 0;
+    //                co = StartCoroutine(StartWorkAnimation(offset));
+    //            }
+    //            else
+    //            {
+    //                workCycles++;
+    //            }
             }
         }
     }
 
-    //ridiculous workaround since you can't stop and then start an animation at the same time.
+    //apparently need to wait till end of frame to start an animation after stopping it.
     private IEnumerator StartWorkAnimation(float offset)
     {
         improvementAnimator.SetBool(isWorkingHash, false); //stop animation first
@@ -230,8 +233,7 @@ public class CityImprovement : MonoBehaviour
     {
         Vector3 newScale = new Vector3(1.02f, 1.02f, 1.02f);
 
-        int count = meshFilter.Length;
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < meshFilter.Length; i++)
         {
             meshFilter[i].transform.localScale = newScale;
             Vector3 pos = meshFilter[i].transform.position;
@@ -242,8 +244,7 @@ public class CityImprovement : MonoBehaviour
 
     public void SetInactive()
     {
-        int count = meshFilter.Length;
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < meshFilter.Length; i++)
             meshFilter[i].gameObject.SetActive(false);
     }
 
@@ -257,8 +258,7 @@ public class CityImprovement : MonoBehaviour
         if (highlight.isGlowing)
             return;
         
-        int count = meshFilter.Length;
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < meshFilter.Length; i++)
         {
             meshFilter[i].gameObject.SetActive(true);
         }
@@ -271,8 +271,7 @@ public class CityImprovement : MonoBehaviour
         if (!highlight.isGlowing)
             return;
         
-        int count = meshFilter.Length;
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < meshFilter.Length; i++)
             meshFilter[i].gameObject.SetActive(false);
 
         highlight.DisableHighlight();
@@ -281,9 +280,14 @@ public class CityImprovement : MonoBehaviour
     public void SetCity(City city)
     {
         this.city = city;
-    }
+	}
 
-    public City GetCity()
+    public void CheckPermanentChanges()
+    {
+		city.world.CheckCityImprovementPermanentChanges(this);
+	}
+
+	public City GetCity()
     {
         return city;
     }
@@ -622,6 +626,10 @@ public class CityImprovement : MonoBehaviour
 						    meshFilter[i].gameObject.SetActive(false);
 				    }
 			    }
+                else
+                {
+                    exclamationPoint.SetActive(true);
+                }
             }
         }
         

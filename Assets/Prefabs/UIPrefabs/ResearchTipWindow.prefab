@@ -2226,6 +2226,7 @@ MonoBehaviour:
   world: {fileID: 0}
   title: {fileID: 7114318892010882442}
   level: {fileID: 8854778504562581007}
+  costTitle: {fileID: 7927089655310969419}
   producesTitle: {fileID: 7900710949103085293}
   descriptionTitle: {fileID: 5381846031147641713}
   descriptionText: {fileID: 7182903565523713794}

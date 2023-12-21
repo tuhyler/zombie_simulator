@@ -12,7 +12,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     private WonderDataSO buildData;
-    public WonderDataSO BuildData { get { return buildData; } }
+    public WonderDataSO BuildData { get { return buildData; } set { buildData = value; } }
 
     private UIWonderHandler buttonHandler;
 
@@ -26,7 +26,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
     private GameObject resourceInfoPanel;
 
     [SerializeField]
-    private RectTransform resourceCostAllHolder, resourceCostHolder, imageLine;
+    private RectTransform resourceCostAllHolder, resourceCostHolder, percentCostHolder, imageLine;
 
     [SerializeField]
     private GridLayoutGroup resourceCostGrid;
@@ -38,8 +38,8 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
-        buttonHandler = GetComponentInParent<UIWonderHandler>();
-        PopulateSelectionPanel();
+        //buttonHandler = GetComponentInParent<UIWonderHandler>();
+        //PopulateSelectionPanel();
     }
 
     public void ToggleVisibility(bool v)
@@ -52,24 +52,32 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
     }
 
     //creating the menu card for each buildable object, showing name, function, cost, etc. 
+    public void SetBuildOptionData(UIWonderHandler wonderHandler)
+    {
+        buttonHandler = wonderHandler;
+        PopulateSelectionPanel();
+    }
+
     private void PopulateSelectionPanel()
     {
-        float workEthicChange = 0;
         string objectDescription = "";
         List<ResourceValue> objectCost;
+        List<ResourceValue> percentCost = new();
 
         objectName.text = buildData.wonderDisplayName;
         objectDesc.text = Regex.Replace(buildData.wonderEra.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1") + " Wonder";
         objectImage.sprite = buildData.image;
         objectCost = new(buildData.wonderCost);
-        workEthicChange = buildData.workEthicChange;
         objectDescription = buildData.wonderDecription;
 
-        objectCost.Add(MakeResourceValue(ResourceType.Gold, buildData.workersNeeded * buildData.workerCost * 100));
-        objectCost.Add(MakeResourceValue(ResourceType.Labor, buildData.workersNeeded));
+        percentCost.Add(MakeResourceValue(ResourceType.Gold, buildData.workersNeeded * buildData.workerCost));
+        percentCost.Add(MakeResourceValue(ResourceType.Labor, buildData.workersNeeded));
+        percentCost.Add(MakeResourceValue(ResourceType.Time, buildData.buildTimePerPercent));
 
         //cost info
         GenerateResourceInfo(resourceCostHolder, objectCost);
+        //cost per percent info
+        GenerateResourceInfo(percentCostHolder, percentCost);
 
         int maxCount = Mathf.Min(objectCost.Count, 5);
 
@@ -79,10 +87,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
         int imageLineWidth = 300;
 
         description.gameObject.SetActive(true);
-        if (workEthicChange > 0)
-            description.text = "Work Ethic +" + Mathf.RoundToInt(workEthicChange * 100) + "%";
-        else
-            description.text = objectDescription;
+        description.text = objectDescription;
 
         resourceCostGrid.constraintCount = maxCount; 
 

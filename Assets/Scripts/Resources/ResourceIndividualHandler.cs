@@ -13,19 +13,19 @@ public class ResourceIndividualHandler : MonoBehaviour
     public int timePassed;
     private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
 
-    public ResourceIndividualSO GetResourcePrefab(Vector3Int workerPos)
-    {
-        TerrainData td = world.GetTerrainDataAt(workerPos);
-        ResourceType rt = td.resourceType;
+    //public ResourceIndividualSO GetResourcePrefab(Vector3Int workerPos)
+    //{
+    //    TerrainData td = world.GetTerrainDataAt(workerPos);
+    //    ResourceType rt = td.resourceType;
 
-        foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
-        {
-            if (rt == resource.resourceType)
-                return resource;
-        }
+    //    foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+    //    {
+    //        if (rt == resource.resourceType)
+    //            return resource;
+    //    }
 
-        return null; //returns nothing in case nothing is found
-    }
+    //    return null; //returns nothing in case nothing is found
+    //}
 
     public IEnumerator GenerateHarvestedResource(Vector3 unitPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {

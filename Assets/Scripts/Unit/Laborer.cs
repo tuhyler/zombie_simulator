@@ -96,7 +96,10 @@ public class Laborer : Unit
 		isMoving = data.isMoving;
 		moreToMove = data.moreToMove;
 
-        if (data.somethingToSay)
+		if (!isMoving)
+			world.AddUnitPosition(CurrentLocation, this);
+
+		if (data.somethingToSay)
             SetSomethingToSay(data.conversationTopic);
 
 		if (isMoving)

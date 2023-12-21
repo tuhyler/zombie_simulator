@@ -2641,6 +2641,7 @@ MonoBehaviour:
     type: 3}
   screenshotParent: {fileID: 299881605971968048}
   deleteButton: {fileID: 58288882147438456}
+  currentSaves: []
   activeStatus: 0
 --- !u!1 &8357463609193378004
 GameObject:
@@ -2768,14 +2769,14 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 4
+  m_ContentType: 0
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 1
+  m_KeyboardType: 0
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 4
+  m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 50
   m_CharacterLimit: 20

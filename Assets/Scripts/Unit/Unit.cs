@@ -55,7 +55,8 @@ public class Unit : MonoBehaviour
     //movement details
     [HideInInspector]
     public Rigidbody unitRigidbody;
-    private float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
+    [HideInInspector]
+    public float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
     [HideInInspector]
     public Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
@@ -283,7 +284,8 @@ public class Unit : MonoBehaviour
 	public void SetReferences(MapWorld world)
     {
         this.world = world;
-        infoManager = world.unitMovement.infoManager;
+		world.CheckUnitPermanentChanges(this);
+		infoManager = world.unitMovement.infoManager;
 
         //caching terrain costs
         roadSpeed = world.GetRoadCost();
@@ -2214,7 +2216,10 @@ public class Unit : MonoBehaviour
         moreToMove = data.moreToMove;
         isUpgrading = data.isUpgrading;
 
-        if (data.somethingToSay)
+		if (!isMoving)
+			world.AddUnitPosition(CurrentLocation, this);
+
+		if (data.somethingToSay)
             SetSomethingToSay(data.conversationTopic);
 
         if (inArmy || enemyAI)

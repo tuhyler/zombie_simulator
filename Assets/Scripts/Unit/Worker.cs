@@ -77,7 +77,7 @@ public class Worker : Unit
         bool playedOnce = false;
         while (transform.position.y > 0)
         {
-            if (!playedOnce && transform.position.y < 12)
+            if (!playedOnce && transform.position.y < 5)
             {
                 playedOnce = true;
                 world.cityBuilderManager.PlayThudAudio();
@@ -102,7 +102,7 @@ public class Worker : Unit
     {
         Vector3 loc = Vector3.zero;
         loc.y += 2.5f;
-        Quaternion rotation = Quaternion.Euler(90, 0, 0);
+        Quaternion rotation = Quaternion.Euler(90, 0, 90);
         GameObject dizzy = Instantiate(world.dizzyMarker, loc, rotation);
         dizzy.transform.SetParent(transform, false);
 
@@ -410,12 +410,13 @@ public class Worker : Unit
         }
 
         City city = world.GetCity(resourceCityLoc);
-        ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
-        if (resourceIndividual == null)
+        ResourceType type = world.GetTerrainDataAt(workerTile).resourceType;
+        if (type == ResourceType.None)
         {
             InfoPopUpHandler.WarningMessage().Create(workerPos, "No resource to harvest here");
             return;
         }
+        ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(type);
         //Debug.Log("Harvesting resource at " + workerPos);
 
         //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
@@ -453,7 +454,7 @@ public class Worker : Unit
 
         clearingForest = true;
 		City city = world.GetCity(resourceCityLoc);
-		ResourceIndividualSO resourceIndividual = resourceIndividualHandler.GetResourcePrefab(workerTile);
+		ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
 
 		StopMovement();
         SetWorkAnimation(true);
@@ -593,6 +594,9 @@ public class Worker : Unit
         orderList = data.orderList;
 		orderQueue = new Queue<Vector3Int>(orderList);
 
+        if (!isMoving)
+            world.AddUnitPosition(CurrentLocation, this);
+
         if (data.somethingToSay)
             SetSomethingToSay(data.conversationTopic);
 
@@ -639,7 +643,7 @@ public class Worker : Unit
 				}
 			}
 
-			workerTaskManager.resourceIndividualHandler.LoadHarvestedResource(workerPos, resourceIndividualHandler.GetResourcePrefab(workerTile), city, this, harvestedForest);
+			workerTaskManager.resourceIndividualHandler.LoadHarvestedResource(workerPos, ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType), city, this, harvestedForest);
         }
         else if (isBusy)
         {
@@ -669,7 +673,7 @@ public class Worker : Unit
 					}
 				}
 
-    			workerTaskManager.LoadGatherResourceCoroutine(data.timePassed, workerPos, this, city, resourceIndividualHandler.GetResourcePrefab(workerTile), clearingForest);
+    			workerTaskManager.LoadGatherResourceCoroutine(data.timePassed, workerPos, this, city, ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType), clearingForest);
 			}
 			else if (buildingCity)
 			{

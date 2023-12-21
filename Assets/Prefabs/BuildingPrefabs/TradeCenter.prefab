@@ -129,6 +129,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   world: {fileID: 0}
   nameField: {fileID: 8342028981247781059}
+  main: {fileID: 8986118546131875751}
   nameMap: {fileID: 3197290604571725139}
   nightLights: []
   tradeCenterPrefab: {fileID: 0}

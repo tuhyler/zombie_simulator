@@ -16,7 +16,7 @@ MonoBehaviour:
     type: 3}
   wonderName: Wonder - Great Lighthouse
   wonderDisplayName: Great Lighthouse
-  wonderDecription: Fill in description
+  wonderDecription: Increases move speed of boat traders by 25%
   wonderEra: 0
   workersNeeded: 4
   workerCost: 1
@@ -30,10 +30,10 @@ MonoBehaviour:
   - resourceType: 6
     resourceAmount: 100
   terrainType: 1
-  workEthicChange: 0
+  wonderBenefitChange: 0.25
   replaceTerrain: 0
   replaceProp: 1
-  buildTimePerPercent: 2
+  buildTimePerPercent: 1
   locked: 0
   isSea: 1
   workerData: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}

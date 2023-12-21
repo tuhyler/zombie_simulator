@@ -17,7 +17,7 @@ public class WonderDataSO : ScriptableObject
     public Sprite image;
     public List<ResourceValue> wonderCost;
     public TerrainType terrainType;
-    public float workEthicChange;
+    public float wonderBenefitChange;
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceProp = true; //replace terrain prop when building upon it
     public int buildTimePerPercent = 10;

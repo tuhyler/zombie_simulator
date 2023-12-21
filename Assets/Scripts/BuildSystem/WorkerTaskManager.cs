@@ -428,13 +428,15 @@ public class WorkerTaskManager : MonoBehaviour
         worker.buildingCity = false;
 
         td.ShowProp(false);
+        td.FloodPlainCheck(true);
 
         GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); 
         newCity.gameObject.transform.SetParent(world.cityHolder, false);
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
         City city = newCity.GetComponent<City>();
         city.SetWorld(world);
-        city.SetNewCityName();
+		world.cityCount++;
+		city.SetNewCityName();
         //world.AddStructureMap(workerTile, city.mapIcon);
         //city.cityMapName = world.SetCityTileMap(workerTile, city.name);
         world.AddCity(workerTile, city);
@@ -523,7 +525,6 @@ public class WorkerTaskManager : MonoBehaviour
         city.reachedWaterLimit = !city.hasFreshWater;
         city.waterCount = city.hasFreshWater ? 9999 : 0;
         world.AddCityBuildingDict(workerTile);
-        world.cityCount++;
         world.TutorialCheck("Build City");
         unitMovement.ShowIndividualCityButtonsUI();
     }

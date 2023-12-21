@@ -312,7 +312,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
                 for (int i = 0; i < researchDependent.Count; i++)
                 {
-                    if (!researchDependent[i].isSelected && !researchTree.QueueContainsCheck(researchDependent[i]))
+                    if (!researchDependent[i].isSelected && !researchDependent[i].completed &&!researchTree.QueueContainsCheck(researchDependent[i]))
                     {
                         canBeQueued = false;
                         break;

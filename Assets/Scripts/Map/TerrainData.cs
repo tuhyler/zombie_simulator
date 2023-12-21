@@ -20,7 +20,7 @@ public class TerrainData : MonoBehaviour
     public Transform main, prop, nonstatic/*, minimapIcon*/;
 
     [SerializeField]
-    public GameObject fog, highlightPlane, highlightPlaneIcon;
+    public GameObject fog, highlightPlane, highlightPlaneIcon, flatlandFP;
 
     [SerializeField]
     private UnexploredTerrain fogNonStatic;
@@ -230,9 +230,19 @@ public class TerrainData : MonoBehaviour
 
 	public void ShowProp(bool v)
     {
-        prop.gameObject.SetActive(v);
+        if (resourceAmount != 0)    
+            prop.gameObject.SetActive(v);
         showProp = v;
         GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = showProp;
+    }
+
+    public void FloodPlainCheck(bool v)
+    {
+        if (terrainData.specificTerrain == SpecificTerrain.FloodPlain)
+        {
+			ToggleTerrainMesh(!v);
+            flatlandFP.SetActive(v);
+		}
     }
 
     public void PrepParticleSystem()
@@ -439,7 +449,7 @@ public class TerrainData : MonoBehaviour
     public void Hide()
     {
         isDiscovered = false;
-		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = false;
+		//GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = false;
         fog.SetActive(true);
         Vector3 newRot = new Vector3(0, rotations[Random.Range(0, 4)], 0);
         fog.transform.localEulerAngles = newRot;
@@ -486,6 +496,7 @@ public class TerrainData : MonoBehaviour
             whiteMesh[i].material = materials[i];
 
         world.TurnOnEnemyBorders(tileCoordinates);
+        world.TurnOnCenterBorders(tileCoordinates);
 
         fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);
@@ -544,6 +555,7 @@ public class TerrainData : MonoBehaviour
             whiteMesh[i].material = materials[i];
 
         world.TurnOnEnemyBorders(tileCoordinates);
+        world.TurnOnCenterBorders(tileCoordinates);
 
 		whiteMesh.Clear();
         materials.Clear();
@@ -551,8 +563,8 @@ public class TerrainData : MonoBehaviour
         {
             main.gameObject.SetActive(false);
             //ShowProp(false);
-			if (!isHill)
-                prop.gameObject.SetActive(false);
+			//if (!isHill)
+            prop.gameObject.SetActive(false);
 			GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = true;
             StartCoroutine(PopUp());
         }
@@ -602,17 +614,11 @@ public class TerrainData : MonoBehaviour
         nonstatic.gameObject.SetActive(false);
     }
 
-    public void HideTerrainMesh()
+    public void ToggleTerrainMesh(bool v)
     {
         if (terrainMesh != null)
-            terrainMesh.gameObject.SetActive(false);
-    }
-
-    public void RestoreTerrainMesh()
-    {
-        if (terrainMesh != null)
-        terrainMesh.gameObject.SetActive(true);
-    }
+            terrainMesh.gameObject.SetActive(v);
+	}
 
     //public void HighlightResource(Sprite sprite)
     //{
@@ -786,6 +792,8 @@ public class TerrainData : MonoBehaviour
         data.mainRotation = main.rotation;
         if (treeHandler != null && treeHandler.propMesh != null)
             data.propRotation = treeHandler.propMesh.rotation;
+        else
+            data.propRotation = prop.rotation;
         data.rawResourceType = rawResourceType;
         data.resourceType = resourceType;
         data.changeLeafColor = changeLeafColor;

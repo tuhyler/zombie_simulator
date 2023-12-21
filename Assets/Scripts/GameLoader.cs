@@ -249,7 +249,6 @@ public class GameLoader : MonoBehaviour
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(10);
-		//      //assign labor
 
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 

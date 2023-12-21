@@ -24,8 +24,8 @@ public class ResourceManager : MonoBehaviour
     public Dictionary<ResourceType, int> ResourceMinHoldDict { get { return resourceMinHoldDict; } set { resourceMinHoldDict = value; } }
     public Dictionary<ResourceType, int> ResourceSellHistoryDict { get { return resourceSellHistoryDict; } set { resourceSellHistoryDict = value; } }
 
-    private int resourceStorageLimit; 
-    public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
+    //private int resourceStorageLimit; 
+    //public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
     private float resourceStorageLevel;
     public float ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
     [HideInInspector]
@@ -87,8 +87,8 @@ public class ResourceManager : MonoBehaviour
         //SetPrices();
 
         //only relevant during editing
-        if (resourceStorageLevel >= resourceStorageLimit)
-            fullInventory = true;
+        //if (resourceStorageLevel >= city.warehouseStorageLimit)
+        //    fullInventory = true;
     }
 
     public void PrepareResourceDictionary()
@@ -196,11 +196,11 @@ public class ResourceManager : MonoBehaviour
         else if (resourceAdded < 0 && resourceDict[resourceType] == 0)
             return false;
         else if (city.world.resourceStorageMultiplierDict[resourceType] < 1)
-            return Mathf.CeilToInt(resourceStorageLevel + city.world.resourceStorageMultiplierDict[resourceType]) <= resourceStorageLimit;
-        else if (resourceAdded > 0 && resourceStorageLimit <= 0) //for infinite storage
+            return Mathf.CeilToInt(resourceStorageLevel + city.world.resourceStorageMultiplierDict[resourceType]) <= city.warehouseStorageLimit;
+        else if (resourceAdded > 0 && city.warehouseStorageLimit <= 0) //for infinite storage
             return true;
 
-        return resourceStorageLevel < resourceStorageLimit;
+        return resourceStorageLevel < city.warehouseStorageLimit;
     }
 
     private void VerifyResourceAmount(ResourceType resourceType)
@@ -461,8 +461,8 @@ public class ResourceManager : MonoBehaviour
 
         //adjusting resource amount to move based on how much space is available
         int newResourceAmount = resourceAmount;
-        int newResourceBalance = (Mathf.CeilToInt(resourceStorageLevel) + newResourceAmount) - resourceStorageLimit;
-        if (newResourceBalance >= 0 && resourceStorageLimit > 0) //limit of 0 or less means infinite storage
+        int newResourceBalance = (Mathf.CeilToInt(resourceStorageLevel) + newResourceAmount) - city.warehouseStorageLimit;
+        if (newResourceBalance >= 0 && city.warehouseStorageLimit > 0) //limit of 0 or less means infinite storage
         {
             newResourceAmount -= newResourceBalance;
         }
@@ -472,7 +472,7 @@ public class ResourceManager : MonoBehaviour
         resourceDict[type] += resourceAmountAdjusted; //updating the dictionary
 
         resourceStorageLevel += newResourceAmount;
-        if (resourceStorageLevel >= resourceStorageLimit)
+        if (resourceStorageLevel >= city.warehouseStorageLimit)
             fullInventory = true;
         if (newResourceAmount < 0)
             CheckProducerUnloadWaitList();
@@ -692,12 +692,15 @@ public class ResourceManager : MonoBehaviour
 
         if (resourceDict[ResourceType.Food] >= city.foodConsumptionPerMinute)
         {
-            if (growthDeclineDanger)
+            if (starvationCount > 0)
             {
                 starvationCount = 0;
                 growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
-            }
+
+                if (city.activeCity)
+                    city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
+			}
 
             if (city.autoGrow && resourceDict[ResourceType.Food] >= city.growthFood + city.foodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
                 city.PopulationGrowthCheck(false, 1);
@@ -707,11 +710,11 @@ public class ResourceManager : MonoBehaviour
             foodConsumed.resourceAmount = resourceDict[ResourceType.Food];
             starvationCount++;
 
-            if (!city.activeCity)
-            {
-                growthDeclineDanger = true;
-                city.exclamationPoint.SetActive(true);
-            }
+            growthDeclineDanger = true;
+            city.exclamationPoint.SetActive(true);
+
+            if (city.activeCity)
+                city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
 
             if (starvationCount >= cyclesToWait) //decreasing if starving for 2 cycles
             {
@@ -725,6 +728,9 @@ public class ResourceManager : MonoBehaviour
                 noWaterCount = 0;
                 growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
+
+                if (city.activeCity)
+                    city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
             }
         }
 
@@ -735,13 +741,13 @@ public class ResourceManager : MonoBehaviour
         {
             noHousingCount++;
 
-            if (!city.activeCity)
-            {
-                growthDeclineDanger = true;
-                city.exclamationPoint.SetActive(true);
-            }
+            growthDeclineDanger = true;
+            city.exclamationPoint.SetActive(true);
 
-            if (noHousingCount >= cyclesToWait)
+			if (city.activeCity)
+				city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
+
+			if (noHousingCount >= cyclesToWait)
             {
                 city.PopulationDeclineCheck(false, false);
                 starvationCount = 0;
@@ -749,30 +755,36 @@ public class ResourceManager : MonoBehaviour
                 noWaterCount = 0;
                 growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
-            }
+
+                if (city.activeCity)
+                    city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
+			}
 
         }
         else
         {
-            if (growthDeclineDanger)
+            if (noHousingCount > 0)
             {
                 noHousingCount = 0;
                 growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
-            }
+
+                if (city.activeCity)
+                    city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
+			}
         }
 
         if (city.waterCount < 0)
         {
             noWaterCount++;
 
-            if (!city.activeCity)
-            {
-                growthDeclineDanger = true;
-                city.exclamationPoint.SetActive(true);
-            }
+            growthDeclineDanger = true;
+            city.exclamationPoint.SetActive(true);
 
-            if (noHousingCount >= cyclesToWait)
+			if (city.activeCity)
+				city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
+
+			if (noWaterCount >= cyclesToWait)
             {
                 city.PopulationDeclineCheck(false, false);
                 starvationCount = 0;
@@ -780,16 +792,22 @@ public class ResourceManager : MonoBehaviour
                 noWaterCount = 0;
                 growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
-            }
+
+				if (city.activeCity)
+					city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
+			}
         }
         else
         {
-            if (growthDeclineDanger)
+            if (noWaterCount > 0)
             {
                 noHousingCount = 0;
                 growthDeclineDanger = false;
                 city.exclamationPoint.SetActive(false);
-            }
+
+                if (city.activeCity)
+                    city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
+			}
         }
 
         CheckProducerUnloadWaitList();
@@ -856,7 +874,7 @@ public class ResourceManager : MonoBehaviour
         //    uiInfoPanelCity.UpdateFoodStats(city.cityPop.CurrentPop, foodGrowthLevel, foodGrowthLimit, FoodPerMinute);
     }
 
-    private void CheckProducerUnloadWaitList()
+    public void CheckProducerUnloadWaitList()
     {
         if (fullInventory)
         {
@@ -915,7 +933,8 @@ public class ResourceManager : MonoBehaviour
         foreach (ResourceProducer producer in tempProducers)
         {
             producer.isWaitingForStorageRoom = false;
-            producer.StartProducing();
+            producer.cityImprovement.exclamationPoint.SetActive(false);
+			producer.StartProducing();
             waitingForStorageRoomProducerList.Remove(producer);
         }
     }

@@ -150,8 +150,8 @@ public class CityBuilderManager : MonoBehaviour
     public GameObject emptyGO;
 
     [SerializeField]
-    private AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
-        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen;
+    public AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
+        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip;
     [SerializeField]
     private AudioClip[] acknowledgements;
     [HideInInspector]
@@ -386,7 +386,11 @@ public class CityBuilderManager : MonoBehaviour
         {
             Vector3Int terrainLoc = terrainForHarbor.TileCoordinates;
 
-            if (!tilesToChange.Contains(terrainLoc))
+            if (!terrainForHarbor.isDiscovered)
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Explore here first");
+			}
+            else if (!tilesToChange.Contains(terrainLoc))
             {
                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build here");
             }
@@ -617,6 +621,7 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
+        unit.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
         //Vector3 goScale = unit.transform.localScale;
         //float scaleX = goScale.x;
@@ -666,6 +671,7 @@ public class CityBuilderManager : MonoBehaviour
                         continue;
 
                     GameObject unit = Instantiate(workerGO, loc, Quaternion.identity); //produce unit at specified position
+                    unit.transform.SetParent(friendlyUnitHolder, false);
                     unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
                     Laborer laborer = unit.GetComponent<Laborer>();
                     laborer.marker.gameObject.SetActive(true);
@@ -688,6 +694,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void BuildWonderHarbor(Vector3Int loc)
     {
+        PlayBoomAudio();
         GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
         //for tweening
         Vector3 goScale = harborGO.transform.localScale;
@@ -731,7 +738,8 @@ public class CityBuilderManager : MonoBehaviour
     private void CancelWonderConstruction()
     {
         selectedWonder.PlayRemoveEffect();
-        uiDestroyCityWarning.ToggleVisibility(false);
+		PlayAudioClip(removeClip);
+		uiDestroyCityWarning.ToggleVisibility(false);
         uiWonderSelection.ToggleVisibility(false, selectedWonder);
         selectedWonder.StopConstructing();
 
@@ -761,8 +769,6 @@ public class CityBuilderManager : MonoBehaviour
         foreach (Vector3Int tile in selectedWonder.WonderLocs)
         {
             world.RemoveStructure(tile);
-            //world.RemoveStructureMap(tile);
-            //world.ResetTileMap(tile);
             world.RemoveSingleBuildFromCityLabor(tile);
             world.RemoveWonder(tile);
 
@@ -777,7 +783,7 @@ public class CityBuilderManager : MonoBehaviour
             if (td.prop != null && td.resourceAmount > 0)
                 td.ShowProp(true);
 
-            td.RestoreTerrainMesh();
+            td.ToggleTerrainMesh(true);
             if (td.hasResourceMap)
                 td.RestoreResourceMap();
 
@@ -807,6 +813,7 @@ public class CityBuilderManager : MonoBehaviour
         foreach (Vector3Int tile in selectedWonder.CoastTiles)
             world.RemoveFromCoastList(tile);
 
+        world.allWonders.Remove(selectedWonder);
         selectedWonder = null;
     }
 
@@ -987,7 +994,11 @@ public class CityBuilderManager : MonoBehaviour
         PopulateUpgradeDictForTesting();
 
         selectedCity = cityReference;
-        selectedCity.exclamationPoint.SetActive(false);
+        //selectedCity.exclamationPoint.SetActive(false);
+        if (selectedCity.ResourceManager.growthDeclineDanger)
+            uiInfoPanelCity.TogglewWarning(true);
+        else
+            uiInfoPanelCity.TogglewWarning(false);
         PlayOpenCityAudio();
 
         //world.openingCity = true;
@@ -1668,7 +1679,7 @@ public class CityBuilderManager : MonoBehaviour
 		}
 
 		GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
-        unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
+        unit.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
         Vector3 goScale = unitGO.transform.localScale;
         float scaleX = goScale.x;
@@ -2302,6 +2313,7 @@ public class CityBuilderManager : MonoBehaviour
         resourceProducer.InitializeImprovementData(improvementData, td.resourceType); //allows the new structure to also start generating resources
         resourceProducer.SetCityImprovement(cityImprovement);
         resourceProducer.SetLocation(tempBuildLocation);
+        cityImprovement.CheckPermanentChanges();
 
         if (upgradingImprovement)
         {
@@ -2398,7 +2410,7 @@ public class CityBuilderManager : MonoBehaviour
         //resetting ground UVs is necessary
         if (improvementData.replaceTerrain)
         {
-            td.HideTerrainMesh();
+            td.ToggleTerrainMesh(false);
 
             foreach (MeshFilter mesh in cityImprovement.MeshFilter)
             {
@@ -2406,11 +2418,8 @@ public class CityBuilderManager : MonoBehaviour
                 {
                     Vector2[] terrainUVs = td.UVs;
                     Vector2[] newUVs = mesh.mesh.uv;
-
-                    TerrainDesc desc = td.terrainData.terrainDesc;
-					//Vector2[] terrainUVs = world.SetUVMap(world.GetGrasslandCount(td.TileCoordinates, desc), world.SetUVShift(desc), Mathf.RoundToInt(td.main.eulerAngles.y));
-					Vector2[] finalUVs = world.NormalizeUVs(terrainUVs, newUVs);
-                    //mesh.mesh.uv = finalUVs;
+					Vector2[] finalUVs = world.NormalizeUVs(terrainUVs, newUVs, Mathf.RoundToInt(td.main.localEulerAngles.y / 90));
+                    mesh.mesh.uv = finalUVs;
 
                     foreach (MeshFilter mesh2 in meshes)
                     {
@@ -2427,6 +2436,11 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
+            if (td.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
+            {
+                td.FloodPlainCheck(true);
+            }
+            
             //for tweening
             Vector3 goScale = improvement.transform.localScale;
             improvement.transform.localScale = Vector3.zero;
@@ -2715,10 +2729,14 @@ public class CityBuilderManager : MonoBehaviour
 
             if (improvementData.replaceTerrain)
             {
-                world.GetTerrainDataAt(improvementLoc).RestoreTerrainMesh();
+                td.ToggleTerrainMesh(true);
             }
+            else if (td.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
+            {
+                td.FloodPlainCheck(false);
+			}
 
-            if (td.rawResourceType == RawResourceType.Rocks)
+			if (td.rawResourceType == RawResourceType.Rocks)
             {
                 if (td.resourceAmount > 0)
                 {
@@ -3603,8 +3621,10 @@ public class CityBuilderManager : MonoBehaviour
         selectedCity.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
         TerrainData td = world.GetTerrainDataAt(selectedCityLoc);
-        if (td.resourceAmount > 0)
-            td.ShowProp(true);            
+        //if (td.resourceAmount > 0)
+        td.ShowProp(true);
+
+        td.FloodPlainCheck(false);
 
         //destroying queued objects
         //foreach (UIQueueItem queueItem in selectedCity.savedQueueItems)
