@@ -13,7 +13,7 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     public InfoManager infoManager;
     [SerializeField]
-    private WorkerTaskManager workerTaskManager;
+    public WorkerTaskManager workerTaskManager;
     [SerializeField]
     public UISingleConditionalButtonHandler uiCancelMove, uiJoinCity, uiMoveUnit, uiCancelTask, uiConfirmOrders, uiDeployArmy, uiSwapPosition, uiChangeCity; 
     [SerializeField]
@@ -27,7 +27,7 @@ public class UnitMovement : MonoBehaviour
     [SerializeField]
     public UITradeRouteManager uiTradeRouteManager;
     [SerializeField]
-    private UIBuildingSomething uiBuildingSomething;
+    public UIBuildingSomething uiBuildingSomething;
     //[SerializeField]
     //private UISingleConditionalButtonHandler uiCancelTradeRoute;
 
@@ -40,9 +40,10 @@ public class UnitMovement : MonoBehaviour
 
     [HideInInspector]
     public Unit selectedUnit;
-    private Worker selectedWorker;
-    public Worker SelectedWorker { get { return selectedWorker; } set { selectedWorker = value; } }
-    private Trader selectedTrader;
+    [HideInInspector]
+    public Worker selectedWorker;
+    [HideInInspector]
+    public Trader selectedTrader;
     //private TerrainData selectedTile;
     //private InfoProvider selectedUnitInfoProvider;
     private bool loadScreenSet; //flag if load/unload ui is showing
@@ -98,9 +99,26 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    public void HandleEnter()
+    public void HandleG()
     {
-        if (selectedWorker != null && world.unitOrders)
+        if (selectedUnit != null)
+        {
+            if (selectedUnit.inArmy)
+                DeployArmyLocation();
+            else
+                MoveUnitToggle();
+        }
+    }
+
+    public void HandleX()
+    {
+        if (selectedUnit != null && selectedUnit.inArmy)
+            ChangeHomeBase();
+    }
+
+    public void HandleSpace()
+    {
+        if ((selectedWorker != null && world.unitOrders) || world.buildingWonder)
             ConfirmWorkerOrders();
     }
 
@@ -408,7 +426,7 @@ public class UnitMovement : MonoBehaviour
                 if (world.IsCityOnTile(pos) && world.GetCity(pos).highlighted)
                 {
                     City newCity = world.GetCity(pos);
-                    Vector3Int newLoc = newCity.army.GetAvailablePosition();
+                    Vector3Int newLoc = newCity.army.GetAvailablePosition(selectedUnit.buildDataSO.unitType);
                     List<Vector3Int> path = GridSearch.AStarSearch(world, selectedUnit.transform.position, newLoc, false, selectedUnit.bySea);
 
                     if (path.Count > 0)
@@ -624,7 +642,7 @@ public class UnitMovement : MonoBehaviour
         selectedUnit.SayHello();
 		world.somethingSelected = true;
 		selectedUnit.Select(Color.red);
-		infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, selectedUnit.isLaborer);
 	}
 
     public void SelectWorker()
@@ -680,7 +698,7 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    public void PrepareMovement(Unit unit) //handling unit selection through the unit turn buttons
+    public void PrepareMovement(Unit unit, bool centerCam = false) //handling unit selection through the unit turn buttons
     {
         if (selectedUnit != null) //clearing selection if a new unit is clicked
         {
@@ -689,7 +707,10 @@ public class UnitMovement : MonoBehaviour
 
         selectedUnit = unit;
 
-        SelectLaborer();
+        if (centerCam)
+			world.cameraController.CenterCameraNoFollow(selectedUnit.transform.position);
+
+		SelectLaborer();
         SelectWorker();
         SelectTrader();
         PrepareMovement();
@@ -724,7 +745,7 @@ public class UnitMovement : MonoBehaviour
    //     }
 
         //selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
-        infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
+        infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, selectedUnit.isLaborer);
         if (selectedUnit.moreToMove && !selectedUnit.inArmy)
         {
             uiCancelMove.ToggleVisibility(true);
@@ -996,7 +1017,6 @@ public class UnitMovement : MonoBehaviour
 				world.UnhighlightCitiesAndWonders();
 		}
 
-
 		uiMoveUnit.ToggleButtonColor(moveUnit);
     }
 
@@ -1067,7 +1087,6 @@ public class UnitMovement : MonoBehaviour
         {
             Wonder wonder = world.GetWonder(unitLoc);
 			wonder.AddWorker(selectedUnit);
-            wonder.PlayPopGainAudio();
             selectedUnit.DestroyUnit();
             ClearSelection();
 			return;
@@ -1148,7 +1167,11 @@ public class UnitMovement : MonoBehaviour
 		}
 		else
 		{
-			world.GetWonder(unitLoc).AddWorker(unit);
+            Wonder wonder = world.GetWonder(unitLoc);
+            if (wonder.StillNeedsWorkers())
+                wonder.AddWorker(unit);
+            else
+                return;
 		}
 
         if (unit.isSelected)
@@ -1192,7 +1215,10 @@ public class UnitMovement : MonoBehaviour
     public void AddToCity(City joinedCity, Unit unit)
     {
         if (unit.isTrader)
+        {
             world.traderList.Remove(unit.GetComponent<Trader>());
+            joinedCity.tradersHere.Remove(unit);
+        }
         else if (unit.isLaborer)
             world.laborerList.Remove(unit.GetComponent<Laborer>());
         
@@ -1786,7 +1812,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedTrader != null)
         {
-            infoManager.ShowInfoPanel(selectedUnit.buildDataSO, selectedUnit.currentHealth);
+            infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, selectedUnit.isLaborer);
         }
     }
 
@@ -1820,23 +1846,23 @@ public class UnitMovement : MonoBehaviour
         
         if (selectedUnit.homeBase.army.isTraining)
         {
-            Vector3 mousePosition = Input.mousePosition;
+            Vector3 mousePosition = uiDeployArmy.transform.position;
             mousePosition.x -= 120;
-            UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still training");
+            UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still training", false);
 			return;
         }
         else if (selectedUnit.homeBase.army.isTransferring)
         {
-			Vector3 mousePosition = Input.mousePosition;
+			Vector3 mousePosition = uiDeployArmy.transform.position;
 			mousePosition.x -= 150;
-			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still transferring");
+			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still transferring", false);
             return;
 		}
         else if (selectedUnit.homeBase.army.isRepositioning)
         {
-			Vector3 mousePosition = Input.mousePosition;
+			Vector3 mousePosition = uiDeployArmy.transform.position;
 			mousePosition.x -= 150;
-			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still repositioning");
+			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still repositioning", false);
             return;
 		}
         
@@ -1900,7 +1926,7 @@ public class UnitMovement : MonoBehaviour
         if (world.uiCampTooltip.cantAfford)
         {
 			StartCoroutine(world.uiCampTooltip.Shake());
-			//UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+			UIInfoPopUpHandler.WarningMessage().Create(world.uiCampTooltip.attackButton.transform.position, "Can't afford", false);
 			return;
         }
 
@@ -1952,8 +1978,9 @@ public class UnitMovement : MonoBehaviour
                     world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
             }
 
-            //SpeakingCheck();
-            moveUnit = false;
+			//SpeakingCheck();
+			world.cityBuilderManager.uiTraderNamer.ToggleVisibility(false);
+			moveUnit = false;
             uiMoveUnit.ToggleVisibility(false);
             uiCancelMove.ToggleVisibility(false);
             uiJoinCity.ToggleVisibility(false);

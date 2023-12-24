@@ -15,6 +15,9 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 	[SerializeField]
 	private Transform costsRect;
 
+	[SerializeField]
+	private GameObject beginButton;
+
 	private List<UIResourceInfoPanel> costsInfo = new();
 	private List<ResourceType> cantAffordList = new();
 
@@ -41,6 +44,18 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 				costsInfo.Add(panel);
 			}
 		}
+	}
+
+	public void HandleEsc()
+	{
+		if (activeStatus)
+			world.CloseTradeRouteBeginTooltipCloseButton();
+	}
+
+	public void HandleSpace()
+	{
+		if (activeStatus)
+			world.unitMovement.BeginTradeRoute();
 	}
 
 	public void ToggleVisibility(bool val, Trader trader = null)
@@ -98,7 +113,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 			{
 				panelList[i].gameObject.SetActive(true);
 				panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
-				panelList[i].resourceType = resourceList[i].resourceType;
+				panelList[i].SetResourceType(resourceList[i].resourceType);
 				panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 
 				if (resourceList[i].resourceType == ResourceType.Gold)
@@ -177,7 +192,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 		if (cantAfford)
 		{
 			StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford", true);
+			UIInfoPopUpHandler.WarningMessage().Create(beginButton.transform.position, "Can't afford", false);
 			return false;
 		}
 

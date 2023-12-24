@@ -59,4 +59,9 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].rocksType;
     }
+
+    public bool GetDiscovered(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].isDiscovered;
+    }
 }

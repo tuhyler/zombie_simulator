@@ -12,7 +12,7 @@ public class GameData
 
     //world misc lists
     public List<string> completedResearch, currentResearch;
-    public int goldAmount, researchAmount, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, food, lumber;
+    public int goldAmount, researchAmount, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber;
     public Dictionary<Vector3Int, int> currentWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;

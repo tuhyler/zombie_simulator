@@ -103,6 +103,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3353171004290388722}
   - component: {fileID: 5241261455574406187}
+  - component: {fileID: 7652780410091143389}
   m_Layer: 5
   m_Name: BuildOptionResourceInfoPanel
   m_TagString: Untagged
@@ -151,6 +152,21 @@ MonoBehaviour:
   resourceTransform: {fileID: 5802068587810323059}
   allContents: {fileID: 3353171004290388722}
   resourceType: 0
+--- !u!114 &7652780410091143389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624308965952619012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: 
+  secondDelay: 1
+  workEthic: 0
 --- !u!1 &2377576688870781188
 GameObject:
   m_ObjectHideFlags: 0
@@ -317,6 +333,7 @@ GameObject:
   - component: {fileID: 7315062529990214195}
   - component: {fileID: 4834448168911250375}
   - component: {fileID: 8451589194280513225}
+  - component: {fileID: 4148268318507349868}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -368,7 +385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -412,3 +429,18 @@ MonoBehaviour:
   m_MaskInteraction: 85
   m_UseStencil: 1
   m_RaycastFilter: 0
+--- !u!114 &4148268318507349868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9011394252124076469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: 
+  secondDelay: 1
+  workEthic: 0

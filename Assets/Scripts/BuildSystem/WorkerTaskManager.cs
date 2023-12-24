@@ -17,8 +17,6 @@ public class WorkerTaskManager : MonoBehaviour
     [SerializeField]
     private MapWorld world;
     [SerializeField]
-    private InfoManager infoManager;
-    [SerializeField]
     private MovementSystem movementSystem;
     [SerializeField]
     private UnitMovement unitMovement;
@@ -92,7 +90,7 @@ public class WorkerTaskManager : MonoBehaviour
         }
     }
 
-    public void HandleG()
+    public void HandleF()
     {
         if (workerUnit != null && !workerUnit.isBusy && !workerUnit.sayingSomething)
         {
@@ -320,7 +318,7 @@ public class WorkerTaskManager : MonoBehaviour
         workerUnit.isBusy = true;
         uiCancelTask.ToggleVisibility(true);
         unitMovement.uiMoveUnit.ToggleVisibility(false);
-        unitMovement.SelectedWorker = workerUnit;
+        unitMovement.selectedWorker = workerUnit;
     }
 
     public void MoveToCompleteOrders(Vector3Int workerTile, Worker workerUnit)

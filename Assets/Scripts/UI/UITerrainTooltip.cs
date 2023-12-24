@@ -25,13 +25,20 @@ public class UITerrainTooltip : MonoBehaviour
     //for tweening
     [SerializeField]
     private RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
 
     private void Awake()
     {
         transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
         tooltipTrigger = GetComponentInChildren<UITooltipTrigger>();
+    }
+
+    public void HandleEsc()
+    {
+        if (activeStatus)
+            world.CloseTerrainTooltipCloseButton();
     }
 
     public void ToggleVisibility(bool val, TerrainData td = null)

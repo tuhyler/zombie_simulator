@@ -107,6 +107,13 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
+    public void UpdateDicts(ResourceType type)
+    {
+		resourceDict[type] = 0;
+		resourceGenerationPerMinuteDict[type] = 0;
+		resourceConsumedPerMinuteDict[type] = 0;
+	}
+
     public void SetCity(City city)
     {
         this.city = city;
@@ -145,33 +152,9 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void ModifyResourceConsumptionPerMinute(ResourceType resourceType, float change, bool add)
+    public void ModifyResourceConsumptionPerMinute(ResourceType resourceType, float change)
     {
-        if (resourceType == ResourceType.Food)
-        {
-            resourceConsumedPerMinuteDict[resourceType] = change; //change completely for food
-            return;
-        }
-
-        if (add)
-            resourceConsumedPerMinuteDict[resourceType] += change;
-        else
-            resourceConsumedPerMinuteDict[resourceType] -= change;
-    }
-
-    //public void RemoveKeyFromGenerationDict(Vector3Int pos)
-    //{
-    //    currentWorkedResourceGenerationDict.Remove(pos);
-    //}
-
-    //public void RemoveKeyFromBuildingGenerationDict(string buildingName)
-    //{
-    //    buildingResourceGenerationDict.Remove(buildingName);
-    //}
-
-    public int GetResourceValues(ResourceType resourceType)
-    {
-        return resourceDict[resourceType];
+        resourceConsumedPerMinuteDict[resourceType] += change;
     }
 
     public float GetResourceGenerationValues(ResourceType resourceType)
@@ -336,7 +319,7 @@ public class ResourceManager : MonoBehaviour
             }
             else
             {
-                newResourceAmount = CalculateResourceGeneration(resourceVal.resourceAmount, currentLabor);
+                newResourceAmount = CalculateResourceGeneration(resourceVal.resourceAmount, currentLabor, resourceVal.resourceType);
             }
 
             int resourceAmount = CheckResource(resourceVal.resourceType, newResourceAmount);
@@ -361,7 +344,7 @@ public class ResourceManager : MonoBehaviour
 		resourceCount = 0;
 		//foreach (ResourceValue resourceVal in producedResource)
 		//{
-			int newResourceAmount = CalculateResourceGeneration(producedResource.resourceAmount, currentLabor);	
+			int newResourceAmount = CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType);	
 
 			if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0 && improvement.td.resourceAmount < newResourceAmount)
 				newResourceAmount = improvement.td.resourceAmount;
@@ -417,34 +400,6 @@ public class ResourceManager : MonoBehaviour
             return 0;
         }
     }
-
-    //private int AddFood(int resourceAmount)
-    //{
-    //    int newResourceBalance = (foodGrowthLevel + resourceAmount) - foodGrowthLimit;
-
-    //    if (newResourceBalance >= 0 && city.HousingCount > 0)
-    //    {
-    //        if (!city.resourceGridDict.ContainsKey(ResourceType.Food))
-    //            city.AddToGrid(ResourceType.Food);
-
-    //        growth = true;
-    //        resourceAmount -= newResourceBalance;
-    //        foodGrowthLevel += resourceAmount;
-    //        if (city.activeCity)
-    //            uiInfoPanelCity.UpdateFoodGrowth(foodGrowthLevel);
-    //        int addedResource = AddResourceToStorage(ResourceType.Food, newResourceBalance, true);
-    //        if (city.cityPop.CurrentPop == 0)
-    //            CheckForPopGrowth();
-    //        return resourceAmount + addedResource;
-    //    }
-
-    //    foodGrowthLevel += resourceAmount;
-
-    //    if (city.activeCity)
-    //        uiInfoPanelCity.UpdateFoodGrowth(foodGrowthLevel);
-
-    //    return resourceAmount;
-    //}
 
     //returns how much is actually moved
     private int AddResourceToStorage(ResourceType type, int resourceAmount, bool updateUI)
@@ -524,20 +479,10 @@ public class ResourceManager : MonoBehaviour
         return resourceAmountAdjusted;
     }
 
-    public int CalculateResourceGeneration(int resourceAmount, float labor)
+    public int CalculateResourceGeneration(int resourceAmount, float labor, ResourceType type)
     {
-        return Mathf.FloorToInt(city.workEthic * (resourceAmount * labor * (1 + .1f * (labor - 1))));
+        return Mathf.RoundToInt((city.workEthic + city.world.GetResourceTypeBonus(type)) * (resourceAmount * labor) * (1 + .1f * (labor - 1)));
     }
-
-    //private void CalculateAndChangeFoodLimit()
-    //{
-    //    int cityPop = city.cityPop.CurrentPop;
-    //    int newLimit = 9 + cityPop;
-
-    //    foodGrowthLimit = newLimit;
-    //    //SetResourceLimitValues(ResourceType.Food, foodGrowthLimit);
-    //}
-
 
     public void SpendResource(List<ResourceValue> buildCost, Vector3 loc)
     {
@@ -598,17 +543,12 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    public void IncreaseFoodConsumptionPerTurn(bool v) //only used when increasing pop when joining city, growth, or building city
-    {
-        if (v)
-            resourceGenerationPerMinuteDict[ResourceType.Food] -= city.unitFoodConsumptionPerMinute;
-        else
-            resourceGenerationPerMinuteDict[ResourceType.Food] += city.unitFoodConsumptionPerMinute;
-    }
-
-    //public int GetResourceLimit(ResourceType resourceType)
+    //public void IncreaseFoodConsumptionPerTurn(bool v) //only used when increasing pop when joining city, growth, or building city
     //{
-    //    return resourceStorageLimit;
+    //    if (v)
+    //        resourceGenerationPerMinuteDict[ResourceType.Food] -= city.unitFoodConsumptionPerMinute;
+    //    else
+    //        resourceGenerationPerMinuteDict[ResourceType.Food] += city.unitFoodConsumptionPerMinute;
     //}
 
     public int GetResourceDictValue(ResourceType resourceType)
@@ -688,9 +628,9 @@ public class ResourceManager : MonoBehaviour
     {
         ResourceValue foodConsumed;
         foodConsumed.resourceType = ResourceType.Food;
-        foodConsumed.resourceAmount = city.foodConsumptionPerMinute;
+        foodConsumed.resourceAmount = city.cityPop.CurrentPop * city.unitFoodConsumptionPerMinute;
 
-        if (resourceDict[ResourceType.Food] >= city.foodConsumptionPerMinute)
+        if (resourceDict[ResourceType.Food] >= resourceConsumedPerMinuteDict[ResourceType.Food])
         {
             if (starvationCount > 0)
             {
@@ -702,7 +642,7 @@ public class ResourceManager : MonoBehaviour
                     city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
 			}
 
-            if (city.autoGrow && resourceDict[ResourceType.Food] >= city.growthFood + city.foodConsumptionPerMinute && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
+            if (city.autoGrow && resourceDict[ResourceType.Food] >= city.growthFood + resourceConsumedPerMinuteDict[ResourceType.Food] && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
                 city.PopulationGrowthCheck(false, 1);
         }
         else
@@ -812,66 +752,7 @@ public class ResourceManager : MonoBehaviour
 
         CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
-        city.UpdateCityPopInfo(); //update city info after correcting food info
         UpdateUI(ResourceType.Food);
-
-        //if (growth) //increasing pop if food over or equal to max
-        //{
-        //    growth = false;
-        //    int excessFood = 0;
-
-        //    city.PopulationGrowthCheck(false);
-        //    CalculateAndChangeFoodLimit();
-
-        //    if (resourceDict[ResourceType.Food] > 0) //can only carry over one limit of food, rest of food goes to storage
-        //    {
-        //        if (resourceDict[ResourceType.Food] > foodGrowthLimit)
-        //        {
-        //            excessFood = foodGrowthLimit;
-        //            resourceDict[ResourceType.Food] -= foodGrowthLimit;
-        //            resourceStorageLevel -= foodGrowthLimit;
-        //            CheckProducerUnloadWaitList();
-        //        }
-        //        else
-        //        {
-        //            excessFood = resourceDict[ResourceType.Food];
-        //            resourceDict[ResourceType.Food] -= excessFood;
-        //            resourceStorageLevel -= excessFood;
-        //            CheckProducerUnloadWaitList();
-        //        }
-
-        //        city.CheckLimitWaiter();
-        //    }
-
-        //    foodGrowthLevel = excessFood;
-        //}
-        //else
-        //{
-        //    if (foodGrowthLevel < foodGrowthLimit && resourceDict[ResourceType.Food] > 0) //fill up food coffers if below food limit (but no growth). 
-        //    {
-        //        int diff = foodGrowthLimit - foodGrowthLevel;
-        //        if (resourceDict[ResourceType.Food] < diff)
-        //            diff = resourceDict[ResourceType.Food];
-        //        foodGrowthLevel += diff;
-        //        resourceDict[ResourceType.Food] -= diff;
-        //        resourceStorageLevel -= diff;
-        //        CheckProducerUnloadWaitList();
-        //        city.CheckLimitWaiter();
-        //    }
-        //}
-
-        //if (foodGrowthLevel < 0) //decreasing pop if food under 0 for 2 straight turns
-        //{
-        //    city.PopulationDeclineCheck();
-        //    foodGrowthLevel = 0;
-        //    CalculateAndChangeFoodLimit();
-        //}
-
-        //city.UpdateCityPopInfo(); //update city info after correcting food info
-        //UpdateUI(ResourceType.Food);
-
-        //if (city.activeCity)
-        //    uiInfoPanelCity.UpdateFoodStats(city.cityPop.CurrentPop, foodGrowthLevel, foodGrowthLimit, FoodPerMinute);
     }
 
     public void CheckProducerUnloadWaitList()
@@ -895,37 +776,6 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    //public void CheckProducerUnloadResearchWaitList()
-    //{
-    //    if (city.WorldResearchingCheck())
-    //    {
-    //        int queueCount = waitingToUnloadResearch.Count;
-
-    //        for (int i = 0; i < queueCount; i++)
-    //        {
-    //            if (city.WorldResearchingCheck())
-    //                waitingToUnloadResearch.Dequeue().UnloadAndRestart();
-    //            else
-    //                break;
-    //        }
-
-    //        if (city.WorldResearchingCheck())
-    //            RestartResearchWaitProduction();
-    //    }
-    //}
-
-    //public void RestartResearchWaitProduction()
-    //{
-    //    List<ResourceProducer> tempProducers = new(waitingForResearchProducerList);
-
-    //    foreach (ResourceProducer producer in tempProducers)
-    //    {
-    //        producer.isWaitingForResearch = false;
-    //        producer.StartProducing();
-    //        waitingForResearchProducerList.Remove(producer);
-    //    }
-    //}
-
     public void RestartStorageRoomWaitProduction()
     {
         List<ResourceProducer> tempProducers = new(waitingForStorageRoomProducerList);
@@ -938,11 +788,6 @@ public class ResourceManager : MonoBehaviour
             waitingForStorageRoomProducerList.Remove(producer);
         }
     }
-
-    //public void RemoveFromWaitUnloadResearchQueue(ResourceProducer resourceProducer)
-    //{
-    //    waitingToUnloadResearch.Remove(resourceProducer);
-    //}
 
     public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
     {
@@ -982,11 +827,6 @@ public class ResourceManager : MonoBehaviour
                 producer.RestartResourceWaitProduction();
         }
     }
-
-    //public void AddToResearchWaitList(ResourceProducer resourceProducer)
-    //{
-    //    waitingForResearchProducerList.Add(resourceProducer);
-    //}
 
     public void RemoveFromResearchWaitlist(ResourceProducer resourceProducer)
     {
@@ -1065,11 +905,6 @@ public class ResourceManager : MonoBehaviour
 		}
 	}
 
-	//public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
-	//{
-	//    this.cityBuilderManager = cityBuilderManager;
-	//}
-
 	//for queued build orders in cities
 	public void SetQueueResources(List<ResourceValue> resourceList)
     {
@@ -1103,12 +938,6 @@ public class ResourceManager : MonoBehaviour
             city.world.cityBuilderManager.BuildQueuedBuilding(city, this);
         }
     }
-
-    //public void WaitTurn()
-    //{
-    //    CheckForPopGrowth();
-    //    CheckResourcesForQueue();
-    //}
 }
 
 [Serializable] //needs to be serializable in order to be seen in unity

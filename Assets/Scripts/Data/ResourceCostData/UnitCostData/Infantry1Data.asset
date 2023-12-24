@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: b8ea75b095d526c47b34746b4047349a, type: 3}
   secondaryPrefab: {fileID: 0}
-  isSecondary: 0
   unitName: Infantry
   unitDisplayName: Warrior
   unitLevel: 1
@@ -28,6 +27,8 @@ MonoBehaviour:
     resourceAmount: 5
   cycleCost:
   - resourceType: 4
+    resourceAmount: 1
+  - resourceType: 2
     resourceAmount: 1
   battleCost: []
   laborCost: 0

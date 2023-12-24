@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7118128855494312410}
   - component: {fileID: 2924333034029193117}
   m_Layer: 0
-  m_Name: UnitTurnButtonPanel
+  m_Name: UnitTurnButtonPanel-dep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

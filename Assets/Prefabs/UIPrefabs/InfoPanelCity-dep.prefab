@@ -1528,7 +1528,7 @@ GameObject:
   - component: {fileID: 7172269090546766210}
   - component: {fileID: 3469891353143298241}
   m_Layer: 0
-  m_Name: InfoPanelCity
+  m_Name: InfoPanelCity-dep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

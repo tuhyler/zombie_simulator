@@ -16,7 +16,7 @@ public class HandlePlayerInput : MonoBehaviour
     //public UnityEvent<GameObject> HandleCityTileSelection;
     public UnityEvent<Vector3, GameObject> HandleLocationSelection;
     public UnityEvent<Vector3, GameObject> HandleLocationMovementSelection;
-    public UnityEvent HandleShiftDown, HandleShiftUp, HandleEsc, HandleR, HandleEnter, HandleC, HandleB, HandleG, HandleX, HandleSpace;
+    public UnityEvent HandleShiftDown, HandleShiftUp, HandleEsc, HandleR, HandleEnter, HandleC, HandleB, HandleF, HandleG, HandleX, HandleSpace, HandleJ, HandleK, HandleM, HandleN, HandleT, HandleI, HandleZ;
     //public UnityEvent HandleShiftUp;
     //public UnityEvent HandleR;
 
@@ -42,19 +42,9 @@ public class HandlePlayerInput : MonoBehaviour
             HandleShiftUp?.Invoke();
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.B))
         {
-            HandleEsc?.Invoke();
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            HandleR?.Invoke();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            HandleEnter?.Invoke();
+            HandleB?.Invoke();
         }
 
         if (Input.GetKeyDown(KeyCode.C))
@@ -62,14 +52,49 @@ public class HandlePlayerInput : MonoBehaviour
             HandleC?.Invoke();
         }
 
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            HandleB?.Invoke();
-        }
-
+		if (Input.GetKeyDown(KeyCode.F))
+		{
+			HandleF?.Invoke();
+		}
+		
         if (Input.GetKeyDown(KeyCode.G))
         {
             HandleG?.Invoke();
+        }
+
+		if (Input.GetKeyDown(KeyCode.I))
+		{
+			HandleI?.Invoke();
+		}
+
+		if (Input.GetKeyDown(KeyCode.J))
+        {
+            HandleJ?.Invoke();
+        }
+
+		if (Input.GetKeyDown(KeyCode.K))
+		{
+			HandleK?.Invoke();
+		}
+
+		if (Input.GetKeyDown(KeyCode.M))
+		{
+			HandleM?.Invoke();
+		}
+
+		if (Input.GetKeyDown(KeyCode.N))
+		{
+			HandleN?.Invoke();
+		}
+
+		if (Input.GetKeyDown(KeyCode.T))
+		{
+			HandleT?.Invoke();
+		}
+
+		if (Input.GetKeyDown(KeyCode.R))
+        {
+            HandleR?.Invoke();
         }
 
         if (Input.GetKeyDown(KeyCode.X))
@@ -77,9 +102,24 @@ public class HandlePlayerInput : MonoBehaviour
             HandleX?.Invoke();
         }
 
+		if (Input.GetKeyDown(KeyCode.Z))
+		{
+			HandleZ?.Invoke();
+		}
+
+		if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            HandleEnter?.Invoke();
+        }
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             HandleSpace?.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            HandleEsc?.Invoke();
         }
     }
 

@@ -203,9 +203,8 @@ MonoBehaviour:
   world: {fileID: 0}
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
-  secondsTillGrowthCheck: 60
+  secondsTillGrowthCheck: 20
   growthFood: 3
-  foodConsumptionPerMinute: 0
   housingLocsAtMax: 0
   waterCount: 0
   workEthic: 1

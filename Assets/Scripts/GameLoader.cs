@@ -73,6 +73,7 @@ public class GameLoader : MonoBehaviour
 		gameData.cavalryCount = world.cavalryCount;
 		gameData.traderCount = world.traderCount;
 		gameData.boatTraderCount = world.boatTraderCount;
+		gameData.laborerCount = world.laborerCount;
 		gameData.food = world.food;
 		gameData.lumber = world.lumber;
 		gameData.currentResearch = world.researchTree.SaveResearch();
@@ -207,6 +208,7 @@ public class GameLoader : MonoBehaviour
 		world.cavalryCount = gameData.cavalryCount;
 		world.traderCount = gameData.traderCount;
 		world.boatTraderCount = gameData.boatTraderCount;
+		world.laborerCount = gameData.laborerCount;
 		world.food = gameData.food;
 		world.lumber = gameData.lumber;
 		world.researchTree.LoadCurrentResearch(gameData.currentResearch, gameData.researchAmount);

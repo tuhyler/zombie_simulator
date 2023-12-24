@@ -17,9 +17,13 @@ MonoBehaviour:
   resourceName: Bronze Ingot
   resourceIcon: {fileID: 21300000, guid: f43cf053c94bc1048a640d33368cc20f, type: 3}
   ResourceGatheringTime: 0
+  ResourceGatheringAmount: 1
   resourcePrice: 2
   resourceQuantityPerPop: 50
   rawResource: 0
+  rocksType: 0
   resourceCategory: 2
   requirement: 
   uvCoordinatesForRocks: {x: 0, y: 0}
+  forVisual: 0
+  isDiscovered: 0

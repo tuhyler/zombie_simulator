@@ -26,6 +26,8 @@ MonoBehaviour:
   cycleCost:
   - resourceType: 4
     resourceAmount: 2
+  - resourceType: 2
+    resourceAmount: 1
   battleCost:
   - resourceType: 6
     resourceAmount: 5

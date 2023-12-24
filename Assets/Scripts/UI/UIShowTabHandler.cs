@@ -87,6 +87,47 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
         uiBuildTabHandler.cityBuilderManager.PlaySelectAudio();
     }
 
+    public void SelectTabKeyboardShortcut()
+    {
+		if (!uiBuildTabHandler.buttonsAreWorking)
+			return;
+
+		if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
+		{
+			if (isFlashing)
+			{
+				isFlashing = false;
+				uiBuildTabHandler.cityBuilderManager.world.ButtonFlashCheck();
+			}
+			uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open Build Tab");
+		}
+
+		ToggleButtonSelection(true);
+
+		if (leftSideButton)
+		{
+			uiBuildTabHandler.StartLeftSideButton();
+			uiBuildTabHandler.ShowUILeftSideButton();
+		}
+		else if (rightSideButton)
+		{
+			uiBuildTabHandler.StartRightSideButton(isRemoving);
+			uiBuildTabHandler.ShowUIRightSideButton(isRemoving);
+		}
+		else
+		{
+			uiBuildTabHandler.PassUI(uiBuilder);
+
+			if (isUnits)
+				uiBuildTabHandler.cityBuilderManager.CloseQueueUI();
+
+			uiBuildTabHandler.ShowUI();
+		}
+
+		uiBuildTabHandler.SetSelectedTab(this);
+		uiBuildTabHandler.cityBuilderManager.PlaySelectAudio();
+	}
+
     public void ToggleButtonSelection(bool v)
     {
         if (v)

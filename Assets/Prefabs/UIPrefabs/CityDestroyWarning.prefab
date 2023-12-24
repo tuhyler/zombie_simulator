@@ -364,7 +364,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -746,10 +746,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 0}
-  turnHandler: {fileID: 0}
   uiCityBuildTabHandler: {fileID: 0}
   cameraController: {fileID: 0}
   uiLaborAssignment: {fileID: 0}
   uiInfoPanelCity: {fileID: 0}
   uiWonderSelection: {fileID: 0}
   allContents: {fileID: 4664273602164976609}
+  activeStatus: 0

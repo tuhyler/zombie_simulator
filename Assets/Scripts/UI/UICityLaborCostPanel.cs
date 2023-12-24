@@ -57,7 +57,7 @@ public class UICityLaborCostPanel : MonoBehaviour
             resourceImageSizing.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 55);
 
             resourceOption.resourceImage.sprite = resource.resourceIcon;
-            resourceOption.resourceType = resource.resourceType;
+            resourceOption.SetResourceType(resource.resourceType);
             resourceOption.resourceAmountText.color = Color.red;
             resourceOption.gameObject.SetActive(false);
 
@@ -133,7 +133,10 @@ public class UICityLaborCostPanel : MonoBehaviour
         foreach (ResourceType resourceType in consumedResourcesDict.Keys)
         {
             if (consumedResourcesDict[resourceType] == 0)
-                continue;
+            {
+				resourceOptionsDict[resourceType].gameObject.SetActive(false);
+				continue;
+            }
             
             resourceOptionsDict[resourceType].gameObject.SetActive(true);
             resourceOptions.Add(resourceOptionsDict[resourceType]);

@@ -115,7 +115,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
 
             uiResourceCostPanel.resourceAmountText.text = value.resourceAmount.ToString();
             uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
-            uiResourceCostPanel.resourceType = value.resourceType;
+            uiResourceCostPanel.SetResourceType(value.resourceType);
         }
     }
 

@@ -12,7 +12,7 @@ public class UICityUpgradePanel : MonoBehaviour
     //private TMP_Text producesText;
     public Image mainImage, strengthImage;
     public Sprite inventorySprite, strengthSprite;
-    public GameObject descriptionHolder, produceHolder;
+    public GameObject descriptionHolder, produceHolder, confirmButton;
     public RectTransform allContents, resourceProduceAllHolder, imageLine, resourceProducedHolder, resourceCostHolder, unitInfo, spaceHolder;
     public VerticalLayoutGroup resourceProduceLayout;
 	public HorizontalLayoutGroup firstResourceProduceLayout;
@@ -67,6 +67,18 @@ public class UICityUpgradePanel : MonoBehaviour
         {
             costsInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
         }
+    }
+
+    public void HandleEsc()
+    {
+        if (activeStatus)
+            CloseWindow();
+    }
+
+    public void HandleSpace()
+    {
+        if (activeStatus)
+            OnPointerClick();
     }
 
     public void ToggleVisibility(bool v, ResourceManager resourceManager = null, CityImprovement improvement = null, Unit unit = null)
@@ -186,7 +198,7 @@ public class UICityUpgradePanel : MonoBehaviour
         int produceHolderWidth = 220;
         int produceHolderHeight = 160;
         int produceContentsWidth = 370;
-        int produceContentsHeight = 510;
+        int produceContentsHeight = 520;
 		bool arrowBuffer = false;
 
 		//reseting produce section layout
@@ -368,7 +380,7 @@ public class UICityUpgradePanel : MonoBehaviour
                 {
                     resourcesToShow[i].gameObject.SetActive(true);
                     resourcesToShow[i].resourceAmountText.text = produceTime.ToString();
-                    resourcesToShow[i].resourceType = ResourceType.Time;
+                    resourcesToShow[i].SetResourceType(ResourceType.Time);
                     resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
                 }
                 else
@@ -382,7 +394,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
                 resourcesToShow[i].resourceAmountText.text = resourcesInfo[i].resourceAmount.ToString();
                 resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourcesInfo[i].resourceType);
-                resourcesToShow[i].resourceType = resourcesInfo[i].resourceType;
+                resourcesToShow[i].SetResourceType(resourcesInfo[i].resourceType);
 
                 if (cost)
                 {
@@ -408,6 +420,7 @@ public class UICityUpgradePanel : MonoBehaviour
                 producesInfo[0].gameObject.SetActive(true);
 
             producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
+            producesInfo[produceIndex].SetResourceType(producedResource.resourceType);
 			if (rocks)
 			{
 				RocksType rocksType = ResourceHolder.Instance.GetRocksType(producedResource.resourceType);
@@ -421,12 +434,12 @@ public class UICityUpgradePanel : MonoBehaviour
 					tempImage = world.rocksChemical;
 
 				producesInfo[produceIndex].resourceImage.sprite = tempImage;
+                producesInfo[produceIndex].SetMessage(rocksType);
 			}
             else
             {
     			producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
             }
-            producesInfo[produceIndex].resourceType = producedResource.resourceType;
 
 			firstArrow.SetActive(true);
 			GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime, false);
@@ -456,7 +469,7 @@ public class UICityUpgradePanel : MonoBehaviour
         if (cannotAfford && !cityBuilderManager.isQueueing)
         {
             StartCoroutine(Shake());
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford", true);
+            UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't afford", false);
             return;
         }
             
@@ -465,7 +478,7 @@ public class UICityUpgradePanel : MonoBehaviour
         else if (unit != null)
             cityBuilderManager.UpgradeUnit(unit);
 
-        //cityBuilderManager.PlayBoomAudio();
+        cityBuilderManager.PlayBoomAudio();
         ResetData();
         gameObject.SetActive(false);
         world.infoPopUpCanvas.gameObject.SetActive(false);

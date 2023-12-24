@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,9 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
     public TMP_Text unitName, level, health, speed, strength;
     public Image strengthImage;
     public Sprite strengthSprite, inventorySprite;
+    public GameObject renamerButton, goToNextButton;
+
+    private UITooltipTrigger tooltipTrigger;
 
     [SerializeField] //for tweening
     private RectTransform allContents;
@@ -16,6 +20,12 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
     private void Awake()
     {
         originalLoc = allContents.anchoredPosition3D;
+
+        List<UITooltipTrigger> allTooltips = new();
+        foreach (UITooltipTrigger trigger in GetComponentsInChildren<UITooltipTrigger>())
+            allTooltips.Add(trigger);
+
+        tooltipTrigger = allTooltips[allTooltips.Count - 1]; 
 
         gameObject.SetActive(false);
     }
@@ -30,12 +40,14 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
         {
             this.strength.text = cargo.ToString();
             strengthImage.sprite = inventorySprite;
+            tooltipTrigger.SetMessage("Cargo Space");
         }
         else
         {
             this.strength.text = strength.ToString();
             strengthImage.sprite = strengthSprite;
-        }
+			tooltipTrigger.SetMessage("Strength");
+		}
     }
 
     public void SetHealth(int currentHealth, int maxHealth)
@@ -43,7 +55,7 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
         health.text = currentHealth.ToString() + '/' + maxHealth.ToString();
     }
 
-    public void ToggleVisibility(bool v)
+    public void ToggleVisibility(bool v, bool isTrader = false, bool isLaborer = false)
     {
         if (activeStatus == v)
             return;
@@ -58,7 +70,23 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack();
+            if (isTrader)
+            {
+                renamerButton.SetActive(true);
+				goToNextButton.SetActive(true);
+			}
+            else if (isLaborer)
+            {
+				renamerButton.SetActive(false);
+				goToNextButton.SetActive(true);
+            }
+            else
+            {
+				renamerButton.SetActive(false);
+				goToNextButton.SetActive(false);
+			}
+
+			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack();
             //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else
@@ -67,6 +95,7 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -600f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
+
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);

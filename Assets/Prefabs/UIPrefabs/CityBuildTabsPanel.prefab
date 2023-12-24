@@ -276,8 +276,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cityBuilderManager: {fileID: 0}
-  marketTabHolder: {fileID: 0}
+  marketButton: {fileID: 0}
   queueButton: {fileID: 0}
+  builderUI: {fileID: 0}
+  currentTabSelected: {fileID: 0}
+  sameUI: 0
+  openTab: 0
   buttonsAreWorking: 0
   allContents: {fileID: 1972634842717845038}
   activeStatus: 0
@@ -608,6 +612,27 @@ PrefabInstance:
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dac5af2f106e08f4186d5e09aaee7ebd, type: 3}
+--- !u!1 &3736242972886901564 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 1552482131031384992}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7142876743145281495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3736242972886901564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Remove Buildings and Improvements (X)
+  secondDelay: 1
+  workEthic: 0
 --- !u!224 &5094896787992443300 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5998570298794121732, guid: dac5af2f106e08f4186d5e09aaee7ebd,
@@ -809,6 +834,27 @@ PrefabInstance:
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6247a2aaab318d1418ce28f832efd256, type: 3}
+--- !u!1 &4094062636981393611 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: 6247a2aaab318d1418ce28f832efd256,
+    type: 3}
+  m_PrefabInstance: {fileID: 2198674929413838935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3951513514199470553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4094062636981393611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Queue Construction Tasks
+  secondDelay: 1
+  workEthic: 0
 --- !u!224 &5601476095255888467 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5998570298794121732, guid: 6247a2aaab318d1418ce28f832efd256,
@@ -1021,6 +1067,27 @@ PrefabInstance:
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dac5af2f106e08f4186d5e09aaee7ebd, type: 3}
+--- !u!1 &352313468602867790 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 2500025894930063570}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7513451741509399854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352313468602867790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Build Manufactured Good Producer (F)
+  secondDelay: 1
+  workEthic: 0
 --- !u!224 &8182710299795700438 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5998570298794121732, guid: dac5af2f106e08f4186d5e09aaee7ebd,
@@ -1233,6 +1300,27 @@ PrefabInstance:
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dac5af2f106e08f4186d5e09aaee7ebd, type: 3}
+--- !u!1 &274619504247423533 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 2710585943948165809}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6936594904322966743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 274619504247423533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Build City Center Building (G)
+  secondDelay: 1
+  workEthic: 0
 --- !u!224 &8548637389082826933 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5998570298794121732, guid: dac5af2f106e08f4186d5e09aaee7ebd,
@@ -1445,6 +1533,27 @@ PrefabInstance:
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dac5af2f106e08f4186d5e09aaee7ebd, type: 3}
+--- !u!1 &1378125154942556836 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 3851245029953428024}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6434853639641351124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1378125154942556836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Build Raw Good Producer (R)
+  secondDelay: 1
+  workEthic: 0
 --- !u!224 &7371668100334862396 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5998570298794121732, guid: dac5af2f106e08f4186d5e09aaee7ebd,
@@ -1661,6 +1770,27 @@ PrefabInstance:
         type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dac5af2f106e08f4186d5e09aaee7ebd, type: 3}
+--- !u!1 &1848749591115950409 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 4610094478233971157}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3691220173087289990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1848749591115950409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: See Market Prices (Z)
+  secondDelay: 1
+  workEthic: 0
 --- !u!224 &7837788816767529937 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5998570298794121732, guid: dac5af2f106e08f4186d5e09aaee7ebd,
@@ -1878,6 +2008,27 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 7004349256166265431}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5144863380383896267 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 7004349256166265431}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1414349662099943460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5144863380383896267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Build Unit (T)
+  secondDelay: 1
+  workEthic: 0
 --- !u!1001 &7054913362965833168
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2015,6 +2166,27 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 7054913362965833168}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5168545943733232972 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 7054913362965833168}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7838422944056607335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5168545943733232972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Increase City Population (B)
+  secondDelay: 1
+  workEthic: 0
 --- !u!1001 &7468132139777430427
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2231,3 +2403,24 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 7468132139777430427}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4753102906488640263 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2761352491395006620, guid: dac5af2f106e08f4186d5e09aaee7ebd,
+    type: 3}
+  m_PrefabInstance: {fileID: 7468132139777430427}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7367664802692493131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4753102906488640263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Upgrade Units, Buildings, and Improvements (C)
+  secondDelay: 1
+  workEthic: 0

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Resources;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
@@ -29,7 +30,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing;
+    public bool tutorial, hideUI, tutorialGoing, noMoneyWarning;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -220,7 +221,7 @@ public class MapWorld : MonoBehaviour
 
     //for tracking stats
     [HideInInspector]
-    public int cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, food, lumber;
+    public int cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber;
     [HideInInspector]
     public string tutorialStep;
     private bool flashingButton;
@@ -236,6 +237,10 @@ public class MapWorld : MonoBehaviour
     public AudioManager ambienceAudio;
     private AudioSource audioSource;
 
+    //handling discovering resources
+    List<UIResourceSelectionGrid> resourceSelectionGridList = new();
+    List<ResourceType> resourceDiscoveredList = new();
+
     [HideInInspector]
     public GamePersist gamePersist = new();
 
@@ -243,7 +248,7 @@ public class MapWorld : MonoBehaviour
     private float cityWorkEthicChange;
     private int cityWarehouseStorageChange;    
     private Dictionary<string, float> unitsSpeedChangeDict = new();
-    private Dictionary<string, (ResourceType, float)> cityImprovementYieldChangeDict = new();
+    private Dictionary<ResourceType, float> resourceYieldChangeDict = new();
 
 
     private void Awake()
@@ -1653,6 +1658,8 @@ public class MapWorld : MonoBehaviour
 	public void AaddGold() //for testing, on a button
     {
         UpdateWorldResources(ResourceType.Gold, 100);
+
+        resourceYieldChangeDict[ResourceType.Food] = .5f;
     }
 
     public void PlayCityAudio(AudioClip clip)
@@ -2115,6 +2122,141 @@ public class MapWorld : MonoBehaviour
         {
             LeanTween.moveY(uiWorldResources.allContents, uiWorldResources.allContents.anchoredPosition3D.y + 400f, 0.5f);
         }
+    }
+
+    public void HandleEsc()
+    {
+        if (buildingWonder)
+        {
+            CloseBuildingSomethingPanel();
+		}
+        else if (uiCityPopIncreasePanel.activeStatus)
+        {
+            cityBuilderManager.CloseAddPopWindow();
+        }
+        else if (uiTradeRouteBeginTooltip.activeStatus)
+        {
+            CloseTradeRouteBeginTooltipCloseButton();
+        }
+        else if (uiCampTooltip.activeStatus)
+        {
+            unitMovement.CancelArmyDeploymentButton();
+        }
+        else if (cityBuilderManager.uiCityUpgradePanel.activeStatus)
+        {
+            cityBuilderManager.uiCityUpgradePanel.CloseWindow();
+        }
+        else if (researchTree.researchTooltip.activeStatus)
+        {
+            researchTree.researchTooltip.CloseWindow();
+        }
+        else if (uiCityImprovementTip.activeStatus)
+        {
+            CloseImprovementTooltipCloseButton();
+        }
+        else if (uiTerrainTooltip.activeStatus)
+        {
+            CloseTerrainTooltipCloseButton();
+        }
+        else if (unitMovement.uiTradeRouteManager.activeStatus)
+        {
+            unitMovement.uiTradeRouteManager.CloseMenu();
+        }
+        else if (uiMainMenu.activeStatus)
+        {
+            if (uiMainMenu.uiSettings.activeStatus)
+            {
+                uiMainMenu.uiSettings.CloseWindowButton();
+            }
+            else if (uiMainMenu.uiSaveGame.activeStatus)
+            {
+                uiMainMenu.uiSaveGame.CloseSaveGameButton();
+            }
+            else
+            {
+                uiMainMenu.CloseMenuButton();
+            }
+        }
+        else if (unitMovement.uiBuildingSomething.activeStatus)
+        {
+            unitMovement.CloseBuildingSomethingPanelButton();
+        }
+        else if (unitMovement.selectedUnit != null)
+        {
+			if (unitMovement.selectedUnit.isBusy)
+			{
+				unitMovement.workerTaskManager.CancelTask();
+			}
+			else if (unitMovement.selectedUnit.isMoving)
+			{
+				unitMovement.CancelContinuedMovementOrders();
+			}
+			else if (unitMovement.selectedUnit.followingRoute)
+			{
+				unitMovement.CancelTradeRoute();
+			}
+            else
+            {
+			    unitMovement.ClearSelection();
+			    somethingSelected = false;
+            }
+		}
+        else if (somethingSelected)
+        {
+            UnselectAll();
+			somethingSelected = false;
+		}
+        else if (cityBuilderManager.SelectedCity != null)
+        {
+			if (cityBuilderManager.uiCityTabs.openTab)
+            {
+				cityBuilderManager.uiCityTabs.HideSelectedTab(false);
+            }
+			else if (cityBuilderManager.upgradingImprovement || cityBuilderManager.removingImprovement || cityBuilderManager.laborChange != 0 || cityBuilderManager.improvementData != null)
+            {
+				cityBuilderManager.ResetCityUIToBase();
+            }
+			else
+            {
+                cityBuilderManager.ResetCityUI();
+                somethingSelected = false;
+            }
+        }
+        else
+        {
+            uiMainMenu.ToggleVisibility(true);
+        }
+    }
+
+    public void HandleJ()
+    {
+        OpenConversationList();
+    }
+
+    public void HandleK()
+    {
+        uiTomFinder.FindTom();
+    }
+
+    public void HandleM()
+    {
+        mapHandler.ToggleMap();
+    }
+
+    public void HandleN()
+    {
+        OpenWonders();
+    }
+
+    public void HandleR()
+    {
+        if (buildingWonder)
+            RotateWonderPlacement();
+    }
+
+    public void HandleI()
+    {
+        OpenResearchTree();
     }
 
     //wonder info
@@ -2604,6 +2746,7 @@ public class MapWorld : MonoBehaviour
         buildingWonder = false;
         uiBuildingSomething.ToggleVisibility(false);
         uiRotateWonder.ToggleVisibility(false);
+        somethingSelected = false;
     }
 
     public bool GetWondersConstruction(string name)
@@ -3445,6 +3588,33 @@ public class MapWorld : MonoBehaviour
         selectionIcon.SetActive(false);
     }
 
+    public void AddToResourceSelectionGridList(UIResourceSelectionGrid selectionGrid)
+    {
+        resourceSelectionGridList.Add(selectionGrid);
+    }
+
+    public void UpdateResourceSelectionGrids(ResourceType type)
+    {
+        if (resourceDiscoveredList.Contains(type))
+            return;
+
+        resourceDiscoveredList.Add(type);
+
+        for (int i = 0; i < resourceSelectionGridList.Count; i++)
+        {
+            resourceSelectionGridList[i].DiscoverResource(type);
+        }
+    }
+
+    public void ToggleBarracksExclamation(bool v)
+    {
+        foreach (City city in cityDict.Values)
+        {
+            if (city.hasBarracks)
+                GetCityDevelopment(city.barracksLocation).exclamationPoint.SetActive(v);
+        }
+    }
+
     public void HighlightCitiesWithBarracks(City homeCity)
     {
         foreach (City city in cityDict.Values)
@@ -3873,6 +4043,7 @@ public class MapWorld : MonoBehaviour
         improvement.SetCity(city);
         improvement.transform.parent = city.transform;
         city.workEthic += improvementData.workEthicChange;
+        city.improvementWorkEthic += improvementData.workEthicChange;
         cityBuildingGODict[cityTile][buildingName] = building;
         cityBuildingDict[cityTile][buildingName] = improvement;
         cityBuildingList[cityTile].Add(buildingName);
@@ -5050,6 +5221,40 @@ public class MapWorld : MonoBehaviour
             immoveableCanvas.gameObject.SetActive(false);
     }
 
+    public void GoToNext()
+    {
+        if (unitMovement.selectedTrader != null)
+        {
+            int indexOf = traderList.IndexOf(unitMovement.selectedTrader);
+            unitMovement.ClearSelection();
+            int nextIndex = indexOf + 1;
+
+            if (nextIndex == traderList.Count)
+                nextIndex = 0;
+            
+            unitMovement.PrepareMovement(traderList[nextIndex], true);
+        }
+        else
+        {
+			int indexOf = laborerList.IndexOf(unitMovement.selectedUnit.GetComponent<Laborer>());
+			unitMovement.ClearSelection();
+            int nextIndex = indexOf + 1;
+
+            if (nextIndex == laborerList.Count)
+                nextIndex = 0;	
+			
+			unitMovement.PrepareMovement(laborerList[nextIndex], true);
+		}
+    }
+
+    public float GetResourceTypeBonus(ResourceType type)
+    {
+        if (resourceYieldChangeDict.ContainsKey(type))
+            return resourceYieldChangeDict[type];
+        else
+            return 0;
+    }
+
     // doing this all manually with strings for now
     public void AddToCityPermanentChanges(string propertyName, float changeValue)
     {
@@ -5057,36 +5262,102 @@ public class MapWorld : MonoBehaviour
         {
             case "Work Ethic":
                 cityWorkEthicChange += changeValue;
-                break;
+
+                if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
+                    cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+                else if (uiCityImprovementTip.activeStatus)
+                    uiCityImprovementTip.UpdateProduceNumbers();
+				break;
             case "Warehouse Storage":
                 cityWarehouseStorageChange += (int)changeValue;
                 break;
         }
     }
 
+    public void RemoveFromCityPermanentChanges(string propertyName, float changeValue)
+    {
+		switch (propertyName)
+		{
+			case "Work Ethic":
+				cityWorkEthicChange -= changeValue;
+
+				if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
+					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+				else if (uiCityImprovementTip.activeStatus)
+					uiCityImprovementTip.UpdateProduceNumbers();
+				break;
+			case "Warehouse Storage":
+				cityWarehouseStorageChange -= (int)changeValue;
+				break;
+		}
+	}
+
     public void AddToUnitPermanentChanges(string unitName, string propertyName, float changeValue)
     {
         switch (propertyName)
         {
             case "Movement Speed":
-                unitsSpeedChangeDict[unitName] = changeValue;
+                if (!unitsSpeedChangeDict.ContainsKey(unitName))
+                    unitsSpeedChangeDict[unitName] = 0;
+
+				unitsSpeedChangeDict[unitName] += changeValue;
                 break;
         }
     }
 
-    public void AddToCityImprovementChanges(string improvementName, string propertyName, ResourceType type, float changeValue)
+    public void RemoveFromUnitPermanentChanges(string unitName, string propertyName, float changeValue)
+    {
+		switch (propertyName)
+		{
+			case "Movement Speed":
+				unitsSpeedChangeDict[unitName] -= changeValue;
+
+				if (unitsSpeedChangeDict[unitName] == 0)
+					unitsSpeedChangeDict.Remove(unitName);
+				break;
+		}
+	}
+
+    public void AddToCityImprovementChanges(string propertyName, ResourceType type, float changeValue)
     {
         switch (propertyName)
         {
             case "Production Yield":
-                cityImprovementYieldChangeDict[improvementName] = (type, changeValue);
-                break;
+                if (!resourceYieldChangeDict.ContainsKey(type))
+                    resourceYieldChangeDict[type] = 0;
+
+				resourceYieldChangeDict[type] += changeValue;
+
+				if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
+					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+				else if (uiCityImprovementTip.activeStatus)
+					uiCityImprovementTip.UpdateProduceNumbers();
+				break;
         }
     }
+
+    public void RemoveFromCityImprovementChanges(string propertyName, ResourceType type, float changeValue)
+    {
+		switch (propertyName)
+		{
+			case "Production Yield":
+				resourceYieldChangeDict[type] -= changeValue;
+
+                if (resourceYieldChangeDict[type] == 0)
+                    resourceYieldChangeDict.Remove(type);
+
+				if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
+					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+				else if (uiCityImprovementTip.activeStatus)
+					uiCityImprovementTip.UpdateProduceNumbers();
+				break;
+		}
+	}
 
     public void CheckCityPermanentChanges(City city)
     {
         city.workEthic += cityWorkEthicChange;
+        city.wonderWorkEthic += cityWorkEthicChange;
         city.warehouseStorageLimit += cityWarehouseStorageChange;
     }
 
@@ -5098,23 +5369,7 @@ public class MapWorld : MonoBehaviour
 
     public void CheckCityImprovementPermanentChanges(CityImprovement improvement)
     {
-        if (cityImprovementYieldChangeDict.ContainsKey(improvement.GetImprovementData.improvementName))
-        {
-			ResourceProducer producer = GetResourceProducer(improvement.loc);
-
-			for (int i = 0; i < producer.producedResources.Count; i++)
-			{
-				if (producer.producedResources[i].resourceType == cityImprovementYieldChangeDict[improvement.GetImprovementData.improvementName].Item1)
-				{
-					ResourceValue oldValue = producer.producedResources[i];
-					oldValue.resourceAmount = Mathf.RoundToInt(oldValue.resourceAmount * (1f + cityImprovementYieldChangeDict[improvement.GetImprovementData.improvementName].Item2));
-					producer.producedResources[i] = oldValue;
-
-					if (producer.producedResource.resourceType == cityImprovementYieldChangeDict[improvement.GetImprovementData.improvementName].Item1)
-						producer.producedResource = oldValue;
-				}
-			}
-		}
+		 
     }
 
     public void TurnOnCenterBorders(Vector3Int loc)
@@ -5149,7 +5404,7 @@ public class MapWorld : MonoBehaviour
 
 	private void SetResourceMinimapIcon(TerrainData td)
     {
-		GameObject resourceIconGO = Instantiate(this.resourceIcon, new Vector3(0, 1.5f, -0.5f) + td.TileCoordinates, Quaternion.Euler(90, 0, 0));
+		GameObject resourceIconGO = Instantiate(this.resourceIcon, new Vector3(0, 1.5f, -0.75f) + td.TileCoordinates, Quaternion.Euler(90, 0, 0));
 		resourceIconGO.transform.SetParent(terrainHolder, false);
 		ResourceMinimapIcon resourceIcon = resourceIconGO.GetComponent<ResourceMinimapIcon>();
 		resourceIcon.resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(td.resourceType);

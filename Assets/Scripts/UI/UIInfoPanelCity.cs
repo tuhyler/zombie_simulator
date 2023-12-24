@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,13 +10,13 @@ public class UIInfoPanelCity : MonoBehaviour
 
     [SerializeField]
     private GameObject cityWarning;
+	private UITooltipTrigger tooltipTrigger;
+	//[SerializeField]
+	//private Toggle pauseGrowthToggle;
 
-    //[SerializeField]
-    //private Toggle pauseGrowthToggle;
+	//private int foodPerUnit = 1;
 
-    //private int foodPerUnit = 1;
-
-    [SerializeField] //for tweening
+	[SerializeField] //for tweening
     private RectTransform allContents;
     [SerializeField]
     public bool activeStatus;
@@ -28,6 +29,12 @@ public class UIInfoPanelCity : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
 
         gameObject.SetActive(false);
+
+        foreach (UITooltipTrigger tooltips in GetComponentsInChildren<UITooltipTrigger>())
+        {
+            if (tooltips.workEthic)
+                tooltipTrigger = tooltips;
+        }
     }
 
     //setting food goal to grow
@@ -47,9 +54,19 @@ public class UIInfoPanelCity : MonoBehaviour
 
         unusedLabor.text = city.cityPop.UnusedLabor.ToString();
         UpdateWorkEthic(city.workEthic);
-    }
 
-    public void SetGrowthData(City city)
+
+		//  if (city.improvementWorkEthic > 0 && city.wonderWorkEthic > 0)
+		//tooltipTrigger.SetMessage("From improvements: <color=green>+" + (city.improvementWorkEthic * 100).ToString() + "%</color>\nFrom wonders: <color=green>+" + (city.wonderWorkEthic * 100).ToString() + "%</color>");
+		//  else if (city.improvement)
+	}
+
+    public void SetWorkEthicPopUpCity(City city)
+    {
+		tooltipTrigger.SetCity(city);
+	}
+
+	public void SetGrowthData(City city)
     {
 		cityPop.text = city.cityPop.CurrentPop.ToString();
 		UpdateHousing(city.HousingCount);

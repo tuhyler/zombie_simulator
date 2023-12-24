@@ -37,6 +37,7 @@ public class UICityNamer : MonoBehaviour
     private string placeHolderText;
 
     private City tempCity;
+    private Trader tempTrader;
 
     private void Awake()
     {
@@ -62,8 +63,7 @@ public class UICityNamer : MonoBehaviour
         return c;
     }
 
-
-	public void ToggleVisibility(bool v, City city = null)
+	public void ToggleVisibility(bool v, City city = null, Trader trader = null)
     {
         if (activeStatus == v)
             return;
@@ -80,18 +80,35 @@ public class UICityNamer : MonoBehaviour
 
             if (city != null)
             {
+                city.world.cameraController.paused = true;
                 placeHolderText = city.cityName;
                 placeHolder.text = city.cityName;
-                placeHolder.alpha = 0.5f;
-                inputField.Select();
+                tempCity = city;
             }
+            else if (trader != null)
+            {
+				trader.world.cameraController.paused = true;
+				placeHolderText = trader.name;
+                placeHolder.text = trader.name;
+                tempTrader = trader;
+            }
+
+            placeHolder.alpha = 0.5f;
+            inputField.Select();
         }
         else
         {
-            activeStatus = false;
+            if (tempCity)
+                tempCity.world.cameraController.paused = false;
+            else
+                tempTrader.world.cameraController.paused = false;
+
+			activeStatus = false;
+            tempCity = null;
+            tempTrader = null;
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
         }
-        tempCity = city;
+
     }
 
     public void SetActiveStatusFalse()
@@ -101,8 +118,11 @@ public class UICityNamer : MonoBehaviour
 
     public void StoreName() //method for 'confirm' button
     {
-        tempCity.world.cityBuilderManager.PlaySelectAudio();   
-        
+        if (tempCity != null)
+            tempCity.world.cityBuilderManager.PlaySelectAudio();
+        else
+            tempTrader.world.cityBuilderManager.PlaySelectAudio();
+
         string tempText = inputField.text;
 
         if (tempText.Length < 1 || tempText == placeHolderText)
@@ -112,18 +132,27 @@ public class UICityNamer : MonoBehaviour
             return;
         }
 
-        if (tempCity.CheckCityName(tempText))
+        if (tempCity != null)
         {
-            StartCoroutine(Shake(.25f, 10));
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already taken", true);
-			return;
+            if (tempCity.CheckCityName(tempText))
+            {
+                StartCoroutine(Shake(.25f, 10));
+			    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already taken", true);
+			    return;
+            }
+
+            tempCity.RemoveCityName();
+            tempCity.UpdateCityName(tempText);
+            tempCity.isNamed = true;
+
+            uiInfoPanelCity.UpdateCityName(tempText);
+        }
+        else if (tempTrader != null)
+        {
+            tempTrader.name = tempText;
+            tempTrader.world.unitMovement.infoManager.UpdateName(tempText);
         }
 
-        tempCity.RemoveCityName();
-        tempCity.UpdateCityName(tempText);
-        tempCity.isNamed = true;
-
-        uiInfoPanelCity.UpdateCityName(tempText);
         ToggleVisibility(false);
     }
 

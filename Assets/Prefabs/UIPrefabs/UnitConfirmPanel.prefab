@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -131,6 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5260703463605753538}
   - component: {fileID: 1132788130419021965}
+  - component: {fileID: -9121185931679235020}
   m_Layer: 0
   m_Name: UnitConfirmPanel
   m_TagString: Untagged
@@ -172,5 +173,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 0}
+  buttonButton: {fileID: 0}
   allContents: {fileID: 5260703463605753538}
+  activeStatus: 0
   buttonImage: {fileID: 3278592179122087433}
+--- !u!114 &-9121185931679235020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4893172533956454280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Confirm
+  secondDelay: 1
+  workEthic: 0

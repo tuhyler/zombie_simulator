@@ -7,7 +7,9 @@ public class UIWarning : MonoBehaviour
 {
 	[SerializeField]
 	private TMP_Text warningText, affirmationText, negateText;
-	
+	[HideInInspector]
+	public bool activeStatus;
+
 	private void Awake()
 	{
 		gameObject.SetActive(false);
@@ -16,6 +18,7 @@ public class UIWarning : MonoBehaviour
 	public void ToggleVisibilty(bool v)
 	{
 		gameObject.SetActive(v);
+		activeStatus = v;
 	}
 
 	public void SetWarningMessages(string warning, string affirm, string negate)

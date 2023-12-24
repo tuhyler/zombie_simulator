@@ -6,6 +6,8 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 using System.Resources;
+using static UnityEditor.Progress;
+using UnityEngine.UIElements;
 
 public class UIBuilderHandler : MonoBehaviour
 {
@@ -347,6 +349,8 @@ public class UIBuilderHandler : MonoBehaviour
 				{
 					hide = HideBuildOptionCheck(buildOptions[i].BuildData.rawResourceType, buildOptions[i].BuildData.terrainType, resourceManager.city);
 				}
+
+                SetProducedNumbers(resourceManager, buildOptions[i]);
 			}
 
 			buildOptions[i].ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
@@ -360,132 +364,60 @@ public class UIBuilderHandler : MonoBehaviour
 			//buildItem.ToggleInteractable(true);
 			buildOptions[i].SetResourceTextToDefault();
 
-			foreach (ResourceValue item in resourceCosts)
-			{
-				if (item.resourceType == ResourceType.Gold)
+            for (int j = 0; j < resourceCosts.Count; j++)
+            {
+				if (resourceCosts[j].resourceType == ResourceType.Gold)
 				{
-					if (item.resourceAmount > maxGold)
-						maxGold = item.resourceAmount;
+					if (resourceCosts[j].resourceAmount > maxGold)
+						maxGold = resourceCosts[j].resourceAmount;
 
-					if (!resourceManager.city.CheckWorldGold(item.resourceAmount))
-						buildOptions[i].SetResourceTextToRed(item);
+					if (!resourceManager.city.CheckWorldGold(resourceCosts[j].resourceAmount))
+						buildOptions[i].SetResourceTextToRed(resourceCosts[j]);
 				}
-				else if (item.resourceType == ResourceType.Labor)
+				else if (resourceCosts[j].resourceType == ResourceType.Labor)
 				{
-					if (item.resourceAmount > maxLabor)
-						maxLabor = item.resourceAmount;
+					if (resourceCosts[j].resourceAmount > maxLabor)
+						maxLabor = resourceCosts[j].resourceAmount;
 
 					int pop = resourceManager.city.cityPop.CurrentPop;
-					if (pop < item.resourceAmount)
-						buildOptions[i].SetResourceTextToRed(item);
+					if (pop < resourceCosts[j].resourceAmount)
+						buildOptions[i].SetResourceTextToRed(resourceCosts[j]);
 				}
-				else if (!resourceManager.CheckResourceAvailability(item))
+				else if (!resourceManager.CheckResourceAvailability(resourceCosts[j]))
 				{
-					if (item.resourceAmount > maxResource)
-						maxResource = item.resourceAmount;
+					if (resourceCosts[j].resourceAmount > maxResource)
+						maxResource = resourceCosts[j].resourceAmount;
 
-					buildOptions[i].SetResourceTextToRed(item);
+					buildOptions[i].SetResourceTextToRed(resourceCosts[j]);
 				}
 			}
-		}
-   //     foreach (UIBuildOptions buildItem in buildOptions)
-   //     {
-   //         //if (buildItem == null)
-   //         //    continue;
-
-   //         string itemName = "";
-   //         List<ResourceValue> resourceCosts = new();
-   //         bool locked = false;
-   //         bool hide = false;
-
-   //         if (buildItem.UnitBuildData != null)
-   //         {
-   //             itemName = buildItem.UnitBuildData.unitDisplayName;
-   //             resourceCosts = new(buildItem.UnitBuildData.unitCost);
-   //             locked = buildItem.UnitBuildData.locked;
-
-   //             if (buildItem.UnitBuildData.transportationType == TransportationType.Sea)
-   //             {
-   //                 buildItem.trainingBarracks = resourceManager.city.harborTraining;
-   //             }
-   //             else
-   //             {
-   //                 if (buildItem.UnitBuildData.baseAttackStrength > 0)
-   //                 {
-   //                     buildItem.needsBarracks = !resourceManager.city.hasBarracks;
-   //                     buildItem.fullBarracks = resourceManager.city.army.isFull;
-   //                     buildItem.trainingBarracks = resourceManager.city.army.isTraining;
-   //                     buildItem.travelingBarracks = resourceManager.city.army.IsGone();
-   //                 }
-   //             }
-
-   //             ResourceValue laborCost;
-   //             laborCost.resourceType = ResourceType.Labor;
-   //             laborCost.resourceAmount = buildItem.UnitBuildData.laborCost;
-   //             resourceCosts.Add(laborCost);
-
-   //             if (!resourceManager.city.hasHarbor && buildItem.UnitBuildData.transportationType == TransportationType.Sea)
-   //                 hide = true;
-   //         }
-   //         else if (buildItem.BuildData != null)
-   //         {
-   //             itemName = buildItem.BuildData.improvementName;
-   //             resourceCosts = new(buildItem.BuildData.improvementCost);
-   //             locked = buildItem.BuildData.Locked;
-
-   //             buildItem.waterMax = resourceManager.city.reachedWaterLimit;
-
-   //             if (buildItem.BuildData.rawResourceType == RawResourceType.None)
-   //             {								
-			//		if (!resourceManager.city.hasWater && buildItem.BuildData.terrainType == TerrainType.Coast)
-			//			hide = true;
-   //             }
-   //             else
-   //             {
-			//		hide = HideBuildOptionCheck(buildItem.BuildData.rawResourceType, buildItem.BuildData.terrainType, resourceManager.city);
-   //             }
-			//}
-
-   //         buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
-
-   //         if (locked || hide || improvementSingleBuildList.Contains(itemName) || (buildItem.BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
-   //         {
-   //             buildItem.ToggleVisibility(false);
-   //             continue;
-   //         }
-
-   //         //buildItem.ToggleInteractable(true);
-   //         buildItem.SetResourceTextToDefault();
-
-   //         foreach (ResourceValue item in resourceCosts)
-   //         {
-   //             if (item.resourceType == ResourceType.Gold)
-   //             {
-   //                 if (item.resourceAmount > maxGold)
-   //                     maxGold = item.resourceAmount;
-                    
-   //                 if (!resourceManager.city.CheckWorldGold(item.resourceAmount))
-   //                     buildItem.SetResourceTextToRed(item);
-   //             }
-   //             else if (item.resourceType == ResourceType.Labor)
-   //             {
-   //                 if (item.resourceAmount > maxLabor)
-   //                     maxLabor = item.resourceAmount;
-
-   //                 int pop = resourceManager.city.cityPop.CurrentPop;
-   //                 if (pop < item.resourceAmount)
-   //                     buildItem.SetResourceTextToRed(item);
-   //             }
-   //             else if (!resourceManager.CheckResourceAvailability(item))
-   //             {
-   //                 if (item.resourceAmount > maxResource)
-   //                     maxResource = item.resourceAmount;
-
-   //                 buildItem.SetResourceTextToRed(item);
-   //             }
-   //         }
-   //     }
+        }
     }
+
+    public void UpdateProducedNumbers(ResourceManager resourceManager) 
+    {
+        for (int i = 0; i < buildOptions.Count; i++)
+            SetProducedNumbers(resourceManager, buildOptions[i]);
+    }
+
+    private void SetProducedNumbers(ResourceManager resourceManager, UIBuildOptions option)
+    {
+		float workEthic = resourceManager.city.workEthic;
+
+		for (int j = 0; j < option.producedResourcePanels.Count; j++)
+		{
+            int amount = option.BuildData.producedResources[j].resourceAmount;
+            int newAmount = Mathf.RoundToInt(amount * (workEthic + cityBuilderManager.world.GetResourceTypeBonus(option.producedResourcePanels[j].resourceType)));
+
+			option.producedResourcePanels[j].resourceAmountText.text = newAmount.ToString();
+			if (newAmount == amount)
+				option.producedResourcePanels[j].resourceAmountText.color = Color.white;
+			else if (newAmount > amount)
+				option.producedResourcePanels[j].resourceAmountText.color = Color.green;
+			else
+				option.producedResourcePanels[j].resourceAmountText.color = Color.red;
+		}
+	}
 
     private bool HideBuildOptionCheck(RawResourceType rawResourceType, TerrainType terrainType, City city)
     {

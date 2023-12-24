@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: cdaa8ec02277e2946ba1004376cce3f4, type: 3}
   secondaryPrefab: {fileID: 0}
-  isSecondary: 0
   unitName: Cavalry
   unitDisplayName: Horseman
   unitLevel: 1
@@ -29,6 +28,8 @@ MonoBehaviour:
   cycleCost:
   - resourceType: 4
     resourceAmount: 3
+  - resourceType: 2
+    resourceAmount: 2
   battleCost: []
   laborCost: 0
   unitType: 3

@@ -37,7 +37,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     public UICityUpgradePanel uiCityUpgradePanel;
     [SerializeField]
-    private UICityNamer uiCityNamer;
+    public UICityNamer uiCityNamer, uiTraderNamer;
     [SerializeField]
     public UITradeCenter uiTradeCenter;
     //[SerializeField]
@@ -55,7 +55,7 @@ public class CityBuilderManager : MonoBehaviour
     [SerializeField]
     private Button openAssignmentPriorityMenu;
     [SerializeField]
-    private UICityLaborPrioritizationManager uiLaborPrioritizationManager;
+    public UICityLaborPrioritizationManager uiLaborPrioritizationManager;
 
     [SerializeField]
     public MapWorld world;
@@ -79,12 +79,14 @@ public class CityBuilderManager : MonoBehaviour
     [HideInInspector]
     public List<Vector3Int> constructingTiles = new();
 
-    private ImprovementDataSO improvementData;
+    [HideInInspector]
+    public ImprovementDataSO improvementData;
 
     [HideInInspector]
     public ResourceManager resourceManager;
 
-    private int laborChange;
+    [HideInInspector]
+    public int laborChange;
     //public int LaborChange { set { laborChange = value; } }
     private int placesToWork;
 
@@ -181,6 +183,12 @@ public class CityBuilderManager : MonoBehaviour
         world.SetUpgradeableObjectMaxLevel("Infantry", 2);
         world.SetUpgradeableObjectMaxLevel("Trader", 2);
         world.SetUpgradeableObjectMaxLevel("Boat Trader", 2);
+    }
+
+    public void HandleB()
+    {
+        if (selectedCity != null)
+            OpenAddPopWindow();
     }
 
     private void CenterCamOnCity()
@@ -427,7 +435,6 @@ public class CityBuilderManager : MonoBehaviour
 
             if (!tilesToChange.Contains(terrainLoc))
             {
-
 				if (uiCityTabs.openTab)
 					uiCityTabs.HideSelectedTab(false);
 				else if (upgradingImprovement || removingImprovement || laborChange != 0 || improvementData != null)
@@ -1029,10 +1036,11 @@ public class CityBuilderManager : MonoBehaviour
         CenterCamOnCity();
         //uiInfoPanelCity.SetGrowthNumber(selectedCity.GetGrowthNumber());
         uiInfoPanelCity.SetAllData(selectedCity);
+        uiInfoPanelCity.SetWorkEthicPopUpCity(selectedCity);
         //uiInfoPanelCity.SetGrowthPauseToggle(selectedCity.ResourceManager.pauseGrowth);
         uiInfoPanelCity.UpdateWater(selectedCity.waterCount);
 
-        if (selectedCity.cityPop.CurrentPop > 0)
+        if (selectedCity.cityPop.CurrentPop > 0 || selectedCity.army.UnitsInArmy.Count > 0)
         {
             uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.autoGrow);
             uiLaborAssignment.ShowUI(selectedCity, placesToWork);
@@ -1310,7 +1318,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void UpgradeUnit(Unit unit) //can't queue, don't need to pass in city
     {
-        PlayBoomAudio();
+        //PlayBoomAudio();
         unit.isUpgrading = true;
         string nameAndLevel = unit.buildDataSO.unitNameAndLevel;
 		List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
@@ -1430,8 +1438,6 @@ public class CityBuilderManager : MonoBehaviour
                 RemoveLaborFromDicts(upgradeLoc);
             }
             
-            city.UpdateCityPopInfo();
-
             if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
                 city.AutoAssignmentsForLabor();
 
@@ -1584,17 +1590,6 @@ public class CityBuilderManager : MonoBehaviour
         CreateUnit(unitData, selectedCity, false);
     }
 
-    //private void CreateUnitQueueCheck(UnitBuildDataSO unitData) //action for the button to run
-    //{
-    //    if (isQueueing)
-    //    {
-    //        uiQueueManager.AddToQueue(selectedCityLoc, new Vector3Int(0,0,0), null, unitData);
-    //        return;
-    //    }
-
-    //    CreateUnit(unitData, selectedCity);
-    //}
-
     public void CreateUnit(UnitBuildDataSO unitData, City city, bool upgrading, Unit upgradedUnit = null)
     {
         if (!upgrading)
@@ -1686,18 +1681,17 @@ public class CityBuilderManager : MonoBehaviour
         float scaleZ = goScale.z;
         unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
         LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
-        //unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
         Unit newUnit = unit.GetComponent<Unit>();
         newUnit.secondaryPrefab = secondaryPrefab;
-        newUnit.PlayAudioClip(buildClip);
 
         //transferring all previous trader info to new one
-		if (upgrading)
+        if (upgrading)
 		{
             Trader oldTrader = upgradedUnit.GetComponent<Trader>();
             world.traderList.Remove(oldTrader);
             Trader newTrader = newUnit.GetComponent<Trader>();
-            world.traderList.Add(newTrader);
+            newTrader.name = upgradedUnit.name;
+            //world.traderList.Add(newTrader);
             newTrader.hasRoute = oldTrader.hasRoute;
             newTrader.tradeRouteManager = oldTrader.tradeRouteManager;
             newTrader.tradeRouteManager.SetTrader(newTrader);
@@ -1708,10 +1702,17 @@ public class CityBuilderManager : MonoBehaviour
             upgradedUnit.DestroyUnit();
             //upgradedUnit.gameObject.SetActive(false);
         }
+        else
+        {
+            newUnit.PlayAudioClip(buildClip);
+        }
  
         if (newUnit.isTrader)
         {
             world.traderCount++;
+            if (!upgrading)
+                unit.name = "Trader " + world.traderCount;
+    
             Trader newTrader = newUnit.GetComponent<Trader>();
             newTrader.id = world.traderCount;
             world.traderList.Add(newTrader);
@@ -1719,7 +1720,11 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         if (newUnit.isLaborer)
+        {
+            world.laborerCount++;
+            unit.name = "Laborer " + world.laborerCount;
             world.laborerList.Add(newUnit.GetComponent<Laborer>());
+        }
 
 		newUnit.SetReferences(world);
         newUnit.SetMinimapIcon(friendlyUnitHolder);
@@ -1749,48 +1754,38 @@ public class CityBuilderManager : MonoBehaviour
         bool reselectAfterUpgrade = false;
         bool bySea = unitData.transportationType == TransportationType.Sea;
 
-		if (!bySea)
+        if (unitData.baseAttackStrength > 0)
         {
-            city.army.isTraining = false;
-
-		    if (upgrading)
+		    if (bySea)
             {
-                //buildPosition = Vector3Int.zero;
-
-				buildPosition = upgradedUnit.CurrentLocation;
-				reselectAfterUpgrade = upgradedUnit.isSelected;
-				upgradedUnit.RemoveUnitFromData();
-
-				if (upgradedUnit.inArmy)
-                {
-					upgradedUnit.homeBase.army.RemoveFromArmy(upgradedUnit, upgradedUnit.barracksBunk);
-				    city.army.AddToOpenSpots(buildPosition);
-                }
-
-				upgradedUnit.DestroyUnit();
-
-				//foreach (Unit oldUnit in city.army.UnitsInArmy) //works because you can only upgrade one at a time
-    //            {
-    //                if (oldUnit.isUpgrading)
-    //                {
-    //                    buildPosition = oldUnit.CurrentLocation;
-				//	    reselectAfterUpgrade = oldUnit.isSelected;
-				//	    oldUnit.RemoveUnitFromData();
-					
-    //                    if (oldUnit.inArmy)
-    //                        oldUnit.homeBase.army.RemoveFromArmy(oldUnit, oldUnit.barracksBunk);
-    //                    oldUnit.DestroyUnit();
-    //                    city.army.AddToOpenSpots(buildPosition);
-    //                    break;
-    //                }
-    //            }
-		    }
+                buildPosition = upgradedUnit.CurrentLocation;
+                //not finished yet
+			}
             else
             {
-		        buildPosition = city.army.GetAvailablePosition();
+                city.army.isTraining = false;
+
+		        if (upgrading)
+                {
+				    buildPosition = upgradedUnit.CurrentLocation;
+				    reselectAfterUpgrade = upgradedUnit.isSelected;
+				    upgradedUnit.RemoveUnitFromData();
+
+				    if (upgradedUnit.inArmy)
+                    {
+					    upgradedUnit.homeBase.army.RemoveFromArmy(upgradedUnit, upgradedUnit.barracksBunk);
+				        city.army.AddToOpenSpots(buildPosition);
+                    }
+
+				    upgradedUnit.DestroyUnit();
+		        }
+                else
+                {
+		            buildPosition = city.army.GetAvailablePosition(unitData.unitType);
+                }
             }
         }
-        else
+        else //for boat traders
         {
             city.harborTraining = false;
 			if (uiUnitBuilder.activeStatus)
@@ -1841,29 +1836,32 @@ public class CityBuilderManager : MonoBehaviour
 
 		Trader newTrader = newUnit.GetComponent<Trader>();
 		//transferring all previous trader info to new one
-		if (bySea && upgrading)
-		{
-			Trader oldTrader = upgradedUnit.GetComponent<Trader>();
-            world.traderList.Remove(oldTrader);
-            newTrader.id = oldTrader.id;
-			newTrader.hasRoute = oldTrader.hasRoute;
-			newTrader.tradeRouteManager = oldTrader.tradeRouteManager;
-			newTrader.tradeRouteManager.SetTrader(newTrader);
-			newTrader.personalResourceManager = oldTrader.personalResourceManager;
-			newTrader.resourceGridDict = oldTrader.resourceGridDict;
-			city.tradersHere.Remove(upgradedUnit);
-			upgradedUnit.RemoveUnitFromData();
-			upgradedUnit.DestroyUnit();
-			//upgradedUnit.gameObject.SetActive(false);
-		}
-
 		if (newUnit.isTrader)
-        {
+		{
+			if (upgrading)
+            {
+                Trader oldTrader = upgradedUnit.GetComponent<Trader>();
+                world.traderList.Remove(oldTrader);
+			    newTrader.name = upgradedUnit.name;
+			    newTrader.id = oldTrader.id;
+			    newTrader.hasRoute = oldTrader.hasRoute;
+			    newTrader.tradeRouteManager = oldTrader.tradeRouteManager;
+			    newTrader.tradeRouteManager.SetTrader(newTrader);
+			    newTrader.personalResourceManager = oldTrader.personalResourceManager;
+			    newTrader.resourceGridDict = oldTrader.resourceGridDict;
+			    city.tradersHere.Remove(upgradedUnit);
+			    upgradedUnit.RemoveUnitFromData();
+			    upgradedUnit.DestroyUnit();
+            }
+
             world.traderCount++;
-            newTrader.id = world.traderCount;
+			if (!upgrading)
+				unit.name = "Trader " + world.traderCount;
+
+			newTrader.id = world.traderCount;
             world.traderList.Add(newTrader);
             city.tradersHere.Add(newUnit);
-        }
+		}
 
 		//assigning army details and rotation
 		if (newUnit.inArmy)
@@ -1887,6 +1885,23 @@ public class CityBuilderManager : MonoBehaviour
 				world.uiCampTooltip.RefreshData();
             else if (city.army.selected)
 				newUnit.SoftSelect(Color.white);
+
+            newUnit.name = unitData.unitDisplayName;
+            if (!upgrading)
+            {
+                switch (unitData.unitType)
+			    {
+				    case UnitType.Infantry:
+					    world.infantryCount++;
+					    break;
+					case UnitType.Ranged:
+						world.rangedCount++;
+						break;
+					case UnitType.Cavalry:
+						world.cavalryCount++;
+						break;
+				}
+			}
 		}
 
         Quaternion rotation;
@@ -1956,8 +1971,9 @@ public class CityBuilderManager : MonoBehaviour
 
         if (!upgradingImprovement)
         {
-            city.ResourceManager.SpendResource(buildingData.improvementCost, cityPos); 
-        }
+            city.ResourceManager.SpendResource(buildingData.improvementCost, cityPos);
+			PlayBoomAudio();
+		}
 
         GameObject building;
         if (world.GetTerrainDataAt(city.cityLoc).isHill)
@@ -1974,13 +1990,16 @@ public class CityBuilderManager : MonoBehaviour
         CityImprovement improvement = building.GetComponent<CityImprovement>();
         improvement.loc = city.cityLoc;
         building.transform.parent = city.subTransform;
-        PlayBoomAudio();
 
         string buildingName = buildingData.improvementName;
 		improvement.PlaySmokeSplashBuilding();
 		world.SetCityBuilding(improvement, buildingData, city.cityLoc, building, city, buildingName);
-        //world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
-        city.HousingCount += buildingData.housingIncrease;
+        if (buildingData.workEthicChange != 0 && city.activeCity && uiCityTabs.builderUI != null)
+            uiCityTabs.builderUI.UpdateProducedNumbers(city.ResourceManager);
+		else if (world.uiCityImprovementTip.activeStatus)
+			world.uiCityImprovementTip.UpdateProduceNumbers();
+		//world.AddToCityMaxLaborDict(city.cityLoc, buildingName, buildingData.maxLabor);
+		city.HousingCount += buildingData.housingIncrease;
         if (buildingData.waterIncrease > 0)
         {
             city.waterCount += buildingData.waterIncrease;
@@ -2016,7 +2035,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (buildingData.housingIncrease > 0)  
                 uiInfoPanelCity.UpdateHousing(city.HousingCount);
-            if (buildingData.workEthicChange > 0)
+            if (buildingData.workEthicChange != 0)
             {
                 uiInfoPanelCity.UpdateWorkEthic(city.workEthic);
                 UpdateCityWorkEthic();
@@ -2061,8 +2080,9 @@ public class CityBuilderManager : MonoBehaviour
         //changing city stats
         city.HousingCount -= data.housingIncrease;
         city.workEthic -= data.workEthicChange;
-        
-        if (data.waterIncrease > 0)
+        city.improvementWorkEthic -= data.workEthicChange;
+
+		if (data.waterIncrease > 0)
         {
             city.waterCount -= data.waterIncrease;
 			uiInfoPanelCity.UpdateWater(city.waterCount);
@@ -2085,9 +2105,7 @@ public class CityBuilderManager : MonoBehaviour
         //updating ui
         if (city.activeCity)
         {
-            uiInfoPanelCity.UpdateHousing(city.HousingCount);
-            uiInfoPanelCity.UpdateWorkEthic(city.workEthic);
-            if (data.workEthicChange > 0)
+            if (data.workEthicChange != 0)
                 UpdateCityWorkEthic();
             resourceManager.UpdateUI(data.improvementCost);
             uiResourceManager.SetCityCurrentStorage(resourceManager.ResourceStorageLevel);
@@ -2381,6 +2399,17 @@ public class CityBuilderManager : MonoBehaviour
 			//must go last
 			if (world.uiCityPopIncreasePanel.CheckCity(city))
 				world.uiCityPopIncreasePanel.UpdateWaterCosts(city);
+		}
+
+        if (improvementData.workEthicChange != 0)
+        {
+            city.workEthic += improvementData.workEthicChange;
+            city.improvementWorkEthic += improvementData.workEthicChange;
+            
+            if (city.activeCity && uiCityTabs.builderUI != null)
+				uiCityTabs.builderUI.UpdateProducedNumbers(city.ResourceManager);
+			else if (world.uiCityImprovementTip.activeStatus)
+				world.uiCityImprovementTip.UpdateProduceNumbers();
 		}
 
 		//making two objects, this one for the parent mesh
@@ -2811,8 +2840,24 @@ public class CityBuilderManager : MonoBehaviour
                 CombineMeshes();
             }
         }
-        
-        GameObject improvement = world.GetStructure(improvementLoc);
+
+		//changing city stats
+		city.HousingCount -= improvementData.housingIncrease;
+		city.workEthic -= improvementData.workEthicChange;
+		city.improvementWorkEthic -= improvementData.workEthicChange;
+
+		if (improvementData.waterIncrease > 0)
+		{
+			city.waterCount -= improvementData.waterIncrease;
+			uiInfoPanelCity.UpdateWater(city.waterCount);
+
+			if (city.waterCount <= 0)
+				city.reachedWaterLimit = true;
+			else
+				city.reachedWaterLimit = false;
+		}
+
+		GameObject improvement = world.GetStructure(improvementLoc);
         Destroy(improvement);
 
         //updating world dicts
@@ -2850,11 +2895,15 @@ public class CityBuilderManager : MonoBehaviour
             city.army.ClearArmySpots();
         }
 
-        //updating all the labor info
-        city.UpdateCityPopInfo();
-
         if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
             city.AutoAssignmentsForLabor();
+
+        //updating ui
+        if (city.activeCity)
+        {
+            if (improvementData.workEthicChange != 0)
+                UpdateCityWorkEthic();
+        }
 
         if (city.activeCity && !upgradingImprovement)
         {
@@ -3228,6 +3277,7 @@ public class CityBuilderManager : MonoBehaviour
 					}
 				}
 
+                selectedImprovement.SetCity(selectedCity);
 				world.AddToCityLabor(terrainLocation, selectedCity.cityLoc);
 				resourceProducer.SetResourceManager(selectedCity.ResourceManager);
                 resourceProducer.UpdateResourceGenerationData();
@@ -3261,7 +3311,6 @@ public class CityBuilderManager : MonoBehaviour
         int totalResourceLabor = selectedCity.GetResourcesWorkedResourceCount(resourceType);
 
         //updating all the labor info
-        selectedCity.UpdateCityPopInfo();
         UpdateLaborNumbers();
         uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType));
         uiLaborHandler.UpdateResourcesConsumed(resourceProducer.consumedResourceTypes, selectedCity.ResourceManager.ResourceConsumedPerMinuteDict);
@@ -3304,7 +3353,7 @@ public class CityBuilderManager : MonoBehaviour
     public void CloseCityTab()
     {
         uiCityTabs.HideSelectedTab(false);
-        PlayCloseAudio();
+        //PlayCloseAudio();
     }
 
     //public void OpenResourceGrid()
@@ -3582,14 +3631,20 @@ public class CityBuilderManager : MonoBehaviour
         if (uiCityNamer.activeStatus)
         {
             uiCityNamer.ToggleVisibility(false);
-            focusCam.paused = false;
+            uiTraderNamer.ToggleVisibility(false);
         }
         else
         {
-            ResetCityUIToBase();
-            ResetTileLists();
-            uiCityNamer.ToggleVisibility(true, selectedCity);
-            focusCam.paused = true;
+            if (selectedCity != null)
+            {
+                ResetCityUIToBase();
+                ResetTileLists();
+                uiCityNamer.ToggleVisibility(true, selectedCity);
+            }
+            else if (world.unitMovement.selectedTrader != null)
+            {
+				uiTraderNamer.ToggleVisibility(true, null, world.unitMovement.selectedTrader);
+            }
         }
     }
 

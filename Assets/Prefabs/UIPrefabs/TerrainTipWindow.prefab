@@ -455,6 +455,7 @@ MonoBehaviour:
   resourceImage: {fileID: 2163281106275857859}
   td: {fileID: 0}
   allContents: {fileID: 7172269090546766210}
+  activeStatus: 0
 --- !u!1 &5472092955665517220
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,6 +547,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   message: 
   secondDelay: 1
+  workEthic: 0
 --- !u!1 &6076609533319556090
 GameObject:
   m_ObjectHideFlags: 0
@@ -1180,7 +1182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}

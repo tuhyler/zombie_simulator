@@ -4,6 +4,9 @@ using UnityEngine;
 public class UITraderOrderHandler : MonoBehaviour
 {
     [SerializeField]
+    private MapWorld world;
+    
+    [SerializeField]
     private UISingleConditionalButtonHandler uiTradeRoute; //button to set up trade routes to cities
 
     [SerializeField]
@@ -50,6 +53,18 @@ public class UITraderOrderHandler : MonoBehaviour
         }
     }
 
+    public void HandleR()
+    {
+        if (activeStatus)
+            world.unitMovement.SetUpTradeRoute();
+    }
+
+    public void HandleF()
+    {
+        if (activeStatus)
+            world.unitMovement.ShowTradeRouteCost();
+    }
+
     public void ToggleVisibility(bool val, MapWorld world = null) //pass in world for canvas
     {
         if (activeStatus == val)
@@ -61,15 +76,15 @@ public class UITraderOrderHandler : MonoBehaviour
         {
             SetActiveStatusTrue();
             activeStatus = true; 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
+            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 600f, 0.4f).setEaseOutBack();
             //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else
         {
             activeStatus = false;
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world));
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world));
         }
     }
 
