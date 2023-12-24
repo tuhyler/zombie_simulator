@@ -78,8 +78,6 @@ public class City : MonoBehaviour
 
     //foodConsumed info
     public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60, growthFood = 3; //how much foodConsumed one unit eats per turn
-    [HideInInspector]
-    public int foodConsumptionPerMinute; //total 
     private UITimeProgressBar uiTimeProgressBar;
     private int countDownTimer;
     private Coroutine co;
@@ -98,7 +96,9 @@ public class City : MonoBehaviour
     public int waterCount;
 
     //resource info
-    public float workEthic = 0.75f;
+    public float workEthic = 1f;
+    public float improvementWorkEthic;
+    public float wonderWorkEthic;
     public int warehouseStorageLimit = 200;
     private TradeRouteManager tradeRouteWaiter;
     private ResourceType resourceWaiter = ResourceType.None;
@@ -186,8 +186,7 @@ public class City : MonoBehaviour
         //    StartGrowthCycle(false);
         //}
 
-        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute; //first pop is no longer free
-        UpdateCityPopInfo();
+        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, cityPop.CurrentPop * unitFoodConsumptionPerMinute);
 
         cityNameField.ToggleVisibility(false);
         InstantiateParticleSystems();
@@ -546,28 +545,28 @@ public class City : MonoBehaviour
         AddCityNameToWorld();
     }
 
-    //update city info after changing foodConsumed info
-    public void UpdateCityPopInfo()
-    {
-        //cityPopText.text = cityPop.CurrentPop.ToString();
-        //cityLaborText.text = cityPop.UnusedLabor.ToString();
-        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, foodConsumptionPerMinute, true);
-        //float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
-        //int foodStorage = foodConsumptionPerMinute;
+    ////update city info after changing foodConsumed info
+    //public void UpdateCityPopInfo(int foodConsumption)
+    //{
+    //    //cityPopText.text = cityPop.CurrentPop.ToString();
+    //    //cityLaborText.text = cityPop.UnusedLabor.ToString();
+    //    resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, foodConsumption);
+    //    //float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
+    //    //int foodStorage = foodConsumptionPerMinute;
 
-        //if (foodPerMinute > 0)
-        //{
-        //    minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerMinute).ToString();
-        //}
-        //else if (foodPerMinute < 0) 
-        //{
-        //    minutesTillGrowth = Mathf.FloorToInt(foodStorage / foodPerMinute).ToString(); //maybe take absolute value, change color to red?
-        //}
-        //else if (foodPerMinute == 0)
-        //{
-        //    minutesTillGrowth = "-";
-        //}
-    }
+    //    //if (foodPerMinute > 0)
+    //    //{
+    //    //    minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerMinute).ToString();
+    //    //}
+    //    //else if (foodPerMinute < 0) 
+    //    //{
+    //    //    minutesTillGrowth = Mathf.FloorToInt(foodStorage / foodPerMinute).ToString(); //maybe take absolute value, change color to red?
+    //    //}
+    //    //else if (foodPerMinute == 0)
+    //    //{
+    //    //    minutesTillGrowth = "-";
+    //    //}
+    //}
 
     public void SetHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, bool upgrade)
     {
@@ -693,7 +692,6 @@ public class City : MonoBehaviour
         waterCount -= amount;
         heavenHighlight.Play();
         SetCityPop();
-        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute;
 
         if (waterCount <= 0)
             reachedWaterLimit = true;
@@ -709,7 +707,7 @@ public class City : MonoBehaviour
             world.cityBuilderManager.uiInfoPanelCity.SetGrowthData(this);
 		}
 
-        UpdateCityPopInfo();
+        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, unitFoodConsumptionPerMinute);
         if (!joinCity) //spend food to grow
         {
 			List<ResourceValue> valueList = new() { foodValue };
@@ -794,7 +792,6 @@ public class City : MonoBehaviour
         }
 
         SetCityPop();
-        foodConsumptionPerMinute = cityPop.CurrentPop * unitFoodConsumptionPerMinute;
 
 		if (waterCount > 0)
 			reachedWaterLimit = false;
@@ -840,7 +837,7 @@ public class City : MonoBehaviour
         else
             RemoveRandomFieldLaborer(any);
 
-        UpdateCityPopInfo();
+        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, -unitFoodConsumptionPerMinute);
     }
 
     public void PlayHellHighlight(Vector3 loc)
@@ -1388,6 +1385,7 @@ public class City : MonoBehaviour
 
         if (labor == 0) //assigning city to location if working for first time
         {
+            world.GetCityDevelopment(terrainLocation).SetCity(this);
             world.AddToCityLabor(terrainLocation, cityLoc);
             resourceProducer.SetResourceManager(resourceManager);
             resourceProducer.UpdateResourceGenerationData();
@@ -1415,14 +1413,12 @@ public class City : MonoBehaviour
         {
             ChangeResourcesWorked(resourceType, 1);
             int totalResourceLabor = GetResourcesWorkedResourceCount(resourceType);
-            world.cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
+            if (activeCity && world.cityBuilderManager.uiLaborHandler.activeStatus)
+                world.cityBuilderManager.uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, 1, ResourceManager.GetResourceGenerationValues(resourceType));
         }
         //}
 
         world.AddToCurrentFieldLabor(terrainLocation, labor);
-
-        //updating all the city labor info
-        UpdateCityPopInfo();
 
         return (remainingLabor, maxxed);
     }

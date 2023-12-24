@@ -203,7 +203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -284,7 +284,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -36.5, y: 260}
+  m_AnchoredPosition: {x: -36.5, y: 0}
   m_SizeDelta: {x: 0, y: 520}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &3091085387870539367
@@ -619,7 +619,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -745,7 +745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -867,7 +867,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -1083,15 +1083,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84615fb1f33212e4b8aefef6608eff43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cityBuilderManager: {fileID: 0}
   cameraController: {fileID: 0}
-  selectClip: {fileID: 8300000, guid: 5d0c74cebb0944249a1b55f2f5264f62, type: 3}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls: []
   OnUnitIconButtonClick:
     m_PersistentCalls:
       m_Calls: []
-  uiElementsParent: {fileID: 5705801010939397683}
+  buildOptions: []
   globalVolume: {fileID: 0}
   allContents: {fileID: 4658468831888969045}
   activeStatus: 0

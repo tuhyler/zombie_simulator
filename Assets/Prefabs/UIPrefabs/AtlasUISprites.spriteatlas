@@ -197,6 +197,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 7657c92e33834514aa553e39fcdeb24a, type: 3}
   - {fileID: 21300000, guid: b1399a3e6a745de46a04fa79ae7a4293, type: 3}
   - {fileID: 21300000, guid: e966824e11d9d8b44adcd9d8813f2d01, type: 3}
+  - {fileID: 21300000, guid: 0a0d8f4e9b0473d4abeee4de3481f875, type: 3}
   - {fileID: 21300000, guid: 666bc77e382f0d141a9fb476eace7f3b, type: 3}
   - {fileID: 21300000, guid: ec868e9e93b6d454ca12c03e39dfedd6, type: 3}
   - {fileID: 21300000, guid: 36da66ae536253640909f074767f25c6, type: 3}
@@ -381,6 +382,7 @@ SpriteAtlas:
   - icon_health
   - button_joincity
   - button_addlabor_gold
+  - panel_bluegold_nontransparent
   - grip_black
   - button_tradecenter
   - button_confirm

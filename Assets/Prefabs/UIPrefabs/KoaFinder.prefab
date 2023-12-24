@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -143,6 +143,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5260703463605753538}
   - component: {fileID: 1417148771036434392}
+  - component: {fileID: 5337092642368454950}
   m_Layer: 0
   m_Name: KoaFinder
   m_TagString: Untagged
@@ -188,3 +189,18 @@ MonoBehaviour:
   world: {fileID: 0}
   allContents: {fileID: 5260703463605753538}
   button: {fileID: 2315983313483041500}
+--- !u!114 &5337092642368454950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4893172533956454280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Find Koa (K)
+  secondDelay: 1
+  workEthic: 0

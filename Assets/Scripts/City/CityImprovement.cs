@@ -60,7 +60,7 @@ public class CityImprovement : MonoBehaviour
     //animation
     private Animator improvementAnimator;
     private int isWorkingHash;
-    private int workCycles, workCycleLimit;
+    //private int workCycles, workCycleLimit;
     Coroutine co;
     private GameObject animMesh; //for making inactive when not working
     private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
@@ -98,7 +98,7 @@ public class CityImprovement : MonoBehaviour
             removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
             removeSplash.Stop();
 
-			if (improvementData != null && improvementData.hideIdleMesh && workCycles == 0)
+			if (improvementData != null && improvementData.hideIdleMesh)
 				animMesh.SetActive(false);
 
        //     if (improvementData.producedResourceTime.Count > 0)
@@ -168,7 +168,7 @@ public class CityImprovement : MonoBehaviour
                 }
 			}
 
-            workCycles++;
+            //workCycles++;
 		}
         else
         {

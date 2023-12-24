@@ -24,7 +24,7 @@ public class UICampTip : MonoBehaviour
 	private Transform costsRect;
 
 	[SerializeField]
-	private GameObject infantryHolder, rangedHolder, cavalryHolder, seigeHolder, attackButton;
+	public GameObject infantryHolder, rangedHolder, cavalryHolder, seigeHolder, attackButton, warningText;
 
 	private List<UIResourceInfoPanel> costsInfo = new();
 	private List<ResourceType> cantAffordList = new();
@@ -36,6 +36,7 @@ public class UICampTip : MonoBehaviour
 
 	[HideInInspector]
 	public bool cantAfford;
+	private int currentWidth;
 
 	//for tweening
 	[SerializeField]
@@ -55,6 +56,18 @@ public class UICampTip : MonoBehaviour
 				costsInfo.Add(panel);
 			}
 		}
+	}
+
+	public void HandleEsc()
+	{
+		if (activeStatus)
+			world.unitMovement.CancelArmyDeploymentButton();
+	}
+
+	public void HandleSpace()
+	{
+		if (activeStatus && army != null)
+			world.unitMovement.DeployArmy();
 	}
 
 	public void ToggleVisibility(bool val, CityImprovement improvement = null, EnemyCamp enemyCamp = null, Army army = null, bool clearCosts = true)
@@ -104,6 +117,7 @@ public class UICampTip : MonoBehaviour
 			Vector3 pos = Camera.main.ScreenToWorldPoint(p);
 			allContents.transform.position = pos;
 
+			WarningCheck();
 			LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
 		}
 		else
@@ -127,6 +141,41 @@ public class UICampTip : MonoBehaviour
 
 			activeStatus = false;
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
+		}
+	}
+
+	public void WarningCheck()
+	{
+		if (activeStatus && improvement != null)
+		{
+			if (world.noMoneyWarning)
+			{
+				warningText.SetActive(true);
+				allContents.sizeDelta = new Vector2(currentWidth, 460);
+
+				//for (int i = 0; i < costsInfo.Count; i++)
+				//{
+				//	if (costsInfo[i].resourceType == ResourceType.Gold)
+				//	{
+				//		costsInfo[i].resourceAmountText.color = Color.red;
+				//		break;
+				//	}
+				//}
+			}
+			else
+			{
+				warningText.SetActive(false);
+				allContents.sizeDelta = new Vector2(currentWidth, 435);
+
+				//for (int i = 0; i < costsInfo.Count; i++)
+				//{
+				//	if (costsInfo[i].resourceType == ResourceType.Gold)
+				//	{
+				//		costsInfo[i].resourceAmountText.color = Color.white;
+				//		break;
+				//	}
+				//}
+			}
 		}
 	}
 
@@ -242,6 +291,7 @@ public class UICampTip : MonoBehaviour
 		int panelHeight = isArmy ? 435 : 500;
 		int lineWidth = 280 + multiple;
 
+		currentWidth = panelWidth;
 		allContents.sizeDelta = new Vector2(panelWidth, panelHeight);
 		lineImage.sizeDelta = new Vector2(lineWidth, 4);
 	}
@@ -302,7 +352,7 @@ public class UICampTip : MonoBehaviour
 			{
 				panelList[i].gameObject.SetActive(true);
 				panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
-				panelList[i].resourceType = resourceList[i].resourceType;
+				panelList[i].SetResourceType(resourceList[i].resourceType);
 				panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 
 				if (manager)

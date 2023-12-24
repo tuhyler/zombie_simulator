@@ -70,6 +70,12 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
     //    }
     //}
 
+    public void HandleSpace()
+    {
+        if (activeStatus)
+            SetLaborPriorities();
+    }
+
     public void ToggleVisibility(bool v, bool exitCity = false)
     {
         if (activeStatus == v)
@@ -91,7 +97,10 @@ public class UICityLaborPrioritizationManager : MonoBehaviour
         }
         else
         {
-            activeStatus = false;
+			if (resourceSelectionGrid.activeStatus)
+				resourceSelectionGrid.ToggleVisibility(false);
+
+			activeStatus = false;
             city = null;
             openPrioritizationImage.sprite = buttonRight;
 

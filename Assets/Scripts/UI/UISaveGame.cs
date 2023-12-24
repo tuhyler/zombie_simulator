@@ -47,6 +47,17 @@ public class UISaveGame : MonoBehaviour
 		saveField.onValidateInput += delegate (string input, int charIndex, char addedChar) { return AlphaNumericSpaceCheck(addedChar); };
 	}
 
+	private void Update()
+	{
+        if (Input.GetKeyUp(KeyCode.Return) || Input.GetKeyUp(KeyCode.KeypadEnter))
+        {
+            if (uiWarning.activeStatus)
+                ConfirmWarning();
+            else
+			    SaveGameCheck();
+        }
+	}
+
 	private char AlphaNumericSpaceCheck(char c)
 	{
 		if (!Char.IsWhiteSpace(c) && !Char.IsLetter(c) && !Char.IsDigit(c))

@@ -390,6 +390,7 @@ public class Wonder : MonoBehaviour
 
 		workersReceived++;
         heavenHighlight.transform.position = pos;
+        PlayPopGainAudio();
         heavenHighlight.Play();
         if (world.cityBuilderManager.uiWonderSelection.activeStatus)
 			world.cityBuilderManager.uiWonderSelection.UpdateUIWorkers(workersReceived, this);
@@ -801,35 +802,16 @@ public class Wonder : MonoBehaviour
                 }
                 break;
             case "Great Ziggurat":
-                world.AddToCityImprovementChanges("Research", "Production Yield", ResourceType.Research, wonderData.wonderBenefitChange);
-
-                foreach (Vector3Int tile in world.cityImprovementDict.Keys)
-                {
-					if (world.GetCityDevelopment(tile).GetImprovementData.improvementName == "Research")
-                    {
-                        ResourceProducer producer = world.GetResourceProducer(tile);
-
-						for (int i = 0; i < producer.producedResources.Count; i++)
-						{
-							if (producer.producedResources[i].resourceType == ResourceType.Research)
-                            {
-                                ResourceValue oldValue = producer.producedResources[i];
-                                oldValue.resourceAmount = Mathf.RoundToInt(oldValue.resourceAmount * (1f + wonderData.wonderBenefitChange));
-                                producer.producedResources[i] = oldValue;
-
-                                if (producer.producedResource.resourceType == ResourceType.Research)
-                                    producer.producedResource = oldValue;
-							}
-						}
-                    }
-                }
-
+                world.AddToCityImprovementChanges("Production Yield", ResourceType.Research, wonderData.wonderBenefitChange);
                 break;
             case "Hanging Gardens":
                 world.AddToCityPermanentChanges("Work Ethic", wonderData.wonderBenefitChange);
 
                 foreach (City city in world.cityDict.Values)
+                {
                     city.workEthic += wonderData.wonderBenefitChange;
+                    city.wonderWorkEthic += wonderData.wonderBenefitChange;
+                }
                 break;
         }
     }

@@ -10,7 +10,8 @@ public class UIBuildingSomething : MonoBehaviour
     [SerializeField]
     private RectTransform allContents;
     private Vector3 originalLoc;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
 
     private void Awake()
     {

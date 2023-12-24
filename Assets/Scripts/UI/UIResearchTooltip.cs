@@ -66,6 +66,12 @@ public class UIResearchTooltip : MonoBehaviour
         }
     }
 
+    public void HandleEsc()
+    {
+        if (activeStatus)
+            CloseWindow();
+    }
+
     public void ToggleVisibility(bool v)
     {
         if (activeStatus == v)
@@ -415,7 +421,7 @@ public class UIResearchTooltip : MonoBehaviour
                 {
                     resourcesToShow[i].gameObject.SetActive(true);
                     resourcesToShow[i].resourceAmountText.text = produceTime.ToString();
-                    resourcesToShow[i].resourceType = ResourceType.Time;
+                    resourcesToShow[i].SetResourceType(ResourceType.Time);
                     resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
                 }
                 else
@@ -430,7 +436,7 @@ public class UIResearchTooltip : MonoBehaviour
                 resourcesToShow[i].resourceAmountText.text = resourcesInfo[i].resourceAmount.ToString();
                 //resourcesToShow[i].resourceAmount.text = Mathf.RoundToInt(resourcesInfo[i].resourceAmount * (60f / produceTime)).ToString();
                 resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourcesInfo[i].resourceType);
-                resourcesToShow[i].resourceType = resourcesInfo[i].resourceType;
+                resourcesToShow[i].SetResourceType(resourcesInfo[i].resourceType);
             }
         }
     }
@@ -444,6 +450,7 @@ public class UIResearchTooltip : MonoBehaviour
 
             producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
             //producesInfo[produceIndex].resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / produceTime)).ToString();
+            producesInfo[produceIndex].SetResourceType(producedResource.resourceType);
             if (rocks)
             {
                 RocksType rocksType = ResourceHolder.Instance.GetRocksType(producedResource.resourceType);
@@ -457,12 +464,12 @@ public class UIResearchTooltip : MonoBehaviour
                     tempImage = world.rocksChemical;
 
                 producesInfo[produceIndex].resourceImage.sprite = tempImage;
+                producesInfo[produceIndex].SetMessage(rocksType);
 			}
             else
             {
                 producesInfo[produceIndex].resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
             }
-            producesInfo[produceIndex].resourceType = producedResource.resourceType;
 
 			firstArrow.SetActive(true);
 			GenerateResourceInfo(consumedResources, consumesInfo[produceIndex], produceTime);

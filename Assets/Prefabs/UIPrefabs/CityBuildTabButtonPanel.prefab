@@ -105,7 +105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -148,12 +148,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 863826940b2eb904381d6d4c0e947cc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tabName: 
   uiBuilder: {fileID: 0}
   canvasGroup: {fileID: 7239173268607356480}
   buttonImage: {fileID: 8716775935917183064}
   isSelling: 0
   isRemoving: 0
   isUpgrading: 0
+  isUnits: 0
+  isFlashing: 0
 --- !u!1 &4508000201435735185
 GameObject:
   m_ObjectHideFlags: 0

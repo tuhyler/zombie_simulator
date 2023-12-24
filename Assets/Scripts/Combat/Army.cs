@@ -80,9 +80,44 @@ public class Army : MonoBehaviour
         return totalSpots.Contains(loc);
     }
 
-	public Vector3Int GetAvailablePosition()
+	public Vector3Int GetAvailablePosition(UnitType type)
     {
         Vector3Int openSpot = openSpots[0];
+        
+        switch (type)
+        {
+            case UnitType.Ranged:
+				Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 0, 1) };
+
+				for (int i = 0; i < backSpots.Length; i++)
+				{
+					Vector3Int trySpot = backSpots[i] + loc;
+
+					if (openSpots.Contains(trySpot))
+					{
+						openSpot = trySpot;
+						break;
+					}
+				}
+
+				break;
+            case UnitType.Cavalry:
+                Vector3Int[] sideSpots = new Vector3Int[4] { new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1) };
+
+                for (int i = 0; i < sideSpots.Length; i++)
+                {
+                    Vector3Int trySpot = sideSpots[i] + loc;
+                    
+                    if (openSpots.Contains(trySpot))
+                    {
+                        openSpot = trySpot;
+                        break;
+                    }
+                }
+
+                break;
+        }
+        
         openSpots.Remove(openSpot);
 
         if (openSpots.Count == 0)
@@ -157,13 +192,21 @@ public class Army : MonoBehaviour
 
 	private void AddToCycleCost(List<ResourceValue> costs)
     {
-		for (int i = 0; i < costs.Count; i++)
+        List<ResourceType> resourceTypes = new();
+        
+        for (int i = 0; i < costs.Count; i++)
         {
             if (!armyCycleCostDict.ContainsKey(costs[i].resourceType))
                 armyCycleCostDict[costs[i].resourceType] = costs[i].resourceAmount;
             else
                 armyCycleCostDict[costs[i].resourceType] += costs[i].resourceAmount;
+
+            resourceTypes.Add(costs[i].resourceType);
+            city.ResourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, costs[i].resourceAmount);
         }
+
+        if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
+            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.ResourceConsumedPerMinuteDict);
 	}
 
     private void AddToBattleCost(List<ResourceValue> costs)
@@ -177,35 +220,25 @@ public class Army : MonoBehaviour
 		}
 	}
 
-	//public void AddStagingCostToCycle()
- //   {
- //       foreach (ResourceType type in armyStagingCostDict.Keys)
- //           armyCycleCostDict[type] += armyStagingCostDict[type];
-
- //       armyStagingCostDict.Clear();
-
- //       foreach (Unit unit in stagingUnit)
- //           unit.newlyJoined = false;
-
- //       stagingUnit.Clear();
- //   }
-
 	private void RemoveFromCycleCost(List<ResourceValue> costs)
 	{
-		for (int i = 0; i < costs.Count; i++)
+        List<ResourceType> resourceTypes = new();
+        
+        for (int i = 0; i < costs.Count; i++)
         {
 			armyCycleCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
 
+            //remove from dict if empty
             if (armyCycleCostDict[costs[i].resourceType] == 0)
                 armyCycleCostDict.Remove(costs[i].resourceType);
-        }
-	}
 
-	//private void RemoveFromStagingCost(List<ResourceValue> costs)
- //   {
- //       for (int i = 0; i < costs.Count; i++)
- //           armyStagingCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
- //   }
+            resourceTypes.Add(costs[i].resourceType);
+            city.ResourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, -costs[i].resourceAmount);
+        }
+
+        if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
+            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.ResourceConsumedPerMinuteDict);
+	}
 
     private void RemoveFromBattleCost(List<ResourceValue> costs)
     {
@@ -955,12 +988,18 @@ public class Army : MonoBehaviour
         if (noMoneyCycles < 1) //get only one chance
         {
             noMoneyCycles++;
+            city.world.noMoneyWarning = true;
+            city.world.ToggleBarracksExclamation(true);
+            city.world.uiCampTooltip.WarningCheck();
             return;
         }
 
         noMoneyCycles = 0;
-        //int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
-        Unit unit = GetMostExpensiveUnit();
+        city.world.noMoneyWarning = false;
+        city.world.uiCampTooltip.WarningCheck();
+		city.world.ToggleBarracksExclamation(false);
+		//int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
+		Unit unit = GetMostExpensiveUnit();
         world.unitMovement.AddToCity(unit.homeBase, unit);
 		RemoveFromArmy(unit, unit.barracksBunk);
         if (unit.isSelected)

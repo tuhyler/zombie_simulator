@@ -18,6 +18,8 @@ public class UIResourceSelectionGrid : MonoBehaviour
     [HideInInspector]
     public bool activeStatus;
     private IResourceGridUser resourceGridUser;
+    private Dictionary<ResourceType, GameObject> resourceGODict = new();
+
     //private UITradeResourceTask resourceTask;
     //private UILaborResourcePriority laborResourcePriority;
 
@@ -33,11 +35,15 @@ public class UIResourceSelectionGrid : MonoBehaviour
                 continue;
 
             GameObject resourceGO = Instantiate(resourceSquare);
+            resourceGODict[resource.resourceType] = resourceGO;
             AssignParent(resource.resourceCategory, resourceGO);
             UIResourceSquare uiResourceSquare = resourceGO.GetComponent<UIResourceSquare>();
             uiResourceSquare.SetInfo(resource.resourceType, resource.resourceName);
             uiResourceSquare.SetGrid(this);
             uiResourceSquare.resourceIcon.sprite = resource.resourceIcon;
+
+            if (!resource.isDiscovered)
+                resourceGO.SetActive(false);
         }
 
         int childMax = 0;
@@ -92,6 +98,7 @@ public class UIResourceSelectionGrid : MonoBehaviour
 
         allContents.sizeDelta = new Vector2(maxX - 80 ,maxY + 40);
         gameObject.SetActive(false);
+        world.AddToResourceSelectionGridList(this);
     }
 
     private void Update()
@@ -191,6 +198,11 @@ public class UIResourceSelectionGrid : MonoBehaviour
         CloseGrid();
     }
 
+    public void DiscoverResource(ResourceType type)
+    {
+        resourceGODict[type].SetActive(true);
+    }
+    
     private void PositionCheck()
     {
         if (transform.localPosition.y + allContents.rect.height > Screen.height)

@@ -207,6 +207,14 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                     world.GetUnitBuildData(nameAndLevel).locked = true;
                 }
             }
+
+            for (int i = 0; i < researchReward.resourcesUnlocked.Count; i++)
+            {
+                world.UpdateResourceSelectionGrids(researchReward.resourcesUnlocked[i]);
+
+                foreach (City city in world.cityDict.Values)
+                    city.ResourceManager.UpdateDicts(researchReward.resourcesUnlocked[i]);
+            }
         }
 
         //unlocking research items down further in tree

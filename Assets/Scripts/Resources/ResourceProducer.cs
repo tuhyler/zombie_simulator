@@ -553,7 +553,7 @@ public class ResourceProducer : MonoBehaviour
         else
             resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, generatedPerMinute[producedResource.resourceType], false);
 
-        int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(producedResource.resourceAmount, currentLabor) * (60f / improvementData.producedResourceTime[producedResourceIndex]));
+        int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType) * (60f / improvementData.producedResourceTime[producedResourceIndex]));
         generatedPerMinute[producedResource.resourceType] = amount;
         resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, amount, true);
 
@@ -570,11 +570,11 @@ public class ResourceProducer : MonoBehaviour
             if (!consumedPerMinute.ContainsKey(resourceValue.resourceType))
                 consumedPerMinute[resourceValue.resourceType] = 0;
             else
-                resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, consumedPerMinute[resourceValue.resourceType], false);
+                resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, -consumedPerMinute[resourceValue.resourceType]);
 
             int amount = Mathf.RoundToInt((resourceValue.resourceAmount * currentLabor) * (60f / improvementData.producedResourceTime[producedResourceIndex]));
             consumedPerMinute[resourceValue.resourceType] = amount;
-            resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, amount, true);
+            resourceManager.ModifyResourceConsumptionPerMinute(resourceValue.resourceType, amount);
 
             if (amount == 0)
                 consumedPerMinute.Remove(resourceValue.resourceType);

@@ -72,6 +72,14 @@ public class UITradeRouteManager : MonoBehaviour
         originalPos = stopScroller.transform.localPosition;
 	}
 
+    public void HandleSpace()
+    {
+        if (activeStatus)
+            CreateRoute();
+    }
+
+
+
 	public void StopRoute()
     {
         world.cityBuilderManager.PlaySelectAudio();
@@ -245,7 +253,7 @@ public class UITradeRouteManager : MonoBehaviour
 			{
 				costsInfo[i].gameObject.SetActive(true);
 				costsInfo[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
-				costsInfo[i].resourceType = resourceList[i].resourceType;
+				costsInfo[i].SetResourceType(resourceList[i].resourceType);
 				costsInfo[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 			}
 		}
@@ -472,13 +480,13 @@ public class UITradeRouteManager : MonoBehaviour
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
             if (i == 0 && !world.CheckCityName(destination))
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "First stop must be city");
+                UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "First stop must be city", false);
                 return;
             }
 
             if (destination == null)
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No assigned city to stop");
+                UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "No assigned city to stop", false);
                 return;
             }
 
@@ -495,13 +503,13 @@ public class UITradeRouteManager : MonoBehaviour
 
             if (consecFound)
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Consecutive stops for same stop");
+                UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Consecutive stops for same stop", false);
                 return;
             }
 
             if (resourceAssignment.Count == 0 && waitTime < 0)
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No resource assignment for stop");
+                UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "No resource assignment for stop", false);
                 return;
             }
         }

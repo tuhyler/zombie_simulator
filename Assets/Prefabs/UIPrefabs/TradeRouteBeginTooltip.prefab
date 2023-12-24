@@ -363,7 +363,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -960,6 +960,7 @@ MonoBehaviour:
   world: {fileID: 0}
   none: {fileID: 3361946394784890094}
   costsRect: {fileID: 5581103210544362513}
+  beginButton: {fileID: 2465387125752736728}
   cantAfford: 0
   allContents: {fileID: 7172269090546766210}
   activeStatus: 0
@@ -1189,7 +1190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}

@@ -43,7 +43,7 @@ MonoBehaviour:
   isResearch: 0
   terrainType: 0
   specificTerrain: 0
-  workEthicChange: 0
+  workEthicChange: 0.5
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0

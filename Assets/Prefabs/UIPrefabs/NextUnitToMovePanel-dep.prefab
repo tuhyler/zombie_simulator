@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7099401180668488983}
   - component: {fileID: 6268188610787509568}
   m_Layer: 0
-  m_Name: NextUnitToMovePanel
+  m_Name: NextUnitToMovePanel-dep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}

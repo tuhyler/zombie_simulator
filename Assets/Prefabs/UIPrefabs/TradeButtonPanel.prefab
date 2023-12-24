@@ -466,6 +466,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 8607786919790331147}
+  buttonButton: {fileID: 0}
   allContents: {fileID: 0}
   activeStatus: 0
   buttonImage: {fileID: 131679438440117426}
@@ -673,7 +674,7 @@ PrefabInstance:
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
-      value: Begin/stop trade route
+      value: Begin/stop trade route (F)
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
@@ -754,6 +755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 4156854711834880272}
+  buttonButton: {fileID: 0}
   allContents: {fileID: 0}
   activeStatus: 0
   buttonImage: {fileID: 5698966741971556521}
@@ -984,7 +986,7 @@ PrefabInstance:
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
-      value: Design trade route
+      value: Design trade route (R)
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
@@ -1077,6 +1079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 2388494255945879346}
+  buttonButton: {fileID: 0}
   allContents: {fileID: 0}
   activeStatus: 0
   buttonImage: {fileID: 6306010924383633035}

@@ -46,9 +46,10 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     [HideInInspector]
     public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, isFlashing;
-    //for checking if city can afford resource
-    private List<UIResourceInfoPanel> costResourcePanels = new();
-    //private bool ;
+    //for checking if city can afford resource and if work ethic changes values
+    [HideInInspector]
+    public List<UIResourceInfoPanel> costResourcePanels = new(), producedResourcePanels = new();
+
 
     private void Awake()
     {
@@ -160,7 +161,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 objectConsumed.Add(new(buildData.consumedResources4));
             objectDescription = buildData.improvementDescription;
 
-            if (buildData.workEthicChange > 0)
+            if (buildData.workEthicChange != 0)
             {
                 workEthicImage.SetActive(true);
                 workEthicText.gameObject.SetActive(true);
@@ -362,7 +363,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             //uiResourceCostPanel.resourceAmount.text = Mathf.RoundToInt(value.resourceAmount * (60f / producedResourceTime)).ToString();
             uiResourceCostPanel.resourceAmountText.text = value.resourceAmount.ToString();
             uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
-            uiResourceCostPanel.resourceType = value.resourceType;
+            uiResourceCostPanel.SetResourceType(value.resourceType);
 
             if (cost)
                 costResourcePanels.Add(uiResourceCostPanel);
@@ -389,6 +390,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 else
                 {
                     uiResourceInfoPanel.resourceAmountText.text = producedResource.resourceAmount.ToString();
+                    uiResourceInfoPanel.SetResourceType(producedResource.resourceType);
                     if (rocks)
                     {
                         RocksType rocksType = ResourceHolder.Instance.GetRocksType(producedResource.resourceType);
@@ -402,10 +404,15 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                             tempImage = rocksChemical;
 
 						uiResourceInfoPanel.resourceImage.sprite = tempImage;
+                        uiResourceInfoPanel.SetMessage(rocksType);
                     }
                     else
+                    {
 					    uiResourceInfoPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(producedResource.resourceType);
-                    uiResourceInfoPanel.resourceType = producedResource.resourceType;
+                    }
+
+                    if (i == 0)
+                        producedResourcePanels.Add(uiResourceInfoPanel);
                 }
             }
             else if (i == 1 && isUnitPanel)

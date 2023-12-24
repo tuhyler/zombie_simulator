@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: 64d39453e5a6dd54497f80fb704d2ecc, type: 3}
   secondaryPrefab: {fileID: 0}
-  isSecondary: 0
   unitName: Infantry
   unitDisplayName: Spearman
   unitLevel: 2
@@ -29,6 +28,8 @@ MonoBehaviour:
   cycleCost:
   - resourceType: 4
     resourceAmount: 2
+  - resourceType: 2
+    resourceAmount: 1
   battleCost: []
   laborCost: 0
   unitType: 1

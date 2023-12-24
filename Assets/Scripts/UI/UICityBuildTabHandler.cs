@@ -18,8 +18,10 @@ public class UICityBuildTabHandler : MonoBehaviour
     //[SerializeField]
     //private UILaborHandler uiLaborHandler;
 
-    private UIBuilderHandler builderUI;
-    private UIShowTabHandler currentTabSelected;
+    [HideInInspector]
+    public UIBuilderHandler builderUI;
+    [HideInInspector]
+    public UIShowTabHandler currentTabSelected;
     [HideInInspector]
     public bool sameUI, openTab;
     private ResourceManager resourceManager;
@@ -307,4 +309,46 @@ public class UICityBuildTabHandler : MonoBehaviour
     {
         cityBuilderManager.CloseImprovementTooltipButton();
     }
+
+    public void HandleC()
+	{
+		if (activeStatus)
+			GetTab("Upgrade").SelectTabKeyboardShortcut();
+	}
+
+    public void HandleG()
+    {
+        if (activeStatus)
+            GetTab("Buildings").SelectTabKeyboardShortcut();
+    }
+
+	public void HandleT()
+	{
+		if (activeStatus)
+			GetTab("Units").SelectTabKeyboardShortcut();
+	}
+
+	public void HandleR()
+	{
+		if (activeStatus)
+			GetTab("Raw Goods").SelectTabKeyboardShortcut();
+	}
+
+	public void HandleF()
+	{
+		if (activeStatus)
+			GetTab("Producers").SelectTabKeyboardShortcut();
+	}
+
+	public void HandleX()
+	{
+		if (activeStatus)
+			GetTab("Remove").SelectTabKeyboardShortcut();
+	}
+
+	public void HandleZ()
+    {
+		if (activeStatus)
+			GetTab("Sell").SelectTabKeyboardShortcut();
+	}
 }

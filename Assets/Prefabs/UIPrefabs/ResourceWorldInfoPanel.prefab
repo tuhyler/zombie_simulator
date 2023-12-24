@@ -607,6 +607,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4676341561903550451, guid: daa9c38dacefe074a880c9e2f1be31df,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 196
+      objectReference: {fileID: 0}
+    - target: {fileID: 4676341561903550451, guid: daa9c38dacefe074a880c9e2f1be31df,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 4676341561903550451, guid: daa9c38dacefe074a880c9e2f1be31df,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5718647466590841208, guid: daa9c38dacefe074a880c9e2f1be31df,
         type: 3}
       propertyPath: m_Type
@@ -796,6 +811,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ResearchPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 2135434945505902474, guid: a905eeb931ee1cf4e8c8148f4cac6df0,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 2540536303946690282, guid: a905eeb931ee1cf4e8c8148f4cac6df0,
         type: 3}
       propertyPath: m_Pivot.x
@@ -929,6 +949,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a905eeb931ee1cf4e8c8148f4cac6df0, type: 3}
+--- !u!1 &2438484335786750457 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6818366559816528436, guid: a905eeb931ee1cf4e8c8148f4cac6df0,
+    type: 3}
+  m_PrefabInstance: {fileID: 9171731101270950861}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8351386954612234880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2438484335786750457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  message: Research (I)
+  secondDelay: 1
+  workEthic: 0
 --- !u!224 &2769580721487036403 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6424118965737978942, guid: a905eeb931ee1cf4e8c8148f4cac6df0,
@@ -941,7 +982,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 9171731101270950861}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 2438484335786750457}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}

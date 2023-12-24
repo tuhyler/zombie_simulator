@@ -50,8 +50,6 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public UnityEvent FinishedMoving; //listeners are worker tasks and show individualcity buttons
 
-    private InfoManager infoManager;
-
     //movement details
     [HideInInspector]
     public Rigidbody unitRigidbody;
@@ -285,7 +283,6 @@ public class Unit : MonoBehaviour
     {
         this.world = world;
 		world.CheckUnitPermanentChanges(this);
-		infoManager = world.unitMovement.infoManager;
 
         //caching terrain costs
         roadSpeed = world.GetRoadCost();
@@ -401,7 +398,7 @@ public class Unit : MonoBehaviour
             //DestroyUnit();
 
         if (isSelected)
-            infoManager.SetHealth(currentHealth, healthMax);
+            world.unitMovement.infoManager.SetHealth(currentHealth, healthMax);
 
         healthbar.SetHealthLevel(currentHealth);
     }
@@ -412,7 +409,7 @@ public class Unit : MonoBehaviour
         //this.currentHealth = currentHealth;
 
         if (isSelected)
-			infoManager.SetHealth(currentHealth, healthMax);
+			world.unitMovement.infoManager.SetHealth(currentHealth, healthMax);
 	}
 
     //private IEnumerator SlowMovement()
@@ -1149,9 +1146,11 @@ public class Unit : MonoBehaviour
             if (isSelected)
                 world.unitMovement.ShowIndividualCityButtonsUI();
 
-    //        if (isLaborer)
-				//if (world.RoundToInt(finalDestinationLoc) == endPosition)
-				//	world.unitMovement.JoinCity(this);
+            if (isLaborer)
+            {
+				if (world.IsWonderOnTile(world.GetClosestTerrainLoc(finalDestinationLoc)))
+                    world.unitMovement.JoinCity(this);
+            }
         }
     }
 

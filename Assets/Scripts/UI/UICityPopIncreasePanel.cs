@@ -10,7 +10,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	private MapWorld world;
 
 	[SerializeField]
-	private GameObject foodCostGO;
+	private GameObject foodCostGO, increaseButton;
 
 	[SerializeField]
 	private TMP_Text foodCostText, foodCycleCostText, housingCostText, waterCostText;
@@ -36,6 +36,12 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	{
 		originalButtonColor = buttonImage.color;
 		gameObject.SetActive(false);
+	}
+
+	public void HandleSpace()
+	{
+		if (activeStatus)
+			IncreasePop();
 	}
 
 	public void ToggleVisibility(bool val, int amount = 0, City city = null, bool joinCity = false)
@@ -77,7 +83,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	private void SetCosts(City city)
 	{
 		foodCost = city.growthFood;
-		foodCycleCost = city.unitFoodConsumptionPerMinute + city.foodConsumptionPerMinute;
+		foodCycleCost = city.unitFoodConsumptionPerMinute + (int)city.ResourceManager.ResourceConsumedPerMinuteDict[ResourceType.Food];
 		housingCost = 1;
 		waterCost = 1;
 	}
@@ -212,11 +218,11 @@ public class UICityPopIncreasePanel : MonoBehaviour
 		{
 			StartCoroutine(Shake());
 			if (needWater)
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need water. Build camp with river in radius or build a well.", true);
+				UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need water. Build camp with river in radius or build a well.", false);
 			else if (needHousing)
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need housing. Build more housing.", true);
+				UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need housing. Build more housing.", false);
 			else
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need more food", true);
+				UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need more food", false);
 
 			return false;
 		}

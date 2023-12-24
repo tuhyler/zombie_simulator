@@ -14,7 +14,7 @@ public class UICityImprovementTip : MonoBehaviour
     
     [SerializeField]
     public TMP_Text title, level, resourceCount, waitingForText;
-    private TMP_Text producesText, consumesNone;
+    private TMP_Text /*producesText, */consumesNone;
 
     [SerializeField]
     private GameObject /*waitingForText, */resourceCountGO;
@@ -40,7 +40,8 @@ public class UICityImprovementTip : MonoBehaviour
     //for tweening
     [SerializeField]
     private RectTransform allContents, lineImage;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
 
     private void Awake()
     {
@@ -49,14 +50,7 @@ public class UICityImprovementTip : MonoBehaviour
 
         foreach (Transform selection in producesRect)
         {
-            if (selection.TryGetComponent(out TMP_Text text))
-            {
-                producesText = text;
-            }
-            else
-            {
-                producesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
-            }
+            producesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
         }
         foreach (Transform selection in consumesRect)
         {
@@ -69,6 +63,12 @@ public class UICityImprovementTip : MonoBehaviour
                 consumesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
             }
         }
+    }
+
+    public void HandleEsc()
+    {
+        if (activeStatus)
+            world.CloseImprovementTooltipCloseButton();
     }
 
     public void ToggleVisibility(bool val, CityImprovement improvement = null)
@@ -190,7 +190,7 @@ public class UICityImprovementTip : MonoBehaviour
         highlightIndex = improvement.producedResourceIndex;
         int producedTime = produceTimeList[highlightIndex];
 
-        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, data.workEthicChange);
+        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, world.GetResourceProducer(improvement.loc).isProducing, improvement.GetCity().workEthic);
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);
 
         if (data.getTerrainResource)
@@ -221,35 +221,35 @@ public class UICityImprovementTip : MonoBehaviour
         lineImage.sizeDelta = new Vector2(lineWidth, 4);
     }
 
-    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, int producedTime, bool produces, float workEthic = 0)
+    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, int producedTime, bool produces, bool producing = false, float workEthic = 1)
     {
         int resourcesCount = resourceList.Count;
-        bool showText = false;
-        if (workEthic > 0)
-            showText = true;
+        //bool showText = false;
+        //if (workEthic > 0)
+        //    showText = true;
 
         //show text for produces section
         if (produces)
         {
             producesCount = resourcesCount;
             
-            if (showText)
-            {
-                //produceHighlight.gameObject.SetActive(false);
+
+
+            //if (showText)
+            //{
+            //    //produceHighlight.gameObject.SetActive(false);
                 
-                producesText.gameObject.SetActive(true);
-                if (workEthic > 0)
-                    producesText.text = "Work Ethic +" + (workEthic * 100).ToString() + '%';
+            //    producesText.gameObject.SetActive(true);
 
-                foreach (UIResourceInfoPanel panel in panelList)
-                    panel.gameObject.SetActive(false);
+            //    foreach (UIResourceInfoPanel panel in panelList)
+            //        panel.gameObject.SetActive(false);
 
-                return;
-            }
-            else
-            {
-                producesText.gameObject.SetActive(false);
-            }
+            //    return;
+            //}
+            //else
+            //{
+            //    producesText.gameObject.SetActive(false);
+            //}
         }
         //show text for consumes section
         else
@@ -283,7 +283,7 @@ public class UICityImprovementTip : MonoBehaviour
                 {
                     panelList[i].gameObject.SetActive(true);
                     panelList[i].resourceAmountText.text = producedTime.ToString();
-                    panelList[i].resourceType = ResourceType.Time;
+                    panelList[i].SetResourceType(ResourceType.Time);
                     panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
                 }
                 else
@@ -296,14 +296,33 @@ public class UICityImprovementTip : MonoBehaviour
                 panelList[i].gameObject.SetActive(true);
                 //panelList[i].resourceAmount.text = Mathf.RoundToInt(resourceList[i].resourceAmount * (60f / producedTime)).ToString();
                 //panelList[i].SetResourceAmount(resourceList[i].resourceAmount);
-                panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
-                panelList[i].resourceType = resourceList[i].resourceType;
+                panelList[i].SetResourceType(resourceList[i].resourceType);
                 panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 
-				if (waiting && resourceList[i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[resourceList[i].resourceType])
-					panelList[i].resourceAmountText.color = Color.red;
-				else
-					panelList[i].resourceAmountText.color = Color.white;
+                if (produces)
+                {
+                    workEthic = producing ? workEthic : 1;
+                    int amount = resourceList[i].resourceAmount;
+                    int newAmount = Mathf.RoundToInt(amount * (workEthic + world.GetResourceTypeBonus(resourceList[i].resourceType)));
+
+					panelList[i].resourceAmountText.text = newAmount.ToString();
+
+                    if (amount == newAmount)
+						panelList[i].resourceAmountText.color = Color.white;
+                    else if (newAmount > amount)
+						panelList[i].resourceAmountText.color = Color.green;
+                    else
+						panelList[i].resourceAmountText.color = Color.red;
+				}
+                else
+                {
+					panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
+
+					if (waiting && resourceList[i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[resourceList[i].resourceType])
+					    panelList[i].resourceAmountText.color = Color.red;
+				    else
+					    panelList[i].resourceAmountText.color = Color.white;
+                }
 			}
         }
 
@@ -365,6 +384,30 @@ public class UICityImprovementTip : MonoBehaviour
         if (world.cityBuilderManager.SelectedCity != null)
             world.cityBuilderManager.UpdateLaborNumbers();
     }
+
+    public void UpdateProduceNumbers()
+    {
+        if (improvement == null)
+            return;
+
+		ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+        float workEthic = producer.isProducing ? improvement.GetCity().workEthic : 1;
+
+		for (int i = 0; i < producer.producedResources.Count; i++)
+        {
+            int amount = producer.producedResources[i].resourceAmount;
+		    int newAmount = Mathf.RoundToInt(amount * (workEthic + world.GetResourceTypeBonus(producer.producedResources[i].resourceType)));
+
+		    producesInfo[i].resourceAmountText.text = newAmount.ToString();
+
+		    if (amount == newAmount)
+			    producesInfo[i].resourceAmountText.color = Color.white;
+		    else if (newAmount > amount)
+			    producesInfo[i].resourceAmountText.color = Color.green;
+		    else
+			    producesInfo[i].resourceAmountText.color = Color.red;
+        }
+	}
 
     public void ToggleWaiting(bool v, bool resource = false, bool storage = false, bool research = false)
     {
