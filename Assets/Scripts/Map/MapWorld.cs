@@ -20,6 +20,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Worker mainPlayer;
     [SerializeField]
+    public Unit scott, azai;
+    [SerializeField]
     public Light startingSpotlight;
     [SerializeField]
     public Water water;
@@ -243,6 +245,9 @@ public class MapWorld : MonoBehaviour
 
     [HideInInspector]
     public GamePersist gamePersist = new();
+
+    //character units
+    public List<Unit> characterUnits;
 
     //permanent changes to cities, units, and city improvments
     private float cityWorkEthicChange;
@@ -644,6 +649,18 @@ public class MapWorld : MonoBehaviour
 		Unit unit = mainPlayer.GetComponent<Unit>();
         uiSpeechWindow.AddToSpeakingDict("Koa", mainPlayer);
 		unit.SetReferences(this);
+
+        if (!newGame)
+        {
+            unit.CurrentLocation = RoundToInt(unit.transform.position);
+            AddUnitPosition(unit.transform.position, unit);
+
+		    scott.CurrentLocation = RoundToInt(scott.transform.position);
+		    AddUnitPosition(scott.transform.position, scott);
+        }
+
+        uiSpeechWindow.AddToSpeakingDict("Scott", scott);
+		scott.SetReferences(this);
 
 		unit.Reveal();
 		Vector3Int unitPos = RoundToInt(unit.transform.position);
@@ -5528,7 +5545,7 @@ public class MapWorld : MonoBehaviour
 
                         foreach (Vector3Int loc in cityDict.Keys)
                         {
-                            if (Mathf.Abs(playerLoc.x - loc.x) / 3 > 2 || Mathf.Abs(playerLoc.z - loc.z) / 3 > 2)
+                            if (Mathf.Abs(playerLoc.x - loc.x) > 7 || Mathf.Abs(playerLoc.z - loc.z) > 7)
                                 return;
                         }
                         
@@ -5614,7 +5631,7 @@ public class MapWorld : MonoBehaviour
 
 						foreach (Vector3Int loc in cityDict.Keys)
 						{
-							if (Mathf.Abs(playerLoc2.x - loc.x) / 3 > 2 || Mathf.Abs(playerLoc2.z - loc.z) / 3 > 2)
+							if (Mathf.Abs(playerLoc2.x - loc.x) > 7 || Mathf.Abs(playerLoc2.z - loc.z) > 7)
 								return;
 						}
 

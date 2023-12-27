@@ -25,7 +25,7 @@ public class UITooltip : MonoBehaviour
         float x = 0.5f;
         float y = 0f;
 
-        p.z = 1f;
+        p.z = 935f;
         if (p.y + allContents.rect.height > Screen.height)
             y = 1f;
 
