@@ -28,6 +28,7 @@ public class UnitBuildDataSO : ScriptableObject
     public int trainTime = 0;
     public int cargoCapacity;
     public TransportationType transportationType = TransportationType.Land;
+    public bool characterUnit;
 }
 
 public enum UnitType

@@ -8,7 +8,7 @@ public class Worker : Unit
 {
     //[HideInInspector]
     //public bool harvested;// harvesting, resourceIsNotNull;
-    private ResourceIndividualHandler resourceIndividualHandler;
+    //private ResourceIndividualHandler resourceIndividualHandler;
     private WorkerTaskManager workerTaskManager;
     private Vector3Int resourceCityLoc;
     private Resource resource;
@@ -43,7 +43,7 @@ public class Worker : Unit
         isDizzyHash = Animator.StringToHash("isDizzy");
         isWorker = true;
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
-        resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
+        //resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
         //timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
     }

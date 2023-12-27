@@ -10,7 +10,7 @@ public class UnitMovement : MonoBehaviour
 {
     [SerializeField]
     public MapWorld world;
-    [SerializeField]
+    [HideInInspector]
     public InfoManager infoManager;
     [SerializeField]
     public WorkerTaskManager workerTaskManager;
@@ -73,6 +73,7 @@ public class UnitMovement : MonoBehaviour
     {
         movementSystem = GetComponent<MovementSystem>();
         movementSystem.GrowObjectPools(this);
+        infoManager = GetComponent<InfoManager>();
     }
 
     private void Start()
@@ -646,10 +647,11 @@ public class UnitMovement : MonoBehaviour
 	}
 
     public void SelectWorker()
-    {
-        if (selectedUnit.isWorker)
+    {        
+		if (world.characterUnits.Contains(selectedUnit))
         {
-            selectedWorker = selectedUnit.GetComponent<Worker>();
+            selectedWorker = world.mainPlayer.GetComponent<Worker>();
+            selectedUnit = selectedWorker;
             workerTaskManager.SetWorkerUnit(selectedWorker);
             if (!selectedUnit.sayingSomething)
                 uiWorkerTask.ToggleVisibility(true, world);
@@ -658,6 +660,14 @@ public class UnitMovement : MonoBehaviour
 
             if (selectedWorker.harvested) //if unit just finished harvesting something, send to closest city
                 selectedWorker.SendResourceToCity();
+
+            for (int i = 0; i < world.characterUnits.Count; i++)
+            {
+				if (world.characterUnits[i] == selectedUnit)
+					world.characterUnits[i].Select(Color.green);
+				else
+					world.characterUnits[i].SoftSelect(Color.white);
+			}
         }
     }
 
@@ -724,7 +734,7 @@ public class UnitMovement : MonoBehaviour
         unitSelected = true;
         if (selectedUnit.inArmy)
 			selectedUnit.homeBase.army.SelectArmy(selectedUnit);
-		else
+		else if (!world.characterUnits.Contains(selectedUnit)) //selection handled elsewhere
 			selectedUnit.Select(Color.white);
 
         //so highlight of city doesn't go away
@@ -797,9 +807,20 @@ public class UnitMovement : MonoBehaviour
 			else if (unit.isLaborer)
 				world.UnhighlightCitiesAndWonders();
 
-
-			if (!movementSystem.MoveUnit(unit))
+            if (movementSystem.MoveUnit(unit))
+            {
+                if (unit.isWorker)
+                {
+                    unit.firstStep = true;
+                    //world.scott.leaderPath.Clear();
+                    //world.scott.leaderPath = movementSystem.GetFollowPath(world.scott.CurrentLocation, unit.CurrentLocation);
+                    //world.azai.MoveThroughPath(movementSystem.GetSidePath(true));
+                }
+            }
+            else
+            {
                 return;
+            }
         }
 
         uiCancelMove.ToggleVisibility(!unit.isBusy);

@@ -61,6 +61,23 @@ public class MovementSystem : MonoBehaviour
         return false;
     }
 
+    public List<Vector3Int> GetFollowPath(Vector3Int currentLoc, Vector3Int currentLeaderLoc)
+    {
+        List<Vector3Int> sidePath = new();
+
+        for (int i = 0; i < currentPath.Count; i++)
+        {
+            if (Mathf.Abs(currentPath[i].x - currentLoc.x) > 1 || Mathf.Abs(currentPath[i].z - currentLoc.z) > 1)
+            {
+                if (i == 0)
+                    sidePath.Add(currentLeaderLoc);
+                else
+                    sidePath.Add(currentPath[i-1]);
+            }
+        }
+
+        return sidePath;
+    }
 
     #region object pooling
     public void GrowObjectPools(UnitMovement unitMovement)
