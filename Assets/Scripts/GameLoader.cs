@@ -67,6 +67,7 @@ public class GameLoader : MonoBehaviour
 		gameData.camLimits.Add(world.cameraController.zMax);
 		gameData.tutorialStep = world.tutorialStep;
 		gameData.goldAmount = world.worldResourceManager.GetWorldGoldLevel();
+		gameData.scottFollow = world.scottFollow;
 		gameData.cityCount = world.cityCount;
 		gameData.infantryCount = world.infantryCount;
 		gameData.rangedCount = world.rangedCount;
@@ -141,8 +142,9 @@ public class GameLoader : MonoBehaviour
 			gameData.allRoads.Add(road.SaveData(loc));
 		}
 		
-		//main player
+		//main characters
 		gameData.playerUnit = world.mainPlayer.SaveWorkerData();
+		gameData.scott = world.scott.SaveWorkerData();
 
 		//traders
 		gameData.allTraders.Clear();
@@ -217,6 +219,7 @@ public class GameLoader : MonoBehaviour
 		world.cityImprovementQueueList = gameData.cityImprovementQueueList;
 		world.unclaimedSingleBuildList = gameData.unclaimedSingleBuildList;
 		world.LoadWonder(gameData.allWonders);
+		world.scottFollow = gameData.scottFollow;
 		gameData.allWonders.Clear();
 
 		//updating progress
@@ -252,6 +255,7 @@ public class GameLoader : MonoBehaviour
 		//updating progress
 		GameManager.Instance.UpdateProgress(10);
 
+		world.scott.LoadWorkerData(gameData.scott);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 
 		//traders
@@ -277,7 +281,10 @@ public class GameLoader : MonoBehaviour
 		world.cameraController.newRotation = gameData.camRotation;
 		world.dayNightCycle.timeODay = gameData.timeODay;
 		if (gameData.timeODay > 18 || gameData.timeODay < 6)
+		{
+			world.dayNightCycle.day = false;
 			world.ToggleWorldLights(true);
+		}
 		world.cameraController.LoadCameraLimits(gameData.camLimits[0], gameData.camLimits[1], gameData.camLimits[2], gameData.camLimits[3]);
 		gameData.camLimits.Clear();
 

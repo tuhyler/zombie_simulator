@@ -14,7 +14,7 @@ public class TraderData : IUnitData
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation;
-	public Vector3Int prevRoadTile, prevTerrainTile;
+	public Vector3Int prevTile, prevTerrainTile;
 	public Dictionary<ResourceType, int> resourceGridDict;
 
 	//personal resource info

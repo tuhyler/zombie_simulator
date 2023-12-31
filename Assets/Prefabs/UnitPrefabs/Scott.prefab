@@ -30,7 +30,7 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 2.1
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
@@ -176,7 +176,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 18ae4d02522dde34687f94f4bf96c46e, type: 2}
+      objectReference: {fileID: 9100000, guid: 1f2e39f8e17c0174296f020a1facde7e, type: 2}
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
@@ -293,7 +293,7 @@ MonoBehaviour:
   secondaryPrefab: 0
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
-  prevRoadTile: {x: 0, y: 0, z: 0}
+  prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
@@ -320,6 +320,7 @@ MonoBehaviour:
   harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
+  firstStep: 0
   conversationTopic: 
   isLeader: 0
   readyToMarch: 1
@@ -340,12 +341,6 @@ MonoBehaviour:
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
---- !u!212 &2617987643598791535 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 6008798074786485100, guid: cb2720df9ba71c948a71f90c55a9188b,
-    type: 3}
-  m_PrefabInstance: {fileID: 8590475446320263171}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2987918349945170059 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -370,7 +365,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 8590475446320263171}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7322007392271675510
+--- !u!114 &1512691990147090347
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -379,22 +374,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 5736113371244364382}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da11ff3b20aa482448c3718d71bba364, type: 3}
+  m_Script: {fileID: 11500000, guid: ef3539db8ce8105408a48063c9f1361c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: f4b1b8ce04aa9f14b87ca31572aa649c, type: 2}
   unitMesh: {fileID: 9002772391352952869}
-  minimapIcon: {fileID: 2617987643598791535}
+  minimapIcon: {fileID: 0}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
-  deathSplash: {fileID: 0}
+  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
+    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 3914360381294062636}
   marker: {fileID: 2987918349945170059}
   healthbar: {fileID: 7201045382687107315}
   greetings: []
-  attacks: []
+  attacks:
+  - {fileID: 8300000, guid: 01e88c2cc97d1c24a94f3fd77857423d, type: 3}
+  - {fileID: 8300000, guid: e92ce6446362fd642912c078efe46f00, type: 3}
   kills: []
   audioSource: {fileID: 0}
   world: {fileID: 0}
@@ -414,7 +412,7 @@ MonoBehaviour:
   secondaryPrefab: 0
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
-  prevRoadTile: {x: 0, y: 0, z: 0}
+  prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
@@ -441,6 +439,7 @@ MonoBehaviour:
   harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
+  firstStep: 0
   conversationTopic: 
   isLeader: 0
   readyToMarch: 1
@@ -461,6 +460,13 @@ MonoBehaviour:
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
+  removing: 0
+  gathering: 0
+  clearingForest: 0
+  buildingCity: 0
+  working: 0
+  clearingForestTime: 5
+  clearedForestlumberAmount: 100
 --- !u!114 &7201045382687107315 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1502020260812445936, guid: cb2720df9ba71c948a71f90c55a9188b,

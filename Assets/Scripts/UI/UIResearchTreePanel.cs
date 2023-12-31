@@ -61,7 +61,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
-    public bool activeStatus;
+    public bool activeStatus, isFlashing;
     private Vector3 originalLoc;
 
     private void Awake()
@@ -126,6 +126,8 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
 
         if (v)
         {
+            if (isFlashing)
+                world.ButtonFlashCheck();
             world.UnselectAll();
             world.ToggleMinimap(false);
 			//world.openingImmoveable = true;

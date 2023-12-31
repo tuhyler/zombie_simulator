@@ -105,6 +105,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //foreach (UIResearchItem researchItem in researchUnlocked)
         //    researchItem.TempUnlockCheck();
 
+        researchTree.world.TutorialCheck("Research");
         researchTree.SetResearchItem(this);
     }
 
@@ -211,6 +212,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             for (int i = 0; i < researchReward.resourcesUnlocked.Count; i++)
             {
                 world.UpdateResourceSelectionGrids(researchReward.resourcesUnlocked[i]);
+                world.cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(researchReward.resourcesUnlocked[i]);
 
                 foreach (City city in world.cityDict.Values)
                     city.ResourceManager.UpdateDicts(researchReward.resourcesUnlocked[i]);

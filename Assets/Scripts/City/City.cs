@@ -222,14 +222,14 @@ public class City : MonoBehaviour
         this.world = world;
 		world.CheckCityPermanentChanges(this);
 		army.SetWorld(world);
-		resourceManager.ResourceDict = new(world.GetBlankResourceDict());
-        resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
-        resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
-        resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
-        resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
+		//resourceManager.ResourceDict = new(world.GetBlankResourceDict());
+        //resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
+        //resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
+        //resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
+        //resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
         resourceManager.PrepareResourceDictionary();
         resourceManager.SetInitialResourceValues();
-        resourceManager.SetPrices();
+        //resourceManager.SetPrices();
 
         int i = 0;
         foreach (ResourceType type in resourceManager.ResourceDict.Keys)
@@ -739,7 +739,7 @@ public class City : MonoBehaviour
                         world.cityBuilderManager.abandonCityButton.interactable = false;
                         //world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
                     }
-                    resourceManager.SellResources();
+                    //resourceManager.SellResources();
                     StartGrowthCycle(false);
                 }
                 else if (cityPop.CurrentPop == 4)
@@ -1745,10 +1745,10 @@ public class City : MonoBehaviour
 		//data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
         data.fullInventory = resourceManager.fullInventory;
 		data.resourceDict = resourceManager.ResourceDict;
-        data.resourcePriceDict = resourceManager.ResourcePriceDict;
-        data.resourceSellDict = resourceManager.ResourceSellDict;
-        data.resourceMinHoldDict = resourceManager.ResourceMinHoldDict;
-        data.resourceSellHistoryDict = resourceManager.ResourceSellHistoryDict;
+        data.resourcePriceDict = resourceManager.resourcePriceDict;
+        data.resourceSellDict = resourceManager.resourceSellDict;
+        data.resourceMinHoldDict = resourceManager.resourceMinHoldDict;
+        data.resourceSellHistoryDict = resourceManager.resourceSellHistoryDict;
         data.pauseGrowth = resourceManager.pauseGrowth;
         data.growthDeclineDanger = resourceManager.growthDeclineDanger;
         data.starvationCount = resourceManager.starvationCount;
@@ -1871,10 +1871,10 @@ public class City : MonoBehaviour
         resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
         resourceManager.fullInventory = data.fullInventory;
         resourceManager.ResourceDict = data.resourceDict;
-        resourceManager.ResourcePriceDict = data.resourcePriceDict;
-        resourceManager.ResourceSellDict = data.resourceSellDict;
-        resourceManager.ResourceMinHoldDict = data.resourceMinHoldDict;
-        resourceManager.ResourceSellHistoryDict = data.resourceSellHistoryDict;
+        resourceManager.resourcePriceDict = data.resourcePriceDict;
+        resourceManager.resourceSellDict = data.resourceSellDict;
+        resourceManager.resourceMinHoldDict = data.resourceMinHoldDict;
+        resourceManager.resourceSellHistoryDict = data.resourceSellHistoryDict;
         resourceManager.pauseGrowth = data.pauseGrowth;
         resourceManager.growthDeclineDanger = data.growthDeclineDanger;
 		resourceManager.starvationCount = data.starvationCount;

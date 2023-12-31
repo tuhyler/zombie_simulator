@@ -101,8 +101,9 @@ public class RoadManager : MonoBehaviour
         }
         else
         {
-            worker.isBusy = false;
-            if (worker.isSelected)
+            world.mainPlayer.isBusy = false;
+			worker.building = false;
+			if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
             //StartCoroutine(CombineMeshWaiter());
         }
@@ -396,9 +397,9 @@ public class RoadManager : MonoBehaviour
         }
         else
         {
-            worker.isBusy = false;
+            world.mainPlayer.isBusy = false;
             worker.removing = false;
-            if (worker.isSelected)
+            if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
     }

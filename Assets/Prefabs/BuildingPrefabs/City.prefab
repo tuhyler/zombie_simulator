@@ -208,6 +208,8 @@ MonoBehaviour:
   housingLocsAtMax: 0
   waterCount: 0
   workEthic: 1
+  improvementWorkEthic: 0
+  wonderWorkEthic: 0
   warehouseStorageLimit: 2000
   autoGrow: 0
   tradersHere: []
@@ -263,7 +265,7 @@ MonoBehaviour:
   resourcesNeededForRoute: 
   initialResources:
   - resourceType: 2
-    resourceAmount: 100
+    resourceAmount: 4
   - resourceType: 6
     resourceAmount: 500
   - resourceType: 7
@@ -1043,17 +1045,17 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.5
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}

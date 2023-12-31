@@ -76,7 +76,7 @@ public class UIInfoPopUpHandler : MonoBehaviour
 
         if (toWorld)
         {
-            position.z = 1;
+            position.z = 935;
             //position.z = 1;
             Vector3 positionWorld = Camera.main.ScreenToWorldPoint(position);
             transform.position = positionWorld;
@@ -84,7 +84,7 @@ public class UIInfoPopUpHandler : MonoBehaviour
         else
         {
             Vector3 positionScreen = Camera.main.WorldToScreenPoint(position);
-            positionScreen.z = 1;
+            positionScreen.z = 935;
             //position.z = 1;
             Vector3 positionAgain = Camera.main.ScreenToWorldPoint(positionScreen);
             transform.position = positionAgain;

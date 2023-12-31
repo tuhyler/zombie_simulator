@@ -26,6 +26,35 @@ public class MovementSystem : MonoBehaviour
         {
             currentPath = GridSearch.AStarSearch(world, priorPath, endPosition, isTrader, selectedUnit.bySea);
             selectedUnit.AddToMovementQueue(currentPath);
+
+            if (selectedUnit.isPlayer)
+            {
+                if (currentPath.Count > 0)
+                {
+                    List<Vector3Int> followerPath = new(currentPath);
+                    followerPath.RemoveAt(followerPath.Count - 1);
+                    Vector3Int newEnd;
+                    Vector3Int prevSpot = world.RoundToInt(selectedUnit.finalDestinationLoc);
+
+				    if (followerPath.Count > 0)
+                    {
+                        newEnd = followerPath[followerPath.Count - 1];
+                    }
+                    else
+                    {
+                        newEnd = prevSpot;
+				    }
+
+                    followerPath.Insert(0, prevSpot);
+                    world.scott.finalDestinationLoc = newEnd;
+
+                    //if (world.scott.followerPath.Count > 0)
+                    //    world.scott.followerPath.AddRange(followerPath);
+                    //else
+                    world.scott.AddToMovementQueue(followerPath);
+                }
+            }
+
             orderQueueing = false;
         }
         else
@@ -33,6 +62,17 @@ public class MovementSystem : MonoBehaviour
             selectedUnit.QueueCount = 0;
             currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader, selectedUnit.bySea);
 			//currentPath = PathFinder.FindPath(world, world.RoundToInt(currentLoc), endPosition, isTrader, selectedUnit.bySea);
+
+   //         if (selectedUnit.isWorker)
+   //         {
+			//	if (currentPath.Count > 0)
+			//	{
+			//	    Vector3Int prevSpot = world.RoundToInt(currentLoc);
+			//		world.scott.followerPath = new(currentPath);
+			//		world.scott.followerPath.Insert(0, prevSpot);
+			//		world.scott.followerPath.RemoveAt(world.scott.followerPath.Count - 1);
+			//	}
+			//}
 
 			if (world.RoundToInt(currentLoc) == endPosition) //if moving within current square
                 currentPath.Add(endPosition);

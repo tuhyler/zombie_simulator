@@ -1,6 +1,7 @@
 using Mono.Cecil;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Resources;
 using UnityEngine;
 using static UnityEditor.FilePathAttribute;
@@ -47,7 +48,8 @@ public class UnitMovement : MonoBehaviour
     //private TerrainData selectedTile;
     //private InfoProvider selectedUnitInfoProvider;
     private bool loadScreenSet; //flag if load/unload ui is showing
-    private bool moveUnit;
+    [HideInInspector]
+    public bool moveUnit;
 
     //for transferring cargo to/from trader
     private ResourceManager cityResourceManager;
@@ -104,10 +106,19 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedUnit != null)
         {
+            if (selectedUnit.isBusy)
+                return;
+
             if (selectedUnit.inArmy)
-                DeployArmyLocation();
+            {
+                if (uiDeployArmy.activeStatus)
+                    DeployArmyLocation();
+            }
             else
-                MoveUnitToggle();
+            {
+                if (uiMoveUnit.activeStatus)
+                    MoveUnitToggle();
+            }
         }
     }
 
@@ -242,9 +253,9 @@ public class UnitMovement : MonoBehaviour
 				}
                 else
                 {
-                    if (selectedWorker.AddToOrderQueue(pos))
+                    if (world.scott.AddToOrderQueue(pos))
                     {
-                        if (selectedWorker.IsOrderListMoreThanZero())
+                        if (world.scott.IsOrderListMoreThanZero())
                             uiConfirmOrders.ToggleVisibility(true);
 
                         td.EnableHighlight(Color.white);
@@ -253,7 +264,7 @@ public class UnitMovement : MonoBehaviour
                     }
                     else
                     {
-                        if (!selectedWorker.IsOrderListMoreThanZero())
+                        if (!world.scott.IsOrderListMoreThanZero())
                             uiConfirmOrders.ToggleVisibility(false);
 
                         td.DisableHighlight();
@@ -274,9 +285,9 @@ public class UnitMovement : MonoBehaviour
                 }
                 else
                 {
-                    if (selectedWorker.AddToOrderQueue(pos))
+                    if (world.scott.AddToOrderQueue(pos))
                     {
-                        if (selectedWorker.IsOrderListMoreThanZero())
+                        if (world.scott.IsOrderListMoreThanZero())
                             uiConfirmOrders.ToggleVisibility(true);
 
                         td.EnableHighlight(Color.red);
@@ -294,7 +305,7 @@ public class UnitMovement : MonoBehaviour
 					}
                     else
                     {
-                        if (!selectedWorker.IsOrderListMoreThanZero())
+                        if (!world.scott.IsOrderListMoreThanZero())
                             uiConfirmOrders.ToggleVisibility(false);
 
                         td.DisableHighlight();
@@ -526,9 +537,13 @@ public class UnitMovement : MonoBehaviour
             {
                 ClearSelection();
             }
-            else if (selectedWorker != null && selectedWorker == tempWorker)
+            else if (tempWorker == world.mainPlayer)
             {
-                selectedWorker.SendResourceToCity();
+                world.mainPlayer.SendResourceToCity();
+            }
+            else if (tempWorker == world.scott)
+            {
+                world.scott.SendResourceToCity();
             }
             else
             {
@@ -652,10 +667,10 @@ public class UnitMovement : MonoBehaviour
         {
             selectedWorker = world.mainPlayer.GetComponent<Worker>();
             selectedUnit = selectedWorker;
-            workerTaskManager.SetWorkerUnit(selectedWorker);
+            workerTaskManager.SetWorkerUnit();
             if (!selectedUnit.sayingSomething)
                 uiWorkerTask.ToggleVisibility(true, world);
-            if (selectedWorker.IsOrderListMoreThanZero())
+            if (world.scott.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(true);
 
             if (selectedWorker.harvested) //if unit just finished harvesting something, send to closest city
@@ -809,13 +824,8 @@ public class UnitMovement : MonoBehaviour
 
             if (movementSystem.MoveUnit(unit))
             {
-                if (unit.isWorker)
-                {
+                if (unit.isPlayer && world.scottFollow)
                     unit.firstStep = true;
-                    //world.scott.leaderPath.Clear();
-                    //world.scott.leaderPath = movementSystem.GetFollowPath(world.scott.CurrentLocation, unit.CurrentLocation);
-                    //world.azai.MoveThroughPath(movementSystem.GetSidePath(true));
-                }
             }
             else
             {
@@ -829,6 +839,66 @@ public class UnitMovement : MonoBehaviour
         uiJoinCity.ToggleVisibility(false);
         uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
     }
+
+	public void GoStraightToSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
+	{
+		if (unit.isMoving)
+		{
+			unit.StopAnimation();
+			unit.ShiftMovement();
+			unit.ResetMovementOrders();
+		}
+
+		movementSystem.GetPathToMove(world, unit, terrainPos, unit.isTrader); //Call AStar movement
+		unit.finalDestinationLoc = location;
+
+		moveUnit = false;
+		uiMoveUnit.ToggleButtonColor(false);
+		if (unit.isTrader)
+			world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
+		else if (unit.isLaborer)
+			world.UnhighlightCitiesAndWonders();
+
+		if (!movementSystem.MoveUnit(unit))
+			return;
+
+		//uiCancelMove.ToggleVisibility(!unit.isBusy);
+
+		movementSystem.ClearPaths();
+		uiJoinCity.ToggleVisibility(false);
+		uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
+	}
+
+	public void HandleSelectedFollowerLoc(Queue<Vector3Int> path, Vector3Int priorSpot, Vector3Int currentSpot, Unit unit)
+    {
+		if (unit.isMoving)
+        {
+			unit.StopAnimation();
+			unit.ShiftMovement();
+    		unit.ResetMovementOrders();
+		}
+
+        List<Vector3Int> newPath;
+        if (path.Count > 0)
+        {
+            newPath = path.ToList();
+            newPath.RemoveAt(newPath.Count - 1);
+            newPath.Insert(0, currentSpot);
+        }
+        else
+        {
+            newPath = new();
+        }
+
+        newPath.Insert(0, priorSpot);
+        //if (unit.followerPath.Count > 0)
+        //    unit.finalDestinationLoc = unit.followerPath[unit.followerPath.Count - 1];
+
+		moveUnit = false;
+        unit.finalDestinationLoc = newPath[newPath.Count - 1];
+        unit.MoveThroughPath(newPath);
+        //unit.followerPath.Clear();
+	}
 
     public void MoveUnitRightClick(Vector3 location, GameObject detectedObject)
     {
@@ -1022,6 +1092,7 @@ public class UnitMovement : MonoBehaviour
         if (!moveUnit)
         {
             moveUnit = true;
+            world.citySelected = true;
 
             if (selectedUnit.isTrader)
                 world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
@@ -1031,6 +1102,7 @@ public class UnitMovement : MonoBehaviour
         else
         {
             moveUnit = false;
+			world.citySelected = false;
 
 			if (selectedUnit.isTrader)
 				world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
@@ -1040,6 +1112,19 @@ public class UnitMovement : MonoBehaviour
 
 		uiMoveUnit.ToggleButtonColor(moveUnit);
     }
+
+    public void CancelMove()
+    {
+		moveUnit = false;
+		world.citySelected = false;
+
+		if (selectedUnit.isTrader)
+			world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+		else if (selectedUnit.isLaborer)
+			world.UnhighlightCitiesAndWonders();
+
+		uiMoveUnit.ToggleButtonColor(moveUnit);
+	}
 
     public void HandleShiftDown()
     {
@@ -1075,6 +1160,12 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.ResetMovementOrders();
             uiCancelMove.ToggleVisibility(false);
             selectedUnit.HidePath();
+
+            if (selectedUnit.isPlayer)
+            {
+                //world.scott.ResetMovementOrders();
+                world.scott.CatchUp(world.RoundToInt(selectedUnit.transform.position));
+            }
         }
         else if (world.buildingWonder)
         {
@@ -1338,12 +1429,13 @@ public class UnitMovement : MonoBehaviour
             ClearBuildRoad();
             if (buildingRoad)
             {
-                selectedWorker.SetRoadQueue();
+                world.scott.SetRoadQueue();
+                world.scott.building = true;
             }
             else if (removingRoad)
             {
-                selectedWorker.SetRoadRemovalQueue();
-                selectedWorker.removing = true;
+                world.scott.SetRoadRemovalQueue();
+                world.scott.removing = true;
             }
             ResetOrderFlags();
         }
@@ -1429,16 +1521,16 @@ public class UnitMovement : MonoBehaviour
         {
             Color highlightColor;
 
-            if (selectedWorker.removing)
+            if (world.scott.removing)
                 highlightColor = Color.red;
             else
                 highlightColor = Color.white;
 
-            foreach (Vector3Int tile in selectedWorker.OrderList)
+            foreach (Vector3Int tile in world.scott.OrderList)
             {
                 world.GetTerrainDataAt(tile).EnableHighlight(highlightColor);
 
-                if (selectedWorker.removing && world.IsRoadOnTerrain(tile))
+                if (world.scott.removing && world.IsRoadOnTerrain(tile))
                 {
                     foreach (Road road in world.GetAllRoadsOnTile(tile))
                     {
@@ -1453,11 +1545,11 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-            foreach (Vector3Int tile in selectedWorker.OrderList)
+            foreach (Vector3Int tile in world.scott.OrderList)
             {
                 world.GetTerrainDataAt(tile).DisableHighlight();
 
-                if ((selectedWorker.removing || world.unitOrders) && world.IsRoadOnTerrain(tile))
+                if ((world.scott.removing || world.unitOrders) && world.IsRoadOnTerrain(tile))
                 {
                     foreach (Road road in world.GetAllRoadsOnTile(tile))
                     {
@@ -1784,7 +1876,7 @@ public class UnitMovement : MonoBehaviour
 
         if (!selectedUnit.followingRoute && !selectedUnit.isMoving)
         {
-            if (world.IsCityOnTile(currentLoc) && !selectedUnit.isWorker)
+            if (world.IsCityOnTile(currentLoc) && !selectedUnit.isPlayer)
             {
                 uiJoinCity.ToggleVisibility(true);
             }
@@ -1988,7 +2080,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit != null)
         {
             //world.somethingSelected = false;
-            if (selectedUnit.isBusy && selectedWorker.IsOrderListMoreThanZero())
+            if (selectedUnit.isBusy && world.scott.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(false);
 
             if (moveUnit)
@@ -2011,11 +2103,12 @@ public class UnitMovement : MonoBehaviour
 
             if (selectedWorker != null)
             {
+                world.scott.Deselect();
                 uiCancelTask.ToggleVisibility(false);
                 uiWorkerTask.ToggleVisibility(false, world);
-                workerTaskManager.NullWorkerUnit();
+                //workerTaskManager.NullWorkerUnit();
             }
-            if (selectedTrader != null)
+            else if (selectedTrader != null)
             {
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
                 uiTraderPanel.SwitchRouteIcons(false);
@@ -2025,7 +2118,7 @@ public class UnitMovement : MonoBehaviour
                 uiPersonalResourceInfoPanel.ToggleVisibility(false, selectedTrader);
                 LoadUnloadFinish(false); //clear load cargo screen
             }
-            if (selectedUnit.inArmy)
+            else if (selectedUnit.inArmy)
             {
 				uiCancelTask.ToggleVisibility(false);
                 selectedUnit.homeBase.army.UnselectArmy(selectedUnit);

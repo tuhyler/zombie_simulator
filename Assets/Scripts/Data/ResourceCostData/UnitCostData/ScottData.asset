@@ -35,4 +35,4 @@ MonoBehaviour:
   trainTime: 0
   cargoCapacity: 0
   transportationType: 0
-  characterUnit: 0
+  characterUnit: 1

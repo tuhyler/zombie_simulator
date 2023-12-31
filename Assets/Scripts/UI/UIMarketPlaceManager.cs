@@ -42,24 +42,16 @@ public class UIMarketPlaceManager : MonoBehaviour
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
-            //can't sell food
-            //if (resource.resourceName == "Food")
-            //    continue;
+			if (resource.resourceType == ResourceType.None || !resource.isDiscovered)
+				continue;
 
-            GameObject marketResourceGO = Instantiate(uiMarketResourcePanel, resourceHolder);
-            UIMarketResourcePanel marketResource = marketResourceGO.GetComponent<UIMarketResourcePanel>();
-            marketResource.SetMarketPlaceManager(this);
-            marketResource.cityPrice.text = resource.resourcePrice.ToString();
-            marketResource.price = resource.resourcePrice;
-            marketResource.resourceImage.sprite = resource.resourceIcon;
-            marketResource.resourceName = resource.resourceName;
-            marketResource.resourceType = resource.resourceType;
-            resourceNames.Add(resource.resourceName);
+            CreateMarketResourcePanel(resource);
 
-            marketResourceList.Add(marketResource);
-        }
+			if (resource.resourceType == ResourceType.Food)
+                marketResourceList[marketResourceList.Count - 1].sellToggle.interactable = false;
+		}
 
-        resourceNames.Sort();
+		resourceNames.Sort();
     }
 
     public void ToggleVisibility(bool v, City city = null)
@@ -95,36 +87,56 @@ public class UIMarketPlaceManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    private void CreateMarketResourcePanel(ResourceIndividualSO resource)
+    {
+		GameObject marketResourceGO = Instantiate(uiMarketResourcePanel, resourceHolder);
+		UIMarketResourcePanel marketResource = marketResourceGO.GetComponent<UIMarketResourcePanel>();
+		marketResource.SetMarketPlaceManager(this);
+		marketResource.cityPrice.text = resource.resourcePrice.ToString();
+		marketResource.price = resource.resourcePrice;
+		marketResource.resourceImage.sprite = resource.resourceIcon;
+		marketResource.resourceName = resource.resourceName;
+		marketResource.resourceType = resource.resourceType;
+		resourceNames.Add(resource.resourceName);
+
+		marketResourceList.Add(marketResource);
+	}
+
+    public void UpdateMarketPlaceManager(ResourceType type)
+    {
+        CreateMarketResourcePanel(ResourceHolder.Instance.GetData(type));
+    }
+
     private void SetResourceData()
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
         {
             ResourceType type = resourcePanel.resourceType;
             
-            resourcePanel.price = city.ResourceManager.ResourcePriceDict[type];
-            resourcePanel.cityPrice.text = city.ResourceManager.ResourcePriceDict[type].ToString();
+            resourcePanel.price = city.ResourceManager.resourcePriceDict[type];
+            resourcePanel.cityPrice.text = city.ResourceManager.resourcePriceDict[type].ToString();
             resourcePanel.amount = city.ResourceManager.ResourceDict[type];
             resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[type].ToString();
-            resourcePanel.total = city.ResourceManager.ResourceSellHistoryDict[type];
-            resourcePanel.cityTotals.text = city.ResourceManager.ResourceSellHistoryDict[type].ToString();
+            resourcePanel.total = city.ResourceManager.resourceSellHistoryDict[type];
+            resourcePanel.cityTotals.text = city.ResourceManager.resourceSellHistoryDict[type].ToString();
 
-            bool isOn = city.ResourceManager.ResourceSellDict[type];
+            bool isOn = city.ResourceManager.resourceSellDict[type];
             resourcePanel.sellToggle.isOn = isOn;
             resourcePanel.minimumAmount.interactable = isOn;
 
             if (isOn)
-                resourcePanel.minimumAmount.text = city.ResourceManager.ResourceMinHoldDict[type].ToString();
+                resourcePanel.minimumAmount.text = city.ResourceManager.resourceMinHoldDict[type].ToString();
         }
     }
 
     public void SetResourceSell(ResourceType resourceType, bool isOn)
     {
-        city.ResourceManager.ResourceSellDict[resourceType] = isOn;
+        city.ResourceManager.resourceSellDict[resourceType] = isOn;
     }
 
     public void SetResourceMinHold(ResourceType resourceType, int minHold)
     {
-        city.ResourceManager.ResourceMinHoldDict[resourceType] = minHold;
+        city.ResourceManager.resourceMinHoldDict[resourceType] = minHold;
     }
 
     public void UpdateMarketResourceNumbers(ResourceType resourceType, int price, int amount, int total)

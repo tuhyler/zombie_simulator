@@ -11,18 +11,13 @@ public class ResourceManager : MonoBehaviour
 {
     private Dictionary<ResourceType, int> resourceDict = new(); //need this later for save system
     private Dictionary<ResourceType, float> resourceGenerationPerMinuteDict = new(); //for resource generation stats
-    private Dictionary<ResourceType, float> resourceConsumedPerMinuteDict = new(); //for resource consumption stats
-    private Dictionary<ResourceType, int> resourcePriceDict = new();
-    private Dictionary<ResourceType, bool> resourceSellDict = new();
-    private Dictionary<ResourceType, int> resourceMinHoldDict = new();
-    private Dictionary<ResourceType, int> resourceSellHistoryDict = new();
+    public Dictionary<ResourceType, float> resourceConsumedPerMinuteDict = new(); //for resource consumption stats
+    public Dictionary<ResourceType, int> resourcePriceDict = new();
+    public Dictionary<ResourceType, bool> resourceSellDict = new();
+    public Dictionary<ResourceType, int> resourceMinHoldDict = new();
+    public Dictionary<ResourceType, int> resourceSellHistoryDict = new();
 
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
-    public Dictionary<ResourceType, float> ResourceConsumedPerMinuteDict { get { return resourceConsumedPerMinuteDict; } }
-    public Dictionary<ResourceType, int> ResourcePriceDict { get { return resourcePriceDict; } set { resourcePriceDict = value; } }
-    public Dictionary<ResourceType, bool> ResourceSellDict { get { return resourceSellDict; } set { resourceSellDict = value; } }
-    public Dictionary<ResourceType, int> ResourceMinHoldDict { get { return resourceMinHoldDict; } set { resourceMinHoldDict = value; } }
-    public Dictionary<ResourceType, int> ResourceSellHistoryDict { get { return resourceSellHistoryDict; } set { resourceSellHistoryDict = value; } }
 
     //private int resourceStorageLimit; 
     //public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
@@ -95,16 +90,24 @@ public class ResourceManager : MonoBehaviour
     {
         foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
-            if (resourceData.resourceType == ResourceType.None || !resourceData.isDiscovered)
+            ResourceType type = resourceData.resourceType;
+            
+            if (type == ResourceType.None || !resourceData.isDiscovered)
                 continue;
-            resourceDict[resourceData.resourceType] = 0;
-            resourceGenerationPerMinuteDict[resourceData.resourceType] = 0;
+            resourceDict[type] = 0;
+            resourceGenerationPerMinuteDict[type] = 0;
 
-            if (resourceData.resourceType != ResourceType.Research)
+            if (type != ResourceType.Research)
             {
-                resourceConsumedPerMinuteDict[resourceData.resourceType] = 0;
+                resourceConsumedPerMinuteDict[type] = 0;
+                resourceSellDict[type] = false;
+                resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
+                resourceMinHoldDict[type] = 0;
+                resourceSellHistoryDict[type] = 0;
             }
         }
+
+        resourceSellDict[ResourceType.Food] = true; //default to sell food
     }
 
     public void UpdateDicts(ResourceType type)
@@ -112,6 +115,10 @@ public class ResourceManager : MonoBehaviour
 		resourceDict[type] = 0;
 		resourceGenerationPerMinuteDict[type] = 0;
 		resourceConsumedPerMinuteDict[type] = 0;
+        resourceSellDict[type] = false;
+        resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
+        resourceMinHoldDict[type] = 0;
+        resourceSellHistoryDict[type] = 0;
 	}
 
     public void SetCity(City city)

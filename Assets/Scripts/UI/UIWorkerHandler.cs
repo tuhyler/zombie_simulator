@@ -20,6 +20,7 @@ public class UIWorkerHandler : MonoBehaviour
     public List<UIWorkerOptions> buildOptions;
     [SerializeField]
     private UIWorkerOptions removalOptions;
+    private List<string> buttonsToExclude = new() { "Road", "Remove", "Clear"};
 
     //for tweening
     [SerializeField]
@@ -80,6 +81,24 @@ public class UIWorkerHandler : MonoBehaviour
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world));
         }
     }
+
+    public void DeactivateButtons()
+    {
+		for (int i = 0; i < buildOptions.Count; i++)
+		{
+			if (buttonsToExclude.Contains(buildOptions[i].buttonName))
+				buildOptions[i].gameObject.SetActive(false);
+		}
+	}
+
+	public void ReactivateButtons()
+    {
+		for (int i = 0; i < buildOptions.Count; i++)
+		{
+			if (buttonsToExclude.Contains(buildOptions[i].buttonName))
+				buildOptions[i].gameObject.SetActive(true);
+		}
+	}
 
     private void SetActiveStatusFalse(MapWorld world)
     {

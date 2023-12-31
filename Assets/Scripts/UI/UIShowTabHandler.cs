@@ -58,7 +58,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
                 isFlashing = false;
                 uiBuildTabHandler.cityBuilderManager.world.ButtonFlashCheck();
             }
-            uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open Build Tab");
+            uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open " + tabName + " Tab");
         }
 
 		ToggleButtonSelection(true);
@@ -99,7 +99,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
 				isFlashing = false;
 				uiBuildTabHandler.cityBuilderManager.world.ButtonFlashCheck();
 			}
-			uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open Build Tab");
+			uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open " + tabName + " Tab");
 		}
 
 		ToggleButtonSelection(true);

@@ -16,7 +16,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	private TMP_Text foodCostText, foodCycleCostText, housingCostText, waterCostText;
 
 	[SerializeField]
-	private Image buttonImage;
+	public Image buttonImage;
 
 	private City city;
 
@@ -30,7 +30,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	[SerializeField]
 	private RectTransform allContents;
 	[HideInInspector]
-	public bool activeStatus;
+	public bool activeStatus, isFlashing;
 
 	private void Awake()
 	{
@@ -83,7 +83,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	private void SetCosts(City city)
 	{
 		foodCost = city.growthFood;
-		foodCycleCost = city.unitFoodConsumptionPerMinute + (int)city.ResourceManager.ResourceConsumedPerMinuteDict[ResourceType.Food];
+		foodCycleCost = city.unitFoodConsumptionPerMinute + (int)city.ResourceManager.resourceConsumedPerMinuteDict[ResourceType.Food];
 		housingCost = 1;
 		waterCost = 1;
 	}
@@ -191,6 +191,9 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	{
 		if (AffordCheck())
 		{
+			if (world.tutorialGoing)
+				world.TutorialCheck("Add Pop");
+			
 			if (city.world.unitMovement.selectedUnit != null)
 				city.world.unitMovement.JoinCityConfirm(city);
 			else
@@ -204,6 +207,12 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	{
 		if (v)
 		{
+			if (isFlashing)
+			{
+				isFlashing = false;
+				world.ButtonFlashCheck();
+			}
+
 			buttonImage.color = Color.green;
 		}
 		else
