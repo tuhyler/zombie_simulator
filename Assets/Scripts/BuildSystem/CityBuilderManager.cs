@@ -40,6 +40,7 @@ public class CityBuilderManager : MonoBehaviour
     public UICityNamer uiCityNamer, uiTraderNamer;
     [SerializeField]
     public UITradeCenter uiTradeCenter;
+    public UIHelperWindow uiHelperWindow;
     //[SerializeField]
     //private UICityResourceGrid uiCityResourceGrid;
     [SerializeField]
@@ -191,7 +192,7 @@ public class CityBuilderManager : MonoBehaviour
             OpenAddPopWindow();
     }
 
-    private void CenterCamOnCity()
+    public void CenterCamOnCity()
     {
         if (selectedCity != null)
             focusCam.CenterCameraNoFollow(selectedCity.transform.position);
@@ -454,6 +455,8 @@ public class CityBuilderManager : MonoBehaviour
 
                     PlayConstructionAudio();
                     BuildImprovementQueueCheck(improvementData, terrainLoc); //passing the data here as method requires it
+
+                    world.TutorialCheck("Build Something");
                 }
                 else if (upgradingImprovement)
                 {
@@ -1738,14 +1741,6 @@ public class CityBuilderManager : MonoBehaviour
         mainCamLoc.y = 0;
         unit.transform.rotation = Quaternion.LookRotation(mainCamLoc - unit.transform.position);
         newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
-
-		if (world.tutorialGoing)
-		{
-			world.uiSpeechWindow.AddToSpeakingDict("Scott", newUnit);
-
-			if (world.tutorialStep == "tutorial6")
-				newUnit.SetSomethingToSay("first_labor");
-		}
 	}
 
     public void BuildUnit(City city, UnitBuildDataSO unitData, bool upgrading, Unit upgradedUnit)
@@ -2359,8 +2354,9 @@ public class CityBuilderManager : MonoBehaviour
 
     public void FinishImprovement(City city, ImprovementDataSO improvementData, Vector3Int tempBuildLocation)
     {
-        //activating structure
-        GameObject improvement = world.GetStructure(tempBuildLocation);
+		world.TutorialCheck("Finished Building Something");
+		//activating structure
+		GameObject improvement = world.GetStructure(tempBuildLocation);
         //world.AddStructureMap(tempBuildLocation, improvementData.mapIcon);
         improvement.SetActive(true);
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
@@ -3313,7 +3309,7 @@ public class CityBuilderManager : MonoBehaviour
         //updating all the labor info
         UpdateLaborNumbers();
         uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType));
-        uiLaborHandler.UpdateResourcesConsumed(resourceProducer.consumedResourceTypes, selectedCity.ResourceManager.ResourceConsumedPerMinuteDict);
+        uiLaborHandler.UpdateResourcesConsumed(resourceProducer.consumedResourceTypes, selectedCity.ResourceManager.resourceConsumedPerMinuteDict);
 
         if (totalResourceLabor == 0)
             selectedCity.RemoveFromResourcesWorked(resourceType);
@@ -3326,6 +3322,8 @@ public class CityBuilderManager : MonoBehaviour
         //BuildingButtonHighlight();
         LaborTileHighlight();
         uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+
+        world.TutorialCheck("Change Labor");
         //if (world.GetBuildingListForCity(selectedCityLoc).Count > 0)
         //uiLaborHandler.ShowUI(laborChange, selectedCity, world, placesToWork);
     }
@@ -3380,9 +3378,15 @@ public class CityBuilderManager : MonoBehaviour
         uiCityTabs.HideSelectedTab(false);
         CloseLaborMenus();
         CloseSingleWindows();
-        //uiLaborHandler.HideUI();
-        //ResetTileLists(); //already in improvement build panel
-    }
+
+		if (world.tutorialGoing)
+		{
+			if (uiHelperWindow.activeStatus)
+				uiHelperWindow.ToggleVisibility(false);
+		}
+		//uiLaborHandler.HideUI();
+		//ResetTileLists(); //already in improvement build panel
+	}
 
     public void ToggleLaborHandlerMenu()
     {
@@ -3845,6 +3849,13 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity = null;
             focusCam.RestoreWorldLimit();
 			world.StopAudio();
+
+            if (world.tutorialGoing)
+            {
+                if (uiHelperWindow.activeStatus)
+                    uiHelperWindow.ToggleVisibility(false);
+            }
+
         }
     }
 

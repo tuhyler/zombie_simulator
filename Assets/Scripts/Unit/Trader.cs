@@ -521,7 +521,7 @@ public class Trader : Unit
 		data.destinationLoc = destinationLoc;
 		data.finalDestinationLoc = finalDestinationLoc;
 		data.currentLocation = CurrentLocation;
-		data.prevRoadTile = prevRoadTile;
+		data.prevTile = prevTile;
 		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
@@ -568,7 +568,7 @@ public class Trader : Unit
 		destinationLoc = data.destinationLoc;
 		finalDestinationLoc = data.finalDestinationLoc;
 		CurrentLocation = data.currentLocation;
-		prevRoadTile = data.prevRoadTile;
+		prevTile = data.prevTile;
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
 		moreToMove = data.moreToMove;

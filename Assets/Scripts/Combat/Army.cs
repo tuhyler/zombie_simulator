@@ -206,7 +206,7 @@ public class Army : MonoBehaviour
         }
 
         if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
-            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.ResourceConsumedPerMinuteDict);
+            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
 	}
 
     private void AddToBattleCost(List<ResourceValue> costs)
@@ -237,7 +237,7 @@ public class Army : MonoBehaviour
         }
 
         if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
-            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.ResourceConsumedPerMinuteDict);
+            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
 	}
 
     private void RemoveFromBattleCost(List<ResourceValue> costs)

@@ -64,4 +64,9 @@ public class ResourceHolder : MonoBehaviour
     {
         return resourceDict[resourceType].isDiscovered;
     }
+
+    public int GetPrice(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].resourcePrice;
+    }
 }

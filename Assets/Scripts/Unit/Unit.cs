@@ -57,10 +57,10 @@ public class Unit : MonoBehaviour
     public float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
     [HideInInspector]
     public Queue<Vector3Int> pathPositions = new();
+    //[HideInInspector]
+    //public List<Vector3Int> followerPath = new();
     [HideInInspector]
-    public Vector3Int leaderSpot;
-    [HideInInspector]
-    public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute, secondaryPrefab; //if there's more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
+    public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute, secondaryPrefab; //if there are more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
     [HideInInspector]
     public Vector3 destinationLoc;
     [HideInInspector]
@@ -68,7 +68,7 @@ public class Unit : MonoBehaviour
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     [HideInInspector]
-    public Vector3Int prevRoadTile, prevTerrainTile; //first one is for traders, in case road they're on is removed
+    public Vector3Int prevTile, prevTerrainTile; //first one for traders is in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo, waitingCo, attackCo;
@@ -108,7 +108,7 @@ public class Unit : MonoBehaviour
     private SelectionHighlight highlight;
     
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isWorker, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep;
+    public bool bySea, isTrader, atStop, followingRoute, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep;
     [HideInInspector]
     public string conversationTopic;
 
@@ -183,8 +183,8 @@ public class Unit : MonoBehaviour
         //shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
         if (bySea)
             selectionCircle.SetActive(false);
-        if (isTrader)
-            prevRoadTile = Vector3Int.RoundToInt(transform.position); //world hasn't been initialized yet
+        
+        prevTile = Vector3Int.RoundToInt(transform.position); //world hasn't been initialized yet
 
         if (currentHealth == healthMax)
             healthbar.gameObject.SetActive(false);
@@ -475,14 +475,6 @@ public class Unit : MonoBehaviour
             }
         }
 
-        if (isWorker)
-        {
-            if (currentPath.Count > 1)
-                leaderSpot = currentPath[currentPath.Count - 2];
-            else
-                leaderSpot = world.RoundToInt(transform.position);
-        }
-
 		Vector3 firstTarget = pathPositions.Dequeue();
 
         moreToMove = true;
@@ -605,7 +597,7 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
-        if (isWorker || isLeader || bySea)
+        if (isPlayer || isLeader || bySea)
         {
 			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
 			if (pos != prevTerrainTile)
@@ -626,19 +618,18 @@ public class Unit : MonoBehaviour
 			unitAnimator.SetBool(isMarchingHash, true);
 		}
 
-        if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1 || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1))
+        if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
         {
             firstStep = false;
             //world.scott.FollowLeader();
-            world.scott.StopAnimation();
-            world.scott.ShiftMovement();
-            world.unitMovement.HandleSelectedLocation(leaderSpot, leaderSpot, world.scott);
+            if (!isBusy)
+                world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.scott);
+            //followerPath.Clear();
 		}
 
 		if (pathPositions.Count > 0)
         {
-            if (isTrader)
-                prevRoadTile = world.RoundToInt(endPosition);
+            prevTile = world.RoundToInt(endPosition);
 
             if (followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
             {
@@ -663,7 +654,9 @@ public class Unit : MonoBehaviour
         if (isMoving)
         {
             if (movingCo != null)
+            {
                 StopCoroutine(movingCo);
+            }
 
             if (isMoving) //check here twice in case still moving after stopping coroutine
                 FinishMoving(destinationLoc);
@@ -792,15 +785,15 @@ public class Unit : MonoBehaviour
             {
                 prevPath = false;
 
-                if (!world.IsUnitWaitingForSameStop(prevRoadTile, finalLoc))
+                if (!world.IsUnitWaitingForSameStop(prevTile, finalLoc))
                 {
-                    Teleport(prevRoadTile);
+                    Teleport(prevTile);
                     positionsToCheck.Clear();
                     success = true;
                 }
                 else
                 {
-                    positionsToCheck.Add(prevRoadTile);
+                    positionsToCheck.Add(prevTile);
                 }
             }
             else
@@ -924,6 +917,7 @@ public class Unit : MonoBehaviour
         pathPositions.Clear();
         StopAnimation();
         FinishedMoving?.Invoke();
+
         if (isTrader)
         {
             if (bySea)
@@ -951,7 +945,7 @@ public class Unit : MonoBehaviour
                     if (followingRoute)
                         InterruptRoute();
                     TeleportToNearestRoad(world.RoundToInt(currentLocation));
-                    prevRoadTile = currentLocation;
+                    prevTile = currentLocation;
                     return;
                 }
             }
@@ -962,14 +956,15 @@ public class Unit : MonoBehaviour
                 {
                     GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLocation);
                     GetInLine();
-                    prevRoadTile = currentLocation;
+                    prevTile = currentLocation;
                     return;
                 }
             }
 
-            prevRoadTile = currentLocation;            
+            //prevTile = currentLocation;            
         }
 
+        prevTile = currentLocation;
         TradeRouteCheck(endPosition);
 
         if (isDead)
@@ -1092,6 +1087,10 @@ public class Unit : MonoBehaviour
 				TradeRouteCheck(endPosition);
 				return;
 			}
+            else if (unitInTheWay == world.mainPlayer && buildDataSO.characterUnit)
+            {
+                return;
+            }
 
 			Vector3Int loc;
 			if (unitInTheWay.pathPositions.Count > 0)
@@ -1104,7 +1103,11 @@ public class Unit : MonoBehaviour
 		}
         else
         {
-			world.TutorialCheck("Finished Movement");
+			if (world.tutorialGoing)
+            {
+                if (isPlayer)
+                    world.TutorialCheck("Finished Movement");
+            }
 			world.AddUnitPosition(currentLocation, this);
             
             if (isSelected)
@@ -1989,6 +1992,28 @@ public class Unit : MonoBehaviour
         moreToMove = false;
     }
 
+    public void CatchUp(Vector3Int lastSpot)
+    {
+        Queue<Vector3Int> newQueue = new Queue<Vector3Int>(pathPositions.Reverse());
+
+        if (newQueue.Count > 0)
+        {
+            Vector3Int testLoc = newQueue.Dequeue();
+            while (testLoc != lastSpot)
+            {
+                if (newQueue.Count > 0)
+                    testLoc = newQueue.Dequeue();
+            }
+        }
+
+        if (newQueue.Count > 0)
+            finalDestinationLoc = newQueue.Peek();
+        else
+            finalDestinationLoc = transform.position;
+
+        pathPositions = new Queue<Vector3Int>(newQueue.Reverse());
+    }
+
     public void RemoveUnitFromData()
     {
         ResetMovementOrders();
@@ -2031,7 +2056,7 @@ public class Unit : MonoBehaviour
             prevPosition.y = 0.01f;
             GameObject path;
 
-            if (isWorker)
+            if (isPlayer)
                 path = world.unitMovement.movementSystem.GetFromShoePrintPool();
             else
                 path = world.unitMovement.movementSystem.GetFromChevronPool();
@@ -2099,7 +2124,7 @@ public class Unit : MonoBehaviour
     private void DequeuePath()
     {
         GameObject path = pathQueue.Dequeue();
-        if (isWorker)
+        if (isPlayer)
         {
             world.unitMovement.movementSystem.AddToShoePrintPool(path);
         }

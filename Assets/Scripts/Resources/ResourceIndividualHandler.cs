@@ -34,8 +34,6 @@ public class ResourceIndividualHandler : MonoBehaviour
 
 		if (clearForest)
         {
-            world.GetTerrainDataAt(pos).beingCleared = true;
-			GameLoader.Instance.gameData.allTerrain[pos].beingCleared = true;
 			//timePassed = worker.clearingForestTime;
 			worker.ShowProgressTimeBar(worker.clearingForestTime);
 		}
@@ -45,8 +43,12 @@ public class ResourceIndividualHandler : MonoBehaviour
             worker.ShowProgressTimeBar(resourceIndividual.ResourceGatheringTime);
         }
 
-        worker.SetWorkAnimation(true);
-        worker.SetTime(timePassed);
+        if (clearForest)
+            worker.SetWorkAnimation(true);
+        else
+			worker.SetGatherAnimation(true);
+
+		worker.SetTime(timePassed);
 
         while (timePassed > 0)
         {
@@ -57,18 +59,24 @@ public class ResourceIndividualHandler : MonoBehaviour
 
         workerTaskManager.taskCoroutine = null;
         worker.HideProgressTimeBar();
-        worker.SetWorkAnimation(false);
-        if (worker.isSelected)
+        if (clearForest)
+            worker.SetWorkAnimation(false);
+        else
+			worker.SetGatherAnimation(false);
+
+		if (world.mainPlayer.isSelected)
             workerTaskManager.TurnOffCancelTask();
 
         if (clearForest)
         {
             worker.clearingForest = false;
+            //otherWorker.clearingForest = false;
             TerrainData td = world.GetTerrainDataAt(pos);
             td.beingCleared = false;
             td.ShowProp(false);
             //Destroy(td.treeHandler.gameObject);
 			worker.marker.ToggleVisibility(false);
+            //otherWorker.marker.ToggleVisibility(false);
             TerrainDataSO tempData;
 
 			if (td.isHill)
@@ -81,23 +89,48 @@ public class ResourceIndividualHandler : MonoBehaviour
             }
 
             td.SetNewData(tempData);
+			GameLoader.Instance.gameData.allTerrain[pos].beingCleared = false;
             GameLoader.Instance.gameData.allTerrain[pos] = td.SaveData();
-            city.UpdateCityBools(ResourceType.Lumber);
+
+            if (!world.mainPlayer.buildingCity)
+    			city.UpdateCityBools(ResourceType.Lumber);
 		}
+        //else
+        //{
+        //    if (otherWorker.isMoving)
+        //    {
+        //        otherWorker.WorkerOrdersPreparations();
+        //    }
+        //    else
+        //    {
+        //        otherWorker.SetGatherAnimation(false);
+        //    }
+        //}
 
         //showing harvested resource
         worker.gathering = false;
-        worker.harvested = true;
-        worker.harvestedForest = clearForest;
-        unitPos.y += 1.5f;
-        GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
-        GameLoader.Instance.textList.Add(resourceGO);
-        Resource resource = resourceGO.GetComponent<Resource>();
-        resource.SetSprites(resourceIndividual.resourceIcon);
-        resource.SetInfo(worker, city, resourceIndividual, clearForest);
-        Vector3 localScale = resourceGO.transform.localScale;
-        resourceGO.transform.localScale = Vector3.zero;
-        LeanTween.scale(resourceGO, localScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+        //otherWorker.gathering = false;
+
+        if (world.mainPlayer.buildingCity)
+        {
+            worker.clearedForest = true; 
+            world.RemoveWorkerWorkLocation(pos);
+            workerTaskManager.BuildCityPrep();
+        }
+        else
+        {
+            worker.harvested = true;
+            worker.harvestedForest = clearForest;
+            unitPos.y += 1.5f;
+            GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+            GameLoader.Instance.textList.Add(resourceGO);
+            Resource resource = resourceGO.GetComponent<Resource>();
+            resource.SetSprites(resourceIndividual.resourceIcon);
+            resource.SetInfo(worker, city, resourceIndividual, clearForest);
+            Vector3 localScale = resourceGO.transform.localScale;
+            resourceGO.transform.localScale = Vector3.zero;
+            LeanTween.scale(resourceGO, localScale, 0.25f).setEase(LeanTweenType.easeOutBack);
+        }
     }
 
     public void LoadHarvestedResource(Vector3 unitPos, ResourceIndividualSO resourceIndividual, City city, Worker worker, bool clearForest)

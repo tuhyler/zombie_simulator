@@ -19,6 +19,7 @@ public class GameData
     public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new(), goldCityWaitList = new(), goldCityRouteWaitList = new(), goldWonderWaitList = new(), goldTradeCenterWaitList = new();
     public string tutorialStep;
     public Dictionary<string, (bool, bool)> conversationTaskDict = new();
+    public bool scottFollow;
 
 	public Vector3 camPosition;
     public Quaternion camRotation;
@@ -34,7 +35,7 @@ public class GameData
     public List<TraderData> allTraders = new();
     public List<LaborerData> allLaborers = new();
 
-    public WorkerData playerUnit;
+    public WorkerData playerUnit, scott;
     public Dictionary<Vector3Int, TerrainSaveData> allTerrain = new();
     public Dictionary<Vector3Int, TradeCenterData> allTradeCenters = new();
     public List<WonderData> allWonders = new();

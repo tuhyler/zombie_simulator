@@ -23,9 +23,10 @@ public class UILaborAssignment : MonoBehaviour
     public GameObject showPrioritiesButton;
 
     [SerializeField] //for tweening
-    private RectTransform allContents;
+    public RectTransform allContents;
     private bool activeStatus;
-    private Vector3 originalLoc;
+    [HideInInspector]
+    public Vector3 originalLoc;
 
 
     private void Awake()
@@ -77,6 +78,17 @@ public class UILaborAssignment : MonoBehaviour
     {
         PrepareLaborChangeOptions(city.cityPop, placesToWork, city.AutoAssignLabor);
     }
+
+    public UILaborAssignmentOptions GetLaborButton(int change)
+    {
+		foreach (UILaborAssignmentOptions option in laborOptions)
+		{
+            if (option.LaborChange == change)
+                return option;
+		}
+
+        return laborOptions[0];
+	}
 
     public void ToggleInteractable(bool v)
     {

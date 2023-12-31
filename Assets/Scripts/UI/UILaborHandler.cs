@@ -131,7 +131,7 @@ public class UILaborHandler : MonoBehaviour
         }
         else
         {
-            uiCityLaborCostPanel.SetConsumedResourcesInfo(city.ResourceManager.ResourceConsumedPerMinuteDict);
+            uiCityLaborCostPanel.SetConsumedResourcesInfo(city.ResourceManager.resourceConsumedPerMinuteDict);
             uiCityLaborCostPanel.ToggleVisibility(true, uiCityLaborCostPanel.isOpen);
         }
     }

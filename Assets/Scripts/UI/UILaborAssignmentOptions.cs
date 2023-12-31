@@ -21,6 +21,8 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
     private Color originalButtonColor;
 
     private bool isSelected, buttonIsWorking = true;
+    [HideInInspector]
+    public bool isFlashing;
 
     private void Awake()
     {
@@ -105,6 +107,9 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
                 }
 
                 buttonImage.color = colorToChange;
+
+                if (isFlashing)
+                    cityBuilderManager.world.ButtonFlashCheck();
             }
         }
         else

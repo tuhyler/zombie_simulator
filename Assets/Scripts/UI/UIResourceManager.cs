@@ -21,8 +21,9 @@ public class UIResourceManager : MonoBehaviour
     private Sprite originalDown;
 
     [SerializeField] //for tweening
-    private RectTransform allContents;
-    private Vector3 originalLoc, overflowOriginalLoc;
+    public RectTransform allContents;
+    [HideInInspector]
+    public Vector3 originalLoc, overflowOriginalLoc;
     private bool activeStatus, overflowActiveStatus;
 
     //city info

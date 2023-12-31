@@ -5314,6 +5314,7 @@ MonoBehaviour:
   isQueueing: 0
   allContents: {fileID: 4664273602164976609}
   activeStatus: 0
+  isFlashing: 0
 --- !u!1 &7403211757831950921
 GameObject:
   m_ObjectHideFlags: 0
@@ -18010,6 +18011,11 @@ PrefabInstance:
         type: 3}
       propertyPath: arrows.Array.size
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6667539506839467678, guid: e36c20cbbf6b9c7459ad6de29b7d185c,
+        type: 3}
+      propertyPath: totalResearchNeeded
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6667539506839467678, guid: e36c20cbbf6b9c7459ad6de29b7d185c,
         type: 3}

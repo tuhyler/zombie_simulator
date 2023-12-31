@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEditor.PlayerSettings;
 
 public class Worker : Unit
 {
@@ -18,14 +19,12 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool removing, gathering, clearingForest, buildingCity, working;
+    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest;
     public int clearingForestTime = 1;
     public int clearedForestlumberAmount = 100;
 
     //animations
-    private int isWorkingHash;
-    private int isFallingHash;
-    private int isDizzyHash;
+    private int isWorkingHash, isGatheringHash, isFallingHash, isDizzyHash;
 
     //dialogue stats
 
@@ -39,9 +38,10 @@ public class Worker : Unit
     {
         AwakeMethods();
         isWorkingHash = Animator.StringToHash("isWorking");
+        isGatheringHash = Animator.StringToHash("isGathering");
         isFallingHash = Animator.StringToHash("isFalling");
         isDizzyHash = Animator.StringToHash("isDizzy");
-        isWorker = true;
+        //isWorker = true;
         workerTaskManager = FindObjectOfType<WorkerTaskManager>();
         //resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
         //timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
@@ -136,12 +136,44 @@ public class Worker : Unit
         }
     }
 
+    public void SetGatherAnimation(bool v)
+    {
+        unitAnimator.SetBool(isGatheringHash, v);
+
+        if (v)
+        {
+            working = true;
+            workingCo = StartCoroutine(PlayGatherSound());
+        }
+        else
+        {
+            if (workingCo != null)
+                StopCoroutine(workingCo);
+
+            working = false;
+            workingCo = null;
+        }
+    }
+
     private IEnumerator PlayWorkSound()
     {
         while (working)
         {
             yield return workingWait;
         
+            audioSource.clip = attacks[Random.Range(0, attacks.Length)];
+            audioSource.Play();
+
+            yield return workingWait;
+        }
+    }
+
+    private IEnumerator PlayGatherSound()
+    {
+        while (working)
+        {
+            yield return workingWait;
+
             audioSource.clip = attacks[Random.Range(0, attacks.Length)];
             audioSource.Play();
 
@@ -218,6 +250,8 @@ public class Worker : Unit
         //Vector3 workerPos = transform.position;
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(BuildRoad);
+        FinishedMoving.RemoveListener(RemoveRoad);
+        FinishedMoving.RemoveListener(GatherResourceListener);
 
         //if (world.IsRoadOnTerrain(workerTile))
         //{
@@ -245,8 +279,9 @@ public class Worker : Unit
         }
         else
         {
-            isBusy = false;
-            if (isSelected)
+            //isBusy = false;
+            world.mainPlayer.isBusy = false;
+            if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
     }
@@ -274,7 +309,7 @@ public class Worker : Unit
         {
             isBusy = false;
 
-            if (isSelected)
+            if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
     }
@@ -301,8 +336,8 @@ public class Worker : Unit
         }
         else
         {
-            isBusy = false;
-            if (isSelected)
+			world.mainPlayer.isBusy = false;
+            if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
     }
@@ -331,10 +366,10 @@ public class Worker : Unit
         }
         else
         {
-            isBusy = false;
+			world.mainPlayer.isBusy = false;
             StopMovement();
 
-            if (isSelected)
+            if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
     }
@@ -349,7 +384,7 @@ public class Worker : Unit
         FinishedMoving.RemoveListener(BuildRoad);
         //Vector3 workerPos = transform.position;
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
-        if (isSelected)
+        if (world.mainPlayer.isSelected)
             world.GetTerrainDataAt(workerTile).DisableHighlight();
         workerTaskManager.BuildRoad(workerTile, this);
     }
@@ -363,8 +398,8 @@ public class Worker : Unit
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(RemoveRoad);
 
-        TerrainData td = world.GetTerrainDataAt(workerTile);
-        td.DisableHighlight();
+        if (world.mainPlayer.isSelected)
+            world.GetTerrainDataAt(workerTile).DisableHighlight();
         //bool isHill = td.terrainData.isHill;
         foreach (Road road in world.GetAllRoadsOnTile(workerTile))
         {
@@ -393,7 +428,10 @@ public class Worker : Unit
 
     public void GatherResource()
     {
-        Vector3 workerPos = transform.position;
+		if (world.unitMovement.moveUnit)
+			world.unitMovement.CancelMove();
+
+		Vector3 workerPos = transform.position;
         workerPos.y = 0;
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
 
@@ -421,6 +459,8 @@ public class Worker : Unit
 
         //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
         StopMovement();
+        if (world.scottFollow)
+            PrepareScottGather();
         //unitAnimator.SetBool(isWorkingHash, true);
         isBusy = true;
         //resourceIndividualHandler.SetWorker(this);
@@ -430,6 +470,9 @@ public class Worker : Unit
 
     public void ClearForest()
     {
+		if (world.unitMovement.moveUnit)
+			world.unitMovement.CancelMove();
+
 		Vector3 workerPos = transform.position;
 		workerPos.y = 0;
 		Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
@@ -452,20 +495,54 @@ public class Worker : Unit
 			return;
 		}
 
-        clearingForest = true;
-		City city = world.GetCity(resourceCityLoc);
+        //clearingForest = true;
+		//City city = world.GetCity(resourceCityLoc);
 		ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
 
 		StopMovement();
-        SetWorkAnimation(true);
+        PrepareScottForestClear(resourceIndividual);
+		world.GetTerrainDataAt(workerTile).beingCleared = true;
+		GameLoader.Instance.gameData.allTerrain[workerTile].beingCleared = true;
+
+		//SetWorkAnimation(true);
 		isBusy = true;
-		workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual, true);
+		//workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual, true);
 	}
 
     public void RemoveWorkLocation()
     {
-        world.RemoveWorkerWorkLocation(world.RoundToInt(transform.position));
+        world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(transform.position));
     }
+
+    public void GatherResourceListener()
+    {
+		FinishedMoving.RemoveListener(GatherResourceListener);
+
+		Vector3Int workerTile = world.RoundToInt(transform.position);
+		ResourceIndividualSO resourceData = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
+
+		City city = world.mainPlayer.buildingCity ? null : world.GetCity(resourceCityLoc);
+
+		workerTaskManager.GatherResource(workerTile, this, city, resourceData, clearingForest);
+		//if (clearingForest)
+  //      {
+  //          Vector3Int workerTile = world.RoundToInt(transform.position);
+		//    ResourceIndividualSO resourceData = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
+
+  //          City city = world.mainPlayer.buildingCity ? null : world.GetCity(resourceCityLoc);
+
+		//    workerTaskManager.GatherResource(workerTile, this, city, resourceData, true);
+  //      }
+  //      else
+  //      {
+		//	Vector3Int workerTile = world.RoundToInt(transform.position);
+		//	ResourceIndividualSO resourceData = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
+
+		//	City city = world.mainPlayer.buildingCity ? null : world.GetCity(resourceCityLoc);
+
+		//	workerTaskManager.GatherResource(workerTile, this, city, resourceData, false);
+		//}
+	}
 
     public void BuildCity()
     {
@@ -527,6 +604,79 @@ public class Worker : Unit
         uiTimeProgressBar.SetTime(time);
     }
 
+    public void PrepareScottGather()
+    {
+		Vector3Int currentTerrain = world.GetClosestTerrainLoc(transform.position);
+		Vector3Int currentSpot = CurrentLocation;
+		Vector3Int scottSpot = world.RoundToInt(world.scott.transform.position);
+		Vector3Int workSpot = currentTerrain;
+		bool alreadyThere = false;
+		world.scott.resourceCityLoc = resourceCityLoc;
+        world.scott.gathering = true;
+
+		if (world.GetClosestTerrainLoc(scottSpot) == currentTerrain)
+		{
+			workSpot = scottSpot;
+			alreadyThere = true;
+		}
+
+		if (alreadyThere)
+		{
+            world.scott.GatherResourceListener();
+		}
+		else
+		{
+            List<Vector3Int> neighborList = world.GetNeighborsFor(currentTerrain, MapWorld.State.EIGHTWAY);
+
+            int dist = Mathf.Abs(scottSpot.x - workSpot.x) + Mathf.Abs(scottSpot.z - workSpot.z);
+            for (int i = 0; i < neighborList.Count; i++)
+            {
+                if (neighborList[i] == currentSpot)
+                    continue;
+
+                int newDist = Mathf.Abs(scottSpot.x - neighborList[i].x) + Mathf.Abs(scottSpot.z - neighborList[i].z);
+                if (newDist < dist)
+                {
+                    workSpot = neighborList[i];
+                    dist = newDist;
+                }
+            }
+
+			world.scott.FinishedMoving.AddListener(world.scott.GatherResourceListener);
+			world.unitMovement.GoStraightToSelectedLocation(workSpot, workSpot, world.scott);
+		}
+	}
+
+    public void PrepareScottForestClear(ResourceIndividualSO resourceData = null)
+    {
+        Vector3Int currentTerrain = world.GetClosestTerrainLoc(transform.position);
+        Vector3Int currentSpot = CurrentLocation;
+        Vector3Int scottSpot = world.RoundToInt(world.scott.transform.position);
+        Vector3Int workSpot = currentTerrain;
+        bool alreadyThere = false;
+        world.scott.clearingForest = true;
+        world.scott.resourceCityLoc = resourceCityLoc;
+
+        if (scottSpot == currentTerrain)
+        {
+            workSpot = scottSpot;
+            alreadyThere = true;
+        }
+
+        if (alreadyThere)
+        {
+            world.scott.GatherResourceListener();
+        }
+        else
+        {
+            if (currentSpot == workSpot)
+                FindNewSpot(currentSpot, null);
+
+            world.scott.FinishedMoving.AddListener(world.scott.GatherResourceListener);
+            world.unitMovement.GoStraightToSelectedLocation(workSpot, workSpot, world.scott);
+        }
+    }
+
     public WorkerData SaveWorkerData()
     {
         WorkerData data = new();
@@ -538,6 +688,8 @@ public class Worker : Unit
 		data.destinationLoc = destinationLoc;
 		data.finalDestinationLoc = finalDestinationLoc;
 		data.currentLocation = CurrentLocation;
+        data.prevTile = prevTile;
+        data.resourceCityLoc = resourceCityLoc;
 		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
@@ -546,8 +698,11 @@ public class Worker : Unit
         data.conversationTopic = conversationTopic;
         data.isBusy = isBusy;
         data.removing = removing;
+        data.building = building;
         data.gathering = gathering;
         data.clearingForest = clearingForest;
+        data.clearedForest = clearedForest;
+        data.firstStep = firstStep;
         data.buildingCity = buildingCity;
         data.harvested = harvested;
         data.harvestedForest = harvestedForest;
@@ -581,13 +736,18 @@ public class Worker : Unit
 		destinationLoc = data.destinationLoc;
 		finalDestinationLoc = data.finalDestinationLoc;
 		CurrentLocation = data.currentLocation;
+        prevTile = data.prevTile;
+        resourceCityLoc = data.resourceCityLoc;
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
         isBusy = data.isBusy;
 		moreToMove = data.moreToMove;
+        building = data.building;
 		removing = data.removing;
         gathering = data.gathering;
         clearingForest = data.clearingForest;
+        clearedForest = data.clearedForest;
+        firstStep = data.firstStep;
         buildingCity = data.buildingCity;
         harvested = data.harvested;
         harvestedForest = data.harvestedForest;
@@ -609,16 +769,26 @@ public class Worker : Unit
 
 			MoveThroughPath(data.moveOrders);
 
-            if (isBusy)
+            if (removing)
             {
-                if (removing)
-                {
-                    FinishedMoving.AddListener(RemoveRoad);
-                }
-                else
-                {
-                    FinishedMoving.AddListener(BuildRoad);
-                }
+                FinishedMoving.AddListener(RemoveRoad);
+            }
+            else if (building)
+            {
+                FinishedMoving.AddListener(BuildRoad);
+            }
+            else if (clearingForest)
+            {
+                FinishedMoving.AddListener(GatherResourceListener);
+            }
+            else if (buildingCity)
+            {
+				if (!world.scott.clearingForest)
+					FinishedMoving.AddListener(BuildCity);
+            }
+            else if (gathering)
+            {
+                FinishedMoving.AddListener(GatherResourceListener);
             }
 		}
         else if (harvested)
@@ -645,44 +815,42 @@ public class Worker : Unit
 
 			workerTaskManager.resourceIndividualHandler.LoadHarvestedResource(workerPos, ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType), city, this, harvestedForest);
         }
-        else if (isBusy)
+        else if (building)
         {
-			if (removing)
-			{
-				workerTaskManager.LoadRemoveRoadCoroutine(data.timePassed, CurrentLocation, this);
-			}
-			else if (gathering || clearingForest)
-			{
-                //geting resource info
-				Vector3 workerPos = transform.position;
-				workerPos.y = 0;
-				Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
+            workerTaskManager.LoadRoadBuildCoroutine(data.timePassed, CurrentLocation, this);
+        }
+        else if (removing)
+        {
+			workerTaskManager.LoadRemoveRoadCoroutine(data.timePassed, CurrentLocation, this);
+        }
+        else if (gathering || clearingForest)
+        {
+            //geting resource info
+			Vector3 workerPos = transform.position;
+			workerPos.y = 0;
+			Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
 
-                //getting city
-                City city = null;
-				foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
+            //getting city
+            City city = null;
+			foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
+			{
+				if (!world.IsCityOnTile(tile))
 				{
-					if (!world.IsCityOnTile(tile))
-					{
-						continue;
-					}
-					else
-					{
-						city = world.GetCity(tile);
-                        break;
-					}
+					continue;
 				}
+				else
+				{
+					city = world.GetCity(tile);
+                    break;
+				}
+			}
 
-    			workerTaskManager.LoadGatherResourceCoroutine(data.timePassed, workerPos, this, city, ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType), clearingForest);
-			}
-			else if (buildingCity)
-			{
+    		workerTaskManager.LoadGatherResourceCoroutine(data.timePassed, workerPos, this, city, ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType), clearingForest);
+        }
+        else if (buildingCity)
+        {
+            if (!world.scott.clearingForest)
                 workerTaskManager.LoadBuildCityCoroutine(data.timePassed, CurrentLocation, this);	
-			}
-			else
-			{
-                workerTaskManager.LoadRoadBuildCoroutine(data.timePassed, CurrentLocation, this);
-			}
-		}
+        }
 	}
 }
