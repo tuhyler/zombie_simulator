@@ -677,6 +677,15 @@ public class Unit : MonoBehaviour
 
     }
 
+    public void AttackCheck()
+    {
+        if (attackCo != null)
+        {
+            StopCoroutine(attackCo);
+            attackCo = null;
+        }
+    }
+
     public void ShiftMovement()
     {
         StopAllCoroutines();

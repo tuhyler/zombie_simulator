@@ -42,8 +42,7 @@ public class UIResearchReward : MonoBehaviour
                 if (produces[i].resourceType == ResourceType.None)
                     continue;
                 
-                if (!ResourceHolder.Instance.GetDiscovered(produces[i].resourceType))
-					resourcesUnlocked.Add(produces[i].resourceType);
+				resourcesUnlocked.Add(produces[i].resourceType);
 			}
 		}
 		else if (unitData != null)

@@ -242,7 +242,8 @@ public class MapWorld : MonoBehaviour
 
     //handling discovering resources
     List<UIResourceSelectionGrid> resourceSelectionGridList = new();
-    List<ResourceType> resourceDiscoveredList = new();
+    [HideInInspector]
+    public List<ResourceType> resourceDiscoveredList = new();
 
     [HideInInspector]
     public GamePersist gamePersist = new();
@@ -3260,6 +3261,30 @@ public class MapWorld : MonoBehaviour
         uiWorldResources.SetResearchBackground(complete);
     }
 
+    public bool ResourceCheck(ResourceType type)
+    {
+        return resourceDiscoveredList.Contains(type);
+    }
+
+    public void LoadDiscoveredResources()
+    {
+        for (int i = 0; i < resourceDiscoveredList.Count; i++)
+        {
+            UpdateResourceSelectionGrids(resourceDiscoveredList[i]);
+            cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(resourceDiscoveredList[i]);
+		}
+    }
+
+    public void DiscoverResource(ResourceType type)
+    {
+        AddToDiscoverList(type);
+        UpdateResourceSelectionGrids(type);
+		cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(type);
+
+		foreach (City city in cityDict.Values)
+			city.ResourceManager.UpdateDicts(type);
+	}
+
     //updating builder handlers if one is selected
     public void BuilderHandlerCheck()
     {
@@ -3630,13 +3655,17 @@ public class MapWorld : MonoBehaviour
         resourceSelectionGridList.Add(selectionGrid);
     }
 
-    public void UpdateResourceSelectionGrids(ResourceType type)
+    public void AddToDiscoverList(ResourceType type)
     {
         if (resourceDiscoveredList.Contains(type))
             return;
 
         resourceDiscoveredList.Add(type);
+        GameLoader.Instance.gameData.resourceDiscoveredList.Add(type);
+    }
 
+    public void UpdateResourceSelectionGrids(ResourceType type)
+    {
         for (int i = 0; i < resourceSelectionGridList.Count; i++)
         {
             resourceSelectionGridList[i].DiscoverResource(type);

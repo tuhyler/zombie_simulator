@@ -1,9 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+using System;
 
 public class UIMarketPlaceManager : MonoBehaviour
 {
+    [SerializeField]
+    private MapWorld world;
+    
     [SerializeField]
     private GameObject uiMarketResourcePanel;
 
@@ -42,8 +47,8 @@ public class UIMarketPlaceManager : MonoBehaviour
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
-			if (resource.resourceType == ResourceType.None || !resource.isDiscovered)
-				continue;
+            if (!world.ResourceCheck(resource.resourceType))
+                continue;
 
             CreateMarketResourcePanel(resource);
 
@@ -68,6 +73,9 @@ public class UIMarketPlaceManager : MonoBehaviour
             SetResourceData();
 
             activeStatus = true;
+
+            SortAmounts(false);
+            SortSell(true);
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1200f, 0);
 
@@ -94,9 +102,9 @@ public class UIMarketPlaceManager : MonoBehaviour
 		marketResource.SetMarketPlaceManager(this);
 		marketResource.cityPrice.text = resource.resourcePrice.ToString();
 		marketResource.price = resource.resourcePrice;
+        marketResource.sell = resource.sellInitially;
 		marketResource.resourceImage.sprite = resource.resourceIcon;
-		marketResource.resourceName = resource.resourceName;
-		marketResource.resourceType = resource.resourceType;
+        marketResource.SetResourceType(resource.resourceType, resource.resourceName);
 		resourceNames.Add(resource.resourceName);
 
 		marketResourceList.Add(marketResource);
@@ -235,23 +243,13 @@ public class UIMarketPlaceManager : MonoBehaviour
     {
         //reorder on UI
         if (up) //ascending
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                int index = resourceNames.IndexOf(marketResourceList[i].resourceName);
-                marketResourceList[i].transform.SetSiblingIndex(index);
-            }
-        }
+            marketResourceList = marketResourceList.OrderBy(m => m.resourceName).ToList();
         else //descending
-        {
-            int listCount = marketResourceList.Count - 1;
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                int index = listCount - resourceNames.IndexOf(marketResourceList[i].resourceName);
-                marketResourceList[i].transform.SetSiblingIndex(index);
-            }
-        }
-    }
+            marketResourceList = marketResourceList.OrderByDescending(m => m.resourceName).ToList();
+
+		for (int i = 0; i < marketResourceList.Count; i++)
+			marketResourceList[i].transform.SetSiblingIndex(i);
+	}
 
     public void SortPrices()
     {
@@ -356,9 +354,7 @@ public class UIMarketPlaceManager : MonoBehaviour
 
         //reorder on UI
         for (int i = 0; i < marketResourceList.Count; i++)
-        {
             marketResourceList[i].transform.SetSiblingIndex(i);
-        }
     }
 
     public void SortTotals()

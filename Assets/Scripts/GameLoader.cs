@@ -191,6 +191,8 @@ public class GameLoader : MonoBehaviour
 		gameData = gamePersist.LoadData(saveName, false);
 
 		world.GenerateMap(gameData.allTerrain);
+		world.resourceDiscoveredList = gameData.resourceDiscoveredList;
+		world.LoadDiscoveredResources();
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(20);

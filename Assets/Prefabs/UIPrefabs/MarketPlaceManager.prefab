@@ -67,7 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Total Sold
+  m_text: Sold
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -260,7 +260,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 709857217795216528}
         m_TargetAssemblyTypeName: UIMarketPlaceManager, Assembly-CSharp
-        m_MethodName: SortAmounts
+        m_MethodName: SortTotals
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -420,7 +420,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: City Price
+  m_text: Price
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -1017,7 +1017,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: City Amount
+  m_text: Amount
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -1511,7 +1511,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 709857217795216528}
         m_TargetAssemblyTypeName: UIMarketPlaceManager, Assembly-CSharp
-        m_MethodName: SortTotals
+        m_MethodName: SortSell
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1880,6 +1880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff8a40965b7c93149a57b08ef68437a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  world: {fileID: 0}
   uiMarketResourcePanel: {fileID: 7389737143294441261, guid: 2d7a7fdef7d5e1f4f892efd0654cd4b3,
     type: 3}
   resourceHolder: {fileID: 3830806380567685439}

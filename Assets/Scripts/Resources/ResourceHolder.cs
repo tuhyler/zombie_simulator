@@ -60,13 +60,13 @@ public class ResourceHolder : MonoBehaviour
         return resourceDict[resourceType].rocksType;
     }
 
-    public bool GetDiscovered(ResourceType resourceType)
-    {
-        return resourceDict[resourceType].isDiscovered;
-    }
-
     public int GetPrice(ResourceType resourceType)
     {
         return resourceDict[resourceType].resourcePrice;
+    }
+
+    public bool GetSell(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].sellInitially;
     }
 }

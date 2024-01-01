@@ -492,6 +492,9 @@ public class TerrainData : MonoBehaviour
         if (hasResourceMap)
 			world.ToggleResourceIcon(tileCoordinates, true);
 
+        if (resourceType != ResourceType.None && !world.ResourceCheck(resourceType))
+            world.DiscoverResource(resourceType);
+
 		for (int i = 0; i < whiteMesh.Count; i++)
             whiteMesh[i].material = materials[i];
 
@@ -546,6 +549,9 @@ public class TerrainData : MonoBehaviour
 
         if (hasResourceMap)
 			world.ToggleResourceIcon(tileCoordinates, true);
+
+        if (resourceType != ResourceType.None && !world.ResourceCheck(resourceType))
+            world.DiscoverResource(resourceType);
         
 		fog.SetActive(false);
         fogNonStatic.gameObject.SetActive(true);

@@ -92,7 +92,7 @@ public class ResourceManager : MonoBehaviour
         {
             ResourceType type = resourceData.resourceType;
             
-            if (type == ResourceType.None || !resourceData.isDiscovered)
+            if (!city.world.ResourceCheck(type))
                 continue;
             resourceDict[type] = 0;
             resourceGenerationPerMinuteDict[type] = 0;
@@ -100,14 +100,12 @@ public class ResourceManager : MonoBehaviour
             if (type != ResourceType.Research)
             {
                 resourceConsumedPerMinuteDict[type] = 0;
-                resourceSellDict[type] = false;
+                resourceSellDict[type] = ResourceHolder.Instance.GetSell(type);
                 resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
                 resourceMinHoldDict[type] = 0;
                 resourceSellHistoryDict[type] = 0;
             }
         }
-
-        resourceSellDict[ResourceType.Food] = true; //default to sell food
     }
 
     public void UpdateDicts(ResourceType type)
@@ -115,7 +113,7 @@ public class ResourceManager : MonoBehaviour
 		resourceDict[type] = 0;
 		resourceGenerationPerMinuteDict[type] = 0;
 		resourceConsumedPerMinuteDict[type] = 0;
-        resourceSellDict[type] = false;
+        resourceSellDict[type] = ResourceHolder.Instance.GetSell(type);
         resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
         resourceMinHoldDict[type] = 0;
         resourceSellHistoryDict[type] = 0;

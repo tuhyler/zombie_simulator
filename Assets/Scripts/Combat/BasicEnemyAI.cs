@@ -538,10 +538,9 @@ public class BasicEnemyAI : MonoBehaviour
     {
 		if (unit.isDead)
 			return;
-		
+
 		//unit.StopAttacking();
-		if (unit.attackCo != null)
-			StopCoroutine(unit.attackCo);
+		unit.AttackCheck();
 
 		unit.attackCo = null;
 		unit.inBattle = false;

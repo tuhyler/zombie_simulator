@@ -29,9 +29,15 @@ public class UIMarketResourcePanel : MonoBehaviour
     [SerializeField]
     private TMP_Text minimumAmountText;
 
+    private UITooltipTrigger tooltipTrigger;
     private UIMarketPlaceManager uiMarketPlaceManager;
 
-    private void Start()
+	private void Awake()
+	{
+        tooltipTrigger = GetComponentInChildren<UITooltipTrigger>();
+	}
+
+	private void Start()
     {
         minimumAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
     }
@@ -39,6 +45,17 @@ public class UIMarketResourcePanel : MonoBehaviour
     public void SetMarketPlaceManager(UIMarketPlaceManager uiMarketPlaceManager)
     {
         this.uiMarketPlaceManager = uiMarketPlaceManager;
+    }
+
+    public void SetResourceType(ResourceType type, string resourceName)
+    {
+        resourceType = type;
+        this.resourceName = resourceName;
+
+        if (tooltipTrigger == null)
+            tooltipTrigger = GetComponentInChildren<UITooltipTrigger>();
+
+        tooltipTrigger.SetMessage(resourceName);
     }
 
     public void UpdateSellBool()
