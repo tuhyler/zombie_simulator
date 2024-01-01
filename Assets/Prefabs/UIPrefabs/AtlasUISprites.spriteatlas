@@ -113,6 +113,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}
   - {fileID: 21300000, guid: b67b48c5c655dc643b59828ac6baf045, type: 3}
   - {fileID: 21300000, guid: fca792e573b32a946905b4d202c05d2e, type: 3}
+  - {fileID: 21300000, guid: f5e075e59f3420849871d6ed5a0272e3, type: 3}
   - {fileID: 21300000, guid: 9c52020632a20ad4eb556cc99be045c6, type: 3}
   - {fileID: 21300000, guid: e3b4b50630dddd9428eecb1ddf817391, type: 3}
   - {fileID: 21300000, guid: cc6925168b2cb764491ba2949a5737ba, type: 3}
@@ -298,6 +299,7 @@ SpriteAtlas:
   - button_harbor
   - laborIconMany
   - arrow_researchdown
+  - arrow_bluegold
   - scrollbar_blue02
   - panel_goldlong
   - bar_progressredgreen

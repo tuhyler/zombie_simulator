@@ -26,3 +26,4 @@ MonoBehaviour:
   requirement: Mine/Quarry
   uvCoordinatesForRocks: {x: 0.013986, y: 0.997646}
   forVisual: 0
+  sellInitially: 1

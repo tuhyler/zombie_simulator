@@ -19,6 +19,7 @@ public class UIResourceSelectionGrid : MonoBehaviour
     public bool activeStatus;
     private IResourceGridUser resourceGridUser;
     private Dictionary<ResourceType, GameObject> resourceGODict = new();
+    private List<ResourceType> resourceExluded = new();
 
     //private UITradeResourceTask resourceTask;
     //private UILaborResourcePriority laborResourcePriority;
@@ -32,7 +33,10 @@ public class UIResourceSelectionGrid : MonoBehaviour
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
         {
             if (resource.forVisual)
+            {
+                resourceExluded.Add(resource.resourceType);
                 continue;
+            }
 
             GameObject resourceGO = Instantiate(resourceSquare);
             resourceGODict[resource.resourceType] = resourceGO;
@@ -41,9 +45,6 @@ public class UIResourceSelectionGrid : MonoBehaviour
             uiResourceSquare.SetInfo(resource.resourceType, resource.resourceName);
             uiResourceSquare.SetGrid(this);
             uiResourceSquare.resourceIcon.sprite = resource.resourceIcon;
-
-            if (!resource.isDiscovered)
-                resourceGO.SetActive(false);
         }
 
         int childMax = 0;
@@ -200,7 +201,10 @@ public class UIResourceSelectionGrid : MonoBehaviour
 
     public void DiscoverResource(ResourceType type)
     {
-        resourceGODict[type].SetActive(true);
+		if (resourceExluded.Contains(type))
+			return;
+
+		resourceGODict[type].SetActive(true);
     }
     
     private void PositionCheck()
