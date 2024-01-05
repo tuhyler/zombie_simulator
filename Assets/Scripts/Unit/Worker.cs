@@ -175,12 +175,12 @@ public class Worker : Unit
     {
         while (working)
         {
-            yield return workingWait;
+            yield return new WaitForSeconds(0.45f);
 
             audioSource.clip = gatheringClips[Random.Range(0, attacks.Length)];
             audioSource.Play();
 
-            yield return workingWait;
+            yield return new WaitForSeconds(0.45f);
         }
     }
 

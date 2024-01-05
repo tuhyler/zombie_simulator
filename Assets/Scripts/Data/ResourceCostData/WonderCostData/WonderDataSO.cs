@@ -21,7 +21,6 @@ public class WonderDataSO : ScriptableObject
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceProp = true; //replace terrain prop when building upon it
     public int buildTimePerPercent = 10;
-    public bool locked = true;
     public bool isSea = false;
     public UnitBuildDataSO workerData;
 }

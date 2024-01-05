@@ -13,7 +13,7 @@ public class ResourceManager : MonoBehaviour
     private Dictionary<ResourceType, float> resourceGenerationPerMinuteDict = new(); //for resource generation stats
     public Dictionary<ResourceType, float> resourceConsumedPerMinuteDict = new(); //for resource consumption stats
     public Dictionary<ResourceType, int> resourcePriceDict = new();
-    public Dictionary<ResourceType, bool> resourceSellDict = new();
+    public List<ResourceType> resourceSellList = new();
     public Dictionary<ResourceType, int> resourceMinHoldDict = new();
     public Dictionary<ResourceType, int> resourceSellHistoryDict = new();
 
@@ -100,7 +100,8 @@ public class ResourceManager : MonoBehaviour
             if (type != ResourceType.Research)
             {
                 resourceConsumedPerMinuteDict[type] = 0;
-                resourceSellDict[type] = ResourceHolder.Instance.GetSell(type);
+                if (ResourceHolder.Instance.GetSell(type))
+                    resourceSellList.Add(type);
                 resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
                 resourceMinHoldDict[type] = 0;
                 resourceSellHistoryDict[type] = 0;
@@ -113,7 +114,8 @@ public class ResourceManager : MonoBehaviour
 		resourceDict[type] = 0;
 		resourceGenerationPerMinuteDict[type] = 0;
 		resourceConsumedPerMinuteDict[type] = 0;
-        resourceSellDict[type] = ResourceHolder.Instance.GetSell(type);
+        if (ResourceHolder.Instance.GetSell(type))
+            resourceSellList.Add(type);
         resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
         resourceMinHoldDict[type] = 0;
         resourceSellHistoryDict[type] = 0;
@@ -539,7 +541,7 @@ public class ResourceManager : MonoBehaviour
             city.world.cityBuilderManager.uiResourceManager.SetCityCurrentStorage(resourceStorageLevel);
 
             if (city.world.cityBuilderManager.uiMarketPlaceManager.activeStatus)
-                city.world.cityBuilderManager.uiMarketPlaceManager.UpdateMarketResourceNumbers(resourceType, resourcePriceDict[resourceType], resourceDict[resourceType], resourceSellHistoryDict[resourceType]);
+                city.world.cityBuilderManager.uiMarketPlaceManager.UpdateMarketResourceNumbers(resourceType, resourcePriceDict[resourceType], resourceDict[resourceType]/*, resourceSellHistoryDict[resourceType]*/);
         }
         else if (city.uiCityResourceInfoPanel) //in case it's open while trader is unloading during route
         {
@@ -564,30 +566,37 @@ public class ResourceManager : MonoBehaviour
     public int SellResources()
     {
         int goldAdded = 0;
-        int i = 0;
-        int length = Mathf.Max(resourceSellDict.Count,2);
+        int length = Mathf.Max(resourceSellList.Count,2);
 
-        foreach (ResourceType resourceType in resourceSellDict.Keys)
+        for (int i = 0; i < resourceSellList.Count; i++)
         {
-            if (resourceSellDict[resourceType])
-            {
-                int sellAmount = resourceDict[resourceType] - resourceMinHoldDict[resourceType];
-                if (sellAmount > 0)
-                {
-                    int goldGained = resourcePriceDict[resourceType] * sellAmount;
-                    goldAdded += goldGained;
-                    resourceSellHistoryDict[resourceType] += sellAmount;
-                    CheckResource(resourceType, -sellAmount);
+            ResourceIndividualSO data = ResourceHolder.Instance.GetData(resourceSellList[i]);
 
-                    Vector3 cityLoc = city.cityLoc;
-                    cityLoc.y += length * 0.4f;
-                    cityLoc.y += -0.4f * i;
-                    if (city.activeCity)
-                        InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(resourceType));
-                    i++;
-                }
-            }
-        }
+			if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
+			{
+                int totalDemand = data.resourceQuantityPerPop * city.cityPop.CurrentPop;
+                int demandDiff = resourceDict[data.resourceType] - totalDemand;
+                int sellAmount;
+
+                if (demandDiff < 0)
+                    sellAmount = resourceDict[data.resourceType];
+                else
+                    sellAmount = totalDemand;
+
+				goldAdded += resourcePriceDict[data.resourceType] * sellAmount;
+				resourceSellHistoryDict[data.resourceType] += sellAmount;
+				CheckResource(data.resourceType, -sellAmount);
+
+                SetNewPrice(data.resourceType, demandDiff, totalDemand, data.resourcePrice);
+
+				Vector3 cityLoc = city.cityLoc;
+				cityLoc.y += length * 0.4f;
+				cityLoc.y += -0.4f * i;
+				if (city.activeCity)
+					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType));
+				i++;
+			}
+		}
 
         if (goldAdded > 0)
         {
@@ -596,44 +605,82 @@ public class ResourceManager : MonoBehaviour
             InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
         }
 
-        SetPrices();
+        //SetPrices();
 
         return goldAdded;
     }
 
-    public void SetPrices()
+    //private void SetPrices()
+    //{
+    //    int currentPop = city.cityPop.CurrentPop;
+    //    float populationFactor = 0.2f; //ratio of how much a new pop increases prices
+    //    float cycleAttrition = 0.02f; //ratio of how many cycles to burn through resourceQuantityePerPop
+    //    float abundanceRatio = 0.5f; //how many purchases of resources by current pop to reduce the price in half. 
+
+    //    foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources)
+    //    {
+    //        ResourceType resourceType = resourceData.resourceType;
+    //        int resourceQuantityPerPop = resourceData.resourceQuantityPerPop;
+
+    //        if (currentPop > 0)
+    //        {
+    //            float priceByPop = (1 + (currentPop-1) * populationFactor);
+    //            float abundanceWithAttrition = resourceQuantityPerPop * cycleAttrition * cycleCount * currentPop;
+    //            float abundanceFactor = 1 - ((resourceSellHistoryDict[resourceType] - abundanceWithAttrition) / currentPop) * 1 / resourceQuantityPerPop * abundanceRatio;
+    //            resourcePriceDict[resourceType] = Mathf.Max((int)Math.Round(resourceData.resourcePrice * priceByPop * abundanceFactor, MidpointRounding.AwayFromZero),1);
+    //            //resourcePriceDict[resourceType] = Mathf.Max(Mathf.FloorToInt(resourceData.resourcePrice * priceByPop * abundanceFactor), 1);
+    //        }
+    //        else //no price if no one there to purchase
+    //        {
+    //            resourcePriceDict[resourceType] = 0;
+    //        }
+    //    }
+    //}
+
+    private void SetNewPrice(ResourceType type, int demandDiff, int originalDemand, int originalPrice)
     {
-        int currentPop = city.cityPop.CurrentPop;
-        float populationFactor = 0.2f; //ratio of how much a new pop increases prices
-        float cycleAttrition = 0.02f; //ratio of how many cycles to burn through resourceQuantityePerPop
-        float abundanceRatio = 0.5f; //how many purchases of resources by current pop to reduce the price in half. 
-
-        foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources)
+        float demandRatio = (float)demandDiff / originalDemand;
+        
+        if (demandDiff < 0)
         {
-            ResourceType resourceType = resourceData.resourceType;
-            int resourceQuantityPerPop = resourceData.resourceQuantityPerPop;
-
-            if (currentPop > 0)
+            if (demandRatio <= -0.5f)
             {
-                float priceByPop = (1 + (currentPop-1) * populationFactor);
-                float abundanceWithAttrition = resourceQuantityPerPop * cycleAttrition * cycleCount * currentPop;
-                float abundanceFactor = 1 - ((resourceSellHistoryDict[resourceType] - abundanceWithAttrition) / currentPop) * 1 / resourceQuantityPerPop * abundanceRatio;
-                resourcePriceDict[resourceType] = Mathf.Max((int)Math.Round(resourceData.resourcePrice * priceByPop * abundanceFactor, MidpointRounding.AwayFromZero),1);
-                //resourcePriceDict[resourceType] = Mathf.Max(Mathf.FloorToInt(resourceData.resourcePrice * priceByPop * abundanceFactor), 1);
+                resourcePriceDict[type] = originalPrice;
             }
-            else //no price if no one there to purchase
+            else if (demandRatio > -0.1f)
             {
-                resourcePriceDict[resourceType] = 0;
+				resourcePriceDict[type] *= Mathf.CeilToInt(resourcePriceDict[type] * 1.2f);
+			}
+            else if (demandRatio > -0.5f)
+            {
+                resourcePriceDict[type] *= Mathf.CeilToInt(resourcePriceDict[type] * 1.1f); 
             }
+        }
+        else
+        {
+            if (demandRatio < 3f)
+            {
+                resourcePriceDict[type] = originalPrice;
+            }
+            else if (demandRatio > 10)
+            {
+                int newPrice = Mathf.FloorToInt(resourcePriceDict[type] * .8f);
+				resourcePriceDict[type] = Mathf.Clamp(resourcePriceDict[type], 1, newPrice);
+			}
+            else if (demandRatio > 5)
+            {
+				int newPrice = Mathf.FloorToInt(resourcePriceDict[type] * .9f);
+				resourcePriceDict[type] = Mathf.Clamp(resourcePriceDict[type], 1, newPrice);
+			}
         }
     }
 
     //checking if enough food to grow
     public void CheckForPopGrowth()
     {
-        ResourceValue foodConsumed;
-        foodConsumed.resourceType = ResourceType.Food;
-        foodConsumed.resourceAmount = city.cityPop.CurrentPop * city.unitFoodConsumptionPerMinute;
+        //ResourceValue foodConsumed;
+        //foodConsumed.resourceType = ResourceType.Food;
+        //foodConsumed.resourceAmount = city.cityPop.CurrentPop * city.unitFoodConsumptionPerMinute;
 
         if (resourceDict[ResourceType.Food] >= resourceConsumedPerMinuteDict[ResourceType.Food])
         {
@@ -652,7 +699,7 @@ public class ResourceManager : MonoBehaviour
         }
         else
         {
-            foodConsumed.resourceAmount = resourceDict[ResourceType.Food];
+            //foodConsumed.resourceAmount = resourceDict[ResourceType.Food];
             starvationCount++;
 
             growthDeclineDanger = true;
@@ -679,7 +726,7 @@ public class ResourceManager : MonoBehaviour
             }
         }
 
-        ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, city.cityLoc);
+        //ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, city.cityLoc);
 
 
         if (city.HousingCount < 0)
@@ -757,7 +804,7 @@ public class ResourceManager : MonoBehaviour
 
         CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
-        UpdateUI(ResourceType.Food);
+        //UpdateUI(ResourceType.Food);
     }
 
     public void CheckProducerUnloadWaitList()

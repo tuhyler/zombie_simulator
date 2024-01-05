@@ -11,6 +11,8 @@ using UnityEngine.UIElements;
 
 public class UIBuilderHandler : MonoBehaviour
 {
+    [HideInInspector]
+    public string tabName;
     private ImprovementDataSO buildData;
     private UnitBuildDataSO unitBuildData;
     [HideInInspector]
@@ -50,7 +52,7 @@ public class UIBuilderHandler : MonoBehaviour
     private UIScrollButton scrollLeft, scrollRight;
 
     [HideInInspector]
-    public bool isQueueing;
+    public bool isQueueing, somethingNew;
 
     [SerializeField]
     public Transform objectHolder, finalSpaceHolder;
@@ -163,7 +165,7 @@ public class UIBuilderHandler : MonoBehaviour
 		}
 	}
 
-    public void ToggleVisibility(bool v, bool openTab, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
+    public void ToggleVisibility(bool v, bool openTab, bool somethingNew = false, ResourceManager resourceManager = null) //pass resources to know if affordable in the UI (optional)
     {
         if (activeStatus == v)
             return;
@@ -176,6 +178,7 @@ public class UIBuilderHandler : MonoBehaviour
             activeStatus = true;
             cityBuilderManager.buildOptionsActive = true;
             cityBuilderManager.activeBuilderHandler = this;
+            this.somethingNew = somethingNew;
 
             if (!openTab)
             {
@@ -238,6 +241,28 @@ public class UIBuilderHandler : MonoBehaviour
             maxGold = 0;
             cityBuilderManager.buildOptionsActive = false;
             cityBuilderManager.activeBuilderHandler = null;
+
+            if (this.somethingNew)
+            {
+                this.somethingNew = false;
+
+                if (tabName == "Units")
+                {
+					for (int i = 0; i < buildOptions.Count; i++)
+					{
+						if (buildOptions[i].somethingNew)
+							cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, buildOptions[i].UnitBuildData.unitNameAndLevel, true, false);
+					}
+				}
+                else
+                {
+                    for (int i = 0; i < buildOptions.Count; i++)
+                    {
+                        if (buildOptions[i].somethingNew)
+                            cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, buildOptions[i].BuildData.improvementNameAndLevel, false, false);
+                    }
+                }
+            }
 
             //dof.focalLength.value = 15;
             if (!openTab)
@@ -307,7 +332,7 @@ public class UIBuilderHandler : MonoBehaviour
 			{
 				itemName = buildOptions[i].UnitBuildData.unitDisplayName;
 				resourceCosts = new(buildOptions[i].UnitBuildData.unitCost);
-				locked = buildOptions[i].UnitBuildData.locked;
+				locked = buildOptions[i].locked;
 
 				if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
 				{
@@ -336,7 +361,7 @@ public class UIBuilderHandler : MonoBehaviour
 			{
 				itemName = buildOptions[i].BuildData.improvementName;
 				resourceCosts = new(buildOptions[i].BuildData.improvementCost);
-				locked = buildOptions[i].BuildData.Locked;
+				locked = buildOptions[i].locked;
 
 				buildOptions[i].waterMax = resourceManager.city.reachedWaterLimit;
 
@@ -354,6 +379,10 @@ public class UIBuilderHandler : MonoBehaviour
 			}
 
 			buildOptions[i].ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
+
+            //unlocking if new, even if can't build in location
+			if (buildOptions[i].somethingNew)
+				hide = false;
 
 			if (locked || hide || improvementSingleBuildList.Contains(itemName) || (buildOptions[i].BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
 			{
@@ -409,7 +438,7 @@ public class UIBuilderHandler : MonoBehaviour
             int amount = option.BuildData.producedResources[j].resourceAmount;
             int newAmount = Mathf.RoundToInt(amount * (workEthic + cityBuilderManager.world.GetResourceTypeBonus(option.producedResourcePanels[j].resourceType)));
 
-			option.producedResourcePanels[j].resourceAmountText.text = newAmount.ToString();
+			option.producedResourcePanels[j].SetResourceAmount(newAmount);
 			if (newAmount == amount)
 				option.producedResourcePanels[j].resourceAmountText.color = Color.white;
 			else if (newAmount > amount)

@@ -18,12 +18,12 @@ MonoBehaviour:
   resourceIcon: {fileID: 21300000, guid: 32c59fa742b58e047af6576bc551a2ad, type: 3}
   ResourceGatheringTime: 0
   ResourceGatheringAmount: 1
-  resourcePrice: 2
-  resourceQuantityPerPop: 50
+  resourcePrice: 7
+  resourceQuantityPerPop: 1
   rawResource: 0
   rocksType: 0
   resourceCategory: 4
   requirement: 
   uvCoordinatesForRocks: {x: 0, y: 0}
   forVisual: 0
-  sellInitially: 1
+  sellResource: 1

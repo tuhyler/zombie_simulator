@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,8 +123,20 @@ public class UITerrainTooltip : MonoBehaviour
             }
             else
             {
-                resourceCount.text = td.resourceAmount.ToString();
                 resourceCount.fontSize = 30;
+
+				if (td.resourceAmount < 1000)
+				{
+					resourceCount.text = td.resourceAmount.ToString();
+				}
+				else if (td.resourceAmount < 1000000)
+				{
+					resourceCount.text = Math.Round(td.resourceAmount * 0.001f, 1) + " k";
+				}
+				else if (td.resourceAmount < 1000000000)
+				{
+					resourceCount.text = Math.Round(td.resourceAmount * 0.000001f, 1) + " M";
+				}
             }
         }
 

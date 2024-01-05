@@ -29,7 +29,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private Sprite inventorySprite, rocksNormal, rocksLuxury, rocksChemical;
 
     [SerializeField]
-    private GameObject resourceInfoPanel, productionPanel, descriptionPanel, workEthicImage, housingImage, waterImage;
+    private GameObject resourceInfoPanel, productionPanel, descriptionPanel, workEthicImage, housingImage, waterImage, newIcon;
 
     [SerializeField]
     private Transform resourceProducedHolder, resourceCostHolder, unitDescription, cityStatsDecription;
@@ -45,7 +45,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private bool isUnitPanel, cannotAfford, isShowing;
 
     [HideInInspector]
-    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, isFlashing;
+    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, isFlashing, somethingNew, locked;
     //for checking if city can afford resource and if work ethic changes values
     [HideInInspector]
     public List<UIResourceInfoPanel> costResourcePanels = new(), producedResourcePanels = new();
@@ -361,7 +361,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             uiResourceCostPanel.transform.SetParent(transform, false);
 
             //uiResourceCostPanel.resourceAmount.text = Mathf.RoundToInt(value.resourceAmount * (60f / producedResourceTime)).ToString();
-            uiResourceCostPanel.resourceAmountText.text = value.resourceAmount.ToString();
+            uiResourceCostPanel.SetResourceAmount(value.resourceAmount);
             uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
             uiResourceCostPanel.SetResourceType(value.resourceType);
 
@@ -389,7 +389,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 }
                 else
                 {
-                    uiResourceInfoPanel.resourceAmountText.text = producedResource.resourceAmount.ToString();
+                    uiResourceInfoPanel.SetResourceAmount(producedResource.resourceAmount);
                     uiResourceInfoPanel.SetResourceType(producedResource.resourceType);
                     if (rocks)
                     {
@@ -457,6 +457,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
                 resourcePanel.resourceAmountText.color = Color.red;
             }
         }
+    }
+
+    public void ToggleSomethingNew(bool v)
+    {
+        somethingNew = v;
+        newIcon.SetActive(v);
     }
 
     public void OnPointerClick(PointerEventData eventData)

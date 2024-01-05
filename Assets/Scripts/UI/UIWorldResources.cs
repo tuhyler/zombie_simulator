@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -38,10 +39,24 @@ public class UIWorldResources : MonoBehaviour
     public void SetResource(ResourceType resourceType, int resourceAmount)
     {
         if (resourceType == ResourceType.Gold)
-            goldResourceAmount.text = resourceAmount.ToString();
-            //SetGoldValue(resourceAmount);
+        {
+			if (resourceAmount < 1000)
+			{
+				goldResourceAmount.text = resourceAmount.ToString();
+			}
+			else if (resourceAmount < 1000000)
+			{
+				goldResourceAmount.text = Math.Round(resourceAmount * 0.001f, 1) + " k";
+			}
+			else if (resourceAmount < 1000000000)
+			{
+				goldResourceAmount.text = Math.Round(resourceAmount * 0.000001f, 1) + " M";
+			}
+        }
         else if (resourceType == ResourceType.Research)
+        {
             SetResearchValue(resourceAmount);
+        }
     }
 
     public void SetResearchName(string name)

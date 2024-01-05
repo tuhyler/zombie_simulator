@@ -204,7 +204,7 @@ public class UICityImprovementTip : MonoBehaviour
         {
             showCount = true;
             resourceCountGO.SetActive(true);
-            resourceCount.text = improvement.td.resourceAmount.ToString();
+            SetResourceCount(improvement.td.resourceAmount);
         }
         else
         {
@@ -282,7 +282,7 @@ public class UICityImprovementTip : MonoBehaviour
                 if (!produces)
                 {
                     panelList[i].gameObject.SetActive(true);
-                    panelList[i].resourceAmountText.text = producedTime.ToString();
+                    panelList[i].SetResourceAmount(producedTime);
                     panelList[i].SetResourceType(ResourceType.Time);
                     panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
                 }
@@ -305,7 +305,7 @@ public class UICityImprovementTip : MonoBehaviour
                     int amount = resourceList[i].resourceAmount;
                     int newAmount = Mathf.RoundToInt(amount * (workEthic + world.GetResourceTypeBonus(resourceList[i].resourceType)));
 
-					panelList[i].resourceAmountText.text = newAmount.ToString();
+					panelList[i].SetResourceAmount(newAmount);
 
                     if (amount == newAmount)
 						panelList[i].resourceAmountText.color = Color.white;
@@ -316,7 +316,7 @@ public class UICityImprovementTip : MonoBehaviour
 				}
                 else
                 {
-					panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
+					panelList[i].SetResourceAmount(resourceList[i].resourceAmount);
 
 					if (waiting && resourceList[i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[resourceList[i].resourceType])
 					    panelList[i].resourceAmountText.color = Color.red;
@@ -398,7 +398,7 @@ public class UICityImprovementTip : MonoBehaviour
             int amount = producer.producedResources[i].resourceAmount;
 		    int newAmount = Mathf.RoundToInt(amount * (workEthic + world.GetResourceTypeBonus(producer.producedResources[i].resourceType)));
 
-		    producesInfo[i].resourceAmountText.text = newAmount.ToString();
+		    producesInfo[i].SetResourceAmount(newAmount);
 
 		    if (amount == newAmount)
 			    producesInfo[i].resourceAmountText.color = Color.white;
@@ -436,10 +436,26 @@ public class UICityImprovementTip : MonoBehaviour
         }
     }
 
+    private void SetResourceCount(int amount)
+    {
+		if (amount < 1000)
+		{
+			resourceCount.text = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			resourceCount.text = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			resourceCount.text = Math.Round(amount * 0.000001f, 1) + " M";
+		}
+	}
+
     public void UpdateResourceAmount(CityImprovement improvement)
     {
         if (activeStatus && improvement.GetImprovementData.rawMaterials && this.improvement == improvement && improvement.td.resourceAmount >= 0)
-            resourceCount.text = improvement.td.resourceAmount.ToString();
+            SetResourceCount(improvement.td.resourceAmount);
     }
 
 	internal void CloseCheck(CityImprovement improvement)

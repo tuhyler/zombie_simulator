@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,8 +31,39 @@ public class UIResourceInfoPanel : MonoBehaviour
     {
         resourceAmountText.outlineColor = new Color(0f, 0f, 0f);
         resourceAmountText.outlineWidth = .1f;
-
     }
+
+    public void SetResourceAmount(int amount)
+    {
+        if (amount < 1000)
+        {
+            resourceAmountText.text = amount.ToString();
+        }
+        else if (amount < 1000000)
+        {
+            resourceAmountText.text = Math.Round(amount * 0.001f, 1) + " k";
+        }
+        else if (amount < 1000000000)
+        {
+            resourceAmountText.text = Math.Round(amount * 0.000001f, 1) + " M";
+        }
+    }
+
+    public void SetNegativeAmount(float amount)
+    {
+		if (amount < 1000)
+		{
+			resourceAmountText.text = "-" + Math.Round(amount,0);
+		}
+		else if (amount < 1000000)
+		{
+			resourceAmountText.text = "-" + Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			resourceAmountText.text = "-" + Math.Round(amount * 0.000001f, 1) + " M";
+		}
+	}
 
     public void SetResourceType(ResourceType type)
     {

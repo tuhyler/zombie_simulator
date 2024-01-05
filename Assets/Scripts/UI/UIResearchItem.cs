@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEditorInternal.Profiling.Memory.Experimental;
@@ -11,7 +13,10 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
     private TMP_Text researchNameText, researchPercentDone, queueNumber;
 
     [SerializeField]
-    private Image progressBarMask, researchItemPanel, topBar, queueNumberHolderImage, queueNumberCheck, researchIcon;
+    private Image progressBarMask, researchItemPanel, topBar, queueNumberHolderImage, queueNumberCheck;
+
+    [SerializeField]
+    private RectTransform researchIcon;
 
     [SerializeField]
     private Transform uiElementsParent, progressBarHolder, queueNumberHolder;
@@ -66,7 +71,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         researchPercentDone.outlineColor = Color.black;
         //researchPercentDone.outlineWidth = .4f;
         //researchPercentDone.color = new Color(0.2509804f, 0.4666667f, 0.7960784f);
-        researchPercentDone.text = totalResearchNeeded.ToString();
+        researchPercentDone.text = $"{totalResearchNeeded:n0}";
 
         originalColor = researchItemPanel.color;
         originalResearchSprite = researchItemPanel.sprite;
@@ -136,16 +141,25 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 reward.Select();
             queueNumberHolderImage.sprite = selectedQueueSprite;
             //queueNumberHolderImage.color = selectedColor;
+            //StartCoroutine(UpdateResearchIcon());
+            researchIcon.gameObject.SetActive(false);
             queueNumberHolder.gameObject.SetActive(true);
             //researchPercentDone.outlineWidth = 0.35f;
             //researchPercentDone.color = new Color(255, 255, 255);
-            researchIcon.gameObject.SetActive(false);
             queueNumber.text = 1.ToString();
 
             foreach (Image arrow in arrows)
                 arrow.color = originalColor;
         }
     }
+
+    //horizontal layout groups don't update in the same frame, for some stupid reason
+ //   private IEnumerator UpdateResearchIcon()
+ //   {
+ //       researchIcon.gameObject.SetActive(false);
+ //       yield return new WaitForEndOfFrame();
+	//	researchIcon.gameObject.SetActive(true);
+	//}
 
     public void ResetAlpha()
     {
@@ -189,28 +203,57 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
             if (researchReward.improvementData != null)
             {
                 ImprovementDataSO data = researchReward.improvementData;
-                data.Locked = false;
-                world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
-                if (data.improvementLevel > 1)
+                string tabName;
+                if (data.rawMaterials)
+                    tabName = "Raw Goods";
+                else if (data.isBuilding)
+                    tabName = "Buildings";
+                else
+                    tabName = "Producers";
+
+                if (!data.isBuilding || data.improvementLevel == 1)
                 {
-                    string nameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-                    world.GetImprovementData(nameAndLevel).Locked = true;
+                    world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
+				    world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
+
+                    //relocking previous versions of improvement
+                    if (data.improvementLevel > 1)
+                    {
+                        string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
+                        world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
+                    }
                 }
-            }
+                
+                world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
+			}
             else if (researchReward.unitData != null)
             {
                 UnitBuildDataSO data = researchReward.unitData;
-                data.locked = false;
-                world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
-                if (data.unitLevel > 1)
-                {
-                    string nameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
-                    world.GetUnitBuildData(nameAndLevel).locked = true;
-                }
-            }
+                string tabName = "Units";
+				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true, true);
+				world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.unitNameAndLevel, false);
 
-            for (int i = 0; i < researchReward.resourcesUnlocked.Count; i++)
-                world.DiscoverResource(researchReward.resourcesUnlocked[i]);
+				//relocking previous versions of unit
+				if (data.unitLevel > 1)
+                {
+                    string prevNameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
+					world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
+				}
+
+                world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
+            }
+			else if (researchReward.wonderData != null)
+			{
+				WonderDataSO data = researchReward.wonderData;
+                world.UnlockWonder(data.wonderName);
+                world.SetNewWonder(data.wonderName);
+			}
+
+			for (int i = 0; i < researchReward.resourcesUnlocked.Count; i++)
+            {
+                if (!world.ResourceCheck(researchReward.resourcesUnlocked[i]))
+                    world.DiscoverResource(researchReward.resourcesUnlocked[i]);
+            }
         }
 
         //unlocking research items down further in tree
@@ -220,6 +263,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         world.BuilderHandlerCheck();
         world.SetResearchBackground(true);
         GameLoader.Instance.gameData.completedResearch.Add(ResearchName);
+
+        world.TutorialCheck("Research Complete");
     }
 
 	public void LoadResearchComplete(MapWorld world)
@@ -243,34 +288,60 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 		queueNumberHolderImage.sprite = completedCircle;
         queueNumberCheck.sprite = completedCheck;
 
-   //     foreach (Image arrow in arrows)
-			//arrow.color = completedColor;
-		//canvasGroup.alpha = 0.5f;
-
 		//unlocking all research rewards
 		foreach (UIResearchReward researchReward in researchRewardList)
 		{
 			if (researchReward.improvementData != null)
 			{
 				ImprovementDataSO data = researchReward.improvementData;
-				data.Locked = false;
-				world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
-				if (data.improvementLevel > 1)
+				string tabName;
+				if (data.rawMaterials)
+					tabName = "Raw Goods";
+				else if (data.isBuilding)
+					tabName = "Buildings";
+				else
+					tabName = "Producers";
+
+				if (!data.isBuilding || data.improvementLevel == 1)
 				{
-					string nameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-					world.GetImprovementData(nameAndLevel).Locked = true;
+					if (world.newUnitsAndImprovements.Contains(data.improvementNameAndLevel))
+                        world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
+					world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
+
+					//relocking previous versions of improvement
+					if (data.improvementLevel > 1)
+					{
+						string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
+						world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
+					}
 				}
+
+				world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
 			}
 			else if (researchReward.unitData != null)
 			{
 				UnitBuildDataSO data = researchReward.unitData;
-				data.locked = false;
-				world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
+				string tabName = "Units";
+
+                if (world.newUnitsAndImprovements.Contains(data.unitNameAndLevel))
+    				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true ,true);
+				world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.unitNameAndLevel, false);
+
+				//relocking previous versions of unit
 				if (data.unitLevel > 1)
 				{
-					string nameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
-					world.GetUnitBuildData(nameAndLevel).locked = true;
+					string prevNameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
+					world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
 				}
+
+				world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
+			}
+			else if (researchReward.wonderData != null)
+			{
+				WonderDataSO data = researchReward.wonderData;
+				if (world.newUnitsAndImprovements.Contains(data.wonderName))
+                    world.SetNewWonder(data.wonderName);
+				world.UnlockWonder(data.wonderName);
 			}
 		}
 
@@ -454,17 +525,38 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         queueNumberHolder.gameObject.SetActive(false);
     }
 
-    public void HideProgressBar()
+	//private string SetStringValue(float amount)
+	//{
+	//	string amountStr = "-";
+
+	//	if (amount < 1000)
+	//	{
+	//		amountStr = amount.ToString();
+	//	}
+	//	else if (amount < 1000000)
+	//	{
+	//		amountStr = Math.Round(amount * 0.001f, 1) + " k";
+	//	}
+	//	else if (amount < 1000000000)
+	//	{
+	//		amountStr = Math.Round(amount * 0.000001f, 1) + " M";
+	//	}
+
+	//	return amountStr;
+	//}
+
+	public void HideProgressBar()
     {
         progressBarHolder.gameObject.SetActive(false);
         //researchPercentDone.outlineWidth = 0f;
         researchPercentDone.color = new Color(0.1098039f, 0.282353f, 0.5490196f);
 		researchPercentDone.outlineWidth = 0f;
-		researchPercentDone.text = totalResearchNeeded.ToString();
+		researchPercentDone.text = $"{totalResearchNeeded:n0}";
         //researchPercentDone.outlineColor = new Color(0.2f, 0.2f, 0.2f);
         //researchPercentDone.outlineWidth = 0f;
         researchPercentDone.gameObject.SetActive(false);
-        researchIcon.gameObject.SetActive(true);
+		researchIcon.gameObject.SetActive(true);
+		//StartCoroutine(UpdateResearchIcon());
 		researchPercentDone.gameObject.SetActive(true); //work around to ensure changed outline width is updated. Outline width is very buggy
 	}
 
@@ -475,7 +567,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         //researchPercentDone.text = $"{Mathf.Round(100 * researchPerc)}%";
         researchPercentDone.color = Color.white;
 		researchPercentDone.outlineWidth = .4f;
-        researchPercentDone.text = $"{researchReceived}/{totalResearchNeeded}";
+        researchPercentDone.text = $"{researchReceived:n0}/{totalResearchNeeded:n0}";
         researchPercentDone.gameObject.SetActive(false);
 		researchPercentDone.gameObject.SetActive(true);
 		//researchPercentDone.outlineWidth = 0.4f; //this makes the text appear outside of the scroll rect for some reason

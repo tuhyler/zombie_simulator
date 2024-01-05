@@ -18,22 +18,25 @@ MonoBehaviour:
   wonderDisplayName: Pyramids
   wonderDecription: Increases storage for cities by 1000
   wonderEra: 0
-  workersNeeded: 4
+  workersNeeded: 10
   workerCost: 1
   sizeHeight: 2
   sizeWidth: 2
   unloadLoc: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 8bfb5f75571ca6142b78992b8dc422d8, type: 3}
   wonderCost:
-  - resourceType: 7
-    resourceAmount: 100
+  - resourceType: 21
+    resourceAmount: 800
   - resourceType: 6
     resourceAmount: 100
+  - resourceType: 14
+    resourceAmount: 100
+  - resourceType: 10
+    resourceAmount: 50
   terrainType: 5
   wonderBenefitChange: 1000
   replaceTerrain: 0
   replaceProp: 1
   buildTimePerPercent: 1
-  locked: 0
   isSea: 0
   workerData: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}

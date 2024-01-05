@@ -19,10 +19,11 @@ MonoBehaviour:
   ResourceGatheringTime: 5
   ResourceGatheringAmount: 1
   resourcePrice: 2
-  resourceQuantityPerPop: 50
+  resourceQuantityPerPop: 1
   rawResource: 3
   rocksType: 1
   resourceCategory: 1
   requirement: Mine/Quarry
   uvCoordinatesForRocks: {x: 0.037358, y: 0.996176}
   forVisual: 0
+  sellResource: 0

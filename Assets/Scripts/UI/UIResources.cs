@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -30,7 +31,19 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void SetValue(int val)
     {
         resourceValue = val;
-        resourceAmount.text = val.ToString();
+
+		if (val < 1000)
+		{
+			resourceAmount.text = val.ToString();
+		}
+		else if (val < 1000000)
+		{
+			resourceAmount.text = Math.Round(val * 0.001f, 1) + " k";
+		}
+		else if (val < 1000000000)
+		{
+			resourceAmount.text = Math.Round(val * 0.000001f, 1) + " M";
+		}
     }
 
     public void OnBeginDrag(PointerEventData eventData)

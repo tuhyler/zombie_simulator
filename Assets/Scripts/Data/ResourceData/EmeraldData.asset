@@ -18,12 +18,12 @@ MonoBehaviour:
   resourceIcon: {fileID: 21300000, guid: 21012d122bbe64c4784ad70b26599092, type: 3}
   ResourceGatheringTime: 20
   ResourceGatheringAmount: 1
-  resourcePrice: 2
-  resourceQuantityPerPop: 50
+  resourcePrice: 6
+  resourceQuantityPerPop: 1
   rawResource: 3
   rocksType: 2
   resourceCategory: 1
   requirement: Mine/Quarry
   uvCoordinatesForRocks: {x: 0.051958, y: 0.951491}
   forVisual: 0
-  sellInitially: 1
+  sellResource: 1

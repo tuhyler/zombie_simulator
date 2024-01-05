@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +9,7 @@ public class UIMarketResourcePanel : MonoBehaviour
     [HideInInspector]
     public string resourceName;
     [HideInInspector]
-    public int price, amount, total;
+    public int price, amount/*, total*/;
     [HideInInspector]
     public bool sell;
     [HideInInspector]
@@ -19,15 +20,15 @@ public class UIMarketResourcePanel : MonoBehaviour
     public Image resourceImage;
 
     [SerializeField]
-    public TMP_Text cityPrice, cityAmount, cityTotals;
+    public TMP_Text cityPrice, cityAmount/*, cityTotals*/;
 
     [SerializeField]
     public Toggle sellToggle;
 
     [SerializeField]
     public TMP_InputField minimumAmount;
-    [SerializeField]
-    private TMP_Text minimumAmountText;
+    //[SerializeField]
+    //private TMP_Text minimumAmountText;
 
     private UITooltipTrigger tooltipTrigger;
     private UIMarketPlaceManager uiMarketPlaceManager;
@@ -58,14 +59,51 @@ public class UIMarketResourcePanel : MonoBehaviour
         tooltipTrigger.SetMessage(resourceName);
     }
 
-    public void UpdateSellBool()
+    public void SetPrice(int amount)
+    {
+        price = amount;
+        
+        if (amount < 1000)
+		{
+			cityPrice.text = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			cityPrice.text = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			cityPrice.text = Math.Round(amount * 0.000001f, 1) + " M";
+		}
+	}
+
+	public void SetAmount(int amount)
+	{
+		this.amount = amount;
+
+		if (amount < 1000)
+		{
+			cityAmount.text = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			cityAmount.text = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			cityAmount.text = Math.Round(amount * 0.000001f, 1) + " M";
+		}
+	}
+
+	public void UpdateSellBool()
     {
         if (uiMarketPlaceManager != null)
         {
             uiMarketPlaceManager.city.world.cityBuilderManager.PlayCheckAudio();
             bool isOn = sellToggle.isOn;
-            minimumAmount.interactable = isOn;
-            minimumAmountText.color = isOn ? Color.black : Color.gray;
+            minimumAmount.gameObject.SetActive(isOn);
+            //minimumAmount.interactable = isOn;
+            //minimumAmountText.color = isOn ? Color.black : Color.gray;
             uiMarketPlaceManager.SetResourceSell(resourceType, isOn);
         }
     }

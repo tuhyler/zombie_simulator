@@ -186,7 +186,7 @@ public class Wonder : MonoBehaviour
 
     private void SetNextResourceThreshold(ResourceType resourceType)
     {
-        resourceThreshold[resourceType] = (percentDone + 1) * Mathf.RoundToInt(resourceCostDict[resourceType] * 0.01f);
+        resourceThreshold[resourceType] = Mathf.RoundToInt((percentDone + 1) * resourceCostDict[resourceType] * 0.01f);
     }
 
     private void LightCheck()

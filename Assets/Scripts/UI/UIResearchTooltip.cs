@@ -420,7 +420,7 @@ public class UIResearchTooltip : MonoBehaviour
                 if (produceTime > 0)
                 {
                     resourcesToShow[i].gameObject.SetActive(true);
-                    resourcesToShow[i].resourceAmountText.text = produceTime.ToString();
+                    resourcesToShow[i].SetResourceAmount(produceTime);
                     resourcesToShow[i].SetResourceType(ResourceType.Time);
                     resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(ResourceType.Time);
                 }
@@ -433,7 +433,7 @@ public class UIResearchTooltip : MonoBehaviour
             {
                 resourcesToShow[i].gameObject.SetActive(true);
 
-                resourcesToShow[i].resourceAmountText.text = resourcesInfo[i].resourceAmount.ToString();
+                resourcesToShow[i].SetResourceAmount(resourcesInfo[i].resourceAmount);
                 //resourcesToShow[i].resourceAmount.text = Mathf.RoundToInt(resourcesInfo[i].resourceAmount * (60f / produceTime)).ToString();
                 resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourcesInfo[i].resourceType);
                 resourcesToShow[i].SetResourceType(resourcesInfo[i].resourceType);
@@ -448,7 +448,7 @@ public class UIResearchTooltip : MonoBehaviour
             if (produceIndex == 0)
                 producesInfo[0].gameObject.SetActive(true);
 
-            producesInfo[produceIndex].resourceAmountText.text = producedResource.resourceAmount.ToString();
+            producesInfo[produceIndex].SetResourceAmount(producedResource.resourceAmount);
             //producesInfo[produceIndex].resourceAmount.text = Mathf.RoundToInt(producedResource.resourceAmount * (60f / produceTime)).ToString();
             producesInfo[produceIndex].SetResourceType(producedResource.resourceType);
             if (rocks)
