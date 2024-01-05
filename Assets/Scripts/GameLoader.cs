@@ -31,7 +31,7 @@ public class GameLoader : MonoBehaviour
 		Instance = this;
 	}
 
-	public void NewGame()
+	public void NewGame(bool tutorial)
 	{
 		GameManager.Instance.ResetProgress();
 		world.ClearMap();
@@ -39,7 +39,7 @@ public class GameLoader : MonoBehaviour
 		terrainGenerator.SetYCoord(0);
 		Dictionary<Vector3Int, TerrainData> terrainDict = terrainGenerator.RunProceduralGeneration(true);
 		terrainGenerator.SetMainPlayerLoc();
-		world.NewGamePrep(true, terrainDict);
+		world.NewGamePrep(true, terrainDict, tutorial);
 		terrainGenerator.Clear();
 		StartCoroutine(WaitASec());
 	}
@@ -66,6 +66,7 @@ public class GameLoader : MonoBehaviour
 		gameData.camLimits.Add(world.cameraController.zMin);
 		gameData.camLimits.Add(world.cameraController.zMax);
 		gameData.tutorialStep = world.tutorialStep;
+		gameData.gameStep = world.gameStep;
 		gameData.goldAmount = world.worldResourceManager.GetWorldGoldLevel();
 		gameData.scottFollow = world.scottFollow;
 		gameData.cityCount = world.cityCount;
@@ -77,6 +78,7 @@ public class GameLoader : MonoBehaviour
 		gameData.laborerCount = world.laborerCount;
 		gameData.food = world.food;
 		gameData.lumber = world.lumber;
+		gameData.newUnitsAndImprovements = world.newUnitsAndImprovements;
 		gameData.currentResearch = world.researchTree.SaveResearch();
 
 		for (int i = 0; i < world.researchWaitList.Count; i++)
@@ -203,8 +205,10 @@ public class GameLoader : MonoBehaviour
 		//updating progress
 		GameManager.Instance.UpdateProgress(15);
 
+		world.newUnitsAndImprovements = gameData.newUnitsAndImprovements;
 		world.researchTree.LoadCompletedResearch(gameData.completedResearch);
 		world.tutorialStep = gameData.tutorialStep;
+		world.gameStep = gameData.gameStep;
 		world.worldResourceManager.SetWorldGoldLevel(gameData.goldAmount);
 		world.cityCount = gameData.cityCount;
 		world.infantryCount = gameData.infantryCount;

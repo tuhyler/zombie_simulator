@@ -57,7 +57,7 @@ public class WorkerTaskManager : MonoBehaviour
     //Methods to run when pressing certain keys
     public void HandleR()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething)
+        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow)
         {
 			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
@@ -88,7 +88,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleX()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething)
+        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow)
         {
 			unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
@@ -317,7 +317,6 @@ public class WorkerTaskManager : MonoBehaviour
 		world.mainPlayer.isBusy = true;
         uiCancelTask.ToggleVisibility(true);
         unitMovement.uiMoveUnit.ToggleVisibility(false);
-        unitMovement.selectedWorker = world.mainPlayer;
     }
 
     public void MoveToCompleteOrders(Vector3Int workerTile, Worker workerUnit)

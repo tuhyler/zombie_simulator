@@ -19,11 +19,11 @@ MonoBehaviour:
   ResourceGatheringTime: 1
   ResourceGatheringAmount: 1
   resourcePrice: 3
-  resourceQuantityPerPop: 50
+  resourceQuantityPerPop: 3
   rawResource: 4
   rocksType: 0
   resourceCategory: 0
   requirement: Lumbermill
   uvCoordinatesForRocks: {x: 0, y: 0}
   forVisual: 0
-  isDiscovered: 1
+  sellResource: 0

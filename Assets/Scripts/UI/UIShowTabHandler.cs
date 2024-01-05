@@ -13,6 +13,11 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     [SerializeField]
     private CanvasGroup canvasGroup;
 
+    [SerializeField]
+    private GameObject newIcon;
+    [HideInInspector]
+    public bool somethingNew, isFlashing;
+
     private UICityBuildTabHandler uiBuildTabHandler;
 
     //[SerializeField]
@@ -23,7 +28,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
     private Color originalButtonColor;
     private bool leftSideButton;
     private bool rightSideButton;
-    public bool isSelling, isRemoving, isUpgrading, isUnits, isFlashing;
+    public bool isSelling, isRemoving, isUpgrading, isUnits;
 
     private void Awake()
     {
@@ -33,6 +38,9 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
             rightSideButton = true;
         else if (isSelling)
             leftSideButton = true;
+
+        if (uiBuilder != null)
+            uiBuilder.tabName = tabName;
     }
 
     public void ToggleInteractable(bool v)
@@ -40,18 +48,18 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
         canvasGroup.interactable = v;
     }
 
-    //public void OnButtonClick()
-    //{
-    //    uiBuildTabHandler.PassUI(uiBuilder);
-    //    uiBuildTabHandler.ShowUI();
-    //}
+    public void ToggleSomethingNew(bool v)
+    {
+        somethingNew = v;
+        newIcon.SetActive(v);
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (!uiBuildTabHandler.buttonsAreWorking)
             return;
 
-        if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
+		if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
         {
             if (isFlashing)
             {

@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108, type: 3}
   secondaryPrefab: {fileID: 0}
-  isSecondary: 0
   unitName: Boat Trader
   unitDisplayName: Large Sail Trader
   unitLevel: 2
@@ -33,8 +32,7 @@ MonoBehaviour:
   laborCost: 2
   unitType: 6
   unitDescription: Water transport for cargo
-  availableInitially: 1
-  locked: 0
+  availableInitially: 0
   health: 10
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
@@ -42,3 +40,4 @@ MonoBehaviour:
   trainTime: 5
   cargoCapacity: 500
   transportationType: 1
+  characterUnit: 0

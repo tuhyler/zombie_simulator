@@ -1238,7 +1238,9 @@ public class City : MonoBehaviour
                 uiTimeProgressBar.SetTime(countDownTimer);
         }
 
-        //sell everything first
+        //check food first
+        resourceManager.CheckForPopGrowth();
+        //sell everything next
         world.UpdateWorldResources(ResourceType.Gold, resourceManager.SellResources());
 
         //for army maintenance
@@ -1248,11 +1250,9 @@ public class City : MonoBehaviour
             army.cyclesGone++;
         //army.AddStagingCostToCycle();
 
-        //food consumption
-        resourceManager.CheckForPopGrowth();
         resourceManager.CycleCount++;
 
-        Debug.Log(cityName + " is checking for growth");
+        //Debug.Log(cityName + " is checking for growth");
         //countDownTimer = secondsTillGrowthCheck;
 
         if (stopCycle)
@@ -1746,7 +1746,7 @@ public class City : MonoBehaviour
         data.fullInventory = resourceManager.fullInventory;
 		data.resourceDict = resourceManager.ResourceDict;
         data.resourcePriceDict = resourceManager.resourcePriceDict;
-        data.resourceSellDict = resourceManager.resourceSellDict;
+        data.resourceSellList = resourceManager.resourceSellList;
         data.resourceMinHoldDict = resourceManager.resourceMinHoldDict;
         data.resourceSellHistoryDict = resourceManager.resourceSellHistoryDict;
         data.pauseGrowth = resourceManager.pauseGrowth;
@@ -1872,7 +1872,7 @@ public class City : MonoBehaviour
         resourceManager.fullInventory = data.fullInventory;
         resourceManager.ResourceDict = data.resourceDict;
         resourceManager.resourcePriceDict = data.resourcePriceDict;
-        resourceManager.resourceSellDict = data.resourceSellDict;
+        resourceManager.resourceSellList = data.resourceSellList;
         resourceManager.resourceMinHoldDict = data.resourceMinHoldDict;
         resourceManager.resourceSellHistoryDict = data.resourceSellHistoryDict;
         resourceManager.pauseGrowth = data.pauseGrowth;

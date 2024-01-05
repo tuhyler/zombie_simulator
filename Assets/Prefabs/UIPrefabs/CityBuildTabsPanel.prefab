@@ -276,8 +276,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cityBuilderManager: {fileID: 0}
-  marketButton: {fileID: 0}
-  queueButton: {fileID: 0}
+  marketButton: {fileID: 1848749591115950409}
+  queueButton: {fileID: 4094062636981393611}
   builderUI: {fileID: 0}
   currentTabSelected: {fileID: 0}
   sameUI: 0

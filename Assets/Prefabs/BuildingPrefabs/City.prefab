@@ -203,7 +203,7 @@ MonoBehaviour:
   world: {fileID: 0}
   cityPop: {fileID: 0}
   unitFoodConsumptionPerMinute: 1
-  secondsTillGrowthCheck: 20
+  secondsTillGrowthCheck: 60
   growthFood: 3
   housingLocsAtMax: 0
   waterCount: 0
@@ -257,19 +257,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f06b93f5898e54691a69ddceb7609c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resourceSellList: 
   fullInventory: 0
   waitingForStorageRoomProducerList: []
   waitingforResourceProducerList: []
   resourcesNeededForProduction: 
   waitingForTraderList: []
   resourcesNeededForRoute: 
-  initialResources:
-  - resourceType: 2
-    resourceAmount: 4
-  - resourceType: 6
-    resourceAmount: 500
-  - resourceType: 7
-    resourceAmount: 500
+  initialResources: []
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0
@@ -1065,7 +1060,7 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}

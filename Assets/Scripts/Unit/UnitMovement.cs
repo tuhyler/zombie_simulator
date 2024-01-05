@@ -42,8 +42,6 @@ public class UnitMovement : MonoBehaviour
     [HideInInspector]
     public Unit selectedUnit;
     [HideInInspector]
-    public Worker selectedWorker;
-    [HideInInspector]
     public Trader selectedTrader;
     //private TerrainData selectedTile;
     //private InfoProvider selectedUnitInfoProvider;
@@ -130,7 +128,7 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleSpace()
     {
-        if ((selectedWorker != null && world.unitOrders) || world.buildingWonder)
+        if ((world.mainPlayer.isSelected && world.unitOrders) || world.buildingWonder)
             ConfirmWorkerOrders();
     }
 
@@ -587,8 +585,8 @@ public class UnitMovement : MonoBehaviour
         
         if (selectedUnit == unitReference) //Unselect when clicking same unit
         {
-            if (selectedWorker != null && selectedWorker.harvested)
-                selectedWorker.SendResourceToCity();
+            if (selectedUnit != null && selectedUnit.harvested)
+                selectedUnit.SendResourceToCity();
             else
                 ClearSelection();
 
@@ -604,12 +602,15 @@ public class UnitMovement : MonoBehaviour
             selectedUnit = unitReference;
         }
 
-        if (unitReference.somethingToSay)
+        if (selectedUnit.somethingToSay)
         {
-            unitReference.SpeakingCheck();
-        }
+			if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
+				selectedUnit.SendResourceToCity();
 
-		if (!selectedUnit.sayingSomething)
+			world.unitMovement.QuickSelect(selectedUnit);
+			selectedUnit.SpeakingCheck();
+		}
+        else
         {
             SelectLaborer();
             SelectWorker();
@@ -665,16 +666,15 @@ public class UnitMovement : MonoBehaviour
     {        
 		if (world.characterUnits.Contains(selectedUnit))
         {
-            selectedWorker = world.mainPlayer.GetComponent<Worker>();
-            selectedUnit = selectedWorker;
+            selectedUnit = world.mainPlayer.GetComponent<Worker>();
             workerTaskManager.SetWorkerUnit();
             if (!selectedUnit.sayingSomething)
                 uiWorkerTask.ToggleVisibility(true, world);
             if (world.scott.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(true);
 
-            if (selectedWorker.harvested) //if unit just finished harvesting something, send to closest city
-                selectedWorker.SendResourceToCity();
+            if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
+                selectedUnit.SendResourceToCity();
 
             for (int i = 0; i < world.characterUnits.Count; i++)
             {
@@ -1482,8 +1482,8 @@ public class UnitMovement : MonoBehaviour
             ClearBuildRoad();
             ResetOrderFlags();
 
-            selectedWorker.ResetOrderQueue();
-            selectedWorker.isBusy = false;
+            world.scott.ResetOrderQueue();
+            world.mainPlayer.isBusy = false;
             uiWorkerTask.ToggleVisibility(true, world);
         }
         else if (world.buildingWonder)
@@ -2101,7 +2101,7 @@ public class UnitMovement : MonoBehaviour
             uiDeployArmy.ToggleVisibility(false);
             uiChangeCity.ToggleVisibility(false);
 
-            if (selectedWorker != null)
+            if (world.mainPlayer.isSelected)
             {
                 world.scott.Deselect();
                 uiCancelTask.ToggleVisibility(false);
@@ -2132,7 +2132,6 @@ public class UnitMovement : MonoBehaviour
             //movementSystem.ClearPaths(); //necessary to queue movement orders
             //selectedUnitInfoProvider = null;
             selectedTrader = null;
-            selectedWorker = null;
             selectedUnit = null;
             unitSelected = false;
         }

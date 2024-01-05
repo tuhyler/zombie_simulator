@@ -23,7 +23,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
     private Image objectImage;
 
     [SerializeField]
-    private GameObject resourceInfoPanel;
+    private GameObject resourceInfoPanel, newIcon;
 
     [SerializeField]
     private RectTransform resourceCostAllHolder, resourceCostHolder, percentCostHolder, imageLine;
@@ -35,6 +35,8 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
     private TMP_Text description;
 
     private bool isShowing;
+    [HideInInspector]
+    public bool somethingNew, locked;
 
     private void Awake()
     {
@@ -55,6 +57,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
     public void SetBuildOptionData(UIWonderHandler wonderHandler)
     {
         buttonHandler = wonderHandler;
+        locked = true;
         PopulateSelectionPanel();
     }
 
@@ -113,7 +116,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
             UIResourceInfoPanel uiResourceCostPanel = panel.GetComponent<UIResourceInfoPanel>();
             uiResourceCostPanel.transform.SetParent(transform, false);
 
-            uiResourceCostPanel.resourceAmountText.text = value.resourceAmount.ToString();
+            uiResourceCostPanel.SetResourceAmount(value.resourceAmount);
             uiResourceCostPanel.resourceImage.sprite = ResourceHolder.Instance.GetIcon(value.resourceType);
             uiResourceCostPanel.SetResourceType(value.resourceType);
         }
@@ -126,6 +129,12 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
         value.resourceAmount = amount;
 
         return value;
+    }
+
+    public void ToggleSomethingNew(bool v)
+    {
+        somethingNew = v;
+        newIcon.SetActive(v);
     }
 
     public void OnPointerClick(PointerEventData eventData)

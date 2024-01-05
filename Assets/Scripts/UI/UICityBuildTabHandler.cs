@@ -23,7 +23,7 @@ public class UICityBuildTabHandler : MonoBehaviour
     [HideInInspector]
     public UIShowTabHandler currentTabSelected;
     [HideInInspector]
-    public bool sameUI, openTab;
+    public bool sameUI, openTab, somethingNew;
     private ResourceManager resourceManager;
     private List<UIShowTabHandler> tabList = new();
 
@@ -55,6 +55,73 @@ public class UICityBuildTabHandler : MonoBehaviour
             }
 		}
 	}
+
+    public void ToggleButtonNew(string tabName, string buildOptionName, bool unit, bool v)
+    {
+        if (v)
+        {
+            if (!cityBuilderManager.world.newUnitsAndImprovements.Contains(buildOptionName))
+                cityBuilderManager.world.newUnitsAndImprovements.Add(buildOptionName);
+        }
+        else
+        {
+            cityBuilderManager.world.newUnitsAndImprovements.Remove(buildOptionName);
+        }
+
+        somethingNew = v;
+
+        for (int i = 0; i < tabList.Count; i++)
+        {
+            if (tabList[i].tabName == tabName)
+            {
+                tabList[i].ToggleSomethingNew(v);
+
+                if (unit)
+                {
+					for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
+                    {
+						if (tabList[i].UIBuilder.buildOptions[j].UnitBuildData.unitNameAndLevel == buildOptionName)
+						{
+							tabList[i].UIBuilder.buildOptions[j].ToggleSomethingNew(v);
+							break;
+						}
+					}
+				}
+                else
+                {
+					for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
+                    {
+						if (tabList[i].UIBuilder.buildOptions[j].BuildData.improvementNameAndLevel == buildOptionName)
+						{
+							tabList[i].UIBuilder.buildOptions[j].ToggleSomethingNew(v);
+							break;
+						}
+					}
+				}
+
+                break;
+            }
+        }
+    }
+
+    public void ToggleLockButton(string tabName, string improvementNameAndLevel, bool v)
+    {
+        for (int i = 0; i < tabList.Count; i++)
+        {
+            if (tabList[i].tabName == tabName)
+            {
+                for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
+                {
+                    if (tabList[i].UIBuilder.buildOptions[j].BuildData.improvementNameAndLevel == improvementNameAndLevel)
+                    {
+                        tabList[i].UIBuilder.buildOptions[j].locked = v;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
 
     public void PassUI(UIBuilderHandler uiBuilder)
     {
@@ -181,7 +248,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
-            //marketTabHolder.SetActive(market);
+            marketButton.SetActive(market);
 
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
@@ -236,7 +303,7 @@ public class UICityBuildTabHandler : MonoBehaviour
             builderUI = null;
             return;
         }
-        builderUI.ToggleVisibility(true, openTab, resourceManager);
+        builderUI.ToggleVisibility(true, openTab, somethingNew, resourceManager);
         openTab = true;
         //tabUI.ToggleInteractable(false);
     }

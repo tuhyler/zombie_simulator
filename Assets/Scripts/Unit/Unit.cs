@@ -521,9 +521,10 @@ public class Unit : MonoBehaviour
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
-            if (buildDataSO.unitName == "Worker" && unitInTheWay.somethingToSay)
+            if (this == world.mainPlayer && unitInTheWay.somethingToSay)
             {
-                unitInTheWay.SpeakingCheck();
+				world.unitMovement.QuickSelect(this);
+				unitInTheWay.SpeakingCheck();
                 FinishMoving(transform.position);
 				yield break;
             }

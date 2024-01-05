@@ -42,7 +42,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaQuestion,
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "And it's cold! I guess I'll build a fire, maybe people will see the smoke?"
+			speakerText = "And it's cold! I guess I'll build a fire, maybe someone will see the smoke?"
 		};
 		conversationDict["just_landed"].Add(just_landed3);
 
@@ -55,7 +55,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaSerious,
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "Ok that's looking good, that will keep me warm for like a few seconds. I could go for some food though..."
+			speakerText = "Ok, that will keep me warm for like a few seconds. I could go for some food now..."
 		};
 		conversationDict["tutorial1"].Add(tutorial11);
 
@@ -219,7 +219,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor11 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = koaGuilty,
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Oh geez, uh, you know, I don't really know how it works... and you clearly don't know much about anything..."
@@ -437,7 +437,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = scottMad,
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "No!! A person's labor is not to be stolen, but rather be purchased for comunal purposes so that both parties can benefit in the end."
+			speakerText = "No!! A person's labor is not to be stolen, but rather be purchased so that both parties can benefit!"
 		};
 		conversationDict["tutorial11"].Add(tutorial113);
 
@@ -446,7 +446,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = koaSurprised,
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "*shocked* Oh, sorry... just wondering..."
+			speakerText = "Oh, sorry... just wondering..."
 		};
 		conversationDict["tutorial11"].Add(tutorial114);
 
@@ -464,7 +464,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = scottHappy,
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Let's go gather some stone, lumber, or clay they can purchase. They won't pay a lot for these items since they can gather them themselves, but we'll find real value later with crafted goods."
+			speakerText = "Let's go gather some more food they can purchase. They won't pay a lot for food since they can gather some themselves, but we'll find real value later with crafted goods."
 		};
 		conversationDict["tutorial11"].Add(tutorial116);
 
@@ -497,6 +497,63 @@ public class Conversations : MonoBehaviour
 			speakerText = "Nope! Like I said before, the people here are happy to help. We'll just need to research the proper technologies first before they can do anything."
 		};
 		conversationDict["tutorial12"].Add(tutorial122);
+		#endregion
+		#region tutorial13
+		conversationDict["tutorial13"] = new();
+
+		ConversationItem tutorial131 = new()
+		{
+			speakerImage = scottHappy,
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Our first research is done! Now we can build a farm and hire somebody to work the fields for us."
+		};
+		conversationDict["tutorial13"].Add(tutorial131);
+
+		ConversationItem tutorial132 = new()
+		{
+			speakerImage = koaQuestion,
+			speakerName = "Koa",
+			speakerDirection = "Scott",
+			speakerText = "What's with the giant exclamation point over the research altar thing?"
+		};
+		conversationDict["tutorial13"].Add(tutorial132);
+
+		ConversationItem tutorial133 = new()
+		{
+			speakerImage = scottHappy,
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Oh, that just tells us that the improvement needs something before it needs more work. In this case, we just need to assign more research."
+		};
+		conversationDict["tutorial13"].Add(tutorial133);
+
+		ConversationItem tutorial134 = new()
+		{
+			speakerImage = scottHappy,
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Let's build a farm now! I think you're ready to handle this project, so I won't hold your hand through this one."
+		};
+		conversationDict["tutorial13"].Add(tutorial134);
+
+		ConversationItem tutorial135 = new()
+		{
+			speakerImage = koaSerious,
+			speakerName = "Koa",
+			speakerDirection = "Scott",
+			speakerText = "Holding MY hand? Uh, I'm doing all the heavy lifting here..."
+		};
+		conversationDict["tutorial13"].Add(tutorial135);
+
+		ConversationItem tutorial136 = new()
+		{
+			speakerImage = scottHappy,
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Oh, you absolutely are! Just so you know, to determine what resources you need, you can go to camp and see the costs required to build the farm."
+		};
+		conversationDict["tutorial13"].Add(tutorial136);
 		#endregion
 	}
 }

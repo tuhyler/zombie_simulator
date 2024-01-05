@@ -140,7 +140,7 @@ public class UICityLaborCostPanel : MonoBehaviour
             
             resourceOptionsDict[resourceType].gameObject.SetActive(true);
             resourceOptions.Add(resourceOptionsDict[resourceType]);
-            resourceOptionsDict[resourceType].resourceAmountText.text = $"-{consumedResourcesDict[resourceType]}";
+            resourceOptionsDict[resourceType].SetNegativeAmount(consumedResourcesDict[resourceType]);
         }
     }
 
@@ -156,7 +156,7 @@ public class UICityLaborCostPanel : MonoBehaviour
                     resourceOptions.Add(resourceOptionsDict[resourceType]);
                 }
 
-                resourceOptionsDict[resourceType].resourceAmountText.text = $"-{consumedResourcesDict[resourceType]}";
+                resourceOptionsDict[resourceType].SetNegativeAmount(consumedResourcesDict[resourceType]);
             }
             else if (consumedResourcesDict[resourceType] == 0 && resourceOptions.Contains(resourceOptionsDict[resourceType]))
             {

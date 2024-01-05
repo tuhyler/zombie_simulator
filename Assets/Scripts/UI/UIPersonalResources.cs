@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -62,7 +63,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
 
     public void SetValue(int val)
     {
-        resourceAmountText.text = val.ToString();
+        SetNumberText(val);
         resourceAmount = val;
     }
 
@@ -87,9 +88,25 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
             buttonHighlight.transform.localPosition = Vector3.zero;
             buttonHighlight.Play();
         }
-        resourceAmountText.text = val.ToString();
+        SetNumberText(val);
         resourceAmount = val;
     }
+
+    private void SetNumberText(int amount)
+    {
+		if (amount < 1000)
+		{
+			resourceAmountText.text = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			resourceAmountText.text = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			resourceAmountText.text = Math.Round(amount * 0.000001f, 1) + " M";
+		}
+	}
 
     public void FlashResource()
     {
@@ -153,10 +170,22 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
     public void SetPriceText(int price)
     {
         priceHolder.SetActive(true);
-        string str = price.ToString();
-        priceText.text = str;
+
+		if (price < 1000)
+		{
+			priceText.text = price.ToString();
+		}
+		else if (price < 1000000)
+		{
+			priceText.text = Math.Round(price * 0.001f, 1) + " k";
+		}
+		else if (price < 1000000000)
+		{
+			priceText.text = Math.Round(price * 0.000001f, 1) + " M";
+		}
+
         this.price = price;
-        priceText.rectTransform.sizeDelta = new Vector2(15 + 10 * str.Length, 30);
+        priceText.rectTransform.sizeDelta = new Vector2(15 + 10 * priceText.text.Length, 30);
     }
 
     public void SetPriceColor(Color color)

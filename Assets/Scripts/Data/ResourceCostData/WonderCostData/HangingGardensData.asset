@@ -18,22 +18,25 @@ MonoBehaviour:
   wonderDisplayName: Hanging Gardens
   wonderDecription: Increases work ethic for cities by 10%
   wonderEra: 0
-  workersNeeded: 4
+  workersNeeded: 10
   workerCost: 1
   sizeHeight: 2
   sizeWidth: 2
   unloadLoc: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 2bf3411e6f934e44792edcccfd338d56, type: 3}
   wonderCost:
-  - resourceType: 7
-    resourceAmount: 100
+  - resourceType: 21
+    resourceAmount: 600
   - resourceType: 6
+    resourceAmount: 400
+  - resourceType: 16
     resourceAmount: 100
+  - resourceType: 11
+    resourceAmount: 50
   terrainType: 5
   wonderBenefitChange: 0.1
   replaceTerrain: 0
   replaceProp: 1
   buildTimePerPercent: 1
-  locked: 0
   isSea: 0
   workerData: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}

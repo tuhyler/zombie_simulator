@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,15 +7,11 @@ using UnityEngine.UI;
 public class UIInfoPanelCity : MonoBehaviour
 {
     [SerializeField]
-    private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel/*, foodLevelText, foodGrowthText*//*, foodPerMinute*/;
+    private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel;
 
     [SerializeField]
     private GameObject cityWarning;
 	private UITooltipTrigger tooltipTrigger;
-	//[SerializeField]
-	//private Toggle pauseGrowthToggle;
-
-	//private int foodPerUnit = 1;
 
 	[SerializeField] //for tweening
     private RectTransform allContents;
@@ -37,65 +34,60 @@ public class UIInfoPanelCity : MonoBehaviour
         }
     }
 
-    //setting food goal to grow
-    //public void SetGrowthNumber(int growth)
-    //{
-    //    foodPerUnit = growth;
-    //}
-
     public void SetAllData(City city)
     {
         nameText.text = city.cityName;
 
-		cityPop.text = city.cityPop.CurrentPop.ToString();
+		cityPop.text = SetStringValue(city.cityPop.CurrentPop);
 
         UpdateHousing(city.HousingCount);
         UpdateWater(city.waterCount);
 
-        unusedLabor.text = city.cityPop.UnusedLabor.ToString();
+        unusedLabor.text = SetStringValue(city.cityPop.UnusedLabor);
         UpdateWorkEthic(city.workEthic);
-
-
-		//  if (city.improvementWorkEthic > 0 && city.wonderWorkEthic > 0)
-		//tooltipTrigger.SetMessage("From improvements: <color=green>+" + (city.improvementWorkEthic * 100).ToString() + "%</color>\nFrom wonders: <color=green>+" + (city.wonderWorkEthic * 100).ToString() + "%</color>");
-		//  else if (city.improvement)
 	}
 
-    public void SetWorkEthicPopUpCity(City city)
+	private string SetStringValue(int amount)
+	{
+		string amountStr = "-";
+
+		if (amount < 1000)
+		{
+			amountStr = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			amountStr = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			amountStr = Math.Round(amount * 0.000001f, 1) + " M";
+		}
+
+		return amountStr;
+	}
+
+	public void SetWorkEthicPopUpCity(City city)
     {
 		tooltipTrigger.SetCity(city);
 	}
 
 	public void SetGrowthData(City city)
     {
-		cityPop.text = city.cityPop.CurrentPop.ToString();
+		cityPop.text = SetStringValue(city.cityPop.CurrentPop);
 		UpdateHousing(city.HousingCount);
         UpdateWater(city.waterCount);
     }
-    //public void SetTimer(int time)
-    //{
-    //    growthTimer.text = string.Format("Food Consumption Time: {0:00}:{1:00}", time / 60, time % 60);
-    //}
 
     public void UpdateFoodStats(int pop/*, int foodLevel*//*, float food*/)
     {
-		cityPop.text = pop.ToString();
+		cityPop.text = SetStringValue(pop);
 	}
-
-    //public void SetGrowthPauseToggle(bool v)
-    //{
-    //    pauseGrowthToggle.isOn = v;
-    //}
 
     public void UpdateCityName(string name)
     {
         nameText.text = name;
     }
-
-    //public void UpdateFoodGrowth(int foodLevel)
-    //{
-    //    foodLevelAndLimit.text = $"Food Level: {foodLevel}/{foodLimit}";
-    //}
 
     public void UpdateHousing(int housing)
     {
@@ -172,7 +164,6 @@ public class UIInfoPanelCity : MonoBehaviour
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
-            //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
         }
         else
         {

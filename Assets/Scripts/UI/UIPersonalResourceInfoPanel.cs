@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System;
 
 public class UIPersonalResourceInfoPanel : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     public MapWorld world;
     
     [SerializeField]
-    private TMP_Text unitNameTitle, unitStoragePercent, unitLevelAndLimit;
+    private TMP_Text unitNameTitle, /*unitStoragePercent, */storageLevel, storageLimit, slash;
 
     [SerializeField]
     private GameObject progressBar;
@@ -81,6 +82,13 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             allContents.anchorMax = new Vector2(0.5f, 1.0f);
             allContents.anchoredPosition3D = new Vector3(0f, 0f, 0f);
         }
+
+		storageLevel.outlineColor = Color.black;
+        storageLevel.outlineWidth = 0.4f;
+        slash.outlineColor = Color.black;
+        slash.outlineWidth = 0.4f;
+        storageLimit.outlineColor = Color.black;
+        storageLimit.outlineWidth = 0.4f;
 
         overflowGridHolder.sizeDelta = new Vector2(gridWidth * 90, 90);
         buttonDown.transform.localPosition = new Vector3(gridWidth * 45 + 20 , -80, 0);
@@ -386,17 +394,39 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         unitNameTitle.text = $"{name} Storage";
         if (limit == 0)
         {
-            unitLevelAndLimit.text = level.ToString();
-            unitStoragePercent.text = "0%";
+            storageLevel.text = level.ToString();
+            storageLimit.text = limit.ToString();
+            //unitStoragePercent.text = "0%";
         }
         else
         {
-            unitLevelAndLimit.text = $"{level}/{limit}";
-            unitStoragePercent.text = $"{Mathf.RoundToInt((level / limit) * 100)}%";
+            storageLevel.text = SetStringValue(level);
+            storageLimit.text = SetStringValue(limit);
+            //unitStoragePercent.text = $"{Mathf.RoundToInt((level / limit) * 100)}%";
         }
     }
 
-    public void UpdateStorageLevel(float level)
+	private string SetStringValue(float amount)
+	{
+		string amountStr = "-";
+
+		if (amount < 1000)
+		{
+			amountStr = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			amountStr = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			amountStr = Math.Round(amount * 0.000001f, 1) + " M";
+		}
+
+		return amountStr;
+	}
+
+	public void UpdateStorageLevel(float level)
     {
         if (unitStorageLevel == 0) //progress bar gives value of null w/o this
             progressBarMask.fillAmount = 0;
@@ -405,12 +435,13 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
         if (unitStorageLimit == 0)
         {
-            unitLevelAndLimit.text = level.ToString();
+            storageLevel.text = level.ToString();
+            storageLimit.text = unitStorageLimit.ToString();
         }
         else
         {
-            unitLevelAndLimit.text = $"{level}/{unitStorageLimit}";
-            unitStoragePercent.text = $"{Mathf.RoundToInt((level / unitStorageLimit) * 100)}%";
+            storageLevel.text = SetStringValue(level);
+            //unitStoragePercent.text = $"{Mathf.RoundToInt((level / unitStorageLimit) * 100)}%";
         }
 
         LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, unitStorageLevel / unitStorageLimit, 1)
@@ -547,8 +578,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     private void SetActiveStatusFalse()
     {
-        unitLevelAndLimit.gameObject.SetActive(true);
-        unitStoragePercent.gameObject.SetActive(true);
+        storageLevel.gameObject.SetActive(true);
+        storageLimit.gameObject.SetActive(true);
+        slash.gameObject.SetActive(true);
+        //unitStoragePercent.gameObject.SetActive(true);
         progressBar.SetActive(true);
         gameObject.SetActive(false);
     }
@@ -604,8 +637,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     public void HideInventoryLevel()
     {
-        unitLevelAndLimit.gameObject.SetActive(false);
-        unitStoragePercent.gameObject.SetActive(false);
+        storageLevel.gameObject.SetActive(false);
+        storageLimit.gameObject.SetActive(false);
+        slash.gameObject.SetActive(false);
+        //unitStoragePercent.gameObject.SetActive(false);
         progressBar.SetActive(false);
     }
 

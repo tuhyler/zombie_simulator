@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 		SceneManager.UnloadSceneAsync((int)SceneIndexes.MANAGER);
 	}
 
-	public void NewGame()
+	public void NewGame(bool tutorial)
 	{
 		loadingScreen.SetActive(true);
 		loadingBackground.sprite = loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
-		StartCoroutine(GetSceneLoadProgress(true));
+		StartCoroutine(GetSceneLoadProgress(true, "", tutorial));
 	}
 
 	public void LoadGame(string loadName)
@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public IEnumerator GetSceneLoadProgress(bool newGame, string loadName = "")
+	public IEnumerator GetSceneLoadProgress(bool newGame, string loadName = "", bool tutorial = false)
 	{
 		for (int i = 0; i < scenesLoading.Count; i++)
 		{
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
 
 		if (newGame)
 		{
-			GameLoader.Instance.NewGame();
+			GameLoader.Instance.NewGame(tutorial);
 			StartCoroutine(GetNewGameProgress());
 			//loadingScreen.SetActive(false);
 			//scenesLoading.Clear();

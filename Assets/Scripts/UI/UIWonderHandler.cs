@@ -39,7 +39,7 @@ public class UIWonderHandler : MonoBehaviour
     private RectTransform allContents;
     private Vector3 originalLoc;
     [HideInInspector]
-    public bool activeStatus; //set this up so we don't have to wait for tween to set inactive
+    public bool activeStatus, somethingNew; //set this up so we don't have to wait for tween to set inactive
 
 
     private void Awake()
@@ -135,6 +135,21 @@ public class UIWonderHandler : MonoBehaviour
         {
             activeStatus = false;
 
+            if (somethingNew)
+            {
+                somethingNew = false;
+                world.wonderButton.newIcon.SetActive(false);
+
+                for (int i = 0; i < buildOptions.Count; i++)
+                {
+                    if (buildOptions[i].somethingNew)
+                    {
+                        buildOptions[i].ToggleSomethingNew(false);
+                        world.newUnitsAndImprovements.Remove(buildOptions[i].BuildData.wonderName);
+                    }
+                }
+            }
+
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.35f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
@@ -181,22 +196,22 @@ public class UIWonderHandler : MonoBehaviour
 
     private void PrepareBuildOptions()
     {
-        foreach (UIWonderOptions buildItem in buildOptions)
+        for (int i = 0; i < buildOptions.Count; i++)
         {
-            if (buildItem == null)
-                continue;
+			if (buildOptions[i] == null)
+				continue;
 
-            //string itemName = buildItem.BuildData.wonderDisplayName;
-            List<ResourceValue> resourceCosts = new(buildItem.BuildData.wonderCost);
-            bool locked = buildItem.BuildData.locked;
+			//string itemName = buildItem.BuildData.wonderDisplayName;
+			//List<ResourceValue> resourceCosts = new(buildOptions[i].BuildData.wonderCost);
+			bool locked = buildOptions[i].locked;
 
-            buildItem.ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
+			buildOptions[i].ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-            if (locked || world.GetWondersConstruction(buildItem.BuildData.wonderName))
-            {
-                buildItem.ToggleVisibility(false);
-                continue;
-            }
-        }
+			if (locked || world.GetWondersConstruction(buildOptions[i].BuildData.wonderName))
+			{
+				buildOptions[i].ToggleVisibility(false);
+				continue;
+			}
+		}
     }
 }

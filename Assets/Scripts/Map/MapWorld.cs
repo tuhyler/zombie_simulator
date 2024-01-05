@@ -226,7 +226,7 @@ public class MapWorld : MonoBehaviour
     [HideInInspector]
     public int cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber;
     [HideInInspector]
-    public string tutorialStep;
+    public string tutorialStep, gameStep;
     private bool flashingButton;
     private List<string> cityNamePool;
 
@@ -246,6 +246,9 @@ public class MapWorld : MonoBehaviour
     public List<ResourceType> resourceDiscoveredList = new();
 
     [HideInInspector]
+    public List<string> newUnitsAndImprovements = new();
+
+    [HideInInspector]
     public GamePersist gamePersist = new();
 
     //character units
@@ -262,7 +265,6 @@ public class MapWorld : MonoBehaviour
     private void Awake()
     {
         currentTime = DateTime.Now;
-        tutorial = uiMainMenu.uiSettings.tutorial;
         uiSpeechWindow.AddToSpeakingDict("Camera", null);
         speechBubble.SetActive(false);
         audioSource = GetComponent<AudioSource>();
@@ -303,8 +305,10 @@ public class MapWorld : MonoBehaviour
     private void Start()
     {
         NewGamePrep(false);
-        
-        string upgradeableObjectName = "";
+		resourceDiscoveredList.Add(ResourceType.Gold);
+        resourceDiscoveredList.Add(ResourceType.Research);
+
+		string upgradeableObjectName = "";
         List<ResourceValue> upgradeableObjectTotalCost = new();
         int upgradeableObjectLevel = 9999;
 
@@ -326,14 +330,15 @@ public class MapWorld : MonoBehaviour
                 buildOption.BuildData = data;
 			    buildPanelGO.transform.SetParent(builderHandler.objectHolder, false);
 			    buildOption.SetBuildOptionData(builderHandler);
+
+                if (data.availableInitially)
+                    buildOption.locked = false;
+                else
+                    buildOption.locked = true;
             }
             
             improvementDataDict[data.improvementNameAndLevel] = data;
             
-            if (data.availableInitially)
-                data.Locked = false;
-            else
-                data.Locked = true;
             upgradeableObjectMaxLevelDict[data.improvementName] = 1;
 
             if (upgradeableObjectLevel < data.improvementLevel) //skip if reached max level
@@ -395,9 +400,9 @@ public class MapWorld : MonoBehaviour
 			unitBuildDataDict[data.unitNameAndLevel] = data;
             
             if (data.availableInitially)
-                data.locked = false;
+                buildOption.locked = false;
             else
-                data.locked = true;
+                buildOption.locked = true;
             upgradeableObjectMaxLevelDict[data.unitName] = 1;
 
 			if (upgradeableObjectLevel < data.unitLevel) //skip if reached max level
@@ -481,12 +486,13 @@ public class MapWorld : MonoBehaviour
         //}
     }
 
-    public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null)
+    public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null, bool tutorial = false)
     {
 		wonderButton.gameObject.SetActive(true);
 		uiMainMenuButton.gameObject.SetActive(true);
         conversationListButton.gameObject.SetActive(true);
 		uiWorldResources.SetActiveStatus(true);
+        this.tutorial = tutorial;
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
 
@@ -2753,6 +2759,36 @@ public class MapWorld : MonoBehaviour
         rotation = Quaternion.Euler(0, rotationCount * 90, 0);
         wonderGhost.transform.rotation = rotation;
         unloadLoc = placementLoc - tempPlacementLoc;
+    }
+
+    public void UnlockWonder(string wonderName)
+    {
+        for (int i = 0; i < wonderHandler.buildOptions.Count; i++)
+        {
+            if (wonderHandler.buildOptions[i].BuildData.wonderName == wonderName)
+            {
+                wonderHandler.buildOptions[i].locked = false;
+                break;
+            }
+        }
+    }
+
+    public void SetNewWonder(string wonderName)
+    {
+        wonderButton.newIcon.SetActive(true);
+        wonderHandler.somethingNew = true;
+
+        if (!newUnitsAndImprovements.Contains(wonderName))
+            newUnitsAndImprovements.Add(wonderName);
+
+        for (int i = 0; i < wonderHandler.buildOptions.Count; i++)
+        {
+            if (wonderHandler.buildOptions[i].BuildData.wonderName == wonderName)
+            {
+                wonderHandler.buildOptions[i].ToggleSomethingNew(true);
+                break;
+            }
+        }
     }
 
     public void CloseBuildingSomethingPanel()
@@ -5567,6 +5603,63 @@ public class MapWorld : MonoBehaviour
 		}
     }
     
+    public void GameCheck(string source)
+    {
+        switch (gameStep)
+        {
+            case "first_labor":
+				if (source != "Resource")
+					return;
+
+				if (food == 5)
+				{
+					City city = null;
+					foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.CurrentLocation), MapWorld.State.CITYRADIUS))
+					{
+						if (IsCityOnTile(tile))
+						{
+							city = GetCity(tile);
+							break;
+						}
+					}
+
+					Vector3Int scottLoc = RoundToInt(mainPlayer.transform.position);
+					if (city != null)
+					{
+						scottLoc = city.cityLoc;
+					}
+					else
+					{
+						foreach (Vector3Int loc in GetNeighborsFor(RoundToInt(mainPlayer.transform.position), State.EIGHTWAY))
+						{
+							if (CheckIfPositionIsValid(loc))
+							{
+								scottLoc = loc;
+								break;
+							}
+						}
+					}
+					scott.transform.position = scottLoc;
+
+					Vector3 goScale = scott.transform.localScale;
+					AddUnitPosition(scottLoc, scott);
+					scott.gameObject.SetActive(true);
+					float scaleX = goScale.x;
+					float scaleZ = goScale.z;
+					scott.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
+					scott.lightBeam.Play();
+					LeanTween.scale(scott.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+					cityBuilderManager.PlayBoomAudio();
+					scott.SetSomethingToSay("first_labor");
+                    gameStep = "";
+
+                    if (tutorial)
+    					StartCoroutine(WaitASecToSpeak(mainPlayer, 2, "tutorial3a"));
+				}
+				break;
+        }
+    }
+
     //if going through tutorial, goes through the steps of it 
     public void TutorialCheck(string source)
     {
@@ -5614,75 +5707,31 @@ public class MapWorld : MonoBehaviour
                         if (source != "Resource")
                             return;
 
-						if (food == 1)
+                        if (food == 1)
                         {
-							ButtonFlashCheck();
-							mainPlayer.SetSomethingToSay("tutorial3");
-						}
-                        else if (food == 2)
+                            ButtonFlashCheck();
+                            mainPlayer.SetSomethingToSay("tutorial3");
+                        }
+                        else if (food > 1 && food < 5)
                         {
-							StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
+                            StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
                             unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
-						}
-                        else if (food == 3)
-                        {
-							City city = null;
-							foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.CurrentLocation), MapWorld.State.CITYRADIUS))
-							{
-								if (IsCityOnTile(tile))
-								{
-									city = GetCity(tile);
-									break;
-								}
-							}
-
-							Vector3Int scottLoc = RoundToInt(mainPlayer.transform.position);
-							if (city != null)
-							{
-								scottLoc = city.cityLoc;
-							}
-							else
-							{
-								foreach (Vector3Int loc in GetNeighborsFor(RoundToInt(mainPlayer.transform.position), State.EIGHTWAY))
-								{
-									if (CheckIfPositionIsValid(loc))
-									{
-										scottLoc = loc;
-										break;
-									}
-								}
-							}
-							scott.transform.position = scottLoc;
-
-							Vector3 goScale = scott.transform.localScale;
-							AddUnitPosition(scottLoc, scott);
-							scott.gameObject.SetActive(true);
-							float scaleX = goScale.x;
-							float scaleZ = goScale.z;
-							scott.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
-							scott.lightBeam.Play();
-							LeanTween.scale(scott.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
-							cityBuilderManager.PlayBoomAudio();
-							scott.SetSomethingToSay("first_labor");
-
-							StartCoroutine(WaitASecToSpeak(mainPlayer, 2, "tutorial3a"));
-						}
-
-						break;
+                        }
+                        break;
                     case "first_labor":
                         if (source != "Finished Movement")
                             return;
 
-						Vector3Int playerLoc2 = GetClosestTerrainLoc(mainPlayer.transform.position);
-						if (GetTerrainDataAt(playerLoc2).resourceType != ResourceType.Lumber)
-							return;
+                        Vector3Int playerLoc2 = GetClosestTerrainLoc(mainPlayer.transform.position);
+                        if (GetTerrainDataAt(playerLoc2).resourceType != ResourceType.Lumber)
+                            return;
 
                         bool foundCity2 = false;
                         foreach (Vector3Int loc in GetNeighborsFor(playerLoc2, State.CITYRADIUS))
                         {
                             if (IsCityOnTile(loc))
                             {
-								GetTerrainDataAt(playerLoc2).DisableHighlight();
+                                GetTerrainDataAt(playerLoc2).DisableHighlight();
                                 foundCity2 = true;
                                 break;
                             }
@@ -5691,9 +5740,9 @@ public class MapWorld : MonoBehaviour
                         if (!foundCity2)
                             return;
 
-						tutorialStep = "tutorial4";
+                        tutorialStep = "tutorial4";
                         mainPlayer.SetSomethingToSay("tutorial4");
-						break;
+                        break;
                     case "tutorial4":
                         if (source != "Resource")
                             return;
@@ -5902,6 +5951,15 @@ public class MapWorld : MonoBehaviour
                             return;
 
                         mainPlayer.SetSomethingToSay("tutorial12");
+                        tutorialStep = "tutorial12";
+
+                        break;
+                    case "tutorial12":
+                        if (source != "Research Complete")
+                            return;
+
+                        scott.SetSomethingToSay("tutorial13");
+                        tutorialGoing = false;
                         tutorialStep = "";
 
                         break;
@@ -5912,6 +5970,7 @@ public class MapWorld : MonoBehaviour
 
     private IEnumerator WaitASecToSpeak(Unit unit, int timeToWait, string conversationTopic)
     {
+        playerInput.paused = true;
         yield return new WaitForSeconds(timeToWait);
 
         unit.SetSomethingToSay(conversationTopic);
@@ -5947,6 +6006,8 @@ public class MapWorld : MonoBehaviour
 						unitMovement.uiWorkerTask.GetButton("Build").isFlashing = true;
                         playerInput.paused = true;
 					}
+
+                    gameStep = "first_labor";
                 }
 				break;
 
@@ -5993,29 +6054,32 @@ public class MapWorld : MonoBehaviour
 					unitMovement.uiWorkerTask.ReactivateButtons();
 					characterUnits.Add(scott);
 
-                    Vector3Int scottLoc = RoundToInt(scott.transform.position); 
+                    if (tutorial)
+                    {
+                        Vector3Int scottLoc = RoundToInt(scott.transform.position); 
 
-                    City city = null;
-					if (IsCityOnTile(scottLoc))
-                        city = GetCity(scottLoc);
+                        City city = null;
+					    if (IsCityOnTile(scottLoc))
+                            city = GetCity(scottLoc);
 
-					if (city == null)
-					{
-						return;
-					}
+					    if (city == null)
+					    {
+						    return;
+					    }
 
-					foreach (Vector3Int tile in GetNeighborsFor(city.cityLoc, State.CITYRADIUS))
-					{
-						TerrainData td = GetTerrainDataAt(tile);
-						if (td.resourceType == ResourceType.Lumber)
-						{
-							td.EnableHighlight(Color.white);
-							break;
-						}
-					}
+					    foreach (Vector3Int tile in GetNeighborsFor(city.cityLoc, State.CITYRADIUS))
+					    {
+						    TerrainData td = GetTerrainDataAt(tile);
+						    if (td.resourceType == ResourceType.Lumber)
+						    {
+							    td.EnableHighlight(Color.white);
+							    break;
+						    }
+					    }
+        
+                        tutorialStep = "first_labor";
+                    }
 				}
-
-                tutorialStep = "first_labor";
 				break;
             case "tutorial4":
                 if (number == 3)
@@ -6095,6 +6159,12 @@ public class MapWorld : MonoBehaviour
             case "tutorial9":
                 if (number == 1)
                 {
+					foreach (Vector3Int tile in cityDict.Keys)
+					{
+                        if (cityDict[tile].cityPop.CurrentPop > 0)
+                            cityDict[tile].Select(Color.green);
+					}
+
 					StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiLaborAssignment.GetLaborButton(1).transform, true));
 					cityBuilderManager.uiLaborAssignment.GetLaborButton(1).isFlashing = true;
 				}
@@ -6102,8 +6172,16 @@ public class MapWorld : MonoBehaviour
             case "tutorial10":
                 if (number == 1)
                 {
-                    StartCoroutine(EnableButtonHighlight(uiWorldResources.buttons[1].transform, false));
-					researchTree.isFlashing = true;
+                    if (researching)
+                    {
+                        tutorialStep = "tutorial10";
+                        TutorialCheck("Research");
+                    }
+                    else
+                    {
+                        StartCoroutine(EnableButtonHighlight(uiWorldResources.buttons[1].transform, false));
+					    researchTree.isFlashing = true;
+                    }
 				}
                 break;
 		}

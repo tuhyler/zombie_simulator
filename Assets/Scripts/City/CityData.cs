@@ -17,7 +17,7 @@ public class CityData
 	//resource manager data
 	public Dictionary<ResourceType, int> resourceDict;
 	public Dictionary<ResourceType, int> resourcePriceDict;
-	public Dictionary<ResourceType, bool> resourceSellDict;
+	public List<ResourceType> resourceSellList;
 	public Dictionary<ResourceType, int> resourceMinHoldDict;
 	public Dictionary<ResourceType, int> resourceSellHistoryDict;
 	public bool pauseGrowth, growthDeclineDanger;

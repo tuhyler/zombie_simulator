@@ -20,11 +20,11 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     //for sorting
     [SerializeField]
-    private Image sortResources, sortPrices, sortAmounts, sortTotals, sortSell;
+    private Image sortResources, sortPrices, sortAmounts, /*sortTotals,*/ sortSell;
     [SerializeField]
     private Sprite buttonUp;
     private Sprite buttonDown;
-    private bool sortResourcesUp, sortPricesUp, sortAmountUp, sortTotalsUp, sortSellUp;
+    private bool sortResourcesUp, sortPricesUp, sortAmountUp, /*sortTotalsUp,*/ sortSellUp;
     private Color sortButtonOriginalColor;
 
     [HideInInspector]
@@ -42,7 +42,7 @@ public class UIMarketPlaceManager : MonoBehaviour
         originalLoc = allContents.anchoredPosition3D;
         buttonDown = sortResources.sprite;
         //sortButtonOriginalColor = sortResources.color;
-        sortButtonOriginalColor = Color.white;
+        sortButtonOriginalColor = sortResources.color;
         gameObject.SetActive(false);
 
         foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
@@ -52,8 +52,8 @@ public class UIMarketPlaceManager : MonoBehaviour
 
             CreateMarketResourcePanel(resource);
 
-			if (resource.resourceType == ResourceType.Food)
-                marketResourceList[marketResourceList.Count - 1].sellToggle.interactable = false;
+			//if (resource.resourceType == ResourceType.Food)
+   //             marketResourceList[marketResourceList.Count - 1].sellToggle.interactable = false;
 		}
 
 		resourceNames.Sort();
@@ -75,9 +75,11 @@ public class UIMarketPlaceManager : MonoBehaviour
             activeStatus = true;
 
             SortAmounts(false);
-            SortSell(true);
+			SortSell(false);
+			ChangeSortButtonsColors("sell");
+			sortSellUp = !sortSellUp;
 
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1200f, 0);
+			allContents.anchoredPosition3D = originalLoc + new Vector3(0, -1200f, 0);
 
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 1200f, 0.4f).setEaseOutBack();
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
@@ -97,15 +99,23 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void CreateMarketResourcePanel(ResourceIndividualSO resource)
     {
-		GameObject marketResourceGO = Instantiate(uiMarketResourcePanel, resourceHolder);
+        //currently only allowing sellable resources to be sold
+        if (!resource.sellResource)
+            return;
+        //delete above to allow all to be sold (except world resources)
+
+        GameObject marketResourceGO = Instantiate(uiMarketResourcePanel, resourceHolder);
 		UIMarketResourcePanel marketResource = marketResourceGO.GetComponent<UIMarketResourcePanel>();
 		marketResource.SetMarketPlaceManager(this);
-		marketResource.cityPrice.text = resource.resourcePrice.ToString();
-		marketResource.price = resource.resourcePrice;
-        marketResource.sell = resource.sellInitially;
+		marketResource.SetPrice(resource.resourcePrice);
+        marketResource.sell = resource.sellResource;
+        marketResource.minimumAmount.gameObject.SetActive(marketResource.sell);
 		marketResource.resourceImage.sprite = resource.resourceIcon;
         marketResource.SetResourceType(resource.resourceType, resource.resourceName);
 		resourceNames.Add(resource.resourceName);
+
+        if (resource.resourceType == ResourceType.Food)
+			marketResource.sellToggle.interactable = false;
 
 		marketResourceList.Add(marketResource);
 	}
@@ -121,14 +131,14 @@ public class UIMarketPlaceManager : MonoBehaviour
         {
             ResourceType type = resourcePanel.resourceType;
             
-            resourcePanel.price = city.ResourceManager.resourcePriceDict[type];
-            resourcePanel.cityPrice.text = city.ResourceManager.resourcePriceDict[type].ToString();
-            resourcePanel.amount = city.ResourceManager.ResourceDict[type];
-            resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[type].ToString();
-            resourcePanel.total = city.ResourceManager.resourceSellHistoryDict[type];
-            resourcePanel.cityTotals.text = city.ResourceManager.resourceSellHistoryDict[type].ToString();
+            resourcePanel.SetPrice(city.ResourceManager.resourcePriceDict[type]);
+            //resourcePanel.cityPrice.text = city.ResourceManager.resourcePriceDict[type].ToString();
+            resourcePanel.SetAmount(city.ResourceManager.ResourceDict[type]);
+            //resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[type].ToString();
+            //resourcePanel.total = city.ResourceManager.resourceSellHistoryDict[type];
+            //resourcePanel.cityTotals.text = city.ResourceManager.resourceSellHistoryDict[type].ToString();
 
-            bool isOn = city.ResourceManager.resourceSellDict[type];
+            bool isOn = city.ResourceManager.resourceSellList.Contains(type);
             resourcePanel.sellToggle.isOn = isOn;
             resourcePanel.minimumAmount.interactable = isOn;
 
@@ -137,9 +147,17 @@ public class UIMarketPlaceManager : MonoBehaviour
         }
     }
 
-    public void SetResourceSell(ResourceType resourceType, bool isOn)
+    public void SetResourceSell(ResourceType type, bool isOn)
     {
-        city.ResourceManager.resourceSellDict[resourceType] = isOn;
+        if (isOn)
+        {
+            if (!city.ResourceManager.resourceSellList.Contains(type))
+                city.ResourceManager.resourceSellList.Add(type);
+        }
+        else
+        {
+            city.ResourceManager.resourceSellList.Remove(type);
+        }
     }
 
     public void SetResourceMinHold(ResourceType resourceType, int minHold)
@@ -147,20 +165,20 @@ public class UIMarketPlaceManager : MonoBehaviour
         city.ResourceManager.resourceMinHoldDict[resourceType] = minHold;
     }
 
-    public void UpdateMarketResourceNumbers(ResourceType resourceType, int price, int amount, int total)
+    public void UpdateMarketResourceNumbers(ResourceType resourceType, int price, int amount/*, int total*/)
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
         {
             if (resourcePanel.resourceType == resourceType)
             {
-                resourcePanel.price = price;
-                resourcePanel.cityPrice.text = price.ToString();
+                resourcePanel.SetPrice(price);
+                //resourcePanel.cityPrice.text = price.ToString();
                 
-                resourcePanel.amount = amount;
-                resourcePanel.cityAmount.text = amount.ToString();
+                resourcePanel.SetAmount(amount);
+                //resourcePanel.cityAmount.text = amount.ToString();
 
-                resourcePanel.total = total;
-                resourcePanel.cityTotals.text = total.ToString();
+                //resourcePanel.total = total;
+                //resourcePanel.cityTotals.text = total.ToString();
                 return;
             }
         }
@@ -176,7 +194,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = Color.green;
             sortPrices.color = sortButtonOriginalColor;
             sortAmounts.color = sortButtonOriginalColor;
-            sortTotals.color = sortButtonOriginalColor;
+            //sortTotals.color = sortButtonOriginalColor;
             sortSell.color = sortButtonOriginalColor;
         }
         else if (column == "prices")
@@ -184,7 +202,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = sortButtonOriginalColor;
             sortPrices.color = Color.green;
             sortAmounts.color = sortButtonOriginalColor;
-            sortTotals.color = sortButtonOriginalColor;
+            //sortTotals.color = sortButtonOriginalColor;
             sortSell.color = sortButtonOriginalColor;
         }
         else if (column == "amount")
@@ -192,7 +210,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = sortButtonOriginalColor;
             sortPrices.color = sortButtonOriginalColor;
             sortAmounts.color = Color.green;
-            sortTotals.color = sortButtonOriginalColor;
+            //sortTotals.color = sortButtonOriginalColor;
             sortSell.color = sortButtonOriginalColor;
         }
         else if (column == "total")
@@ -200,7 +218,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = sortButtonOriginalColor;
             sortPrices.color = sortButtonOriginalColor;
             sortAmounts.color = sortButtonOriginalColor;
-            sortTotals.color = Color.green;
+            //sortTotals.color = Color.green;
             sortSell.color = sortButtonOriginalColor;
         }
         else if (column == "sell")
@@ -208,7 +226,7 @@ public class UIMarketPlaceManager : MonoBehaviour
             sortResources.color = sortButtonOriginalColor;
             sortPrices.color = sortButtonOriginalColor;
             sortAmounts.color = sortButtonOriginalColor;
-            sortTotals.color = sortButtonOriginalColor;
+            //sortTotals.color = sortButtonOriginalColor;
             sortSell.color = Color.green;
         }
     }
@@ -218,7 +236,7 @@ public class UIMarketPlaceManager : MonoBehaviour
         sortResources.color = sortButtonOriginalColor;
         sortPrices.color = sortButtonOriginalColor;
         sortAmounts.color = sortButtonOriginalColor;
-        sortTotals.color = sortButtonOriginalColor;
+        //sortTotals.color = sortButtonOriginalColor;
         sortSell.color = sortButtonOriginalColor;
     }
 
@@ -267,42 +285,14 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void SortPrices(bool up)
     {
-        if (up) //sort prices ascending
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (marketResourceList[j].price < marketResourceList[i].price)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
-        else //sort descending
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (marketResourceList[j].price > marketResourceList[i].price)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
+		if (up) //ascending
+			marketResourceList = marketResourceList.OrderBy(m => m.price).ToList();
+		else //descending
+			marketResourceList = marketResourceList.OrderByDescending(m => m.price).ToList();
 
-        //reorder on UI
-        for (int i = 0; i < marketResourceList.Count; i++)
-        {
+		//reorder on UI
+		for (int i = 0; i < marketResourceList.Count; i++)
             marketResourceList[i].transform.SetSiblingIndex(i);
-        }
     }
 
     public void SortAmounts()
@@ -321,95 +311,41 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void SortAmounts(bool up)
     {
-        if (up) //sort prices ascending
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (marketResourceList[j].amount < marketResourceList[i].amount)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
-        else //sort descending
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (marketResourceList[j].amount > marketResourceList[i].amount)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
+		if (up) //ascending
+			marketResourceList = marketResourceList.OrderBy(m => m.amount).ToList();
+		else //descending
+			marketResourceList = marketResourceList.OrderByDescending(m => m.amount).ToList();
 
-        //reorder on UI
-        for (int i = 0; i < marketResourceList.Count; i++)
+		//reorder on UI
+		for (int i = 0; i < marketResourceList.Count; i++)
             marketResourceList[i].transform.SetSiblingIndex(i);
     }
 
-    public void SortTotals()
-    {
-		city.world.cityBuilderManager.PlaySelectAudio();
-		ChangeSortButtonsColors("total");
+  //  public void SortTotals()
+  //  {
+		//city.world.cityBuilderManager.PlaySelectAudio();
+		//ChangeSortButtonsColors("total");
 
-        if (sortTotalsUp)
-            sortTotals.sprite = buttonUp;
-        else
-            sortTotals.sprite = buttonDown;
+  //      if (sortTotalsUp)
+  //          sortTotals.sprite = buttonUp;
+  //      else
+  //          sortTotals.sprite = buttonDown;
 
-        SortTotals(sortTotalsUp);
-        sortTotalsUp = !sortTotalsUp;
-    }
+  //      SortTotals(sortTotalsUp);
+  //      sortTotalsUp = !sortTotalsUp;
+  //  }
 
-    private void SortTotals(bool up)
-    {
-        if (up) //sort prices ascending
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (marketResourceList[j].total < marketResourceList[i].total)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
-        else //sort descending
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (marketResourceList[j].total > marketResourceList[i].total)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
+  //  private void SortTotals(bool up)
+  //  {
+		//if (up) //ascending
+		//	marketResourceList = marketResourceList.OrderBy(m => m.total).ToList();
+		//else //descending
+		//	marketResourceList = marketResourceList.OrderByDescending(m => m.total).ToList();
 
-        //reorder on UI
-        for (int i = 0; i < marketResourceList.Count; i++)
-        {
-            marketResourceList[i].transform.SetSiblingIndex(i);
-        }
-    }
+		////reorder on UI
+		//for (int i = 0; i < marketResourceList.Count; i++)
+  //          marketResourceList[i].transform.SetSiblingIndex(i);
+  //  }
 
     public void SortSell()
     {
@@ -427,41 +363,13 @@ public class UIMarketPlaceManager : MonoBehaviour
 
     private void SortSell(bool up)
     {
-        if (up) //non sells first
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (marketResourceList[j].sell && !marketResourceList[i].sell)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
-        else //sells first
-        {
-            for (int i = 0; i < marketResourceList.Count; i++)
-            {
-                for (int j = i + 1; j < marketResourceList.Count; j++)
-                {
-                    if (!marketResourceList[j].sell && marketResourceList[i].sell)
-                    {
-                        UIMarketResourcePanel marketResource = marketResourceList[i];
-                        marketResourceList[i] = marketResourceList[j];
-                        marketResourceList[j] = marketResource;
-                    }
-                }
-            }
-        }
+		if (up) //ascending
+			marketResourceList = marketResourceList.OrderBy(m => m.sell).ToList();
+		else //descending
+			marketResourceList = marketResourceList.OrderByDescending(m => m.sell).ToList();
 
-        //reorder on UI
-        for (int i = 0; i < marketResourceList.Count; i++)
-        {
+		//reorder on UI
+		for (int i = 0; i < marketResourceList.Count; i++)
             marketResourceList[i].transform.SetSiblingIndex(i);
-        }
     }
 }

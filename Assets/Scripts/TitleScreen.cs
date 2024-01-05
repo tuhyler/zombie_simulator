@@ -28,10 +28,12 @@ public class TitleScreen : MonoBehaviour
             return;
 
 		PlaySelectAudio();
-		uiNewGame.ToggleVisibility(true);
-
-        GameManager.Instance.NewGame();
-    }
+		
+        if (uiLoadGame.currentSaves.Count > 0)
+            uiNewGame.ToggleVisibility(true);
+        else
+			GameManager.Instance.NewGame(true);
+	}
 
     public void LoadGame()
     {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -34,25 +35,45 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
     {
         unitName.text = displayName;
         this.level.text = "Level " + level + " " + name;
-        health.text = currentHealth.ToString() + "/" + healthMax.ToString();
-        this.speed.text = Mathf.RoundToInt(speed * 2).ToString();
+        health.text = SetStringValue(currentHealth) + "/" + SetStringValue(healthMax);
+        this.speed.text = SetStringValue(Mathf.RoundToInt(speed * 2));
         if (cargo > 0)
         {
-            this.strength.text = cargo.ToString();
+            this.strength.text = SetStringValue(cargo);
             strengthImage.sprite = inventorySprite;
             tooltipTrigger.SetMessage("Cargo Space");
         }
         else
         {
-            this.strength.text = strength.ToString();
+            this.strength.text = SetStringValue(strength);
             strengthImage.sprite = strengthSprite;
 			tooltipTrigger.SetMessage("Strength");
 		}
     }
 
+    private string SetStringValue(int amount)
+    {
+        string amountStr = "-";
+        
+        if (amount < 1000)
+		{
+			amountStr = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			amountStr = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			amountStr= Math.Round(amount * 0.000001f, 1) + " M";
+		}
+
+        return amountStr;
+	}
+
     public void SetHealth(int currentHealth, int maxHealth)
     {
-        health.text = currentHealth.ToString() + '/' + maxHealth.ToString();
+        health.text = SetStringValue(currentHealth) + '/' + SetStringValue(maxHealth);
     }
 
     public void ToggleVisibility(bool v, bool isTrader = false, bool isLaborer = false)

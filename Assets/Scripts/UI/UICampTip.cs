@@ -351,7 +351,7 @@ public class UICampTip : MonoBehaviour
 			else
 			{
 				panelList[i].gameObject.SetActive(true);
-				panelList[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
+				panelList[i].SetResourceAmount(resourceList[i].resourceAmount);
 				panelList[i].SetResourceType(resourceList[i].resourceType);
 				panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 

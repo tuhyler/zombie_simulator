@@ -45,6 +45,11 @@ public class ResourceHolder : MonoBehaviour
         return resourceDict[resourceType].requirement;
     }
 
+    public int GetDemandAmount(ResourceType resourceType)
+    {
+        return resourceDict[resourceType].resourceQuantityPerPop;
+    }
+
     public string GetName(ResourceType resourceType)
     {
         return resourceDict[resourceType].resourceName;
@@ -67,6 +72,6 @@ public class ResourceHolder : MonoBehaviour
 
     public bool GetSell(ResourceType resourceType)
     {
-        return resourceDict[resourceType].sellInitially;
+        return resourceDict[resourceType].sellResource;
     }
 }

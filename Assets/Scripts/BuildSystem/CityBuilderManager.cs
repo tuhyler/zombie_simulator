@@ -2017,13 +2017,13 @@ public class CityBuilderManager : MonoBehaviour
             city.singleBuildImprovementsBuildingsDict[buildingData.improvementName] = city.cityLoc;
         }
 
-        //if (buildingData.improvementName == "Market")
-        //{
-        //    city.hasMarket = true;
- 
-        //    if (city.activeCity)
-        //        uiCityTabs.marketTabHolder.SetActive(true);
-        //}
+        if (buildingData.improvementName == "Market")
+        {
+            city.hasMarket = true;
+
+            if (city.activeCity)
+                uiCityTabs.marketButton.SetActive(true);
+        }
 
         //updating uis
         if (city.activeCity)
@@ -2088,13 +2088,13 @@ public class CityBuilderManager : MonoBehaviour
 				city.reachedWaterLimit = false;
         }
 
-		//if (data.improvementName == "Market")
-		//{
-		//	city.hasMarket = false;
-		//	uiCityTabs.marketTabHolder.SetActive(false);
-		//}
+		if (data.improvementName == "Market")
+        {
+            city.hasMarket = false;
+            uiCityTabs.marketButton.SetActive(false);
+        }
 
-		if (city.singleBuildImprovementsBuildingsDict.ContainsKey(selectedBuilding))
+        if (city.singleBuildImprovementsBuildingsDict.ContainsKey(selectedBuilding))
             city.singleBuildImprovementsBuildingsDict.Remove(selectedBuilding);
 
         //updating ui

@@ -28,46 +28,34 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 20
+    resourceAmount: 80
   - resourceType: 6
-    resourceAmount: 10
+    resourceAmount: 30
   consumedResources:
+  - resourceType: 14
+    resourceAmount: 3
   - resourceType: 22
-    resourceAmount: 2
-  - resourceType: 26
-    resourceAmount: 5
+    resourceAmount: 3
   - resourceType: 6
-    resourceAmount: 10
+    resourceAmount: 5
   - resourceType: 4
-    resourceAmount: 5
-  - resourceType: 18
-    resourceAmount: 5
+    resourceAmount: 15
   consumedResources1:
-  - resourceType: 27
-    resourceAmount: 2
-  - resourceType: 26
-    resourceAmount: 5
+  - resourceType: 15
+    resourceAmount: 8
   - resourceType: 6
-    resourceAmount: 10
+    resourceAmount: 6
   - resourceType: 4
-    resourceAmount: 5
-  consumedResources2:
-  - resourceType: 22
-    resourceAmount: 1
-  consumedResources3:
-  - resourceType: 18
-    resourceAmount: 1
+    resourceAmount: 10
+  consumedResources2: []
+  consumedResources3: []
   consumedResources4: []
   producedResources:
   - resourceType: 29
-    resourceAmount: 1
-  - resourceType: 29
-    resourceAmount: 1
-  - resourceType: 29
-    resourceAmount: 1
-  - resourceType: 29
-    resourceAmount: 1
-  producedResourceTime: 05000000050000000500000005000000
+    resourceAmount: 2
+  - resourceType: 16
+    resourceAmount: 4
+  producedResourceTime: 3c0000003c000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
@@ -85,8 +73,8 @@ MonoBehaviour:
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 5
-  availableInitially: 1
+  buildTime: 25
+  availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   noWalkAreas:

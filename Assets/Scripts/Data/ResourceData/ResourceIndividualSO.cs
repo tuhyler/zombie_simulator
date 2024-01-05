@@ -15,10 +15,10 @@ public class ResourceIndividualSO : ScriptableObject
     public int resourceQuantityPerPop = 1;
     public RawResourceType rawResource;
     public RocksType rocksType = RocksType.None;
-    public ResourceCategory resourceCategory;
-    public string requirement;
+    public ResourceCategory resourceCategory; //for the resource selection grid
+    public string requirement; //for terrain data, which improvement is required to harvest
     public Vector2 uvCoordinatesForRocks;
     public bool forVisual = false; //for resources that are just a different picture for another resource (such as fish)
-    public bool sellInitially = false;
+    public bool sellResource = false;
     //public ResourceValue resourceValue;
 }

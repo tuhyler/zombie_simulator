@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5122609563439273834, guid: 3993f2e203871824f9ae6497ee5a3bb9, type: 3}
   secondaryData: []
+  audio: {fileID: 0}
+  isSecondary: 0
   isBuilding: 0
+  isBuildingImprovement: 0
   improvementName: Weaver
   improvementDisplayName: Silkweaver
   improvementLevel: 2
@@ -22,13 +25,12 @@ MonoBehaviour:
   improvementDescription: 
   buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: 60db64a4fe685214ca14a2c9ee244972, type: 3}
-  littleImage: {fileID: 21300000, guid: c49e03ef81a1c3e4e969861ea75baa41, type: 3}
   mapIcon: {fileID: 21300000, guid: f679c5b33a52936478fd2282940ccfa7, type: 3}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 10
+    resourceAmount: 15
   - resourceType: 6
-    resourceAmount: 60
+    resourceAmount: 80
   consumedResources:
   - resourceType: 17
     resourceAmount: 10
@@ -36,7 +38,7 @@ MonoBehaviour:
     resourceAmount: 2
   consumedResources1:
   - resourceType: 18
-    resourceAmount: 20
+    resourceAmount: 25
   - resourceType: 4
     resourceAmount: 3
   consumedResources2: []
@@ -44,10 +46,10 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 19
-    resourceAmount: 1
+    resourceAmount: 4
   - resourceType: 20
-    resourceAmount: 1
-  producedResourceTime: 1e0000002d000000
+    resourceAmount: 4
+  producedResourceTime: 190000003c000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 0
@@ -57,16 +59,18 @@ MonoBehaviour:
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
+  waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
+  hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 5
+  buildTime: 45
   availableInitially: 0
-  workAnimLoop: 0
   hideIdleMesh: 0
+  getTerrainResource: 0
   noWalkAreas:
   - {x: 1, y: 0, z: 1}
   - {x: -1, y: 0, z: 0}

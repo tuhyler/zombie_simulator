@@ -12,7 +12,7 @@ public class UIResourceManager : MonoBehaviour
     public CityBuilderManager cityBuilderManager;
     
     [SerializeField]
-    private TMP_Text cityStorageInfo, cityStoragePercent, cityLevelAndLimit;
+    private TMP_Text cityStorageInfo, /*cityStoragePercent, */cityLevel, cityLimit, slash;
 
     [SerializeField]
     private Image progressBarMask, buttonDown;
@@ -53,7 +53,14 @@ public class UIResourceManager : MonoBehaviour
         overflowGridHolder.sizeDelta = new Vector2(gridWidth * 90, 90);
         buttonDown.transform.localPosition = new Vector3(gridWidth * 45 + 20, -80, 0);
 
-        int total = 0;
+        cityLevel.outlineColor = Color.black;
+        cityLevel.outlineWidth = 0.4f;
+		slash.outlineColor = Color.black;
+		slash.outlineWidth = 0.4f;
+		cityLimit.outlineColor = Color.black;
+		cityLimit.outlineWidth = 0.4f;
+
+		int total = 0;
         foreach (Transform selection in gridHolder)
         {
             GridCellPrep(selection, total);
@@ -199,24 +206,51 @@ public class UIResourceManager : MonoBehaviour
         this.cityStorageLimit = cityStorageLimit;
         progressBarMask.fillAmount = cityStorageLevel / cityStorageLimit;
 
-        UpdateCityInfo();
+		SetCityWarehouseInfo();
     }
 
-    private void UpdateCityInfo()
+    private void SetCityWarehouseInfo()
     {
         cityStorageInfo.text = $"{cityName} Storage";
-        cityStoragePercent.text = $"{Mathf.RoundToInt(100 * (cityStorageLevel / cityStorageLimit))}%";
-        cityLevelAndLimit.text = $"{cityStorageLevel}/{cityStorageLimit}";
+        //cityStoragePercent.text = $"{Mathf.RoundToInt(100 * (cityStorageLevel / cityStorageLimit))}%";
+        cityLevel.text = SetStringValue(cityStorageLevel);
+        cityLimit.text = SetStringValue(cityStorageLimit);
+        //cityLevelAndLimit.text = $"{cityStorageLevel}/{cityStorageLimit}";
     }
+
+    private void UpdateCityWarehouseInfo()
+    {
+		cityLevel.text = SetStringValue(cityStorageLevel);
+	}
 
     public void SetCityCurrentStorage(float cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
         UpdateStorage(cityStorageLevel);
-        UpdateCityInfo();
+        UpdateCityWarehouseInfo();
     }
 
-    private void UpdateStorage(float cityStorageLevel)
+	private string SetStringValue(float amount)
+	{
+		string amountStr = "-";
+
+		if (amount < 1000)
+		{
+			amountStr = amount.ToString();
+		}
+		else if (amount < 1000000)
+		{
+			amountStr = Math.Round(amount * 0.001f, 1) + " k";
+		}
+		else if (amount < 1000000000)
+		{
+			amountStr = Math.Round(amount * 0.000001f, 1) + " M";
+		}
+
+		return amountStr;
+	}
+
+	private void UpdateStorage(float cityStorageLevel)
     {
         LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, cityStorageLevel / cityStorageLimit, 0.2f)
             .setEase(LeanTweenType.easeOutSine)

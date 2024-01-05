@@ -252,7 +252,7 @@ public class UITradeRouteManager : MonoBehaviour
 			else
 			{
 				costsInfo[i].gameObject.SetActive(true);
-				costsInfo[i].resourceAmountText.text = resourceList[i].resourceAmount.ToString();
+                costsInfo[i].SetResourceAmount(resourceList[i].resourceAmount);
 				costsInfo[i].SetResourceType(resourceList[i].resourceType);
 				costsInfo[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
 			}

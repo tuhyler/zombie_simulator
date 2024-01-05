@@ -47,8 +47,6 @@ public class ImprovementDataSO : ScriptableObject
     public float hillAdjustment = 0.6f;
     public int buildTime;
     public bool availableInitially = false;
-    private bool locked = true;
-    public bool Locked { get { return locked; } set { locked = value; } }
     public bool hideIdleMesh = false;
     public bool getTerrainResource = false; //for mines and quarries to provide resource where they're placed
     public List<Vector3Int> noWalkAreas;

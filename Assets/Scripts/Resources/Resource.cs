@@ -62,6 +62,7 @@ public class Resource : MonoBehaviour
         InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), wasted);
         city.world.StatsCheck(resourceIndividual.resourceType, amount);
         city.PlayResourceSplash();
+        city.world.GameCheck("Resource");
         city.world.TutorialCheck("Resource");
     }
 

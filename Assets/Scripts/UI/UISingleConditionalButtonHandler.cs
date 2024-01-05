@@ -9,6 +9,9 @@ public class UISingleConditionalButtonHandler : MonoBehaviour
     [SerializeField]
     private Button buttonButton;
 
+    [SerializeField]
+    public GameObject newIcon;
+
     [SerializeField] //for tweening
     public RectTransform allContents;
     [HideInInspector]
