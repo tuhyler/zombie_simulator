@@ -438,9 +438,9 @@ public class UICityImprovementTip : MonoBehaviour
 
     private void SetResourceCount(int amount)
     {
-		if (amount < 1000)
+		if (amount < 100000)
 		{
-			resourceCount.text = amount.ToString();
+			resourceCount.text = $"{amount:n0}";
 		}
 		else if (amount < 1000000)
 		{

@@ -9,6 +9,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements.Experimental;
 using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -33,7 +34,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing, noMoneyWarning, scottFollow;
+    public bool tutorial, hideUI, tutorialGoing, noMoneyWarning, scottFollow, azaiFollow;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -93,6 +94,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
 
+    [HideInInspector]
+    public Vector3Int startingLoc;
     //wonder info
     private WonderDataSO wonderData;
     [SerializeField]
@@ -666,26 +669,34 @@ public class MapWorld : MonoBehaviour
         characterUnits.Add(mainPlayer);
         uiSpeechWindow.AddToSpeakingDict("Koa", mainPlayer);
 		unit.SetReferences(this);
+        startingLoc = RoundToInt(mainPlayer.transform.position);
 
         if (newGame)
         {
             scott.gameObject.SetActive(false);
             scottFollow = false;
+            azaiFollow = false;
             unitMovement.uiWorkerTask.DeactivateButtons();
         }
         else
         {
             characterUnits.Add(scott);
+            characterUnits.Add(azai);
             scottFollow = true;
+            //azaiFollow = true;
             unit.CurrentLocation = RoundToInt(unit.transform.position);
             AddUnitPosition(unit.transform.position, unit);
 
 		    scott.CurrentLocation = RoundToInt(scott.transform.position);
 		    AddUnitPosition(scott.transform.position, scott);
+            azai.CurrentLocation = RoundToInt(azai.transform.position);
+            AddUnitPosition(azai.transform.position, azai);
         }
 
         uiSpeechWindow.AddToSpeakingDict("Scott", scott);
-		scott.SetReferences(this);
+        uiSpeechWindow.AddToSpeakingDict("Azai", azai);
+        scott.SetReferences(this);
+        azai.SetReferences(this);
 
 		unit.Reveal();
 		Vector3Int unitPos = RoundToInt(unit.transform.position);
@@ -1415,6 +1426,21 @@ public class MapWorld : MonoBehaviour
 				camp.seigeCount = enemyData.seigeCount;
 				camp.health = enemyData.health;
 				camp.strength = enemyData.strength;
+			}
+            else if (GameLoader.Instance.gameData.movingEnemyBases.ContainsKey(loc))
+            {
+				EnemyCampData enemyData = GameLoader.Instance.gameData.movingEnemyBases[loc];
+
+				for (int i = 0; i < enemyData.allUnits.Count; i++)
+				{
+					fightingEnemies[enemyData.allUnits[i].campSpot] = enemyData.allUnits[i];
+				}
+
+				camp.chaseLoc = enemyData.chaseLoc;
+				camp.pathToTarget = enemyData.pathToTarget;
+				camp.movingOut = enemyData.movingOut;
+				camp.returning = enemyData.returning;
+				camp.chasing = enemyData.chasing;
 			}
 
 			bool reveal = false;
@@ -4440,9 +4466,19 @@ public class MapWorld : MonoBehaviour
         return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable && !noWalkList.Contains(tile);
     }
 
+    public bool CheckIfPositionIsValidForEnemy(Vector3Int tile)
+    {
+		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile);
+	}
+
     public bool CheckIfPositionIsArmyValid(Vector3Int tile)
     {
 		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyZone;
+	}
+
+    public bool CheckIfPositionIsEnemyArmyValid(Vector3Int tile)
+    {
+		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable;
 	}
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
@@ -5651,11 +5687,56 @@ public class MapWorld : MonoBehaviour
 					LeanTween.scale(scott.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 					cityBuilderManager.PlayBoomAudio();
 					scott.SetSomethingToSay("first_labor");
-                    gameStep = "";
+                    gameStep = "first_infantry";
 
                     if (tutorial)
     					StartCoroutine(WaitASecToSpeak(mainPlayer, 2, "tutorial3a"));
 				}
+				break;
+            case "first_infantry":
+                if (source != "Hunting Research Complete")
+                    return;
+
+				City azaiCity = null;
+				foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.CurrentLocation), MapWorld.State.CITYRADIUS))
+				{
+					if (IsCityOnTile(tile))
+					{
+						azaiCity = GetCity(tile);
+						break;
+					}
+				}
+
+				Vector3Int azaiLoc = RoundToInt(mainPlayer.transform.position);
+				if (azaiCity != null)
+				{
+					azaiLoc = azaiCity.cityLoc;
+				}
+				else
+				{
+					foreach (Vector3Int loc in GetNeighborsFor(RoundToInt(mainPlayer.transform.position), State.EIGHTWAY))
+					{
+						if (CheckIfPositionIsValid(loc))
+						{
+							azaiLoc = loc;
+							break;
+						}
+					}
+				}
+				azai.transform.position = azaiLoc;
+
+				Vector3 azaiScale = azai.transform.localScale;
+				AddUnitPosition(azaiLoc, azai);
+				azai.gameObject.SetActive(true);
+				float azaiScaleX = azaiScale.x;
+				float azaiScaleZ = azaiScale.z;
+				azai.transform.localScale = new Vector3(azaiScaleX, 0.1f, azaiScaleZ);
+				azai.lightBeam.Play();
+				LeanTween.scale(azai.gameObject, azaiScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+				cityBuilderManager.PlayBoomAudio();
+				azai.SetSomethingToSay("first_infantry");
+				gameStep = "";
+
 				break;
         }
     }
@@ -5955,7 +6036,7 @@ public class MapWorld : MonoBehaviour
 
                         break;
                     case "tutorial12":
-                        if (source != "Research Complete")
+                        if (source != "Agriculture Research Complete")
                             return;
 
                         scott.SetSomethingToSay("tutorial13");
@@ -6184,6 +6265,13 @@ public class MapWorld : MonoBehaviour
                     }
 				}
                 break;
+            case "first_infantry":
+                if (number == 12)
+                {
+					azaiFollow = true;
+					characterUnits.Add(azai);
+				}
+				break;
 		}
     }
 

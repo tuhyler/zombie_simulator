@@ -53,7 +53,6 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f38ce82123dc155498b67d2d32a76ca5, type: 3}
   - {fileID: 21300000, guid: 653c3c311b23ea3449f88c50d4cf07e7, type: 3}
   - {fileID: 21300000, guid: b00f12718ccff3b4da39bb3eea52dc69, type: 3}
-  - {fileID: 21300000, guid: 168f88718a33e484ba0f8459903e7fe5, type: 3}
   - {fileID: 21300000, guid: 344d8c81036a9fa4ebd8f409923ae623, type: 3}
   - {fileID: 21300000, guid: c508fd915cfb5074fbdb94e5d6802a5b, type: 3}
   - {fileID: 21300000, guid: 63cde1b1df029314fb5b48d23fd206cb, type: 3}
@@ -241,7 +240,6 @@ SpriteAtlas:
   - button_square_wonders
   - button_close_gold
   - button_round_lightblue
-  - AzaiMapIcon
   - map_enemymarker
   - button_swap
   - bar_gray

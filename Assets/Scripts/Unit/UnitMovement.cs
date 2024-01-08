@@ -869,34 +869,103 @@ public class UnitMovement : MonoBehaviour
 		uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
 	}
 
-	public void HandleSelectedFollowerLoc(Queue<Vector3Int> path, Vector3Int priorSpot, Vector3Int currentSpot, Unit unit)
+	public void HandleSelectedFollowerLoc(Queue<Vector3Int> path, Vector3Int priorSpot, Vector3Int currentSpot, Vector3Int finalSpot)
     {
-		if (unit.isMoving)
+		if (world.scott.isMoving)
         {
-			unit.StopAnimation();
-			unit.ShiftMovement();
-    		unit.ResetMovementOrders();
+			world.scott.StopAnimation();
+			world.scott.ShiftMovement();
+			world.scott.ResetMovementOrders();
 		}
 
-        List<Vector3Int> newPath;
+        if (world.azai.isMoving)
+        {
+            world.azai.StopAnimation();
+			world.azai.ShiftMovement();
+    		world.azai.ResetMovementOrders();
+        }
+
+        List<Vector3Int> scottPath;
+        List<Vector3Int> azaiPath;
+        Vector3Int scottSpot = world.RoundToInt(world.scott.transform.position);
         if (path.Count > 0)
         {
-            newPath = path.ToList();
-            newPath.RemoveAt(newPath.Count - 1);
-            newPath.Insert(0, currentSpot);
+            List<Vector3Int> tempPath = path.ToList();
+            tempPath.Remove(finalSpot); //remove last loc
+            tempPath.Insert(0, currentSpot);
+
+            Vector3Int newLastStep = tempPath[tempPath.Count - 1];
+ 
+            scottPath = new(tempPath);
+            azaiPath = new(tempPath);
         }
         else
         {
-            newPath = new();
+            scottPath = new();
+            azaiPath = new();
         }
 
-        newPath.Insert(0, priorSpot);
+        //in case player moves only one tile
+        scottPath.Insert(0, priorSpot);
+        azaiPath.Insert(0, priorSpot);
+        Vector3Int finalScottSpot = scottPath[scottPath.Count - 1];
+		world.scott.finalDestinationLoc = finalScottSpot;
+
+		//first and last spots for azai
+  //      Vector3Int lastDiff = finalSpot - finalScottSpot;
+  //      Vector3Int lastSpot = finalScottSpot;
+		//if (lastDiff.x != 0)
+		//{
+		//	Vector3Int testSpot = lastSpot;
+
+		//	testSpot.z += 1;
+
+		//	if (!world.CheckIfPositionIsValid(testSpot))
+		//	{
+		//		testSpot.z -= 2;
+
+		//		if (!world.CheckIfPositionIsValid(testSpot))
+		//		{
+		//			testSpot.z += 1;
+		//			testSpot.x -= lastDiff.x;
+		//		}
+		//	}
+
+		//	lastSpot = testSpot;
+		//}
+  //      else if (lastDiff.z != 0)
+  //      {
+		//	Vector3Int testSpot = lastSpot;
+
+		//	testSpot.x += 1;
+
+		//	if (!world.CheckIfPositionIsValid(testSpot))
+		//	{
+		//		testSpot.x -= 2;
+
+		//		if (!world.CheckIfPositionIsValid(testSpot))
+		//		{
+		//			testSpot.x += 1;
+		//			testSpot.z -= lastDiff.z;
+		//		}
+		//	}
+
+		//	lastSpot = testSpot;
+		//}
+
+		//azaiPath.RemoveAt(azaiPath.Count - 1);
+		//azaiPath.Add(lastSpot);
+
+  //      if (path.Count > 0)
+    	azaiPath.Insert(0, scottSpot);
         //if (unit.followerPath.Count > 0)
         //    unit.finalDestinationLoc = unit.followerPath[unit.followerPath.Count - 1];
 
-		moveUnit = false;
-        unit.finalDestinationLoc = newPath[newPath.Count - 1];
-        unit.MoveThroughPath(newPath);
+        moveUnit = false;
+        world.scott.MoveThroughPath(scottPath);
+
+        world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1]; //last spot for now, will change once arriving at final loc; 
+        world.azai.MoveThroughPath(azaiPath);
         //unit.followerPath.Clear();
 	}
 
@@ -1165,6 +1234,7 @@ public class UnitMovement : MonoBehaviour
             {
                 //world.scott.ResetMovementOrders();
                 world.scott.CatchUp(world.RoundToInt(selectedUnit.transform.position));
+                world.azai.CatchUp(world.RoundToInt(selectedUnit.transform.position));
             }
         }
         else if (world.buildingWonder)
@@ -2104,6 +2174,7 @@ public class UnitMovement : MonoBehaviour
             if (world.mainPlayer.isSelected)
             {
                 world.scott.Deselect();
+                world.azai.Deselect();
                 uiCancelTask.ToggleVisibility(false);
                 uiWorkerTask.ToggleVisibility(false, world);
                 //workerTaskManager.NullWorkerUnit();

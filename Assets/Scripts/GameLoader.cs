@@ -69,6 +69,7 @@ public class GameLoader : MonoBehaviour
 		gameData.gameStep = world.gameStep;
 		gameData.goldAmount = world.worldResourceManager.GetWorldGoldLevel();
 		gameData.scottFollow = world.scottFollow;
+		gameData.azaiFollow = world.azaiFollow;
 		gameData.cityCount = world.cityCount;
 		gameData.infantryCount = world.infantryCount;
 		gameData.rangedCount = world.rangedCount;
@@ -100,6 +101,12 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < enemyCampLocs.Count; i++)
 		{
 			gameData.attackedEnemyBases[enemyCampLocs[i]] = world.GetEnemyCamp(enemyCampLocs[i]).SendCampUnitData();
+		}
+
+		List<Vector3Int> movingEnemyCampLocs = new List<Vector3Int>(gameData.movingEnemyBases.Keys);
+		for (int i = 0; i < movingEnemyCampLocs.Count; i++)
+		{
+			gameData.movingEnemyBases[movingEnemyCampLocs[i]] = world.GetEnemyCamp(movingEnemyCampLocs[i]).SendMovingCampUnitData();
 		}
 
 		//trade centers (waiting lists)
@@ -147,6 +154,7 @@ public class GameLoader : MonoBehaviour
 		//main characters
 		gameData.playerUnit = world.mainPlayer.SaveWorkerData();
 		gameData.scott = world.scott.SaveWorkerData();
+		gameData.azai = world.azai.SaveMilitaryUnitData();
 
 		//traders
 		gameData.allTraders.Clear();
@@ -226,6 +234,7 @@ public class GameLoader : MonoBehaviour
 		world.unclaimedSingleBuildList = gameData.unclaimedSingleBuildList;
 		world.LoadWonder(gameData.allWonders);
 		world.scottFollow = gameData.scottFollow;
+		world.azaiFollow = gameData.azaiFollow;
 		gameData.allWonders.Clear();
 
 		//updating progress
@@ -262,6 +271,7 @@ public class GameLoader : MonoBehaviour
 		GameManager.Instance.UpdateProgress(10);
 
 		world.scott.LoadWorkerData(gameData.scott);
+		world.azai.LoadUnitData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 
 		//traders

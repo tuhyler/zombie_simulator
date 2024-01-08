@@ -1087,7 +1087,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   world: {fileID: 0}
   unitNameTitle: {fileID: 4595488942853610281}
-  unitStoragePercent: {fileID: 233984975482793274}
   storageLevel: {fileID: 4876867081739979530}
   storageLimit: {fileID: 7521283491275828657}
   slash: {fileID: 2592143055812936970}

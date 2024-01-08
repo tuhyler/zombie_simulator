@@ -31,7 +31,7 @@ public class Unit : MonoBehaviour
     public ParticleSystem lightBeam, deathSplash;
 
     [SerializeField]
-    private GameObject selectionCircle, questionMark;
+    public GameObject selectionCircle, questionMark, exclamationPoint;
 
     [SerializeField]
     public UnitMarker marker;
@@ -68,7 +68,7 @@ public class Unit : MonoBehaviour
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     [HideInInspector]
-    public Vector3Int prevTile, prevTerrainTile; //first one for traders is in case road they're on is removed
+    public Vector3Int prevTile, prevTerrainTile; //second one for traders is in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo, waitingCo, attackCo;
@@ -114,7 +114,7 @@ public class Unit : MonoBehaviour
 
     //military booleans
     [HideInInspector]
-    public bool isLeader, readyToMarch = true, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading;
+    public bool isLeader, readyToMarch = true, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, runningAway;
     [HideInInspector]
     public Vector3Int targetLocation, targetBunk; //targetLocation is in case units overlap on same tile
 
@@ -602,14 +602,50 @@ public class Unit : MonoBehaviour
         {
 			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
 			if (pos != prevTerrainTile)
+            {
 				RevealCheck(pos);
+
+                if (!world.azaiFollow && !runningAway && CampAggroCheck(pos))
+                {
+                    isBusy = true;
+                    world.AddUnitPosition(transform.position, this);
+					StopAnimation();
+					ShiftMovement();
+					ResetMovementOrders();
+                    currentLocation = world.RoundToInt(transform.position);
+
+                    if (world.scottFollow)
+                    {
+						world.scott.StopAnimation();
+						world.scott.ShiftMovement();
+						world.scott.ResetMovementOrders();
+					}
+
+					yield return null;
+				}
+            }
+		}
+        else if (enemyAI)
+        {
+			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+            if (pos != prevTerrainTile)
+            {
+                if (world.GetTerrainDataAt(pos).isDiscovered)
+                    gameObject.SetActive(true);
+                else
+                    gameObject.SetActive(false);
+            }
 		}
 
         //making sure army is all in line
         if (isMarching)
         {
             readyToMarch = false;
-            homeBase.army.UnitNextStep();
+
+            if (enemyAI)
+                enemyCamp.UnitNextStep();
+            else
+                homeBase.army.UnitNextStep();
 
 			unitAnimator.SetBool(isMarchingHash, false);
 			while (!readyToMarch)
@@ -624,8 +660,10 @@ public class Unit : MonoBehaviour
             firstStep = false;
             //world.scott.FollowLeader();
             if (!isBusy)
-                world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.scott);
-            //followerPath.Clear();
+                world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+            else if (runningAway)
+				world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+			//followerPath.Clear();
 		}
 
 		if (pathPositions.Count > 0)
@@ -637,6 +675,9 @@ public class Unit : MonoBehaviour
                 GetInLine();
                 yield break;
             }
+
+            if (buildDataSO.unitDisplayName == "Azai" && pathPositions.Count == 1) //for azai's final step
+                NextToCheck();
 
             movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
             if (pathQueue.Count > 0)
@@ -677,6 +718,57 @@ public class Unit : MonoBehaviour
         }
 
     }
+
+    public void NextToCheck()
+    {
+		Vector3Int targetArea = pathPositions.Dequeue();
+		Vector3Int diff = world.RoundToInt(world.mainPlayer.transform.position) - targetArea;
+		List<Vector3Int> potentialAreas = new();
+
+		if (diff.x != 0 && diff.z != 0)
+		{
+			potentialAreas.Add(targetArea + new Vector3Int(diff.x, 0, 0));
+			potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.z));
+		}
+		else if (diff.x != 0)
+		{
+			potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.x));
+			potentialAreas.Add(targetArea + new Vector3Int(0, 0, -diff.x));
+		}
+		else if (diff.z != 0)
+		{
+			potentialAreas.Add(targetArea + new Vector3Int(diff.z, 0, 0));
+			potentialAreas.Add(targetArea + new Vector3Int(-diff.z, 0, 0));
+		}
+
+		potentialAreas.Add(prevTile);
+		Vector3Int closestLoc = prevTile;
+
+		bool firstOne = true;
+		int dist = 0;
+		for (int i = 0; i < potentialAreas.Count; i++)
+		{
+			if (!world.CheckIfPositionIsValid(potentialAreas[i]))
+				continue;
+
+			if (firstOne)
+			{
+				firstOne = false;
+				dist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
+				closestLoc = potentialAreas[i];
+				continue;
+			}
+
+			int newDist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
+			if (newDist < dist)
+				closestLoc = potentialAreas[i];
+
+			break;
+		}
+
+        finalDestinationLoc = closestLoc;
+		pathPositions.Enqueue(closestLoc);
+	}
 
     public void AttackCheck()
     {
@@ -1080,12 +1172,11 @@ public class Unit : MonoBehaviour
 				repositioning = false;
                 enemyCamp.EnemyReturn(this);
 			}
-            //else
-            //{
-            //    enemyAI.StateCheck(world);
-            //}
-
-            //enemyAI.needsDestination = true;
+            else if (enemyCamp.movingOut)
+            {
+				world.AddUnitPosition(currentLocation, this);
+				enemyCamp.UnitArrived();
+            }
         }
         else if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
 		{
@@ -1830,7 +1921,91 @@ public class Unit : MonoBehaviour
 
     //}
 
-    public void SoftSelect(Color color)
+    private bool CampAggroCheck(Vector3Int loc)
+    {
+        foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.CITYRADIUS))
+        {
+            if (world.CheckIfEnemyCamp(tile))
+            {
+                world.GetEnemyCamp(tile).StartChase(loc);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void StartLookingAround()
+    {
+        StartCoroutine(WaitAndScan());
+    }
+
+	private IEnumerator WaitAndScan()
+	{
+        int lookAroundCount = 0;
+        
+        while (lookAroundCount < 5)
+        {
+            yield return new WaitForSeconds(1);
+            lookAroundCount++;
+
+            //randomly looking around
+            Rotate(world.GetNeighborsFor(currentLocation, MapWorld.State.EIGHTWAY)[UnityEngine.Random.Range(0, 8)]);
+        }
+        
+		enemyCamp.FinishChase();
+	}
+
+	public void StartRunningAway()
+    {
+        if (!runningAway)
+        {
+            exclamationPoint.SetActive(true);
+            runningAway = true;
+            StartCoroutine(RunAway());
+        }    
+    }
+
+    private IEnumerator RunAway()
+    {
+        yield return new WaitForSeconds(1);
+
+        //finding closest city
+        Vector3Int safeTarget = world.startingLoc;
+
+        bool firstOne = true;
+        int dist = 0;
+        foreach (City city in world.cityDict.Values)
+        {
+            if (firstOne)
+            {
+                firstOne = false;
+                dist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
+                safeTarget = city.cityLoc;
+                continue;
+            }
+
+            int newDist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
+            if (newDist < dist)
+            {
+                safeTarget = city.cityLoc;
+                dist = newDist;
+            }
+		}
+
+		finalDestinationLoc = safeTarget;
+        firstStep = true;
+		MoveThroughPath(GridSearch.AStarSearch(world, currentLocation, safeTarget, isTrader, bySea));
+	}
+
+    public void StopRunningAway()
+    {
+	    isBusy = false;
+		runningAway = false;
+        exclamationPoint.SetActive(false);
+	}
+
+	public void SoftSelect(Color color)
     {
         highlight.EnableHighlight(color);
     }

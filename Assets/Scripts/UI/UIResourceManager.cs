@@ -234,9 +234,9 @@ public class UIResourceManager : MonoBehaviour
 	{
 		string amountStr = "-";
 
-		if (amount < 1000)
+		if (amount < 10000)
 		{
-			amountStr = amount.ToString();
+			amountStr = $"{amount:n0}";
 		}
 		else if (amount < 1000000)
 		{

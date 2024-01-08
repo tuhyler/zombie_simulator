@@ -35,9 +35,9 @@ public class UIResourceInfoPanel : MonoBehaviour
 
     public void SetResourceAmount(int amount)
     {
-        if (amount < 1000)
+        if (amount < 10000)
         {
-            resourceAmountText.text = amount.ToString();
+            resourceAmountText.text = $"{amount:n0}";
         }
         else if (amount < 1000000)
         {
@@ -51,9 +51,10 @@ public class UIResourceInfoPanel : MonoBehaviour
 
     public void SetNegativeAmount(float amount)
     {
-		if (amount < 1000)
+		if (amount < 10000)
 		{
-			resourceAmountText.text = "-" + Math.Round(amount,0);
+            double newAmount = Math.Round(amount, 0) * -1;
+			resourceAmountText.text = $"{newAmount:n0}";
 		}
 		else if (amount < 1000000)
 		{

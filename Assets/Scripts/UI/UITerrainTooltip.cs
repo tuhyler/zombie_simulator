@@ -125,9 +125,9 @@ public class UITerrainTooltip : MonoBehaviour
             {
                 resourceCount.fontSize = 30;
 
-				if (td.resourceAmount < 1000)
+				if (td.resourceAmount < 100000)
 				{
-					resourceCount.text = td.resourceAmount.ToString();
+					resourceCount.text = $"{td.resourceAmount:n0}";
 				}
 				else if (td.resourceAmount < 1000000)
 				{

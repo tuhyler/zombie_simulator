@@ -47,11 +47,13 @@ public class MovementSystem : MonoBehaviour
 
                     followerPath.Insert(0, prevSpot);
                     world.scott.finalDestinationLoc = newEnd;
+                    world.azai.finalDestinationLoc = newEnd;
 
                     //if (world.scott.followerPath.Count > 0)
                     //    world.scott.followerPath.AddRange(followerPath);
                     //else
                     world.scott.AddToMovementQueue(followerPath);
+                    world.azai.AddToMovementQueue(followerPath);
                 }
             }
 

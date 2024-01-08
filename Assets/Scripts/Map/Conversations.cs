@@ -555,6 +555,117 @@ public class Conversations : MonoBehaviour
 		};
 		conversationDict["tutorial13"].Add(tutorial136);
 		#endregion
+		#region first_infantry
+		conversationDict["first_infantry"] = new();
+
+		ConversationItem first_infantry1 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Hello! Who are you? Another helper for me I hope?"
+		};
+		conversationDict["first_infantry"].Add(first_infantry1);
+
+		ConversationItem first_infantry2 = new()
+		{
+			speakerImage = azaiSerious,
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "So you are the one who brought us here... I am Azai, destroyer of nations, harbinger of fear!"
+		};
+		conversationDict["first_infantry"].Add(first_infantry2);
+
+		ConversationItem first_infantry3 = new()
+		{
+			speakerImage = koaGuilty,
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Okay, that's a cool name... so you good with grabbing a shovel and..."
+		};
+		conversationDict["first_infantry"].Add(first_infantry3);
+
+		ConversationItem first_infantry4 = new()
+		{
+			speakerImage = scottHappy,
+			speakerName = "Scott",
+			speakerDirection = "Azai",
+			speakerText = "*interrupting* Hi! I'm Scott! Who are you?"
+		};
+		conversationDict["first_infantry"].Add(first_infantry4);
+
+		ConversationItem first_infantry5 = new()
+		{
+			speakerImage = azaiSerious,
+			speakerName = "Azai",
+			speakerDirection = "Scott",
+			speakerText = "I am Azai, destroyer of nations, harbinger of fear!"
+		};
+		conversationDict["first_infantry"].Add(first_infantry5);
+
+		ConversationItem first_infantry6 = new()
+		{
+			speakerImage = scottHappy,
+			speakerName = "Scott",
+			speakerDirection = "Azai",
+			speakerText = "Whoa! Cool name!!"
+		};
+		conversationDict["first_infantry"].Add(first_infantry6);
+
+		ConversationItem first_infantry7 = new()
+		{
+			speakerImage = koaConfused,
+			speakerName = "Koa",
+			speakerDirection = "Scott",
+			speakerText = "Right, we just said that..."
+		};
+		conversationDict["first_infantry"].Add(first_infantry7);
+
+		ConversationItem first_infantry8 = new()
+		{
+			speakerImage = koaSerious,
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Uh, so, is there a reason you came here? Hoping to add some more adjectives to your name?"
+		};
+		conversationDict["first_infantry"].Add(first_infantry8);
+
+		ConversationItem first_infantry9 = new()
+		{
+			speakerImage = azaiSerious,
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "There will be many who will want to take what you have worked for, I have come to develop your armies and ensure your safey traveling these lands."
+		};
+		conversationDict["first_infantry"].Add(first_infantry9);
+
+		ConversationItem first_infantry10 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Excellent! Yeah, I think there's a few people out there that don't want us wondering around..."
+		};
+		conversationDict["first_infantry"].Add(first_infantry10);
+
+		ConversationItem first_infantry11 = new()
+		{
+			speakerImage = azaiSerious,
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "Verily! Now they will leave us be as we wander this magnificent world, but they hide, guard, and waste what should be used for the progress of humanity. I will train our armies to prevent that."
+		};
+		conversationDict["first_infantry"].Add(first_infantry11);
+
+		ConversationItem first_infantry12 = new()
+		{
+			speakerImage = koaHappy,
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Okay, that's cool man. You can hang out with us I guess, just let me know if you want anything or anything."
+		};
+		conversationDict["first_infantry"].Add(first_infantry12);
+		#endregion
 	}
 }
 
@@ -566,4 +677,5 @@ public struct ConversationItem
 	public string speakerDirection;
     public string speakerText;
 	public bool action;
+	public bool condition;
 }
