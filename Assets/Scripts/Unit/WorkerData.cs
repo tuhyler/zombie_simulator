@@ -9,7 +9,7 @@ public class WorkerData : IUnitData
 	public Vector3 position;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, isBusy, moreToMove, isMoving, somethingToSay, building, removing, gathering, clearingForest, clearedForest, buildingCity, harvested, harvestedForest, firstStep;
+	public bool secondaryPrefab, isBusy, moreToMove, isMoving, somethingToSay, building, removing, gathering, clearingForest, clearedForest, buildingCity, harvested, harvestedForest, firstStep, runningAway;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation, prevTile, resourceCityLoc;

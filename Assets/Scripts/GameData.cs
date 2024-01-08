@@ -20,7 +20,7 @@ public class GameData
     public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new(), goldCityWaitList = new(), goldCityRouteWaitList = new(), goldWonderWaitList = new(), goldTradeCenterWaitList = new();
     public string tutorialStep, gameStep;
     public Dictionary<string, (bool, bool)> conversationTaskDict = new();
-    public bool scottFollow;
+    public bool scottFollow, azaiFollow;
 
 	public Vector3 camPosition;
     public Quaternion camRotation;
@@ -31,12 +31,14 @@ public class GameData
     public List<Vector3Int> discoveredEnemyCampLocs = new();
 
     public Dictionary<Vector3Int, EnemyCampData> attackedEnemyBases = new();
+    public Dictionary<Vector3Int, EnemyCampData> movingEnemyBases = new();
     public Dictionary<Vector3Int, List<UnitData>> militaryUnits = new();
 
     public List<TraderData> allTraders = new();
     public List<LaborerData> allLaborers = new();
 
     public WorkerData playerUnit, scott;
+    public UnitData azai;
     public Dictionary<Vector3Int, TerrainSaveData> allTerrain = new();
     public Dictionary<Vector3Int, TradeCenterData> allTradeCenters = new();
     public List<WonderData> allWonders = new();

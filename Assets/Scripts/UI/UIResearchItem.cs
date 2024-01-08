@@ -264,7 +264,8 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         world.SetResearchBackground(true);
         GameLoader.Instance.gameData.completedResearch.Add(ResearchName);
 
-        world.TutorialCheck("Research Complete");
+        world.GameCheck(researchName + " Research Complete");
+        world.TutorialCheck(researchName + " Research Complete");
     }
 
 	public void LoadResearchComplete(MapWorld world)

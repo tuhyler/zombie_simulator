@@ -3,24 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
+using static UnityEngine.GraphicsBuffer;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class EnemyCamp 
 {
 	public MapWorld world;
 	
-	public Vector3Int loc, forward;
+	public Vector3Int loc, forward, chaseLoc;
 	public Vector3Int armyDiff;
 
 	public GameObject campfire;
 
 	public int enemyReady;
 	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength;
-	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning;
+	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing;
 	public Army attackingArmy;
 
 	//public Queue<Vector3Int> threatQueue = new();
 	public Vector3Int threatLoc;
+	public List<Vector3Int> pathToTarget = new();
 
 	private List<Unit> unitsInCamp = new(), deadList = new();
     public List<Unit> UnitsInCamp { get { return unitsInCamp; } set { unitsInCamp = value; } }
@@ -68,6 +70,7 @@ public class EnemyCamp
 					unit.barracksBunk = loc + backLines[infantry - 6];
 
 				infantry++;
+				unit.marchPosition = unit.barracksBunk - loc;
             }
 		}
 
@@ -87,7 +90,8 @@ public class EnemyCamp
 					unit.barracksBunk = loc + backLines[cavalry + infantry - 6];
 
 				cavalry++;
-            }
+				unit.marchPosition = unit.barracksBunk - loc;
+			}
         }
 
 		foreach (Unit unit in unitsInCamp)
@@ -113,9 +117,12 @@ public class EnemyCamp
 						unit.barracksBunk = loc + midLines[ranged];
 				}
 				else if (ranged < 9)
+				{
 					unit.barracksBunk = loc + frontLines[8 - ranged];
+				}
 
 				ranged++;
+				unit.marchPosition = unit.barracksBunk - loc;
 			}
         }
 
@@ -163,6 +170,26 @@ public class EnemyCamp
 		campData.seigeCount = seigeCount;
 		campData.health = health;
 		campData.strength = strength;	
+
+		return campData;
+	}
+
+	public EnemyCampData SendMovingCampUnitData()
+	{
+		EnemyCampData campData = new();
+
+		List<UnitData> campList = new();
+
+		for (int i = 0; i < unitsInCamp.Count; i++)
+		{
+			campList.Add(unitsInCamp[i].SaveMilitaryUnitData());
+		}
+
+		campData.chaseLoc = chaseLoc;
+		campData.pathToTarget = pathToTarget;
+		campData.movingOut = movingOut;
+		campData.returning = returning;
+		campData.chasing = chasing;
 
 		return campData;
 	}
@@ -275,6 +302,16 @@ public class EnemyCamp
 			enemyReady = 0;
 			prepping = false;
 			attackReady = true;
+
+			if (movingOut)
+			{
+				if (chasing)
+					world.mainPlayer.StartRunningAway();
+
+				List<Vector3Int> exemptList = new();
+				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, chaseLoc, exemptList);
+				MoveOutCamp();
+			}
 
 			if (armyReady)
 			{
@@ -544,5 +581,123 @@ public class EnemyCamp
 		deathCount = 0;
 		deadList.Clear();
 		GameLoader.Instance.gameData.attackedEnemyBases.Remove(loc);
+	}
+
+	public void StartChase(Vector3Int loc)
+	{
+		movingOut = true;
+		chasing = true;
+		chaseLoc = loc;
+		GameLoader.Instance.gameData.movingEnemyBases[loc] = new();
+
+		//getting closest tile to determine threat loc
+		bool firstOne = true;
+		int dist = 0;
+		Vector3Int closestTile = this.loc;
+		foreach (Vector3Int tile in world.GetNeighborsFor(this.loc, MapWorld.State.FOURWAYINCREMENT))
+		{
+			if (firstOne)
+			{
+				firstOne = false;
+				dist = Mathf.Abs(tile.x - loc.x) + Mathf.Abs(tile.z - loc.z);
+				closestTile = tile;
+				continue;
+			}
+
+			int newDist = Mathf.Abs(tile.x - loc.x) + Mathf.Abs(tile.z - loc.z);
+			if (newDist < dist)
+			{
+				dist = newDist;
+				closestTile = tile;
+			}
+		}
+
+		threatLoc = closestTile;
+		BattleStations();
+	}
+
+	public void FinishChase()
+	{
+		if (!returning)
+		{
+			returning = true;
+			pathToTarget.Reverse();
+			pathToTarget.RemoveAt(0);
+			pathToTarget.Add(loc);
+			MoveOutCamp();
+		}
+	}
+
+	private void MoveOutCamp()
+	{
+		foreach (Unit unit in unitsInCamp)
+		{
+			unit.preparingToMoveOut = false;
+			unit.attacking = false;
+			unit.attackCo = null;
+			List<Vector3Int> path = new();
+
+			foreach (Vector3Int tile in pathToTarget)
+				path.Add(tile + unit.marchPosition);
+
+			if (returning)
+				path.Add(unit.barracksBunk);
+
+			if (unit.isMoving)
+			{
+				unit.StopAnimation();
+				unit.ShiftMovement();
+			}
+
+			//if (!chasing)
+			//	unit.isMarching = true;
+
+			unit.finalDestinationLoc = path[path.Count - 1];
+			unit.MoveThroughPath(path);
+		}
+	}
+
+	public void UnitArrived()
+	{
+		enemyReady++;
+
+		if (enemyReady == campCount)
+		{
+			enemyReady = 0;
+			
+			if (chasing)
+			{
+				chasing = false;
+				
+				foreach (Unit unit in unitsInCamp)
+				{
+					unit.StartLookingAround();
+				}
+			}
+			else if (returning)
+			{
+				movingOut = false;
+				GameLoader.Instance.gameData.movingEnemyBases.Remove(loc);
+				ReturnToCamp();
+				world.mainPlayer.StopRunningAway();
+			}
+			else
+			{
+
+			}
+		}
+	}
+
+	public void UnitNextStep()
+	{
+		enemyReady++;
+
+		if (enemyReady == campCount)
+		{
+			enemyReady = 0;
+
+			foreach (Unit unit in unitsInCamp)
+				unit.readyToMarch = true;
+		}
 	}
 }

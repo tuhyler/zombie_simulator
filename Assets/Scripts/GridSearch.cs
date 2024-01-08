@@ -287,6 +287,68 @@ public class GridSearch
 		return path;
 	}
 
+	public static List<Vector3Int> TerrainSearchEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
+	{
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startTerrain);
+		priorityDictionary.Add(startTerrain, 0);
+		costDictionary.Add(startTerrain, 0);
+		parentsDictionary.Add(startTerrain, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endTerrain)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAYINCREMENT))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.CheckIfPositionIsValidForEnemy(neighbor)) //If it's an obstacle, ignore
+					continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 18)
+				{
+					Vector3Int temp = neighbor - current;
+
+					if (!world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(0, 0, temp.z)))
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endTerrain, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		InfoPopUpHandler.WarningMessage().Create(endTerrain, "Cannot reach selected area");
+		return path;
+	}
+
 	//for battle movements
 	public static List<Vector3Int> BattleMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> movementList, List<Vector3Int> excludeList)
 	{

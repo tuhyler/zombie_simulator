@@ -40,9 +40,9 @@ public class UIWorldResources : MonoBehaviour
     {
         if (resourceType == ResourceType.Gold)
         {
-			if (resourceAmount < 1000)
+			if (resourceAmount < 100000)
 			{
-				goldResourceAmount.text = resourceAmount.ToString();
+                goldResourceAmount.text = $"{resourceAmount:n0}";
 			}
 			else if (resourceAmount < 1000000)
 			{

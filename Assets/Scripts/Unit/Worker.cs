@@ -1050,6 +1050,7 @@ public class Worker : Unit
         data.buildingCity = buildingCity;
         data.harvested = harvested;
         data.harvestedForest = harvestedForest;
+        data.runningAway = runningAway;
         data.orderList = orderList;
         data.timePassed = timePassed;
 
@@ -1097,6 +1098,9 @@ public class Worker : Unit
         harvested = data.harvested;
         harvestedForest = data.harvestedForest;
         orderList = data.orderList;
+        runningAway = data.runningAway;
+        if (runningAway)
+            exclamationPoint.SetActive(true);
 		orderQueue = new Queue<Vector3Int>(orderList);
 
         if (!isMoving)
