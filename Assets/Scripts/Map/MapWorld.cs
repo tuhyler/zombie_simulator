@@ -1605,6 +1605,23 @@ public class MapWorld : MonoBehaviour
         GameLoader.Instance.SaveGame(saveName, playTime, version, bytesString);
     }
 
+    public void HandleCtrlT()
+    {
+        StartCoroutine(TakeScreenshot());
+    }
+
+    private IEnumerator TakeScreenshot()
+    {
+        canvasHolder.SetActive(false);
+        DateTime now = DateTime.Now;
+        ScreenCapture.CaptureScreenshot("screenshot" + now.Month + "-" + now.Day + "-" + now.Year + "-" + now.Hour+ "-" + now.Minute + ".png", 1);
+        Debug.Log("Took a screenshot");
+
+        yield return new WaitForEndOfFrame();
+
+		//canvasHolder.SetActive(true);
+	}
+
 	public void ClearMap()
     {
 		foreach (Transform go in terrainHolder)

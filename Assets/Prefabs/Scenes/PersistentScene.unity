@@ -175,8 +175,7 @@ MonoBehaviour:
     graphics: 0
     resolution: 0
   loadingScreenImages:
-  - {fileID: 21300000, guid: dfaf7ad285048f346a13d0a1292d7f91, type: 3}
-  - {fileID: 21300000, guid: edbc0e60f779ef147a5ac4f898a06d9d, type: 3}
+  - {fileID: 21300000, guid: 904fb1a770a55fe4384ec2d260a0e059, type: 3}
   loadingTips:
   - Never trust a walking coconut
   - Don't run with filing cabinets

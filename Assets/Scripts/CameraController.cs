@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class CameraController : MonoBehaviour
 {
     //public static CameraController instance; //for only one time use in another class
+    public bool freeCamera;
 
     [SerializeField]
     public Transform cameraTransform, camPointer;
@@ -56,6 +57,9 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate() //Lateupdate to reduce jittering on camera 
     {
+        if (freeCamera)
+            return;
+        
         if (paused)
             return;
 
