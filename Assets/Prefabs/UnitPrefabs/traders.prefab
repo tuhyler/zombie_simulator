@@ -87,13 +87,13 @@ MonoBehaviour:
   buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 9149838138303090476}
-  unitImage: {fileID: 0}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
   deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
     type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 0}
+  exclamationPoint: {fileID: 0}
   marker: {fileID: 103100230671984584}
   healthbar: {fileID: 5032910586026060206}
   greetings:
@@ -106,6 +106,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   unitRigidbody: {fileID: 0}
+  rotationDuration: 0.2
+  moveSpeed: 0.5
+  originalMoveSpeed: 0.5
+  threshold: 0.01
   moreToMove: 0
   isBusy: 0
   isMoving: 0
@@ -114,7 +118,7 @@ MonoBehaviour:
   secondaryPrefab: 0
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
-  prevRoadTile: {x: 0, y: 0, z: 0}
+  prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
@@ -129,12 +133,11 @@ MonoBehaviour:
   - 1
   - 1.25
   projectile: {fileID: 0}
-  turnHandler: {fileID: 0}
   bySea: 0
   isTrader: 0
   atStop: 0
   followingRoute: 0
-  isWorker: 0
+  isPlayer: 0
   isLaborer: 0
   isSelected: 0
   isWaiting: 0
@@ -142,6 +145,7 @@ MonoBehaviour:
   harvestedForest: 0
   somethingToSay: 0
   sayingSomething: 0
+  firstStep: 0
   conversationTopic: 
   isLeader: 0
   readyToMarch: 0
@@ -159,6 +163,8 @@ MonoBehaviour:
   cavalryLine: 0
   isDead: 0
   isUpgrading: 0
+  runningAway: 0
+  hidden: 0
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}

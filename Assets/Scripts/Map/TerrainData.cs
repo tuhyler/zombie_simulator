@@ -132,14 +132,11 @@ public class TerrainData : MonoBehaviour
 
 		if (terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
 			uvs = main.GetComponentInChildren<MeshFilter>().sharedMesh.uv;
-		if (rawResourceType == RawResourceType.Rocks)
-		{
-			if (rawResourceType == RawResourceType.Rocks)
-            {
-				rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
-            }
 
-		}
+		if (rawResourceType == RawResourceType.Rocks)
+        {
+			rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
+        }
 
 		if (resourceType == ResourceType.Food && terrainData.terrainDesc == TerrainDesc.Grassland)
         {
@@ -203,6 +200,32 @@ public class TerrainData : MonoBehaviour
 
             if (changeLeafColor)
                 ChangeLeafColors(true, treeHandler);
+		}
+        else if (isHill && rawResourceType == RawResourceType.Rocks)
+        {
+            ResourceGraphicHandler resourceGraphic = nonstatic.GetComponentInChildren<ResourceGraphicHandler>();
+            resourceGraphic.TurnOffGraphics();
+
+			if (resourceAmount > resourceGraphic.largeThreshold)
+				resourceGraphic.resourceLargeHill.SetActive(true);
+			else if (resourceAmount > resourceGraphic.mediumThreshold)
+				resourceGraphic.resourceMediumHill.SetActive(true);
+			else if (resourceAmount > resourceGraphic.smallThreshold)
+				resourceGraphic.resourceSmallHill.SetActive(true);
+
+			rockUVs = ResourceHolder.Instance.GetUVs(resourceType);
+
+			foreach (MeshFilter mesh in resourceGraphic.GetComponentsInChildren<MeshFilter>())
+			{
+				Vector2[] newUVs = mesh.mesh.uv;
+				int i = 0;
+				while (i < newUVs.Length)
+				{
+					newUVs[i] = rockUVs;
+					i++;
+				}
+				mesh.mesh.uv = newUVs;
+			}
 		}
 	}
 
@@ -569,8 +592,8 @@ public class TerrainData : MonoBehaviour
         {
             main.gameObject.SetActive(false);
             //ShowProp(false);
-			//if (!isHill)
-            prop.gameObject.SetActive(false);
+            if (rawResourceType != RawResourceType.Rocks) //so that sound will play
+                prop.gameObject.SetActive(false);
 			GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = true;
             StartCoroutine(PopUp());
         }
@@ -711,20 +734,20 @@ public class TerrainData : MonoBehaviour
 
         if (resourceGraphic.isHill)
         {
-            if (resourceAmount > 100)
+            if (resourceAmount > resourceGraphic.largeThreshold)
                 resourceGraphic.resourceLargeHill.SetActive(true);
-            else if (resourceAmount > 50)
+            else if (resourceAmount > resourceGraphic.mediumThreshold)
                 resourceGraphic.resourceMediumHill.SetActive(true);
-            else if (resourceAmount > 0)
+            else if (resourceAmount > resourceGraphic.smallThreshold)
                 resourceGraphic.resourceSmallHill.SetActive(true);
         }
         else
         {
-            if (resourceAmount > 100)
+            if (resourceAmount > resourceGraphic.largeThreshold)
                 resourceGraphic.resourceLargeFlat.SetActive(true);
-            else if (resourceAmount > 50)
+            else if (resourceAmount > resourceGraphic.mediumThreshold)
                 resourceGraphic.resourceMediumFlat.SetActive(true);
-            else if (resourceAmount > 0)
+            else if (resourceAmount > resourceGraphic.smallThreshold)
                 resourceGraphic.resourceSmallFlat.SetActive(true);
         }
     }

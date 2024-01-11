@@ -279,7 +279,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1771432436929309141}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3880261271361101950
+--- !u!114 &4979040487069384487
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -288,12 +288,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2321851027760307080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da11ff3b20aa482448c3718d71bba364, type: 3}
+  m_Script: {fileID: 11500000, guid: ef3539db8ce8105408a48063c9f1361c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: 3c924c91f8f9d3043bd2265e9b5c9589, type: 2}
-  unitMesh: {fileID: 0}
+  unitMesh: {fileID: 6098140611896325300}
   minimapIcon: {fileID: 0}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -301,17 +301,12 @@ MonoBehaviour:
     type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 1723151143088321804}
+  exclamationPoint: {fileID: 0}
   marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
-  greetings:
-  - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
-  attacks:
-  - {fileID: 8300000, guid: c500c255fec9ac642b54b7e344f77a83, type: 3}
-  - {fileID: 8300000, guid: 2f8f99e3b452ed44abc520a098ebc7c1, type: 3}
-  - {fileID: 8300000, guid: 326861291430e354c9d289f281ca5c93, type: 3}
-  kills:
-  - {fileID: 8300000, guid: b9313b65e84c03a48b2d9403df4a6cc7, type: 3}
-  - {fileID: 8300000, guid: a009f6db8ae480e41888ba9d9f2ab41e, type: 3}
+  greetings: []
+  attacks: []
+  kills: []
   audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
@@ -341,9 +336,9 @@ MonoBehaviour:
   attackSpeed: 0
   attackStrength: 0
   attackPause:
-  - 0.75
+  - 0.8
   - 1
-  - 1.25
+  - 1.2
   projectile: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -360,7 +355,7 @@ MonoBehaviour:
   firstStep: 0
   conversationTopic: 
   isLeader: 0
-  readyToMarch: 0
+  readyToMarch: 1
   inArmy: 0
   atHome: 0
   preparingToMoveOut: 0
@@ -375,9 +370,25 @@ MonoBehaviour:
   cavalryLine: 0
   isDead: 0
   isUpgrading: 0
+  runningAway: 0
+  hidden: 0
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
+  building: 0
+  removing: 0
+  gathering: 0
+  clearingForest: 0
+  buildingCity: 0
+  working: 0
+  clearedForest: 0
+  clearingForestTime: 1
+  cityBuildingTime: 2
+  roadBuildingTime: 1
+  roadRemovingTime: 2
+  clearedForestlumberAmount: 100
+  gatheringClips: []
+  timePassed: 0
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -550,3 +561,9 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 134b754945409f5408d1bf49164f6adb, type: 3}
+--- !u!137 &6098140611896325300 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: 134b754945409f5408d1bf49164f6adb,
+    type: 3}
+  m_PrefabInstance: {fileID: 4756168378635282918}
+  m_PrefabAsset: {fileID: 0}

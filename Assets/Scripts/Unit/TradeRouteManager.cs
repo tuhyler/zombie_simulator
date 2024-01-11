@@ -9,11 +9,13 @@ using UnityEngine.Events;
 public class TradeRouteManager : MonoBehaviour
 {
     [HideInInspector]
-    public int startingStop;
+    public int startingStop, ambushProb = 100;
     [HideInInspector]
     public List<Vector3Int> cityStops = new();
     private Dictionary<int, List<Vector3Int>> routePathsDict = new();
     public Dictionary<int, List<Vector3Int>> RoutePathsDict { get { return routePathsDict; } set { routePathsDict = value; } }
+    [HideInInspector]
+    public List<int> ambushSpots = new();
     [HideInInspector]
     public List<List<ResourceValue>> resourceAssignments;
     [HideInInspector]
@@ -96,6 +98,9 @@ public class TradeRouteManager : MonoBehaviour
 			List<Vector3Int> currentPath = GridSearch.AStarSearch(world, cityStops[i], cityStops[j], true, trader.bySea);
             routePathsDict[i] = currentPath;
             length += currentPath.Count;
+
+            if (currentPath.Count > 22)
+                ambushSpots.Add(i);
 		}
 
         return length;
@@ -120,6 +125,37 @@ public class TradeRouteManager : MonoBehaviour
         else
             nextPath = currentStop - 1;
         
+        //roll to see if ambushed
+        if (ambushSpots.Contains(nextPath) && UnityEngine.Random.Range(0, 100) < ambushProb)
+        {
+            Vector3Int randomLoc = routePathsDict[nextPath][UnityEngine.Random.Range(6, routePathsDict[nextPath].Count - 5)];
+
+            //check if city close by
+            bool farCity = true;
+
+            foreach (City city in trader.world.cityDict.Values)
+            {
+                if (city.cityPop.CurrentPop < 5)
+                    continue;
+                
+                if (Mathf.Abs(city.cityLoc.x - randomLoc.x) < 13 && Mathf.Abs(city.cityLoc.z - randomLoc.z) < 13)
+                {
+                    farCity = false;
+                    break;
+                }
+            }
+
+            if (farCity)
+            {
+                trader.ambushLoc = trader.world.GetClosestTerrainLoc(randomLoc);
+                trader.ambush = true;
+            }
+            else
+            {
+                trader.ambush = false;
+            }
+        }
+
         return routePathsDict[nextPath];
     }
 

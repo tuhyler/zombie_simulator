@@ -68,6 +68,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: cavalry_1_enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 5178408066084535726, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
       propertyPath: m_RootOrder

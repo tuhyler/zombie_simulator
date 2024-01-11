@@ -177,6 +177,9 @@ public class UIMapHandler : MonoBehaviour
             world.wonderButton.gameObject.SetActive(true);
             world.uiMainMenuButton.gameObject.SetActive(true);
 			world.conversationListButton.gameObject.SetActive(true);
+
+            if (world.uiAttackWarning.attackUnits.Count > 0)
+                world.uiAttackWarning.ToggleVisibility(true);
 		}
         else
         {
@@ -185,7 +188,8 @@ public class UIMapHandler : MonoBehaviour
             world.wonderButton.gameObject.SetActive(false);
             world.uiMainMenuButton.gameObject.SetActive(false);
             world.conversationListButton.gameObject.SetActive(false);
-        }
+			world.uiAttackWarning.gameObject.SetActive(false);
+		}
     }
 
     public void AddResourceToMap(Vector3Int loc, ResourceType type)

@@ -605,7 +605,8 @@ public class Army : MonoBehaviour
 
                 if (targetCamp.attackReady)
                 {
-                    targetCamp.attackReady = false;
+					world.uiAttackWarning.AttackNotification(targetCamp.UnitsInCamp[0]);
+					targetCamp.attackReady = false;
                     targetCamp.armyReady = false;
                     Charge();
                 }

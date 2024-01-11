@@ -1101,6 +1101,7 @@ public class Worker : Unit
         runningAway = data.runningAway;
         if (runningAway)
             exclamationPoint.SetActive(true);
+
 		orderQueue = new Queue<Vector3Int>(orderList);
 
         if (!isMoving)
@@ -1242,5 +1243,10 @@ public class Worker : Unit
 				//workerTaskManager.LoadBuildCityCoroutine(data.timePassed, CurrentLocation, this);	
 			}
         }
+        else if (runningAway)
+        {
+			runningAway = false; //gets reset in next method
+			StartRunningAway();
+		}
 	}
 }

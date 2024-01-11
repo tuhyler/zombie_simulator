@@ -12,7 +12,7 @@ public class GameData
 
     //world misc lists
     public List<string> completedResearch, currentResearch, newUnitsAndImprovements;
-    public int goldAmount, researchAmount, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber;
+    public int goldAmount, researchAmount, ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber;
     public List<ResourceType> resourceDiscoveredList = new();
     public Dictionary<Vector3Int, int> currentWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict;
@@ -21,6 +21,10 @@ public class GameData
     public string tutorialStep, gameStep;
     public Dictionary<string, (bool, bool)> conversationTaskDict = new();
     public bool scottFollow, azaiFollow;
+    public Vector3Int startingLoc;
+    public List<Vector3Int> attackLocs = new();
+    public Era currentEra;
+    public Region startingRegion;
 
 	public Vector3 camPosition;
     public Quaternion camRotation;
@@ -37,8 +41,8 @@ public class GameData
     public List<TraderData> allTraders = new();
     public List<LaborerData> allLaborers = new();
 
-    public WorkerData playerUnit, scott;
-    public UnitData azai;
+    public WorkerData playerUnit, scott, azai;
+    //public UnitData azai;
     public Dictionary<Vector3Int, TerrainSaveData> allTerrain = new();
     public Dictionary<Vector3Int, TradeCenterData> allTradeCenters = new();
     public List<WonderData> allWonders = new();

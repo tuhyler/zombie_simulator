@@ -182,6 +182,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 460b7f5c7fc92e942868452fc88c6264, type: 3}
   - {fileID: 21300000, guid: 6557c57c1a1c0bf4892bc9c52b29b139, type: 3}
   - {fileID: 21300000, guid: b6ae298ce750fa247bdbafc7a9fd4c1d, type: 3}
+  - {fileID: 21300000, guid: 9546df8c76ecc2644ae8bfa00101c2a7, type: 3}
   - {fileID: 21300000, guid: 72ecb0ac51c363846ae280e1cecf7a11, type: 3}
   - {fileID: 21300000, guid: 950822ac4d7378e40a9c635276cb7502, type: 3}
   - {fileID: 21300000, guid: 176cf0cc42e8e4b468fad6f39e538478, type: 3}
@@ -369,6 +370,7 @@ SpriteAtlas:
   - button_square01
   - icon_battle
   - button_deploy
+  - circle_red
   - bar_blue01
   - button_map
   - arrow_up

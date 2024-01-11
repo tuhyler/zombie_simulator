@@ -22,9 +22,9 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 10
+    resourceAmount: 0
   - resourceType: 7
-    resourceAmount: 3
+    resourceAmount: 0
   cycleCost:
   - resourceType: 4
     resourceAmount: 1
@@ -34,7 +34,7 @@ MonoBehaviour:
   laborCost: 0
   unitType: 5
   unitDescription: Transports cargo on land
-  availableInitially: 0
+  availableInitially: 1
   health: 10
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
@@ -43,3 +43,4 @@ MonoBehaviour:
   cargoCapacity: 10
   transportationType: 0
   characterUnit: 0
+  unitEra: 0

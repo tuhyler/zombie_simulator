@@ -484,7 +484,26 @@ public class BasicEnemyAI : MonoBehaviour
         }
 
 		unit.attacking = false;
-		if (unit.enemyCamp.attackingArmy == null)
+		if (unit.ambush)
+		{
+			unit.enemyAmbush.attackedUnits.Remove(target);
+			if (unit.enemyAmbush.attackedUnits.Count > 0)
+			{
+				StartAttack(unit.enemyAmbush.attackedUnits[0]);
+			}
+			else
+			{
+				if (unit.world.ambushes == 1)
+				{
+					unit.world.tutorialGoing = true;
+					unit.world.TutorialCheck("Ambush");
+				}
+
+				unit.world.ClearAmbush(unit.enemyAmbush.loc);
+				StartCoroutine(unit.DramaticallyDisappear());
+			}
+		}
+		else if (unit.enemyCamp.attackingArmy == null)
 		{
 			StartReturn();
 		}

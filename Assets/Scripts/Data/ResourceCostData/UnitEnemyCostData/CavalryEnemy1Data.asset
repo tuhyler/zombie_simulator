@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5472208631966679460, guid: f3efaa925e7c6c34790f26f3c03c9ab9, type: 3}
   secondaryPrefab: {fileID: 0}
-  isSecondary: 0
   unitName: Cavalry
-  unitDisplayName: Horse Bandit
+  unitDisplayName: Bandit Rider
   unitLevel: 1
   unitNameAndLevel: Cavalry-1
   image: {fileID: 0}
@@ -28,7 +27,6 @@ MonoBehaviour:
   unitType: 3
   unitDescription: 
   availableInitially: 0
-  locked: 1
   health: 50
   baseAttackStrength: 1
   baseAttackSpeed: 1
@@ -36,3 +34,5 @@ MonoBehaviour:
   trainTime: 0
   cargoCapacity: 0
   transportationType: 0
+  characterUnit: 0
+  unitEra: 0

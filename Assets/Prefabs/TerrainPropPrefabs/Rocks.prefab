@@ -58,6 +58,9 @@ MonoBehaviour:
   resourceMediumHill: {fileID: 8844207045031953256}
   resourceSmallHill: {fileID: 3359742425504680967}
   isHill: 0
+  largeThreshold: 2000
+  mediumThreshold: 500
+  smallThreshold: 0
 --- !u!82 &6063761308745432120
 AudioSource:
   m_ObjectHideFlags: 0

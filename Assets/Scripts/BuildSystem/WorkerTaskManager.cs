@@ -48,11 +48,11 @@ public class WorkerTaskManager : MonoBehaviour
         roadManager = GetComponent<RoadManager>();
     }
 
-    public void HandleEsc()
-    {
-        if (world.mainPlayer.isSelected && world.mainPlayer.isBusy)
-            CancelTask();
-    }
+    //public void HandleEsc()
+    //{
+    //    if (world.mainPlayer.isSelected && world.mainPlayer.isBusy)
+    //        CancelTask();
+    //}
 
     //Methods to run when pressing certain keys
     public void HandleR()
@@ -600,6 +600,18 @@ public class WorkerTaskManager : MonoBehaviour
     //    return false;
     //}
 
+    public void ForceCancelWorkerTask()
+    {
+        if (world.mainPlayer.isSelected)
+        {
+            CancelTask();
+        }
+        else
+        {
+            CancelingTask();
+		}
+    }
+
     public void CancelTask()
     {
         if (!world.mainPlayer.isSelected)
@@ -616,46 +628,50 @@ public class WorkerTaskManager : MonoBehaviour
         if (world.mainPlayer.isBusy)
             unitMovement.ToggleOrderHighlights(false);
 
-        if (world.scott.isMoving)
-        {
-            world.scott.WorkerOrdersPreparations();
-        }
+        CancelingTask();
+        TurnOffCancelTask();
+    }
 
-        if (world.mainPlayer.isMoving)
-        {
-            world.mainPlayer.StopMovement();
-        }
+    public void CancelingTask()
+    {
+		if (world.scott.isMoving)
+		{
+			world.scott.WorkerOrdersPreparations();
+		}
 
-        if (world.scott.clearingForest)
-        {
-            Vector3Int pos = world.GetClosestTerrainLoc(world.mainPlayer.transform.position);
+		if (world.mainPlayer.isMoving)
+		{
+			world.mainPlayer.StopMovement();
+		}
+
+		if (world.scott.clearingForest)
+		{
+			Vector3Int pos = world.GetClosestTerrainLoc(world.mainPlayer.transform.position);
 			world.GetTerrainDataAt(pos).beingCleared = false;
 			GameLoader.Instance.gameData.allTerrain[pos].beingCleared = false;
 		}
 
-        world.scott.SetWorkAnimation(false);
+		world.scott.SetWorkAnimation(false);
 		world.mainPlayer.SetGatherAnimation(false);
-        world.scott.SetGatherAnimation(false);
+		world.scott.SetGatherAnimation(false);
 
-        world.mainPlayer.TaskCoCheck();
-        world.scott.TaskCoCheck();
+		world.mainPlayer.TaskCoCheck();
+		world.scott.TaskCoCheck();
 
 		world.mainPlayer.HideProgressTimeBar();
-        world.scott.HideProgressTimeBar();
-        world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(world.mainPlayer.transform.position));
-        world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(world.scott.transform.position));
+		world.scott.HideProgressTimeBar();
+		world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(world.mainPlayer.transform.position));
+		world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(world.scott.transform.position));
 
-        //workerUnit.clearingForest = false;
-        world.scott.clearingForest = false;
-        world.scott.ResetOrderQueue();
+		world.scott.clearingForest = false;
+		world.scott.ResetOrderQueue();
 		world.mainPlayer.isBusy = false;
-        world.scott.removing = false;
-        world.scott.building = false;
+		world.scott.removing = false;
+		world.scott.building = false;
 		world.mainPlayer.gathering = false;
-        //world.scott.gathering = false;
+		world.scott.gathering = false;
 		world.mainPlayer.buildingCity = false;
-        TurnOffCancelTask();
-    }
+	}
 
     public void TurnOffCancelTask()
     {
