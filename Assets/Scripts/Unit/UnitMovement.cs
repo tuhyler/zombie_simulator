@@ -602,14 +602,17 @@ public class UnitMovement : MonoBehaviour
             selectedUnit = unitReference;
         }
 
-        if (selectedUnit.somethingToSay)
+        if (world.characterUnits.Contains(selectedUnit) && (world.mainPlayer.somethingToSay || world.scott.somethingToSay || world.azai.somethingToSay))
         {
-			if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
+			if (world.mainPlayer.harvested) //if unit just finished harvesting something, send to closest city
+				selectedUnit.SendResourceToCity();
+            
+            if (world.scott.harvested)
 				selectedUnit.SendResourceToCity();
 
-			world.unitMovement.QuickSelect(selectedUnit);
+			QuickSelect(selectedUnit);
 			selectedUnit.SpeakingCheck();
-		}
+        }
         else
         {
             SelectLaborer();
@@ -964,8 +967,11 @@ public class UnitMovement : MonoBehaviour
         moveUnit = false;
         world.scott.MoveThroughPath(scottPath);
 
-        world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1]; //last spot for now, will change once arriving at final loc; 
-        world.azai.MoveThroughPath(azaiPath);
+        if (world.azaiFollow)
+        {
+            world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1]; //last spot for now, will change once arriving at final loc; 
+            world.azai.MoveThroughPath(azaiPath);
+        }
         //unit.followerPath.Clear();
 	}
 

@@ -53,6 +53,8 @@ public class GameLoader : MonoBehaviour
 		gameData.savePlayTime += playTime;
 		gameData.saveVersion = version;
 		gameData.saveScreenshot = screenshot;
+		gameData.currentEra = world.currentEra;
+		gameData.startingRegion = world.startingRegion;
 		gameData.currentWorkedTileDict = world.currentWorkedTileDict;
 		gameData.cityWorkedTileDict = world.cityWorkedTileDict;
 		gameData.cityImprovementQueueList = world.cityImprovementQueueList;
@@ -70,6 +72,14 @@ public class GameLoader : MonoBehaviour
 		gameData.goldAmount = world.worldResourceManager.GetWorldGoldLevel();
 		gameData.scottFollow = world.scottFollow;
 		gameData.azaiFollow = world.azaiFollow;
+		gameData.startingLoc = world.startingLoc;
+
+		for (int i = 0; i < world.uiAttackWarning.attackUnits.Count; i++)
+		{
+			gameData.attackLocs.Add(world.uiAttackWarning.attackUnits[i].enemyCamp.loc);
+		}
+
+		gameData.ambushes = world.ambushes;
 		gameData.cityCount = world.cityCount;
 		gameData.infantryCount = world.infantryCount;
 		gameData.rangedCount = world.rangedCount;
@@ -154,7 +164,7 @@ public class GameLoader : MonoBehaviour
 		//main characters
 		gameData.playerUnit = world.mainPlayer.SaveWorkerData();
 		gameData.scott = world.scott.SaveWorkerData();
-		gameData.azai = world.azai.SaveMilitaryUnitData();
+		gameData.azai = world.azai.SaveWorkerData();
 
 		//traders
 		gameData.allTraders.Clear();
@@ -200,6 +210,8 @@ public class GameLoader : MonoBehaviour
 		
 		gameData = gamePersist.LoadData(saveName, false);
 
+		world.currentEra = gameData.currentEra;
+		world.startingRegion = gameData.startingRegion;
 		world.GenerateMap(gameData.allTerrain);
 		world.resourceDiscoveredList = gameData.resourceDiscoveredList;
 		world.LoadDiscoveredResources();
@@ -218,6 +230,7 @@ public class GameLoader : MonoBehaviour
 		world.tutorialStep = gameData.tutorialStep;
 		world.gameStep = gameData.gameStep;
 		world.worldResourceManager.SetWorldGoldLevel(gameData.goldAmount);
+		world.ambushes = gameData.ambushes;
 		world.cityCount = gameData.cityCount;
 		world.infantryCount = gameData.infantryCount;
 		world.rangedCount = gameData.rangedCount;
@@ -235,7 +248,24 @@ public class GameLoader : MonoBehaviour
 		world.LoadWonder(gameData.allWonders);
 		world.scottFollow = gameData.scottFollow;
 		world.azaiFollow = gameData.azaiFollow;
+		world.uiAttackWarning.LoadAttackLocs(gameData.attackLocs);
+		world.startingLoc = gameData.startingLoc;
 		gameData.allWonders.Clear();
+
+		if (!world.scottFollow)
+		{
+			world.scott.gameObject.SetActive(false);
+			world.characterUnits.Remove(world.scott);
+			world.RemoveUnitPosition(world.RoundToInt(world.scott.transform.position));
+			world.unitMovement.uiWorkerTask.DeactivateButtons();
+		}
+
+		if (!world.azaiFollow)
+		{
+			world.azai.gameObject.SetActive(false);
+			world.characterUnits.Remove(world.azai);
+			world.RemoveUnitPosition(world.RoundToInt(world.azai.transform.position));
+		}
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(5);
@@ -271,7 +301,7 @@ public class GameLoader : MonoBehaviour
 		GameManager.Instance.UpdateProgress(10);
 
 		world.scott.LoadWorkerData(gameData.scott);
-		world.azai.LoadUnitData(gameData.azai);
+		world.azai.LoadWorkerData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 
 		//traders

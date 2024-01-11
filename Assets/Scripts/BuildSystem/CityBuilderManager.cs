@@ -154,7 +154,7 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     public AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
-        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip;
+        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip, alertClip, warningClip;
     [SerializeField]
     private AudioClip[] acknowledgements;
     [HideInInspector]
@@ -684,7 +684,7 @@ public class CityBuilderManager : MonoBehaviour
                     unit.transform.SetParent(friendlyUnitHolder, false);
                     unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
                     Laborer laborer = unit.GetComponent<Laborer>();
-                    laborer.marker.gameObject.SetActive(true);
+                    laborer.marker.ToggleVisibility(true);
                     world.laborerList.Add(laborer);
                     laborer.StartLaborAnimations();
                     
@@ -898,6 +898,18 @@ public class CityBuilderManager : MonoBehaviour
         audioSource.clip = chimeClip;
         audioSource.Play();
     }
+
+    public void PlayAlertAudio()
+    {
+		audioSource.clip = alertClip;
+		audioSource.Play();
+	}
+
+    public void PlayWarningAudio()
+    {
+		audioSource.clip = warningClip;
+		audioSource.Play();
+	}
 
     public void PlayOpenCityAudio()
     {
@@ -3381,7 +3393,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		if (world.tutorialGoing)
 		{
-			if (uiHelperWindow.activeStatus)
+			if (uiHelperWindow != null && uiHelperWindow.activeStatus)
 				uiHelperWindow.ToggleVisibility(false);
 		}
 		//uiLaborHandler.HideUI();

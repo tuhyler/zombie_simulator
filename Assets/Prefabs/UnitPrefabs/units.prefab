@@ -102,6 +102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterial2: {fileID: 0}
   isGlowing: 0
 --- !u!82 &3289582613228498241
 AudioSource:

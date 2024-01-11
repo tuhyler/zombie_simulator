@@ -6,6 +6,7 @@ public class ResourceGraphicHandler : MonoBehaviour
 {
     public GameObject resourceLargeFlat, resourceMediumFlat, resourceSmallFlat, resourceLargeHill, resourceMediumHill, resourceSmallHill;
     public bool isHill;
+    public int largeThreshold, mediumThreshold, smallThreshold;
 
     private AudioSource audioSource;
 	private void Awake()

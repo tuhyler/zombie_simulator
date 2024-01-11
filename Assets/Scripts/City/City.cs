@@ -1740,15 +1740,19 @@ public class City : MonoBehaviour
             data.tradersHere.Add(tradersHere[i].id);
         }
 
-        //resource manager
-        data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
+		//resource manager
+		foreach (ResourceType type in resourceManager.ResourceDict.Keys)
+			data.allResourceInfoDict[type] = (resourceManager.ResourceDict[type], resourceManager.resourcePriceDict[type], resourceManager.resourceMinHoldDict[type], resourceManager.resourceSellHistoryDict[type], resourceManager.resourceSellList.Contains(type));
+
+		data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
 		//data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
         data.fullInventory = resourceManager.fullInventory;
-		data.resourceDict = resourceManager.ResourceDict;
-        data.resourcePriceDict = resourceManager.resourcePriceDict;
-        data.resourceSellList = resourceManager.resourceSellList;
-        data.resourceMinHoldDict = resourceManager.resourceMinHoldDict;
-        data.resourceSellHistoryDict = resourceManager.resourceSellHistoryDict;
+
+		//data.resourceDict = resourceManager.ResourceDict;
+  //      data.resourcePriceDict = resourceManager.resourcePriceDict;
+  //      data.resourceSellList = resourceManager.resourceSellList;
+  //      data.resourceMinHoldDict = resourceManager.resourceMinHoldDict;
+  //      data.resourceSellHistoryDict = resourceManager.resourceSellHistoryDict;
         data.pauseGrowth = resourceManager.pauseGrowth;
         data.growthDeclineDanger = resourceManager.growthDeclineDanger;
         data.starvationCount = resourceManager.starvationCount;
@@ -1868,13 +1872,23 @@ public class City : MonoBehaviour
 		//resource manager
 		//warehouseStorageLimit = data.warehouseStorageLimit;
         //resourceManager.ResourceStorageLimit = data.warehouseStorageLimit;
+        foreach (ResourceType type in data.allResourceInfoDict.Keys)
+        {
+            resourceManager.ResourceDict[type] = data.allResourceInfoDict[type].Item1;
+            resourceManager.resourcePriceDict[type] = data.allResourceInfoDict[type].Item2;
+            resourceManager.resourceMinHoldDict[type] = data.allResourceInfoDict[type].Item3;
+            resourceManager.resourceSellHistoryDict[type] = data.allResourceInfoDict[type].Item4;
+
+            if (data.allResourceInfoDict[type].Item5)
+                resourceManager.resourceSellList.Add(type);
+        }
         resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
         resourceManager.fullInventory = data.fullInventory;
-        resourceManager.ResourceDict = data.resourceDict;
-        resourceManager.resourcePriceDict = data.resourcePriceDict;
-        resourceManager.resourceSellList = data.resourceSellList;
-        resourceManager.resourceMinHoldDict = data.resourceMinHoldDict;
-        resourceManager.resourceSellHistoryDict = data.resourceSellHistoryDict;
+        //resourceManager.ResourceDict = data.resourceDict;
+        //resourceManager.resourcePriceDict = data.resourcePriceDict;
+        //resourceManager.resourceSellList = data.resourceSellList;
+        //resourceManager.resourceMinHoldDict = data.resourceMinHoldDict;
+        //resourceManager.resourceSellHistoryDict = data.resourceSellHistoryDict;
         resourceManager.pauseGrowth = data.pauseGrowth;
         resourceManager.growthDeclineDanger = data.growthDeclineDanger;
 		resourceManager.starvationCount = data.starvationCount;

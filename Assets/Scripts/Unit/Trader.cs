@@ -25,7 +25,7 @@ public class Trader : Unit
     public int cargoStorageLimit;
 
     [HideInInspector]
-    public bool hasRoute, waitingOnRouteCosts;//, interruptedRoute;
+    public bool hasRoute, waitingOnRouteCosts, guarded;//, interruptedRoute;
 
     public int loadUnloadRate = 1;
 
@@ -525,6 +525,8 @@ public class Trader : Unit
 		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
+        data.ambushLoc = ambushLoc;
+        data.ambush = ambush;
 
 		if (isMoving && !isWaiting)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -580,6 +582,8 @@ public class Trader : Unit
 		hasRoute = data.hasRoute;
 		waitingOnRouteCosts = data.waitingOnRouteCosts;
 		resourceGridDict = data.resourceGridDict;
+        ambushLoc = data.ambushLoc;
+        ambush = data.ambush;
 
 		if (!isMoving)
 			world.AddUnitPosition(CurrentLocation, this);

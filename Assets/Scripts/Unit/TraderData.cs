@@ -10,10 +10,10 @@ public class TraderData : IUnitData
 	public Vector3 position;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, moreToMove, isMoving, interruptedRoute, atStop, followingRoute, isWaiting, isUpgrading, hasRoute, waitingOnRouteCosts;
+	public bool secondaryPrefab, moreToMove, isMoving, interruptedRoute, atStop, followingRoute, isWaiting, isUpgrading, hasRoute, waitingOnRouteCosts, ambush;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
-	public Vector3Int currentLocation;
+	public Vector3Int currentLocation, ambushLoc;
 	public Vector3Int prevTile, prevTerrainTile;
 	public Dictionary<ResourceType, int> resourceGridDict;
 

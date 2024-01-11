@@ -169,7 +169,7 @@ public class EnemyCamp
 		campData.cavalryCount = cavalryCount;
 		campData.seigeCount = seigeCount;
 		campData.health = health;
-		campData.strength = strength;	
+		campData.strength = strength;
 
 		return campData;
 	}
@@ -190,6 +190,7 @@ public class EnemyCamp
 		campData.movingOut = movingOut;
 		campData.returning = returning;
 		campData.chasing = chasing;
+		campData.allUnits = campList;
 
 		return campData;
 	}
@@ -306,7 +307,10 @@ public class EnemyCamp
 			if (movingOut)
 			{
 				if (chasing)
+				{
 					world.mainPlayer.StartRunningAway();
+					world.uiAttackWarning.AttackNotification(unitsInCamp[0]);
+				}
 
 				List<Vector3Int> exemptList = new();
 				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, chaseLoc, exemptList);
@@ -315,6 +319,7 @@ public class EnemyCamp
 
 			if (armyReady)
 			{
+				world.uiAttackWarning.AttackNotification(unitsInCamp[0]);
 				armyReady = false;
 				attackReady = false;
 				attackingArmy.Charge();
@@ -588,7 +593,7 @@ public class EnemyCamp
 		movingOut = true;
 		chasing = true;
 		chaseLoc = loc;
-		GameLoader.Instance.gameData.movingEnemyBases[loc] = new();
+		GameLoader.Instance.gameData.movingEnemyBases[this.loc] = new();
 
 		//getting closest tile to determine threat loc
 		bool firstOne = true;
@@ -671,6 +676,7 @@ public class EnemyCamp
 				
 				foreach (Unit unit in unitsInCamp)
 				{
+					unit.looking = true;
 					unit.StartLookingAround();
 				}
 			}

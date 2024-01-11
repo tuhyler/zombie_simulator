@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements.Experimental;
+using static UnityEngine.EventSystems.EventTrigger;
 using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -17,12 +18,16 @@ public class MapWorld : MonoBehaviour
 {
     private string version = "0.1";
     private DateTime currentTime;
+    [HideInInspector]
+    public Era currentEra = Era.AncientEra;
+    [HideInInspector]
+    public Region startingRegion = Region.South;
     [SerializeField]
     public HandlePlayerInput playerInput;
     [SerializeField]
-    public Worker mainPlayer, scott;
-    [SerializeField]
-    public Unit /*scott, */azai;
+    public Worker mainPlayer, scott, azai;
+    //[SerializeField]
+    //public Unit /*scott, */azai;
     [SerializeField]
     public Light startingSpotlight;
     [SerializeField]
@@ -39,6 +44,8 @@ public class MapWorld : MonoBehaviour
     public DayNightCycle dayNightCycle;
     [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
+    [SerializeField]
+    public UIAttackWarning uiAttackWarning;
     [SerializeField]
     public UIWorldResources uiWorldResources;
     [SerializeField]
@@ -213,6 +220,7 @@ public class MapWorld : MonoBehaviour
     //for enemy
     private Dictionary<Vector3Int, EnemyCamp> enemyCampDict = new();
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
+    private Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
 
     //for resource icons on minimap (so they're rotated correctly)
     private Dictionary<Vector3Int, ResourceMinimapIcon> resourceIconDict = new();
@@ -227,7 +235,7 @@ public class MapWorld : MonoBehaviour
 
     //for tracking stats
     [HideInInspector]
-    public int cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber;
+    public int ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber;
     [HideInInspector]
     public string tutorialStep, gameStep;
     private bool flashingButton;
@@ -253,6 +261,9 @@ public class MapWorld : MonoBehaviour
 
     [HideInInspector]
     public GamePersist gamePersist = new();
+
+    //ambush info
+    public Dictionary<Era, string> ambushDict = new();
 
     //character units
     [HideInInspector]
@@ -308,8 +319,8 @@ public class MapWorld : MonoBehaviour
     private void Start()
     {
         NewGamePrep(false);
-		resourceDiscoveredList.Add(ResourceType.Gold);
-        resourceDiscoveredList.Add(ResourceType.Research);
+		AddToDiscoverList(ResourceType.Gold);
+        AddToDiscoverList(ResourceType.Research);
 
 		string upgradeableObjectName = "";
         List<ResourceValue> upgradeableObjectTotalCost = new();
@@ -474,12 +485,6 @@ public class MapWorld : MonoBehaviour
 
         CreateParticleSystems();
         uiMainMenu.uiSaveGame.PopulateSaveItems();
-        if (tutorial)
-        {
-            GameObject helperWindow = Instantiate(uiHelperWindow);
-            helperWindow.transform.SetParent(cityCanvas.transform, false);
-            cityBuilderManager.uiHelperWindow = helperWindow.GetComponent<UIHelperWindow>();
-        }
         DeactivateCanvases();
         //CreateGrid(); //for alternative grid search method
         //if (gamePersist.loadNewGame)
@@ -487,6 +492,13 @@ public class MapWorld : MonoBehaviour
         //    Debug.Log("loading new game");
         //    LoadData();
         //}
+
+        //populating ambush dict
+        foreach (UnitBuildDataSO unit in UpgradeableObjectHolder.Instance.enemyUnitDict.Values)
+        {
+            if (unit.unitType == UnitType.Infantry)
+                ambushDict[unit.unitEra] = unit.unitNameAndLevel;
+        }
     }
 
     public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null, bool tutorial = false)
@@ -496,12 +508,19 @@ public class MapWorld : MonoBehaviour
         conversationListButton.gameObject.SetActive(true);
 		uiWorldResources.SetActiveStatus(true);
         this.tutorial = tutorial;
+		if (tutorial)
+		{
+			GameObject helperWindow = Instantiate(uiHelperWindow);
+			helperWindow.transform.SetParent(cityCanvas.transform, false);
+			cityBuilderManager.uiHelperWindow = helperWindow.GetComponent<UIHelperWindow>();
+		}
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
 
         if (newGame)
         {
             NewMap(terrainDict);
+            characterUnits.Clear();
         }
         else
         {
@@ -570,6 +589,7 @@ public class MapWorld : MonoBehaviour
 		foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
 		{
 			Unit unitEnemy = go.GetComponent<Unit>();
+			unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
 			unitEnemy.SetReferences(this);
 
 			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
@@ -674,6 +694,7 @@ public class MapWorld : MonoBehaviour
         if (newGame)
         {
             scott.gameObject.SetActive(false);
+            azai.gameObject.SetActive(false);
             scottFollow = false;
             azaiFollow = false;
             unitMovement.uiWorkerTask.DeactivateButtons();
@@ -1380,6 +1401,7 @@ public class MapWorld : MonoBehaviour
         {
             enemyCampPos.Add(loc);
             bool attacked = false;
+            bool movingOut = false;
             Dictionary<Vector3Int, UnitData> fightingEnemies = new();
 
             EnemyCamp camp = new();
@@ -1430,6 +1452,7 @@ public class MapWorld : MonoBehaviour
             else if (GameLoader.Instance.gameData.movingEnemyBases.ContainsKey(loc))
             {
 				EnemyCampData enemyData = GameLoader.Instance.gameData.movingEnemyBases[loc];
+                movingOut = true;
 
 				for (int i = 0; i < enemyData.allUnits.Count; i++)
 				{
@@ -1482,13 +1505,14 @@ public class MapWorld : MonoBehaviour
 						rotation = Quaternion.LookRotation(direction, Vector3.up);
 				}
 				GameObject enemyGO = Instantiate(enemyData.prefab, unitSpawn, rotation);
+                enemyGO.name = enemyData.unitDisplayName;
                 enemyGO.transform.SetParent(enemyUnitHolder, false);
                 if (!reveal)
                     enemyGO.SetActive(false);
 
                 Unit unit = enemyGO.GetComponent<Unit>();
                 if (tdCamp.CompareTag("Forest") || tdCamp.CompareTag("Forest Hill"))
-                    unit.marker.gameObject.SetActive(true);
+                    unit.marker.ToggleVisibility(true);
 		        unit.SetReferences(this);
 		        if (!attacked) //just in case dictionary was missing any
 			        unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
@@ -1498,7 +1522,7 @@ public class MapWorld : MonoBehaviour
 		        unit.enemyAI.CampSpot = unitLoc;
         		unit.enemyCamp = enemyCampDict[loc];
 
-				if (attacked)
+				if (attacked || movingOut)
                 {
                     //RemoveUnitPosition(unitLoc);
                     unit.LoadUnitData(fightingEnemies[unitLoc]);
@@ -1591,7 +1615,7 @@ public class MapWorld : MonoBehaviour
         int height = Mathf.RoundToInt(Screen.width * 0.625f);
         int width = height / 4 * 3;
         Texture2D texture = new Texture2D(height, width, TextureFormat.ARGB32, false);
-        texture.ReadPixels(new Rect((Screen.width - height) * 0.5f, (Screen.height - width) * 0.5f, texture.width, texture.height), 0, 0);
+        texture.ReadPixels(new Rect((Screen.width - height), (Screen.height - width), texture.width, texture.height), 0, 0);
         texture.Apply();
         byte[] bytes = texture.EncodeToPNG();
         string bytesString = Convert.ToBase64String(bytes);
@@ -1605,6 +1629,7 @@ public class MapWorld : MonoBehaviour
         GameLoader.Instance.SaveGame(saveName, playTime, version, bytesString);
     }
 
+    //it's actually "P"
     public void HandleCtrlT()
     {
         StartCoroutine(TakeScreenshot());
@@ -2184,6 +2209,7 @@ public class MapWorld : MonoBehaviour
             LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(uiMainMenuButton.allContents, uiMainMenuButton.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
+            LeanTween.moveX(uiAttackWarning.allContents, uiAttackWarning.allContents.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
 		}
         else
         {
@@ -2194,7 +2220,8 @@ public class MapWorld : MonoBehaviour
             LeanTween.moveX(mapPanelButton, mapPanelButton.anchoredPosition3D.x + 400f, 0.3f);
             LeanTween.moveX(uiMainMenuButton.allContents, uiMainMenuButton.allContents.anchoredPosition3D.x + 400f, 0.3f);
 			LeanTween.moveX(uiTomFinder.allContents, uiTomFinder.allContents.anchoredPosition3D.x + 400f, 0.3f);
-        }
+			LeanTween.moveX(uiAttackWarning.allContents, uiAttackWarning.allContents.anchoredPosition3D.x + 400f, 0.3f);
+		}
     }
 
     public void ToggleWorldResourceUI(bool v)
@@ -3364,6 +3391,97 @@ public class MapWorld : MonoBehaviour
 			city.ResourceManager.UpdateDicts(type);
 	}
 
+    //ambush logic
+    public void SetUpAmbush(Vector3Int loc, Unit unitTrader)
+    {
+        //only one ambush per tile at one time
+        if (enemyAmbushDict.ContainsKey(loc))
+            return;
+        
+        ambushes++;
+		Vector3Int ambushLoc = GetNeighborsFor(loc, State.EIGHTWAY)[UnityEngine.Random.Range(0,8)];
+        UnitBuildDataSO ambushingUnit = UpgradeableObjectHolder.Instance.enemyUnitDict[ambushDict[currentEra]];
+        TerrainData td = GetTerrainDataAt(loc);
+
+		EnemyAmbush ambush = new();
+		ambush.loc = loc;
+		td.enemyCamp = true;
+		td.enemyZone = true;
+
+		//check for main player
+		Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
+        if (Mathf.Abs(playerLoc.x - loc.x) < 7 && Mathf.Abs(playerLoc.z - loc.z) < 7)
+        {
+			if (mainPlayer.isBusy)
+				unitMovement.workerTaskManager.ForceCancelWorkerTask();
+
+			mainPlayer.StopPlayer();
+			mainPlayer.exclamationPoint.SetActive(true);
+			mainPlayer.runningAway = true;
+            mainPlayer.isBusy = true;
+
+			if (playerLoc - loc == Vector3Int.zero)
+            {
+                mainPlayer.StepAside(playerLoc);
+            }
+            else //look to watch
+            {
+                mainPlayer.Rotate(loc);
+                scott.Rotate(loc);
+                azai.Rotate(loc);
+            }
+        }
+
+		GameObject enemyGO = Instantiate(ambushingUnit.prefab, ambushLoc, rotation);
+        enemyGO.name = ambushingUnit.unitDisplayName;
+		enemyGO.transform.SetParent(enemyUnitHolder, false);
+
+		Unit unit = enemyGO.GetComponent<Unit>();
+		if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+			unit.marker.ToggleVisibility(true);
+
+		Vector3 unitScale = unit.transform.localScale;
+		AddUnitPosition(ambushLoc, unit);
+		float scaleX = unitScale.x;
+		float scaleZ = unitScale.z;
+		unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
+		unit.lightBeam.Play();
+		LeanTween.scale(enemyGO, unitScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+
+		unit.ambush = true;
+		unit.SetReferences(this);
+		unit.CurrentLocation = ambushLoc;
+        unit.enemyAmbush = ambush;
+		ambush.attackingUnits.Add(unit);
+        enemyAmbushDict[loc] = ambush;
+		uiAttackWarning.AttackNotification(unit);
+        
+        Trader trader = unitTrader.GetComponent<Trader>();
+        ambush.attackedUnits.Add(unitTrader);
+
+        if (trader.guarded)
+        {
+            //ambush.attackedUnits.Add(trader.);
+        }
+        else
+        {
+            unitTrader.StopAnimation();
+            unitTrader.StopMovement();
+            unitTrader.ResetMovementOrders();
+
+            unit.enemyAI.StartAttack(trader);
+        }
+	}
+
+    public void ClearAmbush(Vector3Int loc)
+    {
+        enemyAmbushDict.Remove(loc);
+        
+        TerrainData td = GetTerrainDataAt(loc);
+		td.enemyCamp = true;
+		td.enemyZone = true;
+	}
+
     //updating builder handlers if one is selected
     public void BuilderHandlerCheck()
     {
@@ -3745,6 +3863,9 @@ public class MapWorld : MonoBehaviour
 
     public void UpdateResourceSelectionGrids(ResourceType type)
     {
+        if (type == ResourceType.Gold || type == ResourceType.Research)
+            return;
+        
         for (int i = 0; i < resourceSelectionGridList.Count; i++)
         {
             resourceSelectionGridList[i].DiscoverResource(type);
@@ -3878,6 +3999,21 @@ public class MapWorld : MonoBehaviour
 	public EnemyCamp GetEnemyCamp(Vector3Int loc)
     {
         return enemyCampDict[loc];
+    }
+
+    public bool IsEnemyCampHere(Vector3Int loc)
+    {
+        return enemyCampDict.ContainsKey(loc);
+    }
+
+    public EnemyAmbush GetEnemyAmbush(Vector3Int loc)
+    {
+        return enemyAmbushDict[loc];
+    }
+
+    public bool IsEnemyAmbushHere(Vector3Int loc)
+    {
+        return enemyAmbushDict.ContainsKey(loc);
     }
 
     //public void WakeUpCamp(Vector3Int campLoc, Unit target)
@@ -5707,7 +5843,10 @@ public class MapWorld : MonoBehaviour
                     gameStep = "first_infantry";
 
                     if (tutorial)
+                    {
+                        ButtonFlashCheck();
     					StartCoroutine(WaitASecToSpeak(mainPlayer, 2, "tutorial3a"));
+                    }
 				}
 				break;
             case "first_infantry":
@@ -5855,13 +5994,18 @@ public class MapWorld : MonoBehaviour
 							}
 						}
 
-						if (!enoughLumber)
+						if (enoughLumber)
+                        {
+							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = false;
+						}
+                        else
 						{
 							StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
 							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
 							return;
 						}
 
+                        ButtonFlashCheck();
                         mainPlayer.SetSomethingToSay("tutorial5");
                         tutorialStep = "tutorial5";
 
@@ -5959,20 +6103,25 @@ public class MapWorld : MonoBehaviour
 						bool enoughStone = false;
 						foreach (City city in cityDict.Values)
 						{
-							if (city.ResourceManager.ResourceDict[ResourceType.Stone] >= 20)
+							if (city.ResourceManager.ResourceDict[ResourceType.Stone] >= 10)
 							{
 								enoughStone = true;
 								break;
 							}
 						}
 
-						if (!enoughStone)
+						if (enoughStone)
+                        {
+							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = false;
+						}
+                        else
 						{
 							StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
 							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
 							return;
 						}
 
+                        ButtonFlashCheck();
 						scott.SetSomethingToSay("tutorial8");
 						tutorialStep = "tutorial8";
 
@@ -6021,7 +6170,7 @@ public class MapWorld : MonoBehaviour
                         tutorialStep = "tutorial9";
                         break;
                     case "tutorial9":
-                        if (source == "Open City")
+                        if (source != "Open City")
                             return;
 
 						cityBuilderManager.uiHelperWindow.SetMessage("Whenever pop is added to a camp and there is somewhere for that pop to work, you can assign the labor using these buttons.");
@@ -6382,12 +6531,18 @@ public class MapWorld : MonoBehaviour
 
 public enum Era
 {
-    BronzeAge,
-    IronAge,
-    ClassicAge,
-    MedievalAge,
-    Renaissance,
+    AncientEra,
+    ClassicEra,
+    MedievalEra,
     IndustrialEra,
     ModernEra,
     None
+}
+
+public enum Region
+{
+    North,
+    South,
+    East,
+    West
 }

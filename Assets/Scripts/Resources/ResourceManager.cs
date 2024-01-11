@@ -94,11 +94,11 @@ public class ResourceManager : MonoBehaviour
             
             if (!city.world.ResourceCheck(type))
                 continue;
-            resourceDict[type] = 0;
             resourceGenerationPerMinuteDict[type] = 0;
 
             if (type != ResourceType.Research)
             {
+                resourceDict[type] = 0;
                 resourceConsumedPerMinuteDict[type] = 0;
                 if (ResourceHolder.Instance.GetSell(type))
                     resourceSellList.Add(type);

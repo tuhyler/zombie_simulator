@@ -15,11 +15,12 @@ public class CityData
 	public List<int> tradersHere = new();
 
 	//resource manager data
-	public Dictionary<ResourceType, int> resourceDict;
-	public Dictionary<ResourceType, int> resourcePriceDict;
-	public List<ResourceType> resourceSellList;
-	public Dictionary<ResourceType, int> resourceMinHoldDict;
-	public Dictionary<ResourceType, int> resourceSellHistoryDict;
+	//public Dictionary<ResourceType, int> resourceDict;
+	//public Dictionary<ResourceType, int> resourcePriceDict;
+	//public List<ResourceType> resourceSellList;
+	//public Dictionary<ResourceType, int> resourceMinHoldDict;
+	//public Dictionary<ResourceType, int> resourceSellHistoryDict;
+	public Dictionary<ResourceType, (int, int, int, int, bool)> allResourceInfoDict = new(); //putting it all into one to reduce storage size
 	public bool pauseGrowth, growthDeclineDanger;
 	public int starvationCount, noHousingCount, noWaterCount, cycleCount;
 

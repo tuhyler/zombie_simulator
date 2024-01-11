@@ -549,8 +549,7 @@ public class TerrainGenerator : MonoBehaviour
 		for (int i = 0; i < resourceLocs.Count; i++)
             AddResource(random, terrainDict[resourceLocs[i]]);
 
-        List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
-        //SetEnemyBorders(enemyLocs);
+        //List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
 
         for (int i = 0; i < tradeCenterLocs.Count; i++)
         {
@@ -753,6 +752,15 @@ public class TerrainGenerator : MonoBehaviour
 		{
 			GameObject newProp = Instantiate(td.terrainData.decors[index], Vector3Int.zero, rotation);
 			newProp.transform.SetParent(td.prop, false);
+
+			if (td.isHill && td.rawResourceType == RawResourceType.Rocks)
+			{
+				GameObject nonStaticProp = Instantiate(td.terrainData.decors[index], Vector3.zero, Quaternion.identity);
+				nonStaticProp.transform.SetParent(td.nonstatic, false);
+                nonStaticProp.transform.rotation = rotation;
+				//td.nonstatic.rotation = rotation;
+				td.SetNonStatic();
+			}
 		}
 	}
 
