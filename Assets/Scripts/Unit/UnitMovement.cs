@@ -619,7 +619,7 @@ public class UnitMovement : MonoBehaviour
             SelectWorker();
             SelectTrader();
 
-            if (!selectedUnit.inArmy && !selectedUnit.followingRoute && !selectedUnit.isUpgrading)
+            if (!selectedUnit.inArmy && !selectedUnit.followingRoute && !selectedUnit.isUpgrading && !selectedUnit.runningAway)
                 uiMoveUnit.ToggleVisibility(true);
 		
             PrepareMovement();
@@ -774,7 +774,7 @@ public class UnitMovement : MonoBehaviour
 
         //selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
         infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, selectedUnit.isLaborer);
-        if (selectedUnit.moreToMove && !selectedUnit.inArmy)
+        if (selectedUnit.moreToMove && !selectedUnit.inArmy && !selectedUnit.runningAway)
         {
             uiCancelMove.ToggleVisibility(true);
             //movementSystem.ShowPathToMove(selectedUnit);
@@ -1190,7 +1190,10 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelMove()
     {
-		moveUnit = false;
+        if (selectedUnit.runningAway)
+            return;
+        
+        moveUnit = false;
 		world.citySelected = false;
 
 		if (selectedUnit.isTrader)
@@ -1224,7 +1227,7 @@ public class UnitMovement : MonoBehaviour
 
     public void CancelContinuedMovementOrders()
     {
-        if (selectedUnit != null)
+        if (selectedUnit != null && !selectedUnit.runningAway)
         {
             if (selectedUnit.isTrader && selectedUnit.followingRoute)
             {

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Events;
@@ -611,8 +612,11 @@ public class Unit : MonoBehaviour
                 {
                     if (isBusy)
                         world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
-                    
-                    isBusy = true;
+
+                    if (!world.mapHandler.activeStatus && Camera.main.WorldToViewportPoint(transform.position).z >= 0)
+                        world.cityBuilderManager.PlayWarningAudio();
+
+					isBusy = true;
                     world.AddUnitPosition(transform.position, this);
 					StopPlayer();
 					currentLocation = world.RoundToInt(transform.position);
@@ -1179,10 +1183,16 @@ public class Unit : MonoBehaviour
 				world.AddUnitPosition(currentLocation, this);
 				repositioning = false;
                 enemyCamp.EnemyReturn(this);
+
+                if (enemyCamp.movingOut)
+                {
+					enemyCamp.movingOut = false;
+					GameLoader.Instance.gameData.movingEnemyBases.Remove(enemyCamp.loc);
+					world.mainPlayer.StopRunningAway();
+				}
 			}
             else if (enemyCamp.movingOut)
             {
-				world.AddUnitPosition(currentLocation, this);
 				enemyCamp.UnitArrived();
             }
         }
@@ -2059,6 +2069,9 @@ public class Unit : MonoBehaviour
             exclamationPoint.SetActive(true);
             runningAway = true;
             StartCoroutine(RunAway());
+
+            if (isSelected)
+                world.unitMovement.uiCancelMove.ToggleVisibility(false);
         }    
     }
 
@@ -2107,6 +2120,14 @@ public class Unit : MonoBehaviour
 	    isBusy = false;
 		runningAway = false;
         exclamationPoint.SetActive(false);
+
+		if (isSelected)
+        {
+			if (isMoving)
+    			world.unitMovement.uiCancelMove.ToggleVisibility(true);
+            else
+				world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+		} 
 	}
 
 	public void SoftSelect(Color color)
