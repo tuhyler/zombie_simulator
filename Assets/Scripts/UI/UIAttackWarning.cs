@@ -34,8 +34,8 @@ public class UIAttackWarning : MonoBehaviour
 
 		if (v)
 		{
-			co = StartCoroutine(NotificationWaiting());
 			gameObject.SetActive(true);
+			co = StartCoroutine(NotificationWaiting());
 			activeStatus = true;
 			allContents.localScale = Vector3.zero;
 			LeanTween.scale(allContents, Vector3.one, 0.25f).setDelay(0.125f).setEase(LeanTweenType.easeOutSine).setOnComplete(StartFlash);

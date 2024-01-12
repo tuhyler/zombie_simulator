@@ -628,7 +628,7 @@ public class EnemyCamp
 			returning = true;
 			pathToTarget.Reverse();
 			pathToTarget.RemoveAt(0);
-			pathToTarget.Add(loc);
+			//pathToTarget.Add(loc);
 			MoveOutCamp();
 		}
 	}
@@ -645,8 +645,8 @@ public class EnemyCamp
 			foreach (Vector3Int tile in pathToTarget)
 				path.Add(tile + unit.marchPosition);
 
-			if (returning)
-				path.Add(unit.barracksBunk);
+			//if (returning)
+			//	path.Add(unit.barracksBunk);
 
 			if (unit.isMoving)
 			{
@@ -682,10 +682,7 @@ public class EnemyCamp
 			}
 			else if (returning)
 			{
-				movingOut = false;
-				GameLoader.Instance.gameData.movingEnemyBases.Remove(loc);
 				ReturnToCamp();
-				world.mainPlayer.StopRunningAway();
 			}
 			else
 			{

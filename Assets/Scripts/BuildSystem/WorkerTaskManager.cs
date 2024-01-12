@@ -23,8 +23,6 @@ public class WorkerTaskManager : MonoBehaviour
     [SerializeField]
     private ImprovementDataSO cityData;
     [SerializeField]
-    private UISingleConditionalButtonHandler uiCancelTask;
-    [SerializeField]
     private UIWorkerHandler uiWorkerHandler;
     [SerializeField]
     private UIBuildingSomething uiBuildingSomething;
@@ -106,8 +104,8 @@ public class WorkerTaskManager : MonoBehaviour
     public void SetWorkerUnit()
     {
         //this.workerUnit = workerUnit;
-        if (world.mainPlayer.isBusy)
-            uiCancelTask.ToggleVisibility(true);
+        if (world.mainPlayer.isBusy && !world.mainPlayer.runningAway)
+            world.unitMovement.uiCancelTask.ToggleVisibility(true);
     }
 
 	public void BuildCityButton()
@@ -315,7 +313,7 @@ public class WorkerTaskManager : MonoBehaviour
 
         world.unitOrders = true;
 		world.mainPlayer.isBusy = true;
-        uiCancelTask.ToggleVisibility(true);
+        world.unitMovement.uiCancelTask.ToggleVisibility(true);
         unitMovement.uiMoveUnit.ToggleVisibility(false);
     }
 
@@ -616,6 +614,9 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (!world.mainPlayer.isSelected)
             return;
+
+        if (world.mainPlayer.runningAway)
+            return;
         
         if (world.unitOrders)
         {
@@ -675,7 +676,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void TurnOffCancelTask()
     {
-        uiCancelTask.ToggleVisibility(false);
+        world.unitMovement.uiCancelTask.ToggleVisibility(false);
     }
 
     //public void NullWorkerUnit()
