@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class GridSearch
 {
-    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea, bool isEnemy = false)
+    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea)
     {
         if (bySea)
             return AStarSearchSea(world, startLocation, endPosition);
@@ -69,7 +69,7 @@ public class GridSearch
                 if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
                     continue;
 
-                if (!isEnemy && world.CheckIfEnemyTerritory(neighbor))
+                if (world.CheckIfEnemyTerritory(neighbor))
                     continue;
       //          if (attack && world.IsUnitLocationTaken(neighbor))
       //          {
@@ -221,8 +221,147 @@ public class GridSearch
         return path;
     }
 
-    //for moving entire army
-    public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
+	//for enemies
+	public static List<Vector3Int> AStarSearchEnemy(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea, List<Vector3Int> avoidList = null)
+	{
+		if (bySea)
+			return AStarSearchSeaEnemy(world, startLocation, endPosition);
+
+        List<Vector3Int> pathAvoidList = new();
+
+        if (avoidList != null)
+            pathAvoidList = avoidList;
+
+        List<Vector3Int> path = new();
+
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endPosition)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.CheckIfPositionIsValidForEnemy(neighbor)) //If it's an obstacle, ignore
+					continue;
+
+                if (pathAvoidList.Contains(neighbor))
+                    continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 2)
+				{
+					Vector3Int temp = neighbor - current;
+
+					if ((!world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(0, 0, temp.z))))
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		return path;
+	}
+
+	public static List<Vector3Int> AStarSearchSeaEnemy(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	{
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current.Equals(endPosition))
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+				int sqrMagnitude = tile.sqrMagnitude;
+
+				//below is for units not cutting corners
+				if (!world.CheckIfSeaPositionIsValidForEnemy(neighbor))
+					continue;
+				//above is for units not cutting corners
+
+				if (world.CheckIfCoastCoast(neighbor) && neighbor != endPosition)
+					continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
+
+				if (sqrMagnitude == 2)
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		InfoPopUpHandler.WarningMessage().Create(startLocation, "Cannot reach selected area");
+		return path;
+	}
+
+	//for moving entire army
+	public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
     {
 		List<Vector3Int> path = new();
 
@@ -287,7 +426,7 @@ public class GridSearch
 		return path;
 	}
 
-	public static List<Vector3Int> TerrainSearchEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
+	public static List<Vector3Int> TerrainSearchEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain)
 	{
 		List<Vector3Int> path = new();
 

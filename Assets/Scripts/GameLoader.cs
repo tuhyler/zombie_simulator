@@ -19,6 +19,7 @@ public class GameLoader : MonoBehaviour
 	public bool isLoading, isDone;
 	[HideInInspector]
 	public List<Unit> attackingUnitList = new();
+	public Dictionary<string, Trader> ambushedTraders = new();
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
@@ -55,10 +56,10 @@ public class GameLoader : MonoBehaviour
 		gameData.saveScreenshot = screenshot;
 		gameData.currentEra = world.currentEra;
 		gameData.startingRegion = world.startingRegion;
-		gameData.currentWorkedTileDict = world.currentWorkedTileDict;
-		gameData.cityWorkedTileDict = world.cityWorkedTileDict;
-		gameData.cityImprovementQueueList = world.cityImprovementQueueList;
-		gameData.unclaimedSingleBuildList = world.unclaimedSingleBuildList;
+		gameData.currentWorkedTileDict = new(world.currentWorkedTileDict);
+		gameData.cityWorkedTileDict = new(world.cityWorkedTileDict);
+		gameData.cityImprovementQueueList = new(world.cityImprovementQueueList);
+		gameData.unclaimedSingleBuildList = new(world.unclaimedSingleBuildList);
 		gameData.camPosition = world.cameraController.transform.position;
 		gameData.camRotation = world.cameraController.transform.rotation;
 		gameData.timeODay = world.dayNightCycle.timeODay;
@@ -73,11 +74,10 @@ public class GameLoader : MonoBehaviour
 		gameData.scottFollow = world.scottFollow;
 		gameData.azaiFollow = world.azaiFollow;
 		gameData.startingLoc = world.startingLoc;
+		gameData.tutorialGoing = world.tutorialGoing;
 
-		for (int i = 0; i < world.uiAttackWarning.attackUnits.Count; i++)
-		{
-			gameData.attackLocs.Add(world.uiAttackWarning.attackUnits[i].enemyCamp.loc);
-		}
+		gameData.attackLocs.Clear();
+		gameData.attackLocs = new(world.uiAttackWarning.attackLocs);
 
 		gameData.ambushes = world.ambushes;
 		gameData.cityCount = world.cityCount;
@@ -89,21 +89,26 @@ public class GameLoader : MonoBehaviour
 		gameData.laborerCount = world.laborerCount;
 		gameData.food = world.food;
 		gameData.lumber = world.lumber;
-		gameData.newUnitsAndImprovements = world.newUnitsAndImprovements;
+		gameData.newUnitsAndImprovements = new(world.newUnitsAndImprovements);
 		gameData.currentResearch = world.researchTree.SaveResearch();
 
+		gameData.researchWaitList.Clear();
 		for (int i = 0; i < world.researchWaitList.Count; i++)
 			gameData.researchWaitList.Add(world.researchWaitList[i].producerLoc);
 
+		gameData.goldCityWaitList.Clear();
 		for (int i = 0; i < world.goldCityWaitList.Count; i++)
 			gameData.goldCityWaitList.Add(world.goldCityWaitList[i].cityLoc);
 
+		gameData.goldCityRouteWaitList.Clear();
 		for (int i = 0; i < world.goldCityRouteWaitList.Count; i++)
 			gameData.goldCityRouteWaitList.Add(world.goldCityRouteWaitList[i].cityLoc);
 
+		gameData.goldWonderWaitList.Clear();
 		for (int i = 0; i < world.goldWonderWaitList.Count; i++)
 			gameData.goldWonderWaitList.Add(world.goldWonderWaitList[i].unloadLoc);
 
+		gameData.goldTradeCenterWaitList.Clear();
 		for (int i = 0; i < world.goldTradeCenterWaitList.Count; i++)
 			gameData.goldTradeCenterWaitList.Add(world.goldTradeCenterWaitList[i].mainLoc);
 
@@ -117,6 +122,13 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < movingEnemyCampLocs.Count; i++)
 		{
 			gameData.movingEnemyBases[movingEnemyCampLocs[i]] = world.GetEnemyCamp(movingEnemyCampLocs[i]).SendMovingCampUnitData();
+		}
+
+		gameData.ambushLocs.Clear();
+		List<Vector3Int> ambushLocs = new List<Vector3Int>(world.enemyAmbushDict.Keys);
+		for (int i = 0; i < ambushLocs.Count; i++)
+		{
+			gameData.ambushLocs[ambushLocs[i]] = world.enemyAmbushDict[ambushLocs[i]].GetAmbushData();
 		}
 
 		//trade centers (waiting lists)
@@ -212,8 +224,10 @@ public class GameLoader : MonoBehaviour
 
 		world.currentEra = gameData.currentEra;
 		world.startingRegion = gameData.startingRegion;
+		world.tutorial = gameData.tutorial; 
+		world.tutorialGoing = gameData.tutorialGoing;
 		world.GenerateMap(gameData.allTerrain);
-		world.resourceDiscoveredList = gameData.resourceDiscoveredList;
+		world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);
 		world.LoadDiscoveredResources();
 
 		//updating progress
@@ -225,7 +239,8 @@ public class GameLoader : MonoBehaviour
 		//updating progress
 		GameManager.Instance.UpdateProgress(15);
 
-		world.newUnitsAndImprovements = gameData.newUnitsAndImprovements;
+		world.newUnitsAndImprovements = new(gameData.newUnitsAndImprovements);
+		gameData.newUnitsAndImprovements.Clear();
 		world.researchTree.LoadCompletedResearch(gameData.completedResearch);
 		world.tutorialStep = gameData.tutorialStep;
 		world.gameStep = gameData.gameStep;
@@ -241,14 +256,17 @@ public class GameLoader : MonoBehaviour
 		world.food = gameData.food;
 		world.lumber = gameData.lumber;
 		world.researchTree.LoadCurrentResearch(gameData.currentResearch, gameData.researchAmount);
-		world.currentWorkedTileDict = gameData.currentWorkedTileDict;
-		world.cityWorkedTileDict = gameData.cityWorkedTileDict;
-		world.cityImprovementQueueList = gameData.cityImprovementQueueList;
-		world.unclaimedSingleBuildList = gameData.unclaimedSingleBuildList;
+		world.currentWorkedTileDict = new(gameData.currentWorkedTileDict);
+		gameData.currentWorkedTileDict.Clear();
+		world.cityWorkedTileDict = new(gameData.cityWorkedTileDict);
+		gameData.cityWorkedTileDict.Clear();
+		world.cityImprovementQueueList = new(gameData.cityImprovementQueueList);
+		gameData.cityImprovementQueueList.Clear();
+		world.unclaimedSingleBuildList = new(gameData.unclaimedSingleBuildList);
+		gameData.unclaimedSingleBuildList.Clear();
 		world.LoadWonder(gameData.allWonders);
 		world.scottFollow = gameData.scottFollow;
 		world.azaiFollow = gameData.azaiFollow;
-		world.uiAttackWarning.LoadAttackLocs(gameData.attackLocs);
 		world.startingLoc = gameData.startingLoc;
 		gameData.allWonders.Clear();
 
@@ -309,6 +327,7 @@ public class GameLoader : MonoBehaviour
 		{
 			world.CreateUnit(gameData.allTraders[i]);
 		}
+		gameData.allTraders.Clear();
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(5);
@@ -318,6 +337,12 @@ public class GameLoader : MonoBehaviour
 		{
 			world.CreateUnit(gameData.allLaborers[i]);
 		}
+		gameData.allLaborers.Clear();
+
+		//ambushes
+		world.MakeEnemyAmbushes(gameData.ambushLocs, ambushedTraders);
+		gameData.ambushLocs.Clear();
+		ambushedTraders.Clear();
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(5);
@@ -334,31 +359,40 @@ public class GameLoader : MonoBehaviour
 		world.cameraController.LoadCameraLimits(gameData.camLimits[0], gameData.camLimits[1], gameData.camLimits[2], gameData.camLimits[3]);
 		gameData.camLimits.Clear();
 
+		//attack info
 		for (int i = 0; i < attackingUnitList.Count; i++)
 		{
 			attackingUnitList[i].LoadAttack();
 		}
 		attackingUnitList.Clear();
 
+		world.uiAttackWarning.LoadAttackLocs(gameData.attackLocs);
+		gameData.attackLocs.Clear();
+
 		//research wait list
 		for (int i = 0; i < gameData.researchWaitList.Count; i++)
 			world.researchWaitList.Add(world.GetResourceProducer(gameData.researchWaitList[i]));
+		gameData.researchWaitList.Clear();
 
 		//gold city wait list
 		for (int i = 0; i < gameData.goldCityWaitList.Count; i++)
 			world.goldCityWaitList.Add(world.GetCity(gameData.goldCityWaitList[i]));
+		gameData.researchWaitList.Clear();
 
 		//gold city route wait list
 		for (int i = 0; i < gameData.goldCityRouteWaitList.Count; i++)
 			world.goldCityRouteWaitList.Add(world.GetCity(gameData.goldCityRouteWaitList[i]));
+		gameData.researchWaitList.Clear();
 
 		//gold wonder wait list
 		for (int i = 0; i < gameData.goldWonderWaitList.Count; i++)
 			world.goldWonderWaitList.Add(world.GetWonder(gameData.goldWonderWaitList[i]));
+		gameData.researchWaitList.Clear();
 
 		//gold trade center wait list
 		for (int i = 0; i < gameData.goldTradeCenterWaitList.Count; i++)
 			world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
+		gameData.researchWaitList.Clear();
 
 		//trade center waiting lists
 		foreach (TradeCenter center in centerWaitingDict.Keys)
@@ -398,6 +432,7 @@ public class GameLoader : MonoBehaviour
 		{
 			improvement.ResumeTraining(improvementUnitUpgradeDict[improvement]);
 		}
+		improvementUnitUpgradeDict.Clear();
 
 		//loading conversation task list
 		foreach (string task in gameData.conversationTaskDict.Keys)

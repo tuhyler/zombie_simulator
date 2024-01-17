@@ -75,6 +75,12 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 5866666021909216657, guid: 07ab02b3cbedad64ca9060750b462691, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 07ab02b3cbedad64ca9060750b462691, type: 3}
+--- !u!137 &2964813841454388737 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -8632752264347691092, guid: 07ab02b3cbedad64ca9060750b462691,
+    type: 3}
+  m_PrefabInstance: {fileID: 2384497633501086125}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8249901386586061078
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82,6 +88,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -2285914093244530181, guid: 46cc514076b805546acca95ada66c02c,
+        type: 3}
+      propertyPath: unitMesh
+      value: 
+      objectReference: {fileID: 2964813841454388737}
     - target: {fileID: -2285914093244530181, guid: 46cc514076b805546acca95ada66c02c,
         type: 3}
       propertyPath: buildDataSO
@@ -131,7 +142,7 @@ PrefabInstance:
     - target: {fileID: 4084126454760206941, guid: 46cc514076b805546acca95ada66c02c,
         type: 3}
       propertyPath: m_Name
-      value: boat_trader_1a
+      value: boat_trader_1
       objectReference: {fileID: 0}
     - target: {fileID: 5338010617480299587, guid: 46cc514076b805546acca95ada66c02c,
         type: 3}

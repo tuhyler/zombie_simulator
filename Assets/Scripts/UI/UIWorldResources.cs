@@ -70,14 +70,15 @@ public class UIWorldResources : MonoBehaviour
         float researchPerc = (float)researchAmount / researchLimit;
         //progressBarMask.fillAmount = researchPerc;
         researchResourceAmount.text = Mathf.RoundToInt(researchPerc * 100).ToString() + "%";
+		progressBarMask.fillAmount = researchPerc;
 
-        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
-            .setEase(LeanTweenType.easeOutSine)
-            .setOnUpdate((value) =>
-            {
-                progressBarMask.fillAmount = value;
-            });
-    }
+		//LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
+		//    .setEase(LeanTweenType.easeOutSine)
+		//    .setOnUpdate((value) =>
+		//    {
+		//        progressBarMask.fillAmount = value;
+		//    });
+	}
 
     public void SetResearchBackground(bool complete)
     {

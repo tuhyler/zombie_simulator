@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
 public class UIResourceManager : MonoBehaviour
 {
@@ -226,8 +227,9 @@ public class UIResourceManager : MonoBehaviour
     public void SetCityCurrentStorage(float cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
-        UpdateStorage(cityStorageLevel);
-        UpdateCityWarehouseInfo();
+        progressBarMask.fillAmount = cityStorageLevel / cityStorageLimit;
+		//UpdateStorage(cityStorageLevel);
+		UpdateCityWarehouseInfo();
     }
 
 	private string SetStringValue(float amount)

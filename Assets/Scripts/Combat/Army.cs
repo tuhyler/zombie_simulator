@@ -605,7 +605,7 @@ public class Army : MonoBehaviour
 
                 if (targetCamp.attackReady)
                 {
-					world.uiAttackWarning.AttackNotification(targetCamp.UnitsInCamp[0]);
+					world.uiAttackWarning.AttackNotification(((Vector3)attackZone + targetCamp.loc)*0.5f);
 					targetCamp.attackReady = false;
                     targetCamp.armyReady = false;
                     Charge();
@@ -939,7 +939,7 @@ public class Army : MonoBehaviour
         foreach (Unit unit in unitsInArmy)
         {
             if (unit == selectedUnit)
-                unit.Select(Color.green);
+                unit.Highlight(Color.green);
             else
                 unit.SoftSelect(Color.white);
         }
@@ -980,7 +980,7 @@ public class Army : MonoBehaviour
             if (unit == selectedUnit)
                 continue;
 
-            unit.Deselect();
+            unit.Unhighlight();
         }
 	}
 

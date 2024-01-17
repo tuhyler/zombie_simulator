@@ -221,10 +221,13 @@ public class ResourceProducer : MonoBehaviour
         //CalculateResourceConsumedPerMinute();
         cityImprovement.firstStart = true;
 
-        if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.isResearch)
         {
-            AddToResearchWaitList();
-            return;
+            if (!resourceManager.city.world.researching)
+            {
+                AddToResearchWaitList();
+                return;
+            }
         }
         else if (resourceManager.fullInventory)
         {
@@ -329,17 +332,24 @@ public class ResourceProducer : MonoBehaviour
         }
 
         //checking if still researching
-        if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.isResearch)
         {
-            isWaitingToUnload = true;
-			cityImprovement.exclamationPoint.SetActive(true);
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
-			unloadLabor = tempLabor;
-            //resourceManager.waitingToUnloadResearch.Add(this);
-            //timeProgressBar.SetToZero();
-            uiTimeProgressBar.SetToFull();
-            cityImprovement.StopWork();
-            resourceManager.city.AddToWorldResearchWaitList(this);
+            if (!resourceManager.city.world.researching)
+            {
+                isWaitingToUnload = true;
+			    cityImprovement.exclamationPoint.SetActive(true);
+			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+			    unloadLabor = tempLabor;
+                //resourceManager.waitingToUnloadResearch.Add(this);
+                //timeProgressBar.SetToZero();
+                uiTimeProgressBar.SetToFull();
+                cityImprovement.StopWork();
+                resourceManager.city.AddToWorldResearchWaitList(this);
+            }
+            else
+            {
+				RestartProductionCheck(tempLabor);
+			}
         }
         //checking if storage is free to unload
         else if (resourceManager.fullInventory)
@@ -383,14 +393,24 @@ public class ResourceProducer : MonoBehaviour
         }
 
         //checking storage again after loading
-        if (improvementData.isResearch && !resourceManager.city.WorldResearchingCheck())
+        if (improvementData.isResearch)
         {
-            AddToResearchWaitList();
-			cityImprovement.exclamationPoint.SetActive(true);
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
-			//timeProgressBar.SetActive(false);
-			uiTimeProgressBar.gameObject.SetActive(false);
-            cityImprovement.StopWork();
+            if (!resourceManager.city.world.researching)
+            {
+                AddToResearchWaitList();
+			    cityImprovement.exclamationPoint.SetActive(true);
+			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+			    //timeProgressBar.SetActive(false);
+			    uiTimeProgressBar.gameObject.SetActive(false);
+                cityImprovement.StopWork();
+            }
+            else
+            {
+				tempLaborPercsList.Clear();
+				//cityImprovement.StopWorkAnimation();
+				productionTimer = improvementData.producedResourceTime[producedResourceIndex];
+				producingCo = StartCoroutine(ProducingCoroutine());
+			}
         }
         else if (resourceManager.fullInventory)
         {
@@ -469,7 +489,7 @@ public class ResourceProducer : MonoBehaviour
 
 	public void CheckProducerResearchWaitList()
 	{
-		if (resourceManager.city.WorldResearchingCheck())
+		if (resourceManager.city.world.researching)
 		{
 			isWaitingForResearch = false;
 

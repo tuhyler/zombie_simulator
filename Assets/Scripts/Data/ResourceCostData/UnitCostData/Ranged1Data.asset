@@ -34,7 +34,7 @@ MonoBehaviour:
   laborCost: 0
   unitType: 2
   unitDescription: Ranged unit with low health
-  availableInitially: 0
+  availableInitially: 1
   health: 50
   baseAttackStrength: 2
   baseAttackSpeed: 2
@@ -43,3 +43,4 @@ MonoBehaviour:
   cargoCapacity: 0
   transportationType: 0
   characterUnit: 0
+  unitEra: 0

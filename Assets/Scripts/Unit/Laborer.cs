@@ -67,6 +67,7 @@ public class Laborer : Unit
 	{
 		LaborerData data = new();
 
+        data.unitName = gameObject.name;
 		data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
 		data.secondaryPrefab = secondaryPrefab;
 		data.position = transform.position;
@@ -86,7 +87,8 @@ public class Laborer : Unit
 
     public void LoadLaborerData(LaborerData data)
     {
-		secondaryPrefab = data.secondaryPrefab;
+        gameObject.name = data.unitName;
+        secondaryPrefab = data.secondaryPrefab;
 		transform.position = data.position;
 		transform.rotation = data.rotation;
 		destinationLoc = data.destinationLoc;

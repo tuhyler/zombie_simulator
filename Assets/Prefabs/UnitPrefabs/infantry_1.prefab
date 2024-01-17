@@ -283,7 +283,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: 30bab6cdba785414c94cace8ddb78899, type: 2}
-  unitMesh: {fileID: 0}
+  unitMesh: {fileID: 8336316670225603140}
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -291,6 +291,8 @@ MonoBehaviour:
     type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 0}
+  exclamationPoint: {fileID: 0}
+  ripples: {fileID: 0}
   marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
   greetings:
@@ -307,6 +309,7 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  trader: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -322,6 +325,7 @@ MonoBehaviour:
   finalDestinationLoc: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
+  ambushLoc: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -330,6 +334,7 @@ MonoBehaviour:
   baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
+  healthMax: 0
   attackPause:
   - 0.75
   - 1
@@ -365,8 +370,16 @@ MonoBehaviour:
   cavalryLine: 0
   isDead: 0
   isUpgrading: 0
+  runningAway: 0
+  hidden: 0
+  looking: 0
+  ambush: 0
+  aoe: 0
+  guard: 0
+  isGuarding: 0
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
+  guardedTrader: {fileID: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
@@ -466,3 +479,9 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce554c67620f6d94198cdd3435eea37c, type: 3}
+--- !u!137 &8336316670225603140 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: ce554c67620f6d94198cdd3435eea37c,
+    type: 3}
+  m_PrefabInstance: {fileID: 7282660050886199062}
+  m_PrefabAsset: {fileID: 0}

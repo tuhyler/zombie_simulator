@@ -24,7 +24,7 @@ public class UnitData : IUnitData
 	public Vector3Int cityHomeBase, barracksBunk, marchPosition, targetBunk;
 	public int currentHealth;
 	public float baseSpeed;
-	public bool isLeader, readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, looking, ambush;
+	public bool isLeader, readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, looking, ambush, aoe, guard, isGuarding;
 
 	public WorkerData GetWorkerData()
 	{
@@ -44,7 +44,7 @@ public class UnitData : IUnitData
 	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
 	bool IUnitData.secondaryPrefab => secondaryPrefab;
-	Vector3Int IUnitData.currentLocation => currentLocation;
+	Vector3 IUnitData.position => position;
 	Quaternion IUnitData.rotation => rotation;
 	Vector3Int IUnitData.barracksBunk => barracksBunk;
 }
@@ -53,7 +53,7 @@ public interface IUnitData
 {
 	string unitNameAndLevel { get; }
 	bool secondaryPrefab { get; }
-	Vector3Int currentLocation { get; }
+	Vector3 position { get; }
 	Quaternion rotation { get; }
 	Vector3Int barracksBunk { get; }
 

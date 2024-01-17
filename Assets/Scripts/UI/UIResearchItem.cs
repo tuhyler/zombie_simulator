@@ -231,13 +231,13 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 UnitBuildDataSO data = researchReward.unitData;
                 string tabName = "Units";
 				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true, true);
-				world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.unitNameAndLevel, false);
+				world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
 
 				//relocking previous versions of unit
 				if (data.unitLevel > 1)
                 {
                     string prevNameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
-					world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
+					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, prevNameAndLevel, true);
 				}
 
                 world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
@@ -326,13 +326,13 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
                 if (world.newUnitsAndImprovements.Contains(data.unitNameAndLevel))
     				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true ,true);
-				world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.unitNameAndLevel, false);
+				world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
 
 				//relocking previous versions of unit
 				if (data.unitLevel > 1)
 				{
 					string prevNameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
-					world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
+					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, prevNameAndLevel, true);
 				}
 
 				world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);

@@ -346,7 +346,7 @@ public class ResourceManager : MonoBehaviour
 	{
 		bool destroy = false;
 
-		int i = 0;
+		//int i = 0;
 		//producerLoc.y += producedResource.Count * 0.4f;
 		resourceCount = 0;
 		//foreach (ResourceValue resourceVal in producedResource)
@@ -371,11 +371,11 @@ public class ResourceManager : MonoBehaviour
 			}
 
 			Vector3 loc = producerLoc;
-			loc.y += 0.4f * i;
+			//loc.y += 0.4f * i;
 
 			if (resourceAmount != 0)
 				InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(producedResource.resourceType));
-			i++;
+			//i++;
 		//}
 
 		return destroy;
@@ -383,14 +383,10 @@ public class ResourceManager : MonoBehaviour
 
 	public int CheckResource(ResourceType type, int amount, bool updateUI = true)
     {
-        if (type == ResourceType.Fish)
-            type = ResourceType.Food;
-        
-        //if (type == ResourceType.Food && amount > 0)
-        //{
-        //    return AddFood(amount);
-        //}
-        if (type == ResourceType.Gold || type == ResourceType.Research)
+		if (type == ResourceType.Fish)
+			type = ResourceType.Food;
+
+		if (type == ResourceType.Gold || type == ResourceType.Research)
         {
             city.UpdateWorldResources(type, amount);
             return amount;
@@ -594,7 +590,6 @@ public class ResourceManager : MonoBehaviour
 				cityLoc.y += -0.4f * i;
 				if (city.activeCity)
 					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType));
-				i++;
 			}
 		}
 
@@ -802,8 +797,8 @@ public class ResourceManager : MonoBehaviour
 			}
         }
 
-        CheckProducerUnloadWaitList();
-        city.CheckLimitWaiter();
+        //CheckProducerUnloadWaitList();
+        //city.CheckLimitWaiter();
         //UpdateUI(ResourceType.Food);
     }
 

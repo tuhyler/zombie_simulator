@@ -22,7 +22,7 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 40
+    resourceAmount: 5
   cycleCost:
   - resourceType: 4
     resourceAmount: 1
@@ -32,7 +32,7 @@ MonoBehaviour:
   laborCost: 0
   unitType: 6
   unitDescription: Water transport for cargo
-  availableInitially: 0
+  availableInitially: 1
   health: 10
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
@@ -41,3 +41,4 @@ MonoBehaviour:
   cargoCapacity: 250
   transportationType: 1
   characterUnit: 0
+  unitEra: 0

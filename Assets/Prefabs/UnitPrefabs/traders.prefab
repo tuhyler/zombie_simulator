@@ -99,7 +99,9 @@ MonoBehaviour:
   greetings:
   - {fileID: 8300000, guid: d1b31f500c1f70c42a68df20fea301b6, type: 3}
   attacks: []
-  kills: []
+  kills:
+  - {fileID: 8300000, guid: b9313b65e84c03a48b2d9403df4a6cc7, type: 3}
+  - {fileID: 8300000, guid: a009f6db8ae480e41888ba9d9f2ab41e, type: 3}
   audioSource: {fileID: 0}
   world: {fileID: 0}
   FinishedMoving:
@@ -120,6 +122,7 @@ MonoBehaviour:
   finalDestinationLoc: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
+  ambushLoc: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -165,6 +168,8 @@ MonoBehaviour:
   isUpgrading: 0
   runningAway: 0
   hidden: 0
+  looking: 0
+  ambush: 0
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   unitAnimator: {fileID: 0}
@@ -175,6 +180,7 @@ MonoBehaviour:
   cargoStorageLimit: 0
   hasRoute: 0
   waitingOnRouteCosts: 0
+  guarded: 0
   loadUnloadRate: 1
   ripples: {fileID: 0}
 --- !u!114 &9082481739774170290
@@ -202,7 +208,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingStop: 0
+  ambushProb: 100
   cityStops: []
+  ambushSpots: 
   waitTimes: 
   currentStop: 0
   currentResource: 0

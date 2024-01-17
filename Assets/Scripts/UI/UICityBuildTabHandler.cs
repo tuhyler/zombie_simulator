@@ -98,8 +98,11 @@ public class UICityBuildTabHandler : MonoBehaviour
 						}
 					}
 				}
-
-                break;
+            }
+            else
+            {
+                if (tabList[i].somethingNew)
+                    somethingNew = true;
             }
         }
     }
@@ -123,7 +126,26 @@ public class UICityBuildTabHandler : MonoBehaviour
         }
     }
 
-    public void PassUI(UIBuilderHandler uiBuilder)
+    public void ToggleUnitLockButton(string tabName, string unitNameAndLevel, bool v)
+	{
+		for (int i = 0; i < tabList.Count; i++)
+		{
+			if (tabList[i].tabName == tabName)
+			{
+				for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
+				{
+					if (tabList[i].UIBuilder.buildOptions[j].UnitBuildData.unitNameAndLevel == unitNameAndLevel)
+					{
+						tabList[i].UIBuilder.buildOptions[j].locked = v;
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	public void PassUI(UIBuilderHandler uiBuilder)
     {
         CloseOtherWindows();
 		bool openTab = true;

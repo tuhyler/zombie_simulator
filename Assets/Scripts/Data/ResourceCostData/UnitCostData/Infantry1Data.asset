@@ -23,8 +23,6 @@ MonoBehaviour:
   unitCost:
   - resourceType: 6
     resourceAmount: 5
-  - resourceType: 7
-    resourceAmount: 5
   cycleCost:
   - resourceType: 4
     resourceAmount: 1
@@ -34,7 +32,7 @@ MonoBehaviour:
   laborCost: 0
   unitType: 1
   unitDescription: Strong, fast unit
-  availableInitially: 0
+  availableInitially: 1
   health: 50
   baseAttackStrength: 5
   baseAttackSpeed: 1
@@ -43,3 +41,4 @@ MonoBehaviour:
   cargoCapacity: 0
   transportationType: 0
   characterUnit: 0
+  unitEra: 0
