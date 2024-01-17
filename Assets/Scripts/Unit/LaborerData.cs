@@ -5,7 +5,7 @@ using UnityEngine;
 [SerializeField]
 public class LaborerData : IUnitData
 {
-	public string unitNameAndLevel;
+	public string unitNameAndLevel, unitName;
 	public Vector3 position;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
@@ -34,7 +34,7 @@ public class LaborerData : IUnitData
 	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
 	bool IUnitData.secondaryPrefab => secondaryPrefab;
-	Vector3Int IUnitData.currentLocation => currentLocation;
+	Vector3 IUnitData.position => position;
 	Quaternion IUnitData.rotation => rotation;
 	Vector3Int IUnitData.barracksBunk => Vector3Int.zero;
 }

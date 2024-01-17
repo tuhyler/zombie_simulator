@@ -38,7 +38,7 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 2
-    resourceAmount: 8
+    resourceAmount: 4
   producedResourceTime: 1e000000
   rawMaterials: 1
   rawResourceType: 1

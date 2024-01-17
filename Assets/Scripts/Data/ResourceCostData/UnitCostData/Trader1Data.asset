@@ -35,12 +35,12 @@ MonoBehaviour:
   unitType: 5
   unitDescription: Transports cargo on land
   availableInitially: 1
-  health: 10
+  health: 14
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 0.5
   trainTime: 0
-  cargoCapacity: 10
+  cargoCapacity: 100
   transportationType: 0
   characterUnit: 0
   unitEra: 0

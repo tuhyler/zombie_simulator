@@ -67,7 +67,7 @@ public class Projectile : MonoBehaviour
 
         gameObject.SetActive(false);
 		transform.localPosition = originalPosition;
-		target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles, attacks[Random.Range(0,attacks.Length)]);
+		target.ReduceHealth(unit, attacks[Random.Range(0,attacks.Length)]);
 	}
 
 	public IEnumerator ShootTest()

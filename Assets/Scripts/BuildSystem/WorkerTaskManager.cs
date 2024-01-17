@@ -60,7 +60,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
             OrdersPrep();
-			world.mainPlayer.WorkerOrdersPreparations();
+			world.scott.WorkerOrdersPreparations();
         }
     }
 
@@ -91,7 +91,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
             OrdersPrep();
-			world.mainPlayer.WorkerOrdersPreparations();
+			world.scott.WorkerOrdersPreparations();
         }
     }
 
@@ -129,6 +129,12 @@ public class WorkerTaskManager : MonoBehaviour
 		pos.y = 0;
 		Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
+        if (world.scottFollow)
+            world.scott.StopMovement();
+
+        if (world.azaiFollow)
+            world.azai.StopMovement();
+
 		if (Vector3Int.RoundToInt(pos) == workerTile)
 		{
 			//add to finish animation listener
@@ -158,7 +164,7 @@ public class WorkerTaskManager : MonoBehaviour
 		    unitMovement.buildingRoad = true;
 		    uiBuildingSomething.SetText("Building Road");
 		    OrdersPrep();
-			world.mainPlayer.WorkerOrdersPreparations();
+			world.scott.WorkerOrdersPreparations();
         }
 	}
 
@@ -216,7 +222,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.removingAll = true;
             uiBuildingSomething.SetText("Removing All");
             OrdersPrep();
-			world.mainPlayer.WorkerOrdersPreparations();
+			world.scott.WorkerOrdersPreparations();
         }
     }
 
@@ -228,7 +234,7 @@ public class WorkerTaskManager : MonoBehaviour
             unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
             OrdersPrep();
-			world.mainPlayer.WorkerOrdersPreparations();
+			world.scott.WorkerOrdersPreparations();
         }
     }
 
@@ -240,7 +246,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.removingLiquid = true;
             uiBuildingSomething.SetText("Removing Liquid");
             OrdersPrep();
-			world.mainPlayer.WorkerOrdersPreparations();
+			world.scott.WorkerOrdersPreparations();
         }
     }
 
@@ -252,7 +258,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.removingPower = true;
             uiBuildingSomething.SetText("Removing Power");
             OrdersPrep();
-			world.mainPlayer.WorkerOrdersPreparations();
+			world.scott.WorkerOrdersPreparations();
         }
     }
 
@@ -310,6 +316,11 @@ public class WorkerTaskManager : MonoBehaviour
         
         uiWorkerHandler.ToggleVisibility(false, world);
         uiBuildingSomething.ToggleVisibility(true);
+
+        world.mainPlayer.StopMovement();
+
+        if (world.azaiFollow)
+            world.azai.StopMovement();
 
         world.unitOrders = true;
 		world.mainPlayer.isBusy = true;

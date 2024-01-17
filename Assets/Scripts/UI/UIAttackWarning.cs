@@ -10,7 +10,7 @@ public class UIAttackWarning : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem flash;
 	[HideInInspector]
-	public List<Unit> attackUnits = new();
+	public List<Vector3> attackLocs = new();
 	private int notificationWait = 10;
 	private WaitForSeconds wait = new WaitForSeconds(1);
 	private Coroutine co;
@@ -42,7 +42,7 @@ public class UIAttackWarning : MonoBehaviour
 		}
 		else
 		{
-			attackUnits.Clear();
+			attackLocs.Clear();
 			activeStatus = false;
 			flash.Stop();
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setDelay(0.125f).setOnComplete(SetActiveStatusFalse);
@@ -59,12 +59,12 @@ public class UIAttackWarning : MonoBehaviour
 		gameObject.SetActive(false);
 	}
 
-	public void AttackNotification(Unit attacker)
+	public void AttackNotification(Vector3 loc)
 	{
-		if (!world.mapHandler.activeStatus && Camera.main.WorldToViewportPoint(attacker.transform.position).z >= 0)
+		if (!world.mapHandler.activeStatus && Camera.main.WorldToViewportPoint(loc).z >= 0)
 			return;
 
-		attackUnits.Add(attacker);
+		attackLocs.Add(loc);
 		world.cityBuilderManager.PlayAlertAudio();
 		
 		if (!world.mapHandler.activeStatus)
@@ -92,29 +92,29 @@ public class UIAttackWarning : MonoBehaviour
 
 	public void GoToAttack()
 	{
-		if (attackUnits.Count == 0)
+		if (attackLocs.Count == 0)
 			return;
 		
-		Unit attacker = attackUnits[0];
-		attackUnits.Remove(attacker);
+		Vector3 attackLoc = attackLocs[0];
+		attackLocs.Remove(attackLoc);
 
-		world.cameraController.CenterCameraInstantly(attacker.transform.position);
+		world.cameraController.CenterCameraInstantly(attackLoc);
 
 		CloseWarningCheck();
 	}
 
-	public void AttackWarningCheck(Unit unit)
+	public void AttackWarningCheck(Vector3 loc)
 	{
-		if (attackUnits.Contains(unit))
+		if (attackLocs.Contains(loc))
 		{
-			attackUnits.Remove(unit);
+			attackLocs.Remove(loc);
 			CloseWarningCheck();
 		}
 	}
 
-	public void CloseWarningCheck()
+	private void CloseWarningCheck()
 	{
-		if (attackUnits.Count == 0)
+		if (attackLocs.Count == 0)
 		{
 			ToggleVisibility(false);
 
@@ -125,26 +125,11 @@ public class UIAttackWarning : MonoBehaviour
 		}
 	}
 
-	public void LoadAttackLocs(List<Vector3Int> attackLocs)
+	public void LoadAttackLocs(List<Vector3> attackLocs)
 	{
 		if (attackLocs.Count > 0)
 		{
-			for (int i = 0; i < attackLocs.Count; i++)
-			{
-				if (world.IsEnemyCampHere(attackLocs[i]))
-				{
-					EnemyCamp camp = world.GetEnemyCamp(attackLocs[i]);
-					if (camp.UnitsInCamp.Count > 0)
-						attackUnits.Add(camp.UnitsInCamp[0]);
-				}
-				else if (world.IsEnemyAmbushHere(attackLocs[i]))
-				{
-					EnemyAmbush ambush = world.GetEnemyAmbush(attackLocs[i]);
-					if (ambush.attackedUnits.Count > 0)
-						attackUnits.Add(ambush.attackedUnits[0]);
-				}
-			}
-
+			this.attackLocs = new(attackLocs);
 			ToggleVisibility(true);
 		}
 	}

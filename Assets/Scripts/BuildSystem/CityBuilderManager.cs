@@ -1345,7 +1345,7 @@ public class CityBuilderManager : MonoBehaviour
         UnitBuildDataSO data = world.GetUnitUpgradeData(nameAndLevel);
 
 		world.unitMovement.highlightedUnitList.Remove(unit);
-		unit.Deselect();
+		world.unitMovement.ClearSelection();
 		CreateUnit(data, selectedCity, true, unit);
 	}
 
@@ -1536,10 +1536,12 @@ public class CityBuilderManager : MonoBehaviour
         foreach (Vector3Int tile in developedTiles)
         {
             ResourceProducer producer = world.GetResourceProducer(tile);
-            if (v && producer.isWaitingToUnload)
+            if (producer.isWaitingToUnload)
             {
                 producer.TimeProgressBarSetActive(v);
-                producer.SetTimeProgressBarToFull();
+                
+                if (v)
+                    producer.SetTimeProgressBarToFull();
             }
             else if (!producer.isWaitingForResearch && !producer.isWaitingForStorageRoom && !producer.isWaitingforResources)
             {
@@ -1702,16 +1704,14 @@ public class CityBuilderManager : MonoBehaviour
         //transferring all previous trader info to new one
         if (upgrading)
 		{
-            Trader oldTrader = upgradedUnit.GetComponent<Trader>();
-            world.traderList.Remove(oldTrader);
-            Trader newTrader = newUnit.GetComponent<Trader>();
-            newTrader.name = upgradedUnit.name;
-            //world.traderList.Add(newTrader);
-            newTrader.hasRoute = oldTrader.hasRoute;
-            newTrader.tradeRouteManager = oldTrader.tradeRouteManager;
-            newTrader.tradeRouteManager.SetTrader(newTrader);
-            newTrader.personalResourceManager = oldTrader.personalResourceManager;
-            newTrader.resourceGridDict = oldTrader.resourceGridDict;
+            world.traderList.Remove(upgradedUnit.trader);
+            newUnit.trader.name = upgradedUnit.name;
+			//world.traderList.Add(newTrader);
+			newUnit.trader.hasRoute = upgradedUnit.trader.hasRoute;
+			newUnit.trader.tradeRouteManager = upgradedUnit.trader.tradeRouteManager;
+			newUnit.trader.tradeRouteManager.SetTrader(newUnit.trader);
+			newUnit.trader.personalResourceManager = upgradedUnit.trader.personalResourceManager;
+			newUnit.trader.resourceGridDict = upgradedUnit.trader.resourceGridDict;
             selectedCity.tradersHere.Remove(upgradedUnit);
             upgradedUnit.RemoveUnitFromData();
             upgradedUnit.DestroyUnit();
@@ -1728,9 +1728,8 @@ public class CityBuilderManager : MonoBehaviour
             if (!upgrading)
                 unit.name = "Trader " + world.traderCount;
     
-            Trader newTrader = newUnit.GetComponent<Trader>();
-            newTrader.id = world.traderCount;
-            world.traderList.Add(newTrader);
+			newUnit.trader.id = world.traderCount;
+            world.traderList.Add(newUnit.trader);
             selectedCity.tradersHere.Add(newUnit);
         }
 
@@ -1841,21 +1840,19 @@ public class CityBuilderManager : MonoBehaviour
 		mainCamLoc.y = 0;
 		Vector3 rot = mainCamLoc - unit.transform.position;
 
-		Trader newTrader = newUnit.GetComponent<Trader>();
 		//transferring all previous trader info to new one
 		if (newUnit.isTrader)
 		{
 			if (upgrading)
             {
-                Trader oldTrader = upgradedUnit.GetComponent<Trader>();
-                world.traderList.Remove(oldTrader);
-			    newTrader.name = upgradedUnit.name;
-			    newTrader.id = oldTrader.id;
-			    newTrader.hasRoute = oldTrader.hasRoute;
-			    newTrader.tradeRouteManager = oldTrader.tradeRouteManager;
-			    newTrader.tradeRouteManager.SetTrader(newTrader);
-			    newTrader.personalResourceManager = oldTrader.personalResourceManager;
-			    newTrader.resourceGridDict = oldTrader.resourceGridDict;
+                world.traderList.Remove(upgradedUnit.trader);
+				newUnit.trader.name = upgradedUnit.name;
+				newUnit.trader.id = upgradedUnit.trader.id;
+				newUnit.trader.hasRoute = upgradedUnit.trader.hasRoute;
+				newUnit.trader.tradeRouteManager = upgradedUnit.trader.tradeRouteManager;
+				newUnit.trader.tradeRouteManager.SetTrader(newUnit.trader);
+				newUnit.trader.personalResourceManager = upgradedUnit.trader.personalResourceManager;
+				newUnit.trader.resourceGridDict = upgradedUnit.trader.resourceGridDict;
 			    city.tradersHere.Remove(upgradedUnit);
 			    upgradedUnit.RemoveUnitFromData();
 			    upgradedUnit.DestroyUnit();
@@ -1865,8 +1862,8 @@ public class CityBuilderManager : MonoBehaviour
 			if (!upgrading)
 				unit.name = "Trader " + world.traderCount;
 
-			newTrader.id = world.traderCount;
-            world.traderList.Add(newTrader);
+			newUnit.trader.id = world.traderCount;
+            world.traderList.Add(newUnit.trader);
             city.tradersHere.Add(newUnit);
 		}
 

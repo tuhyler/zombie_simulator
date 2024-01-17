@@ -5,17 +5,18 @@ using UnityEngine;
 [System.Serializable]
 public class TraderData : IUnitData
 {
-	public int id;
-	public string unitNameAndLevel;
+	public int id, currentHealth;
+	public string unitNameAndLevel, unitName;
 	public Vector3 position;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, moreToMove, isMoving, interruptedRoute, atStop, followingRoute, isWaiting, isUpgrading, hasRoute, waitingOnRouteCosts, ambush;
+	public bool secondaryPrefab, moreToMove, isMoving, interruptedRoute, atStop, followingRoute, isWaiting, isUpgrading, paid, hasRoute, waitingOnRouteCosts, ambush, guarded, waitingOnGuard;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation, ambushLoc;
 	public Vector3Int prevTile, prevTerrainTile;
 	public Dictionary<ResourceType, int> resourceGridDict;
+	public UnitData guardUnit;
 
 	//personal resource info
 	public Dictionary<ResourceType, int> resourceDict;
@@ -50,7 +51,7 @@ public class TraderData : IUnitData
 	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
 	bool IUnitData.secondaryPrefab => secondaryPrefab;
-	Vector3Int IUnitData.currentLocation => currentLocation;
+	Vector3 IUnitData.position => position;
 	Quaternion IUnitData.rotation => rotation;
 	Vector3Int IUnitData.barracksBunk => Vector3Int.zero;
 }

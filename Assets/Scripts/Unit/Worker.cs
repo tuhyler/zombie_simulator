@@ -20,7 +20,7 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest;
+    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, stepAside;
     public int clearingForestTime = 1, cityBuildingTime = 2, roadBuildingTime = 1, roadRemovingTime = 2;
     public int clearedForestlumberAmount = 100;
     public AudioClip[] gatheringClips;
@@ -588,7 +588,13 @@ public class Worker : Unit
         //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
         StopMovement();
         if (world.scottFollow)
+        {
+            world.scott.StopMovement();
             PrepareScottGather();
+
+            if (world.azaiFollow)
+                world.azai.StopMovement();
+        }
         //unitAnimator.SetBool(isWorkingHash, true);
         isBusy = true;
         //resourceIndividualHandler.SetWorker(this);
@@ -1051,25 +1057,9 @@ public class Worker : Unit
         data.harvested = harvested;
         data.harvestedForest = harvestedForest;
         data.runningAway = runningAway;
+        data.stepAside = stepAside;
         data.orderList = orderList;
         data.timePassed = timePassed;
-
-  //      if (removing)
-  //      {
-  //          data.timePassed = timePassed;
-  //      }
-  //      else if (gathering || clearingForest)
-  //      {
-  //          data.timePassed = timePassed;
-  //      }
-  //      else if (buildingCity)
-  //      {
-  //          data.timePassed = timePassed;
-  //      }
-  //      else if (building)
-  //      {
-		//	data.timePassed = timePassed;
-		//}
 
 		return data;
     }
@@ -1099,6 +1089,7 @@ public class Worker : Unit
         harvestedForest = data.harvestedForest;
         orderList = data.orderList;
         runningAway = data.runningAway;
+        stepAside = data.stepAside;
         if (runningAway)
             exclamationPoint.SetActive(true);
 
@@ -1245,8 +1236,11 @@ public class Worker : Unit
         }
         else if (runningAway)
         {
-			runningAway = false; //gets reset in next method
-			StartRunningAway();
+			if (!stepAside)
+            {
+    			runningAway = false; //gets reset in next method
+                StartRunningAway();
+            }
 		}
 	}
 }

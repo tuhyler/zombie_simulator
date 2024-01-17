@@ -443,10 +443,10 @@ public class City : MonoBehaviour
         improvementList.Remove(improvement);
     }
 
-    public bool WorldResearchingCheck()
-    {
-        return world.researching;
-    }
+    //public bool WorldResearchingCheck()
+    //{
+    //    return world.researching;
+    //}
 
     //public void RestartResearch()
     //{
@@ -1880,7 +1880,14 @@ public class City : MonoBehaviour
             resourceManager.resourceSellHistoryDict[type] = data.allResourceInfoDict[type].Item4;
 
             if (data.allResourceInfoDict[type].Item5)
-                resourceManager.resourceSellList.Add(type);
+            {
+                if (!resourceManager.resourceSellList.Contains(type))
+                    resourceManager.resourceSellList.Add(type);
+            }
+            else
+            {
+                resourceManager.resourceSellList.Remove(type);
+            }
         }
         resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
         resourceManager.fullInventory = data.fullInventory;

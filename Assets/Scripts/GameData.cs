@@ -20,9 +20,9 @@ public class GameData
     public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new(), goldCityWaitList = new(), goldCityRouteWaitList = new(), goldWonderWaitList = new(), goldTradeCenterWaitList = new();
     public string tutorialStep, gameStep;
     public Dictionary<string, (bool, bool)> conversationTaskDict = new();
-    public bool scottFollow, azaiFollow;
+    public bool scottFollow, azaiFollow, tutorial, tutorialGoing;
     public Vector3Int startingLoc;
-    public List<Vector3Int> attackLocs = new();
+    public List<Vector3> attackLocs = new();
     public Era currentEra;
     public Region startingRegion;
 
@@ -36,6 +36,7 @@ public class GameData
 
     public Dictionary<Vector3Int, EnemyCampData> attackedEnemyBases = new();
     public Dictionary<Vector3Int, EnemyCampData> movingEnemyBases = new();
+    public Dictionary<Vector3Int, EnemyAmbushData> ambushLocs = new();
     public Dictionary<Vector3Int, List<UnitData>> militaryUnits = new();
 
     public List<TraderData> allTraders = new();
@@ -50,6 +51,6 @@ public class GameData
     public Dictionary<Vector3Int, ArmyData> allArmies = new();
     public List<RoadData> allRoads = new();
     public List<CityImprovementData> allCityImprovements = new();
-    public List<UnitData> allUnits = new();
+    //public List<UnitData> allUnits = new();
 
 }

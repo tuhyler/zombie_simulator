@@ -211,16 +211,16 @@ public class EnemyCamp
 			campfire.SetActive(false);
 		returning = false;
 		prepping = true;
-		
-		Vector3Int diff = (threatLoc - loc) / 3;
+
+		forward = (threatLoc - loc) / 3;
 
 		int rotation;
 
-		if (diff.x == -1)
+		if (forward.x == -1)
 			rotation = 1;
-		else if (diff.z == 1)
+		else if (forward.z == 1)
 			rotation = 2;
-		else if (diff.x == 1)
+		else if (forward.x == 1)
 			rotation = 3;
 		else
 			rotation = 0;
@@ -271,7 +271,7 @@ public class EnemyCamp
 				}
 			}
 
-			List<Vector3Int> path = GridSearch.AStarSearch(world, unit.CurrentLocation, loc + unitDiff, false, false, true);
+			List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, unit.CurrentLocation, loc + unitDiff, unit.bySea);
 
 			if (path.Count > 0)
 			{
@@ -306,20 +306,22 @@ public class EnemyCamp
 
 			if (movingOut)
 			{
+				for (int i = 0; i < unitsInCamp.Count; i++)
+					unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
+				
 				if (chasing)
 				{
 					world.mainPlayer.StartRunningAway();
-					world.uiAttackWarning.AttackNotification(unitsInCamp[0]);
 				}
 
 				List<Vector3Int> exemptList = new();
-				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, chaseLoc, exemptList);
+				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, chaseLoc);
 				MoveOutCamp();
 			}
 
 			if (armyReady)
 			{
-				world.uiAttackWarning.AttackNotification(unitsInCamp[0]);
+				world.uiAttackWarning.AttackNotification(((Vector3)attackingArmy.attackZone + loc)*0.5f);
 				armyReady = false;
 				attackReady = false;
 				attackingArmy.Charge();
@@ -673,15 +675,20 @@ public class EnemyCamp
 			if (chasing)
 			{
 				chasing = false;
-				
-				foreach (Unit unit in unitsInCamp)
+
+				for (int i = 0; i < unitsInCamp.Count; i++)
 				{
-					unit.looking = true;
-					unit.StartLookingAround();
+					unitsInCamp[i].looking = true;
+					unitsInCamp[i].StartLookingAround();
 				}
 			}
 			else if (returning)
 			{
+				for (int i = 0; i < unitsInCamp.Count; i++)
+				{
+					unitsInCamp[i].minimapIcon.gameObject.SetActive(false);
+				}
+
 				ReturnToCamp();
 			}
 			else

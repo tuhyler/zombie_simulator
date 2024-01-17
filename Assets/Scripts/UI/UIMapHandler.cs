@@ -178,7 +178,7 @@ public class UIMapHandler : MonoBehaviour
             world.uiMainMenuButton.gameObject.SetActive(true);
 			world.conversationListButton.gameObject.SetActive(true);
 
-            if (world.uiAttackWarning.attackUnits.Count > 0)
+            if (world.uiAttackWarning.attackLocs.Count > 0)
                 world.uiAttackWarning.ToggleVisibility(true);
 		}
         else

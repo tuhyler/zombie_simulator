@@ -25,12 +25,11 @@ public class Trader : Unit
     public int cargoStorageLimit;
 
     [HideInInspector]
-    public bool hasRoute, waitingOnRouteCosts, guarded;//, interruptedRoute;
+    public bool paid, hasRoute, waitingOnRouteCosts, guarded, waitingOnGuard;//, interruptedRoute;
+    [HideInInspector]
+    public Unit guardUnit;
 
     public int loadUnloadRate = 1;
-
-    [SerializeField]
-    private GameObject ripples;
 
     private Coroutine LoadUnloadCo;
     private Coroutine WaitTimeCo;
@@ -59,6 +58,7 @@ public class Trader : Unit
         cargoStorageLimit = buildDataSO.cargoCapacity;
         tradeRouteManager = GetComponent<TradeRouteManager>();
         tradeRouteManager.SetTrader(this);
+        trader = this;
         isTrader = true;
         personalResourceManager = GetComponent<PersonalResourceManager>();
         personalResourceManager.SetTrader(this);
@@ -79,16 +79,6 @@ public class Trader : Unit
 		tradeRouteManager.SetTradeRouteManager(uiTradeRouteManager);
 		tradeRouteManager.SetUIPersonalResourceManager(uiPersonalResourceInfoPanel);
 	}
-
-	public void TurnOnRipples()
-    {
-        if (!isMoving)
-        {
-            ripples.SetActive(true);
-            //for tweening
-            LeanTween.alpha(ripples, 1f, 0.2f).setFrom(0f).setEase(LeanTweenType.linear);
-        }
-    }
 
     public override void TurnOffRipples()
     {
@@ -154,15 +144,7 @@ public class Trader : Unit
     private void CalculateRouteCosts()
     {
 		float multiple = totalRouteLength / (buildDataSO.movementSpeed * 24); //24 is tiles per minute on road with speed of 1
-
-		for (int i = 0; i < buildDataSO.cycleCost.Count; i++)
-		{
-			ResourceValue value;
-			value.resourceType = buildDataSO.cycleCost[i].resourceType;
-			value.resourceAmount = Mathf.CeilToInt(buildDataSO.cycleCost[i].resourceAmount * multiple);
-			totalRouteCosts.Add(value);
-			routeCostTypes.Add(value.resourceType);
-		}
+        totalRouteCosts = RouteCostCalculator(multiple, true);
 	}
 
     public City GetStartingCity()
@@ -202,7 +184,8 @@ public class Trader : Unit
 					world.unitMovement.uiTradeRouteManager.ShowRouteCostFlag(false, this);
 					city.ResourceManager.RemoveFromTraderWaitList(this);
 					city.ResourceManager.RemoveFromResourcesNeededForTrader(routeCostTypes);
-					SpendRouteCosts(1);
+                    paid = true;
+					SpendRouteCosts(0);
                 }
                 else
                 {
@@ -307,6 +290,7 @@ public class Trader : Unit
             StopCoroutine(WaitTimeCo);
         WaitTimeCo = null;
         atStop = false;
+        paid = false;
         Vector3Int nextStop = tradeRouteManager.GoToNext();
 
         //checking to see if stop still exists
@@ -327,7 +311,7 @@ public class Trader : Unit
         if (followingRoute)
             currentPath = tradeRouteManager.GetNextPath();
         else
-            currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader, bySea);
+            currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader, bySea); //in case starting off path
 
         followingRoute = true;
         if (currentPath.Count == 0)
@@ -355,6 +339,15 @@ public class Trader : Unit
             finalDestinationLoc = nextStop;
             MoveThroughPath(currentPath);
             tradeRouteManager.CheckQueues();
+
+            if (guarded)
+            {
+                currentPath.Insert(0, world.RoundToInt(transform.position));
+                currentPath.RemoveAt(currentPath.Count - 1);
+
+                guardUnit.finalDestinationLoc = guardUnit.GuardRouteFinish(nextStop, currentPath[currentPath.Count - 1]);
+                guardUnit.MoveThroughPath(currentPath);
+            }
         }
     }
 
@@ -406,6 +399,7 @@ public class Trader : Unit
         {
             //tradeRouteManager.StopHoldingPatternCoroutine();
             StopCoroutine(LoadUnloadCo);
+            tradeRouteManager.PutItBack();
             tradeRouteManager.CancelLoad();
             tradeRouteManager.StopHoldingPatternCoroutine();
             tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
@@ -452,62 +446,187 @@ public class Trader : Unit
         }
     }
 
+    //different from original calculation because trader could start on different stop
     public void SpendRouteCosts(int stop)
     {
         City city = GetStartingCity();
 
-        List<ResourceValue> newCosts = new();
-		float multiple = (totalRouteLength - CalculateTilesTraveled(stop)) / (buildDataSO.movementSpeed * 24);
+        float multiple;
+        if (stop == 0)
+            multiple = paid ? 1 : 0;
+        else
+            multiple = (float)stop / tradeRouteManager.cityStops.Count;
 
-		for (int i = 0; i < buildDataSO.cycleCost.Count; i++)
-		{
-			ResourceValue value;
-			value.resourceType = buildDataSO.cycleCost[i].resourceType;
-			value.resourceAmount = Mathf.CeilToInt(buildDataSO.cycleCost[i].resourceAmount * multiple);
-			newCosts.Add(value);
-		}
-
+		//float multiple = totalRouteLength /*- CalculateTilesTraveled(stop))*/ / (buildDataSO.movementSpeed * 24) * percTraveled;
+        List<ResourceValue> newCosts = AdjustTotalCosts(multiple);
 		city.ResourceManager.ConsumeResources(newCosts, 1, city.cityLoc, false, true);
-
     }
 
     public void RefundRouteCosts()
     {
-		float multiple = (totalRouteLength - CalculateTilesTraveled(tradeRouteManager.currentStop)) / (buildDataSO.movementSpeed * 24);
-        City city = GetStartingCity();
+        float multiple; 
+        if (tradeRouteManager.currentStop == 0)
+            multiple = paid ? 1 : 0;
+        else
+            multiple = (float)tradeRouteManager.currentStop / tradeRouteManager.cityStops.Count;
 
-		for (int i = 0; i < buildDataSO.cycleCost.Count; i++)
-		{
-            int amount = Mathf.FloorToInt(buildDataSO.cycleCost[i].resourceAmount * multiple);
+        paid = false;
+		City city = GetStartingCity();
+
+        for (int i = 0; i < totalRouteCosts.Count; i++)
+        {
+			int amount = Mathf.FloorToInt(totalRouteCosts[i].resourceAmount * multiple);
 
 			if (amount > 0)
 			{
-                city.ResourceManager.CheckResource(buildDataSO.cycleCost[i].resourceType, amount);
+				city.ResourceManager.CheckResource(totalRouteCosts[i].resourceType, amount);
 				Vector3 cityLoc = city.cityLoc;
-				cityLoc.y += buildDataSO.cycleCost.Count * 0.4f;
+				cityLoc.y += totalRouteCosts.Count * 0.4f;
 				cityLoc.y += -0.4f * i;
-				InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(buildDataSO.cycleCost[i].resourceType));
+				InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(totalRouteCosts[i].resourceType));
 			}
 		}
+
+        //Dictionary<ResourceType, ResourceValue> tempCostDict = new();
+        //List<ResourceValue> combinedCycleCosts = new();
+
+  //      if (guarded)
+  //      {
+  //          for (int i = 0; i < buildDataSO.cycleCost.Count; i++)
+  //              tempCostDict[buildDataSO.cycleCost[i].resourceType] = buildDataSO.cycleCost[i];
+            
+  //          for (int i = 0; i < guardUnit.buildDataSO.cycleCost.Count; i++)
+  //          {
+  //              if (tempCostDict.ContainsKey(guardUnit.buildDataSO.cycleCost[i].resourceType))
+  //              {
+  //                  ResourceValue value = tempCostDict[guardUnit.buildDataSO.cycleCost[i].resourceType];
+  //                  value.resourceAmount += guardUnit.buildDataSO.cycleCost[i].resourceAmount;
+  //                  combinedCycleCosts.Add(value);
+		//		}
+  //              else
+  //              {
+  //                  combinedCycleCosts.Add(guardUnit.buildDataSO.cycleCost[i]);
+  //              }
+  //          }
+  //      }
+  //      else
+  //      {
+  //          combinedCycleCosts = new(buildDataSO.cycleCost);
+  //      }
+
+		//for (int i = 0; i < combinedCycleCosts.Count; i++)
+		//{
+  //          int amount = Mathf.FloorToInt(combinedCycleCosts[i].resourceAmount * multiple);
+
+		//	if (amount > 0)
+		//	{
+  //              city.ResourceManager.CheckResource(combinedCycleCosts[i].resourceType, amount);
+		//		Vector3 cityLoc = city.cityLoc;
+		//		cityLoc.y += combinedCycleCosts.Count * 0.4f;
+		//		cityLoc.y += -0.4f * i;
+		//		InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(combinedCycleCosts[i].resourceType));
+		//	}
+		//}
 	}
 
-    private int CalculateTilesTraveled(int stop)
+
+    private List<ResourceValue> RouteCostCalculator(float multiple, bool types)
     {
-		int tilesTraveled = 0;
-        int currentStop;
+        List<ResourceValue> totalCosts = new();
+        
+        if (guarded)
+		{
+			Dictionary<ResourceType, ResourceValue> tempCostDict = new();
+			for (int i = 0; i < buildDataSO.cycleCost.Count; i++)
+			{
+				ResourceValue value;
+				value.resourceType = buildDataSO.cycleCost[i].resourceType;
+				value.resourceAmount = Mathf.CeilToInt(buildDataSO.cycleCost[i].resourceAmount * multiple);
+				tempCostDict[value.resourceType] = value;
+			}
 
-        if (stop == 0)
-            currentStop = tradeRouteManager.cityStops.Count;
-        else
-            currentStop = stop;
+			for (int i = 0; i < guardUnit.buildDataSO.cycleCost.Count; i++)
+			{
+				ResourceValue tempValue = guardUnit.buildDataSO.cycleCost[i];
+				if (tempCostDict.ContainsKey(tempValue.resourceType))
+				{
+					ResourceValue value = tempCostDict[tempValue.resourceType];
+					value.resourceAmount += Mathf.CeilToInt(tempValue.resourceAmount * multiple);
+					tempCostDict[tempValue.resourceType] = value;
+				}
+				else
+				{
+					ResourceValue value;
+					value.resourceType = tempValue.resourceType;
+					value.resourceAmount = Mathf.CeilToInt(tempValue.resourceAmount * multiple);
+					tempCostDict[value.resourceType] = value;
+				}
+			}
 
-        if (currentStop == 1)
-            return tilesTraveled;
+			foreach (ResourceType type in tempCostDict.Keys)
+			{
+				totalCosts.Add(tempCostDict[type]);
+                if (types)
+    				routeCostTypes.Add(type);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < buildDataSO.cycleCost.Count; i++)
+			{
+				ResourceValue value;
+				value.resourceType = buildDataSO.cycleCost[i].resourceType;
+				value.resourceAmount = Mathf.CeilToInt(buildDataSO.cycleCost[i].resourceAmount * multiple);
+				totalCosts.Add(value);
+                if (types)
+    				routeCostTypes.Add(value.resourceType);
+			}
+		}
 
-		for (int i = currentStop - 1; i > -1; i--)
-			tilesTraveled += tradeRouteManager.RoutePathsDict[i].Count;
+        return totalCosts;
+	}
 
-		return tilesTraveled;
+    //for when starting on a different stop other than stop 0;
+    private List<ResourceValue> AdjustTotalCosts(float multiple)
+    {
+        List<ResourceValue> adjCosts = new();
+
+		for (int i = 0; i < totalRouteCosts.Count; i++)
+		{
+			int amount = Mathf.CeilToInt(totalRouteCosts[i].resourceAmount * multiple);
+
+			if (amount > 0)
+			{
+                ResourceValue value = totalRouteCosts[i];
+                value.resourceAmount = amount;
+                adjCosts.Add(value);
+			}
+		}
+
+		return adjCosts;
+    }
+    //private int CalculateTilesTraveled(int stop)
+    //{
+    //    int tilesTraveled = 0;
+    //    int currentStop;
+
+    //    if (stop == 0)
+    //        currentStop = tradeRouteManager.cityStops.Count;
+    //    else
+    //        currentStop = stop;
+
+    //    if (currentStop == 1)
+    //        return tilesTraveled;
+
+    //    for (int i = currentStop - 1; i > -1; i--)
+    //        tilesTraveled += tradeRouteManager.RoutePathsDict[i].Count;
+
+    //    return tilesTraveled;
+    //}
+
+    public void LookSad()
+    {
+		SetInterruptedAnimation(true);
     }
 
 	public TraderData SaveTraderData()
@@ -515,6 +634,7 @@ public class Trader : Unit
 		TraderData data = new();
 
         data.id = id;
+        data.unitName = gameObject.name;
 		data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
 		data.position = transform.position;
 		data.rotation = transform.rotation;
@@ -527,6 +647,14 @@ public class Trader : Unit
 		data.isMoving = isMoving;
         data.ambushLoc = ambushLoc;
         data.ambush = ambush;
+        data.guarded = guarded;
+        if (guarded)
+            data.guardUnit = guardUnit.SaveMilitaryUnitData();
+        else
+            data.guardUnit = null;
+        data.waitingOnGuard = waitingOnGuard;
+        data.currentHealth = currentHealth;
+        data.paid = paid;
 
 		if (isMoving && !isWaiting)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -567,6 +695,8 @@ public class Trader : Unit
     public void LoadTraderData(TraderData data)
     {
 		id = data.id;
+        currentHealth = data.currentHealth;
+        gameObject.name = data.unitName;
 		destinationLoc = data.destinationLoc;
 		finalDestinationLoc = data.finalDestinationLoc;
 		CurrentLocation = data.currentLocation;
@@ -584,6 +714,18 @@ public class Trader : Unit
 		resourceGridDict = data.resourceGridDict;
         ambushLoc = data.ambushLoc;
         ambush = data.ambush;
+        guarded = data.guarded;
+        waitingOnGuard = data.waitingOnGuard;
+        paid = data.paid;
+
+        if (guarded)
+            world.CreateGuard(data.guardUnit, this);
+
+		if (currentHealth < healthMax)
+		{
+			healthbar.LoadHealthLevel(currentHealth);
+			healthbar.gameObject.SetActive(true);
+		}
 
 		if (!isMoving)
 			world.AddUnitPosition(CurrentLocation, this);

@@ -220,7 +220,7 @@ public class MapWorld : MonoBehaviour
     //for enemy
     private Dictionary<Vector3Int, EnemyCamp> enemyCampDict = new();
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
-    private Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
+    public Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
 
     //for resource icons on minimap (so they're rotated correctly)
     private Dictionary<Vector3Int, ResourceMinimapIcon> resourceIconDict = new();
@@ -263,7 +263,7 @@ public class MapWorld : MonoBehaviour
     public GamePersist gamePersist = new();
 
     //ambush info
-    public Dictionary<Era, string> ambushDict = new();
+    public Dictionary<Era, string> ambushUnitDict = new();
 
     //character units
     [HideInInspector]
@@ -497,7 +497,7 @@ public class MapWorld : MonoBehaviour
         foreach (UnitBuildDataSO unit in UpgradeableObjectHolder.Instance.enemyUnitDict.Values)
         {
             if (unit.unitType == UnitType.Infantry)
-                ambushDict[unit.unitEra] = unit.unitNameAndLevel;
+                ambushUnitDict[unit.unitEra] = unit.unitNameAndLevel;
         }
     }
 
@@ -508,6 +508,7 @@ public class MapWorld : MonoBehaviour
         conversationListButton.gameObject.SetActive(true);
 		uiWorldResources.SetActiveStatus(true);
         this.tutorial = tutorial;
+        GameLoader.Instance.gameData.tutorial = tutorial;
 		if (tutorial)
 		{
 			GameObject helperWindow = Instantiate(uiHelperWindow);
@@ -589,6 +590,8 @@ public class MapWorld : MonoBehaviour
 		foreach (Transform go in enemyUnitHolder) //adds all enemy units to start game
 		{
 			Unit unitEnemy = go.GetComponent<Unit>();
+            unitEnemy.SetMinimapIcon(enemyUnitHolder);
+            unitEnemy.minimapIcon.gameObject.SetActive(false);
 			unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
 			unitEnemy.SetReferences(this);
 
@@ -704,7 +707,7 @@ public class MapWorld : MonoBehaviour
             characterUnits.Add(scott);
             characterUnits.Add(azai);
             scottFollow = true;
-            //azaiFollow = true;
+            azaiFollow = true;
             unit.CurrentLocation = RoundToInt(unit.transform.position);
             AddUnitPosition(unit.transform.position, unit);
 
@@ -884,6 +887,13 @@ public class MapWorld : MonoBehaviour
 
 	public void GenerateMap(Dictionary<Vector3Int, TerrainSaveData> mainMap)
     {
+		if (tutorial)
+		{
+			GameObject helperWindow = Instantiate(uiHelperWindow);
+			helperWindow.transform.SetParent(cityCanvas.transform, false);
+			cityBuilderManager.uiHelperWindow = helperWindow.GetComponent<UIHelperWindow>();
+		}
+
 		List<TerrainData> coastalTerrain = new();
 		List<TerrainData> terrainToCheck = new();
         List<TerrainData> terrainPropsToModify = new();
@@ -1514,6 +1524,9 @@ public class MapWorld : MonoBehaviour
                 if (tdCamp.CompareTag("Forest") || tdCamp.CompareTag("Forest Hill"))
                     unit.marker.ToggleVisibility(true);
 		        unit.SetReferences(this);
+                unit.SetMinimapIcon(enemyUnitHolder);
+                if (!movingOut)
+                    unit.minimapIcon.gameObject.SetActive(false);
 		        if (!attacked) //just in case dictionary was missing any
 			        unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
 		        unit.CurrentLocation = unitLoc;
@@ -1554,6 +1567,49 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
+    public void MakeEnemyAmbushes(Dictionary<Vector3Int, EnemyAmbushData> ambushLocs, Dictionary<string, Trader> ambushedTraders)
+    {
+		foreach (Vector3Int tile in ambushLocs.Keys)
+		{
+			EnemyAmbush ambush = new();
+			ambush.loc = tile;
+			ambush.attackedTrader = ambushLocs[tile].attackedTrader;
+            Trader unitTrader = ambushedTraders[ambush.attackedTrader];
+            ambush.attackedUnits.Add(unitTrader);
+
+            TerrainData td = GetTerrainDataAt(tile);
+
+            if (unitTrader.guarded)
+            {
+                ambush.attackedUnits.Add(unitTrader.guardUnit);
+            }
+
+            for (int i = 0; i < ambushLocs[tile].attackingUnits.Count; i++)
+            {
+                UnitData data = ambushLocs[tile].attackingUnits[i];
+				UnitBuildDataSO enemyData = UpgradeableObjectHolder.Instance.enemyUnitDict[data.unitNameAndLevel];
+                
+				GameObject enemyGO = Instantiate(enemyData.prefab, data.position, data.rotation);
+				enemyGO.name = enemyData.unitDisplayName;
+				enemyGO.transform.SetParent(enemyUnitHolder, false);
+
+				Unit unit = enemyGO.GetComponent<Unit>();
+				unit.SetMinimapIcon(enemyUnitHolder);
+				if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+					unit.marker.ToggleVisibility(true);
+				unit.SetReferences(this);
+				unit.CurrentLocation = data.currentLocation;
+                ambush.attackingUnits.Add(unit);
+                unit.enemyAmbush = ambush;
+
+				unit.LoadUnitData(data);
+				AddUnitPosition(unit.CurrentLocation, unit);
+			}
+
+            enemyAmbushDict[tile] = ambush;
+		}
+	}
+
     public void CreateUnit(IUnitData data, City city = null)
     {
         UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
@@ -1562,11 +1618,10 @@ public class MapWorld : MonoBehaviour
         if (data.secondaryPrefab)
             unitGO = unitData.secondaryPrefab;
 
-		GameObject unit = Instantiate(unitGO, data.currentLocation, data.rotation); //produce unit at specified position
+		GameObject unit = Instantiate(unitGO, data.position, data.rotation); //produce unit at specified position
 		unit.transform.SetParent(unitHolder, false);
 		Unit newUnit = unit.GetComponent<Unit>();
 		newUnit.SetReferences(this);
-		//AddUnitPosition(data.currentLocation, newUnit);
 		newUnit.SetMinimapIcon(unitHolder);
 
 		//assigning army details and rotation
@@ -1577,18 +1632,17 @@ public class MapWorld : MonoBehaviour
             if (city.cityPop.CurrentPop == 0)
                 city.StartGrowthCycle(true);
             city.army.AddToOpenSpots(data.barracksBunk);
-        }
+			newUnit.name = unitData.unitDisplayName;
+		}
 
-        /*if (newUnit.isWorker)
+        if (newUnit.isTrader)
         {
-            newUnit.GetComponent<Worker>().LoadWorkerData(data.GetWorkerData());
-        }
-        else */if (newUnit.isTrader)
-        {
-            Trader trader = newUnit.GetComponent<Trader>();
-            trader.SetRouteManagers(unitMovement.uiTradeRouteManager, unitMovement.uiPersonalResourceInfoPanel); //start method is too slow and awake is too fast
-            traderList.Add(trader);
-            trader.LoadTraderData(data.GetTraderData());
+            newUnit.trader.SetRouteManagers(unitMovement.uiTradeRouteManager, unitMovement.uiPersonalResourceInfoPanel); //start method is too slow and awake is too fast
+            traderList.Add(newUnit.trader);
+			newUnit.trader.LoadTraderData(data.GetTraderData());
+
+            if (newUnit.trader.ambush)
+                GameLoader.Instance.ambushedTraders[newUnit.trader.name] = newUnit.trader;
         }
         else if (newUnit.isLaborer)
         {
@@ -1600,6 +1654,27 @@ public class MapWorld : MonoBehaviour
         {
             newUnit.LoadUnitData(data.GetUnitData());
         }
+	}
+
+    public void CreateGuard(UnitData data, Trader trader)
+    {
+		UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
+		GameObject unitGO = unitData.prefab;
+
+		if (data.secondaryPrefab)
+			unitGO = unitData.secondaryPrefab;
+
+		GameObject unit = Instantiate(unitGO, data.position, data.rotation); //produce unit at specified position
+		unit.transform.SetParent(unitHolder, false);
+		Unit newUnit = unit.GetComponent<Unit>();
+		newUnit.SetReferences(this);
+		newUnit.SetMinimapIcon(unitHolder);
+        newUnit.guardedTrader = trader;
+        trader.guardUnit = newUnit;
+        newUnit.originalMoveSpeed = trader.originalMoveSpeed;
+		newUnit.name = unitData.unitDisplayName;
+
+		newUnit.LoadUnitData(data);
 	}
 
 	public void StartSaveProcess(string saveName)
@@ -3399,14 +3474,32 @@ public class MapWorld : MonoBehaviour
             return;
         
         ambushes++;
-		Vector3Int ambushLoc = GetNeighborsFor(loc, State.EIGHTWAY)[UnityEngine.Random.Range(0,8)];
-        UnitBuildDataSO ambushingUnit = UpgradeableObjectHolder.Instance.enemyUnitDict[ambushDict[currentEra]];
+        List<Vector3Int> randomLocs = new();
+
+        if (unitTrader.trader.guarded)
+        {
+			Vector3Int guardLoc = RoundToInt(unitTrader.trader.guardUnit.transform.position);
+			foreach (Vector3Int tile in GetNeighborsFor(loc, State.EIGHTWAY))
+			{
+                if (tile == guardLoc)
+                    continue;
+
+                randomLocs.Add(tile);
+			}
+		}
+        else
+        {
+            randomLocs.Add(GetNeighborsFor(loc, State.EIGHTWAY)[UnityEngine.Random.Range(0,8)]);
+        }
+
+		Vector3Int ambushLoc = randomLocs[UnityEngine.Random.Range(0,randomLocs.Count)];
+        //ambushLoc = new Vector3Int(9, 0, 26);
+        UnitBuildDataSO ambushingUnit = UpgradeableObjectHolder.Instance.enemyUnitDict[ambushUnitDict[currentEra]];
         TerrainData td = GetTerrainDataAt(loc);
 
 		EnemyAmbush ambush = new();
 		ambush.loc = loc;
-		td.enemyCamp = true;
-		td.enemyZone = true;
+        ambush.attackedTrader = unitTrader.name;
 
 		//check for main player
 		Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
@@ -3419,6 +3512,7 @@ public class MapWorld : MonoBehaviour
 			mainPlayer.exclamationPoint.SetActive(true);
 			mainPlayer.runningAway = true;
             mainPlayer.isBusy = true;
+            mainPlayer.stepAside = true;
 
 			if (playerLoc - loc == Vector3Int.zero)
             {
@@ -3437,6 +3531,7 @@ public class MapWorld : MonoBehaviour
 		enemyGO.transform.SetParent(enemyUnitHolder, false);
 
 		Unit unit = enemyGO.GetComponent<Unit>();
+        unit.SetMinimapIcon(enemyUnitHolder);
 		if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
 			unit.marker.ToggleVisibility(true);
 
@@ -3445,7 +3540,14 @@ public class MapWorld : MonoBehaviour
 		float scaleX = unitScale.x;
 		float scaleZ = unitScale.z;
 		unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
-		unit.lightBeam.Play();
+
+        Vector3 lightBeamLoc = ambushLoc;
+        lightBeamLoc.y += .01f;
+        if (IsRoadOnTileLocation(ambushLoc))
+            lightBeamLoc.y += .1f;
+
+        unit.lightBeam.transform.position = lightBeamLoc;
+        unit.lightBeam.Play();
 		LeanTween.scale(enemyGO, unitScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 
 		unit.ambush = true;
@@ -3454,32 +3556,55 @@ public class MapWorld : MonoBehaviour
         unit.enemyAmbush = ambush;
 		ambush.attackingUnits.Add(unit);
         enemyAmbushDict[loc] = ambush;
-		uiAttackWarning.AttackNotification(unit);
+		uiAttackWarning.AttackNotification(ambush.loc);
         
-        Trader trader = unitTrader.GetComponent<Trader>();
         ambush.attackedUnits.Add(unitTrader);
 
-        if (trader.guarded)
+        if (unitTrader.trader.guarded)
         {
-            //ambush.attackedUnits.Add(trader.);
+			unitTrader.PlayAudioClip(cityBuilderManager.warningClip); //not attacked so can play sound
+			unitTrader.trader.guardUnit.originalMoveSpeed = unitTrader.trader.guardUnit.buildDataSO.movementSpeed;
+            unitTrader.trader.guardUnit.ambush = true;
+			unitTrader.trader.guardUnit.StopMovement();
+            unitTrader.trader.guardUnit.isGuarding = false;
+            ambush.attackedUnits.Add(unitTrader.trader.guardUnit);
+			Vector3 pos = unitTrader.trader.guardUnit.transform.position;
+
+            if (Mathf.Abs(pos.x - ambushLoc.x) < 1.3f && Mathf.Abs(pos.z - ambushLoc.z) < 1.3f)
+            {
+                unit.enemyAI.StartAttack(unitTrader.trader.guardUnit);
+
+				if (unitTrader.trader.guardUnit.buildDataSO.unitType == UnitType.Ranged)
+					unitTrader.trader.guardUnit.RangedAmbushCheck(unit);
+				else
+					unitTrader.trader.guardUnit.StartAttack(unit);
+            }
+            else
+            {
+                if (unitTrader.trader.guardUnit.buildDataSO.unitType == UnitType.Ranged)
+                {
+                    Vector3Int endPosition = RoundToInt(unitTrader.trader.guardUnit.transform.position);
+                    unitTrader.trader.guardUnit.RangedAmbushCheck(unit);
+                    unit.enemyAI.AmbushAggro(endPosition, loc);
+				}
+                else
+                {
+                    unit.targetSearching = true;
+                    Vector3Int endPosition = RoundToInt(unit.transform.position);
+                    unitTrader.trader.guardUnit.AmbushAggro(endPosition, loc);
+                }
+            }
         }
         else
         {
-            unitTrader.StopAnimation();
-            unitTrader.StopMovement();
-            unitTrader.ResetMovementOrders();
-
-            unit.enemyAI.StartAttack(trader);
+			unit.PlayAudioClip(cityBuilderManager.warningClip); //not attacked so can play sound
+			unit.enemyAI.StartAttack(unitTrader);
         }
 	}
 
     public void ClearAmbush(Vector3Int loc)
     {
         enemyAmbushDict.Remove(loc);
-        
-        TerrainData td = GetTerrainDataAt(loc);
-		td.enemyCamp = true;
-		td.enemyZone = true;
 	}
 
     //updating builder handlers if one is selected
@@ -3996,6 +4121,23 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
+    public void HighlightTraders(bool bySea)
+    {
+        for (int i = 0; i < traderList.Count; i++)
+        {
+            if (traderList[i].followingRoute || traderList[i].bySea != bySea || traderList[i].guarded || traderList[i].isMoving)
+                continue;
+
+            traderList[i].Highlight(Color.white);
+        }
+    }
+
+    public void UnhighlightTraders()
+    {
+        for (int i = 0; i < traderList.Count; i++)
+            traderList[i].Unhighlight();
+    }
+
 	public EnemyCamp GetEnemyCamp(Vector3Int loc)
     {
         return enemyCampDict[loc];
@@ -4150,7 +4292,7 @@ public class MapWorld : MonoBehaviour
 
 			td.DisableHighlight();
 			foreach (Unit unit in enemyCampDict[tile].UnitsInCamp)
-				unit.Deselect();
+				unit.Unhighlight();
 		}
 	}
 
@@ -4639,7 +4781,12 @@ public class MapWorld : MonoBehaviour
         return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].sailable && !noWalkList.Contains(tile);
     }
 
-    public bool CheckIfCoastCoast(Vector3Int tile)
+	public bool CheckIfSeaPositionIsValidForEnemy(Vector3Int tile)
+	{
+		return world.ContainsKey(tile) && world[tile].sailable && !noWalkList.Contains(tile);
+	}
+
+	public bool CheckIfCoastCoast(Vector3Int tile)
     {
         return coastCoastList.Contains(tile);
     }
@@ -6301,6 +6448,9 @@ public class MapWorld : MonoBehaviour
 					unitMovement.uiWorkerTask.ReactivateButtons();
 					characterUnits.Add(scott);
 
+                    if (mainPlayer.isSelected)
+                        scott.Highlight(Color.white);
+
                     if (tutorial)
                     {
                         Vector3Int scottLoc = RoundToInt(scott.transform.position); 
@@ -6436,6 +6586,9 @@ public class MapWorld : MonoBehaviour
                 {
 					azaiFollow = true;
 					characterUnits.Add(azai);
+
+                    if (mainPlayer.isSelected)
+                        azai.Highlight(Color.white);
 				}
 				break;
 		}

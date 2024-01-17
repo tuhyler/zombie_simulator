@@ -92,11 +92,19 @@ public class UICityImprovementTip : MonoBehaviour
 				waitingForText.gameObject.SetActive(true);
                 waitingForText.text = "Waiting for Resources";
 			}
-            else if (improvement.GetImprovementData.isResearch && (producer.isWaitingForResearch || producer.isWaitingToUnload))
+            else if (improvement.GetImprovementData.isResearch)
             {
-				waiting = true;
-				waitingForText.gameObject.SetActive(true);
-				waitingForText.text = "Waiting for Assignment";
+				if (producer.isWaitingForResearch || producer.isWaitingToUnload)
+                {
+                    waiting = true;
+				    waitingForText.gameObject.SetActive(true);
+				    waitingForText.text = "Waiting for Assignment";
+                }
+                else
+                {
+					waiting = false;
+					waitingForText.gameObject.SetActive(false);
+				}
 			}
             else if (producer.isWaitingForStorageRoom || producer.isWaitingToUnload)
             {

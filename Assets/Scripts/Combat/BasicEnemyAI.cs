@@ -374,6 +374,21 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 	}
 
+	public void AmbushAggro(Vector3Int endPosition, Vector3Int ambushLoc)
+	{
+		List<Vector3Int> avoidList = new() { ambushLoc };
+		List<Vector3Int> path = GridSearch.AStarSearchEnemy(unit.world, transform.position, endPosition, unit.bySea, avoidList);
+
+		if (path.Count > 1)
+		{
+			unit.finalDestinationLoc = path[path.Count - 1];
+			unit.MoveThroughPath(path);
+		}
+		else if (path.Count == 1)
+		{
+			StartAttack(unit.world.GetUnit(path[0]));
+		}
+	}
 
 	//public void WakeUp(Unit targetUnit)
 	//{
@@ -465,6 +480,9 @@ public class BasicEnemyAI : MonoBehaviour
 		float dist = 0;
 		float distThreshold;
 
+		if (target.isTrader)
+			target.GetComponent<Trader>().LookSad();
+
 		if (Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z) < 1.2f)
 			distThreshold = 1.2f;
 		else
@@ -478,7 +496,7 @@ public class BasicEnemyAI : MonoBehaviour
 			unit.transform.rotation = Quaternion.LookRotation(target.transform.position - unit.transform.position);
 			unit.StartAttackingAnimation();
 			yield return unit.attackPauses[3];
-	        target.ReduceHealth(unit.attackStrength, unit.transform.eulerAngles, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
+	        target.ReduceHealth(unit, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
 			yield return unit.attackPauses[UnityEngine.Random.Range(0,3)];
 			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
         }
@@ -486,21 +504,33 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.attacking = false;
 		if (unit.ambush)
 		{
-			unit.enemyAmbush.attackedUnits.Remove(target);
-			if (unit.enemyAmbush.attackedUnits.Count > 0)
+			if (!unit.isDead) //just in case
 			{
-				StartAttack(unit.enemyAmbush.attackedUnits[0]);
-			}
-			else
-			{
-				if (unit.world.ambushes == 1)
-				{
-					unit.world.tutorialGoing = true;
-					unit.world.TutorialCheck("Ambush");
-				}
+				unit.enemyAmbush.attackedUnits.Remove(target);
+				unit.attackCo = null;
+				unit.StopMovement();
+				unit.StopAnimation();
 
-				unit.world.ClearAmbush(unit.enemyAmbush.loc);
-				StartCoroutine(unit.DramaticallyDisappear());
+				if (unit.enemyAmbush.attackedUnits.Count > 0)
+				{
+					Vector3 nextLoc = unit.enemyAmbush.attackedUnits[0].transform.position;
+					Vector3 loc = unit.transform.position;
+
+					if (Mathf.Abs(loc.x - nextLoc.x) < 1.3f && Mathf.Abs(loc.z - nextLoc.z) < 1.3f)
+						StartAttack(unit.enemyAmbush.attackedUnits[0]);
+					else
+						AmbushAggro(unit.world.RoundToInt(nextLoc), unit.world.RoundToInt(loc));
+				}
+				else
+				{
+					if (unit.world.tutorial && unit.world.ambushes == 1)
+					{
+						unit.world.tutorialGoing = true;
+						unit.world.TutorialCheck("Ambush");
+					}
+
+					StartCoroutine(unit.DramaticallyDisappear());
+				}
 			}
 		}
 		else if (unit.enemyCamp.attackingArmy == null)
@@ -512,7 +542,7 @@ public class BasicEnemyAI : MonoBehaviour
             unit.enemyCamp.TargetSearchCheck();
             StartReturn();
 		}
-		else if (!unit.isDead) //won't let me stop coroutine for enemies
+		else if (!unit.isDead) //just in case
 		{
 			unit.attackCo = null;
 			unit.StopMovement();
@@ -576,7 +606,7 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 
 		unit.finalDestinationLoc = campSpot;
-		List<Vector3Int> path = GridSearch.AStarSearch(unit.world, unit.world.RoundToInt(unit.transform.position), campSpot, unit.isTrader, unit.bySea, true);
+		List<Vector3Int> path = GridSearch.AStarSearchEnemy(unit.world, unit.world.RoundToInt(unit.transform.position), campSpot, unit.bySea);
 
 		if (path.Count > 0)
 		{
