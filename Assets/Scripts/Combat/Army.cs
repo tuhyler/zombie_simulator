@@ -547,7 +547,7 @@ public class Army : MonoBehaviour
 
                 if (amount > 0)
                 {
-                    city.ResourceManager.CheckResource(value.resourceType, amount);
+                    city.ResourceManager.AddResource(value.resourceType, amount);
 					Vector3 cityLoc = city.barracksLocation;
 					cityLoc.y += totalBattleCosts.Count * 0.4f;
 					cityLoc.y += -0.4f * i;

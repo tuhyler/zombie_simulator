@@ -122,8 +122,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
+      propertyPath: m_TagString
+      value: Character
+      objectReference: {fileID: 0}
+    - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4398903823511709350, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_TagString
+      value: Character
       objectReference: {fileID: 0}
     - target: {fileID: 4600499379608453412, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -246,6 +256,21 @@ PrefabInstance:
       propertyPath: m_Convex
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7255274260766915116, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255274260766915116, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255274260766915116, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7618782051365850592, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_IsActive
@@ -302,9 +327,11 @@ MonoBehaviour:
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 1723151143088321804}
   exclamationPoint: {fileID: 0}
+  ripples: {fileID: 0}
   marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
-  greetings: []
+  greetings:
+  - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
   attacks: []
   kills: []
   audioSource: {fileID: 0}
@@ -312,6 +339,7 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  trader: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -327,6 +355,7 @@ MonoBehaviour:
   finalDestinationLoc: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
+  ambushLoc: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -335,6 +364,7 @@ MonoBehaviour:
   baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
+  healthMax: 0
   attackPause:
   - 0.8
   - 1
@@ -372,8 +402,14 @@ MonoBehaviour:
   isUpgrading: 0
   runningAway: 0
   hidden: 0
+  looking: 0
+  ambush: 0
+  aoe: 0
+  guard: 0
+  isGuarding: 0
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
+  guardedTrader: {fileID: 0}
   unitAnimator: {fileID: 0}
   building: 0
   removing: 0
@@ -382,6 +418,7 @@ MonoBehaviour:
   buildingCity: 0
   working: 0
   clearedForest: 0
+  stepAside: 0
   clearingForestTime: 1
   cityBuildingTime: 2
   roadBuildingTime: 1

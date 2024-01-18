@@ -20,7 +20,7 @@ public class TraderData : IUnitData
 
 	//personal resource info
 	public Dictionary<ResourceType, int> resourceDict;
-	public float resourceStorageLevel;
+	public int resourceStorageLevel;
 
 	//route info
 	public int startingStop, currentStop, currentResource, resourceCurrentAmount, resourceTotalAmount, timeWaited;

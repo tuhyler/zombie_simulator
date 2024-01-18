@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -163,7 +164,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
         {
             chosenMultiple = -1;
             resourceCountSlider.value = resourceCountSlider.maxValue;
-            chosenResourceAmount = (int)resourceCountSlider.maxValue;
+            chosenResourceAmount = valuePool[(int)resourceCountSlider.maxValue];
             //allToggle.gameObject.SetActive(true);
             //if (getAll)
             //{
@@ -290,7 +291,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
         chosenResourceSprite.sprite = ResourceHolder.Instance.GetIcon(chosenResource);
         chosenResourceAmount = Mathf.Abs(resourceValue.resourceAmount);
         //resourceCount.text = chosenResourceAmount.ToString();
-        resourceCountSlider.value = chosenResourceAmount;
+        resourceCountSlider.value = Array.IndexOf(valuePool, chosenResourceAmount);
 
 
         //if (Mathf.Abs(resourceValue.resourceAmount) >= 9999)

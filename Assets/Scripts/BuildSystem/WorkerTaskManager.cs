@@ -515,7 +515,7 @@ public class WorkerTaskManager : MonoBehaviour
 			//city.SetNewTerrainData(td);
             //td.SetNewData(tempData);
             //GameLoader.Instance.gameData.allTerrain[workerTile] = td.SaveData();
-			city.ResourceManager.CheckResource(ResourceType.Lumber, world.scott.clearedForestlumberAmount);
+			city.ResourceManager.AddResource(ResourceType.Lumber, world.scott.clearedForestlumberAmount);
             world.scott.clearedForest = false;
 		}
 

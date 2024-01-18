@@ -399,7 +399,6 @@ public class Trader : Unit
         {
             //tradeRouteManager.StopHoldingPatternCoroutine();
             StopCoroutine(LoadUnloadCo);
-            tradeRouteManager.PutItBack();
             tradeRouteManager.CancelLoad();
             tradeRouteManager.StopHoldingPatternCoroutine();
             tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
@@ -479,7 +478,7 @@ public class Trader : Unit
 
 			if (amount > 0)
 			{
-				city.ResourceManager.CheckResource(totalRouteCosts[i].resourceType, amount);
+				city.ResourceManager.AddResource(totalRouteCosts[i].resourceType, amount);
 				Vector3 cityLoc = city.cityLoc;
 				cityLoc.y += totalRouteCosts.Count * 0.4f;
 				cityLoc.y += -0.4f * i;

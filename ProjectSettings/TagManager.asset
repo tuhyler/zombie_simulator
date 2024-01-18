@@ -16,6 +16,7 @@ TagManager:
   - MainCanvas
   - City
   - Mountain
+  - Character
   layers:
   - Default
   - TransparentFX

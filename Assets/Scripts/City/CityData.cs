@@ -8,8 +8,7 @@ public class CityData
     public string name;
 	public Vector3Int location;
 	public bool reachedWaterLimit, harborTraining, autoGrow, autoAssignLabor, hasWater, hasFreshWater, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, hasBarracks, hasHarbor, fullInventory, isNamed;
-	public int waterMaxPop, currentPop, unusedLabor, usedLabor, countDownTimer;
-	public float warehouseStorageLevel;
+	public int waterMaxPop, currentPop, unusedLabor, usedLabor, countDownTimer, warehouseStorageLevel;
 	public List<ResourceType> resourcePriorities;
 	public Dictionary<ResourceType, int> resourceGridDict;
 	public List<int> tradersHere = new();
