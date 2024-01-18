@@ -478,6 +478,7 @@ public class UITradeRouteManager : MonoBehaviour
         foreach(UITradeStopHandler stopHandler in tradeStopHandlerList)
         {            
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
+            Debug.Log(resourceAssignment[0].resourceAmount);
             if (i == 0 && !world.CheckCityName(destination))
             {
                 UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "First stop must be city", false);
@@ -488,6 +489,44 @@ public class UITradeRouteManager : MonoBehaviour
             {
                 UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "No assigned city to stop", false);
                 return;
+            }
+
+            if (world.CheckWonderName(destination))
+            {
+                Wonder wonder = world.GetWonderByName(destination);
+                
+                for (int j = 0; j < resourceAssignment.Count; j++)
+                {
+                    if (resourceAssignment[j].resourceAmount > 0)
+                    {
+						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't load from wonder", false);
+						return;
+                    }
+                    else if (!wonder.ResourceCostDict.ContainsKey(resourceAssignment[j].resourceType))
+                    {
+						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " doesn't need " + resourceAssignment[j].resourceType, false);
+						return;
+					}
+                }
+            }
+
+            if (world.CheckTradeCenterName(destination))
+            {
+                TradeCenter center = world.GetTradeCenterByName(destination);
+                
+                for (int j = 0; j < resourceAssignment.Count; j++)
+                {
+                    if (resourceAssignment[j].resourceAmount > 0 && !center.ResourceSellDict.ContainsKey(resourceAssignment[j].resourceType))
+                    {
+						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " doesn't sell " + resourceAssignment[j].resourceType, false);
+						return;
+					}
+                    else if (resourceAssignment[j].resourceAmount > 0 && !center.ResourceBuyDict.ContainsKey(resourceAssignment[j].resourceType))
+                    {
+						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " won't buy " + resourceAssignment[j].resourceType, false);
+						return;
+					}
+                }
             }
 
             destinations.Add(destination);

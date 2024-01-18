@@ -31,8 +31,7 @@ public class UIResourceManager : MonoBehaviour
     [HideInInspector]
     public City city;
     private string cityName;
-    private int cityStorageLimit;
-    private float cityStorageLevel;
+    private int cityStorageLevel, cityStorageLimit;
 
     //resource grid
     public RectTransform gridHolder, overflowGridHolder;
@@ -200,12 +199,12 @@ public class UIResourceManager : MonoBehaviour
     }
 
 
-    private void SetCityInfo(string cityName, int cityStorageLimit, float cityStorageLevel)
+    private void SetCityInfo(string cityName, int cityStorageLimit, int cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
         this.cityName = cityName;
         this.cityStorageLimit = cityStorageLimit;
-        progressBarMask.fillAmount = cityStorageLevel / cityStorageLimit;
+        progressBarMask.fillAmount = (float)cityStorageLevel / cityStorageLimit;
 
 		SetCityWarehouseInfo();
     }
@@ -224,10 +223,10 @@ public class UIResourceManager : MonoBehaviour
 		cityLevel.text = SetStringValue(cityStorageLevel);
 	}
 
-    public void SetCityCurrentStorage(float cityStorageLevel)
+    public void SetCityCurrentStorage(int cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
-        progressBarMask.fillAmount = cityStorageLevel / cityStorageLimit;
+        progressBarMask.fillAmount = (float)cityStorageLevel / cityStorageLimit;
 		//UpdateStorage(cityStorageLevel);
 		UpdateCityWarehouseInfo();
     }

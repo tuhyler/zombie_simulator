@@ -639,7 +639,13 @@ public class UnitMovement : MonoBehaviour
 				SelectUnitPrep(unitReference, location);
             }
             else if (unitReference.CompareTag("Enemy"))
+            {
                 SelectEnemy(unitReference);
+            }
+            else if (unitReference.CompareTag("Character"))
+            {
+                SelectCharacter(unitReference);
+            }
         }
         else if (detectedObject.TryGetComponent(out UnitMarker unitMarker))
         {
@@ -658,6 +664,10 @@ public class UnitMovement : MonoBehaviour
             else if (unitMarker.CompareTag("Enemy"))
             {
                 SelectEnemy(unit);
+            }
+            else if (unitMarker.CompareTag("Character"))
+            {
+                SelectCharacter(unitReference);
             }
         }
         else if (detectedObject.TryGetComponent(out Resource resource))
@@ -811,11 +821,34 @@ public class UnitMovement : MonoBehaviour
 		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, selectedUnit.isLaborer);
 	}
 
-    public void SelectWorker()
+    private void SelectCharacter(Unit unitReference)
+    {
+        if (selectedUnit == unitReference)
+        {
+			ClearSelection();
+			return;
+		}
+		else if (selectedUnit != null) //Change to a different unit
+		{
+			ClearSelection();
+			selectedUnit = unitReference;
+		}
+		else //Select unit for the first time
+		{
+			selectedUnit = unitReference;
+		}
+
+		selectedUnit.SayHello();
+		world.somethingSelected = true;
+		selectedUnit.Highlight(new Color(.5f, 0, 1));
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, selectedUnit.isLaborer);
+	}
+
+	public void SelectWorker()
     {        
 		if (world.characterUnits.Contains(selectedUnit))
         {
-            selectedUnit = world.mainPlayer.GetComponent<Worker>();
+            selectedUnit = world.mainPlayer;
             workerTaskManager.SetWorkerUnit();
             if (!selectedUnit.sayingSomething)
                 uiWorkerTask.ToggleVisibility(true, world);
@@ -909,7 +942,7 @@ public class UnitMovement : MonoBehaviour
 			selectedUnit.Highlight(Color.green);
 			selectedTrader.guardUnit.SoftSelect(Color.white);
 		}
-		else if (!world.characterUnits.Contains(selectedUnit)) //selectiong handled elsewhere
+		else if (!world.characterUnits.Contains(selectedUnit)) //selection handled elsewhere
         {
 			selectedUnit.Highlight(Color.green);
         }
@@ -1033,19 +1066,29 @@ public class UnitMovement : MonoBehaviour
 			unit.ResetMovementOrders();
 		}
 
-		movementSystem.GetPathToMove(world, unit, world.RoundToInt(unit.transform.position), terrainPos, unit.isTrader); //Call AStar movement
+        Vector3Int originalLoc = world.RoundToInt(unit.transform.position);
+		movementSystem.GetPathToMove(world, unit, originalLoc, terrainPos, unit.isTrader); //Call AStar movement
 		unit.finalDestinationLoc = location;
+
 
 		moveUnit = false;
 		uiMoveUnit.ToggleButtonColor(false);
-		if (unit.isTrader)
-			world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
-		else if (unit.isLaborer)
-			world.UnhighlightCitiesAndWonders();
+		//if (unit.isTrader)
+		//	world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
+		//else if (unit.isLaborer)
+		//	world.UnhighlightCitiesAndWonders();
 
 		if (!movementSystem.MoveUnit(unit))
 			return;
 
+        if (unit.isPlayer && world.azaiFollow)
+        {
+            List<Vector3Int> azaiPath = new(movementSystem.currentPath);
+            azaiPath.Insert(0, originalLoc);
+            azaiPath.RemoveAt(azaiPath.Count - 1);
+            world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
+            world.azai.MoveThroughPath(azaiPath);
+		}
 		//uiCancelMove.ToggleVisibility(!unit.isBusy);
 
 		movementSystem.ClearPaths();
@@ -1625,7 +1668,7 @@ public class UnitMovement : MonoBehaviour
 		int i = 0;
 		foreach (ResourceValue resourceValue in unit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
 		{
-			int resourcesGiven = joinedCity.ResourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+			int resourcesGiven = joinedCity.ResourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
 			Vector3 cityLoc = joinedCity.cityLoc;
 			cityLoc.y += unit.buildDataSO.unitCost.Count * 0.4f;
 			cityLoc.y += -0.4f * i;
@@ -1894,7 +1937,7 @@ public class UnitMovement : MonoBehaviour
                     return;
                 }
                 
-                int resourceAmountAdjusted = selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
+                int resourceAmountAdjusted = selectedTrader.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount);
 
                 if (resourceAmountAdjusted == 0)
                 {
@@ -1923,7 +1966,7 @@ public class UnitMovement : MonoBehaviour
                         return;
 
                     //world.cityBuilderManager.PlayRingAudio();
-                    selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
+                    selectedTrader.personalResourceManager.ManuallySubtractResource(resourceType, resourceAmount);
 
                     int sellAmount = -resourceAmount * tradeCenter.ResourceSellDict[resourceType];
                     world.UpdateWorldResources(ResourceType.Gold, sellAmount);
@@ -1973,13 +2016,13 @@ public class UnitMovement : MonoBehaviour
             if (remainingInCity < resourceAmount)
                 resourceAmount = remainingInCity;
 
-            int resourceAmountAdjusted = selectedTrader.personalResourceManager.CheckResource(resourceType, resourceAmount);
+            int resourceAmountAdjusted = selectedTrader.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount);
             personalFull = resourceAmountAdjusted == 0;
 
             if (cityResourceManager != null)
-                cityResourceManager.CheckResource(resourceType, -resourceAmountAdjusted, false);
-            else
-                wonder.CheckResource(resourceType, -resourceAmountAdjusted);
+                cityResourceManager.SubtractResource(resourceType, resourceAmountAdjusted);
+            //else
+            //    wonder.AddResource(resourceType, -resourceAmountAdjusted);
         }
 
         bool cityFull = false;
@@ -1994,12 +2037,12 @@ public class UnitMovement : MonoBehaviour
 
             int resourceAmountAdjusted;
             if (cityResourceManager != null)
-                resourceAmountAdjusted = cityResourceManager.CheckResource(resourceType, -resourceAmount, false);
+                resourceAmountAdjusted = cityResourceManager.AddResource(resourceType, -resourceAmount);
             else
-                resourceAmountAdjusted = wonder.CheckResource(resourceType, -resourceAmount);
+                resourceAmountAdjusted = wonder.AddResource(resourceType, -resourceAmount);
 
             cityFull = resourceAmountAdjusted == 0;
-            selectedTrader.personalResourceManager.CheckResource(resourceType, -resourceAmountAdjusted);
+            selectedTrader.personalResourceManager.ManuallySubtractResource(resourceType, -resourceAmountAdjusted);
         }
 
         bool toTrader = resourceAmount > 0;

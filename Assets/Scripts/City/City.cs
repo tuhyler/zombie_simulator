@@ -1121,8 +1121,7 @@ public class City : MonoBehaviour
 
     public void CheckBuildOptionsResource(ResourceType type, int prevAmount, int currentAmount, bool pos)
     {
-        if (world.cityBuilderManager.buildOptionsActive)
-            world.cityBuilderManager.activeBuilderHandler.UpdateBuildOptions(type, prevAmount, currentAmount, pos, resourceManager);
+        world.cityBuilderManager.activeBuilderHandler.UpdateBuildOptions(type, prevAmount, currentAmount, pos, resourceManager);
     }
 
     public void ChangeResourcesWorked(ResourceType resourceType, int laborChange)

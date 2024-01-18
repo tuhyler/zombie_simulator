@@ -1,19 +1,18 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PersonalResourceManager : MonoBehaviour
 {
     private Dictionary<ResourceType, int> resourceDict = new();
-    //private Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
 
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
 
     private int resourceStorageLimit;
     public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
-    private float resourceStorageLevel;
-    public float ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
-    //public List<ResourceIndividualSO> initialResourceData = new(); //list the resource data of resources to store
+    private int resourceStorageLevel;
+    public int ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
 
     private Trader trader;
 
@@ -53,66 +52,102 @@ public class PersonalResourceManager : MonoBehaviour
             resourceDict[type] = 0;   
     }
 
-    public int CheckResource(ResourceType type, int resourceAmount)
-    {
-        if (CheckStorageSpaceForResource(type, resourceAmount))
-        {
-            if (!trader.resourceGridDict.ContainsKey(type))
-                trader.AddToGrid(type);
+    //public int CheckResource(ResourceType type, int resourceAmount)
+    //{
+    //    if (CheckStorageSpaceForResource(type, resourceAmount))
+    //    {
+    //        if (!trader.resourceGridDict.ContainsKey(type))
+    //            trader.AddToGrid(type);
 
-            return AddResourceToStorage(type, resourceAmount);
-        }
-        else
+    //        return AddRemoveResource(type, resourceAmount);
+    //    }
+    //    else
+    //    {
+    //        if (!trader.followingRoute)
+    //            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
+    //        return 0;
+    //    }
+    //}
+
+    public void SubtractResource(ResourceType type, int amount)
+    {
+		AddRemoveResource(type, -amount);
+	}
+
+    public int ManuallySubtractResource(ResourceType type, int amount)
+    {
+		amount = SubtractResourceCheck(type, amount);
+		if (amount > 0)
+			AddRemoveResource(type, -amount);
+
+		return amount;
+	}
+
+    private int SubtractResourceCheck(ResourceType type, int amount)
+    {
+		int prevAmount = resourceDict[type];
+
+		if (prevAmount < amount)
+			amount = prevAmount;
+
+		return amount;
+	}
+
+    public void AddResource(ResourceType type, int amount)
+    {
+		AddRemoveResource(type, amount);
+	}
+
+	public int ManuallyAddResource(ResourceType type, int amount)
+	{
+		amount = AddResourceCheck(type, amount);
+		if (amount > 0)
+			AddRemoveResource(type, amount);
+
+		return amount;
+	}
+
+	private int AddResourceCheck(ResourceType type, int amount)
+    {
+		int diff = resourceStorageLimit - resourceStorageLevel;
+
+		if (diff < amount)
+			amount = diff;
+
+		return amount;
+	}
+
+	private void UICheck(ResourceType type)
+    {
+		if (trader.isSelected)
         {
-            if (!trader.followingRoute)
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
-            return 0;
+            trader.world.unitMovement.uiPersonalResourceInfoPanel.UpdateResource(type, trader.personalResourceManager.GetResourceDictValue(type));
+		    trader.world.unitMovement.uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.ResourceStorageLevel);
         }
+	}
+
+    private int AddRemoveResource(ResourceType type, int amount)
+    {
+		resourceDict[type] += amount;
+		resourceStorageLevel += amount;
+
+        UICheck(type);
+
+        return amount;
     }
 
-    private int AddResourceToStorage(ResourceType resourceType, int resourceAmount)
-    {
-        if (resourceAmount < 0 && -resourceAmount > resourceDict[resourceType])
-        {
-            resourceAmount = -resourceDict[resourceType];
-        }
-
-        resourceAmount = Mathf.CeilToInt(resourceAmount * trader.world.resourceStorageMultiplierDict[resourceType]);
-
-        int newResourceBalance = (Mathf.CeilToInt(resourceStorageLevel) + resourceAmount) - resourceStorageLimit;
-
-        if (newResourceBalance >= 0 && resourceStorageLimit >= 0)//limit of 0 or less means infinite storage
-        {
-            resourceAmount -= newResourceBalance;
-        }
-
-        int resourceAmountAdjusted = Mathf.RoundToInt(resourceAmount / trader.world.resourceStorageMultiplierDict[resourceType]);
-        resourceDict[resourceType] += resourceAmountAdjusted;
-        //VerifyResourceAmount(resourceType); //check to see if resource is less than 0 (just in case)
-
-        resourceStorageLevel += resourceAmount;
-
-        return resourceAmountAdjusted;
-    }
-
-    private bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAdded)
-    {
-        if (resourceAdded > 0 && resourceStorageLimit <= 0) //unlimited space if 0  
-            return true;
-        if (resourceAdded < 0)
-        {
-            if (resourceDict[resourceType] == 0)
-                return false;
-            return true;
-        }
-        return Mathf.CeilToInt(resourceStorageLevel + trader.world.resourceStorageMultiplierDict[resourceType]) <= resourceStorageLimit;
-    }
-
-    private void VerifyResourceAmount(ResourceType resourceType)
-    {
-        if (resourceDict[resourceType] <= 0)
-            resourceDict.Remove(resourceType);
-    }
+    //private bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAdded)
+    //{
+    //    if (resourceAdded > 0 && resourceStorageLimit <= 0) //unlimited space if 0  
+    //        return true;
+    //    if (resourceAdded < 0)
+    //    {
+    //        if (resourceDict[resourceType] == 0)
+    //            return false;
+    //        return true;
+    //    }
+    //    return resourceStorageLevel < resourceStorageLimit;
+    //}
 
     public int GetResourceDictValue(ResourceType resourceType)
     {

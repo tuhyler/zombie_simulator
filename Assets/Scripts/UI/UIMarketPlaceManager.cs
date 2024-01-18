@@ -165,13 +165,13 @@ public class UIMarketPlaceManager : MonoBehaviour
         city.ResourceManager.resourceMinHoldDict[resourceType] = minHold;
     }
 
-    public void UpdateMarketResourceNumbers(ResourceType resourceType, int price, int amount/*, int total*/)
+    public void UpdateMarketResourceNumbers(ResourceType resourceType, int amount/*, int total*/)
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
         {
             if (resourcePanel.resourceType == resourceType)
             {
-                resourcePanel.SetPrice(price);
+                //resourcePanel.SetPrice(price);
                 //resourcePanel.cityPrice.text = price.ToString();
                 
                 resourcePanel.SetAmount(amount);

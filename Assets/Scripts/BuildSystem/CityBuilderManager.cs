@@ -2073,7 +2073,7 @@ public class CityBuilderManager : MonoBehaviour
 
             foreach (ResourceValue resourceValue in data.improvementCost)
             {
-                int resourcesReturned = resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+                int resourcesReturned = resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
                 Vector3 cityLoc2 = cityLoc;
                 cityLoc2.y += -.4f * i;
                 InfoResourcePopUpHandler.CreateResourceStat(cityLoc2, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
@@ -2925,7 +2925,7 @@ public class CityBuilderManager : MonoBehaviour
 
         foreach (ResourceValue resourceValue in replaceCost) //adding back 100% of cost (if there's room)
         {
-            int resourcesReturned = resourceManager.CheckResource(resourceValue.resourceType, resourceValue.resourceAmount);
+            int resourcesReturned = resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
             Vector3 loc = improvementLoc;
             loc.y += -.4f * i;
             i++;

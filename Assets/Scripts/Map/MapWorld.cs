@@ -125,7 +125,6 @@ public class MapWorld : MonoBehaviour
     //trade center info
     [SerializeField]
     private Sprite tradeCenterMapIcon;
-    [HideInInspector]
     public Dictionary<string, TradeCenter> tradeCenterDict = new();
     private Dictionary<Vector3Int, TradeCenter> tradeCenterStopDict = new();
 	private Dictionary<Vector3Int, List<GameObject>> centerBordersDict = new();
@@ -150,8 +149,7 @@ public class MapWorld : MonoBehaviour
     [HideInInspector]
     public List<TradeCenter> goldTradeCenterWaitList = new();
     //resource multiplier
-    [HideInInspector]
-    public Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
+    //public Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
 
 	private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
@@ -284,12 +282,12 @@ public class MapWorld : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         cityNamePool = new() { "Haran", "Rhagae", "Ecbatana", "Teredon", "Susa", "Tarsus","Sardis","Tiphsah","Carmana","Bactria","Merv","Oxus","Dyrta","Nicaea","Arbela","Sardis","Zagros","Lydia"};
 
-		foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources) //Enum.GetValues(typeof(ResourceType)) 
-		{
-			if (resourceData.resourceType == ResourceType.None)
-				continue;
-			resourceStorageMultiplierDict[resourceData.resourceType] = resourceData.resourceStorageMultiplier;
-		}
+		//foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources) //Enum.GetValues(typeof(ResourceType)) 
+		//{
+		//	if (resourceData.resourceType == ResourceType.None)
+		//		continue;
+		//	resourceStorageMultiplierDict[resourceData.resourceType] = resourceData.resourceStorageMultiplier;
+		//}
 
 		//if (gameData.allTerrain.Count == 0)
 		//    loadNewGame = true;
@@ -700,7 +698,11 @@ public class MapWorld : MonoBehaviour
             azai.gameObject.SetActive(false);
             scottFollow = false;
             azaiFollow = false;
-            unitMovement.uiWorkerTask.DeactivateButtons();
+			scott.gameObject.tag = "Character";
+			scott.marker.gameObject.tag = "Character";
+			azai.gameObject.tag = "Character";
+			azai.marker.gameObject.tag = "Character";
+			unitMovement.uiWorkerTask.DeactivateButtons();
         }
         else
         {
@@ -708,6 +710,10 @@ public class MapWorld : MonoBehaviour
             characterUnits.Add(azai);
             scottFollow = true;
             azaiFollow = true;
+			scott.gameObject.tag = "Player";
+            scott.marker.gameObject.tag = "Player";
+            azai.gameObject.tag = "Player";
+            azai.marker.gameObject.tag = "Player";
             unit.CurrentLocation = RoundToInt(unit.transform.position);
             AddUnitPosition(unit.transform.position, unit);
 
@@ -3721,6 +3727,16 @@ public class MapWorld : MonoBehaviour
         return names;
     }
 
+    public Wonder GetWonderByName(string wonder)
+    {
+        return wonderConstructionDict[wonder];
+    }
+
+    public TradeCenter GetTradeCenterByName(string center)
+    {
+        return tradeCenterDict[center];
+    }
+
     public Vector3Int GetStopLocation(string name)
     {
         if (cityNameDict.ContainsKey(name))
@@ -5581,6 +5597,22 @@ public class MapWorld : MonoBehaviour
         return cityNameDict.ContainsKey(cityName);
     }
 
+    public bool CheckWonderName(string wonderName)
+    {
+        if (wonderName == null)
+            return false;
+
+        return wonderConstructionDict.ContainsKey(wonderName);
+    }
+
+    public bool CheckTradeCenterName(string centerName)
+    {
+        if (centerName == null)
+            return false;
+
+        return tradeCenterDict.ContainsKey(centerName);
+    }
+
     public string PrepareLaborNumbers(Vector3Int pos)
     {
         return GetCurrentLaborForTile(pos) + "/" + GetMaxLaborForTile(pos);
@@ -6445,6 +6477,8 @@ public class MapWorld : MonoBehaviour
 				if (number == 16)
 				{
 					scottFollow = true;
+					scott.gameObject.tag = "Player";
+                    scott.marker.gameObject.tag = "Player";
 					unitMovement.uiWorkerTask.ReactivateButtons();
 					characterUnits.Add(scott);
 
@@ -6585,6 +6619,8 @@ public class MapWorld : MonoBehaviour
                 if (number == 12)
                 {
 					azaiFollow = true;
+                    azai.gameObject.tag = "Player";
+                    azai.marker.gameObject.tag = "Player";
 					characterUnits.Add(azai);
 
                     if (mainPlayer.isSelected)

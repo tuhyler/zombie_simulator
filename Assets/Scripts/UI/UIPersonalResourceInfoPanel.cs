@@ -36,7 +36,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     private Wonder wonder;
     private TradeCenter tradeCenter;
 
-    private float unitStorageLevel;
+    private int unitStorageLevel;
     private int unitStorageLimit;
 
     //private Dictionary<ResourceType, UIPersonalResources> personalResourceUIDictionary = new();
@@ -203,7 +203,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -200f, 0.3f).setEaseOutSine();
             }
 
-            progressBarMask.fillAmount = unitStorageLevel / unitStorageLimit;
+            progressBarMask.fillAmount = (float)unitStorageLevel / unitStorageLimit;
         }
         else
         {
@@ -385,11 +385,11 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             OnIconButtonClick?.Invoke(resourceType);
     }
 
-    public void SetTitleInfo(string name, float level, int limit)
+    public void SetTitleInfo(string name, int level, int limit)
     {
         unitStorageLevel = level;
         unitStorageLimit = limit;
-        progressBarMask.fillAmount = unitStorageLevel / unitStorageLimit;
+        progressBarMask.fillAmount = (float)unitStorageLevel / unitStorageLimit;
 
         unitNameTitle.text = $"{name} Storage";
         if (limit == 0)
@@ -426,7 +426,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 		return amountStr;
 	}
 
-	public void UpdateStorageLevel(float level)
+	public void UpdateStorageLevel(int level)
     {
         if (unitStorageLevel == 0) //progress bar gives value of null w/o this
             progressBarMask.fillAmount = 0;
@@ -444,7 +444,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             //unitStoragePercent.text = $"{Mathf.RoundToInt((level / unitStorageLimit) * 100)}%";
         }
 
-        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, unitStorageLevel / unitStorageLimit, 1)
+        LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, (float)unitStorageLevel / unitStorageLimit, 1)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {

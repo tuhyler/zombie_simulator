@@ -6,7 +6,8 @@ public class MovementSystem : MonoBehaviour
 {
     [HideInInspector]
     public UnitMovement unitMovement;
-    private List<Vector3Int> currentPath = new();
+    [HideInInspector]
+    public List<Vector3Int> currentPath = new();
     
     //for order queueing
     private Vector3 priorPath; //used for order queueing

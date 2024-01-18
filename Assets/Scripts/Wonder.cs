@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,8 +77,8 @@ public class Wonder : MonoBehaviour
 
     //for queuing unloading
     private Queue<Unit> waitList = new(), seaWaitList = new();
-    private TradeRouteManager tradeRouteWaiter;
-    private ResourceType resourceWaiter = ResourceType.None;
+    //private TradeRouteManager tradeRouteWaiter;
+    //private ResourceType resourceWaiter = ResourceType.None;
 
     //particle systems
     [SerializeField]
@@ -222,21 +223,21 @@ public class Wonder : MonoBehaviour
         return resourceDict.ContainsKey(resourceType);
     }
 
-    internal void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
-    {
-        tradeRouteWaiter = tradeRouteManager;
-        resourceWaiter = resourceType;
-    }
+    //internal void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
+    //{
+    //    tradeRouteWaiter = tradeRouteManager;
+    //    resourceWaiter = resourceType;
+    //}
 
-    public void CheckResourceWaiter(ResourceType resourceType)
-    {
-        if (tradeRouteWaiter != null && resourceWaiter == resourceType)
-        {
-            tradeRouteWaiter.resourceCheck = false;
-            tradeRouteWaiter = null;
-            resourceWaiter = ResourceType.None;
-        }
-    }
+    //public void CheckResourceWaiter(ResourceType resourceType)
+    //{
+    //    if (tradeRouteWaiter != null && resourceWaiter == resourceType)
+    //    {
+    //        tradeRouteWaiter.resourceCheck = false;
+    //        tradeRouteWaiter = null;
+    //        resourceWaiter = ResourceType.None;
+    //    }
+    //}
 
     public void AddToWaitList(Unit unit)
     {
@@ -319,67 +320,101 @@ public class Wonder : MonoBehaviour
 		}
 	}
 
-    internal int CheckResource(ResourceType type, int newResourceAmount)
-    {
-        if (resourceDict.ContainsKey(type) && CheckStorageSpaceForResource(type, newResourceAmount))
-        {
-            if (!resourceGridDict.ContainsKey(type))
-                AddToGrid(type);
+    //internal int CheckResource(ResourceType type, int newResourceAmount)
+    //{
+    //    if (resourceDict.ContainsKey(type) && CheckStorageSpaceForResource(type))
+    //    {
+    //        if (!resourceGridDict.ContainsKey(type))
+    //            AddToGrid(type);
 
-            return AddResourceToStorage(type, newResourceAmount);
-        }
-        else
-        {
-            InfoPopUpHandler.WarningMessage().Create(centerPos, "No storage space for " + type);
-            return 0;
-        }
-    }
+    //        return AddResourceToStorage(type, newResourceAmount);
+    //    }
+    //    else
+    //    {
+    //        InfoPopUpHandler.WarningMessage().Create(centerPos, "No storage space for " + type);
+    //        return 0;
+    //    }
+    //}
+
+    public int AddResource(ResourceType type, int amount)
+    {
+		amount = AddResourceCheck(type, amount);
+		if (amount > 0)
+			AddResourceToStorage(type, amount);
+
+		if (!resourceGridDict.ContainsKey(type))
+			AddToGrid(type);
+
+        return amount;
+	}
+
+    private int AddResourceCheck(ResourceType type, int amount)
+	{
+        int diff = resourceCostDict[type] - resourceDict[type];
+
+        if (diff < amount)
+            amount = diff;
+
+        return amount;
+	}
+
+    private void UICheck(ResourceType type)
+    {
+		if (isActive)
+			world.cityBuilderManager.uiWonderSelection.UpdateUI(type, resourceDict[type], resourceCostDict[type]);
+
+		if (uiCityResourceInfoPanel)
+			uiCityResourceInfoPanel.UpdateResourceInteractable(type, resourceDict[type], false);
+
+		if (!isBuilding)
+			ThresholdCheck();
+	}
 
     private void AddToGrid(ResourceType type)
     {
         resourceGridDict[type] = resourceGridDict.Count;
     }
 
-    private bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAmount)
-    {
-        return resourceDict[resourceType] < resourceCostDict[resourceType];
-    }
+    //private bool CheckStorageSpaceForResource(ResourceType resourceType)
+    //{
+    //    return resourceDict[resourceType] < resourceCostDict[resourceType];
+    //}
 
-    private int AddResourceToStorage(ResourceType resourceType, int resourceAmount)
+    private void AddResourceToStorage(ResourceType resourceType, int resourceAmount)
     {
+        resourceDict[resourceType] += resourceAmount; //updating the dictionary
+        
         //check to ensure you don't take out more resources than are available in dictionary
         //if (resourceAmount < 0 && -resourceAmount > resourceDict[resourceType])
         //{
         //    resourceAmount = -resourceDict[resourceType];
         //}
 
-        int resourceLimit = resourceCostDict[resourceType];
+        //int resourceLimit = resourceCostDict[resourceType];
 
         //adjusting resource amount to move based on how much space is available
-        int newResourceAmount = resourceAmount;
-        int newResourceBalance = (resourceDict[resourceType] + newResourceAmount) - resourceLimit;
+        //int newResourceAmount = resourceAmount;
+        //int newResourceBalance = (resourceDict[resourceType] + newResourceAmount) - resourceLimit;
 
-        if (newResourceBalance >= 0)
-        {
-            newResourceAmount -= newResourceBalance;
-        }
+        //newResourceAmount -= newResourceBalance;
 
-        resourceDict[resourceType] += newResourceAmount; //updating the dictionary
 
-        if (isActive)
-            world.cityBuilderManager.uiWonderSelection.UpdateUI(resourceType, resourceDict[resourceType], resourceLimit);
+        //if (isActive)
+        //    world.cityBuilderManager.uiWonderSelection.UpdateUI(resourceType, resourceDict[resourceType], resourceLimit);
 
-        if (uiCityResourceInfoPanel)
-            uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
+        //if (uiCityResourceInfoPanel)
+        //    uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
 
-        if (newResourceAmount > 0)
-            CheckResourceWaiter(resourceType);
+        //if (newResourceAmount > 0)
+        //    CheckResourceWaiter(resourceType);
         //else if (newResourceAmount < 0)
         //    CheckLimitWaiter();
 
-        if (!isBuilding)
-            ThresholdCheck();
-        return resourceAmount;
+        //if (!isBuilding)
+        //    ThresholdCheck();
+
+        UICheck(resourceType);
+        //return resourceAmount;
     }
 
     public void AddWorker(Unit unit)
@@ -492,6 +527,7 @@ public class Wonder : MonoBehaviour
         //}
         else if (percentDone == 100)
         {
+            world.UnselectAll();
             PlayFireworks();
             focusCam.CenterCameraNoFollow(centerPos);
             SetNewGO(mesh67Percent,meshComplete);
