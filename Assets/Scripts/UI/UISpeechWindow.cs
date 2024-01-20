@@ -27,8 +27,8 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 	private List<ConversationItem> conversationItems;
 	private int conversationPlace;
-	private Dictionary<string, Unit> speakerDict = new();
-	private List<Unit> unitsSpeaking = new();
+	private Dictionary<string, Worker> speakerDict = new();
+	private List<Worker> unitsSpeaking = new();
 
 	[SerializeField] //for tweening
 	private RectTransform allContents;
@@ -53,7 +53,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		gameObject.SetActive(false);
 	}
 
-	public void AddToSpeakingDict(string name, Unit unit)
+	public void AddToSpeakingDict(string name, Worker unit)
 	{
 		speakerDict[name] = unit;
 	}
@@ -125,7 +125,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		showingText = true;
 		if (speakerDict.ContainsKey(name))
 		{
-			Unit unit = speakerDict[name];
+			Worker unit = speakerDict[name];
 			unit.SetSpeechBubble();
 
 			if (!unitsSpeaking.Contains(unit))
@@ -140,6 +140,11 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			else
 			{
 				unit.Rotate(speakerDict[conversationItems[conversationPlace].speakerDirection].transform.position);
+				string listenerName = conversationItems[conversationPlace].speakerDirection;
+				Worker listener = speakerDict[listenerName];
+
+				if (!unitsSpeaking.Contains(listener))
+					unitsSpeaking.Add(listener);
 			}
 		}
 
@@ -229,17 +234,18 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		world.unitMovement.uiMoveUnit.ToggleVisibility(true);
 		world.playerInput.paused = false;
 		world.cameraController.someoneSpeaking = false;
+		world.speechBubble.transform.SetParent(transform, false);
 		world.speechBubble.SetActive(false);
 		conversationItems.Clear();
+
+		//checking if action immediately after conversation needs to take place
+		world.ConversationActionCheck(conversationTopic, conversationPlace);
+		conversationPlace = 0;
 
 		for (int i = 0; i < unitsSpeaking.Count; i++)
 			unitsSpeaking[i].SaidSomething();
 
 		unitsSpeaking.Clear();
-
-		//checking if action immediately after conversation needs to take place
-		world.ConversationActionCheck(conversationTopic, conversationPlace);
-		conversationPlace = 0;
 
 		conversationTopic = "";
 	}

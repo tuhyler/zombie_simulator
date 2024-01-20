@@ -828,8 +828,16 @@ public class ResourceManager : MonoBehaviour
                     city.PlayHellHighlight(city.army.RemoveRandomArmyUnit());
                 else
                     city.PopulationDeclineCheck(true, false);
-    
-                starvationCount = 0;
+				
+				city.world.popLost++;
+
+				if (!city.activeCity)
+					city.lostPop++;
+
+				if (city.world.tutorial && city.world.popLost == 1)
+					city.world.mainPlayer.SetSomethingToSay("first_pop_loss", city.world.scott);
+
+				starvationCount = 0;
                 noHousingCount = 0;
                 noWaterCount = 0;
                 growthDeclineDanger = false;
@@ -856,7 +864,15 @@ public class ResourceManager : MonoBehaviour
 			if (noHousingCount >= cyclesToWait)
             {
                 city.PopulationDeclineCheck(false, false);
-                starvationCount = 0;
+				city.world.popLost++;
+
+                if (!city.activeCity)
+                    city.lostPop++;
+
+				if (city.world.tutorial && city.world.popLost == 1)
+					city.world.mainPlayer.SetSomethingToSay("first_pop_loss", city.world.scott);
+
+				starvationCount = 0;
                 noHousingCount = 0;
                 noWaterCount = 0;
                 growthDeclineDanger = false;
@@ -893,7 +909,15 @@ public class ResourceManager : MonoBehaviour
 			if (noWaterCount >= cyclesToWait)
             {
                 city.PopulationDeclineCheck(false, false);
-                starvationCount = 0;
+				city.world.popLost++;
+
+				if (!city.activeCity)
+					city.lostPop++;
+
+				if (city.world.tutorial && city.world.popLost == 1)
+					city.world.mainPlayer.SetSomethingToSay("first_pop_loss", city.world.scott);
+
+				starvationCount = 0;
                 noHousingCount = 0;
                 noWaterCount = 0;
                 growthDeclineDanger = false;

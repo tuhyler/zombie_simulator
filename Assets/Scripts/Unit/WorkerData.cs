@@ -16,7 +16,7 @@ public class WorkerData : IUnitData
 	public Vector3Int prevTerrainTile;
 	public List<Vector3Int> orderList;
 	public int timePassed;
-	public string conversationTopic;
+	public List<string> conversationTopics;
 
 	public WorkerData GetWorkerData()
 	{

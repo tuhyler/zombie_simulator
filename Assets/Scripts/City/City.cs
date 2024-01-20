@@ -33,7 +33,7 @@ public class City : MonoBehaviour
     public Transform subTransform;
 
     [SerializeField]
-    private CityNameField cityNameField;
+    public CityNameField cityNameField;
 
     //particle systems
     [SerializeField]
@@ -54,6 +54,8 @@ public class City : MonoBehaviour
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining,
         hasMarket, isNamed, stopCycle;
+    [HideInInspector]
+    public int lostPop;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
@@ -177,6 +179,7 @@ public class City : MonoBehaviour
 
 		foodValue.resourceType = ResourceType.Food;
 		foodValue.resourceAmount = growthFood;
+        cityNameField.ToggleVisibility(false);
 	}
 
     private void Start()
@@ -188,7 +191,6 @@ public class City : MonoBehaviour
 
         resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, cityPop.CurrentPop * unitFoodConsumptionPerMinute);
 
-        cityNameField.ToggleVisibility(false);
         InstantiateParticleSystems();
         //Physics.IgnoreLayerCollision(6,7);
 
@@ -1733,6 +1735,7 @@ public class City : MonoBehaviour
         data.usedLabor = cityPop.UsedLabor;
         data.resourcePriorities = resourcePriorities;
         data.countDownTimer = countDownTimer;
+        data.lostPop = lostPop;
 
         for (int i = 0; i < tradersHere.Count; i++)
         {
@@ -1862,11 +1865,16 @@ public class City : MonoBehaviour
         cityPop.UsedLabor = data.usedLabor;
         resourcePriorities = data.resourcePriorities;
         countDownTimer = data.countDownTimer;
+        lostPop = data.lostPop;
 
         if (cityPop.CurrentPop > 0)
             StartGrowthCycle(true);
         else if (cityPop.CurrentPop > 4)
 			cityNameField.ToggleVisibility(true);
+
+        //adjusting housing and water levels based on pop
+        housingCount -= cityPop.CurrentPop;
+        waterCount -= cityPop.CurrentPop;
 
 		//resource manager
 		//warehouseStorageLimit = data.warehouseStorageLimit;

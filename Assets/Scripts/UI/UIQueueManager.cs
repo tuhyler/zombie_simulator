@@ -65,7 +65,7 @@ public class UIQueueManager : MonoBehaviour
             List<QueueItem> tempQueueItems = cityBuilderManager.GetQueueItems();
             for (int i = 0; i < tempQueueItems.Count; i++)
             {
-                PopulateImprovementQueueList(tempQueueItems[i], cityBuilderManager.SelectedCityLoc);
+                PopulateImprovementQueueList(tempQueueItems[i], cityBuilderManager.SelectedCity.cityLoc);
 			}
             
             //foreach(UIQueueItem item in tempQueueItems)
@@ -226,7 +226,7 @@ public class UIQueueManager : MonoBehaviour
             //    cityBuilderManager.SelectedCity.improvementQueueLocs.Remove(selectedQueueItem.buildLoc + cityBuilderManager.SelectedCityLoc);
             //}
 
-            RemoveFromQueue(selectedQueueItem, cityBuilderManager.SelectedCityLoc);
+            RemoveFromQueue(selectedQueueItem, cityBuilderManager.SelectedCity.cityLoc);
         }
     }
 
@@ -393,7 +393,7 @@ public class UIQueueManager : MonoBehaviour
                 {
                     if (item.queueLoc == tempQueueItems[i].item.queueLoc && item.queueName == tempQueueItems[i].item.queueName)
                     {
-                        RemoveFromQueue(tempQueueItems[i], cityBuilderManager.SelectedCityLoc);
+                        RemoveFromQueue(tempQueueItems[i], cityBuilderManager.SelectedCity.cityLoc);
                         //AddToUIQueueItemPool(tempQueueItems[i]);
                         //uiQueueItemList.Remove(tempQueueItems[i]);
                         break;

@@ -506,16 +506,16 @@ public class Conversations : MonoBehaviour
 			speakerImage = scottHappy,
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Our first research is done! Now we can build a farm and hire somebody to work the fields for us."
+			speakerText = "Our first research is done! Now we can build a farm and hire somebody to work the fields for us. I think you're ready to handle this project, so I won't hold your hand through this one."
 		};
 		conversationDict["tutorial13"].Add(tutorial131);
 
 		ConversationItem tutorial132 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = koaSerious,
 			speakerName = "Koa",
 			speakerDirection = "Scott",
-			speakerText = "What's with the giant exclamation point over the research altar thing?"
+			speakerText = "Holding MY hand? Uh, I'm doing all the heavy lifting here..."
 		};
 		conversationDict["tutorial13"].Add(tutorial132);
 
@@ -524,36 +524,9 @@ public class Conversations : MonoBehaviour
 			speakerImage = scottHappy,
 			speakerName = "Scott",
 			speakerDirection = "Koa",
-			speakerText = "Oh, that just tells us that the improvement needs something before it needs more work. In this case, we just need to assign more research."
+			speakerText = "Oh, you absolutely are! Now to determine what resources you need, you can go to camp and see the costs required to build the farm."
 		};
 		conversationDict["tutorial13"].Add(tutorial133);
-
-		ConversationItem tutorial134 = new()
-		{
-			speakerImage = scottHappy,
-			speakerName = "Scott",
-			speakerDirection = "Koa",
-			speakerText = "Let's build a farm now! I think you're ready to handle this project, so I won't hold your hand through this one."
-		};
-		conversationDict["tutorial13"].Add(tutorial134);
-
-		ConversationItem tutorial135 = new()
-		{
-			speakerImage = koaSerious,
-			speakerName = "Koa",
-			speakerDirection = "Scott",
-			speakerText = "Holding MY hand? Uh, I'm doing all the heavy lifting here..."
-		};
-		conversationDict["tutorial13"].Add(tutorial135);
-
-		ConversationItem tutorial136 = new()
-		{
-			speakerImage = scottHappy,
-			speakerName = "Scott",
-			speakerDirection = "Koa",
-			speakerText = "Oh, you absolutely are! Just so you know, to determine what resources you need, you can go to camp and see the costs required to build the farm."
-		};
-		conversationDict["tutorial13"].Add(tutorial136);
 		#endregion
 		#region first_infantry
 		conversationDict["first_infantry"] = new();
@@ -665,6 +638,48 @@ public class Conversations : MonoBehaviour
 			speakerText = "Okay, that's cool man. You can hang out with us I guess, just let me know if you want anything or anything."
 		};
 		conversationDict["first_infantry"].Add(first_infantry12);
+		#endregion
+		#region first_pop_loss
+		conversationDict["first_pop_loss"] = new();
+
+		ConversationItem first_pop_loss1 = new()
+		{
+			speakerImage = scottSad,
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "We just lost our first pop... If we don't have enough food, housing or water for a cycle, a pop will leave camp forever. Worst of all, that slightly dampens my otherwise constant ecstatic mood..."
+		};
+		conversationDict["first_pop_loss"].Add(first_pop_loss1);
+		#endregion
+		#region first_ambush
+		conversationDict["first_ambush"] = new();
+
+		ConversationItem first_ambush1 = new()
+		{
+			speakerImage = azaiSerious,
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "For the many distant journies our traders make, far away from any city or camp, they risk being ambushed. We must protect them by assigning infantry as guards for traders."
+		};
+		conversationDict["first_ambush"].Add(first_ambush1);
+
+		ConversationItem first_ambush2 = new()
+		{
+			speakerImage = koaQuestion,
+			speakerName = "Koa",
+			speakerDirection = "Azai",
+			speakerText = "Uh, I don't know if you've noticed, but you're a pretty large dude and you've got a big weapon there, can't you go and guard them?"
+		};
+		conversationDict["tutorial13"].Add(first_ambush2);
+
+		ConversationItem first_ambush3 = new()
+		{
+			speakerImage = azaiSerious,
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "My duty, first and foremost, is to ensure your protection from any enemies out there. Without your presence, this will all go to waste. For this reason, I stay by your side."
+		};
+		conversationDict["first_ambush"].Add(first_ambush3);
 		#endregion
 	}
 }

@@ -113,8 +113,6 @@ public class Unit : MonoBehaviour
     
     [HideInInspector]
     public bool bySea, isTrader, atStop, followingRoute, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep;
-    [HideInInspector]
-    public string conversationTopic;
 
     //military properties
     [HideInInspector]
@@ -194,58 +192,6 @@ public class Unit : MonoBehaviour
 
         if (currentHealth == healthMax)
             healthbar.gameObject.SetActive(false);
-    }
-
-	public void SetSomethingToSay(string conversationTopic)
-	{
-        StartCoroutine(SetSomethingToSayCoroutine(conversationTopic));
-	}
-
-    //wait till everything's done before setting up something to say
-    private IEnumerator SetSomethingToSayCoroutine(string conversationTopic)
-    {
-        yield return new WaitForEndOfFrame();
-
-		this.conversationTopic = conversationTopic;
-		somethingToSay = true;
-		questionMark.SetActive(true);
-
-		if (world.mainPlayer.isSelected && world.characterUnits.Contains(this))
-		{
-			world.unitMovement.QuickSelect(this);
-			SpeakingCheck();
-		}
-	}
-
-    public void SpeakingCheck()
-    {
-        somethingToSay = false;
-        sayingSomething = true;
-        world.cameraController.CenterCameraNoFollow(transform.position);
-        world.cameraController.someoneSpeaking = true;
-        questionMark.SetActive(false);
-        world.playerInput.paused = true;
-        world.uiSpeechWindow.SetConversation(conversationTopic);
-        world.uiSpeechWindow.ToggleVisibility(true);
-    }
-
-    public void SetSpeechBubble()
-    {
-        world.speechBubble.SetActive(true);
-        Vector3 loc = transform.position;
-        loc.y += 1.3f;
-        world.speechBubble.transform.position = loc;
-    }
-
-    public void SaidSomething()
-    {
-        sayingSomething = false;
-        conversationTopic = "";
-    }
-
-    public void ToggleSpeakingAnimation(bool v)
-    {
-
     }
 
 	//  private void Start()
@@ -449,15 +395,16 @@ public class Unit : MonoBehaviour
             }
             else
             {
-                if (bySea)
+				Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+				if (bySea)
                 {
-                    if (world.IsCityHarborOnTile(currentLocation))
-                        world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+					if (world.IsCityHarborOnTile(terrainLoc))
+                        world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
                 }
                 else
                 {
-                    if (world.IsCityOnTile(currentLocation))
-                        world.GetCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+                    if (world.IsCityOnTile(terrainLoc))
+                        world.GetCity(terrainLoc).tradersHere.Remove(this);
                 }
             }
         }
@@ -511,7 +458,7 @@ public class Unit : MonoBehaviour
             if (this == world.mainPlayer && unitInTheWay.somethingToSay)
             {
 				world.unitMovement.QuickSelect(this);
-				unitInTheWay.SpeakingCheck();
+				unitInTheWay.GetComponent<Worker>().SpeakingCheck();
                 FinishMoving(transform.position);
 				yield break;
             }
@@ -669,7 +616,7 @@ public class Unit : MonoBehaviour
             if (pathPositions.Count == 1)
             {
                 //for azai's final step
-                if (buildDataSO.unitDisplayName == "Azai")
+                if (buildDataSO.unitDisplayName == "Azai" && !world.mainPlayer.isBusy)
                 {
                     NextToCheck();
                 }
@@ -718,15 +665,16 @@ public class Unit : MonoBehaviour
         }
         else 
         {
-            if (bySea)
+			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+			if (bySea)
             {
-                if (world.IsCityHarborOnTile(currentLocation))
-					world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+                if (world.IsCityHarborOnTile(terrainLoc))
+					world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
             }
             else
             {
-				if (world.IsCityOnTile(currentLocation))
-					world.GetCity(world.GetClosestTerrainLoc(currentLocation)).tradersHere.Remove(this);
+				if (world.IsCityOnTile(terrainLoc))
+					world.GetCity(terrainLoc).tradersHere.Remove(this);
 			}
         }
 
@@ -1517,6 +1465,8 @@ public class Unit : MonoBehaviour
             world.cameraController.CheckLoc(loc);
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
+            else if (world.IsEnemyCityOnTile(loc))
+                world.enemyCityDict[loc].gameObject.SetActive(true);
         }
 
         //RevealCheck(pos);
@@ -1536,12 +1486,21 @@ public class Unit : MonoBehaviour
             {
                 if (td.enemyCamp)
                 {
-                    world.RevealEnemyCamp(loc);
+                    if (world.enemyCityDict.ContainsKey(loc))
+                    {
+						world.enemyCityDict[loc].gameObject.SetActive(true);
+                        world.enemyCityDict[loc].cityNameField.ToggleVisibility(true);
+
+						if (inArmy && homeBase.army.traveling)
+							world.BattleStations(loc, homeBase.army.attackZone, true);
+					}
+					else
+                    {
+					    world.RevealEnemyCamp(loc);
                     
-                    if (inArmy && homeBase.army.traveling)
-                        world.BattleStations(loc, homeBase.army.attackZone);
-                    //else
-                    //    world.WakeUpCamp(loc, this);
+                        if (inArmy && homeBase.army.traveling)
+                            world.BattleStations(loc, homeBase.army.attackZone, false);
+                    }
                 }
             }
             
@@ -1552,7 +1511,7 @@ public class Unit : MonoBehaviour
             world.cameraController.CheckLoc(loc);
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
-        }
+		}
     }
 
     public void StartAttack(Unit target)
@@ -2368,7 +2327,7 @@ public class Unit : MonoBehaviour
 
             if (world.tutorial && world.ambushes == 1)
             {
-                //world.azai.SetSomethingToSay("");
+                world.mainPlayer.SetSomethingToSay("first_ambush", world.azai);
             }
             
             if (world.mainPlayer.runningAway)
@@ -2694,7 +2653,6 @@ public class Unit : MonoBehaviour
 
         data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
-        data.conversationTopic = conversationTopic;
         data.isUpgrading = isUpgrading;
         data.looking = looking;
 
@@ -2754,9 +2712,6 @@ public class Unit : MonoBehaviour
 
 		if (!isMoving)
 			world.AddUnitPosition(CurrentLocation, this);
-
-		if (data.somethingToSay)
-            SetSomethingToSay(data.conversationTopic);
 
         if (inArmy || enemyAI)
         {

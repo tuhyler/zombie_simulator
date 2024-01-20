@@ -13,7 +13,7 @@ public class CityNameField : MonoBehaviour
     private SpriteRenderer background;
 
     [SerializeField]
-    private Sprite neutralBackground;
+    private Sprite neutralBackground, enemyBackground;
 
     //[SerializeField]
     //private Material cityNameMaterial;
@@ -45,16 +45,6 @@ public class CityNameField : MonoBehaviour
         }
     }
 
-    public void EnableHighlight()
-    {
-        //cityNameField.material = cityNameMaterial;
-    }
-
-    public void DisableHighlight()
-    {
-        //cityNameField.material = originalCityNameMaterial;
-    }
-
     public void SetCityNameFieldSize(string cityName)
     {
         float wordLength = cityName.Length;
@@ -75,5 +65,10 @@ public class CityNameField : MonoBehaviour
     public void SetNeutralBackground()
     {
         background.sprite = neutralBackground;
+    }
+
+    public void SetEnemyBackGround()
+    {
+        background.sprite = enemyBackground;
     }
 }

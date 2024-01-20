@@ -1183,6 +1183,8 @@ MonoBehaviour:
   workEthic: {fileID: 5195002763117848763}
   waterLevel: {fileID: 1405833039591259639}
   cityWarning: {fileID: 3154759369848659236}
+  renameCityButton: {fileID: 8440500264975273009}
+  destroyCityButton: {fileID: 645458649658955048}
   allContents: {fileID: 7172269090546766210}
   activeStatus: 0
 --- !u!1 &6076609533319556090

@@ -89,6 +89,8 @@ public class GameLoader : MonoBehaviour
 		gameData.laborerCount = world.laborerCount;
 		gameData.food = world.food;
 		gameData.lumber = world.lumber;
+		gameData.popGrowth = world.popGrowth;
+		gameData.popLost = world.popLost;
 		gameData.newUnitsAndImprovements = new(world.newUnitsAndImprovements);
 		gameData.currentResearch = world.researchTree.SaveResearch();
 
@@ -255,6 +257,8 @@ public class GameLoader : MonoBehaviour
 		world.laborerCount = gameData.laborerCount;
 		world.food = gameData.food;
 		world.lumber = gameData.lumber;
+		world.popGrowth = gameData.popGrowth;
+		world.popLost = gameData.popLost;
 		world.researchTree.LoadCurrentResearch(gameData.currentResearch, gameData.researchAmount);
 		world.currentWorkedTileDict = new(gameData.currentWorkedTileDict);
 		gameData.currentWorkedTileDict.Clear();
@@ -272,6 +276,8 @@ public class GameLoader : MonoBehaviour
 
 		if (!world.scottFollow)
 		{
+			world.scott.gameObject.tag = "Character";
+			world.scott.marker.gameObject.tag = "Character";
 			world.scott.gameObject.SetActive(false);
 			world.characterUnits.Remove(world.scott);
 			world.RemoveUnitPosition(world.RoundToInt(world.scott.transform.position));
@@ -280,6 +286,8 @@ public class GameLoader : MonoBehaviour
 
 		if (!world.azaiFollow)
 		{
+			world.azai.gameObject.tag = "Character";
+			world.azai.marker.gameObject.tag = "Character";
 			world.azai.gameObject.SetActive(false);
 			world.characterUnits.Remove(world.azai);
 			world.RemoveUnitPosition(world.RoundToInt(world.azai.transform.position));
@@ -318,7 +326,10 @@ public class GameLoader : MonoBehaviour
 		//updating progress
 		GameManager.Instance.UpdateProgress(10);
 
+		if (gameData.scott.somethingToSay) world.scott.gameObject.SetActive(true);
 		world.scott.LoadWorkerData(gameData.scott);
+
+		if (gameData.azai.somethingToSay) world.azai.gameObject.SetActive(true);
 		world.azai.LoadWorkerData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 

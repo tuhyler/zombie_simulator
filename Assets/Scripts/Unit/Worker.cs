@@ -26,6 +26,7 @@ public class Worker : Unit
     public AudioClip[] gatheringClips;
     [HideInInspector]
 	public int timePassed;
+    public List<string> conversationTopics = new();
 
 	//animations
 	private int isWorkingHash, isGatheringHash, isFallingHash, isDizzyHash;
@@ -1027,7 +1028,105 @@ public class Worker : Unit
         }
     }
 
-    public WorkerData SaveWorkerData()
+	public void SetSomethingToSay(string conversationTopic, Worker alternateSpeaker = null)
+	{
+        if (!conversationTopics.Contains(conversationTopic))
+            conversationTopics.Add(conversationTopic);
+
+        if (!somethingToSay && !sayingSomething)
+            StartCoroutine(SetSomethingToSayCoroutine(alternateSpeaker));
+	}
+
+	//wait till everything's done before setting up something to say
+	private IEnumerator SetSomethingToSayCoroutine(Worker alternateSpeaker)
+	{
+		yield return new WaitForEndOfFrame();
+
+		somethingToSay = true;
+
+        if (alternateSpeaker != null)
+            alternateSpeaker.questionMark.SetActive(true);
+        else
+    		questionMark.SetActive(true);
+
+		if (isSelected)
+		{            
+            world.unitMovement.QuickSelect(this);
+			SpeakingCheck();
+		}
+	}
+
+	public void SpeakingCheck()
+	{
+        string newConversation = conversationTopics[0];
+        conversationTopics.Remove(newConversation);
+        if (conversationTopics.Count == 0)
+            somethingToSay = false;
+		sayingSomething = true;
+		world.cameraController.followTransform = transform;
+		//world.cameraController.CenterCameraNoFollow(transform.position);
+		world.cameraController.someoneSpeaking = true;
+        if (isPlayer)
+        {
+            for (int i = 0; i < world.characterUnits.Count; i++)
+        		world.characterUnits[i].questionMark.SetActive(false);
+        }
+        else
+        {
+			questionMark.SetActive(false);
+		}
+
+		world.playerInput.paused = true;
+		world.uiSpeechWindow.SetConversation(newConversation);
+		world.uiSpeechWindow.ToggleVisibility(true);
+	}
+
+	public void SetSpeechBubble()
+	{
+		world.speechBubble.SetActive(true);
+        world.speechBubble.transform.SetParent(transform, false);
+
+  //      Vector3 loc = transform.position;
+		//loc.y += 1.3f;
+		//world.speechBubble.transform.position = loc;
+	}
+
+	public void SaidSomething()
+	{
+		sayingSomething = false;
+        if (conversationTopics.Count > 0)
+        {
+            if (isPlayer && isSelected)
+                StartCoroutine(WaitASecToSpeakAgain());
+            else
+				StartCoroutine(SetSomethingToSayCoroutine(null));
+		}
+	}
+
+    private IEnumerator WaitASecToSpeakAgain()
+    {
+		world.playerInput.paused = true;
+		yield return new WaitForSeconds(1);
+
+        SpeakingCheck();
+	}
+
+    public void RemoveConversationTopic(string conversationTopic)
+    {
+        if (conversationTopics.Contains(conversationTopic))
+        {
+            conversationTopics.Remove(conversationTopic);
+
+            if (conversationTopics.Count == 0)
+            {
+                somethingToSay = false;
+                questionMark.SetActive(false);
+            }
+        }
+    }
+
+
+	public WorkerData SaveWorkerData()
     {
         WorkerData data = new();
 
@@ -1045,7 +1144,7 @@ public class Worker : Unit
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
-        data.conversationTopic = conversationTopic;
+        data.conversationTopics = new(conversationTopics);
         data.isBusy = isBusy;
         data.removing = removing;
         data.building = building;
@@ -1099,7 +1198,11 @@ public class Worker : Unit
             world.AddUnitPosition(CurrentLocation, this);
 
         if (data.somethingToSay)
-            SetSomethingToSay(data.conversationTopic);
+        {
+            conversationTopics = new(data.conversationTopics);
+            data.conversationTopics.Clear();
+            SetSomethingToSay(conversationTopics[0]);
+        }
 
 		if (isMoving)
 		{
