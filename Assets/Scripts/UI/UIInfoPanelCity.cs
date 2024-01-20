@@ -10,7 +10,7 @@ public class UIInfoPanelCity : MonoBehaviour
     private TMP_Text nameText, cityPop, availableHousing, unusedLabor, workEthic, waterLevel;
 
     [SerializeField]
-    private GameObject cityWarning;
+    private GameObject cityWarning, renameCityButton, destroyCityButton;
 	private UITooltipTrigger tooltipTrigger;
 
 	[SerializeField] //for tweening
@@ -148,7 +148,7 @@ public class UIInfoPanelCity : MonoBehaviour
 		}
 	}
 
-    public void ToggleVisibility(bool v)
+    public void ToggleVisibility(bool v, bool enemy = false)
     {
         if (activeStatus == v)
             return;
@@ -158,6 +158,17 @@ public class UIInfoPanelCity : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
+
+            if (enemy)
+            {
+                renameCityButton.SetActive(false);
+                destroyCityButton.SetActive(false);
+            }
+            else
+            {
+				renameCityButton.SetActive(true);
+				destroyCityButton.SetActive(true);
+			}
 
             activeStatus = true;
 

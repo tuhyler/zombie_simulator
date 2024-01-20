@@ -228,6 +228,11 @@ public class ResourceProducer : MonoBehaviour
                 AddToResearchWaitList();
                 return;
             }
+            else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+            {
+				AddToResourceWaitList();
+				return;
+			}
         }
         else if (resourceManager.fullInventory)
         {

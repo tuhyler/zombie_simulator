@@ -745,29 +745,18 @@ public class UnitMovement : MonoBehaviour
             selectedUnit = unitReference;
         }
 
-        bool mainSpeaker = false;
-        if (world.characterUnits.Contains(selectedUnit))
+        if (world.characterUnits.Contains(selectedUnit) && world.mainPlayer.somethingToSay)
         {
-            for (int i = 0; i < world.characterUnits.Count; i++)
-            {
-                if (world.characterUnits[i].somethingToSay)
-                {
-                    mainSpeaker = true;
-                    break;
-                }
-            }
-        } 
-        
-        if (mainSpeaker)
-        {
-			if (world.mainPlayer.harvested) //if unit just finished harvesting something, send to closest city
-				selectedUnit.SendResourceToCity();
+            selectedUnit = world.mainPlayer;
+            
+            if (world.mainPlayer.harvested) //if unit just finished harvesting something, send to closest city
+				world.mainPlayer.SendResourceToCity();
             
             if (world.scott.harvested)
-				selectedUnit.SendResourceToCity();
+				world.scott.SendResourceToCity();
 
-			QuickSelect(selectedUnit);
-			selectedUnit.SpeakingCheck();
+            QuickSelect(selectedUnit);
+			selectedUnit.GetComponent<Worker>().SpeakingCheck();
         }
         else
         {
@@ -1086,8 +1075,12 @@ public class UnitMovement : MonoBehaviour
             List<Vector3Int> azaiPath = new(movementSystem.currentPath);
             azaiPath.Insert(0, originalLoc);
             azaiPath.RemoveAt(azaiPath.Count - 1);
-            world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
-            world.azai.MoveThroughPath(azaiPath);
+            //don't move if already there
+            if (world.RoundToInt(world.azai.transform.position) != azaiPath[azaiPath.Count - 1])
+            {
+                world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
+                world.azai.MoveThroughPath(azaiPath);
+            }
 		}
 		//uiCancelMove.ToggleVisibility(!unit.isBusy);
 
@@ -1121,7 +1114,7 @@ public class UnitMovement : MonoBehaviour
             tempPath.Remove(finalSpot); //remove last loc
             tempPath.Insert(0, currentSpot);
 
-            Vector3Int newLastStep = tempPath[tempPath.Count - 1];
+            //Vector3Int newLastStep = tempPath[tempPath.Count - 1];
  
             scottPath = new(tempPath);
             azaiPath = new(tempPath);
@@ -1138,55 +1131,7 @@ public class UnitMovement : MonoBehaviour
         Vector3Int finalScottSpot = scottPath[scottPath.Count - 1];
 		world.scott.finalDestinationLoc = finalScottSpot;
 
-		//first and last spots for azai
-  //      Vector3Int lastDiff = finalSpot - finalScottSpot;
-  //      Vector3Int lastSpot = finalScottSpot;
-		//if (lastDiff.x != 0)
-		//{
-		//	Vector3Int testSpot = lastSpot;
-
-		//	testSpot.z += 1;
-
-		//	if (!world.CheckIfPositionIsValid(testSpot))
-		//	{
-		//		testSpot.z -= 2;
-
-		//		if (!world.CheckIfPositionIsValid(testSpot))
-		//		{
-		//			testSpot.z += 1;
-		//			testSpot.x -= lastDiff.x;
-		//		}
-		//	}
-
-		//	lastSpot = testSpot;
-		//}
-  //      else if (lastDiff.z != 0)
-  //      {
-		//	Vector3Int testSpot = lastSpot;
-
-		//	testSpot.x += 1;
-
-		//	if (!world.CheckIfPositionIsValid(testSpot))
-		//	{
-		//		testSpot.x -= 2;
-
-		//		if (!world.CheckIfPositionIsValid(testSpot))
-		//		{
-		//			testSpot.x += 1;
-		//			testSpot.z -= lastDiff.z;
-		//		}
-		//	}
-
-		//	lastSpot = testSpot;
-		//}
-
-		//azaiPath.RemoveAt(azaiPath.Count - 1);
-		//azaiPath.Add(lastSpot);
-
-  //      if (path.Count > 0)
     	azaiPath.Insert(0, scottSpot);
-        //if (unit.followerPath.Count > 0)
-        //    unit.finalDestinationLoc = unit.followerPath[unit.followerPath.Count - 1];
 
         moveUnit = false;
         world.scott.MoveThroughPath(scottPath);
@@ -2152,7 +2097,7 @@ public class UnitMovement : MonoBehaviour
 
             if (selectedUnit.bySea)
             {
-                if (world.IsCityHarborOnTile(selectedUnit.CurrentLocation))
+                if (world.IsCityHarborOnTile(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation)))
                     world.GetHarborCity(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation)).tradersHere.Remove(selectedUnit);
             }
             else
