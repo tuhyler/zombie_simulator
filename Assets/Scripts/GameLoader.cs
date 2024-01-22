@@ -478,4 +478,9 @@ public class GameLoader : MonoBehaviour
 		gameData.enemyCampLocs.Remove(loc);
 		gameData.attackedEnemyBases.Remove(loc);
 	}
+
+	public void RemoveEnemyCity(Vector3Int loc)
+	{
+		gameData.attackedEnemyBases.Remove(loc);
+	}
 }

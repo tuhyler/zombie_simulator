@@ -13,7 +13,7 @@ public class CityNameField : MonoBehaviour
     private SpriteRenderer background;
 
     [SerializeField]
-    private Sprite neutralBackground, enemyBackground;
+    private Sprite originalBackground, neutralBackground, enemyBackground;
 
     //[SerializeField]
     //private Material cityNameMaterial;
@@ -60,6 +60,11 @@ public class CityNameField : MonoBehaviour
     public void SetCityPop(int pop)
     {
         cityPop.text = $"Population: {pop}";
+    }
+
+    public void SetOriginalBackground()
+    {
+        background.sprite = originalBackground;
     }
 
     public void SetNeutralBackground()

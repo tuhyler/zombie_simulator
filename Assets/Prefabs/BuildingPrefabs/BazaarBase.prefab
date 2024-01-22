@@ -93,18 +93,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshCity: {fileID: 0}
-  initialCityHouse: 0
   queued: 0
   building: 0
   isConstruction: 0
+  isConstructionPrefab: 0
   isUpgrading: 0
   canBeUpgraded: 0
   isTraining: 0
+  wonderHarbor: 0
+  firstStart: 0
   housingIndex: 0
   laborCost: 0
   loc: {x: 0, y: 0, z: 0}
   producedResource: 0
   producedResourceIndex: 0
+  exclamationPoint: {fileID: 0}
   smokeEmitter: {fileID: 0}
   smokeSplash: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
     type: 3}
@@ -113,7 +116,9 @@ MonoBehaviour:
   workPS: []
   workLights: []
   td: {fileID: 0}
+  timePassed: 0
   mapIcon: {fileID: 0}
+  mapIconHolder: {fileID: 0}
 --- !u!114 &7796438051319544572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,6 +132,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
+  glowMaterial2: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   isGlowing: 0
 --- !u!65 &4530263000516872463
 BoxCollider:

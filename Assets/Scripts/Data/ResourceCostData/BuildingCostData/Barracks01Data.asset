@@ -54,7 +54,7 @@ MonoBehaviour:
   hideProp: 1
   hillAdjustment: 0
   buildTime: 2
-  availableInitially: 0
+  availableInitially: 1
   hideIdleMesh: 0
   getTerrainResource: 0
   noWalkAreas: []

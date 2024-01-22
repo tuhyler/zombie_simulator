@@ -198,6 +198,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 30dd6a9db936fbe47815ac9bd5ce72de, type: 3}
   - {fileID: 21300000, guid: 5b8136cdb151eb24fada3f92a3bd885f, type: 3}
   - {fileID: 21300000, guid: e71a60dd97e4bbb4cbb9011ef3f3a250, type: 3}
+  - {fileID: 21300000, guid: abe97aedf89bef74eb7fec3a41b8c5ea, type: 3}
   - {fileID: 21300000, guid: 846ff20ee8921b64984b0d660f868b3b, type: 3}
   - {fileID: 21300000, guid: 78c4621eac3e89649aa49b690d193acc, type: 3}
   - {fileID: 21300000, guid: 7657c92e33834514aa553e39fcdeb24a, type: 3}
@@ -389,6 +390,7 @@ SpriteAtlas:
   - mask_clear
   - bar_progresswhitered
   - button_arrowright
+  - icon_enemycity
   - button_abandon
   - bar_lighbluehalfpipe
   - icon_health

@@ -1488,15 +1488,29 @@ public class Unit : MonoBehaviour
                 {
                     if (world.enemyCityDict.ContainsKey(loc))
                     {
-						world.enemyCityDict[loc].gameObject.SetActive(true);
-                        world.enemyCityDict[loc].cityNameField.ToggleVisibility(true);
+						if (!td.isDiscovered)
+                        {
+                            world.enemyCityDict[loc].RevealEnemyCity();
+
+                            foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAYINCREMENT))
+                            {
+                                TerrainData td2 = world.GetTerrainDataAt(tile);
+
+                                if (world.cityImprovementDict.ContainsKey(tile))
+                                    world.cityImprovementDict[tile].HideImprovement();
+                                
+                                if (!td2.isDiscovered)
+                                    td2.Reveal();
+                            }
+                        }
 
 						if (inArmy && homeBase.army.traveling)
 							world.BattleStations(loc, homeBase.army.attackZone, true);
 					}
 					else
                     {
-					    world.RevealEnemyCamp(loc);
+					    if (!td.isDiscovered)
+                            world.RevealEnemyCamp(loc);
                     
                         if (inArmy && homeBase.army.traveling)
                             world.BattleStations(loc, homeBase.army.attackZone, false);
@@ -1507,7 +1521,13 @@ public class Unit : MonoBehaviour
             if (td.isDiscovered)
                 continue;
 
-            td.Reveal();
+            if (world.IsRoadOnTerrain(loc))
+                world.SetRoadActive(loc);
+
+            if (world.cityImprovementDict.ContainsKey(loc))
+                world.cityImprovementDict[loc].RevealImprovement();
+
+			td.Reveal();
             world.cameraController.CheckLoc(loc);
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
