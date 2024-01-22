@@ -401,7 +401,7 @@ public class UnitMovement : MonoBehaviour
             //going to attack
             else if (deployingArmy)
             {
-                if (world.CheckIfEnemyCamp(pos))
+                if (world.CheckIfEnemyCamp(pos) || world.IsEnemyCityOnTile(pos))
                 {
                     if (world.CheckIfEnemyAlreadyAttacked(pos))
                     {
@@ -412,18 +412,25 @@ public class UnitMovement : MonoBehaviour
                     if (selectedUnit.homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos))
                     {
                         selectedUnit.homeBase.army.ShowBattlePath();
-                        world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
-                        world.HighlightEnemyCamp(pos, Color.white);
-						world.infoPopUpCanvas.gameObject.SetActive(true);
-						world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCamp(pos), selectedUnit.homeBase.army);
+
+                        //rehighlight in case selecting a different one
+                        if (world.IsEnemyCityOnTile(potentialAttackLoc))
+                            world.HighlightEnemyCity(potentialAttackLoc, Color.red);
+                        else
+                            world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
+
                         potentialAttackLoc = pos;
-      //                  uiBuildingSomething.ToggleVisibility(false);
-						//world.UnhighlightAllEnemyCamps();
-      //                  world.citySelected = true;
-						//world.unitOrders = false;
-						//deployingArmy = false;
-      //                  world.SetEnemyCampAsAttacked(pos, selectedUnit.homeBase.army);
-      //                  selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(pos);
+						world.infoPopUpCanvas.gameObject.SetActive(true);
+                        if (world.IsEnemyCityOnTile(pos))
+                        {
+                            world.HighlightEnemyCity(pos, Color.white);
+							world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCity(pos).enemyCamp, selectedUnit.homeBase.army);
+						}
+                        else
+                        {
+                            world.HighlightEnemyCamp(pos, Color.white);
+						    world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCamp(pos), selectedUnit.homeBase.army);
+                        }
 					}
 				}
                 else
@@ -2398,8 +2405,17 @@ public class UnitMovement : MonoBehaviour
 		//world.citySelected = true;
 		world.unitOrders = false;
 		deployingArmy = false;
-		world.SetEnemyCampAsAttacked(potentialAttackLoc, selectedUnit.homeBase.army);
-		selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(potentialAttackLoc);
+
+        if (world.IsEnemyCityOnTile(potentialAttackLoc))
+        {
+            world.SetEnemyCityAsAttacked(potentialAttackLoc, selectedUnit.homeBase.army);
+            selectedUnit.homeBase.army.targetCamp = world.GetEnemyCity(potentialAttackLoc).enemyCamp;
+        }
+        else
+        {
+		    world.SetEnemyCampAsAttacked(potentialAttackLoc, selectedUnit.homeBase.army);
+		    selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(potentialAttackLoc);
+        }
 	}
 
     public void HideBattlePath()

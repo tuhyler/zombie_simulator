@@ -69,6 +69,9 @@ public class CityImprovement : MonoBehaviour
     [SerializeField]
     private SpriteRenderer mapIcon;
 
+    [SerializeField]
+    public Transform mapIconHolder; //for rotating map icon
+
     private AudioSource audioSource;
 
     private void Awake()
@@ -253,7 +256,7 @@ public class CityImprovement : MonoBehaviour
         highlight.SetNewMaterial(mat, skinnedMesh);
     }
 
-    public void EnableHighlight(Color highlightColor)
+    public void EnableHighlight(Color highlightColor, bool newGlow = false)
     {
         if (highlight.isGlowing)
             return;
@@ -263,7 +266,7 @@ public class CityImprovement : MonoBehaviour
             meshFilter[i].gameObject.SetActive(true);
         }
         
-        highlight.EnableHighlight(highlightColor);
+        highlight.EnableHighlight(highlightColor, newGlow);
     }
 
     public void DisableHighlight()
@@ -276,6 +279,23 @@ public class CityImprovement : MonoBehaviour
 
         highlight.DisableHighlight();
     }
+
+    public void RevealImprovement()
+    {
+        city.gameObject.SetActive(true);
+        city.subTransform.gameObject.SetActive(false);
+        city.cityNameField.ToggleVisibility(false);
+        city.cityNameMap.gameObject.SetActive(false);
+        
+        for (int i = 0; i < meshFilter.Length; i++)
+			meshFilter[i].gameObject.SetActive(true);
+	}
+
+    public void HideImprovement() //hides the embiggened improvement used for selection
+    {
+		for (int i = 0; i < meshFilter.Length; i++)
+			meshFilter[i].gameObject.SetActive(false);
+	}
 
     public void SetCity(City city)
     {

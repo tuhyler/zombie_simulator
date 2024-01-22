@@ -55,6 +55,7 @@ MonoBehaviour:
   cityName: {fileID: 7531931400293178883}
   cityPop: {fileID: 6483813010830416031}
   background: {fileID: 759914645907119161}
+  originalBackground: {fileID: 21300000, guid: 46dfeb36f3fa8624894b5df3314dd6d8, type: 3}
   neutralBackground: {fileID: 21300000, guid: c145a37aaeebf064a9b4b7e63e443ac1, type: 3}
   enemyBackground: {fileID: 21300000, guid: 58ebd340db41f2546b7cf698c214b744, type: 3}
 --- !u!205 &1334677299140747528

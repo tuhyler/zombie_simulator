@@ -207,6 +207,12 @@ public class EnemyCamp
 		if (attackReady || prepping)
 			return;
 
+		if (unitsInCamp.Count == 0)
+		{
+			attackReady = true;
+			return;
+		}
+
 		if (campfire != null)
 			campfire.SetActive(false);
 		returning = false;
@@ -504,7 +510,7 @@ public class EnemyCamp
 	public void ClearCampCheck()
 	{
 		if (deathCount == campCount)
-			world.RemoveEnemyCamp(loc);
+			world.RemoveEnemyCamp(loc, world.IsEnemyCityOnTile(loc));
 	}
 
 	public void TargetSearchCheck()

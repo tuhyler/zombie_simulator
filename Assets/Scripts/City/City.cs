@@ -40,10 +40,10 @@ public class City : MonoBehaviour
     private ParticleSystem heavenHighlight, hellHighlight, resourceSplash, lightBullet, fire;
 
     [SerializeField]
-    private SpriteRenderer minimapIcon;
+    public SpriteRenderer minimapIcon;
 
     [SerializeField]
-    public Sprite campIcon, cityIcon;
+    public Sprite campIcon, cityIcon, enemyCityIcon;
 
     //city info
     [HideInInspector]
@@ -65,6 +65,8 @@ public class City : MonoBehaviour
 
     [HideInInspector]
     public Army army;
+    [HideInInspector]
+    public EnemyCamp enemyCamp;
 
     [HideInInspector]
     public MapWorld world;
@@ -617,8 +619,8 @@ public class City : MonoBehaviour
         //for tweening
         housing.transform.localScale = Vector3.zero;
         LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { 
-            world.cityBuilderManager.CombineMeshes(this, subTransform, world.cityBuilderManager.upgradingImprovement); improvement.SetInactive(); world.cityBuilderManager.ToggleBuildingHighlight(true);
-        });
+            world.cityBuilderManager.CombineMeshes(this, subTransform, world.cityBuilderManager.upgradingImprovement); improvement.SetInactive(); 
+            world.cityBuilderManager.ToggleBuildingHighlight(true, cityLoc);});
     }
 
     //for loading up hosuing
@@ -1620,6 +1622,14 @@ public class City : MonoBehaviour
             }
         }
     }
+
+    public void RevealEnemyCity()
+    {
+        gameObject.SetActive(true);
+        subTransform.gameObject.SetActive(true);
+		cityNameField.ToggleVisibility(true);
+        cityNameMap.gameObject.SetActive(true);
+	}
 
     public bool AddToQueue(ImprovementDataSO improvementData, Vector3Int worldLoc, Vector3Int loc, bool upgrade)
     {

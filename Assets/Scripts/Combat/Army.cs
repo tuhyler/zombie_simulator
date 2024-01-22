@@ -605,10 +605,25 @@ public class Army : MonoBehaviour
 
                 if (targetCamp.attackReady)
                 {
-					world.uiAttackWarning.AttackNotification(((Vector3)attackZone + targetCamp.loc)*0.5f);
 					targetCamp.attackReady = false;
                     targetCamp.armyReady = false;
-                    Charge();
+					
+                    if (targetCamp.UnitsInCamp.Count == 0) //for invading empty city
+                    {
+                        for (int i = 0; i < unitsInArmy.Count; i++)
+                        {
+                            Vector3Int cityLoc = unitsInArmy[i].marchPosition + targetCamp.loc;
+                            unitsInArmy[i].inBattle = true;
+                            unitsInArmy[i].finalDestinationLoc = cityLoc;
+                            List<Vector3Int> path = new() { cityLoc };
+                            unitsInArmy[i].MoveThroughPath(path);
+                        }
+                    }
+                    else
+                    {
+                        world.uiAttackWarning.AttackNotification(((Vector3)attackZone + targetCamp.loc)*0.5f);
+                        Charge();
+                    }
                 }
             }
         }
@@ -714,17 +729,6 @@ public class Army : MonoBehaviour
 			targetCamp.Charge();
 	}
 
-    //private IEnumerator WaitOneSec()
-    //{
-    //    yield return waitOneSec;
-
-    //    if (!inBattle)
-    //        ArmyCharge();
-
-    //    if (!targetCamp.inBattle)
-    //        targetCamp.Charge();
-    //}
-
     private void ArmyCharge()
     {
         inBattle = true;
@@ -742,15 +746,6 @@ public class Army : MonoBehaviour
                 unit.CavalryAggroCheck();
         }
     }
-
-    //public void TargetCheck()
-    //{
-    //    for (int i = 0; i < unitsInArmy.Count; i++)
-    //    {
-    //        if (unitsInArmy[i].targetSearching)
-    //            unitsInArmy[i].AggroCheck();
-    //    }
-    //}
 
     public Unit FindClosestTarget(Unit unit)
     {        
@@ -805,13 +800,6 @@ public class Army : MonoBehaviour
 			tilesToCheck.Add(enemyTarget);
 			tilesToCheck.Add(new Vector3Int(1 * currentOffset, 0, 1 * battleDiff.z) + enemyTarget);
             tilesToCheck.Add(new Vector3Int(0, 0, 1 * battleDiff.z) + enemyTarget);
-
-            ///check both sides if in middle
-            //if (currentOffset == 0)
-            //{
-                //tilesToCheck.Add(new Vector3Int(-1 * currentOffset, 0, 0) + enemyTarget);
-			    //tilesToCheck.Add(new Vector3Int(-1 * currentOffset, 0, 1 * battleDiff.z) + enemyTarget);
-            //}
 		}
         else
         {
@@ -824,12 +812,6 @@ public class Army : MonoBehaviour
 			tilesToCheck.Add(enemyTarget);
 			tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, 1 * currentOffset) + enemyTarget);
 			tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, 0) + enemyTarget);
-
-			//if (currentOffset == 0)
-			//{
-			    //tilesToCheck.Add(new Vector3Int(0, 0, -1 * currentOffset) + enemyTarget);
-			    //tilesToCheck.Add(new Vector3Int(1 * battleDiff.x, 0, -1 * currentOffset) + enemyTarget);
-			//}
 		}
 
         int i = 0;
@@ -881,6 +863,9 @@ public class Army : MonoBehaviour
         
         if (targetCamp.deathCount == targetCamp.campCount)
 		{        
+            if (targetCamp.campCount == 0)
+                world.RemoveEnemyCamp(targetCamp.loc, true);
+
             returning = true;
             DestroyDeadList();
 

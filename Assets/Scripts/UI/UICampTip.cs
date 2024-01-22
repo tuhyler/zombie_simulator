@@ -117,7 +117,10 @@ public class UICampTip : MonoBehaviour
 			Vector3 pos = Camera.main.ScreenToWorldPoint(p);
 			allContents.transform.position = pos;
 
-			WarningCheck();
+			if (enemyCamp == null)
+				WarningCheck();
+			else
+				warningText.SetActive(false);
 			LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
 		}
 		else
@@ -144,7 +147,7 @@ public class UICampTip : MonoBehaviour
 		}
 	}
 
-	public void WarningCheck()
+	public void WarningCheck() //in case not enough money to support army next cycle
 	{
 		if (activeStatus && improvement != null)
 		{
@@ -152,29 +155,11 @@ public class UICampTip : MonoBehaviour
 			{
 				warningText.SetActive(true);
 				allContents.sizeDelta = new Vector2(currentWidth, 460);
-
-				//for (int i = 0; i < costsInfo.Count; i++)
-				//{
-				//	if (costsInfo[i].resourceType == ResourceType.Gold)
-				//	{
-				//		costsInfo[i].resourceAmountText.color = Color.red;
-				//		break;
-				//	}
-				//}
 			}
 			else
 			{
 				warningText.SetActive(false);
 				allContents.sizeDelta = new Vector2(currentWidth, 435);
-
-				//for (int i = 0; i < costsInfo.Count; i++)
-				//{
-				//	if (costsInfo[i].resourceType == ResourceType.Gold)
-				//	{
-				//		costsInfo[i].resourceAmountText.color = Color.white;
-				//		break;
-				//	}
-				//}
 			}
 		}
 	}

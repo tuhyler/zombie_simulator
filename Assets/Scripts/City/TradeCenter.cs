@@ -78,7 +78,14 @@ public class TradeCenter : MonoBehaviour
     {
         gameObject.SetActive(true);
         isDiscovered = true;
-        world.GetTerrainDataAt(harborLoc).Reveal();
+
+        foreach (Vector3Int tile in world.GetNeighborsFor(mainLoc, MapWorld.State.EIGHTWAYINCREMENT))
+        {
+            TerrainData td = world.GetTerrainDataAt(tile);
+
+			if (!td.isDiscovered)
+                td.Reveal();
+        }
     }
 
     public void SetWorld(MapWorld world)

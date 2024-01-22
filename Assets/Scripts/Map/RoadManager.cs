@@ -18,6 +18,8 @@ public class RoadManager : MonoBehaviour
     [SerializeField]
     private WorkerTaskManager workerTaskManager;
 
+    private bool hideRoads;
+
     public int roadMovementCost = 5, roadBuildingTime = 5, roadRemovingTime = 1;
     //[HideInInspector]
     //public int timePassed;
@@ -25,7 +27,8 @@ public class RoadManager : MonoBehaviour
 
     [SerializeField]
     private Transform roadHolder, roadHolderMinimap;
-    private List<MeshFilter> roadMeshList = new();
+    [HideInInspector]
+    public List<MeshFilter> roadMeshList = new();
     
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -62,7 +65,15 @@ public class RoadManager : MonoBehaviour
         Road road = roadGO.GetComponent<Road>();
         if (highlight)
             road.SelectionHighlight.EnableHighlight(Color.white);
-        roadMeshList.Add(road.MeshFilter);
+
+        if (hideRoads)
+        {
+            roadGO.SetActive(false);
+        }
+        else
+        {
+            roadMeshList.Add(road.MeshFilter);
+        }
 
         world.SetRoads(roadPosition, road, straight);
         //replacing prop
@@ -123,6 +134,8 @@ public class RoadManager : MonoBehaviour
         TerrainData td = world.GetTerrainDataAt(roadPosition);
         bool hill = td.isHill;
 
+        hideRoads = !td.isDiscovered;
+
         if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
             td.SwitchToRoad();
         //else if (td.prop != null && !td.terrainData.keepProp) //for replacing decor (could destroy)
@@ -160,7 +173,9 @@ public class RoadManager : MonoBehaviour
 
         //changing neighbor roads to meet up with new road
         FixNeighborRoads(roadNeighbors);
+
         CombineMeshes();
+
         AddCityRoads(roadPosition);
     }
 
