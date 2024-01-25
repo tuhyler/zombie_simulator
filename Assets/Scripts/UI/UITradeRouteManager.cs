@@ -478,7 +478,7 @@ public class UITradeRouteManager : MonoBehaviour
         foreach(UITradeStopHandler stopHandler in tradeStopHandlerList)
         {            
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
-            Debug.Log(resourceAssignment[0].resourceAmount);
+            
             if (i == 0 && !world.CheckCityName(destination))
             {
                 UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "First stop must be city", false);

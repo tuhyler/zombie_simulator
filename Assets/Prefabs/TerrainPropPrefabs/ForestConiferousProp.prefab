@@ -93,7 +93,12 @@ MonoBehaviour:
   treeFlatIcon: {fileID: 2130586279291307428}
   treeHillIcon: {fileID: 1708152815276911594}
   keepTrees: 0
+  hasRoad: 0
   propMesh: {fileID: 661259773975208594}
+  leafRendererList:
+  - {fileID: 5399411689857015064}
+  hillLeafRendererList:
+  - {fileID: 2949874161581717478}
 --- !u!1001 &1247555642025572597
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -506,6 +511,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c43b964c1233e084c98c4d41f08fcafc, type: 3}
+--- !u!23 &2949874161581717478 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: c43b964c1233e084c98c4d41f08fcafc,
+    type: 3}
+  m_PrefabInstance: {fileID: 4553591442249673570}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &3742758040219276851 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c43b964c1233e084c98c4d41f08fcafc,
@@ -632,6 +643,12 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: ef6477ad285d1394390dd1e475b0d530, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 21009a6e8de58c941bcc44fc295d1b58, type: 3}
+--- !u!23 &5399411689857015064 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 21009a6e8de58c941bcc44fc295d1b58,
+    type: 3}
+  m_PrefabInstance: {fileID: 6714592109739262364}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5903775059858390221 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 21009a6e8de58c941bcc44fc295d1b58,

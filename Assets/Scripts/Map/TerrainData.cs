@@ -29,6 +29,7 @@ public class TerrainData : MonoBehaviour
     private Material white;
     private List<MeshRenderer> whiteMesh = new();
     private List<Material> materials = new();
+    private GameObject animMesh; //hide when not discovered
 
     private SelectionHighlight highlight;
 
@@ -91,7 +92,14 @@ public class TerrainData : MonoBehaviour
     //    SetProp();
     //}
 
-    public void SetWorld(MapWorld world)
+    public void SkinnedMeshCheck()
+    {
+		SkinnedMeshRenderer skinnedMesh = prop.GetComponentInChildren<SkinnedMeshRenderer>();
+		if (skinnedMesh != null)
+			animMesh = skinnedMesh.gameObject;
+	}
+
+	public void SetWorld(MapWorld world)
     {
         this.world = world;
     }
@@ -482,14 +490,15 @@ public class TerrainData : MonoBehaviour
             renderer.material = white;
         }
 
+		if (animMesh != null)
+			animMesh.SetActive(false);
+		//main.gameObject.SetActive(false);
+		//prop.gameObject.SetActive(false);
+		//Vector3 offsetY = new Vector3(0, -.01f, 0);
 
-        //main.gameObject.SetActive(false);
-        //prop.gameObject.SetActive(false);
-        //Vector3 offsetY = new Vector3(0, -.01f, 0);
-
-        //if ((tileCoordinates.x % 2 == 0 && tileCoordinates.z % 2 == 0) || (tileCoordinates.x % 2 == 1 && tileCoordinates.z % 2 == 1))
-        //    fog.transform.localPosition += offsetY;
-    }
+		//if ((tileCoordinates.x % 2 == 0 && tileCoordinates.z % 2 == 0) || (tileCoordinates.x % 2 == 1 && tileCoordinates.z % 2 == 1))
+		//    fog.transform.localPosition += offsetY;
+	}
 
     //no nonstatic movement
     public void HardReveal()
@@ -530,6 +539,9 @@ public class TerrainData : MonoBehaviour
 
         whiteMesh.Clear();
         materials.Clear();
+
+        if (animMesh != null)
+            animMesh.SetActive(true);
 
         main.gameObject.SetActive(true);
         ShowProp(true);
@@ -585,6 +597,9 @@ public class TerrainData : MonoBehaviour
 
         world.TurnOnEnemyBorders(tileCoordinates);
         world.TurnOnCenterBorders(tileCoordinates);
+
+		if (animMesh != null)
+			animMesh.SetActive(true);
 
 		whiteMesh.Clear();
         materials.Clear();
@@ -702,6 +717,14 @@ public class TerrainData : MonoBehaviour
             highlight.DisableHighlight();
     }
 
+    public void ToggleTransparentForest(bool v)
+    {
+        if (treeHandler != null)
+        {
+            treeHandler.ToggleForestClear(v, isHill, world.atlasSemiClear);
+        } 
+    }
+
     public void ResetMovementCost()
     {
         movementCost = terrainData.movementCost;
@@ -723,6 +746,7 @@ public class TerrainData : MonoBehaviour
     {
         if (highlightPlane != null)
         {
+            prop.gameObject.SetActive(v);
             highlightPlane.SetActive(v);
             highlightPlaneIcon.SetActive(v);
         }

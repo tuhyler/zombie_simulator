@@ -143,7 +143,7 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     public AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
-        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip, alertClip, warningClip;
+        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip, alertClip, warningClip, sunBeam;
     [SerializeField]
     private AudioClip[] acknowledgements;
     [HideInInspector]
@@ -1898,7 +1898,7 @@ public class CityBuilderManager : MonoBehaviour
         {
 		    newUnit.atHome = true;
 		    city.army.AddToArmy(newUnit);
-            if (city.cityPop.CurrentPop == 0)
+            if (city.cityPop.CurrentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(false);
 		    newUnit.homeBase = city;
             newUnit.barracksBunk = buildPosition;
@@ -2579,8 +2579,9 @@ public class CityBuilderManager : MonoBehaviour
         {
             city.hasHarbor = true;
             city.harborLocation = tempBuildLocation;
-            //world.SetCityHarbor(city, tempBuildLocation);
-            world.AddTradeLoc(tempBuildLocation, city.cityName);
+			cityImprovement.mapIconHolder.localRotation = Quaternion.Inverse(improvement.transform.rotation);
+			//world.SetCityHarbor(city, tempBuildLocation);
+			world.AddTradeLoc(tempBuildLocation, city.cityName);
         }
         else if (improvementData.improvementName == "Barracks")
         {
@@ -3695,27 +3696,34 @@ public class CityBuilderManager : MonoBehaviour
         focusCam.paused = false;
     }
 
-    public void DestroyCity() //set on destroy city warning message
+    public void DestroyCityConfirm()
     {
         PlaySelectAudio();
         
         if (selectedWonder != null)
         {
-            CancelWonderConstruction();
-            return;
+			CancelWonderConstruction();
+			return;
+		}
+        else
+        {
+            DestroyCity(selectedCity);
         }
+    }
 
+    public void DestroyCity(City city) //set on destroy city warning message
+    {
         //disassociating improvements from city
-        foreach (CityImprovement improvement in selectedCity.ImprovementList)
+        foreach (CityImprovement improvement in city.ImprovementList)
         {
             improvement.meshCity = null;
             improvement.transform.parent = improvementHolder.transform;
         }
 
-        selectedCity.DestroyFire();
-        selectedCity.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
+		city.DestroyFire();
+		city.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
-        TerrainData td = world.GetTerrainDataAt(selectedCity.cityLoc);
+        TerrainData td = world.GetTerrainDataAt(city.cityLoc);
         //if (td.resourceAmount > 0)
         td.ShowProp(true);
 
@@ -3732,7 +3740,7 @@ public class CityBuilderManager : MonoBehaviour
         //    world.RemoveLocationFromQueueList(queueItem.buildLoc + selectedCityLoc);
         //}
 
-        GameObject destroyedCity = world.GetStructure(selectedCity.cityLoc);
+        GameObject destroyedCity = world.GetStructure(city.cityLoc);
 
         //destroy all construction projects upon destroying city
         List<Vector3Int> constructionToStop = new(constructingTiles);
@@ -3741,77 +3749,82 @@ public class CityBuilderManager : MonoBehaviour
         {
             CityImprovement construction = world.GetCityDevelopmentConstruction(constructionTile);
             construction.RemoveConstruction(this, constructionTile);
-            RemoveImprovement(constructionTile, construction, selectedCity, false);
+            RemoveImprovement(constructionTile, construction, city, false);
         }
 
-        world.RemoveCityNameMap(selectedCity.cityLoc);
-        world.RemoveStructure(selectedCity.cityLoc);
+        world.RemoveCityNameMap(city.cityLoc);
+        world.RemoveStructure(city.cityLoc);
         //world.RemoveStructureMap(selectedCityLoc);
         //world.ResetTileMap(selectedCityLoc);
-        world.RemoveCityName(selectedCity.cityLoc);
-        world.RemoveTradeLoc(selectedCity.cityLoc);
+        world.RemoveCityName(city.cityLoc);
+        world.RemoveTradeLoc(city.cityLoc);
 
-        selectedCity.DestroyThisCity();
+		city.DestroyThisCity();
 
         //for all single build improvements, finding a nearby city to join that doesn't have one. If not one available, then is unowned. 
-        foreach (string singleImprovement in selectedCity.singleBuildImprovementsBuildingsDict.Keys)
-        {
-            Vector3Int improvementLoc = selectedCity.singleBuildImprovementsBuildingsDict[singleImprovement];
-            if (improvementLoc == selectedCity.cityLoc)
-                continue;
-
-            world.RemoveSingleBuildFromCityLabor(improvementLoc);
-            bool unclaimed = true;
-
-            foreach (Vector3Int tile in world.GetNeighborsFor(improvementLoc, MapWorld.State.CITYRADIUS))
-            {
-                if (world.IsCityOnTile(tile))
-                {
-                    City tempCity = world.GetCity(tile);
-                    if (!tempCity.singleBuildImprovementsBuildingsDict.ContainsKey(singleImprovement))
-                    {
-                        tempCity.singleBuildImprovementsBuildingsDict[singleImprovement] = improvementLoc;
-                        world.AddToCityLabor(improvementLoc, tempCity.cityLoc);
-
-                        if (singleImprovement == "Harbor") //is also done in City object
-                        {
-                            //world.RemoveHarbor(improvementLoc);
-                            tempCity.hasHarbor = true;
-                            tempCity.harborLocation = improvementLoc;
-                            //world.SetCityHarbor(tempCity, improvementLoc);
-                        }
-                        else if (singleImprovement == "Barracks")
-                        {
-                            tempCity.hasBarracks = true;
-                            tempCity.barracksLocation = improvementLoc;
-                            tempCity.army.city = tempCity;
-
-                            foreach (Vector3Int armySpot in world.GetNeighborsFor(improvementLoc, MapWorld.State.EIGHTWAYARMY))
-                                tempCity.army.SetArmySpots(armySpot);
-                        }
-
-                        unclaimed = false;
-                        break;
-                    }
-                }
-            }
-
-            if (unclaimed)
-            {
-                if (singleImprovement == "Harbor")
-                    world.RemoveTradeLoc(improvementLoc);
-                else if (singleImprovement == "Barracks")
-                    selectedCity.army.city = null;
-
-                world.AddToUnclaimedSingleBuild(improvementLoc);
-            }
-        }
+        SetSingleBuildsAvailable(city);
         Destroy(destroyedCity);
 
         uiDestroyCityWarning.ToggleVisibility(false);
 
         ResetCityUI();
     }
+
+    public void SetSingleBuildsAvailable(City city)
+    {
+		foreach (string singleImprovement in city.singleBuildImprovementsBuildingsDict.Keys)
+		{
+			Vector3Int improvementLoc = city.singleBuildImprovementsBuildingsDict[singleImprovement];
+			if (improvementLoc == city.cityLoc)
+				continue;
+
+			world.RemoveSingleBuildFromCityLabor(improvementLoc);
+			bool unclaimed = true;
+
+			foreach (Vector3Int tile in world.GetNeighborsFor(improvementLoc, MapWorld.State.CITYRADIUS))
+			{
+				if (world.IsCityOnTile(tile))
+				{
+					City tempCity = world.GetCity(tile);
+					if (!tempCity.singleBuildImprovementsBuildingsDict.ContainsKey(singleImprovement))
+					{
+						tempCity.singleBuildImprovementsBuildingsDict[singleImprovement] = improvementLoc;
+						world.AddToCityLabor(improvementLoc, tempCity.cityLoc);
+
+						if (singleImprovement == "Harbor") //is also done in City object
+						{
+							//world.RemoveHarbor(improvementLoc);
+							tempCity.hasHarbor = true;
+							tempCity.harborLocation = improvementLoc;
+							//world.SetCityHarbor(tempCity, improvementLoc);
+						}
+						else if (singleImprovement == "Barracks")
+						{
+							tempCity.hasBarracks = true;
+							tempCity.barracksLocation = improvementLoc;
+							tempCity.army.city = tempCity;
+
+							foreach (Vector3Int armySpot in world.GetNeighborsFor(improvementLoc, MapWorld.State.EIGHTWAYARMY))
+								tempCity.army.SetArmySpots(armySpot);
+						}
+
+						unclaimed = false;
+						break;
+					}
+				}
+			}
+
+			if (unclaimed)
+			{
+				if (singleImprovement == "Harbor")
+					world.RemoveTradeLoc(improvementLoc);
+				else if (singleImprovement == "Barracks")
+					selectedCity.army.city = null;
+
+				world.AddToUnclaimedSingleBuild(improvementLoc);
+			}
+		}
+	}
 
     public void NoDestroyCity() //in case user chickens out
     {

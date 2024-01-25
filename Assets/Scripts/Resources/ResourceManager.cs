@@ -88,6 +88,8 @@ public class ResourceManager : MonoBehaviour
 
     public void PrepareResourceDictionary()
     {
+        resourceSellList.Clear();
+        
         foreach (ResourceIndividualSO resourceData in ResourceHolder.Instance.allStorableResources.Concat(ResourceHolder.Instance.allWorldResources).ToList())
         {
             ResourceType type = resourceData.resourceType;
@@ -430,7 +432,12 @@ public class ResourceManager : MonoBehaviour
 
 		amount = AddResourceCheck(type, amount);
 		if (amount > 0)
+        {
+            if (!city.resourceGridDict.ContainsKey(type))
+				city.AddToGrid(type);
+
 			AddResourceToStorage(type, amount);
+        }
 
         return amount;
 	}
@@ -459,9 +466,6 @@ public class ResourceManager : MonoBehaviour
 
             amount = diff;
 		}
-
-		if (amount > 0 && !city.resourceGridDict.ContainsKey(type))
-			city.AddToGrid(type);
 
 		return amount;
 	}

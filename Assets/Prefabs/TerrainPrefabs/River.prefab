@@ -204,6 +204,7 @@ MonoBehaviour:
   fog: {fileID: 7494950873433822262}
   highlightPlane: {fileID: 4547352987120683383}
   highlightPlaneIcon: {fileID: 3798256020005411663}
+  flatlandFP: {fileID: 0}
   fogNonStatic: {fileID: 540605585842487287}
   white: {fileID: 2100000, guid: 74b4e3b23c1555c4589c22411ec6f610, type: 2}
   changeLeafColor: 0
@@ -220,11 +221,13 @@ MonoBehaviour:
   isDiscovered: 1
   beingCleared: 0
   showProp: 1
-  enemyBorders: []
+  hasNonstatic: 0
+  resourceGraphic: {fileID: 0}
+  treeHandler: {fileID: 0}
   godRays: {fileID: 0}
   terrainMesh: {fileID: 0}
   minimapIconMesh: {fileID: 0}
-  rawResourceType: 2
+  rawResourceType: 0
   resourceType: 0
   resourceAmount: 0
 --- !u!64 &2237327767086630809

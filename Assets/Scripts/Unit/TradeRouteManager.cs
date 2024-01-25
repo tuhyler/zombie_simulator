@@ -306,7 +306,10 @@ public class TradeRouteManager : MonoBehaviour
                 resourceCurrentAmount = currentAmount;
                 bool isPlaying = false;
 
-                while (loadUnloadCheck)
+				if (!trader.resourceGridDict.ContainsKey(value.resourceType))
+					trader.AddToGrid(value.resourceType);
+
+				while (loadUnloadCheck)
                 {
                     int loadUnloadRateMod = Mathf.Min(resourceAmount - amountMoved, loadUnloadRate);
                     int resourceAmountAdjusted;
@@ -397,7 +400,10 @@ public class TradeRouteManager : MonoBehaviour
                 resourceCurrentAmount = 0;
                 bool isPlaying = false;
 
-                while (loadUnloadCheck)
+				if (!city.resourceGridDict.ContainsKey(value.resourceType))
+					city.AddToGrid(value.resourceType);
+
+				while (loadUnloadCheck)
                 {
                     int loadUnloadRateMod = Mathf.Abs(Mathf.Max(resourceAmount - amountMoved, -loadUnloadRate));
                     int resourceAmountAdjusted;

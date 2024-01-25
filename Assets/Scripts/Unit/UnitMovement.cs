@@ -108,7 +108,10 @@ public class UnitMovement : MonoBehaviour
             if (selectedUnit.isBusy)
                 return;
 
-            if (selectedUnit.inArmy)
+            if (world.cityBuilderManager.uiCityNamer.activeStatus)
+                return;
+
+			if (selectedUnit.inArmy)
             {
                 if (uiDeployArmy.activeStatus)
                     DeployArmyLocation();
@@ -123,25 +126,25 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleX()
     {
-        if (selectedUnit != null && selectedUnit.inArmy && uiChangeCity.activeStatus)
+        if (selectedUnit != null && selectedUnit.inArmy && uiChangeCity.activeStatus && !world.cityBuilderManager.uiCityNamer.activeStatus)
             ChangeHomeBase();
     }
 
     public void HandleSpace()
     {
-        if ((world.mainPlayer.isSelected && world.unitOrders) || world.buildingWonder)
+        if ((world.mainPlayer.isSelected && world.unitOrders) || world.buildingWonder && !world.cityBuilderManager.uiCityNamer.activeStatus)
             ConfirmWorkerOrders();
     }
 
     public void HandleB()
     {
-        if (uiJoinCity.activeStatus)
+        if (uiJoinCity.activeStatus && !world.cityBuilderManager.uiCityNamer.activeStatus)
             JoinCity();
     }
 
     public void HandleR()
     {
-        if (uiSwapPosition.activeStatus)
+        if (uiSwapPosition.activeStatus && !world.cityBuilderManager.uiCityNamer.activeStatus)
             RepositionArmy();
     }
 
@@ -1258,6 +1261,11 @@ public class UnitMovement : MonoBehaviour
 
             selectedUnit.TurnOnRipples();
         }
+        else if (world.CheckIfEnemyTerritory(locationInt))
+        {
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
+			return;
+        }
         else if (!world.CheckIfPositionIsValid(locationInt) && !selectedUnit.isLaborer) //cancel movement if terrain isn't walkable
         {
 			if (!world.CheckIfSeaPositionIsValid(locationInt))
@@ -1274,11 +1282,6 @@ public class UnitMovement : MonoBehaviour
                 locationFlat = trySpot;
 			}
 		}
-        else if (world.CheckIfEnemyTerritory(locationInt))
-        {
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
-			return;
-        }
 
         if (selectedTrader != null && selectedTrader.followingRoute) //can't change orders if following route
         {

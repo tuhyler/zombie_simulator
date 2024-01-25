@@ -24,7 +24,7 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool queued, building, isConstruction, isConstructionPrefab, isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart;
+    public bool queued, building, isConstruction, isConstructionPrefab, isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart, showing;
     private List<ResourceValue> upgradeCost = new();
     public List<ResourceValue> UpgradeCost { get { return upgradeCost; } set { upgradeCost = value; } }
     [HideInInspector]
@@ -101,7 +101,7 @@ public class CityImprovement : MonoBehaviour
             removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
             removeSplash.Stop();
 
-			if (improvementData != null && improvementData.hideIdleMesh)
+			if (improvementData != null && improvementData.hideIdleMesh && co == null)
 				animMesh.SetActive(false);
 
        //     if (improvementData.producedResourceTime.Count > 0)
@@ -201,6 +201,17 @@ public class CityImprovement : MonoBehaviour
 		improvementAnimator.SetFloat("speed", 1f / improvementData.producedResourceTime[producedResourceIndex]);
 	}
 
+    public void StartJustWorkAnimation()
+    {
+		if (improvementAnimator != null)
+		{
+            float offset = Random.Range(0, 100) * .01f;
+			if (improvementData.hideIdleMesh)
+				animMesh.SetActive(true);
+			co = StartCoroutine(StartWorkAnimation(offset));
+		}
+	}
+
     public void StopWork()
     {
         foreach (Light light in workLights)
@@ -224,6 +235,18 @@ public class CityImprovement : MonoBehaviour
                 ps.Stop();
         }
     }
+
+    public void StopJustWorkAnimation()
+    {
+		if (improvementAnimator != null)
+		{
+			if (co != null)
+				StopCoroutine(co);
+			improvementAnimator.SetBool(isWorkingHash, false);
+			if (improvementData.hideIdleMesh)
+				animMesh.SetActive(false);
+		}
+	}
 
     public void ToggleLights(bool v)
     {
@@ -273,9 +296,9 @@ public class CityImprovement : MonoBehaviour
     {
         if (!highlight.isGlowing)
             return;
-        
-        for (int i = 0; i < meshFilter.Length; i++)
-            meshFilter[i].gameObject.SetActive(false);
+
+        if (!showing)
+            HideImprovement();
 
         highlight.DisableHighlight();
     }
@@ -287,11 +310,21 @@ public class CityImprovement : MonoBehaviour
         city.cityNameField.ToggleVisibility(false);
         city.cityNameMap.gameObject.SetActive(false);
         
-        for (int i = 0; i < meshFilter.Length; i++)
+        if (improvementData.improvementName == "Barracks")
+            city.RevealUnitsInCamp();
+
+		StartJustWorkAnimation();
+
+        ShowEmbiggenedMesh();
+	}
+
+    public void ShowEmbiggenedMesh()
+    {
+		for (int i = 0; i < meshFilter.Length; i++)
 			meshFilter[i].gameObject.SetActive(true);
 	}
 
-    public void HideImprovement() //hides the embiggened improvement used for selection
+    public void HideImprovement() //hides the embiggened improvement shown in selection
     {
 		for (int i = 0; i < meshFilter.Length; i++)
 			meshFilter[i].gameObject.SetActive(false);
@@ -334,9 +367,9 @@ public class CityImprovement : MonoBehaviour
         removeSplash.Play();
     }
 
-    private void PlaySmokeEmitter(Vector3 loc, bool load)
+    public void PlaySmokeEmitter(Vector3 loc, int time, bool load)
     {
-        int time = improvementData.buildTime;
+        //int time = improvementData.buildTime;
         var emission = smokeEmitter.emission;
         emission.rateOverTime = 10f / time;
 
@@ -391,7 +424,7 @@ public class CityImprovement : MonoBehaviour
             loc.y += 0.6f;
         else
             loc.y += .1f;
-        PlaySmokeEmitter(loc, load); 
+        PlaySmokeEmitter(loc, improvementData.buildTime, load); 
 
         if (!load)
             timePassed = improvementData.buildTime;
@@ -427,7 +460,7 @@ public class CityImprovement : MonoBehaviour
 
     private IEnumerator UpgradeImprovementCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, ImprovementDataSO data, bool load)
     {
-        PlaySmokeEmitter(tempBuildLocation, load);
+        PlaySmokeEmitter(tempBuildLocation, data.buildTime, load);
         //PlayUpgradeSwirl(timePassed);
         isUpgrading = true;
         producer.isUpgrading = true;
@@ -483,7 +516,7 @@ public class CityImprovement : MonoBehaviour
 
     private IEnumerator TrainUnitCoroutine(City city, ResourceProducer producer, Vector3Int tempBuildLocation, UnitBuildDataSO data, bool upgrading, Unit upgradedUnit, bool load)
     {
-		PlaySmokeEmitter(tempBuildLocation, load);
+		PlaySmokeEmitter(tempBuildLocation, data.trainTime, load);
 		producer.ShowConstructionProgressTimeBar(data.trainTime, city.activeCity);
 		producer.SetConstructionTime(timePassed);
         isTraining = true;

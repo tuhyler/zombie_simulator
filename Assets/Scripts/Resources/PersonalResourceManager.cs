@@ -100,14 +100,19 @@ public class PersonalResourceManager : MonoBehaviour
 
 	public int ManuallyAddResource(ResourceType type, int amount)
 	{
-		amount = AddResourceCheck(type, amount);
+		amount = AddResourceCheck(amount);
 		if (amount > 0)
+        {
+			if (!trader.resourceGridDict.ContainsKey(type))
+				trader.AddToGrid(type);
+
 			AddRemoveResource(type, amount);
+        }
 
 		return amount;
 	}
 
-	private int AddResourceCheck(ResourceType type, int amount)
+	private int AddResourceCheck(int amount)
     {
 		int diff = resourceStorageLimit - resourceStorageLevel;
 

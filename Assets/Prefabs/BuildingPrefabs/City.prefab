@@ -267,10 +267,12 @@ MonoBehaviour:
   waitingForTraderList: []
   resourcesNeededForRoute: 
   initialResources:
+  - resourceType: 2
+    resourceAmount: 100
   - resourceType: 6
-    resourceAmount: 1000
+    resourceAmount: 100
   - resourceType: 7
-    resourceAmount: 950
+    resourceAmount: 100
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0

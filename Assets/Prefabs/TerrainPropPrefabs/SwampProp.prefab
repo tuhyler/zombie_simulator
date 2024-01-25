@@ -45,7 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bc69556c4264ae4dbc48e3167d48960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leafMesh: {fileID: 0}
+  leafMeshList: []
+  hillLeafMeshList: []
+  roadLeafMeshList: []
+  roadHillLeafMeshList: []
   treeFlat: {fileID: 0}
   treeHill: {fileID: 0}
   treeFlatRoad: {fileID: 0}
@@ -53,7 +56,11 @@ MonoBehaviour:
   treeFlatIcon: {fileID: 0}
   treeHillIcon: {fileID: 0}
   keepTrees: 1
+  hasRoad: 0
   propMesh: {fileID: 0}
+  leafRendererList:
+  - {fileID: 6400331157127003504}
+  hillLeafRendererList: []
 --- !u!1001 &5697931932043174388
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -161,6 +168,12 @@ PrefabInstance:
 --- !u!4 &5231396723199608351 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 5ac7c61e0405b464b90136687bb6b3ff,
+    type: 3}
+  m_PrefabInstance: {fileID: 5697931932043174388}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &6400331157127003504 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 5ac7c61e0405b464b90136687bb6b3ff,
     type: 3}
   m_PrefabInstance: {fileID: 5697931932043174388}
   m_PrefabAsset: {fileID: 0}
