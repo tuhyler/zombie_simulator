@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
 using static UnityEditor.Progress;
 
 public class City : MonoBehaviour
@@ -53,7 +54,7 @@ public class City : MonoBehaviour
     public Vector3Int cityLoc;
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining,
-        hasMarket, isNamed, stopCycle;
+        hasMarket, isNamed, stopCycle, attacked;
     [HideInInspector]
     public int lostPop;
 
@@ -208,6 +209,12 @@ public class City : MonoBehaviour
 
         //}
     }
+
+    public void PlaySelectAudio(AudioClip clip)
+    {
+		audioSource.clip = clip;
+		audioSource.Play();
+	}
 
 	public void PlayPopGainAudio()
 	{
@@ -811,7 +818,7 @@ public class City : MonoBehaviour
 		if (cityPop.CurrentPop <= 3)
         {
             HouseLightCheck();
-			cityNameField.ToggleVisibility(false);
+			//cityNameField.ToggleVisibility(false);
 
 			if (cityPop.CurrentPop == 0 && army.UnitsInArmy.Count == 0)
             {
@@ -829,11 +836,11 @@ public class City : MonoBehaviour
                     world.cityBuilderManager.abandonCityButton.interactable = true;
                 }
             }
-            else if (cityPop.CurrentPop == 3)
-            {
-				minimapIcon.sprite = campIcon;
-				ReigniteFire();
-            }
+    //        else if (cityPop.CurrentPop == 3)
+    //        {
+				//minimapIcon.sprite = campIcon;
+				//ReigniteFire();
+    //        }
         }
 
         if (cityPop.UnusedLabor > 0) //if unused labor, get rid of first
@@ -1264,7 +1271,226 @@ public class City : MonoBehaviour
             ContinueGrowthCycle();         
     }
 
-    private void SetProgressTimeBar()
+    public void StartSendAttackWait()
+    {
+        countDownTimer = 10;
+        co = StartCoroutine(SendAttackWait());
+    }
+
+    private IEnumerator SendAttackWait()
+    {
+        while (countDownTimer > 0)
+        {
+            yield return foodConsumptionWait;
+            countDownTimer--;
+        }
+
+        SendAttack();
+    }
+
+    private void SendAttack()
+    {
+        //find closest city
+        City targetCity = null;
+        int dist = 0;
+
+        List<City> cityList = world.cityDict.Values.ToList();
+        for (int i = 0; i < cityList.Count; i++)
+        {
+            if (i == 0)
+            {
+                targetCity = cityList[i];
+                dist = Mathf.Abs(cityLoc.x - cityList[i].cityLoc.x) + Mathf.Abs(cityLoc.z - cityList[i].cityLoc.z);
+            }
+
+            int newDist = Mathf.Abs(cityLoc.x - cityList[i].cityLoc.x) + Mathf.Abs(cityLoc.z - cityList[i].cityLoc.z);
+            if (newDist < dist)
+            {
+                dist = newDist;
+                targetCity = cityList[i];
+            }
+        }
+
+        if (targetCity != null)
+            enemyCamp.MoveOut(targetCity);
+        else
+            StartSendAttackWait();
+    }
+
+    public void BePillaged(int enemyAmount)
+    {
+        int losePop = 0;
+        
+        if (cityPop.CurrentPop < 4)
+        {
+            world.cityBuilderManager.DestroyCity(this);
+            return;
+        }
+        else if (cityPop.CurrentPop < 8)
+        {
+            losePop = cityPop.CurrentPop / 2;
+        }
+        else if (cityPop.CurrentPop < 19)
+        {
+			losePop = cityPop.CurrentPop / 3;
+		}
+        else
+        {
+			losePop = cityPop.CurrentPop / 4;
+		}
+
+        for (int i = 0; i < losePop; i++)
+        {
+            PopulationDeclineCheck(true, true);
+        }
+
+		PlayPopLossAudio();
+
+		if (world.GetTerrainDataAt(cityLoc).isHill)
+		{
+			Vector3 loc = cityLoc;
+			loc.y += .6f;
+			PlayHellHighlight(loc);
+		}
+		else
+		{
+			PlayHellHighlight(cityLoc);
+		}
+
+        float pillagePerc = enemyAmount * 0.1f;
+        List<ResourceType> types = ResourceManager.ResourceDict.Keys.ToList();
+        int j = 0;
+        for (int i = 0; i < types.Count; i++)
+        {
+            int amount = ResourceManager.ResourceDict[types[i]];
+
+            if (amount > 0)
+            {
+                ResourceManager.SubtractResource(types[i], Mathf.CeilToInt(amount * pillagePerc));
+			    Vector3 loc = cityLoc;
+			    loc.y -= 0.4f * j;
+                j++;
+			    InfoResourcePopUpHandler.CreateResourceStat(loc, -amount, ResourceHolder.Instance.GetIcon(types[i]));
+            }
+		}
+	}
+
+    public void StartSpawnCycle(bool restart)
+    {
+        if (!restart)
+            countDownTimer = world.enemyUnitGrowthTime;
+
+		world.GetCityDevelopment(barracksLocation).PlaySmokeEmitter(barracksLocation, countDownTimer, false);
+		co = StartCoroutine(SpawnCycleCoroutine());
+    }
+
+    //for spawning enemy units in enemy cities
+    private IEnumerator SpawnCycleCoroutine()
+    {
+        while (countDownTimer > 0)
+        {
+            yield return foodConsumptionWait;
+            countDownTimer--;
+        }
+
+		world.GetCityDevelopment(barracksLocation).StopSmokeEmitter();
+
+		if (enemyCamp != null)
+        {
+            if (!enemyCamp.attacked)
+                AddEnemyUnit(enemyCamp, world.GetTerrainDataAt(barracksLocation).isDiscovered);
+
+            if (enemyCamp.campCount < 9)
+                StartSpawnCycle(false);
+        }
+    }
+
+    public void StopSpawnCycle(bool pause)
+    {
+        if (!pause)
+            countDownTimer = 0;
+
+        world.GetCityDevelopment(barracksLocation).StopSmokeEmitter();
+
+        if (co != null)
+            StopCoroutine(co);
+
+        co = null;
+    }
+
+	private void AddEnemyUnit(EnemyCamp camp, bool isDiscovered) //one at a time
+	{
+		GameObject enemy;
+
+		if (camp.UnitsInCamp.Count < 3)
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[0];
+		else if (camp.UnitsInCamp.Count < 6)
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[1];
+		else if (camp.UnitsInCamp.Count < 8)
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[2];
+		else
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[UnityEngine.Random.Range(0, 3)];
+
+		UnitType type = enemy.GetComponent<Unit>().buildDataSO.unitType;
+		Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
+		Vector3Int newSpot = camp.GetAvailablePosition(type);
+        GameObject enemyGO = Instantiate(enemy, newSpot, rotation);
+		enemyGO.transform.SetParent(world.enemyUnitHolder, false);
+
+		//for tweening
+		Vector3 goScale = enemyGO.transform.localScale;
+		float scaleX = goScale.x;
+		float scaleZ = goScale.z;
+		enemyGO.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
+		LeanTween.scale(enemyGO, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+
+		Unit unitEnemy = enemyGO.GetComponent<Unit>();
+		unitEnemy.SetReferences(world);
+		unitEnemy.SetMinimapIcon(world.enemyUnitHolder);
+
+		if (!isDiscovered)
+		{
+			unitEnemy.minimapIcon.gameObject.SetActive(false);
+            enemyGO.SetActive(false);
+		}
+
+		Vector3Int unitLoc = world.RoundToInt(unitEnemy.transform.position);
+		if (!world.unitPosDict.ContainsKey(world.RoundToInt(unitLoc))) //just in case dictionary was missing any
+			unitEnemy.CurrentLocation = world.AddUnitPosition(unitLoc, unitEnemy);
+		unitEnemy.CurrentLocation = unitLoc;
+		unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
+		unitEnemy.barracksBunk = newSpot;
+        unitEnemy.marchPosition = newSpot - camp.loc;
+
+		Vector3 spawnSpot = newSpot;
+		spawnSpot.y += 0.07f;
+		unitEnemy.lightBeam.transform.position = spawnSpot;
+		unitEnemy.lightBeam.Play();
+
+		if (type == UnitType.Infantry)
+			camp.infantryCount++;
+		else if (type == UnitType.Ranged)
+			camp.rangedCount++;
+		else if (type == UnitType.Cavalry)
+			camp.cavalryCount++;
+		else if (type == UnitType.Seige)
+			camp.seigeCount++;
+
+		camp.strength += unitEnemy.buildDataSO.baseAttackStrength;
+		camp.health += unitEnemy.buildDataSO.health;
+
+        camp.UnitsInCamp.Add(unitEnemy);
+		unitEnemy.enemyAI.CampLoc = camp.loc;
+		unitEnemy.enemyAI.CampSpot = unitLoc;
+		unitEnemy.enemyCamp = camp;
+
+		camp.campCount++;
+
+        if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == camp)
+            world.uiCampTooltip.RefreshData();
+	}
+
+	private void SetProgressTimeBar()
     {
         Vector3 cityPos = cityLoc;
         //cityPos.z -= 1.5f; //bottom center of tile
@@ -1625,13 +1851,33 @@ public class City : MonoBehaviour
 
     public void RevealEnemyCity()
     {
+		if (enemyCamp.revealed)
+			return;
+		else
+			enemyCamp.revealed = true;
+        
         gameObject.SetActive(true);
         subTransform.gameObject.SetActive(true);
 		cityNameField.ToggleVisibility(true);
         cityNameMap.gameObject.SetActive(true);
+
+		GameLoader.Instance.gameData.discoveredEnemyCampLocs.Add(cityLoc);
+
+        RevealUnitsInCamp();
+        StartSendAttackWait();
 	}
 
-    public bool AddToQueue(ImprovementDataSO improvementData, Vector3Int worldLoc, Vector3Int loc, bool upgrade)
+    public void RevealUnitsInCamp()
+    {
+		for (int i = 0; i < enemyCamp.UnitsInCamp.Count; i++)
+		{
+			Unit unit = enemyCamp.UnitsInCamp[i];
+			unit.gameObject.SetActive(true);
+            unit.minimapIcon.gameObject.SetActive(true);
+		}
+	}
+
+	public bool AddToQueue(ImprovementDataSO improvementData, Vector3Int worldLoc, Vector3Int loc, bool upgrade)
     {
         QueueItem item;
         item.queueName = improvementData.improvementNameAndLevel;
@@ -1746,6 +1992,7 @@ public class City : MonoBehaviour
         data.resourcePriorities = resourcePriorities;
         data.countDownTimer = countDownTimer;
         data.lostPop = lostPop;
+        data.attacked = attacked;
 
         for (int i = 0; i < tradersHere.Count; i++)
         {
@@ -1876,11 +2123,20 @@ public class City : MonoBehaviour
         resourcePriorities = data.resourcePriorities;
         countDownTimer = data.countDownTimer;
         lostPop = data.lostPop;
+        attacked = data.attacked;
 
         if (cityPop.CurrentPop > 0)
+        {
             StartGrowthCycle(true);
-        else if (cityPop.CurrentPop > 4)
-			cityNameField.ToggleVisibility(true);
+            
+            if (cityPop.CurrentPop > 3)
+            {
+			    minimapIcon.sprite = cityIcon;
+			    ExtinguishFire();
+				SetCityPop();
+			    cityNameField.ToggleVisibility(true);
+			}
+        }
 
         //adjusting housing and water levels based on pop
         housingCount -= cityPop.CurrentPop;

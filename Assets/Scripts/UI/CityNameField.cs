@@ -48,7 +48,7 @@ public class CityNameField : MonoBehaviour
     public void SetCityNameFieldSize(string cityName)
     {
         float wordLength = cityName.Length;
-        float width = Mathf.Max(wordLength * 0.18f + 1f, 3f);
+        float width = Mathf.Max(wordLength * 0.18f + 1f, 1f /*3f*/);
         cityNameField.size = new Vector2(width, 1.0f);
     }
 
@@ -59,7 +59,7 @@ public class CityNameField : MonoBehaviour
 
     public void SetCityPop(int pop)
     {
-        cityPop.text = $"Population: {pop}";
+        cityPop.text = $"Pop: {pop}";
     }
 
     public void SetOriginalBackground()

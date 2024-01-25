@@ -11,16 +11,10 @@ public class UITomFinder : MonoBehaviour
     private CityBuilderManager cityBuilderManager;
     [SerializeField]
     private MapWorld world;
-    private Worker worker;
     [SerializeField]
     public RectTransform allContents;
     [SerializeField]
     private Button button;
-
-    private void Awake()
-    {
-        worker = FindObjectOfType<Worker>();
-    }
 
     public void FindTom()
     {
@@ -39,8 +33,8 @@ public class UITomFinder : MonoBehaviour
 		cityBuilderManager.ResetCityUI();
         if (world.mainPlayer.isSelected)
             unitMovement.ClearSelection();
-        unitMovement.HandleUnitSelectionAndMovement(worker.transform.position, worker.gameObject);
-        worker.CenterCamera();
+        unitMovement.HandleUnitSelectionAndMovement(world.mainPlayer.transform.position, world.mainPlayer.gameObject);
+        world.mainPlayer.CenterCamera();
     }
 
     public void ToggleButtonOn(bool v)

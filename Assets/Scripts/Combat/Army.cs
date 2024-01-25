@@ -607,12 +607,14 @@ public class Army : MonoBehaviour
                 {
 					targetCamp.attackReady = false;
                     targetCamp.armyReady = false;
-					
-                    if (targetCamp.UnitsInCamp.Count == 0) //for invading empty city
+
+					if (targetCamp.UnitsInCamp.Count == 0) //for invading empty city (not needed right now)
                     {
-                        for (int i = 0; i < unitsInArmy.Count; i++)
+						issueRefund = false;
+
+						for (int i = 0; i < unitsInArmy.Count; i++)
                         {
-                            Vector3Int cityLoc = unitsInArmy[i].marchPosition + targetCamp.loc;
+                            Vector3Int cityLoc = unitsInArmy[i].marchPosition + enemyTarget;
                             unitsInArmy[i].inBattle = true;
                             unitsInArmy[i].finalDestinationLoc = cityLoc;
                             List<Vector3Int> path = new() { cityLoc };
@@ -621,6 +623,8 @@ public class Army : MonoBehaviour
                     }
                     else
                     {
+    					if (targetCamp.isCity)
+                            world.ToggleCityMaterialClear(enemyTarget, attackZone, true, true);
                         world.uiAttackWarning.AttackNotification(((Vector3)attackZone + targetCamp.loc)*0.5f);
                         Charge();
                     }
@@ -864,7 +868,10 @@ public class Army : MonoBehaviour
         if (targetCamp.deathCount == targetCamp.campCount)
 		{        
             if (targetCamp.campCount == 0)
-                world.RemoveEnemyCamp(targetCamp.loc, true);
+            {
+                world.RemoveEnemyCamp(targetCamp.cityLoc, true);
+                world.ToggleCityMaterialClear(targetCamp.cityLoc, attackZone, false, true);
+            }
 
             returning = true;
             DestroyDeadList();

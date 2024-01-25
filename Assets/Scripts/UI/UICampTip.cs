@@ -32,7 +32,8 @@ public class UICampTip : MonoBehaviour
 	private CityImprovement improvement;
 	[HideInInspector]
 	public Army army;
-	private EnemyCamp enemyCamp;
+	[HideInInspector]
+	public EnemyCamp enemyCamp;
 
 	[HideInInspector]
 	public bool cantAfford;
@@ -373,6 +374,12 @@ public class UICampTip : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	//if attacking city, update enemy strength
+	public void UpdateEnemyStrength()
+	{
+
 	}
 
 	//seeing if battle can be afforded or not

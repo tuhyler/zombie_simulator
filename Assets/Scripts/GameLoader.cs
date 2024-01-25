@@ -18,6 +18,7 @@ public class GameLoader : MonoBehaviour
 	[HideInInspector]
 	public bool isLoading, isDone;
 	[HideInInspector]
+	public List<City> attackingEnemyCitiesList = new();
 	public List<Unit> attackingUnitList = new();
 	public Dictionary<string, Trader> ambushedTraders = new();
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
@@ -40,7 +41,7 @@ public class GameLoader : MonoBehaviour
 		terrainGenerator.SetYCoord(0);
 		Dictionary<Vector3Int, TerrainData> terrainDict = terrainGenerator.RunProceduralGeneration(true);
 		terrainGenerator.SetMainPlayerLoc();
-		world.NewGamePrep(true, terrainDict, tutorial);
+		world.NewGamePrep(true, terrainDict, terrainGenerator.enemyCityLocs, terrainGenerator.enemyRoadLocs, tutorial);
 		terrainGenerator.Clear();
 		StartCoroutine(WaitASec());
 	}
@@ -160,6 +161,9 @@ public class GameLoader : MonoBehaviour
 		gameData.allCityImprovements.Clear();
 		foreach (Vector3Int tile in world.cityImprovementDict.Keys)
 		{
+			if (world.GetTerrainDataAt(tile).enemyZone)
+				continue;
+			
 			gameData.allCityImprovements.Add(world.GetCityDevelopment(tile).SaveData());
 		}
 
@@ -236,6 +240,7 @@ public class GameLoader : MonoBehaviour
 		GameManager.Instance.UpdateProgress(20);
 
 		world.GenerateTradeCenters(gameData.allTradeCenters);
+		world.GenerateEnemyCities(gameData.enemyCities, gameData.enemyRoads);
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
 		
 		//updating progress
@@ -293,9 +298,9 @@ public class GameLoader : MonoBehaviour
 			world.RemoveUnitPosition(world.RoundToInt(world.azai.transform.position));
 		}
 
-		//updating progress
 		GameManager.Instance.UpdateProgress(5);
 
+		//cities
 		for (int i = 0; i < gameData.allCities.Count; i++)
 		{
 			world.BuildCity(gameData.allCities[i].location, world.GetTerrainDataAt(gameData.allCities[i].location), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, gameData.allCities[i]);
@@ -303,9 +308,28 @@ public class GameLoader : MonoBehaviour
 		gameData.allCities.Clear();
 		gameData.allArmies.Clear();
 
-		//updating progress
+		//updating attacked cities
+		foreach (City city in attackingEnemyCitiesList)
+		{
+			if (city.enemyCamp.moveToLoc != city.enemyCamp.loc)
+				city.enemyCamp.attackingArmy = world.cityDict[city.enemyCamp.moveToLoc].army;
+
+			if (city.enemyCamp.pillage && city.enemyCamp.pillageTime > 0)
+			{
+				StartCoroutine(city.enemyCamp.Pillage());
+
+				foreach (Unit unit in city.enemyCamp.UnitsInCamp)
+				{
+					if (unit.buildDataSO.unitType != UnitType.Cavalry)
+						unit.StartPillageAnimation();
+				}
+			}
+		}
+		attackingEnemyCitiesList.Clear();
+
 		GameManager.Instance.UpdateProgress(10);
 
+		//improvements
 		for (int i = 0; i < gameData.allCityImprovements.Count; i++)
 		{
 			world.CreateImprovement(world.GetCity(gameData.allCityImprovements[i].cityLoc), gameData.allCityImprovements[i]);
@@ -313,7 +337,6 @@ public class GameLoader : MonoBehaviour
 		gameData.allCityImprovements.Clear();
 		gameData.militaryUnits.Clear();
 
-		//updating progress
 		GameManager.Instance.UpdateProgress(20);
 
 		for (int i = 0; i < gameData.allRoads.Count; i++)
@@ -323,7 +346,6 @@ public class GameLoader : MonoBehaviour
 		}
 		gameData.allRoads.Clear();
 
-		//updating progress
 		GameManager.Instance.UpdateProgress(10);
 
 		if (gameData.scott.somethingToSay) world.scott.gameObject.SetActive(true);
@@ -332,6 +354,7 @@ public class GameLoader : MonoBehaviour
 		if (gameData.azai.somethingToSay) world.azai.gameObject.SetActive(true);
 		world.azai.LoadWorkerData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
+		world.mainPlayer.lastClearTile = world.RoundToInt(world.mainPlayer.transform.position);
 
 		//traders
 		for (int i = 0; i < gameData.allTraders.Count; i++)
@@ -482,5 +505,6 @@ public class GameLoader : MonoBehaviour
 	public void RemoveEnemyCity(Vector3Int loc)
 	{
 		gameData.attackedEnemyBases.Remove(loc);
+		gameData.enemyCities.Remove(loc);
 	}
 }

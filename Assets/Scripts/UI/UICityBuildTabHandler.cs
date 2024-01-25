@@ -401,43 +401,43 @@ public class UICityBuildTabHandler : MonoBehaviour
 
     public void HandleC()
 	{
-		if (activeStatus)
+		if (activeStatus && !cityBuilderManager.uiCityNamer.activeStatus)
 			GetTab("Upgrade").SelectTabKeyboardShortcut();
 	}
 
     public void HandleG()
     {
-        if (activeStatus)
+        if (activeStatus && !cityBuilderManager.uiCityNamer.activeStatus)
             GetTab("Buildings").SelectTabKeyboardShortcut();
     }
 
 	public void HandleT()
 	{
-		if (activeStatus)
+		if (activeStatus && !cityBuilderManager.uiCityNamer.activeStatus)
 			GetTab("Units").SelectTabKeyboardShortcut();
 	}
 
 	public void HandleR()
 	{
-		if (activeStatus)
+		if (activeStatus && !cityBuilderManager.uiCityNamer.activeStatus)
 			GetTab("Raw Goods").SelectTabKeyboardShortcut();
 	}
 
 	public void HandleF()
 	{
-		if (activeStatus)
+		if (activeStatus && !cityBuilderManager.uiCityNamer.activeStatus)
 			GetTab("Producers").SelectTabKeyboardShortcut();
 	}
 
 	public void HandleX()
 	{
-		if (activeStatus)
+		if (activeStatus && !cityBuilderManager.uiCityNamer.activeStatus)
 			GetTab("Remove").SelectTabKeyboardShortcut();
 	}
 
 	public void HandleZ()
     {
-		if (activeStatus)
+		if (activeStatus && !cityBuilderManager.uiCityNamer.activeStatus)
 			GetTab("Sell").SelectTabKeyboardShortcut();
 	}
 }

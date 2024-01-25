@@ -71,7 +71,7 @@ public class Unit : MonoBehaviour
     private Vector3Int currentLocation;
     public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     [HideInInspector]
-    public Vector3Int prevTile, prevTerrainTile, ambushLoc; //second one for traders is in case road they're on is removed
+    public Vector3Int prevTile, prevTerrainTile, ambushLoc, lastClearTile; //second one for traders is in case road they're on is removed
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo, waitingCo, attackCo;
@@ -125,11 +125,7 @@ public class Unit : MonoBehaviour
     //animation
     [HideInInspector]
     public Animator unitAnimator;
-    private int isMovingHash;
-    private int isMarchingHash;
-    private int isAttackingHash;
-    private int isSittingHash;
-    private int isDiscoveredHash;
+    private int isMovingHash, isMarchingHash, isAttackingHash, isSittingHash, isDiscoveredHash, isPillagingHash;
 
     private void Awake()
     {
@@ -152,6 +148,7 @@ public class Unit : MonoBehaviour
         isAttackingHash = Animator.StringToHash("isAttacking");
         isSittingHash = Animator.StringToHash("isSitting");
         isDiscoveredHash = Animator.StringToHash("isDiscovered");
+		isPillagingHash = Animator.StringToHash("isPillaging");
         attackPauses[0] = new WaitForSeconds(.9f);
 		attackPauses[1] = new WaitForSeconds(1f);
 		attackPauses[2] = new WaitForSeconds(1.1f);
@@ -269,6 +266,16 @@ public class Unit : MonoBehaviour
 		unitAnimator.SetBool(isAttackingHash, true);
         unitAnimator.SetFloat("attackSpeed", 1);
     }
+
+    public void StartPillageAnimation()
+    {
+        unitAnimator.SetBool(isPillagingHash, true);
+    }
+
+    public void StopPillageAnimation()
+    {
+		unitAnimator.SetBool(isPillagingHash, false);
+	}
 
  //   private void StopAttackingAnimation()
  //   {
@@ -570,7 +577,7 @@ public class Unit : MonoBehaviour
 			unitAnimator.SetBool(isMarchingHash, false);
 			while (!readyToMarch)
             {
-                yield break;
+                yield return null; //waiting for others to arrive
             }
 			unitAnimator.SetBool(isMarchingHash, true);
 		}
@@ -1233,13 +1240,32 @@ public class Unit : MonoBehaviour
                 if (enemyCamp.movingOut)
                 {
 					enemyCamp.movingOut = false;
+                    enemyCamp.moveToLoc = enemyCamp.loc;
 					GameLoader.Instance.gameData.movingEnemyBases.Remove(enemyCamp.loc);
 					world.mainPlayer.StopRunningAway();
 				}
 			}
             else if (enemyCamp.movingOut)
             {
-                enemyCamp.UnitArrived();
+                if (enemyCamp.pillage)
+                {
+                    enemyCamp.enemyReady++;
+
+					if (buildDataSO.unitType == UnitType.Cavalry)
+						StartAttackingAnimation();
+					else
+						StartPillageAnimation();
+
+					if (enemyCamp.enemyReady == enemyCamp.campCount - enemyCamp.deathCount)
+                    {
+						enemyCamp.pillageTime = 5;
+						StartCoroutine(enemyCamp.Pillage());
+                    }
+                }
+                else
+                {
+                    enemyCamp.UnitArrived();
+                }
             }
         }
         else if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
@@ -1496,8 +1522,17 @@ public class Unit : MonoBehaviour
                             {
                                 TerrainData td2 = world.GetTerrainDataAt(tile);
 
-                                if (world.cityImprovementDict.ContainsKey(tile))
-                                    world.cityImprovementDict[tile].HideImprovement();
+								if (world.IsRoadOnTerrain(tile))
+									world.SetRoadActive(tile);
+
+								if (world.cityImprovementDict.ContainsKey(tile))
+                                {
+                                    CityImprovement improvement = world.cityImprovementDict[tile];
+									improvement.HideImprovement();
+
+                                    if (!td2.isDiscovered)
+                                        improvement.StartJustWorkAnimation();
+								}
                                 
                                 if (!td2.isDiscovered)
                                     td2.Reveal();
@@ -1505,7 +1540,7 @@ public class Unit : MonoBehaviour
                         }
 
 						if (inArmy && homeBase.army.traveling)
-							world.BattleStations(loc, homeBase.army.attackZone, true);
+							world.BattleStations(loc, homeBase.army.attackZone);
 					}
 					else
                     {
@@ -1513,7 +1548,7 @@ public class Unit : MonoBehaviour
                             world.RevealEnemyCamp(loc);
                     
                         if (inArmy && homeBase.army.traveling)
-                            world.BattleStations(loc, homeBase.army.attackZone, false);
+                            world.BattleStations(loc, homeBase.army.attackZone);
                     }
                 }
             }
@@ -1532,6 +1567,12 @@ public class Unit : MonoBehaviour
             if (world.IsTradeCenterOnTile(loc))
                 world.GetTradeCenter(loc).Reveal();
 		}
+    }
+
+    private void CheckPrevTile()
+    {
+        TerrainData td = world.GetTerrainDataAt(lastClearTile);
+        td.ToggleTransparentForest(false);
     }
 
     public void StartAttack(Unit target)
@@ -1988,7 +2029,6 @@ public class Unit : MonoBehaviour
 			}
 			else if (!td.isDiscovered)
             {
-				marker.ToggleVisibility(true);
                 HideUnit(false);
             }
             else if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || collision.gameObject.CompareTag("City"))
@@ -2004,13 +2044,31 @@ public class Unit : MonoBehaviour
 		}
         else if (!bySea)
         {
-            if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || collision.gameObject.CompareTag("City"))
+            Vector3Int loc = world.RoundToInt(collision.gameObject.transform.position);
+            TerrainData td = world.GetTerrainDataAt(loc);
+
+            if (td.treeHandler != null || world.IsCityOnTile(loc))
+            //if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsCityOnTile(loc))
             {
                 marker.ToggleVisibility(true);
-            }
-            else
+
+				if (isPlayer)
+				{
+					//TerrainData td = collision.gameObject.GetComponent<TerrainData>();
+
+                    CheckPrevTile();
+					td.ToggleTransparentForest(true);
+                    lastClearTile = td.TileCoordinates;
+				}
+			}
+			else
             {
                 marker.ToggleVisibility(false);
+
+                if (isPlayer)
+                {
+                    CheckPrevTile();
+                }
             }
         }
         
@@ -2073,8 +2131,8 @@ public class Unit : MonoBehaviour
         {
             moveSpeed = baseSpeed * forestHillSpeed * originalMoveSpeed * 0.02f;
             unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
-        }
-        else if (collision.gameObject.CompareTag("Water"))
+		}
+		else if (collision.gameObject.CompareTag("Water"))
         {
             if (bySea)
             {
@@ -2144,7 +2202,7 @@ public class Unit : MonoBehaviour
         }
 
         looking = false;
-		enemyCamp.FinishChase();
+		enemyCamp.FinishMoveOut();
 	}
 
     public void StopPlayer()
@@ -2382,6 +2440,8 @@ public class Unit : MonoBehaviour
                 enemyCamp.deathCount++;
                 enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
                 enemyCamp.ClearCampCheck();
+                //if (enemyCamp.isCity)
+                //    enemyCamp.RemoveFromCamp(this);
                 
                 foreach (Unit unit in enemyCamp.UnitsInCamp)
                 {
@@ -2470,8 +2530,7 @@ public class Unit : MonoBehaviour
     {
 		if (!hidden)
         {
-            if (hideMarker)
-                marker.gameObject.SetActive(false);
+            marker.gameObject.SetActive(!hideMarker);
             unitMesh.gameObject.SetActive(false);
 		    healthbar.gameObject.SetActive(false);
             hidden = true;
@@ -2684,13 +2743,13 @@ public class Unit : MonoBehaviour
                 if (!guard)
                     data.cityHomeBase = homeBase.cityLoc;
                 data.transferring = transferring;
-                data.repositioning = repositioning;
             }
             else
             {
                 data.campSpot = enemyAI.CampSpot;
             }
 
+            data.repositioning = repositioning;
             data.barracksBunk = barracksBunk;
             data.marchPosition = marchPosition;
             data.targetBunk = targetBunk;
@@ -2736,15 +2795,11 @@ public class Unit : MonoBehaviour
         if (inArmy || enemyAI)
         {
             if (inArmy)
-            {
                 transferring = data.transferring;
-                repositioning = data.repositioning;
-            }
             else
-            {
                 enemyAI.CampSpot = data.campSpot;
-            }
             
+            repositioning = data.repositioning;
             barracksBunk = data.barracksBunk;
             marchPosition = data.marchPosition;
             targetBunk = data.targetBunk;
@@ -2754,7 +2809,10 @@ public class Unit : MonoBehaviour
             {
                 healthbar.LoadHealthLevel(currentHealth);
                 healthbar.gameObject.SetActive(true);
-            }
+
+                if (enemyAI && !data.inBattle)
+					healthbar.RegenerateHealth();
+			}
 
             baseSpeed = data.baseSpeed; //coroutine
             isLeader = data.isLeader;
@@ -2896,7 +2954,8 @@ public class Unit : MonoBehaviour
 			if (enemyAI)
 			{
 				enemyCamp.deathCount++;
-				enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
+                if (enemyCamp.attackingArmy != null)
+    				enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
 				enemyCamp.ClearCampCheck();
 				world.RemoveUnitPosition(currentLocation);
 				enemyCamp.DeadList.Add(this);

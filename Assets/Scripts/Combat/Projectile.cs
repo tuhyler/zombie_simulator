@@ -48,45 +48,23 @@ public class Projectile : MonoBehaviour
             rotation = Quaternion.identity;
         else
             rotation = Quaternion.LookRotation(lookAtTarget);
-		//if (lookAtTarget == endPoint)
-		//    lookAtTarget += new Vector3(0, 0.05f, 0);
 
 		transform.rotation = rotation;
 
-        //transform.LookAt(endPoint);
-        
         float sampleTime = 0;
 
         while ((transform.position - endPoint).sqrMagnitude > 0.1f)
         {
             sampleTime += Time.deltaTime * flightSpeed;
             transform.position = Evaluate(sampleTime);
-            transform.forward = Evaluate(sampleTime + 0.001f) - transform.position;
+            Vector3 position = Evaluate(sampleTime + 0.001f) - transform.position;
+            if (position != Vector3.zero)
+                transform.forward = position;
             yield return null;
         }
 
         gameObject.SetActive(false);
 		transform.localPosition = originalPosition;
 		target.ReduceHealth(unit, attacks[Random.Range(0,attacks.Length)]);
-	}
-
-	public IEnumerator ShootTest()
-	{
-		gameObject.SetActive(true);
-		transform.LookAt(endPoint);
-
-		float sampleTime = 0;
-
-		while ((transform.position - endPoint).sqrMagnitude > 0.1f)
-		{
-			sampleTime += Time.deltaTime * flightSpeed;
-			Debug.Log(sampleTime);
-			transform.position = Evaluate(sampleTime);
-			transform.forward = Evaluate(sampleTime + 0.001f) - transform.position;
-			yield return null;
-		}
-
-		gameObject.SetActive(false);
-		transform.localPosition = originalPosition;
 	}
 }

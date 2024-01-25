@@ -890,7 +890,8 @@ public class Worker : Unit
 				return true;
 			}
 			i++;
-			if (!world.IsCityOnTile(tile))
+
+			if (!world.IsCityOnTile(tile) && !world.IsEnemyCityOnTile(tile))
 			{
 				continue;
 			}

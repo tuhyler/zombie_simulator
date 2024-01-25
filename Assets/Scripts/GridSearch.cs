@@ -390,7 +390,7 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+				if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
 					continue;
 
                 if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
@@ -426,7 +426,7 @@ public class GridSearch
 		return path;
 	}
 
-	public static List<Vector3Int> TerrainSearchEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain)
+	public static List<Vector3Int> TerrainSearchEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList)
 	{
 		List<Vector3Int> path = new();
 
@@ -455,16 +455,16 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.CheckIfPositionIsValidForEnemy(neighbor)) //If it's an obstacle, ignore
+				if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) //If it's an obstacle, ignore
 					continue;
 
 				int tempCost = world.GetMovementCost(neighbor);
 
 				if (tile.sqrMagnitude == 18)
 				{
-					Vector3Int temp = neighbor - current;
+                    //Vector3Int temp = neighbor - current;
 
-					if (!world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(0, 0, temp.z)))
+					if (!world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(tile.x, 0, 0), avoidList) || !world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(0, 0, tile.z), avoidList))
 						continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares

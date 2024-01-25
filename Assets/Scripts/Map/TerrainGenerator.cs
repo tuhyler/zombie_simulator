@@ -89,7 +89,10 @@ public class TerrainGenerator : MonoBehaviour
 
     [Header("Enemy Unit Prefabs (use same order)")]
     [SerializeField]
-    private List<GameObject> enemyUnits;
+    public List<GameObject> enemyUnits;
+
+    [HideInInspector]
+    public List<Vector3Int> enemyCityLocs = new(), enemyRoadLocs = new();
 
     [Header("Enemy Camp Parameters")]
     [SerializeField] 
@@ -522,11 +525,15 @@ public class TerrainGenerator : MonoBehaviour
             
         tradeCenterLocs = PlaceTradeCenters(random, tradeCenterLocs, startingPlace, coastTiles, riverTiles);
 
-        (List<Vector3Int> luxuryLocs, List<Vector3Int> foodLocs, List<Vector3Int> waterLocs, List<Vector3Int> resourceLocs) = 
+        (List <Vector3Int> enemyFoodLocs, List <Vector3Int> enemyWaterLocs) = GenerateEnemyCities(random, startingPlace, tradeCenterLocs, landLocs, propTiles);
+
+		(List<Vector3Int> luxuryLocs, List<Vector3Int> foodLocs, List<Vector3Int> waterLocs, List<Vector3Int> resourceLocs) = 
             GenerateResources(random, startingPlace, tradeCenterLocs, grasslandTiles, riverTiles, coastTiles);
 		(List<TerrainData> newPropTiles, List<Vector3Int> newFoodLocs, List<Vector3Int> newWaterLocs, List<Vector3Int> newResourceLocs) = SetStartingResources(random, startingPlace);
-		propTiles.AddRange(newPropTiles);
+        propTiles.AddRange(newPropTiles);
+        foodLocs.AddRange(enemyFoodLocs);
         foodLocs.AddRange(newFoodLocs);
+        waterLocs.AddRange(enemyWaterLocs);
         waterLocs.AddRange(newWaterLocs);
         resourceLocs.AddRange(newResourceLocs);
 
@@ -549,7 +556,7 @@ public class TerrainGenerator : MonoBehaviour
 		for (int i = 0; i < resourceLocs.Count; i++)
             AddResource(random, terrainDict[resourceLocs[i]]);
 
-        List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
+        //List<Vector3Int> enemyLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs);
 
         for (int i = 0; i < tradeCenterLocs.Count; i++)
         {
@@ -724,6 +731,7 @@ public class TerrainGenerator : MonoBehaviour
 			GameObject newProp = Instantiate(propArray[propInt], Vector3Int.zero, Quaternion.identity);
 			newProp.transform.SetParent(td.prop, false);
 			newProp.GetComponent<TreeHandler>().propMesh.rotation = rotation;
+            td.SkinnedMeshCheck(); //probably not necessary
 
 			GameObject nonStaticProp = Instantiate(td.terrainData.decors[td.decorIndex], Vector3.zero, Quaternion.identity);
 			nonStaticProp.transform.SetParent(td.nonstatic, false);
@@ -739,7 +747,8 @@ public class TerrainGenerator : MonoBehaviour
             {
 			    GameObject newProp = Instantiate(propArray[propInt], Vector3Int.zero, rotation);
 			    newProp.transform.SetParent(td.prop, false);
-            }
+				td.SkinnedMeshCheck();
+			}
 		}
     }
 
@@ -752,6 +761,7 @@ public class TerrainGenerator : MonoBehaviour
 		{
 			GameObject newProp = Instantiate(td.terrainData.decors[index], Vector3Int.zero, rotation);
 			newProp.transform.SetParent(td.prop, false);
+            td.SkinnedMeshCheck();
 
 			if (td.isHill && td.rawResourceType == RawResourceType.Rocks)
 			{
@@ -1405,6 +1415,7 @@ public class TerrainGenerator : MonoBehaviour
     {
         List<Vector3Int> startingPlaceRange = new() { startingPlace };
         List<Vector3Int> tradeCenterRange = new();
+        List<Vector3Int> enemyCityRange = new();
         List<Vector3Int> finalResourceLocs = new();
         List<Vector3Int> finalWaterLocs = new();
         List<Vector3Int> finalFoodLocs = new();
@@ -1434,6 +1445,18 @@ public class TerrainGenerator : MonoBehaviour
 			}
         }
 
+        for (int i = 0; i < enemyCityLocs.Count; i++)
+        {
+            enemyCityRange.Add(enemyCityLocs[i]);
+
+			for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
+			{
+				Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + enemyCityLocs[i];
+				enemyCityRange.Add(tile);
+				potentialWaterResourceLocs.Remove(tile);
+			}
+		}
+
         int xCount = width / resourceFrequency - 1;
         int zCount = height / resourceFrequency - 1;
 
@@ -1455,7 +1478,7 @@ public class TerrainGenerator : MonoBehaviour
                 Vector3Int potentialLoc = new Vector3Int(i * random.Next(resourceFrequency-1, resourceFrequency + 1) * 3, 
                     yCoord, j * random.Next(resourceFrequency - 1, resourceFrequency + 1) * 3);
 
-                if (startingPlaceRange.Contains(potentialLoc) || tradeCenterRange.Contains(potentialLoc))
+                if (startingPlaceRange.Contains(potentialLoc) || tradeCenterRange.Contains(potentialLoc) || enemyCityRange.Contains(potentialLoc))
                     continue;
 
                 if (terrainDict[potentialLoc].isLand && terrainDict[potentialLoc].walkable)
@@ -1468,7 +1491,7 @@ public class TerrainGenerator : MonoBehaviour
                     {
                         Vector3Int tile = potentialLoc + ProceduralGeneration.neighborsEightDirections[k];
 
-                        if (terrainDict[tile].isLand && terrainDict[tile].walkable && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile))
+                        if (terrainDict[tile].isLand && terrainDict[tile].walkable && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile) && !enemyCityRange.Contains(tile))
                         {
                             potentialResourceLocs.Add(tile);
                             break;
@@ -1490,7 +1513,7 @@ public class TerrainGenerator : MonoBehaviour
 				{
 					Vector3Int tile = potentialNewSpot + ProceduralGeneration.neighborsCityRadius[k];
 
-					if (terrainDict[tile].isLand && terrainDict[tile].walkable && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile))
+					if (terrainDict[tile].isLand && terrainDict[tile].walkable && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile) && !enemyCityRange.Contains(tile))
 					{
 						potentialResourceLocs.Add(tile);
 						break;
@@ -1523,8 +1546,8 @@ public class TerrainGenerator : MonoBehaviour
 					{
 						Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + randomTile;
 
-						if (!terrainDict[tile].isHill && terrainDict[tile].terrainData.grassland && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile) 
-                            && !finalResourceLocs.Contains(tile) && terrainDict[tile].walkable)
+						if (!terrainDict[tile].isHill && terrainDict[tile].terrainData.grassland && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile) && !enemyCityRange.Contains(tile)
+							&& !finalResourceLocs.Contains(tile) && terrainDict[tile].walkable)
 						{
 							selectedTile = tile;
 							foundLocation = true;
@@ -1565,7 +1588,7 @@ public class TerrainGenerator : MonoBehaviour
                     {
                         Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + randomTile;
                     
-                        if (terrainDict[tile].CompareTag("Flatland") && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile) && !finalResourceLocs.Contains(tile))
+                        if (terrainDict[tile].CompareTag("Flatland") && !startingPlaceRange.Contains(tile) && !tradeCenterRange.Contains(tile) && !enemyCityRange.Contains(tile) && !finalResourceLocs.Contains(tile))
                         {
                             selectedTile = tile;
                             foundLocation = true;
@@ -1670,7 +1693,7 @@ public class TerrainGenerator : MonoBehaviour
                 neighbors.Remove(potentialNeighbor);
                 Vector3Int newTile = potentialNeighbor + randomTile;
 
-				if (terrainDict[newTile].isLand && terrainDict[newTile].walkable && !startingPlaceRange.Contains(newTile) && !tradeCenterRange.Contains(newTile) && !finalResourceLocs.Contains(newTile))
+				if (terrainDict[newTile].isLand && terrainDict[newTile].walkable && !startingPlaceRange.Contains(newTile) && !tradeCenterRange.Contains(newTile) && !enemyCityRange.Contains(newTile) && !finalResourceLocs.Contains(newTile))
                 {
                     SwampCheck(newTile);
 					FloodPlainCheck(newTile);
@@ -1793,6 +1816,127 @@ public class TerrainGenerator : MonoBehaviour
 		}
 	}
 
+    private (List<Vector3Int>, List<Vector3Int>) GenerateEnemyCities(System.Random random, Vector3Int startingPlace, List<Vector3Int> tradeCenterLocs, List<Vector3Int> landLocs, List<TerrainData> propTiles)
+    {
+		//make sure enough flatland surround it (3 to 4)
+        List<Vector3Int> foodLocs = new();
+        List<Vector3Int> waterLocs = new();
+		List<Vector3Int> locsLeft = new(landLocs);
+        locsLeft.Remove(startingPlace);
+
+		//no enemy cities within 4 tiles of starting place 
+		for (int i = 0; i < ProceduralGeneration.neighborsCityRadius.Count; i++)
+		{
+			Vector3Int tile = ProceduralGeneration.neighborsCityRadius[i] + startingPlace;
+
+			locsLeft.Remove(tile);
+
+			if (i > 7)
+			{
+				for (int j = 0; j < ProceduralGeneration.neighborsCityRadius.Count; j++)
+					locsLeft.Remove(ProceduralGeneration.neighborsCityRadius[j] + tile);
+			}
+		}
+
+		//no enemy cities with in 2 tiles of trade centers
+		for (int i = 0; i < tradeCenterLocs.Count; i++)
+		{
+			locsLeft.Remove(tradeCenterLocs[i]);
+
+			for (int j = 0; j < ProceduralGeneration.neighborsCityRadius.Count; j++)
+				locsLeft.Remove(ProceduralGeneration.neighborsCityRadius[j] + tradeCenterLocs[i]);
+		}
+
+        enemyCityLocs.Add(new Vector3Int(3,0,21));
+
+        for (int i = 0; i < enemyCityLocs.Count; i++)
+        {
+            SwampCheck(enemyCityLocs[i]);
+            FloodPlainCheck(enemyCityLocs[i]);
+
+            List<Vector3Int> flatlandTiles = new();
+            List<Vector3Int> coastTiles = new();
+
+            for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
+            {
+                Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + enemyCityLocs[i];
+
+                if (terrainDict[tile].CompareTag("Flatland"))
+                {
+                    if (!terrainDict[tile].terrainData.grassland)
+                    {
+						TerrainDataSO data = grasslandSO;
+						DestroyImmediate(terrainDict[tile].gameObject);
+						GenerateTile(data.prefabs[0], tile, Quaternion.identity, 0);
+					}
+                    
+                    flatlandTiles.Add(tile);
+                }
+                else if (terrainDict[tile].isHill)
+                {
+                    propTiles.Remove(terrainDict[tile]);
+                    TerrainDataSO data = grasslandSO;
+				    DestroyImmediate(terrainDict[tile].gameObject);
+				    GenerateTile(data.prefabs[0], tile, Quaternion.identity, 0);
+                    flatlandTiles.Add(tile);
+                }
+                else if (terrainDict[tile].CompareTag("Forest"))
+                {
+					propTiles.Remove(terrainDict[tile]);
+					TerrainDataSO data = grasslandSO;
+					DestroyImmediate(terrainDict[tile].gameObject);
+					GenerateTile(data.prefabs[0], tile, Quaternion.identity, 0);
+					flatlandTiles.Add(tile);
+				}
+
+                if (terrainDict[tile].terrainData.type == TerrainType.River || terrainDict[tile].terrainData.type == TerrainType.Coast)
+                    coastTiles.Add(tile);
+			}
+
+            //adding land food
+            int flatlandCount = flatlandTiles.Count;
+            for (int j = 0; j < flatlandCount; j++)
+            {
+                if (j == 2) //only two food spots
+                    break;
+
+                Vector3Int newFood = flatlandTiles[random.Next(0, flatlandTiles.Count)];
+
+				terrainDict[newFood].terrainData = grasslandResourceSO;
+				terrainDict[newFood].resourceType = ResourceType.Food;
+				terrainDict[newFood].rawResourceType = RawResourceType.FoodLand;
+				terrainDict[newFood].decorIndex = 4;
+				terrainDict[newFood].resourceAmount = -1;
+				terrainDict[newFood].uvMapIndex.Add(random.Next(0, 0)); //for determining what flowers to show
+				terrainDict[newFood].uvMapIndex.Add(random.Next(0, 2));
+
+				foodLocs.Add(newFood);
+                flatlandTiles.Remove(newFood);
+			}
+
+			int coastCount = coastTiles.Count;
+			for (int j = 0; j < coastCount; j++)
+			{
+				if (j == 1) //only one fish spots
+					break;
+
+				Vector3Int newWater = coastTiles[random.Next(0, coastTiles.Count)];
+				bool river = terrainDict[newWater].terrainData.type == TerrainType.River;
+
+				terrainDict[newWater].terrainData = river ? riverResourceSO : seaResourceSO;
+				terrainDict[newWater].resourceType = ResourceType.Fish;
+				terrainDict[newWater].rawResourceType = RawResourceType.FoodSea;
+				terrainDict[newWater].decorIndex = 0;
+				terrainDict[newWater].resourceAmount = -1;
+
+				waterLocs.Add(newWater);
+				coastTiles.Remove(newWater);
+			}
+		}
+
+        return (foodLocs, waterLocs);
+	}
+
 	private List<Vector3Int> GenerateEnemyCamps(System.Random random, Vector3Int startingPlace, List<Vector3Int> tradeCenterLocs, List<Vector3Int> landLocs, List<Vector3Int> luxuryLocs, List<Vector3Int> resourceLocs)
 	{
         List<Vector3Int> enemyLocs = new();
@@ -1822,8 +1966,26 @@ public class TerrainGenerator : MonoBehaviour
             }
         }
 
-        //no enemies with in 2 tiles of trade centers
-        for (int i = 0; i < tradeCenterLocs.Count; i++)
+		//no enemies within 2 tiles of enemy cities
+		for (int i = 0; i < tradeCenterLocs.Count; i++)
+		{
+			locsLeft.Remove(enemyCityLocs[i]);
+
+			for (int j = 0; j < ProceduralGeneration.neighborsCityRadius.Count; j++)
+			{
+				Vector3Int tile = ProceduralGeneration.neighborsCityRadius[j] + enemyCityLocs[i];
+
+				if (locsLeft.Contains(tile))
+				{
+					locsLeft.Remove(tile);
+					resourceLocs.Remove(tile);
+					luxuryLocs.Remove(tile);
+				}
+			}
+		}
+
+		//no enemies with in 2 tiles of trade centers
+		for (int i = 0; i < tradeCenterLocs.Count; i++)
         {
 			locsLeft.Remove(tradeCenterLocs[i]);
 
@@ -2070,7 +2232,7 @@ public class TerrainGenerator : MonoBehaviour
         for (int i = 0; i < ProceduralGeneration.neighborsEightDirectionsOneStep.Count; i++)
             campLocs.Add(ProceduralGeneration.neighborsEightDirectionsOneStep[i] + centerLoc);
 
-        //0 infantry, 1 ranged, 2 cavalry
+        //0 is for infantry, 1 ranged, 2 cavalry
         List<int> unitList = new() { 0, 1, 2 };
 
         for (int i = 0; i < campCount; i++)
@@ -2122,45 +2284,6 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-	//private void SetEnemyBorders(List<Vector3Int> enemyLocs)
-	//{
- //       for (int i = 0; i < enemyLocs.Count; i++)
- //       {
- //           for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
- //           {
- //               Vector3Int tile = enemyLocs[i] + ProceduralGeneration.neighborsEightDirections[j];
-
- //               for (int k = 0; k < ProceduralGeneration.neighborsFourDirections.Count; k++)
- //               {
- //                   Vector3Int newTile = tile + ProceduralGeneration.neighborsFourDirections[k];
-
-	//				if (!terrainDict[newTile].enemyZone)
- //                   {
-	//					Vector3 borderPosition = newTile - tile;
-	//					borderPosition.y = -0.1f;
- //                       Quaternion rotation = Quaternion.identity;
-
-	//					if (borderPosition.x != 0)
-	//					{
-	//						borderPosition.x = (borderPosition.x / 3 * 0.99f);
-	//						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
-	//					}
-	//					else if (borderPosition.z != 0)
-	//					{
-	//						borderPosition.z = (borderPosition.z / 3 * 0.99f);
-	//					}
-
- //                       GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
- //                       allTiles.Add(border);
- //                       border.transform.SetParent(terrainDict[tile].transform, false);
- //                       border.SetActive(false);
- //                       terrainDict[tile].enemyBorders.Add(border);
- //                   }
- //               }
- //           }
- //       }
-	//}
-
     public void SetMainPlayerLoc() 
     {
         world.mainPlayer.transform.position = startingPlace;
@@ -2183,6 +2306,8 @@ public class TerrainGenerator : MonoBehaviour
     {
         allTiles.Clear();
         terrainDict.Clear();
+        enemyCityLocs.Clear();
+        enemyRoadLocs.Clear();
     }
 }
 

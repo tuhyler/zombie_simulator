@@ -538,42 +538,7 @@ public class WorkerTaskManager : MonoBehaviour
         
         city.LightFire(td.isHill);
 
-        foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
-        {
-            TerrainData tData = world.GetTerrainDataAt(tile);
-
-			if (tData.terrainData.type == TerrainType.River)
-            {
-                city.hasWater = true;
-                city.hasFreshWater = true;
-            }
-            
-            if (tData.terrainData.type == TerrainType.Coast)
-                city.hasWater = true;
-
-            if (tData.rawResourceType == RawResourceType.Rocks)
-            {
-                if (tData.isHill)
-                    city.hasRocksHill = true;
-                else
-                    city.hasRocksFlat = true;
-            }
-
-            if (tData.resourceType == ResourceType.Clay)
-                city.hasClay = true;
-
-			if (tData.resourceType == ResourceType.Wool)
-				city.hasWool = true; 
-            
-            if (tData.resourceType == ResourceType.Silk)
-                city.hasSilk = true;
-
-            if (tData.resourceType == ResourceType.Lumber)
-                city.hasTrees = true;
-
-            if ((tData.terrainData.grassland && tData.terrainData.type == TerrainType.Flatland) || tData.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
-                city.hasFood = true;
-        }
+        SetCityBools(city, workerTile);
 
         city.reachedWaterLimit = !city.hasFreshWater;
         city.waterCount = city.hasFreshWater ? 9999 : 0;
@@ -581,6 +546,46 @@ public class WorkerTaskManager : MonoBehaviour
         world.TutorialCheck("Build City");
         unitMovement.ShowIndividualCityButtonsUI();
     }
+
+    public void SetCityBools(City city, Vector3Int cityLoc)
+    {
+		foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.CITYRADIUS))
+		{
+			TerrainData tData = world.GetTerrainDataAt(tile);
+
+			if (tData.terrainData.type == TerrainType.River)
+			{
+				city.hasWater = true;
+				city.hasFreshWater = true;
+			}
+
+			if (tData.terrainData.type == TerrainType.Coast)
+				city.hasWater = true;
+
+			if (tData.rawResourceType == RawResourceType.Rocks)
+			{
+				if (tData.isHill)
+					city.hasRocksHill = true;
+				else
+					city.hasRocksFlat = true;
+			}
+
+			if (tData.resourceType == ResourceType.Clay)
+				city.hasClay = true;
+
+			if (tData.resourceType == ResourceType.Wool)
+				city.hasWool = true;
+
+			if (tData.resourceType == ResourceType.Silk)
+				city.hasSilk = true;
+
+			if (tData.resourceType == ResourceType.Lumber)
+				city.hasTrees = true;
+
+			if ((tData.terrainData.grassland && tData.terrainData.type == TerrainType.Flatland) || tData.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
+				city.hasFood = true;
+		}
+	}
 
     //checking if building city too close to another one
     //private bool CheckForNearbyCity(Vector3 workerPos)
