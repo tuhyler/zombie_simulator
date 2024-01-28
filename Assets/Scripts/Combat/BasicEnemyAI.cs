@@ -158,6 +158,10 @@ public class BasicEnemyAI : MonoBehaviour
 			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.CurrentLocation);
 		}
 
+		//just in case
+		if (unit.enemyCamp.attackingArmy == null)
+			return;
+
 		foreach (Vector3Int zone in attackingZones)
 		{
 			if (!unit.enemyCamp.attackingArmy.movementRange.Contains(zone))
@@ -265,6 +269,9 @@ public class BasicEnemyAI : MonoBehaviour
 			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.CurrentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.CurrentLocation);
 		}
+
+		if (unit.enemyCamp.attackingArmy == null)
+			return;
 
 		foreach (Vector3Int zone in attackingZones)
 		{
@@ -535,7 +542,8 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else if (unit.enemyCamp.attackingArmy == null)
 		{
-			StartReturn();
+			if (!unit.enemyCamp.movingOut) //pillage done else where
+				StartReturn();
 		}
 		else if (dist >= distThreshold && unit.enemyCamp.attackingArmy.returning)
 		{

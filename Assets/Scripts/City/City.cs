@@ -1460,7 +1460,6 @@ public class City : MonoBehaviour
 		unitEnemy.CurrentLocation = unitLoc;
 		unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
 		unitEnemy.barracksBunk = newSpot;
-        unitEnemy.marchPosition = newSpot - camp.loc;
 
 		Vector3 spawnSpot = newSpot;
 		spawnSpot.y += 0.07f;
@@ -1614,7 +1613,7 @@ public class City : MonoBehaviour
 
         if (labor == 0) //assigning city to location if working for first time
         {
-            world.GetCityDevelopment(terrainLocation).SetCity(this);
+            world.GetCityDevelopment(terrainLocation).city = this;
             world.AddToCityLabor(terrainLocation, cityLoc);
             resourceProducer.SetResourceManager(resourceManager);
             resourceProducer.UpdateResourceGenerationData();
@@ -1821,6 +1820,7 @@ public class City : MonoBehaviour
             if (world.CheckIfUnclaimedSingleBuild(tile))
             {
                 CityImprovement cityImprovement = world.GetCityDevelopment(tile);
+                cityImprovement.city = this;
 
                 string name = cityImprovement.GetImprovementData.improvementName;
                 singleBuildImprovementsBuildingsDict[name] = tile;
@@ -2037,7 +2037,8 @@ public class City : MonoBehaviour
             GameLoader.Instance.gameData.militaryUnits[barracksLocation] = army.SendData();
 			armyData.forward = army.forward;
 			armyData.attackZone = army.attackZone;
-			armyData.enemyTarget = army.EnemyTarget;
+			armyData.enemyTarget = army.enemyTarget;
+            armyData.enemyCityLoc = army.enemyCityLoc;
 			armyData.cyclesGone = army.cyclesGone;
             armyData.unitsReady = army.unitsReady;
             armyData.stepCount = army.stepCount;
@@ -2055,6 +2056,7 @@ public class City : MonoBehaviour
 			armyData.atHome = army.atHome;
 			armyData.enemyReady = army.enemyReady;
 			armyData.issueRefund = army.issueRefund;
+            armyData.defending = army.defending;
 
             GameLoader.Instance.gameData.allArmies[cityLoc] = armyData;
         }
@@ -2195,7 +2197,8 @@ public class City : MonoBehaviour
             ArmyData armyData = GameLoader.Instance.gameData.allArmies[cityLoc];
             army.forward = armyData.forward;
 		    army.attackZone = armyData.attackZone;
-		    army.EnemyTarget = armyData.enemyTarget;
+		    army.enemyTarget = armyData.enemyTarget;
+            army.enemyCityLoc = armyData.enemyCityLoc;
 			army.cyclesGone = armyData.cyclesGone;
             army.unitsReady = armyData.unitsReady;
             army.stepCount = armyData.stepCount;
@@ -2213,11 +2216,20 @@ public class City : MonoBehaviour
 			army.atHome = armyData.atHome;
 			army.enemyReady = armyData.enemyReady;
 			army.issueRefund = armyData.issueRefund;
+            army.defending = armyData.defending;
 
             if (army.traveling || army.inBattle || army.enemyReady)
             {
-                army.targetCamp = world.GetEnemyCamp(army.EnemyTarget);
-				world.GetEnemyCamp(army.EnemyTarget).attackingArmy = army;
+                if (army.defending)
+                {
+                    army.targetCamp = world.GetEnemyCamp(army.enemyCityLoc);
+					world.GetEnemyCamp(army.enemyCityLoc).attackingArmy = army;
+				}
+                else
+                {
+                    army.targetCamp = world.GetEnemyCamp(army.enemyTarget);
+                    world.GetEnemyCamp(army.enemyTarget).attackingArmy = army;
+                }
 			}
 		}
 	}

@@ -312,18 +312,13 @@ public class GameLoader : MonoBehaviour
 		foreach (City city in attackingEnemyCitiesList)
 		{
 			if (city.enemyCamp.moveToLoc != city.enemyCamp.loc)
+			{
 				city.enemyCamp.attackingArmy = world.cityDict[city.enemyCamp.moveToLoc].army;
+				world.cityDict[city.enemyCamp.moveToLoc].army.targetCamp = city.enemyCamp;
+			}
 
 			if (city.enemyCamp.pillage && city.enemyCamp.pillageTime > 0)
-			{
 				StartCoroutine(city.enemyCamp.Pillage());
-
-				foreach (Unit unit in city.enemyCamp.UnitsInCamp)
-				{
-					if (unit.buildDataSO.unitType != UnitType.Cavalry)
-						unit.StartPillageAnimation();
-				}
-			}
 		}
 		attackingEnemyCitiesList.Clear();
 
@@ -332,7 +327,13 @@ public class GameLoader : MonoBehaviour
 		//improvements
 		for (int i = 0; i < gameData.allCityImprovements.Count; i++)
 		{
-			world.CreateImprovement(world.GetCity(gameData.allCityImprovements[i].cityLoc), gameData.allCityImprovements[i]);
+			City city;
+			if (gameData.allCityImprovements[i].cityLoc == new Vector3Int(0, -10, 0))
+				city = null;
+			else
+				city = world.GetCity(gameData.allCityImprovements[i].cityLoc);
+
+			world.CreateImprovement(city, gameData.allCityImprovements[i]);
 		}
 		gameData.allCityImprovements.Clear();
 		gameData.militaryUnits.Clear();
@@ -473,7 +474,10 @@ public class GameLoader : MonoBehaviour
 		{
 			world.uiConversationTaskManager.LoadConversationTask(task, gameData.conversationTaskDict[task].Item1, gameData.conversationTaskDict[task].Item2);
 		}
-		//updating progress
+
+		//combining meshes for orphans
+		world.cityBuilderManager.CombineMeshes();
+
 		GameManager.Instance.UpdateProgress(10);
 
 		//Time.timeScale = 1f;
