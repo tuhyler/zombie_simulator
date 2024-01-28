@@ -29,7 +29,7 @@ public class Unit : MonoBehaviour
     //public Sprite unitImage;
 
     [SerializeField]
-    public ParticleSystem lightBeam, deathSplash;
+    public ParticleSystem lightBeam;
 
     [SerializeField]
     public GameObject selectionCircle, questionMark, exclamationPoint, ripples;
@@ -222,12 +222,12 @@ public class Unit : MonoBehaviour
 			lightBeam.Play();
 		}
 
-		if (inArmy || enemyAI || isTrader)
-		{
-			deathSplash = Instantiate(deathSplash);
-			deathSplash.transform.parent = world.psHolder;
-			deathSplash.Stop();
-		}
+		//if (inArmy || enemyAI || isTrader)
+		//{
+		//	deathSplash = Instantiate(deathSplash);
+		//	deathSplash.transform.parent = world.psHolder;
+		//	deathSplash.Stop();
+		//}
 	}
 
 	public void SetReferences(MapWorld world)
@@ -330,6 +330,12 @@ public class Unit : MonoBehaviour
 		rotation.AddSource(constraintSource);
         minimapIcon.gameObject.SetActive(true);
     }
+
+    public void PillageSound()
+    {
+        audioSource.clip = attacks[UnityEngine.Random.Range(0, attacks.Length)];
+        audioSource.Play();
+	}
 
     //taking damage
     public void ReduceHealth(Unit attackingUnit, AudioClip audio)
@@ -570,7 +576,7 @@ public class Unit : MonoBehaviour
             readyToMarch = false;
 
             if (enemyAI)
-                enemyCamp.UnitNextStep();
+                enemyCamp.UnitNextStep(pathPositions.Count == 2);
             else
                 homeBase.army.UnitNextStep();
 
@@ -1138,7 +1144,7 @@ public class Unit : MonoBehaviour
             {
 				world.AddUnitPosition(currentLocation, this);
 				preparingToMoveOut = false;
-                homeBase.army.UnitReady();
+                homeBase.army.UnitReady(this);
             }
             else if (isMarching)
             {
@@ -1163,7 +1169,7 @@ public class Unit : MonoBehaviour
 				}
 
                 //turning to face enemy
-                Vector3Int diff = endTerrain - homeBase.army.EnemyTarget;
+                Vector3Int diff = endTerrain - homeBase.army.enemyTarget;
                 if (Math.Abs(diff.x) == 3)
                     diff.z = 0;
                 else if (Math.Abs(diff.z) == 3)
@@ -1250,11 +1256,6 @@ public class Unit : MonoBehaviour
                 if (enemyCamp.pillage)
                 {
                     enemyCamp.enemyReady++;
-
-					if (buildDataSO.unitType == UnitType.Cavalry)
-						StartAttackingAnimation();
-					else
-						StartPillageAnimation();
 
 					if (enemyCamp.enemyReady == enemyCamp.campCount - enemyCamp.deathCount)
                     {
@@ -1540,7 +1541,7 @@ public class Unit : MonoBehaviour
                         }
 
 						if (inArmy && homeBase.army.traveling)
-							world.BattleStations(loc, homeBase.army.attackZone);
+							world.EnemyBattleStations(loc, homeBase.army.attackZone);
 					}
 					else
                     {
@@ -1548,7 +1549,7 @@ public class Unit : MonoBehaviour
                             world.RevealEnemyCamp(loc);
                     
                         if (inArmy && homeBase.army.traveling)
-                            world.BattleStations(loc, homeBase.army.attackZone);
+                            world.EnemyBattleStations(loc, homeBase.army.attackZone);
                     }
                 }
             }
@@ -1934,7 +1935,35 @@ public class Unit : MonoBehaviour
 		StopAnimation();
 	}
 
-    public void AmbushAggro(Vector3Int endPosition, Vector3Int ambushLoc)
+	public void StartReturn()
+	{
+		if (isDead)
+			return;
+
+		//unit.StopAttacking();
+		AttackCheck();
+
+		attackCo = null;
+		inBattle = false;
+		attacking = false;
+		targetSearching = false;
+		flanking = false;
+		flankedOnce = false;
+		isMarching = true;
+
+		if (isMoving)
+		{
+			StopAnimation();
+			ShiftMovement();
+		}
+
+		finalDestinationLoc = barracksBunk;
+		List<Vector3Int> path = GridSearch.AStarSearch(world, world.RoundToInt(transform.position), barracksBunk, false, bySea);
+
+		MoveThroughPath(path);
+	}
+
+	public void AmbushAggro(Vector3Int endPosition, Vector3Int ambushLoc)
     {
         List<Vector3Int> avoidList = new() { ambushLoc };
         List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, transform.position, endPosition, bySea, avoidList); //enemy works in this case
@@ -2376,10 +2405,11 @@ public class Unit : MonoBehaviour
         isMarching = false;
         inBattle = false;
 
-        deathSplash.transform.position = transform.position;
         rotation.x = -90;
-        deathSplash.transform.eulerAngles = rotation;
-        deathSplash.Play();
+        world.PlayDeathSplash(transform.position, rotation);
+        //deathSplash.transform.position = transform.position;
+        //deathSplash.transform.eulerAngles = rotation;
+        //deathSplash.Play();
         audioSource.clip = kills[UnityEngine.Random.Range(0, kills.Length)];
         audioSource.Play();
 
@@ -2829,7 +2859,14 @@ public class Unit : MonoBehaviour
             cavalryLine = data.cavalryLine;
             isDead = data.isDead;
 
-			GameLoader.Instance.attackingUnitList.Add(this);
+            if (enemyAI && enemyCamp.campCount == 0)
+            {
+
+            }
+            else
+            {
+	    		GameLoader.Instance.attackingUnitList.Add(this);
+            }
 		}
 
 		if (isMoving)
@@ -2946,6 +2983,7 @@ public class Unit : MonoBehaviour
         {
 			unitMesh.gameObject.SetActive(false);
 			healthbar.gameObject.SetActive(false);
+            marker.gameObject.SetActive(false);
             Vector3 sixFeetUnder = transform.position;
             sixFeetUnder.y -= 6;
             transform.position = sixFeetUnder;

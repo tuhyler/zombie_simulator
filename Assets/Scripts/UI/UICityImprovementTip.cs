@@ -198,7 +198,13 @@ public class UICityImprovementTip : MonoBehaviour
         highlightIndex = improvement.producedResourceIndex;
         int producedTime = produceTimeList[highlightIndex];
 
-        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, world.GetResourceProducer(improvement.loc).isProducing, improvement.GetCity().workEthic);
+        float workEthic;
+        if (improvement.city == null)
+            workEthic = 1;
+        else
+            workEthic = improvement.city.workEthic;
+
+        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, world.GetResourceProducer(improvement.loc).isProducing, workEthic);
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);
 
         if (data.getTerrainResource)
@@ -399,7 +405,7 @@ public class UICityImprovementTip : MonoBehaviour
             return;
 
 		ResourceProducer producer = world.GetResourceProducer(improvement.loc);
-        float workEthic = producer.isProducing ? improvement.GetCity().workEthic : 1;
+        float workEthic = producer.isProducing ? improvement.city.workEthic : 1;
 
 		for (int i = 0; i < producer.producedResources.Count; i++)
         {

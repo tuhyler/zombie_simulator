@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.UI.CanvasScaler;
 
 public class Army : MonoBehaviour
@@ -17,8 +18,8 @@ public class Army : MonoBehaviour
     public EnemyCamp targetCamp;
     [HideInInspector]
     public int armyCount, cyclesGone, infantryCount, rangedCount, cavalryCount, seigeCount, strength, health;
-    private Vector3Int enemyTarget;
-    public Vector3Int EnemyTarget { get { return enemyTarget; } set { enemyTarget = value; } }
+    [HideInInspector]
+    public Vector3Int enemyTarget, enemyCityLoc;
     [HideInInspector]
     public List<Vector3Int> totalSpots = new(), openSpots = new(), pathToTarget = new(), pathTraveled = new();
     [HideInInspector]
@@ -44,7 +45,7 @@ public class Army : MonoBehaviour
 	//private WaitForSeconds waitOneSec = new(0.1f);
 
 	[HideInInspector]
-    public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady, issueRefund = true;
+    public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady, issueRefund = true, defending;
 
 	private void Awake()
 	{
@@ -347,7 +348,7 @@ public class Army : MonoBehaviour
     }
 
     //realigning units to battle positions before moving out
-    public void RealignUnits(MapWorld world, Vector3Int targetZone, Vector3Int attackZone)
+    public void RealignUnits(MapWorld world, Vector3Int targetZone, Vector3Int attackZone, Vector3Int travelLoc)
     {
         Vector3Int diff = (targetZone - attackZone) / 3;
         int rotation;
@@ -365,15 +366,9 @@ public class Army : MonoBehaviour
         {
             unit.healthbar.CancelRegeneration();
             unit.atHome = false;
-            Vector3Int unitDiff = unit.CurrentLocation - loc;
+            Vector3Int unitDiff = unit.CurrentLocation - this.loc;
 
-            if (rotation == 0)
-            {
-                unit.marchPosition = unit.barracksBunk - loc;
-                UnitReady();
-                continue;
-            }
-            else if (rotation == 1)
+            if (rotation == 1)
             {
                 if (unitDiff.sqrMagnitude == 2)
                 {
@@ -392,7 +387,9 @@ public class Army : MonoBehaviour
 				}
             }
             else if (rotation == 2)
+            {
                 unitDiff *= -1;
+            }
             else if (rotation == 3)
             {
 				if (unitDiff.sqrMagnitude == 2)
@@ -412,18 +409,18 @@ public class Army : MonoBehaviour
 				}
 			}
 
-            List<Vector3Int> path = GridSearch.AStarSearch(world, unit.CurrentLocation, loc + unitDiff, false, false);
+            List<Vector3Int> path = GridSearch.AStarSearch(world, unit.CurrentLocation, travelLoc + unitDiff, false, false);
             unit.marchPosition = unitDiff;
 
             if (path.Count > 0)
             {
                 unit.preparingToMoveOut = true;
-                unit.finalDestinationLoc = loc + unitDiff;
+                unit.finalDestinationLoc = travelLoc + unitDiff;
     			unit.MoveThroughPath(path);
             }
             else
             {
-                UnitReady();
+                UnitReady(unit);
             }
         }
     }
@@ -458,7 +455,7 @@ public class Army : MonoBehaviour
 		if (returning)
 			DeployArmy(true);
 		else
-			RealignUnits(world, enemyTarget, penultimate);
+			RealignUnits(world, enemyTarget, penultimate, loc);
 	}
 
     public void ShowBattlePath()
@@ -482,7 +479,20 @@ public class Army : MonoBehaviour
         DeployArmy(false);
     }
 
-    public bool DeployBattleScreenCheck()
+	public void ReturnToBarracks()
+	{
+		unitsReady = 0;
+
+		foreach (Unit unit in unitsInArmy)
+		{
+			unit.inBattle = false; //leaving it here just in case
+			unit.preparingToMoveOut = false;
+			unit.isMarching = false;
+			unit.StartReturn();
+		}
+	}
+
+	public bool DeployBattleScreenCheck()
     {
         return world.uiCampTooltip.EnemyScreenActive() && this == world.uiCampTooltip.army;
     }
@@ -564,14 +574,23 @@ public class Army : MonoBehaviour
         totalBattleCosts.Clear();
     }
 
-    public void UnitReady()
+    public void UnitReady(Unit unit)
     {
-        unitsReady++;
+		unit.Rotate(unit.CurrentLocation + forward);
+		unitsReady++;
 
         if (unitsReady == armyCount)
         {
             unitsReady = 0;
-            DeployArmy(true);
+
+			if (defending)
+            {
+                targetCamp.armyReady = true;
+            }
+            else
+            {
+                DeployArmy(true);
+            }
         }
     }
 
@@ -608,7 +627,13 @@ public class Army : MonoBehaviour
 					targetCamp.attackReady = false;
                     targetCamp.armyReady = false;
 
-					if (targetCamp.UnitsInCamp.Count == 0) //for invading empty city (not needed right now)
+                    if (defending)
+                    {
+						world.uiAttackWarning.AttackNotification(((Vector3)attackZone + city.cityLoc) * 0.5f);
+						world.ToggleCityMaterialClear(city.cityLoc, targetCamp.threatLoc, true, false);
+						Charge();
+                    }
+					else if (targetCamp.UnitsInCamp.Count == 0) //for invading empty city (not needed right now)
                     {
 						issueRefund = false;
 
@@ -867,10 +892,16 @@ public class Army : MonoBehaviour
         
         if (targetCamp.deathCount == targetCamp.campCount)
 		{        
-            if (targetCamp.campCount == 0)
+            if (targetCamp.movingOut)
+            {
+                DestroyEnemyDeadList();
+                targetCamp.ResetCamp();
+                targetCamp.moveToLoc = targetCamp.loc;
+                targetCamp.attackingArmy = null;
+            }
+            else
             {
                 world.RemoveEnemyCamp(targetCamp.cityLoc, true);
-                world.ToggleCityMaterialClear(targetCamp.cityLoc, attackZone, false, true);
             }
 
             returning = true;
@@ -882,11 +913,20 @@ public class Army : MonoBehaviour
             }
 
             attackingSpots.Clear();
-            world.unitMovement.uiCancelTask.ToggleVisibility(false);
-            //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
             city.battleIcon.SetActive(false);
             inBattle = false;
-            MoveArmyHome(loc);
+            
+            if (defending)
+            {
+                defending = false;
+                ReturnToBarracks();
+            }
+            else
+            {
+                world.unitMovement.uiCancelTask.ToggleVisibility(false);
+                //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
+                MoveArmyHome(loc);
+            }
 
             return true;
         }
@@ -953,9 +993,9 @@ public class Army : MonoBehaviour
         StartCoroutine(DestroyWait());
     }
 
-    private IEnumerator DestroyWait()
-    {
-        yield return new WaitForSeconds(5);
+	private IEnumerator DestroyWait()
+	{
+		yield return new WaitForSeconds(5);
 
 		foreach (Unit unit in deadList)
 			Destroy(unit.gameObject);
@@ -963,7 +1003,23 @@ public class Army : MonoBehaviour
 		deadList.Clear();
 	}
 
-    public void UnselectArmy(Unit selectedUnit)
+	private void DestroyEnemyDeadList()
+	{
+		StartCoroutine(DestroyEnemyWait());
+	}
+
+	private IEnumerator DestroyEnemyWait()
+	{
+		yield return new WaitForSeconds(5);
+
+		foreach (Unit unit in targetCamp.DeadList)
+			Destroy(unit.gameObject);
+
+		targetCamp.DeadList.Clear();
+        targetCamp = null;
+	}
+
+	public void UnselectArmy(Unit selectedUnit)
     {
 		selected = false;
         

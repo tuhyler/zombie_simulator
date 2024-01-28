@@ -10,6 +10,7 @@ public class CityImprovement : MonoBehaviour
 
     //[SerializeField]
     //private List<ImprovementAnimators> animators = new();
+    private MapWorld world;
 
     private MeshFilter[] meshFilter;
     public MeshFilter[] MeshFilter { get { return meshFilter; } }
@@ -19,7 +20,8 @@ public class CityImprovement : MonoBehaviour
     private SelectionHighlight highlight;
     private ImprovementDataSO improvementData;
     public ImprovementDataSO GetImprovementData { get { return improvementData; } }
-    private City city; //for buildings, click on them to select city
+    [HideInInspector]
+    public City city; 
     private City queueCity; //for improvements, when queued for upgrades
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
@@ -41,7 +43,7 @@ public class CityImprovement : MonoBehaviour
     [SerializeField]
     public GameObject exclamationPoint;
     [SerializeField]
-    private ParticleSystem smokeEmitter, smokeSplash, removeSplash;
+    private ParticleSystem smokeEmitter, smokeSplash;
     [SerializeField]
     private List<ParticleSystem> workPS = new();
 
@@ -98,8 +100,8 @@ public class CityImprovement : MonoBehaviour
 
         if (!isConstructionPrefab)
         {
-            removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
-            removeSplash.Stop();
+            //removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
+            //removeSplash.Stop();
 
 			if (improvementData != null && improvementData.hideIdleMesh && co == null)
 				animMesh.SetActive(false);
@@ -113,6 +115,11 @@ public class CityImprovement : MonoBehaviour
     //{
     //    workCycleLimit = 30 / improvementData.producedResourceTime[producedResourceIndex];
     //}
+
+    public void SetWorld(MapWorld world)
+    {
+        this.world = world;
+    }
 
     public void InitializeImprovementData(ImprovementDataSO data)
     {
@@ -330,20 +337,10 @@ public class CityImprovement : MonoBehaviour
 			meshFilter[i].gameObject.SetActive(false);
 	}
 
-    public void SetCity(City city)
-    {
-        this.city = city;
-	}
-
     public void CheckPermanentChanges()
     {
-		city.world.CheckCityImprovementPermanentChanges(this);
+		world.CheckCityImprovementPermanentChanges(this);
 	}
-
-	public City GetCity()
-    {
-        return city;
-    }
 
     public void SetQueueCity(City city)
     {
@@ -363,8 +360,9 @@ public class CityImprovement : MonoBehaviour
         else
             loc.y += .1f;
 
-        removeSplash.transform.position = loc;
-        removeSplash.Play();
+        world.PlayRemoveSplash(loc);
+        //removeSplash.transform.position = loc;
+        //removeSplash.Play();
     }
 
     public void PlaySmokeEmitter(Vector3 loc, int time, bool load)
@@ -482,7 +480,7 @@ public class CityImprovement : MonoBehaviour
         }
 
         StopUpgradeProcess(producer);
-        city.world.cityBuilderManager.UpgradeSelectedImprovement(tempBuildLocation, this, city, data);
+        world.cityBuilderManager.UpgradeSelectedImprovement(tempBuildLocation, this, city, data);
     }
 
     public void StopUpgrade()
@@ -530,7 +528,7 @@ public class CityImprovement : MonoBehaviour
 		}
 
         StopTraining(producer);
-        city.world.cityBuilderManager.BuildUnit(city, data, upgrading, upgradedUnit);
+        world.cityBuilderManager.BuildUnit(city, data, upgrading, upgradedUnit);
 	}
 
     private void StopTraining(ResourceProducer producer)
@@ -571,22 +569,22 @@ public class CityImprovement : MonoBehaviour
 
     public void DestroyImprovement()
     {
-        TerrainData td = city.world.GetTerrainDataAt(loc);
+        TerrainData td = world.GetTerrainDataAt(loc);
         
         if (city.activeCity)
         {
-            city.world.cityBuilderManager.tilesToChange.Remove(loc);
+            world.cityBuilderManager.tilesToChange.Remove(loc);
             td.DisableHighlight();
 
-            city.world.cityBuilderManager.uiCityUpgradePanel.CurrentImprovementCheck(this);
+            world.cityBuilderManager.uiCityUpgradePanel.CurrentImprovementCheck(this);
         }
 
-        td.RemoveMinimapResource(city.world.mapHandler);
-        city.world.RemoveResourceIcon(loc);
+        td.RemoveMinimapResource(world.mapHandler);
+        world.RemoveResourceIcon(loc);
         //city.SetNewTerrainData(loc);
 		city.UpdateCityBools(producedResource, ResourceHolder.Instance.GetRawResourceType(producedResource), td.terrainData.type);
-        city.world.uiCityImprovementTip.CloseCheck(this);
-        city.world.cityBuilderManager.RemoveImprovement(loc, this, city, false);
+        world.uiCityImprovementTip.CloseCheck(this);
+        world.cityBuilderManager.RemoveImprovement(loc, this, city, false);
     }
 
     public CityImprovementData SaveData()
@@ -594,8 +592,13 @@ public class CityImprovement : MonoBehaviour
         CityImprovementData data = new();
 
         data.name = improvementData.improvementNameAndLevel;
-        data.location = loc;
-        data.cityLoc = city.cityLoc;
+        data.rotation = (int)gameObject.transform.localEulerAngles.y;
+		data.location = loc;
+
+        if (city == null)
+            data.cityLoc = new Vector3Int(0, -10, 0);
+        else
+            data.cityLoc = city.cityLoc;
         data.queued = queued;
         data.isConstruction = isConstruction;
         data.isUpgrading = isUpgrading;
@@ -606,7 +609,7 @@ public class CityImprovement : MonoBehaviour
         data.laborCost = laborCost;
         
         if (isConstruction)
-            data.timePassed = city.world.GetCityDevelopmentConstruction(loc).timePassed;
+            data.timePassed = world.GetCityDevelopmentConstruction(loc).timePassed;
         else
             data.timePassed = timePassed;
 
@@ -615,7 +618,7 @@ public class CityImprovement : MonoBehaviour
         if (!building || improvementData.isBuildingImprovement)
         {
             //Resource Producer
-            ResourceProducer producer = city.world.GetResourceProducer(loc);
+            ResourceProducer producer = world.GetResourceProducer(loc);
 		    data.currentLabor = producer.currentLabor;
             data.tempLabor = producer.tempLabor;
             data.unloadLabor = producer.unloadLabor;
@@ -630,12 +633,12 @@ public class CityImprovement : MonoBehaviour
         }
 
 		//updating terrain resource amounts
-		GameLoader.Instance.gameData.allTerrain[loc].resourceAmount = city.world.GetTerrainDataAt(loc).resourceAmount;
+		GameLoader.Instance.gameData.allTerrain[loc].resourceAmount = world.GetTerrainDataAt(loc).resourceAmount;
 
         return data;
     }
 
-    public void LoadData(CityImprovementData data, City city)
+    public void LoadData(CityImprovementData data, City city, MapWorld world)
     {
         loc = data.location;
         queued = data.queued;
@@ -650,7 +653,7 @@ public class CityImprovement : MonoBehaviour
         if (!building || improvementData.isBuildingImprovement)
         {
 		    //Resource Producer
-		    ResourceProducer producer = city.world.GetResourceProducer(loc);
+		    ResourceProducer producer = world.GetResourceProducer(loc);
 		    producer.currentLabor = data.currentLabor;
 		    producer.tempLabor = data.tempLabor;
 		    producer.unloadLabor = data.unloadLabor;
@@ -694,12 +697,12 @@ public class CityImprovement : MonoBehaviour
             }
             else
             {
-                BeginTraining(city, city.world.GetResourceProducer(loc), loc, UpgradeableObjectHolder.Instance.unitDict[data.trainingUnitName], data.isUpgrading, null, true);
+                BeginTraining(city, world.GetResourceProducer(loc), loc, UpgradeableObjectHolder.Instance.unitDict[data.trainingUnitName], data.isUpgrading, null, true);
             }
 		}
         else if (isUpgrading)
         {
-            city.world.CreateUpgradedImprovement(loc, this, city);
+            world.CreateUpgradedImprovement(loc, this, city);
         }
     }
 
@@ -716,6 +719,6 @@ public class CityImprovement : MonoBehaviour
                 unit = city.FindUpgradingSeaTraderUnit();
         }
 
-		BeginTraining(city, city.world.GetResourceProducer(loc), loc, UpgradeableObjectHolder.Instance.unitDict[trainingUnitName], true, unit, true);
+		BeginTraining(city, world.GetResourceProducer(loc), loc, UpgradeableObjectHolder.Instance.unitDict[trainingUnitName], true, unit, true);
 	}
 }

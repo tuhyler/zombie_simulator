@@ -134,7 +134,7 @@ public class CityBuilderManager : MonoBehaviour
     public UIBuilderHandler activeBuilderHandler;
 
     [SerializeField]
-    private Transform improvementHolder;
+    public Transform improvementHolder;
     private Dictionary<Vector3Int, (MeshFilter[], GameObject)> improvementMeshDict = new();
     private List<MeshFilter> improvementMeshList = new();
 
@@ -277,13 +277,20 @@ public class CityBuilderManager : MonoBehaviour
                 return;
             }
             
-            City city = improvementSelected.GetCity();
+            City city = improvementSelected.city;
             bool isBarracks = false;
-            if (improvementSelected.building && !removingImprovement && !upgradingImprovement && city != null)
+            if (improvementSelected.building && !removingImprovement && !upgradingImprovement)
             {
+                if (city == null) //for orphan barracks or harbors
+                {
+                    return;
+                }
+                
                 if (improvementSelected.GetImprovementData.improvementName == "Barracks")
+                {
                     isBarracks = true;
-                else
+                }
+                else if (city != null)
                 {
                     SelectCity(city.cityLoc, city);
                     return;
@@ -714,6 +721,7 @@ public class CityBuilderManager : MonoBehaviour
         //for tweening
         Vector3 goScale = harborGO.transform.localScale;
         CityImprovement harbor = harborGO.GetComponent<CityImprovement>();
+        harbor.SetWorld(world);
         harbor.wonderHarbor = true;
         harbor.PlaySmokeSplash(false);
         selectedWonder.harborImprovement = harbor;
@@ -734,6 +742,7 @@ public class CityBuilderManager : MonoBehaviour
     {
 		GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, wonder.unloadLoc), 0));
 		CityImprovement harbor = harborGO.GetComponent<CityImprovement>();
+        harbor.SetWorld(world);
 		wonder.harborImprovement = harbor;
 		
 		world.AddToCityLabor(loc, null);
@@ -1292,7 +1301,7 @@ public class CityBuilderManager : MonoBehaviour
         world.uiCityPopIncreasePanel.ToggleVisibility(false);
         CloseQueueUI();
         ToggleBuildingHighlight(true, selectedCity.cityLoc);
-        ImprovementTileHighlight();
+        ImprovementTileHighlight(true);
     }
 
     public void RemoveConstruction(Vector3Int tempBuildLocation)
@@ -2018,6 +2027,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting world data
         CityImprovement improvement = building.GetComponent<CityImprovement>();
+        improvement.SetWorld(world);
         improvement.loc = city.cityLoc;
         building.transform.parent = city.subTransform;
 
@@ -2161,10 +2171,10 @@ public class CityBuilderManager : MonoBehaviour
 
         if (!upgradingImprovement)
             uiCityTabs.HideSelectedTab(false);
-        ImprovementTileHighlight();
+        ImprovementTileHighlight(false);
     }
 
-    private void ImprovementTileHighlight()
+    private void ImprovementTileHighlight(bool removingImprovement)
     {
         tilesToChange.Clear();
 
@@ -2337,12 +2347,13 @@ public class CityBuilderManager : MonoBehaviour
 
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
+        cityImprovement.SetWorld(world);
         cityImprovement.loc = buildLocation;
         cityImprovement.InitializeImprovementData(improvementData);
         //cityImprovement.SetPSLocs();
         cityImprovement.SetQueueCity(null);
         cityImprovement.building = improvementData.isBuilding;
-        cityImprovement.SetCity(city);
+        cityImprovement.city = city;
 
         world.SetCityDevelopment(tempBuildLocation, cityImprovement);
         improvement.SetActive(false);
@@ -2643,7 +2654,7 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else if (removingImprovement && uiImprovementBuildInfoPanel.activeStatus)
                 {
-                    ImprovementTileHighlight();
+                    ImprovementTileHighlight(true);
                 }
                 else if (upgradingImprovement && uiImprovementBuildInfoPanel.activeStatus)
                 {
@@ -2680,7 +2691,7 @@ public class CityBuilderManager : MonoBehaviour
         return rotation;
     }
 
-    public void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement)
+    public void RemoveImprovement(Vector3Int improvementLoc, CityImprovement selectedImprovement, City city, bool upgradingImprovement, bool destroyingCity = false)
     {
         ImprovementDataSO improvementData = selectedImprovement.GetImprovementData;
 		//selectedImprovement.DestroyPS();
@@ -2716,7 +2727,8 @@ public class CityBuilderManager : MonoBehaviour
 		//if cancelling training in a barracks or harbor, stop here
 		if (selectedImprovement.isTraining)
 		{
-			ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
+			if (!destroyingCity)
+                ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
 			resourceManager.UpdateUI(selectedImprovement.UpgradeCost);
 
 			if (!selectedImprovement.isUpgrading)
@@ -2730,14 +2742,15 @@ public class CityBuilderManager : MonoBehaviour
 			selectedImprovement.CancelTraining(resourceProducer);
 			selectedImprovement.StopUpgrade();
 			uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
-			ImprovementTileHighlight();
+			ImprovementTileHighlight(true);
 
 			return;
 		}
 		//if removing/canceling upgrade process, stop here
 		else if (selectedImprovement.isUpgrading)
         {
-            ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
+            if (!destroyingCity)
+                ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
             selectedImprovement.StopUpgradeProcess(resourceProducer);
             selectedImprovement.StopUpgrade();
 
@@ -2747,7 +2760,7 @@ public class CityBuilderManager : MonoBehaviour
                 UpdateCityLaborUIs();
                 resourceManager.UpdateUI(selectedImprovement.UpgradeCost);
                 uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
-                ImprovementTileHighlight();
+                ImprovementTileHighlight(true);
             }
 
             return;
@@ -2781,7 +2794,8 @@ public class CityBuilderManager : MonoBehaviour
             resourceProducer.StopProducing();
 
             //replacing the cost
-            ReplaceImprovementCost(improvementData.improvementCost, improvementLoc);
+            if (!destroyingCity)
+                ReplaceImprovementCost(improvementData.improvementCost, improvementLoc);
 
             if (city.activeCity)
             {
@@ -2845,7 +2859,7 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
-        if (!upgradingImprovement)
+        if (!upgradingImprovement && !selectedImprovement.isConstruction)
 		    selectedImprovement.PlayRemoveEffect(td.isHill);
 
 		foreach (Vector3Int loc in improvementData.noWalkAreas)
@@ -2907,7 +2921,7 @@ public class CityBuilderManager : MonoBehaviour
             return; 
 
         if (city.activeCity && removingImprovement && uiImprovementBuildInfoPanel.activeStatus)
-            ImprovementTileHighlight();
+            ImprovementTileHighlight(true);
 
         //stop here if it in construction process
         if (selectedImprovement.isConstructionPrefab)
@@ -3310,7 +3324,7 @@ public class CityBuilderManager : MonoBehaviour
 					}
 				}
 
-                selectedImprovement.SetCity(selectedCity);
+                selectedImprovement.city = selectedCity;
 				world.AddToCityLabor(terrainLocation, selectedCity.cityLoc);
 				resourceProducer.SetResourceManager(selectedCity.ResourceManager);
                 resourceProducer.UpdateResourceGenerationData();
@@ -3713,9 +3727,27 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCity(City city) //set on destroy city warning message
     {
-        //disassociating improvements from city
+        //stop upgrading and training improvements
+        foreach (Vector3Int tile in world.GetNeighborsFor(city.cityLoc, MapWorld.State.CITYRADIUS))
+        {
+            if (world.TileHasCityImprovement(tile))
+            {
+                CityImprovement improvement = world.GetCityDevelopment(tile);
+
+                if (improvement.city == city)
+                {
+                    improvement.city = null;
+
+                    if (improvement.isUpgrading || improvement.isTraining)
+                        RemoveImprovement(tile, improvement, city, true, true);
+				}
+			}
+        }
+
+        //disassociating improvements from city mesh
         foreach (CityImprovement improvement in city.ImprovementList)
         {
+            if (improvement.city == city)
             improvement.meshCity = null;
             improvement.transform.parent = improvementHolder.transform;
         }
@@ -3723,8 +3755,8 @@ public class CityBuilderManager : MonoBehaviour
 		city.DestroyFire();
 		city.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
+
         TerrainData td = world.GetTerrainDataAt(city.cityLoc);
-        //if (td.resourceAmount > 0)
         td.ShowProp(true);
 
         td.FloodPlainCheck(false);
@@ -3749,7 +3781,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             CityImprovement construction = world.GetCityDevelopmentConstruction(constructionTile);
             construction.RemoveConstruction(this, constructionTile);
-            RemoveImprovement(constructionTile, construction, city, false);
+            RemoveImprovement(constructionTile, construction, city, false, true);
         }
 
         world.RemoveCityNameMap(city.cityLoc);
@@ -3819,11 +3851,22 @@ public class CityBuilderManager : MonoBehaviour
 				if (singleImprovement == "Harbor")
 					world.RemoveTradeLoc(improvementLoc);
 				else if (singleImprovement == "Barracks")
-					selectedCity.army.city = null;
+					city.army.city = null;
 
 				world.AddToUnclaimedSingleBuild(improvementLoc);
 			}
 		}
+	}
+
+    public void AddToOrphanMeshFilterList(GameObject go, MeshFilter[] meshFilter, Vector3Int loc)
+    {
+		int count = meshFilter.Length;
+		for (int i = 0; i < count; i++)
+		{
+			improvementMeshList.Add(meshFilter[i]);
+		}
+
+		improvementMeshDict[loc] = (meshFilter, go);
 	}
 
     public void NoDestroyCity() //in case user chickens out
@@ -3974,7 +4017,7 @@ public class CityBuilderManager : MonoBehaviour
             //upgradingImprovement = upgrade;
             //ToggleBuildingHighlight(true);
             if (removingImprovement)
-                ImprovementTileHighlight();
+                ImprovementTileHighlight(true);
         }
     }
 
@@ -4090,6 +4133,7 @@ public class CityBuilderManager : MonoBehaviour
             GameObject constructionTileGO = Instantiate(constructionTilePrefab);
             constructionTileGO.gameObject.transform.SetParent(objectPoolHolder, false);
             CityImprovement constructionImprovement = constructionTileGO.GetComponent<CityImprovement>();
+            constructionImprovement.SetWorld(world);
             constructionImprovement.isConstructionPrefab = true;
             AddToConstructionTilePool(constructionImprovement);
         }

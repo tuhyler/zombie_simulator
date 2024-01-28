@@ -518,7 +518,7 @@ public class GridSearch
 
 			//foreach (Vector3Int tile in world.GenerateForwardsTiles(forward))
 			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
-				{
+			{
 				Vector3Int neighbor = tile + current;
 
                 if (neighbor != endPosition)

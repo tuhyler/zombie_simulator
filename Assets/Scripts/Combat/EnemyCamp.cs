@@ -75,7 +75,6 @@ public class EnemyCamp
 					unit.barracksBunk = loc + backLines[infantry - 6];
 
 				infantry++;
-				unit.marchPosition = unit.barracksBunk - loc;
             }
 		}
 
@@ -95,7 +94,6 @@ public class EnemyCamp
 					unit.barracksBunk = loc + backLines[cavalry + infantry - 6];
 
 				cavalry++;
-				unit.marchPosition = unit.barracksBunk - loc;
 			}
         }
 
@@ -127,7 +125,6 @@ public class EnemyCamp
 				}
 
 				ranged++;
-				unit.marchPosition = unit.barracksBunk - loc;
 			}
         }
 
@@ -218,7 +215,7 @@ public class EnemyCamp
 		return campData;
 	}
 
-    public void BattleStations(Vector3Int loc)
+    public void BattleStations(Vector3Int travelLoc)
     {
 		if (attackReady || prepping)
 			return;
@@ -233,8 +230,6 @@ public class EnemyCamp
 			campfire.SetActive(false);
 		returning = false;
 		prepping = true;
-
-		forward = (threatLoc - loc) / 3;
 
 		int rotation;
 
@@ -252,7 +247,7 @@ public class EnemyCamp
 			if (unit.buildDataSO.unitType != UnitType.Cavalry)
 				unit.ToggleSitting(false);
 			
-			Vector3Int unitDiff = unit.marchPosition;
+			Vector3Int unitDiff = unit.CurrentLocation - this.loc;
 
 			if (rotation == 1)
 			{
@@ -273,7 +268,9 @@ public class EnemyCamp
 				}
 			}
 			else if (rotation == 2)
+			{
 				unitDiff *= -1;
+			}
 			else if (rotation == 3)
 			{
 				if (unitDiff.sqrMagnitude == 2)
@@ -293,7 +290,8 @@ public class EnemyCamp
 				}
 			}
 
-			List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, unit.CurrentLocation, loc + unitDiff, unit.bySea);
+			List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, unit.CurrentLocation, travelLoc + unitDiff, unit.bySea);
+			unit.marchPosition = unitDiff;
 
 			if (path.Count > 0)
 			{
@@ -304,7 +302,7 @@ public class EnemyCamp
 				}
 
 				unit.preparingToMoveOut = true;
-				unit.finalDestinationLoc = loc + unitDiff;
+				unit.finalDestinationLoc = travelLoc + unitDiff;
 				unit.MoveThroughPath(path);
 			}
 			else
@@ -328,11 +326,11 @@ public class EnemyCamp
 
 			if (movingOut)
 			{
-				for (int i = 0; i < unitsInCamp.Count; i++)
-					unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
-				
 				if (chasing)
 				{
+					for (int i = 0; i < unitsInCamp.Count; i++)
+						unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
+
 					world.mainPlayer.StartRunningAway();
 					List<Vector3Int> avoidList = new();
 					pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc, avoidList);
@@ -392,6 +390,7 @@ public class EnemyCamp
 
 		foreach (Unit unit in unitsInCamp)
 		{
+			unit.isMarching = false;
 			unit.inBattle = true;
 			UnitType type = unit.buildDataSO.unitType;
 
@@ -408,6 +407,10 @@ public class EnemyCamp
 	{
 		Unit closestEnemy = null;
 		float dist = 0;
+
+		if (attackingArmy == null)
+			return null;
+
 		List<Unit> tempList = new(attackingArmy.UnitsInArmy);
 		bool firstOne = true;
 
@@ -517,16 +520,29 @@ public class EnemyCamp
 		{
 			returning = true;
 			
+			foreach (Unit unit in unitsInCamp)
+				unit.StopAttacking();
+
 			if (attackingArmy != null)
 			{
 				if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
 					world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(attackingArmy.isFull);
 				attackingArmy.ResetArmy();
-				attackingArmy = null;
-			}
+				attackingArmy.targetCamp = null;
+				attackingArmy.defending = false;
+				attackingArmy = null; //so that safety nets are thrown
 
-			foreach (Unit unit in unitsInCamp)
-				unit.StopAttacking();
+				if (movingOut)
+				{
+					GoToPillage();
+					pillage = true;
+
+					if (isCity)
+						world.ToggleCityMaterialClear(moveToLoc, threatLoc, false, false);
+
+					return true;
+				}
+			}
 
 			ReturnToCamp();
 
@@ -545,10 +561,17 @@ public class EnemyCamp
 	{
 		if (deathCount == campCount)
 		{
-			world.RemoveEnemyCamp(attackingArmy.EnemyTarget, isCity);
+			if (movingOut)
+			{
+				world.ToggleCityMaterialClear(moveToLoc, threatLoc, false, false);
+			}
+			else
+			{
+				world.RemoveEnemyCamp(attackingArmy.enemyTarget, isCity);
 
-			if (isCity)
-				world.ToggleCityMaterialClear(cityLoc, threatLoc, false, true);
+				if (isCity)
+					world.ToggleCityMaterialClear(cityLoc, threatLoc, false, true);
+			}
 		}
 	}
 
@@ -561,13 +584,26 @@ public class EnemyCamp
 		}
 	}
 
-	public void ResetStatus()
+	private void ResetStatus()
 	{
 		attacked = false;
 		attackReady = false;
 		armyReady = false;
 		attackingArmy = null;
 		prepping = false;
+	}
+
+	public void ResetCamp()
+	{
+		ResetStatus();
+
+		campCount = 0;
+		infantryCount = 0;
+		rangedCount = 0;
+		cavalryCount = 0;
+		seigeCount = 0;
+		health = 0;
+		strength = 0;
 	}
 
 	public void ReturnToCamp()
@@ -637,6 +673,7 @@ public class EnemyCamp
 		deathCount = 0;
 		deadList.Clear();
 		GameLoader.Instance.gameData.attackedEnemyBases.Remove(loc);
+		attackingArmy = null;
 	}
 
 	public void StartChase(Vector3Int loc)
@@ -669,6 +706,7 @@ public class EnemyCamp
 		}
 
 		threatLoc = closestTile;
+		forward = (threatLoc - loc) / 3;
 		BattleStations(this.loc);
 	}
 
@@ -686,6 +724,9 @@ public class EnemyCamp
 
 	private void MoveOutCamp()
 	{
+		if (world.IsCityOnTile(moveToLoc) && pathToTarget.Count < 3)
+			world.CityBattleStations(moveToLoc, threatLoc, this);
+
 		foreach (Unit unit in unitsInCamp)
 		{
 			if (unit.isDead)
@@ -755,18 +796,33 @@ public class EnemyCamp
 
 				if (attackingArmy.UnitsInArmy.Count == 0)
 				{
-					for (int i = 0; i < unitsInCamp.Count; i++)
-					{
-						unitsInCamp[i].isMarching = false;
-						Vector3Int cityLoc = unitsInCamp[i].marchPosition + moveToLoc;
-						unitsInCamp[i].finalDestinationLoc = cityLoc;
-						List<Vector3Int> path = new() { cityLoc };
-						unitsInCamp[i].MoveThroughPath(path);
-					}
-
+					GoToPillage();
 					pillage = true;
 				}
+				else
+				{
+					if (armyReady)
+					{
+						world.ToggleCityMaterialClear(moveToLoc, threatLoc, true, false);
+						world.uiAttackWarning.AttackNotification(((Vector3)moveToLoc + threatLoc) * 0.5f);
+						attackingArmy.Charge();
+					}
+				}
 			}
+		}
+	}
+
+	private void GoToPillage()
+	{
+		returning = false;
+		
+		for (int i = 0; i < unitsInCamp.Count; i++)
+		{
+			unitsInCamp[i].isMarching = false;
+			Vector3Int cityLoc = unitsInCamp[i].marchPosition + moveToLoc;
+			unitsInCamp[i].finalDestinationLoc = cityLoc;
+			List<Vector3Int> path = new() { cityLoc };
+			unitsInCamp[i].MoveThroughPath(path);
 		}
 	}
 
@@ -774,12 +830,25 @@ public class EnemyCamp
 	{
 		enemyReady = 0;
 		Vector3[] splashLocs = new Vector3[4] { new Vector3(-1, 0, -1), new Vector3(1, 0, -1), new Vector3(1, 0, 1), new Vector3(-1, 0, 1)};
-		
+
+		//start animations
+		for (int i = 0; i < unitsInCamp.Count; i++)
+		{
+			if (unitsInCamp[i].isDead)
+				continue;
+
+			if (unitsInCamp[i].buildDataSO.unitType == UnitType.Cavalry)
+				unitsInCamp[i].StartAttackingAnimation();
+			else
+				unitsInCamp[i].StartPillageAnimation();
+		}
+
 		while (pillageTime > 0)
 		{
 			yield return new WaitForSeconds(1);
 			pillageTime--;
 
+			//particle system
 			if (world.GetTerrainDataAt(moveToLoc).isHill)
 			{
 				world.PlayPillageSplash(moveToLoc);
@@ -790,8 +859,14 @@ public class EnemyCamp
 					world.PlayPillageSplash(moveToLoc + splashLocs[i]);
 			}
 
+			//play sounds and restart animations
 			for (int i = 0; i < unitsInCamp.Count; i++)
 			{
+				if (unitsInCamp[i].isDead)
+					continue;
+
+				unitsInCamp[i].PillageSound();
+
 				if (unitsInCamp[i].buildDataSO.unitType == UnitType.Cavalry)
 					unitsInCamp[i].StartAttackingAnimation();
 			}
@@ -821,13 +896,16 @@ public class EnemyCamp
 		MoveOutCamp();
 	}
 
-	public void UnitNextStep()
+	public void UnitNextStep(bool close)
 	{
 		enemyReady++;
 
 		if (enemyReady == campCount - deathCount)
 		{
 			enemyReady = 0;
+
+			if (close && !attackingArmy.defending)
+				world.CityBattleStations(moveToLoc, threatLoc, this);
 
 			foreach (Unit unit in unitsInCamp)
 				unit.readyToMarch = true;
@@ -848,8 +926,8 @@ public class EnemyCamp
 		movingOut = true;
 		Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
 		threatLoc = penultimate;
-		forward = (moveToLoc - threatLoc) / 3;
 
+		forward = (moveToLoc - threatLoc) / 3;
 		BattleStations(loc);
 	}
 

@@ -84,7 +84,7 @@ public class UICampTip : MonoBehaviour
 			{
 				this.improvement = improvement;
 				this.improvement.EnableHighlight(Color.white);
-				this.army = improvement.GetCity().army;
+				this.army = improvement.city.army;
 				SetData(true, this.army.GetArmyCycleCost(), this.army.infantryCount, this.army.rangedCount, this.army.cavalryCount, this.army.seigeCount, this.army.health, this.army.strength);
 			}
 			else

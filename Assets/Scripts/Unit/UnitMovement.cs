@@ -2203,7 +2203,7 @@ public class UnitMovement : MonoBehaviour
             }
             else if (selectedUnit.inArmy)
             {
-				if (selectedUnit.atHome)
+                if (selectedUnit.atHome)
                 {
                     uiJoinCity.ToggleVisibility(true);
                     uiSwapPosition.ToggleVisibility(true);
@@ -2224,7 +2224,7 @@ public class UnitMovement : MonoBehaviour
 						uiAssignGuard.ToggleVisibility(true);
 					}
 				}
-                else
+                else if (!selectedUnit.homeBase.army.defending)
                 {
                     uiCancelTask.ToggleVisibility(true);
                 }
@@ -2359,9 +2359,9 @@ public class UnitMovement : MonoBehaviour
 
         if (selectedUnit.homeBase.army.traveling)
         {
-            GameLoader.Instance.gameData.attackedEnemyBases.Remove(selectedUnit.homeBase.army.EnemyTarget);
+            GameLoader.Instance.gameData.attackedEnemyBases.Remove(selectedUnit.homeBase.army.enemyTarget);
             selectedUnit.homeBase.army.MoveArmyHome(selectedUnit.homeBase.barracksLocation);
-            world.EnemyCampReturn(selectedUnit.homeBase.army.EnemyTarget);
+            world.EnemyCampReturn(selectedUnit.homeBase.army.enemyTarget);
         }
         else if (selectedUnit.homeBase.army.inBattle)
         {

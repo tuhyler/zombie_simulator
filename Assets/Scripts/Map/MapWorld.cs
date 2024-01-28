@@ -7,6 +7,7 @@ using System.Resources;
 using TMPro;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime.Collections;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
@@ -99,7 +100,7 @@ public class MapWorld : MonoBehaviour
     private GameObject selectionIcon, enemyCampIcon, buildPanel, wonderBuildPanel, canvasHolder, enemyBorder;
 
     [SerializeField]
-    private ParticleSystem lightBeam, godRays, removeEruption;
+    private ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash;
 
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
@@ -1306,7 +1307,6 @@ public class MapWorld : MonoBehaviour
         else if (GameLoader.Instance.gameData.movingEnemyBases.ContainsKey(cityTile))
         {
 			EnemyCampData enemyData = GameLoader.Instance.gameData.movingEnemyBases[cityTile];
-			movingOut = true;
 
 			for (int i = 0; i < enemyData.allUnits.Count; i++)
 			{
@@ -1337,12 +1337,16 @@ public class MapWorld : MonoBehaviour
             city.enemyCamp.pillage = enemyData.pillage;
             city.enemyCamp.pillageTime = enemyData.pillageTime;
 
-            if (!city.enemyCamp.returning)
+            if (!city.enemyCamp.returning && city.enemyCamp.campCount != 0)
                 GameLoader.Instance.attackingEnemyCitiesList.Add(city);
+			
+            if (city.enemyCamp.campCount != 0)
+                movingOut = true;
 		}
         else
         {
-    		AddAllEnemyUnits(city.enemyCamp, random, data, load);
+            city.enemyCamp.SetCityEnemyCamp();
+            AddAllEnemyUnits(city.enemyCamp, random, data, load);
         }
 
         if (attacked || movingOut)
@@ -1413,8 +1417,13 @@ public class MapWorld : MonoBehaviour
             if (!td.isDiscovered)
                 city.subTransform.gameObject.SetActive(false); //necessary if one of improvements is showing but not city
         
-            if (attacked && !movingOut && city.enemyCamp.inBattle && !city.enemyCamp.returning)
-                ToggleCityMaterialClear(cityTile, city.enemyCamp.threatLoc, true, true);
+            if (attacked && city.enemyCamp.inBattle && !city.enemyCamp.returning)
+            {
+                if (movingOut)
+                    ToggleCityMaterialClear(city.enemyCamp.moveToLoc, city.enemyCamp.threatLoc, true, false);
+                else
+					ToggleCityMaterialClear(cityTile, city.enemyCamp.threatLoc, true, true);
+			}
         }
         else
         {
@@ -1437,11 +1446,30 @@ public class MapWorld : MonoBehaviour
 		for (int i = 0; i < 9; i++)
 		{
             Vector3Int spawnLoc;
+            int chosenUnitType = 0;
 
 			if (load)
+            {
                 spawnLoc = barracksLocs[i];
+            }
             else
-                spawnLoc = campLocs[random.Next(0, campLocs.Count)];
+            {
+                if (i < 3)
+                {
+                    spawnLoc = camp.GetAvailablePosition(UnitType.Infantry);
+                    chosenUnitType = 0;
+                }
+                else if (i < 6)
+                {
+					spawnLoc = camp.GetAvailablePosition(UnitType.Ranged); 
+                    chosenUnitType = 1;
+				}
+                else
+                {
+					spawnLoc = camp.GetAvailablePosition(UnitType.Cavalry);
+					chosenUnitType = 2;
+                }
+			}
 
 			campLocs.Remove(spawnLoc);
 
@@ -1453,7 +1481,6 @@ public class MapWorld : MonoBehaviour
             }
             else
             {
-			    int chosenUnitType = unitList[random.Next(0, unitList.Count)];
 			    enemy = GameLoader.Instance.terrainGenerator.enemyUnits[chosenUnitType];
             }
 
@@ -1499,7 +1526,6 @@ public class MapWorld : MonoBehaviour
 			unitEnemy.CurrentLocation = unitLoc;
 			unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
 			unitEnemy.barracksBunk = spawnLoc;
-			unitEnemy.marchPosition = spawnLoc - camp.loc;
 
 			camp.UnitsInCamp.Add(unitEnemy);
 			unitEnemy.enemyAI.CampLoc = camp.loc;
@@ -1606,6 +1632,7 @@ public class MapWorld : MonoBehaviour
 
 		//setting world data
 		CityImprovement improvement = building.GetComponent<CityImprovement>();
+        improvement.SetWorld(this);
 		improvement.loc = city.cityLoc;
 		building.transform.parent = city.subTransform;
 
@@ -1636,7 +1663,10 @@ public class MapWorld : MonoBehaviour
 		int rotation = 0;
 		if (improvementData.improvementName == "Harbor")
 		{
-			rotation = cityBuilderManager.HarborRotation(tempBuildLocation, city.cityLoc);
+            if (city == null) //for orphans
+                rotation = data.rotation;
+            else
+                rotation = cityBuilderManager.HarborRotation(tempBuildLocation, city.cityLoc);
 		}
 
 		//adding improvement to world dictionaries
@@ -1680,12 +1710,14 @@ public class MapWorld : MonoBehaviour
 			improvement.tag = "Enemy";
 		AddStructure(buildLocation, improvement);
 		CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
-		cityImprovement.loc = buildLocation;
+        cityImprovement.SetWorld(this);
+        cityImprovement.loc = buildLocation;
 		cityImprovement.InitializeImprovementData(improvementData);
 		//cityImprovement.SetPSLocs();
 		cityImprovement.SetQueueCity(null);
 		cityImprovement.building = improvementData.isBuilding;
-		cityImprovement.SetCity(city);
+        if (city != null)
+    		cityImprovement.city = city;
 
 		SetCityDevelopment(tempBuildLocation, cityImprovement);
 
@@ -1693,7 +1725,7 @@ public class MapWorld : MonoBehaviour
     		improvement.SetActive(false);
 
 		//setting single build rules
-		if (improvementData.singleBuild)
+		if (improvementData.singleBuild && city != null)
 		{
 			city.singleBuildImprovementsBuildingsDict[improvementData.improvementName] = tempBuildLocation;
 			AddToCityLabor(tempBuildLocation, city.cityLoc);
@@ -1703,7 +1735,8 @@ public class MapWorld : MonoBehaviour
 		ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
 		buildLocation.y = 0;
 		AddResourceProducer(buildLocation, resourceProducer);
-		resourceProducer.SetResourceManager(city.ResourceManager);
+        if (city != null)
+    		resourceProducer.SetResourceManager(city.ResourceManager);
 		resourceProducer.InitializeImprovementData(improvementData, td.resourceType); //allows the new structure to also start generating resources
 		resourceProducer.SetCityImprovement(cityImprovement);
 		resourceProducer.SetLocation(tempBuildLocation);
@@ -1711,7 +1744,7 @@ public class MapWorld : MonoBehaviour
 
         if (data.isConstruction)
         {
-            cityImprovement.LoadData(data, city);
+            cityImprovement.LoadData(data, city, this);
             CityImprovement constructionTile = cityBuilderManager.GetFromConstructionTilePool();
             constructionTile.timePassed = data.timePassed; 
             constructionTile.InitializeImprovementData(improvementData);
@@ -1724,9 +1757,12 @@ public class MapWorld : MonoBehaviour
 			if (!improvementData.isBuildingImprovement)
                 resourceProducer.SetNewProgressTime();
 			cityImprovement.SetMinimapIcon(td);
-			cityImprovement.meshCity = city;
-			cityImprovement.transform.parent = city.transform;
-            city.AddToImprovementList(cityImprovement);
+            if (city != null)
+            {
+			    cityImprovement.meshCity = city;
+			    cityImprovement.transform.parent = city.transform;
+                city.AddToImprovementList(cityImprovement);
+            }
 
 			//making two objects, this one for the parent mesh
 			GameObject tempObject = Instantiate(cityBuilderManager.emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);
@@ -1748,8 +1784,17 @@ public class MapWorld : MonoBehaviour
 			tempObject.transform.localScale = improvement.transform.localScale;
 			cityImprovement.Embiggen();
 
-			city.AddToMeshFilterList(tempObject, meshes, false, tempBuildLocation);
-			tempObject.transform.parent = city.transform;
+            if (city != null)
+            {
+			    city.AddToMeshFilterList(tempObject, meshes, false, tempBuildLocation);
+			    tempObject.transform.parent = city.transform;
+            }
+            else
+            {
+                cityBuilderManager.AddToOrphanMeshFilterList(tempObject, meshes, tempBuildLocation);
+				improvement.transform.parent = cityBuilderManager.improvementHolder.transform;
+			}
+
 			tempObject.SetActive(false);
 
 			//resetting ground UVs is necessary
@@ -1789,7 +1834,8 @@ public class MapWorld : MonoBehaviour
 
 			if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
 				td.SwitchToRoad();
-            cityBuilderManager.CombineMeshes(city, city.subTransform, false);
+            if (city != null)
+                cityBuilderManager.CombineMeshes(city, city.subTransform, false);
 
 			//reseting rock UVs 
 			if (improvementData.replaceRocks)
@@ -1851,13 +1897,15 @@ public class MapWorld : MonoBehaviour
 			//setting harbor info
 			if (improvementData.improvementName == "Harbor")
 			{
-				city.hasHarbor = true;
-				city.harborLocation = tempBuildLocation;
                 cityImprovement.mapIconHolder.localRotation = Quaternion.Inverse(improvement.transform.rotation);
-				//SetCityHarbor(city, tempBuildLocation);
-                AddTradeLoc(tempBuildLocation, city.cityName);
+				if (city != null)
+                {
+                    city.hasHarbor = true;
+				    city.harborLocation = tempBuildLocation;
+				    AddTradeLoc(tempBuildLocation, city.cityName);
+                }
 			}
-			else if (improvementData.improvementName == "Barracks")
+			else if (improvementData.improvementName == "Barracks" && city != null)
 			{
 				city.hasBarracks = true;
 				city.barracksLocation = tempBuildLocation;
@@ -1891,12 +1939,17 @@ public class MapWorld : MonoBehaviour
 
             if (enemy)
             {
-                if (td.isDiscovered && !GetTerrainDataAt(city.cityLoc).isDiscovered)
-                    cityImprovement.RevealImprovement();
+                if (td.isDiscovered)
+                {
+                    if (GetTerrainDataAt(city.cityLoc).isDiscovered)
+                        cityImprovement.StartJustWorkAnimation();
+                    else
+                        cityImprovement.RevealImprovement();
+                }
             }
             else
             {
-                cityImprovement.LoadData(data, city);
+                cityImprovement.LoadData(data, city, this);
             }
 		}
 	}
@@ -2883,8 +2936,12 @@ public class MapWorld : MonoBehaviour
 			{
 				unitMovement.workerTaskManager.CancelTask();
 			}
-            else if (unitMovement.selectedUnit.guard || unitMovement.selectedUnit.isMarching || unitMovement.selectedUnit.homeBase.army.inBattle 
-                || unitMovement.selectedUnit.homeBase.army.traveling || unitMovement.selectedUnit.homeBase.army.atHome)
+            else if (unitMovement.selectedUnit.guard)
+            {
+				unitMovement.CancelOrders();
+			}
+            else if (unitMovement.selectedUnit.inArmy && (unitMovement.selectedUnit.isMarching || unitMovement.selectedUnit.homeBase.army.inBattle 
+                || unitMovement.selectedUnit.homeBase.army.traveling || unitMovement.selectedUnit.homeBase.army.atHome))
             {
                 unitMovement.CancelOrders();
             }
@@ -4267,7 +4324,7 @@ public class MapWorld : MonoBehaviour
 
     public City GetHarborCity(Vector3Int harborLocation)
     {
-        return cityImprovementDict[harborLocation].GetCity();
+        return cityImprovementDict[harborLocation].city;
     }
 
     public bool IsCityHarborOnTile(Vector3Int loc)
@@ -4316,7 +4373,7 @@ public class MapWorld : MonoBehaviour
         {
             return true;
         }
-        else if (cityImprovementDict.ContainsKey(loc) && cityImprovementDict[loc].GetImprovementData.improvementName == "Harbor" && cityImprovementDict[loc].GetCity() != null)
+        else if (cityImprovementDict.ContainsKey(loc) && cityImprovementDict[loc].GetImprovementData.improvementName == "Harbor" && cityImprovementDict[loc].city != null)
         {
             return true;
         }
@@ -4372,7 +4429,7 @@ public class MapWorld : MonoBehaviour
         }
         else if (cityImprovementDict.ContainsKey(loc))
         {
-            return cityImprovementDict[loc].GetCity().cityName;
+            return cityImprovementDict[loc].city.cityName;
         }
         else
         {
@@ -4724,6 +4781,18 @@ public class MapWorld : MonoBehaviour
     //        closest.enemyAI.WakeUp(target);
     //}
 
+    public void CityBattleStations(Vector3Int cityLoc, Vector3Int targetZone, EnemyCamp camp)
+    {
+        cityDict[cityLoc].army.targetCamp = camp;
+        cityDict[cityLoc].army.defending = true;
+		cityDict[cityLoc].army.forward = (targetZone - cityLoc) / 3;
+		cityDict[cityLoc].army.unitsReady = 0;
+        cityDict[cityLoc].army.attackZone = cityLoc;
+        cityDict[cityLoc].army.enemyTarget = targetZone;
+        cityDict[cityLoc].army.enemyCityLoc = camp.cityLoc;
+		cityDict[cityLoc].army.RealignUnits(this, targetZone, cityLoc, cityLoc);
+    }
+
     public void RevealEnemyCamp(Vector3Int loc)
     {
         if (enemyCampDict[loc].revealed)
@@ -4745,17 +4814,19 @@ public class MapWorld : MonoBehaviour
 		}
     }
 
-    public void BattleStations(Vector3Int campLoc, Vector3Int armyLoc)
+    public void EnemyBattleStations(Vector3Int campLoc, Vector3Int armyLoc)
     {
         if (enemyCampDict.ContainsKey(campLoc) && enemyCampDict[campLoc].attackingArmy != null) //only get ready if army is intending to go attack
         {
             enemyCampDict[campLoc].threatLoc = armyLoc;
-            enemyCampDict[campLoc].BattleStations(campLoc);
+			enemyCityDict[campLoc].enemyCamp.forward = (armyLoc - campLoc) / 3;
+			enemyCampDict[campLoc].BattleStations(campLoc);
         }
         else if (enemyCityDict[campLoc].enemyCamp.attackingArmy != null)
         {
             enemyCityDict[campLoc].enemyCamp.threatLoc = armyLoc;
-            enemyCityDict[campLoc].enemyCamp.BattleStations(campLoc);
+			enemyCityDict[campLoc].enemyCamp.forward = (armyLoc - campLoc) / 3;
+			enemyCityDict[campLoc].enemyCamp.BattleStations(campLoc);
             enemyCityDict[campLoc].StopSpawnCycle(true);
 		}
     }
@@ -4779,7 +4850,10 @@ public class MapWorld : MonoBehaviour
         
         if (v)
         {
-            enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasClear;
+            if (enemy)
+                enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasClear;
+            else
+                cityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasClear;
 
             for (int i = 0; i < tilesToCheck.Count; i++)
             {                
@@ -4805,7 +4879,10 @@ public class MapWorld : MonoBehaviour
 		}
         else
         {
-			enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasMain;
+            if (enemy)
+                enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasMain;
+            else
+                cityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasMain;
 
 			for (int i = 0; i < tilesToCheck.Count; i++)
 			{
@@ -4956,7 +5033,22 @@ public class MapWorld : MonoBehaviour
         GameLoader.Instance.gameData.attackedEnemyBases[loc] = new();
     }
 
-    public void PlayPillageSplash(Vector3 loc)
+    public void PlayDeathSplash(Vector3 loc, Vector3 rotation)
+    {
+		ParticleSystem deathSplash = Instantiate(this.deathSplash, loc, Quaternion.identity);
+		deathSplash.transform.position = transform.position;
+        deathSplash.transform.eulerAngles = rotation;
+        deathSplash.Play();
+    }
+
+    public void PlayRemoveSplash(Vector3 loc)
+    {
+		ParticleSystem removeSplash = Instantiate(this.removeSplash, loc, Quaternion.identity);
+		removeSplash.transform.position = loc;
+		removeSplash.Play();
+	}
+
+	public void PlayPillageSplash(Vector3 loc)
     {
         ParticleSystem removeEruption = Instantiate(this.removeEruption, loc, Quaternion.identity);
         removeEruption.Play();
@@ -5211,7 +5303,7 @@ public class MapWorld : MonoBehaviour
         improvement.building = improvementData.isBuilding;
         improvement.InitializeImprovementData(improvementData);
         //string buildingName = improvementData.improvementName;
-        improvement.SetCity(city);
+        improvement.city = city;
         improvement.transform.parent = city.transform;
         city.workEthic += improvementData.workEthicChange;
         city.improvementWorkEthic += improvementData.workEthicChange;
@@ -5544,13 +5636,13 @@ public class MapWorld : MonoBehaviour
 		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile);
 	}
 
-    public bool CheckIfPositionIsArmyValid(Vector3Int tile)
+    public bool CheckIfPositionIsArmyValid(Vector3Int tile) //preventing going diagonally
     {
 		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyZone;
 	}
 
-    public bool CheckIfPositionIsEnemyArmyValid(Vector3Int tile, List<Vector3Int> avoidList)
-    {
+    public bool CheckIfPositionIsEnemyArmyValid(Vector3Int tile, List<Vector3Int> avoidList) //preventing going diagonally
+	{ 
 		return world.ContainsKey(tile) && world[tile].walkable && !world[tile].sailable && !avoidList.Contains(tile);
 	}
 
