@@ -899,10 +899,6 @@ public class Army : MonoBehaviour
                 targetCamp.moveToLoc = targetCamp.loc;
                 targetCamp.attackingArmy = null;
             }
-            else
-            {
-                world.RemoveEnemyCamp(targetCamp.cityLoc, true);
-            }
 
             returning = true;
             DestroyDeadList();

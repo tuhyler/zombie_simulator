@@ -607,6 +607,7 @@ public class City : MonoBehaviour
         GameObject housing = Instantiate(housingData.prefab, houseLoc, endRotation); //underground temporarily
         //housing.transform.position = houseLoc;
         CityImprovement improvement = housing.GetComponent<CityImprovement>();
+        improvement.SetWorld(world);
         housingArray[index] = improvement;
         HouseLightCheck();
         //improvement.DestroyUpgradeSplash();
@@ -654,6 +655,7 @@ public class City : MonoBehaviour
 		GameObject housing = Instantiate(housingData.prefab, houseLoc, endRotation); //underground temporarily
 																					 //housing.transform.position = houseLoc;
 		CityImprovement improvement = housing.GetComponent<CityImprovement>();
+        improvement.SetWorld(world);
 		housingArray[index] = improvement;
 		HouseLightCheck();
 		//improvement.DestroyUpgradeSplash();
@@ -1864,7 +1866,7 @@ public class City : MonoBehaviour
 		GameLoader.Instance.gameData.discoveredEnemyCampLocs.Add(cityLoc);
 
         RevealUnitsInCamp();
-        StartSendAttackWait();
+        //StartSendAttackWait();
 	}
 
     public void RevealUnitsInCamp()

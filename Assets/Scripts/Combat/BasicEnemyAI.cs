@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
 public class BasicEnemyAI : MonoBehaviour
@@ -497,14 +498,22 @@ public class BasicEnemyAI : MonoBehaviour
 
 		if (target.targetSearching)
 			target.StartAttack(unit);
-		
+
+		//if (UnityEngine.Random.Range(0, 2) == 0)
+		//	yield return unit.attackPauses[1];
+
+		int timeWait = UnityEngine.Random.Range(0, 3);
+
 		while (!unit.isDead && target.currentHealth > 0 && dist < distThreshold)
         {
 			unit.transform.rotation = Quaternion.LookRotation(target.transform.position - unit.transform.position);
 			unit.StartAttackingAnimation();
 			yield return unit.attackPauses[3];
 	        target.ReduceHealth(unit, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
-			yield return unit.attackPauses[UnityEngine.Random.Range(0,3)];
+			yield return unit.attackPauses[timeWait];
+			timeWait++;
+			if (timeWait == 3)
+				timeWait = 0;
 			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
         }
 
@@ -567,13 +576,16 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.Rotate(target.transform.position);
 		float distThreshold = 7.5f;
 
+		if (UnityEngine.Random.Range(0, 2) == 0)
+			yield return unit.attackPauses[1];
+
 		while (!unit.isDead && target.currentHealth > 0 && dist < distThreshold)
 		{
 			unit.StartAttackingAnimation();
-			yield return unit.attackPauses[3];
+			yield return unit.attackPauses[1];
 			unit.projectile.SetPoints(transform.position, target.transform.position);
 			StartCoroutine(unit.projectile.Shoot(unit, target));
-			yield return unit.attackPauses[UnityEngine.Random.Range(0,3)];
+			yield return unit.attackPauses[0];
 			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
         }
 
