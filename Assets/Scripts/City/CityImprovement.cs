@@ -360,7 +360,10 @@ public class CityImprovement : MonoBehaviour
         else
             loc.y += .1f;
 
-        world.PlayRemoveSplash(loc);
+        if (building)
+			world.PlayRemoveSplash(loc);
+        else
+    		world.PlayRemoveEruption(loc);
         //removeSplash.transform.position = loc;
         //removeSplash.Play();
     }

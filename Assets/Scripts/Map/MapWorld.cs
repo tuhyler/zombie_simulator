@@ -4819,7 +4819,7 @@ public class MapWorld : MonoBehaviour
         if (enemyCampDict.ContainsKey(campLoc) && enemyCampDict[campLoc].attackingArmy != null) //only get ready if army is intending to go attack
         {
             enemyCampDict[campLoc].threatLoc = armyLoc;
-			enemyCityDict[campLoc].enemyCamp.forward = (armyLoc - campLoc) / 3;
+			enemyCampDict[campLoc].forward = (armyLoc - campLoc) / 3;
 			enemyCampDict[campLoc].BattleStations(campLoc);
         }
         else if (enemyCityDict[campLoc].enemyCamp.attackingArmy != null)
@@ -5036,21 +5036,24 @@ public class MapWorld : MonoBehaviour
     public void PlayDeathSplash(Vector3 loc, Vector3 rotation)
     {
 		ParticleSystem deathSplash = Instantiate(this.deathSplash, loc, Quaternion.identity);
-		deathSplash.transform.position = transform.position;
-        deathSplash.transform.eulerAngles = rotation;
+		//deathSplash.transform.position = transform.position;
+        deathSplash.transform.rotation = Quaternion.Euler(rotation);
         deathSplash.Play();
     }
 
     public void PlayRemoveSplash(Vector3 loc)
     {
 		ParticleSystem removeSplash = Instantiate(this.removeSplash, loc, Quaternion.identity);
-		removeSplash.transform.position = loc;
+		Vector3 rotation = new Vector3(-90, 0, 0);
+		removeSplash.transform.rotation = Quaternion.Euler(rotation);
 		removeSplash.Play();
 	}
 
-	public void PlayPillageSplash(Vector3 loc)
+	public void PlayRemoveEruption(Vector3 loc)
     {
         ParticleSystem removeEruption = Instantiate(this.removeEruption, loc, Quaternion.identity);
+        Vector3 rotation = new Vector3(-90, 0, 0);
+        removeEruption.transform.rotation = Quaternion.Euler(rotation);
         removeEruption.Play();
     }
 

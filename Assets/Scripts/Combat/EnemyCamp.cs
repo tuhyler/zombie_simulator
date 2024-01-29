@@ -851,12 +851,12 @@ public class EnemyCamp
 			//particle system
 			if (world.GetTerrainDataAt(moveToLoc).isHill)
 			{
-				world.PlayPillageSplash(moveToLoc);
+				world.PlayRemoveEruption(moveToLoc);
 			}
 			else
 			{
 				for (int i = 0; i < 4; i++)
-					world.PlayPillageSplash(moveToLoc + splashLocs[i]);
+					world.PlayRemoveEruption(moveToLoc + splashLocs[i]);
 			}
 
 			//play sounds and restart animations

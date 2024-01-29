@@ -103,7 +103,6 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public int attackStrength, healthMax;
     [HideInInspector]
-    public float[] attackPause = new[] { 0.8f, 1f, 1.2f };
     public WaitForSeconds[] attackPauses = new WaitForSeconds[4];
     [HideInInspector]
     public Projectile projectile;
@@ -149,9 +148,9 @@ public class Unit : MonoBehaviour
         isSittingHash = Animator.StringToHash("isSitting");
         isDiscoveredHash = Animator.StringToHash("isDiscovered");
 		isPillagingHash = Animator.StringToHash("isPillaging");
-        attackPauses[0] = new WaitForSeconds(.9f);
+        attackPauses[0] = new WaitForSeconds(0.9f);
 		attackPauses[1] = new WaitForSeconds(1f);
-		attackPauses[2] = new WaitForSeconds(1.1f);
+        attackPauses[2] = new WaitForSeconds(1.1f);
         attackPauses[3] = new WaitForSeconds(.25f);
 		unitRigidbody = GetComponent<Rigidbody>();
         baseSpeed = 1;
@@ -1591,13 +1590,20 @@ public class Unit : MonoBehaviour
         if (target.targetSearching)
             target.enemyAI.StartAttack(this);
 
+        //if (UnityEngine.Random.Range(0, 2) == 0)
+        //    yield return attackPauses[1];
+        int timeWait = UnityEngine.Random.Range(0, 3);
+
 		while (target.currentHealth > 0)
 		{
-			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
+            transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
 			StartAttackingAnimation();
 			yield return attackPauses[3];
 			target.ReduceHealth(this, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
-			yield return attackPauses[UnityEngine.Random.Range(0,3)];
+			yield return attackPauses[timeWait];
+            timeWait++;
+            if (timeWait == 3)
+                timeWait = 0;
 		}
 
         attacking = false;
@@ -1629,14 +1635,17 @@ public class Unit : MonoBehaviour
         attacking = true;
         Rotate(target.transform.position);
 
+        if (UnityEngine.Random.Range(0, 2) == 0)
+            yield return attackPauses[1];
+
 		while (target.currentHealth > 0)
         {
 			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
 			StartAttackingAnimation();
-			yield return attackPauses[3];
+			yield return attackPauses[1];
 			projectile.SetPoints(transform.position, target.transform.position);
             StartCoroutine(projectile.Shoot(this, target));
-			yield return attackPauses[UnityEngine.Random.Range(0, 3)];
+			yield return attackPauses[0];
 		}
 
         attackCo = null;
