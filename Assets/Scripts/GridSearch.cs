@@ -484,7 +484,6 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endTerrain, "Cannot reach selected area");
 		return path;
 	}
 
@@ -560,6 +559,105 @@ public class GridSearch
 		return path;
 	}
 
+    public static List<Vector3Int> TerrainSearchMovingTarget(MapWorld world, Vector3Int startTerrain, Queue<Vector3Int> enemyPath, List<Vector3Int> exemptList, bool update, Vector3Int? lastSpot = null)
+    {
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startTerrain);
+		costDictionary.Add(startTerrain, 0);
+		priorityDictionary.Add(startTerrain, 0);
+		parentsDictionary.Add(startTerrain, null);
+		int stepCount = 0;
+
+		while (enemyPath.Count > 3) //limit until city starts to defend
+		{
+			stepCount++;
+			Vector3Int endTerrain = enemyPath.Dequeue();
+
+			if (update)
+			{
+				if (endTerrain != lastSpot)
+					continue;
+				else
+					update = false;
+			}
+
+			if (Mathf.Abs(endTerrain.x - startTerrain.x) > stepCount * 3 || Mathf.Abs(endTerrain.z - startTerrain.z) > stepCount * 3)
+				continue;
+
+			while (positionsToCheck.Count > 0)
+			{
+				Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+				positionsToCheck.Remove(current);
+				if (current == endTerrain)
+				{
+					path = GeneratePath(parentsDictionary, current);
+
+					if (path.Count > stepCount)
+					{
+						path.Clear();
+						positionsToCheck.Clear();
+						positionsToCheck.Add(startTerrain);
+						costDictionary.Clear();
+						costDictionary.Add(startTerrain, 0);
+						priorityDictionary.Clear();
+						priorityDictionary.Add(startTerrain, 0);
+						parentsDictionary.Clear();
+						parentsDictionary.Add(startTerrain, null);
+						break;
+					}
+
+					return path;
+				}
+
+				foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAYINCREMENT))
+				{
+					Vector3Int neighbor = tile + current;
+
+					if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
+						continue;
+
+					if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
+						continue;
+
+					int tempCost = world.GetMovementCost(neighbor);
+
+					if (tile.sqrMagnitude == 18)
+					{
+						if (endTerrain == neighbor) //can't finish path on diagonal
+							continue;
+						
+						Vector3Int temp = neighbor - current;
+
+						if (!world.CheckIfPositionIsArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsArmyValid(current + new Vector3Int(0, 0, temp.z)))
+							continue;
+
+						tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+					}
+
+					int newCost = costDictionary[current] + tempCost;
+					if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+					{
+						costDictionary[neighbor] = newCost;
+
+						int priority = newCost + ManhattanDistance(endTerrain, neighbor); //only check the neighbors closest to destination
+						positionsToCheck.Add(neighbor);
+						priorityDictionary[neighbor] = priority;
+
+						parentsDictionary[neighbor] = current;
+					}
+				}
+			}
+		}
+
+		return path;
+	}
 
 	public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isSeaTrader = true)
     {

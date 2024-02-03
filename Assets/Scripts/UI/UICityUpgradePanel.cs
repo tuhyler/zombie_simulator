@@ -466,6 +466,13 @@ public class UICityUpgradePanel : MonoBehaviour
 
     public void OnPointerClick()
     {
+        if (cityBuilderManager.SelectedCity.attacked)
+        {
+			StartCoroutine(Shake());
+			UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't upgrade now, enemy approaching", false);
+			return;
+		}
+        
         if (cannotAfford && !cityBuilderManager.isQueueing)
         {
             StartCoroutine(Shake());

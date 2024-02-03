@@ -310,6 +310,22 @@ public class CityImprovement : MonoBehaviour
         highlight.DisableHighlight();
     }
 
+    public void EnableMaterial(Material mat)
+    {
+        if (showing)
+            return;
+
+		for (int i = 0; i < meshFilter.Length; i++)
+			meshFilter[i].gameObject.SetActive(true);
+
+		highlight.EnableTransparent(mat);
+    }
+
+    public void DisableTransparent()
+    {
+        highlight.DisableHighlight();
+    }
+
     public void RevealImprovement()
     {
         city.gameObject.SetActive(true);

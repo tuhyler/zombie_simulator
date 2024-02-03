@@ -467,6 +467,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (buttonHandler.cityBuilderManager.SelectedCity.attacked)
+        {
+			StartCoroutine(Shake());
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");
+			return;
+        }
+        
         if (unitBuildData != null)
         {
             if (unitBuildData.transportationType == TransportationType.Sea)

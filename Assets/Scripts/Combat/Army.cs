@@ -9,10 +9,9 @@ using static UnityEngine.UI.CanvasScaler;
 public class Army : MonoBehaviour
 {
     private MapWorld world;
-    
-    private Vector3Int loc;
+
     [HideInInspector]
-    public Vector3Int forward, attackZone;
+    public Vector3Int loc, forward, attackZone;
 
     [HideInInspector]
     public EnemyCamp targetCamp;
@@ -300,7 +299,6 @@ public class Army : MonoBehaviour
         {
             if (world.uiCampTooltip.EnemyScreenActive())
             {
-                HidePath();
                 world.unitMovement.CancelArmyDeployment();
             }
             else
@@ -363,9 +361,20 @@ public class Army : MonoBehaviour
             rotation = 0;
 
         foreach (Unit unit in unitsInArmy)
-        {
+        {            
             unit.healthbar.CancelRegeneration();
             unit.atHome = false;
+         
+            if (unit.isSelected)
+			{
+                world.unitMovement.ShowIndividualCityButtonsUI();
+                
+                if (world.unitMovement.deployingArmy || world.unitMovement.changingCity || world.unitMovement.assigningGuard)
+                    world.unitMovement.CancelArmyDeployment();
+                else if (world.unitMovement.swappingArmy)
+                    world.unitMovement.CancelReposition();
+            }
+            
             Vector3Int unitDiff = unit.CurrentLocation - this.loc;
 
             if (rotation == 1)
@@ -441,6 +450,58 @@ public class Army : MonoBehaviour
             return true;
 	}
 
+    public bool DeployArmyMovingTargetCheck(Vector3Int current, Vector3Int cityLoc, List<Vector3Int> pathList, Vector3Int currentSpot)
+    {
+		List<Vector3Int> exemptList = new() { cityLoc };
+        Queue<Vector3Int> path = new(pathList);
+
+        int currentIndex = pathList.IndexOf(currentSpot);
+        for (int i = 0; i < currentIndex; i++)
+            path.Dequeue();
+
+		foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.EIGHTWAYINCREMENT))
+			exemptList.Add(tile);
+
+		pathToTarget = GridSearch.TerrainSearchMovingTarget(world, current, path, exemptList, false);
+
+		if (pathToTarget.Count == 0)
+        {
+			return false;
+        }
+        else
+        {
+            enemyTarget = pathToTarget[pathToTarget.Count - 1];
+			return true;
+        }
+    }
+
+    public bool UpdateArmyCostsMovingTarget(Vector3Int current, Vector3Int cityLoc, List<Vector3Int> pathList, Vector3Int currentSpot)
+    {
+		List<Vector3Int> exemptList = new() { cityLoc };
+		Queue<Vector3Int> path = new(pathList);
+
+        int currentIndex = pathList.IndexOf(currentSpot);
+		for (int i = 0; i < currentIndex; i++)
+			path.Dequeue();
+
+		foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.EIGHTWAYINCREMENT))
+			exemptList.Add(tile);
+
+        HidePath();
+		pathToTarget = GridSearch.TerrainSearchMovingTarget(world, current, path, exemptList, true, enemyTarget);
+
+		if (pathToTarget.Count == 0)
+        {
+            return false;
+        }
+        else
+        {
+            ShowBattlePath();
+            enemyTarget = pathToTarget[pathToTarget.Count - 1];
+            return true;
+		}
+	}
+
     public void DeployArmy()
     {
         ConsumeBattleCosts();
@@ -475,7 +536,8 @@ public class Army : MonoBehaviour
         traveling = false;
         returning = true;
         DestroyDeadList();
-        targetCamp = null;
+        if (world.IsEnemyCampHere(enemyTarget))
+            targetCamp = null;
         DeployArmy(false);
     }
 
@@ -531,7 +593,7 @@ public class Army : MonoBehaviour
 
     private void ConsumeBattleCosts()
     {
-        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.barracksLocation, false);
+        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.barracksLocation, true);
         //totalBattleCosts.Clear();
     }
 
@@ -586,6 +648,15 @@ public class Army : MonoBehaviour
 			if (defending)
             {
                 targetCamp.armyReady = true;
+
+				if (targetCamp.attackReady)
+				{
+					targetCamp.attackReady = false;
+					targetCamp.armyReady = false;
+
+					world.uiAttackWarning.AttackNotification(((Vector3)attackZone + enemyTarget) * 0.5f);
+					Charge();
+				}
             }
             else
             {
@@ -615,25 +686,30 @@ public class Army : MonoBehaviour
                 pathTraveled.Clear();
                 stepCount = 0;
 
+                if (selected)
+                    world.unitMovement.ShowIndividualCityButtonsUI();
+                
                 if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
                     world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(isFull);
+
+                if (world.IsEnemyCityOnTile(city.waitingAttackLoc))
+                {
+                    world.GetEnemyCity(city.waitingAttackLoc).SendAttack();
+                    city.waitingAttackLoc = city.cityLoc;
+                }
             }
             else
             {
                 targetCamp.armyReady = true;
+                if (selected)
+                    HidePath();
 
                 if (targetCamp.attackReady)
                 {
 					targetCamp.attackReady = false;
                     targetCamp.armyReady = false;
 
-                    if (defending)
-                    {
-						world.uiAttackWarning.AttackNotification(((Vector3)attackZone + city.cityLoc) * 0.5f);
-						world.ToggleCityMaterialClear(city.cityLoc, targetCamp.threatLoc, true, false);
-						Charge();
-                    }
-					else if (targetCamp.UnitsInCamp.Count == 0) //for invading empty city (not needed right now)
+					if (targetCamp.UnitsInCamp.Count == 0) //for invading empty city (not needed right now)
                     {
 						issueRefund = false;
 
@@ -648,9 +724,7 @@ public class Army : MonoBehaviour
                     }
                     else
                     {
-    					if (targetCamp.isCity)
-                            world.ToggleCityMaterialClear(enemyTarget, attackZone, true, true);
-                        world.uiAttackWarning.AttackNotification(((Vector3)attackZone + targetCamp.loc)*0.5f);
+                        world.uiAttackWarning.AttackNotification(((Vector3)attackZone + enemyTarget)*0.5f);
                         Charge();
                     }
                 }
@@ -728,9 +802,10 @@ public class Army : MonoBehaviour
         Vector3 goScale = city.battleIcon.transform.localScale;
         city.battleIcon.transform.localScale = Vector3.zero;
         LeanTween.scale(city.battleIcon, goScale, 0.5f);
-        
-        int i = 0;
 
+		world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, true);
+
+		int i = 0;
         foreach (Vector3Int tile in world.GetNeighborsFor(attackZone, MapWorld.State.EIGHTWAYTWODEEP))
         {
             if (i < 8)
@@ -891,13 +966,28 @@ public class Army : MonoBehaviour
             return true;
         
         if (targetCamp.deathCount == targetCamp.campCount)
-		{        
-            if (targetCamp.movingOut)
+		{
+            city.attacked = false;
+			world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
+			
+            if (world.mainPlayer.runningAway)
+			{
+				world.mainPlayer.StopRunningAway();
+				world.mainPlayer.stepAside = false;
+			}
+
+			if (targetCamp.movingOut)
             {
-                DestroyEnemyDeadList();
+				DestroyEnemyDeadList();
                 targetCamp.ResetCamp();
                 targetCamp.moveToLoc = targetCamp.loc;
-                targetCamp.attackingArmy = null;
+                targetCamp.movingOut = false;
+                targetCamp.inBattle = false;
+                targetCamp.enemyReady = 0;
+				targetCamp.deathCount = 0;
+				targetCamp.attackingArmy = null;
+                targetCamp.SetCityEnemyCamp();
+                world.GetEnemyCity(targetCamp.cityLoc).StartSpawnCycle(true);
             }
 
             returning = true;
@@ -971,7 +1061,15 @@ public class Army : MonoBehaviour
             else
                 unit.SoftSelect(Color.white);
         }
-    }
+
+        if (traveling)
+        {
+            List<Vector3Int> tempPath = new(pathToTarget);
+			tempPath.Add(enemyTarget);
+
+			ShowBattlePath(tempPath, loc);
+        }
+	}
 
     public bool AllAreHomeCheck()
     {
@@ -1011,7 +1109,9 @@ public class Army : MonoBehaviour
 		foreach (Unit unit in targetCamp.DeadList)
 			Destroy(unit.gameObject);
 
+        targetCamp.UnitsInCamp.Clear();
 		targetCamp.DeadList.Clear();
+        targetCamp.campCount = 0;
         targetCamp = null;
 	}
 
@@ -1033,16 +1133,12 @@ public class Army : MonoBehaviour
         if (noMoneyCycles < 1) //get only one chance
         {
             noMoneyCycles++;
-            city.world.noMoneyWarning = true;
-            city.world.ToggleBarracksExclamation(true);
             city.world.uiCampTooltip.WarningCheck();
+            world.GetCityDevelopment(city.barracksLocation).exclamationPoint.SetActive(true);
             return;
         }
 
-        noMoneyCycles = 0;
-        city.world.noMoneyWarning = false;
-        city.world.uiCampTooltip.WarningCheck();
-		city.world.ToggleBarracksExclamation(false);
+        AWOLClear();
 		//int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
 		Unit unit = GetMostExpensiveUnit();
         world.unitMovement.AddToCity(unit.homeBase, unit);
@@ -1057,6 +1153,16 @@ public class Army : MonoBehaviour
 		}
 		
         unit.DestroyUnit();
+	}
+
+    public void AWOLClear()
+    {
+        if (noMoneyCycles > 0)
+        {
+            noMoneyCycles = 0;
+			world.GetCityDevelopment(city.barracksLocation).exclamationPoint.SetActive(false);
+			city.world.uiCampTooltip.WarningCheck();
+        }
 	}
 
 	public Vector3Int RemoveRandomArmyUnit()
@@ -1145,6 +1251,16 @@ public class Army : MonoBehaviour
 		stepCount = 0;
         DestroyDeadList();
 	}
+
+    //if anyone is transferring during battle stations, instantly move them to barracks
+    public void EveryoneHomeCheck()
+    {
+        for (int i = 0; i < unitsInArmy.Count; i++)
+        {
+            if (!unitsInArmy[i].atHome)
+                unitsInArmy[i].Teleport(unitsInArmy[i].barracksBunk);
+        }
+    }
 
 	public void ShowBattlePath(List<Vector3Int> currentPath, Vector3Int startingPoint)
 	{

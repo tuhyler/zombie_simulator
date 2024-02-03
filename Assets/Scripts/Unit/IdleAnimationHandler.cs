@@ -8,6 +8,7 @@ public class IdleAnimationHandler : StateMachineBehaviour
     private float totalTime = 10;
     [SerializeField]
     private int animationCount = 0;
+    private float actualTime;
     private bool isBored;
     private float idleTime;
     
@@ -16,6 +17,7 @@ public class IdleAnimationHandler : StateMachineBehaviour
     {
         isBored = false;
         idleTime = 0;
+        actualTime = totalTime + Random.Range(-2, 3);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -25,7 +27,7 @@ public class IdleAnimationHandler : StateMachineBehaviour
         {
             idleTime += Time.deltaTime;
 
-            if (idleTime >= totalTime)
+            if (idleTime >= actualTime)
             {
                 isBored = true;
                 animator.SetInteger("IdleAnimsIndex", Random.Range(0, animationCount + 1));

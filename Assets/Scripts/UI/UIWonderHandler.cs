@@ -116,7 +116,8 @@ public class UIWonderHandler : MonoBehaviour
             gameObject.SetActive(v);
             //world.openingImmoveable = true;
             world.immoveableCanvas.gameObject.SetActive(true);
-            activeStatus = true;
+			world.BattleCamCheck(true);
+			activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
             world.somethingSelected = true;
 
@@ -133,7 +134,8 @@ public class UIWonderHandler : MonoBehaviour
         }
         else
         {
-            activeStatus = false;
+			world.BattleCamCheck(false);
+			activeStatus = false;
 
             if (somethingNew)
             {

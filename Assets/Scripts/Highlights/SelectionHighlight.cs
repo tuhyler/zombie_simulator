@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SelectionHighlight : MonoBehaviour
@@ -100,4 +101,13 @@ public class SelectionHighlight : MonoBehaviour
             i++;
         }
     }
+
+    public void EnableTransparent(Material atlasSemiClear)
+    {
+		foreach (MeshRenderer renderer in renderers)
+			renderer.material = atlasSemiClear;
+
+		foreach (SkinnedMeshRenderer renderer in renderersSkinned)
+			renderer.material = atlasSemiClear;
+	}
 }

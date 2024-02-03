@@ -73,6 +73,7 @@ public class UIMainMenu : MonoBehaviour
 			world.UnselectAll();
 			//world.openingImmoveable = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
+			world.BattleCamCheck(true);
 			gameObject.SetActive(true);
 
 			allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
@@ -97,6 +98,7 @@ public class UIMainMenu : MonoBehaviour
 			world.mapHandler.SetInteractable(true);
 			world.uiWorldResources.SetInteractable(true);
 			world.uiMainMenuButton.ToggleButtonColor(false);
+			world.BattleCamCheck(false);
 
 			//world.immoveableCanvas.gameObject.SetActive(false);
 			Time.timeScale = 1;

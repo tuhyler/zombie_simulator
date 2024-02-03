@@ -65,6 +65,7 @@ public class UIConversationTaskManager : MonoBehaviour
 
 			activeStatus = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
+			world.BattleCamCheck(true);
 			gameObject.SetActive(true);
 
 			allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
@@ -85,7 +86,8 @@ public class UIConversationTaskManager : MonoBehaviour
 			minimapHandler.paused = false;
 			world.uiTomFinder.ToggleButtonOn(true);
 			world.mapHandler.SetInteractable(true);
-			
+			world.BattleCamCheck(false);
+
 			activeStatus = false;
 
 			LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
