@@ -746,7 +746,7 @@ public class TerrainData : MonoBehaviour
     {
         if (highlightPlane != null)
         {
-            prop.gameObject.SetActive(v);
+            //prop.gameObject.SetActive(v);
             highlightPlane.SetActive(v);
             highlightPlaneIcon.SetActive(v);
         }

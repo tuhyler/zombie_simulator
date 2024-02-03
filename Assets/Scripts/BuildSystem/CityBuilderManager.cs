@@ -161,6 +161,7 @@ public class CityBuilderManager : MonoBehaviour
         //GrowResourceInfoHolderPool();
         //GrowResourceInfoPanelPool();
         GrowImprovementResourcePool();
+        PopulateUpgradeDictForTesting();
         //openAssignmentPriorityMenu.interactable = false;
     }
 
@@ -1026,7 +1027,6 @@ public class CityBuilderManager : MonoBehaviour
 
         UnselectWonder();
         UnselectTradeCenter();
-        PopulateUpgradeDictForTesting();
 
         selectedCity = cityReference;
 
@@ -1517,6 +1517,31 @@ public class CityBuilderManager : MonoBehaviour
 			building.EnableHighlight(color, true);
 		}
 	}
+
+    public void ToggleBuildingMaterial(Vector3Int cityLoc, Material mat, bool lightsOn)
+    {
+        foreach (string name in world.GetBuildingListForCity(cityLoc))
+        {
+            CityImprovement building = world.GetBuildingData(cityLoc, name);
+            building.DisableHighlight();
+			building.EnableMaterial(mat);
+		}
+
+        if (lightsOn)
+        {
+			if (world.enemyCityDict.ContainsKey(cityLoc))
+				world.enemyCityDict[cityLoc].HouseLightCheck();
+			else
+				world.cityDict[cityLoc].HouseLightCheck();
+		}
+        else
+        {
+            if (world.enemyCityDict.ContainsKey(cityLoc))
+                world.enemyCityDict[cityLoc].TurnOffLights();
+            else
+                world.cityDict[cityLoc].TurnOffLights();
+        }
+    }
 
     public void ToggleBuildingHighlight(bool v, Vector3Int cityLoc)
     {        
@@ -3487,6 +3512,12 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCityWarning()
     {
+        if (selectedCity != null && selectedCity.attacked)
+        {
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy approaching", true);
+			return;
+        }
+        
         PlaySelectAudio();
         
         if (uiDestroyCityWarning.activeStatus)
@@ -3681,6 +3712,12 @@ public class CityBuilderManager : MonoBehaviour
 
     public void RunCityNamerUI()
     {
+        if (selectedCity != null && selectedCity.attacked)
+        {
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy approaching", true);
+            return;
+		}
+        
         PlaySelectAudio();
         
         if (uiCityNamer.activeStatus)

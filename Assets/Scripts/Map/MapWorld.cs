@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using TMPro;
+using Unity.Burst.Intrinsics;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Collections;
@@ -37,13 +38,13 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Water water;
     [SerializeField]
-    public GameObject resourceIcon, campfire, spotlight, dizzyMarker, speechBubble, unexploredTile, uiHelperWindow;
+    public GameObject battleCamera, resourceIcon, campfire, spotlight, dizzyMarker, speechBubble, unexploredTile, uiHelperWindow;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing, noMoneyWarning, scottFollow, azaiFollow;
+    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -223,8 +224,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
     public Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
     public Dictionary<Vector3Int, City> enemyCityDict = new();
-    [HideInInspector]
-    public int enemyUnitGrowthTime = 10;
+    public int enemyUnitGrowthTime = 20;
 
     //for resource icons on minimap (so they're rotated correctly)
     private Dictionary<Vector3Int, ResourceMinimapIcon> resourceIconDict = new();
@@ -268,6 +268,8 @@ public class MapWorld : MonoBehaviour
 
     //ambush info
     public Dictionary<Era, string> ambushUnitDict = new();
+    //battle camera stuff
+    List<Vector3Int> battleLocs = new();
 
     //character units
     [HideInInspector]
@@ -1102,8 +1104,8 @@ public class MapWorld : MonoBehaviour
 	{
         Dictionary<string, string> buildingEraDict = GetBuildingEraDict(era);
         EnemyCityData data;
-
-        if (load)
+		
+		if (load)
         {
             data = GameLoader.Instance.gameData.enemyCities[cityTile];
         }
@@ -1273,87 +1275,105 @@ public class MapWorld : MonoBehaviour
         city.enemyCamp.cityLoc = cityTile;
 
         //checking to load fighting of moving enemy units
-        bool attacked = false;
+        //bool attacked = false;
         bool movingOut = false;
         Dictionary<Vector3Int, UnitData> fightingEnemies = new();
-		if (GameLoader.Instance.gameData.attackedEnemyBases.ContainsKey(cityTile))
-		{
-			attacked = true;
-			EnemyCampData enemyData = GameLoader.Instance.gameData.attackedEnemyBases[cityTile];
 
-			for (int i = 0; i < enemyData.allUnits.Count; i++)
-			{
-				fightingEnemies[enemyData.allUnits[i].campSpot] = enemyData.allUnits[i];
-			}
-
-			city.enemyCamp.enemyReady = enemyData.enemyReady;
-			city.enemyCamp.threatLoc = enemyData.threatLoc;
-			city.enemyCamp.forward = enemyData.forward;
-			city.enemyCamp.revealed = enemyData.revealed;
-			city.enemyCamp.prepping = enemyData.prepping;
-			city.enemyCamp.attacked = enemyData.attacked;
-			city.enemyCamp.attackReady = enemyData.attackReady;
-			city.enemyCamp.armyReady = enemyData.armyReady;
-			city.enemyCamp.inBattle = enemyData.inBattle;
-			city.enemyCamp.returning = enemyData.returning;
-			city.enemyCamp.campCount = enemyData.campCount;
-			city.enemyCamp.infantryCount = enemyData.infantryCount;
-			city.enemyCamp.rangedCount = enemyData.rangedCount;
-			city.enemyCamp.cavalryCount = enemyData.cavalryCount;
-			city.enemyCamp.seigeCount = enemyData.seigeCount;
-			city.enemyCamp.health = enemyData.health;
-			city.enemyCamp.strength = enemyData.strength;
-		}
-        else if (GameLoader.Instance.gameData.movingEnemyBases.ContainsKey(cityTile))
+        if (load)
         {
-			EnemyCampData enemyData = GameLoader.Instance.gameData.movingEnemyBases[cityTile];
+		    /*if (GameLoader.Instance.gameData.attackedEnemyBases.ContainsKey(cityTile))
+		    {
+			    attacked = true;
+			    EnemyCampData enemyData = GameLoader.Instance.gameData.attackedEnemyBases[cityTile];
 
-			for (int i = 0; i < enemyData.allUnits.Count; i++)
-			{
-				fightingEnemies[enemyData.allUnits[i].campSpot] = enemyData.allUnits[i];
-			}
+			    for (int i = 0; i < enemyData.allUnits.Count; i++)
+			    {
+				    fightingEnemies[enemyData.allUnits[i].campSpot] = enemyData.allUnits[i];
+			    }
 
-			city.enemyCamp.enemyReady = enemyData.enemyReady;
-            city.enemyCamp.threatLoc = enemyData.threatLoc;
-            city.enemyCamp.forward = enemyData.forward;
-			city.enemyCamp.revealed = enemyData.revealed;
-			city.enemyCamp.prepping = enemyData.prepping;
-			city.enemyCamp.attacked = enemyData.attacked;
-			city.enemyCamp.attackReady = enemyData.attackReady;
-			city.enemyCamp.armyReady = enemyData.armyReady;
-			city.enemyCamp.inBattle = enemyData.inBattle;
-			city.enemyCamp.campCount = enemyData.campCount;
-			city.enemyCamp.infantryCount = enemyData.infantryCount;
-			city.enemyCamp.rangedCount = enemyData.rangedCount;
-			city.enemyCamp.cavalryCount = enemyData.cavalryCount;
-			city.enemyCamp.seigeCount = enemyData.seigeCount;
-			city.enemyCamp.health = enemyData.health;
-			city.enemyCamp.strength = enemyData.strength;
-			city.enemyCamp.moveToLoc = enemyData.chaseLoc;
-			city.enemyCamp.pathToTarget = enemyData.pathToTarget;
-			city.enemyCamp.movingOut = enemyData.movingOut;
-			city.enemyCamp.returning = enemyData.returning;
-			city.enemyCamp.chasing = enemyData.chasing;
-            city.enemyCamp.pillage = enemyData.pillage;
-            city.enemyCamp.pillageTime = enemyData.pillageTime;
+			    city.enemyCamp.enemyReady = enemyData.enemyReady;
+			    city.enemyCamp.threatLoc = enemyData.threatLoc;
+			    city.enemyCamp.forward = enemyData.forward;
+			    city.enemyCamp.revealed = enemyData.revealed;
+			    city.enemyCamp.prepping = enemyData.prepping;
+			    city.enemyCamp.attacked = enemyData.attacked;
+			    city.enemyCamp.attackReady = enemyData.attackReady;
+			    city.enemyCamp.armyReady = enemyData.armyReady;
+			    city.enemyCamp.inBattle = enemyData.inBattle;
+			    city.enemyCamp.returning = enemyData.returning;
+			    city.enemyCamp.campCount = enemyData.campCount;
+			    city.enemyCamp.infantryCount = enemyData.infantryCount;
+			    city.enemyCamp.rangedCount = enemyData.rangedCount;
+			    city.enemyCamp.cavalryCount = enemyData.cavalryCount;
+			    city.enemyCamp.seigeCount = enemyData.seigeCount;
+			    city.enemyCamp.health = enemyData.health;
+			    city.enemyCamp.strength = enemyData.strength;
+		    }
+            else */if (GameLoader.Instance.gameData.movingEnemyBases.ContainsKey(cityTile))
+            {
+			    EnemyCampData enemyData = GameLoader.Instance.gameData.movingEnemyBases[cityTile];
 
-            if (!city.enemyCamp.returning && city.enemyCamp.campCount != 0)
-                GameLoader.Instance.attackingEnemyCitiesList.Add(city);
+			    for (int i = 0; i < enemyData.allUnits.Count; i++)
+			    {
+				    fightingEnemies[enemyData.allUnits[i].campSpot] = enemyData.allUnits[i];
+			    }
+
+			    city.enemyCamp.enemyReady = enemyData.enemyReady;
+                city.enemyCamp.threatLoc = enemyData.threatLoc;
+                city.enemyCamp.forward = enemyData.forward;
+			    city.enemyCamp.revealed = enemyData.revealed;
+			    city.enemyCamp.prepping = enemyData.prepping;
+			    city.enemyCamp.attacked = enemyData.attacked;
+			    city.enemyCamp.attackReady = enemyData.attackReady;
+			    city.enemyCamp.armyReady = enemyData.armyReady;
+			    city.enemyCamp.inBattle = enemyData.inBattle;
+			    city.enemyCamp.campCount = enemyData.campCount;
+			    city.enemyCamp.infantryCount = enemyData.infantryCount;
+			    city.enemyCamp.rangedCount = enemyData.rangedCount;
+			    city.enemyCamp.cavalryCount = enemyData.cavalryCount;
+			    city.enemyCamp.seigeCount = enemyData.seigeCount;
+			    city.enemyCamp.health = enemyData.health;
+			    city.enemyCamp.strength = enemyData.strength;
+			    city.enemyCamp.moveToLoc = enemyData.chaseLoc;
+			    city.enemyCamp.pathToTarget = enemyData.pathToTarget;
+			    city.enemyCamp.movingOut = enemyData.movingOut;
+			    city.enemyCamp.returning = enemyData.returning;
+			    city.enemyCamp.chasing = enemyData.chasing;
+                city.enemyCamp.pillage = enemyData.pillage;
+                city.enemyCamp.pillageTime = enemyData.pillageTime;
+                city.enemyCamp.growing = enemyData.growing;
+                city.enemyCamp.fieldBattleLoc = enemyData.fieldBattleLoc;
+                city.enemyCamp.lastSpot = enemyData.lastSpot;
+                city.enemyCamp.removingOut = enemyData.removingOut;
+                city.countDownTimer = enemyData.countDownTimer;
+
+                if ((city.enemyCamp.inBattle || city.enemyCamp.movingOut) && !city.enemyCamp.returning && city.enemyCamp.campCount != 0)
+                    GameLoader.Instance.attackingEnemyCitiesList.Add(city);
 			
-            if (city.enemyCamp.campCount != 0)
-                movingOut = true;
-		}
+                if (city.enemyCamp.campCount != 0)
+                    movingOut = true;
+
+                if (GetTerrainDataAt(cityTile).isDiscovered && !city.enemyCamp.growing && !city.enemyCamp.inBattle && !city.enemyCamp.prepping && 
+                    !city.enemyCamp.attackReady && !city.enemyCamp.returning)
+                    city.LoadSendAttackWait();
+		    }
+        }
         else
         {
-            city.enemyCamp.SetCityEnemyCamp();
-            AddAllEnemyUnits(city.enemyCamp, random, data, load);
+			city.enemyCamp.fieldBattleLoc = cityTile;
+            city.enemyCamp.moveToLoc = city.barracksLocation;
+			city.enemyCamp.SetCityEnemyCamp();
+			AddAllEnemyUnits(city.enemyCamp, random, data, load);
         }
 
-        if (attacked || movingOut)
+        if (movingOut)
         {
 		    foreach (Vector3Int unitLoc in data.enemyUnitData.Keys)
 		    {
-			    Vector3 unitSpawn = unitLoc;
+                if (!fightingEnemies.ContainsKey(unitLoc)) //in case it's growing
+                    continue;
+                
+                Vector3 unitSpawn = unitLoc;
 
 			    UnitBuildDataSO enemyData = UpgradeableObjectHolder.Instance.enemyUnitDict[data.enemyUnitData[unitLoc]];
 
@@ -1366,10 +1386,14 @@ public class MapWorld : MonoBehaviour
 			    Unit unit = enemyGO.GetComponent<Unit>();
 			    unit.SetReferences(this);
 			    unit.SetMinimapIcon(enemyUnitHolder);
-			    if (!movingOut)
+			    if (!city.enemyCamp.movingOut)
+                {
 				    unit.minimapIcon.gameObject.SetActive(false);
-			    if (!attacked) //just in case dictionary was missing any
-				    unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
+                }
+
+			    //just in case dictionary was missing any
+				unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
+
 			    unit.CurrentLocation = unitLoc;
 			    city.enemyCamp.UnitsInCamp.Add(unit);
 			    unit.enemyAI.CampLoc = city.enemyCamp.loc;
@@ -1380,14 +1404,19 @@ public class MapWorld : MonoBehaviour
 			    unit.LoadUnitData(fightingEnemies[unitLoc]);
 			    AddUnitPosition(unit.CurrentLocation, unit);
 
-                if (movingOut)
+                TerrainData tdUnit = GetTerrainDataAt(unit.CurrentLocation);
+                if (city.enemyCamp.movingOut)
                 {
-                    TerrainData tdUnit = GetTerrainDataAt(unit.CurrentLocation);
                     if (!tdUnit.isDiscovered)
                         unit.HideUnit(false);
 				    else if (tdUnit.CompareTag("Forest") || tdUnit.CompareTag("Forest Hill"))
 					    unit.marker.ToggleVisibility(true);
 			    }
+                else
+                {
+                    if (!tdUnit.isDiscovered)
+                        unit.gameObject.SetActive(false);
+				}
 		    }
         }
 
@@ -1417,17 +1446,24 @@ public class MapWorld : MonoBehaviour
             if (!td.isDiscovered)
                 city.subTransform.gameObject.SetActive(false); //necessary if one of improvements is showing but not city
         
-            if (attacked && city.enemyCamp.inBattle && !city.enemyCamp.returning)
+   //         if (city.enemyCamp.inBattle && !city.enemyCamp.returning)
+   //         {
+   //             if (movingOut)
+   //                 ToggleCityMaterialClear(cityTile, city.enemyCamp.attackingArmy.city.cityLoc, city.enemyCamp.moveToLoc, city.enemyCamp.threatLoc, true);
+   //             else
+			//		ToggleCityMaterialClear(cityTile, city.enemyCamp.attackingArmy.city.cityLoc, cityTile, city.enemyCamp.threatLoc, true);
+			//}
+
+			if (city.enemyCamp.growing && !city.enemyCamp.prepping && !city.enemyCamp.attackReady && !city.enemyCamp.inBattle)
             {
-                if (movingOut)
-                    ToggleCityMaterialClear(city.enemyCamp.moveToLoc, city.enemyCamp.threatLoc, true, false);
-                else
-					ToggleCityMaterialClear(cityTile, city.enemyCamp.threatLoc, true, true);
-			}
-        }
+                city.enemyCamp.LoadCityEnemyCamp();
+				city.StartSpawnCycle(false);
+            }
+		}
         else
         {
-            GameLoader.Instance.gameData.enemyCities[cityTile] = data;
+			GameLoader.Instance.gameData.movingEnemyBases[cityTile] = new();
+			GameLoader.Instance.gameData.enemyCities[cityTile] = data;
             GameLoader.Instance.gameData.enemyRoads = new(roadTiles);
         }
 	}
@@ -1915,7 +1951,10 @@ public class MapWorld : MonoBehaviour
 
 				city.army.SetLoc(tempBuildLocation, city);
 
-                if (td.isDiscovered && !enemy)
+                if (city.army.noMoneyCycles > 0)
+					cityImprovement.exclamationPoint.SetActive(true);
+
+				if (td.isDiscovered && !enemy)
                 {
                     List<UnitData> militaryUnits = GameLoader.Instance.gameData.militaryUnits[tempBuildLocation];
 
@@ -2817,6 +2856,8 @@ public class MapWorld : MonoBehaviour
 
     public void UnselectAll()
     {
+        CloseCampTooltipButton();
+        CloseTradeRouteBeginTooltipButton();
         cityBuilderManager.ResetCityUI();
         unitMovement.ClearSelection();
         cityBuilderManager.UnselectWonder();
@@ -2831,8 +2872,6 @@ public class MapWorld : MonoBehaviour
         CloseMap();
         CloseTerrainTooltipButton();
         CloseImprovementTooltipButton();
-        CloseCampTooltipButton();
-        CloseTradeRouteBeginTooltipButton();
 	}
 
     public void ToggleMinimap(bool v)
@@ -4072,35 +4111,15 @@ public class MapWorld : MonoBehaviour
         //ambushLoc = new Vector3Int(9, 0, 26);
         UnitBuildDataSO ambushingUnit = UpgradeableObjectHolder.Instance.enemyUnitDict[ambushUnitDict[currentEra]];
         TerrainData td = GetTerrainDataAt(loc);
+        if (td.treeHandler != null)
+            td.ToggleTransparentForest(true);
 
 		EnemyAmbush ambush = new();
 		ambush.loc = loc;
         ambush.attackedTrader = unitTrader.name;
 
-		//check for main player
-		Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
-        if (Mathf.Abs(playerLoc.x - loc.x) < 7 && Mathf.Abs(playerLoc.z - loc.z) < 7)
-        {
-			if (mainPlayer.isBusy)
-				unitMovement.workerTaskManager.ForceCancelWorkerTask();
-
-			mainPlayer.StopPlayer();
-			mainPlayer.exclamationPoint.SetActive(true);
-			mainPlayer.runningAway = true;
-            mainPlayer.isBusy = true;
-            mainPlayer.stepAside = true;
-
-			if (playerLoc - loc == Vector3Int.zero)
-            {
-                mainPlayer.StepAside(playerLoc);
-            }
-            else //look to watch
-            {
-                mainPlayer.Rotate(loc);
-                scott.Rotate(loc);
-                azai.Rotate(loc);
-            }
-        }
+        //check for main player
+        CheckMainPlayerLoc(loc);
 
 		GameObject enemyGO = Instantiate(ambushingUnit.prefab, ambushLoc, rotation);
         enemyGO.name = ambushingUnit.unitDisplayName;
@@ -4176,6 +4195,41 @@ public class MapWorld : MonoBehaviour
 			unit.PlayAudioClip(cityBuilderManager.warningClip); //not attacked so can play sound
 			unit.enemyAI.StartAttack(unitTrader);
         }
+	}
+
+    public void CheckMainPlayerLoc(Vector3Int loc, List<Vector3Int> route = null)
+    {
+		Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
+        int xDiff = Mathf.Abs(playerLoc.x - loc.x);
+        int zDiff = Mathf.Abs(playerLoc.z - loc.z);
+
+		if (xDiff < 4 && zDiff < 4)
+		{
+            if (mainPlayer.isBusy)
+				unitMovement.workerTaskManager.ForceCancelWorkerTask();
+
+			mainPlayer.StopPlayer();
+			mainPlayer.exclamationPoint.SetActive(true);
+			mainPlayer.runningAway = true;
+			mainPlayer.isBusy = true;
+			mainPlayer.stepAside = true;
+
+			if (playerLoc - loc == Vector3Int.zero || (route != null && route.Contains(playerLoc)))
+			{
+				mainPlayer.StepAside(playerLoc, route);
+			}
+			else //look to watch
+			{
+				mainPlayer.Rotate(loc);
+				scott.Rotate(loc);
+				azai.Rotate(loc);
+			}
+		}
+        else if (mainPlayer.runningAway && (xDiff > 12 || zDiff > 12))
+        {
+			mainPlayer.StopRunningAway();
+			mainPlayer.stepAside = false;
+		}
 	}
 
     public void ClearAmbush(Vector3Int loc)
@@ -4783,14 +4837,27 @@ public class MapWorld : MonoBehaviour
 
     public void CityBattleStations(Vector3Int cityLoc, Vector3Int targetZone, EnemyCamp camp)
     {
-        cityDict[cityLoc].army.targetCamp = camp;
+        if (!cityDict[cityLoc].hasBarracks)
+            return;
+        
+        if (GetCityDevelopment(cityDict[cityLoc].barracksLocation).isTraining)
+            cityBuilderManager.RemoveImprovement(cityDict[cityLoc].barracksLocation, GetCityDevelopment(cityDict[cityLoc].barracksLocation), cityDict[cityLoc], true, false);
+
+		cityDict[cityLoc].army.targetCamp = camp;
         cityDict[cityLoc].army.defending = true;
 		cityDict[cityLoc].army.forward = (targetZone - cityLoc) / 3;
 		cityDict[cityLoc].army.unitsReady = 0;
         cityDict[cityLoc].army.attackZone = cityLoc;
         cityDict[cityLoc].army.enemyTarget = targetZone;
         cityDict[cityLoc].army.enemyCityLoc = camp.cityLoc;
+        cityDict[cityLoc].army.EveryoneHomeCheck();
 		cityDict[cityLoc].army.RealignUnits(this, targetZone, cityLoc, cityLoc);
+        if (cityDict[cityLoc].army.selected)
+            unitMovement.ResetArmyHomeButtons();
+
+        if (uiCampTooltip.activeStatus && uiCampTooltip.army == GetCity(cityLoc).army)
+            unitMovement.CancelArmyDeployment();
+        //ToggleCityMaterialClear(cityLoc, targetZone, true, false);
     }
 
     public void RevealEnemyCamp(Vector3Int loc)
@@ -4812,6 +4879,13 @@ public class MapWorld : MonoBehaviour
 			if (unit.buildDataSO.unitType != UnitType.Cavalry)
                 unit.DiscoverSitting();
 		}
+
+        if (unitMovement.deployingArmy)
+        {
+			GetTerrainDataAt(loc).EnableHighlight(Color.red);
+			foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
+				unit.SoftSelect(Color.red);
+		}
     }
 
     public void EnemyBattleStations(Vector3Int campLoc, Vector3Int armyLoc)
@@ -4820,14 +4894,15 @@ public class MapWorld : MonoBehaviour
         {
             enemyCampDict[campLoc].threatLoc = armyLoc;
 			enemyCampDict[campLoc].forward = (armyLoc - campLoc) / 3;
-			enemyCampDict[campLoc].BattleStations(campLoc);
+			enemyCampDict[campLoc].BattleStations(campLoc, enemyCampDict[campLoc].forward);
         }
         else if (enemyCityDict[campLoc].enemyCamp.attackingArmy != null)
         {
             enemyCityDict[campLoc].enemyCamp.threatLoc = armyLoc;
 			enemyCityDict[campLoc].enemyCamp.forward = (armyLoc - campLoc) / 3;
-			enemyCityDict[campLoc].enemyCamp.BattleStations(campLoc);
+			enemyCityDict[campLoc].enemyCamp.BattleStations(campLoc, enemyCityDict[campLoc].enemyCamp.forward);
             enemyCityDict[campLoc].StopSpawnCycle(true);
+			//ToggleCityMaterialClear(campLoc, armyLoc, true, true);
 		}
     }
 
@@ -4839,96 +4914,136 @@ public class MapWorld : MonoBehaviour
             enemyCityDict[loc].enemyCamp.ReturnToCamp();
     }
 
-    public void ToggleCityMaterialClear(Vector3Int loc, Vector3Int targetLoc, bool v, bool enemy)
+	public void ToggleCityMaterialClear(Vector3Int enemyLoc, Vector3Int armyLoc, Vector3Int loc, Vector3Int targetLoc, bool v)
     {
-            List<Vector3Int> tilesToCheck;
-
-            if (enemy)
-                tilesToCheck = GetNeighborsFor(loc, State.EIGHTWAYINCREMENT);
-            else
-				tilesToCheck = GetNeighborsFor(loc, State.CITYRADIUS);
+        if (GetTerrainDataAt(loc).treeHandler != null)
+			GetTerrainDataAt(loc).ToggleTransparentForest(v);
         
+        if (GetTerrainDataAt(targetLoc).treeHandler != null)
+            GetTerrainDataAt(targetLoc).ToggleTransparentForest(v);
+
         if (v)
         {
-            if (enemy)
-                enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasClear;
-            else
-                cityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasClear;
+            if (battleLocs.Count == 0)
+				battleCamera.SetActive(true);
 
-            for (int i = 0; i < tilesToCheck.Count; i++)
-            {                
-                if (cityImprovementDict.ContainsKey(tilesToCheck[i]))
-                {
-                    if (tilesToCheck[i] == targetLoc)
-                    {
-                        if (cityImprovementDict[tilesToCheck[i]].GetImprovementData.replaceTerrain)
-                            GetTerrainDataAt(tilesToCheck[i]).ToggleTerrainMesh(true);
+			if (!battleLocs.Contains(armyLoc))
+                battleLocs.Add(armyLoc);
 
-						SkinnedMeshRenderer skinnedMesh = cityImprovementDict[tilesToCheck[i]].GetComponentInChildren<SkinnedMeshRenderer>();
-						if (skinnedMesh != null)
-							skinnedMesh.sharedMaterial = atlasClear;
-					}
-                    else
-                    {
-                        cityImprovementDict[tilesToCheck[i]].ShowEmbiggenedMesh();
-                        cityImprovementDict[tilesToCheck[i]].showing = true;
-
-					}
-                }
-            }
-		}
-        else
-        {
-            if (enemy)
-                enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasMain;
-            else
-                cityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasMain;
-
-			for (int i = 0; i < tilesToCheck.Count; i++)
+			if (IsEnemyCityOnTile(enemyLoc))
 			{
-				if (cityImprovementDict.ContainsKey(tilesToCheck[i]))
-				{
-					if (tilesToCheck[i] == targetLoc)
-					{
-						if (cityImprovementDict[tilesToCheck[i]].GetImprovementData.replaceTerrain)
-							GetTerrainDataAt(tilesToCheck[i]).ToggleTerrainMesh(false);
-
-                        SkinnedMeshRenderer skinnedMesh = cityImprovementDict[tilesToCheck[i]].GetComponentInChildren<SkinnedMeshRenderer>();
-						if (skinnedMesh != null)
-                            skinnedMesh.sharedMaterial = atlasMain;
-					}
-					else
-					{
-						cityImprovementDict[tilesToCheck[i]].HideImprovement();
-                        cityImprovementDict[tilesToCheck[i]].showing = false;
-					}
-				}
+				foreach (Unit unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
+					unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
 			}
+			else
+			{
+				foreach (Unit unit in enemyCampDict[enemyLoc].UnitsInCamp)
+					unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
+			}
+
+			foreach (Unit unit in cityDict[armyLoc].army.UnitsInArmy)
+				unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
 		}
+		else
+        {
+			battleLocs.Remove(armyLoc);
+
+			if (battleLocs.Count == 0)
+				battleCamera.SetActive(false);
+
+			if (IsEnemyCityOnTile(enemyLoc))
+            {
+                foreach (Unit unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
+                    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Enemy");
+            }
+            else
+            {
+			    foreach (Unit unit in enemyCampDict[enemyLoc].UnitsInCamp)
+				    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Enemy");
+		    }
+
+            foreach (Unit unit in cityDict[armyLoc].army.UnitsInArmy)
+			    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Agent");
+        }
+
+
+
+
+  //      List<Vector3Int> cityImprovementLocs;
+  //      //doing all this so as to maintain combined meshes but still show buildings when attacking
+  //      if (v)
+  //      {
+  //          if (enemy)
+  //          {
+  //              enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasClear;
+  //              cityImprovementLocs = enemyCityDict[loc].improvementMeshes.Keys.ToList();
+  //              if (enemyCityDict[loc].activeCity)
+  //                  cityBuilderManager.ResetCityUI();
+  //          }
+  //          else
+  //          {
+  //              cityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasClear;
+  //              cityImprovementLocs = cityDict[loc].improvementMeshes.Keys.ToList();
+  //              if (cityDict[loc].activeCity)
+  //                  cityBuilderManager.ResetCityUI();
+  //          }
+
+  //          cityBuilderManager.ToggleBuildingMaterial(loc, atlasSemiClear, false);
+
+  //          foreach (Vector3Int tile in cityImprovementLocs)
+  //          {
+  //              if (tile == targetLoc)
+  //              {
+  //                  if (cityImprovementDict[tile].GetImprovementData.replaceTerrain)
+  //                      GetTerrainDataAt(tile).ToggleTerrainMesh(true);
+
+  //                  cityImprovementDict[tile].EnableMaterial(atlasSemiClear);
+  //              }
+  //              else
+  //              {
+  //                  cityImprovementDict[tile].ShowEmbiggenedMesh();
+  //                  cityImprovementDict[tile].showing = true;
+  //              }
+  //          }
+		//}
+  //      else
+  //      {
+		//	if (enemy)
+		//	{
+		//		enemyCityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasMain;
+		//		cityImprovementLocs = enemyCityDict[loc].improvementMeshes.Keys.ToList();
+		//	}
+		//	else
+		//	{
+		//		cityDict[loc].subTransform.GetComponent<MeshRenderer>().sharedMaterial = atlasMain;
+		//		cityImprovementLocs = cityDict[loc].improvementMeshes.Keys.ToList();
+		//	}
+
+		//	cityBuilderManager.ToggleBuildingMaterial(loc, atlasMain, true);
+
+		//	foreach (Vector3Int tile in cityImprovementLocs)
+		//	{
+		//		if (tile == targetLoc)
+		//		{
+		//			if (cityImprovementDict[tile].GetImprovementData.replaceTerrain)
+		//				GetTerrainDataAt(tile).ToggleTerrainMesh(false);
+
+		//			cityImprovementDict[tile].EnableMaterial(atlasMain);
+		//		}
+		//		else
+		//		{
+		//			cityImprovementDict[tile].HideImprovement();
+		//			cityImprovementDict[tile].showing = false;
+		//		}
+		//	}
+		//}
     }
 
-    //public void MoveCamp(List<Vector3Int> leaderPath, Vector3Int campLoc, Unit leader, Unit target)
-    //{
-    //    foreach (Unit unit in enemyCampDict[campLoc].UnitsInCamp)
-    //    {
-    //        if (unit == leader)
-    //            continue;
-
-    //        Vector3Int leaderDiff = RoundToInt(unit.transform.position - leader.transform.position);
-    //        unit.enemyAI.FollowLeader(leaderPath, leaderDiff, target);
-    //    }
-    //}
-
-    //public void ConvergeCamp(Unit leader, Vector3Int campLoc)
-    //{
-    //    foreach (Unit unit in enemyCampDict[campLoc].UnitsInCamp)
-    //    {
-    //        if (unit == leader)
-    //            continue;
-
-    //        unit.enemyAI.Converge();
-    //    }
-    //}
+    public void BattleCamCheck(bool v)
+    {
+        if (battleLocs.Count > 0)
+            battleCamera.SetActive(!v);
+    }
 
     public void HighlightAllEnemyCamps()
     {
@@ -4949,8 +5064,18 @@ public class MapWorld : MonoBehaviour
 			if (!td.isDiscovered)
 				continue;
 
-			td.EnableHighlight(Color.red);
-            cityBuilderManager.ToggleEnemyBuildingHighlight(tile, Color.red);
+            if (enemyCityDict[tile].enemyCamp.movingOut)
+            {
+                for (int i = 0; i < enemyCityDict[tile].enemyCamp.UnitsInCamp.Count; i++)
+                {
+                    enemyCityDict[tile].enemyCamp.UnitsInCamp[i].SoftSelect(Color.red);
+				}
+            }
+            else
+            {
+			    td.EnableHighlight(Color.red);
+                cityBuilderManager.ToggleEnemyBuildingHighlight(tile, Color.red);
+            }
 		}
     }
 
@@ -5004,17 +5129,37 @@ public class MapWorld : MonoBehaviour
 			if (!td.isDiscovered)
 				continue;
 
+            if (enemyCityDict[tile].enemyCamp.movingOut)
+            {
+				for (int i = 0; i < enemyCityDict[tile].enemyCamp.UnitsInCamp.Count; i++)
+					enemyCityDict[tile].enemyCamp.UnitsInCamp[i].Unhighlight();
+			}
+
 			td.DisableHighlight();
-            cityBuilderManager.ToggleBuildingHighlight(false, tile);
+            cityBuilderManager.ToggleBuildingHighlight(false, tile);    
 		}
 	}
+
+    public void HighlightAttackingCity(Vector3Int cityLoc)
+    {
+        foreach (Vector3Int tile in enemyCityDict.Keys)
+        {
+            if (enemyCityDict[tile].enemyCamp.movingOut && enemyCityDict[tile].enemyCamp.moveToLoc == cityLoc)
+            {
+				for (int i = 0; i < enemyCityDict[tile].enemyCamp.UnitsInCamp.Count; i++)
+				{
+					enemyCityDict[tile].enemyCamp.UnitsInCamp[i].SoftSelect(Color.red);
+				}
+			}
+        }
+    }
 
     public bool CheckIfEnemyAlreadyAttacked(Vector3Int loc)
     {
         if (enemyCampDict.ContainsKey(loc))
-            return enemyCampDict[loc].attacked;
+            return enemyCampDict[loc].attacked || enemyCampDict[loc].inBattle || enemyCampDict[loc].attackReady;
         else
-            return enemyCityDict[loc].enemyCamp.attacked;
+            return enemyCityDict[loc].enemyCamp.attacked || enemyCityDict[loc].enemyCamp.inBattle || enemyCityDict[loc].enemyCamp.attackReady;
     }
 
     public void SetEnemyCityAsAttacked(Vector3Int loc, Army army)
@@ -5022,7 +5167,7 @@ public class MapWorld : MonoBehaviour
         enemyCityDict[loc].enemyCamp.attacked = true;
 		enemyCityDict[loc].enemyCamp.attackingArmy = army;
         enemyCityDict[loc].enemyCamp.forward = army.forward * -1;
-		GameLoader.Instance.gameData.attackedEnemyBases[loc] = new();
+		//GameLoader.Instance.gameData.attackedEnemyBases[loc] = new();
 	}
 
     public void SetEnemyCampAsAttacked(Vector3Int loc, Army army)

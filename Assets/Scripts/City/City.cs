@@ -21,7 +21,7 @@ public class City : MonoBehaviour
     private List<MeshFilter> cityMeshFilters = new();
     public List<MeshFilter> CityMeshFilters { get { return cityMeshFilters; } }
     private Dictionary<string, (MeshFilter[], GameObject)> buildingMeshes = new(); //for removing meshes
-    private Dictionary<Vector3Int, (MeshFilter[], GameObject)> improvementMeshes = new();
+    public Dictionary<Vector3Int, (MeshFilter[], GameObject)> improvementMeshes = new();
     private List<CityImprovement> improvementList = new();
     public List<CityImprovement> ImprovementList { get { return improvementList; } }
 
@@ -51,7 +51,7 @@ public class City : MonoBehaviour
     public string cityName;
     
     [HideInInspector]
-    public Vector3Int cityLoc;
+    public Vector3Int cityLoc, waitingAttackLoc;
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining,
         hasMarket, isNamed, stopCycle, attacked;
@@ -84,7 +84,8 @@ public class City : MonoBehaviour
     //foodConsumed info
     public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60, growthFood = 3; //how much foodConsumed one unit eats per turn
     private UITimeProgressBar uiTimeProgressBar;
-    private int countDownTimer;
+    [HideInInspector]
+    public int countDownTimer;
     private Coroutine co;
     private WaitForSeconds foodConsumptionWait = new(1);
     ResourceValue foodValue;
@@ -753,7 +754,8 @@ public class City : MonoBehaviour
                         //world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
                     }
                     //resourceManager.SellResources();
-                    StartGrowthCycle(false);
+                    if (army.armyCount == 0)
+                        StartGrowthCycle(false);
                 }
                 else if (cityPop.CurrentPop == 4)
                 {
@@ -860,7 +862,7 @@ public class City : MonoBehaviour
         hellHighlight.Play();
     }
 
-    private void HouseLightCheck()
+    public void HouseLightCheck()
     {
 		int lightingCount = 0;
         bool lightsOn = true;
@@ -879,6 +881,15 @@ public class City : MonoBehaviour
 		}
 	}
 
+    public void TurnOffLights()
+    {
+        for (int i = 0; i < housingArray.Length; i++)
+        {
+            if (housingArray[i] != null)
+                housingArray[i].ToggleLights(false);
+        }
+    }
+
     private void RemoveRandomFieldLaborer(bool any)
     {
         System.Random random = new();
@@ -886,7 +897,7 @@ public class City : MonoBehaviour
 
         //below is giving every labor in any tile equal chance of being chosen
         int currentLabor = 0;
-        Dictionary<int, Vector3Int> laborByTile = new();
+        List<Vector3Int> laborByTile = new();
         foreach (Vector3Int tile in workedTiles)
         {
             if (!any && world.GetCityDevelopment(tile).GetImprovementData.housingIncrease > 0)
@@ -895,12 +906,10 @@ public class City : MonoBehaviour
             int prevLabor = currentLabor;
             currentLabor += world.GetCurrentLaborForTile(tile);
             for (int i = prevLabor; i < currentLabor; i++)
-            {
-                laborByTile[currentLabor] = tile;
-            }
+                laborByTile.Add(tile); //add loc to list based on how many workers are there (dupes intentional)
         }
 
-        Vector3Int chosenTile = laborByTile[random.Next(currentLabor)];
+        Vector3Int chosenTile = laborByTile[random.Next(0,laborByTile.Count)];
         //above is giving labor in any tile equal chance of being chosen
         //Vector3Int chosenTile = workedTiles[random.Next(workedTiles.Count)]; //equal chance of being chosen, regardless of labor size
 
@@ -911,6 +920,7 @@ public class City : MonoBehaviour
         {
             world.RemoveFromCurrentWorked(chosenTile);
             world.RemoveFromCityLabor(chosenTile);
+            world.GetResourceProducer(chosenTile).StopProducing();
             //resourceManager.RemoveKeyFromGenerationDict(chosenTile);
         }
         else
@@ -1279,6 +1289,11 @@ public class City : MonoBehaviour
         co = StartCoroutine(SendAttackWait());
     }
 
+    public void LoadSendAttackWait()
+    {
+		co = StartCoroutine(SendAttackWait());
+	}
+
     private IEnumerator SendAttackWait()
     {
         while (countDownTimer > 0)
@@ -1290,7 +1305,7 @@ public class City : MonoBehaviour
         SendAttack();
     }
 
-    private void SendAttack()
+    public void SendAttack()
     {
         //find closest city
         City targetCity = null;
@@ -1314,19 +1329,32 @@ public class City : MonoBehaviour
         }
 
         if (targetCity != null)
-            enemyCamp.MoveOut(targetCity);
+        {
+            if (targetCity.army.atHome)
+            {
+                targetCity.attacked = true;
+                enemyCamp.MoveOut(targetCity);
+            }
+            else
+            {
+                targetCity.waitingAttackLoc = cityLoc;
+            }
+        }
         else
+        {
             StartSendAttackWait();
+        }
     }
 
     public void BePillaged(int enemyAmount)
     {
-        int losePop = 0;
+        int losePop;
+        bool destroyed = false;
         
         if (cityPop.CurrentPop < 4)
         {
-            world.cityBuilderManager.DestroyCity(this);
-            return;
+            losePop = cityPop.CurrentPop;
+            destroyed = true;
         }
         else if (cityPop.CurrentPop < 8)
         {
@@ -1342,9 +1370,7 @@ public class City : MonoBehaviour
 		}
 
         for (int i = 0; i < losePop; i++)
-        {
             PopulationDeclineCheck(true, true);
-        }
 
 		PlayPopLossAudio();
 
@@ -1359,29 +1385,37 @@ public class City : MonoBehaviour
 			PlayHellHighlight(cityLoc);
 		}
 
-        float pillagePerc = enemyAmount * 0.1f;
-        List<ResourceType> types = ResourceManager.ResourceDict.Keys.ToList();
-        int j = 0;
-        for (int i = 0; i < types.Count; i++)
+        if (destroyed)
         {
-            int amount = ResourceManager.ResourceDict[types[i]];
-
-            if (amount > 0)
+            world.cityBuilderManager.DestroyCity(this);
+        }
+        else
+        {
+            float pillagePerc = enemyAmount * 0.1f;
+            List<ResourceType> types = ResourceManager.ResourceDict.Keys.ToList();
+            int j = 0;
+            for (int i = 0; i < types.Count; i++)
             {
-                ResourceManager.SubtractResource(types[i], Mathf.CeilToInt(amount * pillagePerc));
-			    Vector3 loc = cityLoc;
-			    loc.y -= 0.4f * j;
-                j++;
-			    InfoResourcePopUpHandler.CreateResourceStat(loc, -amount, ResourceHolder.Instance.GetIcon(types[i]));
-            }
-		}
+                int amount = ResourceManager.ResourceDict[types[i]];
+
+                if (amount > 0)
+                {
+                    ResourceManager.SubtractResource(types[i], Mathf.CeilToInt(amount * pillagePerc));
+			        Vector3 loc = cityLoc;
+			        loc.y -= 0.4f * j;
+                    j++;
+			        InfoResourcePopUpHandler.CreateResourceStat(loc, -amount, ResourceHolder.Instance.GetIcon(types[i]));
+                }
+		    }
+        }
 	}
 
     public void StartSpawnCycle(bool restart)
     {
-        if (!restart)
+        if (restart)
             countDownTimer = world.enemyUnitGrowthTime;
 
+        enemyCamp.growing = true;
 		world.GetCityDevelopment(barracksLocation).PlaySmokeEmitter(barracksLocation, countDownTimer, false);
 		co = StartCoroutine(SpawnCycleCoroutine());
     }
@@ -1399,11 +1433,17 @@ public class City : MonoBehaviour
 
 		if (enemyCamp != null)
         {
-            if (!enemyCamp.attacked)
-                AddEnemyUnit(enemyCamp, world.GetTerrainDataAt(barracksLocation).isDiscovered);
+            AddEnemyUnit(enemyCamp, world.GetTerrainDataAt(barracksLocation).isDiscovered);
 
             if (enemyCamp.campCount < 9)
-                StartSpawnCycle(false);
+            {
+                StartSpawnCycle(true);
+            }
+            else
+            {
+                enemyCamp.growing = false;
+                StartSendAttackWait();
+            }
         }
     }
 
@@ -1484,8 +1524,6 @@ public class City : MonoBehaviour
 		unitEnemy.enemyAI.CampLoc = camp.loc;
 		unitEnemy.enemyAI.CampSpot = unitLoc;
 		unitEnemy.enemyCamp = camp;
-
-		camp.campCount++;
 
         if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == camp)
             world.uiCampTooltip.RefreshData();
@@ -1866,7 +1904,13 @@ public class City : MonoBehaviour
 		GameLoader.Instance.gameData.discoveredEnemyCampLocs.Add(cityLoc);
 
         RevealUnitsInCamp();
-        //StartSendAttackWait();
+        StartSendAttackWait();
+
+        if (world.unitMovement.deployingArmy)
+        {
+			world.GetTerrainDataAt(cityLoc).EnableHighlight(Color.red);
+			world.cityBuilderManager.ToggleEnemyBuildingHighlight(cityLoc, Color.red);
+		}
 	}
 
     public void RevealUnitsInCamp()
@@ -2229,8 +2273,16 @@ public class City : MonoBehaviour
 				}
                 else
                 {
-                    army.targetCamp = world.GetEnemyCamp(army.enemyTarget);
-                    world.GetEnemyCamp(army.enemyTarget).attackingArmy = army;
+                    if (world.IsEnemyCampHere(army.enemyTarget))
+                    {
+                        army.targetCamp = world.GetEnemyCamp(army.enemyTarget);
+                        world.GetEnemyCamp(army.enemyTarget).attackingArmy = army;
+                    }
+                    else
+                    {
+                        army.targetCamp = world.GetEnemyCamp(army.enemyCityLoc);
+						world.GetEnemyCamp(army.enemyCityLoc).attackingArmy = army;
+					}
                 }
 			}
 		}

@@ -124,8 +124,6 @@ MonoBehaviour:
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 8069968344949317187}
   lightBeam: {fileID: 8861846232932686719}
-  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 0}
   exclamationPoint: {fileID: 0}
@@ -143,6 +141,7 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  trader: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -159,6 +158,7 @@ MonoBehaviour:
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   ambushLoc: {x: 0, y: 0, z: 0}
+  lastClearTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -168,10 +168,6 @@ MonoBehaviour:
   attackSpeed: 0
   attackStrength: 0
   healthMax: 0
-  attackPause:
-  - 0.75
-  - 1
-  - 1.25
   projectile: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -186,7 +182,6 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
-  conversationTopic: 
   isLeader: 0
   readyToMarch: 0
   inArmy: 0
@@ -208,8 +203,12 @@ MonoBehaviour:
   looking: 0
   ambush: 0
   aoe: 0
+  guard: 0
+  isGuarding: 0
+  returning: 0
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
+  guardedTrader: {fileID: 0}
   unitAnimator: {fileID: 0}
 --- !u!114 &548835204452299567
 MonoBehaviour:
@@ -332,11 +331,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Healthbar
       objectReference: {fileID: 0}
-    - target: {fileID: 644161447630316390, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
-        type: 3}
-      propertyPath: m_Layer
-      value: 9
-      objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
       propertyPath: m_RootOrder
@@ -391,21 +385,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2631714467303042577, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
-        type: 3}
-      propertyPath: m_Layer
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 3513914610275139090, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
-        type: 3}
-      propertyPath: m_Layer
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 6680770185660995771, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
-        type: 3}
-      propertyPath: m_Layer
-      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf, type: 3}

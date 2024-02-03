@@ -132,7 +132,8 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             world.ToggleMinimap(false);
 			//world.openingImmoveable = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
-            gameObject.SetActive(v);
+			world.BattleCamCheck(true);
+			gameObject.SetActive(v);
             world.somethingSelected = true;
 
             foreach (UIResearchItem researchItem in researchItemList)
@@ -173,8 +174,9 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             isQueueing = false;
             queueButton.color = originalColor;
             activeStatus = false;
+			world.BattleCamCheck(false);
 
-            LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
+			LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
             .setEase(LeanTweenType.easeOutSine)
             .setOnUpdate((value) =>
             {

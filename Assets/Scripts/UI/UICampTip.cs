@@ -71,7 +71,7 @@ public class UICampTip : MonoBehaviour
 			world.unitMovement.DeployArmy();
 	}
 
-	public void ToggleVisibility(bool val, CityImprovement improvement = null, EnemyCamp enemyCamp = null, Army army = null, bool clearCosts = true)
+	public void ToggleVisibility(bool val, CityImprovement improvement = null, EnemyCamp enemyCamp = null, Army army = null, bool clearCosts = true, bool movingOut = false)
 	{
 		if (activeStatus == val)
 			return;
@@ -136,11 +136,14 @@ public class UICampTip : MonoBehaviour
 				this.enemyCamp = null;
 			}
 
-			world.unitMovement.HideBattlePath();
 			cantAffordList.Clear();
 
-			if (clearCosts)
+			if (clearCosts) //only time when this is relevant is when confirming to deploy army somewhere
+			{
 				this.army.ClearBattleCosts();
+				world.unitMovement.HideBattlePath();
+			}
+
 			this.army = null;
 
 			activeStatus = false;
@@ -152,7 +155,7 @@ public class UICampTip : MonoBehaviour
 	{
 		if (activeStatus && improvement != null)
 		{
-			if (world.noMoneyWarning)
+			if (improvement.city.army.noMoneyCycles > 0)
 			{
 				warningText.SetActive(true);
 				allContents.sizeDelta = new Vector2(currentWidth, 460);
@@ -374,12 +377,6 @@ public class UICampTip : MonoBehaviour
 				}
 			}
 		}
-	}
-
-	//if attacking city, update enemy strength
-	public void UpdateEnemyStrength()
-	{
-
 	}
 
 	//seeing if battle can be afforded or not

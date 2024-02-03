@@ -179,7 +179,6 @@ public class BasicEnemyAI : MonoBehaviour
 
 					if (!unit.attacking)
 					{
-
 						StartAttack(enemy);
 					}
 					else
@@ -499,21 +498,17 @@ public class BasicEnemyAI : MonoBehaviour
 		if (target.targetSearching)
 			target.StartAttack(unit);
 
-		//if (UnityEngine.Random.Range(0, 2) == 0)
-		//	yield return unit.attackPauses[1];
-
-		int timeWait = UnityEngine.Random.Range(0, 3);
+		int wait = UnityEngine.Random.Range(0, 3);
+		if (wait != 0)
+			yield return unit.attackPauses[wait];
 
 		while (!unit.isDead && target.currentHealth > 0 && dist < distThreshold)
         {
 			unit.transform.rotation = Quaternion.LookRotation(target.transform.position - unit.transform.position);
 			unit.StartAttackingAnimation();
-			yield return unit.attackPauses[3];
+			yield return unit.attackPauses[2];
 	        target.ReduceHealth(unit, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
-			yield return unit.attackPauses[timeWait];
-			timeWait++;
-			if (timeWait == 3)
-				timeWait = 0;
+			yield return unit.attackPauses[0];
 			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
         }
 
@@ -551,19 +546,19 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else if (unit.enemyCamp.attackingArmy == null)
 		{
-			if (!unit.enemyCamp.movingOut) //pillage done else where
+			if (!unit.enemyCamp.movingOut && !unit.repositioning) //pillage done else where
 				StartReturn();
 		}
 		else if (dist >= distThreshold && unit.enemyCamp.attackingArmy.returning)
 		{
             unit.enemyCamp.TargetSearchCheck();
-            StartReturn();
+			if (!unit.repositioning)
+	            StartReturn();
 		}
-		else if (!unit.isDead) //just in case
+		else if (!unit.isDead && unit.inBattle) //just in case
 		{
 			unit.attackCo = null;
 			unit.StopMovement();
-			unit.StopAnimation();
 			AggroCheck();
 		}
     }
@@ -576,13 +571,14 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.Rotate(target.transform.position);
 		float distThreshold = 7.5f;
 
-		if (UnityEngine.Random.Range(0, 2) == 0)
-			yield return unit.attackPauses[1];
+		int wait = UnityEngine.Random.Range(0, 3);
+		if (wait != 0)
+			yield return unit.attackPauses[wait];
 
 		while (!unit.isDead && target.currentHealth > 0 && dist < distThreshold)
 		{
 			unit.StartAttackingAnimation();
-			yield return unit.attackPauses[1];
+			yield return unit.attackPauses[2];
 			unit.projectile.SetPoints(transform.position, target.transform.position);
 			StartCoroutine(unit.projectile.Shoot(unit, target));
 			yield return unit.attackPauses[0];
@@ -593,7 +589,8 @@ public class BasicEnemyAI : MonoBehaviour
 		if (dist >= 7.5 && unit.enemyCamp.attackingArmy.returning)
 		{
             unit.enemyCamp.TargetSearchCheck();
-            StartReturn();
+			if (!unit.repositioning)
+	            StartReturn();
 		}
 		else if (!unit.isDead)
 		{

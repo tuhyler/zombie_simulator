@@ -320,7 +320,6 @@ public class GameLoader : MonoBehaviour
 			if (city.enemyCamp.pillage && city.enemyCamp.pillageTime > 0)
 				StartCoroutine(city.enemyCamp.Pillage());
 		}
-		attackingEnemyCitiesList.Clear();
 
 		GameManager.Instance.UpdateProgress(10);
 
@@ -400,6 +399,19 @@ public class GameLoader : MonoBehaviour
 			attackingUnitList[i].LoadAttack();
 		}
 		attackingUnitList.Clear();
+
+		foreach (City city in attackingEnemyCitiesList)
+		{
+			if (city.enemyCamp.inBattle)
+				world.ToggleCityMaterialClear(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
+		}
+		attackingEnemyCitiesList.Clear();
+
+		foreach (Vector3Int loc in gameData.attackedEnemyBases.Keys)
+		{
+			if (gameData.attackedEnemyBases[loc].inBattle)
+				world.ToggleCityMaterialClear(world.GetEnemyCamp(loc).loc, world.GetEnemyCamp(loc).attackingArmy.city.cityLoc, world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
+		}
 
 		world.uiAttackWarning.LoadAttackLocs(gameData.attackLocs);
 		gameData.attackLocs.Clear();
@@ -508,7 +520,7 @@ public class GameLoader : MonoBehaviour
 
 	public void RemoveEnemyCity(Vector3Int loc)
 	{
-		gameData.attackedEnemyBases.Remove(loc);
+		//gameData.attackedEnemyBases.Remove(loc);
 		gameData.enemyCities.Remove(loc);
 	}
 }

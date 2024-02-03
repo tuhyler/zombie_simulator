@@ -343,11 +343,10 @@ MonoBehaviour:
   minimapIcon: {fileID: 1834696708367566843}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
-  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 3330690310085288296}
   exclamationPoint: {fileID: 7391618480052511721}
+  ripples: {fileID: 0}
   marker: {fileID: 1465328918421097503}
   healthbar: {fileID: 6831278477032459367}
   greetings:
@@ -361,6 +360,7 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  trader: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -376,6 +376,8 @@ MonoBehaviour:
   finalDestinationLoc: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
+  ambushLoc: {x: 0, y: 0, z: 0}
+  lastClearTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -384,10 +386,7 @@ MonoBehaviour:
   baseSpeed: 0
   attackSpeed: 0
   attackStrength: 0
-  attackPause:
-  - 0.75
-  - 1
-  - 1.25
+  healthMax: 0
   projectile: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -402,7 +401,6 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
-  conversationTopic: 
   isLeader: 0
   readyToMarch: 0
   inArmy: 0
@@ -420,8 +418,16 @@ MonoBehaviour:
   isDead: 0
   isUpgrading: 0
   runningAway: 0
+  hidden: 0
+  looking: 0
+  ambush: 0
+  aoe: 0
+  guard: 0
+  isGuarding: 0
+  returning: 0
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
+  guardedTrader: {fileID: 0}
   unitAnimator: {fileID: 0}
   building: 0
   removing: 0
@@ -430,6 +436,7 @@ MonoBehaviour:
   buildingCity: 0
   working: 0
   clearedForest: 0
+  stepAside: 0
   clearingForestTime: 10
   cityBuildingTime: 2
   roadBuildingTime: 1
@@ -440,6 +447,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 7353d1e2daf1dac4d9a61c508af7e1c5, type: 3}
   - {fileID: 8300000, guid: 5230f4b55f0df8e48beff3ba46632e4e, type: 3}
   timePassed: 0
+  conversationTopics: []
 --- !u!1001 &8811663769511038827
 PrefabInstance:
   m_ObjectHideFlags: 0

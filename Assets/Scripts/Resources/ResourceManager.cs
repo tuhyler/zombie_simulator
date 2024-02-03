@@ -215,10 +215,17 @@ public class ResourceManager : MonoBehaviour
 
             if (resourceType == ResourceType.Gold)
             {
-                if (military && !city.CheckWorldGold(value.resourceAmount))
+                if (military)
                 {
-                    consumedAmount = city.GetWorldGoldLevel();
-                    city.army.AWOLCheck();
+                    if (city.CheckWorldGold(value.resourceAmount))
+                    {
+                        city.army.AWOLClear();
+                    }
+                    else
+                    {
+					    consumedAmount = city.GetWorldGoldLevel();
+                        city.army.AWOLCheck();
+                    }
                 }
 
                 city.UpdateWorldResources(resourceType, -consumedAmount);

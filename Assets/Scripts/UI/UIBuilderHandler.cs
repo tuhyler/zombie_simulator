@@ -179,8 +179,9 @@ public class UIBuilderHandler : MonoBehaviour
             cityBuilderManager.buildOptionsActive = true;
             cityBuilderManager.activeBuilderHandler = this;
             this.somethingNew = somethingNew;
+			cityBuilderManager.world.BattleCamCheck(true);
 
-            if (!openTab)
+			if (!openTab)
             {
                 //cityBuilderManager.world.openingImmoveable = true;
                 cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(true);
@@ -241,8 +242,9 @@ public class UIBuilderHandler : MonoBehaviour
             maxGold = 0;
             cityBuilderManager.buildOptionsActive = false;
             cityBuilderManager.activeBuilderHandler = null;
+			cityBuilderManager.world.BattleCamCheck(false);
 
-            if (this.somethingNew)
+			if (this.somethingNew)
             {
                 this.somethingNew = false;
 
