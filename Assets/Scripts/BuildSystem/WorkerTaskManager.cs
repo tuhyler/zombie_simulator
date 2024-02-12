@@ -133,7 +133,10 @@ public class WorkerTaskManager : MonoBehaviour
             world.scott.StopMovement();
 
         if (world.azaiFollow)
+        {
             world.azai.StopMovement();
+            world.azai.StopAnimation();
+        }
 
 		if (Vector3Int.RoundToInt(pos) == workerTile)
 		{

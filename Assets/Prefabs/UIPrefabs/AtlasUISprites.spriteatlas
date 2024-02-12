@@ -56,6 +56,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: b00f12718ccff3b4da39bb3eea52dc69, type: 3}
   - {fileID: 21300000, guid: 344d8c81036a9fa4ebd8f409923ae623, type: 3}
   - {fileID: 21300000, guid: c508fd915cfb5074fbdb94e5d6802a5b, type: 3}
+  - {fileID: 21300000, guid: 2d1bb1a1a4ce3c545a3092138ac124b9, type: 3}
   - {fileID: 21300000, guid: 63cde1b1df029314fb5b48d23fd206cb, type: 3}
   - {fileID: 21300000, guid: f8eb67b1bfae8064cb8abf01306fd204, type: 3}
   - {fileID: 21300000, guid: c69ca7b161275b54ab7966809f786ec4, type: 3}
@@ -196,6 +197,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 42edba2def6915d47b9a065009ca1cd5, type: 3}
   - {fileID: 21300000, guid: b54eab4db8eba204c9f8f31fee95053f, type: 3}
   - {fileID: 21300000, guid: 30dd6a9db936fbe47815ac9bd5ce72de, type: 3}
+  - {fileID: 21300000, guid: 10ca9cadbf92c394d9bf787ff663f553, type: 3}
   - {fileID: 21300000, guid: 5b8136cdb151eb24fada3f92a3bd885f, type: 3}
   - {fileID: 21300000, guid: e71a60dd97e4bbb4cbb9011ef3f3a250, type: 3}
   - {fileID: 21300000, guid: abe97aedf89bef74eb7fec3a41b8c5ea, type: 3}
@@ -248,6 +250,7 @@ SpriteAtlas:
   - button_round_lightblue
   - map_enemymarker
   - button_swap
+  - circle_lightblue
   - bar_gray
   - arrow_downblack
   - button_buildroad
@@ -388,6 +391,7 @@ SpriteAtlas:
   - panel_darkgold02
   - icon_infantry_enemy
   - mask_clear
+  - circle_black
   - bar_progresswhitered
   - button_arrowright
   - icon_enemycity
