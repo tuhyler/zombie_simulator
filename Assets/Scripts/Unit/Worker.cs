@@ -564,7 +564,16 @@ public class Worker : Unit
         workerPos.y = 0;
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
 
-        if (!world.IsTileOpenCheck(workerTile))
+		StopMovement();
+		if (world.scottFollow)
+		{
+			world.scott.StopMovement();
+
+			if (world.azaiFollow)
+				world.azai.StopMovement();
+		}
+
+		if (!world.IsTileOpenCheck(workerTile))
         {
             InfoPopUpHandler.WarningMessage().Create(workerPos, "Harvest on open tile");
             return;
@@ -584,29 +593,19 @@ public class Worker : Unit
             return;
         }
         ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(type);
-        //Debug.Log("Harvesting resource at " + workerPos);
 
-        //resourceIndividualHandler.GenerateHarvestedResource(workerPos, workerUnit);
-        StopMovement();
         if (world.scottFollow)
-        {
-            world.scott.StopMovement();
-            PrepareScottGather();
+			PrepareScottGather();
 
-            if (world.azaiFollow)
-                world.azai.StopMovement();
-        }
-        //unitAnimator.SetBool(isWorkingHash, true);
         isBusy = true;
-        //resourceIndividualHandler.SetWorker(this);
         gathering = true;
-        //workerTaskManager.GatherResource(workerPos, this, city, resourceIndividual, false);
         GatherResourceTask(workerPos, city, resourceIndividual, false);
     }
 
     private void GatherResourceTask(Vector3 workerPos, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
     {
-		world.SetWorkerWorkLocation(world.GetClosestTerrainLoc(workerPos));
+		if (isPlayer)
+            world.SetWorkerWorkLocation(world.GetClosestTerrainLoc(workerPos));
 		if (world.mainPlayer.isSelected)
 			world.unitMovement.uiCancelTask.ToggleVisibility(true);
 		if (clearForest)
@@ -773,7 +772,12 @@ public class Worker : Unit
 		FinishedMoving.RemoveListener(GatherResourceListener);
 
 		Vector3Int workerTile = world.RoundToInt(transform.position);
-		ResourceIndividualSO resourceData = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
+        ResourceType resource = world.GetTerrainDataAt(workerTile).resourceType;
+
+        if (resource == ResourceType.None)
+            return;
+
+		ResourceIndividualSO resourceData = ResourceHolder.Instance.GetData(resource);
 
 		City city = world.mainPlayer.buildingCity ? null : world.GetCity(resourceCityLoc);
 

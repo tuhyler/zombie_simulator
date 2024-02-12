@@ -100,7 +100,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Strut
-  m_Speed: 0.1
+  m_Speed: 0.075
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 7840708512747368651}
@@ -114,7 +114,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -4783622568925895486, guid: 134b754945409f5408d1bf49164f6adb,
+  m_Motion: {fileID: -1980686935512954512, guid: 134b754945409f5408d1bf49164f6adb,
     type: 3}
   m_Tag: 
   m_SpeedParameter: speed
@@ -326,7 +326,7 @@ AnimatorStateMachine:
     m_Position: {x: 310, y: 180, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5461515428545657960}
-    m_Position: {x: 330, y: 280, z: 0}
+    m_Position: {x: 310, y: 270, z: 0}
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: -8231404173307942581}

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,9 @@ public class UINewGameMenu : MonoBehaviour
 {
 	[SerializeField]
 	private TitleScreen titleScreen;
+
+	[SerializeField]
+	private ToggleGroup mapSizeGroup;
 
 	[SerializeField]
 	private Toggle tutorialToggle;
@@ -51,6 +55,8 @@ public class UINewGameMenu : MonoBehaviour
 
 	public void StartNewGame()
 	{
-		GameManager.Instance.NewGame(tutorial);
+		string mapSize = mapSizeGroup.ActiveToggles().FirstOrDefault().name;
+		Debug.Log(mapSize);
+		GameManager.Instance.NewGame(mapSize, tutorial);
 	}
 }

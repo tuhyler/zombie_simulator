@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 		SceneManager.UnloadSceneAsync((int)SceneIndexes.MANAGER);
 	}
 
-	public void NewGame(bool tutorial)
+	public void NewGame(string mapSize, bool tutorial)
 	{
 		loadingScreen.SetActive(true);
 		loadingBackground.sprite = loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
