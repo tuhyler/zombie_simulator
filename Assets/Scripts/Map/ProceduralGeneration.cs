@@ -296,8 +296,17 @@ public class ProceduralGeneration
         return mapTiles;
     }
 
-    public static Dictionary<Vector3Int, int> MergeMountainTerrain(Dictionary<Vector3Int, int> mainMap, Dictionary<Vector3Int, int> mountainMap)
+    public static Dictionary<Vector3Int, int> MergeMountainTerrain(System.Random random, Dictionary<Vector3Int, int> mainMap, Dictionary<Vector3Int, int> mountainMap, int resourceFrequency)
     {
+        int limit;
+
+        if (resourceFrequency == 3)
+            limit = 1; //100%
+        else if (resourceFrequency == 4)
+            limit = 4; //75% 
+        else
+            limit = 6; //50%
+        
         foreach (Vector3Int tile in mountainMap.Keys)
         {
             if (mountainMap[tile] == mountain)
@@ -331,10 +340,18 @@ public class ProceduralGeneration
                     if (!mainMap.ContainsKey(neighborPos))
                         continue;
 
+                    int floodPlain = random.Next(0, limit);
+
                     if (mainMap[neighborPos] == grassland)
-                        mainMap[neighborPos] = grasslandFloodPlain;
+                    {
+                        int terrain = floodPlain < 3 ? grasslandFloodPlain : grassland;
+                        mainMap[neighborPos] = terrain;
+                    }
                     else if (mainMap[neighborPos] == desert)
-                        mainMap[neighborPos] = desertFloodPlain;
+                    {
+						int terrain = floodPlain < 3 ? desertFloodPlain : desert;
+						mainMap[neighborPos] = terrain;
+                    }
                 }
             }
             else if (mountainMap[tile] == sea && mainMap[tile] != sea)
@@ -348,7 +365,7 @@ public class ProceduralGeneration
 
     public static Dictionary<Vector3Int, int> GenerateTerrain(Dictionary<Vector3Int, int> mainTiles, Dictionary<Vector3Int, float> mainNoise,
         float lowerThreshold, float upperThreshold, int desertPerc, int forestPerc,
-        int width, int height, int yCoord, int equatorDist, int seed)
+        int width, int height, int yCoord, int equatorDist, int equatorPos, int seed)
     {
         System.Random random = new System.Random(seed);
 
@@ -390,10 +407,8 @@ public class ProceduralGeneration
         int desertCount = 0;
         int forestCount = 0;
 
-        if (lowerThreshold > upperThreshold)
-            lowerThreshold = upperThreshold;
-
-        int equatorPos = height / 2;
+        //if (lowerThreshold > upperThreshold)
+        //    lowerThreshold = upperThreshold;
 
         foreach (int region in terrainRegions.Keys)
         {
@@ -441,6 +456,7 @@ public class ProceduralGeneration
             }
         }
 
+        mainTiles = RemoveSingleIslands(mainTiles);
         mainTiles = RemoveSingles2(mainTiles, width, height, yCoord);
 		mainTiles = RemoveSingles2(mainTiles, width, height, yCoord);
 		mainTiles = GenerateSwamps(mainTiles, width, height, yCoord, seed);
@@ -652,6 +668,32 @@ public class ProceduralGeneration
         }
 
         return randomTiles;
+    }
+
+    private static Dictionary<Vector3Int, int> RemoveSingleIslands(Dictionary<Vector3Int, int> mapDict)
+    {
+        Dictionary<Vector3Int, int> tempDict = new(mapDict);
+        foreach (Vector3Int tile in mapDict.Keys)
+        {
+            if (mapDict[tile] != 1)
+            {
+                int seaCount = 0;
+                for (int i = 0; i < neighborsFourDirections.Count; i++)
+                {
+                    Vector3Int newTile = tile + neighborsFourDirections[i];
+
+                    if (!mapDict.ContainsKey(newTile) || mapDict[newTile] == 1)
+                        seaCount++;
+                    else
+                        break;
+                }
+
+                if (seaCount == 4)
+                    tempDict[tile] = 1;
+            }
+        }
+        
+        return tempDict;
     }
 
     private static Dictionary<Vector3Int, int> RemoveSingles(Dictionary<Vector3Int, int> mapDict, int width, int height, int yCoord,
@@ -1014,30 +1056,29 @@ public class ProceduralGeneration
         return mapDict;
     }
 
-    public static Dictionary<Vector3Int, int> GenerateRivers(Dictionary<Vector3Int, int> mapDict, int riverPerc, int riverCountMin, int seed)
+    public static Dictionary<Vector3Int, int> GenerateRivers(Dictionary<Vector3Int, int> mapDict, /*int riverPerc,*/ int riverCountMin, int seed)
     {
         System.Random random = new System.Random(seed);
 
         Queue<Vector3Int> riverStarts = new();
         List<Vector3Int> riverStartOptions = new();
-        int totalTileCount = 0;
+        //int totalTileCount = 0;
         //List<Vector3Int> allTiles = new();
         List<Vector3Int> potentialStartTiles = new();
         int riverTileCount = 0;
         int riverCount = 0;
 
-        //getting tiles at depth
+        //getting tiles distant from edge and sea (5 tiles)
         foreach (Vector3Int tile in mapDict.Keys)
         {
             //allTiles.Add(tile);
-            totalTileCount++;
+            //totalTileCount++;
             int seaCheck = 0;
 
             foreach (Vector3Int neighbor in neighborsFourDirections)
-            {
-                
+            {   
                 if (mapDict.ContainsKey(tile + neighbor * 5) && mapDict[tile + neighbor] != sea && mapDict[tile + neighbor * 2] != sea
-                    && mapDict[tile + neighbor * 3] != sea && mapDict[tile + neighbor * 4] != sea)// && mapDict[tile + neighbor * 5] != sea)
+                    /*&& mapDict[tile + neighbor * 3] != sea && mapDict[tile + neighbor * 4] != sea*/ /*&& mapDict[tile + neighbor * 5] != sea*/)
                 {
                     seaCheck++;
                 }
@@ -1047,12 +1088,12 @@ public class ProceduralGeneration
                 riverStartOptions.Add(tile);
         }
 
-        int riverTileTotal = Mathf.RoundToInt((riverPerc/100f) * totalTileCount);
+        //int riverTileTotal = Mathf.RoundToInt((riverPerc/100f) * totalTileCount);
 
         //getting tiles at depth next to mountains
         foreach (Vector3Int tile in riverStartOptions)
-        { 
-            if (mapDict[tile] == mountain)
+        {
+            if (mapDict[tile] == mountain || mapDict[tile] == hill)
             {
                 foreach(Vector3Int neighbor in neighborsFourDirections)
                 {
@@ -1094,7 +1135,6 @@ public class ProceduralGeneration
             List<Vector3Int> newRiverTiles = new();
             int[] alternateDirections = DirectionSetUp(random.Next(0, 4));
 
-            //lists instead of arrays because length changes so much
             List<int> directionList = new();
             List<int> directionOne = new () { alternateDirections[0], alternateDirections[1] };
             List<int> directionTwo = new () { alternateDirections[0], alternateDirections[2] };

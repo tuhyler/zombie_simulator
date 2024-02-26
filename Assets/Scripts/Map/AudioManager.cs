@@ -13,66 +13,57 @@ public class AudioManager : MonoBehaviour
 
 	private AudioSource audioSource;
 
-	private int musicPause = 10; //pause between songs
+	private int musicPause = 30; //pause between songs
 	private int checkWait = 5;
 	private WaitForSeconds ambienceCheck;
-
-	private float checkMultiple;
-	private int resetCount;
 
 	private Coroutine musicCo, ambienceCo;
 
 	private bool onLandDay, onLandNight, onWater;
 
 	[SerializeField]
-	private bool isMusic, isAmbience, mute;
+	public bool isMusic, isAmbience, mute, playing;
 
 	private void Awake()
 	{
 		ambienceCheck = new(checkWait);
-		checkMultiple = 1 / (float)checkWait;
 		audioSource = GetComponent<AudioSource>();
 	}
 
 	private void Start()
 	{
-		if (isMusic)
+		/*if (isMusic)
 		{
-			//randomly sorting music
-			List<AudioClip> musicToAdd = new(audioClips);
-
-			//if (true) //for havign a specific song play first
-			//{
-			//	AudioClip specificSong = musicToAdd[0];
-			//	musicList.Enqueue(specificSong);
-			//	musicToAdd.Remove(specificSong);
-			//}
-
-			int length = musicToAdd.Count;
-		
-			for (int i = 0; i < length; i++)
-			{
-				AudioClip song = musicToAdd[Random.Range(0, musicToAdd.Count)];
-				musicList.Enqueue(song);
-				musicToAdd.Remove(song);
-			}
-	
-			if (!mute)
-				musicCo = StartCoroutine(MusicPlay());
+			ShuffleMusic();
 		}
-		else if (isAmbience)
+		else */if (isAmbience)
 		{
 			if (!mute)
 				AmbienceCheck();
 		}
-		else
+		/*else
 		{
-			//if (!mute)
-			//{
-			//	world.FindVisibleCity();
-			//}
-		}
+			if (!mute)
+			{
+				world.FindVisibleCity();
+			}
+		}*/
 
+	}
+
+	private void ShuffleMusic()
+	{
+		//randomly sorting music
+		List<AudioClip> musicToAdd = new(audioClips);
+
+		int length = musicToAdd.Count;
+
+		for (int i = 0; i < length; i++)
+		{
+			AudioClip song = musicToAdd[Random.Range(0, musicToAdd.Count)];
+			musicList.Enqueue(song);
+			musicToAdd.Remove(song);
+		}
 	}
 
 	private IEnumerator AmbiencePlay()
@@ -157,26 +148,61 @@ public class AudioManager : MonoBehaviour
 		audioSource.Play();
 	}
 
-	private IEnumerator MusicPlay()
+	private IEnumerator MusicPlay(bool specificSong, AudioClip specifiedSong = null)
 	{
-		AudioClip song = musicList.Dequeue();
+		playing = true;
+		AudioClip song;
+
+		if (specificSong)
+			song = specifiedSong;
+		else
+			song = musicList.Dequeue();
+
 		musicList.Enqueue(song);
 
 		audioSource.clip = song;
 		audioSource.Play();
 		yield return new WaitForSeconds(song.length + musicPause);
 
-		musicCo = StartCoroutine(MusicPlay());
+		if (musicList.Count == 0)
+			ShuffleMusic();
+
+		if (!mute)
+			musicCo = StartCoroutine(MusicPlay(false));
+		else
+			playing = false;
+	}
+
+	public void PlaySpecificSong(AudioClip song)
+	{
+		StopMusic();
+		
+		if (!mute)
+		{
+			musicCo = StartCoroutine(MusicPlay(true, song));
+		}
 	}
 
 	public void StartMusic()
 	{
-		audioSource.Play();
+		if (playing)
+			return;
+
+		StopMusic();
+		
+		if (!mute)
+		{
+			if (musicList.Count == 0)
+				ShuffleMusic();
+
+			musicCo = StartCoroutine(MusicPlay(false));
+		}
 	}
 
 	public void StopMusic()
 	{
-		audioSource.Pause();
+		audioSource.Stop();
+		playing = false;
 
 		if (musicCo != null)
 			StopCoroutine(musicCo);

@@ -75,6 +75,7 @@ public class UIInfoPanelCity : MonoBehaviour
 	public void SetGrowthData(City city)
     {
 		cityPop.text = SetStringValue(city.cityPop.CurrentPop);
+        unusedLabor.text = SetStringValue(city.cityPop.UnusedLabor);
 		UpdateHousing(city.HousingCount);
         UpdateWater(city.waterCount);
     }

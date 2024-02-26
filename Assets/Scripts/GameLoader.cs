@@ -33,10 +33,166 @@ public class GameLoader : MonoBehaviour
 		Instance = this;
 	}
 
-	public void NewGame(bool tutorial)
+	public void NewGame(string starting, string landType, string resource, /*string mountains,*/string enemy, string mapSize, bool tutorial)
 	{
 		GameManager.Instance.ResetProgress();
 		world.ClearMap();
+
+		//if (starting == "NorthToggle")
+		//{
+		//	terrainGenerator.startingRegion = Region.North;
+		//	terrainGenerator.desertPerc = 5;
+		//	terrainGenerator.forestAndJunglePerc = 95;
+
+		//	if (mapSize == "SmallToggle")
+		//	{
+		//		terrainGenerator.width = 20;
+		//		terrainGenerator.height = 20;
+		//	}
+		//	else if (mapSize == "MediumToggle")
+		//	{
+		//		terrainGenerator.width = 25;
+		//		terrainGenerator.height = 25;
+		//	}
+		//	else if (mapSize == "LargeToggle")
+		//	{
+		//		terrainGenerator.width = 30;
+		//		terrainGenerator.height = 30;
+		//	}
+
+		//	terrainGenerator.equatorDist = 2;
+		//	terrainGenerator.equatorPos = 6; //bottom of map
+		//}
+		//else if (starting == "SouthToggle")
+		//{
+		//	terrainGenerator.startingRegion = Region.South;
+		//	terrainGenerator.desertPerc = 90;
+		//	terrainGenerator.forestAndJunglePerc = 10;
+
+		//	if (mapSize == "SmallToggle")
+		//	{
+		//		terrainGenerator.width = 20;
+		//		terrainGenerator.height = 20;
+		//	}
+		//	else if (mapSize == "MediumToggle")
+		//	{
+		//		terrainGenerator.width = 25;
+		//		terrainGenerator.height = 25;
+		//	}
+		//	else if (mapSize == "LargeToggle")
+		//	{
+		//		terrainGenerator.width = 30;
+		//		terrainGenerator.height = 30;
+		//	}
+
+		//	terrainGenerator.equatorDist = 5;
+		//	terrainGenerator.equatorPos = terrainGenerator.height * 3 * 3 / 4;
+		//}
+		//else if (starting == "EastToggle")
+		//{
+		//	terrainGenerator.startingRegion = Region.East;
+		//	terrainGenerator.desertPerc = 20;
+		//	terrainGenerator.forestAndJunglePerc = 80;
+
+		//	if (mapSize == "SmallToggle")
+		//	{
+		//		terrainGenerator.width = 20;
+		//		terrainGenerator.height = 20;
+		//	}
+		//	else if (mapSize == "MediumToggle")
+		//	{
+		//		terrainGenerator.width = 25;
+		//		terrainGenerator.height = 25;
+		//	}
+		//	else if (mapSize == "LargeToggle")
+		//	{
+		//		terrainGenerator.width = 30;
+		//		terrainGenerator.height = 30;
+		//	}
+
+		//	terrainGenerator.equatorDist = 4;
+		//	terrainGenerator.equatorPos = terrainGenerator.height * 3 * 2 / 5;
+		//}
+		//else if (starting == "WestToggle")
+		//{
+		//	terrainGenerator.startingRegion = Region.West;
+		//	terrainGenerator.desertPerc = 40;
+		//	terrainGenerator.forestAndJunglePerc = 60;
+
+		//	if (mapSize == "SmallToggle")
+		//	{
+		//		terrainGenerator.width = 20;
+		//		terrainGenerator.height = 20;
+		//	}
+		//	else if (mapSize == "MediumToggle")
+		//	{
+		//		terrainGenerator.width = 25;
+		//		terrainGenerator.height = 25;
+		//	}
+		//	else if (mapSize == "LargeToggle")
+		//	{
+		//		terrainGenerator.width = 30;
+		//		terrainGenerator.height = 30;
+		//	}
+
+		//	terrainGenerator.equatorDist = 7;
+		//	terrainGenerator.equatorPos = terrainGenerator.height * 3 * 2 / 5;
+		//}
+
+		//if (landType == "IslandsToggle")
+		//{
+		//	terrainGenerator.iterations = 2;
+		//	terrainGenerator.landMassLimit = 20;
+		//	terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4;
+		//	terrainGenerator.totalLandLimit = 0;
+		//	terrainGenerator.continentsFlag = 0;
+		//}
+		//else if (landType == "ContinentsToggle")
+		//{
+		//	terrainGenerator.iterations = 15;
+		//	terrainGenerator.landMassLimit = 2;
+		//	terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 2;
+		//	terrainGenerator.continentsFlag = 1;
+		//}
+
+		//if (resource == "ScarceToggle")
+		//{
+		//	terrainGenerator.resourceFrequency = 5;
+		//	terrainGenerator.resourceFlag = 0;
+		//}
+		//else if (resource == "PlentyToggle")
+		//{
+		//	terrainGenerator.resourceFrequency = 4;
+		//	terrainGenerator.resourceFlag = 1;
+		//}
+		//else if (resource == "AbundantToggle")
+		//{
+		//	terrainGenerator.resourceFrequency = 3;
+		//	terrainGenerator.resourceFlag = 2;
+		//}
+
+		//if (mountains == "FlatToggle")
+		//{
+		//	terrainGenerator.mountainPerc = 20;
+		//	terrainGenerator.mountainousPerc = 40;
+		//}
+		//else if (mountains == "RegularToggle")
+		//{
+		//	terrainGenerator.mountainPerc = 33;
+		//	terrainGenerator.mountainousPerc = 70;
+		//}
+		//else if (mountains == "MountainousToggle")
+		//{
+		//	terrainGenerator.mountainPerc = 50;
+		//	terrainGenerator.mountainousPerc = 70;
+		//}
+
+		//if (enemy == "WeakToggle")
+		//	terrainGenerator.enemyCountDifficulty = 1;
+		//else if (enemy == "ModerateToggle")
+		//	terrainGenerator.enemyCountDifficulty = 2;
+		//else if (enemy == "StrongToggle")
+		//	terrainGenerator.enemyCountDifficulty = 3;
 
 		terrainGenerator.SetYCoord(0);
 		Dictionary<Vector3Int, TerrainData> terrainDict = terrainGenerator.RunProceduralGeneration(true);

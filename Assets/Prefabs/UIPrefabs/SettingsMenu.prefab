@@ -3925,7 +3925,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -5, y: -4}
+  m_AnchoredPosition: {x: -8, y: -6}
   m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 1, y: 1}
 --- !u!222 &1661063684949588874
@@ -4673,8 +4673,6 @@ MonoBehaviour:
   ambienceVolume: {fileID: 6303558838979738849}
   graphicsDropdown: {fileID: 1249688465031199780}
   resolutionDropdown: {fileID: 6199182698424966140}
-  tutorialToggle: {fileID: 6309507696305936123}
-  tutorial: 1
   activeStatus: 0
   audioMixer: {fileID: 24100000, guid: bce416043a3972e42aa24d33b7fee9bb, type: 2}
 --- !u!1 &7358279872720893316

@@ -32,7 +32,7 @@ public class TitleScreen : MonoBehaviour
         if (uiLoadGame.currentSaves.Count > 0)
             uiNewGame.ToggleVisibility(true);
         else
-			GameManager.Instance.NewGame("MediumToggle", true);
+			GameManager.Instance.NewGame("SouthToggle", "ContinentsToggle", "NormalToggle", "ModerateToggle", "MediumToggle", true);
 	}
 
     public void LoadGame()

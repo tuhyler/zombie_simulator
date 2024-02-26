@@ -22,5 +22,4 @@ public class WonderDataSO : ScriptableObject
     public bool replaceProp = true; //replace terrain prop when building upon it
     public int buildTimePerPercent = 10;
     public bool isSea = false;
-    public UnitBuildDataSO workerData;
 }

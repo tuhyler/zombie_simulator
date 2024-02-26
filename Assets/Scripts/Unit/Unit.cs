@@ -2,10 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Events;
+using static UnityEngine.UI.CanvasScaler;
 
 [System.Serializable]
 public class Unit : MonoBehaviour
@@ -52,6 +54,8 @@ public class Unit : MonoBehaviour
     public UnityEvent FinishedMoving; //listeners are worker tasks and show individualcity buttons
     [HideInInspector]
     public Trader trader;
+    [HideInInspector]
+    public Worker worker;
 
     //movement details
     [HideInInspector]
@@ -72,7 +76,7 @@ public class Unit : MonoBehaviour
     public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     [HideInInspector]
     public Vector3Int prevTile, prevTerrainTile, ambushLoc, lastClearTile; //second one for traders is in case road they're on is removed
-    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
+    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed, idleTime;
     [HideInInspector]
     public Coroutine movingCo, waitingCo, attackCo;
 
@@ -212,7 +216,12 @@ public class Unit : MonoBehaviour
 	private void SetParticleSystems()
     {
 		Vector3 loc = transform.position;
-		loc.y += 0.07f;
+
+        if (world.IsRoadOnTileLocation(world.RoundToInt(loc)))
+		    loc.y += 0.17f;
+		else
+			loc.y += 0.07f;
+
 		lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
 		lightBeam.transform.parent = world.psHolder;
 
@@ -470,24 +479,28 @@ public class Unit : MonoBehaviour
             if (this == world.mainPlayer && unitInTheWay.somethingToSay)
             {
 				world.unitMovement.QuickSelect(this);
-				unitInTheWay.GetComponent<Worker>().SpeakingCheck();
+				unitInTheWay.worker.SpeakingCheck();
                 FinishMoving(transform.position);
 				yield break;
             }
 
-            if (unitInTheWay.isBusy || unitInTheWay.followingRoute || unitInTheWay.inArmy || unitInTheWay.enemyAI)
-            {
-                if (isBusy)
-                {
-                    SkipRoadBuild();
-                    if (isSelected)
-                        td.DisableHighlight();
+     //       if (unitInTheWay.isBusy || unitInTheWay.followingRoute || unitInTheWay.inArmy || unitInTheWay.enemyAI || (unitInTheWay.worker && unitInTheWay.worker.gathering))
+     //       {
+     //           if (isBusy)
+     //           {
+     //               if (worker.building)
+     //                   SkipRoadBuild();
+     //               else if (worker.removing)
+					//	SkipRoadRemove();
 
-                    yield break;
-                }
-            }
-            else
-            {
+					//if (isSelected)
+     //                   td.DisableHighlight();
+
+     //               yield break;
+     //           }
+     //       }
+            if (!unitInTheWay.isBusy && !unitInTheWay.followingRoute && !unitInTheWay.inArmy && !unitInTheWay.enemyAI && !(unitInTheWay.worker && unitInTheWay.worker.gathering))
+			{
                 Vector3Int next;
                 if (pathPositions.Count > 0)
                     next = pathPositions.Peek();
@@ -1124,6 +1137,10 @@ public class Unit : MonoBehaviour
                     return;
                 }
             }
+            else if (trader.guarded)
+            {
+                trader.guardUnit.IdleCheck();
+            }
 
             //prevTile = currentLocation;            
         }
@@ -1192,7 +1209,10 @@ public class Unit : MonoBehaviour
                     guardedTrader.waitingOnGuard = false;
                     isGuarding = true;
                     originalMoveSpeed = guardedTrader.originalMoveSpeed; //move as fast as trader
-                }
+
+					if (!guardedTrader.isMoving && !guardedTrader.followingRoute)
+						waitingCo = StartCoroutine(IdleTimer(false));
+				}
 				else if (endPosition != barracksBunk)
                 {
                     GoToBunk();
@@ -1213,6 +1233,9 @@ public class Unit : MonoBehaviour
             else if (guard)
             {
 				world.AddUnitPosition(currentLocation, this);
+
+                if (!guardedTrader.isMoving && !guardedTrader.followingRoute)
+                    waitingCo = StartCoroutine(IdleTimer(false));
 			}
             else if (repositioning)
             {
@@ -1346,10 +1369,7 @@ public class Unit : MonoBehaviour
                 world.unitMovement.ShowIndividualCityButtonsUI();
 
             if (isLaborer)
-            {
-				if (world.IsWonderOnTile(world.GetClosestTerrainLoc(finalDestinationLoc)))
-                    world.unitMovement.JoinCity(this);
-            }
+                world.unitMovement.LaborerJoin(this);
         }
     }
 
@@ -2084,10 +2104,15 @@ public class Unit : MonoBehaviour
     }
 
     //if space is occupied with something
-    public virtual void SkipRoadBuild()
-    {
+    //public virtual void SkipRoadBuild()
+    //{
 
-    }
+    //}
+
+    //public virtual void SkipRoadRemove()
+    //{
+
+    //}
 
     public virtual void TurnOffRipples()
     {
@@ -2347,8 +2372,8 @@ public class Unit : MonoBehaviour
             runningAway = true;
             StartCoroutine(RunAway());
 
-            if (isSelected)
-                world.unitMovement.uiCancelMove.ToggleVisibility(false);
+            //if (isSelected)
+            //    world.unitMovement.uiCancelMove.ToggleVisibility(false);
         }    
     }
 
@@ -2398,13 +2423,13 @@ public class Unit : MonoBehaviour
 		runningAway = false;
         exclamationPoint.SetActive(false);
 
-		if (isSelected)
-        {
-			if (isMoving)
-    			world.unitMovement.uiCancelMove.ToggleVisibility(true);
-            else
-				world.unitMovement.uiMoveUnit.ToggleVisibility(true);
-		} 
+		//if (isSelected)
+  //      {
+		//	if (isMoving)
+  //  			world.unitMovement.uiCancelMove.ToggleVisibility(true);
+  //          else
+		//		world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+		//} 
 	}
 
 	public void TurnOnRipples()
@@ -2416,6 +2441,91 @@ public class Unit : MonoBehaviour
 			LeanTween.alpha(ripples, 1f, 0.2f).setFrom(0f).setEase(LeanTweenType.linear);
 		}
 	}
+
+    public void IdleCheck()
+    {
+        if (!isMoving && waitingCo == null)
+			waitingCo = StartCoroutine(IdleTimer(false));
+	}
+
+    private IEnumerator IdleTimer(bool load)
+    {
+        if (!load)
+            idleTime = 10;
+
+        while (idleTime > 0)
+        {
+            yield return attackPauses[0];
+			idleTime--;
+        }
+
+        waitingCo = null;
+        ReturnToClosestCityBarracks();
+    }
+
+    private void ReturnToClosestCityBarracks()
+    {
+		if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == guardedTrader)
+        {
+			waitingCo = StartCoroutine(IdleTimer(false));
+			return;
+        }
+
+		City closestCity = null;
+        int dist = 0;
+        bool firstOne = true;
+
+        foreach (City city in world.cityDict.Values)
+        {
+            if (!city.hasBarracks || city.army.isFull)
+                continue;
+            
+            if (firstOne)
+            {
+                closestCity = city;
+                dist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
+                firstOne = false;
+                continue;
+            }
+
+            int newDist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
+            if (newDist < dist)
+            {
+                closestCity = city;
+                dist = newDist;
+            }
+        }
+
+        if (!guardedTrader.followingRoute && !guardedTrader.isMoving) //just in case
+        {
+		    if (closestCity != null && !closestCity.attacked && closestCity.army.atHome)
+		    {
+                guardedTrader.SetGuardLeftMessage();
+			    Vector3Int newLoc = closestCity.army.GetAvailablePosition(buildDataSO.unitType);
+			    List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, newLoc, false, bySea);
+                world.unitMovement.TransferMilitaryUnit(this, closestCity, newLoc, path);
+		    }
+            else
+            {
+                waitingCo = StartCoroutine(IdleTimer(false));
+            }
+        }
+	}
+
+    public void ToggleIdleTimer(bool v)
+    {
+        if (v)
+        {
+            waitingCo = StartCoroutine(IdleTimer(false));
+        }
+        else
+        {
+            if (waitingCo != null)
+                StopCoroutine(waitingCo);
+
+            waitingCo = null;
+        }
+    }
 
 	public void SoftSelect(Color color)
     {
@@ -2843,6 +2953,7 @@ public class Unit : MonoBehaviour
         data.isMoving = isMoving;
         data.ambush = ambush;
         data.guard = guard;
+        data.idleTime = idleTime;
         data.isGuarding = isGuarding;
 
         if (isMoving && readyToMarch)
@@ -2906,6 +3017,7 @@ public class Unit : MonoBehaviour
         looking = data.looking;
         ambush = data.ambush;
         guard = data.guard;
+        idleTime = data.idleTime;
         isGuarding = data.isGuarding;
 
 		if (!isMoving)
@@ -2989,6 +3101,9 @@ public class Unit : MonoBehaviour
         {
             StartLookingAround();
         }
+
+        if (guard && !guardedTrader.followingRoute)
+            waitingCo = StartCoroutine(IdleTimer(true));
 	}
 
     public void LoadAttack()

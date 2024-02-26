@@ -141,11 +141,15 @@ public class Army : MonoBehaviour
     public void UpdateLocation(Vector3Int oldLoc, Vector3Int newLoc)
     {
 		int index = totalSpots.IndexOf(oldLoc);
+		int newIndex = 0;
 
-        if (index >= openSpots.Count) 
-            openSpots.Add(oldLoc);
-        else
-		    openSpots.Insert(index, oldLoc);
+		for (int i = 0; i < index; i++)
+		{
+			if (openSpots.Contains(totalSpots[i]))
+				newIndex++;
+		}
+
+		openSpots.Insert(newIndex, oldLoc);
 		openSpots.Remove(newLoc);
     }
 
@@ -322,11 +326,15 @@ public class Army : MonoBehaviour
             isFull = false;
 
         int index = totalSpots.IndexOf(loc);
+        int newIndex = 0;
 
-        if (index >= openSpots.Count)
-            openSpots.Add(loc);
-        else
-            openSpots.Insert(index,loc);
+        for (int i = 0; i < index; i++)
+        {
+            if (openSpots.Contains(totalSpots[i]))
+                newIndex++;
+        }
+
+        openSpots.Insert(newIndex,loc);
 
 		if (city.cityPop.CurrentPop == 0 && armyCount == 0)
 			city.StopGrowthCycle();

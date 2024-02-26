@@ -802,7 +802,6 @@ MonoBehaviour:
   queueNumberHolderImage: {fileID: 3405638307594406345}
   queueNumberCheck: {fileID: 142895901680045265}
   researchIcon: {fileID: 1574814297983474212}
-  resourceCostLayout: {fileID: 6698494140459295491}
   uiElementsParent: {fileID: 2159353113782829540}
   progressBarHolder: {fileID: 3757360413893999796}
   queueNumberHolder: {fileID: 8597071561869653114}

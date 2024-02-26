@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Auto Add Pop
+  m_text: Auto Assign
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c552c3cff8d4f694fb3d2d7264fa10e5, type: 2}
   m_sharedMaterial: {fileID: -1745220796929294283, guid: c552c3cff8d4f694fb3d2d7264fa10e5,
@@ -847,7 +847,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -300}
+  m_AnchoredPosition: {x: 15, y: -300}
   m_SizeDelta: {x: 185, y: 30}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &339539838265510742
@@ -988,6 +988,7 @@ MonoBehaviour:
   uiElementsParent: {fileID: 1506257240755227776}
   showPrioritiesButton: {fileID: 6181862596881422419}
   allContents: {fileID: 7582599321877566492}
+  originalLoc: {x: 0, y: 0, z: 0}
 --- !u!222 &1218809611748214487
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1713,6 +1714,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laborChange: 1
   buttonImage: {fileID: 3386285010633436998}
+  isFlashing: 0
 --- !u!114 &3386285010633436998 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 339274342687367354, guid: 8eccb49dcab704e46a7d42f7e9046c93,
@@ -1972,6 +1974,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   laborChange: -1
   buttonImage: {fileID: 5817053707937968223}
+  isFlashing: 0
 --- !u!224 &8829255333853807127 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3353171004290388722, guid: 8eccb49dcab704e46a7d42f7e9046c93,

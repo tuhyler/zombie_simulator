@@ -40,6 +40,9 @@ public class CityBuilderManager : MonoBehaviour
     public UICityNamer uiCityNamer, uiTraderNamer;
     [SerializeField]
     public UITradeCenter uiTradeCenter;
+    [SerializeField]
+    public UILaborDestinationWindow uiLaborDestinationWindow;
+    [HideInInspector]
     public UIHelperWindow uiHelperWindow;
     //[SerializeField]
     //private UICityResourceGrid uiCityResourceGrid;
@@ -466,7 +469,6 @@ public class CityBuilderManager : MonoBehaviour
 						return;
                     }
 
-                    PlayConstructionAudio();
                     BuildImprovementQueueCheck(improvementData, terrainLoc); //passing the data here as method requires it
 
                     world.TutorialCheck("Build Something");
@@ -623,11 +625,12 @@ public class CityBuilderManager : MonoBehaviour
 
         selectedWonder.StopConstructing();
         selectedWonder.WorkersReceived--; //decrease worker count 
+        bool secondary = selectedWonder.workerSexAndHome[0].Item1;
+        Vector3Int homeCityLoc = selectedWonder.workerSexAndHome[0].Item2;
+        selectedWonder.workerSexAndHome.RemoveAt(0);
 
         if (uiWonderSelection.activeStatus)
             uiWonderSelection.UpdateUIWorkers(selectedWonder.WorkersReceived, selectedWonder);
-
-        GameObject workerGO = selectedWonder.WonderData.workerData.prefab;
 
         Vector3Int buildPosition = selectedWonder.unloadLoc;
         if (world.IsUnitLocationTaken(buildPosition) || !world.CheckIfPositionIsValid(buildPosition)) //placing unit in world after building in city
@@ -643,25 +646,46 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
-        GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
-        unit.transform.SetParent(friendlyUnitHolder, false);
-        //for tweening
-        //Vector3 goScale = unit.transform.localScale;
-        //float scaleX = goScale.x;
-        //float scaleZ = goScale.z;
-        //unit.transform.localScale = new Vector3(scaleX, 0, scaleZ);
-        //LeanTween.scale(unit, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
-
-        unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
-        Unit newUnit = unit.GetComponent<Unit>();
-        newUnit.SetReferences(world);
-        newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+        TransferWorker(secondary, homeCityLoc, buildPosition, true);
     }
+
+    public void TransferWorker(bool secondary, Vector3Int destination, Vector3Int buildPosition, bool wonder)
+    {
+		GameObject workerGO;
+
+		if (secondary)
+			workerGO = world.laborerData.secondaryPrefab;
+		else
+			workerGO = world.laborerData.prefab;
+
+		GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
+		unit.transform.SetParent(friendlyUnitHolder, false);
+		//for tweening
+		Vector3 goScale = unit.transform.localScale;
+        float scaleX = goScale.x;
+        float scaleZ = goScale.z;
+        unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
+        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+
+		Unit newUnit = unit.GetComponent<Unit>();
+		newUnit.SetReferences(world);
+		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+		world.laborerCount++;
+		unit.name = "Laborer " + world.laborerCount;
+		newUnit.PlayAudioClip(buildClip);
+
+		Laborer laborer = newUnit.GetComponent<Laborer>();
+		world.laborerList.Add(laborer);
+        if (wonder)
+            laborer.homeCityLoc = destination;
+        else
+			laborer.homeCityLoc = selectedCity.cityLoc;
+
+		laborer.GoToDestination(destination);
+	}
 
     public void CreateAllWorkers(Wonder wonder)
     {
-        int workers = wonder.WorkersReceived;
-        
         wonder.StopConstructing();
         wonder.WorkersReceived = 0; //decrease worker count 
 
@@ -671,14 +695,14 @@ public class CityBuilderManager : MonoBehaviour
         int lostWorkersCount = 0;
         List<Vector3Int> locs = wonder.OuterRim();
 
-        for (int i = 0; i < workers; i++)
+        for (int i = 0; i < wonder.workerSexAndHome.Count; i++)
         {
             GameObject workerGO;
             
-            if (UnityEngine.Random.Range(0,2) == 0)
-                workerGO = wonder.WonderData.workerData.prefab;
+            if (wonder.workerSexAndHome[i].Item1)
+                workerGO = world.laborerData.secondaryPrefab;
             else
-				workerGO = wonder.WonderData.workerData.secondaryPrefab;
+				workerGO = world.laborerData.prefab;
 
 			if (locs.Count == 0)
                 lostWorkersCount++;
@@ -699,17 +723,21 @@ public class CityBuilderManager : MonoBehaviour
                     Laborer laborer = unit.GetComponent<Laborer>();
                     laborer.marker.ToggleVisibility(true);
                     world.laborerList.Add(laborer);
-                    laborer.StartLaborAnimations();
+                    laborer.StartLaborAnimations(false, wonder.workerSexAndHome[i].Item2);
                     
-                    unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
                     Unit newUnit = unit.GetComponent<Unit>();
                     newUnit.SetReferences(world);
                     newUnit.CurrentLocation = world.AddUnitPosition(loc, newUnit);
+					world.laborerCount++;
+					unit.name = "Laborer " + world.laborerCount;
+					world.laborerList.Add(newUnit.GetComponent<Laborer>());
 
-                    break;
+					break;
                 }
             }
         }
+
+        wonder.workerSexAndHome.Clear();
 
         if (lostWorkersCount > 0)
             InfoPopUpHandler.WarningMessage().Create(wonder.unloadLoc, "Lost " + lostWorkersCount.ToString() + " worker(s) due to no available space");
@@ -1078,7 +1106,7 @@ public class CityBuilderManager : MonoBehaviour
         world.GetTerrainDataAt(selectedCity.cityLoc).EnableHighlight(Color.green);
         DrawBorders();
         CheckForWork();
-        autoAssign.isOn = selectedCity.autoGrow;
+        autoAssign.isOn = selectedCity.AutoAssignLabor;
         //if (selectedCity.autoGrow)
         //      {
         //	uiLaborPrioritizationManager.ToggleVisibility(true, true);
@@ -1099,7 +1127,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (selectedCity.cityPop.CurrentPop > 0 || selectedCity.army.UnitsInArmy.Count > 0)
         {
-            uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.autoGrow);
+            uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.AutoAssignLabor);
             uiLaborAssignment.ShowUI(selectedCity, placesToWork);
         }
         else
@@ -1664,6 +1692,13 @@ public class CityBuilderManager : MonoBehaviour
 
     public void CheckPopForUnit(UnitBuildDataSO unitData)
     {
+        if (unitData.unitType == UnitType.Worker) 
+        {
+            uiLaborDestinationWindow.ToggleVisibility(true, selectedCity.cityLoc);
+			uiCityTabs.HideSelectedTab(false);
+			return;
+        }
+        
         CreateUnit(unitData, selectedCity, false);
     }
 
@@ -1750,7 +1785,16 @@ public class CityBuilderManager : MonoBehaviour
             }
 		}
 
-		GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position
+        Vector3 buildLoc = buildPosition;
+        if (world.GetTerrainDataAt(buildPosition).isHill)
+        {
+            if (buildPosition.z % 3 == 0 && buildPosition.x % 3 == 0)
+                buildLoc.y += .6f;
+            else
+                buildLoc.y += .3f;
+        }
+
+		GameObject unit = Instantiate(unitGO, buildLoc, Quaternion.identity); //produce unit at specified position
         unit.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
         Vector3 goScale = unitGO.transform.localScale;
@@ -1983,7 +2027,56 @@ public class CityBuilderManager : MonoBehaviour
             world.unitMovement.PrepareMovement(newUnit);
 	}
 
-    public void UpgradeUnitWindow(Unit unit)
+	public void TransferLaborPrep(string destination)
+	{
+        if (!world.CheckCityName(destination) && !world.CheckWonderName(destination))
+        {
+			InfoPopUpHandler.WarningMessage().Create(selectedCity.cityLoc, "Destination no londer available");
+			return;
+        }
+
+        if (selectedCity.cityPop.CurrentPop == 0)
+        {
+			InfoPopUpHandler.WarningMessage().Create(selectedCity.cityLoc, "No pop available");
+			return;
+        }
+
+        selectedCity.PopulationDeclineCheck(true, true);
+		//updating uis after losing pop
+		UpdateLaborNumbers();
+		uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
+		uiInfoPanelCity.SetAllData(selectedCity);
+		resourceManager.UpdateUI(world.laborerData.unitCost);
+		uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.ResourceStorageLevel);
+		uiCityTabs.HideSelectedTab(false);
+
+		Vector3Int buildPosition = selectedCity.cityLoc;
+
+		if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
+		{
+			foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAY))
+			{
+				if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).walkable)
+				{
+					buildPosition = pos;
+					break;
+				}
+			}
+		}
+
+		bool secondaryPrefab;
+
+        if (selectedCity.cityPop.CurrentPop % 2 == 0)
+            secondaryPrefab = false;
+        else
+            secondaryPrefab = true;
+
+        Vector3Int loc = world.GetStopLocation(destination);
+        TransferWorker(secondaryPrefab, loc, buildPosition, false);
+	}
+
+
+	public void UpgradeUnitWindow(Unit unit)
     {
         uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, null, unit);
     }
@@ -2311,8 +2404,11 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
 
-        //spending resources to build
-        Vector3Int buildLocation = tempBuildLocation;
+        if (!upgradingImprovement)
+    		PlayConstructionAudio();
+
+		//spending resources to build
+		Vector3Int buildLocation = tempBuildLocation;
         buildLocation.y = 0;
 
         if (!upgradingImprovement)
@@ -3544,7 +3640,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             //CloseLaborMenus();
             //openAssignmentPriorityMenu.interactable = true;
-            selectedCity.autoGrow = true;
+            //selectedCity.autoGrow = true;
             selectedCity.AutoAssignLabor = true;
 
             if (selectedCity.cityPop.UnusedLabor > 0)
@@ -3558,7 +3654,7 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
-            selectedCity.autoGrow = false;
+            //selectedCity.autoGrow = false;
             selectedCity.AutoAssignLabor = false;
             uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
             uiLaborPrioritizationManager.ToggleVisibility(false);
@@ -3744,6 +3840,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         uiDestroyCityWarning.ToggleVisibility(false);
         uiCityNamer.ToggleVisibility(false);
+        uiLaborDestinationWindow.CloseWindowButton();
         focusCam.paused = false;
     }
 

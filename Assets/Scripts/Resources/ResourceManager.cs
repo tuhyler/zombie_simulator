@@ -495,7 +495,7 @@ public class ResourceManager : MonoBehaviour
 		if (queuedResourcesToCheck.ContainsKey(type))
             CheckResourcesForQueue();
 
-        CityAutoGrowCheck(type);
+        //CityAutoGrowCheck(type);
 		UICheck(type, amount, prevAmount);
 	}
 
@@ -537,7 +537,7 @@ public class ResourceManager : MonoBehaviour
 				city.uiCityResourceInfoPanel.UpdateStorageLevel(ResourceStorageLevel);
 			}
 
-            if (type == ResourceType.Food && city.world.uiCityPopIncreasePanel.CheckCity(city))
+            if (city.world.uiCityPopIncreasePanel.CheckCity(city) && type == ResourceType.Food)
 				city.world.uiCityPopIncreasePanel.UpdateFoodCosts(city);
 		}
 		else if (city.army.DeployBattleScreenCheck())
@@ -548,16 +548,20 @@ public class ResourceManager : MonoBehaviour
         {
 			city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[type], type);
         }
-	}
-
-    private void CityAutoGrowCheck(ResourceType type)
-    {
-		if (city.autoGrow && city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && !city.reachedWaterLimit && type == ResourceType.Food && resourceDict[type] >= city.growthFood && !pauseGrowth)
-		{
-			resourceDict[type] -= city.growthFood;
-			city.PopulationGrowthCheck(false, 1);
+        else if (city.world.uiCityPopIncreasePanel.CheckCity(city) && type == ResourceType.Food)
+        {
+			city.world.uiCityPopIncreasePanel.UpdateFoodCosts(city);
 		}
 	}
+
+ //   private void CityAutoGrowCheck(ResourceType type)
+ //   {
+	//	if (city.autoGrow && city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && !city.reachedWaterLimit && type == ResourceType.Food && resourceDict[type] >= city.growthFood && !pauseGrowth)
+	//	{
+	//		resourceDict[type] -= city.growthFood;
+	//		city.PopulationGrowthCheck(false, 1);
+	//	}
+	//}
 
     //returns how much is actually moved
   //  private int AddResourceToStorage(ResourceType type, int resourceAmount)
@@ -819,8 +823,8 @@ public class ResourceManager : MonoBehaviour
                     city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
 			}
 
-            if (city.autoGrow && resourceDict[ResourceType.Food] >= city.growthFood + resourceConsumedPerMinuteDict[ResourceType.Food] && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
-                city.PopulationGrowthCheck(false, 1);
+            //if (city.autoGrow && resourceDict[ResourceType.Food] >= city.growthFood + resourceConsumedPerMinuteDict[ResourceType.Food] && city.HousingCount > 0 && !pauseGrowth && !city.reachedWaterLimit) //if enough food left over to grow
+            //    city.PopulationGrowthCheck(false, 1);
         }
         else
         {

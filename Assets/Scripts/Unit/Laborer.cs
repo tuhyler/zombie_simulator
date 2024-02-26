@@ -11,6 +11,12 @@ public class Laborer : Unit
     private int isJumpingHash;
     [HideInInspector]
     public Coroutine co;
+    [HideInInspector]
+    public Vector3Int homeCityLoc;
+    [HideInInspector]
+    public int totalWait;
+    [HideInInspector]
+    public bool celebrating;
 
     private void Awake()
     {
@@ -25,12 +31,14 @@ public class Laborer : Unit
         base.AwakeMethods();
     }
 
-    public IEnumerator Celebrate()
+    private IEnumerator Celebrate(bool load)
     {
+        celebrating = true;
         unitAnimator.SetBool(isCelebratingHash, true);
         int randomWait = Random.Range(1, 4);
         int currentWait = 0;
-        int totalWait = 0;
+        if (!load)
+            totalWait = 0;
 
         while (totalWait < celebrateTime)
         {
@@ -49,12 +57,30 @@ public class Laborer : Unit
             }
         }
 
+        celebrating = false;
         StopLaborAnimations();
+        CheckDestination(homeCityLoc);
     }
 
-    public void StartLaborAnimations()
+    public void CheckDestination(Vector3Int destination)
     {
-        co = StartCoroutine(Celebrate());
+        if (world.IsCityOnTile(destination))
+            GoToDestination(destination);
+        else
+			DestroyUnit();
+    }
+
+    public void GoToDestination(Vector3Int loc)
+    {
+		List<Vector3Int> pathHome = GridSearch.AStarSearch(world, transform.position, loc, false, false);
+		finalDestinationLoc = loc;
+		MoveThroughPath(pathHome);
+	}
+
+    public void StartLaborAnimations(bool load, Vector3Int homeCityLoc)
+    {
+        this.homeCityLoc = homeCityLoc;
+        co = StartCoroutine(Celebrate(load));
     }
 
     public void StopLaborAnimations()
@@ -80,6 +106,9 @@ public class Laborer : Unit
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
+        data.celebrating = celebrating;
+        data.totalWait = totalWait;
+        data.homeCityLoc = homeCityLoc;
 
 		return data;
 	}
@@ -96,6 +125,9 @@ public class Laborer : Unit
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
 		moreToMove = data.moreToMove;
+        celebrating = data.celebrating;
+        totalWait = data.totalWait;
+        homeCityLoc = data.homeCityLoc;
 
 		if (!isMoving)
 			world.AddUnitPosition(CurrentLocation, this);
@@ -109,5 +141,10 @@ public class Laborer : Unit
 
 			MoveThroughPath(data.moveOrders);
 		}
+
+        if (celebrating)
+        {
+            StartLaborAnimations(true, homeCityLoc);
+        }
 	}
 }

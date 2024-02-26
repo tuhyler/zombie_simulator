@@ -44,7 +44,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow;
+    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -99,6 +99,8 @@ public class MapWorld : MonoBehaviour
     public Material transparentMat, atlasMain, atlasClear, atlasSemiClear;
     [SerializeField]
     private GameObject selectionIcon, enemyCampIcon, buildPanel, wonderBuildPanel, canvasHolder, enemyBorder;
+    [SerializeField]
+    public UnitBuildDataSO laborerData;
 
     [SerializeField]
     private ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash;
@@ -252,7 +254,9 @@ public class MapWorld : MonoBehaviour
     public bool showGizmo, hideTerrain = true;
 
     [SerializeField]
-    public AudioManager ambienceAudio;
+    public AudioManager ambienceAudio, musicAudio;
+    [SerializeField]
+    public AudioClip newWorldSong, badGuySong, congratsSong;
     private AudioSource audioSource;
 
     //handling discovering resources
@@ -543,6 +547,7 @@ public class MapWorld : MonoBehaviour
 				    if (td.isSeaCorner && !coastalTerrain.Contains(td))
 					    coastalTerrain.Add(td);
 				    td.SetTileCoordinates();
+                    td.SetData(td.terrainData);
 				    Vector3Int tileCoordinate = td.TileCoordinates;
 				    GameLoader.Instance.gameData.allTerrain[tileCoordinate] = td.SaveData();
 
@@ -760,9 +765,9 @@ public class MapWorld : MonoBehaviour
             StartCoroutine(StartingSpotlight());
             StartCoroutine(worker.FallingCoroutine(unitPos));
             StartCoroutine(StartingAmbience());
-
-
         }
+        
+        StartCoroutine(StartingMusic(newGame));
 
         if (enemyCityLocs == null)
             enemyCityLocs = new();
@@ -791,7 +796,17 @@ public class MapWorld : MonoBehaviour
 		ambienceAudio.AmbienceCheck();
 	}
 
-    private IEnumerator StartingSpotlight()
+    private IEnumerator StartingMusic(bool newGame)
+    {
+		yield return new WaitForSeconds(5f);
+
+        if (newGame)
+            musicAudio.PlaySpecificSong(newWorldSong);
+        else
+            musicAudio.StartMusic();
+	}
+
+	private IEnumerator StartingSpotlight()
     {
         mainPlayer.unitRigidbody.useGravity = false;
         yield return new WaitForSeconds(2);
@@ -2446,6 +2461,7 @@ public class MapWorld : MonoBehaviour
         UpdateWorldResources(ResourceType.Gold, 100);
 
         resourceYieldChangeDict[ResourceType.Food] = .5f;
+        bridgeResearched = true;
     }
 
     public void PlayCityAudio(AudioClip clip)
@@ -2969,7 +2985,7 @@ public class MapWorld : MonoBehaviour
         {
             unitMovement.CloseBuildingSomethingPanelButton();
         }
-        else if (unitMovement.selectedUnit != null && (unitMovement.uiCancelMove.activeStatus || unitMovement.uiCancelTask.activeStatus))
+        else if (unitMovement.selectedUnit != null && unitMovement.uiCancelTask.activeStatus)
         {
 			if (unitMovement.selectedUnit.isBusy)
 			{
@@ -2984,10 +3000,10 @@ public class MapWorld : MonoBehaviour
             {
                 unitMovement.CancelOrders();
             }
-			else if (unitMovement.selectedUnit.isMoving)
-			{
-				unitMovement.CancelContinuedMovementOrders();
-			}
+			//else if (unitMovement.selectedUnit.isMoving)
+			//{
+			//	unitMovement.CancelContinuedMovementOrders();
+			//}
 			else if (unitMovement.selectedUnit.followingRoute)
 			{
 				unitMovement.CancelTradeRoute();
@@ -4287,7 +4303,7 @@ public class MapWorld : MonoBehaviour
         wonderStopDict.Remove(tile);
     }
 
-    public List<string> GetConnectedCityNames(Vector3Int unitLoc, bool bySea)
+    public List<string> GetConnectedCityNames(Vector3Int unitLoc, bool bySea, bool isTrader)
     {
         List<string> names = new();
 
@@ -4332,6 +4348,8 @@ public class MapWorld : MonoBehaviour
                 destination = cityNameDict[name];
             }
 
+            if (!isTrader && destination == unitLoc)
+                continue;
             //check if trader can reach all destinations
             if (GridSearch.TraderMovementCheck(this, unitLoc, destination, bySea))
             {
@@ -4340,17 +4358,20 @@ public class MapWorld : MonoBehaviour
         }
 
         //trade center names third
-        foreach (string name in tradeCenterDict.Keys)
+        if (isTrader)
         {
-            Vector3Int destination;
+            foreach (string name in tradeCenterDict.Keys)
+            {
+                Vector3Int destination;
 
-            if (bySea)
-                destination = tradeCenterDict[name].harborLoc;
-            else
-                destination = tradeCenterDict[name].mainLoc;
+                if (bySea)
+                    destination = tradeCenterDict[name].harborLoc;
+                else
+                    destination = tradeCenterDict[name].mainLoc;
 
-            if (GridSearch.TraderMovementCheck(this, unitLoc, destination, bySea))
-                names.Add(name);
+                if (GridSearch.TraderMovementCheck(this, unitLoc, destination, bySea))
+                    names.Add(name);
+            }
         }
 
         return names;
@@ -5167,6 +5188,7 @@ public class MapWorld : MonoBehaviour
         enemyCityDict[loc].enemyCamp.attacked = true;
 		enemyCityDict[loc].enemyCamp.attackingArmy = army;
         enemyCityDict[loc].enemyCamp.forward = army.forward * -1;
+        enemyCityDict[loc].CancelSendAttackWait();
 		//GameLoader.Instance.gameData.attackedEnemyBases[loc] = new();
 	}
 
@@ -6148,57 +6170,62 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
-    public (List<(Vector3Int, bool, int[])>, int[], int[]) GetRoadNeighborsFor(Vector3Int position, bool removing)
+    public (List<(Vector3Int, bool, int[])>, int[], int[]) GetRoadNeighborsFor(Vector3Int position, bool river)
     {
         List<(Vector3Int, bool, int[])> neighbors = new();
         int[] straightRoads = { 0, 0, 0, 0 };
         int[] diagRoads = { 0, 0, 0, 0 }; 
-        int i = 0;
-        foreach (Vector3Int direction in neighborsEightDirectionsIncrement)
+
+        if (river)
         {
-            Vector3Int neighbor = direction + position;
-            bool straightFlag = i % 2 == 0;
-
-            if (roadTileDict.ContainsKey(neighbor))
+            for (int i = 0; i < neighborsFourDirectionsIncrement.Count; i++)
             {
-                int j = 0;
-                int[] neighborRoads = { 0, 0, 0, 0 };
-                //int neighborCount = 0;
-                //if (removing)
-                //{
-                //    if (i > 3)
-                //        RemoveRoadMapIcon(neighbor, i - 3);
-                //    else
-                //        RemoveRoadMapIcon(neighbor, i + 5);
-                //}
-                //else
-                //{
-                //    SetRoadMapIcon(position, i + 1);
-                //    if (i > 3)
-                //        SetRoadMapIcon(neighbor, i - 3);
-                //    else
-                //        SetRoadMapIcon(neighbor, i + 5);
-                //}
-
-                List<Vector3Int> neighborDirectionList = straightFlag ? neighborsFourDirectionsIncrement : neighborsDiagFourDirectionsIncrement;
-                foreach (Vector3Int neighborDirection in neighborDirectionList)
+				Vector3Int neighbor = neighborsFourDirectionsIncrement[i] + position;
+                
+                if (roadTileDict.ContainsKey(neighbor) && GetTerrainDataAt(neighbor).isLand)
                 {
-                    if (roadTileDict.ContainsKey(neighbor + neighborDirection))
-                    {
-                        neighborRoads[j] = 1;
-                        //neighborCount++;
-                    }
-                    j++;
-                }
+					int[] neighborRoads = { 0, 0, 0, 0 };
 
-                neighbors.Add((neighbor,straightFlag,neighborRoads)); 
-                if (straightFlag)
-                    straightRoads[i/2] = 1;
-                else 
-                    diagRoads[i/2] = 1;
-            }
-            i++;
+					for (int j = 0; j < neighborsFourDirectionsIncrement.Count; j++)
+					{
+						if (roadTileDict.ContainsKey(neighbor + neighborsFourDirectionsIncrement[j]))
+							neighborRoads[j] = 1;
+					}
+
+					neighbors.Add((neighbor, true, neighborRoads));
+                    straightRoads[i / 2] = 1;
+                }
+			}
+
+            return (neighbors, straightRoads, diagRoads);
         }
+
+        for (int i = 0; i < neighborsEightDirectionsIncrement.Count; i++)
+        {
+			Vector3Int neighbor = neighborsEightDirectionsIncrement[i] + position;
+
+			if (roadTileDict.ContainsKey(neighbor))
+			{
+    			bool straightFlag = i % 2 == 0;
+                if (!straightFlag && GetTerrainDataAt(neighbor).straightRiver)
+                    continue;
+
+				int[] neighborRoads = { 0, 0, 0, 0 };
+
+				List<Vector3Int> neighborDirectionList = straightFlag ? neighborsFourDirectionsIncrement : neighborsDiagFourDirectionsIncrement;
+                for (int j = 0; j < neighborDirectionList.Count; j++)
+                {
+					if (roadTileDict.ContainsKey(neighbor + neighborDirectionList[j]))
+						neighborRoads[j] = 1;
+				}
+
+				neighbors.Add((neighbor, straightFlag, neighborRoads));
+				if (straightFlag)
+					straightRoads[i / 2] = 1;
+				else
+					diagRoads[i / 2] = 1;
+			}
+		}
 
         return (neighbors, straightRoads, diagRoads);
     }
@@ -7621,93 +7648,6 @@ public class MapWorld : MonoBehaviour
 				}
 				break;
 		}
-    }
-
-    //public City FindVisibleCity()
-    //{
-    //    foreach (City city in cityDict.Values)
-    //    {
-    //        if (city.cityRenderer.isVisible && city.ImprovementList.Count > 0)
-    //            return city;
-    //    }
-
-    //    return null;
-    //}
-
-
-    //debug gizmos
-    private void OnDrawGizmos() //for highlighting difficulty of terrain
-    {
-        if (!Application.isPlaying)
-            return;
-        DrawMovementCostGizmoOf(Color.green, showGizmo);
-        //DrawGizmoOf(TerrainType.Difficult, Color.yellow, showDifficult);
-        //DrawGizmoOf(TerrainType.Obstacle, Color.red, showObstacle);
-        //DrawGizmoOf(TerrainType.Moveable, Color.green, showGround);
-        //DrawGizmoOf(TerrainType.Sea, Color.blue, showSea);
-    }
-
-    //private void DrawGizmoOf(TerrainType type, Color color, bool isShowing) //for highlighting difficulty of terrain
-    //{
-    //    if (isShowing)
-    //    {
-    //        Gizmos.color = color;
-    //        foreach (Vector3Int td in world.Keys)
-    //        {
-    //            if (world[td].GetTerrainData().type == type)
-    //            {
-    //                Vector3Int pos = td;
-    //                if (type == TerrainType.Obstacle)
-    //                {
-    //                    Gizmos.DrawSphere(new Vector3(pos.x, pos.y + 1.5f, pos.z), 0.3f); //draws spheres of 0.3 size on each tile
-    //                }
-    //                else
-    //                {
-    //                    Gizmos.DrawSphere(new Vector3(pos.x, pos.y + 0.5f, pos.z), 0.3f); //draws spheres of 0.3 size on each tile
-    //                }
-
-    //            }
-    //        }
-    //    }
-    //}
-
-
-    private void DrawMovementCostGizmoOf(Color color, bool isShowing) //for highlighting difficulty of terrain
-    {
-        if (isShowing)
-        {
-            Gizmos.color = color;
-            //foreach (Vector3Int td in world.Keys)
-            //{
-            //    Vector3Int pos = td;
-
-            //    //for movement cost
-            //    //int movementCost = GetTerrainDataAt(pos).MovementCost;
-            //    //float movementCostFloat = (float)movementCost;
-            //    //Gizmos.DrawSphere(new Vector3(pos.x, pos.y + 1.5f, pos.z), movementCostFloat / 30); //draws spheres of 0.3 size on each tile
-
-            //    //for hasRoad flag
-            //    if (!GetTerrainDataAt(pos).hasRoad)
-            //    {
-            //        Gizmos.DrawSphere(new Vector3(pos.x, pos.y + 1.5f, pos.z), .5f);
-            //    }
-            //}
-
-            foreach (Vector3Int pos in unitPosDict.Keys)
-            {
-                //for isTrader flag
-                if (unitPosDict[pos].GetComponent<Unit>().isTrader)
-                {
-                    Gizmos.color = Color.green;
-                    Gizmos.DrawSphere(new Vector3(pos.x, pos.y + 1.5f, pos.z), .2f);
-                }
-                else
-                {
-                    Gizmos.color = Color.yellow;
-                    Gizmos.DrawSphere(new Vector3(pos.x, pos.y + 1.5f, pos.z), .2f);
-                }
-            }
-        }
     }
 }
 
