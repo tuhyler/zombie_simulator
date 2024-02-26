@@ -22,16 +22,16 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
-    resourceAmount: 0
+    resourceAmount: 5
   - resourceType: 7
-    resourceAmount: 0
+    resourceAmount: 5
   cycleCost:
   - resourceType: 4
     resourceAmount: 1
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
-  laborCost: 0
+  laborCost: 1
   unitType: 5
   unitDescription: Transports cargo on land
   availableInitially: 1

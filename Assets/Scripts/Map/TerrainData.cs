@@ -45,7 +45,7 @@ public class TerrainData : MonoBehaviour
     public bool changeLeafColor;
     [HideInInspector]
     public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
-        showProp = true, hasNonstatic;
+        showProp = true, hasNonstatic, straightRiver;
 
     //[HideInInspector]
     //public List<GameObject> enemyBorders = new();
@@ -116,9 +116,12 @@ public class TerrainData : MonoBehaviour
 	public void TerrainDataPrep()
     {
         gameObject.tag = terrainData.tag;
-        
+
         if (terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill)
 			isHill = true;
+
+        if (terrainData.sailable && terrainData.walkable && (prefabIndex == 1 || prefabIndex == 3 || prefabIndex == 4 || prefabIndex == 5))
+            straightRiver = true;
 
         if (terrainData.rawResourceType != RawResourceType.None)
             rawResourceType = terrainData.rawResourceType;

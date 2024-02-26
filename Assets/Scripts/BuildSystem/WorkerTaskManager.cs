@@ -129,19 +129,16 @@ public class WorkerTaskManager : MonoBehaviour
 		pos.y = 0;
 		Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
-        if (world.scottFollow)
-            world.scott.StopMovement();
 
-        if (world.azaiFollow)
-        {
-            world.azai.StopMovement();
-            world.azai.StopAnimation();
-        }
-
-		if (Vector3Int.RoundToInt(pos) == workerTile)
+        if (Vector3Int.RoundToInt(pos) == workerTile)
 		{
-			//add to finish animation listener
 			world.mainPlayer.BuildCity();
+            
+            if (world.scottFollow)
+                world.scott.GoToPosition(workerTile, true);
+
+            if (world.azaiFollow)
+                world.azai.GoToPosition(workerTile, false);
 		}
 		else
 		{
@@ -323,7 +320,7 @@ public class WorkerTaskManager : MonoBehaviour
         world.mainPlayer.StopMovement();
 
         if (world.azaiFollow)
-            world.azai.StopMovement();
+            world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
 
         world.unitOrders = true;
 		world.mainPlayer.isBusy = true;
@@ -331,6 +328,7 @@ public class WorkerTaskManager : MonoBehaviour
         unitMovement.uiMoveUnit.ToggleVisibility(false);
     }
 
+    //for scott to build and remove roads
     public void MoveToCompleteOrders(Vector3Int workerTile, Worker workerUnit)
     {
         Vector3 mainPos = world.mainPlayer.transform.position;
@@ -654,7 +652,12 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void CancelingTask()
     {
-		if (world.scott.isMoving)
+		if (world.azaiFollow)
+        {
+            world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
+        }
+        
+        if (world.scott.isMoving)
 		{
 			world.scott.WorkerOrdersPreparations();
 		}

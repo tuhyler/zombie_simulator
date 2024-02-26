@@ -10,10 +10,13 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	private MapWorld world;
 
 	[SerializeField]
-	private GameObject foodCostGO, increaseButton;
+	private GameObject foodCostGO, increaseButton, popIncreaseHolder;
 
 	[SerializeField]
-	private TMP_Text foodCostText, foodCycleCostText, housingCostText, waterCostText;
+	private TMP_Text foodCostText, foodCycleCostText, housingCostText, waterCostText, popCountText;
+
+	[SerializeField]
+	private Button increasePop, decreasePop;
 
 	[SerializeField]
 	public Image buttonImage;
@@ -44,7 +47,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 			IncreasePop();
 	}
 
-	public void ToggleVisibility(bool val, int amount = 0, City city = null, bool joinCity = false)
+	public void ToggleVisibility(bool val, int amount = 0, City city = null, bool joinCity = false, bool isTrader = false) //trader to charge food when joining city
 	{
 		if (activeStatus == val)
 			return;
@@ -55,8 +58,25 @@ public class UICityPopIncreasePanel : MonoBehaviour
 		{
 			this.city = city;
 			this.amount = amount;
+			if (joinCity)
+			{
+				popIncreaseHolder.SetActive(false);
+				allContents.sizeDelta = new Vector2(370, 400);
+			}
+			else
+			{
+				popIncreaseHolder.SetActive(true);
+				decreasePop.interactable = false;
+				increasePop.interactable = true;
+				popCountText.text = amount.ToString();
+				allContents.sizeDelta = new Vector2(370, 480);
+			}
+
+			bool hideFoodCost = joinCity;
+			if (isTrader)
+				hideFoodCost = false;
 			SetCosts(city);
-			SetCostPanelInfo(city, amount, joinCity);
+			SetCostPanelInfo(city, hideFoodCost);
 			ToggleColor(true);
 
 			world.infoPopUpCanvas.gameObject.SetActive(true);
@@ -82,28 +102,28 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	//setting this in case cities differ on food costs
 	private void SetCosts(City city)
 	{
-		foodCost = city.growthFood;
-		foodCycleCost = city.unitFoodConsumptionPerMinute + (int)city.ResourceManager.resourceConsumedPerMinuteDict[ResourceType.Food];
-		housingCost = 1;
-		waterCost = 1;
+		foodCost = city.growthFood * amount;
+		foodCycleCost = city.unitFoodConsumptionPerMinute * amount/*+ (int)city.ResourceManager.resourceConsumedPerMinuteDict[ResourceType.Food]*/;
+		housingCost = 1 * amount;
+		waterCost = 1 * amount;
 	}
 
-	private void SetCostPanelInfo(City city, int amount, bool joinCity)
+	private void SetCostPanelInfo(City city, bool hideCost)
 	{
 		cantAfford = false;
 
-		foodCostText.text = (amount * foodCost).ToString();
-		foodCycleCostText.text = (amount * foodCycleCost).ToString();
-		housingCostText.text = (amount * housingCost).ToString();
-		waterCostText.text = (amount * waterCost).ToString();
+		foodCostText.text = foodCost.ToString();
+		foodCycleCostText.text = foodCycleCost.ToString();
+		housingCostText.text = housingCost.ToString();
+		waterCostText.text = waterCost.ToString();
 
-		if (joinCity)
+		if (hideCost)
 			foodCostGO.SetActive(false);
 		else
 			foodCostGO.SetActive(true);
 
 		food.resourceType = ResourceType.Food;
-		food.resourceAmount = foodCost * amount;
+		food.resourceAmount = foodCost;
 
 		if (city.ResourceManager.CheckResourceAvailability(food))
 		{
@@ -115,7 +135,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 			foodCostText.color = Color.red;
 		}
 
-		if (city.HousingCount < amount * housingCost)
+		if (city.HousingCount < housingCost)
 		{
 			cantAfford = true;
 			needHousing = true;
@@ -127,7 +147,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 			housingCostText.color = Color.white;
 		}
 
-		if (city.waterCount < amount * waterCost)
+		if (city.waterCount < waterCost)
 		{
 			cantAfford = true;
 			needWater = true;
@@ -153,10 +173,16 @@ public class UICityPopIncreasePanel : MonoBehaviour
 		if (city.ResourceManager.CheckResourceAvailability(food))
 		{
 			foodCostText.color = Color.white;
+
+			if (cantAfford)
+			{
+				if (city.waterCount >= amount * waterCost && city.HousingCount >= amount * housingCost)
+					cantAfford = false;
+			}
 		}
 		else
 		{
-			cantAfford = false;
+			cantAfford = true;
 			foodCostText.color = Color.red;
 		}
 	}
@@ -165,7 +191,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	{
 		if (city.HousingCount < amount * housingCost)
 		{
-			cantAfford = false;
+			cantAfford = true;
 			housingCostText.color = Color.red;
 		}
 		else
@@ -178,12 +204,46 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	{
 		if (city.waterCount < amount * waterCost)
 		{
-			cantAfford = false;
+			cantAfford = true;
 			waterCostText.color = Color.red;
 		}
 		else
 		{
 			waterCostText.color = Color.white;
+		}
+	}
+
+	public void DecreasePopCount()
+	{
+		if (amount > 0)
+		{
+			if (amount == 99)
+				increasePop.interactable = true;
+			amount--;
+
+			if (amount == 1)
+				decreasePop.interactable = false;
+
+			popCountText.text = amount.ToString();
+			SetCosts(city);
+			SetCostPanelInfo(city, false);
+		}
+	}
+
+	public void IncreasePopCount()
+	{
+		if (amount < 100)
+		{
+			if (amount == 1)
+				decreasePop.interactable = true;
+			amount++;
+
+			if (amount == 99)
+				increasePop.interactable = false;
+
+			popCountText.text = amount.ToString();
+			SetCosts(city);
+			SetCostPanelInfo(city, false);
 		}
 	}
 

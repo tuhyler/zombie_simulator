@@ -6,14 +6,12 @@ using UnityEngine;
 public class LaborerData : IUnitData
 {
 	public string unitNameAndLevel, unitName;
-	public Vector3 position;
+	public int totalWait;
+	public Vector3 position, destinationLoc, finalDestinationLoc;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, moreToMove, isMoving, somethingToSay;
-	public Vector3 destinationLoc;
-	public Vector3 finalDestinationLoc;
-	public Vector3Int currentLocation;
-	public Vector3Int prevTerrainTile;
+	public bool secondaryPrefab, moreToMove, isMoving, somethingToSay, celebrating;
+	public Vector3Int currentLocation, homeCityLoc, prevTerrainTile;
 
 	public LaborerData GetLaborerData()
 	{

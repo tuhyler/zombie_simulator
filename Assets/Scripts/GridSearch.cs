@@ -707,7 +707,7 @@ public class GridSearch
     }
 
 
-    private static Vector3Int GetClosestVertex(List<Vector3Int> list, Dictionary<Vector3Int, int> distanceMap)
+    public static Vector3Int GetClosestVertex(List<Vector3Int> list, Dictionary<Vector3Int, int> distanceMap)
     {
         Vector3Int candidate = list[0];
         foreach (Vector3Int vertex in list)
@@ -720,7 +720,7 @@ public class GridSearch
         return candidate;
     }
 
-    private static int ManhattanDistance(Vector3Int endPos, Vector3Int point) //assigns priority for each tile, lower is higher priority
+    public static int ManhattanDistance(Vector3Int endPos, Vector3Int point) //assigns priority for each tile, lower is higher priority
     {
         return Math.Abs(endPos.x - point.x) + Math.Abs(endPos.z - point.z);
     }

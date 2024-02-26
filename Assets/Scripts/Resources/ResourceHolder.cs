@@ -16,7 +16,12 @@ public class ResourceHolder : MonoBehaviour
         PopulateDict();
     }
 
-    private void PopulateDict()
+    public void ClearDict()
+    {
+        resourceDict.Clear();
+    }
+
+    public void PopulateDict()
     {
         foreach (var resource in allStorableResources.Concat(allWorldResources))
         {

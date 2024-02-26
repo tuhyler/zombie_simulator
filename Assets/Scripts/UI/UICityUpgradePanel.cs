@@ -481,11 +481,15 @@ public class UICityUpgradePanel : MonoBehaviour
         }
             
         if (improvement != null)
+        {
             cityBuilderManager.UpgradeSelectedImprovementQueueCheck(improvementLoc, improvement);
+        }
         else if (unit != null)
+        {
             cityBuilderManager.UpgradeUnit(unit);
+            cityBuilderManager.PlayBoomAudio();
+        }
 
-        cityBuilderManager.PlayBoomAudio();
         ResetData();
         gameObject.SetActive(false);
         world.infoPopUpCanvas.gameObject.SetActive(false);

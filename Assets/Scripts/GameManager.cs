@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 		SceneManager.UnloadSceneAsync((int)SceneIndexes.MANAGER);
 	}
 
-	public void NewGame(string mapSize, bool tutorial)
+	public void NewGame(string starting, string landType, string resource, /*string mountains,*/string enemy, string mapSize, bool tutorial)
 	{
 		loadingScreen.SetActive(true);
 		loadingBackground.sprite = loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.TITLE_SCREEN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.MAIN, LoadSceneMode.Additive));
-		StartCoroutine(GetSceneLoadProgress(true, "", tutorial));
+		StartCoroutine(GetSceneLoadProgress(true, "", starting, landType, resource, /*mountains,*/enemy, mapSize, tutorial));
 	}
 
 	public void LoadGame(string loadName)
@@ -98,7 +98,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public IEnumerator GetSceneLoadProgress(bool newGame, string loadName = "", bool tutorial = false)
+	public IEnumerator GetSceneLoadProgress(bool newGame, string loadName = "", string starting = "", string landType = "", string resource = "", /*string mountains = "",*/string enemy = "", string mapSize = "", bool tutorial = false)
 	{
 		for (int i = 0; i < scenesLoading.Count; i++)
 		{
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
 
 		if (newGame)
 		{
-			GameLoader.Instance.NewGame(tutorial);
+			GameLoader.Instance.NewGame(starting, landType, resource, enemy, mapSize, tutorial);
 			StartCoroutine(GetNewGameProgress());
 			//loadingScreen.SetActive(false);
 			//scenesLoading.Clear();

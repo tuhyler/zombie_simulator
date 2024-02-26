@@ -25,7 +25,7 @@ public class Trader : Unit
     public int cargoStorageLimit;
 
     [HideInInspector]
-    public bool paid, hasRoute, waitingOnRouteCosts, guarded, waitingOnGuard;//, interruptedRoute;
+    public bool paid, hasRoute, waitingOnRouteCosts, guarded, waitingOnGuard, guardLeft;//, interruptedRoute;
     [HideInInspector]
     public Unit guardUnit;
 
@@ -623,6 +623,20 @@ public class Trader : Unit
     //    return tilesTraveled;
     //}
 
+    public void SetGuardLeftMessage()
+    {
+        if (isSelected)
+            ShowGuardLeftMessage();
+        else
+            guardLeft = true;
+    }
+
+    public void ShowGuardLeftMessage()
+    {
+        guardLeft = false;
+		InfoPopUpHandler.WarningMessage().Create(transform.position, "Guard returned to nearest city due to inactivity");
+	}
+
     public void LookSad()
     {
 		SetInterruptedAnimation(true);
@@ -652,6 +666,7 @@ public class Trader : Unit
         else
             data.guardUnit = null;
         data.waitingOnGuard = waitingOnGuard;
+        data.guardLeft = guardLeft;
         data.currentHealth = currentHealth;
         data.paid = paid;
 
@@ -715,6 +730,7 @@ public class Trader : Unit
         ambush = data.ambush;
         guarded = data.guarded;
         waitingOnGuard = data.waitingOnGuard;
+        guardLeft = data.guardLeft;
         paid = data.paid;
 
         if (guarded)

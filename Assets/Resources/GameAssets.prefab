@@ -56,11 +56,7 @@ MonoBehaviour:
     type: 3}
   laborNumberPrefab: {fileID: 7804093059410087792, guid: 974970d91b11c214eb7adc896b375e72,
     type: 3}
-  cityGrowthProgressPrefab: {fileID: 7804093059410087792, guid: 0b0fb1f5992df2249938a80c17ea4f53,
-    type: 3}
   cityGrowthProgressPrefab2: {fileID: 2616545287873098607, guid: f25ce15425f346d4591ecef4c20bb05b,
-    type: 3}
-  timeProgressPrefab: {fileID: 7804093059410087792, guid: 4bdbd357e537aa54ab5ee0584ead1d69,
     type: 3}
   resourceBubble: {fileID: 2079849781279894658, guid: 5ef82d055c06e4945b70fae30439ba79,
     type: 3}
@@ -73,4 +69,6 @@ MonoBehaviour:
   speechBubble: {fileID: 2079849781279894658, guid: c2693cf4b8d8c4547ba99d1f7a502f99,
     type: 3}
   improvementResource: {fileID: 2079849781279894658, guid: 48cf8f7a4ab3b154da8f9d0bd7dac0b5,
+    type: 3}
+  cityNameMap: {fileID: 1283713312625653450, guid: c1f977fbda4cdbb4ea227f342fcf02c5,
     type: 3}

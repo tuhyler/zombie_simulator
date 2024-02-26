@@ -99,6 +99,19 @@ public class UISettings : MonoBehaviour
     public void ChangeMusic(float value)
     {
         audioMixer.SetFloat("MusicVolume", value);
+
+        if (world != null)
+        {
+            if (value == -80)
+            {
+                world.musicAudio.mute = true;
+            }
+            else
+            {
+                world.musicAudio.mute = false;
+                world.musicAudio.StartMusic();
+            }
+		}
 	}
 
     public void ChangeAmbience(float value)

@@ -116,6 +116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  city: {fileID: 0}
   meshCity: {fileID: 0}
   queued: 0
   building: 0
@@ -126,6 +127,7 @@ MonoBehaviour:
   isTraining: 0
   wonderHarbor: 0
   firstStart: 0
+  showing: 0
   housingIndex: 0
   laborCost: 0
   loc: {x: 0, y: 0, z: 0}
@@ -134,8 +136,6 @@ MonoBehaviour:
   exclamationPoint: {fileID: 3796856266692714023}
   smokeEmitter: {fileID: 214598449315271134}
   smokeSplash: {fileID: 8503803722037680800}
-  removeSplash: {fileID: 392546873931958410, guid: a6c6127933384f24298b33e29cc8648b,
-    type: 3}
   workPS: []
   workLights: []
   td: {fileID: 0}
@@ -297,7 +297,7 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}

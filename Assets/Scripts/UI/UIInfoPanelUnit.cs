@@ -76,7 +76,7 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
         health.text = SetStringValue(currentHealth) + '/' + SetStringValue(maxHealth);
     }
 
-    public void ToggleVisibility(bool v, bool isTrader = false, bool isLaborer = false)
+    public void ToggleVisibility(bool v, bool isTrader = false/*, bool isLaborer = false*/)
     {
         if (activeStatus == v)
             return;
@@ -96,11 +96,11 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
                 renamerButton.SetActive(true);
 				goToNextButton.SetActive(true);
 			}
-            else if (isLaborer)
-            {
-				renamerButton.SetActive(false);
-				goToNextButton.SetActive(true);
-            }
+    //        else if (isLaborer)
+    //        {
+				//renamerButton.SetActive(false);
+				//goToNextButton.SetActive(true);
+    //        }
             else
             {
 				renamerButton.SetActive(false);

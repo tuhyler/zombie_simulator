@@ -179,6 +179,7 @@ MonoBehaviour:
   enemyCityIcon: {fileID: 21300000, guid: abe97aedf89bef74eb7fec3a41b8c5ea, type: 3}
   cityName: 
   cityLoc: {x: 0, y: 0, z: 0}
+  waitingAttackLoc: {x: 0, y: 0, z: 0}
   hasWater: 0
   hasFreshWater: 0
   reachedWaterLimit: 0
@@ -197,6 +198,7 @@ MonoBehaviour:
   hasMarket: 0
   isNamed: 0
   stopCycle: 0
+  attacked: 0
   lostPop: 0
   uiCityResourceInfoPanel: {fileID: 0}
   harborLocation: {x: 0, y: 0, z: 0}
@@ -207,6 +209,7 @@ MonoBehaviour:
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 60
   growthFood: 3
+  countDownTimer: 0
   housingLocsAtMax: 0
   waterCount: 0
   workEthic: 1
@@ -317,6 +320,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576e02dd72dc5df418aa9cf49eb5195f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loc: {x: 0, y: 0, z: 0}
   forward: {x: 0, y: 0, z: 0}
   attackZone: {x: 0, y: 0, z: 0}
   armyCount: 0
@@ -327,6 +331,8 @@ MonoBehaviour:
   seigeCount: 0
   strength: 0
   health: 0
+  enemyTarget: {x: 0, y: 0, z: 0}
+  enemyCityLoc: {x: 0, y: 0, z: 0}
   totalSpots: []
   openSpots: []
   pathToTarget: []
@@ -350,6 +356,7 @@ MonoBehaviour:
   selected: 0
   enemyReady: 0
   issueRefund: 1
+  defending: 0
 --- !u!82 &1212490461305530498
 AudioSource:
   m_ObjectHideFlags: 0

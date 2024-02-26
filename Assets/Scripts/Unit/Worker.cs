@@ -41,6 +41,7 @@ public class Worker : Unit
     private void Awake()
     {
         AwakeMethods();
+        worker = this;
         isWorkingHash = Animator.StringToHash("isWorking");
         isGatheringHash = Animator.StringToHash("isGathering");
         isFallingHash = Animator.StringToHash("isFalling");
@@ -268,7 +269,8 @@ public class Worker : Unit
         //    return;
         //}
 
-        StopMovement();
+        GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), true);
+        //StopMovement();
         //isBusy = true;
         //workerTaskManager.BuildRoad(workerTile, this);
     }
@@ -359,7 +361,7 @@ public class Worker : Unit
         }
     }
 
-    public override void SkipRoadBuild()
+    public void SkipRoadBuild()
     {
         RemoveFromOrderQueue();
         FinishedMoving.RemoveListener(BuildRoad);
@@ -371,14 +373,18 @@ public class Worker : Unit
         else
         {
 			world.mainPlayer.isBusy = false;
-            StopMovement();
+            world.mainPlayer.StopMovement();
 
-            if (world.mainPlayer.isSelected)
+			world.scott.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), true);
+			if (world.azaiFollow)
+				world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
+
+			if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
     }
 
-    private void BuildRoad()
+	private void BuildRoad()
     {
         //unitAnimator.SetBool(isWorkingHash, true);
 
@@ -393,6 +399,8 @@ public class Worker : Unit
 
 		if (!world.IsTileOpenCheck(workerTile))
 		{
+			if (world.mainPlayer.isSelected)
+				world.GetTerrainDataAt(workerTile).DisableHighlight();
 			SkipRoadBuild();
 			return;
 		}
@@ -570,7 +578,8 @@ public class Worker : Unit
 			world.scott.StopMovement();
 
 			if (world.azaiFollow)
-				world.azai.StopMovement();
+				world.azai.GoToPosition(workerTile, false);
+    			//world.azai.StopMovement();
 		}
 
 		if (!world.IsTileOpenCheck(workerTile))
@@ -1129,6 +1138,54 @@ public class Worker : Unit
             }
         }
     }
+
+	public void GoToPosition(Vector3Int position, bool scott)
+	{
+		StopMovement();
+		ShiftMovement();
+		Vector3Int currentLoc = world.RoundToInt(transform.position);
+
+		if (Mathf.Abs(position.x - currentLoc.x) < 2 && Mathf.Abs(position.z - currentLoc.z) < 2)
+			return;
+
+		int i = 0;
+		int factor = scott ? 0 : 1;
+		Vector3Int finalLoc = currentLoc;
+		int dist = 0;
+
+		foreach (Vector3Int tile in world.GetNeighborsFor(position, MapWorld.State.EIGHTWAY))
+		{
+			i++;
+
+			if (i % 2 == factor)
+				continue;
+
+			if (world.IsUnitLocationTaken(tile))
+				continue;
+
+			if (i < 3)
+			{
+				finalLoc = tile;
+				dist = Mathf.Abs(currentLoc.x - tile.x) + Mathf.Abs(currentLoc.z - tile.z);
+				continue;
+			}
+
+			int newDist = Mathf.Abs(currentLoc.x - tile.x) + Mathf.Abs(currentLoc.z - tile.z);
+			if (newDist < dist)
+			{
+				finalLoc = tile;
+				newDist = dist;
+			}
+		}
+
+		List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, finalLoc, false, false);
+
+		if (path.Count > 0)
+		{
+			finalDestinationLoc = finalLoc;
+			MoveThroughPath(path);
+		}
+	}
 
 
 	public WorkerData SaveWorkerData()

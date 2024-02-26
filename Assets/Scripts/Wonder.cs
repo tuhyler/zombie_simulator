@@ -64,6 +64,9 @@ public class Wonder : MonoBehaviour
     private int workersReceived;
     public int WorkersReceived { get { return workersReceived; } set { workersReceived = value; } }
 
+    [HideInInspector]
+    public List<(bool, Vector3Int)> workerSexAndHome = new();
+
     //for building the wonder
     private Dictionary<ResourceType, int> resourceThreshold = new();
     //private TimeProgressBar timeProgressBar;
@@ -421,9 +424,11 @@ public class Wonder : MonoBehaviour
     {
         Vector3 pos = unit.transform.position;
 		pos.y = 3f;
-		world.laborerList.Remove(unit.GetComponent<Laborer>());
+        Laborer laborer = unit.GetComponent<Laborer>();
+		world.laborerList.Remove(laborer);
 
 		workersReceived++;
+        workerSexAndHome.Add((unit.secondaryPrefab, laborer.homeCityLoc));
         heavenHighlight.transform.position = pos;
         PlayPopGainAudio();
         heavenHighlight.Play();

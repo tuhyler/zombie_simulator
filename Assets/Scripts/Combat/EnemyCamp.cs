@@ -386,16 +386,19 @@ public class EnemyCamp
 			if (isCity)
 			{
 				if (growing)
+				{
 					world.GetEnemyCity(cityLoc).StartSpawnCycle(false);
+				}
 				else
-					world.GetEnemyCity(cityLoc).StartSendAttackWait();
+				{
+					world.GetEnemyCity(cityLoc).countDownTimer += 10; //give a bit of a head start
+					world.GetEnemyCity(cityLoc).LoadSendAttackWait();
+				}
 			}
 
 			inBattle = false;
 			enemyReady = 0;
 			ResetStatus();
-
-			if (isCity)
 
 			ResurrectCamp();
 		}
@@ -1151,10 +1154,14 @@ public class EnemyCamp
 		health -= unit.buildDataSO.health;
 
 		int index = totalSpots.IndexOf(unit.barracksBunk);
+		int newIndex = 0;
 
-		if (index >= openSpots.Count)
-			openSpots.Add(unit.barracksBunk);
-		else
-			openSpots.Insert(index, unit.barracksBunk);
+		for (int i = 0; i < index; i++)
+		{
+			if (openSpots.Contains(totalSpots[i]))
+				newIndex++;
+		}
+
+		openSpots.Insert(newIndex, unit.barracksBunk);
 	}
 }

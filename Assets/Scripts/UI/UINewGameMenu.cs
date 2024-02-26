@@ -10,7 +10,7 @@ public class UINewGameMenu : MonoBehaviour
 	private TitleScreen titleScreen;
 
 	[SerializeField]
-	private ToggleGroup mapSizeGroup;
+	private ToggleGroup startingGroup, landTypeGroup, /*mountainGroup,*/enemyGroup, resourceGroup, mapSizeGroup;
 
 	[SerializeField]
 	private Toggle tutorialToggle;
@@ -55,8 +55,13 @@ public class UINewGameMenu : MonoBehaviour
 
 	public void StartNewGame()
 	{
+		string starting = startingGroup.ActiveToggles().FirstOrDefault().name;
 		string mapSize = mapSizeGroup.ActiveToggles().FirstOrDefault().name;
+		string landType = landTypeGroup.ActiveToggles().FirstOrDefault().name;
+		string resource = resourceGroup.ActiveToggles().FirstOrDefault().name;
+		//string mountains = mountainGroup.ActiveToggles().FirstOrDefault().name;
+		string enemy = enemyGroup.ActiveToggles().FirstOrDefault().name;
 		Debug.Log(mapSize);
-		GameManager.Instance.NewGame(mapSize, tutorial);
+		GameManager.Instance.NewGame(starting, landType, resource, /*mountains,*/enemy, mapSize, tutorial);
 	}
 }

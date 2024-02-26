@@ -23,7 +23,8 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 
 	[HideInInspector]
 	public bool cantAfford;
-	private Trader trader;
+	[HideInInspector]
+	public Trader trader;
 	private City city;
 
 	//for tweening
