@@ -1185,7 +1185,8 @@ public enum ResourceType
     Emerald,
     Diamond,
     Jewelry,
-    Time
+    Time,
+    Bricks
 }
 
 public enum RawResourceType
