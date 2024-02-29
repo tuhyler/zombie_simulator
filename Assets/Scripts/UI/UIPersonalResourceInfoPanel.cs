@@ -23,7 +23,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     private Sprite originalDown;
 
     [SerializeField] //for tweening
-    private RectTransform allContents, overflowGridAll;
+    private RectTransform allContents, overflowGridAll, titleBar;
     [HideInInspector]
     public bool activeStatus, overflowActiveStatus;
     private Vector3 originalLoc, overflowOriginalLoc, overflowAllOriginalLoc;
@@ -31,7 +31,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
     public bool isCity; //indicate which window is for the city or trader
     private bool atTradeCenter;
-    private Trader trader;
+    [HideInInspector]
+    public Unit unit;
     private City city;
     private Wonder wonder;
     private TradeCenter tradeCenter;
@@ -121,7 +122,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         gridCellDict.Add(loc.gridLocation, loc);
     }
 
-    public void ToggleVisibility(bool v, Trader trader = null, City city = null, Wonder wonder = null, TradeCenter tradeCenter = null)
+    public void ToggleVisibility(bool v, Unit unit = null, City city = null, Wonder wonder = null, TradeCenter tradeCenter = null)
     {
         if (activeStatus == v)
             return;
@@ -130,7 +131,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
         if (v)
         {
-            this.trader = trader;
+            this.unit = unit;
+            //this.trader = trader;
+            //this.worker = worker;
             this.city = city;
             this.wonder = wonder;
             this.tradeCenter = tradeCenter;
@@ -172,13 +175,26 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             }
             else
             {
-				trader.ReshuffleGrid();
-
-				foreach (ResourceType type in trader.resourceGridDict.Keys)
+				if (unit.trader)
                 {
-                    ActivateCell(type, true);
-                    gridCellDict[resourceUIDict[type]].resource.clickable = false;
+                    unit.trader.ReshuffleGrid();
+
+				    foreach (ResourceType type in unit.trader.resourceGridDict.Keys)
+                    {
+                        ActivateCell(type, true);
+                        gridCellDict[resourceUIDict[type]].resource.clickable = false;
+                    }
                 }
+                else
+                {
+					unit.worker.ReshuffleGrid();
+
+					foreach (ResourceType type in unit.worker.resourceGridDict.Keys)
+					{
+						ActivateCell(type, true);
+						gridCellDict[resourceUIDict[type]].resource.clickable = false;
+					}
+				}
             }
 
             if (activeCells > gridWidth)
@@ -218,8 +234,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
             if (!isCity)
             {
-                this.trader.ReshuffleGrid(); //gets rid of zeroed out resources
-                this.trader = null;
+                if (this.unit.trader)
+                    this.unit.trader.ReshuffleGrid(); //gets rid of zeroed out resources
+                else
+                    this.unit.worker.ReshuffleGrid();
+
+                this.unit = null;
                 LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 400f, 0.2f).setOnComplete(SetActiveStatusFalse);
             }
             else if (this.city)
@@ -320,7 +340,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 loc = tradeCenter.ResourceBuyGridDict[type];
         }
         else
-            loc = trader.resourceGridDict[type];
+        {
+            if (unit.trader)
+                loc = unit.trader.resourceGridDict[type];
+            else
+                loc = unit.worker.resourceGridDict[type];
+        }
 
         gridCellDict[loc].gameObject.SetActive(true);
         activeCells++;
@@ -338,8 +363,11 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         }
         else
         {
-            gridCellDict[loc].resource.SetValue(trader.personalResourceManager.ResourceDict[type]);
-        }
+            if (unit.trader)
+                gridCellDict[loc].resource.SetValue(unit.trader.personalResourceManager.ResourceDict[type]);
+            else
+				gridCellDict[loc].resource.SetValue(unit.worker.personalResourceManager.ResourceDict[type]);
+		}
 
         gridCellDict[loc].resource.resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
         resourceUIDict[type] = loc;
@@ -391,7 +419,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         unitStorageLimit = limit;
         progressBarMask.fillAmount = (float)unitStorageLevel / unitStorageLimit;
 
-        unitNameTitle.text = $"{name} Storage";
+        SetTitle(name);
+
         if (limit == 0)
         {
             storageLevel.text = level.ToString();
@@ -405,6 +434,17 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             //unitStoragePercent.text = $"{Mathf.RoundToInt((level / limit) * 100)}%";
         }
     }
+
+    public void SetTitle(string name)
+    {
+		unitNameTitle.text = $"{name} Storage";
+
+		int diff = name.Length - 3;
+		if (diff > 0)
+			titleBar.sizeDelta = new Vector2(diff * 20 + 220, 60);
+		else
+			titleBar.sizeDelta = new Vector2(220, 60);
+	}
 
 	private string SetStringValue(float amount)
 	{
@@ -489,11 +529,22 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
 
             if (atTradeCenter)
             {
-                foreach (ResourceType type in tradeCenter.ResourceSellDict.Keys)
+                if (unit.trader)
                 {
-                    if (trader.resourceGridDict.ContainsKey(type))
-                        gridCellDict[trader.resourceGridDict[type]].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+                    foreach (ResourceType type in tradeCenter.ResourceSellDict.Keys)
+                    {
+                        if (unit.trader.resourceGridDict.ContainsKey(type))
+                            gridCellDict[unit.trader.resourceGridDict[type]].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+                    }
                 }
+                else
+                {
+					foreach (ResourceType type in tradeCenter.ResourceSellDict.Keys)
+					{
+						if (unit.worker.resourceGridDict.ContainsKey(type))
+							gridCellDict[unit.worker.resourceGridDict[type]].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+					}
+				}
 
                 this.tradeCenter = tradeCenter;
                 this.atTradeCenter = atTradeCenter;
@@ -589,7 +640,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     private void SetVisibilityFalse()
     {
         ToggleVisibility(false);
-    }
+		world.overflowGridCanvas.gameObject.SetActive(false);
+	}
 
     public void UpdateResourceInteractable(ResourceType type, int val, bool positive) //Set the resources to a value
     {
@@ -647,28 +699,57 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
     public void MoveResources(int oldNum, int newNum, ResourceType type)
     {
         //shifting all the other resources
-        if (oldNum > newNum)
+        if (unit.trader)
         {
-            for (int i = oldNum; i > newNum; i--)
+            if (oldNum > newNum)
             {
-                int next = i - 1;
-                gridCellDict[next].MoveResource(gridCellDict[i], true);
-                trader.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
-                resourceUIDict[gridCellDict[i].resource.resourceType] = i;
+                for (int i = oldNum; i > newNum; i--)
+                {
+                    int next = i - 1;
+                    gridCellDict[next].MoveResource(gridCellDict[i], true);
+                    unit.trader.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
+                    resourceUIDict[gridCellDict[i].resource.resourceType] = i;
+                }
             }
+            else
+            {
+                for (int i = oldNum; i < newNum; i++)
+                {
+                    int next = i + 1;
+                    gridCellDict[next].MoveResource(gridCellDict[i], false);
+                    unit.trader.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
+                    resourceUIDict[gridCellDict[i].resource.resourceType] = i;
+                }
+            }
+
+            unit.trader.resourceGridDict[type] = newNum;
         }
         else
         {
-            for (int i = oldNum; i < newNum; i++)
-            {
-                int next = i + 1;
-                gridCellDict[next].MoveResource(gridCellDict[i], false);
-                trader.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
-                resourceUIDict[gridCellDict[i].resource.resourceType] = i;
-            }
-        }
+			if (oldNum > newNum)
+			{
+				for (int i = oldNum; i > newNum; i--)
+				{
+					int next = i - 1;
+					gridCellDict[next].MoveResource(gridCellDict[i], true);
+					unit.worker.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
+					resourceUIDict[gridCellDict[i].resource.resourceType] = i;
+				}
+			}
+			else
+			{
+				for (int i = oldNum; i < newNum; i++)
+				{
+					int next = i + 1;
+					gridCellDict[next].MoveResource(gridCellDict[i], false);
+					unit.worker.resourceGridDict[gridCellDict[i].resource.resourceType] = i;
+					resourceUIDict[gridCellDict[i].resource.resourceType] = i;
+				}
+			}
 
-        trader.resourceGridDict[type] = newNum;
+			unit.worker.resourceGridDict[type] = newNum;
+		}
+
         resourceUIDict[type] = newNum;
     }
 

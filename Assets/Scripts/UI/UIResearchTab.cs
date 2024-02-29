@@ -7,6 +7,9 @@ using UnityEngine.UI;
 public class UIResearchTab : MonoBehaviour
 {
     [SerializeField]
+    public Era era;
+    
+    [SerializeField]
     private Image background;
 
     [SerializeField]
@@ -20,14 +23,25 @@ public class UIResearchTab : MonoBehaviour
 
     private UIResearchTreePanel uiResearchTree;
 
+    public void SelectTabClick()
+    {
+		if (uiResearchTree.selectedTab == tabLoc)
+			return;
+
+		uiResearchTree.world.cityBuilderManager.PlaySelectAudio();
+        uiResearchTree.horizontalScroll.value = uiResearchTree.tabThresholds[tabLoc];
+        SelectTab();
+	}
+
     public void SelectTab()
     {
         background.sprite = selectedSprite;
         tabText.color = Color.black;
+
+        //uiResearchTree.tabList[uiResearchTree.selectedTab].Unselect();
         uiResearchTree.selectedTab = tabLoc;
         uiResearchTree.SetTab();
         uiResearchTree.titleText.text = tabText.text;
-        uiResearchTree.world.cityBuilderManager.PlaySelectAudio();
     }
 
     public void SetResearchTree(UIResearchTreePanel uiResearchTree)

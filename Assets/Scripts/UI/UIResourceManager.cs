@@ -22,7 +22,7 @@ public class UIResourceManager : MonoBehaviour
     private Sprite originalDown;
 
     [SerializeField] //for tweening
-    public RectTransform allContents;
+    public RectTransform allContents, titleBar;
     [HideInInspector]
     public Vector3 originalLoc, overflowOriginalLoc;
     private bool activeStatus, overflowActiveStatus;
@@ -202,18 +202,25 @@ public class UIResourceManager : MonoBehaviour
     private void SetCityInfo(string cityName, int cityStorageLimit, int cityStorageLevel)
     {
         this.cityStorageLevel = cityStorageLevel;
-        this.cityName = cityName;
         this.cityStorageLimit = cityStorageLimit;
         progressBarMask.fillAmount = (float)cityStorageLevel / cityStorageLimit;
 
-		SetCityWarehouseInfo();
+		SetCityWarehouseInfo(cityName);
     }
 
-    private void SetCityWarehouseInfo()
+    public void SetCityWarehouseInfo(string cityName)
     {
+        this.cityName = cityName;
         cityStorageInfo.text = $"{cityName} Storage";
-        //cityStoragePercent.text = $"{Mathf.RoundToInt(100 * (cityStorageLevel / cityStorageLimit))}%";
-        cityLevel.text = SetStringValue(cityStorageLevel);
+
+		int diff = cityName.Length - 3;
+		if (diff > 0)
+			titleBar.sizeDelta = new Vector2(diff * 20 + 220, 60);
+		else
+			titleBar.sizeDelta = new Vector2(220, 60);
+
+		//cityStoragePercent.text = $"{Mathf.RoundToInt(100 * (cityStorageLevel / cityStorageLimit))}%";
+		cityLevel.text = SetStringValue(cityStorageLevel);
         cityLimit.text = SetStringValue(cityStorageLimit);
         //cityLevelAndLimit.text = $"{cityStorageLevel}/{cityStorageLimit}";
     }

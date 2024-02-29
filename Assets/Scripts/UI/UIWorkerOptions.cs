@@ -14,10 +14,12 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
     private Color originalButtonColor;
     [HideInInspector]
     public bool isSelected, isFlashing;
+    private Button button;
 
     private void Awake()
     {
         buttonHandler = GetComponentInParent<UIWorkerHandler>();
+        button = GetComponent<Button>();
         originalButtonColor = buttonImage.color;
     }
 
@@ -32,6 +34,11 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
         }
 
         FlashCheck();
+    }
+
+    public void ToggleInteractable(bool v)
+    {
+        button.interactable = v;
     }
 
     public void ToggleColor(bool v)

@@ -123,7 +123,7 @@ public class HandlePlayerInput : MonoBehaviour
             HandleEsc?.Invoke();
         }
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.F12))
         {
             HandleCtrlT?.Invoke();
         }

@@ -118,12 +118,14 @@ public class UICityNamer : MonoBehaviour
 
     public void StoreName() //method for 'confirm' button
     {
+        MapWorld world;
         if (tempCity != null)
-            tempCity.world.cityBuilderManager.PlaySelectAudio();
+            world = tempCity.world;
         else
-            tempTrader.world.cityBuilderManager.PlaySelectAudio();
+            world = tempTrader.world;
 
-        string tempText = inputField.text;
+        world.cityBuilderManager.PlaySelectAudio();
+		string tempText = inputField.text;
 
         if (tempText.Length < 1 || tempText == placeHolderText)
         {
@@ -146,11 +148,13 @@ public class UICityNamer : MonoBehaviour
             tempCity.isNamed = true;
 
             uiInfoPanelCity.UpdateCityName(tempText);
+            world.cityBuilderManager.uiResourceManager.SetCityWarehouseInfo(tempText);
         }
         else if (tempTrader != null)
         {
             tempTrader.name = tempText;
-            tempTrader.world.unitMovement.infoManager.UpdateName(tempText);
+            world.unitMovement.infoManager.UpdateName(tempText);
+            world.unitMovement.uiPersonalResourceInfoPanel.SetTitle(tempText);
         }
 
         ToggleVisibility(false);

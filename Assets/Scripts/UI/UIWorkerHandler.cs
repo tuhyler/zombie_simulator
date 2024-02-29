@@ -20,7 +20,9 @@ public class UIWorkerHandler : MonoBehaviour
     public List<UIWorkerOptions> buildOptions;
     [SerializeField]
     private UIWorkerOptions removalOptions;
-    private List<string> buttonsToExclude = new() { "Road", "Remove", "Clear"};
+    private List<string> buttonsToExclude = new() { "Road", "Remove", "Clear", "LoadUnload"};
+    [HideInInspector]
+    public UIWorkerOptions uiLoadUnload;
 
     //for tweening
     [SerializeField]
@@ -34,12 +36,16 @@ public class UIWorkerHandler : MonoBehaviour
 
         buildOptions = new List<UIWorkerOptions>(); 
 
-        foreach (Transform selection in uiElementsParent) 
+        foreach (Transform selection in uiElementsParent)
         {
-            buildOptions.Add(selection.GetComponent<UIWorkerOptions>());
+            UIWorkerOptions button = selection.GetComponent<UIWorkerOptions>();
+			buildOptions.Add(button);
+            if (button.buttonName == "LoadUnload")
+                uiLoadUnload = button;
         }
 
         originalLoc = allContents.anchoredPosition3D;
+        uiWorkerRemovalOptions.world = world;
     }
 
     public void ToggleRemovalOptions(bool v)
@@ -48,7 +54,7 @@ public class UIWorkerHandler : MonoBehaviour
         uiWorkerRemovalOptions.ToggleVisibility(v, false);
     }
 
-    public void ToggleVisibility(bool val, MapWorld world) //pass resources to know if affordable in the UI (optional), pass world for canvas
+    public void ToggleVisibility(bool val, MapWorld world, bool temporary = false) //pass resources to know if affordable in the UI (optional), pass world for canvas
     {
         if (activeStatus == val)
             return;
@@ -58,6 +64,7 @@ public class UIWorkerHandler : MonoBehaviour
         if (val)
         {
             world.workerCanvas.gameObject.SetActive(true);
+            world.personalResourceCanvas.gameObject.SetActive(true);
             removalOptions.ToggleColor(false);
             gameObject.SetActive(val);
             activeStatus = true;
@@ -78,7 +85,7 @@ public class UIWorkerHandler : MonoBehaviour
         {
             activeStatus = false;
             uiWorkerRemovalOptions.ToggleVisibility(false, true);
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world));
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world, temporary));
         }
     }
 
@@ -100,10 +107,13 @@ public class UIWorkerHandler : MonoBehaviour
 		}
 	}
 
-    private void SetActiveStatusFalse(MapWorld world)
+    private void SetActiveStatusFalse(MapWorld world, bool temporary)
     {
         gameObject.SetActive(false);
         world.workerCanvas.gameObject.SetActive(false);
+
+        if (!temporary)
+            world.personalResourceCanvas.gameObject.SetActive(false);
     }
 
     public UIWorkerOptions GetButton(string buttonName)

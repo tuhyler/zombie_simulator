@@ -32,6 +32,7 @@ MonoBehaviour:
   baseAttackSpeed: 0.5
   movementSpeed: 2
   trainTime: 0
-  cargoCapacity: 0
+  cargoCapacity: 50
   transportationType: 0
   characterUnit: 1
+  unitEra: 0

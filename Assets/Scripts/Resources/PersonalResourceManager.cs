@@ -9,17 +9,18 @@ public class PersonalResourceManager : MonoBehaviour
 
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
 
-    private int resourceStorageLimit;
-    public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
+    [HideInInspector]
+    public int resourceStorageLimit;
     private int resourceStorageLevel;
     public int ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
 
-    private Trader trader;
+    private MapWorld world;
+    private Unit unit;
 
-
-    public void SetTrader(Trader trader)
+    public void SetUnit(Unit unit)
     {
-        this.trader = trader;
+        world = unit.world;
+        this.unit = unit;
     }
 
     public void ResetDict(List<ResourceValue> resources)
@@ -51,23 +52,6 @@ public class PersonalResourceManager : MonoBehaviour
         if (!resourceDict.ContainsKey(type))
             resourceDict[type] = 0;   
     }
-
-    //public int CheckResource(ResourceType type, int resourceAmount)
-    //{
-    //    if (CheckStorageSpaceForResource(type, resourceAmount))
-    //    {
-    //        if (!trader.resourceGridDict.ContainsKey(type))
-    //            trader.AddToGrid(type);
-
-    //        return AddRemoveResource(type, resourceAmount);
-    //    }
-    //    else
-    //    {
-    //        if (!trader.followingRoute)
-    //            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Full inventory");
-    //        return 0;
-    //    }
-    //}
 
     public void SubtractResource(ResourceType type, int amount)
     {
@@ -103,8 +87,8 @@ public class PersonalResourceManager : MonoBehaviour
 		amount = AddResourceCheck(amount);
 		if (amount > 0)
         {
-			if (!trader.resourceGridDict.ContainsKey(type))
-				trader.AddToGrid(type);
+			if (!world.mainPlayer.resourceGridDict.ContainsKey(type))
+				world.mainPlayer.AddToGrid(type);
 
 			AddRemoveResource(type, amount);
         }
@@ -124,10 +108,10 @@ public class PersonalResourceManager : MonoBehaviour
 
 	private void UICheck(ResourceType type)
     {
-		if (trader.isSelected)
+        if (world.unitMovement.uiPersonalResourceInfoPanel.activeStatus && world.unitMovement.uiPersonalResourceInfoPanel.unit == unit)
         {
-            trader.world.unitMovement.uiPersonalResourceInfoPanel.UpdateResource(type, trader.personalResourceManager.GetResourceDictValue(type));
-		    trader.world.unitMovement.uiPersonalResourceInfoPanel.UpdateStorageLevel(trader.personalResourceManager.ResourceStorageLevel);
+            world.unitMovement.uiPersonalResourceInfoPanel.UpdateResource(type, GetResourceDictValue(type));
+		    world.unitMovement.uiPersonalResourceInfoPanel.UpdateStorageLevel(resourceStorageLevel);
         }
 	}
 
@@ -140,19 +124,6 @@ public class PersonalResourceManager : MonoBehaviour
 
         return amount;
     }
-
-    //private bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAdded)
-    //{
-    //    if (resourceAdded > 0 && resourceStorageLimit <= 0) //unlimited space if 0  
-    //        return true;
-    //    if (resourceAdded < 0)
-    //    {
-    //        if (resourceDict[resourceType] == 0)
-    //            return false;
-    //        return true;
-    //    }
-    //    return resourceStorageLevel < resourceStorageLimit;
-    //}
 
     public int GetResourceDictValue(ResourceType resourceType)
     {

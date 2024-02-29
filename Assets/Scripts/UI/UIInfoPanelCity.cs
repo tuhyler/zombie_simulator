@@ -38,12 +38,12 @@ public class UIInfoPanelCity : MonoBehaviour
     {
         nameText.text = city.cityName;
 
-		cityPop.text = SetStringValue(city.cityPop.CurrentPop);
+		cityPop.text = SetStringValue(city.currentPop);
 
         UpdateHousing(city.HousingCount);
         UpdateWater(city.waterCount);
 
-        unusedLabor.text = SetStringValue(city.cityPop.UnusedLabor);
+        unusedLabor.text = SetStringValue(city.unusedLabor);
         UpdateWorkEthic(city.workEthic);
 	}
 
@@ -74,8 +74,8 @@ public class UIInfoPanelCity : MonoBehaviour
 
 	public void SetGrowthData(City city)
     {
-		cityPop.text = SetStringValue(city.cityPop.CurrentPop);
-        unusedLabor.text = SetStringValue(city.cityPop.UnusedLabor);
+		cityPop.text = SetStringValue(city.currentPop);
+        unusedLabor.text = SetStringValue(city.unusedLabor);
 		UpdateHousing(city.HousingCount);
         UpdateWater(city.waterCount);
     }

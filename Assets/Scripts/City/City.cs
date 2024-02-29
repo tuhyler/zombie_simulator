@@ -78,8 +78,10 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Dictionary<string, Vector3Int> singleBuildImprovementsBuildingsDict = new();
 
+    //[HideInInspector]
+    //public CityPopulation cityPop;
     [HideInInspector]
-    public CityPopulation cityPop;
+    public int currentPop, unusedLabor, usedLabor;
 
     //foodConsumed info
     public int unitFoodConsumptionPerMinute = 1, secondsTillGrowthCheck = 60, growthFood = 3; //how much foodConsumed one unit eats per turn
@@ -157,7 +159,7 @@ public class City : MonoBehaviour
     {
         //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
         //world = FindObjectOfType<MapWorld>();
-        cityPop = GetComponent<CityPopulation>();
+        //cityPop = GetComponent<CityPopulation>();
         audioSource = GetComponent<AudioSource>();
         army = GetComponent<Army>();
         //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
@@ -190,7 +192,7 @@ public class City : MonoBehaviour
         //    StartGrowthCycle(false);
         //}
 
-        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, cityPop.CurrentPop * unitFoodConsumptionPerMinute);
+        resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, currentPop * unitFoodConsumptionPerMinute);
 
         InstantiateParticleSystems();
         //Physics.IgnoreLayerCollision(6,7);
@@ -536,7 +538,7 @@ public class City : MonoBehaviour
 
     private void SetCityPop()
     {
-        cityNameField.SetCityPop(cityPop.CurrentPop);
+        cityNameField.SetCityPop(currentPop);
     }
 
     public void RemoveCityName()
@@ -718,8 +720,8 @@ public class City : MonoBehaviour
 
         for (int i = 0; i < amount; i++)
         {
-            cityPop.CurrentPop++;
-            cityPop.UnusedLabor++;
+            currentPop++;
+            unusedLabor++;
             
             if (autoAssignLabor)
             {
@@ -730,11 +732,11 @@ public class City : MonoBehaviour
                 }
             }
 
-            if (cityPop.CurrentPop <= 4)
+            if (currentPop <= 4)
             {
                 HouseLightCheck();
 
-                if (cityPop.CurrentPop == 1)
+                if (currentPop == 1)
                 {
                     if (activeCity)
                     {
@@ -746,7 +748,7 @@ public class City : MonoBehaviour
                     if (army.armyCount == 0)
                         StartGrowthCycle(false);
                 }
-                else if (cityPop.CurrentPop == 4)
+                else if (currentPop == 4)
                 {
                     minimapIcon.sprite = cityIcon;
                     ExtinguishFire();
@@ -779,9 +781,9 @@ public class City : MonoBehaviour
 
 	public void PopulationDeclineCheck(bool any, bool building)
     {
-        int prevPop = cityPop.CurrentPop;
+        int prevPop = currentPop;
 
-        cityPop.CurrentPop--;
+        currentPop--;
         housingCount++;
         waterCount++;
 		
@@ -807,19 +809,19 @@ public class City : MonoBehaviour
 			reachedWaterLimit = false;
 
 		if (activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
-            world.cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, cityPop.CurrentPop, false, resourceManager);
+            world.cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Labor, prevPop, currentPop, false, resourceManager);
 
 		if (activeCity)
 		{
             world.cityBuilderManager.uiInfoPanelCity.SetGrowthData(this);
 		}
 
-		if (cityPop.CurrentPop <= 3)
+		if (currentPop <= 3)
         {
             HouseLightCheck();
 			//cityNameField.ToggleVisibility(false);
 
-			if (cityPop.CurrentPop == 0 && army.UnitsInArmy.Count == 0)
+			if (currentPop == 0 && army.UnitsInArmy.Count == 0)
             {
                 if (co != null)
                 {
@@ -842,8 +844,8 @@ public class City : MonoBehaviour
     //        }
         }
 
-        if (cityPop.UnusedLabor > 0) //if unused labor, get rid of first
-            cityPop.UnusedLabor--;
+        if (unusedLabor > 0) //if unused labor, get rid of first
+            unusedLabor--;
         else
             RemoveRandomFieldLaborer(any);
 
@@ -864,7 +866,7 @@ public class City : MonoBehaviour
 
 		for (int j = 0; j < housingArray.Length; j++)
 		{
-            if (lightingCount >= cityPop.CurrentPop)
+            if (lightingCount >= currentPop)
                 lightsOn = false;
 
 			if (housingArray[j] != null)
@@ -1313,17 +1315,27 @@ public class City : MonoBehaviour
         if (enemyCamp.attacked || enemyCamp.inBattle || enemyCamp.attackReady || enemyCamp.prepping) //just in case
             return;
 
-		//find closest city
+		//find closest city with at least 4 pop, if there are none, go to closest city;
 		City targetCity = null;
         int dist = 0;
 
         List<City> cityList = world.cityDict.Values.ToList();
+        List<int> smallCityLocList = new();
+        bool firstOne = true;
         for (int i = 0; i < cityList.Count; i++)
         {
-            if (i == 0)
+            if (cityList[i].currentPop < 4)
             {
+                smallCityLocList.Add(i);
+                continue;
+            }
+            
+            if (firstOne)
+            {
+                firstOne = false;
                 targetCity = cityList[i];
                 dist = Mathf.Abs(cityLoc.x - cityList[i].cityLoc.x) + Mathf.Abs(cityLoc.z - cityList[i].cityLoc.z);
+                continue;
             }
 
             int newDist = Mathf.Abs(cityLoc.x - cityList[i].cityLoc.x) + Mathf.Abs(cityLoc.z - cityList[i].cityLoc.z);
@@ -1333,6 +1345,29 @@ public class City : MonoBehaviour
                 targetCity = cityList[i];
             }
         }
+
+        //finding closest city if not a big one close by
+        if (targetCity == null)
+        {
+			firstOne = true;
+			for (int i = 0; i < smallCityLocList.Count; i++)
+			{
+				if (firstOne)
+				{
+					firstOne = false;
+					targetCity = cityList[smallCityLocList[i]];
+					dist = Mathf.Abs(cityLoc.x - cityList[smallCityLocList[i]].cityLoc.x) + Mathf.Abs(cityLoc.z - cityList[smallCityLocList[i]].cityLoc.z);
+					continue;
+				}
+
+				int newDist = Mathf.Abs(cityLoc.x - cityList[smallCityLocList[i]].cityLoc.x) + Mathf.Abs(cityLoc.z - cityList[smallCityLocList[i]].cityLoc.z);
+				if (newDist < dist)
+				{
+					dist = newDist;
+					targetCity = cityList[smallCityLocList[i]];
+				}
+			}
+		}
 
         if (targetCity != null)
         {
@@ -1357,22 +1392,22 @@ public class City : MonoBehaviour
         int losePop;
         bool destroyed = false;
         
-        if (cityPop.CurrentPop < 4)
+        if (currentPop < 4)
         {
-            losePop = cityPop.CurrentPop;
+            losePop = currentPop;
             destroyed = true;
         }
-        else if (cityPop.CurrentPop < 8)
+        else if (currentPop < 8)
         {
-            losePop = cityPop.CurrentPop / 2;
+            losePop = currentPop / 2;
         }
-        else if (cityPop.CurrentPop < 19)
+        else if (currentPop < 19)
         {
-			losePop = cityPop.CurrentPop / 3;
+			losePop = currentPop / 3;
 		}
         else
         {
-			losePop = cityPop.CurrentPop / 4;
+			losePop = currentPop / 4;
 		}
 
         for (int i = 0; i < losePop; i++)
@@ -1553,7 +1588,7 @@ public class City : MonoBehaviour
 
     public void CityGrowthProgressBarSetActive(bool v)
     {
-        if (v && cityPop.CurrentPop == 0 && army.UnitsInArmy.Count == 0)
+        if (v && currentPop == 0 && army.UnitsInArmy.Count == 0)
             return;
 
         uiTimeProgressBar.gameObject.SetActive(v);
@@ -1586,7 +1621,7 @@ public class City : MonoBehaviour
         //    }
         //}
         
-        int unusedLabor = cityPop.UnusedLabor;
+        int unusedLabor = this.unusedLabor;
         bool maxxed;
 
         List<Vector3Int> laborLocs = world.GetPotentialLaborLocationsForCity(cityLoc);
@@ -1654,8 +1689,8 @@ public class City : MonoBehaviour
         }
 
         //selectedCity.cityPop.GetSetFieldLaborers += laborChange;
-        cityPop.UnusedLabor -= laborChange;
-        cityPop.UsedLabor += laborChange;
+        unusedLabor -= laborChange;
+        usedLabor += laborChange;
 
         if (labor == 0) //assigning city to location if working for first time
         {
@@ -2038,9 +2073,9 @@ public class City : MonoBehaviour
         data.hasBarracks = hasBarracks;
         data.hasHarbor = hasHarbor;
 		data.waterMaxPop = waterCount;
-        data.currentPop = cityPop.CurrentPop;
-        data.unusedLabor = cityPop.UnusedLabor;
-        data.usedLabor = cityPop.UsedLabor;
+        data.currentPop = currentPop;
+        data.unusedLabor = unusedLabor;
+        data.usedLabor = usedLabor;
         data.resourcePriorities = resourcePriorities;
         data.countDownTimer = countDownTimer;
         data.lostPop = lostPop;
@@ -2171,19 +2206,19 @@ public class City : MonoBehaviour
         hasBarracks = data.hasBarracks;
         hasHarbor = data.hasHarbor;
         waterCount = data.waterMaxPop;
-		cityPop.CurrentPop = data.currentPop;
-        cityPop.UnusedLabor = data.unusedLabor;
-        cityPop.UsedLabor = data.usedLabor;
+		currentPop = data.currentPop;
+        unusedLabor = data.unusedLabor;
+        usedLabor = data.usedLabor;
         resourcePriorities = data.resourcePriorities;
         countDownTimer = data.countDownTimer;
         lostPop = data.lostPop;
         attacked = data.attacked;
 
-        if (cityPop.CurrentPop > 0)
+        if (currentPop > 0)
         {
             StartGrowthCycle(true);
             
-            if (cityPop.CurrentPop > 3)
+            if (currentPop > 3)
             {
 			    minimapIcon.sprite = cityIcon;
 			    ExtinguishFire();
@@ -2193,8 +2228,8 @@ public class City : MonoBehaviour
         }
 
         //adjusting housing and water levels based on pop
-        housingCount -= cityPop.CurrentPop;
-        waterCount -= cityPop.CurrentPop;
+        housingCount -= currentPop;
+        waterCount -= currentPop;
 
 		//resource manager
 		//warehouseStorageLimit = data.warehouseStorageLimit;

@@ -278,7 +278,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 6831085403340830448}
         m_TargetAssemblyTypeName: UIResearchTab, Assembly-CSharp
-        m_MethodName: SelectTab
+        m_MethodName: SelectTabClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

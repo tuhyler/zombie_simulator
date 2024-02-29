@@ -3,7 +3,10 @@ using UnityEngine;
 public class UIWorkerRemovalOptions : MonoBehaviour
 {
     [SerializeField]
-    private GameObject allButton, roadButton, liquidButton, powerButton;
+    public MapWorld world;
+    
+    [SerializeField]
+    private GameObject /*allButton, */roadButton, liquidButton, powerButton;
 
     //for tweening
     [SerializeField]
@@ -13,9 +16,9 @@ public class UIWorkerRemovalOptions : MonoBehaviour
 
     private void Awake()
     {
-        allButton.SetActive(false);
-        liquidButton.SetActive(false);
-        powerButton.SetActive(false);
+        //allButton.SetActive(false);
+        //liquidButton.SetActive(false);
+        //powerButton.SetActive(false);
 
         gameObject.SetActive(false);
         originalLoc = allContents.anchoredPosition3D;
@@ -32,18 +35,36 @@ public class UIWorkerRemovalOptions : MonoBehaviour
         {
             gameObject.SetActive(val);
             activeStatus = true;
-            allContents.anchoredPosition3D = originalLoc + new Vector3(0, -100f, 0);
 
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 100f, 0.4f).setEaseOutBack();
-            //LeanTween.alpha(allContents, 1f, 0.2f).setFrom(0f).setEaseLinear();
+            int howMuchToShow = 70;
+
+            if (world.powerResearched)
+                howMuchToShow = 210;
+            else if (world.waterResearched)
+                howMuchToShow = 140;
+
+            //allContents.anchoredPosition3D = originalLoc + new Vector3(0, -howMuchToShow, 0);
+            allContents.anchoredPosition3D = originalLoc;
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + howMuchToShow, 0.4f).setEaseOutSine();
         }
         else
         {
             activeStatus = false;
             if (suddenly)
-                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 300f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            {
+                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 240f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            }
             else
-                LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 100f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            {
+                int howMuchToMove = 80;
+
+				if (world.powerResearched)
+					howMuchToMove = 220;
+				else if (world.waterResearched)
+					howMuchToMove = 150;
+
+				LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - howMuchToMove, 0.2f).setOnComplete(SetActiveStatusFalse);
+            }
         }
     }
 
@@ -59,16 +80,16 @@ public class UIWorkerRemovalOptions : MonoBehaviour
 
     public void RemoveRoad()
     {
-
+        world.unitMovement.workerTaskManager.RemoveRoadPrep();
     }
 
     public void RemoveLiquid()
     {
-
-    } 
+		world.unitMovement.workerTaskManager.RemoveLiquidPrep();
+	} 
 
     public void RemovePower()
     {
-
-    }
+		world.unitMovement.workerTaskManager.RemovePowerPrep();
+	}
 }

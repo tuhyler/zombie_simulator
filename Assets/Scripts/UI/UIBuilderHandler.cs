@@ -410,7 +410,7 @@ public class UIBuilderHandler : MonoBehaviour
 					if (resourceCosts[j].resourceAmount > maxLabor)
 						maxLabor = resourceCosts[j].resourceAmount;
 
-					int pop = resourceManager.city.cityPop.CurrentPop;
+					int pop = resourceManager.city.currentPop;
 					if (pop < resourceCosts[j].resourceAmount)
 						buildOptions[i].SetResourceTextToRed(resourceCosts[j]);
 				}

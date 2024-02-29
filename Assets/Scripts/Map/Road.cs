@@ -11,8 +11,8 @@ public class Road : MonoBehaviour
     public SelectionHighlight SelectionHighlight { get {  return selectionHighlight; } }
 
     private bool embiggened;
-
-    public UtilityLevel roadType = UtilityLevel.One;
+    [HideInInspector]
+    public int roadLevel;
     private UtilityType type = UtilityType.Road;
 
     private void Awake()
@@ -40,7 +40,7 @@ public class Road : MonoBehaviour
 
         data.position = loc;
         data.utilityType = type;
-        data.utilityLevel = roadType; 
+        data.utilityLevel = roadLevel; 
 
         return data;
     }
@@ -48,6 +48,6 @@ public class Road : MonoBehaviour
     public void LoadData(RoadData data)
     {
 		type = data.utilityType;
-		roadType = data.utilityLevel;
+		roadLevel = data.utilityLevel;
 	}
 }

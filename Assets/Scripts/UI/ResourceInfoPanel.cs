@@ -9,20 +9,35 @@ public class ResourceInfoPanel : MonoBehaviour
     //private SpriteMask spriteMask;
     [SerializeField]
     private TMP_Text resourceAmount;
+    [HideInInspector]
+    public int amount;
 
     //void LateUpdate()
     //{
     //    transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
     //}
 
-    public void SetResourcePanel(Sprite sprite, int amount, bool haveEnough)
+    public void SetResourcePanel(Sprite sprite, int amount, bool hasEnough, bool building)
     {
         resourceImageHolder.sprite = sprite;
-        //spriteMask.sprite = sprite;
-        resourceAmount.text = amount.ToString();
-        if (haveEnough)
-            resourceAmount.color = Color.white;
-        else
-            resourceAmount.color = Color.red;
+        this.amount = amount;
+        SetResourcePanelAmount(hasEnough, building);
     }
+
+    public void SetResourcePanelAmount(bool hasEnough, bool building)
+    {
+        resourceAmount.text = amount.ToString();
+
+        if (building)
+        {
+		    if (hasEnough)
+			    resourceAmount.color = Color.white;
+		    else
+			    resourceAmount.color = Color.red;
+        }
+        else
+        {
+			resourceAmount.color = Color.green;
+		}
+	}
 }

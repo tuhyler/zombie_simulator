@@ -7,6 +7,9 @@ using UnityEngine;
 public class RoadManager : MonoBehaviour
 {
     [SerializeField]
+    List<UtilityCostSO> roadCosts = new();
+    
+    [SerializeField]
     private GameObject solo, deadEnd, straightRoad, curve, threeWay, fourWay, diagDeadEnd, diagonal, diagCurve, diagThreeWay, diagFourWay, bridge;
 
     [SerializeField]
@@ -29,6 +32,7 @@ public class RoadManager : MonoBehaviour
     private Transform roadHolder, roadHolderMinimap;
     [HideInInspector]
     public List<MeshFilter> roadMeshList = new();
+    public Dictionary<int, UtilityCostSO> roadCostDict = new();
     
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -49,9 +53,16 @@ public class RoadManager : MonoBehaviour
     private void Awake()
     {
         world.SetRoadCost(roadMovementCost);
+        SetDicts();
     }
 
-    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool highlight) //placing road prefabs
+    private void SetDicts()
+    {
+        for (int i = 0; i < roadCosts.Count; i++)
+            roadCostDict[roadCosts[i].utilityLevel] = roadCosts[i];
+    }
+
+    private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool highlight, int level) //placing road prefabs
     {
         Vector3 pos = roadPosition;
         //pos.y = -.04f;
@@ -63,6 +74,7 @@ public class RoadManager : MonoBehaviour
         //    structure.SetActive(false);
         roadGO.transform.parent = roadHolder.transform;
         Road road = roadGO.GetComponent<Road>();
+        road.roadLevel = level;
         if (highlight)
             road.SelectionHighlight.EnableHighlight(Color.white);
 
@@ -129,7 +141,7 @@ public class RoadManager : MonoBehaviour
 
 
     //finds if road changes are happening diagonally or on straight, then destroys objects accordingly
-    public void BuildRoadAtPosition(Vector3Int roadPosition) 
+    public void BuildRoadAtPosition(Vector3Int roadPosition, int level) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
         bool river = td.straightRiver;
@@ -151,9 +163,9 @@ public class RoadManager : MonoBehaviour
         if (straightRoadsCount + diagRoadsCount == 0)
         {
             if (river)
-                CreateBridge(roadPosition, false);
+                CreateBridge(roadPosition, false, level);
             else
-                CreateRoadSolo(roadPosition, hill, false);
+                CreateRoadSolo(roadPosition, hill, false, level);
         }
 
         world.SetRoadLocations(roadPosition);
@@ -164,19 +176,19 @@ public class RoadManager : MonoBehaviour
             SetRoadLocations(roadPosition, diagRoads, false);
 
         if (straightRoadsCount > 0)
-            PrepareRoadCreation(roadPosition, straightRoads, straightRoadsCount, true, hill, false, river);
+            PrepareRoadCreation(roadPosition, straightRoads, straightRoadsCount, true, hill, false, river, level);
         if (diagRoadsCount > 0)
-            PrepareRoadCreation(roadPosition, diagRoads, diagRoadsCount, false, hill, false, river);
+            PrepareRoadCreation(roadPosition, diagRoads, diagRoadsCount, false, hill, false, river, level);
 
         //changing neighbor roads to meet up with new road
         FixNeighborRoads(roadNeighbors);
 
         CombineMeshes();
 
-        AddCityRoads(roadPosition);
+        AddCityRoads(roadPosition, level);
     }
 
-    public void AddCityRoads(Vector3Int roadPosition)
+    public void AddCityRoads(Vector3Int roadPosition, int level)
     {
         foreach (Vector3Int loc in world.GetNeighborsFor(roadPosition, MapWorld.State.EIGHTWAYINCREMENT))
         {
@@ -184,11 +196,17 @@ public class RoadManager : MonoBehaviour
                 continue;
 
             if (world.IsTradeCenterOnTile(loc))
-                BuildRoadAtPosition(loc);
+                BuildRoadAtPosition(loc, level);
+
+            if (world.IsWonderOnTile(loc) && world.GetWonder(loc).unloadLoc == loc)
+            {
+                //if (world.GetRoadLevel(loc) > level)
+                //    UpgradeRoad();
+            }
 
             if (world.IsCityOnTile(loc))
             {
-                BuildRoadAtPosition(loc);
+                BuildRoadAtPosition(loc, level);
 
                 if (loc - roadPosition == new Vector3Int(0, 0, 3))
                     world.GetCity(loc).RepositionFire();
@@ -206,6 +224,7 @@ public class RoadManager : MonoBehaviour
             int roadCount = roads.Sum();
             bool highlight = td.isGlowing;
             bool hill = td.isHill;
+            int level = world.GetRoadLevel(roadLoc);
 
             Road road = world.GetRoads(roadLoc, straight);
             if (road != null)
@@ -229,36 +248,36 @@ public class RoadManager : MonoBehaviour
                 if(world.SoloRoadCheck(roadLoc, straight))
                 {
                     if (!world.IsSoloRoadOnTileLocation(roadLoc)) //if there's not already a solo road there
-                        CreateRoadSolo(roadLoc, hill, highlight);
+                        CreateRoadSolo(roadLoc, hill, highlight, level);
                 }
             }
 
             SetRoadLocations(roadLoc, roads, straight);
-            PrepareRoadCreation(roadLoc, roads, roadCount, straight, hill, highlight, false);
+            PrepareRoadCreation(roadLoc, roads, roadCount, straight, hill, highlight, false, level);
         }
     }
 
-    private void PrepareRoadCreation(Vector3Int roadPosition, int[] roads, int roadCount, bool straight, bool hill, bool highlight, bool river)
+    private void PrepareRoadCreation(Vector3Int roadPosition, int[] roads, int roadCount, bool straight, bool hill, bool highlight, bool river, int level)
     {
         if (river)
         {
-            CreateBridge(roadPosition, highlight);
+            CreateBridge(roadPosition, highlight, level);
         }
         else if (roadCount == 1) //dead end if just one 
         {
-            CreateDeadEnd(roadPosition, roads, straight, hill, highlight);
+            CreateDeadEnd(roadPosition, roads, straight, hill, highlight, level);
         }
         else if (roadCount == 2)
         {
-            CreateTwoWay(roadPosition, roads, straight, hill, highlight);
+            CreateTwoWay(roadPosition, roads, straight, hill, highlight, level);
         }
         else if (roadCount == 3)
         {
-            CreateThreeWay(roadPosition, roads, straight, hill, highlight);
+            CreateThreeWay(roadPosition, roads, straight, hill, highlight, level);
         }
         else if (roadCount == 4)
         {
-            CreateFourWay(roadPosition, straight, hill, highlight);
+            CreateFourWay(roadPosition, straight, hill, highlight, level);
         }
     }
 
@@ -283,24 +302,24 @@ public class RoadManager : MonoBehaviour
         }
     }
 
-    private void CreateBridge(Vector3Int roadPosition, bool highlight)
+    private void CreateBridge(Vector3Int roadPosition, bool highlight, int level)
     {
         List<Vector3Int> land = world.GetNeighborsCoordinates(MapWorld.State.FOURWAYINCREMENT);
         int rotation = 0;
         if (world.GetTerrainDataAt(land[1]).isLand && world.GetTerrainDataAt(land[3]).isLand)
             rotation = 90;
 
-        CreateRoad(bridge, roadPosition, Quaternion.Euler(0, rotation, 0), false, highlight);
+        CreateRoad(bridge, roadPosition, Quaternion.Euler(0, rotation, 0), false, highlight, level);
 	}
 
-    private void CreateRoadSolo(Vector3Int roadPosition, bool hill, bool highlight)
+    private void CreateRoadSolo(Vector3Int roadPosition, bool hill, bool highlight, int level)
     {
         GameObject road = hill ? soloHill : solo;
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), false, highlight); //solo roads still exists when connecting with straight road
+        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), false, highlight, level); //solo roads still exists when connecting with straight road
         world.SetSoloRoadLocations(roadPosition);
     }
 
-    private void CreateDeadEnd(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight)
+    private void CreateDeadEnd(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight, int level)
     {
         int index = Array.FindIndex(roads, x => x == 1);
         GameObject road;
@@ -309,10 +328,10 @@ public class RoadManager : MonoBehaviour
             road = straight ? deadEndHill : diagDeadEndHill;
         else
             road = straight ? deadEnd : diagDeadEnd;
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight);
+        CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight, level);
     }
 
-    private void CreateTwoWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight)
+    private void CreateTwoWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight, int level)
     {
         int index = 0;
         int totalIndex = 0;
@@ -334,7 +353,7 @@ public class RoadManager : MonoBehaviour
                 road = straight ? straightRoadHill : diagonalHill;
             else
                 road = straight ? straightRoad : diagonal;
-            CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight);
+            CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight, level);
         }
         else //for curves
         {
@@ -348,11 +367,11 @@ public class RoadManager : MonoBehaviour
                 road = straight ? curveHill : diagCurveHill;
             else
                 road = straight ? curve : diagCurve;
-            CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight);
+            CreateRoad(road, roadPosition, Quaternion.Euler(0, rotationFactor * 90, 0), straight, highlight, level);
         }
     }
 
-    private void CreateThreeWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight)
+    private void CreateThreeWay(Vector3Int roadPosition, int[] roads, bool straight, bool hill, bool highlight, int level)
     {
         int index = Array.FindIndex(roads, x => x == 0);
         GameObject road;
@@ -361,10 +380,10 @@ public class RoadManager : MonoBehaviour
             road = straight ? threeWayHill : diagThreeWayHill;
         else
             road = straight ? threeWay: diagThreeWay;
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight);
+        CreateRoad(road, roadPosition, Quaternion.Euler(0, index * 90, 0), straight, highlight, level);
     }
 
-    private void CreateFourWay(Vector3Int roadPosition, bool straight, bool hill, bool highlight)
+    private void CreateFourWay(Vector3Int roadPosition, bool straight, bool hill, bool highlight, int level)
     {
         GameObject road;
 
@@ -373,7 +392,7 @@ public class RoadManager : MonoBehaviour
         else
             road = straight ? fourWay : diagFourWay;
 
-        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), straight, highlight);
+        CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), straight, highlight, level);
     }
 
     //public IEnumerator RemoveRoad(Vector3Int tile, Worker worker)
@@ -497,12 +516,6 @@ public class RoadManager : MonoBehaviour
 
         roadHolder.transform.gameObject.SetActive(true);
     }
-}
-
-public enum UtilityLevel
-{
-    None,
-    One
 }
 
 public enum UtilityType

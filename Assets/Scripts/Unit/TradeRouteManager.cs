@@ -138,7 +138,7 @@ public class TradeRouteManager : MonoBehaviour
 
             foreach (City city in trader.world.cityDict.Values)
             {
-                if (city.cityPop.CurrentPop < 5)
+                if (city.currentPop < 5)
                     continue;
                 
                 if (Mathf.Abs(city.cityLoc.x - randomLoc.x) < 13 && Mathf.Abs(city.cityLoc.z - randomLoc.z) < 13)
@@ -277,7 +277,7 @@ public class TradeRouteManager : MonoBehaviour
                 //if trader wants more than it can store
                 //int level = Mathf.CeilToInt(trader.personalResourceManager.ResourceStorageLevel);
                 //int limit = trader.cargoStorageLimit;
-                int space = trader.cargoStorageLimit - trader.personalResourceManager.ResourceStorageLevel;
+                int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.ResourceStorageLevel;
                 int currentAmount = trader.personalResourceManager.ResourceDict[value.resourceType];
                 resourceAmount -= currentAmount;
 

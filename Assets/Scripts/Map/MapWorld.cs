@@ -42,13 +42,15 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
-    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas;
+    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched;
+    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterResearched, powerResearched;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
     public MeshFilter borderOne, borderTwoCorner, borderTwoCross, borderThree, borderFour;
+    [SerializeField]
+    public UtilityCostDisplay utilityCostDisplay;
     [SerializeField]
     public UIAttackWarning uiAttackWarning;
     [SerializeField]
@@ -784,7 +786,7 @@ public class MapWorld : MonoBehaviour
             BuildEnemyCity(enemyCityLocs[i], GetTerrainDataAt(enemyCityLocs[i]), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, random);
         }
         
-        BuildEnemyRoads(enemyRoadLocs);
+        BuildEnemyRoads(enemyRoadLocs, 1);
         //temporary for enemy cities
         //above is temporary for enemy cities
     }
@@ -1178,7 +1180,7 @@ public class MapWorld : MonoBehaviour
         city.ExtinguishFire();
         city.cityLoc = cityTile;
         city.cityName = data.cityName;
-        city.cityPop.CurrentPop = data.popSize;
+        city.currentPop = data.popSize;
         city.minimapIcon.sprite = city.enemyCityIcon;
 
         enemyCityDict[cityTile] = city;
@@ -1590,11 +1592,11 @@ public class MapWorld : MonoBehaviour
 		    data.enemyUnitData = camp.SendCampData();
 	}
 
-    public void BuildEnemyRoads(List<Vector3Int> roadList)
+    public void BuildEnemyRoads(List<Vector3Int> roadList, int level)
     {
         for (int i = 0; i < roadList.Count; i++)
         {
-            roadManager.BuildRoadAtPosition(roadList[i]);
+            roadManager.BuildRoadAtPosition(roadList[i], level);
         }
     }
 
@@ -2245,7 +2247,7 @@ public class MapWorld : MonoBehaviour
         {
             newUnit.homeBase = city;
 			city.army.AddToArmy(newUnit);
-            if (city.cityPop.CurrentPop == 0 && city.army.armyCount == 1)
+            if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(true);
             city.army.AddToOpenSpots(data.barracksBunk);
 			newUnit.name = unitData.unitDisplayName;
@@ -2320,7 +2322,7 @@ public class MapWorld : MonoBehaviour
         GameLoader.Instance.SaveGame(saveName, playTime, version, bytesString);
     }
 
-    //it's actually "P"
+    //it's actually "F12"
     public void HandleCtrlT()
     {
         StartCoroutine(TakeScreenshot());
@@ -2488,6 +2490,7 @@ public class MapWorld : MonoBehaviour
         cityCanvas.gameObject.SetActive(false);
         //else
         //    openingCity = false;
+        personalResourceCanvas.gameObject.SetActive(false);
         traderCanvas.gameObject.SetActive(false);
         workerCanvas.gameObject.SetActive(false);
         tradeRouteManagerCanvas.gameObject.SetActive(false);
@@ -3330,7 +3333,14 @@ public class MapWorld : MonoBehaviour
 
         //building road in unload area
         if (!wonder.roadPreExisted)
-            roadManager.BuildRoadAtPosition(finalUnloadLoc);
+        {
+            int level = 1;
+
+            for (int i = 0; i < neighborsEightDirectionsIncrement.Count; i++)
+                level = Math.Max(GetRoadLevel(neighborsEightDirectionsIncrement[i] + finalUnloadLoc), level);            
+
+            roadManager.BuildRoadAtPosition(finalUnloadLoc, level);
+        }
 
         //claiming the area for the wonder
         List<Vector3Int> harborTiles = new();
@@ -3442,7 +3452,7 @@ public class MapWorld : MonoBehaviour
 		    //building road in unload area
             if (data.isConstructing)
             {
-    			roadManager.BuildRoadAtPosition(data.unloadLoc);
+    			roadManager.BuildRoadAtPosition(data.unloadLoc, 1);
 
                 if (data.hasHarbor)
                     cityBuilderManager.LoadWonderHarbor(data.harborLoc, wonder);
@@ -5337,11 +5347,11 @@ public class MapWorld : MonoBehaviour
 			city.waterCount = city.hasFreshWater ? 9999 : 0;
 
 			//give some food so pop don't start starving immediately
-			city.ResourceManager.AddResource(ResourceType.Food, city.cityPop.CurrentPop * 3);
+			city.ResourceManager.AddResource(ResourceType.Food, city.currentPop * 3);
 
             List<ResourceType> resourcesToAdd = new() { ResourceType.Lumber, ResourceType.Stone };
             for (int i = 0; i < resourcesToAdd.Count; i++)
-                city.ResourceManager.AddResource(resourcesToAdd[i],UnityEngine.Random.Range(city.cityPop.CurrentPop,city.cityPop.CurrentPop * 4));
+                city.ResourceManager.AddResource(resourcesToAdd[i],UnityEngine.Random.Range(city.currentPop,city.currentPop * 4));
 
             GameLoader.Instance.RemoveEnemyCity(loc);
 		}
@@ -5571,6 +5581,16 @@ public class MapWorld : MonoBehaviour
     {
         int index = straight ? 0 : 1;
         roadTileDict[tile][index] = road;
+    }
+
+    public int GetRoadLevel(Vector3Int tile)
+    {
+        int index = 0;
+
+        if (roadTileDict[tile][index] == null)
+            index = 1;
+
+        return roadTileDict[tile][index].roadLevel;
     }
 
     public void SetRoadLocations(Vector3Int tile)
@@ -7612,7 +7632,7 @@ public class MapWorld : MonoBehaviour
                 {
 					foreach (Vector3Int tile in cityDict.Keys)
 					{
-                        if (cityDict[tile].cityPop.CurrentPop > 0)
+                        if (cityDict[tile].currentPop > 0)
                             cityDict[tile].Select(Color.green);
 					}
 
@@ -7656,7 +7676,7 @@ public enum Era
     AncientEra,
     ClassicEra,
     MedievalEra,
-    IndustrialEra,
+    RenaissanceEra,
     ModernEra,
     None
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,6 +29,16 @@ public class Worker : Unit
 	public int timePassed;
     public List<string> conversationTopics = new();
 
+	//for building roads (costs)
+	public UtilityCostSO currentUtilityCost;
+
+    //for koa's inventory
+    [HideInInspector]
+    public PersonalResourceManager personalResourceManager;
+	public UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
+	[HideInInspector]
+	public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
+
 	//animations
 	private int isWorkingHash, isGatheringHash, isFallingHash, isDizzyHash;
 
@@ -51,7 +62,10 @@ public class Worker : Unit
         //resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
         //timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
-    }
+        personalResourceManager = GetComponent<PersonalResourceManager>();
+		if (personalResourceManager != null)
+			personalResourceManager.resourceStorageLimit = buildDataSO.cargoCapacity;
+	}
 
     protected override void AwakeMethods()
     {
@@ -60,14 +74,19 @@ public class Worker : Unit
         //removeSplash.Stop();
     }
 
-    //public void PlaySplash(Vector3 loc)
-    //{
-    //    removeSplash.transform.position = loc;
-    //    removeSplash.Play();
-    //}
+	private void Start()
+	{
+        if (personalResourceManager != null)
+			personalResourceManager.SetUnit(this);
+	}
+	//public void PlaySplash(Vector3 loc)
+	//{
+	//    removeSplash.transform.position = loc;
+	//    removeSplash.Play();
+	//}
 
-#region gameBegin
-    public void ToggleDizzy(bool v)
+	#region gameBegin
+	public void ToggleDizzy(bool v)
     {
         unitAnimator.SetBool(isDizzyHash, v);
     }
@@ -430,7 +449,13 @@ public class Worker : Unit
 		taskCo = null;
 		HideProgressTimeBar();
 		SetWorkAnimation(false);
-		world.roadManager.BuildRoadAtPosition(roadPosition);
+
+		if (world.GetTerrainDataAt(roadPosition).straightRiver)
+			world.mainPlayer.SetResources(currentUtilityCost.bridgeCost, true, roadPosition);
+		else
+			world.mainPlayer.SetResources(currentUtilityCost.utilityCost, true, roadPosition);
+
+		world.roadManager.BuildRoadAtPosition(roadPosition, currentUtilityCost.utilityLevel);
 		world.RemoveWorkerWorkLocation(roadPosition);
 
 		//moving worker up a smidge to be on top of road
@@ -448,7 +473,52 @@ public class Worker : Unit
 			building = false;
 			if (world.mainPlayer.isSelected)
 				workerTaskManager.TurnOffCancelTask();
-			//StartCoroutine(CombineMeshWaiter());
+		}
+	}
+
+	private void SetResources(List<ResourceValue> costs, bool spend, Vector3Int loc)
+	{
+		if (spend)
+		{
+			for (int i = 0; i < costs.Count; i++)
+			{
+				personalResourceManager.SubtractResource(costs[i].resourceType, costs[i].resourceAmount);
+				Vector3 loc2 = loc;
+				loc2.y += -.4f * i;
+				InfoResourcePopUpHandler.CreateResourceStat(loc2, costs[i].resourceAmount * -1, ResourceHolder.Instance.GetIcon(costs[i].resourceType));
+			}
+		}
+		else
+		{
+			for (int i = 0; i < costs.Count; i++)
+			{
+				if (!resourceGridDict.ContainsKey(costs[i].resourceType))
+					world.mainPlayer.AddToGrid(costs[i].resourceType);
+
+				int amount = costs[i].resourceAmount;
+				int storageSpace = personalResourceManager.resourceStorageLimit - personalResourceManager.ResourceStorageLevel;
+				int wasted = 0;
+
+				if (storageSpace < amount)
+				{
+					wasted = amount - storageSpace;
+					amount = storageSpace;
+				}
+
+				personalResourceManager.AddResource(costs[i].resourceType, amount);
+				if (wasted > 0)
+				{
+					Vector3 loc2 = loc;
+					loc2.y += -.4f * i;
+					InfoResourcePopUpHandler.CreateResourceStat(loc2, wasted, ResourceHolder.Instance.GetIcon(costs[i].resourceType), true);
+				}
+				else
+				{
+					Vector3 loc2 = loc;
+					loc2.y += -.4f * i;
+					InfoResourcePopUpHandler.CreateResourceStat(loc2, costs[i].resourceAmount, ResourceHolder.Instance.GetIcon(costs[i].resourceType));
+				}
+			}
 		}
 	}
 
@@ -521,11 +591,14 @@ public class Worker : Unit
 		}
 
 		taskCo = null;
-		//worker.PlaySplash(tile, isHill);
+
+		int level = world.GetRoadLevel(tile);
+		if (world.GetTerrainDataAt(tile).straightRiver)
+			world.mainPlayer.SetResources(world.roadManager.roadCostDict[level].bridgeCost, false, tile);
+		else
+			world.mainPlayer.SetResources(world.roadManager.roadCostDict[level].utilityCost, false, tile);
 		HideProgressTimeBar();
 		SetWorkAnimation(false);
-		//worker.isBusy = false;
-		//workerTaskManager.TurnOffCancelTask();
 		world.roadManager.RemoveRoadAtPosition(tile);
 		world.RemoveWorkerWorkLocation(tile);
 
@@ -567,6 +640,8 @@ public class Worker : Unit
     {
 		if (world.unitMovement.moveUnit)
 			world.unitMovement.CancelMove();
+
+		world.unitMovement.LoadUnloadFinish(true);
 
 		Vector3 workerPos = transform.position;
         workerPos.y = 0;
@@ -886,7 +961,11 @@ public class Worker : Unit
 		HideProgressTimeBar();
 		SetGatherAnimation(false);
 		if (isSelected)
+		{
 			world.unitMovement.uiCancelTask.ToggleVisibility(false);
+			world.unitMovement.uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
+		}
+
 		world.unitMovement.workerTaskManager.BuildCity(workerTile, this, world.scott.clearedForest, td);
 		world.RemoveWorkerWorkLocation(workerTile);
 	}
@@ -1187,6 +1266,37 @@ public class Worker : Unit
 		}
 	}
 
+	public void AddToGrid(ResourceType type)
+	{
+		resourceGridDict[type] = resourceGridDict.Count;
+	}
+
+	public void ReshuffleGrid()
+	{
+		int i = 0;
+
+		//re-sorting
+		Dictionary<ResourceType, int> myDict = resourceGridDict.OrderBy(d => d.Value).ToDictionary(x => x.Key, x => x.Value);
+
+		List<ResourceType> types = new List<ResourceType>(myDict.Keys);
+
+		foreach (ResourceType type in types)
+		{
+			int amount = 0;
+			if (personalResourceManager.ResourceDict.ContainsKey(type))
+				amount = personalResourceManager.ResourceDict[type];
+
+			if (amount > 0)
+			{
+				resourceGridDict[type] = i;
+				i++;
+			}
+			else
+			{
+				resourceGridDict.Remove(type);
+			}
+		}
+	}
 
 	public WorkerData SaveWorkerData()
     {
@@ -1222,6 +1332,14 @@ public class Worker : Unit
         data.orderList = orderList;
         data.timePassed = timePassed;
 
+		//personal resource info
+        if (isPlayer)
+        {
+			data.resourceDict = personalResourceManager.ResourceDict;
+			data.resourceStorageLevel = personalResourceManager.ResourceStorageLevel;
+			data.resourceGridDict = resourceGridDict;
+		}
+
 		return data;
     }
 
@@ -1256,7 +1374,15 @@ public class Worker : Unit
 
 		orderQueue = new Queue<Vector3Int>(orderList);
 
-        if (!isMoving)
+		//personal resource info
+		if (isPlayer)
+		{
+			personalResourceManager.ResourceDict = data.resourceDict;
+			personalResourceManager.ResourceStorageLevel = data.resourceStorageLevel;
+			resourceGridDict = data.resourceGridDict;
+		}
+
+		if (!isMoving)
             world.AddUnitPosition(CurrentLocation, this);
 
         if (data.somethingToSay)

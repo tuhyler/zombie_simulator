@@ -22,9 +22,6 @@ public class Trader : Unit
     private int totalRouteLength;
 
     [HideInInspector]
-    public int cargoStorageLimit;
-
-    [HideInInspector]
     public bool paid, hasRoute, waitingOnRouteCosts, guarded, waitingOnGuard, guardLeft;//, interruptedRoute;
     [HideInInspector]
     public Unit guardUnit;
@@ -55,15 +52,13 @@ public class Trader : Unit
         isInterruptedHash = Animator.StringToHash("isInterrupted");
         isLoadingHash = Animator.StringToHash("isLoading");
         isUnloadingHash = Animator.StringToHash("isUnloading");
-        cargoStorageLimit = buildDataSO.cargoCapacity;
         tradeRouteManager = GetComponent<TradeRouteManager>();
         tradeRouteManager.SetTrader(this);
         trader = this;
         isTrader = true;
         personalResourceManager = GetComponent<PersonalResourceManager>();
-        personalResourceManager.SetTrader(this);
         //tradeRouteManager.SetPersonalResourceManager(personalResourceManager);
-        personalResourceManager.ResourceStorageLimit = cargoStorageLimit;
+        personalResourceManager.resourceStorageLimit = buildDataSO.cargoCapacity;
         if (bySea)
             ripples.SetActive(false);
     }
@@ -72,6 +67,7 @@ public class Trader : Unit
 	{
 		tradeRouteManager.SetTradeRouteManager(world.unitMovement.uiTradeRouteManager);
         tradeRouteManager.SetUIPersonalResourceManager(world.unitMovement.uiPersonalResourceInfoPanel);
+        personalResourceManager.SetUnit(this);
 	}
 
     public void SetRouteManagers(UITradeRouteManager uiTradeRouteManager, UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)

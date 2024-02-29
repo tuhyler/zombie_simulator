@@ -1366,7 +1366,17 @@ public class Unit : MonoBehaviour
 			world.AddUnitPosition(currentLocation, this);
             
             if (isSelected)
+            {
                 world.unitMovement.ShowIndividualCityButtonsUI();
+
+				if (isPlayer)
+                {
+                    Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+
+					if (world.IsTradeLocOnTile(terrainLoc) && !world.IsWonderOnTile(terrainLoc))
+					        world.unitMovement.uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
+                }
+			}
 
             if (isLaborer)
                 world.unitMovement.LaborerJoin(this);

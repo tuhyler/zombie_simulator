@@ -18,6 +18,11 @@ public class WorkerData : IUnitData
 	public int timePassed;
 	public List<string> conversationTopics;
 
+	//personal resource info (just for koa)
+	public Dictionary<ResourceType, int> resourceDict;
+	public int resourceStorageLevel;
+	public Dictionary<ResourceType, int> resourceGridDict;
+
 	public WorkerData GetWorkerData()
 	{
 		return this;

@@ -181,7 +181,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void HandleB()
     {
-        if (selectedCity != null)
+        if (!uiCityNamer.activeStatus && selectedCity != null)
             OpenAddPopWindow();
     }
 
@@ -956,9 +956,9 @@ public class CityBuilderManager : MonoBehaviour
 
     public void PlayOpenCityAudio()
     {
-        if (selectedCity.cityPop.CurrentPop < 5)
+        if (selectedCity.currentPop < 5)
             world.PlayCityAudio(fireClip);
-        else if (selectedCity.cityPop.CurrentPop < 12)
+        else if (selectedCity.currentPop < 12)
 			world.PlayCityAudio(smallTownClip);
         else
 			world.PlayCityAudio(largeTownClip);
@@ -1125,7 +1125,7 @@ public class CityBuilderManager : MonoBehaviour
         //uiInfoPanelCity.SetGrowthPauseToggle(selectedCity.ResourceManager.pauseGrowth);
         uiInfoPanelCity.UpdateWater(selectedCity.waterCount);
 
-        if (selectedCity.cityPop.CurrentPop > 0 || selectedCity.army.UnitsInArmy.Count > 0)
+        if (selectedCity.currentPop > 0 || selectedCity.army.UnitsInArmy.Count > 0)
         {
             uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.AutoAssignLabor);
             uiLaborAssignment.ShowUI(selectedCity, placesToWork);
@@ -1139,7 +1139,7 @@ public class CityBuilderManager : MonoBehaviour
 
         uiLaborHandler.SetCity(selectedCity);
         //uiUnitTurn.buttonClicked.AddListener(ResetCityUI);
-        if (selectedCity.cityPop.CurrentPop > 0)
+        if (selectedCity.currentPop > 0)
             abandonCityButton.interactable = false;
         else
             abandonCityButton.interactable = true;
@@ -1506,8 +1506,8 @@ public class CityBuilderManager : MonoBehaviour
                 if (!world.CheckIfTileIsMaxxed(upgradeLoc))
                     placesToWork--;
                 int currentLabor = world.GetCurrentLaborForTile(upgradeLoc);
-                city.cityPop.UnusedLabor += currentLabor;
-                city.cityPop.UsedLabor -= currentLabor;
+                city.unusedLabor += currentLabor;
+                city.usedLabor -= currentLabor;
 
                 RemoveLaborFromDicts(upgradeLoc);
                 UpdateCityLaborUIs();
@@ -1523,7 +1523,7 @@ public class CityBuilderManager : MonoBehaviour
                 RemoveLaborFromDicts(upgradeLoc);
             }
             
-            if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
+            if (city.AutoAssignLabor && city.unusedLabor > 0)
                 city.AutoAssignmentsForLabor();
 
             selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, upgradeLoc, data, false);
@@ -1976,7 +1976,7 @@ public class CityBuilderManager : MonoBehaviour
         {
 		    newUnit.atHome = true;
 		    city.army.AddToArmy(newUnit);
-            if (city.cityPop.CurrentPop == 0 && city.army.armyCount == 1)
+            if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(false);
 		    newUnit.homeBase = city;
             newUnit.barracksBunk = buildPosition;
@@ -2035,7 +2035,7 @@ public class CityBuilderManager : MonoBehaviour
 			return;
         }
 
-        if (selectedCity.cityPop.CurrentPop == 0)
+        if (selectedCity.currentPop == 0)
         {
 			InfoPopUpHandler.WarningMessage().Create(selectedCity.cityLoc, "No pop available");
 			return;
@@ -2066,7 +2066,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		bool secondaryPrefab;
 
-        if (selectedCity.cityPop.CurrentPop % 2 == 0)
+        if (selectedCity.currentPop % 2 == 0)
             secondaryPrefab = false;
         else
             secondaryPrefab = true;
@@ -2731,7 +2731,7 @@ public class CityBuilderManager : MonoBehaviour
 
         //setting labor info (harbors have no labor)
         world.AddToMaxLaborDict(tempBuildLocation, improvementData.maxLabor);
-        if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0 && improvementData.maxLabor > 0)
+        if (city.AutoAssignLabor && city.unusedLabor > 0 && improvementData.maxLabor > 0)
             city.AutoAssignmentsForLabor();
 
         //removing areas to work
@@ -2975,8 +2975,8 @@ public class CityBuilderManager : MonoBehaviour
                 if (!world.CheckIfTileIsMaxxed(improvementLoc))
                     placesToWork--;
                 int currentLabor = world.GetCurrentLaborForTile(improvementLoc);
-                city.cityPop.UnusedLabor += currentLabor;
-                city.cityPop.UsedLabor -= currentLabor;
+                city.unusedLabor += currentLabor;
+                city.usedLabor -= currentLabor;
             }
         }
 
@@ -3063,7 +3063,7 @@ public class CityBuilderManager : MonoBehaviour
             city.army.ClearArmySpots();
         }
 
-        if (city.AutoAssignLabor && city.cityPop.UnusedLabor > 0)
+        if (city.AutoAssignLabor && city.unusedLabor > 0)
             city.AutoAssignmentsForLabor();
 
         //updating ui
@@ -3337,7 +3337,7 @@ public class CityBuilderManager : MonoBehaviour
             if (improvement.isUpgrading || improvement.GetImprovementData.improvementName == "Harbor" || improvement.GetImprovementData.improvementName == "Barracks")
                 continue;
 
-            if (laborChange > 0 && !world.CheckIfTileIsMaxxed(tile) && selectedCity.cityPop.UnusedLabor > 0) //for increasing labor, can't be maxxed out
+            if (laborChange > 0 && !world.CheckIfTileIsMaxxed(tile) && selectedCity.unusedLabor > 0) //for increasing labor, can't be maxxed out
             {
                 td.EnableHighlight(Color.green);
                 improvement.EnableHighlight(Color.green);
@@ -3405,8 +3405,8 @@ public class CityBuilderManager : MonoBehaviour
             placesToWork--;
 
         //selectedCity.cityPop.GetSetFieldLaborers += laborChange;
-        selectedCity.cityPop.UnusedLabor -= laborChange;
-        selectedCity.cityPop.UsedLabor += laborChange;
+        selectedCity.unusedLabor -= laborChange;
+        selectedCity.usedLabor += laborChange;
 
         resourceProducer.UpdateCurrentLaborData(labor);
         //if (!resourceProducer.CheckResourceManager(resourceManager))
@@ -3643,7 +3643,7 @@ public class CityBuilderManager : MonoBehaviour
             //selectedCity.autoGrow = true;
             selectedCity.AutoAssignLabor = true;
 
-            if (selectedCity.cityPop.UnusedLabor > 0)
+            if (selectedCity.unusedLabor > 0)
             {
                 selectedCity.AutoAssignmentsForLabor();
                 UpdateCityLaborUIs();
