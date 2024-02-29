@@ -12,8 +12,8 @@ public class UITraderOrderHandler : MonoBehaviour
     [SerializeField]
     public UISingleConditionalButtonHandler uiBeginTradeRoute; //public to show button in other class
 
-    [SerializeField]
-    public UISingleConditionalButtonHandler uiLoadUnload; //button to load unload cargo for traders
+    //[SerializeField]
+    //public UISingleConditionalButtonHandler uiLoadUnload; //button to load unload cargo for traders
 
     [SerializeField]
     private Transform uiElementsParent;
@@ -38,7 +38,7 @@ public class UITraderOrderHandler : MonoBehaviour
     {
         uiTradeRoute.ToggleInteractable(true);
         uiBeginTradeRoute.ToggleInteractable(false);
-        uiLoadUnload.ToggleInteractable(false);
+        //uiLoadUnload.ToggleInteractable(false);
 
         gameObject.SetActive(false);
         originalLoc = allContents.anchoredPosition3D;
@@ -97,6 +97,7 @@ public class UITraderOrderHandler : MonoBehaviour
     {
         gameObject.SetActive(false);
         world.traderCanvas.gameObject.SetActive(false);
+        world.personalResourceCanvas.gameObject.SetActive(false);
     }
 
     public void SwitchRouteIcons(bool v)

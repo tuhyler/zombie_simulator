@@ -47,6 +47,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 21012d122bbe64c4784ad70b26599092, type: 3}
   - {fileID: 21300000, guid: 2956ec927085bc040910cae56a970b98, type: 3}
   - {fileID: 21300000, guid: 8c6425b201d0c5c4c8eb7a0955e9677d, type: 3}
+  - {fileID: 21300000, guid: 61e3e0e2bcd3f8f459dcdcba31c4cbde, type: 3}
   - {fileID: 21300000, guid: f43cf053c94bc1048a640d33368cc20f, type: 3}
   - {fileID: 21300000, guid: bb9795a4945c9084d9422d9f885f01d7, type: 3}
   - {fileID: 21300000, guid: 07dd4ba4945215b41adc1da71d9fdd07, type: 3}
@@ -81,6 +82,7 @@ SpriteAtlas:
   - icon_emerald
   - Icon_research01
   - icon_wool01
+  - icon_brick01
   - icon_bronze
   - icon_cotton01
   - icon_stonestatue01

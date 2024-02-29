@@ -71,12 +71,12 @@ public class UILaborAssignment : MonoBehaviour
         //}
 
         if (update)
-            PrepareLaborChangeOptions(city.cityPop, placesToWork, city.AutoAssignLabor);
+            PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
     }
 
     public void UpdateUI(City city, int placesToWork)
     {
-        PrepareLaborChangeOptions(city.cityPop, placesToWork, city.AutoAssignLabor);
+        PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
     }
 
     public UILaborAssignmentOptions GetLaborButton(int change)
@@ -141,7 +141,7 @@ public class UILaborAssignment : MonoBehaviour
         this.laborChange = laborChange;
     }
 
-    private void PrepareLaborChangeOptions(CityPopulation cityPop, int placesToWork, bool autoAssign)
+    private void PrepareLaborChangeOptions(int unusedLabor, int usedLabor, int placesToWork, bool autoAssign)
     {
         if (autoAssign) //can't adjust labor with auto assign on
         {
@@ -153,13 +153,13 @@ public class UILaborAssignment : MonoBehaviour
         {
             laborItem.ToggleInteractable(true);
 
-            if (laborItem.LaborChange > 0 && (cityPop.UnusedLabor == 0 || placesToWork == 0))
+            if (laborItem.LaborChange > 0 && (unusedLabor == 0 || placesToWork == 0))
             {
                 laborItem.ToggleInteractable(false); //deactivate if not enough unused labor
                 //cityBuildingManager.LaborChange = 0;
             }
 
-            if (laborItem.LaborChange < 0 && cityPop.UsedLabor == 0)
+            if (laborItem.LaborChange < 0 && usedLabor == 0)
             {
                 laborItem.ToggleInteractable(false); //deactivate if not enough used labor
                 //cityBuildingManager.LaborChange = 0;

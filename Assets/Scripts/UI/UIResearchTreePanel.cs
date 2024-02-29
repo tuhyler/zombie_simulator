@@ -22,6 +22,9 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     [SerializeField]
     private Transform uiElementsParent;
 
+    [SerializeField]
+    public Scrollbar horizontalScroll;
+
     //[SerializeField]
     //private RectTransform globalVolume;
 
@@ -36,7 +39,8 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     private List<GameObject> researchTreeList = new();
     [SerializeField]
     private Transform tabContents;
-    private List<UIResearchTab> tabList = new();
+    [HideInInspector]
+    public List<UIResearchTab> tabList = new();
     [HideInInspector]
     public int selectedTab;
     //[SerializeField]
@@ -63,6 +67,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     [HideInInspector]
     public bool activeStatus, isFlashing;
     private Vector3 originalLoc;
+    public float[] tabThresholds;
 
     private void Awake()
     {
@@ -145,7 +150,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             }
 
             activeStatus = true;
-            SetTab();
+            //SetTab();
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
 
@@ -261,21 +266,41 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             researchItemQueue.Dequeue().EndQueue();
     }
 
+    public void SetCurrentEra(Era currentEra)
+    {
+        for (int i = 0; i < tabList.Count; i++)
+        {
+            if (tabList[i].era == currentEra)
+            {
+                tabList[i].SelectTab();
+                break;
+            }
+        }
+    }
+
     public void SetTab()
     {
         for (int i = 0; i < tabList.Count; i++)
         {
             if (i != selectedTab)
-            {
                 tabList[i].Unselect();
-                researchTreeList[i].SetActive(false);
-            }
-            else
-            {
-                researchTreeList[i].SetActive(true);
-            }
         }
     }
+
+    public void SetScrollInfo(float value)
+    {
+        if (tabThresholds.Contains(value))
+            return;
+
+        for (int i = tabList.Count - 1; i >= 0; i--)
+        {
+			if (value >= tabThresholds[i] - 0.01f) //necessary to subtract a small amount as it doesn't always exactly equal
+            {
+				tabList[i].SelectTab();
+                break;
+            }
+		}
+	}
 
     public void SetResearchItem(UIResearchItem researchItem)
     {

@@ -336,7 +336,7 @@ public class Army : MonoBehaviour
 
         openSpots.Insert(newIndex,loc);
 
-		if (city.cityPop.CurrentPop == 0 && armyCount == 0)
+		if (city.currentPop == 0 && armyCount == 0)
 			city.StopGrowthCycle();
 	}
 

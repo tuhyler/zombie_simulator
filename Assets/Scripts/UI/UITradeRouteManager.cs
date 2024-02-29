@@ -330,7 +330,7 @@ public class UITradeRouteManager : MonoBehaviour
     public void PrepareTradeRouteMenu(List<string> cityNames, Trader selectedTrader)
     {
         this.selectedTrader = selectedTrader;
-        traderCargoLimit = selectedTrader.cargoStorageLimit;
+        traderCargoLimit = selectedTrader.personalResourceManager.resourceStorageLimit;
         //this.selectedTrader.tradeRouteManager.SetTradeRouteManager(this);
         this.cityNames = cityNames;
     }

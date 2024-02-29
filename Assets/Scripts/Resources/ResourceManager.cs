@@ -465,11 +465,14 @@ public class ResourceManager : MonoBehaviour
 
         if (diff < amount)
         {
-			Vector3 loc = city.cityLoc;
-			loc.y += 2f; //limit of 5 different resource types at once wasted
-			loc.y += -.4f * resourceCount;
-			InfoResourcePopUpHandler.CreateResourceStat(loc, amount - diff, ResourceHolder.Instance.GetIcon(type), true);
-			resourceCount++;
+			if (diff > 0)
+            {
+                Vector3 loc = city.cityLoc;
+			    loc.y += 2f; //limit of 5 different resource types at once wasted
+			    loc.y += -.4f * resourceCount;
+			    InfoResourcePopUpHandler.CreateResourceStat(loc, amount - diff, ResourceHolder.Instance.GetIcon(type), true);
+			    resourceCount++;
+            }
 
             amount = diff;
 		}
@@ -704,7 +707,7 @@ public class ResourceManager : MonoBehaviour
 
 			if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
 			{
-                int totalDemand = data.resourceQuantityPerPop * city.cityPop.CurrentPop;
+                int totalDemand = data.resourceQuantityPerPop * city.currentPop;
                 int demandDiff = resourceDict[data.resourceType] - totalDemand;
                 int sellAmount;
 

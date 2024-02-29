@@ -124,6 +124,8 @@ public class WorkerTaskManager : MonoBehaviour
 		if (unitMovement.moveUnit)
 			unitMovement.CancelMove();
 
+		unitMovement.LoadUnloadFinish(true);
+
 		world.cityBuilderManager.PlaySelectAudio();
 		Vector3 pos = world.mainPlayer.transform.position;
 		pos.y = 0;
@@ -134,10 +136,10 @@ public class WorkerTaskManager : MonoBehaviour
 		{
 			world.mainPlayer.BuildCity();
             
-            if (world.scottFollow)
+            if (world.scottFollow && world.scott.isMoving)
                 world.scott.GoToPosition(workerTile, true);
 
-            if (world.azaiFollow)
+            if (world.azaiFollow && world.azai.isMoving)
                 world.azai.GoToPosition(workerTile, false);
 		}
 		else
@@ -313,13 +315,14 @@ public class WorkerTaskManager : MonoBehaviour
     {
         if (unitMovement.moveUnit)
             unitMovement.CancelMove();
-        
-        uiWorkerHandler.ToggleVisibility(false, world);
+        unitMovement.LoadUnloadFinish(true);
+
+		uiWorkerHandler.ToggleVisibility(false, world, true);
         uiBuildingSomething.ToggleVisibility(true);
 
         world.mainPlayer.StopMovement();
 
-        if (world.azaiFollow)
+        if (world.azaiFollow && world.azai.isMoving)
             world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
 
         world.unitOrders = true;
@@ -523,17 +526,20 @@ public class WorkerTaskManager : MonoBehaviour
 		//build road where city is placed
 		if (!world.IsRoadOnTerrain(workerTile))
         {
+            int level = 0;
             foreach (Vector3Int loc in world.GetNeighborsFor(workerTile, MapWorld.State.EIGHTWAYINCREMENT))
             {
                 if (world.IsRoadOnTerrain(loc))
-                {
-                    //moving worker up a smidge to be on top of road
-                    Vector3 moveUp = worker.transform.position;
-                    moveUp.y += .2f;
-                    worker.transform.position = moveUp;
-                    roadManager.BuildRoadAtPosition(workerTile);
-                    break;
-                }
+                    level = Mathf.Max(level, world.GetRoadLevel(loc));
+            }
+
+            if (level > 0)
+            {
+                //moving worker up a smidge to be on top of road
+                Vector3 moveUp = worker.transform.position;
+                moveUp.y += .2f;
+                worker.transform.position = moveUp;
+                roadManager.BuildRoadAtPosition(workerTile, level);
             }
         }
         
@@ -641,6 +647,7 @@ public class WorkerTaskManager : MonoBehaviour
             unitMovement.ClearBuildRoad();
 			uiBuildingSomething.ToggleVisibility(false);
 			unitMovement.ResetOrderFlags();
+            unitMovement.uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
         }
 
         if (world.mainPlayer.isBusy)
@@ -652,48 +659,44 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void CancelingTask()
     {
-		if (world.azaiFollow)
-        {
+		if (world.azaiFollow && world.azai.isMoving)
             world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
-        }
         
-        if (world.scott.isMoving)
+        if (world.scottFollow) 
 		{
-			world.scott.WorkerOrdersPreparations();
+			if (world.scott.isMoving)
+                world.scott.WorkerOrdersPreparations();
+
+			if (world.scott.clearingForest)
+			{
+				Vector3Int pos = world.GetClosestTerrainLoc(world.mainPlayer.transform.position);
+				world.GetTerrainDataAt(pos).beingCleared = false;
+				GameLoader.Instance.gameData.allTerrain[pos].beingCleared = false;
+			}
+		
+            world.scott.SetWorkAnimation(false);
+            ResetWorker(world.scott);
+		    world.scott.clearingForest = false;
+		    world.scott.ResetOrderQueue();
+		    world.scott.removing = false;
+		    world.scott.building = false;
 		}
 
 		if (world.mainPlayer.isMoving)
-		{
 			world.mainPlayer.StopMovement();
-		}
 
-		if (world.scott.clearingForest)
-		{
-			Vector3Int pos = world.GetClosestTerrainLoc(world.mainPlayer.transform.position);
-			world.GetTerrainDataAt(pos).beingCleared = false;
-			GameLoader.Instance.gameData.allTerrain[pos].beingCleared = false;
-		}
-
-		world.scott.SetWorkAnimation(false);
-		world.mainPlayer.SetGatherAnimation(false);
-		world.scott.SetGatherAnimation(false);
-
-		world.mainPlayer.TaskCoCheck();
-		world.scott.TaskCoCheck();
-
-		world.mainPlayer.HideProgressTimeBar();
-		world.scott.HideProgressTimeBar();
-		world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(world.mainPlayer.transform.position));
-		world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(world.scott.transform.position));
-
-		world.scott.clearingForest = false;
-		world.scott.ResetOrderQueue();
+        ResetWorker(world.mainPlayer);
 		world.mainPlayer.isBusy = false;
-		world.scott.removing = false;
-		world.scott.building = false;
-		world.mainPlayer.gathering = false;
-		world.scott.gathering = false;
 		world.mainPlayer.buildingCity = false;
+	}
+
+    public void ResetWorker(Worker worker)
+    {
+		worker.SetGatherAnimation(false);
+		worker.TaskCoCheck();
+		worker.HideProgressTimeBar();
+		world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(worker.transform.position));
+	    worker.gathering = false;  
 	}
 
     public void TurnOffCancelTask()

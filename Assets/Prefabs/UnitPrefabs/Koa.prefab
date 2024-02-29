@@ -361,6 +361,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   trader: {fileID: 0}
+  worker: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -448,6 +449,21 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 5230f4b55f0df8e48beff3ba46632e4e, type: 3}
   timePassed: 0
   conversationTopics: []
+  personalResourceManager: {fileID: 0}
+  uiPersonalResourceInfoPanel: {fileID: 0}
+--- !u!114 &4189404736807819188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266383177558337226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e386f97d5cdd5874289aac3a55755f95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceStorageLimit: 0
 --- !u!1001 &8811663769511038827
 PrefabInstance:
   m_ObjectHideFlags: 0

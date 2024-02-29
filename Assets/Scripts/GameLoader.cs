@@ -143,7 +143,7 @@ public class GameLoader : MonoBehaviour
 		//{
 		//	terrainGenerator.iterations = 2;
 		//	terrainGenerator.landMassLimit = 20;
-		//	terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4;
+		//	terrainGenerator.totalLandLimit = terrainGenerator.width * terrainGenerator.height / 4 + (terrainGenerator.width * terrainGenerator.height / 8);
 		//	terrainGenerator.totalLandLimit = 0;
 		//	terrainGenerator.continentsFlag = 0;
 		//}
@@ -498,7 +498,7 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < gameData.allRoads.Count; i++)
 		{
 			if (!world.roadTileDict.ContainsKey(gameData.allRoads[i].position))
-				world.roadManager.BuildRoadAtPosition(gameData.allRoads[i].position);
+				world.roadManager.BuildRoadAtPosition(gameData.allRoads[i].position, gameData.allRoads[i].utilityLevel);
 		}
 		gameData.allRoads.Clear();
 
@@ -645,6 +645,8 @@ public class GameLoader : MonoBehaviour
 
 		//combining meshes for orphans
 		world.cityBuilderManager.CombineMeshes();
+
+		world.researchTree.SetCurrentEra(world.currentEra);
 
 		GameManager.Instance.UpdateProgress(10);
 

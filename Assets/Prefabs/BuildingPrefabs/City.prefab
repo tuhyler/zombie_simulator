@@ -215,8 +215,7 @@ MonoBehaviour:
   workEthic: 1
   improvementWorkEthic: 0
   wonderWorkEthic: 0
-  warehouseStorageLimit: 2000
-  autoGrow: 0
+  warehouseStorageLimit: 300
   tradersHere: []
 --- !u!114 &-548530054223577924
 MonoBehaviour:

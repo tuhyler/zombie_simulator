@@ -15,10 +15,10 @@ public class TraderData : IUnitData
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation, ambushLoc;
 	public Vector3Int prevTile, prevTerrainTile;
-	public Dictionary<ResourceType, int> resourceGridDict;
 	public UnitData guardUnit;
 
 	//personal resource info
+	public Dictionary<ResourceType, int> resourceGridDict;
 	public Dictionary<ResourceType, int> resourceDict;
 	public int resourceStorageLevel;
 
