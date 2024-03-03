@@ -179,7 +179,10 @@ MonoBehaviour:
   loadingTips:
   - Never trust a walking coconut
   - Don't run with filing cabinets
-  - Never leapfrog a rhinoceros
+  - Never leapfrog a unicorn
+  - Don't take personal hygiene advice from raccoons
+  - Don't juggle hand grenades near an open flame
+  - Never snort dandelions
 --- !u!4 &1087803693
 Transform:
   m_ObjectHideFlags: 0
@@ -241,6 +244,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703120966999846265, guid: 013afee511b36094bb50d0bccfae8ca5,
+        type: 3}
+      propertyPath: m_text
+      value: Don't juggle hand grenades near an open flame
       objectReference: {fileID: 0}
     - target: {fileID: 8050448297037748850, guid: 013afee511b36094bb50d0bccfae8ca5,
         type: 3}

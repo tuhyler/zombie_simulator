@@ -61,6 +61,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f8eb67b1bfae8064cb8abf01306fd204, type: 3}
   - {fileID: 21300000, guid: c69ca7b161275b54ab7966809f786ec4, type: 3}
   - {fileID: 21300000, guid: f5a11bb1bbf21754da65abb4845c20e0, type: 3}
+  - {fileID: 21300000, guid: 02592ef1cc892f646a1077e2bbde6d51, type: 3}
   - {fileID: 21300000, guid: d35d180233d47c645916450be3c1ac0d, type: 3}
   - {fileID: 21300000, guid: 7b662902c50a27c48b59e63b10c5b5c2, type: 3}
   - {fileID: 21300000, guid: cd4a162273d4d2f42b8e169f631cbe9d, type: 3}
@@ -81,6 +82,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 69825103158e1d04b82c99117738a0b0, type: 3}
   - {fileID: 21300000, guid: 5f19e50365d7f984ca530f308b9dd939, type: 3}
   - {fileID: 21300000, guid: 9b23ce138e88b6d4190fc1a4ee56ab20, type: 3}
+  - {fileID: 21300000, guid: 8c2d7473d9703c94fa80ac211e1b26dc, type: 3}
   - {fileID: 21300000, guid: a356be7367ccd6c44908e7f7b1c1f330, type: 3}
   - {fileID: 21300000, guid: 5accd08349a5eb74a88107f4e957b7c7, type: 3}
   - {fileID: 21300000, guid: d0532483b6b4a654da574f36b0378efb, type: 3}
@@ -173,6 +175,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 38ab9eeaab4cb7244abeb37fe5a67c9c, type: 3}
   - {fileID: 21300000, guid: 41c5510bf7b82f44c97d28693fb51d09, type: 3}
   - {fileID: 21300000, guid: fe70d81b48075de428e533b96974befe, type: 3}
+  - {fileID: 21300000, guid: 821a054b518444543b77d02639883a65, type: 3}
   - {fileID: 21300000, guid: d74aa47b565702d4ca0350aeaf17df87, type: 3}
   - {fileID: 21300000, guid: ac8806db73224c641bbcbd8f1e3dd47f, type: 3}
   - {fileID: 21300000, guid: ae9eeadb467a7bb42a370e8e0ab7f86b, type: 3}
@@ -203,6 +206,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: abe97aedf89bef74eb7fec3a41b8c5ea, type: 3}
   - {fileID: 21300000, guid: 846ff20ee8921b64984b0d660f868b3b, type: 3}
   - {fileID: 21300000, guid: 78c4621eac3e89649aa49b690d193acc, type: 3}
+  - {fileID: 21300000, guid: 879e631e24f5d294888b04ce3deaa7aa, type: 3}
   - {fileID: 21300000, guid: 7657c92e33834514aa553e39fcdeb24a, type: 3}
   - {fileID: 21300000, guid: b1399a3e6a745de46a04fa79ae7a4293, type: 3}
   - {fileID: 21300000, guid: e966824e11d9d8b44adcd9d8813f2d01, type: 3}
@@ -216,6 +220,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8eae10de91d218342bedbba7b0cc418d, type: 3}
   - {fileID: 21300000, guid: 86daecfeebeae6745ae66a7f9492e8c0, type: 3}
   - {fileID: 21300000, guid: cc1fb70fe5b91cd4583be2867448673d, type: 3}
+  - {fileID: 21300000, guid: dbc22b2fa7752f4429231400f2b4b8d5, type: 3}
   - {fileID: 21300000, guid: 8bfc883fa63f1da4bb4b69e5cdb13109, type: 3}
   - {fileID: 21300000, guid: beb2716fa8063b14791ff797dc15f75a, type: 3}
   - {fileID: 21300000, guid: 5a2bf16f9ac23934ba180b56d251d840, type: 3}
@@ -255,6 +260,7 @@ SpriteAtlas:
   - arrow_downblack
   - button_buildroad
   - circle_effect2
+  - bar_happinessmeter
   - icon_cavalry
   - button_longblue
   - icon_housing
@@ -275,6 +281,7 @@ SpriteAtlas:
   - button_rename
   - icon_workethic
   - icon_laborer
+  - circle_happyface
   - scrollbar_blue02_hor
   - panel_gold01
   - button_food01
@@ -367,6 +374,7 @@ SpriteAtlas:
   - bar_gold01
   - laborIconMale1
   - circle_gold
+  - bar_gold_sideways
   - circle_resourcemaphighlight
   - icon_ranged_enemy
   - icon_speed
@@ -397,6 +405,7 @@ SpriteAtlas:
   - icon_enemycity
   - button_abandon
   - bar_lighbluehalfpipe
+  - circle_neutralface
   - icon_health
   - button_joincity
   - button_addlabor_gold
@@ -410,6 +419,7 @@ SpriteAtlas:
   - button_cancel
   - gold03
   - panel_minimap_frame
+  - circle_angryface
   - text_block
   - laborIconManyColor
   - bar_grayhalfpipe

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UITradeCenter : MonoBehaviour
 {
@@ -9,8 +10,14 @@ public class UITradeCenter : MonoBehaviour
     private MapWorld world;
     
     [SerializeField]
-    private TMP_Text title;
-    
+    private TMP_Text title, ownerName, increaseText, decreaseText;
+
+    [SerializeField]
+    private Image happinessMeter, ownerImage;
+
+    [SerializeField]
+    private Sprite mad, neutral, happy;
+
     [SerializeField]
     private GameObject resourcePanel;
 
@@ -69,6 +76,7 @@ public class UITradeCenter : MonoBehaviour
         if (v)
         {
             activeStatus = true;
+            world.tcCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
 
             foreach (ResourceType type in center.ResourceBuyDict.Keys)
@@ -94,18 +102,8 @@ public class UITradeCenter : MonoBehaviour
         }
         else
         {
-            foreach (UITradeResource resource in activeBuyResources)
-                resource.gameObject.SetActive(false);
-
-            foreach (UITradeResource resource in activeSellResources)
-                resource.gameObject.SetActive(false);
-
-            activeBuyResources.Clear();
-            activeSellResources.Clear();
-            maxBuyCost = 0;
-
             activeStatus = false;
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -500f, 0.2f).setOnComplete(SetActiveStatusFalse);
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -1000f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
 
@@ -128,7 +126,18 @@ public class UITradeCenter : MonoBehaviour
 
     private void SetActiveStatusFalse()
     {
-        gameObject.SetActive(false);
+		foreach (UITradeResource resource in activeBuyResources)
+			resource.gameObject.SetActive(false);
+
+		foreach (UITradeResource resource in activeSellResources)
+			resource.gameObject.SetActive(false);
+
+		activeBuyResources.Clear();
+		activeSellResources.Clear();
+		maxBuyCost = 0;
+
+		gameObject.SetActive(false);
+        world.tcCanvas.gameObject.SetActive(false);
     }
 
     public void CloseUITradeCenter()
@@ -140,5 +149,10 @@ public class UITradeCenter : MonoBehaviour
     public void SetName(string name)
     {
         title.text = name;
+    }
+
+    public void SetHappinessMeter(float value)
+    {
+
     }
 }

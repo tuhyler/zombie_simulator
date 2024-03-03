@@ -111,7 +111,6 @@ GameObject:
   - component: {fileID: -11843151354040455}
   - component: {fileID: -548530054223577924}
   - component: {fileID: -1354641546340956128}
-  - component: {fileID: 350781982696099274}
   - component: {fileID: 7800520638858068917}
   - component: {fileID: 3658065025757672615}
   - component: {fileID: 1212490461305530498}
@@ -205,7 +204,9 @@ MonoBehaviour:
   barracksLocation: {x: 0, y: 0, z: 0}
   army: {fileID: 0}
   world: {fileID: 0}
-  cityPop: {fileID: 0}
+  currentPop: 0
+  unusedLabor: 0
+  usedLabor: 0
   unitFoodConsumptionPerMinute: 1
   secondsTillGrowthCheck: 60
   growthFood: 3
@@ -282,18 +283,6 @@ MonoBehaviour:
   starvationCount: 0
   noHousingCount: 0
   noWaterCount: 0
---- !u!114 &350781982696099274
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7185426163474996275}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9d0e9713db43f74089a12defde568eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &7800520638858068917
 BoxCollider:
   m_ObjectHideFlags: 0

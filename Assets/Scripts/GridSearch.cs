@@ -458,6 +458,9 @@ public class GridSearch
 				if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) //If it's an obstacle, ignore
 					continue;
 
+				if (world.IsCityOnTile(tile))
+					continue;
+
 				int tempCost = world.GetMovementCost(neighbor);
 
 				if (tile.sqrMagnitude == 18)
