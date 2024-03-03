@@ -195,19 +195,6 @@ public class City : MonoBehaviour
         resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, currentPop * unitFoodConsumptionPerMinute);
 
         InstantiateParticleSystems();
-        //Physics.IgnoreLayerCollision(6,7);
-
-        //int i = 0;
-        //foreach (ResourceType type in resourceManager.ResourceDict.Keys)
-        //{
-        //    int amount = resourceManager.ResourceDict[type];
-        //    if (amount > 0)
-        //    {
-        //        resourceGridDict[type] = i;
-        //        i++;
-        //    }
-
-        //}
     }
 
     public void PlaySelectAudio(AudioClip clip)

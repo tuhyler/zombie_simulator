@@ -42,7 +42,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
-    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas;
+    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas;
     [HideInInspector]
     public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterResearched, powerResearched;
     [SerializeField]
@@ -98,7 +98,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public RoadManager roadManager;
     [SerializeField]
-    public Material transparentMat, atlasMain, atlasClear, atlasSemiClear;
+    public Material transparentMat, atlasMain, atlasSemiClear;
     [SerializeField]
     private GameObject selectionIcon, enemyCampIcon, buildPanel, wonderBuildPanel, canvasHolder, enemyBorder;
     [SerializeField]
@@ -2491,6 +2491,7 @@ public class MapWorld : MonoBehaviour
         //else
         //    openingCity = false;
         personalResourceCanvas.gameObject.SetActive(false);
+        tcCanvas.gameObject.SetActive(false);
         traderCanvas.gameObject.SetActive(false);
         workerCanvas.gameObject.SetActive(false);
         tradeRouteManagerCanvas.gameObject.SetActive(false);
