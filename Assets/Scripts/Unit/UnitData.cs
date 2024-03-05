@@ -24,7 +24,7 @@ public class UnitData : IUnitData
 	public Vector3Int cityHomeBase, barracksBunk, marchPosition, targetBunk;
 	public int currentHealth;
 	public float baseSpeed;
-	public bool isLeader, readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, looking, ambush, aoe, guard, isGuarding, returning;
+	public bool readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, looking, ambush, aoe, guard, isGuarding, returning;
 
 	public WorkerData GetWorkerData()
 	{

@@ -12,109 +12,13 @@ public class BasicEnemyAI : MonoBehaviour
     public Vector3Int CampLoc { get { return campLoc; } set { campLoc = value; } }
     private Vector3Int campSpot;
     public Vector3Int CampSpot { get { return campSpot; } set { campSpot = value; } } 
-    private Unit unit;
-    //private State state;
-    //[HideInInspector]
-    //public bool needsDestination = true;
-    //private Vector3Int currentDestination;
-    //private float attackSpeed;
-
-    //private Unit targetUnit;
-
-    //private WaitForSeconds attackPause;
+    private Military unit;
 
 
 	private void Awake()
 	{
-        unit = GetComponent<Unit>();
+        unit = GetComponent<Military>();
     }
-
-	//private void Update()
-	//{
-	//	switch (state)
-	//	{
- //           default:
- //           case State.Camping:
-	//			if (needsDestination)
- //               {
- //                   needsDestination = false;
- //                   //AggroCheck();
-	//				//StartRoaming();
- //               }
-	//			break;
-	//		case State.Chasing:
- //               //ResetTarget();
- //               if (needsDestination)
- //                   StartChase();
-
-	//			if (Mathf.Abs(transform.position.x - targetUnit.transform.position.x) + Mathf.Abs(transform.position.z - targetUnit.transform.position.z) < 1)
- //               {
- //                   StopMovement();
- //                   state = State.Attacking;
-	//				unit.world.AddUnitPosition(transform.position, unit);
- //               }
-                
- //               if (Mathf.Abs(transform.position.x - campLoc.x) + Mathf.Abs(transform.position.z - campLoc.z) > 10)
- //               {
- //                   StopMovement();
- //                   state = State.Returning;
- //               }
-	//			break;
-	//		case State.Attacking:
- //               if (needsDestination)
- //               {
- //                   unit.transform.LookAt(targetUnit.transform);
- //                   StartAttack();
- //               }
-
-	//			if (Mathf.Abs(transform.position.x - targetUnit.transform.position.x) + Mathf.Abs(transform.position.z - targetUnit.transform.position.z) > 1.5f)
- //               {
- //                   if (attackCo != null)
- //                   {
- //                       StopCoroutine(attackCo);
- //                   }
- //                   StopMovement();
- //                   state = State.Returning;
- //               }
-
- //               if (targetUnit.isDead)
- //               {
-	//				StopMovement();
-	//				if (attackCo != null)
-	//					StopCoroutine(attackCo);
-
-	//				state = State.Returning;
-	//				targetUnit = null;
-	//				AggroCheck();
-	//			}
-	//			break;
-	//		case State.Hunting:
-	//			break;
-	//		case State.Returning:
- //               if (needsDestination)
- //               {
- //                   StopMovement();
- //                   if (attackCo != null)
-	//					StopCoroutine(attackCo);
-	//				StartReturn();
- //               }
-	//			break;
-	//	}
-	//}
-
-    //public void StateCheck(MapWorld world)
-    //{
-    //    if (state == State.Returning)
-    //    {
-    //        state = State.Camping;
-    //    }
-    //}
-
- //   public void SetAttackSpeed(float speed)
- //   {
- //       attackSpeed = speed;
- //       attackPause = new(attackSpeed);
-	//}
 
 	public void AggroCheck()
 	{
@@ -141,22 +45,22 @@ public class BasicEnemyAI : MonoBehaviour
 		List<Vector3Int> attackingZones = new();
 
 		Vector3Int forward = unit.enemyCamp.forward;
-		Vector3Int forwardTile = forward + unit.CurrentLocation;
+		Vector3Int forwardTile = forward + unit.currentLocation;
 
 		attackingZones.Add(forwardTile);
 		if (forward.z != 0)
 		{
-			attackingZones.Add(new Vector3Int(1, 0, forward.z) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(1, 0, 0) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, 0) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, 0) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, 0) + unit.currentLocation);
 		}
 		else
 		{
-			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.currentLocation);
 		}
 
 		//just in case
@@ -174,8 +78,8 @@ public class BasicEnemyAI : MonoBehaviour
 				if (enemy.inArmy)
 				{
 					//unit.attacking = true;
-					if (!unit.enemyCamp.attackingArmy.attackingSpots.Contains(unit.CurrentLocation))
-						unit.enemyCamp.attackingArmy.attackingSpots.Add(unit.CurrentLocation);
+					if (!unit.enemyCamp.attackingArmy.attackingSpots.Contains(unit.currentLocation))
+						unit.enemyCamp.attackingArmy.attackingSpots.Add(unit.currentLocation);
 
 					if (!unit.attacking)
 					{
@@ -183,8 +87,8 @@ public class BasicEnemyAI : MonoBehaviour
 					}
 					else
 					{
-						if (enemy.targetSearching)
-							enemy.StartAttack(unit);
+						if (enemy.military && enemy.military.targetSearching)
+							enemy.military.StartAttack(unit);
 					}
 
 				}
@@ -195,14 +99,14 @@ public class BasicEnemyAI : MonoBehaviour
 			return;
 
 		Unit newEnemy = unit.enemyCamp.FindClosestTarget(unit);
-		unit.targetLocation = newEnemy.CurrentLocation;
-		List<Vector3Int> path = unit.enemyCamp.PathToEnemy(unit.CurrentLocation, unit.world.RoundToInt(newEnemy.transform.position));
+		unit.targetLocation = newEnemy.currentLocation;
+		List<Vector3Int> path = unit.enemyCamp.PathToEnemy(unit.currentLocation, unit.world.RoundToInt(newEnemy.transform.position));
 
 		if (path.Count > 0)
 		{
 			//moving unit behind if stuck
-			Vector3Int positionBehind = unit.enemyCamp.forward * -1 + unit.CurrentLocation;
-			unit.enemyCamp.attackingArmy.attackingSpots.Remove(unit.CurrentLocation);
+			Vector3Int positionBehind = unit.enemyCamp.forward * -1 + unit.currentLocation;
+			unit.enemyCamp.attackingArmy.attackingSpots.Remove(unit.currentLocation);
 
 			if (path.Count >= 2)
 			{
@@ -214,7 +118,7 @@ public class BasicEnemyAI : MonoBehaviour
 				if (unit.world.IsUnitLocationTaken(positionBehind))
 				{
 					Unit unitBehind = unit.world.GetUnit(positionBehind);
-					if (unitBehind.enemyAI && unitBehind.targetSearching)
+					if (unitBehind.enemyAI && unitBehind.military.targetSearching)
 						unitBehind.enemyAI.AggroCheck();
 				}
 			}
@@ -223,7 +127,7 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else //a little redundant, in case path ends up being zero again
 		{
-			Vector3Int scoochCloser = new Vector3Int(Math.Sign(unit.targetLocation.x - unit.CurrentLocation.x), 0, Math.Sign(unit.targetLocation.z - unit.CurrentLocation.z)) + unit.CurrentLocation;
+			Vector3Int scoochCloser = new Vector3Int(Math.Sign(unit.targetLocation.x - unit.currentLocation.x), 0, Math.Sign(unit.targetLocation.z - unit.currentLocation.z)) + unit.currentLocation;
 
 			if (unit.enemyCamp.attackingArmy.movementRange.Contains(scoochCloser) && !unit.world.IsUnitLocationTaken(scoochCloser) && !unit.enemyCamp.attackingArmy.attackingSpots.Contains(scoochCloser))
 			{
@@ -251,23 +155,23 @@ public class BasicEnemyAI : MonoBehaviour
 		List<Vector3Int> attackingZones = new();
 
 		Vector3Int forward = unit.enemyCamp.forward;
-		Vector3Int forwardTile = forward + unit.CurrentLocation;
+		Vector3Int forwardTile = forward + unit.currentLocation;
 
 		attackingZones.Add(forwardTile);
 		//check the sides too
 		if (forward.z != 0)
 		{
-			attackingZones.Add(new Vector3Int(1, 0, forward.z) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(1, 0, 0) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, 0) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, 0) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, 0) + unit.currentLocation);
 		}
 		else
 		{
-			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.CurrentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.CurrentLocation);
+			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.currentLocation);
 		}
 
 		if (unit.enemyCamp.attackingArmy == null)
@@ -283,8 +187,8 @@ public class BasicEnemyAI : MonoBehaviour
 				Unit enemy = unit.world.GetUnit(zone);
 				if (enemy.inArmy)
 				{
-					if (!unit.enemyCamp.attackingArmy.attackingSpots.Contains(unit.CurrentLocation))
-						unit.enemyCamp.attackingArmy.attackingSpots.Add(unit.CurrentLocation);
+					if (!unit.enemyCamp.attackingArmy.attackingSpots.Contains(unit.currentLocation))
+						unit.enemyCamp.attackingArmy.attackingSpots.Add(unit.currentLocation);
 
 					if (!unit.attacking)
 					{
@@ -292,8 +196,8 @@ public class BasicEnemyAI : MonoBehaviour
 						{
 							foreach (Unit unit in unit.enemyCamp.attackingArmy.UnitsInArmy)
 							{
-								if (unit.targetSearching)
-									unit.AggroCheck();
+								if (unit.military.targetSearching)
+									unit.military.AggroCheck();
 							}
 						}
 						
@@ -303,8 +207,8 @@ public class BasicEnemyAI : MonoBehaviour
 					}
 					else
 					{
-						if (enemy.targetSearching)
-							enemy.StartAttack(unit);
+						if (enemy.military && enemy.military.targetSearching)
+							enemy.military.StartAttack(unit);
 					}
 				}
 			}
@@ -320,7 +224,7 @@ public class BasicEnemyAI : MonoBehaviour
 			unit.flankedOnce = true;
 
 			if (unit.world.IsUnitLocationTaken(forwardTile) && unit.world.GetUnit(forwardTile).enemyAI)
-				newEnemy = unit.enemyCamp.FindEdgeRanged(unit.CurrentLocation);
+				newEnemy = unit.enemyCamp.FindEdgeRanged(unit.currentLocation);
 		}
 		else
 		{
@@ -332,20 +236,20 @@ public class BasicEnemyAI : MonoBehaviour
 		else
 			unit.flanking = true;
 
-		unit.targetLocation = newEnemy.CurrentLocation;
-		List<Vector3Int> path = unit.enemyCamp.CavalryPathToEnemy(unit.CurrentLocation, unit.world.RoundToInt(newEnemy.transform.position));
+		unit.targetLocation = newEnemy.currentLocation;
+		List<Vector3Int> path = unit.enemyCamp.CavalryPathToEnemy(unit.currentLocation, unit.world.RoundToInt(newEnemy.transform.position));
 
 		if (path.Count > 0)
 		{
-			unit.enemyCamp.attackingArmy.attackingSpots.Remove(unit.CurrentLocation);
+			unit.enemyCamp.attackingArmy.attackingSpots.Remove(unit.currentLocation);
 
 			//moving unit behind if stuck
-			Vector3Int positionBehind = unit.enemyCamp.forward * -1 + unit.CurrentLocation;
+			Vector3Int positionBehind = unit.enemyCamp.forward * -1 + unit.currentLocation;
 
 			if (unit.world.IsUnitLocationTaken(positionBehind))
 			{
 				Unit unitBehind = unit.world.GetUnit(positionBehind);
-				if (unitBehind.enemyAI && unitBehind.targetSearching)
+				if (unitBehind.enemyAI && unitBehind.military.targetSearching)
 					unitBehind.enemyAI.AggroCheck();
 			}
 
@@ -368,7 +272,7 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else
 		{
-			Vector3Int scoochCloser = new Vector3Int(Math.Sign(unit.targetLocation.x - unit.CurrentLocation.x), 0, Math.Sign(unit.targetLocation.z - unit.CurrentLocation.z)) + unit.CurrentLocation;
+			Vector3Int scoochCloser = new Vector3Int(Math.Sign(unit.targetLocation.x - unit.currentLocation.x), 0, Math.Sign(unit.targetLocation.z - unit.currentLocation.z)) + unit.currentLocation;
 
 			if (unit.enemyCamp.attackingArmy.cavalryRange.Contains(scoochCloser) && !unit.world.IsUnitLocationTaken(scoochCloser) && !unit.enemyCamp.attackingArmy.attackingSpots.Contains(scoochCloser))
 			{
@@ -397,80 +301,6 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 	}
 
-	//public void WakeUp(Unit targetUnit)
-	//{
-	//    if (state == State.Camping)
-	//    {
-	//        //Debug.Log("wake up");
-	//        if (roamCo != null)
-	//            StopCoroutine(roamCo);
-	//        this.targetUnit = targetUnit;
-	//        StopMovement();
-	//        state = State.Chasing;
-	//    }
-	//}
-
-	//public void StopMovement()
-	//   {
-	//	if (unit.isMoving)
-	//	{
-	//		unit.StopAnimation();
-	//		unit.ShiftMovement();
-	//	}
-	//}
-
-	//public bool ResetTarget()
-	//{
-	//    if (unit.world.RoundToInt(targetUnit.transform.position) != currentDestination)
-	//    {
-	//        StopMovement();
-	//        StartChase();
-	//        return true;
-	//    }
-
-	//    return false;
-	//}
-
-	//   public void StartChase()
-	//   {
-	//   	needsDestination = false;
-	//       List<Vector3Int> path = GetPath(targetUnit.transform.position);
-
-	//       if (path.Count == 0)
-	//       {
-	//           needsDestination = true;
-	//		return;
-	//       }
-
-	//   	unit.MoveThroughPath(path);
-	//}
-
-	//   public void FollowLeader(List<Vector3Int> path, Vector3Int leaderDiff, Unit targetUnit)
-	//   {
-	//       StopMovement();
-	//       if (path.Count == 0)
-	//       {
-	//           needsDestination = true;
-	//           return;
-	//       }
-
-	//       List<Vector3Int> newPath = new();
-
-	//       foreach (Vector3Int tile in path)
-	//       {
-	//           newPath.Add(tile + leaderDiff);
-	//       }
-
-	//       needsDestination = false;
-	//       this.targetUnit = targetUnit;
-	//       state = State.Chasing;
-
-	//	unit.finalDestinationLoc = newPath[newPath.Count - 1];
-	//	currentDestination = newPath[newPath.Count - 1];
-
-	//	unit.MoveThroughPath(newPath);
-	//}
-
 	public void StartAttack(Unit target)
 	{
 		unit.targetSearching = false;
@@ -482,12 +312,12 @@ public class BasicEnemyAI : MonoBehaviour
 
     public IEnumerator Attack(Unit target)
     {
-		unit.targetBunk = target.barracksBunk;
+		unit.targetBunk = target.military.barracksBunk;
 		unit.attacking = true;
 		float dist = 0;
 		float distThreshold;
 
-		if (target.isTrader)
+		if (target.trader)
 			target.GetComponent<Trader>().LookSad();
 
 		if (Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z) < 1.2f)
@@ -495,8 +325,8 @@ public class BasicEnemyAI : MonoBehaviour
 		else
 			distThreshold = 2.2f;
 
-		if (target.targetSearching)
-			target.StartAttack(unit);
+		if (target.military && target.military.targetSearching)
+			target.military.StartAttack(unit);
 
 		int wait = UnityEngine.Random.Range(0, 3);
 		if (wait != 0)
@@ -565,7 +395,7 @@ public class BasicEnemyAI : MonoBehaviour
 
 	public IEnumerator RangedAttack(Unit target)
 	{
-		unit.targetBunk = target.barracksBunk;
+		unit.targetBunk = target.military.barracksBunk;
 		unit.attacking = true;
 		float dist = 0;
 		unit.Rotate(target.transform.position);
@@ -637,46 +467,4 @@ public class BasicEnemyAI : MonoBehaviour
 				unit.healthbar.RegenerateHealth();
 		}
 	}
-
-  //  public void Converge()
-  //  {
-		//unit.StopAnimation();
-		//unit.ShiftMovement();
-		//EnemyMove(targetUnit.transform.position, true);
-  //  }
-
-	//private void EnemyMove(Vector3 destination, bool attack)
- //   {
- //       unit.finalDestinationLoc = destination;
- //       currentDestination = unit.world.RoundToInt(destination);
- //       //Debug.Log(currentDestination);
- //       List<Vector3Int> path = GridSearch.AStarSearch(unit.world, unit.world.RoundToInt(unit.transform.position), currentDestination, unit.isTrader, unit.bySea);
-		
- //       if (path.Count == 0)
- //       {
- //           needsDestination = true;
- //           return;
- //       }
-
- //       unit.MoveThroughPath(path);
-	//}
-
- //   private List<Vector3Int> GetPath(Vector3 destination)
- //   {
-	//	unit.finalDestinationLoc = destination;
-	//	currentDestination = unit.world.RoundToInt(destination);
-
-	//	return GridSearch.AStarSearch(unit.world, unit.world.RoundToInt(unit.transform.position), currentDestination, unit.isTrader, unit.bySea);
-	//}
-
-
-
-    //private enum State
-    //{
-    //    Camping,
-    //    Chasing,
-    //    Attacking,
-    //    Returning,
-    //    Hunting
-    //}
 }

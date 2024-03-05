@@ -669,7 +669,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		Unit newUnit = unit.GetComponent<Unit>();
 		newUnit.SetReferences(world);
-		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+		newUnit.currentLocation = world.AddUnitPosition(buildPosition, newUnit);
 		world.laborerCount++;
 		unit.name = "Laborer " + world.laborerCount;
 		newUnit.PlayAudioClip(buildClip);
@@ -727,7 +727,7 @@ public class CityBuilderManager : MonoBehaviour
                     
                     Unit newUnit = unit.GetComponent<Unit>();
                     newUnit.SetReferences(world);
-                    newUnit.CurrentLocation = world.AddUnitPosition(loc, newUnit);
+                    newUnit.currentLocation = world.AddUnitPosition(loc, newUnit);
 					world.laborerCount++;
 					unit.name = "Laborer " + world.laborerCount;
 					world.laborerList.Add(newUnit.GetComponent<Laborer>());
@@ -1752,7 +1752,7 @@ public class CityBuilderManager : MonoBehaviour
         }
         else if (upgrading)
         {
-            buildPosition = upgradedUnit.CurrentLocation;
+            buildPosition = upgradedUnit.currentLocation;
         }
         else if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
         {
@@ -1826,7 +1826,7 @@ public class CityBuilderManager : MonoBehaviour
             newUnit.PlayAudioClip(buildClip);
         }
  
-        if (newUnit.isTrader)
+        if (newUnit.trader)
         {
             world.traderCount++;
             if (!upgrading)
@@ -1855,7 +1855,7 @@ public class CityBuilderManager : MonoBehaviour
         Vector3 mainCamLoc = Camera.main.transform.position;
         mainCamLoc.y = 0;
         unit.transform.rotation = Quaternion.LookRotation(mainCamLoc - unit.transform.position);
-        newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+        newUnit.currentLocation = world.AddUnitPosition(buildPosition, newUnit);
 	}
 
     public void BuildUnit(City city, UnitBuildDataSO unitData, bool upgrading, Unit upgradedUnit)
@@ -1868,7 +1868,7 @@ public class CityBuilderManager : MonoBehaviour
         {
 		    if (bySea)
             {
-                buildPosition = upgradedUnit.CurrentLocation;
+                buildPosition = upgradedUnit.currentLocation;
                 //not finished yet
 			}
             else
@@ -1877,13 +1877,13 @@ public class CityBuilderManager : MonoBehaviour
 
 		        if (upgrading)
                 {
-				    buildPosition = upgradedUnit.CurrentLocation;
+				    buildPosition = upgradedUnit.currentLocation;
 				    reselectAfterUpgrade = upgradedUnit.isSelected;
 				    upgradedUnit.RemoveUnitFromData();
 
 				    if (upgradedUnit.inArmy)
                     {
-					    upgradedUnit.homeBase.army.RemoveFromArmy(upgradedUnit, upgradedUnit.barracksBunk);
+					    upgradedUnit.military.homeBase.army.RemoveFromArmy(upgradedUnit, upgradedUnit.military.barracksBunk);
 				        city.army.AddToOpenSpots(buildPosition);
                     }
 
@@ -1903,7 +1903,7 @@ public class CityBuilderManager : MonoBehaviour
 
 			if (upgrading)
             {
-                buildPosition = upgradedUnit.CurrentLocation;
+                buildPosition = upgradedUnit.currentLocation;
             }
             else
             {
@@ -1945,7 +1945,7 @@ public class CityBuilderManager : MonoBehaviour
 		Vector3 rot = mainCamLoc - unit.transform.position;
 
 		//transferring all previous trader info to new one
-		if (newUnit.isTrader)
+		if (newUnit.trader)
 		{
 			if (upgrading)
             {
@@ -1974,17 +1974,17 @@ public class CityBuilderManager : MonoBehaviour
 		//assigning army details and rotation
 		if (newUnit.inArmy)
         {
-		    newUnit.atHome = true;
+		    newUnit.military.atHome = true;
 		    city.army.AddToArmy(newUnit);
             if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(false);
-		    newUnit.homeBase = city;
-            newUnit.barracksBunk = buildPosition;
+		    newUnit.military.homeBase = city;
+            newUnit.military.barracksBunk = buildPosition;
 
-            if (newUnit.homeBase.army.selected)
+            if (newUnit.military.homeBase.army.selected)
                 newUnit.SoftSelect(Color.white);
         
-            rot = city.army.GetRandomSpot(newUnit.barracksBunk) - newUnit.transform.position;
+            rot = city.army.GetRandomSpot(newUnit.military.barracksBunk) - newUnit.transform.position;
             //rot += new Vector3(0, 0.05f, 0); //to avoid the warning message
 
 			if (uiUnitBuilder.activeStatus)
@@ -2018,7 +2018,7 @@ public class CityBuilderManager : MonoBehaviour
         else
             rotation = Quaternion.LookRotation(rot);
         newUnit.transform.rotation = rotation;
-		newUnit.CurrentLocation = world.AddUnitPosition(buildPosition, newUnit);
+		newUnit.currentLocation = world.AddUnitPosition(buildPosition, newUnit);
 
         if (world.unitMovement.upgradingUnit)
             world.unitMovement.ToggleUnitHighlights(true, city);

@@ -92,14 +92,8 @@ public class UnitMovement : MonoBehaviour
         
         if (selectedUnit != null && !selectedUnit.isBusy)
         {
-            /*if (selectedUnit.isMoving)
-            {
-                CancelContinuedMovementOrders();
-            }
-            else */if (selectedUnit.followingRoute)
-            {
+            if (selectedUnit.trader && selectedTrader.followingRoute)
                 CancelTradeRoute();
-            }
         }
     }
 
@@ -189,9 +183,9 @@ public class UnitMovement : MonoBehaviour
 			{
 				if (!unit.isSelected)
                 {
-                    if (unit.inArmy && !unit.homeBase.army.selected)
+                    if (unit.inArmy && !unit.military.homeBase.army.selected)
                         unit.Unhighlight();
-                    else if (unit.isTrader)
+                    else if (unit.trader)
                         unit.Unhighlight();
                 }
 			}
@@ -366,31 +360,32 @@ public class UnitMovement : MonoBehaviour
             else if (swappingArmy)
             {
                 Vector3Int loc = world.RoundToInt(location);
+                City homeBase = selectedUnit.military.homeBase;
 
-                if (selectedUnit.isMoving)
+				if (selectedUnit.isMoving)
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not ready yet");
                 }
-                else if (selectedUnit.homeBase.army.CheckIfInBase(loc))
+                else if (homeBase.army.CheckIfInBase(loc))
                 {
-                    if (loc == selectedUnit.CurrentLocation)
+                    if (loc == selectedUnit.currentLocation)
                         return;
 
-                    selectedUnit.homeBase.army.isRepositioning = true;
+                    homeBase.army.isRepositioning = true;
                     bool swapping = false;
-                    selectedUnit.repositioning = true;
-                    selectedUnit.atHome = false;
+                    selectedUnit.military.repositioning = true;
+                    selectedUnit.military.atHome = false;
 
                     if (world.IsUnitLocationTaken(loc))
                     {
                         Unit unit = world.GetUnit(loc);
                         swapping = true;
-                        unit.barracksBunk = selectedUnit.CurrentLocation;
+                        unit.military.barracksBunk = selectedUnit.currentLocation;
 
-                        if (unit.atHome)
+                        if (unit.military.atHome)
                         {
-                            unit.finalDestinationLoc = selectedUnit.CurrentLocation;
-                            unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.CurrentLocation, false, unit.bySea));
+                            unit.finalDestinationLoc = selectedUnit.currentLocation;
+                            unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.currentLocation, false, unit.bySea));
                         }
                     }
                     else
@@ -400,15 +395,15 @@ public class UnitMovement : MonoBehaviour
                         starshine.transform.position = starLoc;
                         starshine.Play();
 
-                        foreach (Unit unit in selectedUnit.homeBase.army.UnitsInArmy)
+                        foreach (Unit unit in homeBase.army.UnitsInArmy)
                         {
                             if (unit == selectedUnit)
                                 continue;
 
-                            if (unit.barracksBunk == loc)
+                            if (unit.military.barracksBunk == loc)
                             {
                                 swapping = true;
-                                unit.barracksBunk = selectedUnit.CurrentLocation;
+                                unit.military.barracksBunk = selectedUnit.currentLocation;
 
                                 if (unit.isMoving)
                                 {
@@ -416,8 +411,8 @@ public class UnitMovement : MonoBehaviour
                                     unit.ShiftMovement();
                                 }
 
-                                unit.finalDestinationLoc = selectedUnit.CurrentLocation;
-                                unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.CurrentLocation, false, unit.bySea));
+                                unit.finalDestinationLoc = selectedUnit.currentLocation;
+                                unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.currentLocation, false, unit.bySea));
 
                                 break;
                             }
@@ -425,10 +420,10 @@ public class UnitMovement : MonoBehaviour
                     }
 
                     if (!swapping)
-                        selectedUnit.homeBase.army.UpdateLocation(selectedUnit.CurrentLocation, loc);
-                    selectedUnit.barracksBunk = loc;
+                        homeBase.army.UpdateLocation(selectedUnit.currentLocation, loc);
+                    selectedUnit.military.barracksBunk = loc;
                     selectedUnit.finalDestinationLoc = loc;
-                    selectedUnit.MoveThroughPath(GridSearch.AStarSearch(world, selectedUnit.CurrentLocation, loc, false, selectedUnit.bySea));
+                    selectedUnit.MoveThroughPath(GridSearch.AStarSearch(world, selectedUnit.currentLocation, loc, false, selectedUnit.bySea));
 
                     world.citySelected = true;
                     ConfirmWorkerOrders();
@@ -442,7 +437,9 @@ public class UnitMovement : MonoBehaviour
             //going to attack
             else if (deployingArmy)
             {
-                if (detectedObject.TryGetComponent(out Unit unit) && unit.enemyAI && unit.enemyCamp.movingOut)
+                City homeBase = selectedUnit.military.homeBase;
+
+				if (detectedObject.TryGetComponent(out Military unit) && unit.enemyAI && unit.enemyCamp.movingOut)
                 {
                     if (unit.preparingToMoveOut)
                         return;
@@ -455,7 +452,7 @@ public class UnitMovement : MonoBehaviour
 
                     if (world.IsCityOnTile(unit.enemyCamp.moveToLoc))
 					{
-                        if (selectedUnit.homeBase.attacked && unit.enemyCamp.moveToLoc != selectedUnit.homeBase.cityLoc)
+                        if (homeBase.attacked && unit.enemyCamp.moveToLoc != homeBase.cityLoc)
                         {
 						    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Select attacking enemy only");
                         }
@@ -465,16 +462,16 @@ public class UnitMovement : MonoBehaviour
 						}
                         else 
                         {
-							if (selectedUnit.homeBase.army.DeployArmyMovingTargetCheck(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), unit.enemyCamp.cityLoc, unit.enemyCamp.pathToTarget, unit.enemyCamp.lastSpot))
+							if (homeBase.army.DeployArmyMovingTargetCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), unit.enemyCamp.cityLoc, unit.enemyCamp.pathToTarget, unit.enemyCamp.lastSpot))
                             {
 							    for (int i = 0; i < unit.enemyCamp.UnitsInCamp.Count; i++)
                                     unit.enemyCamp.UnitsInCamp[i].SoftSelect(Color.white);
 
                                 attackMovingTarget = true;
-								selectedUnit.homeBase.army.ShowBattlePath();
+								homeBase.army.ShowBattlePath();
 								potentialAttackLoc = unit.enemyCamp.cityLoc;
 								world.infoPopUpCanvas.gameObject.SetActive(true);
-								world.uiCampTooltip.ToggleVisibility(true, null, unit.enemyCamp, selectedUnit.homeBase.army, true, true);
+								world.uiCampTooltip.ToggleVisibility(true, null, unit.enemyCamp, homeBase.army, true, true);
                             }
                             else
                             {
@@ -487,7 +484,7 @@ public class UnitMovement : MonoBehaviour
                 }
                 else if (world.CheckIfEnemyCamp(pos) || world.IsEnemyCityOnTile(pos))
                 {
-                    if (selectedUnit.homeBase.attacked)
+                    if (homeBase.attacked)
                         return;
                     
                     if (world.CheckIfEnemyAlreadyAttacked(pos))
@@ -498,9 +495,9 @@ public class UnitMovement : MonoBehaviour
 
 					attackMovingTarget = false;
 
-					if (selectedUnit.homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation), pos))
+					if (homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), pos))
                     {
-                        selectedUnit.homeBase.army.ShowBattlePath();
+                        homeBase.army.ShowBattlePath();
 
                         //rehighlight in case selecting a different one
                         if (world.IsEnemyCityOnTile(potentialAttackLoc))
@@ -513,12 +510,12 @@ public class UnitMovement : MonoBehaviour
                         if (world.IsEnemyCityOnTile(pos))
                         {
                             world.HighlightEnemyCity(pos, Color.white);
-							world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCity(pos).enemyCamp, selectedUnit.homeBase.army);
+							world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCity(pos).enemyCamp, homeBase.army);
 						}
                         else
                         {
                             world.HighlightEnemyCamp(pos, Color.white);
-						    world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCamp(pos), selectedUnit.homeBase.army);
+						    world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCamp(pos), homeBase.army);
                         }
 					}
 				}
@@ -530,7 +527,9 @@ public class UnitMovement : MonoBehaviour
             //changing barracks
             else if (changingCity)
             {
-                if (world.IsCityOnTile(pos) && world.GetCity(pos).highlighted)
+                City homeBase = selectedUnit.military.homeBase;
+
+				if (world.IsCityOnTile(pos) && world.GetCity(pos).highlighted)
                 {                    
                     City newCity = world.GetCity(pos);
                     
@@ -542,8 +541,8 @@ public class UnitMovement : MonoBehaviour
                     
                     Vector3Int newLoc = newCity.army.GetAvailablePosition(selectedUnit.buildDataSO.unitType);
                     List<Vector3Int> path = GridSearch.AStarSearch(world, selectedUnit.transform.position, newLoc, false, selectedUnit.bySea);
-					if (selectedUnit.homeBase != null)
-                        selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
+					if (homeBase != null)
+                        homeBase.army.UnselectArmy(selectedUnit);
 
                     if (path.Count > 0)
                     {
@@ -625,29 +624,29 @@ public class UnitMovement : MonoBehaviour
 						world.unitOrders = false;
 						assigningGuard = false;
 
-						if (selectedUnit.homeBase != null)
+						if (selectedUnit.military)
                         {
-						    selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
-                            selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
-							selectedUnit.homeBase = null;
-                            selectedUnit.atHome = false;
+						    selectedUnit.military.homeBase.army.UnselectArmy(selectedUnit);
+                            selectedUnit.military.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.military.barracksBunk);
+							selectedUnit.military.homeBase = null;
+                            selectedUnit.military.atHome = false;
                         }
-                        else if (selectedUnit.guardedTrader != null)
+                        else if (selectedUnit.military.guardedTrader != null)
                         {
-                            selectedUnit.guardedTrader.guarded = false;
-                            selectedUnit.guardedTrader.guardUnit = null;
-							selectedUnit.guardedTrader = null;
+                            selectedUnit.military.guardedTrader.guarded = false;
+                            selectedUnit.military.guardedTrader.guardUnit = null;
+							selectedUnit.military.guardedTrader = null;
                             selectedUnit.originalMoveSpeed = selectedUnit.buildDataSO.movementSpeed;
-                            selectedUnit.isGuarding = false;
+                            selectedUnit.military.isGuarding = false;
                         }
 
 						trader.guarded = true;
 						trader.guardUnit = selectedUnit;
 						trader.waitingOnGuard = true; //use this to wait for guard to show up
                         trader.SoftSelect(Color.white);
-						selectedUnit.guardedTrader = trader;
-                        selectedUnit.guard = true;
-                        selectedUnit.transferring = true;
+						selectedUnit.military.guardedTrader = trader;
+                        selectedUnit.military.guard = true;
+                        selectedUnit.military.transferring = true;
                         selectedUnit.finalDestinationLoc = path[path.Count - 1] /*+ new Vector3(0.5f,0,0)*/; //moving to the side a smidge
                         selectedUnit.MoveThroughPath(path);
 
@@ -655,7 +654,7 @@ public class UnitMovement : MonoBehaviour
 						starshine.transform.position = location;
 						starshine.Play();
 						world.cityBuilderManager.MoveUnitAudio();
-                        selectedUnit.ToggleIdleTimer(false);
+                        selectedUnit.military.ToggleIdleTimer(false);
 					}
                     else
                     {
@@ -781,31 +780,31 @@ public class UnitMovement : MonoBehaviour
 			unit.FinishedMoving.RemoveAllListeners();
 		}
 
-		if (unit.guardedTrader != null)
+		if (unit.military.guardedTrader != null)
 		{
-			unit.guardedTrader.Unhighlight();
-			unit.guardedTrader.guarded = false;
-			unit.guardedTrader.guardUnit = null;
-			unit.guardedTrader = null;
-			unit.guard = false;
+			unit.military.guardedTrader.Unhighlight();
+			unit.military.guardedTrader.guarded = false;
+			unit.military.guardedTrader.guardUnit = null;
+			unit.military.guardedTrader = null;
+			unit.military.guard = false;
 			unit.originalMoveSpeed = unit.buildDataSO.movementSpeed;
-			unit.isGuarding = false;
+			unit.military.isGuarding = false;
 		}
 		else
 		{
-			unit.homeBase.army.RemoveFromArmy(unit, unit.barracksBunk);
+			unit.military.homeBase.army.RemoveFromArmy(unit, unit.military.barracksBunk);
 		}
 
-		unit.homeBase = newCity;
-		unit.atHome = false;
+		unit.military.homeBase = newCity;
+		unit.military.atHome = false;
 		newCity.army.AddToArmy(unit);
 
 		if (newCity.currentPop == 0 && newCity.army.armyCount == 1)
 			newCity.StartGrowthCycle(false);
 
-		unit.barracksBunk = newLoc;
-		unit.transferring = true;
-		unit.homeBase.army.isTransferring = true;
+		unit.military.barracksBunk = newLoc;
+		unit.military.transferring = true;
+		unit.military.homeBase.army.isTransferring = true;
 
 		unit.finalDestinationLoc = newLoc;
 		unit.MoveThroughPath(path);
@@ -817,7 +816,7 @@ public class UnitMovement : MonoBehaviour
 		    uiCancelTask.ToggleVisibility(false);
         }
 
-        unit.ToggleIdleTimer(false);
+        unit.military.ToggleIdleTimer(false);
 	}
 
     //private void SelectLaborer()
@@ -879,7 +878,7 @@ public class UnitMovement : MonoBehaviour
             SelectWorker();
             SelectTrader();
 
-            if (!selectedUnit.isLaborer && !selectedUnit.isTrader && !selectedUnit.inArmy && !selectedUnit.followingRoute && !selectedUnit.isUpgrading && !selectedUnit.runningAway)
+            if (!selectedUnit.isLaborer && !selectedUnit.trader && !selectedUnit.inArmy && !selectedUnit.isUpgrading && !selectedUnit.runningAway)
                 uiMoveUnit.ToggleVisibility(true);
 		
             PrepareMovement();
@@ -984,13 +983,13 @@ public class UnitMovement : MonoBehaviour
 
     private void SelectTrader()
     {
-        if (selectedUnit.isTrader)
+        if (selectedUnit.trader)
         {
             selectedTrader = selectedUnit.trader;
             if (selectedTrader.guardLeft)
                 selectedTrader.ShowGuardLeftMessage();
-            if (selectedUnit.interruptedRoute)
-                selectedUnit.InterruptedRouteMessage();
+            if (selectedTrader.interruptedRoute)
+                selectedTrader.InterruptedRouteMessage();
             uiPersonalResourceInfoPanel.SetTitleInfo(selectedTrader.name, selectedTrader.personalResourceManager.ResourceStorageLevel, selectedTrader.personalResourceManager.resourceStorageLimit);
             uiPersonalResourceInfoPanel.ToggleVisibility(true, selectedTrader);
             world.traderCanvas.gameObject.SetActive(true);
@@ -1044,17 +1043,17 @@ public class UnitMovement : MonoBehaviour
         unitSelected = true;
         if (selectedUnit.inArmy)
         {
-            if (selectedUnit.guard)
+            if (selectedUnit.military.guard)
             {
-                selectedUnit.guardedTrader.SoftSelect(Color.white);
+                selectedUnit.military.guardedTrader.SoftSelect(Color.white);
                 selectedUnit.Highlight(Color.green);
             }
             else
             {
-    			selectedUnit.homeBase.army.SelectArmy(selectedUnit);
+    			selectedUnit.military.homeBase.army.SelectArmy(selectedUnit);
             }
         }
-        else if (selectedUnit.isTrader && selectedTrader.guarded)
+        else if (selectedUnit.trader && selectedTrader.guarded)
         {
 			selectedUnit.Highlight(Color.green);
 			selectedTrader.guardUnit.SoftSelect(Color.white);
@@ -1112,7 +1111,7 @@ public class UnitMovement : MonoBehaviour
         {
             moveUnit = false;
             uiMoveUnit.ToggleButtonColor(false);
-			if (unit.isTrader)
+			if (unit.trader)
 				world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
 			else if (unit.isLaborer)
 				world.UnhighlightCitiesAndWonders();
@@ -1123,7 +1122,7 @@ public class UnitMovement : MonoBehaviour
                 {
                     unit.firstStep = true;
                 }
-                else if (unit.isTrader && selectedTrader.guarded)
+                else if (unit.trader && selectedTrader.guarded)
                 {
                     List<Vector3Int> guardPath = movementSystem.GetGuardPath(startPosition);
                     selectedTrader.guardUnit.finalDestinationLoc = guardPath[guardPath.Count - 1];
@@ -1408,7 +1407,7 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        if (selectedUnit.isTrader)
+        if (selectedUnit.trader)
         {
             if (selectedTrader.waitingOnGuard)
             {
@@ -1457,7 +1456,7 @@ public class UnitMovement : MonoBehaviour
 				    selectedTrader.guardUnit.FinishedMoving.RemoveAllListeners();
                 }
 
-                selectedTrader.guardUnit.ToggleIdleTimer(false);
+                selectedTrader.guardUnit.military.ToggleIdleTimer(false);
 			}
         }
 
@@ -1485,7 +1484,7 @@ public class UnitMovement : MonoBehaviour
             moveUnit = true;
             world.citySelected = true;
 
-            if (selectedUnit.isTrader)
+            if (selectedUnit.trader)
                 world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
             else if (selectedUnit.isLaborer)
                 world.HighlightCitiesAndWonders();
@@ -1495,7 +1494,7 @@ public class UnitMovement : MonoBehaviour
             moveUnit = false;
 			world.citySelected = false;
 
-			if (selectedUnit.isTrader)
+			if (selectedUnit.trader)
 				world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
 			else if (selectedUnit.isLaborer)
 				world.UnhighlightCitiesAndWonders();
@@ -1512,7 +1511,7 @@ public class UnitMovement : MonoBehaviour
         moveUnit = false;
 		world.citySelected = false;
 
-		if (selectedUnit.isTrader)
+		if (selectedUnit.trader)
 			world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
 		else if (selectedUnit.isLaborer)
 			world.UnhighlightCitiesAndWonders();
@@ -1577,7 +1576,7 @@ public class UnitMovement : MonoBehaviour
 			InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Currently upgrading");
 			return;
         }
-        else if (selectedUnit.isTrader && selectedTrader.guarded)
+        else if (selectedUnit.trader && selectedTrader.guarded)
         {
 			InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Currently has guard");
 			return;
@@ -1587,7 +1586,7 @@ public class UnitMovement : MonoBehaviour
         {
             moveUnit = false;
             uiMoveUnit.ToggleButtonColor(false);
-            if (selectedUnit.isTrader)
+            if (selectedUnit.trader)
                 world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
             else if (selectedUnit.isLaborer)
                 world.UnhighlightCitiesAndWonders();
@@ -1638,7 +1637,7 @@ public class UnitMovement : MonoBehaviour
             //	return;
             //}
 
-            city = selectedUnit.homeBase;
+            city = selectedUnit.military.homeBase;
 			//AddToCity(selectedUnit.homeBase, selectedUnit);
             //selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
         }
@@ -1657,7 +1656,7 @@ public class UnitMovement : MonoBehaviour
     public void JoinCityConfirm(City city)
     {
 		if (selectedUnit.inArmy)
-			selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
+			selectedUnit.military.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.military.barracksBunk);
 
 		AddToCity(city, selectedUnit);
 		selectedUnit.DestroyUnit();
@@ -1724,7 +1723,7 @@ public class UnitMovement : MonoBehaviour
     public void RepositionArmy()
     {
         world.cityBuilderManager.PlaySelectAudio();
-        world.cameraController.CenterCameraNoFollow(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation));
+        world.cameraController.CenterCameraNoFollow(world.GetClosestTerrainLoc(selectedUnit.currentLocation));
         uiSwapPosition.ToggleVisibility(false);
         uiJoinCity.ToggleVisibility(false);
         uiDeployArmy.ToggleVisibility(false);
@@ -1735,12 +1734,12 @@ public class UnitMovement : MonoBehaviour
         uiBuildingSomething.SetText("Repositioning Unit");
 		world.unitOrders = true;
         swappingArmy = true;
-        world.SetSelectionCircleLocation(selectedUnit.CurrentLocation);
+        world.SetSelectionCircleLocation(selectedUnit.currentLocation);
     }
 
     public void CancelReposition()
     {
-		if (selectedUnit.atHome)
+		if (selectedUnit.military.atHome)
         {
             uiSwapPosition.ToggleVisibility(true);
 		    uiJoinCity.ToggleVisibility(true);
@@ -1748,7 +1747,7 @@ public class UnitMovement : MonoBehaviour
             uiChangeCity.ToggleVisibility(true);
 		    uiAssignGuard.ToggleVisibility(true);
         }
-		else if (!selectedUnit.homeBase.army.defending && !selectedUnit.repositioning)
+		else if (!selectedUnit.military.homeBase.army.defending && !selectedUnit.military.repositioning)
 		{
 			uiCancelTask.ToggleVisibility(true);
 		}
@@ -1764,7 +1763,7 @@ public class UnitMovement : MonoBehaviour
     {
         bool joinCity = true;
         
-        if (unit.isTrader)
+        if (unit.trader)
         {
             world.traderList.Remove(unit.trader);
             joinedCity.tradersHere.Remove(unit);
@@ -2267,7 +2266,7 @@ public class UnitMovement : MonoBehaviour
                 return;
 
             if (selectedTrader.guarded)
-                selectedTrader.guardUnit.ToggleIdleTimer(false);
+                selectedTrader.guardUnit.military.ToggleIdleTimer(false);
             world.cityBuilderManager.PlayCoinsAudio();
             world.uiTradeRouteBeginTooltip.ToggleVisibility(false);
             selectedTrader.SpendRouteCosts(selectedTrader.tradeRouteManager.startingStop);
@@ -2284,13 +2283,13 @@ public class UnitMovement : MonoBehaviour
 
             if (selectedUnit.bySea)
             {
-                if (world.IsCityHarborOnTile(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation)))
-                    world.GetHarborCity(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation)).tradersHere.Remove(selectedUnit);
+                if (world.IsCityHarborOnTile(world.GetClosestTerrainLoc(selectedUnit.currentLocation)))
+                    world.GetHarborCity(world.GetClosestTerrainLoc(selectedUnit.currentLocation)).tradersHere.Remove(selectedUnit);
             }
             else
             {
-                if (world.IsCityOnTile(selectedUnit.CurrentLocation))
-                    world.GetCity(world.GetClosestTerrainLoc(selectedUnit.CurrentLocation)).tradersHere.Remove(selectedUnit);
+                if (world.IsCityOnTile(selectedUnit.currentLocation))
+                    world.GetCity(world.GetClosestTerrainLoc(selectedUnit.currentLocation)).tradersHere.Remove(selectedUnit);
             }
 
 			selectedUnit.StopMovement();
@@ -2329,7 +2328,7 @@ public class UnitMovement : MonoBehaviour
 		if (selectedTrader.guarded)
         {
             selectedTrader.guardUnit.StopMovement();
-            selectedTrader.guardUnit.ToggleIdleTimer(true);
+            selectedTrader.guardUnit.military.ToggleIdleTimer(true);
         }
 
         if (!selectedTrader.followingRoute/*.interruptedRoute*/)
@@ -2369,7 +2368,7 @@ public class UnitMovement : MonoBehaviour
 			//	uiCancelMove.ToggleVisibility(false);
 			//}
 		}
-        else if (selectedUnit.isTrader)
+        else if (selectedUnit.trader)
         {
 			if (selectedUnit.moreToMove)
 			{
@@ -2380,7 +2379,7 @@ public class UnitMovement : MonoBehaviour
             {
 				//uiCancelMove.ToggleVisibility(false);
 
-                if (!selectedUnit.followingRoute)
+                if (!selectedUnit.trader.followingRoute)
                 {
 					if (selectedUnit.bySea)
                     {
@@ -2401,9 +2400,9 @@ public class UnitMovement : MonoBehaviour
 		}
         else if (selectedUnit.inArmy)
         {
-			if (selectedUnit.atHome)
+			if (selectedUnit.military.atHome)
 			{
-				if (!selectedUnit.homeBase.army.defending && !selectedUnit.homeBase.army.returning)
+				if (!selectedUnit.military.homeBase.army.defending && !selectedUnit.military.homeBase.army.returning)
 				{
 					uiJoinCity.ToggleVisibility(true);
 					uiSwapPosition.ToggleVisibility(true);
@@ -2412,25 +2411,25 @@ public class UnitMovement : MonoBehaviour
 					uiAssignGuard.ToggleVisibility(true);
 				}
 			}
-			else if (selectedUnit.guard)
+			else if (selectedUnit.military.guard)
 			{
-				if (!selectedUnit.guardedTrader.followingRoute)
+				if (!selectedUnit.military.guardedTrader.followingRoute)
 				{
 					uiChangeCity.ToggleVisibility(true);
 					uiAssignGuard.ToggleVisibility(true);
 				}
 			}
-            else if (selectedUnit.homeBase.army.traveling)
+            else if (selectedUnit.military.homeBase.army.traveling)
             {
-                if (selectedUnit.homeBase.army.targetCamp.fieldBattleLoc == selectedUnit.homeBase.army.targetCamp.cityLoc)
+                if (selectedUnit.military.homeBase.army.targetCamp.fieldBattleLoc == selectedUnit.military.homeBase.army.targetCamp.cityLoc)
 					uiCancelTask.ToggleVisibility(true);
             }
-            else if (selectedUnit.inBattle)
+            else if (selectedUnit.military.inBattle)
             {
-				if (!selectedUnit.homeBase.army.defending && selectedUnit.homeBase.army.targetCamp.fieldBattleLoc == selectedUnit.homeBase.army.targetCamp.cityLoc)
+				if (!selectedUnit.military.homeBase.army.defending && selectedUnit.military.homeBase.army.targetCamp.fieldBattleLoc == selectedUnit.military.homeBase.army.targetCamp.cityLoc)
 					uiCancelTask.ToggleVisibility(true);
 			}
-			else if (selectedUnit.transferring)
+			else if (selectedUnit.military.transferring)
 			{
 				uiChangeCity.ToggleVisibility(true);
 				uiAssignGuard.ToggleVisibility(true);
@@ -2580,7 +2579,7 @@ public class UnitMovement : MonoBehaviour
 		uiDeployArmy.ToggleVisibility(false);
 		uiChangeCity.ToggleVisibility(false);
         uiAssignGuard.ToggleVisibility(false);
-		world.HighlightCitiesWithBarracks(selectedUnit.homeBase);
+		world.HighlightCitiesWithBarracks(selectedUnit.military.homeBase);
         uiBuildingSomething.ToggleVisibility(true);
         uiBuildingSomething.SetText("Changing Home Base");
 		uiCancelTask.ToggleVisibility(true);
@@ -2607,22 +2606,23 @@ public class UnitMovement : MonoBehaviour
 	public void DeployArmyLocation()
     {
         world.cityBuilderManager.PlaySelectAudio();
+        City homeBase = selectedUnit.military.homeBase;
         
-        if (selectedUnit.homeBase.army.isTraining)
+        if (homeBase.army.isTraining)
         {
             Vector3 mousePosition = uiDeployArmy.transform.position;
             mousePosition.x -= 120;
             UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still training", false);
 			return;
         }
-        else if (selectedUnit.homeBase.army.isTransferring)
+        else if (homeBase.army.isTransferring)
         {
 			Vector3 mousePosition = uiDeployArmy.transform.position;
 			mousePosition.x -= 150;
 			UIInfoPopUpHandler.WarningMessage().Create(mousePosition, "Still transferring", false);
             return;
 		}
-        else if (selectedUnit.homeBase.army.isRepositioning)
+        else if (homeBase.army.isRepositioning)
         {
 			Vector3 mousePosition = uiDeployArmy.transform.position;
 			mousePosition.x -= 150;
@@ -2642,8 +2642,8 @@ public class UnitMovement : MonoBehaviour
         attackMovingTarget = false;
         deployingArmy = true;
 
-        if (selectedUnit.homeBase.attacked)
-            world.HighlightAttackingCity(selectedUnit.homeBase.cityLoc);
+        if (homeBase.attacked)
+            world.HighlightAttackingCity(homeBase.cityLoc);
         else
             world.HighlightAllEnemyCamps();
     }
@@ -2658,11 +2658,12 @@ public class UnitMovement : MonoBehaviour
     {
 		uiCancelTask.ToggleVisibility(false);
         world.uiCampTooltip.ToggleVisibility(false);
+        City homeBase = selectedUnit.military.homeBase;
 
         if (selectedUnit == null)
             return;
 
-        if (selectedUnit.guard)
+        if (selectedUnit.military.guard)
         {
             world.unitOrders = false;
             changingCity = false;
@@ -2680,18 +2681,18 @@ public class UnitMovement : MonoBehaviour
 			return;
         }
 
-        if (selectedUnit.homeBase.army.traveling)
+        if (homeBase.army.traveling)
         {
-            GameLoader.Instance.gameData.attackedEnemyBases.Remove(selectedUnit.homeBase.army.enemyTarget);
-            selectedUnit.homeBase.army.MoveArmyHome(selectedUnit.homeBase.barracksLocation);
-            world.EnemyCampReturn(selectedUnit.homeBase.army.enemyTarget);
+            GameLoader.Instance.gameData.attackedEnemyBases.Remove(homeBase.army.enemyTarget);
+            homeBase.army.MoveArmyHome(homeBase.barracksLocation);
+            world.EnemyCampReturn(homeBase.army.enemyTarget);
             HideBattlePath();
         }
-        else if (selectedUnit.homeBase.army.inBattle)
+        else if (homeBase.army.inBattle)
         {
-            selectedUnit.homeBase.army.Retreat();
+            homeBase.army.Retreat();
 		}
-        else if (selectedUnit.homeBase.army.atHome)
+        else if (homeBase.army.atHome)
         {
             if (changingCity)
                 world.UnhighlightCitiesWithBarracks();
@@ -2700,7 +2701,7 @@ public class UnitMovement : MonoBehaviour
             else if (assigningGuard)
                 world.UnhighlightTraders();
 
-            if (selectedUnit.atHome)
+            if (selectedUnit.military.atHome)
             {
                 uiJoinCity.ToggleVisibility(true);
 		        uiSwapPosition.ToggleVisibility(true);
@@ -2708,7 +2709,7 @@ public class UnitMovement : MonoBehaviour
 			    uiChangeCity.ToggleVisibility(true);
 			    uiAssignGuard.ToggleVisibility(true);
             }
-            else if (!selectedUnit.homeBase.army.defending && !selectedUnit.repositioning)
+            else if (!homeBase.army.defending && !selectedUnit.military.repositioning)
             {
                 uiCancelTask.ToggleVisibility(true);
             }
@@ -2746,6 +2747,7 @@ public class UnitMovement : MonoBehaviour
 		world.unitOrders = false;
 		deployingArmy = false;
         world.cityBuilderManager.PlayBoomAudio();
+        City homeBase = selectedUnit.military.homeBase;
 
         if (world.IsEnemyCityOnTile(potentialAttackLoc))
         {
@@ -2753,32 +2755,32 @@ public class UnitMovement : MonoBehaviour
 			if (city.enemyCamp.movingOut)
             {
 				uiCancelTask.ToggleVisibility(false);
-				selectedUnit.homeBase.army.enemyCityLoc = city.cityLoc;
+				homeBase.army.enemyCityLoc = city.cityLoc;
 				city.enemyCamp.attacked = true;
-                city.enemyCamp.attackingArmy = selectedUnit.homeBase.army;
-                city.enemyCamp.fieldBattleLoc = selectedUnit.homeBase.army.enemyTarget;
+                city.enemyCamp.attackingArmy = homeBase.army;
+                city.enemyCamp.fieldBattleLoc = homeBase.army.enemyTarget;
             }
             else
             {
-                world.SetEnemyCityAsAttacked(potentialAttackLoc, selectedUnit.homeBase.army);
+                world.SetEnemyCityAsAttacked(potentialAttackLoc, homeBase.army);
             }
             
-            selectedUnit.homeBase.army.targetCamp = city.enemyCamp;
+            selectedUnit.military.homeBase.army.targetCamp = city.enemyCamp;
         }
         else
         {
-		    world.SetEnemyCampAsAttacked(potentialAttackLoc, selectedUnit.homeBase.army);
-		    selectedUnit.homeBase.army.targetCamp = world.GetEnemyCamp(potentialAttackLoc);
+		    world.SetEnemyCampAsAttacked(potentialAttackLoc, homeBase.army);
+		    homeBase.army.targetCamp = world.GetEnemyCamp(potentialAttackLoc);
         }
         
-        selectedUnit.homeBase.army.DeployArmy();
+        homeBase.army.DeployArmy();
 	}
 
     public void HideBattlePath()
     {
         if (selectedUnit != null)
         {
-            selectedUnit.homeBase.army.HidePath();
+            selectedUnit.military.homeBase.army.HidePath();
 		    world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
         }
 	}
@@ -2789,7 +2791,7 @@ public class UnitMovement : MonoBehaviour
 			world.CloseBuildingSomethingPanel();
 		else if (selectedUnit.inArmy)
             CancelArmyDeployment();
-        else if (selectedUnit.isTrader)
+        else if (selectedUnit.trader)
             CancelTradeRoute();
     }
 
@@ -2806,7 +2808,7 @@ public class UnitMovement : MonoBehaviour
             {
                 if (selectedUnit.isLaborer)
                     world.UnhighlightCitiesAndWonders();
-                else if (selectedUnit.isTrader)
+                else if (selectedUnit.trader)
                     world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
             }
 
@@ -2847,13 +2849,13 @@ public class UnitMovement : MonoBehaviour
             {
 				uiCancelTask.ToggleVisibility(false);
 
-                if (selectedUnit.guard)
-                    selectedUnit.guardedTrader.Unhighlight();
+                if (selectedUnit.military.guard)
+                    selectedUnit.military.guardedTrader.Unhighlight();
                 else
-                    selectedUnit.homeBase.army.UnselectArmy(selectedUnit);
+                    selectedUnit.military.homeBase.army.UnselectArmy(selectedUnit);
 
-                if (selectedUnit.homeBase != null && selectedUnit.homeBase.army.traveling)
-                    selectedUnit.homeBase.army.HidePath();
+                if (selectedUnit.military.homeBase != null && selectedUnit.military.homeBase.army.traveling)
+                    selectedUnit.military.homeBase.army.HidePath();
                 //CancelArmyDeployment();
             }
             //if (selectedUnit != null)

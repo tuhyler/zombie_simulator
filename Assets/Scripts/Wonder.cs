@@ -277,7 +277,7 @@ public class Wonder : MonoBehaviour
         for (int i = index; i < waitListList.Count; i++)
         {
             j++;
-            waitListList[i].waitingCo = StartCoroutine(waitListList[i].MoveUpInLine(j));
+            waitListList[i].trader.StartMoveUpInLine(j);
         }
 
         if (unit.bySea)
@@ -291,7 +291,7 @@ public class Wonder : MonoBehaviour
     {
         if (waitList.Count > 0)
         {
-            waitList.Dequeue().ExitLine();
+            waitList.Dequeue().trader.ExitLine();
         }
 
         if (waitList.Count > 0)
@@ -300,7 +300,7 @@ public class Wonder : MonoBehaviour
             foreach (Unit unit in waitList)
             {
                 i++;
-                unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
+                unit.trader.StartMoveUpInLine(i);
             }
         }
     }
@@ -309,7 +309,7 @@ public class Wonder : MonoBehaviour
     {
 		if (seaWaitList.Count > 0)
 		{
-			seaWaitList.Dequeue().ExitLine();
+			seaWaitList.Dequeue().trader.ExitLine();
 		}
 
 		if (seaWaitList.Count > 0)
@@ -318,7 +318,7 @@ public class Wonder : MonoBehaviour
 			foreach (Unit unit in seaWaitList)
 			{
 				i++;
-				unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
+                unit.trader.StartMoveUpInLine(i);
 			}
 		}
 	}
@@ -701,11 +701,11 @@ public class Wonder : MonoBehaviour
         if (world.IsUnitLocationTaken(unloadLoc))
         {
             Unit unit = world.GetUnit(unloadLoc);
-            if (unit.isTrader)
+            if (unit.trader)
             {
                 world.RemoveUnitPosition(unloadLoc);
-                if (unit.followingRoute)
-                    unit.InterruptRoute();
+                if (unit.trader.followingRoute)
+                    unit.trader.InterruptRoute();
                 unit.TeleportToNearestRoad(unloadLoc);
             }
             else
@@ -717,11 +717,11 @@ public class Wonder : MonoBehaviour
             if (world.IsUnitLocationTaken(neighbor))
             {
                 Unit unit = world.GetUnit(neighbor);
-                if (unit.isTrader)
+                if (unit.trader)
                 {
                     world.RemoveUnitPosition(neighbor);
-                    if (unit.followingRoute)
-                        unit.InterruptRoute();
+                    if (unit.trader.followingRoute)
+                        unit.trader.InterruptRoute();
                     unit.TeleportToNearestRoad(neighbor);
                 }
             }

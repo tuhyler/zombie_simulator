@@ -17,7 +17,7 @@ public class EnemyAmbush
 
 		for (int i = 0; i < attackingUnits.Count; i++)
 		{
-			attackingList.Add(attackingUnits[i].SaveMilitaryUnitData());
+			attackingList.Add(attackingUnits[i].military.SaveMilitaryUnitData());
 		}
 
 		data.loc = loc;
@@ -31,9 +31,9 @@ public class EnemyAmbush
     {
         for (int i = 0; i < attackedUnits.Count; i++)
         {
-            if (attackedUnits[i].isTrader)
+            if (attackedUnits[i].trader)
             {
-                attackedUnits[i].ContinueTradeRoute();
+                attackedUnits[i].trader.ContinueTradeRoute();
                 break;
             }
         }

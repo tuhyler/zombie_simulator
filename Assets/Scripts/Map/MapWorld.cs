@@ -610,9 +610,9 @@ public class MapWorld : MonoBehaviour
 
 			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
 			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
-				unitEnemy.CurrentLocation = AddUnitPosition(unitLoc, unitEnemy);
+				unitEnemy.currentLocation = AddUnitPosition(unitLoc, unitEnemy);
 
-			unitEnemy.CurrentLocation = unitLoc;
+			unitEnemy.currentLocation = unitLoc;
 
 			Vector3Int unitTerrainLoc = GetClosestTerrainLoc(unitLoc);
 
@@ -638,11 +638,10 @@ public class MapWorld : MonoBehaviour
 				enemyLocs.Add(unitTerrainLoc);
 			}
 
-			enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unitEnemy);
+			enemyCampDict[unitTerrainLoc].UnitsInCamp.Add(unitEnemy.military);
 			unitEnemy.enemyAI.CampLoc = unitTerrainLoc;
 			unitEnemy.enemyAI.CampSpot = unitLoc;
-			unitEnemy.enemyCamp = enemyCampDict[unitTerrainLoc];
-
+			unitEnemy.military.enemyCamp = enemyCampDict[unitTerrainLoc];
 
 			if (hideTerrain)
             {
@@ -651,7 +650,7 @@ public class MapWorld : MonoBehaviour
             else
             {
 			    if (unitEnemy.buildDataSO.unitType != UnitType.Cavalry)
-				    unitEnemy.ToggleSitting(true);
+				    unitEnemy.military.ToggleSitting(true);
             }
 		}
 
@@ -729,12 +728,12 @@ public class MapWorld : MonoBehaviour
             scott.marker.gameObject.tag = "Player";
             azai.gameObject.tag = "Player";
             azai.marker.gameObject.tag = "Player";
-            unit.CurrentLocation = RoundToInt(unit.transform.position);
+            unit.currentLocation = RoundToInt(unit.transform.position);
             AddUnitPosition(unit.transform.position, unit);
 
-		    scott.CurrentLocation = RoundToInt(scott.transform.position);
+		    scott.currentLocation = RoundToInt(scott.transform.position);
 		    AddUnitPosition(scott.transform.position, scott);
-            azai.CurrentLocation = RoundToInt(azai.transform.position);
+            azai.currentLocation = RoundToInt(azai.transform.position);
             AddUnitPosition(azai.transform.position, azai);
         }
 
@@ -748,7 +747,7 @@ public class MapWorld : MonoBehaviour
         //if (!unitPosDict.ContainsKey(RoundToInt(unitPos))) //just in case dictionary was missing any
         //	unit.CurrentLocation = AddUnitPosition(unitPos, unit);
 
-        unit.CurrentLocation = unitPos;
+        unit.currentLocation = unitPos;
 		unit.SetMinimapIcon(cityBuilderManager.friendlyUnitHolder);
 
 		if (newGame)
@@ -1409,19 +1408,19 @@ public class MapWorld : MonoBehaviour
                 }
 
 			    //just in case dictionary was missing any
-				unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
+				unit.currentLocation = AddUnitPosition(unitLoc, unit);
 
-			    unit.CurrentLocation = unitLoc;
-			    city.enemyCamp.UnitsInCamp.Add(unit);
+			    unit.currentLocation = unitLoc;
+			    city.enemyCamp.UnitsInCamp.Add(unit.military);
 			    unit.enemyAI.CampLoc = city.enemyCamp.loc;
 			    unit.enemyAI.CampSpot = unitLoc;
-                unit.enemyCamp = city.enemyCamp;
+                unit.military.enemyCamp = city.enemyCamp;
 
 				//RemoveUnitPosition(unitLoc);
-			    unit.LoadUnitData(fightingEnemies[unitLoc]);
-			    AddUnitPosition(unit.CurrentLocation, unit);
+			    unit.military.LoadUnitData(fightingEnemies[unitLoc]);
+			    AddUnitPosition(unit.currentLocation, unit);
 
-                TerrainData tdUnit = GetTerrainDataAt(unit.CurrentLocation);
+                TerrainData tdUnit = GetTerrainDataAt(unit.currentLocation);
                 if (city.enemyCamp.movingOut)
                 {
                     if (!tdUnit.isDiscovered)
@@ -1575,15 +1574,15 @@ public class MapWorld : MonoBehaviour
 
 			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
 			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
-				unitEnemy.CurrentLocation = AddUnitPosition(unitLoc, unitEnemy);
-			unitEnemy.CurrentLocation = unitLoc;
+				unitEnemy.currentLocation = AddUnitPosition(unitLoc, unitEnemy);
+			unitEnemy.currentLocation = unitLoc;
 			unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
-			unitEnemy.barracksBunk = spawnLoc;
+			unitEnemy.military.barracksBunk = spawnLoc;
 
-			camp.UnitsInCamp.Add(unitEnemy);
+			camp.UnitsInCamp.Add(unitEnemy.military);
 			unitEnemy.enemyAI.CampLoc = camp.loc;
 			unitEnemy.enemyAI.CampSpot = unitLoc;
-			unitEnemy.enemyCamp = camp;
+			unitEnemy.military.enemyCamp = camp;
 		}
 
 		camp.FormBattlePositions();
@@ -2146,25 +2145,25 @@ public class MapWorld : MonoBehaviour
                 if (!movingOut)
                     unit.minimapIcon.gameObject.SetActive(false);
 		        if (!attacked) //just in case dictionary was missing any
-			        unit.CurrentLocation = AddUnitPosition(unitLoc, unit);
-		        unit.CurrentLocation = unitLoc;
-                enemyCampDict[loc].UnitsInCamp.Add(unit);
+			        unit.currentLocation = AddUnitPosition(unitLoc, unit);
+		        unit.currentLocation = unitLoc;
+                enemyCampDict[loc].UnitsInCamp.Add(unit.military);
 		        unit.enemyAI.CampLoc = loc;
 		        unit.enemyAI.CampSpot = unitLoc;
-        		unit.enemyCamp = enemyCampDict[loc];
+        		unit.military.enemyCamp = enemyCampDict[loc];
 
 				if (attacked || movingOut)
                 {
                     //RemoveUnitPosition(unitLoc);
-                    unit.LoadUnitData(fightingEnemies[unitLoc]);
-                    AddUnitPosition(unit.CurrentLocation, unit);
+                    unit.military.LoadUnitData(fightingEnemies[unitLoc]);
+                    AddUnitPosition(unit.currentLocation, unit);
                     if (camp.campfire != null)
                         camp.campfire.SetActive(false);
                 }
                 else if (reveal)
                 {
                     if (unit.buildDataSO.unitType != UnitType.Cavalry)
-                        unit.ToggleSitting(true);
+                        unit.military.ToggleSitting(true);
                 }
             }
 
@@ -2216,12 +2215,12 @@ public class MapWorld : MonoBehaviour
 				if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
 					unit.marker.ToggleVisibility(true);
 				unit.SetReferences(this);
-				unit.CurrentLocation = data.currentLocation;
+				unit.currentLocation = data.currentLocation;
                 ambush.attackingUnits.Add(unit);
-                unit.enemyAmbush = ambush;
+                unit.military.enemyAmbush = ambush;
 
-				unit.LoadUnitData(data);
-				AddUnitPosition(unit.CurrentLocation, unit);
+				unit.military.LoadUnitData(data);
+				AddUnitPosition(unit.currentLocation, unit);
 			}
 
             enemyAmbushDict[tile] = ambush;
@@ -2245,7 +2244,7 @@ public class MapWorld : MonoBehaviour
 		//assigning army details and rotation
 		if (newUnit.inArmy)
         {
-            newUnit.homeBase = city;
+            newUnit.military.homeBase = city;
 			city.army.AddToArmy(newUnit);
             if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(true);
@@ -2253,7 +2252,7 @@ public class MapWorld : MonoBehaviour
 			newUnit.name = unitData.unitDisplayName;
 		}
 
-        if (newUnit.isTrader)
+        if (newUnit.trader)
         {
             newUnit.trader.SetRouteManagers(unitMovement.uiTradeRouteManager, unitMovement.uiPersonalResourceInfoPanel); //start method is too slow and awake is too fast
             traderList.Add(newUnit.trader);
@@ -2270,7 +2269,7 @@ public class MapWorld : MonoBehaviour
         }
         else
         {
-            newUnit.LoadUnitData(data.GetUnitData());
+            newUnit.military.LoadUnitData(data.GetUnitData());
         }
 	}
 
@@ -2287,12 +2286,12 @@ public class MapWorld : MonoBehaviour
 		Unit newUnit = unit.GetComponent<Unit>();
 		newUnit.SetReferences(this);
 		newUnit.SetMinimapIcon(unitHolder);
-        newUnit.guardedTrader = trader;
+        newUnit.military.guardedTrader = trader;
         trader.guardUnit = newUnit;
         newUnit.originalMoveSpeed = trader.originalMoveSpeed;
 		newUnit.name = unitData.unitDisplayName;
 
-		newUnit.LoadUnitData(data);
+		newUnit.military.LoadUnitData(data);
 	}
 
 	public void StartSaveProcess(string saveName)
@@ -2995,12 +2994,12 @@ public class MapWorld : MonoBehaviour
 			{
 				unitMovement.workerTaskManager.CancelTask();
 			}
-            else if (unitMovement.selectedUnit.guard)
+            else if (unitMovement.selectedUnit.military && unitMovement.selectedUnit.military.guard)
             {
 				unitMovement.CancelOrders();
 			}
-            else if (unitMovement.selectedUnit.inArmy && (unitMovement.selectedUnit.isMarching || unitMovement.selectedUnit.homeBase.army.inBattle 
-                || unitMovement.selectedUnit.homeBase.army.traveling || unitMovement.selectedUnit.homeBase.army.atHome))
+            else if (unitMovement.selectedUnit.inArmy && (unitMovement.selectedUnit.military.isMarching || unitMovement.selectedUnit.military.homeBase.army.inBattle 
+                || unitMovement.selectedUnit.military.homeBase.army.traveling || unitMovement.selectedUnit.military.homeBase.army.atHome))
             {
                 unitMovement.CancelOrders();
             }
@@ -3008,7 +3007,7 @@ public class MapWorld : MonoBehaviour
 			//{
 			//	unitMovement.CancelContinuedMovementOrders();
 			//}
-			else if (unitMovement.selectedUnit.followingRoute)
+			else if (unitMovement.selectedUnit.trader.followingRoute)
 			{
 				unitMovement.CancelTradeRoute();
 			}
@@ -4174,8 +4173,8 @@ public class MapWorld : MonoBehaviour
 
 		unit.ambush = true;
 		unit.SetReferences(this);
-		unit.CurrentLocation = ambushLoc;
-        unit.enemyAmbush = ambush;
+		unit.currentLocation = ambushLoc;
+        unit.military.enemyAmbush = ambush;
 		ambush.attackingUnits.Add(unit);
         enemyAmbushDict[loc] = ambush;
 		uiAttackWarning.AttackNotification(ambush.loc);
@@ -4188,7 +4187,7 @@ public class MapWorld : MonoBehaviour
 			unitTrader.trader.guardUnit.originalMoveSpeed = unitTrader.trader.guardUnit.buildDataSO.movementSpeed;
             unitTrader.trader.guardUnit.ambush = true;
 			unitTrader.trader.guardUnit.StopMovement();
-            unitTrader.trader.guardUnit.isGuarding = false;
+            unitTrader.trader.guardUnit.military.isGuarding = false;
             ambush.attackedUnits.Add(unitTrader.trader.guardUnit);
 			Vector3 pos = unitTrader.trader.guardUnit.transform.position;
 
@@ -4197,23 +4196,23 @@ public class MapWorld : MonoBehaviour
                 unit.enemyAI.StartAttack(unitTrader.trader.guardUnit);
 
 				if (unitTrader.trader.guardUnit.buildDataSO.unitType == UnitType.Ranged)
-					unitTrader.trader.guardUnit.RangedAmbushCheck(unit);
+					unitTrader.trader.guardUnit.military.RangedAmbushCheck(unit);
 				else
-					unitTrader.trader.guardUnit.StartAttack(unit);
+					unitTrader.trader.guardUnit.military.StartAttack(unit);
             }
             else
             {
                 if (unitTrader.trader.guardUnit.buildDataSO.unitType == UnitType.Ranged)
                 {
                     Vector3Int endPosition = RoundToInt(unitTrader.trader.guardUnit.transform.position);
-                    unitTrader.trader.guardUnit.RangedAmbushCheck(unit);
+                    unitTrader.trader.guardUnit.military.RangedAmbushCheck(unit);
                     unit.enemyAI.AmbushAggro(endPosition, loc);
 				}
                 else
                 {
-                    unit.targetSearching = true;
+                    unit.military.targetSearching = true;
                     Vector3Int endPosition = RoundToInt(unit.transform.position);
-                    unitTrader.trader.guardUnit.AmbushAggro(endPosition, loc);
+                    unitTrader.trader.guardUnit.military.AmbushAggro(endPosition, loc);
                 }
             }
         }
@@ -4905,7 +4904,7 @@ public class MapWorld : MonoBehaviour
 
 		for (int i = 0; i < enemyCampDict[loc].UnitsInCamp.Count; i++)
 		{
-			Unit unit = enemyCampDict[loc].UnitsInCamp[i];
+			Military unit = enemyCampDict[loc].UnitsInCamp[i];
             unit.gameObject.SetActive(true);
 
 			if (unit.buildDataSO.unitType != UnitType.Cavalry)
@@ -4915,7 +4914,7 @@ public class MapWorld : MonoBehaviour
         if (unitMovement.deployingArmy)
         {
 			GetTerrainDataAt(loc).EnableHighlight(Color.red);
-			foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
+			foreach (Military unit in enemyCampDict[loc].UnitsInCamp)
 				unit.SoftSelect(Color.red);
 		}
     }
@@ -4964,12 +4963,12 @@ public class MapWorld : MonoBehaviour
 
 			if (IsEnemyCityOnTile(enemyLoc))
 			{
-				foreach (Unit unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
+				foreach (Military unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
 					unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
 			}
 			else
 			{
-				foreach (Unit unit in enemyCampDict[enemyLoc].UnitsInCamp)
+				foreach (Military unit in enemyCampDict[enemyLoc].UnitsInCamp)
 					unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
 			}
 
@@ -4985,12 +4984,12 @@ public class MapWorld : MonoBehaviour
 
 			if (IsEnemyCityOnTile(enemyLoc))
             {
-                foreach (Unit unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
+                foreach (Military unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
                     unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Enemy");
             }
             else
             {
-			    foreach (Unit unit in enemyCampDict[enemyLoc].UnitsInCamp)
+			    foreach (Military unit in enemyCampDict[enemyLoc].UnitsInCamp)
 				    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Enemy");
 		    }
 
@@ -5086,7 +5085,7 @@ public class MapWorld : MonoBehaviour
                 continue;
 
             td.EnableHighlight(Color.red);
-            foreach (Unit unit in enemyCampDict[tile].UnitsInCamp)
+            foreach (Military unit in enemyCampDict[tile].UnitsInCamp)
                 unit.SoftSelect(Color.red);
         }
 
@@ -5099,9 +5098,7 @@ public class MapWorld : MonoBehaviour
             if (enemyCityDict[tile].enemyCamp.movingOut)
             {
                 for (int i = 0; i < enemyCityDict[tile].enemyCamp.UnitsInCamp.Count; i++)
-                {
                     enemyCityDict[tile].enemyCamp.UnitsInCamp[i].SoftSelect(Color.red);
-				}
             }
             else
             {
@@ -5127,7 +5124,7 @@ public class MapWorld : MonoBehaviour
         TerrainData td = GetTerrainDataAt(loc);
 		td.DisableHighlight();
 		td.EnableHighlight(color);
-		foreach (Unit unit in enemyCampDict[loc].UnitsInCamp)
+		foreach (Military unit in enemyCampDict[loc].UnitsInCamp)
 			unit.SoftSelect(color);
 	}
 
@@ -5151,7 +5148,7 @@ public class MapWorld : MonoBehaviour
 				continue;
 
 			td.DisableHighlight();
-			foreach (Unit unit in enemyCampDict[tile].UnitsInCamp)
+			foreach (Military unit in enemyCampDict[tile].UnitsInCamp)
 				unit.Unhighlight();
 		}
 
@@ -5179,9 +5176,7 @@ public class MapWorld : MonoBehaviour
             if (enemyCityDict[tile].enemyCamp.movingOut && enemyCityDict[tile].enemyCamp.moveToLoc == cityLoc)
             {
 				for (int i = 0; i < enemyCityDict[tile].enemyCamp.UnitsInCamp.Count; i++)
-				{
 					enemyCityDict[tile].enemyCamp.UnitsInCamp[i].SoftSelect(Color.red);
-				}
 			}
         }
     }
@@ -5375,7 +5370,7 @@ public class MapWorld : MonoBehaviour
     {
 		yield return new WaitForSeconds(5);
 
-		foreach (Unit unit in enemyCityDict[loc].enemyCamp.DeadList)
+		foreach (Military unit in enemyCityDict[loc].enemyCamp.DeadList)
 			Destroy(unit.gameObject);
 
 		enemyCityDict[loc].enemyCamp.DeadList.Clear();
@@ -5385,7 +5380,7 @@ public class MapWorld : MonoBehaviour
     {
 		yield return new WaitForSeconds(5);
 
-		foreach (Unit unit in enemyCityDict[loc].enemyCamp.DeadList)
+		foreach (Military unit in enemyCityDict[loc].enemyCamp.DeadList)
 			Destroy(unit.gameObject);
 
 		enemyCityDict[loc].enemyCamp.DeadList.Clear();
@@ -5397,7 +5392,7 @@ public class MapWorld : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
         
-        foreach (Unit unit in enemyCampDict[loc].DeadList)
+        foreach (Military unit in enemyCampDict[loc].DeadList)
 			Destroy(unit.gameObject);
 
 		enemyCampDict[loc].DeadList.Clear();
@@ -7021,7 +7016,7 @@ public class MapWorld : MonoBehaviour
 				if (food == 5)
 				{
 					City city = null;
-					foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.CurrentLocation), MapWorld.State.CITYRADIUS))
+					foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.currentLocation), MapWorld.State.CITYRADIUS))
 					{
 						if (IsCityOnTile(tile))
 						{
@@ -7050,7 +7045,7 @@ public class MapWorld : MonoBehaviour
 
 					Vector3 goScale = scott.transform.localScale;
 					AddUnitPosition(scottLoc, scott);
-                    scott.CurrentLocation = scottLoc;
+                    scott.currentLocation = scottLoc;
 					scott.gameObject.SetActive(true);
 					float scaleX = goScale.x;
 					float scaleZ = goScale.z;
@@ -7073,7 +7068,7 @@ public class MapWorld : MonoBehaviour
                     return;
 
 				City azaiCity = null;
-				foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.CurrentLocation), MapWorld.State.CITYRADIUS))
+				foreach (Vector3Int tile in GetNeighborsFor(GetClosestTerrainLoc(mainPlayer.currentLocation), MapWorld.State.CITYRADIUS))
 				{
 					if (IsCityOnTile(tile))
 					{
@@ -7101,7 +7096,7 @@ public class MapWorld : MonoBehaviour
 				azai.transform.position = azaiLoc;
 
 				Vector3 azaiScale = azai.transform.localScale;
-                azai.CurrentLocation = azaiLoc;
+                azai.currentLocation = azaiLoc;
 				AddUnitPosition(azaiLoc, azai);
 				azai.gameObject.SetActive(true);
 				float azaiScaleX = azaiScale.x;

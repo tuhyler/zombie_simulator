@@ -274,7 +274,7 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1771432436929309141}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3880261271361101950
+--- !u!114 &2423794038585716091
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -283,7 +283,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2321851027760307080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da11ff3b20aa482448c3718d71bba364, type: 3}
+  m_Script: {fileID: 11500000, guid: abde5210fc435034db9f344b435c435d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
@@ -291,8 +291,6 @@ MonoBehaviour:
   unitMesh: {fileID: 6690082716910241746}
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
-    type: 3}
-  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
     type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 0}
@@ -303,7 +301,6 @@ MonoBehaviour:
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
   attacks:
-  - {fileID: 8300000, guid: c6325542aca7be743b0cb6098531b114, type: 3}
   - {fileID: 8300000, guid: 3856f315685528e4db3016bcc1325670, type: 3}
   - {fileID: 8300000, guid: 2132349055b854740a7ee321f69c3a88, type: 3}
   kills:
@@ -315,6 +312,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   trader: {fileID: 0}
+  worker: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -328,9 +326,11 @@ MonoBehaviour:
   secondaryPrefab: 0
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  currentLocation: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   ambushLoc: {x: 0, y: 0, z: 0}
+  lastClearTile: {x: 0, y: 0, z: 0}
   homeBase: {fileID: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
   marchPosition: {x: 0, y: 0, z: 0}
@@ -340,10 +340,6 @@ MonoBehaviour:
   attackSpeed: 0
   attackStrength: 0
   healthMax: 0
-  attackPause:
-  - 0.75
-  - 1
-  - 1.25
   projectile: {fileID: 0}
   bySea: 0
   isTrader: 0
@@ -358,10 +354,18 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
-  conversationTopic: 
-  isLeader: 0
-  readyToMarch: 0
+  military: {fileID: 0}
+  targetLocation: {x: 0, y: 0, z: 0}
+  targetBunk: {x: 0, y: 0, z: 0}
   inArmy: 0
+  isDead: 0
+  runningAway: 0
+  ambush: 0
+  hidden: 0
+  isUpgrading: 0
+  guardedTrader: {fileID: 0}
+  unitAnimator: {fileID: 0}
+  readyToMarch: 1
   atHome: 0
   preparingToMoveOut: 0
   isMarching: 0
@@ -373,19 +377,11 @@ MonoBehaviour:
   flanking: 0
   flankedOnce: 0
   cavalryLine: 0
-  isDead: 0
-  isUpgrading: 0
-  runningAway: 0
-  hidden: 0
   looking: 0
-  ambush: 0
   aoe: 0
   guard: 0
   isGuarding: 0
-  targetLocation: {x: 0, y: 0, z: 0}
-  targetBunk: {x: 0, y: 0, z: 0}
-  guardedTrader: {fileID: 0}
-  unitAnimator: {fileID: 0}
+  returning: 0
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
