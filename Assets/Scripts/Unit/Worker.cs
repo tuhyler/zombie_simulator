@@ -1051,7 +1051,7 @@ public class Worker : Unit
     public void PrepareScottGather()
     {
 		Vector3Int currentTerrain = world.GetClosestTerrainLoc(transform.position);
-		Vector3Int currentSpot = CurrentLocation;
+		Vector3Int currentSpot = currentLocation;
 		Vector3Int scottSpot = world.RoundToInt(world.scott.transform.position);
 		Vector3Int workSpot = currentTerrain;
 		bool alreadyThere = false;
@@ -1094,7 +1094,7 @@ public class Worker : Unit
     public void PrepareScottForestClear(ResourceIndividualSO resourceData = null)
     {
         Vector3Int currentTerrain = world.GetClosestTerrainLoc(transform.position);
-        Vector3Int currentSpot = CurrentLocation;
+        Vector3Int currentSpot = currentLocation;
         Vector3Int scottSpot = world.RoundToInt(world.scott.transform.position);
         Vector3Int workSpot = currentTerrain;
         bool alreadyThere = false;
@@ -1308,7 +1308,7 @@ public class Worker : Unit
 		data.rotation = transform.rotation;
 		data.destinationLoc = destinationLoc;
 		data.finalDestinationLoc = finalDestinationLoc;
-		data.currentLocation = CurrentLocation;
+		data.currentLocation = currentLocation;
         data.prevTile = prevTile;
         data.resourceCityLoc = resourceCityLoc;
 		data.prevTerrainTile = prevTerrainTile;
@@ -1350,7 +1350,7 @@ public class Worker : Unit
 		transform.rotation = data.rotation;
 		destinationLoc = data.destinationLoc;
 		finalDestinationLoc = data.finalDestinationLoc;
-		CurrentLocation = data.currentLocation;
+		currentLocation = data.currentLocation;
         prevTile = data.prevTile;
         resourceCityLoc = data.resourceCityLoc;
 		prevTerrainTile = data.prevTerrainTile;
@@ -1383,7 +1383,7 @@ public class Worker : Unit
 		}
 
 		if (!isMoving)
-            world.AddUnitPosition(CurrentLocation, this);
+            world.AddUnitPosition(currentLocation, this);
 
         if (data.somethingToSay)
         {
@@ -1461,16 +1461,16 @@ public class Worker : Unit
         }
         else if (building)
         {
-			world.SetWorkerWorkLocation(CurrentLocation);
+			world.SetWorkerWorkLocation(currentLocation);
 			timePassed = data.timePassed;
-			taskCo = StartCoroutine(BuildRoad(CurrentLocation));
+			taskCo = StartCoroutine(BuildRoad(currentLocation));
 			//workerTaskManager.LoadRoadBuildCoroutine(data.timePassed, CurrentLocation, this);
         }
         else if (removing)
         {
-			world.SetWorkerWorkLocation(CurrentLocation);
+			world.SetWorkerWorkLocation(currentLocation);
 			timePassed = data.timePassed;
-			taskCo = StartCoroutine(RemoveRoad(CurrentLocation));
+			taskCo = StartCoroutine(RemoveRoad(currentLocation));
 			//workerTaskManager.LoadRemoveRoadCoroutine(data.timePassed, CurrentLocation, this);
 		}
         else if (gathering || clearingForest)
@@ -1505,7 +1505,7 @@ public class Worker : Unit
         {
             if (!world.scott.clearingForest)
             {
-				TerrainData td = world.GetTerrainDataAt(CurrentLocation);
+				TerrainData td = world.GetTerrainDataAt(currentLocation);
 				TerrainType type = td.terrainData.type;
 				bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
 				int totalTime = cityBuildingTime;
@@ -1517,9 +1517,9 @@ public class Worker : Unit
 				}
 				else
 				{
-					world.SetWorkerWorkLocation(CurrentLocation);
+					world.SetWorkerWorkLocation(currentLocation);
 					timePassed = data.timePassed;
-					taskCo = StartCoroutine(BuildCityCoroutine(CurrentLocation, td, totalTime));
+					taskCo = StartCoroutine(BuildCityCoroutine(currentLocation, td, totalTime));
 				}
 
 				//workerTaskManager.LoadBuildCityCoroutine(data.timePassed, CurrentLocation, this);	

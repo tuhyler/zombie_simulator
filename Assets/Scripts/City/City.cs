@@ -1009,7 +1009,7 @@ public class City : MonoBehaviour
         for (int i = index; i < waitListList.Count; i++)
         {
             j++;
-            waitListList[i].waitingCo = StartCoroutine(waitListList[i].MoveUpInLine(j));
+            waitListList[i].trader.StartMoveUpInLine(j);
         }
 
         if (unit.bySea)
@@ -1022,7 +1022,7 @@ public class City : MonoBehaviour
     {
         if (waitList.Count > 0)
         {
-            waitList.Dequeue().ExitLine();
+            waitList.Dequeue().trader.ExitLine();
         }
 
         if (waitList.Count > 0)
@@ -1031,7 +1031,7 @@ public class City : MonoBehaviour
             foreach(Unit unit in waitList)
             {
                 i++;
-                unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
+                unit.trader.StartMoveUpInLine(i);
             }
         }
     }
@@ -1040,7 +1040,7 @@ public class City : MonoBehaviour
     {
 		if (seaWaitList.Count > 0)
 		{
-			seaWaitList.Dequeue().ExitLine();
+			seaWaitList.Dequeue().trader.ExitLine();
 		}
 
 		if (seaWaitList.Count > 0)
@@ -1049,7 +1049,7 @@ public class City : MonoBehaviour
 			foreach (Unit unit in seaWaitList)
 			{
 				i++;
-				unit.waitingCo = StartCoroutine(unit.MoveUpInLine(i));
+                unit.trader.StartMoveUpInLine(i);
 			}
 		}
 	}
@@ -1526,10 +1526,10 @@ public class City : MonoBehaviour
 
 		Vector3Int unitLoc = world.RoundToInt(unitEnemy.transform.position);
 		if (!world.unitPosDict.ContainsKey(world.RoundToInt(unitLoc))) //just in case dictionary was missing any
-			unitEnemy.CurrentLocation = world.AddUnitPosition(unitLoc, unitEnemy);
-		unitEnemy.CurrentLocation = unitLoc;
+			unitEnemy.currentLocation = world.AddUnitPosition(unitLoc, unitEnemy);
+		unitEnemy.currentLocation = unitLoc;
 		unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
-		unitEnemy.barracksBunk = newSpot;
+		unitEnemy.military.barracksBunk = newSpot;
 
 		Vector3 spawnSpot = newSpot;
 		spawnSpot.y += 0.07f;
@@ -1548,10 +1548,10 @@ public class City : MonoBehaviour
 		camp.strength += unitEnemy.buildDataSO.baseAttackStrength;
 		camp.health += unitEnemy.buildDataSO.health;
 
-        camp.UnitsInCamp.Add(unitEnemy);
+        camp.UnitsInCamp.Add(unitEnemy.military);
 		unitEnemy.enemyAI.CampLoc = camp.loc;
 		unitEnemy.enemyAI.CampSpot = unitLoc;
-		unitEnemy.enemyCamp = camp;
+		unitEnemy.military.enemyCamp = camp;
 
         if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == camp)
             world.uiCampTooltip.RefreshData();
@@ -1945,7 +1945,7 @@ public class City : MonoBehaviour
     {
 		for (int i = 0; i < enemyCamp.UnitsInCamp.Count; i++)
 		{
-			Unit unit = enemyCamp.UnitsInCamp[i];
+			Military unit = enemyCamp.UnitsInCamp[i];
 			unit.gameObject.SetActive(true);
             unit.minimapIcon.gameObject.SetActive(true);
 		}

@@ -18,17 +18,11 @@ public class Unit : MonoBehaviour
 	[SerializeField]
     public UnitBuildDataSO buildDataSO;
 
-    //[SerializeField]
-    //private GameObject minimapIcon;
-
     [SerializeField]
     public SkinnedMeshRenderer unitMesh;
 
     [SerializeField]
     public SpriteRenderer minimapIcon;
-
-    //[SerializeField]
-    //public Sprite unitImage;
 
     [SerializeField]
     public ParticleSystem lightBeam;
@@ -56,79 +50,62 @@ public class Unit : MonoBehaviour
     public Trader trader;
     [HideInInspector]
     public Worker worker;
+	[HideInInspector]
+	public Military military;
 
-    //movement details
-    [HideInInspector]
+	//movement details
+	[HideInInspector]
     public Rigidbody unitRigidbody;
     [HideInInspector]
     public float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
     [HideInInspector]
     public Queue<Vector3Int> pathPositions = new();
-    //[HideInInspector]
-    //public List<Vector3Int> followerPath = new();
     [HideInInspector]
-    public bool moreToMove, isBusy, isMoving, isBeached, interruptedRoute, secondaryPrefab; //if there are more move orders, if they're doing something, if they're moving, if they're a boat on land, if route was interrupted unexpectedly
+    public bool moreToMove, isBusy, isMoving, isBeached, secondaryPrefab, readyToMarch = true; 
     [HideInInspector]
     public Vector3 destinationLoc;
     [HideInInspector]
     public Vector3 finalDestinationLoc;
-    private Vector3Int currentLocation;
-    public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
+    [HideInInspector]
+    public Vector3Int currentLocation;
+    //public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     [HideInInspector]
     public Vector3Int prevTile, prevTerrainTile, ambushLoc, lastClearTile; //second one for traders is in case road they're on is removed
-    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed, idleTime;
+    private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
-    public Coroutine movingCo, waitingCo, attackCo;
+    public Coroutine movingCo;
 
     //showing footprints
-    private Queue<GameObject> pathQueue = new();
+    [HideInInspector]
+    public Queue<GameObject> pathQueue = new();
     private int queueCount = 0;
     public int QueueCount { set { queueCount = value; } }
-    //private Vector3 shoePrintScale;
-    //private GameObject mapIcon;
-    private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
-    //private bool onTop; //if on city tile and is on top
 
     //combat info
-    [HideInInspector]
-    public City homeBase;
-    [HideInInspector]
-    public Vector3Int barracksBunk, marchPosition; //setting their position in the army based on bunk and barracks loc
     [HideInInspector]
     public int currentHealth;
     [HideInInspector]
     public BasicEnemyAI enemyAI;
     [HideInInspector]
-    public EnemyCamp enemyCamp;
+    public float baseSpeed;
     [HideInInspector]
-    public EnemyAmbush enemyAmbush;
-    [HideInInspector]
-    public float baseSpeed, attackSpeed;
-    [HideInInspector]
-    public int attackStrength, healthMax;
+    public int healthMax;
     [HideInInspector]
     public WaitForSeconds[] attackPauses = new WaitForSeconds[3];
-    [HideInInspector]
-    public Projectile projectile;
 
     //selection indicators
     private SelectionHighlight highlight;
     
     [HideInInspector]
-    public bool bySea, isTrader, atStop, followingRoute, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep;
+    public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep;
 
-    //military properties
     [HideInInspector]
-    public bool isLeader, readyToMarch = true, inArmy, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, runningAway, hidden, looking, ambush, aoe, guard, isGuarding, returning;
-    [HideInInspector]
-    public Vector3Int targetLocation, targetBunk; //targetLocation is in case units overlap on same tile
-    [HideInInspector]
-    public Trader guardedTrader;
+    public bool inArmy, isDead, runningAway, ambush, hidden, isUpgrading;
 
     //animation
     [HideInInspector]
     public Animator unitAnimator;
-    private int isMovingHash, isMarchingHash, isAttackingHash, isSittingHash, isDiscoveredHash, isPillagingHash;
+    private int isMovingHash, isMarchingHash, isAttackingHash;
 
     private void Awake()
     {
@@ -137,10 +114,6 @@ public class Unit : MonoBehaviour
 
 	protected virtual void AwakeMethods()
     {
-        //turnHandler = FindObjectOfType<UIUnitTurnHandler>();
-        //focusCam = FindObjectOfType<CameraController>();
-        //world = FindObjectOfType<MapWorld>();
-        //movementSystem = FindObjectOfType<MovementSystem>();
         audioSource = GetComponent<AudioSource>();
         highlight = GetComponent<SelectionHighlight>();
         if (highlight == null)
@@ -149,9 +122,6 @@ public class Unit : MonoBehaviour
         isMovingHash = Animator.StringToHash("isMoving");
         isMarchingHash = Animator.StringToHash("isMarching");
         isAttackingHash = Animator.StringToHash("isAttacking");
-        isSittingHash = Animator.StringToHash("isSitting");
-        isDiscoveredHash = Animator.StringToHash("isDiscovered");
-		isPillagingHash = Animator.StringToHash("isPillaging");
         attackPauses[0] = new WaitForSeconds(1f);
 		attackPauses[1] = new WaitForSeconds(.125f);
         //attackPauses[2] = new WaitForSeconds(1.1f);
@@ -160,31 +130,17 @@ public class Unit : MonoBehaviour
         baseSpeed = 1;
 
         originalMoveSpeed = buildDataSO.movementSpeed;
-        //mapIcon = world.CreateMapIcon(buildDataSO.mapIcon);
         bySea = buildDataSO.transportationType == TransportationType.Sea;
 		if (!bySea)
 			marker.Unit = this;
 
 		healthMax = buildDataSO.health;
         currentHealth = healthMax;
-        attackSpeed = buildDataSO.baseAttackSpeed;
-        //attackPause = new(attackSpeed);
-        attackStrength = buildDataSO.baseAttackStrength;
-        inArmy = attackStrength > 0 && CompareTag("Player");
-
-        if (buildDataSO.unitType == UnitType.Ranged)
-        {
-            projectile = GetComponentInChildren<Projectile>();
-            projectile.SetProjectilePos();
-            projectile.gameObject.SetActive(false);
-        } 
+        inArmy = buildDataSO.baseAttackStrength > 0 && CompareTag("Player");
 
         enemyAI = GetComponent<BasicEnemyAI>();
-        readyToMarch = true;
         healthbar.SetUnit(this);
-        //if (enemyAI != null)
-        //    enemyAI.SetAttackSpeed(attackSpeed);
-        //shoePrintScale = GameAssets.Instance.shoePrintPrefab.transform.localScale;
+
         if (bySea)
             selectionCircle.SetActive(false);
         
@@ -193,25 +149,6 @@ public class Unit : MonoBehaviour
         if (currentHealth == healthMax)
             healthbar.gameObject.SetActive(false);
     }
-
-	//  private void Start()
-	//  {
-	////turnHandler.turnHandler.AddToTurnList(this);
-	////roadSpeed = world.GetRoadCost();
-	////Vector3 loc = transform.position;
-	////loc.y += 0.04f;
-	////lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
-	////lightBeam.transform.parent = world.psHolder;
-
-	////if (CompareTag("Player"))
-	////      {
-	////          lightBeam.Play();
-	////      }
-
-	//      //world.SetMapIconLoc(world.RoundToInt(transform.position), mapIcon);
-	//      //SetMinimapIcon();
-	//      //Physics.IgnoreLayerCollision(8, 10);
-	//  }
 
 	private void SetParticleSystems()
     {
@@ -226,16 +163,7 @@ public class Unit : MonoBehaviour
 		lightBeam.transform.parent = world.psHolder;
 
 		if (CompareTag("Player"))
-		{
 			lightBeam.Play();
-		}
-
-		//if (inArmy || enemyAI || isTrader)
-		//{
-		//	deathSplash = Instantiate(deathSplash);
-		//	deathSplash.transform.parent = world.psHolder;
-		//	deathSplash.Stop();
-		//}
 	}
 
 	public void SetReferences(MapWorld world)
@@ -263,54 +191,20 @@ public class Unit : MonoBehaviour
         audioSource.Play();
     }
 
-    //public void SayOK()
-    //{
-    //    audioSource.clip = acknowledges[0];// [UnityEngine.Random.Range(0, acknowledges.Length)];
-    //    audioSource.Play();
-    //}
-
-    public void StartAttackingAnimation()
-    {
+	public void StartAttackingAnimation()
+	{
 		unitAnimator.SetBool(isAttackingHash, true);
-        unitAnimator.SetFloat("attackSpeed", 1);
-    }
-
-    public void StartPillageAnimation()
-    {
-        unitAnimator.SetBool(isPillagingHash, true);
-    }
-
-    public void StopPillageAnimation()
-    {
-		unitAnimator.SetBool(isPillagingHash, false);
+		unitAnimator.SetFloat("attackSpeed", 1);
 	}
-
- //   private void StopAttackingAnimation()
- //   {
-	//	unitAnimator.SetBool(isAttackingHash, false);
-	//}
-
-    public void DiscoverSitting()
-    {
-		unitAnimator.SetBool(isDiscoveredHash, true);
-    }
-
-    public void ToggleSitting(bool v)
-    {
-        if (!v)
-            unitAnimator.SetBool(isDiscoveredHash, false);
-		
-        unitAnimator.SetBool(isSittingHash, v);
-    }
 
 	public void StopAnimation()
     {
-        if (isMarching || isGuarding)
+        if (military && (military.isMarching || military.isGuarding))
             unitAnimator.SetBool(isMarchingHash, false);
         else
             unitAnimator.SetBool(isMovingHash, false);
     
-        if (attackStrength > 0)
+        if (military)
             unitAnimator.SetBool(isAttackingHash, false);
     }
 
@@ -318,13 +212,6 @@ public class Unit : MonoBehaviour
     {
 		unitAnimator.SetBool(isAttackingHash, false);
 	}
-
-    public void InterruptedRouteMessage()
-    {
-        interruptedRoute = false;
-        SetInterruptedAnimation(false);
-        InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
-    }
 
     public void SetMinimapIcon(Transform parent)
     {
@@ -356,13 +243,14 @@ public class Unit : MonoBehaviour
 
 		healthbar.gameObject.SetActive(true);
 
-        currentHealth -= (attackingUnit.attackStrength - 1 + UnityEngine.Random.Range(0, 3));
+        currentHealth -= (attackingUnit.military.attackStrength - 1 + UnityEngine.Random.Range(0, 3));
 
         if (currentHealth <= 0)
         {
-			StopAttacking();
-            if (!attackingUnit.aoe)
-                attackingUnit.attacking = false;
+			if (military)
+                military.StopAttacking();
+            if (!attackingUnit.military.aoe)
+                attackingUnit.military.attacking = false;
             KillUnit(attackingUnit.transform.eulerAngles);
             return;
         }
@@ -383,15 +271,20 @@ public class Unit : MonoBehaviour
 			world.unitMovement.infoManager.SetHealth(currentHealth, healthMax);
 	}
 
-    private void StartAnimation()
+    public void StartAnimation()
     {
-        if (isMarching || isGuarding)
+        if (military && (military.isMarching || military.isGuarding))
             unitAnimator.SetBool(isMarchingHash, true);
         else
             unitAnimator.SetBool(isMovingHash, true);
     }
 
 	//Methods for moving unit
+    public void RestartPath(Vector3Int tile)
+    {
+        movingCo = StartCoroutine(MovementCoroutine(tile));
+    }
+
 	//Gets the path positions and starts the coroutines
 	public void MoveThroughPath(List<Vector3Int> currentPath) 
     {
@@ -402,15 +295,15 @@ public class Unit : MonoBehaviour
 
         pathPositions = new Queue<Vector3Int>(currentPath);
 
-        if (isTrader)
+        if (trader)
         {
-		    if (followingRoute)
+		    if (trader.followingRoute)
             {                
                 if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
 			    {
                     moreToMove = true;
                     isMoving = true;
-                    GetInLine();
+                    trader.GetInLine();
 				    return;
 			    }
             }
@@ -484,22 +377,7 @@ public class Unit : MonoBehaviour
 				yield break;
             }
 
-     //       if (unitInTheWay.isBusy || unitInTheWay.followingRoute || unitInTheWay.inArmy || unitInTheWay.enemyAI || (unitInTheWay.worker && unitInTheWay.worker.gathering))
-     //       {
-     //           if (isBusy)
-     //           {
-     //               if (worker.building)
-     //                   SkipRoadBuild();
-     //               else if (worker.removing)
-					//	SkipRoadRemove();
-
-					//if (isSelected)
-     //                   td.DisableHighlight();
-
-     //               yield break;
-     //           }
-     //       }
-            if (!unitInTheWay.isBusy && !unitInTheWay.followingRoute && !unitInTheWay.inArmy && !unitInTheWay.enemyAI && !(unitInTheWay.worker && unitInTheWay.worker.gathering))
+            if (!unitInTheWay.isBusy && !(unitInTheWay.trader && unitInTheWay.trader.followingRoute) && !unitInTheWay.military && !(unitInTheWay.worker && unitInTheWay.worker.gathering))
 			{
                 Vector3Int next;
                 if (pathPositions.Count > 0)
@@ -513,11 +391,11 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (isTrader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)))
+        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)))
         {
-            if (followingRoute)
+            if (trader.followingRoute)
             {
-                InterruptRoute();
+                trader.InterruptRoute();
             }
                 
             FinishMoving(transform.position);
@@ -557,12 +435,12 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
-        if (isPlayer || isLeader || bySea)
+        if (isPlayer)
         {
 			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
 			if (pos != prevTerrainTile)
             {
-				RevealCheck(pos);
+				RevealCheck(pos, false);
 
                 if (!world.azaiFollow && !runningAway && CampAggroCheck(pos))
                 {
@@ -580,48 +458,44 @@ public class Unit : MonoBehaviour
 					yield return null;
 				}
             }
+
+			if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
+			{
+				firstStep = false;
+				if (!isBusy)
+					world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+				else if (runningAway)
+					world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+			}
 		}
 
-        //making sure army is all in line
-        if (isMarching)
+		//making sure army is all in line
+		if (military && military.isMarching)
         {
             readyToMarch = false;
+            bool close = pathPositions.Count == 2;
 
             if (enemyAI)
-            {
-                enemyCamp.UnitNextStep(pathPositions.Count == 2, endPositionInt);
-            }
+				military.enemyCamp.UnitNextStep(close, endPositionInt);
             else
-            {
-                homeBase.army.UnitNextStep();
-            }
+                military.homeBase.army.UnitNextStep(close);
 
 			unitAnimator.SetBool(isMarchingHash, false);
 			while (!readyToMarch)
             {
                 yield return null; //waiting for others to arrive
             }
-			unitAnimator.SetBool(isMarchingHash, true);
-		}
 
-        if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
-        {
-            firstStep = false;
-            //world.scott.FollowLeader();
-            if (!isBusy)
-                world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-            else if (runningAway)
-				world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-			//followerPath.Clear();
+			unitAnimator.SetBool(isMarchingHash, true);
 		}
 
 		if (pathPositions.Count > 0)
         {
-            if (isTrader)
+            if (trader)
             {
-                if (followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+                if (trader.followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
                 {
-                    GetInLine();
+                    trader.GetInLine();
                     yield break;
                 }
 
@@ -661,7 +535,7 @@ public class Unit : MonoBehaviour
                     if (enemyAI)
                         enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
 					else
-						StartAttack(world.GetUnit(pathPositions.Dequeue()));
+						military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
 
 					yield break;
                 }
@@ -694,7 +568,7 @@ public class Unit : MonoBehaviour
             if (isMoving) //check here twice in case still moving after stopping coroutine
                 FinishMoving(destinationLoc);
         }
-        else if (isTrader)
+        else if (trader)
         {
 			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
 			if (bySea)
@@ -710,72 +584,6 @@ public class Unit : MonoBehaviour
         }
 
     }
-
-    //restarting route after ambush
-	public void ContinueTradeRoute()
-	{
-		if (trader.guarded)
-		{
-            trader.guardUnit.originalMoveSpeed = originalMoveSpeed;
-            trader.guardUnit.ContinueGuarding(pathPositions, currentLocation);
-		}
-
-        ambush = false;
-		unitAnimator.SetBool(isMovingHash, true);
-		movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-	}
-
-    public void ContinueGuarding(Queue<Vector3Int> traderPath, Vector3Int currentLoc)
-    {
-        isGuarding = true;
-        StopAnimation();
-		if (currentHealth < buildDataSO.health)
-			healthbar.RegenerateHealth();
-		List<Vector3Int> path = traderPath.ToList();
-        path.Insert(0, currentLoc);
-        path.RemoveAt(path.Count - 1);
-        finalDestinationLoc = path[path.Count - 1];
-        MoveThroughPath(path);
-	}
-
-	//trader guard stepping to side when arriving
-	public Vector3 GuardRouteFinish(Vector3Int finalTraderSpot, Vector3Int finalSpot)
-    {
-        Vector3Int diff = finalSpot - finalTraderSpot;
-        Vector3 target = finalSpot;
-
-        if (diff.x != 0)
-        {
-            if (diff.z != 0)
-            {
-                if (diff.x > 0)
-                    target.x -= 0.75f;
-                else
-					target.x += 0.75f;
-			}
-            else
-            {
-                target.z += 0.75f;
-            }
-        }
-        else
-        {
-            target.x += 0.75f;
-        }
-
-        return target;
-    }
-
-    public void GuardGetInLine(Vector3Int traderPrevSpot, Vector3Int traderSpot)
-    {
-		StopAnimation();
-		ShiftMovement();
-
-		Vector3 sideSpot = GuardRouteFinish(traderSpot, traderPrevSpot);
-        finalDestinationLoc = sideSpot;
-        StartAnimation();
-		movingCo = StartCoroutine(MovementCoroutine(traderPrevSpot));
-	}
 
     public void NextToCheck()
     {
@@ -828,15 +636,6 @@ public class Unit : MonoBehaviour
 		pathPositions.Enqueue(closestLoc);
 	}
 
-    public void AttackCheck()
-    {
-        if (attackCo != null)
-        {
-            StopCoroutine(attackCo);
-            attackCo = null;
-        }
-    }
-
     public void ShiftMovement()
     {
         StopAllCoroutines();
@@ -860,14 +659,6 @@ public class Unit : MonoBehaviour
         }
     }
 
-    //private IEnumerator MarchingInPlace()
-    //{
-    //    while (!readyToMarch)
-    //    {
-    //        yield return null;
-    //    }
-    //}
-
     public void Rotate(Vector3 lookAtTarget)
     {
         StartCoroutine(RotateTowardsPosition(lookAtTarget));
@@ -875,17 +666,12 @@ public class Unit : MonoBehaviour
 
 	public IEnumerator RotateTowardsPosition(Vector3 lookAtTarget)
 	{
-        //if (lookAtTarget == CurrentLocation)
-        //    lookAtTarget += new Vector3(0, 0.05f, 0);
-        
         Vector3 direction = lookAtTarget - transform.position;
         Quaternion endRotation;
 		if (direction == Vector3.zero)
 			endRotation = Quaternion.identity;
 		else
 			endRotation = Quaternion.LookRotation(direction, Vector3.up);
-
-		//direction.y = 0;
 
 		float totalTime = 0;
 		while (totalTime < 0.35f)
@@ -897,193 +683,8 @@ public class Unit : MonoBehaviour
 		}
 	}
 
-	private void GetInLine()
+    public void FinishMoving(Vector3 endPosition)
     {
-        Vector3Int currentLoc = world.RoundToInt(transform.position);
-
-        if (world.UnitAlreadyThere(this, currentLoc))
-            currentLocation = currentLoc;
-        else
-        {
-            ambushLoc = new Vector3Int(0, -10, 0); //no ambushing while in line
-            if (world.IsUnitWaitingForSameStop(currentLoc, finalDestinationLoc))
-            {
-                GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLoc);
-                GetInLine();
-                return;
-            }
-
-            currentLocation = world.AddUnitPosition(currentLoc, this);
-        }
-        isWaiting = true;
-        movingCo = null;
-        unitAnimator.SetBool(isMovingHash, false);
-
-        Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(finalDestinationLoc)));
-
-		if (world.IsCityOnTile(tradePos))
-			world.GetCity(tradePos).AddToWaitList(this);
-		else if (world.IsWonderOnTile(tradePos))
-			world.GetWonder(tradePos).AddToWaitList(this);
-		else if (world.IsTradeCenterOnTile(tradePos))
-			world.GetTradeCenter(tradePos).AddToWaitList(this);
-        
-        if (trader.guarded)
-            trader.guardUnit.GuardGetInLine(prevTile, currentLocation);
-    }
-
-    private void GoToBackOfLine(Vector3Int finalLoc, Vector3Int currentLoc)
-    {
-        List<Vector3Int> positionsToCheck = new(){ currentLoc };
-        bool success = false;
-        bool prevPath = true;
-        List<Vector3Int> newPath = new();
-
-        while (positionsToCheck.Count > 0)
-        {
-            Vector3Int current = positionsToCheck[0];
-            positionsToCheck.Remove(current);
-            newPath.Add(current);
-            
-            if (prevPath) //first check the tile the trader came from
-            {
-                prevPath = false;
-
-                if (!world.IsUnitWaitingForSameStop(prevTile, finalLoc))
-                {
-                    Teleport(prevTile);
-					if (trader.guarded)
-						trader.guardUnit.Teleport(world.RoundToInt(GuardRouteFinish(prevTile, prevTile)));
-					positionsToCheck.Clear();
-                    success = true;
-                }
-                else
-                {
-                    positionsToCheck.Add(prevTile);
-                }
-            }
-            else
-            {
-                foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
-                {
-                    if (!bySea)
-                    {
-                        if (!world.IsRoadOnTileLocation(neighbor))
-                            continue;
-                    }
-                    else
-                    {
-                        if (!world.CheckIfSeaPositionIsValid(neighbor))
-                            continue;
-                    }
-
-                    if (world.IsUnitWaitingForSameStop(neighbor, finalLoc)) //going away from final loc
-                    {
-                        if (ManhattanDistance(finalLoc, current) < ManhattanDistance(finalLoc, neighbor))
-                        {
-                            positionsToCheck.Add(neighbor);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        //teleport to back of line
-                        Teleport(neighbor);
-                        if (trader.guarded)
-                            trader.guardUnit.Teleport(world.RoundToInt(GuardRouteFinish(neighbor, neighbor)));
-                        positionsToCheck.Clear();
-                        success = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!success)
-        {
-            InterruptRoute();
-        }
-        else
-        {
-            List<Vector3Int> oldPath = new(pathPositions);
-            newPath.Reverse();
-            newPath.AddRange(oldPath);
-            pathPositions = new Queue<Vector3Int>(newPath);
-        }
-    }
-
-    public void InterruptRoute()
-    {
-        CancelRoute();
-        interruptedRoute = true;
-        if (isSelected)
-            InterruptedRouteMessage();
-        else
-            SetInterruptedAnimation(true);
-    }
-
-    private int ManhattanDistance(Vector3Int endPos, Vector3Int point) 
-    {
-        return Math.Abs(endPos.x - point.x) + Math.Abs(endPos.z - point.z);
-    }
-
-    public void ExitLine()
-    {
-        world.RemoveUnitPosition(currentLocation);
-        unitAnimator.SetBool(isMovingHash, true);
-        Vector3Int nextSpot = pathPositions.Peek();
-        movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-
-		if (trader.guarded)
-			trader.guardUnit.GuardGetInLine(currentLocation, nextSpot);
-	}
-
-    public IEnumerator MoveUpInLine(int placeInLine)
-    {
-        if (pathPositions.Count == 1)
-            yield break;
-
-        float pause = 0.5f * placeInLine;
-
-        while (pause > 0)
-        {
-            yield return moveInLinePause;// new WaitForSeconds(0.5f * placeInLine);
-            pause -= 0.5f;
-        }
-
-        if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
-            yield break;
-
-        Vector3Int nextSpot = pathPositions.Dequeue();
-        world.RemoveUnitPosition(currentLocation);
-        if (world.IsUnitLocationTaken(nextSpot))
-        {
-            Unit unitInTheWay = world.GetUnit(nextSpot);
-            unitInTheWay.FindNewSpot(nextSpot, pathPositions.Peek());
-        }
-        world.AddUnitPosition(nextSpot, this);
-        unitAnimator.SetBool(isMovingHash, true);
-        movingCo = StartCoroutine(MovementCoroutine(nextSpot));
-
-        if (trader.guarded)
-            trader.guardUnit.GuardGetInLine(currentLocation, nextSpot);
-    }
-
-    //public bool LineCutterCheck()
-    //{
-    //    if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), finalDestinationLoc))
-    //    {
-    //        CancelRoute();
-    //        InfoPopUpHandler.WarningMessage().Create(transform.position, "No cutting in line");
-    //        return true;
-    //    }
-
-    //    return false;
-    //}
-
-    private void FinishMoving(Vector3 endPosition)
-    {
-        //unitRigidbody.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation; 
         if (bySea && !isBeached)
             TurnOffRipples();
         queueCount = 0;
@@ -1094,245 +695,25 @@ public class Unit : MonoBehaviour
         pathPositions.Clear();
         StopAnimation();
         FinishedMoving?.Invoke();
-
-        if (isTrader)
-        {
-            if (bySea)
-            {
-				if (!followingRoute && world.IsCityHarborOnTile(currentLocation))
-                {
-                    City city = world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation));
-					city.tradersHere.Add(this);
-                    if (world.unitMovement.upgradingUnit)
-						world.unitMovement.ToggleUnitHighlights(true, city);
-                }
-			}
-			else
-            {
-                if (!followingRoute && world.IsCityOnTile(currentLocation))
-                {
-                    City city = world.GetCity(world.GetClosestTerrainLoc(currentLocation));
-					city.tradersHere.Add(this);
-					if (world.unitMovement.upgradingUnit)
-						world.unitMovement.ToggleUnitHighlights(true, city);
-				}
-                //if location has been taken away (such as when wonder finishes)
-                if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
-                {
-                    if (followingRoute)
-                        InterruptRoute();
-                    TeleportToNearestRoad(world.RoundToInt(currentLocation));
-                    prevTile = currentLocation;
-                    return;
-                }
-            }
-
-            if (followingRoute)
-            {
-                if (world.IsUnitWaitingForSameStop(currentLocation, finalDestinationLoc))
-                {
-                    GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLocation);
-                    GetInLine();
-                    prevTile = currentLocation;
-                    return;
-                }
-            }
-            else if (trader.guarded)
-            {
-                trader.guardUnit.IdleCheck();
-            }
-
-            //prevTile = currentLocation;            
-        }
-
         prevTile = currentLocation;
-        TradeRouteCheck(endPosition);
 
         if (isDead)
+        {
             return;
+        }
+        else if (trader)
+        {
+            trader.FinishMovementTrader(endPosition);
+        }
         else if (inArmy)
         {
-            //specifically for military units
-            if (inBattle)
-            {
-                if (world.IsUnitLocationTaken(currentLocation))
-                    FindNewBattleSpot(currentLocation, targetLocation);
-                else
-					world.AddUnitPosition(currentLocation, this);
-
-				AggroCheck();
-            }
-            else if (preparingToMoveOut)
-            {
-				world.AddUnitPosition(currentLocation, this);
-				preparingToMoveOut = false;
-                homeBase.army.UnitReady(this);
-            }
-            else if (isMarching)
-            {
-				world.AddUnitPosition(currentLocation, this);
-				isMarching = false;
-
-				Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
-				homeBase.army.UnitArrived(endTerrain);
-
-				if (currentLocation == barracksBunk)
-                {
-					if (currentHealth < buildDataSO.health)
-                        healthbar.RegenerateHealth();
-
-					atHome = true;
-                    marker.ToggleVisibility(false);
-                    if (isSelected && !world.unitOrders)
-                        world.unitMovement.ShowIndividualCityButtonsUI();
-
-					StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
-                    return;
-				}
-
-                //turning to face enemy
-                Vector3Int diff = endTerrain - homeBase.army.enemyTarget;
-                if (Math.Abs(diff.x) == 3)
-                    diff.z = 0;
-                else if (Math.Abs(diff.z) == 3)
-                    diff.x = 0;
-
-                StartCoroutine(RotateTowardsPosition(endPosition - diff));
-            }
-            else if (transferring)
-            {
-				world.AddUnitPosition(currentLocation, this);
-                if (guard)
-                {
-                    barracksBunk = new Vector3Int(0, 0, 1); //default bunk loc for guard (necessary for loading during battle)
-                    transferring = false;
-                    guardedTrader.waitingOnGuard = false;
-                    isGuarding = true;
-                    originalMoveSpeed = guardedTrader.originalMoveSpeed; //move as fast as trader
-
-					if (!guardedTrader.isMoving && !guardedTrader.followingRoute)
-						waitingCo = StartCoroutine(IdleTimer(false));
-				}
-				else if (endPosition != barracksBunk)
-                {
-                    GoToBunk();
-                }
-                else
-                {
-                    transferring = false;
-                    atHome = true;
-
-					StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
-					if (isSelected && !world.unitOrders)
-						world.unitMovement.ShowIndividualCityButtonsUI();
-
-                    if (homeBase.army.AllAreHomeCheck())
-                        homeBase.army.isTransferring = false;
-				}
-            }
-            else if (guard)
-            {
-				world.AddUnitPosition(currentLocation, this);
-
-                if (!guardedTrader.isMoving && !guardedTrader.followingRoute)
-                    waitingCo = StartCoroutine(IdleTimer(false));
-			}
-            else if (repositioning)
-            {
-                world.AddUnitPosition(currentLocation, this);
-                atHome = true;
-				repositioning = false;
-                StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
-				if (homeBase.army.AllAreHomeCheck())
-					homeBase.army.isRepositioning = false;
-
-                if (isSelected)
-                    world.unitMovement.ShowIndividualCityButtonsUI();
-            }
-            else if (returning)
-            {
-				world.AddUnitPosition(currentLocation, this);
-				returning = false;
-
-				Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
-				homeBase.army.UnitArrived(endTerrain);
-
-				if (currentLocation == barracksBunk)
-				{
-					if (currentHealth < buildDataSO.health)
-						healthbar.RegenerateHealth();
-
-					atHome = true;
-					marker.ToggleVisibility(false);
-					if (isSelected && !world.unitOrders)
-						world.unitMovement.ShowIndividualCityButtonsUI();
-
-					StartCoroutine(RotateTowardsPosition(homeBase.army.GetRandomSpot(barracksBunk)));
-					return;
-				}
-
-				//turning to face enemy
-				Vector3Int diff = endTerrain - homeBase.army.enemyTarget;
-				if (Math.Abs(diff.x) == 3)
-					diff.z = 0;
-				else if (Math.Abs(diff.z) == 3)
-					diff.x = 0;
-
-				StartCoroutine(RotateTowardsPosition(endPosition - diff));
-			}
+            military.FinishMovementMilitary(endPosition);
         }
-        //enemy combat orders
         else if (enemyAI)
         {
-            if (inBattle)
-            {
-				if (world.IsUnitLocationTaken(currentLocation))
-					FindNewBattleSpot(currentLocation, targetLocation);
-                else
-					world.AddUnitPosition(currentLocation, this);
-
-				enemyAI.AggroCheck();
-            }
-            else if (preparingToMoveOut)
-            {
-                world.AddUnitPosition(currentLocation, this);
-                preparingToMoveOut = false;
-                enemyCamp.EnemyReady(this);
-            }
-            else if (repositioning)
-            {
-				world.AddUnitPosition(currentLocation, this);
-				repositioning = false;
-                enemyCamp.EnemyReturn(this);
-
-                if (enemyCamp.movingOut)
-                {
-					enemyCamp.movingOut = false;
-                    enemyCamp.moveToLoc = enemyCamp.loc;
-					GameLoader.Instance.gameData.movingEnemyBases.Remove(enemyCamp.loc);
-					world.mainPlayer.StopRunningAway();
-				}
-			}
-            else if (enemyCamp.movingOut)
-            {
-				world.AddUnitPosition(currentLocation, this);
-				if (enemyCamp.pillage)
-                {
-                    enemyCamp.enemyReady++;
-
-					if (enemyCamp.enemyReady == enemyCamp.campCount - enemyCamp.deathCount)
-                    {
-						enemyCamp.pillageTime = 5;
-						StartCoroutine(enemyCamp.Pillage());
-                    }
-                }
-                else if (enemyCamp.fieldBattleLoc == enemyCamp.cityLoc)
-                {
-                    enemyCamp.UnitArrived();
-                }
-            }
+            military.FinishMovementEnemyMilitary();
         }
-        else if (world.IsUnitLocationTaken(currentLocation) && !followingRoute)
+        else if (world.IsUnitLocationTaken(currentLocation) && !(trader && trader.followingRoute))
 		{
 			Unit unitInTheWay = world.GetUnit(currentLocation);
 
@@ -1354,7 +735,6 @@ public class Unit : MonoBehaviour
 				loc = new Vector3Int(0, -10, 0);
 
 			FindNewSpot(currentLocation, loc);
-			return;
 		}
         else
         {
@@ -1383,29 +763,10 @@ public class Unit : MonoBehaviour
         }
     }
 
-    private void GoToBunk()
-    {
-        finalDestinationLoc = barracksBunk;
-        MoveThroughPath(GridSearch.AStarSearch(world, CurrentLocation, barracksBunk, isTrader, bySea));
-    }
-
- //   public void EnemyAttackSetup()
- //   {
- //       isMoving = false;
-	//	currentLocation = world.RoundToInt(transform.position);
-
- //       if (world.IsUnitLocationTaken(currentLocation))
- //       {
- //           enemyAI.ReadjustAttack();
- //       }
-
-	//	world.AddUnitPosition(currentLocation, this);
-	//}
-
     public void FindNewSpot(Vector3Int current, Vector3Int? next)
     {
         //Vector3Int lastTile = current;        
-        if (isBusy || followingRoute || inArmy || enemyAI)
+        if (isBusy || (trader && trader.followingRoute) || inArmy || enemyAI)
             return;
 
         int i = 0;
@@ -1416,7 +777,7 @@ public class Unit : MonoBehaviour
             if (i > 8)
                 outerRing = true;
 
-            if (isTrader && !world.IsRoadOnTileLocation(tile))
+            if (trader && !world.IsRoadOnTileLocation(tile))
                 continue;
 
             if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile))
@@ -1424,12 +785,6 @@ public class Unit : MonoBehaviour
 
             if (tile == next && tile != null) 
                 continue;
-
-            //if (world.IsUnitLocationTaken(tile))
-            //{
-            //    //lastTile = tile;
-            //    continue;
-            //}
 
             finalDestinationLoc = tile;
 
@@ -1439,72 +794,7 @@ public class Unit : MonoBehaviour
                 MoveThroughPath(new List<Vector3Int> { tile });
             return;
         }
-
-        //if (newSpotTry < 2)
-        //{
-        //    newSpotTry++;
-        //    FindNewSpot(lastTile); //keep going until finding new spot
-        //}
     }
-
-    public void FindNewBattleSpot(Vector3Int current, Vector3Int target)
-    {
-        Army army;
-
-        if (inArmy)
-            army = homeBase.army;
-        else
-            army = enemyCamp.attackingArmy;
-
-        Vector3Int closestTile = current;
-        float dist = 0;
-        int i = 0;
-        UnitType type = buildDataSO.unitType;
-
-        foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAY))
-        {
-            if (type == UnitType.Cavalry)
-            {
-                if (!army.cavalryRange.Contains(tile))
-                    continue;
-            }
-            else
-            {
-                if (!army.movementRange.Contains(tile))
-                    continue;
-            }
-            
-            if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile) || army.attackingSpots.Contains(tile))
-                continue;
-
-            if (i == 0)
-            {
-                i++;
-                closestTile = tile;
-                dist = Math.Abs(current.x - tile.x) + Math.Abs(current.z - tile.z);
-
-                if (dist == 1)
-                    break;
-                continue;
-            }
-
-            float newDist = Math.Abs(current.x - tile.x) + Math.Abs(current.z - tile.z);
-            if (newDist < dist)
-            {
-                closestTile = tile;
-                dist = newDist;
-                if (dist == 1)
-                    break;
-            }
-        }
-
-        if (dist <= 3f)
-        {
-            finalDestinationLoc = closestTile;
-		    MoveThroughPath(new List<Vector3Int> { closestTile });
-        }
-    }
-
 
     public void TeleportToNearestRoad(Vector3Int loc)
     {
@@ -1538,15 +828,6 @@ public class Unit : MonoBehaviour
         currentLocation = loc;
         transform.position = loc;
         world.AddUnitPosition(currentLocation, this);
-
-		//Vector3 direction = finalDestinationLoc - transform.position;
-		//Quaternion endRotation;
-		//if (direction == Vector3.zero)
-		//	endRotation = Quaternion.identity;
-		//else
-		//	endRotation = Quaternion.LookRotation(direction, Vector3.up);
-
-  //      transform.rotation = endRotation;
     }
 
     public void Reveal()
@@ -1555,7 +836,6 @@ public class Unit : MonoBehaviour
             return;
         
         Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
-        //prevTerrainTile = pos;
         TerrainData td = world.GetTerrainDataAt(pos);
         td.HardReveal();
 
@@ -1573,78 +853,75 @@ public class Unit : MonoBehaviour
             else if (world.IsEnemyCityOnTile(loc))
                 world.enemyCityDict[loc].gameObject.SetActive(true);
         }
-
-        //RevealCheck(pos);
     }
 
-    private void RevealCheck(Vector3Int pos)
+    public void RevealCheck(Vector3Int pos, bool military)
     {
         prevTerrainTile = pos;
 
-        //int i = 0;
-        foreach (Vector3Int loc in world.GetNeighborsFor(pos, MapWorld.State.CITYRADIUS))
-        {
-            //i++;
-            
-            TerrainData td = world.GetTerrainDataAt(loc);
-            if (!bySea)
-            {
-                if (td.enemyCamp)
-                {
-                    if (world.enemyCityDict.ContainsKey(loc))
-                    {
-						if (!td.isDiscovered)
-                        {
-                            world.enemyCityDict[loc].RevealEnemyCity();
+        List<Vector3Int> tilesToCheck;
 
-                            foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAYINCREMENT))
-                            {
-                                TerrainData td2 = world.GetTerrainDataAt(tile);
+		if (military)
+            tilesToCheck = world.GetNeighborsFor(pos, MapWorld.State.EIGHTWAYINCREMENT);
+        else
+			tilesToCheck = world.GetNeighborsFor(pos, MapWorld.State.CITYRADIUS);
+
+        for (int i = 0; i < tilesToCheck.Count; i++)
+        {
+			TerrainData td = world.GetTerrainDataAt(tilesToCheck[i]);
+			if (!bySea)
+			{
+				if (td.enemyCamp)
+				{
+					if (world.enemyCityDict.ContainsKey(tilesToCheck[i]))
+					{
+						if (!td.isDiscovered)
+						{
+							world.enemyCityDict[tilesToCheck[i]].RevealEnemyCity();
+
+							foreach (Vector3Int tile in world.GetNeighborsFor(tilesToCheck[i], MapWorld.State.EIGHTWAYINCREMENT))
+							{
+								TerrainData td2 = world.GetTerrainDataAt(tile);
 
 								if (world.IsRoadOnTerrain(tile))
 									world.SetRoadActive(tile);
 
 								if (world.cityImprovementDict.ContainsKey(tile))
-                                {
-                                    CityImprovement improvement = world.cityImprovementDict[tile];
+								{
+									CityImprovement improvement = world.cityImprovementDict[tile];
 									improvement.HideImprovement();
 
-                                    if (!td2.isDiscovered)
-                                        improvement.StartJustWorkAnimation();
+									if (!td2.isDiscovered)
+										improvement.StartJustWorkAnimation();
 								}
-                                
-                                if (!td2.isDiscovered)
-                                    td2.Reveal();
-                            }
-                        }
 
-						if (inArmy && homeBase.army.traveling)
-							world.EnemyBattleStations(loc, homeBase.army.attackZone);
+								if (!td2.isDiscovered)
+									td2.Reveal();
+							}
+						}
 					}
 					else
-                    {
-					    if (!td.isDiscovered)
-                            world.RevealEnemyCamp(loc);
-                    
-                        if (inArmy && homeBase.army.traveling)
-                            world.EnemyBattleStations(loc, homeBase.army.attackZone);
-                    }
-                }
-            }
-            
-            if (td.isDiscovered)
-                continue;
+					{
+						if (!td.isDiscovered)
+							world.RevealEnemyCamp(tilesToCheck[i]);
+					}
+				}
+			}
 
-            if (world.IsRoadOnTerrain(loc))
-                world.SetRoadActive(loc);
+			if (td.isDiscovered)
+				continue;
 
-            if (world.cityImprovementDict.ContainsKey(loc))
-                world.cityImprovementDict[loc].RevealImprovement();
+			if (world.IsRoadOnTerrain(tilesToCheck[i]))
+				world.SetRoadActive(tilesToCheck[i]);
+
+			if (world.cityImprovementDict.ContainsKey(tilesToCheck[i]))
+				world.cityImprovementDict[tilesToCheck[i]].RevealImprovement();
 
 			td.Reveal();
-            world.cameraController.CheckLoc(loc);
-            if (world.IsTradeCenterOnTile(loc))
-                world.GetTradeCenter(loc).Reveal();
+			world.cameraController.CheckLoc(tilesToCheck[i]);
+			if (world.IsTradeCenterOnTile(tilesToCheck[i]))
+				world.GetTradeCenter(tilesToCheck[i]).Reveal();
+
 		}
     }
 
@@ -1653,442 +930,6 @@ public class Unit : MonoBehaviour
         TerrainData td = world.GetTerrainDataAt(lastClearTile);
         td.ToggleTransparentForest(false);
     }
-
-    public void StartAttack(Unit target)
-    {
-        targetSearching = false;
-        Rotate(target.transform.position);
-        attackCo = StartCoroutine(Attack(target));
-	}
-
-	public IEnumerator Attack(Unit target)
-	{
-        targetBunk = target.barracksBunk;
-        attacking = true;
-
-        if (target.targetSearching)
-            target.enemyAI.StartAttack(this);
-
-        int wait = UnityEngine.Random.Range(0, 3);
-		if ( wait != 0)
-            yield return attackPauses[wait];
-        
-		while (target.currentHealth > 0)
-		{
-            transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
-			StartAttackingAnimation();
-			yield return attackPauses[2];
-			target.ReduceHealth(this, attacks[UnityEngine.Random.Range(0, attacks.Length)]);
-			yield return attackPauses[0];
-		}
-
-        attacking = false;
-        attackCo = null;
-        
-        if (ambush)
-        {
-            ambush = false;    
-        }
-        else
-        {
-		    StopMovement();
-		    StopAnimation();
-            AggroCheck();
-        }
-	}
-
-    public void StopAttack()
-    {
-        if (attackCo != null)
-            StopCoroutine(attackCo);
-
-        attackCo = null;
-    }
-
-    private IEnumerator RangedAttack(Unit target)
-    {
-        targetBunk = target.barracksBunk;
-        attacking = true;
-        Rotate(target.transform.position);
-
-        int wait = UnityEngine.Random.Range(0, 3);
-		if (wait != 0)
-            yield return attackPauses[wait];
-
-		while (target.currentHealth > 0)
-        {
-			transform.rotation = Quaternion.LookRotation(target.transform.position - transform.position);
-			StartAttackingAnimation();
-			yield return attackPauses[2];
-			projectile.SetPoints(transform.position, target.transform.position);
-            StartCoroutine(projectile.Shoot(this, target));
-			yield return attackPauses[0];
-		}
-
-        attackCo = null;
-        attacking = false;
-
-        if (ambush)
-        {
-            ambush = false;
-        }
-        else
-        {
-            StopAnimation();
-            AggroCheck();
-        }
-    }
-
-    public void AggroCheck()
-    {
-		UnitType type = buildDataSO.unitType;
-        if (attacking)
-            return;
-
-		if (!homeBase.army.FinishAttack())
-		{
-			if (type == UnitType.Infantry)
-				InfantryAggroCheck();
-			else if (type == UnitType.Ranged)
-				RangedAggroCheck();
-			else if (type == UnitType.Cavalry)
-				CavalryAggroCheck();
-		}
-	}
-
-    public void InfantryAggroCheck()
-    {
-		targetSearching = false;
-
-		List<Vector3Int> attackingZones = new();
-
-		Vector3Int forward = homeBase.army.forward;
-		Vector3Int forwardTile = forward + currentLocation;
-
-		attackingZones.Add(forwardTile);
-		if (forward.z != 0)
-		{
-			attackingZones.Add(new Vector3Int(1, 0, forward.z) + currentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + currentLocation);
-			attackingZones.Add(new Vector3Int(1, 0, 0) + currentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, 0) + currentLocation);
-		}
-		else
-		{
-			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + currentLocation);
-			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + currentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, 1) + currentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, -1) + currentLocation);
-		}
-
-		foreach (Vector3Int zone in attackingZones)
-		{
-			if (!homeBase.army.movementRange.Contains(zone))
-				continue;
-
-			if (world.IsUnitLocationTaken(zone))
-			{
-				Unit enemy = world.GetUnit(zone);
-				if (enemy.enemyAI)
-				{
-					//attacking = true;
-					if (!homeBase.army.attackingSpots.Contains(currentLocation))
-						homeBase.army.attackingSpots.Add(currentLocation);
-
-					if (!attacking)
-                    {
-						StartAttack(enemy);
-                    }
-                    else
-                    {
-						if (enemy.targetSearching)
-						    enemy.enemyAI.StartAttack(this);
-                    }
-				}
-			}
-		}
-
-		if (attacking)
-            return;
-
-		Unit newEnemy = homeBase.army.FindClosestTarget(this);
-		targetLocation = newEnemy.CurrentLocation;
-		List<Vector3Int> path = homeBase.army.PathToEnemy(currentLocation, world.RoundToInt(newEnemy.transform.position));
-
-		if (path.Count > 0)
-		{
-			homeBase.army.attackingSpots.Remove(currentLocation);
-
-			//moving unit behind if stuck
-			Vector3Int positionBehind = homeBase.army.forward * -1 + currentLocation;
-
-			if (world.IsUnitLocationTaken(positionBehind))
-			{
-				Unit unitBehind = world.GetUnit(positionBehind);
-				if (unitBehind.inArmy && unitBehind.targetSearching)
-					unitBehind.AggroCheck();
-			}
-
-			if (path.Count >= 2)
-			{
-				List<Vector3Int> shortPath = new() { path[0] };
-				finalDestinationLoc = shortPath[0];
-				MoveThroughPath(shortPath);
-				homeBase.army.attackingSpots.Add(path[0]);
-			}
-			else if (path.Count == 1)
-				StartAttack(newEnemy);
-		}
-		else
-		{
-            Vector3Int scoochCloser = new Vector3Int(Math.Sign(targetLocation.x - currentLocation.x), 0, Math.Sign(targetLocation.z - currentLocation.z)) + currentLocation;
-            
-            if (homeBase.army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !homeBase.army.attackingSpots.Contains(scoochCloser))
-			{
-				finalDestinationLoc = scoochCloser;
-				//List<Vector3Int> newPath = new() { scoochCloser };
-				MoveThroughPath(new List<Vector3Int> { scoochCloser });
-			}
-
-			targetSearching = true;
-		}
-	}
-
-    public void RangedAggroCheck()
-    {
-        Unit enemy = homeBase.army.FindClosestTarget(this);
-
-        if (enemy != null)
-    		attackCo = StartCoroutine(RangedAttack(enemy));
-	}
-
-    public void RangedAmbushCheck(Unit enemy)
-    {
-        attackCo = StartCoroutine(RangedAttack(enemy));
-    }
-
-	public void CavalryAggroCheck()
-	{
-		targetSearching = false;
-
-		List<Vector3Int> attackingZones = new();
-
-		Vector3Int forward = homeBase.army.forward;
-		Vector3Int forwardTile = forward + currentLocation;
-
-		attackingZones.Add(forwardTile);
-		if (forward.z != 0)
-		{
-			attackingZones.Add(new Vector3Int(1, 0, forward.z) + currentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + currentLocation);
-			attackingZones.Add(new Vector3Int(1, 0, 0) + currentLocation);
-			attackingZones.Add(new Vector3Int(-1, 0, 0) + currentLocation);
-		}
-		else
-		{
-			attackingZones.Add(new Vector3Int(forward.x, 0, 1) + currentLocation);
-			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + currentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, 1) + currentLocation);
-			attackingZones.Add(new Vector3Int(0, 0, -1) + currentLocation);
-		}
-
-		foreach (Vector3Int zone in attackingZones)
-		{
-			if (!homeBase.army.cavalryRange.Contains(zone))
-				continue;
-
-			if (world.IsUnitLocationTaken(zone))
-			{
-				Unit enemy = world.GetUnit(zone);
-				if (enemy.enemyAI)
-				{
-					//attacking = true;
-					if (!homeBase.army.attackingSpots.Contains(currentLocation))
-						homeBase.army.attackingSpots.Add(currentLocation);
-
-					if (!attacking)
-                    {
-                        if (flanking) //check for those sleeping if they can attack
-                        {
-							foreach (Unit unit in homeBase.army.targetCamp.UnitsInCamp)
-							{
-								if (unit.targetSearching)
-									unit.enemyAI.AggroCheck();
-							}
-						}
-
-                        flankedOnce = true; //can't flank if attacking front lines
-                        flanking = false;
-						StartAttack(enemy);
-                    }
-                    else
-                    {
-						if (enemy.targetSearching)
-						    enemy.enemyAI.StartAttack(this);
-                    }
-				}
-			}
-		}
-
-		if (attacking)
-			return;
-
-        Unit newEnemy = null;
-
-        if (!flankedOnce) //only one flank per battle
-        {
-            flankedOnce = true;
-            
-            if ((world.IsUnitLocationTaken(forwardTile) && world.GetUnit(forwardTile).inArmy) || cavalryLine)
-            {
-                cavalryLine = false; //for subsequent battles
-                newEnemy = homeBase.army.FindEdgeRanged(currentLocation);
-            }
-        }
-        else
-        {
-            flanking = false;
-        }
-
-        if (newEnemy == null)
-            newEnemy = homeBase.army.FindClosestTarget(this);
-        else
-            flanking = true;
-
-        targetLocation = newEnemy.CurrentLocation;
-		List<Vector3Int> path = homeBase.army.CavalryPathToEnemy(currentLocation, world.RoundToInt(newEnemy.transform.position));
-
-		if (path.Count > 0)
-		{
-			homeBase.army.attackingSpots.Remove(currentLocation);
-
-			//moving unit behind if stuck
-			Vector3Int positionBehind = homeBase.army.forward * -1 + currentLocation;
-
-			if (world.IsUnitLocationTaken(positionBehind))
-			{
-				Unit unitBehind = world.GetUnit(positionBehind);
-                if (unitBehind.inArmy && unitBehind.targetSearching)
-                    unitBehind.AggroCheck();
-                else if (unitBehind.inArmy && unitBehind.buildDataSO.unitType == UnitType.Cavalry && !unitBehind.flankedOnce)
-                    unitBehind.cavalryLine = true;
-			}
-
-            if (flanking)
-            {
-                if (path.Count > 1)
-                    path.RemoveAt(path.Count - 1); //remove last one
-                finalDestinationLoc = path[path.Count - 1];
-                MoveThroughPath(path);
-            }
-			else if (path.Count >= 2)
-			{
-				List<Vector3Int> shortPath = new() { path[0] };
-				finalDestinationLoc = shortPath[0];
-				MoveThroughPath(shortPath);
-				homeBase.army.attackingSpots.Add(path[0]);
-			}
-			else if (path.Count == 1)
-				StartAttack(newEnemy);
-		}
-		else
-		{
-			Vector3Int scoochCloser = new Vector3Int(Math.Sign(targetLocation.x - currentLocation.x), 0, Math.Sign(targetLocation.z - currentLocation.z)) + currentLocation;
-
-			if (homeBase.army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !homeBase.army.attackingSpots.Contains(scoochCloser))
-			{
-				finalDestinationLoc = scoochCloser;
-				//List<Vector3Int> newPath = new() { scoochCloser };
-				MoveThroughPath(new List<Vector3Int> { scoochCloser });
-			}
-
-			targetSearching = true;
-		}
-	}
-
-	public void StopAttacking()
-    {
-        if (inArmy && attackCo != null)
-            StopCoroutine(attackCo);
-        attackCo = null;
-		attacking = false;
-		inBattle = false;
-        flankedOnce = false;
-        flanking = false;
-        targetSearching = false;
-        isMarching = false;
-        StopMovement();
-		StopAnimation();
-	}
-
-	public void StartReturn()
-	{
-		if (isDead)
-			return;
-
-		//unit.StopAttacking();
-		AttackCheck();
-
-		attackCo = null;
-		inBattle = false;
-		attacking = false;
-		targetSearching = false;
-		flanking = false;
-		flankedOnce = false;
-		returning = true;
-
-		if (isMoving)
-		{
-			StopAnimation();
-			ShiftMovement();
-		}
-
-		finalDestinationLoc = barracksBunk;
-		List<Vector3Int> path = GridSearch.AStarSearch(world, world.RoundToInt(transform.position), barracksBunk, false, bySea);
-
-		MoveThroughPath(path);
-	}
-
-	public void AmbushAggro(Vector3Int endPosition, Vector3Int ambushLoc)
-    {
-        List<Vector3Int> avoidList = new() { ambushLoc };
-        List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, transform.position, endPosition, bySea, avoidList); //enemy works in this case
-		
-        if (path.Count > 1)
-        {
-    		finalDestinationLoc = path[path.Count - 1];
-            MoveThroughPath(path);
-        }
-        else if (path.Count == 1)
-        {
-            StartAttack(world.GetUnit(path[0]));
-		}
-	}
-
-	public IEnumerator DramaticallyDisappear()
-	{
-        int lookAroundCount = 0;
-
-        while (lookAroundCount < 2)
-        {
-            yield return new WaitForSeconds(1);
-            lookAroundCount++;
-
-			//randomly looking around
-			Rotate(world.GetNeighborsFor(currentLocation, MapWorld.State.EIGHTWAY)[UnityEngine.Random.Range(0, 8)]);
-		}
-
-		Vector3 newScale = transform.localScale;
-        newScale.y = 0.01f;
-        Vector3 lightPosition = transform.position;
-        lightPosition.y += 0.01f;
-        if (world.IsRoadOnTileLocation(world.RoundToInt(transform.position)))
-            lightPosition.y += .1f;
-        lightBeam.transform.position = lightPosition;
-		lightBeam.Play();
-        LeanTween.scale(gameObject, Vector3.zero, 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(DestroyUnit);
-	}
-
 
 	//sees if trader is at trade route stop and has finished trade orders
 	protected virtual void TradeRouteCheck(Vector3 endPosition)
@@ -2112,17 +953,6 @@ public class Unit : MonoBehaviour
     {
 
     }
-
-    //if space is occupied with something
-    //public virtual void SkipRoadBuild()
-    //{
-
-    //}
-
-    //public virtual void SkipRoadRemove()
-    //{
-
-    //}
 
     public virtual void TurnOffRipples()
     {
@@ -2191,19 +1021,6 @@ public class Unit : MonoBehaviour
                 }
             }
         }
-        
-        //if (collision.gameObject.CompareTag("City"))
-        //{
-        //    onTop = true;
-        //    Debug.Log("worked");
-        //    mesh.layer = LayerMask.NameToLayer("Agent");
-        //}
-
-        //if (isTrader && !bySea && !world.hideTerrain)
-        //    return;
-
-        //if (collision.transform.position != Vector3Int.zero)
-        //    RevealCheck(world.GetTerrainDataAt(world.RoundToInt(collision.transform.position)).TileCoordinates);
     }
 
     private void OnCollisionStay(Collision collision)
@@ -2212,11 +1029,14 @@ public class Unit : MonoBehaviour
 
         //threshold = 0.001f;
 
-        if (isMarching)
+        if (military)
         {
-            moveSpeed = baseSpeed * flatlandSpeed * .05f;
-            unitAnimator.SetFloat("speed", baseSpeed * 18f);
-            return;
+            if (military.isMarching)
+            {
+                moveSpeed = baseSpeed * flatlandSpeed * .05f;
+                unitAnimator.SetFloat("speed", baseSpeed * 18f);
+                return;
+            }
         }
 
         if (collision.gameObject.CompareTag("Road"))
@@ -2270,24 +1090,7 @@ public class Unit : MonoBehaviour
             moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * .0125f;
             unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
         }
-        //else if (collision.gameObject.CompareTag("Player"))
-        //{
-        //    unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-        //}
     }
-
-    //private void OnCollisionExit(Collision collision)
-    //{
-    //    if (collision.gameObject.CompareTag("Player"))
-    //    {
-    //        unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-    //    }
-    //}
-
-    //public void CheckForSpotAvailability()
-    //{
-
-    //}
 
     private bool CampAggroCheck(Vector3Int loc)
     {
@@ -2302,28 +1105,6 @@ public class Unit : MonoBehaviour
 
         return false;
     }
-
-    public void StartLookingAround()
-    {
-        StartCoroutine(WaitAndScan());
-    }
-
-	private IEnumerator WaitAndScan()
-	{
-        int lookAroundCount = 0;
-        
-        while (lookAroundCount < 5)
-        {
-            yield return new WaitForSeconds(1);
-            lookAroundCount++;
-
-            //randomly looking around
-            Rotate(world.GetNeighborsFor(currentLocation, MapWorld.State.EIGHTWAY)[UnityEngine.Random.Range(0, 8)]);
-        }
-
-        looking = false;
-		enemyCamp.FinishMoveOut();
-	}
 
     public void StopPlayer()
     {
@@ -2381,9 +1162,6 @@ public class Unit : MonoBehaviour
             exclamationPoint.SetActive(true);
             runningAway = true;
             StartCoroutine(RunAway());
-
-            //if (isSelected)
-            //    world.unitMovement.uiCancelMove.ToggleVisibility(false);
         }    
     }
 
@@ -2432,14 +1210,6 @@ public class Unit : MonoBehaviour
 	    isBusy = false;
 		runningAway = false;
         exclamationPoint.SetActive(false);
-
-		//if (isSelected)
-  //      {
-		//	if (isMoving)
-  //  			world.unitMovement.uiCancelMove.ToggleVisibility(true);
-  //          else
-		//		world.unitMovement.uiMoveUnit.ToggleVisibility(true);
-		//} 
 	}
 
 	public void TurnOnRipples()
@@ -2452,91 +1222,6 @@ public class Unit : MonoBehaviour
 		}
 	}
 
-    public void IdleCheck()
-    {
-        if (!isMoving && waitingCo == null)
-			waitingCo = StartCoroutine(IdleTimer(false));
-	}
-
-    private IEnumerator IdleTimer(bool load)
-    {
-        if (!load)
-            idleTime = 10;
-
-        while (idleTime > 0)
-        {
-            yield return attackPauses[0];
-			idleTime--;
-        }
-
-        waitingCo = null;
-        ReturnToClosestCityBarracks();
-    }
-
-    private void ReturnToClosestCityBarracks()
-    {
-		if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == guardedTrader)
-        {
-			waitingCo = StartCoroutine(IdleTimer(false));
-			return;
-        }
-
-		City closestCity = null;
-        int dist = 0;
-        bool firstOne = true;
-
-        foreach (City city in world.cityDict.Values)
-        {
-            if (!city.hasBarracks || city.army.isFull)
-                continue;
-            
-            if (firstOne)
-            {
-                closestCity = city;
-                dist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
-                firstOne = false;
-                continue;
-            }
-
-            int newDist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
-            if (newDist < dist)
-            {
-                closestCity = city;
-                dist = newDist;
-            }
-        }
-
-        if (!guardedTrader.followingRoute && !guardedTrader.isMoving) //just in case
-        {
-		    if (closestCity != null && !closestCity.attacked && closestCity.army.atHome)
-		    {
-                guardedTrader.SetGuardLeftMessage();
-			    Vector3Int newLoc = closestCity.army.GetAvailablePosition(buildDataSO.unitType);
-			    List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, newLoc, false, bySea);
-                world.unitMovement.TransferMilitaryUnit(this, closestCity, newLoc, path);
-		    }
-            else
-            {
-                waitingCo = StartCoroutine(IdleTimer(false));
-            }
-        }
-	}
-
-    public void ToggleIdleTimer(bool v)
-    {
-        if (v)
-        {
-            waitingCo = StartCoroutine(IdleTimer(false));
-        }
-        else
-        {
-            if (waitingCo != null)
-                StopCoroutine(waitingCo);
-
-            waitingCo = null;
-        }
-    }
-
 	public void SoftSelect(Color color)
     {
         highlight.EnableHighlight(color);
@@ -2545,30 +1230,19 @@ public class Unit : MonoBehaviour
     //Methods for selecting and unselecting unit
     public void Highlight(Color color)
     {
-        //selectionCircle.enabled = true;
-        //highlight.ToggleGlow(true, Color.white);
         isSelected = true;
         if (bySea)
             selectionCircle.SetActive(true);
         highlight.EnableHighlight(color);
-        //CenterCamera();
     }
 
     public void Unhighlight()
     {
-        //selectionCircle.enabled = false;
-        //highlight.ToggleGlow(false, Color.white);
         isSelected = false;
         if (bySea)
             selectionCircle.SetActive(false); 
         highlight.DisableHighlight();
     }
-
-    //public void FinishMovement() //Stops all movement, run when performing certain actions
-    //{
-    //    Deselect();
-    //    turnHandler.GoToNextUnit();
-    //}
 
     public void PlayAudioClip(AudioClip clip)
     {
@@ -2579,10 +1253,13 @@ public class Unit : MonoBehaviour
     public void KillUnit(Vector3 rotation)
     {
         isDead = true;
-        attacking = false;
-        targetSearching = false;
-        isMarching = false;
-        inBattle = false;
+        if (military)
+        {
+            military.attacking = false;
+            military.targetSearching = false;
+            military.isMarching = false;
+            military.inBattle = false;
+        }
 
         rotation.x = -90;
         world.PlayDeathSplash(transform.position, rotation);
@@ -2599,7 +1276,7 @@ public class Unit : MonoBehaviour
         transform.position = sixFeetUnder;
         unitRigidbody.useGravity = false;
 
-		if (isTrader)
+		if (trader)
         {
 			if (isSelected)
 				world.unitMovement.ClearSelection();
@@ -2633,7 +1310,7 @@ public class Unit : MonoBehaviour
                 if (isMoving)
                     StopMovement();
                 
-                if (followingRoute)
+                if (trader.followingRoute)
                     trader.CancelRoute();
             }
 		}
@@ -2650,7 +1327,7 @@ public class Unit : MonoBehaviour
 		}
 		else if (enemyAI)
         {
-            StopAttack();
+            military.StopAttack();
             world.RemoveUnitPosition(currentLocation);
             if (isSelected)
 				world.unitMovement.ClearSelection();
@@ -2662,9 +1339,9 @@ public class Unit : MonoBehaviour
 					world.GetTerrainDataAt(ambushLoc).ToggleTransparentForest(false);
 
 				minimapIcon.gameObject.SetActive(false);
-                enemyAmbush.ContinueTradeRoute();
-                world.ClearAmbush(enemyAmbush.loc);
-				world.uiAttackWarning.AttackWarningCheck(enemyAmbush.loc);
+                military.enemyAmbush.ContinueTradeRoute();
+                world.ClearAmbush(military.enemyAmbush.loc);
+				world.uiAttackWarning.AttackWarningCheck(military.enemyAmbush.loc);
 				StartCoroutine(WaitKillUnit());
 
 				if (world.mainPlayer.runningAway)
@@ -2675,52 +1352,52 @@ public class Unit : MonoBehaviour
 			}
             else
             {
-                enemyCamp.deathCount++;
-                enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
-                enemyCamp.ClearCampCheck();
+				military.enemyCamp.deathCount++;
+				military.enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
+				military.enemyCamp.ClearCampCheck();
                 //if (enemyCamp.isCity && enemyCamp.growing)
                 //    enemyCamp.RemoveFromCamp(this);
                 
-                foreach (Unit unit in enemyCamp.UnitsInCamp)
+                foreach (Military unit in military.enemyCamp.UnitsInCamp)
                 {
                     if (unit.targetSearching)
                         unit.enemyAI.AggroCheck();
                 }
 
-			    enemyCamp.DeadList.Add(this);
+				military.enemyCamp.DeadList.Add(military);
             }
 		}
-        else
+        else if (military)
         {
-            StopAttack();
+            military.StopAttack();
             minimapIcon.gameObject.SetActive(false);
-            if (guard)
+            if (military.guard)
             {
 				if (isSelected)
 					world.unitMovement.ClearSelection();
 
-                guardedTrader.guarded = false;
-                guardedTrader.guardUnit = null;
-                guardedTrader = null;
+				military.guardedTrader.guarded = false;
+				military.guardedTrader.guardUnit = null;
+				military.guardedTrader = null;
 				StartCoroutine(WaitKillUnit());
 			}
 			else
             {
-                homeBase.army.UnitsInArmy.Remove(this);
-			    homeBase.army.attackingSpots.Remove(currentLocation);
+				military.homeBase.army.UnitsInArmy.Remove(this);
+				military.homeBase.army.attackingSpots.Remove(currentLocation);
 			    RemoveUnitFromData();
                 
-                foreach (Unit unit in homeBase.army.UnitsInArmy)
+                foreach (Unit unit in military.homeBase.army.UnitsInArmy)
                 {
-                    if (unit.targetSearching)
-                        unit.AggroCheck();
+                    if (unit.military.targetSearching)
+                        unit.military.AggroCheck();
                 }
 	
                 if (isSelected)
 		        {
-			        if (homeBase.army.UnitsInArmy.Count > 0)//armyCount isn't changed until after battle
+			        if (military.homeBase.army.UnitsInArmy.Count > 0)//armyCount isn't changed until after battle
 				    {
-                        Unit nextUnitUp = homeBase.army.GetNextLivingUnit();
+                        Unit nextUnitUp = military.homeBase.army.GetNextLivingUnit();
                         if (nextUnitUp != null)
                         {
     				        world.unitMovement.PrepareMovement(nextUnitUp);
@@ -2738,8 +1415,8 @@ public class Unit : MonoBehaviour
                     }
 		        }
 
-			    homeBase.army.RemoveFromArmy(this, barracksBunk);
-			    homeBase.army.DeadList.Add(this);
+				military.homeBase.army.RemoveFromArmy(this, military.barracksBunk);
+				military.homeBase.army.DeadList.Add(this);
             }
 		}
 
@@ -2792,11 +1469,6 @@ public class Unit : MonoBehaviour
     {
         List<Vector3Int> continuedOrdersPositions = new(pathPositions);
 
-        //foreach (TerrainData td in pathPositions)
-        //{
-        //    continuedOrdersPositions.Add(td.GetTileCoordinates());
-        //}
-
         return continuedOrdersPositions;
     }
 
@@ -2831,7 +1503,6 @@ public class Unit : MonoBehaviour
     public void RemoveUnitFromData()
     {
         ResetMovementOrders();
-        //world.turnHandler.turnHandler.RemoveUnitFromTurnList(this);
         world.RemoveUnitPosition(currentLocation);
     }
 
@@ -2843,7 +1514,6 @@ public class Unit : MonoBehaviour
 
     private void ShowPath(List<Vector3Int> currentPath, bool queued = false)
     {
-        //List<Vector3Int> currentPath = new(pathPositions);
         if (!isSelected)
             return;
 
@@ -2911,11 +1581,6 @@ public class Unit : MonoBehaviour
 
             path.transform.rotation = Quaternion.Euler(90, 0, z); //x is rotating to lie flat on tile
 
-            //squishing the sprite a little for straights
-            //Vector3 scale = path.transform.localScale; 
-            //scale.x += x;
-            //path.transform.localScale = scale;
-
             pathQueue.Enqueue(path);
         }
     }
@@ -2935,7 +1600,7 @@ public class Unit : MonoBehaviour
         }
     }
 
-    private void DequeuePath()
+    public void DequeuePath()
     {
         GameObject path = pathQueue.Dequeue();
         if (isPlayer)
@@ -2947,317 +1612,4 @@ public class Unit : MonoBehaviour
             world.unitMovement.movementSystem.AddToChevronPool(path);
         }
     }
-
-    public UnitData SaveMilitaryUnitData()
-    {
-        UnitData data = new();
-
-        data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
-        data.position = transform.position;
-        data.rotation = transform.rotation;
-        data.destinationLoc = destinationLoc;
-        data.finalDestinationLoc = finalDestinationLoc;
-        data.currentLocation = currentLocation;
-        data.prevTerrainTile = prevTerrainTile;
-        data.moveOrders = pathPositions.ToList();
-        data.isMoving = isMoving;
-        data.ambush = ambush;
-        data.guard = guard;
-        data.idleTime = idleTime;
-        data.isGuarding = isGuarding;
-
-        if (isMoving && readyToMarch)
-            data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
-
-        data.moreToMove = moreToMove;
-        data.somethingToSay = somethingToSay;
-        data.isUpgrading = isUpgrading;
-        data.looking = looking;
-
-        //combat
-        if (inArmy || enemyAI)
-        {
-            if (inArmy)
-            {
-                if (!guard)
-                    data.cityHomeBase = homeBase.cityLoc;
-                data.transferring = transferring;
-            }
-            else
-            {
-                data.campSpot = enemyAI.CampSpot;
-            }
-
-            data.repositioning = repositioning;
-            data.barracksBunk = barracksBunk;
-            data.marchPosition = marchPosition;
-            data.targetBunk = targetBunk;
-            data.currentHealth = currentHealth;
-            data.baseSpeed = baseSpeed;
-            data.isLeader = isLeader;
-            data.readyToMarch = readyToMarch;
-            data.atHome = atHome;
-            data.preparingToMoveOut = preparingToMoveOut;
-            data.isMarching = isMarching;
-            data.returning = returning;
-            data.inBattle = inBattle;
-            data.attacking = attacking;
-            data.aoe = aoe;
-            data.targetSearching = targetSearching;
-            data.flanking = flanking;
-            data.flankedOnce = flankedOnce;
-            data.cavalryLine = cavalryLine;
-            data.isDead = isDead;
-        }
-
-        return data;
-    }
-
-    public void LoadUnitData(UnitData data)
-    {
-        transform.position = data.position;
-        transform.rotation = data.rotation;
-        destinationLoc = data.destinationLoc;
-        finalDestinationLoc = data.finalDestinationLoc;
-        currentLocation = data.currentLocation;
-        prevTerrainTile = data.prevTerrainTile;
-        isMoving = data.isMoving;
-        moreToMove = data.moreToMove;
-        isUpgrading = data.isUpgrading;
-        looking = data.looking;
-        ambush = data.ambush;
-        guard = data.guard;
-        idleTime = data.idleTime;
-        isGuarding = data.isGuarding;
-
-		if (!isMoving)
-			world.AddUnitPosition(CurrentLocation, this);
-
-        if (inArmy || enemyAI)
-        {
-            if (inArmy)
-                transferring = data.transferring;
-            else
-                enemyAI.CampSpot = data.campSpot;
-            
-            repositioning = data.repositioning;
-            barracksBunk = data.barracksBunk;
-            marchPosition = data.marchPosition;
-            targetBunk = data.targetBunk;
-            currentHealth = data.currentHealth;
-
-            if (currentHealth < healthMax)
-            {
-                healthbar.LoadHealthLevel(currentHealth);
-                healthbar.gameObject.SetActive(true);
-
-                if (enemyAI && !data.inBattle)
-                {
-					healthbar.RegenerateHealth();
-                }
-                else if (inArmy)
-                {
-                    if (data.atHome || isGuarding)
-    					healthbar.RegenerateHealth();
-                }
-			}
-
-            baseSpeed = data.baseSpeed; //coroutine
-            isLeader = data.isLeader;
-            readyToMarch = data.readyToMarch;
-            atHome = data.atHome;
-            preparingToMoveOut = data.preparingToMoveOut;
-            isMarching = data.isMarching;
-            returning = data.returning;
-            inBattle = data.inBattle;
-            attacking = data.attacking;
-            aoe = data.aoe;
-            targetSearching = data.targetSearching;
-            flanking = data.flanking;
-            flankedOnce = data.flankedOnce;
-            cavalryLine = data.cavalryLine;
-            isDead = data.isDead;
-
-            if (enemyAI && enemyCamp.campCount == 0) //used for else statement
-            {
-            }
-            else
-            {
-	    		GameLoader.Instance.attackingUnitList.Add(this);
-            }
-		}
-
-		if (isMoving)
-		{
-            Vector3Int endPosition = world.RoundToInt(finalDestinationLoc);
-			
-            if (!readyToMarch)
-            {
-				if (data.moveOrders.Count == 0)
-					data.moveOrders.Add(endPosition);
-
-				pathPositions = new Queue<Vector3Int>(data.moveOrders);
-
-				StartCoroutine(WaitForOthers(endPosition));
-                return;
-            }
-            
-            if (data.moveOrders.Count == 0)
-				data.moveOrders.Add(endPosition);
-
-			MoveThroughPath(data.moveOrders);
-		}
-        else if (looking)
-        {
-            StartLookingAround();
-        }
-
-        if (guard && !guardedTrader.followingRoute)
-            waitingCo = StartCoroutine(IdleTimer(true));
-	}
-
-    public void LoadAttack()
-    {
-        if (attacking)
-        {
-            Unit target = null;
-		    if (ambush)
-            {
-                if (guard)
-                {
-                    EnemyAmbush ambush = world.GetEnemyAmbush(guardedTrader.ambushLoc);
-					for (int i = 0; i < ambush.attackingUnits.Count; i++)
-                    {
-                        if (ambush.attackingUnits[i].barracksBunk == targetBunk)
-                        {
-                            target = ambush.attackingUnits[i];
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < enemyAmbush.attackedUnits.Count; i++)
-                    {
-                        if (enemyAmbush.attackedUnits[i].barracksBunk == targetBunk)
-                        {
-                            target = enemyAmbush.attackedUnits[i];
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (enemyAI)
-		    {
-			    List<Unit> units = enemyCamp.attackingArmy.UnitsInArmy;
-
-			    for (int i = 0; i < units.Count; i++)
-			    {
-				    if (units[i].barracksBunk == targetBunk)
-				    {
-					    target = units[i];
-					    break;
-				    }
-			    }
-		    }
-		    else
-		    {
-			    List<Unit> units = homeBase.army.targetCamp.UnitsInCamp;
-
-			    for (int i = 0; i < units.Count; i++)
-			    {
-				    if (units[i].barracksBunk == targetBunk)
-				    {
-					    target = units[i];
-					    break;
-				    }
-			    }
-		    }
-
-		    if (target == null)
-		    {
-			    attacking = false;
-                if (inArmy)
-                    AggroCheck();
-                else
-                    enemyAI.AggroCheck();
-            
-                return;
-		    }
-
-		    if (inArmy)
-            {
-                if (buildDataSO.unitType == UnitType.Ranged)
-			        attackCo = StartCoroutine(RangedAttack(target));
-		        else
-			        attackCo = StartCoroutine(Attack(target));
-            }
-            else
-            {
-			    if (buildDataSO.unitType == UnitType.Ranged)
-				    attackCo = StartCoroutine(enemyAI.RangedAttack(target));
-			    else
-				    attackCo = StartCoroutine(enemyAI.Attack(target));
-		    }
-        }
-        else if (isDead)
-        {
-			unitMesh.gameObject.SetActive(false);
-			healthbar.gameObject.SetActive(false);
-            marker.gameObject.SetActive(false);
-            Vector3 sixFeetUnder = transform.position;
-            sixFeetUnder.y -= 6;
-            transform.position = sixFeetUnder;
-            unitRigidbody.useGravity = false;
-
-			if (enemyAI)
-			{
-				enemyCamp.deathCount++;
-                if (enemyCamp.attackingArmy != null)
-    				enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
-				enemyCamp.ClearCampCheck();
-				world.RemoveUnitPosition(currentLocation);
-				enemyCamp.DeadList.Add(this);
-			}
-			else
-			{
-				minimapIcon.gameObject.SetActive(false);
-				homeBase.army.UnitsInArmy.Remove(this);
-				homeBase.army.attackingSpots.Remove(currentLocation);
-				RemoveUnitFromData();
-				homeBase.army.RemoveFromArmy(this, barracksBunk);
-				homeBase.army.DeadList.Add(this);
-				world.RemoveUnitPosition(currentLocation);
-			}
-		}
-        else if (inBattle)
-        {
-            if (enemyAI)
-                enemyAI.AggroCheck();
-            else
-                AggroCheck();
-        }
-	}
-
-    private IEnumerator WaitForOthers(Vector3Int endPosition)
-    {
-		while (!readyToMarch)
-		{
-			yield return null;
-		}
-		unitAnimator.SetBool(isMarchingHash, true);
-
-		if (pathPositions.Count > 0)
-		{
-			movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-			if (pathQueue.Count > 0)
-			{
-				DequeuePath();
-			}
-		}
-		else
-		{
-			FinishMoving(endPosition);
-		}
-	}
 }

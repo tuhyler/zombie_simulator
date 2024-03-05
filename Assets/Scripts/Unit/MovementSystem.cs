@@ -52,15 +52,13 @@ public class MovementSystem : MonoBehaviour
                     world.scott.AddToMovementQueue(followerPath);
                     world.azai.AddToMovementQueue(followerPath);
                 }
-                else if (selectedUnit.isTrader)
+                else if (selectedUnit.trader)
                 {
-                    Trader trader = selectedUnit.GetComponent<Trader>();
-
-                    if (trader.guarded)
+                    if (selectedUnit.trader.guarded)
                     {
                         List<Vector3Int> queuedGuardPath = GetGuardPath(world.RoundToInt(selectedUnit.finalDestinationLoc));
-                        trader.guardUnit.finalDestinationLoc = queuedGuardPath[queuedGuardPath.Count - 1];
-                        trader.guardUnit.AddToMovementQueue(queuedGuardPath);
+						selectedUnit.trader.guardUnit.finalDestinationLoc = queuedGuardPath[queuedGuardPath.Count - 1];
+						selectedUnit.trader.guardUnit.AddToMovementQueue(queuedGuardPath);
                     }
                 }
             }

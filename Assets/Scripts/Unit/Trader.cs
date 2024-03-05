@@ -22,16 +22,16 @@ public class Trader : Unit
     private int totalRouteLength;
 
     [HideInInspector]
-    public bool paid, hasRoute, waitingOnRouteCosts, guarded, waitingOnGuard, guardLeft;//, interruptedRoute;
+    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, guardLeft;//, interruptedRoute;
     [HideInInspector]
     public Unit guardUnit;
 
     public int loadUnloadRate = 1;
 
-    private Coroutine LoadUnloadCo;
-    private Coroutine WaitTimeCo;
+    private Coroutine LoadUnloadCo, WaitTimeCo, waitingCo;
+	private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
 
-    [HideInInspector]
+	[HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
 
     //animations
@@ -236,47 +236,205 @@ public class Trader : Unit
                 if (bySea)
                 {
                     harborRot.y += 90;
-                    StartCoroutine(RotateCoroutine(harborRot));
-                    //transform.localEulerAngles = harborRot; 
+                    Rotate(harborRot);
                 }
-                //if (bySea)
-                //    tradeRouteManager.SetCity(world.GetHarborCity(endLoc));
-                //else
-                //    tradeRouteManager.SetCity(world.GetCity(endLoc));
+
                 atStop = true;
                 isWaiting = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
                 WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
                 LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
-
-                //if (tradeRouteManager.GoToNextStopCheck(loadUnloadRate))
-                //{
-                //    BeginNextStepInRoute();
-                //}
-                //Deselect(); //lots of repetition here. 
-                //routeManager.CompleteTradeRouteOrders();
             }
         }
     }
 
-    private IEnumerator RotateCoroutine(Vector3 rot)
+	public void InterruptRoute()
+	{
+		CancelRoute();
+		interruptedRoute = true;
+		if (isSelected)
+			InterruptedRouteMessage();
+		else
+			SetInterruptedAnimation(true);
+	}
+
+    public void StartMoveUpInLine(int num)
     {
-        Quaternion startRotation = transform.rotation;
-        Quaternion endRotation = new Quaternion();
-        endRotation.eulerAngles = rot;
-        float timeElapsed = 0;
-
-        while (timeElapsed < 0.2f)
-        {
-            timeElapsed += Time.deltaTime;
-            float lerpStep = timeElapsed / 0.2f;
-            transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
-
-            yield return null;
-        }
+        waitingCo = StartCoroutine(MoveUpInLine(num));
     }
 
-    public override void BeginNextStepInRoute() //this does not have the finish movement listeners
+	public void GetInLine()
+	{
+		Vector3Int currentLoc = world.RoundToInt(transform.position);
+
+		if (world.UnitAlreadyThere(this, currentLoc))
+			currentLocation = currentLoc;
+		else
+		{
+			ambushLoc = new Vector3Int(0, -10, 0); //no ambushing while in line
+			if (world.IsUnitWaitingForSameStop(currentLoc, finalDestinationLoc))
+			{
+				GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLoc);
+				GetInLine();
+				return;
+			}
+
+			currentLocation = world.AddUnitPosition(currentLoc, this);
+		}
+		isWaiting = true;
+		movingCo = null;
+		StopAnimation();
+
+		Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(finalDestinationLoc)));
+
+		if (world.IsCityOnTile(tradePos))
+			world.GetCity(tradePos).AddToWaitList(this);
+		else if (world.IsWonderOnTile(tradePos))
+			world.GetWonder(tradePos).AddToWaitList(this);
+		else if (world.IsTradeCenterOnTile(tradePos))
+			world.GetTradeCenter(tradePos).AddToWaitList(this);
+
+		if (trader.guarded)
+			trader.guardUnit.military.GuardGetInLine(prevTile, currentLocation);
+	}
+
+	public void GoToBackOfLine(Vector3Int finalLoc, Vector3Int currentLoc)
+	{
+		List<Vector3Int> positionsToCheck = new() { currentLoc };
+		bool success = false;
+		bool prevPath = true;
+		List<Vector3Int> newPath = new();
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = positionsToCheck[0];
+			positionsToCheck.Remove(current);
+			newPath.Add(current);
+
+			if (prevPath) //first check the tile the trader came from
+			{
+				prevPath = false;
+
+				if (!world.IsUnitWaitingForSameStop(prevTile, finalLoc))
+				{
+					Teleport(prevTile);
+					if (trader.guarded)
+						trader.guardUnit.Teleport(world.RoundToInt(military.GuardRouteFinish(prevTile, prevTile)));
+					positionsToCheck.Clear();
+					success = true;
+				}
+				else
+				{
+					positionsToCheck.Add(prevTile);
+				}
+			}
+			else
+			{
+				foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+				{
+					if (!bySea)
+					{
+						if (!world.IsRoadOnTileLocation(neighbor))
+							continue;
+					}
+					else
+					{
+						if (!world.CheckIfSeaPositionIsValid(neighbor))
+							continue;
+					}
+
+					if (world.IsUnitWaitingForSameStop(neighbor, finalLoc)) //going away from final loc
+					{
+						if (GridSearch.ManhattanDistance(finalLoc, current) < GridSearch.ManhattanDistance(finalLoc, neighbor))
+						{
+							positionsToCheck.Add(neighbor);
+							break;
+						}
+					}
+					else
+					{
+						//teleport to back of line
+						Teleport(neighbor);
+						if (trader.guarded)
+							trader.guardUnit.Teleport(world.RoundToInt(military.GuardRouteFinish(neighbor, neighbor)));
+						positionsToCheck.Clear();
+						success = true;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!success)
+		{
+			trader.InterruptRoute();
+		}
+		else
+		{
+			List<Vector3Int> oldPath = new(pathPositions);
+			newPath.Reverse();
+			newPath.AddRange(oldPath);
+			pathPositions = new Queue<Vector3Int>(newPath);
+		}
+	}
+
+	public void ExitLine()
+	{
+		world.RemoveUnitPosition(currentLocation);
+		StartAnimation();
+		Vector3Int nextSpot = pathPositions.Peek();
+		RestartPath(pathPositions.Dequeue());
+
+		if (trader.guarded)
+			trader.guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
+	}
+
+	public IEnumerator MoveUpInLine(int placeInLine)
+	{
+		if (pathPositions.Count == 1)
+			yield break;
+
+		float pause = 0.5f * placeInLine;
+
+		while (pause > 0)
+		{
+			yield return moveInLinePause;// new WaitForSeconds(0.5f * placeInLine);
+			pause -= 0.5f;
+		}
+
+		if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+			yield break;
+
+		Vector3Int nextSpot = pathPositions.Dequeue();
+		world.RemoveUnitPosition(currentLocation);
+		if (world.IsUnitLocationTaken(nextSpot))
+		{
+			Unit unitInTheWay = world.GetUnit(nextSpot);
+			unitInTheWay.FindNewSpot(nextSpot, pathPositions.Peek());
+		}
+		world.AddUnitPosition(nextSpot, this);
+        StartAnimation();
+        RestartPath(nextSpot);
+
+		if (trader.guarded)
+			trader.guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
+	}
+
+	//restarting route after ambush
+	public void ContinueTradeRoute()
+	{
+		if (trader.guarded)
+		{
+			trader.guardUnit.originalMoveSpeed = originalMoveSpeed;
+			trader.guardUnit.military.ContinueGuarding(pathPositions, currentLocation);
+		}
+
+		ambush = false;
+        StartAnimation();
+		RestartPath(pathPositions.Dequeue());
+	}
+
+	public override void BeginNextStepInRoute() //this does not have the finish movement listeners
     {
         tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
         if (LoadUnloadCo != null)
@@ -341,7 +499,7 @@ public class Trader : Unit
                 currentPath.Insert(0, world.RoundToInt(transform.position));
                 currentPath.RemoveAt(currentPath.Count - 1);
 
-                guardUnit.finalDestinationLoc = guardUnit.GuardRouteFinish(nextStop, currentPath[currentPath.Count - 1]);
+                guardUnit.finalDestinationLoc = guardUnit.military.GuardRouteFinish(nextStop, currentPath[currentPath.Count - 1]);
                 guardUnit.MoveThroughPath(currentPath);
             }
         }
@@ -359,7 +517,14 @@ public class Trader : Unit
         return false;
     }
 
-    public override void CancelRoute()
+	public void InterruptedRouteMessage()
+	{
+		interruptedRoute = false;
+		SetInterruptedAnimation(false);
+		InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
+	}
+
+	public override void CancelRoute()
     {
         followingRoute = false;
         waitingOnRouteCosts = false;
@@ -638,6 +803,54 @@ public class Trader : Unit
 		SetInterruptedAnimation(true);
     }
 
+    public void FinishMovementTrader(Vector3 endPosition)
+    {
+		if (bySea)
+		{
+			if (!followingRoute && world.IsCityHarborOnTile(currentLocation))
+			{
+				City city = world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation));
+				city.tradersHere.Add(this);
+				if (world.unitMovement.upgradingUnit)
+					world.unitMovement.ToggleUnitHighlights(true, city);
+			}
+		}
+		else
+		{
+			if (!followingRoute && world.IsCityOnTile(currentLocation))
+			{
+				City city = world.GetCity(world.GetClosestTerrainLoc(currentLocation));
+				city.tradersHere.Add(this);
+				if (world.unitMovement.upgradingUnit)
+					world.unitMovement.ToggleUnitHighlights(true, city);
+			}
+			//if location has been taken away (such as when wonder finishes)
+			if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
+			{
+				if (followingRoute)
+					InterruptRoute();
+				TeleportToNearestRoad(world.RoundToInt(currentLocation));
+				return;
+			}
+		}
+
+		if (followingRoute)
+		{
+			if (world.IsUnitWaitingForSameStop(currentLocation, finalDestinationLoc))
+			{
+				GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLocation);
+				GetInLine();
+				return;
+			}
+		}
+		else if (guarded)
+		{
+			guardUnit.military.IdleCheck();
+		}
+
+		TradeRouteCheck(endPosition);
+	}
+
 	public TraderData SaveTraderData()
 	{
 		TraderData data = new();
@@ -649,7 +862,7 @@ public class Trader : Unit
 		data.rotation = transform.rotation;
 		data.destinationLoc = destinationLoc;
 		data.finalDestinationLoc = finalDestinationLoc;
-		data.currentLocation = CurrentLocation;
+		data.currentLocation = currentLocation;
 		data.prevTile = prevTile;
 		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
@@ -658,7 +871,7 @@ public class Trader : Unit
         data.ambush = ambush;
         data.guarded = guarded;
         if (guarded)
-            data.guardUnit = guardUnit.SaveMilitaryUnitData();
+            data.guardUnit = guardUnit.military.SaveMilitaryUnitData();
         else
             data.guardUnit = null;
         data.waitingOnGuard = waitingOnGuard;
@@ -709,7 +922,7 @@ public class Trader : Unit
         gameObject.name = data.unitName;
 		destinationLoc = data.destinationLoc;
 		finalDestinationLoc = data.finalDestinationLoc;
-		CurrentLocation = data.currentLocation;
+		currentLocation = data.currentLocation;
 		prevTile = data.prevTile;
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
@@ -739,7 +952,7 @@ public class Trader : Unit
 		}
 
 		if (!isMoving)
-			world.AddUnitPosition(CurrentLocation, this);
+			world.AddUnitPosition(currentLocation, this);
 
 		//personal resource info
 		personalResourceManager.ResourceDict = data.resourceDict;
@@ -783,7 +996,7 @@ public class Trader : Unit
 
             if (atStop && !waitingOnRouteCosts)
             {
-				Vector3Int stopLoc = world.GetStopLocation(world.GetTradeLoc(CurrentLocation));
+				Vector3Int stopLoc = world.GetStopLocation(world.GetTradeLoc(currentLocation));
 
 				if (world.IsCityOnTile(stopLoc))
 					tradeRouteManager.SetCity(world.GetCity(stopLoc));

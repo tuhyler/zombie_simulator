@@ -28,9 +28,9 @@ public class EnemyCamp
 	public Vector3Int threatLoc, cityLoc;
 	public List<Vector3Int> pathToTarget = new();
 
-	private List<Unit> unitsInCamp = new(), deadList = new();
-    public List<Unit> UnitsInCamp { get { return unitsInCamp; } set { unitsInCamp = value; } }
-	public List<Unit> DeadList { get { return deadList; } set { deadList = value; } }
+	private List<Military> unitsInCamp = new(), deadList = new();
+    public List<Military> UnitsInCamp { get { return unitsInCamp; } set { unitsInCamp = value; } }
+	public List<Military> DeadList { get { return deadList; } set { deadList = value; } }
     Vector3Int[] frontLines = { new Vector3Int(0, 0, -1), new Vector3Int(-1, 0, -1), new Vector3Int(1, 0, -1) };
 	Vector3Int[] midLines = { new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(1, 0, 0) };
 	Vector3Int[] backLines = { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1) };
@@ -60,7 +60,7 @@ public class EnemyCamp
         int ranged = 0;
         
         //first only position the infantry
-        foreach (Unit unit in unitsInCamp)
+        foreach (Military unit in unitsInCamp)
         {
             if (unit.buildDataSO.unitType == UnitType.Infantry)
             {
@@ -79,7 +79,7 @@ public class EnemyCamp
             }
 		}
 
-        foreach (Unit unit in unitsInCamp)
+        foreach (Military unit in unitsInCamp)
         {
             if (unit.buildDataSO.unitType == UnitType.Cavalry)
             {
@@ -98,7 +98,7 @@ public class EnemyCamp
 			}
         }
 
-		foreach (Unit unit in unitsInCamp)
+		foreach (Military unit in unitsInCamp)
         {
 			if (unit.buildDataSO.unitType == UnitType.Ranged)
 			{
@@ -137,9 +137,7 @@ public class EnemyCamp
 		Dictionary<Vector3Int, string> campDict = new();
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
-		{
 			campDict[unitsInCamp[i].enemyAI.CampSpot] = unitsInCamp[i].buildDataSO.unitNameAndLevel;
-		}
 		
 		return campDict;
 	}
@@ -151,9 +149,7 @@ public class EnemyCamp
 		List<UnitData> campList = new();
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
-		{
 			campList.Add(unitsInCamp[i].SaveMilitaryUnitData());
-		}
 
 		campData.enemyReady = enemyReady;
 		campData.threatLoc = threatLoc;
@@ -184,9 +180,7 @@ public class EnemyCamp
 		List<UnitData> campList = new();
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
-		{
 			campList.Add(unitsInCamp[i].SaveMilitaryUnitData());
-		}
 
 		campData.enemyReady = enemyReady;
 		campData.chaseLoc = moveToLoc;
@@ -248,7 +242,7 @@ public class EnemyCamp
 		else
 			rotation = 0;
 
-		foreach (Unit unit in unitsInCamp)
+		foreach (Military unit in unitsInCamp)
 		{
 			if (unit.isDead)
 				continue;
@@ -299,7 +293,7 @@ public class EnemyCamp
 				}
 			}
 
-			List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, unit.CurrentLocation, travelLoc + unitDiff, unit.bySea);
+			List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, unit.currentLocation, travelLoc + unitDiff, unit.bySea);
 			unit.marchPosition = unitDiff;
 
 			if (path.Count > 0)
@@ -322,10 +316,10 @@ public class EnemyCamp
 	}
 
 	//getting ready to attack
-	public void EnemyReady(Unit unit)
+	public void EnemyReady(Military unit)
 	{
 		unit.repositioning = false;
-		unit.Rotate(unit.CurrentLocation + forward);
+		unit.Rotate(unit.currentLocation + forward);
 		enemyReady++;
 
 		if (enemyReady == campCount - deathCount)
@@ -366,7 +360,7 @@ public class EnemyCamp
 	}
 
 	//getting ready to camp
-	public void EnemyReturn(Unit unit)
+	public void EnemyReturn(Military unit)
 	{
 		enemyReady++;
 
@@ -408,7 +402,7 @@ public class EnemyCamp
 	{
 		inBattle = true;
 
-		foreach (Unit unit in unitsInCamp)
+		foreach (Military unit in unitsInCamp)
 		{
 			unit.isMarching = false;
 			unit.inBattle = true;
@@ -545,7 +539,7 @@ public class EnemyCamp
 
 			world.ToggleCityMaterialClear(isCity ? cityLoc : loc, attackingArmy.city.cityLoc, attackingArmy.enemyTarget, attackingArmy.attackZone, false);
 
-			foreach (Unit unit in unitsInCamp)
+			foreach (Military unit in unitsInCamp)
 				unit.StopAttacking();
 
 			if (attackingArmy != null)
@@ -593,7 +587,7 @@ public class EnemyCamp
 
 	public void TargetSearchCheck()
 	{
-		foreach (Unit unit in UnitsInCamp)
+		foreach (Military unit in unitsInCamp)
 		{
 			if (unit.targetSearching)
 				unit.enemyAI.StartReturn();
@@ -626,7 +620,7 @@ public class EnemyCamp
 	{
 		enemyReady = 0;
 		
-		foreach (Unit unit in unitsInCamp)
+		foreach (Military unit in unitsInCamp)
 		{
 			unit.inBattle = false; //leaving it here just in case
 			unit.preparingToMoveOut = false;
@@ -640,7 +634,7 @@ public class EnemyCamp
 	{
 		yield return retreatTime;
 
-		foreach (Unit unit in unitsInCamp)
+		foreach (Military unit in unitsInCamp)
 		{
 			if (unit.attacking || unit.targetSearching)
 			{
@@ -655,7 +649,7 @@ public class EnemyCamp
 		if (campfire != null)
 			campfire.SetActive(true);
 		
-		foreach (Unit unit in deadList)
+		foreach (Military unit in deadList)
 		{
 			Vector3 rebornSpot;
 			if (world.GetTerrainDataAt(unit.enemyAI.CampSpot).isHill)
@@ -667,7 +661,7 @@ public class EnemyCamp
 			unit.transform.position = rebornSpot;
 			unit.moreToMove = false;
 			unit.isMoving = false;
-			unit.CurrentLocation = unit.enemyAI.CampSpot;
+			unit.currentLocation = unit.enemyAI.CampSpot;
 			unit.isDead = false;
 			unit.currentHealth = unit.buildDataSO.health;
 			unit.healthbar.gameObject.SetActive(false);
@@ -747,7 +741,7 @@ public class EnemyCamp
 		if (world.IsCityOnTile(moveToLoc) && pathToTarget.Count < 3)
 			world.CityBattleStations(moveToLoc, threatLoc, this);
 
-		foreach (Unit unit in unitsInCamp)
+		foreach (Military unit in unitsInCamp)
 		{
 			if (unit.isDead)
 				continue;
@@ -782,7 +776,7 @@ public class EnemyCamp
 
 	private void RemoveOutCamp()
 	{
-		foreach (Unit unit in unitsInCamp)
+		foreach (Military unit in unitsInCamp)
 		{
 			unit.isMarching = true;
 			unit.preparingToMoveOut = false;
@@ -831,9 +825,7 @@ public class EnemyCamp
 				if (!isCity)
 				{
 					for (int i = 0; i < unitsInCamp.Count; i++)
-					{
 						unitsInCamp[i].minimapIcon.gameObject.SetActive(false);
-					}
 				}
 
 				ReturnToCamp();
@@ -984,7 +976,6 @@ public class EnemyCamp
 			if (close && !attackingArmy.defending)
 				world.CityBattleStations(moveToLoc, threatLoc, this);
 
-
 			world.CheckMainPlayerLoc(lastSpot, pathToTarget);
 
 			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == this)
@@ -1009,7 +1000,7 @@ public class EnemyCamp
 			}
 			else
 			{
-				foreach (Unit unit in unitsInCamp)
+				foreach (Military unit in unitsInCamp)
 					unit.readyToMarch = true;
 			}
 		}
@@ -1134,34 +1125,34 @@ public class EnemyCamp
 		return openSpot;
 	}
 
-	public void RemoveFromCamp(Unit unit)
-	{
-		if (!growing)
-			return;
+	//public void RemoveFromCamp(Unit unit)
+	//{
+	//	if (!growing)
+	//		return;
 		
-		unitsInCamp.Remove(unit);
-		campCount--;
-		UnitType type = unit.buildDataSO.unitType;
+	//	unitsInCamp.Remove(unit);
+	//	campCount--;
+	//	UnitType type = unit.buildDataSO.unitType;
 
-		if (type == UnitType.Infantry)
-			infantryCount--;
-		else if (type == UnitType.Ranged)
-			rangedCount--;
-		else if (type == UnitType.Cavalry)
-			cavalryCount--;
+	//	if (type == UnitType.Infantry)
+	//		infantryCount--;
+	//	else if (type == UnitType.Ranged)
+	//		rangedCount--;
+	//	else if (type == UnitType.Cavalry)
+	//		cavalryCount--;
 
-		strength -= unit.buildDataSO.baseAttackStrength;
-		health -= unit.buildDataSO.health;
+	//	strength -= unit.buildDataSO.baseAttackStrength;
+	//	health -= unit.buildDataSO.health;
 
-		int index = totalSpots.IndexOf(unit.barracksBunk);
-		int newIndex = 0;
+	//	int index = totalSpots.IndexOf(unit.military.barracksBunk);
+	//	int newIndex = 0;
 
-		for (int i = 0; i < index; i++)
-		{
-			if (openSpots.Contains(totalSpots[i]))
-				newIndex++;
-		}
+	//	for (int i = 0; i < index; i++)
+	//	{
+	//		if (openSpots.Contains(totalSpots[i]))
+	//			newIndex++;
+	//	}
 
-		openSpots.Insert(newIndex, unit.barracksBunk);
-	}
+	//	openSpots.Insert(newIndex, unit.military.barracksBunk);
+	//}
 }

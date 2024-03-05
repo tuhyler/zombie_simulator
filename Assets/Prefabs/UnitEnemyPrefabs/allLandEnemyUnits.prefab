@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -1569295495130398200}
   - component: {fileID: -4726697187126261968}
   - component: {fileID: 8497576317380012912}
-  - component: {fileID: -5324076436044738225}
+  - component: {fileID: 3791297815979746943}
   - component: {fileID: 548835204452299567}
   - component: {fileID: 612185225615181041}
   m_Layer: 9
@@ -107,7 +107,7 @@ MonoBehaviour:
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
   glowMaterial2: {fileID: 0}
   isGlowing: 0
---- !u!114 &-5324076436044738225
+--- !u!114 &3791297815979746943
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,11 +116,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4084126454760206941}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da11ff3b20aa482448c3718d71bba364, type: 3}
+  m_Script: {fileID: 11500000, guid: abde5210fc435034db9f344b435c435d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  buildDataSO: {fileID: 11400000, guid: 0d32c583138945040a6d073bc261397b, type: 2}
+  buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 8069968344949317187}
   lightBeam: {fileID: 8861846232932686719}
@@ -142,6 +142,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   trader: {fileID: 0}
+  worker: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -155,6 +156,7 @@ MonoBehaviour:
   secondaryPrefab: 0
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  currentLocation: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   ambushLoc: {x: 0, y: 0, z: 0}
@@ -182,9 +184,18 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
-  isLeader: 0
-  readyToMarch: 0
+  military: {fileID: 0}
+  targetLocation: {x: 0, y: 0, z: 0}
+  targetBunk: {x: 0, y: 0, z: 0}
   inArmy: 0
+  isDead: 0
+  runningAway: 0
+  ambush: 0
+  hidden: 0
+  isUpgrading: 0
+  guardedTrader: {fileID: 0}
+  unitAnimator: {fileID: 0}
+  readyToMarch: 1
   atHome: 0
   preparingToMoveOut: 0
   isMarching: 0
@@ -196,20 +207,11 @@ MonoBehaviour:
   flanking: 0
   flankedOnce: 0
   cavalryLine: 0
-  isDead: 0
-  isUpgrading: 0
-  runningAway: 0
-  hidden: 0
   looking: 0
-  ambush: 0
   aoe: 0
   guard: 0
   isGuarding: 0
   returning: 0
-  targetLocation: {x: 0, y: 0, z: 0}
-  targetBunk: {x: 0, y: 0, z: 0}
-  guardedTrader: {fileID: 0}
-  unitAnimator: {fileID: 0}
 --- !u!114 &548835204452299567
 MonoBehaviour:
   m_ObjectHideFlags: 0

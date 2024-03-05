@@ -552,7 +552,7 @@ public class GameLoader : MonoBehaviour
 		//attack info
 		for (int i = 0; i < attackingUnitList.Count; i++)
 		{
-			attackingUnitList[i].LoadAttack();
+			attackingUnitList[i].military.LoadAttack();
 		}
 		attackingUnitList.Clear();
 
