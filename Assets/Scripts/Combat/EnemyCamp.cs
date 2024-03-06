@@ -417,21 +417,21 @@ public class EnemyCamp
 		}
 	}
 
-	public Unit FindClosestTarget(Unit unit)
+	public Military FindClosestTarget(Military unit)
 	{
-		Unit closestEnemy = null;
+		Military closestEnemy = null;
 		float dist = 0;
 
 		if (attackingArmy == null)
 			return null;
 
-		List<Unit> tempList = new(attackingArmy.UnitsInArmy);
+		List<Military> tempList = new(attackingArmy.UnitsInArmy);
 		bool firstOne = true;
 
 		//find closest target
 		for (int i = 0; i < tempList.Count; i++)
 		{
-			Unit enemy = tempList[i];
+			Military enemy = tempList[i];
 
 			if (enemy.isDead)
 				continue;
@@ -457,7 +457,7 @@ public class EnemyCamp
 	}
 
 	//return closest target if no ranged
-	public Unit FindEdgeRanged(Vector3Int currentLoc)
+	public Military FindEdgeRanged(Vector3Int currentLoc)
 	{
 		Vector3Int battleDiff = (attackingArmy.attackZone - attackingArmy.enemyTarget) / 3;
 		List<Vector3Int> tilesToCheck = new();
@@ -503,7 +503,7 @@ public class EnemyCamp
 				Unit potential = world.GetUnit(tile);
 
 				if (potential.buildDataSO.unitType == UnitType.Ranged)
-					return potential;
+					return potential.military;
 
 				if (i % 2 == 0)
 					skipMiddle = true;

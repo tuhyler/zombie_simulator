@@ -89,6 +89,18 @@ public class Laborer : Unit
         unitAnimator.SetBool(isJumpingHash, false);
     }
 
+    public void KillLaborer()
+    {
+		if (isSelected)
+			world.unitMovement.ClearSelection();
+
+		if (isMoving)
+			StopMovement();
+
+		world.laborerList.Remove(this);
+		StartCoroutine(WaitKillUnit());
+	}
+
 	public LaborerData SaveLaborerData()
 	{
 		LaborerData data = new();

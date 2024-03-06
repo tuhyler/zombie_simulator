@@ -1883,7 +1883,7 @@ public class CityBuilderManager : MonoBehaviour
 
 				    if (upgradedUnit.inArmy)
                     {
-					    upgradedUnit.military.homeBase.army.RemoveFromArmy(upgradedUnit, upgradedUnit.military.barracksBunk);
+					    upgradedUnit.military.homeBase.army.RemoveFromArmy(upgradedUnit.military, upgradedUnit.military.barracksBunk);
 				        city.army.AddToOpenSpots(buildPosition);
                     }
 
@@ -1975,7 +1975,7 @@ public class CityBuilderManager : MonoBehaviour
 		if (newUnit.inArmy)
         {
 		    newUnit.military.atHome = true;
-		    city.army.AddToArmy(newUnit);
+		    city.army.AddToArmy(newUnit.military);
             if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(false);
 		    newUnit.military.homeBase = city;

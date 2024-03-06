@@ -803,8 +803,38 @@ public class Trader : Unit
 		SetInterruptedAnimation(true);
     }
 
-    public void FinishMovementTrader(Vector3 endPosition)
+	public void TeleportToNearestRoad(Vector3Int loc)
+	{
+		foreach (Vector3Int neighbor in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAY))
+		{
+			if (world.IsRoadOnTileLocation(neighbor))
+				return;
+		}
+
+		Vector3Int newSpot = loc;
+		Vector3Int terrainLoc = world.GetClosestTerrainLoc(loc);
+
+		foreach (Vector3Int neighbor in world.GetNeighborsFor(terrainLoc, MapWorld.State.EIGHTWAYINCREMENT))
+		{
+			if (world.CheckIfPositionIsValid(neighbor))
+			{
+				newSpot = neighbor;
+				if (world.IsRoadOnTerrain(neighbor))
+				{
+					Teleport(neighbor);
+					return;
+				}
+			}
+		}
+
+		Teleport(newSpot);
+	}
+
+	public void FinishMovementTrader(Vector3 endPosition)
     {
+		if (isSelected)
+			world.unitMovement.ShowIndividualCityButtonsUI();
+
 		if (bySea)
 		{
 			if (!followingRoute && world.IsCityHarborOnTile(currentLocation))
@@ -829,7 +859,8 @@ public class Trader : Unit
 			{
 				if (followingRoute)
 					InterruptRoute();
-				TeleportToNearestRoad(world.RoundToInt(currentLocation));
+                TeleportToNearestRoad(world.RoundToInt(currentLocation));
+				prevTile = currentLocation;
 				return;
 			}
 		}
@@ -840,6 +871,7 @@ public class Trader : Unit
 			{
 				GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLocation);
 				GetInLine();
+				prevTile = currentLocation;
 				return;
 			}
 		}
@@ -849,6 +881,51 @@ public class Trader : Unit
 		}
 
 		TradeRouteCheck(endPosition);
+		prevTile = currentLocation;
+
+		if (!followingRoute && world.IsUnitLocationTaken(currentLocation))
+			UnitInWayCheck(endPosition);
+        else
+			world.AddUnitPosition(currentLocation, this);
+	}
+
+    public void KillTrader()
+    {
+		if (isSelected)
+			world.unitMovement.ClearSelection();
+
+		world.traderList.Remove(this);
+		StartCoroutine(WaitKillUnit());
+
+		if (ambush)
+		{
+			//assuming trader is last to be killed in ambush
+			Vector3Int ambushLoc = world.GetClosestTerrainLoc(transform.position);
+			if (world.GetTerrainDataAt(ambushLoc).treeHandler != null)
+				world.GetTerrainDataAt(ambushLoc).ToggleTransparentForest(false);
+
+			world.ClearAmbush(ambushLoc);
+			world.uiAttackWarning.AttackWarningCheck(ambushLoc);
+
+			if (world.tutorial && world.ambushes == 1)
+			{
+				world.mainPlayer.SetSomethingToSay("first_ambush", world.azai);
+			}
+
+			if (world.mainPlayer.runningAway)
+			{
+				world.mainPlayer.StopRunningAway();
+				world.mainPlayer.stepAside = false;
+			}
+		}
+		else
+		{
+			if (isMoving)
+				StopMovement();
+
+			if (followingRoute)
+				CancelRoute();
+		}
 	}
 
 	public TraderData SaveTraderData()

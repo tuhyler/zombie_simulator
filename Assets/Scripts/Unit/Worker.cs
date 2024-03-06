@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,6 @@ public class Worker : Unit
     public AudioClip[] gatheringClips;
     [HideInInspector]
 	public int timePassed;
-    public List<string> conversationTopics = new();
 
 	//for building roads (costs)
 	public UtilityCostSO currentUtilityCost;
@@ -185,7 +185,7 @@ public class Worker : Unit
         {
             yield return workingWait;
         
-            audioSource.clip = attacks[Random.Range(0, attacks.Length)];
+            audioSource.clip = attacks[UnityEngine.Random.Range(0, attacks.Length)];
             audioSource.Play();
 
             yield return workingWait;
@@ -198,7 +198,7 @@ public class Worker : Unit
         {
             yield return new WaitForSeconds(0.45f);
 
-            audioSource.clip = gatheringClips[Random.Range(0, attacks.Length)];
+            audioSource.clip = gatheringClips[UnityEngine.Random.Range(0, attacks.Length)];
             audioSource.Play();
 
             yield return new WaitForSeconds(0.45f);
@@ -1123,100 +1123,18 @@ public class Worker : Unit
 
 	public void SetSomethingToSay(string conversationTopic, Worker alternateSpeaker = null)
 	{
-        if (!conversationTopics.Contains(conversationTopic))
-            conversationTopics.Add(conversationTopic);
-
-        if (!somethingToSay && !sayingSomething)
-            StartCoroutine(SetSomethingToSayCoroutine(alternateSpeaker));
-	}
-
-	//wait till everything's done before setting up something to say
-	private IEnumerator SetSomethingToSayCoroutine(Worker alternateSpeaker)
-	{
-		yield return new WaitForEndOfFrame();
-
-		somethingToSay = true;
-
-        if (alternateSpeaker != null)
-            alternateSpeaker.questionMark.SetActive(true);
-        else
-    		questionMark.SetActive(true);
-
-		if (isSelected)
-		{            
-            world.unitMovement.QuickSelect(this);
-			SpeakingCheck();
-		}
-	}
-
-	public void SpeakingCheck()
-	{
-        string newConversation = conversationTopics[0];
-        conversationTopics.Remove(newConversation);
-        if (conversationTopics.Count == 0)
-            somethingToSay = false;
-		sayingSomething = true;
-		world.cameraController.followTransform = transform;
-		//world.cameraController.CenterCameraNoFollow(transform.position);
-		world.cameraController.someoneSpeaking = true;
-        if (isPlayer)
-        {
-            for (int i = 0; i < world.characterUnits.Count; i++)
-        		world.characterUnits[i].questionMark.SetActive(false);
-        }
-        else
-        {
-			questionMark.SetActive(false);
-		}
-
-		world.playerInput.paused = true;
-		world.uiSpeechWindow.SetConversation(newConversation);
-		world.uiSpeechWindow.ToggleVisibility(true);
+		conversationHaver.SetSomethingToSay(conversationTopic, alternateSpeaker);
 	}
 
 	public void SetSpeechBubble()
 	{
-		world.speechBubble.SetActive(true);
-        world.speechBubble.transform.SetParent(transform, false);
-
-  //      Vector3 loc = transform.position;
-		//loc.y += 1.3f;
-		//world.speechBubble.transform.position = loc;
+		conversationHaver.SetSpeechBubble();
 	}
 
 	public void SaidSomething()
 	{
-		sayingSomething = false;
-        if (conversationTopics.Count > 0)
-        {
-            if (isPlayer && isSelected)
-                StartCoroutine(WaitASecToSpeakAgain());
-            else
-				StartCoroutine(SetSomethingToSayCoroutine(null));
-		}
+		conversationHaver.SaidSomething();
 	}
-
-    private IEnumerator WaitASecToSpeakAgain()
-    {
-		world.playerInput.paused = true;
-		yield return new WaitForSeconds(1);
-
-        SpeakingCheck();
-	}
-
-    public void RemoveConversationTopic(string conversationTopic)
-    {
-        if (conversationTopics.Contains(conversationTopic))
-        {
-            conversationTopics.Remove(conversationTopic);
-
-            if (conversationTopics.Count == 0)
-            {
-                somethingToSay = false;
-                questionMark.SetActive(false);
-            }
-        }
-    }
 
 	public void GoToPosition(Vector3Int position, bool scott)
 	{
@@ -1298,6 +1216,183 @@ public class Worker : Unit
 		}
 	}
 
+	public void StopPlayer()
+	{
+		if (isMoving)
+		{
+			StopAnimation();
+			ShiftMovement();
+			ResetMovementOrders();
+		}
+
+		if (world.scott.isMoving)
+		{
+			world.scott.StopAnimation();
+			world.scott.ShiftMovement();
+			world.scott.ResetMovementOrders();
+		}
+
+		if (world.azai.isMoving)
+		{
+			world.azai.StopAnimation();
+			world.azai.ShiftMovement();
+			world.azai.ResetMovementOrders();
+		}
+	}
+
+	public void StartRunningAway()
+	{
+		if (!runningAway)
+		{
+			exclamationPoint.SetActive(true);
+			runningAway = true;
+			StartCoroutine(RunAway());
+		}
+	}
+
+	private IEnumerator RunAway()
+	{
+		//have to do the two following just in case
+		pathPositions.Clear();
+		isMoving = false;
+		yield return new WaitForSeconds(1);
+
+		//finding closest city
+		Vector3Int safeTarget = world.startingLoc;
+
+		bool firstOne = true;
+		int dist = 0;
+		foreach (City city in world.cityDict.Values)
+		{
+			if (firstOne)
+			{
+				firstOne = false;
+				dist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
+				safeTarget = city.cityLoc;
+				continue;
+			}
+
+			int newDist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
+			if (newDist < dist)
+			{
+				safeTarget = city.cityLoc;
+				dist = newDist;
+			}
+		}
+
+		finalDestinationLoc = safeTarget;
+		if (world.scottFollow)
+			firstStep = true;
+		List<Vector3Int> runAwayPath = GridSearch.AStarSearch(world, currentLocation, safeTarget, isTrader, bySea);
+
+		//in case already home
+		if (runAwayPath.Count > 0)
+			MoveThroughPath(runAwayPath);
+	}
+
+	public void StopRunningAway()
+	{
+		isBusy = false;
+		runningAway = false;
+		exclamationPoint.SetActive(false);
+	}
+
+	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route)
+	{
+		Vector3Int safeTarget = playerLoc;
+
+		foreach (Vector3Int tile in world.GetNeighborsFor(playerLoc, MapWorld.State.EIGHTWAYINCREMENT))
+		{
+			if (route != null && route.Contains(tile))
+				continue;
+
+			if (world.CheckIfPositionIsValid(tile))
+			{
+				safeTarget = tile;
+				break;
+			}
+		}
+
+		finalDestinationLoc = safeTarget;
+		firstStep = true;
+		List<Vector3Int> runAwayPath = GridSearch.AStarSearch(world, currentLocation, safeTarget, isTrader, bySea);
+
+		//in case already there
+		if (runAwayPath.Count > 0)
+			MoveThroughPath(runAwayPath);
+	}
+
+	public void NextToCheck()
+	{
+		Vector3Int targetArea = pathPositions.Dequeue();
+		Vector3Int diff = world.RoundToInt(world.mainPlayer.transform.position) - targetArea;
+		List<Vector3Int> potentialAreas = new();
+
+		if (diff.x != 0 && diff.z != 0)
+		{
+			potentialAreas.Add(targetArea + new Vector3Int(diff.x, 0, 0));
+			potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.z));
+		}
+		else if (diff.x != 0)
+		{
+			potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.x));
+			potentialAreas.Add(targetArea + new Vector3Int(0, 0, -diff.x));
+		}
+		else if (diff.z != 0)
+		{
+			potentialAreas.Add(targetArea + new Vector3Int(diff.z, 0, 0));
+			potentialAreas.Add(targetArea + new Vector3Int(-diff.z, 0, 0));
+		}
+
+		potentialAreas.Add(prevTile);
+		Vector3Int closestLoc = prevTile;
+
+		bool firstOne = true;
+		int dist = 0;
+		for (int i = 0; i < potentialAreas.Count; i++)
+		{
+			if (!world.CheckIfPositionIsValid(potentialAreas[i]))
+				continue;
+
+			if (firstOne)
+			{
+				firstOne = false;
+				dist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
+				closestLoc = potentialAreas[i];
+				continue;
+			}
+
+			int newDist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
+			if (newDist < dist)
+				closestLoc = potentialAreas[i];
+
+			break;
+		}
+
+		finalDestinationLoc = closestLoc;
+		pathPositions.Enqueue(closestLoc);
+	}
+
+	public void FinishMovementPlayer(Vector3 endPosition)
+	{
+		if (world.tutorialGoing)
+			world.TutorialCheck("Finished Movement");
+
+		if (isSelected)
+		{
+			world.unitMovement.ShowIndividualCityButtonsUI();
+			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+
+			if (world.IsTradeLocOnTile(terrainLoc) && !world.IsWonderOnTile(terrainLoc))
+				world.unitMovement.uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
+		}
+
+		if (world.IsUnitLocationTaken(currentLocation))
+			UnitInWayCheck(endPosition);
+		else
+			world.AddUnitPosition(currentLocation, this);
+	}
+
 	public WorkerData SaveWorkerData()
     {
         WorkerData data = new();
@@ -1316,7 +1411,7 @@ public class Worker : Unit
 		data.isMoving = isMoving;
 		data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
-        data.conversationTopics = new(conversationTopics);
+        data.conversationTopics = new(conversationHaver.conversationTopics);
         data.isBusy = isBusy;
         data.removing = removing;
         data.building = building;
@@ -1369,6 +1464,7 @@ public class Worker : Unit
         orderList = data.orderList;
         runningAway = data.runningAway;
         stepAside = data.stepAside;
+		somethingToSay = data.somethingToSay;
         if (runningAway)
             exclamationPoint.SetActive(true);
 
@@ -1385,11 +1481,11 @@ public class Worker : Unit
 		if (!isMoving)
             world.AddUnitPosition(currentLocation, this);
 
-        if (data.somethingToSay)
+        if (somethingToSay)
         {
-            conversationTopics = new(data.conversationTopics);
+			conversationHaver.conversationTopics = new(data.conversationTopics);
             data.conversationTopics.Clear();
-            SetSomethingToSay(conversationTopics[0]);
+            conversationHaver.SetSomethingToSay(conversationHaver.conversationTopics[0]);
         }
 
 		if (isMoving)

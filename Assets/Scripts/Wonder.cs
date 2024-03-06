@@ -706,7 +706,7 @@ public class Wonder : MonoBehaviour
                 world.RemoveUnitPosition(unloadLoc);
                 if (unit.trader.followingRoute)
                     unit.trader.InterruptRoute();
-                unit.TeleportToNearestRoad(unloadLoc);
+                unit.trader.TeleportToNearestRoad(unloadLoc);
             }
             else
                 unit.FindNewSpot(unloadLoc, null);
@@ -722,7 +722,7 @@ public class Wonder : MonoBehaviour
                     world.RemoveUnitPosition(neighbor);
                     if (unit.trader.followingRoute)
                         unit.trader.InterruptRoute();
-                    unit.TeleportToNearestRoad(neighbor);
+                    unit.trader.TeleportToNearestRoad(neighbor);
                 }
             }
         }

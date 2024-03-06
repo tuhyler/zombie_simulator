@@ -563,7 +563,7 @@ public class CityImprovement : MonoBehaviour
     {
 		if (isUpgrading)
 		{
-			foreach (Unit unit in city.army.UnitsInArmy)
+			foreach (Military unit in city.army.UnitsInArmy)
 			{
 				if (unit.isUpgrading)
 				{

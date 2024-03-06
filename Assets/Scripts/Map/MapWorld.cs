@@ -696,6 +696,7 @@ public class MapWorld : MonoBehaviour
 			else
 				center.isDiscovered = true;
 
+            center.SetTradeCenterRep();
 			LoadTradeCenterBorders(center.mainLoc);
 		}
 
@@ -1101,6 +1102,7 @@ public class MapWorld : MonoBehaviour
 			else
 				center.isDiscovered = true;
 
+            center.SetTradeCenterRep();
             LoadTradeCenterBorders(centerData.mainLoc);
 			GameLoader.Instance.centerWaitingDict[center] = (centerData.waitList, centerData.seaWaitList);
 		}
@@ -2245,7 +2247,7 @@ public class MapWorld : MonoBehaviour
 		if (newUnit.inArmy)
         {
             newUnit.military.homeBase = city;
-			city.army.AddToArmy(newUnit);
+			city.army.AddToArmy(newUnit.military);
             if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(true);
             city.army.AddToOpenSpots(data.barracksBunk);
@@ -4972,7 +4974,7 @@ public class MapWorld : MonoBehaviour
 					unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
 			}
 
-			foreach (Unit unit in cityDict[armyLoc].army.UnitsInArmy)
+			foreach (Military unit in cityDict[armyLoc].army.UnitsInArmy)
 				unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
 		}
 		else
@@ -4993,7 +4995,7 @@ public class MapWorld : MonoBehaviour
 				    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Enemy");
 		    }
 
-            foreach (Unit unit in cityDict[armyLoc].army.UnitsInArmy)
+            foreach (Military unit in cityDict[armyLoc].army.UnitsInArmy)
 			    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Agent");
         }
 

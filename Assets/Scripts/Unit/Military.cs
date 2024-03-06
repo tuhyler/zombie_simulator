@@ -746,6 +746,12 @@ public class Military : Unit
 		}
 	}
 
+	public void PillageSound()
+	{
+		audioSource.clip = attacks[UnityEngine.Random.Range(0, attacks.Length)];
+		audioSource.Play();
+	}
+
 	public void FinishMovementMilitary(Vector3 endPosition)
 	{
 		if (inBattle)
@@ -928,6 +934,100 @@ public class Military : Unit
 		}
 	}
 
+	public void KillMilitaryUnit()
+	{
+		StopAttack();
+		minimapIcon.gameObject.SetActive(false);
+		if (guard)
+		{
+			if (isSelected)
+				world.unitMovement.ClearSelection();
+
+			guardedTrader.guarded = false;
+			guardedTrader.guardUnit = null;
+			guardedTrader = null;
+			StartCoroutine(WaitKillUnit());
+		}
+		else
+		{
+			homeBase.army.UnitsInArmy.Remove(this);
+			homeBase.army.attackingSpots.Remove(currentLocation);
+			RemoveUnitFromData();
+
+			foreach (Military unit in homeBase.army.UnitsInArmy)
+			{
+				if (unit.targetSearching)
+					unit.AggroCheck();
+			}
+
+			if (isSelected)
+			{
+				if (homeBase.army.UnitsInArmy.Count > 0)//armyCount isn't changed until after battle
+				{
+					Military nextUnitUp = homeBase.army.GetNextLivingUnit();
+					if (nextUnitUp != null)
+					{
+						world.unitMovement.PrepareMovement(nextUnitUp);
+					}
+					else
+					{
+						world.somethingSelected = false;
+						world.unitMovement.ClearSelection();
+					}
+				}
+				else
+				{
+					world.somethingSelected = false;
+					world.unitMovement.ClearSelection();
+				}
+			}
+
+			homeBase.army.RemoveFromArmy(this, barracksBunk);
+			homeBase.army.DeadList.Add(this);
+		}
+	}
+
+	public void KillMilitaryEnemyUnit()
+	{
+		StopAttack();
+		world.RemoveUnitPosition(currentLocation);
+		if (isSelected)
+			world.unitMovement.ClearSelection();
+
+		if (ambush)
+		{
+			Vector3Int ambushLoc = world.GetClosestTerrainLoc(transform.position);
+			if (world.GetTerrainDataAt(ambushLoc).treeHandler != null)
+				world.GetTerrainDataAt(ambushLoc).ToggleTransparentForest(false);
+
+			minimapIcon.gameObject.SetActive(false);
+			enemyAmbush.ContinueTradeRoute();
+			world.ClearAmbush(enemyAmbush.loc);
+			world.uiAttackWarning.AttackWarningCheck(enemyAmbush.loc);
+			StartCoroutine(WaitKillUnit());
+
+			if (world.mainPlayer.runningAway)
+			{
+				world.mainPlayer.StopRunningAway();
+				world.mainPlayer.stepAside = false;
+			}
+		}
+		else
+		{
+			enemyCamp.deathCount++;
+			enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
+			enemyCamp.ClearCampCheck();
+
+			foreach (Military unit in enemyCamp.UnitsInCamp)
+			{
+				if (unit.targetSearching)
+					unit.enemyAI.AggroCheck();
+			}
+
+			enemyCamp.DeadList.Add(this);
+		}
+	}
+
 	public UnitData SaveMilitaryUnitData()
 	{
 		UnitData data = new();
@@ -951,6 +1051,7 @@ public class Military : Unit
 
 		data.moreToMove = moreToMove;
 		data.somethingToSay = somethingToSay;
+		data.conversationTopics = new(conversationHaver.conversationTopics);
 		data.isUpgrading = isUpgrading;
 		data.looking = looking;
 
@@ -1007,7 +1108,15 @@ public class Military : Unit
 		ambush = data.ambush;
 		guard = data.guard;
 		idleTime = data.idleTime;
+		somethingToSay = data.somethingToSay;
 		isGuarding = data.isGuarding;
+
+		if (somethingToSay)
+		{
+			conversationHaver.conversationTopics = new(data.conversationTopics);
+			data.conversationTopics.Clear();
+			conversationHaver.SetSomethingToSay(conversationHaver.conversationTopics[0]);
+		}
 
 		if (!isMoving)
 			world.AddUnitPosition(currentLocation, this);
@@ -1127,11 +1236,11 @@ public class Military : Unit
 			}
 			else if (enemyAI)
 			{
-				List<Unit> units = enemyCamp.attackingArmy.UnitsInArmy;
+				List<Military> units = enemyCamp.attackingArmy.UnitsInArmy;
 
 				for (int i = 0; i < units.Count; i++)
 				{
-					if (units[i].military.barracksBunk == targetBunk)
+					if (units[i].barracksBunk == targetBunk)
 					{
 						target = units[i];
 						break;

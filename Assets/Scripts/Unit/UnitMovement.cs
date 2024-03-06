@@ -168,7 +168,7 @@ public class UnitMovement : MonoBehaviour
             if (!city.army.atHome || city.army.isTraining) //only upgrade when at home or not busy
 				return;
 
-			foreach (Unit unit in city.army.UnitsInArmy)
+			foreach (Military unit in city.army.UnitsInArmy)
 			{
 				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitName))
 				{
@@ -395,15 +395,15 @@ public class UnitMovement : MonoBehaviour
                         starshine.transform.position = starLoc;
                         starshine.Play();
 
-                        foreach (Unit unit in homeBase.army.UnitsInArmy)
+                        foreach (Military unit in homeBase.army.UnitsInArmy)
                         {
                             if (unit == selectedUnit)
                                 continue;
 
-                            if (unit.military.barracksBunk == loc)
+                            if (unit.barracksBunk == loc)
                             {
                                 swapping = true;
-                                unit.military.barracksBunk = selectedUnit.currentLocation;
+                                unit.barracksBunk = selectedUnit.currentLocation;
 
                                 if (unit.isMoving)
                                 {
@@ -542,11 +542,11 @@ public class UnitMovement : MonoBehaviour
                     Vector3Int newLoc = newCity.army.GetAvailablePosition(selectedUnit.buildDataSO.unitType);
                     List<Vector3Int> path = GridSearch.AStarSearch(world, selectedUnit.transform.position, newLoc, false, selectedUnit.bySea);
 					if (homeBase != null)
-                        homeBase.army.UnselectArmy(selectedUnit);
+                        homeBase.army.UnselectArmy(selectedUnit.military);
 
                     if (path.Count > 0)
                     {
-                        TransferMilitaryUnit(selectedUnit, newCity, newLoc, path);
+                        TransferMilitaryUnit(selectedUnit.military, newCity, newLoc, path);
 						world.citySelected = true;
 						world.UnhighlightCitiesWithBarracks();
 						world.unitOrders = false;
@@ -624,14 +624,14 @@ public class UnitMovement : MonoBehaviour
 						world.unitOrders = false;
 						assigningGuard = false;
 
-						if (selectedUnit.military)
+						if (selectedUnit.military.guardedTrader == null)
                         {
-						    selectedUnit.military.homeBase.army.UnselectArmy(selectedUnit);
-                            selectedUnit.military.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.military.barracksBunk);
+						    selectedUnit.military.homeBase.army.UnselectArmy(selectedUnit.military);
+                            selectedUnit.military.homeBase.army.RemoveFromArmy(selectedUnit.military, selectedUnit.military.barracksBunk);
 							selectedUnit.military.homeBase = null;
                             selectedUnit.military.atHome = false;
                         }
-                        else if (selectedUnit.military.guardedTrader != null)
+                        else
                         {
                             selectedUnit.military.guardedTrader.guarded = false;
                             selectedUnit.military.guardedTrader.guardUnit = null;
@@ -771,7 +771,7 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    public void TransferMilitaryUnit(Unit unit, City newCity, Vector3Int newLoc, List<Vector3Int> path)
+    public void TransferMilitaryUnit(Military unit, City newCity, Vector3Int newLoc, List<Vector3Int> path)
     {
 		if (unit.isMoving)
 		{
@@ -780,31 +780,31 @@ public class UnitMovement : MonoBehaviour
 			unit.FinishedMoving.RemoveAllListeners();
 		}
 
-		if (unit.military.guardedTrader != null)
+		if (unit.guardedTrader != null)
 		{
-			unit.military.guardedTrader.Unhighlight();
-			unit.military.guardedTrader.guarded = false;
-			unit.military.guardedTrader.guardUnit = null;
-			unit.military.guardedTrader = null;
-			unit.military.guard = false;
+			unit.guardedTrader.Unhighlight();
+			unit.guardedTrader.guarded = false;
+			unit.guardedTrader.guardUnit = null;
+			unit.guardedTrader = null;
+			unit.guard = false;
 			unit.originalMoveSpeed = unit.buildDataSO.movementSpeed;
-			unit.military.isGuarding = false;
+			unit.isGuarding = false;
 		}
 		else
 		{
-			unit.military.homeBase.army.RemoveFromArmy(unit, unit.military.barracksBunk);
+			unit.homeBase.army.RemoveFromArmy(unit, unit.barracksBunk);
 		}
 
-		unit.military.homeBase = newCity;
-		unit.military.atHome = false;
+		unit.homeBase = newCity;
+		unit.atHome = false;
 		newCity.army.AddToArmy(unit);
 
 		if (newCity.currentPop == 0 && newCity.army.armyCount == 1)
 			newCity.StartGrowthCycle(false);
 
-		unit.military.barracksBunk = newLoc;
-		unit.military.transferring = true;
-		unit.military.homeBase.army.isTransferring = true;
+		unit.barracksBunk = newLoc;
+		unit.transferring = true;
+		unit.homeBase.army.isTransferring = true;
 
 		unit.finalDestinationLoc = newLoc;
 		unit.MoveThroughPath(path);
@@ -816,7 +816,7 @@ public class UnitMovement : MonoBehaviour
 		    uiCancelTask.ToggleVisibility(false);
         }
 
-        unit.military.ToggleIdleTimer(false);
+        unit.ToggleIdleTimer(false);
 	}
 
     //private void SelectLaborer()
@@ -870,7 +870,7 @@ public class UnitMovement : MonoBehaviour
 				world.scott.SendResourceToCity();
 
             QuickSelect(selectedUnit);
-			selectedUnit.GetComponent<Worker>().SpeakingCheck();
+			selectedUnit.SpeakingCheck();
         }
         else
         {
@@ -1050,7 +1050,7 @@ public class UnitMovement : MonoBehaviour
             }
             else
             {
-    			selectedUnit.military.homeBase.army.SelectArmy(selectedUnit);
+    			selectedUnit.military.homeBase.army.SelectArmy(selectedUnit.military);
             }
         }
         else if (selectedUnit.trader && selectedTrader.guarded)
@@ -1656,7 +1656,7 @@ public class UnitMovement : MonoBehaviour
     public void JoinCityConfirm(City city)
     {
 		if (selectedUnit.inArmy)
-			selectedUnit.military.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.military.barracksBunk);
+			selectedUnit.military.homeBase.army.RemoveFromArmy(selectedUnit.military, selectedUnit.military.barracksBunk);
 
 		AddToCity(city, selectedUnit);
 		selectedUnit.DestroyUnit();
@@ -2852,7 +2852,7 @@ public class UnitMovement : MonoBehaviour
                 if (selectedUnit.military.guard)
                     selectedUnit.military.guardedTrader.Unhighlight();
                 else
-                    selectedUnit.military.homeBase.army.UnselectArmy(selectedUnit);
+                    selectedUnit.military.homeBase.army.UnselectArmy(selectedUnit.military);
 
                 if (selectedUnit.military.homeBase != null && selectedUnit.military.homeBase.army.traveling)
                     selectedUnit.military.homeBase.army.HidePath();

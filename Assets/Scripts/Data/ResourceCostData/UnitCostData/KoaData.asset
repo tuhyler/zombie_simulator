@@ -25,7 +25,7 @@ MonoBehaviour:
   battleCost: []
   laborCost: 1
   unitType: 0
-  unitDescription: BuildCities and Roads
+  unitDescription: Build Cities and Roads
   availableInitially: 1
   health: 30
   baseAttackStrength: 0
