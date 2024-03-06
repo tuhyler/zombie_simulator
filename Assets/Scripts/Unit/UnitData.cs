@@ -19,6 +19,7 @@ public class UnitData : IUnitData
     public Vector3Int currentLocation;
 	public Vector3Int prevTerrainTile;
 	public int idleTime;
+	public List<string> conversationTopics;
 
 	//combat
 	public Vector3Int cityHomeBase, barracksBunk, marchPosition, targetBunk;

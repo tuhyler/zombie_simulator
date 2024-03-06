@@ -98,7 +98,7 @@ public class BasicEnemyAI : MonoBehaviour
 		if (unit.attacking)
 			return;
 
-		Unit newEnemy = unit.enemyCamp.FindClosestTarget(unit);
+		Military newEnemy = unit.enemyCamp.FindClosestTarget(unit);
 		unit.targetLocation = newEnemy.currentLocation;
 		List<Vector3Int> path = unit.enemyCamp.PathToEnemy(unit.currentLocation, unit.world.RoundToInt(newEnemy.transform.position));
 
@@ -142,7 +142,7 @@ public class BasicEnemyAI : MonoBehaviour
 
 	public void RangedAggroCheck()
 	{
-		Unit enemy = unit.enemyCamp.FindClosestTarget(unit);
+		Military enemy = unit.enemyCamp.FindClosestTarget(unit);
 
 		if (enemy != null)
 			unit.attackCo = StartCoroutine(RangedAttack(enemy));
@@ -194,10 +194,10 @@ public class BasicEnemyAI : MonoBehaviour
 					{
 						if (unit.flanking)
 						{
-							foreach (Unit unit in unit.enemyCamp.attackingArmy.UnitsInArmy)
+							foreach (Military unit in unit.enemyCamp.attackingArmy.UnitsInArmy)
 							{
-								if (unit.military.targetSearching)
-									unit.military.AggroCheck();
+								if (unit.targetSearching)
+									unit.AggroCheck();
 							}
 						}
 						
@@ -217,7 +217,7 @@ public class BasicEnemyAI : MonoBehaviour
 		if (unit.attacking)
 			return;
 
-		Unit newEnemy = null;
+		Military newEnemy = null;
 
 		if (!unit.flankedOnce) //only one flank per battle
 		{

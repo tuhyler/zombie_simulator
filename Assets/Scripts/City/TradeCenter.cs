@@ -22,6 +22,12 @@ public class TradeCenter : MonoBehaviour
     private GameObject tradeCenterPrefab;
     [SerializeField]
     public Transform minimapIcon;
+    [SerializeField]
+    public UnitBuildDataSO tradeCenterRep;
+    [HideInInspector]
+    public NPC tcRep;
+    [SerializeField]
+    private Vector3 tradeRepLoc;
 
     //basic info
     public string tradeCenterName;
@@ -78,6 +84,7 @@ public class TradeCenter : MonoBehaviour
     {
         gameObject.SetActive(true);
         isDiscovered = true;
+        tcRep.gameObject.SetActive(true);
 
         foreach (Vector3Int tile in world.GetNeighborsFor(mainLoc, MapWorld.State.EIGHTWAYINCREMENT))
         {
@@ -101,6 +108,27 @@ public class TradeCenter : MonoBehaviour
         nameMap.GetComponentInChildren<TMP_Text>().text = tradeCenterDisplayName;
         world.AddTradeCenterName(nameMap);
         nameMap.gameObject.SetActive(false);
+    }
+
+    public void SetTradeCenterRep()
+    {
+        Vector3 instantiateLoc = tradeRepLoc + mainLoc;
+        Vector3 rotationDirection = mainLoc - instantiateLoc;
+		Quaternion endRotation;
+		if (rotationDirection == Vector3.zero)
+			endRotation = Quaternion.identity;
+		else
+			endRotation = Quaternion.LookRotation(rotationDirection, Vector3.up);
+
+		GameObject rep = Instantiate(tradeCenterRep.prefab, instantiateLoc, endRotation);
+        rep.name = tradeCenterRep.unitDisplayName;
+        tcRep = rep.GetComponent<NPC>();
+        tcRep.SetReferences(world, true);
+
+        if (!isDiscovered)
+            tcRep.gameObject.SetActive(false);
+
+        tcRep.rapportScore = 7;
     }
 
     public void SetPop(int pop)

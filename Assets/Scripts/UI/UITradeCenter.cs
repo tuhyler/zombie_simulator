@@ -78,6 +78,19 @@ public class UITradeCenter : MonoBehaviour
             activeStatus = true;
             world.tcCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
+            ownerName.text = "Rapport with " + center.tcRep.npcName;
+            ownerImage.sprite = center.tcRep.npcImage;
+            int meterShift = center.tcRep.rapportScore * 10;
+            Vector2 meterLoc = happinessMeter.transform.localPosition;
+            meterLoc.x = meterShift;
+            happinessMeter.transform.localPosition = meterLoc;
+
+            if (meterShift >= 60)
+                happinessMeter.sprite = happy;
+            else if (meterShift <= 60)
+                happinessMeter.sprite = mad;
+            else
+                happinessMeter.sprite = neutral;
 
             foreach (ResourceType type in center.ResourceBuyDict.Keys)
             {
