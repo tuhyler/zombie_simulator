@@ -363,6 +363,7 @@ MonoBehaviour:
   trader: {fileID: 0}
   worker: {fileID: 0}
   military: {fileID: 0}
+  transport: {fileID: 0}
   conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
@@ -397,6 +398,7 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
+  byAir: 0
   inArmy: 0
   isDead: 0
   runningAway: 0
@@ -412,6 +414,8 @@ MonoBehaviour:
   working: 0
   clearedForest: 0
   stepAside: 0
+  toTransport: 0
+  inTransport: 0
   clearingForestTime: 10
   cityBuildingTime: 2
   roadBuildingTime: 1

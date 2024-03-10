@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Transport1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
+  prefab: {fileID: 5253570094194178431, guid: a3f7f1623a224b44da55c5c17bf5da8c, type: 3}
   secondaryPrefab: {fileID: 0}
   unitName: Transport
   unitDisplayName: Water Transport
   unitLevel: 1
   unitNameAndLevel: Water Transport-1
-  image: {fileID: 21300000, guid: 8ae616c7b21c83149a25565fa87efa77, type: 3}
+  image: {fileID: 21300000, guid: 15dc2a29782fee045b3ab2e95c759754, type: 3}
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
