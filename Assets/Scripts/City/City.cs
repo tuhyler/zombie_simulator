@@ -54,7 +54,7 @@ public class City : MonoBehaviour
     public Vector3Int cityLoc, waitingAttackLoc;
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining,
-        hasMarket, isNamed, stopCycle, attacked;
+        hasMarket, isNamed, stopCycle, attacked, hasAirport, airportTraining;
     [HideInInspector]
     public int lostPop;
 
@@ -62,7 +62,7 @@ public class City : MonoBehaviour
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
 
     [HideInInspector]
-    public Vector3Int harborLocation, barracksLocation;
+    public Vector3Int harborLocation, barracksLocation, airportLocation;
 
     [HideInInspector]
     public Army army;
@@ -727,7 +727,7 @@ public class City : MonoBehaviour
                 {
                     if (activeCity)
                     {
-                        world.cityBuilderManager.uiLaborAssignment.ShowUI(this, 0, false);
+                        world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
                         CityGrowthProgressBarSetActive(true);
                         world.cityBuilderManager.abandonCityButton.interactable = false;
                     }
@@ -2192,6 +2192,8 @@ public class City : MonoBehaviour
 		hasClay = data.hasClay;
         hasBarracks = data.hasBarracks;
         hasHarbor = data.hasHarbor;
+        hasAirport = data.hasAirport;
+        airportTraining = data.airportTraining;
         waterCount = data.waterMaxPop;
 		currentPop = data.currentPop;
         unusedLabor = data.unusedLabor;

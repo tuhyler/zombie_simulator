@@ -501,7 +501,7 @@ public class Military : Unit
 
 	public void ContinueGuarding(Queue<Vector3Int> traderPath, Vector3Int currentLoc)
 	{
-		military.isGuarding = true;
+		isGuarding = true;
 		StopAnimation();
 		if (currentHealth < buildDataSO.health)
 			healthbar.RegenerateHealth();
@@ -631,7 +631,7 @@ public class Military : Unit
 		StopAnimation();
 		ShiftMovement();
 
-		Vector3 sideSpot = military.GuardRouteFinish(traderSpot, traderPrevSpot);
+		Vector3 sideSpot = GuardRouteFinish(traderSpot, traderPrevSpot);
 		finalDestinationLoc = sideSpot;
 		StartAnimation();
 		RestartPath(traderPrevSpot);
@@ -679,7 +679,7 @@ public class Military : Unit
 		}
 
 		waitingCo = null;
-		military.ReturnToClosestCityBarracks();
+		ReturnToClosestCityBarracks();
 	}
 
 	public void ReturnToClosestCityBarracks()
@@ -1051,7 +1051,8 @@ public class Military : Unit
 
 		data.moreToMove = moreToMove;
 		data.somethingToSay = somethingToSay;
-		data.conversationTopics = new(conversationHaver.conversationTopics);
+		if (somethingToSay)
+			data.conversationTopics = new(conversationHaver.conversationTopics);
 		data.isUpgrading = isUpgrading;
 		data.looking = looking;
 
@@ -1215,7 +1216,7 @@ public class Military : Unit
 					EnemyAmbush ambush = world.GetEnemyAmbush(guardedTrader.ambushLoc);
 					for (int i = 0; i < ambush.attackingUnits.Count; i++)
 					{
-						if (ambush.attackingUnits[i].military.barracksBunk == targetBunk)
+						if (ambush.attackingUnits[i].barracksBunk == targetBunk)
 						{
 							target = ambush.attackingUnits[i];
 							break;
@@ -1328,7 +1329,7 @@ public class Military : Unit
 
 	public IEnumerator WaitForOthers(Vector3Int endPosition)
 	{
-		while (!military.readyToMarch)
+		while (!readyToMarch)
 		{
 			yield return null;
 		}

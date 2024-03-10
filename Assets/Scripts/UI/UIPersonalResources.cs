@@ -20,6 +20,8 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
     public ResourceType resourceType;
 
     private UIPersonalResourceInfoPanel buttonHandler;
+    [HideInInspector]
+    public UIResourceGivingPanel givingPanel;
 
     [SerializeField]
     private ParticleSystem buttonHighlight;
@@ -116,18 +118,25 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
 
     public void OnPointerClick()
     {
-        if (clickable)
-        {
-            buttonHandler.PrepareResource(resourceType);
-        }
+        //if (clickable)
+        //{
+        //    buttonHandler.PrepareResource(resourceType);
+        //}
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (clickable)
         {
-            buttonHandler.PrepareResource(resourceType);
-            buttonHandler.HandleButtonClick();
+            if (buttonHandler != null)
+            {
+                buttonHandler.PrepareResource(resourceType);
+                buttonHandler.HandleButtonClick();
+            }
+            else
+            {
+                givingPanel.HandleButtonClick();
+            }
         }
     }
 

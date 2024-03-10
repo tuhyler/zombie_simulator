@@ -112,7 +112,7 @@ public class UIWorkerHandler : MonoBehaviour
         gameObject.SetActive(false);
         world.workerCanvas.gameObject.SetActive(false);
 
-        if (!temporary)
+        if (!temporary && world.unitMovement.selectedTrader == null)
             world.personalResourceCanvas.gameObject.SetActive(false);
     }
 

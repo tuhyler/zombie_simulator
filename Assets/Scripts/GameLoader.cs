@@ -19,7 +19,7 @@ public class GameLoader : MonoBehaviour
 	public bool isLoading, isDone;
 	[HideInInspector]
 	public List<City> attackingEnemyCitiesList = new();
-	public List<Unit> attackingUnitList = new();
+	public List<Military> attackingUnitList = new();
 	public Dictionary<string, Trader> ambushedTraders = new();
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
@@ -350,6 +350,11 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < world.laborerList.Count; i++)
 			gameData.allLaborers.Add(world.laborerList[i].SaveLaborerData());
 
+		//transports
+		gameData.allTransports.Clear();
+		for (int i = 0; i < world.transportList.Count; i++)
+			gameData.allTransports.Add(world.transportList[i].SaveTransportData());
+
 		Vector3 middle = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 		if (gamePersist.SaveData(saveName, gameData, false))
 		{
@@ -514,20 +519,20 @@ public class GameLoader : MonoBehaviour
 
 		//traders
 		for (int i = 0; i < gameData.allTraders.Count; i++)
-		{
 			world.CreateUnit(gameData.allTraders[i]);
-		}
 		gameData.allTraders.Clear();
-
-		//updating progress
-		GameManager.Instance.UpdateProgress(5);
 
 		//laborers
 		for (int i = 0; i < gameData.allLaborers.Count; i++)
-		{
 			world.CreateUnit(gameData.allLaborers[i]);
-		}
 		gameData.allLaborers.Clear();
+
+		//transports
+		for (int i = 0; i < gameData.allTransports.Count; i++)
+			world.CreateUnit(gameData.allTransports[i]);
+
+		//updating progress
+		GameManager.Instance.UpdateProgress(5);
 
 		//ambushes
 		world.MakeEnemyAmbushes(gameData.ambushLocs, ambushedTraders);
@@ -552,7 +557,7 @@ public class GameLoader : MonoBehaviour
 		//attack info
 		for (int i = 0; i < attackingUnitList.Count; i++)
 		{
-			attackingUnitList[i].military.LoadAttack();
+			attackingUnitList[i].LoadAttack();
 		}
 		attackingUnitList.Clear();
 

@@ -30,6 +30,8 @@ public class UITradeCenter : MonoBehaviour
     private List<UITradeResource> activeBuyResources = new();
     private List<UITradeResource> activeSellResources = new();
 
+    private float buyMultiple;
+
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
@@ -84,21 +86,33 @@ public class UITradeCenter : MonoBehaviour
             Vector2 meterLoc = happinessMeter.transform.localPosition;
             meterLoc.x = meterShift;
             happinessMeter.transform.localPosition = meterLoc;
+            increaseText.text = "+" + center.tcRep.angryIncrease.ToString() + "%";
+            decreaseText.text = "-" + center.tcRep.happyDiscount.ToString() + "%";
 
             if (meterShift >= 60)
+            {
                 happinessMeter.sprite = happy;
-            else if (meterShift <= 60)
+                buyMultiple = 1 - center.tcRep.happyDiscount * 0.01f;
+            }
+            else if (meterShift <= -60)
+            {
                 happinessMeter.sprite = mad;
+                buyMultiple = 1 + center.tcRep.angryIncrease * 0.01f;
+            }
             else
+            {
                 happinessMeter.sprite = neutral;
+                buyMultiple = 1;
+            }
 
             foreach (ResourceType type in center.ResourceBuyDict.Keys)
             {
                 buyDict[type].gameObject.SetActive(true);
-                buyDict[type].SetValue(center.ResourceBuyDict[type]);
-                if (center.ResourceBuyDict[type] > maxBuyCost)
-                    maxBuyCost = center.ResourceBuyDict[type];
-                buyDict[type].SetColor(world.CheckWorldGold(center.ResourceBuyDict[type]) ? Color.white : Color.red);
+                int price = Mathf.CeilToInt(center.ResourceBuyDict[type] * buyMultiple);
+                buyDict[type].SetValue(price);
+                if (price > maxBuyCost)
+                    maxBuyCost = price;
+                buyDict[type].SetColor(world.CheckWorldGold(price) ? Color.white : Color.red);
                 activeBuyResources.Add(buyDict[type]);
             }
 

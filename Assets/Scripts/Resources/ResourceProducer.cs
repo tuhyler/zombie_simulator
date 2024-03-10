@@ -405,16 +405,16 @@ public class ResourceProducer : MonoBehaviour
                 AddToResearchWaitList();
 			    cityImprovement.exclamationPoint.SetActive(true);
 			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
-			    //timeProgressBar.SetActive(false);
 			    uiTimeProgressBar.gameObject.SetActive(false);
                 cityImprovement.StopWork();
             }
+            else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+            {
+                SetUpResourceWaiting();
+			}
             else
             {
-				tempLaborPercsList.Clear();
-				//cityImprovement.StopWorkAnimation();
-				productionTimer = improvementData.producedResourceTime[producedResourceIndex];
-				producingCo = StartCoroutine(ProducingCoroutine());
+                ReadyToProduce();
 			}
         }
         else if (resourceManager.fullInventory)
@@ -424,25 +424,32 @@ public class ResourceProducer : MonoBehaviour
 			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, true);
 			uiTimeProgressBar.gameObject.SetActive(false);
             cityImprovement.StopWork();
-            //timeProgressBar.SetActive(false);
         }
         else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
         {
-            AddToResourceWaitList();
-			cityImprovement.exclamationPoint.SetActive(true);
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, true);
-			uiTimeProgressBar.gameObject.SetActive(false);
-            cityImprovement.StopWork();
-            //timeProgressBar.SetActive(false);
-        }
+            SetUpResourceWaiting();
+		}
         else
         {
-            tempLaborPercsList.Clear();
-			//cityImprovement.StopWorkAnimation();
-			productionTimer = improvementData.producedResourceTime[producedResourceIndex];
-			producingCo = StartCoroutine(ProducingCoroutine());
-        }
+			ReadyToProduce();
+		}
     }
+
+    private void SetUpResourceWaiting()
+    {
+		AddToResourceWaitList();
+		cityImprovement.exclamationPoint.SetActive(true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, true);
+		uiTimeProgressBar.gameObject.SetActive(false);
+		cityImprovement.StopWork();
+	}
+
+    private void ReadyToProduce()
+    {
+		tempLaborPercsList.Clear();
+		productionTimer = improvementData.producedResourceTime[producedResourceIndex];
+		producingCo = StartCoroutine(ProducingCoroutine());
+	}
 
     public void StopProducing(bool allLabor = false)
     {

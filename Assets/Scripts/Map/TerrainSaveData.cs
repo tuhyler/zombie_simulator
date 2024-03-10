@@ -11,7 +11,7 @@ public class TerrainSaveData
 	public ResourceType resourceType;
 	public List<int> uvMapIndex;
 
-	public bool changeLeafColor, showProp = true;
+	public bool changeLeafColor, showProp = true, border;
 	public int variant = 0;
 	public int decor = 0;
 

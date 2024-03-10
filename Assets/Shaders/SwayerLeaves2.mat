@@ -38,10 +38,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BendStrength: 1
+    - _BendStrength: 0.5
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Scale: 20
+    - _Scale: 5
     - _Speed: 0.1
     m_Colors:
     - _Direction: {r: 0.05, g: 0.05, b: 0, a: 0}

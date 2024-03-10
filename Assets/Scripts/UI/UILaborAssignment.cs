@@ -50,7 +50,7 @@ public class UILaborAssignment : MonoBehaviour
         OnIconButtonClick?.Invoke(laborChange);
     }
 
-    public void ShowUI(City city, int placesToWork, bool update = true) //pass data to know if can show in the UI
+    public void ShowUI(City city, int placesToWork) //pass data to know if can show in the UI
     {
         if (activeStatus)
             return;
@@ -70,8 +70,7 @@ public class UILaborAssignment : MonoBehaviour
         //    return;
         //}
 
-        if (update)
-            PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
+        PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
     }
 
     public void UpdateUI(City city, int placesToWork)

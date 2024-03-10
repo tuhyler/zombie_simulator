@@ -125,6 +125,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.CancelMove();
 
 		unitMovement.LoadUnloadFinish(true);
+        unitMovement.GivingFinish(true);
 
 		world.cityBuilderManager.PlaySelectAudio();
 		Vector3 pos = world.mainPlayer.transform.position;
@@ -316,6 +317,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (unitMovement.moveUnit)
             unitMovement.CancelMove();
         unitMovement.LoadUnloadFinish(true);
+        unitMovement.GivingFinish(true);
 
 		uiWorkerHandler.ToggleVisibility(false, world, true);
         uiBuildingSomething.ToggleVisibility(true);

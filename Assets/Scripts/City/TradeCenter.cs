@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class TradeCenter : MonoBehaviour
 {
@@ -12,7 +13,10 @@ public class TradeCenter : MonoBehaviour
     [SerializeField]
     private CityNameField nameField;
     [SerializeField]
-    public Transform main;
+    public Transform main, lightHolder;
+    [SerializeField]
+    private List<MeshRenderer> tcMesh;
+    private List<Material> originalMat = new();
 
     [SerializeField]
     private GameObject nameMap;
@@ -27,7 +31,9 @@ public class TradeCenter : MonoBehaviour
     [HideInInspector]
     public NPC tcRep;
     [SerializeField]
-    private Vector3 tradeRepLoc;
+    public Vector3 tradeRepLoc;
+    [HideInInspector]
+    public float multiple = 1;
 
     //basic info
     public string tradeCenterName;
@@ -59,13 +65,14 @@ public class TradeCenter : MonoBehaviour
     {
         highlight = GetComponentInChildren<SelectionHighlight>();
 
-        int i = 0;
-        foreach (ResourceValue value in buyResources)
+        for (int i = 0; i < tcMesh.Count; i++)
+		    originalMat.Add(tcMesh[i].sharedMaterial);
+
+        for (int i = 0; i < buyResources.Count; i++)
         {
-            resourceBuyDict[value.resourceType] = value.resourceAmount;
-            resourceBuyGridDict[value.resourceType] = i;
-            i++;
-        }
+            resourceBuyDict[buyResources[i].resourceType] = buyResources[i].resourceAmount;
+            resourceBuyGridDict[buyResources[i].resourceType] = i;
+		}
 
         foreach (ResourceValue value in sellResources)
             resourceSellDict[value.resourceType] = value.resourceAmount;
@@ -128,7 +135,20 @@ public class TradeCenter : MonoBehaviour
         if (!isDiscovered)
             tcRep.gameObject.SetActive(false);
 
-        tcRep.rapportScore = 7;
+        world.AddUnitPosition(instantiateLoc, tcRep);
+
+        tcRep.rapportScore = -7;
+        CheckRapport();
+    }
+
+    public void CheckRapport()
+    {
+        if (tcRep.rapportScore > 5)
+            multiple = 1 - tcRep.happyDiscount * 0.01f;
+        else if (tcRep.rapportScore < -5)
+            multiple = 1 + tcRep.angryIncrease * 0.01f;
+        else
+            multiple = 1;
     }
 
     public void SetPop(int pop)
@@ -165,6 +185,20 @@ public class TradeCenter : MonoBehaviour
         foreach (Light light in nightLights)
         {
             light.gameObject.SetActive(v);
+        }
+    }
+
+    public void ToggleClear(bool v)
+    {
+        if (v)
+        {
+            for (int i = 0; i < tcMesh.Count; i++)
+                tcMesh[i].sharedMaterial = world.atlasSemiClear;
+        }
+        else
+        {
+            for (int i = 0; i < tcMesh.Count; i++)
+                tcMesh[i].sharedMaterial = originalMat[i];
         }
     }
 

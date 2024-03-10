@@ -71,7 +71,7 @@ public class UICampTip : MonoBehaviour
 			world.unitMovement.DeployArmy();
 	}
 
-	public void ToggleVisibility(bool val, CityImprovement improvement = null, EnemyCamp enemyCamp = null, Army army = null, bool clearCosts = true, bool movingOut = false)
+	public void ToggleVisibility(bool val, CityImprovement improvement = null, EnemyCamp enemyCamp = null, Army army = null, bool clearCosts = true)
 	{
 		if (activeStatus == val)
 			return;

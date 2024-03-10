@@ -49,6 +49,10 @@ public class TraderData : IUnitData
 	{
 		return null;
 	}
+	public TransportData GetTransportData()
+	{
+		return null;
+	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
 	bool IUnitData.secondaryPrefab => secondaryPrefab;
 	Vector3 IUnitData.position => position;

@@ -16,15 +16,9 @@ MonoBehaviour:
   utilityMaterial: {fileID: 0}
   utilityLevel: 1
   movementSpeed: 10
-  utilityCost:
-  - resourceType: 7
-    resourceAmount: 1
-  - resourceType: 6
-    resourceAmount: 1
+  utilityCost: []
   bridgeCost:
   - resourceType: 7
-    resourceAmount: 10
-  - resourceType: 9
     resourceAmount: 10
   bridgePrefab: {fileID: 5101276599224808569, guid: 8160c12be0d78bc4bbfac43a2cd24fc1,
     type: 3}

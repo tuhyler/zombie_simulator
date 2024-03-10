@@ -43,6 +43,7 @@ public class GameData
 
     public List<TraderData> allTraders = new();
     public List<LaborerData> allLaborers = new();
+    public List<TransportData> allTransports = new();
 
     public WorkerData playerUnit, scott, azai;
     //public UnitData azai;

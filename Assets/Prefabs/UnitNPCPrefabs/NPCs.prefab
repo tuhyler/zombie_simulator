@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6133053015447802254}
   - component: {fileID: 8497576317380012912}
   - component: {fileID: 3289582613228498241}
+  - component: {fileID: 1192341687292528314}
   m_Layer: 7
   m_Name: NPCs
   m_TagString: Character
@@ -170,6 +171,10 @@ MonoBehaviour:
   unitAnimator: {fileID: 0}
   npcName: 
   npcImage: {fileID: 0}
+  rapportScore: 0
+  angryIncrease: 0
+  happyDiscount: 0
+  ecstaticDiscount: 0
 --- !u!114 &8497576317380012912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,6 +287,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1192341687292528314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4084126454760206941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c4a2ee4566ff1545a5870d86080591e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  conversationTopics: []
 --- !u!1001 &2826200693892223195
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -379,6 +397,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: UnitMarker
+      objectReference: {fileID: 0}
+    - target: {fileID: 5220595885464087104, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5220595885464087104, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5220595885464087104, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5220595885464087104, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
         type: 3}

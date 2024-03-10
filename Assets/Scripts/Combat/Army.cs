@@ -418,7 +418,7 @@ public class Army : MonoBehaviour
         }
     }
 
-    public bool DeployArmyCheck(Vector3Int current, Vector3Int target)
+    public bool DeployArmyCheck(Vector3Int current, Vector3Int target, bool bySea, List<Vector3Int> landTiles)
     {
 		List<Vector3Int> exemptList = new() { target };
         enemyTarget = target;
@@ -426,7 +426,40 @@ public class Army : MonoBehaviour
 		foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
 			exemptList.Add(tile);
 
-		pathToTarget = GridSearch.TerrainSearch(world, current, target, exemptList);
+        List<Vector3Int> waterPath = new();
+		List<Vector3Int> landPath = GridSearch.TerrainSearch(world, current, target, exemptList);
+
+        //seeing if cheaper to go by sea
+        if (city.hasHarbor && bySea)
+        {
+            //Get closest land tile
+            int dist = 0;
+            Vector3Int closestTile = target;
+
+            for (int i = 0; i < landTiles.Count; i++)
+            {
+                if (i == 0)
+                {
+                    closestTile = landTiles[i];
+                    dist = Mathf.Abs(landTiles[i].x - city.harborLocation.x) + Mathf.Abs(landTiles[i].z - city.harborLocation.z);
+                    continue;
+                }
+
+                int newDist = Mathf.Abs(landTiles[i].x - city.harborLocation.x) + Mathf.Abs(landTiles[i].z - city.harborLocation.z);
+                if (newDist < dist)
+                {
+                    dist = newDist;
+                    closestTile = landTiles[i];
+                }
+			}
+            
+            waterPath = GridSearch.TerrainSearchSea(world, city.harborLocation, closestTile, exemptList);
+        }
+
+        if (landPath.Count == 0 || waterPath.Count <= landPath.Count)
+            pathToTarget = waterPath;
+        else
+            pathToTarget = landPath;
 
         if (pathToTarget.Count == 0)
             return false;
@@ -490,8 +523,15 @@ public class Army : MonoBehaviour
     {
         ConsumeBattleCosts();
         unitsReady = 0;
-		pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
-		atHome = false;
+
+        bool bySea = false;
+        if (pathToTarget[0] == city.harborLocation)
+            bySea = true;
+
+        if (!bySea)
+    		pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
+	
+        atHome = false;
 		traveling = true;
 		Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
 		attackZone = penultimate;

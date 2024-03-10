@@ -362,6 +362,8 @@ MonoBehaviour:
       m_Calls: []
   trader: {fileID: 0}
   worker: {fileID: 0}
+  military: {fileID: 0}
+  conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -371,28 +373,21 @@ MonoBehaviour:
   isBusy: 0
   isMoving: 0
   isBeached: 0
-  interruptedRoute: 0
   secondaryPrefab: 0
+  readyToMarch: 0
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  currentLocation: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   ambushLoc: {x: 0, y: 0, z: 0}
   lastClearTile: {x: 0, y: 0, z: 0}
-  homeBase: {fileID: 0}
-  barracksBunk: {x: 0, y: 0, z: 0}
-  marchPosition: {x: 0, y: 0, z: 0}
   currentHealth: 0
   enemyAI: {fileID: 0}
   baseSpeed: 0
-  attackSpeed: 0
-  attackStrength: 0
   healthMax: 0
-  projectile: {fileID: 0}
   bySea: 0
   isTrader: 0
-  atStop: 0
-  followingRoute: 0
   isPlayer: 0
   isLaborer: 0
   isSelected: 0
@@ -402,33 +397,12 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
-  isLeader: 0
-  readyToMarch: 0
   inArmy: 0
-  atHome: 0
-  preparingToMoveOut: 0
-  isMarching: 0
-  transferring: 0
-  repositioning: 0
-  inBattle: 0
-  attacking: 0
-  targetSearching: 0
-  flanking: 0
-  flankedOnce: 0
-  cavalryLine: 0
   isDead: 0
-  isUpgrading: 0
   runningAway: 0
-  hidden: 0
-  looking: 0
   ambush: 0
-  aoe: 0
-  guard: 0
-  isGuarding: 0
-  returning: 0
-  targetLocation: {x: 0, y: 0, z: 0}
-  targetBunk: {x: 0, y: 0, z: 0}
-  guardedTrader: {fileID: 0}
+  hidden: 0
+  isUpgrading: 0
   unitAnimator: {fileID: 0}
   building: 0
   removing: 0
@@ -448,7 +422,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 7353d1e2daf1dac4d9a61c508af7e1c5, type: 3}
   - {fileID: 8300000, guid: 5230f4b55f0df8e48beff3ba46632e4e, type: 3}
   timePassed: 0
-  conversationTopics: []
+  currentUtilityCost: {fileID: 0}
   personalResourceManager: {fileID: 0}
   uiPersonalResourceInfoPanel: {fileID: 0}
 --- !u!114 &4189404736807819188
@@ -464,6 +438,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceStorageLimit: 0
+--- !u!114 &6032445018100266413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266383177558337226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c4a2ee4566ff1545a5870d86080591e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  conversationTopics: []
 --- !u!1001 &8811663769511038827
 PrefabInstance:
   m_ObjectHideFlags: 0
