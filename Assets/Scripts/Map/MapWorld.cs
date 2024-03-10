@@ -44,7 +44,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterResearched, powerResearched;
+    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterResearched, powerResearched, waterTransport, airTransport;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -91,6 +91,8 @@ public class MapWorld : MonoBehaviour
     public UISpeechWindow uiSpeechWindow;
     [SerializeField]
     public UIConversationTaskManager uiConversationTaskManager;
+    [SerializeField]
+    public UIResourceGivingPanel uiResourceGivingPanel;
     [SerializeField]
     public UnitMovement unitMovement;
     [SerializeField]
@@ -181,6 +183,8 @@ public class MapWorld : MonoBehaviour
     public List<Laborer> laborerList = new();
     [HideInInspector]
     public List<Trader> traderList = new();
+    [HideInInspector]
+    public List<Transport> transportList = new();
     private Dictionary<string, ImprovementDataSO> improvementDataDict = new();
     private Dictionary<string, UnitBuildDataSO> unitBuildDataDict = new();
     private Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
@@ -1085,6 +1089,7 @@ public class MapWorld : MonoBehaviour
             go.transform.SetParent(tradeCenterHolder, false);
             TradeCenter center = go.GetComponent<TradeCenter>();
             center.main.rotation = centerData.rotation;
+            center.lightHolder.rotation = centerData.rotation;
             center.LoadData(centerData);
 			center.SetWorld(this);
 			center.ToggleLights(false);
@@ -2218,7 +2223,7 @@ public class MapWorld : MonoBehaviour
 					unit.marker.ToggleVisibility(true);
 				unit.SetReferences(this);
 				unit.currentLocation = data.currentLocation;
-                ambush.attackingUnits.Add(unit);
+                ambush.attackingUnits.Add(unit.military);
                 unit.military.enemyAmbush = ambush;
 
 				unit.military.LoadUnitData(data);
@@ -2268,6 +2273,16 @@ public class MapWorld : MonoBehaviour
             Laborer laborer = newUnit.GetComponent<Laborer>();
             laborerList.Add(laborer);
             laborer.LoadLaborerData(data.GetLaborerData());
+        }
+        else if (newUnit.transport)
+        {
+            transportList.Add(newUnit.transport);
+            newUnit.transport.LoadTransportData(data.GetTransportData());
+
+            if (newUnit.buildDataSO.transportationType == TransportationType.Sea)
+                waterTransport = true;
+			if (newUnit.buildDataSO.transportationType == TransportationType.Air)
+				airTransport = true;
         }
         else
         {
@@ -4177,7 +4192,7 @@ public class MapWorld : MonoBehaviour
 		unit.SetReferences(this);
 		unit.currentLocation = ambushLoc;
         unit.military.enemyAmbush = ambush;
-		ambush.attackingUnits.Add(unit);
+		ambush.attackingUnits.Add(unit.military);
         enemyAmbushDict[loc] = ambush;
 		uiAttackWarning.AttackNotification(ambush.loc);
         
@@ -4429,12 +4444,27 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    //public bool IsWonderHarborOnTile(Vector3Int loc)
-    //{
-    //    return wonderStopDict.ContainsKey(loc);
-    //}
+	public bool IsCityAirportOnTile(Vector3Int loc)
+	{
+		if (cityImprovementDict.ContainsKey(loc))
+		{
+			if (cityImprovementDict[loc].GetImprovementData.improvementName == "Airport")
+				return true;
+			else
+				return false;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
-    public bool IsTradeCenterHarborOnTile(Vector3Int loc)
+	//public bool IsWonderHarborOnTile(Vector3Int loc)
+	//{
+	//    return wonderStopDict.ContainsKey(loc);
+	//}
+
+	public bool IsTradeCenterHarborOnTile(Vector3Int loc)
     {
         return tradeCenterStopDict.ContainsKey(loc);
     }
@@ -5836,7 +5866,7 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].sailable && !noWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].sailable && !noWalkList.Contains(tile) && !world[tile].border;
     }
 
 	public bool CheckIfSeaPositionIsValidForEnemy(Vector3Int tile)
@@ -6975,6 +7005,12 @@ public class MapWorld : MonoBehaviour
 
         return cityName;
     }
+
+    public void ToggleGiftGiving(NPC npc)
+    {
+        uiResourceGivingPanel.ToggleVisibility(true, false, false, npc);
+		unitMovement.uiPersonalResourceInfoPanel.SetPosition(false, null);
+	}
 
     public void StatsCheck(ResourceType type, int amount)
     {

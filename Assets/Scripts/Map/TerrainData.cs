@@ -45,7 +45,7 @@ public class TerrainData : MonoBehaviour
     public bool changeLeafColor;
     [HideInInspector]
     public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
-        showProp = true, hasNonstatic, straightRiver;
+        showProp = true, hasNonstatic, straightRiver, border;
 
     //[HideInInspector]
     //public List<GameObject> enemyBorders = new();
@@ -726,6 +726,10 @@ public class TerrainData : MonoBehaviour
         {
             treeHandler.ToggleForestClear(v, isHill, world.atlasSemiClear);
         } 
+        else if (world.IsTradeCenterOnTile(tileCoordinates))
+        {
+            world.GetTradeCenter(tileCoordinates).ToggleClear(v);
+        }
     }
 
     public void ResetMovementCost()
@@ -857,6 +861,7 @@ public class TerrainData : MonoBehaviour
         data.variant = prefabIndex;
         data.decor = decorIndex;
         data.uvMapIndex = uvMapIndex;
+        data.border = border;
 
         data.isDiscovered = isDiscovered;
         data.beingCleared = beingCleared;
@@ -880,5 +885,6 @@ public class TerrainData : MonoBehaviour
         main.rotation = data.mainRotation;
         nonstatic.rotation = data.mainRotation;
         uvMapIndex = data.uvMapIndex;
+        border = data.border;
 	}
 }

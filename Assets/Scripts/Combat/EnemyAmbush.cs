@@ -7,7 +7,7 @@ public class EnemyAmbush
 {
     public Vector3Int loc;
     public string attackedTrader;
-    public List<Unit> attackingUnits = new();
+    public List<Military> attackingUnits = new();
     public List<Unit> attackedUnits = new();
 
     public EnemyAmbushData GetAmbushData()
@@ -16,9 +16,7 @@ public class EnemyAmbush
 		List<UnitData> attackingList = new();
 
 		for (int i = 0; i < attackingUnits.Count; i++)
-		{
-			attackingList.Add(attackingUnits[i].military.SaveMilitaryUnitData());
-		}
+			attackingList.Add(attackingUnits[i].SaveMilitaryUnitData());
 
 		data.loc = loc;
 		data.attackingUnits = attackingList;

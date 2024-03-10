@@ -401,7 +401,10 @@ public class TerrainGenerator : MonoBehaviour
                     }
                 }
 
-                GenerateTile(sea, position, rotation, prefabIndex, true);
+                TerrainData td = GenerateTile(sea, position, rotation, prefabIndex, true);
+
+                if (position.x < 0 || position.x > width || position.z < 0 || position.z > height)
+                    td.border = true;
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandHill)
             {
@@ -655,7 +658,7 @@ public class TerrainGenerator : MonoBehaviour
 		for (int i = 0; i < resourceLocs.Count; i++)
             AddResource(random, terrainDict[resourceLocs[i]]);
 
-        enemyCampLocs = GenerateEnemyCamps(random, startingPlace, tradeCenterLocs, landLocs, luxuryLocs, resourceLocs, enemyCityRange, tradeCenterRange);
+        enemyCampLocs = GenerateEnemyCamps(random, startingPlace, landLocs, luxuryLocs, resourceLocs, enemyCityRange, tradeCenterRange);
 
         //Finish it all off by placing water
         //Vector3 waterLoc = new Vector3(width*3 / 2 - .5f, yCoord - .02f, height*3 / 2 - .5f);
@@ -1974,7 +1977,18 @@ public class TerrainGenerator : MonoBehaviour
         int clayCount = desertTiles.Count / 6;
         for (int i = 0; i < clayCount; i++)
         {
+            if (desertTiles.Count == 0)
+                break;
+
             Vector3Int newClay = desertTiles[random.Next(0, desertTiles.Count)];
+
+            if (enemyCityRange.Contains(newClay) || startingPlaceRange.Contains(newClay) || tradeCenterRange.Contains(newClay)) // do it again if found here
+            {
+                i--;
+                desertTiles.Remove(newClay);
+                continue;
+            }
+
             desertTiles.Remove(newClay);
             GenerateClayTile(newClay);
             finalResourceLocs.Add(newClay);
@@ -2622,6 +2636,7 @@ public class TerrainGenerator : MonoBehaviour
 				Quaternion miniRotation = Quaternion.Euler(90, 0, 0);
 				TradeCenter center = tradeCenterGO.GetComponent<TradeCenter>();
 				center.main.rotation = rotation;
+                center.lightHolder.rotation = rotation;
 				center.minimapIcon.rotation = miniRotation;
 				allTiles.Add(tradeCenterGO);
 			}
@@ -2630,7 +2645,7 @@ public class TerrainGenerator : MonoBehaviour
         return (foodLocs, waterLocs); 
 	}
 
-	private List<Vector3Int> GenerateEnemyCamps(System.Random random, Vector3Int startingPlace, List<Vector3Int> tradeCenterLocs, List<Vector3Int> landLocs, List<Vector3Int> luxuryLocs, List<Vector3Int> resourceLocs, List<Vector3Int> enemyCityRange, List<Vector3Int> tradeCenterRange)
+	private List<Vector3Int> GenerateEnemyCamps(System.Random random, Vector3Int startingPlace, List<Vector3Int> landLocs, List<Vector3Int> luxuryLocs, List<Vector3Int> resourceLocs, List<Vector3Int> enemyCityRange, List<Vector3Int> tradeCenterRange)
 	{
         List<Vector3Int> enemyLocs = new();
         List<Vector3Int> locsLeft = new(landLocs);
@@ -2820,13 +2835,51 @@ public class TerrainGenerator : MonoBehaviour
 			}
 
             locsLeft.Remove(chosenTile);
-            if (!nonBuildTime)
+
+			//making sure there's a way to reach camp by land
+			bool hasLand = false;
+			List<Vector3Int> mountainTiles = new();
+			for (int i = 0; i < ProceduralGeneration.neighborsEightDirections.Count; i++)
+			{
+				Vector3Int tile = ProceduralGeneration.neighborsEightDirections[i] + chosenTile;
+				if (terrainDict[tile].isLand)
+				{
+					if (terrainDict[tile].walkable)
+					{
+						hasLand = true;
+						break;
+					}
+					else
+					{
+						mountainTiles.Add(tile);
+					}
+				}
+			}
+
+			if (!hasLand)
+			{
+                if (mountainTiles.Count > 0)
+                {
+                    if (mountainTiles.Count == 8)
+                        continue;
+
+                    Vector3Int mountainTile = mountainTiles[random.Next(0, mountainTiles.Count)];
+				    DestroyImmediate(terrainDict[mountainTile].gameObject);
+				    GenerateTile(grasslandHillSO.prefabs[0], mountainTile, Quaternion.identity, 0);
+                }
+                else
+                {
+                    continue;
+                }
+			}
+
+			if (!nonBuildTime)
                 CreateCamp(random, Mathf.Abs(chosenTile.x - startingPlace.x) + Mathf.Abs(chosenTile.z - startingPlace.z), chosenTile, luxury);
             enemyLocs.Add(chosenTile);
             terrainDict[chosenTile].enemyCamp = true;
             terrainDict[chosenTile].enemyZone = true;
-            
-            for (int i = 0; i < ProceduralGeneration.neighborsCityRadius.Count; i++)
+
+			for (int i = 0; i < ProceduralGeneration.neighborsCityRadius.Count; i++)
             {
                 Vector3Int tile = ProceduralGeneration.neighborsCityRadius[i] + chosenTile;
                 

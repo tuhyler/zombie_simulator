@@ -294,8 +294,8 @@ public class Trader : Unit
 		else if (world.IsTradeCenterOnTile(tradePos))
 			world.GetTradeCenter(tradePos).AddToWaitList(this);
 
-		if (trader.guarded)
-			trader.guardUnit.military.GuardGetInLine(prevTile, currentLocation);
+		if (guarded)
+			guardUnit.military.GuardGetInLine(prevTile, currentLocation);
 	}
 
 	public void GoToBackOfLine(Vector3Int finalLoc, Vector3Int currentLoc)
@@ -318,8 +318,8 @@ public class Trader : Unit
 				if (!world.IsUnitWaitingForSameStop(prevTile, finalLoc))
 				{
 					Teleport(prevTile);
-					if (trader.guarded)
-						trader.guardUnit.Teleport(world.RoundToInt(military.GuardRouteFinish(prevTile, prevTile)));
+					if (guarded)
+						guardUnit.Teleport(world.RoundToInt(guardUnit.military.GuardRouteFinish(prevTile, prevTile)));
 					positionsToCheck.Clear();
 					success = true;
 				}
@@ -355,8 +355,8 @@ public class Trader : Unit
 					{
 						//teleport to back of line
 						Teleport(neighbor);
-						if (trader.guarded)
-							trader.guardUnit.Teleport(world.RoundToInt(military.GuardRouteFinish(neighbor, neighbor)));
+						if (guarded)
+							guardUnit.Teleport(world.RoundToInt(guardUnit.military.GuardRouteFinish(neighbor, neighbor)));
 						positionsToCheck.Clear();
 						success = true;
 						break;
@@ -367,7 +367,7 @@ public class Trader : Unit
 
 		if (!success)
 		{
-			trader.InterruptRoute();
+			InterruptRoute();
 		}
 		else
 		{
@@ -385,8 +385,8 @@ public class Trader : Unit
 		Vector3Int nextSpot = pathPositions.Peek();
 		RestartPath(pathPositions.Dequeue());
 
-		if (trader.guarded)
-			trader.guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
+		if (guarded)
+			guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
 	}
 
 	public IEnumerator MoveUpInLine(int placeInLine)
@@ -416,17 +416,17 @@ public class Trader : Unit
         StartAnimation();
         RestartPath(nextSpot);
 
-		if (trader.guarded)
-			trader.guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
+		if (guarded)
+			guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
 	}
 
 	//restarting route after ambush
 	public void ContinueTradeRoute()
 	{
-		if (trader.guarded)
+		if (guarded)
 		{
-			trader.guardUnit.originalMoveSpeed = originalMoveSpeed;
-			trader.guardUnit.military.ContinueGuarding(pathPositions, currentLocation);
+			guardUnit.originalMoveSpeed = originalMoveSpeed;
+			guardUnit.military.ContinueGuarding(pathPositions, currentLocation);
 		}
 
 		ambush = false;

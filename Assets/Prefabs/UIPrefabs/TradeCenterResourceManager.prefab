@@ -2562,8 +2562,8 @@ MonoBehaviour:
   world: {fileID: 0}
   title: {fileID: 1064102121177097893}
   ownerName: {fileID: 2451000927608216573}
-  increaseText: {fileID: 0}
-  decreaseText: {fileID: 0}
+  increaseText: {fileID: 2401033035210927765}
+  decreaseText: {fileID: 4747699427188575564}
   happinessMeter: {fileID: 9023491486640832973}
   ownerImage: {fileID: 4915645701194261253}
   mad: {fileID: 21300000, guid: dbc22b2fa7752f4429231400f2b4b8d5, type: 3}

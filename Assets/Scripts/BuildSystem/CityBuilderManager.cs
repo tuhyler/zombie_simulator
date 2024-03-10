@@ -88,9 +88,7 @@ public class CityBuilderManager : MonoBehaviour
     public ResourceManager resourceManager;
 
     [HideInInspector]
-    public int laborChange;
-    //public int LaborChange { set { laborChange = value; } }
-    private int placesToWork;
+    public int laborChange, placesToWork;
 
     //wonder management
     private Wonder selectedWonder;
@@ -1860,7 +1858,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void BuildUnit(City city, UnitBuildDataSO unitData, bool upgrading, Unit upgradedUnit)
     {
-        Vector3Int buildPosition;
+        Vector3Int buildPosition = city.cityLoc;
         bool reselectAfterUpgrade = false;
         bool bySea = unitData.transportationType == TransportationType.Sea;
 
@@ -1895,7 +1893,7 @@ public class CityBuilderManager : MonoBehaviour
                 }
             }
         }
-        else //for boat traders
+        else if (unitData.transportationType == TransportationType.Sea) 
         {
             city.harborTraining = false;
 			if (uiUnitBuilder.activeStatus)
@@ -1905,23 +1903,55 @@ public class CityBuilderManager : MonoBehaviour
             {
                 buildPosition = upgradedUnit.currentLocation;
             }
-            else
+            else 
             {
-                buildPosition = city.harborLocation;
+                if (unitData.unitType == UnitType.Transport) //placing transport ship next to land
+				{
+                    world.waterTransport = true;
+                    
+                    Vector3Int closestLand = city.cityLoc;
+                    foreach (Vector3Int pos in world.GetNeighborsFor(city.harborLocation, MapWorld.State.FOURWAYINCREMENT))
+                    {
+                        if (world.GetTerrainDataAt(pos).walkable && world.GetTerrainDataAt(pos).isLand)
+                        {
+                            closestLand = pos;
+                            break;
+                        }
+                    }
 
-                if (world.IsUnitLocationTaken(buildPosition))
-                {
-			        foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAY))
-			        {
-				        if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).sailable)
-				        {
-					        buildPosition = pos;
-					        break;
-				        }
-			        }
+                    Vector3Int diff = (city.harborLocation - closestLand) / 3;
+                    Vector3Int newLoc = city.harborLocation + diff;
+
+                    if (diff.z == 0)
+                        newLoc.z += 1;
+                    else
+                        newLoc.x += 1;
+
+                    buildPosition = newLoc;
                 }
+                else
+                {
+                    buildPosition = city.harborLocation;
+                    
+                    if (world.IsUnitLocationTaken(buildPosition))
+                    {
+			            foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAY))
+			            {
+				            if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).sailable)
+				            {
+					            buildPosition = pos;
+					            break;
+				            }
+			            }
+                    }
+                }
+                
             }
 		}
+        else if (unitData.transportationType == TransportationType.Air)
+        {
+            world.airTransport = true;
+        }
 
         GameObject unitGO = unitData.prefab;
 		GameObject unit = Instantiate(unitGO, buildPosition, Quaternion.identity); //produce unit at specified position

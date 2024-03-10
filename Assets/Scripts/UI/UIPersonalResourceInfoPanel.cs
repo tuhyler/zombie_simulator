@@ -161,7 +161,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                 }
                 else if (tradeCenter)
                 {
-                    foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
+					foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
                         ActivateCell(type, true, true);
 
                     gridGrid.cellSize = new Vector2(90, 110);
@@ -390,7 +390,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         {
             if (isCity)
             {
-                int price = tradeCenter.ResourceBuyDict[type];
+                int price = Mathf.CeilToInt(tradeCenter.ResourceBuyDict[type] * tradeCenter.multiple);
                 if (isCity && price > maxBuyCost)
                     maxBuyCost = price;
 
@@ -767,6 +767,12 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         }
 
         foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
-            gridCellDict[tradeCenter.ResourceBuyGridDict[type]].resource.SetPriceColor(goldAmount >= tradeCenter.ResourceBuyDict[type] ? Color.white : Color.red);
+            gridCellDict[tradeCenter.ResourceBuyGridDict[type]].resource.SetPriceColor(goldAmount >= Mathf.RoundToInt(tradeCenter.ResourceBuyDict[type] * tradeCenter.multiple) ? Color.white : Color.red);
     }
+
+    public void ReturnResource(ResourceType type, int amount)
+    {
+        unit.worker.personalResourceManager.AddResource(type, amount);
+		gridCellDict[resourceUIDict[type]].resource.SetValue(unit.worker.personalResourceManager.ResourceDict[type]);
+	}
 }

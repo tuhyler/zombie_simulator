@@ -356,8 +356,23 @@ public class UIBuilderHandler : MonoBehaviour
 				laborCost.resourceAmount = buildOptions[i].UnitBuildData.laborCost;
 				resourceCosts.Add(laborCost);
 
-				if (!resourceManager.city.hasHarbor && buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
-					hide = true;
+                if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
+                {
+                    if (!resourceManager.city.hasHarbor)
+                        hide = true;
+
+                    if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.waterTransport)
+                        hide = true;
+				}
+
+				if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air)
+				{
+					if (!resourceManager.city.hasAirport)
+						hide = true;
+
+					if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.airTransport)
+						hide = true;
+				}
 			}
 			else if (buildOptions[i].BuildData != null)
 			{

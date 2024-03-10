@@ -8,7 +8,35 @@ public class NPC : Unit
 	public Sprite npcImage;
 	[HideInInspector]
 	public int rapportScore;
-	
+	public int angryIncrease;
+	public int happyDiscount;
+	public int ecstaticDiscount;
+
+	private ResourceValue desiredGift;
+
+	public bool GiftCheck(ResourceValue value)
+	{
+		bool likes;
+
+		if (value.resourceType == desiredGift.resourceType && value.resourceAmount >= desiredGift.resourceAmount)
+			likes = true;
+		else
+			likes = false;
+
+		if (likes)
+		{
+			if (rapportScore <= 12)
+				rapportScore++;
+			return true;
+		}
+		else
+		{
+			if (rapportScore >= -12)
+				rapportScore--;
+			return false;
+		}
+	}
+
 	public NPCData SaveNPCData()
 	{
 		NPCData data = new NPCData();

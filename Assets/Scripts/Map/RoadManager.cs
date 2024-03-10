@@ -196,7 +196,14 @@ public class RoadManager : MonoBehaviour
                 continue;
 
             if (world.IsTradeCenterOnTile(loc))
+            {
                 BuildRoadAtPosition(loc, level);
+
+                TradeCenter center = world.GetTradeCenter(loc);
+                Vector3 pos = center.tcRep.transform.position;
+                pos.y += .2f;
+                center.tcRep.transform.position = pos;
+            }
 
             if (world.IsWonderOnTile(loc) && world.GetWonder(loc).unloadLoc == loc)
             {

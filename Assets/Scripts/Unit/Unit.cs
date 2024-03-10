@@ -53,6 +53,8 @@ public class Unit : MonoBehaviour
 	[HideInInspector]
 	public Military military;
     [HideInInspector]
+    public Transport transport;
+    [HideInInspector]
     public ConversationHaver conversationHaver;
 
 	//movement details
@@ -99,7 +101,7 @@ public class Unit : MonoBehaviour
     private SelectionHighlight highlight;
     
     [HideInInspector]
-    public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep;
+    public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep, byAir;
 
     [HideInInspector]
     public bool inArmy, isDead, runningAway, ambush, hidden, isUpgrading;
@@ -204,13 +206,19 @@ public class Unit : MonoBehaviour
 
 	public void StopAnimation()
     {
-        if (military && (military.isMarching || military.isGuarding))
-            unitAnimator.SetBool(isMarchingHash, false);
-        else
-            unitAnimator.SetBool(isMovingHash, false);
-    
         if (military)
-            unitAnimator.SetBool(isAttackingHash, false);
+        {
+            if (military.isMarching || military.isGuarding)
+				unitAnimator.SetBool(isMarchingHash, false);
+            else
+				unitAnimator.SetBool(isMovingHash, false);
+
+			unitAnimator.SetBool(isAttackingHash, false);
+		}
+        else
+        {
+            unitAnimator.SetBool(isMovingHash, false);
+        }
     }
 
     public void StopAttackAnimation()
@@ -361,22 +369,50 @@ public class Unit : MonoBehaviour
 
 		if (world.IsRoadOnTileLocation(endPositionInt))
 		{
-			y += .1f;
+			if (td.straightRiver)
+            {
+                if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
+                    y = 0.5f;
+                else
+                    y = 0.3f;
+            }
+            else
+            {
+                y += .1f;
+            }
 		}
 
 		if (pathPositions.Count == 0 && !enemyAI && !inArmy && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
-            if (this == world.mainPlayer && unitInTheWay.somethingToSay)
+            if (isPlayer)
             {
-				world.unitMovement.QuickSelect(this);
-				unitInTheWay.SpeakingCheck();
-                FinishMoving(transform.position);
-				yield break;
+				if (unitInTheWay.somethingToSay)
+                {
+                    if (isSelected)
+                    {
+                        world.unitMovement.QuickSelect(this);
+				        unitInTheWay.SpeakingCheck();
+                    }
+
+                    worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
+                    FinishMoving(transform.position);
+				    yield break;
+                }
+                else if (unitInTheWay.buildDataSO.tcRep)
+                {
+					if (isSelected)
+                    {
+                        world.ToggleGiftGiving(unitInTheWay.GetComponent<NPC>());
+                    }
+					worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
+					FinishMoving(transform.position);
+					yield break;
+				}
             }
 
-            if (!unitInTheWay.isBusy && !(unitInTheWay.trader && unitInTheWay.trader.followingRoute) && !unitInTheWay.military && !(unitInTheWay.worker && unitInTheWay.worker.gathering))
+            if (!unitInTheWay.isBusy && !unitInTheWay.buildDataSO.tcRep && !(unitInTheWay.trader && unitInTheWay.trader.followingRoute) && !unitInTheWay.military && !(unitInTheWay.worker && unitInTheWay.worker.gathering))
 			{
                 Vector3Int next;
                 if (pathPositions.Count > 0)
@@ -441,32 +477,62 @@ public class Unit : MonoBehaviour
             {
 				RevealCheck(pos, false);
 
-                if (!world.azaiFollow && !runningAway && CampAggroCheck(pos))
-                {
-                    if (isBusy)
-                        world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
+                //to chase main player if gets too close
+    //            if (!world.azaiFollow && !runningAway && CampAggroCheck(pos))
+    //            {
+    //                if (isBusy)
+    //                    world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
 
-                    if (!world.mapHandler.activeStatus && Camera.main.WorldToViewportPoint(transform.position).z >= 0)
-                        world.cityBuilderManager.PlayWarningAudio();
+    //                if (!world.mapHandler.activeStatus && Camera.main.WorldToViewportPoint(transform.position).z >= 0)
+    //                    world.cityBuilderManager.PlayWarningAudio();
 
-					isBusy = true;
-                    world.AddUnitPosition(transform.position, this);
-					worker.StopPlayer();
-					currentLocation = world.RoundToInt(transform.position);
+				//	isBusy = true;
+    //                world.AddUnitPosition(transform.position, this);
+				//	worker.StopPlayer();
+				//	currentLocation = world.RoundToInt(transform.position);
 
-					yield return null;
-				}
+				//	yield return null;
+				//}
             }
 
 			if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
 			{
 				firstStep = false;
-				if (!isBusy)
-					world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-				else if (runningAway)
-					world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+
+                if (world.scottFollow)
+                {
+                    if (!isBusy)
+                    {
+						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+						//world.scott.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+      //                  if (world.azaiFollow)
+						//	world.azai.CreateFollowerPath(world.scott.pathPositions, world.scott.prevTile, world.RoundToInt(world.scott.transform.position), world.RoundToInt(world.scott.finalDestinationLoc));
+					}
+					    //world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+				    else if (runningAway)
+                    {
+						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+						//world.scott.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+						//if (world.azaiFollow)
+						//	world.azai.CreateFollowerPath(world.scott.pathPositions, world.scott.prevTile, world.RoundToInt(world.scott.transform.position), world.RoundToInt(world.scott.finalDestinationLoc));
+					}
+				    //world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+                }
 			}
 		}
+
+  //      if (firstStep && world.scott == this)
+  //      {
+  //          firstStep = false;
+
+  //          if (world.azaiFollow)
+  //          {
+  //              if (!world.mainPlayer.isBusy)
+  //                  world.azai.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+  //              else if (world.mainPlayer.runningAway)
+  //                  world.azai.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+  //          }
+		//}
 
 		//making sure army is all in line
 		if (military && military.isMarching)
@@ -518,11 +584,11 @@ public class Unit : MonoBehaviour
             if (pathPositions.Count == 1)
             {
                 //for azai's final step
-                if (buildDataSO.unitDisplayName == "Azai" && !world.mainPlayer.isBusy)
+                /*if (buildDataSO.unitDisplayName == "Azai" && !world.mainPlayer.isBusy)
                 {
                     worker.NextToCheck();
                 }
-                else if (ambush)
+                else*/if (ambush)
                 {
                     StopAnimation();
                     isMoving = false;
@@ -533,7 +599,7 @@ public class Unit : MonoBehaviour
 
                     if (enemyAI)
                         enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
-					else
+					else if (!trader)
 						military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
 
 					yield break;
@@ -678,7 +744,10 @@ public class Unit : MonoBehaviour
 		}
         else //for scott and azai
         {
-			world.AddUnitPosition(currentLocation, this);
+			if (worker && worker.toTransport)
+                worker.LoadWorkerInTransport();
+            else
+                world.AddUnitPosition(currentLocation, this);
         }
     }
 
@@ -889,7 +958,6 @@ public class Unit : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         //Debug.Log(collision.gameObject.tag);
-
         if (enemyAI)
         {
             TerrainData td = collision.gameObject.GetComponent<TerrainData>();
@@ -918,7 +986,7 @@ public class Unit : MonoBehaviour
             Vector3Int loc = world.RoundToInt(collision.gameObject.transform.position);
             TerrainData td = world.GetTerrainDataAt(loc);
 
-            if (td.treeHandler != null || world.IsCityOnTile(loc))
+            if (td.treeHandler != null || world.IsCityOnTile(loc) || world.IsTradeCenterOnTile(loc))
             //if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsCityOnTile(loc))
             {
                 marker.ToggleVisibility(true);

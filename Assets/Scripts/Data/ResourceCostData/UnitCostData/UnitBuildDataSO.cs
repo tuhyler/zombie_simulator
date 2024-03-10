@@ -27,6 +27,7 @@ public class UnitBuildDataSO : ScriptableObject
     public int cargoCapacity;
     public TransportationType transportationType = TransportationType.Land;
     public bool characterUnit;
+    public bool tcRep;
     public Era unitEra;
 }
 
@@ -38,11 +39,13 @@ public enum UnitType
     Cavalry,
     Seige,
     Trader,
-    BoatTrader
+    BoatTrader,
+    Transport
 }
 
 public enum TransportationType
 {
     Land,
     Sea,
+    Air
 }

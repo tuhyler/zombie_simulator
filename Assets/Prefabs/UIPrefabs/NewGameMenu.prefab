@@ -8228,8 +8228,8 @@ MonoBehaviour:
   titleScreen: {fileID: 0}
   startingGroup: {fileID: 4654216603571533232}
   landTypeGroup: {fileID: 8048259842050956607}
-  mountainGroup: {fileID: 7469511421916210920}
-  resourceGroup: {fileID: 0}
+  enemyGroup: {fileID: 3780625222343076097}
+  resourceGroup: {fileID: 1372463507842782077}
   mapSizeGroup: {fileID: 6562323946352417287}
   tutorialToggle: {fileID: 7442138454373049454}
   activeStatus: 0

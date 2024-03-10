@@ -516,7 +516,7 @@ public class UITradeRouteManager : MonoBehaviour
                 
                 for (int j = 0; j < resourceAssignment.Count; j++)
                 {
-                    if (resourceAssignment[j].resourceAmount > 0 && !center.ResourceSellDict.ContainsKey(resourceAssignment[j].resourceType))
+                    if (resourceAssignment[j].resourceAmount < 0 && !center.ResourceSellDict.ContainsKey(resourceAssignment[j].resourceType))
                     {
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " doesn't sell " + resourceAssignment[j].resourceType, false);
 						return;

@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.UI.CanvasScaler;
 
 public class Worker : Unit
 {
@@ -22,7 +23,7 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, stepAside;
+    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, stepAside, toTransport, inTransport;
     public int clearingForestTime = 1, cityBuildingTime = 2, roadBuildingTime = 1, roadRemovingTime = 2;
     public int clearedForestlumberAmount = 100;
     public AudioClip[] gatheringClips;
@@ -642,6 +643,7 @@ public class Worker : Unit
 			world.unitMovement.CancelMove();
 
 		world.unitMovement.LoadUnloadFinish(true);
+		world.unitMovement.GivingFinish(true);
 
 		Vector3 workerPos = transform.position;
         workerPos.y = 0;
@@ -1216,6 +1218,157 @@ public class Worker : Unit
 		}
 	}
 
+	public void HandleSelectedFollowerLoc(Queue<Vector3Int> path, Vector3Int priorSpot, Vector3Int currentSpot, Vector3Int finalSpot)
+	{
+		world.unitMovement.moveUnit = false;
+		
+		if (world.scott.isMoving)
+		{
+			world.scott.StopAnimation();
+			world.scott.ShiftMovement();
+			world.scott.ResetMovementOrders();
+		}
+
+		if (world.azai.isMoving)
+		{
+			world.azai.StopAnimation();
+			world.azai.ShiftMovement();
+			world.azai.ResetMovementOrders();
+		}
+
+		List<Vector3Int> scottPath;
+		
+		List<Vector3Int> tempPath = path.ToList();
+		tempPath.Remove(finalSpot);
+		if (path.Count > 0)
+			tempPath.Insert(0, currentSpot);
+		tempPath.Insert(0, priorSpot);
+
+		scottPath = new(tempPath);
+		Vector3Int finalScottSpot = scottPath[scottPath.Count - 1];
+		world.scott.finalDestinationLoc = finalScottSpot;
+		world.scott.MoveThroughPath(scottPath);
+
+		if (world.azaiFollow)
+		{
+			tempPath.Remove(finalScottSpot);
+			tempPath.Insert(0, world.RoundToInt(world.scott.transform.position));
+			world.azai.finalDestinationLoc = tempPath[tempPath.Count - 1];
+			world.azai.MoveThroughPath(tempPath);
+		}
+	}
+
+	//where scott and azai stand when speaking
+	public void SetUpSpeakingPositions(Vector3 pos)
+	{
+		Vector3Int currentPos = world.RoundToInt(transform.position);
+		Vector3Int talkingPos = world.RoundToInt(pos);
+		int zDiff = currentPos.z - talkingPos.z;
+		int xDiff = currentPos.x - talkingPos.x;
+
+		if (world.scottFollow)
+		{
+			Vector3Int newPos;
+			if (Math.Abs(zDiff) + Math.Abs(xDiff) == 2)
+			{
+				newPos = talkingPos;
+				newPos.z += zDiff;
+			}
+			else
+			{
+				newPos = currentPos;
+				if (zDiff == 0)
+					newPos.z += -1;
+				else
+					newPos.x += -1;
+			}
+
+			world.scott.RepositionWorker(newPos);
+		}
+
+		if (world.azaiFollow)
+		{
+			Vector3Int newPos;
+			if (Math.Abs(zDiff) + Math.Abs(xDiff) == 2)
+			{
+				newPos = talkingPos;
+				newPos.x += xDiff;
+			}
+			else
+			{
+				newPos = currentPos;
+				if (zDiff == 0)
+					newPos.z += 1;
+				else
+					newPos.x += 1;
+			}
+
+			world.azai.RepositionWorker(newPos);
+		}
+	}
+
+	public void RepositionWorker(Vector3Int newPos)
+	{
+		StopMovement();
+		ShiftMovement();
+
+		List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, newPos, false, false);
+
+		if (path.Count > 0)
+		{
+			finalDestinationLoc = newPos;
+			MoveThroughPath(path);
+		}
+	}
+
+	public void LoadWorkerInTransport()
+	{
+		Vector3Int tile = world.RoundToInt(transform.position);
+		if (world.GetUnit(tile).transport)
+		{
+			if (world.GetUnit(tile).isUpgrading)
+			{
+				InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+				return;
+			}
+			world.GetUnit(tile).transport.Load(this);
+		}
+		else
+		{
+			foreach (Vector3Int newTile in world.GetNeighborsFor(tile, MapWorld.State.FOURWAY))
+			{
+				if (world.GetUnit(newTile).transport)
+				{
+					if (world.GetUnit(tile).isUpgrading)
+					{
+						InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+						return;
+					}
+
+					world.GetUnit(newTile).transport.Load(this);
+					break;
+				}
+			}
+		}
+		
+		gameObject.SetActive(false);
+		inTransport = true;
+		//HideUnit(true);
+		//Vector3 sixFeetUnder = transform.position;
+		//sixFeetUnder.y -= 6f;
+		//transform.position = sixFeetUnder;
+		//unitRigidbody.useGravity = false;
+	}
+
+	public void UnloadWorkerFromTransport(Vector3Int tile)
+	{
+		transform.position = tile;
+		gameObject.SetActive(true);
+		inTransport = false;
+		//UnhideUnit();
+		//unit.unitRigidbody.useGravity = true;
+	}
+
 	public void StopPlayer()
 	{
 		if (isMoving)
@@ -1281,8 +1434,7 @@ public class Worker : Unit
 		}
 
 		finalDestinationLoc = safeTarget;
-		if (world.scottFollow)
-			firstStep = true;
+		firstStep = true;
 		List<Vector3Int> runAwayPath = GridSearch.AStarSearch(world, currentLocation, safeTarget, isTrader, bySea);
 
 		//in case already home
@@ -1322,61 +1474,73 @@ public class Worker : Unit
 			MoveThroughPath(runAwayPath);
 	}
 
-	public void NextToCheck()
-	{
-		Vector3Int targetArea = pathPositions.Dequeue();
-		Vector3Int diff = world.RoundToInt(world.mainPlayer.transform.position) - targetArea;
-		List<Vector3Int> potentialAreas = new();
+	//public void NextToCheck()
+	//{
+	//	Vector3Int targetArea = pathPositions.Dequeue();
+	//	Vector3Int diff = world.RoundToInt(world.mainPlayer.transform.position) - targetArea;
+	//	List<Vector3Int> potentialAreas = new();
 
-		if (diff.x != 0 && diff.z != 0)
-		{
-			potentialAreas.Add(targetArea + new Vector3Int(diff.x, 0, 0));
-			potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.z));
-		}
-		else if (diff.x != 0)
-		{
-			potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.x));
-			potentialAreas.Add(targetArea + new Vector3Int(0, 0, -diff.x));
-		}
-		else if (diff.z != 0)
-		{
-			potentialAreas.Add(targetArea + new Vector3Int(diff.z, 0, 0));
-			potentialAreas.Add(targetArea + new Vector3Int(-diff.z, 0, 0));
-		}
+	//	if (diff.x != 0 && diff.z != 0)
+	//	{
+	//		potentialAreas.Add(targetArea + new Vector3Int(diff.x, 0, 0));
+	//		potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.z));
+	//	}
+	//	else if (diff.x != 0)
+	//	{
+	//		potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.x));
+	//		potentialAreas.Add(targetArea + new Vector3Int(0, 0, -diff.x));
+	//	}
+	//	else if (diff.z != 0)
+	//	{
+	//		potentialAreas.Add(targetArea + new Vector3Int(diff.z, 0, 0));
+	//		potentialAreas.Add(targetArea + new Vector3Int(-diff.z, 0, 0));
+	//	}
 
-		potentialAreas.Add(prevTile);
-		Vector3Int closestLoc = prevTile;
+	//	potentialAreas.Add(prevTile);
+	//	Vector3Int closestLoc = prevTile;
 
-		bool firstOne = true;
-		int dist = 0;
-		for (int i = 0; i < potentialAreas.Count; i++)
-		{
-			if (!world.CheckIfPositionIsValid(potentialAreas[i]))
-				continue;
+	//	bool firstOne = true;
+	//	int dist = 0;
+	//	for (int i = 0; i < potentialAreas.Count; i++)
+	//	{
+	//		if (!world.CheckIfPositionIsValid(potentialAreas[i]))
+	//			continue;
 
-			if (firstOne)
-			{
-				firstOne = false;
-				dist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
-				closestLoc = potentialAreas[i];
-				continue;
-			}
+	//		if (firstOne)
+	//		{
+	//			firstOne = false;
+	//			dist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
+	//			closestLoc = potentialAreas[i];
+	//			continue;
+	//		}
 
-			int newDist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
-			if (newDist < dist)
-				closestLoc = potentialAreas[i];
+	//		int newDist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
+	//		if (newDist < dist)
+	//			closestLoc = potentialAreas[i];
 
-			break;
-		}
+	//		break;
+	//	}
 
-		finalDestinationLoc = closestLoc;
-		pathPositions.Enqueue(closestLoc);
-	}
+	//	finalDestinationLoc = closestLoc;
+	//	pathPositions.Enqueue(closestLoc);
+	//}
 
 	public void FinishMovementPlayer(Vector3 endPosition)
 	{
 		if (world.tutorialGoing)
 			world.TutorialCheck("Finished Movement");
+
+		if (toTransport)
+		{
+			Vector3Int endPositionInt = world.RoundToInt(endPosition);
+			LoadWorkerInTransport();
+			world.scott.toTransport = true;
+			world.scott.RepositionWorker(endPositionInt);
+
+			world.azai.toTransport = true;
+			world.azai.RepositionWorker(endPositionInt);
+			return;
+		}
 
 		if (isSelected)
 		{
@@ -1426,9 +1590,11 @@ public class Worker : Unit
         data.stepAside = stepAside;
         data.orderList = orderList;
         data.timePassed = timePassed;
+		data.toTransport = toTransport;
+		data.inTransport = inTransport;
 
 		//personal resource info
-        if (isPlayer)
+		if (isPlayer)
         {
 			data.resourceDict = personalResourceManager.ResourceDict;
 			data.resourceStorageLevel = personalResourceManager.ResourceStorageLevel;
@@ -1465,6 +1631,12 @@ public class Worker : Unit
         runningAway = data.runningAway;
         stepAside = data.stepAside;
 		somethingToSay = data.somethingToSay;
+		toTransport = data.toTransport;
+		inTransport = data.inTransport;
+
+		if (inTransport)
+			LoadWorkerInTransport();
+
         if (runningAway)
             exclamationPoint.SetActive(true);
 
