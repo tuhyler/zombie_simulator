@@ -76,16 +76,6 @@ public class Trader : Unit
 		tradeRouteManager.SetUIPersonalResourceManager(uiPersonalResourceInfoPanel);
 	}
 
-    public override void TurnOffRipples()
-    {
-        LeanTween.alpha(ripples, 0f, 0.5f).setFrom(1f).setEase(LeanTweenType.linear).setOnComplete(SetActiveStatusFalse);
-    }
-
-    private void SetActiveStatusFalse()
-    {
-        ripples.SetActive(false);
-    }
-
     //animations
     public override void SetInterruptedAnimation(bool v)
     {
@@ -689,6 +679,10 @@ public class Trader : Unit
 		//}
 	}
 
+    public void UnloadAll(City city)
+    {
+        personalResourceManager.UnloadAll(city);
+    }
 
     private List<ResourceValue> RouteCostCalculator(float multiple, bool types)
     {

@@ -25,42 +25,20 @@ public class MovementSystem : MonoBehaviour
         if (orderQueueing) //adding lists to each other for order queueing, turn counter starts at 1 each time
         {
             currentPath = GridSearch.AStarSearch(world, priorPath, endPosition, isTrader, selectedUnit.bySea);
+            Vector3Int prevFinalSpot = world.RoundToInt(selectedUnit.finalDestinationLoc);
             selectedUnit.AddToMovementQueue(currentPath);
 
             if (currentPath.Count > 0)
             {
                 if (selectedUnit.isPlayer)
                 {
-                    if (world.scottFollow)
+                    if (world.scottFollow && world.scott.isMoving)
                     {
-                        List<Vector3Int> nextPath = SetFollowerPaths(currentPath, world, selectedUnit, world.scott);
+                        Vector3Int scottPrevSpot = world.RoundToInt(world.scott.finalDestinationLoc);
+                        List<Vector3Int> nextPath = SetFollowerPaths(world, currentPath, prevFinalSpot, world.scott);
 
                         if (world.azaiFollow)
-                            SetFollowerPaths(nextPath, world, world.scott, world.azai);
-
-      //                  List<Vector3Int> followerPath = new(currentPath);
-      //                  followerPath.RemoveAt(followerPath.Count - 1);
-      //                  Vector3Int newEnd;
-      //                  Vector3Int prevSpot = world.RoundToInt(selectedUnit.finalDestinationLoc);
-
-				  //      if (followerPath.Count > 0)
-      //                  {
-      //                      newEnd = followerPath[followerPath.Count - 1];
-      //                  }
-      //                  else
-      //                  {
-      //                      newEnd = prevSpot;
-				  //      }
-                        
-      //                  followerPath.Insert(0, prevSpot);
-      //                  world.scott.finalDestinationLoc = newEnd;
-      //                  world.scott.AddToMovementQueue(followerPath);
-
-      //                  if (world.azaiFollow)
-      //                  {
-						//	List<Vector3Int> followerPath2 = new(currentPath);
-						//	followerPath.RemoveAt(followerPath.Count - 1);
-						//}
+                            SetFollowerPaths(world, nextPath, scottPrevSpot, world.azai);
                     }
                 }
                 else if (selectedUnit.trader)
@@ -86,12 +64,11 @@ public class MovementSystem : MonoBehaviour
         }
     }
 
-    private List<Vector3Int> SetFollowerPaths(List<Vector3Int> path, MapWorld world, Unit leader, Worker follower)
+    private List<Vector3Int> SetFollowerPaths(MapWorld world, List<Vector3Int> path, Vector3Int prevSpot, Worker follower)
     {
 		List<Vector3Int> followerPath = new(path);
 		followerPath.RemoveAt(followerPath.Count - 1);
 		Vector3Int newEnd;
-		Vector3Int prevSpot = world.RoundToInt(leader.finalDestinationLoc);
 
 		if (followerPath.Count > 0)
 			newEnd = followerPath[followerPath.Count - 1];
@@ -104,6 +81,27 @@ public class MovementSystem : MonoBehaviour
 
         return followerPath;
 	}
+
+    public void ResetFollowerPaths(MapWorld world)
+    {
+        if (currentPath.Count == 0)
+            return;
+        
+        if (world.scottFollow)
+        {
+            List<Vector3Int> scottPath = new(currentPath);
+            scottPath.RemoveAt(scottPath.Count - 1);
+            scottPath.Insert(0, world.RoundToInt(world.mainPlayer.transform.position));
+            world.scott.AddToMovementQueue(scottPath);
+
+            if (world.azaiFollow)
+            {
+                scottPath.RemoveAt(scottPath.Count - 1);
+                scottPath.Insert(0, world.RoundToInt(world.scott.transform.position));
+                world.azai.AddToMovementQueue(scottPath);
+            }
+        }
+    }
 
     public void AppendNewPath(Unit selectedUnit)
     {

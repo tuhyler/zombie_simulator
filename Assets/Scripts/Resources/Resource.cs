@@ -55,11 +55,9 @@ public class Resource : MonoBehaviour
 
         int gatheredResource = city.ResourceManager.AddResource(resourceIndividual.resourceType, amount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
-        bool wasted = false;
-        if (gatheredResource == 0)
-            wasted = true;
-
-        InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), wasted);
+        if (gatheredResource > 0)
+            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType));
+            
         city.world.StatsCheck(resourceIndividual.resourceType, amount);
         city.PlayResourceSplash();
         city.world.GameCheck("Resource");

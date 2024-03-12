@@ -35,4 +35,5 @@ MonoBehaviour:
   cargoCapacity: 0
   transportationType: 0
   characterUnit: 1
+  tcRep: 0
   unitEra: 0

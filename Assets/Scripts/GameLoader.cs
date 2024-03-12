@@ -530,6 +530,7 @@ public class GameLoader : MonoBehaviour
 		//transports
 		for (int i = 0; i < gameData.allTransports.Count; i++)
 			world.CreateUnit(gameData.allTransports[i]);
+		gameData.allTransports.Clear();
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(5);

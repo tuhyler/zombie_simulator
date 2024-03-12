@@ -42,15 +42,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     private void Awake()
     {
-        //resourceIndividualHandler = GetComponent<ResourceIndividualHandler>();
         roadManager = GetComponent<RoadManager>();
     }
-
-    //public void HandleEsc()
-    //{
-    //    if (world.mainPlayer.isSelected && world.mainPlayer.isBusy)
-    //        CancelTask();
-    //}
 
     //Methods to run when pressing certain keys
     public void HandleR()
@@ -103,7 +96,6 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void SetWorkerUnit()
     {
-        //this.workerUnit = workerUnit;
         if (world.mainPlayer.isBusy && !world.mainPlayer.runningAway)
             world.unitMovement.uiCancelTask.ToggleVisibility(true);
     }
@@ -180,43 +172,6 @@ public class WorkerTaskManager : MonoBehaviour
         }
     }
 
-    //public void PerformTask(ImprovementDataSO improvementData) //don't actually use "improvementData".
-    //{
-    //    if (workerUnit.isBusy || improvementData == null)
-    //        return;
-        
-    //    Vector3 pos = workerUnit.transform.position;
-    //    pos.y = 0;
-    //    Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
-
-    //    if (improvementData.improvementName == "Resource") //if action is to gather resources
-    //    {
-    //        workerUnit.GatherResource();
-    //    }
-
-    //    else if (improvementData.improvementName == "Road") //adding road
-    //    {
-    //        unitMovement.buildingRoad = true;
-    //        uiBuildingSomething.SetText("Building Road");
-    //        OrdersPrep();
-    //        workerUnit.WorkerOrdersPreparations();
-    //    }
-
-    //    else if (improvementData.improvementName == "City") //creating city
-    //    {
-    //        if (Vector3Int.RoundToInt(pos) == workerTile)
-    //        {
-    //            //add to finish animation listener
-    //            workerUnit.BuildCity();
-    //        }
-    //        else
-    //        {
-    //            MoveToCenterOfTile(workerTile);
-    //            workerUnit.FinishedMoving.AddListener(workerUnit.BuildCity);
-    //        }
-    //    }
-    //}
-
     public void RemoveAllPrep()
     {
         if (!world.mainPlayer.isBusy)
@@ -264,53 +219,6 @@ public class WorkerTaskManager : MonoBehaviour
 			world.scott.WorkerOrdersPreparations();
         }
     }
-
-    //public void RemoveRoad(Vector3Int tile, Worker worker)
-    //{
-    //    if (!world.IsRoadOnTerrain(tile))
-    //    {
-    //        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No road here");
-    //        worker.SkipRoadRemoval();
-    //        return;
-    //    }
-    //    else if (world.IsCityOnTile(tile) || world.IsWonderOnTile(tile) || world.IsTradeCenterOnTile(tile))
-    //    {
-    //        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
-    //        worker.SkipRoadRemoval();
-    //        return;
-    //    }
-
-    //    world.SetWorkerWorkLocation(tile);
-    //    //world.RemoveQueueItemCheck(tile);
-    //    roadManager.timePassed = roadManager.roadRemovingTime;
-    //    taskCoroutine = StartCoroutine(roadManager.RemoveRoad(tile, worker));
-    //}
-
- //   public void LoadRemoveRoadCoroutine(int timePassed, Vector3Int tile, Worker worker)
- //   {
-	//	world.SetWorkerWorkLocation(tile);
-	//	roadManager.timePassed = timePassed;
- //       taskCoroutine = StartCoroutine(roadManager.RemoveRoad(tile, worker));
-	//}
-
-  //  public void GatherResource(Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
-  //  {
-		//world.SetWorkerWorkLocation(world.GetClosestTerrainLoc(workerPos));
-  //      if (world.mainPlayer.isSelected)
-  //          uiCancelTask.ToggleVisibility(true);
-  //      if (clearForest)
-  //          resourceIndividualHandler.timePassed = world.scott.clearingForestTime;
-  //      else
-  //          resourceIndividualHandler.timePassed = resourceIndividual.ResourceGatheringTime;
-  //      taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual, clearForest));
-  //  }
-
- //   public void LoadGatherResourceCoroutine(int timePassed, Vector3 workerPos, Worker worker, City city, ResourceIndividualSO resourceIndividual, bool clearForest)
- //   {
-	//	world.SetWorkerWorkLocation(world.GetClosestTerrainLoc(workerPos));
- //       resourceIndividualHandler.timePassed = timePassed;
-	//	taskCoroutine = StartCoroutine(resourceIndividualHandler.GenerateHarvestedResource(workerPos, worker, city, resourceIndividual, clearForest));
-	//}
 
     private void OrdersPrep()
     {
@@ -372,114 +280,6 @@ public class WorkerTaskManager : MonoBehaviour
 		unitMovement.GoStraightToSelectedLocation(workerTile, workerTile, workerUnit);
     }
 
-  //  public void BuildRoad(Vector3Int tile, Worker worker)
-  //  {
-  //      if (!world.IsTileOpenCheck(tile))
-  //      {
-  //          worker.SkipRoadBuild();
-  //          return;
-  //      }
-
-		//worker.RemoveFromOrderQueue();
-  //      world.SetWorkerWorkLocation(tile);
-  //      world.RemoveQueueItemCheck(tile);
-		//roadManager.timePassed = roadManager.roadBuildingTime;
-		//taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker)); //specific worker (instead of workerUnit) to allow concurrent build
-  //  }
-
- //   public void LoadRoadBuildCoroutine(int timePassed, Vector3Int tile, Worker worker)
- //   {
-	//	world.SetWorkerWorkLocation(tile);
-	//	roadManager.timePassed = timePassed;
-	//	taskCoroutine = StartCoroutine(roadManager.BuildRoad(tile, worker));
-	//}
-
-  //  public void BuildCityPreparations(Vector3Int tile, Worker worker)
-  //  {
-  //      if (CheckForNearbyCity(tile))
-  //      {
-  //          worker.isBusy = false;
-  //          return;
-  //      }
-  //      if (!world.IsTileOpenButRoadCheck(tile))
-  //      {
-  //          InfoPopUpHandler.WarningMessage().Create(tile, "Already something here");
-  //          worker.isBusy = false;
-  //          return;
-  //      }
-
-  //      TerrainData td = world.GetTerrainDataAt(tile);
-  //      TerrainType type = td.terrainData.type;
-
-  //      if (type == TerrainType.River)
-  //      {
-  //          InfoPopUpHandler.WarningMessage().Create(tile, "Not in water...");
-  //          worker.isBusy = false;
-  //          return;
-  //      }
-
-		//bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
-  //      world.RemoveQueueItemCheck(tile);
-  //      int totalTime = cityBuildingTime;
-		//worker.buildingCity = true;
-
-		//if (clearForest)
-  //      {
-  //          if (world.scottFollow)
-  //              worker.PrepareScottForestClear();
-  //          else
-		//		InfoPopUpHandler.WarningMessage().Create(tile, "Can't clear forest...");
-		//}
-  //      else
-  //      {
-  //          world.SetWorkerWorkLocation(tile);
-		//    timePassed = totalTime;
-		//    taskCoroutine = StartCoroutine(BuildCityCoroutine(tile, worker, td, totalTime));   
-  //      }   
-  //  }
-
- //   public void LoadBuildCityCoroutine(int timePassed, Vector3Int workerTile, Worker worker)
- //   {
-	//	TerrainData td = world.GetTerrainDataAt(workerTile);
-	//	TerrainType type = td.terrainData.type;
-	//	bool clearForest = type == TerrainType.Forest || type == TerrainType.ForestHill;
- //       int totalTime = cityBuildingTime;
-	//	worker.buildingCity = true;
-
-	//	if (clearForest)
- //       {
-	//		worker.PrepareScottForestClear();
- //       }
-	//	else
- //       {
- //   		world.SetWorkerWorkLocation(workerTile);
- //           this.timePassed = timePassed;
- //           taskCoroutine = StartCoroutine(BuildCityCoroutine(workerTile, worker, td, totalTime));
- //       }
-	//}
-
-    //private IEnumerator BuildCityCoroutine(Vector3Int workerTile, Worker worker, TerrainData td, int totalTime)
-    //{
-    //    worker.ShowProgressTimeBar(totalTime);
-    //    worker.SetGatherAnimation(true);
-    //    worker.SetTime(timePassed);
-
-    //    while (timePassed > 0)
-    //    {
-    //        yield return oneSecondWait;
-    //        timePassed--;
-    //        worker.SetTime(timePassed);
-    //    }
-
-    //    taskCoroutine = null;
-    //    worker.HideProgressTimeBar();
-    //    worker.SetGatherAnimation(false);
-    //    if (worker.isSelected)
-    //        TurnOffCancelTask();
-    //    BuildCity(workerTile, worker, world.scott.clearedForest, td);
-    //    world.RemoveWorkerWorkLocation(workerTile);
-    //}
-
     public void BuildCity(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td)
     {
         worker.isBusy = false;
@@ -495,32 +295,12 @@ public class WorkerTaskManager : MonoBehaviour
         city.SetWorld(world);
 		world.cityCount++;
 		city.SetNewCityName();
-        //world.AddStructureMap(workerTile, city.mapIcon);
-        //city.cityMapName = world.SetCityTileMap(workerTile, city.name);
         world.AddCity(workerTile, city);
-        //city.SetCityBuilderManager(GetComponent<CityBuilderManager>());
         city.CheckForAvailableSingleBuilds();
 
 		//clear the forest if building on forest tile
 		if (clearForest)
 		{
-            //td.ShowProp(false);
-			//worker.marker.ToggleVisibility(false);
-			//Destroy(td.treeHandler.gameObject);
-			//         TerrainDataSO tempData;
-
-			//if (td.isHill)
-			//{
-			//	tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
-			//}
-			//else
-			//{
-			//	tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
-			//}
-
-			//city.SetNewTerrainData(td);
-            //td.SetNewData(tempData);
-            //GameLoader.Instance.gameData.allTerrain[workerTile] = td.SaveData();
 			city.ResourceManager.AddResource(ResourceType.Lumber, world.scott.clearedForestlumberAmount);
             world.scott.clearedForest = false;
 		}
@@ -595,33 +375,6 @@ public class WorkerTaskManager : MonoBehaviour
 				city.hasFood = true;
 		}
 	}
-
-    //checking if building city too close to another one
-    //private bool CheckForNearbyCity(Vector3 workerPos)
-    //{
-    //    Vector3Int workerTile = Vector3Int.RoundToInt(workerPos);
-    //    int i = 0;
-    //    foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
-    //    {
-    //        if (i < 8 && world.IsTradeCenterOnTile(tile))
-    //        {
-    //            InfoPopUpHandler.WarningMessage().Create(world.mainPlayer.transform.position, "Too close to another city");
-    //            return true;
-    //        }
-    //        i++;
-    //        if (!world.IsCityOnTile(tile))
-    //        {
-    //            continue;
-    //        }
-    //        else
-    //        {
-    //            InfoPopUpHandler.WarningMessage().Create(world.mainPlayer.transform.position, "Too close to another city");
-    //            return true;
-    //        }
-    //    }
-
-    //    return false;
-    //}
 
     public void ForceCancelWorkerTask()
     {

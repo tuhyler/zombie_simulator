@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7163163137336047446}
   - component: {fileID: 8234320481959973493}
   m_Layer: 0
-  m_Name: UnitJoinCityPanel 1
+  m_Name: UnitUnload
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -55,6 +55,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 0}
   buttonButton: {fileID: 0}
+  newIcon: {fileID: 0}
   allContents: {fileID: 5260703463605753538}
   activeStatus: 0
   buttonImage: {fileID: 1185987772734000577}
@@ -86,7 +87,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b1399a3e6a745de46a04fa79ae7a4293, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ecf24c4972cea574c9d2b97d6cafb9e5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -152,6 +153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a00bff459e27464db1c9415ed13ddd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  message: Join City
+  message: Unload All
   secondDelay: 1
   workEthic: 0
