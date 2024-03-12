@@ -456,7 +456,7 @@ public class Army : MonoBehaviour
             waterPath = GridSearch.TerrainSearchSea(world, city.harborLocation, closestTile, exemptList);
         }
 
-        if (landPath.Count == 0 || waterPath.Count <= landPath.Count)
+        if (landPath.Count == 0 || (waterPath.Count > 0 && waterPath.Count <= landPath.Count))
             pathToTarget = waterPath;
         else
             pathToTarget = landPath;

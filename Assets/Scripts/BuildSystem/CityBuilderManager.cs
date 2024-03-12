@@ -1739,14 +1739,34 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (unitData.baseAttackStrength > 0)
             {
+				//place holder
+				return; 
+            }
+            else
+            {
+                if (unitData.unitType == UnitType.Transport)
+					world.waterTransport = true;
+
+				selectedCity.harborTraining = true;
+                world.GetCityDevelopment(city.harborLocation).BeginTraining(city, world.GetResourceProducer(city.harborLocation), city.harborLocation, unitData, upgrading, upgradedUnit, false);
+                return;
+            }
+        }
+        else if (unitData.transportationType == TransportationType.Air)
+        {
+            if (unitData.baseAttackStrength > 0)
+            {
+                //place holder
                 return;
             }
             else
             {
-                selectedCity.harborTraining = true;
-                world.GetCityDevelopment(city.harborLocation).BeginTraining(city, world.GetResourceProducer(city.harborLocation), city.harborLocation, unitData, upgrading, upgradedUnit, false);
-                return;
-            }
+				if (unitData.unitType == UnitType.Transport)
+					world.airTransport = true;
+
+                selectedCity.airportTraining = true;
+				world.GetCityDevelopment(city.airportLocation).BeginTraining(city, world.GetResourceProducer(city.airportLocation), city.airportLocation, unitData, upgrading, upgradedUnit, false);
+			}
         }
         else if (upgrading)
         {
@@ -1906,9 +1926,7 @@ public class CityBuilderManager : MonoBehaviour
             else 
             {
                 if (unitData.unitType == UnitType.Transport) //placing transport ship next to land
-				{
-                    world.waterTransport = true;
-                    
+				{                    
                     Vector3Int closestLand = city.cityLoc;
                     foreach (Vector3Int pos in world.GetNeighborsFor(city.harborLocation, MapWorld.State.FOURWAYINCREMENT))
                     {
@@ -1950,7 +1968,7 @@ public class CityBuilderManager : MonoBehaviour
 		}
         else if (unitData.transportationType == TransportationType.Air)
         {
-            world.airTransport = true;
+            
         }
 
         GameObject unitGO = unitData.prefab;
@@ -2041,6 +2059,11 @@ public class CityBuilderManager : MonoBehaviour
 				}
 			}
 		}
+        else if (newUnit.transport)
+        {
+            newUnit.name = unitData.unitDisplayName;
+            world.transportList.Add(newUnit.transport);
+        }
 
         Quaternion rotation;
         if (rot == Vector3.zero)

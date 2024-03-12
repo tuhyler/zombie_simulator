@@ -34,7 +34,22 @@ public class UITomFinder : MonoBehaviour
         if (world.mainPlayer.isSelected)
             unitMovement.ClearSelection();
         unitMovement.HandleUnitSelectionAndMovement(world.mainPlayer.transform.position, world.mainPlayer.gameObject);
-        world.mainPlayer.CenterCamera();
+
+        if (world.mainPlayer.inTransport)
+        {
+            for (int i = 0; i < world.transportList.Count; i++)
+            {
+                if (world.transportList[i].hasKoa)
+                {
+                    world.transportList[i].CenterCamera();
+                    break;
+				}
+            }
+        }
+        else
+        {
+            world.mainPlayer.CenterCamera();
+        }
     }
 
     public void ToggleButtonOn(bool v)

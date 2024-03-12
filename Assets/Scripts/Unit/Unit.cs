@@ -61,11 +61,11 @@ public class Unit : MonoBehaviour
 	[HideInInspector]
     public Rigidbody unitRigidbody;
     [HideInInspector]
-    public float rotationDuration = 0.2f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.01f;
+    public float rotationDuration = 0.3f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.1f;
     [HideInInspector]
     public Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
-    public bool moreToMove, isBusy, isMoving, isBeached, secondaryPrefab, readyToMarch = true; 
+    public bool moreToMove, isBusy, isMoving, secondaryPrefab, readyToMarch = true; 
     [HideInInspector]
     public Vector3 destinationLoc;
     [HideInInspector]
@@ -341,48 +341,11 @@ public class Unit : MonoBehaviour
     private IEnumerator MovementCoroutine(Vector3 endPosition)
     {
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
-        TerrainData td = world.GetTerrainDataAt(endPositionInt);
-        float y = 0f;
 
-        if (bySea)
-        {
-            y = -.45f;
+   //     if (transport && bySea && world.CheckIfCoastCoast(endPositionInt))
+			//TurnOffRipples();
 
-            if (isBeached)
-            {
-                isBeached = false;
-            }
-            else if (world.CheckIfCoastCoast(endPositionInt))
-            {
-                y = -.3f;
-                TurnOffRipples();
-                isBeached = true;
-            }
-        }
-        else if (td.isHill)
-        {
-            if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
-                y = 0.4f;//world.test;
-            else
-                y = 0.2f;
-        }
-
-		if (world.IsRoadOnTileLocation(endPositionInt))
-		{
-			if (td.straightRiver)
-            {
-                if (endPositionInt.x % 3 == 0 && endPositionInt.z % 3 == 0)
-                    y = 0.5f;
-                else
-                    y = 0.3f;
-            }
-            else
-            {
-                y += .1f;
-            }
-		}
-
-		if (pathPositions.Count == 0 && !enemyAI && !inArmy && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+        if (pathPositions.Count == 0 && !military && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
         {
             Unit unitInTheWay = world.GetUnit(endPositionInt);
 
@@ -412,8 +375,17 @@ public class Unit : MonoBehaviour
 				}
             }
 
-            if (!unitInTheWay.isBusy && !unitInTheWay.buildDataSO.tcRep && !(unitInTheWay.trader && unitInTheWay.trader.followingRoute) && !unitInTheWay.military && !(unitInTheWay.worker && unitInTheWay.worker.gathering))
-			{
+            if (unitInTheWay.transport)
+            {
+                if (worker)
+                {
+                    worker.LoadWorkerInTransport(unitInTheWay.transport);
+                    FinishMoving(transform.position);
+                    yield break;
+                }
+            }
+			else if ((unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering) || (unitInTheWay.trader && !unitInTheWay.trader.followingRoute))
+            {
                 Vector3Int next;
                 if (pathPositions.Count > 0)
                     next = pathPositions.Peek();
@@ -441,7 +413,6 @@ public class Unit : MonoBehaviour
             endPosition = finalDestinationLoc;
 
         Quaternion startRotation = transform.rotation;
-        endPosition.y = y;
         Vector3 direction = endPosition - transform.position;
         direction.y = 0;
 
@@ -451,26 +422,24 @@ public class Unit : MonoBehaviour
         else
             endRotation = Quaternion.LookRotation(direction, Vector3.up);
 
-
         float distance = 1f;
         float timeElapsed = 0;
+        Vector3 actualEnd = endPosition;
 
         while (distance > threshold)
         {
-            distance = Math.Abs(transform.localPosition.x - endPosition.x) + Math.Abs(transform.localPosition.z - endPosition.z);
+            distance = Math.Abs(transform.position.x - endPosition.x) + Math.Abs(transform.position.z - endPosition.z);
+            actualEnd.y = transform.position.y;
             timeElapsed += Time.deltaTime;
             float movementThisFrame = Time.deltaTime * moveSpeed;
             float lerpStep = timeElapsed / rotationDuration; //Value between 0 and 1
-            transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPosition, movementThisFrame);
+            transform.position = Vector3.MoveTowards(transform.position, actualEnd, movementThisFrame);
             transform.rotation = Quaternion.Lerp(startRotation, endRotation, lerpStep);
-
-            if (distance <= threshold)
-                break;
 
             yield return null;
         }
 
-        if (isPlayer)
+        if (isPlayer || transport)
         {
 			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
 			if (pos != prevTerrainTile)
@@ -503,7 +472,7 @@ public class Unit : MonoBehaviour
                 {
                     if (!isBusy)
                     {
-						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, endPositionInt, world.RoundToInt(finalDestinationLoc));
 						//world.scott.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
       //                  if (world.azaiFollow)
 						//	world.azai.CreateFollowerPath(world.scott.pathPositions, world.scott.prevTile, world.RoundToInt(world.scott.transform.position), world.RoundToInt(world.scott.finalDestinationLoc));
@@ -511,7 +480,7 @@ public class Unit : MonoBehaviour
 					    //world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
 				    else if (runningAway)
                     {
-						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
+						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, endPositionInt, world.RoundToInt(finalDestinationLoc));
 						//world.scott.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
 						//if (world.azaiFollow)
 						//	world.azai.CreateFollowerPath(world.scott.pathPositions, world.scott.prevTile, world.RoundToInt(world.scott.transform.position), world.RoundToInt(world.scott.finalDestinationLoc));
@@ -564,7 +533,7 @@ public class Unit : MonoBehaviour
                     yield break;
                 }
 
-				prevTile = world.RoundToInt(endPosition);
+				prevTile = endPositionInt;
 				if (prevTile == ambushLoc) //prevTile is a misnomer, asking if current tile is ambushLoc. Can also trigger ambush when walking
                 {
                     ambush = true;
@@ -578,7 +547,7 @@ public class Unit : MonoBehaviour
             }
             else
             {
-                prevTile = world.RoundToInt(endPosition);
+                prevTile = endPositionInt;
             }
 
             if (pathPositions.Count == 1)
@@ -619,7 +588,7 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void StopMovement()
+	public void StopMovement()
     {
         if (isMoving)
         {
@@ -698,7 +667,7 @@ public class Unit : MonoBehaviour
 
     public void FinishMoving(Vector3 endPosition)
     {
-        if (bySea && !isBeached)
+        if (bySea)
             TurnOffRipples();
         queueCount = 0;
         moreToMove = false;
@@ -708,7 +677,6 @@ public class Unit : MonoBehaviour
         pathPositions.Clear();
         StopAnimation();
         FinishedMoving?.Invoke();
-
 
         if (isDead)
         {
@@ -734,6 +702,10 @@ public class Unit : MonoBehaviour
         {
             worker.FinishMovementPlayer(endPosition);
 		}
+        else if (transport)
+        {
+            transport.FinishMovementTransport(endPosition);
+        }
         else if (isLaborer)
         {
 			world.unitMovement.LaborerJoin(this);
@@ -744,7 +716,7 @@ public class Unit : MonoBehaviour
 		}
         else //for scott and azai
         {
-			if (worker && worker.toTransport)
+			if (worker && !worker.inTransport && worker.toTransport)
                 worker.LoadWorkerInTransport();
             else
                 world.AddUnitPosition(currentLocation, this);
@@ -944,13 +916,18 @@ public class Unit : MonoBehaviour
 
     }
 
-    public virtual void TurnOffRipples()
+    public void TurnOffRipples()
     {
+		LeanTween.alpha(ripples, 0f, 0.5f).setFrom(1f).setEase(LeanTweenType.linear).setOnComplete(SetActiveStatusFalse);
+	}
 
-    }
+	private void SetActiveStatusFalse()
+	{
+		ripples.SetActive(false);
+	}
 
-    //for animations
-    public virtual void SetInterruptedAnimation(bool v)
+	//for animations
+	public virtual void SetInterruptedAnimation(bool v)
     {
 
     }

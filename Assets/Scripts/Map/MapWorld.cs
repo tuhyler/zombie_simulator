@@ -613,7 +613,7 @@ public class MapWorld : MonoBehaviour
 			unitEnemy.SetReferences(this);
 
 			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
-			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
+			if (!unitPosDict.ContainsKey(unitLoc)) //just in case dictionary was missing any
 				unitEnemy.currentLocation = AddUnitPosition(unitLoc, unitEnemy);
 
 			unitEnemy.currentLocation = unitLoc;

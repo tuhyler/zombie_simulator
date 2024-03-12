@@ -158,6 +158,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: afeebd19f8c3a8441b06c29a9fc6a28f, type: 3}
   - {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   - {fileID: 21300000, guid: dc76964902761f94c935417a2a80ac87, type: 3}
+  - {fileID: 21300000, guid: ecf24c4972cea574c9d2b97d6cafb9e5, type: 3}
   - {fileID: 21300000, guid: 24ee2f493f480714ab8ff397f7f71c0b, type: 3}
   - {fileID: 21300000, guid: 582da869dd2205a41bc0788c0d17b213, type: 3}
   - {fileID: 21300000, guid: 5529a4a93e971f54fbe83c3da0146264, type: 3}
@@ -357,6 +358,7 @@ SpriteAtlas:
   - icon_housingbig
   - button_farm
   - icon_cavalry_enemy
+  - button_unload
   - icon_seige_enemy
   - panel_lighterblue
   - tab_gold

@@ -48,7 +48,15 @@ public class Transport : Unit
 			canMove = true;
 
 		if (isSelected)
-			world.unitMovement.ShowIndividualCityButtonsUI();
+		{
+			world.unitMovement.uiJoinCity.ToggleVisibility(false);
+
+			if (passengerCount == 3)
+			{
+				world.unitMovement.uiUnload.ToggleVisibility(true);
+				world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+			}
+		}
 	}
 
 	public void Unload()
@@ -59,7 +67,7 @@ public class Transport : Unit
 
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
 		{
-			if (world.GetTerrainDataAt(tile).isLand)
+			if (world.GetTerrainDataAt(tile).isLand && world.GetTerrainDataAt(tile).walkable)
 			{
 				landTile = tile;
 				nearbyLand = true;
@@ -124,6 +132,24 @@ public class Transport : Unit
 		}
     }
 
+	public void FinishMovementTransport(Vector3 endPosition)
+	{
+		Vector3Int currentLoc = world.RoundToInt(endPosition);
+
+		bool nearbyLand = false;
+		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
+		{
+			if (world.GetTerrainDataAt(tile).isLand && world.GetTerrainDataAt(tile).walkable)
+			{
+				nearbyLand = true;
+				break;
+			}
+		}
+
+		if (nearbyLand)
+			world.unitMovement.uiUnload.ToggleVisibility(true);
+	}
+
 	public TransportData SaveTransportData()
 	{
 		TransportData data = new();
@@ -150,6 +176,7 @@ public class Transport : Unit
 
 	public void LoadTransportData(TransportData data)
 	{
+		gameObject.name = buildDataSO.unitDisplayName;
 		transform.position = data.position;
 		transform.rotation = data.rotation;
 		destinationLoc = data.destinationLoc;

@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class PersonalResourceManager : MonoBehaviour
 {
@@ -108,25 +106,54 @@ public class PersonalResourceManager : MonoBehaviour
 
 	private void UICheck(ResourceType type)
     {
-        if (world.unitMovement.uiPersonalResourceInfoPanel.activeStatus && world.unitMovement.uiPersonalResourceInfoPanel.unit == unit)
+        if (unit.isSelected)//world.unitMovement.uiPersonalResourceInfoPanel.activeStatus && world.unitMovement.uiPersonalResourceInfoPanel.unit == unit)
         {
             world.unitMovement.uiPersonalResourceInfoPanel.UpdateResource(type, GetResourceDictValue(type));
 		    world.unitMovement.uiPersonalResourceInfoPanel.UpdateStorageLevel(resourceStorageLevel);
         }
 	}
 
-    private int AddRemoveResource(ResourceType type, int amount)
+    private void AddRemoveResource(ResourceType type, int amount)
     {
 		resourceDict[type] += amount;
 		resourceStorageLevel += amount;
 
         UICheck(type);
 
-        return amount;
+        //return amount;
     }
 
     public int GetResourceDictValue(ResourceType resourceType)
     {
         return resourceDict[resourceType];
+    }
+
+    public void UnloadAll(City city)
+    {
+        Dictionary<ResourceType, int> tempDict = new(resourceDict);
+
+        int i = 0;
+        foreach (ResourceType type in tempDict.Keys)
+        {
+			int remainingWithTrader = resourceDict[type];
+
+			if (!city.resourceGridDict.ContainsKey(type))
+				city.AddToGrid(type);
+
+			int amountLoaded = city.ResourceManager.AddResource(type, remainingWithTrader);
+
+			SubtractResource(type, remainingWithTrader);
+
+            if (amountLoaded > 0)
+            {
+			    Vector3 loc = city.cityLoc;
+			    loc.y -= 0.4f * i; 
+                InfoResourcePopUpHandler.CreateResourceStat(loc, remainingWithTrader, ResourceHolder.Instance.GetIcon(type));
+            }
+			i++;
+		}
+
+        //reset trade route
+        unit.trader.tradeRouteManager.startingStop = 0;
     }
 }

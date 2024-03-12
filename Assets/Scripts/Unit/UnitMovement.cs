@@ -923,8 +923,8 @@ public class UnitMovement : MonoBehaviour
             SelectWorker();
             SelectTrader();
 
-            if (!selectedUnit.isLaborer && !selectedUnit.trader && !selectedUnit.inArmy && !selectedUnit.isUpgrading && !selectedUnit.runningAway)
-                uiMoveUnit.ToggleVisibility(true);
+            //if ((selectedUnit.isPlayer && !selectedUnit.runningAway) || (selectedTrader && !selectedTrader.followingRoute))
+            //    uiMoveUnit.ToggleVisibility(true);
 		
             PrepareMovement();
         }
@@ -1161,7 +1161,10 @@ public class UnitMovement : MonoBehaviour
 			else if (unit.isLaborer)
 				world.UnhighlightCitiesAndWonders();
 
-            if (movementSystem.MoveUnit(unit))
+            if (unit.isPlayer && unit.isMoving)
+				movementSystem.ResetFollowerPaths(world);
+
+			if (movementSystem.MoveUnit(unit))
             {
                 if (unit.isPlayer)
                 {
@@ -1180,11 +1183,9 @@ public class UnitMovement : MonoBehaviour
             }
         }
 
-        //if (!unit.isTrader)
-        //    uiCancelMove.ToggleVisibility(!unit.isBusy);
-        
         movementSystem.ClearPaths();
         uiJoinCity.ToggleVisibility(false);
+        uiUnload.ToggleVisibility(false);
         uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
     }
 
@@ -1208,9 +1209,7 @@ public class UnitMovement : MonoBehaviour
 		    }
         }
 
-		//Vector3Int originalLoc = world.RoundToInt(unit.transform.position);
 		List<Vector3Int> path = GridSearch.AStarSearch(world, unit.transform.position, terrainPos, unit.isTrader, unit.bySea);
-        //movementSystem.GetPathToMove(world, unit, originalLoc, terrainPos, unit.isTrader); //Call AStar movement
 
 		moveUnit = false;
 		uiMoveUnit.ToggleButtonColor(false);
@@ -1224,8 +1223,6 @@ public class UnitMovement : MonoBehaviour
         {
             return;
         }
-		//if (!movementSystem.MoveUnit(unit))
-		//	return;
 
         if (unit.isPlayer)
         {
@@ -1237,21 +1234,9 @@ public class UnitMovement : MonoBehaviour
             if (world.azaiFollow)
             {
                 world.azai.GoToPosition(terrainPos, false);
-                //world.azai.ShiftMovement();
-                //List<Vector3Int> azaiPath = new(path);
-                //azaiPath.Insert(0, originalLoc);
-                //azaiPath.RemoveAt(azaiPath.Count - 1);
-                ////don't move if already there
-                //if (world.RoundToInt(world.azai.transform.position) != azaiPath[azaiPath.Count - 1])
-                //{
-                //    world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
-                //    world.azai.MoveThroughPath(azaiPath);
-                //}
             }
 		}
-		//uiCancelMove.ToggleVisibility(!unit.isBusy);
 
-		//movementSystem.ClearPaths();
 		uiJoinCity.ToggleVisibility(false);
 		uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
 	}
@@ -1291,7 +1276,6 @@ public class UnitMovement : MonoBehaviour
 			return; //can't manually move when ambushed
         }
 
-
 		Vector3 locationFlat = location;
         locationFlat.y = 0f;
         Vector3Int locationInt = world.RoundToInt(locationFlat);
@@ -1324,7 +1308,32 @@ public class UnitMovement : MonoBehaviour
             if (detectedObject.TryGetComponent(out Transport transport))
             {
                 selectedUnit.worker.toTransport = true;
-				Vector3Int trySpot = world.GetClosestMoveToSpot(locationInt, selectedUnit.transform.position, false);
+                Vector3Int trySpot = locationInt;
+
+                //finding closest land
+                Vector3Int playerTile = world.RoundToInt(selectedUnit.transform.position);
+                bool firstOne = true;
+                int dist = 0;
+                foreach (Vector3Int tile in world.GetNeighborsFor(locationInt, MapWorld.State.FOURWAY))
+                {
+                    if (world.GetTerrainDataAt(tile).isLand && world.GetTerrainDataAt(tile).walkable)
+                    {
+                        if (firstOne)
+                        {
+                            firstOne = false;
+                            dist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
+                            trySpot = tile;
+                            continue;
+                        }
+
+                        int newDist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
+                        if (newDist < dist)
+                        {
+                            dist = newDist;
+                            trySpot = tile;
+                        }
+					}
+                }
 
 				locationInt = trySpot;
 				locationFlat = trySpot;
@@ -1733,6 +1742,7 @@ public class UnitMovement : MonoBehaviour
         
         if (unit.trader)
         {
+            unit.trader.UnloadAll(joinedCity);
             world.traderList.Remove(unit.trader);
             joinedCity.tradersHere.Remove(unit);
             joinCity = false;
@@ -1755,6 +1765,16 @@ public class UnitMovement : MonoBehaviour
 			i++;
 		}
 	}
+
+    public void Unload()
+    {
+        if (selectedUnit.transport)
+            selectedUnit.transport.Unload();
+        else if (selectedUnit.trader)
+            selectedUnit.trader.UnloadAll(world.GetCity(world.GetClosestTerrainLoc(selectedUnit.transform.position)));
+
+        uiUnload.ToggleVisibility(false);
+    }
 
     public void LoadUnloadPrep() //for loadunload button for Koa
     {
@@ -2272,6 +2292,8 @@ public class UnitMovement : MonoBehaviour
 			}
 
 			uiMoveUnit.ToggleVisibility(false);
+            uiUnload.ToggleVisibility(false);
+            uiJoinCity.ToggleVisibility(false);
 
 			if (selectedTrader.LineCutterCheck())
 				return;
@@ -2369,7 +2391,10 @@ public class UnitMovement : MonoBehaviour
 
 		if (selectedUnit.isPlayer)
         {
-			if (selectedUnit.moreToMove)
+            if (!selectedUnit.runningAway)
+                uiMoveUnit.ToggleVisibility(true);
+            
+            if (selectedUnit.moreToMove)
             {
 				if (!selectedUnit.runningAway)
                 {
@@ -2384,7 +2409,10 @@ public class UnitMovement : MonoBehaviour
 		}
         else if (selectedUnit.trader)
         {
-			if (selectedUnit.moreToMove)
+            if (!selectedUnit.trader.followingRoute)
+                uiMoveUnit.ToggleVisibility(true);
+
+            if (selectedUnit.moreToMove)
 			{
 				//uiCancelMove.ToggleVisibility(true);
 				selectedUnit.ShowContinuedPath();
@@ -2398,16 +2426,22 @@ public class UnitMovement : MonoBehaviour
 					if (selectedUnit.bySea)
                     {
                         if (world.IsCityHarborOnTile(currentLoc))
+                        {
 							uiJoinCity.ToggleVisibility(true);
-						else
-							uiJoinCity.ToggleVisibility(false);
+
+                            if (selectedTrader.personalResourceManager.ResourceStorageLevel > 0)
+                                uiUnload.ToggleVisibility(true);
+                        }
 					}
                     else
                     {
                         if (world.IsCityOnTile(currentLoc))
+                        {
     					    uiJoinCity.ToggleVisibility(true);
-                        else
-						    uiJoinCity.ToggleVisibility(false);
+
+							if (selectedTrader.personalResourceManager.ResourceStorageLevel > 0)
+								uiUnload.ToggleVisibility(true);
+                        }
                     }
 				}
 			}
@@ -2456,25 +2490,22 @@ public class UnitMovement : MonoBehaviour
         else if (selectedUnit.transport)
         {
             if (selectedUnit.transport.canMove)
-                uiUnload.ToggleVisibility(true);
-            else
-                uiUnload.ToggleVisibility(false);
-
-            if (selectedUnit.transport.passengerCount == 0)
+            {
+                if (!selectedUnit.isMoving) //checking if next to land to unload
+                    selectedUnit.transport.FinishMovementTransport(selectedUnit.transform.position);
+                uiMoveUnit.ToggleVisibility(true);
+            }
+            else if (selectedUnit.transport.passengerCount == 0)
             {
                 if (selectedUnit.bySea)
                 {
 				    if (world.IsCityHarborOnTile(currentLoc))
 					    uiJoinCity.ToggleVisibility(true);
-				    else
-					    uiJoinCity.ToggleVisibility(false);
                 }
                 else if (selectedUnit.byAir)
                 {
 					if (world.IsCityAirportOnTile(currentLoc))
 						uiJoinCity.ToggleVisibility(true);
-					else
-						uiJoinCity.ToggleVisibility(false);
 				}
             }
         }
@@ -2861,6 +2892,7 @@ public class UnitMovement : MonoBehaviour
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
                 uiTraderPanel.SwitchRouteIcons(false);
                 uiTraderPanel.ToggleVisibility(false, world);
+                uiUnload.ToggleVisibility(false);
                 //uiCancelTradeRoute.ToggleTweenVisibility(false);
                 uiTradeRouteManager.ToggleVisibility(false);
                 uiPersonalResourceInfoPanel.ToggleVisibility(false);
@@ -2880,6 +2912,10 @@ public class UnitMovement : MonoBehaviour
                 if (selectedUnit.military.homeBase != null && selectedUnit.military.homeBase.army.traveling)
                     selectedUnit.military.homeBase.army.HidePath();
                 //CancelArmyDeployment();
+            }
+            else if (selectedUnit.transport)
+            {
+                uiUnload.ToggleVisibility(false); 
             }
             //if (selectedUnit != null)
             //{

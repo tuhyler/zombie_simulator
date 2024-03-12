@@ -1148,10 +1148,11 @@ public class Worker : Unit
 			return;
 
 		int i = 0;
-		int factor = scott ? 0 : 1;
+		int factor = scott ? 1 : 0;
 		Vector3Int finalLoc = currentLoc;
 		int dist = 0;
 
+		bool firstOne = true;
 		foreach (Vector3Int tile in world.GetNeighborsFor(position, MapWorld.State.EIGHTWAY))
 		{
 			i++;
@@ -1162,8 +1163,9 @@ public class Worker : Unit
 			if (world.IsUnitLocationTaken(tile))
 				continue;
 
-			if (i < 3)
+			if (firstOne)
 			{
+				firstOne = false;
 				finalLoc = tile;
 				dist = Mathf.Abs(currentLoc.x - tile.x) + Mathf.Abs(currentLoc.z - tile.z);
 				continue;
@@ -1321,38 +1323,60 @@ public class Worker : Unit
 		}
 	}
 
-	public void LoadWorkerInTransport()
+	public void LoadWorkerInTransport(Transport transport = null)
 	{
 		Vector3Int tile = world.RoundToInt(transform.position);
-		if (world.GetUnit(tile).transport)
-		{
-			if (world.GetUnit(tile).isUpgrading)
-			{
-				InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
-				return;
-			}
-			world.GetUnit(tile).transport.Load(this);
-		}
-		else
-		{
-			foreach (Vector3Int newTile in world.GetNeighborsFor(tile, MapWorld.State.FOURWAY))
-			{
-				if (world.GetUnit(newTile).transport)
-				{
-					if (world.GetUnit(tile).isUpgrading)
-					{
-						InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
-						return;
-					}
+		bool foundTransport = false;
 
-					world.GetUnit(newTile).transport.Load(this);
-					break;
+		if (transport == null)
+		{
+			if (world.IsUnitLocationTaken(tile) && world.GetUnit(tile).transport)
+			{
+				transport = world.GetUnit(tile).transport;
+				if (transport.isUpgrading)
+				{
+					InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+					return;
+				}
+
+				foundTransport = true;
+				transport.Load(this);
+			}
+			else
+			{
+				foreach (Vector3Int newTile in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAY))
+				{
+					if (world.IsUnitLocationTaken(newTile) && world.GetUnit(newTile).transport)
+					{
+						transport = world.GetUnit(newTile).transport;
+						if (transport.isUpgrading)
+						{
+							InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+							return;
+						}
+
+						foundTransport = true;
+						transport.Load(this);
+						break;
+					}
 				}
 			}
 		}
 		
-		gameObject.SetActive(false);
-		inTransport = true;
+		if (foundTransport)
+		{
+			gameObject.SetActive(false);
+			inTransport = true;
+
+			if (isPlayer)
+			{
+				if (!world.scott.isMoving)
+					world.scott.LoadWorkerInTransport(transport);
+
+				if (!world.azai.isMoving)
+					world.azai.LoadWorkerInTransport(transport);
+			}
+		}
 		//HideUnit(true);
 		//Vector3 sixFeetUnder = transform.position;
 		//sixFeetUnder.y -= 6f;

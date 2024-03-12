@@ -452,7 +452,7 @@ public class ResourceManager : MonoBehaviour
     //slightly faster
     public int AddTraderResource(ResourceType type, int amount)
     {
-        amount = AddResourceCheck(type, amount);
+        amount = AddResourceTraderCheck(type, amount);
         if (amount > 0)
             AddResourceToStorage(type, amount);
 
@@ -465,14 +465,11 @@ public class ResourceManager : MonoBehaviour
 
         if (diff < amount)
         {
-			if (diff > 0)
-            {
-                Vector3 loc = city.cityLoc;
-			    loc.y += 2f; //limit of 5 different resource types at once wasted
-			    loc.y += -.4f * resourceCount;
-			    InfoResourcePopUpHandler.CreateResourceStat(loc, amount - diff, ResourceHolder.Instance.GetIcon(type), true);
-			    resourceCount++;
-            }
+            Vector3 loc = city.cityLoc;
+			loc.y += 2f; //limit of 5 different resource types at once wasted
+			loc.y += -.4f * resourceCount;
+			InfoResourcePopUpHandler.CreateResourceStat(loc, amount - diff, ResourceHolder.Instance.GetIcon(type), true);
+			resourceCount++;
 
             amount = diff;
 		}
@@ -480,7 +477,17 @@ public class ResourceManager : MonoBehaviour
 		return amount;
 	}
 
-    private void AddResourceToStorage(ResourceType type, int amount)
+	private int AddResourceTraderCheck(ResourceType type, int amount)
+	{
+		int diff = city.warehouseStorageLimit - resourceStorageLevel;
+
+		if (diff < amount)
+			amount = diff;
+
+		return amount;
+	}
+
+	private void AddResourceToStorage(ResourceType type, int amount)
     {
 		int prevAmount = resourceDict[type];
         resourceDict[type] += amount;
