@@ -19,7 +19,7 @@ public class Unit : MonoBehaviour
     public UnitBuildDataSO buildDataSO;
 
     [SerializeField]
-    public SkinnedMeshRenderer unitMesh;
+    public GameObject unitMesh;
 
     [SerializeField]
     public SpriteRenderer minimapIcon;
@@ -379,8 +379,8 @@ public class Unit : MonoBehaviour
             {
                 if (worker)
                 {
-                    worker.LoadWorkerInTransport(unitInTheWay.transport);
-                    FinishMoving(transform.position);
+                    //worker.LoadWorkerInTransport(unitInTheWay.transport);
+                    FinishMoving(endPosition);
                     yield break;
                 }
             }
@@ -467,26 +467,7 @@ public class Unit : MonoBehaviour
 			if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
 			{
 				firstStep = false;
-
-                if (world.scottFollow)
-                {
-                    if (!isBusy)
-                    {
-						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, endPositionInt, world.RoundToInt(finalDestinationLoc));
-						//world.scott.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-      //                  if (world.azaiFollow)
-						//	world.azai.CreateFollowerPath(world.scott.pathPositions, world.scott.prevTile, world.RoundToInt(world.scott.transform.position), world.RoundToInt(world.scott.finalDestinationLoc));
-					}
-					    //world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-				    else if (runningAway)
-                    {
-						worker.HandleSelectedFollowerLoc(pathPositions, prevTile, endPositionInt, world.RoundToInt(finalDestinationLoc));
-						//world.scott.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-						//if (world.azaiFollow)
-						//	world.azai.CreateFollowerPath(world.scott.pathPositions, world.scott.prevTile, world.RoundToInt(world.scott.transform.position), world.RoundToInt(world.scott.finalDestinationLoc));
-					}
-				    //world.unitMovement.HandleSelectedFollowerLoc(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-                }
+                worker.CheckToFollow(endPositionInt);
 			}
 		}
 
@@ -504,23 +485,39 @@ public class Unit : MonoBehaviour
 		//}
 
 		//making sure army is all in line
-		if (military && military.isMarching)
+		if (military)
         {
-            readyToMarch = false;
-            bool close = pathPositions.Count == 2;
-
-            if (enemyAI)
-				military.enemyCamp.UnitNextStep(close, endPositionInt);
-            else
-                military.homeBase.army.UnitNextStep(close);
-
-			unitAnimator.SetBool(isMarchingHash, false);
-			while (!readyToMarch)
+            if (military.isMarching)
             {
-                yield return null; //waiting for others to arrive
-            }
+                readyToMarch = false;
+                bool close = pathPositions.Count == 2;
 
-			unitAnimator.SetBool(isMarchingHash, true);
+                if (enemyAI)
+				    military.enemyCamp.UnitNextStep(close, endPositionInt);
+                else
+                    military.homeBase.army.UnitNextStep(close);
+
+			    unitAnimator.SetBool(isMarchingHash, false);
+			    while (!readyToMarch)
+                {
+                    yield return null; //waiting for others to arrive
+                }
+
+			    unitAnimator.SetBool(isMarchingHash, true);
+            }
+            else if (enemyAI && military.enemyCamp.returning && military.enemyCamp.seaTravel)
+            {
+                if (military.atSea)
+                {
+                    if (world.GetTerrainDataAt(pathPositions.Peek()).isLand)
+                        military.ToggleBoat(false);
+                }
+                else
+                {
+                    if (!world.GetTerrainDataAt(endPositionInt).isLand)
+                        military.ToggleBoat(true);
+                }
+            }
 		}
 
 		if (pathPositions.Count > 0)
@@ -678,17 +675,18 @@ public class Unit : MonoBehaviour
         StopAnimation();
         FinishedMoving?.Invoke();
 
-        if (isDead)
-        {
-            return;
-        }
-        else if (trader)
+        
+        if (trader)
         {
             trader.FinishMovementTrader(endPosition);
             return;
         }
-        
-        prevTile = currentLocation;
+		else if (isDead)
+		{
+			return;
+		}
+
+		prevTile = currentLocation;
         
         if (inArmy)
         {
@@ -702,6 +700,10 @@ public class Unit : MonoBehaviour
         {
             worker.FinishMovementPlayer(endPosition);
 		}
+        else if (worker)
+        {
+            worker.FinishMovementWorker(endPosition);
+		}
         else if (transport)
         {
             transport.FinishMovementTransport(endPosition);
@@ -710,17 +712,17 @@ public class Unit : MonoBehaviour
         {
 			world.unitMovement.LaborerJoin(this);
 		}
-        else if (world.IsUnitLocationTaken(currentLocation))
-		{
-            UnitInWayCheck(endPosition);
-		}
-        else //for scott and azai
-        {
-			if (worker && !worker.inTransport && worker.toTransport)
-                worker.LoadWorkerInTransport();
-            else
-                world.AddUnitPosition(currentLocation, this);
-        }
+  //      else if (world.IsUnitLocationTaken(currentLocation))
+		//{
+  //          UnitInWayCheck(endPosition);
+		//}
+  //      else //for scott and azai
+  //      {
+		//	if (worker && !worker.inTransport && worker.toTransport)
+  //              worker.LoadWorkerInTransport();
+  //          else
+  //              world.AddUnitPosition(currentLocation, this);
+  //      }
     }
 
     public void UnitInWayCheck(Vector3 endPosition)
@@ -735,7 +737,11 @@ public class Unit : MonoBehaviour
 		}
 		else if (unitInTheWay.buildDataSO.characterUnit)
 		{
-			return;
+            if (worker && unitInTheWay.worker)
+            {
+                FindNewSpot(currentLocation, null);
+                return;
+            }
 		}
 
 		Vector3Int loc;
@@ -826,42 +832,39 @@ public class Unit : MonoBehaviour
         for (int i = 0; i < tilesToCheck.Count; i++)
         {
 			TerrainData td = world.GetTerrainDataAt(tilesToCheck[i]);
-			if (!bySea)
+			if (td.enemyCamp)
 			{
-				if (td.enemyCamp)
+				if (world.enemyCityDict.ContainsKey(tilesToCheck[i]))
 				{
-					if (world.enemyCityDict.ContainsKey(tilesToCheck[i]))
+					if (!td.isDiscovered)
 					{
-						if (!td.isDiscovered)
+						world.enemyCityDict[tilesToCheck[i]].RevealEnemyCity();
+
+						foreach (Vector3Int tile in world.GetNeighborsFor(tilesToCheck[i], MapWorld.State.EIGHTWAYINCREMENT))
 						{
-							world.enemyCityDict[tilesToCheck[i]].RevealEnemyCity();
+							TerrainData td2 = world.GetTerrainDataAt(tile);
 
-							foreach (Vector3Int tile in world.GetNeighborsFor(tilesToCheck[i], MapWorld.State.EIGHTWAYINCREMENT))
+							if (world.IsRoadOnTerrain(tile))
+								world.SetRoadActive(tile);
+
+							if (world.cityImprovementDict.ContainsKey(tile))
 							{
-								TerrainData td2 = world.GetTerrainDataAt(tile);
-
-								if (world.IsRoadOnTerrain(tile))
-									world.SetRoadActive(tile);
-
-								if (world.cityImprovementDict.ContainsKey(tile))
-								{
-									CityImprovement improvement = world.cityImprovementDict[tile];
-									improvement.HideImprovement();
-
-									if (!td2.isDiscovered)
-										improvement.StartJustWorkAnimation();
-								}
+								CityImprovement improvement = world.cityImprovementDict[tile];
+								improvement.HideImprovement();
 
 								if (!td2.isDiscovered)
-									td2.Reveal();
+									improvement.StartJustWorkAnimation();
 							}
+
+							if (!td2.isDiscovered)
+								td2.Reveal();
 						}
 					}
-					else
-					{
-						if (!td.isDiscovered)
-							world.RevealEnemyCamp(tilesToCheck[i]);
-					}
+				}
+				else
+				{
+					if (!td.isDiscovered)
+						world.RevealEnemyCamp(tilesToCheck[i]);
 				}
 			}
 
@@ -1175,7 +1178,7 @@ public class Unit : MonoBehaviour
 		if (!hidden)
         {
             marker.gameObject.SetActive(!hideMarker);
-            unitMesh.gameObject.SetActive(false);
+            unitMesh.SetActive(false);
 		    healthbar.gameObject.SetActive(false);
             hidden = true;
         }
@@ -1185,7 +1188,7 @@ public class Unit : MonoBehaviour
     {
 	    if (hidden)
         {
-            unitMesh.gameObject.SetActive(true);
+            unitMesh.SetActive(true);
             if (currentHealth < healthMax)
     		    healthbar.gameObject.SetActive(true);
             hidden = false;

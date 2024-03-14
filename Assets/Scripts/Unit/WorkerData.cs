@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class WorkerData : IUnitData
 {
-	public string unitNameAndLevel;
+	public string unitNameAndLevel, transportTarget;
 	public Vector3 position;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;

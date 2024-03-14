@@ -27,7 +27,7 @@ MonoBehaviour:
   unitType: 3
   unitDescription: 
   availableInitially: 0
-  health: 50
+  health: 10
   baseAttackStrength: 1
   baseAttackSpeed: 1
   movementSpeed: 2
@@ -35,4 +35,5 @@ MonoBehaviour:
   cargoCapacity: 0
   transportationType: 0
   characterUnit: 0
+  tcRep: 0
   unitEra: 0

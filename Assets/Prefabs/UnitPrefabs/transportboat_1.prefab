@@ -175,12 +175,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 409108179566353154}
   m_PrefabAsset: {fileID: 0}
---- !u!137 &4779985528122780335 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5186064553112662445, guid: 05e0eb640c8920b47800007386f0b6ed,
-    type: 3}
-  m_PrefabInstance: {fileID: 409108179566353154}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8905507770296288961 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -127286496938975805, guid: 05e0eb640c8920b47800007386f0b6ed,
@@ -551,7 +545,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: a5f644d9272ab2a42a297a39b7908380, type: 2}
-  unitMesh: {fileID: 4779985528122780335}
+  unitMesh: {fileID: 7530428018534848447}
   minimapIcon: {fileID: 2532816804820932686}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -585,7 +579,6 @@ MonoBehaviour:
   moreToMove: 0
   isBusy: 0
   isMoving: 0
-  isBeached: 0
   secondaryPrefab: 0
   readyToMarch: 1
   destinationLoc: {x: 0, y: 0, z: 0}

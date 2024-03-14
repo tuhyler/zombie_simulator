@@ -33,7 +33,6 @@ public class UITomFinder : MonoBehaviour
 		cityBuilderManager.ResetCityUI();
         if (world.mainPlayer.isSelected)
             unitMovement.ClearSelection();
-        unitMovement.HandleUnitSelectionAndMovement(world.mainPlayer.transform.position, world.mainPlayer.gameObject);
 
         if (world.mainPlayer.inTransport)
         {
@@ -42,14 +41,16 @@ public class UITomFinder : MonoBehaviour
                 if (world.transportList[i].hasKoa)
                 {
                     world.transportList[i].CenterCamera();
-                    break;
+                    unitMovement.HandleUnitSelectionAndMovement(world.transportList[i].transform.position, world.transportList[i].gameObject);
+					break;
 				}
             }
         }
         else
         {
             world.mainPlayer.CenterCamera();
-        }
+			unitMovement.HandleUnitSelectionAndMovement(world.mainPlayer.transform.position, world.mainPlayer.gameObject);
+		}
     }
 
     public void ToggleButtonOn(bool v)

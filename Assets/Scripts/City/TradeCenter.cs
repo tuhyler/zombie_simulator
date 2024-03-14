@@ -119,8 +119,8 @@ public class TradeCenter : MonoBehaviour
 
     public void SetTradeCenterRep()
     {
-        Vector3 instantiateLoc = tradeRepLoc + mainLoc;
-        Vector3 rotationDirection = mainLoc - instantiateLoc;
+        Vector3 instantiateLoc = tradeRepLoc;
+        Vector3 rotationDirection = Vector3Int.zero - instantiateLoc;
 		Quaternion endRotation;
 		if (rotationDirection == Vector3.zero)
 			endRotation = Quaternion.identity;
@@ -128,6 +128,7 @@ public class TradeCenter : MonoBehaviour
 			endRotation = Quaternion.LookRotation(rotationDirection, Vector3.up);
 
 		GameObject rep = Instantiate(tradeCenterRep.prefab, instantiateLoc, endRotation);
+        rep.transform.SetParent(transform, false);
         rep.name = tradeCenterRep.unitDisplayName;
         tcRep = rep.GetComponent<NPC>();
         tcRep.SetReferences(world, true);

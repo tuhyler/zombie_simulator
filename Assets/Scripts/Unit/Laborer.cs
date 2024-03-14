@@ -151,7 +151,8 @@ public class Laborer : Unit
 			if (data.moveOrders.Count == 0)
 				data.moveOrders.Add(endPosition);
 
-			MoveThroughPath(data.moveOrders);
+			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
+			//MoveThroughPath(data.moveOrders);
 		}
 
         if (celebrating)

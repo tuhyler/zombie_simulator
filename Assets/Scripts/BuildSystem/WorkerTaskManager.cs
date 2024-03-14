@@ -132,8 +132,8 @@ public class WorkerTaskManager : MonoBehaviour
             if (world.scottFollow && world.scott.isMoving)
                 world.scott.GoToPosition(workerTile, true);
 
-            if (world.azaiFollow && world.azai.isMoving)
-                world.azai.GoToPosition(workerTile, false);
+            //if (world.azaiFollow && world.azai.isMoving)
+            //    world.azai.GoToPosition(workerTile, false);
 		}
 		else
 		{
@@ -233,7 +233,8 @@ public class WorkerTaskManager : MonoBehaviour
         world.mainPlayer.StopMovement();
 
         if (world.azaiFollow && world.azai.isMoving)
-            world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
+            world.azai.GetBehindScott(world.RoundToInt(transform.position));
+            //world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
 
         world.unitOrders = true;
 		world.mainPlayer.isBusy = true;
@@ -242,41 +243,32 @@ public class WorkerTaskManager : MonoBehaviour
     }
 
     //for scott to build and remove roads
-    public void MoveToCompleteOrders(Vector3Int workerTile, Worker workerUnit)
+    public void MoveToCompleteOrders(Vector3Int workerTile, Vector3Int nextWorkerTile, Worker workerUnit)
     {
         Vector3 mainPos = world.mainPlayer.transform.position;
-        Vector3Int mainPosInt = world.RoundToInt(mainPos);
         
+        //moving main player to position
         if (Mathf.Abs(mainPos.x - workerTile.x) > 1.2f || Mathf.Abs(mainPos.z - workerTile.z) > 1.2f)
         {
-			Vector3Int diff = mainPosInt - workerTile;
-            Vector3Int closestLoc = workerTile;
-
+            Vector3Int diff = nextWorkerTile - workerTile;
+			Vector3Int finalLoc = workerTile;
+            if (diff == Vector3Int.zero)
+                diff = workerTile - world.mainPlayer.currentLocation;
+			
             if (diff.x > 0)
-                diff.x = 1;
-            else if (diff.x < 0)
-                diff.x = -1;
+				diff.x = 1;
+			else if (diff.x < 0)
+				diff.x = -1;
 
-            if (diff.z > 0)
-                diff.z = 1;
-            else if (diff.z < 0)
-                diff.z = -1;
+			if (diff.z > 0)
+				diff.z = 1;
+			else if (diff.z < 0)
+				diff.z = -1;
 
-            closestLoc += diff;
-
-            if (mainPosInt == workerTile)
-            {
-                world.mainPlayer.FindNewSpot(mainPosInt, null);
-            }
-            else
-            {
-                unitMovement.GoStraightToSelectedLocation(closestLoc, closestLoc, world.mainPlayer);
-            }
+            finalLoc += diff;
+			unitMovement.GoStraightToSelectedLocation(finalLoc, workerTile, world.mainPlayer);
         }
         
-        if (mainPosInt == workerTile)
-			world.mainPlayer.FindNewSpot(mainPosInt, null);
-
 		unitMovement.GoStraightToSelectedLocation(workerTile, workerTile, workerUnit);
     }
 
@@ -301,6 +293,7 @@ public class WorkerTaskManager : MonoBehaviour
 		//clear the forest if building on forest tile
 		if (clearForest)
 		{
+            city.ResourceManager.resourceCount = 0;
 			city.ResourceManager.AddResource(ResourceType.Lumber, world.scott.clearedForestlumberAmount);
             world.scott.clearedForest = false;
 		}
@@ -414,8 +407,9 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void CancelingTask()
     {
-		if (world.azaiFollow && world.azai.isMoving)
-            world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
+        //if (world.azaiFollow && world.azai.isMoving)
+        //    world.azai.GetBehindScott();
+            //world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
         
         if (world.scottFollow) 
 		{

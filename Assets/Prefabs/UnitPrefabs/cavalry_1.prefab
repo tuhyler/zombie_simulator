@@ -288,7 +288,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: 64487691ef3e08b48b32d3c4a634dc54, type: 2}
-  unitMesh: {fileID: 6690082716910241746}
+  unitMesh: {fileID: 6127569396173845306}
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -313,6 +313,9 @@ MonoBehaviour:
       m_Calls: []
   trader: {fileID: 0}
   worker: {fileID: 0}
+  military: {fileID: 0}
+  transport: {fileID: 0}
+  conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -321,9 +324,8 @@ MonoBehaviour:
   moreToMove: 0
   isBusy: 0
   isMoving: 0
-  isBeached: 0
-  interruptedRoute: 0
   secondaryPrefab: 0
+  readyToMarch: 1
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
   currentLocation: {x: 0, y: 0, z: 0}
@@ -331,20 +333,12 @@ MonoBehaviour:
   prevTerrainTile: {x: 0, y: 0, z: 0}
   ambushLoc: {x: 0, y: 0, z: 0}
   lastClearTile: {x: 0, y: 0, z: 0}
-  homeBase: {fileID: 0}
-  barracksBunk: {x: 0, y: 0, z: 0}
-  marchPosition: {x: 0, y: 0, z: 0}
   currentHealth: 0
   enemyAI: {fileID: 0}
   baseSpeed: 0
-  attackSpeed: 0
-  attackStrength: 0
   healthMax: 0
-  projectile: {fileID: 0}
   bySea: 0
   isTrader: 0
-  atStop: 0
-  followingRoute: 0
   isPlayer: 0
   isLaborer: 0
   isSelected: 0
@@ -354,18 +348,21 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
-  military: {fileID: 0}
-  targetLocation: {x: 0, y: 0, z: 0}
-  targetBunk: {x: 0, y: 0, z: 0}
+  byAir: 0
   inArmy: 0
   isDead: 0
   runningAway: 0
   ambush: 0
   hidden: 0
   isUpgrading: 0
-  guardedTrader: {fileID: 0}
   unitAnimator: {fileID: 0}
-  readyToMarch: 1
+  boatMesh: {fileID: 0}
+  targetLocation: {x: 0, y: 0, z: 0}
+  targetBunk: {x: 0, y: 0, z: 0}
+  barracksBunk: {x: 0, y: 0, z: 0}
+  marchPosition: {x: 0, y: 0, z: 0}
+  idleTime: 0
+  attackStrength: 0
   atHome: 0
   preparingToMoveOut: 0
   isMarching: 0
@@ -382,6 +379,9 @@ MonoBehaviour:
   guard: 0
   isGuarding: 0
   returning: 0
+  homeBase: {fileID: 0}
+  projectile: {fileID: 0}
+  guardedTrader: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -480,9 +480,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf32e93cd2c6ab84e94435c042d6b5b6, type: 3}
---- !u!137 &6690082716910241746 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: -8854106560732313159, guid: bf32e93cd2c6ab84e94435c042d6b5b6,
+--- !u!1 &6127569396173845306 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: bf32e93cd2c6ab84e94435c042d6b5b6,
     type: 3}
   m_PrefabInstance: {fileID: 6469445292066475627}
   m_PrefabAsset: {fileID: 0}

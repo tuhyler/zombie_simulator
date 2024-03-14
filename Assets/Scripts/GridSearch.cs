@@ -195,7 +195,10 @@ public class GridSearch
                 if (world.CheckIfCoastCoast(neighbor) && neighbor != endPosition)
                     continue;
 
-                int tempCost = world.GetMovementCost(neighbor);
+				if (world.CheckIfEnemyTerritory(neighbor))
+					continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
 
                 if (sqrMagnitude == 2)
                     tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
@@ -425,7 +428,77 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endTerrain, "Cannot reach selected area");
+		return path;
+	}
+
+	//for finding best terrain to attack from for army
+	public static List<Vector3Int> TerrainSearchCoda(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList, List<Vector3Int> avoidList)
+	{
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startTerrain);
+		priorityDictionary.Add(startTerrain, 0);
+		costDictionary.Add(startTerrain, 0);
+		parentsDictionary.Add(startTerrain, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endTerrain)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAYINCREMENT))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (neighbor != endTerrain && avoidList.Contains(neighbor))
+					continue;
+
+				if (world.GetTerrainDataAt(neighbor).terrainData.terrainDesc == TerrainDesc.Mountain) //If it's an obstacle, ignore
+					continue;
+
+				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
+					continue;
+
+				if (world.IsTradeCenterOnTile(neighbor))
+					continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 18)
+				{
+					Vector3Int temp = neighbor - current;
+
+					if (!world.CheckIfPositionIsArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsArmyValid(current + new Vector3Int(0, 0, temp.z)))
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endTerrain, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
 		return path;
 	}
 
@@ -459,18 +532,11 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				bool checkWater = true;
-				if (neighbor == endTerrain)
-					checkWater = false;
-
-				if (checkWater)
-				{
-					if (!world.CheckIfSeaPositionIsValid(neighbor)) //If it's an obstacle, ignore
-						continue;
+				if (!world.CheckIfSeaPositionIsValid(neighbor)) //If it's an obstacle, ignore
+					continue;
 				
-					if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
-						continue;
-				}
+				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
+					continue;
 
 				int tempCost = 1;
 
@@ -478,7 +544,7 @@ public class GridSearch
 				{
 					Vector3Int temp = neighbor - current;
 
-					if (!world.CheckIfPositionIsArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsArmyValid(current + new Vector3Int(0, 0, temp.z)))
+					if (world.GetTerrainDataAt(current + new Vector3Int(temp.x, 0, 0)).isLand || world.GetTerrainDataAt(current + new Vector3Int(0, 0, temp.z)).isLand)
 						continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
@@ -498,7 +564,6 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endTerrain, "Cannot reach selected area");
 		return path;
 	}
 
@@ -569,8 +634,69 @@ public class GridSearch
 		return path;
 	}
 
+	public static List<Vector3Int> TerrainSearchSeaEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList)
+	{
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startTerrain);
+		priorityDictionary.Add(startTerrain, 0);
+		costDictionary.Add(startTerrain, 0);
+		parentsDictionary.Add(startTerrain, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endTerrain)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAYINCREMENT))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.CheckIfPositionIsSailableForEnemy(neighbor)) //If it's an obstacle, ignore
+					continue;
+
+				int tempCost = 1;
+
+				if (tile.sqrMagnitude == 18)
+				{
+					//Vector3Int temp = neighbor - current;
+
+					if (world.GetTerrainDataAt(current + new Vector3Int(tile.x, 0, 0)).isLand || world.GetTerrainDataAt(current + new Vector3Int(0, 0, tile.z)).isLand)
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endTerrain, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		return path;
+	}
+
 	//for battle movements
-	public static List<Vector3Int> BattleMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> movementList, List<Vector3Int> excludeList)
+	public static List<Vector3Int> BattleMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> movementList, List<Vector3Int> excludeList, bool atSea)
 	{
 		List<Vector3Int> path = new();
 
@@ -604,8 +730,16 @@ public class GridSearch
 
                 if (neighbor != endPosition)
                 {
-				    if (!world.CheckIfPositionIsValid(neighbor))
-					    continue;
+				    if (atSea)
+					{
+						if (!world.CheckIfAmphibuousPositionIsValid(neighbor))
+							continue;
+					}
+					else
+					{
+						if (!world.GetTerrainDataAt(neighbor).walkable)
+							continue;
+					}
 
                     if (!movementList.Contains(neighbor))
                         continue;
