@@ -1356,17 +1356,12 @@ public class City : MonoBehaviour
 			}
 		}
 
-        if (targetCity != null)
+        if (targetCity && enemyCamp.MoveOut(targetCity))
         {
-            if (targetCity.army.atHome)
-            {
-                targetCity.attacked = true;
-                enemyCamp.MoveOut(targetCity);
-            }
+			if (targetCity.army.atHome)
+				targetCity.attacked = true;
             else
-            {
-                targetCity.waitingAttackLoc = cityLoc;
-            }
+				targetCity.waitingAttackLoc = cityLoc;
         }
         else
         {
@@ -2131,6 +2126,8 @@ public class City : MonoBehaviour
 			armyData.enemyReady = army.enemyReady;
 			armyData.issueRefund = army.issueRefund;
             armyData.defending = army.defending;
+            armyData.atSea = army.atSea;
+            armyData.seaTravel = army.seaTravel;
 
             GameLoader.Instance.gameData.allArmies[cityLoc] = armyData;
         }
@@ -2293,6 +2290,8 @@ public class City : MonoBehaviour
 			army.enemyReady = armyData.enemyReady;
 			army.issueRefund = armyData.issueRefund;
             army.defending = armyData.defending;
+            army.atSea = armyData.atSea;
+            army.seaTravel = armyData.seaTravel;
 
             if (army.traveling || army.inBattle || army.enemyReady)
             {
@@ -2314,6 +2313,9 @@ public class City : MonoBehaviour
 						world.GetEnemyCamp(army.enemyCityLoc).attackingArmy = army;
 					}
                 }
+
+                if (army.inBattle && !world.GetTerrainDataAt(army.attackZone).isLand)
+                    army.battleAtSea = true;
 			}
 		}
 	}

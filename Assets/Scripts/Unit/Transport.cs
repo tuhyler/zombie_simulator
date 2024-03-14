@@ -17,11 +17,18 @@ public class Transport : Unit
 	private void Awake()
 	{
 		base.AwakeMethods();
-		koaMesh.SetActive(false);
-		scottMesh.SetActive(false);
-		azaiMesh.SetActive(false);
-		passengerCount = 0;
 		transport = GetComponent<Transport>();
+		passengerCount = 0;
+	}
+
+	private void Start()
+	{
+		if (!hasKoa)
+			koaMesh.SetActive(false);
+		if (!hasScott)
+			scottMesh.SetActive(false);
+		if (!hasAzai)
+			azaiMesh.SetActive(false);
 	}
 
 	public void Load(Worker worker)
@@ -32,16 +39,19 @@ public class Transport : Unit
 		{
 			koaMesh.SetActive(true);
 			hasKoa = true;
+			world.mainPlayer.transportTarget = null;
 		}
 		else if (worker.buildDataSO.unitDisplayName == "Scott")
 		{
 			scottMesh.SetActive(true);
 			hasScott = true;
+			world.scott.transportTarget = null;
 		}
 		else if (worker.buildDataSO.unitDisplayName == "Azai")
 		{
 			azaiMesh.SetActive(true);
 			hasAzai = true;
+			world.azai.transportTarget = null;
 		}
 
 		if (passengerCount == 3)
@@ -67,7 +77,8 @@ public class Transport : Unit
 
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
 		{
-			if (world.GetTerrainDataAt(tile).isLand && world.GetTerrainDataAt(tile).walkable)
+			TerrainData td = world.GetTerrainDataAt(tile);
+			if (td.isLand && td.walkable && !td.enemyZone)
 			{
 				landTile = tile;
 				nearbyLand = true;
@@ -78,6 +89,7 @@ public class Transport : Unit
 		if (nearbyLand)
 		{
 			Vector3Int terrainTile = world.GetClosestTerrainLoc(landTile);
+			Vector3Int currentTerrain = world.GetClosestTerrainLoc(currentLoc);
 
 			//finding closest side tile to transport
 			bool firstOne = true;
@@ -89,11 +101,11 @@ public class Transport : Unit
 				{
 					firstOne = false;
 					closeTile = tile;
-					dist = Mathf.Abs(tile.x - currentLoc.x) + Mathf.Abs(tile.z - currentLoc.z); 
+					dist = Mathf.Abs(tile.x - currentTerrain.x) + Mathf.Abs(tile.z - currentTerrain.z); 
 					continue;
 				}
 
-				int newDist = Mathf.Abs(tile.x - currentLoc.x) + Mathf.Abs(tile.z - currentLoc.z);
+				int newDist = Mathf.Abs(tile.x - currentTerrain.x) + Mathf.Abs(tile.z - currentTerrain.z);
 				if (newDist < dist)
 				{
 					closeTile = tile;
@@ -119,6 +131,9 @@ public class Transport : Unit
 
 			passengerCount = 0;
 			canMove = false;
+			hasKoa = false;
+			hasScott = false;
+			hasAzai = false;
 			koaMesh.SetActive(false);
 			scottMesh.SetActive(false);
 			azaiMesh.SetActive(false);
@@ -135,18 +150,20 @@ public class Transport : Unit
 	public void FinishMovementTransport(Vector3 endPosition)
 	{
 		Vector3Int currentLoc = world.RoundToInt(endPosition);
+		world.AddUnitPosition(currentLoc, this);
 
 		bool nearbyLand = false;
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
 		{
-			if (world.GetTerrainDataAt(tile).isLand && world.GetTerrainDataAt(tile).walkable)
+			TerrainData td = world.GetTerrainDataAt(tile);
+			if (td.isLand && td.walkable && !td.enemyZone)
 			{
 				nearbyLand = true;
 				break;
 			}
 		}
 
-		if (nearbyLand)
+		if (nearbyLand && isSelected)
 			world.unitMovement.uiUnload.ToggleVisibility(true);
 	}
 
@@ -208,7 +225,8 @@ public class Transport : Unit
 			if (data.moveOrders.Count == 0)
 				data.moveOrders.Add(endPosition);
 
-			MoveThroughPath(data.moveOrders);
+			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
+			//MoveThroughPath(data.moveOrders);
 		}
 	}
 }

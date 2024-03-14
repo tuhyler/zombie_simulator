@@ -1927,17 +1927,32 @@ public class CityBuilderManager : MonoBehaviour
             {
                 if (unitData.unitType == UnitType.Transport) //placing transport ship next to land
 				{                    
-                    Vector3Int closestLand = city.cityLoc;
+                    Vector3Int closestLand = city.harborLocation;
+                    int dist = 0;
+                    bool firstOne = true;
                     foreach (Vector3Int pos in world.GetNeighborsFor(city.harborLocation, MapWorld.State.FOURWAYINCREMENT))
                     {
-                        if (world.GetTerrainDataAt(pos).walkable && world.GetTerrainDataAt(pos).isLand)
+                        TerrainData td = world.GetTerrainDataAt(pos);
+                        if (td.isLand && td.walkable && !td.enemyZone)
                         {
-                            closestLand = pos;
-                            break;
+                            if (firstOne)
+                            {
+                                firstOne = false;
+                                dist = Math.Abs(pos.x - city.cityLoc.x) + Math.Abs(pos.z - city.cityLoc.z);
+                                closestLand = pos;
+                                continue;
+                            }
+                            
+                            int newDist = Math.Abs(pos.x - city.cityLoc.x) + Math.Abs(pos.z - city.cityLoc.z);
+                            if (newDist < dist)
+                            {
+                                dist = newDist;
+    							closestLand = pos;
+                            }
                         }
                     }
 
-                    Vector3Int diff = (city.harborLocation - closestLand) / 3;
+                    Vector3Int diff = (closestLand - city.harborLocation) / 3;
                     Vector3Int newLoc = city.harborLocation + diff;
 
                     if (diff.z == 0)
@@ -2279,6 +2294,7 @@ public class CityBuilderManager : MonoBehaviour
             Vector3 cityLoc = city.cityLoc;
             cityLoc.y += data.improvementCost.Count * 0.4f;
 
+            resourceManager.resourceCount = 0;
             foreach (ResourceValue resourceValue in data.improvementCost)
             {
                 int resourcesReturned = resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
@@ -3137,8 +3153,9 @@ public class CityBuilderManager : MonoBehaviour
     private void ReplaceImprovementCost(List<ResourceValue> replaceCost, Vector3 improvementLoc)
     {
         int i = 0;
-        improvementLoc.y += replaceCost.Count * 0.4f; 
+        improvementLoc.y += replaceCost.Count * 0.4f;
 
+        resourceManager.resourceCount = 0;
         foreach (ResourceValue resourceValue in replaceCost) //adding back 100% of cost (if there's room)
         {
             int resourcesReturned = resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);

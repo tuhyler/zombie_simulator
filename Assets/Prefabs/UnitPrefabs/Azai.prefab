@@ -304,6 +304,19 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1771432436929309141}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1265597163651851799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2321851027760307080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c4a2ee4566ff1545a5870d86080591e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  conversationTopics: []
 --- !u!114 &4979040487069384487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,7 +331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: 3c924c91f8f9d3043bd2265e9b5c9589, type: 2}
-  unitMesh: {fileID: 6098140611896325300}
+  unitMesh: {fileID: 5674575254782825655}
   minimapIcon: {fileID: 0}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -340,6 +353,7 @@ MonoBehaviour:
   trader: {fileID: 0}
   worker: {fileID: 0}
   military: {fileID: 0}
+  transport: {fileID: 0}
   conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
@@ -349,7 +363,6 @@ MonoBehaviour:
   moreToMove: 0
   isBusy: 0
   isMoving: 0
-  isBeached: 0
   secondaryPrefab: 0
   readyToMarch: 1
   destinationLoc: {x: 0, y: 0, z: 0}
@@ -374,6 +387,7 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
+  byAir: 0
   inArmy: 0
   isDead: 0
   runningAway: 0
@@ -389,6 +403,8 @@ MonoBehaviour:
   working: 0
   clearedForest: 0
   stepAside: 0
+  toTransport: 0
+  inTransport: 0
   clearingForestTime: 1
   cityBuildingTime: 2
   roadBuildingTime: 1
@@ -396,22 +412,10 @@ MonoBehaviour:
   clearedForestlumberAmount: 100
   gatheringClips: []
   timePassed: 0
+  transportTarget: {fileID: 0}
   currentUtilityCost: {fileID: 0}
   personalResourceManager: {fileID: 0}
   uiPersonalResourceInfoPanel: {fileID: 0}
---- !u!114 &1265597163651851799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2321851027760307080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c4a2ee4566ff1545a5870d86080591e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  conversationTopics: []
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -584,9 +588,9 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 134b754945409f5408d1bf49164f6adb, type: 3}
---- !u!137 &6098140611896325300 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: 134b754945409f5408d1bf49164f6adb,
+--- !u!1 &5674575254782825655 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 134b754945409f5408d1bf49164f6adb,
     type: 3}
   m_PrefabInstance: {fileID: 4756168378635282918}
   m_PrefabAsset: {fileID: 0}

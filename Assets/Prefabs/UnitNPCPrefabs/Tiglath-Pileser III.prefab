@@ -74,9 +74,9 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 054af5ca34ec7d9429d87aa4f51624db, type: 3}
---- !u!137 &310576777936392323 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 1630794972795428178, guid: 054af5ca34ec7d9429d87aa4f51624db,
+--- !u!1 &2175156559680221312 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 054af5ca34ec7d9429d87aa4f51624db,
     type: 3}
   m_PrefabInstance: {fileID: 1364270231841967569}
   m_PrefabAsset: {fileID: 0}
@@ -162,7 +162,7 @@ PrefabInstance:
         type: 3}
       propertyPath: unitMesh
       value: 
-      objectReference: {fileID: 310576777936392323}
+      objectReference: {fileID: 2175156559680221312}
     - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: buildDataSO

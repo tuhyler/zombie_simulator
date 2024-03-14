@@ -18,6 +18,7 @@ public class TerrainDataSO : ScriptableObject
     public bool isLand = false;
     public bool isSeaCorner = false;
     public int movementCost = 10;
+    public int terrainAttackBonus = 0;
     public TerrainType type = TerrainType.Flatland;
     public SpecificTerrain specificTerrain;
     public TerrainDesc terrainDesc;

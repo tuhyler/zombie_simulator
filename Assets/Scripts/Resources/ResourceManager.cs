@@ -71,20 +71,9 @@ public class ResourceManager : MonoBehaviour
     public Dictionary<ResourceType, int> queuedResourcesToCheck = new();
     //private List<ResourceType> queuedResourceTypesToCheck = new(); //have this to check if the queue type has recently been added (can't check values easily)   
     //private CityBuilderManager cityBuilderManager; //only instantiated through queue build
+    [HideInInspector]
+    public int resourceCount; //for counting wasted resources
 
-    private int resourceCount; //for counting wasted resources
-
-    private void Awake()
-    {
-        //CalculateAndChangeFoodLimit();
-        //PrepareResourceDictionary();
-        //SetInitialResourceValues();
-        //SetPrices();
-
-        //only relevant during editing
-        //if (resourceStorageLevel >= city.warehouseStorageLimit)
-        //    fullInventory = true;
-    }
 
     public void PrepareResourceDictionary()
     {
@@ -138,13 +127,6 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    //public void BeginResourceGeneration(List<ResourceValue> producedResources) //for city tiles
-    //{
-    //    UpdateResourceGeneration(producedResources);
-
-    //    IncreaseFoodConsumptionPerTurn(true);        
-    //}
-
     public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff, bool add)
     {
         if (resourceType == ResourceType.None)
@@ -180,26 +162,6 @@ public class ResourceManager : MonoBehaviour
     {
 		return resourceDict[type] >= amount;
 	} 
-
-    //public bool CheckStorageSpaceForResource(ResourceType resourceType, int resourceAdded)
-    //{
-    //    if (resourceAdded < 0 && resourceDict[resourceType] > 0)
-    //        return true;
-    //    else if (resourceAdded < 0 && resourceDict[resourceType] == 0)
-    //        return false;
-    //    //else if (city.world.resourceStorageMultiplierDict[resourceType] < 1)
-    //    //    return Mathf.CeilToInt(resourceStorageLevel + city.world.resourceStorageMultiplierDict[resourceType]) <= city.warehouseStorageLimit;
-    //    else if (resourceAdded > 0 && city.warehouseStorageLimit <= 0) //for infinite storage
-    //        return true;
-
-    //    return resourceStorageLevel < city.warehouseStorageLimit;
-    //}
-
-    private void VerifyResourceAmount(ResourceType resourceType)
-    {
-        if (resourceDict[resourceType] < 0)
-            throw new InvalidOperationException("Can't have resources less than 0 " + resourceType);
-    }
 
     public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location, bool military = false, bool showSpend = false)
     {
@@ -367,29 +329,6 @@ public class ResourceManager : MonoBehaviour
 
 		return destroy;
 	}
-
-	//public int CheckResource(ResourceType type, int amount)
- //   {
-	//	if (type == ResourceType.Fish)
-	//		type = ResourceType.Food;
-
-	//	if (type == ResourceType.Gold || type == ResourceType.Research)
- //       {
- //           city.UpdateWorldResources(type, amount);
- //           return amount;
- //       }
- //       else if (CheckStorageSpaceForResource(type, amount) && resourceDict.ContainsKey(type))
- //       {
- //           if (!city.resourceGridDict.ContainsKey(type))
- //               city.AddToGrid(type);
-
- //           return AddResourceToStorage(type, amount);
- //       }
- //       else
- //       {
- //           return 0;
- //       }
- //   }
 
     public int SubtractResource(ResourceType type, int amount)
     {
@@ -564,82 +503,6 @@ public class ResourceManager : MonoBehaviour
 		}
 	}
 
- //   private void CityAutoGrowCheck(ResourceType type)
- //   {
-	//	if (city.autoGrow && city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && !city.reachedWaterLimit && type == ResourceType.Food && resourceDict[type] >= city.growthFood && !pauseGrowth)
-	//	{
-	//		resourceDict[type] -= city.growthFood;
-	//		city.PopulationGrowthCheck(false, 1);
-	//	}
-	//}
-
-    //returns how much is actually moved
-  //  private int AddResourceToStorage(ResourceType type, int resourceAmount)
-  //  {
-  //      int prevAmount = resourceDict[type];
-        
-  //      //check to ensure you don't take out more resources than are available in dictionary
-  //      if (resourceAmount < 0 && -resourceAmount > prevAmount)
-  //      {
-  //          resourceAmount = -prevAmount;
-  //      }
-        
-  //      //resourceAmount = Mathf.CeilToInt(resourceAmount * city.world.resourceStorageMultiplierDict[type]);
-
-  //      //adjusting resource amount to move based on how much space is available
-  //      int newResourceAmount = resourceAmount;
-  //      int newResourceBalance = resourceStorageLevel + newResourceAmount - city.warehouseStorageLimit;
-  //      if (newResourceBalance >= 0 && city.warehouseStorageLimit > 0) //limit of 0 or less means infinite storage
-  //      {
-  //          newResourceAmount -= newResourceBalance;
-  //      }
-
-  //      //int resourceAmountAdjusted = newResourceAmount; /* Mathf.RoundToInt(newResourceAmount / city.world.resourceStorageMultiplierDict[type]);*/
-
-  //      resourceDict[type] += newResourceAmount /*resourceAmountAdjusted*/; //updating the dictionary
-
-  //      resourceStorageLevel += newResourceAmount;
-  //      if (resourceStorageLevel >= city.warehouseStorageLimit)
-  //          fullInventory = true;
-  //      if (newResourceAmount < 0)
-  //          CheckProducerUnloadWaitList();
-        
-  //      if (resourcesNeededForRoute.Contains(type))
-  //          CheckTraderWaitList(type);
-        
-  //      if (resourcesNeededForProduction.Contains(type))
-  //          CheckProducerResourceWaitList(type);
-
-  //      int wasteCheck = resourceAmount - newResourceAmount; //int wasteCheck = Mathf.RoundToInt((resourceAmount - newResourceAmount) / city.world.resourceStorageMultiplierDict[type]);
-
-  //      if (wasteCheck > 0)
-  //      {
-  //          Vector3 loc = city.cityLoc;
-  //          loc.y += 2f; //limit of 5 resources at once wasted
-  //          loc.y += -.4f * resourceCount;
-  //          InfoResourcePopUpHandler.CreateResourceStat(loc, wasteCheck, ResourceHolder.Instance.GetIcon(type), true);
-  //          Debug.Log($"Wasted {wasteCheck} of {type}");
-  //          resourceCount++;
-  //      }
-
-  //      if (queuedResourcesToCheck.ContainsKey(type))
-  //          CheckResourcesForQueue();
-  //      UICheck(type, resourceAmount, prevAmount);
-
-		//if (newResourceAmount > 0)
-  //          city.CheckResourceWaiter(type);
-  //      else if (newResourceAmount < 0)
-  //          city.CheckLimitWaiter();
-
-  //      if (city.autoGrow && city.cityPop.CurrentPop == 0 && city.HousingCount > 0 && !city.reachedWaterLimit && type == ResourceType.Food && resourceDict[type] >= city.growthFood && !pauseGrowth)
-  //      {
-  //          resourceDict[type] -= city.growthFood;
-  //          city.PopulationGrowthCheck(false, 1);
-  //      }
-
-  //      return newResourceAmount /*resourceAmountAdjusted*/;
-  //  }
-
 	public int CalculateResourceGeneration(int resourceAmount, float labor, ResourceType type)
     {
         return Mathf.RoundToInt((city.workEthic + city.world.GetResourceTypeBonus(type)) * (resourceAmount * labor) * (1 + .1f * (labor - 1)));
@@ -672,8 +535,6 @@ public class ResourceManager : MonoBehaviour
         resourceStorageLevel -= resourceAmount /** city.world.resourceStorageMultiplierDict[resourceType]*/;
         CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
-        VerifyResourceAmount(resourceType);
-        //UpdateUI(resourceValue);
     }
 
     public void UpdateUI(List<ResourceValue> values) //updating the UI with the resource information in the dictionary

@@ -378,46 +378,11 @@ public class Wonder : MonoBehaviour
         resourceGridDict[type] = resourceGridDict.Count;
     }
 
-    //private bool CheckStorageSpaceForResource(ResourceType resourceType)
-    //{
-    //    return resourceDict[resourceType] < resourceCostDict[resourceType];
-    //}
 
     private void AddResourceToStorage(ResourceType resourceType, int resourceAmount)
     {
         resourceDict[resourceType] += resourceAmount; //updating the dictionary
-        
-        //check to ensure you don't take out more resources than are available in dictionary
-        //if (resourceAmount < 0 && -resourceAmount > resourceDict[resourceType])
-        //{
-        //    resourceAmount = -resourceDict[resourceType];
-        //}
-
-        //int resourceLimit = resourceCostDict[resourceType];
-
-        //adjusting resource amount to move based on how much space is available
-        //int newResourceAmount = resourceAmount;
-        //int newResourceBalance = (resourceDict[resourceType] + newResourceAmount) - resourceLimit;
-
-        //newResourceAmount -= newResourceBalance;
-
-
-        //if (isActive)
-        //    world.cityBuilderManager.uiWonderSelection.UpdateUI(resourceType, resourceDict[resourceType], resourceLimit);
-
-        //if (uiCityResourceInfoPanel)
-        //    uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, resourceDict[resourceType], false);
-
-        //if (newResourceAmount > 0)
-        //    CheckResourceWaiter(resourceType);
-        //else if (newResourceAmount < 0)
-        //    CheckLimitWaiter();
-
-        //if (!isBuilding)
-        //    ThresholdCheck();
-
         UICheck(resourceType);
-        //return resourceAmount;
     }
 
     public void AddWorker(Unit unit)

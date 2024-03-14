@@ -74,6 +74,12 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f8cccff87a55cd4dab947c19f93b703, type: 3}
+--- !u!1 &2052773929061304650 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3f8cccff87a55cd4dab947c19f93b703,
+    type: 3}
+  m_PrefabInstance: {fileID: 1206264117047653403}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2487916775400558866
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -339,7 +345,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: da9cd2aafc783be45a7f6e6a64344493, type: 2}
-  unitMesh: {fileID: 0}
+  unitMesh: {fileID: 2052773929061304650}
   minimapIcon: {fileID: 1834696708367566843}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -373,7 +379,6 @@ MonoBehaviour:
   moreToMove: 0
   isBusy: 0
   isMoving: 0
-  isBeached: 0
   secondaryPrefab: 0
   readyToMarch: 0
   destinationLoc: {x: 0, y: 0, z: 0}
@@ -426,6 +431,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 7353d1e2daf1dac4d9a61c508af7e1c5, type: 3}
   - {fileID: 8300000, guid: 5230f4b55f0df8e48beff3ba46632e4e, type: 3}
   timePassed: 0
+  transportTarget: {fileID: 0}
   currentUtilityCost: {fileID: 0}
   personalResourceManager: {fileID: 0}
   uiPersonalResourceInfoPanel: {fileID: 0}

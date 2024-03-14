@@ -623,6 +623,7 @@ public class Trader : Unit
         paid = false;
 		City city = GetStartingCity();
 
+		city.ResourceManager.resourceCount = 0;
         for (int i = 0; i < totalRouteCosts.Count; i++)
         {
 			int amount = Mathf.FloorToInt(totalRouteCosts[i].resourceAmount * multiple);
@@ -1055,7 +1056,8 @@ public class Trader : Unit
 				data.moveOrders.Add(endPosition);
 
             if (!isWaiting)
-                MoveThroughPath(data.moveOrders);
+				GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
+			//MoveThroughPath(data.moveOrders);
             else
                 pathPositions = new Queue<Vector3Int>(data.moveOrders);
 		}

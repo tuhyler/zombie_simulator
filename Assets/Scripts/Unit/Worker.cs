@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Resources;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEditor.FilePathAttribute;
 using static UnityEditor.PlayerSettings;
 using static UnityEngine.UI.CanvasScaler;
 
@@ -29,6 +31,8 @@ public class Worker : Unit
     public AudioClip[] gatheringClips;
     [HideInInspector]
 	public int timePassed;
+	[HideInInspector]
+	public Transport transportTarget;
 
 	//for building roads (costs)
 	public UtilityCostSO currentUtilityCost;
@@ -321,8 +325,14 @@ public class Worker : Unit
         else
         {
             FinishedMoving.AddListener(RemoveRoad);
-            workerTaskManager.MoveToCompleteOrders(orderQueue.Peek(), this);
-        }
+			List<Vector3Int> workList = orderQueue.ToList();
+			Vector3Int nextSpot;
+			if (workList.Count == 1)
+				nextSpot = workList[0];
+			else
+				nextSpot = workList[1];
+			workerTaskManager.MoveToCompleteOrders(orderQueue.Peek(), nextSpot, this);
+		}
     }
 
     public void SkipRoadRemoval()
@@ -377,7 +387,13 @@ public class Worker : Unit
         else
         {
             FinishedMoving.AddListener(BuildRoad);
-            workerTaskManager.MoveToCompleteOrders(orderQueue.Peek(), this);
+			List<Vector3Int> workList = orderQueue.ToList();
+			Vector3Int nextSpot;
+			if (workList.Count == 1)
+				nextSpot = workList[0];
+			else
+				nextSpot = workList[1];
+            workerTaskManager.MoveToCompleteOrders(orderQueue.Peek(), nextSpot, this);
         }
     }
 
@@ -396,8 +412,8 @@ public class Worker : Unit
             world.mainPlayer.StopMovement();
 
 			world.scott.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), true);
-			if (world.azaiFollow)
-				world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
+			//if (world.azaiFollow)
+			//	world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
 
 			if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
@@ -655,8 +671,7 @@ public class Worker : Unit
 			world.scott.StopMovement();
 
 			if (world.azaiFollow)
-				world.azai.GoToPosition(workerTile, false);
-    			//world.azai.StopMovement();
+				world.azai.StopMovement();
 		}
 
 		if (!world.IsTileOpenCheck(workerTile))
@@ -1069,6 +1084,9 @@ public class Worker : Unit
 		if (alreadyThere)
 		{
             world.scott.GatherResourceListener();
+
+			if (world.azai.isMoving)
+				world.azai.GetBehindScott(scottSpot);
 		}
 		else
 		{
@@ -1089,7 +1107,7 @@ public class Worker : Unit
             }
 
 			world.scott.FinishedMoving.AddListener(world.scott.GatherResourceListener);
-			world.unitMovement.GoStraightToSelectedLocation(workSpot, workSpot, world.scott);
+			world.unitMovement.GoStraightToSelectedLocation(workSpot, currentTerrain, world.scott);
 		}
 	}
 
@@ -1119,7 +1137,7 @@ public class Worker : Unit
                 FindNewSpot(currentSpot, null);
 
             world.scott.FinishedMoving.AddListener(world.scott.GatherResourceListener);
-            world.unitMovement.GoStraightToSelectedLocation(workSpot, workSpot, world.scott);
+            world.unitMovement.GoStraightToSelectedLocation(workSpot, currentTerrain, world.scott);
         }
     }
 
@@ -1138,7 +1156,7 @@ public class Worker : Unit
 		conversationHaver.SaidSomething();
 	}
 
-	public void GoToPosition(Vector3Int position, bool scott)
+	public void GoToPosition(Vector3Int position, bool diag)
 	{
 		StopMovement();
 		ShiftMovement();
@@ -1148,7 +1166,7 @@ public class Worker : Unit
 			return;
 
 		int i = 0;
-		int factor = scott ? 1 : 0;
+		int factor = diag ? 1 : 0;
 		Vector3Int finalLoc = currentLoc;
 		int dist = 0;
 
@@ -1185,6 +1203,68 @@ public class Worker : Unit
 		{
 			finalDestinationLoc = finalLoc;
 			MoveThroughPath(path);
+
+			if (world.azaiFollow)
+			{
+				world.azai.StopMovement();
+				world.azai.ShiftMovement();
+
+				List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, world.azai.transform.position, world.RoundToInt(transform.position), false, false);
+				azaiPath.AddRange(path);
+				Vector3Int azaiFinalLoc = path[path.Count - 1];
+				azaiPath.Remove(azaiFinalLoc);
+				if (azaiPath.Count > 0)
+				{
+					world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
+					world.azai.MoveThroughPath(azaiPath);
+				}
+			}
+		}
+	}
+
+	public void FollowScott(List<Vector3Int> scottPath, Vector3 currentLoc)
+	{
+		List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, transform.position, world.RoundToInt(currentLoc), false, false);
+		scottPath.RemoveAt(scottPath.Count - 1);
+		azaiPath.AddRange(scottPath);
+
+		if (azaiPath.Count > 0)
+		{
+			finalDestinationLoc = azaiPath[azaiPath.Count - 1];
+			MoveThroughPath(azaiPath);
+		}
+	}
+
+	public void GetBehindScott(Vector3Int scottSpot)
+	{
+		Vector3Int currentLoc = world.RoundToInt(transform.position);
+		int dist = 0;
+		Vector3Int finalLoc = scottSpot;
+		bool firstOne = true;
+		foreach (Vector3Int tile in world.GetNeighborsFor(scottSpot, MapWorld.State.EIGHTWAY))
+		{
+			if (firstOne)
+			{
+				firstOne = false;
+				finalLoc = tile;
+				dist = Math.Abs(tile.x - currentLoc.x) + Math.Abs(tile.z - currentLoc.z);
+				continue;
+			}
+
+			int newDist = Math.Abs(tile.x - currentLoc.x) + Math.Abs(tile.z - currentLoc.z);
+			if (newDist < dist)
+			{
+				dist = newDist;
+				finalLoc = tile;
+			}
+		}
+		
+		List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, currentLoc, finalLoc, false, false);
+
+		if (azaiPath.Count > 0)
+		{
+			finalDestinationLoc = finalLoc;
+			MoveThroughPath(azaiPath);
 		}
 	}
 
@@ -1220,43 +1300,56 @@ public class Worker : Unit
 		}
 	}
 
-	public void HandleSelectedFollowerLoc(Queue<Vector3Int> path, Vector3Int priorSpot, Vector3Int currentSpot, Vector3Int finalSpot)
+	public void HandleSelectedFollowerLoc(Queue<Vector3Int> path, Vector3Int currentSpot, Vector3Int finalSpot)
 	{
 		world.unitMovement.moveUnit = false;
 		
-		if (world.scott.isMoving)
-		{
-			world.scott.StopAnimation();
-			world.scott.ShiftMovement();
-			world.scott.ResetMovementOrders();
-		}
+		world.scott.StopAnimation();
+		world.scott.ShiftMovement();
+		world.scott.ResetMovementOrders();
 
-		if (world.azai.isMoving)
-		{
-			world.azai.StopAnimation();
-			world.azai.ShiftMovement();
-			world.azai.ResetMovementOrders();
-		}
+		world.azai.StopAnimation();
+		world.azai.ShiftMovement();
+		world.azai.ResetMovementOrders();
 
-		List<Vector3Int> scottPath;
+		Vector3Int currentScottSpot = world.RoundToInt(world.scott.transform.position);
+		List<Vector3Int> scottPath = GridSearch.AStarSearch(world, currentScottSpot, currentSpot, false, false);
+		scottPath.AddRange(path);
+		scottPath.Remove(finalSpot);
+
+		Vector3Int finalScottSpot;
+		bool scottStays = false;
+		if (scottPath.Count > 0)
+		{
+			finalScottSpot = scottPath[scottPath.Count - 1];
+		}
+		else
+		{
+			scottStays = true;
+			finalScottSpot = currentScottSpot;
+			scottPath.Add(currentScottSpot);
+		}
 		
-		List<Vector3Int> tempPath = path.ToList();
-		tempPath.Remove(finalSpot);
-		if (path.Count > 0)
-			tempPath.Insert(0, currentSpot);
-		tempPath.Insert(0, priorSpot);
-
-		scottPath = new(tempPath);
-		Vector3Int finalScottSpot = scottPath[scottPath.Count - 1];
 		world.scott.finalDestinationLoc = finalScottSpot;
 		world.scott.MoveThroughPath(scottPath);
 
-		if (world.azaiFollow)
+		if (world.azaiFollow && !scottStays)
 		{
-			tempPath.Remove(finalScottSpot);
-			tempPath.Insert(0, world.RoundToInt(world.scott.transform.position));
-			world.azai.finalDestinationLoc = tempPath[tempPath.Count - 1];
-			world.azai.MoveThroughPath(tempPath);
+			Vector3Int currentAzaiSpot = world.RoundToInt(world.azai.transform.position);
+			List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, currentAzaiSpot, currentScottSpot, false, false);
+			azaiPath.AddRange(scottPath);
+			azaiPath.Remove(finalScottSpot);
+
+			if (azaiPath.Count > 0)
+			{
+				world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
+			}
+			else
+			{
+				world.azai.finalDestinationLoc = currentAzaiSpot;
+				azaiPath.Add(currentAzaiSpot);
+			}
+			world.azai.MoveThroughPath(azaiPath);
 		}
 	}
 
@@ -1285,7 +1378,7 @@ public class Worker : Unit
 					newPos.x += -1;
 			}
 
-			world.scott.RepositionWorker(newPos);
+			world.scott.RepositionWorker(newPos, false);
 		}
 
 		if (world.azaiFollow)
@@ -1305,13 +1398,29 @@ public class Worker : Unit
 					newPos.x += 1;
 			}
 
-			world.azai.RepositionWorker(newPos);
+			world.azai.RepositionWorker(newPos, false);
 		}
 	}
 
-	public void RepositionWorker(Vector3Int newPos)
+	public void CheckToFollow(Vector3Int endPositionInt)
 	{
-		StopMovement();
+		if (world.scottFollow)
+		{
+			if (!isBusy)
+			{
+				worker.HandleSelectedFollowerLoc(pathPositions, endPositionInt, world.RoundToInt(finalDestinationLoc));
+			}
+
+			if (runningAway)
+			{
+				worker.HandleSelectedFollowerLoc(pathPositions, endPositionInt, world.RoundToInt(finalDestinationLoc));
+			}
+		}
+	}
+
+	public void RepositionWorker(Vector3Int newPos, bool loading)
+	{
+		StopAnimation();
 		ShiftMovement();
 
 		List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, newPos, false, false);
@@ -1321,62 +1430,74 @@ public class Worker : Unit
 			finalDestinationLoc = newPos;
 			MoveThroughPath(path);
 		}
+		else if (loading)
+		{
+			LoadWorkerInTransport(transportTarget);
+		}
 	}
 
-	public void LoadWorkerInTransport(Transport transport = null)
+	public void LoadWorkerInTransport(Transport transport)
 	{
+		toTransport = false;
 		Vector3Int tile = world.RoundToInt(transform.position);
-		bool foundTransport = false;
+		//bool foundTransport = transport;
 
-		if (transport == null)
+		if (transport.isUpgrading)
 		{
-			if (world.IsUnitLocationTaken(tile) && world.GetUnit(tile).transport)
-			{
-				transport = world.GetUnit(tile).transport;
-				if (transport.isUpgrading)
-				{
-					InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
-					return;
-				}
-
-				foundTransport = true;
-				transport.Load(this);
-			}
-			else
-			{
-				foreach (Vector3Int newTile in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAY))
-				{
-					if (world.IsUnitLocationTaken(newTile) && world.GetUnit(newTile).transport)
-					{
-						transport = world.GetUnit(newTile).transport;
-						if (transport.isUpgrading)
-						{
-							InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
-							return;
-						}
-
-						foundTransport = true;
-						transport.Load(this);
-						break;
-					}
-				}
-			}
+			InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+			return;
 		}
-		
-		if (foundTransport)
-		{
-			gameObject.SetActive(false);
-			inTransport = true;
 
-			if (isPlayer)
-			{
-				if (!world.scott.isMoving)
-					world.scott.LoadWorkerInTransport(transport);
+		//if (transport == null)
+		//{
+		//	if (world.IsUnitLocationTaken(tile) && world.GetUnit(tile).transport)
+		//	{
+		//		transport = world.GetUnit(tile).transport;
+		//		if (transport.isUpgrading)
+		//		{
+		//			InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+		//			return;
+		//		}
 
-				if (!world.azai.isMoving)
-					world.azai.LoadWorkerInTransport(transport);
-			}
-		}
+		//		foundTransport = true;
+		//		transport.Load(this);
+		//	}
+		//	else
+		//	{
+		//		foreach (Vector3Int newTile in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAY))
+		//		{
+		//			if (world.IsUnitLocationTaken(newTile) && world.GetUnit(newTile).transport)
+		//			{
+		//				transport = world.GetUnit(newTile).transport;
+		//				if (transport.isUpgrading)
+		//				{
+		//					InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+		//					return;
+		//				}
+
+		//				foundTransport = true;
+		//				transport.Load(this);
+		//				break;
+		//			}
+		//		}
+		//	}
+		//}
+
+		//if (foundTransport)
+		//{
+		transport.Load(this);
+		gameObject.SetActive(false);
+		inTransport = true;
+
+			//if (isPlayer)
+			//{
+			//	if (!world.scott.isMoving)
+			//		world.scott.LoadWorkerInTransport(transport);
+
+			//	if (!world.azai.isMoving)
+			//		world.azai.LoadWorkerInTransport(transport);
+			//}
+		//}
 		//HideUnit(true);
 		//Vector3 sixFeetUnder = transform.position;
 		//sixFeetUnder.y -= 6f;
@@ -1498,57 +1619,6 @@ public class Worker : Unit
 			MoveThroughPath(runAwayPath);
 	}
 
-	//public void NextToCheck()
-	//{
-	//	Vector3Int targetArea = pathPositions.Dequeue();
-	//	Vector3Int diff = world.RoundToInt(world.mainPlayer.transform.position) - targetArea;
-	//	List<Vector3Int> potentialAreas = new();
-
-	//	if (diff.x != 0 && diff.z != 0)
-	//	{
-	//		potentialAreas.Add(targetArea + new Vector3Int(diff.x, 0, 0));
-	//		potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.z));
-	//	}
-	//	else if (diff.x != 0)
-	//	{
-	//		potentialAreas.Add(targetArea + new Vector3Int(0, 0, diff.x));
-	//		potentialAreas.Add(targetArea + new Vector3Int(0, 0, -diff.x));
-	//	}
-	//	else if (diff.z != 0)
-	//	{
-	//		potentialAreas.Add(targetArea + new Vector3Int(diff.z, 0, 0));
-	//		potentialAreas.Add(targetArea + new Vector3Int(-diff.z, 0, 0));
-	//	}
-
-	//	potentialAreas.Add(prevTile);
-	//	Vector3Int closestLoc = prevTile;
-
-	//	bool firstOne = true;
-	//	int dist = 0;
-	//	for (int i = 0; i < potentialAreas.Count; i++)
-	//	{
-	//		if (!world.CheckIfPositionIsValid(potentialAreas[i]))
-	//			continue;
-
-	//		if (firstOne)
-	//		{
-	//			firstOne = false;
-	//			dist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
-	//			closestLoc = potentialAreas[i];
-	//			continue;
-	//		}
-
-	//		int newDist = Math.Abs(prevTile.x - potentialAreas[i].x) + Math.Abs(prevTile.z - potentialAreas[i].z);
-	//		if (newDist < dist)
-	//			closestLoc = potentialAreas[i];
-
-	//		break;
-	//	}
-
-	//	finalDestinationLoc = closestLoc;
-	//	pathPositions.Enqueue(closestLoc);
-	//}
-
 	public void FinishMovementPlayer(Vector3 endPosition)
 	{
 		if (world.tutorialGoing)
@@ -1557,12 +1627,14 @@ public class Worker : Unit
 		if (toTransport)
 		{
 			Vector3Int endPositionInt = world.RoundToInt(endPosition);
-			LoadWorkerInTransport();
+			world.scott.transportTarget = transportTarget;
+			world.azai.transportTarget = transportTarget;
+			LoadWorkerInTransport(transportTarget);
 			world.scott.toTransport = true;
-			world.scott.RepositionWorker(endPositionInt);
+			world.scott.RepositionWorker(endPositionInt, true);
 
 			world.azai.toTransport = true;
-			world.azai.RepositionWorker(endPositionInt);
+			world.azai.RepositionWorker(endPositionInt, true);
 			return;
 		}
 
@@ -1576,6 +1648,16 @@ public class Worker : Unit
 		}
 
 		if (world.IsUnitLocationTaken(currentLocation))
+			UnitInWayCheck(endPosition);
+		else
+			world.AddUnitPosition(currentLocation, this);
+	}
+
+	public void FinishMovementWorker(Vector3 endPosition)
+	{
+		if (worker.toTransport)
+			worker.LoadWorkerInTransport(worker.transportTarget);
+		else if (world.IsUnitLocationTaken(currentLocation))
 			UnitInWayCheck(endPosition);
 		else
 			world.AddUnitPosition(currentLocation, this);
@@ -1616,6 +1698,8 @@ public class Worker : Unit
         data.timePassed = timePassed;
 		data.toTransport = toTransport;
 		data.inTransport = inTransport;
+		if (transportTarget != null)
+			data.transportTarget = transportTarget.name;
 
 		//personal resource info
 		if (isPlayer)
@@ -1657,9 +1741,7 @@ public class Worker : Unit
 		somethingToSay = data.somethingToSay;
 		toTransport = data.toTransport;
 		inTransport = data.inTransport;
-
-		if (inTransport)
-			LoadWorkerInTransport();
+		transportTarget = world.LoadTransport(data.transportTarget);
 
         if (runningAway)
             exclamationPoint.SetActive(true);
@@ -1691,7 +1773,8 @@ public class Worker : Unit
 			if (data.moveOrders.Count == 0)
 				data.moveOrders.Add(endPosition);
 
-			MoveThroughPath(data.moveOrders);
+			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
+			//MoveThroughPath(data.moveOrders);
 
             if (removing)
             {
@@ -1825,5 +1908,8 @@ public class Worker : Unit
                 StartRunningAway();
             }
 		}
+
+		if (inTransport)
+			gameObject.SetActive(false);
 	}
 }

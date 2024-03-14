@@ -481,9 +481,13 @@ public class UnitMovement : MonoBehaviour
 
                     if (world.IsCityOnTile(unit.enemyCamp.moveToLoc))
 					{
-                        if (homeBase.attacked && unit.enemyCamp.moveToLoc != homeBase.cityLoc)
+                        if (unit.enemyCamp.atSea)
                         {
-						    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Select attacking enemy only");
+							UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently at sea");
+						}
+                        else if (homeBase.attacked && unit.enemyCamp.moveToLoc != homeBase.cityLoc)
+                        {
+						    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Home currently being attacked by another army");
                         }
                         else if (world.GetCity(unit.enemyCamp.moveToLoc).army.defending)
                         {
@@ -523,24 +527,9 @@ public class UnitMovement : MonoBehaviour
                     }
 
 					attackMovingTarget = false;
+                    //homeBase.army.potentialAtSea = false;
 
-                    //seeing if water by the target
-                    List<Vector3Int> landTiles = new();
-                    bool bySea = false;
-                    foreach (Vector3Int tile in world.GetNeighborsFor(pos, MapWorld.State.FOURWAYINCREMENT))
-                    {
-                        if (world.GetTerrainDataAt(tile).isLand)
-                        {
-                            if (world.GetTerrainDataAt(tile).walkable)
-                                landTiles.Add(tile);
-                        }
-                        else
-                        {
-                            bySea = true;
-                        }
-                    }
-
-					if (homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), pos, bySea, landTiles))
+					if (homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), pos))
                     {
                         homeBase.army.ShowBattlePath();
 
@@ -1161,26 +1150,32 @@ public class UnitMovement : MonoBehaviour
 			else if (unit.isLaborer)
 				world.UnhighlightCitiesAndWonders();
 
-            if (unit.isPlayer && unit.isMoving)
-				movementSystem.ResetFollowerPaths(world);
-
-			if (movementSystem.MoveUnit(unit))
+            if (movementSystem.currentPath.Count > 0)
             {
+                bool updateFollowers = false;
                 if (unit.isPlayer)
                 {
-                    unit.firstStep = true;
-                }
-                else if (unit.trader && selectedTrader.guarded)
-                {
-                    List<Vector3Int> guardPath = movementSystem.GetGuardPath(startPosition);
-                    selectedTrader.guardUnit.finalDestinationLoc = guardPath[guardPath.Count - 1];
-                    selectedTrader.guardUnit.MoveThroughPath(guardPath);
-                }
-            }
-            else
-            {
-                return;
-            }
+                    if (unit.isMoving && !unit.firstStep)
+                        updateFollowers = true;
+                    else
+                        unit.firstStep = true;
+				}
+				else if (unit.trader && selectedTrader.guarded)
+				{
+					List<Vector3Int> guardPath = movementSystem.GetGuardPath(startPosition);
+					selectedTrader.guardUnit.finalDestinationLoc = guardPath[guardPath.Count - 1];
+					selectedTrader.guardUnit.MoveThroughPath(guardPath);
+				}
+
+				unit.MoveThroughPath(movementSystem.currentPath);
+
+                if (updateFollowers)
+                    unit.worker.CheckToFollow(startPosition);
+			}
+			else
+			{
+				return;
+			}
         }
 
         movementSystem.ClearPaths();
@@ -1189,7 +1184,7 @@ public class UnitMovement : MonoBehaviour
         uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
     }
 
-	public void GoStraightToSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
+	public void GoStraightToSelectedLocation(Vector3Int location, Vector3Int terrainPos, Unit unit)
 	{
 		if (unit.isMoving)
 		{
@@ -1209,7 +1204,7 @@ public class UnitMovement : MonoBehaviour
 		    }
         }
 
-		List<Vector3Int> path = GridSearch.AStarSearch(world, unit.transform.position, terrainPos, unit.isTrader, unit.bySea);
+		List<Vector3Int> path = GridSearch.AStarSearch(world, unit.transform.position, location, unit.isTrader, unit.bySea);
 
 		moveUnit = false;
 		uiMoveUnit.ToggleButtonColor(false);
@@ -1231,11 +1226,18 @@ public class UnitMovement : MonoBehaviour
                 world.scott.GoToPosition(terrainPos, true);
             }
             
+            //if (world.azaiFollow)
+            //{
+            //    world.azai.GoToPosition(terrainPos, false);
+            //}
+		}
+        else if (unit == world.scott)
+        {
             if (world.azaiFollow)
             {
-                world.azai.GoToPosition(terrainPos, false);
+                world.azai.FollowScott(path, unit.transform.position);
             }
-		}
+        }
 
 		uiJoinCity.ToggleVisibility(false);
 		uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
@@ -1272,7 +1274,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedUnit.ambush)
         {
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently being ambushed...", false);
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently being ambushed...");
 			return; //can't manually move when ambushed
         }
 
@@ -1287,18 +1289,21 @@ public class UnitMovement : MonoBehaviour
         {
 			if (!selectedUnit.transport.canMove)
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need all passengers to move", false);
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need all passengers to move");
 			    return;
             }
             else if (world.GetTerrainDataAt(locationInt).border)
             {
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not there, don't know if we can return", false);
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not there, nothing out there");
 				return;
 			}
         }
 
         if (selectedUnit.isPlayer)
         {
+            if (selectedUnit.worker.inTransport)
+                return;
+            
             if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
                 selectedUnit.SendResourceToCity();
        
@@ -1308,39 +1313,45 @@ public class UnitMovement : MonoBehaviour
             if (detectedObject.TryGetComponent(out Transport transport))
             {
                 selectedUnit.worker.toTransport = true;
-                Vector3Int trySpot = locationInt;
+                selectedUnit.worker.transportTarget = transport;
 
-                //finding closest land
-                Vector3Int playerTile = world.RoundToInt(selectedUnit.transform.position);
-                bool firstOne = true;
-                int dist = 0;
-                foreach (Vector3Int tile in world.GetNeighborsFor(locationInt, MapWorld.State.FOURWAY))
+                if (transport.bySea && !world.GetTerrainDataAt(locationInt).walkable)
                 {
-                    if (world.GetTerrainDataAt(tile).isLand && world.GetTerrainDataAt(tile).walkable)
+                    //finding closest land
+                    Vector3Int trySpot = locationInt;
+                    Vector3Int playerTile = world.RoundToInt(selectedUnit.transform.position);
+                    bool firstOne = true;
+                    int dist = 0;
+                    foreach (Vector3Int tile in world.GetNeighborsFor(locationInt, MapWorld.State.FOURWAY))
                     {
-                        if (firstOne)
+                        TerrainData td = world.GetTerrainDataAt(tile);
+                        if (td.isLand && td.walkable && !td.enemyZone)
                         {
-                            firstOne = false;
-                            dist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
-                            trySpot = tile;
-                            continue;
-                        }
+                            if (firstOne)
+                            {
+                                firstOne = false;
+                                dist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
+                                trySpot = tile;
+                                continue;
+                            }
 
-                        int newDist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
-                        if (newDist < dist)
-                        {
-                            dist = newDist;
-                            trySpot = tile;
-                        }
-					}
+                            int newDist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
+                            if (newDist < dist)
+                            {
+                                dist = newDist;
+                                trySpot = tile;
+                            }
+					    }
+                    }
+
+				    locationInt = trySpot;
+				    locationFlat = trySpot;
                 }
-
-				locationInt = trySpot;
-				locationFlat = trySpot;
 			}
-            else
+            else if (selectedUnit.worker.transportTarget != null)
             {
                 selectedUnit.worker.toTransport = false;
+                selectedUnit.worker.transportTarget = null;
             }
         }
 
@@ -1352,6 +1363,11 @@ public class UnitMovement : MonoBehaviour
 
                 locationInt = trySpot;
                 locationFlat = trySpot;
+            }
+            else if (world.CheckIfEnemyTerritory(locationInt))
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
+				return;
             }
 
             selectedUnit.TurnOnRipples();
@@ -1755,6 +1771,7 @@ public class UnitMovement : MonoBehaviour
         joinedCity.PopulationGrowthCheck(joinCity, unit.buildDataSO.laborCost);
 
 		int i = 0;
+        joinedCity.ResourceManager.resourceCount = 0;
 		foreach (ResourceValue resourceValue in unit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
 		{
 			int resourcesGiven = joinedCity.ResourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
@@ -1846,7 +1863,7 @@ public class UnitMovement : MonoBehaviour
         
         if (world.unitOrders)
         {
-			if (!world.utilityCostDisplay.hasEnough)
+			if (selectedUnit.worker && !world.utilityCostDisplay.hasEnough)
             {
                 UIInfoPopUpHandler.WarningMessage().Create(world.scott.OrderList[world.scott.OrderList.Count - 1], "Need more supplies", false);
 				return;
@@ -2169,9 +2186,14 @@ public class UnitMovement : MonoBehaviour
 
             int resourceAmountAdjusted;
             if (cityResourceManager != null)
+            {
+                cityResourceManager.resourceCount = 0;
                 resourceAmountAdjusted = cityResourceManager.AddResource(resourceType, -resourceAmount);
+            }
             else
+            {
                 resourceAmountAdjusted = wonder.AddResource(resourceType, -resourceAmount);
+            }
 
             cityFull = resourceAmountAdjusted == 0;
 			world.mainPlayer.personalResourceManager.ManuallySubtractResource(resourceType, resourceAmountAdjusted);
@@ -2711,10 +2733,11 @@ public class UnitMovement : MonoBehaviour
     {
 		uiCancelTask.ToggleVisibility(false);
         world.uiCampTooltip.ToggleVisibility(false);
-        City homeBase = selectedUnit.military.homeBase;
-
+        
         if (selectedUnit == null)
             return;
+        
+        City homeBase = selectedUnit.military.homeBase;
 
         if (selectedUnit.military.guard)
         {

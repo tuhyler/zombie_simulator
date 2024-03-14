@@ -16,6 +16,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using UnityEngine.UIElements.Experimental;
 using static UnityEngine.EventSystems.EventTrigger;
+using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -2082,6 +2083,9 @@ public class MapWorld : MonoBehaviour
 				camp.seigeCount = enemyData.seigeCount;
 				camp.health = enemyData.health;
 				camp.strength = enemyData.strength;
+
+                if (!world[camp.threatLoc].isLand)
+                    camp.battleAtSea = true;
 			}
             else if (GameLoader.Instance.gameData.movingEnemyBases.ContainsKey(loc))
             {
@@ -2098,6 +2102,7 @@ public class MapWorld : MonoBehaviour
 				camp.movingOut = enemyData.movingOut;
 				camp.returning = enemyData.returning;
 				camp.chasing = enemyData.chasing;
+                camp.atSea = enemyData.atSea;
 			}
 
 			bool reveal = false;
@@ -2290,7 +2295,65 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
-    public void CreateGuard(UnitData data, Trader trader)
+    public Transport LoadTransport(string transportName)
+    {
+        for (int i = 0; i < transportList.Count; i++)
+        {
+            if (transportList[i].name == transportName)
+                return transportList[i];
+        }
+
+        return null;
+    }
+
+    public List<Vector3Int> GetSeaLandRoute(List<Vector3Int> chosenTiles, Vector3Int harborLocation, Vector3Int target, List<Vector3Int> exemptList, bool enemy)
+    {
+		int dist = 0;
+		List<Vector3Int> chosenPath = new();
+		bool firstOne = true;
+		for (int i = 0; i < chosenTiles.Count; i++)
+		{
+            List<Vector3Int> chosenSeaPath;
+			
+            if (enemy)
+                chosenSeaPath = GridSearch.TerrainSearchSeaEnemy(this, harborLocation, chosenTiles[i], exemptList);
+            else
+				chosenSeaPath = GridSearch.TerrainSearchSea(this, harborLocation, chosenTiles[i], exemptList);
+
+			if (chosenSeaPath.Count > 0)
+			{
+                List<Vector3Int> chosenLandPath;
+				if (enemy)
+                    chosenLandPath = GridSearch.TerrainSearchEnemy(this, chosenTiles[i], target, exemptList);
+                else
+					chosenLandPath = GridSearch.TerrainSearch(this, chosenTiles[i], target, exemptList);
+
+				if (chosenLandPath.Count > 0)
+				{
+					chosenSeaPath.AddRange(chosenLandPath);
+
+					if (firstOne)
+					{
+						firstOne = false;
+						dist = chosenSeaPath.Count;
+						chosenPath = new(chosenSeaPath);
+						continue;
+					}
+
+					int newDist = chosenSeaPath.Count;
+					if (newDist < dist)
+					{
+						dist = newDist;
+						chosenPath = new(chosenSeaPath);
+					}
+				}
+			}
+		}
+
+        return chosenPath;
+	}
+
+	public void CreateGuard(UnitData data, Trader trader)
     {
 		UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
 		GameObject unitGO = unitData.prefab;
@@ -4996,16 +5059,16 @@ public class MapWorld : MonoBehaviour
 			if (IsEnemyCityOnTile(enemyLoc))
 			{
 				foreach (Military unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
-					unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
+					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 			}
 			else
 			{
 				foreach (Military unit in enemyCampDict[enemyLoc].UnitsInCamp)
-					unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
+					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 			}
 
 			foreach (Military unit in cityDict[armyLoc].army.UnitsInArmy)
-				unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("BattleLayer");
+				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 		}
 		else
         {
@@ -5017,16 +5080,16 @@ public class MapWorld : MonoBehaviour
 			if (IsEnemyCityOnTile(enemyLoc))
             {
                 foreach (Military unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
-                    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Enemy");
+                    unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
             }
             else
             {
 			    foreach (Military unit in enemyCampDict[enemyLoc].UnitsInCamp)
-				    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Enemy");
+				    unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
 		    }
 
             foreach (Military unit in cityDict[armyLoc].army.UnitsInArmy)
-			    unit.unitMesh.gameObject.layer = LayerMask.NameToLayer("Agent");
+			    unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
         }
 
 
@@ -5839,7 +5902,12 @@ public class MapWorld : MonoBehaviour
         return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable && !noWalkList.Contains(tile);
     }
 
-    public bool CheckIfPositionIsMarchable(Vector3Int tile)
+	public bool CheckIfAmphibuousPositionIsValid(Vector3Int tile)
+    {
+		return world[tile].walkable || !world[tile].isLand;
+	}
+
+	public bool CheckIfPositionIsMarchable(Vector3Int tile)
     {
 		return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable;
 	}
@@ -5854,7 +5922,12 @@ public class MapWorld : MonoBehaviour
 		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile);
 	}
 
-    public bool CheckIfPositionIsArmyValid(Vector3Int tile) //preventing going diagonally
+	public bool CheckIfPositionIsSailableForEnemy(Vector3Int tile)
+	{
+		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile);
+	}
+
+	public bool CheckIfPositionIsArmyValid(Vector3Int tile) //preventing going diagonally
     {
 		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyZone;
 	}

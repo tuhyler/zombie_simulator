@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class Military : Unit
 {
+	[SerializeField]
+	private GameObject boatMesh;
+	
 	private int isPillagingHash, isDiscoveredHash, isSittingHash;
 	[HideInInspector]
 	public Vector3Int targetLocation, targetBunk, barracksBunk, marchPosition; //targetLocation is in case units overlap on same tile
@@ -17,7 +20,7 @@ public class Military : Unit
 
 	[HideInInspector]
 	public bool atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, 
-		flankedOnce, cavalryLine, looking, aoe, guard, isGuarding, returning;
+		flankedOnce, cavalryLine, looking, aoe, guard, isGuarding, returning, atSea;
 
 	[HideInInspector]
 	public City homeBase;
@@ -54,6 +57,12 @@ public class Military : Unit
 	protected override void AwakeMethods()
 	{
 		base.AwakeMethods();
+	}
+
+	private void Start()
+	{
+		if (!atSea && boatMesh != null)
+			boatMesh.SetActive(false);
 	}
 
 	public void StartPillageAnimation()
@@ -752,6 +761,26 @@ public class Military : Unit
 		audioSource.Play();
 	}
 
+	public void ToggleBoat(bool v)
+	{
+		Vector3 lightBeamLoc = transform.position;
+		lightBeamLoc.y += .01f;
+		lightBeam.transform.position = lightBeamLoc;
+		lightBeam.Play();
+
+		GameObject go = v ? boatMesh : unitMesh;
+		Vector3 unitScale = go.transform.localScale;
+		float scaleX = unitScale.x;
+		float scaleZ = unitScale.z;
+		go.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
+		LeanTween.scale(go, unitScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+
+		unitMesh.SetActive(!v);
+		boatMesh.SetActive(v);
+		ripples.SetActive(v);
+		atSea = v;
+	}
+
 	public void FinishMovementMilitary(Vector3 endPosition)
 	{
 		if (inBattle)
@@ -1045,6 +1074,7 @@ public class Military : Unit
 		data.guard = guard;
 		data.idleTime = idleTime;
 		data.isGuarding = isGuarding;
+		data.atSea = atSea;
 
 		if (isMoving && readyToMarch)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -1111,6 +1141,7 @@ public class Military : Unit
 		idleTime = data.idleTime;
 		somethingToSay = data.somethingToSay;
 		isGuarding = data.isGuarding;
+		atSea = data.atSea;
 
 		if (somethingToSay)
 		{
@@ -1193,7 +1224,10 @@ public class Military : Unit
 			if (data.moveOrders.Count == 0)
 				data.moveOrders.Add(endPosition);
 
-			MoveThroughPath(data.moveOrders);
+			if (atSea)
+				ToggleBoat(true);
+			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
+			//MoveThroughPath(data.moveOrders);
 		}
 		else if (looking)
 		{
@@ -1290,7 +1324,7 @@ public class Military : Unit
 		}
 		else if (isDead)
 		{
-			unitMesh.gameObject.SetActive(false);
+			unitMesh.SetActive(false);
 			healthbar.gameObject.SetActive(false);
 			marker.gameObject.SetActive(false);
 			Vector3 sixFeetUnder = transform.position;

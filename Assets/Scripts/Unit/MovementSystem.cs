@@ -35,10 +35,10 @@ public class MovementSystem : MonoBehaviour
                     if (world.scottFollow && world.scott.isMoving)
                     {
                         Vector3Int scottPrevSpot = world.RoundToInt(world.scott.finalDestinationLoc);
-                        List<Vector3Int> nextPath = SetFollowerPaths(world, currentPath, prevFinalSpot, world.scott);
+                        List<Vector3Int> nextPath = SetFollowerPaths(currentPath, prevFinalSpot, world.scott);
 
                         if (world.azaiFollow)
-                            SetFollowerPaths(world, nextPath, scottPrevSpot, world.azai);
+                            SetFollowerPaths(nextPath, scottPrevSpot, world.azai);
                     }
                 }
                 else if (selectedUnit.trader)
@@ -64,7 +64,7 @@ public class MovementSystem : MonoBehaviour
         }
     }
 
-    private List<Vector3Int> SetFollowerPaths(MapWorld world, List<Vector3Int> path, Vector3Int prevSpot, Worker follower)
+    private List<Vector3Int> SetFollowerPaths(List<Vector3Int> path, Vector3Int prevSpot, Worker follower)
     {
 		List<Vector3Int> followerPath = new(path);
 		followerPath.RemoveAt(followerPath.Count - 1);
@@ -81,27 +81,6 @@ public class MovementSystem : MonoBehaviour
 
         return followerPath;
 	}
-
-    public void ResetFollowerPaths(MapWorld world)
-    {
-        if (currentPath.Count == 0)
-            return;
-        
-        if (world.scottFollow)
-        {
-            List<Vector3Int> scottPath = new(currentPath);
-            scottPath.RemoveAt(scottPath.Count - 1);
-            scottPath.Insert(0, world.RoundToInt(world.mainPlayer.transform.position));
-            world.scott.AddToMovementQueue(scottPath);
-
-            if (world.azaiFollow)
-            {
-                scottPath.RemoveAt(scottPath.Count - 1);
-                scottPath.Insert(0, world.RoundToInt(world.scott.transform.position));
-                world.azai.AddToMovementQueue(scottPath);
-            }
-        }
-    }
 
     public void AppendNewPath(Unit selectedUnit)
     {

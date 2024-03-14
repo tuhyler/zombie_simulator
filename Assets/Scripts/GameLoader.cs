@@ -23,6 +23,7 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<string, Trader> ambushedTraders = new();
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
+	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
 	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
 	public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
@@ -509,6 +510,11 @@ public class GameLoader : MonoBehaviour
 
 		GameManager.Instance.UpdateProgress(10);
 
+		//transports
+		for (int i = 0; i < gameData.allTransports.Count; i++)
+			world.CreateUnit(gameData.allTransports[i]);
+		gameData.allTransports.Clear();
+		
 		if (gameData.scott.somethingToSay) world.scott.gameObject.SetActive(true);
 		world.scott.LoadWorkerData(gameData.scott);
 
@@ -526,11 +532,6 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < gameData.allLaborers.Count; i++)
 			world.CreateUnit(gameData.allLaborers[i]);
 		gameData.allLaborers.Clear();
-
-		//transports
-		for (int i = 0; i < gameData.allTransports.Count; i++)
-			world.CreateUnit(gameData.allTransports[i]);
-		gameData.allTransports.Clear();
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(5);
@@ -554,6 +555,13 @@ public class GameLoader : MonoBehaviour
 		}
 		world.cameraController.LoadCameraLimits(gameData.camLimits[0], gameData.camLimits[1], gameData.camLimits[2], gameData.camLimits[3]);
 		gameData.camLimits.Clear();
+
+		//move orders
+		foreach (Unit unit in unitMoveOrders.Keys)
+		{
+			unit.MoveThroughPath(unitMoveOrders[unit]);
+		}
+		unitMoveOrders.Clear();
 
 		//attack info
 		for (int i = 0; i < attackingUnitList.Count; i++)

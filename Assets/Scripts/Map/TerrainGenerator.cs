@@ -403,7 +403,7 @@ public class TerrainGenerator : MonoBehaviour
 
                 TerrainData td = GenerateTile(sea, position, rotation, prefabIndex, true);
 
-                if (position.x < 0 || position.x > width || position.z < 0 || position.z > height)
+                if (position.x < -3 || position.x > width * 3 + 3 || position.z < -3 || position.z > height * 3 + 3) //buffer of one tile since land can be build to edge
                     td.border = true;
             }
             else if (mainMap[position] == ProceduralGeneration.grasslandHill)

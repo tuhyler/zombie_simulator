@@ -238,6 +238,18 @@ public class UISaveGame : MonoBehaviour
             {
 				string loadName = selectedSaveItem.saveName;
 				ToggleVisibility(false);
+
+                //have to do this here, others are in "MapWorld.ClearMap()"
+                if (world != null)
+                {
+                    foreach (Transform go in world.unitHolder)
+                    {
+                        Unit unit = go.GetComponent<Unit>();
+                        if (unit.marker != null)
+                            unit.marker.gameObject.SetActive(false);
+				    }
+                }
+
                 GameManager.Instance.LoadGame(loadName);
                 return;
 			}

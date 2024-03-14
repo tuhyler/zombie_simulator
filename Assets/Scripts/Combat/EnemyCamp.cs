@@ -21,7 +21,7 @@ public class EnemyCamp
 
 	public int enemyReady;
 	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength, pillageTime;
-	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing, isCity, pillage, growing, removingOut;
+	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing, isCity, pillage, growing, removingOut, atSea, battleAtSea, seaTravel;
 	public Army attackingArmy;
 
 	//public Queue<Vector3Int> threatQueue = new();
@@ -211,6 +211,8 @@ public class EnemyCamp
 		campData.lastSpot = lastSpot;
 		campData.removingOut = removingOut;
 		campData.countDownTimer = world.GetEnemyCity(cityLoc).countDownTimer;
+		campData.atSea = atSea;
+		campData.seaTravel = seaTravel;
 
 		return campData;
 	}
@@ -517,12 +519,12 @@ public class EnemyCamp
 
 	public List<Vector3Int> PathToEnemy(Vector3Int pos, Vector3Int target)
 	{
-		return GridSearch.BattleMove(world, pos, target, attackingArmy.movementRange, attackingArmy.attackingSpots);
+		return GridSearch.BattleMove(world, pos, target, attackingArmy.movementRange, attackingArmy.attackingSpots, battleAtSea);
 	}
 
 	public List<Vector3Int> CavalryPathToEnemy(Vector3Int pos, Vector3Int target)
 	{
-		return GridSearch.BattleMove(world, pos, target, attackingArmy.cavalryRange, attackingArmy.attackingSpots);
+		return GridSearch.BattleMove(world, pos, target, attackingArmy.cavalryRange, attackingArmy.attackingSpots, battleAtSea);
 	}
 
 	public bool FinishAttack()
@@ -538,6 +540,8 @@ public class EnemyCamp
 				removingOut = true;
 
 			world.ToggleCityMaterialClear(isCity ? cityLoc : loc, attackingArmy.city.cityLoc, attackingArmy.enemyTarget, attackingArmy.attackZone, false);
+			attackingArmy.battleAtSea = false;
+			battleAtSea = false;
 
 			foreach (Military unit in unitsInCamp)
 				unit.StopAttacking();
@@ -672,7 +676,7 @@ public class EnemyCamp
 			unit.transform.localScale = new Vector3(scaleX, 0.2f, scaleZ); //don't start at 0, otherwise lightbeam meshes with ground
 			//unit.minimapIcon.gameObject.SetActive(true);
 			//unit.unitMesh.gameObject.SetActive(true);
-			unit.unitMesh.gameObject.SetActive(true);
+			unit.unitMesh.SetActive(true);
 			rebornSpot.y += 0.07f;
 			unit.lightBeam.transform.position = rebornSpot;
 			unit.lightBeam.Play();
@@ -978,6 +982,23 @@ public class EnemyCamp
 
 			world.CheckMainPlayerLoc(lastSpot, pathToTarget);
 
+			if (atSea)
+			{
+				if (world.GetTerrainDataAt(unitsInCamp[0].pathPositions.Peek()).isLand)
+				{
+					for (int i = 0; i < unitsInCamp.Count; i++)
+						unitsInCamp[i].ToggleBoat(false);
+				}
+			}
+			else
+			{
+				if (!world.GetTerrainDataAt(endPositionInt).isLand)
+				{
+					for (int i = 0; i < unitsInCamp.Count; i++)				
+						unitsInCamp[i].ToggleBoat(true);
+				}
+			}
+
 			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == this)
 			{
 				if (world.uiCampTooltip.army.UpdateArmyCostsMovingTarget(world.uiCampTooltip.army.loc, cityLoc, pathToTarget, lastSpot))
@@ -1006,14 +1027,76 @@ public class EnemyCamp
 		}
 	}
 
-	public void MoveOut(City targetCity)
+	public bool MoveOut(City targetCity)
 	{
 		fieldBattleLoc = cityLoc;
 		attackingArmy = targetCity.army;
 		moveToLoc = targetCity.cityLoc;
+		seaTravel = false;
 
 		List<Vector3Int> avoidList = world.GetNeighborsFor(moveToLoc, MapWorld.State.FOURWAYINCREMENT);
 		pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc, avoidList);
+
+		if (pathToTarget.Count == 0)
+		{
+			List<Vector3Int> directSeaList = new(), diagSeaList = new(), outerRingList = new();
+			//Checking if target is by sea
+			List<Vector3Int> surroundingArea = world.GetNeighborsFor(moveToLoc, MapWorld.State.CITYRADIUS);
+			for (int i = 0; i < surroundingArea.Count; i++)
+			{
+				if (world.GetTerrainDataAt(surroundingArea[i]).isLand)
+					continue;
+
+				if (i < 8)
+				{
+					if (i % 2 == 0)
+						directSeaList.Add(surroundingArea[i]);
+					else
+						diagSeaList.Add(surroundingArea[i]);
+				}
+				else
+				{
+					outerRingList.Add(surroundingArea[i]);
+				}
+			}
+
+			//finding shortest route to target
+			bool hasRoute = false;
+			List<Vector3Int> chosenPath = new();
+			//checking diags first
+			if (diagSeaList.Count > 0)
+			{
+				chosenPath = world.GetSeaLandRoute(diagSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+
+				if (chosenPath.Count > 0)
+					hasRoute = true;
+			}
+
+			//outer ring next
+			if (!hasRoute && outerRingList.Count > 0)
+			{
+				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+
+				if (chosenPath.Count > 0)
+					hasRoute = true;
+			}
+
+			//now those right next to it (they have to attack from the sea)
+			if (!hasRoute && directSeaList.Count > 0)
+			{
+				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+
+				if (chosenPath.Count > 0)
+					hasRoute = true;
+			}
+
+			if (hasRoute)
+			{
+				seaTravel = true;
+				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, world.GetEnemyCity(cityLoc).harborLocation, avoidList);
+				pathToTarget = chosenPath;
+			}
+		}
 
 		enemyReady = 0;
 		pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
@@ -1031,7 +1114,15 @@ public class EnemyCamp
 				unitsInCamp[i].SoftSelect(Color.red);
 		}
 
-		BattleStations(loc, forward);
+		if (pathToTarget.Count > 0)
+		{
+			BattleStations(loc, forward);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	private void RemoveOut()

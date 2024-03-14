@@ -53,6 +53,7 @@ public class Resource : MonoBehaviour
         city.PlayLightBullet();
         yield return new WaitForSeconds(0.5f);
 
+        city.ResourceManager.resourceCount = 0;
         int gatheredResource = city.ResourceManager.AddResource(resourceIndividual.resourceType, amount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
         if (gatheredResource > 0)
