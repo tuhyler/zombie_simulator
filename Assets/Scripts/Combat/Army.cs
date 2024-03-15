@@ -572,9 +572,10 @@ public class Army : MonoBehaviour
                 }
             }
 
-            for (int i = 0; i < tilesToCheckLoc.Count; i++)
+            int loopCount = tilesToCheckLoc.Count;
+            for (int i = 0; i < loopCount; i++)
             {
-                for (int k = i + 1; k < tilesToCheckLoc.Count; k++)
+                for (int k = i + 1; k < loopCount; k++)
                 {
                     if (tilesStrength[k] > tilesStrength[i])
                     {

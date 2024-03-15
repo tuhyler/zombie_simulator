@@ -40,6 +40,7 @@ public class Transport : Unit
 			koaMesh.SetActive(true);
 			hasKoa = true;
 			world.mainPlayer.transportTarget = null;
+			minimapIcon.sprite = world.mainPlayer.buildDataSO.mapIcon;
 		}
 		else if (worker.buildDataSO.unitDisplayName == "Scott")
 		{
@@ -137,6 +138,7 @@ public class Transport : Unit
 			koaMesh.SetActive(false);
 			scottMesh.SetActive(false);
 			azaiMesh.SetActive(false);
+			minimapIcon.sprite = buildDataSO.mapIcon;
 
 			if (isSelected)
 				world.unitMovement.ShowIndividualCityButtonsUI();

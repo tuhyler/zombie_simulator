@@ -19,7 +19,7 @@ MonoBehaviour:
   unitLevel: 1
   unitNameAndLevel: Water Transport-1
   image: {fileID: 21300000, guid: 15dc2a29782fee045b3ab2e95c759754, type: 3}
-  mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
+  mapIcon: {fileID: 21300000, guid: 6e5466c9305c2e545bd04514bf524718, type: 3}
   unitCost:
   - resourceType: 6
     resourceAmount: 5

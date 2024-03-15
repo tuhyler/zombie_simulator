@@ -27,6 +27,7 @@ MonoBehaviour:
   isLand: 0
   isSeaCorner: 0
   movementCost: 30
+  terrainAttackBonus: -25
   type: 2
   specificTerrain: 0
   terrainDesc: 12

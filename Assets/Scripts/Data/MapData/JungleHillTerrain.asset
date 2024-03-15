@@ -27,10 +27,10 @@ MonoBehaviour:
   isLand: 1
   isSeaCorner: 0
   movementCost: 30
+  terrainAttackBonus: 35
   type: 8
   specificTerrain: 0
   terrainDesc: 9
   rawResourceType: 4
   resourceType: 6
   keepProp: 0
-  hasRocks: 0
