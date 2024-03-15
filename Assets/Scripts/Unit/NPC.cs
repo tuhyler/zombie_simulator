@@ -27,12 +27,16 @@ public class NPC : Unit
 		{
 			if (rapportScore <= 12)
 				rapportScore++;
+
+			world.cityBuilderManager.PlayAudioClip(world.cityBuilderManager.receiveGift);
 			return true;
 		}
 		else
 		{
 			if (rapportScore >= -12)
 				rapportScore--;
+
+			world.cityBuilderManager.PlayAudioClip(world.cityBuilderManager.denyGift);
 			return false;
 		}
 	}

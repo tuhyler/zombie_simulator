@@ -144,7 +144,7 @@ public class CityBuilderManager : MonoBehaviour
 
     [SerializeField]
     public AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
-        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip, alertClip, warningClip, sunBeam;
+        largeTownClip, laborInClip, laborOutClip, constructionClip, trainingClip, thudClip, fieryOpen, popGainClip, popLoseClip, alertClip, warningClip, sunBeam, receiveGift, denyGift;
     [SerializeField]
     private AudioClip[] acknowledgements;
     [HideInInspector]

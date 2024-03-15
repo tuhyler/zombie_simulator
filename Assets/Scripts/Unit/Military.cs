@@ -8,6 +8,9 @@ public class Military : Unit
 {
 	[SerializeField]
 	private GameObject boatMesh;
+
+	[SerializeField]
+	private MeshFilter boatSail;
 	
 	private int isPillagingHash, isDiscoveredHash, isSittingHash;
 	[HideInInspector]
@@ -40,6 +43,16 @@ public class Military : Unit
 	{
 		AwakeMethods();
 		military = GetComponent<Military>();
+
+		if (enemyAI)
+		{
+			Vector2[] sailUV = boatSail.sharedMesh.uv;
+			for (int i = 0; i < sailUV.Length; i++)
+				sailUV[i].x += 0.03125f;
+
+			boatSail.sharedMesh.uv = sailUV;
+		}
+
 		attackStrength = buildDataSO.baseAttackStrength;
 
 		if (buildDataSO.unitType == UnitType.Ranged)

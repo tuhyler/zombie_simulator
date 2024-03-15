@@ -2353,6 +2353,11 @@ public class MapWorld : MonoBehaviour
         return chosenPath;
 	}
 
+    public void FindOptimalAttackZone()
+    {
+
+    }
+
 	public void CreateGuard(UnitData data, Trader trader)
     {
 		UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
@@ -2543,7 +2548,41 @@ public class MapWorld : MonoBehaviour
 
         resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
-    }
+
+  //      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+  //      List<int> newNum = new();
+
+  //      for (int i = 0; i < 10; i++)
+  //      {
+  //          int rand = num[UnityEngine.Random.Range(0, num.Count)];
+  //          num.Remove(rand);
+  //          newNum.Add(rand);
+  //      }
+
+  //      for (int i = 0; i < newNum.Count; i++)
+  //      {
+  //          Debug.Log(newNum[i]);
+  //      }
+
+  //      for (int i = 0; i < 10; i++)
+  //      {
+  //          for (int j = i + 1; j < 10; j++)
+  //          {
+  //              if (newNum[i] < newNum[j])
+  //              {
+  //                  int oldNum = newNum[j];
+  //                  newNum.Remove(oldNum);
+  //                  newNum.Insert(i, oldNum);
+  //              }
+  //          }
+  //      }
+
+		//for (int i = 0; i < newNum.Count; i++)
+		//{
+		//	Debug.Log(newNum[i]);
+		//}
+	}
 
     public void PlayCityAudio(AudioClip clip)
     {
