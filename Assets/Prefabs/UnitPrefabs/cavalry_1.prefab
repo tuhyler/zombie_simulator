@@ -35,7 +35,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: fc696bf5be88ad442a58296837f102f0,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.3
+      value: 0.245
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fc696bf5be88ad442a58296837f102f0,
         type: 3}
@@ -514,6 +514,7 @@ MonoBehaviour:
   marchPosition: {x: 0, y: 0, z: 0}
   idleTime: 0
   attackStrength: 0
+  strengthBonus: 0
   atHome: 0
   preparingToMoveOut: 0
   isMarching: 0

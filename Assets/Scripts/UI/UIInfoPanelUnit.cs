@@ -124,7 +124,7 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
 
     public void SetStrengthBonus(int bonus)
     {
-        if (bonus > 0)
+        if (bonus != 0)
         {
             strengthBonus.gameObject.SetActive(true);
         }
@@ -134,14 +134,14 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
             return;
         }
         
-        if (bonus < 0)
+        if (bonus > 0)
         {
-            strengthBonus.color = Color.red;
+            strengthBonus.color = Color.green;
 			strengthBonus.text = "+" + bonus.ToString();
 		}
         else
         {
-            strengthBonus.color = Color.green;
+            strengthBonus.color = Color.red;
             strengthBonus.text = bonus.ToString();
         }
     }

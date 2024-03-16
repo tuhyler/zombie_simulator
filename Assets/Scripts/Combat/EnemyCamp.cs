@@ -1063,7 +1063,7 @@ public class EnemyCamp
 			//first check those in inner circle
 			if (!hasRoute && directSeaList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, null, avoidList, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1072,7 +1072,7 @@ public class EnemyCamp
 			//outer ring next
 			if (!hasRoute && outerRingList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, null, avoidList, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1105,8 +1105,7 @@ public class EnemyCamp
 		if (pathToTarget.Count > 0)
 		{
 			//finding best spot to attack from
-			List<Vector3Int> exemptList = new();
-			pathToTarget = world.FindOptimalAttackZone(pathToTarget, moveToLoc, exemptList);
+			pathToTarget = world.FindOptimalAttackZone(pathToTarget, moveToLoc);
 
 			BattleStations(loc, forward);
 			return true;
