@@ -209,7 +209,10 @@ public class Transport : Unit
 		canMove = data.canMove;
 		hasKoa = data.hasKoa;
 		if (hasKoa)
+		{
 			koaMesh.SetActive(true);
+			minimapIcon.sprite = world.mainPlayer.buildDataSO.mapIcon;
+		}
 		hasScott = data.hasScott;
 		if (hasScott)
 			scottMesh.SetActive(true);
@@ -227,6 +230,7 @@ public class Transport : Unit
 			if (data.moveOrders.Count == 0)
 				data.moveOrders.Add(endPosition);
 
+			TurnOnRipples();
 			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
 			//MoveThroughPath(data.moveOrders);
 		}

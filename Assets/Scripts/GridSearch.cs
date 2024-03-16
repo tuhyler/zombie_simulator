@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 public class GridSearch
@@ -464,7 +465,7 @@ public class GridSearch
 				if (neighbor != endTerrain && avoidList.Contains(neighbor))
 					continue;
 
-				if (world.GetTerrainDataAt(neighbor).terrainData.terrainDesc == TerrainDesc.Mountain) //If it's an obstacle, ignore
+				if (world.CheckForFinalMarch(neighbor)) //If it's an obstacle, ignore
 					continue;
 
 				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
@@ -752,6 +753,66 @@ public class GridSearch
                 }
 
 		        int tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 2)
+				{
+					tempCost = Mathf.RoundToInt(tempCost * 1.414f);
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor);
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		return path;
+	}
+
+	//move through mountains, oceans, wherever (used quite sparingly)
+	public static List<Vector3Int> MoveWherever(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	{
+		List<Vector3Int> path = new();
+
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endPosition)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			//foreach (Vector3Int tile in world.GenerateForwardsTiles(forward))
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.TileExists(neighbor))
+						continue;
+
+				int tempCost = 1;
 
 				if (tile.sqrMagnitude == 2)
 				{

@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 4084126454760206941}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6436745273472483980}
@@ -49,10 +49,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
+  m_Radius: 0.25
+  m_Height: 1
   m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!95 &-1569295495130398200
 Animator:
   serializedVersion: 4
@@ -256,17 +256,17 @@ PrefabInstance:
     - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
         type: 3}
@@ -311,7 +311,7 @@ PrefabInstance:
     - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
         type: 3}
@@ -400,6 +400,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -441,7 +456,7 @@ PrefabInstance:
     - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2.5
+      value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
         type: 3}
@@ -485,13 +500,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.2
+      value: 1.3
       objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}

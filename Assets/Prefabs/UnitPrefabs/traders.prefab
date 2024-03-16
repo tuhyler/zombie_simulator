@@ -33,7 +33,7 @@ Transform:
   m_GameObject: {fileID: 4084126454760206941}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8415718028059287244}
@@ -52,10 +52,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
+  m_Radius: 0.25
+  m_Height: 1
   m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!114 &4778263574884209705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89,11 +89,10 @@ MonoBehaviour:
   minimapIcon: {fileID: 9149838138303090476}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
-  deathSplash: {fileID: 6041035029305573530, guid: ed4f054d45ce19945ab25e7e27a8d6a0,
-    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 0}
   exclamationPoint: {fileID: 0}
+  ripples: {fileID: 0}
   marker: {fileID: 103100230671984584}
   healthbar: {fileID: 5032910586026060206}
   greetings:
@@ -107,6 +106,11 @@ MonoBehaviour:
   FinishedMoving:
     m_PersistentCalls:
       m_Calls: []
+  trader: {fileID: 0}
+  worker: {fileID: 0}
+  military: {fileID: 0}
+  transport: {fileID: 0}
+  conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
@@ -115,31 +119,21 @@ MonoBehaviour:
   moreToMove: 0
   isBusy: 0
   isMoving: 0
-  isBeached: 0
-  interruptedRoute: 0
   secondaryPrefab: 0
+  readyToMarch: 0
   destinationLoc: {x: 0, y: 0, z: 0}
   finalDestinationLoc: {x: 0, y: 0, z: 0}
+  currentLocation: {x: 0, y: 0, z: 0}
   prevTile: {x: 0, y: 0, z: 0}
   prevTerrainTile: {x: 0, y: 0, z: 0}
   ambushLoc: {x: 0, y: 0, z: 0}
-  homeBase: {fileID: 0}
-  barracksBunk: {x: 0, y: 0, z: 0}
-  marchPosition: {x: 0, y: 0, z: 0}
+  lastClearTile: {x: 0, y: 0, z: 0}
   currentHealth: 0
   enemyAI: {fileID: 0}
   baseSpeed: 0
-  attackSpeed: 0
-  attackStrength: 0
-  attackPause:
-  - 0.75
-  - 1
-  - 1.25
-  projectile: {fileID: 0}
+  healthMax: 0
   bySea: 0
   isTrader: 0
-  atStop: 0
-  followingRoute: 0
   isPlayer: 0
   isLaborer: 0
   isSelected: 0
@@ -149,40 +143,29 @@ MonoBehaviour:
   somethingToSay: 0
   sayingSomething: 0
   firstStep: 0
-  conversationTopic: 
-  isLeader: 0
-  readyToMarch: 0
+  byAir: 0
   inArmy: 0
-  atHome: 0
-  preparingToMoveOut: 0
-  isMarching: 0
-  transferring: 0
-  repositioning: 0
-  inBattle: 0
-  attacking: 0
-  targetSearching: 0
-  flanking: 0
-  flankedOnce: 0
-  cavalryLine: 0
   isDead: 0
-  isUpgrading: 0
   runningAway: 0
-  hidden: 0
-  looking: 0
   ambush: 0
-  targetLocation: {x: 0, y: 0, z: 0}
-  targetBunk: {x: 0, y: 0, z: 0}
+  hidden: 0
+  isUpgrading: 0
   unitAnimator: {fileID: 0}
   personalResourceManager: {fileID: 0}
   tradeRouteManager: {fileID: 0}
   totalRouteCosts: []
   routeCostTypes: 
-  cargoStorageLimit: 0
+  paid: 0
   hasRoute: 0
+  atStop: 0
+  followingRoute: 0
   waitingOnRouteCosts: 0
+  interruptedRoute: 0
   guarded: 0
+  waitingOnGuard: 0
+  guardLeft: 0
+  guardUnit: {fileID: 0}
   loadUnloadRate: 1
-  ripples: {fileID: 0}
 --- !u!114 &9082481739774170290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,6 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e386f97d5cdd5874289aac3a55755f95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resourceStorageLimit: 0
 --- !u!114 &5126641289950847378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,13 +361,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.3
       objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
@@ -496,6 +495,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SizeDelta.y
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6249270667086199081, guid: 3a75af7ffd9a099498c380bb9baa23b5,
         type: 3}
@@ -630,6 +644,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -671,7 +700,7 @@ PrefabInstance:
     - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2.5
+      value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 7710663386937454018, guid: 5419987ddd30d1749be86ed591198d04,
         type: 3}

@@ -540,8 +540,6 @@ public class EnemyCamp
 				removingOut = true;
 
 			world.ToggleCityMaterialClear(isCity ? cityLoc : loc, attackingArmy.city.cityLoc, attackingArmy.enemyTarget, attackingArmy.attackZone, false);
-			attackingArmy.battleAtSea = false;
-			battleAtSea = false;
 
 			foreach (Military unit in unitsInCamp)
 				unit.StopAttacking();
@@ -553,6 +551,7 @@ public class EnemyCamp
 				attackingArmy.ResetArmy();
 				attackingArmy.targetCamp = null;
 				attackingArmy.defending = false;
+				attackingArmy.battleAtSea = false;
 				attackingArmy = null; //so that safety nets are thrown
 
 				if (movingOut)
@@ -571,6 +570,7 @@ public class EnemyCamp
 			}
 
 			ReturnToCamp();
+			battleAtSea = false;
 
 			return true;
 		}
@@ -1039,7 +1039,7 @@ public class EnemyCamp
 
 		if (pathToTarget.Count == 0)
 		{
-			List<Vector3Int> directSeaList = new(), diagSeaList = new(), outerRingList = new();
+			List<Vector3Int> directSeaList = new(), outerRingList = new();
 			//Checking if target is by sea
 			List<Vector3Int> surroundingArea = world.GetNeighborsFor(moveToLoc, MapWorld.State.CITYRADIUS);
 			for (int i = 0; i < surroundingArea.Count; i++)
@@ -1048,25 +1048,18 @@ public class EnemyCamp
 					continue;
 
 				if (i < 8)
-				{
-					if (i % 2 == 0)
-						directSeaList.Add(surroundingArea[i]);
-					else
-						diagSeaList.Add(surroundingArea[i]);
-				}
+					directSeaList.Add(surroundingArea[i]);
 				else
-				{
 					outerRingList.Add(surroundingArea[i]);
-				}
 			}
 
 			//finding shortest route to target
 			bool hasRoute = false;
 			List<Vector3Int> chosenPath = new();
-			//checking diags first
-			if (diagSeaList.Count > 0)
+			//first check those in inner circle
+			if (!hasRoute && directSeaList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(diagSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1076,15 +1069,6 @@ public class EnemyCamp
 			if (!hasRoute && outerRingList.Count > 0)
 			{
 				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
-
-				if (chosenPath.Count > 0)
-					hasRoute = true;
-			}
-
-			//now those right next to it (they have to attack from the sea)
-			if (!hasRoute && directSeaList.Count > 0)
-			{
-				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1116,6 +1100,10 @@ public class EnemyCamp
 
 		if (pathToTarget.Count > 0)
 		{
+			//finding best spot to attack from
+			List<Vector3Int> exemptList = new();
+			pathToTarget = world.FindOptimalAttackZone(pathToTarget, moveToLoc, exemptList);
+
 			BattleStations(loc, forward);
 			return true;
 		}
