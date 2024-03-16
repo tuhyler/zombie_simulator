@@ -2373,20 +2373,45 @@ public class MapWorld : MonoBehaviour
 		Vector3Int diff = newStart - target;
 
 		int[] tilesToCheckArray = new int[4] { 1, 1, 1, 1 };
+        int absX = Math.Abs(diff.x);
+        int absZ = Math.Abs(diff.z);
 
-		if (Math.Abs(diff.x) > Math.Abs(diff.z))
+		if (absX > absZ)
 		{
 			if (diff.x > 0)
 				tilesToCheckArray[3] = 0;
 			else
 				tilesToCheckArray[1] = 0;
 		}
-		else
+        else if (absX < absZ)
 		{
 			if (diff.z > 0)
 				tilesToCheckArray[2] = 0;
 			else
 				tilesToCheckArray[0] = 0;
+		}
+        else
+        {
+			if (diff.z > 0 && diff.x > 0)
+            {
+				tilesToCheckArray[2] = 0;
+				tilesToCheckArray[3] = 0;
+			}
+            else if (diff.z < 0 && diff.x > 0)
+            {
+				tilesToCheckArray[0] = 0;
+				tilesToCheckArray[3] = 0;
+			}
+			else if (diff.z < 0 && diff.x < 0)
+			{
+				tilesToCheckArray[0] = 0;
+				tilesToCheckArray[1] = 0;
+			}
+            else
+            {
+				tilesToCheckArray[1] = 0;
+				tilesToCheckArray[2] = 0;
+			}
 		}
 
 		List<Vector3Int> fourWayTiles = GetNeighborsFor(target, MapWorld.State.FOURWAYINCREMENT);

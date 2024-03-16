@@ -508,7 +508,7 @@ public class UnitMovement : MonoBehaviour
                             }
                             else
                             {
-								UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Too close to target city");
+								UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't reach target in time");
 							}
                         }
 
@@ -955,7 +955,8 @@ public class UnitMovement : MonoBehaviour
         selectedUnit.SayHello();
 		world.somethingSelected = true;
 		selectedUnit.Highlight(Color.red);
-		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader/*, selectedUnit.isLaborer*/);
+        int bonus = selectedUnit.military ? selectedUnit.military.strengthBonus : 0;
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus);
 	}
 
     private void SelectCharacter(Unit unitReference)
@@ -978,7 +979,7 @@ public class UnitMovement : MonoBehaviour
 		selectedUnit.SayHello();
 		world.somethingSelected = true;
 		selectedUnit.Highlight(new Color(.5f, 0, 1));
-		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader/*, selectedUnit.isLaborer*/);
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, 0);
 	}
 
 	public void SelectWorker()
@@ -1097,25 +1098,8 @@ public class UnitMovement : MonoBehaviour
 			selectedUnit.Highlight(Color.green);
         }
 
-        //so highlight of city doesn't go away
-   //     if (selectedUnit.isLaborer)
-   //     {
-   //         if (world.cityBuilderManager.SelectedCity != null)
-   //             world.cityUnitSelected = true;
-            
-   //         //world.HighlightCitiesAndWonders();
-   //     }
-   //     else if (selectedUnit.isTrader)
-   //     {
-			//if (world.cityBuilderManager.SelectedCity != null && !selectedUnit.bySea)
-			//	world.cityUnitSelected = true;
-
-			////if (!selectedUnit.followingRoute)
-   ////             world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
-   //     }
-
-        //selectedUnitInfoProvider = selectedUnit.GetComponent<InfoProvider>(); //getting the information to show in info panel
-        infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader/*, selectedUnit.isLaborer*/);
+		int bonus = selectedUnit.military ? selectedUnit.military.strengthBonus : 0;
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus);
         ShowIndividualCityButtonsUI();
     }
 
@@ -2633,7 +2617,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedTrader != null)
         {
-            infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader/*, selectedUnit.isLaborer*/);
+			infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, 0);
         }
     }
 

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the panel and switching it off/on
 {
-    public TMP_Text unitName, level, health, speed, strength;
+    public TMP_Text unitName, level, health, speed, strength, strengthBonus;
     public Image strengthImage;
     public Sprite strengthSprite, inventorySprite;
     public GameObject renamerButton, goToNextButton;
@@ -120,5 +120,29 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
+    }
+
+    public void SetStrengthBonus(int bonus)
+    {
+        if (bonus > 0)
+        {
+            strengthBonus.gameObject.SetActive(true);
+        }
+        else
+        {
+            strengthBonus.gameObject.SetActive(false);
+            return;
+        }
+        
+        if (bonus < 0)
+        {
+            strengthBonus.color = Color.red;
+			strengthBonus.text = "+" + bonus.ToString();
+		}
+        else
+        {
+            strengthBonus.color = Color.green;
+            strengthBonus.text = bonus.ToString();
+        }
     }
 }

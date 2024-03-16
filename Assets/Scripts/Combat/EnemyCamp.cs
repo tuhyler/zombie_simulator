@@ -406,6 +406,10 @@ public class EnemyCamp
 
 		foreach (Military unit in unitsInCamp)
 		{
+			unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
+			if (unit.isSelected)
+				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);
+
 			unit.isMarching = false;
 			unit.inBattle = true;
 			UnitType type = unit.buildDataSO.unitType;
