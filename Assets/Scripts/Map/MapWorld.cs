@@ -2353,6 +2353,103 @@ public class MapWorld : MonoBehaviour
         return chosenPath;
 	}
 
+    public List<Vector3Int> FindOptimalAttackZone(List<Vector3Int> currentPath, Vector3Int target, List<Vector3Int> exemptList)
+    {
+		Vector3Int newStart;
+		if (currentPath.Count < 4)
+		{
+			newStart = currentPath[0];
+			currentPath.Clear();
+		}
+		else
+		{
+			newStart = currentPath[currentPath.Count - 4];
+
+			//removing last 3
+			for (int i = 0; i < 3; i++)
+				currentPath.RemoveAt(currentPath.Count - 1);
+		}
+
+		Vector3Int diff = newStart - target;
+
+		int[] tilesToCheckArray = new int[4] { 1, 1, 1, 1 };
+
+		if (Math.Abs(diff.x) > Math.Abs(diff.z))
+		{
+			if (diff.x > 0)
+				tilesToCheckArray[3] = 0;
+			else
+				tilesToCheckArray[1] = 0;
+		}
+		else
+		{
+			if (diff.z > 0)
+				tilesToCheckArray[2] = 0;
+			else
+				tilesToCheckArray[0] = 0;
+		}
+
+		List<Vector3Int> fourWayTiles = GetNeighborsFor(target, MapWorld.State.FOURWAYINCREMENT);
+		List<Vector3Int> tilesToCheckLoc = new();
+		List<(int, int)> tilesData = new();
+		//List<int> tilesDist = new();
+		for (int i = 0; i < tilesToCheckArray.Length; i++)
+		{
+			//getting info first, then sorting
+			if (tilesToCheckArray[i] == 1)
+			{
+				TerrainData td = world[fourWayTiles[i]];
+				if (td.isDiscovered)
+				{
+					tilesToCheckLoc.Add(fourWayTiles[i]);
+					tilesData.Add((td.terrainData.terrainAttackBonus, Math.Abs(fourWayTiles[i].x - newStart.x) + Math.Abs(fourWayTiles[i].z - newStart.z)));
+					//tilesDist.Add(Math.Abs(fourWayTiles[i].x - newStart.x) + Math.Abs(fourWayTiles[i].z - newStart.z)); 
+				}
+			}
+		}
+
+		//sorting by priority
+		int loopCount = tilesToCheckLoc.Count;
+		for (int i = 0; i < loopCount; i++)
+		{
+			for (int j = i + 1; j < loopCount; j++)
+			{
+				if (tilesData[j].Item1 > tilesData[i].Item1)
+				{
+					Vector3Int tile = tilesToCheckLoc[j];
+					(int, int) datum = tilesData[j];
+					tilesToCheckLoc.RemoveAt(j);
+					tilesData.RemoveAt(j);
+					tilesToCheckLoc.Insert(i, tile);
+					tilesData.Insert(i, datum);
+				}
+				else if (tilesData[j].Item1 == tilesData[i].Item1 && tilesData[j].Item2 < tilesData[i].Item2)
+				{
+					Vector3Int tile = tilesToCheckLoc[j];
+					(int, int) datum = tilesData[j];
+					tilesToCheckLoc.RemoveAt(j);
+					tilesData.RemoveAt(j);
+					tilesToCheckLoc.Insert(i, tile);
+					tilesData.Insert(i, datum);
+				}
+			}
+		}
+
+		for (int i = 0; i < tilesToCheckLoc.Count; i++)
+		{
+            List<Vector3Int> pathCoda = GridSearch.TerrainSearchCoda(this, newStart, tilesToCheckLoc[i], exemptList, tilesToCheckLoc);
+
+			if (pathCoda.Count > 0)
+			{
+				currentPath.AddRange(pathCoda);
+				currentPath.Add(target);
+				break;
+			}
+		}
+
+		return currentPath;
+    }
+
     public void FindOptimalAttackZone()
     {
 
@@ -5943,13 +6040,18 @@ public class MapWorld : MonoBehaviour
 
 	public bool CheckIfAmphibuousPositionIsValid(Vector3Int tile)
     {
-		return world[tile].walkable || !world[tile].isLand;
+		return world.ContainsKey(tile) && (world[tile].walkable || !world[tile].isLand);
 	}
 
 	public bool CheckIfPositionIsMarchable(Vector3Int tile)
     {
 		return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable;
 	}
+
+    public bool CheckForFinalMarch(Vector3Int tile)
+    {
+        return !world[tile].isDiscovered || world[tile].terrainData.terrainDesc == TerrainDesc.Mountain;
+    }
 
     public bool CheckIfPositionIsValidForEnemy(Vector3Int tile)
     {
@@ -6025,6 +6127,11 @@ public class MapWorld : MonoBehaviour
     {
         world.TryGetValue(tileWorldPosition, out TerrainData td);
         return td;
+    }
+
+    public bool TileExists(Vector3Int tile)
+    {
+        return world.ContainsKey(tile);
     }
 
     private readonly static List<Vector3Int> neighborsFourDirections = new()

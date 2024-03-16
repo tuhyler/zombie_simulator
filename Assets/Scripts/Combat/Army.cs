@@ -405,7 +405,10 @@ public class Army : MonoBehaviour
             List<Vector3Int> path = GridSearch.AStarSearch(world, unit.currentLocation, travelLoc + unitDiff, false, false);
             unit.marchPosition = unitDiff;
 
-            if (path.Count > 0)
+            if (defending && path.Count == 0)
+                path = GridSearch.MoveWherever(world, unit.currentLocation, travelLoc + unitDiff);
+
+			if (path.Count > 0)
             {
                 unit.preparingToMoveOut = true;
                 unit.finalDestinationLoc = travelLoc + unitDiff;
@@ -442,7 +445,7 @@ public class Army : MonoBehaviour
             }
             else
             {
-				List<Vector3Int> directSeaList = new(), /*diagSeaList = new(), */outerRingList = new();
+				List<Vector3Int> directSeaList = new(), outerRingList = new();
 				//Checking if target is by sea
 				List<Vector3Int> surroundingArea = world.GetNeighborsFor(target, MapWorld.State.CITYRADIUS);
 				for (int i = 0; i < surroundingArea.Count; i++)
@@ -451,33 +454,17 @@ public class Army : MonoBehaviour
 						continue;
 
 					if (i < 8)
-					{
 						directSeaList.Add(surroundingArea[i]);
-						//if (i % 2 == 0)
-						//	directSeaList.Add(surroundingArea[i]);
-						//else
-						//	diagSeaList.Add(surroundingArea[i]);
-					}
 					else
-					{
 						outerRingList.Add(surroundingArea[i]);
-					}
 				}
 
 				//finding shortest route to target
 				bool hasRoute = false;
 				List<Vector3Int> chosenPath = new();
-				//checking diags first
-				//if (diagSeaList.Count > 0)
-				//{
-				//	chosenPath = world.GetSeaLandRoute(diagSeaList, city.harborLocation, target, exemptList, false);
-
-				//	if (chosenPath.Count > 0)
-				//		hasRoute = true;
-				//}
 
 				//first inner ring
-				if (/*!hasRoute && */directSeaList.Count > 0)
+				if (directSeaList.Count > 0)
 				{
 					chosenPath = world.GetSeaLandRoute(directSeaList, city.harborLocation, target, exemptList, false);
 
@@ -521,90 +508,7 @@ public class Army : MonoBehaviour
         else
         {
             //finding best spot to attack from
-            Vector3Int newStart;
-            if (pathToTarget.Count < 4)
-            {
-                newStart = pathToTarget[0];
-                pathToTarget.Clear();
-            }
-            else
-            {
-                newStart = pathToTarget[pathToTarget.Count - 4];
-
-                //removing last 3
-                for (int i = 0; i < 3; i++)
-                   pathToTarget.RemoveAt(pathToTarget.Count - 1);
-            }
-
-            Vector3Int diff = newStart - target;
-
-            int[] tilesToCheckArray = new int[4] { 1, 1, 1, 1 };
-
-            if (Math.Abs(diff.x) > Math.Abs(diff.z))
-            {
-                if (diff.x > 0)
-                    tilesToCheckArray[3] = 0;
-                else
-                    tilesToCheckArray[1] = 0;
-            }
-            else
-            {
-				if (diff.z > 0)
-					tilesToCheckArray[2] = 0;
-				else
-					tilesToCheckArray[0] = 0;
-			}
-
-            List<Vector3Int> fourWayTiles = world.GetNeighborsFor(target, MapWorld.State.FOURWAYINCREMENT);
-            List<Vector3Int> tilesToCheckLoc = new();
-            int[] tilesStrength = new int[3];
-            int[] tilesDist = new int[3];
-            int j = 0;
-            for (int i = 0; i < tilesToCheckArray.Length; i++)
-            {
-                //getting info first, then sorting
-                if (tilesToCheckArray[i] == 1)
-                {
-                    tilesToCheckLoc.Add(fourWayTiles[i]);
-                    tilesStrength[j] = world.GetTerrainDataAt(fourWayTiles[i]).terrainData.terrainAttackBonus;
-                    tilesDist[j] = Math.Abs(fourWayTiles[i].x - newStart.x) + Math.Abs(fourWayTiles[i].z - newStart.z); 
-                    j++;
-                }
-            }
-
-            int loopCount = tilesToCheckLoc.Count;
-            for (int i = 0; i < loopCount; i++)
-            {
-                for (int k = i + 1; k < loopCount; k++)
-                {
-                    if (tilesStrength[k] > tilesStrength[i])
-                    {
-                        Vector3Int tile = tilesToCheckLoc[k];
-                        tilesToCheckLoc.RemoveAt(k);
-                        tilesToCheckLoc.Insert(i, tile);
-                    }
-                    else if (tilesStrength[k] == tilesStrength[i] && tilesDist[k] < tilesDist[i])
-                    {
-                        Vector3Int tile = tilesToCheckLoc[k];
-                        tilesToCheckLoc.RemoveAt(k);
-                        tilesToCheckLoc.Insert(i, tile);
-                    }
-                }
-            }
-
-            List<Vector3Int> pathCoda = new();
-            for (int i = 0; i < tilesToCheckArray.Length; i++)
-            {
-                if (tilesToCheckArray[i] == 1)
-                    pathCoda = GridSearch.TerrainSearchCoda(world, newStart, tilesToCheckLoc[i], exemptList, tilesToCheckLoc);
-
-                if (pathCoda.Count > 0)
-                {
-                    pathToTarget.AddRange(pathCoda);
-                    break;
-                }
-            }
-
+            pathToTarget = world.FindOptimalAttackZone(pathToTarget, target, exemptList);
             return true;
         }
 	}
@@ -1179,7 +1083,6 @@ public class Army : MonoBehaviour
 		{
             city.attacked = false;
 			world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
-            battleAtSea = false;
             targetCamp.battleAtSea = false;
 
             if (world.mainPlayer.runningAway)
@@ -1224,6 +1127,7 @@ public class Army : MonoBehaviour
                 MoveArmyHome(loc);
             }
 
+            battleAtSea = false;
             return true;
         }
         else

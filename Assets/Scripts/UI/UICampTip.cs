@@ -12,6 +12,9 @@ public class UICampTip : MonoBehaviour
 	private MapWorld world;
 
 	[SerializeField]
+	List<AttackBonusHandler> attackBonusText;
+
+	[SerializeField]
 	private Sprite armyInfantry, armyRanged, armyCavalry, armySeige, enemyInfantry, enemyRanged, enemyCavalry, enemySeige;
 
 	[SerializeField]
@@ -86,12 +89,16 @@ public class UICampTip : MonoBehaviour
 				this.improvement.EnableHighlight(Color.white);
 				this.army = improvement.city.army;
 				SetData(true, this.army.GetArmyCycleCost(), this.army.infantryCount, this.army.rangedCount, this.army.cavalryCount, this.army.seigeCount, this.army.health, this.army.strength);
+
+				for (int i = 0; i < attackBonusText.Count; i++)
+					attackBonusText[i].gameObject.SetActive(false);
 			}
 			else
 			{
 				this.army = army;
 				this.enemyCamp = enemyCamp;
 				SetData(false, army.CalculateBattleCost(enemyCamp.strength), enemyCamp.infantryCount, enemyCamp.rangedCount, enemyCamp.cavalryCount, enemyCamp.seigeCount, enemyCamp.health, enemyCamp.strength);
+				SetAttackBonusText();
 			}
 
 			gameObject.SetActive(val);
@@ -134,6 +141,9 @@ public class UICampTip : MonoBehaviour
 			else
 			{
 				this.enemyCamp = null;
+
+				for (int i = 0; i < attackBonusText.Count; i++)
+					attackBonusText[i].gameObject.SetActive(false);
 			}
 
 			cantAffordList.Clear();
@@ -283,6 +293,48 @@ public class UICampTip : MonoBehaviour
 		currentWidth = panelWidth;
 		allContents.sizeDelta = new Vector2(panelWidth, panelHeight);
 		lineImage.sizeDelta = new Vector2(lineWidth, 4);
+	}
+
+	private void SetAttackBonusText()
+	{
+		int attackZoneBonus = world.GetTerrainDataAt(army.pathToTarget[army.pathToTarget.Count-2]).terrainData.terrainAttackBonus;
+		int enemyTargetBonus = world.GetTerrainDataAt(enemyCamp.loc).terrainData.terrainAttackBonus;
+		
+		if (attackZoneBonus != 0)
+		{
+			attackBonusText[0].gameObject.SetActive(true);
+			SetAttackBonusText(attackBonusText[0], army.pathToTarget[army.pathToTarget.Count - 2], attackZoneBonus);
+		}
+		else
+		{
+			attackBonusText[0].gameObject.SetActive(false);
+		}
+
+		if (enemyTargetBonus != 0)
+		{
+			attackBonusText[1].gameObject.SetActive(true);
+			SetAttackBonusText(attackBonusText[1], army.enemyTarget, enemyTargetBonus);
+		}
+		else
+		{
+			attackBonusText[1].gameObject.SetActive(false);
+		}
+	}
+
+	private void SetAttackBonusText(AttackBonusHandler text, Vector3Int loc, int bonus)
+	{
+		text.transform.position = loc;
+		
+		if (bonus > 0)
+		{
+			text.text.text = "+" + bonus.ToString() + "%";
+			text.text.color = Color.green;
+		}
+		else
+		{
+			text.text.text = bonus.ToString() + "%";
+			text.text.color = Color.red;
+		}
 	}
 
 	private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, bool isArmy, ResourceManager manager = null)

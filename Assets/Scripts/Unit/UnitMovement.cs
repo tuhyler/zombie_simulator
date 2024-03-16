@@ -2762,8 +2762,8 @@ public class UnitMovement : MonoBehaviour
             GameLoader.Instance.gameData.attackedEnemyBases.Remove(homeBase.army.enemyTarget);
             homeBase.army.MoveArmyHome(homeBase.barracksLocation);
             world.EnemyCampReturn(homeBase.army.enemyTarget);
-            HideBattlePath();
-        }
+			homeBase.army.HidePath();
+		}
         else if (homeBase.army.inBattle)
         {
             homeBase.army.Retreat();

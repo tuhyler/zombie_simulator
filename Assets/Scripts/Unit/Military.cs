@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
+using static UnityEngine.GraphicsBuffer;
 
 public class Military : Unit
 {
@@ -491,7 +493,15 @@ public class Military : Unit
 		}
 
 		finalDestinationLoc = barracksBunk;
-		List<Vector3Int> path = GridSearch.AStarSearch(world, world.RoundToInt(transform.position), barracksBunk, false, bySea);
+		List<Vector3Int> path;
+
+		if (homeBase.army.battleAtSea)
+			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), barracksBunk);
+		else
+			path = GridSearch.AStarSearch(world, world.RoundToInt(transform.position), barracksBunk, false, bySea);
+
+		if (path.Count == 0)
+			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), barracksBunk);
 
 		MoveThroughPath(path);
 	}

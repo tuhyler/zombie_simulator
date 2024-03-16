@@ -31,6 +31,6 @@ public class CityLaborTileNumber : MonoBehaviour
 
     public void SetActive(bool v)
     {
-        this.gameObject.SetActive(v);
+        gameObject.SetActive(v);
     }
 }
