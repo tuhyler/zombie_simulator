@@ -953,7 +953,11 @@ public class Army : MonoBehaviour
         
         foreach (Military unit in unitsInArmy)
         {
-            unit.inBattle = true;
+            unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
+			if (unit.isSelected)
+				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);
+
+			unit.inBattle = true;
             UnitType type = unit.buildDataSO.unitType;
 
             if (type == UnitType.Infantry)

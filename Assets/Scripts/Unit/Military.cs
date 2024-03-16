@@ -21,7 +21,7 @@ public class Military : Unit
 	[HideInInspector]
 	public Coroutine attackCo, waitingCo;
 	[HideInInspector]
-	public int idleTime, attackStrength;
+	public int idleTime, attackStrength, strengthBonus;
 
 	[HideInInspector]
 	public bool atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, 
@@ -46,11 +46,22 @@ public class Military : Unit
 		AwakeMethods();
 		military = GetComponent<Military>();
 
-		if (enemyAI)
+		int factor = 0;
+		if (buildDataSO.unitType == UnitType.Ranged)
+			factor = 1;
+		else if (buildDataSO.unitType == UnitType.Cavalry)
+			factor = 2;
+		else if (buildDataSO.unitType == UnitType.Seige)
+			factor = 3;
+		else if (enemyAI)
+			factor = 4;
+
+		if (factor > 0)
 		{
+			float shift = 0.03125f * factor;
 			Vector2[] sailUV = boatSail.sharedMesh.uv;
 			for (int i = 0; i < sailUV.Length; i++)
-				sailUV[i].x += 0.03125f;
+				sailUV[i].x += shift;
 
 			boatSail.sharedMesh.uv = sailUV;
 		}
@@ -459,6 +470,11 @@ public class Military : Unit
 	{
 		if (inArmy && attackCo != null)
 			StopCoroutine(attackCo);
+
+		strengthBonus = 0;
+		if (isSelected)
+			world.unitMovement.infoManager.UpdateStrengthBonus(strengthBonus);
+
 		attackCo = null;
 		attacking = false;
 		inBattle = false;
@@ -1123,6 +1139,7 @@ public class Military : Unit
 				data.campSpot = enemyAI.CampSpot;
 			}
 
+			data.strengthBonus = strengthBonus;
 			data.repositioning = repositioning;
 			data.barracksBunk = barracksBunk;
 			data.marchPosition = marchPosition;
@@ -1183,6 +1200,7 @@ public class Military : Unit
 			else
 				enemyAI.CampSpot = data.campSpot;
 
+			strengthBonus = data.strengthBonus;
 			repositioning = data.repositioning;
 			barracksBunk = data.barracksBunk;
 			marchPosition = data.marchPosition;

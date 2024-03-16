@@ -250,7 +250,7 @@ public class Unit : MonoBehaviour
 
 		healthbar.gameObject.SetActive(true);
 
-        currentHealth -= (attackingUnit.military.attackStrength - 1 + UnityEngine.Random.Range(0, 3));
+        currentHealth -= attackingUnit.military.attackStrength + attackingUnit.military.strengthBonus - 1 + UnityEngine.Random.Range(0, 3);
 
         if (currentHealth <= 0)
         {
