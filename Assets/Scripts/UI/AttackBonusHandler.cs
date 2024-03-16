@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class AttackBonusHandler : MonoBehaviour
 {
-	[HideInInspector]
+	[SerializeField]
 	public TMP_Text text;
 	
 	private void Awake()

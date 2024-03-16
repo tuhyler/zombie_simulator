@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Resources;
+using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
 using static Unity.Burst.Intrinsics.X86.Avx;
@@ -18,7 +19,9 @@ public class UnitMovement : MonoBehaviour
     public InfoManager infoManager;
     [SerializeField]
     public WorkerTaskManager workerTaskManager;
-    [SerializeField]
+	[SerializeField]
+	private List<AttackBonusHandler> attackBonusText;
+	[SerializeField]
     public UISingleConditionalButtonHandler uiJoinCity, uiMoveUnit, uiCancelTask, uiConfirmOrders, uiDeployArmy, uiSwapPosition, uiChangeCity, uiAssignGuard, uiUnload; 
     [SerializeField]
     public UITraderOrderHandler uiTraderPanel;
@@ -60,6 +63,7 @@ public class UnitMovement : MonoBehaviour
 
     //for deploying army
     private Vector3Int potentialAttackLoc;
+    private List<Vector3Int> attackZoneList = new();
 
     //for worker orders
     [HideInInspector]
@@ -519,38 +523,54 @@ public class UnitMovement : MonoBehaviour
                 {
                     if (homeBase.attacked)
                         return;
-                    
-                    if (world.CheckIfEnemyAlreadyAttacked(pos))
-                    {
+
+					if (world.CheckIfEnemyAlreadyAttacked(pos))
+					{
 						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already sending troops");
 						return;
-                    }
+					}
 
+					//rehighlight in case selecting a different one
+					if (world.IsEnemyCityOnTile(potentialAttackLoc))
+						world.HighlightEnemyCity(potentialAttackLoc, Color.red);
+					else
+						world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
+
+					uiBuildingSomething.SetText("Select Attack Zone");
+					SetUpAttackZoneInfo(pos);
+				}
+                else if (attackZoneList.Contains(pos))
+                {
 					attackMovingTarget = false;
-                    //homeBase.army.potentialAtSea = false;
 
-					if (homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), pos))
-                    {
-                        homeBase.army.ShowBattlePath();
+					for (int i = 0; i < attackZoneList.Count; i++)
+					{
+                        world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
+						Color color = pos == attackZoneList[i] ? Color.white : Color.red;
+						world.GetTerrainDataAt(attackZoneList[i]).EnableHighlight(color);
+					}
 
-                        //rehighlight in case selecting a different one
-                        if (world.IsEnemyCityOnTile(potentialAttackLoc))
-                            world.HighlightEnemyCity(potentialAttackLoc, Color.red);
-                        else
-                            world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
+					if (homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), pos, potentialAttackLoc))
+					{
+						homeBase.army.ShowBattlePath();
 
-                        potentialAttackLoc = pos;
+						//rehighlight in case selecting a different one
+						if (world.IsEnemyCityOnTile(potentialAttackLoc))
+							world.HighlightEnemyCity(potentialAttackLoc, Color.red);
+						else
+							world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
+
 						world.infoPopUpCanvas.gameObject.SetActive(true);
-                        if (world.IsEnemyCityOnTile(pos))
-                        {
-                            world.HighlightEnemyCity(pos, Color.white);
-							world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCity(pos).enemyCamp, homeBase.army);
+						if (world.IsEnemyCityOnTile(potentialAttackLoc))
+						{
+							world.HighlightEnemyCity(potentialAttackLoc, Color.white);
+							world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCity(potentialAttackLoc).enemyCamp, homeBase.army);
 						}
-                        else
-                        {
-                            world.HighlightEnemyCamp(pos, Color.white);
-						    world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCamp(pos), homeBase.army);
-                        }
+						else
+						{
+							world.HighlightEnemyCamp(potentialAttackLoc, Color.white);
+							world.uiCampTooltip.ToggleVisibility(true, null, world.GetEnemyCamp(potentialAttackLoc), homeBase.army);
+						}
 					}
 				}
                 else
@@ -2662,6 +2682,65 @@ public class UnitMovement : MonoBehaviour
 		assigningGuard = true;
 	}
 
+    public void SetUpAttackZoneInfo(Vector3Int loc)
+    {
+        ShutDownAttackZones();
+		potentialAttackLoc = loc;
+
+		int i = 0;
+        foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.FOURWAYINCREMENT))
+        {
+            TerrainData td = world.GetTerrainDataAt(tile);
+
+            if (!td.isDiscovered || td.terrainData.terrainDesc == TerrainDesc.Mountain)
+                continue;
+
+            attackZoneList.Add(tile);
+            td.EnableHighlight(Color.red);
+            int attackZoneBonus = td.terrainData.terrainAttackBonus;
+            if (attackZoneBonus != 0)
+            {
+                attackBonusText[i].gameObject.SetActive(true);
+                SetAttackBonusText(attackBonusText[i], tile, attackZoneBonus);
+                i++;
+            }
+        }
+
+        int enemyAttackZoneBonus = world.GetTerrainDataAt(potentialAttackLoc).terrainData.terrainAttackBonus;
+        if (enemyAttackZoneBonus != 0)
+        {
+			attackBonusText[i].gameObject.SetActive(true);
+			SetAttackBonusText(attackBonusText[i], loc, enemyAttackZoneBonus);
+		}
+    }
+
+	private void SetAttackBonusText(AttackBonusHandler text, Vector3Int loc, int bonus)
+	{
+		text.transform.position = loc;
+
+		if (bonus > 0)
+		{
+			text.text.text = "+" + bonus.ToString() + "%";
+			text.text.color = Color.green;
+		}
+		else
+		{
+			text.text.text = bonus.ToString() + "%";
+			text.text.color = Color.red;
+		}
+	}
+
+	public void ShutDownAttackZones()
+    {
+        for (int i = 0; i < attackZoneList.Count; i++)
+            world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
+
+        attackZoneList.Clear();
+
+		for (int i = 0; i < attackBonusText.Count; i++)
+			attackBonusText[i].gameObject.SetActive(false);
+	}
+
 	public void DeployArmyLocation()
     {
         world.cityBuilderManager.PlaySelectAudio();
@@ -2710,6 +2789,7 @@ public class UnitMovement : MonoBehaviour
     public void CancelArmyDeploymentButton()
     {
         world.cityBuilderManager.PlayCloseAudio();
+        world.tooltip = false;
         CancelArmyDeployment();
     }
 
@@ -2776,7 +2856,8 @@ public class UnitMovement : MonoBehaviour
 
 			uiBuildingSomething.ToggleVisibility(false);
             world.unitOrders = false;
-            deployingArmy = false;
+			deployingArmy = false;
+			ShutDownAttackZones();
             changingCity = false;
             assigningGuard = false;
         }
@@ -2801,15 +2882,25 @@ public class UnitMovement : MonoBehaviour
 			return;
         }
 
+        City homeBase = selectedUnit.military.homeBase;
         world.uiCampTooltip.ToggleVisibility(false, null, null, null, false);
         uiBuildingSomething.ToggleVisibility(false);
 		world.UnhighlightAllEnemyCamps();
 		world.unitOrders = false;
 		deployingArmy = false;
+		ShutDownAttackZones();
         world.cityBuilderManager.PlayBoomAudio();
-        City homeBase = selectedUnit.military.homeBase;
 
-        if (world.IsEnemyCityOnTile(potentialAttackLoc))
+		if (homeBase.attacked)
+		{
+			if (!world.IsEnemyCityOnTile(potentialAttackLoc) || world.GetEnemyCity(potentialAttackLoc).enemyCamp.moveToLoc != homeBase.cityLoc) //can't move out if being attacked someone else
+            {
+                UIInfoPopUpHandler.WarningMessage().Create(world.uiCampTooltip.attackButton.transform.position, "Can't move out, about to be attacked", false);
+			    return;
+            }
+		}
+
+		if (world.IsEnemyCityOnTile(potentialAttackLoc))
         {
             City city = world.GetEnemyCity(potentialAttackLoc);
 			if (city.enemyCamp.movingOut)
@@ -2918,8 +3009,11 @@ public class UnitMovement : MonoBehaviour
 
                 if (selectedUnit.military.homeBase != null && selectedUnit.military.homeBase.army.traveling)
                     selectedUnit.military.homeBase.army.HidePath();
-                //CancelArmyDeployment();
-            }
+                
+                //if (deployingArmy)
+                //    ShutDownAttackZones();
+				//CancelArmyDeployment();
+			}
             else if (selectedUnit.transport)
             {
                 uiUnload.ToggleVisibility(false); 

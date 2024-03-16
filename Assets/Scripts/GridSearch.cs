@@ -433,7 +433,7 @@ public class GridSearch
 	}
 
 	//for finding best terrain to attack from for army
-	public static List<Vector3Int> TerrainSearchCoda(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList, List<Vector3Int> avoidList)
+	public static List<Vector3Int> TerrainSearchCoda(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList)
 	{
 		List<Vector3Int> path = new();
 
@@ -468,8 +468,8 @@ public class GridSearch
 				if (world.CheckForFinalMarch(neighbor)) //If it's an obstacle, ignore
 					continue;
 
-				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
-					continue;
+				//if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
+				//	continue;
 
 				if (world.IsTradeCenterOnTile(neighbor))
 					continue;

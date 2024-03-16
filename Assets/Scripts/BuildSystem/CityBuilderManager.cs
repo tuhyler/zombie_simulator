@@ -279,10 +279,10 @@ public class CityBuilderManager : MonoBehaviour
                 return;
             }
             
-            City city = improvementSelected.city;
             bool isBarracks = false;
             if (improvementSelected.building && !removingImprovement && !upgradingImprovement)
             {
+                City city = improvementSelected.city;
                 if (city == null) //for orphan barracks or harbors
                 {
                     return;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.UI.CanvasScaler;
 
@@ -421,18 +422,27 @@ public class Army : MonoBehaviour
         }
     }
 
-    public bool DeployArmyCheck(Vector3Int current, Vector3Int target)
+    public bool DeployArmyCheck(Vector3Int current, Vector3Int target, Vector3Int finalTarget)
     {
 		List<Vector3Int> exemptList = new() { target };
         enemyTarget = target;
         seaTravel = false;
 
-		foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
-			exemptList.Add(tile);
+        int j = 0;
+        foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
+        {
+            j++;
+            if (j % 2 == 1)
+                continue;
+            exemptList.Add(tile);
+        }
 
         bool getToHarbor = true;
         List<Vector3Int> waterPath = new();
-		List<Vector3Int> landPath = GridSearch.TerrainSearch(world, current, target, exemptList);
+        List<Vector3Int> landPath = new();
+        
+        if (world.GetTerrainDataAt(target).walkable)
+			landPath = GridSearch.TerrainSearch(world, current, target, exemptList);
 
         //seeing if cheaper to go by sea
         if (city.hasHarbor)
@@ -446,11 +456,14 @@ public class Army : MonoBehaviour
             else
             {
 				List<Vector3Int> directSeaList = new(), outerRingList = new();
+                if (world.GetTerrainDataAt(target).sailable)
+                    directSeaList.Add(target);
 				//Checking if target is by sea
 				List<Vector3Int> surroundingArea = world.GetNeighborsFor(target, MapWorld.State.CITYRADIUS);
 				for (int i = 0; i < surroundingArea.Count; i++)
 				{
-					if (world.GetTerrainDataAt(surroundingArea[i]).isLand)
+                    TerrainData td = world.GetTerrainDataAt(surroundingArea[i]);
+                    if (td.isLand || !td.isDiscovered)
 						continue;
 
 					if (i < 8)
@@ -466,7 +479,7 @@ public class Army : MonoBehaviour
 				//first inner ring
 				if (directSeaList.Count > 0)
 				{
-					chosenPath = world.GetSeaLandRoute(directSeaList, city.harborLocation, target, exemptList, false);
+					chosenPath = world.GetSeaLandRoute(directSeaList, city.harborLocation, target, exemptList);
 
 					if (chosenPath.Count > 0)
 						hasRoute = true;
@@ -475,7 +488,7 @@ public class Army : MonoBehaviour
 				//outer ring next
 				if (!hasRoute && outerRingList.Count > 0)
 				{
-					chosenPath = world.GetSeaLandRoute(outerRingList, city.harborLocation, target, exemptList, false);
+					chosenPath = world.GetSeaLandRoute(outerRingList, city.harborLocation, target, exemptList);
 
 					if (chosenPath.Count > 0)
 						hasRoute = true;
@@ -503,12 +516,16 @@ public class Army : MonoBehaviour
             else
 				InfoPopUpHandler.WarningMessage().Create(target, "Cannot reach own harbor");
 
+			world.GetTerrainDataAt(target).DisableHighlight();
+			world.GetTerrainDataAt(target).EnableHighlight(Color.red);
+
 			return false;
         }
         else
         {
             //finding best spot to attack from
-            pathToTarget = world.FindOptimalAttackZone(pathToTarget, target, exemptList);
+            //pathToTarget = world.FindOptimalAttackZone(pathToTarget, target, exemptList);
+            pathToTarget.Add(finalTarget);
             return true;
         }
 	}

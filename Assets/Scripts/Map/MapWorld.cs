@@ -2306,7 +2306,7 @@ public class MapWorld : MonoBehaviour
         return null;
     }
 
-    public List<Vector3Int> GetSeaLandRoute(List<Vector3Int> chosenTiles, Vector3Int harborLocation, Vector3Int target, List<Vector3Int> exemptList, bool enemy)
+    public List<Vector3Int> GetSeaLandRoute(List<Vector3Int> chosenTiles, Vector3Int harborLocation, Vector3Int target, List<Vector3Int> exemptList, List<Vector3Int> avoidList = null, bool enemy = false)
     {
 		int dist = 0;
 		List<Vector3Int> chosenPath = new();
@@ -2316,7 +2316,7 @@ public class MapWorld : MonoBehaviour
             List<Vector3Int> chosenSeaPath;
 			
             if (enemy)
-                chosenSeaPath = GridSearch.TerrainSearchSeaEnemy(this, harborLocation, chosenTiles[i], exemptList);
+                chosenSeaPath = GridSearch.TerrainSearchSeaEnemy(this, harborLocation, chosenTiles[i], avoidList);
             else
 				chosenSeaPath = GridSearch.TerrainSearchSea(this, harborLocation, chosenTiles[i], exemptList);
 
@@ -2324,7 +2324,7 @@ public class MapWorld : MonoBehaviour
 			{
                 List<Vector3Int> chosenLandPath;
 				if (enemy)
-                    chosenLandPath = GridSearch.TerrainSearchEnemy(this, chosenTiles[i], target, exemptList);
+                    chosenLandPath = GridSearch.TerrainSearchEnemy(this, chosenTiles[i], target, avoidList);
                 else
 					chosenLandPath = GridSearch.TerrainSearch(this, chosenTiles[i], target, exemptList);
 
@@ -2353,7 +2353,7 @@ public class MapWorld : MonoBehaviour
         return chosenPath;
 	}
 
-    public List<Vector3Int> FindOptimalAttackZone(List<Vector3Int> currentPath, Vector3Int target, List<Vector3Int> exemptList)
+    public List<Vector3Int> FindOptimalAttackZone(List<Vector3Int> currentPath, Vector3Int target)
     {
 		Vector3Int newStart;
 		if (currentPath.Count < 4)
@@ -2460,9 +2460,10 @@ public class MapWorld : MonoBehaviour
 			}
 		}
 
+        List<Vector3Int> avoidList = new(tilesToCheckLoc) { target };
 		for (int i = 0; i < tilesToCheckLoc.Count; i++)
 		{
-            List<Vector3Int> pathCoda = GridSearch.TerrainSearchCoda(this, newStart, tilesToCheckLoc[i], exemptList, tilesToCheckLoc);
+            List<Vector3Int> pathCoda = GridSearch.TerrainSearchCoda(this, newStart, tilesToCheckLoc[i], avoidList);
 
 			if (pathCoda.Count > 0)
 			{

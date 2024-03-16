@@ -27,8 +27,8 @@ MonoBehaviour:
   unitType: 3
   unitDescription: 
   availableInitially: 0
-  health: 50
-  baseAttackStrength: 5
+  health: 10
+  baseAttackStrength: 2
   baseAttackSpeed: 1
   movementSpeed: 2
   trainTime: 0
