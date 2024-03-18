@@ -298,6 +298,9 @@ public class Unit : MonoBehaviour
         if (isDead)
             return;
 
+        if (!gameObject.activeSelf)
+            return;
+
         world.RemoveUnitPosition(currentLocation);//removing previous location
 
         pathPositions = new Queue<Vector3Int>(currentPath);

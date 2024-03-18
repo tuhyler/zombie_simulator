@@ -559,7 +559,8 @@ public class GameLoader : MonoBehaviour
 		//move orders
 		foreach (Unit unit in unitMoveOrders.Keys)
 		{
-			unit.MoveThroughPath(unitMoveOrders[unit]);
+			if (unit.gameObject.activeSelf)
+				unit.MoveThroughPath(unitMoveOrders[unit]);
 		}
 		unitMoveOrders.Clear();
 

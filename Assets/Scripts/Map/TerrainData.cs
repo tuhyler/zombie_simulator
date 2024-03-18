@@ -141,7 +141,7 @@ public class TerrainData : MonoBehaviour
 			}
 		}
 
-		if (terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
+		if (terrainData.type == TerrainType.Coast || terrainData.type == TerrainType.Flatland || terrainData.type == TerrainType.Hill || terrainData.type == TerrainType.ForestHill || terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.River)
 			uvs = main.GetComponentInChildren<MeshFilter>().sharedMesh.uv;
 
 		if (rawResourceType == RawResourceType.Rocks)

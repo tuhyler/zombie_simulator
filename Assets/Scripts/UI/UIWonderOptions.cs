@@ -139,8 +139,11 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        buttonHandler.world.cityBuilderManager.PlaySelectAudio();
-        buttonHandler.PrepareBuild(buildData);
-        buttonHandler.HandleButtonClick();
+		if (eventData.button == PointerEventData.InputButton.Left)
+        {
+			buttonHandler.world.cityBuilderManager.PlaySelectAudio();
+            buttonHandler.PrepareBuild(buildData);
+            buttonHandler.HandleButtonClick();
+        }
     }
 }

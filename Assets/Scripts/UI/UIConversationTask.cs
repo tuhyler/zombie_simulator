@@ -35,8 +35,11 @@ public class UIConversationTask : MonoBehaviour, IPointerDownHandler
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		background.color = new Color(.8f, .8f, .8f);
-		manager.SelectTask(this);
+		if (eventData.button == PointerEventData.InputButton.Left)
+		{
+			background.color = new Color(.8f, .8f, .8f);
+			manager.SelectTask(this);
+		}
 	}
 
 	public void CompleteTask(bool failed)

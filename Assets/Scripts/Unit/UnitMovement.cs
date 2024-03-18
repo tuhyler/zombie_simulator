@@ -504,6 +504,8 @@ public class UnitMovement : MonoBehaviour
 							    for (int i = 0; i < unit.enemyCamp.UnitsInCamp.Count; i++)
                                     unit.enemyCamp.UnitsInCamp[i].SoftSelect(Color.white);
 
+                                SetMovingAttackBonusText(homeBase.army.pathToTarget[homeBase.army.pathToTarget.Count - 2],homeBase.army.enemyTarget);
+
                                 attackMovingTarget = true;
 								homeBase.army.ShowBattlePath();
 								potentialAttackLoc = unit.enemyCamp.cityLoc;
@@ -2713,6 +2715,26 @@ public class UnitMovement : MonoBehaviour
 			SetAttackBonusText(attackBonusText[i], loc, enemyAttackZoneBonus);
 		}
     }
+
+    public void SetMovingAttackBonusText(Vector3Int attackZone, Vector3Int enemyTarget)
+    {
+		for (int i = 0; i < 2; i++)
+			attackBonusText[i].gameObject.SetActive(false);
+
+		int attackZoneBonus = world.GetTerrainDataAt(attackZone).terrainData.terrainAttackBonus;
+		if (attackZoneBonus != 0)
+        {
+            attackBonusText[0].gameObject.SetActive(true);
+		    SetAttackBonusText(attackBonusText[0], attackZone, attackZoneBonus);
+        }
+
+		int enemyTargetBonus = world.GetTerrainDataAt(enemyTarget).terrainData.terrainAttackBonus;
+		if (enemyTargetBonus != 0)
+		{
+			attackBonusText[1].gameObject.SetActive(true);
+			SetAttackBonusText(attackBonusText[1], enemyTarget, enemyTargetBonus);
+		}
+	}
 
 	private void SetAttackBonusText(AttackBonusHandler text, Vector3Int loc, int bonus)
 	{

@@ -48,28 +48,37 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        resourceManager.dragging = true;
-        originalParent = transform.parent;
-        transform.SetParent(tempParent);
-        transform.SetAsLastSibling();
-        background.raycastTarget = false;
-        resourceManager.cityBuilderManager.PlayPickUpAudio();
+		if (eventData.button == PointerEventData.InputButton.Left)
+        {
+		    resourceManager.dragging = true;
+            originalParent = transform.parent;
+            transform.SetParent(tempParent);
+            transform.SetAsLastSibling();
+            background.raycastTarget = false;
+            resourceManager.cityBuilderManager.PlayPickUpAudio();
+        }
      }
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector3 p = Input.mousePosition;
-        p.z = 935;
-        Vector3 pos = Camera.main.ScreenToWorldPoint(p);
-        transform.position = pos;
+		if (eventData.button == PointerEventData.InputButton.Left)
+        {
+		    Vector3 p = Input.mousePosition;
+            p.z = 935;
+            Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+            transform.position = pos;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        resourceManager.dragging = false;
-        transform.SetParent(originalParent);
-        transform.localPosition = Vector3.zero;
-        background.raycastTarget = true;
-		resourceManager.cityBuilderManager.PlayPutDownAudio();
+		if (eventData.button == PointerEventData.InputButton.Left)
+        {
+		    resourceManager.dragging = false;
+            transform.SetParent(originalParent);
+            transform.localPosition = Vector3.zero;
+            background.raycastTarget = true;
+		    resourceManager.cityBuilderManager.PlayPutDownAudio();
+        }
 	}
 }

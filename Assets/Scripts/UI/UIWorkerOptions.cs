@@ -25,15 +25,18 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (toggleColor)
+        if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (isSelected)
-                ToggleColor(false);
-            else
-                ToggleColor(true);
-        }
+            if (toggleColor)
+            {
+                if (isSelected)
+                    ToggleColor(false);
+                else
+                    ToggleColor(true);
+            }
 
-        FlashCheck();
+            FlashCheck();
+        }
     }
 
     public void ToggleInteractable(bool v)

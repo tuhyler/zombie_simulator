@@ -607,6 +607,7 @@ public class TerrainGenerator : MonoBehaviour
 		Vector3Int firstTradeCenter = new Vector3Int(0, -10, 0);
         if (startingGame)
             firstTradeCenter = PlaceNeighborTradeCenter(random, startingPlace, coastTiles, riverTiles, enemyCityRange);
+        propTiles.Remove(terrainDict[firstTradeCenter]); //make sure there's no prop there already
 
         List<Vector3Int> tradeCenterLocs = new();
 
@@ -1591,6 +1592,7 @@ public class TerrainGenerator : MonoBehaviour
                         {
                             spotLooking = false;
                             tradeCenterLocs.Add(tile);
+                            propTiles.Remove(terrainDict[tile]);
                             break;
                         }
 					}
@@ -2127,9 +2129,14 @@ public class TerrainGenerator : MonoBehaviour
         Vector3Int newEnemyCity = FindCoastTileForCity(coastDist, voidedTiles);
 
         if (newEnemyCity == new Vector3Int(0, -10, 0))
+        {
             return (foodLocs, waterLocs, resourceLocs);
+        }
         else
+        {
             enemyCityLocs.Add(newEnemyCity);
+            propTiles.Remove(terrainDict[newEnemyCity]);
+        }
 
         //finding neighboring cities
         for (int i = 0; i < enemyCountDifficulty - 1; i++)
@@ -2201,7 +2208,8 @@ public class TerrainGenerator : MonoBehaviour
 						    if (groundCount >= 3)
 						    {
 							    enemyCityLocs.Add(tile);
-							    foundLoc = true;
+								propTiles.Remove(terrainDict[tile]);
+								foundLoc = true;
 							    break;
 						    }
 						}
@@ -2226,7 +2234,8 @@ public class TerrainGenerator : MonoBehaviour
 				if (nextEnemyCity != new Vector3Int(0, -10, 0))
                 {
 					enemyCityLocs.Add(nextEnemyCity);
-                    foundLoc = true;
+					propTiles.Remove(terrainDict[nextEnemyCity]);
+					foundLoc = true;
                 }
 			}
         }
@@ -2409,6 +2418,7 @@ public class TerrainGenerator : MonoBehaviour
         {
 			List<Vector3Int> flatlandTiles = new();
             List<Vector3Int> desertTiles = new();
+            List<Vector3Int> forestTiles = new();
             List<Vector3Int> cityCoastTiles = new();
             List<Vector3Int> hillTiles = new();
 			
@@ -2429,6 +2439,10 @@ public class TerrainGenerator : MonoBehaviour
                     else
                         desertTiles.Add(tile);
                 }
+                else if (terrainDict[tile].CompareTag("Forest"))
+                {
+                    forestTiles.Add(tile);
+                }
 
 				if ((terrainDict[tile].terrainData.type == TerrainType.River && !fourWayRiverLocs.Contains(tile)) || terrainDict[tile].terrainData.type == TerrainType.Coast)
 					cityCoastTiles.Add(tile);
@@ -2447,6 +2461,29 @@ public class TerrainGenerator : MonoBehaviour
                 desertTiles.Remove(tile);
                 flatlandTiles.Add(tile);
                 flatlandCount++;
+			}
+
+            if (flatlandCount == 0 && hillTiles.Count > 0)
+            {
+                Vector3Int tile = hillTiles[random.Next(0, hillTiles.Count)];
+                
+                propTiles.Remove(terrainDict[tile]);
+				TerrainDataSO newData = grasslandSO;
+				DestroyImmediate(terrainDict[tile].gameObject);
+				GenerateTile(newData.prefabs[0], tile, Quaternion.identity, 0);
+                hillTiles.Remove(tile);
+                flatlandTiles.Add(tile);
+                flatlandCount++;
+			}
+
+            if (flatlandCount == 0 && forestTiles.Count > 0)
+            {
+                Vector3Int tile = forestTiles[random.Next(0, forestTiles.Count)];
+
+                ForestCheck(tile);
+                forestTiles.Remove(tile);
+				flatlandTiles.Add(tile);
+				flatlandCount++;
 			}
 
 		    for (int j = 0; j < flatlandCount; j++)
@@ -2516,6 +2553,26 @@ public class TerrainGenerator : MonoBehaviour
 				terrainDict[resourceLoc].rawResourceType = RawResourceType.Rocks;
 				terrainDict[resourceLoc].resourceAmount = random.Next(amountMin, amountMax);
 				terrainDict[resourceLoc].decorIndex = index;
+                hillTiles.Remove(resourceLoc);
+                flatlandTiles.Remove(resourceLoc);
+			}
+
+            //making sure one flatland per city exists to place barracks
+            if (flatlandTiles.Count == 0)
+            {
+                if (forestTiles.Count > 0)
+                {
+                    Vector3Int tile = forestTiles[random.Next(0, forestTiles.Count)];
+                    ForestCheck(tile);
+                }
+                else if (hillTiles.Count > 0)
+                {
+					Vector3Int tile = hillTiles[random.Next(0, hillTiles.Count)];
+					propTiles.Remove(terrainDict[tile]);
+					TerrainDataSO newData = terrainDict[tile].terrainData.grassland ? grasslandSO : desertSO;
+					DestroyImmediate(terrainDict[tile].gameObject);
+					GenerateTile(newData.prefabs[0], tile, Quaternion.identity, 0);
+				}
 			}
 		}
 
@@ -2837,39 +2894,23 @@ public class TerrainGenerator : MonoBehaviour
             locsLeft.Remove(chosenTile);
 
 			//making sure there's a way to reach camp by land
-			bool hasLand = false;
 			List<Vector3Int> mountainTiles = new();
-			for (int i = 0; i < ProceduralGeneration.neighborsEightDirections.Count; i++)
+			for (int i = 0; i < ProceduralGeneration.neighborsFourDirections.Count; i++)
 			{
-				Vector3Int tile = ProceduralGeneration.neighborsEightDirections[i] + chosenTile;
-				if (terrainDict[tile].isLand)
-				{
-					if (terrainDict[tile].walkable)
-					{
-						hasLand = true;
-						break;
-					}
-					else
-					{
-						mountainTiles.Add(tile);
-					}
-				}
+				Vector3Int tile = ProceduralGeneration.neighborsFourDirections[i] + chosenTile;
+				if (terrainDict[tile].terrainData.terrainDesc == TerrainDesc.Mountain)
+                    mountainTiles.Add(tile);
 			}
 
-			if (!hasLand)
+			if (mountainTiles.Count == 4)
 			{
-                if (mountainTiles.Count > 0)
+                for (int i = 0; i < 2; i++)
                 {
-                    if (mountainTiles.Count == 8)
-                        continue;
-
                     Vector3Int mountainTile = mountainTiles[random.Next(0, mountainTiles.Count)];
-				    DestroyImmediate(terrainDict[mountainTile].gameObject);
-				    GenerateTile(grasslandHillSO.prefabs[0], mountainTile, Quaternion.identity, 0);
-                }
-                else
-                {
-                    continue;
+                    mountainTiles.Remove(mountainTile);
+                    GameObject prefab = terrainDict[mountainTile].terrainData.grassland ? grasslandHillSO.prefabs[0] : desertHillSO.prefabs[0];
+                    DestroyImmediate(terrainDict[mountainTile].gameObject);
+				    GenerateTile(prefab, mountainTile, Quaternion.identity, 0);
                 }
 			}
 

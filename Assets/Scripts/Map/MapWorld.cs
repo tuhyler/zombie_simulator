@@ -790,7 +790,9 @@ public class MapWorld : MonoBehaviour
             System.Random random = new();
             BuildEnemyCity(enemyCityLocs[i], GetTerrainDataAt(enemyCityLocs[i]), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, random);
         }
-        
+
+        //adding city locs to road locs to build roads there
+        enemyRoadLocs.AddRange(enemyCityLocs);
         BuildEnemyRoads(enemyRoadLocs, 1);
         //temporary for enemy cities
         //above is temporary for enemy cities
@@ -1150,6 +1152,7 @@ public class MapWorld : MonoBehaviour
         List<Vector3Int> fishLocs = new();
         List<Vector3Int> flatlandLocs = new();
         List<Vector3Int> coastLocs = new();
+        List<Vector3Int> mineLocs = new();
 
         td.enemyCamp = true;
         td.enemyZone = true;
@@ -1162,6 +1165,12 @@ public class MapWorld : MonoBehaviour
 
             if (roadTiles.Contains(tile))
                 continue;
+
+            if (tdNeighbor.rawResourceType == RawResourceType.Rocks)
+            {
+                mineLocs.Add(tile);
+                continue;
+            }
 
 			if (tdNeighbor.resourceType == ResourceType.Food)
                 foodLocs.Add(tile);
@@ -1276,6 +1285,15 @@ public class MapWorld : MonoBehaviour
 			coastLocs.Remove(fishLocs[i]);
 			improvementList.Add(improvementData);
 		}
+
+        //mines & querries
+        for (int i = 0; i < mineLocs.Count; i++)
+        {
+            CityImprovementData improvementData = new();
+            improvementData.location = mineLocs[i];
+            improvementData.name = world[mineLocs[i]].isHill ? buildingEraDict["Mine"] : buildingEraDict["Quarry"];
+            improvementList.Add(improvementData);
+        }
 
         //barracks
         CityImprovementData barracksData = new();
@@ -1624,6 +1642,8 @@ public class MapWorld : MonoBehaviour
                 newDict["Harbor"] = "Harbor-1";
                 newDict["Farm"] = "Farm-2";
                 newDict["Fishing"] = "FishingBoats-1";
+                newDict["Mine"] = "Mine-1";
+                newDict["Quarry"] = "Quarry-1";
 				break;
         }
 
@@ -2306,7 +2326,7 @@ public class MapWorld : MonoBehaviour
         return null;
     }
 
-    public List<Vector3Int> GetSeaLandRoute(List<Vector3Int> chosenTiles, Vector3Int harborLocation, Vector3Int target, List<Vector3Int> exemptList, List<Vector3Int> avoidList = null, bool enemy = false)
+    public List<Vector3Int> GetSeaLandRoute(List<Vector3Int> chosenTiles, Vector3Int harborLocation, Vector3Int target, List<Vector3Int> avoidList = null, bool enemy = false)
     {
 		int dist = 0;
 		List<Vector3Int> chosenPath = new();
@@ -2318,7 +2338,7 @@ public class MapWorld : MonoBehaviour
             if (enemy)
                 chosenSeaPath = GridSearch.TerrainSearchSeaEnemy(this, harborLocation, chosenTiles[i], avoidList);
             else
-				chosenSeaPath = GridSearch.TerrainSearchSea(this, harborLocation, chosenTiles[i], exemptList);
+				chosenSeaPath = GridSearch.TerrainSearchSea(this, harborLocation, chosenTiles[i]);
 
 			if (chosenSeaPath.Count > 0)
 			{
@@ -2326,7 +2346,7 @@ public class MapWorld : MonoBehaviour
 				if (enemy)
                     chosenLandPath = GridSearch.TerrainSearchEnemy(this, chosenTiles[i], target, avoidList);
                 else
-					chosenLandPath = GridSearch.TerrainSearch(this, chosenTiles[i], target, exemptList);
+					chosenLandPath = GridSearch.TerrainSearch(this, chosenTiles[i], target);
 
 				if (chosenLandPath.Count > 0)
 				{
@@ -2474,11 +2494,6 @@ public class MapWorld : MonoBehaviour
 		}
 
 		return currentPath;
-    }
-
-    public void FindOptimalAttackZone()
-    {
-
     }
 
 	public void CreateGuard(UnitData data, Trader trader)
@@ -2746,7 +2761,7 @@ public class MapWorld : MonoBehaviour
         int[] grasslandCount = new int[4];
         int i = 0;
 
-        if (desc == TerrainDesc.Grassland || desc == TerrainDesc.GrasslandFloodPlain || desc == TerrainDesc.Forest || desc == TerrainDesc.Jungle || desc == TerrainDesc.GrasslandHill || desc == TerrainDesc.Swamp)
+        /*if (desc == TerrainDesc.Grassland || desc == TerrainDesc.GrasslandFloodPlain || desc == TerrainDesc.Forest || desc == TerrainDesc.Jungle || desc == TerrainDesc.GrasslandHill || desc == TerrainDesc.Swamp)
         {
             foreach (Vector3Int neighbor in GetNeighborsFor(td.TileCoordinates, State.FOURWAYINCREMENT))
             {
@@ -2758,7 +2773,7 @@ public class MapWorld : MonoBehaviour
                 i++;
             }
         }
-        else if (desc == TerrainDesc.Desert || desc == TerrainDesc.DesertFloodPlain || desc == TerrainDesc.DesertHill || desc == TerrainDesc.River)
+        else */if (td.terrainData.type == TerrainType.Coast || desc == TerrainDesc.Desert || desc == TerrainDesc.DesertFloodPlain || desc == TerrainDesc.DesertHill || desc == TerrainDesc.River)
         {
             foreach (Vector3Int neighbor in GetNeighborsFor(td.TileCoordinates, State.FOURWAYINCREMENT))
             {
@@ -2789,7 +2804,7 @@ public class MapWorld : MonoBehaviour
 
     public float SetUVShift(TerrainDesc desc)
     {
-        float interval = .0625f; //256/4096
+        float interval = .0625f; 
         float shift = 0;
         
         switch (desc)
@@ -2806,9 +2821,12 @@ public class MapWorld : MonoBehaviour
             case TerrainDesc.River:
                 shift = interval /** 3*/;
                 break;
-            case TerrainDesc.GrasslandHill:
-                shift = interval * 7;
+            case TerrainDesc.Sea:
+                shift = interval * 10;
                 break;
+            //case TerrainDesc.GrasslandHill:
+            //    shift = interval * 7;
+            //    break;
             case TerrainDesc.DesertHill:
                 shift = interval * 8;
                 break;

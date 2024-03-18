@@ -47,23 +47,23 @@ public class Military : Unit
 		military = GetComponent<Military>();
 
 		int factor = 0;
-		if (buildDataSO.unitType == UnitType.Ranged)
+		if (enemyAI)
+			factor = 4;
+		else if (buildDataSO.unitType == UnitType.Ranged)
 			factor = 1;
 		else if (buildDataSO.unitType == UnitType.Cavalry)
 			factor = 2;
 		else if (buildDataSO.unitType == UnitType.Seige)
 			factor = 3;
-		else if (enemyAI)
-			factor = 4;
 
 		if (factor > 0)
 		{
 			float shift = 0.03125f * factor;
-			Vector2[] sailUV = boatSail.sharedMesh.uv;
+			Vector2[] sailUV = boatSail.mesh.uv;
 			for (int i = 0; i < sailUV.Length; i++)
 				sailUV[i].x += shift;
 
-			boatSail.sharedMesh.uv = sailUV;
+			boatSail.mesh.uv = sailUV;
 		}
 
 		attackStrength = buildDataSO.baseAttackStrength;

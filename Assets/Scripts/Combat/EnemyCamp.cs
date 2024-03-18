@@ -1063,7 +1063,7 @@ public class EnemyCamp
 			//first check those in inner circle
 			if (!hasRoute && directSeaList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, null, avoidList, true);
+				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1072,7 +1072,7 @@ public class EnemyCamp
 			//outer ring next
 			if (!hasRoute && outerRingList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, null, avoidList, true);
+				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;

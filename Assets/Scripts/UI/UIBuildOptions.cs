@@ -467,82 +467,78 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (buttonHandler.cityBuilderManager.SelectedCity.attacked)
+		if (eventData.button == PointerEventData.InputButton.Left)
         {
-			StartCoroutine(Shake());
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");
-			return;
-        }
-        
-        if (unitBuildData != null)
-        {
-            if (unitBuildData.transportationType == TransportationType.Sea)
+		    if (buttonHandler.cityBuilderManager.SelectedCity.attacked)
             {
-                if (trainingBarracks)
+			    StartCoroutine(Shake());
+			    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");
+			    return;
+            }
+        
+            if (unitBuildData != null)
+            {
+                if (unitBuildData.transportationType == TransportationType.Sea)
                 {
-					StartCoroutine(Shake());
-					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
-					return;
-				}
+                    if (trainingBarracks)
+                    {
+					    StartCoroutine(Shake());
+					    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
+					    return;
+				    }
+                }
+                else
+                {
+                    if (unitBuildData.baseAttackStrength > 0)
+                    {
+                        if (needsBarracks)
+                        {
+			                StartCoroutine(Shake());
+			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks required");
+			                return;
+		                }
+                        else if (travelingBarracks)
+                        {
+			                StartCoroutine(Shake());
+			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks currently deployed");
+			                return;
+		                }
+                        else if (fullBarracks)
+                        {
+			                StartCoroutine(Shake());
+			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks full");
+			                return;
+		                }
+                        else if (trainingBarracks)
+                        {
+			                StartCoroutine(Shake());
+			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
+			                return;
+		                }
+                    }
+                }
+            }
+        
+            if (cannotAfford && !buttonHandler.isQueueing)
+            {
+                StartCoroutine(Shake());
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+                return;
+            }
+
+            isFlashing = false;
+
+            if (isUnitPanel)
+            {
+                buttonHandler.PrepareUnitBuild(unitBuildData);
+                buttonHandler.HandleUnitButtonClick();
             }
             else
             {
-                if (unitBuildData.baseAttackStrength > 0)
-                {
-                    if (needsBarracks)
-                    {
-			            StartCoroutine(Shake());
-			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks required");
-			            return;
-		            }
-                    else if (travelingBarracks)
-                    {
-			            StartCoroutine(Shake());
-			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks currently deployed");
-			            return;
-		            }
-                    else if (fullBarracks)
-                    {
-			            StartCoroutine(Shake());
-			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks full");
-			            return;
-		            }
-                    else if (trainingBarracks)
-                    {
-			            StartCoroutine(Shake());
-			            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
-			            return;
-		            }
-                }
+                buttonHandler.cityBuilderManager.world.TutorialCheck("Building Building");
+                buttonHandler.PrepareBuild(buildData);
+                buttonHandler.HandleButtonClick();
             }
-        }
-        
-        if (cannotAfford && !buttonHandler.isQueueing)
-        {
-            StartCoroutine(Shake());
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
-            return;
-        }
-
-        isFlashing = false;
-
-        if (isUnitPanel)
-        {
-            buttonHandler.PrepareUnitBuild(unitBuildData);
-            buttonHandler.HandleUnitButtonClick();
-        }
-        else
-        {
-   //         if (buildData.housingIncrease > 0 && waterMax)
-   //         {
-			//	StartCoroutine(Shake());
-			//	UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Reached water limit. Build well or have river in boundaries");
-			//	return;
-			//}
-
-            buttonHandler.cityBuilderManager.world.TutorialCheck("Building Building");
-            buttonHandler.PrepareBuild(buildData);
-            buttonHandler.HandleButtonClick();
         }
     }
 
