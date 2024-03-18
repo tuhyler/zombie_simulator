@@ -23,10 +23,13 @@ public class UIQueueButton : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (!uiBuildTabHandler.buttonsAreWorking)
-            return;
+		if (eventData.button == PointerEventData.InputButton.Left)
+        {
+		    if (!uiBuildTabHandler.buttonsAreWorking)
+                return;
 
-        ToggleButtonSelection(!isSelected);
+            ToggleButtonSelection(!isSelected);
+        }
     }
 
     public void ToggleButtonSelection(bool v)

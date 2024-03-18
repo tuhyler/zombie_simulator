@@ -221,7 +221,7 @@ public class GridSearch
             }
         }
 
-        InfoPopUpHandler.WarningMessage().Create(startLocation, "Cannot reach selected area");
+        InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
         return path;
     }
 
@@ -365,7 +365,7 @@ public class GridSearch
 	}
 
 	//for moving entire army
-	public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
+	public static List<Vector3Int> TerrainSearch(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, bool finalSea = false)
     {
 		List<Vector3Int> path = new();
 
@@ -394,10 +394,21 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
-					continue;
+				if (finalSea)
+				{
+					if (neighbor != endTerrain)
+					{
+						if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
+							continue;
+					}
+				}
+				else
+				{
+					if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
+						continue;
+				}
 
-                if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
+				if (world.CheckIfEnemyTerritory(neighbor) && neighbor != endTerrain)
                     continue;
 
 				if (world.IsTradeCenterOnTile(neighbor))
@@ -504,7 +515,7 @@ public class GridSearch
 	}
 
 	//for moving entire across water
-	public static List<Vector3Int> TerrainSearchSea(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> exemptList)
+	public static List<Vector3Int> TerrainSearchSea(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain)
 	{
 		List<Vector3Int> path = new();
 
@@ -536,7 +547,7 @@ public class GridSearch
 				if (!world.CheckIfSeaPositionIsValid(neighbor)) //If it's an obstacle, ignore
 					continue;
 				
-				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
+				if (world.CheckIfEnemyTerritory(neighbor) && neighbor != endTerrain)
 					continue;
 
 				int tempCost = 1;

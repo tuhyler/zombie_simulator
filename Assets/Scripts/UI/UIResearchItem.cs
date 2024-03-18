@@ -366,51 +366,54 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (researchTree.researchTooltip.activeStatus)
+		if (eventData.button == PointerEventData.InputButton.Left)
         {
-            researchTree.researchTooltip.ToggleVisibility(false);
-            return;
-        }
-
-        if (researchTree.isQueueing)
-        {
-            if (!isSelected && !researchTree.QueueContainsCheck(this))
+		    if (researchTree.researchTooltip.activeStatus)
             {
-				researchTree.world.cityBuilderManager.PlaySelectAudio();
+                researchTree.researchTooltip.ToggleVisibility(false);
+                return;
+            }
 
-				if (!researchTree.IsResearching() && !locked)
+            if (researchTree.isQueueing)
+            {
+                if (!isSelected && !researchTree.QueueContainsCheck(this))
                 {
-                    SelectResearchItem();
-                    return;
-                }
+				    researchTree.world.cityBuilderManager.PlaySelectAudio();
 
-                bool canBeQueued = true;
-
-                for (int i = 0; i < researchDependent.Count; i++)
-                {
-                    if (!researchDependent[i].isSelected && !researchDependent[i].completed &&!researchTree.QueueContainsCheck(researchDependent[i]))
+				    if (!researchTree.IsResearching() && !locked)
                     {
-                        canBeQueued = false;
-                        break;
+                        SelectResearchItem();
+                        return;
                     }
-                }
 
-                if (canBeQueued)
-                    AddToQueue();
-			}
-        }
-        else if (locked)
-        {
-			researchTree.world.cityBuilderManager.PlaySelectAudio();
-            QueueToItem();
-		}
-        else
-        {
-			researchTree.world.cityBuilderManager.PlaySelectAudio();
+                    bool canBeQueued = true;
 
-			if (researchTree.QueueCount() > 0)
-                researchTree.EndQueue();
-            SelectResearchItem();
+                    for (int i = 0; i < researchDependent.Count; i++)
+                    {
+                        if (!researchDependent[i].isSelected && !researchDependent[i].completed &&!researchTree.QueueContainsCheck(researchDependent[i]))
+                        {
+                            canBeQueued = false;
+                            break;
+                        }
+                    }
+
+                    if (canBeQueued)
+                        AddToQueue();
+			    }
+            }
+            else if (locked)
+            {
+			    researchTree.world.cityBuilderManager.PlaySelectAudio();
+                QueueToItem();
+		    }
+            else
+            {
+			    researchTree.world.cityBuilderManager.PlaySelectAudio();
+
+			    if (researchTree.QueueCount() > 0)
+                    researchTree.EndQueue();
+                SelectResearchItem();
+            }
         }
     }
 

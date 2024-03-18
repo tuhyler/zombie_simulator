@@ -126,54 +126,66 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (clickable)
+		if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (buttonHandler != null)
+		    if (clickable)
             {
-                buttonHandler.PrepareResource(resourceType);
-                buttonHandler.HandleButtonClick();
-            }
-            else
-            {
-                givingPanel.HandleButtonClick();
+                if (buttonHandler != null)
+                {
+                    buttonHandler.PrepareResource(resourceType);
+                    buttonHandler.HandleButtonClick();
+                }
+                else
+                {
+                    givingPanel.HandleButtonClick();
+                }
             }
         }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!clickable)
+		if (eventData.button == PointerEventData.InputButton.Left)
         {
-            buttonHandler.dragging = true;
-            originalParent = transform.parent;
-            transform.SetParent(tempParent);
-            transform.SetAsLastSibling();
-            background.raycastTarget = false;
-            buttonHandler.world.cityBuilderManager.PlayPickUpAudio();
+		    if (!clickable)
+            {
+                buttonHandler.dragging = true;
+                originalParent = transform.parent;
+                transform.SetParent(tempParent);
+                transform.SetAsLastSibling();
+                background.raycastTarget = false;
+                buttonHandler.world.cityBuilderManager.PlayPickUpAudio();
+            }
         }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!clickable)
+		if (eventData.button == PointerEventData.InputButton.Left)
         {
-            Vector3 p = Input.mousePosition;
-            p.z = 935;
-            Vector3 pos = Camera.main.ScreenToWorldPoint(p);
-            transform.position = pos;
+		    if (!clickable)
+            {
+                Vector3 p = Input.mousePosition;
+                p.z = 935;
+                Vector3 pos = Camera.main.ScreenToWorldPoint(p);
+                transform.position = pos;
+            }
         }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!clickable)
+		if (eventData.button == PointerEventData.InputButton.Left)
         {
-            buttonHandler.dragging = false;
-            transform.SetParent(originalParent);
-            transform.localPosition = Vector3.zero;
-            background.raycastTarget = true;
-			buttonHandler.world.cityBuilderManager.PlayPutDownAudio();
-		}
+		    if (!clickable)
+            {
+                buttonHandler.dragging = false;
+                transform.SetParent(originalParent);
+                transform.localPosition = Vector3.zero;
+                background.raycastTarget = true;
+			    buttonHandler.world.cityBuilderManager.PlayPutDownAudio();
+		    }
+        }
     }
 
     public void SetPriceText(int price)

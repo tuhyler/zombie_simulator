@@ -8,11 +8,13 @@ public class UIScrollButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     
     public void OnPointerDown(PointerEventData eventData)
     {
-        isDown = true;
+		if (eventData.button == PointerEventData.InputButton.Left)
+			isDown = true;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        isDown = false;
+		if (eventData.button == PointerEventData.InputButton.Left)
+			isDown = false;
     }
 }

@@ -252,9 +252,12 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		if (showingText)
-			SkipToEnd();
-		else
-			GoToNextText();
+		if (eventData.button == PointerEventData.InputButton.Left)
+		{
+			if (showingText)
+				SkipToEnd();
+			else
+				GoToNextText();
+		}
 	}
 }

@@ -424,30 +424,30 @@ public class Army : MonoBehaviour
 
     public bool DeployArmyCheck(Vector3Int current, Vector3Int target, Vector3Int finalTarget)
     {
-		List<Vector3Int> exemptList = new() { target };
-        enemyTarget = target;
+		//List<Vector3Int> exemptList = new() { target };
+        enemyTarget = finalTarget;
         seaTravel = false;
 
-        int j = 0;
-        foreach (Vector3Int tile in world.GetNeighborsFor(target, MapWorld.State.EIGHTWAYINCREMENT))
-        {
-            j++;
-            if (j % 2 == 1)
-                continue;
-            exemptList.Add(tile);
-        }
+        //int j = 0;
+        //foreach (Vector3Int tile in world.GetNeighborsFor(finalTarget, MapWorld.State.EIGHTWAYINCREMENT))
+        //{
+        //    j++;
+        //    if (j % 2 == 1)
+        //        continue;
+        //    exemptList.Add(tile);
+        //}
 
         bool getToHarbor = true;
         List<Vector3Int> waterPath = new();
         List<Vector3Int> landPath = new();
         
         if (world.GetTerrainDataAt(target).walkable)
-			landPath = GridSearch.TerrainSearch(world, current, target, exemptList);
+			landPath = GridSearch.TerrainSearch(world, current, target);
 
         //seeing if cheaper to go by sea
         if (city.hasHarbor)
         {
-			List<Vector3Int> pathToHarbor = GridSearch.TerrainSearch(world, loc, city.harborLocation, exemptList);
+			List<Vector3Int> pathToHarbor = GridSearch.TerrainSearch(world, loc, city.harborLocation, true);
 
             if (pathToHarbor.Count == 0)
             {
@@ -455,45 +455,51 @@ public class Army : MonoBehaviour
             }
             else
             {
-				List<Vector3Int> directSeaList = new(), outerRingList = new();
-                if (world.GetTerrainDataAt(target).sailable)
-                    directSeaList.Add(target);
-				//Checking if target is by sea
-				List<Vector3Int> surroundingArea = world.GetNeighborsFor(target, MapWorld.State.CITYRADIUS);
-				for (int i = 0; i < surroundingArea.Count; i++)
-				{
-                    TerrainData td = world.GetTerrainDataAt(surroundingArea[i]);
-                    if (td.isLand || !td.isDiscovered)
-						continue;
-
-					if (i < 8)
-						directSeaList.Add(surroundingArea[i]);
-					else
-						outerRingList.Add(surroundingArea[i]);
-				}
-
 				//finding shortest route to target
 				bool hasRoute = false;
 				List<Vector3Int> chosenPath = new();
+                if (world.GetTerrainDataAt(target).sailable)
+                {
+					chosenPath = GridSearch.TerrainSearchSea(world, city.harborLocation, target);
 
-				//first inner ring
-				if (directSeaList.Count > 0)
-				{
-					chosenPath = world.GetSeaLandRoute(directSeaList, city.harborLocation, target, exemptList);
-
-					if (chosenPath.Count > 0)
-						hasRoute = true;
+                    if (chosenPath.Count > 0)
+                        hasRoute = true;
 				}
+                else
+                {
+                    List<Vector3Int> directSeaList = new(), outerRingList = new();
+					//Checking if target is by sea
+					List<Vector3Int> surroundingArea = world.GetNeighborsFor(target, MapWorld.State.CITYRADIUS);
+				    for (int i = 0; i < surroundingArea.Count; i++)
+				    {
+                        TerrainData td = world.GetTerrainDataAt(surroundingArea[i]);
+                        if (td.isLand || !td.isDiscovered)
+						    continue;
 
-				//outer ring next
-				if (!hasRoute && outerRingList.Count > 0)
-				{
-					chosenPath = world.GetSeaLandRoute(outerRingList, city.harborLocation, target, exemptList);
+					    if (i < 8)
+						    directSeaList.Add(surroundingArea[i]);
+					    else
+						    outerRingList.Add(surroundingArea[i]);
+				    }
 
-					if (chosenPath.Count > 0)
-						hasRoute = true;
-				}
+				    //first inner ring
+				    if (directSeaList.Count > 0)
+				    {
+					    chosenPath = world.GetSeaLandRoute(directSeaList, city.harborLocation, target);
 
+					    if (chosenPath.Count > 0)
+						    hasRoute = true;
+				    }
+
+				    //outer ring next
+				    if (!hasRoute && outerRingList.Count > 0)
+				    {
+					    chosenPath = world.GetSeaLandRoute(outerRingList, city.harborLocation, target);
+
+					    if (chosenPath.Count > 0)
+						    hasRoute = true;
+				    }
+                }
 
 				if (hasRoute)
 				{
@@ -578,6 +584,7 @@ public class Army : MonoBehaviour
         {
             ShowBattlePath();
             enemyTarget = pathToTarget[pathToTarget.Count - 1];
+            world.unitMovement.SetMovingAttackBonusText(pathToTarget[pathToTarget.Count - 2], enemyTarget);
             return true;
 		}
 	}

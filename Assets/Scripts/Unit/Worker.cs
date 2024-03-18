@@ -130,7 +130,7 @@ public class Worker : Unit
     private IEnumerator DizzyCoroutine()
     {
         Vector3 loc = Vector3.zero;
-        loc.y += 2.5f;
+        loc.y += 1.25f;
         Quaternion rotation = Quaternion.Euler(90, 0, 90);
         GameObject dizzy = Instantiate(world.dizzyMarker, loc, rotation);
         dizzy.transform.SetParent(transform, false);

@@ -56,43 +56,46 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (!uiBuildTabHandler.buttonsAreWorking)
-            return;
-
-		if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
+		if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (isFlashing)
+		    if (!uiBuildTabHandler.buttonsAreWorking)
+                return;
+
+		    if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
             {
-                isFlashing = false;
-                uiBuildTabHandler.cityBuilderManager.world.ButtonFlashCheck();
+                if (isFlashing)
+                {
+                    isFlashing = false;
+                    uiBuildTabHandler.cityBuilderManager.world.ButtonFlashCheck();
+                }
+                uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open " + tabName + " Tab");
             }
-            uiBuildTabHandler.cityBuilderManager.world.TutorialCheck("Open " + tabName + " Tab");
+
+		    ToggleButtonSelection(true);
+
+            if (leftSideButton)
+            {
+                uiBuildTabHandler.StartLeftSideButton();
+                uiBuildTabHandler.ShowUILeftSideButton();
+            }
+            else if (rightSideButton)
+            {
+                uiBuildTabHandler.StartRightSideButton(isRemoving);
+                uiBuildTabHandler.ShowUIRightSideButton(isRemoving);
+            }
+            else
+            {
+                uiBuildTabHandler.PassUI(uiBuilder);
+
+                if (isUnits)
+                    uiBuildTabHandler.cityBuilderManager.CloseQueueUI();
+
+                uiBuildTabHandler.ShowUI();
+            }
+
+            uiBuildTabHandler.SetSelectedTab(this);
+            uiBuildTabHandler.cityBuilderManager.PlaySelectAudio();
         }
-
-		ToggleButtonSelection(true);
-
-        if (leftSideButton)
-        {
-            uiBuildTabHandler.StartLeftSideButton();
-            uiBuildTabHandler.ShowUILeftSideButton();
-        }
-        else if (rightSideButton)
-        {
-            uiBuildTabHandler.StartRightSideButton(isRemoving);
-            uiBuildTabHandler.ShowUIRightSideButton(isRemoving);
-        }
-        else
-        {
-            uiBuildTabHandler.PassUI(uiBuilder);
-
-            if (isUnits)
-                uiBuildTabHandler.cityBuilderManager.CloseQueueUI();
-
-            uiBuildTabHandler.ShowUI();
-        }
-
-        uiBuildTabHandler.SetSelectedTab(this);
-        uiBuildTabHandler.cityBuilderManager.PlaySelectAudio();
     }
 
     public void SelectTabKeyboardShortcut()
