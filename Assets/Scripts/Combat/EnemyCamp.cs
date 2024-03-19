@@ -337,8 +337,7 @@ public class EnemyCamp
 						unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
 
 					world.mainPlayer.StartRunningAway();
-					List<Vector3Int> avoidList = new();
-					pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc, avoidList);
+					pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc);
 				}
 
 				if (isCity && fieldBattleLoc != cityLoc)
@@ -609,6 +608,7 @@ public class EnemyCamp
 		armyReady = false;
 		attackingArmy = null;
 		prepping = false;
+		movingOut = false;
 	}
 
 	public void ResetCamp()
@@ -986,20 +986,34 @@ public class EnemyCamp
 
 			world.CheckMainPlayerLoc(lastSpot, pathToTarget);
 
-			if (atSea)
+			if (seaTravel)
 			{
-				if (world.GetTerrainDataAt(unitsInCamp[0].pathPositions.Peek()).isLand)
+				if (atSea)
 				{
-					for (int i = 0; i < unitsInCamp.Count; i++)
-						unitsInCamp[i].ToggleBoat(false);
+					Vector3Int nextSpot;
+					if (unitsInCamp[0].pathPositions.Count == 0)
+						nextSpot = moveToLoc;
+					else
+						nextSpot = unitsInCamp[0].pathPositions.Peek();
+
+					if (world.GetTerrainDataAt(nextSpot).isLand)
+					{
+						atSea = false;
+						for (int i = 0; i < unitsInCamp.Count; i++)
+							unitsInCamp[i].ToggleBoat(false);
+					}
 				}
-			}
-			else
-			{
-				if (!world.GetTerrainDataAt(endPositionInt).isLand)
+				else
 				{
-					for (int i = 0; i < unitsInCamp.Count; i++)				
-						unitsInCamp[i].ToggleBoat(true);
+					if (unitsInCamp[0].pathPositions.Count > 0)
+					{
+						if (!world.GetTerrainDataAt(endPositionInt).isLand && !world.GetTerrainDataAt(unitsInCamp[0].pathPositions.Peek()).isLand)
+						{
+							atSea = true;
+							for (int i = 0; i < unitsInCamp.Count; i++)				
+								unitsInCamp[i].ToggleBoat(true);
+						}
+					}
 				}
 			}
 
@@ -1038,8 +1052,7 @@ public class EnemyCamp
 		moveToLoc = targetCity.cityLoc;
 		seaTravel = false;
 
-		List<Vector3Int> avoidList = world.GetNeighborsFor(moveToLoc, MapWorld.State.FOURWAYINCREMENT);
-		pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc, avoidList);
+		pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc);
 
 		if (pathToTarget.Count == 0)
 		{
@@ -1063,7 +1076,7 @@ public class EnemyCamp
 			//first check those in inner circle
 			if (!hasRoute && directSeaList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1072,7 +1085,7 @@ public class EnemyCamp
 			//outer ring next
 			if (!hasRoute && outerRingList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, avoidList, true);
+				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1081,32 +1094,32 @@ public class EnemyCamp
 			if (hasRoute)
 			{
 				seaTravel = true;
-				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, world.GetEnemyCity(cityLoc).harborLocation, avoidList);
-				pathToTarget = chosenPath;
+				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, world.GetEnemyCity(cityLoc).harborLocation, true);
+				pathToTarget.AddRange(chosenPath);
 			}
-		}
-
-		enemyReady = 0;
-		pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
-		movingOut = true;
-		Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
-		threatLoc = penultimate;
-
-		forward = (moveToLoc - threatLoc) / 3;
-		if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == this)
-			world.unitMovement.CancelArmyDeployment();
-		
-		if (world.unitMovement.deployingArmy)
-		{
-			for (int i = 0; i < unitsInCamp.Count; i++)
-				unitsInCamp[i].SoftSelect(Color.red);
 		}
 
 		if (pathToTarget.Count > 0)
 		{
-			//finding best spot to attack from
-			pathToTarget = world.FindOptimalAttackZone(pathToTarget, moveToLoc);
+			enemyReady = 0;
+			pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
+			movingOut = true;
+			Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
+			threatLoc = penultimate;
 
+			forward = (moveToLoc - threatLoc) / 3;
+			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == this)
+				world.unitMovement.CancelArmyDeployment();
+		
+			if (world.unitMovement.deployingArmy)
+			{
+				for (int i = 0; i < unitsInCamp.Count; i++)
+					unitsInCamp[i].SoftSelect(Color.red);
+			}
+			
+			//finding best spot to attack from
+			pathToTarget = world.FindOptimalAttackZone(pathToTarget, moveToLoc, seaTravel);
+			pathToTarget.RemoveAt(pathToTarget.Count - 1); //remove final one
 			BattleStations(loc, forward);
 			return true;
 		}

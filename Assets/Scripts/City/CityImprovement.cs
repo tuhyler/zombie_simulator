@@ -333,6 +333,18 @@ public class CityImprovement : MonoBehaviour
         city.cityNameField.ToggleVisibility(false);
         city.cityNameMap.gameObject.SetActive(false);
         
+        if (improvementData.replaceRocks)
+        {
+            Material mat;
+            if (td.materials.Count > 1)
+                mat = td.materials[1];
+            else
+                mat = world.atlasMain;
+            
+            skinnedMesh.material = mat;
+			SetNewMaterial(mat);
+		}
+
         if (improvementData.improvementName == "Barracks")
             city.RevealUnitsInCamp();
 

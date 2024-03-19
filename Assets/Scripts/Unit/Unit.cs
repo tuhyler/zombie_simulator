@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
+using UnityEditor.Tilemaps;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Events;
@@ -512,13 +514,22 @@ public class Unit : MonoBehaviour
             {
                 if (military.atSea)
                 {
-                    if (world.GetTerrainDataAt(pathPositions.Peek()).isLand)
-                        military.ToggleBoat(false);
-                }
-                else
+					Vector3Int nextSpot;
+					if (pathPositions.Count == 0)
+						nextSpot = world.RoundToInt(finalDestinationLoc);
+					else
+						nextSpot = pathPositions.Peek();
+
+					if (world.GetTerrainDataAt(nextSpot).isLand)
+						military.ToggleBoat(false);
+				}
+				else
                 {
-                    if (!world.GetTerrainDataAt(endPositionInt).isLand)
-                        military.ToggleBoat(true);
+					if (pathPositions.Count > 0)
+					{
+						if (!world.GetTerrainDataAt(endPositionInt).isLand && !world.GetTerrainDataAt(pathPositions.Peek()).isLand)
+							military.ToggleBoat(true);
+					}
                 }
             }
 		}
@@ -940,29 +951,12 @@ public class Unit : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        //Debug.Log(collision.gameObject.tag);
         if (enemyAI)
         {
-            TerrainData td = collision.gameObject.GetComponent<TerrainData>();
-            if (td == null)
-            {
-				marker.ToggleVisibility(false);
-				UnhideUnit();
-			}
-			else if (!td.isDiscovered)
-            {
-                HideUnit(false);
-            }
-            else if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || collision.gameObject.CompareTag("City"))
-			{
+            if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || collision.gameObject.CompareTag("City"))
 				marker.ToggleVisibility(true);
-				UnhideUnit();
-			}
 			else
-			{
 				marker.ToggleVisibility(false);
-				UnhideUnit();
-			}
 		}
         else if (!bySea)
         {
@@ -1003,12 +997,24 @@ public class Unit : MonoBehaviour
 
         if (military)
         {
-            if (military.isMarching)
+			if (enemyAI)
+			{
+				TerrainData td = collision.gameObject.GetComponent<TerrainData>();
+				if (td)
+				{
+					if (td.isDiscovered)
+						UnhideUnit();
+                    else
+						HideUnit(false);
+				}
+			}
+
+			if (military.isMarching)
             {
                 moveSpeed = baseSpeed * flatlandSpeed * .05f;
                 unitAnimator.SetFloat("speed", baseSpeed * 18f);
                 return;
-            }
+            }            
         }
 
         if (collision.gameObject.CompareTag("Road"))
@@ -1181,6 +1187,11 @@ public class Unit : MonoBehaviour
 		if (!hidden)
         {
             marker.gameObject.SetActive(!hideMarker);
+            if (military && military.atSea)
+            {
+                military.boatMesh.SetActive(false);
+                ripples.SetActive(false);
+            }
             unitMesh.SetActive(false);
 		    healthbar.gameObject.SetActive(false);
             hidden = true;
@@ -1191,7 +1202,16 @@ public class Unit : MonoBehaviour
     {
 	    if (hidden)
         {
-            unitMesh.SetActive(true);
+            if (military && military.atSea)
+            {
+                military.boatMesh.SetActive(true);
+                ripples.SetActive(true);
+                marker.gameObject.SetActive(false);
+            }
+            else
+            {
+                unitMesh.SetActive(true);
+            }
             if (currentHealth < healthMax)
     		    healthbar.gameObject.SetActive(true);
             hidden = false;
