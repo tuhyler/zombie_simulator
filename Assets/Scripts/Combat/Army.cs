@@ -1124,7 +1124,6 @@ public class Army : MonoBehaviour
 				DestroyEnemyDeadList();
                 targetCamp.ResetCamp();
                 targetCamp.moveToLoc = targetCamp.loc;
-                targetCamp.movingOut = false;
                 targetCamp.inBattle = false;
                 targetCamp.enemyReady = 0;
 				targetCamp.deathCount = 0;

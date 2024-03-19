@@ -9,7 +9,7 @@ using static UnityEngine.GraphicsBuffer;
 public class Military : Unit
 {
 	[SerializeField]
-	private GameObject boatMesh;
+	public GameObject boatMesh;
 
 	[SerializeField]
 	private MeshFilter boatSail;

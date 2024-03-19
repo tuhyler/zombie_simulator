@@ -3961,9 +3961,12 @@ public class CityBuilderManager : MonoBehaviour
         CombineMeshes();
 
         TerrainData td = world.GetTerrainDataAt(city.cityLoc);
-        td.ShowProp(true);
+        if (td.rawResourceType == RawResourceType.Rocks && td.resourceAmount == 0)
+            td.ShowProp(false);
+        else
+			td.ShowProp(true);
 
-        td.FloodPlainCheck(false);
+		td.FloodPlainCheck(false);
 
         //destroying queued objects
         //foreach (UIQueueItem queueItem in selectedCity.savedQueueItems)

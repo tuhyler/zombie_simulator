@@ -444,7 +444,7 @@ public class GridSearch
 	}
 
 	//for finding best terrain to attack from for army
-	public static List<Vector3Int> TerrainSearchCoda(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList)
+	public static List<Vector3Int> TerrainSearchCoda(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList, bool bySea)
 	{
 		List<Vector3Int> path = new();
 
@@ -469,8 +469,13 @@ public class GridSearch
 				return path;
 			}
 
+			int i = 0;
 			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAYINCREMENT))
 			{
+				i++;
+				if (i % 2 == 0)
+					continue;
+
 				Vector3Int neighbor = tile + current;
 
 				if (neighbor != endTerrain && avoidList.Contains(neighbor))
@@ -479,23 +484,14 @@ public class GridSearch
 				if (world.CheckForFinalMarch(neighbor)) //If it's an obstacle, ignore
 					continue;
 
-				//if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
-				//	continue;
-
 				if (world.IsTradeCenterOnTile(neighbor))
 					continue;
 
-				int tempCost = world.GetMovementCost(neighbor);
-
-				if (tile.sqrMagnitude == 18)
-				{
-					Vector3Int temp = neighbor - current;
-
-					if (!world.CheckIfPositionIsArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsArmyValid(current + new Vector3Int(0, 0, temp.z)))
-						continue;
-
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
-				}
+				int tempCost;
+				if (bySea)
+					tempCost = world.GetMovementCostAmphibious(neighbor);
+				else
+					tempCost = world.GetMovementCost(neighbor);
 
 				int newCost = costDictionary[current] + tempCost;
 				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
@@ -579,7 +575,7 @@ public class GridSearch
 		return path;
 	}
 
-	public static List<Vector3Int> TerrainSearchEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList)
+	public static List<Vector3Int> TerrainSearchEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, bool finalSea = false)
 	{
 		List<Vector3Int> path = new();
 
@@ -608,14 +604,25 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) //If it's an obstacle, ignore
+				if (finalSea)
+				{
+					if (neighbor != endTerrain)
+					{
+						if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) //If it's an obstacle, ignore
+							continue;
+					}
+				}
+				else
+				{
+					if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) //If it's an obstacle, ignore
+						continue;
+				}
+
+				if (world.IsCityOnTile(neighbor) && endTerrain != neighbor) //won't walk through cities
 					continue;
 
-				if (world.IsCityOnTile(neighbor) && endTerrain != neighbor)
-					continue;
-
-				if (world.IsEnemyCampHere(neighbor))
-					continue;
+				//if (world.IsEnemyCampHere(neighbor))
+				//	continue;
 
 				int tempCost = world.GetMovementCost(neighbor);
 
@@ -623,7 +630,7 @@ public class GridSearch
 				{
                     //Vector3Int temp = neighbor - current;
 
-					if (!world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(tile.x, 0, 0), avoidList) || !world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(0, 0, tile.z), avoidList))
+					if (!world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(tile.x, 0, 0)) || !world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(0, 0, tile.z)))
 						continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
@@ -646,7 +653,7 @@ public class GridSearch
 		return path;
 	}
 
-	public static List<Vector3Int> TerrainSearchSeaEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList)
+	public static List<Vector3Int> TerrainSearchSeaEnemy(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain)
 	{
 		List<Vector3Int> path = new();
 
@@ -823,7 +830,7 @@ public class GridSearch
 				if (!world.TileExists(neighbor))
 						continue;
 
-				int tempCost = 1;
+				int tempCost = world.GetMovementCost(neighbor);
 
 				if (tile.sqrMagnitude == 2)
 				{

@@ -26,7 +26,7 @@ MonoBehaviour:
   sailable: 0
   isLand: 1
   isSeaCorner: 0
-  movementCost: 20
+  movementCost: 30
   terrainAttackBonus: -10
   type: 7
   specificTerrain: 0

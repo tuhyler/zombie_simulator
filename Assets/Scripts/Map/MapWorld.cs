@@ -1387,6 +1387,7 @@ public class MapWorld : MonoBehaviour
                 city.enemyCamp.fieldBattleLoc = enemyData.fieldBattleLoc;
                 city.enemyCamp.lastSpot = enemyData.lastSpot;
                 city.enemyCamp.removingOut = enemyData.removingOut;
+                city.enemyCamp.seaTravel = enemyData.seaTravel;
                 city.countDownTimer = enemyData.countDownTimer;
 
                 if ((city.enemyCamp.inBattle || city.enemyCamp.movingOut) && !city.enemyCamp.returning && city.enemyCamp.campCount != 0)
@@ -1395,7 +1396,7 @@ public class MapWorld : MonoBehaviour
                 if (city.enemyCamp.campCount != 0)
                     movingOut = true;
 
-                if (GetTerrainDataAt(cityTile).isDiscovered && !city.enemyCamp.growing && !city.enemyCamp.inBattle && !city.enemyCamp.prepping && 
+                if (GetTerrainDataAt(cityTile).isDiscovered && !city.enemyCamp.growing && !city.enemyCamp.movingOut && !city.enemyCamp.inBattle && !city.enemyCamp.prepping && 
                     !city.enemyCamp.attackReady && !city.enemyCamp.returning)
                     city.LoadSendAttackWait();
 		    }
@@ -2326,7 +2327,7 @@ public class MapWorld : MonoBehaviour
         return null;
     }
 
-    public List<Vector3Int> GetSeaLandRoute(List<Vector3Int> chosenTiles, Vector3Int harborLocation, Vector3Int target, List<Vector3Int> avoidList = null, bool enemy = false)
+    public List<Vector3Int> GetSeaLandRoute(List<Vector3Int> chosenTiles, Vector3Int harborLocation, Vector3Int target, bool enemy = false)
     {
 		int dist = 0;
 		List<Vector3Int> chosenPath = new();
@@ -2336,7 +2337,7 @@ public class MapWorld : MonoBehaviour
             List<Vector3Int> chosenSeaPath;
 			
             if (enemy)
-                chosenSeaPath = GridSearch.TerrainSearchSeaEnemy(this, harborLocation, chosenTiles[i], avoidList);
+                chosenSeaPath = GridSearch.TerrainSearchSeaEnemy(this, harborLocation, chosenTiles[i]);
             else
 				chosenSeaPath = GridSearch.TerrainSearchSea(this, harborLocation, chosenTiles[i]);
 
@@ -2344,7 +2345,7 @@ public class MapWorld : MonoBehaviour
 			{
                 List<Vector3Int> chosenLandPath;
 				if (enemy)
-                    chosenLandPath = GridSearch.TerrainSearchEnemy(this, chosenTiles[i], target, avoidList);
+                    chosenLandPath = GridSearch.TerrainSearchEnemy(this, chosenTiles[i], target);
                 else
 					chosenLandPath = GridSearch.TerrainSearch(this, chosenTiles[i], target);
 
@@ -2373,20 +2374,20 @@ public class MapWorld : MonoBehaviour
         return chosenPath;
 	}
 
-    public List<Vector3Int> FindOptimalAttackZone(List<Vector3Int> currentPath, Vector3Int target)
+    public List<Vector3Int> FindOptimalAttackZone(List<Vector3Int> currentPath, Vector3Int target, bool bySea)
     {
 		Vector3Int newStart;
-		if (currentPath.Count < 4)
+		if (currentPath.Count < 3)
 		{
 			newStart = currentPath[0];
 			currentPath.Clear();
 		}
 		else
 		{
-			newStart = currentPath[currentPath.Count - 4];
+			newStart = currentPath[currentPath.Count - 3];
 
 			//removing last 3
-			for (int i = 0; i < 3; i++)
+			for (int i = 0; i < 2; i++)
 				currentPath.RemoveAt(currentPath.Count - 1);
 		}
 
@@ -2480,10 +2481,14 @@ public class MapWorld : MonoBehaviour
 			}
 		}
 
+        bool seaStart = false;
+        if (bySea && !world[newStart].isLand)
+            seaStart = true;
+
         List<Vector3Int> avoidList = new(tilesToCheckLoc) { target };
 		for (int i = 0; i < tilesToCheckLoc.Count; i++)
 		{
-            List<Vector3Int> pathCoda = GridSearch.TerrainSearchCoda(this, newStart, tilesToCheckLoc[i], avoidList);
+            List<Vector3Int> pathCoda = GridSearch.TerrainSearchCoda(this, newStart, tilesToCheckLoc[i], avoidList, seaStart);
 
 			if (pathCoda.Count > 0)
 			{
@@ -6109,7 +6114,7 @@ public class MapWorld : MonoBehaviour
 
 	public bool CheckIfPositionIsSailableForEnemy(Vector3Int tile)
 	{
-		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile);
+		return world.ContainsKey(tile) && world[tile].sailable && !enemyCampDict.ContainsKey(tile);
 	}
 
 	public bool CheckIfPositionIsArmyValid(Vector3Int tile) //preventing going diagonally
@@ -6117,9 +6122,9 @@ public class MapWorld : MonoBehaviour
 		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyZone;
 	}
 
-    public bool CheckIfPositionIsEnemyArmyValid(Vector3Int tile, List<Vector3Int> avoidList) //preventing going diagonally
+    public bool CheckIfPositionIsEnemyArmyValid(Vector3Int tile) //preventing going diagonally
 	{ 
-		return world.ContainsKey(tile) && world[tile].walkable && !world[tile].sailable && !avoidList.Contains(tile);
+		return world.ContainsKey(tile) && world[tile].walkable && !world[tile].sailable;
 	}
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
@@ -6146,25 +6151,18 @@ public class MapWorld : MonoBehaviour
     {
         coastCoastList.Remove(tile);
     } 
-    //public bool CheckIfIsCoast(Vector3Int tileWorldPosition)
-    //{
-    //    return GetTerrainDataAt(tileWorldPosition).IsCoast;
-    //    //return world[tileWorldPosition].GetTerrainData().type == TerrainType.River || world[tileWorldPosition].GetTerrainData().type == TerrainType.Coast;
-    //}
-
-    //public Vector3Int GetClosestTile(Vector3 worldPosition)
-    //{
-    //    worldPosition.y = 0;
-    //    return Vector3Int.RoundToInt(worldPosition);
-    //}
 
     public int GetMovementCost(Vector3Int tileWorldPosition)
     {
-        //if (v)
-        //    return world[tileWorldPosition].MovementCost;
-        //else
         return world[tileWorldPosition].MovementCost;
-        //return world[tileWorldPosition].MovementCost; //for counting road movement cost from non-road terrain
+    }
+
+    public int GetMovementCostAmphibious(Vector3Int tile)
+    {
+        if (world[tile].sailable)
+            return 9; 
+        else
+            return world[tile].MovementCost; 
     }
 
     public TerrainData GetTerrainDataAt(Vector3Int tileWorldPosition)

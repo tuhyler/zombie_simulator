@@ -28,7 +28,8 @@ public class TerrainData : MonoBehaviour
     [SerializeField]
     private Material white;
     private List<MeshRenderer> whiteMesh = new();
-    private List<Material> materials = new();
+    [HideInInspector]
+    public List<Material> materials = new();
     private GameObject animMesh; //hide when not discovered
 
     private SelectionHighlight highlight;
@@ -109,7 +110,7 @@ public class TerrainData : MonoBehaviour
         terrainData = data;
         TerrainDataPrep();
 
-        if (CompareTag("Forest") || CompareTag("Forest Hill") || CompareTag("Hill") || CompareTag("Mountain"))
+        if (terrainData.terrainDesc != TerrainDesc.Swamp && (CompareTag("Forest") || CompareTag("Forest Hill") || CompareTag("Hill") || CompareTag("Mountain")))
     		hasNonstatic = true;
 	}
 
@@ -264,8 +265,7 @@ public class TerrainData : MonoBehaviour
 
 	public void ShowProp(bool v)
     {
-        if (resourceAmount != 0)    
-            prop.gameObject.SetActive(v);
+        prop.gameObject.SetActive(v);
         showProp = v;
         GameLoader.Instance.gameData.allTerrain[tileCoordinates].showProp = showProp;
     }
@@ -579,10 +579,14 @@ public class TerrainData : MonoBehaviour
         {
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
 			godRays.Play();
-            if (isHill)
-                resourceGraphic.PlaySoundHill();
-            else
-                resourceGraphic.PlaySound();
+
+            if (!world.CheckIfTileIsImproved(tileCoordinates))
+            {
+                if (isHill)
+                    resourceGraphic.PlaySoundHill();
+                else
+                    resourceGraphic.PlaySound();
+            }
 		}
 
         if (hasResourceMap)
@@ -620,6 +624,8 @@ public class TerrainData : MonoBehaviour
     public void Discover()
     {
         fog.SetActive(false);
+        whiteMesh.Clear();
+        materials.Clear();
 	}
 
     public void SetNewData(TerrainDataSO data)
