@@ -438,7 +438,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   buildDataSO: {fileID: 11400000, guid: 64487691ef3e08b48b32d3c4a634dc54, type: 2}
-  unitMesh: {fileID: 6127569396173845306}
+  unitMesh: {fileID: 4012796995728564543}
   minimapIcon: {fileID: 5473824532600306361}
   lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
     type: 3}
@@ -648,9 +648,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf32e93cd2c6ab84e94435c042d6b5b6, type: 3}
---- !u!1 &6127569396173845306 stripped
+--- !u!1 &4012796995728564543 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: bf32e93cd2c6ab84e94435c042d6b5b6,
+  m_CorrespondingSourceObject: {fileID: -1263180890589761708, guid: bf32e93cd2c6ab84e94435c042d6b5b6,
     type: 3}
   m_PrefabInstance: {fileID: 6469445292066475627}
   m_PrefabAsset: {fileID: 0}

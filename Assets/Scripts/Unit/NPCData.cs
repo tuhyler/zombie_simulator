@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class NPCData
 {
-    public bool somethingToSay;
+    public bool somethingToSay, onQuest, hasMetKoa;
     public List<string> conversationTopics;
+    public int currentQuest, timeWaited, purchasedAmount;
 }

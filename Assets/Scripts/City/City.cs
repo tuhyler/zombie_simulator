@@ -1312,7 +1312,7 @@ public class City : MonoBehaviour
         bool firstOne = true;
         for (int i = 0; i < cityList.Count; i++)
         {
-            if (cityList[i].currentPop < 4)
+            if (cityList[i].currentPop < 4 && (!cityList[i].hasBarracks || cityList[i].army.UnitsInArmy.Count == 0))
             {
                 smallCityLocList.Add(i);
                 continue;

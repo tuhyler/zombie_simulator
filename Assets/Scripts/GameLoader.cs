@@ -404,7 +404,11 @@ public class GameLoader : MonoBehaviour
 		world.GenerateTradeCenters(gameData.allTradeCenters);
 		world.GenerateEnemyCities(gameData.enemyCities, gameData.enemyRoads);
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
-		
+		foreach (Vector3Int tile in gameData.enemyCities.Keys)
+			world.LoadEnemyBorders(tile);
+		foreach (Vector3Int tile in gameData.enemyCampLocs.Keys)
+			world.LoadEnemyBorders(tile);
+
 		//updating progress
 		GameManager.Instance.UpdateProgress(15);
 

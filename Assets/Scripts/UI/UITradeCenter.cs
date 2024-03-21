@@ -10,13 +10,13 @@ public class UITradeCenter : MonoBehaviour
     private MapWorld world;
     
     [SerializeField]
-    private TMP_Text title, ownerName, increaseText, decreaseText;
+    private TMP_Text title, ownerName, increaseText, decreaseText, ecstaticText;
 
     [SerializeField]
     private Image happinessMeter, ownerImage;
 
     [SerializeField]
-    private Sprite mad, neutral, happy;
+    private Sprite mad, neutral, happy, ecstatic;
 
     [SerializeField]
     private GameObject resourcePanel;
@@ -29,6 +29,8 @@ public class UITradeCenter : MonoBehaviour
 
     private List<UITradeResource> activeBuyResources = new();
     private List<UITradeResource> activeSellResources = new();
+    [HideInInspector]
+    public TradeCenter center;
 
     private float buyMultiple;
 
@@ -77,52 +79,16 @@ public class UITradeCenter : MonoBehaviour
 
         if (v)
         {
+            this.center = center;
             activeStatus = true;
             world.tcCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
             ownerName.text = "Rapport with " + center.tcRep.npcName;
             ownerImage.sprite = center.tcRep.npcImage;
-            int meterShift = center.tcRep.rapportScore * 10;
-            Vector2 meterLoc = happinessMeter.transform.localPosition;
-            meterLoc.x = meterShift;
-            happinessMeter.transform.localPosition = meterLoc;
             increaseText.text = "+" + center.tcRep.angryIncrease.ToString() + "%";
-            decreaseText.text = "-" + center.tcRep.happyDiscount.ToString() + "%";
-
-            if (meterShift >= 60)
-            {
-                happinessMeter.sprite = happy;
-                buyMultiple = 1 - center.tcRep.happyDiscount * 0.01f;
-            }
-            else if (meterShift <= -60)
-            {
-                happinessMeter.sprite = mad;
-                buyMultiple = 1 + center.tcRep.angryIncrease * 0.01f;
-            }
-            else
-            {
-                happinessMeter.sprite = neutral;
-                buyMultiple = 1;
-            }
-
-            foreach (ResourceType type in center.ResourceBuyDict.Keys)
-            {
-                buyDict[type].gameObject.SetActive(true);
-                int price = Mathf.CeilToInt(center.ResourceBuyDict[type] * buyMultiple);
-                buyDict[type].SetValue(price);
-                if (price > maxBuyCost)
-                    maxBuyCost = price;
-                buyDict[type].SetColor(world.CheckWorldGold(price) ? Color.white : Color.red);
-                activeBuyResources.Add(buyDict[type]);
-            }
-
-            foreach (ResourceType type in center.ResourceSellDict.Keys)
-            {
-                sellDict[type].gameObject.SetActive(true);
-                sellDict[type].SetValue(center.ResourceSellDict[type]);
-                sellDict[type].SetColor(Color.green);
-                activeSellResources.Add(sellDict[type]);
-            }
+            decreaseText.text = "-" + center.tcRep.happyDiscount.ToString() + "%,";
+            ecstaticText.text = "-" + center.tcRep.ecstaticDiscount.ToString() + "%,";
+            SetHappinessMeter(center.tcRep);
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(-500f, 0, 0);
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 500f, 0.4f).setEaseOutBack();
@@ -130,6 +96,7 @@ public class UITradeCenter : MonoBehaviour
         else
         {
             activeStatus = false;
+            this.center = null;
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -1000f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
@@ -178,8 +145,51 @@ public class UITradeCenter : MonoBehaviour
         title.text = name;
     }
 
-    public void SetHappinessMeter(float value)
+    public void SetHappinessMeter(NPC rep)
     {
+		int meterShift = rep.rapportScore * 32;
+		Vector2 meterLoc = happinessMeter.transform.localPosition;
+		meterLoc.x = meterShift;
+		happinessMeter.transform.localPosition = meterLoc;
 
-    }
+        if (meterShift == 160)
+        {
+            happinessMeter.sprite = ecstatic;
+            buyMultiple = 1 - rep.ecstaticDiscount * 0.01f;
+        }
+		else if (meterShift >= 65)
+		{
+			happinessMeter.sprite = happy;
+			buyMultiple = 1 - rep.happyDiscount * 0.01f;
+		}
+		else if (meterShift <= -60)
+		{
+			happinessMeter.sprite = mad;
+			buyMultiple = 1 + rep.angryIncrease * 0.01f;
+		}
+		else
+		{
+			happinessMeter.sprite = neutral;
+			buyMultiple = 1;
+		}
+
+		foreach (ResourceType type in center.ResourceBuyDict.Keys)
+		{
+			buyDict[type].gameObject.SetActive(true);
+			int price = Mathf.CeilToInt(center.ResourceBuyDict[type] * buyMultiple);
+			buyDict[type].SetValue(price);
+			if (price > maxBuyCost)
+				maxBuyCost = price;
+			buyDict[type].SetColor(world.CheckWorldGold(price) ? Color.white : Color.red);
+			activeBuyResources.Add(buyDict[type]);
+		}
+
+		foreach (ResourceType type in center.ResourceSellDict.Keys)
+		{
+			sellDict[type].gameObject.SetActive(true);
+			sellDict[type].SetValue(center.ResourceSellDict[type]);
+			sellDict[type].SetColor(Color.green);
+			activeSellResources.Add(sellDict[type]);
+		}
+	}
 }

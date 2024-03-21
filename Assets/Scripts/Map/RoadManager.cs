@@ -21,7 +21,7 @@ public class RoadManager : MonoBehaviour
     [SerializeField]
     private WorkerTaskManager workerTaskManager;
 
-    private bool hideRoads;
+    //private bool hideRoads;
 
     public int roadMovementCost = 1, roadBuildingTime = 5, roadRemovingTime = 1;
     //[HideInInspector]
@@ -78,7 +78,7 @@ public class RoadManager : MonoBehaviour
         if (highlight)
             road.SelectionHighlight.EnableHighlight(Color.white);
 
-        if (hideRoads)
+        if (!world.GetTerrainDataAt(roadPosition).isDiscovered)
         {
             roadGO.SetActive(false);
         }
@@ -147,7 +147,7 @@ public class RoadManager : MonoBehaviour
         bool river = td.straightRiver;
         bool hill = td.isHill;
 
-        hideRoads = !td.isDiscovered;
+        //hideRoads = !td.isDiscovered;
 
         if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
             td.SwitchToRoad();
@@ -401,62 +401,6 @@ public class RoadManager : MonoBehaviour
 
         CreateRoad(road, roadPosition, Quaternion.Euler(0, 0, 0), straight, highlight, level);
     }
-
-    //public IEnumerator RemoveRoad(Vector3Int tile, Worker worker)
-    //{
-    //    worker.ShowProgressTimeBar(roadRemovingTime);
-    //    worker.SetWorkAnimation(true);
-    //    worker.SetTime(timePassed);
-
-    //    while (timePassed > 0)
-    //    {
-    //        yield return oneSecondWait;
-    //        timePassed--;
-    //        worker.SetTime(timePassed);
-    //    }
-
-    //    worker.taskCo = null;
-    //    //worker.PlaySplash(tile, isHill);
-    //    worker.HideProgressTimeBar();
-    //    worker.SetWorkAnimation(false);
-    //    //worker.isBusy = false;
-    //    //workerTaskManager.TurnOffCancelTask();
-    //    RemoveRoadAtPosition(tile);
-    //    world.RemoveWorkerWorkLocation(tile);
-
-    //    foreach (Vector3Int loc in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYINCREMENT))
-    //    {
-    //        if (world.IsTradeCenterOnTile(loc)/* || world.IsCityOnTile(loc)*/)
-    //        {
-    //            int i = 0;
-
-    //            foreach (Vector3Int pos in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAYINCREMENT))
-    //            {
-    //                if (world.IsRoadOnTerrain(pos))
-    //                {
-    //                    i++;
-    //                    break;
-    //                }
-    //            }
-
-    //            if (i == 0)
-    //                RemoveRoadAtPosition(loc);
-    //        }
-    //    }
-
-    //    if (worker.MoreOrdersToFollow())
-    //    {
-    //        worker.RoadHighlightCheck();
-    //        worker.BeginRoadRemoval();
-    //    }
-    //    else
-    //    {
-    //        world.mainPlayer.isBusy = false;
-    //        worker.removing = false;
-    //        if (world.mainPlayer.isSelected)
-    //            workerTaskManager.TurnOffCancelTask();
-    //    }
-    //}
 
     public void RemoveRoadAtPosition(Vector3Int tile)
     {

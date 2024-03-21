@@ -25,9 +25,6 @@ public class UIResourceGivingPanel : MonoBehaviour
 	private GameObject confirmButton;
 
 	[SerializeField]
-	private ParticleSystem posGiftResponse, negGiftResponse;
-
-	[SerializeField]
 	private UnityEvent<ResourceType> OnIconButtonClick;
 
 	[SerializeField] //for tweening
@@ -141,13 +138,6 @@ public class UIResourceGivingPanel : MonoBehaviour
 
 		ToggleVisibility(false, true, true);
 		bool doneGood = npc.GiftCheck(gift);
-
-		Quaternion rotation = Quaternion.Euler(new Vector3(-90, 0, 0));
-		Vector3 pos = npc.transform.position;
-		pos.y += 0.2f;
-		if (doneGood)
-			Instantiate(posGiftResponse, pos, rotation);
-		else
-			Instantiate(negGiftResponse, pos, rotation);
+		world.PlayGiftResponse(npc.transform.position, doneGood);
 	}
 }
