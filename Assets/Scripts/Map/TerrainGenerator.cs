@@ -2576,6 +2576,15 @@ public class TerrainGenerator : MonoBehaviour
 			}
 		}
 
+        //generating terrain info for enemy cities
+        for (int i = 0; i < enemyCityLocs.Count; i++)
+        {
+			terrainDict[enemyCityLocs[i]].enemyCamp = true;
+
+            for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
+    			terrainDict[ProceduralGeneration.neighborsEightDirections[j] + enemyCityLocs[i]].enemyZone = true;
+		}
+
 		return (foodLocs, waterLocs, resourceLocs);
 	}
 

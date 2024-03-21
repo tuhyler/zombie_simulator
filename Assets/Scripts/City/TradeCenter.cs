@@ -132,21 +132,22 @@ public class TradeCenter : MonoBehaviour
         rep.name = tradeCenterRep.unitDisplayName;
         tcRep = rep.GetComponent<NPC>();
         tcRep.SetReferences(world, true);
+        tcRep.SetTradeCenter(this);
 
         if (!isDiscovered)
             tcRep.gameObject.SetActive(false);
 
-        world.AddUnitPosition(instantiateLoc, tcRep);
+        Vector3 actualPosition = rep.transform.position;
+        world.AddUnitPosition(actualPosition, tcRep);
 
-        tcRep.rapportScore = -7;
         CheckRapport();
     }
 
     public void CheckRapport()
     {
-        if (tcRep.rapportScore > 5)
+        if (tcRep.rapportScore > 2)
             multiple = 1 - tcRep.happyDiscount * 0.01f;
-        else if (tcRep.rapportScore < -5)
+        else if (tcRep.rapportScore < -2)
             multiple = 1 + tcRep.angryIncrease * 0.01f;
         else
             multiple = 1;

@@ -366,6 +366,7 @@ public class TradeRouteManager : MonoBehaviour
                     if (tradeCenter)
                     {
                         int buyAmount = -resourceAmountAdjusted * cost;
+                        tradeCenter.tcRep.IncreasePurchasedAmount(buyAmount);
                         tradeCenter.world.UpdateWorldResources(ResourceType.Gold, buyAmount);
                         InfoResourcePopUpHandler.CreateResourceStat(transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
                     }

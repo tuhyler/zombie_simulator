@@ -1126,9 +1126,6 @@ public class Military : Unit
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
 
 		data.moreToMove = moreToMove;
-		data.somethingToSay = somethingToSay;
-		if (somethingToSay)
-			data.conversationTopics = new(conversationHaver.conversationTopics);
 		data.isUpgrading = isUpgrading;
 		data.looking = looking;
 
@@ -1189,13 +1186,6 @@ public class Military : Unit
 		somethingToSay = data.somethingToSay;
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
-
-		if (somethingToSay)
-		{
-			conversationHaver.conversationTopics = new(data.conversationTopics);
-			data.conversationTopics.Clear();
-			conversationHaver.SetSomethingToSay(conversationHaver.conversationTopics[0]);
-		}
 
 		if (!isMoving)
 			world.AddUnitPosition(currentLocation, this);

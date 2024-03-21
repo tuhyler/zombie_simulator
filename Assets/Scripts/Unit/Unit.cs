@@ -368,7 +368,7 @@ public class Unit : MonoBehaviour
                     FinishMoving(transform.position);
 				    yield break;
                 }
-                else if (unitInTheWay.buildDataSO.tcRep)
+                else if (unitInTheWay.buildDataSO.tcRep && unitInTheWay.GetComponent<NPC>().onQuest)
                 {
 					if (isSelected)
                     {
@@ -930,7 +930,7 @@ public class Unit : MonoBehaviour
 		}
         else if (!bySea)
         {
-            Vector3Int loc = world.RoundToInt(collision.gameObject.transform.position);
+            Vector3Int loc = world.GetClosestTerrainLoc(collision.gameObject.transform.position);
             TerrainData td = world.GetTerrainDataAt(loc);
 
             if (td.treeHandler != null || world.IsCityOnTile(loc) || world.IsTradeCenterOnTile(loc))

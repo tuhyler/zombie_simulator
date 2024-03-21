@@ -8,7 +8,7 @@ public class Conversations : MonoBehaviour
     public static Conversations Instance { get; private set; }
     public Dictionary<string, List<ConversationItem>> conversationDict = new();
 
-    public Sprite koaHappy, koaQuestion, koaSurprised, koaSerious, koaConfused, koaAngry, koaSad, koaAnnoyed, koaGuilty, azaiSerious, scottHappy, scottMad, scottSad;
+    public Sprite koaHappy, koaQuestion, koaSurprised, koaSerious, koaConfused, koaAngry, koaSad, koaAnnoyed, koaGuilty, azaiSerious, scottHappy, scottMad, scottSad, haniyaHappy;
 
 	private void Awake()
 	{
@@ -16,6 +16,7 @@ public class Conversations : MonoBehaviour
 
 		//doing this here instead of in inspector so I can search text more easily
 
+		//Koa & co.
 		#region just_landed
 		conversationDict["just_landed"] = new();
 
@@ -680,6 +681,34 @@ public class Conversations : MonoBehaviour
 			speakerText = "My duty, first and foremost, is to ensure your protection from any enemies out there. Without your presence, this will all go to waste. For this reason, I stay by your side."
 		};
 		conversationDict["first_ambush"].Add(first_ambush3);
+		#endregion
+
+		//Haniya
+		#region intro
+		conversationDict["haniya_intro"] = new();
+
+		ConversationItem haniya_intro = new()
+		{
+			speakerImage = haniyaHappy,
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "My name is Haniya"
+		};
+		conversationDict["haniya_intro"].Add(haniya_intro);
+
+		#endregion
+		#region quest1
+		conversationDict["haniya_quest1"] = new();
+
+		ConversationItem haniya_quest1 = new()
+		{
+			speakerImage = haniyaHappy,
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Could you do this for me"
+		};
+		conversationDict["haniya_quest1"].Add(haniya_quest1);
+
 		#endregion
 	}
 }

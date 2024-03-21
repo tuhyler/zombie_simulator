@@ -109,7 +109,7 @@ public class MapWorld : MonoBehaviour
     public UnitBuildDataSO laborerData;
 
     [SerializeField]
-    private ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash, resourceSplash;
+    private ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash, resourceSplash, posGiftResponse, negGiftResponse;
 
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
@@ -681,7 +681,6 @@ public class MapWorld : MonoBehaviour
 			icon.transform.position = position;
 			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
 			enemyCampDict[loc].minimapIcon = icon;
-			LoadEnemyBorders(loc);
 		}
 
 		GameLoader.Instance.gameData.allTradeCenters.Clear();
@@ -789,21 +788,26 @@ public class MapWorld : MonoBehaviour
 		//enemyRoadLocs.Add(new Vector3Int(9, 0, 12));
         //enemyRoadLocs.Add(new Vector3Int(12, 0, 12); //make sure enemy road tiles can't be connected to with another road
 
-        //adding city locs to road locs to build roads there (building roads first to build cities on top
-        enemyRoadLocs.AddRange(enemyCityLocs);
-        BuildEnemyRoads(enemyRoadLocs, 1);
-		
         for (int i = 0; i < enemyCityLocs.Count; i++)
         {
             System.Random random = new();
             BuildEnemyCity(enemyCityLocs[i], GetTerrainDataAt(enemyCityLocs[i]), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, random);
         }
+        //adding city locs to road locs to build roads there (building roads first to build cities on top
+        enemyRoadLocs.AddRange(enemyCityLocs);
+        BuildEnemyRoads(enemyRoadLocs, 1);
 
-        //temporary for enemy cities
-        //above is temporary for enemy cities
-    }
+        for (int i = 0; i < enemyCityLocs.Count; i++)
+            LoadEnemyBorders(enemyCityLocs[i]);
 
-    private IEnumerator StartingAmbience()
+        foreach (Vector3Int tile in enemyCampDict.Keys)
+            LoadEnemyBorders(tile);
+
+		//temporary for enemy cities
+		//above is temporary for enemy cities
+	}
+
+	private IEnumerator StartingAmbience()
     {
         yield return new WaitForSeconds(0.5f);
 
@@ -1126,6 +1130,7 @@ public class MapWorld : MonoBehaviour
         foreach (Vector3Int tile in data.Keys)
         {
 			BuildEnemyCity(tile, GetTerrainDataAt(tile), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, data[tile].era, true);
+            roadManager.BuildRoadAtPosition(tile, 1);
 		}
 
 		//BuildEnemyRoads(enemyRoadLocs);
@@ -1488,7 +1493,7 @@ public class MapWorld : MonoBehaviour
 		for (int i = 0; i < improvementList.Count; i++)
             CreateImprovement(city, improvementList[i], true);
 
-        LoadEnemyBorders(cityTile);
+        //LoadEnemyBorders(cityTile);
 
         if (load)
         {
@@ -2218,10 +2223,10 @@ public class MapWorld : MonoBehaviour
 			enemyCampDict[loc].minimapIcon = icon;
         }
 
-        for (int i = 0; i < enemyCampPos.Count; i++)
-        {
-            LoadEnemyBorders(enemyCampPos[i]);
-        }
+        //for (int i = 0; i < enemyCampPos.Count; i++)
+        //{
+        //    LoadEnemyBorders(enemyCampPos[i]);
+        //}
 	}
 
     public void MakeEnemyAmbushes(Dictionary<Vector3Int, EnemyAmbushData> ambushLocs, Dictionary<string, Trader> ambushedTraders)
@@ -2478,7 +2483,7 @@ public class MapWorld : MonoBehaviour
         mapHandler.ResetResourceLocDict();
 	}
 
-	private void LoadEnemyBorders(Vector3Int enemyLoc)
+	public void LoadEnemyBorders(Vector3Int enemyLoc)
 	{
 		for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
 		{
@@ -2572,6 +2577,8 @@ public class MapWorld : MonoBehaviour
         resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
 
+        for (int i = 0; i < roadLocsList.Count; i++)
+            Debug.Log(roadLocsList[i]);
   //      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
   //      List<int> newNum = new();
@@ -5438,13 +5445,13 @@ public class MapWorld : MonoBehaviour
 					//borderPosition.y = -0.1f;
 					Quaternion rotation = Quaternion.identity;
 
-					if (borderPosition.x != 0)
+					if (borderLocation.x != 0)
 					{
                         borderPosition.x += 0.5f * borderLocation.x;// (borderPosition.x / 3 * 0.99f);
 						rotation = Quaternion.Euler(0, 90, 0); //only need to rotate on this one
 						borderPosition.x -= borderLocation.x > 0 ? -.01f : .01f;
 					}
-					else if (borderPosition.z != 0)
+					else if (borderLocation.z != 0)
 					{
                         borderPosition.z += 0.5f * borderLocation.z;// (borderPosition.z / 3 * 0.99f);
 						borderPosition.z -= borderLocation.z > 0 ? -.01f : .01f;
@@ -5637,6 +5644,17 @@ public class MapWorld : MonoBehaviour
     {
         Instantiate(resourceSplash, loc, Quaternion.Euler(-90, UnityEngine.Random.Range(0,360), 0));
     }
+
+    public void PlayGiftResponse(Vector3 pos, bool doneGood)
+    {
+		Quaternion rotation = Quaternion.Euler(new Vector3(-90, 0, 0));
+		pos.y += 0.2f;
+
+		if (doneGood)
+			Instantiate(posGiftResponse, pos, rotation);
+		else
+			Instantiate(negGiftResponse, pos, rotation);
+	}
 
 	public void ClearCityEnemyDead(Vector3Int loc)
     {
@@ -6488,19 +6506,34 @@ public class MapWorld : MonoBehaviour
             {
 				Vector3Int neighbor = neighborsFourDirectionsIncrement[i] + position;
                 
-                if (roadTileDict.ContainsKey(neighbor) && GetTerrainDataAt(neighbor).isLand)
+                if (GetTerrainDataAt(neighbor).isLand)
                 {
-					int[] neighborRoads = { 0, 0, 0, 0 };
+                    straightRoads[i] = 1;
 
-					for (int j = 0; j < neighborsFourDirectionsIncrement.Count; j++)
-					{
-						if (roadTileDict.ContainsKey(neighbor + neighborsFourDirectionsIncrement[j]))
-							neighborRoads[j] = 1;
-					}
+                    if (roadTileDict.ContainsKey(neighbor))
+                    {
+					    int[] neighborRoads = { 0, 0, 0, 0 };
 
-					neighbors.Add((neighbor, true, neighborRoads));
-                    straightRoads[i / 2] = 1;
+					    for (int j = 0; j < neighborsFourDirectionsIncrement.Count; j++)
+					    {
+						    if (roadTileDict.ContainsKey(neighbor + neighborsFourDirectionsIncrement[j]))
+							    neighborRoads[j] = 1;
+					    }
+
+					    neighbors.Add((neighbor, true, neighborRoads));
+                    }
                 }
+			}
+
+            if (straightRoads[0] + straightRoads[2] == 2)
+            {
+                straightRoads[1] = 0;
+                straightRoads[3] = 0;
+            }
+            else
+            {
+				straightRoads[0] = 0;
+				straightRoads[2] = 0;
 			}
 
             return (neighbors, straightRoads, diagRoads);
