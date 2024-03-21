@@ -94,12 +94,6 @@ public class WorkerTaskManager : MonoBehaviour
         unitMovement.GoStraightToSelectedLocation(workerTile, workerTile, world.mainPlayer);
     }
 
-    public void SetWorkerUnit()
-    {
-        if (world.mainPlayer.isBusy && !world.mainPlayer.runningAway)
-            world.unitMovement.uiCancelTask.ToggleVisibility(true);
-    }
-
 	public void BuildCityButton()
     {
         if (!world.mainPlayer.isBusy)

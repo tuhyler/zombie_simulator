@@ -32,13 +32,20 @@ public class MovementSystem : MonoBehaviour
             {
                 if (selectedUnit.isPlayer)
                 {
-                    if (world.scottFollow && world.scott.isMoving)
+                    if (world.scottFollow)
                     {
-                        Vector3Int scottPrevSpot = world.RoundToInt(world.scott.finalDestinationLoc);
-                        List<Vector3Int> nextPath = SetFollowerPaths(currentPath, prevFinalSpot, world.scott);
+                        if (world.scott.isMoving)
+                        {
+                            Vector3Int scottPrevSpot = world.RoundToInt(world.scott.finalDestinationLoc);
+                            List<Vector3Int> nextPath = SetFollowerPaths(currentPath, prevFinalSpot, world.scott);
 
-                        if (world.azaiFollow)
-                            SetFollowerPaths(nextPath, scottPrevSpot, world.azai);
+                            if (world.azaiFollow)
+                                SetFollowerPaths(nextPath, scottPrevSpot, world.azai);
+                        }
+                        else
+                        {
+                            selectedUnit.firstStep = true;
+                        }
                     }
                 }
                 else if (selectedUnit.trader)

@@ -450,23 +450,6 @@ public class Unit : MonoBehaviour
 			if (pos != prevTerrainTile)
             {
 				RevealCheck(pos, false);
-
-                //to chase main player if gets too close
-    //            if (!world.azaiFollow && !runningAway && CampAggroCheck(pos))
-    //            {
-    //                if (isBusy)
-    //                    world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
-
-    //                if (!world.mapHandler.activeStatus && Camera.main.WorldToViewportPoint(transform.position).z >= 0)
-    //                    world.cityBuilderManager.PlayWarningAudio();
-
-				//	isBusy = true;
-    //                world.AddUnitPosition(transform.position, this);
-				//	worker.StopPlayer();
-				//	currentLocation = world.RoundToInt(transform.position);
-
-				//	yield return null;
-				//}
             }
 
 			if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
@@ -475,19 +458,6 @@ public class Unit : MonoBehaviour
                 worker.CheckToFollow(endPositionInt);
 			}
 		}
-
-  //      if (firstStep && world.scott == this)
-  //      {
-  //          firstStep = false;
-
-  //          if (world.azaiFollow)
-  //          {
-  //              if (!world.mainPlayer.isBusy)
-  //                  world.azai.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-  //              else if (world.mainPlayer.runningAway)
-  //                  world.azai.CreateFollowerPath(pathPositions, prevTile, world.RoundToInt(endPosition), world.RoundToInt(finalDestinationLoc));
-  //          }
-		//}
 
 		//making sure army is all in line
 		if (military)

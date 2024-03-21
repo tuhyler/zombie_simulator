@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Timeline;
 using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.UI.CanvasScaler;
@@ -425,6 +426,18 @@ public class Army : MonoBehaviour
     public bool DeployArmyCheck(Vector3Int current, Vector3Int target, Vector3Int finalTarget)
     {
 		//List<Vector3Int> exemptList = new() { target };
+
+        if (world.IsEnemyCityOnTile(finalTarget))
+        {
+            Vector3Int barracksLoc = world.GetEnemyCity(finalTarget).barracksLocation;
+
+            int barracksDist = Mathf.Abs(barracksLoc.x - target.x) + Mathf.Abs(barracksLoc.z - target.z);
+            int cityDist = Mathf.Abs(finalTarget.x - target.x) + Mathf.Abs(finalTarget.z - target.z);
+
+            if (barracksDist < cityDist)
+                finalTarget = barracksLoc;
+        }
+
         enemyTarget = finalTarget;
         seaTravel = false;
 
@@ -523,7 +536,12 @@ public class Army : MonoBehaviour
 				InfoPopUpHandler.WarningMessage().Create(target, "Cannot reach own harbor");
 
 			world.GetTerrainDataAt(target).DisableHighlight();
-			world.GetTerrainDataAt(target).EnableHighlight(Color.red);
+			world.GetTerrainDataAt(target).EnableHighlight(Color.green);
+            if (world.CheckIfTileIsImproved(target))
+            {
+                world.GetCityDevelopment(target).DisableHighlight();
+                world.GetCityDevelopment(target).EnableHighlight(Color.green);
+            }
 
 			return false;
         }
@@ -584,7 +602,13 @@ public class Army : MonoBehaviour
         {
             ShowBattlePath();
             enemyTarget = pathToTarget[pathToTarget.Count - 1];
-            world.unitMovement.SetMovingAttackBonusText(pathToTarget[pathToTarget.Count - 2], enemyTarget);
+            Vector3Int potentialAttackZone;
+            if (pathToTarget.Count > 1)
+				potentialAttackZone = pathToTarget[pathToTarget.Count - 2];
+            else
+				potentialAttackZone = loc;
+
+			world.unitMovement.SetMovingAttackBonusText(potentialAttackZone, enemyTarget);
             return true;
 		}
 	}
@@ -598,8 +622,14 @@ public class Army : MonoBehaviour
 	
         atHome = false;
 		traveling = true;
-		Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
-		attackZone = penultimate;
+
+        Vector3Int penultimate;
+        if (pathToTarget.Count > 0)
+            penultimate = pathToTarget[pathToTarget.Count - 1];
+        else
+            penultimate = loc;
+
+        attackZone = penultimate;
 		forward = (enemyTarget - attackZone) / 3;
 
 		if (returning)
@@ -750,12 +780,25 @@ public class Army : MonoBehaviour
             }
             else
             {
+                if (pathToTarget.Count < 3)
+                {
+					if (world.IsEnemyCityOnTile(targetCamp.cityLoc))
+					{
+						if (!world.GetEnemyCity(targetCamp.cityLoc).enemyCamp.movingOut)
+							world.EnemyBattleStations(targetCamp.cityLoc, attackZone, true);
+					}
+					else
+					{
+						world.EnemyBattleStations(enemyTarget, attackZone, false);
+					}
+				}
+
                 DeployArmy(true);
             }
         }
     }
 
-    public void UnitArrived(Vector3Int loc)
+    public void UnitArrived(Vector3Int loc, bool homeBattle = false)
     {
         unitsReady++;
 
@@ -764,7 +807,7 @@ public class Army : MonoBehaviour
             unitsReady = 0;
             stepCount = 0;
             
-            if (this.loc == loc)
+            if (!homeBattle && this.loc == loc)
             {
                 if (openSpots.Count == 0)
                     isFull = true;
@@ -869,9 +912,14 @@ public class Army : MonoBehaviour
                 if (close)
                 {
                     if (world.IsEnemyCityOnTile(targetCamp.cityLoc))
-                        world.EnemyBattleStations(targetCamp.cityLoc, attackZone);
+                    {
+                        if (!world.GetEnemyCity(targetCamp.cityLoc).enemyCamp.movingOut)
+                            world.EnemyBattleStations(targetCamp.cityLoc, attackZone, true);
+                    }
                     else
-                        world.EnemyBattleStations(enemyTarget, attackZone);
+                    {
+                        world.EnemyBattleStations(enemyTarget, attackZone, false);
+                    }
                 }
 
 				pathTraveled.Add(stepFinished);
@@ -913,8 +961,29 @@ public class Army : MonoBehaviour
 			}
 
             unit.isMarching = true;
-			unit.finalDestinationLoc = path[path.Count - 1];
-			unit.MoveThroughPath(path);
+
+            if (path.Count > 0)
+            {
+                unit.finalDestinationLoc = path[path.Count - 1];
+                unit.MoveThroughPath(path);
+            }
+            else
+            {
+				world.AddUnitPosition(unit.currentLocation, unit);
+				unit.isMarching = false;
+
+				Vector3Int endTerrain = world.GetClosestTerrainLoc(unit.currentLocation);
+				UnitArrived(endTerrain, true);
+
+				//turning to face enemy
+				Vector3Int diff = endTerrain - enemyTarget;
+				if (Math.Abs(diff.x) == 3)
+					diff.z = 0;
+				else if (Math.Abs(diff.z) == 3)
+					diff.x = 0;
+
+				unit.Rotate(unit.currentLocation - diff);
+			}
 		}
 	}
 
@@ -978,6 +1047,10 @@ public class Army : MonoBehaviour
         foreach (Military unit in unitsInArmy)
         {
             unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
+            
+            if (world.CheckIfTileIsImproved(world.GetClosestTerrainLoc(unit.currentLocation)))
+                unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(world.GetClosestTerrainLoc(unit.currentLocation)).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
+
 			if (unit.isSelected)
 				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);
 

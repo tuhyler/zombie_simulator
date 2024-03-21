@@ -57,4 +57,5 @@ MonoBehaviour:
   availableInitially: 1
   hideIdleMesh: 0
   getTerrainResource: 0
+  attackBonus: 10
   noWalkAreas: []

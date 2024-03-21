@@ -25,6 +25,7 @@ public class UnitBuildDataSO : ScriptableObject
     public float movementSpeed = 1f;
     public int trainTime = 0;
     public int cargoCapacity;
+    public Vector2Int goldDropRange = Vector2Int.zero;
     public TransportationType transportationType = TransportationType.Land;
     public bool characterUnit;
     public bool tcRep;

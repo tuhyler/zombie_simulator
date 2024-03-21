@@ -444,7 +444,7 @@ public class GridSearch
 	}
 
 	//for finding best terrain to attack from for army
-	public static List<Vector3Int> TerrainSearchCoda(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList, bool bySea)
+	public static List<Vector3Int> TerrainSearchEnemyCoda(MapWorld world, Vector3Int startTerrain, Vector3Int endTerrain, List<Vector3Int> avoidList, bool bySea)
 	{
 		List<Vector3Int> path = new();
 
@@ -478,8 +478,11 @@ public class GridSearch
 
 				Vector3Int neighbor = tile + current;
 
-				if (neighbor != endTerrain && avoidList.Contains(neighbor))
-					continue;
+				if (neighbor != endTerrain)
+				{
+					if (avoidList.Contains(neighbor) || world.militaryStationLocs.Contains(neighbor))
+						continue;
+				} 
 
 				if (world.CheckForFinalMarch(neighbor)) //If it's an obstacle, ignore
 					continue;
@@ -868,6 +871,7 @@ public class GridSearch
 		priorityDictionary.Add(startTerrain, 0);
 		parentsDictionary.Add(startTerrain, null);
 		int stepCount = 0;
+		bool cantReachInTime = false;
 
 		while (enemyPath.Count > 3) //limit until city starts to defend
 		{
@@ -905,6 +909,7 @@ public class GridSearch
 						priorityDictionary.Add(startTerrain, 0);
 						parentsDictionary.Clear();
 						parentsDictionary.Add(startTerrain, null);
+						cantReachInTime = true;
 						break;
 					}
 
@@ -950,6 +955,11 @@ public class GridSearch
 				}
 			}
 		}
+
+		if (cantReachInTime)
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't reach target in time");
+		else
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't reach target");
 
 		return path;
 	}

@@ -210,6 +210,12 @@ public class Worker : Unit
         }
     }
 
+	public void PlayRingAudio()
+	{
+		audioSource.clip = world.cityBuilderManager.ringClip;
+		audioSource.Play();
+	}
+
     public override void SendResourceToCity()
     {
         //isBusy = false;
@@ -422,9 +428,9 @@ public class Worker : Unit
 
 	private void BuildRoad()
     {
-        //unitAnimator.SetBool(isWorkingHash, true);
-
-        Vector3Int workerTile = orderQueue.Peek();
+		//unitAnimator.SetBool(isWorkingHash, true);
+		Vector3Int workerTile = orderQueue.Peek();
+		world.CheckTileForTreasure(workerTile);
         //orderList.Remove(workerTile);
 
         FinishedMoving.RemoveListener(BuildRoad);
@@ -1624,9 +1630,12 @@ public class Worker : Unit
 		if (world.tutorialGoing)
 			world.TutorialCheck("Finished Movement");
 
+		Vector3Int endPositionInt = world.RoundToInt(endPosition);
+
+		world.IsTreasureHere(endPositionInt, true);
+
 		if (toTransport)
 		{
-			Vector3Int endPositionInt = world.RoundToInt(endPosition);
 			world.scott.transportTarget = transportTarget;
 			world.azai.transportTarget = transportTarget;
 			LoadWorkerInTransport(transportTarget);

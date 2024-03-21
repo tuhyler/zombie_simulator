@@ -230,7 +230,7 @@ public class Transport : Unit
 			if (data.moveOrders.Count == 0)
 				data.moveOrders.Add(endPosition);
 
-			TurnOnRipples();
+			ripples.SetActive(true);
 			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
 			//MoveThroughPath(data.moveOrders);
 		}

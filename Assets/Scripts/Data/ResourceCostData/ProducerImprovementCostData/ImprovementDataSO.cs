@@ -49,5 +49,6 @@ public class ImprovementDataSO : ScriptableObject
     public bool availableInitially = false;
     public bool hideIdleMesh = false;
     public bool getTerrainResource = false; //for mines and quarries to provide resource where they're placed
+    public int attackBonus = 0;
     public List<Vector3Int> noWalkAreas;
 }
