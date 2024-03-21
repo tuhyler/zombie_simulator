@@ -14,7 +14,7 @@ public class EnemyCamp
 {
 	public MapWorld world;
 	
-	public Vector3Int loc, forward, moveToLoc;
+	public Vector3Int loc, forward, moveToLoc, actualAttackLoc;
 	public Vector3Int armyDiff, fieldBattleLoc, lastSpot;
 
 	public GameObject campfire;
@@ -213,6 +213,7 @@ public class EnemyCamp
 		campData.countDownTimer = world.GetEnemyCity(cityLoc).countDownTimer;
 		campData.atSea = atSea;
 		campData.seaTravel = seaTravel;
+		campData.actualAttackLoc = actualAttackLoc;
 
 		return campData;
 	}
@@ -406,6 +407,10 @@ public class EnemyCamp
 		foreach (Military unit in unitsInCamp)
 		{
 			unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
+
+			if (world.CheckIfTileIsImproved(world.GetClosestTerrainLoc(unit.currentLocation)))
+				unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(world.GetClosestTerrainLoc(unit.currentLocation)).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
+
 			if (unit.isSelected)
 				world.unitMovement.infoManager.UpdateStrengthBonus(unit.strengthBonus);
 
@@ -588,7 +593,12 @@ public class EnemyCamp
 		if (deathCount == campCount)
 		{
 			if (!movingOut)
-				world.RemoveEnemyCamp(attackingArmy.enemyTarget, isCity);
+			{
+				if (isCity && !world.IsEnemyCityOnTile(attackingArmy.enemyTarget)) //in case barracks is attacked instead
+					world.RemoveEnemyCamp(cityLoc, isCity);
+				else
+					world.RemoveEnemyCamp(attackingArmy.enemyTarget, isCity);
+			}
 		}
 	}
 
@@ -747,7 +757,7 @@ public class EnemyCamp
 	private void MoveOutCamp()
 	{
 		if (world.IsCityOnTile(moveToLoc) && pathToTarget.Count < 3)
-			world.CityBattleStations(moveToLoc, threatLoc, this);
+			world.CityBattleStations(moveToLoc, actualAttackLoc, threatLoc, this);
 
 		foreach (Military unit in unitsInCamp)
 		{
@@ -864,13 +874,36 @@ public class EnemyCamp
 	{
 		returning = false;
 		
-		for (int i = 0; i < unitsInCamp.Count; i++)
+		if (actualAttackLoc != moveToLoc)
 		{
-			unitsInCamp[i].isMarching = false;
-			Vector3Int cityLoc = unitsInCamp[i].marchPosition + moveToLoc;
-			unitsInCamp[i].finalDestinationLoc = cityLoc;
-			List<Vector3Int> path = new() { cityLoc };
-			unitsInCamp[i].MoveThroughPath(path);
+			List<Vector3Int> restOfPath = GridSearch.MoveWherever(world, pathToTarget[pathToTarget.Count - 1], moveToLoc);
+			pathToTarget.AddRange(restOfPath);
+
+			for (int i = 0; i < unitsInCamp.Count; i++)
+			{
+				unitsInCamp[i].isMarching = false;
+				List<Vector3Int> path = new();
+
+				foreach (Vector3Int tile in restOfPath)
+					path.Add(tile + unitsInCamp[i].marchPosition);
+
+				if (path.Count > 0)
+				{
+					unitsInCamp[i].finalDestinationLoc = path[path.Count - 1];
+					unitsInCamp[i].MoveThroughPath(path);
+				}
+			}
+		}
+		else
+		{
+			for (int i = 0; i < unitsInCamp.Count; i++)
+			{
+				unitsInCamp[i].isMarching = false;
+				Vector3Int cityLoc = unitsInCamp[i].marchPosition + moveToLoc;
+				unitsInCamp[i].finalDestinationLoc = cityLoc;
+				List<Vector3Int> path = new() { cityLoc };
+				unitsInCamp[i].MoveThroughPath(path);
+			}
 		}
 	}
 
@@ -982,7 +1015,7 @@ public class EnemyCamp
 			lastSpot = world.GetClosestTerrainLoc(endPositionInt);
 
 			if (close && !attackingArmy.defending)
-				world.CityBattleStations(moveToLoc, threatLoc, this);
+				world.CityBattleStations(moveToLoc, actualAttackLoc, threatLoc, this);
 
 			world.CheckMainPlayerLoc(lastSpot, pathToTarget);
 
@@ -1047,8 +1080,6 @@ public class EnemyCamp
 
 	public bool MoveOut(City targetCity)
 	{
-		fieldBattleLoc = cityLoc;
-		attackingArmy = targetCity.army;
 		moveToLoc = targetCity.cityLoc;
 		seaTravel = false;
 
@@ -1101,14 +1132,22 @@ public class EnemyCamp
 
 		if (pathToTarget.Count > 0)
 		{
+			//finding best spot to attack from
+			pathToTarget = FindOptimalAttackZone(pathToTarget, moveToLoc, seaTravel, false);
+
+			if (pathToTarget.Count == 0)
+				return false;
+
+			fieldBattleLoc = cityLoc;
+			attackingArmy = targetCity.army;
 			enemyReady = 0;
 			pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
 			movingOut = true;
 			Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
 			threatLoc = penultimate;
 
-			forward = (moveToLoc - threatLoc) / 3;
-			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == this)
+			forward = (actualAttackLoc - threatLoc) / 3;
+			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.army == attackingArmy)
 				world.unitMovement.CancelArmyDeployment();
 		
 			if (world.unitMovement.deployingArmy)
@@ -1117,9 +1156,6 @@ public class EnemyCamp
 					unitsInCamp[i].SoftSelect(Color.red);
 			}
 			
-			//finding best spot to attack from
-			pathToTarget = world.FindOptimalAttackZone(pathToTarget, moveToLoc, seaTravel);
-			pathToTarget.RemoveAt(pathToTarget.Count - 1); //remove final one
 			BattleStations(loc, forward);
 			return true;
 		}
@@ -1174,6 +1210,177 @@ public class EnemyCamp
 			if (!tempLocs.Contains(pos))
 				openSpots.Add(pos);
 		}
+	}
+
+	public List<Vector3Int> FindOptimalAttackZone(List<Vector3Int> currentPathBase, Vector3Int targetBase, bool bySea, bool justCity)
+	{
+		List<Vector3Int> currentPath = new(currentPathBase);
+		Vector3Int target = targetBase;
+		
+		Vector3Int newStart;
+		if (currentPath.Count < 4)
+		{
+			newStart = currentPath[0];
+			currentPath.Clear();
+		}
+		else
+		{
+			newStart = currentPath[currentPath.Count - 4];
+
+			//removing last 3
+			for (int i = 0; i < 3; i++)
+				currentPath.RemoveAt(currentPath.Count - 1);
+		}
+
+		//seeing if it would be closer to attack barracks than the city
+		if (world.GetCity(target).hasBarracks && !justCity)
+		{
+			Vector3Int barracksLoc = world.GetCity(target).barracksLocation;
+
+			int cityDiff = Math.Abs(newStart.x - target.x) + Math.Abs(newStart.z - target.z);
+			int barracksDiff = Math.Abs(newStart.x - barracksLoc.x) + Math.Abs(newStart.z - barracksLoc.z);
+
+			if (barracksDiff < cityDiff)
+			{
+				target = barracksLoc;
+
+				if (barracksDiff <= 6)
+				{
+					if (currentPath.Count == 0)
+					{
+						newStart = loc;
+						currentPath.Clear();
+					}
+					else
+					{
+						newStart = currentPath[currentPath.Count - 2];
+
+						//removing last 1
+						for (int i = 0; i < 1; i++)
+							currentPath.RemoveAt(currentPath.Count - 1);
+					}
+				}
+			}
+		}
+
+		Vector3Int diff = newStart - target;
+
+		int[] tilesToCheckArray = new int[4] { 1, 1, 1, 1 };
+		int absX = Math.Abs(diff.x);
+		int absZ = Math.Abs(diff.z);
+
+		if (absX > absZ)
+		{
+			if (diff.x > 0)
+				tilesToCheckArray[3] = 0;
+			else
+				tilesToCheckArray[1] = 0;
+		}
+		else if (absX < absZ)
+		{
+			if (diff.z > 0)
+				tilesToCheckArray[2] = 0;
+			else
+				tilesToCheckArray[0] = 0;
+		}
+		else
+		{
+			if (diff.z > 0 && diff.x > 0)
+			{
+				tilesToCheckArray[2] = 0;
+				tilesToCheckArray[3] = 0;
+			}
+			else if (diff.z < 0 && diff.x > 0)
+			{
+				tilesToCheckArray[0] = 0;
+				tilesToCheckArray[3] = 0;
+			}
+			else if (diff.z < 0 && diff.x < 0)
+			{
+				tilesToCheckArray[0] = 0;
+				tilesToCheckArray[1] = 0;
+			}
+			else
+			{
+				tilesToCheckArray[1] = 0;
+				tilesToCheckArray[2] = 0;
+			}
+		}
+
+		List<Vector3Int> fourWayTiles = world.GetNeighborsFor(target, MapWorld.State.FOURWAYINCREMENT);
+		List<Vector3Int> tilesToCheckLoc = new();
+		List<(int, int)> tilesData = new();
+		//List<int> tilesDist = new();
+		for (int i = 0; i < tilesToCheckArray.Length; i++)
+		{
+			//getting info first, then sorting
+			if (tilesToCheckArray[i] == 1)
+			{
+				TerrainData td = world.GetTerrainDataAt(fourWayTiles[i]);
+				if (td.isDiscovered)
+				{
+					tilesToCheckLoc.Add(fourWayTiles[i]);
+					tilesData.Add((td.terrainData.terrainAttackBonus, Math.Abs(fourWayTiles[i].x - newStart.x) + Math.Abs(fourWayTiles[i].z - newStart.z)));
+					//tilesDist.Add(Math.Abs(fourWayTiles[i].x - newStart.x) + Math.Abs(fourWayTiles[i].z - newStart.z)); 
+				}
+			}
+		}
+
+		//sorting by priority
+		int loopCount = tilesToCheckLoc.Count;
+		for (int i = 0; i < loopCount; i++)
+		{
+			for (int j = i + 1; j < loopCount; j++)
+			{
+				if (tilesData[j].Item1 > tilesData[i].Item1)
+				{
+					Vector3Int tile = tilesToCheckLoc[j];
+					(int, int) datum = tilesData[j];
+					tilesToCheckLoc.RemoveAt(j);
+					tilesData.RemoveAt(j);
+					tilesToCheckLoc.Insert(i, tile);
+					tilesData.Insert(i, datum);
+				}
+				else if (tilesData[j].Item1 == tilesData[i].Item1 && tilesData[j].Item2 < tilesData[i].Item2)
+				{
+					Vector3Int tile = tilesToCheckLoc[j];
+					(int, int) datum = tilesData[j];
+					tilesToCheckLoc.RemoveAt(j);
+					tilesData.RemoveAt(j);
+					tilesToCheckLoc.Insert(i, tile);
+					tilesData.Insert(i, datum);
+				}
+			}
+		}
+
+		bool seaStart = false;
+		if (bySea && !world.GetTerrainDataAt(newStart).isLand)
+			seaStart = true;
+
+		bool foundPath = false;
+		List<Vector3Int> avoidList = new(tilesToCheckLoc) { target };
+		for (int i = 0; i < tilesToCheckLoc.Count; i++)
+		{
+			List<Vector3Int> pathCoda = GridSearch.TerrainSearchEnemyCoda(world, newStart, tilesToCheckLoc[i], avoidList, seaStart);
+
+			if (pathCoda.Count > 0)
+			{
+				currentPath.AddRange(pathCoda);
+				currentPath.Add(target);
+				foundPath = true;
+				break;
+			}
+		}
+
+		if (!foundPath)
+		{
+			List<Vector3Int> lastPath = FindOptimalAttackZone(currentPathBase, targetBase, bySea, true);
+			currentPath.AddRange(lastPath);
+			currentPath.Add(target);
+		}
+
+		actualAttackLoc = target;
+		return currentPath;
 	}
 
 	public Vector3Int GetAvailablePosition(UnitType type)

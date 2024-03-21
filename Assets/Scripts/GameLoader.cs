@@ -652,6 +652,11 @@ public class GameLoader : MonoBehaviour
 		}
 		improvementUnitUpgradeDict.Clear();
 
+		foreach (Vector3Int tile in gameData.treasureLocs.Keys)
+		{
+			world.LoadTreasureChest(tile, gameData.treasureLocs[tile].Item1, gameData.treasureLocs[tile].Item2);
+		}
+
 		//loading conversation task list
 		foreach (string task in gameData.conversationTaskDict.Keys)
 		{

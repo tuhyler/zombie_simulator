@@ -2465,7 +2465,8 @@ public class CityBuilderManager : MonoBehaviour
     private void BuildImprovement(ImprovementDataSO improvementData, Vector3Int tempBuildLocation, City city, bool upgradingImprovement)
     {
         uiQueueManager.CheckIfBuiltItemIsQueued(tempBuildLocation, tempBuildLocation - city.cityLoc, upgradingImprovement, improvementData, city);
-            //RemoveQueueGhostImprovement(tempBuildLocation, city);
+        //RemoveQueueGhostImprovement(tempBuildLocation, city);
+        world.CheckTileForTreasure(tempBuildLocation);
 
         if (!upgradingImprovement && !world.IsTileOpenCheck(tempBuildLocation))
         {
@@ -2786,6 +2787,7 @@ public class CityBuilderManager : MonoBehaviour
         }
         else if (improvementData.improvementName == "Barracks")
         {
+            world.militaryStationLocs.Add(tempBuildLocation);
             city.hasBarracks = true;
             city.barracksLocation = tempBuildLocation;
 
@@ -3128,7 +3130,8 @@ public class CityBuilderManager : MonoBehaviour
         }
         else if (improvementLoc == city.barracksLocation)
         {
-            city.hasBarracks = false;
+			world.militaryStationLocs.Remove(improvementLoc);
+			city.hasBarracks = false;
             city.army.ClearArmySpots();
         }
 

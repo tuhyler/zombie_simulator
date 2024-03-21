@@ -519,7 +519,14 @@ public class Military : Unit
 		if (path.Count == 0)
 			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), barracksBunk);
 
-		MoveThroughPath(path);
+		if (path.Count > 0)
+		{
+			MoveThroughPath(path);
+		}
+		else
+		{
+			FinishMovementMilitary(currentLocation);
+		}
 	}
 
 	public void AttackCheck()

@@ -512,10 +512,10 @@ public class UnitMovement : MonoBehaviour
 								world.infoPopUpCanvas.gameObject.SetActive(true);
 								world.uiCampTooltip.ToggleVisibility(true, null, unit.enemyCamp, homeBase.army, true);
                             }
-                            else
-                            {
-								UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't reach target in time");
-							}
+       //                     else
+       //                     {
+							//	UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't reach target in time");
+							//}
                         }
 
                         return;
@@ -532,24 +532,42 @@ public class UnitMovement : MonoBehaviour
 						return;
 					}
 
+                    bool isCity = false;
+                    if (world.IsEnemyCityOnTile(pos))
+                        isCity = true;
+
 					//rehighlight in case selecting a different one
 					if (world.IsEnemyCityOnTile(potentialAttackLoc))
 						world.HighlightEnemyCity(potentialAttackLoc, Color.red);
-					else
+                    else
 						world.HighlightEnemyCamp(potentialAttackLoc, Color.red);
 
 					uiBuildingSomething.SetText("Select Attack Zone");
-					SetUpAttackZoneInfo(pos);
+					ShutDownAttackZones();
+                    potentialAttackLoc = pos;
+					SetUpAttackZoneInfo(pos, isCity);
 				}
                 else if (attackZoneList.Contains(pos))
                 {
-					attackMovingTarget = false;
+					if (world.IsEnemyCityOnTile(potentialAttackLoc) && pos == world.GetEnemyCity(potentialAttackLoc).barracksLocation)
+                        return;
+                    
+                    attackMovingTarget = false;
 
 					for (int i = 0; i < attackZoneList.Count; i++)
 					{
+                        if (world.IsEnemyCityOnTile(potentialAttackLoc) && attackZoneList[i] == world.GetEnemyCity(potentialAttackLoc).barracksLocation)
+                            continue;
+                        
                         world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
-						Color color = pos == attackZoneList[i] ? Color.white : Color.red;
+						Color color = pos == attackZoneList[i] ? Color.white : Color.green;
 						world.GetTerrainDataAt(attackZoneList[i]).EnableHighlight(color);
+                        if (world.CheckIfTileIsImproved(attackZoneList[i]))
+                        {
+                            world.GetCityDevelopment(attackZoneList[i]).DisableHighlight();
+                            world.GetCityDevelopment(attackZoneList[i]).EnableHighlight(color);
+                        }
+
 					}
 
 					if (homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), pos, potentialAttackLoc))
@@ -1013,8 +1031,9 @@ public class UnitMovement : MonoBehaviour
 			uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.ResourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
 			uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
 
-            workerTaskManager.SetWorkerUnit();
-            if (!selectedUnit.sayingSomething)
+			if (world.mainPlayer.isBusy && !world.mainPlayer.runningAway)
+				uiCancelTask.ToggleVisibility(true);
+			if (!selectedUnit.sayingSomething)
                 uiWorkerTask.ToggleVisibility(true, world);
             if (world.scott.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(true);
@@ -1236,6 +1255,11 @@ public class UnitMovement : MonoBehaviour
             //{
             //    world.azai.GoToPosition(terrainPos, false);
             //}
+            if (unit.isSelected)
+            {
+		        uiJoinCity.ToggleVisibility(false);
+		        uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
+            }
 		}
         else if (unit == world.scott)
         {
@@ -1244,9 +1268,6 @@ public class UnitMovement : MonoBehaviour
                 world.azai.FollowScott(path, unit.transform.position);
             }
         }
-
-		uiJoinCity.ToggleVisibility(false);
-		uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
 	}
 
     public void MoveUnitRightClick(Vector3 location, GameObject detectedObject)
@@ -1954,23 +1975,9 @@ public class UnitMovement : MonoBehaviour
     {
         world.unitOrders = false;
         uiConfirmOrders.ToggleVisibility(false);
-        uiMoveUnit.ToggleVisibility(true);
+        if (!selectedUnit.isBusy)
+            uiMoveUnit.ToggleVisibility(true);
         uiWorkerTask.ToggleVisibility(true, world);
-        //workerTaskManager.ToggleRoadBuild(false);
-        //foreach (TerrainData td in highlightedTiles)
-        //{
-        //    td.DisableHighlight();
-
-        //    if (removingRoad)
-        //    {
-        //        foreach (GameObject go in world.GetAllRoadsOnTile(td.GetTileCoordinates()))
-        //        {
-        //            if (go == null)
-        //                continue;
-        //            go.GetComponent<SelectionHighlight>().DisableHighlight();
-        //        }
-        //    }
-        //}
     }
 
     public void ToggleOrderHighlights(bool v)
@@ -2419,7 +2426,7 @@ public class UnitMovement : MonoBehaviour
 
 		if (selectedUnit.isPlayer)
         {
-            if (!selectedUnit.runningAway)
+            if (!selectedUnit.runningAway && !selectedUnit.isBusy)
                 uiMoveUnit.ToggleVisibility(true);
             
             if (selectedUnit.moreToMove)
@@ -2537,101 +2544,6 @@ public class UnitMovement : MonoBehaviour
 				}
             }
         }
-
-		//if (selectedUnit.moreToMove && !selectedUnit.inArmy && !selectedUnit.runningAway)
-		//{
-		//	uiCancelMove.ToggleVisibility(true);
-		//	selectedUnit.ShowContinuedPath();
-		//}
-		//else if (selectedUnit.inArmy)
-		//{
-		//	if (selectedUnit.transferring)
-		//	{
-		//		uiChangeCity.ToggleVisibility(true);
-		//		uiAssignGuard.ToggleVisibility(true);
-		//	}
-		//	else if (selectedUnit.guard)
-		//	{
-		//		if (!selectedUnit.guardedTrader.followingRoute)
-		//		{
-		//			uiChangeCity.ToggleVisibility(true);
-		//			uiAssignGuard.ToggleVisibility(true);
-		//		}
-		//	}
-		//	else if (selectedUnit.homeBase.army.traveling)
-		//	{
-		//		uiCancelTask.ToggleVisibility(true);
-		//	}
-		//	else if (selectedUnit.inBattle)
-		//	{
-		//		uiCancelTask.ToggleVisibility(true);
-		//	}
-		//}
-
-		//if (!selectedUnit.moreToMove)
-  //      {
-  //          uiCancelMove.ToggleVisibility(false);
-  //      }
-
-        
-   //     if (!selectedUnit.followingRoute && !selectedUnit.isMoving)
-   //     {
-   ////         if (world.IsCityOnTile(currentLoc) && !selectedUnit.isPlayer && !selectedUnit.inArmy)
-   ////         {
-   ////             uiJoinCity.ToggleVisibility(true);
-   ////         }
-
-   ////         if (selectedUnit.bySea && world.IsCityHarborOnTile(currentLoc))
-   ////         {
-			////	uiJoinCity.ToggleVisibility(true);
-			////}
-            
-   ////         if (selectedTrader != null && world.IsTradeLocOnTile(currentLoc))
-   ////         {
-   ////             uiTraderPanel.uiLoadUnload.ToggleInteractable(true);
-   ////         }
-   ////         else if (selectedUnit.isLaborer && world.IsWonderOnTile(currentLoc))
-   ////         {
-   ////             if (world.GetWonder(currentLoc).StillNeedsWorkers())
-   ////                 uiJoinCity.ToggleVisibility(true);
-   ////         }
-   //         if (selectedUnit.inArmy)
-   //         {
-   //             if (selectedUnit.atHome)
-   //             {
-			//		if (!selectedUnit.homeBase.army.defending && !selectedUnit.homeBase.army.returning)
-   //                 {
-			//			uiJoinCity.ToggleVisibility(true);
-   //                     uiSwapPosition.ToggleVisibility(true);
-   //                     uiDeployArmy.ToggleVisibility(true);
-   //                     uiChangeCity.ToggleVisibility(true);
-			//		    uiAssignGuard.ToggleVisibility(true);
-   //                 }
-			//	}
-   //             else if (selectedUnit.transferring)
-   //             {
-   //                 uiChangeCity.ToggleVisibility(true);
-			//		uiAssignGuard.ToggleVisibility(true);
-			//	}
-   //             else if (selectedUnit.guard)
-   //             {
-   //                 if (!selectedUnit.guardedTrader.followingRoute)
-   //                 {
-			//			uiChangeCity.ToggleVisibility(true);
-			//			uiAssignGuard.ToggleVisibility(true);
-			//		}
-			//	}
-   //             else if (!selectedUnit.homeBase.army.defending && !selectedUnit.repositioning)
-   //             {
-   //                 uiCancelTask.ToggleVisibility(true);
-   //             }
-			//}
-   //     }
-   //     else
-   //     {
-   //         //uiJoinCity.ToggleVisibility(false);
-   //         //uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
-   //     }
     }
 
 
@@ -2684,22 +2596,28 @@ public class UnitMovement : MonoBehaviour
 		assigningGuard = true;
 	}
 
-    public void SetUpAttackZoneInfo(Vector3Int loc)
+    public void SetUpAttackZoneInfo(Vector3Int loc, bool isCity)
     {
-        ShutDownAttackZones();
-		potentialAttackLoc = loc;
+        Vector3Int barracksLoc = loc;
+        if (isCity)
+            barracksLoc = world.GetEnemyCity(loc).barracksLocation;
 
 		int i = 0;
         foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.FOURWAYINCREMENT))
         {
             TerrainData td = world.GetTerrainDataAt(tile);
 
-            if (!td.isDiscovered || td.terrainData.terrainDesc == TerrainDesc.Mountain)
+            if (!td.isDiscovered || td.terrainData.terrainDesc == TerrainDesc.Mountain || tile == barracksLoc || world.IsEnemyCityOnTile(tile) || attackZoneList.Contains(tile))
                 continue;
 
             attackZoneList.Add(tile);
-            td.EnableHighlight(Color.red);
+            td.EnableHighlight(Color.green);
             int attackZoneBonus = td.terrainData.terrainAttackBonus;
+            if (world.CheckIfTileIsImproved(tile))
+            {
+                attackZoneBonus += world.GetCityDevelopment(tile).GetImprovementData.attackBonus;
+                world.GetCityDevelopment(tile).EnableHighlight(Color.green);
+            }
             if (attackZoneBonus != 0)
             {
                 attackBonusText[i].gameObject.SetActive(true);
@@ -2709,11 +2627,21 @@ public class UnitMovement : MonoBehaviour
         }
 
         int enemyAttackZoneBonus = world.GetTerrainDataAt(potentialAttackLoc).terrainData.terrainAttackBonus;
-        if (enemyAttackZoneBonus != 0)
+		if (world.CheckIfTileIsImproved(potentialAttackLoc))
+			enemyAttackZoneBonus += world.GetCityDevelopment(potentialAttackLoc).GetImprovementData.attackBonus;
+		if (enemyAttackZoneBonus != 0)
         {
 			attackBonusText[i].gameObject.SetActive(true);
 			SetAttackBonusText(attackBonusText[i], loc, enemyAttackZoneBonus);
 		}
+
+        if (isCity)
+        {
+            world.GetCityDevelopment(barracksLoc).EnableHighlight(Color.red);
+            world.GetTerrainDataAt(barracksLoc).EnableHighlight(Color.red);
+            attackZoneList.Add(barracksLoc);
+            SetUpAttackZoneInfo(barracksLoc, false);
+        }
     }
 
     public void SetMovingAttackBonusText(Vector3Int attackZone, Vector3Int enemyTarget)
@@ -2722,6 +2650,9 @@ public class UnitMovement : MonoBehaviour
 			attackBonusText[i].gameObject.SetActive(false);
 
 		int attackZoneBonus = world.GetTerrainDataAt(attackZone).terrainData.terrainAttackBonus;
+        if (world.CheckIfTileIsImproved(attackZone))
+            attackZoneBonus += world.GetCityDevelopment(attackZone).GetImprovementData.attackBonus;
+
 		if (attackZoneBonus != 0)
         {
             attackBonusText[0].gameObject.SetActive(true);
@@ -2729,6 +2660,8 @@ public class UnitMovement : MonoBehaviour
         }
 
 		int enemyTargetBonus = world.GetTerrainDataAt(enemyTarget).terrainData.terrainAttackBonus;
+		if (world.CheckIfTileIsImproved(enemyTarget))
+			enemyTargetBonus += world.GetCityDevelopment(enemyTarget).GetImprovementData.attackBonus;
 		if (enemyTargetBonus != 0)
 		{
 			attackBonusText[1].gameObject.SetActive(true);
@@ -2755,7 +2688,11 @@ public class UnitMovement : MonoBehaviour
 	public void ShutDownAttackZones()
     {
         for (int i = 0; i < attackZoneList.Count; i++)
-            world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
+        {
+			if (world.CheckIfTileIsImproved(attackZoneList[i]))
+                world.GetCityDevelopment(attackZoneList[i]).DisableHighlight();
+			world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
+        }
 
         attackZoneList.Clear();
 
@@ -2857,11 +2794,18 @@ public class UnitMovement : MonoBehaviour
         else if (homeBase.army.atHome)
         {
             if (changingCity)
+            {
                 world.UnhighlightCitiesWithBarracks();
+            }
             else if (deployingArmy)
+            {
                 world.UnhighlightAllEnemyCamps();
+                ShutDownAttackZones();
+            }
             else if (assigningGuard)
+            {
                 world.UnhighlightTraders();
+            }
 
             if (selectedUnit.military.atHome)
             {
@@ -2913,22 +2857,20 @@ public class UnitMovement : MonoBehaviour
 		ShutDownAttackZones();
         world.cityBuilderManager.PlayBoomAudio();
 
-		if (homeBase.attacked)
-		{
-			if (!world.IsEnemyCityOnTile(potentialAttackLoc) || world.GetEnemyCity(potentialAttackLoc).enemyCamp.moveToLoc != homeBase.cityLoc) //can't move out if being attacked someone else
-            {
-                UIInfoPopUpHandler.WarningMessage().Create(world.uiCampTooltip.attackButton.transform.position, "Can't move out, about to be attacked", false);
-			    return;
-            }
-		}
+        //unlikely but just in case
+        if (potentialAttackLoc == homeBase.army.loc)
+        {
+            homeBase.army.HidePath();
+            return;
+        }
 
 		if (world.IsEnemyCityOnTile(potentialAttackLoc))
         {
             City city = world.GetEnemyCity(potentialAttackLoc);
+			homeBase.army.enemyCityLoc = city.cityLoc;
 			if (city.enemyCamp.movingOut)
             {
 				uiCancelTask.ToggleVisibility(false);
-				homeBase.army.enemyCityLoc = city.cityLoc;
 				city.enemyCamp.attacked = true;
                 city.enemyCamp.attackingArmy = homeBase.army;
                 city.enemyCamp.fieldBattleLoc = homeBase.army.enemyTarget;
@@ -2991,10 +2933,6 @@ public class UnitMovement : MonoBehaviour
             uiMoveUnit.ToggleVisibility(false);
             //uiCancelMove.ToggleVisibility(false);
             uiJoinCity.ToggleVisibility(false);
-            uiSwapPosition.ToggleVisibility(false);
-            uiDeployArmy.ToggleVisibility(false);
-            uiChangeCity.ToggleVisibility(false);
-			uiAssignGuard.ToggleVisibility(false);
 
 			if (selectedUnit.isPlayer)
             {
@@ -3022,6 +2960,10 @@ public class UnitMovement : MonoBehaviour
             }
             else if (selectedUnit.inArmy)
             {
+                uiSwapPosition.ToggleVisibility(false);
+                uiDeployArmy.ToggleVisibility(false);
+                uiChangeCity.ToggleVisibility(false);
+			    uiAssignGuard.ToggleVisibility(false);
 				uiCancelTask.ToggleVisibility(false);
 
                 if (selectedUnit.military.guard)

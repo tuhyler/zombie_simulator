@@ -38,7 +38,7 @@ public class City : MonoBehaviour
 
     //particle systems
     [SerializeField]
-    private ParticleSystem heavenHighlight, hellHighlight, resourceSplash, lightBullet, fire;
+    private ParticleSystem heavenHighlight, hellHighlight, /*resourceSplash, */lightBullet, fire;
 
     [SerializeField]
     public SpriteRenderer minimapIcon;
@@ -248,9 +248,9 @@ public class City : MonoBehaviour
         
         Vector3 pos = transform.position;
         pos.y = isHill ? .8f : .2f;
-        resourceSplash = Instantiate(resourceSplash, pos, Quaternion.Euler(-90, 0, 0));
-        resourceSplash.transform.parent = transform;
-        resourceSplash.Pause();
+        //resourceSplash = Instantiate(resourceSplash, pos, Quaternion.Euler(-90, 0, 0));
+        //resourceSplash.transform.parent = transform;
+        //resourceSplash.Pause();
         pos.y = 8f;
         lightBullet = Instantiate(lightBullet, pos, Quaternion.Euler(90, 0, 0));
         lightBullet.transform.parent = transform;
@@ -1057,7 +1057,8 @@ public class City : MonoBehaviour
     public void PlayResourceSplash()
     {
         world.cityBuilderManager.PlayRingAudio();
-        resourceSplash.Play();
+        world.PlayResourceSplash(cityLoc);
+        //resourceSplash.Play();
     }
 
     public void PlayLightBullet()
@@ -1269,7 +1270,7 @@ public class City : MonoBehaviour
 
     public void StartSendAttackWait()
     {
-        countDownTimer = 10;
+        countDownTimer = 60;
         co = StartCoroutine(SendAttackWait());
     }
 
@@ -1316,7 +1317,10 @@ public class City : MonoBehaviour
                 smallCityLocList.Add(i);
                 continue;
             }
-            
+
+            if (cityList[i].attacked)
+                continue;
+
             if (firstOne)
             {
                 firstOne = false;
@@ -1339,7 +1343,10 @@ public class City : MonoBehaviour
 			firstOne = true;
 			for (int i = 0; i < smallCityLocList.Count; i++)
 			{
-				if (firstOne)
+                if (cityList[smallCityLocList[i]].attacked)
+                    continue;
+                
+                if (firstOne)
 				{
 					firstOne = false;
 					targetCity = cityList[smallCityLocList[i]];
@@ -1356,12 +1363,19 @@ public class City : MonoBehaviour
 			}
 		}
 
-        if (targetCity && enemyCamp.MoveOut(targetCity))
+        if (targetCity)
         {
 			if (targetCity.army.atHome)
-				targetCity.attacked = true;
+            {
+                if (enemyCamp.MoveOut(targetCity))
+				    targetCity.attacked = true;
+                else
+					StartSendAttackWait();
+			}
             else
+            {
 				targetCity.waitingAttackLoc = cityLoc;
+            }
         }
         else
         {
