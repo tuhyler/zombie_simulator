@@ -113,14 +113,19 @@ public class UIConversationTaskManager : MonoBehaviour
 		world.somethingSelected = false;
 	}
 
-	public void CreateConversationTask(string title, bool loading = false)
+	public void CreateConversationTask(string title, bool loading = false, NPC npc = null)
 	{
 		GameObject taskGO = Instantiate(conversationTask);
 		taskGO.transform.SetParent(taskTitleHolder, false);
 		UIConversationTask task = taskGO.GetComponent<UIConversationTask>();
 		task.manager = this;
 		task.title = title;
-		task.taskText = UpgradeableObjectHolder.Instance.conversationTaskDict[title];
+
+		if (npc)
+			task.taskText = npc.questHints[npc.currentQuest];
+		else
+			task.taskText = UpgradeableObjectHolder.Instance.conversationTaskDict[title];
+		
 		if (!loading)
 			GameLoader.Instance.gameData.conversationTaskDict[title] = (false, false);
 

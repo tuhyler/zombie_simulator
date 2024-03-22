@@ -7334,6 +7334,12 @@ public class MapWorld : MonoBehaviour
 		}
     }
     
+    public void AddCharacter(Unit character, string characterName)
+    {
+        characterUnits.Add(character);
+		uiSpeechWindow.AddToSpeakingDict(characterName, character);
+	}
+
     public void GameCheck(string source)
     {
         switch (gameStep)

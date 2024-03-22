@@ -13,6 +13,9 @@ public class UIResourceGivingPanel : MonoBehaviour
 	public MapWorld world;
 
 	[SerializeField]
+	UIResourceGivingSubPanel uiResourceSubPanel;
+
+	[SerializeField]
 	private Image tradeRepImage;
 
 	[SerializeField]
@@ -62,6 +65,7 @@ public class UIResourceGivingPanel : MonoBehaviour
 			giftedResource.resourceAmount = 0;
 			giftedResource.gameObject.SetActive(false);
 			confirmButton.SetActive(false);
+			uiResourceSubPanel.ToggleVisibility(true, npc.npcName, npc.questHints[npc.currentQuest]);
 
 			allContents.anchoredPosition3D = originalLoc;
 			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 800f, 0.4f).setEase(LeanTweenType.easeOutSine);
@@ -70,6 +74,7 @@ public class UIResourceGivingPanel : MonoBehaviour
 		{
 			if (!confirmed && showingResource)
 				ReturnResources();
+			uiResourceSubPanel.ToggleVisibility(false);
 			world.unitMovement.uiPersonalResourceInfoPanel.RestorePosition(keepSelection);
 			activeStatus = false;
 			showingResource = false;

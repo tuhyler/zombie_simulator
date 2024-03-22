@@ -27,8 +27,9 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 	private List<ConversationItem> conversationItems;
 	private int conversationPlace;
-	private Dictionary<string, Worker> speakerDict = new();
-	private List<Worker> unitsSpeaking = new();
+	private Dictionary<string, Unit> speakerDict = new();
+	private List<Unit> unitsSpeaking = new();
+	private NPC speakingNPC;
 
 	[SerializeField] //for tweening
 	private RectTransform allContents;
@@ -53,7 +54,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		gameObject.SetActive(false);
 	}
 
-	public void AddToSpeakingDict(string name, Worker unit)
+	public void AddToSpeakingDict(string name, Unit unit)
 	{
 		speakerDict[name] = unit;
 	}
@@ -116,6 +117,11 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		conversationItems = Conversations.Instance.conversationDict[conversationTopic];
 	}
 
+	public void SetSpeakingNPC(NPC speakingNPC)
+	{
+		this.speakingNPC = speakingNPC;
+	}
+
 	private void PrepNextSpeech()
 	{
 		speakerImage.sprite = conversationItems[conversationPlace].speakerImage;
@@ -125,7 +131,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		showingText = true;
 		if (speakerDict.ContainsKey(name))
 		{
-			Worker unit = speakerDict[name];
+			Unit unit = speakerDict[name];
 			unit.SetSpeechBubble();
 
 			if (!unitsSpeaking.Contains(unit))
@@ -141,7 +147,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			{
 				unit.Rotate(speakerDict[conversationItems[conversationPlace].speakerDirection].transform.position);
 				string listenerName = conversationItems[conversationPlace].speakerDirection;
-				Worker listener = speakerDict[listenerName];
+				Unit listener = speakerDict[listenerName];
 
 				if (!unitsSpeaking.Contains(listener))
 					unitsSpeaking.Add(listener);
@@ -239,6 +245,22 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		conversationItems.Clear();
 
 		//checking if action immediately after conversation needs to take place
+		if (speakingNPC)
+		{
+			if (conversationTopic.Contains("intro"))
+			{
+				speakingNPC.currentQuest++;
+				speakingNPC.BeginNextQuestWait();
+			}
+			else if (conversationTopic.Contains("_quest"))
+			{
+				if (conversationTopic.Contains("_complete"))
+					speakingNPC.BeginNextQuestWait();
+				else
+					speakingNPC.CreateConversationTaskItem();
+			}
+		}
+
 		world.ConversationActionCheck(conversationTopic, conversationPlace);
 		conversationPlace = 0;
 
@@ -246,6 +268,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			unitsSpeaking[i].SaidSomething();
 
 		unitsSpeaking.Clear();
+		speakingNPC = null;
 
 		conversationTopic = "";
 	}

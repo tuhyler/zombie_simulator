@@ -685,7 +685,7 @@ public class Conversations : MonoBehaviour
 
 		//Haniya
 		#region intro
-		conversationDict["haniya_intro"] = new();
+		conversationDict["Haniya_intro"] = new();
 
 		ConversationItem haniya_intro = new()
 		{
@@ -694,7 +694,7 @@ public class Conversations : MonoBehaviour
 			speakerDirection = "Koa",
 			speakerText = "My name is Haniya"
 		};
-		conversationDict["haniya_intro"].Add(haniya_intro);
+		conversationDict["Haniya_intro"].Add(haniya_intro);
 
 		#endregion
 		#region quest1
