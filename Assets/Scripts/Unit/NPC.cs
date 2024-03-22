@@ -12,27 +12,29 @@ public class NPC : Unit
 	public int angryIncrease;
 	public int happyDiscount;
 	public int ecstaticDiscount;
-	public string introductionConversation;
 	public List<ResourceValue> questGoals = new();
+	public List<string> questHints = new();
 	public int waitForNextQuest = 60;
 	public int purchasedAmountBaseThreshold = 500;
 	[HideInInspector]
-	public int currentQuest, purchasedAmount;
+	public int currentQuest = -1, purchasedAmount;
 	private int timeWaited = 0;
 
 	private ResourceValue desiredGift;
 	[HideInInspector]
-	public bool onQuest, hasMetKoa;
+	public bool onQuest;
 
-	private void Start()
+	private void Awake()
 	{
-		if (!hasMetKoa)
-			SetSomethingToSay(introductionConversation);
+		npc = GetComponent<NPC>();
 	}
 
 	public void SetTradeCenter(TradeCenter center)
 	{
 		this.center = center;
+
+		if (currentQuest == -1)
+			SetSomethingToSay(npcName + "_intro");
 	}
 
 	public bool GiftCheck(ResourceValue value)
@@ -67,7 +69,7 @@ public class NPC : Unit
 	{
 		purchasedAmount += amount;
 
-		if (purchasedAmount >= purchasedAmountBaseThreshold * Mathf.Max(1, rapportScore))
+		if (rapportScore < 5 && purchasedAmount >= purchasedAmountBaseThreshold * Mathf.Max(1, rapportScore))
 		{
 			IncreaseRapport();
 			PlayAudioClip(world.cityBuilderManager.receiveGift);
@@ -79,6 +81,8 @@ public class NPC : Unit
 	{
 		if (rapportScore < 5)
 			rapportScore++;
+		else
+			return;
 
 		center.CheckRapport();
 		if (world.cityBuilderManager.uiTradeCenter.activeStatus && world.cityBuilderManager.uiTradeCenter.center == center)
@@ -108,9 +112,17 @@ public class NPC : Unit
 		SetSomethingToSay(npcName + "_quest" + currentQuest.ToString() + "_complete");
 		currentQuest++;
 		onQuest = false;
+	}
 
+	public void BeginNextQuestWait()
+	{
 		timeWaited = waitForNextQuest;
 		StartCoroutine(SetNextQuestWait());
+	}
+
+	public void CreateConversationTaskItem()
+	{
+		world.uiConversationTaskManager.CreateConversationTask(npcName, false, this);
 	}
 
 	public void SetSomethingToSay(string conversationTopic)
@@ -124,7 +136,6 @@ public class NPC : Unit
 
 		data.somethingToSay = somethingToSay;
 		data.onQuest = onQuest;
-		data.hasMetKoa = hasMetKoa;
 		data.conversationTopics = conversationHaver.conversationTopics;
 		data.currentQuest = currentQuest;
 		data.timeWaited = timeWaited;
@@ -137,7 +148,6 @@ public class NPC : Unit
 	{
 		somethingToSay = data.somethingToSay;
 		onQuest = data.onQuest;
-		hasMetKoa = data.hasMetKoa;
 		currentQuest = data.currentQuest;
 		timeWaited = data.timeWaited;
 		purchasedAmount = data.purchasedAmount;

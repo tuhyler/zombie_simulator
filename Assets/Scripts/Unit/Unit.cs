@@ -57,6 +57,8 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public Transport transport;
     [HideInInspector]
+    public NPC npc;
+    [HideInInspector]
     public ConversationHaver conversationHaver;
 
 	//movement details
@@ -362,21 +364,26 @@ public class Unit : MonoBehaviour
                     {
                         world.unitMovement.QuickSelect(this);
 				        unitInTheWay.SpeakingCheck();
+                        if (unitInTheWay.npc)
+                            world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay.npc);
                     }
 
                     worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
                     FinishMoving(transform.position);
 				    yield break;
                 }
-                else if (unitInTheWay.buildDataSO.tcRep && unitInTheWay.GetComponent<NPC>().onQuest)
+                else if (unitInTheWay.npc)
                 {
-					if (isSelected)
+					if (unitInTheWay.npc.onQuest)
                     {
-                        world.ToggleGiftGiving(unitInTheWay.GetComponent<NPC>());
+                        if (isSelected)
+                        {
+                            world.ToggleGiftGiving(unitInTheWay.GetComponent<NPC>());
+                        }
+					    worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
+					    FinishMoving(transform.position);
+					    yield break;
                     }
-					worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
-					FinishMoving(transform.position);
-					yield break;
 				}
             }
 
@@ -874,7 +881,17 @@ public class Unit : MonoBehaviour
         conversationHaver.SpeakingCheck();
     }
 
-    private void CheckPrevTile()
+	public void SetSpeechBubble()
+	{
+		conversationHaver.SetSpeechBubble();
+	}
+
+	public void SaidSomething()
+	{
+		conversationHaver.SaidSomething();
+	}
+
+	private void CheckPrevTile()
     {
         TerrainData td = world.GetTerrainDataAt(lastClearTile);
         td.ToggleTransparentForest(false);

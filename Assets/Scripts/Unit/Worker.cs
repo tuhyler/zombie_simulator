@@ -1152,16 +1152,6 @@ public class Worker : Unit
 		conversationHaver.SetSomethingToSay(conversationTopic, alternateSpeaker);
 	}
 
-	public void SetSpeechBubble()
-	{
-		conversationHaver.SetSpeechBubble();
-	}
-
-	public void SaidSomething()
-	{
-		conversationHaver.SaidSomething();
-	}
-
 	public void GoToPosition(Vector3Int position, bool diag)
 	{
 		StopMovement();
