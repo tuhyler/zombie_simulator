@@ -89,6 +89,10 @@ public class TerrainGenerator : MonoBehaviour
         grasslandFloodPlainsSO, grasslandHillResourceSO, grasslandHillSO, grasslandMountainSO, grasslandResourceSO, grasslandSO, 
         jungleHillSO, jungleSO, riverSO, riverResourceSO, seaIntersectionSO, seaSO, seaResourceSO, swampSO;
 
+    [Header("Misc")]
+    [SerializeField]
+    private GameObject mountainMiddle;
+
     [Header("Trade Center Prefabs")]
     [SerializeField]
     private List<GameObject> tradeCenters;
@@ -441,14 +445,30 @@ public class TerrainGenerator : MonoBehaviour
 				int prefabIndex = random.Next(0, grasslandMountainSO.prefabs.Count);
 				GameObject grasslandMountain = grasslandMountainSO.prefabs[prefabIndex];
 
-                GenerateTile(grasslandMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex);
+                List<int> mountainNeighbors = new();
+				for (int i = 0; i < ProceduralGeneration.neighborsFourDirections.Count; i++)
+				{
+					Vector3Int neighbor = position + ProceduralGeneration.neighborsFourDirections[i];
+                    if (mainMap[neighbor] == ProceduralGeneration.grasslandMountain)
+                        mountainNeighbors.Add(i);
+				}
+
+				GenerateTile(grasslandMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex, false, mountainNeighbors, true);
             }
             else if (mainMap[position] == ProceduralGeneration.desertMountain)
             {
 				int prefabIndex = random.Next(0, desertMountainSO.prefabs.Count);
 				GameObject desertMountain = desertMountainSO.prefabs[prefabIndex];
 
-                GenerateTile(desertMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex);
+				List<int> mountainNeighbors = new();
+				for (int i = 0; i < ProceduralGeneration.neighborsFourDirections.Count; i++)
+				{
+					Vector3Int neighbor = position + ProceduralGeneration.neighborsFourDirections[i];
+					if (mainMap[neighbor] == ProceduralGeneration.desertMountain)
+						mountainNeighbors.Add(i);
+				}
+
+				GenerateTile(desertMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex, false, mountainNeighbors, false);
             }
             else if (mainMap[position] == ProceduralGeneration.grassland)
             {
@@ -857,7 +877,7 @@ public class TerrainGenerator : MonoBehaviour
         allTiles.Add(improvementResource);
 	}
 
-    private TerrainData GenerateTile(GameObject tile, Vector3Int position, Quaternion rotation, int prefabIndex, bool water = false)
+    private TerrainData GenerateTile(GameObject tile, Vector3Int position, Quaternion rotation, int prefabIndex, bool water = false, List<int> mountainNeighbors = null, bool grassland = false)
     {
         GameObject newTile = Instantiate(tile, position, Quaternion.identity);
         newTile.transform.SetParent(groundTiles.transform, false);
@@ -865,7 +885,14 @@ public class TerrainGenerator : MonoBehaviour
 		TerrainData td = newTile.GetComponent<TerrainData>();
         td.prefabIndex = prefabIndex;
         td.TileCoordinates = position;
-        td.TerrainDataPrep();
+
+        if (mountainNeighbors != null)
+        {
+            for (int i = 0; i < mountainNeighbors.Count; i++)
+			    SetMountainMiddle(td, mountainNeighbors[i], grassland, rotation);
+        }
+
+		td.TerrainDataPrep();
         terrainDict[position] = td;
         //must keep collision in parent for some reason
         if (water)
@@ -2099,7 +2126,43 @@ public class TerrainGenerator : MonoBehaviour
 		terrainDict[newWater].resourceAmount = -1;
 	}
 
-    private (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GenerateEnemyCities(System.Random random, Vector3Int startingPlace, List<Vector3Int> coastTiles)
+	public void SetMountainMiddle(TerrainData td, int i, bool grassland, Quaternion mainRotation)
+	{
+        int diff = Mathf.RoundToInt(mainRotation.eulerAngles.y / 90);
+
+        i -= diff;
+        if (i < 0)
+            i += 4;
+
+        Vector3 pos;
+		if (i == 0)
+			pos = new Vector3(0, 0, 1);
+		else if (i == 1)
+			pos = new Vector3(1, 0, 0);
+		else if (i == 2)
+			pos = new Vector3(0, 0, -1);
+		else
+			pos = new Vector3(-1, 0, 0);
+		Quaternion rotation = Quaternion.Euler(0, i * 90, 0);
+		GameObject mmGO = Instantiate(mountainMiddle, pos, rotation);
+		GameObject mmNonStatic = Instantiate(mountainMiddle, pos, rotation);
+		mmGO.transform.SetParent(td.main, false);
+		mmNonStatic.transform.SetParent(td.nonstatic, false);
+
+		if (!nonBuildTime && grassland)
+		{
+			MeshFilter mesh = mmGO.GetComponentInChildren<MeshFilter>();
+			Vector2[] allUVs = mesh.mesh.uv;
+
+			for (int j = 0; j < allUVs.Length; j++)
+				allUVs[j].x += -0.062f;
+
+			mesh.mesh.uv = allUVs;
+			mmNonStatic.GetComponentInChildren<MeshFilter>().mesh.uv = allUVs;
+		}
+	}
+
+	private (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GenerateEnemyCities(System.Random random, Vector3Int startingPlace, List<Vector3Int> coastTiles)
     {
 		//make sure enough flatland surround it (3 to 4)
         List<Vector3Int> foodLocs = new();

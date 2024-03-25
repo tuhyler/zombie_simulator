@@ -42,6 +42,12 @@ public class UIConversationTask : MonoBehaviour, IPointerDownHandler
 		}
 	}
 
+	public void SetTitle(string title)
+	{
+		this.title = title;
+		titleText.text = title;
+	}
+
 	public void CompleteTask(bool failed)
 	{
 		subtext.gameObject.SetActive(true);

@@ -119,7 +119,7 @@ public class UIConversationTaskManager : MonoBehaviour
 		taskGO.transform.SetParent(taskTitleHolder, false);
 		UIConversationTask task = taskGO.GetComponent<UIConversationTask>();
 		task.manager = this;
-		task.title = title;
+		task.SetTitle(title);
 
 		if (npc)
 			task.taskText = npc.questHints[npc.currentQuest];

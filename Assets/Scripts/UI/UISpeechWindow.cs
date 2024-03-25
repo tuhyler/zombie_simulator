@@ -249,7 +249,6 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		{
 			if (conversationTopic.Contains("intro"))
 			{
-				speakingNPC.currentQuest++;
 				speakingNPC.BeginNextQuestWait();
 			}
 			else if (conversationTopic.Contains("_quest"))

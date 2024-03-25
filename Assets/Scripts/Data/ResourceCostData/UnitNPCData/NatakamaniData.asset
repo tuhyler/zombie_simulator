@@ -18,7 +18,7 @@ MonoBehaviour:
   unitDisplayName: Natakamani
   unitLevel: 1
   unitNameAndLevel: Natakamani-1
-  image: {fileID: 0}
+  image: {fileID: 21300000, guid: 6df684d1fe2b1174b96fe8926e93b110, type: 3}
   mapIcon: {fileID: 0}
   unitCost: []
   cycleCost: []
@@ -33,6 +33,7 @@ MonoBehaviour:
   movementSpeed: 1
   trainTime: 0
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 1
   tcRep: 1

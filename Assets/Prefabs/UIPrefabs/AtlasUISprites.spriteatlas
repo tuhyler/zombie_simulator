@@ -153,6 +153,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f18793b88229fcc498c5ce73553a072b, type: 3}
   - {fileID: 21300000, guid: 7b6cf6b8f6c3b4e45b83818a2d4d8ac6, type: 3}
   - {fileID: 21300000, guid: cb4973c8dc95db441a2b19ea8c2dd6be, type: 3}
+  - {fileID: 21300000, guid: 92fb64d8ba51e6445ad0b897fd866042, type: 3}
   - {fileID: 21300000, guid: ab105bd816ed46a4094a657d66e70f11, type: 3}
   - {fileID: 21300000, guid: 8dd14509544858849802bacb4a448997, type: 3}
   - {fileID: 21300000, guid: afeebd19f8c3a8441b06c29a9fc6a28f, type: 3}
@@ -354,6 +355,7 @@ SpriteAtlas:
   - button_removelabor_gold
   - bar_progresswhitegold
   - scrollbar_gold01
+  - circle_ecstaticface
   - bar_progresswhiteblue
   - button_clearforest
   - icon_housingbig

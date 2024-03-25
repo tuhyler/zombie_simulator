@@ -40,7 +40,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Water water;
     [SerializeField]
-    public GameObject battleCamera, resourceIcon, treasureChest, campfire, spotlight, dizzyMarker, speechBubble, unexploredTile, uiHelperWindow;
+    public GameObject battleCamera, resourceIcon, treasureChest, campfire, spotlight, dizzyMarker, speechBubble, unexploredTile, uiHelperWindow, mountainMiddle;
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
@@ -546,19 +546,20 @@ public class MapWorld : MonoBehaviour
         }
         else
         {
-		    foreach (Transform go in terrainHolder)
+            foreach (Transform go in terrainHolder)
 		    {
 			    if (go.TryGetComponent(out TerrainData td))
 			    {
 				    td.SetWorld(this);
 				    td.SetProp();
-				    //StaticBatchingUtility.Combine(terrainHolder.gameObject);
-				    td.SetVisibleProp();
+
+                    //StaticBatchingUtility.Combine(terrainHolder.gameObject);
+                    td.SetVisibleProp();
 
 				    if (td.isSeaCorner && !coastalTerrain.Contains(td))
 					    coastalTerrain.Add(td);
 				    td.SetTileCoordinates();
-                    td.SetData(td.terrainData);
+					td.SetData(td.terrainData);
 				    Vector3Int tileCoordinate = td.TileCoordinates;
 				    GameLoader.Instance.gameData.allTerrain[tileCoordinate] = td.SaveData();
 
@@ -982,6 +983,30 @@ public class MapWorld : MonoBehaviour
             go.transform.SetParent(terrainHolder, false);
             TerrainData td = go.GetComponent<TerrainData>();
             td.LoadData(data);
+            
+            //checking to place mountain middles
+            if (td.terrainData.terrainDesc == TerrainDesc.Mountain)
+            {
+                if (td.terrainData.grassland)
+                {
+                    for (int i = 0; i < neighborsFourDirectionsIncrement.Count; i++)
+				    {
+                        Vector3Int neighbor = td.TileCoordinates + neighborsFourDirectionsIncrement[i];
+					    if (mainMap[neighbor].name == "GrasslandMountainTerrain")
+						    SetMountainMiddle(td, i, true);
+				    }
+                }
+                else
+                {
+					for (int i = 0; i < neighborsFourDirectionsIncrement.Count; i++)
+				    {
+						Vector3Int neighbor = td.TileCoordinates + neighborsFourDirectionsIncrement[i];
+						if (mainMap[neighbor].name == "DesertMountainTerrain")
+							SetMountainMiddle(td, i, false);
+					}
+				}
+			}
+            
             td.SetData(terrainData);
 
             if (terrainData.decors[data.decor] != null)
@@ -1187,7 +1212,7 @@ public class MapWorld : MonoBehaviour
             else if (tdNeighbor.resourceType == ResourceType.Fish)
                 fishLocs.Add(tile);
             
-            if (tdNeighbor.terrainData.type == TerrainType.Flatland)
+            if (tdNeighbor.terrainData.type == TerrainType.Flatland && tdNeighbor.resourceType == ResourceType.None)
                 flatlandLocs.Add(tile);
             else if (tdNeighbor.terrainData.type == TerrainType.Coast)
                 coastLocs.Add(tile);
@@ -1275,6 +1300,12 @@ public class MapWorld : MonoBehaviour
         {
             if (i == 2)
                 break;
+
+            if (flatlandLocs.Count == 0)
+            {
+                flatlandLocs.Add(foodLocs[i]);
+                continue;
+            }
 
             CityImprovementData improvementData = new();
             improvementData.location = foodLocs[i];
@@ -2577,8 +2608,8 @@ public class MapWorld : MonoBehaviour
         resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
 
-        for (int i = 0; i < roadLocsList.Count; i++)
-            Debug.Log(roadLocsList[i]);
+        //for (int i = 0; i < roadLocsList.Count; i++)
+        //    Debug.Log(roadLocsList[i]);
   //      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
   //      List<int> newNum = new();
@@ -2612,6 +2643,42 @@ public class MapWorld : MonoBehaviour
 		//{
 		//	Debug.Log(newNum[i]);
 		//}
+	}
+
+    public void SetMountainMiddle(TerrainData td, int i, bool grassland)
+    {
+		int diff = Mathf.RoundToInt(td.main.rotation.eulerAngles.y / 90);
+
+		i -= diff;
+		if (i < 0)
+			i += 4;
+
+		Vector3 pos;
+		if (i == 0)
+			pos = new Vector3(0, 0, 1);
+		else if (i == 1)
+			pos = new Vector3(1, 0, 0);
+		else if (i == 2)
+			pos = new Vector3(0, 0, -1);
+		else
+			pos = new Vector3(-1, 0, 0);
+		Quaternion rotation = Quaternion.Euler(0, i * 90, 0);
+		GameObject mmGO = Instantiate(mountainMiddle, pos, rotation);
+		GameObject mmNonStatic = Instantiate(mountainMiddle, pos, rotation);
+		mmGO.transform.SetParent(td.main, false);
+		mmNonStatic.transform.SetParent(td.nonstatic, false);
+
+		if (grassland)
+		{
+			MeshFilter mesh = mmGO.GetComponentInChildren<MeshFilter>();
+			Vector2[] allUVs = mesh.mesh.uv;
+
+			for (int j = 0; j < allUVs.Length; j++)
+				allUVs[j].x += -0.062f;
+
+			mesh.mesh.uv = allUVs;
+			mmNonStatic.GetComponentInChildren<MeshFilter>().mesh.uv = allUVs;
+		}
 	}
 
     public void PlayCityAudio(AudioClip clip)
@@ -2701,26 +2768,26 @@ public class MapWorld : MonoBehaviour
         
         switch (desc)
         {
-            case TerrainDesc.Desert:
-                shift = interval;
-                break;
+            //case TerrainDesc.Desert:
+            //    shift = interval;
+            //    break;
             //case TerrainDesc.GrasslandFloodPlain:
             //    shift = interval * 2;
             //    break;
-            case TerrainDesc.DesertFloodPlain:
-                shift = interval;/* * 3;*/
-                break;
+            //case TerrainDesc.DesertFloodPlain:
+            //    shift = interval;/* * 3;*/
+            //    break;
             case TerrainDesc.River:
-                shift = interval * 10 /** 3*/;
+                shift = interval * 9 /** 3*/;
                 break;
             case TerrainDesc.Sea:
-                shift = interval * 10;
+                shift = interval * 9;
                 break;
             //case TerrainDesc.GrasslandHill:
             //    shift = interval * 7;
             //    break;
             case TerrainDesc.DesertHill:
-                shift = interval * 8;
+                shift = interval * 7;
                 break;
         }
 
@@ -7334,11 +7401,11 @@ public class MapWorld : MonoBehaviour
 		}
     }
     
-    public void AddCharacter(Unit character, string characterName)
-    {
-        characterUnits.Add(character);
-		uiSpeechWindow.AddToSpeakingDict(characterName, character);
-	}
+ //   public void AddCharacter(Unit character, string characterName)
+ //   {
+ //       characterUnits.Add(character);
+	//	uiSpeechWindow.AddToSpeakingDict(characterName, character);
+	//}
 
     public void GameCheck(string source)
     {

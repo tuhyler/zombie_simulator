@@ -97,7 +97,42 @@ PrefabInstance:
     - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
       propertyPath: happyDiscount
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: ecstaticDiscount
       value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: waitForNextQuest
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.data[0]
+      value: '- just wants 5 stone'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[0].resourceType
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[0].resourceAmount
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 432df29316b977a4c942eae3d5e6b4fe, type: 3}

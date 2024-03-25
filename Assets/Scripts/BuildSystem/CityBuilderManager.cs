@@ -563,7 +563,7 @@ public class CityBuilderManager : MonoBehaviour
 
         uiTradeCenter.ToggleVisibility(true, center);
         selectedTradeCenter = center;
-        selectedTradeCenter.EnableHighlight(Color.white, false);
+        selectedTradeCenter.EnableHighlight(new Color(0.5f, 0, 1), false);
         uiTradeCenter.SetName(selectedTradeCenter.tradeCenterDisplayName);
         CenterCamOnCity();
     }
@@ -4190,6 +4190,9 @@ public class CityBuilderManager : MonoBehaviour
             world.somethingSelected = false;
             uiTradeCenter.ToggleVisibility(false);
             selectedTradeCenter.DisableHighlight();
+            if (world.GetClosestTerrainLoc(world.mainPlayer.transform.position) == selectedTradeCenter.mainLoc)
+                selectedTradeCenter.ToggleClear(true);
+
             selectedTradeCenter = null;
         }
     }

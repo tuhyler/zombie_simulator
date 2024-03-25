@@ -8,7 +8,8 @@ public class Conversations : MonoBehaviour
     public static Conversations Instance { get; private set; }
     public Dictionary<string, List<ConversationItem>> conversationDict = new();
 
-    public Sprite koaHappy, koaQuestion, koaSurprised, koaSerious, koaConfused, koaAngry, koaSad, koaAnnoyed, koaGuilty, azaiSerious, scottHappy, scottMad, scottSad, haniyaHappy;
+    public Sprite koaHappy, koaQuestion, koaSurprised, koaSerious, koaConfused, koaAngry, koaSad, koaAnnoyed, koaGuilty, azaiSerious, scottHappy, scottMad, scottSad, haniyaHappy, haniyaSad, 
+		natakamaniHappy;
 
 	private void Awake()
 	{
@@ -697,17 +698,58 @@ public class Conversations : MonoBehaviour
 		conversationDict["Haniya_intro"].Add(haniya_intro);
 
 		#endregion
-		#region quest1
-		conversationDict["haniya_quest1"] = new();
+		#region quest0
+		conversationDict["Haniya_quest0"] = new();
 
-		ConversationItem haniya_quest1 = new()
+		ConversationItem haniya_quest0 = new()
 		{
 			speakerImage = haniyaHappy,
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
 			speakerText = "Could you do this for me"
 		};
-		conversationDict["haniya_quest1"].Add(haniya_quest1);
+		conversationDict["Haniya_quest0"].Add(haniya_quest0);
+
+		#endregion
+
+		//Natakamani
+		#region intro
+		conversationDict["Natakamani_intro"] = new();
+
+		ConversationItem natakamani_intro = new()
+		{
+			speakerImage = natakamaniHappy,
+			speakerName = "Natakamani",
+			speakerDirection = "Koa",
+			speakerText = "My name is Natakamani"
+		};
+		conversationDict["Natakamani_intro"].Add(natakamani_intro);
+
+		#endregion
+		#region quest0
+		conversationDict["Natakamani_quest0"] = new();
+
+		ConversationItem natakamani_quest0 = new()
+		{
+			speakerImage = natakamaniHappy,
+			speakerName = "Natakamani",
+			speakerDirection = "Koa",
+			speakerText = "Could you do this for me"
+		};
+		conversationDict["Natakamani_quest0"].Add(natakamani_quest0);
+
+		#endregion
+		#region quest0complete
+		conversationDict["Natakamani_quest0_complete"] = new();
+
+		ConversationItem natakamani_quest0_complete = new()
+		{
+			speakerImage = natakamaniHappy,
+			speakerName = "Natakamani",
+			speakerDirection = "Koa",
+			speakerText = "Thank you"
+		};
+		conversationDict["Natakamani_quest0_complete"].Add(natakamani_quest0_complete);
 
 		#endregion
 	}

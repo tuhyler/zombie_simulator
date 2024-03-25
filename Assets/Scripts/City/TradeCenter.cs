@@ -92,6 +92,7 @@ public class TradeCenter : MonoBehaviour
         gameObject.SetActive(true);
         isDiscovered = true;
         tcRep.gameObject.SetActive(true);
+        tcRep.SetSomethingToSay(tcRep.npcName + "_intro");
 
         foreach (Vector3Int tile in world.GetNeighborsFor(mainLoc, MapWorld.State.EIGHTWAYINCREMENT))
         {
@@ -133,7 +134,9 @@ public class TradeCenter : MonoBehaviour
         tcRep = rep.GetComponent<NPC>();
         tcRep.SetReferences(world, true);
         tcRep.SetTradeCenter(this);
-        world.AddCharacter(tcRep, rep.name);
+        world.uiSpeechWindow.AddToSpeakingDict(tcRep.npcName, tcRep);
+
+        //world.AddCharacter(tcRep, rep.name);
 
         if (!isDiscovered)
             tcRep.gameObject.SetActive(false);

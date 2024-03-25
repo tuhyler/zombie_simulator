@@ -87,7 +87,7 @@ public class UITradeCenter : MonoBehaviour
             ownerImage.sprite = center.tcRep.npcImage;
             increaseText.text = "+" + center.tcRep.angryIncrease.ToString() + "%";
             decreaseText.text = "-" + center.tcRep.happyDiscount.ToString() + "%,";
-            ecstaticText.text = "-" + center.tcRep.ecstaticDiscount.ToString() + "%,";
+            ecstaticText.text = "-" + center.tcRep.ecstaticDiscount.ToString() + "%";
             SetHappinessMeter(center.tcRep);
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(-500f, 0, 0);
