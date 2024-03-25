@@ -1336,6 +1336,8 @@ public class Worker : Unit
 			azaiPath.AddRange(scottPath);
 			azaiPath.Remove(finalScottSpot);
 
+			world.azai.StopAnimation();
+			world.azai.ShiftMovement();
 			if (azaiPath.Count > 0)
 			{
 				world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];

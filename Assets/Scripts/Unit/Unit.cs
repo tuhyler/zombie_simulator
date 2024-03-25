@@ -381,9 +381,10 @@ public class Unit : MonoBehaviour
                             world.ToggleGiftGiving(unitInTheWay.GetComponent<NPC>());
                         }
 					    worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
-					    FinishMoving(transform.position);
-					    yield break;
                     }
+
+					FinishMoving(transform.position);
+					yield break;
 				}
             }
 
@@ -455,9 +456,7 @@ public class Unit : MonoBehaviour
         {
 			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
 			if (pos != prevTerrainTile)
-            {
 				RevealCheck(pos, false);
-            }
 
 			if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
 			{

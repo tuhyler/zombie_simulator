@@ -14,10 +14,10 @@ public class NPC : Unit
 	public int ecstaticDiscount;
 	public List<ResourceValue> questGoals = new();
 	public List<string> questHints = new();
-	public int waitForNextQuest = 60;
+	public int waitForNextQuest = 10;
 	public int purchasedAmountBaseThreshold = 500;
 	[HideInInspector]
-	public int currentQuest = -1, purchasedAmount;
+	public int currentQuest, purchasedAmount;
 	private int timeWaited = 0;
 
 	private ResourceValue desiredGift;
@@ -26,15 +26,13 @@ public class NPC : Unit
 
 	private void Awake()
 	{
+		AwakeMethods();
 		npc = GetComponent<NPC>();
 	}
 
 	public void SetTradeCenter(TradeCenter center)
 	{
 		this.center = center;
-
-		if (currentQuest == -1)
-			SetSomethingToSay(npcName + "_intro");
 	}
 
 	public bool GiftCheck(ResourceValue value)
@@ -116,8 +114,11 @@ public class NPC : Unit
 
 	public void BeginNextQuestWait()
 	{
-		timeWaited = waitForNextQuest;
-		StartCoroutine(SetNextQuestWait());
+		if (currentQuest < questGoals.Count)
+		{
+			timeWaited = waitForNextQuest;
+			StartCoroutine(SetNextQuestWait());
+		}
 	}
 
 	public void CreateConversationTaskItem()

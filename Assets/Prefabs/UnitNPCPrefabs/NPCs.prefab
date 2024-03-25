@@ -129,6 +129,7 @@ MonoBehaviour:
   worker: {fileID: 0}
   military: {fileID: 0}
   transport: {fileID: 0}
+  npc: {fileID: 0}
   conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
@@ -176,6 +177,13 @@ MonoBehaviour:
   angryIncrease: 0
   happyDiscount: 0
   ecstaticDiscount: 0
+  questGoals: []
+  questHints: []
+  waitForNextQuest: 60
+  purchasedAmountBaseThreshold: 500
+  currentQuest: 0
+  purchasedAmount: 0
+  onQuest: 0
 --- !u!114 &8497576317380012912
 MonoBehaviour:
   m_ObjectHideFlags: 0

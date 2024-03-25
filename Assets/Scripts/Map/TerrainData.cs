@@ -133,7 +133,7 @@ public class TerrainData : MonoBehaviour
 		walkable = terrainData.walkable;
 		sailable = terrainData.sailable;
 
-		if (terrainData.type == TerrainType.Obstacle || isHill)
+        if (terrainData.type == TerrainType.Obstacle || isHill)
 		{
 			foreach (MeshRenderer renderer in main.GetComponentsInChildren<MeshRenderer>())
 			{
