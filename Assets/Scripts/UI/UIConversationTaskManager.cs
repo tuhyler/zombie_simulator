@@ -22,7 +22,7 @@ public class UIConversationTaskManager : MonoBehaviour
 	[SerializeField]
 	private TMP_Text textField; 
 
-	private List<UIConversationTask> conversationTasks = new();
+	private Dictionary<string, UIConversationTask> conversationTaskDict = new();
 	private UIConversationTask selectedTask; 
 
 	[SerializeField]
@@ -80,7 +80,12 @@ public class UIConversationTaskManager : MonoBehaviour
 		}
 		else
 		{
-			selectedTask = null;
+			if (selectedTask != null)
+			{
+				selectedTask.RevertBackground();
+				selectedTask = null;
+			}
+
 			textField.text = "";
 			world.cameraController.paused = false;
 			minimapHandler.paused = false;
@@ -113,7 +118,7 @@ public class UIConversationTaskManager : MonoBehaviour
 		world.somethingSelected = false;
 	}
 
-	public void CreateConversationTask(string title, bool loading = false, NPC npc = null)
+	public void CreateConversationTask(string title, bool loading = false)
 	{
 		GameObject taskGO = Instantiate(conversationTask);
 		taskGO.transform.SetParent(taskTitleHolder, false);
@@ -121,24 +126,33 @@ public class UIConversationTaskManager : MonoBehaviour
 		task.manager = this;
 		task.SetTitle(title);
 
-		if (npc)
-			task.taskText = npc.questHints[npc.currentQuest];
-		else
-			task.taskText = UpgradeableObjectHolder.Instance.conversationTaskDict[title];
+		if (world.allTCReps.ContainsKey(title))
+		{
+			if (!conversationTaskDict.ContainsKey(title))
+			{
+				conversationTaskDict[title] = task;
+				if (!loading)
+					GameLoader.Instance.gameData.conversationTasks.Add(title);
+			}
+			//task.taskText = npc.questHints[npc.currentQuest];
+		}
+		//else
+		//{
+
+		//}
+			//task.taskText = UpgradeableObjectHolder.Instance.conversationTaskDict[title];
 		
-		if (!loading)
-			GameLoader.Instance.gameData.conversationTaskDict[title] = (false, false);
 
-		conversationTasks.Add(task);
+		//conversationTasks.Add(task);
 	}
 
-	public void LoadConversationTask(string title, bool completed, bool failed)
-	{
-		CreateConversationTask(title, true);
+	//public void LoadConversationTask(string title)
+	//{
+	//	CreateConversationTask(title, true);
 
-		if (completed)
-			CompleteTask(title, failed, false);
-	}
+	//	//if (completed)
+	//	//	CompleteTask(title, failed, false);
+	//}
 
 	public void SelectTask(UIConversationTask task)
 	{
@@ -153,24 +167,66 @@ public class UIConversationTaskManager : MonoBehaviour
 		}
 
 		selectedTask = task;
-		textField.text = task.taskText;
-	}
 
-	public void CompleteTask(string title, bool failed, bool loading = false)
-	{
-		for (int i = 0; i < conversationTasks.Count; i++)
+		if (world.allTCReps.ContainsKey(task.title))
 		{
-			if (conversationTasks[i].title == title)
+			string textToAdd = "";
+			NPC npc = world.allTCReps[task.title];
+			int currentQuest;
+			string status;
+			string color;
+
+			if (npc.onQuest)
 			{
-				if (!conversationTasks[i].completed)
-				{
-					if (!loading)
-						GameLoader.Instance.gameData.conversationTaskDict[title] = (true, failed);
-					conversationTasks[i].CompleteTask(failed);
-				}
-	
-				break;
+				currentQuest = npc.currentQuest;
+				status = " (Active)";
+				color = "black";
 			}
+			else
+			{
+				currentQuest = npc.currentQuest - 1;
+				status = " (Completed)";
+				color = "#007000";
+			}
+
+			for (int i = 0; i < npc.questHints.Count; i++)
+			{
+				if (i > 0)
+					textToAdd += "\n\n";
+
+				if (i < currentQuest)
+				{
+					textToAdd += "<color=#007000>Task " + (i + 1).ToString() + " (Completed)" + "\n" + npc.questHints[i] + "</color>";
+				}
+				else if (i == currentQuest)
+				{
+					textToAdd += "<color=" + color + ">Task " + (i + 1).ToString() + status + "\n" + npc.questHints[i] + "</color>";
+				}
+				else
+				{
+					break;
+				}
+			}
+		
+			textField.text = textToAdd;
 		}
 	}
+
+	//public void CompleteTask(string title, bool failed, bool loading = false)
+	//{
+	//	for (int i = 0; i < conversationTasks.Count; i++)
+	//	{
+	//		if (conversationTasks[i].title == title)
+	//		{
+	//			if (!conversationTasks[i].completed)
+	//			{
+	//				if (!loading)
+	//					GameLoader.Instance.gameData.conversationTaskDict[title] = (true, failed);
+	//				conversationTasks[i].CompleteTask(failed);
+	//			}
+	
+	//			break;
+	//		}
+	//	}
+	//}
 }

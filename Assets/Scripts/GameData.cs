@@ -19,7 +19,7 @@ public class GameData
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
     public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new(), goldCityWaitList = new(), goldCityRouteWaitList = new(), goldWonderWaitList = new(), goldTradeCenterWaitList = new();
     public string tutorialStep, gameStep;
-    public Dictionary<string, (bool, bool)> conversationTaskDict = new();
+    public List<string> conversationTasks = new();
     public bool scottFollow, azaiFollow, tutorial, tutorialGoing;
     public Vector3Int startingLoc;
     public List<Vector3> attackLocs = new();
@@ -30,6 +30,9 @@ public class GameData
     public Quaternion camRotation;
     public float timeODay;
     public List<float> camLimits = new();
+
+    public Dictionary<string, NPCData> allTCRepData = new();
+    public List<NPCData> allEnemyLeaderData = new();
 
     public Dictionary<Vector3Int,Dictionary<Vector3Int,string>> enemyCampLocs = new();
     public List<Vector3Int> discoveredEnemyCampLocs = new();

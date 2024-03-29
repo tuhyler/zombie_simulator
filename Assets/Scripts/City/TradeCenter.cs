@@ -118,9 +118,26 @@ public class TradeCenter : MonoBehaviour
         nameMap.gameObject.SetActive(false);
     }
 
-    public void SetTradeCenterRep()
+    public void SetTradeCenterRep(bool load)
     {
-        Vector3 instantiateLoc = tradeRepLoc;
+        int rot = Mathf.RoundToInt(main.rotation.eulerAngles.y / 90);
+        Vector3 tempTradeRepLoc = tradeRepLoc;
+
+        switch (rot)
+        {
+            case 1:
+                tempTradeRepLoc.x *= -1;
+                break;
+            case 2:
+				tempTradeRepLoc.x *= -1;
+				tempTradeRepLoc.z *= -1;
+				break;
+            case 3:
+				tempTradeRepLoc.z *= -1;
+				break;
+        }
+        
+        Vector3 instantiateLoc = tempTradeRepLoc;
         Vector3 rotationDirection = Vector3Int.zero - instantiateLoc;
 		Quaternion endRotation;
 		if (rotationDirection == Vector3.zero)
@@ -130,20 +147,25 @@ public class TradeCenter : MonoBehaviour
 
 		GameObject rep = Instantiate(tradeCenterRep.prefab, instantiateLoc, endRotation);
         rep.transform.SetParent(transform, false);
-        rep.name = tradeCenterRep.unitDisplayName;
+        //rep.name = tradeCenterRep.unitDisplayName;
         tcRep = rep.GetComponent<NPC>();
-        tcRep.SetReferences(world, true);
+        tcRep.SetUpNPC(world);
+        //tcRep.SetReferences(world, true);
         tcRep.SetTradeCenter(this);
-        world.uiSpeechWindow.AddToSpeakingDict(tcRep.npcName, tcRep);
+        //world.uiSpeechWindow.AddToSpeakingDict(tcRep.npcName, tcRep);
 
         //world.AddCharacter(tcRep, rep.name);
 
         if (!isDiscovered)
             tcRep.gameObject.SetActive(false);
 
-        Vector3 actualPosition = rep.transform.position;
-        world.AddUnitPosition(actualPosition, tcRep);
+        //Vector3 actualPosition = rep.transform.position;
+        //world.AddUnitPosition(actualPosition, tcRep);
 
+        //world.allTCReps.Add(tcRep);
+
+        if (load)
+            tcRep.LoadNPCData(GameLoader.Instance.gameData.allTCRepData[tcRep.npcName]);
         CheckRapport();
     }
 

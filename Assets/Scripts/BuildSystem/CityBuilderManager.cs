@@ -271,10 +271,17 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (selectedObject.tag == "Enemy")
             {
-                TerrainData td = world.GetTerrainDataAt(terrainLocation);
+				if (world.somethingSelected)
+				{
+					world.somethingSelected = false;
+				}
+                else
+                {
+				    TerrainData td = world.GetTerrainDataAt(terrainLocation);
                 
-                if (td.isDiscovered)
-                    world.OpenTerrainTooltip(td);
+                    if (td.isDiscovered)
+                        world.OpenTerrainTooltip(td);
+                }
 	
                 return;
             }

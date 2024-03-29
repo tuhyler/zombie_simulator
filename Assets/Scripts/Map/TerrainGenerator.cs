@@ -13,7 +13,13 @@ public class TerrainGenerator : MonoBehaviour
     private MapWorld world;
     [SerializeField]
     private GameObject enemyBorder, improvementResource;
-    
+
+    [Header("Era & Region")]
+    [SerializeField]
+    private Era newEra;
+    [SerializeField]
+    private Region newRegion;
+
     [Header("General Map Parameters")]
     [SerializeField]
     private int seed = 4;
@@ -21,8 +27,6 @@ public class TerrainGenerator : MonoBehaviour
     public int width = 50, height = 50, yCoord = 3, landMassLimit = 1, totalLandLimit = 400, desertPerc = 30, forestAndJunglePerc = 70, mountainPerc = 10, mountainousPerc = 80, 
         mountainRangeLength = 20, equatorDist = 10, equatorPos = 25,/*riverPerc = 5, */riverCountMin = 10, oceanRingDepth = 2, startingSpotGrasslandCountMin = 5, startingSpotGrasslandCountMax = 20,
         tradeCenterCount = 1, tradeCenterDistance = 30, resourceFrequency = 4, enemyCountDifficulty = 1;
-    [SerializeField]
-    public Region startingRegion;
     [HideInInspector]
     public int continentsFlag, resourceFlag;
 
@@ -79,7 +83,7 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private Transform groundTiles;
     [SerializeField]
-    private Transform tradeCenterHolder, enemyHolder;
+    private Transform tradeCenterHolder, enemyHolder, enemyCityHolder;
 
     [Header("Terrain Data SO")]
     [SerializeField]
@@ -97,12 +101,18 @@ public class TerrainGenerator : MonoBehaviour
     [SerializeField]
     private List<GameObject> tradeCenters;
 
+    [Header("Enemy Leader Prefabs")]
+    [SerializeField]
+    private List<UnitBuildDataSO> enemyLeaders;
+
     [Header("Enemy Unit Prefabs (use same order)")]
     [SerializeField]
-    public List<GameObject> enemyUnits;
+    public List<UnitBuildDataSO> enemyUnits;
 
     [HideInInspector]
     public List<Vector3Int> enemyCityLocs = new(), enemyRoadLocs = new(), enemyCampLocs = new();
+    [HideInInspector]
+    public List<EnemyEmpire> enemyEmpires = new();
 
     [Header("Enemy Camp Parameters")]
     [SerializeField] 
@@ -116,11 +126,15 @@ public class TerrainGenerator : MonoBehaviour
 
     public ResourceHolder resourceHolder;
 
-    private Dictionary<Vector3Int, TerrainData> terrainDict = new();
+    public Dictionary<Vector3Int, TerrainData> terrainDict = new();
     private Vector3Int startingPlace;
     private List<TerrainData> propTiles = new();
     private List<Vector3Int> tradeCenterPositions = new();
     private List<Vector3Int> fourWayRiverLocs = new();
+
+    //unit dicts
+    public Dictionary<Era, Dictionary<Region, List<GameObject>>> enemyLeaderDict = new(); 
+    public Dictionary<Era, Dictionary<Region, Dictionary<UnitType, GameObject>>> enemyUnitDict = new();
 
 	private void OnDrawGizmos() //for highlighting difficulty of terrain
 	{
@@ -142,10 +156,35 @@ public class TerrainGenerator : MonoBehaviour
 			CreateCityIndicator(enemyCampLocs[i], new Color(1, 0, 1), nonBuildTime);
 	}
 
+    private void PopulateUnitDicts()
+    {
+        foreach (UnitBuildDataSO data in enemyLeaders)
+        {
+            if (!enemyLeaderDict.ContainsKey(data.unitEra))
+                enemyLeaderDict[data.unitEra] = new();
+
+            if (!enemyLeaderDict[data.unitEra].ContainsKey(data.unitRegion))
+                enemyLeaderDict[data.unitEra][data.unitRegion] = new();
+
+            enemyLeaderDict[data.unitEra][data.unitRegion].Add(data.prefab);
+        }
+
+        foreach (UnitBuildDataSO data in enemyUnits)
+        {
+            if (!enemyUnitDict.ContainsKey(data.unitEra))
+                enemyUnitDict[data.unitEra] = new();
+            
+            if (!enemyUnitDict[data.unitEra].ContainsKey(data.unitRegion))
+                enemyUnitDict[data.unitEra][data.unitRegion] = new();
+            
+            enemyUnitDict[data.unitEra][data.unitRegion][data.unitType] = data.prefab;
+		}
+    }
+
 	public void GenerateMap()
     {
         terrainDict.Clear();
-        RunProceduralGeneration(false);
+        RunProceduralGeneration(true);
     }
 
     public void RemoveMap()
@@ -153,8 +192,10 @@ public class TerrainGenerator : MonoBehaviour
 		RemoveAllTiles();
     }
 
-    public Dictionary<Vector3Int, TerrainData> RunProceduralGeneration(bool newGame)
+    public void RunProceduralGeneration(bool newGame)
     {
+        PopulateUnitDicts();
+        
         RemoveAllTiles();
         retry = false;
 
@@ -171,6 +212,7 @@ public class TerrainGenerator : MonoBehaviour
         List<Vector3Int> coastTiles = new();
         List<Vector3Int> grasslandTiles = new();
         List<Vector3Int> desertTiles = new();
+        List<Vector3Int> mountainTiles = new();
         //List<TerrainData> propTiles = new();
 
         Dictionary<Vector3Int, int> mainMap = 
@@ -190,7 +232,7 @@ public class TerrainGenerator : MonoBehaviour
             seed++;
             terrainDict.Clear();
             RunProceduralGeneration(newGame);
-            return null;
+            return;
         }
 
         Dictionary<Vector3Int, float> noise = ProceduralGeneration.PerlinNoiseGenerator(mainMap,
@@ -442,33 +484,17 @@ public class TerrainGenerator : MonoBehaviour
 			}
             else if (mainMap[position] == ProceduralGeneration.grasslandMountain)
             {
+                mountainTiles.Add(position);
 				int prefabIndex = random.Next(0, grasslandMountainSO.prefabs.Count);
 				GameObject grasslandMountain = grasslandMountainSO.prefabs[prefabIndex];
-
-                List<int> mountainNeighbors = new();
-				for (int i = 0; i < ProceduralGeneration.neighborsFourDirections.Count; i++)
-				{
-					Vector3Int neighbor = position + ProceduralGeneration.neighborsFourDirections[i];
-                    if (mainMap[neighbor] == ProceduralGeneration.grasslandMountain)
-                        mountainNeighbors.Add(i);
-				}
-
-				GenerateTile(grasslandMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex, false, mountainNeighbors, true);
+				GenerateTile(grasslandMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex);
             }
             else if (mainMap[position] == ProceduralGeneration.desertMountain)
             {
-				int prefabIndex = random.Next(0, desertMountainSO.prefabs.Count);
+                mountainTiles.Add(position);
+                int prefabIndex = random.Next(0, desertMountainSO.prefabs.Count);
 				GameObject desertMountain = desertMountainSO.prefabs[prefabIndex];
-
-				List<int> mountainNeighbors = new();
-				for (int i = 0; i < ProceduralGeneration.neighborsFourDirections.Count; i++)
-				{
-					Vector3Int neighbor = position + ProceduralGeneration.neighborsFourDirections[i];
-					if (mainMap[neighbor] == ProceduralGeneration.desertMountain)
-						mountainNeighbors.Add(i);
-				}
-
-				GenerateTile(desertMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex, false, mountainNeighbors, false);
+				GenerateTile(desertMountain, position, Quaternion.Euler(0, rotate[random.Next(0, 4)], 0), prefabIndex);
             }
             else if (mainMap[position] == ProceduralGeneration.grassland)
             {
@@ -580,7 +606,7 @@ public class TerrainGenerator : MonoBehaviour
             seed++;
             terrainDict.Clear();
             RunProceduralGeneration(newGame);
-            return null;
+            return;
         }
 
 		this.startingPlace = startingPlace;
@@ -606,7 +632,26 @@ public class TerrainGenerator : MonoBehaviour
 		stoneAmount = Mathf.CeilToInt(stone * totalResourcePlacements / 100f);
         stonePlaced = 0;
 
-        (List<Vector3Int> enemyFoodLocs, List<Vector3Int> enemyWaterLocs, List<Vector3Int> enemyResourceLocs) = GenerateEnemyCities(random, startingPlace, coastTiles);
+        List<Vector3Int> enemyFoodLocs = new(), enemyWaterLocs = new(), enemyResourceLocs = new();
+
+        if (newGame)
+        {
+            GameObject chosenLeader = enemyLeaderDict[newEra][newRegion][0];
+			(enemyFoodLocs, enemyWaterLocs, enemyResourceLocs) = GenerateEnemyCities(random, startingPlace, coastTiles, chosenLeader, true);
+        }
+        else
+        {
+            List<Vector3Int> tempEnemyFoodLocs = new(), tempEnemyWaterLocs = new(), tempEnemyResourceLocs = new();
+			
+            for (int i = 0; i < enemyLeaderDict[newEra][newRegion].Count; i++)
+            {
+                GameObject chosenLeader = enemyLeaderDict[newEra][newRegion][i];
+                (tempEnemyFoodLocs, tempEnemyWaterLocs, tempEnemyResourceLocs) = GenerateEnemyCities(random, startingPlace, coastTiles, chosenLeader, false, enemyCityLocs);
+                enemyFoodLocs.AddRange(tempEnemyFoodLocs);
+                enemyWaterLocs.AddRange(tempEnemyWaterLocs);
+                enemyResourceLocs.AddRange(tempEnemyResourceLocs);
+            }
+		}
 
 		//setting up range of enemy cities so nothing is placed too close
 		List<Vector3Int> enemyCityRange = new();
@@ -667,7 +712,7 @@ public class TerrainGenerator : MonoBehaviour
 
             bool swamp = propTiles[i].terrainData.terrainDesc == TerrainDesc.Swamp;
             bool forest = propTiles[i].CompareTag("Forest") || propTiles[i].CompareTag("Forest Hill");
-            AddProp(random, propTiles[i], propTiles[i].terrainData.decors, swamp, forest, newGame);
+            AddProp(random, propTiles[i], propTiles[i].terrainData.decors, swamp, forest);
         }
 
         for (int i = 0; i < foodLocs.Count; i++)
@@ -679,15 +724,31 @@ public class TerrainGenerator : MonoBehaviour
 		for (int i = 0; i < resourceLocs.Count; i++)
             AddResource(random, terrainDict[resourceLocs[i]]);
 
-        enemyCampLocs = GenerateEnemyCamps(random, startingPlace, landLocs, luxuryLocs, resourceLocs, enemyCityRange, tradeCenterRange);
+        enemyCampLocs = GenerateEnemyCamps(random, startingPlace, landLocs, luxuryLocs, resourceLocs, enemyCityRange, tradeCenterRange, newEra, newRegion);
 
+        //lastly adding mountain middles
+        for (int i = 0; i < mountainTiles.Count; i++)
+        {
+            TerrainData td = terrainDict[mountainTiles[i]];
+            if (td.terrainData.terrainDesc == TerrainDesc.Mountain)
+            {
+                bool grassland = td.terrainData.grassland;
+                for (int j = 0; j < ProceduralGeneration.neighborsFourDirections.Count; j++)
+                {
+                    Vector3Int tile = ProceduralGeneration.neighborsFourDirections[j] + mountainTiles[i];
+				    
+                    if (terrainDict.ContainsKey(tile) && terrainDict[tile].terrainData.terrainDesc == TerrainDesc.Mountain && terrainDict[tile].terrainData.grassland == grassland)
+                        SetMountainMiddle(td, j, grassland, td.main.rotation);
+				}
+			}
+        }
         //Finish it all off by placing water
         //Vector3 waterLoc = new Vector3(width*3 / 2 - .5f, yCoord - .02f, height*3 / 2 - .5f);
         //      GameObject water = Instantiate(this.water, waterLoc, Quaternion.identity);
         //      water.transform.SetParent(groundTiles.transform, false);
         //      allTiles.Add(water);
         //      water.transform.localScale = new Vector3((width*3 + oceanRingDepth * 2)/10f, 1, (height*3 + oceanRingDepth * 2)/10f);
-		return terrainDict;
+		//return terrainDict;
     }
 
     private void CreateCityIndicator(Vector3 loc, Color color, bool isShowing) 
@@ -771,7 +832,7 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    private void AddProp(System.Random random, TerrainData td, List<GameObject> propArray, bool swamp, bool forest, bool newGame)
+    private void AddProp(System.Random random, TerrainData td, List<GameObject> propArray, bool swamp, bool forest)
     {
         Quaternion rotation;
         if (swamp)
@@ -801,7 +862,7 @@ public class TerrainGenerator : MonoBehaviour
 
 			td.decorIndex = propInt;
 
-			if (propInt == 1 && newGame)
+			if (propInt == 1 && !nonBuildTime)
 			{
 				td.changeLeafColor = changeLeafColor;
 
@@ -877,7 +938,7 @@ public class TerrainGenerator : MonoBehaviour
         allTiles.Add(improvementResource);
 	}
 
-    private TerrainData GenerateTile(GameObject tile, Vector3Int position, Quaternion rotation, int prefabIndex, bool water = false, List<int> mountainNeighbors = null, bool grassland = false)
+    private TerrainData GenerateTile(GameObject tile, Vector3Int position, Quaternion rotation, int prefabIndex, bool water = false)
     {
         GameObject newTile = Instantiate(tile, position, Quaternion.identity);
         newTile.transform.SetParent(groundTiles.transform, false);
@@ -885,13 +946,6 @@ public class TerrainGenerator : MonoBehaviour
 		TerrainData td = newTile.GetComponent<TerrainData>();
         td.prefabIndex = prefabIndex;
         td.TileCoordinates = position;
-
-        if (mountainNeighbors != null)
-        {
-            for (int i = 0; i < mountainNeighbors.Count; i++)
-			    SetMountainMiddle(td, mountainNeighbors[i], grassland, rotation);
-        }
-
 		td.TerrainDataPrep();
         terrainDict[position] = td;
         //must keep collision in parent for some reason
@@ -2149,6 +2203,8 @@ public class TerrainGenerator : MonoBehaviour
 		mmGO.transform.SetParent(td.main, false);
 		mmNonStatic.transform.SetParent(td.nonstatic, false);
 
+        td.AddMountainMiddleToWhiteMesh(mmGO.GetComponentInChildren<MeshRenderer>());		    
+
 		if (!nonBuildTime && grassland)
 		{
 			MeshFilter mesh = mmGO.GetComponentInChildren<MeshFilter>();
@@ -2162,29 +2218,59 @@ public class TerrainGenerator : MonoBehaviour
 		}
 	}
 
-	private (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GenerateEnemyCities(System.Random random, Vector3Int startingPlace, List<Vector3Int> coastTiles)
+	private (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GenerateEnemyCities(System.Random random, Vector3Int startingPlace, List<Vector3Int> coastTiles, GameObject chosenLeader, bool starting, List<Vector3Int> otherEnemyCities = null)
     {
 		//make sure enough flatland surround it (3 to 4)
         List<Vector3Int> foodLocs = new();
         List<Vector3Int> waterLocs = new();
         List<Vector3Int> resourceLocs = new();
-        List<Vector3Int> voidedTiles = new() { startingPlace };
-
         List<(Vector3Int, int)> coastDist = new();
+        List<Vector3Int> voidedTiles = new();
+        List<Vector3Int> empireCities = new();
 
-        for (int i = 0; i < coastTiles.Count; i++)
-            coastDist.Add((coastTiles[i], Math.Abs(coastTiles[i].x - startingPlace.x) + Math.Abs(coastTiles[i].z - startingPlace.z)));
+        int xMinStart;
+        int zMinStart;
+
+        if (starting)
+        {
+            voidedTiles.Add(startingPlace);
+
+            for (int i = 0; i < coastTiles.Count; i++)
+                coastDist.Add((coastTiles[i], Math.Abs(coastTiles[i].x - startingPlace.x) + Math.Abs(coastTiles[i].z - startingPlace.z)));
+
+            //can't be within 4 tiles of starting place
+			xMinStart = startingPlace.x - 12;
+			zMinStart = startingPlace.z - 12;
+		}
+        else
+        {
+            Vector3Int avgEnemyCity = Vector3Int.zero;
+            for (int i = 0; i < otherEnemyCities.Count; i++)
+            {
+                voidedTiles.Add(otherEnemyCities[i]);
+                avgEnemyCity += otherEnemyCities[i];
+            }
+
+			if (otherEnemyCities.Count > 0)
+				avgEnemyCity /= otherEnemyCities.Count;
+
+			for (int i = 0; i < coastTiles.Count; i++)
+				coastDist.Add((coastTiles[i], Math.Abs(coastTiles[i].x - avgEnemyCity.x) + Math.Abs(coastTiles[i].z - avgEnemyCity.z)));
+
+            xMinStart = avgEnemyCity.x - 12;
+            zMinStart = avgEnemyCity.z - 12;
+		}
 
 		coastDist.Sort((a, b) => b.Item2.CompareTo(a.Item2));
 
-        //can't be within 4 tiles of starting place
-        int xMinStart = startingPlace.x - 12;
-        int zMinStart = startingPlace.z - 12;
-        for (int i = 0; i < 9; i++)
+        if (starting || otherEnemyCities.Count > 0)
         {
-            for (int j = 0; j < 9; j++)
+            for (int i = 0; i < 9; i++)
             {
-                voidedTiles.Add(new Vector3Int(xMinStart + i * 3, yCoord, zMinStart + j * 3));
+                for (int j = 0; j < 9; j++)
+                {
+                    voidedTiles.Add(new Vector3Int(xMinStart + i * 3, yCoord, zMinStart + j * 3));
+                }
             }
         }
 
@@ -2197,14 +2283,14 @@ public class TerrainGenerator : MonoBehaviour
         }
         else
         {
-            enemyCityLocs.Add(newEnemyCity);
+			empireCities.Add(newEnemyCity);
             propTiles.Remove(terrainDict[newEnemyCity]);
         }
 
         //finding neighboring cities
         for (int i = 0; i < enemyCountDifficulty - 1; i++)
         {
-            Vector3Int mostRecentLoc = enemyCityLocs[enemyCityLocs.Count - 1];
+            Vector3Int mostRecentLoc = empireCities[empireCities.Count - 1];
             voidedTiles.Add(mostRecentLoc);
 
             for (int j = 0; j < ProceduralGeneration.neighborsCityRadius.Count; j++)
@@ -2270,7 +2356,7 @@ public class TerrainGenerator : MonoBehaviour
 
 						    if (groundCount >= 3)
 						    {
-							    enemyCityLocs.Add(tile);
+								empireCities.Add(tile);
 								propTiles.Remove(terrainDict[tile]);
 								foundLoc = true;
 							    break;
@@ -2296,41 +2382,41 @@ public class TerrainGenerator : MonoBehaviour
 				Vector3Int nextEnemyCity = FindCoastTileForCity(enemyCoastDist, voidedTiles);
 				if (nextEnemyCity != new Vector3Int(0, -10, 0))
                 {
-					enemyCityLocs.Add(nextEnemyCity);
+					empireCities.Add(nextEnemyCity);
 					propTiles.Remove(terrainDict[nextEnemyCity]);
 					foundLoc = true;
                 }
 			}
         }
 
-        for (int i = 0; i < enemyCityLocs.Count; i++)
+        for (int i = 0; i < empireCities.Count; i++)
         {
-            ForestCheck(enemyCityLocs[i]);
+            ForestCheck(empireCities[i]);
             
-            if (!terrainDict[enemyCityLocs[i]].walkable)
+            if (!terrainDict[empireCities[i]].walkable)
             {
-                propTiles.Remove(terrainDict[enemyCityLocs[i]]);
-                DestroyImmediate(terrainDict[enemyCityLocs[i]].gameObject);
-				GenerateTile(grasslandHillSO.prefabs[0], enemyCityLocs[i], Quaternion.identity, 0);
+                propTiles.Remove(terrainDict[empireCities[i]]);
+                DestroyImmediate(terrainDict[empireCities[i]].gameObject);
+				GenerateTile(grasslandHillSO.prefabs[0], empireCities[i], Quaternion.identity, 0);
 			}
-            else if (!terrainDict[enemyCityLocs[i]].terrainData.grassland)
+            else if (!terrainDict[empireCities[i]].terrainData.grassland)
             {
-				propTiles.Remove(terrainDict[enemyCityLocs[i]]);
+				propTiles.Remove(terrainDict[empireCities[i]]);
 				TerrainDataSO data;
-                if (terrainDict[enemyCityLocs[i]].isHill)
+                if (terrainDict[empireCities[i]].isHill)
                     data = grasslandHillSO;
                 else
                     data = grasslandSO;
-                DestroyImmediate(terrainDict[enemyCityLocs[i]].gameObject);
-                GenerateTile(data.prefabs[0], enemyCityLocs[i], Quaternion.identity, 0);
+                DestroyImmediate(terrainDict[empireCities[i]].gameObject);
+                GenerateTile(data.prefabs[0], empireCities[i], Quaternion.identity, 0);
 			}
 
-            SwampCheck(enemyCityLocs[i]);
-            FloodPlainCheck(enemyCityLocs[i]);
+            SwampCheck(empireCities[i]);
+            FloodPlainCheck(empireCities[i]);
 
             for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
             {
-                Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + enemyCityLocs[i];
+                Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + empireCities[i];
 
                 if (!terrainDict[tile].walkable && terrainDict[tile].isLand)
                 {
@@ -2359,24 +2445,24 @@ public class TerrainGenerator : MonoBehaviour
 			}
 		}
 
-        bool[] hasRoad = new bool[enemyCityLocs.Count];
-        for (int i = 0; i < enemyCityLocs.Count; i++)
+        bool[] hasRoad = new bool[empireCities.Count];
+        for (int i = 0; i < empireCities.Count; i++)
             hasRoad[i] = false;
 
-        if (enemyCityLocs.Count == 1)
+        if (empireCities.Count == 1)
             hasRoad[0] = true;
         //building road between cities
-        for (int i = 0; i < enemyCityLocs.Count; i++)
+        for (int i = 0; i < empireCities.Count; i++)
 		{
             if (hasRoad[i])
                 continue;
             
-            Vector3Int startingEnemyCity = enemyCityLocs[0];
-			Vector3Int finalEnemyCity = enemyCityLocs[i];
+            Vector3Int startingEnemyCity = empireCities[0];
+			Vector3Int finalEnemyCity = empireCities[i];
 			int dist = 0;
             //find closest city to build road to (if close enough)
             bool firstOne = true;
-			for (int j = 0; j < enemyCityLocs.Count; j++)
+			for (int j = 0; j < empireCities.Count; j++)
 			{
                 if (j == i) //can't find itself
                     continue;
@@ -2384,16 +2470,16 @@ public class TerrainGenerator : MonoBehaviour
                 if (firstOne)
 				{
                     firstOne = false;
-                    dist = Math.Abs(finalEnemyCity.x - enemyCityLocs[j].x) + Math.Abs(finalEnemyCity.z - enemyCityLocs[j].z);
-					startingEnemyCity = enemyCityLocs[j];
+                    dist = Math.Abs(finalEnemyCity.x - empireCities[j].x) + Math.Abs(finalEnemyCity.z - empireCities[j].z);
+					startingEnemyCity = empireCities[j];
                     continue;
 				}
 
-				int newDist = Math.Abs(finalEnemyCity.x - enemyCityLocs[j].x) + Math.Abs(finalEnemyCity.z - enemyCityLocs[j].z);
+				int newDist = Math.Abs(finalEnemyCity.x - empireCities[j].x) + Math.Abs(finalEnemyCity.z - empireCities[j].z);
 				if (newDist < dist)
 				{
 					dist = newDist;
-					startingEnemyCity = enemyCityLocs[j];
+					startingEnemyCity = empireCities[j];
 				}
 			}
 
@@ -2466,7 +2552,7 @@ public class TerrainGenerator : MonoBehaviour
 				if (path.Count < 7)
                 {
                     hasRoad[i] = true;
-                    hasRoad[enemyCityLocs.IndexOf(startingEnemyCity)] = true;
+                    hasRoad[empireCities.IndexOf(startingEnemyCity)] = true;
                     for (int j = 0; j < path.Count; j++)
                     {
                         if (!enemyRoadLocs.Contains(path[j]))
@@ -2477,7 +2563,7 @@ public class TerrainGenerator : MonoBehaviour
 		}
 
         //adding enemy city resources
-        for (int i = 0; i < enemyCityLocs.Count; i++)
+        for (int i = 0; i < empireCities.Count; i++)
         {
 			List<Vector3Int> flatlandTiles = new();
             List<Vector3Int> desertTiles = new();
@@ -2487,7 +2573,7 @@ public class TerrainGenerator : MonoBehaviour
 			
             for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
             {
-				Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + enemyCityLocs[i];
+				Vector3Int tile = ProceduralGeneration.neighborsEightDirections[j] + empireCities[i];
 
                 if (enemyRoadLocs.Contains(tile))
                     continue;
@@ -2581,10 +2667,9 @@ public class TerrainGenerator : MonoBehaviour
             int index = 0, amountMin = 0, amountMax = 0;
             TerrainDataSO data = grasslandSO;
             Vector3Int resourceLoc = Vector3Int.zero;
-            if (hillTiles.Count + flatlandTiles.Count > 0 )
+            if (hillTiles.Count + flatlandTiles.Count > 0)
             {
                 bool hill = hillTiles.Count > 0;
-                data = hill ? grasslandHillResourceSO : grasslandResourceSO;
                 
                 if (goldAmount - goldPlaced > 0)
                 {
@@ -2606,6 +2691,11 @@ public class TerrainGenerator : MonoBehaviour
 					amountMin = jewelAmounts.Item1;
 					amountMax = jewelAmounts.Item2;
 				}
+
+                if (hill)
+                    data = terrainDict[resourceLoc].terrainData.grassland ? grasslandHillResourceSO : desertHillResourceSO;
+				else
+                    data = terrainDict[resourceLoc].terrainData.grassland ? grasslandResourceSO : desertResourceSO;
 			}
 
             if (addResource)
@@ -2640,13 +2730,47 @@ public class TerrainGenerator : MonoBehaviour
 		}
 
         //generating terrain info for enemy cities
-        for (int i = 0; i < enemyCityLocs.Count; i++)
-        {
-			terrainDict[enemyCityLocs[i]].enemyCamp = true;
+  //      for (int i = 0; i < empireCities.Count; i++)
+  //      {
+		//	terrainDict[empireCities[i]].enemyCamp = true;
 
-            for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
-    			terrainDict[ProceduralGeneration.neighborsEightDirections[j] + enemyCityLocs[i]].enemyZone = true;
+  //          for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
+  //              terrainDict[ProceduralGeneration.neighborsEightDirections[j] + empireCities[i]].enemyZone = true;
+		//}
+
+        if (nonBuildTime)
+        {
+            for (int i = 0; i < empireCities.Count; i++)
+                enemyCityLocs.Add(empireCities[i]);
 		}
+        else
+        {
+			EnemyEmpire empire = new();
+            empire.capitalCity = empireCities[0];
+
+			Vector3 direction = Vector3.zero - empire.capitalCity;
+			Quaternion rotation;
+			if (direction == Vector3.zero)
+				rotation = Quaternion.identity;
+			else
+				rotation = Quaternion.LookRotation(direction, Vector3.up);
+
+            GameObject leaderGO = Instantiate(chosenLeader, empire.capitalCity, rotation);
+			leaderGO.transform.SetParent(enemyCityHolder, false);
+			NPC leader = leaderGO.GetComponent<NPC>();
+            empire.enemyLeader = leader;
+            empire.enemyEra = leader.buildDataSO.unitEra;
+            empire.enemyRegion = leader.buildDataSO.unitRegion;
+            leaderGO.SetActive(false);
+
+			for (int i = 0; i < empireCities.Count; i++)
+			{
+				enemyCityLocs.Add(empireCities[i]);
+                empire.empireCities.Add(empireCities[i]);
+			}
+
+            enemyEmpires.Add(empire);
+        }
 
 		return (foodLocs, waterLocs, resourceLocs);
 	}
@@ -2774,7 +2898,7 @@ public class TerrainGenerator : MonoBehaviour
         return (foodLocs, waterLocs); 
 	}
 
-	private List<Vector3Int> GenerateEnemyCamps(System.Random random, Vector3Int startingPlace, List<Vector3Int> landLocs, List<Vector3Int> luxuryLocs, List<Vector3Int> resourceLocs, List<Vector3Int> enemyCityRange, List<Vector3Int> tradeCenterRange)
+	private List<Vector3Int> GenerateEnemyCamps(System.Random random, Vector3Int startingPlace, List<Vector3Int> landLocs, List<Vector3Int> luxuryLocs, List<Vector3Int> resourceLocs, List<Vector3Int> enemyCityRange, List<Vector3Int> tradeCenterRange, Era selectedEra, Region selectedRegion)
 	{
         List<Vector3Int> enemyLocs = new();
         List<Vector3Int> locsLeft = new(landLocs);
@@ -2987,17 +3111,17 @@ public class TerrainGenerator : MonoBehaviour
 			}
 
 			if (!nonBuildTime)
-                CreateCamp(random, Mathf.Abs(chosenTile.x - startingPlace.x) + Mathf.Abs(chosenTile.z - startingPlace.z), chosenTile, luxury);
+                CreateCamp(random, Mathf.Abs(chosenTile.x - startingPlace.x) + Mathf.Abs(chosenTile.z - startingPlace.z), chosenTile, luxury, selectedEra, selectedRegion);
             enemyLocs.Add(chosenTile);
-            terrainDict[chosenTile].enemyCamp = true;
-            terrainDict[chosenTile].enemyZone = true;
+            //terrainDict[chosenTile].enemyCamp = true;
+            //terrainDict[chosenTile].enemyZone = true;
 
 			for (int i = 0; i < ProceduralGeneration.neighborsCityRadius.Count; i++)
             {
                 Vector3Int tile = ProceduralGeneration.neighborsCityRadius[i] + chosenTile;
                 
-                if (i < 8)
-                    terrainDict[tile].enemyZone = true;
+                //if (i < 8)
+                //    terrainDict[tile].enemyZone = true;
 
                 if (locsLeft.Contains(tile))
                 {
@@ -3013,7 +3137,7 @@ public class TerrainGenerator : MonoBehaviour
 		return enemyLocs;
 	}
 
-	private void CreateCamp(System.Random random, int startProximity, Vector3Int campLoc, bool luxury)
+	private void CreateCamp(System.Random random, int startProximity, Vector3Int campLoc, bool luxury, Era selectedEra, Region selectedRegion)
     {
         int campCount;
         int infantryCount = 0;
@@ -3080,9 +3204,9 @@ public class TerrainGenerator : MonoBehaviour
             Vector3 spawnLoc = campLocs[random.Next(0, campLocs.Count)];
             campLocs.Remove(spawnLoc);
 
-            int chosenUnitType = unitList[random.Next(0, unitList.Count)];
-            GameObject enemy = enemyUnits[chosenUnitType];
-            UnitType type = enemy.GetComponent<Unit>().buildDataSO.unitType;
+            int chosenUnitType = unitList[random.Next(0, 3)];
+            UnitType type = RandomlySelectUnitType(chosenUnitType);
+            GameObject enemy = enemyUnitDict[selectedEra][selectedRegion][type];
 
             if (type == UnitType.Infantry)
             {
@@ -3137,6 +3261,21 @@ public class TerrainGenerator : MonoBehaviour
         //world.water.minimapIcon.localScale = new Vector3(0.14f * width, 1.8f, 0.14f * height);
 	}
 
+    public UnitType RandomlySelectUnitType(int num)
+    {
+		switch (num)
+		{
+			case 0:
+				return UnitType.Infantry;
+			case 1:
+				return UnitType.Ranged;
+			case 2:
+				return UnitType.Cavalry;
+		}
+
+        return UnitType.Infantry;
+	}
+
     public void SetYCoord(int yCoord)
     {
         this.yCoord = yCoord;
@@ -3148,6 +3287,7 @@ public class TerrainGenerator : MonoBehaviour
         allTiles.Clear();
         terrainDict.Clear();
         enemyCityLocs.Clear();
+        enemyEmpires.Clear();
         enemyRoadLocs.Clear();
         fourWayRiverLocs.Clear();
     }

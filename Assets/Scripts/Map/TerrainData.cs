@@ -160,6 +160,12 @@ public class TerrainData : MonoBehaviour
 		isSeaCorner = terrainData.isSeaCorner;
 	}
 
+    public void AddMountainMiddleToWhiteMesh(MeshRenderer renderer)
+    {
+		whiteMesh.Add(renderer);
+		materials.Add(renderer.sharedMaterial);
+	}
+
     public void SetProp()
     {
 		foreach (MeshRenderer renderer in prop.GetComponentsInChildren<MeshRenderer>())

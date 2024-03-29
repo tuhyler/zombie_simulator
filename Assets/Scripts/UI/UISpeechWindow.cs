@@ -120,6 +120,9 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 	public void SetSpeakingNPC(NPC speakingNPC)
 	{
 		this.speakingNPC = speakingNPC;
+
+		if (speakingNPC.empire != null)
+			world.ToggleBadGuyTalk(true, speakingNPC.currentLocation);
 	}
 
 	private void PrepNextSpeech()
@@ -237,7 +240,8 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		world.unitMovement.SelectWorker();
 		world.unitMovement.uiWorkerTask.ToggleVisibility(true, world);
 		world.unitMovement.PrepareMovement();
-		world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+		if (!world.mainPlayer.inEnemyLines)
+			world.unitMovement.uiMoveUnit.ToggleVisibility(true);
 		world.playerInput.paused = false;
 		world.cameraController.someoneSpeaking = false;
 		world.speechBubble.transform.SetParent(transform, false);
@@ -247,16 +251,38 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		//checking if action immediately after conversation needs to take place
 		if (speakingNPC)
 		{
-			if (conversationTopic.Contains("intro"))
+			if (speakingNPC.empire != null) //for enemy leaders
 			{
-				speakingNPC.BeginNextQuestWait();
-			}
-			else if (conversationTopic.Contains("_quest"))
-			{
-				if (conversationTopic.Contains("_complete"))
-					speakingNPC.BeginNextQuestWait();
+				if (conversationTopic.Contains("intro"))
+				{
+					world.mainPlayer.ReturnToFriendlyTile();
+					world.ToggleBadGuyTalk(false, speakingNPC.currentLocation);
+				}
 				else
-					speakingNPC.CreateConversationTaskItem();
+				{
+
+				}
+			}
+			else //for trade reps
+			{
+				if (conversationTopic.Contains("intro"))
+				{
+					speakingNPC.BeginNextQuestWait();
+				}
+				else if (conversationTopic.Contains("_quest"))
+				{
+					if (conversationTopic.Contains("_complete"))
+					{
+						speakingNPC.BeginNextQuestWait();
+					}
+					else
+					{
+						if (speakingNPC.currentQuest == 0)
+							speakingNPC.CreateConversationTaskItem();
+					}
+				}
+
+				speakingNPC.Rotate(speakingNPC.center.mainLoc);
 			}
 		}
 

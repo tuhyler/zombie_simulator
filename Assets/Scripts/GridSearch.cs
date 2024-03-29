@@ -11,8 +11,10 @@ public class GridSearch
     public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea)
     {
         if (bySea)
-            return AStarSearchSea(world, startLocation, endPosition);
-        
+            return AStarSearchSea(world, startLocation, endPosition, isTrader);
+
+		if (isTrader)
+			return AStarSearchTrader(world, startLocation, endPosition);
 
         List <Vector3Int> path = new();
         
@@ -105,9 +107,6 @@ public class GridSearch
                 }
                 //above is for units staying on roads
 
-                if (isTrader && !hasRoad) //If it's a trader and not on road, ignore
-                    continue;
-
                 if (hasRoad)
                     tempCost = world.GetRoadCost();
                 else
@@ -120,7 +119,7 @@ public class GridSearch
                     if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
                         continue;
 
-                    tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+                    tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
                 }
 
                 int newCost = costDictionary[current] + tempCost;
@@ -141,9 +140,244 @@ public class GridSearch
         return path;
     }
 
-    public static List<Vector3Int> AStarSearchSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	public static List<Vector3Int> AStarSearchExempt(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> exemptList)
+	{
+		List<Vector3Int> path = new();
+
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		//below is for units staying on road, don't skip across
+		List<Vector3Int> xRoads = new() { new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0) };
+		List<Vector3Int> zRoads = new() { new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1) };
+		List<Vector3Int> xzRoads = new() { new Vector3Int(1, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, -1), new Vector3Int(-1, 0, -1) };
+		//above is for units staying on road
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endPosition)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			//below is for units to stay on road, don't skip across
+			bool centerRoad = true;
+			bool xRoad = false;
+			bool zRoad = false;
+			bool xzRoad = false;
+
+			if (world.IsRoadOnTileLocation(current))
+			{
+				int x = current.x % 3;
+				int z = current.z % 3;
+
+				xRoad = x != 0;
+				zRoad = z != 0;
+				xzRoad = (xRoad && zRoad);
+				centerRoad = (!xRoad && !zRoad);
+			}
+			//above is for units to stay on road
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+					continue;
+
+				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(world.GetClosestTerrainLoc(neighbor)))
+					continue;
+
+				bool hasRoad;
+				int tempCost;
+
+				//below is for units staying on roads
+				if (!centerRoad)
+				{
+					if (xzRoad && xzRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else if (xRoad && xRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else if (zRoad && zRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else
+						hasRoad = false;
+				}
+				else
+				{
+					hasRoad = world.IsRoadOnTileLocation(neighbor);
+				}
+				//above is for units staying on roads
+
+				if (hasRoad)
+					tempCost = world.GetRoadCost();
+				else
+					tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 2)
+				{
+					Vector3Int temp = neighbor - current;
+
+					if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		return path;
+	}
+
+	public static List<Vector3Int> AStarSearchTrader(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	{
+		List<Vector3Int> path = new();
+
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		//below is for units staying on road, don't skip across
+		List<Vector3Int> xRoads = new() { new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0) };
+		List<Vector3Int> zRoads = new() { new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1) };
+		List<Vector3Int> xzRoads = new() { new Vector3Int(1, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, -1), new Vector3Int(-1, 0, -1) };
+		//above is for units staying on road
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endPosition)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			//below is for units to stay on road, don't skip across
+			bool centerRoad = true;
+			bool xRoad = false;
+			bool zRoad = false;
+			bool xzRoad = false;
+
+			if (world.IsRoadOnTileLocation(current))
+			{
+				int x = current.x % 3;
+				int z = current.z % 3;
+
+				xRoad = x != 0;
+				zRoad = z != 0;
+				xzRoad = (xRoad && zRoad);
+				centerRoad = (!xRoad && !zRoad);
+			}
+			//above is for units to stay on road
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+					continue;
+
+				if (world.CheckIfEnemyTerritory(neighbor))
+					continue;
+
+				bool hasRoad;
+				int tempCost;
+
+				//below is for units staying on roads
+				if (!centerRoad)
+				{
+					if (xzRoad && xzRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else if (xRoad && xRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else if (zRoad && zRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else
+						hasRoad = false;
+				}
+				else
+				{
+					hasRoad = world.IsRoadOnTileLocation(neighbor);
+				}
+				//above is for units staying on roads
+
+				if (!hasRoad) //If it's a trader and not on road, ignore
+					continue;
+
+				if (hasRoad)
+					tempCost = world.GetRoadCost();
+				else
+					tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 2)
+				{
+					Vector3Int temp = neighbor - current;
+
+					if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		return path;
+	}
+
+	public static List<Vector3Int> AStarSearchSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader)
     {
-        Vector3Int startPosition = world.RoundToInt(startLocation);
+		if (isTrader)
+			return AStarSearchSeaTrader(world, startLocation, endPosition);
+		
+		Vector3Int startPosition = world.RoundToInt(startLocation);
 
         List<Vector3Int> path = new();
 
@@ -196,7 +430,7 @@ public class GridSearch
                 if (world.CheckIfCoastCoast(neighbor) && neighbor != endPosition)
                     continue;
 
-				if (world.CheckIfEnemyTerritory(neighbor))
+				if (world.CheckIfEnemyNotNeutral(neighbor))
 					continue;
 
 				int tempCost = world.GetMovementCost(neighbor);
@@ -224,6 +458,70 @@ public class GridSearch
         InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
         return path;
     }
+
+	public static List<Vector3Int> AStarSearchSeaTrader(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	{
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current.Equals(endPosition))
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+				int sqrMagnitude = tile.sqrMagnitude;
+
+				if (!world.CheckIfSeaPositionIsValid(neighbor))
+					continue;
+
+				if (world.CheckIfCoastCoast(neighbor) && neighbor != endPosition)
+					continue;
+
+				if (world.CheckIfEnemyTerritory(neighbor))
+					continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
+
+				if (sqrMagnitude == 2)
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		return path;
+	}
 
 	//for enemies
 	public static List<Vector3Int> AStarSearchEnemy(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea, List<Vector3Int> avoidList = null)
@@ -280,7 +578,7 @@ public class GridSearch
 					if ((!world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValidForEnemy(current + new Vector3Int(0, 0, temp.z))))
 						continue;
 
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -423,7 +721,7 @@ public class GridSearch
 					if (!world.CheckIfPositionIsArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsArmyValid(current + new Vector3Int(0, 0, temp.z)))
 						continue;
 
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -558,7 +856,7 @@ public class GridSearch
 					if (world.GetTerrainDataAt(current + new Vector3Int(temp.x, 0, 0)).isLand || world.GetTerrainDataAt(current + new Vector3Int(0, 0, temp.z)).isLand)
 						continue;
 
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -636,7 +934,7 @@ public class GridSearch
 					if (!world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(tile.x, 0, 0)) || !world.CheckIfPositionIsEnemyArmyValid(current + new Vector3Int(0, 0, tile.z)))
 						continue;
 
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -697,7 +995,7 @@ public class GridSearch
 					if (world.GetTerrainDataAt(current + new Vector3Int(tile.x, 0, 0)).isLand || world.GetTerrainDataAt(current + new Vector3Int(0, 0, tile.z)).isLand)
 						continue;
 
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -777,7 +1075,7 @@ public class GridSearch
 
 				if (tile.sqrMagnitude == 2)
 				{
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f);
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f);
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -837,7 +1135,7 @@ public class GridSearch
 
 				if (tile.sqrMagnitude == 2)
 				{
-					tempCost = Mathf.RoundToInt(tempCost * 1.414f);
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f);
 				}
 
 				int newCost = costDictionary[current] + tempCost;
@@ -938,7 +1236,7 @@ public class GridSearch
 						if (!world.CheckIfPositionIsArmyValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsArmyValid(current + new Vector3Int(0, 0, temp.z)))
 							continue;
 
-						tempCost = Mathf.RoundToInt(tempCost * 1.414f); //multiply by square root 2 for the diagonal squares
+						tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
 					}
 
 					int newCost = costDictionary[current] + tempCost;

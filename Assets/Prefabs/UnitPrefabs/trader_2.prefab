@@ -11,7 +11,7 @@ PrefabInstance:
         type: 3}
       propertyPath: unitMesh
       value: 
-      objectReference: {fileID: 2263668442036731786}
+      objectReference: {fileID: 9066594914573528463}
     - target: {fileID: -2285914093244530181, guid: 09fdbc0b6325bbc4db4d71f4a6223376,
         type: 3}
       propertyPath: unitDataSO
@@ -211,9 +211,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c6d8bf50f5a5a74391b6e81c566b663, type: 3}
---- !u!1 &2263668442036731786 stripped
+--- !u!1 &9066594914573528463 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6c6d8bf50f5a5a74391b6e81c566b663,
+  m_CorrespondingSourceObject: {fileID: -1263180890589761708, guid: 6c6d8bf50f5a5a74391b6e81c566b663,
     type: 3}
   m_PrefabInstance: {fileID: 1417300885915124443}
   m_PrefabAsset: {fileID: 0}

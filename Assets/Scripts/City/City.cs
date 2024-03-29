@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using static UnityEditor.FilePathAttribute;
 using static UnityEditor.Progress;
@@ -68,6 +69,8 @@ public class City : MonoBehaviour
     public Army army;
     [HideInInspector]
     public EnemyCamp enemyCamp;
+    [HideInInspector]
+    public EnemyEmpire empire;
 
     [HideInInspector]
     public MapWorld world;
@@ -1270,7 +1273,7 @@ public class City : MonoBehaviour
 
     public void StartSendAttackWait()
     {
-        countDownTimer = 60;
+        countDownTimer = 600;
         co = StartCoroutine(SendAttackWait());
     }
 
@@ -1502,13 +1505,13 @@ public class City : MonoBehaviour
 		GameObject enemy;
 
 		if (camp.UnitsInCamp.Count < 3)
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[0];
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][UnitType.Infantry];
 		else if (camp.UnitsInCamp.Count < 6)
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[1];
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][UnitType.Ranged];
 		else if (camp.UnitsInCamp.Count < 8)
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[2];
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][UnitType.Cavalry];
 		else
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnits[UnityEngine.Random.Range(0, 3)];
+			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][GameLoader.Instance.terrainGenerator.RandomlySelectUnitType(UnityEngine.Random.Range(0, 3))];
 
 		UnitType type = enemy.GetComponent<Unit>().buildDataSO.unitType;
 		Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
@@ -1941,7 +1944,15 @@ public class City : MonoBehaviour
 		GameLoader.Instance.gameData.discoveredEnemyCampLocs.Add(cityLoc);
 
         RevealUnitsInCamp();
-        StartSendAttackWait();
+
+        if (empire.CanAttackCheck(cityLoc))
+            StartSendAttackWait();
+
+        if (world.IsNPCThere(cityLoc))
+        {
+            empire.enemyLeader.gameObject.SetActive(true);
+			empire.enemyLeader.SetSomethingToSay(empire.enemyLeader.npcName + "_intro");
+		}
 
         if (world.unitMovement.deployingArmy)
         {

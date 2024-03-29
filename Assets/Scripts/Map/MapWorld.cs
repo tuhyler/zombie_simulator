@@ -13,6 +13,7 @@ using Unity.VisualScripting.Antlr3.Runtime.Collections;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using UnityEngine.UIElements.Experimental;
@@ -181,6 +182,7 @@ public class MapWorld : MonoBehaviour
 	private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
     public Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
+    public Dictionary<Vector3Int, NPC> npcPosDict = new();
     [HideInInspector]
     public List<Laborer> laborerList = new();
     [HideInInspector]
@@ -229,6 +231,11 @@ public class MapWorld : MonoBehaviour
     //for boats to avoid traveling the coast
     private List<Vector3Int> coastCoastList = new();
 
+    //for npcs
+    public Dictionary<string, NPC> allTCReps = new();
+    [HideInInspector]
+    public List<NPC> allEnemyLeaders = new();
+
     //for enemy
     private Dictionary<Vector3Int, EnemyCamp> enemyCampDict = new();
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
@@ -238,6 +245,7 @@ public class MapWorld : MonoBehaviour
     [HideInInspector]
     public List<Vector3Int> militaryStationLocs = new();
     public Dictionary<Vector3Int, TreasureChest> treasureLocs = new();
+    private List<Vector3Int> neutralZones = new();
 
     //for resource icons on minimap (so they're rotated correctly)
     private Dictionary<Vector3Int, ResourceMinimapIcon> resourceIconDict = new();
@@ -522,7 +530,7 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null, List<Vector3Int> enemyCityLocs = null, List<Vector3Int> enemyRoadLocs = null, bool tutorial = false)
+    public void NewGamePrep(bool newGame, Dictionary<Vector3Int, TerrainData> terrainDict = null, List<EnemyEmpire> enemyEmpires = null, List<Vector3Int> enemyRoadLocs = null, bool tutorial = false)
     {
 		wonderButton.gameObject.SetActive(true);
 		uiMainMenuButton.gameObject.SetActive(true);
@@ -705,7 +713,7 @@ public class MapWorld : MonoBehaviour
 			else
 				center.isDiscovered = true;
 
-            center.SetTradeCenterRep();
+            center.SetTradeCenterRep(false);
 			LoadTradeCenterBorders(center.mainLoc);
 		}
 
@@ -780,8 +788,8 @@ public class MapWorld : MonoBehaviour
         
         StartCoroutine(StartingMusic(newGame));
 
-        if (enemyCityLocs == null)
-            enemyCityLocs = new();
+        if (enemyEmpires == null)
+            enemyEmpires = new();
         //enemyCityLocs.Add(new Vector3Int(12, 0, 12));
 
         if (enemyRoadLocs == null)
@@ -789,23 +797,26 @@ public class MapWorld : MonoBehaviour
 		//enemyRoadLocs.Add(new Vector3Int(9, 0, 12));
         //enemyRoadLocs.Add(new Vector3Int(12, 0, 12); //make sure enemy road tiles can't be connected to with another road
 
-        for (int i = 0; i < enemyCityLocs.Count; i++)
+        foreach (EnemyEmpire empire in enemyEmpires)
         {
-            System.Random random = new();
-            BuildEnemyCity(enemyCityLocs[i], GetTerrainDataAt(enemyCityLocs[i]), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, random);
-        }
-        //adding city locs to road locs to build roads there (building roads first to build cities on top
-        enemyRoadLocs.AddRange(enemyCityLocs);
-        BuildEnemyRoads(enemyRoadLocs, 1);
+            empire.enemyLeader.SetUpNPC(this);
+            empire.enemyLeader.SetEmpire(empire);
+            allEnemyLeaders.Add(empire.enemyLeader);
 
-        for (int i = 0; i < enemyCityLocs.Count; i++)
-            LoadEnemyBorders(enemyCityLocs[i]);
+			System.Random random = new();
+			foreach (Vector3Int tile in empire.empireCities)
+				BuildEnemyCity(tile, GetTerrainDataAt(tile), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, empire, random);
+    
+            //adding city locs to road locs to build roads there (building roads first to build cities on top
+            enemyRoadLocs.AddRange(empire.empireCities);
+            BuildEnemyRoads(enemyRoadLocs, 1);
+
+            foreach (Vector3Int tile in empire.empireCities)
+                LoadEnemyBorders(tile, GetEnemyCity(tile).empire.enemyLeader.buildDataSO.borderColor);
+		}
 
         foreach (Vector3Int tile in enemyCampDict.Keys)
-            LoadEnemyBorders(tile);
-
-		//temporary for enemy cities
-		//above is temporary for enemy cities
+            LoadEnemyBorders(tile, new Color(1, 0, 0, 0.68f));
 	}
 
 	private IEnumerator StartingAmbience()
@@ -1144,24 +1155,37 @@ public class MapWorld : MonoBehaviour
 			else
 				center.isDiscovered = true;
 
-            center.SetTradeCenterRep();
+            center.SetTradeCenterRep(true);
             LoadTradeCenterBorders(centerData.mainLoc);
 			GameLoader.Instance.centerWaitingDict[center] = (centerData.waitList, centerData.seaWaitList);
 		}
 	}
 
-    public void GenerateEnemyCities(Dictionary<Vector3Int, EnemyCityData> data, List<Vector3Int> enemyRoadLocs)
-    {
-        foreach (Vector3Int tile in data.Keys)
-        {
-			BuildEnemyCity(tile, GetTerrainDataAt(tile), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, data[tile].era, true);
-            roadManager.BuildRoadAtPosition(tile, 1);
-		}
+    public EnemyEmpire GenerateEnemyLeaders(NPCData data)
+	{
+		GameObject leaderGO = Instantiate(UpgradeableObjectHolder.Instance.enemyLeaderDict[data.name].prefab, data.position, data.rotation);
+        leaderGO.transform.SetParent(enemyCityHolder, false);
+        NPC leader = leaderGO.GetComponent<NPC>();
+		leader.SetUpNPC(this);
+        leader.LoadNPCData(data);
+        EnemyEmpire empire = new();
+		empire.LoadData(data);
+		empire.enemyLeader = leader;
+		leader.SetEmpire(empire);
+		allEnemyLeaders.Add(leader);
 
-		//BuildEnemyRoads(enemyRoadLocs);
+        if (!GetTerrainDataAt(leader.currentLocation).isDiscovered)
+            leader.gameObject.SetActive(false);
+
+        return empire;
 	}
 
-	public void BuildEnemyCity(Vector3Int cityTile, TerrainData td, GameObject prefab, List<Vector3Int> roadTiles, bool hasWater, Era era, bool load, System.Random random = null)
+	public void GenerateEnemyCities(EnemyCityData data, EnemyEmpire empire, List<Vector3Int> roadLocs)
+    {
+		BuildEnemyCity(data.loc, GetTerrainDataAt(data.loc), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, roadLocs, true, data.era, true, empire);
+	}
+
+	public void BuildEnemyCity(Vector3Int cityTile, TerrainData td, GameObject prefab, List<Vector3Int> roadTiles, bool hasWater, Era era, bool load, EnemyEmpire empire, System.Random random = null)
 	{
         Dictionary<string, string> buildingEraDict = GetBuildingEraDict(era);
         EnemyCityData data;
@@ -1191,11 +1215,13 @@ public class MapWorld : MonoBehaviour
 
         td.enemyCamp = true;
         td.enemyZone = true;
+        neutralZones.Add(cityTile);
 		AddToCityLabor(cityTile, null);
 		foreach (Vector3Int tile in GetNeighborsFor(cityTile, State.EIGHTWAYINCREMENT))
         {
             TerrainData tdNeighbor = GetTerrainDataAt(tile);
             tdNeighbor.enemyZone = true;
+            neutralZones.Add(tile);
 			AddToCityLabor(tile, null);
 
             if (roadTiles.Contains(tile))
@@ -1233,6 +1259,7 @@ public class MapWorld : MonoBehaviour
         city.cityName = data.cityName;
         city.currentPop = data.popSize;
         city.minimapIcon.sprite = city.enemyCityIcon;
+        city.empire = empire;
 
         enemyCityDict[cityTile] = city;
 
@@ -1301,10 +1328,11 @@ public class MapWorld : MonoBehaviour
             if (i == 2)
                 break;
 
-            if (flatlandLocs.Count == 0)
+            if (flatlandLocs.Count <= 1)
             {
-                flatlandLocs.Add(foodLocs[i]);
-                continue;
+                if (flatlandLocs.Count == 0)    
+                    flatlandLocs.Add(foodLocs[i]);
+                break;
             }
 
             CityImprovementData improvementData = new();
@@ -1319,6 +1347,13 @@ public class MapWorld : MonoBehaviour
         {
             if (i == 2)
                 break;
+
+            if (coastLocs.Count <= 1)
+            {
+                if (coastLocs.Count == 0)
+                    coastLocs.Add(fishLocs[i]);
+                break;
+            }
 
 			CityImprovementData improvementData = new();
 			improvementData.location = fishLocs[i];
@@ -1448,7 +1483,7 @@ public class MapWorld : MonoBehaviour
 			city.enemyCamp.fieldBattleLoc = cityTile;
             city.enemyCamp.moveToLoc = city.barracksLocation;
 			city.enemyCamp.SetCityEnemyCamp();
-			AddAllEnemyUnits(city.enemyCamp, random, data, load);
+			AddAllEnemyUnits(city.enemyCamp, random, data, load, Era.AncientEra, Region.South);
         }
 
         if (movingOut)
@@ -1553,21 +1588,21 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
-    private void AddAllEnemyUnits(EnemyCamp camp, System.Random random, EnemyCityData data, bool load)
+    private void AddAllEnemyUnits(EnemyCamp camp, System.Random random, EnemyCityData data, bool load, Era selectedEra, Region selectedRegion)
     {
 		List<Vector3Int> campLocs = GetNeighborsFor(camp.loc, State.EIGHTWAYARMY);
 
 		//0 is for infantry, 1 ranged, 2 cavalry
-		List<int> unitList = new() { 0, 1, 2 };
+		//List<int> unitList = new() { 0, 1, 2 };
         List<Vector3Int> barracksLocs = new();
-        
+        UnitType type = UnitType.Infantry; 
+
         if (load)
             barracksLocs = data.enemyUnitData.Keys.ToList();
 
 		for (int i = 0; i < 9; i++)
 		{
             Vector3Int spawnLoc;
-            int chosenUnitType = 0;
 
 			if (load)
             {
@@ -1577,19 +1612,22 @@ public class MapWorld : MonoBehaviour
             {
                 if (i < 3)
                 {
-                    spawnLoc = camp.GetAvailablePosition(UnitType.Infantry);
-                    chosenUnitType = 0;
-                }
+                    type = UnitType.Infantry;
+                    spawnLoc = camp.GetAvailablePosition(type);
+					infantryCount++;
+				}
                 else if (i < 6)
                 {
-					spawnLoc = camp.GetAvailablePosition(UnitType.Ranged); 
-                    chosenUnitType = 1;
+					type = UnitType.Ranged;
+					spawnLoc = camp.GetAvailablePosition(type);
+					rangedCount++;
 				}
                 else
                 {
-					spawnLoc = camp.GetAvailablePosition(UnitType.Cavalry);
-					chosenUnitType = 2;
-                }
+					type = UnitType.Cavalry;
+					spawnLoc = camp.GetAvailablePosition(type);
+					cavalryCount++;
+				}
 			}
 
 			campLocs.Remove(spawnLoc);
@@ -1602,29 +1640,29 @@ public class MapWorld : MonoBehaviour
             }
             else
             {
-			    enemy = GameLoader.Instance.terrainGenerator.enemyUnits[chosenUnitType];
+			    enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[selectedEra][selectedRegion][type];
             }
 
-			UnitType type = enemy.GetComponent<Unit>().buildDataSO.unitType;
+			//UnitType type = enemy.GetComponent<Unit>().buildDataSO.unitType;
 
-			if (type == UnitType.Infantry)
-			{
-				infantryCount++;
-				if (infantryCount >= 3)
-					unitList.Remove(0);
-			}
-			else if (type == UnitType.Ranged)
-			{
-				rangedCount++;
-				if (rangedCount >= 3)
-					unitList.Remove(1);
-			}
-			else if (type == UnitType.Cavalry)
-			{
-				cavalryCount++;
-				if (cavalryCount >= 3)
-					unitList.Remove(2);
-			}
+			//if (type == UnitType.Infantry)
+			//{
+			//	infantryCount++;
+			//	if (infantryCount >= 3)
+			//		unitList.Remove(0);
+			//}
+			//else if (type == UnitType.Ranged)
+			//{
+			//	rangedCount++;
+			//	if (rangedCount >= 3)
+			//		unitList.Remove(1);
+			//}
+			//else if (type == UnitType.Cavalry)
+			//{
+			//	cavalryCount++;
+			//	if (cavalryCount >= 3)
+			//		unitList.Remove(2);
+			//}
 
 			Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
 
@@ -2514,7 +2552,7 @@ public class MapWorld : MonoBehaviour
         mapHandler.ResetResourceLocDict();
 	}
 
-	public void LoadEnemyBorders(Vector3Int enemyLoc)
+	public void LoadEnemyBorders(Vector3Int enemyLoc, Color color)
 	{
 		for (int j = 0; j < ProceduralGeneration.neighborsEightDirections.Count; j++)
 		{
@@ -2544,6 +2582,7 @@ public class MapWorld : MonoBehaviour
 					}
 
 					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+					border.GetComponent<SpriteRenderer>().color = color;
 					border.transform.SetParent(terrainHolder, false);
 
                     if (!enemyBordersDict.ContainsKey(tile))
@@ -4448,7 +4487,10 @@ public class MapWorld : MonoBehaviour
 
     public void CheckMainPlayerLoc(Vector3Int loc, List<Vector3Int> route = null)
     {
-		Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
+        if (mainPlayer.inEnemyLines)
+            return;
+
+        Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
         int xDiff = Mathf.Abs(playerLoc.x - loc.x);
         int zDiff = Mathf.Abs(playerLoc.z - loc.z);
 
@@ -4835,6 +4877,40 @@ public class MapWorld : MonoBehaviour
         return cityImprovementConstructionDict[tile];
     }
 
+    public Vector3Int GetAdjacentMoveToTile(Vector3Int currentLoc, Vector3Int locationInt, bool enemy)
+    {
+		Vector3Int trySpot = locationInt;
+		Vector3Int playerTile = currentLoc;
+		bool firstOne = true;
+		int dist = 0;
+		foreach (Vector3Int tile in GetNeighborsFor(locationInt, MapWorld.State.FOURWAY))
+		{
+			TerrainData td = GetTerrainDataAt(tile);
+			if (td.isLand && td.walkable)
+			{
+                if (!enemy && td.enemyZone)
+                    continue;
+                
+                if (firstOne)
+				{
+					firstOne = false;
+					dist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
+					trySpot = tile;
+					continue;
+				}
+
+				int newDist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
+				if (newDist < dist)
+				{
+					dist = newDist;
+					trySpot = tile;
+				}
+			}
+		}
+
+        return trySpot;
+	}
+
     public void SetWorkerWorkLocation(Vector3Int loc)
     {
         if (!workerBusyLocations.Contains(loc))
@@ -5203,6 +5279,35 @@ public class MapWorld : MonoBehaviour
             enemyCityDict[loc].enemyCamp.ReturnToCamp();
     }
 
+    public void ToggleBadGuyTalk(bool v, Vector3Int enemyLoc)
+    {
+		if (v)
+        {
+            if (battleLocs.Count == 0)
+			    battleCamera.SetActive(true);
+
+		    if (!battleLocs.Contains(enemyLoc))
+			    battleLocs.Add(enemyLoc);
+
+            GetNPC(enemyLoc).unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+
+            foreach (Worker unit in characterUnits)
+                unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+        }
+        else
+        {
+            battleLocs.Remove(enemyLoc);
+
+			if (battleLocs.Count == 0)
+				battleCamera.SetActive(false);
+
+			GetNPC(enemyLoc).unitMesh.layer = LayerMask.NameToLayer("Enemy");
+
+			foreach (Worker unit in characterUnits)
+				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
+		}
+	}
+
 	public void ToggleCityMaterialClear(Vector3Int enemyLoc, Vector3Int armyLoc, Vector3Int loc, Vector3Int targetLoc, bool v)
     {
         if (GetTerrainDataAt(loc).treeHandler != null)
@@ -5397,7 +5502,38 @@ public class MapWorld : MonoBehaviour
 		return td.enemyZone;
     }
 
-    public void UnhighlightAllEnemyCamps()
+    public bool CheckIfEnemyNotNeutral(Vector3Int loc)
+    {
+        if (GetTerrainDataAt(loc).enemyZone)
+        {
+            if (neutralZones.Contains(GetClosestTerrainLoc(loc)))
+                return false;
+            else
+                return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool CheckIfNeutral(Vector3Int loc)
+    {
+        return neutralZones.Contains(GetClosestTerrainLoc(loc));
+    }
+
+	public List<Vector3Int> GetExemptList(Vector3 endLoc)
+	{
+        Vector3Int newEndLoc = GetClosestTerrainLoc(endLoc);
+        List<Vector3Int> exemptList = new() { newEndLoc };
+
+		foreach (Vector3Int tile in GetNeighborsFor(newEndLoc, MapWorld.State.EIGHTWAYINCREMENT))
+			exemptList.Add(tile);
+
+		return exemptList;
+	}
+
+	public void UnhighlightAllEnemyCamps()
     {
 		foreach (Vector3Int tile in enemyCampDict.Keys)
 		{
@@ -5493,6 +5629,7 @@ public class MapWorld : MonoBehaviour
         TerrainData camp = GetTerrainDataAt(loc);
 		camp.enemyCamp = false;
         camp.enemyZone = false;
+        neutralZones.Remove(loc);
 		RemoveSingleBuildFromCityLabor(loc);
 
         List<Vector3Int> enemyZones = GetNeighborsFor(loc, State.EIGHTWAYINCREMENT);
@@ -5525,6 +5662,7 @@ public class MapWorld : MonoBehaviour
 					}
 
 					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+					border.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 0.68f);
 					border.transform.SetParent(terrainHolder, false);
 
                     if (!enemyBordersDict.ContainsKey(neighborTiles[j]))
@@ -5540,6 +5678,7 @@ public class MapWorld : MonoBehaviour
             DestroyBorders(enemyZones[i]);
             //td.DestroyBorders();
             td.enemyZone = false;
+            neutralZones.Remove(enemyZones[i]);
 
 			RemoveSingleBuildFromCityLabor(enemyZones[i]);
 
@@ -5614,6 +5753,7 @@ public class MapWorld : MonoBehaviour
             for (int i = 0; i < resourcesToAdd.Count; i++)
                 city.ResourceManager.AddResource(resourcesToAdd[i],UnityEngine.Random.Range(city.currentPop,city.currentPop * 4));
 
+            city.empire.SetNextAttackingCity(this, city.cityLoc);
             GameLoader.Instance.RemoveEnemyCity(loc);
 		}
         else
@@ -6022,6 +6162,27 @@ public class MapWorld : MonoBehaviour
     public bool IsUnitLocationTaken(Vector3Int unitPosition)
     {
         return unitPosDict.ContainsKey(unitPosition);
+    }
+
+    public bool IsNPCThere(Vector3Int loc)
+    {
+        return npcPosDict.ContainsKey(loc);
+    }
+
+    public void SetNPCLoc(Vector3 pos, NPC npc)
+    {
+        Vector3Int loc = RoundToInt(pos);
+        npcPosDict[loc] = npc;
+    }
+
+    public NPC GetNPC(Vector3Int loc)
+    {
+        return npcPosDict[loc];
+    }
+
+    public void RemoveNPCLoc(Vector3Int loc)
+    {
+        npcPosDict.Remove(loc);
     }
 
     //public bool IsBuildingInCity(Vector3Int cityTile, string buildingName)
@@ -8084,5 +8245,6 @@ public enum Region
     North,
     South,
     East,
-    West
+    West,
+    None
 }

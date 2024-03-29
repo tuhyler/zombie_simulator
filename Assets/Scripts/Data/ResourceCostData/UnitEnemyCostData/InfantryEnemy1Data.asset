@@ -37,4 +37,7 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 0
   tcRep: 0
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
   unitEra: 0
+  unitRegion: 1

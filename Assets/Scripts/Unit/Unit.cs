@@ -352,62 +352,95 @@ public class Unit : MonoBehaviour
    //     if (transport && bySea && world.CheckIfCoastCoast(endPositionInt))
 			//TurnOffRipples();
 
-        if (pathPositions.Count == 0 && !military && world.IsUnitLocationTaken(endPositionInt)) //don't occupy sqaure if another unit is there
+        if (isPlayer)
         {
-            Unit unitInTheWay = world.GetUnit(endPositionInt);
-
-            if (isPlayer)
+            if (pathPositions.Count == 0)
             {
-				if (unitInTheWay.somethingToSay)
+                if (world.IsUnitLocationTaken(endPositionInt))
                 {
-                    if (isSelected)
-                    {
-                        world.unitMovement.QuickSelect(this);
-				        unitInTheWay.SpeakingCheck();
-                        if (unitInTheWay.npc)
-                            world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay.npc);
-                    }
+					Unit unitInTheWay = world.GetUnit(endPositionInt);
+                    
+                    if (unitInTheWay.somethingToSay)
+					{
+						if (isSelected)
+						{
+							world.unitMovement.QuickSelect(this);
+							unitInTheWay.SpeakingCheck();
+						}
 
-                    worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
-                    FinishMoving(transform.position);
-				    yield break;
-                }
-                else if (unitInTheWay.npc)
+						worker.SetUpSpeakingPositions(unitInTheWay.transform.position, false);
+						FinishMoving(transform.position);
+						yield break;
+					}
+				}
+                else if (world.IsNPCThere(endPositionInt))
                 {
-					if (unitInTheWay.npc.onQuest)
-                    {
-                        if (isSelected)
-                        {
-                            world.ToggleGiftGiving(unitInTheWay.GetComponent<NPC>());
-                        }
-					    worker.SetUpSpeakingPositions(unitInTheWay.transform.position);
-                    }
+					NPC unitInTheWay = world.GetNPC(endPositionInt);
 
-					FinishMoving(transform.position);
-					yield break;
+					if (unitInTheWay.somethingToSay)
+					{
+						if (isSelected)
+						{
+							world.unitMovement.QuickSelect(this);
+							unitInTheWay.SpeakingCheck();
+							world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay.npc);
+						}
+
+						worker.SetUpSpeakingPositions(unitInTheWay.transform.position, unitInTheWay.empire != null);
+						FinishMoving(transform.position);
+						yield break;
+					}
+					else 
+					{
+						if (unitInTheWay.npc.onQuest)
+						{
+							if (isSelected)
+							{
+								world.ToggleGiftGiving(unitInTheWay);
+							}
+							worker.SetUpSpeakingPositions(unitInTheWay.transform.position, false);
+						}
+
+						FinishMoving(transform.position);
+						yield break;
+					}
 				}
             }
-
-            if (unitInTheWay.transport)
+        }
+        else
+        {
+            if (pathPositions.Count == 0 && !military) //don't occupy sqaure if another unit is there
             {
-                if (worker)
+                if (world.IsUnitLocationTaken(endPositionInt))
                 {
-                    //worker.LoadWorkerInTransport(unitInTheWay.transport);
-                    FinishMoving(endPosition);
-                    yield break;
+                    Unit unitInTheWay = world.GetUnit(endPositionInt);
+
+                    if (unitInTheWay.transport)
+                    {
+                        if (worker)
+                        {
+                            //worker.LoadWorkerInTransport(unitInTheWay.transport);
+                            FinishMoving(endPosition);
+                            yield break;
+                        }
+                    }
+			        else if ((unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering) || (unitInTheWay.trader && !unitInTheWay.trader.followingRoute))
+                    {
+                        Vector3Int next;
+                        if (pathPositions.Count > 0)
+                            next = pathPositions.Peek();
+                        else
+                            next = new Vector3Int(0, -10, 0);
+                        unitInTheWay.FindNewSpot(endPositionInt, next);
+                    }
+                }
+                else if (world.IsNPCThere(endPositionInt) && worker)
+                {
+					FinishMoving(endPosition);
+					yield break;
                 }
             }
-			else if ((unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering) || (unitInTheWay.trader && !unitInTheWay.trader.followingRoute))
-            {
-                Vector3Int next;
-                if (pathPositions.Count > 0)
-                    next = pathPositions.Peek();
-                else
-                    next = new Vector3Int(0, -10, 0);
-                unitInTheWay.FindNewSpot(endPositionInt, next);
-            }
         }
-
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
@@ -452,11 +485,20 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
-        if (isPlayer || transport)
+        if (isPlayer)
         {
 			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
 			if (pos != prevTerrainTile)
 				RevealCheck(pos, false);
+
+            if (!worker.inEnemyLines && world.GetTerrainDataAt(pos).enemyZone)
+            {
+                worker.inEnemyLines = true;
+                worker.prevFriendlyTile = world.GetClosestTerrainLoc(prevTile);
+
+                if (isSelected)
+                    world.unitMovement.uiMoveUnit.ToggleVisibility(false);
+            }
 
 			if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
 			{
@@ -464,11 +506,15 @@ public class Unit : MonoBehaviour
                 worker.CheckToFollow(endPositionInt);
 			}
 		}
-
-		//making sure army is all in line
-		if (military)
+        else if (transport)
         {
-            if (military.isMarching)
+			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+			if (pos != prevTerrainTile)
+				RevealCheck(pos, false);
+		}
+		else if (military) //making sure army is all in line
+		{
+			if (military.isMarching)
             {
                 readyToMarch = false;
                 bool close = pathPositions.Count == 2;
@@ -702,6 +748,10 @@ public class Unit : MonoBehaviour
         {
 			world.unitMovement.LaborerJoin(this);
 		}
+        else if (npc)
+        {
+            npc.FinishMovementNPC(endPosition);
+        }
   //      else if (world.IsUnitLocationTaken(currentLocation))
 		//{
   //          UnitInWayCheck(endPosition);

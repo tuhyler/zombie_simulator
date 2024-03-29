@@ -9,7 +9,7 @@ public class Conversations : MonoBehaviour
     public Dictionary<string, List<ConversationItem>> conversationDict = new();
 
     public Sprite koaHappy, koaQuestion, koaSurprised, koaSerious, koaConfused, koaAngry, koaSad, koaAnnoyed, koaGuilty, azaiSerious, scottHappy, scottMad, scottSad, haniyaHappy, haniyaSad, 
-		natakamaniHappy;
+		natakamaniHappy, sennacheribMad;
 
 	private void Awake()
 	{
@@ -18,6 +18,7 @@ public class Conversations : MonoBehaviour
 		//doing this here instead of in inspector so I can search text more easily
 
 		//Koa & co.
+		#region Koa & co.
 		#region just_landed
 		conversationDict["just_landed"] = new();
 
@@ -683,8 +684,10 @@ public class Conversations : MonoBehaviour
 		};
 		conversationDict["first_ambush"].Add(first_ambush3);
 		#endregion
+		#endregion
 
 		//Haniya
+		#region Haniya
 		#region intro
 		conversationDict["Haniya_intro"] = new();
 
@@ -711,8 +714,10 @@ public class Conversations : MonoBehaviour
 		conversationDict["Haniya_quest0"].Add(haniya_quest0);
 
 		#endregion
+		#endregion
 
 		//Natakamani
+		#region Natakamani
 		#region intro
 		conversationDict["Natakamani_intro"] = new();
 
@@ -751,6 +756,61 @@ public class Conversations : MonoBehaviour
 		};
 		conversationDict["Natakamani_quest0_complete"].Add(natakamani_quest0_complete);
 
+		#endregion
+		#region quest1
+		conversationDict["Natakamani_quest1"] = new();
+
+		ConversationItem natakamani_quest1 = new()
+		{
+			speakerImage = natakamaniHappy,
+			speakerName = "Natakamani",
+			speakerDirection = "Koa",
+			speakerText = "Could you do this for me this time"
+		};
+		conversationDict["Natakamani_quest1"].Add(natakamani_quest1);
+
+		#endregion
+		#region quest1complete
+		conversationDict["Natakamani_quest1_complete"] = new();
+
+		ConversationItem natakamani_quest1_complete = new()
+		{
+			speakerImage = natakamaniHappy,
+			speakerName = "Natakamani",
+			speakerDirection = "Koa",
+			speakerText = "Thank you again"
+		};
+		conversationDict["Natakamani_quest1_complete"].Add(natakamani_quest1_complete);
+
+		#endregion
+		#endregion
+
+		//Sennacherib
+		#region Sennacherib
+		#region intro
+		conversationDict["Sennacherib_intro"] = new();
+
+		ConversationItem sennacherib_intro = new()
+		{
+			speakerImage = sennacheribMad,
+			speakerName = "Sennacherib",
+			speakerDirection = "Koa",
+			speakerText = "My name is Sennacherib"
+		};
+		conversationDict["Sennacherib_intro"].Add(sennacherib_intro);
+		#endregion
+		#region challenge0
+		conversationDict["Sennacherib_challenge0"] = new();
+
+		ConversationItem sennacherib_challenge0 = new()
+		{
+			speakerImage = sennacheribMad,
+			speakerName = "Sennacherib",
+			speakerDirection = "Koa",
+			speakerText = "I challenge you to a fight"
+		};
+		conversationDict["Sennacherib_challenge0"].Add(sennacherib_challenge0);
+		#endregion
 		#endregion
 	}
 }

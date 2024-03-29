@@ -332,7 +332,11 @@ public class UnitMovement : MonoBehaviour
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't remove this");
                 }
-                else
+				else if (world.CheckIfEnemyTerritory(pos))
+				{
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not in enemy territory");
+				}
+				else
                 {
                     if (world.scott.AddToOrderQueue(pos))
                     {
@@ -1054,6 +1058,20 @@ public class UnitMovement : MonoBehaviour
 				else
 					world.characterUnits[i].SoftSelect(Color.white);
 			}
+
+            if (selectedUnit.worker.inEnemyLines && !selectedUnit.isMoving)
+            {
+				foreach (Vector3Int tile in world.GetNeighborsFor(selectedUnit.currentLocation, MapWorld.State.EIGHTWAY))
+                {
+                    if (world.IsNPCThere(tile) && world.GetNPC(tile).somethingToSay)
+                    {                        
+                        world.unitMovement.QuickSelect(selectedUnit);
+				        world.GetNPC(tile).SpeakingCheck();
+				        world.uiSpeechWindow.SetSpeakingNPC(world.GetNPC(tile).npc);
+                        break;
+                    }
+                }
+			}
         }
     }
 
@@ -1144,7 +1162,7 @@ public class UnitMovement : MonoBehaviour
         ShowIndividualCityButtonsUI();
     }
 
-    public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit)
+    public void HandleSelectedLocation(Vector3 location, Vector3Int terrainPos, Unit unit, bool moveToSpeak)
     {
         if (!unit.CompareTag("Player"))
             return;
@@ -1162,7 +1180,7 @@ public class UnitMovement : MonoBehaviour
         }
 
         Vector3Int startPosition = world.RoundToInt(unit.transform.position);
-        movementSystem.GetPathToMove(world, unit, startPosition, terrainPos, unit.isTrader); //Call AStar movement
+        movementSystem.GetPathToMove(world, unit, startPosition, terrainPos, unit.isTrader, moveToSpeak); //Call AStar movement
 
         unit.finalDestinationLoc = location;
 
@@ -1305,6 +1323,7 @@ public class UnitMovement : MonoBehaviour
 			return; //can't manually move when ambushed
         }
 
+        bool moveToSpeak = false;
 		Vector3 locationFlat = location;
         locationFlat.y = 0f;
         Vector3Int locationInt = world.RoundToInt(locationFlat);
@@ -1330,6 +1349,9 @@ public class UnitMovement : MonoBehaviour
         {
             if (selectedUnit.worker.inTransport)
                 return;
+
+            if (selectedUnit.worker.inEnemyLines)
+                return;
             
             if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
                 selectedUnit.SendResourceToCity();
@@ -1344,33 +1366,7 @@ public class UnitMovement : MonoBehaviour
 
                 if (transport.bySea && !world.GetTerrainDataAt(locationInt).walkable)
                 {
-                    //finding closest land
-                    Vector3Int trySpot = locationInt;
-                    Vector3Int playerTile = world.RoundToInt(selectedUnit.transform.position);
-                    bool firstOne = true;
-                    int dist = 0;
-                    foreach (Vector3Int tile in world.GetNeighborsFor(locationInt, MapWorld.State.FOURWAY))
-                    {
-                        TerrainData td = world.GetTerrainDataAt(tile);
-                        if (td.isLand && td.walkable && !td.enemyZone)
-                        {
-                            if (firstOne)
-                            {
-                                firstOne = false;
-                                dist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
-                                trySpot = tile;
-                                continue;
-                            }
-
-                            int newDist = Mathf.Abs(tile.x - playerTile.x) + Mathf.Abs(tile.z - playerTile.z);
-                            if (newDist < dist)
-                            {
-                                dist = newDist;
-                                trySpot = tile;
-                            }
-					    }
-                    }
-
+                    Vector3Int trySpot = world.GetAdjacentMoveToTile(world.RoundToInt(selectedUnit.transform.position), locationInt, false);
 				    locationInt = trySpot;
 				    locationFlat = trySpot;
                 }
@@ -1379,6 +1375,12 @@ public class UnitMovement : MonoBehaviour
             {
                 selectedUnit.worker.toTransport = false;
                 selectedUnit.worker.transportTarget = null;
+            }
+            
+            if (detectedObject.TryGetComponent(out NPC npc))
+            {
+                locationInt = npc.currentLocation;
+                locationFlat = locationInt;
             }
         }
 
@@ -1393,16 +1395,34 @@ public class UnitMovement : MonoBehaviour
             }
             else if (world.CheckIfEnemyTerritory(locationInt))
             {
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
-				return;
+				if (!selectedUnit.transport || !world.CheckIfNeutral(locationInt))
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
+				    return;
+                }
             }
 
             selectedUnit.TurnOnRipples();
         }
         else if (world.CheckIfEnemyTerritory(locationInt))
         {
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
-			return;
+			if (selectedUnit.isPlayer)
+            {
+                if (world.IsNPCThere(locationInt) && world.GetNPC(locationInt).somethingToSay)
+                {
+                    moveToSpeak = true;
+                }
+                else
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't go in enemy territory except to speak");
+                    return;
+                }
+            }
+            else
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
+                return;
+            }
         }
         else if (!world.CheckIfPositionIsValid(locationInt)) //cancel movement if terrain isn't walkable
         {
@@ -1492,7 +1512,7 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.FinishedMoving.RemoveAllListeners();
         }
 
-        HandleSelectedLocation(locationFlat, locationInt, selectedUnit);
+        HandleSelectedLocation(locationFlat, locationInt, selectedUnit, moveToSpeak);
     }
 
     public void MoveUnitToggle()
@@ -1793,6 +1813,15 @@ public class UnitMovement : MonoBehaviour
         else if (unit.isLaborer)
         {
             world.laborerList.Remove(unit.GetComponent<Laborer>());
+        }
+        else if (unit.transport)
+        {
+            if (unit.bySea)
+                world.waterTransport = false;
+            else if (unit.byAir)
+                world.airTransport = false;
+
+            world.transportList.Remove(unit.transport);
         }
         
         joinedCity.PopulationGrowthCheck(joinCity, unit.buildDataSO.laborCost);
@@ -2426,7 +2455,7 @@ public class UnitMovement : MonoBehaviour
 
 		if (selectedUnit.isPlayer)
         {
-            if (!selectedUnit.runningAway && !selectedUnit.isBusy)
+            if (!selectedUnit.runningAway && !selectedUnit.isBusy && !selectedUnit.worker.inEnemyLines)
                 uiMoveUnit.ToggleVisibility(true);
             
             if (selectedUnit.moreToMove)
