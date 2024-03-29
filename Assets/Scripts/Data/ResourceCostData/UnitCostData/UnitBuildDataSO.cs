@@ -29,7 +29,11 @@ public class UnitBuildDataSO : ScriptableObject
     public TransportationType transportationType = TransportationType.Land;
     public bool characterUnit;
     public bool tcRep;
+    public Color borderColor;
+    public Vector2 colorOne;
+    public Vector2 colorTwo;
     public Era unitEra;
+    public Region unitRegion = Region.None;
 }
 
 public enum UnitType

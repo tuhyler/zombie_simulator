@@ -1,10 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 
 public class NPC : Unit
 {
-	private TradeCenter center;
+	[HideInInspector]
+	public TradeCenter center;
+	[HideInInspector]
 	public string npcName;
 	public Sprite npcImage;
 	[HideInInspector]
@@ -22,7 +26,10 @@ public class NPC : Unit
 
 	private ResourceValue desiredGift;
 	[HideInInspector]
-	public bool onQuest;
+	public bool onQuest, hasSomethingToSay;
+
+	[HideInInspector]
+	public EnemyEmpire empire;
 
 	private void Awake()
 	{
@@ -30,9 +37,26 @@ public class NPC : Unit
 		npc = GetComponent<NPC>();
 	}
 
+	public void SetUpNPC(MapWorld world)
+	{
+		npcName = buildDataSO.unitName;
+		name = buildDataSO.unitName;
+		SetReferences(world, true);
+		world.uiSpeechWindow.AddToSpeakingDict(npcName, this);
+		Vector3 actualPosition = transform.position;
+		world.SetNPCLoc(actualPosition, this);
+		currentLocation = world.RoundToInt(actualPosition);
+		world.allTCReps[npcName] = this;
+	}
+
 	public void SetTradeCenter(TradeCenter center)
 	{
 		this.center = center;
+	}
+
+	public void SetEmpire(EnemyEmpire empire)
+	{
+		this.empire = empire;
 	}
 
 	public bool GiftCheck(ResourceValue value)
@@ -110,6 +134,7 @@ public class NPC : Unit
 		SetSomethingToSay(npcName + "_quest" + currentQuest.ToString() + "_complete");
 		currentQuest++;
 		onQuest = false;
+		//world.uiConversationTaskManager.CompleteTask(npcName, true);
 	}
 
 	public void BeginNextQuestWait()
@@ -123,7 +148,7 @@ public class NPC : Unit
 
 	public void CreateConversationTaskItem()
 	{
-		world.uiConversationTaskManager.CreateConversationTask(npcName, false, this);
+		world.uiConversationTaskManager.CreateConversationTask(npcName, false);
 	}
 
 	public void SetSomethingToSay(string conversationTopic)
@@ -131,30 +156,104 @@ public class NPC : Unit
 		conversationHaver.SetSomethingToSay(conversationTopic);
 	}
 
+	public void CancelApproachingConversation()
+	{
+		if (somethingToSay)
+		{
+			somethingToSay = false;
+			hasSomethingToSay = true;
+			questionMark.SetActive(false);
+		}
+		
+		if (world.mainPlayer.inEnemyLines)
+		{
+			world.mainPlayer.ReturnToFriendlyTile();
+		}
+		else if (world.RoundToInt(world.mainPlayer.finalDestinationLoc) == currentLocation)
+		{
+			world.mainPlayer.StopAnimation();
+			world.mainPlayer.ShiftMovement();
+			world.mainPlayer.StopMovement();
+		}
+	}
+
+	public void FinishMovementNPC(Vector3 endPosition)
+	{
+		if (false)
+		{
+
+		}
+		else if (hasSomethingToSay)
+		{
+			hasSomethingToSay = false;
+			somethingToSay = true;
+			questionMark.SetActive(true);
+		}
+	}
+
 	public NPCData SaveNPCData()
 	{
 		NPCData data = new NPCData();
 
+		data.name = npcName;
+		data.position = transform.position;
+		data.rotation = transform.rotation;
+		data.destinationLoc = destinationLoc;
+		data.finalDestinationLoc = finalDestinationLoc;
+		data.currentLocation = currentLocation;
+		data.prevTile = prevTile;
+		data.prevTerrainTile = prevTerrainTile;
+		data.moveOrders = pathPositions.ToList();
+		data.isMoving = isMoving;
+		data.moreToMove = moreToMove;
 		data.somethingToSay = somethingToSay;
 		data.onQuest = onQuest;
 		data.conversationTopics = conversationHaver.conversationTopics;
 		data.currentQuest = currentQuest;
 		data.timeWaited = timeWaited;
 		data.purchasedAmount = purchasedAmount;
+		data.hasSomethingToSay = hasSomethingToSay;
+
+		if (empire != null)
+		{
+			data.attackingCity = empire.attackingCity;
+			data.capitalCity = empire.capitalCity;
+			data.empireCities = new();
+
+			for (int i = 0; i < empire.empireCities.Count; i++)
+				data.empireCities.Add(empire.empireCities[i]);
+		}
 
 		return data;
 	}
 
 	public void LoadNPCData(NPCData data)
 	{
-		somethingToSay = data.somethingToSay;
+		transform.position = data.position;
+		transform.rotation = data.rotation;
+		destinationLoc = data.destinationLoc;
+		finalDestinationLoc = data.finalDestinationLoc;
+		currentLocation = data.currentLocation;
+		prevTile = data.prevTile;
+		prevTerrainTile = data.prevTerrainTile;
+		isMoving = data.isMoving;
+		moreToMove = data.moreToMove;
+		//somethingToSay = data.somethingToSay;
 		onQuest = data.onQuest;
 		currentQuest = data.currentQuest;
 		timeWaited = data.timeWaited;
 		purchasedAmount = data.purchasedAmount;
-		desiredGift = questGoals[currentQuest];
+		hasSomethingToSay = data.hasSomethingToSay;
 
-		if (somethingToSay)
+		if (currentQuest < questGoals.Count)
+			desiredGift = questGoals[currentQuest];
+
+		if (isMoving)
+			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
+		//else
+		//	world.AddUnitPosition(currentLocation, this);
+
+		if (data.somethingToSay)
 		{
 			conversationHaver.conversationTopics = new(data.conversationTopics);
 			data.conversationTopics.Clear();

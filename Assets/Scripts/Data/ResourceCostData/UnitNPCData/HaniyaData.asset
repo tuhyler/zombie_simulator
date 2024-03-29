@@ -33,7 +33,11 @@ MonoBehaviour:
   movementSpeed: 1
   trainTime: 0
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 1
   tcRep: 1
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
   unitEra: 0
+  unitRegion: 1

@@ -18,13 +18,17 @@ public class MovementSystem : MonoBehaviour
     private Queue<GameObject> chevronQueue = new();
 
 
-    public void GetPathToMove(MapWorld world, Unit selectedUnit, Vector3Int startPosition, Vector3Int endPosition, bool isTrader) //Using AStar movement
+    public void GetPathToMove(MapWorld world, Unit selectedUnit, Vector3Int startPosition, Vector3Int endPosition, bool isTrader, bool moveToSpeak) //Using AStar movement
     {
         Vector3 currentLoc = selectedUnit.transform.position;
 
         if (orderQueueing) //adding lists to each other for order queueing, turn counter starts at 1 each time
         {
-            currentPath = GridSearch.AStarSearch(world, priorPath, endPosition, isTrader, selectedUnit.bySea);
+            if (moveToSpeak)
+				currentPath = GridSearch.AStarSearchExempt(world, priorPath, endPosition, world.GetExemptList(endPosition));
+            else
+			    currentPath = GridSearch.AStarSearch(world, priorPath, endPosition, isTrader, selectedUnit.bySea);
+
             Vector3Int prevFinalSpot = world.RoundToInt(selectedUnit.finalDestinationLoc);
             selectedUnit.AddToMovementQueue(currentPath);
 
@@ -64,7 +68,11 @@ public class MovementSystem : MonoBehaviour
         else
         {
             selectedUnit.QueueCount = 0;
-            currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader, selectedUnit.bySea);
+
+            if (moveToSpeak)
+                currentPath = GridSearch.AStarSearchExempt(world, currentLoc, endPosition, world.GetExemptList(endPosition));
+            else
+                currentPath = GridSearch.AStarSearch(world, currentLoc, endPosition, isTrader, selectedUnit.bySea);
 
 			if (startPosition == endPosition) //if moving within current square
                 currentPath.Add(endPosition);

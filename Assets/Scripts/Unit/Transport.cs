@@ -79,7 +79,7 @@ public class Transport : Unit
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
 		{
 			TerrainData td = world.GetTerrainDataAt(tile);
-			if (td.isLand && td.walkable && !td.enemyZone)
+			if (td.isLand && td.walkable)
 			{
 				landTile = tile;
 				nearbyLand = true;
@@ -91,6 +91,43 @@ public class Transport : Unit
 		{
 			Vector3Int terrainTile = world.GetClosestTerrainLoc(landTile);
 			Vector3Int currentTerrain = world.GetClosestTerrainLoc(currentLoc);
+			bool moveToSpeak = false;
+			Vector3Int speakerLoc = Vector3Int.zero;
+
+			if (world.GetTerrainDataAt(terrainTile).enemyZone)
+			{
+				if (world.CheckIfNeutral(terrainTile))
+				{
+					if (world.IsNPCThere(terrainTile) && world.GetNPC(terrainTile).somethingToSay)
+					{
+						moveToSpeak = true;
+						speakerLoc = terrainTile;
+					}
+					else
+					{
+						foreach (Vector3Int tile in world.GetNeighborsFor(terrainTile, MapWorld.State.EIGHTWAYINCREMENT))
+						{
+							if (world.IsNPCThere(tile) && world.GetNPC(tile).somethingToSay)
+							{
+								moveToSpeak = true;
+								speakerLoc = tile;
+								break;
+							}
+						}
+					}
+
+					if (!moveToSpeak)
+					{
+						InfoPopUpHandler.WarningMessage().Create(transform.position, "Can't go in enemy territory except to speak");
+						return;
+					}
+				}
+				else
+				{
+					InfoPopUpHandler.WarningMessage().Create(transform.position, "Can't go in enemy territory except to speak");
+					return;
+				}
+			}
 
 			//finding closest side tile to transport
 			bool firstOne = true;
@@ -142,6 +179,19 @@ public class Transport : Unit
 
 			if (isSelected)
 				world.unitMovement.ShowIndividualCityButtonsUI();
+			
+			if (moveToSpeak)
+			{
+				world.mainPlayer.inEnemyLines = true;
+				world.mainPlayer.prevFriendlyTile = currentLoc;
+				List<Vector3Int> path = GridSearch.AStarSearchExempt(world, closeTile, speakerLoc, world.GetExemptList(speakerLoc));
+				
+				if (path.Count > 0)
+				{
+					world.mainPlayer.finalDestinationLoc = speakerLoc;
+					world.mainPlayer.MoveThroughPath(path);
+				}
+			}
 		}
 		else
 		{
@@ -158,7 +208,7 @@ public class Transport : Unit
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
 		{
 			TerrainData td = world.GetTerrainDataAt(tile);
-			if (td.isLand && td.walkable && !td.enemyZone)
+			if (td.isLand && td.walkable)
 			{
 				nearbyLand = true;
 				break;

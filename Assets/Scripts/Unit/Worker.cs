@@ -17,7 +17,8 @@ public class Worker : Unit
     //public bool harvested;// harvesting, resourceIsNotNull;
     //private ResourceIndividualHandler resourceIndividualHandler;
     private WorkerTaskManager workerTaskManager;
-    private Vector3Int resourceCityLoc;
+	[HideInInspector]
+    public Vector3Int resourceCityLoc, prevFriendlyTile;
     private Resource resource;
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
@@ -25,7 +26,7 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, stepAside, toTransport, inTransport;
+    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, stepAside, toTransport, inTransport, inEnemyLines;
     public int clearingForestTime = 1, cityBuildingTime = 2, roadBuildingTime = 1, roadRemovingTime = 2;
     public int clearedForestlumberAmount = 100;
     public AudioClip[] gatheringClips;
@@ -1309,7 +1310,11 @@ public class Worker : Unit
 		world.azai.ResetMovementOrders();
 
 		Vector3Int currentScottSpot = world.RoundToInt(world.scott.transform.position);
-		List<Vector3Int> scottPath = GridSearch.AStarSearch(world, currentScottSpot, currentSpot, false, false);
+		List<Vector3Int> scottPath;
+		if (world.mainPlayer.inEnemyLines)
+			scottPath = GridSearch.AStarSearchExempt(world, currentScottSpot, currentSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
+		else
+			scottPath = GridSearch.AStarSearch(world, currentScottSpot, currentSpot, false, false);
 		scottPath.AddRange(path);
 		scottPath.Remove(finalSpot);
 
@@ -1332,7 +1337,13 @@ public class Worker : Unit
 		if (world.azaiFollow && !scottStays)
 		{
 			Vector3Int currentAzaiSpot = world.RoundToInt(world.azai.transform.position);
-			List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, currentAzaiSpot, currentScottSpot, false, false);
+			List<Vector3Int> azaiPath;
+
+			if (world.mainPlayer.inEnemyLines)
+				azaiPath = GridSearch.AStarSearchExempt(world, currentAzaiSpot, currentScottSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
+			else
+				azaiPath = GridSearch.AStarSearch(world, currentAzaiSpot, currentScottSpot, false, false);
+
 			azaiPath.AddRange(scottPath);
 			azaiPath.Remove(finalScottSpot);
 
@@ -1352,7 +1363,7 @@ public class Worker : Unit
 	}
 
 	//where scott and azai stand when speaking
-	public void SetUpSpeakingPositions(Vector3 pos)
+	public void SetUpSpeakingPositions(Vector3 pos, bool leader)
 	{
 		Vector3Int currentPos = world.RoundToInt(transform.position);
 		Vector3Int talkingPos = world.RoundToInt(pos);
@@ -1376,7 +1387,7 @@ public class Worker : Unit
 					newPos.x += -1;
 			}
 
-			world.scott.RepositionWorker(newPos, false);
+			world.scott.RepositionWorker(newPos, false, leader, world.GetExemptList(talkingPos));
 		}
 
 		if (world.azaiFollow)
@@ -1396,7 +1407,7 @@ public class Worker : Unit
 					newPos.x += 1;
 			}
 
-			world.azai.RepositionWorker(newPos, false);
+			world.azai.RepositionWorker(newPos, false, leader, world.GetExemptList(talkingPos));
 		}
 	}
 
@@ -1416,12 +1427,64 @@ public class Worker : Unit
 		}
 	}
 
-	public void RepositionWorker(Vector3Int newPos, bool loading)
+	public void RealignFollowers(Vector3Int newLoc, Vector3Int prevLoc, bool enemy)
+	{
+		if (world.scottFollow)
+		{
+			Vector3Int currentLoc = world.RoundToInt(world.scott.transform.position);
+			Vector3Int firstLoc = newLoc;
+			Vector3Int secondLoc = newLoc;
+
+			bool firstOne = true;
+			int dist = 0;
+			foreach (Vector3Int tile in world.GetNeighborsFor(newLoc, MapWorld.State.EIGHTWAY))
+			{
+				if (firstOne)
+				{
+					firstOne = false;
+					firstLoc = tile;
+					secondLoc = tile;
+					dist = Mathf.Abs(tile.x - currentLoc.x) + Mathf.Abs(tile.z - currentLoc.z);
+					continue;
+				}
+
+				int newDist = Mathf.Abs(tile.x - currentLoc.x) + Mathf.Abs(tile.z - currentLoc.z);
+				if (newDist < dist)
+				{
+					dist = newDist;
+					secondLoc = firstLoc;
+					firstLoc = tile;
+				}
+			}
+
+			List<Vector3Int> exemptList = new();
+			if (enemy)
+				world.GetExemptList(prevLoc);
+
+			world.scott.RepositionWorker(firstLoc, false, enemy, exemptList);
+		
+			if (world.azaiFollow)
+			{
+				world.azai.RepositionWorker(secondLoc, false, enemy, exemptList);
+			}
+		}
+	}
+
+	public void RepositionWorker(Vector3Int newPos, bool loading, bool enemy, List<Vector3Int> exemptList = null)
 	{
 		StopAnimation();
 		ShiftMovement();
 
-		List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, newPos, false, false);
+		List<Vector3Int> path;
+		
+		if (enemy)
+		{
+			path = GridSearch.AStarSearchExempt(world, transform.position, newPos, exemptList);
+		}
+		else
+		{
+			path = GridSearch.AStarSearch(world, transform.position, newPos, false, false);
+		}
 
 		if (path.Count > 0)
 		{
@@ -1615,6 +1678,56 @@ public class Worker : Unit
 		//in case already there
 		if (runAwayPath.Count > 0)
 			MoveThroughPath(runAwayPath);
+
+		RealignFollowers(safeTarget, currentLocation, false);
+	}
+
+	public void ReturnToFriendlyTile()
+	{
+		List<Vector3Int> path;
+		Vector3Int currentTerrain = world.GetClosestTerrainLoc(transform.position);
+		Vector3Int goToSpot = prevFriendlyTile;
+
+		if (world.IsUnitLocationTaken(goToSpot) && world.GetUnit(goToSpot).transport)
+		{
+			Transport transport = world.GetUnit(goToSpot).transport;
+			transportTarget = transport;
+			toTransport = true;
+			world.scott.transportTarget = transport;
+			world.scott.toTransport = true;
+			world.azai.transportTarget = transport;
+			world.azai.toTransport = true;
+
+			if (transportTarget.bySea && !world.GetTerrainDataAt(goToSpot).walkable)
+				goToSpot = world.GetAdjacentMoveToTile(world.RoundToInt(transform.position), goToSpot, true);
+
+			List<Vector3Int> exemptList = world.GetExemptList(currentTerrain);
+			path = GridSearch.AStarSearchExempt(world, transform.position, goToSpot, exemptList);
+
+			if (path.Count > 0)
+			{
+				finalDestinationLoc = goToSpot;
+				MoveThroughPath(path);
+			}
+			else
+			{
+				LoadWorkerInTransport(transportTarget);
+			}
+
+			world.scott.RepositionWorker(goToSpot, true, true, exemptList);
+			world.azai.RepositionWorker(goToSpot, true, true, exemptList);
+		}
+		else
+		{
+			path = GridSearch.AStarSearchExempt(world, transform.position, goToSpot, world.GetExemptList(currentTerrain));
+
+			if (path.Count > 0)
+			{
+				finalDestinationLoc = goToSpot;
+				MoveThroughPath(path);
+				RealignFollowers(goToSpot, currentTerrain, true);
+			}
+		}
 	}
 
 	public void FinishMovementPlayer(Vector3 endPosition)
@@ -1628,15 +1741,30 @@ public class Worker : Unit
 
 		if (toTransport)
 		{
-			world.scott.transportTarget = transportTarget;
-			world.azai.transportTarget = transportTarget;
 			LoadWorkerInTransport(transportTarget);
-			world.scott.toTransport = true;
-			world.scott.RepositionWorker(endPositionInt, true);
+			
+			if (inEnemyLines)
+			{
+				inEnemyLines = false;
+			}
+			else
+			{
+				world.scott.transportTarget = transportTarget;
+				world.scott.toTransport = true;
+				world.scott.RepositionWorker(endPositionInt, true, false);
 
-			world.azai.toTransport = true;
-			world.azai.RepositionWorker(endPositionInt, true);
+				world.azai.transportTarget = transportTarget;
+				world.azai.toTransport = true;
+				world.azai.RepositionWorker(endPositionInt, true, false);
+			}
+			
 			return;
+		}
+
+		if (inEnemyLines)
+		{
+			if (endPositionInt == prevFriendlyTile)
+				inEnemyLines = false;
 		}
 
 		if (isSelected)
@@ -1699,6 +1827,8 @@ public class Worker : Unit
         data.timePassed = timePassed;
 		data.toTransport = toTransport;
 		data.inTransport = inTransport;
+		data.inEnemyLines = inEnemyLines;
+		data.prevFriendlyTile = prevFriendlyTile;
 		if (transportTarget != null)
 			data.transportTarget = transportTarget.name;
 
@@ -1739,9 +1869,11 @@ public class Worker : Unit
         orderList = data.orderList;
         runningAway = data.runningAway;
         stepAside = data.stepAside;
-		somethingToSay = data.somethingToSay;
+		//somethingToSay = data.somethingToSay;
 		toTransport = data.toTransport;
 		inTransport = data.inTransport;
+		inEnemyLines = data.inEnemyLines;
+		prevFriendlyTile = data.prevFriendlyTile;
 		transportTarget = world.LoadTransport(data.transportTarget);
 
         if (runningAway)
@@ -1760,7 +1892,7 @@ public class Worker : Unit
 		if (!isMoving)
             world.AddUnitPosition(currentLocation, this);
 
-        if (somethingToSay)
+        if (data.somethingToSay)
         {
 			conversationHaver.conversationTopics = new(data.conversationTopics);
             data.conversationTopics.Clear();

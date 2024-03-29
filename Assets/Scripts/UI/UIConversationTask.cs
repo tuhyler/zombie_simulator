@@ -11,7 +11,7 @@ public class UIConversationTask : MonoBehaviour, IPointerDownHandler
 	private TMP_Text titleText, subtext;
 	
 	[HideInInspector]
-    public string title, taskText;
+    public string title/*, taskText*/;
 
 	[HideInInspector]
 	public UIConversationTaskManager manager;

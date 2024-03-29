@@ -19,7 +19,9 @@ public class GameLoader : MonoBehaviour
 	public bool isLoading, isDone;
 	[HideInInspector]
 	public List<City> attackingEnemyCitiesList = new();
+	[HideInInspector]
 	public List<Military> attackingUnitList = new();
+	public Dictionary<string, List<Vector3Int>> enemyLeaderDict = new();
 	public Dictionary<string, Trader> ambushedTraders = new();
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
@@ -196,9 +198,9 @@ public class GameLoader : MonoBehaviour
 		//	terrainGenerator.enemyCountDifficulty = 3;
 
 		terrainGenerator.SetYCoord(0);
-		Dictionary<Vector3Int, TerrainData> terrainDict = terrainGenerator.RunProceduralGeneration(true);
+		terrainGenerator.RunProceduralGeneration(true);
 		terrainGenerator.SetMainPlayerLoc();
-		world.NewGamePrep(true, terrainDict, terrainGenerator.enemyCityLocs, terrainGenerator.enemyRoadLocs, tutorial);
+		world.NewGamePrep(true, terrainGenerator.terrainDict, terrainGenerator.enemyEmpires, terrainGenerator.enemyRoadLocs, tutorial);
 		terrainGenerator.Clear();
 		StartCoroutine(WaitASec());
 	}
@@ -271,6 +273,14 @@ public class GameLoader : MonoBehaviour
 		gameData.goldTradeCenterWaitList.Clear();
 		for (int i = 0; i < world.goldTradeCenterWaitList.Count; i++)
 			gameData.goldTradeCenterWaitList.Add(world.goldTradeCenterWaitList[i].mainLoc);
+
+		gameData.allTCRepData.Clear();
+		foreach (string name in world.allTCReps.Keys)
+			gameData.allTCRepData[name] = world.allTCReps[name].SaveNPCData();
+
+		gameData.allEnemyLeaderData.Clear();
+		for (int i = 0; i < world.allEnemyLeaders.Count; i++)
+			gameData.allEnemyLeaderData.Add(world.allEnemyLeaders[i].SaveNPCData());
 
 		List<Vector3Int> enemyCampLocs = new List<Vector3Int>(gameData.attackedEnemyBases.Keys);
 		for (int i = 0; i < enemyCampLocs.Count; i++)
@@ -400,14 +410,26 @@ public class GameLoader : MonoBehaviour
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(20);
+		List<Vector3Int> roadList = new();
+		for (int i = 0; i < gameData.allRoads.Count; i++)
+			roadList.Add(gameData.allRoads[i].position);
 
 		world.GenerateTradeCenters(gameData.allTradeCenters);
-		world.GenerateEnemyCities(gameData.enemyCities, gameData.enemyRoads);
+		gameData.allTCRepData.Clear();
+		for (int i = 0; i < gameData.allEnemyLeaderData.Count; i++)
+		{
+			EnemyEmpire empire = world.GenerateEnemyLeaders(gameData.allEnemyLeaderData[i]);
+			
+			for (int j = 0; j < empire.empireCities.Count; j++)
+				world.GenerateEnemyCities(gameData.enemyCities[empire.empireCities[j]], empire, roadList);
+		}
+		gameData.allEnemyLeaderData.Clear();
+
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
 		foreach (Vector3Int tile in gameData.enemyCities.Keys)
-			world.LoadEnemyBorders(tile);
+			world.LoadEnemyBorders(tile, world.GetEnemyCity(tile).empire.enemyLeader.buildDataSO.borderColor);
 		foreach (Vector3Int tile in gameData.enemyCampLocs.Keys)
-			world.LoadEnemyBorders(tile);
+			world.LoadEnemyBorders(tile, new Color(1, 0, 0, 0.68f));
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(15);
@@ -504,15 +526,12 @@ public class GameLoader : MonoBehaviour
 		gameData.militaryUnits.Clear();
 
 		GameManager.Instance.UpdateProgress(20);
-
 		for (int i = 0; i < gameData.allRoads.Count; i++)
 		{
 			if (!world.roadTileDict.ContainsKey(gameData.allRoads[i].position))
 				world.roadManager.BuildRoadAtPosition(gameData.allRoads[i].position, gameData.allRoads[i].utilityLevel);
 		}
 		gameData.allRoads.Clear();
-
-		GameManager.Instance.UpdateProgress(10);
 
 		//transports
 		for (int i = 0; i < gameData.allTransports.Count; i++)
@@ -662,9 +681,9 @@ public class GameLoader : MonoBehaviour
 		}
 
 		//loading conversation task list
-		foreach (string task in gameData.conversationTaskDict.Keys)
+		foreach (string task in gameData.conversationTasks)
 		{
-			world.uiConversationTaskManager.LoadConversationTask(task, gameData.conversationTaskDict[task].Item1, gameData.conversationTaskDict[task].Item2);
+			world.uiConversationTaskManager.CreateConversationTask(task, true);
 		}
 
 		//combining meshes for orphans

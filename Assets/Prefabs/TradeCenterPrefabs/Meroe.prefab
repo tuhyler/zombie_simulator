@@ -440,12 +440,12 @@ PrefabInstance:
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
       propertyPath: tradeRepLoc.x
-      value: -0.3
+      value: -0.2
       objectReference: {fileID: 0}
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}
       propertyPath: tradeRepLoc.z
-      value: 0.3
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6297654911500261546, guid: 39897835633fd954caa8bfc5f2428842,
         type: 3}

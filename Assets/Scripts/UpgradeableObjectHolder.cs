@@ -6,8 +6,10 @@ public class UpgradeableObjectHolder : MonoBehaviour
 {
     public static UpgradeableObjectHolder Instance { get; private set; }
 
-    public List<ImprovementDataSO> allBuildingsAndImprovements = new(); //not static so as to populate lists in inspector
-    public List<UnitBuildDataSO> allUnits = new(); //not static so as to populate lists in inspector
+	//not static so as to populate lists in inspector
+	public List<ImprovementDataSO> allBuildingsAndImprovements = new(); 
+    public List<UnitBuildDataSO> allUnits = new(); 
+    public List<UnitBuildDataSO> allEnemyLeaders = new();
     public List<UnitBuildDataSO> allEnemyUnits = new();
     public List<TerrainDataSO> allTerrain = new();
     public List<GameObject> allTradeCenters = new();
@@ -15,6 +17,7 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
     public Dictionary<string, ImprovementDataSO> improvementDict = new();
     public Dictionary<string, UnitBuildDataSO> unitDict = new();
+    public Dictionary<string, UnitBuildDataSO> enemyLeaderDict = new();
     public Dictionary<string, UnitBuildDataSO> enemyUnitDict = new();
     public Dictionary<string, TerrainDataSO> terrainDict = new();
     public Dictionary<string, GameObject> tradeCenterDict = new();
@@ -34,6 +37,9 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
         foreach (UnitBuildDataSO unit in allUnits)
             unitDict[unit.unitNameAndLevel] = unit;
+
+        foreach (UnitBuildDataSO unit in allEnemyLeaders)
+            enemyLeaderDict[unit.unitName] = unit;
 
         foreach (UnitBuildDataSO unit in allEnemyUnits)
             enemyUnitDict[unit.unitNameAndLevel] = unit;
