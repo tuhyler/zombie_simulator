@@ -11,6 +11,7 @@ public class NPC : Unit
 	[HideInInspector]
 	public string npcName;
 	public Sprite npcImage;
+	public List<GameObject> leaderMilitaryUnits;
 	[HideInInspector]
 	public int rapportScore;
 	public int angryIncrease;

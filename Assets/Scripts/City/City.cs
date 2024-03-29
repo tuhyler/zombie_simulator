@@ -1502,22 +1502,25 @@ public class City : MonoBehaviour
 
 	private void AddEnemyUnit(EnemyCamp camp, bool isDiscovered) //one at a time
 	{
-		GameObject enemy;
+        GameObject enemy;
 
-		if (camp.UnitsInCamp.Count < 3)
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][UnitType.Infantry];
-		else if (camp.UnitsInCamp.Count < 6)
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][UnitType.Ranged];
+        if (camp.UnitsInCamp.Count < 3)
+            enemy = empire.enemyLeader.leaderMilitaryUnits[0];
+        else if (camp.UnitsInCamp.Count < 6)
+			enemy = empire.enemyLeader.leaderMilitaryUnits[1];
 		else if (camp.UnitsInCamp.Count < 8)
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][UnitType.Cavalry];
+			enemy = empire.enemyLeader.leaderMilitaryUnits[2];
 		else
-			enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[Era.AncientEra][Region.South][GameLoader.Instance.terrainGenerator.RandomlySelectUnitType(UnityEngine.Random.Range(0, 3))];
+            enemy = empire.enemyLeader.leaderMilitaryUnits[UnityEngine.Random.Range(0, 3)];
 
-		UnitType type = enemy.GetComponent<Unit>().buildDataSO.unitType;
+		UnitType type = enemy.GetComponent<Military>().buildDataSO.unitType;
 		Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
 		Vector3Int newSpot = camp.GetAvailablePosition(type);
         GameObject enemyGO = Instantiate(enemy, newSpot, rotation);
 		enemyGO.transform.SetParent(world.enemyUnitHolder, false);
+		Unit unitEnemy = enemyGO.GetComponent<Unit>();
+		unitEnemy.SetReferences(world);
+		unitEnemy.SetMinimapIcon(world.enemyUnitHolder);
 
 		//for tweening
 		Vector3 goScale = enemyGO.transform.localScale;
@@ -1525,10 +1528,6 @@ public class City : MonoBehaviour
 		float scaleZ = goScale.z;
 		enemyGO.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
 		LeanTween.scale(enemyGO, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
-
-		Unit unitEnemy = enemyGO.GetComponent<Unit>();
-		unitEnemy.SetReferences(world);
-		unitEnemy.SetMinimapIcon(world.enemyUnitHolder);
 
 		if (!isDiscovered)
 		{

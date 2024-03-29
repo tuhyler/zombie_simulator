@@ -44,40 +44,43 @@ public class Military : Unit
 	private void Awake()
 	{
 		AwakeMethods();
-		military = GetComponent<Military>();
-
-		int factor = 0;
-		if (enemyAI)
-			factor = 4;
-		else if (buildDataSO.unitType == UnitType.Ranged)
-			factor = 1;
-		else if (buildDataSO.unitType == UnitType.Cavalry)
-			factor = 2;
-		else if (buildDataSO.unitType == UnitType.Seige)
-			factor = 3;
-
-		if (factor > 0)
-		{
-			float shift = 0.03125f * factor;
-			Vector2[] sailUV = boatSail.mesh.uv;
-			for (int i = 0; i < sailUV.Length; i++)
-				sailUV[i].x += shift;
-
-			boatSail.mesh.uv = sailUV;
-		}
-
 		attackStrength = buildDataSO.baseAttackStrength;
 
-		if (buildDataSO.unitType == UnitType.Ranged)
+		if (GetComponent<NPC>() == null)
 		{
-			projectile = GetComponentInChildren<Projectile>();
-			projectile.SetProjectilePos();
-			projectile.gameObject.SetActive(false);
-		}
+			military = GetComponent<Military>();
 
-		isPillagingHash = Animator.StringToHash("isPillaging");
-		isDiscoveredHash = Animator.StringToHash("isDiscovered");
-		isSittingHash = Animator.StringToHash("isSitting");
+			int factor = 0;
+			if (enemyAI)
+				factor = 4;
+			else if (buildDataSO.unitType == UnitType.Ranged)
+				factor = 1;
+			else if (buildDataSO.unitType == UnitType.Cavalry)
+				factor = 2;
+			else if (buildDataSO.unitType == UnitType.Seige)
+				factor = 3;
+
+			if (factor > 0)
+			{
+				float shift = 0.03125f * factor;
+				Vector2[] sailUV = boatSail.mesh.uv;
+				for (int i = 0; i < sailUV.Length; i++)
+					sailUV[i].x += shift;
+
+				boatSail.mesh.uv = sailUV;
+			}
+
+			if (buildDataSO.unitType == UnitType.Ranged)
+			{
+				projectile = GetComponentInChildren<Projectile>();
+				projectile.SetProjectilePos();
+				projectile.gameObject.SetActive(false);
+			}
+
+			isPillagingHash = Animator.StringToHash("isPillaging");
+			isDiscoveredHash = Animator.StringToHash("isDiscovered");
+			isSittingHash = Animator.StringToHash("isSitting");
+		}
 	}
 
 	protected override void AwakeMethods()
