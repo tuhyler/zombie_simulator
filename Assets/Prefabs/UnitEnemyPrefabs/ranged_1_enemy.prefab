@@ -164,6 +164,11 @@ PrefabInstance:
         type: 2}
     - target: {fileID: 3791297815979746943, guid: 6b7e54f7dc68ef44a9c40a351428367f,
         type: 3}
+      propertyPath: unitMeshHolder
+      value: 
+      objectReference: {fileID: 7452523777337705353}
+    - target: {fileID: 3791297815979746943, guid: 6b7e54f7dc68ef44a9c40a351428367f,
+        type: 3}
       propertyPath: attacks.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -362,6 +367,12 @@ PrefabInstance:
 --- !u!1 &7168653122646809264 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 635547659545568360, guid: 688bbca15505e124e86e4803ef3fd238,
+    type: 3}
+  m_PrefabInstance: {fileID: 7759076750731050712}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7452523777337705353 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 688bbca15505e124e86e4803ef3fd238,
     type: 3}
   m_PrefabInstance: {fileID: 7759076750731050712}
   m_PrefabAsset: {fileID: 0}

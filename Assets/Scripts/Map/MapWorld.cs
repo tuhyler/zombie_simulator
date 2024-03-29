@@ -1,25 +1,10 @@
-using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Resources;
 using TMPro;
-using Unity.Burst.Intrinsics;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Antlr3.Runtime.Collections;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Playables;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
-using UnityEngine.UIElements.Experimental;
-using static UnityEngine.EventSystems.EventTrigger;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class MapWorld : MonoBehaviour
@@ -1473,8 +1458,8 @@ public class MapWorld : MonoBehaviour
                 if (city.enemyCamp.campCount != 0)
                     movingOut = true;
 
-                if (GetTerrainDataAt(cityTile).isDiscovered && !city.enemyCamp.growing && !city.enemyCamp.movingOut && !city.enemyCamp.inBattle && !city.enemyCamp.prepping && 
-                    !city.enemyCamp.attackReady && !city.enemyCamp.returning)
+                if (GetTerrainDataAt(cityTile).isDiscovered && city.cityLoc == city.empire.attackingCity && !city.enemyCamp.growing && !city.enemyCamp.movingOut && !city.enemyCamp.inBattle && 
+                    !city.enemyCamp.prepping && !city.enemyCamp.attackReady && !city.enemyCamp.returning)
                     city.LoadSendAttackWait();
 		    }
         }
@@ -1483,7 +1468,7 @@ public class MapWorld : MonoBehaviour
 			city.enemyCamp.fieldBattleLoc = cityTile;
             city.enemyCamp.moveToLoc = city.barracksLocation;
 			city.enemyCamp.SetCityEnemyCamp();
-			AddAllEnemyUnits(city.enemyCamp, random, data, load, Era.AncientEra, Region.South);
+			AddAllEnemyUnits(city.enemyCamp, random, data, load, empire.enemyLeader);
         }
 
         if (movingOut)
@@ -1496,17 +1481,27 @@ public class MapWorld : MonoBehaviour
                 Vector3 unitSpawn = unitLoc;
 
 			    UnitBuildDataSO enemyData = UpgradeableObjectHolder.Instance.enemyUnitDict[data.enemyUnitData[unitLoc]];
-
 			    Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
+                GameObject enemy;
 
-			    GameObject enemyGO = Instantiate(enemyData.prefab, unitSpawn, rotation);
+                if (enemyData.unitType == UnitType.Infantry)
+                    enemy = empire.enemyLeader.leaderMilitaryUnits[0];
+                else if (enemyData.unitType == UnitType.Ranged)
+					enemy = empire.enemyLeader.leaderMilitaryUnits[1];
+                else if (enemyData.unitType == UnitType.Cavalry)
+					enemy = empire.enemyLeader.leaderMilitaryUnits[2];
+                else
+					enemy = empire.enemyLeader.leaderMilitaryUnits[0];
+
+				GameObject enemyGO = Instantiate(enemy, unitSpawn, rotation);
 			    enemyGO.name = enemyData.unitDisplayName;
 			    enemyGO.transform.SetParent(enemyUnitHolder, false);
 
 			    Unit unit = enemyGO.GetComponent<Unit>();
 			    unit.SetReferences(this);
 			    unit.SetMinimapIcon(enemyUnitHolder);
-			    if (!city.enemyCamp.movingOut)
+
+				if (!city.enemyCamp.movingOut)
                 {
 				    unit.minimapIcon.gameObject.SetActive(false);
                 }
@@ -1588,60 +1583,62 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
-    private void AddAllEnemyUnits(EnemyCamp camp, System.Random random, EnemyCityData data, bool load, Era selectedEra, Region selectedRegion)
+    private void AddAllEnemyUnits(EnemyCamp camp, System.Random random, EnemyCityData data, bool load, NPC leader)
     {
 		List<Vector3Int> campLocs = GetNeighborsFor(camp.loc, State.EIGHTWAYARMY);
 
 		//0 is for infantry, 1 ranged, 2 cavalry
 		//List<int> unitList = new() { 0, 1, 2 };
         List<Vector3Int> barracksLocs = new();
-        UnitType type = UnitType.Infantry; 
+        //UnitType type = UnitType.Infantry; 
 
-        if (load)
-            barracksLocs = data.enemyUnitData.Keys.ToList();
+        //if (load)
+        //    barracksLocs = data.enemyUnitData.Keys.ToList();
 
 		for (int i = 0; i < 9; i++)
 		{
             Vector3Int spawnLoc;
+            GameObject enemy;
 
-			if (load)
+			//if (load)
+   //         {
+   //             spawnLoc = barracksLocs[i];
+   //         }
+   //         else
+   //         {
+            if (i < 3)
             {
-                spawnLoc = barracksLocs[i];
-            }
+                //type = UnitType.Infantry;
+                enemy = leader.leaderMilitaryUnits[0];
+                spawnLoc = camp.GetAvailablePosition(UnitType.Infantry);
+				infantryCount++;
+			}
+            else if (i < 6)
+            {
+                //type = UnitType.Ranged;
+                enemy = leader.leaderMilitaryUnits[1];
+				spawnLoc = camp.GetAvailablePosition(UnitType.Ranged);
+				rangedCount++;
+			}
             else
             {
-                if (i < 3)
-                {
-                    type = UnitType.Infantry;
-                    spawnLoc = camp.GetAvailablePosition(type);
-					infantryCount++;
-				}
-                else if (i < 6)
-                {
-					type = UnitType.Ranged;
-					spawnLoc = camp.GetAvailablePosition(type);
-					rangedCount++;
-				}
-                else
-                {
-					type = UnitType.Cavalry;
-					spawnLoc = camp.GetAvailablePosition(type);
-					cavalryCount++;
-				}
+                //type = UnitType.Cavalry;
+                enemy = leader.leaderMilitaryUnits[2];
+				spawnLoc = camp.GetAvailablePosition(UnitType.Cavalry);
+				cavalryCount++;
 			}
+			//}
 
 			campLocs.Remove(spawnLoc);
 
-			GameObject enemy;
-
-			if (load)
-            {
-                 enemy = UpgradeableObjectHolder.Instance.enemyUnitDict[data.enemyUnitData[spawnLoc]].prefab;
-            }
-            else
-            {
-			    enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[selectedEra][selectedRegion][type];
-            }
+			//if (load)
+   //         {
+   //              enemy = UpgradeableObjectHolder.Instance.enemyUnitDict[data.enemyUnitData[spawnLoc]].prefab;
+   //         }
+   //         else
+   //         {
+   //             enemy = GameLoader.Instance.terrainGenerator.enemyUnitDict[selectedEra][selectedRegion][type];
+   //         }
 
 			//UnitType type = enemy.GetComponent<Unit>().buildDataSO.unitType;
 
