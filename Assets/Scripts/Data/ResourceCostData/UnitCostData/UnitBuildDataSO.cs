@@ -6,7 +6,7 @@ public class UnitBuildDataSO : ScriptableObject
 {
     public GameObject prefab;
     public GameObject secondaryPrefab;
-    public string unitName;
+    public string nationalityAdjective;
     public string unitDisplayName;
     public int unitLevel;
     public string unitNameAndLevel;
@@ -28,7 +28,7 @@ public class UnitBuildDataSO : ScriptableObject
     public Vector2Int goldDropRange = Vector2Int.zero;
     public TransportationType transportationType = TransportationType.Land;
     public bool characterUnit;
-    public bool tcRep;
+    public bool npc;
     public Color borderColor;
     public Vector2 colorOne;
     public Vector2 colorTwo;
@@ -45,7 +45,8 @@ public enum UnitType
     Seige,
     Trader,
     BoatTrader,
-    Transport
+    Transport,
+    TradeRepresentative
 }
 
 public enum TransportationType

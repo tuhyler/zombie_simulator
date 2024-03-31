@@ -162,7 +162,7 @@ public class UnitMovement : MonoBehaviour
 		{
 			foreach (Unit unit in city.tradersHere)
             {
-				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitName))
+				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
                 {
 					highlightedUnitList.Add(unit);
 					unit.SoftSelect(Color.green);
@@ -174,7 +174,7 @@ public class UnitMovement : MonoBehaviour
 
 			foreach (Military unit in city.army.UnitsInArmy)
 			{
-				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitName))
+				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
 				{
                     highlightedUnitList.Add(unit);
                     unit.SoftSelect(Color.green);
@@ -1000,7 +1000,8 @@ public class UnitMovement : MonoBehaviour
 		world.somethingSelected = true;
 		selectedUnit.Highlight(Color.red);
         int bonus = selectedUnit.military ? selectedUnit.military.strengthBonus : 0;
-		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus);
+        bool leader = selectedUnit.military && selectedUnit.military.leader;
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus, leader);
 	}
 
     private void SelectCharacter(Unit unitReference)
@@ -1023,7 +1024,7 @@ public class UnitMovement : MonoBehaviour
 		selectedUnit.SayHello();
 		world.somethingSelected = true;
 		selectedUnit.Highlight(new Color(.5f, 0, 1));
-		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, 0);
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, 0, false);
 	}
 
 	public void SelectWorker()
@@ -1067,7 +1068,7 @@ public class UnitMovement : MonoBehaviour
                     {                        
                         world.unitMovement.QuickSelect(selectedUnit);
 				        world.GetNPC(tile).SpeakingCheck();
-				        world.uiSpeechWindow.SetSpeakingNPC(world.GetNPC(tile).npc);
+    				    world.uiSpeechWindow.SetSpeakingNPC(world.GetNPC(tile));
                         break;
                     }
                 }
@@ -1158,7 +1159,7 @@ public class UnitMovement : MonoBehaviour
         }
 
 		int bonus = selectedUnit.military ? selectedUnit.military.strengthBonus : 0;
-		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus);
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus, false);
         ShowIndividualCityButtonsUI();
     }
 
@@ -1377,7 +1378,7 @@ public class UnitMovement : MonoBehaviour
                 selectedUnit.worker.transportTarget = null;
             }
             
-            if (detectedObject.TryGetComponent(out NPC npc))
+            if (detectedObject.TryGetComponent(out Unit npc) && npc.buildDataSO.npc)
             {
                 locationInt = npc.currentLocation;
                 locationFlat = locationInt;
@@ -1408,7 +1409,7 @@ public class UnitMovement : MonoBehaviour
         {
 			if (selectedUnit.isPlayer)
             {
-                if (world.IsNPCThere(locationInt) && world.GetNPC(locationInt).somethingToSay)
+                if (world.IsNPCThere(locationInt) && world.GetNPC(locationInt).somethingToSay && !world.GetEnemyCity(locationInt).enemyCamp.attacked)
                 {
                     moveToSpeak = true;
                 }
@@ -2580,7 +2581,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedTrader != null)
         {
-			infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, 0);
+			infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, 0, false);
         }
     }
 
@@ -2814,6 +2815,7 @@ public class UnitMovement : MonoBehaviour
             GameLoader.Instance.gameData.attackedEnemyBases.Remove(homeBase.army.enemyTarget);
             homeBase.army.MoveArmyHome(homeBase.barracksLocation);
             world.EnemyCampReturn(homeBase.army.enemyTarget);
+            world.EnemyCityReturn(homeBase.army.enemyCityLoc);
 			homeBase.army.HidePath();
 		}
         else if (homeBase.army.inBattle)
@@ -2896,6 +2898,10 @@ public class UnitMovement : MonoBehaviour
 		if (world.IsEnemyCityOnTile(potentialAttackLoc))
         {
             City city = world.GetEnemyCity(potentialAttackLoc);
+
+            if (city.empire.capitalCity == city.cityLoc)
+                city.empire.enemyLeader.CancelApproachingConversation();
+
 			homeBase.army.enemyCityLoc = city.cityLoc;
 			if (city.enemyCamp.movingOut)
             {

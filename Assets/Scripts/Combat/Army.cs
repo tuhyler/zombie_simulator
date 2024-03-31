@@ -940,12 +940,9 @@ public class Army : MonoBehaviour
     {
         foreach (Military unit in unitsInArmy)
 		{
-            if (unit.attackCo != null)
-                StopCoroutine(unit.attackCo);
-
+            unit.AttackCheck();
             unit.preparingToMoveOut = false;
             unit.attacking = false;
-            unit.attackCo = null;
 			List<Vector3Int> path = new();
 
 			foreach (Vector3Int tile in pathToTarget)
@@ -1209,7 +1206,10 @@ public class Army : MonoBehaviour
             DestroyDeadList();
 
             foreach (Military unit in unitsInArmy)
+            {
+                unit.AttackCheck();
                 unit.StopAttacking();
+            }
 
             attackingSpots.Clear();
             city.battleIcon.SetActive(false);
@@ -1239,7 +1239,10 @@ public class Army : MonoBehaviour
 	public void Retreat()
     {
         foreach (Military unit in unitsInArmy)
+        {
+            unit.AttackCheck();
             unit.StopAttacking();
+        }
 
         StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleVisibility(false);

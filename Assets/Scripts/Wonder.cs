@@ -799,11 +799,11 @@ public class Wonder : MonoBehaviour
                 }
                 break;
             case "Great Lighthouse":
-				world.AddToUnitPermanentChanges("Boat Trader", "Movement Speed", wonderData.wonderBenefitChange);
+				world.AddToUnitPermanentChanges(UnitType.BoatTrader.ToString(), "Movement Speed", wonderData.wonderBenefitChange);
 
 				foreach (Trader trader in world.traderList)
                 {
-                    if (trader.buildDataSO.unitName == "Boat Trader")
+                    if (trader.buildDataSO.unitType == UnitType.BoatTrader)
                         trader.originalMoveSpeed *= 1f + wonderData.wonderBenefitChange;
                 }
                 break;

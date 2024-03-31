@@ -103,7 +103,7 @@ public class City : MonoBehaviour
     public int HousingCount { get { return housingCount; } set { housingCount = value; } }
     private CityImprovement[] housingArray = new CityImprovement[4];
     [HideInInspector]
-    public int waterCount;
+    public int waterCount, powerCount;
 
     //resource info
     public float workEthic = 1f;
@@ -1539,7 +1539,7 @@ public class City : MonoBehaviour
 		if (!world.unitPosDict.ContainsKey(world.RoundToInt(unitLoc))) //just in case dictionary was missing any
 			unitEnemy.currentLocation = world.AddUnitPosition(unitLoc, unitEnemy);
 		unitEnemy.currentLocation = unitLoc;
-		unitEnemy.gameObject.name = unitEnemy.buildDataSO.unitDisplayName;
+		enemyGO.name = unitEnemy.buildDataSO.nationalityAdjective + " " + unitEnemy.buildDataSO.unitDisplayName;
 		unitEnemy.military.barracksBunk = newSpot;
 
 		Vector3 spawnSpot = newSpot;
@@ -1560,7 +1560,7 @@ public class City : MonoBehaviour
 		camp.health += unitEnemy.buildDataSO.health;
 
         camp.UnitsInCamp.Add(unitEnemy.military);
-		unitEnemy.enemyAI.CampLoc = camp.loc;
+		//unitEnemy.enemyAI.CampLoc = camp.loc;
 		unitEnemy.enemyAI.CampSpot = unitLoc;
 		unitEnemy.military.enemyCamp = camp;
 
@@ -1950,7 +1950,7 @@ public class City : MonoBehaviour
         if (world.IsNPCThere(cityLoc))
         {
             empire.enemyLeader.gameObject.SetActive(true);
-			empire.enemyLeader.SetSomethingToSay(empire.enemyLeader.npcName + "_intro");
+			empire.enemyLeader.SetSomethingToSay(empire.enemyLeader.leaderName + "_intro");
 		}
 
         if (world.unitMovement.deployingArmy)

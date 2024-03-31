@@ -57,7 +57,7 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public Transport transport;
     [HideInInspector]
-    public NPC npc;
+    public TradeRep tradeRep;
     [HideInInspector]
     public ConversationHaver conversationHaver;
 
@@ -258,8 +258,16 @@ public class Unit : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-			if (military)
+			if (inArmy)
+            {
+                military.AttackCheck();
                 military.StopAttacking();
+            }
+            else if (enemyAI)
+            {
+                enemyAI.AttackCheck();
+                military.StopAttacking();
+            }
             if (!attackingUnit.military.aoe)
                 attackingUnit.military.attacking = false;
             KillUnit(attackingUnit.transform.eulerAngles);
@@ -356,7 +364,7 @@ public class Unit : MonoBehaviour
         {
             if (pathPositions.Count == 0)
             {
-                if (world.IsUnitLocationTaken(endPositionInt))
+/*                if (world.IsUnitLocationTaken(endPositionInt))
                 {
 					Unit unitInTheWay = world.GetUnit(endPositionInt);
                     
@@ -373,9 +381,9 @@ public class Unit : MonoBehaviour
 						yield break;
 					}
 				}
-                else if (world.IsNPCThere(endPositionInt))
+                else */if (world.IsNPCThere(endPositionInt))
                 {
-					NPC unitInTheWay = world.GetNPC(endPositionInt);
+					Unit unitInTheWay = world.GetNPC(endPositionInt);
 
 					if (unitInTheWay.somethingToSay)
 					{
@@ -383,20 +391,22 @@ public class Unit : MonoBehaviour
 						{
 							world.unitMovement.QuickSelect(this);
 							unitInTheWay.SpeakingCheck();
-							world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay.npc);
+                            if (unitInTheWay.buildDataSO.npc)
+    							world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay);
 						}
 
-						worker.SetUpSpeakingPositions(unitInTheWay.transform.position, unitInTheWay.empire != null);
+                        bool leader = unitInTheWay.military && unitInTheWay.military.leader;
+						worker.SetUpSpeakingPositions(unitInTheWay.transform.position, leader);
 						FinishMoving(transform.position);
 						yield break;
 					}
 					else 
 					{
-						if (unitInTheWay.npc.onQuest)
+						if (unitInTheWay.tradeRep && unitInTheWay.tradeRep.onQuest)
 						{
 							if (isSelected)
 							{
-								world.ToggleGiftGiving(unitInTheWay);
+								world.ToggleGiftGiving(unitInTheWay.tradeRep);
 							}
 							worker.SetUpSpeakingPositions(unitInTheWay.transform.position, false);
 						}
@@ -748,10 +758,6 @@ public class Unit : MonoBehaviour
         {
 			world.unitMovement.LaborerJoin(this);
 		}
-        else if (npc)
-        {
-            npc.FinishMovementNPC(endPosition);
-        }
   //      else if (world.IsUnitLocationTaken(currentLocation))
 		//{
   //          UnitInWayCheck(endPosition);
@@ -892,8 +898,8 @@ public class Unit : MonoBehaviour
 								CityImprovement improvement = world.cityImprovementDict[tile];
 								improvement.HideImprovement();
 
-								if (!td2.isDiscovered)
-									improvement.StartJustWorkAnimation();
+                                if (!td2.isDiscovered)
+                                    improvement.HardReveal();
 							}
 
 							if (!td2.isDiscovered)
@@ -1106,19 +1112,19 @@ public class Unit : MonoBehaviour
         }
     }
 
-    private bool CampAggroCheck(Vector3Int loc)
-    {
-        foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.CITYRADIUS))
-        {
-            if (world.CheckIfEnemyCamp(tile))
-            {
-                world.GetEnemyCamp(tile).StartChase(loc);
-                return true;
-            }
-        }
+    //private bool CampAggroCheck(Vector3Int loc)
+    //{
+    //    foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.CITYRADIUS))
+    //    {
+    //        if (world.CheckIfEnemyCamp(tile))
+    //        {
+    //            world.GetEnemyCamp(tile).StartChase(loc);
+    //            return true;
+    //        }
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
 	public void TurnOnRipples()
 	{

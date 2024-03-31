@@ -1082,6 +1082,7 @@ public class CityBuilderManager : MonoBehaviour
 			uiInfoPanelCity.SetAllData(selectedCity);
 			uiInfoPanelCity.SetWorkEthicPopUpCity(selectedCity);
 			uiInfoPanelCity.UpdateWater(selectedCity.waterCount);
+            uiInfoPanelCity.UpdatePower(selectedCity.powerCount);
 			return;
         }
 
@@ -1129,8 +1130,9 @@ public class CityBuilderManager : MonoBehaviour
         uiInfoPanelCity.SetWorkEthicPopUpCity(selectedCity);
         //uiInfoPanelCity.SetGrowthPauseToggle(selectedCity.ResourceManager.pauseGrowth);
         uiInfoPanelCity.UpdateWater(selectedCity.waterCount);
+		uiInfoPanelCity.UpdatePower(selectedCity.powerCount);
 
-        if (selectedCity.currentPop > 0 || selectedCity.army.UnitsInArmy.Count > 0)
+		if (selectedCity.currentPop > 0 || selectedCity.army.UnitsInArmy.Count > 0)
         {
             uiLaborAssignment.showPrioritiesButton.SetActive(selectedCity.AutoAssignLabor);
             uiLaborAssignment.ShowUI(selectedCity, placesToWork);

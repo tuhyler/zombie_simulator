@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyEmpire
 {
-    public NPC enemyLeader;
+    public MilitaryLeader enemyLeader;
     public Era enemyEra;
     public Region enemyRegion;
     public List<Vector3Int> empireCities = new();
@@ -55,7 +55,7 @@ public class EnemyEmpire
         }
     }
 
-    public void LoadData(NPCData data)
+    public void LoadData(MilitaryLeaderData data)
     {
 		attackingCity = data.attackingCity;
 		capitalCity = data.capitalCity;

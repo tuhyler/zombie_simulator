@@ -48,6 +48,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 8486d880e04a89142b6ed543b2904529, type: 3}
   - {fileID: 21300000, guid: fbcdb2a0f26417a4684d20bc6364eec4, type: 3}
   - {fileID: 21300000, guid: 1aa4d2c07e15f894d81bb10208a6f9ab, type: 3}
+  - {fileID: 21300000, guid: 3fec7bf01285d084da1fdc911262a52e, type: 3}
   - {fileID: 21300000, guid: 2f2bb811bc16fbf468e00051e800e0d9, type: 3}
   - {fileID: 21300000, guid: 4d81c72186815354a85713d78e481257, type: 3}
   - {fileID: 21300000, guid: f348982132094e94d8a089d5f8d3ea17, type: 3}
@@ -153,6 +154,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: f18793b88229fcc498c5ce73553a072b, type: 3}
   - {fileID: 21300000, guid: 7b6cf6b8f6c3b4e45b83818a2d4d8ac6, type: 3}
   - {fileID: 21300000, guid: cb4973c8dc95db441a2b19ea8c2dd6be, type: 3}
+  - {fileID: 21300000, guid: 97c9b3c8315bd654a8ead3474d04a14e, type: 3}
   - {fileID: 21300000, guid: 92fb64d8ba51e6445ad0b897fd866042, type: 3}
   - {fileID: 21300000, guid: ab105bd816ed46a4094a657d66e70f11, type: 3}
   - {fileID: 21300000, guid: 8dd14509544858849802bacb4a448997, type: 3}
@@ -250,6 +252,7 @@ SpriteAtlas:
   - button_sell
   - laborIconFemale1
   - box_select
+  - icon_powerbig
   - button_unit
   - icon_waterbig
   - icon_strength
@@ -355,6 +358,7 @@ SpriteAtlas:
   - button_removelabor_gold
   - bar_progresswhitegold
   - scrollbar_gold01
+  - icon_power
   - circle_ecstaticface
   - bar_progresswhiteblue
   - button_clearforest

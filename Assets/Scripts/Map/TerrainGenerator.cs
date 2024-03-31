@@ -2757,7 +2757,7 @@ public class TerrainGenerator : MonoBehaviour
 
             GameObject leaderGO = Instantiate(chosenLeader, empire.capitalCity, rotation);
 			leaderGO.transform.SetParent(enemyCityHolder, false);
-			NPC leader = leaderGO.GetComponent<NPC>();
+			MilitaryLeader leader = leaderGO.GetComponent<MilitaryLeader>();
             empire.enemyLeader = leader;
             empire.enemyEra = leader.buildDataSO.unitEra;
             empire.enemyRegion = leader.buildDataSO.unitRegion;

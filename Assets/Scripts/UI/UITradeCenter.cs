@@ -83,7 +83,7 @@ public class UITradeCenter : MonoBehaviour
             activeStatus = true;
             world.tcCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
-            ownerName.text = "Rapport with " + center.tcRep.npcName;
+            ownerName.text = "Rapport with " + center.tcRep.tradeRepName;
             ownerImage.sprite = center.tcRep.npcImage;
             increaseText.text = "+" + center.tcRep.angryIncrease.ToString() + "%";
             decreaseText.text = "-" + center.tcRep.happyDiscount.ToString() + "%,";
@@ -145,9 +145,9 @@ public class UITradeCenter : MonoBehaviour
         title.text = name;
     }
 
-    public void SetHappinessMeter(NPC rep)
+    public void SetHappinessMeter(Unit rep)
     {
-		int meterShift = rep.rapportScore * 32;
+		int meterShift = rep.tradeRep.rapportScore * 32;
 		Vector2 meterLoc = happinessMeter.transform.localPosition;
 		meterLoc.x = meterShift;
 		happinessMeter.transform.localPosition = meterLoc;
@@ -155,17 +155,17 @@ public class UITradeCenter : MonoBehaviour
         if (meterShift == 160)
         {
             happinessMeter.sprite = ecstatic;
-            buyMultiple = 1 - rep.ecstaticDiscount * 0.01f;
+            buyMultiple = 1 - rep.tradeRep.ecstaticDiscount * 0.01f;
         }
 		else if (meterShift >= 65)
 		{
 			happinessMeter.sprite = happy;
-			buyMultiple = 1 - rep.happyDiscount * 0.01f;
+			buyMultiple = 1 - rep.tradeRep.happyDiscount * 0.01f;
 		}
 		else if (meterShift <= -60)
 		{
 			happinessMeter.sprite = mad;
-			buyMultiple = 1 + rep.angryIncrease * 0.01f;
+			buyMultiple = 1 + rep.tradeRep.angryIncrease * 0.01f;
 		}
 		else
 		{

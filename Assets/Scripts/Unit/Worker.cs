@@ -1459,7 +1459,7 @@ public class Worker : Unit
 
 			List<Vector3Int> exemptList = new();
 			if (enemy)
-				world.GetExemptList(prevLoc);
+				exemptList = world.GetExemptList(prevLoc);
 
 			world.scott.RepositionWorker(firstLoc, false, enemy, exemptList);
 		

@@ -23,6 +23,7 @@ public class EnemyCamp
 	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength, pillageTime;
 	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing, isCity, pillage, growing, removingOut, atSea, battleAtSea, seaTravel;
 	public Army attackingArmy;
+	public Military benchedUnit;
 
 	//public Queue<Vector3Int> threatQueue = new();
 	public Vector3Int threatLoc, cityLoc;
@@ -218,7 +219,7 @@ public class EnemyCamp
 		return campData;
 	}
 
-    public void BattleStations(Vector3Int travelLoc, Vector3Int forward)
+    public void BattleStations(Vector3Int travelLoc, Vector3Int forward, MilitaryLeader leader = null)
     {
 		if (attackReady || prepping)
 			return;
@@ -227,6 +228,30 @@ public class EnemyCamp
 		{
 			attackReady = true;
 			return;
+		}
+
+		if (leader)
+		{
+			leader.PrepForBattle();
+
+			Military removedUnit = null;
+			foreach (Military unit in unitsInCamp)
+			{
+				if (unit.barracksBunk == leader.barracksBunk)
+				{
+					removedUnit = unit;
+					break;
+				}
+			}
+
+			if (removedUnit != null)
+			{
+				removedUnit.gameObject.SetActive(false);
+				benchedUnit = removedUnit;
+				unitsInCamp.Remove(removedUnit);
+			}
+
+			unitsInCamp.Add(leader);
 		}
 
 		if (campfire != null)
@@ -550,7 +575,10 @@ public class EnemyCamp
 			world.ToggleCityMaterialClear(isCity ? cityLoc : loc, attackingArmy.city.cityLoc, attackingArmy.enemyTarget, attackingArmy.attackZone, false);
 
 			foreach (Military unit in unitsInCamp)
+			{
+				unit.enemyAI.AttackCheck();
 				unit.StopAttacking();
+			}
 
 			if (attackingArmy != null)
 			{
@@ -637,7 +665,8 @@ public class EnemyCamp
 	public void ReturnToCamp()
 	{
 		enemyReady = 0;
-		
+		CheckForSubInBenched();
+
 		foreach (Military unit in unitsInCamp)
 		{
 			unit.inBattle = false; //leaving it here just in case
@@ -648,8 +677,22 @@ public class EnemyCamp
 		}
 	}
 
-	public IEnumerator RetreatTimer()
+	public void CheckForSubInBenched()
 	{
+		if (benchedUnit)
+		{
+			MilitaryLeader leader = world.GetEnemyCity(cityLoc).empire.enemyLeader;
+			unitsInCamp.Remove(leader);
+			leader.FinishBattle();
+
+			benchedUnit.gameObject.SetActive(true);
+			unitsInCamp.Add(benchedUnit);
+			benchedUnit = null;
+		}
+	}
+
+	public IEnumerator RetreatTimer()
+	{		
 		yield return retreatTime;
 
 		foreach (Military unit in unitsInCamp)
@@ -660,6 +703,8 @@ public class EnemyCamp
 					unit.enemyAI.StartReturn();
 			}
 		}
+		
+		CheckForSubInBenched();
 	}
 
 	private void ResurrectCamp()
@@ -708,39 +753,39 @@ public class EnemyCamp
 		attackingArmy = null;
 	}
 
-	public void StartChase(Vector3Int loc)
-	{
-		movingOut = true;
-		chasing = true;
-		moveToLoc = loc;
-		GameLoader.Instance.gameData.movingEnemyBases[this.loc] = new();
+	//public void StartChase(Vector3Int loc)
+	//{
+	//	movingOut = true;
+	//	chasing = true;
+	//	moveToLoc = loc;
+	//	GameLoader.Instance.gameData.movingEnemyBases[this.loc] = new();
 
-		//getting closest tile to determine threat loc
-		bool firstOne = true;
-		int dist = 0;
-		Vector3Int closestTile = this.loc;
-		foreach (Vector3Int tile in world.GetNeighborsFor(this.loc, MapWorld.State.FOURWAYINCREMENT))
-		{
-			if (firstOne)
-			{
-				firstOne = false;
-				dist = Mathf.Abs(tile.x - loc.x) + Mathf.Abs(tile.z - loc.z);
-				closestTile = tile;
-				continue;
-			}
+	//	//getting closest tile to determine threat loc
+	//	bool firstOne = true;
+	//	int dist = 0;
+	//	Vector3Int closestTile = this.loc;
+	//	foreach (Vector3Int tile in world.GetNeighborsFor(this.loc, MapWorld.State.FOURWAYINCREMENT))
+	//	{
+	//		if (firstOne)
+	//		{
+	//			firstOne = false;
+	//			dist = Mathf.Abs(tile.x - loc.x) + Mathf.Abs(tile.z - loc.z);
+	//			closestTile = tile;
+	//			continue;
+	//		}
 
-			int newDist = Mathf.Abs(tile.x - loc.x) + Mathf.Abs(tile.z - loc.z);
-			if (newDist < dist)
-			{
-				dist = newDist;
-				closestTile = tile;
-			}
-		}
+	//		int newDist = Mathf.Abs(tile.x - loc.x) + Mathf.Abs(tile.z - loc.z);
+	//		if (newDist < dist)
+	//		{
+	//			dist = newDist;
+	//			closestTile = tile;
+	//		}
+	//	}
 
-		threatLoc = closestTile;
-		forward = (threatLoc - loc) / 3;
-		BattleStations(this.loc, forward);
-	}
+	//	threatLoc = closestTile;
+	//	forward = (threatLoc - loc) / 3;
+	//	BattleStations(this.loc, forward);
+	//}
 
 	public void FinishMoveOut()
 	{
@@ -769,7 +814,7 @@ public class EnemyCamp
 			
 			unit.preparingToMoveOut = false;
 			unit.attacking = false;
-			unit.attackCo = null;
+			unit.AttackCheck();
 			List<Vector3Int> path = new();
 
 			foreach (Vector3Int tile in pathToTarget)
@@ -799,7 +844,7 @@ public class EnemyCamp
 			unit.isMarching = true;
 			unit.preparingToMoveOut = false;
 			unit.attacking = false;
-			unit.attackCo = null;
+			unit.enemyAI.AttackCheck();
 			List<Vector3Int> path = new();
 
 			int start = pathToTarget.IndexOf(fieldBattleLoc);

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -29,7 +30,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 	private int conversationPlace;
 	private Dictionary<string, Unit> speakerDict = new();
 	private List<Unit> unitsSpeaking = new();
-	private NPC speakingNPC;
+	private Unit speakingNPC;
 
 	[SerializeField] //for tweening
 	private RectTransform allContents;
@@ -117,11 +118,11 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		conversationItems = Conversations.Instance.conversationDict[conversationTopic];
 	}
 
-	public void SetSpeakingNPC(NPC speakingNPC)
+	public void SetSpeakingNPC(Unit speakingNPC)
 	{
 		this.speakingNPC = speakingNPC;
 
-		if (speakingNPC.empire != null)
+		if (speakingNPC.military && speakingNPC.military.leader)
 			world.ToggleBadGuyTalk(true, speakingNPC.currentLocation);
 	}
 
@@ -251,7 +252,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		//checking if action immediately after conversation needs to take place
 		if (speakingNPC)
 		{
-			if (speakingNPC.empire != null) //for enemy leaders
+			if (speakingNPC.military && speakingNPC.military.leader) //for enemy leaders
 			{
 				if (conversationTopic.Contains("intro"))
 				{
@@ -267,22 +268,24 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			{
 				if (conversationTopic.Contains("intro"))
 				{
-					speakingNPC.BeginNextQuestWait();
+					speakingNPC.tradeRep.BeginNextQuestWait();
 				}
 				else if (conversationTopic.Contains("_quest"))
 				{
 					if (conversationTopic.Contains("_complete"))
 					{
-						speakingNPC.BeginNextQuestWait();
+						speakingNPC.tradeRep.BeginNextQuestWait();
 					}
 					else
 					{
-						if (speakingNPC.currentQuest == 0)
-							speakingNPC.CreateConversationTaskItem();
+						if (speakingNPC.tradeRep.currentQuest == 0)
+							speakingNPC.tradeRep.CreateConversationTaskItem();
+
+						speakingNPC.tradeRep.onQuest = true;
 					}
 				}
 
-				speakingNPC.Rotate(speakingNPC.center.mainLoc);
+				speakingNPC.Rotate(speakingNPC.tradeRep.center.mainLoc);
 			}
 		}
 

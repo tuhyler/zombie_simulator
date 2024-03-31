@@ -29,7 +29,7 @@ public class TradeCenter : MonoBehaviour
     [SerializeField]
     public UnitBuildDataSO tradeCenterRep;
     [HideInInspector]
-    public NPC tcRep;
+    public TradeRep tcRep;
     [SerializeField]
     public Vector3 tradeRepLoc;
     [HideInInspector]
@@ -92,7 +92,7 @@ public class TradeCenter : MonoBehaviour
         gameObject.SetActive(true);
         isDiscovered = true;
         tcRep.gameObject.SetActive(true);
-        tcRep.SetSomethingToSay(tcRep.npcName + "_intro");
+        tcRep.SetSomethingToSay(tcRep.tradeRepName + "_intro");
 
         foreach (Vector3Int tile in world.GetNeighborsFor(mainLoc, MapWorld.State.EIGHTWAYINCREMENT))
         {
@@ -148,8 +148,8 @@ public class TradeCenter : MonoBehaviour
 		GameObject rep = Instantiate(tradeCenterRep.prefab, instantiateLoc, endRotation);
         rep.transform.SetParent(transform, false);
         //rep.name = tradeCenterRep.unitDisplayName;
-        tcRep = rep.GetComponent<NPC>();
-        tcRep.SetUpNPC(world);
+        tcRep = rep.GetComponent<TradeRep>();
+        tcRep.SetUpTradeRep(world);
         //tcRep.SetReferences(world, true);
         tcRep.SetTradeCenter(this);
         //world.uiSpeechWindow.AddToSpeakingDict(tcRep.npcName, tcRep);
@@ -165,7 +165,7 @@ public class TradeCenter : MonoBehaviour
         //world.allTCReps.Add(tcRep);
 
         if (load)
-            tcRep.LoadNPCData(GameLoader.Instance.gameData.allTCRepData[tcRep.npcName]);
+            tcRep.LoadTradeRepData(GameLoader.Instance.gameData.allTCRepData[tcRep.tradeRepName]);
         CheckRapport();
     }
 

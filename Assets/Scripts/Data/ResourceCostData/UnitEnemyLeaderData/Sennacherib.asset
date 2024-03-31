@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
+  m_Name: Sennacherib
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 6605712757047853907, guid: 3c8edcb96e61d3d4aa992a50cf950801, type: 3}
+  secondaryPrefab: {fileID: 0}
+  nationalityAdjective: 
+  unitName: Sennacherib
+  unitDisplayName: Sennacherib
+  unitLevel: 2
+  unitNameAndLevel: Sennacherib-2
+  image: {fileID: 0}
+  mapIcon: {fileID: 0}
+  unitCost: []
+  cycleCost: []
+  battleCost: []
+  laborCost: 1
+  unitType: 1
+  unitDescription: 
+  availableInitially: 0
+  health: 50
+  baseAttackStrength: 10
+  baseAttackSpeed: 1
+  movementSpeed: 1
+  trainTime: 0
+  cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
+  transportationType: 0
+  characterUnit: 1
+  npc: 1
+  borderColor: {r: 1, g: 0.9311092, b: 0, a: 0.6862745}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
+  unitEra: 0
+  unitRegion: 1
