@@ -235,12 +235,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
 				//relocking previous versions of unit
 				if (data.unitLevel > 1)
-                {
-                    string prevNameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
-					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, prevNameAndLevel, true);
-				}
+					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
 
-                world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
+                world.SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
             }
 			else if (researchReward.wonderData != null)
 			{
@@ -330,12 +327,9 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
 				//relocking previous versions of unit
 				if (data.unitLevel > 1)
-				{
-					string prevNameAndLevel = data.unitName + "-" + (data.unitLevel - 1);
-					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, prevNameAndLevel, true);
-				}
+					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
 
-				world.SetUpgradeableObjectMaxLevel(data.unitName, data.unitLevel);
+				world.SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
 			}
 			else if (researchReward.wonderData != null)
 			{

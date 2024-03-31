@@ -37,7 +37,7 @@ public class UIResourceGivingPanel : MonoBehaviour
 	private Vector3 originalLoc;
 
 	[HideInInspector]
-	public NPC npc;
+	public TradeRep tradeRep;
 
 	private void Awake()
 	{
@@ -46,7 +46,7 @@ public class UIResourceGivingPanel : MonoBehaviour
 		giftedResource.givingPanel = this;
 	}
 
-	public void ToggleVisibility(bool v, bool keepSelection, bool confirmed, NPC npc = null)
+	public void ToggleVisibility(bool v, bool keepSelection, bool confirmed, TradeRep tradeRep = null)
 	{
 		if (activeStatus == v)
 			return;
@@ -55,17 +55,17 @@ public class UIResourceGivingPanel : MonoBehaviour
 
 		if (v)
 		{
-			this.npc = npc;
+			this.tradeRep = tradeRep;
 			gameObject.SetActive(v);
 			activeStatus = true;
-			unitNameTitle.text = "Gift to " + npc.npcName;
-			nameHolder.sizeDelta = new Vector3(170 + 16*npc.npcName.Length, 50);
-			tradeRepImage.sprite = npc.npcImage;
+			unitNameTitle.text = "Gift to " + tradeRep.tradeRepName;
+			nameHolder.sizeDelta = new Vector3(170 + 16*tradeRep.tradeRepName.Length, 50);
+			tradeRepImage.sprite = tradeRep.npcImage;
 			giftedResource.resourceType = ResourceType.None;
 			giftedResource.resourceAmount = 0;
 			giftedResource.gameObject.SetActive(false);
 			confirmButton.SetActive(false);
-			uiResourceSubPanel.ToggleVisibility(true, npc.npcName, npc.questHints[npc.currentQuest]);
+			uiResourceSubPanel.ToggleVisibility(true, tradeRep.tradeRepName, tradeRep.questHints[tradeRep.currentQuest]);
 
 			allContents.anchoredPosition3D = originalLoc;
 			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 800f, 0.4f).setEase(LeanTweenType.easeOutSine);
@@ -78,6 +78,7 @@ public class UIResourceGivingPanel : MonoBehaviour
 			world.unitMovement.uiPersonalResourceInfoPanel.RestorePosition(keepSelection);
 			activeStatus = false;
 			showingResource = false;
+			this.tradeRep = null;
 			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 800f, 0.4f)
 				.setEase(LeanTweenType.easeOutSine)
 				.setOnComplete(SetVisibilityFalse);
@@ -141,8 +142,8 @@ public class UIResourceGivingPanel : MonoBehaviour
 		gift.resourceType = giftedResource.resourceType;
 		gift.resourceAmount = giftedResource.resourceAmount;
 
+		bool doneGood = tradeRep.GiftCheck(gift);
+		world.PlayGiftResponse(tradeRep.transform.position, doneGood);
 		ToggleVisibility(false, true, true);
-		bool doneGood = npc.GiftCheck(gift);
-		world.PlayGiftResponse(npc.transform.position, doneGood);
 	}
 }

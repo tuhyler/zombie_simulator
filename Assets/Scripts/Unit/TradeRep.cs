@@ -1,17 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 
-public class NPC : Unit
+public class TradeRep : Unit
 {
 	[HideInInspector]
 	public TradeCenter center;
 	[HideInInspector]
-	public string npcName;
+	public string tradeRepName;
 	public Sprite npcImage;
-	public List<GameObject> leaderMilitaryUnits;
 	[HideInInspector]
 	public int rapportScore;
 	public int angryIncrease;
@@ -27,37 +25,29 @@ public class NPC : Unit
 
 	private ResourceValue desiredGift;
 	[HideInInspector]
-	public bool onQuest, hasSomethingToSay;
-
-	[HideInInspector]
-	public EnemyEmpire empire;
+	public bool onQuest;
 
 	private void Awake()
 	{
 		AwakeMethods();
-		npc = GetComponent<NPC>();
+		tradeRep = this;
 	}
 
-	public void SetUpNPC(MapWorld world)
+	public void SetUpTradeRep(MapWorld world)
 	{
-		npcName = buildDataSO.unitName;
-		name = buildDataSO.unitName;
+		tradeRepName = buildDataSO.unitDisplayName;
+		name = buildDataSO.unitDisplayName;
 		SetReferences(world, true);
-		world.uiSpeechWindow.AddToSpeakingDict(npcName, this);
+		world.uiSpeechWindow.AddToSpeakingDict(tradeRepName, this);
 		Vector3 actualPosition = transform.position;
 		world.SetNPCLoc(actualPosition, this);
 		currentLocation = world.RoundToInt(actualPosition);
-		world.allTCReps[npcName] = this;
+		world.allTCReps[tradeRepName] = this;
 	}
 
 	public void SetTradeCenter(TradeCenter center)
 	{
 		this.center = center;
-	}
-
-	public void SetEmpire(EnemyEmpire empire)
-	{
-		this.empire = empire;
 	}
 
 	public bool GiftCheck(ResourceValue value)
@@ -125,14 +115,13 @@ public class NPC : Unit
 
 	public void SetNextQuest()
 	{
-		onQuest = true;
 		desiredGift = questGoals[currentQuest];
-		SetSomethingToSay(npcName + "_quest" + currentQuest.ToString());
+		SetSomethingToSay(tradeRepName + "_quest" + currentQuest.ToString());
 	}
 
 	public void CompleteQuest()
 	{
-		SetSomethingToSay(npcName + "_quest" + currentQuest.ToString() + "_complete");
+		SetSomethingToSay(tradeRepName + "_quest" + currentQuest.ToString() + "_complete");
 		currentQuest++;
 		onQuest = false;
 		//world.uiConversationTaskManager.CompleteTask(npcName, true);
@@ -149,7 +138,7 @@ public class NPC : Unit
 
 	public void CreateConversationTaskItem()
 	{
-		world.uiConversationTaskManager.CreateConversationTask(npcName, false);
+		world.uiConversationTaskManager.CreateConversationTask(tradeRepName, false);
 	}
 
 	public void SetSomethingToSay(string conversationTopic)
@@ -157,102 +146,36 @@ public class NPC : Unit
 		conversationHaver.SetSomethingToSay(conversationTopic);
 	}
 
-	public void CancelApproachingConversation()
+	public TradeRepData SaveTradeRepData()
 	{
-		if (somethingToSay)
-		{
-			somethingToSay = false;
-			hasSomethingToSay = true;
-			questionMark.SetActive(false);
-		}
-		
-		if (world.mainPlayer.inEnemyLines)
-		{
-			world.mainPlayer.ReturnToFriendlyTile();
-		}
-		else if (world.RoundToInt(world.mainPlayer.finalDestinationLoc) == currentLocation)
-		{
-			world.mainPlayer.StopAnimation();
-			world.mainPlayer.ShiftMovement();
-			world.mainPlayer.StopMovement();
-		}
-	}
+		TradeRepData data = new TradeRepData();
 
-	public void FinishMovementNPC(Vector3 endPosition)
-	{
-		if (false)
-		{
-
-		}
-		else if (hasSomethingToSay)
-		{
-			hasSomethingToSay = false;
-			somethingToSay = true;
-			questionMark.SetActive(true);
-		}
-	}
-
-	public NPCData SaveNPCData()
-	{
-		NPCData data = new NPCData();
-
-		data.name = npcName;
+		data.name = tradeRepName;
 		data.position = transform.position;
 		data.rotation = transform.rotation;
-		data.destinationLoc = destinationLoc;
-		data.finalDestinationLoc = finalDestinationLoc;
 		data.currentLocation = currentLocation;
-		data.prevTile = prevTile;
-		data.prevTerrainTile = prevTerrainTile;
-		data.moveOrders = pathPositions.ToList();
-		data.isMoving = isMoving;
-		data.moreToMove = moreToMove;
 		data.somethingToSay = somethingToSay;
 		data.onQuest = onQuest;
 		data.conversationTopics = conversationHaver.conversationTopics;
 		data.currentQuest = currentQuest;
 		data.timeWaited = timeWaited;
 		data.purchasedAmount = purchasedAmount;
-		data.hasSomethingToSay = hasSomethingToSay;
-
-		if (empire != null)
-		{
-			data.attackingCity = empire.attackingCity;
-			data.capitalCity = empire.capitalCity;
-			data.empireCities = new();
-
-			for (int i = 0; i < empire.empireCities.Count; i++)
-				data.empireCities.Add(empire.empireCities[i]);
-		}
 
 		return data;
 	}
 
-	public void LoadNPCData(NPCData data)
+	public void LoadTradeRepData(TradeRepData data)
 	{
 		transform.position = data.position;
 		transform.rotation = data.rotation;
-		destinationLoc = data.destinationLoc;
-		finalDestinationLoc = data.finalDestinationLoc;
 		currentLocation = data.currentLocation;
-		prevTile = data.prevTile;
-		prevTerrainTile = data.prevTerrainTile;
-		isMoving = data.isMoving;
-		moreToMove = data.moreToMove;
-		//somethingToSay = data.somethingToSay;
 		onQuest = data.onQuest;
 		currentQuest = data.currentQuest;
 		timeWaited = data.timeWaited;
 		purchasedAmount = data.purchasedAmount;
-		hasSomethingToSay = data.hasSomethingToSay;
 
 		if (currentQuest < questGoals.Count)
 			desiredGift = questGoals[currentQuest];
-
-		if (isMoving)
-			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
-		//else
-		//	world.AddUnitPosition(currentLocation, this);
 
 		if (data.somethingToSay)
 		{

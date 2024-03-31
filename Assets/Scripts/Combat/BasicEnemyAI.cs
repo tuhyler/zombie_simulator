@@ -8,8 +8,8 @@ using static UnityEngine.GraphicsBuffer;
 
 public class BasicEnemyAI : MonoBehaviour
 {
-    private Vector3Int campLoc;
-    public Vector3Int CampLoc { get { return campLoc; } set { campLoc = value; } }
+    //private Vector3Int campLoc;
+    //public Vector3Int CampLoc { get { return campLoc; } set { campLoc = value; } }
     private Vector3Int campSpot;
     public Vector3Int CampSpot { get { return campSpot; } set { campSpot = value; } } 
     private Military unit;
@@ -393,6 +393,14 @@ public class BasicEnemyAI : MonoBehaviour
 		}
     }
 
+	public void LoadAttack(bool ranged, Unit target)
+	{
+		if (ranged)
+			unit.attackCo = StartCoroutine(RangedAttack(target));
+		else
+			unit.attackCo = StartCoroutine(Attack(target));	
+	}
+
 	public IEnumerator RangedAttack(Unit target)
 	{
 		unit.targetBunk = target.military.barracksBunk;
@@ -436,7 +444,7 @@ public class BasicEnemyAI : MonoBehaviour
 			return;
 
 		//unit.StopAttacking();
-		unit.AttackCheck();
+		AttackCheck();
 
 		unit.attackCo = null;
 		unit.inBattle = false;
@@ -465,10 +473,23 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else
 		{
-			unit.enemyCamp.EnemyReturn(unit);
+			unit.repositioning = false;
+			if (!unit.leader)
+			{
+				unit.enemyCamp.EnemyReturn(unit);
 
-			if (unit.currentHealth < unit.buildDataSO.health)
-				unit.healthbar.RegenerateHealth();
+				if (unit.currentHealth < unit.buildDataSO.health)
+					unit.healthbar.RegenerateHealth();
+			}
+		}
+	}
+
+	public void AttackCheck()
+	{
+		if (unit.attackCo != null)
+		{
+			StopCoroutine(unit.attackCo);
+			unit.attackCo = null;
 		}
 	}
 }

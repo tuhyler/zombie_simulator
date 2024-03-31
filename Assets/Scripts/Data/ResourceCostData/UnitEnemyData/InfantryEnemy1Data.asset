@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7908251711836792820, guid: 92f04d683c5750b4fafbc7279053199f, type: 3}
   secondaryPrefab: {fileID: 0}
+  nationalityAdjective: Bandit
   unitName: Infantry
-  unitDisplayName: Bandit Smasher
+  unitDisplayName: Smasher
   unitLevel: 1
   unitNameAndLevel: Infantry-1
   image: {fileID: 0}
@@ -37,6 +38,7 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 0
   tcRep: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
   colorOne: {x: 0, y: 0}
   colorTwo: {x: 0, y: 0}
   unitEra: 0

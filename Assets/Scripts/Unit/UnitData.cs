@@ -13,7 +13,7 @@ public class UnitData : IUnitData
 	public Vector3Int campSpot; //campSpot is for enemy camps
 	public Quaternion rotation;
     public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, moreToMove, isMoving, somethingToSay;
+	public bool secondaryPrefab, moreToMove, isMoving;
 	public Vector3 destinationLoc;
     public Vector3 finalDestinationLoc;
     public Vector3Int currentLocation;
@@ -25,6 +25,8 @@ public class UnitData : IUnitData
 	public int currentHealth, strengthBonus;
 	public float baseSpeed;
 	public bool readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, looking, ambush, aoe, guard, isGuarding, returning, atSea;
+
+	public MilitaryLeaderData leaderData = null;
 
 	public WorkerData GetWorkerData()
 	{

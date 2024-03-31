@@ -171,36 +171,36 @@ public class UIConversationTaskManager : MonoBehaviour
 		if (world.allTCReps.ContainsKey(task.title))
 		{
 			string textToAdd = "";
-			NPC npc = world.allTCReps[task.title];
+			TradeRep tradeRep = world.allTCReps[task.title];
 			int currentQuest;
 			string status;
 			string color;
 
-			if (npc.onQuest)
+			if (tradeRep.onQuest)
 			{
-				currentQuest = npc.currentQuest;
+				currentQuest = tradeRep.currentQuest;
 				status = " (Active)";
 				color = "black";
 			}
 			else
 			{
-				currentQuest = npc.currentQuest - 1;
+				currentQuest = tradeRep.currentQuest - 1;
 				status = " (Completed)";
 				color = "#007000";
 			}
 
-			for (int i = 0; i < npc.questHints.Count; i++)
+			for (int i = 0; i < tradeRep.questHints.Count; i++)
 			{
 				if (i > 0)
 					textToAdd += "\n\n";
 
 				if (i < currentQuest)
 				{
-					textToAdd += "<color=#007000>Task " + (i + 1).ToString() + " (Completed)" + "\n" + npc.questHints[i] + "</color>";
+					textToAdd += "<color=#007000>Task " + (i + 1).ToString() + " (Completed)" + "\n" + tradeRep.questHints[i] + "</color>";
 				}
 				else if (i == currentQuest)
 				{
-					textToAdd += "<color=" + color + ">Task " + (i + 1).ToString() + status + "\n" + npc.questHints[i] + "</color>";
+					textToAdd += "<color=" + color + ">Task " + (i + 1).ToString() + status + "\n" + tradeRep.questHints[i] + "</color>";
 				}
 				else
 				{

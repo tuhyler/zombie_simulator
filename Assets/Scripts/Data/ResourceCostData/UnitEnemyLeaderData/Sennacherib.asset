@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Sennacherib
   m_EditorClassIdentifier: 
-  prefab: {fileID: 3248194934909022928, guid: 3e47c3fc01ea01e44adb43de26eb2e86, type: 3}
+  prefab: {fileID: 6605712757047853907, guid: 3c8edcb96e61d3d4aa992a50cf950801, type: 3}
   secondaryPrefab: {fileID: 0}
+  nationalityAdjective: 
   unitName: Sennacherib
   unitDisplayName: Sennacherib
-  unitLevel: 1
-  unitNameAndLevel: Sennacherib-1
+  unitLevel: 2
+  unitNameAndLevel: Sennacherib-2
   image: {fileID: 0}
   mapIcon: {fileID: 0}
   unitCost: []
@@ -36,7 +37,7 @@ MonoBehaviour:
   goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 1
-  tcRep: 0
+  npc: 1
   borderColor: {r: 1, g: 0.9311092, b: 0, a: 0.6862745}
   colorOne: {x: 0, y: 0}
   colorTwo: {x: 0, y: 0}

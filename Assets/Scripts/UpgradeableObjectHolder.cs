@@ -39,7 +39,7 @@ public class UpgradeableObjectHolder : MonoBehaviour
             unitDict[unit.unitNameAndLevel] = unit;
 
         foreach (UnitBuildDataSO unit in allEnemyLeaders)
-            enemyLeaderDict[unit.unitName] = unit;
+            enemyLeaderDict[unit.unitNameAndLevel] = unit;
 
         foreach (UnitBuildDataSO unit in allEnemyUnits)
             enemyUnitDict[unit.unitNameAndLevel] = unit;

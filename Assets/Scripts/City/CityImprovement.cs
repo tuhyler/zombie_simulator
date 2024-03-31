@@ -353,6 +353,23 @@ public class CityImprovement : MonoBehaviour
         ShowEmbiggenedMesh();
 	}
 
+    public void HardReveal()
+    {
+		if (improvementData.replaceRocks)
+		{
+			Material mat;
+			if (td.materials.Count > 1)
+				mat = td.materials[1];
+			else
+				mat = world.atlasMain;
+
+			skinnedMesh.material = mat;
+			SetNewMaterial(mat);
+		}
+
+		StartJustWorkAnimation();
+	}
+
     public void ShowEmbiggenedMesh()
     {
 		for (int i = 0; i < meshFilter.Length; i++)

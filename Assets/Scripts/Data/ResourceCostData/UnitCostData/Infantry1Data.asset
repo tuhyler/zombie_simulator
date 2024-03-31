@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: b8ea75b095d526c47b34746b4047349a, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Infantry
+  nationalityAdjective: 
   unitDisplayName: Warrior
   unitLevel: 1
   unitNameAndLevel: Infantry-1
@@ -33,12 +33,18 @@ MonoBehaviour:
   unitType: 1
   unitDescription: Strong, fast unit
   availableInitially: 1
-  health: 50
+  health: 500
   baseAttackStrength: 5
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 2
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
   unitEra: 0
+  unitRegion: 4

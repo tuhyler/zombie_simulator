@@ -40,16 +40,17 @@ public class Military : Unit
 	[HideInInspector]
 	public Trader guardedTrader;
 
+	[HideInInspector]
+	public MilitaryLeader leader;
+
 
 	private void Awake()
 	{
 		AwakeMethods();
-		attackStrength = buildDataSO.baseAttackStrength;
+		MilitaryAwakeMethods();
 
-		if (GetComponent<NPC>() == null)
+		if (boatSail)
 		{
-			military = GetComponent<Military>();
-
 			int factor = 0;
 			if (enemyAI)
 				factor = 4;
@@ -69,18 +70,24 @@ public class Military : Unit
 
 				boatSail.mesh.uv = sailUV;
 			}
-
-			if (buildDataSO.unitType == UnitType.Ranged)
-			{
-				projectile = GetComponentInChildren<Projectile>();
-				projectile.SetProjectilePos();
-				projectile.gameObject.SetActive(false);
-			}
-
-			isPillagingHash = Animator.StringToHash("isPillaging");
-			isDiscoveredHash = Animator.StringToHash("isDiscovered");
-			isSittingHash = Animator.StringToHash("isSitting");
 		}
+	}
+
+	protected virtual void MilitaryAwakeMethods()
+	{
+		military = this;
+		attackStrength = buildDataSO.baseAttackStrength;
+
+		if (buildDataSO.unitType == UnitType.Ranged)
+		{
+			projectile = GetComponentInChildren<Projectile>();
+			projectile.SetProjectilePos();
+			projectile.gameObject.SetActive(false);
+		}
+
+		isPillagingHash = Animator.StringToHash("isPillaging");
+		isDiscoveredHash = Animator.StringToHash("isDiscovered");
+		isSittingHash = Animator.StringToHash("isSitting");
 	}
 
 	protected override void AwakeMethods()
@@ -471,14 +478,10 @@ public class Military : Unit
 
 	public void StopAttacking()
 	{
-		if (inArmy && attackCo != null)
-			StopCoroutine(attackCo);
-
 		strengthBonus = 0;
 		if (isSelected)
 			world.unitMovement.infoManager.UpdateStrengthBonus(strengthBonus);
 
-		attackCo = null;
 		attacking = false;
 		inBattle = false;
 		flankedOnce = false;
@@ -496,8 +499,6 @@ public class Military : Unit
 
 		//unit.StopAttacking();
 		AttackCheck();
-
-		attackCo = null;
 		inBattle = false;
 		attacking = false;
 		targetSearching = false;
@@ -963,7 +964,11 @@ public class Military : Unit
 
 	public void FinishMovementEnemyMilitary()
 	{
-		if (inBattle)
+		if (leader && !leader.defending)
+		{
+			leader.FinishMovementEnemyLeader();
+		}
+		else if (inBattle)
 		{
 			if (world.IsUnitLocationTaken(currentLocation))
 				FindNewBattleSpot(currentLocation, targetLocation);
@@ -1102,7 +1107,22 @@ public class Military : Unit
 					unit.enemyAI.AggroCheck();
 			}
 
-			enemyCamp.DeadList.Add(this);
+			if (leader)
+			{
+				enemyCamp.DeadList.Add(this);
+			}
+			else
+			{
+				Military unit = enemyCamp.benchedUnit;
+				unit.gameObject.SetActive(true);
+				unit.HideUnit(true);
+				Vector3 sixFeetUnder = transform.position;
+				sixFeetUnder.y -= 6f;
+				unit.transform.position = sixFeetUnder;
+				unit.unitRigidbody.useGravity = false;
+				unit.isDead = true;
+				enemyCamp.DeadList.Add(enemyCamp.benchedUnit);
+			}
 		}
 	}
 
@@ -1168,6 +1188,9 @@ public class Military : Unit
 			data.isDead = isDead;
 		}
 
+		if (leader)
+			data.leaderData = leader.SaveMilitaryLeaderData();
+
 		return data;
 	}
 
@@ -1186,7 +1209,6 @@ public class Military : Unit
 		ambush = data.ambush;
 		guard = data.guard;
 		idleTime = data.idleTime;
-		somethingToSay = data.somethingToSay;
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
 
@@ -1357,10 +1379,7 @@ public class Military : Unit
 			}
 			else
 			{
-				if (buildDataSO.unitType == UnitType.Ranged)
-					attackCo = StartCoroutine(enemyAI.RangedAttack(target));
-				else
-					attackCo = StartCoroutine(enemyAI.Attack(target));
+				enemyAI.LoadAttack(buildDataSO.unitType == UnitType.Ranged, target);
 			}
 		}
 		else if (isDead)

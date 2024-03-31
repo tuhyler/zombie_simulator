@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the panel and switching it off/on
+public class UIInfoPanelUnit : MonoBehaviour 
 {
     public TMP_Text unitName, level, health, speed, strength, strengthBonus;
     public Image strengthImage;
@@ -34,7 +35,8 @@ public class UIInfoPanelUnit : MonoBehaviour //This script is for populating the
     public void SetData(string displayName, int level, string name, int currentHealth, int healthMax, float speed, int strength, int cargo)
     {
         unitName.text = displayName;
-        this.level.text = "Level " + level + " " + name;
+		string modName = Regex.Replace(name, "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+		this.level.text = "Level " + level + " " + modName;
         health.text = SetStringValue(currentHealth) + "/" + SetStringValue(healthMax);
         this.speed.text = SetStringValue(Mathf.RoundToInt(speed * 2));
         if (cargo > 0)

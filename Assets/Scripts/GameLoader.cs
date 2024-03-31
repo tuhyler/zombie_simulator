@@ -276,11 +276,11 @@ public class GameLoader : MonoBehaviour
 
 		gameData.allTCRepData.Clear();
 		foreach (string name in world.allTCReps.Keys)
-			gameData.allTCRepData[name] = world.allTCReps[name].SaveNPCData();
+			gameData.allTCRepData[name] = world.allTCReps[name].SaveTradeRepData();
 
 		gameData.allEnemyLeaderData.Clear();
 		for (int i = 0; i < world.allEnemyLeaders.Count; i++)
-			gameData.allEnemyLeaderData.Add(world.allEnemyLeaders[i].SaveNPCData());
+			gameData.allEnemyLeaderData.Add(world.allEnemyLeaders[i].SaveMilitaryUnitData());
 
 		List<Vector3Int> enemyCampLocs = new List<Vector3Int>(gameData.attackedEnemyBases.Keys);
 		for (int i = 0; i < enemyCampLocs.Count; i++)

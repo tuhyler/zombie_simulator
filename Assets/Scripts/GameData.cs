@@ -31,8 +31,8 @@ public class GameData
     public float timeODay;
     public List<float> camLimits = new();
 
-    public Dictionary<string, NPCData> allTCRepData = new();
-    public List<NPCData> allEnemyLeaderData = new();
+    public Dictionary<string, TradeRepData> allTCRepData = new();
+    public List<UnitData> allEnemyLeaderData = new();
 
     public Dictionary<Vector3Int,Dictionary<Vector3Int,string>> enemyCampLocs = new();
     public List<Vector3Int> discoveredEnemyCampLocs = new();
