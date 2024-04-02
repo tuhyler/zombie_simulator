@@ -268,6 +268,7 @@ public class Unit : MonoBehaviour
                 enemyAI.AttackCheck();
                 military.StopAttacking();
             }
+
             if (!attackingUnit.military.aoe)
                 attackingUnit.military.attacking = false;
             KillUnit(attackingUnit.transform.eulerAngles);
@@ -532,7 +533,7 @@ public class Unit : MonoBehaviour
                 if (enemyAI)
 				    military.enemyCamp.UnitNextStep(close, endPositionInt);
                 else
-                    military.homeBase.army.UnitNextStep(close);
+                    military.army.UnitNextStep(close);
 
 			    unitAnimator.SetBool(isMarchingHash, false);
 			    while (!readyToMarch)
@@ -1166,6 +1167,12 @@ public class Unit : MonoBehaviour
 
     public void KillUnit(Vector3 rotation)
     {
+        if (military && military.bodyGuard)
+        {
+            currentHealth = 1;
+            return;
+        }
+        
         isDead = true;
         if (military)
         {

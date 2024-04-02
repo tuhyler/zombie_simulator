@@ -31,7 +31,7 @@ public class Transport : Unit
 			azaiMesh.SetActive(false);
 	}
 
-	public void Load(Worker worker)
+	public void Load(Unit worker)
 	{
 		passengerCount++;
 
@@ -159,12 +159,12 @@ public class Transport : Unit
 			if (zDiff == 0)
 			{
 				world.scott.UnloadWorkerFromTransport(closeTile + new Vector3Int(0, 0, 1));
-				world.azai.UnloadWorkerFromTransport(closeTile + new Vector3Int(0, 0, -1));
+				world.azai.UnloadBodyGuardFromTransport(closeTile + new Vector3Int(0, 0, -1));
 			}
 			else
 			{
 				world.scott.UnloadWorkerFromTransport(closeTile + new Vector3Int(1, 0, 0));
-				world.azai.UnloadWorkerFromTransport(closeTile + new Vector3Int(-1, 0, 0));
+				world.azai.UnloadBodyGuardFromTransport(closeTile + new Vector3Int(-1, 0, 0));
 			}
 
 			passengerCount = 0;

@@ -1273,13 +1273,30 @@ public class City : MonoBehaviour
 
     public void StartSendAttackWait()
     {
-        countDownTimer = 600;
-        co = StartCoroutine(SendAttackWait());
+		if (SendAttackCheck())
+        {
+		    countDownTimer = 600;
+            Debug.Log("starting send attack wait at " + cityLoc);
+            co = StartCoroutine(SendAttackWait());
+        }
     }
 
-    public void LoadSendAttackWait()
+    public void LoadSendAttackWait(bool headStart)
     {
-		co = StartCoroutine(SendAttackWait());
+		if (SendAttackCheck())
+        {
+            if (headStart)
+                countDownTimer += 10;
+		
+            Debug.Log("starting send attack wait at " + cityLoc);
+		    co = StartCoroutine(SendAttackWait());
+        }
+	}
+
+    private bool SendAttackCheck()
+    {
+        return world.GetTerrainDataAt(cityLoc).isDiscovered && cityLoc == empire.attackingCity && !enemyCamp.attacked && !enemyCamp.growing && !enemyCamp.movingOut && !enemyCamp.inBattle &&
+            !enemyCamp.prepping && !enemyCamp.attackReady;
 	}
 
     private IEnumerator SendAttackWait()
@@ -1296,7 +1313,10 @@ public class City : MonoBehaviour
     public void CancelSendAttackWait()
     {
         if (!enemyCamp.growing && co != null)
+        {
+            Debug.Log("canceling send attack wait");
             StopCoroutine(co);
+        }
 
         co = null;
     }
@@ -1487,17 +1507,19 @@ public class City : MonoBehaviour
         }
     }
 
-    public void StopSpawnCycle(bool pause)
+    public void StopSpawnAndSendAttackCycle(bool pause)
     {
+        if (co != null)
+        {
+            Debug.Log("stopping spawn/send attack cycle at " + cityLoc);
+            StopCoroutine(co);
+            co = null;
+        }
+
         if (!pause)
             countDownTimer = 0;
 
         world.GetCityDevelopment(barracksLocation).StopSmokeEmitter();
-
-        if (co != null)
-            StopCoroutine(co);
-
-        co = null;
     }
 
 	private void AddEnemyUnit(EnemyCamp camp, bool isDiscovered) //one at a time

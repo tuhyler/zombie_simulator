@@ -349,7 +349,7 @@ public class GameLoader : MonoBehaviour
 		//main characters
 		gameData.playerUnit = world.mainPlayer.SaveWorkerData();
 		gameData.scott = world.scott.SaveWorkerData();
-		gameData.azai = world.azai.SaveWorkerData();
+		gameData.azai = world.azai.SaveMilitaryUnitData();
 
 		//traders
 		gameData.allTraders.Clear();
@@ -541,8 +541,8 @@ public class GameLoader : MonoBehaviour
 		if (gameData.scott.somethingToSay) world.scott.gameObject.SetActive(true);
 		world.scott.LoadWorkerData(gameData.scott);
 
-		if (gameData.azai.somethingToSay) world.azai.gameObject.SetActive(true);
-		world.azai.LoadWorkerData(gameData.azai);
+		if (gameData.azai.bodyGuardData.somethingToSay) world.azai.gameObject.SetActive(true);
+		world.azai.LoadBodyGuardData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 		world.mainPlayer.lastClearTile = world.RoundToInt(world.mainPlayer.transform.position);
 
@@ -722,6 +722,7 @@ public class GameLoader : MonoBehaviour
 	public void RemoveEnemyCity(Vector3Int loc)
 	{
 		//gameData.attackedEnemyBases.Remove(loc);
+		gameData.movingEnemyBases.Remove(loc);
 		gameData.enemyCities.Remove(loc);
 	}
 }

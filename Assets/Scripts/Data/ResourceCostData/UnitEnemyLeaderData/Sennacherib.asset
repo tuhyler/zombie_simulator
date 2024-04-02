@@ -15,7 +15,6 @@ MonoBehaviour:
   prefab: {fileID: 6605712757047853907, guid: 3c8edcb96e61d3d4aa992a50cf950801, type: 3}
   secondaryPrefab: {fileID: 0}
   nationalityAdjective: 
-  unitName: Sennacherib
   unitDisplayName: Sennacherib
   unitLevel: 2
   unitNameAndLevel: Sennacherib-2
@@ -25,7 +24,7 @@ MonoBehaviour:
   cycleCost: []
   battleCost: []
   laborCost: 1
-  unitType: 1
+  unitType: 3
   unitDescription: 
   availableInitially: 0
   health: 50

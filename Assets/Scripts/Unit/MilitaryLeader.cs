@@ -12,7 +12,7 @@ public class MilitaryLeader : Military
 	public List<GameObject> leaderMilitaryUnits;
 	private int timeWaited = 0;
 	[HideInInspector]
-	public bool hasSomethingToSay, defending;
+	public bool hasSomethingToSay, defending, dueling;
 
 
 	private void Awake()
@@ -42,6 +42,28 @@ public class MilitaryLeader : Military
 	public void SetSomethingToSay(string conversationTopic)
 	{
 		conversationHaver.SetSomethingToSay(conversationTopic);
+	}
+
+	public void BeginChallengeWait()
+	{
+		timeWaited = 10;
+		StartCoroutine(SetNextChallengeWait());
+	}
+
+	public IEnumerator SetNextChallengeWait()
+	{
+		while (timeWaited > 0)
+		{
+			yield return attackPauses[0];
+			timeWaited--;
+		}
+
+		SetNextChallenge();
+	}
+
+	public void SetNextChallenge()
+	{;
+		SetSomethingToSay(leaderName + "_challenge" + 0.ToString());
 	}
 
 	public void CancelApproachingConversation()
@@ -78,6 +100,65 @@ public class MilitaryLeader : Military
 		}
 	}
 
+	public void DuelSetup()
+	{
+		City capitalCity = world.GetEnemyCity(empire.capitalCity);
+		capitalCity.StopSpawnAndSendAttackCycle(true);
+
+		Vector3Int barracksLoc = capitalCity.barracksLocation;
+
+		Vector3Int targetLoc = barracksLoc;
+		int dist = 0;
+		int chosenNum = 0;
+		List<Vector3Int> fourWayLoc = world.GetNeighborsFor(barracksLoc, MapWorld.State.FOURWAYINCREMENT);
+		for (int i = 0; i < fourWayLoc.Count; i++)
+		{
+			if (i == 0)
+			{
+				targetLoc = fourWayLoc[i];
+				dist = Mathf.Abs(currentLocation.x - barracksLoc.x) + Mathf.Abs(currentLocation.z - barracksLoc.z);
+				continue;
+			}
+
+			int newDist = Mathf.Abs(currentLocation.x - barracksLoc.x) + Mathf.Abs(currentLocation.z - barracksLoc.z);
+			if (newDist < dist)
+			{
+				targetLoc = fourWayLoc[i];
+				dist = newDist;
+				chosenNum = i;
+			}
+		}
+
+		Vector3Int oppositeLoc;
+		if (chosenNum < 2)
+			oppositeLoc = fourWayLoc[chosenNum + 2];
+		else
+			oppositeLoc = fourWayLoc[chosenNum - 2];
+
+		dueling = true;
+		List<Vector3Int> path = GridSearch.MoveWherever(world, transform.position, targetLoc);
+
+		if (path.Count > 0)
+		{
+			finalDestinationLoc = path[path.Count - 1];
+			MoveThroughPath(path);
+		}
+		else
+		{
+			FinishMovementEnemyLeader();
+		}
+
+		world.azai.PrepForDuel(oppositeLoc, barracksLoc);
+		if (!capitalCity.enemyCamp.movingOut && !capitalCity.enemyCamp.inBattle && !capitalCity.enemyCamp.prepping && !capitalCity.enemyCamp.attackReady)
+			capitalCity.enemyCamp.PrepForDuel();
+
+		//temporarily setting up an enemy camp for the duel		
+		enemyCamp = new();
+		enemyCamp.loc = barracksLoc;
+		enemyCamp.world = world;
+		enemyCamp.forward = barracksLoc - targetLoc;
+	}
+
 	public void FinishBattle()
 	{
 		defending = false;
@@ -96,30 +177,31 @@ public class MilitaryLeader : Military
 		leader.barracksBunk = loc;
 
 		if (leaderType == UnitType.Infantry)
-		{
 			leader.barracksBunk += new Vector3Int(0, 0, -1);
-		}
 		else if (leaderType == UnitType.Ranged)
-		{
 			leader.barracksBunk += new Vector3Int(0, 0, 1);
-		}
 		else if (leaderType == UnitType.Cavalry)
-		{
 			leader.barracksBunk += new Vector3Int(0, 0, 0);
-		}
 	}
 
 	public void FinishMovementEnemyLeader()
 	{
-		if (hasSomethingToSay)
+		if (dueling)
 		{
-			hasSomethingToSay = false;
-			somethingToSay = true;
-			questionMark.SetActive(true);
-		}
 
-		if (currentHealth < buildDataSO.health)
-			healthbar.RegenerateHealth();
+		}
+		else
+		{
+			if (hasSomethingToSay)
+			{
+				hasSomethingToSay = false;
+				somethingToSay = true;
+				questionMark.SetActive(true);
+			}
+
+			if (currentHealth < buildDataSO.health)
+				healthbar.RegenerateHealth();
+		}
 	}
 
 	public MilitaryLeaderData SaveMilitaryLeaderData()
@@ -131,6 +213,7 @@ public class MilitaryLeader : Military
 		data.timeWaited = timeWaited;
 		data.hasSomethingToSay = hasSomethingToSay;
 		data.defending = defending;
+		data.dueling = dueling;
 
 		//for empire
 		data.attackingCity = empire.attackingCity;
@@ -148,6 +231,7 @@ public class MilitaryLeader : Military
 		timeWaited = data.leaderData.timeWaited;
 		hasSomethingToSay = data.leaderData.hasSomethingToSay;
 		defending = data.leaderData.defending;
+		dueling = data.leaderData.dueling;
 		timeWaited = data.leaderData.timeWaited;
 
 		if (data.leaderData.somethingToSay)
@@ -161,5 +245,7 @@ public class MilitaryLeader : Military
 		{
 
 		}
+
+		LoadUnitData(data);
 	}
 }

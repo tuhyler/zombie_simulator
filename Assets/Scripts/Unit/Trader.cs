@@ -904,7 +904,7 @@ public class Trader : Unit
 
 			if (world.tutorial && world.ambushes == 1)
 			{
-				world.mainPlayer.SetSomethingToSay("first_ambush", world.azai);
+				world.mainPlayer.conversationHaver.SetSomethingToSay("first_ambush", world.azai);
 			}
 
 			if (world.mainPlayer.runningAway)

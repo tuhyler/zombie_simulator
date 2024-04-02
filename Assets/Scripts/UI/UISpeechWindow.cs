@@ -10,6 +10,9 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 {
 	[SerializeField]
 	private MapWorld world;
+
+	[SerializeField]
+	private UIDuelWarning uiDuelWarning;
 	
 	[SerializeField]
     private TMP_Text speakerName, speechText;
@@ -200,7 +203,8 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		
 		if (conversationPlace >= conversationItems.Count)
 		{
-			FinishText();
+			if (!CheckNPC())
+				FinishText();
 		}
 		else
 		{
@@ -249,6 +253,20 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		world.speechBubble.SetActive(false);
 		conversationItems.Clear();
 
+		world.ConversationActionCheck(conversationTopic, conversationPlace);
+		conversationPlace = 0;
+
+		for (int i = 0; i < unitsSpeaking.Count; i++)
+			unitsSpeaking[i].SaidSomething();
+
+		unitsSpeaking.Clear();
+		speakingNPC = null;
+
+		conversationTopic = "";
+	}
+
+	private bool CheckNPC()
+	{
 		//checking if action immediately after conversation needs to take place
 		if (speakingNPC)
 		{
@@ -256,12 +274,13 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			{
 				if (conversationTopic.Contains("intro"))
 				{
-					world.mainPlayer.ReturnToFriendlyTile();
-					world.ToggleBadGuyTalk(false, speakingNPC.currentLocation);
+					ReturnMainPlayer();
+					speakingNPC.military.leader.BeginChallengeWait();
 				}
-				else
+				else if (conversationTopic.Contains("challenge"))
 				{
-
+					uiDuelWarning.ToggleVisibility(true, speakingNPC.military.leader);
+					return true;
 				}
 			}
 			else //for trade reps
@@ -288,17 +307,14 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 				speakingNPC.Rotate(speakingNPC.tradeRep.center.mainLoc);
 			}
 		}
+			
+		return false;
+	}
 
-		world.ConversationActionCheck(conversationTopic, conversationPlace);
-		conversationPlace = 0;
-
-		for (int i = 0; i < unitsSpeaking.Count; i++)
-			unitsSpeaking[i].SaidSomething();
-
-		unitsSpeaking.Clear();
-		speakingNPC = null;
-
-		conversationTopic = "";
+	public void ReturnMainPlayer()
+	{
+		world.mainPlayer.ReturnToFriendlyTile();
+		world.ToggleBadGuyTalk(false, speakingNPC.currentLocation);
 	}
 
 	public void OnPointerDown(PointerEventData eventData)

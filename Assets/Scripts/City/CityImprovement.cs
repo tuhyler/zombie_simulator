@@ -268,10 +268,13 @@ public class CityImprovement : MonoBehaviour
 
         for (int i = 0; i < meshFilter.Length; i++)
         {
-            meshFilter[i].transform.localScale = newScale;
-            Vector3 pos = meshFilter[i].transform.position;
-            pos.y += 0.01f;
-            meshFilter[i].transform.position = pos;
+			if (meshFilter[i].name != "Ground")
+            {
+				meshFilter[i].transform.localScale = newScale;
+                Vector3 pos = meshFilter[i].transform.position;
+                pos.y += 0.01f;
+                meshFilter[i].transform.position = pos;
+            }
         }
     }
 
