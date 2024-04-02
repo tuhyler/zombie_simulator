@@ -49,7 +49,8 @@ public class GameData
     public List<LaborerData> allLaborers = new();
     public List<TransportData> allTransports = new();
 
-    public WorkerData playerUnit, scott, azai;
+    public WorkerData playerUnit, scott;
+    public UnitData azai;
     //public UnitData azai;
     public Dictionary<Vector3Int, TerrainSaveData> allTerrain = new();
     public Dictionary<Vector3Int, TradeCenterData> allTradeCenters = new();

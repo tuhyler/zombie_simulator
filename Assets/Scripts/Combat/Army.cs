@@ -430,12 +430,13 @@ public class Army : MonoBehaviour
         if (world.IsEnemyCityOnTile(finalTarget))
         {
             Vector3Int barracksLoc = world.GetEnemyCity(finalTarget).barracksLocation;
+            finalTarget = world.GetCloserTile(target, finalTarget, barracksLoc);
 
-            int barracksDist = Mathf.Abs(barracksLoc.x - target.x) + Mathf.Abs(barracksLoc.z - target.z);
-            int cityDist = Mathf.Abs(finalTarget.x - target.x) + Mathf.Abs(finalTarget.z - target.z);
+            //int barracksDist = Mathf.Abs(barracksLoc.x - target.x) + Mathf.Abs(barracksLoc.z - target.z);
+            //int cityDist = Mathf.Abs(finalTarget.x - target.x) + Mathf.Abs(finalTarget.z - target.z);
 
-            if (barracksDist < cityDist)
-                finalTarget = barracksLoc;
+            //if (barracksDist < cityDist)
+            //    finalTarget = barracksLoc;
         }
 
         enemyTarget = finalTarget;
@@ -1356,7 +1357,7 @@ public class Army : MonoBehaviour
         AWOLClear();
 		//int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
 		Military unit = GetMostExpensiveUnit();
-        world.unitMovement.AddToCity(unit.homeBase, unit);
+        world.unitMovement.AddToCity(unit.army.city, unit);
 		RemoveFromArmy(unit, unit.barracksBunk);
         if (unit.isSelected)
         {

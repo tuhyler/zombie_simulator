@@ -25,10 +25,10 @@ public class Military : Unit
 
 	[HideInInspector]
 	public bool atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, 
-		flankedOnce, cavalryLine, looking, aoe, guard, isGuarding, returning, atSea;
+		flankedOnce, cavalryLine, looking, aoe, guard, isGuarding, returning, atSea, benched, duelWatch;
 
 	[HideInInspector]
-	public City homeBase;
+	public Army army;
 	[HideInInspector]
 	public EnemyCamp enemyCamp;
 	[HideInInspector]
@@ -42,6 +42,9 @@ public class Military : Unit
 
 	[HideInInspector]
 	public MilitaryLeader leader;
+
+	[HideInInspector]
+	public BodyGuard bodyGuard;
 
 
 	private void Awake()
@@ -167,14 +170,6 @@ public class Military : Unit
 		}
 	}
 
-	public void StopAttack()
-	{
-		if (attackCo != null)
-			StopCoroutine(attackCo);
-
-		attackCo = null;
-	}
-
 	private IEnumerator RangedAttack(Unit target)
 	{
 		targetBunk = target.military.barracksBunk;
@@ -215,7 +210,7 @@ public class Military : Unit
 		if (attacking)
 			return;
 
-		if (!homeBase.army.FinishAttack())
+		if (!army.FinishAttack())
 		{
 			if (type == UnitType.Infantry)
 				InfantryAggroCheck();
@@ -232,7 +227,7 @@ public class Military : Unit
 
 		List<Vector3Int> attackingZones = new();
 
-		Vector3Int forward = homeBase.army.forward;
+		Vector3Int forward = army.forward;
 		Vector3Int forwardTile = forward + currentLocation;
 
 		attackingZones.Add(forwardTile);
@@ -253,7 +248,7 @@ public class Military : Unit
 
 		foreach (Vector3Int zone in attackingZones)
 		{
-			if (!homeBase.army.movementRange.Contains(zone))
+			if (!army.movementRange.Contains(zone))
 				continue;
 
 			if (world.IsUnitLocationTaken(zone))
@@ -262,8 +257,8 @@ public class Military : Unit
 				if (enemy.enemyAI)
 				{
 					//attacking = true;
-					if (!homeBase.army.attackingSpots.Contains(currentLocation))
-						homeBase.army.attackingSpots.Add(currentLocation);
+					if (!army.attackingSpots.Contains(currentLocation))
+						army.attackingSpots.Add(currentLocation);
 
 					if (!attacking)
 					{
@@ -281,16 +276,16 @@ public class Military : Unit
 		if (attacking)
 			return;
 
-		Unit newEnemy = homeBase.army.FindClosestTarget(this);
+		Unit newEnemy = army.FindClosestTarget(this);
 		targetLocation = newEnemy.currentLocation;
-		List<Vector3Int> path = homeBase.army.PathToEnemy(currentLocation, world.RoundToInt(newEnemy.transform.position));
+		List<Vector3Int> path = army.PathToEnemy(currentLocation, world.RoundToInt(newEnemy.transform.position));
 
 		if (path.Count > 0)
 		{
-			homeBase.army.attackingSpots.Remove(currentLocation);
+			army.attackingSpots.Remove(currentLocation);
 
 			//moving unit behind if stuck
-			Vector3Int positionBehind = homeBase.army.forward * -1 + currentLocation;
+			Vector3Int positionBehind = army.forward * -1 + currentLocation;
 
 			if (world.IsUnitLocationTaken(positionBehind))
 			{
@@ -304,7 +299,7 @@ public class Military : Unit
 				List<Vector3Int> shortPath = new() { path[0] };
 				finalDestinationLoc = shortPath[0];
 				MoveThroughPath(shortPath);
-				homeBase.army.attackingSpots.Add(path[0]);
+				army.attackingSpots.Add(path[0]);
 			}
 			else if (path.Count == 1)
 				StartAttack(newEnemy);
@@ -313,7 +308,7 @@ public class Military : Unit
 		{
 			Vector3Int scoochCloser = new Vector3Int(Math.Sign(targetLocation.x - currentLocation.x), 0, Math.Sign(targetLocation.z - currentLocation.z)) + currentLocation;
 
-			if (homeBase.army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !homeBase.army.attackingSpots.Contains(scoochCloser))
+			if (army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !army.attackingSpots.Contains(scoochCloser))
 			{
 				finalDestinationLoc = scoochCloser;
 				//List<Vector3Int> newPath = new() { scoochCloser };
@@ -326,7 +321,7 @@ public class Military : Unit
 
 	public void RangedAggroCheck()
 	{
-		Unit enemy = homeBase.army.FindClosestTarget(this);
+		Unit enemy = army.FindClosestTarget(this);
 
 		if (enemy != null)
 			attackCo = StartCoroutine(RangedAttack(enemy));
@@ -343,7 +338,7 @@ public class Military : Unit
 
 		List<Vector3Int> attackingZones = new();
 
-		Vector3Int forward = homeBase.army.forward;
+		Vector3Int forward = army.forward;
 		Vector3Int forwardTile = forward + currentLocation;
 
 		attackingZones.Add(forwardTile);
@@ -364,7 +359,7 @@ public class Military : Unit
 
 		foreach (Vector3Int zone in attackingZones)
 		{
-			if (!homeBase.army.cavalryRange.Contains(zone))
+			if (!army.cavalryRange.Contains(zone))
 				continue;
 
 			if (world.IsUnitLocationTaken(zone))
@@ -373,14 +368,14 @@ public class Military : Unit
 				if (enemy.enemyAI)
 				{
 					//attacking = true;
-					if (!homeBase.army.attackingSpots.Contains(currentLocation))
-						homeBase.army.attackingSpots.Add(currentLocation);
+					if (!army.attackingSpots.Contains(currentLocation))
+						army.attackingSpots.Add(currentLocation);
 
 					if (!attacking)
 					{
 						if (flanking) //check for those sleeping if they can attack
 						{
-							foreach (Military unit in homeBase.army.targetCamp.UnitsInCamp)
+							foreach (Military unit in army.targetCamp.UnitsInCamp)
 							{
 								if (unit.targetSearching)
 									unit.enemyAI.AggroCheck();
@@ -412,7 +407,7 @@ public class Military : Unit
 			if ((world.IsUnitLocationTaken(forwardTile) && world.GetUnit(forwardTile).inArmy) || cavalryLine)
 			{
 				cavalryLine = false; //for subsequent battles
-				newEnemy = homeBase.army.FindEdgeRanged(currentLocation);
+				newEnemy = army.FindEdgeRanged(currentLocation);
 			}
 		}
 		else
@@ -421,19 +416,19 @@ public class Military : Unit
 		}
 
 		if (newEnemy == null)
-			newEnemy = homeBase.army.FindClosestTarget(this);
+			newEnemy = army.FindClosestTarget(this);
 		else
 			flanking = true;
 
 		targetLocation = newEnemy.currentLocation;
-		List<Vector3Int> path = homeBase.army.CavalryPathToEnemy(currentLocation, world.RoundToInt(newEnemy.transform.position));
+		List<Vector3Int> path = army.CavalryPathToEnemy(currentLocation, world.RoundToInt(newEnemy.transform.position));
 
 		if (path.Count > 0)
 		{
-			homeBase.army.attackingSpots.Remove(currentLocation);
+			army.attackingSpots.Remove(currentLocation);
 
 			//moving unit behind if stuck
-			Vector3Int positionBehind = homeBase.army.forward * -1 + currentLocation;
+			Vector3Int positionBehind = army.forward * -1 + currentLocation;
 
 			if (world.IsUnitLocationTaken(positionBehind))
 			{
@@ -456,7 +451,7 @@ public class Military : Unit
 				List<Vector3Int> shortPath = new() { path[0] };
 				finalDestinationLoc = shortPath[0];
 				MoveThroughPath(shortPath);
-				homeBase.army.attackingSpots.Add(path[0]);
+				army.attackingSpots.Add(path[0]);
 			}
 			else if (path.Count == 1)
 				StartAttack(newEnemy);
@@ -465,7 +460,7 @@ public class Military : Unit
 		{
 			Vector3Int scoochCloser = new Vector3Int(Math.Sign(targetLocation.x - currentLocation.x), 0, Math.Sign(targetLocation.z - currentLocation.z)) + currentLocation;
 
-			if (homeBase.army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !homeBase.army.attackingSpots.Contains(scoochCloser))
+			if (army.movementRange.Contains(scoochCloser) && !world.IsUnitLocationTaken(scoochCloser) && !army.attackingSpots.Contains(scoochCloser))
 			{
 				finalDestinationLoc = scoochCloser;
 				//List<Vector3Int> newPath = new() { scoochCloser };
@@ -515,7 +510,7 @@ public class Military : Unit
 		finalDestinationLoc = barracksBunk;
 		List<Vector3Int> path;
 
-		if (homeBase.army.battleAtSea)
+		if (army.battleAtSea)
 			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), barracksBunk);
 		else
 			path = GridSearch.AStarSearch(world, world.RoundToInt(transform.position), barracksBunk, false, bySea);
@@ -610,7 +605,7 @@ public class Military : Unit
 		Army army;
 
 		if (inArmy)
-			army = homeBase.army;
+			army = this.army;
 		else
 			army = enemyCamp.attackingArmy;
 
@@ -663,27 +658,27 @@ public class Military : Unit
 		}
 	}
 
-	public void StartLookingAround()
-	{
-		StartCoroutine(WaitAndScan());
-	}
+	//public void StartLookingAround()
+	//{
+	//	StartCoroutine(WaitAndScan());
+	//}
 
-	private IEnumerator WaitAndScan()
-	{
-		int lookAroundCount = 0;
+	//private IEnumerator WaitAndScan()
+	//{
+	//	int lookAroundCount = 0;
 
-		while (lookAroundCount < 5)
-		{
-			yield return new WaitForSeconds(1);
-			lookAroundCount++;
+	//	while (lookAroundCount < 5)
+	//	{
+	//		yield return new WaitForSeconds(1);
+	//		lookAroundCount++;
 
-			//randomly looking around
-			Rotate(world.GetNeighborsFor(currentLocation, MapWorld.State.EIGHTWAY)[UnityEngine.Random.Range(0, 8)]);
-		}
+	//		//randomly looking around
+	//		Rotate(world.GetNeighborsFor(currentLocation, MapWorld.State.EIGHTWAY)[UnityEngine.Random.Range(0, 8)]);
+	//	}
 
-		looking = false;
-		enemyCamp.FinishMoveOut();
-	}
+	//	looking = false;
+	//	enemyCamp.FinishMoveOut();
+	//}
 
 	public void GuardGetInLine(Vector3Int traderPrevSpot, Vector3Int traderSpot)
 	{
@@ -846,7 +841,7 @@ public class Military : Unit
 		{
 			world.AddUnitPosition(currentLocation, this);
 			preparingToMoveOut = false;
-			homeBase.army.UnitReady(this);
+			army.UnitReady(this);
 		}
 		else if (isMarching)
 		{
@@ -854,7 +849,7 @@ public class Military : Unit
 			isMarching = false;
 
 			Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
-			homeBase.army.UnitArrived(endTerrain);
+			army.UnitArrived(endTerrain);
 
 			if (currentLocation == barracksBunk)
 			{
@@ -866,12 +861,12 @@ public class Military : Unit
 				if (isSelected && !world.unitOrders)
 					world.unitMovement.ShowIndividualCityButtonsUI();
 
-				Rotate(homeBase.army.GetRandomSpot(barracksBunk));
+				Rotate(army.GetRandomSpot(barracksBunk));
 				return;
 			}
 
 			//turning to face enemy
-			Vector3Int diff = endTerrain - homeBase.army.enemyTarget;
+			Vector3Int diff = endTerrain - army.enemyTarget;
 			if (Math.Abs(diff.x) == 3)
 				diff.z = 0;
 			else if (Math.Abs(diff.z) == 3)
@@ -902,12 +897,12 @@ public class Military : Unit
 				transferring = false;
 				atHome = true;
 
-				Rotate(homeBase.army.GetRandomSpot(barracksBunk));
+				Rotate(army.GetRandomSpot(barracksBunk));
 				if (isSelected && !world.unitOrders)
 					world.unitMovement.ShowIndividualCityButtonsUI();
 
-				if (homeBase.army.AllAreHomeCheck())
-					homeBase.army.isTransferring = false;
+				if (army.AllAreHomeCheck())
+					army.isTransferring = false;
 			}
 		}
 		else if (guard)
@@ -922,9 +917,9 @@ public class Military : Unit
 			world.AddUnitPosition(currentLocation, this);
 			atHome = true;
 			repositioning = false;
-			Rotate(homeBase.army.GetRandomSpot(barracksBunk));
-			if (homeBase.army.AllAreHomeCheck())
-				homeBase.army.isRepositioning = false;
+			Rotate(army.GetRandomSpot(barracksBunk));
+			if (army.AllAreHomeCheck())
+				army.isRepositioning = false;
 
 			if (isSelected)
 				world.unitMovement.ShowIndividualCityButtonsUI();
@@ -935,7 +930,7 @@ public class Military : Unit
 			returning = false;
 
 			Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
-			homeBase.army.UnitArrived(endTerrain);
+			army.UnitArrived(endTerrain);
 
 			if (currentLocation == barracksBunk)
 			{
@@ -947,12 +942,12 @@ public class Military : Unit
 				if (isSelected && !world.unitOrders)
 					world.unitMovement.ShowIndividualCityButtonsUI();
 
-				Rotate(homeBase.army.GetRandomSpot(barracksBunk));
+				Rotate(army.GetRandomSpot(barracksBunk));
 				return;
 			}
 
 			//turning to face enemy
-			Vector3Int diff = endTerrain - homeBase.army.enemyTarget;
+			Vector3Int diff = endTerrain - army.enemyTarget;
 			if (Math.Abs(diff.x) == 3)
 				diff.z = 0;
 			else if (Math.Abs(diff.z) == 3)
@@ -992,6 +987,7 @@ public class Military : Unit
 			if (enemyCamp.movingOut)
 			{
 				enemyCamp.movingOut = false;
+				enemyCamp.returning = false;
 				enemyCamp.moveToLoc = enemyCamp.loc;
 				GameLoader.Instance.gameData.movingEnemyBases.Remove(enemyCamp.loc);
 				world.mainPlayer.StopRunningAway();
@@ -1015,11 +1011,15 @@ public class Military : Unit
 				enemyCamp.UnitArrived();
 			}
 		}
+		else if (duelWatch)
+		{
+			Rotate(enemyCamp.loc);
+		}
 	}
 
 	public void KillMilitaryUnit()
 	{
-		StopAttack();
+		AttackCheck();
 		minimapIcon.gameObject.SetActive(false);
 		if (guard)
 		{
@@ -1033,11 +1033,11 @@ public class Military : Unit
 		}
 		else
 		{
-			homeBase.army.UnitsInArmy.Remove(this);
-			homeBase.army.attackingSpots.Remove(currentLocation);
+			army.UnitsInArmy.Remove(this);
+			army.attackingSpots.Remove(currentLocation);
 			RemoveUnitFromData();
 
-			foreach (Military unit in homeBase.army.UnitsInArmy)
+			foreach (Military unit in army.UnitsInArmy)
 			{
 				if (unit.targetSearching)
 					unit.AggroCheck();
@@ -1045,9 +1045,9 @@ public class Military : Unit
 
 			if (isSelected)
 			{
-				if (homeBase.army.UnitsInArmy.Count > 0)//armyCount isn't changed until after battle
+				if (army.UnitsInArmy.Count > 0)//armyCount isn't changed until after battle
 				{
-					Military nextUnitUp = homeBase.army.GetNextLivingUnit();
+					Military nextUnitUp = army.GetNextLivingUnit();
 					if (nextUnitUp != null)
 					{
 						world.unitMovement.PrepareMovement(nextUnitUp);
@@ -1065,14 +1065,14 @@ public class Military : Unit
 				}
 			}
 
-			homeBase.army.RemoveFromArmy(this, barracksBunk);
-			homeBase.army.DeadList.Add(this);
+			army.RemoveFromArmy(this, barracksBunk);
+			army.DeadList.Add(this);
 		}
 	}
 
 	public void KillMilitaryEnemyUnit()
 	{
-		StopAttack();
+		enemyAI.AttackCheck();
 		world.RemoveUnitPosition(currentLocation);
 		if (isSelected)
 			world.unitMovement.ClearSelection();
@@ -1107,13 +1107,16 @@ public class Military : Unit
 					unit.enemyAI.AggroCheck();
 			}
 
-			if (leader)
+			if (!leader)
 			{
 				enemyCamp.DeadList.Add(this);
 			}
 			else
 			{
+				StartCoroutine(SetInactiveWait());
+				enemyCamp.UnitsInCamp.Remove(this);
 				Military unit = enemyCamp.benchedUnit;
+				world.RemoveUnitPosition(unit.currentLocation);
 				unit.gameObject.SetActive(true);
 				unit.HideUnit(true);
 				Vector3 sixFeetUnder = transform.position;
@@ -1124,6 +1127,14 @@ public class Military : Unit
 				enemyCamp.DeadList.Add(enemyCamp.benchedUnit);
 			}
 		}
+	}
+
+	//allowing sounds and effects to play before turhing off
+	public IEnumerator SetInactiveWait()
+	{
+		yield return attackPauses[0];
+
+		gameObject.SetActive(false);
 	}
 
 	public UnitData SaveMilitaryUnitData()
@@ -1150,7 +1161,7 @@ public class Military : Unit
 
 		data.moreToMove = moreToMove;
 		data.isUpgrading = isUpgrading;
-		data.looking = looking;
+		//data.looking = looking;
 
 		//combat
 		if (inArmy || enemyAI)
@@ -1158,7 +1169,7 @@ public class Military : Unit
 			if (inArmy)
 			{
 				if (!guard)
-					data.cityHomeBase = homeBase.cityLoc;
+					data.cityHomeBase = army.city.cityLoc;
 				data.transferring = transferring;
 			}
 			else
@@ -1186,10 +1197,15 @@ public class Military : Unit
 			data.flankedOnce = flankedOnce;
 			data.cavalryLine = cavalryLine;
 			data.isDead = isDead;
+			data.benched = benched;
+			data.duelWatch = duelWatch;
 		}
 
 		if (leader)
 			data.leaderData = leader.SaveMilitaryLeaderData();
+
+		if (bodyGuard)
+			data.bodyGuardData = bodyGuard.SaveBodyGuardData();
 
 		return data;
 	}
@@ -1205,14 +1221,14 @@ public class Military : Unit
 		isMoving = data.isMoving;
 		moreToMove = data.moreToMove;
 		isUpgrading = data.isUpgrading;
-		looking = data.looking;
+		//looking = data.looking;
 		ambush = data.ambush;
 		guard = data.guard;
 		idleTime = data.idleTime;
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
 
-		if (!isMoving)
+		if (!isMoving && !data.benched)
 			world.AddUnitPosition(currentLocation, this);
 
 		if (inArmy || enemyAI)
@@ -1228,6 +1244,8 @@ public class Military : Unit
 			marchPosition = data.marchPosition;
 			targetBunk = data.targetBunk;
 			currentHealth = data.currentHealth;
+			benched = data.benched;
+			duelWatch = data.duelWatch;
 
 			if (currentHealth < healthMax)
 			{
@@ -1260,10 +1278,14 @@ public class Military : Unit
 			cavalryLine = data.cavalryLine;
 			isDead = data.isDead;
 
-			if (enemyAI && enemyCamp.campCount == 0) //used for else statement
+			if (leader)
 			{
+				if (leader.defending || leader.dueling)
+					GameLoader.Instance.attackingUnitList.Add(this);
+				else if (leader.isDead)
+					gameObject.SetActive(false);
 			}
-			else
+			else if (!enemyAI || enemyCamp.campCount != 0)
 			{
 				GameLoader.Instance.attackingUnitList.Add(this);
 			}
@@ -1292,10 +1314,10 @@ public class Military : Unit
 			GameLoader.Instance.unitMoveOrders[this] = data.moveOrders;
 			//MoveThroughPath(data.moveOrders);
 		}
-		else if (looking)
-		{
-			StartLookingAround();
-		}
+		//else if (looking)
+		//{
+		//	StartLookingAround();
+		//}
 
 		if (guard && !guardedTrader.followingRoute)
 			IdleCheck();
@@ -1347,7 +1369,7 @@ public class Military : Unit
 			}
 			else
 			{
-				List<Military> units = homeBase.army.targetCamp.UnitsInCamp;
+				List<Military> units = army.targetCamp.UnitsInCamp;
 
 				for (int i = 0; i < units.Count; i++)
 				{
@@ -1384,6 +1406,12 @@ public class Military : Unit
 		}
 		else if (isDead)
 		{
+			if (leader)
+			{
+				gameObject.SetActive(false);
+				return;
+			}
+			
 			unitMesh.SetActive(false);
 			healthbar.gameObject.SetActive(false);
 			marker.gameObject.SetActive(false);
@@ -1404,13 +1432,17 @@ public class Military : Unit
 			else
 			{
 				minimapIcon.gameObject.SetActive(false);
-				homeBase.army.UnitsInArmy.Remove(this);
-				homeBase.army.attackingSpots.Remove(currentLocation);
+				army.UnitsInArmy.Remove(this);
+				army.attackingSpots.Remove(currentLocation);
 				RemoveUnitFromData();
-				homeBase.army.RemoveFromArmy(this, barracksBunk);
-				homeBase.army.DeadList.Add(this);
+				army.RemoveFromArmy(this, barracksBunk);
+				army.DeadList.Add(this);
 				world.RemoveUnitPosition(currentLocation);
 			}
+		}
+		else if (benched)
+		{
+			gameObject.SetActive(false);
 		}
 		else if (inBattle)
 		{

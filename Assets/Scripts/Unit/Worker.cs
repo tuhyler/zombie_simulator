@@ -143,7 +143,7 @@ public class Worker : Unit
         Destroy(dizzy);
 		ToggleDizzy(false);
         world.playerInput.paused = false;
-        SetSomethingToSay("just_landed");
+        conversationHaver.SetSomethingToSay("just_landed");
     }
 	#endregion
 
@@ -1148,10 +1148,10 @@ public class Worker : Unit
         }
     }
 
-	public void SetSomethingToSay(string conversationTopic, Worker alternateSpeaker = null)
-	{
-		conversationHaver.SetSomethingToSay(conversationTopic, alternateSpeaker);
-	}
+	//public void SetSomethingToSay(string conversationTopic, Worker alternateSpeaker = null)
+	//{
+	//	conversationHaver.SetSomethingToSay(conversationTopic, alternateSpeaker);
+	//}
 
 	public void GoToPosition(Vector3Int position, bool diag)
 	{
@@ -1232,38 +1232,38 @@ public class Worker : Unit
 		}
 	}
 
-	public void GetBehindScott(Vector3Int scottSpot)
-	{
-		Vector3Int currentLoc = world.RoundToInt(transform.position);
-		int dist = 0;
-		Vector3Int finalLoc = scottSpot;
-		bool firstOne = true;
-		foreach (Vector3Int tile in world.GetNeighborsFor(scottSpot, MapWorld.State.EIGHTWAY))
-		{
-			if (firstOne)
-			{
-				firstOne = false;
-				finalLoc = tile;
-				dist = Math.Abs(tile.x - currentLoc.x) + Math.Abs(tile.z - currentLoc.z);
-				continue;
-			}
+	//public void GetBehindScott(Vector3Int scottSpot)
+	//{
+	//	Vector3Int currentLoc = world.RoundToInt(transform.position);
+	//	int dist = 0;
+	//	Vector3Int finalLoc = scottSpot;
+	//	bool firstOne = true;
+	//	foreach (Vector3Int tile in world.GetNeighborsFor(scottSpot, MapWorld.State.EIGHTWAY))
+	//	{
+	//		if (firstOne)
+	//		{
+	//			firstOne = false;
+	//			finalLoc = tile;
+	//			dist = Math.Abs(tile.x - currentLoc.x) + Math.Abs(tile.z - currentLoc.z);
+	//			continue;
+	//		}
 
-			int newDist = Math.Abs(tile.x - currentLoc.x) + Math.Abs(tile.z - currentLoc.z);
-			if (newDist < dist)
-			{
-				dist = newDist;
-				finalLoc = tile;
-			}
-		}
+	//		int newDist = Math.Abs(tile.x - currentLoc.x) + Math.Abs(tile.z - currentLoc.z);
+	//		if (newDist < dist)
+	//		{
+	//			dist = newDist;
+	//			finalLoc = tile;
+	//		}
+	//	}
 		
-		List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, currentLoc, finalLoc, false, false);
+	//	List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, currentLoc, finalLoc, false, false);
 
-		if (azaiPath.Count > 0)
-		{
-			finalDestinationLoc = finalLoc;
-			MoveThroughPath(azaiPath);
-		}
-	}
+	//	if (azaiPath.Count > 0)
+	//	{
+	//		finalDestinationLoc = finalLoc;
+	//		MoveThroughPath(azaiPath);
+	//	}
+	//}
 
 	public void AddToGrid(ResourceType type)
 	{
@@ -1407,7 +1407,7 @@ public class Worker : Unit
 					newPos.x += 1;
 			}
 
-			world.azai.RepositionWorker(newPos, false, leader, world.GetExemptList(talkingPos));
+			world.azai.RepositionBodyGuard(newPos, false, leader, world.GetExemptList(talkingPos));
 		}
 	}
 
@@ -1465,7 +1465,7 @@ public class Worker : Unit
 		
 			if (world.azaiFollow)
 			{
-				world.azai.RepositionWorker(secondLoc, false, enemy, exemptList);
+				world.azai.RepositionBodyGuard(secondLoc, false, enemy, exemptList);
 			}
 		}
 	}
@@ -1715,7 +1715,7 @@ public class Worker : Unit
 			}
 
 			world.scott.RepositionWorker(goToSpot, true, true, exemptList);
-			world.azai.RepositionWorker(goToSpot, true, true, exemptList);
+			world.azai.RepositionBodyGuard(goToSpot, true, true, exemptList);
 		}
 		else
 		{
@@ -1755,7 +1755,7 @@ public class Worker : Unit
 
 				world.azai.transportTarget = transportTarget;
 				world.azai.toTransport = true;
-				world.azai.RepositionWorker(endPositionInt, true, false);
+				world.azai.RepositionBodyGuard(endPositionInt, true, false);
 			}
 			
 			return;

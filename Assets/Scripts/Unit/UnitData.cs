@@ -24,9 +24,11 @@ public class UnitData : IUnitData
 	public Vector3Int cityHomeBase, barracksBunk, marchPosition, targetBunk;
 	public int currentHealth, strengthBonus;
 	public float baseSpeed;
-	public bool readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, isUpgrading, looking, ambush, aoe, guard, isGuarding, returning, atSea;
+	public bool readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, 
+		isUpgrading, /*looking, */ambush, aoe, guard, isGuarding, returning, atSea, benched, duelWatch;
 
 	public MilitaryLeaderData leaderData = null;
+	public BodyGuardData bodyGuardData = null;
 
 	public WorkerData GetWorkerData()
 	{

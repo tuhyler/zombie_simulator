@@ -1910,7 +1910,7 @@ public class CityBuilderManager : MonoBehaviour
 
 				    if (upgradedUnit.inArmy)
                     {
-					    upgradedUnit.military.homeBase.army.RemoveFromArmy(upgradedUnit.military, upgradedUnit.military.barracksBunk);
+					    upgradedUnit.military.army.RemoveFromArmy(upgradedUnit.military, upgradedUnit.military.barracksBunk);
 				        city.army.AddToOpenSpots(buildPosition);
                     }
 
@@ -2050,10 +2050,10 @@ public class CityBuilderManager : MonoBehaviour
 		    city.army.AddToArmy(newUnit.military);
             if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(false);
-		    newUnit.military.homeBase = city;
+		    newUnit.military.army = city.army;
             newUnit.military.barracksBunk = buildPosition;
 
-            if (newUnit.military.homeBase.army.selected)
+            if (newUnit.military.army.selected)
                 newUnit.SoftSelect(Color.white);
         
             rot = city.army.GetRandomSpot(newUnit.military.barracksBunk) - newUnit.transform.position;

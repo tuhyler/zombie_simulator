@@ -721,7 +721,7 @@ public class ResourceManager : MonoBehaviour
 					city.lostPop++;
 
 				if (city.world.tutorial && city.world.popLost == 1)
-					city.world.mainPlayer.SetSomethingToSay("first_pop_loss", city.world.scott);
+					city.world.mainPlayer.conversationHaver.SetSomethingToSay("first_pop_loss", city.world.scott);
 
 				starvationCount = 0;
                 noHousingCount = 0;
@@ -756,7 +756,7 @@ public class ResourceManager : MonoBehaviour
                     city.lostPop++;
 
 				if (city.world.tutorial && city.world.popLost == 1)
-					city.world.mainPlayer.SetSomethingToSay("first_pop_loss", city.world.scott);
+					city.world.mainPlayer.conversationHaver.SetSomethingToSay("first_pop_loss", city.world.scott);
 
 				starvationCount = 0;
                 noHousingCount = 0;
@@ -801,7 +801,7 @@ public class ResourceManager : MonoBehaviour
 					city.lostPop++;
 
 				if (city.world.tutorial && city.world.popLost == 1)
-					city.world.mainPlayer.SetSomethingToSay("first_pop_loss", city.world.scott);
+					city.world.mainPlayer.conversationHaver.SetSomethingToSay("first_pop_loss", city.world.scott);
 
 				starvationCount = 0;
                 noHousingCount = 0;

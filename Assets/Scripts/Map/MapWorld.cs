@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.GraphicsBuffer;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class MapWorld : MonoBehaviour
@@ -18,7 +19,9 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public HandlePlayerInput playerInput;
     [SerializeField]
-    public Worker mainPlayer, scott, azai;
+    public Worker mainPlayer, scott;
+    [SerializeField]
+    public BodyGuard azai;
     //[SerializeField]
     //public Unit /*scott, */azai;
     [SerializeField]
@@ -791,7 +794,18 @@ public class MapWorld : MonoBehaviour
 
 			System.Random random = new();
 			foreach (Vector3Int tile in empire.empireCities)
-				BuildEnemyCity(tile, GetTerrainDataAt(tile), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, empire, random);
+            {
+                EnemyCityData data = new();
+				data.era = currentEra;
+				data.loc = tile;
+				data.hasWater = true;
+				data.cityName = cityNamePool[random.Next(0, cityNamePool.Count)];
+				if (data.hasWater)
+					data.popSize = random.Next(5, 13);
+				else
+					data.popSize = 4;
+				BuildEnemyCity(data, tile, GetTerrainDataAt(tile), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, empire, random);
+            }
     
             //adding city locs to road locs to build roads there (building roads first to build cities on top
             enemyRoadLocs.AddRange(empire.empireCities);
@@ -1168,30 +1182,30 @@ public class MapWorld : MonoBehaviour
 
 	public void GenerateEnemyCities(EnemyCityData data, EnemyEmpire empire, List<Vector3Int> roadLocs)
     {
-		BuildEnemyCity(data.loc, GetTerrainDataAt(data.loc), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, roadLocs, true, data.era, true, empire);
+		BuildEnemyCity(data, data.loc, GetTerrainDataAt(data.loc), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, roadLocs, true, data.era, true, empire);
 	}
 
-	public void BuildEnemyCity(Vector3Int cityTile, TerrainData td, GameObject prefab, List<Vector3Int> roadTiles, bool hasWater, Era era, bool load, EnemyEmpire empire, System.Random random = null)
+	public void BuildEnemyCity(EnemyCityData data, Vector3Int cityTile, TerrainData td, GameObject prefab, List<Vector3Int> roadTiles, bool hasWater, Era era, bool load, EnemyEmpire empire, System.Random random = null)
 	{
         Dictionary<string, string> buildingEraDict = GetBuildingEraDict(era);
-        EnemyCityData data;
+        //EnemyCityData data;
 		
-		if (load)
-        {
-            data = GameLoader.Instance.gameData.enemyCities[cityTile];
-        }
-        else
-        {
-            data = new();
-            data.era = era;
-            data.loc = cityTile;
-            data.hasWater = hasWater;
-            data.cityName = cityNamePool[random.Next(0, cityNamePool.Count)];
-		    if (hasWater)
-			    data.popSize = random.Next(5, 13);
-		    else
-			    data.popSize = 4;
-        }
+		//if (!load)
+  //      //{
+  //      //    data = GameLoader.Instance.gameData.enemyCities[cityTile];
+  //      //}
+  //      //else
+  //      {
+  //          //data = new();
+  //          data.era = era;
+  //          data.loc = cityTile;
+  //          data.hasWater = hasWater;
+  //          data.cityName = cityNamePool[random.Next(0, cityNamePool.Count)];
+		//    if (hasWater)
+		//	    data.popSize = random.Next(5, 13);
+		//    else
+		//	    data.popSize = 4;
+  //      }
 
 		List<Vector3Int> foodLocs = new();
         List<Vector3Int> fishLocs = new();
@@ -1244,6 +1258,7 @@ public class MapWorld : MonoBehaviour
         city.cityLoc = cityTile;
         city.cityName = data.cityName;
         city.currentPop = data.popSize;
+        city.unusedLabor = data.popSize;
         city.minimapIcon.sprite = city.enemyCityIcon;
         city.empire = empire;
 
@@ -1377,9 +1392,12 @@ public class MapWorld : MonoBehaviour
 		city.enemyCamp.world = this;
         city.enemyCamp.isCity = true;
         city.enemyCamp.cityLoc = cityTile;
-        empire.enemyLeader.enemyCamp = city.enemyCamp;
-        empire.enemyLeader.enemyAI.CampSpot = city.cityLoc;
-        empire.enemyLeader.SetBarracksBunk(city.enemyCamp.loc);
+        if (cityTile == empire.capitalCity)
+        {
+            empire.enemyLeader.enemyCamp = city.enemyCamp;
+            empire.enemyLeader.enemyAI.CampSpot = city.cityLoc;
+            empire.enemyLeader.SetBarracksBunk(city.enemyCamp.loc);
+        }
 
         //checking to load fighting of moving enemy units
         //bool attacked = false;
@@ -1441,11 +1459,11 @@ public class MapWorld : MonoBehaviour
 			    city.enemyCamp.seigeCount = enemyData.seigeCount;
 			    city.enemyCamp.health = enemyData.health;
 			    city.enemyCamp.strength = enemyData.strength;
-			    city.enemyCamp.moveToLoc = enemyData.chaseLoc;
+			    city.enemyCamp.moveToLoc = enemyData.moveToLoc;
 			    city.enemyCamp.pathToTarget = enemyData.pathToTarget;
 			    city.enemyCamp.movingOut = enemyData.movingOut;
 			    city.enemyCamp.returning = enemyData.returning;
-			    city.enemyCamp.chasing = enemyData.chasing;
+			    //city.enemyCamp.chasing = enemyData.chasing;
                 city.enemyCamp.pillage = enemyData.pillage;
                 city.enemyCamp.pillageTime = enemyData.pillageTime;
                 city.enemyCamp.growing = enemyData.growing;
@@ -1462,15 +1480,13 @@ public class MapWorld : MonoBehaviour
                 if (city.enemyCamp.campCount != 0)
                     movingOut = true;
 
-                if (GetTerrainDataAt(cityTile).isDiscovered && city.cityLoc == city.empire.attackingCity && !city.enemyCamp.growing && !city.enemyCamp.movingOut && !city.enemyCamp.inBattle && 
-                    !city.enemyCamp.prepping && !city.enemyCamp.attackReady && !city.enemyCamp.returning)
-                    city.LoadSendAttackWait();
+                city.LoadSendAttackWait(false);
 		    }
         }
         else
         {
 			city.enemyCamp.fieldBattleLoc = cityTile;
-            city.enemyCamp.moveToLoc = city.barracksLocation;
+            city.enemyCamp.moveToLoc = data.barracksLoc;
 			city.enemyCamp.SetCityEnemyCamp();
 			AddAllEnemyUnits(city.enemyCamp, random, data, load, empire.enemyLeader);
         }
@@ -1511,17 +1527,25 @@ public class MapWorld : MonoBehaviour
                 }
 
 			    //just in case dictionary was missing any
-				unit.currentLocation = AddUnitPosition(unitLoc, unit);
 
 			    unit.currentLocation = unitLoc;
-			    city.enemyCamp.UnitsInCamp.Add(unit.military);
+                if (fightingEnemies[unitLoc].benched)
+                {
+                    city.enemyCamp.benchedUnit = unit.military;
+                    city.enemyCamp.UnitsInCamp.Add(empire.enemyLeader);
+                }
+                else
+                {
+				    //AddUnitPosition(unitLoc, unit);
+			        city.enemyCamp.UnitsInCamp.Add(unit.military);
+                }
 			    //unit.enemyAI.CampLoc = city.enemyCamp.loc;
 			    unit.enemyAI.CampSpot = unitLoc;
                 unit.military.enemyCamp = city.enemyCamp;
 
 				//RemoveUnitPosition(unitLoc);
 			    unit.military.LoadUnitData(fightingEnemies[unitLoc]);
-			    AddUnitPosition(unit.currentLocation, unit);
+			    //AddUnitPosition(unit.currentLocation, unit);
 
                 TerrainData tdUnit = GetTerrainDataAt(unit.currentLocation);
                 if (city.enemyCamp.movingOut)
@@ -1593,7 +1617,7 @@ public class MapWorld : MonoBehaviour
 
 		//0 is for infantry, 1 ranged, 2 cavalry
 		//List<int> unitList = new() { 0, 1, 2 };
-        List<Vector3Int> barracksLocs = new();
+        //List<Vector3Int> barracksLocs = new();
         //UnitType type = UnitType.Infantry; 
 
         //if (load)
@@ -2200,11 +2224,11 @@ public class MapWorld : MonoBehaviour
 					fightingEnemies[enemyData.allUnits[i].campSpot] = enemyData.allUnits[i];
 				}
 
-				camp.moveToLoc = enemyData.chaseLoc;
+				camp.moveToLoc = enemyData.moveToLoc;
 				camp.pathToTarget = enemyData.pathToTarget;
 				camp.movingOut = enemyData.movingOut;
 				camp.returning = enemyData.returning;
-				camp.chasing = enemyData.chasing;
+				//camp.chasing = enemyData.chasing;
                 camp.atSea = enemyData.atSea;
 			}
 
@@ -2359,7 +2383,7 @@ public class MapWorld : MonoBehaviour
 		//assigning army details and rotation
 		if (newUnit.inArmy)
         {
-            newUnit.military.homeBase = city;
+            newUnit.military.army = city.army;
 			city.army.AddToArmy(newUnit.military);
             if (city.currentPop == 0 && city.army.armyCount == 1)
                 city.StartGrowthCycle(true);
@@ -3257,8 +3281,8 @@ public class MapWorld : MonoBehaviour
             {
 				unitMovement.CancelOrders();
 			}
-            else if (unitMovement.selectedUnit.inArmy && (unitMovement.selectedUnit.military.isMarching || unitMovement.selectedUnit.military.homeBase.army.inBattle 
-                || unitMovement.selectedUnit.military.homeBase.army.traveling || unitMovement.selectedUnit.military.homeBase.army.atHome))
+            else if (unitMovement.selectedUnit.inArmy && (unitMovement.selectedUnit.military.isMarching || unitMovement.selectedUnit.military.army.inBattle 
+                || unitMovement.selectedUnit.military.army.traveling || unitMovement.selectedUnit.military.army.atHome))
             {
                 unitMovement.CancelOrders();
             }
@@ -5250,7 +5274,7 @@ public class MapWorld : MonoBehaviour
             enemyCityDict[cityLoc].enemyCamp.threatLoc = armyLoc;
 			enemyCityDict[cityLoc].enemyCamp.forward = (armyLoc - campLoc) / 3;
 			enemyCityDict[cityLoc].enemyCamp.BattleStations(campLoc, enemyCityDict[cityLoc].enemyCamp.forward, leader);
-			enemyCityDict[cityLoc].StopSpawnCycle(true);
+			enemyCityDict[cityLoc].StopSpawnAndSendAttackCycle(true);
 		}
         else
         {
@@ -5711,7 +5735,7 @@ public class MapWorld : MonoBehaviour
             cityDict[loc] = city;
             city.gameObject.tag = "Player";
             city.cityNameField.SetOriginalBackground();
-            city.StopSpawnCycle(false);
+            city.StopSpawnAndSendAttackCycle(false);
             city.StartGrowthCycle(false);
 			city.minimapIcon.sprite = city.cityIcon;
             city.gameObject.transform.SetParent(cityHolder, false);
@@ -5749,11 +5773,20 @@ public class MapWorld : MonoBehaviour
             for (int i = 0; i < resourcesToAdd.Count; i++)
                 city.ResourceManager.AddResource(resourcesToAdd[i],UnityEngine.Random.Range(city.currentPop,city.currentPop * 4));
 
-            //destroy benched unit
-            if (city.enemyCamp.benchedUnit != null)
-                Destroy(city.enemyCamp.benchedUnit.gameObject);
+            //destroy benched unit (just in case)
+            //if (city.enemyCamp.benchedUnit != null && !city.enemyCamp.DeadList.Contains(city.enemyCamp.benchedUnit))
+            //    Destroy(city.enemyCamp.benchedUnit.gameObject);
 
-            city.empire.SetNextAttackingCity(this, city.cityLoc);
+            city.empire.empireCities.Remove(city.cityLoc);
+            if (city.empire.empireCities.Count == 0)
+            {
+				allEnemyLeaders.Remove(city.empire.enemyLeader);
+				Destroy(city.empire.enemyLeader.gameObject);
+			}
+
+            if (city.empire.attackingCity == city.cityLoc)
+                city.empire.SetNextAttackingCity(this, city.cityLoc);
+
             GameLoader.Instance.RemoveEnemyCity(loc);
 		}
         else
@@ -5765,6 +5798,18 @@ public class MapWorld : MonoBehaviour
             Destroy(enemyCampDict[loc].minimapIcon);
             GameLoader.Instance.RemoveEnemyCamp(loc);
         }
+	}
+
+    public Vector3Int GetCloserTile(Vector3Int testTile, Vector3Int tile1, Vector3Int tile2)
+    {
+		//tie goes to tile1
+		int tile1Dist = Mathf.Abs(tile1.x - testTile.x) + Mathf.Abs(tile1.z - testTile.z);
+        int tile2Dist = Mathf.Abs(tile2.x - testTile.x) + Mathf.Abs(tile2.z - testTile.z);
+
+        if (tile2Dist < tile1Dist)
+            return tile2;
+        else
+            return tile1;
 	}
 
     private void PlaceTreasureChest(Vector3Int loc, Vector3Int forward)
@@ -7617,7 +7662,7 @@ public class MapWorld : MonoBehaviour
 					scott.lightBeam.Play();
 					LeanTween.scale(scott.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 					cityBuilderManager.PlayBoomAudio();
-					scott.SetSomethingToSay("first_labor");
+					scott.conversationHaver.SetSomethingToSay("first_labor");
                     gameStep = "first_infantry";
 
                     if (tutorial)
@@ -7670,7 +7715,7 @@ public class MapWorld : MonoBehaviour
 				azai.lightBeam.Play();
 				LeanTween.scale(azai.gameObject, azaiScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 				cityBuilderManager.PlayBoomAudio();
-				azai.SetSomethingToSay("first_infantry");
+				azai.conversationHaver.SetSomethingToSay("first_infantry");
 				gameStep = "";
 
 				break;
@@ -7691,7 +7736,7 @@ public class MapWorld : MonoBehaviour
                         if (source != "Build City")
                             return;
 
-					    mainPlayer.SetSomethingToSay("tutorial1");
+					    mainPlayer.conversationHaver.SetSomethingToSay("tutorial1");
 					    tutorialStep = "tutorial1";
 					    break;
                     case "tutorial1":
@@ -7718,7 +7763,7 @@ public class MapWorld : MonoBehaviour
 
 						ButtonFlashCheck();
 						tutorialStep = "tutorial2";
-                        mainPlayer.SetSomethingToSay("tutorial2");
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial2");
                         break;
                     case "tutorial2":
                         if (source != "Resource")
@@ -7727,7 +7772,7 @@ public class MapWorld : MonoBehaviour
                         if (food == 1)
                         {
                             ButtonFlashCheck();
-                            mainPlayer.SetSomethingToSay("tutorial3");
+                            mainPlayer.conversationHaver.SetSomethingToSay("tutorial3");
                         }
                         else if (food > 1 && food < 5)
                         {
@@ -7758,7 +7803,7 @@ public class MapWorld : MonoBehaviour
                             return;
 
                         tutorialStep = "tutorial4";
-                        mainPlayer.SetSomethingToSay("tutorial4");
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial4");
                         break;
                     case "tutorial4":
                         if (source != "Resource")
@@ -7786,7 +7831,7 @@ public class MapWorld : MonoBehaviour
 						}
 
                         ButtonFlashCheck();
-                        mainPlayer.SetSomethingToSay("tutorial5");
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial5");
                         tutorialStep = "tutorial5";
 
 						break;
@@ -7826,7 +7871,7 @@ public class MapWorld : MonoBehaviour
                             return;
 
                         tutorialStep = "tutorial6";
-                        mainPlayer.SetSomethingToSay("tutorial6");
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial6");
 						break;
                     case "tutorial6":
                         if (source != "Open City")
@@ -7846,7 +7891,7 @@ public class MapWorld : MonoBehaviour
 						cityBuilderManager.uiHelperWindow.SetPlacement(cityBuilderManager.uiResourceManager.originalLoc + new Vector3(0, -300, 0), cityBuilderManager.uiResourceManager.allContents.pivot);
                         cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 2);
                         tutorialStep = "tutorial7";
-                        mainPlayer.SetSomethingToSay("tutorial7");
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial7");
 
                         break;
                     case "tutorial7":
@@ -7902,7 +7947,7 @@ public class MapWorld : MonoBehaviour
 						}
 
                         ButtonFlashCheck();
-						mainPlayer.SetSomethingToSay("tutorial8", scott);
+						mainPlayer.conversationHaver.SetSomethingToSay("tutorial8", scott);
 						tutorialStep = "tutorial8";
 
 						break;
@@ -7946,7 +7991,7 @@ public class MapWorld : MonoBehaviour
                         if (source != "Finished Building Something")
                             return;
 
-                        mainPlayer.SetSomethingToSay("tutorial9", scott);
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial9", scott);
                         tutorialStep = "tutorial9";
                         break;
                     case "tutorial9":
@@ -7964,20 +8009,20 @@ public class MapWorld : MonoBehaviour
                             return;
 
                         tutorialStep = "tutorial10";
-                        mainPlayer.SetSomethingToSay("tutorial10", scott);
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial10", scott);
                         break;
                     case "tutorial10":
                         if (source != "Research")
                             return;
 
 						tutorialStep = "tutorial11";
-						mainPlayer.SetSomethingToSay("tutorial11", scott);
+						mainPlayer.conversationHaver.SetSomethingToSay("tutorial11", scott);
 						break;
                     case "tutorial11":
                         if (source != "Resource")
                             return;
 
-                        mainPlayer.SetSomethingToSay("tutorial12");
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial12");
                         tutorialStep = "tutorial12";
 
                         break;
@@ -7985,7 +8030,7 @@ public class MapWorld : MonoBehaviour
                         if (source != "Agriculture Research Complete")
                             return;
 
-                        mainPlayer.SetSomethingToSay("tutorial13", scott);
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial13", scott);
                         tutorialGoing = false;
                         tutorialStep = "";
 
@@ -8000,7 +8045,7 @@ public class MapWorld : MonoBehaviour
         playerInput.paused = true;
         yield return new WaitForSeconds(timeToWait);
 
-        unit.SetSomethingToSay(conversationTopic);
+        unit.conversationHaver.SetSomethingToSay(conversationTopic);
     }
 
     public IEnumerator EnableButtonHighlight(Transform selection, bool button, bool big = false)

@@ -79,7 +79,7 @@ public class MovementSystem : MonoBehaviour
         }
     }
 
-    private List<Vector3Int> SetFollowerPaths(List<Vector3Int> path, Vector3Int prevSpot, Worker follower)
+    private List<Vector3Int> SetFollowerPaths(List<Vector3Int> path, Vector3Int prevSpot, Unit follower)
     {
 		List<Vector3Int> followerPath = new(path);
 		followerPath.RemoveAt(followerPath.Count - 1);

@@ -15,7 +15,7 @@ public class ConversationHaver : MonoBehaviour
 		unit = GetComponent<Unit>();
 	}
 
-	public void SetSomethingToSay(string conversationTopic, Worker alternateSpeaker = null)
+	public void SetSomethingToSay(string conversationTopic, Unit alternateSpeaker = null)
 	{
 		if (!conversationTopics.Contains(conversationTopic))
 			conversationTopics.Add(conversationTopic);
@@ -25,7 +25,7 @@ public class ConversationHaver : MonoBehaviour
 	}
 
 	//wait till everything's done before setting up something to say
-	private IEnumerator SetSomethingToSayCoroutine(Worker alternateSpeaker)
+	private IEnumerator SetSomethingToSayCoroutine(Unit alternateSpeaker)
 	{
 		yield return new WaitForEndOfFrame();
 

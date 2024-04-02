@@ -15,7 +15,6 @@ MonoBehaviour:
   prefab: {fileID: 5472208631966679460, guid: f3efaa925e7c6c34790f26f3c03c9ab9, type: 3}
   secondaryPrefab: {fileID: 0}
   nationalityAdjective: Bandit
-  unitName: Cavalry
   unitDisplayName: Rider
   unitLevel: 1
   unitNameAndLevel: Cavalry-1
@@ -28,7 +27,7 @@ MonoBehaviour:
   unitType: 3
   unitDescription: 
   availableInitially: 0
-  health: 10
+  health: 50
   baseAttackStrength: 2
   baseAttackSpeed: 1
   movementSpeed: 2
@@ -37,7 +36,7 @@ MonoBehaviour:
   goldDropRange: {x: 4, y: 8}
   transportationType: 0
   characterUnit: 0
-  tcRep: 0
+  npc: 0
   borderColor: {r: 0, g: 0, b: 0, a: 0}
   colorOne: {x: 0, y: 0}
   colorTwo: {x: 0, y: 0}

@@ -12,18 +12,22 @@ public class EnemyEmpire
 
     public void SetNextAttackingCity(MapWorld world, Vector3Int lastOne)
     {
-        if (empireCities.Count <= 1)
+        if (empireCities.Count == 0)
+        {
             return;
+        }
+        else if (empireCities.Count == 1)
+        {
+            attackingCity = empireCities[0];
+			world.GetEnemyCity(attackingCity).StartSendAttackWait();
+			return;
+        }
         
-        bool firstOne = true;
         int dist = 0;
         Vector3Int chosenCity = empireCities[0];
         for (int i = 0; i < empireCities.Count; i++)
         {
-            if (empireCities[i] == lastOne)
-                continue;
-
-            if (firstOne)
+            if (i == 0)
             {
                 chosenCity = empireCities[i];
                 dist = Mathf.Abs(empireCities[i].x - lastOne.x) + Mathf.Abs(empireCities[i].z - lastOne.z);
@@ -38,7 +42,7 @@ public class EnemyEmpire
             }
         }
 
-        empireCities.Remove(lastOne);
+        attackingCity = chosenCity;
         world.GetEnemyCity(chosenCity).StartSendAttackWait();
     }
 

@@ -183,8 +183,11 @@ public class EnemyCamp
 		for (int i = 0; i < unitsInCamp.Count; i++)
 			campList.Add(unitsInCamp[i].SaveMilitaryUnitData());
 
+		if (benchedUnit)
+			campList.Add(benchedUnit.SaveMilitaryUnitData());
+
 		campData.enemyReady = enemyReady;
-		campData.chaseLoc = moveToLoc;
+		campData.moveToLoc = moveToLoc;
 		campData.threatLoc = threatLoc;
 		campData.forward = forward;
 		campData.revealed = revealed;
@@ -203,7 +206,7 @@ public class EnemyCamp
 		campData.pathToTarget = pathToTarget;
 		campData.movingOut = movingOut;
 		campData.returning = returning;
-		campData.chasing = chasing;
+		//campData.chasing = chasing;
 		campData.allUnits = campList;
 		campData.pillage = pillage;
 		campData.pillageTime = pillageTime;
@@ -224,7 +227,7 @@ public class EnemyCamp
 		if (attackReady || prepping)
 			return;
 
-		if (unitsInCamp.Count == 0)
+		if (unitsInCamp.Count == 0 && !leader)
 		{
 			attackReady = true;
 			return;
@@ -246,9 +249,11 @@ public class EnemyCamp
 
 			if (removedUnit != null)
 			{
+				removedUnit.benched = true;
 				removedUnit.gameObject.SetActive(false);
 				benchedUnit = removedUnit;
 				unitsInCamp.Remove(removedUnit);
+				world.RemoveUnitPosition(removedUnit.currentLocation);
 			}
 
 			unitsInCamp.Add(leader);
@@ -357,14 +362,14 @@ public class EnemyCamp
 
 			if (movingOut && !attacked)
 			{
-				if (chasing)
-				{
-					for (int i = 0; i < unitsInCamp.Count; i++)
-						unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
+				//if (chasing)
+				//{
+				//	for (int i = 0; i < unitsInCamp.Count; i++)
+				//		unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
 
-					world.mainPlayer.StartRunningAway();
-					pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc);
-				}
+				//	world.mainPlayer.StartRunningAway();
+				//	pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc);
+				//}
 
 				if (isCity && fieldBattleLoc != cityLoc)
 					RemoveOutCamp();
@@ -406,14 +411,15 @@ public class EnemyCamp
 		{
 			if (isCity)
 			{
+				City city = world.GetEnemyCity(cityLoc);
 				if (growing)
 				{
-					world.GetEnemyCity(cityLoc).StartSpawnCycle(false);
+					city.StartSpawnCycle(false);
 				}
 				else
 				{
-					world.GetEnemyCity(cityLoc).countDownTimer += 10; //give a bit of a head start
-					world.GetEnemyCity(cityLoc).LoadSendAttackWait();
+					//city.countDownTimer += 10; //give a bit of a head start
+					city.LoadSendAttackWait(true);
 				}
 			}
 
@@ -647,6 +653,7 @@ public class EnemyCamp
 		attackingArmy = null;
 		prepping = false;
 		movingOut = false;
+		returning = false;
 	}
 
 	public void ResetCamp()
@@ -685,7 +692,9 @@ public class EnemyCamp
 			unitsInCamp.Remove(leader);
 			leader.FinishBattle();
 
+			benchedUnit.benched = false;
 			benchedUnit.gameObject.SetActive(true);
+			world.AddUnitPosition(benchedUnit.currentLocation, benchedUnit);
 			unitsInCamp.Add(benchedUnit);
 			benchedUnit = null;
 		}
@@ -809,12 +818,12 @@ public class EnemyCamp
 			if (unit.isDead)
 				continue;
 			
-			if (!chasing && !returning)
+			if (/*!chasing && */!returning)
 				unit.isMarching = true;
 			
 			unit.preparingToMoveOut = false;
 			unit.attacking = false;
-			unit.AttackCheck();
+			unit.enemyAI.AttackCheck();
 			List<Vector3Int> path = new();
 
 			foreach (Vector3Int tile in pathToTarget)
@@ -873,7 +882,7 @@ public class EnemyCamp
 		{
 			enemyReady = 0;
 			
-			if (chasing)
+			/*if (chasing)
 			{
 				chasing = false;
 
@@ -883,7 +892,7 @@ public class EnemyCamp
 					unitsInCamp[i].StartLookingAround();
 				}
 			}
-			else if (returning)
+			else */if (returning)
 			{
 				if (!isCity)
 				{
@@ -1470,6 +1479,28 @@ public class EnemyCamp
 		campCount++;
 
 		return openSpot;
+	}
+
+	public void PrepForDuel()
+	{
+		foreach (Military unit in unitsInCamp)
+		{
+			Vector3 diff = unit.barracksBunk - loc;
+
+			diff *= -1;
+
+			if (diff.x != 0)
+				diff.x /= 2f;
+			if (diff.z != 0)
+				diff.z /= 2f;
+
+			Vector3 newLoc = unit.barracksBunk + diff;
+			//Vector3Int newLocInt = world.RoundToInt(newLoc);
+
+			List<Vector3Int> path = GridSearch.MoveWherever(world, unit.transform.position, unit.barracksBunk);
+			unit.finalDestinationLoc = newLoc;
+			unit.MoveThroughPath(path);
+		}
 	}
 
 	//public void RemoveFromCamp(Unit unit)
