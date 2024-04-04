@@ -48,7 +48,7 @@ public class WorkerTaskManager : MonoBehaviour
     //Methods to run when pressing certain keys
     public void HandleR()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow)
+        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
@@ -59,7 +59,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleB()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !unitMovement.uiJoinCity.activeStatus && !world.mainPlayer.sayingSomething)
+        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !unitMovement.uiJoinCity.activeStatus && !world.mainPlayer.sayingSomething && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             BuildCityPrep();
         }
@@ -67,7 +67,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleF()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething)
+        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			if (world.tutorialGoing)
 				unitMovement.uiWorkerTask.GetButton("Gather").FlashCheck();
@@ -79,7 +79,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void HandleX()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow)
+        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			unitMovement.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
@@ -96,7 +96,7 @@ public class WorkerTaskManager : MonoBehaviour
 
 	public void BuildCityButton()
     {
-        if (!world.mainPlayer.isBusy)
+        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             BuildCityPrep();	
         }
@@ -104,7 +104,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildCityPrep()
     {
-		if (world.tutorialGoing)
+        if (world.tutorialGoing)
 			unitMovement.uiWorkerTask.GetButton("Build").FlashCheck();
 
 		if (unitMovement.moveUnit)
@@ -138,7 +138,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void GatherResourceButton()
     {
-        if (!world.mainPlayer.isBusy)
+        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 		    world.cityBuilderManager.PlaySelectAudio();
 			world.mainPlayer.GatherResource();
@@ -147,7 +147,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildUtilityButton()
     {
-		if (!world.mainPlayer.isBusy)
+		if (!world.mainPlayer.isBusy  && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
 		    unitMovement.buildingRoad = true;
@@ -159,7 +159,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void ClearForestButton()
     {
-		if (!world.mainPlayer.isBusy)
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
 			world.mainPlayer.ClearForest();
@@ -168,7 +168,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void RemoveAllPrep()
     {
-        if (!world.mainPlayer.isBusy)
+        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
 			unitMovement.removingAll = true;
@@ -180,7 +180,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void RemoveRoadPrep()
     {
-        if (!world.mainPlayer.isBusy)
+        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
             unitMovement.removingRoad = true;
@@ -192,7 +192,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void RemoveLiquidPrep()
     {
-        if (!world.mainPlayer.isBusy)
+        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
 			unitMovement.removingLiquid = true;
@@ -204,7 +204,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void RemovePowerPrep()
     {
-        if (!world.mainPlayer.isBusy)
+        if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
 			unitMovement.removingPower = true;

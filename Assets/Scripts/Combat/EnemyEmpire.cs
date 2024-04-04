@@ -19,16 +19,27 @@ public class EnemyEmpire
         else if (empireCities.Count == 1)
         {
             attackingCity = empireCities[0];
-			world.GetEnemyCity(attackingCity).StartSendAttackWait();
-			return;
+            City nextCity = world.GetEnemyCity(attackingCity);
+
+            if (world.GetTerrainDataAt(nextCity.cityLoc).isDiscovered)
+                nextCity.StartSendAttackWait();
+            else
+                attackingCity = new Vector3Int(0, -10, 0);
+            
+            return;
         }
         
         int dist = 0;
-        Vector3Int chosenCity = empireCities[0];
+        Vector3Int chosenCity = new Vector3Int(0, -10, 0);
+        bool firstOne = true;
         for (int i = 0; i < empireCities.Count; i++)
         {
-            if (i == 0)
+            if (!world.GetTerrainDataAt(empireCities[0]).isDiscovered)
+                continue;
+
+            if (firstOne)
             {
+                firstOne = false;
                 chosenCity = empireCities[i];
                 dist = Mathf.Abs(empireCities[i].x - lastOne.x) + Mathf.Abs(empireCities[i].z - lastOne.z);
                 continue;
@@ -43,7 +54,9 @@ public class EnemyEmpire
         }
 
         attackingCity = chosenCity;
-        world.GetEnemyCity(chosenCity).StartSendAttackWait();
+
+        if (empireCities.Contains(attackingCity))
+            world.GetEnemyCity(chosenCity).StartSendAttackWait();
     }
 
     public bool CanAttackCheck(Vector3Int loc)

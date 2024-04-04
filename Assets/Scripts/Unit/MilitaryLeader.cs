@@ -22,14 +22,19 @@ public class MilitaryLeader : Military
 		leader = this;
 	}
 
-	public void SetUpNPC(MapWorld world)
+	public void SetUpNPC(MapWorld world, UnitData data = null)
 	{
 		leaderName = buildDataSO.unitDisplayName;
 		name = buildDataSO.unitDisplayName;
 		SetReferences(world, true);
 		world.uiSpeechWindow.AddToSpeakingDict(leaderName, this);
 		Vector3 actualPosition = transform.position;
-		world.SetNPCLoc(actualPosition, this);
+
+		if (data != null && data.leaderData.dueling)
+			world.SetNPCLoc(data.leaderData.capitalCity, this);
+		else
+			world.SetNPCLoc(actualPosition, this);
+
 		currentLocation = world.RoundToInt(actualPosition);
 		//world.allTCReps[npcName] = this;
 	}
@@ -110,7 +115,7 @@ public class MilitaryLeader : Military
 		Vector3Int targetLoc = barracksLoc;
 		int dist = 0;
 		int chosenNum = 0;
-		List<Vector3Int> fourWayLoc = world.GetNeighborsFor(barracksLoc, MapWorld.State.FOURWAYINCREMENT);
+		List<Vector3Int> fourWayLoc = world.GetNeighborsFor(barracksLoc, MapWorld.State.FOURWAY);
 		for (int i = 0; i < fourWayLoc.Count; i++)
 		{
 			if (i == 0)
@@ -148,15 +153,65 @@ public class MilitaryLeader : Military
 			FinishMovementEnemyLeader();
 		}
 
-		world.azai.PrepForDuel(oppositeLoc, barracksLoc);
-		if (!capitalCity.enemyCamp.movingOut && !capitalCity.enemyCamp.inBattle && !capitalCity.enemyCamp.prepping && !capitalCity.enemyCamp.attackReady)
-			capitalCity.enemyCamp.PrepForDuel();
-
 		//temporarily setting up an enemy camp for the duel		
 		enemyCamp = new();
+		enemyCamp.UnitsInCamp.Add(this);
+		enemyCamp.campCount = 1;
 		enemyCamp.loc = barracksLoc;
 		enemyCamp.world = world;
 		enemyCamp.forward = barracksLoc - targetLoc;
+		enemyCamp.attackingArmy = world.azai.army;
+		enemyCamp.cityLoc = capitalCity.cityLoc;
+		enemyCamp.duel = true;
+
+		world.azai.PrepForDuel(oppositeLoc, barracksLoc, capitalCity.cityLoc, enemyCamp);
+		if (!capitalCity.enemyCamp.movingOut && !capitalCity.enemyCamp.inBattle && !capitalCity.enemyCamp.prepping && !capitalCity.enemyCamp.attackReady)
+			capitalCity.enemyCamp.PrepForDuel();
+
+	}
+
+	public void Charge()
+	{
+		if (!world.azai.isMoving)
+			world.azai.StartWait(this);
+	}
+
+	public void LeaderCharge()
+	{
+		inBattle = true;
+		UnitType type = buildDataSO.unitType;
+
+		if (type == UnitType.Infantry)
+			enemyAI.InfantryAggroCheck();
+		else if (type == UnitType.Ranged)
+			enemyAI.RangedAggroCheck();
+		else if (type == UnitType.Cavalry)
+			enemyAI.CavalryAggroCheck();
+	}
+
+	public void FinishDuel()
+	{
+		inBattle = false;
+		dueling = false;
+	}
+
+	public void StartGloating()
+	{
+		StartCoroutine(StandOverAndGloat());
+	}
+
+	public IEnumerator StandOverAndGloat()
+	{
+		City capitalCity = world.GetEnemyCity(empire.capitalCity);
+		capitalCity.enemyCamp.ToggleClapping(true);
+
+		yield return new WaitForSeconds(4);
+
+		FinishDuel();
+		enemyCamp = capitalCity.enemyCamp;
+		world.ToggleDuelMaterialClear(false, capitalCity.barracksLocation, world.azai, this);
+		enemyAI.StartReturn();
+		capitalCity.enemyCamp.FinishDuelCheck();
 	}
 
 	public void FinishBattle()
@@ -186,22 +241,15 @@ public class MilitaryLeader : Military
 
 	public void FinishMovementEnemyLeader()
 	{
-		if (dueling)
+		if (hasSomethingToSay)
 		{
-
+			hasSomethingToSay = false;
+			somethingToSay = true;
+			questionMark.SetActive(true);
 		}
-		else
-		{
-			if (hasSomethingToSay)
-			{
-				hasSomethingToSay = false;
-				somethingToSay = true;
-				questionMark.SetActive(true);
-			}
 
-			if (currentHealth < buildDataSO.health)
-				healthbar.RegenerateHealth();
-		}
+		if (currentHealth < buildDataSO.health)
+			healthbar.RegenerateHealth();
 	}
 
 	public MilitaryLeaderData SaveMilitaryLeaderData()
@@ -214,6 +262,11 @@ public class MilitaryLeader : Military
 		data.hasSomethingToSay = hasSomethingToSay;
 		data.defending = defending;
 		data.dueling = dueling;
+		if (dueling)
+		{
+			data.forward = enemyCamp.forward;
+			data.duelLoc = enemyCamp.loc;
+		}
 
 		//for empire
 		data.attackingCity = empire.attackingCity;
@@ -239,6 +292,19 @@ public class MilitaryLeader : Military
 			conversationHaver.conversationTopics = new(data.leaderData.conversationTopics);
 			data.leaderData.conversationTopics.Clear();
 			SetSomethingToSay(conversationHaver.conversationTopics[0]);
+		}
+
+		if (dueling)
+		{
+			enemyCamp = new();
+			enemyCamp.UnitsInCamp.Add(this);
+			enemyCamp.campCount = 1;
+			enemyCamp.loc = data.leaderData.duelLoc;
+			enemyCamp.world = world;
+			enemyCamp.forward = data.leaderData.forward;
+			enemyCamp.cityLoc = data.leaderData.capitalCity;
+			enemyCamp.duel = true;
+			GameLoader.Instance.duelingLeader = this;
 		}
 
 		if (timeWaited > 0)

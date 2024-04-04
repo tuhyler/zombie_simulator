@@ -3690,10 +3690,18 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCityWarning()
     {
-        if (selectedCity != null && selectedCity.attacked)
+        if (selectedCity != null)
         {
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy approaching", true);
-			return;
+			if (selectedCity.attacked)
+            {
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy approaching", true);
+			    return;
+            }
+            else if (!selectedCity.army.atHome)
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Army is deployed", true);
+				return;
+			}
         }
         
         PlaySelectAudio();

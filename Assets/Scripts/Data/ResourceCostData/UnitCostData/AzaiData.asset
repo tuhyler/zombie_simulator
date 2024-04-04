@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: 2fb758b0b7d1bc344bb12965d9d91f50, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Infantry
+  nationalityAdjective: 
   unitDisplayName: Azai
   unitLevel: 1
   unitNameAndLevel: 
@@ -24,16 +24,22 @@ MonoBehaviour:
   cycleCost: []
   battleCost: []
   laborCost: 1
-  unitType: 0
+  unitType: 1
   unitDescription: BuildCities and Roads
   availableInitially: 1
   health: 50
+  regenerationRate: 0.1
   baseAttackStrength: 10
   baseAttackSpeed: 1
   movementSpeed: 2
   trainTime: 0
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 1
-  tcRep: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
   unitEra: 0
+  unitRegion: 4

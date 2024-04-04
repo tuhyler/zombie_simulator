@@ -229,7 +229,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
     public Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
     public Dictionary<Vector3Int, City> enemyCityDict = new();
-    public int enemyUnitGrowthTime = 20;
+    public int waitTillAttackTime = 600, enemyUnitGrowthTime = 20;
     [HideInInspector]
     public List<Vector3Int> militaryStationLocs = new();
     public Dictionary<Vector3Int, TreasureChest> treasureLocs = new();
@@ -736,18 +736,19 @@ public class MapWorld : MonoBehaviour
             azai.gameObject.tag = "Player";
             azai.marker.gameObject.tag = "Player";
             unit.currentLocation = RoundToInt(unit.transform.position);
-            AddUnitPosition(unit.transform.position, unit);
+            //AddUnitPosition(unit.transform.position, unit);
 
 		    scott.currentLocation = RoundToInt(scott.transform.position);
-		    AddUnitPosition(scott.transform.position, scott);
+		    //AddUnitPosition(scott.transform.position, scott);
             azai.currentLocation = RoundToInt(azai.transform.position);
-            AddUnitPosition(azai.transform.position, azai);
+            //AddUnitPosition(azai.transform.position, azai);
         }
 
         uiSpeechWindow.AddToSpeakingDict("Scott", scott);
         uiSpeechWindow.AddToSpeakingDict("Azai", azai);
         scott.SetReferences(this);
         azai.SetReferences(this);
+        azai.SetArmy();
 
 		unit.Reveal();
 		Vector3Int unitPos = RoundToInt(unit.transform.position);
@@ -1166,7 +1167,7 @@ public class MapWorld : MonoBehaviour
 		GameObject leaderGO = Instantiate(UpgradeableObjectHolder.Instance.enemyLeaderDict[data.unitNameAndLevel].prefab, data.position, data.rotation);
         leaderGO.transform.SetParent(enemyCityHolder, false);
         MilitaryLeader leader = leaderGO.GetComponent<MilitaryLeader>();
-		leader.SetUpNPC(this);
+		leader.SetUpNPC(this, data);
         leader.LoadMilitaryLeaderData(data);
         EnemyEmpire empire = new();
 		empire.LoadData(data.leaderData);
@@ -1394,7 +1395,8 @@ public class MapWorld : MonoBehaviour
         city.enemyCamp.cityLoc = cityTile;
         if (cityTile == empire.capitalCity)
         {
-            empire.enemyLeader.enemyCamp = city.enemyCamp;
+            if (!empire.enemyLeader.dueling)
+                empire.enemyLeader.enemyCamp = city.enemyCamp;
             empire.enemyLeader.enemyAI.CampSpot = city.cityLoc;
             empire.enemyLeader.SetBarracksBunk(city.enemyCamp.loc);
         }
@@ -1480,7 +1482,8 @@ public class MapWorld : MonoBehaviour
                 if (city.enemyCamp.campCount != 0)
                     movingOut = true;
 
-                city.LoadSendAttackWait(false);
+                if (city.empire.capitalCity != cityTile || !city.empire.enemyLeader.dueling)
+                    city.LoadSendAttackWait(false);
 		    }
         }
         else
@@ -1600,7 +1603,9 @@ public class MapWorld : MonoBehaviour
 			if (city.enemyCamp.growing && !city.enemyCamp.prepping && !city.enemyCamp.attackReady && !city.enemyCamp.inBattle)
             {
                 city.enemyCamp.LoadCityEnemyCamp();
-				city.StartSpawnCycle(false);
+
+                if (city.empire.capitalCity != city.cityLoc || !city.empire.enemyLeader.dueling)
+				    city.StartSpawnCycle(false);
             }
 		}
         else
@@ -5311,7 +5316,7 @@ public class MapWorld : MonoBehaviour
 
             GetNPC(enemyLoc).unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 
-            foreach (Worker unit in characterUnits)
+            foreach (Unit unit in characterUnits)
                 unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
         }
         else
@@ -5323,8 +5328,33 @@ public class MapWorld : MonoBehaviour
 
 			GetNPC(enemyLoc).unitMesh.layer = LayerMask.NameToLayer("Enemy");
 
-			foreach (Worker unit in characterUnits)
+			foreach (Unit unit in characterUnits)
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
+		}
+	}
+
+    public void ToggleDuelMaterialClear(bool v, Vector3Int battleLoc, Unit bodyGuard, Unit leader)
+    {
+        if (v)
+        {
+		    if (battleLocs.Count == 0)
+			    battleCamera.SetActive(true);
+
+		    if (!battleLocs.Contains(battleLoc))
+			    battleLocs.Add(battleLoc);
+
+            bodyGuard.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+			leader.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+		}
+        else
+        {
+			battleLocs.Remove(battleLoc);
+
+			if (battleLocs.Count == 0)
+				battleCamera.SetActive(false);
+
+			bodyGuard.unitMesh.layer = LayerMask.NameToLayer("Default");
+			leader.unitMesh.layer = LayerMask.NameToLayer("Enemy");
 		}
 	}
 
@@ -8040,7 +8070,7 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    private IEnumerator WaitASecToSpeak(Worker unit, int timeToWait, string conversationTopic)
+    private IEnumerator WaitASecToSpeak(Unit unit, int timeToWait, string conversationTopic)
     {
         playerInput.paused = true;
         yield return new WaitForSeconds(timeToWait);

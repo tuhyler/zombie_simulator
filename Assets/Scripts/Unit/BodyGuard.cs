@@ -5,25 +5,52 @@ using UnityEngine;
 public class BodyGuard : Military
 {
 	[HideInInspector]
-	public bool toTransport, inTransport, dueling;
+	public bool toTransport, inTransport, dueling, waiting, dizzy;
 	[HideInInspector]
 	public Transport transportTarget;
-	
+	[SerializeField]
+	public GameObject battleIcon;
+	private int isDizzyHash;
+
 	private void Awake()
 	{
 		base.AwakeMethods();
 		base.MilitaryAwakeMethods();
-		army = GetComponent<Army>();
-		army.SetWorld(world);
 		bodyGuard = this;
+		isDizzyHash = Animator.StringToHash("isDizzy");
 	}
 
-	public void PrepForDuel(Vector3Int loc, Vector3Int barracksLoc)
+	public void SetArmy()
 	{
-		world.mainPlayer.runningAway = true;
-		world.azaiFollow = false;
+		army = GetComponent<Army>();
+		army.SetWorld(world);
+		army.UnitsInArmy.Add(this);
+		army.armyCount = 1;
+	}
+
+	public void PrepForDuel(Vector3Int loc, Vector3Int barracksLoc, Vector3Int enemyCityLoc, EnemyCamp targetCamp)
+	{
+		if (isMoving)
+		{
+			StopAnimation();
+			ShiftMovement();
+		}
+
+		if (world.scott.isMoving)
+		{
+			world.scott.StopAnimation();
+			world.scott.ShiftMovement();
+		}
+		//world.mainPlayer.runningAway = true;
+		//world.azaiFollow = false;
 		dueling = true;
+		inArmy = true;
 		army.forward = barracksLoc - loc;
+		army.enemyTarget = barracksLoc;
+		army.enemyCityLoc = enemyCityLoc;
+		army.targetCamp = targetCamp;
+		world.mainPlayer.Rotate(barracksLoc);
+		world.scott.Rotate(barracksLoc);
 
 		List<Vector3Int> battleZone = new() { barracksLoc };
 		foreach (Vector3Int tile in world.GetNeighborsFor(barracksLoc, MapWorld.State.EIGHTWAY))
@@ -40,14 +67,85 @@ public class BodyGuard : Military
 		}
 	}
 
+	public void Charge()
+	{
+		MilitaryLeader leader = world.GetEnemyCity(army.enemyCityLoc).empire.enemyLeader;
+
+		//setting battle icon at battle loc
+		battleIcon.SetActive(true);
+		battleIcon.transform.position = army.enemyTarget;
+		Vector3 goScale = battleIcon.transform.localScale;
+		battleIcon.transform.localScale = Vector3.zero;
+		LeanTween.scale(battleIcon, goScale, 0.5f);
+
+		world.ToggleDuelMaterialClear(true, army.enemyTarget, this, leader);
+
+		if (!leader.isMoving)
+			StartCoroutine(WaitASec(leader));
+	}
+
+	public void StartWait(MilitaryLeader leader)
+	{
+		StartCoroutine(WaitASec(leader));
+	}
+
+	public IEnumerator WaitASec(MilitaryLeader leader)
+	{
+		waiting = true;
+		yield return new WaitForSeconds(1);
+
+		waiting = false;
+		leader.LeaderCharge();
+		BodyGuardCharge();
+	}
+
+	public void BodyGuardCharge()
+	{
+		inBattle = true;
+		InfantryAggroCheck();
+	}
+
 	public void FinishDuel()
 	{
+		battleIcon.SetActive(false);
 		army.attackingSpots.Clear();
 		army.movementRange.Clear();
-		world.azaiFollow = true;
-		world.mainPlayer.runningAway = false;
+		dueling = false;
+		inArmy = false;
+		inBattle = false;
+		if (currentHealth < buildDataSO.health)
+			healthbar.RegenerateHealth();
+	}
 
+	public void GoDizzy()
+	{
+		StartCoroutine(DizzyCoroutine());
+	}
+
+	public void ToggleDizzy(bool v)
+	{
+		dizzy = v;
+		unitAnimator.SetBool(isDizzyHash, v);
+	}
+
+	private IEnumerator DizzyCoroutine()
+	{
+		Vector3 loc = Vector3.zero;
+		loc.y += 1.25f;
+		Quaternion rotation = Quaternion.Euler(90, 0, 90);
+		GameObject dizzy = Instantiate(world.dizzyMarker, loc, rotation);
+		dizzy.transform.SetParent(transform, false);
+
+		ToggleDizzy(true);
+
+		yield return new WaitForSeconds(4);
+
+		FinishDuel();
+		Destroy(dizzy);
+		ToggleDizzy(false);
 		world.mainPlayer.ReturnToFriendlyTile();
+		world.ToggleBadGuyTalk(false, army.targetCamp.cityLoc);
+		army.targetCamp = null;
 	}
 
 	public void GetBehindScott(Vector3Int scottSpot)
@@ -155,17 +253,22 @@ public class BodyGuard : Military
 		data.toTransport = toTransport;
 		data.inTransport = inTransport;
 		data.dueling = dueling;
+		data.waiting = waiting;
+		data.dizzy = dizzy;
+
+		if (dueling)
+			data.forward = army.forward;
 
 		return data;
 	}
 
 	public void LoadBodyGuardData(UnitData data)
 	{
-		LoadUnitData(data);
-
 		toTransport = data.bodyGuardData.toTransport;
 		inTransport = data.bodyGuardData.inTransport;
 		dueling = data.bodyGuardData.dueling;
+		waiting = data.bodyGuardData.waiting;
+		dizzy = data.bodyGuardData.dizzy;
 
 		if (data.bodyGuardData.somethingToSay)
 		{
@@ -173,6 +276,30 @@ public class BodyGuard : Military
 			data.bodyGuardData.conversationTopics.Clear();
 			conversationHaver.SetSomethingToSay(conversationHaver.conversationTopics[0]);
 		}
+
+		if (dueling)
+		{
+			MilitaryLeader leader = GameLoader.Instance.duelingLeader;
+			inArmy = true;
+			army.forward = data.bodyGuardData.forward;
+			army.enemyTarget = leader.enemyCamp.loc;
+			army.enemyCityLoc = leader.enemyCamp.cityLoc;
+			army.targetCamp = leader.enemyCamp;
+			leader.enemyCamp.attackingArmy = world.azai.army;
+			
+			if (waiting)
+			{
+				StartCoroutine(WaitASec(leader));
+			}
+			else if (dizzy)
+			{
+				leader.StartGloating();
+				StartCoroutine(DizzyCoroutine());
+			}
+		}
+
+
+		LoadUnitData(data);
 
 		if (inTransport)
 			gameObject.SetActive(false);

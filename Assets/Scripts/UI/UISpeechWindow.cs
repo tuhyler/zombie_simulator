@@ -204,7 +204,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		if (conversationPlace >= conversationItems.Count)
 		{
 			if (!CheckNPC())
-				FinishText();
+				FinishText(false);
 		}
 		else
 		{
@@ -231,7 +231,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		}
 	}
 
-	public void FinishText()
+	public void FinishText(bool dueling)
 	{
 		ToggleVisibility(false);
 
@@ -242,11 +242,15 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		}
 		showingText = false;
 
-		world.unitMovement.SelectWorker();
-		world.unitMovement.uiWorkerTask.ToggleVisibility(true, world);
-		world.unitMovement.PrepareMovement();
-		if (!world.mainPlayer.inEnemyLines)
-			world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+		if (!dueling)
+		{
+			world.unitMovement.SelectWorker();
+			world.unitMovement.uiWorkerTask.ToggleVisibility(true, world);
+			world.unitMovement.PrepareMovement();
+			if (!world.mainPlayer.inEnemyLines)
+				world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+		}
+
 		world.playerInput.paused = false;
 		world.cameraController.someoneSpeaking = false;
 		world.speechBubble.transform.SetParent(transform, false);

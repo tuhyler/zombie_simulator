@@ -15,7 +15,6 @@ MonoBehaviour:
   prefab: {fileID: 3248194934909022928, guid: ebe930062ecfe6f489de1145e32053be, type: 3}
   secondaryPrefab: {fileID: 0}
   nationalityAdjective: 
-  unitName: Haniya
   unitDisplayName: Haniya
   unitLevel: 1
   unitNameAndLevel: Haniya-1
@@ -29,6 +28,7 @@ MonoBehaviour:
   unitDescription: 
   availableInitially: 0
   health: 20
+  regenerationRate: 16
   baseAttackStrength: 5
   baseAttackSpeed: 1
   movementSpeed: 1

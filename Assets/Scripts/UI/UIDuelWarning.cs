@@ -56,14 +56,19 @@ public class UIDuelWarning : MonoBehaviour
 	public void ConfirmDuel()
 	{
 		leader.DuelSetup();
+		leader.world.unitMovement.ClearSelection();
+		leader.world.unitMovement.SelectUnitPrep(leader.world.azai);
+		leader.world.cameraController.someoneSpeaking = false;
+		leader.world.azai.CenterCamera();
 		ToggleVisibility(false);
-		uiSpeechWindow.FinishText();
+		uiSpeechWindow.FinishText(true);
 	}
 
 	public void DenyDuel()
 	{
+		
 		uiSpeechWindow.ReturnMainPlayer();
 		ToggleVisibility(false);
-		uiSpeechWindow.FinishText();
+		uiSpeechWindow.FinishText(false);
 	}
 }

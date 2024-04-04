@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -30,6 +31,8 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
 	public List<GameObject> textList = new();
+	[HideInInspector]
+	public MilitaryLeader duelingLeader;
 
 	private void Awake()
 	{
@@ -393,6 +396,7 @@ public class GameLoader : MonoBehaviour
 	{
 		GameManager.Instance.ResetProgress();
 		isLoading = true;
+		duelingLeader = null;
 		//Time.timeScale = 0f;
 		//AudioListener.pause = true;
 
@@ -558,6 +562,17 @@ public class GameLoader : MonoBehaviour
 
 		//updating progress
 		GameManager.Instance.UpdateProgress(5);
+		
+		//duelling orders
+		if (duelingLeader)
+		{
+			List<Vector3Int> battleZone = new() { duelingLeader.enemyCamp.loc };
+			foreach (Vector3Int tile in world.GetNeighborsFor(duelingLeader.enemyCamp.loc, MapWorld.State.EIGHTWAY))
+				battleZone.Add(tile);
+
+			duelingLeader.enemyCamp.attackingArmy.movementRange = battleZone;
+		}
+		duelingLeader = null;
 
 		//ambushes
 		world.MakeEnemyAmbushes(gameData.ambushLocs, ambushedTraders);

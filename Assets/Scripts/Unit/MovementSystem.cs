@@ -20,8 +20,6 @@ public class MovementSystem : MonoBehaviour
 
     public void GetPathToMove(MapWorld world, Unit selectedUnit, Vector3Int startPosition, Vector3Int endPosition, bool isTrader, bool moveToSpeak) //Using AStar movement
     {
-        Vector3 currentLoc = selectedUnit.transform.position;
-
         if (orderQueueing) //adding lists to each other for order queueing, turn counter starts at 1 each time
         {
             if (moveToSpeak)
@@ -67,6 +65,7 @@ public class MovementSystem : MonoBehaviour
         }
         else
         {
+            Vector3 currentLoc = selectedUnit.transform.position;
             selectedUnit.QueueCount = 0;
 
             if (moveToSpeak)

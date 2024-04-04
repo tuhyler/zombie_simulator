@@ -462,9 +462,12 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.finalDestinationLoc = campSpot;
 		List<Vector3Int> path;
 		if (unit.enemyCamp.battleAtSea)
-			path = GridSearch.MoveWherever(unit.world, unit.world.RoundToInt(unit.transform.position), campSpot);
+			path = GridSearch.MoveWherever(unit.world, unit.transform.position, campSpot);
 		else
-			path = GridSearch.AStarSearchEnemy(unit.world, unit.world.RoundToInt(unit.transform.position), campSpot, unit.bySea, null);
+			path = GridSearch.AStarSearchEnemy(unit.world, unit.transform.position, campSpot, unit.bySea, null);
+
+		if (path.Count == 0 && (campSpot - unit.transform.position).sqrMagnitude > 0.05f)
+			path.Add(campSpot);
 
 		if (path.Count > 0)
 		{

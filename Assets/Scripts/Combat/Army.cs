@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Timeline;
@@ -1180,8 +1181,22 @@ public class Army : MonoBehaviour
         
         if (targetCamp.deathCount == targetCamp.campCount)
 		{
-            city.attacked = false;
-			world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
+            if (city)
+            {
+                city.attacked = false;
+			    world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
+                returning = true;
+                city.battleIcon.SetActive(false);
+            }
+            else //for finishing duel
+            {
+                City enemyCity = world.GetEnemyCity(targetCamp.cityLoc);
+                enemyCity.enemyCamp.FinishDuelCheck();
+                world.ToggleDuelMaterialClear(false, enemyTarget, world.azai, enemyCity.empire.enemyLeader);
+                enemyCity.empire.enemyLeader.dueling = false;
+                world.azai.FinishDuel();
+            }
+
             targetCamp.battleAtSea = false;
 
             if (world.mainPlayer.runningAway)
@@ -1203,7 +1218,6 @@ public class Army : MonoBehaviour
                 world.GetEnemyCity(targetCamp.cityLoc).StartSpawnCycle(true);
             }
 
-            returning = true;
             DestroyDeadList();
 
             foreach (Military unit in unitsInArmy)
@@ -1213,7 +1227,6 @@ public class Army : MonoBehaviour
             }
 
             attackingSpots.Clear();
-            city.battleIcon.SetActive(false);
             inBattle = false;
             
             if (defending)
@@ -1221,7 +1234,13 @@ public class Army : MonoBehaviour
                 defending = false;
                 ReturnToBarracks();
             }
-            else
+            else if (!city)
+            {
+				world.mainPlayer.ReturnToFriendlyTile();
+				world.ToggleBadGuyTalk(false, targetCamp.cityLoc);
+				targetCamp = null;
+			}
+			else
             {
                 world.unitMovement.uiCancelTask.ToggleVisibility(false);
                 //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
@@ -1248,7 +1267,7 @@ public class Army : MonoBehaviour
         StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleVisibility(false);
 		city.battleIcon.SetActive(false);
-		inBattle = false;
+		//inBattle = false; //wait till enemy stops attacking to stop setting as in battle
         returning = true;
         attackingSpots.Clear();
         DestroyDeadList();
@@ -1461,7 +1480,7 @@ public class Army : MonoBehaviour
     {
 		ClearTraveledPath();
         city.battleIcon.SetActive(false);
-		inBattle = false;
+        inBattle = false;
 		atHome = true;
 		cyclesGone = 0;
 		stepCount = 0;

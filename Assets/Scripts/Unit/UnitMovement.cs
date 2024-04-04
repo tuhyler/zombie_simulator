@@ -7,6 +7,7 @@ using System.Resources;
 using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.XR;
 using static Unity.Burst.Intrinsics.X86.Avx;
 using static UnityEditor.FilePathAttribute;
 using static UnityEditor.PlayerSettings;
@@ -272,7 +273,7 @@ public class UnitMovement : MonoBehaviour
                 else if (td.terrainData.type == TerrainType.River && !world.bridgeResearched)
                 {
                     if (td.straightRiver)
-                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Research bridge building first");
+                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Research bridges in masonry first");
                     else
 						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build road on this river section");
 				}
@@ -796,7 +797,7 @@ public class UnitMovement : MonoBehaviour
 					return;
 				}
 
-				SelectUnitPrep(unitReference, location);
+				SelectUnitPrep(unitReference);
             }
             else if (unitReference.CompareTag("Enemy"))
             {
@@ -819,7 +820,7 @@ public class UnitMovement : MonoBehaviour
 					return;
 				}
 
-				SelectUnitPrep(unit, location);
+				SelectUnitPrep(unit);
             }
             else if (unitMarker.CompareTag("Enemy"))
             {
@@ -926,7 +927,7 @@ public class UnitMovement : MonoBehaviour
     //    }
     //}
 
-    private void SelectUnitPrep(Unit unitReference, Vector3 location)
+    public void SelectUnitPrep(Unit unitReference)
     {
         if (upgradingUnit && highlightedUnitList.Contains(unitReference))
         {
@@ -1047,48 +1048,55 @@ public class UnitMovement : MonoBehaviour
     {        
 		if (world.characterUnits.Contains(selectedUnit))
         {
-            selectedUnit = world.mainPlayer;
-
-			uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.ResourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
-			uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
-
-			if (world.mainPlayer.isBusy && !world.mainPlayer.runningAway)
-				uiCancelTask.ToggleVisibility(true);
-			if (!selectedUnit.sayingSomething)
-                uiWorkerTask.ToggleVisibility(true, world);
-            if (world.scott.IsOrderListMoreThanZero())
-                ToggleOrderHighlights(true);
-
-            if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
-                selectedUnit.SendResourceToCity();
-
-            Vector3Int terrainLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
-            if (world.IsTradeLocOnTile(terrainLoc) && !world.IsWonderOnTile(terrainLoc))
-                uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
+			if (selectedUnit.military && selectedUnit.military.bodyGuard.dueling)
+			{
+				SelectBodyGuard();
+			}
             else
-                uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
-
-            for (int i = 0; i < world.characterUnits.Count; i++)
             {
-				if (world.characterUnits[i] == selectedUnit)
-					world.characterUnits[i].Highlight(Color.green);
-				else
-					world.characterUnits[i].SoftSelect(Color.white);
-			}
+			    selectedUnit = world.mainPlayer;
 
-            if (selectedUnit.worker.inEnemyLines && !selectedUnit.isMoving)
-            {
-				foreach (Vector3Int tile in world.GetNeighborsFor(selectedUnit.currentLocation, MapWorld.State.EIGHTWAY))
+			    uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.ResourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
+			    uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
+
+			    if (world.mainPlayer.isBusy && !world.mainPlayer.runningAway)
+				    uiCancelTask.ToggleVisibility(true);
+			    if (!selectedUnit.sayingSomething)
+                    uiWorkerTask.ToggleVisibility(true, world);
+                if (world.scott.IsOrderListMoreThanZero())
+                    ToggleOrderHighlights(true);
+
+                if (selectedUnit.harvested) //if unit just finished harvesting something, send to closest city
+                    selectedUnit.SendResourceToCity();
+
+                Vector3Int terrainLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
+                if (world.IsTradeLocOnTile(terrainLoc) && !world.IsWonderOnTile(terrainLoc))
+                    uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
+                else
+                    uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
+
+                for (int i = 0; i < world.characterUnits.Count; i++)
                 {
-                    if (world.IsNPCThere(tile) && world.GetNPC(tile).somethingToSay)
-                    {                        
-                        world.unitMovement.QuickSelect(selectedUnit);
-				        world.GetNPC(tile).SpeakingCheck();
-    				    world.uiSpeechWindow.SetSpeakingNPC(world.GetNPC(tile));
-                        break;
+				    if (world.characterUnits[i] == selectedUnit)
+					    world.characterUnits[i].Highlight(Color.green);
+				    else
+					    world.characterUnits[i].SoftSelect(Color.green);
+			    }
+
+                if (selectedUnit.worker.inEnemyLines && !selectedUnit.isMoving)
+                {
+				    foreach (Vector3Int tile in world.GetNeighborsFor(selectedUnit.currentLocation, MapWorld.State.EIGHTWAY))
+                    {
+                        if (world.IsNPCThere(tile) && world.GetNPC(tile).somethingToSay)
+                        {                        
+                            world.unitMovement.QuickSelect(selectedUnit);
+				            world.GetNPC(tile).SpeakingCheck();
+    				        world.uiSpeechWindow.SetSpeakingNPC(world.GetNPC(tile));
+                            break;
+                        }
                     }
-                }
-			}
+			    }
+            }
         }
     }
 
@@ -1127,6 +1135,15 @@ public class UnitMovement : MonoBehaviour
             }
         }
     }
+
+    private void SelectBodyGuard()
+    {
+		selectedUnit.SayHello();
+		world.somethingSelected = true;
+		selectedUnit.Highlight(Color.green);
+		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, false, selectedUnit.military.strengthBonus, false);
+	}
+
 
     public void PrepareMovement(Unit unit, bool centerCam = false) //handling unit selection through the unit turn buttons
     {
@@ -1174,8 +1191,19 @@ public class UnitMovement : MonoBehaviour
 			selectedUnit.Highlight(Color.green);
         }
 
-		int bonus = selectedUnit.military ? selectedUnit.military.strengthBonus : 0;
-		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus, false);
+        if (selectedUnit.isPlayer)
+        {
+			if (world.azaiFollow)
+				infoManager.ShowInfoPanel(selectedUnit.name, world.azai.buildDataSO, world.azai.currentHealth, false, world.azai.military.strengthBonus, false);
+            else
+                infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, false, 0, false);
+		}
+        else
+        {
+    		int bonus = selectedUnit.military ? selectedUnit.military.strengthBonus : 0;
+    		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, bonus, false);
+        }
+
         ShowIndividualCityButtonsUI();
     }
 
