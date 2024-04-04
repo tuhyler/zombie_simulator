@@ -20,6 +20,7 @@ public class UnitBuildDataSO : ScriptableObject
     public string unitDescription;
     public bool availableInitially = false;
     public int health = 10;
+    public float regenerationRate = 2;
     public int baseAttackStrength = 10;
     public float baseAttackSpeed = 0.5f;
     public float movementSpeed = 1f;

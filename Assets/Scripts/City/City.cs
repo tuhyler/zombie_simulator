@@ -1275,7 +1275,7 @@ public class City : MonoBehaviour
     {
 		if (SendAttackCheck())
         {
-		    countDownTimer = 600;
+		    countDownTimer = world.waitTillAttackTime;
             Debug.Log("starting send attack wait at " + cityLoc);
             co = StartCoroutine(SendAttackWait());
         }
@@ -1286,7 +1286,7 @@ public class City : MonoBehaviour
 		if (SendAttackCheck())
         {
             if (headStart)
-                countDownTimer += 10;
+                countDownTimer += 5;
 		
             Debug.Log("starting send attack wait at " + cityLoc);
 		    co = StartCoroutine(SendAttackWait());
@@ -1295,7 +1295,7 @@ public class City : MonoBehaviour
 
     private bool SendAttackCheck()
     {
-        return world.GetTerrainDataAt(cityLoc).isDiscovered && cityLoc == empire.attackingCity && !enemyCamp.attacked && !enemyCamp.growing && !enemyCamp.movingOut && !enemyCamp.inBattle &&
+        return cityLoc == empire.attackingCity && !enemyCamp.attacked && !enemyCamp.growing && !enemyCamp.movingOut && !enemyCamp.inBattle &&
             !enemyCamp.prepping && !enemyCamp.attackReady;
 	}
 
@@ -1391,9 +1391,14 @@ public class City : MonoBehaviour
 			if (targetCity.army.atHome)
             {
                 if (enemyCamp.MoveOut(targetCity))
+                {
 				    targetCity.attacked = true;
+                    countDownTimer = world.waitTillAttackTime;
+                }
                 else
+                {
 					StartSendAttackWait();
+                }
 			}
             else
             {

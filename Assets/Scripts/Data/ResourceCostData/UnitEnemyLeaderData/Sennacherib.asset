@@ -24,11 +24,12 @@ MonoBehaviour:
   cycleCost: []
   battleCost: []
   laborCost: 1
-  unitType: 3
+  unitType: 1
   unitDescription: 
   availableInitially: 0
   health: 50
-  baseAttackStrength: 10
+  regenerationRate: 16
+  baseAttackStrength: 2
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 0

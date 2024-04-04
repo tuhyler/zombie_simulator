@@ -283,7 +283,7 @@ public class Worker : Unit
 
     public void WorkerOrdersPreparations()
     {
-        //Vector3 workerPos = transform.position;
+		//Vector3 workerPos = transform.position;
         //Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(BuildRoad);
         FinishedMoving.RemoveListener(RemoveRoad);
@@ -662,6 +662,9 @@ public class Worker : Unit
 
 	public void GatherResource()
     {
+		if (world.mainPlayer.inEnemyLines || world.mainPlayer.runningAway)
+			return;
+		
 		if (world.unitMovement.moveUnit)
 			world.unitMovement.CancelMove();
 

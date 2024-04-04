@@ -271,10 +271,22 @@ public class Unit : MonoBehaviour
 
             if (!attackingUnit.military.aoe)
                 attackingUnit.military.attacking = false;
-            KillUnit(attackingUnit.transform.eulerAngles);
-            return;
+
+			if (military && military.bodyGuard)
+			{
+				currentHealth = 1;
+				healthbar.SetHealthLevel(currentHealth);
+				attackingUnit.enemyAI.AttackCheck();
+				attackingUnit.military.StopAttacking();
+                attackingUnit.military.leader.StartGloating();
+				military.bodyGuard.GoDizzy();
+			}
+            else
+            {
+			    KillUnit(attackingUnit.transform.eulerAngles);
+                return;
+            }
         }
-            //DestroyUnit();
 
         if (isSelected)
             world.unitMovement.infoManager.SetHealth(currentHealth, healthMax);
@@ -284,14 +296,19 @@ public class Unit : MonoBehaviour
 
     public void UpdateHealth(float healthLevel)
     {
-        currentHealth = Mathf.FloorToInt(healthLevel * healthMax);
-        //this.currentHealth = currentHealth;
+        int tempHealth = Mathf.FloorToInt(healthLevel * healthMax);
+        if (currentHealth != tempHealth)
+        {
+    		currentHealth = tempHealth;
 
-        if (isSelected)
-			world.unitMovement.infoManager.SetHealth(currentHealth, healthMax);
+            if (military && military.bodyGuard && world.mainPlayer.isSelected)
+			    world.unitMovement.infoManager.SetHealth(currentHealth, healthMax);
+            else if (isSelected)
+			    world.unitMovement.infoManager.SetHealth(currentHealth, healthMax);
+        }
 	}
 
-    public void StartAnimation()
+	public void StartAnimation()
     {
         if (military && (military.isMarching || military.isGuarding))
             unitAnimator.SetBool(isMarchingHash, true);
@@ -1167,12 +1184,6 @@ public class Unit : MonoBehaviour
 
     public void KillUnit(Vector3 rotation)
     {
-        if (military && military.bodyGuard)
-        {
-            currentHealth = 1;
-            return;
-        }
-        
         isDead = true;
         if (military)
         {

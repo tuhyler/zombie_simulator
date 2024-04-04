@@ -12,8 +12,7 @@ public class Healthbar : MonoBehaviour
     Unit unit;
     private int currentHealth;
     private int healthMax;
-    private float regenerationRate = 2;
-    private int enemyBoost = 8;
+    private float regenerationRate;
     private int outOfCombatWait = 3;
     private WaitForSeconds wait = new WaitForSeconds(1);
 
@@ -31,10 +30,7 @@ public class Healthbar : MonoBehaviour
     {
         this.unit = unit;
         healthMax = unit.buildDataSO.health;
-		regenerationRate = .01f * healthMax * regenerationRate;
-
-        if (unit.enemyAI)
-            regenerationRate *= enemyBoost;
+		regenerationRate = .01f * healthMax * unit.buildDataSO.regenerationRate;
     }
 
 	public void SetHealthLevel(int health)

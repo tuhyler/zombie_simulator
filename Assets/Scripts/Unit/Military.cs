@@ -14,7 +14,7 @@ public class Military : Unit
 	[SerializeField]
 	private MeshFilter boatSail;
 	
-	private int isPillagingHash, isDiscoveredHash, isSittingHash;
+	private int isPillagingHash, isDiscoveredHash, isSittingHash, isClappingHash;
 	[HideInInspector]
 	public Vector3Int targetLocation, targetBunk, barracksBunk, marchPosition; //targetLocation is in case units overlap on same tile
 
@@ -91,6 +91,7 @@ public class Military : Unit
 		isPillagingHash = Animator.StringToHash("isPillaging");
 		isDiscoveredHash = Animator.StringToHash("isDiscovered");
 		isSittingHash = Animator.StringToHash("isSitting");
+		isClappingHash = Animator.StringToHash("isClapping");
 	}
 
 	protected override void AwakeMethods()
@@ -125,6 +126,11 @@ public class Military : Unit
 			unitAnimator.SetBool(isDiscoveredHash, false);
 
 		unitAnimator.SetBool(isSittingHash, v);
+	}
+
+	public void ToggleClapping(bool v)
+	{
+		unitAnimator.SetBool(isClappingHash, v);
 	}
 
 	public void StartAttack(Unit target)
@@ -955,11 +961,16 @@ public class Military : Unit
 
 			Rotate(endPosition - diff);
 		}
+		else if (bodyGuard && bodyGuard.dueling)
+		{
+			Rotate(currentLocation + bodyGuard.army.forward);
+			bodyGuard.Charge();
+		}
 	}
 
 	public void FinishMovementEnemyMilitary()
 	{
-		if (leader && !leader.defending)
+		if (leader && (!leader.defending && !leader.dueling))
 		{
 			leader.FinishMovementEnemyLeader();
 		}
@@ -995,6 +1006,12 @@ public class Military : Unit
 		}
 		else if (enemyCamp.movingOut)
 		{
+			if (duelWatch)
+			{
+				Rotate(enemyCamp.loc);
+				return;
+			}
+
 			world.AddUnitPosition(currentLocation, this);
 			if (enemyCamp.pillage)
 			{
@@ -1014,6 +1031,11 @@ public class Military : Unit
 		else if (duelWatch)
 		{
 			Rotate(enemyCamp.loc);
+		}
+		else if (leader && leader.dueling)
+		{
+			Rotate(currentLocation + enemyCamp.forward);
+			leader.Charge();
 		}
 	}
 
@@ -1115,16 +1137,20 @@ public class Military : Unit
 			{
 				StartCoroutine(SetInactiveWait());
 				enemyCamp.UnitsInCamp.Remove(this);
-				Military unit = enemyCamp.benchedUnit;
-				world.RemoveUnitPosition(unit.currentLocation);
-				unit.gameObject.SetActive(true);
-				unit.HideUnit(true);
-				Vector3 sixFeetUnder = transform.position;
-				sixFeetUnder.y -= 6f;
-				unit.transform.position = sixFeetUnder;
-				unit.unitRigidbody.useGravity = false;
-				unit.isDead = true;
-				enemyCamp.DeadList.Add(enemyCamp.benchedUnit);
+				
+				if (!leader.dueling)
+				{
+					Military unit = enemyCamp.benchedUnit;
+					world.RemoveUnitPosition(unit.currentLocation);
+					unit.gameObject.SetActive(true);
+					unit.HideUnit(true);
+					Vector3 sixFeetUnder = transform.position;
+					sixFeetUnder.y -= 6f;
+					unit.transform.position = sixFeetUnder;
+					unit.unitRigidbody.useGravity = false;
+					unit.isDead = true;
+					enemyCamp.DeadList.Add(enemyCamp.benchedUnit);
+				}
 			}
 		}
 	}
@@ -1164,11 +1190,11 @@ public class Military : Unit
 		//data.looking = looking;
 
 		//combat
-		if (inArmy || enemyAI)
+		if (inArmy || enemyAI || bodyGuard)
 		{
-			if (inArmy)
+			if (inArmy || bodyGuard)
 			{
-				if (!guard)
+				if (!guard && !bodyGuard)
 					data.cityHomeBase = army.city.cityLoc;
 				data.transferring = transferring;
 			}
@@ -1228,12 +1254,12 @@ public class Military : Unit
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
 
-		if (!isMoving && !data.benched)
+		if (!isMoving && !data.benched && !data.duelWatch && !data.isDead)
 			world.AddUnitPosition(currentLocation, this);
 
-		if (inArmy || enemyAI)
+		if (inArmy || enemyAI || bodyGuard)
 		{
-			if (inArmy)
+			if (inArmy || bodyGuard)
 				transferring = data.transferring;
 			else
 				enemyAI.CampSpot = data.campSpot;
@@ -1252,7 +1278,12 @@ public class Military : Unit
 				healthbar.LoadHealthLevel(currentHealth);
 				healthbar.gameObject.SetActive(true);
 
-				if (enemyAI && !data.inBattle)
+				if (bodyGuard)
+				{
+					if (!bodyGuard.dueling)
+						healthbar.RegenerateHealth();
+				}
+				else if (enemyAI && !data.inBattle)
 				{
 					healthbar.RegenerateHealth();
 				}

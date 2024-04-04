@@ -21,7 +21,7 @@ public class EnemyCamp
 
 	public int enemyReady;
 	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength, pillageTime;
-	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing, isCity, pillage, growing, removingOut, atSea, battleAtSea, seaTravel;
+	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing, isCity, pillage, growing, removingOut, atSea, battleAtSea, seaTravel, duel;
 	public Army attackingArmy;
 	public Military benchedUnit;
 
@@ -409,25 +409,16 @@ public class EnemyCamp
 
 		if (enemyReady == campCount - deathCount)
 		{
-			if (isCity)
-			{
-				City city = world.GetEnemyCity(cityLoc);
-				if (growing)
-				{
-					city.StartSpawnCycle(false);
-				}
-				else
-				{
-					//city.countDownTimer += 10; //give a bit of a head start
-					city.LoadSendAttackWait(true);
-				}
-			}
-
+			if (attackingArmy != null)
+				attackingArmy.inBattle = false;
 			inBattle = false;
 			enemyReady = 0;
 			ResetStatus();
-
+		
 			ResurrectCamp();
+
+			if (isCity)
+				RestartCityCheck();
 		}
 	}
 
@@ -588,8 +579,8 @@ public class EnemyCamp
 
 			if (attackingArmy != null)
 			{
-				if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
-					world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(attackingArmy.isFull);
+				//if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
+				//	world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(attackingArmy.isFull);
 				attackingArmy.ResetArmy();
 				attackingArmy.targetCamp = null;
 				attackingArmy.defending = false;
@@ -626,7 +617,7 @@ public class EnemyCamp
 	{
 		if (deathCount == campCount)
 		{
-			if (!movingOut)
+			if (!movingOut && !duel)
 			{
 				if (isCity && !world.IsEnemyCityOnTile(attackingArmy.enemyTarget)) //in case barracks is attacked instead
 					world.RemoveEnemyCamp(cityLoc, isCity);
@@ -669,6 +660,15 @@ public class EnemyCamp
 		strength = 0;
 	}
 
+	public void ToggleClapping(bool v)
+	{
+		foreach (Military unit in unitsInCamp)
+		{
+			if ((unit.buildDataSO.unitType == UnitType.Infantry || unit.buildDataSO.unitType == UnitType.Ranged) && !unit.isMoving)
+				unit.ToggleClapping(v);
+		}
+	}
+
 	public void ReturnToCamp()
 	{
 		enemyReady = 0;
@@ -681,6 +681,38 @@ public class EnemyCamp
 			unit.isMarching = false;
 			if (!unit.repositioning)
 				unit.enemyAI.StartReturn();
+		}
+	}
+
+	public void FinishDuelCheck()
+	{
+		if (unitsInCamp.Count == 0)
+		{
+			RestartCityCheck();
+		}
+		else if (unitsInCamp[0].duelWatch)
+		{
+			ToggleClapping(false);
+			StopMovement();
+			ReturnToCamp();
+		}
+	}
+
+	public void RestartCityCheck()
+	{
+		City city = world.GetEnemyCity(cityLoc);
+		if (growing)
+			city.StartSpawnCycle(false);
+		else
+			city.LoadSendAttackWait(true);
+	}
+
+	public void StopMovement()
+	{
+		foreach (Unit unit in unitsInCamp)
+		{
+			unit.StopAnimation();
+			unit.StopMovement();
 		}
 	}
 
@@ -894,7 +926,15 @@ public class EnemyCamp
 			}
 			else */if (returning)
 			{
-				if (!isCity)
+				if (isCity)
+				{
+					if (world.GetEnemyCity(cityLoc).empire.enemyLeader.dueling)
+					{
+						PrepForDuel();
+						return;
+					}
+				}
+				else
 				{
 					for (int i = 0; i < unitsInCamp.Count; i++)
 						unitsInCamp[i].minimapIcon.gameObject.SetActive(false);
@@ -1486,18 +1526,29 @@ public class EnemyCamp
 		foreach (Military unit in unitsInCamp)
 		{
 			Vector3 diff = unit.barracksBunk - loc;
+			Vector3 newLoc;
 
-			diff *= -1;
+			if (diff.sqrMagnitude == 0)
+			{
+				newLoc = unit.barracksBunk + new Vector3(-0.75f, 0, 1.5f);
+			}
+			else
+			{
+				if (diff.x != 0)
+					diff.x /= 2f;
+				if (diff.z != 0)
+					diff.z /= 2f;
+				
+				newLoc = unit.barracksBunk + diff;
+			}
 
-			if (diff.x != 0)
-				diff.x /= 2f;
-			if (diff.z != 0)
-				diff.z /= 2f;
+			Vector3Int newLocInt = world.RoundToInt(newLoc);
 
-			Vector3 newLoc = unit.barracksBunk + diff;
-			//Vector3Int newLocInt = world.RoundToInt(newLoc);
+			List<Vector3Int> path = GridSearch.MoveWherever(world, unit.transform.position, newLocInt);
 
-			List<Vector3Int> path = GridSearch.MoveWherever(world, unit.transform.position, unit.barracksBunk);
+			unit.duelWatch = true;
+			if (path.Count == 0)
+				path.Add(unit.barracksBunk);
 			unit.finalDestinationLoc = newLoc;
 			unit.MoveThroughPath(path);
 		}
