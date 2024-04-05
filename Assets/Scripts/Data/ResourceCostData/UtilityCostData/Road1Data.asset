@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f77be0f4ca2c674e99ee80c3352107b, type: 3}
   m_Name: Road1Data
   m_EditorClassIdentifier: 
-  utilityName: Dirt Road
+  utilityName: Road
+  utilityDisplayName: Dirt Road
+  image: {fileID: 0}
   utilityMaterial: {fileID: 0}
+  utilityDescription: Sets base speed of one
   utilityLevel: 1
   movementSpeed: 10
   utilityCost: []
@@ -22,3 +25,4 @@ MonoBehaviour:
     resourceAmount: 10
   bridgePrefab: {fileID: 5101276599224808569, guid: 8160c12be0d78bc4bbfac43a2cd24fc1,
     type: 3}
+  bridge: 0

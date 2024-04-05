@@ -53,6 +53,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
             OrdersPrep();
+            world.scott.currentUtilityCost = UpgradeableObjectHolder.Instance.utilityDict[UtilityType.Road][world.upgradeableUtilityMaxLevelDict[UtilityType.Road]];
 			world.scott.WorkerOrdersPreparations();
         }
     }
@@ -156,6 +157,43 @@ public class WorkerTaskManager : MonoBehaviour
 			world.scott.WorkerOrdersPreparations();
         }
 	}
+
+    public void BuildRoadButton()
+    {
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		{
+			world.cityBuilderManager.PlaySelectAudio();
+			unitMovement.buildingRoad = true;
+			uiBuildingSomething.SetText("Building Road");
+			OrdersPrep();
+			world.scott.WorkerOrdersPreparations();
+		}
+	}
+
+    public void BuildWaterButton()
+    {
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		{
+			world.cityBuilderManager.PlaySelectAudio();
+			//unitMovement.buildingRoad = true;
+			uiBuildingSomething.SetText("Building Aqueduct");
+			//OrdersPrep();
+			//world.scott.WorkerOrdersPreparations();
+		}
+	}
+
+    public void BuildPowerButton()
+    {
+		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
+		{
+			world.cityBuilderManager.PlaySelectAudio();
+			//unitMovement.buildingRoad = true;
+			uiBuildingSomething.SetText("Building Power Lines");
+			//OrdersPrep();
+			//world.scott.WorkerOrdersPreparations();
+		}
+	}
+
 
     public void ClearForestButton()
     {
@@ -308,7 +346,7 @@ public class WorkerTaskManager : MonoBehaviour
                 Vector3 moveUp = worker.transform.position;
                 moveUp.y += .2f;
                 worker.transform.position = moveUp;
-                roadManager.BuildRoadAtPosition(workerTile, level);
+                roadManager.BuildRoadAtPosition(workerTile, UtilityType.Road, level);
             }
         }
         

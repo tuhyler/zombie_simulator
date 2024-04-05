@@ -71,7 +71,7 @@ public class UIWonderOptions : MonoBehaviour, IPointerClickHandler
         objectDesc.text = Regex.Replace(buildData.wonderEra.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1") + " Wonder";
         objectImage.sprite = buildData.image;
         objectCost = new(buildData.wonderCost);
-        objectDescription = buildData.wonderDecription;
+        objectDescription = buildData.wonderDescription;
 
         percentCost.Add(MakeResourceValue(ResourceType.Gold, buildData.workersNeeded * buildData.workerCost));
         percentCost.Add(MakeResourceValue(ResourceType.Labor, buildData.workersNeeded));

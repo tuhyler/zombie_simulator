@@ -35,7 +35,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas;
     [HideInInspector]
-    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterResearched, powerResearched, waterTransport, airTransport;
+    public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterTransport, airTransport;
     [SerializeField]
     public DayNightCycle dayNightCycle;
     [SerializeField]
@@ -183,6 +183,8 @@ public class MapWorld : MonoBehaviour
     private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new(); 
     private Dictionary<string, ImprovementDataSO> upgradeableObjectDataDict = new();
     private Dictionary<string, UnitBuildDataSO> upgradeableUnitDataDict = new();
+
+    public Dictionary<UtilityType, int> upgradeableUtilityMaxLevelDict = new();
     //private Dictionary<ResourceType, Sprite> resourceSpriteDict = new();
     //private Dictionary<ResourceType, int> defaultResourcePriceDict = new();
     //private Dictionary<ResourceType, int> blankResourceDict = new();
@@ -472,6 +474,10 @@ public class MapWorld : MonoBehaviour
 			upgradeableObjectTotalCost = new(data.unitCost);
 			upgradeableObjectLevel = data.unitLevel;
 		}
+
+        upgradeableUtilityMaxLevelDict[UtilityType.Road] = 1;
+		upgradeableUtilityMaxLevelDict[UtilityType.Power] = 0;
+		upgradeableUtilityMaxLevelDict[UtilityType.Water] = 0;
 
 		cityBuilderManager.uiUnitBuilder.FinishMenuSetup();
 
@@ -1732,7 +1738,7 @@ public class MapWorld : MonoBehaviour
     {
         for (int i = 0; i < roadList.Count; i++)
         {
-            roadManager.BuildRoadAtPosition(roadList[i], level);
+            roadManager.BuildRoadAtPosition(roadList[i], UtilityType.Road, level);
         }
     }
 
@@ -3631,7 +3637,7 @@ public class MapWorld : MonoBehaviour
                     level = Math.Max(GetRoadLevel(neighborsEightDirectionsIncrement[i] + finalUnloadLoc), level);            
             }
 
-            roadManager.BuildRoadAtPosition(finalUnloadLoc, level);
+            roadManager.BuildRoadAtPosition(finalUnloadLoc, UtilityType.Road, level);
         }
 
         //claiming the area for the wonder
@@ -3744,7 +3750,7 @@ public class MapWorld : MonoBehaviour
 		    //building road in unload area
             if (data.isConstructing)
             {
-    			roadManager.BuildRoadAtPosition(data.unloadLoc, 1);
+    			roadManager.BuildRoadAtPosition(data.unloadLoc, UtilityType.Road, 1);
 
                 if (data.hasHarbor)
                     cityBuilderManager.LoadWonderHarbor(data.harborLoc, wonder);

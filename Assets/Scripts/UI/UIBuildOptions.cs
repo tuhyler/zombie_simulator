@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -114,7 +115,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             }
 
             objectName.text = unitBuildData.unitDisplayName;
-            objectLevel.text = "Level " + unitBuildData.unitLevel + " " + unitBuildData.unitType.ToString();
+            objectLevel.text = "Level " + unitBuildData.unitLevel + " " + Regex.Replace(unitBuildData.unitType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
             objectImage.sprite = unitBuildData.image;
             objectCost = new(unitBuildData.unitCost);
 

@@ -101,7 +101,7 @@ public class UIResearchTooltip : MonoBehaviour
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
-        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, bool wonder, Era era, bool rocks = false)
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, bool wonder, Era era, bool utility, bool rocks = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -216,7 +216,7 @@ public class UIResearchTooltip : MonoBehaviour
 
 			if (showCityStatsDesc)
 			{
-				produceContentsHeight += description.Length > 0 ? 60 : 100;
+				produceContentsHeight += description.Length > 0 ? 60 : 110;
 				descriptionTitle.text = "Benefits";
 			}
 
@@ -251,6 +251,12 @@ public class UIResearchTooltip : MonoBehaviour
 				descriptionTitle.text = "Reward";
                 producesTitle.text = "Cost per Percent";
 				descriptionText.text = description;
+			}
+            else if (utility)
+            {
+				descriptionTitle.text = "Additional Info";
+				descriptionText.text = description;
+				producesTitle.text = "Bridge Cost";
 			}
             else
             {
@@ -288,6 +294,14 @@ public class UIResearchTooltip : MonoBehaviour
 
 			if (consumes.Count > 0)
                 firstResourceProduceLayout.padding.left = -(consumes[0].Count) * (resourcePanelSize / 2);
+		}
+        else if (utility)
+        {
+			unitInfo.gameObject.SetActive(false);
+			resourceProduceLayout.childAlignment = TextAnchor.UpperCenter;
+
+			if (consumes.Count > 0)
+				firstResourceProduceLayout.padding.left = -(consumes[0].Count - 1) * (resourcePanelSize / 2);
 		}
 		else
         {

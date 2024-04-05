@@ -533,7 +533,7 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < gameData.allRoads.Count; i++)
 		{
 			if (!world.roadTileDict.ContainsKey(gameData.allRoads[i].position))
-				world.roadManager.BuildRoadAtPosition(gameData.allRoads[i].position, gameData.allRoads[i].utilityLevel);
+				world.roadManager.BuildRoadAtPosition(gameData.allRoads[i].position, gameData.allRoads[i].utilityType, gameData.allRoads[i].utilityLevel);
 		}
 		gameData.allRoads.Clear();
 
