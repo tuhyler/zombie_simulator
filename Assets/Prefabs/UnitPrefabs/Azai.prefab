@@ -479,7 +479,7 @@ MonoBehaviour:
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
   attacks:
-  - {fileID: 8300000, guid: c500c255fec9ac642b54b7e344f77a83, type: 3}
+  - {fileID: 8300000, guid: 8cbe6ff5e102e26438ea081478d853bd, type: 3}
   - {fileID: 8300000, guid: 2f8f99e3b452ed44abc520a098ebc7c1, type: 3}
   - {fileID: 8300000, guid: 326861291430e354c9d289f281ca5c93, type: 3}
   kills: []
@@ -570,6 +570,8 @@ MonoBehaviour:
   toTransport: 0
   inTransport: 0
   dueling: 0
+  waiting: 0
+  dizzy: 0
   transportTarget: {fileID: 0}
   battleIcon: {fileID: 4829656988407328421}
 --- !u!114 &7057203013636761943
