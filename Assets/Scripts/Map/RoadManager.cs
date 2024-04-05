@@ -7,9 +7,6 @@ using UnityEngine;
 public class RoadManager : MonoBehaviour
 {
     [SerializeField]
-    List<UtilityCostSO> roadCosts = new();
-    
-    [SerializeField]
     private GameObject solo, deadEnd, straightRoad, curve, threeWay, fourWay, diagDeadEnd, diagonal, diagCurve, diagThreeWay, diagFourWay, bridge;
 
     [SerializeField]
@@ -32,7 +29,6 @@ public class RoadManager : MonoBehaviour
     private Transform roadHolder, roadHolderMinimap;
     [HideInInspector]
     public List<MeshFilter> roadMeshList = new();
-    public Dictionary<int, UtilityCostSO> roadCostDict = new();
     
     public readonly static List<Vector3Int> neighborsFourDirections = new()
     {
@@ -53,13 +49,6 @@ public class RoadManager : MonoBehaviour
     private void Awake()
     {
         world.SetRoadCost(roadMovementCost);
-        SetDicts();
-    }
-
-    private void SetDicts()
-    {
-        for (int i = 0; i < roadCosts.Count; i++)
-            roadCostDict[roadCosts[i].utilityLevel] = roadCosts[i];
     }
 
     private void CreateRoad(GameObject model, Vector3Int roadPosition, Quaternion rotation, bool straight, bool highlight, int level) //placing road prefabs
@@ -141,7 +130,7 @@ public class RoadManager : MonoBehaviour
 
 
     //finds if road changes are happening diagonally or on straight, then destroys objects accordingly
-    public void BuildRoadAtPosition(Vector3Int roadPosition, int level) 
+    public void BuildRoadAtPosition(Vector3Int roadPosition, UtilityType type, int level) 
     {
         TerrainData td = world.GetTerrainDataAt(roadPosition);
         bool river = td.straightRiver;
@@ -185,10 +174,10 @@ public class RoadManager : MonoBehaviour
 
         CombineMeshes();
 
-        AddCityRoads(roadPosition, level);
+        AddCityRoads(roadPosition, type, level);
     }
 
-    public void AddCityRoads(Vector3Int roadPosition, int level)
+    public void AddCityRoads(Vector3Int roadPosition, UtilityType type, int level)
     {
         foreach (Vector3Int loc in world.GetNeighborsFor(roadPosition, MapWorld.State.EIGHTWAYINCREMENT))
         {
@@ -197,7 +186,7 @@ public class RoadManager : MonoBehaviour
 
             if (world.IsTradeCenterOnTile(loc))
             {
-                BuildRoadAtPosition(loc, level);
+                BuildRoadAtPosition(loc, type, level);
 
                 TradeCenter center = world.GetTradeCenter(loc);
                 Vector3 pos = center.tcRep.transform.position;
@@ -213,7 +202,7 @@ public class RoadManager : MonoBehaviour
 
             if (world.IsCityOnTile(loc))
             {
-                BuildRoadAtPosition(loc, level);
+                BuildRoadAtPosition(loc, type, level);
 
                 if (loc - roadPosition == new Vector3Int(0, 0, 3))
                     world.GetCity(loc).RepositionFire();

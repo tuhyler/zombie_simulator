@@ -125,7 +125,7 @@ public class UIWonderSelection : MonoBehaviour
     private void SetWonderInfo(Wonder wonder)
     {
         wonderTitle.text = wonder.WonderData.wonderDisplayName;
-        wonderDescription.text = wonder.WonderData.wonderDecription;
+        wonderDescription.text = wonder.WonderData.wonderDescription;
         workerCount.text = $"{wonder.WorkersReceived}";
         workerTotal.text = $"/{wonder.WonderData.workersNeeded}";
         percentDone.text = $"{wonder.PercentDone}%";

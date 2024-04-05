@@ -36,11 +36,11 @@ public class UIWorkerRemovalOptions : MonoBehaviour
             gameObject.SetActive(val);
             activeStatus = true;
 
-            int howMuchToShow = 70;
+			int howMuchToShow = 70;
 
-            if (world.powerResearched)
+            if (world.upgradeableUtilityMaxLevelDict[UtilityType.Power] > 0)
                 howMuchToShow = 210;
-            else if (world.waterResearched)
+            else if (world.upgradeableUtilityMaxLevelDict[UtilityType.Water] > 0)
                 howMuchToShow = 140;
 
             //allContents.anchoredPosition3D = originalLoc + new Vector3(0, -howMuchToShow, 0);
@@ -58,9 +58,9 @@ public class UIWorkerRemovalOptions : MonoBehaviour
             {
                 int howMuchToMove = 80;
 
-				if (world.powerResearched)
-					howMuchToMove = 220;
-				else if (world.waterResearched)
+                if (world.upgradeableUtilityMaxLevelDict[UtilityType.Power] > 0)
+                    howMuchToMove = 220;
+                else if (world.upgradeableUtilityMaxLevelDict[UtilityType.Water] > 0)
 					howMuchToMove = 150;
 
 				LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - howMuchToMove, 0.2f).setOnComplete(SetActiveStatusFalse);
@@ -73,23 +73,33 @@ public class UIWorkerRemovalOptions : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void RemoveAll()
+    public void BuildRoad()
     {
+		world.unitMovement.workerTaskManager.BuildRoadButton();
+    }
 
+    public void BuildWater()
+    {
+		world.unitMovement.workerTaskManager.BuildWaterButton();
+    }
+
+    public void BuildPower()
+    {
+		world.unitMovement.workerTaskManager.BuildPowerButton();
     }
 
     public void RemoveRoad()
     {
         world.unitMovement.workerTaskManager.RemoveRoadPrep();
-    }
+	}
 
     public void RemoveLiquid()
     {
-		world.unitMovement.workerTaskManager.RemoveLiquidPrep();
+        world.unitMovement.workerTaskManager.RemoveLiquidPrep();
 	} 
 
     public void RemovePower()
     {
-		world.unitMovement.workerTaskManager.RemovePowerPrep();
+        world.unitMovement.workerTaskManager.RemovePowerPrep();
 	}
 }

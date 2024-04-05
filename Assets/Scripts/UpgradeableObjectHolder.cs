@@ -14,6 +14,7 @@ public class UpgradeableObjectHolder : MonoBehaviour
     public List<TerrainDataSO> allTerrain = new();
     public List<GameObject> allTradeCenters = new();
     public List<WonderDataSO> allWonders = new();
+    public List<UtilityCostSO> allUtilities = new();
 
     public Dictionary<string, ImprovementDataSO> improvementDict = new();
     public Dictionary<string, UnitBuildDataSO> unitDict = new();
@@ -22,6 +23,7 @@ public class UpgradeableObjectHolder : MonoBehaviour
     public Dictionary<string, TerrainDataSO> terrainDict = new();
     public Dictionary<string, GameObject> tradeCenterDict = new();
     public Dictionary<string, WonderDataSO> wonderDict = new();
+    public Dictionary<UtilityType, Dictionary<int, UtilityCostSO>> utilityDict = new();
     public Dictionary<string, string> conversationTaskDict = new();
 
     private void Awake()
@@ -58,6 +60,14 @@ public class UpgradeableObjectHolder : MonoBehaviour
 
         foreach (WonderDataSO wonder in allWonders)
             wonderDict[wonder.wonderName] = wonder;
+
+        foreach (UtilityCostSO utility in allUtilities)
+        {
+            if (!utilityDict.ContainsKey(utility.utilityType))
+                utilityDict[utility.utilityType] = new(); 
+
+            utilityDict[utility.utilityType][utility.utilityLevel] = utility;
+        }
 
         //converation task creation
         conversationTaskDict["Tutorial"] = "Finish tutorial by completing the following: " +

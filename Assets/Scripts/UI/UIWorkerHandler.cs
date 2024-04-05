@@ -12,14 +12,14 @@ public class UIWorkerHandler : MonoBehaviour
     public MapWorld world;
 
     [SerializeField]
-    private UIWorkerRemovalOptions uiWorkerRemovalOptions;
+    private UIWorkerRemovalOptions uiWorkerBuildOptions, uiWorkerRemovalOptions;
 
     [SerializeField]
     private Transform uiElementsParent;
     [HideInInspector]
     public List<UIWorkerOptions> buildOptions;
     [SerializeField]
-    private UIWorkerOptions removalOptions;
+    private List<UIWorkerOptions> removalOptions;
     private List<string> buttonsToExclude = new() { "Road", "Remove", "Clear", "LoadUnload"};
     [HideInInspector]
     public UIWorkerOptions uiLoadUnload;
@@ -48,11 +48,15 @@ public class UIWorkerHandler : MonoBehaviour
         uiWorkerRemovalOptions.world = world;
     }
 
-    public void ToggleRemovalOptions(bool v)
+    public void ToggleRemovalOptions(bool v, bool remove)
     {
         world.cityBuilderManager.PlaySelectAudio();
-        uiWorkerRemovalOptions.ToggleVisibility(v, false);
-    }
+
+        if (remove)
+            uiWorkerRemovalOptions.ToggleVisibility(v, false);
+        else
+			uiWorkerBuildOptions.ToggleVisibility(v, false);
+	}
 
     public void ToggleVisibility(bool val, MapWorld world, bool temporary = false) //pass resources to know if affordable in the UI (optional), pass world for canvas
     {
@@ -65,7 +69,8 @@ public class UIWorkerHandler : MonoBehaviour
         {
             world.workerCanvas.gameObject.SetActive(true);
             world.personalResourceCanvas.gameObject.SetActive(true);
-            removalOptions.ToggleColor(false);
+            foreach (UIWorkerOptions option in removalOptions)
+                option.ToggleColor(false);
             gameObject.SetActive(val);
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
@@ -84,6 +89,7 @@ public class UIWorkerHandler : MonoBehaviour
         else
         {
             activeStatus = false;
+            uiWorkerBuildOptions.ToggleVisibility(false, true);
             uiWorkerRemovalOptions.ToggleVisibility(false, true);
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 200f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world, temporary));
         }

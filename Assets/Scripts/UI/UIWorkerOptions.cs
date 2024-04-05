@@ -9,8 +9,7 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
 
     [SerializeField] //changing color of button when selected
     private Image buttonImage;
-    public bool toggleColor;
-    public bool showRemovalOptions;
+    public bool toggleColor, showRemovalOptions, removal;
     private Color originalButtonColor;
     [HideInInspector]
     public bool isSelected, isFlashing;
@@ -55,7 +54,7 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
             buttonImage.color = originalButtonColor;
 
             if (showRemovalOptions)
-                buttonHandler.ToggleRemovalOptions(false);
+                buttonHandler.ToggleRemovalOptions(false, removal);
         }
         else
         {
@@ -63,7 +62,7 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
             isSelected = true;
             
             if (showRemovalOptions)
-                buttonHandler.ToggleRemovalOptions(true);
+                buttonHandler.ToggleRemovalOptions(true, removal);
         }
     }
 

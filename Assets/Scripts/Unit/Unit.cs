@@ -1077,57 +1077,104 @@ public class Unit : MonoBehaviour
             }            
         }
 
-        if (collision.gameObject.CompareTag("Road"))
+        string tag = collision.gameObject.tag;
+
+        switch (tag)
         {
-            moveSpeed = baseSpeed * roadSpeed * originalMoveSpeed * .25f;
-            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
-            threshold = 0.1f;
-            //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+            case "Road":
+				moveSpeed = baseSpeed * roadSpeed * originalMoveSpeed * .25f;
+				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
+				//threshold = 0.1f;
+				break;
+            case "City":
+				moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
+				break;
+            case "Flatland":
+				moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
+				break;
+            case "Forest":
+				moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * 0.025f;
+				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
+				break;
+            case "Hill":
+				moveSpeed = baseSpeed * hillSpeed * originalMoveSpeed * 0.025f;
+				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
+				break;
+            case "Forest Hill":
+				moveSpeed = baseSpeed * forestHillSpeed * originalMoveSpeed * 0.02f;
+				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
+				break;
+            case "Water":
+				if (bySea)
+				{
+					moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+					unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 12f);
+				}
+				else
+				{
+					moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * 0.025f;
+					unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 3f);
+				}
+				break;
+            case "Swamp":
+				moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * .0125f;
+				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
+				break;
         }
-        else if (collision.gameObject.CompareTag("City"))
-        {
-            moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
-            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
-        }
-        else if (collision.gameObject.CompareTag("Flatland"))
-        {
-            moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
-            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
-        }
-        else if (collision.gameObject.CompareTag("Forest"))
-        {
-            moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * 0.025f;
-            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
-        }
-        else if (collision.gameObject.CompareTag("Hill"))
-        {
-            moveSpeed = baseSpeed * hillSpeed * originalMoveSpeed * 0.025f;
-            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
-            threshold = 0.1f;
-        }
-        else if (collision.gameObject.CompareTag("Forest Hill"))
-        {
-            moveSpeed = baseSpeed * forestHillSpeed * originalMoveSpeed * 0.02f;
-            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
-		}
-		else if (collision.gameObject.CompareTag("Water"))
-        {
-            if (bySea)
-            {
-                moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
-                unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 12f);
-            }
-            else
-            {
-                moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * 0.025f;
-                unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 3f);
-            }
-        }
-        else if (collision.gameObject.CompareTag("Swamp"))
-        {
-            moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * .0125f;
-            unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
-        }
+
+  //      if (collision.gameObject.CompareTag("Road"))
+  //      {
+  //          moveSpeed = baseSpeed * roadSpeed * originalMoveSpeed * .25f;
+  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
+  //          threshold = 0.1f;
+  //          //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+  //      }
+  //      else if (collision.gameObject.CompareTag("City"))
+  //      {
+  //          moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
+  //      }
+  //      else if (collision.gameObject.CompareTag("Flatland"))
+  //      {
+  //          moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
+  //      }
+  //      else if (collision.gameObject.CompareTag("Forest"))
+  //      {
+  //          moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * 0.025f;
+  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
+  //      }
+  //      else if (collision.gameObject.CompareTag("Hill"))
+  //      {
+  //          moveSpeed = baseSpeed * hillSpeed * originalMoveSpeed * 0.025f;
+  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
+  //          threshold = 0.1f;
+  //      }
+  //      else if (collision.gameObject.CompareTag("Forest Hill"))
+  //      {
+  //          moveSpeed = baseSpeed * forestHillSpeed * originalMoveSpeed * 0.02f;
+  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
+		//}
+		//else if (collision.gameObject.CompareTag("Water"))
+  //      {
+  //          if (bySea)
+  //          {
+  //              moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
+  //              unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 12f);
+  //          }
+  //          else
+  //          {
+  //              moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * 0.025f;
+  //              unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 3f);
+  //          }
+  //      }
+  //      else if (collision.gameObject.CompareTag("Swamp"))
+  //      {
+  //          moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * .0125f;
+  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
+  //      }
     }
 
     //private bool CampAggroCheck(Vector3Int loc)

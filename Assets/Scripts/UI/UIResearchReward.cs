@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,7 @@ public class UIResearchReward : MonoBehaviour
     public ImprovementDataSO improvementData;
     public UnitBuildDataSO unitData;
     public WonderDataSO wonderData;
+    public UtilityCostSO utilityData;
     [HideInInspector]
     public List<ResourceType> resourcesUnlocked;
 
@@ -44,6 +46,8 @@ public class UIResearchReward : MonoBehaviour
                 
 				resourcesUnlocked.Add(produces[i].resourceType);
 			}
+
+            rewardIcon.sprite = improvementData.image;
 		}
 		else if (unitData != null)
         {
@@ -57,6 +61,7 @@ public class UIResearchReward : MonoBehaviour
             }
 
             consumes.Add(unitData.cycleCost);
+            rewardIcon.sprite = unitData.image;
         }
         else if (wonderData != null)
         {
@@ -76,14 +81,22 @@ public class UIResearchReward : MonoBehaviour
 			value.resourceAmount = 0;
 			produces.Add(value);
 			produceTime.Add(wonderData.buildTimePerPercent);
-        }
-
-        if (improvementData != null)
-            rewardIcon.sprite = improvementData.image;
-        else if (unitData != null)
-            rewardIcon.sprite = unitData.image;
-        else if (wonderData != null)
             rewardIcon.sprite = wonderData.image;
+        }
+        else if (utilityData != null)
+        {
+			if (utilityData.bridgeCost.Count > 0)
+			{
+				ResourceValue value;
+				value.resourceType = ResourceType.None;
+				value.resourceAmount = 0;
+				produces.Add(value);
+				produceTime.Add(0);
+			}
+
+			consumes.Add(utilityData.bridgeCost);
+            rewardIcon.sprite = utilityData.image;
+        }
 
         originalSprite = rewardBackground.sprite;
     }
@@ -112,15 +125,19 @@ public class UIResearchReward : MonoBehaviour
         if (improvementData != null)
             researchItem.researchTree.researchTooltip.SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel,
                 improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0,
-                improvementData.housingIncrease, improvementData.waterIncrease, false, Era.None, improvementData.rawResourceType == RawResourceType.Rocks);
+                improvementData.housingIncrease, improvementData.waterIncrease, false, Era.None, false, improvementData.rawResourceType == RawResourceType.Rocks);
         else if (unitData != null)
-            researchItem.researchTree.researchTooltip.SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost,
-                produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, 0, 0, false, Era.None);
+            researchItem.researchTree.researchTooltip.SetInfo(unitData.image, Regex.Replace(unitData.unitType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1"), unitData.unitDisplayName, 
+                unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, 
+                unitData.cargoCapacity, 0, 0, false, Era.None, false);
         else if (wonderData != null)
-            researchItem.researchTree.researchTooltip.SetInfo(wonderData.image, wonderData.wonderName, wonderData.wonderDisplayName, 0, 0, wonderData.wonderDecription, wonderData.wonderCost, produces, 
-                consumes, produceTime, false, 0, 0, 0, 0, 0, 0, true, wonderData.wonderEra);
+            researchItem.researchTree.researchTooltip.SetInfo(wonderData.image, wonderData.wonderName, wonderData.wonderDisplayName, 0, 0, wonderData.wonderDescription, wonderData.wonderCost, produces, 
+                consumes, produceTime, false, 0, 0, 0, 0, 0, 0, true, wonderData.wonderEra, false);
+        else if (utilityData != null)
+			researchItem.researchTree.researchTooltip.SetInfo(utilityData.image, utilityData.utilityName, utilityData.utilityDisplayName, utilityData.utilityLevel, 0, utilityData.utilityDescription, utilityData.utilityCost, produces,
+				consumes, produceTime, false, 0, 0, 0, 0, 0, 0, false, Era.None, true);
 
-        researchItem.researchTree.researchTooltip.ToggleVisibility(true);
+		researchItem.researchTree.researchTooltip.ToggleVisibility(true);
         researchItem.researchTree.world.cityBuilderManager.PlaySelectAudio();
-    }
+	}
 }

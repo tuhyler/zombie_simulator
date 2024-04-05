@@ -44,6 +44,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: d01f7150303ce8742829df1482136c9a, type: 3}
   - {fileID: 21300000, guid: ea1f07604f5c0ff4cbfb5275ffe27c5c, type: 3}
   - {fileID: 21300000, guid: edbc0e60f779ef147a5ac4f898a06d9d, type: 3}
+  - {fileID: 21300000, guid: bde2b170a2df44a4bad4fa1b085dbc28, type: 3}
   - {fileID: 21300000, guid: 2dd36380d84ced545a73dc46528be9b9, type: 3}
   - {fileID: 21300000, guid: 8486d880e04a89142b6ed543b2904529, type: 3}
   - {fileID: 21300000, guid: fbcdb2a0f26417a4684d20bc6364eec4, type: 3}
@@ -59,6 +60,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: c508fd915cfb5074fbdb94e5d6802a5b, type: 3}
   - {fileID: 21300000, guid: 2d1bb1a1a4ce3c545a3092138ac124b9, type: 3}
   - {fileID: 21300000, guid: 63cde1b1df029314fb5b48d23fd206cb, type: 3}
+  - {fileID: 21300000, guid: 707152b110ddcee49b3258d585425b4f, type: 3}
   - {fileID: 21300000, guid: f8eb67b1bfae8064cb8abf01306fd204, type: 3}
   - {fileID: 21300000, guid: c69ca7b161275b54ab7966809f786ec4, type: 3}
   - {fileID: 21300000, guid: f5a11bb1bbf21754da65abb4845c20e0, type: 3}
@@ -92,6 +94,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 329309d3e5a93a440ac95d22cb9257e5, type: 3}
   - {fileID: 21300000, guid: 99d242e3ec7bf85419ddab4e13817654, type: 3}
   - {fileID: 21300000, guid: 2c7224e3dc0db5c42b5c9c530c30439b, type: 3}
+  - {fileID: 21300000, guid: 3ff616e39f4e038498ac3d8be47e4c3e, type: 3}
   - {fileID: 21300000, guid: b82919f30ea37bf49ab7c4f5b445ceed, type: 3}
   - {fileID: 21300000, guid: 15e89b14f7d52bc43a8792ab9d89cb4e, type: 3}
   - {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
@@ -141,6 +144,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 7e3ba8579e3d2d943bc5d24a8c2a8b67, type: 3}
   - {fileID: 21300000, guid: eb63926735324254098e0f80e66c4630, type: 3}
   - {fileID: 21300000, guid: e9b1597703ed2a049b2078908be40c4a, type: 3}
+  - {fileID: 21300000, guid: 7a93cea762b5f3043b60c0f039a5fee3, type: 3}
   - {fileID: 21300000, guid: ac9b05b7dd0c0c543947f5dcb4be0616, type: 3}
   - {fileID: 21300000, guid: ea4606b76f9fbcf46956a5fd5d83ccbc, type: 3}
   - {fileID: 21300000, guid: 8f0dc8b7bc4f1c74290a3fc91cd5059c, type: 3}
@@ -170,6 +174,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: e9dab4f9a7b063d44a953ec6a60331eb, type: 3}
   - {fileID: 21300000, guid: d7d7340a95ab6534d94d038e61fd48e2, type: 3}
   - {fileID: 21300000, guid: 43312f2a6be55854e9ac83e79c09ef0b, type: 3}
+  - {fileID: 21300000, guid: 304c194a380a0ec48b1aa19677ac52b5, type: 3}
   - {fileID: 21300000, guid: b0beed5a901ae8c47b3709565dd4358b, type: 3}
   - {fileID: 21300000, guid: 7e7dfd6a987167a4caedaaba90a377bf, type: 3}
   - {fileID: 21300000, guid: c145a37aaeebf064a9b4b7e63e443ac1, type: 3}
@@ -182,6 +187,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: fe70d81b48075de428e533b96974befe, type: 3}
   - {fileID: 21300000, guid: 821a054b518444543b77d02639883a65, type: 3}
   - {fileID: 21300000, guid: d74aa47b565702d4ca0350aeaf17df87, type: 3}
+  - {fileID: 21300000, guid: e87f90db08426c34cafeb003a31c7bf6, type: 3}
   - {fileID: 21300000, guid: ac8806db73224c641bbcbd8f1e3dd47f, type: 3}
   - {fileID: 21300000, guid: ae9eeadb467a7bb42a370e8e0ab7f86b, type: 3}
   - {fileID: 21300000, guid: d974480c9cc6a494486edd9848fdc0cb, type: 3}
@@ -215,6 +221,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 7657c92e33834514aa553e39fcdeb24a, type: 3}
   - {fileID: 21300000, guid: b1399a3e6a745de46a04fa79ae7a4293, type: 3}
   - {fileID: 21300000, guid: e966824e11d9d8b44adcd9d8813f2d01, type: 3}
+  - {fileID: 21300000, guid: e056734e8d9eab14cbc8e826b317c298, type: 3}
   - {fileID: 21300000, guid: 0a0d8f4e9b0473d4abeee4de3481f875, type: 3}
   - {fileID: 21300000, guid: 666bc77e382f0d141a9fb476eace7f3b, type: 3}
   - {fileID: 21300000, guid: ec868e9e93b6d454ca12c03e39dfedd6, type: 3}
@@ -248,6 +255,7 @@ SpriteAtlas:
   - scrollbar_gold01_hor
   - button_camp
   - panel_darkgold
+  - button_buildpower
   - speechbubble
   - button_sell
   - laborIconFemale1
@@ -263,8 +271,9 @@ SpriteAtlas:
   - button_swap
   - circle_lightblue
   - bar_gray
+  - button_removewater
   - arrow_downblack
-  - button_buildroad
+  - button_buildutility
   - circle_effect2
   - bar_happinessmeter
   - icon_cavalry
@@ -274,7 +283,7 @@ SpriteAtlas:
   - button_round1
   - button_mainmenu
   - icon_seige
-  - button_removeroad
+  - button_removeutility
   - icon_newlarge
   - panel_bluegray
   - button_guard
@@ -296,6 +305,7 @@ SpriteAtlas:
   - button_stone02
   - map_unitmarker
   - button_longred
+  - button_buildwater
   - button_remove
   - icon_camp
   - icon_cargo
@@ -345,6 +355,7 @@ SpriteAtlas:
   - panel_bluegold_transparent
   - panel_lightgold
   - button_fishing
+  - icon_remove
   - panel_lightblue
   - button_changecity
   - button_right
@@ -374,6 +385,7 @@ SpriteAtlas:
   - cone_faded
   - tab_gold2
   - grip_blue
+  - button_removeroad
   - button_research
   - circle_green
   - bar_purple01
@@ -386,6 +398,7 @@ SpriteAtlas:
   - circle_gold
   - bar_gold_sideways
   - circle_resourcemaphighlight
+  - button_removepower
   - icon_ranged_enemy
   - icon_speed
   - button_lumber01
@@ -419,6 +432,7 @@ SpriteAtlas:
   - icon_health
   - button_joincity
   - button_addlabor_gold
+  - button_buildroad
   - panel_bluegold_nontransparent
   - grip_black
   - button_tradecenter

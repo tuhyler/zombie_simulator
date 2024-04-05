@@ -10,18 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f77be0f4ca2c674e99ee80c3352107b, type: 3}
-  m_Name: Road1Data
+  m_Name: Road2Data
   m_EditorClassIdentifier: 
   utilityName: Road
-  utilityDisplayName: Dirt Road
-  image: {fileID: 0}
+  utilityDisplayName: Cobblestone Road
+  image: {fileID: 21300000, guid: f1e980d0099328649a9eb3a2dbf8b972, type: 3}
   utilityMaterial: {fileID: 0}
-  utilityDescription: Sets base speed of one
-  utilityLevel: 1
-  movementSpeed: 10
-  utilityCost: []
+  utilityDescription: Movement speed on roads increased by 50%
+  utilityLevel: 2
+  movementSpeed: 15
+  utilityCost:
+  - resourceType: 7
+    resourceAmount: 5
   bridgeCost:
   - resourceType: 7
+    resourceAmount: 10
+  - resourceType: 6
     resourceAmount: 10
   bridgePrefab: {fileID: 5101276599224808569, guid: 8160c12be0d78bc4bbfac43a2cd24fc1,
     type: 3}

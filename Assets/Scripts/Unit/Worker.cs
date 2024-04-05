@@ -35,7 +35,8 @@ public class Worker : Unit
 	[HideInInspector]
 	public Transport transportTarget;
 
-	//for building roads (costs)
+	//for building utilities (costs)
+	[HideInInspector]
 	public UtilityCostSO currentUtilityCost;
 
     //for koa's inventory
@@ -479,7 +480,7 @@ public class Worker : Unit
 		else
 			world.mainPlayer.SetResources(currentUtilityCost.utilityCost, true, roadPosition);
 
-		world.roadManager.BuildRoadAtPosition(roadPosition, currentUtilityCost.utilityLevel);
+		world.roadManager.BuildRoadAtPosition(roadPosition, currentUtilityCost.utilityType, currentUtilityCost.utilityLevel);
 		world.RemoveWorkerWorkLocation(roadPosition);
 
 		//moving worker up a smidge to be on top of road
@@ -618,9 +619,9 @@ public class Worker : Unit
 
 		int level = world.GetRoadLevel(tile);
 		if (world.GetTerrainDataAt(tile).straightRiver)
-			world.mainPlayer.SetResources(world.roadManager.roadCostDict[level].bridgeCost, false, tile);
+			world.mainPlayer.SetResources(UpgradeableObjectHolder.Instance.utilityDict[UtilityType.Road][level].bridgeCost, false, tile);
 		else
-			world.mainPlayer.SetResources(world.roadManager.roadCostDict[level].utilityCost, false, tile);
+			world.mainPlayer.SetResources(UpgradeableObjectHolder.Instance.utilityDict[UtilityType.Road][level].utilityCost, false, tile);
 		HideProgressTimeBar();
 		SetWorkAnimation(false);
 		world.roadManager.RemoveRoadAtPosition(tile);

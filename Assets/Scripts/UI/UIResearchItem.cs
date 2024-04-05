@@ -245,6 +245,14 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 world.UnlockWonder(data.wonderName);
                 world.SetNewWonder(data.wonderName);
 			}
+            else if (researchReward.utilityData != null)
+            {
+                UtilityCostSO data = researchReward.utilityData;
+                if (data.bridge)
+                    world.bridgeResearched = true;
+
+                world.upgradeableUtilityMaxLevelDict[data.utilityType] = data.utilityLevel;
+			}
 
 			for (int i = 0; i < researchReward.resourcesUnlocked.Count; i++)
             {
@@ -337,6 +345,14 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 				if (world.newUnitsAndImprovements.Contains(data.wonderName))
                     world.SetNewWonder(data.wonderName);
 				world.UnlockWonder(data.wonderName);
+			}
+			else if (researchReward.utilityData != null)
+			{
+				UtilityCostSO data = researchReward.utilityData;
+				if (data.bridge)
+					world.bridgeResearched = true;
+
+				world.upgradeableUtilityMaxLevelDict[data.utilityType] = data.utilityLevel;
 			}
 		}
 
