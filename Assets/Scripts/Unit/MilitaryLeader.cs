@@ -77,18 +77,18 @@ public class MilitaryLeader : Military
 		{
 			if (world.mainPlayer.isMoving)
 			{
-				world.mainPlayer.StopAnimation();
-				world.mainPlayer.ShiftMovement();
-				world.mainPlayer.StopMovement();
+				//world.mainPlayer.StopAnimation();
+				//world.mainPlayer.ShiftMovement();
+				world.mainPlayer.StopMovementCheck(true);
 			}
 
 			world.mainPlayer.ReturnToFriendlyTile();
 		}
 		else if (world.RoundToInt(world.mainPlayer.finalDestinationLoc) == currentLocation)
 		{
-			world.mainPlayer.StopAnimation();
-			world.mainPlayer.ShiftMovement();
-			world.mainPlayer.StopMovement();
+			//world.mainPlayer.StopAnimation();
+			//world.mainPlayer.ShiftMovement();
+			world.mainPlayer.StopMovementCheck(true);
 			world.mainPlayer.RealignFollowers(world.mainPlayer.currentLocation, world.mainPlayer.prevTile, false);
 		}
 	}

@@ -443,11 +443,7 @@ public class UnitMovement : MonoBehaviour
                                 swapping = true;
                                 unit.barracksBunk = selectedUnit.currentLocation;
 
-                                if (unit.isMoving)
-                                {
-                                    unit.StopAnimation();
-                                    unit.ShiftMovement();
-                                }
+                                unit.StopMovementCheck(false);
 
                                 unit.finalDestinationLoc = selectedUnit.currentLocation;
                                 unit.MoveThroughPath(GridSearch.AStarSearch(world, loc, selectedUnit.currentLocation, false, unit.bySea));
@@ -706,8 +702,7 @@ public class UnitMovement : MonoBehaviour
 
 						if (selectedUnit.isMoving)
 						{
-							selectedUnit.StopAnimation();
-							selectedUnit.ShiftMovement();
+							selectedUnit.StopMovementCheck(false);
 							selectedUnit.FinishedMoving.RemoveAllListeners();
 						}
 
@@ -870,8 +865,7 @@ public class UnitMovement : MonoBehaviour
     {
 		if (unit.isMoving)
 		{
-			unit.StopAnimation();
-			unit.ShiftMovement();
+			unit.StopMovementCheck(false);
 			unit.FinishedMoving.RemoveAllListeners();
 		}
 
@@ -1221,7 +1215,7 @@ public class UnitMovement : MonoBehaviour
         }
         else if (unit.isMoving)
         {
-            unit.ResetMovementOrders();
+            unit.pathPositions.Clear();
         }
 
         Vector3Int startPosition = world.RoundToInt(unit.transform.position);
@@ -1274,12 +1268,7 @@ public class UnitMovement : MonoBehaviour
 
 	public void GoStraightToSelectedLocation(Vector3Int location, Vector3Int terrainPos, Unit unit)
 	{
-		if (unit.isMoving)
-		{
-			unit.StopAnimation();
-			unit.ShiftMovement();
-			unit.ResetMovementOrders();
-		}
+		unit.StopMovementCheck(false);
 
         if (unit.worker.building)
         {
@@ -1536,8 +1525,7 @@ public class UnitMovement : MonoBehaviour
             {
 				if (selectedTrader.guardUnit.isMoving && !queueMovementOrders)
                 {
-                    selectedTrader.guardUnit.StopAnimation();
-				    selectedTrader.guardUnit.ShiftMovement();
+				    selectedTrader.guardUnit.StopMovementCheck(false);
 				    selectedTrader.guardUnit.FinishedMoving.RemoveAllListeners();
                 }
 
@@ -1552,8 +1540,7 @@ public class UnitMovement : MonoBehaviour
 
 		if (selectedUnit.isMoving && !queueMovementOrders) //interrupt orders if new ones
         {
-            selectedUnit.StopAnimation();
-            selectedUnit.ShiftMovement();
+            selectedUnit.StopMovementCheck(false);
             selectedUnit.FinishedMoving.RemoveAllListeners();
         }
 
@@ -2426,23 +2413,22 @@ public class UnitMovement : MonoBehaviour
 			//if (selectedTrader.LineCutterCheck())
 			//    return;
 
-            if (selectedUnit.bySea)
-            {
-                if (world.IsCityHarborOnTile(world.GetClosestTerrainLoc(selectedUnit.currentLocation)))
-                    world.GetHarborCity(world.GetClosestTerrainLoc(selectedUnit.currentLocation)).tradersHere.Remove(selectedUnit);
-            }
-            else
-            {
-                if (world.IsCityOnTile(selectedUnit.currentLocation))
-                    world.GetCity(world.GetClosestTerrainLoc(selectedUnit.currentLocation)).tradersHere.Remove(selectedUnit);
-            }
+            //if (selectedUnit.bySea)
+            //{
+            //    if (world.IsCityHarborOnTile(world.GetClosestTerrainLoc(selectedUnit.currentLocation)))
+            //        world.GetHarborCity(world.GetClosestTerrainLoc(selectedUnit.currentLocation)).tradersHere.Remove(selectedUnit);
+            //}
+            //else
+            //{
+            //    if (world.IsCityOnTile(selectedUnit.currentLocation))
+            //        world.GetCity(world.GetClosestTerrainLoc(selectedUnit.currentLocation)).tradersHere.Remove(selectedUnit);
+            //}
 
-			selectedUnit.StopMovement();
+			selectedUnit.StopMovementCheck(true);
+            selectedUnit.TradersHereCheck();
 
             if (selectedTrader.guarded)
-            {
-                selectedTrader.guardUnit.StopMovement();
-            }
+                selectedTrader.guardUnit.StopMovementCheck(true);
 
             selectedTrader.BeginNextStepInRoute();
             uiTraderPanel.SwitchRouteIcons(true);
@@ -2463,16 +2449,15 @@ public class UnitMovement : MonoBehaviour
         selectedTrader.RefundRouteCosts();
         selectedTrader.followingRoute = false; //done earlier as it's in stopmovement
         selectedTrader.waitingOnRouteCosts = false;
-        selectedUnit.StopMovement();
+        selectedUnit.StopMovementCheck(true);
         selectedTrader.CancelRoute();
         ShowIndividualCityButtonsUI();
 		//CancelContinuedMovementOrders();
-		selectedUnit.ResetMovementOrders();
-		selectedUnit.HidePath();
-
+		//selectedUnit.ShiftMovement();
+		
 		if (selectedTrader.guarded)
         {
-            selectedTrader.guardUnit.StopMovement();
+            selectedTrader.guardUnit.StopMovementCheck(true);
             selectedTrader.guardUnit.military.ToggleIdleTimer(true);
         }
 
@@ -2503,7 +2488,7 @@ public class UnitMovement : MonoBehaviour
             if (!selectedUnit.runningAway && !selectedUnit.isBusy && !selectedUnit.worker.inEnemyLines)
                 uiMoveUnit.ToggleVisibility(true);
             
-            if (selectedUnit.moreToMove)
+            if (selectedUnit.isMoving)
             {
 				if (!selectedUnit.runningAway)
                 {
@@ -2521,7 +2506,7 @@ public class UnitMovement : MonoBehaviour
             if (!selectedUnit.trader.followingRoute)
                 uiMoveUnit.ToggleVisibility(true);
 
-            if (selectedUnit.moreToMove)
+            if (selectedUnit.isMoving)
 			{
 				//uiCancelMove.ToggleVisibility(true);
 				selectedUnit.ShowContinuedPath();

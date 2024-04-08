@@ -39,7 +39,7 @@ MonoBehaviour:
   characterUnit: 1
   npc: 1
   borderColor: {r: 1, g: 0.9311092, b: 0, a: 0.6862745}
-  colorOne: {x: 0, y: 0}
-  colorTwo: {x: 0, y: 0}
+  colorOne: {x: 0.059649, y: 0.957281}
+  colorTwo: {x: 0.059179, y: 0.980705}
   unitEra: 0
   unitRegion: 1

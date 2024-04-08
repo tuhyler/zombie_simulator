@@ -1408,25 +1408,46 @@ public class CityBuilderManager : MonoBehaviour
         }
     }
 
-    public void UpgradeUnit(Unit unit) //can't queue, don't need to pass in city
+    public void UpgradeUnit(Unit unit, List<ResourceValue> upgradeCost, List<ResourceValue> refundCost) //can't queue, don't need to pass in city
     {
         //PlayBoomAudio();
         unit.isUpgrading = true;
-        string nameAndLevel = unit.buildDataSO.unitNameAndLevel;
-		List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
-		selectedCity.ResourceManager.SpendResource(upgradeCost, unit.transform.position);
+        string name = unit.buildDataSO.unitType.ToString();
+        string upgradeNameAndLevel = name + "-" + world.GetUpgradeableObjectMaxLevel(name);
+        //List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
+        bool refund = true;
 
         if (unit.inArmy)
-            world.GetCityDevelopment(selectedCity.barracksLocation).UpgradeCost = upgradeCost;
+        {
+            refund = false;
+            CityImprovement improvement = world.GetCityDevelopment(selectedCity.barracksLocation);
+            improvement.upgradeCost = upgradeCost;
+            improvement.refundCost = refundCost;
+        }
+        else if (unit.bySea)
+        {
+            refund = false;
+            CityImprovement improvement = world.GetCityDevelopment(selectedCity.harborLocation);
+			improvement.upgradeCost = upgradeCost;
+			improvement.refundCost = refundCost;
+		}
+        else if (unit.byAir)
+        {
+            refund = false;
+            CityImprovement improvement = world.GetCityDevelopment(selectedCity.airportLocation);
+			improvement.upgradeCost = upgradeCost;
+			improvement.refundCost = refundCost;
+		}
 	
-        UnitBuildDataSO data = world.GetUnitUpgradeData(nameAndLevel);
+		selectedCity.ResourceManager.SpendResource(upgradeCost, unit.transform.position, refund, refundCost);
+        UnitBuildDataSO data = UpgradeableObjectHolder.Instance.unitDict[upgradeNameAndLevel];
 
 		world.unitMovement.highlightedUnitList.Remove(unit);
 		world.unitMovement.ClearSelection();
 		CreateUnit(data, selectedCity, true, unit);
 	}
 
-    public void UpgradeSelectedImprovementQueueCheck(Vector3Int tempBuildLocation, CityImprovement selectedImprovement)
+    public void UpgradeSelectedImprovementQueueCheck(Vector3Int tempBuildLocation, CityImprovement selectedImprovement, List<ResourceValue> upgradeCost, List<ResourceValue> refundCost)
     {
         string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
 
@@ -1439,44 +1460,47 @@ public class CityBuilderManager : MonoBehaviour
             selectedImprovement.queued = true;
             selectedImprovement.SetQueueCity(selectedCity);
             //if (!uiQueueManager.AddToQueue(tempBuildLocation, tempBuildLocation - selectedCityLoc, selectedCityLoc, world.GetUpgradeData(nameAndLevel), null, new(world.GetUpgradeCost(nameAndLevel))))
-            uiQueueManager.upgradeCosts = world.GetUpgradeCost(nameAndLevel);
-            if (!selectedCity.AddToQueue(world.GetUpgradeData(nameAndLevel), tempBuildLocation, tempBuildLocation - selectedCity.cityLoc, true))  
+            uiQueueManager.upgradeCosts = upgradeCost;
+            if (!selectedCity.AddToQueue(UpgradeableObjectHolder.Instance.improvementDict[nameAndLevel], tempBuildLocation, tempBuildLocation - selectedCity.cityLoc, true))  
                 return; //checks if queue item already exists
             //else
             //    selectedCity.improvementQueueLocs.Add(tempBuildLocation);
             return;
         }
 
-        foreach (ResourceValue value in world.GetUpgradeCost(nameAndLevel))
-        {
-            if (!selectedCity.ResourceManager.CheckResourceAvailability(value))
-            {
-                //UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
-                return;
-            }
-        }
+        //foreach (ResourceValue value in upgradeCost)
+        //{
+        //    if (!selectedCity.ResourceManager.CheckResourceAvailability(value))
+        //    {
+        //        //UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
+        //        return;
+        //    }
+        //}
 
         if (!selectedImprovement.building)
 		    PlayConstructionAudio();
 		tilesToChange.Remove(tempBuildLocation);
         world.GetTerrainDataAt(tempBuildLocation).DisableHighlight();
-        UpgradeSelectedImprovementPrep(tempBuildLocation, selectedImprovement, selectedCity);
+        UpgradeSelectedImprovementPrep(tempBuildLocation, selectedImprovement, selectedCity, upgradeCost, refundCost);
     }
 
-    private void UpgradeSelectedImprovementPrep(Vector3Int upgradeLoc, CityImprovement selectedImprovement, City city)
+    private void UpgradeSelectedImprovementPrep(Vector3Int upgradeLoc, CityImprovement selectedImprovement, City city, List<ResourceValue> upgradeCost, List<ResourceValue> refundCost)
     {
         if (city.activeCity)
         {
             selectedImprovement.DisableHighlight();
         }
 
-        string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
-        List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
-        city.ResourceManager.SpendResource(upgradeCost, upgradeLoc);
-        selectedImprovement.UpgradeCost = upgradeCost;
-        ImprovementDataSO data = world.GetUpgradeData(nameAndLevel);
+        bool cityCenterBuilding = upgradeLoc == city.cityLoc;
+        string name = selectedImprovement.GetImprovementData.improvementName;
+        string upgradeNameAndLevel = name + "-" + world.GetUpgradeableObjectMaxLevel(name);
+		//string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
+        //string upgradeNameAndLevel = selectedImprovement.GetImprovementData.improvementName + "-" + world.GetUpgradeableObjectMaxLevel(selectedImprovement.GetImprovementData.improvementName);
+        //List<ResourceValue> upgradeCost = new(world.CalculateUpgradeCost(nameAndLevel, upgradeNameAndLevel, false));
+        city.ResourceManager.SpendResource(upgradeCost, upgradeLoc, cityCenterBuilding, refundCost);
+        ImprovementDataSO data = UpgradeableObjectHolder.Instance.improvementDict[upgradeNameAndLevel];
 
-        if (upgradeLoc == city.cityLoc)
+        if (cityCenterBuilding)
         {
             //selectedImprovement.PlayUpgradeSplash();
             RemoveImprovement(upgradeLoc, selectedImprovement, city, true);
@@ -1484,8 +1508,10 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
+            selectedImprovement.upgradeCost = upgradeCost;
+            selectedImprovement.refundCost = refundCost;
             //putting the labor back
-            ResourceProducer resourceProducer = world.GetResourceProducer(upgradeLoc);
+            ResourceProducer resourceProducer = selectedImprovement.resourceProducer;
 
             //foreach (ResourceType resourceType in resourceProducer.producedResources)
             //{
@@ -1522,7 +1548,7 @@ public class CityBuilderManager : MonoBehaviour
                 UpdateLaborNumbers();
                 uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
 
-                resourceManager.UpdateUI(city.GetResourceValues());
+                //resourceManager.UpdateUI(city.GetResourceValues());
                 uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
             }
             else
@@ -1533,7 +1559,7 @@ public class CityBuilderManager : MonoBehaviour
             if (city.AutoAssignLabor && city.unusedLabor > 0)
                 city.AutoAssignmentsForLabor();
 
-            selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, upgradeLoc, data, false);
+            selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, data, false);
         }
     }
 
@@ -1545,46 +1571,46 @@ public class CityBuilderManager : MonoBehaviour
 
     public void ToggleEnemyBuildingHighlight(Vector3Int cityLoc, Color color)
     {
-		foreach (string name in world.GetBuildingListForCity(cityLoc))
+		foreach (CityImprovement building in world.cityBuildingDict[cityLoc].Values)
         {
-            CityImprovement building = world.GetBuildingData(cityLoc, name);
+            //CityImprovement building = world.GetBuildingData(cityLoc, name);
             building.DisableHighlight();
 			building.EnableHighlight(color, true);
 		}
 	}
 
-    public void ToggleBuildingMaterial(Vector3Int cityLoc, Material mat, bool lightsOn)
-    {
-        foreach (string name in world.GetBuildingListForCity(cityLoc))
-        {
-            CityImprovement building = world.GetBuildingData(cityLoc, name);
-            building.DisableHighlight();
-			building.EnableMaterial(mat);
-		}
+  //  public void ToggleBuildingMaterial(Vector3Int cityLoc, Material mat, bool lightsOn)
+  //  {
+  //      foreach (string name in world.GetBuildingListForCity(cityLoc))
+  //      {
+  //          CityImprovement building = world.GetBuildingData(cityLoc, name);
+  //          building.DisableHighlight();
+		//	building.EnableMaterial(mat);
+		//}
 
-        if (lightsOn)
-        {
-			if (world.enemyCityDict.ContainsKey(cityLoc))
-				world.enemyCityDict[cityLoc].HouseLightCheck();
-			else
-				world.cityDict[cityLoc].HouseLightCheck();
-		}
-        else
-        {
-            if (world.enemyCityDict.ContainsKey(cityLoc))
-                world.enemyCityDict[cityLoc].TurnOffLights();
-            else
-                world.cityDict[cityLoc].TurnOffLights();
-        }
-    }
+  //      if (lightsOn)
+  //      {
+		//	if (world.enemyCityDict.ContainsKey(cityLoc))
+		//		world.enemyCityDict[cityLoc].HouseLightCheck();
+		//	else
+		//		world.cityDict[cityLoc].HouseLightCheck();
+		//}
+  //      else
+  //      {
+  //          if (world.enemyCityDict.ContainsKey(cityLoc))
+  //              world.enemyCityDict[cityLoc].TurnOffLights();
+  //          else
+  //              world.cityDict[cityLoc].TurnOffLights();
+  //      }
+  //  }
 
     public void ToggleBuildingHighlight(bool v, Vector3Int cityLoc)
     {        
         if (v)
         {
-            foreach (string name in world.GetBuildingListForCity(cityLoc))
+            foreach (CityImprovement building in world.cityBuildingDict[cityLoc].Values)
             {
-                CityImprovement building = world.GetBuildingData(cityLoc, name);
+                //CityImprovement building = world.GetBuildingData(cityLoc, name);
                 building.DisableHighlight();
 
                 if (removingImprovement)
@@ -1612,9 +1638,9 @@ public class CityBuilderManager : MonoBehaviour
         }
         else
         {
-			foreach (string name in world.GetBuildingListForCity(cityLoc))
+			foreach (CityImprovement building in world.cityBuildingDict[cityLoc].Values)
             {
-                CityImprovement building = world.GetBuildingData(cityLoc, name);
+                //CityImprovement building = world.GetBuildingData(cityLoc, name);
                 building.DisableHighlight();
             }
         }
@@ -1721,13 +1747,13 @@ public class CityBuilderManager : MonoBehaviour
             }
 
             //updating uis after losing pop
-            if (selectedCity != null && selectedCity == city)
+            if (city.activeCity)
             {
                 //uiQueueManager.CheckIfBuiltUnitIsQueued(unitData, city.cityLoc);
                 UpdateLaborNumbers();
                 uiLaborAssignment.UpdateUI(city, placesToWork);
                 uiInfoPanelCity.SetAllData(selectedCity);
-                resourceManager.UpdateUI(unitData.unitCost);
+                //resourceManager.UpdateUI(unitData.unitCost);
                 uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
                 uiCityTabs.HideSelectedTab(false);
             }
@@ -1739,7 +1765,8 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (unitData.transportationType == TransportationType.Land)
             {
-                world.GetCityDevelopment(city.barracksLocation).BeginTraining(city, world.GetResourceProducer(city.barracksLocation), city.barracksLocation, unitData, upgrading, upgradedUnit, false);
+                CityImprovement improvement = world.GetCityDevelopment(city.barracksLocation);
+                improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
                 selectedCity.army.isTraining = true;
                 return;
             }
@@ -1757,7 +1784,8 @@ public class CityBuilderManager : MonoBehaviour
 					world.waterTransport = true;
 
 				selectedCity.harborTraining = true;
-                world.GetCityDevelopment(city.harborLocation).BeginTraining(city, world.GetResourceProducer(city.harborLocation), city.harborLocation, unitData, upgrading, upgradedUnit, false);
+                CityImprovement improvement = world.GetCityDevelopment(city.harborLocation);
+                improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
                 return;
             }
         }
@@ -1774,7 +1802,8 @@ public class CityBuilderManager : MonoBehaviour
 					world.airTransport = true;
 
                 selectedCity.airportTraining = true;
-				world.GetCityDevelopment(city.airportLocation).BeginTraining(city, world.GetResourceProducer(city.airportLocation), city.airportLocation, unitData, upgrading, upgradedUnit, false);
+                CityImprovement improvement = world.GetCityDevelopment(city.airportLocation);
+				improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
 			}
         }
         else if (upgrading)
@@ -2182,7 +2211,7 @@ public class CityBuilderManager : MonoBehaviour
             if (city.activeCity)
             {
                 uiInfoPanelCity.UpdateHousing(city.HousingCount);
-                resourceManager.UpdateUI(buildingData.improvementCost);
+                //resourceManager.UpdateUI(buildingData.improvementCost);
                 uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
 
                 if (!upgradingImprovement)
@@ -2206,8 +2235,8 @@ public class CityBuilderManager : MonoBehaviour
         if (!upgradingImprovement)
         {
             city.ResourceManager.SpendResource(buildingData.improvementCost, cityPos);
-			PlayBoomAudio();
 		}
+		PlayBoomAudio();
 
         GameObject building;
         if (world.GetTerrainDataAt(city.cityLoc).isHill)
@@ -2277,7 +2306,7 @@ public class CityBuilderManager : MonoBehaviour
                 UpdateCityWorkEthic();
             }
      
-            resourceManager.UpdateUI(buildingData.improvementCost);
+            //resourceManager.UpdateUI(buildingData.improvementCost);
             uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
 
             if (!upgradingImprovement)
@@ -2295,7 +2324,7 @@ public class CityBuilderManager : MonoBehaviour
         if (selectedBuilding == city.housingData.improvementName)
             selectedBuilding = city.DecreaseHousingCount(improvement.housingIndex);
 
-        GameObject building = world.GetBuilding(city.cityLoc, selectedBuilding);
+        CityImprovement building = world.GetBuildingData(city.cityLoc, selectedBuilding);
 
         if (!upgradingImprovement)
         {
@@ -2344,16 +2373,16 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (data.workEthicChange != 0)
                 UpdateCityWorkEthic();
-            resourceManager.UpdateUI(data.improvementCost);
+            //resourceManager.UpdateUI(data.improvementCost);
             uiResourceManager.SetCityCurrentStorage(resourceManager.ResourceStorageLevel);
             uiInfoPanelCity.SetAllData(selectedCity);
         }
 
         city.RemoveFromMeshFilterList(true, Vector3Int.zero, selectedBuilding);
-        Destroy(building);
+        Destroy(building.gameObject);
 
         //updating world dicts
-        world.RemoveCityBuilding(city.cityLoc, selectedBuilding);
+        world.cityBuildingDict[city.cityLoc].Remove(selectedBuilding);
         
         //updating city graphic
         CombineMeshes(city, city.subTransform, this.upgradingImprovement);
@@ -2497,7 +2526,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (city.activeCity)
         {
-            resourceManager.UpdateUI(improvementData.improvementCost);
+            //resourceManager.UpdateUI(improvementData.improvementCost);
             uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
         }
 
@@ -2568,7 +2597,7 @@ public class CityBuilderManager : MonoBehaviour
         //resource production
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
         buildLocation.y = 0;
-        world.AddResourceProducer(buildLocation, resourceProducer);
+        world.AddResourceProducer(tempBuildLocation, resourceProducer);
         resourceProducer.SetResourceManager(city.ResourceManager);
         resourceProducer.InitializeImprovementData(improvementData, td.resourceType); //allows the new structure to also start generating resources
         resourceProducer.SetCityImprovement(cityImprovement);
@@ -2922,15 +2951,15 @@ public class CityBuilderManager : MonoBehaviour
                 selectedImprovement = world.GetCityDevelopment(improvementLoc);
         }
         
-        ResourceProducer resourceProducer = world.GetResourceProducer(improvementLoc);
+        ResourceProducer resourceProducer = selectedImprovement.resourceProducer;
 		TerrainData td = world.GetTerrainDataAt(improvementLoc);
 
 		//if cancelling training in a barracks or harbor, stop here
 		if (selectedImprovement.isTraining)
 		{
 			if (!destroyingCity)
-                ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
-			resourceManager.UpdateUI(selectedImprovement.UpgradeCost);
+                ReplaceImprovementCost(selectedImprovement.upgradeCost, improvementLoc);
+			//resourceManager.UpdateUI(selectedImprovement.upgradeCost);
 
 			if (!selectedImprovement.isUpgrading)
 			{
@@ -2951,7 +2980,7 @@ public class CityBuilderManager : MonoBehaviour
 		else if (selectedImprovement.isUpgrading)
         {
             if (!destroyingCity)
-                ReplaceImprovementCost(selectedImprovement.UpgradeCost, improvementLoc);
+                ReplaceImprovementCost(selectedImprovement.upgradeCost, improvementLoc);
             selectedImprovement.StopUpgradeProcess(resourceProducer);
             selectedImprovement.StopUpgrade();
 
@@ -2959,7 +2988,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 placesToWork++;
                 UpdateCityLaborUIs();
-                resourceManager.UpdateUI(selectedImprovement.UpgradeCost);
+                //resourceManager.UpdateUI(selectedImprovement.upgradeCost);
                 uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
                 ImprovementTileHighlight(true);
             }
@@ -3000,7 +3029,7 @@ public class CityBuilderManager : MonoBehaviour
 
             if (city.activeCity)
             {
-                resourceManager.UpdateUI(improvementData.improvementCost);
+                //resourceManager.UpdateUI(improvementData.improvementCost);
                 uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
             }
 
@@ -3835,9 +3864,9 @@ public class CityBuilderManager : MonoBehaviour
         {
             Vector3Int tile = item.queueLoc + city.cityLoc;
             if (building)
-                UpgradeSelectedImprovementPrep(city.cityLoc, world.GetBuildingData(tile, item.queueName), city);
+                UpgradeSelectedImprovementPrep(city.cityLoc, world.GetBuildingData(tile, item.queueName), city, uiQueueManager.upgradeCosts, uiQueueManager.refundCosts);
             else
-                UpgradeSelectedImprovementPrep(tile, world.GetCityDevelopment(tile), city);
+                UpgradeSelectedImprovementPrep(tile, world.GetCityDevelopment(tile), city, uiQueueManager.upgradeCosts, uiQueueManager.refundCosts);
         }
 		else if (building) //build building
         {

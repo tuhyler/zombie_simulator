@@ -197,12 +197,12 @@ public class TerrainData : MonoBehaviour
 		if (terrainData.type == TerrainType.Forest || terrainData.type == TerrainType.ForestHill)
 		{
 			treeHandler = prop.GetComponentInChildren<TreeHandler>();
-			//treeHandler.TurnOffGraphics(false);
-			//treeHandler.SwitchFromRoad(isHill);
-			//treeHandler.SetMapIcon(isHill);
+            //treeHandler.TurnOffGraphics(false);
+            //treeHandler.SwitchFromRoad(isHill);
+            //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-                ChangeLeafColors(false, treeHandler);
+                ChangeLeafColors(treeHandler, true);
 		}
 	}
 
@@ -217,7 +217,7 @@ public class TerrainData : MonoBehaviour
             //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-                ChangeLeafColors(true, treeHandler);
+                ChangeLeafColors(treeHandler, true);
 		}
         else if (isHill && rawResourceType == RawResourceType.Rocks)
         {
@@ -372,7 +372,7 @@ public class TerrainData : MonoBehaviour
         }
 	}
 
-	public void ChangeLeafColors(bool nonstatic, TreeHandler treeHandler)
+	private void ChangeLeafColors(TreeHandler treeHandler, bool spring)
     {
 		for (int i = 0; i < treeHandler.hillLeafMeshList.Count; i++)
 		{
@@ -381,18 +381,28 @@ public class TerrainData : MonoBehaviour
 
 			int newColor = uvMapIndex[i];
 
-			if (newColor == 1)
+            if (spring)
+            {
+                xChange += 0.125f;
+            }
+            else
+            {
+                if (!spring)
+                    newColor = i % 3 + 1;
+            }
+			
+            if (newColor == 1)
 			{
-				xChange = 0.031153f;
+				xChange += 0.031153f;
 			}
 			else if (newColor == 2)
 			{
-				yChange = -0.031351f;
+				yChange += -0.031351f;
 			}
 			else
 			{
-				xChange = 0.031153f;
-				yChange = -0.031351f;
+				xChange += 0.031153f;
+				yChange += -0.031351f;
 			}
 
 			Vector2[] leafUVs = treeHandler.hillLeafMeshList[i].mesh.uv;

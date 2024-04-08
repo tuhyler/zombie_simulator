@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
@@ -12,7 +13,7 @@ public class Military : Unit
 	public GameObject boatMesh;
 
 	[SerializeField]
-	private MeshFilter boatSail;
+	private MeshFilter logoSail, sail;
 	
 	private int isPillagingHash, isDiscoveredHash, isSittingHash, isClappingHash;
 	[HideInInspector]
@@ -52,7 +53,7 @@ public class Military : Unit
 		AwakeMethods();
 		MilitaryAwakeMethods();
 
-		if (boatSail)
+		if (logoSail)
 		{
 			int factor = 0;
 			if (enemyAI)
@@ -67,11 +68,11 @@ public class Military : Unit
 			if (factor > 0)
 			{
 				float shift = 0.03125f * factor;
-				Vector2[] sailUV = boatSail.mesh.uv;
+				Vector2[] sailUV = logoSail.mesh.uv;
 				for (int i = 0; i < sailUV.Length; i++)
 					sailUV[i].x += shift;
 
-				boatSail.mesh.uv = sailUV;
+				logoSail.mesh.uv = sailUV;
 			}
 		}
 	}
@@ -103,6 +104,15 @@ public class Military : Unit
 	{
 		if (!atSea && boatMesh != null)
 			boatMesh.SetActive(false);
+	}
+
+	public void SetSailColor(Vector2 color)
+	{
+		Vector2[] sailUV = sail.mesh.uv;
+		for (int i = 0; i < sailUV.Length; i++)
+			sailUV[i] = color;
+
+		sail.mesh.uv = sailUV;
 	}
 
 	public void StartPillageAnimation()
@@ -170,8 +180,8 @@ public class Military : Unit
 		}
 		else
 		{
-			StopMovement();
-			StopAnimation();
+			StopMovementCheck(true);
+			//StopAnimation();
 			AggroCheck();
 		}
 	}
@@ -489,8 +499,8 @@ public class Military : Unit
 		flanking = false;
 		targetSearching = false;
 		isMarching = false;
-		StopMovement();
-		StopAnimation();
+		StopMovementCheck(true);
+		//StopAnimation();
 	}
 
 	public void StartReturn()
@@ -507,11 +517,7 @@ public class Military : Unit
 		flankedOnce = false;
 		returning = true;
 
-		if (isMoving)
-		{
-			StopAnimation();
-			ShiftMovement();
-		}
+		StopMovementCheck(false);
 
 		finalDestinationLoc = barracksBunk;
 		List<Vector3Int> path;
@@ -688,8 +694,7 @@ public class Military : Unit
 
 	public void GuardGetInLine(Vector3Int traderPrevSpot, Vector3Int traderSpot)
 	{
-		StopAnimation();
-		ShiftMovement();
+		StopMovementCheck(false);
 
 		Vector3 sideSpot = GuardRouteFinish(traderSpot, traderPrevSpot);
 		finalDestinationLoc = sideSpot;
@@ -1185,7 +1190,6 @@ public class Military : Unit
 		if (isMoving && readyToMarch)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
 
-		data.moreToMove = moreToMove;
 		data.isUpgrading = isUpgrading;
 		//data.looking = looking;
 
@@ -1245,7 +1249,6 @@ public class Military : Unit
 		currentLocation = data.currentLocation;
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
-		moreToMove = data.moreToMove;
 		isUpgrading = data.isUpgrading;
 		//looking = data.looking;
 		ambush = data.ambush;

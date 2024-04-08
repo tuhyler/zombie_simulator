@@ -364,13 +364,13 @@ MonoBehaviour:
   worker: {fileID: 0}
   military: {fileID: 0}
   transport: {fileID: 0}
+  tradeRep: {fileID: 0}
   conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
   originalMoveSpeed: 0.5
   threshold: 0.01
-  moreToMove: 0
   isBusy: 0
   isMoving: 0
   secondaryPrefab: 0
@@ -406,7 +406,8 @@ MonoBehaviour:
   isUpgrading: 0
   unitAnimator: {fileID: 0}
   boatMesh: {fileID: 6967499002884510175}
-  boatSail: {fileID: 467890123608971598}
+  logoSail: {fileID: 8792332583323233685}
+  sail: {fileID: 467890123608971598}
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
@@ -431,9 +432,13 @@ MonoBehaviour:
   isGuarding: 0
   returning: 0
   atSea: 0
-  homeBase: {fileID: 0}
+  benched: 0
+  duelWatch: 0
+  army: {fileID: 0}
   projectile: {fileID: 0}
   guardedTrader: {fileID: 0}
+  leader: {fileID: 0}
+  bodyGuard: {fileID: 0}
 --- !u!114 &5104034567501558109 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -870,6 +875,12 @@ MeshFilter:
 --- !u!1 &6967499002884510175 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2a3f3590bb5530e4dae5bd3af9effaf9,
+    type: 3}
+  m_PrefabInstance: {fileID: 7814007847324019854}
+  m_PrefabAsset: {fileID: 0}
+--- !u!33 &8792332583323233685 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 1618003215139078427, guid: 2a3f3590bb5530e4dae5bd3af9effaf9,
     type: 3}
   m_PrefabInstance: {fileID: 7814007847324019854}
   m_PrefabAsset: {fileID: 0}

@@ -53,7 +53,7 @@ public class WorkerTaskManager : MonoBehaviour
 			unitMovement.buildingRoad = true;
             uiBuildingSomething.SetText("Building Road");
             OrdersPrep();
-            world.scott.currentUtilityCost = UpgradeableObjectHolder.Instance.utilityDict[UtilityType.Road][world.upgradeableUtilityMaxLevelDict[UtilityType.Road]];
+            world.scott.currentUtilityCost = UpgradeableObjectHolder.Instance.utilityDict[UtilityType.Road][world.upgradeableObjectMaxLevelDict[UtilityType.Road.ToString()]];
 			world.scott.WorkerOrdersPreparations();
         }
     }
@@ -73,7 +73,7 @@ public class WorkerTaskManager : MonoBehaviour
 			if (world.tutorialGoing)
 				unitMovement.uiWorkerTask.GetButton("Gather").FlashCheck();
 
-			world.mainPlayer.StopMovement();
+			world.mainPlayer.StopMovementCheck(true);
 			world.mainPlayer.GatherResource();
         }
     }
@@ -91,7 +91,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     private void MoveToCenterOfTile(Vector3Int workerTile)
     {
-        world.mainPlayer.ShiftMovement();
+        world.mainPlayer.StopMovementCheck(false);
         unitMovement.GoStraightToSelectedLocation(workerTile, workerTile, world.mainPlayer);
     }
 
@@ -262,7 +262,7 @@ public class WorkerTaskManager : MonoBehaviour
 		uiWorkerHandler.ToggleVisibility(false, world, true);
         uiBuildingSomething.ToggleVisibility(true);
 
-        world.mainPlayer.StopMovement();
+        world.mainPlayer.StopMovementCheck(true);
 
         if (world.azaiFollow && world.azai.isMoving)
             world.azai.GetBehindScott(world.RoundToInt(transform.position));
@@ -463,8 +463,7 @@ public class WorkerTaskManager : MonoBehaviour
 		    world.scott.building = false;
 		}
 
-		if (world.mainPlayer.isMoving)
-			world.mainPlayer.StopMovement();
+		world.mainPlayer.StopMovementCheck(true);
 
         ResetWorker(world.mainPlayer);
 		world.mainPlayer.isBusy = false;
@@ -476,7 +475,7 @@ public class WorkerTaskManager : MonoBehaviour
 		worker.SetGatherAnimation(false);
 		worker.TaskCoCheck();
 		worker.HideProgressTimeBar();
-		world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(worker.transform.position));
+		world.RemoveWorkerWorkLocation();
 	    worker.gathering = false;  
 	}
 

@@ -94,9 +94,7 @@ public class Laborer : Unit
 		if (isSelected)
 			world.unitMovement.ClearSelection();
 
-		if (isMoving)
-			StopMovement();
-
+		StopMovementCheck(true);
 		world.laborerList.Remove(this);
 		StartCoroutine(WaitKillUnit());
 	}
@@ -116,7 +114,6 @@ public class Laborer : Unit
 		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
-		data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
         data.celebrating = celebrating;
         data.totalWait = totalWait;
@@ -136,7 +133,6 @@ public class Laborer : Unit
 		currentLocation = data.currentLocation;
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
-		moreToMove = data.moreToMove;
         celebrating = data.celebrating;
         totalWait = data.totalWait;
         homeCityLoc = data.homeCityLoc;

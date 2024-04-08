@@ -46,7 +46,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private bool isUnitPanel, cannotAfford, isShowing;
 
     [HideInInspector]
-    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, isFlashing, somethingNew, locked;
+    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, isFlashing, somethingNew/*, locked*/;
     //for checking if city can afford resource and if work ethic changes values
     [HideInInspector]
     public List<UIResourceInfoPanel> costResourcePanels = new(), producedResourcePanels = new();
@@ -81,6 +81,12 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         isShowing = v;
         gameObject.SetActive(v);
     }
+
+    public void Hide()
+    {
+		isShowing = false;
+		gameObject.SetActive(false);
+	}
 
     public void OnUnitPointerClick()
     {
@@ -143,10 +149,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         {
             unitDescription.gameObject.SetActive(false);
             objectName.text = buildData.improvementDisplayName;
-            if (buildData.improvementDisplayName == buildData.improvementName)
-                objectLevel.text = "Level " + buildData.improvementLevel;
-            else
-                objectLevel.text = "Level " + buildData.improvementLevel + " " + buildData.improvementName;
+            objectLevel.text = "Level " + buildData.improvementLevel + " " + buildData.improvementName;
             objectImage.sprite = buildData.image;
             objectCost = buildData.improvementCost;
             objectProduced = new(buildData.producedResources);

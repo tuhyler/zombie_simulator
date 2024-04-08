@@ -1548,6 +1548,7 @@ public class City : MonoBehaviour
 		Unit unitEnemy = enemyGO.GetComponent<Unit>();
 		unitEnemy.SetReferences(world);
 		unitEnemy.SetMinimapIcon(world.enemyUnitHolder);
+		unitEnemy.military.SetSailColor(empire.enemyLeader.buildDataSO.colorOne);
 
 		//for tweening
 		Vector3 goScale = enemyGO.transform.localScale;
@@ -1898,11 +1899,18 @@ public class City : MonoBehaviour
         QueueItem item = queueItemList[0];
 
         List<ResourceValue> resourceCosts;
+        List<ResourceValue> refundCosts;
 
         if (item.upgrade)
-            resourceCosts = new(world.GetUpgradeCost(item.queueName));
+        {
+            string name = UpgradeableObjectHolder.Instance.improvementDict[item.queueName].improvementName;
+            string upgradeNameAndLevel = name + "-" + world.GetUpgradeableObjectMaxLevel(name);
+            (resourceCosts, refundCosts) = world.CalculateUpgradeCost(item.queueName, upgradeNameAndLevel, false);
+        }
         else
+        {
             resourceCosts = new(UpgradeableObjectHolder.Instance.improvementDict[item.queueName].improvementCost);
+        }
         //if (nextItem.unitBuildData != null)
         //    resourceCosts = new(nextItem.unitBuildData.unitCost);
         //if (nextItem.upgradeCosts != null)
@@ -2144,10 +2152,12 @@ public class City : MonoBehaviour
         data.queueItemList = queueItemList;
 		data.queuedResourcesToCheck = resourceManager.queuedResourcesToCheck;
 
-		List<string> buildingList = world.GetBuildingListForCity(cityLoc);
+		//List<string> buildingList = world.GetBuildingListForCity(cityLoc);
         //for buildings
-        for (int i = 0; i < buildingList.Count; i++)
-            data.cityBuildings.Add(world.GetBuildingData(cityLoc, buildingList[i]).SaveData());
+        foreach (CityImprovement building in world.cityBuildingDict[cityLoc].Values)
+			data.cityBuildings.Add(building.SaveData());
+		//for (int i = 0; i < buildingList.Count; i++)
+  //          data.cityBuildings.Add(world.GetBuildingData(cityLoc, buildingList[i]).SaveData());
 
 		//army data
 		if (hasBarracks)

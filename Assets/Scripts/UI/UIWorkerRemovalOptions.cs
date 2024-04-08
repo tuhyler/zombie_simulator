@@ -38,9 +38,9 @@ public class UIWorkerRemovalOptions : MonoBehaviour
 
 			int howMuchToShow = 70;
 
-            if (world.upgradeableUtilityMaxLevelDict[UtilityType.Power] > 0)
+            if (world.upgradeableObjectMaxLevelDict[UtilityType.Power.ToString()] > 0)
                 howMuchToShow = 210;
-            else if (world.upgradeableUtilityMaxLevelDict[UtilityType.Water] > 0)
+            else if (world.upgradeableObjectMaxLevelDict[UtilityType.Water.ToString()] > 0)
                 howMuchToShow = 140;
 
             //allContents.anchoredPosition3D = originalLoc + new Vector3(0, -howMuchToShow, 0);
@@ -58,9 +58,9 @@ public class UIWorkerRemovalOptions : MonoBehaviour
             {
                 int howMuchToMove = 80;
 
-                if (world.upgradeableUtilityMaxLevelDict[UtilityType.Power] > 0)
+                if (world.upgradeableObjectMaxLevelDict[UtilityType.Power.ToString()] > 0)
                     howMuchToMove = 220;
-                else if (world.upgradeableUtilityMaxLevelDict[UtilityType.Water] > 0)
+                else if (world.upgradeableObjectMaxLevelDict[UtilityType.Water.ToString()] > 0)
 					howMuchToMove = 150;
 
 				LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - howMuchToMove, 0.2f).setOnComplete(SetActiveStatusFalse);

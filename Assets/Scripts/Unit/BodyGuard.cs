@@ -30,17 +30,9 @@ public class BodyGuard : Military
 
 	public void PrepForDuel(Vector3Int loc, Vector3Int barracksLoc, Vector3Int enemyCityLoc, EnemyCamp targetCamp)
 	{
-		if (isMoving)
-		{
-			StopAnimation();
-			ShiftMovement();
-		}
+		StopMovementCheck(false);
+		world.scott.StopMovementCheck(false);
 
-		if (world.scott.isMoving)
-		{
-			world.scott.StopAnimation();
-			world.scott.ShiftMovement();
-		}
 		//world.mainPlayer.runningAway = true;
 		//world.azaiFollow = false;
 		dueling = true;
@@ -196,8 +188,7 @@ public class BodyGuard : Military
 
 	public void RepositionBodyGuard(Vector3Int newPos, bool loading, bool enemy, List<Vector3Int> exemptList = null)
 	{
-		StopAnimation();
-		ShiftMovement();
+		StopMovementCheck(false);
 
 		List<Vector3Int> path;
 

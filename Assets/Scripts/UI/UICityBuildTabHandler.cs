@@ -107,43 +107,43 @@ public class UICityBuildTabHandler : MonoBehaviour
         }
     }
 
-    public void ToggleLockButton(string tabName, string improvementNameAndLevel, bool v)
-    {
-        for (int i = 0; i < tabList.Count; i++)
-        {
-            if (tabList[i].tabName == tabName)
-            {
-                for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
-                {
-                    if (tabList[i].UIBuilder.buildOptions[j].BuildData.improvementNameAndLevel == improvementNameAndLevel)
-                    {
-                        tabList[i].UIBuilder.buildOptions[j].locked = v;
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
+    //public void ToggleLockButton(string tabName, string improvementNameAndLevel, bool v)
+    //{
+    //    for (int i = 0; i < tabList.Count; i++)
+    //    {
+    //        if (tabList[i].tabName == tabName)
+    //        {
+    //            for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
+    //            {
+    //                if (tabList[i].UIBuilder.buildOptions[j].BuildData.improvementNameAndLevel == improvementNameAndLevel)
+    //                {
+    //                    tabList[i].UIBuilder.buildOptions[j].locked = v;
+    //                    break;
+    //                }
+    //            }
+    //            break;
+    //        }
+    //    }
+    //}
 
-    public void ToggleUnitLockButton(string tabName, string unitNameAndLevel, bool v)
-	{
-		for (int i = 0; i < tabList.Count; i++)
-		{
-			if (tabList[i].tabName == tabName)
-			{
-				for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
-				{
-					if (tabList[i].UIBuilder.buildOptions[j].UnitBuildData.unitNameAndLevel == unitNameAndLevel)
-					{
-						tabList[i].UIBuilder.buildOptions[j].locked = v;
-						break;
-					}
-				}
-				break;
-			}
-		}
-	}
+ //   public void ToggleUnitLockButton(string tabName, string unitNameAndLevel, bool v)
+	//{
+	//	for (int i = 0; i < tabList.Count; i++)
+	//	{
+	//		if (tabList[i].tabName == tabName)
+	//		{
+	//			for (int j = 0; j < tabList[i].UIBuilder.buildOptions.Count; j++)
+	//			{
+	//				if (tabList[i].UIBuilder.buildOptions[j].UnitBuildData.unitNameAndLevel == unitNameAndLevel)
+	//				{
+	//					tabList[i].UIBuilder.buildOptions[j].locked = v;
+	//					break;
+	//				}
+	//			}
+	//			break;
+	//		}
+	//	}
+	//}
 
 	public void PassUI(UIBuilderHandler uiBuilder)
     {

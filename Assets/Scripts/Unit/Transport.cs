@@ -233,7 +233,6 @@ public class Transport : Unit
 		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
-		data.moreToMove = moreToMove;
 		data.passengerCount = passengerCount;
 		data.canMove = canMove;
 		data.hasKoa = hasKoa;
@@ -254,7 +253,6 @@ public class Transport : Unit
 		prevTile = data.prevTile;
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
-		moreToMove = data.moreToMove;
 		passengerCount = data.passengerCount;
 		canMove = data.canMove;
 		hasKoa = data.hasKoa;

@@ -331,12 +331,7 @@ public class EnemyCamp
 
 			if (path.Count > 0)
 			{
-				if (unit.isMoving)
-				{
-					unit.StopAnimation();
-					unit.ShiftMovement();
-				}
-
+				unit.StopMovementCheck(false);
 				unit.preparingToMoveOut = true;
 				unit.finalDestinationLoc = travelLoc + unitDiff;
 				unit.MoveThroughPath(path);
@@ -711,8 +706,8 @@ public class EnemyCamp
 	{
 		foreach (Unit unit in unitsInCamp)
 		{
-			unit.StopAnimation();
-			unit.StopMovement();
+			//unit.StopAnimation();
+			unit.StopMovementCheck(true);
 		}
 	}
 
@@ -763,7 +758,6 @@ public class EnemyCamp
 
 			unit.unitRigidbody.useGravity = true;
 			unit.transform.position = rebornSpot;
-			unit.moreToMove = false;
 			unit.isMoving = false;
 			unit.currentLocation = unit.enemyAI.CampSpot;
 			unit.isDead = false;
@@ -864,11 +858,7 @@ public class EnemyCamp
 			//if (returning)
 			//	path.Add(unit.barracksBunk);
 
-			if (unit.isMoving)
-			{
-				unit.StopAnimation();
-				unit.ShiftMovement();
-			}
+			unit.StopMovementCheck(false);
 
 			//if (!chasing)
 			//	unit.isMarching = true;
@@ -892,11 +882,7 @@ public class EnemyCamp
 			for (int i = start + 1; i < pathToTarget.Count; i++)
 				path.Add(pathToTarget[i] + unit.marchPosition);
 
-			if (unit.isMoving)
-			{
-				unit.StopAnimation();
-				unit.ShiftMovement();
-			}
+			unit.StopMovementCheck(false);
 
 			unit.finalDestinationLoc = path[path.Count - 1];
 			unit.MoveThroughPath(path);
@@ -1156,8 +1142,7 @@ public class EnemyCamp
 			{
 				for (int i = 0; i < unitsInCamp.Count; i++)
 				{
-					unitsInCamp[i].pathPositions.Clear();
-					unitsInCamp[i].StopMovement();
+					unitsInCamp[i].StopMovementCheck(true);
 					unitsInCamp[i].isMarching = false;
 				}
 
