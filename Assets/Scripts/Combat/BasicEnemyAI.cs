@@ -349,8 +349,8 @@ public class BasicEnemyAI : MonoBehaviour
 			{
 				unit.enemyAmbush.attackedUnits.Remove(target);
 				unit.attackCo = null;
-				unit.StopMovement();
-				unit.StopAnimation();
+				unit.StopMovementCheck(true);
+				//unit.StopAnimation();
 
 				if (unit.enemyAmbush.attackedUnits.Count > 0)
 				{
@@ -388,7 +388,7 @@ public class BasicEnemyAI : MonoBehaviour
 		else if (!unit.isDead && unit.inBattle) //just in case
 		{
 			unit.attackCo = null;
-			unit.StopMovement();
+			unit.StopMovementCheck(true);
 			AggroCheck();
 		}
     }
@@ -453,11 +453,7 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.flankedOnce = false;
 		unit.repositioning = true;
 
-		if (unit.isMoving)
-		{
-			unit.StopAnimation();
-			unit.ShiftMovement();
-		}
+		unit.StopMovementCheck(false);
 
 		unit.finalDestinationLoc = campSpot;
 		List<Vector3Int> path;

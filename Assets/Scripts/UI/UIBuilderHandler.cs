@@ -327,14 +327,21 @@ public class UIBuilderHandler : MonoBehaviour
         {
 			string itemName = "";
 			List<ResourceValue> resourceCosts = new();
-			bool locked = false;
+			//bool locked = false;
 			bool hide = false;
 
 			if (buildOptions[i].UnitBuildData != null)
 			{
+				//locked = buildOptions[i].locked;
+                if (!cityBuilderManager.world.showAllBuildOptions && (!cityBuilderManager.world.upgradeableObjectMaxLevelDict.ContainsKey(buildOptions[i].UnitBuildData.unitType.ToString()) ||
+					buildOptions[i].UnitBuildData.unitLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString())))
+                {
+					buildOptions[i].Hide();
+					continue;
+                }
+
 				itemName = buildOptions[i].UnitBuildData.unitDisplayName;
 				resourceCosts = new(buildOptions[i].UnitBuildData.unitCost);
-				locked = buildOptions[i].locked;
 
 				if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
 				{
@@ -380,9 +387,16 @@ public class UIBuilderHandler : MonoBehaviour
 			}
 			else if (buildOptions[i].BuildData != null)
 			{
+				if (!cityBuilderManager.world.showAllBuildOptions && (!cityBuilderManager.world.upgradeableObjectMaxLevelDict.ContainsKey(buildOptions[i].BuildData.improvementName) || 
+                    buildOptions[i].BuildData.improvementLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].BuildData.improvementName)))
+				{
+					buildOptions[i].Hide();
+					continue;
+				}
+
+				//locked = buildOptions[i].locked;
 				itemName = buildOptions[i].BuildData.improvementName;
 				resourceCosts = new(buildOptions[i].BuildData.improvementCost);
-				locked = buildOptions[i].locked;
 
 				buildOptions[i].waterMax = resourceManager.city.reachedWaterLimit;
 
@@ -405,7 +419,7 @@ public class UIBuilderHandler : MonoBehaviour
 			if (buildOptions[i].somethingNew)
 				hide = false;
 
-			if (locked || hide || improvementSingleBuildList.Contains(itemName) || (buildOptions[i].BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
+			if (/*locked || */hide || improvementSingleBuildList.Contains(itemName) || (buildOptions[i].BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
 			{
 				buildOptions[i].ToggleVisibility(false);
 				continue;

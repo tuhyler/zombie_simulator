@@ -25,7 +25,7 @@ public class UICityUpgradePanel : MonoBehaviour
     private CityImprovement improvement;
     private Unit unit;
     private bool cannotAfford;
-    private List<ResourceValue> upgradeCost = new();
+    private List<ResourceValue> upgradeCost = new(), refundCost = new();
     List<List<ResourceValue>> consumes = new();
     List<int> produceTime = new();
 
@@ -90,6 +90,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
         if (v)
         {
+            string name;
             string nameAndLevel;
             world.infoPopUpCanvas.gameObject.SetActive(true);
             activeStatus = true;
@@ -98,16 +99,19 @@ public class UICityUpgradePanel : MonoBehaviour
             if (improvement != null)
             {
                 improvementLoc = improvement.loc;
+                name = improvement.GetImprovementData.improvementName;
                 nameAndLevel = improvement.GetImprovementData.improvementNameAndLevel;
             }
             else
             {
+                name = unit.buildDataSO.unitType.ToString();
                 nameAndLevel = unit.buildDataSO.unitNameAndLevel;
 			}
 
             this.unit = unit;
 
-            upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
+            string upgradeNameAndLevel = name + "-" + world.GetUpgradeableObjectMaxLevel(name);
+            (upgradeCost, refundCost) = world.CalculateUpgradeCost(nameAndLevel, upgradeNameAndLevel, improvement == null);
 
             if (unit != null)
             {
@@ -121,15 +125,15 @@ public class UICityUpgradePanel : MonoBehaviour
                     produces.Add(value);
                     consumes.Add(new(unit.buildDataSO.cycleCost));
                 }
-                
-                UnitBuildDataSO unitData = world.GetUnitUpgradeData(nameAndLevel);
+
+                UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[upgradeNameAndLevel];
                 List<int> produceTime = new() { 0 };
                 SetInfo(unitData.image, unitData.unitType.ToString(), unitData.unitDisplayName, unitData.unitLevel, 0, unitData.unitDescription,
                 produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, unitData.cargoCapacity, resourceManager);
             }
             else
             {
-                ImprovementDataSO improvementData = world.GetUpgradeData(nameAndLevel);
+                ImprovementDataSO improvementData = UpgradeableObjectHolder.Instance.improvementDict[upgradeNameAndLevel];
 
                 consumes.Add(new(improvementData.consumedResources));
                 if (improvementData.consumedResources1.Count > 0)
@@ -176,6 +180,8 @@ public class UICityUpgradePanel : MonoBehaviour
         activeStatus = false;
         this.improvement = null;
         this.unit = null;
+        upgradeCost.Clear();
+        refundCost.Clear();
         consumes.Clear();
         produceTime.Clear();
     }
@@ -482,11 +488,11 @@ public class UICityUpgradePanel : MonoBehaviour
             
         if (improvement != null)
         {
-            cityBuilderManager.UpgradeSelectedImprovementQueueCheck(improvementLoc, improvement);
+            cityBuilderManager.UpgradeSelectedImprovementQueueCheck(improvementLoc, improvement, new(upgradeCost), new(refundCost));
         }
         else if (unit != null)
         {
-            cityBuilderManager.UpgradeUnit(unit);
+            cityBuilderManager.UpgradeUnit(unit, new(upgradeCost), new(refundCost));
             cityBuilderManager.PlayBoomAudio();
         }
 

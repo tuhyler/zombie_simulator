@@ -211,31 +211,32 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 else
                     tabName = "Producers";
 
-                if (!data.isBuilding || data.improvementLevel == 1)
-                {
-                    world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
-				    world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
+        //        if (!data.isBuilding || data.improvementLevel == 1)
+        //        {
+        //            world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
+				    ////world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
 
-                    //relocking previous versions of improvement
-                    if (data.improvementLevel > 1)
-                    {
-                        string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-                        world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
-                    }
-                }
-                
-                world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
+        //            //relocking previous versions of improvement
+        //            //if (data.improvementLevel > 1)
+        //            //{
+        //            //    string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
+        //            //    //world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
+        //            //}
+        //        }
+
+				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
+				world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
 			}
             else if (researchReward.unitData != null)
             {
                 UnitBuildDataSO data = researchReward.unitData;
                 string tabName = "Units";
 				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true, true);
-				world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
+				//world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
 
 				//relocking previous versions of unit
-				if (data.unitLevel > 1)
-					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
+				//if (data.unitLevel > 1)
+				//	world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
 
                 world.SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
             }
@@ -251,7 +252,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 if (data.bridge)
                     world.bridgeResearched = true;
 
-                world.upgradeableUtilityMaxLevelDict[data.utilityType] = data.utilityLevel;
+                world.SetUpgradeableObjectMaxLevel(data.utilityType.ToString(), data.utilityLevel);
 			}
 
 			for (int i = 0; i < researchReward.resourcesUnlocked.Count; i++)
@@ -308,20 +309,22 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 				else
 					tabName = "Producers";
 
-				if (!data.isBuilding || data.improvementLevel == 1)
-				{
-					if (world.newUnitsAndImprovements.Contains(data.improvementNameAndLevel))
-                        world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
-					world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
+				//if (!data.isBuilding || data.improvementLevel == 1)
+				//{
+				//	if (world.newUnitsAndImprovements.Contains(data.improvementNameAndLevel))
+    //                    world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
+				//	//world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, data.improvementNameAndLevel, false);
 
-					//relocking previous versions of improvement
-					if (data.improvementLevel > 1)
-					{
-						string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
-						world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
-					}
-				}
+				//	//relocking previous versions of improvement
+				//	//if (data.improvementLevel > 1)
+				//	//{
+				//	//	string prevNameAndLevel = data.improvementName + "-" + (data.improvementLevel - 1);
+				//	//	//world.cityBuilderManager.uiCityTabs.ToggleLockButton(tabName, prevNameAndLevel, true);
+				//	//}
+				//}
 
+				if (world.newUnitsAndImprovements.Contains(data.improvementNameAndLevel))
+					world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.improvementNameAndLevel, false, true);
 				world.SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
 			}
 			else if (researchReward.unitData != null)
@@ -331,11 +334,11 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
                 if (world.newUnitsAndImprovements.Contains(data.unitNameAndLevel))
     				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true ,true);
-				world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
+				//world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
 
 				//relocking previous versions of unit
-				if (data.unitLevel > 1)
-					world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
+				//if (data.unitLevel > 1)
+				//	world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
 
 				world.SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
 			}
@@ -352,7 +355,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 				if (data.bridge)
 					world.bridgeResearched = true;
 
-				world.upgradeableUtilityMaxLevelDict[data.utilityType] = data.utilityLevel;
+				world.SetUpgradeableObjectMaxLevel(data.utilityType.ToString(), data.utilityLevel);
 			}
 		}
 

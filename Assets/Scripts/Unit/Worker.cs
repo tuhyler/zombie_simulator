@@ -417,7 +417,7 @@ public class Worker : Unit
         else
         {
 			world.mainPlayer.isBusy = false;
-            world.mainPlayer.StopMovement();
+            world.mainPlayer.StopMovementCheck(true);
 
 			world.scott.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), true);
 			//if (world.azaiFollow)
@@ -481,7 +481,7 @@ public class Worker : Unit
 			world.mainPlayer.SetResources(currentUtilityCost.utilityCost, true, roadPosition);
 
 		world.roadManager.BuildRoadAtPosition(roadPosition, currentUtilityCost.utilityType, currentUtilityCost.utilityLevel);
-		world.RemoveWorkerWorkLocation(roadPosition);
+		world.RemoveWorkerWorkLocation();
 
 		//moving worker up a smidge to be on top of road
 		Vector3 moveUp = transform.position;
@@ -625,7 +625,7 @@ public class Worker : Unit
 		HideProgressTimeBar();
 		SetWorkAnimation(false);
 		world.roadManager.RemoveRoadAtPosition(tile);
-		world.RemoveWorkerWorkLocation(tile);
+		world.RemoveWorkerWorkLocation();
 
 		foreach (Vector3Int loc in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYINCREMENT))
 		{
@@ -676,13 +676,13 @@ public class Worker : Unit
         workerPos.y = 0;
         Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
 
-		StopMovement();
+		StopMovementCheck(true);
 		if (world.scottFollow)
 		{
-			world.scott.StopMovement();
+			world.scott.StopMovementCheck(true);
 
 			if (world.azaiFollow)
-				world.azai.StopMovement();
+				world.azai.StopMovementCheck(true);
 		}
 
 		if (!world.IsTileOpenCheck(workerTile))
@@ -814,7 +814,7 @@ public class Worker : Unit
 		if (world.mainPlayer.buildingCity)
 		{
 			worker.clearedForest = true;
-			world.RemoveWorkerWorkLocation(pos);
+			world.RemoveWorkerWorkLocation();
 			workerTaskManager.BuildCityPrep();
 		}
 		else
@@ -864,7 +864,7 @@ public class Worker : Unit
 		//City city = world.GetCity(resourceCityLoc);
 		ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
 
-		StopMovement();
+		StopMovementCheck(true);
         PrepareScottForestClear(resourceIndividual);
 		world.GetTerrainDataAt(workerTile).beingCleared = true;
 		GameLoader.Instance.gameData.allTerrain[workerTile].beingCleared = true;
@@ -876,7 +876,7 @@ public class Worker : Unit
 
     public void RemoveWorkLocation()
     {
-        world.RemoveWorkerWorkLocation(world.GetClosestTerrainLoc(transform.position));
+        world.RemoveWorkerWorkLocation();
     }
 
     public void GatherResourceListener()
@@ -928,7 +928,7 @@ public class Worker : Unit
 		Vector3Int workerTile = world.GetClosestTerrainLoc(workerPos);
         FinishedMoving.RemoveListener(BuildCity);
 
-        StopMovement();
+        StopMovementCheck(true);
 
 		if (CheckForCityOrCenter(workerTile))
 		{
@@ -995,7 +995,7 @@ public class Worker : Unit
 		}
 
 		world.unitMovement.workerTaskManager.BuildCity(workerTile, this, world.scott.clearedForest, td);
-		world.RemoveWorkerWorkLocation(workerTile);
+		world.RemoveWorkerWorkLocation();
 	}
 
 	private bool CheckForCityOrCenter(Vector3 workerPos)
@@ -1159,8 +1159,8 @@ public class Worker : Unit
 
 	public void GoToPosition(Vector3Int position, bool diag)
 	{
-		StopMovement();
-		ShiftMovement();
+		StopMovementCheck(true);
+		//ShiftMovement();
 		Vector3Int currentLoc = world.RoundToInt(transform.position);
 
 		if (Mathf.Abs(position.x - currentLoc.x) < 2 && Mathf.Abs(position.z - currentLoc.z) < 2)
@@ -1207,8 +1207,8 @@ public class Worker : Unit
 
 			if (world.azaiFollow)
 			{
-				world.azai.StopMovement();
-				world.azai.ShiftMovement();
+				world.azai.StopMovementCheck(true);
+				//world.azai.ShiftMovement();
 
 				List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, world.azai.transform.position, world.RoundToInt(transform.position), false, false);
 				azaiPath.AddRange(path);
@@ -1305,13 +1305,8 @@ public class Worker : Unit
 	{
 		world.unitMovement.moveUnit = false;
 		
-		world.scott.StopAnimation();
-		world.scott.ShiftMovement();
-		world.scott.ResetMovementOrders();
-
-		world.azai.StopAnimation();
-		world.azai.ShiftMovement();
-		world.azai.ResetMovementOrders();
+		world.scott.StopMovementCheck(false);
+		world.azai.StopMovementCheck(false);
 
 		Vector3Int currentScottSpot = world.RoundToInt(world.scott.transform.position);
 		List<Vector3Int> scottPath;
@@ -1351,8 +1346,7 @@ public class Worker : Unit
 			azaiPath.AddRange(scottPath);
 			azaiPath.Remove(finalScottSpot);
 
-			world.azai.StopAnimation();
-			world.azai.ShiftMovement();
+			world.azai.StopMovementCheck(false);
 			if (azaiPath.Count > 0)
 			{
 				world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
@@ -1476,8 +1470,7 @@ public class Worker : Unit
 
 	public void RepositionWorker(Vector3Int newPos, bool loading, bool enemy, List<Vector3Int> exemptList = null)
 	{
-		StopAnimation();
-		ShiftMovement();
+		StopMovementCheck(false);
 
 		List<Vector3Int> path;
 		
@@ -1581,26 +1574,9 @@ public class Worker : Unit
 
 	public void StopPlayer()
 	{
-		if (isMoving)
-		{
-			StopAnimation();
-			ShiftMovement();
-			ResetMovementOrders();
-		}
-
-		if (world.scott.isMoving)
-		{
-			world.scott.StopAnimation();
-			world.scott.ShiftMovement();
-			world.scott.ResetMovementOrders();
-		}
-
-		if (world.azai.isMoving)
-		{
-			world.azai.StopAnimation();
-			world.azai.ShiftMovement();
-			world.azai.ResetMovementOrders();
-		}
+		StopMovementCheck(false);
+		world.scott.StopMovementCheck(false);
+		world.azai.StopMovementCheck(false);
 	}
 
 	public void StartRunningAway()
@@ -1812,7 +1788,6 @@ public class Worker : Unit
 		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
-		data.moreToMove = moreToMove;
         data.somethingToSay = somethingToSay;
         data.conversationTopics = new(conversationHaver.conversationTopics);
         data.isBusy = isBusy;
@@ -1860,7 +1835,6 @@ public class Worker : Unit
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
         isBusy = data.isBusy;
-		moreToMove = data.moreToMove;
         building = data.building;
 		removing = data.removing;
         gathering = data.gathering;

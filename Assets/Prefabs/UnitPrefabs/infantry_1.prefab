@@ -388,7 +388,6 @@ MonoBehaviour:
   moveSpeed: 0.5
   originalMoveSpeed: 0.5
   threshold: 0.01
-  moreToMove: 0
   isBusy: 0
   isMoving: 0
   secondaryPrefab: 0
@@ -424,7 +423,8 @@ MonoBehaviour:
   isUpgrading: 0
   unitAnimator: {fileID: 0}
   boatMesh: {fileID: 1294237274621883464}
-  boatSail: {fileID: 8591123208841313497}
+  logoSail: {fileID: 811537963282008066}
+  sail: {fileID: 8591123208841313497}
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
@@ -574,6 +574,12 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a3f3590bb5530e4dae5bd3af9effaf9, type: 3}
+--- !u!33 &811537963282008066 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 1618003215139078427, guid: 2a3f3590bb5530e4dae5bd3af9effaf9,
+    type: 3}
+  m_PrefabInstance: {fileID: 2105261440845023513}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1294237274621883464 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2a3f3590bb5530e4dae5bd3af9effaf9,

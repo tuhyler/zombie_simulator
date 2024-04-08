@@ -272,7 +272,6 @@ public class Trader : Unit
 			currentLocation = world.AddUnitPosition(currentLoc, this);
 		}
 		isWaiting = true;
-		movingCo = null;
 		StopAnimation();
 
 		Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(finalDestinationLoc)));
@@ -915,8 +914,8 @@ public class Trader : Unit
 		}
 		else
 		{
-			if (isMoving)
-				StopMovement();
+			StopMovementCheck(true);
+			TradersHereCheck();
 
 			if (followingRoute)
 				CancelRoute();
@@ -954,7 +953,6 @@ public class Trader : Unit
 		if (isMoving && !isWaiting)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
 
-		data.moreToMove = moreToMove;
 		data.interruptedRoute = interruptedRoute;
 		data.atStop = atStop;
 		data.followingRoute = followingRoute;
@@ -998,7 +996,6 @@ public class Trader : Unit
 		prevTile = data.prevTile;
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
-		moreToMove = data.moreToMove;
 		interruptedRoute = data.interruptedRoute;
 		atStop = data.atStop;
 		followingRoute = data.followingRoute;

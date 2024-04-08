@@ -84,7 +84,7 @@ public class UICityImprovementTip : MonoBehaviour
             
             highlightList[highlightIndex].gameObject.SetActive(false); // turn off previous one
             this.improvement = improvement;
-            ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+            ResourceProducer producer = improvement.resourceProducer;
 
 			if (producer.isWaitingforResources)
 			{
@@ -178,7 +178,7 @@ public class UICityImprovementTip : MonoBehaviour
     private void SetData(CityImprovement improvement)
     {
         ImprovementDataSO data = improvement.GetImprovementData;
-        ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+        ResourceProducer producer = improvement.resourceProducer;
         producesCount = data.producedResources.Count;
         maxCount = producesCount;
 
@@ -204,7 +204,7 @@ public class UICityImprovementTip : MonoBehaviour
         else
             workEthic = improvement.city.workEthic;
 
-        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, world.GetResourceProducer(improvement.loc).isProducing, workEthic);
+        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, producer.isProducing, workEthic);
         SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);
 
         if (data.getTerrainResource)
@@ -360,7 +360,7 @@ public class UICityImprovementTip : MonoBehaviour
         if (highlightIndex == a)
             return;
         
-        ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+        ResourceProducer producer = improvement.resourceProducer;
         highlightList[producer.producedResourceIndex].gameObject.SetActive(false);
         if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources || producer.isWaitingToUnload)
             producer.StopProducing(true);
@@ -404,7 +404,7 @@ public class UICityImprovementTip : MonoBehaviour
         if (improvement == null)
             return;
 
-		ResourceProducer producer = world.GetResourceProducer(improvement.loc);
+		ResourceProducer producer = improvement.resourceProducer;
         float workEthic = producer.isProducing ? improvement.city.workEthic : 1;
 
 		for (int i = 0; i < producer.producedResources.Count; i++)

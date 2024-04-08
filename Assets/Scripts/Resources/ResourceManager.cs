@@ -508,34 +508,55 @@ public class ResourceManager : MonoBehaviour
         return Mathf.RoundToInt((city.workEthic + city.world.GetResourceTypeBonus(type)) * (resourceAmount * labor) * (1 + .1f * (labor - 1)));
     }
 
-    public void SpendResource(List<ResourceValue> buildCost, Vector3 loc)
+    public void SpendResource(List<ResourceValue> buildCost, Vector3 loc, bool refund = false, List<ResourceValue> refundCost = null)
     {
         int i = 0;
         loc.y += buildCost.Count * 0.4f;
 
-        foreach (ResourceValue resourceValue in buildCost)
+        foreach (ResourceValue value in buildCost)
         {
             Vector3 newLoc = loc;
             
-            if (resourceValue.resourceType == ResourceType.Gold)
-                city.UpdateWorldResources(resourceValue.resourceType, -resourceValue.resourceAmount);
+            if (value.resourceType == ResourceType.Gold)
+            {
+                city.UpdateWorldResources(value.resourceType, -value.resourceAmount);
+
+            }
             else
-                SpendResource(resourceValue.resourceType, resourceValue.resourceAmount);
+            {
+                int prevAmount = resourceDict[value.resourceType];
+				resourceDict[value.resourceType] -= value.resourceAmount;
+                resourceStorageLevel -= value.resourceAmount;
+                UICheck(value.resourceType, value.resourceAmount, prevAmount);
+            }
     
             newLoc.y += -.4f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(newLoc, -resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+            InfoResourcePopUpHandler.CreateResourceStat(newLoc, -value.resourceAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
             i++;
         }
-    }
 
-    private void SpendResource(ResourceType resourceType, int resourceAmount) //changing the resource counter upon using resources
-    {
-        //ResourceType resourceValue = resourceValue.resourceValue; 
-        resourceDict[resourceType] -= resourceAmount; //subtract cost
-        resourceStorageLevel -= resourceAmount /** city.world.resourceStorageMultiplierDict[resourceType]*/;
+        if (refund)
+            IssueRefund(refundCost, loc, i);
+
         CheckProducerUnloadWaitList();
         city.CheckLimitWaiter();
     }
+
+    public void IssueRefund(List<ResourceValue> refundCost, Vector3 loc, int i = 0)
+    {
+		foreach (ResourceValue value in refundCost)
+		{
+			Vector3 newLoc = loc;
+
+			if (value.resourceAmount > 0)
+			{
+				AddResource(value.resourceType, value.resourceAmount);
+				newLoc.y += -.4f * i;
+				InfoResourcePopUpHandler.CreateResourceStat(newLoc, value.resourceAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
+				i++;
+			}
+		}
+	}
 
     public void UpdateUI(List<ResourceValue> values) //updating the UI with the resource information in the dictionary
     {

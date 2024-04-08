@@ -10,7 +10,7 @@ public class TransportData: IUnitData
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
 	public int passengerCount;
-	public bool isMoving, moreToMove, canMove, hasKoa, hasScott, hasAzai;
+	public bool isMoving, canMove, hasKoa, hasScott, hasAzai;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation, prevTile;

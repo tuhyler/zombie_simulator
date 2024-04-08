@@ -10,7 +10,7 @@ public class LaborerData : IUnitData
 	public Vector3 position, destinationLoc, finalDestinationLoc;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, moreToMove, isMoving, somethingToSay, celebrating;
+	public bool secondaryPrefab, isMoving, somethingToSay, celebrating;
 	public Vector3Int currentLocation, homeCityLoc, prevTerrainTile;
 
 	public LaborerData GetLaborerData()

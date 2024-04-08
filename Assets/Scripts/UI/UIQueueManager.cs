@@ -35,7 +35,7 @@ public class UIQueueManager : MonoBehaviour
     private MapWorld world;
 
     [HideInInspector]
-    public List<ResourceValue> upgradeCosts;
+    public List<ResourceValue> upgradeCosts, refundCosts;
 
 	//for object pooling of UIQueueItems
 	private Queue<UIQueueItem> uiQueueItemQueue = new();

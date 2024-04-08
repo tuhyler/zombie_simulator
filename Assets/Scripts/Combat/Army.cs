@@ -953,12 +953,7 @@ public class Army : MonoBehaviour
             if (!deploying)
                 path.Add(unit.barracksBunk);
 
-			if (unit.isMoving)
-			{
-				unit.StopAnimation();
-				unit.ShiftMovement();
-			}
-
+			unit.StopMovementCheck(false);
             unit.isMarching = true;
 
             if (path.Count > 0)

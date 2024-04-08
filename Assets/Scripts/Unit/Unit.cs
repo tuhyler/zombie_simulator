@@ -69,7 +69,7 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public Queue<Vector3Int> pathPositions = new();
     [HideInInspector]
-    public bool moreToMove, isBusy, isMoving, secondaryPrefab, readyToMarch = true; 
+    public bool isBusy, isMoving, secondaryPrefab, readyToMarch = true; 
     [HideInInspector]
     public Vector3 destinationLoc;
     [HideInInspector]
@@ -341,7 +341,6 @@ public class Unit : MonoBehaviour
             {                
                 if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
 			    {
-                    moreToMove = true;
                     isMoving = true;
                     trader.GetInLine();
 				    return;
@@ -349,23 +348,23 @@ public class Unit : MonoBehaviour
             }
             else
             {
-				Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-				if (bySea)
-                {
-					if (world.IsCityHarborOnTile(terrainLoc))
-                        world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
-                }
-                else
-                {
-                    if (world.IsCityOnTile(terrainLoc))
-                        world.GetCity(terrainLoc).tradersHere.Remove(this);
-                }
+                TradersHereCheck();
+    //            Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+				//if (bySea)
+    //            {
+				//	if (world.IsCityHarborOnTile(terrainLoc))
+    //                    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
+    //            }
+    //            else
+    //            {
+    //                if (world.IsCityOnTile(terrainLoc))
+    //                    world.GetCity(terrainLoc).tradersHere.Remove(this);
+    //            }
             }
         }
 
 		Vector3 firstTarget = pathPositions.Dequeue();
 
-        moreToMove = true;
         isMoving = true;
         StartAnimation();
         movingCo = StartCoroutine(MovementCoroutine(firstTarget));
@@ -622,7 +621,6 @@ public class Unit : MonoBehaviour
                 {
                     StopAnimation();
                     isMoving = false;
-                    moreToMove = false;
                     finalDestinationLoc = prevTile;
                     currentLocation = prevTile;
                     world.AddUnitPosition(currentLocation, this);
@@ -649,42 +647,77 @@ public class Unit : MonoBehaviour
         }
     }
 
-	public void StopMovement()
+	public void StopMovementCheck(bool finish)
     {
         if (isMoving)
         {
             if (movingCo != null)
             {
                 StopCoroutine(movingCo);
+                movingCo = null;
             }
 
             StopAnimation();
 
-            if (isMoving) //check here twice in case still moving after stopping coroutine
-                FinishMoving(destinationLoc);
-        }
-        else if (trader)
-        {
-			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-			if (bySea)
+            if (finish)
             {
-                if (world.IsCityHarborOnTile(terrainLoc))
-					world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
+                FinishMoving(destinationLoc);
             }
             else
             {
-				if (world.IsCityOnTile(terrainLoc))
-					world.GetCity(terrainLoc).tradersHere.Remove(this);
+				HidePath();
+				pathPositions.Clear();
 			}
         }
+   //     else if (trader && finish)
+   //     {
+			//Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+			//if (bySea)
+   //         {
+   //             if (world.IsCityHarborOnTile(terrainLoc))
+			//		world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
+   //         }
+   //         else
+   //         {
+			//	if (world.IsCityOnTile(terrainLoc))
+			//		world.GetCity(terrainLoc).tradersHere.Remove(this);
+			//}
+   //     }
     }
 
-    public void ShiftMovement()
+    public void TradersHereCheck()
     {
-        StopAllCoroutines();
-        HidePath();
-        pathPositions.Clear();
-    }
+		if (!isMoving)
+        {
+            Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+		    if (bySea)
+		    {
+			    if (world.IsCityHarborOnTile(terrainLoc))
+				    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
+		    }
+		    else
+		    {
+			    if (world.IsCityOnTile(terrainLoc))
+				    world.GetCity(terrainLoc).tradersHere.Remove(this);
+		    }
+        }
+	}
+
+    //public void ShiftMovement()
+    //{
+    //    if (isMoving)
+    //    {
+    //        if (movingCo != null)
+    //        {
+    //            StopCoroutine(movingCo);
+    //            movingCo = null;
+    //        }
+
+    //        StopAnimation();
+    //        HidePath();
+    //        pathPositions.Clear();
+    //    }
+    //}
 
     public void AddToMovementQueue(List<Vector3Int> queuedOrders)
     {
@@ -731,14 +764,12 @@ public class Unit : MonoBehaviour
         if (bySea)
             TurnOffRipples();
         queueCount = 0;
-        moreToMove = false;
         isMoving = false;
         currentLocation = world.RoundToInt(transform.position);
         HidePath();
         pathPositions.Clear();
         StopAnimation();
         FinishedMoving?.Invoke();
-
         
         if (trader)
         {
@@ -1327,44 +1358,38 @@ public class Unit : MonoBehaviour
 
     //Methods for movement order information 
     //displays movement orders when selected
-    public List<Vector3Int> GetContinuedMovementPath() 
-    {
-        List<Vector3Int> continuedOrdersPositions = new(pathPositions);
+    //public List<Vector3Int> GetContinuedMovementPath() 
+    //{
+    //    List<Vector3Int> continuedOrdersPositions = new(pathPositions);
 
-        return continuedOrdersPositions;
-    }
+    //    return continuedOrdersPositions;
+    //}
 
-    public void ResetMovementOrders()
-    {
-        pathPositions.Clear();
-        moreToMove = false;
-    }
+    //public void CatchUp(Vector3Int lastSpot)
+    //{
+    //    Queue<Vector3Int> newQueue = new Queue<Vector3Int>(pathPositions.Reverse());
 
-    public void CatchUp(Vector3Int lastSpot)
-    {
-        Queue<Vector3Int> newQueue = new Queue<Vector3Int>(pathPositions.Reverse());
+    //    if (newQueue.Count > 0)
+    //    {
+    //        Vector3Int testLoc = newQueue.Dequeue();
+    //        while (testLoc != lastSpot)
+    //        {
+    //            if (newQueue.Count > 0)
+    //                testLoc = newQueue.Dequeue();
+    //        }
+    //    }
 
-        if (newQueue.Count > 0)
-        {
-            Vector3Int testLoc = newQueue.Dequeue();
-            while (testLoc != lastSpot)
-            {
-                if (newQueue.Count > 0)
-                    testLoc = newQueue.Dequeue();
-            }
-        }
+    //    if (newQueue.Count > 0)
+    //        finalDestinationLoc = newQueue.Peek();
+    //    else
+    //        finalDestinationLoc = transform.position;
 
-        if (newQueue.Count > 0)
-            finalDestinationLoc = newQueue.Peek();
-        else
-            finalDestinationLoc = transform.position;
-
-        pathPositions = new Queue<Vector3Int>(newQueue.Reverse());
-    }
+    //    pathPositions = new Queue<Vector3Int>(newQueue.Reverse());
+    //}
 
     public void RemoveUnitFromData()
     {
-        ResetMovementOrders();
+		pathPositions.Clear();
         world.RemoveUnitPosition(currentLocation);
     }
 
