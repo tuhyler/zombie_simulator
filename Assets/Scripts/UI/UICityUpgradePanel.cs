@@ -106,6 +106,11 @@ public class UICityUpgradePanel : MonoBehaviour
             {
                 name = unit.buildDataSO.unitType.ToString();
                 nameAndLevel = unit.buildDataSO.unitNameAndLevel;
+                if (unit == world.azai)
+                {
+                    name = "Azai";
+                    nameAndLevel = "Azai-" + unit.buildDataSO.unitLevel;
+                }
 			}
 
             this.unit = unit;

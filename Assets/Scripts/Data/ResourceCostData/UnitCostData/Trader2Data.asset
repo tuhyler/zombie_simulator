@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4262420279640114416, guid: 801743abbaa111446b985a226fad7b99, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Trader
+  nationalityAdjective: 
   unitDisplayName: Cart Trader
   unitLevel: 2
   unitNameAndLevel: Trader-2
@@ -34,13 +34,20 @@ MonoBehaviour:
   laborCost: 1
   unitType: 5
   unitDescription: Transports cargo on land, holds more
-  availableInitially: 0
+  availableInitially: 1
   health: 14
+  regenerationRate: 2
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 0.5
   trainTime: 0
   cargoCapacity: 200
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
   unitEra: 0
+  unitRegion: 4

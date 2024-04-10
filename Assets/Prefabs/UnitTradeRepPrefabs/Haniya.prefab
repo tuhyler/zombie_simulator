@@ -56,6 +56,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
         type: 3}
+      propertyPath: questRewardsInGold.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questRewardsInGold.Array.data[0]
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
       propertyPath: questGoals.Array.data[0].resourceType
       value: 7
       objectReference: {fileID: 0}

@@ -9,6 +9,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
     public int LaborChange { get { return laborChange; } }
 
     private UILaborAssignment buttonHandler;
+    [SerializeField]
     private Button button;
 
     private CityBuilderManager cityBuilderManager;
@@ -20,7 +21,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
     private Image buttonImage;
     private Color originalButtonColor;
 
-    private bool isSelected, buttonIsWorking = true;
+    private bool isSelected/*, buttonIsWorking = true*/;
     [HideInInspector]
     public bool isFlashing;
 
@@ -29,7 +30,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
         buttonHandler = GetComponentInParent<UILaborAssignment>();
         //canvasGroup = GetComponent<CanvasGroup>();
         originalButtonColor = buttonImage.color;
-        button = GetComponent<Button>();
+        //button = GetComponent<Button>();
     }
 
     public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
@@ -44,10 +45,10 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
             ToggleButtonSelection(v);
     }
 
-    public void ToggleEnable(bool v)
-    {
-        buttonIsWorking = v;
-    }
+    //public void ToggleEnable(bool v)
+    //{
+    //    buttonIsWorking = v;
+    //}
 
     //public void OnButtonClick()
     //{
@@ -62,9 +63,27 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
     //    }
     //}
 
+    public void Handle1()
+    {
+		if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus && button.interactable)
+		{
+			laborChange = 1;
+            SelectButton();
+		}
+	}
+
+    public void Handle2()
+    {
+        if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus && button.interactable)
+        {
+            laborChange = -1;
+            SelectButton();
+        }
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (!button.interactable || !buttonIsWorking)
+        if (!button.interactable /*|| !buttonIsWorking*/)
             return;
 
         if (!isSelected)
@@ -84,7 +103,24 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
         //buttonHandler.HandleButtonClick();
     }
 
-    public void ToggleButtonSelection(bool v)
+    public void SelectButton()
+    {
+		if (!isSelected)
+		{
+			ToggleButtonSelection(true);
+			buttonHandler.PrepareLaborChange(laborChange);
+			buttonHandler.HandleButtonClick();
+		}
+		else
+		{
+			ToggleButtonSelection(false);
+			cityBuilderManager.CloseLaborMenus();
+		}
+
+		cityBuilderManager.PlaySelectAudio();
+	}
+
+	public void ToggleButtonSelection(bool v)
     {
         //if (!button.interactable && !isSelected)
         //    return;

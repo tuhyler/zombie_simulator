@@ -48,46 +48,39 @@ public class WorkerTaskManager : MonoBehaviour
     //Methods to run when pressing certain keys
     public void HandleR()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
-        {
-			unitMovement.buildingRoad = true;
-            uiBuildingSomething.SetText("Building Road");
-            OrdersPrep();
-            world.scott.currentUtilityCost = UpgradeableObjectHolder.Instance.utilityDict[UtilityType.Road][world.upgradeableObjectMaxLevelDict[UtilityType.Road.ToString()]];
-			world.scott.WorkerOrdersPreparations();
-        }
+        if (world.mainPlayer.isSelected && world.scottFollow && !world.mainPlayer.sayingSomething && !uiBuildingSomething.activeStatus)
+            BuildRoadButton();
     }
 
     public void HandleB()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !unitMovement.uiJoinCity.activeStatus && !world.mainPlayer.sayingSomething && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
-        {
-            BuildCityPrep();
-        }
+        if (world.mainPlayer.isSelected && !world.mainPlayer.sayingSomething && !uiBuildingSomething.activeStatus)
+            BuildCityButton();
     }
 
     public void HandleF()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
-        {
-			if (world.tutorialGoing)
-				unitMovement.uiWorkerTask.GetButton("Gather").FlashCheck();
-
-			world.mainPlayer.StopMovementCheck(true);
-			world.mainPlayer.GatherResource();
-        }
+        if (world.mainPlayer.isSelected && !world.mainPlayer.sayingSomething && !uiBuildingSomething.activeStatus)
+            GatherResourceButton();
     }
 
     public void HandleX()
     {
-        if (world.mainPlayer.isSelected && !world.mainPlayer.isBusy && !world.mainPlayer.sayingSomething && world.scottFollow && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
-        {
-			unitMovement.removingRoad = true;
-            uiBuildingSomething.SetText("Removing Road");
-            OrdersPrep();
-			world.scott.WorkerOrdersPreparations();
-        }
+        if (world.mainPlayer.isSelected && world.scottFollow && !world.mainPlayer.sayingSomething && !uiBuildingSomething.activeStatus)
+            RemoveAllPrep();
     }
+
+    public void HandleZ()
+    {
+        if (world.mainPlayer.isSelected && world.scottFollow && !world.mainPlayer.sayingSomething && !uiBuildingSomething.activeStatus)
+            ClearForestButton();
+	}
+
+    public void HandleT()
+    {
+        if (world.mainPlayer.isSelected && uiWorkerHandler.uiLoadUnload.IsInteractable() && world.scottFollow && !world.mainPlayer.sayingSomething && !uiBuildingSomething.activeStatus)
+            world.unitMovement.LoadUnloadPrep();
+	}
 
     private void MoveToCenterOfTile(Vector3Int workerTile)
     {
@@ -108,9 +101,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (world.tutorialGoing)
 			unitMovement.uiWorkerTask.GetButton("Build").FlashCheck();
 
-		if (unitMovement.moveUnit)
-			unitMovement.CancelMove();
-
+		unitMovement.CancelMove();
 		unitMovement.LoadUnloadFinish(true);
         unitMovement.GivingFinish(true);
 
@@ -118,7 +109,6 @@ public class WorkerTaskManager : MonoBehaviour
 		Vector3 pos = world.mainPlayer.transform.position;
 		pos.y = 0;
 		Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
-
 
         if (Vector3Int.RoundToInt(pos) == workerTile)
 		{
@@ -254,8 +244,8 @@ public class WorkerTaskManager : MonoBehaviour
 
     private void OrdersPrep()
     {
-        if (unitMovement.moveUnit)
-            unitMovement.CancelMove();
+        //if (world.moveUnit)
+        unitMovement.CancelMove();
         unitMovement.LoadUnloadFinish(true);
         unitMovement.GivingFinish(true);
 

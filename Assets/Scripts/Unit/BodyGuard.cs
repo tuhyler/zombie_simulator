@@ -30,6 +30,7 @@ public class BodyGuard : Military
 
 	public void PrepForDuel(Vector3Int loc, Vector3Int barracksLoc, Vector3Int enemyCityLoc, EnemyCamp targetCamp)
 	{
+		healthbar.CancelRegeneration();
 		StopMovementCheck(false);
 		world.scott.StopMovementCheck(false);
 
@@ -136,6 +137,8 @@ public class BodyGuard : Military
 		Destroy(dizzy);
 		ToggleDizzy(false);
 		world.mainPlayer.ReturnToFriendlyTile();
+		if (isSelected || world.mainPlayer.isSelected)
+			world.unitMovement.SelectWorker();
 		world.ToggleBadGuyTalk(false, army.targetCamp.cityLoc);
 		army.targetCamp = null;
 	}
@@ -171,6 +174,10 @@ public class BodyGuard : Military
 			finalDestinationLoc = finalLoc;
 			MoveThroughPath(azaiPath);
 		}
+		else
+		{
+			FinishMoving(transform.position);
+		}
 	}
 
 	public void FollowScott(List<Vector3Int> scottPath, Vector3 currentLoc)
@@ -183,6 +190,10 @@ public class BodyGuard : Military
 		{
 			finalDestinationLoc = azaiPath[azaiPath.Count - 1];
 			MoveThroughPath(azaiPath);
+		}
+		else
+		{
+			FinishMoving(transform.position);
 		}
 	}
 
@@ -216,6 +227,7 @@ public class BodyGuard : Military
 	{
 		toTransport = false;
 		Vector3Int tile = world.RoundToInt(transform.position);
+		healthbar.CancelRegeneration();
 
 		if (transport.isUpgrading)
 		{
@@ -233,6 +245,30 @@ public class BodyGuard : Military
 		transform.position = tile;
 		gameObject.SetActive(true);
 		inTransport = false;
+		currentLocation = world.AddUnitPosition(transform.position, this);
+
+		if (currentHealth < buildDataSO.health)
+			healthbar.RegenerateHealth();
+	}
+
+	public void FinishMovementBodyGuard(Vector3 endPosition)
+	{
+		if (toTransport)
+			LoadBodyGuardInTransport(transportTarget);
+		else if (world.IsUnitLocationTaken(currentLocation))
+			UnitInWayCheck(endPosition);
+		else
+		{
+			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+			if (world.IsCityOnTile(terrainLoc))
+			{
+				City city = world.GetCity(terrainLoc);
+
+				if (!world.mainPlayer.isMoving && city.activeCity && world.unitMovement.upgradingUnit)
+					world.unitMovement.CheckIndividualUnitHighlight(this, city);
+			}
+			world.AddUnitPosition(currentLocation, this);
+		}
 	}
 
 	public BodyGuardData SaveBodyGuardData()

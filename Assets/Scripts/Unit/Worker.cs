@@ -661,13 +661,22 @@ public class Worker : Unit
 		}
 	}
 
+	private void AddFollowerLocToWorldCheck()
+	{
+		if (world.scottFollow)
+			world.scott.FinishMoving(world.scott.transform.position);
+
+		if (world.azaiFollow)
+			world.azai.FinishMoving(world.azai.transform.position);
+	}
+
 	public void GatherResource()
     {
-		if (world.mainPlayer.inEnemyLines || world.mainPlayer.runningAway)
-			return;
+		//if (world.mainPlayer.inEnemyLines || world.mainPlayer.runningAway)
+		//	return;
 		
-		if (world.unitMovement.moveUnit)
-			world.unitMovement.CancelMove();
+		//if (world.moveUnit)
+		world.unitMovement.CancelMove();
 
 		world.unitMovement.LoadUnloadFinish(true);
 		world.unitMovement.GivingFinish(true);
@@ -679,22 +688,24 @@ public class Worker : Unit
 		StopMovementCheck(true);
 		if (world.scottFollow)
 		{
-			world.scott.StopMovementCheck(true);
+			world.scott.StopMovementCheck(false);
 
 			if (world.azaiFollow)
-				world.azai.StopMovementCheck(true);
+				world.azai.StopMovementCheck(false);
 		}
 
 		if (!world.IsTileOpenCheck(workerTile))
         {
             InfoPopUpHandler.WarningMessage().Create(workerPos, "Harvest on open tile");
+			AddFollowerLocToWorldCheck();
             return;
         }
 
         if (!CheckForCity(workerTile))
         {
             InfoPopUpHandler.WarningMessage().Create(workerPos, "No nearby city");
-            return;
+			AddFollowerLocToWorldCheck();
+			return;
         }
 
         City city = world.GetCity(resourceCityLoc);
@@ -702,7 +713,8 @@ public class Worker : Unit
         if (type == ResourceType.None)
         {
             InfoPopUpHandler.WarningMessage().Create(workerPos, "No resource to harvest here");
-            return;
+			AddFollowerLocToWorldCheck();
+			return;
         }
         ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(type);
 
@@ -835,8 +847,8 @@ public class Worker : Unit
 
 	public void ClearForest()
     {
-		if (world.unitMovement.moveUnit)
-			world.unitMovement.CancelMove();
+		//if (world.moveUnit)
+		world.unitMovement.CancelMove();
 
 		Vector3 workerPos = transform.position;
 		workerPos.y = 0;
@@ -862,10 +874,10 @@ public class Worker : Unit
 
         //clearingForest = true;
 		//City city = world.GetCity(resourceCityLoc);
-		ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
+		//ResourceIndividualSO resourceIndividual = ResourceHolder.Instance.GetData(world.GetTerrainDataAt(workerTile).resourceType);
 
-		StopMovementCheck(true);
-        PrepareScottForestClear(resourceIndividual);
+		StopMovementCheck(false);
+        PrepareScottForestClear();
 		world.GetTerrainDataAt(workerTile).beingCleared = true;
 		GameLoader.Instance.gameData.allTerrain[workerTile].beingCleared = true;
 
@@ -1094,7 +1106,8 @@ public class Worker : Unit
 
 		if (alreadyThere)
 		{
-            world.scott.GatherResourceListener();
+			world.scott.FinishMoving(world.scott.transform.position);
+			world.scott.GatherResourceListener();
 
 			if (world.azai.isMoving)
 				world.azai.GetBehindScott(scottSpot);
@@ -1122,7 +1135,7 @@ public class Worker : Unit
 		}
 	}
 
-    public void PrepareScottForestClear(ResourceIndividualSO resourceData = null)
+    public void PrepareScottForestClear()
     {
         Vector3Int currentTerrain = world.GetClosestTerrainLoc(transform.position);
         Vector3Int currentSpot = currentLocation;
@@ -1141,6 +1154,7 @@ public class Worker : Unit
         if (alreadyThere)
         {
             world.scott.GatherResourceListener();
+			FinishMoving(transform.position);
         }
         else
         {
@@ -1159,7 +1173,7 @@ public class Worker : Unit
 
 	public void GoToPosition(Vector3Int position, bool diag)
 	{
-		StopMovementCheck(true);
+		StopMovementCheck(false);
 		//ShiftMovement();
 		Vector3Int currentLoc = world.RoundToInt(transform.position);
 
@@ -1207,7 +1221,7 @@ public class Worker : Unit
 
 			if (world.azaiFollow)
 			{
-				world.azai.StopMovementCheck(true);
+				world.azai.StopMovementCheck(false);
 				//world.azai.ShiftMovement();
 
 				List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, world.azai.transform.position, world.RoundToInt(transform.position), false, false);
@@ -1219,7 +1233,15 @@ public class Worker : Unit
 					world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
 					world.azai.MoveThroughPath(azaiPath);
 				}
+				else
+				{
+					world.azai.FinishMoving(world.azai.transform.position);
+				}
 			}
+		}
+		else
+		{
+			FinishMoving(transform.position);
 		}
 	}
 
@@ -1303,7 +1325,7 @@ public class Worker : Unit
 
 	public void HandleSelectedFollowerLoc(Queue<Vector3Int> path, Vector3Int currentSpot, Vector3Int finalSpot)
 	{
-		world.unitMovement.moveUnit = false;
+		//world.moveUnit = false;
 		
 		world.scott.StopMovementCheck(false);
 		world.azai.StopMovementCheck(false);
@@ -1568,6 +1590,7 @@ public class Worker : Unit
 		transform.position = tile;
 		gameObject.SetActive(true);
 		inTransport = false;
+		currentLocation = world.AddUnitPosition(transform.position, this);
 		//UnhideUnit();
 		//unit.unitRigidbody.useGravity = true;
 	}
@@ -1632,7 +1655,10 @@ public class Worker : Unit
 	{
 		isBusy = false;
 		runningAway = false;
-		exclamationPoint.SetActive(false);
+		if (inTransport)
+			world.GetKoasTransport().exclamationPoint.SetActive(false);
+		else
+			exclamationPoint.SetActive(false);
 	}
 
 	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route)
@@ -1691,6 +1717,7 @@ public class Worker : Unit
 			}
 			else
 			{
+				inEnemyLines = false;
 				LoadWorkerInTransport(transportTarget);
 			}
 
@@ -1719,9 +1746,10 @@ public class Worker : Unit
 
 		world.IsTreasureHere(endPositionInt, true);
 
-		if (toTransport)
+		if (toTransport && !transportTarget.isUpgrading)
 		{
-			LoadWorkerInTransport(transportTarget);
+			Transport tempTransport = transportTarget;
+			LoadWorkerInTransport(tempTransport);
 			
 			if (inEnemyLines)
 			{
@@ -1729,11 +1757,11 @@ public class Worker : Unit
 			}
 			else
 			{
-				world.scott.transportTarget = transportTarget;
+				world.scott.transportTarget = tempTransport;
 				world.scott.toTransport = true;
 				world.scott.RepositionWorker(endPositionInt, true, false);
 
-				world.azai.transportTarget = transportTarget;
+				world.azai.transportTarget = tempTransport;
 				world.azai.toTransport = true;
 				world.azai.RepositionBodyGuard(endPositionInt, true, false);
 			}
@@ -1764,8 +1792,10 @@ public class Worker : Unit
 
 	public void FinishMovementWorker(Vector3 endPosition)
 	{
-		if (worker.toTransport)
-			worker.LoadWorkerInTransport(worker.transportTarget);
+		if (gathering || clearingForest)
+			world.AddUnitPosition(currentLocation, this);
+		else if (toTransport)
+			LoadWorkerInTransport(worker.transportTarget);
 		else if (world.IsUnitLocationTaken(currentLocation))
 			UnitInWayCheck(endPosition);
 		else

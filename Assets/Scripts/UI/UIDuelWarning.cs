@@ -65,8 +65,7 @@ public class UIDuelWarning : MonoBehaviour
 	}
 
 	public void DenyDuel()
-	{
-		
+	{	
 		uiSpeechWindow.ReturnMainPlayer();
 		ToggleVisibility(false);
 		uiSpeechWindow.FinishText(false);

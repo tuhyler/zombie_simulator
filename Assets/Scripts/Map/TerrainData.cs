@@ -202,7 +202,7 @@ public class TerrainData : MonoBehaviour
             //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-                ChangeLeafColors(treeHandler, true);
+                ChangeLeafColors(treeHandler, false);
 		}
 	}
 
@@ -217,7 +217,7 @@ public class TerrainData : MonoBehaviour
             //treeHandler.SetMapIcon(isHill);
 
             if (changeLeafColor)
-                ChangeLeafColors(treeHandler, true);
+                ChangeLeafColors(treeHandler, false);
 		}
         else if (isHill && rawResourceType == RawResourceType.Rocks)
         {

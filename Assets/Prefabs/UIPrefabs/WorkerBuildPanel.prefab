@@ -550,7 +550,7 @@ PrefabInstance:
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
-      value: Load/Unload Resources
+      value: Load/Unload Resources (T)
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
@@ -2115,7 +2115,7 @@ PrefabInstance:
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
-      value: Clear Forest
+      value: Clear Forest (Z)
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}

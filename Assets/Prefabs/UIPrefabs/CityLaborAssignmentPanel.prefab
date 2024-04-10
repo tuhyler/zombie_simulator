@@ -988,6 +988,7 @@ MonoBehaviour:
   uiElementsParent: {fileID: 1506257240755227776}
   showPrioritiesButton: {fileID: 6181862596881422419}
   allContents: {fileID: 7582599321877566492}
+  activeStatus: 0
   originalLoc: {x: 0, y: 0, z: 0}
 --- !u!222 &1218809611748214487
 CanvasRenderer:
@@ -1670,7 +1671,7 @@ PrefabInstance:
     - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: message
-      value: Add labor to improvement
+      value: Assign Labor (1)
       objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
@@ -1683,10 +1684,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5440028855118146327}
     m_RemovedComponents:
-    - {fileID: 7569234164273575448, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
-    - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+    - {fileID: 0}
+    - {fileID: 0}
     - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
-    - {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
 --- !u!224 &343121510960962830 stripped
 RectTransform:
@@ -1713,6 +1713,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laborChange: 1
+  button: {fileID: 6294475990387762786}
   buttonImage: {fileID: 3386285010633436998}
   isFlashing: 0
 --- !u!114 &3386285010633436998 stripped
@@ -1725,6 +1726,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6294475990387762786 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+    type: 3}
+  m_PrefabInstance: {fileID: 3047767552861261820}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513613063286115832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &6057072880423407845
@@ -1931,17 +1944,33 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+        type: 3}
+      propertyPath: message
+      value: Unassign Labor (2)
+      objectReference: {fileID: 0}
     - target: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 7569234164273575448, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
-    - {fileID: 9132625263852853856, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+    - {fileID: 0}
+    - {fileID: 0}
     - {fileID: 5413135460159653962, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
-    - {fileID: 8313148618265676875, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 8eccb49dcab704e46a7d42f7e9046c93, type: 3}
+--- !u!114 &2962993965684652411 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9012161218714560926, guid: 8eccb49dcab704e46a7d42f7e9046c93,
+    type: 3}
+  m_PrefabInstance: {fileID: 6057072880423407845}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6676293990535959265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5817053707937968223 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 339274342687367354, guid: 8eccb49dcab704e46a7d42f7e9046c93,
@@ -1973,6 +2002,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laborChange: -1
+  button: {fileID: 2962993965684652411}
   buttonImage: {fileID: 5817053707937968223}
   isFlashing: 0
 --- !u!224 &8829255333853807127 stripped

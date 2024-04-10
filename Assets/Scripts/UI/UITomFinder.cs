@@ -36,15 +36,9 @@ public class UITomFinder : MonoBehaviour
 
         if (world.mainPlayer.inTransport)
         {
-            for (int i = 0; i < world.transportList.Count; i++)
-            {
-                if (world.transportList[i].hasKoa)
-                {
-                    world.transportList[i].CenterCamera();
-                    unitMovement.HandleUnitSelectionAndMovement(world.transportList[i].transform.position, world.transportList[i].gameObject);
-					break;
-				}
-            }
+            Transport transport = world.GetKoasTransport();
+            transport.CenterCamera();
+            unitMovement.HandleUnitSelectionAndMovement(transport.transform.position, transport.gameObject);
         }
         else
         {

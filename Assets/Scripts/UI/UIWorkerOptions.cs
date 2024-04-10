@@ -43,6 +43,11 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
         button.interactable = v;
     }
 
+    public bool IsInteractable()
+    {
+        return button.interactable;
+    }
+
     public void ToggleColor(bool v)
     {
         if (isSelected == v)

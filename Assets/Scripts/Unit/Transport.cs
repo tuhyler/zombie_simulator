@@ -41,6 +41,9 @@ public class Transport : Unit
 			hasKoa = true;
 			world.mainPlayer.transportTarget = null;
 			minimapIcon.sprite = world.mainPlayer.buildDataSO.mapIcon;
+
+			if (worker.isSelected)
+				world.unitMovement.SelectUnitPrep(this);
 		}
 		else if (worker.buildDataSO.unitDisplayName == "Scott")
 		{
@@ -72,7 +75,10 @@ public class Transport : Unit
 
 	public void Unload()
     {
-        bool nearbyLand = false;
+		if (world.mainPlayer.runningAway)
+			return;
+		
+		bool nearbyLand = false;
 		Vector3Int landTile = Vector3Int.zero;
 		Vector3Int currentLoc = world.RoundToInt(transform.position);
 
@@ -178,7 +184,10 @@ public class Transport : Unit
 			minimapIcon.sprite = buildDataSO.mapIcon;
 
 			if (isSelected)
-				world.unitMovement.ShowIndividualCityButtonsUI();
+			{
+				world.unitMovement.SelectUnitPrep(world.mainPlayer);
+				//world.unitMovement.ShowIndividualCityButtonsUI();
+			}
 			
 			if (moveToSpeak)
 			{
@@ -198,6 +207,30 @@ public class Transport : Unit
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No nearby walkable land");
 		}
     }
+
+	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route)
+	{
+		Vector3Int safeTarget = playerLoc;
+
+		foreach (Vector3Int tile in world.GetNeighborsFor(playerLoc, MapWorld.State.EIGHTWAYINCREMENT))
+		{
+			if (route != null && route.Contains(tile))
+				continue;
+
+			if (world.CheckIfPositionIsValid(tile))
+			{
+				safeTarget = tile;
+				break;
+			}
+		}
+
+		finalDestinationLoc = safeTarget;
+		List<Vector3Int> runAwayPath = GridSearch.AStarSearch(world, currentLocation, safeTarget, false, bySea);
+
+		//in case already there
+		if (runAwayPath.Count > 0)
+			MoveThroughPath(runAwayPath);
+	}
 
 	public void FinishMovementTransport(Vector3 endPosition)
 	{

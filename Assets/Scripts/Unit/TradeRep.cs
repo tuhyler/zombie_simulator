@@ -16,6 +16,7 @@ public class TradeRep : Unit
 	public int happyDiscount;
 	public int ecstaticDiscount;
 	public List<ResourceValue> questGoals = new();
+	public List<int> questRewardsInGold = new();
 	public List<string> questHints = new();
 	public int waitForNextQuest = 10;
 	public int purchasedAmountBaseThreshold = 500;
@@ -61,18 +62,14 @@ public class TradeRep : Unit
 
 		if (likes)
 		{
-			if (rapportScore < 5)
-				rapportScore++;
-
+			ChangeRapport(true);
 			PlayAudioClip(world.cityBuilderManager.receiveGift);
 			CompleteQuest();
 			return true;
 		}
 		else
 		{
-			if (rapportScore > -5)
-				rapportScore--;
-
+			ChangeRapport(false);
 			PlayAudioClip(world.cityBuilderManager.denyGift);
 			return false;
 		}
@@ -84,18 +81,28 @@ public class TradeRep : Unit
 
 		if (rapportScore < 5 && purchasedAmount >= purchasedAmountBaseThreshold * Mathf.Max(1, rapportScore))
 		{
-			IncreaseRapport();
+			ChangeRapport(true);
 			PlayAudioClip(world.cityBuilderManager.receiveGift);
 			world.PlayGiftResponse(transform.position, true);
 		}
 	}
 
-	public void IncreaseRapport()
+	public void ChangeRapport(bool increase)
 	{
-		if (rapportScore < 5)
-			rapportScore++;
+		if (increase)
+		{
+			if (rapportScore < 5)
+				rapportScore++;
+			else
+				return;
+		}
 		else
-			return;
+		{
+			if (rapportScore > -5)
+				rapportScore--;
+			else
+				return;
+		}
 
 		center.CheckRapport();
 		if (world.cityBuilderManager.uiTradeCenter.activeStatus && world.cityBuilderManager.uiTradeCenter.center == center)
@@ -127,8 +134,11 @@ public class TradeRep : Unit
 		//world.uiConversationTaskManager.CompleteTask(npcName, true);
 	}
 
-	public void BeginNextQuestWait()
+	public void BeginNextQuestWait(bool giveReward)
 	{
+		if (giveReward)
+			world.ReceiveQuestReward(world.mainPlayer.transform.position, questRewardsInGold[currentQuest - 1]);
+
 		if (currentQuest < questGoals.Count)
 		{
 			timeWaited = waitForNextQuest;

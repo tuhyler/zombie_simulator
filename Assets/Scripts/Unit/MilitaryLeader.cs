@@ -216,7 +216,11 @@ public class MilitaryLeader : Military
 
 	public void FinishBattle()
 	{
+		if (defending && enemyCamp.benchedUnit == null)
+			enemyCamp.campCount--;
+
 		defending = false;
+
 		if (!isDead)
 		{
 			enemyAI.StartReturn();

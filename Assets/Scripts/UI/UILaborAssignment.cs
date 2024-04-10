@@ -24,7 +24,8 @@ public class UILaborAssignment : MonoBehaviour
 
     [SerializeField] //for tweening
     public RectTransform allContents;
-    private bool activeStatus;
+    [HideInInspector]
+    public bool activeStatus;
     [HideInInspector]
     public Vector3 originalLoc;
 
@@ -89,21 +90,21 @@ public class UILaborAssignment : MonoBehaviour
         return laborOptions[0];
 	}
 
-    public void ToggleInteractable(bool v)
-    {
-        foreach (UILaborAssignmentOptions options in laborOptions)
-        {
-            options.ToggleInteractable(v);
-        }
-    }
+    //public void ToggleInteractable(bool v)
+    //{
+    //    foreach (UILaborAssignmentOptions options in laborOptions)
+    //    {
+    //        options.ToggleInteractable(v);
+    //    }
+    //}
 
-    public void ToggleEnable(bool v)
-    {
-        foreach (UILaborAssignmentOptions options in laborOptions)
-        {
-            options.ToggleEnable(v);
-        }
-    }
+    //public void ToggleEnable(bool v)
+    //{
+    //    foreach (UILaborAssignmentOptions options in laborOptions)
+    //    {
+    //        options.ToggleEnable(v);
+    //    }
+    //}
 
     public void HideUI()
     {
