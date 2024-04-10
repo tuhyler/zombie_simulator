@@ -232,13 +232,17 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
                 UnitBuildDataSO data = researchReward.unitData;
                 string tabName = "Units";
 				world.cityBuilderManager.uiCityTabs.ToggleButtonNew(tabName, data.unitNameAndLevel, true, true);
-				//world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
+                //world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, false);
 
-				//relocking previous versions of unit
-				//if (data.unitLevel > 1)
-				//	world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
+                //relocking previous versions of unit
+                //if (data.unitLevel > 1)
+                //	world.cityBuilderManager.uiCityTabs.ToggleUnitLockButton(tabName, data.unitNameAndLevel, true);
 
-                world.SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
+                string unitName = data.unitType.ToString();
+                if (data.unitDisplayName == "Azai")
+                    unitName = "Azai";
+
+                world.SetUpgradeableObjectMaxLevel(unitName, data.unitLevel);
             }
 			else if (researchReward.wonderData != null)
 			{

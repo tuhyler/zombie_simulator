@@ -32,6 +32,8 @@ MonoBehaviour:
   consumedResources:
   - resourceType: 4
     resourceAmount: 1
+  - resourceType: 7
+    resourceAmount: 30
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
@@ -61,5 +63,6 @@ MonoBehaviour:
   availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0
+  attackBonus: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 0}

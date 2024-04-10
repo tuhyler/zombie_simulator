@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using static UnityEngine.GraphicsBuffer;
@@ -245,7 +246,7 @@ public class MapWorld : MonoBehaviour
     //public int Increment { get { return increment; } }
 
     [HideInInspector]
-    public bool unitOrders, buildingWonder, tooltip, somethingSelected, showingMap, citySelected, cityUnitSelected;
+    public bool moveUnit, unitOrders, buildingWonder, tooltip, somethingSelected, showingMap, citySelected, cityUnitSelected;
     //private bool showObstacle, showDifficult, showGround, showSea;
 
     //for tracking stats
@@ -341,10 +342,6 @@ public class MapWorld : MonoBehaviour
 		AddToDiscoverList(ResourceType.Gold);
         AddToDiscoverList(ResourceType.Research);
 
-		//string upgradeableObjectName = "";
-  //      List<ResourceValue> upgradeableObjectTotalCost = new();
-  //      int upgradeableObjectLevel = 9999;
-
         foreach (ImprovementDataSO data in UpgradeableObjectHolder.Instance.allBuildingsAndImprovements)
         {
             if (!data.isSecondary)
@@ -368,68 +365,25 @@ public class MapWorld : MonoBehaviour
 			    buildOption.SetBuildOptionData(builderHandler);
 
                 if (data.availableInitially)
-                {
-                    //buildOption.locked = false;
-
-                    if (!upgradeableObjectMaxLevelDict.ContainsKey(data.improvementName) || upgradeableObjectMaxLevelDict[data.improvementName] < data.improvementLevel)
-						upgradeableObjectMaxLevelDict[data.improvementName] = data.improvementLevel;
-				}
-                //else
-                //{
-                //    buildOption.locked = true;
-                //}
+                    SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
             }
-
-            //improvementDataDict[data.improvementNameAndLevel] = data;
-            //if (upgradeableObjectLevel < data.improvementLevel) //skip if reached max level
-            //{
-            //    //upgradeableObjectDataDict[upgradeableObjectName] = data; //adding the data necessary to upgrade the object to
-                
-            //    //calculating costs to improve
-            //    //Dictionary<ResourceType, int> prevResourceCosts = new(); //making dict to more easily find the data
-            //    //List<ResourceValue> upgradeableObjectCost = new();
-
-            //    //foreach (ResourceValue prevResourceValue in upgradeableObjectTotalCost)
-            //    //{
-            //    //    prevResourceCosts[prevResourceValue.resourceType] = prevResourceValue.resourceAmount;
-            //    //}
-
-            //    //foreach (ResourceValue resourceValue in data.improvementCost)
-            //    //{
-            //    //    if (prevResourceCosts.ContainsKey(resourceValue.resourceType))
-            //    //    {
-            //    //        ResourceValue newResourceValue;
-            //    //        newResourceValue.resourceType = resourceValue.resourceType;
-            //    //        newResourceValue.resourceAmount = resourceValue.resourceAmount - prevResourceCosts[resourceValue.resourceType];
-            //    //        if (newResourceValue.resourceAmount > 0)
-            //    //            upgradeableObjectCost.Add(newResourceValue);
-            //    //    }
-            //    //    else //if it doesn't have the resourceType, then add the whole thing
-            //    //    {
-            //    //        upgradeableObjectCost.Add(resourceValue);
-            //    //    }
-            //    //}
-
-            //    upgradeableObjectMaxLevelDict[data.improvementName] = data.improvementLevel;
-            //    //upgradeableObjectPriceDict[upgradeableObjectName] = upgradeableObjectCost;
-            //}
-
-            //upgradeableObjectName = data.improvementNameAndLevel; //needs to be last to compare to following data
-            //upgradeableObjectTotalCost = new(data.improvementCost);
-            //upgradeableObjectLevel = data.improvementLevel;
         }
 
         cityBuilderManager.uiRawGoodsBuilder.FinishMenuSetup();
 		cityBuilderManager.uiBuildingBuilder.FinishMenuSetup();
 		cityBuilderManager.uiProducerBuilder.FinishMenuSetup();
 
-		//upgradeableObjectName = "";
-		//upgradeableObjectTotalCost.Clear();
-		//upgradeableObjectLevel = 9999;
-
 		//populating the upgradeableobjectdict, every one starts at level 1. 
 		foreach (UnitBuildDataSO data in UpgradeableObjectHolder.Instance.allUnits)
         {
+            if (data.unitDisplayName == "Azai")
+            {
+                if (data.availableInitially)
+                    SetUpgradeableObjectMaxLevel("Azai", data.unitLevel);
+
+				continue;
+			}
+
             GameObject buildPanelGO = Instantiate(buildPanel);
 			
 			UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
@@ -437,75 +391,15 @@ public class MapWorld : MonoBehaviour
 			buildPanelGO.transform.SetParent(cityBuilderManager.uiUnitBuilder.objectHolder, false);
 			buildOption.SetBuildOptionData(cityBuilderManager.uiUnitBuilder);
 
-			//unitBuildDataDict[data.unitNameAndLevel] = data;
-            
             if (data.availableInitially)
-            {
-                //buildOption.locked = false;
-				if (!upgradeableObjectMaxLevelDict.ContainsKey(data.unitType.ToString()) || upgradeableObjectMaxLevelDict[data.unitType.ToString()] < data.unitLevel)
-					upgradeableObjectMaxLevelDict[data.unitType.ToString()] = data.unitLevel;
-			}
-            //else
-            //{
-            //    buildOption.locked = true;
-            //}
-            //upgradeableObjectMaxLevelDict[data.unitType.ToString()] = 1;
-
-			//if (upgradeableObjectLevel < data.unitLevel) //skip if reached max level
-			//{
-			//	//upgradeableUnitDataDict[upgradeableObjectName] = data; //adding the data necessary to upgrade the object to
-
-			//	//calculating costs to improve
-			//	Dictionary<ResourceType, int> prevResourceCosts = new(); //making dict to more easily find the data
-			//	List<ResourceValue> upgradeableObjectCost = new();
-
-			//	foreach (ResourceValue prevResourceValue in upgradeableObjectTotalCost)
-			//	{
-			//		prevResourceCosts[prevResourceValue.resourceType] = prevResourceValue.resourceAmount;
-			//	}
-
-			//	foreach (ResourceValue resourceValue in data.unitCost)
-			//	{
-			//		if (prevResourceCosts.ContainsKey(resourceValue.resourceType))
-			//		{
-			//			ResourceValue newResourceValue;
-			//			newResourceValue.resourceType = resourceValue.resourceType;
-			//			newResourceValue.resourceAmount = resourceValue.resourceAmount - prevResourceCosts[resourceValue.resourceType];
-			//			if (newResourceValue.resourceAmount > 0)
-			//				upgradeableObjectCost.Add(newResourceValue);
-			//		}
-			//		else //if it doesn't have the resourceType, then add the whole thing
-			//		{
-			//			upgradeableObjectCost.Add(resourceValue);
-			//		}
-			//	}
-
-			//	//upgradeableObjectPriceDict[upgradeableObjectName] = upgradeableObjectCost;
-			//}
-
-			//upgradeableObjectName = data.unitNameAndLevel; //needs to be last to compare to following data
-			//upgradeableObjectTotalCost = new(data.unitCost);
-			//upgradeableObjectLevel = data.unitLevel;
+                SetUpgradeableObjectMaxLevel(data.unitType.ToString(), data.unitLevel);
 		}
 
         cityBuilderManager.uiUnitBuilder.FinishMenuSetup();
 
-        upgradeableObjectMaxLevelDict[UtilityType.Road.ToString()] = 1;
-		upgradeableObjectMaxLevelDict[UtilityType.Power.ToString()] = 0;
-		upgradeableObjectMaxLevelDict[UtilityType.Water.ToString()] = 0;
-		
-		//foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
-  //      {
-  //          //resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
-  //          defaultResourcePriceDict[resource.resourceType] = resource.resourcePrice;
-  //          blankResourceDict[resource.resourceType] = 0;
-  //          boolResourceDict[resource.resourceType] = false;
-  //      }
-
-        //foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allWorldResources)
-        //{
-        //    resourceSpriteDict[resource.resourceType] = resource.resourceIcon;
-        //}
+        SetUpgradeableObjectMaxLevel(UtilityType.Road.ToString(), 1);
+		SetUpgradeableObjectMaxLevel(UtilityType.Power.ToString(), 0);
+		SetUpgradeableObjectMaxLevel(UtilityType.Water.ToString(), 0);
 
         foreach (WonderDataSO wonder in UpgradeableObjectHolder.Instance.allWonders)
         {
@@ -522,12 +416,6 @@ public class MapWorld : MonoBehaviour
         CreateParticleSystems();
         uiMainMenu.uiSaveGame.PopulateSaveItems();
         DeactivateCanvases();
-        //CreateGrid(); //for alternative grid search method
-        //if (gamePersist.loadNewGame)
-        //{
-        //    Debug.Log("loading new game");
-        //    LoadData();
-        //}
 
         //populating ambush dict
         foreach (UnitBuildDataSO unit in UpgradeableObjectHolder.Instance.enemyUnitDict.Values)
@@ -2169,11 +2057,11 @@ public class MapWorld : MonoBehaviour
 		}
 	}
 
-	public void CreateUpgradedImprovement(Vector3Int upgradeLoc, CityImprovement selectedImprovement, City city)
+	public void CreateUpgradedImprovement(CityImprovement selectedImprovement, City city, int upgradeLevel)
 	{
         string name = selectedImprovement.GetImprovementData.improvementName;
         string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
-        string upgradeNameAndLevel = name + "-" + GetUpgradeableObjectMaxLevel(name);
+        string upgradeNameAndLevel = name + "-" + upgradeLevel;
         (List<ResourceValue> upgradeCost, List<ResourceValue> refundCost) = CalculateUpgradeCost(nameAndLevel, upgradeNameAndLevel, false);
 		selectedImprovement.upgradeCost = upgradeCost;
         selectedImprovement.refundCost = refundCost;
@@ -2181,6 +2069,19 @@ public class MapWorld : MonoBehaviour
 
 		ResourceProducer resourceProducer = selectedImprovement.resourceProducer;
 		selectedImprovement.BeginImprovementUpgradeProcess(city, resourceProducer, data, true);
+	}
+
+    public void CreateUpgradedUnit(Unit unit, CityImprovement improvement, City city, int upgradeLevel)
+    {
+        string name = unit.buildDataSO.unitType.ToString();
+        string nameAndLevel = unit.buildDataSO.unitNameAndLevel;
+		string upgradeNameAndLevel = name + "-" + upgradeLevel;
+		(List<ResourceValue> upgradeCost, List<ResourceValue> refundCost) = CalculateUpgradeCost(nameAndLevel, upgradeNameAndLevel, true);
+        improvement.upgradeCost = upgradeCost;
+        improvement.refundCost = refundCost;
+
+		ResourceProducer resourceProducer = improvement.resourceProducer;
+		improvement.BeginTraining(city, resourceProducer, UpgradeableObjectHolder.Instance.unitDict[upgradeNameAndLevel], true, unit, true);
 	}
 
 	internal void MakeEnemyCamps(Dictionary<Vector3Int, Dictionary<Vector3Int, string>> enemyCampLocs, List<Vector3Int> discovered)
@@ -4422,6 +4323,17 @@ public class MapWorld : MonoBehaviour
 			city.ResourceManager.UpdateDicts(type);
 	}
 
+    public Transport GetKoasTransport()
+    {
+        for (int i = 0; i < transportList.Count; i++)
+		{
+            if (transportList[i].hasKoa)
+                return transportList[i];
+		}
+
+        return null;
+	}
+
     //ambush logic
     public void SetUpAmbush(Vector3Int loc, Unit unitTrader)
     {
@@ -4543,36 +4455,68 @@ public class MapWorld : MonoBehaviour
         if (mainPlayer.inEnemyLines)
             return;
 
-        Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
+        Vector3Int playerLoc;
+        Transport transport = null;
+		if (mainPlayer.inTransport)
+        {
+            transport = GetKoasTransport();
+            playerLoc = GetClosestTerrainLoc(transport.transform.position);
+        }
+        else
+        {
+			playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
+        }
+		
         int xDiff = Mathf.Abs(playerLoc.x - loc.x);
         int zDiff = Mathf.Abs(playerLoc.z - loc.z);
 
 		if (xDiff < 4 && zDiff < 4)
 		{
-            if (mainPlayer.isBusy)
-				unitMovement.workerTaskManager.ForceCancelWorkerTask();
-
-			mainPlayer.StopPlayer();
-			mainPlayer.exclamationPoint.SetActive(true);
 			mainPlayer.runningAway = true;
 			mainPlayer.isBusy = true;
 			mainPlayer.stepAside = true;
 
-			if (playerLoc - loc == Vector3Int.zero || (route != null && route.Contains(playerLoc)))
-			{
-				mainPlayer.StepAside(playerLoc, route);
+			if (mainPlayer.inTransport)
+            {
+                transport.StopMovementCheck(true);
+                transport.exclamationPoint.SetActive(true);
+
+				if (playerLoc - loc == Vector3Int.zero || (route != null && route.Contains(playerLoc)))
+				{
+					transport.StepAside(playerLoc, route);
+				}
+				else //look to watch
+				{
+					transport.Rotate(loc);
+				}
 			}
-			else //look to watch
-			{
-				mainPlayer.Rotate(loc);
-				scott.Rotate(loc);
-				azai.Rotate(loc);
-			}
+            else
+            {
+                if (mainPlayer.isBusy)
+				    unitMovement.workerTaskManager.ForceCancelWorkerTask();
+
+			    mainPlayer.StopPlayer();
+			    mainPlayer.exclamationPoint.SetActive(true);
+			    //mainPlayer.runningAway = true;
+			    //mainPlayer.isBusy = true;
+			    //mainPlayer.stepAside = true;
+
+			    if (playerLoc - loc == Vector3Int.zero || (route != null && route.Contains(playerLoc)))
+			    {
+				    mainPlayer.StepAside(playerLoc, route);
+			    }
+			    else //look to watch
+			    {
+				    mainPlayer.Rotate(loc);
+				    scott.Rotate(loc);
+				    azai.Rotate(loc);
+			    }
+            }
 		}
         else if (mainPlayer.runningAway && (xDiff > 12 || zDiff > 12))
         {
-			mainPlayer.StopRunningAway();
-			mainPlayer.stepAside = false;
+            mainPlayer.StopRunningAway();
+            mainPlayer.stepAside = false;
 		}
 	}
 
@@ -5948,7 +5892,17 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void PlayResourceSplash(Vector3Int loc)
+    public void ReceiveQuestReward(Vector3 loc, int amount)
+    {
+		UpdateWorldResources(ResourceType.Gold, amount);
+		InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+
+		cityBuilderManager.PlayRingAudio();
+		
+		PlayResourceSplash(loc);
+	}
+
+    public void PlayResourceSplash(Vector3 loc)
     {
         Instantiate(resourceSplash, loc, Quaternion.Euler(-90, UnityEngine.Random.Range(0,360), 0));
     }

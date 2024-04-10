@@ -244,11 +244,18 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 		if (!dueling)
 		{
-			world.unitMovement.SelectWorker();
-			world.unitMovement.uiWorkerTask.ToggleVisibility(true, world);
-			world.unitMovement.PrepareMovement();
-			if (!world.mainPlayer.inEnemyLines)
-				world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+			if (world.mainPlayer.inTransport)
+			{
+				world.unitMovement.ClearSelection();
+			}
+			else
+			{
+				world.unitMovement.SelectWorker();
+				world.unitMovement.uiWorkerTask.ToggleVisibility(true, world);
+				world.unitMovement.PrepareMovement();
+				if (!world.mainPlayer.inEnemyLines)
+					world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+			}
 		}
 
 		world.playerInput.paused = false;
@@ -291,13 +298,13 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			{
 				if (conversationTopic.Contains("intro"))
 				{
-					speakingNPC.tradeRep.BeginNextQuestWait();
+					speakingNPC.tradeRep.BeginNextQuestWait(false);
 				}
 				else if (conversationTopic.Contains("_quest"))
 				{
 					if (conversationTopic.Contains("_complete"))
 					{
-						speakingNPC.tradeRep.BeginNextQuestWait();
+						speakingNPC.tradeRep.BeginNextQuestWait(true);
 					}
 					else
 					{

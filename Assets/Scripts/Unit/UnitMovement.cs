@@ -53,8 +53,8 @@ public class UnitMovement : MonoBehaviour
     //private TerrainData selectedTile;
     //private InfoProvider selectedUnitInfoProvider;
     private bool loadScreenSet; //flag if load/unload ui is showing
-    [HideInInspector]
-    public bool moveUnit;
+    //[HideInInspector]
+    //public bool moveUnit;
 
     //for transferring cargo to/from trader
     private ResourceManager cityResourceManager;
@@ -155,13 +155,44 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.CenterCamera();
     }
 
+    public void CheckIndividualUnitHighlight(Unit unit, City city)
+    {
+        if (world.azaiFollow && world.azai == unit)
+        {
+			Vector3Int azaiTerrain = world.GetClosestTerrainLoc(world.azai.transform.position);
+			if (city.cityLoc == azaiTerrain || world.cityBuilderManager.cityTiles.Contains(azaiTerrain) && world.azai.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel("Azai"))
+			{
+				highlightedUnitList.Add(world.azai);
+				world.azai.SoftSelect(Color.green);
+			}
+		}
+        else if (unit.isTrader)
+        {
+			if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
+            {
+				highlightedUnitList.Add(unit);
+				unit.SoftSelect(Color.green);
+			}
+        }
+    }
+
 	public void ToggleUnitHighlights(bool v, City city = null)
 	{
         upgradingUnit = v;
 
 		if (v)
 		{
-			foreach (Unit unit in city.tradersHere)
+            if (world.azaiFollow && !world.azai.isMoving && !world.mainPlayer.isMoving)
+            {
+                Vector3Int azaiTerrain = world.GetClosestTerrainLoc(world.azai.transform.position);
+                if ((city.cityLoc == azaiTerrain || city.cityLoc == world.GetClosestTerrainLoc(world.mainPlayer.transform.position)) && world.azai.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel("Azai"))
+                {
+                    highlightedUnitList.Add(world.azai);
+                    world.azai.SoftSelect(Color.green);
+                }
+            }
+            
+            foreach (Unit unit in city.tradersHere)
             {
 				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
                 {
@@ -169,25 +200,26 @@ public class UnitMovement : MonoBehaviour
 					unit.SoftSelect(Color.green);
 				}
 			}
-            
-            if (!city.army.atHome || city.army.isTraining) //only upgrade when at home or not busy
-				return;
 
-			foreach (Military unit in city.army.UnitsInArmy)
-			{
-				if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
-				{
-                    highlightedUnitList.Add(unit);
-                    unit.SoftSelect(Color.green);
-				}
-			}
+			//only upgrade when at home or not busy
+			if (city.army.atHome && !city.army.isTraining)
+            {
+			    foreach (Military unit in city.army.UnitsInArmy)
+			    {
+				    if (unit.buildDataSO.unitLevel < world.GetUpgradeableObjectMaxLevel(unit.buildDataSO.unitType.ToString()))
+				    {
+                        highlightedUnitList.Add(unit);
+                        unit.SoftSelect(Color.green);
+				    }
+			    }
+            } 
 
             foreach (Transport unit in world.transportList)
             {
                 if (unit.passengerCount > 0)
                     continue;
                 
-                if (city.hasHarbor && unit.bySea)
+                if (city.hasHarbor && unit.bySea && !world.GetCityDevelopment(city.harborLocation).isTraining)
                 {
                     if (world.GetClosestTerrainLoc(unit.transform.position) == city.harborLocation)
                     {
@@ -196,7 +228,7 @@ public class UnitMovement : MonoBehaviour
                     }
                 }
 
-                if (city.hasAirport && unit.byAir)
+                if (city.hasAirport && unit.byAir && !world.GetCityDevelopment(city.airportLocation).isTraining)
                 {
                     if (world.GetClosestTerrainLoc(unit.transform.position) == city.airportLocation)
                     {
@@ -212,7 +244,9 @@ public class UnitMovement : MonoBehaviour
 			{
 				if (!unit.isSelected)
                 {
-                    if (unit.inArmy && !unit.military.army.selected)
+                    if (unit == world.azai && !world.mainPlayer.isSelected)
+						unit.Unhighlight();
+					else if (unit.inArmy && !unit.military.army.selected)
                         unit.Unhighlight();
                     else if (unit.trader)
                         unit.Unhighlight();
@@ -773,7 +807,7 @@ public class UnitMovement : MonoBehaviour
         }
         
         //moving unit upon selection
-        if (moveUnit && selectedUnit != null) //detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
+        if (world.moveUnit && selectedUnit != null) //detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
         {
             if (selectedUnit.isBusy)
                 return;
@@ -1225,12 +1259,13 @@ public class UnitMovement : MonoBehaviour
 
         if (!queueMovementOrders)
         {
-            moveUnit = false;
-            uiMoveUnit.ToggleButtonColor(false);
-			if (unit.trader)
-				world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
-			else if (unit.isLaborer)
-				world.UnhighlightCitiesAndWonders();
+            CancelMove();
+   //         moveUnit = false;
+   //         uiMoveUnit.ToggleButtonColor(false);
+			//if (unit.trader)
+			//	world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
+			//else if (unit.isLaborer)
+			//	world.UnhighlightCitiesAndWonders();
 
             if (movementSystem.currentPath.Count > 0)
             {
@@ -1283,8 +1318,9 @@ public class UnitMovement : MonoBehaviour
 
 		List<Vector3Int> path = GridSearch.AStarSearch(world, unit.transform.position, location, unit.isTrader, unit.bySea);
 
-		moveUnit = false;
-		uiMoveUnit.ToggleButtonColor(false);
+        //CancelMove();
+		//moveUnit = false;
+		//uiMoveUnit.ToggleButtonColor(false);
 
         if (path.Count > 0)
         {
@@ -1293,6 +1329,7 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
+            unit.FinishMoving(unit.transform.position);
             return;
         }
 
@@ -1367,7 +1404,13 @@ public class UnitMovement : MonoBehaviour
        
         if (selectedUnit.transport)
         {
-			if (!selectedUnit.transport.canMove)
+            if (world.mainPlayer.runningAway)
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move right now");
+				return;
+            }
+
+            if (!selectedUnit.transport.canMove)
             {
                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Need all passengers to move");
 			    return;
@@ -1551,44 +1594,47 @@ public class UnitMovement : MonoBehaviour
     {
         world.cityBuilderManager.PlaySelectAudio();
         
-        if (!moveUnit)
+        if (!world.moveUnit)
         {
-            moveUnit = true;
-            world.citySelected = true;
+            world.moveUnit = true;
+            //world.citySelected = true;
 
             if (selectedUnit.trader)
                 world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
-            else if (selectedUnit.isLaborer)
-                world.HighlightCitiesAndWonders();
+            //else if (selectedUnit.isLaborer)
+            //    world.HighlightCitiesAndWonders();
         }
         else
         {
-            moveUnit = false;
-			world.citySelected = false;
+            world.moveUnit = false;
+			//world.citySelected = false;
 
 			if (selectedUnit.trader)
 				world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
-			else if (selectedUnit.isLaborer)
-				world.UnhighlightCitiesAndWonders();
+			//else if (selectedUnit.isLaborer)
+			//	world.UnhighlightCitiesAndWonders();
 		}
 
-		uiMoveUnit.ToggleButtonColor(moveUnit);
+		uiMoveUnit.ToggleButtonColor(world.moveUnit);
     }
 
     public void CancelMove()
     {
-        if (selectedUnit.runningAway)
-            return;
+        //if (selectedUnit.runningAway)
+        //    return;
         
-        moveUnit = false;
-		world.citySelected = false;
+        if (world.moveUnit)
+        {
+            world.moveUnit = false;
+		    //world.citySelected = false;
 
-		if (selectedUnit.trader)
-			world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
-		else if (selectedUnit.isLaborer)
-			world.UnhighlightCitiesAndWonders();
+		    if (selectedUnit.trader)
+			    world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+		    //else if (selectedUnit.isLaborer)
+		    //	world.UnhighlightCitiesAndWonders();
 
-		uiMoveUnit.ToggleButtonColor(moveUnit);
+		    uiMoveUnit.ToggleButtonColor(world.moveUnit);
+        }
 	}
 
     public void HandleShiftDown()
@@ -1654,75 +1700,19 @@ public class UnitMovement : MonoBehaviour
 			return;
 		}
 
-		if (moveUnit)
-        {
-            moveUnit = false;
-            uiMoveUnit.ToggleButtonColor(false);
-            if (selectedUnit.trader)
-                world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
-            else if (selectedUnit.isLaborer)
-                world.UnhighlightCitiesAndWonders();
-        }
-
+        CancelMove();
         Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
-
-  //      if (world.IsWonderOnTile(unitLoc))
-  //      {
-  //          Wonder wonder = world.GetWonder(unitLoc);
-		//	wonder.AddWorker(selectedUnit);
-  //          selectedUnit.DestroyUnit();
-  //          ClearSelection();
-		//	return;
-		//}
-
         City city = null;
 
         if (world.IsCityOnTile(unitLoc))
-        {
             city = world.GetCity(unitLoc);
-
-   //         if (city.reachedWaterLimit)
-   //         {
-			//	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
-			//	return;
-			//}
-
-			//AddToCity(city, selectedUnit);
-        }
         else if (world.IsCityHarborOnTile(unitLoc))
-        {
             city = world.GetHarborCity(unitLoc);
-
-			//if (city.reachedWaterLimit)
-			//{
-			//	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
-			//	return;
-			//}
-
-			//AddToCity(city, selectedUnit);
-        }
         else if (selectedUnit.inArmy)
-        {
-            //if (selectedUnit.homeBase.reachedWaterLimit)
-            //{
-            //	InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't join. Not enough water");
-            //	return;
-            //}
-
             city = selectedUnit.military.army.city;
-			//AddToCity(selectedUnit.homeBase, selectedUnit);
-            //selectedUnit.homeBase.army.RemoveFromArmy(selectedUnit, selectedUnit.barracksBunk);
-        }
 
         if (city != null)
             world.uiCityPopIncreasePanel.ToggleVisibility(true, selectedUnit.buildDataSO.laborCost, city, true, selectedUnit.isTrader);
-        //else
-        //{
-        //    world.GetWonder(unitLoc).AddWorker(selectedUnit);
-        //}
-
-        //selectedUnit.DestroyUnit();
-        //ClearSelection();
     }
 
     public void JoinCityConfirm(City city)
@@ -2337,7 +2327,7 @@ public class UnitMovement : MonoBehaviour
             infoManager.HideInfoPanel();
             uiTradeRouteManager.ToggleButtonColor(true);
 
-            Vector3Int traderLoc = Vector3Int.RoundToInt(selectedTrader.transform.position);
+            Vector3Int traderLoc = world.RoundToInt(selectedTrader.transform.position);
 
             List<string> cityNames = world.GetConnectedCityNames(traderLoc, selectedTrader.bySea, true); //only showing city names accessible by unit
             uiTradeRouteManager.PrepareTradeRouteMenu(cityNames, selectedTrader);
@@ -2380,12 +2370,13 @@ public class UnitMovement : MonoBehaviour
 				return;
             }
             
-            if (moveUnit)
-            {
-                world.UnhighlightCitiesAndWondersAndTradeCenters(selectedTrader.bySea);
-                moveUnit = false;
-				uiMoveUnit.ToggleButtonColor(false);
-			}
+            //if (world.moveUnit)
+            //{
+            CancelMove();
+    //            world.UnhighlightCitiesAndWondersAndTradeCenters(selectedTrader.bySea);
+    //            moveUnit = false;
+				//uiMoveUnit.ToggleButtonColor(false);
+			//}
 
 			uiMoveUnit.ToggleVisibility(false);
             uiUnload.ToggleVisibility(false);
@@ -2985,17 +2976,18 @@ public class UnitMovement : MonoBehaviour
             if (selectedUnit.isBusy && world.scott.IsOrderListMoreThanZero())
                 ToggleOrderHighlights(false);
 
-            if (moveUnit)
-            {
-                if (selectedUnit.isLaborer)
-                    world.UnhighlightCitiesAndWonders();
-                else if (selectedUnit.trader)
-                    world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
-            }
+            //if (world.moveUnit)
+            //{
+            CancelMove();
+                //if (selectedUnit.isLaborer)
+                //    world.UnhighlightCitiesAndWonders();
+                //else if (selectedUnit.trader)
+                //    world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+            //}
 
 			//SpeakingCheck();
 			world.cityBuilderManager.uiTraderNamer.ToggleVisibility(false);
-			moveUnit = false;
+			//world.moveUnit = false;
             uiMoveUnit.ToggleVisibility(false);
             //uiCancelMove.ToggleVisibility(false);
             uiJoinCity.ToggleVisibility(false);

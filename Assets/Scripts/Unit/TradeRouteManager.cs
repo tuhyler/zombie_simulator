@@ -126,8 +126,8 @@ public class TradeRouteManager : MonoBehaviour
         else
             nextPath = currentStop - 1;
         
-        //roll to see if ambushed
-        if (ambushSpots.Contains(nextPath) && UnityEngine.Random.Range(0, 100) < ambushProb)
+        //roll to see if ambushed (currently only affects land units)
+        if (!trader.bySea && ambushSpots.Contains(nextPath) && UnityEngine.Random.Range(0, 100) < ambushProb)
         {
             Vector3Int randomLoc = routePathsDict[nextPath][UnityEngine.Random.Range(6, routePathsDict[nextPath].Count - 5)];
 
@@ -254,10 +254,10 @@ public class TradeRouteManager : MonoBehaviour
                         complete = true;
                         continue;
                     }
-                    else
-                    {
-                        cost = Mathf.CeilToInt(tradeCenter.ResourceBuyDict[value.resourceType] * tradeCenter.multiple);
-					}
+     //               else
+     //               {
+     //                   cost = Mathf.CeilToInt(tradeCenter.ResourceBuyDict[value.resourceType] * tradeCenter.multiple);
+					//}
                 }
                 else if (resourceAmount < 0)
                 {
@@ -325,7 +325,8 @@ public class TradeRouteManager : MonoBehaviour
                     }
                     else
                     {
-                        if (tradeCenter.world.CheckWorldGold(loadUnloadRateMod * cost))
+						cost = Mathf.CeilToInt(tradeCenter.ResourceBuyDict[value.resourceType] * tradeCenter.multiple); //cost is calculated each time in case it changes while trader is there
+						if (tradeCenter.world.CheckWorldGold(loadUnloadRateMod * cost))
                             resourceAmountAdjusted = loadUnloadRateMod;
                         else
                             resourceAmountAdjusted = 0;

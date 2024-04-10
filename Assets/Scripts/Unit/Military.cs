@@ -56,9 +56,7 @@ public class Military : Unit
 		if (logoSail)
 		{
 			int factor = 0;
-			if (enemyAI)
-				factor = 4;
-			else if (buildDataSO.unitType == UnitType.Ranged)
+			if (buildDataSO.unitType == UnitType.Ranged)
 				factor = 1;
 			else if (buildDataSO.unitType == UnitType.Cavalry)
 				factor = 2;
@@ -493,6 +491,7 @@ public class Military : Unit
 		if (isSelected)
 			world.unitMovement.infoManager.UpdateStrengthBonus(strengthBonus);
 
+		StopAttackAnimation();
 		attacking = false;
 		inBattle = false;
 		flankedOnce = false;
@@ -1143,7 +1142,7 @@ public class Military : Unit
 				StartCoroutine(SetInactiveWait());
 				enemyCamp.UnitsInCamp.Remove(this);
 				
-				if (!leader.dueling)
+				if (!leader.dueling && enemyCamp.benchedUnit != null)
 				{
 					Military unit = enemyCamp.benchedUnit;
 					world.RemoveUnitPosition(unit.currentLocation);
@@ -1191,6 +1190,7 @@ public class Military : Unit
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
 
 		data.isUpgrading = isUpgrading;
+		data.upgradeLevel = upgradeLevel;
 		//data.looking = looking;
 
 		//combat
@@ -1250,6 +1250,7 @@ public class Military : Unit
 		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
 		isUpgrading = data.isUpgrading;
+		upgradeLevel = data.upgradeLevel;
 		//looking = data.looking;
 		ambush = data.ambush;
 		guard = data.guard;
@@ -1283,7 +1284,7 @@ public class Military : Unit
 
 				if (bodyGuard)
 				{
-					if (!bodyGuard.dueling)
+					if (!bodyGuard.dueling && !bodyGuard.inTransport)
 						healthbar.RegenerateHealth();
 				}
 				else if (enemyAI && !data.inBattle)

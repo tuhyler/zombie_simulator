@@ -91,13 +91,11 @@ public class Unit : MonoBehaviour
 
     //combat info
     [HideInInspector]
-    public int currentHealth;
+    public int currentHealth, healthMax, upgradeLevel;
     [HideInInspector]
     public BasicEnemyAI enemyAI;
     [HideInInspector]
     public float baseSpeed;
-    [HideInInspector]
-    public int healthMax;
     [HideInInspector]
     public WaitForSeconds[] attackPauses = new WaitForSeconds[3];
 
@@ -145,7 +143,9 @@ public class Unit : MonoBehaviour
 
 		healthMax = buildDataSO.health;
         currentHealth = healthMax;
-        inArmy = buildDataSO.baseAttackStrength > 0 && CompareTag("Player");
+
+        if (buildDataSO.unitDisplayName != "Azai")
+            inArmy = buildDataSO.baseAttackStrength > 0 && CompareTag("Player");
 
         enemyAI = GetComponent<BasicEnemyAI>();
         healthbar.SetUnit(this);
@@ -594,7 +594,7 @@ public class Unit : MonoBehaviour
                 }
 
 				prevTile = endPositionInt;
-				if (prevTile == ambushLoc) //prevTile is a misnomer, asking if current tile is ambushLoc. Can also trigger ambush when walking
+				if (prevTile == ambushLoc) //prevTile is a misnomer, asking if current tile is ambushLoc. Can also trigger ambush when not on trade route
                 {
                     ambush = true;
                     world.AddUnitPosition(prevTile, this);
@@ -802,6 +802,10 @@ public class Unit : MonoBehaviour
         else if (transport)
         {
             transport.FinishMovementTransport(endPosition);
+        }
+        else if (military && military.bodyGuard)
+        {
+            military.bodyGuard.FinishMovementBodyGuard(endPosition);
         }
         else if (isLaborer)
         {

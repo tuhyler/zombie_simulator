@@ -65,11 +65,11 @@ public class UICityImprovementTip : MonoBehaviour
         }
     }
 
-    public void HandleEsc()
-    {
-        if (activeStatus)
-            world.CloseImprovementTooltipCloseButton();
-    }
+    //public void HandleEsc()
+    //{
+    //    if (activeStatus)
+    //        world.CloseImprovementTooltipCloseButton();
+    //}
 
     public void ToggleVisibility(bool val, CityImprovement improvement = null)
     {
@@ -332,10 +332,28 @@ public class UICityImprovementTip : MonoBehaviour
                 {
 					panelList[i].SetResourceAmount(resourceList[i].resourceAmount);
 
-					if (waiting && resourceList[i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[resourceList[i].resourceType])
-					    panelList[i].resourceAmountText.color = Color.red;
-				    else
-					    panelList[i].resourceAmountText.color = Color.white;
+                    if (waiting)
+                    {
+                        if (resourceList[i].resourceType == ResourceType.Gold)
+                        {
+                            if (world.CheckWorldGold(resourceList[i].resourceAmount))
+								panelList[i].resourceAmountText.color = Color.white;
+                            else
+                                panelList[i].resourceAmountText.color = Color.red;
+						}
+                        else if (resourceList[i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[resourceList[i].resourceType])
+                        {
+                            panelList[i].resourceAmountText.color = Color.red;
+                        }
+                        else
+                        {
+							panelList[i].resourceAmountText.color = Color.white;
+                        }
+					}
+                    else
+                    {
+						panelList[i].resourceAmountText.color = Color.white;
+					}
                 }
 			}
         }
@@ -442,10 +460,28 @@ public class UICityImprovementTip : MonoBehaviour
 
 			for (int i = 0; i < improvement.allConsumedResources[highlightIndex].Count; i++)
             {
-                if (v && improvement.allConsumedResources[highlightIndex][i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[consumesInfo[i].resourceType])
-                    consumesInfo[i].resourceAmountText.color = Color.red;
+                if (v)
+                {
+                    if (consumesInfo[i].resourceType == ResourceType.Gold)
+                    {
+                        if (world.CheckWorldGold(improvement.allConsumedResources[highlightIndex][i].resourceAmount))
+							consumesInfo[i].resourceAmountText.color = Color.white;
+                        else
+							consumesInfo[i].resourceAmountText.color = Color.red;
+					}
+                    else if (improvement.allConsumedResources[highlightIndex][i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[consumesInfo[i].resourceType])
+                    {
+						consumesInfo[i].resourceAmountText.color = Color.red;
+					}
+                    else
+                    {
+						consumesInfo[i].resourceAmountText.color = Color.white;
+					}
+                }
                 else
+                {
 				    consumesInfo[i].resourceAmountText.color = Color.white;
+                }
 		    }
         }
     }

@@ -76,7 +76,8 @@ public class CityBuilderManager : MonoBehaviour
 
     [HideInInspector]
     public List<Vector3Int> tilesToChange = new();
-    private List<Vector3Int> cityTiles = new();
+    [HideInInspector]
+    public List<Vector3Int> cityTiles = new();
     private List<Vector3Int> developedTiles = new();
     [HideInInspector]
     public List<Vector3Int> constructingTiles = new();
@@ -218,7 +219,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void HandleCitySelection(Vector3 location, GameObject selectedObject)
     {
-        if (world.unitOrders || world.buildingWonder)
+        if (world.moveUnit || world.unitOrders || world.buildingWonder)
             return;
 
         if (world.citySelected) //just so the city isn't selected when being chosen to move units (also works with wonders)
@@ -1413,7 +1414,10 @@ public class CityBuilderManager : MonoBehaviour
         //PlayBoomAudio();
         unit.isUpgrading = true;
         string name = unit.buildDataSO.unitType.ToString();
-        string upgradeNameAndLevel = name + "-" + world.GetUpgradeableObjectMaxLevel(name);
+        if (unit == world.azai)
+            name = "Azai";
+        unit.upgradeLevel = world.GetUpgradeableObjectMaxLevel(name);
+		string upgradeNameAndLevel = name + "-" + unit.upgradeLevel;
         //List<ResourceValue> upgradeCost = new(world.GetUpgradeCost(nameAndLevel));
         bool refund = true;
 
@@ -1442,8 +1446,11 @@ public class CityBuilderManager : MonoBehaviour
 		selectedCity.ResourceManager.SpendResource(upgradeCost, unit.transform.position, refund, refundCost);
         UnitBuildDataSO data = UpgradeableObjectHolder.Instance.unitDict[upgradeNameAndLevel];
 
-		world.unitMovement.highlightedUnitList.Remove(unit);
-		world.unitMovement.ClearSelection();
+        world.unitMovement.ToggleUnitHighlights(false);
+		world.unitMovement.ToggleUnitHighlights(true, selectedCity);
+		//world.unitMovement.highlightedUnitList.Remove(unit);
+		//      unit.Unhighlight();
+		//world.unitMovement.ClearSelection();
 		CreateUnit(data, selectedCity, true, unit);
 	}
 
@@ -1487,13 +1494,12 @@ public class CityBuilderManager : MonoBehaviour
     private void UpgradeSelectedImprovementPrep(Vector3Int upgradeLoc, CityImprovement selectedImprovement, City city, List<ResourceValue> upgradeCost, List<ResourceValue> refundCost)
     {
         if (city.activeCity)
-        {
             selectedImprovement.DisableHighlight();
-        }
 
         bool cityCenterBuilding = upgradeLoc == city.cityLoc;
         string name = selectedImprovement.GetImprovementData.improvementName;
-        string upgradeNameAndLevel = name + "-" + world.GetUpgradeableObjectMaxLevel(name);
+        selectedImprovement.upgradeLevel = world.GetUpgradeableObjectMaxLevel(name);
+        string upgradeNameAndLevel = name + "-" + selectedImprovement.upgradeLevel;
 		//string nameAndLevel = selectedImprovement.GetImprovementData.improvementNameAndLevel;
         //string upgradeNameAndLevel = selectedImprovement.GetImprovementData.improvementName + "-" + world.GetUpgradeableObjectMaxLevel(selectedImprovement.GetImprovementData.improvementName);
         //List<ResourceValue> upgradeCost = new(world.CalculateUpgradeCost(nameAndLevel, upgradeNameAndLevel, false));
@@ -1761,7 +1767,11 @@ public class CityBuilderManager : MonoBehaviour
 
 		Vector3Int buildPosition = city.cityLoc;
 
-        if (unitData.baseAttackStrength > 0)
+        if (upgradedUnit == world.azai)
+        {
+			buildPosition = upgradedUnit.currentLocation;
+		}
+        else if (unitData.baseAttackStrength > 0)
         {
             if (unitData.transportationType == TransportationType.Land)
             {
@@ -1861,8 +1871,23 @@ public class CityBuilderManager : MonoBehaviour
         Unit newUnit = unit.GetComponent<Unit>();
         newUnit.secondaryPrefab = secondaryPrefab;
 
+        if (upgradedUnit == world.azai)
+        {
+            newUnit.transform.rotation = upgradedUnit.transform.rotation;
+            newUnit.name = "Azai";
+            world.azai = newUnit.GetComponent<BodyGuard>();
+            world.characterUnits.Remove(upgradedUnit);
+            upgradedUnit.DestroyUnit();
+            world.characterUnits.Add(newUnit);
+            world.uiSpeechWindow.AddToSpeakingDict("Azai", newUnit);
+			newUnit.SetReferences(world);
+            world.azai.SetArmy();
+			newUnit.currentLocation = world.AddUnitPosition(buildPosition, newUnit);
+			return;
+        }
+
         //transferring all previous trader info to new one
-        if (upgrading)
+        if (upgrading && upgradedUnit.isTrader)
 		{
             world.traderList.Remove(upgradedUnit.trader);
             newUnit.trader.name = upgradedUnit.name;
@@ -1873,7 +1898,6 @@ public class CityBuilderManager : MonoBehaviour
 			newUnit.trader.personalResourceManager = upgradedUnit.trader.personalResourceManager;
 			newUnit.trader.resourceGridDict = upgradedUnit.trader.resourceGridDict;
             selectedCity.tradersHere.Remove(upgradedUnit);
-            upgradedUnit.RemoveUnitFromData();
             upgradedUnit.DestroyUnit();
             //upgradedUnit.gameObject.SetActive(false);
         }
@@ -2964,11 +2988,12 @@ public class CityBuilderManager : MonoBehaviour
 			if (!selectedImprovement.isUpgrading)
 			{
 				city.PopulationGrowthCheck(true, selectedImprovement.laborCost);
-				UpdateCityLaborUIs();
+				if (city.activeCity)
+                    UpdateCityLaborUIs();
 			}
 
-            selectedCity.army.isTraining = false;
-            selectedCity.harborTraining = false;
+            city.army.isTraining = false;
+            city.harborTraining = false;
 			selectedImprovement.CancelTraining(resourceProducer);
 			selectedImprovement.StopUpgrade();
 			uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
@@ -3421,7 +3446,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void UpdateLaborNumbers()
     {
-        if (selectedCity.activeCity)
+        if (selectedCity)
         {
             HideLaborNumbers();
             HideImprovementResources();
@@ -3980,6 +4005,8 @@ public class CityBuilderManager : MonoBehaviour
 
     public void DestroyCity(City city) //set on destroy city warning message
     {
+        ResetCityUI();
+
         //stop upgrading and training improvements
         foreach (Vector3Int tile in world.GetNeighborsFor(city.cityLoc, MapWorld.State.CITYRADIUS))
         {
@@ -4054,8 +4081,6 @@ public class CityBuilderManager : MonoBehaviour
         Destroy(destroyedCity);
 
         uiDestroyCityWarning.ToggleVisibility(false);
-
-        ResetCityUI();
     }
 
     public void SetSingleBuildsAvailable(City city)

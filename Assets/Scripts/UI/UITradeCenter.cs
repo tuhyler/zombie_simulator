@@ -145,24 +145,24 @@ public class UITradeCenter : MonoBehaviour
         title.text = name;
     }
 
-    public void SetHappinessMeter(Unit rep)
+    public void SetHappinessMeter(TradeRep rep)
     {
 		int meterShift = rep.tradeRep.rapportScore * 32;
 		Vector2 meterLoc = happinessMeter.transform.localPosition;
 		meterLoc.x = meterShift;
 		happinessMeter.transform.localPosition = meterLoc;
 
-        if (meterShift == 160)
+        if (rep.tradeRep.rapportScore == 5)
         {
             happinessMeter.sprite = ecstatic;
             buyMultiple = 1 - rep.tradeRep.ecstaticDiscount * 0.01f;
         }
-		else if (meterShift >= 65)
+		else if (rep.tradeRep.rapportScore > 2)
 		{
 			happinessMeter.sprite = happy;
 			buyMultiple = 1 - rep.tradeRep.happyDiscount * 0.01f;
 		}
-		else if (meterShift <= -60)
+		else if (rep.tradeRep.rapportScore < -2)
 		{
 			happinessMeter.sprite = mad;
 			buyMultiple = 1 + rep.tradeRep.angryIncrease * 0.01f;

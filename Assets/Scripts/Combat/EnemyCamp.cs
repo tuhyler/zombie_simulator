@@ -255,6 +255,10 @@ public class EnemyCamp
 				unitsInCamp.Remove(removedUnit);
 				world.RemoveUnitPosition(removedUnit.currentLocation);
 			}
+			else
+			{
+				campCount++;
+			}
 
 			unitsInCamp.Add(leader);
 		}
@@ -359,8 +363,8 @@ public class EnemyCamp
 			{
 				//if (chasing)
 				//{
-				//	for (int i = 0; i < unitsInCamp.Count; i++)
-				//		unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
+				for (int i = 0; i < unitsInCamp.Count; i++)
+					unitsInCamp[i].minimapIcon.gameObject.SetActive(true);
 
 				//	world.mainPlayer.StartRunningAway();
 				//	pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, moveToLoc);
@@ -564,6 +568,7 @@ public class EnemyCamp
 			else
 				removingOut = true;
 
+			inBattle = false;
 			world.ToggleCityMaterialClear(isCity ? cityLoc : loc, attackingArmy.city.cityLoc, attackingArmy.enemyTarget, attackingArmy.attackZone, false);
 
 			foreach (Military unit in unitsInCamp)
@@ -674,6 +679,7 @@ public class EnemyCamp
 			unit.inBattle = false; //leaving it here just in case
 			unit.preparingToMoveOut = false;
 			unit.isMarching = false;
+			unit.duelWatch = false;
 			if (!unit.repositioning)
 				unit.enemyAI.StartReturn();
 		}
@@ -863,8 +869,15 @@ public class EnemyCamp
 			//if (!chasing)
 			//	unit.isMarching = true;
 
-			unit.finalDestinationLoc = path[path.Count - 1];
-			unit.MoveThroughPath(path);
+			if (path.Count > 0)
+			{
+				unit.finalDestinationLoc = path[path.Count - 1];
+				unit.MoveThroughPath(path);
+			}
+			else
+			{
+				unit.FinishMoving(unit.transform.position);
+			}
 		}
 	}
 
@@ -932,7 +945,7 @@ public class EnemyCamp
 			{
 				if (attackingArmy == null || attackingArmy.UnitsInArmy.Count == 0)
 				{
-					world.uiAttackWarning.AttackNotification(((Vector3)moveToLoc + threatLoc) * 0.5f);
+					world.uiAttackWarning.AttackNotification(((Vector3)attackingArmy.attackZone + attackingArmy.enemyTarget) * 0.5f);
 					GoToPillage();
 					pillage = true;
 				}
@@ -942,7 +955,7 @@ public class EnemyCamp
 					
 					if (armyReady)
 					{
-						world.uiAttackWarning.AttackNotification(((Vector3)moveToLoc + threatLoc) * 0.5f);
+						world.uiAttackWarning.AttackNotification(((Vector3)attackingArmy.attackZone + attackingArmy.enemyTarget) * 0.5f);
 						attackingArmy.Charge();
 					}
 				}
@@ -956,7 +969,13 @@ public class EnemyCamp
 		
 		if (actualAttackLoc != moveToLoc)
 		{
-			List<Vector3Int> restOfPath = GridSearch.MoveWherever(world, pathToTarget[pathToTarget.Count - 1], moveToLoc);
+			Vector3Int originalAttackLoc;
+			if (pathToTarget.Count > 0)
+				originalAttackLoc = pathToTarget[pathToTarget.Count - 1];
+			else
+				originalAttackLoc = loc;
+
+			List<Vector3Int> restOfPath = GridSearch.MoveWherever(world, originalAttackLoc, moveToLoc);
 			pathToTarget.AddRange(restOfPath);
 
 			for (int i = 0; i < unitsInCamp.Count; i++)
@@ -1222,7 +1241,13 @@ public class EnemyCamp
 			enemyReady = 0;
 			pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
 			movingOut = true;
-			Vector3Int penultimate = pathToTarget[pathToTarget.Count - 1];
+			Vector3Int penultimate;
+
+			if (pathToTarget.Count > 0)
+				penultimate = pathToTarget[pathToTarget.Count - 1];
+			else
+				penultimate = loc;
+
 			threatLoc = penultimate;
 
 			forward = (actualAttackLoc - threatLoc) / 3;
@@ -1440,6 +1465,13 @@ public class EnemyCamp
 		List<Vector3Int> avoidList = new(tilesToCheckLoc) { target };
 		for (int i = 0; i < tilesToCheckLoc.Count; i++)
 		{
+			if (tilesToCheckLoc[i] == newStart)
+			{
+				currentPath.Add(target);
+				foundPath = true;
+				break;
+			}
+			
 			List<Vector3Int> pathCoda = GridSearch.TerrainSearchEnemyCoda(world, newStart, tilesToCheckLoc[i], avoidList, seaStart);
 
 			if (pathCoda.Count > 0)

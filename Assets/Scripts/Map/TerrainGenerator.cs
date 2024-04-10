@@ -843,7 +843,7 @@ public class TerrainGenerator : MonoBehaviour
         if (forest && !swamp)
         {
             int propInt = 0;
-            bool changeLeafColor = true;
+            bool changeLeafColor = false;
             
             if (propArray.Count > 1)
 			{

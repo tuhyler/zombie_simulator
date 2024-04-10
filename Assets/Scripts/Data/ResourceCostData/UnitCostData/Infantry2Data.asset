@@ -12,17 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Infantry2Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2321851027760307080, guid: 64d39453e5a6dd54497f80fb704d2ecc, type: 3}
+  prefab: {fileID: 2321851027760307080, guid: 65809cd8c87432f48bf176c599d59c8b, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Infantry
-  unitDisplayName: Spearman
+  nationalityAdjective: 
+  unitDisplayName: Bronze Swordsman
   unitLevel: 2
   unitNameAndLevel: Infantry-2
-  image: {fileID: 21300000, guid: 124905a2765bb7241a7f8cdf2ad9f37b, type: 3}
+  image: {fileID: 21300000, guid: 2a1e5b5e0c8a62b4d8462da1d5f2949f, type: 3}
   mapIcon: {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
   unitCost:
-  - resourceType: 6
-    resourceAmount: 12
   - resourceType: 7
     resourceAmount: 12
   cycleCost:
@@ -34,12 +32,20 @@ MonoBehaviour:
   laborCost: 0
   unitType: 1
   unitDescription: Strong, fast unit
-  availableInitially: 0
+  availableInitially: 1
   health: 300
+  regenerationRate: 2
   baseAttackStrength: 5
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 10
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
+  unitEra: 0
+  unitRegion: 4

@@ -443,6 +443,12 @@ public class Army : MonoBehaviour
         enemyTarget = finalTarget;
         seaTravel = false;
 
+        if (current == target)
+        {
+            pathToTarget.Add(finalTarget);
+            return true;
+        }
+
         //int j = 0;
         //foreach (Vector3Int tile in world.GetNeighborsFor(finalTarget, MapWorld.State.EIGHTWAYINCREMENT))
         //{

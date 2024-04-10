@@ -22,7 +22,7 @@ public class UnitData : IUnitData
 
 	//combat
 	public Vector3Int cityHomeBase, barracksBunk, marchPosition, targetBunk;
-	public int currentHealth, strengthBonus;
+	public int currentHealth, strengthBonus, upgradeLevel;
 	public float baseSpeed;
 	public bool readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, 
 		isUpgrading, /*looking, */ambush, aoe, guard, isGuarding, returning, atSea, benched, duelWatch;

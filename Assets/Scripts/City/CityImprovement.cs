@@ -30,7 +30,7 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public List<ResourceValue> upgradeCost = new(), refundCost = new();
     [HideInInspector]
-    public int housingIndex, laborCost; //for city centeer housing only, and for canceling training in barracks
+    public int housingIndex, laborCost, upgradeLevel; //for city centeer housing only, and for canceling training in barracks
     [HideInInspector]
     public ResourceProducer resourceProducer;
 
@@ -659,6 +659,7 @@ public class CityImprovement : MonoBehaviour
         data.queued = queued;
         data.isConstruction = isConstruction;
         data.isUpgrading = isUpgrading;
+        data.upgradeLevel = upgradeLevel;
         data.isTraining = isTraining;
         if (isTraining)
             data.trainingUnitName = trainingUnitName;
@@ -759,7 +760,8 @@ public class CityImprovement : MonoBehaviour
 		}
         else if (isUpgrading)
         {
-            world.CreateUpgradedImprovement(loc, this, city);
+            upgradeLevel = data.upgradeLevel;
+            world.CreateUpgradedImprovement(this, city, upgradeLevel);
         }
     }
 
@@ -776,6 +778,7 @@ public class CityImprovement : MonoBehaviour
                 unit = city.FindUpgradingSeaTraderUnit();
         }
 
-		BeginTraining(city, resourceProducer, UpgradeableObjectHolder.Instance.unitDict[trainingUnitName], true, unit, true);
+        world.CreateUpgradedUnit(unit, this, city, unit.upgradeLevel);
+		//BeginTraining(city, resourceProducer, UpgradeableObjectHolder.Instance.unitDict[trainingUnitName], true, unit, true);
 	}
 }

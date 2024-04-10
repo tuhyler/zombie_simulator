@@ -831,22 +831,24 @@ public class Trader : Unit
 
 		if (bySea)
 		{
-			if (!followingRoute && world.IsCityHarborOnTile(currentLocation))
+			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+			if (!followingRoute && world.IsCityHarborOnTile(terrainLoc))
 			{
-				City city = world.GetHarborCity(world.GetClosestTerrainLoc(currentLocation));
+				City city = world.GetHarborCity(world.GetClosestTerrainLoc(terrainLoc));
 				city.tradersHere.Add(this);
-				if (world.unitMovement.upgradingUnit)
-					world.unitMovement.ToggleUnitHighlights(true, city);
+				if (city.activeCity && world.unitMovement.upgradingUnit)
+					world.unitMovement.CheckIndividualUnitHighlight(this, city);
 			}
 		}
 		else
 		{
-			if (!followingRoute && world.IsCityOnTile(currentLocation))
+			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+			if (!followingRoute && world.IsCityOnTile(terrainLoc))
 			{
-				City city = world.GetCity(world.GetClosestTerrainLoc(currentLocation));
+				City city = world.GetCity(world.GetClosestTerrainLoc(terrainLoc));
 				city.tradersHere.Add(this);
-				if (world.unitMovement.upgradingUnit)
-					world.unitMovement.ToggleUnitHighlights(true, city);
+				if (city.activeCity && world.unitMovement.upgradingUnit)
+					world.unitMovement.CheckIndividualUnitHighlight(this, city);
 			}
 			//if location has been taken away (such as when wonder finishes)
 			if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))

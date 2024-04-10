@@ -34,6 +34,7 @@ MonoBehaviour:
   unitDescription: Strong, fast unit
   availableInitially: 1
   health: 500
+  regenerationRate: 2
   baseAttackStrength: 5
   baseAttackSpeed: 1
   movementSpeed: 1
