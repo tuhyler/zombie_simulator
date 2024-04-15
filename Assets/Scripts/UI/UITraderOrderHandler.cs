@@ -98,7 +98,7 @@ public class UITraderOrderHandler : MonoBehaviour
         gameObject.SetActive(false);
         world.traderCanvas.gameObject.SetActive(false);
 
-        if (world.unitMovement.selectedUnit == null || (world.unitMovement.selectedTrader == null && !world.unitMovement.selectedUnit.isPlayer))
+        if (!world.unitMovement.selectedUnit || (!world.unitMovement.selectedUnit.trader && !world.unitMovement.selectedUnit.isPlayer))
             world.personalResourceCanvas.gameObject.SetActive(false);
     }
 

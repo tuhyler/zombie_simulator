@@ -22,9 +22,11 @@ public class Trader : Unit
     private int totalRouteLength;
 
     [HideInInspector]
-    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, guardLeft;//, interruptedRoute;
+    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, guardLeft, atHome, returning;//, interruptedRoute;
     [HideInInspector]
     public Unit guardUnit;
+	[HideInInspector]
+	public Vector3Int homeCity;
 
     public int loadUnloadRate = 1;
 
@@ -66,18 +68,18 @@ public class Trader : Unit
 	private void Start()
 	{
 		tradeRouteManager.SetTradeRouteManager(world.unitMovement.uiTradeRouteManager);
-        tradeRouteManager.SetUIPersonalResourceManager(world.unitMovement.uiPersonalResourceInfoPanel);
+        //tradeRouteManager.SetUIPersonalResourceManager(world.unitMovement.uiPersonalResourceInfoPanel);
         personalResourceManager.SetUnit(this);
 	}
 
     public void SetRouteManagers(UITradeRouteManager uiTradeRouteManager, UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
     {
 		tradeRouteManager.SetTradeRouteManager(uiTradeRouteManager);
-		tradeRouteManager.SetUIPersonalResourceManager(uiPersonalResourceInfoPanel);
+		//tradeRouteManager.SetUIPersonalResourceManager(uiPersonalResourceInfoPanel);
 	}
 
     //animations
-    public override void SetInterruptedAnimation(bool v)
+    public void SetInterruptedAnimation(bool v)
     {
         unitAnimator.SetBool(isInterruptedHash, v);
     }
@@ -157,7 +159,7 @@ public class Trader : Unit
         TradeRouteCheck(cityLoc);
     }
 
-    protected override void TradeRouteCheck(Vector3 endPosition)
+    public void TradeRouteCheck(Vector3 endPosition)
     {
         if (followingRoute)
         {
@@ -167,6 +169,7 @@ public class Trader : Unit
 				if (city.ResourceManager.ConsumeResourcesForRouteCheck(totalRouteCosts))
                 {
                     waitingOnRouteCosts = false;
+					RemoveWarning();
 					world.unitMovement.uiTradeRouteManager.ShowRouteCostFlag(false, this);
 					city.ResourceManager.RemoveFromTraderWaitList(this);
 					city.ResourceManager.RemoveFromResourcesNeededForTrader(routeCostTypes);
@@ -176,6 +179,7 @@ public class Trader : Unit
                 else
                 {
                     waitingOnRouteCosts = true;
+					SetWarning(false, true);
                     world.unitMovement.uiTradeRouteManager.ShowRouteCostFlag(true, this);
                     city.ResourceManager.AddToTraderWaitList(this);
 					city.ResourceManager.AddToResourcesNeededForTrader(routeCostTypes);
@@ -184,7 +188,7 @@ public class Trader : Unit
 				}
             }
 
-			Vector3Int endLoc = Vector3Int.RoundToInt(endPosition);
+			Vector3Int endLoc = world.RoundToInt(endPosition);
 
             if (endLoc == tradeRouteManager.CurrentDestination)
             {
@@ -196,8 +200,8 @@ public class Trader : Unit
                     interruptedRoute = true;
                     if (isSelected)
                         InterruptedRouteMessage();
-                    else
-                        SetInterruptedAnimation(true);
+                    //else
+                    //    SetInterruptedAnimation(true);
                     return;
                 }
 
@@ -238,14 +242,18 @@ public class Trader : Unit
         }
     }
 
-	public void InterruptRoute()
+	public void InterruptRoute(bool message)
 	{
 		CancelRoute();
-		interruptedRoute = true;
-		if (isSelected)
-			InterruptedRouteMessage();
-		else
-			SetInterruptedAnimation(true);
+
+		if (message)
+		{
+			interruptedRoute = true;
+			if (isSelected)
+				InterruptedRouteMessage();
+		}
+		//else
+		//	SetInterruptedAnimation(true);
 	}
 
     public void StartMoveUpInLine(int num)
@@ -356,7 +364,7 @@ public class Trader : Unit
 
 		if (!success)
 		{
-			InterruptRoute();
+			InterruptRoute(true);
 		}
 		else
 		{
@@ -419,11 +427,12 @@ public class Trader : Unit
 		}
 
 		ambush = false;
+		SetInterruptedAnimation(false);
         StartAnimation();
 		RestartPath(pathPositions.Dequeue());
 	}
 
-	public override void BeginNextStepInRoute() //this does not have the finish movement listeners
+	public void BeginNextStepInRoute() //this does not have the finish movement listeners
     {
         tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
         if (LoadUnloadCo != null)
@@ -444,8 +453,8 @@ public class Trader : Unit
             interruptedRoute = true;
             if (isSelected)
                 InterruptedRouteMessage();
-            else
-                SetInterruptedAnimation(true);
+            //else
+            //    SetInterruptedAnimation(true);
             return;
         }
 
@@ -454,7 +463,7 @@ public class Trader : Unit
         if (followingRoute)
             currentPath = tradeRouteManager.GetNextPath();
         else
-            currentPath = GridSearch.AStarSearch(world, transform.position, nextStop, isTrader, bySea); //in case starting off path
+            currentPath = GridSearch.TraderMove(world, transform.position, nextStop, bySea); //in case starting off path
 
         followingRoute = true;
         if (currentPath.Count == 0)
@@ -472,8 +481,8 @@ public class Trader : Unit
                 interruptedRoute = true;
                 if (isSelected)
                     InterruptedRouteMessage();
-                else
-                    SetInterruptedAnimation(true);
+                //else
+                //    SetInterruptedAnimation(true);
                 return;
             }
         }
@@ -494,6 +503,107 @@ public class Trader : Unit
         }
     }
 
+	public void PrepForRoute()
+	{
+		Vector3Int firstStep = bySea ? world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor] : homeCity;
+		List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, firstStep, bySea);
+
+		if (path.Count == 0)
+		{
+			path = GridSearch.MoveWherever(world, transform.position, firstStep);
+
+			if (path.Count == 0)
+				path.Add(firstStep);
+		}
+
+		finalDestinationLoc = firstStep;
+		MoveThroughPath(path);
+	}
+
+	public void GoToStall()
+	{
+		//Walking on land to get to stall
+		atHome = true;
+		Vector3Int stallLoc = world.GetTraderBuildLoc(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]);
+		List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, stallLoc, bySea);
+
+		if (path.Count == 0)
+		{
+			path = GridSearch.MoveWherever(world, transform.position, stallLoc);
+
+			if (path.Count == 0)
+				path.Add(stallLoc);
+		}
+
+		finalDestinationLoc = stallLoc;
+		MoveThroughPath(path);
+	}
+
+	public void ReturnHome()
+	{
+		Vector3Int currentLoc = world.GetClosestTerrainLoc(transform.position);
+		returning = true;
+				
+		if (world.IsCityOnTile(homeCity) && world.GetCity(homeCity).singleBuildDict.ContainsKey(buildDataSO.singleBuildType))
+		{
+			Vector3Int homeLoc = bySea ? world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor] : homeCity;
+			if (atHome || currentLoc == homeLoc)
+			{
+				GoToStall();
+				return;
+			}
+
+			List<Vector3Int> pathHome = GridSearch.MilitaryMove(world, transform.position, homeLoc, bySea); //allowing movement off road to get back home
+
+			if (pathHome.Count > 0)
+			{
+				finalDestinationLoc = homeLoc;
+				MoveThroughPath(pathHome);
+				return;
+			}
+		}
+
+		//if can't get back home, look for next closest city connected by road with trade depot
+		List<string> cityNames = world.GetConnectedCityNames(currentLoc, bySea, true);
+
+		City chosenCity = null;
+		int dist = 0;
+		bool firstOne = true;
+
+		for (int i = 0; i < cityNames.Count; i++)
+		{
+			City city = world.GetCity(world.GetStopLocation(cityNames[i]));
+
+			if (!city.singleBuildDict.ContainsKey(buildDataSO.singleBuildType))
+				continue;
+				
+			if (firstOne)
+			{
+				firstOne = false;
+				chosenCity = city;
+				dist = Mathf.Abs(currentLoc.x - city.cityLoc.x) + Mathf.Abs(currentLoc.z - city.cityLoc.z);
+				continue;
+			}
+
+			int newDist = Mathf.Abs(currentLoc.x - city.cityLoc.x) + Mathf.Abs(currentLoc.z - city.cityLoc.z);
+			if (newDist < dist)
+			{
+				chosenCity = city;
+				dist = newDist;
+			}
+		}
+
+		//if can't get home, kill unit
+		if (chosenCity == null)
+		{
+			KillUnit(Vector3.zero);
+			return;
+		}
+
+		homeCity = chosenCity.cityLoc;
+		ReturnHome();
+	}
+
     public bool LineCutterCheck()
     {
         if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), tradeRouteManager.GoToNext()))
@@ -509,14 +619,15 @@ public class Trader : Unit
 	public void InterruptedRouteMessage()
 	{
 		interruptedRoute = false;
-		SetInterruptedAnimation(false);
+		//SetInterruptedAnimation(false);
 		InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
 	}
 
-	public override void CancelRoute()
+	public void CancelRoute()
     {
         followingRoute = false;
-        waitingOnRouteCosts = false;
+		RemoveWarning();
+		waitingOnRouteCosts = false;
         if (waitingCo != null)
             StopCoroutine(waitingCo);
 
@@ -561,6 +672,8 @@ public class Trader : Unit
             tradeRouteManager.CancelLoad();
             tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
         }
+
+		ReturnHome();
     }
 
     public void AddToGrid(ResourceType type)
@@ -824,42 +937,41 @@ public class Trader : Unit
 		Teleport(newSpot);
 	}
 
+	public void CheckWarning()
+	{
+		if (waitingOnRouteCosts)
+		{
+			world.unitMovement.infoManager.infoPanel.ShowWarning(false, true);
+		}
+		else if (atStop)
+		{
+			if (tradeRouteManager.resourceAssignments[tradeRouteManager.currentStop][tradeRouteManager.currentResource].resourceAmount < 0)
+				world.unitMovement.infoManager.infoPanel.ShowWarning(true, false);
+			else
+				world.unitMovement.infoManager.infoPanel.ShowWarning(false, false);
+		}
+	}
+
+	public void SetWarning(bool inventory, bool costs)
+	{
+		exclamationPoint.SetActive(true);
+
+		if (isSelected)
+			world.unitMovement.infoManager.infoPanel.ShowWarning(inventory, costs);
+	}
+
+	public void RemoveWarning()
+	{
+		exclamationPoint.SetActive(false);
+
+		if (isSelected)
+			world.unitMovement.infoManager.infoPanel.HideWarning();
+	}
+
 	public void FinishMovementTrader(Vector3 endPosition)
     {
 		if (isSelected)
 			world.unitMovement.ShowIndividualCityButtonsUI();
-
-		if (bySea)
-		{
-			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-			if (!followingRoute && world.IsCityHarborOnTile(terrainLoc))
-			{
-				City city = world.GetHarborCity(world.GetClosestTerrainLoc(terrainLoc));
-				city.tradersHere.Add(this);
-				if (city.activeCity && world.unitMovement.upgradingUnit)
-					world.unitMovement.CheckIndividualUnitHighlight(this, city);
-			}
-		}
-		else
-		{
-			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-			if (!followingRoute && world.IsCityOnTile(terrainLoc))
-			{
-				City city = world.GetCity(world.GetClosestTerrainLoc(terrainLoc));
-				city.tradersHere.Add(this);
-				if (city.activeCity && world.unitMovement.upgradingUnit)
-					world.unitMovement.CheckIndividualUnitHighlight(this, city);
-			}
-			//if location has been taken away (such as when wonder finishes)
-			if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(endPosition)))
-			{
-				if (followingRoute)
-					InterruptRoute();
-                TeleportToNearestRoad(world.RoundToInt(currentLocation));
-				prevTile = currentLocation;
-				return;
-			}
-		}
 
 		if (followingRoute)
 		{
@@ -870,19 +982,47 @@ public class Trader : Unit
 				prevTile = currentLocation;
 				return;
 			}
+
+			TradeRouteCheck(endPosition);
+			
+			//if location has been taken away (such as when wonder finishes)
+			if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(currentLocation)))
+			{
+				InterruptRoute(false);
+                TeleportToNearestRoad(world.RoundToInt(currentLocation));
+				prevTile = currentLocation;
+				return;
+			}
 		}
-		else if (guarded)
+		else
 		{
-			guardUnit.military.IdleCheck();
+			bool homeCityArrival = bySea ? world.IsCityHarborOnTile(currentLocation) : currentLocation == homeCity;
+
+			if (homeCityArrival)
+			{
+				if (returning)
+				{
+					GoToStall();
+				}
+				else
+				{
+					atHome = false;
+					BeginNextStepInRoute();
+				}
+			}
+			else if (returning)
+			{
+				returning = false;
+				City city = world.GetCity(homeCity);
+				city.tradersHere.Add(this);
+				if (city.activeCity && world.unitMovement.upgradingUnit)
+					world.unitMovement.CheckIndividualUnitHighlight(this, city);
+
+				world.AddUnitPosition(currentLocation, this);
+			}
 		}
 
-		TradeRouteCheck(endPosition);
 		prevTile = currentLocation;
-
-		if (!followingRoute && world.IsUnitLocationTaken(currentLocation))
-			UnitInWayCheck(endPosition);
-        else
-			world.AddUnitPosition(currentLocation, this);
 	}
 
     public void KillTrader()
@@ -951,6 +1091,10 @@ public class Trader : Unit
         data.guardLeft = guardLeft;
         data.currentHealth = currentHealth;
         data.paid = paid;
+		data.homeCity = homeCity;
+		//data.stallLoc = stallLoc;
+		data.atHome = atHome;
+		data.returning = returning;
 
 		if (isMoving && !isWaiting)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -1012,9 +1156,19 @@ public class Trader : Unit
         waitingOnGuard = data.waitingOnGuard;
         guardLeft = data.guardLeft;
         paid = data.paid;
+		homeCity = data.homeCity;
+		//stallLoc = data.stallLoc;
+		atHome = data.atHome;
+		returning = data.returning;
+
+		if (atHome)
+			world.GetCity(homeCity).tradersHere.Add(this);
 
         if (guarded)
             world.CreateGuard(data.guardUnit, this);
+
+		if (isUpgrading)
+			GameLoader.Instance.unitUpgradeList.Add(this);
 
 		if (currentHealth < healthMax)
 		{
@@ -1065,6 +1219,9 @@ public class Trader : Unit
         {
             CalculateRouteCosts();
             tradeRouteManager.waitTime = tradeRouteManager.waitTimes[tradeRouteManager.currentStop];
+
+			if (waitingOnRouteCosts || tradeRouteManager.resourceCheck)
+				exclamationPoint.SetActive(true);
 
             if (atStop && !waitingOnRouteCosts)
             {

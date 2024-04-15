@@ -219,11 +219,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79cef6873fed2d74a9f7286277f8e877, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  world: {fileID: 0}
   resourceSquare: {fileID: 8791212862782244447, guid: eabda41eaf2944844a47a78f1c3cee19,
     type: 3}
   allContents: {fileID: 6592848557759909638}
   closeButton: {fileID: 2157487260431106319}
-  resourceHolder: {fileID: 6359960587675490863}
   rawHolder: {fileID: 6635509444476561828}
   rockHolder: {fileID: 4727642043264215410}
   buildingHolder: {fileID: 2161443878304049167}
@@ -556,7 +556,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 700, y: 1000}
+  m_SizeDelta: {x: 700, y: 1200}
   m_Pivot: {x: 0.4, y: 0.5}
 --- !u!222 &1263835352971763209
 CanvasRenderer:

@@ -397,7 +397,7 @@ public class Wonder : MonoBehaviour
         heavenHighlight.transform.position = pos;
         PlayPopGainAudio();
         heavenHighlight.Play();
-        if (world.cityBuilderManager.uiWonderSelection.activeStatus)
+        if (world.cityBuilderManager.uiWonderSelection.activeStatus && world.cityBuilderManager.uiWonderSelection.wonder == this)
 			world.cityBuilderManager.uiWonderSelection.UpdateUIWorkers(workersReceived, this);
 
 		if (!StillNeedsWorkers())
@@ -670,7 +670,7 @@ public class Wonder : MonoBehaviour
             {
                 world.RemoveUnitPosition(unloadLoc);
                 if (unit.trader.followingRoute)
-                    unit.trader.InterruptRoute();
+                    unit.trader.InterruptRoute(false);
                 unit.trader.TeleportToNearestRoad(unloadLoc);
             }
             else
@@ -686,7 +686,7 @@ public class Wonder : MonoBehaviour
                 {
                     world.RemoveUnitPosition(neighbor);
                     if (unit.trader.followingRoute)
-                        unit.trader.InterruptRoute();
+                        unit.trader.InterruptRoute(false);
                     unit.trader.TeleportToNearestRoad(neighbor);
                 }
             }

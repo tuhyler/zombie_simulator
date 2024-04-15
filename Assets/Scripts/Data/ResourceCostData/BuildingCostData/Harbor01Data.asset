@@ -50,7 +50,6 @@ MonoBehaviour:
   waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 1
   oneTerrain: 1
   adjustForHill: 0
   hideProp: 1
@@ -59,4 +58,6 @@ MonoBehaviour:
   availableInitially: 1
   hideIdleMesh: 0
   getTerrainResource: 0
+  attackBonus: 0
+  singleBuildType: 3
   noWalkAreas: []

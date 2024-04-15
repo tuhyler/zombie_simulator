@@ -31,6 +31,10 @@ public class Military : Unit
 	[HideInInspector]
 	public Army army;
 	[HideInInspector]
+	public Navy navy;
+	[HideInInspector]
+	public AirForce airForce;
+	[HideInInspector]
 	public EnemyCamp enemyCamp;
 	[HideInInspector]
 	public EnemyAmbush enemyAmbush;
@@ -524,7 +528,7 @@ public class Military : Unit
 		if (army.battleAtSea)
 			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), barracksBunk);
 		else
-			path = GridSearch.AStarSearch(world, world.RoundToInt(transform.position), barracksBunk, false, bySea);
+			path = GridSearch.MilitaryMove(world, world.RoundToInt(transform.position), barracksBunk, bySea);
 
 		if (path.Count == 0)
 			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), barracksBunk);
@@ -551,7 +555,7 @@ public class Military : Unit
 	public void AmbushAggro(Vector3Int endPosition, Vector3Int ambushLoc)
 	{
 		List<Vector3Int> avoidList = new() { ambushLoc };
-		List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, transform.position, endPosition, bySea, avoidList); //enemy works in this case
+		List<Vector3Int> path = GridSearch.EnemyMove(world, transform.position, endPosition, bySea, avoidList); //enemy works in this case
 
 		if (path.Count > 1)
 		{
@@ -608,7 +612,7 @@ public class Military : Unit
 	public void GoToBunk()
 	{
 		finalDestinationLoc = barracksBunk;
-		MoveThroughPath(GridSearch.AStarSearch(world, currentLocation, barracksBunk, isTrader, bySea));
+		MoveThroughPath(GridSearch.MilitaryMove(world, currentLocation, barracksBunk, bySea));
 	}
 
 	public void FindNewBattleSpot(Vector3Int current, Vector3Int target)
@@ -760,7 +764,7 @@ public class Military : Unit
 
 		foreach (City city in world.cityDict.Values)
 		{
-			if (!city.hasBarracks || city.army.isFull)
+			if (!city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) || city.army.isFull)
 				continue;
 
 			if (firstOne)
@@ -785,7 +789,7 @@ public class Military : Unit
 			{
 				guardedTrader.SetGuardLeftMessage();
 				Vector3Int newLoc = closestCity.army.GetAvailablePosition(buildDataSO.unitType);
-				List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, newLoc, false, bySea);
+				List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, newLoc, bySea);
 				world.unitMovement.TransferMilitaryUnit(this, closestCity, newLoc, path);
 			}
 			else
@@ -1257,6 +1261,9 @@ public class Military : Unit
 		idleTime = data.idleTime;
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
+
+		if (isUpgrading)
+			GameLoader.Instance.unitUpgradeList.Add(this);
 
 		if (!isMoving && !data.benched && !data.duelWatch && !data.isDead)
 			world.AddUnitPosition(currentLocation, this);

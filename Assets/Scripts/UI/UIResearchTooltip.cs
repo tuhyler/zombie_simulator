@@ -66,11 +66,11 @@ public class UIResearchTooltip : MonoBehaviour
         }
     }
 
-    public void HandleEsc()
-    {
-        if (activeStatus)
-            CloseWindow();
-    }
+    //public void HandleEsc()
+    //{
+    //    if (activeStatus)
+    //        CloseWindow();
+    //}
 
     public void ToggleVisibility(bool v)
     {

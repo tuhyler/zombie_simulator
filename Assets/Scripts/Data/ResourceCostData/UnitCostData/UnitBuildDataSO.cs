@@ -33,6 +33,7 @@ public class UnitBuildDataSO : ScriptableObject
     public Color borderColor;
     public Vector2 colorOne;
     public Vector2 colorTwo;
+    public SingleBuildType singleBuildType;
     public Era unitEra;
     public Region unitRegion = Region.None;
 }

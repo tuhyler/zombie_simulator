@@ -289,7 +289,11 @@ public class UITradeStopHandler : MonoBehaviour
     public void AddResourceTaskPanelButton() //added this as a method attached to button can't return anything
     {
 		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
-		AddResourceTaskPanel(false);
+        if (tradeRouteManager.resourceSelectionGrid.activeStatus)
+            tradeRouteManager.resourceSelectionGrid.ToggleVisibility(false);
+        if (tradeRouteManager.uiTradeResourceNum.activeStatus)
+            tradeRouteManager.uiTradeResourceNum.ToggleVisibility(false);
+        AddResourceTaskPanel(false);
     }
 
     private UITradeResourceTask AddResourceTaskPanel(bool onRoute) //showing a new resource task panel
@@ -467,8 +471,13 @@ public class UITradeStopHandler : MonoBehaviour
     {
         //task.allToggle.interactable = false;
         task.resourceCountSlider.interactable = false;
-        //task.inputStorageAmount.enabled = false;
-        task.draggable = false;
+        task.resourceNumButton.interactable = false;
+        task.resourceNumButtonImg.color = new Color(1, 1, 1, 0);
+        //task.sliderBackground.color = new Color(1, 1, 1, 0);
+        task.sliderHandle.color = new Color(1, 1, 1, 0);
+        //task.sliderFill.color = new Color(1, 1, 1, 0);
+		//task.inputStorageAmount.enabled = false;
+		task.draggable = false;
         task.dragGrips.SetActive(false);
         task.closeButton.SetActive(false);
         //task.resourceList.enabled = false;
@@ -490,6 +499,11 @@ public class UITradeStopHandler : MonoBehaviour
         {
             //task.allToggle.interactable = true;
             task.resourceCountSlider.interactable = true;
+            task.resourceNumButton.interactable = true;
+            task.resourceNumButtonImg.color = Color.white;
+            //task.sliderBackground.color = Color.white;
+            task.sliderHandle.color = Color.white;
+            //task.sliderFill.color = Color.white;
             //task.inputStorageAmount.enabled = true;
             task.draggable = true;
             task.dragGrips.SetActive(true);

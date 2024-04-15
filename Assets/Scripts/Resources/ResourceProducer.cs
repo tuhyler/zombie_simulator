@@ -205,7 +205,7 @@ public class ResourceProducer : MonoBehaviour
         if (resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
         {
             isWaitingforResources = false;
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false, cityImprovement);
 			resourceManager.RemoveFromResourceWaitList(this);
             resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
 
@@ -343,7 +343,7 @@ public class ResourceProducer : MonoBehaviour
             {
                 isWaitingToUnload = true;
 			    cityImprovement.exclamationPoint.SetActive(true);
-			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, false, true);
 			    unloadLabor = tempLabor;
                 //resourceManager.waitingToUnloadResearch.Add(this);
                 //timeProgressBar.SetToZero();
@@ -361,7 +361,7 @@ public class ResourceProducer : MonoBehaviour
         {
             isWaitingToUnload = true;
             cityImprovement.exclamationPoint.SetActive(true);
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, true);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
 			unloadLabor = tempLabor;
             resourceManager.waitingToUnloadProducers.Enqueue(this);
             //timeProgressBar.SetToZero();
@@ -404,7 +404,7 @@ public class ResourceProducer : MonoBehaviour
             {
                 AddToResearchWaitList();
 			    cityImprovement.exclamationPoint.SetActive(true);
-			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, false, true);
 			    uiTimeProgressBar.gameObject.SetActive(false);
                 cityImprovement.StopWork();
             }
@@ -421,7 +421,7 @@ public class ResourceProducer : MonoBehaviour
         {
             AddToStorageRoomWaitList();
 			cityImprovement.exclamationPoint.SetActive(true);
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, true);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
 			uiTimeProgressBar.gameObject.SetActive(false);
             cityImprovement.StopWork();
         }
@@ -439,7 +439,7 @@ public class ResourceProducer : MonoBehaviour
     {
 		AddToResourceWaitList();
 		cityImprovement.exclamationPoint.SetActive(true);
-		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, true);
 		uiTimeProgressBar.gameObject.SetActive(false);
 		cityImprovement.StopWork();
 	}
@@ -471,7 +471,7 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.RemoveFromResourceWaitList(this);
             resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
             isWaitingforResources = false;
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false);
+			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false, cityImprovement);
 		}
         else if (isWaitingToUnload)
         {
@@ -520,7 +520,7 @@ public class ResourceProducer : MonoBehaviour
     {
         isWaitingForResearch = true;
 		cityImprovement.exclamationPoint.SetActive(true);
-		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, false, true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, false, true);
 		//resourceManager.AddToResearchWaitList(this);
 		resourceManager.city.AddToWorldResearchWaitList(this);
     }
@@ -529,7 +529,7 @@ public class ResourceProducer : MonoBehaviour
     {
         isWaitingForStorageRoom = true;
 		cityImprovement.exclamationPoint.SetActive(true);
-		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, false, true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
 		resourceManager.AddToStorageRoomWaitList(this);
     }
 
@@ -537,7 +537,7 @@ public class ResourceProducer : MonoBehaviour
     {
         isWaitingforResources = true;
 		cityImprovement.exclamationPoint.SetActive(true);
-		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, true);
+		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, true);
         resourceManager.AddToResourceWaitList(this);
         resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
     }

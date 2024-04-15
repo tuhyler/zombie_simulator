@@ -6,7 +6,7 @@ using UnityEngine;
 public class Transport : Unit
 {
 	[SerializeField]
-	public GameObject koaMesh, scottMesh, azaiMesh;
+	public GameObject koaMesh, scottMesh, azaiMesh1, azaiMesh2;
 
 	[HideInInspector]
 	public int passengerCount;
@@ -28,7 +28,10 @@ public class Transport : Unit
 		if (!hasScott)
 			scottMesh.SetActive(false);
 		if (!hasAzai)
-			azaiMesh.SetActive(false);
+		{
+			azaiMesh1.SetActive(false);
+			azaiMesh2.SetActive(false);
+		}
 	}
 
 	public void Load(Unit worker)
@@ -53,7 +56,7 @@ public class Transport : Unit
 		}
 		else if (worker.buildDataSO.unitDisplayName == "Azai")
 		{
-			azaiMesh.SetActive(true);
+			ToggleAzaiMesh(true, worker.buildDataSO.unitLevel);
 			hasAzai = true;
 			world.azai.transportTarget = null;
 		}
@@ -180,7 +183,7 @@ public class Transport : Unit
 			hasAzai = false;
 			koaMesh.SetActive(false);
 			scottMesh.SetActive(false);
-			azaiMesh.SetActive(false);
+			ToggleAzaiMesh(false, world.azai.buildDataSO.unitLevel);
 			minimapIcon.sprite = buildDataSO.mapIcon;
 
 			if (isSelected)
@@ -193,7 +196,7 @@ public class Transport : Unit
 			{
 				world.mainPlayer.inEnemyLines = true;
 				world.mainPlayer.prevFriendlyTile = currentLoc;
-				List<Vector3Int> path = GridSearch.AStarSearchExempt(world, closeTile, speakerLoc, world.GetExemptList(speakerLoc));
+				List<Vector3Int> path = GridSearch.PlayerMoveExempt(world, closeTile, speakerLoc, world.GetExemptList(speakerLoc));
 				
 				if (path.Count > 0)
 				{
@@ -208,7 +211,7 @@ public class Transport : Unit
 		}
     }
 
-	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route)
+	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route = null)
 	{
 		Vector3Int safeTarget = playerLoc;
 
@@ -217,7 +220,7 @@ public class Transport : Unit
 			if (route != null && route.Contains(tile))
 				continue;
 
-			if (world.CheckIfPositionIsValid(tile))
+			if (world.PlayerCheckIfPositionIsValid(tile))
 			{
 				safeTarget = tile;
 				break;
@@ -225,16 +228,36 @@ public class Transport : Unit
 		}
 
 		finalDestinationLoc = safeTarget;
-		List<Vector3Int> runAwayPath = GridSearch.AStarSearch(world, currentLocation, safeTarget, false, bySea);
+		List<Vector3Int> runAwayPath = GridSearch.PlayerMove(world, currentLocation, safeTarget, bySea, false);
 
 		//in case already there
 		if (runAwayPath.Count > 0)
 			MoveThroughPath(runAwayPath);
 	}
 
+	private void ToggleAzaiMesh(bool v, int level)
+	{
+		switch (level)
+		{
+			case 1:
+				azaiMesh1.SetActive(v);
+				break;
+			case 2:
+				azaiMesh2.SetActive(v);
+				break;
+		}
+	}
+
 	public void FinishMovementTransport(Vector3 endPosition)
 	{
 		Vector3Int currentLoc = world.RoundToInt(endPosition);
+		
+		if (world.IsInBattleArea(currentLoc))
+		{
+			StepAside(currentLocation);
+			return;
+		}
+
 		world.AddUnitPosition(currentLoc, this);
 
 		bool nearbyLand = false;
@@ -299,7 +322,7 @@ public class Transport : Unit
 			scottMesh.SetActive(true);
 		hasAzai = data.hasAzai;
 		if (hasAzai)
-			azaiMesh.SetActive(true);
+			ToggleAzaiMesh(true, GameLoader.Instance.gameData.azai.bodyGuardData.unitLevel);
 
 		if (!isMoving)
 			world.AddUnitPosition(currentLocation, this);

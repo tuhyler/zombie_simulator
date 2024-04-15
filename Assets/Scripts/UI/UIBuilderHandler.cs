@@ -321,11 +321,11 @@ public class UIBuilderHandler : MonoBehaviour
 
     public void PrepareBuildOptions(ResourceManager resourceManager)
     {
-        List<string> improvementSingleBuildList = resourceManager.city.singleBuildImprovementsBuildingsDict.Keys.ToList();
+        List<SingleBuildType> improvementSingleBuildList = resourceManager.city.singleBuildDict.Keys.ToList();
 
         for (int i = 0; i < buildOptions.Count; i++)
         {
-			string itemName = "";
+			SingleBuildType itemType = SingleBuildType.None;
 			List<ResourceValue> resourceCosts = new();
 			//bool locked = false;
 			bool hide = false;
@@ -340,21 +340,27 @@ public class UIBuilderHandler : MonoBehaviour
 					continue;
                 }
 
-				itemName = buildOptions[i].UnitBuildData.unitDisplayName;
+				//itemType = buildOptions[i].UnitBuildData.singleBuildType;
 				resourceCosts = new(buildOptions[i].UnitBuildData.unitCost);
 
 				if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
 				{
-					buildOptions[i].trainingBarracks = resourceManager.city.harborTraining;
+                    if (resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+                        buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Harbor]).isTraining;
+                    else
+                        buildOptions[i].trainingBarracks = false;
 				}
 				else
 				{
 					if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
 					{
-						buildOptions[i].needsBarracks = !resourceManager.city.hasBarracks;
+						buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Barracks);
 						buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
-						buildOptions[i].trainingBarracks = resourceManager.city.army.isTraining;
-						buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
+                        if (!buildOptions[i].needsBarracks)
+                            buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Barracks]).isTraining;
+                        else
+                            buildOptions[i].trainingBarracks = false;
+                        buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
 					}
 				}
 
@@ -363,27 +369,37 @@ public class UIBuilderHandler : MonoBehaviour
 				laborCost.resourceAmount = buildOptions[i].UnitBuildData.laborCost;
 				resourceCosts.Add(laborCost);
 
-                if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Land)
-                {
-                    if (buildOptions[i].UnitBuildData.baseAttackStrength > 0 && !resourceManager.city.hasBarracks)
-                        hide = true;
-                }
-                else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
-                {
-                    if (!resourceManager.city.hasHarbor)
-                        hide = true;
+                if (buildOptions[i].UnitBuildData.singleBuildType != SingleBuildType.None && !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType))
+                    hide = true;
 
-                    if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.waterTransport)
+                if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport)
+                {
+                    if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea && resourceManager.city.world.waterTransport)
+                        hide = true;
+                    else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air && resourceManager.city.world.airTransport)
                         hide = true;
 				}
-				else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air)
-				{
-					if (!resourceManager.city.hasAirport)
-						hide = true;
+    //            if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Land)
+    //            {
+    //                if (buildOptions[i].UnitBuildData.baseAttackStrength > 0 && !resourceManager.city.hasBarracks)
+    //                    hide = true;
+    //            }
+    //            else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
+    //            {
+    //                if (!resourceManager.city.hasHarbor)
+    //                    hide = true;
 
-					if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.airTransport)
-						hide = true;
-				}
+    //                if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.waterTransport)
+    //                    hide = true;
+				//}
+				//else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air)
+				//{
+				//	if (!resourceManager.city.hasAirport)
+				//		hide = true;
+
+				//	if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.airTransport)
+				//		hide = true;
+				//}
 			}
 			else if (buildOptions[i].BuildData != null)
 			{
@@ -395,7 +411,7 @@ public class UIBuilderHandler : MonoBehaviour
 				}
 
 				//locked = buildOptions[i].locked;
-				itemName = buildOptions[i].BuildData.improvementName;
+				itemType = buildOptions[i].BuildData.singleBuildType;
 				resourceCosts = new(buildOptions[i].BuildData.improvementCost);
 
 				buildOptions[i].waterMax = resourceManager.city.reachedWaterLimit;
@@ -419,7 +435,7 @@ public class UIBuilderHandler : MonoBehaviour
 			if (buildOptions[i].somethingNew)
 				hide = false;
 
-			if (/*locked || */hide || improvementSingleBuildList.Contains(itemName) || (buildOptions[i].BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
+			if (/*locked || */hide || improvementSingleBuildList.Contains(itemType) || (buildOptions[i].BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
 			{
 				buildOptions[i].ToggleVisibility(false);
 				continue;

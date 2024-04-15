@@ -219,8 +219,9 @@ public class ResourceManager : MonoBehaviour
             }
 		}
 
-		if (city.activeCity)
-            city.UpdateResourceInfo();
+		if (city.activeCity && city.world.cityBuilderManager.uiCityUpgradePanel.activeStatus)
+			city.world.cityBuilderManager.uiCityUpgradePanel.CheckCosts(city.ResourceManager);
+		//city.UpdateResourceInfo();
 	}
 
     public bool ConsumeResourcesCheck(List<ResourceValue> consumeResources, int labor)

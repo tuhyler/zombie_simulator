@@ -13,7 +13,10 @@ public class MilitaryLeader : Military
 	private int timeWaited = 0;
 	[HideInInspector]
 	public bool hasSomethingToSay, defending, dueling;
-
+	[HideInInspector]
+	public Color borderColor;
+	[HideInInspector]
+	public Vector2 colorOne, colorTwo;
 
 	private void Awake()
 	{
@@ -110,7 +113,7 @@ public class MilitaryLeader : Military
 		City capitalCity = world.GetEnemyCity(empire.capitalCity);
 		capitalCity.StopSpawnAndSendAttackCycle(true);
 
-		Vector3Int barracksLoc = capitalCity.barracksLocation;
+		Vector3Int barracksLoc = capitalCity.singleBuildDict[SingleBuildType.Barracks];
 
 		Vector3Int targetLoc = barracksLoc;
 		int dist = 0;
@@ -209,7 +212,7 @@ public class MilitaryLeader : Military
 
 		FinishDuel();
 		enemyCamp = capitalCity.enemyCamp;
-		world.ToggleDuelMaterialClear(false, capitalCity.barracksLocation, world.azai, this);
+		world.ToggleDuelMaterialClear(false, capitalCity.singleBuildDict[SingleBuildType.Barracks], world.azai, this);
 		enemyAI.StartReturn();
 		capitalCity.enemyCamp.FinishDuelCheck();
 	}

@@ -145,6 +145,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: TransportBoat01
       objectReference: {fileID: 0}
+    - target: {fileID: 2933565320291356825, guid: 05e0eb640c8920b47800007386f0b6ed,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
     - target: {fileID: 5186064553112662445, guid: 05e0eb640c8920b47800007386f0b6ed,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -172,6 +177,12 @@ GameObject:
 --- !u!1 &2227302352806689390 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1965124184282325356, guid: 05e0eb640c8920b47800007386f0b6ed,
+    type: 3}
+  m_PrefabInstance: {fileID: 409108179566353154}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2955751845572051287 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3218245367774927445, guid: 05e0eb640c8920b47800007386f0b6ed,
     type: 3}
   m_PrefabInstance: {fileID: 409108179566353154}
   m_PrefabAsset: {fileID: 0}
@@ -670,13 +681,13 @@ MonoBehaviour:
   worker: {fileID: 0}
   military: {fileID: 0}
   transport: {fileID: 0}
+  tradeRep: {fileID: 0}
   conversationHaver: {fileID: 0}
   unitRigidbody: {fileID: 0}
   rotationDuration: 0.2
   moveSpeed: 0.5
   originalMoveSpeed: 0.5
   threshold: 0.01
-  moreToMove: 0
   isBusy: 0
   isMoving: 0
   secondaryPrefab: 0
@@ -689,9 +700,10 @@ MonoBehaviour:
   ambushLoc: {x: 0, y: 0, z: 0}
   lastClearTile: {x: 0, y: 0, z: 0}
   currentHealth: 0
+  healthMax: 0
+  upgradeLevel: 0
   enemyAI: {fileID: 0}
   baseSpeed: 0
-  healthMax: 0
   bySea: 0
   isTrader: 0
   isPlayer: 0
@@ -713,7 +725,8 @@ MonoBehaviour:
   unitAnimator: {fileID: 0}
   koaMesh: {fileID: 1949068895262042254}
   scottMesh: {fileID: 2227302352806689390}
-  azaiMesh: {fileID: 8905507770296288961}
+  azaiMesh1: {fileID: 8905507770296288961}
+  azaiMesh2: {fileID: 2955751845572051287}
   passengerCount: 0
   canMove: 0
   hasKoa: 0

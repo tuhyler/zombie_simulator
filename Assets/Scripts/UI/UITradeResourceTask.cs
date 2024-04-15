@@ -26,7 +26,10 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     public Slider resourceCountSlider;
 
     [SerializeField]
-    public Image background, completeImage, check, chosenResourceSprite, grips;
+    public Button resourceNumButton;
+
+    [SerializeField]
+    public Image background, completeImage, check, chosenResourceSprite, grips, resourceNumButtonImg, sliderBackground, sliderHandle, sliderFill;
 
     [SerializeField]
     private Sprite redX, blueCheck;
@@ -55,7 +58,8 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     [HideInInspector]
     public ResourceType chosenResource;
     private int chosenMultiple = 1;
-    private int chosenResourceAmount;
+    [HideInInspector]
+    public int chosenResourceAmount;
     private int[] valuePool = new int[11];
     //private string chosenAmount;
     //private int traderCargoStorageLimit;
@@ -156,11 +160,12 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     //    //}
     //}
 
+    //when choosing load or unload
     public void SetChosenResourceMultiple(int value)
     {
-		//resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
+        //resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.PlaySelectAudio();
 
-		if (value == 1)
+        if (value == 1)
         {
             chosenMultiple = -1;
             resourceCountSlider.value = resourceCountSlider.maxValue;
@@ -201,6 +206,11 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
                     completeImage.fillAmount = value;
                 });
         }
+    }
+
+    public void OpenResourceNumInput()
+    {
+        resourceHolder.tradeStopHandler.tradeRouteManager.uiTradeResourceNum.ToggleVisibility(true, this);
     }
 
     public void SetCompletePerc(int amount, int totalAmount)
@@ -289,44 +299,49 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
         //resourceList.options.Remove(defaultFirstChoice); //removing top choice
         chosenResource = resourceValue.resourceType;
         chosenResourceSprite.sprite = ResourceHolder.Instance.GetIcon(chosenResource);
-        chosenResourceAmount = Mathf.Abs(resourceValue.resourceAmount);
+        int amount = Mathf.Abs(resourceValue.resourceAmount);
+        //SetValue(chosenResourceAmount);
         //resourceCount.text = chosenResourceAmount.ToString();
-        resourceCountSlider.value = Array.IndexOf(valuePool, chosenResourceAmount);
+        //resourceCountSlider.value = Array.IndexOf(valuePool, chosenResourceAmount);
+		resourceCountSlider.value = (float)amount / valuePool[valuePool.Length - 1] * 10;
 
+        //this is seemlingly redundant, but needs to be done in case number is different from valuePool
+		chosenResourceAmount = amount;
+		SetValue(chosenResourceAmount);
 
-        //if (Mathf.Abs(resourceValue.resourceAmount) >= 9999)
-        //{
-        //    allToggle.isOn = true;
-        //}
-        //foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
-        //{
-        //    if (resourceValue.resourceType == resource.resourceType)
-        //    {
-        //        chosenResource = resource.resourceName;
-        //        resourceList.value = resources.IndexOf(chosenResource);
-        //        if (resourceValue.resourceAmount < 0)
-        //        {
-        //            actionList.value = 1;
-        //            allToggle.gameObject.SetActive(true);
-        //        }
-        //        resourceList.RefreshShownValue();
+		//if (Mathf.Abs(resourceValue.resourceAmount) >= 9999)
+		//{
+		//    allToggle.isOn = true;
+		//}
+		//foreach (ResourceIndividualSO resource in ResourceHolder.Instance.allStorableResources)
+		//{
+		//    if (resourceValue.resourceType == resource.resourceType)
+		//    {
+		//        chosenResource = resource.resourceName;
+		//        resourceList.value = resources.IndexOf(chosenResource);
+		//        if (resourceValue.resourceAmount < 0)
+		//        {
+		//            actionList.value = 1;
+		//            allToggle.gameObject.SetActive(true);
+		//        }
+		//        resourceList.RefreshShownValue();
 
-            //        if (Mathf.Abs(resourceValue.resourceAmount) > 1000)
-            //        {
-            //            inputStorageAmount.interactable = false;
-            //            allToggle.isOn = true;
-            //        }
-            //        else
-            //        {
-            //            inputStorageAmount.text = Mathf.Abs(resourceValue.resourceAmount).ToString();
-            //            inputStorageAmount.interactable = true;
-            //            allToggle.isOn = false;
-            //        }
+		//        if (Mathf.Abs(resourceValue.resourceAmount) > 1000)
+		//        {
+		//            inputStorageAmount.interactable = false;
+		//            allToggle.isOn = true;
+		//        }
+		//        else
+		//        {
+		//            inputStorageAmount.text = Mathf.Abs(resourceValue.resourceAmount).ToString();
+		//            inputStorageAmount.interactable = true;
+		//            allToggle.isOn = false;
+		//        }
 
-            //        break;
-            //    }
-            //}
-    }
+		//        break;
+		//    }
+		//}
+	}
 
     //private void PrepareResourceList()
     //{
@@ -363,15 +378,44 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     public void ChangeSlider(float value)
     {
         chosenResourceAmount = valuePool[(int)value]/*Mathf.RoundToInt(value)*/;
-        resourceCount.text = chosenResourceAmount.ToString();
+        SetValue(chosenResourceAmount);
+        //resourceCount.text = chosenResourceAmount.ToString();
     }
 
-    //public void GetAllOfResource(bool v)
-    //{
-    //    //inputStorageAmount.interactable = !v;
-    //    //inputStorageAmount.text = "";
-    //    getAll = v;
-    //}
+	private void SetValue(int val)
+	{
+		if (val < 1000)
+		{
+			resourceCount.text = val.ToString();
+		}
+		else if (val < 1000000)
+		{
+			resourceCount.text = Math.Round(val * 0.001f, 1) + " k";
+		}
+		else if (val < 1000000000)
+		{
+			resourceCount.text = Math.Round(val * 0.000001f, 1) + " M";
+		}
+	}
+
+	//public void GetAllOfResource(bool v)
+	//{
+	//    //inputStorageAmount.interactable = !v;
+	//    //inputStorageAmount.text = "";
+	//    getAll = v;
+	//}
+
+	public void SetNewResourceCount(int amount)
+    {
+        if (amount > resourceHolder.tradeStopHandler.tradeRouteManager.traderCargoLimit)
+            amount = resourceHolder.tradeStopHandler.tradeRouteManager.traderCargoLimit;
+
+        resourceCountSlider.value = (float)amount / valuePool[valuePool.Length - 1] * 10;
+
+        chosenResourceAmount = amount;
+		SetValue(chosenResourceAmount);
+		//resourceCount.text = amount.ToString();
+	}
 
     public ResourceValue GetResourceTasks()
     {

@@ -3,7 +3,7 @@ using UnityEngine;
 public class InfoManager : MonoBehaviour
 {
     [SerializeField]
-    private UIInfoPanelUnit infoPanel;
+    public UIInfoPanelUnit infoPanel;
 
     public void ShowInfoPanel(string name, UnitBuildDataSO data, int currentHealth, bool isTrader, int bonus, bool leader/*, bool isLaborer*/) //toggles it on, gets the info
     {

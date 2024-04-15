@@ -12,6 +12,9 @@ public class UITradeRouteManager : MonoBehaviour
     public GameObject uiTradeStopHolder, uiTradeStopPanel, startingStopGO, newStopButton, confirmButton, stopRouteButton, waitingForText, costHolder;
 
     [SerializeField]
+    public UITradeResourceNum uiTradeResourceNum;
+
+    [SerializeField]
     private UnitMovement unitMovement;
 
     [SerializeField]
@@ -74,7 +77,7 @@ public class UITradeRouteManager : MonoBehaviour
 
     public void HandleSpace()
     {
-        if (activeStatus)
+        if (activeStatus && !uiTradeResourceNum.activeStatus)
             CreateRoute();
     }
 
@@ -297,6 +300,9 @@ public class UITradeRouteManager : MonoBehaviour
         {
             if (resourceSelectionGrid.activeStatus)
                 resourceSelectionGrid.ToggleVisibility(false);
+
+            if (uiTradeResourceNum.activeStatus)
+                uiTradeResourceNum.ToggleVisibility(false);
 
             selectedTrader = null;
             ToggleButtonColor(false);

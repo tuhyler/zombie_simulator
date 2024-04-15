@@ -167,7 +167,7 @@ public class BodyGuard : Military
 			}
 		}
 
-		List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, currentLoc, finalLoc, false, false);
+		List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, currentLoc, finalLoc, false, false);
 
 		if (azaiPath.Count > 0)
 		{
@@ -182,7 +182,7 @@ public class BodyGuard : Military
 
 	public void FollowScott(List<Vector3Int> scottPath, Vector3 currentLoc)
 	{
-		List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, transform.position, world.RoundToInt(currentLoc), false, false);
+		List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, transform.position, world.RoundToInt(currentLoc), false, false);
 		scottPath.RemoveAt(scottPath.Count - 1);
 		azaiPath.AddRange(scottPath);
 
@@ -205,11 +205,11 @@ public class BodyGuard : Military
 
 		if (enemy)
 		{
-			path = GridSearch.AStarSearchExempt(world, transform.position, newPos, exemptList);
+			path = GridSearch.PlayerMoveExempt(world, transform.position, newPos, exemptList);
 		}
 		else
 		{
-			path = GridSearch.AStarSearch(world, transform.position, newPos, false, false);
+			path = GridSearch.PlayerMove(world, transform.position, newPos, false, false);
 		}
 
 		if (path.Count > 0)
@@ -275,6 +275,7 @@ public class BodyGuard : Military
 	{
 		BodyGuardData data = new();
 
+		data.unitLevel = buildDataSO.unitLevel;
 		data.somethingToSay = somethingToSay;
 		data.conversationTopics = new(conversationHaver.conversationTopics);
 		data.toTransport = toTransport;
@@ -291,6 +292,9 @@ public class BodyGuard : Military
 
 	public void LoadBodyGuardData(UnitData data)
 	{
+		if (data.bodyGuardData.unitLevel > 1)
+			world.UpgradeAzai(UpgradeableObjectHolder.Instance.unitDict["Azai-" + data.bodyGuardData.unitLevel]);
+		
 		toTransport = data.bodyGuardData.toTransport;
 		inTransport = data.bodyGuardData.inTransport;
 		dueling = data.bodyGuardData.dueling;

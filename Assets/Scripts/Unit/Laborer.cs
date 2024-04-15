@@ -72,7 +72,7 @@ public class Laborer : Unit
 
     public void GoToDestination(Vector3Int loc)
     {
-		List<Vector3Int> pathHome = GridSearch.AStarSearch(world, transform.position, loc, false, false);
+		List<Vector3Int> pathHome = GridSearch.TraderMove(world, transform.position, loc, false);
 		finalDestinationLoc = loc;
 		MoveThroughPath(pathHome);
 	}

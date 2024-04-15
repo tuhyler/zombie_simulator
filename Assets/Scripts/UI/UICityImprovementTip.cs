@@ -414,7 +414,7 @@ public class UICityImprovementTip : MonoBehaviour
         //produceHighlight.transform.localPosition = loc;
 
         if (world.cityBuilderManager.SelectedCity != null)
-            world.cityBuilderManager.UpdateLaborNumbers();
+            world.cityBuilderManager.UpdateLaborNumbers(world.cityBuilderManager.SelectedCity);
     }
 
     public void UpdateProduceNumbers()
@@ -441,9 +441,9 @@ public class UICityImprovementTip : MonoBehaviour
         }
 	}
 
-    public void ToggleWaiting(bool v, bool resource = false, bool storage = false, bool research = false)
+    public void ToggleWaiting(bool v, CityImprovement improvement, bool resource = false, bool storage = false, bool research = false)
     {
-        if (activeStatus)
+        if (activeStatus && this.improvement == improvement)
         {
             waiting = v;
             waitingForText.gameObject.SetActive(v);
@@ -504,7 +504,7 @@ public class UICityImprovementTip : MonoBehaviour
 
     public void UpdateResourceAmount(CityImprovement improvement)
     {
-        if (activeStatus && improvement.GetImprovementData.rawMaterials && this.improvement == improvement && improvement.td.resourceAmount >= 0)
+        if (activeStatus && this.improvement == improvement && improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount >= 0)
             SetResourceCount(improvement.td.resourceAmount);
     }
 

@@ -7,10 +7,10 @@ using UnityEngine.UI;
 
 public class UIInfoPanelUnit : MonoBehaviour 
 {
-    public TMP_Text unitName, level, health, speed, strength, strengthBonus;
+    public TMP_Text unitName, level, health, speed, strength, strengthBonus, warningText;
     public Image strengthImage;
     public Sprite strengthSprite, inventorySprite;
-    public GameObject renamerButton, goToNextButton;
+    public GameObject renamerButton, goToNextButton, warningSign;
 
     private UITooltipTrigger tooltipTrigger;
 
@@ -146,5 +146,22 @@ public class UIInfoPanelUnit : MonoBehaviour
             strengthBonus.color = Color.red;
             strengthBonus.text = bonus.ToString();
         }
+    }
+
+    public void ShowWarning(bool inventory, bool costs)
+    {
+        warningSign.SetActive(true);
+
+        if (costs)
+            warningText.text = "Waiting on route costs";
+        else if (inventory)
+            warningText.text = "Waiting on city inventory";
+        else
+            warningText.text = "Waiting on city resources";
+    }
+
+    public void HideWarning()
+    {
+        warningSign.SetActive(false);
     }
 }

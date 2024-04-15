@@ -5,6 +5,7 @@ using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Timeline;
+using static Unity.Burst.Intrinsics.X86.Avx;
 using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
 using static UnityEngine.UI.CanvasScaler;
@@ -44,7 +45,7 @@ public class Army : MonoBehaviour
 
 
 	[HideInInspector]
-    public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady, issueRefund = true, defending, atSea, battleAtSea, seaTravel;
+    public bool isEmpty = true, isFull, /*isTraining, */isTransferring, isRepositioning, traveling, inBattle, returning, atHome, selected, enemyReady, issueRefund = true, defending, atSea, battleAtSea, seaTravel;
 
 	private void Awake()
 	{
@@ -157,6 +158,7 @@ public class Army : MonoBehaviour
     {
         unitsInArmy.Add(unit);
 
+        world.GetCityDevelopment(loc).unitsWithinCount++;
         armyCount++;
         UnitType type = unit.buildDataSO.unitType;
 
@@ -266,6 +268,7 @@ public class Army : MonoBehaviour
 		RemoveFromCycleCost(unit.buildDataSO.cycleCost);
 		RemoveFromBattleCost(unit.buildDataSO.battleCost);
 		//}
+		world.GetCityDevelopment(loc).unitsWithinCount--;
 		armyCount--;
 		UnitType type = unit.buildDataSO.unitType;
 
@@ -283,13 +286,13 @@ public class Army : MonoBehaviour
 
 		if (armyCount == 0)
         {
-            if (world.uiCampTooltip.EnemyScreenActive())
+            if (world.uiCampTooltip.EnemyScreenActiveForArmy(this))
             {
                 world.unitMovement.CancelArmyDeployment();
-            }
-            else
+			}
+			else
             {
-				if (world.uiCampTooltip.activeStatus)
+				if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.improvement == world.GetCityDevelopment(this.loc))
 					world.uiCampTooltip.RefreshData();
 			}
 
@@ -297,7 +300,7 @@ public class Army : MonoBehaviour
         }
         else
         {
-			if (world.uiCampTooltip.activeStatus)
+			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.army == world.GetCityDevelopment(this.loc))
 				world.uiCampTooltip.RefreshData();
 		}
 
@@ -356,9 +359,9 @@ public class Army : MonoBehaviour
 			{
                 world.unitMovement.ShowIndividualCityButtonsUI();
                 
-                if (world.unitMovement.deployingArmy || world.unitMovement.changingCity || world.unitMovement.assigningGuard)
+                if (world.deployingArmy || world.changingCity || world.assigningGuard)
                     world.unitMovement.CancelArmyDeployment();
-                else if (world.unitMovement.swappingArmy)
+                else if (world.swappingArmy)
                     world.unitMovement.CancelReposition();
             }
             
@@ -405,7 +408,7 @@ public class Army : MonoBehaviour
 				}
 			}
 
-            List<Vector3Int> path = GridSearch.AStarSearch(world, unit.currentLocation, travelLoc + unitDiff, false, false);
+            List<Vector3Int> path = GridSearch.MilitaryMove(world, unit.currentLocation, travelLoc + unitDiff, false);
             unit.marchPosition = unitDiff;
 
             if (defending && path.Count == 0)
@@ -430,7 +433,7 @@ public class Army : MonoBehaviour
 
         if (world.IsEnemyCityOnTile(finalTarget))
         {
-            Vector3Int barracksLoc = world.GetEnemyCity(finalTarget).barracksLocation;
+            Vector3Int barracksLoc = world.GetEnemyCity(finalTarget).singleBuildDict[SingleBuildType.Barracks];
             finalTarget = world.GetCloserTile(target, finalTarget, barracksLoc);
 
             //int barracksDist = Mathf.Abs(barracksLoc.x - target.x) + Mathf.Abs(barracksLoc.z - target.z);
@@ -466,9 +469,9 @@ public class Army : MonoBehaviour
 			landPath = GridSearch.TerrainSearch(world, current, target);
 
         //seeing if cheaper to go by sea
-        if (city.hasHarbor)
+        if (city.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
         {
-			List<Vector3Int> pathToHarbor = GridSearch.TerrainSearch(world, loc, city.harborLocation, true);
+			List<Vector3Int> pathToHarbor = GridSearch.TerrainSearch(world, loc, city.singleBuildDict[SingleBuildType.Harbor], true);
 
             if (pathToHarbor.Count == 0)
             {
@@ -481,7 +484,7 @@ public class Army : MonoBehaviour
 				List<Vector3Int> chosenPath = new();
                 if (world.GetTerrainDataAt(target).sailable)
                 {
-					chosenPath = GridSearch.TerrainSearchSea(world, city.harborLocation, target);
+					chosenPath = GridSearch.TerrainSearchSea(world, city.singleBuildDict[SingleBuildType.Harbor], target);
 
                     if (chosenPath.Count > 0)
                         hasRoute = true;
@@ -506,7 +509,7 @@ public class Army : MonoBehaviour
 				    //first inner ring
 				    if (directSeaList.Count > 0)
 				    {
-					    chosenPath = world.GetSeaLandRoute(directSeaList, city.harborLocation, target);
+					    chosenPath = world.GetSeaLandRoute(directSeaList, city.singleBuildDict[SingleBuildType.Harbor], target);
 
 					    if (chosenPath.Count > 0)
 						    hasRoute = true;
@@ -515,7 +518,7 @@ public class Army : MonoBehaviour
 				    //outer ring next
 				    if (!hasRoute && outerRingList.Count > 0)
 				    {
-					    chosenPath = world.GetSeaLandRoute(outerRingList, city.harborLocation, target);
+					    chosenPath = world.GetSeaLandRoute(outerRingList, city.singleBuildDict[SingleBuildType.Harbor], target);
 
 					    if (chosenPath.Count > 0)
 						    hasRoute = true;
@@ -684,7 +687,7 @@ public class Army : MonoBehaviour
 
 	public bool DeployBattleScreenCheck()
     {
-        return world.uiCampTooltip.EnemyScreenActive() && this == world.uiCampTooltip.army;
+        return world.uiCampTooltip.EnemyScreenActiveForArmy(this);
     }
 
     public List<ResourceValue> CalculateBattleCost(int enemyStrength)
@@ -721,7 +724,7 @@ public class Army : MonoBehaviour
 
     private void ConsumeBattleCosts()
     {
-        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.barracksLocation, true);
+        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.singleBuildDict[SingleBuildType.Barracks], true);
         //totalBattleCosts.Clear();
     }
 
@@ -748,7 +751,7 @@ public class Army : MonoBehaviour
                 if (amount > 0)
                 {
                     city.ResourceManager.AddResource(value.resourceType, amount);
-					Vector3 cityLoc = city.barracksLocation;
+					Vector3 cityLoc = city.singleBuildDict[SingleBuildType.Barracks];
 					cityLoc.y += totalBattleCosts.Count * 0.4f;
 					cityLoc.y += -0.4f * i;
 					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(value.resourceType));
@@ -992,6 +995,7 @@ public class Army : MonoBehaviour
         issueRefund = false;
         traveling = false;
 		movementRange.Clear();
+        cavalryRange.Clear();
         attackingSpots.Clear();
         movementRange.Add(attackZone);
         cavalryRange.Add(attackZone);
@@ -1033,6 +1037,7 @@ public class Army : MonoBehaviour
             i++;
         }
 
+        world.AddToBattleAreas(cavalryRange);
 		if (!inBattle)
 			ArmyCharge();
 
@@ -1186,6 +1191,9 @@ public class Army : MonoBehaviour
             {
                 city.attacked = false;
 			    world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
+                world.RemoveFromBattleArea(cavalryRange);
+                movementRange.Clear();
+                cavalryRange.Clear();
                 returning = true;
                 city.battleIcon.SetActive(false);
             }
@@ -1370,7 +1378,7 @@ public class Army : MonoBehaviour
         {
             noMoneyCycles++;
             city.world.uiCampTooltip.WarningCheck();
-            world.GetCityDevelopment(city.barracksLocation).exclamationPoint.SetActive(true);
+            world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]).exclamationPoint.SetActive(true);
             return;
         }
 
@@ -1396,7 +1404,7 @@ public class Army : MonoBehaviour
         if (noMoneyCycles > 0)
         {
             noMoneyCycles = 0;
-			world.GetCityDevelopment(city.barracksLocation).exclamationPoint.SetActive(false);
+			world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]).exclamationPoint.SetActive(false);
 			city.world.uiCampTooltip.WarningCheck();
         }
 	}
