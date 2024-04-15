@@ -30,7 +30,7 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public List<ResourceValue> upgradeCost = new(), refundCost = new();
     [HideInInspector]
-    public int housingIndex, laborCost, upgradeLevel; //for city centeer housing only, and for canceling training in barracks
+    public int housingIndex, laborCost, upgradeLevel, unitsWithinCount; //for city centeer housing only, and for canceling training in barracks
     [HideInInspector]
     public ResourceProducer resourceProducer;
 
@@ -749,11 +749,11 @@ public class CityImprovement : MonoBehaviour
         
         if (isTraining)
         {
-            if (isUpgrading)
-            {
-                GameLoader.Instance.improvementUnitUpgradeDict[this] = data.trainingUnitName;
-            }
-            else
+            if (!isUpgrading)
+            //{
+            //    GameLoader.Instance.improvementUnitUpgradeDict[this] = data.trainingUnitName;
+            //}
+            //else
             {
                 BeginTraining(city, resourceProducer, UpgradeableObjectHolder.Instance.unitDict[data.trainingUnitName], data.isUpgrading, null, true);
             }
@@ -766,19 +766,33 @@ public class CityImprovement : MonoBehaviour
     }
 
     //need upgraded unit, this is run after all units have been made
-    public void ResumeTraining(string trainingUnitName)
+    public void ResumeTraining(Unit unit)
     {
-        Unit unit = null;
+        //Unit unit = null;
 
-        if (isUpgrading)
-        {
-            if (improvementData.improvementName == "Barracks")
-                unit = city.FindUpgradingLandUnit();
-            else if (improvementData.improvementName == "Harbor")
-                unit = city.FindUpgradingSeaTraderUnit();
-        }
+        //if (isUpgrading)
+        //{
+        //    if (improvementData.improvementName == "Barracks")
+        //        unit = city.FindUpgradingLandUnit();
+        //    else if (improvementData.improvementName == "Harbor")
+        //        unit = city.FindUpgradingSeaTraderUnit();
+        //}
 
         world.CreateUpgradedUnit(unit, this, city, unit.upgradeLevel);
 		//BeginTraining(city, resourceProducer, UpgradeableObjectHolder.Instance.unitDict[trainingUnitName], true, unit, true);
 	}
+}
+
+public enum SingleBuildType
+{
+    None,
+    Barracks,
+    TradeDepot,
+    Harbor,
+    Shipyard,
+    Airport,
+    AirBase,
+    Market,
+    Monument,
+    Well
 }

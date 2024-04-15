@@ -29,7 +29,8 @@ public class UICampTip : MonoBehaviour
 	private List<UIResourceInfoPanel> costsInfo = new();
 	private List<ResourceType> cantAffordList = new();
 
-	private CityImprovement improvement;
+	[HideInInspector]
+	public CityImprovement improvement;
 	[HideInInspector]
 	public Army army;
 	[HideInInspector]
@@ -59,11 +60,11 @@ public class UICampTip : MonoBehaviour
 		}
 	}
 
-	public void HandleEsc()
-	{
-		if (activeStatus)
-			world.unitMovement.CancelArmyDeploymentButton();
-	}
+	//public void HandleEsc()
+	//{
+	//	if (activeStatus)
+	//		world.unitMovement.CancelArmyDeploymentButton();
+	//}
 
 	public void HandleSpace()
 	{
@@ -174,14 +175,19 @@ public class UICampTip : MonoBehaviour
 		world.infoPopUpCanvas.gameObject.SetActive(false);
 	}
 
-	public bool ArmyScreenActive()
-	{
-		return activeStatus && improvement != null;
-	}
+	//public bool ArmyScreenActive(Army army)
+	//{
+	//	return activeStatus && this.army == army;
+	//}
 
 	public bool EnemyScreenActive()
 	{
 		return activeStatus && improvement == null;
+	}
+
+	public bool EnemyScreenActiveForArmy(Army army)
+	{
+		return activeStatus && this.army == army;
 	}
 
 	public void RefreshData()

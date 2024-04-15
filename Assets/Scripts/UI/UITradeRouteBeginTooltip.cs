@@ -47,11 +47,11 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 		}
 	}
 
-	public void HandleEsc()
-	{
-		if (activeStatus)
-			world.CloseTradeRouteBeginTooltipCloseButton();
-	}
+	//public void HandleEsc()
+	//{
+	//	if (activeStatus)
+	//		world.CloseTradeRouteBeginTooltipCloseButton();
+	//}
 
 	public void HandleSpace()
 	{

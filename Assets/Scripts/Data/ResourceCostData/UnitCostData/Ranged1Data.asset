@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: 64d39453e5a6dd54497f80fb704d2ecc, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Ranged
+  nationalityAdjective: 
   unitDisplayName: Archer
   unitLevel: 1
   unitNameAndLevel: Ranged-1
@@ -36,11 +36,19 @@ MonoBehaviour:
   unitDescription: Ranged unit with low health
   availableInitially: 1
   health: 50
+  regenerationRate: 2
   baseAttackStrength: 2
   baseAttackSpeed: 2
   movementSpeed: 1
   trainTime: 3
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
+  singleBuildType: 1
   unitEra: 0
+  unitRegion: 4

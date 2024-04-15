@@ -591,13 +591,14 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         researchPercentDone.text = $"{researchReceived:n0}/{totalResearchNeeded:n0}";
         researchPercentDone.gameObject.SetActive(false);
 		researchPercentDone.gameObject.SetActive(true);
-		//researchPercentDone.outlineWidth = 0.4f; //this makes the text appear outside of the scroll rect for some reason
+        //researchPercentDone.outlineWidth = 0.4f; //this makes the text appear outside of the scroll rect for some reason
+        progressBarMask.fillAmount = researchPerc;
 
-		LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
-            .setEase(LeanTweenType.easeOutSine)
-            .setOnUpdate((value) =>
-            {
-                progressBarMask.fillAmount = value;
-            });
+		//LeanTween.value(progressBarMask.gameObject, progressBarMask.fillAmount, researchPerc, 0.2f)
+  //          .setEase(LeanTweenType.easeOutSine)
+  //          .setOnUpdate((value) =>
+  //          {
+  //              progressBarMask.fillAmount = value;
+  //          });
     }
 }

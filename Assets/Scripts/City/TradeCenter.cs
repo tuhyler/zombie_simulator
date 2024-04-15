@@ -244,6 +244,7 @@ public class TradeCenter : MonoBehaviour
         if (tradeRouteWaiter)
         {
             tradeRouteWaiter.resourceCheck = false;
+            tradeRouteWaiter.trader.RemoveWarning();
             tradeRouteWaiter = null;
         }
     }

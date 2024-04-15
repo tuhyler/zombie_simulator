@@ -8,13 +8,193 @@ using UnityEngine;
 
 public class GridSearch
 {
-    public static List<Vector3Int> AStarSearch(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader, bool bySea)
+	public static List<Vector3Int> PlayerMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea, bool activePlayer)
+	{
+		if (bySea)
+			return PlayerMoveSea(world, startLocation, endPosition);
+
+		List<Vector3Int> path = new();
+
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		//below is for units staying on road, don't skip across
+		List<Vector3Int> xRoads = new() { new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0) };
+		List<Vector3Int> zRoads = new() { new Vector3Int(0, 0, 1), new Vector3Int(0, 0, -1) };
+		List<Vector3Int> xzRoads = new() { new Vector3Int(1, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, -1), new Vector3Int(-1, 0, -1) };
+		//above is for units staying on road
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current == endPosition)
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			//below is for units to stay on road, don't skip across
+			bool centerRoad = true;
+			bool xRoad = false;
+			bool zRoad = false;
+			bool xzRoad = false;
+
+			if (world.IsRoadOnTileLocation(current))
+			{
+				int x = current.x % 3;
+				int z = current.z % 3;
+
+				xRoad = x != 0;
+				zRoad = z != 0;
+				xzRoad = (xRoad && zRoad);
+				centerRoad = (!xRoad && !zRoad);
+			}
+			//above is for units to stay on road
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+
+				if (!world.PlayerCheckIfPositionIsValid(neighbor))
+					continue;
+
+				if (world.CheckIfEnemyTerritory(neighbor))
+					continue;
+
+				bool hasRoad;// = world.IsRoadOnTileLocation(neighbor);
+				int tempCost;
+
+				//below is for units staying on roads
+				if (!centerRoad)
+				{
+					if (xzRoad && xzRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else if (xRoad && xRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else if (zRoad && zRoads.Contains(tile))
+						hasRoad = world.IsRoadOnTileLocation(neighbor);
+					else
+						hasRoad = false;
+				}
+				else
+				{
+					hasRoad = world.IsRoadOnTileLocation(neighbor);
+				}
+				//above is for units staying on roads
+
+				if (hasRoad)
+					tempCost = world.GetRoadCost();
+				else
+					tempCost = world.GetMovementCost(neighbor);
+
+				if (tile.sqrMagnitude == 2)
+				{
+					Vector3Int temp = neighbor - current;
+
+					if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+						continue;
+
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+				}
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		if (activePlayer)
+			InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		return path;
+	}
+
+	public static List<Vector3Int> PlayerMoveSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	{
+		Vector3Int startPosition = world.RoundToInt(startLocation);
+
+		List<Vector3Int> path = new();
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> costDictionary = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+		costDictionary.Add(startPosition, 0);
+		parentsDictionary.Add(startPosition, null);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current.Equals(endPosition))
+			{
+				path = GeneratePath(parentsDictionary, current);
+				return path;
+			}
+
+			foreach (Vector3Int tile in world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY))
+			{
+				Vector3Int neighbor = tile + current;
+				int sqrMagnitude = tile.sqrMagnitude;
+
+				if (!world.CheckIfSeaPositionIsValid(neighbor))
+					continue;
+
+				if (world.CheckIfCoastCoast(neighbor) && neighbor != endPosition)
+					continue;
+
+				if (world.CheckIfEnemyNotNeutral(neighbor))
+					continue;
+
+				int tempCost = world.GetMovementCost(neighbor);
+
+				if (sqrMagnitude == 2)
+					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
+
+				int newCost = costDictionary[current] + tempCost;
+				if (!costDictionary.ContainsKey(neighbor) || newCost < costDictionary[neighbor])
+				{
+					costDictionary[neighbor] = newCost;
+
+					int priority = newCost + ManhattanDistance(endPosition, neighbor); //only check the neighbors closest to destination
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = priority;
+
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		return path;
+	}
+
+	public static List<Vector3Int> MilitaryMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea)
     {
         if (bySea)
-            return AStarSearchSea(world, startLocation, endPosition, isTrader);
-
-		if (isTrader)
-			return AStarSearchTrader(world, startLocation, endPosition);
+            return MilitaryMoveSea(world, startLocation, endPosition);
 
         List <Vector3Int> path = new();
         
@@ -74,17 +254,6 @@ public class GridSearch
 
                 if (world.CheckIfEnemyTerritory(neighbor))
                     continue;
-      //          if (attack && world.IsUnitLocationTaken(neighbor))
-      //          {
-      //              if (neighbor == endPosition)
-      //              {
-						//path = GeneratePath(parentsDictionary, current);
-      //                  path.Add(neighbor);
-      //                  return path;
-      //              }
-                    
-      //              continue;
-      //          }
 
                 bool hasRoad;// = world.IsRoadOnTileLocation(neighbor);
                 int tempCost;
@@ -136,11 +305,10 @@ public class GridSearch
             }
         }
 
-        InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
         return path;
     }
 
-	public static List<Vector3Int> AStarSearchExempt(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> exemptList)
+	public static List<Vector3Int> PlayerMoveExempt(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> exemptList, bool isPlayer = false)
 	{
 		List<Vector3Int> path = new();
 
@@ -195,7 +363,7 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+				if (!world.PlayerCheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
 					continue;
 
 				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(world.GetClosestTerrainLoc(neighbor)))
@@ -251,12 +419,16 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		if (isPlayer)
+			InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
 		return path;
 	}
 
-	public static List<Vector3Int> AStarSearchTrader(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	public static List<Vector3Int> TraderMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea)
 	{
+		if (bySea)
+			return TraderMoveSea(world, startLocation, endPosition);
+
 		List<Vector3Int> path = new();
 
 		Vector3Int startPosition = world.RoundToInt(startLocation);
@@ -372,11 +544,8 @@ public class GridSearch
 		return path;
 	}
 
-	public static List<Vector3Int> AStarSearchSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool isTrader)
+	public static List<Vector3Int> MilitaryMoveSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
     {
-		if (isTrader)
-			return AStarSearchSeaTrader(world, startLocation, endPosition);
-		
 		Vector3Int startPosition = world.RoundToInt(startLocation);
 
         List<Vector3Int> path = new();
@@ -455,11 +624,10 @@ public class GridSearch
             }
         }
 
-        InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
         return path;
     }
 
-	public static List<Vector3Int> AStarSearchSeaTrader(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	public static List<Vector3Int> TraderMoveSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
 	{
 		Vector3Int startPosition = world.RoundToInt(startLocation);
 
@@ -519,15 +687,14 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
 		return path;
 	}
 
 	//for enemies
-	public static List<Vector3Int> AStarSearchEnemy(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea, List<Vector3Int> avoidList = null)
+	public static List<Vector3Int> EnemyMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea, List<Vector3Int> avoidList = null)
 	{
 		if (bySea)
-			return AStarSearchSeaEnemy(world, startLocation, endPosition);
+			return EnemyMoveSea(world, startLocation, endPosition);
 
         List<Vector3Int> pathAvoidList = new();
 
@@ -595,11 +762,11 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		//InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
 		return path;
 	}
 
-	public static List<Vector3Int> AStarSearchSeaEnemy(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
+	public static List<Vector3Int> EnemyMoveSea(MapWorld world, Vector3 startLocation, Vector3Int endPosition)
 	{
 		Vector3Int startPosition = world.RoundToInt(startLocation);
 
@@ -658,7 +825,7 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(startLocation, "Cannot reach selected area");
+		//InfoPopUpHandler.WarningMessage().Create(startLocation, "Cannot reach selected area");
 		return path;
 	}
 
@@ -1262,9 +1429,12 @@ public class GridSearch
 		return path;
 	}
 
-	public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool isSeaTrader = true)
+	public static bool TraderMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool bySea)
     {
-        List<Vector3Int> positionsToCheck = new();
+		if (bySea)
+			return TraderSeaMovementCheck(world, startPosition, endPosition);
+		
+		List<Vector3Int> positionsToCheck = new();
         Dictionary<Vector3Int, int> priorityDictionary = new();
 
         positionsToCheck.Add(startPosition);
@@ -1280,24 +1450,10 @@ public class GridSearch
                 return true;
             }
 
-            foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
+            foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYINCREMENT))
             {
-                if (isSeaTrader)
-                {
-                    if (!world.CheckIfSeaPositionIsValid(neighbor))
-                        continue;
-                }
-                else
-                {
-                    if (!world.CheckIfPositionIsValid(neighbor))
-                        continue;
-
-                    if (!world.IsRoadOnTileLocation(neighbor))
-                        continue;
-                }
-
-                //if (!isSeaTrader && !world.IsRoadOnTileLocation(neighbor))
-                //    continue;
+                if (!world.IsRoadOnTileLocation(neighbor) || world.CheckIfEnemyTerritory(neighbor))
+                    continue;
 
                 if (!priorityDictionary.ContainsKey(neighbor))
                 {
@@ -1309,8 +1465,42 @@ public class GridSearch
         return false;
     }
 
+	public static bool TraderSeaMovementCheck(MapWorld world, Vector3Int startPosition, Vector3Int endPosition)
+	{
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
 
-    public static Vector3Int GetClosestVertex(List<Vector3Int> list, Dictionary<Vector3Int, int> distanceMap)
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current.Equals(endPosition))
+			{
+				return true;
+			}
+
+			foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYINCREMENT))
+			{
+				if (!world.CheckIfSeaPositionIsValid(neighbor) || world.CheckIfEnemyTerritory(neighbor))
+					continue;
+
+				if (!priorityDictionary.ContainsKey(neighbor))
+				{
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = ManhattanDistance(endPosition, neighbor);
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	public static Vector3Int GetClosestVertex(List<Vector3Int> list, Dictionary<Vector3Int, int> distanceMap)
     {
         Vector3Int candidate = list[0];
         foreach (Vector3Int vertex in list)

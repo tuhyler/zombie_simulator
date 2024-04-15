@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5253570094194178431, guid: a3f7f1623a224b44da55c5c17bf5da8c, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Transport
+  nationalityAdjective: 
   unitDisplayName: Water Transport
   unitLevel: 1
   unitNameAndLevel: Water Transport-1
@@ -30,12 +30,19 @@ MonoBehaviour:
   unitDescription: Water transport for Koa & Co.
   availableInitially: 1
   health: 30
+  regenerationRate: 2
   baseAttackStrength: 0
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 5
   cargoCapacity: 3
+  goldDropRange: {x: 0, y: 0}
   transportationType: 1
   characterUnit: 0
-  tcRep: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
+  singleBuildType: 3
   unitEra: 0
+  unitRegion: 4

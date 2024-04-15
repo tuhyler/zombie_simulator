@@ -27,6 +27,8 @@ public class UIWonderSelection : MonoBehaviour
     [HideInInspector]
     public bool buttonsAreWorking;
 
+    [HideInInspector]
+    public Wonder wonder;
 
 
     [SerializeField] //for tweening
@@ -68,6 +70,7 @@ public class UIWonderSelection : MonoBehaviour
         {
             world.UnselectAll();
             world.somethingSelected = true;
+            this.wonder = wonder;
 
             //world.openingCity = true;
 			world.cityCanvas.gameObject.SetActive(true);
@@ -106,6 +109,7 @@ public class UIWonderSelection : MonoBehaviour
         {
             activeStatus = false;
             SetResourcesInactive(wonder);
+            this.wonder = null;
 
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -600f, 0.3f).setOnComplete(SetActiveStatusFalse);
         }

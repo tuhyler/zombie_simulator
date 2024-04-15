@@ -69,11 +69,11 @@ public class UICityUpgradePanel : MonoBehaviour
         }
     }
 
-    public void HandleEsc()
-    {
-        if (activeStatus)
-            CloseWindow();
-    }
+    //public void HandleEsc()
+    //{
+    //    if (activeStatus)
+    //        CloseWindow();
+    //}
 
     public void HandleSpace()
     {
@@ -83,7 +83,7 @@ public class UICityUpgradePanel : MonoBehaviour
 
     public void ToggleVisibility(bool v, ResourceManager resourceManager = null, CityImprovement improvement = null, Unit unit = null)
     {
-        if (!activeStatus && !v)
+        if (!activeStatus && !v) //this is different so as to easily switch between different objects
             return;
 
         LeanTween.cancel(gameObject);
@@ -167,11 +167,11 @@ public class UICityUpgradePanel : MonoBehaviour
 
     public void CurrentImprovementCheck(CityImprovement improvement)
     {
-        if (!activeStatus)
-            return;
-        
-        if (improvement == this.improvement)
-            ToggleVisibility(false);
+        if (activeStatus)
+        {
+            if (improvement == this.improvement)
+                ToggleVisibility(false);
+        }
     }
 
     private void SetActiveStatusFalse()

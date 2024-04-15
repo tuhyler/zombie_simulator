@@ -107,10 +107,9 @@ public class WorkerTaskManager : MonoBehaviour
 
 		world.cityBuilderManager.PlaySelectAudio();
 		Vector3 pos = world.mainPlayer.transform.position;
-		pos.y = 0;
 		Vector3Int workerTile = world.GetClosestTerrainLoc(pos);
 
-        if (Vector3Int.RoundToInt(pos) == workerTile)
+        if (world.RoundToInt(pos) == workerTile)
 		{
 			world.mainPlayer.BuildCity();
             
@@ -141,7 +140,7 @@ public class WorkerTaskManager : MonoBehaviour
 		if (!world.mainPlayer.isBusy  && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
-		    unitMovement.buildingRoad = true;
+		    world.buildingRoad = true;
 		    uiBuildingSomething.SetText("Building Road");
 		    OrdersPrep();
 			world.scott.WorkerOrdersPreparations();
@@ -153,7 +152,7 @@ public class WorkerTaskManager : MonoBehaviour
 		if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
 		{
 			world.cityBuilderManager.PlaySelectAudio();
-			unitMovement.buildingRoad = true;
+			world.buildingRoad = true;
 			uiBuildingSomething.SetText("Building Road");
 			OrdersPrep();
 			world.scott.WorkerOrdersPreparations();
@@ -199,7 +198,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
-			unitMovement.removingAll = true;
+			world.removingAll = true;
             uiBuildingSomething.SetText("Removing All");
             OrdersPrep();
 			world.scott.WorkerOrdersPreparations();
@@ -211,7 +210,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
             world.cityBuilderManager.PlaySelectAudio();
-            unitMovement.removingRoad = true;
+            world.removingRoad = true;
             uiBuildingSomething.SetText("Removing Road");
             OrdersPrep();
 			world.scott.WorkerOrdersPreparations();
@@ -223,7 +222,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
-			unitMovement.removingLiquid = true;
+			world.removingLiquid = true;
             uiBuildingSomething.SetText("Removing Liquid");
             OrdersPrep();
 			world.scott.WorkerOrdersPreparations();
@@ -235,7 +234,7 @@ public class WorkerTaskManager : MonoBehaviour
         if (!world.mainPlayer.isBusy && !world.mainPlayer.inEnemyLines && !world.mainPlayer.runningAway)
         {
 			world.cityBuilderManager.PlaySelectAudio();
-			unitMovement.removingPower = true;
+			world.removingPower = true;
             uiBuildingSomething.SetText("Removing Power");
             OrdersPrep();
 			world.scott.WorkerOrdersPreparations();

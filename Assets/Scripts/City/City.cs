@@ -54,16 +54,16 @@ public class City : MonoBehaviour
     [HideInInspector]
     public Vector3Int cityLoc, waitingAttackLoc;
     [HideInInspector]
-    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, hasHarbor, hasBarracks, highlighted, harborTraining,
-        hasMarket, isNamed, stopCycle, attacked, hasAirport, airportTraining;
+    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, /*hasHarbor, hasBarracks, */highlighted, /*harborTraining,*/
+        hasMarket, isNamed, stopCycle, attacked/*, hasAirport, airportTraining, hasTradeDepot, tradeDepotTraining*/;
     [HideInInspector]
     public int lostPop;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
 
-    [HideInInspector]
-    public Vector3Int harborLocation, barracksLocation, airportLocation;
+    //[HideInInspector]
+    //public Vector3Int harborLocation, barracksLocation, airportLocation;
 
     [HideInInspector]
     public Army army;
@@ -75,11 +75,13 @@ public class City : MonoBehaviour
     [HideInInspector]
     public MapWorld world;
 
+    public Dictionary<SingleBuildType, Vector3Int> singleBuildDict = new();
+
     private ResourceManager resourceManager;
     public ResourceManager ResourceManager { get { return resourceManager; } }
 
-    [HideInInspector]
-    public Dictionary<string, Vector3Int> singleBuildImprovementsBuildingsDict = new();
+    //[HideInInspector]
+    //public Dictionary<string, Vector3Int> singleBuildImprovementsBuildingsDict = new();
 
     //[HideInInspector]
     //public CityPopulation cityPop;
@@ -172,7 +174,9 @@ public class City : MonoBehaviour
         resourceManager.SetCity(this);
         //resourceProducer.SetResourceManager(resourceManager);
 
-        cityLoc = Vector3Int.RoundToInt(transform.position);
+        Vector3 pos = transform.position;
+        pos.y = 0;
+        cityLoc = Vector3Int.RoundToInt(pos);
 
         SetProgressTimeBar();
         //highlight = GetComponent<SelectionHighlight>();
@@ -353,10 +357,10 @@ public class City : MonoBehaviour
     //    this.cityBuilderManager = cityBuilderManager;
     //}
 
-    public void UpdateResourceInfo()
-    {
-        world.cityBuilderManager.UpdateResourceInfo();
-    }
+    //public void UpdateResourceInfo()
+    //{
+    //    world.cityBuilderManager.UpdateResourceInfo();
+    //}
 
     public void AddToMeshFilterList(GameObject go, MeshFilter[] meshFilter, bool building, Vector3Int loc, string name = "")
     {
@@ -963,6 +967,7 @@ public class City : MonoBehaviour
         if (tradeRouteWaiter != null && resourceWaiter == resourceType)
         {
             tradeRouteWaiter.resourceCheck = false;
+            tradeRouteWaiter.trader.RemoveWarning();
             tradeRouteWaiter = null;
             resourceWaiter = ResourceType.None;
         }
@@ -973,6 +978,7 @@ public class City : MonoBehaviour
         if (tradeRouteWaiter != null && resourceWaiter == ResourceType.None)
         {
             tradeRouteWaiter.resourceCheck = false;
+            tradeRouteWaiter.trader.RemoveWarning();
             tradeRouteWaiter = null;
         }
     }
@@ -1255,7 +1261,7 @@ public class City : MonoBehaviour
 
         //for army maintenance
         if (army.atHome)
-			resourceManager.ConsumeResources(army.GetArmyCycleCost(),1,barracksLocation, true);
+			resourceManager.ConsumeResources(army.GetArmyCycleCost(),1, singleBuildDict[SingleBuildType.Barracks], true);
         else
             army.cyclesGone++;
         //army.AddStagingCostToCycle();
@@ -1335,7 +1341,7 @@ public class City : MonoBehaviour
         bool firstOne = true;
         for (int i = 0; i < cityList.Count; i++)
         {
-            if (cityList[i].currentPop < 4 && (!cityList[i].hasBarracks || cityList[i].army.UnitsInArmy.Count == 0))
+            if (cityList[i].currentPop < 4 && (!cityList[i].singleBuildDict.ContainsKey(SingleBuildType.Barracks) || cityList[i].army.UnitsInArmy.Count == 0))
             {
                 smallCityLocList.Add(i);
                 continue;
@@ -1481,7 +1487,7 @@ public class City : MonoBehaviour
             countDownTimer = world.enemyUnitGrowthTime;
 
         enemyCamp.growing = true;
-		world.GetCityDevelopment(barracksLocation).PlaySmokeEmitter(barracksLocation, countDownTimer, false);
+		world.GetCityDevelopment(singleBuildDict[SingleBuildType.Barracks]).PlaySmokeEmitter(singleBuildDict[SingleBuildType.Barracks], countDownTimer, false);
 		co = StartCoroutine(SpawnCycleCoroutine());
     }
 
@@ -1494,11 +1500,11 @@ public class City : MonoBehaviour
             countDownTimer--;
         }
 
-		world.GetCityDevelopment(barracksLocation).StopSmokeEmitter();
+		world.GetCityDevelopment(singleBuildDict[SingleBuildType.Barracks]).StopSmokeEmitter();
 
 		if (enemyCamp != null)
         {
-            AddEnemyUnit(enemyCamp, world.GetTerrainDataAt(barracksLocation).isDiscovered);
+            AddEnemyUnit(enemyCamp, world.GetTerrainDataAt(singleBuildDict[SingleBuildType.Barracks]).isDiscovered);
 
             if (enemyCamp.campCount < 9)
             {
@@ -1524,7 +1530,7 @@ public class City : MonoBehaviour
         if (!pause)
             countDownTimer = 0;
 
-        world.GetCityDevelopment(barracksLocation).StopSmokeEmitter();
+        world.GetCityDevelopment(singleBuildDict[SingleBuildType.Barracks]).StopSmokeEmitter();
     }
 
 	private void AddEnemyUnit(EnemyCamp camp, bool isDiscovered) //one at a time
@@ -1548,7 +1554,7 @@ public class City : MonoBehaviour
 		Unit unitEnemy = enemyGO.GetComponent<Unit>();
 		unitEnemy.SetReferences(world);
 		unitEnemy.SetMinimapIcon(world.enemyUnitHolder);
-		unitEnemy.military.SetSailColor(empire.enemyLeader.buildDataSO.colorOne);
+		unitEnemy.military.SetSailColor(empire.enemyLeader.colorOne);
 
 		//for tweening
 		Vector3 goScale = enemyGO.transform.localScale;
@@ -1936,21 +1942,21 @@ public class City : MonoBehaviour
                 CityImprovement cityImprovement = world.GetCityDevelopment(tile);
                 cityImprovement.city = this;
 
-                string name = cityImprovement.GetImprovementData.improvementName;
-                singleBuildImprovementsBuildingsDict[name] = tile;
+                SingleBuildType buildType = cityImprovement.GetImprovementData.singleBuildType;
+                singleBuildDict[buildType] = tile;
                 world.AddToCityLabor(tile, cityLoc);
 
-                if (name == "Harbor")
+                if (buildType == SingleBuildType.Harbor)
                 {
-                    hasHarbor = true;
-                    harborLocation = tile;
+                    //hasHarbor = true;
+                    //harborLocation = tile;
                     //world.SetCityHarbor(this, tile);
                     world.AddTradeLoc(tile, name);
                 }
-                else if (name == "Barracks")
+                else if (buildType == SingleBuildType.Barracks)
                 {
-                    hasBarracks = true;
-                    barracksLocation = tile;
+                    //hasBarracks = true;
+                    //barracksLocation = tile;
 
 					foreach (Vector3Int pos in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYARMY))
 						army.SetArmySpots(pos);
@@ -1988,7 +1994,7 @@ public class City : MonoBehaviour
 			empire.enemyLeader.SetSomethingToSay(empire.enemyLeader.leaderName + "_intro");
 		}
 
-        if (world.unitMovement.deployingArmy)
+        if (world.deployingArmy)
         {
 			world.GetTerrainDataAt(cityLoc).EnableHighlight(Color.red);
 			world.cityBuilderManager.ToggleEnemyBuildingHighlight(cityLoc, Color.red);
@@ -2099,7 +2105,7 @@ public class City : MonoBehaviour
         data.isNamed = isNamed;
         data.location = cityLoc;
         data.reachedWaterLimit = reachedWaterLimit;
-        data.harborTraining = harborTraining;
+        //data.harborTraining = harborTraining;
         //data.autoGrow = autoGrow;
         data.autoAssignLabor = autoAssignLabor;
         data.hasWater = hasWater;
@@ -2111,8 +2117,8 @@ public class City : MonoBehaviour
         data.hasWool = hasWool;
         data.hasSilk = hasSilk;
         data.hasClay = hasClay;
-        data.hasBarracks = hasBarracks;
-        data.hasHarbor = hasHarbor;
+        //data.hasBarracks = hasBarracks;
+        //data.hasHarbor = hasHarbor;
 		data.waterMaxPop = waterCount;
         data.currentPop = currentPop;
         data.unusedLabor = unusedLabor;
@@ -2122,10 +2128,10 @@ public class City : MonoBehaviour
         data.lostPop = lostPop;
         data.attacked = attacked;
 
-        for (int i = 0; i < tradersHere.Count; i++)
-        {
-            data.tradersHere.Add(tradersHere[i].id);
-        }
+        //for (int i = 0; i < tradersHere.Count; i++)
+        //{
+        //    data.tradersHere.Add(tradersHere[i].id);
+        //}
 
 		//resource manager
 		foreach (ResourceType type in resourceManager.ResourceDict.Keys)
@@ -2160,11 +2166,11 @@ public class City : MonoBehaviour
   //          data.cityBuildings.Add(world.GetBuildingData(cityLoc, buildingList[i]).SaveData());
 
 		//army data
-		if (hasBarracks)
+		if (singleBuildDict.ContainsKey(SingleBuildType.Barracks))
         {
             ArmyData armyData = new();
             
-            GameLoader.Instance.gameData.militaryUnits[barracksLocation] = army.SendData();
+            GameLoader.Instance.gameData.militaryUnits[singleBuildDict[SingleBuildType.Barracks]] = army.SendData();
 			armyData.forward = army.forward;
 			armyData.attackZone = army.attackZone;
 			armyData.enemyTarget = army.enemyTarget;
@@ -2236,7 +2242,7 @@ public class City : MonoBehaviour
         isNamed = data.isNamed;
         cityLoc = data.location;
         reachedWaterLimit = data.reachedWaterLimit;
-        harborTraining = data.harborTraining;
+        //harborTraining = data.harborTraining;
         //autoGrow = data.autoGrow;
         autoAssignLabor = data.autoAssignLabor;
 		hasWater = data.hasWater;
@@ -2248,10 +2254,10 @@ public class City : MonoBehaviour
 		hasWool = data.hasWool;
 		hasSilk = data.hasSilk;
 		hasClay = data.hasClay;
-        hasBarracks = data.hasBarracks;
-        hasHarbor = data.hasHarbor;
-        hasAirport = data.hasAirport;
-        airportTraining = data.airportTraining;
+        //hasBarracks = data.hasBarracks;
+        //hasHarbor = data.hasHarbor;
+        //hasAirport = data.hasAirport;
+        //airportTraining = data.airportTraining;
         waterCount = data.waterMaxPop;
 		currentPop = data.currentPop;
         unusedLabor = data.unusedLabor;
@@ -2326,7 +2332,7 @@ public class City : MonoBehaviour
 		resourceManager.resourcesNeededForRoute = data.resourcesNeededForRoute;
 
 		//army data
-		if (hasBarracks)
+		if (singleBuildDict.ContainsKey(SingleBuildType.Barracks))
         {
             ArmyData armyData = GameLoader.Instance.gameData.allArmies[cityLoc];
             army.forward = armyData.forward;
@@ -2458,50 +2464,50 @@ public class City : MonoBehaviour
         }
     }
 
-    public void SetTradersHereList(List<int> tradersHere)
-    {
-        for (int i = 0; i < tradersHere.Count; i++)
-        {
-			for (int j = 0; j < world.traderList.Count; j++)
-			{
-				if (world.traderList[j].id == tradersHere[i])
-				{
-					this.tradersHere.Add(world.traderList[j]);
-					break;
-				}
-			}
-		}
-    }
+  //  public void SetTradersHereList(List<int> tradersHere)
+  //  {
+  //      for (int i = 0; i < tradersHere.Count; i++)
+  //      {
+		//	for (int j = 0; j < world.traderList.Count; j++)
+		//	{
+		//		if (world.traderList[j].id == tradersHere[i])
+		//		{
+		//			this.tradersHere.Add(world.traderList[j]);
+		//			break;
+		//		}
+		//	}
+		//}
+  //  }
 
-    public Unit FindUpgradingLandUnit()
-    {
-        Unit upgradedUnit = null;
+  //  public Unit FindUpgradingLandUnit()
+  //  {
+  //      Unit upgradedUnit = null;
         
-        for (int i = 0; i < army.UnitsInArmy.Count; i++)
-        {
-            if (army.UnitsInArmy[i].isUpgrading)
-            {
-                upgradedUnit = army.UnitsInArmy[i];
-                break;
-            }
-        }
+  //      for (int i = 0; i < army.UnitsInArmy.Count; i++)
+  //      {
+  //          if (army.UnitsInArmy[i].isUpgrading)
+  //          {
+  //              upgradedUnit = army.UnitsInArmy[i];
+  //              break;
+  //          }
+  //      }
 
-        return upgradedUnit;
-    }
+  //      return upgradedUnit;
+  //  }
 
-    public Unit FindUpgradingSeaTraderUnit()
-    {
-        Unit upgradedUnit = null;
+  //  public Unit FindUpgradingSeaTraderUnit()
+  //  {
+  //      Unit upgradedUnit = null;
 
-		for (int i = 0; i < tradersHere.Count; i++)
-		{
-			if (tradersHere[i].isUpgrading)
-			{
-				upgradedUnit = tradersHere[i];
-				break;
-			}
-		}
+		//for (int i = 0; i < tradersHere.Count; i++)
+		//{
+		//	if (tradersHere[i].isUpgrading)
+		//	{
+		//		upgradedUnit = tradersHere[i];
+		//		break;
+		//	}
+		//}
 
-		return upgradedUnit;
-    }
+		//return upgradedUnit;
+  //  }
 }

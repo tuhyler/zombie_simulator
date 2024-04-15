@@ -27,8 +27,9 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
-	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
-	public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
+	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
+	public List<Unit> unitUpgradeList = new();
+	//public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
 	public List<GameObject> textList = new();
 	[HideInInspector]
@@ -431,7 +432,7 @@ public class GameLoader : MonoBehaviour
 
 		world.MakeEnemyCamps(gameData.enemyCampLocs, gameData.discoveredEnemyCampLocs);
 		foreach (Vector3Int tile in gameData.enemyCities.Keys)
-			world.LoadEnemyBorders(tile, world.GetEnemyCity(tile).empire.enemyLeader.buildDataSO.borderColor);
+			world.LoadEnemyBorders(tile, world.GetEnemyCity(tile).empire.enemyLeader.borderColor);
 		foreach (Vector3Int tile in gameData.enemyCampLocs.Keys)
 			world.LoadEnemyBorders(tile, new Color(1, 0, 0, 0.68f));
 
@@ -542,10 +543,12 @@ public class GameLoader : MonoBehaviour
 			world.CreateUnit(gameData.allTransports[i]);
 		gameData.allTransports.Clear();
 		
-		if (gameData.scott.somethingToSay) world.scott.gameObject.SetActive(true);
+		if (gameData.scott.somethingToSay) 
+			world.scott.gameObject.SetActive(true);
 		world.scott.LoadWorkerData(gameData.scott);
 
-		if (gameData.azai.bodyGuardData.somethingToSay) world.azai.gameObject.SetActive(true);
+		if (gameData.azai.bodyGuardData.somethingToSay) 
+			world.azai.gameObject.SetActive(true);
 		world.azai.LoadBodyGuardData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
 		world.mainPlayer.lastClearTile = world.RoundToInt(world.mainPlayer.transform.position);
@@ -612,14 +615,20 @@ public class GameLoader : MonoBehaviour
 		foreach (City city in attackingEnemyCitiesList)
 		{
 			if (city.enemyCamp.inBattle)
+			{
 				world.ToggleCityMaterialClear(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
+				world.AddToBattleAreas(city.army.cavalryRange);
+			}
 		}
 		attackingEnemyCitiesList.Clear();
 
 		foreach (Vector3Int loc in gameData.attackedEnemyBases.Keys)
 		{
 			if (gameData.attackedEnemyBases[loc].inBattle)
+			{
 				world.ToggleCityMaterialClear(world.GetEnemyCamp(loc).loc, world.GetEnemyCamp(loc).attackingArmy.city.cityLoc, world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
+				world.AddToBattleAreas(world.GetEnemyCamp(loc).attackingArmy.cavalryRange);
+			}
 		}
 
 		world.uiAttackWarning.LoadAttackLocs(gameData.attackLocs);
@@ -672,7 +681,7 @@ public class GameLoader : MonoBehaviour
 		foreach (City city in cityWaitingDict.Keys)
 		{
 			(List<Vector3Int> producersWaiting, List<Vector3Int> producersStorageWaiting, List<Vector3Int> producersUnloadWaiting,
-				List<int> waitList, List<int> seaWaitList, List<int> tradersWaiting, List<int> tradersHere) = cityWaitingDict[city];
+				List<int> waitList, List<int> seaWaitList, List<int> tradersWaiting) = cityWaitingDict[city];
 			city.SetProducerWaitingList(producersWaiting);
 			city.SetProducerStorageRoomWaitingList(producersStorageWaiting);
 			city.SetWaitingToUnloadProducerList(producersUnloadWaiting);
@@ -680,15 +689,27 @@ public class GameLoader : MonoBehaviour
 			city.SetWaitList(waitList);
 			city.SetSeaWaitList(seaWaitList);
 			city.SetTraderRouteWaitingList(tradersWaiting);
-			city.SetTradersHereList(tradersHere);
+			//city.SetTradersHereList(tradersHere);
 		}
 		cityWaitingDict.Clear();
 			
-		foreach (CityImprovement improvement in improvementUnitUpgradeDict.Keys)
+		foreach (Unit unit in unitUpgradeList)
 		{
-			improvement.ResumeTraining(improvementUnitUpgradeDict[improvement]);
+			CityImprovement improvement = null;
+
+			if (unit.trader)
+				improvement = world.GetCityDevelopment(world.GetCity(unit.trader.homeCity).singleBuildDict[unit.buildDataSO.singleBuildType]);
+			else if (unit.inArmy)
+				improvement = world.GetCityDevelopment(unit.military.army.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
+			else if (unit.inNavy)
+				improvement = world.GetCityDevelopment(unit.military.navy.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
+			else if (unit.inAirForce)
+				improvement = world.GetCityDevelopment(unit.military.airForce.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
+
+			if (improvement != null)
+				improvement.ResumeTraining(unit);
 		}
-		improvementUnitUpgradeDict.Clear();
+		unitUpgradeList.Clear();
 
 		foreach (Vector3Int tile in gameData.treasureLocs.Keys)
 		{

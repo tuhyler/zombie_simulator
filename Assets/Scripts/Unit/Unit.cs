@@ -106,7 +106,7 @@ public class Unit : MonoBehaviour
     public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep, byAir;
 
     [HideInInspector]
-    public bool inArmy, isDead, runningAway, ambush, hidden, isUpgrading;
+    public bool inArmy, inNavy, inAirForce, isDead, runningAway, ambush, hidden, isUpgrading;
 
     //animation
     [HideInInspector]
@@ -144,16 +144,22 @@ public class Unit : MonoBehaviour
 		healthMax = buildDataSO.health;
         currentHealth = healthMax;
 
-        if (buildDataSO.unitDisplayName != "Azai")
-            inArmy = buildDataSO.baseAttackStrength > 0 && CompareTag("Player");
+        if (buildDataSO.unitDisplayName != "Azai" && buildDataSO.baseAttackStrength > 0 && CompareTag("Player"))
+        {
+            inArmy = buildDataSO.transportationType == TransportationType.Land;
+            inNavy = buildDataSO.transportationType == TransportationType.Sea;
+            inAirForce = buildDataSO.transportationType == TransportationType.Air;
+		}
 
         enemyAI = GetComponent<BasicEnemyAI>();
         healthbar.SetUnit(this);
 
         if (bySea)
             selectionCircle.SetActive(false);
-        
-        prevTile = Vector3Int.RoundToInt(transform.position); //world hasn't been initialized yet
+
+        Vector3 pos = transform.position;
+        pos.y = 0;
+        prevTile = Vector3Int.RoundToInt(pos); //world hasn't been initialized yet
 
         if (currentHealth == healthMax)
             healthbar.gameObject.SetActive(false);
@@ -475,7 +481,7 @@ public class Unit : MonoBehaviour
         {
             if (trader.followingRoute)
             {
-                trader.InterruptRoute();
+                trader.InterruptRoute(true);
             }
                 
             FinishMoving(transform.position);
@@ -831,7 +837,8 @@ public class Unit : MonoBehaviour
 		if (unitInTheWay == this)
 		{
 			world.AddUnitPosition(currentLocation, this);
-			TradeRouteCheck(endPosition);
+			if (trader)
+                trader.TradeRouteCheck(endPosition);
 			return;
 		}
 		else if (unitInTheWay.buildDataSO.characterUnit)
@@ -1006,27 +1013,27 @@ public class Unit : MonoBehaviour
     }
 
 	//sees if trader is at trade route stop and has finished trade orders
-	protected virtual void TradeRouteCheck(Vector3 endPosition)
-    {
+	//protected virtual void TradeRouteCheck(Vector3 endPosition)
+ //   {
         
-    }
+ //   }
 
     //sends trader to next stop
-    public virtual void BeginNextStepInRoute()
-    {
+    //public virtual void BeginNextStepInRoute()
+    //{
 
-    }
+    //}
 
-    public virtual void CancelRoute()
-    {
+    //public virtual void CancelRoute()
+    //{
 
-    }
+    //}
 
     //for harvesting resource
-    public virtual void SendResourceToCity()
-    {
+    //public virtual void SendResourceToCity()
+    //{
 
-    }
+    //}
 
     public void TurnOffRipples()
     {
@@ -1039,10 +1046,10 @@ public class Unit : MonoBehaviour
 	}
 
 	//for animations
-	public virtual void SetInterruptedAnimation(bool v)
-    {
+	//public virtual void SetInterruptedAnimation(bool v)
+ //   {
 
-    }
+ //   }
 
     private void OnCollisionEnter(Collision collision)
     {

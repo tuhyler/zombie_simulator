@@ -218,7 +218,7 @@ public class Worker : Unit
 		audioSource.Play();
 	}
 
-    public override void SendResourceToCity()
+    public void SendResourceToCity()
     {
         //isBusy = false;
         //(City city, ResourceIndividualSO resourceIndividual) = resourceIndividualHandler.GetResourceGatheringDetails();
@@ -1012,7 +1012,7 @@ public class Worker : Unit
 
 	private bool CheckForCityOrCenter(Vector3 workerPos)
 	{
-		Vector3Int workerTile = Vector3Int.RoundToInt(workerPos);
+		Vector3Int workerTile = world.RoundToInt(workerPos);
 		int i = 0;
 		foreach (Vector3Int tile in world.GetNeighborsFor(workerTile, MapWorld.State.CITYRADIUS))
 		{
@@ -1212,7 +1212,7 @@ public class Worker : Unit
 			}
 		}
 
-		List<Vector3Int> path = GridSearch.AStarSearch(world, transform.position, finalLoc, false, false);
+		List<Vector3Int> path = GridSearch.PlayerMove(world, transform.position, finalLoc, false, false);
 
 		if (path.Count > 0)
 		{
@@ -1224,7 +1224,7 @@ public class Worker : Unit
 				world.azai.StopMovementCheck(false);
 				//world.azai.ShiftMovement();
 
-				List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, world.azai.transform.position, world.RoundToInt(transform.position), false, false);
+				List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, world.azai.transform.position, world.RoundToInt(transform.position), false, false);
 				azaiPath.AddRange(path);
 				Vector3Int azaiFinalLoc = path[path.Count - 1];
 				azaiPath.Remove(azaiFinalLoc);
@@ -1247,7 +1247,7 @@ public class Worker : Unit
 
 	public void FollowScott(List<Vector3Int> scottPath, Vector3 currentLoc)
 	{
-		List<Vector3Int> azaiPath = GridSearch.AStarSearch(world, transform.position, world.RoundToInt(currentLoc), false, false);
+		List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, transform.position, world.RoundToInt(currentLoc), false, false);
 		scottPath.RemoveAt(scottPath.Count - 1);
 		azaiPath.AddRange(scottPath);
 
@@ -1333,9 +1333,9 @@ public class Worker : Unit
 		Vector3Int currentScottSpot = world.RoundToInt(world.scott.transform.position);
 		List<Vector3Int> scottPath;
 		if (world.mainPlayer.inEnemyLines)
-			scottPath = GridSearch.AStarSearchExempt(world, currentScottSpot, currentSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
+			scottPath = GridSearch.PlayerMoveExempt(world, currentScottSpot, currentSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
 		else
-			scottPath = GridSearch.AStarSearch(world, currentScottSpot, currentSpot, false, false);
+			scottPath = GridSearch.PlayerMove(world, currentScottSpot, currentSpot, false, false);
 		scottPath.AddRange(path);
 		scottPath.Remove(finalSpot);
 
@@ -1361,9 +1361,9 @@ public class Worker : Unit
 			List<Vector3Int> azaiPath;
 
 			if (world.mainPlayer.inEnemyLines)
-				azaiPath = GridSearch.AStarSearchExempt(world, currentAzaiSpot, currentScottSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
+				azaiPath = GridSearch.PlayerMoveExempt(world, currentAzaiSpot, currentScottSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
 			else
-				azaiPath = GridSearch.AStarSearch(world, currentAzaiSpot, currentScottSpot, false, false);
+				azaiPath = GridSearch.PlayerMove(world, currentAzaiSpot, currentScottSpot, false, false);
 
 			azaiPath.AddRange(scottPath);
 			azaiPath.Remove(finalScottSpot);
@@ -1498,11 +1498,11 @@ public class Worker : Unit
 		
 		if (enemy)
 		{
-			path = GridSearch.AStarSearchExempt(world, transform.position, newPos, exemptList);
+			path = GridSearch.PlayerMoveExempt(world, transform.position, newPos, exemptList);
 		}
 		else
 		{
-			path = GridSearch.AStarSearch(world, transform.position, newPos, false, false);
+			path = GridSearch.PlayerMove(world, transform.position, newPos, false, false);
 		}
 
 		if (path.Count > 0)
@@ -1644,7 +1644,7 @@ public class Worker : Unit
 
 		finalDestinationLoc = safeTarget;
 		firstStep = true;
-		List<Vector3Int> runAwayPath = GridSearch.AStarSearch(world, currentLocation, safeTarget, isTrader, bySea);
+		List<Vector3Int> runAwayPath = GridSearch.PlayerMove(world, currentLocation, safeTarget, false, false);
 
 		//in case already home
 		if (runAwayPath.Count > 0)
@@ -1661,7 +1661,7 @@ public class Worker : Unit
 			exclamationPoint.SetActive(false);
 	}
 
-	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route)
+	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route = null)
 	{
 		Vector3Int safeTarget = playerLoc;
 
@@ -1670,7 +1670,7 @@ public class Worker : Unit
 			if (route != null && route.Contains(tile))
 				continue;
 
-			if (world.CheckIfPositionIsValid(tile))
+			if (world.PlayerCheckIfPositionIsValid(tile))
 			{
 				safeTarget = tile;
 				break;
@@ -1679,7 +1679,7 @@ public class Worker : Unit
 
 		finalDestinationLoc = safeTarget;
 		firstStep = true;
-		List<Vector3Int> runAwayPath = GridSearch.AStarSearch(world, currentLocation, safeTarget, isTrader, bySea);
+		List<Vector3Int> runAwayPath = GridSearch.PlayerMove(world, currentLocation, safeTarget, false, false);
 
 		//in case already there
 		if (runAwayPath.Count > 0)
@@ -1708,7 +1708,7 @@ public class Worker : Unit
 				goToSpot = world.GetAdjacentMoveToTile(world.RoundToInt(transform.position), goToSpot, true);
 
 			List<Vector3Int> exemptList = world.GetExemptList(currentTerrain);
-			path = GridSearch.AStarSearchExempt(world, transform.position, goToSpot, exemptList);
+			path = GridSearch.PlayerMoveExempt(world, transform.position, goToSpot, exemptList);
 
 			if (path.Count > 0)
 			{
@@ -1726,7 +1726,7 @@ public class Worker : Unit
 		}
 		else
 		{
-			path = GridSearch.AStarSearchExempt(world, transform.position, goToSpot, world.GetExemptList(currentTerrain));
+			path = GridSearch.PlayerMoveExempt(world, transform.position, goToSpot, world.GetExemptList(currentTerrain));
 
 			if (path.Count > 0)
 			{
@@ -1745,6 +1745,12 @@ public class Worker : Unit
 		Vector3Int endPositionInt = world.RoundToInt(endPosition);
 
 		world.IsTreasureHere(endPositionInt, true);
+
+			if (world.IsInBattleArea(endPositionInt))
+			{
+				StepAside(currentLocation);
+				return;
+			}
 
 		if (toTransport && !transportTarget.isUpgrading)
 		{

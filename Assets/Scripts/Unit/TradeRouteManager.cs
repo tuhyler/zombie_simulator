@@ -30,7 +30,7 @@ public class TradeRouteManager : MonoBehaviour
     public Vector3Int CurrentDestination { get { return currentDestination; } set { currentDestination = value; } }
 
     //private PersonalResourceManager personalResourceManager;
-    private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
+    //private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
     private UITradeRouteManager uiTradeRouteManager;
 
     //private List<bool> resourceStepComplete = new();
@@ -47,7 +47,8 @@ public class TradeRouteManager : MonoBehaviour
     [HideInInspector]
     public int loadUnloadRate;
 
-    private Trader trader;
+    [HideInInspector]
+    public Trader trader;
     private City city;
     private Wonder wonder;
     private TradeCenter tradeCenter;
@@ -96,7 +97,7 @@ public class TradeRouteManager : MonoBehaviour
             else
                 j = i + 1;
 
-			List<Vector3Int> currentPath = GridSearch.AStarSearch(world, cityStops[i], cityStops[j], true, trader.bySea);
+			List<Vector3Int> currentPath = GridSearch.TraderMove(world, cityStops[i], cityStops[j], trader.bySea);
             routePathsDict[i] = currentPath;
             length += currentPath.Count;
 
@@ -161,11 +162,11 @@ public class TradeRouteManager : MonoBehaviour
         return routePathsDict[nextPath];
     }
 
-    public void SetUIPersonalResourceManager(UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
-    {
-        //this.personalResourceManager = personalResourceManager;
-        this.uiPersonalResourceInfoPanel = uiPersonalResourceInfoPanel;
-    }
+    //public void SetUIPersonalResourceManager(UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
+    //{
+    //    //this.personalResourceManager = personalResourceManager;
+    //    this.uiPersonalResourceInfoPanel = uiPersonalResourceInfoPanel;
+    //}
 
     //public void SetPersonalResourceManager(PersonalResourceManager personalResourceManager)
     //{
@@ -349,8 +350,15 @@ public class TradeRouteManager : MonoBehaviour
 
                         trader.SetLoadingAnimation(false);
                         isPlaying = false;
-                        yield return HoldingPatternCoroutine();
-                        continue; //start loop over once resources have been found again
+                        trader.SetWarning(false, false);
+
+						yield return HoldingPatternCoroutine();
+
+                        //in case deselecting while waiting
+						if (!trader.resourceGridDict.ContainsKey(value.resourceType))
+							trader.AddToGrid(value.resourceType);
+
+						continue; //start loop over once resources have been found again
                     }
                     else
                     {
@@ -434,6 +442,8 @@ public class TradeRouteManager : MonoBehaviour
 
                         trader.SetUnloadingAnimation(false);
                         isPlaying = false;
+						trader.SetWarning(true, false);
+						
                         yield return HoldingPatternCoroutine();
                         continue; //restart loop once there's storage room
                     }
@@ -577,6 +587,7 @@ public class TradeRouteManager : MonoBehaviour
     public void StopHoldingPatternCoroutine()
     {
         resourceCheck = false;
+        trader.RemoveWarning();
         StopCoroutine(HoldingPatternCoroutine());
         if (tradeCenter != null)
             tradeCenter.RemoveFromWaitList();
@@ -615,6 +626,7 @@ public class TradeRouteManager : MonoBehaviour
 
         //Debug.Log("Finished loading");
         resourceCheck = false;
+        trader.RemoveWarning();
         waitForever = false;
         timeWaited = 0;
 
@@ -666,6 +678,7 @@ public class TradeRouteManager : MonoBehaviour
     public void UnloadCheck()
     {
         resourceCheck = false;
+        trader.RemoveWarning();
     }
 
     private void IncreaseCurrentStop()

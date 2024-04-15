@@ -330,7 +330,7 @@ public class EnemyCamp
 				}
 			}
 
-			List<Vector3Int> path = GridSearch.AStarSearchEnemy(world, unit.currentLocation, travelLoc + unitDiff, unit.bySea);
+			List<Vector3Int> path = GridSearch.EnemyMove(world, unit.currentLocation, travelLoc + unitDiff, unit.bySea);
 			unit.marchPosition = unitDiff;
 
 			if (path.Count > 0)
@@ -582,6 +582,9 @@ public class EnemyCamp
 				//if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
 				//	world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(attackingArmy.isFull);
 				attackingArmy.ResetArmy();
+				world.RemoveFromBattleArea(attackingArmy.cavalryRange);
+				attackingArmy.movementRange.Clear();
+				attackingArmy.cavalryRange.Clear();
 				attackingArmy.targetCamp = null;
 				attackingArmy.defending = false;
 				attackingArmy.battleAtSea = false;
@@ -1008,25 +1011,27 @@ public class EnemyCamp
 
 	public IEnumerator Pillage()
 	{
-		List<Laborer> tempLaborerList = new(world.laborerList);
-		for (int i = 0; i < tempLaborerList.Count; i++)
-		{
-			Vector3Int loc = world.GetClosestTerrainLoc(tempLaborerList[i].transform.position);
-			if (loc == moveToLoc)
-				tempLaborerList[i].KillUnit(moveToLoc - tempLaborerList[i].transform.position);
-			else if (loc == threatLoc)
-				tempLaborerList[i].KillUnit(threatLoc - tempLaborerList[i].transform.position);
-		}
+		//List<Laborer> tempLaborerList = new(world.laborerList);
+		//for (int i = 0; i < tempLaborerList.Count; i++)
+		//{
+		//	Vector3Int loc = world.GetClosestTerrainLoc(tempLaborerList[i].transform.position);
+		//	if (loc == moveToLoc)
+		//		tempLaborerList[i].KillUnit(moveToLoc - tempLaborerList[i].transform.position);
+		//	else if (loc == threatLoc)
+		//		tempLaborerList[i].KillUnit(threatLoc - tempLaborerList[i].transform.position);
+		//}
 
-		List<Trader> tempTraderList = new(world.traderList);
-		for (int i = 0; i < tempTraderList.Count; i++)
-		{
-			Vector3Int loc = world.GetClosestTerrainLoc(tempTraderList[i].transform.position);
-			if (loc == moveToLoc)
-				tempTraderList[i].KillUnit(moveToLoc - tempTraderList[i].transform.position);
-			else if (loc == threatLoc)
-				tempTraderList[i].KillUnit(threatLoc - tempTraderList[i].transform.position);
-		}
+		//List<Trader> tempTraderList = new(world.traderList);
+		//for (int i = 0; i < tempTraderList.Count; i++)
+		//{
+		//	Vector3Int loc = world.GetClosestTerrainLoc(tempTraderList[i].transform.position);
+		//	if (loc == moveToLoc)
+		//		tempTraderList[i].KillUnit(moveToLoc - tempTraderList[i].transform.position);
+		//	else if (loc == threatLoc)
+		//		tempTraderList[i].KillUnit(threatLoc - tempTraderList[i].transform.position);
+		//}
+
+		CheckForWeaklings(moveToLoc, true);
 
 		enemyReady = 0;
 		Vector3[] splashLocs = new Vector3[4] { new Vector3(-1, 0, -1), new Vector3(1, 0, -1), new Vector3(1, 0, 1), new Vector3(-1, 0, 1)};
@@ -1148,6 +1153,17 @@ public class EnemyCamp
 					}
 				}
 			}
+			else
+			{
+				if (world.IsRoadOnTileLocation(endPositionInt))
+					CheckForWeaklings(endPositionInt, false);
+
+				if (world.CheckIfTileIsImproved(endPositionInt))
+				{
+
+				}
+			}
+
 
 			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == this)
 			{
@@ -1205,7 +1221,7 @@ public class EnemyCamp
 			//first check those in inner circle
 			if (!hasRoute && directSeaList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, true);
+				chosenPath = world.GetSeaLandRoute(directSeaList, world.GetEnemyCity(cityLoc).singleBuildDict[SingleBuildType.Harbor], moveToLoc, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1214,7 +1230,7 @@ public class EnemyCamp
 			//outer ring next
 			if (!hasRoute && outerRingList.Count > 0)
 			{
-				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).harborLocation, moveToLoc, true);
+				chosenPath = world.GetSeaLandRoute(outerRingList, world.GetEnemyCity(cityLoc).singleBuildDict[SingleBuildType.Harbor], moveToLoc, true);
 
 				if (chosenPath.Count > 0)
 					hasRoute = true;
@@ -1223,7 +1239,7 @@ public class EnemyCamp
 			if (hasRoute)
 			{
 				seaTravel = true;
-				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, world.GetEnemyCity(cityLoc).harborLocation, true);
+				pathToTarget = GridSearch.TerrainSearchEnemy(world, loc, world.GetEnemyCity(cityLoc).singleBuildDict[SingleBuildType.Harbor], true);
 				pathToTarget.AddRange(chosenPath);
 			}
 		}
@@ -1254,7 +1270,7 @@ public class EnemyCamp
 			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.army == attackingArmy)
 				world.unitMovement.CancelArmyDeployment();
 		
-			if (world.unitMovement.deployingArmy)
+			if (world.deployingArmy)
 			{
 				for (int i = 0; i < unitsInCamp.Count; i++)
 					unitsInCamp[i].SoftSelect(Color.red);
@@ -1276,7 +1292,7 @@ public class EnemyCamp
 		enemyReady = 0;
 		forward = forward = (moveToLoc - threatLoc) / 3;
 
-		if (world.unitMovement.deployingArmy)
+		if (world.deployingArmy)
 		{
 			for (int i = 0; i < unitsInCamp.Count; i++)
 				unitsInCamp[i].SoftSelect(Color.red);
@@ -1337,9 +1353,9 @@ public class EnemyCamp
 		}
 
 		//seeing if it would be closer to attack barracks than the city
-		if (world.GetCity(target).hasBarracks && !justCity)
+		if (world.GetCity(target).singleBuildDict.ContainsKey(SingleBuildType.Barracks) && !justCity)
 		{
-			Vector3Int barracksLoc = world.GetCity(target).barracksLocation;
+			Vector3Int barracksLoc = world.GetCity(target).singleBuildDict[SingleBuildType.Barracks];
 
 			int cityDiff = Math.Abs(newStart.x - target.x) + Math.Abs(newStart.z - target.z);
 			int barracksDiff = Math.Abs(newStart.x - barracksLoc.x) + Math.Abs(newStart.z - barracksLoc.z);
@@ -1568,6 +1584,52 @@ public class EnemyCamp
 				path.Add(unit.barracksBunk);
 			unit.finalDestinationLoc = newLoc;
 			unit.MoveThroughPath(path);
+		}
+	}
+
+	public void CheckForWeaklings(Vector3Int centerLoc, bool largeRadius)
+	{
+		float increase;
+		bool isHill = world.GetTerrainDataAt(centerLoc).isHill;
+
+		if (isHill)
+			increase = 1.5f;
+		else
+			increase = 0.5f;
+
+		Vector3 rayCastLoc = centerLoc;
+		rayCastLoc.y += increase;
+
+		float distance = 1.5f;
+		if (largeRadius)
+			distance = 2.5f;
+
+		RaycastHit hit;
+
+		foreach (Vector3Int loc in world.GetNeighborsFor(centerLoc, MapWorld.State.EIGHTWAY))
+		{
+			Vector3 direction = loc;
+			direction.y += 0.5f;
+
+			Unit unit = null;
+
+			while (unit != null)
+			{
+				if (Physics.Raycast(rayCastLoc, loc, out hit, distance, world.enemyKillLayerMask))
+				{
+					GameObject hitGO = hit.collider.gameObject;
+
+					if (hitGO && hitGO.TryGetComponent(out unit))
+					{
+						if (!world.characterUnits.Contains(unit))
+							unit.KillUnit(centerLoc - unit.transform.position);
+					}
+					else
+					{
+						unit = null;
+					}
+				}
+			}
 		}
 	}
 

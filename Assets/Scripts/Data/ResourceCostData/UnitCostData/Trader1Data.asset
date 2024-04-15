@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Trader
+  nationalityAdjective: 
   unitDisplayName: Horse Trader
   unitLevel: 1
   unitNameAndLevel: Trader-1
@@ -29,18 +29,26 @@ MonoBehaviour:
   - resourceType: 4
     resourceAmount: 1
   - resourceType: 2
-    resourceAmount: 1
+    resourceAmount: 34
   battleCost: []
-  laborCost: 1
+  laborCost: 0
   unitType: 5
   unitDescription: Transports cargo on land
   availableInitially: 1
   health: 14
+  regenerationRate: 2
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 0.5
   trainTime: 0
   cargoCapacity: 100
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
+  singleBuildType: 2
   unitEra: 0
+  unitRegion: 4

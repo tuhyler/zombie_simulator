@@ -118,7 +118,7 @@ public class UIWorkerHandler : MonoBehaviour
         gameObject.SetActive(false);
         world.workerCanvas.gameObject.SetActive(false);
 
-        if (!temporary && world.unitMovement.selectedTrader == null)
+        if (!temporary && (!world.unitMovement.selectedUnit || !world.unitMovement.selectedUnit.trader))
             world.personalResourceCanvas.gameObject.SetActive(false);
     }
 

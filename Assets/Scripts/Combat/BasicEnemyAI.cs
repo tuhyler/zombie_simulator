@@ -288,7 +288,7 @@ public class BasicEnemyAI : MonoBehaviour
 	public void AmbushAggro(Vector3Int endPosition, Vector3Int ambushLoc)
 	{
 		List<Vector3Int> avoidList = new() { ambushLoc };
-		List<Vector3Int> path = GridSearch.AStarSearchEnemy(unit.world, transform.position, endPosition, unit.bySea, avoidList);
+		List<Vector3Int> path = GridSearch.EnemyMove(unit.world, transform.position, endPosition, unit.bySea, avoidList);
 
 		if (path.Count > 1)
 		{
@@ -460,7 +460,7 @@ public class BasicEnemyAI : MonoBehaviour
 		if (unit.enemyCamp.battleAtSea)
 			path = GridSearch.MoveWherever(unit.world, unit.transform.position, campSpot);
 		else
-			path = GridSearch.AStarSearchEnemy(unit.world, unit.transform.position, campSpot, unit.bySea, null);
+			path = GridSearch.EnemyMove(unit.world, unit.transform.position, campSpot, unit.bySea, null);
 
 		if (path.Count == 0 && (campSpot - unit.transform.position).sqrMagnitude > 0.05f)
 			path.Add(campSpot);

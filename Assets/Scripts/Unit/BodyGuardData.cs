@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class BodyGuardData
 {
+	public int unitLevel;
 	public string transportationTarget;
 	public bool somethingToSay, toTransport, inTransport, dueling, waiting, dizzy;
 	public List<string> conversationTopics;

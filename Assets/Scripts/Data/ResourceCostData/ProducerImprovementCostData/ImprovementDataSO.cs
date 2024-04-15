@@ -40,7 +40,7 @@ public class ImprovementDataSO : ScriptableObject
     public int waterIncrease;
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceRocks = false; //setting rocks as the same color as the prop
-    public bool singleBuild = false; //only one per city
+    //public bool singleBuild = false; //only one per city
     public bool oneTerrain = true; //can only be built on one type of terrain
     public bool adjustForHill = true; //shift the improvement up when built on hill
     public bool hideProp = true; //hiding the prop already on terrain
@@ -50,5 +50,7 @@ public class ImprovementDataSO : ScriptableObject
     public bool hideIdleMesh = false;
     public bool getTerrainResource = false; //for mines and quarries to provide resource where they're placed
     public int attackBonus = 0;
+    public SingleBuildType singleBuildType;
+    //public List<Vector3Int> stallLocs;
     public List<Vector3Int> noWalkAreas;
 }

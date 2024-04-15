@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: cdaa8ec02277e2946ba1004376cce3f4, type: 3}
   secondaryPrefab: {fileID: 0}
-  unitName: Cavalry
+  nationalityAdjective: 
   unitDisplayName: Horseman
   unitLevel: 1
   unitNameAndLevel: Cavalry-1
@@ -34,11 +34,19 @@ MonoBehaviour:
   unitDescription: Fast unit
   availableInitially: 1
   health: 50
+  regenerationRate: 2
   baseAttackStrength: 10
   baseAttackSpeed: 0.5
   movementSpeed: 2
   trainTime: 10
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
+  npc: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
+  singleBuildType: 1
   unitEra: 0
+  unitRegion: 4

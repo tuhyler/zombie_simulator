@@ -36,11 +36,11 @@ public class UITerrainTooltip : MonoBehaviour
         tooltipTrigger = GetComponentInChildren<UITooltipTrigger>();
     }
 
-    public void HandleEsc()
-    {
-        if (activeStatus)
-            world.CloseTerrainTooltipCloseButton();
-    }
+    //public void HandleEsc()
+    //{
+    //    if (activeStatus)
+    //        world.CloseTerrainTooltipCloseButton();
+    //}
 
     public void ToggleVisibility(bool val, TerrainData td = null)
     {
