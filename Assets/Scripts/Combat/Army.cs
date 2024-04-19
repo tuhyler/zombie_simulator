@@ -176,6 +176,9 @@ public class Army : MonoBehaviour
 
 		AddToCycleCost(unit.buildDataSO.cycleCost);
         AddToBattleCost(unit.buildDataSO.battleCost);
+
+		if (!city.growing)
+			city.StartGrowthCycle(false);
 	}
 
 	private void AddToCycleCost(List<ResourceValue> costs)
@@ -268,7 +271,7 @@ public class Army : MonoBehaviour
 		RemoveFromCycleCost(unit.buildDataSO.cycleCost);
 		RemoveFromBattleCost(unit.buildDataSO.battleCost);
 		//}
-		world.GetCityDevelopment(loc).unitsWithinCount--;
+		world.GetCityDevelopment(this.loc).unitsWithinCount--;
 		armyCount--;
 		UnitType type = unit.buildDataSO.unitType;
 
@@ -318,8 +321,7 @@ public class Army : MonoBehaviour
 
         openSpots.Insert(newIndex,loc);
 
-		if (city.currentPop == 0 && armyCount == 0)
-			city.StopGrowthCycle();
+        city.StopGrowthCycleCheck();
 	}
 
     //preparing positions lists
@@ -548,7 +550,7 @@ public class Army : MonoBehaviour
 
 			world.GetTerrainDataAt(target).DisableHighlight();
 			world.GetTerrainDataAt(target).EnableHighlight(Color.green);
-            if (world.CheckIfTileIsImproved(target))
+            if (world.CompletedImprovementCheck(target))
             {
                 world.GetCityDevelopment(target).DisableHighlight();
                 world.GetCityDevelopment(target).EnableHighlight(Color.green);
@@ -627,6 +629,7 @@ public class Army : MonoBehaviour
     public void DeployArmy()
     {
         ConsumeBattleCosts();
+        AWOLClear();
         unitsReady = 0;
 
     	pathToTarget.Remove(pathToTarget[pathToTarget.Count - 1]);
@@ -666,7 +669,7 @@ public class Army : MonoBehaviour
         unitsReady = 0;
         traveling = false;
         returning = true;
-        DestroyDeadList();
+        //DestroyDeadList();
         if (world.IsEnemyCampHere(enemyTarget))
             targetCamp = null;
         DeployArmy(false);
@@ -724,7 +727,7 @@ public class Army : MonoBehaviour
 
     private void ConsumeBattleCosts()
     {
-        city.ResourceManager.ConsumeResources(totalBattleCosts, 1, city.singleBuildDict[SingleBuildType.Barracks], true);
+        city.ResourceManager.ConsumeMaintenanceResources(totalBattleCosts, city.singleBuildDict[SingleBuildType.Barracks]);
         //totalBattleCosts.Clear();
     }
 
@@ -825,6 +828,7 @@ public class Army : MonoBehaviour
 
                 IssueBattleRefund();
                 atHome = true;
+                DestroyDeadList();
                 cyclesGone = 0;
                 returning = false;
                 
@@ -833,7 +837,7 @@ public class Army : MonoBehaviour
                 if (selected)
                     world.unitMovement.ShowIndividualCityButtonsUI();
                 
-                if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
+                if (city.activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
                     world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(isFull);
 
                 if (world.IsEnemyCityOnTile(city.waitingAttackLoc))
@@ -1038,6 +1042,8 @@ public class Army : MonoBehaviour
         }
 
         world.AddToBattleAreas(cavalryRange);
+        world.CheckMainPlayerLoc(enemyTarget, attackZone);
+
 		if (!inBattle)
 			ArmyCharge();
 
@@ -1053,7 +1059,7 @@ public class Army : MonoBehaviour
         {
             unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
             
-            if (world.CheckIfTileIsImproved(world.GetClosestTerrainLoc(unit.currentLocation)))
+            if (world.CompletedImprovementCheck(world.GetClosestTerrainLoc(unit.currentLocation)))
                 unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(world.GetClosestTerrainLoc(unit.currentLocation)).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
 
 			if (unit.isSelected)
@@ -1196,6 +1202,8 @@ public class Army : MonoBehaviour
                 cavalryRange.Clear();
                 returning = true;
                 city.battleIcon.SetActive(false);
+                //if (targetCamp.campCount == 0)
+                targetCamp.ClearCampCheck();
             }
             else //for finishing duel
             {
@@ -1209,10 +1217,7 @@ public class Army : MonoBehaviour
             targetCamp.battleAtSea = false;
 
             if (world.mainPlayer.runningAway)
-			{
 				world.mainPlayer.StopRunningAway();
-				world.mainPlayer.stepAside = false;
-			}
 
 			if (targetCamp.movingOut)
             {
@@ -1279,7 +1284,7 @@ public class Army : MonoBehaviour
 		//inBattle = false; //wait till enemy stops attacking to stop setting as in battle
         returning = true;
         attackingSpots.Clear();
-        DestroyDeadList();
+        //DestroyDeadList();
         MoveArmyHome(loc);
 
 		//targetCamp.ResetStatus();
@@ -1424,7 +1429,8 @@ public class Army : MonoBehaviour
 				world.unitMovement.ClearSelection();
 		}
 
-        unit.DestroyUnit();
+        world.GetCityDevelopment(this.loc).PlayPopLossAudio();
+		unit.DestroyUnit();
         return loc;
     }
 

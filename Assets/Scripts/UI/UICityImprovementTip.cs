@@ -13,15 +13,18 @@ public class UICityImprovementTip : MonoBehaviour
     private MapWorld world;
     
     [SerializeField]
-    public TMP_Text title, level, resourceCount, waitingForText;
+    public TMP_Text title, level, resourceCount, waitingForText, consumesText, specialtyAmount;
     private TMP_Text /*producesText, */consumesNone;
 
     [SerializeField]
-    private GameObject /*waitingForText, */resourceCountGO;
+    private GameObject /*waitingForText, */resourceCountGO, producesHolder, specialtyHolder;
     private bool waiting;
 
     [SerializeField]
-    private Image improvementImage;//, produceHighlight;
+    private Image improvementImage, specialtyImage;//, produceHighlight;
+
+    [SerializeField]
+    private Sprite workEthicSprite, housingSprite, waterSprite, powerSprite;
 
     [SerializeField]
     private List<Image> highlightList = new();
@@ -34,12 +37,13 @@ public class UICityImprovementTip : MonoBehaviour
     private List<int> produceTimeList = new();
 
     //cached improvement for turning off highlight
-    private CityImprovement improvement;
+    [HideInInspector]
+    public CityImprovement improvement;
     //private float xChange, yChange; //work around for produce highlight
 
     //for tweening
     [SerializeField]
-    private RectTransform allContents, lineImage;
+    private RectTransform allContents, lineImage, infoHolder;
     [HideInInspector]
     public bool activeStatus;
 
@@ -50,7 +54,8 @@ public class UICityImprovementTip : MonoBehaviour
 
         foreach (Transform selection in producesRect)
         {
-            producesInfo.Add(selection.GetComponent<UIResourceInfoPanel>());
+            if (selection.TryGetComponent(out UIResourceInfoPanel panel))
+                producesInfo.Add(panel);
         }
         foreach (Transform selection in consumesRect)
         {
@@ -127,32 +132,17 @@ public class UICityImprovementTip : MonoBehaviour
             Vector3 p = Input.mousePosition;
             float x = 0.5f;
             float y = 0.5f;
-            //xChange = 0;
-            //yChange = 0;
 
             p.z = 935;
-            //p.z = 1;
             if (p.y + allContents.rect.height * 0.5f > Screen.height)
-            {
                 y = 1f;
-                //yChange = -217.5f;
-            }
             else if (p.y - allContents.rect.height * 0.5f < 0)
-            {
                 y = 0f;
-                //yChange = 217.5f;
-            }
 
             if (p.x + allContents.rect.width * 0.5f > Screen.width)
-            {
                 x = 1f;
-                //xChange = 155f;
-            }
             else if (p.x - allContents.rect.width * 0.5f < 0)
-            {
                 x = 0f;
-                //xChange = -155f;
-            }
 
             allContents.pivot = new Vector2(x, y);
             Vector3 pos = Camera.main.ScreenToWorldPoint(p);
@@ -194,23 +184,69 @@ public class UICityImprovementTip : MonoBehaviour
         else
             level.text = "Level " + data.improvementLevel.ToString() + " " + data.improvementName;
         improvementImage.sprite = data.image;
-        produceTimeList = data.producedResourceTime;
-        highlightIndex = improvement.producedResourceIndex;
-        int producedTime = produceTimeList[highlightIndex];
 
-        float workEthic;
-        if (improvement.city == null)
-            workEthic = 1;
+        if (improvement.building)
+        {
+            producesHolder.SetActive(false);
+            consumesText.text = "Cost Per Cycle";
+            SetResourcePanelInfo(consumesInfo, improvement.GetCycleCost(), 0, false, false, 1, true);
+		}
         else
-            workEthic = improvement.city.workEthic;
+        {
+            producesHolder.SetActive(true);
+            consumesText.text = "Requires";
+            produceTimeList = data.producedResourceTime;
+            highlightIndex = improvement.producedResourceIndex;
+            int producedTime = produceTimeList[highlightIndex];
 
-        SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, producer.isProducing, workEthic);
-        SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);
+            float workEthic;
+            if (improvement.city == null)
+                workEthic = 1;
+            else
+                workEthic = improvement.city.workEthic;
 
-        if (data.getTerrainResource)
-            highlightIndex = 0;
+            if (producer.producedResources.Count > 0)
+            {
+                specialtyHolder.SetActive(false);
+                SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, producer.isProducing, workEthic);
+            }
+            else
+            {
+                specialtyHolder.SetActive(true);
 
-        highlightList[highlightIndex].gameObject.SetActive(true);
+                if (data.workEthicChange != 0)
+                {
+                    specialtyAmount.text = "+ " + Mathf.RoundToInt(data.workEthicChange * 100).ToString() + "%";
+                    specialtyImage.sprite = workEthicSprite;
+				}
+                else if (data.housingIncrease > 0)
+                {
+                    specialtyAmount.text = "+ " + data.housingIncrease.ToString();
+                    specialtyImage.sprite = housingSprite;
+				}
+                else if (data.waterIncrease > 0)
+                {
+                    specialtyAmount.text = "+ " + data.waterIncrease.ToString();
+                    specialtyImage.sprite = waterSprite;
+				}
+                else if (data.powerIncrease > 0)
+                {
+					specialtyAmount.text = "+ " + data.powerIncrease.ToString();
+					specialtyImage.sprite = powerSprite;
+				}
+                else
+                {
+                    specialtyHolder.SetActive(false);
+                }
+            }
+            
+            SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);
+
+            if (data.getTerrainResource)
+                highlightIndex = 0;
+
+            highlightList[highlightIndex].gameObject.SetActive(true);
+        }
 
         bool showCount;
 
@@ -228,14 +264,24 @@ public class UICityImprovementTip : MonoBehaviour
 
         int multiple = Mathf.Max(maxCount - 2, 0) * 90; //allowing one extra for production time ResourceValue
         int panelWidth = 310 + multiple;
-        int panelHeight = showCount ? 535 : 460;
+        int panelHeight = 340;
         int lineWidth = 280 + multiple;
 
+        if (!improvement.building)
+            panelHeight += 140;
+
+        if (showCount)
+            panelHeight += 75;
+        
+        if (waiting)
+            panelHeight += 30;
+
+        infoHolder.sizeDelta = new Vector2(panelWidth, 190);
         allContents.sizeDelta = new Vector2(panelWidth, panelHeight);
         lineImage.sizeDelta = new Vector2(lineWidth, 4);
     }
 
-    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, int producedTime, bool produces, bool producing = false, float workEthic = 1)
+    private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, int producedTime, bool produces, bool producing = false, float workEthic = 1, bool building = false)
     {
         int resourcesCount = resourceList.Count;
         //bool showText = false;
@@ -293,7 +339,7 @@ public class UICityImprovementTip : MonoBehaviour
             }
             else if (i == resourcesCount) //for adding time
             {
-                if (!produces)
+                if (!produces && !building)
                 {
                     panelList[i].gameObject.SetActive(true);
                     panelList[i].SetResourceAmount(producedTime);
@@ -441,12 +487,27 @@ public class UICityImprovementTip : MonoBehaviour
         }
 	}
 
-    public void ToggleWaiting(bool v, CityImprovement improvement, bool resource = false, bool storage = false, bool research = false)
+	public void UpdateConsumeNumbers()
+    {
+        if (improvement == null)
+            return;
+
+        SetResourcePanelInfo(consumesInfo, improvement.GetCycleCost(), 0, false, false, 1, true);
+	}
+
+	public void ToggleWaiting(bool v, CityImprovement improvement, bool resource = false, bool storage = false, bool research = false)
     {
         if (activeStatus && this.improvement == improvement)
         {
-            waiting = v;
-            waitingForText.gameObject.SetActive(v);
+            if (waiting != v)
+            {
+                waiting = v;
+                waitingForText.gameObject.SetActive(v);
+
+                Vector2 allContentsSize = allContents.sizeDelta;
+                allContentsSize.y += v ? 30 : -30;
+                allContents.sizeDelta = allContentsSize;
+			}
 
             if (v)
             {

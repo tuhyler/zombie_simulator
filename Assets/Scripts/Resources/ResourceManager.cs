@@ -6,6 +6,7 @@ using Mono.Cecil;
 using System.Resources;
 using UnityEditor.iOS;
 using static UnityEngine.Rendering.DebugUI;
+using static UnityEditor.FilePathAttribute;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -163,7 +164,43 @@ public class ResourceManager : MonoBehaviour
 		return resourceDict[type] >= amount;
 	} 
 
-    public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location, bool military = false, bool showSpend = false)
+    //for city pop, traders, and army
+    public void ConsumeMaintenanceResources(List<ResourceValue> consumedResource, Vector3 location, bool military = false)
+    {
+		int i = 0;
+		location.y += consumedResource.Count * 0.4f;
+
+		foreach (ResourceValue value in consumedResource)
+		{
+			int consumedAmount = value.resourceAmount;
+			if (consumedAmount == 0)
+				continue;
+
+			consumedAmount = SubtractResource(value.resourceType, consumedAmount);
+
+            if (military && value.resourceType == ResourceType.Gold)
+            {
+                if (consumedAmount < value.resourceAmount)
+					city.army.AWOLCheck();
+                else
+					city.army.AWOLClear();
+			}
+
+			if (city.activeCity && consumedAmount > 0)
+			{
+				Vector3 loc = location;
+				loc.y -= 0.4f * i;
+				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
+				i++;
+			}
+		}
+
+		if (city.activeCity && city.world.cityBuilderManager.uiCityUpgradePanel.activeStatus)
+			city.world.cityBuilderManager.uiCityUpgradePanel.CheckCosts(city.ResourceManager);
+	}
+
+    //for resource producers
+	public void ConsumeResources(List<ResourceValue> consumedResource, float currentLabor, Vector3 location)
     {
         int i = 0;
         location.y += consumedResource.Count * 0.4f;
@@ -171,57 +208,22 @@ public class ResourceManager : MonoBehaviour
         foreach (ResourceValue value in consumedResource)
         {
             int consumedAmount = Mathf.RoundToInt(value.resourceAmount * currentLabor);
-            ResourceType resourceType = value.resourceType;
             if (consumedAmount == 0)
                 continue;
 
-            if (resourceType == ResourceType.Gold)
-            {
-                if (military)
-                {
-                    if (city.CheckWorldGold(value.resourceAmount))
-                    {
-                        city.army.AWOLClear();
-                    }
-                    else
-                    {
-					    consumedAmount = city.GetWorldGoldLevel();
-                        city.army.AWOLCheck();
-                    }
-                }
+            consumedAmount = SubtractResource(value.resourceType, consumedAmount);
 
-                city.UpdateWorldResources(resourceType, -consumedAmount);
-            }
-            else
-            {
-                int storageAmount = resourceDict[resourceType];
-
-                resourceDict[resourceType] -= consumedAmount;
-                resourceStorageLevel -= consumedAmount;
-                CheckProducerUnloadWaitList();
-                city.CheckLimitWaiter();
-                UICheck(resourceType, consumedAmount, storageAmount);
-            }
-
-            if (showSpend)
-            {
-				Vector3 loc = location;
-				loc.y -= 0.4f * i;
-				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
-				i++;
-			}
-			else if (city.activeCity && consumedAmount > 0)
+            if (city.activeCity && consumedAmount > 0)
             {
                 Vector3 loc = location;
                 loc.y -= 0.4f * i;
-                InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(resourceType));
+                InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
                 i++;
             }
 		}
 
 		if (city.activeCity && city.world.cityBuilderManager.uiCityUpgradePanel.activeStatus)
 			city.world.cityBuilderManager.uiCityUpgradePanel.CheckCosts(city.ResourceManager);
-		//city.UpdateResourceInfo();
 	}
 
     public bool ConsumeResourcesCheck(List<ResourceValue> consumeResources, int labor)
@@ -266,27 +268,19 @@ public class ResourceManager : MonoBehaviour
         return true;
     }
 
-    public bool PrepareConsumedResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc, bool returnResource = false)
+    public bool PrepareConsumedResource(List<ResourceValue> producedResource, float currentLabor, Vector3 producerLoc)
     {
         bool destroy = false;
         
         int i = 0;
-        //producerLoc.y += producedResource.Count * 0.4f;
         resourceCount = 0;
+        
         foreach (ResourceValue resourceVal in producedResource)
         {
             int newResourceAmount;
 
-            if (returnResource)
-            {
-                newResourceAmount = Mathf.RoundToInt(resourceVal.resourceAmount * currentLabor);
-            }
-            else
-            {
-                newResourceAmount = CalculateResourceGeneration(resourceVal.resourceAmount, currentLabor, resourceVal.resourceType);
-            }
-
-            int resourceAmount = SubtractResource(resourceVal.resourceType, newResourceAmount);
+            newResourceAmount = Mathf.RoundToInt(resourceVal.resourceAmount * currentLabor);
+            int resourceAmount = AddResource(resourceVal.resourceType, newResourceAmount);
 
             Vector3 loc = producerLoc;
             loc.y += 0.4f * i;
@@ -335,7 +329,7 @@ public class ResourceManager : MonoBehaviour
     {
 		if (type == ResourceType.Gold)
 		{
-			city.UpdateWorldResources(type, amount);
+			city.UpdateWorldResources(type, -amount);
 			return amount;
 		}
 
@@ -521,7 +515,6 @@ public class ResourceManager : MonoBehaviour
             if (value.resourceType == ResourceType.Gold)
             {
                 city.UpdateWorldResources(value.resourceType, -value.resourceAmount);
-
             }
             else
             {
@@ -615,7 +608,7 @@ public class ResourceManager : MonoBehaviour
 				Vector3 cityLoc = city.cityLoc;
 				cityLoc.y += length * 0.4f;
 				cityLoc.y += -0.4f * i;
-				if (city.activeCity)
+				if (city.activeCity && sellAmount != 0)
 					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType));
 			}
 		}
@@ -732,10 +725,28 @@ public class ResourceManager : MonoBehaviour
 
             if (starvationCount >= cyclesToWait) //decreasing if starving for 2 cycles
             {
-                if (city.army.UnitsInArmy.Count > 0)
+                //remove priority is as follows: TradeDepot, Airport, Harbor, Barracks, Airbase, Shipyard, regular pop.
+                if (city.singleBuildDict.ContainsKey(SingleBuildType.TradeDepot) && city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.TradeDepot]).unitsWithinCount > 0)
+                {
+                    city.PlayHellHighlight(city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.TradeDepot]).RemoveRandomTrader());
+                }
+				else if (city.singleBuildDict.ContainsKey(SingleBuildType.Airport) && city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Airport]).unitsWithinCount > 0)
+                {
+					city.PlayHellHighlight(city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Airport]).RemoveRandomTrader());
+                }
+				else if (city.singleBuildDict.ContainsKey(SingleBuildType.Harbor) && city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Harbor]).unitsWithinCount > 0)
+                {
+					city.PlayHellHighlight(city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Harbor]).RemoveRandomTrader());
+                }
+				else if (city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) && city.army.UnitsInArmy.Count > 0)
+                {
                     city.PlayHellHighlight(city.army.RemoveRandomArmyUnit());
+                    city.army.AWOLClear();
+                }
                 else
+                {
                     city.PopulationDeclineCheck(true, false);
+                }
 				
 				city.world.popLost++;
 

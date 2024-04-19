@@ -516,6 +516,7 @@ public class Trader : Unit
 				path.Add(firstStep);
 		}
 
+		followingRoute = true;
 		finalDestinationLoc = firstStep;
 		MoveThroughPath(path);
 	}
@@ -539,7 +540,7 @@ public class Trader : Unit
 		MoveThroughPath(path);
 	}
 
-	public void ReturnHome()
+	private void ReturnHome()
 	{
 		Vector3Int currentLoc = world.GetClosestTerrainLoc(transform.position);
 		returning = true;
@@ -673,7 +674,8 @@ public class Trader : Unit
             tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
         }
 
-		ReturnHome();
+		if (!isDead)
+			ReturnHome();
     }
 
     public void AddToGrid(ResourceType type)
@@ -721,7 +723,7 @@ public class Trader : Unit
 
 		//float multiple = totalRouteLength /*- CalculateTilesTraveled(stop))*/ / (buildDataSO.movementSpeed * 24) * percTraveled;
         List<ResourceValue> newCosts = AdjustTotalCosts(multiple);
-		city.ResourceManager.ConsumeResources(newCosts, 1, city.cityLoc, false, true);
+		city.ResourceManager.ConsumeMaintenanceResources(newCosts, city.cityLoc);
     }
 
     public void RefundRouteCosts()
@@ -968,20 +970,64 @@ public class Trader : Unit
 			world.unitMovement.infoManager.infoPanel.HideWarning();
 	}
 
+	private bool GetInLineCheck()
+	{
+		if (world.IsUnitWaitingForSameStop(currentLocation, finalDestinationLoc))
+		{
+			GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLocation);
+			GetInLine();
+			prevTile = currentLocation;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public void TradersHereCheck()
+	{
+		if (atHome && !isMoving)
+		{
+			world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).RemoveTraderFromImprovement(this);
+			//Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+			//   if (bySea)
+			//   {
+			//    if (world.IsCityHarborOnTile(terrainLoc))
+			//	    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
+			//   }
+			//   else
+			//   {
+			//    if (world.IsCityOnTile(terrainLoc))
+			//	    world.GetCity(terrainLoc).tradersHere.Remove(this);
+			//   }
+		}
+	}
+
 	public void FinishMovementTrader(Vector3 endPosition)
     {
-		if (isSelected)
-			world.unitMovement.ShowIndividualCityButtonsUI();
-
 		if (followingRoute)
 		{
-			if (world.IsUnitWaitingForSameStop(currentLocation, finalDestinationLoc))
+			if (atHome)
 			{
-				GoToBackOfLine(world.RoundToInt(finalDestinationLoc), currentLocation);
-				GetInLine();
-				prevTile = currentLocation;
-				return;
+				bool homeCityArrival = bySea ? world.IsCityHarborOnTile(currentLocation) : currentLocation == homeCity;
+
+				if (homeCityArrival)
+				{
+					atHome = false;
+
+					if (homeCity != tradeRouteManager.cityStops[tradeRouteManager.currentStop])
+					{
+						if (!GetInLineCheck())
+							BeginNextStepInRoute();
+						
+						return;
+					}
+				}
 			}
+			
+			if (GetInLineCheck())
+				return;
 
 			TradeRouteCheck(endPosition);
 			
@@ -1001,24 +1047,26 @@ public class Trader : Unit
 			if (homeCityArrival)
 			{
 				if (returning)
-				{
 					GoToStall();
-				}
-				else
+				/*else
 				{
 					atHome = false;
 					BeginNextStepInRoute();
-				}
+				}*/
 			}
 			else if (returning)
 			{
 				returning = false;
 				City city = world.GetCity(homeCity);
-				city.tradersHere.Add(this);
+				world.GetCityDevelopment(city.singleBuildDict[buildDataSO.singleBuildType]).AddTraderToImprovement(this);
+				//city.tradersHere.Add(this);
 				if (city.activeCity && world.unitMovement.upgradingUnit)
 					world.unitMovement.CheckIndividualUnitHighlight(this, city);
 
 				world.AddUnitPosition(currentLocation, this);
+
+				if (isSelected)
+					world.unitMovement.ShowIndividualCityButtonsUI();
 			}
 		}
 
@@ -1049,10 +1097,7 @@ public class Trader : Unit
 			}
 
 			if (world.mainPlayer.runningAway)
-			{
 				world.mainPlayer.StopRunningAway();
-				world.mainPlayer.stepAside = false;
-			}
 		}
 		else
 		{
@@ -1161,10 +1206,10 @@ public class Trader : Unit
 		atHome = data.atHome;
 		returning = data.returning;
 
-		if (atHome)
-			world.GetCity(homeCity).tradersHere.Add(this);
+		if (atHome && !isMoving)
+			world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).AddTraderToImprovement(this);
 
-        if (guarded)
+		if (guarded)
             world.CreateGuard(data.guardUnit, this);
 
 		if (isUpgrading)

@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class GridSearch
 {
-	public static List<Vector3Int> PlayerMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea, bool activePlayer)
+	public static List<Vector3Int> PlayerMove(MapWorld world, Vector3 startLocation, Vector3Int endPosition, bool bySea)
 	{
 		if (bySea)
 			return PlayerMoveSea(world, startLocation, endPosition);
@@ -122,8 +122,7 @@ public class GridSearch
 			}
 		}
 
-		if (activePlayer)
-			InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
 		return path;
 	}
 

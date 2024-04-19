@@ -125,17 +125,17 @@ public class UIResearchReward : MonoBehaviour
         if (improvementData != null)
             researchItem.researchTree.researchTooltip.SetInfo(improvementData.image, improvementData.improvementName, improvementData.improvementDisplayName, improvementData.improvementLevel,
                 improvementData.workEthicChange, improvementData.improvementDescription, improvementData.improvementCost, produces, consumes, produceTime, false, 0, 0, 0, 0,
-                improvementData.housingIncrease, improvementData.waterIncrease, false, Era.None, false, improvementData.rawResourceType == RawResourceType.Rocks);
+                improvementData.housingIncrease, improvementData.waterIncrease, improvementData.powerIncrease, false, Era.None, false, improvementData.rawResourceType == RawResourceType.Rocks);
         else if (unitData != null)
             researchItem.researchTree.researchTooltip.SetInfo(unitData.image, Regex.Replace(unitData.unitType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1"), unitData.unitDisplayName, 
                 unitData.unitLevel, 0, unitData.unitDescription, unitData.unitCost, produces, consumes, produceTime, true, unitData.health, unitData.movementSpeed, unitData.baseAttackStrength, 
-                unitData.cargoCapacity, 0, 0, false, Era.None, false);
+                unitData.cargoCapacity, 0, 0, 0, false, Era.None, false);
         else if (wonderData != null)
             researchItem.researchTree.researchTooltip.SetInfo(wonderData.image, wonderData.wonderName, wonderData.wonderDisplayName, 0, 0, wonderData.wonderDescription, wonderData.wonderCost, produces, 
-                consumes, produceTime, false, 0, 0, 0, 0, 0, 0, true, wonderData.wonderEra, false);
+                consumes, produceTime, false, 0, 0, 0, 0, 0, 0, 0, true, wonderData.wonderEra, false);
         else if (utilityData != null)
 			researchItem.researchTree.researchTooltip.SetInfo(utilityData.image, utilityData.utilityName, utilityData.utilityDisplayName, utilityData.utilityLevel, 0, utilityData.utilityDescription, utilityData.utilityCost, produces,
-				consumes, produceTime, false, 0, 0, 0, 0, 0, 0, false, Era.None, true);
+				consumes, produceTime, false, 0, 0, 0, 0, 0, 0, 0, false, Era.None, true);
 
 		researchItem.researchTree.researchTooltip.ToggleVisibility(true);
         researchItem.researchTree.world.cityBuilderManager.PlaySelectAudio();

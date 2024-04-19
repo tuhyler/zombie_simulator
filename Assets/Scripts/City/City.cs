@@ -55,7 +55,7 @@ public class City : MonoBehaviour
     public Vector3Int cityLoc, waitingAttackLoc;
     [HideInInspector]
     public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, /*hasHarbor, hasBarracks, */highlighted, /*harborTraining,*/
-        hasMarket, isNamed, stopCycle, attacked/*, hasAirport, airportTraining, hasTradeDepot, tradeDepotTraining*/;
+        /*hasMarket, */isNamed, growing, attacked/*, hasAirport, airportTraining, hasTradeDepot, tradeDepotTraining*/;
     [HideInInspector]
     public int lostPop;
 
@@ -75,6 +75,8 @@ public class City : MonoBehaviour
     [HideInInspector]
     public MapWorld world;
 
+    [HideInInspector]
+    public List<SingleBuildType> singleBuildList = new(); //just to prevent building additional ones at same city
     public Dictionary<SingleBuildType, Vector3Int> singleBuildDict = new();
 
     private ResourceManager resourceManager;
@@ -222,7 +224,7 @@ public class City : MonoBehaviour
 		audioSource.Play();
 	}
 
-	public void SetWorld(MapWorld world)
+	public void SetWorld(MapWorld world, bool enemy = false)
     {
         this.world = world;
 		world.CheckCityPermanentChanges(this);
@@ -233,7 +235,8 @@ public class City : MonoBehaviour
         //resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
         //resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
         resourceManager.PrepareResourceDictionary();
-        resourceManager.SetInitialResourceValues();
+        if (!enemy)
+            resourceManager.SetInitialResourceValues();
         //resourceManager.SetPrices();
 
         int i = 0;
@@ -709,7 +712,7 @@ public class City : MonoBehaviour
             tempFoodValue.resourceType = ResourceType.Food;
             tempFoodValue.resourceAmount = growthFood * amount;
             List<ResourceValue> valueList = new() { tempFoodValue };
-            resourceManager.ConsumeResources(valueList, 1, cityLoc, false, true);
+            resourceManager.ConsumeMaintenanceResources(valueList, cityLoc, false);
         }
 
         for (int i = 0; i < amount; i++)
@@ -734,12 +737,12 @@ public class City : MonoBehaviour
                 {
                     if (activeCity)
                     {
-                        world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
-                        CityGrowthProgressBarSetActive(true);
-                        world.cityBuilderManager.abandonCityButton.interactable = false;
+                        //world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
+                        //CityGrowthProgressBarSetActive(true);
+                        //world.cityBuilderManager.abandonCityButton.interactable = false;
                     }
 
-                    if (army.armyCount == 0)
+                    if (!growing)
                         StartGrowthCycle(false);
                 }
                 else if (currentPop == 4)
@@ -813,24 +816,25 @@ public class City : MonoBehaviour
 		if (currentPop <= 3)
         {
             HouseLightCheck();
-			//cityNameField.ToggleVisibility(false);
+            //cityNameField.ToggleVisibility(false);
 
-			if (currentPop == 0 && army.UnitsInArmy.Count == 0)
-            {
-                if (co != null)
-                {
-                    StopCoroutine(co);
-                    stopCycle = true;
-                    //countDownTimer = secondsTillGrowthCheck;
-                    co = null;
-                }
+            StopGrowthCycleCheck();
+			//if (currentPop == 0 && army.UnitsInArmy.Count == 0)
+   //         {
+   //             if (co != null)
+   //             {
+   //                 StopCoroutine(co);
+   //                 stopCycle = true;
+   //                 //countDownTimer = secondsTillGrowthCheck;
+   //                 co = null;
+   //             }
 
-                if (activeCity)
-                {
-                    CityGrowthProgressBarSetActive(false);
-                    world.cityBuilderManager.abandonCityButton.interactable = true;
-                }
-            }
+   //             if (activeCity)
+   //             {
+   //                 CityGrowthProgressBarSetActive(false);
+   //                 world.cityBuilderManager.abandonCityButton.interactable = true;
+   //             }
+   //         }
     //        else if (cityPop.CurrentPop == 3)
     //        {
 				//minimapIcon.sprite = campIcon;
@@ -1184,10 +1188,10 @@ public class City : MonoBehaviour
         return world.CheckWorldGold(amount);
     }
 
-    public int GetWorldGoldLevel()
-    {
-        return world.GetWorldGoldLevel();
-    }
+    //public int GetWorldGoldLevel()
+    //{
+    //    return world.GetWorldGoldLevel();
+    //}
 
  //   public void StartFoodCycle()
  //   {
@@ -1209,10 +1213,40 @@ public class City : MonoBehaviour
             co = null;
 		}
 
-        stopCycle = true;
+        //stopCycle = true;
+        growing = false;
 
         if (activeCity)
+        {
             CityGrowthProgressBarSetActive(false);
+			world.cityBuilderManager.abandonCityButton.interactable = true;
+		}
+    }
+
+    public void StopGrowthCycleCheck()
+    {
+        if (growing)
+        {
+            bool canStop = true;
+            if (currentPop > 0)
+            {
+                canStop = false;
+            }
+            else
+            {
+                foreach (SingleBuildType type in singleBuildDict.Keys)
+                {
+                    if (world.GetCityDevelopment(singleBuildDict[type]).unitsWithinCount > 0)
+                    {
+                        canStop = false;
+                        break;
+                    }
+                }
+            }
+
+            if (canStop)
+                StopGrowthCycle();
+        }
     }
 
     public void StartGrowthCycle(bool load)
@@ -1221,13 +1255,13 @@ public class City : MonoBehaviour
 		{
 			CityGrowthProgressBarSetActive(true);
 			world.cityBuilderManager.abandonCityButton.interactable = false;
-			//world.cityBuilderManager.SetGrowthNumber(unitFoodConsumptionPerMinute);
+			world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
 		}
 
 		if (!load)
             countDownTimer = secondsTillGrowthCheck;
 
-		stopCycle = false;
+        growing = true;
 		co = StartCoroutine(GrowthCycleCoroutine());
     }
 
@@ -1259,21 +1293,44 @@ public class City : MonoBehaviour
         //sell everything next
         world.UpdateWorldResources(ResourceType.Gold, resourceManager.SellResources());
 
-        //for army maintenance
-        if (army.atHome)
-			resourceManager.ConsumeResources(army.GetArmyCycleCost(),1, singleBuildDict[SingleBuildType.Barracks], true);
-        else
-            army.cyclesGone++;
-        //army.AddStagingCostToCycle();
+        //give military food first, then traders
+  //      List<SingleBuildType> armyLocs = new() { SingleBuildType.Barracks, SingleBuildType.Shipyard, SingleBuildType.AirBase };
+  //      List<SingleBuildType> traderLocs = new() { SingleBuildType.TradeDepot, SingleBuildType.Harbor, SingleBuildType.Airport };
+  //      for (int i = 0; i < armyLocs.Count; i++)
+  //      {
+  //          if (singleBuildDict.ContainsKey(armyLocs[i]))
+  //          {
+		//		if (army.atHome)
+		//			resourceManager.ConsumeMaintenanceResources(army.GetArmyCycleCost(), singleBuildDict[armyLocs[i]], true);
+		//		else
+		//			army.cyclesGone++;
+		//	}
+  //      }
+
+  //      for (int i = 0; i < traderLocs.Count; i++)
+  //      {
+		//	if (singleBuildDict.ContainsKey(traderLocs[i]))
+		//		resourceManager.ConsumeMaintenanceResources(world.GetCityDevelopment(singleBuildDict[traderLocs[i]]).GetCycleCost(), singleBuildDict[traderLocs[i]]);
+		//}
+
+        foreach (SingleBuildType type in singleBuildDict.Keys)
+        {
+            if (type == SingleBuildType.Barracks)
+            {
+                if (army.atHome)
+			        resourceManager.ConsumeMaintenanceResources(army.GetArmyCycleCost(), singleBuildDict[type], true);
+                else
+                    army.cyclesGone++;
+            }
+            else
+            {
+                resourceManager.ConsumeMaintenanceResources(world.GetCityDevelopment(singleBuildDict[type]).GetCycleCost(), singleBuildDict[type]);
+            }
+        }
 
         resourceManager.CycleCount++;
 
-        //Debug.Log(cityName + " is checking for growth");
-        //countDownTimer = secondsTillGrowthCheck;
-
-        if (stopCycle)
-            stopCycle = false;
-        else
+        if (growing)
             ContinueGrowthCycle();         
     }
 
@@ -1322,9 +1379,9 @@ public class City : MonoBehaviour
         {
             Debug.Log("canceling send attack wait");
             StopCoroutine(co);
+            
+            co = null;
         }
-
-        co = null;
     }
 
     public void SendAttack()
@@ -1537,18 +1594,35 @@ public class City : MonoBehaviour
 	{
         GameObject enemy;
 
-        if (camp.UnitsInCamp.Count < 3)
-            enemy = empire.enemyLeader.leaderMilitaryUnits[0];
-        else if (camp.UnitsInCamp.Count < 6)
-			enemy = empire.enemyLeader.leaderMilitaryUnits[1];
-		else if (camp.UnitsInCamp.Count < 8)
-			enemy = empire.enemyLeader.leaderMilitaryUnits[2];
+        bool leader = empire.capitalCity == cityLoc && !empire.enemyLeader.isDead, full = camp.campCount >= 8;
+        int leaderInfantry = 0, leaderRanged = 0;
+        List<UnitType> types = new() { UnitType.Infantry, UnitType.Ranged, UnitType.Cavalry };
+        MilitaryLeader empireLeader = null;
+
+        if (leader && !full)
+        {
+            if (empire.enemyLeader.buildDataSO.unitType == UnitType.Infantry)
+                leaderInfantry++;
+            else if (empire.enemyLeader.buildDataSO.unitType == UnitType.Ranged)
+                leaderRanged++;
+
+            types.Remove(empire.enemyLeader.buildDataSO.unitType);
+            empireLeader = empire.enemyLeader;
+        }
+
+
+		if (camp.infantryCount + leaderInfantry < 3)
+            enemy = empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefab;
+        else if (camp.rangedCount + leaderRanged < 3)
+			enemy = empire.enemyLeader.leaderUnitDict[UnitType.Ranged].prefab;
+		else if (camp.cavalryCount < 2)
+			enemy = empire.enemyLeader.leaderUnitDict[UnitType.Cavalry].prefab;
 		else
-            enemy = empire.enemyLeader.leaderMilitaryUnits[UnityEngine.Random.Range(0, 3)];
+            enemy = empire.enemyLeader.leaderUnitDict[types[UnityEngine.Random.Range(0, types.Count)]].prefab;
 
 		UnitType type = enemy.GetComponent<Military>().buildDataSO.unitType;
 		Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
-		Vector3Int newSpot = camp.GetAvailablePosition(type);
+		Vector3Int newSpot = camp.GetAvailablePosition(type, empireLeader);
         GameObject enemyGO = Instantiate(enemy, newSpot, rotation);
 		enemyGO.transform.SetParent(world.enemyUnitHolder, false);
 		Unit unitEnemy = enemyGO.GetComponent<Unit>();
@@ -1620,8 +1694,8 @@ public class City : MonoBehaviour
 
     public void CityGrowthProgressBarSetActive(bool v)
     {
-        if (v && currentPop == 0 && army.UnitsInArmy.Count == 0)
-            return;
+        //if (v && currentPop == 0 && army.UnitsInArmy.Count == 0)
+        //    return;
 
         uiTimeProgressBar.gameObject.SetActive(v);
         if (v)
@@ -1835,18 +1909,18 @@ public class City : MonoBehaviour
         }
     }
 
-    public void SetNewTerrainData(TerrainData td)
-    {
-        TerrainDataSO tempData;
+ //   public void SetNewTerrainData(TerrainData td)
+ //   {
+ //       TerrainDataSO tempData;
 
-		if (td.isHill)
-			tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
-		else
-			tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
+	//	if (td.isHill)
+	//		tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
+	//	else
+	//		tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
 
-        td.SetNewData(tempData);
-        GameLoader.Instance.gameData.allTerrain[td.TileCoordinates] = td.SaveData();
-	}
+ //       td.SetNewData(tempData);
+ //       GameLoader.Instance.gameData.allTerrain[td.TileCoordinates] = td.SaveData();
+	//}
 
 	//for queued build items
 	public void GoToNextItemInQueue()
@@ -1943,6 +2017,7 @@ public class City : MonoBehaviour
                 cityImprovement.city = this;
 
                 SingleBuildType buildType = cityImprovement.GetImprovementData.singleBuildType;
+                singleBuildList.Add(buildType);
                 singleBuildDict[buildType] = tile;
                 world.AddToCityLabor(tile, cityLoc);
 
@@ -1999,6 +2074,14 @@ public class City : MonoBehaviour
 			world.GetTerrainDataAt(cityLoc).EnableHighlight(Color.red);
 			world.cityBuilderManager.ToggleEnemyBuildingHighlight(cityLoc, Color.red);
 		}
+	}
+
+    public void ActivateButHideCity()
+    {
+		gameObject.SetActive(true);
+		subTransform.gameObject.SetActive(false);
+		cityNameField.ToggleVisibility(false);
+		cityNameMap.gameObject.SetActive(false);
 	}
 
     public void RevealUnitsInCamp()
@@ -2092,7 +2175,6 @@ public class City : MonoBehaviour
 			//countDownTimer = secondsTillGrowthCheck;
 			co = null;
         }
-        stopCycle = true;
 
         Destroy(uiTimeProgressBar.gameObject);
     }
@@ -2127,6 +2209,9 @@ public class City : MonoBehaviour
         data.countDownTimer = countDownTimer;
         data.lostPop = lostPop;
         data.attacked = attacked;
+        data.growing = growing;
+        if (singleBuildList != null)
+            data.singleBuildList = new(singleBuildList);
 
         //for (int i = 0; i < tradersHere.Count; i++)
         //{
@@ -2266,8 +2351,10 @@ public class City : MonoBehaviour
         countDownTimer = data.countDownTimer;
         lostPop = data.lostPop;
         attacked = data.attacked;
+        growing = data.growing;
+        singleBuildList = data.singleBuildList;
 
-        if (currentPop > 0)
+        if (growing)
         {
             StartGrowthCycle(true);
             
@@ -2332,7 +2419,7 @@ public class City : MonoBehaviour
 		resourceManager.resourcesNeededForRoute = data.resourcesNeededForRoute;
 
 		//army data
-		if (singleBuildDict.ContainsKey(SingleBuildType.Barracks))
+		if (singleBuildList.Contains(SingleBuildType.Barracks))
         {
             ArmyData armyData = GameLoader.Instance.gameData.allArmies[cityLoc];
             army.forward = armyData.forward;

@@ -32,7 +32,7 @@ public class BodyGuard : Military
 	{
 		healthbar.CancelRegeneration();
 		StopMovementCheck(false);
-		world.scott.StopMovementCheck(false);
+		world.scott.StopMovementCheck(true);
 
 		//world.mainPlayer.runningAway = true;
 		//world.azaiFollow = false;
@@ -57,6 +57,10 @@ public class BodyGuard : Military
 		{
 			finalDestinationLoc = path[path.Count - 1];
 			MoveThroughPath(path);
+		}
+		else
+		{
+			FinishMoving(transform.position);
 		}
 	}
 
@@ -151,6 +155,9 @@ public class BodyGuard : Military
 		bool firstOne = true;
 		foreach (Vector3Int tile in world.GetNeighborsFor(scottSpot, MapWorld.State.EIGHTWAY))
 		{
+			if (world.IsInBattleArea(tile))
+				continue;
+			
 			if (firstOne)
 			{
 				firstOne = false;
@@ -167,7 +174,7 @@ public class BodyGuard : Military
 			}
 		}
 
-		List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, currentLoc, finalLoc, false, false);
+		List<Vector3Int> azaiPath = GridSearch.MilitaryMove(world, currentLoc, finalLoc, false);
 
 		if (azaiPath.Count > 0)
 		{
@@ -182,7 +189,7 @@ public class BodyGuard : Military
 
 	public void FollowScott(List<Vector3Int> scottPath, Vector3 currentLoc)
 	{
-		List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, transform.position, world.RoundToInt(currentLoc), false, false);
+		List<Vector3Int> azaiPath = GridSearch.MilitaryMove(world, transform.position, world.RoundToInt(currentLoc), false);
 		scottPath.RemoveAt(scottPath.Count - 1);
 		azaiPath.AddRange(scottPath);
 
@@ -204,13 +211,9 @@ public class BodyGuard : Military
 		List<Vector3Int> path;
 
 		if (enemy)
-		{
 			path = GridSearch.PlayerMoveExempt(world, transform.position, newPos, exemptList);
-		}
 		else
-		{
-			path = GridSearch.PlayerMove(world, transform.position, newPos, false, false);
-		}
+			path = GridSearch.MilitaryMove(world, transform.position, newPos, false);
 
 		if (path.Count > 0)
 		{
@@ -220,6 +223,10 @@ public class BodyGuard : Military
 		else if (loading)
 		{
 			LoadBodyGuardInTransport(transportTarget);
+		}
+		else
+		{
+			FinishMoving(transform.position);
 		}
 	}
 

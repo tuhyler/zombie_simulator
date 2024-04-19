@@ -29,7 +29,7 @@ MonoBehaviour:
   availableInitially: 0
   health: 50
   regenerationRate: 16
-  baseAttackStrength: 2
+  baseAttackStrength: 6
   baseAttackSpeed: 2
   movementSpeed: 2
   trainTime: 0
@@ -38,8 +38,6 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 0
   npc: 0
-  borderColor: {r: 0, g: 0, b: 0, a: 0}
-  colorOne: {x: 0, y: 0}
-  colorTwo: {x: 0, y: 0}
+  singleBuildType: 0
   unitEra: 0
   unitRegion: 1

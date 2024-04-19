@@ -8,10 +8,11 @@ public class CityData
     public string name;
 	public Vector3Int location;
 	public bool reachedWaterLimit, /*harborTraining,*/ /*autoGrow,*/ autoAssignLabor, hasWater, hasFreshWater, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, /*hasBarracks, hasHarbor,*/ 
-		fullInventory, isNamed, attacked/*, hasAirport, airportTraining*/;
+		fullInventory, isNamed, attacked/*, hasAirport, airportTraining*/, growing;
 	public int waterMaxPop, currentPop, unusedLabor, usedLabor, countDownTimer, warehouseStorageLevel, lostPop;
 	public List<ResourceType> resourcePriorities;
 	public Dictionary<ResourceType, int> resourceGridDict;
+	public List<SingleBuildType> singleBuildList;
 	//public List<int> tradersHere = new();
 
 	//resource manager data

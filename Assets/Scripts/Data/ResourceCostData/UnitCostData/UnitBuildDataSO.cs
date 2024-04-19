@@ -30,9 +30,6 @@ public class UnitBuildDataSO : ScriptableObject
     public TransportationType transportationType = TransportationType.Land;
     public bool characterUnit;
     public bool npc;
-    public Color borderColor;
-    public Vector2 colorOne;
-    public Vector2 colorTwo;
     public SingleBuildType singleBuildType;
     public Era unitEra;
     public Region unitRegion = Region.None;
@@ -48,7 +45,8 @@ public enum UnitType
     Trader,
     BoatTrader,
     Transport,
-    TradeRepresentative
+    TradeRepresentative,
+    Laborer
 }
 
 public enum TransportationType

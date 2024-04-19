@@ -352,21 +352,21 @@ public class Unit : MonoBehaviour
 				    return;
 			    }
             }
-            else
-            {
-                TradersHereCheck();
-    //            Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-				//if (bySea)
-    //            {
-				//	if (world.IsCityHarborOnTile(terrainLoc))
-    //                    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
-    //            }
-    //            else
-    //            {
-    //                if (world.IsCityOnTile(terrainLoc))
-    //                    world.GetCity(terrainLoc).tradersHere.Remove(this);
-    //            }
-            }
+    //        else
+    //        {
+    //            TradersHereCheck();
+    ////            Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+				////if (bySea)
+    ////            {
+				////	if (world.IsCityHarborOnTile(terrainLoc))
+    ////                    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
+    ////            }
+    ////            else
+    ////            {
+    ////                if (world.IsCityOnTile(terrainLoc))
+    ////                    world.GetCity(terrainLoc).tradersHere.Remove(this);
+    ////            }
+    //        }
         }
 
 		Vector3 firstTarget = pathPositions.Dequeue();
@@ -477,13 +477,11 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)))
+        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.atHome)
         {
             if (trader.followingRoute)
-            {
                 trader.InterruptRoute(true);
-            }
-                
+            
             FinishMoving(transform.position);
             yield break;
         }
@@ -691,23 +689,24 @@ public class Unit : MonoBehaviour
    //     }
     }
 
-    public void TradersHereCheck()
-    {
-		if (!isMoving)
-        {
-            Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-		    if (bySea)
-		    {
-			    if (world.IsCityHarborOnTile(terrainLoc))
-				    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
-		    }
-		    else
-		    {
-			    if (world.IsCityOnTile(terrainLoc))
-				    world.GetCity(terrainLoc).tradersHere.Remove(this);
-		    }
-        }
-	}
+ //   public void TradersHereCheck()
+ //   {
+	//	if (!isMoving)
+ //       {
+	//		world.GetCityDevelopment(world.GetCity(trader.homeCity).singleBuildDict[buildDataSO.singleBuildType]).RemoveTraderFromImprovement(this);
+	//		//Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
+	//	 //   if (bySea)
+	//	 //   {
+	//		//    if (world.IsCityHarborOnTile(terrainLoc))
+	//		//	    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
+	//	 //   }
+	//	 //   else
+	//	 //   {
+	//		//    if (world.IsCityOnTile(terrainLoc))
+	//		//	    world.GetCity(terrainLoc).tradersHere.Remove(this);
+	//	 //   }
+ //       }
+	//}
 
     //public void ShiftMovement()
     //{
@@ -1360,7 +1359,11 @@ public class Unit : MonoBehaviour
             else
             {
                 unitMesh.SetActive(true);
-            }
+
+                TerrainData td = world.GetTerrainDataAt(world.RoundToInt(transform.position));
+				if (!td.CompareTag("Forest") && !td.CompareTag("Forest Hill"))
+					marker.gameObject.SetActive(false);
+			}
             if (currentHealth < healthMax)
     		    healthbar.gameObject.SetActive(true);
             hidden = false;

@@ -26,7 +26,7 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, stepAside, toTransport, inTransport, inEnemyLines;
+    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, toTransport, inTransport, inEnemyLines;
     public int clearingForestTime = 1, cityBuildingTime = 2, roadBuildingTime = 1, roadRemovingTime = 2;
     public int clearedForestlumberAmount = 100;
     public AudioClip[] gatheringClips;
@@ -1122,6 +1122,9 @@ public class Worker : Unit
                 if (neighborList[i] == currentSpot)
                     continue;
 
+				if (world.IsInBattleArea(neighborList[i]))
+					continue;
+
                 int newDist = Mathf.Abs(scottSpot.x - neighborList[i].x) + Mathf.Abs(scottSpot.z - neighborList[i].z);
                 if (newDist < dist)
                 {
@@ -1196,6 +1199,9 @@ public class Worker : Unit
 			if (world.IsUnitLocationTaken(tile))
 				continue;
 
+			if (world.IsInBattleArea(tile))
+				continue;
+
 			if (firstOne)
 			{
 				firstOne = false;
@@ -1212,7 +1218,7 @@ public class Worker : Unit
 			}
 		}
 
-		List<Vector3Int> path = GridSearch.PlayerMove(world, transform.position, finalLoc, false, false);
+		List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, finalLoc, false);
 
 		if (path.Count > 0)
 		{
@@ -1224,7 +1230,7 @@ public class Worker : Unit
 				world.azai.StopMovementCheck(false);
 				//world.azai.ShiftMovement();
 
-				List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, world.azai.transform.position, world.RoundToInt(transform.position), false, false);
+				List<Vector3Int> azaiPath = GridSearch.MilitaryMove(world, world.azai.transform.position, world.RoundToInt(transform.position), false);
 				azaiPath.AddRange(path);
 				Vector3Int azaiFinalLoc = path[path.Count - 1];
 				azaiPath.Remove(azaiFinalLoc);
@@ -1247,7 +1253,7 @@ public class Worker : Unit
 
 	public void FollowScott(List<Vector3Int> scottPath, Vector3 currentLoc)
 	{
-		List<Vector3Int> azaiPath = GridSearch.PlayerMove(world, transform.position, world.RoundToInt(currentLoc), false, false);
+		List<Vector3Int> azaiPath = GridSearch.MilitaryMove(world, transform.position, world.RoundToInt(currentLoc), false);
 		scottPath.RemoveAt(scottPath.Count - 1);
 		azaiPath.AddRange(scottPath);
 
@@ -1335,7 +1341,7 @@ public class Worker : Unit
 		if (world.mainPlayer.inEnemyLines)
 			scottPath = GridSearch.PlayerMoveExempt(world, currentScottSpot, currentSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
 		else
-			scottPath = GridSearch.PlayerMove(world, currentScottSpot, currentSpot, false, false);
+			scottPath = GridSearch.MilitaryMove(world, currentScottSpot, currentSpot, false);
 		scottPath.AddRange(path);
 		scottPath.Remove(finalSpot);
 
@@ -1363,12 +1369,12 @@ public class Worker : Unit
 			if (world.mainPlayer.inEnemyLines)
 				azaiPath = GridSearch.PlayerMoveExempt(world, currentAzaiSpot, currentScottSpot, world.GetExemptList(world.mainPlayer.finalDestinationLoc));
 			else
-				azaiPath = GridSearch.PlayerMove(world, currentAzaiSpot, currentScottSpot, false, false);
+				azaiPath = GridSearch.MilitaryMove(world, currentAzaiSpot, currentScottSpot, false);
 
 			azaiPath.AddRange(scottPath);
 			azaiPath.Remove(finalScottSpot);
 
-			world.azai.StopMovementCheck(false);
+			//world.azai.StopMovementCheck(false);
 			if (azaiPath.Count > 0)
 			{
 				world.azai.finalDestinationLoc = azaiPath[azaiPath.Count - 1];
@@ -1435,7 +1441,7 @@ public class Worker : Unit
 	{
 		if (world.scottFollow)
 		{
-			if (!isBusy)
+			if (!isBusy && !runningAway)
 			{
 				worker.HandleSelectedFollowerLoc(pathPositions, endPositionInt, world.RoundToInt(finalDestinationLoc));
 			}
@@ -1459,6 +1465,9 @@ public class Worker : Unit
 			int dist = 0;
 			foreach (Vector3Int tile in world.GetNeighborsFor(newLoc, MapWorld.State.EIGHTWAY))
 			{
+				if (world.IsInBattleArea(tile))
+					continue;
+				
 				if (firstOne)
 				{
 					firstOne = false;
@@ -1497,13 +1506,9 @@ public class Worker : Unit
 		List<Vector3Int> path;
 		
 		if (enemy)
-		{
 			path = GridSearch.PlayerMoveExempt(world, transform.position, newPos, exemptList);
-		}
 		else
-		{
-			path = GridSearch.PlayerMove(world, transform.position, newPos, false, false);
-		}
+			path = GridSearch.MilitaryMove(world, transform.position, newPos, false);
 
 		if (path.Count > 0)
 		{
@@ -1513,6 +1518,10 @@ public class Worker : Unit
 		else if (loading)
 		{
 			LoadWorkerInTransport(transportTarget);
+		}
+		else
+		{
+			FinishMoving(transform.position);
 		}
 	}
 
@@ -1602,54 +1611,54 @@ public class Worker : Unit
 		world.azai.StopMovementCheck(false);
 	}
 
-	public void StartRunningAway()
-	{
-		if (!runningAway)
-		{
-			exclamationPoint.SetActive(true);
-			runningAway = true;
-			StartCoroutine(RunAway());
-		}
-	}
+	//public void StartRunningAway()
+	//{
+	//	if (!runningAway)
+	//	{
+	//		exclamationPoint.SetActive(true);
+	//		runningAway = true;
+	//		StartCoroutine(RunAway());
+	//	}
+	//}
 
-	private IEnumerator RunAway()
-	{
-		//have to do the two following just in case
-		pathPositions.Clear();
-		isMoving = false;
-		yield return new WaitForSeconds(1);
+	//private IEnumerator RunAway()
+	//{
+	//	//have to do the two following just in case
+	//	pathPositions.Clear();
+	//	isMoving = false;
+	//	yield return new WaitForSeconds(1);
 
-		//finding closest city
-		Vector3Int safeTarget = world.startingLoc;
+	//	//finding closest city
+	//	Vector3Int safeTarget = world.startingLoc;
 
-		bool firstOne = true;
-		int dist = 0;
-		foreach (City city in world.cityDict.Values)
-		{
-			if (firstOne)
-			{
-				firstOne = false;
-				dist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
-				safeTarget = city.cityLoc;
-				continue;
-			}
+	//	bool firstOne = true;
+	//	int dist = 0;
+	//	foreach (City city in world.cityDict.Values)
+	//	{
+	//		if (firstOne)
+	//		{
+	//			firstOne = false;
+	//			dist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
+	//			safeTarget = city.cityLoc;
+	//			continue;
+	//		}
 
-			int newDist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
-			if (newDist < dist)
-			{
-				safeTarget = city.cityLoc;
-				dist = newDist;
-			}
-		}
+	//		int newDist = Mathf.Abs(city.cityLoc.x - currentLocation.x) + Mathf.Abs(city.cityLoc.z - currentLocation.z);
+	//		if (newDist < dist)
+	//		{
+	//			safeTarget = city.cityLoc;
+	//			dist = newDist;
+	//		}
+	//	}
 
-		finalDestinationLoc = safeTarget;
-		firstStep = true;
-		List<Vector3Int> runAwayPath = GridSearch.PlayerMove(world, currentLocation, safeTarget, false, false);
+	//	finalDestinationLoc = safeTarget;
+	//	firstStep = true;
+	//	List<Vector3Int> runAwayPath = GridSearch.PlayerMove(world, currentLocation, safeTarget, false, false);
 
-		//in case already home
-		if (runAwayPath.Count > 0)
-			MoveThroughPath(runAwayPath);
-	}
+	//	//in case already home
+	//	if (runAwayPath.Count > 0)
+	//		MoveThroughPath(runAwayPath);
+	//}
 
 	public void StopRunningAway()
 	{
@@ -1670,7 +1679,7 @@ public class Worker : Unit
 			if (route != null && route.Contains(tile))
 				continue;
 
-			if (world.PlayerCheckIfPositionIsValid(tile))
+			if (world.PlayerCheckIfPositionIsValid(tile) && !world.CheckIfEnemyTerritory(tile))
 			{
 				safeTarget = tile;
 				break;
@@ -1678,12 +1687,15 @@ public class Worker : Unit
 		}
 
 		finalDestinationLoc = safeTarget;
-		firstStep = true;
-		List<Vector3Int> runAwayPath = GridSearch.PlayerMove(world, currentLocation, safeTarget, false, false);
+		//firstStep = true;
+
+		List<Vector3Int> runAwayPath = GridSearch.MilitaryMove(world, currentLocation, safeTarget, false);
 
 		//in case already there
 		if (runAwayPath.Count > 0)
 			MoveThroughPath(runAwayPath);
+		else
+			FinishMoving(transform.position);
 
 		RealignFollowers(safeTarget, currentLocation, false);
 	}
@@ -1746,11 +1758,19 @@ public class Worker : Unit
 
 		world.IsTreasureHere(endPositionInt, true);
 
-			if (world.IsInBattleArea(endPositionInt))
-			{
-				StepAside(currentLocation);
-				return;
-			}
+		if (world.IsInBattleArea(endPositionInt))
+		{
+			if (isBusy)
+				world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
+			
+			runningAway = true;
+			//isBusy = true;
+
+			StopPlayer();
+			exclamationPoint.SetActive(true);
+			StepAside(currentLocation, null);
+			return;
+		}
 
 		if (toTransport && !transportTarget.isUpgrading)
 		{
@@ -1836,8 +1856,8 @@ public class Worker : Unit
         data.buildingCity = buildingCity;
         data.harvested = harvested;
         data.harvestedForest = harvestedForest;
-        data.runningAway = runningAway;
-        data.stepAside = stepAside;
+        //data.runningAway = runningAway; //not saving running away just in case
+        //data.stepAside = stepAside;
         data.orderList = orderList;
         data.timePassed = timePassed;
 		data.toTransport = toTransport;
@@ -1881,8 +1901,8 @@ public class Worker : Unit
         harvested = data.harvested;
         harvestedForest = data.harvestedForest;
         orderList = data.orderList;
-        runningAway = data.runningAway;
-        stepAside = data.stepAside;
+        //runningAway = data.runningAway;
+        //stepAside = data.stepAside;
 		//somethingToSay = data.somethingToSay;
 		toTransport = data.toTransport;
 		inTransport = data.inTransport;
@@ -1890,8 +1910,8 @@ public class Worker : Unit
 		prevFriendlyTile = data.prevFriendlyTile;
 		transportTarget = world.LoadTransport(data.transportTarget);
 
-        if (runningAway)
-            exclamationPoint.SetActive(true);
+        //if (runningAway)
+        //    exclamationPoint.SetActive(true);
 
 		orderQueue = new Queue<Vector3Int>(orderList);
 
@@ -2047,14 +2067,14 @@ public class Worker : Unit
 				//workerTaskManager.LoadBuildCityCoroutine(data.timePassed, CurrentLocation, this);	
 			}
         }
-        else if (runningAway)
-        {
-			if (!stepAside)
-            {
-    			runningAway = false; //gets reset in next method
-                StartRunningAway();
-            }
-		}
+  //      else if (runningAway)
+  //      {
+		//	if (!stepAside)
+  //          {
+  //  			runningAway = false; //gets reset in next method
+  //              StartRunningAway();
+  //          }
+		//}
 
 		if (inTransport)
 			gameObject.SetActive(false);

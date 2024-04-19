@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using static Unity.Burst.Intrinsics.X86.Avx;
 using static UnityEngine.GraphicsBuffer;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -283,7 +284,13 @@ public class EnemyCamp
 		{
 			if (unit.isDead)
 				continue;
-			
+
+			if (!unit.gameObject.activeSelf)
+			{
+				unit.gameObject.SetActive(true);
+				unit.HideUnit(false);
+			}
+
 			if (unit.buildDataSO.unitType != UnitType.Cavalry)
 				unit.ToggleSitting(false);
 			
@@ -406,19 +413,28 @@ public class EnemyCamp
 		if (unit.currentHealth < unit.buildDataSO.health)
 			unit.healthbar.RegenerateHealth();
 
-		if (enemyReady == campCount - deathCount)
-		{
-			if (attackingArmy != null)
-				attackingArmy.inBattle = false;
-			inBattle = false;
-			enemyReady = 0;
-			ResetStatus();
-		
-			ResurrectCamp();
+		if (!world.GetTerrainDataAt(unit.currentLocation).isDiscovered)
+			unit.gameObject.SetActive(false);
 
-			if (isCity)
-				RestartCityCheck();
-		}
+		if (enemyReady == campCount - deathCount)
+			ResetCampToBase();
+	}
+
+	public void ResetCampToBase()
+	{
+		if (attackingArmy != null)
+			attackingArmy.inBattle = false;
+		inBattle = false;
+		enemyReady = 0;
+		moveToLoc = loc;
+		GameLoader.Instance.gameData.movingEnemyBases.Remove(loc);
+		world.mainPlayer.StopRunningAway();
+		ResetStatus();
+
+		ResurrectCamp();
+
+		if (isCity)
+			RestartCityCheck();
 	}
 
 	public void Charge()
@@ -429,7 +445,7 @@ public class EnemyCamp
 		{
 			unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
 
-			if (world.CheckIfTileIsImproved(world.GetClosestTerrainLoc(unit.currentLocation)))
+			if (world.CompletedImprovementCheck(world.GetClosestTerrainLoc(unit.currentLocation)))
 				unit.strengthBonus += Mathf.RoundToInt(world.GetCityDevelopment(world.GetClosestTerrainLoc(unit.currentLocation)).GetImprovementData.attackBonus * 0.01f * unit.attackStrength);
 
 			if (unit.isSelected)
@@ -586,22 +602,35 @@ public class EnemyCamp
 				attackingArmy.movementRange.Clear();
 				attackingArmy.cavalryRange.Clear();
 				attackingArmy.targetCamp = null;
-				attackingArmy.defending = false;
+				//attackingArmy.defending = false;
 				attackingArmy.battleAtSea = false;
-				attackingArmy = null; //so that safety nets are thrown
 
 				if (movingOut)
 				{
-					if (fieldBattleLoc != cityLoc)
+					if (deathCount < 9)
 					{
-						RemoveOut();
-						return true;
-					}
+						attackingArmy = null; //so that safety nets are thrown
+						if (fieldBattleLoc != cityLoc)
+						{
+							RemoveOut();
+							return true;
+						}
 					
-					GoToPillage();
-					pillage = true;
+						GoToPillage();
+						pillage = true;
+					}
+					else
+					{
+						attackingArmy.defending = false;
+						attackingArmy = null;
+					}
 
 					return true;
+				}
+				else
+				{
+					attackingArmy.defending = false; //defending is ended normally after pillaging
+					attackingArmy = null;
 				}
 			}
 
@@ -627,6 +656,15 @@ public class EnemyCamp
 				else
 					world.RemoveEnemyCamp(attackingArmy.enemyTarget, isCity);
 			}
+		}
+	}
+
+	//in case of ties
+	public void FinishBattleCheck()
+	{
+		if (deathCount == campCount)
+		{
+			attackingArmy.FinishAttack();
 		}
 	}
 
@@ -733,6 +771,12 @@ public class EnemyCamp
 			world.AddUnitPosition(benchedUnit.currentLocation, benchedUnit);
 			unitsInCamp.Add(benchedUnit);
 			benchedUnit = null;
+		}
+		else if (isCity && world.GetEnemyCity(cityLoc).empire.capitalCity == cityLoc)
+		{
+			MilitaryLeader leader = world.GetEnemyCity(cityLoc).empire.enemyLeader;
+			unitsInCamp.Remove(leader);
+			leader.FinishBattle();
 		}
 	}
 
@@ -969,7 +1013,11 @@ public class EnemyCamp
 	private void GoToPillage()
 	{
 		returning = false;
-		
+
+		if (world.mainPlayer.runningAway)
+			world.mainPlayer.StopRunningAway();
+		world.CheckMainPlayerLoc(actualAttackLoc, moveToLoc);
+
 		if (actualAttackLoc != moveToLoc)
 		{
 			Vector3Int originalAttackLoc;
@@ -1094,12 +1142,12 @@ public class EnemyCamp
 	public void FinishPillage()
 	{
 		if (world.mainPlayer.runningAway)
-		{
 			world.mainPlayer.StopRunningAway();
-			world.mainPlayer.stepAside = false;
-		}
 
-		world.GetCity(moveToLoc).attacked = false;
+		City city = world.GetCity(moveToLoc);
+		city.attacked = false;
+		if (city.army != null)
+			city.army.defending = false;
 		world.cityDict[moveToLoc].BePillaged(unitsInCamp.Count - deathCount);
 		pillage = false;
 
@@ -1121,7 +1169,7 @@ public class EnemyCamp
 			if (close && !attackingArmy.defending)
 				world.CityBattleStations(moveToLoc, actualAttackLoc, threatLoc, this);
 
-			world.CheckMainPlayerLoc(lastSpot, pathToTarget);
+			world.CheckMainPlayerLoc(lastSpot, actualAttackLoc, pathToTarget);
 
 			if (seaTravel)
 			{
@@ -1144,7 +1192,7 @@ public class EnemyCamp
 				{
 					if (unitsInCamp[0].pathPositions.Count > 0)
 					{
-						if (!world.GetTerrainDataAt(endPositionInt).isLand && !world.GetTerrainDataAt(unitsInCamp[0].pathPositions.Peek()).isLand)
+						if (!world.GetTerrainDataAt(lastSpot).isLand && !world.GetTerrainDataAt(unitsInCamp[0].pathPositions.Peek()).isLand)
 						{
 							atSea = true;
 							for (int i = 0; i < unitsInCamp.Count; i++)				
@@ -1155,12 +1203,13 @@ public class EnemyCamp
 			}
 			else
 			{
-				if (world.IsRoadOnTileLocation(endPositionInt))
-					CheckForWeaklings(endPositionInt, false);
+				if (world.IsRoadOnTileLocation(lastSpot))
+					CheckForWeaklings(lastSpot, false);
 
-				if (world.CheckIfTileIsImproved(endPositionInt))
+				if (world.TileHasCityImprovement(lastSpot) && !world.GetCityDevelopment(lastSpot).CompareTag("Enemy"))
 				{
-
+					if (world.cityBuilderManager.RemoveImprovement(lastSpot, world.GetCityDevelopment(lastSpot), false, false, true))
+						world.cityBuilderManager.PlayAudioClip(world.cityBuilderManager.removeClip);
 				}
 			}
 
@@ -1191,6 +1240,15 @@ public class EnemyCamp
 			}
 		}
 	}
+
+	//public void DestroyTileCheck(Vector3Int endPositionInt)
+	//{
+	//	if (world.IsRoadOnTileLocation(endPositionInt))
+	//		CheckForWeaklings(endPositionInt, false);
+
+	//	if (world.CheckIfTileIsImproved(endPositionInt) || world.CheckIfTileIsUnderConstruction(endPositionInt))
+	//		world.cityBuilderManager.RemoveImprovement(endPositionInt, world.GetCityDevelopment(endPositionInt), world.GetCity(moveToLoc), false, false, true);
+	//}
 
 	public bool MoveOut(City targetCity)
 	{
@@ -1246,6 +1304,7 @@ public class EnemyCamp
 
 		if (pathToTarget.Count > 0)
 		{
+			world.CheckMainPlayerLoc(loc, targetCity.cityLoc, pathToTarget);
 			//finding best spot to attack from
 			pathToTarget = FindOptimalAttackZone(pathToTarget, moveToLoc, seaTravel, false);
 
@@ -1510,12 +1569,28 @@ public class EnemyCamp
 		return currentPath;
 	}
 
-	public Vector3Int GetAvailablePosition(UnitType type)
+	public Vector3Int GetAvailablePosition(UnitType type, MilitaryLeader leader = null)
 	{
 		Vector3Int openSpot = openSpots[0];
 
 		switch (type)
 		{
+			case UnitType.Infantry:
+				Vector3Int[] frontSpots = new Vector3Int[4] { new Vector3Int(0, 0, -1), new Vector3Int(-1, 0, -1), new Vector3Int(1, 0, -1) , new Vector3Int(0, 0, 0) };
+				for (int i = 0; i < frontSpots.Length; i++)
+				{
+					Vector3Int trySpot = frontSpots[i] + loc;
+
+					if (openSpots.Contains(trySpot))
+					{
+						if (leader && leader.buildDataSO.unitType == UnitType.Infantry && trySpot == leader.barracksBunk)
+							continue;
+
+						openSpot = trySpot;
+						break;
+					}
+				}
+				break;
 			case UnitType.Ranged:
 				Vector3Int[] backSpots = new Vector3Int[6] { new Vector3Int(0, 0, 1), new Vector3Int(-1, 0, 1), new Vector3Int(1, 0, 1), new Vector3Int(0, 0, 0), new Vector3Int(-1, 0, 0), new Vector3Int(0, 0, 1) };
 
@@ -1525,6 +1600,9 @@ public class EnemyCamp
 
 					if (openSpots.Contains(trySpot))
 					{
+						if (leader && leader.buildDataSO.unitType == UnitType.Ranged && trySpot == leader.barracksBunk)
+							continue;
+						
 						openSpot = trySpot;
 						break;
 					}
@@ -1540,6 +1618,9 @@ public class EnemyCamp
 
 					if (openSpots.Contains(trySpot))
 					{
+						if (leader && leader.buildDataSO.unitType == UnitType.Cavalry && trySpot == leader.barracksBunk)
+							continue;
+
 						openSpot = trySpot;
 						break;
 					}
@@ -1600,37 +1681,61 @@ public class EnemyCamp
 		Vector3 rayCastLoc = centerLoc;
 		rayCastLoc.y += increase;
 
-		float distance = 1.5f;
+		float distance = 2f;
 		if (largeRadius)
-			distance = 2.5f;
+			distance = 3f;
 
 		RaycastHit hit;
 
-		foreach (Vector3Int loc in world.GetNeighborsFor(centerLoc, MapWorld.State.EIGHTWAY))
+		List<Vector3Int> directions = world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY);
+		directions.Add(Vector3Int.zero);
+		foreach (Vector3 direction in directions)
 		{
-			Vector3 direction = loc;
-			direction.y += 0.5f;
+			Vector3 pos = direction;
+			if (isHill)
+				pos.y -= 1f;
 
-			Unit unit = null;
-
-			while (unit != null)
+			//can't only hit one at a time, not sure how to hit through objects that's already been hit
+			if (Physics.Raycast(rayCastLoc, pos, out hit, distance, world.enemyKillLayerMask))
 			{
-				if (Physics.Raycast(rayCastLoc, loc, out hit, distance, world.enemyKillLayerMask))
-				{
-					GameObject hitGO = hit.collider.gameObject;
+				GameObject hitGO = hit.collider.gameObject;
 
-					if (hitGO && hitGO.TryGetComponent(out unit))
+				if (hitGO && hitGO.TryGetComponent(out Unit unit))
+				{
+					if (!world.characterUnits.Contains(unit))
 					{
-						if (!world.characterUnits.Contains(unit))
-							unit.KillUnit(centerLoc - unit.transform.position);
-					}
-					else
-					{
-						unit = null;
+						if (!unit.military || unit.military.transferring || unit.military.guard)
+						{
+							Vector3 lookDirection = unit.transform.position - centerLoc;
+							Quaternion endRotation;
+							if (lookDirection == Vector3.zero)
+								endRotation = Quaternion.identity;
+							else
+								endRotation = Quaternion.LookRotation(lookDirection, Vector3.up);
+
+							if (unit.trader && unit.trader.guarded)
+								unit.trader.guardUnit.KillUnit(endRotation.eulerAngles);
+							else if (unit.military && unit.military.guard)
+								unit.military.guardedTrader.KillUnit(endRotation.eulerAngles);
+							unit.KillUnit(endRotation.eulerAngles);
+						}
 					}
 				}
 			}
 		}
+	}
+
+	public MilitaryLeader GetLeader()
+	{
+		if (isCity)
+		{
+			City enemyCity = world.GetEnemyCity(cityLoc);
+
+			if (enemyCity.empire.capitalCity == cityLoc && !enemyCity.empire.enemyLeader.isDead)
+				return enemyCity.empire.enemyLeader;
+		}
+		
+		return null;
 	}
 
 	//public void RemoveFromCamp(Unit unit)

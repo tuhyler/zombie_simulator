@@ -15,7 +15,7 @@ MonoBehaviour:
   prefab: {fileID: 8266383177558337226, guid: cb350d5765272fc44b256dd944294073, type: 3}
   secondaryPrefab: {fileID: 8266383177558337226, guid: deea346bcc32ad1469f6e06830ec36f0,
     type: 3}
-  unitName: Laborer
+  nationalityAdjective: 
   unitDisplayName: Laborer
   unitLevel: 1
   unitNameAndLevel: Laborer-1
@@ -27,14 +27,20 @@ MonoBehaviour:
     resourceAmount: 1
   battleCost: []
   laborCost: 1
-  unitType: 0
+  unitType: 9
   unitDescription: Labor for wonders or other cities
   availableInitially: 1
-  locked: 0
   health: 10
+  regenerationRate: 2
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 1
   trainTime: 0
   cargoCapacity: 0
+  goldDropRange: {x: 0, y: 0}
   transportationType: 0
+  characterUnit: 0
+  npc: 0
+  singleBuildType: 0
+  unitEra: 0
+  unitRegion: 4

@@ -29,7 +29,7 @@ MonoBehaviour:
   - resourceType: 4
     resourceAmount: 1
   - resourceType: 2
-    resourceAmount: 34
+    resourceAmount: 1
   battleCost: []
   laborCost: 0
   unitType: 5
@@ -40,15 +40,12 @@ MonoBehaviour:
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
   movementSpeed: 0.5
-  trainTime: 0
+  trainTime: 2
   cargoCapacity: 100
   goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
   npc: 0
-  borderColor: {r: 0, g: 0, b: 0, a: 0}
-  colorOne: {x: 0, y: 0}
-  colorTwo: {x: 0, y: 0}
   singleBuildType: 2
   unitEra: 0
   unitRegion: 4

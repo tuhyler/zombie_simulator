@@ -337,9 +337,13 @@ public class BasicEnemyAI : MonoBehaviour
 			unit.transform.rotation = Quaternion.LookRotation(target.transform.position - unit.transform.position);
 			unit.StartAttackingAnimation();
 			yield return unit.attackPauses[2];
-	        target.ReduceHealth(unit, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
+			if (!target.isDead)
+				target.ReduceHealth(unit, unit.attacks[UnityEngine.Random.Range(0,unit.attacks.Length)]);
 			yield return unit.attackPauses[0];
-			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
+			if (!target.isDead)
+				dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
+			else
+				dist = distThreshold;
         }
 
 		unit.attacking = false;
@@ -417,10 +421,16 @@ public class BasicEnemyAI : MonoBehaviour
 		{
 			unit.StartAttackingAnimation();
 			yield return unit.attackPauses[2];
-			unit.projectile.SetPoints(transform.position, target.transform.position);
-			StartCoroutine(unit.projectile.Shoot(unit, target));
+			if (!target.isDead)
+			{
+				unit.projectile.SetPoints(transform.position, target.transform.position);
+				StartCoroutine(unit.projectile.Shoot(unit, target));
+			}
 			yield return unit.attackPauses[0];
-			dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
+			if (!target.isDead)
+				dist = Mathf.Abs(target.transform.position.x - unit.transform.position.x) + Mathf.Abs(target.transform.position.z - unit.transform.position.z);
+			else
+				dist = distThreshold;
         }
 
 		unit.attacking = false;

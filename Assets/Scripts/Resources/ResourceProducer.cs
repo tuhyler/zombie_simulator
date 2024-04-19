@@ -290,11 +290,11 @@ public class ResourceProducer : MonoBehaviour
                 float tempLaborRemoved = tempLaborPercsList[tempLaborPercCount-1]; //LIFO
                 tempLaborPercsList.RemoveAt(tempLaborPercCount-1);
                 tempLabor -= tempLaborRemoved;
-                resourceManager.PrepareConsumedResource(consumedResources, tempLaborRemoved, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, tempLaborRemoved, producerLoc);
             }
             else
             {
-                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc, true);
+                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc);
             }
         }
     }
@@ -478,19 +478,15 @@ public class ResourceProducer : MonoBehaviour
             resourceManager.RemoveFromWaitUnloadQueue(this);
             //resourceManager.RemoveFromWaitUnloadResearchQueue(this);
             isWaitingToUnload = false;
-            if (allLabor)
-                resourceManager.PrepareConsumedResource(consumedResources, tempLabor, producerLoc, true);
-            else
-                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc, true);
+			float laborCount = allLabor ? tempLabor : 1;
+            resourceManager.PrepareConsumedResource(consumedResources, laborCount, producerLoc);
         }
         else if (producingCo != null)
         {
             StopCoroutine(producingCo);
             producingCo = null;
-            if (allLabor)
-                resourceManager.PrepareConsumedResource(consumedResources, tempLabor, producerLoc, true);
-            else
-                resourceManager.PrepareConsumedResource(consumedResources, 1, producerLoc, true);
+            float laborCount = allLabor ? tempLabor : 1;
+            resourceManager.PrepareConsumedResource(consumedResources, laborCount, producerLoc);
         }
 
         cityImprovement.StopWork();
@@ -561,14 +557,14 @@ public class ResourceProducer : MonoBehaviour
         }
     }
 
-    public void TimeConstructionProgressBarSetActive(bool v, int time)
+    public void TimeConstructionProgressBarSetActive(bool v)
     {
         //timeProgressBar.SetActive(v);
         uiTimeProgressBar.gameObject.SetActive(v);
         if (v)
         {
-            uiTimeProgressBar.SetProgressBarMask(time);
-            uiTimeProgressBar.SetTime(time);
+            uiTimeProgressBar.SetProgressBarMask(cityImprovement.timePassed);
+            uiTimeProgressBar.SetTime(cityImprovement.timePassed);
         }
     }
 

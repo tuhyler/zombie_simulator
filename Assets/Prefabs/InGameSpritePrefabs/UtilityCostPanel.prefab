@@ -56,7 +56,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   utilityCostDisplay: {fileID: 8924667866228575126}
-  hasEnough: 0
+  hasEnough: 1
+  currentLoc: {x: 0, y: 0, z: 0}
+  inventoryCount: 0
 --- !u!114 &5457246740512246018
 MonoBehaviour:
   m_ObjectHideFlags: 0

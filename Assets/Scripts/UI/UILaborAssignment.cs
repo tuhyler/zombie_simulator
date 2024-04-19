@@ -155,14 +155,14 @@ public class UILaborAssignment : MonoBehaviour
 
             if (laborItem.LaborChange > 0 && (unusedLabor == 0 || placesToWork == 0))
             {
-                laborItem.ToggleInteractable(false); //deactivate if not enough unused labor
-                //cityBuildingManager.LaborChange = 0;
+                laborItem.ToggleInteractable(false); //deactivate if not enough unused labor or places to work
+                cityBuildingManager.laborChange = 0;
             }
 
             if (laborItem.LaborChange < 0 && usedLabor == 0)
             {
                 laborItem.ToggleInteractable(false); //deactivate if not enough used labor
-                //cityBuildingManager.LaborChange = 0;
+                cityBuildingManager.laborChange = 0;
             }
         }
     }

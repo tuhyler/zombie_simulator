@@ -9,13 +9,12 @@ public class MilitaryLeader : Military
 	public EnemyEmpire empire;
 	[HideInInspector]
 	public string leaderName;
-	public List<GameObject> leaderMilitaryUnits;
+	public List<UnitBuildDataSO> leaderUnitList;
+	public Dictionary<UnitType, UnitBuildDataSO> leaderUnitDict = new();
 	private int timeWaited = 0;
 	[HideInInspector]
 	public bool hasSomethingToSay, defending, dueling;
-	[HideInInspector]
 	public Color borderColor;
-	[HideInInspector]
 	public Vector2 colorOne, colorTwo;
 
 	private void Awake()
@@ -23,6 +22,9 @@ public class MilitaryLeader : Military
 		base.AwakeMethods();
 		base.MilitaryAwakeMethods();
 		leader = this;
+
+		for (int i = 0; i < leaderUnitList.Count; i++)
+			leaderUnitDict[leaderUnitList[i].unitType] = leaderUnitList[i];
 	}
 
 	public void SetUpNPC(MapWorld world, UnitData data = null)
@@ -222,8 +224,6 @@ public class MilitaryLeader : Military
 		if (defending && enemyCamp.benchedUnit == null)
 			enemyCamp.campCount--;
 
-		defending = false;
-
 		if (!isDead)
 		{
 			enemyAI.StartReturn();
@@ -248,6 +248,8 @@ public class MilitaryLeader : Military
 
 	public void FinishMovementEnemyLeader()
 	{
+		defending = false;
+		
 		if (hasSomethingToSay)
 		{
 			hasSomethingToSay = false;

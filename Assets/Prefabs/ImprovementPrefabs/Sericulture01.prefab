@@ -100,7 +100,7 @@ PrefabInstance:
     - target: {fileID: 1814076784752615127, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
@@ -120,6 +120,11 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
         type: 3}
+      propertyPath: improvementMesh
+      value: 
+      objectReference: {fileID: 6762054895170925474}
+    - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
       propertyPath: workPS.Array.size
       value: 0
       objectReference: {fileID: 0}
@@ -137,6 +142,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5189153545580261707, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5385069000063072446, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7511712854581192242, guid: 5af237387799660428805ee8b0755933,
         type: 3}
@@ -279,6 +294,12 @@ PrefabInstance:
 --- !u!1 &1295599349344855526 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -4545213436069745899, guid: 1d581f753becb9c46896a449d8c62474,
+    type: 3}
+  m_PrefabInstance: {fileID: 5843082727239683827}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6762054895170925474 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1d581f753becb9c46896a449d8c62474,
     type: 3}
   m_PrefabInstance: {fileID: 5843082727239683827}
   m_PrefabAsset: {fileID: 0}
