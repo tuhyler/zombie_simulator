@@ -27,7 +27,7 @@ public class MovementSystem : MonoBehaviour
                 if (moveToSpeak)
                     currentPath = GridSearch.PlayerMoveExempt(world, priorPath, endPosition, world.GetExemptList(endPosition), true);
                 else
-                    currentPath = GridSearch.PlayerMove(world, priorPath, endPosition, selectedUnit.bySea, true);
+                    currentPath = GridSearch.PlayerMove(world, priorPath, endPosition, selectedUnit.bySea);
             //}
        //     else
        //     {
@@ -80,7 +80,7 @@ public class MovementSystem : MonoBehaviour
                 if (moveToSpeak)
                     currentPath = GridSearch.PlayerMoveExempt(world, currentLoc, endPosition, world.GetExemptList(endPosition), true);
                 else
-                    currentPath = GridSearch.PlayerMove(world, currentLoc, endPosition, selectedUnit.bySea, true);
+                    currentPath = GridSearch.PlayerMove(world, currentLoc, endPosition, selectedUnit.bySea);
             //}
             //else
             //{

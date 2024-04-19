@@ -111,7 +111,7 @@ public class MapWorld : MonoBehaviour
 
 	//for worker and army orders
 	[HideInInspector]
-	public bool buildingRoad, buildingLiquid, buildingPower, removingAll, removingRoad, removingLiquid, removingPower, swappingArmy, deployingArmy, changingCity, assigningGuard, attackMovingTarget;
+	public bool buildingRoad, buildingLiquid, buildingPower, removing, removingAll, removingRoad, removingLiquid, removingPower, swappingArmy, deployingArmy, changingCity, assigningGuard, attackMovingTarget;
 
 	[HideInInspector]
     public Vector3Int startingLoc;
@@ -172,7 +172,7 @@ public class MapWorld : MonoBehaviour
     public Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
     private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
     public Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development locs
-    public Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
+    //public Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     public Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     //private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList = new();
@@ -376,7 +376,7 @@ public class MapWorld : MonoBehaviour
 			    buildPanelGO.transform.SetParent(builderHandler.objectHolder, false);
 			    buildOption.SetBuildOptionData(builderHandler);
 
-                if (data.availableInitially)
+                if (data.availableInitially || (showAllBuildOptions && data.improvementLevel == 1))
                     SetUpgradeableObjectMaxLevel(data.improvementName, data.improvementLevel);
             }
         }
@@ -1173,7 +1173,7 @@ public class MapWorld : MonoBehaviour
         newCity.gameObject.transform.SetParent(enemyCityHolder, false);
 		AddStructure(cityTile, newCity); //adds building location to buildingDict
 		City city = newCity.GetComponent<City>();
-		city.SetWorld(this);
+		city.SetWorld(this, true);
         city.ExtinguishFire();
         city.cityLoc = cityTile;
         city.cityName = data.cityName;
@@ -1427,13 +1427,13 @@ public class MapWorld : MonoBehaviour
                 GameObject enemy;
 
                 if (enemyData.unitType == UnitType.Infantry)
-                    enemy = empire.enemyLeader.leaderMilitaryUnits[0];
+                    enemy = empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefab;
                 else if (enemyData.unitType == UnitType.Ranged)
-					enemy = empire.enemyLeader.leaderMilitaryUnits[1];
+					enemy = empire.enemyLeader.leaderUnitDict[UnitType.Ranged].prefab;
                 else if (enemyData.unitType == UnitType.Cavalry)
-					enemy = empire.enemyLeader.leaderMilitaryUnits[2];
+					enemy = empire.enemyLeader.leaderUnitDict[UnitType.Cavalry].prefab;
                 else
-					enemy = empire.enemyLeader.leaderMilitaryUnits[0];
+					enemy = empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefab;
 
 				GameObject enemyGO = Instantiate(enemy, unitSpawn, rotation);
 			    enemyGO.name = enemyData.nationalityAdjective + " " + enemyData.unitDisplayName;
@@ -1539,48 +1539,35 @@ public class MapWorld : MonoBehaviour
     private void AddAllEnemyUnits(EnemyCamp camp, System.Random random, EnemyCityData data, bool load, MilitaryLeader leader)
     {
 		List<Vector3Int> campLocs = GetNeighborsFor(camp.loc, State.EIGHTWAYARMY);
-
-		//0 is for infantry, 1 ranged, 2 cavalry
-		//List<int> unitList = new() { 0, 1, 2 };
-        //List<Vector3Int> barracksLocs = new();
-        //UnitType type = UnitType.Infantry; 
-
-        //if (load)
-        //    barracksLocs = data.enemyUnitData.Keys.ToList();
+        List<UnitType> types = new() { UnitType.Infantry, UnitType.Ranged, UnitType.Cavalry };
 
 		for (int i = 0; i < 9; i++)
 		{
             Vector3Int spawnLoc;
             GameObject enemy;
 
-			//if (load)
-   //         {
-   //             spawnLoc = barracksLocs[i];
-   //         }
-   //         else
-   //         {
             if (i < 3)
             {
-                //type = UnitType.Infantry;
-                enemy = leader.leaderMilitaryUnits[0];
+                enemy = leader.leaderUnitDict[UnitType.Infantry].prefab;
                 spawnLoc = camp.GetAvailablePosition(UnitType.Infantry);
-				infantryCount++;
 			}
             else if (i < 6)
             {
-                //type = UnitType.Ranged;
-                enemy = leader.leaderMilitaryUnits[1];
+                enemy = leader.leaderUnitDict[UnitType.Ranged].prefab;
 				spawnLoc = camp.GetAvailablePosition(UnitType.Ranged);
-				rangedCount++;
+			}
+            else if (i < 8)
+            {
+                enemy = leader.leaderUnitDict[UnitType.Cavalry].prefab;
+				spawnLoc = camp.GetAvailablePosition(UnitType.Cavalry);
 			}
             else
             {
-                //type = UnitType.Cavalry;
-                enemy = leader.leaderMilitaryUnits[2];
-				spawnLoc = camp.GetAvailablePosition(UnitType.Cavalry);
-				cavalryCount++;
+                UnitType type = types[UnityEngine.Random.Range(0, types.Count)];
+                enemy = leader.leaderUnitDict[type].prefab;
+				spawnLoc = camp.GetAvailablePosition(type);
 			}
-			//}
+
 
 			campLocs.Remove(spawnLoc);
 
@@ -1755,11 +1742,14 @@ public class MapWorld : MonoBehaviour
 		cityBuilderManager.CombineMeshes(city, city.subTransform, false);
 		improvement.SetInactive();
 
-		if (buildingData.singleBuildType != SingleBuildType.None)
-			city.singleBuildDict[buildingData.singleBuildType] = city.cityLoc;
+		//if (buildingData.singleBuildType != SingleBuildType.None)
+  //      {
+  //          //city.singleBuildList.Add(buildingData.singleBuildType);
+		//	//city.singleBuildDict[buildingData.singleBuildType] = city.cityLoc;
+  //      }
 
-		if (buildingData.improvementName == "Market")
-			city.hasMarket = true;
+		//if (buildingData.improvementName == "Market")
+		//	city.hasMarket = true;
 	}
 
 	public void CreateImprovement(City city, CityImprovementData data, bool enemy = false)
@@ -1833,13 +1823,16 @@ public class MapWorld : MonoBehaviour
 		SetCityDevelopment(tempBuildLocation, cityImprovement);
 
         if (data.isConstruction)
-    		improvement.SetActive(false);
+    		cityImprovement.improvementMesh.SetActive(false);
 
 		//setting single build rules
 		if (improvementData.singleBuildType != SingleBuildType.None && city != null)
 		{
-			city.singleBuildDict[improvementData.singleBuildType] = tempBuildLocation;
-			AddToCityLabor(tempBuildLocation, city.cityLoc);
+            //city.singleBuildList.Add(improvementData.singleBuildType);
+            AddToCityLabor(tempBuildLocation, city.cityLoc);
+			
+            if (!data.isConstruction)
+                city.singleBuildDict[improvementData.singleBuildType] = tempBuildLocation;
 		}
 
 		//resource production
@@ -1856,12 +1849,12 @@ public class MapWorld : MonoBehaviour
         if (data.isConstruction)
         {
             cityImprovement.LoadData(data, city, this);
-            CityImprovement constructionTile = cityBuilderManager.GetFromConstructionTilePool();
-            constructionTile.timePassed = data.timePassed; 
-            constructionTile.InitializeImprovementData(improvementData);
-		    SetCityImprovementConstruction(tempBuildLocation, constructionTile);
-		    constructionTile.transform.position = tempBuildLocation;
-		    constructionTile.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, cityBuilderManager, td.isHill, true);		
+            //CityImprovement constructionTile = cityBuilderManager.GetFromConstructionTilePool();
+            cityImprovement.timePassed = data.timePassed; 
+            //constructionTile.InitializeImprovementData(improvementData);
+		    //SetCityImprovementConstruction(tempBuildLocation, constructionTile);
+		    //constructionTile.transform.position = tempBuildLocation;
+		    cityImprovement.BeginImprovementConstructionProcess(city, resourceProducer, tempBuildLocation, cityBuilderManager, td.isHill, true);		
         }
         else
         {
@@ -2005,10 +1998,10 @@ public class MapWorld : MonoBehaviour
 			if (td.prop != null && improvementData.hideProp)
                 td.ShowProp(false);
 
-            if (improvementData.singleBuildType != SingleBuildType.Harbor)
-            {
-                city.singleBuildDict[improvementData.singleBuildType] = tempBuildLocation;
-            }
+            //if (improvementData.singleBuildType != SingleBuildType.Harbor)
+            //{
+            //    city.singleBuildDict[improvementData.singleBuildType] = tempBuildLocation;
+            //}
 			//setting harbor info
 			if (improvementData.singleBuildType == SingleBuildType.Harbor)
 			{
@@ -2330,8 +2323,8 @@ public class MapWorld : MonoBehaviour
         {
             newUnit.military.army = city.army;
 			city.army.AddToArmy(newUnit.military);
-            if (city.currentPop == 0 && city.army.armyCount == 1)
-                city.StartGrowthCycle(true);
+            //if (city.currentPop == 0 && city.army.armyCount == 1)
+            //    city.StartGrowthCycle(true);
             city.army.AddToOpenSpots(data.barracksBunk);
 			newUnit.name = unitData.unitDisplayName;
 		}
@@ -2520,6 +2513,7 @@ public class MapWorld : MonoBehaviour
         unitPosDict.Clear();
         resourceIconDict.Clear();
         mapHandler.ResetResourceLocDict();
+        traderList.Clear();
 	}
 
 	public void LoadEnemyBorders(Vector3Int enemyLoc, Color color)
@@ -2614,7 +2608,7 @@ public class MapWorld : MonoBehaviour
     {
         UpdateWorldResources(ResourceType.Gold, 100);
 
-        resourceYieldChangeDict[ResourceType.Food] = .5f;
+        //resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
 
         //for (int i = 0; i < roadLocsList.Count; i++)
@@ -4361,7 +4355,21 @@ public class MapWorld : MonoBehaviour
 			city.ResourceManager.UpdateDicts(type);
 	}
 
-    public Transport GetKoasTransport()
+    //when running out of rocks
+	public void SetNewTerrainData(TerrainData td)
+	{
+		TerrainDataSO tempData;
+
+		if (td.isHill)
+			tempData = td.terrainData.grassland ? grasslandHillTerrain : desertHillTerrain;
+		else
+			tempData = td.terrainData.grassland ? grasslandTerrain : desertTerrain;
+
+		td.SetNewData(tempData);
+		GameLoader.Instance.gameData.allTerrain[td.TileCoordinates] = td.SaveData();
+	}
+
+	public Transport GetKoasTransport()
     {
         for (int i = 0; i < transportList.Count; i++)
 		{
@@ -4410,7 +4418,7 @@ public class MapWorld : MonoBehaviour
         ambush.attackedTrader = unitTrader.name;
 
         //check for main player
-        CheckMainPlayerLoc(loc);
+        CheckMainPlayerLoc(loc, loc);
 
 		GameObject enemyGO = Instantiate(ambushingUnit.prefab, ambushLoc, rotation);
         enemyGO.name = ambushingUnit.unitDisplayName;
@@ -4488,7 +4496,7 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
-    public void CheckMainPlayerLoc(Vector3Int loc, List<Vector3Int> route = null)
+    public void CheckMainPlayerLoc(Vector3Int loc, Vector3Int targetLoc, List<Vector3Int> route = null)
     {
         if (mainPlayer.inEnemyLines)
             return;
@@ -4510,18 +4518,27 @@ public class MapWorld : MonoBehaviour
 
 		if (xDiff < 4 && zDiff < 4)
 		{
-			mainPlayer.runningAway = true;
-			mainPlayer.isBusy = true;
-			mainPlayer.stepAside = true;
+            if (mainPlayer.isBusy)
+				unitMovement.workerTaskManager.ForceCancelWorkerTask();
+			
+            mainPlayer.runningAway = true;
+			//mainPlayer.isBusy = true;
+
+            List<Vector3Int> tempRoute;
+
+            if (route != null)
+                tempRoute = new(route) { loc, targetLoc };
+            else
+                tempRoute = new() { loc, targetLoc };
 
 			if (mainPlayer.inTransport)
             {
                 transport.StopMovementCheck(true);
                 transport.exclamationPoint.SetActive(true);
 
-				if (playerLoc - loc == Vector3Int.zero || (route != null && route.Contains(playerLoc)))
+				if (tempRoute.Contains(playerLoc))//playerLoc == loc || playerLoc == targetLoc || (route != null && route.Contains(playerLoc)))
 				{
-					transport.StepAside(playerLoc, route);
+					transport.StepAside(playerLoc, tempRoute);
 				}
 				else //look to watch
 				{
@@ -4530,38 +4547,47 @@ public class MapWorld : MonoBehaviour
 			}
             else
             {
-                if (mainPlayer.isBusy)
-				    unitMovement.workerTaskManager.ForceCancelWorkerTask();
-
 			    mainPlayer.StopPlayer();
 			    mainPlayer.exclamationPoint.SetActive(true);
 			    //mainPlayer.runningAway = true;
 			    //mainPlayer.isBusy = true;
 			    //mainPlayer.stepAside = true;
 
-			    if (playerLoc - loc == Vector3Int.zero || (route != null && route.Contains(playerLoc)))
+			    if (tempRoute.Contains(playerLoc))//playerLoc == loc || playerLoc == targetLoc || (route != null && route.Contains(playerLoc)))
 			    {
-				    mainPlayer.StepAside(playerLoc, route);
+				    mainPlayer.StepAside(playerLoc, tempRoute);
 			    }
-			    else //look to watch
+			    else
 			    {
 				    mainPlayer.Rotate(loc);
-                    if (GetClosestTerrainLoc(scott.transform.position) == loc || GetClosestTerrainLoc(azai.transform.position) == loc)
+                    Vector3Int scottLoc = GetClosestTerrainLoc(scott.transform.position);
+					Vector3Int azaiLoc = GetClosestTerrainLoc(azai.transform.position);
+
+                    if (tempRoute.Contains(scottLoc) || tempRoute.Contains(azaiLoc))
                     {
-                        mainPlayer.RealignFollowers(RoundToInt(mainPlayer.transform.position), mainPlayer.prevTile, false);
+                        if (RoundToInt(mainPlayer.transform.position) != playerLoc)
+                        {
+                            List<Vector3Int> path = new() { playerLoc };
+                            mainPlayer.finalDestinationLoc = playerLoc;
+                            mainPlayer.MoveThroughPath(path);
+                        }
+                        
+                        mainPlayer.RealignFollowers(playerLoc, mainPlayer.prevTile, false);
                     }
                     else
                     {
-				        scott.Rotate(loc);
+                        foreach (Unit unit in characterUnits)
+                            unit.FinishMoving(unit.transform.position);
+                        
+                        scott.Rotate(loc);
 				        azai.Rotate(loc);
                     }
 			    }
             }
 		}
-        else if (mainPlayer.runningAway && (xDiff > 12 || zDiff > 12))
+        else if (mainPlayer.runningAway && (xDiff > 8 || zDiff > 8))
         {
             mainPlayer.StopRunningAway();
-            mainPlayer.stepAside = false;
 		}
 	}
 
@@ -4903,10 +4929,10 @@ public class MapWorld : MonoBehaviour
         return cityImprovementDict[tile];
     }
 
-    public CityImprovement GetCityDevelopmentConstruction(Vector3Int tile)
-    {
-        return cityImprovementConstructionDict[tile];
-    }
+    //public CityImprovement GetCityDevelopmentConstruction(Vector3Int tile)
+    //{
+    //    return cityImprovementConstructionDict[tile];
+    //}
 
     public Vector3Int GetAdjacentMoveToTile(Vector3Int currentLoc, Vector3Int locationInt, bool enemy)
     {
@@ -5220,7 +5246,7 @@ public class MapWorld : MonoBehaviour
         
         if (GetCityDevelopment(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks]).isTraining)
             cityBuilderManager.RemoveImprovement(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks], 
-                GetCityDevelopment(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks]), cityDict[cityLoc], true, false);
+                GetCityDevelopment(cityDict[cityLoc].singleBuildDict[SingleBuildType.Barracks]), true, false);
 
 		cityDict[cityLoc].army.targetCamp = camp;
         cityDict[cityLoc].army.defending = true;
@@ -5303,7 +5329,7 @@ public class MapWorld : MonoBehaviour
     {
         if (enemyCityDict.ContainsKey(loc))
         {
-			enemyCityDict[loc].enemyCamp.CheckForSubInBenched();
+			//enemyCityDict[loc].enemyCamp.CheckForSubInBenched();
 			enemyCityDict[loc].enemyCamp.ReturnToCamp();
 		}
     }
@@ -5530,6 +5556,9 @@ public class MapWorld : MonoBehaviour
 
             if (enemyCityDict[tile].enemyCamp.movingOut)
             {
+                if (enemyCityDict[tile].enemyCamp.inBattle || enemyCityDict[tile].enemyCamp.pillage || enemyCityDict[tile].enemyCamp.returning)
+                    continue;
+
                 for (int i = 0; i < enemyCityDict[tile].enemyCamp.UnitsInCamp.Count; i++)
                     enemyCityDict[tile].enemyCamp.UnitsInCamp[i].SoftSelect(Color.red);
             }
@@ -5766,7 +5795,18 @@ public class MapWorld : MonoBehaviour
             foreach (Vector3Int tile in GetNeighborsFor(loc, State.CITYRADIUS))
             {
                 if (!world[tile].isDiscovered)
+                {
                     world[tile].Reveal();
+
+					if (IsRoadOnTerrain(tile))
+						SetRoadActive(tile);
+
+					if (cityImprovementDict.ContainsKey(tile))
+						cityImprovementDict[tile].RevealImprovement();
+
+					if (IsTradeCenterOnTile(tile))
+						    GetTradeCenter(tile).Reveal();
+				}
             }
             
             //playing god rays to show triumph
@@ -5781,7 +5821,7 @@ public class MapWorld : MonoBehaviour
             if (city.activeCity)
 			    cityBuilderManager.ResetCityUI();
 
-            city.SetWorld(this); //reset dicts and add wonder benefits
+            city.SetWorld(this, true); //reset dicts and add wonder benefits
             cityDict[loc] = city;
             city.gameObject.tag = "Player";
             city.cityNameField.SetOriginalBackground();
@@ -6130,10 +6170,10 @@ public class MapWorld : MonoBehaviour
         cityImprovementDict[tile] = cityDevelopment;
     }
 
-    public void SetCityImprovementConstruction(Vector3Int tile, CityImprovement cityDevelopment)
-    {
-        cityImprovementConstructionDict[tile] = cityDevelopment;
-    }
+    //public void SetCityImprovementConstruction(Vector3Int tile, CityImprovement cityDevelopment)
+    //{
+    //    cityImprovementConstructionDict[tile] = cityDevelopment;
+    //}
 
     public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, string buildingName)
     {
@@ -6823,7 +6863,7 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
-    public (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition) //two ring layer around specific city
+    public (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition) //two tile deep layer around specific city
     {
         List<Vector3Int> neighbors = new();
         List<Vector3Int> developed = new();
@@ -6831,7 +6871,7 @@ public class MapWorld : MonoBehaviour
         foreach (Vector3Int direction in cityRadius)
         {
             Vector3Int checkPosition = worldTilePosition + direction;
-            if (world.ContainsKey(checkPosition)) //checking if it exists in world
+            if (world.ContainsKey(checkPosition))
             {
                 if (cityWorkedTileDict.ContainsKey(checkPosition) && GetCityLaborForTile(checkPosition) != worldTilePosition)
                     continue;
@@ -6840,9 +6880,9 @@ public class MapWorld : MonoBehaviour
                     continue;
 
                 neighbors.Add(checkPosition);
-                if (CheckIfTileIsImproved(checkPosition))
+                if (CompletedImprovementCheck(checkPosition))
                     developed.Add(checkPosition);
-                else if (CheckIfTileIsUnderConstruction(checkPosition))
+                else if (TileHasCityImprovement(checkPosition))
                     constructing.Add(checkPosition);
             }
 
@@ -6907,7 +6947,7 @@ public class MapWorld : MonoBehaviour
         {
             Vector3Int neighbor = cityTile + direction;
 
-            if (world.ContainsKey(neighbor) && CheckIfTileIsImproved(neighbor))
+            if (CompletedImprovementCheck(neighbor) && GetCityDevelopment(neighbor).GetImprovementData.maxLabor > 0)
             {
                 if ((cityWorkedTileDict.ContainsKey(neighbor) && GetCityLaborForTile(neighbor) != cityTile) || CheckIfTileIsMaxxed(neighbor))
                     continue;
@@ -7010,7 +7050,7 @@ public class MapWorld : MonoBehaviour
 
     public bool IsTileOpenCheck(Vector3Int tile)
     {
-        if (IsBuildLocationTaken(tile) || IsRoadOnTerrain(tile) || CheckIfTileIsUnderConstruction(tile) || IsWorkerWorkingAtTile(tile))
+        if (IsBuildLocationTaken(tile) || IsRoadOnTerrain(tile) || /*CheckIfTileIsUnderConstruction(tile) || */IsWorkerWorkingAtTile(tile))
             return false;
         else
             return true;
@@ -7018,7 +7058,7 @@ public class MapWorld : MonoBehaviour
 
     public bool IsTileOpenButRoadCheck(Vector3Int tile)
     {
-        if (IsBuildLocationTaken(tile) || CheckIfTileIsUnderConstruction(tile) || IsWorkerWorkingAtTile(tile))
+        if (IsBuildLocationTaken(tile) || /*CheckIfTileIsUnderConstruction(tile) || */IsWorkerWorkingAtTile(tile))
             return false;
         else
             return true;
@@ -7169,10 +7209,10 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    public void RemoveConstruction(Vector3Int tile)
-    {
-        cityImprovementConstructionDict.Remove(tile);   
-    }
+    //public void RemoveConstruction(Vector3Int tile)
+    //{
+    //    cityImprovementConstructionDict.Remove(tile);   
+    //}
 
     //public void RemoveHarbor(Vector3Int harborLoc)
     //{
@@ -7189,11 +7229,11 @@ public class MapWorld : MonoBehaviour
         Vector3Int position = RoundToInt(unitPosition);
 
         //checking if same unit doesn't already have a tile occupied (just in case)
-        if (unitPosDict.ContainsValue(unit))
-        {
-            var item = unitPosDict.First(key => key.Value == unit);
-            unitPosDict.Remove(item.Key);
-        }
+        //if (unitPosDict.ContainsValue(unit) && unitPosDict[position] != unit)
+        //{
+        //    var item = unitPosDict.First(key => key.Value == unit);
+        //    unitPosDict.Remove(item.Key);
+        //}
 
         unitPosDict[position] = unit;
 
@@ -7375,15 +7415,15 @@ public class MapWorld : MonoBehaviour
         return currentWorkedTileDict.ContainsKey(pos);
     }
 
-    public bool CheckIfTileIsImproved(Vector3Int pos)
+    public bool CompletedImprovementCheck(Vector3Int pos)
     {
         return maxWorkedTileDict.ContainsKey(pos);
     }
 
-    public bool CheckIfTileIsUnderConstruction(Vector3Int pos)
-    {
-        return cityImprovementConstructionDict.ContainsKey(pos);
-    }
+    //public bool CheckIfTileIsUnderConstruction(Vector3Int pos)
+    //{
+    //    return cityImprovementConstructionDict.ContainsKey(pos);
+    //}
 
     public bool CheckIfTileIsMaxxed(Vector3Int pos)
     {

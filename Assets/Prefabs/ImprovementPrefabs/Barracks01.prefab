@@ -65,7 +65,17 @@ PrefabInstance:
     - target: {fileID: 1814076784752615127, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2050705500241568073, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: improvementMesh
+      value: 
+      objectReference: {fileID: 7999168615284150864}
+    - target: {fileID: 5385069000063072446, guid: 5af237387799660428805ee8b0755933,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8789389234130458407, guid: 5af237387799660428805ee8b0755933,
         type: 3}
@@ -159,3 +169,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 68a9706fe1100c748a192eddfdde9547, type: 3}
+--- !u!1 &7999168615284150864 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 68a9706fe1100c748a192eddfdde9547,
+    type: 3}
+  m_PrefabInstance: {fileID: 7188774871876906753}
+  m_PrefabAsset: {fileID: 0}

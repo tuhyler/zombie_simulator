@@ -24,13 +24,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     private TMP_Text objectName, objectLevel, producesTitle, health, speed, strength, description, descriptionTitle, workEthicText, housingText, waterText;
 
     [SerializeField]
-    private Image objectImage, strengthImage;
+    private Image objectImage, strengthImage, waterImage;
 
     [SerializeField]
-    private Sprite inventorySprite, rocksNormal, rocksLuxury, rocksChemical;
+    private Sprite inventorySprite, rocksNormal, rocksLuxury, rocksChemical, waterIcon, powerIcon;
 
     [SerializeField]
-    private GameObject resourceInfoPanel, productionPanel, descriptionPanel, workEthicImage, housingImage, waterImage, newIcon;
+    private GameObject resourceInfoPanel, productionPanel, descriptionPanel, workEthicImage, housingImage, newIcon;
 
     [SerializeField]
     private Transform resourceProducedHolder, resourceCostHolder, unitDescription, cityStatsDecription;
@@ -181,11 +181,14 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 				showCityStatsDesc = true;
 			}
 
-            if (buildData.waterIncrease > 0)
+            if (buildData.waterIncrease > 0 || buildData.powerIncrease > 0)
             {
-                waterImage.SetActive(true);
+                bool isWater = buildData.waterIncrease > 0;
+                waterImage.gameObject.SetActive(true);
+                waterImage.sprite = isWater ? waterIcon : powerIcon;
                 waterText.gameObject.SetActive(true);
-                waterText.text = "+" + buildData.waterIncrease.ToString();
+                int num = isWater ? buildData.waterIncrease : buildData.powerIncrease;
+                waterText.text = "+" + num.ToString();
 				showCityStatsDesc = true;
 			}
 
@@ -473,54 +476,43 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     {
 		if (eventData.button == PointerEventData.InputButton.Left)
         {
-		    if (buttonHandler.cityBuilderManager.SelectedCity.attacked)
+		    if (buttonHandler.cityBuilderManager.SelectedCity.army != null && buttonHandler.cityBuilderManager.SelectedCity.army.defending)
             {
-			    StartCoroutine(Shake());
-			    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");
-			    return;
+                StartCoroutine(Shake());
+                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");
+                return;
             }
-        
+
             if (unitBuildData != null)
             {
-                if (unitBuildData.transportationType == TransportationType.Sea)
+                if (needsBarracks)
                 {
-                    if (trainingBarracks)
-                    {
-					    StartCoroutine(Shake());
-					    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
-					    return;
-				    }
-                }
-                else
+                    string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+					StartCoroutine(Shake());
+			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " required");
+			        return;
+		        }
+                else if (travelingBarracks)
                 {
-                    if (unitBuildData.baseAttackStrength > 0)
-                    {
-                        if (needsBarracks)
-                        {
-			                StartCoroutine(Shake());
-			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks required");
-			                return;
-		                }
-                        else if (travelingBarracks)
-                        {
-			                StartCoroutine(Shake());
-			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks currently deployed");
-			                return;
-		                }
-                        else if (fullBarracks)
-                        {
-			                StartCoroutine(Shake());
-			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Barracks full");
-			                return;
-		                }
-                        else if (trainingBarracks)
-                        {
-			                StartCoroutine(Shake());
-			                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently training");
-			                return;
-		                }
-                    }
-                }
+					string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+					StartCoroutine(Shake());
+			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " currently deployed");
+			        return;
+		        }
+                else if (fullBarracks)
+                {
+					string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+					StartCoroutine(Shake());
+			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " full");
+			        return;
+		        }
+                else if (trainingBarracks)
+                {
+					string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+					StartCoroutine(Shake());
+			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " currently training");
+			        return;
+		        }
             }
         
             if (cannotAfford && !buttonHandler.isQueueing)

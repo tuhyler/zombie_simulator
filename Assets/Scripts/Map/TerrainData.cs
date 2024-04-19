@@ -596,7 +596,7 @@ public class TerrainData : MonoBehaviour
             godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
 			godRays.Play();
 
-            if (!world.CheckIfTileIsImproved(tileCoordinates))
+            if (!world.CompletedImprovementCheck(tileCoordinates))
             {
                 if (isHill)
                     resourceGraphic.PlaySoundHill();

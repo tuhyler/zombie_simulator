@@ -2238,13 +2238,15 @@ MonoBehaviour:
   waterText: {fileID: 8281079974703963683}
   mainImage: {fileID: 7288907873314399352}
   strengthImage: {fileID: 8561049093440697227}
+  waterImage: {fileID: 519314346589360}
   inventorySprite: {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
   strengthSprite: {fileID: 21300000, guid: f348982132094e94d8a089d5f8d3ea17, type: 3}
+  powerSprite: {fileID: 21300000, guid: 97c9b3c8315bd654a8ead3474d04a14e, type: 3}
+  waterSprite: {fileID: 21300000, guid: 4ab88835954676043b42fe09d9fd6f26, type: 3}
   produceHolder: {fileID: 7791384119688600741}
   descriptionHolder: {fileID: 3864407777522916775}
   workEthicImage: {fileID: 1517845142136471380}
   housingImage: {fileID: 5131650802293186036}
-  waterImage: {fileID: 3882624037725931964}
   allContents: {fileID: 7172269090546766210}
   imageLine: {fileID: 3590024809595329857}
   resourceProducedHolder: {fileID: 5568256987176700141}

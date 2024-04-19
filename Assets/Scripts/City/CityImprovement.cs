@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,13 +27,14 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool queued, building, isConstruction, isConstructionPrefab, isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart, showing;
+    public bool queued, building, isConstruction, /*isConstructionPrefab, */isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart, showing;
     [HideInInspector]
     public List<ResourceValue> upgradeCost = new(), refundCost = new();
     [HideInInspector]
     public int housingIndex, laborCost, upgradeLevel, unitsWithinCount; //for city centeer housing only, and for canceling training in barracks
     [HideInInspector]
     public ResourceProducer resourceProducer;
+	public Dictionary<ResourceType, int> cycleCostDict = new();
 
     [HideInInspector]
     public Vector3Int loc;
@@ -42,8 +44,8 @@ public class CityImprovement : MonoBehaviour
     public int producedResourceIndex;
     public List<List<ResourceValue>> allConsumedResources = new();
 
-    [SerializeField]
-    public GameObject exclamationPoint;
+	[SerializeField]
+    public GameObject improvementMesh, exclamationPoint;
     [SerializeField]
     private ParticleSystem smokeEmitter, smokeSplash;
     [SerializeField]
@@ -100,17 +102,17 @@ public class CityImprovement : MonoBehaviour
     {
         Vector3 loc = transform.position;
 
-        if (!isConstructionPrefab)
-        {
-            //removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
-            //removeSplash.Stop();
+  //      if (!isConstructionPrefab)
+  //      {
+  //          //removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
+  //          //removeSplash.Stop();
 
-			if (improvementData != null && improvementData.hideIdleMesh && co == null)
-				animMesh.SetActive(false);
+		//	if (improvementData != null && improvementData.hideIdleMesh && co == null)
+		//		animMesh.SetActive(false);
 
-       //     if (improvementData.producedResourceTime.Count > 0)
-    			//CalculateWorkCycleLimit();
-		}
+  //     //     if (improvementData.producedResourceTime.Count > 0)
+  //  			//CalculateWorkCycleLimit();
+		//}
 	}
 
     //public void CalculateWorkCycleLimit()
@@ -221,6 +223,12 @@ public class CityImprovement : MonoBehaviour
 		}
 	}
 
+    public void HideIdleMesh()
+    {
+		if (improvementData.hideIdleMesh)
+			animMesh.SetActive(false);
+	}
+
     public void StopWork()
     {
         foreach (Light light in workLights)
@@ -234,8 +242,7 @@ public class CityImprovement : MonoBehaviour
             if (co != null)
                 StopCoroutine(co);
             improvementAnimator.SetBool(isWorkingHash, false);
-            if (improvementData.hideIdleMesh)
-                animMesh.SetActive(false);
+            HideIdleMesh();
         }
 
         foreach (ParticleSystem ps in workPS)
@@ -252,8 +259,7 @@ public class CityImprovement : MonoBehaviour
 			if (co != null)
 				StopCoroutine(co);
 			improvementAnimator.SetBool(isWorkingHash, false);
-			if (improvementData.hideIdleMesh)
-				animMesh.SetActive(false);
+            HideIdleMesh();
 		}
 	}
 
@@ -497,9 +503,9 @@ public class CityImprovement : MonoBehaviour
         StopSmokeEmitter();
         PlaySmokeSplash(isHill);
         producer.HideConstructionProgressTimeBar();
-        cityBuilderManager.RemoveConstruction(tempBuildLocation);
+        //cityBuilderManager.RemoveConstruction(tempBuildLocation);
         cityBuilderManager.FinishImprovement(city, improvementData, tempBuildLocation);
-        cityBuilderManager.AddToConstructionTilePool(this);
+        //cityBuilderManager.AddToConstructionTilePool(this);
     }
 
     public void BeginImprovementUpgradeProcess(City city, ResourceProducer producer, ImprovementDataSO data, bool load)
@@ -616,12 +622,116 @@ public class CityImprovement : MonoBehaviour
         StopTraining(producer);
 	}
 
-	public void RemoveConstruction(CityBuilderManager cityBuilderManager, Vector3Int tempBuildLocation)
+    public void AddTraderToImprovement(Unit unit)
+    {
+        unitsWithinCount++;
+        city.tradersHere.Add(unit);
+		List<ResourceType> resourceTypes = new();
+
+		foreach (ResourceValue value in unit.buildDataSO.cycleCost)
+        {
+            if (value.resourceType == ResourceType.Gold)
+                continue;
+            
+            if (!cycleCostDict.ContainsKey(value.resourceType))
+                cycleCostDict[value.resourceType] = value.resourceAmount;
+            else
+                cycleCostDict[value.resourceType] += value.resourceAmount;
+
+            resourceTypes.Add(value.resourceType);
+			city.ResourceManager.ModifyResourceConsumptionPerMinute(value.resourceType, value.resourceAmount);
+		}
+
+		if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
+			city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+
+		if (world.uiCityImprovementTip.activeStatus && world.uiCityImprovementTip.improvement.loc == loc)
+			world.uiCityImprovementTip.UpdateConsumeNumbers();
+
+		if (!city.growing)
+			city.StartGrowthCycle(false);
+	}
+
+	public void RemoveTraderFromImprovement(Unit unit)
+    {
+        unitsWithinCount--;
+        city.tradersHere.Remove(unit);
+		List<ResourceType> resourceTypes = new();
+
+		foreach (ResourceValue value in unit.buildDataSO.cycleCost)
+        {
+			if (value.resourceType == ResourceType.Gold)
+				continue;
+
+			cycleCostDict[value.resourceType] -= value.resourceAmount;
+
+            if (cycleCostDict[value.resourceType] == 0)
+                cycleCostDict.Remove(value.resourceType);
+
+            resourceTypes.Add(value.resourceType);
+			city.ResourceManager.ModifyResourceConsumptionPerMinute(value.resourceType, -value.resourceAmount);
+		}
+
+		if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
+			city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+
+		if (world.uiCityImprovementTip.activeStatus && world.uiCityImprovementTip.improvement.loc == loc)
+			world.uiCityImprovementTip.UpdateConsumeNumbers();
+
+		city.StopGrowthCycleCheck();
+	}
+
+    public List<ResourceValue> GetCycleCost()
+    {
+		List<ResourceValue> costs = new();
+
+		foreach (ResourceType type in cycleCostDict.Keys)
+		{
+            if (type == ResourceType.Gold)
+                continue;
+
+            ResourceValue value;
+			value.resourceType = type;
+			value.resourceAmount = cycleCostDict[type];
+			costs.Add(value);
+		}
+
+		return costs;
+	}
+
+    //currently not random, just whoever's first on list
+    public Vector3Int RemoveRandomTrader()
+    {
+        SingleBuildType type = GetImprovementData.singleBuildType;
+
+        foreach(Unit unit in city.tradersHere)
+        {
+            if (unit.buildDataSO.singleBuildType == type)
+            {
+				world.traderList.Remove(unit.trader);
+				RemoveTraderFromImprovement(unit);
+				unit.RemoveUnitFromData();
+				unit.DestroyUnit();
+				break;
+            }
+        }
+
+        PlayPopLossAudio();
+        return loc;
+    }
+
+    public void PlayPopLossAudio()
+    {
+		audioSource.clip = world.cityBuilderManager.popLoseClip;
+		audioSource.Play();
+    }
+
+	public void RemoveConstruction()
     {
         StopCoroutine(constructionCo);
         StopSmokeEmitter();
-        cityBuilderManager.RemoveConstruction(tempBuildLocation);
-        cityBuilderManager.AddToConstructionTilePool(this);
+        //cityBuilderManager.RemoveConstruction(tempBuildLocation);
+        //cityBuilderManager.AddToConstructionTilePool(this);
     }
 
     public void DestroyImprovement()
@@ -641,7 +751,7 @@ public class CityImprovement : MonoBehaviour
         //city.SetNewTerrainData(loc);
 		city.UpdateCityBools(producedResource, ResourceHolder.Instance.GetRawResourceType(producedResource), td.terrainData.type);
         world.uiCityImprovementTip.CloseCheck(this);
-        world.cityBuilderManager.RemoveImprovement(loc, this, city, false);
+        world.cityBuilderManager.RemoveImprovement(loc, this, false);
     }
 
     public CityImprovementData SaveData()
@@ -666,10 +776,10 @@ public class CityImprovement : MonoBehaviour
         data.housingIndex = housingIndex;
         data.laborCost = laborCost;
         
-        if (isConstruction)
-            data.timePassed = world.GetCityDevelopmentConstruction(loc).timePassed;
-        else
-            data.timePassed = timePassed;
+        //if (isConstruction)
+        //    data.timePassed = world.GetCityDevelopmentConstruction(loc).timePassed;
+        //else
+        data.timePassed = timePassed;
 
         data.producedResourceIndex = producedResourceIndex;
 
@@ -745,6 +855,10 @@ public class CityImprovement : MonoBehaviour
                     exclamationPoint.SetActive(true);
                 }
             }
+            else
+            {
+				HideIdleMesh();
+			}
         }
         
         if (isTraining)

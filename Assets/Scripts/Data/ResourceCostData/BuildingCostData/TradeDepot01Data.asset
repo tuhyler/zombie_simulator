@@ -46,7 +46,7 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
-  replaceTerrain: 0
+  replaceTerrain: 1
   replaceRocks: 0
   oneTerrain: 1
   adjustForHill: 0

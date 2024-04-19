@@ -1001,16 +1001,28 @@ public class Military : Unit
 		{
 			world.AddUnitPosition(currentLocation, this);
 			repositioning = false;
-			enemyCamp.EnemyReturn(this);
 
-			if (enemyCamp.movingOut)
+			if (leader)
 			{
-				enemyCamp.movingOut = false;
-				enemyCamp.returning = false;
-				enemyCamp.moveToLoc = enemyCamp.loc;
-				GameLoader.Instance.gameData.movingEnemyBases.Remove(enemyCamp.loc);
-				world.mainPlayer.StopRunningAway();
+				leader.FinishMovementEnemyLeader();
+				if (enemyCamp.campCount - enemyCamp.deathCount == 0)
+					enemyCamp.ResetCampToBase();
 			}
+			else
+			{
+				enemyCamp.EnemyReturn(this);
+			}
+
+			if (!isSelected)
+				Unhighlight();
+			//if (enemyCamp.movingOut)
+			//{
+			//	//enemyCamp.movingOut = false;
+			//	//enemyCamp.returning = false;
+			//	//enemyCamp.moveToLoc = enemyCamp.loc;
+			//	//GameLoader.Instance.gameData.movingEnemyBases.Remove(enemyCamp.loc);
+			//	//world.mainPlayer.StopRunningAway();
+			//}
 		}
 		else if (enemyCamp.movingOut)
 		{
@@ -1120,16 +1132,14 @@ public class Military : Unit
 			StartCoroutine(WaitKillUnit());
 
 			if (world.mainPlayer.runningAway)
-			{
 				world.mainPlayer.StopRunningAway();
-				world.mainPlayer.stepAside = false;
-			}
 		}
 		else
 		{
 			enemyCamp.deathCount++;
 			enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
-			enemyCamp.ClearCampCheck();
+			enemyCamp.FinishBattleCheck();
+			//enemyCamp.ClearCampCheck();
 
 			foreach (Military unit in enemyCamp.UnitsInCamp)
 			{
@@ -1467,7 +1477,7 @@ public class Military : Unit
 				enemyCamp.deathCount++;
 				if (enemyCamp.attackingArmy != null)
 					enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
-				enemyCamp.ClearCampCheck();
+				//enemyCamp.ClearCampCheck();
 				world.RemoveUnitPosition(currentLocation);
 				enemyCamp.DeadList.Add(this);
 			}

@@ -9,9 +9,9 @@ public class UIResearchTooltip : MonoBehaviour
 {
     public MapWorld world;
     public TMP_Text title, level, costTitle, producesTitle, descriptionTitle, descriptionText, health, speed, strength, workEthicText, housingText, waterText;
-    public Image mainImage, strengthImage;
-    public Sprite inventorySprite, strengthSprite;
-    public GameObject produceHolder, descriptionHolder, workEthicImage, housingImage, waterImage;
+    public Image mainImage, strengthImage, waterImage;
+    public Sprite inventorySprite, strengthSprite, powerSprite, waterSprite;
+    public GameObject produceHolder, descriptionHolder, workEthicImage, housingImage;
     public RectTransform allContents, /*resourceProduceAllHolder, */imageLine, resourceProducedHolder, resourceCostHolder, unitInfo, spaceHolder, cityStatsDescription;
     public VerticalLayoutGroup resourceProduceLayout;
     public HorizontalLayoutGroup firstResourceProduceLayout;
@@ -101,7 +101,7 @@ public class UIResearchTooltip : MonoBehaviour
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
-        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, bool wonder, Era era, bool utility, bool rocks = false)
+        List<List<ResourceValue>> consumes, List<int> produceTimeList, bool unit, int health, float speed, int strength, int cargoCapacity, int housing, int water, int power, bool wonder, Era era, bool utility, bool rocks = false)
     {
         mainImage.sprite = mainSprite;
         this.title.text = displayTitle;
@@ -164,16 +164,19 @@ public class UIResearchTooltip : MonoBehaviour
             housingText.gameObject.SetActive(false);
         }
 
-		if (water > 0)
+		if (water > 0 || power > 0)
 		{
-			waterImage.SetActive(true);
+            bool isWater = water > 0;
+            waterImage.sprite = isWater ? waterSprite : powerSprite;
+            waterImage.gameObject.SetActive(true);
 			waterText.gameObject.SetActive(true);
-			waterText.text = "+" + water.ToString();
+            int num = isWater ? water : power;
+			waterText.text = "+" + num.ToString();
 			showCityStatsDesc = true;
 		}
         else
         {
-            waterImage.SetActive(false);
+            waterImage.gameObject.SetActive(false);
             waterText.gameObject.SetActive(false);
         }
 

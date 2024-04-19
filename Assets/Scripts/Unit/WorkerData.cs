@@ -10,7 +10,7 @@ public class WorkerData : IUnitData
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
 	public bool secondaryPrefab, isBusy, isMoving, somethingToSay, building, removing, gathering, clearingForest, clearedForest, buildingCity, harvested, harvestedForest, 
-		firstStep, runningAway, stepAside, toTransport, inTransport, inEnemyLines;
+		firstStep, /*runningAway, stepAside,*/ toTransport, inTransport, inEnemyLines;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation, prevTile, resourceCityLoc, prevFriendlyTile;

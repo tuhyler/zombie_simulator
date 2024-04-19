@@ -10,7 +10,7 @@ public class UtilityCostDisplay : MonoBehaviour
 	private List<ResourceInfoPanel> resourceList = new();
 	private List<int> usedResources = new();
 	[HideInInspector]
-	public bool hasEnough;
+	public bool hasEnough = true;
 	[HideInInspector]
 	public Vector3Int currentLoc;
 	[HideInInspector]

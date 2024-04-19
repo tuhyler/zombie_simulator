@@ -89,7 +89,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (selectedUnit != null)
         {
-            if (selectedUnit.isBusy)
+            if (selectedUnit.isBusy || selectedUnit.runningAway)
                 return;
 
             if (world.cityBuilderManager.uiCityNamer.activeStatus)
@@ -185,7 +185,7 @@ public class UnitMovement : MonoBehaviour
 			}
 
 			//only upgrade when at home or not busy
-			if (city.army.atHome && !world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]).isTraining)
+			if (city.army.atHome && city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) && !world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]).isTraining)
             {
 			    foreach (Military unit in city.army.UnitsInArmy)
 			    {
@@ -340,7 +340,7 @@ public class UnitMovement : MonoBehaviour
                     }
                 }
             }
-            else if (world.removingRoad)
+            else if (world.removing)
             {
                 if (!world.IsRoadOnTerrain(pos))
                 {
@@ -492,12 +492,15 @@ public class UnitMovement : MonoBehaviour
 
 				if (detectedObject.TryGetComponent(out Military unit) && unit.enemyAI && unit.enemyCamp.movingOut)
                 {
+                    if (unit.leader)
+                        return;
+                    
                     if (unit.preparingToMoveOut)
                         return;
 
                     if (unit.enemyCamp.attacked || unit.enemyCamp.inBattle || unit.enemyCamp.attackReady)
                     {
-						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already attacked");
+						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already attacking");
 						return;
                     }
 
@@ -546,13 +549,27 @@ public class UnitMovement : MonoBehaviour
 
 					if (world.CheckIfEnemyAlreadyAttacked(pos))
 					{
-						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already sending troops");
+						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already attacking");
 						return;
 					}
 
                     bool isCity = false;
                     if (world.IsEnemyCityOnTile(pos))
                         isCity = true;
+
+                    if (isCity)
+                    {
+                        City enemyCity = world.GetEnemyCity(pos);
+                        if (enemyCity.enemyCamp.movingOut)
+                        {
+                            return;
+                        }
+                        else if (enemyCity.empire.capitalCity == enemyCity.cityLoc && enemyCity.empire.enemyLeader.dueling)
+                        {
+							UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Currently in duel");
+							return;
+                        }
+					} 
 
 					//rehighlight in case selecting a different one
 					if (world.IsEnemyCityOnTile(potentialAttackLoc))
@@ -580,7 +597,7 @@ public class UnitMovement : MonoBehaviour
                         world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
 						Color color = pos == attackZoneList[i] ? Color.white : Color.green;
 						world.GetTerrainDataAt(attackZoneList[i]).EnableHighlight(color);
-                        if (world.CheckIfTileIsImproved(attackZoneList[i]))
+                        if (world.CompletedImprovementCheck(attackZoneList[i]))
                         {
                             world.GetCityDevelopment(attackZoneList[i]).DisableHighlight();
                             world.GetCityDevelopment(attackZoneList[i]).EnableHighlight(color);
@@ -792,8 +809,8 @@ public class UnitMovement : MonoBehaviour
         //moving unit upon selection
         if (world.moveUnit && selectedUnit != null && selectedUnit.isPlayer) //detectedObject.TryGetComponent(out TerrainData terrainSelected) && selectedUnit != null)
         {
-            if (selectedUnit.isBusy)
-                return;
+            //if (selectedUnit.isBusy)
+            //    return;
 
             //location.y = 0;
             //TerrainData terrainSelected = world.GetTerrainDataAt(Vector3Int.RoundToInt(location));
@@ -904,10 +921,6 @@ public class UnitMovement : MonoBehaviour
 		unit.army = newCity.army;
 		unit.atHome = false;
 		newCity.army.AddToArmy(unit);
-
-		if (newCity.currentPop == 0 && newCity.army.armyCount == 1)
-			newCity.StartGrowthCycle(false);
-
 		unit.barracksBunk = newLoc;
 		unit.transferring = true;
 		unit.army.isTransferring = true;
@@ -1070,7 +1083,7 @@ public class UnitMovement : MonoBehaviour
 			    uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.ResourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
 			    uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
 
-			    if (world.mainPlayer.isBusy && !world.mainPlayer.runningAway)
+			    if (world.mainPlayer.isBusy)
 				    uiCancelTask.ToggleVisibility(true);
 			    if (!selectedUnit.sayingSomething)
                     uiWorkerTask.ToggleVisibility(true, world);
@@ -1243,9 +1256,8 @@ public class UnitMovement : MonoBehaviour
 
         if (!queueMovementOrders)
         {
-            CancelMove();
-   //         moveUnit = false;
-   //         uiMoveUnit.ToggleButtonColor(false);
+            world.moveUnit = false;
+            uiMoveUnit.ToggleButtonColor(false);
 			//if (unit.trader)
 			//	world.UnhighlightCitiesAndWondersAndTradeCenters(unit.bySea);
 			//else if (unit.isLaborer)
@@ -1300,7 +1312,7 @@ public class UnitMovement : MonoBehaviour
 		    }
         }
 
-		List<Vector3Int> path = GridSearch.PlayerMove(world, unit.transform.position, location, false, false);
+		List<Vector3Int> path = GridSearch.MilitaryMove(world, unit.transform.position, location, false);
 
         //CancelMove();
 		//moveUnit = false;
@@ -1352,18 +1364,10 @@ public class UnitMovement : MonoBehaviour
 			//return;
 
 		//if nothing detected, nothing selected
-		if (detectedObject == null)
-        {
-            selectedUnit = null;
-            //selectedTrader = null;
-            return;
-        }
 
-        if (selectedUnit == null)
-            return;
+        //if (selectedUnit == null)
+        //    return;
 
-        if (selectedUnit.isBusy)
-            return;
 
         //if (selectedUnit != null && selectedUnit.sayingSomething)
         //    SpeakingCheck();
@@ -1375,6 +1379,18 @@ public class UnitMovement : MonoBehaviour
 
     private void MoveUnit(Vector3 location, GameObject detectedObject, bool leftClick)
     {
+		if (detectedObject == null)
+            return;
+
+		if (world.mainPlayer.runningAway)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't move right now");
+			return;
+		}
+
+		if (selectedUnit.isBusy)
+            return;
+        
         Vector3Int locationInt = world.RoundToInt(location);
 
         if (!world.GetTerrainDataAt(locationInt).isDiscovered)
@@ -1391,6 +1407,12 @@ public class UnitMovement : MonoBehaviour
         bool moveToSpeak = false;
         if (selectedUnit.isPlayer)
         {
+			if (world.IsInBattleArea(locationInt))
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't, battle going on here");
+				return;
+            }
+            
             if (selectedUnit.worker.inTransport)
                 return;
 
@@ -1578,20 +1600,20 @@ public class UnitMovement : MonoBehaviour
         if (!world.moveUnit)
         {
             world.moveUnit = true;
-            //world.citySelected = true;
+            world.citySelected = true;
 
-            if (selectedUnit.trader)
-                world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+            //if (selectedUnit.trader)
+            //    world.HighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
             //else if (selectedUnit.isLaborer)
             //    world.HighlightCitiesAndWonders();
         }
         else
         {
             world.moveUnit = false;
-			//world.citySelected = false;
+			world.citySelected = false;
 
-			if (selectedUnit.trader)
-				world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+			//if (selectedUnit.trader)
+			//	world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
 			//else if (selectedUnit.isLaborer)
 			//	world.UnhighlightCitiesAndWonders();
 		}
@@ -1607,10 +1629,10 @@ public class UnitMovement : MonoBehaviour
         if (world.moveUnit)
         {
             world.moveUnit = false;
-		    //world.citySelected = false;
+		    world.citySelected = false;
 
-		    if (selectedUnit.trader)
-			    world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
+       //     if (selectedUnit.trader)
+			    //world.UnhighlightCitiesAndWondersAndTradeCenters(selectedUnit.bySea);
 		    //else if (selectedUnit.isLaborer)
 		    //	world.UnhighlightCitiesAndWonders();
 
@@ -1681,7 +1703,7 @@ public class UnitMovement : MonoBehaviour
 			return;
 		}
 
-        CancelMove();
+        //CancelMove();
         Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
         City city = null;
 
@@ -1701,7 +1723,7 @@ public class UnitMovement : MonoBehaviour
         if (selectedUnit.inArmy)
             selectedUnit.military.army.RemoveFromArmy(selectedUnit.military, selectedUnit.military.barracksBunk);
         else if (!selectedUnit.trader)
-            world.GetCityDevelopment(city.singleBuildDict[selectedUnit.buildDataSO.singleBuildType]).unitsWithinCount--;
+            world.GetCityDevelopment(city.singleBuildDict[selectedUnit.buildDataSO.singleBuildType]).RemoveTraderFromImprovement(selectedUnit);
 
 		AddToCity(city, selectedUnit);
 		selectedUnit.DestroyUnit();
@@ -1812,7 +1834,7 @@ public class UnitMovement : MonoBehaviour
         {
             unit.trader.UnloadAll(joinedCity);
             world.traderList.Remove(unit.trader);
-            joinedCity.tradersHere.Remove(unit);
+            //joinedCity.tradersHere.Remove(unit);
             joinCity = false;
         }
         else if (unit.isLaborer)
@@ -1944,7 +1966,7 @@ public class UnitMovement : MonoBehaviour
                 world.scott.building = true;
                 world.scott.SetRoadQueue();
             }
-            else if (world.removingRoad)
+            else if (world.removing)
             {
                 world.scott.removing = true;
                 world.scott.SetRoadRemovalQueue();
@@ -1961,6 +1983,7 @@ public class UnitMovement : MonoBehaviour
     {
         world.utilityCostDisplay.HideUtilityCostDisplay();
         world.buildingRoad = false;
+        world.removing = false;
         world.removingAll = false;
         world.removingRoad = false;
         world.removingLiquid = false;
@@ -2009,7 +2032,7 @@ public class UnitMovement : MonoBehaviour
     {
         world.unitOrders = false;
         uiConfirmOrders.ToggleVisibility(false);
-        if (!selectedUnit.isBusy)
+        if (!selectedUnit.isBusy && !selectedUnit.runningAway)
             uiMoveUnit.ToggleVisibility(true);
         uiWorkerTask.ToggleVisibility(true, world);
     }
@@ -2300,17 +2323,22 @@ public class UnitMovement : MonoBehaviour
 
 	public void SetUpTradeRoute()
     {
-        //if (selectedUnit.trader)
-        //    return;
+		//if (selectedUnit.trader)
+		//    return;
+		if (!world.IsRoadOnTileLocation(world.RoundToInt(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't edit route off road");
+			return;
+		}
 
-        world.cityBuilderManager.PlaySelectAudio();
+		world.cityBuilderManager.PlaySelectAudio();
         if (!uiTradeRouteManager.activeStatus)
         {
             //LoadUnloadFinish(true);
             infoManager.HideInfoPanel();
             uiTradeRouteManager.ToggleButtonColor(true);
 
-            Vector3Int traderLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
+            Vector3Int traderLoc = selectedUnit.trader.atHome ? selectedUnit.trader.homeCity : world.GetClosestTerrainLoc(selectedUnit.transform.position);
 
             List<string> cityNames = world.GetConnectedCityNames(traderLoc, selectedUnit.bySea, true); //only showing city names accessible by unit
             uiTradeRouteManager.PrepareTradeRouteMenu(cityNames, selectedUnit.trader);
@@ -2353,17 +2381,24 @@ public class UnitMovement : MonoBehaviour
 				return;
             }
             
+            if (!world.IsRoadOnTileLocation(world.RoundToInt(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't start route off road");
+				return;
+			}
+
             if (!world.uiTradeRouteBeginTooltip.AffordCheck())
                 return;
+
             //if (world.moveUnit)
             //{
-            CancelMove();
+            //CancelMove();
     //            world.UnhighlightCitiesAndWondersAndTradeCenters(selectedTrader.bySea);
     //            moveUnit = false;
 				//uiMoveUnit.ToggleButtonColor(false);
 			//}
 
-			uiMoveUnit.ToggleVisibility(false);
+			//uiMoveUnit.ToggleVisibility(false);
             uiUnload.ToggleVisibility(false);
             uiJoinCity.ToggleVisibility(false);
 
@@ -2398,7 +2433,7 @@ public class UnitMovement : MonoBehaviour
             //}
 
 			selectedUnit.StopMovementCheck(false);
-            selectedUnit.TradersHereCheck();
+            selectedUnit.trader.TradersHereCheck();
 
             if (selectedUnit.trader.guarded)
 				selectedUnit.trader.guardUnit.StopMovementCheck(true);
@@ -2408,6 +2443,7 @@ public class UnitMovement : MonoBehaviour
             else
 			    selectedUnit.trader.BeginNextStepInRoute();
 
+            selectedUnit.trader.returning = false;
             uiTraderPanel.SwitchRouteIcons(true);
             //LoadUnloadFinish(true);
             //uiTraderPanel.uiLoadUnload.ToggleInteractable(false);
@@ -2429,7 +2465,7 @@ public class UnitMovement : MonoBehaviour
         selectedUnit.trader.RemoveWarning();
         selectedUnit.StopMovementCheck(false);
 		selectedUnit.trader.CancelRoute();
-        ShowIndividualCityButtonsUI();
+        //ShowIndividualCityButtonsUI();
 		//CancelContinuedMovementOrders();
 		//selectedUnit.ShiftMovement();
 		
@@ -2449,10 +2485,10 @@ public class UnitMovement : MonoBehaviour
         }
     }
 
-    public void UninterruptedRoute()
-    {
-        //selectedTrader.interruptedRoute = false;
-    }
+    //public void UninterruptedRoute()
+    //{
+    //    //selectedTrader.interruptedRoute = false;
+    //}
 
     public void ShowIndividualCityButtonsUI()
     {
@@ -2650,7 +2686,7 @@ public class UnitMovement : MonoBehaviour
             attackZoneList.Add(tile);
             td.EnableHighlight(Color.green);
             int attackZoneBonus = td.terrainData.terrainAttackBonus;
-            if (world.CheckIfTileIsImproved(tile))
+            if (world.CompletedImprovementCheck(tile))
             {
                 attackZoneBonus += world.GetCityDevelopment(tile).GetImprovementData.attackBonus;
                 world.GetCityDevelopment(tile).EnableHighlight(Color.green);
@@ -2664,9 +2700,9 @@ public class UnitMovement : MonoBehaviour
         }
 
         int enemyAttackZoneBonus = world.GetTerrainDataAt(potentialAttackLoc).terrainData.terrainAttackBonus;
-        if (isCity && world.CheckIfTileIsImproved(potentialAttackLoc))
+        if (isCity && world.CompletedImprovementCheck(potentialAttackLoc))
             enemyAttackZoneBonus += world.GetCityDevelopment(potentialAttackLoc).GetImprovementData.attackBonus;
-        else if (world.CheckIfTileIsImproved(barracksLoc))
+        else if (world.CompletedImprovementCheck(barracksLoc))
             enemyAttackZoneBonus += world.GetCityDevelopment(barracksLoc).GetImprovementData.attackBonus;
 		if (enemyAttackZoneBonus != 0)
         {
@@ -2689,7 +2725,7 @@ public class UnitMovement : MonoBehaviour
 			attackBonusText[i].gameObject.SetActive(false);
 
 		int attackZoneBonus = world.GetTerrainDataAt(attackZone).terrainData.terrainAttackBonus;
-        if (world.CheckIfTileIsImproved(attackZone))
+        if (world.CompletedImprovementCheck(attackZone))
             attackZoneBonus += world.GetCityDevelopment(attackZone).GetImprovementData.attackBonus;
 
 		if (attackZoneBonus != 0)
@@ -2699,7 +2735,7 @@ public class UnitMovement : MonoBehaviour
         }
 
 		int enemyTargetBonus = world.GetTerrainDataAt(enemyTarget).terrainData.terrainAttackBonus;
-		if (world.CheckIfTileIsImproved(enemyTarget))
+		if (world.CompletedImprovementCheck(enemyTarget))
 			enemyTargetBonus += world.GetCityDevelopment(enemyTarget).GetImprovementData.attackBonus;
 		if (enemyTargetBonus != 0)
 		{
@@ -2728,7 +2764,7 @@ public class UnitMovement : MonoBehaviour
     {
         for (int i = 0; i < attackZoneList.Count; i++)
         {
-			if (world.CheckIfTileIsImproved(attackZoneList[i]))
+			if (world.CompletedImprovementCheck(attackZoneList[i]))
                 world.GetCityDevelopment(attackZoneList[i]).DisableHighlight();
 			world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
         }
@@ -2965,7 +3001,6 @@ public class UnitMovement : MonoBehaviour
 
             //if (world.moveUnit)
             //{
-            CancelMove();
                 //if (selectedUnit.isLaborer)
                 //    world.UnhighlightCitiesAndWonders();
                 //else if (selectedUnit.trader)
@@ -2981,6 +3016,7 @@ public class UnitMovement : MonoBehaviour
 
 			if (selectedUnit.isPlayer)
             {
+                CancelMove();
                 world.scott.Unhighlight();
                 world.azai.Unhighlight();
                 uiCancelTask.ToggleVisibility(false);

@@ -33,6 +33,8 @@ MonoBehaviour:
   consumedResources:
   - resourceType: 4
     resourceAmount: 1
+  - resourceType: 7
+    resourceAmount: 20
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
@@ -40,7 +42,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 2
     resourceAmount: 1
-  producedResourceTime: 1e000000
+  producedResourceTime: 05000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
@@ -51,9 +53,9 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
@@ -62,5 +64,7 @@ MonoBehaviour:
   availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0
+  attackBonus: 0
+  singleBuildType: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 0}

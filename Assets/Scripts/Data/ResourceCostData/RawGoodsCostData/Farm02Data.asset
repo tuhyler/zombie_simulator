@@ -53,14 +53,15 @@ MonoBehaviour:
   waterIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 2
+  buildTime: 10
   availableInitially: 1
   hideIdleMesh: 1
   getTerrainResource: 0
+  attackBonus: 0
+  singleBuildType: 0
   noWalkAreas:
   - {x: 0, y: 0, z: 0}

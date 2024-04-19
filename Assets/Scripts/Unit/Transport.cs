@@ -228,7 +228,7 @@ public class Transport : Unit
 		}
 
 		finalDestinationLoc = safeTarget;
-		List<Vector3Int> runAwayPath = GridSearch.PlayerMove(world, currentLocation, safeTarget, bySea, false);
+		List<Vector3Int> runAwayPath = GridSearch.MilitaryMove(world, currentLocation, safeTarget, bySea);
 
 		//in case already there
 		if (runAwayPath.Count > 0)
@@ -254,7 +254,14 @@ public class Transport : Unit
 		
 		if (world.IsInBattleArea(currentLoc))
 		{
-			StepAside(currentLocation);
+			runningAway = true;
+			isBusy = true;
+
+			//if (isBusy)
+			//	world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
+
+			exclamationPoint.SetActive(true);
+			StepAside(currentLocation, null);
 			return;
 		}
 

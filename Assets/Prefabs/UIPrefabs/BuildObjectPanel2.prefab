@@ -630,17 +630,19 @@ MonoBehaviour:
   waterText: {fileID: 7662638300160660780}
   objectImage: {fileID: 3355032083150064776}
   strengthImage: {fileID: 909802123960938854}
+  waterImage: {fileID: 7977855906442278627}
   inventorySprite: {fileID: 21300000, guid: 98e84444996eba34398f279ebc9ebcd2, type: 3}
   rocksNormal: {fileID: 21300000, guid: a9e00241de0a0344b90c338d6f6ad7ad, type: 3}
   rocksLuxury: {fileID: 21300000, guid: 6b5b7a5b5246769439048e9724d7e301, type: 3}
   rocksChemical: {fileID: 21300000, guid: f450e4abfc1a1bd438c7b5645ff1c934, type: 3}
+  waterIcon: {fileID: 21300000, guid: 4ab88835954676043b42fe09d9fd6f26, type: 3}
+  powerIcon: {fileID: 21300000, guid: 97c9b3c8315bd654a8ead3474d04a14e, type: 3}
   resourceInfoPanel: {fileID: 624308965952619012, guid: b05e5795d27dfbe4e8ad1f72f3524c6e,
     type: 3}
   productionPanel: {fileID: 8060467306141513032}
   descriptionPanel: {fileID: 782222132665763097}
   workEthicImage: {fileID: 9151081472323367926}
   housingImage: {fileID: 7011452201403197507}
-  waterImage: {fileID: 6037771131064655066}
   newIcon: {fileID: 9037187148876125007}
   resourceProducedHolder: {fileID: 5892023623257131259}
   resourceCostHolder: {fileID: 4248947161074216305}
@@ -654,6 +656,7 @@ MonoBehaviour:
   trainingBarracks: 0
   waterMax: 0
   isFlashing: 0
+  somethingNew: 0
   costResourcePanels: []
   producedResourcePanels: []
 --- !u!114 &2752009295249272438
@@ -2441,7 +2444,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 125, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4502952019623452307
 MonoBehaviour:
@@ -3698,7 +3701,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 230, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &6290983028630849732

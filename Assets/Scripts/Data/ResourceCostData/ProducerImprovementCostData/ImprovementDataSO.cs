@@ -38,6 +38,7 @@ public class ImprovementDataSO : ScriptableObject
     public int housingIncrease;
     public bool cityHousing;
     public int waterIncrease;
+    public int powerIncrease;
     public bool replaceTerrain = false; //prefab replaces terrain
     public bool replaceRocks = false; //setting rocks as the same color as the prop
     //public bool singleBuild = false; //only one per city

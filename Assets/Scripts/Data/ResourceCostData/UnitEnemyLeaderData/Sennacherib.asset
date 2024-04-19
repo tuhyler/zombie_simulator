@@ -24,12 +24,12 @@ MonoBehaviour:
   cycleCost: []
   battleCost: []
   laborCost: 1
-  unitType: 1
+  unitType: 2
   unitDescription: 
   availableInitially: 0
-  health: 300
+  health: 50
   regenerationRate: 16
-  baseAttackStrength: 260
+  baseAttackStrength: 65
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 0
@@ -38,8 +38,6 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 1
   npc: 1
-  borderColor: {r: 1, g: 0.9311092, b: 0, a: 0.6862745}
-  colorOne: {x: 0.059649, y: 0.957281}
-  colorTwo: {x: 0.059179, y: 0.980705}
+  singleBuildType: 0
   unitEra: 0
   unitRegion: 1

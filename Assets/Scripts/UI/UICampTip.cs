@@ -92,7 +92,7 @@ public class UICampTip : MonoBehaviour
 			{
 				this.army = army;
 				this.enemyCamp = enemyCamp;
-				SetData(false, army.CalculateBattleCost(enemyCamp.strength), enemyCamp.infantryCount, enemyCamp.rangedCount, enemyCamp.cavalryCount, enemyCamp.seigeCount, enemyCamp.health, enemyCamp.strength);
+				SetData(false, army.CalculateBattleCost(enemyCamp.strength), enemyCamp.infantryCount, enemyCamp.rangedCount, enemyCamp.cavalryCount, enemyCamp.seigeCount, enemyCamp.health, enemyCamp.strength, enemyCamp.GetLeader());
 			}
 
 			gameObject.SetActive(val);
@@ -198,10 +198,38 @@ public class UICampTip : MonoBehaviour
 			SetData(false, army.CalculateBattleCost(enemyCamp.strength), enemyCamp.infantryCount, enemyCamp.rangedCount, enemyCamp.cavalryCount, enemyCamp.seigeCount, enemyCamp.health, enemyCamp.strength);
 	}
 
-	private void SetData(bool isArmy, List<ResourceValue> costs, int infantry, int ranged, int cavalry, int seige, int health, int strength)
+	private void SetData(bool isArmy, List<ResourceValue> costs, int infantry, int ranged, int cavalry, int seige, int health, int strength, MilitaryLeader leader = null)
 	{
 		int totalArmyComp = 0;
 		
+		if (leader)
+		{
+			strength += leader.buildDataSO.baseAttackStrength;
+			health += leader.buildDataSO.health;
+
+			bool displaceUnit = false;
+			foreach (Military unit in enemyCamp.UnitsInCamp)
+			{
+				if (unit.barracksBunk == leader.barracksBunk)
+				{
+					displaceUnit = true;
+					strength -= unit.buildDataSO.baseAttackStrength;
+					health -= unit.buildDataSO.health;
+					break;
+				}
+			}
+
+			if (!displaceUnit)
+			{
+				if (leader.buildDataSO.unitType == UnitType.Infantry)
+					infantry++;
+				else if (leader.buildDataSO.unitType == UnitType.Ranged)
+					ranged++;
+				else if (leader.buildDataSO.unitType == UnitType.Cavalry)
+					cavalry++;
+			}
+		}
+
 		if (infantry == 0)
 		{
 			infantryHolder.SetActive(false);
