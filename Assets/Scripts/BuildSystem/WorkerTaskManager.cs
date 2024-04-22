@@ -84,7 +84,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     private void MoveToCenterOfTile(Vector3Int workerTile)
     {
-        world.mainPlayer.StopMovementCheck(false);
+        //world.mainPlayer.StopMovementCheck(false);
         unitMovement.GoStraightToSelectedLocation(workerTile, workerTile, world.mainPlayer);
     }
 

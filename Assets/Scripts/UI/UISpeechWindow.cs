@@ -253,8 +253,8 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 				world.unitMovement.SelectWorker();
 				world.unitMovement.uiWorkerTask.ToggleVisibility(true, world);
 				world.unitMovement.PrepareMovement();
-				if (!world.mainPlayer.inEnemyLines)
-					world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+				//if (!world.mainPlayer.inEnemyLines)
+				//	world.unitMovement.uiMoveUnit.ToggleVisibility(true);
 			}
 		}
 

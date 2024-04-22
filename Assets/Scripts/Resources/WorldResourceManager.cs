@@ -7,7 +7,7 @@ public class WorldResourceManager : MonoBehaviour
     private UIWorldResources uiWorldResources;
 
     private Dictionary<ResourceType, int> resourceDict = new(); 
-    private Dictionary<ResourceType, float> resourceGenerationPerTurnDict = new();
+    //private Dictionary<ResourceType, float> resourceGenerationPerTurnDict = new();
 
     //initial resources
     public List<ResourceValue> worldResources = new(); //define world resources here
@@ -28,7 +28,7 @@ public class WorldResourceManager : MonoBehaviour
             if (resourceType == ResourceType.None)
                 continue;
             resourceDict[resourceType] = 0;
-            resourceGenerationPerTurnDict[resourceType] = 0;
+            //resourceGenerationPerTurnDict[resourceType] = 0;
         }
     }
 
@@ -65,15 +65,15 @@ public class WorldResourceManager : MonoBehaviour
         UpdateUI(resourceType);
     }
 
-    public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff, bool add)
-    {
-        if (add)
-            resourceGenerationPerTurnDict[resourceType] += generationDiff;
-        else
-            resourceGenerationPerTurnDict[resourceType] -= generationDiff;
+    //public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff, bool add)
+    //{
+    //    if (add)
+    //        resourceGenerationPerTurnDict[resourceType] += generationDiff;
+    //    else
+    //        resourceGenerationPerTurnDict[resourceType] -= generationDiff;
         
-        //UpdateUI(resourceType);
-    }
+    //    //UpdateUI(resourceType);
+    //}
 
     public List<ResourceType> PassWorldResources()
     {

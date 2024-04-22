@@ -201,7 +201,7 @@ MonoBehaviour:
   unusedLabor: 0
   usedLabor: 0
   unitFoodConsumptionPerMinute: 1
-  secondsTillGrowthCheck: 10
+  secondsTillGrowthCheck: 60
   growthFood: 3
   countDownTimer: 0
   housingLocsAtMax: 0

@@ -138,11 +138,18 @@ public class UIResearchTooltip : MonoBehaviour
 		//resourceProduceLayout.spacing = 0;
 		//int produceLayoutPadding = 10;
 
-		if (workEthic > 0)
+		if (workEthic != 0)
 		{
 			workEthicImage.SetActive(true);
 			workEthicText.gameObject.SetActive(true);
-			workEthicText.text = "+" + Mathf.RoundToInt(workEthic * 100).ToString() + "%";
+            string prefix = "+";
+            workEthicText.color = Color.black;
+            if (workEthic < 0)
+            {
+                prefix = "";
+                workEthicText.color = Color.red;
+            }
+			workEthicText.text = prefix + Mathf.RoundToInt(workEthic * 100).ToString() + "%";
 			showCityStatsDesc = true;
 		}
         else

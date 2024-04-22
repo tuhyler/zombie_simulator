@@ -27,7 +27,7 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
-	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
+	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
 	public List<Unit> unitUpgradeList = new();
 	//public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
@@ -262,21 +262,25 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < world.researchWaitList.Count; i++)
 			gameData.researchWaitList.Add(world.researchWaitList[i].producerLoc);
 
-		gameData.goldCityWaitList.Clear();
-		for (int i = 0; i < world.goldCityWaitList.Count; i++)
-			gameData.goldCityWaitList.Add(world.goldCityWaitList[i].cityLoc);
+		gameData.goldWaitList.Clear();
+		for (int i = 0; i < world.goldWaitList.Count; i++)
+			gameData.goldWaitList.Add((world.goldWaitList[i].waiterLoc, world.goldWaitList[i].goldNeeded));
 
-		gameData.goldCityRouteWaitList.Clear();
-		for (int i = 0; i < world.goldCityRouteWaitList.Count; i++)
-			gameData.goldCityRouteWaitList.Add(world.goldCityRouteWaitList[i].cityLoc);
+		//gameData.goldCityWaitList.Clear();
+		//for (int i = 0; i < world.goldCityWaitList.Count; i++)
+		//	gameData.goldCityWaitList.Add(world.goldCityWaitList[i].cityLoc);
 
-		gameData.goldWonderWaitList.Clear();
-		for (int i = 0; i < world.goldWonderWaitList.Count; i++)
-			gameData.goldWonderWaitList.Add(world.goldWonderWaitList[i].unloadLoc);
+		//gameData.goldCityRouteWaitList.Clear();
+		//for (int i = 0; i < world.goldCityRouteWaitList.Count; i++)
+		//	gameData.goldCityRouteWaitList.Add(world.goldCityRouteWaitList[i].cityLoc);
 
-		gameData.goldTradeCenterWaitList.Clear();
-		for (int i = 0; i < world.goldTradeCenterWaitList.Count; i++)
-			gameData.goldTradeCenterWaitList.Add(world.goldTradeCenterWaitList[i].mainLoc);
+		//gameData.goldWonderWaitList.Clear();
+		//for (int i = 0; i < world.goldWonderWaitList.Count; i++)
+		//	gameData.goldWonderWaitList.Add(world.goldWonderWaitList[i].unloadLoc);
+
+		//gameData.goldTradeCenterWaitList.Clear();
+		//for (int i = 0; i < world.goldTradeCenterWaitList.Count; i++)
+		//	gameData.goldTradeCenterWaitList.Add(world.goldTradeCenterWaitList[i].mainLoc);
 
 		gameData.allTCRepData.Clear();
 		foreach (string name in world.allTCReps.Keys)
@@ -639,25 +643,47 @@ public class GameLoader : MonoBehaviour
 			world.researchWaitList.Add(world.GetResourceProducer(gameData.researchWaitList[i]));
 		gameData.researchWaitList.Clear();
 
+		//gold wait list
+		for (int i = 0; i < gameData.goldWaitList.Count; i++)
+		{
+			if (world.IsCityOnTile(gameData.goldWaitList[i].Item1))
+			{
+				world.goldWaitList.Add(world.GetCity(gameData.goldWaitList[i].Item1)); //don't need to load in goldNeeded for city
+			}
+			else if (world.IsWonderOnTile(gameData.goldWaitList[i].Item1))
+			{
+				Wonder wonder = world.GetWonder(gameData.goldWaitList[i].Item1);
+				wonder.totalGoldCost = gameData.goldWaitList[i].Item2;
+				world.goldWaitList.Add(wonder);
+			}
+			if (world.IsTradeCenterOnTile(gameData.goldWaitList[i].Item1))
+			{
+				TradeCenter center = world.GetTradeCenter(gameData.goldWaitList[i].Item1);
+				center.waitingAmount = gameData.goldWaitList[i].Item2;
+				world.goldWaitList.Add(center);
+			}
+		}
+		gameData.goldWaitList.Clear();
+
 		//gold city wait list
-		for (int i = 0; i < gameData.goldCityWaitList.Count; i++)
-			world.goldCityWaitList.Add(world.GetCity(gameData.goldCityWaitList[i]));
-		gameData.researchWaitList.Clear();
+		//for (int i = 0; i < gameData.goldCityWaitList.Count; i++)
+		//	world.goldCityWaitList.Add(world.GetCity(gameData.goldCityWaitList[i]));
+		//gameData.goldCityWaitList.Clear();
 
 		//gold city route wait list
-		for (int i = 0; i < gameData.goldCityRouteWaitList.Count; i++)
-			world.goldCityRouteWaitList.Add(world.GetCity(gameData.goldCityRouteWaitList[i]));
-		gameData.researchWaitList.Clear();
+		//for (int i = 0; i < gameData.goldCityRouteWaitList.Count; i++)
+		//	world.goldCityRouteWaitList.Add(world.GetCity(gameData.goldCityRouteWaitList[i]));
+		//gameData.goldCityRouteWaitList.Clear();
 
 		//gold wonder wait list
-		for (int i = 0; i < gameData.goldWonderWaitList.Count; i++)
-			world.goldWonderWaitList.Add(world.GetWonder(gameData.goldWonderWaitList[i]));
-		gameData.researchWaitList.Clear();
+		//for (int i = 0; i < gameData.goldWonderWaitList.Count; i++)
+		//	world.goldWonderWaitList.Add(world.GetWonder(gameData.goldWonderWaitList[i]));
+		//gameData.goldWonderWaitList.Clear();
 
 		//gold trade center wait list
-		for (int i = 0; i < gameData.goldTradeCenterWaitList.Count; i++)
-			world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
-		gameData.researchWaitList.Clear();
+		//for (int i = 0; i < gameData.goldTradeCenterWaitList.Count; i++)
+		//	world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
+		//gameData.goldTradeCenterWaitList.Clear();
 
 		//trade center waiting lists
 		foreach (TradeCenter center in centerWaitingDict.Keys)
@@ -680,8 +706,10 @@ public class GameLoader : MonoBehaviour
 		//city waiting lists
 		foreach (City city in cityWaitingDict.Keys)
 		{
-			(List<Vector3Int> producersWaiting, List<Vector3Int> producersStorageWaiting, List<Vector3Int> producersUnloadWaiting,
+			(List<Vector3Int> goldWaitList, List<Vector3Int> resourceWaitList, List<Vector3Int> producersWaiting, List<Vector3Int> producersStorageWaiting, List<Vector3Int> producersUnloadWaiting,
 				List<int> waitList, List<int> seaWaitList, List<int> tradersWaiting) = cityWaitingDict[city];
+			city.SetGoldWaitList(goldWaitList);
+			city.SetResourceWaitList(resourceWaitList);
 			city.SetProducerWaitingList(producersWaiting);
 			city.SetProducerStorageRoomWaitingList(producersStorageWaiting);
 			city.SetWaitingToUnloadProducerList(producersUnloadWaiting);

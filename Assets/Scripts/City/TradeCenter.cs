@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
-public class TradeCenter : MonoBehaviour
+public class TradeCenter : MonoBehaviour, IGoldWaiter
 {
     [HideInInspector]
     public MapWorld world;
@@ -56,10 +56,14 @@ public class TradeCenter : MonoBehaviour
     public List<ResourceValue> buyResources = new();
     public List<ResourceValue> sellResources = new();
 
-    //for queuing unloading
-    private Queue<Unit> waitList = new(), seaWaitList = new();
+    int IGoldWaiter.goldNeeded => waitingAmount;
+	Vector3Int IGoldWaiter.waiterLoc => mainLoc;
+
+	//for queuing unloading
+	private Queue<Unit> waitList = new(), seaWaitList = new();
     private TradeRouteManager tradeRouteWaiter;
-    private int waitingAmount;
+    [HideInInspector]
+    public int waitingAmount;
 
     private void Awake()
     {
@@ -236,7 +240,7 @@ public class TradeCenter : MonoBehaviour
     {
         tradeRouteWaiter = tradeRouteManager;
         waitingAmount = amount;
-        world.AddToGoldTradeCenterWaitList(this);
+        world.AddToGoldWaitList(this);
     }
 
     private void CheckGoldWaiter()
@@ -330,21 +334,22 @@ public class TradeCenter : MonoBehaviour
 		}
 	}
 
-    public void GoldCheck()
+    public bool RestartGold(int gold)
     {
-        if (world.CheckWorldGold(waitingAmount))
+        if (waitingAmount <= gold)
         {
             CheckGoldWaiter();
+            return true;
         }
         else
         {
-            world.AddToGoldTradeCenterWaitList(this);
+            return false;
         }
     }
 
     public void RemoveFromWaitList()
     {
-        world.RemoveTradeCenterFromWaitList(this);
+        world.RemoveFromGoldWaitList(this);
     }
 
     public void EnableHighlight(Color highlightColor, bool newGlow)

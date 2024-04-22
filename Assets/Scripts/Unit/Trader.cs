@@ -6,8 +6,9 @@ using System.Resources;
 using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
+using static UnityEngine.UI.CanvasScaler;
 
-public class Trader : Unit
+public class Trader : Unit, ICityGoldWait, ICityResourceWait
 {
     [HideInInspector]
     public PersonalResourceManager personalResourceManager;
@@ -22,7 +23,7 @@ public class Trader : Unit
     private int totalRouteLength;
 
     [HideInInspector]
-    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, guardLeft, atHome, returning;//, interruptedRoute;
+    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, guardLeft, atHome, returning;
     [HideInInspector]
     public Unit guardUnit;
 	[HideInInspector]
@@ -30,11 +31,16 @@ public class Trader : Unit
 
     public int loadUnloadRate = 1;
 
+	[HideInInspector]
+	public int goldNeeded;
+	
     private Coroutine LoadUnloadCo, WaitTimeCo, waitingCo;
 	private WaitForSeconds moveInLinePause = new WaitForSeconds(0.5f);
 
 	[HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
+
+	Vector3Int ICityGoldWait.WaitLoc => currentLocation;
 
     //animations
     private int isInterruptedHash;
@@ -143,16 +149,43 @@ public class Trader : Unit
             return world.GetCity(tradeRouteManager.cityStops[0]);
     }
 
-    //public List<Vector3Int> GetCityStops()
-    //{
-    //    if (tradeRouteManager == null)
-    //    {
-    //        List<Vector3Int> cityStops = new();
-    //        return cityStops;
-    //    }
+	public bool RestartGold(int gold)
+	{
+		if (goldNeeded <= gold)
+		{
+			TradeRouteCheck(GetStartingCity().cityLoc);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
-    //    return tradeRouteManager.CityStops;
-    //}
+	public bool Restart(ResourceType type)
+	{
+		if (waitingOnRouteCosts && routeCostTypes.Contains(type))
+		{
+			City city = GetStartingCity();
+
+			if (city.ResourceManager.RouteCostCheck(totalRouteCosts))
+			{
+				TradeRouteCheck(city.cityLoc);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			if (tradeRouteManager.ResourceWaitCheck(type))
+				return true;
+			else
+				return false;
+		}
+	}
 
     public void RestartRoute(Vector3Int cityLoc)
     {
@@ -166,7 +199,7 @@ public class Trader : Unit
 			if (tradeRouteManager.currentStop == 0)
             {
                 City city = GetStartingCity();
-				if (city.ResourceManager.ConsumeResourcesForRouteCheck(totalRouteCosts))
+				if (city.ResourceManager.ConsumeResourcesForRouteCheck(totalRouteCosts, this))
                 {
                     waitingOnRouteCosts = false;
 					RemoveWarning();
@@ -491,17 +524,22 @@ public class Trader : Unit
             finalDestinationLoc = nextStop;
             MoveThroughPath(currentPath);
             tradeRouteManager.CheckQueues();
-
-            if (guarded)
-            {
-                currentPath.Insert(0, world.RoundToInt(transform.position));
-                currentPath.RemoveAt(currentPath.Count - 1);
-
-                guardUnit.finalDestinationLoc = guardUnit.military.GuardRouteFinish(nextStop, currentPath[currentPath.Count - 1]);
-                guardUnit.MoveThroughPath(currentPath);
-            }
+			GuardFollow(nextStop, currentPath);
         }
     }
+
+	private void GuardFollow(Vector3Int destination, List<Vector3Int> currentPath)
+	{
+		if (guarded)
+		{
+			guardUnit.StopMovementCheck(false);
+			currentPath.Insert(0, world.RoundToInt(transform.position));
+			currentPath.RemoveAt(currentPath.Count - 1);
+
+			guardUnit.finalDestinationLoc = guardUnit.military.GuardRouteFinish(destination, currentPath[currentPath.Count - 1]);
+			guardUnit.MoveThroughPath(currentPath);
+		}
+	}
 
 	public void PrepForRoute()
 	{
@@ -519,6 +557,21 @@ public class Trader : Unit
 		followingRoute = true;
 		finalDestinationLoc = firstStep;
 		MoveThroughPath(path);
+	}
+
+	private void ReturnToStall()
+	{
+		GoToStall();
+
+		if (guarded)
+		{
+			guarded = false;
+			guardUnit.military.GuardToBunkCheck(homeCity);
+			guardUnit = null;
+	
+			if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == this)
+				world.uiTradeRouteBeginTooltip.UpdateGuardCosts();
+		}
 	}
 
 	public void GoToStall()
@@ -550,7 +603,7 @@ public class Trader : Unit
 			Vector3Int homeLoc = bySea ? world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor] : homeCity;
 			if (atHome || currentLoc == homeLoc)
 			{
-				GoToStall();
+				ReturnToStall();
 				return;
 			}
 
@@ -560,6 +613,7 @@ public class Trader : Unit
 			{
 				finalDestinationLoc = homeLoc;
 				MoveThroughPath(pathHome);
+				GuardFollow(homeLoc, pathHome);
 				return;
 			}
 		}
@@ -597,6 +651,12 @@ public class Trader : Unit
 		//if can't get home, kill unit
 		if (chosenCity == null)
 		{
+			if (guarded)
+			{
+				originalMoveSpeed = buildDataSO.movementSpeed;
+				guardUnit.military.guardedTrader = null;
+				guardUnit.military.MoveForGuardDuty(homeCity);
+			}
 			KillUnit(Vector3.zero);
 			return;
 		}
@@ -628,7 +688,14 @@ public class Trader : Unit
     {
         followingRoute = false;
 		RemoveWarning();
-		waitingOnRouteCosts = false;
+		if (waitingOnRouteCosts)
+		{
+			City city = GetStartingCity();
+			int place = city.ResourceManager.RemoveFromGoldWaitList(this);
+			trader.world.RemoveCityFromGoldWaitList(city, place);
+			waitingOnRouteCosts = false;
+		}
+		
         if (waitingCo != null)
             StopCoroutine(waitingCo);
 
@@ -1023,6 +1090,14 @@ public class Trader : Unit
 						
 						return;
 					}
+					else if (guarded)
+					{
+						if (guardUnit.isMoving)
+						{
+							waitingOnGuard = true;
+							return;
+						}
+					}
 				}
 			}
 			
@@ -1047,12 +1122,7 @@ public class Trader : Unit
 			if (homeCityArrival)
 			{
 				if (returning)
-					GoToStall();
-				/*else
-				{
-					atHome = false;
-					BeginNextStepInRoute();
-				}*/
+					ReturnToStall();
 			}
 			else if (returning)
 			{
@@ -1136,6 +1206,7 @@ public class Trader : Unit
         data.guardLeft = guardLeft;
         data.currentHealth = currentHealth;
         data.paid = paid;
+		data.goldNeeded = goldNeeded;
 		data.homeCity = homeCity;
 		//data.stallLoc = stallLoc;
 		data.atHome = atHome;
@@ -1205,6 +1276,7 @@ public class Trader : Unit
 		//stallLoc = data.stallLoc;
 		atHome = data.atHome;
 		returning = data.returning;
+		goldNeeded = data.goldNeeded;
 
 		if (atHome && !isMoving)
 			world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).AddTraderToImprovement(this);

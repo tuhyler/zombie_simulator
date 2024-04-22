@@ -13,18 +13,18 @@ public class UICityImprovementTip : MonoBehaviour
     private MapWorld world;
     
     [SerializeField]
-    public TMP_Text title, level, resourceCount, waitingForText, consumesText, specialtyAmount;
+    public TMP_Text title, level, resourceCount, waitingForText, consumesText, workEthicAmount, specialtyAmount;
     private TMP_Text /*producesText, */consumesNone;
 
     [SerializeField]
-    private GameObject /*waitingForText, */resourceCountGO, producesHolder, specialtyHolder;
+    private GameObject /*waitingForText, */resourceCountGO, producesHolder, workEthicHolder, specialtyHolder;
     private bool waiting;
 
     [SerializeField]
     private Image improvementImage, specialtyImage;//, produceHighlight;
 
     [SerializeField]
-    private Sprite workEthicSprite, housingSprite, waterSprite, powerSprite;
+    private Sprite housingSprite, waterSprite, powerSprite;
 
     [SerializeField]
     private List<Image> highlightList = new();
@@ -205,39 +205,47 @@ public class UICityImprovementTip : MonoBehaviour
             else
                 workEthic = improvement.city.workEthic;
 
+            specialtyHolder.SetActive(false);
+            workEthicHolder.SetActive(false);
+
             if (producer.producedResources.Count > 0)
             {
-                specialtyHolder.SetActive(false);
                 SetResourcePanelInfo(producesInfo, producer.producedResources, producedTime, true, producer.isProducing, workEthic);
             }
             else
             {
-                specialtyHolder.SetActive(true);
-
-                if (data.workEthicChange != 0)
+				if (data.workEthicChange != 0)
                 {
-                    specialtyAmount.text = "+ " + Mathf.RoundToInt(data.workEthicChange * 100).ToString() + "%";
-                    specialtyImage.sprite = workEthicSprite;
+                    workEthicHolder.SetActive(true);
+                    string prefix = "+";
+                    workEthicAmount.color = Color.black;
+
+					if (data.workEthicChange < 0)
+                    {
+						prefix = "";
+						workEthicAmount.color = Color.red;
+					}
+
+                    workEthicAmount.text = prefix + Mathf.RoundToInt(data.workEthicChange * 100).ToString() + "%";
 				}
                 else if (data.housingIncrease > 0)
                 {
-                    specialtyAmount.text = "+ " + data.housingIncrease.ToString();
+					specialtyHolder.SetActive(true);
+					specialtyAmount.text = "+" + data.housingIncrease.ToString();
                     specialtyImage.sprite = housingSprite;
 				}
                 else if (data.waterIncrease > 0)
                 {
-                    specialtyAmount.text = "+ " + data.waterIncrease.ToString();
+					specialtyHolder.SetActive(true);
+					specialtyAmount.text = "+" + data.waterIncrease.ToString();
                     specialtyImage.sprite = waterSprite;
 				}
                 else if (data.powerIncrease > 0)
                 {
-					specialtyAmount.text = "+ " + data.powerIncrease.ToString();
+					specialtyHolder.SetActive(true);
+					specialtyAmount.text = "+" + data.powerIncrease.ToString();
 					specialtyImage.sprite = powerSprite;
 				}
-                else
-                {
-                    specialtyHolder.SetActive(false);
-                }
             }
             
             SetResourcePanelInfo(consumesInfo, improvement.allConsumedResources[highlightIndex], producedTime, false);

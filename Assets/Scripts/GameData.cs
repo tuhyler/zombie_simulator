@@ -17,7 +17,8 @@ public class GameData
     public Dictionary<Vector3Int, int> currentWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
-    public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new(), goldCityWaitList = new(), goldCityRouteWaitList = new(), goldWonderWaitList = new(), goldTradeCenterWaitList = new();
+    public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new();
+    public List<(Vector3Int, int)> goldWaitList = new();
     public string tutorialStep, gameStep;
     public List<string> conversationTasks = new();
     public bool scottFollow, azaiFollow, tutorial, tutorialGoing;

@@ -39,7 +39,7 @@ public class CityData
 	public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, enemyReady, issueRefund = true;
 
 	//waiting lists
-	public List<Vector3Int> waitingforResourceProducerList = new(), waitingForProducerStorageList = new(), waitingToUnloadProducerList = new(), waitingToUnloadResearchList = new();
+	public List<Vector3Int> goldWaitList = new(), resourceWaitList = new(), waitingforResourceProducerList = new(), waitingForProducerStorageList = new(), waitingToUnloadProducerList = new(), waitingToUnloadResearchList = new();
 	public List<ResourceType> resourcesNeededForProduction;
 	public List<int> waitingForTraderList = new(), waitList = new(), seaWaitList = new();
 	public List<ResourceType> resourcesNeededForRoute;

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEditor.Progress;
 
-public class UICampTip : MonoBehaviour
+public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 {
 	[SerializeField]
 	private MapWorld world;
@@ -97,6 +97,8 @@ public class UICampTip : MonoBehaviour
 
 			gameObject.SetActive(val);
 			activeStatus = true;
+			if (EnemyScreenActive())
+				world.goldUpdateCheck = this;
 
 			//setting up pop up location
 			Vector3 p = Input.mousePosition;
@@ -148,6 +150,7 @@ public class UICampTip : MonoBehaviour
 			this.army = null;
 
 			activeStatus = false;
+			world.goldUpdateCheck = null;
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
 		}
 	}
@@ -411,6 +414,11 @@ public class UICampTip : MonoBehaviour
 				}
 			}
 		}
+	}
+
+	public void UpdateGold(int prevAmount, int amount, bool pos)
+	{
+		UpdateBattleCostCheck(amount, ResourceType.Gold);
 	}
 
 	//seeing if battle can be afforded or not

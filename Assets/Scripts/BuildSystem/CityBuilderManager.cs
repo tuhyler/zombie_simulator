@@ -292,9 +292,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 City city = improvementSelected.city;
                 if (city == null) //for orphan barracks or harbors
-                {
                     return;
-                }
 
                 SingleBuildType type = improvementSelected.GetImprovementData.singleBuildType;
 				if (type == SingleBuildType.Barracks || type == SingleBuildType.Shipyard || type == SingleBuildType.AirBase)
@@ -303,6 +301,19 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else if (type == SingleBuildType.TradeDepot || type == SingleBuildType.Harbor || type == SingleBuildType.Airport)
                 {
+					if (selectedCity != null)
+                    {
+						if (selectedCity != improvementSelected.city)
+                        {
+                            ResetCityUI();
+                        }
+                        else if (uiCityTabs.openTab)
+                        {
+                            uiCityTabs.HideSelectedTab(false);
+                            return;
+                        }
+                    }
+
 					world.OpenImprovementTooltip(improvementSelected);
                     return;
 				}
@@ -665,18 +676,19 @@ public class CityBuilderManager : MonoBehaviour
             uiWonderSelection.UpdateUIWorkers(selectedWonder.WorkersReceived, selectedWonder);
 
         Vector3Int buildPosition = selectedWonder.unloadLoc;
-        if (world.IsUnitLocationTaken(buildPosition) || !world.CheckIfPositionIsValid(buildPosition)) //placing unit in world after building in city
-        {
-            //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
-            foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
-            {
-                if (!world.IsUnitLocationTaken(pos) && world.CheckIfPositionIsValid(pos))
-                {
-                    buildPosition = pos;
-                    break;
-                }
-            }
-        }
+        world.RemoveFromGoldWaitList(selectedWonder);
+        //if (world.IsUnitLocationTaken(buildPosition) || !world.CheckIfPositionIsValid(buildPosition)) //placing unit in world after building in city
+        //{
+        //    //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
+        //    foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAYTWODEEP))
+        //    {
+        //        if (!world.IsUnitLocationTaken(pos) && world.CheckIfPositionIsValid(pos))
+        //        {
+        //            buildPosition = pos;
+        //            break;
+        //        }
+        //    }
+        //}
 
         TransferWorker(secondary, homeCityLoc, buildPosition, true);
     }
@@ -2169,16 +2181,18 @@ public class CityBuilderManager : MonoBehaviour
 
             if (newUnit.military.army.selected)
                 newUnit.SoftSelect(Color.white);
+            else if (world.assigningGuard && world.uiTradeRouteBeginTooltip.MilitaryLocCheck(world.GetClosestTerrainLoc(buildPosition)))
+                newUnit.SoftSelect(Color.green);
         
             rot = city.army.GetRandomSpot(newUnit.military.barracksBunk) - newUnit.transform.position;
             //rot += new Vector3(0, 0.05f, 0); //to avoid the warning message
 
-			if (uiUnitBuilder.activeStatus)
+			if (city.activeCity && uiUnitBuilder.activeStatus)
 				uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
 			else if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.improvement == world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]))
 				world.uiCampTooltip.RefreshData();
-            else if (city.army.selected)
-				newUnit.SoftSelect(Color.white);
+    //        else if (city.army.selected)
+				//newUnit.SoftSelect(Color.white);
 
             newUnit.name = unitData.unitDisplayName;
             if (!upgrading)
@@ -2917,6 +2931,8 @@ public class CityBuilderManager : MonoBehaviour
         if (improvementData.singleBuildType != SingleBuildType.None)
         {
             city.singleBuildDict[improvementData.singleBuildType] = tempBuildLocation;
+            if (city.activeCity && uiUnitBuilder.activeStatus)
+                uiUnitBuilder.UpdateTrainingStatus(improvementData.singleBuildType);
         }
 
         //setting harbor info
@@ -2932,6 +2948,7 @@ public class CityBuilderManager : MonoBehaviour
             world.militaryStationLocs.Add(tempBuildLocation);
             //city.hasBarracks = true;
             //city.barracksLocation = tempBuildLocation;
+            cityImprovement.army = city.army;
 
 			foreach (Vector3Int tile in world.GetNeighborsFor(tempBuildLocation, MapWorld.State.EIGHTWAYARMY))
                 city.army.SetArmySpots(tile);
@@ -2958,6 +2975,8 @@ public class CityBuilderManager : MonoBehaviour
             cityImprovement.SetInactive();
             TileCheck(tempBuildLocation, city, improvementData.maxLabor);
         }
+
+        constructingTiles.Remove(tempBuildLocation); //don't need to check for active city
     }
 
     private void TileCheck(Vector3Int tempBuildLocation, City city, int maxLabor)
@@ -4193,6 +4212,7 @@ public class CityBuilderManager : MonoBehaviour
                 continue;
 
             Vector3Int improvementLoc = city.singleBuildDict[singleImprovement];
+            CityImprovement improvement = world.GetCityDevelopment(improvementLoc);
 			if (improvementLoc == city.cityLoc)
 				continue;
 
@@ -4222,7 +4242,8 @@ public class CityBuilderManager : MonoBehaviour
 						{
 							//tempCity.hasBarracks = true;
 							//tempCity.barracksLocation = improvementLoc;
-							tempCity.army.city = tempCity;
+                            tempCity.army.city = tempCity;
+                            improvement.army = tempCity.army;
 
 							foreach (Vector3Int armySpot in world.GetNeighborsFor(improvementLoc, MapWorld.State.EIGHTWAYARMY))
 								tempCity.army.SetArmySpots(armySpot);
@@ -4238,6 +4259,9 @@ public class CityBuilderManager : MonoBehaviour
 			{
 				if (singleImprovement == SingleBuildType.Harbor)
 					world.RemoveTradeLoc(improvementLoc);
+
+                if (singleImprovement == SingleBuildType.Barracks)
+                    improvement.army = null;
 				//else if (singleImprovement == "Barracks")
 				//	city.army.city = null;
 

@@ -8,7 +8,7 @@ using UnityEngine;
 using static UnityEditor.FilePathAttribute;
 using static UnityEditor.Progress;
 
-public class City : MonoBehaviour
+public class City : MonoBehaviour, IGoldWaiter
 {
     //city graphics
     [SerializeField]
@@ -124,8 +124,8 @@ public class City : MonoBehaviour
     //world resource info
     //private int goldPerMinute;
     //public int GetGoldPerMinute { get { return goldPerMinute; } }
-    private int researchPerMinute;
-    public int GetResearchPerMinute { get { return researchPerMinute; } }
+    //private int researchPerMinute;
+    //public int GetResearchPerMinute { get { return researchPerMinute; } }
 
     //resource priorities
     [HideInInspector]
@@ -139,10 +139,12 @@ public class City : MonoBehaviour
     [HideInInspector]
     public List<Unit> tradersHere = new();
 
-    //audio
-    //[SerializeField]
-    //private AudioClip popGainClip, popLoseClip;
-    private AudioSource audioSource;
+    int IGoldWaiter.goldNeeded => 0; //actual amounts aved in trader and city improvement
+	Vector3Int IGoldWaiter.waiterLoc => cityLoc;
+	//audio
+	//[SerializeField]
+	//private AudioClip popGainClip, popLoseClip;
+	private AudioSource audioSource;
 
 	//stored queue items
 	[HideInInspector]
@@ -461,20 +463,40 @@ public class City : MonoBehaviour
     //    resourceManager.CheckProducerUnloadResearchWaitList();
     //}
 
-    public void RestartProduction()
-    {
-        resourceManager.CheckProducerResourceWaitList(ResourceType.Gold);
-    }
+    //public void RestartGold2()
+    //{
+    //    resourceManager.CheckProducerResourceWaitList(ResourceType.Gold);
+    //}
 
-    public void AddToWorldResearchWaitList(ResourceProducer producer)
+	public bool RestartGold(int gold)
+	{
+		if (resourceManager.cityGoldWaitList.Count > 0)
+        {
+            if (resourceManager.cityGoldWaitList[0].RestartGold(gold))
+            {
+                resourceManager.cityGoldWaitList.RemoveAt(0);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return true;
+        }
+	}
+
+	public void AddToWorldResearchWaitList(ResourceProducer producer)
     {
         world.AddToResearchWaitList(producer);
     }
 
-    public void AddToWorldGoldWaitList(bool trader = false)
-    {
-        world.AddToGoldCityWaitList(this, trader);
-    }
+    //public void AddToWorldGoldWaitList()
+    //{
+    //    world.AddToGoldWaitList(this);
+    //}
 
     //private void EnableHighlight()
     //{
@@ -1127,18 +1149,18 @@ public class City : MonoBehaviour
         return world.WorldResourcePrep().Contains(resourceType);
     }
 
-    public void UpdateWorldResourceGeneration(ResourceType resourceType, float diffAmount, bool add)
-    {
-        world.UpdateWorldResourceGeneration(resourceType, diffAmount, add);
+    //public void UpdateWorldResourceGeneration(ResourceType resourceType, float diffAmount, bool add)
+    //{
+    //    world.UpdateWorldResourceGeneration(resourceType, diffAmount, add);
 
-        if (resourceType == ResourceType.Research)
-        {
-            if (add)
-                researchPerMinute += Mathf.RoundToInt(diffAmount);
-            else
-                researchPerMinute += Mathf.RoundToInt(diffAmount);
-        }
-    }
+    //    //if (resourceType == ResourceType.Research)
+    //    //{
+    //    //    if (add)
+    //    //        researchPerMinute += Mathf.RoundToInt(diffAmount);
+    //    //    else
+    //    //        researchPerMinute += Mathf.RoundToInt(diffAmount);
+    //    //}
+    //}
 
     public void CheckBuildOptionsResource(ResourceType type, int prevAmount, int currentAmount, bool pos)
     {
@@ -1178,10 +1200,10 @@ public class City : MonoBehaviour
         return resourcesWorkedDict[resourceType];
     }
 
-    public void UpdateWorldResources(ResourceType resourceType, int amount)
-    {
-        world.UpdateWorldResources(resourceType, amount);
-    }
+    //public void UpdateWorldResources(ResourceType resourceType, int amount)
+    //{
+    //    world.UpdateWorldResources(resourceType, amount);
+    //}
 
     public bool CheckWorldGold(int amount)
     {
@@ -1291,7 +1313,7 @@ public class City : MonoBehaviour
         //check food first
         resourceManager.CheckForPopGrowth();
         //sell everything next
-        world.UpdateWorldResources(ResourceType.Gold, resourceManager.SellResources());
+        world.UpdateWorldGold(resourceManager.SellResources());
 
         //give military food first, then traders
   //      List<SingleBuildType> armyLocs = new() { SingleBuildType.Barracks, SingleBuildType.Shipyard, SingleBuildType.AirBase };
@@ -2032,7 +2054,7 @@ public class City : MonoBehaviour
                 {
                     //hasBarracks = true;
                     //barracksLocation = tile;
-
+                    cityImprovement.army = army;
 					foreach (Vector3Int pos in world.GetNeighborsFor(tile, MapWorld.State.EIGHTWAYARMY))
 						army.SetArmySpots(pos);
 
@@ -2294,6 +2316,12 @@ public class City : MonoBehaviour
 		for (int i = 0; i < tempSeaWaitList.Count; i++)
 			data.seaWaitList.Add(tempSeaWaitList[i].id);
 
+        for (int i = 0; i < resourceManager.cityGoldWaitList.Count; i++)
+            data.goldWaitList.Add(resourceManager.cityGoldWaitList[i].WaitLoc);
+
+        for (int i = 0; i < resourceManager.cityResourceWaitList.Count; i++)
+            data.resourceWaitList.Add(resourceManager.cityGoldWaitList[i].WaitLoc);
+
 		for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
 			data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
 
@@ -2474,7 +2502,45 @@ public class City : MonoBehaviour
 		}
 	}
 
-    public void SetProducerWaitingList(List<Vector3Int> producerWaiting)
+    public void SetGoldWaitList(List<Vector3Int> goldWaitList)
+    {
+        for (int i = 0; i < goldWaitList.Count; i++)
+        {
+            if (world.IsUnitLocationTaken(goldWaitList[i]))
+            {
+                Unit unit = world.GetUnit(goldWaitList[i]);
+
+                if (unit.trader)
+                    resourceManager.cityGoldWaitList.Add(unit.trader);
+            }
+            else if (world.TileHasCityImprovement(goldWaitList[i]))
+            {
+                if (world.CheckImprovementIsProducer(goldWaitList[i]))
+                    resourceManager.cityGoldWaitList.Add(world.GetResourceProducer(goldWaitList[i]));
+            }
+        }
+    }
+
+	public void SetResourceWaitList(List<Vector3Int> resourceWaitList)
+	{
+		for (int i = 0; i < resourceWaitList.Count; i++)
+		{
+			if (world.IsUnitLocationTaken(resourceWaitList[i]))
+			{
+				Unit unit = world.GetUnit(resourceWaitList[i]);
+
+				if (unit.trader)
+					resourceManager.cityGoldWaitList.Add(unit.trader);
+			}
+			else if (world.TileHasCityImprovement(resourceWaitList[i]))
+			{
+				if (world.CheckImprovementIsProducer(resourceWaitList[i]))
+					resourceManager.cityGoldWaitList.Add(world.GetResourceProducer(resourceWaitList[i]));
+			}
+		}
+	}
+
+	public void SetProducerWaitingList(List<Vector3Int> producerWaiting)
     {
         for (int i = 0; i < producerWaiting.Count; i++)
         {

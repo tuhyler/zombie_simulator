@@ -22,7 +22,9 @@ public class CityImprovement : MonoBehaviour
     private ImprovementDataSO improvementData;
     public ImprovementDataSO GetImprovementData { get { return improvementData; } }
     [HideInInspector]
-    public City city; 
+    public City city;
+    [HideInInspector]
+    public Army army;
     private City queueCity; //for improvements, when queued for upgrades
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
@@ -775,7 +777,7 @@ public class CityImprovement : MonoBehaviour
             data.trainingUnitName = trainingUnitName;
         data.housingIndex = housingIndex;
         data.laborCost = laborCost;
-        
+
         //if (isConstruction)
         //    data.timePassed = world.GetCityDevelopmentConstruction(loc).timePassed;
         //else
@@ -786,18 +788,18 @@ public class CityImprovement : MonoBehaviour
         if (!building || improvementData.isBuildingImprovement)
         {
             //Resource Producer
-            ResourceProducer producer = resourceProducer;
-		    data.currentLabor = producer.currentLabor;
-            data.tempLabor = producer.tempLabor;
-            data.unloadLabor = producer.unloadLabor;
-            data.isWaitingForStorageRoom = producer.isWaitingForStorageRoom;
-            data.isWaitingforResources = producer.isWaitingforResources;
-            data.isWaitingToUnload = producer.isWaitingToUnload;
-            data.isWaitingForResearch = producer.isWaitingForResearch;
-            data.isProducing = producer.isProducing;
-		    data.productionTimer = producer.productionTimer;
+		    data.currentLabor = resourceProducer.currentLabor;
+            data.tempLabor = resourceProducer.tempLabor;
+            data.unloadLabor = resourceProducer.unloadLabor;
+            data.isWaitingForStorageRoom = resourceProducer.isWaitingForStorageRoom;
+            data.isWaitingforResources = resourceProducer.isWaitingforResources;
+            data.isWaitingToUnload = resourceProducer.isWaitingToUnload;
+            data.isWaitingForResearch = resourceProducer.isWaitingForResearch;
+            data.isProducing = resourceProducer.isProducing;
+		    data.productionTimer = resourceProducer.productionTimer;
 		    data.producedResource = producedResource;
-		    data.tempLaborPercsList = producer.tempLaborPercsList;
+		    data.tempLaborPercsList = resourceProducer.tempLaborPercsList;
+            data.goldNeeded = resourceProducer.goldNeeded;  
         }
 
 		//updating terrain resource amounts
@@ -821,25 +823,25 @@ public class CityImprovement : MonoBehaviour
         if (!building || improvementData.isBuildingImprovement)
         {
 		    //Resource Producer
-		    ResourceProducer producer = resourceProducer;
-		    producer.currentLabor = data.currentLabor;
-		    producer.tempLabor = data.tempLabor;
-		    producer.unloadLabor = data.unloadLabor;
-		    producer.isWaitingForStorageRoom = data.isWaitingForStorageRoom;
-		    producer.isWaitingforResources = data.isWaitingforResources;
-		    producer.isWaitingToUnload = data.isWaitingToUnload;
-		    producer.isWaitingForResearch = data.isWaitingForResearch;
-		    producer.isProducing = data.isProducing;
-            producer.productionTimer = data.productionTimer;
+			resourceProducer.currentLabor = data.currentLabor;
+			resourceProducer.tempLabor = data.tempLabor;
+			resourceProducer.unloadLabor = data.unloadLabor;
+			resourceProducer.isWaitingForStorageRoom = data.isWaitingForStorageRoom;
+			resourceProducer.isWaitingforResources = data.isWaitingforResources;
+			resourceProducer.isWaitingToUnload = data.isWaitingToUnload;
+			resourceProducer.isWaitingForResearch = data.isWaitingForResearch;
+			resourceProducer.isProducing = data.isProducing;
+			resourceProducer.productionTimer = data.productionTimer;
 		    producedResource = data.producedResource;
-            producer.tempLaborPercsList = data.tempLaborPercsList;
+			resourceProducer.tempLaborPercsList = data.tempLaborPercsList;
+            resourceProducer.goldNeeded = data.goldNeeded;
 
-            if (producer.isProducing)
+            if (resourceProducer.isProducing)
             {
-			    if (!producer.isWaitingforResources && !producer.isWaitingForStorageRoom && !producer.isWaitingToUnload && !producer.isWaitingForResearch)
+			    if (!resourceProducer.isWaitingforResources && !resourceProducer.isWaitingForStorageRoom && !resourceProducer.isWaitingToUnload && !resourceProducer.isWaitingForResearch)
                 {
-                    producer.SetResourceManager(city.ResourceManager);
-                    producer.LoadProducingCoroutine();
+					resourceProducer.SetResourceManager(city.ResourceManager);
+					resourceProducer.LoadProducingCoroutine();
 
                     //work around to get lights showing on all polys, something to do with combinemeshes
                     if (workLights.Count > 0)

@@ -9,7 +9,7 @@ using System.Resources;
 using static UnityEditor.Progress;
 using UnityEngine.UIElements;
 
-public class UIBuilderHandler : MonoBehaviour
+public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck
 {
     [HideInInspector]
     public string tabName;
@@ -176,6 +176,7 @@ public class UIBuilderHandler : MonoBehaviour
         {
             gameObject.SetActive(v);
             activeStatus = true;
+            cityBuilderManager.world.goldUpdateCheck = this;
             cityBuilderManager.buildOptionsActive = true;
             cityBuilderManager.activeBuilderHandler = this;
             this.somethingNew = somethingNew;
@@ -237,6 +238,7 @@ public class UIBuilderHandler : MonoBehaviour
         else
         {
             activeStatus = false;
+            cityBuilderManager.world.goldUpdateCheck = null;
             maxResource = 0;
             maxLabor = 0;
             maxGold = 0;
@@ -569,24 +571,26 @@ public class UIBuilderHandler : MonoBehaviour
         return hide;
     }
 
+    public void UpdateGold(int prevAmount, int currentAmount, bool pos)
+    {
+		if (pos)
+		{
+			if (prevAmount > maxGold)
+				return;
+		}
+		else
+		{
+			if (currentAmount > maxGold)
+				return;
+		}
+
+        PrepareBuildOptions(cityBuilderManager.SelectedCity.ResourceManager);
+	}
 
     public void UpdateBuildOptions(ResourceType type, int prevAmount, int currentAmount, bool pos, ResourceManager resourceManager)
     {
         //checking if updating is necessary
-        if (type == ResourceType.Gold)
-        {
-            if (pos)
-            {
-                if (prevAmount > maxGold)
-                    return;
-            }
-            else
-            {
-                if (currentAmount > maxGold)
-                    return;
-            }
-        }
-        else if (type == ResourceType.Labor)
+        if (type == ResourceType.Labor)
         {
             if (pos)
             {
@@ -621,7 +625,10 @@ public class UIBuilderHandler : MonoBehaviour
 		foreach (UIBuildOptions buildItem in buildOptions)
 		{
             if (buildItem.UnitBuildData.singleBuildType == single)
+            {
+                buildItem.needsBarracks = false;
                 buildItem.trainingBarracks = false;
+            }
 		}
 	}
 

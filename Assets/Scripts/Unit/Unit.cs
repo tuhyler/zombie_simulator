@@ -331,42 +331,17 @@ public class Unit : MonoBehaviour
 	//Gets the path positions and starts the coroutines
 	public void MoveThroughPath(List<Vector3Int> currentPath) 
     {
-        if (isDead)
-            return;
-
-        if (!gameObject.activeSelf)
+        if (isDead || !gameObject.activeSelf)
             return;
 
         world.RemoveUnitPosition(currentLocation);//removing previous location
-
         pathPositions = new Queue<Vector3Int>(currentPath);
 
-        if (trader)
+        if (trader && trader.followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
         {
-		    if (trader.followingRoute)
-            {                
-                if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
-			    {
-                    isMoving = true;
-                    trader.GetInLine();
-				    return;
-			    }
-            }
-    //        else
-    //        {
-    //            TradersHereCheck();
-    ////            Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-				////if (bySea)
-    ////            {
-				////	if (world.IsCityHarborOnTile(terrainLoc))
-    ////                    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
-    ////            }
-    ////            else
-    ////            {
-    ////                if (world.IsCityOnTile(terrainLoc))
-    ////                    world.GetCity(terrainLoc).tradersHere.Remove(this);
-    ////            }
-    //        }
+            isMoving = true;
+            trader.GetInLine();
+			return;
         }
 
 		Vector3 firstTarget = pathPositions.Dequeue();
@@ -379,9 +354,6 @@ public class Unit : MonoBehaviour
     private IEnumerator MovementCoroutine(Vector3 endPosition)
     {
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
-
-   //     if (transport && bySea && world.CheckIfCoastCoast(endPositionInt))
-			//TurnOffRipples();
 
         if (isPlayer)
         {
@@ -616,12 +588,7 @@ public class Unit : MonoBehaviour
 
             if (pathPositions.Count == 1)
             {
-                //for azai's final step
-                /*if (buildDataSO.unitDisplayName == "Azai" && !world.mainPlayer.isBusy)
-                {
-                    worker.NextToCheck();
-                }
-                else*/if (ambush)
+                if (ambush)
                 {
                     StopAnimation();
                     isMoving = false;
@@ -636,8 +603,7 @@ public class Unit : MonoBehaviour
 
 					yield break;
                 }
-            }
-                
+            }   
 
             movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
             if (pathQueue.Count > 0)
@@ -673,56 +639,7 @@ public class Unit : MonoBehaviour
 				pathPositions.Clear();
 			}
         }
-   //     else if (trader && finish)
-   //     {
-			//Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-			//if (bySea)
-   //         {
-   //             if (world.IsCityHarborOnTile(terrainLoc))
-			//		world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
-   //         }
-   //         else
-   //         {
-			//	if (world.IsCityOnTile(terrainLoc))
-			//		world.GetCity(terrainLoc).tradersHere.Remove(this);
-			//}
-   //     }
     }
-
- //   public void TradersHereCheck()
- //   {
-	//	if (!isMoving)
- //       {
-	//		world.GetCityDevelopment(world.GetCity(trader.homeCity).singleBuildDict[buildDataSO.singleBuildType]).RemoveTraderFromImprovement(this);
-	//		//Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
-	//	 //   if (bySea)
-	//	 //   {
-	//		//    if (world.IsCityHarborOnTile(terrainLoc))
-	//		//	    world.GetHarborCity(terrainLoc).tradersHere.Remove(this);
-	//	 //   }
-	//	 //   else
-	//	 //   {
-	//		//    if (world.IsCityOnTile(terrainLoc))
-	//		//	    world.GetCity(terrainLoc).tradersHere.Remove(this);
-	//	 //   }
- //       }
-	//}
-
-    //public void ShiftMovement()
-    //{
-    //    if (isMoving)
-    //    {
-    //        if (movingCo != null)
-    //        {
-    //            StopCoroutine(movingCo);
-    //            movingCo = null;
-    //        }
-
-    //        StopAnimation();
-    //        HidePath();
-    //        pathPositions.Clear();
-    //    }
-    //}
 
     public void AddToMovementQueue(List<Vector3Int> queuedOrders)
     {
@@ -816,17 +733,6 @@ public class Unit : MonoBehaviour
         {
 			world.unitMovement.LaborerJoin(this);
 		}
-  //      else if (world.IsUnitLocationTaken(currentLocation))
-		//{
-  //          UnitInWayCheck(endPosition);
-		//}
-  //      else //for scott and azai
-  //      {
-		//	if (worker && !worker.inTransport && worker.toTransport)
-  //              worker.LoadWorkerInTransport();
-  //          else
-  //              world.AddUnitPosition(currentLocation, this);
-  //      }
     }
 
     public void UnitInWayCheck(Vector3 endPosition)

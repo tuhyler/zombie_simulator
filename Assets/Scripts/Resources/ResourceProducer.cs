@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class ResourceProducer : MonoBehaviour
+public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 {
     private ResourceManager resourceManager;
     [HideInInspector]
@@ -37,13 +37,16 @@ public class ResourceProducer : MonoBehaviour
     public ResourceValue producedResource; //too see what this producer is making
     [HideInInspector]
     public List<ResourceValue> producedResources; 
-    private Dictionary<ResourceType, float> generatedPerMinute = new();
+    private float currentGPM = new(); //generated per minute
     private Dictionary<ResourceType, float> consumedPerMinute = new();
     [HideInInspector]
     public List<ResourceValue> consumedResources = new();
     [HideInInspector]
     public List<ResourceType> consumedResourceTypes = new();
     private WaitForSeconds workTimeWait = new WaitForSeconds(1);
+    [HideInInspector]
+    public int goldNeeded;
+    Vector3Int ICityGoldWait.WaitLoc => producerLoc;
 
     public void InitializeImprovementData(ImprovementDataSO data, ResourceType type)
     {
@@ -199,14 +202,40 @@ public class ResourceProducer : MonoBehaviour
         uiTimeProgressBar.SetTime(time);
     }
 
-    //checking if production can continue
-    public void RestartResourceWaitProduction()
+	public bool RestartGold(int gold)
+	{
+		if (goldNeeded <= gold)
+		{
+            RestartResourceWaitProduction();
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+    public bool Restart(ResourceType type)
     {
-        if (resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+        if (resourceManager.resourcesNeededForProduction.Contains(type) && resourceManager.ConsumeResourcesNoGoldCheck(consumedResources, currentLabor))
+        {
+            RestartResourceWaitProduction();
+			return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+	//checking if production can continue
+	public void RestartResourceWaitProduction()
+    {
+        if (resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
         {
             isWaitingforResources = false;
 			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false, cityImprovement);
-			resourceManager.RemoveFromResourceWaitList(this);
+			//resourceManager.RemoveFromResourceWaitList(this);
             resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
 
 			cityImprovement.exclamationPoint.SetActive(false);
@@ -228,10 +257,10 @@ public class ResourceProducer : MonoBehaviour
                 AddToResearchWaitList();
                 return;
             }
-            else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+            else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
             {
 				AddToResourceWaitList();
-				return;
+                return;
 			}
         }
         else if (resourceManager.fullInventory)
@@ -239,7 +268,7 @@ public class ResourceProducer : MonoBehaviour
             AddToStorageRoomWaitList();
             return;
         }
-        else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+        else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
         {
             AddToResourceWaitList();
             return;
@@ -308,7 +337,7 @@ public class ResourceProducer : MonoBehaviour
     //checking if one more labor can be added
     public bool ConsumeResourcesCheck()
     {
-        return resourceManager.ConsumeResourcesCheck(consumedResources, 1);
+        return resourceManager.ConsumeResourcesCheck(consumedResources, 1, this);
     }
 
     //timer for producing resources 
@@ -408,7 +437,7 @@ public class ResourceProducer : MonoBehaviour
 			    uiTimeProgressBar.gameObject.SetActive(false);
                 cityImprovement.StopWork();
             }
-            else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+            else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
             {
                 SetUpResourceWaiting();
 			}
@@ -425,7 +454,7 @@ public class ResourceProducer : MonoBehaviour
 			uiTimeProgressBar.gameObject.SetActive(false);
             cityImprovement.StopWork();
         }
-        else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor))
+        else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
         {
             SetUpResourceWaiting();
 		}
@@ -438,8 +467,8 @@ public class ResourceProducer : MonoBehaviour
     private void SetUpResourceWaiting()
     {
 		AddToResourceWaitList();
-		cityImprovement.exclamationPoint.SetActive(true);
-		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, true);
+		//cityImprovement.exclamationPoint.SetActive(true);
+		//resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, true);
 		uiTimeProgressBar.gameObject.SetActive(false);
 		cityImprovement.StopWork();
 	}
@@ -468,7 +497,11 @@ public class ResourceProducer : MonoBehaviour
         }
         else if (isWaitingforResources)
         {
-            resourceManager.RemoveFromResourceWaitList(this);
+            //resourceManager.RemoveFromResourceWaitList(this);
+            int num = resourceManager.RemoveFromGoldWaitList(this);
+            if (num >= 0)
+                resourceManager.city.world.RemoveCityFromGoldWaitList(resourceManager.city, num);
+            resourceManager.RemoveFromCityResourceWaitList(this);
             resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
             isWaitingforResources = false;
 			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false, cityImprovement);
@@ -534,7 +567,7 @@ public class ResourceProducer : MonoBehaviour
         isWaitingforResources = true;
 		cityImprovement.exclamationPoint.SetActive(true);
 		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, true);
-        resourceManager.AddToResourceWaitList(this);
+        //resourceManager.AddToResourceWaitList(this);
         resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
     }
 
@@ -571,23 +604,14 @@ public class ResourceProducer : MonoBehaviour
     //recalculating generation per resource every time labor/work ethic changes
     public void CalculateResourceGenerationPerMinute()
     {
-        //foreach (ResourceValue resourceValue in improvementData.producedResources)
-        //{
         if (improvementData.producedResourceTime.Count == 0)
             return;
 
-        if (!generatedPerMinute.ContainsKey(producedResource.resourceType))
-            generatedPerMinute[producedResource.resourceType] = 0;
-        else
-            resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, generatedPerMinute[producedResource.resourceType], false);
-
-        int amount = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType) * (60f / improvementData.producedResourceTime[producedResourceIndex]));
-        generatedPerMinute[producedResource.resourceType] = amount;
-        resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, amount, true);
-
-        if (amount == 0)
-            generatedPerMinute.Remove(producedResource.resourceType);
-        //}
+        //subtracting prev amount first, then adding updated one
+		resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, -currentGPM);
+		currentGPM = Mathf.RoundToInt(resourceManager.CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType) * 
+            (60f / improvementData.producedResourceTime[producedResourceIndex]));
+        resourceManager.ModifyResourceGenerationPerMinute(producedResource.resourceType, currentGPM);
     }
 
     //only changes when labor changes, not work ethic
@@ -595,6 +619,7 @@ public class ResourceProducer : MonoBehaviour
     {
         foreach (ResourceValue resourceValue in consumedResources)
         {
+            //subtracting prev amount first, then adding updated one
             if (!consumedPerMinute.ContainsKey(resourceValue.resourceType))
                 consumedPerMinute[resourceValue.resourceType] = 0;
             else

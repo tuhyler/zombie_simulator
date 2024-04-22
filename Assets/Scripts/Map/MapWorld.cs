@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -113,6 +114,8 @@ public class MapWorld : MonoBehaviour
 	[HideInInspector]
 	public bool buildingRoad, buildingLiquid, buildingPower, removing, removingAll, removingRoad, removingLiquid, removingPower, swappingArmy, deployingArmy, changingCity, assigningGuard, attackMovingTarget;
 
+    [HideInInspector]
+    public IGoldUpdateCheck goldUpdateCheck;
 	[HideInInspector]
     public Vector3Int startingLoc;
     //wonder info
@@ -153,13 +156,15 @@ public class MapWorld : MonoBehaviour
     [HideInInspector]
     public List<ResourceProducer> researchWaitList = new();
     [HideInInspector]
-    public List<City> goldCityWaitList = new();
-    [HideInInspector]
-    public List<City> goldCityRouteWaitList = new();
-    [HideInInspector]
-    public List<Wonder> goldWonderWaitList = new();
-    [HideInInspector]
-    public List<TradeCenter> goldTradeCenterWaitList = new();
+    public List<IGoldWaiter> goldWaitList = new();
+    //[HideInInspector]
+    //public List<City> goldCityWaitList = new();
+    //[HideInInspector]
+    //public List<City> goldCityRouteWaitList = new();
+    //[HideInInspector]
+    //public List<Wonder> goldWonderWaitList = new();
+    //[HideInInspector]
+    //public List<TradeCenter> goldTradeCenterWaitList = new();
     //resource multiplier
     //public Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
 
@@ -1693,7 +1698,7 @@ public class MapWorld : MonoBehaviour
         foreach (CityImprovementData improvementData in data.cityBuildings)
             CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[improvementData.name], city, improvementData);
 
-        GameLoader.Instance.cityWaitingDict[city] = (data.waitingforResourceProducerList, data.waitingForProducerStorageList, data.waitingToUnloadProducerList,
+        GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitList, data.waitingforResourceProducerList, data.waitingForProducerStorageList, data.waitingToUnloadProducerList,
             data.waitList, data.seaWaitList, data.waitingForTraderList);
 	}
 
@@ -2606,7 +2611,7 @@ public class MapWorld : MonoBehaviour
 
 	public void AaddGold() //for testing, on a button
     {
-        UpdateWorldResources(ResourceType.Gold, 100);
+        UpdateWorldGold(100);
 
         //resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
@@ -4069,10 +4074,10 @@ public class MapWorld : MonoBehaviour
         uiTradeRouteBeginTooltip.ToggleVisibility(false);
     }
 
-	public void CloseTradeRouteBeginTooltip()
-	{
-		uiTradeRouteBeginTooltip.ToggleVisibility(false);
-	}
+	//public void CloseTradeRouteBeginTooltip()
+	//{
+	//	uiTradeRouteBeginTooltip.ToggleVisibility(false);
+	//}
 
 	private bool TooltipCheck()
     {
@@ -4125,105 +4130,134 @@ public class MapWorld : MonoBehaviour
         return researchWaitList.Count > 0;
     }
 
-    public void AddToGoldCityWaitList(City city, bool trader)
+    public void AddToGoldWaitList(IGoldWaiter goldWaiter)
     {
-        if (trader)
-        {
-			if (!goldCityRouteWaitList.Contains(city))
-				goldCityRouteWaitList.Add(city);
-		}
-        else
-        {
-            if (!goldCityWaitList.Contains(city))
-                goldCityWaitList.Add(city);
-        }
+        goldWaitList.Add(goldWaiter);
+
+  //      if (trader)
+  //      {
+		//	if (!goldCityRouteWaitList.Contains(city))
+		//		goldCityRouteWaitList.Add(city);
+		//}
+  //      else
+  //      {
+  //          if (!goldCityWaitList.Contains(city))
+  //              goldCityWaitList.Add(city);
+  //      }
         
     }
 
-    public void RestartCityProduction()
+    public void RemoveFromGoldWaitList(IGoldWaiter goldWaiter)
     {
-        List<City> cityWaitList = new(goldCityWaitList);
+        goldWaitList.Remove(goldWaiter);
+    }
 
-        foreach (City city in cityWaitList)
+    public void RemoveCityFromGoldWaitList(IGoldWaiter goldWaiter, int place)
+    {
+        int j = 0;
+        for (int i = 0; i < goldWaitList.Count; i++)
         {
-            goldCityWaitList.Remove(city);
-            city.RestartProduction();
+            if (goldWaitList[i] == goldWaiter)
+            {
+                if (j == place)
+                {
+                    goldWaitList.RemoveAt(i);
+                    break;
+                }
+                else
+                {
+                    j++;
+                }
+            }
         }
     }
 
-    public bool CitiesGoldWaitingCheck()
-    {
-        return goldCityWaitList.Count > 0;
-    }
+    //public void RestartCityProduction()
+    //{
+        //List<City> cityWaitList = new(goldCityWaitList);
 
-    public void AddToGoldWonderWaitList(Wonder wonder)
-    {
-        if (!goldWonderWaitList.Contains(wonder))
-            goldWonderWaitList.Add(wonder);
-    }
+    //    foreach (City city in cityWaitList)
+    //    {
+    //        goldCityWaitList.Remove(city);
+    //        city.RestartGold(GetWorldGoldLevel());
+    //    }
+    //}
 
-    private void RestartWonderConstruction()
-    {
-        List<Wonder> wonderWaitList = new(goldWonderWaitList);
+    //public bool CitiesGoldWaitingCheck()
+    //{
+    //    return goldCityWaitList.Count > 0;
+    //}
 
-        foreach (Wonder wonder in wonderWaitList)
-        {
-            goldWonderWaitList.Remove(wonder);
-            wonder.ThresholdCheck();
-        }
-    }
+    //public void AddToGoldWonderWaitList(Wonder wonder)
+    //{
+    //    goldWaitList.Add(wonder);
+    //    //if (!goldWonderWaitList.Contains(wonder))
+    //    //    goldWonderWaitList.Add(wonder);
+    //}
 
-    private bool WondersWaitingCheck()
-    {
-        return goldWonderWaitList.Count > 0;
-    }
+    //private void RestartWonderConstruction()
+    //{
+    //    List<Wonder> wonderWaitList = new(goldWonderWaitList);
 
-    public void AddToGoldTradeCenterWaitList(TradeCenter tradeCenter)
-    {
-        if (!goldTradeCenterWaitList.Contains(tradeCenter))
-            goldTradeCenterWaitList.Add(tradeCenter);
-    }
-    private void RestartTradeCenterRoutes()
-    {
-        List<TradeCenter> tradeCenterWaitList = new(goldTradeCenterWaitList);
+    //    foreach (Wonder wonder in wonderWaitList)
+    //    {
+    //        goldWonderWaitList.Remove(wonder);
+    //        wonder.RestartGold();
+    //    }
+    //}
 
-        foreach (TradeCenter tradeCenter in tradeCenterWaitList)
-        {
-            goldTradeCenterWaitList.Remove(tradeCenter);
-            tradeCenter.GoldCheck();
-        }
-    }
+    //private bool WondersWaitingCheck()
+    //{
+    //    return goldWonderWaitList.Count > 0;
+    //}
 
-    private bool TradeCentersWaitingCheck()
-    {
-        return goldTradeCenterWaitList.Count > 0;
-    }
+    //public void AddToGoldTradeCenterWaitList(TradeCenter tradeCenter)
+    //{
+    //    if (!goldTradeCenterWaitList.Contains(tradeCenter))
+    //        goldTradeCenterWaitList.Add(tradeCenter);
+    //}
 
-    public void RemoveTradeCenterFromWaitList(TradeCenter tradeCenter)
-    {
-        goldTradeCenterWaitList.Remove(tradeCenter);
-    }
+    //private void RestartTradeCenterRoutes()
+    //{
+    //    List<TradeCenter> tradeCenterWaitList = new(goldTradeCenterWaitList);
 
-    public void RestartCityRoutes()
-    {
-        List<City> traderWaitList = new(goldCityRouteWaitList);
+    //    foreach (TradeCenter tradeCenter in tradeCenterWaitList)
+    //    {
+    //        goldTradeCenterWaitList.Remove(tradeCenter);
+    //        tradeCenter.RestartGold();
+    //    }
+    //}
 
-        for (int i = 0; i < traderWaitList.Count; i++)
-        {
-			goldCityRouteWaitList.Remove(traderWaitList[i]);
-            traderWaitList[i].ResourceManager.CheckTraderWaitList(ResourceType.Gold);
-		}
-    }
+    //private bool TradeCentersWaitingCheck()
+    //{
+    //    return goldTradeCenterWaitList.Count > 0;
+    //}
 
-    private bool TraderWaitingCheck()
-    {
-        return goldCityRouteWaitList.Count > 0;
-    }
+    //public void RemoveTradeCenterFromWaitList(TradeCenter tradeCenter)
+    //{
+    //    goldTradeCenterWaitList.Remove(tradeCenter);
+    //}
 
-    public void RemoveTraderFromWaitList(City city)
-    {
-        goldCityRouteWaitList.Remove(city);
-    }
+  //  public void RestartCityRoutes()
+  //  {
+  //      List<City> traderWaitList = new(goldCityRouteWaitList);
+
+  //      for (int i = 0; i < traderWaitList.Count; i++)
+  //      {
+		//	goldCityRouteWaitList.Remove(traderWaitList[i]);
+  //          traderWaitList[i].ResourceManager.RestartGold();
+		//}
+  //  }
+
+  //  private bool TraderWaitingCheck()
+  //  {
+  //      return goldCityRouteWaitList.Count > 0;
+  //  }
+
+  //  public void RemoveTraderFromWaitList(City city)
+  //  {
+  //      goldCityRouteWaitList.Remove(city);
+  //  }
 
     //lights in the world
     public void ToggleWorldLights(bool v)
@@ -4246,58 +4280,58 @@ public class MapWorld : MonoBehaviour
     }
 
     //world resources management
-    public void UpdateWorldResources(ResourceType resourceType, int amount)
+    public void UpdateWorldGold(int amount)
     {
         if (amount == 0)
             return;
-        
-        if (resourceType == ResourceType.Research)
-        {
-            amount = researchTree.AddResearch(amount);
-            researchTree.CompletedResearchCheck();
-            worldResourceManager.SetResource(resourceType, amount);
-            researchTree.CompletionNextStep();
-        }
-        else
-        {
-            int prevAmount = worldResourceManager.GetWorldGoldLevel();
 
-            worldResourceManager.SetResource(resourceType, amount);
-            bool pos = amount > 0;
+		int prevAmount = worldResourceManager.GetWorldGoldLevel();
 
-            if (pos)
+		worldResourceManager.SetResource(ResourceType.Gold, amount);
+		bool pos = amount > 0;
+        int currentAmount = worldResourceManager.GetWorldGoldLevel();
+
+		if (pos && goldWaitList.Count > 0)
+		{
+            List<IGoldWaiter> tempGoldWaitList = new(goldWaitList);
+
+            for (int i = 0; i < tempGoldWaitList.Count; i++)
             {
-                if (TraderWaitingCheck())
-                    RestartCityRoutes();
-
-                if (CitiesGoldWaitingCheck())
-                    RestartCityProduction();
-                
-                if (WondersWaitingCheck())
-                    RestartWonderConstruction();
-
-                if (TradeCentersWaitingCheck())
-                    RestartTradeCenterRoutes();
+                if (tempGoldWaitList[i].RestartGold(currentAmount))
+                    goldWaitList.RemoveAt(0);
+                else
+                    break;
             }
 
-            int currentAmount = worldResourceManager.GetWorldGoldLevel();
-            if (cityBuilderManager.uiTradeCenter.activeStatus)
-                cityBuilderManager.uiTradeCenter.UpdateColors(prevAmount, currentAmount, pos);
-            else if (unitMovement.uiCityResourceInfoPanel.activeStatus)
-                unitMovement.uiCityResourceInfoPanel.UpdatePriceColors(prevAmount, currentAmount, pos);
-            else if (cityBuilderManager.uiUnitBuilder.activeStatus)
-                cityBuilderManager.uiUnitBuilder.UpdateBuildOptions(ResourceType.Gold, prevAmount, currentAmount, pos, cityBuilderManager.SelectedCity.ResourceManager);
-            else if (uiCampTooltip.EnemyScreenActive())
-                uiCampTooltip.UpdateBattleCostCheck(currentAmount, ResourceType.Gold);
-            else if (uiTradeRouteBeginTooltip.activeStatus)
-                uiTradeRouteBeginTooltip.UpdateRouteCost(currentAmount, ResourceType.Gold);
-        }
+    //        if (TraderWaitingCheck())
+				//RestartCityRoutes();
+
+			//if (CitiesGoldWaitingCheck())
+			//	RestartCityProduction();
+
+			//if (WondersWaitingCheck())
+			//	RestartWonderConstruction();
+
+			//if (TradeCentersWaitingCheck())
+			//	RestartTradeCenterRoutes();
+		}
+
+        if (goldUpdateCheck != null && prevAmount != currentAmount)
+            goldUpdateCheck.UpdateGold(prevAmount, currentAmount, pos);
+	}
+
+    public void UpdateWorldResearch(int amount)
+    {
+        amount = researchTree.AddResearch(amount);
+        researchTree.CompletedResearchCheck();
+        worldResourceManager.SetResource(ResourceType.Research, amount);
+        researchTree.CompletionNextStep();
     }
 
-    public void UpdateWorldResourceGeneration(ResourceType resourceType, float amount, bool add)
-    {
-        worldResourceManager.ModifyResourceGenerationPerMinute(resourceType, amount, add);
-    }
+    //public void UpdateWorldResourceGeneration(ResourceType resourceType, float amount, bool add)
+    //{
+    //    worldResourceManager.ModifyResourceGenerationPerMinute(resourceType, amount, add);
+    //}
 
     public bool CheckWorldGold(int amount)
     {
@@ -5170,22 +5204,22 @@ public class MapWorld : MonoBehaviour
         }
 	}
 
-    public void HighlightTraders(bool bySea)
-    {
-        for (int i = 0; i < traderList.Count; i++)
-        {
-            if (traderList[i].followingRoute || traderList[i].bySea != bySea || traderList[i].guarded || traderList[i].isMoving)
-                continue;
+    //public void HighlightTraders(bool bySea)
+    //{
+    //    for (int i = 0; i < traderList.Count; i++)
+    //    {
+    //        if (traderList[i].followingRoute || traderList[i].bySea != bySea || traderList[i].guarded || traderList[i].isMoving)
+    //            continue;
 
-            traderList[i].Highlight(Color.white);
-        }
-    }
+    //        traderList[i].Highlight(Color.white);
+    //    }
+    //}
 
-    public void UnhighlightTraders()
-    {
-        for (int i = 0; i < traderList.Count; i++)
-            traderList[i].Unhighlight();
-    }
+    //public void UnhighlightTraders()
+    //{
+    //    for (int i = 0; i < traderList.Count; i++)
+    //        traderList[i].Unhighlight();
+    //}
 
 	public EnemyCamp GetEnemyCamp(Vector3Int loc)
     {
@@ -5961,7 +5995,7 @@ public class MapWorld : MonoBehaviour
     {
         if (treasureLocs.ContainsKey(tile))
         {
-			UpdateWorldResources(ResourceType.Gold, treasureLocs[tile].amount);
+			UpdateWorldGold(treasureLocs[tile].amount);
 			InfoResourcePopUpHandler.CreateResourceStat(tile, treasureLocs[tile].amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
             Destroy(treasureLocs[tile].gameObject);
 			treasureLocs.Remove(tile);
@@ -5984,7 +6018,7 @@ public class MapWorld : MonoBehaviour
 
     public void ReceiveQuestReward(Vector3 loc, int amount)
     {
-		UpdateWorldResources(ResourceType.Gold, amount);
+		UpdateWorldGold(amount);
 		InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
 
 		cityBuilderManager.PlayRingAudio();
@@ -8522,4 +8556,17 @@ public enum Region
     East,
     West,
     None
+}
+
+public interface IGoldUpdateCheck
+{
+    void UpdateGold(int prevAmount, int currentAmount, bool pos);
+}
+
+public interface IGoldWaiter
+{
+    int goldNeeded { get; }
+    Vector3Int waiterLoc { get; }
+
+    bool RestartGold(int gold);
 }

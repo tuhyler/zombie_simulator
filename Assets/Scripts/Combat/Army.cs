@@ -299,6 +299,7 @@ public class Army : MonoBehaviour
 					world.uiCampTooltip.RefreshData();
 			}
 
+            AWOLClear();
 			isEmpty = true;
         }
         else
@@ -361,7 +362,9 @@ public class Army : MonoBehaviour
 			{
                 world.unitMovement.ShowIndividualCityButtonsUI();
                 
-                if (world.deployingArmy || world.changingCity || world.assigningGuard)
+                if (world.deployingArmy || world.changingCity)
+                    world.unitMovement.CancelArmyDeployment();
+                if (world.assigningGuard && world.uiTradeRouteBeginTooltip.MilitaryLocCheck(loc))
                     world.unitMovement.CancelArmyDeployment();
                 else if (world.swappingArmy)
                     world.unitMovement.CancelReposition();
@@ -1299,6 +1302,12 @@ public class Army : MonoBehaviour
         return false;
     }
 
+    public void SoftSelectArmy(Color color)
+    {
+		foreach (Military unit in unitsInArmy)
+			unit.SoftSelect(color);
+	}
+
     public void SelectArmy(Military selectedUnit)
     {
         selected = true;
@@ -1364,6 +1373,12 @@ public class Army : MonoBehaviour
         targetCamp = null;
 	}
 
+    public void UnSoftSelectArmy()
+    {
+        foreach (Military unit in unitsInArmy)
+            unit.Unhighlight();
+    }
+
 	public void UnselectArmy(Military selectedUnit)
     {
 		selected = false;
@@ -1388,20 +1403,9 @@ public class Army : MonoBehaviour
         }
 
         AWOLClear();
-		//int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
 		Military unit = GetMostExpensiveUnit();
-        world.unitMovement.AddToCity(unit.army.city, unit);
 		RemoveFromArmy(unit, unit.barracksBunk);
-        if (unit.isSelected)
-        {
-			Military nextUnitUp = GetNextLivingUnit();
-			if (nextUnitUp != null)
-				world.unitMovement.PrepareMovement(nextUnitUp);
-            else
-                world.unitMovement.ClearSelection();
-		}
-		
-        unit.DestroyUnit();
+        unit.JoinCity(unit.army.city);
 	}
 
     public void AWOLClear()
