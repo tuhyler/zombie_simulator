@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using System;
 
-public class UIPersonalResourceInfoPanel : MonoBehaviour
+public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
 {
     [SerializeField]
     public MapWorld world;
@@ -170,9 +170,10 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
                     overflowGrid.cellSize = new Vector2(90, 110);
                     overflowGrid.padding.top = -10;
                     overflowGrid.padding.bottom = 10;
-                    //overflowGridAll.anchoredPosition3D = new Vector3(0, -160, 0);
-                }
-            }
+					world.goldUpdateCheck = this;
+					//overflowGridAll.anchoredPosition3D = new Vector3(0, -160, 0);
+				}
+			}
             else
             {
 				if (unit.trader)
@@ -229,6 +230,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
             }
 
             activeStatus = false;
+            world.goldUpdateCheck = null;
             ToggleOverflowVisibility(false);
             resourceUIDict.Clear();
 
@@ -753,7 +755,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour
         resourceUIDict[type] = newNum;
     }
 
-    public void UpdatePriceColors(int prevAmount, int goldAmount, bool pos)
+    public void UpdateGold(int prevAmount, int goldAmount, bool pos)
     {
         if (pos)
         {

@@ -24,7 +24,7 @@ public class TraderData : IUnitData
 	public int resourceStorageLevel;
 
 	//route info
-	public int startingStop, currentStop, currentResource, resourceCurrentAmount, resourceTotalAmount, timeWaited;
+	public int startingStop, currentStop, currentResource, resourceCurrentAmount, resourceTotalAmount, timeWaited, goldNeeded;
 	public List<Vector3Int> cityStops;
 	public List<List<ResourceValue>> resourceAssignments;
 	public List<List<int>> resourceCompletion;

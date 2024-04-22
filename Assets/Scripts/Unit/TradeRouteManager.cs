@@ -55,6 +55,7 @@ public class TradeRouteManager : MonoBehaviour
     private WaitForSeconds totalWait;
     [HideInInspector]
     public float percDone;
+    private ResourceType resourceWaiter;
     //private WaitForSeconds resourceWait = new WaitForSeconds(1);
     //private WaitForSeconds loadWait;// = new WaitForSeconds(1);
 
@@ -376,7 +377,7 @@ public class TradeRouteManager : MonoBehaviour
                     {
                         int buyAmount = -resourceAmountAdjusted * cost;
                         tradeCenter.tcRep.IncreasePurchasedAmount(buyAmount);
-                        tradeCenter.world.UpdateWorldResources(ResourceType.Gold, buyAmount);
+                        tradeCenter.world.UpdateWorldGold(buyAmount);
                         InfoResourcePopUpHandler.CreateResourceStat(transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
                     }
 
@@ -461,7 +462,7 @@ public class TradeRouteManager : MonoBehaviour
                     if (tradeCenter)
                     {
                         int sellAmount = resourceAmountAdjusted * tradeCenter.ResourceSellDict[value.resourceType];
-                        tradeCenter.world.UpdateWorldResources(ResourceType.Gold, sellAmount);
+                        tradeCenter.world.UpdateWorldGold(sellAmount);
                         InfoResourcePopUpHandler.CreateResourceStat(transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
                     }
 
@@ -584,13 +585,27 @@ public class TradeRouteManager : MonoBehaviour
         }
     }
 
+    public bool ResourceWaitCheck(ResourceType type)
+    {
+        if (resourceWaiter == type && resourceAssignments[currentStop][currentResource].resourceAmount >= city.ResourceManager.ResourceDict[type])
+        {
+            resourceCheck = false;
+			trader.RemoveWarning();
+            return true;
+		}
+        else
+        {
+            return false;
+        }
+    }
+
     public void StopHoldingPatternCoroutine()
     {
         resourceCheck = false;
         trader.RemoveWarning();
         StopCoroutine(HoldingPatternCoroutine());
         if (tradeCenter != null)
-            tradeCenter.RemoveFromWaitList();
+            trader.world.RemoveFromGoldWaitList(tradeCenter);
     }
 
     public void CancelLoad()

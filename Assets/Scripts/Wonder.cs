@@ -8,7 +8,7 @@ using UnityEngine;
 using static UnityEditor.PlayerSettings;
 using static UnityEngine.Rendering.DebugUI;
 
-public class Wonder : MonoBehaviour
+public class Wonder : MonoBehaviour, IGoldWaiter
 {
     private MapWorld world;
     //private UIWonderSelection uiWonderSelection;
@@ -73,7 +73,8 @@ public class Wonder : MonoBehaviour
     private UITimeProgressBar uiTimeProgressBar;
     private Coroutine buildingCo;
     private int totalTime;
-    private int totalGoldCost;
+    [HideInInspector]
+    public int totalGoldCost;
     private int timePassed;
     private bool isBuilding;
     private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
@@ -87,8 +88,10 @@ public class Wonder : MonoBehaviour
     [SerializeField]
     private ParticleSystem heavenHighlight, smokeEmitter, smokeSplash, removeSplash, fireworks1, fireworks2;
 
-    //audio
-    private AudioSource audioSource;
+    int IGoldWaiter.goldNeeded => totalGoldCost;
+	Vector3Int IGoldWaiter.waiterLoc => unloadLoc;
+	//audio
+	private AudioSource audioSource;
 
     private CameraController focusCam;
 
@@ -409,6 +412,19 @@ public class Wonder : MonoBehaviour
         return workersReceived < wonderData.workersNeeded;
     }
 
+    public bool RestartGold(int gold)
+    {
+        if (totalGoldCost <= gold)
+        {
+            ThresholdCheck();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public void ThresholdCheck()
     {
         if (StillNeedsWorkers())
@@ -420,7 +436,7 @@ public class Wonder : MonoBehaviour
 
         if (!world.CheckWorldGold(totalGoldCost))
         {
-            world.AddToGoldWonderWaitList(this);
+            world.AddToGoldWaitList(this);
             if (smokeEmitter.isPlaying)
                 StopSmokeEmitter();
             return;
@@ -715,7 +731,7 @@ public class Wonder : MonoBehaviour
     private void ConsumeWorkerCost()
     {
         int amount = -totalGoldCost;
-        world.UpdateWorldResources(ResourceType.Gold, amount);
+        world.UpdateWorldGold(amount);
         Vector3 loc = centerPos;
         loc.y += 0.4f;
         if (isActive)
@@ -730,7 +746,7 @@ public class Wonder : MonoBehaviour
             uiTimeProgressBar.gameObject.SetActive(false);
             StopCoroutine(buildingCo);
             int amount = totalGoldCost;
-            world.UpdateWorldResources(ResourceType.Gold, amount);
+            world.UpdateWorldGold(amount);
             InfoResourcePopUpHandler.CreateResourceStat(centerPos, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
             isBuilding = false;
         }

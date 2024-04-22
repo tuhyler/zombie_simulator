@@ -70,8 +70,9 @@ public class Transport : Unit
 
 			if (passengerCount == 3)
 			{
-				world.unitMovement.uiUnload.ToggleVisibility(true);
-				world.unitMovement.uiMoveUnit.ToggleVisibility(true);
+				world.unitMovement.ShowIndividualCityButtonsUI();
+				//world.unitMovement.uiUnload.ToggleVisibility(true);
+				//world.unitMovement.uiMoveUnit.ToggleVisibility(true);
 			}
 		}
 	}

@@ -20,7 +20,7 @@ public class Military : Unit
 	public Vector3Int targetLocation, targetBunk, barracksBunk, marchPosition; //targetLocation is in case units overlap on same tile
 
 	[HideInInspector]
-	public Coroutine attackCo, waitingCo;
+	public Coroutine attackCo/*, waitingCo*/;
 	[HideInInspector]
 	public int idleTime, attackStrength, strengthBonus;
 
@@ -543,6 +543,24 @@ public class Military : Unit
 		}
 	}
 
+	public void MoveForGuardDuty(Vector3Int loc)
+	{
+		StopMovementCheck(false);		
+		List<Vector3Int> path;
+
+		path = GridSearch.MilitaryMove(world, world.RoundToInt(transform.position), loc, bySea);
+
+		if (path.Count == 0)
+			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), loc);
+
+		if (path.Count == 0)
+			path.Add(loc);
+
+		transferring = true;
+		finalDestinationLoc = loc;
+		MoveThroughPath(path);
+	}
+
 	public void AttackCheck()
 	{
 		if (attackCo != null)
@@ -612,7 +630,11 @@ public class Military : Unit
 	public void GoToBunk()
 	{
 		finalDestinationLoc = barracksBunk;
-		MoveThroughPath(GridSearch.MilitaryMove(world, currentLocation, barracksBunk, bySea));
+		List<Vector3Int> path = GridSearch.MilitaryMove(world, currentLocation, barracksBunk, bySea);
+		if (path.Count == 0)
+			path.Add(barracksBunk);
+
+		MoveThroughPath(path);
 	}
 
 	public void FindNewBattleSpot(Vector3Int current, Vector3Int target)
@@ -729,90 +751,125 @@ public class Military : Unit
 		LeanTween.scale(gameObject, Vector3.zero, 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(DestroyUnit);
 	}
 
-	public void IdleCheck()
+	public void GuardToBunkCheck(Vector3Int homeCity)
 	{
-		if (!isMoving && waitingCo == null)
-			waitingCo = StartCoroutine(IdleTimer(false));
-	}
-
-	private IEnumerator IdleTimer(bool load)
-	{
-		if (!load)
-			idleTime = 10;
-
-		while (idleTime > 0)
+		//seeing if city has a spot for military unit, if not, it joins the city. 
+		if (world.GetCity(homeCity).singleBuildDict.ContainsKey(buildDataSO.singleBuildType))
 		{
-			yield return attackPauses[0];
-			idleTime--;
-		}
+			CityImprovement improvement = world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]);
 
-		waitingCo = null;
-		ReturnToClosestCityBarracks();
-	}
-
-	public void ReturnToClosestCityBarracks()
-	{
-		if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == guardedTrader)
-		{
-			waitingCo = StartCoroutine(IdleTimer(false));
-			return;
-		}
-
-		City closestCity = null;
-		int dist = 0;
-		bool firstOne = true;
-
-		foreach (City city in world.cityDict.Values)
-		{
-			if (!city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) || city.army.isFull)
-				continue;
-
-			if (firstOne)
+			if (improvement.army.isFull)
 			{
-				closestCity = city;
-				dist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
-				firstOne = false;
-				continue;
-			}
-
-			int newDist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
-			if (newDist < dist)
-			{
-				closestCity = city;
-				dist = newDist;
-			}
-		}
-
-		if (!guardedTrader.followingRoute && !guardedTrader.isMoving) //just in case
-		{
-			if (closestCity != null && !closestCity.attacked && closestCity.army.atHome)
-			{
-				guardedTrader.SetGuardLeftMessage();
-				Vector3Int newLoc = closestCity.army.GetAvailablePosition(buildDataSO.unitType);
-				List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, newLoc, bySea);
-				world.unitMovement.TransferMilitaryUnit(this, closestCity, newLoc, path);
+				JoinCity(world.GetCity(homeCity));
 			}
 			else
 			{
-				waitingCo = StartCoroutine(IdleTimer(false));
-			}
-		}
-	}
+				improvement.army.AddToArmy(this);
+				army = improvement.army;
+				barracksBunk = improvement.army.GetAvailablePosition(buildDataSO.unitType);
+				guardedTrader = null;
+				guard = false;
+				originalMoveSpeed = buildDataSO.movementSpeed;
+				isGuarding = false;
 
-	public void ToggleIdleTimer(bool v)
-	{
-		if (v)
-		{
-			waitingCo = StartCoroutine(IdleTimer(false));
+				MoveForGuardDuty(barracksBunk);
+			}
 		}
 		else
 		{
-			if (waitingCo != null)
-				StopCoroutine(waitingCo);
-
-			waitingCo = null;
+			JoinCity(world.GetCity(homeCity));
 		}
 	}
+
+	public void JoinCity(City city)
+	{
+		world.unitMovement.AddToCity(city, this);
+		DestroyUnit();
+	}
+	//public void IdleCheck()
+	//{
+	//	if (!isMoving && waitingCo == null)
+	//		waitingCo = StartCoroutine(IdleTimer(false));
+	//}
+
+	//private IEnumerator IdleTimer(bool load)
+	//{
+	//	if (!load)
+	//		idleTime = 10;
+
+	//	while (idleTime > 0)
+	//	{
+	//		yield return attackPauses[0];
+	//		idleTime--;
+	//	}
+
+	//	waitingCo = null;
+	//	//ReturnToClosestCityBarracks();
+	//}
+
+	//public void ReturnToClosestCityBarracks()
+	//{
+	//	if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == guardedTrader)
+	//	{
+	//		waitingCo = StartCoroutine(IdleTimer(false));
+	//		return;
+	//	}
+
+	//	City closestCity = null;
+	//	int dist = 0;
+	//	bool firstOne = true;
+
+	//	foreach (City city in world.cityDict.Values)
+	//	{
+	//		if (!city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) || city.army.isFull)
+	//			continue;
+
+	//		if (firstOne)
+	//		{
+	//			closestCity = city;
+	//			dist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
+	//			firstOne = false;
+	//			continue;
+	//		}
+
+	//		int newDist = Math.Abs(currentLocation.x - city.cityLoc.x) + Math.Abs(currentLocation.z - city.cityLoc.z);
+	//		if (newDist < dist)
+	//		{
+	//			closestCity = city;
+	//			dist = newDist;
+	//		}
+	//	}
+
+	//	if (!guardedTrader.followingRoute && !guardedTrader.isMoving) //just in case
+	//	{
+	//		if (closestCity != null && !closestCity.attacked && closestCity.army.atHome)
+	//		{
+	//			guardedTrader.SetGuardLeftMessage();
+	//			Vector3Int newLoc = closestCity.army.GetAvailablePosition(buildDataSO.unitType);
+	//			List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, newLoc, bySea);
+	//			world.unitMovement.TransferMilitaryUnit(this, closestCity, newLoc, path);
+	//		}
+	//		else
+	//		{
+	//			waitingCo = StartCoroutine(IdleTimer(false));
+	//		}
+	//	}
+	//}
+
+	//public void ToggleIdleTimer(bool v)
+	//{
+	//	if (v)
+	//	{
+	//		waitingCo = StartCoroutine(IdleTimer(false));
+	//	}
+	//	else
+	//	{
+	//		if (waitingCo != null)
+	//			StopCoroutine(waitingCo);
+
+	//		waitingCo = null;
+	//	}
+	//}
 
 	public void PillageSound()
 	{
@@ -895,12 +952,14 @@ public class Military : Unit
 			{
 				barracksBunk = new Vector3Int(0, 0, 1); //default bunk loc for guard (necessary for loading during battle)
 				transferring = false;
-				guardedTrader.waitingOnGuard = false;
 				isGuarding = true;
 				originalMoveSpeed = guardedTrader.originalMoveSpeed; //move as fast as trader
-
-				if (!guardedTrader.isMoving && !guardedTrader.followingRoute)
-					IdleCheck();
+				
+				if (guardedTrader.waitingOnGuard)
+				{
+					guardedTrader.waitingOnGuard = false;
+					guardedTrader.TradeRouteCheck(guardedTrader.currentLocation);
+				}
 			}
 			else if (endPosition != barracksBunk)
 			{
@@ -923,8 +982,8 @@ public class Military : Unit
 		{
 			world.AddUnitPosition(currentLocation, this);
 
-			if (!guardedTrader.isMoving && !guardedTrader.followingRoute)
-				IdleCheck();
+			if (guardedTrader == null && world.IsCityOnTile(currentLocation))
+				GuardToBunkCheck(currentLocation);
 		}
 		else if (repositioning)
 		{
@@ -1370,9 +1429,6 @@ public class Military : Unit
 		//{
 		//	StartLookingAround();
 		//}
-
-		if (guard && !guardedTrader.followingRoute)
-			IdleCheck();
 	}
 
 	public void LoadAttack()

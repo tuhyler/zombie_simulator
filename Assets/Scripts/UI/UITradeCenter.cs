@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UITradeCenter : MonoBehaviour
+public class UITradeCenter : MonoBehaviour, IGoldUpdateCheck
 {
     [SerializeField]
     private MapWorld world;
@@ -80,6 +80,7 @@ public class UITradeCenter : MonoBehaviour
         if (v)
         {
             this.center = center;
+            world.goldUpdateCheck = this;
             activeStatus = true;
             world.tcCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
@@ -97,11 +98,12 @@ public class UITradeCenter : MonoBehaviour
         {
             activeStatus = false;
             this.center = null;
+            world.goldUpdateCheck = null;
             LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + -1000f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
 
-    public void UpdateColors(int prevGold, int currentGold, bool pos)
+    public void UpdateGold(int prevGold, int currentGold, bool pos)
     {
         if (pos)
         {

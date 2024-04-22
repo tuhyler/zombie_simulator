@@ -169,7 +169,19 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             {
                 workEthicImage.SetActive(true);
                 workEthicText.gameObject.SetActive(true);
-                workEthicText.text = "+" + Mathf.RoundToInt(buildData.workEthicChange * 100).ToString() + "%";
+                string prefix;
+                if (buildData.workEthicChange < 0)
+                {
+                    prefix = "";
+					workEthicText.color = Color.red;
+				}
+                else
+                {
+                    prefix = "+";
+                    workEthicText.color = Color.black;
+                }
+
+                workEthicText.text = prefix + Mathf.RoundToInt(buildData.workEthicChange * 100).ToString() + "%";
                 showCityStatsDesc = true;
             }
 

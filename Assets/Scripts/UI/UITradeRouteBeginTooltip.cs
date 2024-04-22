@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using Unity.Burst.Intrinsics;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class UITradeRouteBeginTooltip : MonoBehaviour
+public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 {
 	[SerializeField]
 	private MapWorld world;
@@ -16,7 +18,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 	private Transform costsRect;
 
 	[SerializeField]
-	private GameObject beginButton;
+	private GameObject beginButton, addGuardButton;
 
 	private List<UIResourceInfoPanel> costsInfo = new();
 	private List<ResourceType> cantAffordList = new();
@@ -25,7 +27,10 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 	public bool cantAfford;
 	[HideInInspector]
 	public Trader trader;
-	private City city;
+	[HideInInspector]
+	public City startingCity, homeCity;
+	[HideInInspector]
+	public SingleBuildType typeNeeded;
 
 	//for tweening
 	[SerializeField]
@@ -59,7 +64,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 			world.unitMovement.BeginTradeRoute();
 	}
 
-	public void ToggleVisibility(bool val, Trader trader = null)
+	public void ToggleVisibility(bool val, bool confirm = false, Trader trader = null)
 	{
 		if (activeStatus == val)
 			return;
@@ -69,20 +74,39 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 		if (val)
 		{
 			this.trader = trader;
-			city = trader.GetStartingCity();
-			SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), city.ResourceManager);
+			startingCity = trader.GetStartingCity();
+			homeCity = world.GetCity(trader.homeCity);
+
+			ToggleAddGuard(!trader.guarded);
+
+			if (trader.buildDataSO.singleBuildType == SingleBuildType.TradeDepot)
+				typeNeeded = SingleBuildType.Barracks;
+			else if (trader.buildDataSO.singleBuildType == SingleBuildType.Harbor)
+				typeNeeded = SingleBuildType.Shipyard;
+			else
+				typeNeeded = SingleBuildType.AirBase;
+			
+			SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), startingCity.ResourceManager);
 
 			gameObject.SetActive(val);
 			activeStatus = true;
+			world.goldUpdateCheck = this;
 			LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
 		}
 		else
 		{
 			cantAffordList.Clear();
+			if (!confirm)
+			{
+				this.trader.guarded = false;
+				this.trader.guardUnit = null;
+			}
 			this.trader = null;
-			city = null;
+			startingCity = null;
+			homeCity = null;
 
 			activeStatus = false;
+			world.goldUpdateCheck = null;
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
 		}
 	}
@@ -147,7 +171,20 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 
 	public bool CityCheck(City city)
 	{
-		return activeStatus && this.city == city;
+		return activeStatus && this.startingCity == city;
+	}
+
+	public void ToggleAddGuard(bool v)
+	{
+		addGuardButton.SetActive(v);
+		int height = v ? 370 : 300;
+		allContents.sizeDelta = new Vector2(490, height);
+	}
+
+	//for interface
+	public void UpdateGold(int prevAmount, int amount, bool pos)
+	{
+		UpdateRouteCost(amount, ResourceType.Gold);
 	}
 
 	public void UpdateRouteCost(int amount, ResourceType type)
@@ -169,6 +206,8 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 				costsInfo[i].resourceAmountText.color = Color.red;
 				tempCantAfford = true;
 			}
+
+			break;
 		}
 
 		if (cantAffordList.Contains(type))
@@ -186,6 +225,56 @@ public class UITradeRouteBeginTooltip : MonoBehaviour
 			cantAfford = false;
 		else
 			cantAfford = true;
+	}
+
+	public void AssignGuard()
+	{
+		addGuardButton.GetComponent<UITooltipTrigger>().CancelCall();
+		UITooltipSystem.Hide();
+
+		if (trader.isMoving)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(addGuardButton.transform.position, "Must be at home to assign guard", false);
+			return;
+		}
+		else if (!homeCity.singleBuildDict.ContainsKey(typeNeeded))
+		{
+			string singleBuildType = Regex.Replace(typeNeeded.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+			UIInfoPopUpHandler.WarningMessage().Create(addGuardButton.transform.position, "Need " + singleBuildType + " in home city", false);
+			return;
+		}
+		
+		CityImprovement improvement = world.GetCityDevelopment(homeCity.singleBuildDict[typeNeeded]);
+		
+		if (!improvement.army.atHome)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(addGuardButton.transform.position, "Military not at home", false);
+			return;
+		}
+		else if (improvement.army.armyCount == 0)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(addGuardButton.transform.position, "No units stationed here", false);
+			return;
+		}
+
+		world.cityBuilderManager.PlaySelectAudio();
+		world.unitMovement.AssignGuard(improvement.army);
+	}
+
+	public bool MilitaryLocCheck(Vector3Int loc)
+	{
+		return homeCity.singleBuildDict[typeNeeded] == loc;
+	}
+
+	public void UnselectArmy()
+	{
+		world.GetCityDevelopment(homeCity.singleBuildDict[typeNeeded]).army.UnSoftSelectArmy();
+	}
+
+	public void UpdateGuardCosts()
+	{
+		cantAffordList.Clear();
+		SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), homeCity.ResourceManager);
 	}
 
 	public bool AffordCheck()

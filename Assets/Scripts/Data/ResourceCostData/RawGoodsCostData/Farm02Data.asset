@@ -29,7 +29,7 @@ MonoBehaviour:
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
   - resourceType: 6
-    resourceAmount: 50
+    resourceAmount: 30
   consumedResources:
   - resourceType: 4
     resourceAmount: 2
@@ -39,8 +39,8 @@ MonoBehaviour:
   consumedResources4: []
   producedResources:
   - resourceType: 2
-    resourceAmount: 4
-  producedResourceTime: 1e000000
+    resourceAmount: 1
+  producedResourceTime: 05000000
   rawMaterials: 1
   rawResourceType: 1
   isResearch: 0
@@ -51,6 +51,7 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   oneTerrain: 1
