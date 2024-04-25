@@ -14,12 +14,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
     //private UIWonderSelection uiWonderSelection;
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
-    public GameObject mesh0Percent;
-    //public GameObject mesh25Percent;
-    public GameObject mesh33Percent;
-    public GameObject mesh67Percent;
-    public GameObject meshComplete;
-    public GameObject mapIcon;
+    public GameObject mesh0Percent, mesh33Percent, mesh67Percent, meshComplete, mapIcon, exclamationPoint;
     public List<Light> wonderLights = new();
 
     private SelectionHighlight highlight;
@@ -31,7 +26,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
     //public Quaternion Rotation { set { rotation = value; } }
 
     [HideInInspector]
-    public bool isConstructing, canBuildHarbor, hasHarbor, isActive, roadPreExisted;
+    public bool isConstructing, canBuildHarbor, hasHarbor, isActive, roadPreExisted, goldWait;
     [HideInInspector]
     public Vector3Int unloadLoc, harborLoc;
     [HideInInspector]
@@ -171,7 +166,13 @@ public class Wonder : MonoBehaviour, IGoldWaiter
         uiTimeProgressBar.gameObject.transform.position = centerPos;
         totalTime = wonderData.buildTimePerPercent;
         uiTimeProgressBar.SetTimeProgressBarValue(totalTime);
+    }
 
+    public void SetExclamationPoint()
+    {
+        Vector3 pos = unloadLoc;
+        pos.y += 1;
+        exclamationPoint.transform.position = pos;
     }
 
     public void SetResourceDict(List<ResourceValue> resources, bool load)
@@ -416,6 +417,10 @@ public class Wonder : MonoBehaviour, IGoldWaiter
     {
         if (totalGoldCost <= gold)
         {
+            goldWait = false;
+            if (world.cityBuilderManager.uiWonderSelection.activeStatus)
+                world.cityBuilderManager.uiWonderSelection.UpdateWaitingForMessage(false);
+			exclamationPoint.SetActive(false);
             ThresholdCheck();
             return true;
         }
@@ -427,6 +432,9 @@ public class Wonder : MonoBehaviour, IGoldWaiter
 
     public void ThresholdCheck()
     {
+        if (goldWait)
+            return;
+        
         if (StillNeedsWorkers())
         {
             if (smokeEmitter.isPlaying)
@@ -436,6 +444,10 @@ public class Wonder : MonoBehaviour, IGoldWaiter
 
         if (!world.CheckWorldGold(totalGoldCost))
         {
+            goldWait = true;
+            if (world.cityBuilderManager.uiWonderSelection.activeStatus)
+                world.cityBuilderManager.uiWonderSelection.UpdateWaitingForMessage(true);
+            exclamationPoint.SetActive(true);
             world.AddToGoldWaitList(this);
             if (smokeEmitter.isPlaying)
                 StopSmokeEmitter();
@@ -576,6 +588,8 @@ public class Wonder : MonoBehaviour, IGoldWaiter
 
     public void DestroyHarbor()
     {
+        ClearHarborCheck();
+        
         hasHarbor = false;
         GameObject harbor = world.GetStructure(harborLoc);
         harbor.GetComponent<CityImprovement>().PlayRemoveEffect(false);
@@ -810,8 +824,8 @@ public class Wonder : MonoBehaviour, IGoldWaiter
                 foreach (City city in world.cityDict.Values)
                 {
                     city.warehouseStorageLimit += (int)wonderData.wonderBenefitChange;
-                    city.ResourceManager.CheckProducerUnloadWaitList();
-                    city.ResourceManager.RestartStorageRoomWaitProduction();
+                    city.ResourceManager.StorageSpaceCheck();
+                    //city.ResourceManager.RestartStorageRoomWaitProduction();
                 }
                 break;
             case "Great Lighthouse":
@@ -838,6 +852,41 @@ public class Wonder : MonoBehaviour, IGoldWaiter
         }
     }
 
+    public void GoldWaitCheck()
+    {
+        if (goldWait)
+        {
+			goldWait = false;
+			world.cityBuilderManager.uiWonderSelection.UpdateWaitingForMessage(false);
+			exclamationPoint.SetActive(false);
+			world.RemoveFromGoldWaitList(this);
+		}
+    }
+
+    public void ClearWonderCheck()
+    {
+        for (int i = 0; i < waitList.Count; i++)
+			waitList.Dequeue().trader.CancelRoute();
+
+        if (world.IsUnitLocationTaken(unloadLoc))
+            world.CancelTraderRoute(unloadLoc);
+    }
+
+	public void ClearHarborCheck()
+    {
+		for (int i = 0; i < seaWaitList.Count; i++)
+			seaWaitList.Dequeue().trader.CancelRoute();
+
+		if (world.IsUnitLocationTaken(harborLoc))
+			world.CancelTraderRoute(harborLoc);
+	}
+
+    public void RemoveQueuedTraders()
+    {
+        ClearWonderCheck();
+        if (hasHarbor)
+            ClearHarborCheck();
+	}
 
 	public WonderData SaveData()
     {
@@ -861,6 +910,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
         data.coastTiles = coastTiles;
         data.resourceDict = resourceDict;
         data.resourceGridDict = resourceGridDict;
+        data.workerSexAndHome = workerSexAndHome;
 
 		List<Unit> tempWaitList = waitList.ToList();
 
@@ -882,6 +932,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
         //centerPos = data.centerPos; //done elsewhere
         wonderName = data.name;
 		unloadLoc = data.unloadLoc;
+        SetExclamationPoint();
 		harborLoc = data.harborLoc;
 		percentDone = data.percentDone;
 		workersReceived = data.workersReceived;
@@ -895,6 +946,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
 		coastTiles = data.coastTiles;
         resourceDict = data.resourceDict;
         resourceGridDict = data.resourceGridDict;
+        workerSexAndHome = data.workerSexAndHome;
 	}
 
     public void DestroyParticleSystems()

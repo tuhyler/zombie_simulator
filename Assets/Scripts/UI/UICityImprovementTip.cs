@@ -99,7 +99,7 @@ public class UICityImprovementTip : MonoBehaviour
 			}
             else if (improvement.GetImprovementData.isResearch)
             {
-				if (producer.isWaitingForResearch || producer.isWaitingToUnload)
+				if (producer.isWaitingForResearch || producer.isWaitingForStorageRoom)
                 {
                     waiting = true;
 				    waitingForText.gameObject.SetActive(true);
@@ -111,7 +111,7 @@ public class UICityImprovementTip : MonoBehaviour
 					waitingForText.gameObject.SetActive(false);
 				}
 			}
-            else if (producer.isWaitingForStorageRoom || producer.isWaitingToUnload)
+            else if (producer.isWaitingForStorageRoom /*|| producer.isWaitingToUnload*/)
             {
 				waiting = true;
 				waitingForText.gameObject.SetActive(true);
@@ -434,7 +434,7 @@ public class UICityImprovementTip : MonoBehaviour
         
         ResourceProducer producer = improvement.resourceProducer;
         highlightList[producer.producedResourceIndex].gameObject.SetActive(false);
-        if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources || producer.isWaitingToUnload)
+        if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources /*|| producer.isWaitingToUnload*/)
             producer.StopProducing(true);
 
         improvement.producedResource = producesInfo[a].resourceType;

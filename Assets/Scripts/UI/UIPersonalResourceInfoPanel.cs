@@ -631,11 +631,11 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
 
     private void SetActiveStatusFalse()
     {
-        storageLevel.gameObject.SetActive(true);
-        storageLimit.gameObject.SetActive(true);
-        slash.gameObject.SetActive(true);
-        //unitStoragePercent.gameObject.SetActive(true);
-        progressBar.SetActive(true);
+        //storageLevel.gameObject.SetActive(true);
+        //storageLimit.gameObject.SetActive(true);
+        //slash.gameObject.SetActive(true);
+        ////unitStoragePercent.gameObject.SetActive(true);
+        //progressBar.SetActive(true);
         gameObject.SetActive(false);
     }
 
@@ -689,13 +689,13 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
         }
     }
 
-    public void HideInventoryLevel()
+    public void ToggleInventoryLevel(bool v)
     {
-        storageLevel.gameObject.SetActive(false);
-        storageLimit.gameObject.SetActive(false);
-        slash.gameObject.SetActive(false);
+        storageLevel.gameObject.SetActive(v);
+        storageLimit.gameObject.SetActive(v);
+        slash.gameObject.SetActive(v);
         //unitStoragePercent.gameObject.SetActive(false);
-        progressBar.SetActive(false);
+        progressBar.SetActive(v);
     }
 
     public void MoveResources(int oldNum, int newNum, ResourceType type)

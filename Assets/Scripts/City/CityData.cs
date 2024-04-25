@@ -7,8 +7,8 @@ public class CityData
 {
     public string name;
 	public Vector3Int location;
-	public bool reachedWaterLimit, /*harborTraining,*/ /*autoGrow,*/ autoAssignLabor, hasWater, hasFreshWater, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, /*hasBarracks, hasHarbor,*/ 
-		fullInventory, isNamed, attacked/*, hasAirport, airportTraining*/, growing;
+	public bool reachedWaterLimit, autoAssignLabor, hasWater, hasFreshWater, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay,
+		/*fullInventory, */isNamed, attacked, growing;
 	public int waterMaxPop, currentPop, unusedLabor, usedLabor, countDownTimer, warehouseStorageLevel, lostPop;
 	public List<ResourceType> resourcePriorities;
 	public Dictionary<ResourceType, int> resourceGridDict;
@@ -39,8 +39,10 @@ public class CityData
 	public bool isEmpty = true, isFull, isTraining, isTransferring, isRepositioning, traveling, inBattle, returning, atHome, enemyReady, issueRefund = true;
 
 	//waiting lists
-	public List<Vector3Int> goldWaitList = new(), resourceWaitList = new(), waitingforResourceProducerList = new(), waitingForProducerStorageList = new(), waitingToUnloadProducerList = new(), waitingToUnloadResearchList = new();
-	public List<ResourceType> resourcesNeededForProduction;
-	public List<int> waitingForTraderList = new(), waitList = new(), seaWaitList = new();
-	public List<ResourceType> resourcesNeededForRoute;
+	public List<Vector3Int> /*waitingforResourceProducerList = new(), *//*waitingForProducerStorageList = new(), waitingToUnloadProducerList = new(),*/ waitingToUnloadResearchList = new();
+	public List<(Vector3Int, int)> goldWaitList = new(), unloadWaitList = new();
+	public Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict = new();
+	//public List<ResourceType> resourcesNeededForProduction;
+	public List<int> /*waitingForTraderList = new(), */waitList = new(), seaWaitList = new();
+	//public List<ResourceType> resourcesNeededForRoute;
 }

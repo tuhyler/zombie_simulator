@@ -337,6 +337,9 @@ public class Unit : MonoBehaviour
         world.RemoveUnitPosition(currentLocation);//removing previous location
         pathPositions = new Queue<Vector3Int>(currentPath);
 
+        if (bySea)
+            TurnOnRipples();
+
         if (trader && trader.followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
         {
             isMoving = true;
@@ -449,7 +452,7 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.atHome)
+        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning && !trader.atHome)
         {
             if (trader.followingRoute)
                 trader.InterruptRoute(true);
@@ -947,7 +950,8 @@ public class Unit : MonoBehaviour
 
 	private void SetActiveStatusFalse()
 	{
-		ripples.SetActive(false);
+		if (!isMoving)
+            ripples.SetActive(false);
 	}
 
 	//for animations
@@ -1240,7 +1244,8 @@ public class Unit : MonoBehaviour
     {
 		if (!hidden)
         {
-            marker.gameObject.SetActive(!hideMarker);
+            if (marker != null)
+                marker.gameObject.SetActive(!hideMarker);
             if (military && military.atSea)
             {
                 military.boatMesh.SetActive(false);

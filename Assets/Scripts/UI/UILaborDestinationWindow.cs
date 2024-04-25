@@ -32,7 +32,7 @@ public class UILaborDestinationWindow : MonoBehaviour
 
 		if (v)
 		{
-			destinationList = world.GetConnectedCityNames(cityLoc, false, false);
+			destinationList = world.GetConnectedCityNames(cityLoc, false, false, false);
 			destinationDropdown.AddOptions(destinationList);
 			gameObject.SetActive(true);
 			activeStatus = true;

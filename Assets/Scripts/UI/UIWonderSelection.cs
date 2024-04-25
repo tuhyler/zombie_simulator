@@ -18,7 +18,7 @@ public class UIWonderSelection : MonoBehaviour
     private Transform wonderCostHolder;
 
     [SerializeField]
-    private GameObject uiWonderResourcePanel, removeWorkerButton, goldImage;
+    private GameObject uiWonderResourcePanel, removeWorkerButton, goldImage, waitingForGoldText;
     private Dictionary<ResourceType, UIWonderResource> resourceOptions = new();
 
     [SerializeField]
@@ -71,6 +71,7 @@ public class UIWonderSelection : MonoBehaviour
             world.UnselectAll();
             world.somethingSelected = true;
             this.wonder = wonder;
+            UpdateWaitingForMessage(wonder.goldWait);
 
             //world.openingCity = true;
 			world.cityCanvas.gameObject.SetActive(true);
@@ -124,6 +125,13 @@ public class UIWonderSelection : MonoBehaviour
         //else
         //    world.openingCity = false;
         gameObject.SetActive(false);
+    }
+
+    public void UpdateWaitingForMessage(bool v)
+    {
+        waitingForGoldText.SetActive(v);
+        int height = v ? 730 : 700;
+        allContents.sizeDelta = new Vector2(500, height);
     }
 
     private void SetWonderInfo(Wonder wonder)

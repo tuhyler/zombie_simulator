@@ -51,7 +51,7 @@ public class UILaborAssignment : MonoBehaviour
         OnIconButtonClick?.Invoke(laborChange);
     }
 
-    public void ShowUI(City city, int placesToWork) //pass data to know if can show in the UI
+    public void ShowUI(/*City city, int placesToWork*/) //pass data to know if can show in the UI
     {
         if (activeStatus)
             return;
@@ -71,13 +71,13 @@ public class UILaborAssignment : MonoBehaviour
         //    return;
         //}
 
-        PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
+        //PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
     }
 
-    public void UpdateUI(City city, int placesToWork)
-    {
-        PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
-    }
+    //public void UpdateUI(City city, int placesToWork)
+    //{
+    //    //PrepareLaborChangeOptions(city.unusedLabor, city.usedLabor, placesToWork, city.AutoAssignLabor);
+    //}
 
     public UILaborAssignmentOptions GetLaborButton(int change)
     {
@@ -141,51 +141,51 @@ public class UILaborAssignment : MonoBehaviour
         this.laborChange = laborChange;
     }
 
-    private void PrepareLaborChangeOptions(int unusedLabor, int usedLabor, int placesToWork, bool autoAssign)
-    {
-        if (autoAssign) //can't adjust labor with auto assign on
-        {
-            SetAssignmentOptionsInteractableOff();
-            return;
-        }
+    //private void PrepareLaborChangeOptions(int unusedLabor, int usedLabor, int placesToWork, bool autoAssign)
+    //{
+    //    if (autoAssign) //can't adjust labor with auto assign on
+    //    {
+    //        SetAssignmentOptionsInteractableOff();
+    //        return;
+    //    }
         
-        foreach (UILaborAssignmentOptions laborItem in laborOptions)
-        {
-            laborItem.ToggleInteractable(true);
+    //    foreach (UILaborAssignmentOptions laborItem in laborOptions)
+    //    {
+    //        laborItem.ToggleInteractable(true);
 
-            if (laborItem.LaborChange > 0 && (unusedLabor == 0 || placesToWork == 0))
-            {
-                laborItem.ToggleInteractable(false); //deactivate if not enough unused labor or places to work
-                cityBuildingManager.laborChange = 0;
-            }
+    //        if (laborItem.LaborChange > 0 && (unusedLabor == 0 || placesToWork == 0))
+    //        {
+    //            laborItem.ToggleInteractable(false); //deactivate if not enough unused labor or places to work
+    //            cityBuildingManager.laborChange = 0;
+    //        }
 
-            if (laborItem.LaborChange < 0 && usedLabor == 0)
-            {
-                laborItem.ToggleInteractable(false); //deactivate if not enough used labor
-                cityBuildingManager.laborChange = 0;
-            }
-        }
-    }
+    //        if (laborItem.LaborChange < 0 && usedLabor == 0)
+    //        {
+    //            laborItem.ToggleInteractable(false); //deactivate if not enough used labor
+    //            cityBuildingManager.laborChange = 0;
+    //        }
+    //    }
+    //}
 
-    public void ToggleInteractable(int laborChange)
-    {
-        foreach (UILaborAssignmentOptions laborItem in laborOptions)
-        {
-            if (laborItem.LaborChange == laborChange)
-            {
-                laborItem.ToggleButtonSelection(true);
-            }
-        }
-    }
+    //public void ToggleInteractable(int laborChange)
+    //{
+    //    foreach (UILaborAssignmentOptions laborItem in laborOptions)
+    //    {
+    //        if (laborItem.LaborChange == laborChange)
+    //        {
+    //            laborItem.ToggleButtonSelection(true);
+    //        }
+    //    }
+    //}
 
-    public void SetAssignmentOptionsInteractableOff()
-    {
-        foreach (UILaborAssignmentOptions laborItem in laborOptions)
-        {
-            laborItem.ToggleInteractable(false);
-        }
+    //public void SetAssignmentOptionsInteractableOff()
+    //{
+    //    foreach (UILaborAssignmentOptions laborItem in laborOptions)
+    //    {
+    //        laborItem.ToggleInteractable(false);
+    //    }
 
-        laborChange = 0;
-        laborChangeFlag = 0;
-    }
+    //    laborChange = 0;
+    //    laborChangeFlag = 0;
+    //}
 }
