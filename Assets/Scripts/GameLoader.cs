@@ -27,8 +27,11 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
-	public Dictionary<City, (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<Vector3Int>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
+	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, List<(Vector3Int, int)>, /*List<Vector3Int>, *//*List<Vector3Int>, *//*List<Vector3Int>, */List<int>, List<int>/*, List<int>*/)> cityWaitingDict = new();
+	[HideInInspector]
 	public List<Unit> unitUpgradeList = new();
+	//[HideInInspector]
+	//public List<Trader> traderLoadUnloadList = new();
 	//public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
 	[HideInInspector]
 	public List<GameObject> textList = new();
@@ -654,9 +657,11 @@ public class GameLoader : MonoBehaviour
 			{
 				Wonder wonder = world.GetWonder(gameData.goldWaitList[i].Item1);
 				wonder.totalGoldCost = gameData.goldWaitList[i].Item2;
+				wonder.goldWait = true;
+				wonder.exclamationPoint.SetActive(true);
 				world.goldWaitList.Add(wonder);
 			}
-			if (world.IsTradeCenterOnTile(gameData.goldWaitList[i].Item1))
+			else if (world.IsTradeCenterOnTile(gameData.goldWaitList[i].Item1))
 			{
 				TradeCenter center = world.GetTradeCenter(gameData.goldWaitList[i].Item1);
 				center.waitingAmount = gameData.goldWaitList[i].Item2;
@@ -706,21 +711,26 @@ public class GameLoader : MonoBehaviour
 		//city waiting lists
 		foreach (City city in cityWaitingDict.Keys)
 		{
-			(List<Vector3Int> goldWaitList, List<Vector3Int> resourceWaitList, List<Vector3Int> producersWaiting, List<Vector3Int> producersStorageWaiting, List<Vector3Int> producersUnloadWaiting,
-				List<int> waitList, List<int> seaWaitList, List<int> tradersWaiting) = cityWaitingDict[city];
+			(List<(Vector3Int, int)> goldWaitList, Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict, List <(Vector3Int, int)> unloadWaitList, /*List<Vector3Int> producersWaiting, *//*List<Vector3Int> producersStorageWaiting,*/ /*List<Vector3Int> producersUnloadWaiting,*/
+				List<int> waitList, List<int> seaWaitList/*, List<int> tradersWaiting*/) = cityWaitingDict[city];
 			city.SetGoldWaitList(goldWaitList);
-			city.SetResourceWaitList(resourceWaitList);
-			city.SetProducerWaitingList(producersWaiting);
-			city.SetProducerStorageRoomWaitingList(producersStorageWaiting);
-			city.SetWaitingToUnloadProducerList(producersUnloadWaiting);
+			city.SetResourceWaitList(resourceWaitDict);
+			city.SetUnloadWaitList(unloadWaitList);
+			//city.SetProducerWaitingList(producersWaiting);
+			//city.SetProducerStorageRoomWaitingList(producersStorageWaiting);
+			//city.SetWaitingToUnloadProducerList(producersUnloadWaiting);
 			//city.SetWaitingToUnloadResearchList(researchUnloadWaiting);
 			city.SetWaitList(waitList);
 			city.SetSeaWaitList(seaWaitList);
-			city.SetTraderRouteWaitingList(tradersWaiting);
+			//city.SetTraderRouteWaitingList(tradersWaiting);
 			//city.SetTradersHereList(tradersHere);
 		}
 		cityWaitingDict.Clear();
-			
+
+		//traders start loading and unloading after line positions have been set
+		//for (int i = 0; i < traderLoadUnloadList.Count; i++)
+		//	traderLoadUnloadList[i].StartLoadUnload();
+
 		foreach (Unit unit in unitUpgradeList)
 		{
 			CityImprovement improvement = null;

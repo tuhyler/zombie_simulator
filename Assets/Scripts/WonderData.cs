@@ -13,4 +13,5 @@ public class WonderData
 	public List<Vector3Int> wonderLocs, possibleHarborLocs, coastTiles;
 	public Dictionary<ResourceType, int> resourceDict, resourceGridDict;
 	public List<int> waitList = new(), seaWaitList = new();
+	public List<(bool, Vector3Int)> workerSexAndHome = new();
 }

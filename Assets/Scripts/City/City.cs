@@ -114,9 +114,9 @@ public class City : MonoBehaviour, IGoldWaiter
     public float improvementWorkEthic;
     public float wonderWorkEthic;
     public int warehouseStorageLimit = 200;
-    private TradeRouteManager tradeRouteWaiter;
-    private ResourceType resourceWaiter = ResourceType.None;
-    private Queue<Unit> waitList = new(), seaWaitList = new();
+    //private TradeRouteManager tradeRouteWaiter;
+    //private ResourceType resourceWaiter = ResourceType.None;
+    private Queue<Unit> waitList = new(), seaWaitList = new(), airWaitList = new();
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
     [HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
@@ -982,32 +982,32 @@ public class City : MonoBehaviour, IGoldWaiter
     //    }
     //}
 
-    public void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
-    {
-        tradeRouteWaiter = tradeRouteManager;
-        resourceWaiter = resourceType;
-    }
+    //public void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
+    //{
+    //    tradeRouteWaiter = tradeRouteManager;
+    //    //resourceWaiter = resourceType;
+    //}
 
-    public void CheckResourceWaiter(ResourceType resourceType)
-    {
-        if (tradeRouteWaiter != null && resourceWaiter == resourceType)
-        {
-            tradeRouteWaiter.resourceCheck = false;
-            tradeRouteWaiter.trader.RemoveWarning();
-            tradeRouteWaiter = null;
-            resourceWaiter = ResourceType.None;
-        }
-    }
+    //public void CheckResourceWaiter(ResourceType resourceType)
+    //{
+    //    if (tradeRouteWaiter != null && resourceWaiter == resourceType)
+    //    {
+    //        tradeRouteWaiter.resourceCheck = false;
+    //        tradeRouteWaiter.trader.RemoveWarning();
+    //        tradeRouteWaiter = null;
+    //        resourceWaiter = ResourceType.None;
+    //    }
+    //}
 
-    public void CheckLimitWaiter()
-    {
-        if (tradeRouteWaiter != null && resourceWaiter == ResourceType.None)
-        {
-            tradeRouteWaiter.resourceCheck = false;
-            tradeRouteWaiter.trader.RemoveWarning();
-            tradeRouteWaiter = null;
-        }
-    }
+    //public void CheckLimitWaiter()
+    //{
+    //    if (tradeRouteWaiter != null /*&& resourceWaiter == ResourceType.None*/)
+    //    {
+    //        tradeRouteWaiter.resourceCheck = false;
+    //        tradeRouteWaiter.trader.RemoveWarning();
+    //        tradeRouteWaiter = null;
+    //    }
+    //}
 
     public void AddToWaitList(Unit unit)
     {
@@ -1277,7 +1277,7 @@ public class City : MonoBehaviour, IGoldWaiter
 		{
 			CityGrowthProgressBarSetActive(true);
 			world.cityBuilderManager.abandonCityButton.interactable = false;
-			world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
+			world.cityBuilderManager.uiLaborAssignment.ShowUI(/*this, world.cityBuilderManager.placesToWork*/);
 		}
 
 		if (!load)
@@ -2187,11 +2187,67 @@ public class City : MonoBehaviour, IGoldWaiter
         world.GetTerrainDataAt(cityLoc).DisableHighlight();
 	}
 
+    public void ClearCityCheck()
+    {
+		for (int i = 0; i < waitList.Count; i++)
+			waitList.Dequeue().trader.InterruptRoute(true);
+
+        if (world.IsUnitLocationTaken(cityLoc))
+            world.CancelTraderRoute(cityLoc);
+	}
+
+    public void RemoveHarborCheck(Vector3Int harborLoc)
+    {
+		for (int i = 0; i < seaWaitList.Count; i++)
+			seaWaitList.Dequeue().trader.InterruptRoute(true);
+
+		if (world.IsUnitLocationTaken(harborLoc))
+			world.CancelTraderRoute(harborLoc);
+	}
+
+	public void ClearHarborCheck()
+    {
+        if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+        {
+		    for (int i = 0; i < seaWaitList.Count; i++)
+			    seaWaitList.Dequeue().trader.InterruptRoute(true);
+        
+            if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Harbor]))
+                world.CancelTraderRoute(singleBuildDict[SingleBuildType.Harbor]);
+        }
+	}
+
+    public void RemoveAirportCheck(Vector3Int airportLoc)
+    {
+		for (int i = 0; i < airWaitList.Count; i++)
+			airWaitList.Dequeue().trader.InterruptRoute(true);
+
+		if (world.IsUnitLocationTaken(airportLoc))
+			world.CancelTraderRoute(airportLoc);
+	}
+
+	public void ClearAirportCheck()
+    {
+		if (singleBuildDict.ContainsKey(SingleBuildType.Airport))
+        {
+		    for (int i = 0; i < airWaitList.Count; i++)
+			    airWaitList.Dequeue().trader.InterruptRoute(true);
+
+            if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Airport]))
+			    world.CancelTraderRoute(singleBuildDict[SingleBuildType.Airport]);
+        }
+	}
+
     public void DestroyThisCity()
     {
-        //initialHouse.DestroyPS();
-        //initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).isHill);
-        if (co != null)
+        //cancelling routes for all traders in line at this city
+        ClearCityCheck();
+        ClearHarborCheck();
+        ClearAirportCheck();
+
+		//initialHouse.DestroyPS();
+		//initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).isHill);
+		if (co != null)
         {
             StopCoroutine(co);
 			//countDownTimer = secondsTillGrowthCheck;
@@ -2246,7 +2302,7 @@ public class City : MonoBehaviour, IGoldWaiter
 
 		data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
 		//data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
-        data.fullInventory = resourceManager.fullInventory;
+        //data.fullInventory = resourceManager.fullInventory;
 
 		//data.resourceDict = resourceManager.ResourceDict;
   //      data.resourcePriceDict = resourceManager.resourcePriceDict;
@@ -2317,34 +2373,47 @@ public class City : MonoBehaviour, IGoldWaiter
 			data.seaWaitList.Add(tempSeaWaitList[i].id);
 
         for (int i = 0; i < resourceManager.cityGoldWaitList.Count; i++)
-            data.goldWaitList.Add(resourceManager.cityGoldWaitList[i].WaitLoc);
+            data.goldWaitList.Add((resourceManager.cityGoldWaitList[i].WaitLoc, resourceManager.cityGoldWaitList[i].waitId));
 
-        for (int i = 0; i < resourceManager.cityResourceWaitList.Count; i++)
-            data.resourceWaitList.Add(resourceManager.cityGoldWaitList[i].WaitLoc);
+        foreach (ResourceType type in resourceManager.cityResourceWaitDict.Keys)
+        {
+            List<(Vector3Int, int)> waitList = new();
+            
+            for (int i = 0; i < resourceManager.cityResourceWaitDict[type].Count; i++)
+                waitList.Add((resourceManager.cityResourceWaitDict[type][i].WaitLoc, resourceManager.cityResourceWaitDict[type][i].waitId));
 
-		for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
-			data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
+            data.resourceWaitDict[type] = waitList;
+        }
 
-		for (int i = 0; i < resourceManager.waitingforResourceProducerList.Count; i++)
-            data.waitingforResourceProducerList.Add(resourceManager.waitingforResourceProducerList[i].producerLoc);
+        for (int i = 0; i < resourceManager.unloadWaitList.Count; i++)
+            data.unloadWaitList.Add((resourceManager.unloadWaitList[i].WaitLoc, resourceManager.unloadWaitList[i].waitId));
 
-		for (int i = 0; i < resourceManager.waitingForStorageRoomProducerList.Count; i++)
-			data.waitingForProducerStorageList.Add(resourceManager.waitingForStorageRoomProducerList[i].producerLoc);
+        //for (int i = 0; i < resourceManager.cityResourceWaitList.Count; i++)
+        //    data.resourceWaitList.Add((resourceManager.cityResourceWaitList[i].WaitLoc, resourceManager.cityResourceWaitList[i].waitId));
 
-        List<ResourceProducer> waitingToUnload = new(resourceManager.waitingToUnloadProducers.ToList());
-		for (int i = 0; i < waitingToUnload.Count; i++)
-			data.waitingToUnloadProducerList.Add(waitingToUnload[i].producerLoc);
+		//for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
+		//	data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
+
+		//for (int i = 0; i < resourceManager.waitingforResourceProducerList.Count; i++)
+  //          data.waitingforResourceProducerList.Add(resourceManager.waitingforResourceProducerList[i].producerLoc);
+
+		//for (int i = 0; i < resourceManager.waitingForStorageRoomProducerList.Count; i++)
+		//	data.waitingForProducerStorageList.Add(resourceManager.waitingForStorageRoomProducerList[i].producerLoc);
+
+  //      List<ResourceProducer> waitingToUnload = new(resourceManager.waitingToUnloadProducers.ToList());
+		//for (int i = 0; i < waitingToUnload.Count; i++)
+		//	data.waitingToUnloadProducerList.Add(waitingToUnload[i].producerLoc);
 
   //      List<ResourceProducer> waitingToUnloadResearch = new(resourceManager.waitingToUnloadResearch.ToList());
 		//for (int i = 0; i < waitingToUnloadResearch.Count; i++)
 		//	data.waitingToUnloadResearchList.Add(waitingToUnloadResearch[i].producerLoc);
 
-		data.resourcesNeededForProduction = resourceManager.resourcesNeededForProduction;
+		//data.resourcesNeededForProduction = resourceManager.resourcesNeededForProduction;
 
-		for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
-            data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
+		//for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
+  //          data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
 
-        data.resourcesNeededForRoute = resourceManager.resourcesNeededForRoute;
+        //data.resourcesNeededForRoute = resourceManager.resourcesNeededForRoute;
 
 		return data;
     }
@@ -2420,7 +2489,7 @@ public class City : MonoBehaviour, IGoldWaiter
             }
         }
         resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
-        resourceManager.fullInventory = data.fullInventory;
+        //resourceManager.fullInventory = data.fullInventory;
         //resourceManager.ResourceDict = data.resourceDict;
         //resourceManager.resourcePriceDict = data.resourcePriceDict;
         //resourceManager.resourceSellList = data.resourceSellList;
@@ -2443,8 +2512,8 @@ public class City : MonoBehaviour, IGoldWaiter
         resourceManager.queuedResourcesToCheck = data.queuedResourcesToCheck;
 
 		//waiting lists
-		resourceManager.resourcesNeededForProduction = data.resourcesNeededForProduction;
-		resourceManager.resourcesNeededForRoute = data.resourcesNeededForRoute;
+		//resourceManager.resourcesNeededForProduction = data.resourcesNeededForProduction;
+		//resourceManager.resourcesNeededForRoute = data.resourcesNeededForRoute;
 
 		//army data
 		if (singleBuildList.Contains(SingleBuildType.Barracks))
@@ -2502,67 +2571,102 @@ public class City : MonoBehaviour, IGoldWaiter
 		}
 	}
 
-    public void SetGoldWaitList(List<Vector3Int> goldWaitList)
+    public void SetGoldWaitList(List<(Vector3Int, int)> goldWaitList)
     {
         for (int i = 0; i < goldWaitList.Count; i++)
         {
-            if (world.IsUnitLocationTaken(goldWaitList[i]))
+            if (world.TileHasCityImprovement(goldWaitList[i].Item1))
             {
-                Unit unit = world.GetUnit(goldWaitList[i]);
-
-                if (unit.trader)
-                    resourceManager.cityGoldWaitList.Add(unit.trader);
+                if (world.CheckImprovementIsProducer(goldWaitList[i].Item1))
+                    resourceManager.cityGoldWaitList.Add(world.GetResourceProducer(goldWaitList[i].Item1));
             }
-            else if (world.TileHasCityImprovement(goldWaitList[i]))
+            else if (goldWaitList[i].Item2 >= 0)
             {
-                if (world.CheckImprovementIsProducer(goldWaitList[i]))
-                    resourceManager.cityGoldWaitList.Add(world.GetResourceProducer(goldWaitList[i]));
+				for (int j = 0; j < world.traderList.Count; j++)
+				{
+					if (world.traderList[j].id == goldWaitList[i].Item2)
+					{
+                        resourceManager.cityGoldWaitList.Add(world.traderList[j].trader);
+						break;
+					}
+				}
             }
         }
     }
 
-	public void SetResourceWaitList(List<Vector3Int> resourceWaitList)
+	public void SetResourceWaitList(Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict)
 	{
-		for (int i = 0; i < resourceWaitList.Count; i++)
-		{
-			if (world.IsUnitLocationTaken(resourceWaitList[i]))
-			{
-				Unit unit = world.GetUnit(resourceWaitList[i]);
-
-				if (unit.trader)
-					resourceManager.cityGoldWaitList.Add(unit.trader);
-			}
-			else if (world.TileHasCityImprovement(resourceWaitList[i]))
-			{
-				if (world.CheckImprovementIsProducer(resourceWaitList[i]))
-					resourceManager.cityGoldWaitList.Add(world.GetResourceProducer(resourceWaitList[i]));
-			}
-		}
+		foreach (ResourceType type in resourceWaitDict.Keys)
+        {
+            resourceManager.cityResourceWaitDict[type] = new();
+            for (int i = 0; i < resourceWaitDict[type].Count; i++)
+		    {
+			    if (world.TileHasCityImprovement(resourceWaitDict[type][i].Item1))
+			    {
+				    if (world.CheckImprovementIsProducer(resourceWaitDict[type][i].Item1))
+                        resourceManager.cityResourceWaitDict[type].Add(world.GetResourceProducer(resourceWaitDict[type][i].Item1));
+			    }
+			    else if (resourceWaitDict[type][i].Item2 >= 0)
+			    {
+				    for (int j = 0; j < world.traderList.Count; j++)
+				    {
+					    if (world.traderList[j].id == resourceWaitDict[type][i].Item2)
+					    {
+                            resourceManager.cityResourceWaitDict[type].Add(world.traderList[j].trader);
+						    break;
+					    }
+				    }
+			    }
+		    }
+        }
 	}
 
-	public void SetProducerWaitingList(List<Vector3Int> producerWaiting)
+    public void SetUnloadWaitList(List<(Vector3Int, int)> unloadWaitList)
     {
-        for (int i = 0; i < producerWaiting.Count; i++)
+        for (int i = 0; i < unloadWaitList.Count; i++)
         {
-            resourceManager.waitingforResourceProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
-        }
+			if (world.TileHasCityImprovement(unloadWaitList[i].Item1))
+			{
+				if (world.CheckImprovementIsProducer(unloadWaitList[i].Item1))
+					resourceManager.unloadWaitList.Add(world.GetResourceProducer(unloadWaitList[i].Item1));
+			}
+			else if (unloadWaitList[i].Item2 >= 0)
+			{
+				for (int j = 0; j < world.traderList.Count; j++)
+				{
+					if (world.traderList[j].id == unloadWaitList[i].Item2)
+					{
+						resourceManager.unloadWaitList.Add(world.traderList[j].trader);
+						break;
+					}
+				}
+			}
+		}
     }
 
-    public void SetProducerStorageRoomWaitingList(List<Vector3Int> producerWaiting)
-    {
-		for (int i = 0; i < producerWaiting.Count; i++)
-		{
-			resourceManager.waitingForStorageRoomProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
-		}
-	}
+	//public void SetProducerWaitingList(List<Vector3Int> producerWaiting)
+ //   {
+ //       for (int i = 0; i < producerWaiting.Count; i++)
+ //       {
+ //           resourceManager.waitingforResourceProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
+ //       }
+ //   }
 
-    public void SetWaitingToUnloadProducerList(List<Vector3Int> producerWaiting)
-    {
-		for (int i = 0; i < producerWaiting.Count; i++)
-		{
-			resourceManager.waitingToUnloadProducers.Enqueue(world.GetResourceProducer(producerWaiting[i]));
-		}
-	}
+ //   public void SetProducerStorageRoomWaitingList(List<Vector3Int> producerWaiting)
+ //   {
+	//	for (int i = 0; i < producerWaiting.Count; i++)
+	//	{
+	//		resourceManager.waitingForStorageRoomProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
+	//	}
+	//}
+
+ //   public void SetWaitingToUnloadProducerList(List<Vector3Int> producerWaiting)
+ //   {
+	//	for (int i = 0; i < producerWaiting.Count; i++)
+	//	{
+	//		resourceManager.waitingToUnloadProducers.Enqueue(world.GetResourceProducer(producerWaiting[i]));
+	//	}
+	//}
 
  //   public void SetWaitingToUnloadResearchList(List<Vector3Int> producerWaiting)
  //   {
@@ -2602,20 +2706,20 @@ public class City : MonoBehaviour, IGoldWaiter
 		}
 	}
 
-	public void SetTraderRouteWaitingList(List<int> tradersWaiting)
-    {
-        for (int i = 0; i < tradersWaiting.Count; i++)
-        {
-            for (int j = 0; j < world.traderList.Count; j++)
-            {
-                if (world.traderList[j].id == tradersWaiting[i])
-                {
-                    resourceManager.waitingForTraderList.Add(world.traderList[j]);
-                    break;
-                }
-            }
-        }
-    }
+	//public void SetTraderRouteWaitingList(List<int> tradersWaiting)
+ //   {
+ //       for (int i = 0; i < tradersWaiting.Count; i++)
+ //       {
+ //           for (int j = 0; j < world.traderList.Count; j++)
+ //           {
+ //               if (world.traderList[j].id == tradersWaiting[i])
+ //               {
+ //                   resourceManager.waitingForTraderList.Add(world.traderList[j]);
+ //                   break;
+ //               }
+ //           }
+ //       }
+ //   }
 
   //  public void SetTradersHereList(List<int> tradersHere)
   //  {

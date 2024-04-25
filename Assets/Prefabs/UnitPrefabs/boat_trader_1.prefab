@@ -119,16 +119,6 @@ PrefabInstance:
       propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 2708977017892983092, guid: 46cc514076b805546acca95ada66c02c,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2708977017892983092, guid: 46cc514076b805546acca95ada66c02c,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3878466665329633883, guid: 46cc514076b805546acca95ada66c02c,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -204,6 +194,11 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: fcb04dc22c4a9be4b8123e7dd6611c59, type: 2}
+    - target: {fileID: 8838263541214279801, guid: 46cc514076b805546acca95ada66c02c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9050479014767762714, guid: 46cc514076b805546acca95ada66c02c,
         type: 3}
       propertyPath: m_Materials.Array.data[0]

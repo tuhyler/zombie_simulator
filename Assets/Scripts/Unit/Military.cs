@@ -631,6 +631,10 @@ public class Military : Unit
 	{
 		finalDestinationLoc = barracksBunk;
 		List<Vector3Int> path = GridSearch.MilitaryMove(world, currentLocation, barracksBunk, bySea);
+
+		if (path.Count == 0)
+			path = GridSearch.MoveWherever(world, currentLocation, barracksBunk);
+
 		if (path.Count == 0)
 			path.Add(barracksBunk);
 
@@ -764,12 +768,15 @@ public class Military : Unit
 			}
 			else
 			{
+				if (!isSelected)
+					Unhighlight();
 				improvement.army.AddToArmy(this);
 				army = improvement.army;
 				barracksBunk = improvement.army.GetAvailablePosition(buildDataSO.unitType);
 				guardedTrader = null;
 				guard = false;
 				originalMoveSpeed = buildDataSO.movementSpeed;
+				StopMovementCheck(false);
 				isGuarding = false;
 
 				MoveForGuardDuty(barracksBunk);
@@ -1130,6 +1137,7 @@ public class Military : Unit
 			guardedTrader.guarded = false;
 			guardedTrader.guardUnit = null;
 			guardedTrader = null;
+			guard = false;
 			StartCoroutine(WaitKillUnit());
 		}
 		else

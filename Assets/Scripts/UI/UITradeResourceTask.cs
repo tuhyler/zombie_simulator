@@ -188,7 +188,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     {
         //float perc = (float)(amount) / totalAmount;
         
-        if (perc == 1)
+        if (perc >= 1)
         {
             LeanTween.value(completeImage.gameObject, completeImage.fillAmount, perc, 1f)
                 .setEase(LeanTweenType.linear)
@@ -247,7 +247,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
         if (compPerc == 0)
             completeImage.sprite = redX;
-        else if (compPerc == 100)
+        else if (compPerc >= 100)
             check.gameObject.SetActive(true);
         else
             completeImage.fillAmount = compPerc * .01f;

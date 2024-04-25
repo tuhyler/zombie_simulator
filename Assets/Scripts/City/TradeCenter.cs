@@ -236,19 +236,22 @@ public class TradeCenter : MonoBehaviour, IGoldWaiter
         }
     }
 
-    public void SetWaiter(TradeRouteManager tradeRouteManager, int amount)
+    public void SetWaiter(TradeRouteManager tradeRouteManager, int amount, bool load)
     {
         tradeRouteWaiter = tradeRouteManager;
         waitingAmount = amount;
-        world.AddToGoldWaitList(this);
+
+        if (!load)
+            world.AddToGoldWaitList(this);
     }
 
     private void CheckGoldWaiter()
     {
         if (tradeRouteWaiter)
         {
-            tradeRouteWaiter.resourceCheck = false;
-            tradeRouteWaiter.trader.RemoveWarning();
+            tradeRouteWaiter.ContinueLoadingUnloading();
+            //tradeRouteWaiter.resourceCheck = false;
+            //tradeRouteWaiter.trader.RemoveWarning();
             tradeRouteWaiter = null;
         }
     }
@@ -347,10 +350,10 @@ public class TradeCenter : MonoBehaviour, IGoldWaiter
         }
     }
 
-    public void RemoveFromWaitList()
-    {
-        world.RemoveFromGoldWaitList(this);
-    }
+    //public void RemoveFromGoldWaitList()
+    //{
+    //    world.RemoveFromGoldWaitList(this);
+    //}
 
     public void EnableHighlight(Color highlightColor, bool newGlow)
     {

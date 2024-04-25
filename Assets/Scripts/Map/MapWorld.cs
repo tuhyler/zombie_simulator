@@ -1698,8 +1698,8 @@ public class MapWorld : MonoBehaviour
         foreach (CityImprovementData improvementData in data.cityBuildings)
             CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[improvementData.name], city, improvementData);
 
-        GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitList, data.waitingforResourceProducerList, data.waitingForProducerStorageList, data.waitingToUnloadProducerList,
-            data.waitList, data.seaWaitList, data.waitingForTraderList);
+        GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitDict, data.unloadWaitList, /*data.waitingforResourceProducerList, *//*data.waitingForProducerStorageList, *//*data.waitingToUnloadProducerList,*/
+            data.waitList, data.seaWaitList/*, data.waitingForTraderList*/);
 	}
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, CityImprovementData data)
@@ -2018,27 +2018,29 @@ public class MapWorld : MonoBehaviour
 				    AddTradeLoc(tempBuildLocation, city.cityName);
                 }
 			}
-			else if (improvementData.singleBuildType == SingleBuildType.Barracks && city != null)
+			else if (improvementData.singleBuildType == SingleBuildType.Barracks)
 			{
 				militaryStationLocs.Add(tempBuildLocation);
-				//city.hasBarracks = true;
-				//city.barracksLocation = tempBuildLocation;
-
-				foreach (Vector3Int tile in GetNeighborsFor(tempBuildLocation, MapWorld.State.EIGHTWAYARMY))
-					city.army.SetArmySpots(tile);
-
-				city.army.SetLoc(tempBuildLocation, city);
-
-                if (city.army.noMoneyCycles > 0)
-					cityImprovement.exclamationPoint.SetActive(true);
-
-				if (td.isDiscovered && !enemy)
+				
+                if (city != null)
                 {
-                    List<UnitData> militaryUnits = GameLoader.Instance.gameData.militaryUnits[tempBuildLocation];
+					cityImprovement.army = city.army;
+					foreach (Vector3Int tile in GetNeighborsFor(tempBuildLocation, MapWorld.State.EIGHTWAYARMY))
+					    city.army.SetArmySpots(tile);
 
-				    for (int i = 0; i < militaryUnits.Count; i++)
+				    city.army.SetLoc(tempBuildLocation, city);
+
+                    if (city.army.noMoneyCycles > 0)
+					    cityImprovement.exclamationPoint.SetActive(true);
+
+				    if (td.isDiscovered && !enemy)
                     {
-                        CreateUnit(militaryUnits[i], city);
+                        List<UnitData> militaryUnits = GameLoader.Instance.gameData.militaryUnits[tempBuildLocation];
+
+				        for (int i = 0; i < militaryUnits.Count; i++)
+                        {
+                            CreateUnit(militaryUnits[i], city);
+                        }
                     }
                 }
 			}
@@ -2611,7 +2613,7 @@ public class MapWorld : MonoBehaviour
 
 	public void AaddGold() //for testing, on a button
     {
-        UpdateWorldGold(100);
+        UpdateWorldGold(10);
 
         //resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
@@ -3572,6 +3574,7 @@ public class MapWorld : MonoBehaviour
         //wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost, false);
         wonder.unloadLoc = finalUnloadLoc;
+        wonder.SetExclamationPoint();
         AddTradeLoc(finalUnloadLoc, wonder.wonderName);
         wonderNoWalkLoc.Remove(finalUnloadLoc);
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
@@ -4107,8 +4110,7 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveFromResearchWaitList(ResourceProducer producer)
     {
-        if (researchWaitList.Contains(producer))
-            researchWaitList.Remove(producer);
+        researchWaitList.Remove(producer);
     }
 
     public void RestartResearch()
@@ -4149,7 +4151,16 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveFromGoldWaitList(IGoldWaiter goldWaiter)
     {
-        goldWaitList.Remove(goldWaiter);
+        int index = goldWaitList.IndexOf(goldWaiter);
+
+        if (index >= 0)
+        {
+            goldWaitList.RemoveAt(index);
+
+			//if first in line, checking to see if next one up can go
+			if (index == 0)
+				GoldWaitListCheck();
+		}
     }
 
     public void RemoveCityFromGoldWaitList(IGoldWaiter goldWaiter, int place)
@@ -4162,6 +4173,11 @@ public class MapWorld : MonoBehaviour
                 if (j == place)
                 {
                     goldWaitList.RemoveAt(i);
+
+					//if first in line, checking to see if next one up can go
+					if (i == 0)
+                        GoldWaitListCheck();
+
                     break;
                 }
                 else
@@ -4286,38 +4302,27 @@ public class MapWorld : MonoBehaviour
             return;
 
 		int prevAmount = worldResourceManager.GetWorldGoldLevel();
-
 		worldResourceManager.SetResource(ResourceType.Gold, amount);
 		bool pos = amount > 0;
-        int currentAmount = worldResourceManager.GetWorldGoldLevel();
 
 		if (pos && goldWaitList.Count > 0)
-		{
-            List<IGoldWaiter> tempGoldWaitList = new(goldWaitList);
+            GoldWaitListCheck();
 
-            for (int i = 0; i < tempGoldWaitList.Count; i++)
-            {
-                if (tempGoldWaitList[i].RestartGold(currentAmount))
-                    goldWaitList.RemoveAt(0);
-                else
-                    break;
-            }
-
-    //        if (TraderWaitingCheck())
-				//RestartCityRoutes();
-
-			//if (CitiesGoldWaitingCheck())
-			//	RestartCityProduction();
-
-			//if (WondersWaitingCheck())
-			//	RestartWonderConstruction();
-
-			//if (TradeCentersWaitingCheck())
-			//	RestartTradeCenterRoutes();
-		}
-
+        int currentAmount = worldResourceManager.GetWorldGoldLevel();
         if (goldUpdateCheck != null && prevAmount != currentAmount)
             goldUpdateCheck.UpdateGold(prevAmount, currentAmount, pos);
+	}
+
+    public void GoldWaitListCheck()
+    {
+        bool success = true;
+        while (success)
+        {
+            if (goldWaitList.Count > 0 && goldWaitList[0].RestartGold(GetWorldGoldLevel()))
+                goldWaitList.RemoveAt(0);
+            else
+                success = false;
+        }
 	}
 
     public void UpdateWorldResearch(int amount)
@@ -4680,34 +4685,11 @@ public class MapWorld : MonoBehaviour
         wonderStopDict.Remove(tile);
     }
 
-    public List<string> GetConnectedCityNames(Vector3Int unitLoc, bool bySea, bool isTrader)
+    public List<string> GetConnectedCityNames(Vector3Int unitLoc, bool bySea, bool isTrader, bool citiesOnly)
     {
         List<string> names = new();
 
-        //getting wonder names first
-        foreach (string name in wonderConstructionDict.Keys)
-        {
-            Vector3Int destination;
-
-            if (bySea)
-            {
-                if (wonderConstructionDict[name].hasHarbor)
-                    destination = wonderConstructionDict[name].harborLoc;
-                else
-                    continue;
-            }
-            else
-            {
-                destination = wonderConstructionDict[name].unloadLoc;
-            }
-
-            if (GridSearch.TraderMovementCheck(this, unitLoc, destination, bySea))
-            {
-                names.Add(name);
-            }
-        }
-        
-        //getting city names second
+        //getting city names first
         foreach (string name in cityNameDict.Keys)
         {
             Vector3Int destination;
@@ -4734,6 +4716,32 @@ public class MapWorld : MonoBehaviour
             } 
         }
 
+        if (citiesOnly)
+            return names;
+
+        //getting wonder names second
+        foreach (string name in wonderConstructionDict.Keys)
+        {
+            Vector3Int destination;
+
+            if (bySea)
+            {
+                if (wonderConstructionDict[name].hasHarbor)
+                    destination = wonderConstructionDict[name].harborLoc;
+                else
+                    continue;
+            }
+            else
+            {
+                destination = wonderConstructionDict[name].unloadLoc;
+            }
+
+            if (GridSearch.TraderMovementCheck(this, unitLoc, destination, bySea))
+            {
+                names.Add(name);
+            }
+        }
+        
         //trade center names third
         if (isTrader)
         {
@@ -4779,11 +4787,16 @@ public class MapWorld : MonoBehaviour
         return cityImprovementDict[harborLocation].city;
     }
 
+    public City GetAirportCity(Vector3Int airportLocation)
+    {
+        return cityImprovementDict[airportLocation].city;
+    }
+
     public bool IsCityHarborOnTile(Vector3Int loc)
     {
         if (cityImprovementDict.ContainsKey(loc))
         {
-            if (cityImprovementDict[loc].GetImprovementData.singleBuildType == SingleBuildType.Harbor)
+            if (cityImprovementDict[loc].GetImprovementData.singleBuildType == SingleBuildType.Harbor && cityImprovementDict[loc].city != null)
                 return true;
             else
                 return false;
@@ -4798,7 +4811,7 @@ public class MapWorld : MonoBehaviour
 	{
 		if (cityImprovementDict.ContainsKey(loc))
 		{
-			if (cityImprovementDict[loc].GetImprovementData.singleBuildType == SingleBuildType.Airport)
+			if (cityImprovementDict[loc].GetImprovementData.singleBuildType == SingleBuildType.Airport && cityImprovementDict[loc].city != null)
 				return true;
 			else
 				return false;
@@ -4819,7 +4832,7 @@ public class MapWorld : MonoBehaviour
         return tradeCenterStopDict.ContainsKey(loc);
     }
 
-    public bool CheckIfStopStillExists(Vector3Int location)
+    public bool CheckIfStopStillExists(Vector3Int location, bool bySea, bool byAir)
     {
         Vector3Int loc;
 
@@ -4828,15 +4841,38 @@ public class MapWorld : MonoBehaviour
         else
             return false;
 
-        if (cityDict.ContainsKey(loc) || wonderStopDict.ContainsKey(loc) || tradeCenterStopDict.ContainsKey(loc))
-            return true;
-        else if (cityImprovementDict.ContainsKey(loc) && cityImprovementDict[loc].GetImprovementData.singleBuildType == SingleBuildType.Harbor && cityImprovementDict[loc].city != null)
-            return true;
+		if (bySea)
+        {
+            if (cityDict.ContainsKey(loc) && cityImprovementDict.ContainsKey(location) && cityImprovementDict[location].GetImprovementData.singleBuildType == SingleBuildType.Harbor && cityImprovementDict[location].city != null)
+                return true;
+            else if (wonderStopDict.ContainsKey(loc) && wonderStopDict[loc].hasHarbor && wonderStopDict[loc].harborLoc == location)
+                return true;
+            else if (tradeCenterStopDict.ContainsKey(loc) && tradeCenterStopDict[loc].harborLoc == location)
+                return true;
+        }
+        else if (byAir)
+        {
+			if (cityDict.ContainsKey(loc) && cityImprovementDict.ContainsKey(location) && cityImprovementDict[location].GetImprovementData.singleBuildType == SingleBuildType.Airport && cityImprovementDict[location].city != null)
+				return true;
+		}
+        else
+        {
+            if (cityDict.ContainsKey(loc) || wonderStopDict.ContainsKey(loc) || tradeCenterStopDict.ContainsKey(loc))
+                return true;
+        }
 
         return false;
     }
 
-    public Vector3Int GetHarborStopLocation(string name)
+	public void CancelTraderRoute(Vector3Int loc)
+	{
+		Trader trader = GetUnit(loc).trader;
+
+		if (trader && trader.followingRoute)
+			trader.InterruptRoute(true);
+	}
+
+	public Vector3Int GetHarborStopLocation(string name)
     {
         if (cityNameDict.ContainsKey(name))
             return cityDict[cityNameDict[name]].singleBuildDict[SingleBuildType.Harbor];

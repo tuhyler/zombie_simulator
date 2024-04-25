@@ -793,7 +793,7 @@ public class CityImprovement : MonoBehaviour
             data.unloadLabor = resourceProducer.unloadLabor;
             data.isWaitingForStorageRoom = resourceProducer.isWaitingForStorageRoom;
             data.isWaitingforResources = resourceProducer.isWaitingforResources;
-            data.isWaitingToUnload = resourceProducer.isWaitingToUnload;
+            //data.isWaitingToUnload = resourceProducer.isWaitingToUnload;
             data.isWaitingForResearch = resourceProducer.isWaitingForResearch;
             data.isProducing = resourceProducer.isProducing;
 		    data.productionTimer = resourceProducer.productionTimer;
@@ -828,7 +828,7 @@ public class CityImprovement : MonoBehaviour
 			resourceProducer.unloadLabor = data.unloadLabor;
 			resourceProducer.isWaitingForStorageRoom = data.isWaitingForStorageRoom;
 			resourceProducer.isWaitingforResources = data.isWaitingforResources;
-			resourceProducer.isWaitingToUnload = data.isWaitingToUnload;
+			//resourceProducer.isWaitingToUnload = data.isWaitingToUnload;
 			resourceProducer.isWaitingForResearch = data.isWaitingForResearch;
 			resourceProducer.isProducing = data.isProducing;
 			resourceProducer.productionTimer = data.productionTimer;
@@ -838,7 +838,7 @@ public class CityImprovement : MonoBehaviour
 
             if (resourceProducer.isProducing)
             {
-			    if (!resourceProducer.isWaitingforResources && !resourceProducer.isWaitingForStorageRoom && !resourceProducer.isWaitingToUnload && !resourceProducer.isWaitingForResearch)
+			    if (!resourceProducer.isWaitingforResources && !resourceProducer.isWaitingForStorageRoom && /*!resourceProducer.isWaitingToUnload && */!resourceProducer.isWaitingForResearch)
                 {
 					resourceProducer.SetResourceManager(city.ResourceManager);
 					resourceProducer.LoadProducingCoroutine();

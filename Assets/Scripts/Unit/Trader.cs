@@ -18,8 +18,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
     [HideInInspector]
     public List<ResourceValue> totalRouteCosts = new();
-    [HideInInspector]
-    public List<ResourceType> routeCostTypes = new();
+    //[HideInInspector]
+    //public List<ResourceType> routeCostTypes = new();
     private int totalRouteLength;
 
     [HideInInspector]
@@ -40,10 +40,13 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	[HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
 
-	Vector3Int ICityGoldWait.WaitLoc => currentLocation;
+	Vector3Int ICityGoldWait.WaitLoc => new Vector3Int(0, -10, 0);
+	Vector3Int ICityResourceWait.WaitLoc => new Vector3Int(0, -10, 0);
+	int ICityGoldWait.waitId => id;
+	int ICityResourceWait.waitId => id;
 
-    //animations
-    private int isInterruptedHash;
+	//animations
+	private int isInterruptedHash;
     private int isLoadingHash;
     private int isUnloadingHash;
 
@@ -128,7 +131,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     {
         totalRouteLength = tradeRouteManager.CalculateRoutePaths(world);
         totalRouteCosts.Clear();
-        routeCostTypes.Clear();
+		//routeCostTypes.Clear();
 
         CalculateRouteCosts();
 
@@ -138,22 +141,35 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     private void CalculateRouteCosts()
     {
 		float multiple = totalRouteLength / (buildDataSO.movementSpeed * 24); //24 is tiles per minute on road with speed of 1
-        totalRouteCosts = RouteCostCalculator(multiple, true);
+        totalRouteCosts = RouteCostCalculator(multiple);
+	}
+
+	public bool StartingCityCheck()
+	{
+		if (bySea)
+			return world.IsCityHarborOnTile(tradeRouteManager.cityStops[0]);
+		else if (byAir)
+			return world.IsCityAirportOnTile(tradeRouteManager.cityStops[0]);
+		else
+			return world.IsCityOnTile(tradeRouteManager.cityStops[0]);
+
 	}
 
     public City GetStartingCity()
     {
-        if (bySea)
-            return world.GetHarborCity(tradeRouteManager.cityStops[0]);
-        else
-            return world.GetCity(tradeRouteManager.cityStops[0]);
+		if (bySea)
+			return world.GetHarborCity(tradeRouteManager.cityStops[0]);
+		else if (byAir)
+			return world.GetAirportCity(tradeRouteManager.cityStops[0]);
+		else
+			return world.GetCity(tradeRouteManager.cityStops[0]);
     }
 
 	public bool RestartGold(int gold)
 	{
 		if (goldNeeded <= gold)
 		{
-			TradeRouteCheck(GetStartingCity().cityLoc);
+			TradeRouteCheck(tradeRouteManager.cityStops[0]);
 			return true;
 		}
 		else
@@ -164,11 +180,11 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 	public bool Restart(ResourceType type)
 	{
-		if (waitingOnRouteCosts && routeCostTypes.Contains(type))
+		if (waitingOnRouteCosts)
 		{
 			City city = GetStartingCity();
 
-			if (city.ResourceManager.RouteCostCheck(totalRouteCosts))
+			if (city.ResourceManager.RouteCostCheck(totalRouteCosts, type))
 			{
 				TradeRouteCheck(city.cityLoc);
 				return true;
@@ -180,100 +196,104 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 		else
 		{
-			if (tradeRouteManager.ResourceWaitCheck(type))
-				return true;
-			else
-				return false;
+			return tradeRouteManager.ResourceWaitCheck(type);
 		}
 	}
 
-    public void RestartRoute(Vector3Int cityLoc)
-    {
-        TradeRouteCheck(cityLoc);
-    }
+    //public void RestartRoute(Vector3Int cityLoc)
+    //{
+    //    TradeRouteCheck(cityLoc);
+    //}
 
     public void TradeRouteCheck(Vector3 endPosition)
     {
         if (followingRoute)
         {
+			Vector3Int endLoc = world.RoundToInt(endPosition);
+			if (!TradeStopExistsCheck(endLoc))
+				return;
+			
 			if (tradeRouteManager.currentStop == 0)
             {
-                City city = GetStartingCity();
+				City city = GetStartingCity();
 				if (city.ResourceManager.ConsumeResourcesForRouteCheck(totalRouteCosts, this))
                 {
                     waitingOnRouteCosts = false;
 					RemoveWarning();
 					world.unitMovement.uiTradeRouteManager.ShowRouteCostFlag(false, this);
-					city.ResourceManager.RemoveFromTraderWaitList(this);
-					city.ResourceManager.RemoveFromResourcesNeededForTrader(routeCostTypes);
+					//city.ResourceManager.RemoveFromTraderWaitList(this);
+					//city.ResourceManager.RemoveFromResourcesNeededForTrader(routeCostTypes);
                     paid = true;
-					SpendRouteCosts(0);
+					SpendRouteCosts(0, city);
                 }
                 else
                 {
                     waitingOnRouteCosts = true;
 					SetWarning(false, true);
                     world.unitMovement.uiTradeRouteManager.ShowRouteCostFlag(true, this);
-                    city.ResourceManager.AddToTraderWaitList(this);
-					city.ResourceManager.AddToResourcesNeededForTrader(routeCostTypes);
+                    //city.ResourceManager.AddToTraderWaitList(this);
+					//city.ResourceManager.AddToResourcesNeededForTrader(routeCostTypes);
 					//SetInterruptedAnimation(true);
                     return;
 				}
             }
 
-			Vector3Int endLoc = world.RoundToInt(endPosition);
-
             if (endLoc == tradeRouteManager.CurrentDestination)
             {
-                //checking to see if stop still exists
-                if (!world.CheckIfStopStillExists(endLoc))
-                {
-                    CancelRoute();
-                    tradeRouteManager.RemoveStop(endLoc);
-                    interruptedRoute = true;
-                    if (isSelected)
-                        InterruptedRouteMessage();
-                    //else
-                    //    SetInterruptedAnimation(true);
-                    return;
-                }
-
                 Vector3Int stopLoc = world.GetStopLocation(world.GetTradeLoc(endLoc));
-                Vector3 harborRot = Vector3.zero;
+                int rot = 0;
 
                 if (world.IsCityOnTile(stopLoc))
                 {
                     tradeRouteManager.SetCity(world.GetCity(stopLoc));
                     if (bySea)
-						harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
+						rot = Mathf.RoundToInt(world.GetStructure(endLoc).transform.localEulerAngles.y / 90);
 				}
                 else if (world.IsWonderOnTile(stopLoc))
                 {
                     tradeRouteManager.SetWonder(world.GetWonder(stopLoc));
                     if (bySea)
-						harborRot = world.GetStructure(endLoc).transform.localEulerAngles;
+						rot = Mathf.RoundToInt(world.GetStructure(endLoc).transform.localEulerAngles.y / 90);
 				}
-                else if (world.IsTradeCenterOnTile(stopLoc))
+				else if (world.IsTradeCenterOnTile(stopLoc))
                 {
                     tradeRouteManager.SetTradeCenter(world.GetTradeCenter(stopLoc));
                     if (bySea)
-						harborRot = world.GetTradeCenter(stopLoc).transform.localEulerAngles;
+						rot = Mathf.RoundToInt(world.GetStructure(endLoc).transform.localEulerAngles.y / 90);
 				}
 
-                if (bySea)
+				if (bySea)
                 {
-                    harborRot.y += 90;
-                    Rotate(harborRot);
+					if (rot == 3)
+						rot = 0;
+					else
+						rot += 1;
+					Vector3Int harborRot = world.GetNeighborsCoordinates(MapWorld.State.FOURWAYINCREMENT)[rot] + endLoc;
+					Rotate(harborRot);
                 }
 
                 atStop = true;
                 isWaiting = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
                 WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
-                LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
+                LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate, false));
             }
         }
     }
+
+    //checking to see if stop still exists
+	public bool TradeStopExistsCheck(Vector3Int endLoc)
+	{
+		if (!world.CheckIfStopStillExists(endLoc, bySea, byAir))
+		{
+			InterruptRoute(true);
+			tradeRouteManager.RemoveStop(endLoc);
+			interruptedRoute = true;
+			return false;
+		}
+
+		return true;
+	}
 
 	public void InterruptRoute(bool message)
 	{
@@ -478,18 +498,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         paid = false;
         Vector3Int nextStop = tradeRouteManager.GoToNext();
 
-        //checking to see if stop still exists
-        if (!world.CheckIfStopStillExists(nextStop))
-        {
-            CancelRoute();
-            tradeRouteManager.RemoveStop(nextStop);
-            interruptedRoute = true;
-            if (isSelected)
-                InterruptedRouteMessage();
-            //else
-            //    SetInterruptedAnimation(true);
-            return;
-        }
+		if (!TradeStopExistsCheck(nextStop))
+			return;
 
         List<Vector3Int> currentPath;
         
@@ -514,8 +524,6 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
                 interruptedRoute = true;
                 if (isSelected)
                     InterruptedRouteMessage();
-                //else
-                //    SetInterruptedAnimation(true);
                 return;
             }
         }
@@ -619,7 +627,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 
 		//if can't get back home, look for next closest city connected by road with trade depot
-		List<string> cityNames = world.GetConnectedCityNames(currentLoc, bySea, true);
+		List<string> cityNames = world.GetConnectedCityNames(currentLoc, bySea, true, true);
 
 		City chosenCity = null;
 		int dist = 0;
@@ -648,24 +656,96 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			}
 		}
 
-		//if can't get home, kill unit
 		if (chosenCity == null)
 		{
-			if (guarded)
+			if (!FindCityToJoin(cityNames, currentLoc))
 			{
-				originalMoveSpeed = buildDataSO.movementSpeed;
-				guardUnit.military.guardedTrader = null;
-				guardUnit.military.MoveForGuardDuty(homeCity);
+				if (guarded)
+				{
+					originalMoveSpeed = buildDataSO.movementSpeed;
+					guardUnit.military.guard = false;
+					guardUnit.military.guardedTrader = null;
+					guardUnit.military.MoveForGuardDuty(homeCity);
+					guardUnit = null;
+					guarded = false;
+				}
+
+				KillUnit(Vector3.zero);
 			}
-			KillUnit(Vector3.zero);
+			
 			return;
 		}
 
 		homeCity = chosenCity.cityLoc;
+		atHome = false;
 		ReturnHome();
 	}
 
-    public bool LineCutterCheck()
+	private bool FindCityToJoin(List<string> cityNames, Vector3Int currentLoc)
+	{
+		if (bySea|| byAir)
+			return false;
+		
+		if (world.IsCityOnTile(currentLoc))
+		{
+			if (guarded)
+			{
+				guarded = false;
+				guardUnit.military.GuardToBunkCheck(currentLoc);
+				guardUnit = null;
+
+				if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == this)
+					world.uiTradeRouteBeginTooltip.UpdateGuardCosts();
+			}
+			
+			world.unitMovement.AddToCity(world.GetCity(currentLoc), this);
+			DestroyUnit();
+			return true;
+		}
+
+		City chosenCity = null;
+		int dist = 0;
+		bool firstOne = true;
+
+		for (int i = 0; i < cityNames.Count; i++)
+		{
+			City city = world.GetCity(world.GetStopLocation(cityNames[i]));
+
+			if (firstOne)
+			{
+				firstOne = false;
+				chosenCity = city;
+				dist = Mathf.Abs(currentLoc.x - city.cityLoc.x) + Mathf.Abs(currentLoc.z - city.cityLoc.z);
+				continue;
+			}
+
+			int newDist = Mathf.Abs(currentLoc.x - city.cityLoc.x) + Mathf.Abs(currentLoc.z - city.cityLoc.z);
+			if (newDist < dist)
+			{
+				chosenCity = city;
+				dist = newDist;
+			}
+		}
+
+		if (chosenCity != null)
+		{
+			List<Vector3Int> pathHome = GridSearch.TraderMove(world, transform.position, chosenCity.cityLoc, bySea);
+			
+			if (pathHome.Count > 0)
+			{
+				if (guarded)
+					GuardFollow(chosenCity.cityLoc, pathHome);
+				finalDestinationLoc = chosenCity.cityLoc;
+				MoveThroughPath(pathHome);
+				
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	public bool LineCutterCheck()
     {
         if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), tradeRouteManager.GoToNext()))
         {
@@ -690,9 +770,15 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		RemoveWarning();
 		if (waitingOnRouteCosts)
 		{
-			City city = GetStartingCity();
-			int place = city.ResourceManager.RemoveFromGoldWaitList(this);
-			trader.world.RemoveCityFromGoldWaitList(city, place);
+			if (StartingCityCheck())
+			{
+				City city = GetStartingCity();
+				int place = city.ResourceManager.RemoveFromGoldWaitList(this);
+				if (place >= 0)
+					trader.world.RemoveCityFromGoldWaitList(city, place);
+				city.ResourceManager.RemoveFromCityResourceWaitList(this, totalRouteCosts);
+			}
+
 			waitingOnRouteCosts = false;
 		}
 		
@@ -701,35 +787,35 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
         if (isWaiting)
         {
-            Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(world.RoundToInt(finalDestinationLoc)));
+			Vector3Int destination = world.RoundToInt(finalDestinationLoc);
+			if (world.IsTradeLocOnTile(destination))
+			{
+				Vector3Int tradePos = world.GetStopLocation(world.GetTradeLoc(destination));
 
-            if (world.IsCityOnTile(tradePos))
-            {
-                City city = world.GetCity(tradePos);
-                city.RemoveFromWaitList(this);
-                //city.CheckQueue();
-            }
-            else if (world.IsWonderOnTile(tradePos))
-            {
-                Wonder wonder = world.GetWonder(tradePos);
-                wonder.RemoveFromWaitList(this);
-                //wonder.CheckQueue();
-            }
-            else if (world.IsTradeCenterOnTile(tradePos))
-            {
-                TradeCenter center = world.GetTradeCenter(tradePos);
-                center.RemoveFromWaitList(this);
-                //center.CheckQueue();
-            }
+				if (world.IsCityOnTile(tradePos))
+				{
+					City city = world.GetCity(tradePos);
+					city.RemoveFromWaitList(this);
+				}
+				else if (world.IsWonderOnTile(tradePos))
+				{
+					Wonder wonder = world.GetWonder(tradePos);
+					wonder.RemoveFromWaitList(this);
+				}
+				else if (world.IsTradeCenterOnTile(tradePos))
+				{
+					TradeCenter center = world.GetTradeCenter(tradePos);
+					center.RemoveFromWaitList(this);
+				}
+			}
         }
 
         isWaiting = false;
         if (LoadUnloadCo != null)
         {
-            //tradeRouteManager.StopHoldingPatternCoroutine();
+            tradeRouteManager.StopHoldingPatternCoroutine();
             StopCoroutine(LoadUnloadCo);
             tradeRouteManager.CancelLoad();
-            tradeRouteManager.StopHoldingPatternCoroutine();
             tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
             SetLoadingAnimation(false);
             SetUnloadingAnimation(false);
@@ -739,8 +825,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
             StopCoroutine(WaitTimeCo);
             tradeRouteManager.CancelLoad();
             tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
-        }
+		}
 
+		atStop = false;
 		if (!isDead)
 			ReturnHome();
     }
@@ -778,9 +865,14 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     }
 
     //different from original calculation because trader could start on different stop
-    public void SpendRouteCosts(int stop)
+    public void SpendRouteCosts(int stop, City city)
     {
-        City city = GetStartingCity();
+        //City city = GetStartingCity();
+		Vector3Int loc;
+		if (bySea)
+			loc = city.singleBuildDict[SingleBuildType.Harbor];
+		else
+			loc = city.cityLoc;
 
         float multiple;
         if (stop == 0)
@@ -790,7 +882,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 		//float multiple = totalRouteLength /*- CalculateTilesTraveled(stop))*/ / (buildDataSO.movementSpeed * 24) * percTraveled;
         List<ResourceValue> newCosts = AdjustTotalCosts(multiple);
-		city.ResourceManager.ConsumeMaintenanceResources(newCosts, city.cityLoc);
+		city.ResourceManager.ConsumeMaintenanceResources(newCosts, loc, false, true);
     }
 
     public void RefundRouteCosts()
@@ -802,6 +894,10 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
             multiple = (float)tradeRouteManager.currentStop / tradeRouteManager.cityStops.Count;
 
         paid = false;
+
+		if (!StartingCityCheck())
+			return;
+		
 		City city = GetStartingCity();
 
 		city.ResourceManager.resourceCount = 0;
@@ -866,7 +962,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         personalResourceManager.UnloadAll(city);
     }
 
-    private List<ResourceValue> RouteCostCalculator(float multiple, bool types)
+    private List<ResourceValue> RouteCostCalculator(float multiple/*, bool types*/)
     {
         List<ResourceValue> totalCosts = new();
         
@@ -902,8 +998,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			foreach (ResourceType type in tempCostDict.Keys)
 			{
 				totalCosts.Add(tempCostDict[type]);
-                if (types)
-    				routeCostTypes.Add(type);
+        //        if (types)
+    				//routeCostTypes.Add(type);
 			}
 		}
 		else
@@ -914,8 +1010,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				value.resourceType = buildDataSO.cycleCost[i].resourceType;
 				value.resourceAmount = Mathf.CeilToInt(buildDataSO.cycleCost[i].resourceAmount * multiple);
 				totalCosts.Add(value);
-                if (types)
-    				routeCostTypes.Add(value.resourceType);
+        //        if (types)
+    				//routeCostTypes.Add(value.resourceType);
 			}
 		}
 
@@ -1056,7 +1152,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	{
 		if (atHome && !isMoving)
 		{
-			world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).RemoveTraderFromImprovement(this);
+			if (world.IsCityOnTile(homeCity) && world.GetCity(homeCity).singleBuildDict.ContainsKey(buildDataSO.singleBuildType))
+				world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).RemoveTraderFromImprovement(this);
 			//Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
 			//   if (bySea)
 			//   {
@@ -1077,13 +1174,30 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		{
 			if (atHome)
 			{
-				bool homeCityArrival = bySea ? world.IsCityHarborOnTile(currentLocation) : currentLocation == homeCity;
+				if (!world.IsCityOnTile(homeCity))
+				{
+					CancelRoute();
+					return;
+				}
+
+				Vector3Int homeLoc;
+				bool homeCityArrival;
+				if (bySea)
+				{
+					homeLoc = world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor];
+					homeCityArrival = world.IsCityHarborOnTile(currentLocation);
+				}
+				else
+				{
+					homeLoc = homeCity;
+					homeCityArrival = currentLocation == homeCity;
+				}
 
 				if (homeCityArrival)
 				{
 					atHome = false;
 
-					if (homeCity != tradeRouteManager.cityStops[tradeRouteManager.currentStop])
+					if (homeLoc != tradeRouteManager.cityStops[tradeRouteManager.currentStop])
 					{
 						if (!GetInLineCheck())
 							BeginNextStepInRoute();
@@ -1104,19 +1218,18 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			if (GetInLineCheck())
 				return;
 
+			world.AddUnitPosition(currentLocation, this);
 			TradeRouteCheck(endPosition);
-			
-			//if location has been taken away (such as when wonder finishes)
-			if (!world.CheckIfPositionIsValid(world.GetClosestTerrainLoc(currentLocation)))
-			{
-				InterruptRoute(false);
-                TeleportToNearestRoad(world.RoundToInt(currentLocation));
-				prevTile = currentLocation;
-				return;
-			}
 		}
 		else
 		{
+			if (!world.IsCityOnTile(homeCity) || !world.GetCity(homeCity).singleBuildDict.ContainsKey(buildDataSO.singleBuildType))
+			{
+				atHome = false;
+				ReturnHome();
+				return;
+			}
+
 			bool homeCityArrival = bySea ? world.IsCityHarborOnTile(currentLocation) : currentLocation == homeCity;
 
 			if (homeCityArrival)
@@ -1126,7 +1239,21 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			}
 			else if (returning)
 			{
+				if (world.IsUnitLocationTaken(currentLocation))
+				{
+					ReturnToStall();
+					return;
+				}
+
+				if (world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).loc != world.GetClosestTerrainLoc(endPosition))
+				{
+					atHome = false;
+					ReturnHome();
+					return;
+				}
+
 				returning = false;
+
 				City city = world.GetCity(homeCity);
 				world.GetCityDevelopment(city.singleBuildDict[buildDataSO.singleBuildType]).AddTraderToImprovement(this);
 				//city.tradersHere.Add(this);
@@ -1151,6 +1278,14 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		world.traderList.Remove(this);
 		StartCoroutine(WaitKillUnit());
 
+		if (guarded)
+		{
+			guardUnit.military.guard = false;
+			guardUnit.military.guardedTrader = null;
+			guardUnit = null;
+			guarded = false;
+		}
+
 		if (ambush)
 		{
 			//assuming trader is last to be killed in ambush
@@ -1171,7 +1306,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 		else
 		{
-			StopMovementCheck(true);
+			StopMovementCheck(false);
 			TradersHereCheck();
 
 			if (followingRoute)
@@ -1242,6 +1377,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         data.currentDestination = tradeRouteManager.CurrentDestination;
         data.resourceCheck = tradeRouteManager.resourceCheck;
         data.waitForever = tradeRouteManager.waitForever;
+		data.amountMoved = tradeRouteManager.amountMoved;
         //data.percDone = tradeRouteManager.percDone;
 
 		return data;
@@ -1293,8 +1429,15 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			healthbar.gameObject.SetActive(true);
 		}
 
-		if (!isMoving)
+		if (isMoving)
+		{
+			if (bySea)
+				ripples.SetActive(true);
+		}
+		else
+		{
 			world.AddUnitPosition(currentLocation, this);
+		}
 
 		//personal resource info
 		personalResourceManager.ResourceDict = data.resourceDict;
@@ -1314,6 +1457,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		tradeRouteManager.CurrentDestination = data.currentDestination;
 		tradeRouteManager.resourceCheck = data.resourceCheck;
 		tradeRouteManager.waitForever = data.waitForever;
+		tradeRouteManager.amountMoved = data.amountMoved;
 		//tradeRouteManager.percDone = data.percDone;
 
 		totalRouteLength = tradeRouteManager.CalculateRoutePaths(world);
@@ -1337,10 +1481,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
             CalculateRouteCosts();
             tradeRouteManager.waitTime = tradeRouteManager.waitTimes[tradeRouteManager.currentStop];
 
-			if (waitingOnRouteCosts || tradeRouteManager.resourceCheck)
+			if (waitingOnRouteCosts /*|| tradeRouteManager.resourceCheck*/)
 				exclamationPoint.SetActive(true);
-
-            if (atStop && !waitingOnRouteCosts)
+            else if (atStop /*&& !waitingOnRouteCosts*/)
             {
 				Vector3Int stopLoc = world.GetStopLocation(world.GetTradeLoc(currentLocation));
 
@@ -1353,7 +1496,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 				tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
 				WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
-				LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate));
+				LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate, true));
 			}
             else if (isWaiting)
             {

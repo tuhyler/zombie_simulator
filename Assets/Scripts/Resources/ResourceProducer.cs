@@ -28,7 +28,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     //private TimeProgressBar timeProgressBar;
     private UITimeProgressBar uiTimeProgressBar;
     [HideInInspector]
-    public bool isWaitingForStorageRoom, isWaitingforResources, isWaitingToUnload, isWaitingForResearch, isUpgrading;
+    public bool isWaitingForStorageRoom, isWaitingforResources, /*isWaitingToUnload, */isWaitingForResearch, isUpgrading;
     [HideInInspector]
     public float unloadLabor;
     [HideInInspector]
@@ -47,8 +47,11 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     [HideInInspector]
     public int goldNeeded;
     Vector3Int ICityGoldWait.WaitLoc => producerLoc;
+	Vector3Int ICityResourceWait.WaitLoc => producerLoc;
+	int ICityGoldWait.waitId => -1;
+    int ICityResourceWait.waitId => -1;
 
-    public void InitializeImprovementData(ImprovementDataSO data, ResourceType type)
+	public void InitializeImprovementData(ImprovementDataSO data, ResourceType type)
     {
         improvementData = data;
         //ResourceValue laborCost;
@@ -217,14 +220,33 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
     public bool Restart(ResourceType type)
     {
-        if (resourceManager.resourcesNeededForProduction.Contains(type) && resourceManager.ConsumeResourcesNoGoldCheck(consumedResources, currentLabor))
+        if (type == ResourceType.None)
         {
-            RestartResourceWaitProduction();
-			return true;
+            if (resourceManager.city.warehouseStorageLimit - resourceManager.ResourceStorageLevel >= resourceManager.CalculateResourceProductionAmount(producedResource, tempLabor, cityImprovement))
+            {
+				isWaitingForStorageRoom = false;
+				cityImprovement.exclamationPoint.SetActive(false);
+                uiTimeProgressBar.SetToZero();
+                int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, unloadLabor, cityImprovement);
+				RestartProductionCheck(unloadAmount);
+				return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
-            return false;
+            if (resourceManager.ResourceWaitCheck(consumedResources, currentLabor, type))
+            {
+                RestartResourceWaitProduction();
+			    return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -236,7 +258,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             isWaitingforResources = false;
 			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false, cityImprovement);
 			//resourceManager.RemoveFromResourceWaitList(this);
-            resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
+            //resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
 
 			cityImprovement.exclamationPoint.SetActive(false);
 			StartProducing();
@@ -249,6 +271,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         //CalculateResourceGenerationPerMinute(); //calculate before checks to show stats
         //CalculateResourceConsumedPerMinute();
         cityImprovement.firstStart = true;
+        isProducing = true;
 
         if (improvementData.isResearch)
         {
@@ -263,11 +286,11 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
                 return;
 			}
         }
-        else if (resourceManager.fullInventory)
-        {
-            AddToStorageRoomWaitList();
-            return;
-        }
+        //else if (resourceManager.fullInventory)
+        //{
+        //    AddToStorageRoomWaitList();
+        //    return;
+        //}
         else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
         {
             AddToResourceWaitList();
@@ -279,7 +302,6 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 
 		productionTimer = improvementData.producedResourceTime[producedResourceIndex];
 		producingCo = StartCoroutine(ProducingCoroutine());
-        isProducing = true;
     }
 
     public void LoadProducingCoroutine()
@@ -295,7 +317,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 		UpdateResourceGenerationData();
 
 		float percWorked;
-        if (isWaitingforResources || resourceManager.fullInventory)
+        if (isWaitingforResources || isWaitingForStorageRoom)
             percWorked = 0;
         else if (!ConsumeResourcesCheck())
             percWorked = 0;
@@ -365,12 +387,13 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             //timeProgressBar.SetTime(productionTimer);
         }
 
+        int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, tempLabor, cityImprovement);
         //checking if still researching
         if (improvementData.isResearch)
         {
             if (!resourceManager.city.world.researching)
             {
-                isWaitingToUnload = true;
+                isWaitingForStorageRoom = true;
 			    cityImprovement.exclamationPoint.SetActive(true);
 			    resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, false, true);
 			    unloadLabor = tempLabor;
@@ -382,42 +405,43 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             }
             else
             {
-				RestartProductionCheck(tempLabor);
+				RestartProductionCheck(unloadAmount);
 			}
         }
         //checking if storage is free to unload
-        else if (resourceManager.fullInventory)
+        else if (resourceManager.city.warehouseStorageLimit - resourceManager.ResourceStorageLevel < unloadAmount)
         {
-            isWaitingToUnload = true;
-            cityImprovement.exclamationPoint.SetActive(true);
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
+			AddToStorageRoomWaitList();
+			//isWaitingForStorageRoom = true;
+   //         cityImprovement.exclamationPoint.SetActive(true);
+			//resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
 			unloadLabor = tempLabor;
-            resourceManager.waitingToUnloadProducers.Enqueue(this);
+            //resourceManager.waitingToUnloadProducers.Enqueue(this);
             //timeProgressBar.SetToZero();
             uiTimeProgressBar.SetToFull();
             cityImprovement.StopWork();
         }
         else
         {
-            RestartProductionCheck(tempLabor);
+            RestartProductionCheck(unloadAmount);
         }
     }
 
-    public void UnloadAndRestart()
-    {
-        if (isWaitingToUnload)
-        {
-            isWaitingToUnload = false;
-            //timeProgressBar.ResetProgressBar();
-            uiTimeProgressBar.SetToZero();
-            //cityImprovement.StopWaiting();
-            RestartProductionCheck(unloadLabor);
-        }
-    }
+    //public void UnloadAndRestart()
+    //{
+    //    if (isWaitingToUnload)
+    //    {
+    //        isWaitingToUnload = false;
+    //        //timeProgressBar.ResetProgressBar();
+    //        uiTimeProgressBar.SetToZero();
+    //        //cityImprovement.StopWaiting();
+    //        RestartProductionCheck(unloadLabor);
+    //    }
+    //}
 
-    private void RestartProductionCheck(float labor)
+    private void RestartProductionCheck(int unloadAmount)
     {
-        bool destroy = resourceManager.PrepareResource(producedResource, labor, producerLoc, cityImprovement);
+        bool destroy = resourceManager.PrepareResource(unloadAmount, producedResource, producerLoc, cityImprovement);
         //Debug.Log("Resources for " + improvementData.prefab.name);
 
         if (destroy)
@@ -446,14 +470,13 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
                 ReadyToProduce();
 			}
         }
-        else if (resourceManager.fullInventory)
-        {
-            AddToStorageRoomWaitList();
-			cityImprovement.exclamationPoint.SetActive(true);
-			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
-			uiTimeProgressBar.gameObject.SetActive(false);
-            cityImprovement.StopWork();
-        }
+   //     else if (resourceManager.fullInventory)
+   //     {
+   //         AddToStorageRoomWaitList();
+			////cityImprovement.exclamationPoint.SetActive(true);
+			////resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
+   //         cityImprovement.StopWork();
+   //     }
         else if (!resourceManager.ConsumeResourcesCheck(consumedResources, currentLabor, this))
         {
             SetUpResourceWaiting();
@@ -492,8 +515,11 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         }
         else if (isWaitingForStorageRoom)
         {
-            resourceManager.RemoveFromStorageRoomWaitList(this);
             isWaitingForStorageRoom = false;
+            resourceManager.RemoveFromUnloadWaitList(this);
+            //resourceManager.RemoveFromStorageRoomWaitList(this);
+			float laborCount = allLabor ? tempLabor : 1;
+            resourceManager.PrepareConsumedResource(consumedResources, laborCount, producerLoc);
         }
         else if (isWaitingforResources)
         {
@@ -501,19 +527,17 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             int num = resourceManager.RemoveFromGoldWaitList(this);
             if (num >= 0)
                 resourceManager.city.world.RemoveCityFromGoldWaitList(resourceManager.city, num);
-            resourceManager.RemoveFromCityResourceWaitList(this);
-            resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
+            resourceManager.RemoveFromCityResourceWaitList(this, consumedResources);
+            //resourceManager.RemoveFromResourcesNeededForProduction(consumedResourceTypes);
             isWaitingforResources = false;
 			resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(false, cityImprovement);
 		}
-        else if (isWaitingToUnload)
-        {
-            resourceManager.RemoveFromWaitUnloadQueue(this);
-            //resourceManager.RemoveFromWaitUnloadResearchQueue(this);
-            isWaitingToUnload = false;
-			float laborCount = allLabor ? tempLabor : 1;
-            resourceManager.PrepareConsumedResource(consumedResources, laborCount, producerLoc);
-        }
+        //else if (isWaitingToUnload)
+        //{
+        //    resourceManager.RemoveFromWaitUnloadQueue(this);
+        //    //resourceManager.RemoveFromWaitUnloadResearchQueue(this);
+        //    isWaitingToUnload = false;
+        //}
         else if (producingCo != null)
         {
             StopCoroutine(producingCo);
@@ -534,10 +558,11 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 		{
 			isWaitingForResearch = false;
 
-            if (isWaitingToUnload)
+            if (isWaitingForStorageRoom)
             {
-                isWaitingToUnload = false;
-				resourceManager.PrepareResource(producedResource, unloadLabor, producerLoc, cityImprovement);
+                isWaitingForStorageRoom = false;
+                int unloadAmount = resourceManager.CalculateResourceProductionAmount(producedResource, unloadLabor, cityImprovement);
+				resourceManager.PrepareResource(unloadAmount, producedResource, producerLoc, cityImprovement);
             }
 
 			cityImprovement.exclamationPoint.SetActive(false);
@@ -559,7 +584,9 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         isWaitingForStorageRoom = true;
 		cityImprovement.exclamationPoint.SetActive(true);
 		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
-		resourceManager.AddToStorageRoomWaitList(this);
+		uiTimeProgressBar.gameObject.SetActive(false);
+        resourceManager.AddToUnloadWaitList(this);
+		//resourceManager.AddToStorageRoomWaitList(this);
     }
 
     private void AddToResourceWaitList()
@@ -568,7 +595,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 		cityImprovement.exclamationPoint.SetActive(true);
 		resourceManager.city.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, true);
         //resourceManager.AddToResourceWaitList(this);
-        resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
+        //resourceManager.AddToResourcesNeededForProduction(consumedResourceTypes);
     }
 
     public void SetTimeProgressBarToFull()

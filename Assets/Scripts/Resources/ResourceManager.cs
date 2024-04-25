@@ -24,34 +24,37 @@ public class ResourceManager : MonoBehaviour
     //public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
     private int resourceStorageLevel;
     public int ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
-    [HideInInspector]
-    public Queue<ResourceProducer> waitingToUnloadProducers = new();
+    //[HideInInspector]
+    //public Queue<ResourceProducer> waitingToUnloadProducers = new();
     //[HideInInspector]
     //public List<ResourceProducer> waitingToUnloadResearch = new();
-    [HideInInspector]
-    public bool fullInventory;
+    //[HideInInspector]
+    //public bool fullInventory;
 
     //wait list for research
     //private List<ResourceProducer> waitingForResearchProducerList = new();
 
     //wait list for inventory space
-    [HideInInspector]
-    public List<ResourceProducer> waitingForStorageRoomProducerList = new();
+    //[HideInInspector]
+    //public List<ResourceProducer> waitingForStorageRoomProducerList = new();
 
+    //waiting for gold, resources, or storage lists
     [HideInInspector]
     public List<ICityGoldWait> cityGoldWaitList = new();
     [HideInInspector]
-    public List<ICityResourceWait> cityResourceWaitList = new();
+    public Dictionary<ResourceType, List<ICityResourceWait>> cityResourceWaitDict = new();
+    [HideInInspector]
+    public List<ICityResourceWait> unloadWaitList = new();
 
     //consuming resources
-    [HideInInspector]
-    public List<ResourceProducer> waitingforResourceProducerList = new();
-    [HideInInspector]
-    public List<ResourceType> resourcesNeededForProduction = new();
-    [HideInInspector]
-    public List<Trader> waitingForTraderList = new();
-    [HideInInspector]
-    public List<ResourceType> resourcesNeededForRoute = new();
+    //[HideInInspector]
+    //public List<ResourceProducer> waitingforResourceProducerList = new();
+    //[HideInInspector]
+    //public List<ResourceType> resourcesNeededForProduction = new();
+    //[HideInInspector]
+    //public List<Trader> waitingForTraderList = new();
+    //[HideInInspector]
+    //public List<ResourceType> resourcesNeededForRoute = new();
 
     //initial resources
     public List<ResourceValue> initialResources = new(); //resources you start a city with
@@ -159,7 +162,7 @@ public class ResourceManager : MonoBehaviour
 	} 
 
     //for city pop, traders, and army
-    public void ConsumeMaintenanceResources(List<ResourceValue> consumedResource, Vector3 location, bool military = false)
+    public void ConsumeMaintenanceResources(List<ResourceValue> consumedResource, Vector3 location, bool military = false, bool showPopUp = false)
     {
 		int i = 0;
 		location.y += consumedResource.Count * 0.4f;
@@ -186,8 +189,8 @@ public class ResourceManager : MonoBehaviour
 
 			consumedAmount = SubtractResource(value.resourceType, consumedAmount);
 
-			if (city.activeCity && consumedAmount > 0)
-			{
+            if (consumedAmount != 0 && (showPopUp || city.activeCity))
+            {
 				Vector3 loc = location;
 				loc.y -= 0.4f * i;
 				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
@@ -213,7 +216,7 @@ public class ResourceManager : MonoBehaviour
 
             consumedAmount = SubtractResource(value.resourceType, consumedAmount);
 
-            if (city.activeCity && consumedAmount > 0)
+            if (city.activeCity && consumedAmount != 0)
             {
                 Vector3 loc = location;
                 loc.y -= 0.4f * i;
@@ -226,15 +229,12 @@ public class ResourceManager : MonoBehaviour
 			city.world.cityBuilderManager.uiCityUpgradePanel.CheckCosts(city.ResourceManager);
 	}
 
-    public bool ConsumeResourcesNoGoldCheck(List<ResourceValue> consumeResources, int labor)
+    public bool ResourceWaitCheck(List<ResourceValue> consumeResources, int labor, ResourceType type)
     {
         for (int i = 0; i < consumeResources.Count; i++)
         {
-            if (consumeResources[i].resourceType == ResourceType.Gold)
-                continue;
-
-            if (resourceDict[consumeResources[i].resourceType] < consumeResources[i].resourceAmount * labor)
-                return false;
+            if (consumeResources[i].resourceType == type)
+                return resourceDict[consumeResources[i].resourceType] >= consumeResources[i].resourceAmount * labor;
 		}
 
         return true;
@@ -256,7 +256,7 @@ public class ResourceManager : MonoBehaviour
             }
             else if (resourceDict[value.resourceType] < value.resourceAmount * labor)
             {
-                cityResourceWaitList.Add(producer);
+                AddToResourceWaitList(value.resourceType, producer);
                 return false;
             }
         }
@@ -264,16 +264,36 @@ public class ResourceManager : MonoBehaviour
         return true;
     }
 
-    public bool RouteCostCheck(List<ResourceValue> costs)
+    public void AddToUnloadWaitList(ICityResourceWait unloadWaiter)
+    {
+        if (!unloadWaitList.Contains(unloadWaiter))
+            unloadWaitList.Add(unloadWaiter);
+    }
+
+    public void AddToResourceWaitList(ResourceType type, ICityResourceWait resourceWaiter)
+    {
+        if (!cityResourceWaitDict.ContainsKey(type))
+            cityResourceWaitDict[type] = new();
+
+        if (!cityResourceWaitDict[type].Contains(resourceWaiter))
+            cityResourceWaitDict[type].Add(resourceWaiter);
+    }
+
+    public void RemoveFromResourceWaitList(ResourceType type)
+    {
+        cityResourceWaitDict[type].RemoveAt(0);
+
+        if (cityResourceWaitDict[type].Count == 0)
+            cityResourceWaitDict.Remove(type);
+    }
+
+    public bool RouteCostCheck(List<ResourceValue> costs, ResourceType type)
     {
         for (int i = 0; i < costs.Count; i++)
         {
-            if (costs[i].resourceType == ResourceType.Gold)
-                continue;
-
-            if (resourceDict[costs[i].resourceType] < costs[i].resourceAmount)
-                return false;
-		}
+            if (costs[i].resourceType == type)
+                return costs[i].resourceType == type && resourceDict[costs[i].resourceType] >= costs[i].resourceAmount;
+        }
 
         return true;
     }
@@ -287,13 +307,17 @@ public class ResourceManager : MonoBehaviour
                 if (!city.CheckWorldGold(consumeResources[i].resourceAmount))
                 {
                     trader.goldNeeded = consumeResources[i].resourceAmount;
-                    cityGoldWaitList.Add(trader);
-                    city.world.AddToGoldWaitList(city);
+                    if (!cityGoldWaitList.Contains(trader))
+                    {
+                        cityGoldWaitList.Add(trader);
+                        city.world.AddToGoldWaitList(city);
+                    }
                     return false;
                 }
             }
             else if (resourceDict[consumeResources[i].resourceType] < consumeResources[i].resourceAmount)
             {
+                AddToResourceWaitList(consumeResources[i].resourceType, trader);
                 return false;
             }
         }
@@ -326,15 +350,16 @@ public class ResourceManager : MonoBehaviour
         return destroy;
     }
 
-	public bool PrepareResource(ResourceValue producedResource, float currentLabor, Vector3 producerLoc, CityImprovement improvement = null)
+	public bool PrepareResource(int newResourceAmount, ResourceValue producedResource, Vector3 producerLoc, CityImprovement improvement)
 	{
 		bool destroy = false;
 
 		resourceCount = 0;
-		int newResourceAmount = CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType);	
+        //int newResourceAmount = CalculateResourceProductionAmount(producedResource, currentLabor, improvement);
+		//int newResourceAmount = CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType);
 
-		if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0 && improvement.td.resourceAmount < newResourceAmount)
-			newResourceAmount = improvement.td.resourceAmount;
+		//if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0 && improvement.td.resourceAmount < newResourceAmount)
+		//	newResourceAmount = improvement.td.resourceAmount;
 
 		int resourceAmount = AddResource(producedResource.resourceType, newResourceAmount);
 
@@ -356,6 +381,16 @@ public class ResourceManager : MonoBehaviour
 			InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(producedResource.resourceType));
 
 		return destroy;
+	}
+
+    public int CalculateResourceProductionAmount(ResourceValue producedResource, float currentLabor, CityImprovement improvement)
+    {
+		int newResourceAmount = CalculateResourceGeneration(producedResource.resourceAmount, currentLabor, producedResource.resourceType);
+
+		if (improvement.GetImprovementData.rawMaterials && improvement.td.resourceAmount > 0 && improvement.td.resourceAmount < newResourceAmount)
+			newResourceAmount = improvement.td.resourceAmount;
+
+        return newResourceAmount;
 	}
 
     public int SubtractResource(ResourceType type, int amount)
@@ -465,33 +500,39 @@ public class ResourceManager : MonoBehaviour
         resourceDict[type] += amount;
 		resourceStorageLevel += amount;
 
-		if (resourceStorageLevel >= city.warehouseStorageLimit)
-			fullInventory = true;
-
-        //check lists needing resources, in this order
-        if (cityResourceWaitList.Count > 0)
-        {
-            List<ICityResourceWait> tempCityResourceWait = new(cityResourceWaitList);
-            for (int i = 0; i < tempCityResourceWait.Count; i++)
-            {
-                if (tempCityResourceWait[i].Restart(type))
-                    cityResourceWaitList.RemoveAt(0);
-                else
-                    break;
-            }
-        }
-
-		if (resourcesNeededForRoute.Contains(type))
-			CheckTraderWaitList(type);
-		city.CheckResourceWaiter(type);
-		if (resourcesNeededForProduction.Contains(type))
-			CheckProducerResourceWaitList(type);
-		//if (queuedResourcesToCheck.ContainsKey(type))
-  //          CheckResourcesForQueue();
-
-        //CityAutoGrowCheck(type);
+        ResourceWaitListCheck(type);
 		UICheck(type, amount, prevAmount);
 	}
+
+    public void ResourceWaitListCheck(ResourceType type)
+    {
+		if (cityResourceWaitDict.ContainsKey(type))
+		{
+            bool success = true;
+            while (success)
+            {
+                if (cityResourceWaitDict.ContainsKey(type) && cityResourceWaitDict[type][0].Restart(type))
+                    RemoveFromResourceWaitList(type);
+                else
+                    success = false;
+            }
+		}
+	}
+
+    public void StorageSpaceCheck()
+    {
+        if (unloadWaitList.Count > 0)
+        {
+            bool success = true;
+            while (success)
+            {
+                if (unloadWaitList.Count > 0 && unloadWaitList[0].Restart(ResourceType.None))
+                    unloadWaitList.RemoveAt(0);
+                else
+                    success = false;
+            }
+        }
+    }
 
     private void SubtractResourceFromStorage(ResourceType type, int amount)
     {
@@ -499,12 +540,13 @@ public class ResourceManager : MonoBehaviour
         resourceDict[type] -= amount;
 		resourceStorageLevel -= amount;
 
-        if (fullInventory)
-            fullInventory = false;
+        //if (fullInventory)
+        //    fullInventory = false;
 
         //check lists needing inventory room, in this order
-		city.CheckLimitWaiter();
-        CheckProducerUnloadWaitList();
+        StorageSpaceCheck();
+		//city.CheckLimitWaiter();
+        //CheckProducerUnloadWaitList();
 
 		UICheck(type, amount, prevAmount);
 	}
@@ -585,8 +627,9 @@ public class ResourceManager : MonoBehaviour
         if (refund)
             IssueRefund(refundCost, loc, i);
 
-        CheckProducerUnloadWaitList();
-        city.CheckLimitWaiter();
+        StorageSpaceCheck();
+        //CheckProducerUnloadWaitList();
+        //city.CheckLimitWaiter();
     }
 
     public void IssueRefund(List<ResourceValue> refundCost, Vector3 loc, int i = 0)
@@ -917,93 +960,123 @@ public class ResourceManager : MonoBehaviour
         //UpdateUI(ResourceType.Food);
     }
 
-    public void CheckProducerUnloadWaitList()
-    {
-        if (fullInventory)
-        {
-            fullInventory = false;
-            int queueCount = waitingToUnloadProducers.Count;
+    //public void CheckProducerUnloadWaitList()
+    //{
+    //    if (fullInventory)
+    //    {
+    //        fullInventory = false;
+    //        int queueCount = waitingToUnloadProducers.Count;
 
-            for (int i = 0; i < queueCount; i++)
-            {
-                if (!fullInventory)
-                    waitingToUnloadProducers.Dequeue().UnloadAndRestart();
-                else
-                    break;
-            }
+    //        for (int i = 0; i < queueCount; i++)
+    //        {
+    //            if (!fullInventory)
+    //                waitingToUnloadProducers.Dequeue().UnloadAndRestart();
+    //            else
+    //                break;
+    //        }
 
-            //check again to start the others
-            if (!fullInventory)
-                RestartStorageRoomWaitProduction();
-        }
-    }
+    //        //check again to start the others
+    //        if (!fullInventory)
+    //            RestartStorageRoomWaitProduction();
+    //    }
+    //}
 
-    public void RestartStorageRoomWaitProduction()
-    {
-        List<ResourceProducer> tempProducers = new(waitingForStorageRoomProducerList);
+   // public void RestartStorageRoomWaitProduction()
+   // {
+   //     List<ResourceProducer> tempProducers = new(waitingForStorageRoomProducerList);
 
-        foreach (ResourceProducer producer in tempProducers)
-        {
-            producer.isWaitingForStorageRoom = false;
-            producer.cityImprovement.exclamationPoint.SetActive(false);
-			producer.StartProducing();
-            waitingForStorageRoomProducerList.Remove(producer);
-        }
-    }
+   //     foreach (ResourceProducer producer in tempProducers)
+   //     {
+   //         producer.isWaitingForStorageRoom = false;
+   //         producer.cityImprovement.exclamationPoint.SetActive(false);
+			//producer.StartProducing();
+   //         waitingForStorageRoomProducerList.Remove(producer);
+   //     }
+   // }
 
-    public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
-    {
-        if (waitingToUnloadProducers.Contains(resourceProducer))
-            waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
-    }
+    //public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
+    //{
+    //    if (waitingToUnloadProducers.Contains(resourceProducer))
+    //        waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
+    //}
 
-    public void CheckProducerResourceWaitList()
-    {
-        List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
+    //public void CheckProducerResourceWaitList()
+    //{
+    //    List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
 
-        foreach (ResourceProducer producer in tempWaitingForResource)
-        {
-            producer.RestartResourceWaitProduction();
-        }
-    }
+    //    foreach (ResourceProducer producer in tempWaitingForResource)
+    //    {
+    //        producer.RestartResourceWaitProduction();
+    //    }
+    //}
 
     //public void RestartGold()
     //{
     //    CheckTraderWaitList(ResourceType.Gold);
     //}
 
-    public void CheckTraderWaitList(ResourceType resourceType)
-    {
-        List<Trader> tempWaitingForTrader = new(waitingForTraderList);
+    //public void CheckTraderWaitList(ResourceType resourceType)
+    //{
+    //    List<Trader> tempWaitingForTrader = new(waitingForTraderList);
 
-        for (int i = 0; i < tempWaitingForTrader.Count; i++)
-        {
-            if (tempWaitingForTrader[i].routeCostTypes.Contains(resourceType))
-                tempWaitingForTrader[i].RestartRoute(city.cityLoc);
-        }
-    }
+    //    for (int i = 0; i < tempWaitingForTrader.Count; i++)
+    //    {
+    //        if (tempWaitingForTrader[i].routeCostTypes.Contains(resourceType))
+    //            tempWaitingForTrader[i].RestartRoute(city.cityLoc);
+    //    }
+    //}
 
-	public void CheckProducerResourceWaitList(ResourceType resourceType)
-    {
-        List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
+	//public void CheckProducerResourceWaitList(ResourceType resourceType)
+ //   {
+ //       List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
         
-        foreach (ResourceProducer producer in tempWaitingForResource)
-        {
-            if (producer.consumedResourceTypes.Contains(resourceType))
-                producer.RestartResourceWaitProduction();
-        }
-    }
+ //       foreach (ResourceProducer producer in tempWaitingForResource)
+ //       {
+ //           if (producer.consumedResourceTypes.Contains(resourceType))
+ //               producer.RestartResourceWaitProduction();
+ //       }
+ //   }
 
     public int RemoveFromGoldWaitList(ICityGoldWait cityGoldWait)
     {
         int num = cityGoldWaitList.IndexOf(cityGoldWait);
-        cityGoldWaitList.Remove(cityGoldWait);
+        cityGoldWaitList.RemoveAt(num);
+
         return num;
     }
 
-    public void RemoveFromCityResourceWaitList(ICityResourceWait resourceWait)
+    public void RemoveFromCityResourceWaitList(ICityResourceWait resourceWait, List<ResourceValue> resources)
     {
-        cityResourceWaitList.Remove(resourceWait);
+        for (int i = 0; i < resources.Count; i++)
+        {
+            if (cityResourceWaitDict.ContainsKey(resources[i].resourceType))
+            {
+                int index = cityResourceWaitDict[resources[i].resourceType].IndexOf(resourceWait);
+
+                if (index >= 0)
+                {
+    				cityResourceWaitDict[resources[i].resourceType].RemoveAt(index);
+
+                    if (cityResourceWaitDict[resources[i].resourceType].Count == 0)
+                        cityResourceWaitDict.Remove(resources[i].resourceType);
+                    else if (index == 0) //if first in line, checking to see if next one up can go
+						ResourceWaitListCheck(resources[i].resourceType);
+                }
+            }
+        }
+    }
+
+    public void RemoveFromUnloadWaitList(ICityResourceWait unloadWaiter)
+    {
+        int index = unloadWaitList.IndexOf(unloadWaiter);
+
+        if (index >= 0)
+        {
+            unloadWaitList.RemoveAt(index);
+
+            if (index == 0)
+                StorageSpaceCheck();
+        }
     }
 
     public void RemoveFromResearchWaitlist(ResourceProducer resourceProducer)
@@ -1011,17 +1084,17 @@ public class ResourceManager : MonoBehaviour
         city.world.RemoveFromResearchWaitList(resourceProducer);
     }
 
-    public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)
-    {
-        if (!waitingForStorageRoomProducerList.Contains(resourceProducer))
-            waitingForStorageRoomProducerList.Add(resourceProducer);
-    }
+    //public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)
+    //{
+    //    if (!waitingForStorageRoomProducerList.Contains(resourceProducer))
+    //        waitingForStorageRoomProducerList.Add(resourceProducer);
+    //}
 
-    public void RemoveFromStorageRoomWaitList(ResourceProducer resourceProducer)
-    {
-        if (waitingForStorageRoomProducerList.Contains(resourceProducer))
-            waitingForStorageRoomProducerList.Remove(resourceProducer);
-    }
+    //public void RemoveFromStorageRoomWaitList(ResourceProducer resourceProducer)
+    //{
+    //    if (waitingForStorageRoomProducerList.Contains(resourceProducer))
+    //        waitingForStorageRoomProducerList.Remove(resourceProducer);
+    //}
 
     //public void AddToResourceWaitList(ResourceProducer resourceProducer)
     //{
@@ -1035,53 +1108,53 @@ public class ResourceManager : MonoBehaviour
     //        waitingforResourceProducerList.Remove(resourceProducer);
     //}
 
-    public void AddToResourcesNeededForProduction(List<ResourceType> consumedResources)
-    {
-        for (int i = 0; i < consumedResources.Count; i++)
-        {
-            if (!resourcesNeededForProduction.Contains(consumedResources[i]))
-                resourcesNeededForProduction.Add(consumedResources[i]);
-		}
-    }
+  //  public void AddToResourcesNeededForProduction(List<ResourceType> consumedResources)
+  //  {
+  //      for (int i = 0; i < consumedResources.Count; i++)
+  //      {
+  //          if (!resourcesNeededForProduction.Contains(consumedResources[i]))
+  //              resourcesNeededForProduction.Add(consumedResources[i]);
+		//}
+  //  }
 
-    public void RemoveFromResourcesNeededForProduction(List<ResourceType> consumedResources)
-    {
-        for (int i = 0; i < consumedResources.Count; i++)
-        {
-            if (resourcesNeededForProduction.Contains(consumedResources[i]))
-                resourcesNeededForProduction.Remove(consumedResources[i]);
-		}
-    }
+  //  public void RemoveFromResourcesNeededForProduction(List<ResourceType> consumedResources)
+  //  {
+  //      for (int i = 0; i < consumedResources.Count; i++)
+  //      {
+  //          if (resourcesNeededForProduction.Contains(consumedResources[i]))
+  //              resourcesNeededForProduction.Remove(consumedResources[i]);
+		//}
+  //  }
 
-    public void AddToTraderWaitList(Trader trader)
-    {
-        if (!waitingForTraderList.Contains(trader))
-            waitingForTraderList.Add(trader);
-    }
+    //public void AddToTraderWaitList(Trader trader)
+    //{
+    //    if (!waitingForTraderList.Contains(trader))
+    //        waitingForTraderList.Add(trader);
+    //}
 
-    public void RemoveFromTraderWaitList(Trader trader)
-    {
-        if (waitingForTraderList.Contains(trader))
-            waitingForTraderList.Remove(trader);
-    }
+    //public void RemoveFromTraderWaitList(Trader trader)
+    //{
+    //    if (waitingForTraderList.Contains(trader))
+    //        waitingForTraderList.Remove(trader);
+    //}
 
-	public void AddToResourcesNeededForTrader(List<ResourceType> consumedResources)
-	{
-        for (int i = 0; i < consumedResources.Count; i++)
-        {
-			if (!resourcesNeededForRoute.Contains(consumedResources[i]))
-				resourcesNeededForRoute.Add(consumedResources[i]);
-		}
-	}
+ //   public void AddToResourcesNeededForTrader(List<ResourceType> consumedResources)
+	//{
+ //       for (int i = 0; i < consumedResources.Count; i++)
+ //       {
+	//		if (!resourcesNeededForRoute.Contains(consumedResources[i]))
+	//			resourcesNeededForRoute.Add(consumedResources[i]);
+	//	}
+	//}
 
-	public void RemoveFromResourcesNeededForTrader(List<ResourceType> consumedResources)
-	{
-        for (int i = 0; i < consumedResources.Count; i++)
-        {
-			if (resourcesNeededForRoute.Contains(consumedResources[i]))
-                resourcesNeededForRoute.Remove(consumedResources[i]);
-		}
-	}
+	//public void RemoveFromResourcesNeededForTrader(List<ResourceType> consumedResources)
+	//{
+ //       for (int i = 0; i < consumedResources.Count; i++)
+ //       {
+	//		if (resourcesNeededForRoute.Contains(consumedResources[i]))
+ //               resourcesNeededForRoute.Remove(consumedResources[i]);
+	//	}
+	//}
 
 	//for queued build orders in cities
 	public void SetQueueResources(List<ResourceValue> resourceList)
@@ -1196,10 +1269,13 @@ public enum RocksType
 public interface ICityGoldWait
 {
     Vector3Int WaitLoc { get; }
+    int waitId { get; }
     bool RestartGold(int gold);
 }
 
 public interface ICityResourceWait
 {
+    Vector3Int WaitLoc { get; }
+    int waitId { get; }
     bool Restart(ResourceType type);
 }
