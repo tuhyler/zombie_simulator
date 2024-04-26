@@ -48,14 +48,15 @@ public class InfoPopUpHandler : MonoBehaviour
             yield return null;
         }
 
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 
-    public static InfoPopUpHandler WarningMessage()
+    public static InfoPopUpHandler WarningMessage(Transform objectTransform)
     {
         if (warningMessage == null)
         {
             GameObject popUpGO = Instantiate(GameAssets.Instance.popUpTextPrefab, new Vector3(0, 0, 0), Quaternion.Euler(90, 0, 0));
+            popUpGO.transform.SetParent(objectTransform, false);
             warningMessage = popUpGO.GetComponent<InfoPopUpHandler>();
         }
 

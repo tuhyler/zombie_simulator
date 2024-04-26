@@ -122,7 +122,7 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(endPosition, "Cannot reach selected area");
 		return path;
 	}
 
@@ -186,7 +186,7 @@ public class GridSearch
 			}
 		}
 
-		InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+		InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(endPosition, "Cannot reach selected area");
 		return path;
 	}
 
@@ -419,7 +419,7 @@ public class GridSearch
 		}
 
 		if (isPlayer)
-			InfoPopUpHandler.WarningMessage().Create(endPosition, "Cannot reach selected area");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(endPosition, "Cannot reach selected area");
 		return path;
 	}
 

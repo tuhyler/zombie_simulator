@@ -501,8 +501,8 @@ public class Military : Unit
 		flankedOnce = false;
 		flanking = false;
 		targetSearching = false;
-		isMarching = false;
 		StopMovementCheck(true);
+		isMarching = false;
 		//StopAnimation();
 	}
 
@@ -588,8 +588,8 @@ public class Military : Unit
 
 	public void ContinueGuarding(Queue<Vector3Int> traderPath, Vector3Int currentLoc)
 	{
-		isGuarding = true;
 		StopAnimation();
+		isGuarding = true;
 		if (currentHealth < buildDataSO.health)
 			healthbar.RegenerateHealth();
 		List<Vector3Int> path = traderPath.ToList();
@@ -1132,7 +1132,10 @@ public class Military : Unit
 		if (guard)
 		{
 			if (isSelected)
+			{
+				world.somethingSelected = false;
 				world.unitMovement.ClearSelection();
+			}
 
 			guardedTrader.guarded = false;
 			guardedTrader.guardUnit = null;

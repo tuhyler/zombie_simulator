@@ -80,7 +80,7 @@ public class PersonalResourceManager : MonoBehaviour
 		AddRemoveResource(type, amount);
 	}
 
-	public int ManuallyAddResource(ResourceType type, int amount, bool update = true)
+	public int ManuallyAddResource(ResourceType type, int amount, bool update = false)
 	{
 		amount = AddResourceCheck(amount);
 		if (amount > 0)

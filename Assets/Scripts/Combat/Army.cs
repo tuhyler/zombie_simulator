@@ -547,9 +547,9 @@ public class Army : MonoBehaviour
         if (pathToTarget.Count == 0)
         {
 			if (getToHarbor)
-                InfoPopUpHandler.WarningMessage().Create(target, "Cannot reach selected area");
+                InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(target, "Cannot reach selected area");
             else
-				InfoPopUpHandler.WarningMessage().Create(target, "Cannot reach own harbor");
+				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(target, "Cannot reach own harbor");
 
 			world.GetTerrainDataAt(target).DisableHighlight();
 			world.GetTerrainDataAt(target).EnableHighlight(Color.green);

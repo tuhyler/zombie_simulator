@@ -266,14 +266,14 @@ public class City : MonoBehaviour, IGoldWaiter
         //resourceSplash.Pause();
         pos.y = 8f;
         lightBullet = Instantiate(lightBullet, pos, Quaternion.Euler(90, 0, 0));
-        lightBullet.transform.SetParent(transform, false);
+        lightBullet.transform.SetParent(world.psHolder, false);
         lightBullet.Pause();
         pos.y = isHill ? 3.6f : 3f;
         heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
-        heavenHighlight.transform.SetParent(transform, false);
+        heavenHighlight.transform.SetParent(world.psHolder, false);
         heavenHighlight.Pause();
         hellHighlight = Instantiate(hellHighlight, pos, Quaternion.identity);
-        hellHighlight.transform.SetParent(transform, false);
+        hellHighlight.transform.SetParent(world.psHolder, false);
         hellHighlight.Pause();
 
     }
@@ -1054,12 +1054,30 @@ public class City : MonoBehaviour, IGoldWaiter
 			waitList = new Queue<Unit>(waitListList);
 	}
 
+    //making sure trader isn't still in line when arriving at stop
+    public void InLineCheck(Unit trader)
+    {
+        if (trader.bySea)
+        {
+            if (seaWaitList.Contains(trader))
+				seaWaitList = new Queue<Unit>(seaWaitList.Where(x => x != trader));
+		}
+        else if (trader.byAir)
+        {
+            if (airWaitList.Contains(trader))
+				airWaitList = new Queue<Unit>(airWaitList.Where(x => x != trader));
+		}
+        else
+        {
+            if (waitList.Contains(trader))
+                waitList = new Queue<Unit>(waitList.Where(x => x != trader));
+        }
+    }
+
     public void CheckQueue()
     {
         if (waitList.Count > 0)
-        {
             waitList.Dequeue().trader.ExitLine();
-        }
 
         if (waitList.Count > 0)
         {
@@ -1067,7 +1085,8 @@ public class City : MonoBehaviour, IGoldWaiter
             foreach(Unit unit in waitList)
             {
                 i++;
-                unit.trader.StartMoveUpInLine(i);
+                if (!unit.trader.movingUpInLine)
+                    unit.trader.StartMoveUpInLine(i);
             }
         }
     }
@@ -1075,9 +1094,7 @@ public class City : MonoBehaviour, IGoldWaiter
     public void CheckSeaQueue()
     {
 		if (seaWaitList.Count > 0)
-		{
 			seaWaitList.Dequeue().trader.ExitLine();
-		}
 
 		if (seaWaitList.Count > 0)
 		{
@@ -1086,6 +1103,22 @@ public class City : MonoBehaviour, IGoldWaiter
 			{
 				i++;
                 unit.trader.StartMoveUpInLine(i);
+			}
+		}
+	}
+
+    public void CheckAirQueue()
+    {
+		if (airWaitList.Count > 0)
+			airWaitList.Dequeue().trader.ExitLine();
+
+		if (airWaitList.Count > 0)
+		{
+			int i = 0;
+			foreach (Unit unit in airWaitList)
+			{
+				i++;
+				unit.trader.StartMoveUpInLine(i);
 			}
 		}
 	}

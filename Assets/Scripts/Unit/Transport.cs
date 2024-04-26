@@ -128,13 +128,13 @@ public class Transport : Unit
 
 					if (!moveToSpeak)
 					{
-						InfoPopUpHandler.WarningMessage().Create(transform.position, "Can't go in enemy territory except to speak");
+						InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(transform.position, "Can't go in enemy territory except to speak");
 						return;
 					}
 				}
 				else
 				{
-					InfoPopUpHandler.WarningMessage().Create(transform.position, "Can't go in enemy territory except to speak");
+					InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(transform.position, "Can't go in enemy territory except to speak");
 					return;
 				}
 			}

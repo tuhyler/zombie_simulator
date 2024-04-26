@@ -148,7 +148,7 @@ public class UIInfoPanelUnit : MonoBehaviour
         }
     }
 
-    public void ShowWarning(bool inventory, bool costs)
+    public void ShowWarning(bool inventory, bool costs, bool gold)
     {
         warningSign.SetActive(true);
 
@@ -156,6 +156,8 @@ public class UIInfoPanelUnit : MonoBehaviour
             warningText.text = "Waiting on route costs";
         else if (inventory)
             warningText.text = "Waiting on city inventory";
+        else if (gold)
+            warningText.text = "Waiting on gold";
         else
             warningText.text = "Waiting on city resources";
     }

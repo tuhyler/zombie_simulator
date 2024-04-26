@@ -101,7 +101,6 @@ public class Wonder : MonoBehaviour, IGoldWaiter
         fireworks2.gameObject.SetActive(false);
 
         removeSplash = Instantiate(removeSplash, transform.position, Quaternion.Euler(-90, 0, 0));
-        removeSplash.transform.SetParent(world.psHolder, false);
         removeSplash.transform.localScale = new Vector3(2, 2, 2);
         removeSplash.Stop();
 
@@ -113,6 +112,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
     public void SetReferences(MapWorld world, CameraController focusCam)
     {
         this.world = world;
+        removeSplash.transform.SetParent(world.psHolder, false);
         this.focusCam = focusCam;
     }
 
@@ -704,7 +704,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
                 world.RemoveUnitPosition(unloadLoc);
                 if (unit.trader.followingRoute)
                     unit.trader.InterruptRoute(false);
-                unit.trader.TeleportToNearestRoad(unloadLoc);
+                //unit.trader.TeleportToNearestRoad(unloadLoc);
             }
             else
                 unit.FindNewSpot(unloadLoc, null);
@@ -720,7 +720,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
                     world.RemoveUnitPosition(neighbor);
                     if (unit.trader.followingRoute)
                         unit.trader.InterruptRoute(false);
-                    unit.trader.TeleportToNearestRoad(neighbor);
+                    //unit.trader.TeleportToNearestRoad(neighbor);
                 }
             }
         }

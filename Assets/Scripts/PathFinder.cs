@@ -66,7 +66,7 @@ public class PathFinder
 			}
         }
 
-		InfoPopUpHandler.WarningMessage().Create(a_TargetPos, "Cannot reach selected area");
+		InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(a_TargetPos, "Cannot reach selected area");
 		return null;
 	}
 

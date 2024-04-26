@@ -23,7 +23,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     private int totalRouteLength;
 
     [HideInInspector]
-    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, guardLeft, atHome, returning;
+    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, guardLeft, atHome, returning, movingUpInLine;
     [HideInInspector]
     public Unit guardUnit;
 	[HideInInspector]
@@ -209,10 +209,16 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     {
         if (followingRoute)
         {
+			movingUpInLine = false;
 			Vector3Int endLoc = world.RoundToInt(endPosition);
 			if (!TradeStopExistsCheck(endLoc))
 				return;
 			
+			if (isWaiting)
+			{
+				world.GetCity(endLoc).InLineCheck(this);
+			}
+
 			if (tradeRouteManager.currentStop == 0)
             {
 				City city = GetStartingCity();
@@ -228,8 +234,10 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
                 }
                 else
                 {
+					isWaiting = true;
                     waitingOnRouteCosts = true;
-					SetWarning(false, true);
+					isWaiting = true;
+					SetWarning(false, true, false);
                     world.unitMovement.uiTradeRouteManager.ShowRouteCostFlag(true, this);
                     //city.ResourceManager.AddToTraderWaitList(this);
 					//city.ResourceManager.AddToResourcesNeededForTrader(routeCostTypes);
@@ -272,8 +280,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 					Rotate(harborRot);
                 }
 
-                atStop = true;
-                isWaiting = true;
+				isWaiting = true;
+				atStop = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
                 WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
                 LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate, false));
@@ -316,6 +324,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 	public void GetInLine()
 	{
+		movingUpInLine = false;
 		Vector3Int currentLoc = world.RoundToInt(transform.position);
 
 		if (world.UnitAlreadyThere(this, currentLoc))
@@ -348,7 +357,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			guardUnit.military.GuardGetInLine(prevTile, currentLocation);
 	}
 
-	public void GoToBackOfLine(Vector3Int finalLoc, Vector3Int currentLoc)
+	private void GoToBackOfLine(Vector3Int finalLoc, Vector3Int currentLoc)
 	{
 		List<Vector3Int> positionsToCheck = new() { currentLoc };
 		bool success = false;
@@ -382,16 +391,16 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			{
 				foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
 				{
-					if (!bySea)
-					{
-						if (!world.IsRoadOnTileLocation(neighbor))
-							continue;
-					}
-					else
+					if (bySea)
 					{
 						if (!world.CheckIfSeaPositionIsValid(neighbor))
 							continue;
 					}
+					//else
+					//{
+					//	if (!world.IsRoadOnTileLocation(neighbor))
+					//		continue;
+					//}
 
 					if (world.IsUnitWaitingForSameStop(neighbor, finalLoc)) //going away from final loc
 					{
@@ -432,11 +441,15 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	{
 		world.RemoveUnitPosition(currentLocation);
 		StartAnimation();
-		Vector3Int nextSpot = pathPositions.Peek();
-		RestartPath(pathPositions.Dequeue());
 
-		if (guarded)
-			guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
+		if (pathPositions.Count > 0 && !movingUpInLine)
+		{
+			Vector3Int nextSpot = pathPositions.Peek();
+			RestartPath(pathPositions.Dequeue());
+
+			if (guarded)
+				guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
+		}
 	}
 
 	public IEnumerator MoveUpInLine(int placeInLine)
@@ -444,6 +457,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		if (pathPositions.Count == 1)
 			yield break;
 
+		movingUpInLine = true;
 		float pause = 0.5f * placeInLine;
 
 		while (pause > 0)
@@ -453,15 +467,18 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 
 		if (world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+		{
+			movingUpInLine = false;
 			yield break;
+		}
 
 		Vector3Int nextSpot = pathPositions.Dequeue();
 		world.RemoveUnitPosition(currentLocation);
-		if (world.IsUnitLocationTaken(nextSpot))
-		{
-			Unit unitInTheWay = world.GetUnit(nextSpot);
-			unitInTheWay.FindNewSpot(nextSpot, pathPositions.Peek());
-		}
+		//if (world.IsUnitLocationTaken(nextSpot))
+		//{
+		//	Unit unitInTheWay = world.GetUnit(nextSpot);
+		//	unitInTheWay.FindNewSpot(nextSpot, pathPositions.Peek());
+		//}
 		world.AddUnitPosition(nextSpot, this);
         StartAnimation();
         RestartPath(nextSpot);
@@ -662,12 +679,13 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			{
 				if (guarded)
 				{
-					originalMoveSpeed = buildDataSO.movementSpeed;
-					guardUnit.military.guard = false;
-					guardUnit.military.guardedTrader = null;
-					guardUnit.military.MoveForGuardDuty(homeCity);
-					guardUnit = null;
-					guarded = false;
+					guardUnit.KillUnit(Vector3.zero);
+					//originalMoveSpeed = buildDataSO.movementSpeed;
+					//guardUnit.military.guard = false;
+					//guardUnit.military.guardedTrader = null;
+					//guardUnit.military.MoveForGuardDuty(homeCity);
+					//guardUnit = null;
+					//guarded = false;
 				}
 
 				KillUnit(Vector3.zero);
@@ -749,8 +767,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     {
         if (world.IsUnitWaitingForSameStop(world.RoundToInt(transform.position), tradeRouteManager.GoToNext()))
         {
-            CancelRoute();
-            InfoPopUpHandler.WarningMessage().Create(transform.position, "No cutting in line");
+            //CancelRoute();
+            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(transform.position, "No cutting in line");
             return true;
         }
 
@@ -761,12 +779,15 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	{
 		interruptedRoute = false;
 		//SetInterruptedAnimation(false);
-		InfoPopUpHandler.WarningMessage().Create(transform.position, "Route not possible to complete");
+		InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(transform.position, "Route not possible to complete");
 	}
 
 	public void CancelRoute()
     {
-        followingRoute = false;
+        if (isSelected)
+			world.unitMovement.uiTraderPanel.SwitchRouteIcons(false);
+
+		followingRoute = false;
 		RemoveWarning();
 		if (waitingOnRouteCosts)
 		{
@@ -1067,7 +1088,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     public void ShowGuardLeftMessage()
     {
         guardLeft = false;
-		InfoPopUpHandler.WarningMessage().Create(transform.position, "Guard returned to nearest city due to inactivity");
+		InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(transform.position, "Guard returned to nearest city due to inactivity");
 	}
 
     public void LookSad()
@@ -1075,54 +1096,56 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		SetInterruptedAnimation(true);
     }
 
-	public void TeleportToNearestRoad(Vector3Int loc)
-	{
-		foreach (Vector3Int neighbor in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAY))
-		{
-			if (world.IsRoadOnTileLocation(neighbor))
-				return;
-		}
+	//public void TeleportToNearestRoad(Vector3Int loc)
+	//{
+	//	foreach (Vector3Int neighbor in world.GetNeighborsFor(loc, MapWorld.State.EIGHTWAY))
+	//	{
+	//		if (world.IsRoadOnTileLocation(neighbor))
+	//			return;
+	//	}
 
-		Vector3Int newSpot = loc;
-		Vector3Int terrainLoc = world.GetClosestTerrainLoc(loc);
+	//	Vector3Int newSpot = loc;
+	//	Vector3Int terrainLoc = world.GetClosestTerrainLoc(loc);
 
-		foreach (Vector3Int neighbor in world.GetNeighborsFor(terrainLoc, MapWorld.State.EIGHTWAYINCREMENT))
-		{
-			if (world.CheckIfPositionIsValid(neighbor))
-			{
-				newSpot = neighbor;
-				if (world.IsRoadOnTerrain(neighbor))
-				{
-					Teleport(neighbor);
-					return;
-				}
-			}
-		}
+	//	foreach (Vector3Int neighbor in world.GetNeighborsFor(terrainLoc, MapWorld.State.EIGHTWAYINCREMENT))
+	//	{
+	//		if (world.CheckIfPositionIsValid(neighbor))
+	//		{
+	//			newSpot = neighbor;
+	//			if (world.IsRoadOnTerrain(neighbor))
+	//			{
+	//				Teleport(neighbor);
+	//				return;
+	//			}
+	//		}
+	//	}
 
-		Teleport(newSpot);
-	}
+	//	Teleport(newSpot);
+	//}
 
 	public void CheckWarning()
 	{
 		if (waitingOnRouteCosts)
 		{
-			world.unitMovement.infoManager.infoPanel.ShowWarning(false, true);
+			world.unitMovement.infoManager.infoPanel.ShowWarning(false, true, false);
 		}
 		else if (atStop)
 		{
 			if (tradeRouteManager.resourceAssignments[tradeRouteManager.currentStop][tradeRouteManager.currentResource].resourceAmount < 0)
-				world.unitMovement.infoManager.infoPanel.ShowWarning(true, false);
+				world.unitMovement.infoManager.infoPanel.ShowWarning(true, false, false);
+			else if (tradeRouteManager.IsTC() && tradeRouteManager.resourceAssignments[tradeRouteManager.currentStop][tradeRouteManager.currentResource].resourceAmount > 0)
+				world.unitMovement.infoManager.infoPanel.ShowWarning(false, false, true);
 			else
-				world.unitMovement.infoManager.infoPanel.ShowWarning(false, false);
+				world.unitMovement.infoManager.infoPanel.ShowWarning(false, false, false);
 		}
 	}
 
-	public void SetWarning(bool inventory, bool costs)
+	public void SetWarning(bool inventory, bool costs, bool gold)
 	{
 		exclamationPoint.SetActive(true);
 
 		if (isSelected)
-			world.unitMovement.infoManager.infoPanel.ShowWarning(inventory, costs);
+			world.unitMovement.infoManager.infoPanel.ShowWarning(inventory, costs, false);
 	}
 
 	public void RemoveWarning()
@@ -1273,7 +1296,10 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     public void KillTrader()
     {
 		if (isSelected)
+		{
+			world.somethingSelected = false;
 			world.unitMovement.ClearSelection();
+		}
 
 		world.traderList.Remove(this);
 		StartCoroutine(WaitKillUnit());
@@ -1346,6 +1372,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		//data.stallLoc = stallLoc;
 		data.atHome = atHome;
 		data.returning = returning;
+		data.movingUpInLine = movingUpInLine;
 
 		if (isMoving && !isWaiting)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -1413,6 +1440,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		atHome = data.atHome;
 		returning = data.returning;
 		goldNeeded = data.goldNeeded;
+		movingUpInLine = data.movingUpInLine;
 
 		if (atHome && !isMoving)
 			world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).AddTraderToImprovement(this);
@@ -1498,10 +1526,10 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
 				LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate, true));
 			}
-            else if (isWaiting)
-            {
+            //else if (isWaiting)
+            //{
 
-            }
+            //}
 		}
 	}
 }
