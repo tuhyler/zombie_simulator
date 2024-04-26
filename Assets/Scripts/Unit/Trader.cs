@@ -911,7 +911,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				Vector3 cityLoc = city.cityLoc;
 				cityLoc.y += totalRouteCosts.Count * 0.4f;
 				cityLoc.y += -0.4f * i;
-				InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(totalRouteCosts[i].resourceType));
+				InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(totalRouteCosts[i].resourceType), world);
 			}
 		}
 

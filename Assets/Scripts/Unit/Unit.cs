@@ -175,7 +175,7 @@ public class Unit : MonoBehaviour
 			loc.y += 0.07f;
 
 		lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
-		lightBeam.transform.parent = world.psHolder;
+		lightBeam.transform.SetParent(world.psHolder, false);
 
 		if (CompareTag("Player"))
 			lightBeam.Play();

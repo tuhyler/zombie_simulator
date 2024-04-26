@@ -456,6 +456,7 @@ public class CityImprovement : MonoBehaviour
         Vector3 loc = transform.position;
         loc.y += .1f;
         smokeSplash = Instantiate(smokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+        smokeSplash.transform.SetParent(world.psHolder, false);
         //particleSystems.Add(smokeSplash);
         smokeSplash.Play();
     }

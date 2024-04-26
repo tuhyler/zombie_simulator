@@ -80,7 +80,7 @@ public class PersonalResourceManager : MonoBehaviour
 		AddRemoveResource(type, amount);
 	}
 
-	public int ManuallyAddResource(ResourceType type, int amount)
+	public int ManuallyAddResource(ResourceType type, int amount, bool update = true)
 	{
 		amount = AddResourceCheck(amount);
 		if (amount > 0)
@@ -88,13 +88,17 @@ public class PersonalResourceManager : MonoBehaviour
 			if (!world.mainPlayer.resourceGridDict.ContainsKey(type))
 				world.mainPlayer.AddToGrid(type);
 
-			AddRemoveResource(type, amount);
+			resourceDict[type] += amount;
+			resourceStorageLevel += amount;
+
+            if (update)
+    			UICheck(type);
         }
 
 		return amount;
 	}
 
-	private int AddResourceCheck(int amount)
+	public int AddResourceCheck(int amount)
     {
 		int diff = resourceStorageLimit - resourceStorageLevel;
 
@@ -119,8 +123,6 @@ public class PersonalResourceManager : MonoBehaviour
 		resourceStorageLevel += amount;
 
         UICheck(type);
-
-        //return amount;
     }
 
     public int GetResourceDictValue(ResourceType resourceType)
@@ -148,7 +150,7 @@ public class PersonalResourceManager : MonoBehaviour
             {
 			    Vector3 loc = city.cityLoc;
 			    loc.y -= 0.4f * i; 
-                InfoResourcePopUpHandler.CreateResourceStat(loc, remainingWithTrader, ResourceHolder.Instance.GetIcon(type));
+                InfoResourcePopUpHandler.CreateResourceStat(loc, remainingWithTrader, ResourceHolder.Instance.GetIcon(type), city.world);
             }
 			i++;
 		}

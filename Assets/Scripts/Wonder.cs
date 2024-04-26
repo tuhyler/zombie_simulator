@@ -93,6 +93,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
     private void Awake()
     {
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
+        uiTimeProgressBar.transform.SetParent(transform, false);
         isConstructing = true;
         highlight = GetComponent<SelectionHighlight>();
         audioSource = GetComponent<AudioSource>();
@@ -100,11 +101,12 @@ public class Wonder : MonoBehaviour, IGoldWaiter
         fireworks2.gameObject.SetActive(false);
 
         removeSplash = Instantiate(removeSplash, transform.position, Quaternion.Euler(-90, 0, 0));
+        removeSplash.transform.SetParent(world.psHolder, false);
         removeSplash.transform.localScale = new Vector3(2, 2, 2);
         removeSplash.Stop();
 
         heavenHighlight = Instantiate(heavenHighlight, transform.position, Quaternion.identity);
-        heavenHighlight.transform.parent = transform;
+        heavenHighlight.transform.SetParent(transform, false);
         heavenHighlight.Pause();
     }
 
@@ -554,6 +556,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
 
 			world.cityBuilderManager.CreateAllWorkers(this);
             ApplyWonderCompletionReward();
+            Destroy(uiTimeProgressBar.gameObject);
             return;
         }
 
@@ -749,7 +752,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
         Vector3 loc = centerPos;
         loc.y += 0.4f;
         if (isActive)
-            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), world);
     }
 
     public void StopConstructing()
@@ -761,7 +764,7 @@ public class Wonder : MonoBehaviour, IGoldWaiter
             StopCoroutine(buildingCo);
             int amount = totalGoldCost;
             world.UpdateWorldGold(amount);
-            InfoResourcePopUpHandler.CreateResourceStat(centerPos, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+            InfoResourcePopUpHandler.CreateResourceStat(centerPos, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), world);
             isBuilding = false;
         }
     }
