@@ -82,6 +82,7 @@ public class UnitMovement : MonoBehaviour
     private void Start()
     {
         starshine = Instantiate(starshine, new Vector3(0, 0, 0), Quaternion.identity);
+        starshine.transform.SetParent(world.objectPoolItemHolder, false);
         starshine.Pause();
     }
 
@@ -1877,7 +1878,7 @@ public class UnitMovement : MonoBehaviour
 			Vector3 cityLoc = joinedCity.cityLoc;
 			cityLoc.y += unit.buildDataSO.unitCost.Count * 0.4f;
 			cityLoc.y += -0.4f * i;
-			InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+			InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType), world);
 			i++;
 		}
 	}
@@ -2173,7 +2174,7 @@ public class UnitMovement : MonoBehaviour
                     return;
                 }
                 
-                int resourceAmountAdjusted = world.mainPlayer.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount);
+                int resourceAmountAdjusted = world.mainPlayer.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount, false);
 
                 if (resourceAmountAdjusted == 0)
                 {
@@ -2184,7 +2185,7 @@ public class UnitMovement : MonoBehaviour
 				//world.cityBuilderManager.PlayRingAudio();
 				int buyAmount = -resourceAmountAdjusted * cost;
                 world.UpdateWorldGold(buyAmount);
-                InfoResourcePopUpHandler.CreateResourceStat(world.mainPlayer.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+                InfoResourcePopUpHandler.CreateResourceStat(world.mainPlayer.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), world);
 
                 uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType), true);
                 uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.ResourceStorageLevel);
@@ -2206,7 +2207,7 @@ public class UnitMovement : MonoBehaviour
 
                     int sellAmount = -resourceAmount * tradeCenter.ResourceSellDict[resourceType];
                     world.UpdateWorldGold(sellAmount);
-                    InfoResourcePopUpHandler.CreateResourceStat(world.mainPlayer.transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+                    InfoResourcePopUpHandler.CreateResourceStat(world.mainPlayer.transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), world);
 
                     uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType), false);
                     uiCityResourceInfoPanel.FlashResource(resourceType);

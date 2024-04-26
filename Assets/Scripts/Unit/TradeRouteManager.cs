@@ -398,7 +398,7 @@ public class TradeRouteManager : MonoBehaviour
                         int buyAmount = -resourceAmountAdjusted * cost;
                         tradeCenter.tcRep.IncreasePurchasedAmount(buyAmount);
                         tradeCenter.world.UpdateWorldGold(buyAmount);
-                        InfoResourcePopUpHandler.CreateResourceStat(transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+                        InfoResourcePopUpHandler.CreateResourceStat(transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), tradeCenter.world);
                     }
 
                     yield return totalWait;
@@ -501,7 +501,7 @@ public class TradeRouteManager : MonoBehaviour
                     {
                         int sellAmount = resourceAmountAdjusted * tradeCenter.ResourceSellDict[value.resourceType];
                         tradeCenter.world.UpdateWorldGold(sellAmount);
-                        InfoResourcePopUpHandler.CreateResourceStat(transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+                        InfoResourcePopUpHandler.CreateResourceStat(transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), tradeCenter.world);
                     }
 
                     yield return totalWait;

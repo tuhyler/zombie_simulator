@@ -69,6 +69,7 @@ public class Worker : Unit
         //resourceIndividualHandler = FindObjectOfType<ResourceIndividualHandler>();
         //timeProgressBar = Instantiate(GameAssets.Instance.timeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<TimeProgressBar>();
         uiTimeProgressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, transform.position, Quaternion.Euler(90, 0, 0)).GetComponent<UITimeProgressBar>();
+		uiTimeProgressBar.transform.SetParent(transform, false);
         personalResourceManager = GetComponent<PersonalResourceManager>();
 		if (personalResourceManager != null)
 			personalResourceManager.resourceStorageLimit = buildDataSO.cargoCapacity;
@@ -510,7 +511,7 @@ public class Worker : Unit
 				personalResourceManager.SubtractResource(costs[i].resourceType, costs[i].resourceAmount);
 				Vector3 loc2 = loc;
 				loc2.y += -.4f * i;
-				InfoResourcePopUpHandler.CreateResourceStat(loc2, costs[i].resourceAmount * -1, ResourceHolder.Instance.GetIcon(costs[i].resourceType));
+				InfoResourcePopUpHandler.CreateResourceStat(loc2, costs[i].resourceAmount * -1, ResourceHolder.Instance.GetIcon(costs[i].resourceType), world);
 			}
 		}
 		else
@@ -535,13 +536,13 @@ public class Worker : Unit
 				{
 					Vector3 loc2 = loc;
 					loc2.y += -.4f * i;
-					InfoResourcePopUpHandler.CreateResourceStat(loc2, wasted, ResourceHolder.Instance.GetIcon(costs[i].resourceType), true);
+					InfoResourcePopUpHandler.CreateResourceStat(loc2, wasted, ResourceHolder.Instance.GetIcon(costs[i].resourceType), world, true);
 				}
 				else
 				{
 					Vector3 loc2 = loc;
 					loc2.y += -.4f * i;
-					InfoResourcePopUpHandler.CreateResourceStat(loc2, costs[i].resourceAmount, ResourceHolder.Instance.GetIcon(costs[i].resourceType));
+					InfoResourcePopUpHandler.CreateResourceStat(loc2, costs[i].resourceAmount, ResourceHolder.Instance.GetIcon(costs[i].resourceType), world);
 				}
 			}
 		}
@@ -835,6 +836,7 @@ public class Worker : Unit
 			worker.harvestedForest = clearForest;
 			unitPos.y += 1.5f;
 			GameObject resourceGO = Instantiate(GameAssets.Instance.resourceBubble, unitPos, Quaternion.Euler(90, 0, 0));
+			resourceGO.transform.SetParent(world.objectPoolItemHolder, false);
 			GameLoader.Instance.textList.Add(resourceGO);
 			Resource resource = resourceGO.GetComponent<Resource>();
 			resource.SetSprites(resourceIndividual.resourceIcon);

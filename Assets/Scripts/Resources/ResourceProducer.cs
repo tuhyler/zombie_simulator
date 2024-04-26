@@ -154,6 +154,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         //timeProgressBar = gameObject.GetComponent<TimeProgressBar>();
 
         GameObject progressBar = Instantiate(GameAssets.Instance.uiTimeProgressPrefab, progressBarLoc, Quaternion.Euler(90, 0, 0));
+        progressBar.transform.SetParent(resourceManager.city.world.objectPoolItemHolder, false);
         uiTimeProgressBar = progressBar.GetComponent<UITimeProgressBar>();
         //timeProgressBar.SetTimeProgressBarValue(improvementData.producedResourceTime);
     }
@@ -659,5 +660,10 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
             if (amount == 0)
                 consumedPerMinute.Remove(resourceValue.resourceType);
         }
+    }
+
+    public void DestroyProgressBar()
+    {
+        Destroy(uiTimeProgressBar.gameObject);
     }
 }

@@ -229,6 +229,7 @@ public class City : MonoBehaviour, IGoldWaiter
 	public void SetWorld(MapWorld world, bool enemy = false)
     {
         this.world = world;
+        uiTimeProgressBar.transform.SetParent(world.objectPoolItemHolder, false);
 		world.CheckCityPermanentChanges(this);
 		army.SetWorld(world);
 		//resourceManager.ResourceDict = new(world.GetBlankResourceDict());
@@ -265,14 +266,14 @@ public class City : MonoBehaviour, IGoldWaiter
         //resourceSplash.Pause();
         pos.y = 8f;
         lightBullet = Instantiate(lightBullet, pos, Quaternion.Euler(90, 0, 0));
-        lightBullet.transform.parent = transform;
+        lightBullet.transform.SetParent(transform, false);
         lightBullet.Pause();
         pos.y = isHill ? 3.6f : 3f;
         heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
-        heavenHighlight.transform.parent = transform;
+        heavenHighlight.transform.SetParent(transform, false);
         heavenHighlight.Pause();
         hellHighlight = Instantiate(hellHighlight, pos, Quaternion.identity);
-        hellHighlight.transform.parent = transform;
+        hellHighlight.transform.SetParent(transform, false);
         hellHighlight.Pause();
 
     }
@@ -1554,7 +1555,7 @@ public class City : MonoBehaviour, IGoldWaiter
 			        Vector3 loc = cityLoc;
 			        loc.y -= 0.4f * j;
                     j++;
-			        InfoResourcePopUpHandler.CreateResourceStat(loc, -amount, ResourceHolder.Instance.GetIcon(types[i]));
+			        InfoResourcePopUpHandler.CreateResourceStat(loc, -amount, ResourceHolder.Instance.GetIcon(types[i]), world);
                 }
 		    }
         }
@@ -1704,6 +1705,7 @@ public class City : MonoBehaviour, IGoldWaiter
         //cityPos.z -= 1.5f; //bottom center of tile
         cityPos.y += 1.5f; //above tile
         GameObject gameObject = Instantiate(GameAssets.Instance.cityGrowthProgressPrefab2, cityPos, Quaternion.Euler(90, 0, 0));
+        //gameObject.transform.SetParent(world.objectPoolItemHolder, false);
         uiTimeProgressBar = gameObject.GetComponent<UITimeProgressBar>();
         //uiTimeProgressBar.SetAdditionalText = "Growth: ";
         uiTimeProgressBar.SetTimeProgressBarValue(secondsTillGrowthCheck);

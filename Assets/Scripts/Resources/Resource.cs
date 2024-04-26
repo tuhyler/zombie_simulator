@@ -57,7 +57,7 @@ public class Resource : MonoBehaviour
         int gatheredResource = city.ResourceManager.AddResource(resourceIndividual.resourceType, amount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
         if (gatheredResource > 0)
-            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType));
+            InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), city.world);
             
         city.world.StatsCheck(resourceIndividual.resourceType, amount);
         city.PlayResourceSplash();
@@ -69,11 +69,6 @@ public class Resource : MonoBehaviour
     {
         return worker;
     }
-
-    //public void PrepareResourceSendToCity()
-    //{
-    //    worker.SendResourceToCity();
-    //}
 
     private void DestroyResourceIcon()
     {

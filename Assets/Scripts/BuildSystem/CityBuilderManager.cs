@@ -793,6 +793,7 @@ public class CityBuilderManager : MonoBehaviour
         GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
         //for tweening
         Vector3 goScale = harborGO.transform.localScale;
+        harborGO.transform.SetParent(world.wonderHolder, false);
         CityImprovement harbor = harborGO.GetComponent<CityImprovement>();
         harbor.SetWorld(world);
         harbor.wonderHarbor = true;
@@ -2442,7 +2443,7 @@ public class CityBuilderManager : MonoBehaviour
                 int resourcesReturned = resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
                 Vector3 cityLoc2 = cityLoc;
                 cityLoc2.y += -.4f * i;
-                InfoResourcePopUpHandler.CreateResourceStat(cityLoc2, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+                InfoResourcePopUpHandler.CreateResourceStat(cityLoc2, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType), world);
                 i++;
             }
         }
@@ -2684,6 +2685,7 @@ public class CityBuilderManager : MonoBehaviour
             improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
         }
 
+        improvement.transform.SetParent(world.objectPoolItemHolder, false);
         world.AddStructure(buildLocation, improvement);
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.SetWorld(world);
@@ -3272,7 +3274,7 @@ public class CityBuilderManager : MonoBehaviour
 		    }
         }
 
-
+        selectedImprovement.resourceProducer.DestroyProgressBar();
 		GameObject improvement = world.GetStructure(improvementLoc);
         Destroy(improvement);
 
@@ -3360,10 +3362,10 @@ public class CityBuilderManager : MonoBehaviour
             i++;
             if (resourcesReturned == 0)
             {
-                InfoResourcePopUpHandler.CreateResourceStat(loc, resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType), true);
+                InfoResourcePopUpHandler.CreateResourceStat(loc, resourceValue.resourceAmount, ResourceHolder.Instance.GetIcon(resourceValue.resourceType), world, true);
                 continue;
             }
-            InfoResourcePopUpHandler.CreateResourceStat(loc, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType));
+            InfoResourcePopUpHandler.CreateResourceStat(loc, resourcesReturned, ResourceHolder.Instance.GetIcon(resourceValue.resourceType), world);
         }
     }
 

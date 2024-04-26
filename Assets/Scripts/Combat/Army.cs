@@ -760,7 +760,7 @@ public class Army : MonoBehaviour
 					Vector3 cityLoc = city.singleBuildDict[SingleBuildType.Barracks];
 					cityLoc.y += totalBattleCosts.Count * 0.4f;
 					cityLoc.y += -0.4f * i;
-					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(value.resourceType));
+					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, amount, ResourceHolder.Instance.GetIcon(value.resourceType), world);
 					i++;
 				}
             }

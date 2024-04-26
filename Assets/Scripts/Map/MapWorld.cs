@@ -363,11 +363,10 @@ public class MapWorld : MonoBehaviour
         {
             if (!data.isSecondary)
             {
-                GameObject buildPanelGO = Instantiate(buildPanel);
-                UIBuilderHandler builderHandler;
-
                 if (data.improvementNameAndLevel == "City-0")
                     continue;
+
+                UIBuilderHandler builderHandler;
 
                 if (data.rawMaterials)
                     builderHandler = cityBuilderManager.uiRawGoodsBuilder;
@@ -376,6 +375,7 @@ public class MapWorld : MonoBehaviour
                 else
 				    builderHandler = cityBuilderManager.uiProducerBuilder;
 
+                GameObject buildPanelGO = Instantiate(buildPanel);
                 UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
                 buildOption.BuildData = data;
 			    buildPanelGO.transform.SetParent(builderHandler.objectHolder, false);
@@ -402,7 +402,6 @@ public class MapWorld : MonoBehaviour
 			}
 
             GameObject buildPanelGO = Instantiate(buildPanel);
-			
 			UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
 			buildOption.UnitBuildData = data;
 			buildPanelGO.transform.SetParent(cityBuilderManager.uiUnitBuilder.objectHolder, false);
@@ -5772,7 +5771,7 @@ public class MapWorld : MonoBehaviour
     public void PlayDeathSplash(Vector3 loc, Vector3 rotation)
     {
 		ParticleSystem deathSplash = Instantiate(this.deathSplash, loc, Quaternion.identity);
-		//deathSplash.transform.position = transform.position;
+        deathSplash.transform.SetParent(psHolder, false);
         deathSplash.transform.rotation = Quaternion.Euler(rotation);
         deathSplash.Play();
     }
@@ -5780,6 +5779,7 @@ public class MapWorld : MonoBehaviour
     public void PlayRemoveSplash(Vector3 loc)
     {
 		ParticleSystem removeSplash = Instantiate(this.removeSplash, loc, Quaternion.identity);
+        removeSplash.transform.SetParent(psHolder, false);
 		Vector3 rotation = new Vector3(-90, 0, 0);
 		removeSplash.transform.rotation = Quaternion.Euler(rotation);
 		removeSplash.Play();
@@ -5788,6 +5788,7 @@ public class MapWorld : MonoBehaviour
 	public void PlayRemoveEruption(Vector3 loc)
     {
         ParticleSystem removeEruption = Instantiate(this.removeEruption, loc, Quaternion.identity);
+        removeEruption.transform.SetParent(objectPoolItemHolder, false);
         Vector3 rotation = new Vector3(-90, 0, 0);
         removeEruption.transform.rotation = Quaternion.Euler(rotation);
         removeEruption.Play();
@@ -5881,6 +5882,7 @@ public class MapWorld : MonoBehaviour
             
             //playing god rays to show triumph
 			ParticleSystem godRays = Instantiate(this.godRays);
+            godRays.transform.SetParent(objectPoolItemHolder, false);
 			godRays.transform.position = loc + new Vector3(1, 3, 0);
 			godRays.Play();
 
@@ -6032,7 +6034,7 @@ public class MapWorld : MonoBehaviour
         if (treasureLocs.ContainsKey(tile))
         {
 			UpdateWorldGold(treasureLocs[tile].amount);
-			InfoResourcePopUpHandler.CreateResourceStat(tile, treasureLocs[tile].amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+			InfoResourcePopUpHandler.CreateResourceStat(tile, treasureLocs[tile].amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), this);
             Destroy(treasureLocs[tile].gameObject);
 			treasureLocs.Remove(tile);
 			GameLoader.Instance.gameData.treasureLocs.Remove(tile);
@@ -6055,7 +6057,7 @@ public class MapWorld : MonoBehaviour
     public void ReceiveQuestReward(Vector3 loc, int amount)
     {
 		UpdateWorldGold(amount);
-		InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+		InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), this);
 
 		cityBuilderManager.PlayRingAudio();
 		
@@ -6064,18 +6066,22 @@ public class MapWorld : MonoBehaviour
 
     public void PlayResourceSplash(Vector3 loc)
     {
-        Instantiate(resourceSplash, loc, Quaternion.Euler(-90, UnityEngine.Random.Range(0,360), 0));
+        ParticleSystem splash = Instantiate(resourceSplash, loc, Quaternion.Euler(-90, UnityEngine.Random.Range(0,360), 0));
+        splash.transform.SetParent(psHolder, false);
     }
 
     public void PlayGiftResponse(Vector3 pos, bool doneGood)
     {
 		Quaternion rotation = Quaternion.Euler(new Vector3(-90, 0, 0));
 		pos.y += 0.2f;
+        ParticleSystem ps;
 
 		if (doneGood)
-			Instantiate(posGiftResponse, pos, rotation);
+			ps = Instantiate(posGiftResponse, pos, rotation);
 		else
-			Instantiate(negGiftResponse, pos, rotation);
+			ps = Instantiate(negGiftResponse, pos, rotation);
+
+        ps.transform.SetParent(psHolder, false);
 	}
 
 	public void ClearCityEnemyDead(Vector3Int loc)

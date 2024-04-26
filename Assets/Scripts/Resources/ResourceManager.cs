@@ -193,7 +193,7 @@ public class ResourceManager : MonoBehaviour
             {
 				Vector3 loc = location;
 				loc.y -= 0.4f * i;
-				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
+				InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(value.resourceType), city.world);
 				i++;
 			}
 		}
@@ -220,7 +220,7 @@ public class ResourceManager : MonoBehaviour
             {
                 Vector3 loc = location;
                 loc.y -= 0.4f * i;
-                InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
+                InfoResourcePopUpHandler.CreateResourceStat(loc, -consumedAmount, ResourceHolder.Instance.GetIcon(value.resourceType), city.world);
                 i++;
             }
 		}
@@ -343,7 +343,7 @@ public class ResourceManager : MonoBehaviour
             loc.y += 0.4f * i;
 
             if (resourceAmount != 0)
-                InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType));
+                InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(resourceVal.resourceType), city.world);
             i++;
         }
 
@@ -378,7 +378,7 @@ public class ResourceManager : MonoBehaviour
 		Vector3 loc = producerLoc;
 
 		if (resourceAmount != 0)
-			InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(producedResource.resourceType));
+			InfoResourcePopUpHandler.CreateResourceStat(loc, resourceAmount, ResourceHolder.Instance.GetIcon(producedResource.resourceType), city.world);
 
 		return destroy;
 	}
@@ -475,7 +475,7 @@ public class ResourceManager : MonoBehaviour
             Vector3 loc = city.cityLoc;
 			loc.y += 2f; //limit of 5 different resource types at once wasted
 			loc.y += -.4f * resourceCount;
-			InfoResourcePopUpHandler.CreateResourceStat(loc, amount - diff, ResourceHolder.Instance.GetIcon(type), true);
+			InfoResourcePopUpHandler.CreateResourceStat(loc, amount - diff, ResourceHolder.Instance.GetIcon(type), city.world, true);
 			resourceCount++;
 
             amount = diff;
@@ -620,7 +620,7 @@ public class ResourceManager : MonoBehaviour
             }
     
             newLoc.y += -.4f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(newLoc, -value.resourceAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
+            InfoResourcePopUpHandler.CreateResourceStat(newLoc, -value.resourceAmount, ResourceHolder.Instance.GetIcon(value.resourceType), city.world);
             i++;
         }
 
@@ -642,7 +642,7 @@ public class ResourceManager : MonoBehaviour
 			{
 				AddResource(value.resourceType, value.resourceAmount);
 				newLoc.y += -.4f * i;
-				InfoResourcePopUpHandler.CreateResourceStat(newLoc, value.resourceAmount, ResourceHolder.Instance.GetIcon(value.resourceType));
+				InfoResourcePopUpHandler.CreateResourceStat(newLoc, value.resourceAmount, ResourceHolder.Instance.GetIcon(value.resourceType), city.world);
 				i++;
 			}
 		}
@@ -705,7 +705,7 @@ public class ResourceManager : MonoBehaviour
 				cityLoc.y += length * 0.4f;
 				cityLoc.y += -0.4f * i;
 				if (city.activeCity && sellAmount != 0)
-					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType));
+					InfoResourcePopUpHandler.CreateResourceStat(cityLoc, -sellAmount, ResourceHolder.Instance.GetIcon(data.resourceType), city.world);
 			}
 		}
 
@@ -713,7 +713,7 @@ public class ResourceManager : MonoBehaviour
         {
             Vector3 cityLoc = city.cityLoc;
             cityLoc.y += length * 0.4f + 0.4f;
-            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold));
+            InfoResourcePopUpHandler.CreateResourceStat(cityLoc, goldAdded, ResourceHolder.Instance.GetIcon(ResourceType.Gold), city.world);
         }
 
         //SetPrices();
