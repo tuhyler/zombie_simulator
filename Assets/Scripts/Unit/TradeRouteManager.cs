@@ -203,6 +203,11 @@ public class TradeRouteManager : MonoBehaviour
         PrepareResourceDictionary();
     }
 
+    public bool IsTC()
+    {
+        return tradeCenter != null;
+    }
+
     private void PrepareResourceDictionary()
     {
         resourcesAtArrival = new(trader.personalResourceManager.ResourceDict);
@@ -233,14 +238,14 @@ public class TradeRouteManager : MonoBehaviour
             {
                 if (!wonder.CheckResourceType(value.resourceType))
                 {
-                    InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Wrong resource type: " + value.resourceType);
+                    InfoPopUpHandler.WarningMessage(trader.world.objectPoolItemHolder).Create(wonder.centerPos, "Wrong resource type: " + value.resourceType);
                     SuddenFinish(true);
                     complete = true;
                     continue;
                 }
                 else if (resourceAmount > 0)
                 {
-                    InfoPopUpHandler.WarningMessage().Create(wonder.centerPos, "Can't move from wonder");
+                    InfoPopUpHandler.WarningMessage(trader.world.objectPoolItemHolder).Create(wonder.centerPos, "Can't move from wonder");
                     SuddenFinish(true);
                     complete = true;
                     continue;
@@ -252,7 +257,7 @@ public class TradeRouteManager : MonoBehaviour
                 {
                     if (!tradeCenter.ResourceBuyDict.ContainsKey(value.resourceType))
                     {
-                        InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't buy " + value.resourceType);
+                        InfoPopUpHandler.WarningMessage(trader.world.objectPoolItemHolder).Create(tradeCenter.mainLoc, "Can't buy " + value.resourceType);
                         SuddenFinish(true);
                         complete = true;
                         continue;
@@ -266,7 +271,7 @@ public class TradeRouteManager : MonoBehaviour
                 {
                     if (!tradeCenter.ResourceSellDict.ContainsKey(value.resourceType))
                     {
-                        InfoPopUpHandler.WarningMessage().Create(tradeCenter.mainLoc, "Can't sell " + value.resourceType);
+                        InfoPopUpHandler.WarningMessage(trader.world.objectPoolItemHolder).Create(tradeCenter.mainLoc, "Can't sell " + value.resourceType);
                         SuddenFinish(true);
                         complete = true;
                         continue;
@@ -309,10 +314,16 @@ public class TradeRouteManager : MonoBehaviour
                     if (resourceCheck)
                     {
                         if (tradeCenter != null)
+                        {
 							tradeCenter.SetWaiter(this, Mathf.Min(resourceAmount - amountMoved, loadUnloadRate) * Mathf.CeilToInt(tradeCenter.ResourceBuyDict[value.resourceType] * tradeCenter.multiple), true);
+							trader.SetWarning(false, false, true);
+						}
+                        else
+                        {
+						trader.SetWarning(false, false, false);
+                        }
 
 						trader.SetLoadingAnimation(false);
-						trader.SetWarning(false, false);
 
 						yield return HoldingPatternCoroutine();
 					}
@@ -365,13 +376,18 @@ public class TradeRouteManager : MonoBehaviour
                     {
                         resourceCheck = true;
 						if (city != null)
+                        {
                             city.ResourceManager.AddToResourceWaitList(value.resourceType, trader);
+                            trader.SetWarning(false, false, false);
+                        }
                         else
+                        {
                             tradeCenter.SetWaiter(this, loadUnloadRateMod * cost, false);
+							trader.SetWarning(false, false, true);
+						}
 
                         trader.SetLoadingAnimation(false);
                         isPlaying = false;
-                        trader.SetWarning(false, false);
 
 						yield return HoldingPatternCoroutine();
 
@@ -440,7 +456,7 @@ public class TradeRouteManager : MonoBehaviour
                     if (resourceCheck)
                     {
                         trader.SetUnloadingAnimation(false);
-					    trader.SetWarning(true, false);
+					    trader.SetWarning(true, false, false);
 					    yield return HoldingPatternCoroutine();
                     }
 				}
@@ -482,7 +498,7 @@ public class TradeRouteManager : MonoBehaviour
 
                         trader.SetUnloadingAnimation(false);
                         isPlaying = false;
-						trader.SetWarning(true, false);
+						trader.SetWarning(true, false, false);
                         yield return HoldingPatternCoroutine();
                         continue; //restart loop once there's storage room
                     }
@@ -666,8 +682,8 @@ public class TradeRouteManager : MonoBehaviour
 
     public void StopHoldingPatternCoroutine()
     {
-        ContinueLoadingUnloading();
-        //trader.RemoveWarning();
+        //ContinueLoadingUnloading();
+        trader.RemoveWarning();
         //StopCoroutine(holdingCo);
         if (resourceCheck)
         {
@@ -751,8 +767,10 @@ public class TradeRouteManager : MonoBehaviour
         {
             if (trader.bySea)
                 city.CheckSeaQueue();
+            else if (trader.byAir)
+                city.CheckAirQueue();
             else
-				city.CheckQueue();
+                city.CheckQueue();
 
 			city = null;
         }

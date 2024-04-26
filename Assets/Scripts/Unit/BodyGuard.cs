@@ -238,7 +238,7 @@ public class BodyGuard : Military
 
 		if (transport.isUpgrading)
 		{
-			InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(tile, "Can't load while upgrading");
 			return;
 		}
 

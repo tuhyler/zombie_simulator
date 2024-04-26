@@ -807,7 +807,7 @@ public class UnitMovement : MonoBehaviour
                 }
                 else
                 {
-					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Select trader, silly");
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Select military unit from same city");
 					return;
 				}
             }
@@ -1173,9 +1173,7 @@ public class UnitMovement : MonoBehaviour
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
 
                 if (selectedUnit.trader.followingRoute)
-                {
                     uiTraderPanel.SwitchRouteIcons(true);
-                }
             }
         }
     }
@@ -1712,12 +1710,12 @@ public class UnitMovement : MonoBehaviour
 
         if (selectedUnit.isUpgrading)
         {
-			InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Currently upgrading");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Currently upgrading");
 			return;
         }
         else if (selectedUnit.trader && selectedUnit.trader.guarded)
         {
-			InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Currently has guard");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Currently has guard");
 			return;
 		}
 
@@ -2174,7 +2172,7 @@ public class UnitMovement : MonoBehaviour
                     return;
                 }
                 
-                int resourceAmountAdjusted = world.mainPlayer.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount, false);
+                int resourceAmountAdjusted = world.mainPlayer.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount);
 
                 if (resourceAmountAdjusted == 0)
                 {
@@ -2228,17 +2226,18 @@ public class UnitMovement : MonoBehaviour
         {
             if (!wonder.CheckResourceType(resourceType))
             {
-                InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
+                InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
                 return;
             }
             else if (resourceAmount > 0)
             {
-                InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "Can't move from wonder");
+                InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Can't move from wonder");
                 return;
             }
         }
 
         bool personalFull = false;
+        bool noneLeft = false;
 
         if (resourceAmount > 0) //moving from city to trader
         {
@@ -2253,7 +2252,8 @@ public class UnitMovement : MonoBehaviour
             if (remainingInCity < resourceAmount)
                 resourceAmount = remainingInCity;
 
-            int resourceAmountAdjusted = world.mainPlayer.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount);
+			noneLeft = resourceAmount == 0;
+			int resourceAmountAdjusted = world.mainPlayer.personalResourceManager.ManuallyAddResource(resourceType, resourceAmount);
             personalFull = resourceAmountAdjusted == 0;
 
             if (cityResourceManager != null)
@@ -2272,6 +2272,7 @@ public class UnitMovement : MonoBehaviour
             if (remainingWithTrader < Mathf.Abs(resourceAmount))
                 resourceAmount = -remainingWithTrader;
 
+            noneLeft = resourceAmount == 0;
             int resourceAmountAdjusted;
             if (cityResourceManager != null)
             {
@@ -2303,8 +2304,11 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-    		InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "No storage space");
-        }
+    		if (noneLeft)
+                InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "None left");
+            else
+				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "No storage space");
+		}
 
         if (!personalFull)
         {
@@ -2313,7 +2317,10 @@ public class UnitMovement : MonoBehaviour
         }
         else
         {
-			InfoPopUpHandler.WarningMessage().Create(selectedUnit.transform.position, "No storage space");
+			if (noneLeft)
+				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "None left");
+			else
+				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "No storage space");
 		}
 
 		world.mainPlayer.personalResourceManager.ResetDictSolo(resourceType);
@@ -2333,7 +2340,7 @@ public class UnitMovement : MonoBehaviour
         else
         {
             uiPersonalResourceInfoPanel.UpdateResourceInteractable(type, world.mainPlayer.personalResourceManager.GetResourceDictValue(type), true);
-			world.mainPlayer.personalResourceManager.ManuallyAddResource(type, -amount);
+			world.mainPlayer.personalResourceManager.ManuallyAddResource(type, -amount, true);
 		}
 
         world.uiResourceGivingPanel.ChangeGiftAmount(type, amount);
@@ -2509,10 +2516,10 @@ public class UnitMovement : MonoBehaviour
 		//selectedUnit.trader.followingRoute = false; //done earlier as it's in stopmovement
 		//selectedUnit.trader.waitingOnRouteCosts = false;
         selectedUnit.StopMovementCheck(false);
-		selectedUnit.trader.CancelRoute();
 		selectedUnit.trader.RefundRouteCosts();
         selectedUnit.trader.RemoveWarning();
-        uiTraderPanel.SwitchRouteIcons(false);
+		selectedUnit.trader.CancelRoute();
+        //uiTraderPanel.SwitchRouteIcons(false);
         
         if (uiTradeRouteManager.activeStatus)
         {

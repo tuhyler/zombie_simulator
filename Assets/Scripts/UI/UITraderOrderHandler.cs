@@ -102,6 +102,7 @@ public class UITraderOrderHandler : MonoBehaviour
             world.personalResourceCanvas.gameObject.SetActive(false);
     }
 
+    //this is only used when visible for selected trader
     public void SwitchRouteIcons(bool v)
     {
         uiBeginTradeRoute.ToggleButtonColor(v);

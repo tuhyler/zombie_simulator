@@ -570,13 +570,13 @@ public class Worker : Unit
 
         if (!world.IsRoadOnTerrain(workerTile))
         {
-            InfoPopUpHandler.WarningMessage().Create(workerTile, "No road here");
+            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "No road here");
             return;
         }
 
         if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile) || world.IsTradeCenterOnTile(workerTile))
         {
-            InfoPopUpHandler.WarningMessage().Create(workerTile, "Can't remove this");
+            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Can't remove this");
             return;
         }
 
@@ -697,14 +697,14 @@ public class Worker : Unit
 
 		if (!world.IsTileOpenCheck(workerTile))
         {
-            InfoPopUpHandler.WarningMessage().Create(workerPos, "Harvest on open tile");
+            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "Harvest on open tile");
 			AddFollowerLocToWorldCheck();
             return;
         }
 
         if (!CheckForCity(workerTile))
         {
-            InfoPopUpHandler.WarningMessage().Create(workerPos, "No nearby city");
+            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "No nearby city");
 			AddFollowerLocToWorldCheck();
 			return;
         }
@@ -713,7 +713,7 @@ public class Worker : Unit
         ResourceType type = world.GetTerrainDataAt(workerTile).resourceType;
         if (type == ResourceType.None)
         {
-            InfoPopUpHandler.WarningMessage().Create(workerPos, "No resource to harvest here");
+            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "No resource to harvest here");
 			AddFollowerLocToWorldCheck();
 			return;
         }
@@ -858,19 +858,19 @@ public class Worker : Unit
 
 		if (!world.IsTileOpenButRoadCheck(workerTile))
 		{
-			InfoPopUpHandler.WarningMessage().Create(workerPos, "Must be open tile");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "Must be open tile");
 			return;
 		}
 
 		if (!CheckForCity(workerTile))
 		{
-			InfoPopUpHandler.WarningMessage().Create(workerPos, "No nearby city");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "No nearby city");
 			return;
 		}
 
         if (world.GetTerrainDataAt(workerTile).terrainData.type != TerrainType.Forest && world.GetTerrainDataAt(workerTile).terrainData.type != TerrainType.ForestHill)
         {
-			InfoPopUpHandler.WarningMessage().Create(workerPos, "Nothing to clear here");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerPos, "Nothing to clear here");
 			return;
 		}
 
@@ -950,7 +950,7 @@ public class Worker : Unit
 		}
 		if (!world.IsTileOpenButRoadCheck(workerTile))
 		{
-			InfoPopUpHandler.WarningMessage().Create(workerTile, "Already something here");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Already something here");
 			return;
 		}
 
@@ -959,7 +959,7 @@ public class Worker : Unit
 
 		if (type == TerrainType.River)
 		{
-			InfoPopUpHandler.WarningMessage().Create(workerTile, "Not in water...");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Not in water...");
 			return;
 		}
 
@@ -974,7 +974,7 @@ public class Worker : Unit
 			if (world.scottFollow)
 				PrepareScottForestClear();
 			else
-				InfoPopUpHandler.WarningMessage().Create(workerTile, "Can't clear forest...");
+				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Can't clear forest...");
 		}
 		else
 		{
@@ -1020,7 +1020,7 @@ public class Worker : Unit
 		{
 			if (i < 8 && world.IsTradeCenterOnTile(tile))
 			{
-				InfoPopUpHandler.WarningMessage().Create(world.mainPlayer.transform.position, "Too close to another city");
+				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(world.mainPlayer.transform.position, "Too close to another city");
 				return true;
 			}
 			i++;
@@ -1031,7 +1031,7 @@ public class Worker : Unit
 			}
 			else
 			{
-				InfoPopUpHandler.WarningMessage().Create(world.mainPlayer.transform.position, "Too close to another city");
+				InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(world.mainPlayer.transform.position, "Too close to another city");
 				return true;
 			}
 		}
@@ -1535,7 +1535,7 @@ public class Worker : Unit
 
 		if (transport.isUpgrading)
 		{
-			InfoPopUpHandler.WarningMessage().Create(tile, "Can't load while upgrading");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(tile, "Can't load while upgrading");
 			return;
 		}
 

@@ -3520,7 +3520,7 @@ public class MapWorld : MonoBehaviour
         {
             if (IsUnitLocationTaken(tile))
             {
-                InfoPopUpHandler.WarningMessage().Create(tile, "Unit in the way");
+                InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Unit in the way");
                 wonderPlacementLoc.Clear();
                 return;
             }
@@ -3531,7 +3531,7 @@ public class MapWorld : MonoBehaviour
 
                 if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)))
                 {
-                    InfoPopUpHandler.WarningMessage().Create(tile, "Something in the way");
+                    InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Something in the way");
                     wonderPlacementLoc.Clear();
                     return;
                 }

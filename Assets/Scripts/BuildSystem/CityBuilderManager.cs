@@ -784,7 +784,7 @@ public class CityBuilderManager : MonoBehaviour
         wonder.workerSexAndHome.Clear();
 
         if (lostWorkersCount > 0)
-            InfoPopUpHandler.WarningMessage().Create(wonder.unloadLoc, "Lost " + lostWorkersCount.ToString() + " worker(s) due to no available space");
+            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(wonder.unloadLoc, "Lost " + lostWorkersCount.ToString() + " worker(s) due to no available space");
     }
 
     public void BuildWonderHarbor(Vector3Int loc)
@@ -2240,13 +2240,13 @@ public class CityBuilderManager : MonoBehaviour
 	{
         if (!world.CheckCityName(destination) && !world.CheckWonderName(destination))
         {
-			InfoPopUpHandler.WarningMessage().Create(selectedCity.cityLoc, "Destination no londer available");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedCity.cityLoc, "Destination no londer available");
 			return;
         }
 
         if (selectedCity.currentPop == 0)
         {
-			InfoPopUpHandler.WarningMessage().Create(selectedCity.cityLoc, "No pop available");
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedCity.cityLoc, "No pop available");
 			return;
         }
 
@@ -3117,7 +3117,7 @@ public class CityBuilderManager : MonoBehaviour
 		else if (!upgradingImprovement && improvementData.singleBuildType != SingleBuildType.None && selectedImprovement.unitsWithinCount > 0)
         {
 			if (!enemy)
-                InfoPopUpHandler.WarningMessage().Create(improvementLoc, "Currently stationing units");
+                InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(improvementLoc, "Currently stationing units");
 
 			return false;
 		}
@@ -3327,6 +3327,7 @@ public class CityBuilderManager : MonoBehaviour
             if (improvementData.singleBuildType != SingleBuildType.None)
             {
                 selectedImprovement.city.singleBuildDict.Remove(improvementData.singleBuildType);
+                selectedImprovement.city.singleBuildList.Remove(improvementData.singleBuildType);
 				world.RemoveSingleBuildFromCityLabor(improvementLoc);
             }
         }

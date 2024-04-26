@@ -415,9 +415,9 @@ public class Unit : MonoBehaviour
 				}
             }
         }
-        else
+        else if (worker)
         {
-            if (pathPositions.Count == 0 && !military) //don't occupy sqaure if another unit is there
+            if (pathPositions.Count == 0) //don't occupy sqaure if another unit is there
             {
                 if (world.IsUnitLocationTaken(endPositionInt))
                 {
@@ -432,7 +432,7 @@ public class Unit : MonoBehaviour
                             yield break;
                         }
                     }
-			        else if ((unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering) || (unitInTheWay.trader && !unitInTheWay.trader.followingRoute))
+			        else if ((unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering) /*|| (unitInTheWay.trader && !unitInTheWay.trader.followingRoute)*/)
                     {
                         Vector3Int next;
                         if (pathPositions.Count > 0)
@@ -591,20 +591,27 @@ public class Unit : MonoBehaviour
 
             if (pathPositions.Count == 1)
             {
-                if (ambush)
+                if (trader)
                 {
-                    StopAnimation();
-                    isMoving = false;
-                    finalDestinationLoc = prevTile;
-                    currentLocation = prevTile;
-                    world.AddUnitPosition(currentLocation, this);
+                    if (ambush)
+                    {
+                        StopAnimation();
+                        isMoving = false;
+                        finalDestinationLoc = prevTile;
+                        currentLocation = prevTile;
+                        world.AddUnitPosition(currentLocation, this);
 
-                    if (enemyAI)
-                        enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
-					else if (!trader)
-						military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+                        if (enemyAI)
+                            enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+					    else if (!trader)
+						    military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
 
-					yield break;
+					    yield break;
+                    }
+                    //else if (isWaiting && world.GetCity(pathPositions.Peek()).InLineCheck(trader))
+                    //{
+                    //    yield break;
+                    //}
                 }
             }   
 

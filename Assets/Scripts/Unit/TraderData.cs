@@ -11,7 +11,7 @@ public class TraderData : IUnitData
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
 	public bool secondaryPrefab, isMoving, interruptedRoute, atStop, followingRoute, isWaiting, isUpgrading, paid, hasRoute, waitingOnRouteCosts, ambush, guarded, waitingOnGuard, guardLeft, atHome, 
-		returning;
+		returning, movingUpInLine;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation, ambushLoc, homeCity;
