@@ -106,7 +106,10 @@ public class UITradeRouteManager : MonoBehaviour
     public void ShowRouteCostFlag(bool show, Trader trader)
     {
         if (activeStatus && selectedTrader == trader)
+        {
             waitingForText.SetActive(show);
+            //SetCostsInfoColor(show);
+        }
     }
 
     public void ResetTradeRouteInfo(TradeRouteManager tradeRouteManager)
@@ -261,6 +264,31 @@ public class UITradeRouteManager : MonoBehaviour
 			}
 		}
 	}
+
+    public void SetCostsInfoColor(bool v, List<ResourceValue> resourceList = null)
+    {
+        if (v)
+        {
+            for (int i = 0; i < costsInfo.Count; i++)
+            {
+                if (costsInfo[i].gameObject.activeSelf)
+                {
+                    for (int j = 0; j < resourceList.Count; j++)
+                    {
+                        //if (resourceList[j].resourceType == costsInfo[i].resourceType && resourceList[j].resourceAmount >= costsInfo[i].resourceAmountText.)
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < costsInfo.Count; i++)
+            {
+                if (costsInfo[i].gameObject.activeSelf)
+                    costsInfo[i].resourceAmountText.color = Color.white;
+            }
+        }
+    }
 
 	public void SetChosenStopLive(int value)
     {

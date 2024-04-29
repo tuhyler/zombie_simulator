@@ -625,7 +625,7 @@ public class CityImprovement : MonoBehaviour
         StopTraining(producer);
 	}
 
-    public void AddTraderToImprovement(Unit unit)
+    public void AddTraderToImprovement(Trader unit)
     {
         unitsWithinCount++;
         city.tradersHere.Add(unit);
@@ -655,9 +655,10 @@ public class CityImprovement : MonoBehaviour
 			city.StartGrowthCycle(false);
 	}
 
-	public void RemoveTraderFromImprovement(Unit unit)
+	public void RemoveTraderFromImprovement(Trader unit)
     {
         unitsWithinCount--;
+        world.RemoveTraderPosition(unit.currentLocation, unit.trader);
         city.tradersHere.Remove(unit);
 		List<ResourceType> resourceTypes = new();
 
@@ -707,7 +708,7 @@ public class CityImprovement : MonoBehaviour
     {
         SingleBuildType type = GetImprovementData.singleBuildType;
 
-        foreach(Unit unit in city.tradersHere)
+        foreach(Trader unit in city.tradersHere)
         {
             if (unit.buildDataSO.singleBuildType == type)
             {

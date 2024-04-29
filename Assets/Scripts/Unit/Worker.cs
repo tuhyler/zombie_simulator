@@ -145,6 +145,10 @@ public class Worker : Unit
         Destroy(dizzy);
 		ToggleDizzy(false);
         world.playerInput.paused = false;
+		Vector3Int startingLoc = world.GetClosestTerrainLoc(transform.position);
+		prevTerrainTile = startingLoc;
+		lastClearTile = startingLoc;
+		currentLocation = startingLoc;
         conversationHaver.SetSomethingToSay("just_landed");
     }
 	#endregion
@@ -1198,7 +1202,7 @@ public class Worker : Unit
 			if (i % 2 == factor)
 				continue;
 
-			if (world.IsUnitLocationTaken(tile))
+			if (world.IsPlayerLocationTaken(tile))
 				continue;
 
 			if (world.IsInBattleArea(tile))
@@ -1601,7 +1605,7 @@ public class Worker : Unit
 		transform.position = tile;
 		gameObject.SetActive(true);
 		inTransport = false;
-		currentLocation = world.AddUnitPosition(transform.position, this);
+		currentLocation = world.AddPlayerPosition(transform.position, this);
 		//UnhideUnit();
 		//unit.unitRigidbody.useGravity = true;
 	}
@@ -1708,9 +1712,9 @@ public class Worker : Unit
 		Vector3Int currentTerrain = world.GetClosestTerrainLoc(transform.position);
 		Vector3Int goToSpot = prevFriendlyTile;
 
-		if (world.IsUnitLocationTaken(goToSpot) && world.GetUnit(goToSpot).transport)
+		if (world.IsPlayerLocationTaken(goToSpot) && world.GetPlayer(goToSpot).transport)
 		{
-			Transport transport = world.GetUnit(goToSpot).transport;
+			Transport transport = world.GetPlayer(goToSpot).transport;
 			transportTarget = transport;
 			toTransport = true;
 			world.scott.transportTarget = transport;
@@ -1812,22 +1816,27 @@ public class Worker : Unit
 				world.unitMovement.uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
 		}
 
-		if (world.IsUnitLocationTaken(currentLocation))
-			UnitInWayCheck(endPosition);
+		if (world.IsPlayerLocationTaken(currentLocation))
+		{
+			UnitInWayCheck();
+		}
 		else
-			world.AddUnitPosition(currentLocation, this);
+		{
+			world.AddPlayerPosition(currentLocation, this);
+			world.tempNoWalkList.Clear();
+		}
 	}
 
 	public void FinishMovementWorker(Vector3 endPosition)
 	{
 		if (gathering || clearingForest)
-			world.AddUnitPosition(currentLocation, this);
+			world.AddPlayerPosition(currentLocation, this);
 		else if (toTransport)
 			LoadWorkerInTransport(worker.transportTarget);
-		else if (world.IsUnitLocationTaken(currentLocation))
-			UnitInWayCheck(endPosition);
+		else if (world.IsPlayerLocationTaken(currentLocation))
+			UnitInWayCheck();
 		else
-			world.AddUnitPosition(currentLocation, this);
+			world.AddPlayerPosition(currentLocation, this);
 	}
 
 	public WorkerData SaveWorkerData()
@@ -1926,7 +1935,7 @@ public class Worker : Unit
 		}
 
 		if (!isMoving)
-            world.AddUnitPosition(currentLocation, this);
+            world.AddPlayerPosition(currentLocation, this);
 
         if (data.somethingToSay)
         {

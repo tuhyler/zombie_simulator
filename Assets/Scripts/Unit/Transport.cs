@@ -266,7 +266,7 @@ public class Transport : Unit
 			return;
 		}
 
-		world.AddUnitPosition(currentLoc, this);
+		world.AddPlayerPosition(currentLoc, this);
 
 		bool nearbyLand = false;
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
@@ -333,7 +333,7 @@ public class Transport : Unit
 			ToggleAzaiMesh(true, GameLoader.Instance.gameData.azai.bodyGuardData.unitLevel);
 
 		if (!isMoving)
-			world.AddUnitPosition(currentLocation, this);
+			world.AddPlayerPosition(currentLocation, this);
 
 		if (isMoving)
 		{

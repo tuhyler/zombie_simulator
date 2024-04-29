@@ -8,7 +8,7 @@ using UnityEngine;
 using static UnityEditor.FilePathAttribute;
 using static UnityEditor.Progress;
 
-public class City : MonoBehaviour, IGoldWaiter
+public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 {
     //city graphics
     [SerializeField]
@@ -116,10 +116,26 @@ public class City : MonoBehaviour, IGoldWaiter
     public int warehouseStorageLimit = 200;
     //private TradeRouteManager tradeRouteWaiter;
     //private ResourceType resourceWaiter = ResourceType.None;
-    private Queue<Unit> waitList = new(), seaWaitList = new(), airWaitList = new();
+
+    //stop info
+    ITradeStop stop;
+    string ITradeStop.stopName => cityName;
+    [HideInInspector]
+    public List<Trader> waitList = new(), seaWaitList = new(), airWaitList = new();
+    List<Trader> ITradeStop.waitList => waitList;
+    List<Trader> ITradeStop.seaWaitList => seaWaitList;
+    List<Trader> ITradeStop.airWaitList => airWaitList;
+    Vector3Int ITradeStop.mainLoc => cityLoc;
+    City ITradeStop.city => this;
+    Wonder ITradeStop.wonder => null;
+    TradeCenter ITradeStop.center => null;
+
+	//private Dictionary<Vector3Int, Trader> traderPosDict = new();
+    //private Queue<Unit> waitList = new(), seaWaitList = new(), airWaitList = new();
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
     [HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
+
 
     //world resource info
     //private int goldPerMinute;
@@ -137,7 +153,7 @@ public class City : MonoBehaviour, IGoldWaiter
 
     //for upgrading traders
     [HideInInspector]
-    public List<Unit> tradersHere = new();
+    public List<Trader> tradersHere = new();
 
     int IGoldWaiter.goldNeeded => 0; //actual amounts aved in trader and city improvement
 	Vector3Int IGoldWaiter.waiterLoc => cityLoc;
@@ -169,6 +185,7 @@ public class City : MonoBehaviour, IGoldWaiter
         //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
         //world = FindObjectOfType<MapWorld>();
         //cityPop = GetComponent<CityPopulation>();
+        stop = this;
         audioSource = GetComponent<AudioSource>();
         army = GetComponent<Army>();
         //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
@@ -553,6 +570,7 @@ public class City : MonoBehaviour, IGoldWaiter
     public void AddCityNameToWorld()
     {
         world.AddCityName(cityName, cityLoc);
+        world.AddStop(cityLoc, this);
         world.AddTradeLoc(cityLoc, cityName);
     }
 
@@ -947,181 +965,147 @@ public class City : MonoBehaviour, IGoldWaiter
         }
     }
 
-    //private void RemoveRandomCityLaborer(System.Random random)
+	//bool ITradeStop.IsTraderWaitingAtSameStop(Vector3Int pos, Trader trader)
+ //   {
+
+ //   }
+
+ //   public bool IsTraderWaitingAtSameStop(Vector3Int pos, Trader trader)
+ //   {
+ //       //if (traderPosDict.ContainsKey(pos))
+ //       //    return traderPosDict[pos] == trader;
+
+ //       //return false;
+ //   }
+
+ //   public Vector3Int AddPositionToStop(Vector3Int pos, Trader trader)
+ //   {
+	//	traderPosDict[pos] = trader;
+	//	return pos;
+	//}
+
+ //   public void RemovePositionFromStop(Vector3Int pos)
+ //   {
+ //       traderPosDict.Remove(pos);
+ //   }
+
+    //public void AddToWaitList(Trader trader)
     //{
-    //    List<string> buildingNames = world.GetBuildingListForCity(cityLoc);
-
-    //    //below is giving every labor in any building equal chance of being chosen
-    //    int currentLabor = 0;
-    //    Dictionary<int, string> laborByBuilding = new();
-    //    foreach (string buildingName in buildingNames)
+    //    if (trader.bySea)
     //    {
-    //        int prevLabor = currentLabor;
-    //        currentLabor += world.GetCurrentLaborForBuilding(cityLoc, buildingName);
-    //        for (int i = prevLabor; i < currentLabor; i++)
-    //        {
-    //            laborByBuilding[currentLabor] = buildingName;
-    //        }
+    //        if (!seaWaitList.Contains(trader))
+    //            seaWaitList.Enqueue(trader);
     //    }
-
-    //    string chosenBuildingName = laborByBuilding[random.Next(currentLabor)];
-    //    //above is giving labor in any building equal chance of being chosen
-
-    //    //string chosenBuildingName = buildingNames[random.Next(buildingNames.Count)]; //equal chance of being chosen, regardless of labor size
-        
-    //    int labor = world.GetCurrentLaborForBuilding(cityLoc, chosenBuildingName);
-    //    labor--;
-
-    //    if (labor == 0) //removing from world dicts when zeroed out
+    //    else if (trader.byAir)
     //    {
-    //        world.RemoveFromBuildingCurrentWorked(cityLoc, chosenBuildingName);
-    //        //resourceManager.RemoveKeyFromBuildingGenerationDict(chosenBuildingName);
+    //        if (!airWaitList.Contains(trader))
+    //            airWaitList.Enqueue(trader));
     //    }
     //    else
     //    {
-    //        world.AddToCurrentBuildingLabor(cityLoc, chosenBuildingName, labor);
+    //        if (!waitList.Contains(trader))
+    //            waitList.Enqueue(trader);
     //    }
     //}
 
-    //public void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
-    //{
-    //    tradeRouteWaiter = tradeRouteManager;
-    //    //resourceWaiter = resourceType;
-    //}
-
-    //public void CheckResourceWaiter(ResourceType resourceType)
-    //{
-    //    if (tradeRouteWaiter != null && resourceWaiter == resourceType)
-    //    {
-    //        tradeRouteWaiter.resourceCheck = false;
-    //        tradeRouteWaiter.trader.RemoveWarning();
-    //        tradeRouteWaiter = null;
-    //        resourceWaiter = ResourceType.None;
-    //    }
-    //}
-
-    //public void CheckLimitWaiter()
-    //{
-    //    if (tradeRouteWaiter != null /*&& resourceWaiter == ResourceType.None*/)
-    //    {
-    //        tradeRouteWaiter.resourceCheck = false;
-    //        tradeRouteWaiter.trader.RemoveWarning();
-    //        tradeRouteWaiter = null;
-    //    }
-    //}
-
-    public void AddToWaitList(Unit unit)
-    {
-        if (unit.bySea)
-        {
-            if (!seaWaitList.Contains(unit))
-                seaWaitList.Enqueue(unit);
-        }
-        else
-        {
-            if (!waitList.Contains(unit))
-                waitList.Enqueue(unit);
-        }
-    }
-
-    public void RemoveFromWaitList(Unit unit)
-    {
-        List<Unit> waitListList = unit.bySea ? seaWaitList.ToList() : waitList.ToList();
+ //   public void RemoveFromWaitList(Trader trader)
+ //   {
+ //       List<Trader> waitListList = trader.bySea ? seaWaitList.ToList() : waitList.ToList();
         
-        if (!waitListList.Contains(unit))
-        {
-            if (unit.bySea)
-                CheckSeaQueue();
-            else
-                CheckQueue();
+ //       if (!waitListList.Contains(trader))
+ //       {
+ //           if (trader.bySea)
+ //               CheckSeaQueue();
+ //           else
+ //               CheckQueue();
 
-            return;
-        }
+ //           return;
+ //       }
 
-        int index = waitListList.IndexOf(unit);
-        waitListList.Remove(unit);
+ //       int index = waitListList.IndexOf(trader);
+ //       waitListList.Remove(trader);
 
-        int j = 0;
-        for (int i = index; i < waitListList.Count; i++)
-        {
-            j++;
-            waitListList[i].trader.StartMoveUpInLine(j);
-        }
+ //       int j = 0;
+ //       for (int i = index; i < waitListList.Count; i++)
+ //       {
+ //           j++;
+ //           waitListList[i].trader.StartMoveUpInLine(j);
+ //       }
 
-        if (unit.bySea)
-            seaWaitList = new Queue<Unit>(waitListList);
-        else
-			waitList = new Queue<Unit>(waitListList);
-	}
+ //       if (trader.bySea)
+ //           seaWaitList = new Queue<Trader>(waitListList);
+ //       else
+	//		waitList = new Queue<Trader>(waitListList);
+	//}
 
     //making sure trader isn't still in line when arriving at stop
-    public void InLineCheck(Unit trader)
-    {
-        if (trader.bySea)
-        {
-            if (seaWaitList.Contains(trader))
-				seaWaitList = new Queue<Unit>(seaWaitList.Where(x => x != trader));
-		}
-        else if (trader.byAir)
-        {
-            if (airWaitList.Contains(trader))
-				airWaitList = new Queue<Unit>(airWaitList.Where(x => x != trader));
-		}
-        else
-        {
-            if (waitList.Contains(trader))
-                waitList = new Queue<Unit>(waitList.Where(x => x != trader));
-        }
-    }
+  //  public void InLineCheck(Unit trader)
+  //  {
+  //      if (trader.bySea)
+  //      {
+  //          if (seaWaitList.Contains(trader))
+		//		seaWaitList = new Queue<Unit>(seaWaitList.Where(x => x != trader));
+		//}
+  //      else if (trader.byAir)
+  //      {
+  //          if (airWaitList.Contains(trader))
+		//		airWaitList = new Queue<Unit>(airWaitList.Where(x => x != trader));
+		//}
+  //      else
+  //      {
+  //          if (waitList.Contains(trader))
+  //              waitList = new Queue<Unit>(waitList.Where(x => x != trader));
+  //      }
+  //  }
 
-    public void CheckQueue()
-    {
-        if (waitList.Count > 0)
-            waitList.Dequeue().trader.ExitLine();
+ //   public void CheckQueue()
+ //   {
+ //       if (waitList.Count > 0)
+ //           waitList.Dequeue().trader.ExitLine();
 
-        if (waitList.Count > 0)
-        {
-            int i = 0;
-            foreach(Unit unit in waitList)
-            {
-                i++;
-                if (!unit.trader.movingUpInLine)
-                    unit.trader.StartMoveUpInLine(i);
-            }
-        }
-    }
+ //       if (waitList.Count > 0)
+ //       {
+ //           int i = 0;
+ //           foreach(Unit unit in waitList)
+ //           {
+ //               i++;
+ //               if (!unit.trader.movingUpInLine)
+ //                   unit.trader.StartMoveUpInLine(i);
+ //           }
+ //       }
+ //   }
 
-    public void CheckSeaQueue()
-    {
-		if (seaWaitList.Count > 0)
-			seaWaitList.Dequeue().trader.ExitLine();
+ //   public void CheckSeaQueue()
+ //   {
+	//	if (seaWaitList.Count > 0)
+	//		seaWaitList.Dequeue().trader.ExitLine();
 
-		if (seaWaitList.Count > 0)
-		{
-			int i = 0;
-			foreach (Unit unit in seaWaitList)
-			{
-				i++;
-                unit.trader.StartMoveUpInLine(i);
-			}
-		}
-	}
+	//	if (seaWaitList.Count > 0)
+	//	{
+	//		int i = 0;
+	//		foreach (Unit unit in seaWaitList)
+	//		{
+	//			i++;
+ //               unit.trader.StartMoveUpInLine(i);
+	//		}
+	//	}
+	//}
 
-    public void CheckAirQueue()
-    {
-		if (airWaitList.Count > 0)
-			airWaitList.Dequeue().trader.ExitLine();
+ //   public void CheckAirQueue()
+ //   {
+	//	if (airWaitList.Count > 0)
+	//		airWaitList.Dequeue().trader.ExitLine();
 
-		if (airWaitList.Count > 0)
-		{
-			int i = 0;
-			foreach (Unit unit in airWaitList)
-			{
-				i++;
-				unit.trader.StartMoveUpInLine(i);
-			}
-		}
-	}
+	//	if (airWaitList.Count > 0)
+	//	{
+	//		int i = 0;
+	//		foreach (Unit unit in airWaitList)
+	//		{
+	//			i++;
+	//			unit.trader.StartMoveUpInLine(i);
+	//		}
+	//	}
+	//}
 
     public void PlayResourceSplash()
     {
@@ -1271,6 +1255,7 @@ public class City : MonoBehaviour, IGoldWaiter
 
         //stopCycle = true;
         growing = false;
+        resourceManager.RemoveWarning();
 
         if (activeCity)
         {
@@ -2078,11 +2063,12 @@ public class City : MonoBehaviour, IGoldWaiter
                 singleBuildDict[buildType] = tile;
                 world.AddToCityLabor(tile, cityLoc);
 
-                if (buildType == SingleBuildType.Harbor)
+                if (buildType == SingleBuildType.Harbor || buildType == SingleBuildType.Airport)
                 {
                     //hasHarbor = true;
                     //harborLocation = tile;
                     //world.SetCityHarbor(this, tile);
+                    world.AddStop(tile, this);
                     world.AddTradeLoc(tile, name);
                 }
                 else if (buildType == SingleBuildType.Barracks)
@@ -2222,63 +2208,61 @@ public class City : MonoBehaviour, IGoldWaiter
         world.GetTerrainDataAt(cityLoc).DisableHighlight();
 	}
 
-    public void ClearCityCheck()
-    {
-		for (int i = 0; i < waitList.Count; i++)
-			waitList.Dequeue().trader.InterruptRoute(true);
+ //   public void ClearCityCheck()
+ //   {
+	//	for (int i = 0; i < waitList.Count; i++)
+	//		waitList.Dequeue().trader.InterruptRoute(true);
 
-        if (world.IsUnitLocationTaken(cityLoc))
-            world.CancelTraderRoute(cityLoc);
+ //       if (world.IsUnitLocationTaken(cityLoc))
+ //           world.CancelTraderRoute(cityLoc);
+	//}
+
+    public void RemoveHarborCheck()
+    {
+		stop.ClearStopCheck(seaWaitList, singleBuildDict[SingleBuildType.Harbor], world);
 	}
 
-    public void RemoveHarborCheck(Vector3Int harborLoc)
-    {
-		for (int i = 0; i < seaWaitList.Count; i++)
-			seaWaitList.Dequeue().trader.InterruptRoute(true);
-
-		if (world.IsUnitLocationTaken(harborLoc))
-			world.CancelTraderRoute(harborLoc);
-	}
-
-	public void ClearHarborCheck()
-    {
-        if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
-        {
-		    for (int i = 0; i < seaWaitList.Count; i++)
-			    seaWaitList.Dequeue().trader.InterruptRoute(true);
+	//public void ClearHarborCheck()
+ //   {
+ //       if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+ //       {
+	//	    for (int i = 0; i < seaWaitList.Count; i++)
+	//		    seaWaitList.Dequeue().trader.InterruptRoute(true);
         
-            if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Harbor]))
-                world.CancelTraderRoute(singleBuildDict[SingleBuildType.Harbor]);
-        }
-	}
+ //           if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Harbor]))
+ //               world.CancelTraderRoute(singleBuildDict[SingleBuildType.Harbor]);
+ //       }
+	//}
 
-    public void RemoveAirportCheck(Vector3Int airportLoc)
+    public void RemoveAirportCheck()
     {
-		for (int i = 0; i < airWaitList.Count; i++)
-			airWaitList.Dequeue().trader.InterruptRoute(true);
-
-		if (world.IsUnitLocationTaken(airportLoc))
-			world.CancelTraderRoute(airportLoc);
+		stop.ClearStopCheck(stop.airWaitList, singleBuildDict[SingleBuildType.Airport], world);
 	}
 
-	public void ClearAirportCheck()
-    {
-		if (singleBuildDict.ContainsKey(SingleBuildType.Airport))
-        {
-		    for (int i = 0; i < airWaitList.Count; i++)
-			    airWaitList.Dequeue().trader.InterruptRoute(true);
+	//public void ClearAirportCheck()
+ //   {
+	//	if (singleBuildDict.ContainsKey(SingleBuildType.Airport))
+ //       {
+	//	    for (int i = 0; i < airWaitList.Count; i++)
+	//		    airWaitList.Dequeue().trader.InterruptRoute(true);
 
-            if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Airport]))
-			    world.CancelTraderRoute(singleBuildDict[SingleBuildType.Airport]);
-        }
-	}
+ //           if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Airport]))
+	//		    world.CancelTraderRoute(singleBuildDict[SingleBuildType.Airport]);
+ //       }
+	//}
 
     public void DestroyThisCity()
     {
         //cancelling routes for all traders in line at this city
-        ClearCityCheck();
-        ClearHarborCheck();
-        ClearAirportCheck();
+        stop.ClearStopCheck(stop.waitList, cityLoc, world);
+		if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+			stop.ClearStopCheck(stop.seaWaitList, singleBuildDict[SingleBuildType.Harbor], world);
+		if (singleBuildDict.ContainsKey(SingleBuildType.Airport))
+			stop.ClearStopCheck(stop.airWaitList, singleBuildDict[SingleBuildType.Airport], world);
+
+		//ClearCityCheck();
+  //      ClearHarborCheck();
+  //      ClearAirportCheck();
 
 		//initialHouse.DestroyPS();
 		//initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).isHill);
@@ -2397,17 +2381,20 @@ public class City : MonoBehaviour, IGoldWaiter
             GameLoader.Instance.gameData.allArmies[cityLoc] = armyData;
         }
 
-        List<Unit> tempWaitList = waitList.ToList();
+        //List<Unit> tempWaitList = ITradeStop.waitList.ToList();
 
-		for (int i = 0; i < tempWaitList.Count; i++)
-			data.waitList.Add(tempWaitList[i].id);
+		for (int i = 0; i < stop.waitList.Count; i++)
+			data.waitList.Add(stop.waitList[i].id);
 
-		List<Unit> tempSeaWaitList = seaWaitList.ToList();
+		//List<Unit> tempSeaWaitList = seaWaitList.ToList();
 
-		for (int i = 0; i < tempSeaWaitList.Count; i++)
-			data.seaWaitList.Add(tempSeaWaitList[i].id);
+		for (int i = 0; i < stop.seaWaitList.Count; i++)
+			data.seaWaitList.Add(stop.seaWaitList[i].id);
 
-        for (int i = 0; i < resourceManager.cityGoldWaitList.Count; i++)
+		for (int i = 0; i < stop.airWaitList.Count; i++)
+			data.airWaitList.Add(stop.airWaitList[i].id);
+
+		for (int i = 0; i < resourceManager.cityGoldWaitList.Count; i++)
             data.goldWaitList.Add((resourceManager.cityGoldWaitList[i].WaitLoc, resourceManager.cityGoldWaitList[i].waitId));
 
         foreach (ResourceType type in resourceManager.cityResourceWaitDict.Keys)
@@ -2719,27 +2706,27 @@ public class City : MonoBehaviour, IGoldWaiter
 			{
 				if (world.traderList[j].id == waitList[i])
 				{
-					this.waitList.Enqueue(world.traderList[j]);
+					stop.AddToWaitList(world.traderList[j], stop);
 					break;
 				}
 			}
 		}
     }
 
-	public void SetSeaWaitList(List<int> seaWaitList)
-	{
-		for (int i = 0; i < seaWaitList.Count; i++)
-		{
-			for (int j = 0; j < world.traderList.Count; j++)
-			{
-				if (world.traderList[j].id == seaWaitList[i])
-				{
-					this.seaWaitList.Enqueue(world.traderList[j]);
-					break;
-				}
-			}
-		}
-	}
+	//public void SetSeaWaitList(List<int> seaWaitList)
+	//{
+	//	for (int i = 0; i < seaWaitList.Count; i++)
+	//	{
+	//		for (int j = 0; j < world.traderList.Count; j++)
+	//		{
+	//			if (world.traderList[j].id == seaWaitList[i])
+	//			{
+	//				this.seaWaitList.Enqueue(world.traderList[j]);
+	//				break;
+	//			}
+	//		}
+	//	}
+	//}
 
 	//public void SetTraderRouteWaitingList(List<int> tradersWaiting)
  //   {

@@ -15,7 +15,7 @@ public class TraderData : IUnitData
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
 	public Vector3Int currentLocation, ambushLoc, homeCity;
-	public Vector3Int prevTile, prevTerrainTile;
+	public Vector3Int prevTile;
 	public UnitData guardUnit;
 
 	//personal resource info

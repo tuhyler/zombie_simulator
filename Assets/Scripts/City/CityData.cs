@@ -43,6 +43,6 @@ public class CityData
 	public List<(Vector3Int, int)> goldWaitList = new(), unloadWaitList = new();
 	public Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict = new();
 	//public List<ResourceType> resourcesNeededForProduction;
-	public List<int> /*waitingForTraderList = new(), */waitList = new(), seaWaitList = new();
+	public List<int> /*waitingForTraderList = new(), */waitList = new(), seaWaitList = new(), airWaitList = new();
 	//public List<ResourceType> resourcesNeededForRoute;
 }

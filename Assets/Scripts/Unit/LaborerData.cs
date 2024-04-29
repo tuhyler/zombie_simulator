@@ -11,7 +11,7 @@ public class LaborerData : IUnitData
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
 	public bool secondaryPrefab, isMoving, somethingToSay, celebrating;
-	public Vector3Int currentLocation, homeCityLoc, prevTerrainTile;
+	public Vector3Int currentLocation, homeCityLoc;
 
 	public LaborerData GetLaborerData()
 	{
