@@ -27,7 +27,7 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
-	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, List<(Vector3Int, int)>, /*List<Vector3Int>, *//*List<Vector3Int>, *//*List<Vector3Int>, */List<int>, List<int>/*, List<int>*/)> cityWaitingDict = new();
+	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, List<(Vector3Int, int)>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
 	[HideInInspector]
 	public List<Unit> unitUpgradeList = new();
 	//[HideInInspector]
@@ -315,8 +315,9 @@ public class GameLoader : MonoBehaviour
 		//trade centers (waiting lists)
 		foreach (TradeCenter center in world.tradeCenterDict.Values)
 		{
-			gameData.allTradeCenters[center.mainLoc].waitList = center.SaveWaitListData(false);
-			gameData.allTradeCenters[center.mainLoc].seaWaitList = center.SaveWaitListData(true);
+			gameData.allTradeCenters[center.mainLoc].waitList = center.SaveWaitListData(false, false);
+			gameData.allTradeCenters[center.mainLoc].seaWaitList = center.SaveWaitListData(true, false);
+			gameData.allTradeCenters[center.mainLoc].airWaitList = center.SaveWaitListData(false, true);
 		}
 
 		//wonders
@@ -366,6 +367,15 @@ public class GameLoader : MonoBehaviour
 		gameData.allTraders.Clear();
 		for (int i = 0; i < world.traderList.Count; i++)
 			gameData.allTraders.Add(world.traderList[i].SaveTraderData());
+
+		gameData.traderPosDict.Clear();
+		foreach (Vector3Int loc in world.traderPosDict.Keys)
+		{
+			gameData.traderPosDict[loc] = new();
+
+			for (int i = 0; i < world.traderPosDict[loc].Count; i++)
+				gameData.traderPosDict[loc].Add(world.traderPosDict[loc][i].id);
+		}		
 
 		//laborers
 		gameData.allLaborers.Clear();
@@ -485,7 +495,7 @@ public class GameLoader : MonoBehaviour
 			world.scott.marker.gameObject.tag = "Character";
 			world.scott.gameObject.SetActive(false);
 			world.characterUnits.Remove(world.scott);
-			world.RemoveUnitPosition(world.RoundToInt(world.scott.transform.position));
+			world.RemovePlayerPosition(world.RoundToInt(world.scott.transform.position));
 			world.unitMovement.uiWorkerTask.DeactivateButtons();
 		}
 
@@ -495,7 +505,7 @@ public class GameLoader : MonoBehaviour
 			world.azai.marker.gameObject.tag = "Character";
 			world.azai.gameObject.SetActive(false);
 			world.characterUnits.Remove(world.azai);
-			world.RemoveUnitPosition(world.RoundToInt(world.azai.transform.position));
+			world.RemovePlayerPosition(world.RoundToInt(world.azai.transform.position));
 		}
 
 		GameManager.Instance.UpdateProgress(5);
@@ -690,12 +700,31 @@ public class GameLoader : MonoBehaviour
 		//	world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
 		//gameData.goldTradeCenterWaitList.Clear();
 
+		//trader positions
+		foreach (Vector3Int loc in gameData.traderPosDict.Keys)
+		{
+			world.traderPosDict[loc] = new();
+
+			for (int i = 0; i < gameData.traderPosDict[loc].Count; i++)
+			{
+				for (int j = 0; j < world.traderList.Count; j++)
+				{
+					if (world.traderList[j].id == gameData.traderPosDict[loc][i])
+					{
+						world.traderPosDict[loc].Add(world.traderList[j]);
+						break;
+					}
+				}
+			}
+		}
+		gameData.traderPosDict.Clear();
+
 		//trade center waiting lists
 		foreach (TradeCenter center in centerWaitingDict.Keys)
 		{
 			(List<int> waitList, List<int> seaWaitList) = centerWaitingDict[center];
 			center.SetWaitList(waitList);
-			center.SetSeaWaitList(seaWaitList);
+			center.SetWaitList(seaWaitList);
 		}
 		centerWaitingDict.Clear();
 
@@ -704,15 +733,15 @@ public class GameLoader : MonoBehaviour
 		{
 			(List<int> waitList, List<int> seaWaitList) = wonderWaitingDict[wonder];
 			wonder.SetWaitList(waitList);
-			wonder.SetSeaWaitList(seaWaitList);
+			wonder.SetWaitList(seaWaitList);
 		}
 		wonderWaitingDict.Clear();
 
 		//city waiting lists
 		foreach (City city in cityWaitingDict.Keys)
 		{
-			(List<(Vector3Int, int)> goldWaitList, Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict, List <(Vector3Int, int)> unloadWaitList, /*List<Vector3Int> producersWaiting, *//*List<Vector3Int> producersStorageWaiting,*/ /*List<Vector3Int> producersUnloadWaiting,*/
-				List<int> waitList, List<int> seaWaitList/*, List<int> tradersWaiting*/) = cityWaitingDict[city];
+			(List<(Vector3Int, int)> goldWaitList, Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict, List <(Vector3Int, int)> unloadWaitList, 
+				List<int> waitList, List<int> seaWaitList, List<int> airWaitList) = cityWaitingDict[city];
 			city.SetGoldWaitList(goldWaitList);
 			city.SetResourceWaitList(resourceWaitDict);
 			city.SetUnloadWaitList(unloadWaitList);
@@ -721,7 +750,9 @@ public class GameLoader : MonoBehaviour
 			//city.SetWaitingToUnloadProducerList(producersUnloadWaiting);
 			//city.SetWaitingToUnloadResearchList(researchUnloadWaiting);
 			city.SetWaitList(waitList);
-			city.SetSeaWaitList(seaWaitList);
+			city.SetWaitList(seaWaitList);
+			city.SetWaitList(airWaitList);
+			//city.SetSeaWaitList(seaWaitList);
 			//city.SetTraderRouteWaitingList(tradersWaiting);
 			//city.SetTradersHereList(tradersHere);
 		}

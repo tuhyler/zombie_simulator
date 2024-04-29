@@ -332,49 +332,52 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck
 			//bool locked = false;
 			bool hide = false;
 
-			if (buildOptions[i].UnitBuildData != null && buildOptions[i].UnitBuildData.unitType != UnitType.Laborer)
+			if (buildOptions[i].UnitBuildData != null)
 			{
-                if (!cityBuilderManager.world.showAllBuildOptions && (!cityBuilderManager.world.upgradeableObjectMaxLevelDict.ContainsKey(buildOptions[i].UnitBuildData.unitType.ToString()) ||
-					buildOptions[i].UnitBuildData.unitLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString()) ||
-					!resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType)))
+                if (buildOptions[i].UnitBuildData.unitType != UnitType.Laborer)
                 {
-					buildOptions[i].Hide();
-					continue;
+                    if (!cityBuilderManager.world.showAllBuildOptions && (!cityBuilderManager.world.upgradeableObjectMaxLevelDict.ContainsKey(buildOptions[i].UnitBuildData.unitType.ToString()) ||
+					    buildOptions[i].UnitBuildData.unitLevel != cityBuilderManager.world.GetUpgradeableObjectMaxLevel(buildOptions[i].UnitBuildData.unitType.ToString()) ||
+					    !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType)))
+                    {
+					    buildOptions[i].Hide();
+					    continue;
+                    }
+
+                    if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport)
+                    {
+                        if ((buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea && resourceManager.city.world.waterTransport) ||
+                            (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air && resourceManager.city.world.airTransport))
+                            hide = true;
+				    }
+
+				    if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
+                    {
+                        buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType);
+
+                        if (!buildOptions[i].needsBarracks)
+                        {
+						    buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[buildOptions[i].UnitBuildData.singleBuildType]).isTraining;
+						    buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
+                            buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
+					    }
+                        else
+                        {
+                            buildOptions[i].trainingBarracks = false;
+						    buildOptions[i].fullBarracks = false;
+                            buildOptions[i].travelingBarracks = false;
+					    }
+				    }
+                    else
+                    {
+					    buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType);
+
+                        if (!buildOptions[i].needsBarracks)
+                            buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[buildOptions[i].UnitBuildData.singleBuildType]).isTraining;
+                        else
+                            buildOptions[i].trainingBarracks = false;
+				    }
                 }
-
-                if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport)
-                {
-                    if ((buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea && resourceManager.city.world.waterTransport) ||
-                        (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air && resourceManager.city.world.airTransport))
-                        hide = true;
-				}
-
-				if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
-                {
-                    buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType);
-
-                    if (!buildOptions[i].needsBarracks)
-                    {
-						buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[buildOptions[i].UnitBuildData.singleBuildType]).isTraining;
-						buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
-                        buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
-					}
-                    else
-                    {
-                        buildOptions[i].trainingBarracks = false;
-						buildOptions[i].fullBarracks = false;
-                        buildOptions[i].travelingBarracks = false;
-					}
-				}
-                else
-                {
-					buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType);
-
-                    if (!buildOptions[i].needsBarracks)
-                        buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[buildOptions[i].UnitBuildData.singleBuildType]).isTraining;
-                    else
-                        buildOptions[i].trainingBarracks = false;
-				}
 				
                 resourceCosts = new(buildOptions[i].UnitBuildData.unitCost);
 				ResourceValue laborCost;
@@ -382,58 +385,58 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck
 				laborCost.resourceAmount = buildOptions[i].UnitBuildData.laborCost;
 				resourceCosts.Add(laborCost);
 				
-                //itemType = buildOptions[i].UnitBuildData.singleBuildType;
+                    //itemType = buildOptions[i].UnitBuildData.singleBuildType;
 
-				//if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
-				//{
-    //                if (resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
-    //                    buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Harbor]).isTraining;
-    //                else
-    //                    buildOptions[i].trainingBarracks = false;
-				//}
-				//else
-				//{
-				//	if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
-				//	{
-				//		buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Barracks);
-				//		buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
-    //                    if (!buildOptions[i].needsBarracks)
-    //                        buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Barracks]).isTraining;
-    //                    else
-    //                        buildOptions[i].trainingBarracks = false;
-    //                    buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
-				//	}
-    //                else
-    //                {
+				    //if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
+				    //{
+        //                if (resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+        //                    buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Harbor]).isTraining;
+        //                else
+        //                    buildOptions[i].trainingBarracks = false;
+				    //}
+				    //else
+				    //{
+				    //	if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
+				    //	{
+				    //		buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Barracks);
+				    //		buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
+        //                    if (!buildOptions[i].needsBarracks)
+        //                        buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Barracks]).isTraining;
+        //                    else
+        //                        buildOptions[i].trainingBarracks = false;
+        //                    buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
+				    //	}
+        //                else
+        //                {
 
-    //                }
-				//}
+        //                }
+				    //}
 
 
-                //if (/*buildOptions[i].UnitBuildData.singleBuildType != SingleBuildType.None && */!resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType))
-                //    hide = true;
+                    //if (/*buildOptions[i].UnitBuildData.singleBuildType != SingleBuildType.None && */!resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType))
+                    //    hide = true;
 
-    //            if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Land)
-    //            {
-    //                if (buildOptions[i].UnitBuildData.baseAttackStrength > 0 && !resourceManager.city.hasBarracks)
-    //                    hide = true;
-    //            }
-    //            else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
-    //            {
-    //                if (!resourceManager.city.hasHarbor)
-    //                    hide = true;
+        //            if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Land)
+        //            {
+        //                if (buildOptions[i].UnitBuildData.baseAttackStrength > 0 && !resourceManager.city.hasBarracks)
+        //                    hide = true;
+        //            }
+        //            else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
+        //            {
+        //                if (!resourceManager.city.hasHarbor)
+        //                    hide = true;
 
-    //                if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.waterTransport)
-    //                    hide = true;
-				//}
-				//else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air)
-				//{
-				//	if (!resourceManager.city.hasAirport)
-				//		hide = true;
+        //                if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.waterTransport)
+        //                    hide = true;
+				    //}
+				    //else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air)
+				    //{
+				    //	if (!resourceManager.city.hasAirport)
+				    //		hide = true;
 
-				//	if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.airTransport)
-				//		hide = true;
-				//}
+				    //	if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.airTransport)
+				    //		hide = true;
+				    //}
 			}
 			else if (buildOptions[i].BuildData != null)
 			{

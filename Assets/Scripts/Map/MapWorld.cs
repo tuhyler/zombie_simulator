@@ -7,8 +7,6 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class MapWorld : MonoBehaviour
@@ -170,6 +168,8 @@ public class MapWorld : MonoBehaviour
 
 	private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
+    [HideInInspector] 
+    public List<Vector3Int> tempNoWalkList = new(), tempBattleZone = new(); //in case player is moving when added to no walk list, where battle positions will be
     private List<Vector3Int> noWalkList = new(); //tiles where wonders are and units can't walk
     private List<Vector3Int> battleAreas = new();
     private List<GameObject> cityNamesMaps = new();
@@ -183,8 +183,11 @@ public class MapWorld : MonoBehaviour
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList = new();
     [HideInInspector]
     public List<Vector3Int> unclaimedSingleBuildList = new ();
+    private Dictionary<Vector3Int, ITradeStop> tradeStopDict = new();
 	private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
+    public Dictionary<Vector3Int, List<Trader>> traderPosDict = new();
+    public Dictionary<Vector3Int, Unit> playerPosDict = new();
     public Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
     public Dictionary<Vector3Int, Unit> npcPosDict = new();
     [HideInInspector]
@@ -616,8 +619,10 @@ public class MapWorld : MonoBehaviour
 			GameLoader.Instance.gameData.allTradeCenters[center.mainLoc] = center.SaveData();
 			tradeCenterDict[center.tradeCenterName] = center;
 			tradeCenterStopDict[center.mainLoc] = center;
-			//tradeCenterStopDict[center.harborLoc] = center;
-			AddTradeLoc(center.mainLoc, center.tradeCenterName);
+            //tradeCenterStopDict[center.harborLoc] = center;
+            AddStop(center.mainLoc, center);
+            AddStop(center.harborLoc, center);
+            AddTradeLoc(center.mainLoc, center.tradeCenterName);
 			AddTradeLoc(center.harborLoc, center.tradeCenterName);
 			if (hideTerrain)
 				center.Hide();
@@ -1071,7 +1076,9 @@ public class MapWorld : MonoBehaviour
 			
 			tradeCenterDict[center.tradeCenterName] = center;
 			tradeCenterStopDict[center.mainLoc] = center;
-			//tradeCenterStopDict[center.harborLoc] = center;
+            //tradeCenterStopDict[center.harborLoc] = center;
+            AddStop(center.mainLoc, center);
+            AddStop(center.harborLoc, center);
 			AddTradeLoc(center.mainLoc, center.tradeCenterName);
 			AddTradeLoc(center.harborLoc, center.tradeCenterName);
 			if (!GetTerrainDataAt(centerData.mainLoc).isDiscovered && hideTerrain)
@@ -1697,8 +1704,8 @@ public class MapWorld : MonoBehaviour
         foreach (CityImprovementData improvementData in data.cityBuildings)
             CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[improvementData.name], city, improvementData);
 
-        GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitDict, data.unloadWaitList, /*data.waitingforResourceProducerList, *//*data.waitingForProducerStorageList, *//*data.waitingToUnloadProducerList,*/
-            data.waitList, data.seaWaitList/*, data.waitingForTraderList*/);
+        GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitDict, data.unloadWaitList,
+            data.waitList, data.seaWaitList, data.airWaitList);
 	}
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, CityImprovementData data)
@@ -2012,10 +2019,19 @@ public class MapWorld : MonoBehaviour
                 cityImprovement.mapIconHolder.localRotation = Quaternion.Inverse(improvement.transform.rotation);
 				if (city != null)
                 {
-        //            city.hasHarbor = true;
-				    //city.harborLocation = tempBuildLocation;
+                    //            city.hasHarbor = true;
+                    //city.harborLocation = tempBuildLocation;
+                    AddStop(tempBuildLocation, city);
 				    AddTradeLoc(tempBuildLocation, city.cityName);
                 }
+			}
+            else if (improvementData.singleBuildType == SingleBuildType.Airport)
+            {
+				if (city != null)
+				{
+					AddStop(tempBuildLocation, city);
+					AddTradeLoc(tempBuildLocation, city.cityName);
+				}
 			}
 			else if (improvementData.singleBuildType == SingleBuildType.Barracks)
 			{
@@ -2516,6 +2532,8 @@ public class MapWorld : MonoBehaviour
         cityNamesMaps.Clear();
         tradeLocDict.Clear();
         enemyCampDict.Clear();
+        playerPosDict.Clear();
+        traderPosDict.Clear();
         unitPosDict.Clear();
         resourceIconDict.Clear();
         mapHandler.ResetResourceLocDict();
@@ -3436,7 +3454,7 @@ public class MapWorld : MonoBehaviour
                     if (neighbor.x == xMin || neighbor.x == xMax || neighbor.z == zMin || neighbor.z == zMax)
                         continue;
 
-                    if (IsUnitLocationTaken(neighbor))
+                    if (IsUnitLocationTaken(neighbor) || IsPlayerLocationTaken(neighbor))
                     {
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Unit in the way");
                         wonderPlacementLoc.Clear();
@@ -3518,7 +3536,7 @@ public class MapWorld : MonoBehaviour
         //double checking if it's blocked
         foreach (Vector3Int tile in wonderNoWalkLoc)
         {
-            if (IsUnitLocationTaken(tile))
+            if (IsUnitLocationTaken(tile) || IsPlayerLocationTaken(tile))
             {
                 InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Unit in the way");
                 wonderPlacementLoc.Clear();
@@ -3574,6 +3592,7 @@ public class MapWorld : MonoBehaviour
         wonder.SetResourceDict(wonderData.wonderCost, false);
         wonder.unloadLoc = finalUnloadLoc;
         wonder.SetExclamationPoint();
+        AddStop(finalUnloadLoc, wonder);
         AddTradeLoc(finalUnloadLoc, wonder.wonderName);
         wonderNoWalkLoc.Remove(finalUnloadLoc);
         wonder.roadPreExisted = IsRoadOnTerrain(finalUnloadLoc);
@@ -3655,6 +3674,10 @@ public class MapWorld : MonoBehaviour
         wonder.PossibleHarborLocs = harborTiles;
 
         noWalkList.AddRange(wonderNoWalkLoc);
+
+        if (mainPlayer.isMoving)
+            tempNoWalkList.AddRange(wonderNoWalkLoc);
+
         wonderPlacementLoc.Clear();
         wonderNoWalkLoc.Clear();
         cityBuilderManager.PlayBoomAudio();
@@ -3697,6 +3720,7 @@ public class MapWorld : MonoBehaviour
 		    wonder.WonderData = wonderData;
 		    wonder.SetPrefabs(true);
     		wonder.SetResourceDict(wonderData.wonderCost, true);
+            AddStop(data.unloadLoc, wonder);
 		    AddTradeLoc(data.unloadLoc, wonder.wonderName);
 		    wonder.SetCenterPos(data.centerPos);
     		wonderConstructionDict[wonder.wonderName] = wonder;
@@ -3947,6 +3971,11 @@ public class MapWorld : MonoBehaviour
     public void RemoveFromNoWalkList(Vector3Int loc)
     {
         noWalkList.Remove(loc);
+    }
+
+    public bool IsInNoWalkZone(Vector3Int loc)
+    {
+        return tempNoWalkList.Contains(loc);
     }
 
     //Research info
@@ -4641,23 +4670,68 @@ public class MapWorld : MonoBehaviour
             cityBuilderManager.activeBuilderHandler.PrepareBuildOptions(cityBuilderManager.SelectedCity.ResourceManager);
     }
 
+    public Unit GetPlayer(Vector3Int tile)
+    {
+        return playerPosDict[tile];
+    }
+
+    public List<Trader> GetTrader(Vector3Int tile)
+    {
+        return traderPosDict[tile];
+    }
+
     public Unit GetUnit(Vector3Int tile)
     {
         return unitPosDict[tile];
     }
-
-    public bool IsUnitWaitingForSameStop(Vector3Int tile, Vector3 finalDestination)
+    
+    public Trader CycleThroughTraderCheck(Vector3Int tile, Trader trader)
     {
-        if (!unitPosDict.ContainsKey(tile))
-            return false;
+        if (traderPosDict.ContainsKey(tile))
+        {
+            int index = traderPosDict[tile].IndexOf(trader);
 
-        Unit tempUnit = unitPosDict[tile];
+            if (index >= 0)
+            {
+                int count = traderPosDict[tile].Count();
 
-        if (tempUnit.isWaiting && tempUnit.finalDestinationLoc == finalDestination)
-            return true;
-        else
-            return false;
+                if (count > 1)
+                {
+                    index++;
+                    if (index >= count)
+                        index = 0;
+
+                    return traderPosDict[tile][index]; 
+                }
+            }
+        }
+
+        return null;
     }
+
+    public bool IsTraderWaitingForSameStop(Vector3Int tile, Vector3Int finalDest)
+    {
+        if (traderPosDict.ContainsKey(tile) && tradeStopDict.ContainsKey(finalDest))
+        {
+            ITradeStop stop = tradeStopDict[finalDest];
+		    return stop.IsTraderWaitingAtSameStop(tile, finalDest, this);
+        }
+
+        return false;
+    }
+
+    //public bool IsUnitWaitingForSameStop(Vector3Int tile, Vector3 finalDestination)
+    //{
+    //    if (!unitPosDict.ContainsKey(tile))
+    //        return false;
+
+    //    Unit tempUnit = unitPosDict[tile];
+
+    //    if (tempUnit.isWaiting && tempUnit.finalDestinationLoc == finalDestination)
+    //        return true;
+    //    else
+    //        return false;
+    //}
 
     public City GetCity(Vector3Int tile)
     {
@@ -4771,6 +4845,11 @@ public class MapWorld : MonoBehaviour
         return tradeCenterDict[center];
     }
 
+    public ITradeStop GetStop(Vector3Int loc)
+    {
+        return tradeStopDict[loc];
+    }
+
     public Vector3Int GetStopLocation(string name)
     {
         if (cityNameDict.ContainsKey(name))
@@ -4826,50 +4905,56 @@ public class MapWorld : MonoBehaviour
 	//    return wonderStopDict.ContainsKey(loc);
 	//}
 
-	public bool IsTradeCenterHarborOnTile(Vector3Int loc)
+	//public bool IsTradeCenterHarborOnTile(Vector3Int loc)
+ //   {
+ //       return tradeCenterStopDict.ContainsKey(loc);
+ //   }
+
+
+    public bool StopExistsCheck(Vector3Int loc)
     {
-        return tradeCenterStopDict.ContainsKey(loc);
+        return tradeStopDict.ContainsKey(loc);
     }
 
-    public bool CheckIfStopStillExists(Vector3Int location, bool bySea, bool byAir)
-    {
-        Vector3Int loc;
+  //  public bool CheckIfStopStillExists(Vector3Int location, bool bySea, bool byAir)
+  //  {
+  //      Vector3Int loc;
 
-        if (tradeLocDict.ContainsKey(location))
-            loc = GetStopLocation(GetTradeLoc(location));
-        else
-            return false;
+  //      if (tradeLocDict.ContainsKey(location))
+  //          loc = GetStopLocation(GetTradeLoc(location));
+  //      else
+  //          return false;
 
-		if (bySea)
-        {
-            if (cityDict.ContainsKey(loc) && cityImprovementDict.ContainsKey(location) && cityImprovementDict[location].GetImprovementData.singleBuildType == SingleBuildType.Harbor && cityImprovementDict[location].city != null)
-                return true;
-            else if (wonderStopDict.ContainsKey(loc) && wonderStopDict[loc].hasHarbor && wonderStopDict[loc].harborLoc == location)
-                return true;
-            else if (tradeCenterStopDict.ContainsKey(loc) && tradeCenterStopDict[loc].harborLoc == location)
-                return true;
-        }
-        else if (byAir)
-        {
-			if (cityDict.ContainsKey(loc) && cityImprovementDict.ContainsKey(location) && cityImprovementDict[location].GetImprovementData.singleBuildType == SingleBuildType.Airport && cityImprovementDict[location].city != null)
-				return true;
-		}
-        else
-        {
-            if (cityDict.ContainsKey(loc) || wonderStopDict.ContainsKey(loc) || tradeCenterStopDict.ContainsKey(loc))
-                return true;
-        }
+		//if (bySea)
+  //      {
+  //          if (cityDict.ContainsKey(loc) && cityImprovementDict.ContainsKey(location) && cityImprovementDict[location].GetImprovementData.singleBuildType == SingleBuildType.Harbor && cityImprovementDict[location].city != null)
+  //              return true;
+  //          else if (wonderStopDict.ContainsKey(loc) && wonderStopDict[loc].hasHarbor && wonderStopDict[loc].harborLoc == location)
+  //              return true;
+  //          else if (tradeCenterStopDict.ContainsKey(loc) && tradeCenterStopDict[loc].harborLoc == location)
+  //              return true;
+  //      }
+  //      else if (byAir)
+  //      {
+		//	if (cityDict.ContainsKey(loc) && cityImprovementDict.ContainsKey(location) && cityImprovementDict[location].GetImprovementData.singleBuildType == SingleBuildType.Airport && cityImprovementDict[location].city != null)
+		//		return true;
+		//}
+  //      else
+  //      {
+  //          if (cityDict.ContainsKey(loc) || wonderStopDict.ContainsKey(loc) || tradeCenterStopDict.ContainsKey(loc))
+  //              return true;
+  //      }
 
-        return false;
-    }
+  //      return false;
+  //  }
 
-	public void CancelTraderRoute(Vector3Int loc)
-	{
-		Trader trader = GetUnit(loc).trader;
+	//public void CancelTraderRoute(Vector3Int loc)
+	//{
+	//	Trader trader = GetUnit(loc).trader;
 
-		if (trader && trader.followingRoute)
-			trader.InterruptRoute(true);
-	}
+	//	if (trader && trader.followingRoute)
+	//		trader.InterruptRoute(true);
+	//}
 
 	public Vector3Int GetHarborStopLocation(string name)
     {
@@ -5308,7 +5393,22 @@ public class MapWorld : MonoBehaviour
     //        closest.enemyAI.WakeUp(target);
     //}
 
-    public void CityBattleStations(Vector3Int cityLoc, Vector3Int attackLoc, Vector3Int targetZone, EnemyCamp camp)
+    public void AddBattleZones(Vector3Int loc1, Vector3Int loc2)
+    {
+        if (!tempBattleZone.Contains(loc1))
+            tempBattleZone.Add(loc1);
+        
+        if (!tempBattleZone.Contains(loc2))
+            tempBattleZone.Add(loc2);
+    }
+
+	public void RemoveBattleZones(Vector3Int loc1, Vector3Int loc2)
+	{
+		tempBattleZone.Remove(loc1);
+		tempBattleZone.Remove(loc2);
+	}
+
+	public void CityBattleStations(Vector3Int cityLoc, Vector3Int attackLoc, Vector3Int targetZone, EnemyCamp camp)
     {
         if (!cityDict[cityLoc].singleBuildDict.ContainsKey(SingleBuildType.Barracks))
             return;
@@ -5459,6 +5559,8 @@ public class MapWorld : MonoBehaviour
 
 	public void ToggleCityMaterialClear(Vector3Int enemyLoc, Vector3Int armyLoc, Vector3Int loc, Vector3Int targetLoc, bool v)
     {
+        RemoveBattleZones(enemyLoc, armyLoc);
+        
         if (GetTerrainDataAt(loc).treeHandler != null)
 			GetTerrainDataAt(loc).ToggleTransparentForest(v);
         
@@ -6435,6 +6537,16 @@ public class MapWorld : MonoBehaviour
         return buildingPosDict.ContainsKey(buildLoc);
     }
 
+    public bool IsPlayerLocationTaken(Vector3Int pos)
+    {
+        return playerPosDict.ContainsKey(pos);
+    }
+
+    public bool IsTraderLocationTaken(Vector3Int pos)
+    {
+        return traderPosDict.ContainsKey(pos);
+    }
+
     public bool IsUnitLocationTaken(Vector3Int unitPosition)
     {
         return unitPosDict.ContainsKey(unitPosition);
@@ -6618,7 +6730,7 @@ public class MapWorld : MonoBehaviour
 
 	public bool CheckIfPositionIsMarchable(Vector3Int tile)
     {
-		return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable;
+		return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable && !noWalkList.Contains(tile);
 	}
 
     public bool CheckForFinalMarch(Vector3Int tile)
@@ -6628,17 +6740,17 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfPositionIsValidForEnemy(Vector3Int tile)
     {
-		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile);
+		return world.ContainsKey(tile) && world[tile].walkable;
 	}
 
     public bool CheckIfPositionIsMarchableForEnemy(Vector3Int tile)
     {
-		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile);
+		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile) && !noWalkList.Contains(tile);
 	}
 
 	public bool CheckIfPositionIsSailableForEnemy(Vector3Int tile)
 	{
-		return world.ContainsKey(tile) && world[tile].sailable && !enemyCampDict.ContainsKey(tile);
+		return world.ContainsKey(tile) && world[tile].sailable && !enemyCampDict.ContainsKey(tile) && !noWalkList.Contains(tile);
 	}
 
 	public bool CheckIfPositionIsArmyValid(Vector3Int tile) //preventing going diagonally
@@ -6648,7 +6760,7 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfPositionIsEnemyArmyValid(Vector3Int tile) //preventing going diagonally
 	{ 
-		return world.ContainsKey(tile) && world[tile].walkable && !world[tile].sailable;
+		return world.ContainsKey(tile) && world[tile].walkable && !world[tile].sailable && !noWalkList.Contains(tile);
 	}
 
     public bool CheckIfSeaPositionIsValid(Vector3Int tile)
@@ -7156,11 +7268,16 @@ public class MapWorld : MonoBehaviour
     {
         Vector3Int vInt = new Vector3Int(0,0,0);
         
-        vInt.y = 0;
+        vInt.y = v.y < 3 ? 0 : 3;
         vInt.x = (int)Math.Round(v.x, MidpointRounding.AwayFromZero);
         vInt.z = (int)Math.Round(v.z, MidpointRounding.AwayFromZero);
 
         return vInt;
+    }
+
+    public void AddStop(Vector3Int stopLoc, ITradeStop stop)
+    {
+        tradeStopDict[stopLoc] = stop;
     }
 
     public void AddCityName(string cityName, Vector3Int cityLoc)
@@ -7239,6 +7356,11 @@ public class MapWorld : MonoBehaviour
     //    //cityBuildingIsProducer[cityTile].Remove(buildingName);
     //}
 
+    public void RemoveStop(Vector3Int stopLoc)
+    {
+        tradeStopDict.Remove(stopLoc);
+    }
+
     public void RemoveCityName(Vector3Int cityLoc)
     {
         string cityName = cityLocDict[cityLoc];
@@ -7300,28 +7422,59 @@ public class MapWorld : MonoBehaviour
         roadTileDict.Remove(buildPosition);
     }
 
+    public Vector3Int AddPlayerPosition(Vector3 unitPosition, Unit unit)
+    {
+		Vector3Int position = RoundToInt(unitPosition);
+		playerPosDict[position] = unit;
+
+		return position;
+	}
+
+    public Vector3Int AddTraderPosition(Vector3Int pos, Trader trader)
+    {
+        if (traderPosDict.ContainsKey(pos))
+        {
+            if (!traderPosDict[pos].Contains(trader))
+                traderPosDict[pos].Add(trader);
+        }
+        else
+        {
+            traderPosDict[pos] = new() { trader };
+        }
+
+        return pos;
+    }
+
     public Vector3Int AddUnitPosition(Vector3 unitPosition, Unit unit)
     {
         Vector3Int position = RoundToInt(unitPosition);
-
-        //checking if same unit doesn't already have a tile occupied (just in case)
-        //if (unitPosDict.ContainsValue(unit) && unitPosDict[position] != unit)
-        //{
-        //    var item = unitPosDict.First(key => key.Value == unit);
-        //    unitPosDict.Remove(item.Key);
-        //}
-
         unitPosDict[position] = unit;
 
         return position;
     }
 
-    public bool UnitAlreadyThere(Unit unit, Vector3Int position)
-    {
-        if (unitPosDict.ContainsKey(position))
-            return unitPosDict[position] == unit;
+    //public bool UnitAlreadyThere(Unit unit, Vector3Int position)
+    //{
+    //    if (unitPosDict.ContainsKey(position))
+    //        return unitPosDict[position] == unit;
 
-        return false;
+    //    return false;
+    //}
+
+    public void RemovePlayerPosition(Vector3Int pos)
+    {
+        playerPosDict.Remove(pos);
+    }
+
+    public void RemoveTraderPosition(Vector3Int pos, Trader trader)
+    {
+        if (traderPosDict.ContainsKey(pos))
+        {
+            traderPosDict[pos].Remove(trader);
+
+            if (traderPosDict[pos].Count == 0)
+                traderPosDict.Remove(pos);
+        }
     }
 
     public void RemoveUnitPosition(Vector3Int position/*, GameObject unitGO*/)
@@ -7346,30 +7499,28 @@ public class MapWorld : MonoBehaviour
         unclaimedSingleBuildList.Remove(location);
     }
 
+    private List<Vector3Int> GetStallLocs(Vector3Int pos)
+    {
+		CityImprovement improvement = GetCityDevelopment(pos);
+
+		List<Vector3Int> stallLocs;
+
+		if (improvement.GetImprovementData.singleBuildType == SingleBuildType.Harbor)
+			stallLocs = HarborStallLocs(Mathf.RoundToInt(improvement.transform.localEulerAngles.y));
+		else
+			stallLocs = neighborsEightDirections;
+
+        return stallLocs;
+	}
+
     public Vector3Int GetTraderBuildLoc(Vector3Int pos)
     {
-        CityImprovement improvement = GetCityDevelopment(pos);
-
-        if (improvement.GetImprovementData.singleBuildType == SingleBuildType.Harbor)
-        {
-
-        }
-
-        List<Vector3Int> stallLocs;
-
-        if (improvement.GetImprovementData.singleBuildType == SingleBuildType.Harbor)
-        {
-            stallLocs = HarborStallLocs(Mathf.RoundToInt(improvement.transform.localEulerAngles.y));
-        }
-        else
-        {
-            stallLocs = neighborsEightDirections;
-		}
+        List<Vector3Int> stallLocs = GetStallLocs(pos);
 
         for (int i = 0; i < stallLocs.Count; i++)
         {
             Vector3Int stall = stallLocs[i] + pos;
-            if (!IsUnitLocationTaken(stall) || !GetUnit(stall).isTrader)
+            if (!traderPosDict.ContainsKey(stall))
                 return stall;
         }
 
@@ -7378,7 +7529,19 @@ public class MapWorld : MonoBehaviour
         return stallLocs[rand];
     }
 
+    public bool IsSpotAvailable(Vector3Int pos)
+    {
+		List<Vector3Int> stallLocs = GetStallLocs(pos);
 
+		for (int i = 0; i < stallLocs.Count; i++)
+		{
+			Vector3Int stall = stallLocs[i] + pos;
+			if (!traderPosDict.ContainsKey(stall))
+				return true;
+		}
+
+        return false;
+	}
 
     //for assigning labor
     public void AddToCurrentFieldLabor(Vector3Int pos, int current)
@@ -8611,4 +8774,118 @@ public interface IGoldWaiter
     Vector3Int waiterLoc { get; }
 
     bool RestartGold(int gold);
+}
+
+public interface ITradeStop
+{
+    string stopName { get; }
+    Vector3Int mainLoc { get; }
+    public List<Trader> waitList { get; }
+    public List<Trader> seaWaitList { get; }
+    public List<Trader> airWaitList { get; }
+    City city { get; }
+    Wonder wonder { get; }
+    TradeCenter center { get; }
+
+    public bool TraderAlreadyThere(Vector3Int loc, Trader trader, MapWorld world)
+    {
+        return world.traderPosDict.ContainsKey(loc) && world.traderPosDict[loc].Contains(trader);
+    }
+
+	public void InLineCheck(Trader trader, ITradeStop stop)
+	{
+		if (trader.bySea)
+            stop.seaWaitList.Remove(trader);
+		else if (trader.byAir)
+            stop.airWaitList.Remove(trader);
+        else
+            stop.waitList.Remove(trader);
+	}
+
+	public bool IsTraderWaitingAtSameStop(Vector3Int pos, Vector3Int dest, MapWorld world)
+	{
+        for (int i = 0; i < world.traderPosDict[pos].Count; i++)
+        {
+            if (world.traderPosDict[pos][i].followingRoute && world.traderPosDict[pos][i].GetCurrentDestination() == dest)
+    			return true;
+        }
+
+		return false;
+	}
+
+	public void AddToWaitList(Trader trader, ITradeStop stop)
+	{
+		if (trader.bySea)
+			AddCheck(stop.seaWaitList, trader);
+		else if (trader.byAir)
+			AddCheck(stop.airWaitList, trader);
+		else
+            AddCheck(stop.waitList, trader);
+	}
+
+    public void AddCheck(List<Trader> waitList, Trader trader)
+    {
+		if (!waitList.Contains(trader))
+			waitList.Add(trader);
+	}
+
+	public void RemoveFromWaitList(Trader trader, ITradeStop stop)
+	{
+		if (trader.bySea)
+			RemoveCheck(stop.seaWaitList, trader);
+		else if (trader.byAir)
+			RemoveCheck(stop.airWaitList, trader);
+		else
+            RemoveCheck(stop.waitList, trader);
+	}
+
+    void RemoveCheck(List<Trader> waitList, Trader trader)
+    {
+		if (waitList.Contains(trader))
+        {
+			int index = waitList.IndexOf(trader);
+			waitList.RemoveAt(index);
+
+			int j = 0;
+			for (int i = index; i < waitList.Count; i++)
+			{
+				j++;
+				waitList[i].StartMoveUpInLine(j);
+			}
+		}
+        else
+        {
+			if (waitList.Count > 0)
+			{
+				Trader nextTrader = waitList[0];
+				waitList.RemoveAt(0);
+				nextTrader.ExitLine();
+			}
+
+			if (waitList.Count > 0)
+			{
+				int i = 0;
+				foreach (Unit unit in waitList)
+				{
+					i++;
+					if (!unit.trader.movingUpInLine)
+						unit.trader.StartMoveUpInLine(i);
+				}
+			}
+		}
+	}
+
+	public void ClearStopCheck(List<Trader> waitList, Vector3Int stopLoc, MapWorld world)
+	{
+		for (int i = 0; i < waitList.Count; i++)
+            waitList[i].InterruptRoute(true);
+
+        waitList.Clear();
+
+        if (world.traderPosDict.ContainsKey(stopLoc))
+        {
+            for (int i = 0; i < world.traderPosDict[stopLoc].Count; i++)
+                world.traderPosDict[stopLoc][i].InterruptRoute(true);
+        }
+	}
 }

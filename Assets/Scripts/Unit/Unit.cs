@@ -78,7 +78,7 @@ public class Unit : MonoBehaviour
     public Vector3Int currentLocation;
     //public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     [HideInInspector]
-    public Vector3Int prevTile, prevTerrainTile, ambushLoc, lastClearTile; //second one for traders is in case road they're on is removed
+    public Vector3Int prevTile, prevTerrainTile, ambushLoc, lastClearTile;
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo;
@@ -158,7 +158,7 @@ public class Unit : MonoBehaviour
             selectionCircle.SetActive(false);
 
         Vector3 pos = transform.position;
-        pos.y = 0;
+        pos.y = pos.y < 3 ? 0 : 3;
         prevTile = Vector3Int.RoundToInt(pos); //world hasn't been initialized yet
 
         if (currentHealth == healthMax)
@@ -334,17 +334,27 @@ public class Unit : MonoBehaviour
         if (isDead || !gameObject.activeSelf)
             return;
 
-        world.RemoveUnitPosition(currentLocation);//removing previous location
-        pathPositions = new Queue<Vector3Int>(currentPath);
-
         if (bySea)
             TurnOnRipples();
 
-        if (trader && trader.followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+        pathPositions = new Queue<Vector3Int>(currentPath);
+
+        if (trader && trader.followingRoute)
         {
-            isMoving = true;
-            trader.GetInLine();
-			return;
+            if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.GetCurrentDestination()))
+            {
+                isMoving = true;
+                trader.GetInLine();
+			    return;
+            }
+        }
+        else if (military)
+		{
+			world.RemoveUnitPosition(currentLocation);//removing previous location
+		}
+		else if (world.characterUnits.Contains(this) || transport)
+        {
+            world.RemovePlayerPosition(currentLocation);
         }
 
 		Vector3 firstTarget = pathPositions.Dequeue();
@@ -362,24 +372,7 @@ public class Unit : MonoBehaviour
         {
             if (pathPositions.Count == 0)
             {
-/*                if (world.IsUnitLocationTaken(endPositionInt))
-                {
-					Unit unitInTheWay = world.GetUnit(endPositionInt);
-                    
-                    if (unitInTheWay.somethingToSay)
-					{
-						if (isSelected)
-						{
-							world.unitMovement.QuickSelect(this);
-							unitInTheWay.SpeakingCheck();
-						}
-
-						worker.SetUpSpeakingPositions(unitInTheWay.transform.position, false);
-						FinishMoving(transform.position);
-						yield break;
-					}
-				}
-                else */if (world.IsNPCThere(endPositionInt))
+                if (world.IsNPCThere(endPositionInt))
                 {
 					Unit unitInTheWay = world.GetNPC(endPositionInt);
 
@@ -419,20 +412,19 @@ public class Unit : MonoBehaviour
         {
             if (pathPositions.Count == 0) //don't occupy sqaure if another unit is there
             {
-                if (world.IsUnitLocationTaken(endPositionInt))
+                if (world.IsPlayerLocationTaken(endPositionInt))
                 {
-                    Unit unitInTheWay = world.GetUnit(endPositionInt);
+                    Unit unitInTheWay = world.GetPlayer(endPositionInt);
 
                     if (unitInTheWay.transport)
                     {
                         if (worker)
                         {
-                            //worker.LoadWorkerInTransport(unitInTheWay.transport);
                             FinishMoving(endPosition);
                             yield break;
                         }
                     }
-			        else if ((unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering) /*|| (unitInTheWay.trader && !unitInTheWay.trader.followingRoute)*/)
+			        else if (unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering)
                     {
                         Vector3Int next;
                         if (pathPositions.Count > 0)
@@ -566,17 +558,20 @@ public class Unit : MonoBehaviour
         {
             if (trader)
             {
-                if (trader.followingRoute && world.IsUnitWaitingForSameStop(pathPositions.Peek(), finalDestinationLoc))
+                if (trader.followingRoute)
                 {
-                    trader.GetInLine();
-                    yield break;
+                    if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.GetCurrentDestination()))
+                    {
+                        trader.GetInLine();
+                        yield break;
+                    }
                 }
 
 				prevTile = endPositionInt;
-				if (prevTile == ambushLoc) //prevTile is a misnomer, asking if current tile is ambushLoc. Can also trigger ambush when not on trade route
+				if (prevTile == ambushLoc && !world.tempBattleZone.Contains(ambushLoc)) //Can also trigger ambush when not on trade route
                 {
                     ambush = true;
-                    world.AddUnitPosition(prevTile, this);
+                    world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
                     currentLocation = prevTile;
                     StopAnimation();
 
@@ -584,7 +579,18 @@ public class Unit : MonoBehaviour
                     yield break;
                 }
             }
-            else
+			else if (isPlayer)
+			{
+                if (world.IsInNoWalkZone(pathPositions.Peek()))
+                {
+                    worker.RealignFollowers(endPositionInt, prevTile, false);
+                    StopMovementCheck(true);
+                    yield break;
+                }
+                
+                prevTile = endPositionInt;
+			}
+			else
             {
                 prevTile = endPositionInt;
             }
@@ -599,19 +605,15 @@ public class Unit : MonoBehaviour
                         isMoving = false;
                         finalDestinationLoc = prevTile;
                         currentLocation = prevTile;
-                        world.AddUnitPosition(currentLocation, this);
+                        world.AddUnitPosition(currentLocation, this); //adding trader to military positions to be attacked
 
-                        if (enemyAI)
-                            enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
-					    else if (!trader)
-						    military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+         //               if (enemyAI)
+         //                   enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+					    //else if (!trader)
+						   // military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
 
 					    yield break;
                     }
-                    //else if (isWaiting && world.GetCity(pathPositions.Peek()).InLineCheck(trader))
-                    //{
-                    //    yield break;
-                    //}
                 }
             }   
 
@@ -745,15 +747,14 @@ public class Unit : MonoBehaviour
 		}
     }
 
-    public void UnitInWayCheck(Vector3 endPosition)
+    //only used for player, scott, and azai
+    public void UnitInWayCheck()
     {
-		Unit unitInTheWay = world.GetUnit(currentLocation);
+		Unit unitInTheWay = world.GetPlayer(currentLocation);
 
 		if (unitInTheWay == this)
 		{
-			world.AddUnitPosition(currentLocation, this);
-			if (trader)
-                trader.TradeRouteCheck(endPosition);
+			world.AddPlayerPosition(currentLocation, this);
 			return;
 		}
 		else if (unitInTheWay.buildDataSO.characterUnit)
@@ -791,7 +792,7 @@ public class Unit : MonoBehaviour
             if (trader && !world.IsRoadOnTileLocation(tile))
                 continue;
 
-            if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile))
+            if (!world.CheckIfPositionIsValid(tile) || world.IsPlayerLocationTaken(tile))
                 continue;
 
             if (tile == next && tile != null) 
@@ -811,7 +812,11 @@ public class Unit : MonoBehaviour
     {
         currentLocation = loc;
         transform.position = loc;
-        world.AddUnitPosition(currentLocation, this);
+
+        if (military)
+            world.AddUnitPosition(currentLocation, this);
+        else if (trader)
+            world.AddTraderPosition(currentLocation, trader);
     }
 
     public void Reveal()
@@ -1322,7 +1327,11 @@ public class Unit : MonoBehaviour
     public void RemoveUnitFromData()
     {
 		pathPositions.Clear();
-        world.RemoveUnitPosition(currentLocation);
+
+        if (military)
+            world.RemoveUnitPosition(currentLocation);
+        else if (trader)
+            world.RemoveTraderPosition(currentLocation, trader);
     }
 
     public void ShowContinuedPath()

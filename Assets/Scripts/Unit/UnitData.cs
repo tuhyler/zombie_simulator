@@ -17,7 +17,6 @@ public class UnitData : IUnitData
 	public Vector3 destinationLoc;
     public Vector3 finalDestinationLoc;
     public Vector3Int currentLocation;
-	public Vector3Int prevTerrainTile;
 	public int idleTime;
 
 	//combat

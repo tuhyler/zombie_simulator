@@ -252,7 +252,7 @@ public class BodyGuard : Military
 		transform.position = tile;
 		gameObject.SetActive(true);
 		inTransport = false;
-		currentLocation = world.AddUnitPosition(transform.position, this);
+		currentLocation = world.AddPlayerPosition(transform.position, this);
 
 		if (currentHealth < buildDataSO.health)
 			healthbar.RegenerateHealth();
@@ -261,9 +261,13 @@ public class BodyGuard : Military
 	public void FinishMovementBodyGuard(Vector3 endPosition)
 	{
 		if (toTransport)
+		{
 			LoadBodyGuardInTransport(transportTarget);
-		else if (world.IsUnitLocationTaken(currentLocation))
-			UnitInWayCheck(endPosition);
+		}
+		else if (world.IsPlayerLocationTaken(currentLocation))
+		{
+			UnitInWayCheck();
+		}
 		else
 		{
 			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
@@ -274,7 +278,7 @@ public class BodyGuard : Military
 				if (!world.mainPlayer.isMoving && city.activeCity && world.unitMovement.upgradingUnit)
 					world.unitMovement.CheckIndividualUnitHighlight(this, city);
 			}
-			world.AddUnitPosition(currentLocation, this);
+			world.AddPlayerPosition(currentLocation, this);
 		}
 	}
 

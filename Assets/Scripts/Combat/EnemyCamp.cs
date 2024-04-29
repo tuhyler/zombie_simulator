@@ -1326,6 +1326,8 @@ public class EnemyCamp
 			threatLoc = penultimate;
 
 			forward = (actualAttackLoc - threatLoc) / 3;
+			world.AddBattleZones(actualAttackLoc, threatLoc);
+			
 			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.army == attackingArmy)
 				world.unitMovement.CancelArmyDeployment();
 		
@@ -1349,7 +1351,8 @@ public class EnemyCamp
 		inBattle = false;
 		attackingArmy = world.GetCity(moveToLoc).army;
 		enemyReady = 0;
-		forward = forward = (moveToLoc - threatLoc) / 3;
+		forward = (moveToLoc - threatLoc) / 3;
+		world.AddBattleZones(moveToLoc, threatLoc);
 
 		if (world.deployingArmy)
 		{

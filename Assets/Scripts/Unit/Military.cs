@@ -1261,7 +1261,6 @@ public class Military : Unit
 		data.destinationLoc = destinationLoc;
 		data.finalDestinationLoc = finalDestinationLoc;
 		data.currentLocation = currentLocation;
-		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
 		data.ambush = ambush;
@@ -1331,7 +1330,6 @@ public class Military : Unit
 		destinationLoc = data.destinationLoc;
 		finalDestinationLoc = data.finalDestinationLoc;
 		currentLocation = data.currentLocation;
-		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
 		isUpgrading = data.isUpgrading;
 		upgradeLevel = data.upgradeLevel;

@@ -111,7 +111,6 @@ public class Laborer : Unit
 		data.destinationLoc = destinationLoc;
 		data.finalDestinationLoc = finalDestinationLoc;
 		data.currentLocation = currentLocation;
-		data.prevTerrainTile = prevTerrainTile;
 		data.moveOrders = pathPositions.ToList();
 		data.isMoving = isMoving;
         data.somethingToSay = somethingToSay;
@@ -131,14 +130,13 @@ public class Laborer : Unit
 		destinationLoc = data.destinationLoc;
 		finalDestinationLoc = data.finalDestinationLoc;
 		currentLocation = data.currentLocation;
-		prevTerrainTile = data.prevTerrainTile;
 		isMoving = data.isMoving;
         celebrating = data.celebrating;
         totalWait = data.totalWait;
         homeCityLoc = data.homeCityLoc;
 
-		if (!isMoving)
-			world.AddUnitPosition(currentLocation, this);
+		//if (!isMoving)
+		//	world.AddUnitPosition(currentLocation, this);
 
 		if (isMoving)
 		{

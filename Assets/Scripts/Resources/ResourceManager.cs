@@ -960,6 +960,15 @@ public class ResourceManager : MonoBehaviour
         //UpdateUI(ResourceType.Food);
     }
 
+    public void RemoveWarning()
+    {
+        if (growthDeclineDanger)
+        {
+            growthDeclineDanger = false;
+            city.exclamationPoint.SetActive(false);
+        }
+    }
+
     //public void CheckProducerUnloadWaitList()
     //{
     //    if (fullInventory)
