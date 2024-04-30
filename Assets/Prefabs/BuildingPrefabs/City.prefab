@@ -211,6 +211,9 @@ MonoBehaviour:
   improvementWorkEthic: 0
   wonderWorkEthic: 0
   warehouseStorageLimit: 300
+  waitList: []
+  seaWaitList: []
+  airWaitList: []
   tradersHere: []
 --- !u!114 &-548530054223577924
 MonoBehaviour:

@@ -231,8 +231,8 @@ public class TradeRouteManager : MonoBehaviour
         {
             currentResource = i;
             i++;
-            resourceTotalAmount = Mathf.Abs(value.resourceAmount);
             int resourceAmount = value.resourceAmount;
+            resourceTotalAmount = Mathf.Abs(resourceAmount);
             bool loadUnloadCheck = true;
             int cost = 0; //for buying from trade center
             percDone = 0;
@@ -293,29 +293,15 @@ public class TradeRouteManager : MonoBehaviour
             }
             else if (resourceAmount > 0) //moving from city to trader
             {
-                //if trader wants more than it can store
-                int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.ResourceStorageLevel;
-                //int currentAmount = trader.personalResourceManager.ResourceDict[value.resourceType];
-                //resourceAmount -= currentAmount;
-                
-                if (space < resourceAmount)
-                {
-                    resourceAmount = space;
-
-                    //for when inventory is full
-                    if (resourceAmount == 0)
-                    {
-                        SuddenFinish(true);
-                        complete = true;
-                        continue;
-                    }
-                }
-
-                //when loading
                 if (loading)
                 {
-                    resourceAmount += amountMoved;
-                    resourceCurrentAmount = amountMoved;
+					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.ResourceStorageLevel;
+					if (space + amountMoved < resourceAmount)
+                    {
+                        resourceAmount = space;
+						resourceAmount += amountMoved;
+					}
+					resourceCurrentAmount = amountMoved;
 
                     if (resourceCheck)
                     {
@@ -326,7 +312,7 @@ public class TradeRouteManager : MonoBehaviour
 						}
                         else
                         {
-						trader.SetWarning(false, false, false);
+						    trader.SetWarning(false, false, false);
                         }
 
 						trader.SetLoadingAnimation(false);
@@ -338,6 +324,21 @@ public class TradeRouteManager : MonoBehaviour
                 {
                     amountMoved = 0;
                     resourceCurrentAmount = 0;
+                
+                    //if trader wants more than it can store
+                    int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.ResourceStorageLevel;
+                    if (space < resourceAmount)
+                    {
+                        resourceAmount = space;
+
+                        //for when inventory is full
+                        if (resourceAmount == 0)
+                        {
+                            SuddenFinish(true);
+                            complete = true;
+                            continue;
+                        }
+                    }
                 }
 
                 //for when trader already has requisite amount
@@ -436,28 +437,17 @@ public class TradeRouteManager : MonoBehaviour
             }
             else if (resourceAmount < 0) //moving from trader to city
             {
-				//if trader holds less than what is asked to be dropped off
-				int remainingWithTrader = trader.personalResourceManager.GetResourceDictValue(value.resourceType);
-                if (remainingWithTrader < Mathf.Abs(resourceAmount))
+                if (loading) //when loading
                 {
-                    resourceAmount = -remainingWithTrader;
-                    resourceTotalAmount = remainingWithTrader;
-                    
-                    //for when trader isn't carrying any
-                    if (resourceAmount == 0)
+					int remainingWithTrader = trader.personalResourceManager.GetResourceDictValue(value.resourceType);
+                    if (remainingWithTrader - amountMoved < Mathf.Abs(resourceAmount))
                     {
-                        SuddenFinish(true); 
-                        complete = true;
-                        continue;
+                        resourceAmount = -remainingWithTrader;
+                        resourceAmount += amountMoved;
+                        resourceTotalAmount = Mathf.Abs(resourceAmount);
                     }
-                }
-
-                //when loading
-                if (loading)
-                {
-                    resourceAmount += amountMoved;
+					
                     resourceCurrentAmount = Mathf.Abs(amountMoved);
-                    resourceTotalAmount = Mathf.Abs(resourceAmount);
 
                     if (resourceCheck)
                     {
@@ -470,6 +460,22 @@ public class TradeRouteManager : MonoBehaviour
                 {
                     amountMoved = 0;
                     resourceCurrentAmount = 0;
+				
+    				//if trader holds less than what is asked to be dropped off
+                    int remainingWithTrader = trader.personalResourceManager.GetResourceDictValue(value.resourceType);
+                    if (remainingWithTrader < Mathf.Abs(resourceAmount))
+                    {
+                        resourceAmount = -remainingWithTrader;
+                        resourceTotalAmount = remainingWithTrader;
+                    
+                        //for when trader isn't carrying any
+                        if (resourceAmount == 0)
+                        {
+                            SuddenFinish(true); 
+                            complete = true;
+                            continue;
+                        }
+                    }
                 }
 
                 bool isPlaying = false;

@@ -834,7 +834,7 @@ public class ResourceManager : MonoBehaviour
                 {
 					city.PlayHellHighlight(city.world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Harbor]).RemoveRandomTrader());
                 }
-				else if (city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) && city.army.UnitsInArmy.Count > 0)
+				else if (city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) && city.army.UnitsInArmy.Count > 0 && !city.army.defending && city.army.atHome)
                 {
                     city.PlayHellHighlight(city.army.RemoveRandomArmyUnit());
                     city.army.AWOLClear();

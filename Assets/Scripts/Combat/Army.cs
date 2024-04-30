@@ -181,7 +181,7 @@ public class Army : MonoBehaviour
 			city.StartGrowthCycle(false);
 	}
 
-	private void AddToCycleCost(List<ResourceValue> costs)
+	public void AddToCycleCost(List<ResourceValue> costs)
     {
         List<ResourceType> resourceTypes = new();
         
@@ -258,7 +258,7 @@ public class Army : MonoBehaviour
         return costs;
     }
 
-    public void RemoveFromArmy(Military unit, Vector3Int loc)
+    public void RemoveFromArmy(Military unit, Vector3Int loc, bool removeCosts)
     {
         unitsInArmy.Remove(unit);
         //if (unit.newlyJoined)
@@ -268,7 +268,8 @@ public class Army : MonoBehaviour
         //}
         //else
         //{
-		RemoveFromCycleCost(unit.buildDataSO.cycleCost);
+        if (removeCosts)
+    		RemoveFromCycleCost(unit.buildDataSO.cycleCost);
 		RemoveFromBattleCost(unit.buildDataSO.battleCost);
 		//}
 		world.GetCityDevelopment(this.loc).unitsWithinCount--;
@@ -354,8 +355,9 @@ public class Army : MonoBehaviour
             rotation = 0;
 
         foreach (Military unit in unitsInArmy)
-        {            
-            unit.healthbar.CancelRegeneration();
+        {
+            RemoveFromCycleCost(unit.buildDataSO.cycleCost);
+			unit.healthbar.CancelRegeneration();
             unit.atHome = false;
          
             if (unit.isSelected)
@@ -1285,7 +1287,7 @@ public class Army : MonoBehaviour
 		world.unitMovement.uiCancelTask.ToggleVisibility(false);
 		city.battleIcon.SetActive(false);
 		//inBattle = false; //wait till enemy stops attacking to stop setting as in battle
-        returning = true;
+        //returning = true;
         attackingSpots.Clear();
         //DestroyDeadList();
         MoveArmyHome(loc);
@@ -1394,6 +1396,9 @@ public class Army : MonoBehaviour
 
     public void AWOLCheck()
     {
+        if (defending) //no awol while defending
+            return;
+        
         if (noMoneyCycles < 1) //get only one chance
         {
             noMoneyCycles++;
@@ -1404,7 +1409,7 @@ public class Army : MonoBehaviour
 
         AWOLClear();
 		Military unit = GetMostExpensiveUnit();
-		RemoveFromArmy(unit, unit.barracksBunk);
+		RemoveFromArmy(unit, unit.barracksBunk, true);
         unit.JoinCity(unit.army.city);
 	}
 
@@ -1423,7 +1428,7 @@ public class Army : MonoBehaviour
         int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
         Military unit = unitsInArmy[random];
         Vector3Int loc = unit.barracksBunk;
-        RemoveFromArmy(unit, loc);
+        RemoveFromArmy(unit, loc, true);
         if (unit.isSelected)
         {
 			Military nextUnitUp = GetNextLivingUnit();

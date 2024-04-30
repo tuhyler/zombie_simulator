@@ -1123,6 +1123,8 @@ public class EnemyCamp
 				if (unitsInCamp[i].buildDataSO.unitType == UnitType.Cavalry)
 					unitsInCamp[i].StartAttackingAnimation();
 			}
+
+			CheckForWeaklings(moveToLoc, false);
 		}
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
@@ -1206,11 +1208,12 @@ public class EnemyCamp
 				if (world.IsRoadOnTileLocation(lastSpot))
 					CheckForWeaklings(lastSpot, false);
 
-				if (world.TileHasCityImprovement(lastSpot) && !world.GetCityDevelopment(lastSpot).CompareTag("Enemy"))
-				{
-					if (world.cityBuilderManager.RemoveImprovement(lastSpot, world.GetCityDevelopment(lastSpot), false, false, true))
-						world.cityBuilderManager.PlayAudioClip(world.cityBuilderManager.removeClip);
-				}
+				//currently don't destroy improvements
+				//if (world.TileHasCityImprovement(lastSpot) && !world.GetCityDevelopment(lastSpot).CompareTag("Enemy"))
+				//{
+				//	if (world.cityBuilderManager.RemoveImprovement(lastSpot, world.GetCityDevelopment(lastSpot), false, false, true))
+				//		world.cityBuilderManager.PlayAudioClip(world.cityBuilderManager.removeClip);
+				//}
 			}
 
 
