@@ -7,6 +7,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class MapWorld : MonoBehaviour
@@ -2355,6 +2356,7 @@ public class MapWorld : MonoBehaviour
         {
             newUnit.trader.SetRouteManagers(unitMovement.uiTradeRouteManager, unitMovement.uiPersonalResourceInfoPanel); //start method is too slow and awake is too fast
             traderList.Add(newUnit.trader);
+            newUnit.trader.personalResourceManager.SetUnit(newUnit);
 			newUnit.trader.LoadTraderData(data.GetTraderData());
 
             if (newUnit.trader.ambush)
@@ -2464,6 +2466,7 @@ public class MapWorld : MonoBehaviour
 	public void StartSaveProcess(string saveName)
     {
         canvasHolder.SetActive(false);
+        Cursor.visible = false;
         StartCoroutine(TakeScreenshot(saveName));
     }
 
@@ -2481,6 +2484,7 @@ public class MapWorld : MonoBehaviour
         //File.WriteAllBytes(Application.persistentDataPath + "/Screenshot.png", bytes);
         Texture2D newTexture = texture;
 
+        Cursor.visible = true;
         canvasHolder.SetActive(true);
         float playTime = (DateTime.Now - currentTime).Seconds;
 		uiMainMenu.uiSaveGame.UpdateSaveItems(saveName, playTime, version, newTexture);
@@ -4709,12 +4713,12 @@ public class MapWorld : MonoBehaviour
         return null;
     }
 
-    public bool IsTraderWaitingForSameStop(Vector3Int tile, Vector3Int finalDest)
+    public bool IsTraderWaitingForSameStop(Vector3Int tile, Vector3Int finalDest, Trader trader)
     {
         if (traderPosDict.ContainsKey(tile) && tradeStopDict.ContainsKey(finalDest))
         {
             ITradeStop stop = tradeStopDict[finalDest];
-		    return stop.IsTraderWaitingAtSameStop(tile, finalDest, this);
+		    return stop.IsTraderWaitingAtSameStop(tile, finalDest, this, trader);
         }
 
         return false;
@@ -8802,11 +8806,11 @@ public interface ITradeStop
             stop.waitList.Remove(trader);
 	}
 
-	public bool IsTraderWaitingAtSameStop(Vector3Int pos, Vector3Int dest, MapWorld world)
+	public bool IsTraderWaitingAtSameStop(Vector3Int pos, Vector3Int dest, MapWorld world, Trader trader)
 	{
         for (int i = 0; i < world.traderPosDict[pos].Count; i++)
         {
-            if (world.traderPosDict[pos][i].followingRoute && world.traderPosDict[pos][i].GetCurrentDestination() == dest)
+            if (world.traderPosDict[pos][i].followingRoute && world.traderPosDict[pos][i] != trader && world.traderPosDict[pos][i].GetCurrentDestination() == dest)
     			return true;
         }
 
@@ -8864,16 +8868,40 @@ public interface ITradeStop
 
 			if (waitList.Count > 0)
 			{
-				int i = 0;
-				foreach (Unit unit in waitList)
-				{
-					i++;
-					if (!unit.trader.movingUpInLine)
-						unit.trader.StartMoveUpInLine(i);
+                for (int i = 0; i < waitList.Count; i++)
+                {
+					if (!waitList[i].movingUpInLine)
+                        waitList[i].StartMoveUpInLine(i + 1);
+
 				}
 			}
 		}
 	}
+
+    //currently doesn't work in unit
+ //   public void MoveUpRestInLine(Trader trader, ITradeStop stop)
+ //   {
+	//	List<Trader> waitList;
+
+	//	if (trader.bySea)
+	//		waitList = stop.seaWaitList;
+	//	else if (trader.byAir)
+	//		waitList = stop.airWaitList;
+	//	else
+	//		waitList = stop.waitList;
+
+	//	if (waitList.Contains(trader))
+	//	{
+	//		int index = waitList.IndexOf(trader);
+
+	//		int j = 0;
+	//		for (int i = index; i < waitList.Count; i++)
+	//		{
+	//			j++;
+	//			waitList[i].StartMoveUpInLine(j);
+	//		}
+	//	}
+	//}
 
 	public void ClearStopCheck(List<Trader> waitList, Vector3Int stopLoc, MapWorld world)
 	{
@@ -8887,5 +8915,52 @@ public interface ITradeStop
             for (int i = 0; i < world.traderPosDict[stopLoc].Count; i++)
                 world.traderPosDict[stopLoc][i].InterruptRoute(true);
         }
+	}
+
+    public void ClearRestInLine(Trader trader, ITradeStop stop)
+    {
+        List<Trader> waitList;
+
+        if (trader.bySea)
+            waitList = stop.seaWaitList;
+        else if (trader.byAir)
+            waitList = stop.airWaitList;
+        else
+            waitList = stop.waitList;
+
+        if (waitList.Contains(trader))
+		{
+			int index = waitList.IndexOf(trader);
+			waitList.RemoveAt(index);
+
+			for (int i = index; i < waitList.Count; i++)
+			{
+				if (!waitList[i].isDead)
+                    waitList[i].CancelRoute();
+			}
+		}
+		else
+		{
+			if (waitList.Count > 0)
+			{
+				Trader nextTrader = waitList[0];
+				waitList.RemoveAt(0);
+
+                if (!nextTrader.isDead)
+    				nextTrader.CancelRoute();
+			}
+
+			if (waitList.Count > 0)
+			{
+                for (int i = 0; i < waitList.Count; i++)
+                {
+					if (!waitList[i].movingUpInLine)
+                    {
+                        if (!waitList[i].isDead)
+                            waitList[i].CancelRoute();
+                    }
+				}
+			}
+		}
 	}
 }

@@ -339,9 +339,11 @@ public class Unit : MonoBehaviour
 
         pathPositions = new Queue<Vector3Int>(currentPath);
 
-        if (trader && trader.followingRoute)
+        if (trader)
         {
-            if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.GetCurrentDestination()))
+            world.RemoveTraderPosition(currentLocation, trader);
+            
+            if (trader.followingRoute && world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.GetCurrentDestination(), trader))
             {
                 isMoving = true;
                 trader.GetInLine();
@@ -560,10 +562,26 @@ public class Unit : MonoBehaviour
             {
                 if (trader.followingRoute)
                 {
-                    if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.GetCurrentDestination()))
+                    if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.GetCurrentDestination(), trader))
                     {
+                        isMoving = false;
                         trader.GetInLine();
                         yield break;
+                    }
+                    else /*if (isWaiting)*/
+                    {
+                        world.RemoveTraderPosition(endPositionInt, trader);
+
+                        //if (world.StopExistsCheck(trader.GetCurrentDestination()))
+                        //{
+                        //    ITradeStop stop = world.GetStop(trader.GetCurrentDestination());
+                        //    stop.MoveUpRestInLine(trader, stop);
+                        //}
+                        //else
+                        //{
+                        //    trader.CancelRoute();
+                        //    yield break;
+                        //}
                     }
                 }
 
@@ -573,6 +591,7 @@ public class Unit : MonoBehaviour
                     ambush = true;
                     world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
                     currentLocation = prevTile;
+                    isMoving = false;
                     StopAnimation();
 
                     world.SetUpAmbush(ambushLoc, this);
@@ -932,29 +951,6 @@ public class Unit : MonoBehaviour
         td.ToggleTransparentForest(false);
     }
 
-	//sees if trader is at trade route stop and has finished trade orders
-	//protected virtual void TradeRouteCheck(Vector3 endPosition)
- //   {
-        
- //   }
-
-    //sends trader to next stop
-    //public virtual void BeginNextStepInRoute()
-    //{
-
-    //}
-
-    //public virtual void CancelRoute()
-    //{
-
-    //}
-
-    //for harvesting resource
-    //public virtual void SendResourceToCity()
-    //{
-
-    //}
-
     public void TurnOffRipples()
     {
 		LeanTween.alpha(ripples, 0f, 0.5f).setFrom(1f).setEase(LeanTweenType.linear).setOnComplete(SetActiveStatusFalse);
@@ -965,12 +961,6 @@ public class Unit : MonoBehaviour
 		if (!isMoving)
             ripples.SetActive(false);
 	}
-
-	//for animations
-	//public virtual void SetInterruptedAnimation(bool v)
- //   {
-
- //   }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -1086,73 +1076,7 @@ public class Unit : MonoBehaviour
 				unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
 				break;
         }
-
-  //      if (collision.gameObject.CompareTag("Road"))
-  //      {
-  //          moveSpeed = baseSpeed * roadSpeed * originalMoveSpeed * .25f;
-  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
-  //          threshold = 0.1f;
-  //          //unitRigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
-  //      }
-  //      else if (collision.gameObject.CompareTag("City"))
-  //      {
-  //          moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
-  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
-  //      }
-  //      else if (collision.gameObject.CompareTag("Flatland"))
-  //      {
-  //          moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
-  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 18f);
-  //      }
-  //      else if (collision.gameObject.CompareTag("Forest"))
-  //      {
-  //          moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * 0.025f;
-  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
-  //      }
-  //      else if (collision.gameObject.CompareTag("Hill"))
-  //      {
-  //          moveSpeed = baseSpeed * hillSpeed * originalMoveSpeed * 0.025f;
-  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 9f);
-  //          threshold = 0.1f;
-  //      }
-  //      else if (collision.gameObject.CompareTag("Forest Hill"))
-  //      {
-  //          moveSpeed = baseSpeed * forestHillSpeed * originalMoveSpeed * 0.02f;
-  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
-		//}
-		//else if (collision.gameObject.CompareTag("Water"))
-  //      {
-  //          if (bySea)
-  //          {
-  //              moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * .1f;
-  //              unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 12f);
-  //          }
-  //          else
-  //          {
-  //              moveSpeed = baseSpeed * flatlandSpeed * originalMoveSpeed * 0.025f;
-  //              unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 3f);
-  //          }
-  //      }
-  //      else if (collision.gameObject.CompareTag("Swamp"))
-  //      {
-  //          moveSpeed = baseSpeed * forestSpeed * originalMoveSpeed * .0125f;
-  //          unitAnimator.SetFloat("speed", baseSpeed * originalMoveSpeed * 5f);
-  //      }
     }
-
-    //private bool CampAggroCheck(Vector3Int loc)
-    //{
-    //    foreach (Vector3Int tile in world.GetNeighborsFor(loc, MapWorld.State.CITYRADIUS))
-    //    {
-    //        if (world.CheckIfEnemyCamp(tile))
-    //        {
-    //            world.GetEnemyCamp(tile).StartChase(loc);
-    //            return true;
-    //        }
-    //    }
-
-    //    return false;
-    //}
 
 	public void TurnOnRipples()
 	{

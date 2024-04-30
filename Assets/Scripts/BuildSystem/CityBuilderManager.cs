@@ -2043,7 +2043,7 @@ public class CityBuilderManager : MonoBehaviour
 				    buildPosition = upgradedUnit.currentLocation;
 				    reselectAfterUpgrade = upgradedUnit.isSelected;
 				    upgradedUnit.RemoveUnitFromData();
-					upgradedUnit.military.army.RemoveFromArmy(upgradedUnit.military, upgradedUnit.military.barracksBunk);
+					upgradedUnit.military.army.RemoveFromArmy(upgradedUnit.military, upgradedUnit.military.barracksBunk, true);
 				    city.army.AddToOpenSpots(buildPosition);
 				    upgradedUnit.DestroyUnit();
 		        }

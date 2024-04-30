@@ -926,7 +926,7 @@ public class UnitMovement : MonoBehaviour
 		//{
 		//}
 
-		unit.army.RemoveFromArmy(unit, unit.barracksBunk);
+		unit.army.RemoveFromArmy(unit, unit.barracksBunk, true);
 		unit.army = newCity.army;
 		unit.atHome = false;
 		newCity.army.AddToArmy(unit);
@@ -1647,7 +1647,7 @@ public class UnitMovement : MonoBehaviour
     public void JoinCityConfirm(City city)
     {
         if (selectedUnit.inArmy)
-            selectedUnit.military.army.RemoveFromArmy(selectedUnit.military, selectedUnit.military.barracksBunk);
+            selectedUnit.military.army.RemoveFromArmy(selectedUnit.military, selectedUnit.military.barracksBunk, true);
         else if (selectedUnit.trader)
             world.GetCityDevelopment(city.singleBuildDict[selectedUnit.buildDataSO.singleBuildType]).RemoveTraderFromImprovement(selectedUnit.trader);
 
@@ -2402,7 +2402,7 @@ public class UnitMovement : MonoBehaviour
                 
                     if (guardUnit.army != null)
                     {
-    				    guardUnit.army.RemoveFromArmy(selectedUnit.trader.guardUnit.military, selectedUnit.trader.guardUnit.military.barracksBunk);
+    				    guardUnit.army.RemoveFromArmy(selectedUnit.trader.guardUnit.military, selectedUnit.trader.guardUnit.military.barracksBunk, true);
 				        guardUnit.army = null;
                     }
 

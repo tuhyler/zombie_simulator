@@ -935,6 +935,7 @@ public class Military : Unit
 					healthbar.RegenerateHealth();
 
 				atHome = true;
+				army.AddToCycleCost(buildDataSO.cycleCost);
 				marker.ToggleVisibility(false);
 				if (isSelected && !world.unitOrders)
 					world.unitMovement.ShowIndividualCityButtonsUI();
@@ -1011,6 +1012,7 @@ public class Military : Unit
 
 			Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
 			army.UnitArrived(endTerrain);
+			army.AddToCycleCost(buildDataSO.cycleCost);
 
 			if (currentLocation == barracksBunk)
 			{
@@ -1177,7 +1179,7 @@ public class Military : Unit
 				}
 			}
 
-			army.RemoveFromArmy(this, barracksBunk);
+			army.RemoveFromArmy(this, barracksBunk, false);
 			army.DeadList.Add(this);
 		}
 	}
@@ -1552,7 +1554,7 @@ public class Military : Unit
 				army.UnitsInArmy.Remove(this);
 				army.attackingSpots.Remove(currentLocation);
 				RemoveUnitFromData();
-				army.RemoveFromArmy(this, barracksBunk);
+				army.RemoveFromArmy(this, barracksBunk, true);
 				army.DeadList.Add(this);
 				world.RemoveUnitPosition(currentLocation);
 			}

@@ -776,12 +776,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
                 if (currentPop == 1)
                 {
-                    if (activeCity)
-                    {
-                        //world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
-                        //CityGrowthProgressBarSetActive(true);
-                        //world.cityBuilderManager.abandonCityButton.interactable = false;
-                    }
+                    //if (activeCity)
+                    //{
+                    //    //world.cityBuilderManager.uiLaborAssignment.ShowUI(this, world.cityBuilderManager.placesToWork);
+                    //    //CityGrowthProgressBarSetActive(true);
+                    //    //world.cityBuilderManager.abandonCityButton.interactable = false;
+                    //}
 
                     if (!growing)
                         StartGrowthCycle(false);
@@ -1524,8 +1524,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             losePop = currentPop;
             destroyed = true;
-        }
-        else if (currentPop < 8)
+
+            if (singleBuildDict.ContainsKey(SingleBuildType.Shipyard))
+            {
+                if (world.GetCityDevelopment(singleBuildDict[SingleBuildType.Shipyard]).unitsWithinCount > 0)
+                    destroyed = false;
+            }
+
+			if (singleBuildDict.ContainsKey(SingleBuildType.AirBase))
+			{
+				if (world.GetCityDevelopment(singleBuildDict[SingleBuildType.AirBase]).unitsWithinCount > 0)
+					destroyed = false;
+			}
+		}
+		else if (currentPop < 8)
         {
             losePop = currentPop / 2;
         }
@@ -1556,6 +1568,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         if (destroyed)
         {
+            foreach (Trader trader in tradersHere)
+                trader.KillUnit(Vector3Int.zero);
+            
             world.cityBuilderManager.DestroyCity(this);
         }
         else
