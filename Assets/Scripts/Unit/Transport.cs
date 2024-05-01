@@ -89,7 +89,7 @@ public class Transport : Unit
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
 		{
 			TerrainData td = world.GetTerrainDataAt(tile);
-			if (td.isLand && td.walkable)
+			if (td.isLand && td.canWalk)
 			{
 				landTile = tile;
 				nearbyLand = true;
@@ -221,10 +221,21 @@ public class Transport : Unit
 			if (route != null && route.Contains(tile))
 				continue;
 
-			if (world.PlayerCheckIfPositionIsValid(tile))
+			if (bySea)
 			{
-				safeTarget = tile;
-				break;
+				if (world.PlayerCheckIfSeaPositionIsValid(tile))
+				{
+					safeTarget = tile;
+					break;
+				}
+			}
+			else if (byAir)
+			{
+				if (world.CheckIfAirPositionIsValid(tile))
+				{
+					safeTarget = tile;
+					break;
+				}
 			}
 		}
 
@@ -253,15 +264,15 @@ public class Transport : Unit
 	{
 		Vector3Int currentLoc = world.RoundToInt(endPosition);
 		
-		if (world.IsInBattleArea(currentLoc))
+		if (world.GetTerrainDataAt(currentLoc).hasBattle)
 		{
-			runningAway = true;
-			isBusy = true;
+			//runningAway = true;
+			//isBusy = true;
 
 			//if (isBusy)
 			//	world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
 
-			exclamationPoint.SetActive(true);
+			//exclamationPoint.SetActive(true);
 			StepAside(currentLocation, null);
 			return;
 		}
@@ -272,7 +283,7 @@ public class Transport : Unit
 		foreach (Vector3Int tile in world.GetNeighborsFor(currentLoc, MapWorld.State.FOURWAY))
 		{
 			TerrainData td = world.GetTerrainDataAt(tile);
-			if (td.isLand && td.walkable)
+			if (td.isLand && td.canWalk)
 			{
 				nearbyLand = true;
 				break;

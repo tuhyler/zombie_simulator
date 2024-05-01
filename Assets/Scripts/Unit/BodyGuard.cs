@@ -155,7 +155,7 @@ public class BodyGuard : Military
 		bool firstOne = true;
 		foreach (Vector3Int tile in world.GetNeighborsFor(scottSpot, MapWorld.State.EIGHTWAY))
 		{
-			if (world.IsInBattleArea(tile))
+			if (world.GetTerrainDataAt(tile).hasBattle)
 				continue;
 			
 			if (firstOne)

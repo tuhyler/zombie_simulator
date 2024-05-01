@@ -59,14 +59,9 @@ public class UICityBuildTabHandler : MonoBehaviour
     public void ToggleButtonNew(string tabName, string buildOptionName, bool unit, bool v)
     {
         if (v)
-        {
-            if (!cityBuilderManager.world.newUnitsAndImprovements.Contains(buildOptionName))
-                cityBuilderManager.world.newUnitsAndImprovements.Add(buildOptionName);
-        }
+            cityBuilderManager.world.newUnitsAndImprovements.Add(buildOptionName);
         else
-        {
             cityBuilderManager.world.newUnitsAndImprovements.Remove(buildOptionName);
-        }
 
         somethingNew = v;
 

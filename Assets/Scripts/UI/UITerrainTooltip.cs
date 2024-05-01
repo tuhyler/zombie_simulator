@@ -105,6 +105,13 @@ public class UITerrainTooltip : MonoBehaviour
             resourceCount.gameObject.SetActive(false);
             requiresText.gameObject.SetActive(false);
             allContents.sizeDelta = new Vector2(290,250);
+
+            if (td.hasBattle)
+            {
+				requiresText.gameObject.SetActive(true);
+				requiresText.text = td.inBattle ? "Battle!" : "Battle soon...";
+				allContents.sizeDelta = new Vector2(290, 300);
+			}
         }
         else
         {
@@ -113,8 +120,12 @@ public class UITerrainTooltip : MonoBehaviour
             resourceCountTitle.gameObject.SetActive(true);
             resourceCount.gameObject.SetActive(true);
             requiresText.gameObject.SetActive(true);
-            requiresText.text = "Requires " + ResourceHolder.Instance.GetRequirement(type);
-            allContents.sizeDelta = new Vector2(290, 300);
+
+            if (td.hasBattle)
+                requiresText.text = td.inBattle ? "Battle!" : "Battle soon...";
+            else
+				requiresText.text = "Requires " + ResourceHolder.Instance.GetRequirement(type);
+			allContents.sizeDelta = new Vector2(290, 300);
             resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
             tooltipTrigger.SetMessage(ResourceHolder.Instance.GetName(type));
 
@@ -141,6 +152,30 @@ public class UITerrainTooltip : MonoBehaviour
 				}
             }
         }
-
     }
+
+    public void UpdateText(TerrainData td)
+    {
+		if (activeStatus && this.td == td)
+        {
+            if (td.hasBattle)
+            {
+				requiresText.gameObject.SetActive(true);
+				requiresText.text = td.inBattle? "Battle!" : "Battle soon...";
+				allContents.sizeDelta = new Vector2(290, 300);
+			}
+            else
+            {
+                if (td.resourceType == ResourceType.None)
+                {
+					requiresText.gameObject.SetActive(false);
+					allContents.sizeDelta = new Vector2(290, 250);
+				}
+                else
+                {
+    			    requiresText.text = "Requires " + ResourceHolder.Instance.GetRequirement(td.resourceType);
+                }
+            }
+        }
+	}
 }

@@ -1128,7 +1128,7 @@ public class Worker : Unit
                 if (neighborList[i] == currentSpot)
                     continue;
 
-				if (world.IsInBattleArea(neighborList[i]))
+				if (world.GetTerrainDataAt(neighborList[i]).hasBattle)
 					continue;
 
                 int newDist = Mathf.Abs(scottSpot.x - neighborList[i].x) + Mathf.Abs(scottSpot.z - neighborList[i].z);
@@ -1205,7 +1205,7 @@ public class Worker : Unit
 			if (world.IsPlayerLocationTaken(tile))
 				continue;
 
-			if (world.IsInBattleArea(tile))
+			if (world.GetTerrainDataAt(tile).hasBattle)
 				continue;
 
 			if (firstOne)
@@ -1471,7 +1471,7 @@ public class Worker : Unit
 			int dist = 0;
 			foreach (Vector3Int tile in world.GetNeighborsFor(newLoc, MapWorld.State.EIGHTWAY))
 			{
-				if (world.IsInBattleArea(tile))
+				if (world.GetTerrainDataAt(tile).hasBattle)
 					continue;
 				
 				if (firstOne)
@@ -1722,7 +1722,7 @@ public class Worker : Unit
 			world.azai.transportTarget = transport;
 			world.azai.toTransport = true;
 
-			if (transportTarget.bySea && !world.GetTerrainDataAt(goToSpot).walkable)
+			if (transportTarget.bySea && !world.GetTerrainDataAt(goToSpot).canWalk)
 				goToSpot = world.GetAdjacentMoveToTile(world.RoundToInt(transform.position), goToSpot, true);
 
 			List<Vector3Int> exemptList = world.GetExemptList(currentTerrain);
@@ -1764,16 +1764,16 @@ public class Worker : Unit
 
 		world.IsTreasureHere(endPositionInt, true);
 
-		if (world.IsInBattleArea(endPositionInt))
+		if (world.GetTerrainDataAt(endPositionInt).hasBattle)
 		{
 			if (isBusy)
 				world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
 			
-			runningAway = true;
-			//isBusy = true;
+			//runningAway = true;
+			////isBusy = true;
 
-			StopPlayer();
-			exclamationPoint.SetActive(true);
+			//StopPlayer();
+			//exclamationPoint.SetActive(true);
 			StepAside(currentLocation, null);
 			return;
 		}

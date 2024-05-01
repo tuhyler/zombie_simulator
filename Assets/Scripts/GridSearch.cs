@@ -102,7 +102,7 @@ public class GridSearch
 				{
 					Vector3Int temp = neighbor - current;
 
-					if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+					if (!hasRoad && (!world.PlayerCheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.PlayerCheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
 						continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
@@ -158,7 +158,7 @@ public class GridSearch
 				Vector3Int neighbor = tile + current;
 				int sqrMagnitude = tile.sqrMagnitude;
 
-				if (!world.CheckIfSeaPositionIsValid(neighbor))
+				if (!world.PlayerCheckIfSeaPositionIsValid(neighbor))
 					continue;
 
 				if (world.CheckIfCoastCoast(neighbor) && neighbor != endPosition)
@@ -248,7 +248,7 @@ public class GridSearch
             {
                 Vector3Int neighbor = tile + current;
                 
-                if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+                if (!world.CheckIfPositionIsValid(neighbor))
                     continue;
 
                 if (world.CheckIfEnemyTerritory(neighbor))
@@ -362,7 +362,7 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.PlayerCheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+				if (!world.PlayerCheckIfPositionIsValid(neighbor))
 					continue;
 
 				if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(world.GetClosestTerrainLoc(neighbor)))
@@ -398,7 +398,7 @@ public class GridSearch
 				{
 					Vector3Int temp = neighbor - current;
 
-					if (!hasRoad && (!world.CheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.CheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
+					if (!hasRoad && (!world.PlayerCheckIfPositionIsValid(current + new Vector3Int(temp.x, 0, 0)) || !world.PlayerCheckIfPositionIsValid(current + new Vector3Int(0, 0, temp.z))))
 						continue;
 
 					tempCost = Mathf.RoundToInt(tempCost * 1.4f); //multiply by square root 2 for the diagonal squares
@@ -481,7 +481,7 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.CheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
+				if (!world.CheckIfPositionIsValid(neighbor))
 					continue;
 
 				if (world.CheckIfEnemyTerritory(neighbor))
@@ -862,13 +862,13 @@ public class GridSearch
 				{
 					if (neighbor != endTerrain)
 					{
-						if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
+						if (!world.PlayerCheckIfPositionIsValid(neighbor))
 							continue;
 					}
 				}
 				else
 				{
-					if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
+					if (!world.PlayerCheckIfPositionIsValid(neighbor))
 						continue;
 				}
 
@@ -948,7 +948,7 @@ public class GridSearch
 						continue;
 				} 
 
-				if (world.CheckForFinalMarch(neighbor)) //If it's an obstacle, ignore
+				if (world.CheckForFinalMarch(neighbor))
 					continue;
 
 				if (world.IsTradeCenterOnTile(neighbor))
@@ -1007,7 +1007,7 @@ public class GridSearch
 			{
 				Vector3Int neighbor = tile + current;
 
-				if (!world.CheckIfSeaPositionIsValid(neighbor)) //If it's an obstacle, ignore
+				if (!world.PlayerCheckIfSeaPositionIsValid(neighbor))
 					continue;
 				
 				if (world.CheckIfEnemyTerritory(neighbor) && neighbor != endTerrain)
@@ -1075,13 +1075,13 @@ public class GridSearch
 				{
 					if (neighbor != endTerrain)
 					{
-						if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) //If it's an obstacle, ignore
+						if (!world.CheckIfPositionIsMarchableForEnemy(neighbor))
 							continue;
 					}
 				}
 				else
 				{
-					if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) //If it's an obstacle, ignore
+					if (!world.CheckIfPositionIsMarchableForEnemy(neighbor)) 
 						continue;
 				}
 
@@ -1223,7 +1223,7 @@ public class GridSearch
 					}
 					else
 					{
-						if (!world.GetTerrainDataAt(neighbor).walkable)
+						if (!world.GetTerrainDataAt(neighbor).canWalk)
 							continue;
 					}
 
@@ -1384,7 +1384,7 @@ public class GridSearch
 				{
 					Vector3Int neighbor = tile + current;
 
-					if (!world.CheckIfPositionIsMarchable(neighbor)) //If it's an obstacle, ignore
+					if (!world.PlayerCheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
 						continue;
 
 					if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))

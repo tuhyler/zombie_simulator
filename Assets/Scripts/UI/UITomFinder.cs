@@ -31,7 +31,10 @@ public class UITomFinder : MonoBehaviour
         world.CloseCampTooltipButton();
         world.CloseTradeRouteBeginTooltipButton();
 		cityBuilderManager.ResetCityUI();
-        if (world.mainPlayer.isSelected)
+        cityBuilderManager.UnselectWonder();
+        cityBuilderManager.UnselectTradeCenter();
+
+        if (world.mainPlayer.isSelected || (world.mainPlayer.inTransport && world.GetKoasTransport().isSelected))
             unitMovement.ClearSelection();
 
         if (world.mainPlayer.inTransport)

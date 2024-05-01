@@ -668,8 +668,14 @@ public class Military : Unit
 					continue;
 			}
 
-			if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile) || army.attackingSpots.Contains(tile))
-				continue;
+			if (bySea)
+			{
+			}
+			else
+			{
+				if (!world.CheckIfPositionIsValid(tile) || world.IsUnitLocationTaken(tile) || army.attackingSpots.Contains(tile))
+					continue;
+			}
 
 			if (i == 0)
 			{
@@ -935,7 +941,7 @@ public class Military : Unit
 					healthbar.RegenerateHealth();
 
 				atHome = true;
-				army.AddToCycleCost(buildDataSO.cycleCost);
+				army.AddToCycleCost(buildDataSO.cycleCost, false);
 				marker.ToggleVisibility(false);
 				if (isSelected && !world.unitOrders)
 					world.unitMovement.ShowIndividualCityButtonsUI();
@@ -1012,7 +1018,7 @@ public class Military : Unit
 
 			Vector3Int endTerrain = world.GetClosestTerrainLoc(endPosition);
 			army.UnitArrived(endTerrain);
-			army.AddToCycleCost(buildDataSO.cycleCost);
+			army.AddToCycleCost(buildDataSO.cycleCost, false);
 
 			if (currentLocation == barracksBunk)
 			{
@@ -1130,6 +1136,7 @@ public class Military : Unit
 	public void KillMilitaryUnit()
 	{
 		AttackCheck();
+		world.RemoveUnitPosition(currentLocation);
 		minimapIcon.gameObject.SetActive(false);
 		if (guard)
 		{
@@ -1257,6 +1264,7 @@ public class Military : Unit
 	{
 		UnitData data = new();
 
+		data.id = id;
 		data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
 		data.position = transform.position;
 		data.rotation = transform.rotation;
@@ -1327,6 +1335,7 @@ public class Military : Unit
 
 	public void LoadUnitData(UnitData data)
 	{
+		id = data.id;
 		transform.position = data.position;
 		transform.rotation = data.rotation;
 		destinationLoc = data.destinationLoc;
@@ -1345,15 +1354,24 @@ public class Military : Unit
 		if (isUpgrading)
 			GameLoader.Instance.unitUpgradeList.Add(this);
 
-		if (!isMoving && !data.benched && !data.duelWatch && !data.isDead)
-			world.AddUnitPosition(currentLocation, this);
+		//if (!isMoving && !data.benched && !data.duelWatch && !data.isDead)
+		//	world.AddUnitPosition(currentLocation, this);
 
 		if (inArmy || enemyAI || bodyGuard)
 		{
-			if (inArmy || bodyGuard)
+			if (inArmy)
+			{
 				transferring = data.transferring;
+				GameLoader.Instance.militaryUnitList.Add(this);
+			}
+			else if (bodyGuard)
+			{
+				transferring = data.transferring;
+			}
 			else
+			{
 				enemyAI.CampSpot = data.campSpot;
+			}
 
 			strengthBonus = data.strengthBonus;
 			repositioning = data.repositioning;
@@ -1545,7 +1563,7 @@ public class Military : Unit
 				if (enemyCamp.attackingArmy != null)
 					enemyCamp.attackingArmy.attackingSpots.Remove(currentLocation);
 				//enemyCamp.ClearCampCheck();
-				world.RemoveUnitPosition(currentLocation);
+				//world.RemoveUnitPosition(currentLocation);
 				enemyCamp.DeadList.Add(this);
 			}
 			else
@@ -1554,9 +1572,9 @@ public class Military : Unit
 				army.UnitsInArmy.Remove(this);
 				army.attackingSpots.Remove(currentLocation);
 				RemoveUnitFromData();
-				army.RemoveFromArmy(this, barracksBunk, true);
+				army.RemoveFromArmy(this, barracksBunk, false);
 				army.DeadList.Add(this);
-				world.RemoveUnitPosition(currentLocation);
+				//world.RemoveUnitPosition(currentLocation);
 			}
 		}
 		else if (benched)

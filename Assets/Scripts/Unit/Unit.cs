@@ -586,7 +586,7 @@ public class Unit : MonoBehaviour
                 }
 
 				prevTile = endPositionInt;
-				if (prevTile == ambushLoc && !world.tempBattleZone.Contains(ambushLoc)) //Can also trigger ambush when not on trade route
+				if (prevTile == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle) //Can also trigger ambush when not on trade route
                 {
                     ambush = true;
                     world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
@@ -811,7 +811,7 @@ public class Unit : MonoBehaviour
             if (trader && !world.IsRoadOnTileLocation(tile))
                 continue;
 
-            if (!world.CheckIfPositionIsValid(tile) || world.IsPlayerLocationTaken(tile))
+            if (!world.PlayerCheckIfPositionIsValid(tile) || world.IsPlayerLocationTaken(tile))
                 continue;
 
             if (tile == next && tile != null) 

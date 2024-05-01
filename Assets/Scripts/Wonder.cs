@@ -14,7 +14,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     //private UIWonderSelection uiWonderSelection;
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
-    public GameObject mesh0Percent, mesh33Percent, mesh67Percent, meshComplete, mapIcon, exclamationPoint;
+    public GameObject mesh0Percent, mesh33Percent, mesh67Percent, meshComplete, mapIcon, exclamationPoint, wonderCollider;
     public List<Light> wonderLights = new();
 
     private SelectionHighlight highlight;
