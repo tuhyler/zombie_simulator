@@ -75,9 +75,9 @@ public class CityBuilderManager : MonoBehaviour
     public City SelectedCity { get { return selectedCity; } }
 
     [HideInInspector]
-    public List<Vector3Int> tilesToChange = new();
+    public HashSet<Vector3Int> tilesToChange = new();
     [HideInInspector]
-    public List<Vector3Int> cityTiles = new();
+    public HashSet<Vector3Int> cityTiles = new();
     private List<Vector3Int> developedTiles = new();
     [HideInInspector]
     public List<Vector3Int> constructingTiles = new();
@@ -498,9 +498,9 @@ public class CityBuilderManager : MonoBehaviour
 						return;
                     }
 
-                    if (world.IsInBattleArea(terrainLoc))
+                    if (terrainSelected.hasBattle)
                     {
-						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle fought on tile");
+						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle is here");
 						return;
 					}
 
@@ -510,14 +510,26 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else if (upgradingImprovement)
                 {
-                    CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
+					if (terrainSelected.hasBattle)
+					{
+						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle is here");
+						return;
+					}
+
+					CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
                     uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvement);
 					PlayConstructionAudio();
 					//UpgradeSelectedImprovementQueueCheck(terrainLocation, improvement);
 				}
 				else if (removingImprovement)
                 {
-                    if (world.TileHasCityImprovement(terrainLoc))
+					if (terrainSelected.inBattle)
+					{
+						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle is here");
+						return;
+					}
+
+					if (world.TileHasCityImprovement(terrainLoc))
                     {
                         CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
 
@@ -542,6 +554,12 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else if (laborChange != 0)
                 {
+					if (terrainSelected.inBattle)
+					{
+						UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle is here");
+						return;
+					}
+
 					if (world.TileHasCityImprovement(terrainLoc))
                     {
 						if (world.GetCityDevelopment(terrainLoc).isConstruction)
@@ -744,8 +762,20 @@ public class CityBuilderManager : MonoBehaviour
         if (uiWonderSelection.activeStatus && uiWonderSelection.wonder == wonder)
             uiWonderSelection.UpdateUIWorkers(0, wonder);
 
-        int lostWorkersCount = 0;
         List<Vector3Int> locs = wonder.OuterRim();
+
+        List<Vector3Int> tempLocs = new(locs);
+        for (int i = 0; i < tempLocs.Count; i++)
+        {
+            if (!world.PlayerCheckIfPositionIsValid(tempLocs[i]))
+                locs.Remove(tempLocs[i]);
+		}
+
+        if (locs.Count == 0) //theoretically not possible
+        {
+			InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(wonder.unloadLoc, "Lost all workers due to no available space");
+            return;
+		}
 
         for (int i = 0; i < wonder.workerSexAndHome.Count; i++)
         {
@@ -756,45 +786,25 @@ public class CityBuilderManager : MonoBehaviour
             else
 				workerGO = world.laborerData.prefab;
 
-			if (locs.Count == 0)
-            {
-                lostWorkersCount++;
-            }
-            else
-            {
-                List<Vector3Int> tempLocs = new(locs);
+            int place = i % locs.Count;
 
-                foreach (Vector3Int loc in tempLocs)
-                {
-                    locs.Remove(loc);
-
-                    if (!world.CheckIfPositionIsValid(loc))
-                        continue;
-
-                    GameObject unit = Instantiate(workerGO, loc, Quaternion.identity); //produce unit at specified position
-                    unit.transform.SetParent(friendlyUnitHolder, false);
-                    unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
-                    Laborer laborer = unit.GetComponent<Laborer>();
-                    laborer.marker.ToggleVisibility(true);
-                    world.laborerList.Add(laborer);
-                    laborer.StartLaborAnimations(false, wonder.workerSexAndHome[i].Item2);
+            GameObject unit = Instantiate(workerGO, locs[place], Quaternion.identity); //produce unit at specified position
+            unit.transform.SetParent(friendlyUnitHolder, false);
+            unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
+            Laborer laborer = unit.GetComponent<Laborer>();
+            laborer.marker.ToggleVisibility(true);
+            world.laborerList.Add(laborer);
+            laborer.StartLaborAnimations(false, wonder.workerSexAndHome[i].Item2);
                     
-                    Unit newUnit = unit.GetComponent<Unit>();
-                    newUnit.SetReferences(world);
-                    //newUnit.currentLocation = world.AddUnitPosition(loc, newUnit);
-					world.laborerCount++;
-					unit.name = "Laborer " + world.laborerCount;
-					world.laborerList.Add(newUnit.GetComponent<Laborer>());
-
-					break;
-                }
-            }
+            Unit newUnit = unit.GetComponent<Unit>();
+            newUnit.SetReferences(world);
+            //newUnit.currentLocation = world.AddUnitPosition(loc, newUnit);
+			world.laborerCount++;
+			unit.name = "Laborer " + world.laborerCount;
+			world.laborerList.Add(newUnit.GetComponent<Laborer>());
         }
 
         wonder.workerSexAndHome.Clear();
-
-        if (lostWorkersCount > 0)
-            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(wonder.unloadLoc, "Lost " + lostWorkersCount.ToString() + " worker(s) due to no available space");
     }
 
     public void BuildWonderHarbor(Vector3Int loc)
@@ -891,6 +901,8 @@ public class CityBuilderManager : MonoBehaviour
             if (selectedWonder.WonderData.isSea)
             {
                 td.sailable = true;
+                td.canWalk = false;
+                td.canPlayerWalk = false;
                 td.walkable = false;
             }
 			
@@ -1440,7 +1452,7 @@ public class CityBuilderManager : MonoBehaviour
             CityImprovement improvement = world.GetCityDevelopment(tile); 
             improvement.DisableHighlight();
 
-            if (improvement.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(improvement.GetImprovementData.improvementName) && !improvement.isUpgrading)
+            if (improvement.GetImprovementData.improvementLevel < world.GetUpgradeableObjectMaxLevel(improvement.GetImprovementData.improvementName) && !improvement.isUpgrading && !td.hasBattle)
             {
                 td.EnableHighlight(Color.green);
                 improvement.EnableHighlight(Color.green);
@@ -2045,7 +2057,7 @@ public class CityBuilderManager : MonoBehaviour
 				    upgradedUnit.RemoveUnitFromData();
 					upgradedUnit.military.army.RemoveFromArmy(upgradedUnit.military, upgradedUnit.military.barracksBunk, true);
 				    city.army.AddToOpenSpots(buildPosition);
-				    upgradedUnit.DestroyUnit();
+				    //upgradedUnit.DestroyUnit();
 		        }
                 else
                 {
@@ -2093,7 +2105,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 world.traderList.Remove(upgradedUnit.trader);
 				newUnit.trader.name = upgradedUnit.name;
-				newUnit.trader.id = upgradedUnit.trader.id;
+				newUnit.id = upgradedUnit.id;
 				newUnit.trader.hasRoute = upgradedUnit.trader.hasRoute;
 				newUnit.trader.tradeRouteManager = upgradedUnit.trader.tradeRouteManager;
 				newUnit.trader.tradeRouteManager.SetTrader(newUnit.trader);
@@ -2110,7 +2122,7 @@ public class CityBuilderManager : MonoBehaviour
 			if (!upgrading)
 				unit.name = "Trader " + world.traderCount;
 
-			newUnit.trader.id = world.traderCount;
+			newUnit.id = world.traderCount;
             world.traderList.Add(newUnit.trader);
             //city.tradersHere.Add(newUnit);
             newUnit.trader.atHome = true;
@@ -2157,6 +2169,13 @@ public class CityBuilderManager : MonoBehaviour
 						world.cavalryCount++;
 						break;
 				}
+
+                newUnit.id = world.infantryCount + world.rangedCount + world.cavalryCount;
+			}
+            else
+            {
+                newUnit.id = upgradedUnit.id;
+                upgradedUnit.DestroyUnit();
 			}
 		    
             newUnit.currentLocation = world.AddUnitPosition(buildPosition, newUnit);
@@ -2481,7 +2500,7 @@ public class CityBuilderManager : MonoBehaviour
 
             if (removingImprovement) //If removing improvement
             {                                
-                if (world.TileHasCityImprovement(tile))
+                if (world.TileHasCityImprovement(tile) && !td.inBattle)
                 {
                     CityImprovement improvement = world.GetCityDevelopment(tile); //cached for speed
                     improvement.DisableHighlight();
@@ -2507,7 +2526,7 @@ public class CityBuilderManager : MonoBehaviour
                 if (isQueueing && world.CheckQueueLocation(tile))
                     continue;
                 
-                if (world.IsTileOpenCheck(tile) && !world.IsInBattleArea(tile))
+                if (world.IsTileOpenCheck(tile) && !td.hasBattle)
                 {
                     TerrainType type = td.terrainData.type;
 
@@ -3556,7 +3575,7 @@ public class CityBuilderManager : MonoBehaviour
 
             CityImprovement improvement = world.GetCityDevelopment(tile);
             improvement.DisableHighlight();
-            if (improvement.isUpgrading || improvement.GetImprovementData.singleBuildType != SingleBuildType.None)
+            if (improvement.isUpgrading || improvement.GetImprovementData.singleBuildType != SingleBuildType.None || td.inBattle)
                 continue;
 
             if (laborChange > 0 && !world.CheckIfTileIsMaxxed(tile) && selectedCity.unusedLabor > 0) //for increasing labor, can't be maxxed out

@@ -2590,6 +2590,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 				}
                 else
                 {
+                    if (!army.returning)
+                        world.AddBattleZones(army.attackZone, army.enemyTarget, army.inBattle);
+                    
                     if (world.IsEnemyCampHere(army.enemyTarget))
                     {
                         army.targetCamp = world.GetEnemyCamp(army.enemyTarget);

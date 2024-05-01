@@ -13,7 +13,7 @@ public class GameData
     //world misc lists
     public List<string> completedResearch, currentResearch, newUnitsAndImprovements;
     public int goldAmount, researchAmount, ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber, popGrowth, popLost;
-    public List<ResourceType> resourceDiscoveredList = new();
+    public HashSet<ResourceType> resourceDiscoveredList = new();
     public Dictionary<Vector3Int, int> currentWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict;
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
@@ -61,6 +61,7 @@ public class GameData
     public List<RoadData> allRoads = new();
     public List<CityImprovementData> allCityImprovements = new();
     public Dictionary<Vector3Int, List<int>> traderPosDict = new();
+    public Dictionary<Vector3Int, int> unitPosDict = new();
     //public List<UnitData> allUnits = new();
 
 }

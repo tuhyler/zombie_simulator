@@ -174,23 +174,26 @@ public class Army : MonoBehaviour
 		strength += unit.buildDataSO.baseAttackStrength;
 		health += unit.buildDataSO.health;
 
-		AddToCycleCost(unit.buildDataSO.cycleCost);
+		AddToCycleCost(unit.buildDataSO.cycleCost, true);
         AddToBattleCost(unit.buildDataSO.battleCost);
 
 		if (!city.growing)
 			city.StartGrowthCycle(false);
 	}
 
-	public void AddToCycleCost(List<ResourceValue> costs)
+	public void AddToCycleCost(List<ResourceValue> costs, bool armyCost)
     {
         List<ResourceType> resourceTypes = new();
         
         for (int i = 0; i < costs.Count; i++)
         {
-            if (!armyCycleCostDict.ContainsKey(costs[i].resourceType))
-                armyCycleCostDict[costs[i].resourceType] = costs[i].resourceAmount;
-            else
-                armyCycleCostDict[costs[i].resourceType] += costs[i].resourceAmount;
+            if (armyCost)
+            {
+                if (!armyCycleCostDict.ContainsKey(costs[i].resourceType))
+                    armyCycleCostDict[costs[i].resourceType] = costs[i].resourceAmount;
+                else
+                    armyCycleCostDict[costs[i].resourceType] += costs[i].resourceAmount;
+            }
 
             resourceTypes.Add(costs[i].resourceType);
             city.ResourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, costs[i].resourceAmount);
@@ -200,7 +203,7 @@ public class Army : MonoBehaviour
             city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
 	}
 
-    private void AddToBattleCost(List<ResourceValue> costs)
+	private void AddToBattleCost(List<ResourceValue> costs)
     {
 		for (int i = 0; i < costs.Count; i++)
 		{
@@ -211,24 +214,33 @@ public class Army : MonoBehaviour
 		}
 	}
 
-	private void RemoveFromCycleCost(List<ResourceValue> costs)
+	private void RemoveFromCycleCost(List<ResourceValue> costs, bool cityCost, bool armyCost)
 	{
         List<ResourceType> resourceTypes = new();
         
         for (int i = 0; i < costs.Count; i++)
         {
-			armyCycleCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
+			if (armyCost)
+            {
+                armyCycleCostDict[costs[i].resourceType] -= costs[i].resourceAmount;
 
-            //remove from dict if empty
-            if (armyCycleCostDict[costs[i].resourceType] == 0)
-                armyCycleCostDict.Remove(costs[i].resourceType);
+                //remove from dict if empty
+                if (armyCycleCostDict[costs[i].resourceType] == 0)
+                    armyCycleCostDict.Remove(costs[i].resourceType);
+            }
 
-            resourceTypes.Add(costs[i].resourceType);
-            city.ResourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, -costs[i].resourceAmount);
+            if (cityCost)
+            {
+                resourceTypes.Add(costs[i].resourceType);
+                city.ResourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, -costs[i].resourceAmount);
+            }
         }
 
-        if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
-            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+        if (cityCost)
+        {
+            if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
+                city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+        }
 	}
 
     private void RemoveFromBattleCost(List<ResourceValue> costs)
@@ -261,17 +273,10 @@ public class Army : MonoBehaviour
     public void RemoveFromArmy(Military unit, Vector3Int loc, bool removeCosts)
     {
         unitsInArmy.Remove(unit);
-        //if (unit.newlyJoined)
-        //{
-        //    RemoveFromStagingCost(unit.buildDataSO.cycleCost);
-        //    stagingUnit.Remove(unit);
-        //}
-        //else
-        //{
-        if (removeCosts)
-    		RemoveFromCycleCost(unit.buildDataSO.cycleCost);
+
+        RemoveFromCycleCost(unit.buildDataSO.cycleCost, removeCosts, true);
 		RemoveFromBattleCost(unit.buildDataSO.battleCost);
-		//}
+
 		world.GetCityDevelopment(this.loc).unitsWithinCount--;
 		armyCount--;
 		UnitType type = unit.buildDataSO.unitType;
@@ -356,7 +361,7 @@ public class Army : MonoBehaviour
 
         foreach (Military unit in unitsInArmy)
         {
-            RemoveFromCycleCost(unit.buildDataSO.cycleCost);
+            RemoveFromCycleCost(unit.buildDataSO.cycleCost, true, false);
 			unit.healthbar.CancelRegeneration();
             unit.atHome = false;
          
@@ -472,7 +477,7 @@ public class Army : MonoBehaviour
         List<Vector3Int> waterPath = new();
         List<Vector3Int> landPath = new();
         
-        if (world.GetTerrainDataAt(target).walkable)
+        if (world.GetTerrainDataAt(target).canWalk)
 			landPath = GridSearch.TerrainSearch(world, current, target);
 
         //seeing if cheaper to go by sea
@@ -648,8 +653,9 @@ public class Army : MonoBehaviour
         else
             penultimate = loc;
 
-        attackZone = penultimate;
+		attackZone = penultimate;
 		forward = (enemyTarget - attackZone) / 3;
+		world.AddBattleZones(attackZone, enemyTarget, false);
 
 		if (returning)
 			DeployArmy(true);
@@ -1046,7 +1052,8 @@ public class Army : MonoBehaviour
             i++;
         }
 
-        world.AddToBattleAreas(cavalryRange);
+        //world.AddToBattleAreas(cavalryRange);
+        world.DisableBattleHighlight(attackZone, enemyTarget);
         world.CheckMainPlayerLoc(enemyTarget, attackZone);
 
 		if (!inBattle)
@@ -1202,7 +1209,7 @@ public class Army : MonoBehaviour
             {
                 city.attacked = false;
 			    world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
-                world.RemoveFromBattleArea(cavalryRange);
+                //world.RemoveFromBattleArea(cavalryRange);
                 movementRange.Clear();
                 cavalryRange.Clear();
                 returning = true;
@@ -1283,6 +1290,7 @@ public class Army : MonoBehaviour
             unit.StopAttacking();
         }
 
+		world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
         StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleVisibility(false);
 		city.battleIcon.SetActive(false);
@@ -1606,9 +1614,7 @@ public class Army : MonoBehaviour
 			int count = pathQueue.Count; //can't decrease count while using it
 
 			for (int i = 0; i < count; i++)
-			{
 				DequeuePath();
-			}
 
 			pathQueue.Clear();
 		}

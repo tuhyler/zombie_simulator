@@ -107,7 +107,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
     [SerializeField]
-    public LayerMask enemyKillLayerMask;
+    public LayerMask enemyKillLayerMask, unitMask;
 
 	//for worker and army orders
 	[HideInInspector]
@@ -153,7 +153,7 @@ public class MapWorld : MonoBehaviour
     [HideInInspector]
     public bool researching;
     [HideInInspector]
-    public List<ResourceProducer> researchWaitList = new();
+    public HashSet<ResourceProducer> researchWaitList = new();
     [HideInInspector]
     public List<IGoldWaiter> goldWaitList = new();
     //[HideInInspector]
@@ -170,9 +170,9 @@ public class MapWorld : MonoBehaviour
 	private Dictionary<Vector3Int, TerrainData> world = new();
     private Dictionary<Vector3Int, GameObject> buildingPosDict = new(); //to see if cities already exist in current location
     [HideInInspector] 
-    public List<Vector3Int> tempNoWalkList = new(), tempBattleZone = new(); //in case player is moving when added to no walk list, where battle positions will be
-    private List<Vector3Int> noWalkList = new(); //tiles where wonders are and units can't walk
-    private List<Vector3Int> battleAreas = new();
+    public HashSet<Vector3Int> tempNoWalkList = new(), tempBattleZone = new(); //in case player is moving when added to no walk list, where battle positions will be
+    private HashSet<Vector3Int> noWalkList = new(); //tiles where wonders are and units can't walk
+    //private List<Vector3Int> battleAreas = new();
     private List<GameObject> cityNamesMaps = new();
 
     public Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
@@ -183,7 +183,7 @@ public class MapWorld : MonoBehaviour
     //private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList = new();
     [HideInInspector]
-    public List<Vector3Int> unclaimedSingleBuildList = new ();
+    public HashSet<Vector3Int> unclaimedSingleBuildList = new ();
     private Dictionary<Vector3Int, ITradeStop> tradeStopDict = new();
 	private Dictionary<string, Vector3Int> cityNameDict = new();
     private Dictionary<Vector3Int, string> cityLocDict = new();
@@ -232,14 +232,14 @@ public class MapWorld : MonoBehaviour
 
     //for roads
     public Dictionary<Vector3Int, List<Road>> roadTileDict = new(); //stores road GOs, only on terrain locations
-    private List<Vector3Int> soloRoadLocsList = new(); //indicates which tiles have solo roads on them
-    private List<Vector3Int> roadLocsList = new(); //indicates which tiles have roads on them
+    private HashSet<Vector3Int> soloRoadLocsList = new(); //indicates which tiles have solo roads on them
+    private HashSet<Vector3Int> roadLocsList = new(); //indicates which tiles have roads on them
     private int roadCost; //set in road manager
 
     //for terrain speeds
     public TerrainDataSO flatland, forest, hill, forestHill;
     //for boats to avoid traveling the coast
-    private List<Vector3Int> coastCoastList = new();
+    private HashSet<Vector3Int> coastCoastList = new();
 
     //for npcs
     public Dictionary<string, TradeRep> allTCReps = new();
@@ -253,9 +253,9 @@ public class MapWorld : MonoBehaviour
     public Dictionary<Vector3Int, City> enemyCityDict = new();
     public int waitTillAttackTime = 600, enemyUnitGrowthTime = 20;
     [HideInInspector]
-    public List<Vector3Int> militaryStationLocs = new(); //for traveling around barracks
+    public HashSet<Vector3Int> militaryStationLocs = new(); //for traveling around barracks
     public Dictionary<Vector3Int, TreasureChest> treasureLocs = new();
-    private List<Vector3Int> neutralZones = new(); //areas around cities that can be traveled into to talk
+    private HashSet<Vector3Int> neutralZones = new(); //areas around cities that can be traveled into to talk
 
     //for resource icons on minimap (so they're rotated correctly)
     private Dictionary<Vector3Int, ResourceMinimapIcon> resourceIconDict = new();
@@ -291,10 +291,10 @@ public class MapWorld : MonoBehaviour
     //handling discovering resources
     List<UIResourceSelectionGrid> resourceSelectionGridList = new();
     [HideInInspector]
-    public List<ResourceType> resourceDiscoveredList = new();
+    public HashSet<ResourceType> resourceDiscoveredList = new();
 
     [HideInInspector]
-    public List<string> newUnitsAndImprovements = new();
+    public HashSet<string> newUnitsAndImprovements = new();
 
     [HideInInspector]
     public GamePersist gamePersist = new();
@@ -1406,6 +1406,9 @@ public class MapWorld : MonoBehaviour
                 city.enemyCamp.seaTravel = enemyData.seaTravel;
                 city.enemyCamp.actualAttackLoc = enemyData.actualAttackLoc;
                 city.countDownTimer = enemyData.countDownTimer;
+
+                if (city.enemyCamp.movingOut && !city.enemyCamp.returning)
+                    AddBattleZones(city.enemyCamp.actualAttackLoc, city.enemyCamp.threatLoc, city.enemyCamp.inBattle);
 
                 if ((city.enemyCamp.inBattle || city.enemyCamp.movingOut) && !city.enemyCamp.returning && city.enemyCamp.campCount != 0)
                     GameLoader.Instance.attackingEnemyCitiesList.Add(city);
@@ -2639,36 +2642,36 @@ public class MapWorld : MonoBehaviour
         //resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
 
-        //for (int i = 0; i < roadLocsList.Count; i++)
-        //    Debug.Log(roadLocsList[i]);
-  //      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		//for (int i = 0; i < roadLocsList.Count; i++)
+		//    Debug.Log(roadLocsList[i]);
+		//      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-  //      List<int> newNum = new();
+		//      List<int> newNum = new();
 
-  //      for (int i = 0; i < 10; i++)
-  //      {
-  //          int rand = num[UnityEngine.Random.Range(0, num.Count)];
-  //          num.Remove(rand);
-  //          newNum.Add(rand);
-  //      }
+		//      for (int i = 0; i < 10; i++)
+		//      {
+		//          int rand = num[UnityEngine.Random.Range(0, num.Count)];
+		//          num.Remove(rand);
+		//          newNum.Add(rand);
+		//      }
 
-  //      for (int i = 0; i < newNum.Count; i++)
-  //      {
-  //          Debug.Log(newNum[i]);
-  //      }
+		//      for (int i = 0; i < newNum.Count; i++)
+		//      {
+		//          Debug.Log(newNum[i]);
+		//      }
 
-  //      for (int i = 0; i < 10; i++)
-  //      {
-  //          for (int j = i + 1; j < 10; j++)
-  //          {
-  //              if (newNum[i] < newNum[j])
-  //              {
-  //                  int oldNum = newNum[j];
-  //                  newNum.Remove(oldNum);
-  //                  newNum.Insert(i, oldNum);
-  //              }
-  //          }
-  //      }
+		//      for (int i = 0; i < 10; i++)
+		//      {
+		//          for (int j = i + 1; j < 10; j++)
+		//          {
+		//              if (newNum[i] < newNum[j])
+		//              {
+		//                  int oldNum = newNum[j];
+		//                  newNum.Remove(oldNum);
+		//                  newNum.Insert(i, oldNum);
+		//              }
+		//          }
+		//      }
 
 		//for (int i = 0; i < newNum.Count; i++)
 		//{
@@ -2676,7 +2679,7 @@ public class MapWorld : MonoBehaviour
 		//}
 	}
 
-    public void SetMountainMiddle(TerrainData td, int i, bool grassland)
+	public void SetMountainMiddle(TerrainData td, int i, bool grassland)
     {
 		int diff = Mathf.RoundToInt(td.main.rotation.eulerAngles.y / 90);
 
@@ -3453,18 +3456,26 @@ public class MapWorld : MonoBehaviour
 
             foreach (Vector3Int tile in wonderLocList)
             {
+                if (CheckForUnits(tile))
+                {
+                    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Unit in the way");
+                    wonderPlacementLoc.Clear();
+                    wonderNoWalkLoc.Clear();
+                    return;
+                }
+               
+                if (GetTerrainDataAt(tile).hasBattle)
+                {
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle is here");
+					wonderPlacementLoc.Clear();
+					wonderNoWalkLoc.Clear();
+					return;
+				}
+
                 foreach (Vector3Int neighbor in GetNeighborsFor(tile, State.EIGHTWAY))
                 {
                     if (neighbor.x == xMin || neighbor.x == xMax || neighbor.z == zMin || neighbor.z == zMax)
                         continue;
-
-                    if (IsUnitLocationTaken(neighbor) || IsPlayerLocationTaken(neighbor))
-                    {
-                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Unit in the way");
-                        wonderPlacementLoc.Clear();
-                        wonderNoWalkLoc.Clear();
-                        return;
-                    }
 
                     wonderNoWalkLoc.Add(neighbor);
                 }
@@ -3475,7 +3486,11 @@ public class MapWorld : MonoBehaviour
             uiRotateWonder.ToggleVisibility(true);
 
             wonderGhost = Instantiate(wonderData.wonderPrefab, avgLoc / wonderLocList.Count, rotation);
-            wonderGhost.GetComponent<Wonder>().SetLastPrefab(); //only showing 100 Perc prefab
+            wonderGhost.transform.SetParent(wonderHolder, false);
+            Wonder wonderInfo = wonderGhost.GetComponent<Wonder>();
+            wonderInfo.SetLastPrefab(); //only showing 100 Perc prefab
+            if (wonderInfo.wonderCollider != null)
+                wonderInfo.wonderCollider.SetActive(false);
             Color newColor = new(1, 1, 1, .75f);
             MeshRenderer[] renderers = wonderGhost.GetComponentsInChildren<MeshRenderer>();
 
@@ -3538,38 +3553,56 @@ public class MapWorld : MonoBehaviour
         Vector3 avgLoc = new Vector3(0, 0, 0);
 
         //double checking if it's blocked
-        foreach (Vector3Int tile in wonderNoWalkLoc)
-        {
-            if (IsUnitLocationTaken(tile) || IsPlayerLocationTaken(tile))
-            {
-                InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Unit in the way");
-                wonderPlacementLoc.Clear();
-                return;
-            }
+    //    foreach (Vector3Int tile in wonderNoWalkLoc)
+    //    {
+    //        //if (IsUnitLocationTaken(tile) || IsPlayerLocationTaken(tile) || IsTraderLocationTaken(tile))
+    //        //{
+    //        //    InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Unit in the way");
+    //        //    wonderPlacementLoc.Clear();
+    //        //    return;
+    //        //}
 
-            if (wonderPlacementLoc.Contains(tile))
-            {
-                avgLoc += tile;
+    //        if (wonderPlacementLoc.Contains(tile))
+    //        {
+    //            avgLoc += tile;
 
-                if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)))
-                {
-                    InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Something in the way");
-                    wonderPlacementLoc.Clear();
-                    return;
-                }
-            }
-        }
+    //            if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)) || 
+    //                (wonderData.terrainType == TerrainType.Coast && CheckForUnits(tile)))
+				//{
+    //                InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Something in the way");
+    //                wonderPlacementLoc.Clear();
+    //                return;
+    //            }
+    //        }
+    //    }
 
         //prep terrain
         foreach(Vector3Int tile in wonderPlacementLoc)
         {
             CheckTileForTreasure(tile);
-            TerrainData td = GetTerrainDataAt(tile);
+			TerrainData td = GetTerrainDataAt(tile);
+			avgLoc += tile;
 
-            if (wonderData.isSea)
+			if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)) || CheckForUnits(tile))
+			{
+				InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Something in the way");
+				wonderPlacementLoc.Clear();
+				return;
+			}
+
+            if (td.hasBattle)
+            {
+				InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Battle is here");
+				wonderPlacementLoc.Clear();
+                return;
+            }
+
+			if (wonderData.isSea)
             {
                 td.sailable = false;
                 td.walkable = true;
+                td.canWalk = true;
+                td.canPlayerWalk = true;
             }
             else
             {
@@ -3682,10 +3715,135 @@ public class MapWorld : MonoBehaviour
         if (mainPlayer.isMoving)
             tempNoWalkList.AddRange(wonderNoWalkLoc);
 
+        if (wonderData.terrainType == TerrainType.Coast)
+            AdjustSeaTraderPaths(wonderPlacementLoc);
+
         wonderPlacementLoc.Clear();
         wonderNoWalkLoc.Clear();
         cityBuilderManager.PlayBoomAudio();
     }
+
+	public bool CheckForUnits(Vector3Int centerLoc)
+	{
+		float increase = 0.1f;
+
+		Vector3 rayCastLoc = centerLoc;
+		rayCastLoc.y += increase;
+		RaycastHit hit;
+
+		List<Vector3Int> directions = GetNeighborsCoordinates(State.EIGHTWAY);
+		directions.Insert(0, new Vector3Int(0, 1, 0));
+        for (int i = 0; i < directions.Count; i++)
+        {
+			Vector3 pos = directions[i];
+
+		    float distance = i % 2 == 0 ? 1.5f : 2.1f;
+			if (Physics.Raycast(rayCastLoc, pos, out hit, distance, unitMask))
+			{
+				GameObject hitGO = hit.collider.gameObject;
+				if (hitGO && hitGO.TryGetComponent(out Unit unit))
+                    return true;
+			}
+        }
+
+        return false;
+	}
+
+	//for when building wonder in ocean and on trader's paths
+	private void AdjustSeaTraderPaths(List<Vector3Int> wonderLoc)
+    {
+        List<Trader> tempTraderList = new(traderList);
+        for (int i = 0; i < tempTraderList.Count; i++)
+        {
+            if (tempTraderList[i].bySea)
+            {
+                if (tempTraderList[i].followingRoute)
+                {
+                    Dictionary<int, List<Vector3Int>> routeDict = new(tempTraderList[i].tradeRouteManager.routePathsDict);
+                    foreach (int stop in routeDict.Keys)
+                    {
+                        bool adjust = false;
+                        for (int j = 0; j < wonderLoc.Count; j++)
+                        {
+                            if (routeDict[stop].Contains(wonderLoc[j]))
+                            {
+                                adjust = true;
+                                break;
+                            }
+                        }
+
+                        if (adjust)
+                        {
+                            Vector3Int start = tempTraderList[i].tradeRouteManager.cityStops[stop];
+                            int nextStop = stop + 1;
+
+                            if (tempTraderList[i].tradeRouteManager.cityStops.Count == nextStop)
+								nextStop = 0;
+
+							Vector3Int dest = tempTraderList[i].tradeRouteManager.cityStops[nextStop];
+
+                            List<Vector3Int> path = GridSearch.TraderMove(this, start, dest, true);
+
+                            if (path.Count > 0)
+                            {
+								tempTraderList[i].tradeRouteManager.routePathsDict[stop] = path;
+
+                                if (tempTraderList[i].tradeRouteManager.currentStop == stop)
+									CurrentMovementAdjust(i, wonderLoc);
+							}
+                            else
+                            {
+								//in case it checks more than once
+								if (tempTraderList[i].followingRoute)
+                                {
+									//traderList[i].StopMovementCheck(false);
+									tempTraderList[i].CancelRoute();
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (tempTraderList[i].isMoving)
+                {
+                    CurrentMovementAdjust(i, wonderLoc);
+                }
+            }
+        }
+    }
+
+    //if trader is currently on route to go through recently placed wonder
+    private void CurrentMovementAdjust(int i, List<Vector3Int> wonderLoc)
+    {
+		bool adjust = false;
+
+		for (int j = 0; j < wonderLoc.Count; j++)
+		{
+			if (traderList[i].pathPositions.Contains(wonderLoc[j]))
+			{
+				adjust = true;
+				break;
+			}
+		}
+
+		if (adjust)
+		{
+			Vector3Int dest = RoundToInt(traderList[i].finalDestinationLoc);
+			List<Vector3Int> path = GridSearch.TraderMove(this, traderList[i].transform.position, dest, true);
+
+			if (path.Count > 0)
+			{
+				traderList[i].StopMovementCheck(false);
+				traderList[i].MoveThroughPath(path);
+			}
+			else
+			{
+                if (traderList[i].followingRoute)
+                    traderList[i].CancelRoute();
+                else
+                    traderList[i].ReturnHome(0);
+			}
+		}
+	}
 
 	public void LoadWonder(List<WonderData> allWonderData)
 	{
@@ -3702,6 +3860,8 @@ public class MapWorld : MonoBehaviour
 				{
 					td.sailable = false;
 					td.walkable = true;
+                    td.canWalk = true;
+                    td.canPlayerWalk = true;
 				}
 				else
 				{
@@ -3847,8 +4007,7 @@ public class MapWorld : MonoBehaviour
         wonderButton.newIcon.SetActive(true);
         wonderHandler.somethingNew = true;
 
-        if (!newUnitsAndImprovements.Contains(wonderName))
-            newUnitsAndImprovements.Add(wonderName);
+        newUnitsAndImprovements.Add(wonderName);
 
         for (int i = 0; i < wonderHandler.buildOptions.Count; i++)
         {
@@ -4136,8 +4295,7 @@ public class MapWorld : MonoBehaviour
 
     public void AddToResearchWaitList(ResourceProducer producer)
     {
-        if (!researchWaitList.Contains(producer))
-            researchWaitList.Add(producer);
+        researchWaitList.Add(producer);
     }
 
     public void RemoveFromResearchWaitList(ResourceProducer producer)
@@ -4147,14 +4305,14 @@ public class MapWorld : MonoBehaviour
 
     public void RestartResearch()
     {
-        List<ResourceProducer> producerResearchWaitList = new(researchWaitList);
+        HashSet<ResourceProducer> producerResearchWaitList = new(researchWaitList);
 
-        for (int i = 0; i < producerResearchWaitList.Count; i++)
+        foreach (ResourceProducer producer in producerResearchWaitList)
         {
 			if (researching)
 			{
-                researchWaitList.Remove(producerResearchWaitList[i]);
-				producerResearchWaitList[i].CheckProducerResearchWaitList();
+                researchWaitList.Remove(producer);
+				producer.CheckProducerResearchWaitList();
 			}
 		}
     }
@@ -4409,10 +4567,10 @@ public class MapWorld : MonoBehaviour
 
     public void LoadDiscoveredResources()
     {
-        for (int i = 0; i < resourceDiscoveredList.Count; i++)
+        foreach (ResourceType type in resourceDiscoveredList)
         {
-            UpdateResourceSelectionGrids(resourceDiscoveredList[i]);
-            cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(resourceDiscoveredList[i]);
+			UpdateResourceSelectionGrids(type);
+			cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(type);
 		}
     }
 
@@ -5101,7 +5259,7 @@ public class MapWorld : MonoBehaviour
 		foreach (Vector3Int tile in GetNeighborsFor(locationInt, MapWorld.State.FOURWAY))
 		{
 			TerrainData td = GetTerrainDataAt(tile);
-			if (td.isLand && td.walkable)
+			if (td.isLand && td.canWalk)
 			{
                 if (!enemy && td.enemyZone)
                     continue;
@@ -5397,19 +5555,72 @@ public class MapWorld : MonoBehaviour
     //        closest.enemyAI.WakeUp(target);
     //}
 
-    public void AddBattleZones(Vector3Int loc1, Vector3Int loc2)
+    public void AddBattleZones(Vector3Int loc1, Vector3Int loc2, bool inBattle)
     {
-        if (!tempBattleZone.Contains(loc1))
-            tempBattleZone.Add(loc1);
-        
-        if (!tempBattleZone.Contains(loc2))
-            tempBattleZone.Add(loc2);
-    }
+        Vector3Int[] zones = new Vector3Int[] { loc1, loc2 };
+
+        for (int i = 0; i < zones.Length; i++)
+        {
+            TerrainData td = GetTerrainDataAt(zones[i]);
+            td.hasBattle = true;
+            td.canPlayerWalk = false;
+            td.canPlayerSail = false;
+            td.canPlayerFly = false;
+
+            if (inBattle)
+            {
+                td.inBattle = true;
+            }
+            else
+            {
+                if (!td.isGlowing)
+                    td.BattleHighlight();
+            }
+
+            tempBattleZone.Add(zones[i]);
+
+            foreach (Vector3Int tile in GetNeighborsFor(zones[i], State.EIGHTWAY))
+            {
+                if (IsPlayerLocationTaken(tile))
+                {
+		            if (mainPlayer.isBusy)
+			            unitMovement.workerTaskManager.ForceCancelWorkerTask();
+
+					mainPlayer.StepAside(mainPlayer.currentLocation, null);
+				}
+            }
+
+            uiTerrainTooltip.UpdateText(td);
+        }
+	}
 
 	public void RemoveBattleZones(Vector3Int loc1, Vector3Int loc2)
 	{
-		tempBattleZone.Remove(loc1);
-		tempBattleZone.Remove(loc2);
+        Vector3Int[] zones = new Vector3Int[] { loc1, loc2 };
+
+        for (int i = 0; i < zones.Length; i++)
+        {
+            TerrainData td = GetTerrainDataAt(zones[i]);
+			td.hasBattle = false;
+            td.inBattle = false;
+            td.CanMoveCheck();
+            tempBattleZone.Remove(zones[i]);
+            GetTerrainDataAt(zones[i]).DisableBattleHighlight();
+			uiTerrainTooltip.UpdateText(td);
+		}
+	}
+
+    public void DisableBattleHighlight(Vector3Int loc1, Vector3Int loc2)
+    {
+		Vector3Int[] zones = new Vector3Int[] { loc1, loc2 };
+
+		for (int i = 0; i < zones.Length; i++)
+        {
+            TerrainData td = GetTerrainDataAt(zones[i]);
+            td.inBattle = true;
+			td.DisableBattleHighlight();
+			uiTerrainTooltip.UpdateText(td);
+		}
 	}
 
 	public void CityBattleStations(Vector3Int cityLoc, Vector3Int attackLoc, Vector3Int targetZone, EnemyCamp camp)
@@ -5563,8 +5774,6 @@ public class MapWorld : MonoBehaviour
 
 	public void ToggleCityMaterialClear(Vector3Int enemyLoc, Vector3Int armyLoc, Vector3Int loc, Vector3Int targetLoc, bool v)
     {
-        RemoveBattleZones(enemyLoc, armyLoc);
-        
         if (GetTerrainDataAt(loc).treeHandler != null)
 			GetTerrainDataAt(loc).ToggleTransparentForest(v);
         
@@ -5595,6 +5804,7 @@ public class MapWorld : MonoBehaviour
 		}
 		else
         {
+            RemoveBattleZones(loc, targetLoc);
 			battleLocs.Remove(armyLoc);
 
 			if (battleLocs.Count == 0)
@@ -5694,21 +5904,21 @@ public class MapWorld : MonoBehaviour
             battleCamera.SetActive(!v);
     }
 
-	public void AddToBattleAreas(List<Vector3Int> area)
-	{
-        battleAreas.AddRange(area);
-	}
+	//public void AddToBattleAreas(List<Vector3Int> area)
+	//{
+ //       battleAreas.AddRange(area);
+	//}
 
-    public void RemoveFromBattleArea(List<Vector3Int> area)
-    {
-        for (int i = 0; i < area.Count; i++)
-            battleAreas.Remove(area[i]);
-    }
+    //public void RemoveFromBattleArea(List<Vector3Int> area)
+    //{
+    //    for (int i = 0; i < area.Count; i++)
+    //        battleAreas.Remove(area[i]);
+    //}
 
-    public bool IsInBattleArea(Vector3Int loc)
-    {
-        return battleAreas.Contains(loc);
-    }
+    //public bool IsInBattleArea(Vector3Int loc)
+    //{
+    //    return battleAreas.Contains(loc);
+    //}
 
 	public void HighlightAllEnemyCamps()
     {
@@ -5779,16 +5989,9 @@ public class MapWorld : MonoBehaviour
     public bool CheckIfEnemyNotNeutral(Vector3Int loc)
     {
         if (GetTerrainDataAt(loc).enemyZone)
-        {
-            if (neutralZones.Contains(GetClosestTerrainLoc(loc)))
-                return false;
-            else
-                return true;
-        }
+            return !neutralZones.Contains(GetClosestTerrainLoc(loc));
         else
-        {
             return false;
-        }
     }
 
     public bool CheckIfNeutral(Vector3Int loc)
@@ -6475,14 +6678,12 @@ public class MapWorld : MonoBehaviour
 
     public void SetRoadLocations(Vector3Int tile)
     {
-        if (!roadLocsList.Contains(tile))
-            roadLocsList.Add(tile);
+        roadLocsList.Add(tile);
     }
 
     public void SetSoloRoadLocations(Vector3Int tile)
     {
-        if (!soloRoadLocsList.Contains(tile))
-            soloRoadLocsList.Add(tile);
+        soloRoadLocsList.Add(tile);
     }
 
     public bool IsRoadOnTileLocation(Vector3Int tile)
@@ -6646,12 +6847,12 @@ public class MapWorld : MonoBehaviour
 
         if (sea)
         {
-            if (CheckIfSeaPositionIsValid(newTile))
+            if (PlayerCheckIfSeaPositionIsValid(newTile))
                 return newTile;
 		}
         else
         {
-            if (CheckIfPositionIsValid(newTile))
+            if (PlayerCheckIfPositionIsValid(newTile))
                 return newTile;
         }
 
@@ -6671,12 +6872,12 @@ public class MapWorld : MonoBehaviour
 
                 if (sea)
                 {
-                    if (CheckIfSeaPositionIsValid(trySpot))
+                    if (PlayerCheckIfSeaPositionIsValid(trySpot))
                         break;
                 }
                 else
                 {
-					if (CheckIfPositionIsValid(trySpot))
+					if (PlayerCheckIfPositionIsValid(trySpot))
 						break;
 				}
 
@@ -6719,22 +6920,22 @@ public class MapWorld : MonoBehaviour
     //for movement
     public bool PlayerCheckIfPositionIsValid(Vector3Int tile)
     {
-		return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable && !noWalkList.Contains(tile) && !battleAreas.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].canPlayerWalk && !noWalkList.Contains(tile);
 	}
     
     public bool CheckIfPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable && !noWalkList.Contains(tile);
+        return world.ContainsKey(tile) && world[tile].canWalk;
     }
+
+	public bool CheckIfPositionIsArmyValid(Vector3Int tile) //preventing going diagonally
+    {
+		return world.ContainsKey(tile) && world[tile].canPlayerWalk && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyZone;
+	}
 
 	public bool CheckIfAmphibuousPositionIsValid(Vector3Int tile)
     {
-		return world.ContainsKey(tile) && (world[tile].walkable || !world[tile].isLand);
-	}
-
-	public bool CheckIfPositionIsMarchable(Vector3Int tile)
-    {
-		return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].walkable && !noWalkList.Contains(tile);
+		return world.ContainsKey(tile) && (world[tile].canWalk || !world[tile].isLand);
 	}
 
     public bool CheckForFinalMarch(Vector3Int tile)
@@ -6749,33 +6950,48 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckIfPositionIsMarchableForEnemy(Vector3Int tile)
     {
-		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile) && !noWalkList.Contains(tile);
-	}
-
-	public bool CheckIfPositionIsSailableForEnemy(Vector3Int tile)
-	{
-		return world.ContainsKey(tile) && world[tile].sailable && !enemyCampDict.ContainsKey(tile) && !noWalkList.Contains(tile);
-	}
-
-	public bool CheckIfPositionIsArmyValid(Vector3Int tile) //preventing going diagonally
-    {
-		return world.ContainsKey(tile) && world[tile].walkable && !noWalkList.Contains(tile) && !world[tile].sailable && !world[tile].enemyZone;
+		return world.ContainsKey(tile) && world[tile].walkable && !enemyCampDict.ContainsKey(tile) && !noWalkList.Contains(tile) && !tempBattleZone.Contains(tile);
 	}
 
     public bool CheckIfPositionIsEnemyArmyValid(Vector3Int tile) //preventing going diagonally
 	{ 
-		return world.ContainsKey(tile) && world[tile].walkable && !world[tile].sailable && !noWalkList.Contains(tile);
+		return world.ContainsKey(tile) && world[tile].walkable && !world[tile].sailable && !noWalkList.Contains(tile) && !tempBattleZone.Contains(tile);
 	}
 
-    public bool CheckIfSeaPositionIsValid(Vector3Int tile)
+	public bool PlayerCheckIfSeaPositionIsValid(Vector3Int tile)
+	{
+		return world.ContainsKey(tile) && world[tile].canPlayerSail && !noWalkList.Contains(tile);
+	}
+
+	public bool CheckIfSeaPositionIsValid(Vector3Int tile)
     {
-        return world.ContainsKey(tile) && world[tile].isDiscovered && world[tile].sailable && !noWalkList.Contains(tile) && !world[tile].border;
+        return world.ContainsKey(tile) && world[tile].canSail && !noWalkList.Contains(tile);
     }
+
+	public bool CheckIfPositionIsSailableForEnemy(Vector3Int tile)
+	{
+		return world.ContainsKey(tile) && world[tile].sailable && !enemyCampDict.ContainsKey(tile) && !noWalkList.Contains(tile) && !tempBattleZone.Contains(tile);
+	}
 
 	public bool CheckIfSeaPositionIsValidForEnemy(Vector3Int tile)
 	{
-		return world.ContainsKey(tile) && world[tile].sailable && !noWalkList.Contains(tile);
+		return world.ContainsKey(tile) && world[tile].sailable && !noWalkList.Contains(tile) && !tempBattleZone.Contains(tile);
 	}
+
+    public bool PlayerCheckIfAirPositionIsValid(Vector3Int tile)
+    {
+        return world.ContainsKey(tile) && world[tile].canPlayerFly;
+    }
+
+    public bool CheckIfAirPositionIsValid(Vector3Int tile)
+    {
+        return world.ContainsKey(tile) && world[tile].canFly;
+    }
+
+    public bool CheckIfPositionIsFlyableForEnemy(Vector3Int tile)
+    {
+        return world.ContainsKey(tile) && !world[tile].border && !tempBattleZone.Contains(tile); //currently can't go over land or sea battles
+    }
 
 	public bool CheckIfCoastCoast(Vector3Int tile)
     {
@@ -7055,9 +7271,9 @@ public class MapWorld : MonoBehaviour
         return neighbors;
     }
 
-    public (List<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition) //two tile deep layer around specific city
+    public (HashSet<Vector3Int>, List<Vector3Int>, List<Vector3Int>) GetCityRadiusFor(Vector3Int worldTilePosition) //two tile deep layer around specific city
     {
-        List<Vector3Int> neighbors = new();
+        HashSet<Vector3Int> neighbors = new();
         List<Vector3Int> developed = new();
         List<Vector3Int> constructing = new();
         foreach (Vector3Int direction in cityRadius)
@@ -8110,7 +8326,7 @@ public class MapWorld : MonoBehaviour
 					{
 						foreach (Vector3Int loc in GetNeighborsFor(RoundToInt(mainPlayer.transform.position), State.EIGHTWAY))
 						{
-							if (CheckIfPositionIsValid(loc))
+							if (PlayerCheckIfPositionIsValid(loc))
 							{
 								scottLoc = loc;
 								break;
@@ -8163,7 +8379,7 @@ public class MapWorld : MonoBehaviour
 				{
 					foreach (Vector3Int loc in GetNeighborsFor(RoundToInt(mainPlayer.transform.position), State.EIGHTWAY))
 					{
-						if (CheckIfPositionIsValid(loc))
+						if (PlayerCheckIfPositionIsValid(loc))
 						{
 							azaiLoc = loc;
 							break;
@@ -8935,7 +9151,7 @@ public interface ITradeStop
 
 			for (int i = index; i < waitList.Count; i++)
 			{
-				if (!waitList[i].isDead)
+				if (!waitList[i].isDead && waitList[i].followingRoute)
                     waitList[i].CancelRoute();
 			}
 		}
@@ -8946,7 +9162,7 @@ public interface ITradeStop
 				Trader nextTrader = waitList[0];
 				waitList.RemoveAt(0);
 
-                if (!nextTrader.isDead)
+                if (!nextTrader.isDead && nextTrader.followingRoute)
     				nextTrader.CancelRoute();
 			}
 
@@ -8956,7 +9172,7 @@ public interface ITradeStop
                 {
 					if (!waitList[i].movingUpInLine)
                     {
-                        if (!waitList[i].isDead)
+                        if (!waitList[i].isDead && waitList[i].followingRoute)
                             waitList[i].CancelRoute();
                     }
 				}

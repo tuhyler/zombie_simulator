@@ -457,8 +457,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 		Vector3Int nextSpot = pathPositions.Dequeue();
 		world.RemoveTraderPosition(currentLocation, this);
-		world.AddTraderPosition(nextSpot, this);
-		currentLocation = nextSpot;
+		currentLocation = world.AddTraderPosition(nextSpot, this);
         StartAnimation();
 		isMoving = true;
         RestartPath(nextSpot);
@@ -601,8 +600,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		MoveThroughPath(path);
 	}
 
-	private void ReturnHome()
+	public void ReturnHome(int tries)
 	{
+		tries++;
 		Vector3Int currentLoc = world.GetClosestTerrainLoc(transform.position);
 		returning = true;
 				
@@ -656,20 +656,12 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			}
 		}
 
-		if (chosenCity == null)
+		if (chosenCity == null || tries >= 3)
 		{
 			if (!FindCityToJoin(cityNames, currentLoc))
 			{
 				if (guarded)
-				{
 					guardUnit.KillUnit(Vector3.zero);
-					//originalMoveSpeed = buildDataSO.movementSpeed;
-					//guardUnit.military.guard = false;
-					//guardUnit.military.guardedTrader = null;
-					//guardUnit.military.MoveForGuardDuty(homeCity);
-					//guardUnit = null;
-					//guarded = false;
-				}
 
 				KillUnit(Vector3.zero);
 			}
@@ -679,12 +671,12 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 		homeCity = chosenCity.cityLoc;
 		atHome = false;
-		ReturnHome();
+		ReturnHome(tries);
 	}
 
 	private bool FindCityToJoin(List<string> cityNames, Vector3Int currentLoc)
 	{
-		if (bySea|| byAir)
+		if (bySea || byAir)
 			return false;
 		
 		if (world.IsCityOnTile(currentLoc))
@@ -770,6 +762,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         if (isSelected)
 			world.unitMovement.uiTraderPanel.SwitchRouteIcons(false);
 
+		StopMovementCheck(false);
+
 		followingRoute = false;
 		RemoveWarning();
 		if (waitingOnRouteCosts)
@@ -819,7 +813,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		atStop = false;
 		world.RemoveTraderPosition(currentLocation, this);
 		if (!isDead)
-			ReturnHome();
+			ReturnHome(0);
     }
 
     public void AddToGrid(ResourceType type)
@@ -1176,7 +1170,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			if (!world.IsCityOnTile(homeCity) || !world.GetCity(homeCity).singleBuildDict.ContainsKey(buildDataSO.singleBuildType))
 			{
 				atHome = false;
-				ReturnHome();
+				ReturnHome(0);
 				return;
 			}
 
@@ -1195,7 +1189,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				if (improvement.loc != world.GetClosestTerrainLoc(endPosition))
 				{
 					atHome = false;
-					ReturnHome();
+					ReturnHome(0);
 					return;
 				}
 

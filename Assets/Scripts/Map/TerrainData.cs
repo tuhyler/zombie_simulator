@@ -46,7 +46,7 @@ public class TerrainData : MonoBehaviour
     public bool changeLeafColor;
     [HideInInspector]
     public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
-        showProp = true, hasNonstatic, straightRiver, border;
+        showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly; //walkable is when it's not discovered, canWalk is when it is, canPlayerWalk includes battlezones
 
     //[HideInInspector]
     //public List<GameObject> enemyBorders = new();
@@ -523,6 +523,22 @@ public class TerrainData : MonoBehaviour
     public void HardReveal()
     {
         isDiscovered = true;
+        if (walkable)
+        {
+            canWalk = true;
+            canPlayerWalk = true;
+        }
+        if (!border)
+        {
+            if (sailable)
+            {
+                canSail = true;
+                canPlayerSail = true;
+            }
+
+            canFly = true;
+            canPlayerFly = true;
+        }
 		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
         //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
@@ -566,6 +582,16 @@ public class TerrainData : MonoBehaviour
         ShowProp(true);
     }
 
+    public void CanMoveCheck()
+    {
+        if (canWalk)
+            canPlayerWalk = true;
+        if (canSail)
+            canPlayerSail = true;
+        if (canFly)
+            canPlayerFly = true;
+    }
+
     //public void HardSemiReveal()
     //{
     //    foreach (MeshRenderer renderer in whiteMesh)
@@ -580,6 +606,23 @@ public class TerrainData : MonoBehaviour
     public void Reveal()
     {
         isDiscovered = true;
+		isDiscovered = true;
+		if (walkable)
+		{
+			canWalk = true;
+			canPlayerWalk = true;
+		}
+        if (!border)
+        {
+            if (sailable)
+            {
+                canSail = true;
+                canPlayerSail = true;
+            }
+
+            canFly = true;
+            canPlayerFly = true;
+        }
 		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
 		//foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
@@ -716,7 +759,7 @@ public class TerrainData : MonoBehaviour
 
     public void EnableHighlight(Color highlightColor)
     {
-        if (isGlowing || !isDiscovered)
+        if (!isDiscovered)
             return;
 
         isGlowing = true;
@@ -740,7 +783,33 @@ public class TerrainData : MonoBehaviour
 
         if (highlight != null)
             highlight.DisableHighlight();
+
+        if (hasBattle && !inBattle)
+            highlight.EnableHighlight(Color.red);
     }
+
+    public void BattleHighlight()
+    {
+        if (isGlowing)
+            return;
+
+		if (!isLand)
+			ToggleHighlightPlane(true);
+
+		highlight.EnableHighlight(Color.red);
+	}
+
+    public void DisableBattleHighlight()
+    {
+		if (isGlowing)
+			return;
+
+		if (!isLand)
+			ToggleHighlightPlane(false);
+
+		if (highlight != null)
+			highlight.DisableHighlight();
+	}
 
     public void ToggleTransparentForest(bool v)
     {

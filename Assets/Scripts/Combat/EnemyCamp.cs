@@ -417,7 +417,9 @@ public class EnemyCamp
 			unit.gameObject.SetActive(false);
 
 		if (enemyReady == campCount - deathCount)
+		{
 			ResetCampToBase();
+		}
 	}
 
 	public void ResetCampToBase()
@@ -598,7 +600,7 @@ public class EnemyCamp
 				//if (world.cityBuilderManager.uiUnitBuilder.activeStatus)
 				//	world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(attackingArmy.isFull);
 				attackingArmy.ResetArmy();
-				world.RemoveFromBattleArea(attackingArmy.cavalryRange);
+				//world.RemoveFromBattleArea(attackingArmy.cavalryRange);
 				attackingArmy.movementRange.Clear();
 				attackingArmy.cavalryRange.Clear();
 				attackingArmy.targetCamp = null;
@@ -1079,7 +1081,7 @@ public class EnemyCamp
 		//		tempTraderList[i].KillUnit(threatLoc - tempTraderList[i].transform.position);
 		//}
 
-		CheckForWeaklings(moveToLoc, true);
+		CheckForWeaklings(moveToLoc);
 
 		enemyReady = 0;
 		Vector3[] splashLocs = new Vector3[4] { new Vector3(-1, 0, -1), new Vector3(1, 0, -1), new Vector3(1, 0, 1), new Vector3(-1, 0, 1)};
@@ -1124,7 +1126,7 @@ public class EnemyCamp
 					unitsInCamp[i].StartAttackingAnimation();
 			}
 
-			CheckForWeaklings(moveToLoc, false);
+			CheckForWeaklings(moveToLoc);
 		}
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
@@ -1206,7 +1208,7 @@ public class EnemyCamp
 			else
 			{
 				if (world.IsRoadOnTileLocation(lastSpot))
-					CheckForWeaklings(lastSpot, false);
+					CheckForWeaklings(lastSpot);
 
 				//currently don't destroy improvements
 				//if (world.TileHasCityImprovement(lastSpot) && !world.GetCityDevelopment(lastSpot).CompareTag("Enemy"))
@@ -1329,7 +1331,7 @@ public class EnemyCamp
 			threatLoc = penultimate;
 
 			forward = (actualAttackLoc - threatLoc) / 3;
-			world.AddBattleZones(actualAttackLoc, threatLoc);
+			world.AddBattleZones(actualAttackLoc, threatLoc, false);
 			
 			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.army == attackingArmy)
 				world.unitMovement.CancelArmyDeployment();
@@ -1355,7 +1357,7 @@ public class EnemyCamp
 		attackingArmy = world.GetCity(moveToLoc).army;
 		enemyReady = 0;
 		forward = (moveToLoc - threatLoc) / 3;
-		world.AddBattleZones(moveToLoc, threatLoc);
+		world.AddBattleZones(moveToLoc, threatLoc, false);
 
 		if (world.deployingArmy)
 		{
@@ -1674,33 +1676,30 @@ public class EnemyCamp
 		}
 	}
 
-	public void CheckForWeaklings(Vector3Int centerLoc, bool largeRadius)
+	public void CheckForWeaklings(Vector3Int centerLoc)
 	{
 		float increase;
 		bool isHill = world.GetTerrainDataAt(centerLoc).isHill;
 
 		if (isHill)
-			increase = 1.5f;
+			increase = 1.1f;
 		else
-			increase = 0.5f;
+			increase = 0.1f;
 
 		Vector3 rayCastLoc = centerLoc;
 		rayCastLoc.y += increase;
 
-		float distance = 2f;
-		if (largeRadius)
-			distance = 3f;
-
 		RaycastHit hit;
 
 		List<Vector3Int> directions = world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY);
-		directions.Add(Vector3Int.zero);
-		foreach (Vector3 direction in directions)
+		directions.Add(new Vector3Int(0, 1, 0));
+		for (int i = 0; i < directions.Count; i++)
 		{
-			Vector3 pos = direction;
+			Vector3 pos = directions[i];
 			if (isHill)
 				pos.y -= 1f;
 
+			float distance = i % 2 == 0 ? 1.5f : 2.1f;
 			//can't only hit one at a time, not sure how to hit through objects that's already been hit
 			if (Physics.Raycast(rayCastLoc, pos, out hit, distance, world.enemyKillLayerMask))
 			{

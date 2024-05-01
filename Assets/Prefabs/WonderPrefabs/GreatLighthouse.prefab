@@ -160,7 +160,6 @@ Transform:
   - {fileID: 6070816774299406365}
   - {fileID: 7156353418293631803}
   - {fileID: 4721793491458769186}
-  - {fileID: 6032029538342437338}
   - {fileID: 7695236999797472876}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -184,6 +183,7 @@ MonoBehaviour:
   meshComplete: {fileID: 5103617607387467207}
   mapIcon: {fileID: 8612557216127480678}
   exclamationPoint: {fileID: 1495272414480406773}
+  wonderCollider: {fileID: 2393637935948700012}
   wonderLights:
   - {fileID: 8276675615197533068}
   isConstructing: 0
@@ -198,6 +198,8 @@ MonoBehaviour:
   wonderName: 
   harborImprovement: {fileID: 0}
   totalGoldCost: 0
+  waitList: []
+  seaWaitList: []
   heavenHighlight: {fileID: 4953528115713912327, guid: a11824c75395cb942965c0ed24f8949d,
     type: 3}
   smokeEmitter: {fileID: 1051715053847212574}
@@ -491,51 +493,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
---- !u!1 &6830463195814824515
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6032029538342437338}
-  - component: {fileID: 8692294315477211365}
-  m_Layer: 0
-  m_Name: TagCollider
-  m_TagString: City
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6032029538342437338
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6830463195814824515}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3239887488483095770}
-  m_RootOrder: 13
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &8692294315477211365
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6830463195814824515}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.7, y: 0, z: 0.7}
-  m_Center: {x: 0, y: 0.13, z: 0}
 --- !u!1 &7410728854156403563
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,6 +679,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GreatLighthouse0Perc
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 08f0133ff7b5baa47945c9dd45fdea91,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08f0133ff7b5baa47945c9dd45fdea91, type: 3}
@@ -1062,6 +1024,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: GreatLighthouse67Perc
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 97643516ce9423e4c917620c30bb434c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97643516ce9423e4c917620c30bb434c, type: 3}
 --- !u!4 &1265200880469948603 stripped
@@ -1096,7 +1063,7 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
       propertyPath: m_RootOrder
-      value: 14
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
@@ -1254,6 +1221,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0b8aff8cbd30bac43afa657e420519d3,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b8aff8cbd30bac43afa657e420519d3, type: 3}
 --- !u!1 &5103617607387467207 stripped
@@ -1339,6 +1311,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GreatLighthouse33Perc
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c2a8a2df20745494d84c80b82775e61d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c2a8a2df20745494d84c80b82775e61d, type: 3}

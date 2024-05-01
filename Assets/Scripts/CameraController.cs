@@ -279,7 +279,7 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    public void SetCityLimit(List<Vector3Int> tiles, Vector3Int cityLoc)
+    public void SetCityLimit(HashSet<Vector3Int> tiles, Vector3Int cityLoc)
     {
         inCity = true;
         xMinTemp = xMin;

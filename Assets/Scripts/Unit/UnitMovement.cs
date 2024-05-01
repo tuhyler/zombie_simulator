@@ -1,16 +1,5 @@
-using Mono.Cecil;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Resources;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.XR;
-using static Unity.Burst.Intrinsics.X86.Avx;
-using static UnityEditor.FilePathAttribute;
-using static UnityEditor.PlayerSettings;
 
 public class UnitMovement : MonoBehaviour
 {
@@ -63,11 +52,11 @@ public class UnitMovement : MonoBehaviour
 
     //for deploying army
     private Vector3Int potentialAttackLoc;
-    private List<Vector3Int> attackZoneList = new();
+    private HashSet<Vector3Int> attackZoneList = new();
 
     //for upgrading units
     [HideInInspector]
-    public List<Unit> highlightedUnitList = new();
+    public HashSet<Unit> highlightedUnitList = new();
     [HideInInspector]
 	public bool upgradingUnit;
     //private List<TerrainData> highlightedTiles = new();
@@ -276,7 +265,7 @@ public class UnitMovement : MonoBehaviour
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already something here");
                 }
-                else if (!td.walkable)
+                else if (!td.canPlayerWalk)
                 {
                     UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build here");
                 }
@@ -578,22 +567,22 @@ public class UnitMovement : MonoBehaviour
                     
                     world.attackMovingTarget = false;
 
-					for (int i = 0; i < attackZoneList.Count; i++)
+                    foreach (Vector3Int zone in attackZoneList)
 					{
-                        if (world.IsEnemyCityOnTile(potentialAttackLoc) && attackZoneList[i] == world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks])
+                        if (world.IsEnemyCityOnTile(potentialAttackLoc) && zone == world.GetEnemyCity(potentialAttackLoc).singleBuildDict[SingleBuildType.Barracks])
                             continue;
                         
-                        world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
-						Color color = pos == attackZoneList[i] ? Color.white : Color.green;
-						world.GetTerrainDataAt(attackZoneList[i]).EnableHighlight(color);
-                        if (world.CompletedImprovementCheck(attackZoneList[i]))
+                        //world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
+						Color color = pos == zone ? Color.white : Color.green;
+						world.GetTerrainDataAt(zone).EnableHighlight(color);
+                        if (world.CompletedImprovementCheck(zone))
                         {
-                            world.GetCityDevelopment(attackZoneList[i]).DisableHighlight();
-                            world.GetCityDevelopment(attackZoneList[i]).EnableHighlight(color);
+                            world.GetCityDevelopment(zone).DisableHighlight();
+                            world.GetCityDevelopment(zone).EnableHighlight(color);
                         }
-
 					}
 
+					homeBase.army.HidePath();
 					if (homeBase.army.DeployArmyCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), pos, potentialAttackLoc))
 					{
 						homeBase.army.ShowBattlePath();
@@ -1331,7 +1320,7 @@ public class UnitMovement : MonoBehaviour
 
         if (unit.worker.building)
         {
-		    if (!world.IsTileOpenCheck(terrainPos) || !world.CheckIfPositionIsValid(terrainPos))
+		    if (!world.IsTileOpenCheck(terrainPos) || !world.PlayerCheckIfPositionIsValid(terrainPos))
 		    {
 			    unit.worker.SkipRoadBuild();
                 if (world.mainPlayer.isSelected)
@@ -1410,7 +1399,7 @@ public class UnitMovement : MonoBehaviour
 
         TerrainData td = world.GetTerrainDataAt(locationInt);
 
-        if ((selectedUnit.bySea && !td.sailable) || (!selectedUnit.bySea && !td.walkable))
+        if ((selectedUnit.bySea && !td.sailable) || (!selectedUnit.bySea && !td.canPlayerWalk))
         {
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Cannot travel to selected area");
 			return;
@@ -1419,9 +1408,9 @@ public class UnitMovement : MonoBehaviour
         bool moveToSpeak = false;
         if (selectedUnit.isPlayer)
         {
-			if (world.IsInBattleArea(locationInt))
+			if (td.hasBattle)
             {
-				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't, battle going on here");
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Battle is here");
 				return;
             }
             
@@ -1455,7 +1444,7 @@ public class UnitMovement : MonoBehaviour
                 selectedUnit.worker.toTransport = true;
                 selectedUnit.worker.transportTarget = transport;
 
-                if (transport.bySea && !world.GetTerrainDataAt(locationInt).walkable)
+                if (transport.bySea && !world.GetTerrainDataAt(locationInt).canWalk)
                 {
                     Vector3Int trySpot = world.GetAdjacentMoveToTile(world.RoundToInt(selectedUnit.transform.position), locationInt, false);
 				    locationInt = trySpot;
@@ -1505,21 +1494,19 @@ public class UnitMovement : MonoBehaviour
 
 		if (selectedUnit.bySea)
         {
-            if (!world.CheckIfSeaPositionIsValid(locationInt))
+            if (!world.PlayerCheckIfSeaPositionIsValid(locationInt))
             {
                 Vector3Int trySpot = world.GetClosestMoveToSpot(locationInt, selectedUnit.transform.position, true);
-
                 locationInt = trySpot;
             }
 
             selectedUnit.TurnOnRipples();
         }
-        else if (!world.CheckIfPositionIsValid(locationInt))
+        else if (!world.PlayerCheckIfPositionIsValid(locationInt))
         {
-			if (!world.CheckIfSeaPositionIsValid(locationInt))
+			if (!world.PlayerCheckIfSeaPositionIsValid(locationInt)) //if unit is on land and is not trying to go out to sea
 			{
 				Vector3Int trySpot = world.GetClosestMoveToSpot(locationInt, selectedUnit.transform.position, false);
-
 				locationInt = trySpot;
 			}
 		}
@@ -2350,13 +2337,13 @@ public class UnitMovement : MonoBehaviour
             if (!selectedUnit.trader.StartingCityCheck())
                 return;
 
-            if (!selectedUnit.trader.isMoving)
-                world.RemoveTraderPosition(selectedUnit.currentLocation, selectedUnit.trader);
+            //if (!selectedUnit.trader.isMoving)
+            //    world.RemoveTraderPosition(selectedUnit.currentLocation, selectedUnit.trader);
 
 			if (selectedUnit.trader.LineCutterCheck())
             {
-                if (!selectedUnit.trader.isMoving)
-                    world.AddTraderPosition(selectedUnit.currentLocation, selectedUnit.trader);
+                //if (!selectedUnit.trader.isMoving)
+                //    world.AddTraderPosition(selectedUnit.currentLocation, selectedUnit.trader);
 				return;
             }
 
@@ -2444,7 +2431,7 @@ public class UnitMovement : MonoBehaviour
 
 		//selectedUnit.trader.followingRoute = false; //done earlier as it's in stopmovement
 		//selectedUnit.trader.waitingOnRouteCosts = false;
-        selectedUnit.StopMovementCheck(false);
+        //selectedUnit.StopMovementCheck(false);
 		selectedUnit.trader.RefundRouteCosts();
         selectedUnit.trader.RemoveWarning();
 		selectedUnit.trader.CancelRoute();
@@ -2692,11 +2679,11 @@ public class UnitMovement : MonoBehaviour
 
 	public void ShutDownAttackZones()
     {
-        for (int i = 0; i < attackZoneList.Count; i++)
+        foreach (Vector3Int zone in attackZoneList)
         {
-			if (world.CompletedImprovementCheck(attackZoneList[i]))
-                world.GetCityDevelopment(attackZoneList[i]).DisableHighlight();
-			world.GetTerrainDataAt(attackZoneList[i]).DisableHighlight();
+			if (world.CompletedImprovementCheck(zone))
+                world.GetCityDevelopment(zone).DisableHighlight();
+			world.GetTerrainDataAt(zone).DisableHighlight();
         }
 
         attackZoneList.Clear();
@@ -2877,8 +2864,6 @@ public class UnitMovement : MonoBehaviour
             return;
         }
 
-        world.AddBattleZones(homeBase.army.attackZone, homeBase.army.enemyTarget);
-
 		if (world.IsEnemyCityOnTile(potentialAttackLoc))
         {
             City city = world.GetEnemyCity(potentialAttackLoc);
@@ -2891,7 +2876,7 @@ public class UnitMovement : MonoBehaviour
             {
 				uiCancelTask.ToggleVisibility(false);
 				city.enemyCamp.attacked = true;
-                world.RemoveBattleZones(city.enemyCamp.actualAttackLoc, city.enemyCamp.threatLoc);
+                world.RemoveBattleZones(city.enemyCamp.actualAttackLoc, city.enemyCamp.threatLoc); //removing original battle locs for enemy that's moving out
                 city.enemyCamp.attackingArmy = homeBase.army;
                 city.enemyCamp.fieldBattleLoc = homeBase.army.enemyTarget;
             }

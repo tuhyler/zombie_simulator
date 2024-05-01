@@ -29,7 +29,7 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
 	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, List<(Vector3Int, int)>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
 	[HideInInspector]
-	public List<Unit> unitUpgradeList = new();
+	public List<Unit> unitUpgradeList = new(), militaryUnitList = new();
 	//[HideInInspector]
 	//public List<Trader> traderLoadUnloadList = new();
 	//public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
@@ -262,8 +262,8 @@ public class GameLoader : MonoBehaviour
 		gameData.currentResearch = world.researchTree.SaveResearch();
 
 		gameData.researchWaitList.Clear();
-		for (int i = 0; i < world.researchWaitList.Count; i++)
-			gameData.researchWaitList.Add(world.researchWaitList[i].producerLoc);
+		foreach (ResourceProducer producer in world.researchWaitList)
+			gameData.researchWaitList.Add(producer.producerLoc);
 
 		gameData.goldWaitList.Clear();
 		for (int i = 0; i < world.goldWaitList.Count; i++)
@@ -375,7 +375,11 @@ public class GameLoader : MonoBehaviour
 
 			for (int i = 0; i < world.traderPosDict[loc].Count; i++)
 				gameData.traderPosDict[loc].Add(world.traderPosDict[loc][i].id);
-		}		
+		}
+
+		gameData.unitPosDict.Clear();
+		foreach (Vector3Int loc in world.unitPosDict.Keys)
+			gameData.unitPosDict[loc] = world.unitPosDict[loc].id;
 
 		//laborers
 		gameData.allLaborers.Clear();
@@ -634,7 +638,7 @@ public class GameLoader : MonoBehaviour
 			if (city.enemyCamp.inBattle)
 			{
 				world.ToggleCityMaterialClear(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
-				world.AddToBattleAreas(city.army.cavalryRange);
+				//world.AddToBattleAreas(city.army.cavalryRange);
 			}
 		}
 		attackingEnemyCitiesList.Clear();
@@ -644,7 +648,7 @@ public class GameLoader : MonoBehaviour
 			if (gameData.attackedEnemyBases[loc].inBattle)
 			{
 				world.ToggleCityMaterialClear(world.GetEnemyCamp(loc).loc, world.GetEnemyCamp(loc).attackingArmy.city.cityLoc, world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
-				world.AddToBattleAreas(world.GetEnemyCamp(loc).attackingArmy.cavalryRange);
+				//world.AddToBattleAreas(world.GetEnemyCamp(loc).attackingArmy.cavalryRange);
 			}
 		}
 
@@ -699,6 +703,21 @@ public class GameLoader : MonoBehaviour
 		//for (int i = 0; i < gameData.goldTradeCenterWaitList.Count; i++)
 		//	world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
 		//gameData.goldTradeCenterWaitList.Clear();
+
+		//unit positions
+		foreach (Vector3Int loc in gameData.unitPosDict.Keys)
+		{
+			for (int i = 0; i < militaryUnitList.Count; i++)
+			{
+				if (militaryUnitList[i].id == gameData.unitPosDict[loc])
+				{
+					world.unitPosDict[loc] = militaryUnitList[i];
+					break;
+				}
+			}
+		}
+		gameData.unitPosDict.Clear();
+		militaryUnitList.Clear();
 
 		//trader positions
 		foreach (Vector3Int loc in gameData.traderPosDict.Keys)

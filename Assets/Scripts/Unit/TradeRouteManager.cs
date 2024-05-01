@@ -14,7 +14,7 @@ public class TradeRouteManager : MonoBehaviour
     public int startingStop, ambushProb = 100;
     [HideInInspector]
     public List<Vector3Int> cityStops = new();
-    private Dictionary<int, List<Vector3Int>> routePathsDict = new();
+    public Dictionary<int, List<Vector3Int>> routePathsDict = new();
     //public Dictionary<int, List<Vector3Int>> RoutePathsDict { get { return routePathsDict; } set { routePathsDict = value; } }
     [HideInInspector]
     public List<int> ambushSpots = new();
@@ -775,8 +775,11 @@ public class TradeRouteManager : MonoBehaviour
 
     public void CheckQueues()
     {
-        stop.RemoveFromWaitList(trader, stop);
-        stop = null;
+        if (stop != null)
+        {
+            stop.RemoveFromWaitList(trader, stop);
+            stop = null;
+        }
    //     if (city != null)
    //     {
    //         if (trader.bySea)
