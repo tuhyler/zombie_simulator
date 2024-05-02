@@ -254,6 +254,7 @@ public class GameLoader : MonoBehaviour
 		gameData.traderCount = world.traderCount;
 		gameData.boatTraderCount = world.boatTraderCount;
 		gameData.laborerCount = world.laborerCount;
+		gameData.militaryCount = world.militaryCount;
 		gameData.food = world.food;
 		gameData.lumber = world.lumber;
 		gameData.popGrowth = world.popGrowth;
@@ -295,21 +296,17 @@ public class GameLoader : MonoBehaviour
 
 		List<Vector3Int> enemyCampLocs = new List<Vector3Int>(gameData.attackedEnemyBases.Keys);
 		for (int i = 0; i < enemyCampLocs.Count; i++)
-		{
 			gameData.attackedEnemyBases[enemyCampLocs[i]] = world.GetEnemyCamp(enemyCampLocs[i]).SendCampUnitData();
-		}
 
 		List<Vector3Int> movingEnemyCampLocs = new List<Vector3Int>(gameData.movingEnemyBases.Keys);
 		for (int i = 0; i < movingEnemyCampLocs.Count; i++)
-		{
 			gameData.movingEnemyBases[movingEnemyCampLocs[i]] = world.GetEnemyCamp(movingEnemyCampLocs[i]).SendMovingCampUnitData();
-		}
 
 		gameData.ambushLocs.Clear();
 		List<Vector3Int> ambushLocs = new List<Vector3Int>(world.enemyAmbushDict.Keys);
 		for (int i = 0; i < ambushLocs.Count; i++)
 		{
-			gameData.ambushLocs[ambushLocs[i]] = world.enemyAmbushDict[ambushLocs[i]].GetAmbushData();
+			gameData.ambushLocs[ambushLocs[i]] = world.enemyAmbushDict[ambushLocs[i]].GetAmbushData(world);
 		}
 
 		//trade centers (waiting lists)
@@ -474,6 +471,7 @@ public class GameLoader : MonoBehaviour
 		world.traderCount = gameData.traderCount;
 		world.boatTraderCount = gameData.boatTraderCount;
 		world.laborerCount = gameData.laborerCount;
+		world.militaryCount = gameData.militaryCount;
 		world.food = gameData.food;
 		world.lumber = gameData.lumber;
 		world.popGrowth = gameData.popGrowth;

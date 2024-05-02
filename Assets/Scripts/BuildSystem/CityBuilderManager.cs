@@ -141,7 +141,7 @@ public class CityBuilderManager : MonoBehaviour
     private List<MeshFilter> improvementMeshList = new();
 
     [HideInInspector]
-    public GameObject emptyGO;
+    public GameObject emptyGO; //used for combining meshes, not sure if is necessary
 
     [SerializeField]
     public AudioClip buildClip, closeClip, selectClip, removeClip, queueClip, checkClip, moveClip, pickUpClip, putDownClip, marchClip, coinsClip, ringClip, chimeClip, fireClip, smallTownClip, 
@@ -2134,7 +2134,8 @@ public class CityBuilderManager : MonoBehaviour
 		//assigning army details and rotation
 		if (newUnit.inArmy)
         {
-		    newUnit.military.atHome = true;
+            world.militaryCount++;
+            newUnit.military.atHome = true;
 		    city.army.AddToArmy(newUnit.military);
 		    newUnit.military.army = city.army;
             newUnit.military.barracksBunk = buildPosition;
@@ -2170,7 +2171,7 @@ public class CityBuilderManager : MonoBehaviour
 						break;
 				}
 
-                newUnit.id = world.infantryCount + world.rangedCount + world.cavalryCount;
+                newUnit.id = world.militaryCount;
 			}
             else
             {

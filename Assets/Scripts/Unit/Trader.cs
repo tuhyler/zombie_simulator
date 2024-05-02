@@ -370,6 +370,23 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			}
 			else
 			{
+				List<Vector3Int> checkList = world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY);
+
+				//prioritizing road locs for land traders
+				if (!bySea && !byAir)
+				{
+					int count = checkList.Count;
+					for (int i = 1; i < count; i++) //starting on one
+					{
+						if (world.IsRoadOnTileLocation(checkList[i]))
+						{
+							Vector3Int tile = checkList[i];
+							checkList.RemoveAt(i);
+							checkList.Insert(0, tile);
+						}
+					}
+				}
+
 				foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAY))
 				{
 					if (bySea)
@@ -377,11 +394,6 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 						if (!world.CheckIfSeaPositionIsValid(neighbor))
 							continue;
 					}
-					//else
-					//{
-					//	if (!world.IsRoadOnTileLocation(neighbor))
-					//		continue;
-					//}
 
 					if (world.IsTraderWaitingForSameStop(neighbor, finalLoc, this)) //going away from final loc
 					{
@@ -396,7 +408,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 						//teleport to back of line
 						Teleport(neighbor);
 						if (guarded)
-							guardUnit.Teleport(world.RoundToInt(guardUnit.military.GuardRouteFinish(neighbor, neighbor)));
+							guardUnit.Teleport(neighbor + ((Vector3)neighbor*0.5f)); //teleport guard to be right behind it
 						positionsToCheck.Clear();
 						success = true;
 						break;

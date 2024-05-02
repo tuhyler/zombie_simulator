@@ -1292,12 +1292,12 @@ public class UnitMovement : MonoBehaviour
                     else
                         unit.firstStep = true;
 				}
-				else if (unit.trader && unit.trader.guarded)
-				{
-					List<Vector3Int> guardPath = movementSystem.GetGuardPath(startPosition);
-					selectedUnit.trader.guardUnit.finalDestinationLoc = guardPath[guardPath.Count - 1];
-					selectedUnit.trader.guardUnit.MoveThroughPath(guardPath);
-				}
+				//else if (unit.trader && unit.trader.guarded)
+				//{
+				//	List<Vector3Int> guardPath = movementSystem.GetGuardPath(startPosition);
+				//	selectedUnit.trader.guardUnit.finalDestinationLoc = guardPath[guardPath.Count - 1];
+				//	selectedUnit.trader.guardUnit.MoveThroughPath(guardPath);
+				//}
 
 				unit.MoveThroughPath(movementSystem.currentPath);
 
@@ -1311,9 +1311,16 @@ public class UnitMovement : MonoBehaviour
         }
 
         movementSystem.ClearPaths();
-        uiJoinCity.ToggleVisibility(false);
-        uiUnload.ToggleVisibility(false);
-        uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
+
+        if (unit.transport)
+        {
+            uiJoinCity.ToggleVisibility(false);
+            uiUnload.ToggleVisibility(false);
+        }
+        else
+        {
+            uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
+        }
     }
 
 	public void GoStraightToSelectedLocation(Vector3Int location, Vector3Int terrainPos, Unit unit)
@@ -1921,7 +1928,7 @@ public class UnitMovement : MonoBehaviour
     {
         if (world.unitOrders)
         {
-            workerTaskManager.TurnOffCancelTask();
+            uiCancelTask.ToggleVisibility(false);
 			uiBuildingSomething.ToggleVisibility(false);
 
 			if (world.swappingArmy)

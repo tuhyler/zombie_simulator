@@ -151,7 +151,11 @@ public class EnemyCamp
 		List<UnitData> campList = new();
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
+		{
+			world.enemyCount++;
+			unitsInCamp[i].id = -world.enemyCount;
 			campList.Add(unitsInCamp[i].SaveMilitaryUnitData());
+		}
 
 		campData.enemyReady = enemyReady;
 		campData.threatLoc = threatLoc;
@@ -182,7 +186,11 @@ public class EnemyCamp
 		List<UnitData> campList = new();
 
 		for (int i = 0; i < unitsInCamp.Count; i++)
+		{
+			world.enemyCount++;
+			unitsInCamp[i].id = -world.enemyCount;
 			campList.Add(unitsInCamp[i].SaveMilitaryUnitData());
+		}
 
 		if (benchedUnit)
 			campList.Add(benchedUnit.SaveMilitaryUnitData());

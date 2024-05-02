@@ -156,14 +156,6 @@ public class MapWorld : MonoBehaviour
     public HashSet<ResourceProducer> researchWaitList = new();
     [HideInInspector]
     public List<IGoldWaiter> goldWaitList = new();
-    //[HideInInspector]
-    //public List<City> goldCityWaitList = new();
-    //[HideInInspector]
-    //public List<City> goldCityRouteWaitList = new();
-    //[HideInInspector]
-    //public List<Wonder> goldWonderWaitList = new();
-    //[HideInInspector]
-    //public List<TradeCenter> goldTradeCenterWaitList = new();
     //resource multiplier
     //public Dictionary<ResourceType, float> resourceStorageMultiplierDict = new();
 
@@ -172,15 +164,12 @@ public class MapWorld : MonoBehaviour
     [HideInInspector] 
     public HashSet<Vector3Int> tempNoWalkList = new(), tempBattleZone = new(); //in case player is moving when added to no walk list, where battle positions will be
     private HashSet<Vector3Int> noWalkList = new(); //tiles where wonders are and units can't walk
-    //private List<Vector3Int> battleAreas = new();
     private List<GameObject> cityNamesMaps = new();
 
     public Dictionary<Vector3Int, City> cityDict = new(); //caching cities for easy reference
     private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
     public Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development locs
-    //public Dictionary<Vector3Int, CityImprovement> cityImprovementConstructionDict = new();
     public Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
-    //private Dictionary<Vector3Int, Dictionary<string, GameObject>> cityBuildingGODict = new(); //all the buildings and info within a city 
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList = new();
     [HideInInspector]
     public HashSet<Vector3Int> unclaimedSingleBuildList = new ();
@@ -197,31 +186,12 @@ public class MapWorld : MonoBehaviour
     public List<Trader> traderList = new();
     [HideInInspector]
     public List<Transport> transportList = new();
-    //private Dictionary<string, ImprovementDataSO> improvementDataDict = new();
-    //private Dictionary<string, UnitBuildDataSO> unitBuildDataDict = new();
     public Dictionary<string, int> upgradeableObjectMaxLevelDict = new();
-    //private Dictionary<string, List<ResourceValue>> upgradeableObjectPriceDict = new(); 
-    //private Dictionary<string, ImprovementDataSO> upgradeableObjectDataDict = new();
-    //private Dictionary<string, UnitBuildDataSO> upgradeableUnitDataDict = new();
-
-    //private Dictionary<ResourceType, Sprite> resourceSpriteDict = new();
-    //private Dictionary<ResourceType, int> defaultResourcePriceDict = new();
-    //private Dictionary<ResourceType, int> blankResourceDict = new();
-    //private Dictionary<ResourceType, bool> boolResourceDict = new();
-    //private Dictionary<Vector3Int, GameObject> queueGhostsDict = new(); //for displaying samples for queued items
-    //private Dictionary<Vector3Int, GameObject> traderPosDict = new(); //to track trader locations 
-    //private Dictionary<Vector3Int, List<GameObject>> multiUnitPosDict = new(); //to handle multiple units in one spot
 
     //for assigning labor in cities
     public Dictionary<Vector3Int, int> currentWorkedTileDict = new(); //to see how much labor is assigned to tile
     private Dictionary<Vector3Int, int> maxWorkedTileDict = new(); //the max amount of labor that can be assigned to tile
     public Dictionary<Vector3Int, Vector3Int?> cityWorkedTileDict = new(); //the city worked tiles belong to
-    //private Dictionary<Vector3Int, ResourceProducer> cityImprovementProducerDict = new(); //all the improvements that have resource producers (for speed)
-    //private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingCurrentWorkedDict = new(); //current worked for buildings in city
-
-    //private Dictionary<Vector3Int, Dictionary<string, int>> cityBuildingMaxWorkedDict = new(); //max labor of buildings within city
-    //private Dictionary<Vector3Int, List<string>> cityBuildingList = new(); //list of buildings on city tiles (here instead of City because buildings can be without a city)
-    //private Dictionary<Vector3Int, Dictionary<string, ResourceProducer>> cityBuildingIsProducer = new(); //all the buildings that are resource producers (for speed)
 
     //for workers
     //private List<Vector3Int> workerBusyLocations = new(); //only one at a time, but in list anyway to easily null
@@ -270,7 +240,7 @@ public class MapWorld : MonoBehaviour
 
     //for tracking stats
     [HideInInspector]
-    public int ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber, popGrowth, popLost;
+    public int ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, food, lumber, popGrowth, popLost, enemyCount, militaryCount;
     [HideInInspector]
     public string tutorialStep, gameStep;
     private bool flashingButton;
@@ -645,6 +615,7 @@ public class MapWorld : MonoBehaviour
         {
             scott.gameObject.SetActive(false);
             azai.gameObject.SetActive(false);
+            azai.id = 0;
             scottFollow = false;
             azaiFollow = false;
 			scott.gameObject.tag = "Character";
@@ -1096,7 +1067,7 @@ public class MapWorld : MonoBehaviour
 
     public EnemyEmpire GenerateEnemyLeaders(UnitData data)
 	{
-		GameObject leaderGO = Instantiate(UpgradeableObjectHolder.Instance.enemyLeaderDict[data.unitNameAndLevel].prefab, data.position, data.rotation);
+        GameObject leaderGO = Instantiate(UpgradeableObjectHolder.Instance.enemyLeaderDict[data.unitNameAndLevel].prefab, data.position, data.rotation);
         leaderGO.transform.SetParent(enemyCityHolder, false);
         MilitaryLeader leader = leaderGO.GetComponent<MilitaryLeader>();
 		leader.SetUpNPC(this, data);
@@ -1106,6 +1077,7 @@ public class MapWorld : MonoBehaviour
 		empire.enemyLeader = leader;
 		leader.SetEmpire(empire);
 		allEnemyLeaders.Add(leader);
+        GameLoader.Instance.militaryUnitList.Add(leader);
 
         if (!GetTerrainDataAt(leader.currentLocation).isDiscovered)
             leader.gameObject.SetActive(false);
@@ -1121,25 +1093,7 @@ public class MapWorld : MonoBehaviour
 	public void BuildEnemyCity(EnemyCityData data, Vector3Int cityTile, TerrainData td, GameObject prefab, List<Vector3Int> roadTiles, bool hasWater, Era era, bool load, EnemyEmpire empire, System.Random random = null)
 	{
         Dictionary<string, string> buildingEraDict = GetBuildingEraDict(era);
-        //EnemyCityData data;
-		
-		//if (!load)
-  //      //{
-  //      //    data = GameLoader.Instance.gameData.enemyCities[cityTile];
-  //      //}
-  //      //else
-  //      {
-  //          //data = new();
-  //          data.era = era;
-  //          data.loc = cityTile;
-  //          data.hasWater = hasWater;
-  //          data.cityName = cityNamePool[random.Next(0, cityNamePool.Count)];
-		//    if (hasWater)
-		//	    data.popSize = random.Next(5, 13);
-		//    else
-		//	    data.popSize = 4;
-  //      }
-
+  
 		List<Vector3Int> foodLocs = new();
         List<Vector3Int> fishLocs = new();
         List<Vector3Int> flatlandLocs = new();
@@ -1633,8 +1587,8 @@ public class MapWorld : MonoBehaviour
             }
 
 			Vector3Int unitLoc = RoundToInt(unitEnemy.transform.position);
-			if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
-				unitEnemy.currentLocation = AddUnitPosition(unitLoc, unitEnemy);
+			//if (!unitPosDict.ContainsKey(RoundToInt(unitLoc))) //just in case dictionary was missing any
+			//	unitEnemy.currentLocation = AddUnitPosition(unitLoc, unitEnemy);
 			unitEnemy.currentLocation = unitLoc;
 			enemyGO.name = unitEnemy.buildDataSO.nationalityAdjective + " " + unitEnemy.buildDataSO.unitDisplayName;
 			unitEnemy.military.barracksBunk = spawnLoc;
@@ -2248,8 +2202,8 @@ public class MapWorld : MonoBehaviour
                 unit.SetMinimapIcon(enemyUnitHolder);
                 if (!movingOut)
                     unit.minimapIcon.gameObject.SetActive(false);
-		        if (!attacked) //just in case dictionary was missing any
-			        unit.currentLocation = AddUnitPosition(unitLoc, unit);
+		        //if (!attacked) //just in case dictionary was missing any
+			       // unit.currentLocation = AddUnitPosition(unitLoc, unit);
 		        unit.currentLocation = unitLoc;
                 enemyCampDict[loc].UnitsInCamp.Add(unit.military);
 		        //unit.enemyAI.CampLoc = loc;
@@ -2260,7 +2214,7 @@ public class MapWorld : MonoBehaviour
                 {
                     //RemoveUnitPosition(unitLoc);
                     unit.military.LoadUnitData(fightingEnemies[unitLoc]);
-                    AddUnitPosition(unit.currentLocation, unit);
+                    //AddUnitPosition(unit.currentLocation, unit);
                     if (camp.campfire != null)
                         camp.campfire.SetActive(false);
                 }
@@ -2324,7 +2278,7 @@ public class MapWorld : MonoBehaviour
                 unit.military.enemyAmbush = ambush;
 
 				unit.military.LoadUnitData(data);
-				AddUnitPosition(unit.currentLocation, unit);
+				//AddUnitPosition(unit.currentLocation, unit);
 			}
 
             enemyAmbushDict[tile] = ambush;
