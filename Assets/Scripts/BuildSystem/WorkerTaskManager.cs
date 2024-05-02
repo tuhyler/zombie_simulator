@@ -455,7 +455,10 @@ public class WorkerTaskManager : MonoBehaviour
 		    world.scott.building = false;
 		}
 
+
 		world.mainPlayer.StopMovementCheck(true);
+        if (world.azaiFollow)
+            world.azai.StopMovementCheck(true);
 
         ResetWorker(world.mainPlayer);
 		world.mainPlayer.isBusy = false;

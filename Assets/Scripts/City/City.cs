@@ -1568,9 +1568,11 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         if (destroyed)
         {
-            foreach (Trader trader in tradersHere)
+            List<Trader> tempList = new(tradersHere);
+            foreach (Trader trader in tempList)
                 trader.KillUnit(Vector3Int.zero);
-            
+
+            tradersHere.Clear();
             world.cityBuilderManager.DestroyCity(this);
         }
         else

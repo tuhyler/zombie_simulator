@@ -104,6 +104,8 @@ public class BodyGuard : Military
 
 	public void FinishDuel()
 	{
+		if (posSet)
+			world.RemoveUnitPosition(currentLocation);
 		battleIcon.SetActive(false);
 		army.attackingSpots.Clear();
 		army.movementRange.Clear();

@@ -61,7 +61,6 @@ public class GameData
     public List<RoadData> allRoads = new();
     public List<CityImprovementData> allCityImprovements = new();
     public Dictionary<Vector3Int, List<int>> traderPosDict = new();
-    public Dictionary<Vector3Int, int> unitPosDict = new();
     //public List<UnitData> allUnits = new();
 
 }

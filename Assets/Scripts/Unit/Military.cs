@@ -770,7 +770,7 @@ public class Military : Unit
 		{
 			CityImprovement improvement = world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]);
 
-			if (improvement.army.isFull)
+			if (improvement.army.isFull || improvement.army.defending || !improvement.army.atHome)
 			{
 				JoinCity(world.GetCity(homeCity));
 			}
@@ -1285,6 +1285,7 @@ public class Military : Unit
 		data.idleTime = idleTime;
 		data.isGuarding = isGuarding;
 		data.atSea = atSea;
+		data.posSet = posSet;
 
 		if (isMoving && readyToMarch)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -1357,6 +1358,10 @@ public class Military : Unit
 		idleTime = data.idleTime;
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
+		posSet = data.posSet;
+
+		if (posSet)
+			world.AddUnitPosition(currentLocation, this);
 
 		if (isUpgrading)
 			GameLoader.Instance.unitUpgradeList.Add(this);
@@ -1367,21 +1372,11 @@ public class Military : Unit
 		if (inArmy || enemyAI || bodyGuard)
 		{
 			if (inArmy)
-			{
 				transferring = data.transferring;
-				GameLoader.Instance.militaryUnitList.Add(this);
-			}
 			else if (bodyGuard)
-			{
 				transferring = data.transferring;
-				if (bodyGuard.dueling)
-					GameLoader.Instance.militaryUnitList.Add(this);
-			}
 			else
-			{
 				enemyAI.CampSpot = data.campSpot;
-				GameLoader.Instance.militaryUnitList.Add(this);
-			}
 
 			strengthBonus = data.strengthBonus;
 			repositioning = data.repositioning;

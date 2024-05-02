@@ -253,7 +253,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				isWaiting = true;
 				originalMoveSpeed = inLineSpeed;
 				atStop = true;
-                tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
+                //tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
                 WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
                 LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate, false));
 			}
@@ -277,6 +277,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	{
 		if (!world.StopExistsCheck(endLoc))
 		{
+			tradeRouteManager.CheckQueues();
 			InterruptRoute(true);
 			tradeRouteManager.RemoveStop(endLoc);
 			interruptedRoute = true;
@@ -496,6 +497,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			guardUnit.military.ContinueGuarding(pathPositions, currentLocation);
 		}
 
+		world.RemoveUnitPosition(currentLocation);
 		ambush = false;
 		SetInterruptedAnimation(false);
         StartAnimation();
@@ -505,7 +507,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 	public void BeginNextStepInRoute() //this does not have the finish movement listeners
     {
-        tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
+        //tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
         if (LoadUnloadCo != null)
             StopCoroutine(LoadUnloadCo);
         LoadUnloadCo = null;
@@ -830,7 +832,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
             tradeRouteManager.StopHoldingPatternCoroutine();
             StopCoroutine(LoadUnloadCo);
             tradeRouteManager.CancelLoad();
-            tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
+            //tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
             SetLoadingAnimation(false);
             SetUnloadingAnimation(false);
         }
@@ -838,7 +840,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         {
             StopCoroutine(WaitTimeCo);
             tradeRouteManager.CancelLoad();
-            tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
+            //tradeRouteManager.FinishedLoading.RemoveListener(BeginNextStepInRoute);
 		}
 
 		atStop = false;
@@ -1350,6 +1352,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		data.returning = returning;
 		data.movingUpInLine = movingUpInLine;
 		data.linePause = linePause;
+		data.posSet = posSet;
 
 		if (isMoving /*&& !isWaiting*/)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -1420,6 +1423,10 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		goldNeeded = data.goldNeeded;
 		movingUpInLine = data.movingUpInLine;
 		linePause = data.linePause;
+		posSet = data.posSet;
+
+		if (posSet)
+			world.AddUnitPosition(currentLocation, this);
 
 		if (atHome && !isMoving && !isWaiting)
 			world.GetCityDevelopment(world.GetCity(homeCity).singleBuildDict[buildDataSO.singleBuildType]).AddTraderToImprovement(this);
@@ -1526,7 +1533,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				//else if (world.IsTradeCenterOnTile(stopLoc))
 				//	tradeRouteManager.SetTradeCenter(world.GetTradeCenter(stopLoc));
 
-				tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
+				//tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
 				WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
 				LoadUnloadCo = StartCoroutine(tradeRouteManager.LoadUnloadCoroutine(loadUnloadRate, true));
 			}
