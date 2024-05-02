@@ -248,6 +248,11 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 			UIInfoPopUpHandler.WarningMessage().Create(addGuardButton.transform.position, "Military not at home", false);
 			return;
 		}
+		else if (improvement.army.defending)
+		{
+			UIInfoPopUpHandler.WarningMessage().Create(addGuardButton.transform.position, "Military defending", false);
+			return;
+		}
 		else if (improvement.army.armyCount == 0)
 		{
 			UIInfoPopUpHandler.WarningMessage().Create(addGuardButton.transform.position, "No units stationed here", false);

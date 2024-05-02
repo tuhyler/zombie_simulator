@@ -1002,7 +1002,8 @@ public class EnemyCamp
 			{
 				if (attackingArmy == null || attackingArmy.UnitsInArmy.Count == 0)
 				{
-					world.uiAttackWarning.AttackNotification(((Vector3)attackingArmy.attackZone + attackingArmy.enemyTarget) * 0.5f);
+					world.uiAttackWarning.AttackNotification(((Vector3)actualAttackLoc + threatLoc) * 0.5f);
+					world.RemoveBattleZones(threatLoc, actualAttackLoc);
 					GoToPillage();
 					pillage = true;
 				}
@@ -1012,7 +1013,7 @@ public class EnemyCamp
 					
 					if (armyReady)
 					{
-						world.uiAttackWarning.AttackNotification(((Vector3)attackingArmy.attackZone + attackingArmy.enemyTarget) * 0.5f);
+						world.uiAttackWarning.AttackNotification(((Vector3)actualAttackLoc + threatLoc) * 0.5f);
 						attackingArmy.Charge();
 					}
 				}
@@ -1686,13 +1687,8 @@ public class EnemyCamp
 
 	public void CheckForWeaklings(Vector3Int centerLoc)
 	{
-		float increase;
 		bool isHill = world.GetTerrainDataAt(centerLoc).isHill;
-
-		if (isHill)
-			increase = 1.1f;
-		else
-			increase = 0.1f;
+		float increase = isHill ? 1.15f : 0.15f;
 
 		Vector3 rayCastLoc = centerLoc;
 		rayCastLoc.y += increase;
@@ -1700,15 +1696,19 @@ public class EnemyCamp
 		RaycastHit hit;
 
 		List<Vector3Int> directions = world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY);
-		directions.Add(new Vector3Int(0, 1, 0));
+		directions.Add(Vector3Int.down);
 		for (int i = 0; i < directions.Count; i++)
 		{
 			Vector3 pos = directions[i];
 			if (isHill)
 				pos.y -= 1f;
 
-			float distance = i % 2 == 0 ? 1.5f : 2.1f;
+			float distance = 1.5f;
+			if (i == 8)
+				rayCastLoc.y += 1.5f;
+
 			//can't only hit one at a time, not sure how to hit through objects that's already been hit
+			Debug.DrawRay(rayCastLoc, pos * distance, Color.yellow, 10);
 			if (Physics.Raycast(rayCastLoc, pos, out hit, distance, world.enemyKillLayerMask))
 			{
 				GameObject hitGO = hit.collider.gameObject;
@@ -1727,10 +1727,19 @@ public class EnemyCamp
 								endRotation = Quaternion.LookRotation(lookDirection, Vector3.up);
 
 							if (unit.trader && unit.trader.guarded)
+							{
 								unit.trader.guardUnit.KillUnit(endRotation.eulerAngles);
+								unit.KillUnit(endRotation.eulerAngles);
+							}
 							else if (unit.military && unit.military.guard)
+							{
+								unit.KillUnit(endRotation.eulerAngles); //must kill military unit first
 								unit.military.guardedTrader.KillUnit(endRotation.eulerAngles);
-							unit.KillUnit(endRotation.eulerAngles);
+							}
+							else
+							{
+								unit.KillUnit(endRotation.eulerAngles);
+							}
 						}
 					}
 				}

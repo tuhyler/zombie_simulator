@@ -29,7 +29,7 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
 	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, List<(Vector3Int, int)>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
 	[HideInInspector]
-	public List<Unit> unitUpgradeList = new(), militaryUnitList = new();
+	public List<Unit> unitUpgradeList = new();
 	//[HideInInspector]
 	//public List<Trader> traderLoadUnloadList = new();
 	//public Dictionary<CityImprovement, string> improvementUnitUpgradeDict = new();
@@ -374,10 +374,6 @@ public class GameLoader : MonoBehaviour
 				gameData.traderPosDict[loc].Add(world.traderPosDict[loc][i].id);
 		}
 
-		gameData.unitPosDict.Clear();
-		foreach (Vector3Int loc in world.unitPosDict.Keys)
-			gameData.unitPosDict[loc] = world.unitPosDict[loc].id;
-
 		//laborers
 		gameData.allLaborers.Clear();
 		for (int i = 0; i < world.laborerList.Count; i++)
@@ -701,21 +697,6 @@ public class GameLoader : MonoBehaviour
 		//for (int i = 0; i < gameData.goldTradeCenterWaitList.Count; i++)
 		//	world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
 		//gameData.goldTradeCenterWaitList.Clear();
-
-		//unit positions
-		foreach (Vector3Int loc in gameData.unitPosDict.Keys)
-		{
-			for (int i = 0; i < militaryUnitList.Count; i++)
-			{
-				if (militaryUnitList[i].id == gameData.unitPosDict[loc])
-				{
-					world.unitPosDict[loc] = militaryUnitList[i];
-					break;
-				}
-			}
-		}
-		gameData.unitPosDict.Clear();
-		militaryUnitList.Clear();
 
 		//trader positions
 		foreach (Vector3Int loc in gameData.traderPosDict.Keys)

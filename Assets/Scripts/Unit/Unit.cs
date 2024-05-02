@@ -103,10 +103,10 @@ public class Unit : MonoBehaviour
     private SelectionHighlight highlight;
     
     [HideInInspector]
-    public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep, byAir;
+    public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep, byAir, posSet;
 
     [HideInInspector]
-    public bool inArmy, inNavy, inAirForce, isDead, runningAway, ambush, hidden, isUpgrading;
+    public bool inMilitary, inArmy, inNavy, inAirForce, isDead, runningAway, ambush, hidden, isUpgrading;
 
     //animation
     [HideInInspector]
@@ -146,6 +146,7 @@ public class Unit : MonoBehaviour
 
         if (buildDataSO.unitDisplayName != "Azai" && buildDataSO.baseAttackStrength > 0 && CompareTag("Player"))
         {
+            inMilitary = true;
             inArmy = buildDataSO.transportationType == TransportationType.Land;
             inNavy = buildDataSO.transportationType == TransportationType.Sea;
             inAirForce = buildDataSO.transportationType == TransportationType.Air;
@@ -266,6 +267,7 @@ public class Unit : MonoBehaviour
         {
 			if (inArmy)
             {
+                attackingUnit.military.enemyCamp.CheckForWeaklings(attackingUnit.military.enemyCamp.threatLoc);
                 military.AttackCheck();
                 military.StopAttacking();
             }
@@ -350,9 +352,9 @@ public class Unit : MonoBehaviour
 			    return;
             }
         }
-        else if (military)
+        else if (military && posSet && !military.bodyGuard)
 		{
-			world.RemoveUnitPosition(currentLocation);//removing previous location
+            world.RemoveUnitPosition(currentLocation);
 		}
 		else if (world.characterUnits.Contains(this) || transport)
         {
@@ -604,8 +606,7 @@ public class Unit : MonoBehaviour
 				if (prevTile == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle) //Can also trigger ambush when not on trade route
                 {
                     ambush = true;
-                    world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
-                    currentLocation = prevTile;
+                    currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
                     isMoving = false;
                     StopAnimation();
 
@@ -618,8 +619,7 @@ public class Unit : MonoBehaviour
 					StopAnimation();
 					isMoving = false;
 					finalDestinationLoc = prevTile;
-					currentLocation = prevTile;
-					world.AddUnitPosition(currentLocation, this); //adding trader to military positions to be attacked
+					currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
 
 					//               if (enemyAI)
 					//                   enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));

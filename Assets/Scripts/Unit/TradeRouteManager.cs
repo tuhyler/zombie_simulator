@@ -37,7 +37,7 @@ public class TradeRouteManager : MonoBehaviour
     //private List<bool> resourceStepComplete = new();
 
     //for seeing if route orders are completed at a stop
-    public UnityEvent FinishedLoading; //listener is in Trader
+    //public UnityEvent FinishedLoading; //listener is in Trader
     //private Dictionary<ResourceType, int> resourcesAtArrival = new();
     private int secondIntervals = 1;
     [HideInInspector]
@@ -765,7 +765,8 @@ public class TradeRouteManager : MonoBehaviour
 		IncreaseCurrentStop();
         resourceCurrentAmount = 0;
         currentResource = 0;
-        FinishedLoading?.Invoke();
+        trader.BeginNextStepInRoute();
+        //FinishedLoading?.Invoke();
     }
 
     public void CheckQueues()

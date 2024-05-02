@@ -7,6 +7,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEditor.PlayerSettings;
 using static UnityEngine.UI.CanvasScaler;
 //using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -1077,7 +1078,6 @@ public class MapWorld : MonoBehaviour
 		empire.enemyLeader = leader;
 		leader.SetEmpire(empire);
 		allEnemyLeaders.Add(leader);
-        GameLoader.Instance.militaryUnitList.Add(leader);
 
         if (!GetTerrainDataAt(leader.currentLocation).isDiscovered)
             leader.gameObject.SetActive(false);
@@ -3505,7 +3505,27 @@ public class MapWorld : MonoBehaviour
         if (wonderPlacementLoc.Count == 0)
             return;
 
-        Vector3 avgLoc = new Vector3(0, 0, 0);
+        //final check if clear
+        foreach (Vector3Int tile in wonderPlacementLoc)
+        {
+			TerrainData td = GetTerrainDataAt(tile);
+
+			if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)) || CheckForUnits(tile))
+			{
+				InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Something in the way");
+				wonderPlacementLoc.Clear();
+				return;
+			}
+
+			if (td.hasBattle)
+			{
+				InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Battle is here");
+				wonderPlacementLoc.Clear();
+				return;
+			}
+        }
+
+        Vector3 avgLoc = Vector3.zero;
 
         //double checking if it's blocked
     //    foreach (Vector3Int tile in wonderNoWalkLoc)
@@ -3537,20 +3557,6 @@ public class MapWorld : MonoBehaviour
             CheckTileForTreasure(tile);
 			TerrainData td = GetTerrainDataAt(tile);
 			avgLoc += tile;
-
-			if ((tile != finalUnloadLoc && !IsTileOpenCheck(tile)) || (tile == finalUnloadLoc && !IsTileOpenButRoadCheck(tile)) || CheckForUnits(tile))
-			{
-				InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Something in the way");
-				wonderPlacementLoc.Clear();
-				return;
-			}
-
-            if (td.hasBattle)
-            {
-				InfoPopUpHandler.WarningMessage(objectPoolItemHolder).Create(tile, "Battle is here");
-				wonderPlacementLoc.Clear();
-                return;
-            }
 
 			if (wonderData.isSea)
             {
@@ -3687,12 +3693,16 @@ public class MapWorld : MonoBehaviour
 		RaycastHit hit;
 
 		List<Vector3Int> directions = GetNeighborsCoordinates(State.EIGHTWAY);
-		directions.Insert(0, new Vector3Int(0, 1, 0));
+		directions.Add(Vector3Int.down);
         for (int i = 0; i < directions.Count; i++)
         {
 			Vector3 pos = directions[i];
+		    float distance = 1.5f;
 
-		    float distance = i % 2 == 0 ? 1.5f : 2.1f;
+            if (i == 8)
+                rayCastLoc.y += 1.3f;
+
+            //Debug.DrawRay(rayCastLoc, pos * distance, Color.yellow, 10);
 			if (Physics.Raycast(rayCastLoc, pos, out hit, distance, unitMask))
 			{
 				GameObject hitGO = hit.collider.gameObject;
@@ -4614,7 +4624,7 @@ public class MapWorld : MonoBehaviour
 			unit.marker.ToggleVisibility(true);
 
 		Vector3 unitScale = unit.transform.localScale;
-		AddUnitPosition(ambushLoc, unit);
+		unit.currentLocation = AddUnitPosition(ambushLoc, unit);
 		float scaleX = unitScale.x;
 		float scaleZ = unitScale.z;
 		unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
@@ -4630,7 +4640,6 @@ public class MapWorld : MonoBehaviour
 
 		unit.ambush = true;
 		unit.SetReferences(this);
-		unit.currentLocation = ambushLoc;
         unit.military.enemyAmbush = ambush;
 		ambush.attackingUnits.Add(unit.military);
         enemyAmbushDict[loc] = ambush;
@@ -7634,6 +7643,7 @@ public class MapWorld : MonoBehaviour
 
     public Vector3Int AddUnitPosition(Vector3 unitPosition, Unit unit)
     {
+        unit.posSet = true;
         Vector3Int position = RoundToInt(unitPosition);
         unitPosDict[position] = unit;
 
@@ -7666,9 +7676,11 @@ public class MapWorld : MonoBehaviour
 
     public void RemoveUnitPosition(Vector3Int position/*, GameObject unitGO*/)
     {
-        //Vector3Int position = Vector3Int.RoundToInt(unitPosition);
-
-        unitPosDict.Remove(position);
+		if (unitPosDict.ContainsKey(position))
+        {
+            unitPosDict[position].posSet = false;
+		    unitPosDict.Remove(position);
+        }
     }
 
     public void AddToUnclaimedSingleBuild(Vector3Int location)
@@ -9099,28 +9111,46 @@ public interface ITradeStop
 
 	public void ClearStopCheck(List<Trader> waitList, Vector3Int stopLoc, MapWorld world)
 	{
-		for (int i = 0; i < waitList.Count; i++)
-            waitList[i].InterruptRoute(true);
+        List<Trader> tempWaitList = new(waitList);
+        
+        for (int i = 0; i < tempWaitList.Count; i++)
+        {
+            tempWaitList[i].isWaiting = false;
+            waitList.Remove(tempWaitList[i]);
+            tempWaitList[i].InterruptRoute(true);
+        }
 
         waitList.Clear();
 
         if (world.traderPosDict.ContainsKey(stopLoc))
         {
-            for (int i = 0; i < world.traderPosDict[stopLoc].Count; i++)
-                world.traderPosDict[stopLoc][i].InterruptRoute(true);
+            List<Trader> tempList = new(world.traderPosDict[stopLoc]);
+            
+            for (int i = 0; i < tempList.Count; i++)
+                tempList[i].InterruptRoute(true);
         }
 	}
 
     public void ClearRestInLine(Trader trader, ITradeStop stop)
     {
         List<Trader> waitList;
+        List<Trader> targetList;
 
         if (trader.bySea)
-            waitList = stop.seaWaitList;
+        {
+            waitList = new(stop.seaWaitList);
+            targetList = stop.seaWaitList;
+        }
         else if (trader.byAir)
-            waitList = stop.airWaitList;
+        {
+            waitList = new(stop.airWaitList);
+            targetList = stop.airWaitList;
+        }
         else
-            waitList = stop.waitList;
+        {
+            waitList = new(stop.waitList);
+            targetList = stop.waitList;
+        }
 
         if (waitList.Contains(trader))
 		{
@@ -9130,20 +9160,15 @@ public interface ITradeStop
 			for (int i = index; i < waitList.Count; i++)
 			{
 				if (!waitList[i].isDead && waitList[i].followingRoute)
-                    waitList[i].CancelRoute();
+				{
+					waitList[i].isWaiting = false;
+					targetList.Remove(waitList[i]);
+					waitList[i].InterruptRoute(true);
+				}
 			}
 		}
 		else
 		{
-			if (waitList.Count > 0)
-			{
-				Trader nextTrader = waitList[0];
-				waitList.RemoveAt(0);
-
-                if (!nextTrader.isDead && nextTrader.followingRoute)
-    				nextTrader.CancelRoute();
-			}
-
 			if (waitList.Count > 0)
 			{
                 for (int i = 0; i < waitList.Count; i++)
@@ -9151,7 +9176,11 @@ public interface ITradeStop
 					if (!waitList[i].movingUpInLine)
                     {
                         if (!waitList[i].isDead && waitList[i].followingRoute)
-                            waitList[i].CancelRoute();
+                        {
+                            waitList[i].isWaiting = false;
+                            targetList.Remove(waitList[i]);
+                            waitList[i].InterruptRoute(true);
+                        }
                     }
 				}
 			}
