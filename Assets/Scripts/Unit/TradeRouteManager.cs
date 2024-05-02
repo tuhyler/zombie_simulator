@@ -27,8 +27,8 @@ public class TradeRouteManager : MonoBehaviour
 
     [HideInInspector]
     public int currentStop = 0, currentResource = 0, resourceCurrentAmount, resourceTotalAmount;
-    private Vector3Int currentDestination;
-    public Vector3Int CurrentDestination { get { return currentDestination; } set { currentDestination = value; } }
+    [HideInInspector]
+    public Vector3Int currentDestination;
 
     //private PersonalResourceManager personalResourceManager;
     //private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
@@ -38,7 +38,7 @@ public class TradeRouteManager : MonoBehaviour
 
     //for seeing if route orders are completed at a stop
     public UnityEvent FinishedLoading; //listener is in Trader
-    private Dictionary<ResourceType, int> resourcesAtArrival = new();
+    //private Dictionary<ResourceType, int> resourcesAtArrival = new();
     private int secondIntervals = 1;
     [HideInInspector]
     public int timeWaited = 0, waitTime, amountMoved/*for storage waitlist*/; 
@@ -85,6 +85,7 @@ public class TradeRouteManager : MonoBehaviour
 
         this.waitTimes = waitTimes;
         currentStop = startingStop;
+        currentDestination = cityStops[startingStop];
     }
 
     public int CalculateRoutePaths(MapWorld world)
@@ -111,15 +112,9 @@ public class TradeRouteManager : MonoBehaviour
         return length;
     }
 
-    public Vector3Int GoToNext()
+    public void SetWaitTime()
     {
-        //city = null;
-        //wonder = null;
-        //tradeCenter = null;
-        resourcesAtArrival.Clear();
-        currentDestination = cityStops[currentStop];
         waitTime = waitTimes[currentStop];
-        return cityStops[currentStop];
     }
 
     public List<Vector3Int> GetNextPath()
@@ -212,11 +207,6 @@ public class TradeRouteManager : MonoBehaviour
     public bool IsTC()
     {
         return stop.center != null;
-    }
-
-    private void PrepareResourceDictionary()
-    {
-        resourcesAtArrival = new(trader.personalResourceManager.ResourceDict);
     }
 
     public IEnumerator LoadUnloadCoroutine(int loadUnloadRate, bool loading)
@@ -614,7 +604,10 @@ public class TradeRouteManager : MonoBehaviour
             //Debug.Log("waited " + timeWaited + " seconds");
         }
 
-        percDone = (float)trader.personalResourceManager.ResourceDict[resourceAssignments[currentStop][currentResource].resourceType] / resourceTotalAmount;
+        if (!trader.personalResourceManager.ResourceDict.ContainsKey(resourceAssignments[currentStop][currentResource].resourceType))
+            percDone = 0;
+        else
+            percDone = (float)trader.personalResourceManager.ResourceDict[resourceAssignments[currentStop][currentResource].resourceType] / resourceTotalAmount;
         if (uiTradeRouteManager.activeStatus && trader.isSelected)
         {
             if (percDone == 0)
@@ -767,7 +760,9 @@ public class TradeRouteManager : MonoBehaviour
         //    tradeCenter.CheckQueue();
 
         trader.isWaiting = false;
-        IncreaseCurrentStop();
+        trader.originalMoveSpeed = trader.buildDataSO.movementSpeed;
+
+		IncreaseCurrentStop();
         resourceCurrentAmount = 0;
         currentResource = 0;
         FinishedLoading?.Invoke();

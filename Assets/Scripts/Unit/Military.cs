@@ -543,18 +543,19 @@ public class Military : Unit
 		}
 	}
 
-	public void MoveForGuardDuty(Vector3Int loc)
+	public void MoveForGuardDuty(Vector3 loc)
 	{
+		Vector3Int locInt = world.RoundToInt(loc);
 		StopMovementCheck(false);		
 		List<Vector3Int> path;
 
-		path = GridSearch.MilitaryMove(world, world.RoundToInt(transform.position), loc, bySea);
+		path = GridSearch.MilitaryMove(world, world.RoundToInt(transform.position), locInt, bySea);
 
 		if (path.Count == 0)
-			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), loc);
+			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), locInt);
 
 		if (path.Count == 0)
-			path.Add(loc);
+			path.Add(locInt);
 
 		transferring = true;
 		finalDestinationLoc = loc;
@@ -734,6 +735,7 @@ public class Military : Unit
 		Vector3 sideSpot = GuardRouteFinish(traderSpot, traderPrevSpot);
 		finalDestinationLoc = sideSpot;
 		StartAnimation();
+		isMoving = true;
 		RestartPath(traderPrevSpot);
 	}
 
@@ -961,7 +963,6 @@ public class Military : Unit
 		}
 		else if (transferring)
 		{
-			world.AddUnitPosition(currentLocation, this);
 			if (guard)
 			{
 				barracksBunk = new Vector3Int(0, 0, 1); //default bunk loc for guard (necessary for loading during battle)
@@ -972,7 +973,12 @@ public class Military : Unit
 				if (guardedTrader.waitingOnGuard)
 				{
 					guardedTrader.waitingOnGuard = false;
-					guardedTrader.TradeRouteCheck(guardedTrader.currentLocation);
+
+					if (!guardedTrader.BeginNextStepCheck(guardedTrader.currentLocation))
+					{
+						guardedTrader.atHome = false;
+						guardedTrader.TradeRouteCheck(guardedTrader.currentLocation);
+					}
 				}
 			}
 			else if (endPosition != barracksBunk)
@@ -981,6 +987,7 @@ public class Military : Unit
 			}
 			else
 			{
+				world.AddUnitPosition(currentLocation, this);
 				transferring = false;
 				atHome = true;
 
@@ -994,7 +1001,7 @@ public class Military : Unit
 		}
 		else if (guard)
 		{
-			world.AddUnitPosition(currentLocation, this);
+			//world.AddUnitPosition(currentLocation, this);
 
 			if (guardedTrader == null && world.IsCityOnTile(currentLocation))
 				GuardToBunkCheck(currentLocation);

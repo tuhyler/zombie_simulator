@@ -523,22 +523,8 @@ public class TerrainData : MonoBehaviour
     public void HardReveal()
     {
         isDiscovered = true;
-        if (walkable)
-        {
-            canWalk = true;
-            canPlayerWalk = true;
-        }
-        if (!border)
-        {
-            if (sailable)
-            {
-                canSail = true;
-                canPlayerSail = true;
-            }
+        SetMovement();
 
-            canFly = true;
-            canPlayerFly = true;
-        }
 		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
         //foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
@@ -582,6 +568,26 @@ public class TerrainData : MonoBehaviour
         ShowProp(true);
     }
 
+    public void SetMovement()
+    {
+		if (walkable)
+		{
+			canWalk = true;
+			canPlayerWalk = true;
+		}
+		if (!border)
+		{
+			if (sailable)
+			{
+				canSail = true;
+				canPlayerSail = true;
+			}
+
+			canFly = true;
+			canPlayerFly = true;
+		}
+	}
+
     public void CanMoveCheck()
     {
         if (canWalk)
@@ -607,22 +613,7 @@ public class TerrainData : MonoBehaviour
     {
         isDiscovered = true;
 		isDiscovered = true;
-		if (walkable)
-		{
-			canWalk = true;
-			canPlayerWalk = true;
-		}
-        if (!border)
-        {
-            if (sailable)
-            {
-                canSail = true;
-                canPlayerSail = true;
-            }
-
-            canFly = true;
-            canPlayerFly = true;
-        }
+        SetMovement();
 		GameLoader.Instance.gameData.allTerrain[tileCoordinates].isDiscovered = true;
 
 		//foreach (Vector3Int neighbor in world.GetNeighborsFor(tileCoordinates, MapWorld.State.EIGHTWAYINCREMENT))
