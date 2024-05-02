@@ -97,10 +97,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 		{
 			cantAffordList.Clear();
 			if (!confirm)
-			{
-				this.trader.guarded = false;
-				this.trader.guardUnit = null;
-			}
+				ResetTrader();
 			this.trader = null;
 			startingCity = null;
 			homeCity = null;
@@ -269,6 +266,12 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 	public void UnselectArmy()
 	{
 		world.GetCityDevelopment(homeCity.singleBuildDict[typeNeeded]).army.UnSoftSelectArmy();
+	}
+
+	public void ResetTrader()
+	{
+		trader.guarded = false;
+		trader.guardUnit = null;
 	}
 
 	public void UpdateGuardCosts()

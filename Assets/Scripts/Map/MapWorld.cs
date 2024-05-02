@@ -993,6 +993,7 @@ public class MapWorld : MonoBehaviour
 			if (td.isDiscovered)
             {
                 td.Discover();
+                td.SetMovement();
 
                 if (td.hasResourceMap)
 					ToggleResourceIcon(td.TileCoordinates, true);
@@ -3216,7 +3217,7 @@ public class MapWorld : MonoBehaviour
         {
             cityBuilderManager.CloseAddPopWindow();
         }
-        else if (uiTradeRouteBeginTooltip.activeStatus)
+        else if (uiTradeRouteBeginTooltip.gameObject.activeSelf)
         {
             CloseTradeRouteBeginTooltipCloseButton();
         }
@@ -4876,7 +4877,10 @@ public class MapWorld : MonoBehaviour
         if (traderPosDict.ContainsKey(tile) && tradeStopDict.ContainsKey(finalDest))
         {
             ITradeStop stop = tradeStopDict[finalDest];
-		    return stop.IsTraderWaitingAtSameStop(tile, finalDest, this, trader);
+            if (trader.atHome)
+                return stop.IsTraderWaitingAtHomeCity(tile, finalDest, this, trader);
+            else
+		        return stop.IsTraderWaitingAtSameStop(tile, finalDest, this, trader);
         }
 
         return false;
@@ -5646,6 +5650,15 @@ public class MapWorld : MonoBehaviour
 
         if (uiCampTooltip.activeStatus && uiCampTooltip.army == GetCity(cityLoc).army)
             unitMovement.CancelArmyDeployment();
+
+        if (uiTradeRouteBeginTooltip.activeStatus && uiTradeRouteBeginTooltip.trader.homeCity == cityLoc)
+        {
+            if (!uiTradeRouteBeginTooltip.gameObject.activeSelf)
+				unitMovement.CloseBuildingSomethingPanelButton();
+
+            uiTradeRouteBeginTooltip.ResetTrader();
+            uiTradeRouteBeginTooltip.UpdateGuardCosts();
+		}
         //ToggleCityMaterialClear(cityLoc, targetZone, true, false);
     }
 
@@ -9022,11 +9035,22 @@ public interface ITradeStop
             stop.waitList.Remove(trader);
 	}
 
+    public bool IsTraderWaitingAtHomeCity(Vector3Int pos, Vector3Int dest, MapWorld world, Trader trader)
+    {
+		for (int i = 0; i < world.traderPosDict[pos].Count; i++)
+		{
+			if (world.traderPosDict[pos][i].followingRoute && world.traderPosDict[pos][i] != trader && world.traderPosDict[pos][i].tradeRouteManager.currentDestination == dest)
+				return true;
+		}
+
+		return false;
+	}
+
 	public bool IsTraderWaitingAtSameStop(Vector3Int pos, Vector3Int dest, MapWorld world, Trader trader)
 	{
         for (int i = 0; i < world.traderPosDict[pos].Count; i++)
         {
-            if (world.traderPosDict[pos][i].followingRoute && world.traderPosDict[pos][i] != trader && world.traderPosDict[pos][i].GetCurrentDestination() == dest)
+            if (world.traderPosDict[pos][i] != trader && world.traderPosDict[pos][i].tradeRouteManager.currentDestination == dest)
     			return true;
         }
 

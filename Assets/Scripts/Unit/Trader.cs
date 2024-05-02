@@ -25,6 +25,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	public Vector3Int homeCity;
 
     public int loadUnloadRate = 1;
+	private float inLineSpeed = 0.5f;
 
 	[HideInInspector]
 	public int goldNeeded;
@@ -210,8 +211,10 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			if (!TradeStopExistsCheck(endLoc))
 				return;
 
-			if (endLoc == tradeRouteManager.CurrentDestination)
+			if (endLoc == tradeRouteManager.currentDestination)
 			{
+				tradeRouteManager.SetWaitTime();
+				
 				if (bySea)
 					RotateTrader(endLoc);
 
@@ -236,9 +239,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 					}
 					else
 					{
-						isWaiting = true;
 						waitingOnRouteCosts = true;
 						isWaiting = true;
+						originalMoveSpeed = inLineSpeed;
 						SetWarning(false, true, false);
 						world.unitMovement.uiTradeRouteManager.ShowRouteCostFlag(true, this);
 						return;
@@ -248,6 +251,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				tradeRouteManager.SetStop(stop);
 
 				isWaiting = true;
+				originalMoveSpeed = inLineSpeed;
 				atStop = true;
                 tradeRouteManager.FinishedLoading.AddListener(BeginNextStepInRoute);
                 WaitTimeCo = StartCoroutine(tradeRouteManager.WaitTimeCoroutine());
@@ -305,14 +309,14 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	{
 		movingUpInLine = false;
 		Vector3Int currentLoc = world.RoundToInt(transform.position);
-		ITradeStop stop = world.GetStop(GetCurrentDestination());
+		ITradeStop stop = world.GetStop(tradeRouteManager.currentDestination);
 
 		if (!stop.TraderAlreadyThere(currentLoc, this, world))
 		{
 			ambushLoc = new Vector3Int(0, -10, 0); //no ambushing while in line
-			if (world.IsTraderWaitingForSameStop(currentLoc, GetCurrentDestination(), this))
+			if (world.IsTraderWaitingForSameStop(currentLoc, tradeRouteManager.currentDestination, this))
 			{
-				GoToBackOfLine(GetCurrentDestination(), currentLoc);
+				GoToBackOfLine(tradeRouteManager.currentDestination, currentLoc);
 				GetInLine();
 				return;
 			}
@@ -321,11 +325,12 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 
 		isWaiting = true;
+		originalMoveSpeed = inLineSpeed; //in line speed;
 		StopAnimation();
 		currentLocation = world.AddTraderPosition(currentLoc, this);
 		stop.AddToWaitList(this, stop);
 
-		if (guarded)
+		if (guarded && !atHome && guardUnit.isMoving)
 			guardUnit.military.GuardGetInLine(prevTile, currentLocation);
 	}
 
@@ -350,7 +355,11 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				{
 					Teleport(prevTile);
 					if (guarded)
-						guardUnit.Teleport(world.RoundToInt(guardUnit.military.GuardRouteFinish(prevTile, prevTile)));
+					{
+						Vector3Int prevPrevTile = prevTile - (currentLoc - prevTile);
+						guardUnit.Teleport(world.RoundToInt(guardUnit.military.GuardRouteFinish(prevTile, prevPrevTile)));
+						guardUnit.StopMovementCheck(true);
+					}
 					positionsToCheck.Clear();
 					success = true;
 				}
@@ -416,7 +425,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		if (!movingUpInLine)
 		{	
 			if (pathPositions.Count == 0)
-				pathPositions.Enqueue(GetCurrentDestination());
+				pathPositions.Enqueue(tradeRouteManager.currentDestination);
 
 			Vector3Int nextSpot = pathPositions.Peek();
 			StartAnimation();
@@ -424,14 +433,14 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			isMoving = true;
 			RestartPath(pathPositions.Dequeue());
 
-			if (guarded)
-				guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
+			if (guarded && !atHome)
+				guardUnit.military.GuardGetInLine(prevTile, nextSpot);
 		}
 	}
 
 	public IEnumerator MoveUpInLine(int placeInLine)
 	{
-		if (pathPositions.Count == 1)
+		if (pathPositions.Count <= 1)
 			yield break;
 
 		movingUpInLine = true;
@@ -443,13 +452,13 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			linePause -= 1;
 		}
 
-		if (!world.StopExistsCheck(GetCurrentDestination()))
+		if (!world.StopExistsCheck(tradeRouteManager.currentDestination))
 		{
 			InterruptRoute(true);
 			yield break;
 		}
 
-		if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), GetCurrentDestination(), this))
+		if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), tradeRouteManager.currentDestination, this))
 		{
 			movingUpInLine = false;
 			yield break;
@@ -462,7 +471,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		isMoving = true;
         RestartPath(nextSpot);
 
-		if (guarded)
+		if (guarded && !atHome)
 			guardUnit.military.GuardGetInLine(currentLocation, nextSpot);
 	}
 
@@ -493,24 +502,35 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         WaitTimeCo = null;
         atStop = false;
         paid = false;
-        Vector3Int nextStop = tradeRouteManager.GoToNext();
+		tradeRouteManager.currentDestination = tradeRouteManager.cityStops[tradeRouteManager.currentStop];
+        Vector3Int nextStop = tradeRouteManager.currentDestination;
 
 		if (!TradeStopExistsCheck(nextStop))
 			return;
 
         List<Vector3Int> currentPath;
         
-        if (followingRoute)
+		if (atHome)
+		{
+			atHome = false;
+			tradeRouteManager.SetStop(world.GetStop(currentLocation));
+			currentPath = GridSearch.TraderMove(world, transform.position, nextStop, bySea);
+		}
+        else if (followingRoute)
+		{
             currentPath = tradeRouteManager.GetNextPath();
-        else
-            currentPath = GridSearch.TraderMove(world, transform.position, nextStop, bySea); //in case starting off path
+		}
+		else //in case starting off path
+		{
+            currentPath = GridSearch.TraderMove(world, transform.position, nextStop, bySea); 
+		}
 
         followingRoute = true;
         if (currentPath.Count == 0)
         {
-            if (tradeRouteManager.CurrentDestination == world.RoundToInt(transform.position))
+            if (tradeRouteManager.currentDestination == world.RoundToInt(transform.position))
             {
-                finalDestinationLoc = tradeRouteManager.CurrentDestination;
+                finalDestinationLoc = tradeRouteManager.currentDestination;
                 TradeRouteCheck(transform.position);
             }
             else
@@ -527,11 +547,11 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         }
         else if (currentPath.Count > 0)
         {
-            finalDestinationLoc = nextStop;
+			finalDestinationLoc = nextStop;
 			world.RemoveTraderPosition(currentLocation, this);
             MoveThroughPath(currentPath);
             tradeRouteManager.CheckQueues();
-			GuardFollow(nextStop, currentPath);
+			GuardFollow(nextStop, new(currentPath));
         }
     }
 
@@ -548,9 +568,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 	}
 
-	public void PrepForRoute()
+	public void PrepForRoute(Vector3Int firstStep)
 	{
-		Vector3Int firstStep = bySea ? world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor] : homeCity;
+		//Vector3Int firstStep = bySea ? world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor] : homeCity;
 		List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, firstStep, bySea);
 
 		if (path.Count == 0)
@@ -621,7 +641,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			{
 				finalDestinationLoc = homeLoc;
 				MoveThroughPath(pathHome);
-				GuardFollow(homeLoc, pathHome);
+				GuardFollow(homeLoc, new(pathHome));
 				return;
 			}
 		}
@@ -727,7 +747,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			if (pathHome.Count > 0)
 			{
 				if (guarded)
-					GuardFollow(chosenCity.cityLoc, pathHome);
+					GuardFollow(chosenCity.cityLoc, new(pathHome));
 				finalDestinationLoc = chosenCity.cityLoc;
 				MoveThroughPath(pathHome);
 				
@@ -740,9 +760,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 	public bool LineCutterCheck()
     {
-        if (world.IsTraderWaitingForSameStop(world.RoundToInt(transform.position), tradeRouteManager.GoToNext(), this))
+        if (world.IsTraderWaitingForSameStop(world.RoundToInt(transform.position), tradeRouteManager.currentDestination, this))
         {
-            //CancelRoute();
             InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(transform.position, "No cutting in line");
             return true;
         }
@@ -785,16 +804,16 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
         if (isWaiting)
         {
-			Vector3Int destination = GetCurrentDestination();
-			if (world.StopExistsCheck(destination))
+			if (world.StopExistsCheck(tradeRouteManager.currentDestination))
 			{
-				ITradeStop stop = world.GetStop(destination);
+				ITradeStop stop = world.GetStop(tradeRouteManager.currentDestination);
 				stop.RemoveFromWaitList(this, stop);
 			}
         }
 
         isWaiting = false;
-        if (LoadUnloadCo != null)
+		originalMoveSpeed = buildDataSO.movementSpeed;
+		if (LoadUnloadCo != null)
         {
             tradeRouteManager.StopHoldingPatternCoroutine();
             StopCoroutine(LoadUnloadCo);
@@ -1080,9 +1099,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 	private bool GetInLineCheck()
 	{
-		if (world.IsTraderWaitingForSameStop(currentLocation, GetCurrentDestination(), this))
+		if (world.IsTraderWaitingForSameStop(currentLocation, tradeRouteManager.currentDestination, this))
 		{
-			GoToBackOfLine(GetCurrentDestination(), currentLocation);
+			GoToBackOfLine(tradeRouteManager.currentDestination, currentLocation);
 			GetInLine();
 			prevTile = currentLocation;
 			return true;
@@ -1102,9 +1121,23 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 	}
 
-	public Vector3Int GetCurrentDestination()
+	//public Vector3Int GetCurrentDestination()
+	//{
+	//	return currentDest;
+	//	//return tradeRouteManager.cityStops[tradeRouteManager.currentStop];
+	//}
+
+	public bool BeginNextStepCheck(Vector3Int currentLoc)
 	{
-		return tradeRouteManager.cityStops[tradeRouteManager.currentStop];
+		if (currentLoc != tradeRouteManager.cityStops[tradeRouteManager.currentStop])
+		{
+			if (!GetInLineCheck())
+				BeginNextStepInRoute();
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public void FinishMovementTrader(Vector3 endPosition)
@@ -1134,22 +1167,19 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 				if (homeCityArrival)
 				{
-					atHome = false;
-
-					if (homeLoc != tradeRouteManager.cityStops[tradeRouteManager.currentStop])
+					if (guarded && guardUnit.isMoving)
 					{
-						if (!GetInLineCheck())
-							BeginNextStepInRoute();
-						
+						world.AddTraderPosition(currentLocation, this);
+						waitingOnGuard = true;
 						return;
 					}
-					else if (guarded)
+					else if (BeginNextStepCheck(homeLoc))
 					{
-						if (guardUnit.isMoving)
-						{
-							waitingOnGuard = true;
-							return;
-						}
+						return;
+					}
+					else
+					{
+						atHome = false; //if not waiting for guard and if not going to another stop
 					}
 				}
 			}
@@ -1266,7 +1296,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			{
 				if (isWaiting)
 				{
-					ITradeStop stop = world.GetStop(GetCurrentDestination());
+					ITradeStop stop = world.GetStop(tradeRouteManager.currentDestination);
 					stop.ClearRestInLine(this, stop);
 				}
 
@@ -1336,7 +1366,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         data.resourceCurrentAmount = tradeRouteManager.resourceCurrentAmount;
         data.resourceTotalAmount = tradeRouteManager.resourceTotalAmount;
         data.timeWaited = tradeRouteManager.timeWaited;
-        data.currentDestination = tradeRouteManager.CurrentDestination;
+        data.currentDestination = tradeRouteManager.currentDestination;
         data.resourceCheck = tradeRouteManager.resourceCheck;
         data.waitForever = tradeRouteManager.waitForever;
 		data.amountMoved = tradeRouteManager.amountMoved;
@@ -1359,6 +1389,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		atStop = data.atStop;
 		followingRoute = data.followingRoute;
 		isWaiting = data.isWaiting;
+		if (isWaiting)
+			originalMoveSpeed = inLineSpeed;
 		isUpgrading = data.isUpgrading;
 		hasRoute = data.hasRoute;
 		waitingOnRouteCosts = data.waitingOnRouteCosts;
@@ -1417,7 +1449,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		tradeRouteManager.resourceCurrentAmount = data.resourceCurrentAmount;
 		tradeRouteManager.resourceTotalAmount = data.resourceTotalAmount;
         tradeRouteManager.timeWaited = data.timeWaited;
-		tradeRouteManager.CurrentDestination = data.currentDestination;
+		tradeRouteManager.currentDestination = data.currentDestination;
 		tradeRouteManager.resourceCheck = data.resourceCheck;
 		tradeRouteManager.waitForever = data.waitForever;
 		tradeRouteManager.amountMoved = data.amountMoved;

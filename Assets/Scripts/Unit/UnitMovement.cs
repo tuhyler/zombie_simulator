@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class UnitMovement : MonoBehaviour
@@ -2319,16 +2321,23 @@ public class UnitMovement : MonoBehaviour
     {    
         if (selectedUnit && selectedUnit.trader)
         {
-            if (!selectedUnit.bySea && !world.IsRoadOnTileLocation(world.RoundToInt(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
+            Vector3Int firstStep = selectedUnit.trader.homeCity;
+            if (selectedUnit.trader.atHome)
+            {
+				firstStep = selectedUnit.bySea ? world.GetCity(selectedUnit.trader.homeCity).singleBuildDict[SingleBuildType.Harbor] : selectedUnit.trader.homeCity;
+				selectedUnit.trader.tradeRouteManager.currentDestination = firstStep;
+            }
+            
+            if (!selectedUnit.bySea && !selectedUnit.byAir && !world.IsRoadOnTileLocation(world.RoundToInt(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
             {
 				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't start route off road");
 				return;
 			}
 
-            if (!world.uiTradeRouteBeginTooltip.AffordCheck())
+			if (!world.uiTradeRouteBeginTooltip.AffordCheck())
                 return;
 
-            if (!world.StopExistsCheck(selectedUnit.trader.GetCurrentDestination()))
+            if (!world.StopExistsCheck(selectedUnit.trader.tradeRouteManager.currentDestination))
             {
 				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Next stop missing");
 				return;
@@ -2337,15 +2346,8 @@ public class UnitMovement : MonoBehaviour
             if (!selectedUnit.trader.StartingCityCheck())
                 return;
 
-            //if (!selectedUnit.trader.isMoving)
-            //    world.RemoveTraderPosition(selectedUnit.currentLocation, selectedUnit.trader);
-
 			if (selectedUnit.trader.LineCutterCheck())
-            {
-                //if (!selectedUnit.trader.isMoving)
-                //    world.AddTraderPosition(selectedUnit.currentLocation, selectedUnit.trader);
 				return;
-            }
 
 			if (selectedUnit.trader.guarded)
 			{
@@ -2354,36 +2356,36 @@ public class UnitMovement : MonoBehaviour
                 if (selectedUnit.trader.atHome)
                 {
                     //first getting a spot for the guard, if there is one
-                    Vector3Int chosenSpot = selectedUnit.trader.homeCity;
-                    Vector3Int guardSpot = selectedUnit.trader.guardUnit.military.barracksBunk;
-                    int dist = 0;
-                    bool firstOne = true;
-                    foreach (Vector3Int pos in world.GetNeighborsFor(selectedUnit.trader.homeCity, MapWorld.State.EIGHTWAY))
-                    {
-                        if (world.IsUnitLocationTaken(pos))
-                            continue;
+                    Vector3 chosenSpot = selectedUnit.trader.homeCity + new Vector3(0.5f, 0, 1); //all go to same spot
+        //            Vector3Int guardSpot = selectedUnit.trader.guardUnit.military.barracksBunk;
+        //            int dist = 0;
+        //            bool firstOne = true;
+        //            foreach (Vector3Int pos in world.GetNeighborsFor(selectedUnit.trader.homeCity, MapWorld.State.EIGHTWAY))
+        //            {
+        //                if (world.IsUnitLocationTaken(pos))
+        //                    continue;
                     
-                        if (firstOne)
-                        {
-                            firstOne = false;
-                            chosenSpot = pos;
-                            dist = Mathf.Abs(pos.x - guardSpot.x) + Mathf.Abs(pos.z - guardSpot.z);
-                            continue;
-                        }
+        //                if (firstOne)
+        //                {
+        //                    firstOne = false;
+        //                    chosenSpot = pos;
+        //                    dist = Mathf.Abs(pos.x - guardSpot.x) + Mathf.Abs(pos.z - guardSpot.z);
+        //                    continue;
+        //                }
 
-                        int newDist = Mathf.Abs(pos.x - guardSpot.x) + Mathf.Abs(pos.z - guardSpot.z);
-                        if (newDist < dist)
-                        {
-                            dist = newDist;
-                            chosenSpot = pos;
-                        }
-				    }
+        //                int newDist = Mathf.Abs(pos.x - guardSpot.x) + Mathf.Abs(pos.z - guardSpot.z);
+        //                if (newDist < dist)
+        //                {
+        //                    dist = newDist;
+        //                    chosenSpot = pos;
+        //                }
+				    //}
 
-                    if (chosenSpot == selectedUnit.trader.homeCity)
-                    {
-					    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Too crowded, no room for guard");
-					    return;
-                    }
+        //            if (chosenSpot == selectedUnit.trader.homeCity)
+        //            {
+					   // UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Too crowded, no room for guard");
+					   // return;
+        //            }
 
                     Military guardUnit = selectedUnit.trader.guardUnit.military;
                 
@@ -2411,7 +2413,7 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.trader.TradersHereCheck();
 
             if (selectedUnit.trader.atHome)
-                selectedUnit.trader.PrepForRoute();
+                selectedUnit.trader.PrepForRoute(firstStep);
             else
 			    selectedUnit.trader.BeginNextStepInRoute();
 
