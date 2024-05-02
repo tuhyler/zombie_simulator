@@ -1374,10 +1374,13 @@ public class Military : Unit
 			else if (bodyGuard)
 			{
 				transferring = data.transferring;
+				if (bodyGuard.dueling)
+					GameLoader.Instance.militaryUnitList.Add(this);
 			}
 			else
 			{
 				enemyAI.CampSpot = data.campSpot;
+				GameLoader.Instance.militaryUnitList.Add(this);
 			}
 
 			strengthBonus = data.strengthBonus;

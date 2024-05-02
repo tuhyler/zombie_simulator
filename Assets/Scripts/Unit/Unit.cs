@@ -836,9 +836,9 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void Teleport(Vector3Int loc)
+    public void Teleport(Vector3 loc)
     {
-        currentLocation = loc;
+        currentLocation = world.RoundToInt(loc);
         transform.position = loc;
 
         if (military && !military.guard)
