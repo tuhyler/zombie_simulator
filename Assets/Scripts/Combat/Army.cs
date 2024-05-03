@@ -1241,7 +1241,17 @@ public class Army : MonoBehaviour
 				targetCamp.deathCount = 0;
 				targetCamp.attackingArmy = null;
                 targetCamp.SetCityEnemyCamp();
-                world.GetEnemyCity(targetCamp.cityLoc).StartSpawnCycle(true);
+
+                City enemyCity = world.GetEnemyCity(targetCamp.cityLoc);
+                if (enemyCity.empire.capitalCity == targetCamp.cityLoc && enemyCity.empire.enemyLeader.dueling)
+                {
+					enemyCity.countDownTimer = world.enemyUnitGrowthTime;
+					enemyCity.enemyCamp.growing = true;
+                }
+                else
+                {
+                    world.GetEnemyCity(targetCamp.cityLoc).StartSpawnCycle(true);
+                }
             }
 
             DestroyDeadList();

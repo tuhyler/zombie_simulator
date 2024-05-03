@@ -18,6 +18,7 @@ MonoBehaviour:
   unitDisplayName: Smasher
   unitLevel: 1
   unitNameAndLevel: Infantry-1
+  empireUnit: 0
   image: {fileID: 0}
   mapIcon: {fileID: 21300000, guid: b54eab4db8eba204c9f8f31fee95053f, type: 3}
   unitCost: []
@@ -29,7 +30,7 @@ MonoBehaviour:
   availableInitially: 0
   health: 50
   regenerationRate: 16
-  baseAttackStrength: 2
+  baseAttackStrength: 101
   baseAttackSpeed: 1
   movementSpeed: 2
   trainTime: 0
@@ -38,8 +39,6 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 0
   npc: 0
-  borderColor: {r: 0, g: 0, b: 0, a: 0}
-  colorOne: {x: 0, y: 0}
-  colorTwo: {x: 0, y: 0}
+  singleBuildType: 0
   unitEra: 0
   unitRegion: 1

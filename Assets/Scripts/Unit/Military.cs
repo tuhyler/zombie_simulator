@@ -1430,7 +1430,7 @@ public class Military : Unit
 				else if (leader.isDead)
 					gameObject.SetActive(false);
 			}
-			else if (!enemyAI || enemyCamp.campCount != 0)
+			else if (!enemyAI || ambush || enemyCamp.campCount != 0)
 			{
 				GameLoader.Instance.attackingUnitList.Add(this);
 			}
@@ -1488,7 +1488,12 @@ public class Military : Unit
 				{
 					for (int i = 0; i < enemyAmbush.attackedUnits.Count; i++)
 					{
-						if (enemyAmbush.attackedUnits[i].military.barracksBunk == targetBunk)
+						if (enemyAmbush.attackedUnits[i].trader && enemyAmbush.targetTrader)
+						{
+							target = enemyAmbush.attackedUnits[i];
+							break;
+						}
+						else if (enemyAmbush.attackedUnits[i].military && enemyAmbush.attackedUnits[i].military.barracksBunk == targetBunk)
 						{
 							target = enemyAmbush.attackedUnits[i];
 							break;
@@ -1527,9 +1532,20 @@ public class Military : Unit
 			{
 				attacking = false;
 				if (inArmy)
+				{
 					AggroCheck();
+				}
+				else if (ambush)
+				{
+					if (enemyAmbush.attackedUnits.Count > 0)
+						enemyAI.AmbushAggro(world.RoundToInt(enemyAmbush.attackedUnits[enemyAmbush.attackedUnits.Count - 1].transform.position), world.RoundToInt(transform.position));
+					else
+						StartCoroutine(DramaticallyDisappear());
+				}
 				else
+				{
 					enemyAI.AggroCheck();
+				}
 
 				return;
 			}
