@@ -931,7 +931,7 @@ public class Unit : MonoBehaviour
 				world.SetRoadActive(tilesToCheck[i]);
 
 			if (world.cityImprovementDict.ContainsKey(tilesToCheck[i]))
-				world.cityImprovementDict[tilesToCheck[i]].RevealImprovement();
+				world.cityImprovementDict[tilesToCheck[i]].RevealImprovement(false);
 
 			td.Reveal();
 			world.cameraController.CheckLoc(tilesToCheck[i]);
@@ -1155,7 +1155,7 @@ public class Unit : MonoBehaviour
 		}
         else if (military)
         {
-            military.KillMilitaryUnit();
+            military.KillMilitaryUnit(rotation);
 		}
 		else if (trader)
         {

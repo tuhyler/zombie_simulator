@@ -11,7 +11,8 @@ public class CityImprovement : MonoBehaviour
 
     //[SerializeField]
     //private List<ImprovementAnimators> animators = new();
-    private MapWorld world;
+    [HideInInspector]
+    public MapWorld world;
 
     private MeshFilter[] meshFilter;
     public MeshFilter[] MeshFilter { get { return meshFilter; } }
@@ -339,7 +340,7 @@ public class CityImprovement : MonoBehaviour
         highlight.DisableHighlight();
     }
 
-    public void RevealImprovement()
+    public void RevealImprovement(bool load)
     {
         city.gameObject.SetActive(true);
         city.subTransform.gameObject.SetActive(false);
@@ -349,10 +350,17 @@ public class CityImprovement : MonoBehaviour
         if (improvementData.replaceRocks)
         {
             Material mat;
-            if (td.materials.Count > 1)
-                mat = td.materials[1];
+            if (load)
+            {
+				mat = td.prop.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+			}
             else
-                mat = world.atlasMain;
+            {
+                if (td.materials.Count > 1)
+                    mat = td.materials[1];
+                else
+                    mat = world.atlasMain;
+            }
             
             skinnedMesh.material = mat;
 			SetNewMaterial(mat);

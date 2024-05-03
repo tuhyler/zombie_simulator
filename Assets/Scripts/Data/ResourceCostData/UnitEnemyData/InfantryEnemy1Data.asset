@@ -30,7 +30,7 @@ MonoBehaviour:
   availableInitially: 0
   health: 50
   regenerationRate: 16
-  baseAttackStrength: 101
+  baseAttackStrength: 2
   baseAttackSpeed: 1
   movementSpeed: 2
   trainTime: 0

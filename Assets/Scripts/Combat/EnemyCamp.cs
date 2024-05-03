@@ -908,7 +908,10 @@ public class EnemyCamp
 				continue;
 			
 			if (/*!chasing && */!returning)
+			{
 				unit.isMarching = true;
+				unit.readyToMarch = true;
+			}
 			
 			unit.preparingToMoveOut = false;
 			unit.attacking = false;
@@ -943,6 +946,7 @@ public class EnemyCamp
 		foreach (Military unit in unitsInCamp)
 		{
 			unit.isMarching = true;
+			unit.readyToMarch = true;
 			unit.preparingToMoveOut = false;
 			unit.attacking = false;
 			unit.enemyAI.AttackCheck();
@@ -1230,7 +1234,7 @@ public class EnemyCamp
 
 			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.enemyCamp == this)
 			{
-				if (world.uiCampTooltip.army.UpdateArmyCostsMovingTarget(world.uiCampTooltip.army.loc, cityLoc, pathToTarget, lastSpot))
+				if (world.uiCampTooltip.army.UpdateArmyCostsMovingTarget(world.uiCampTooltip.army.loc, threatLoc, attackingArmy.city.cityLoc, cityLoc, pathToTarget, lastSpot))
 					world.uiCampTooltip.RefreshData();
 				else
 					world.unitMovement.CancelArmyDeployment();
@@ -1318,7 +1322,6 @@ public class EnemyCamp
 
 		if (pathToTarget.Count > 0)
 		{
-			world.CheckMainPlayerLoc(loc, targetCity.cityLoc, pathToTarget);
 			//finding best spot to attack from
 			pathToTarget = FindOptimalAttackZone(pathToTarget, moveToLoc, seaTravel, false);
 
@@ -1342,7 +1345,7 @@ public class EnemyCamp
 			forward = (actualAttackLoc - threatLoc) / 3;
 			world.AddBattleZones(actualAttackLoc, threatLoc, false);
 			
-			if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.army == attackingArmy)
+			if ((world.deployingArmy && world.unitMovement.selectedUnit.military.army == attackingArmy) || (world.uiCampTooltip.activeStatus && world.uiCampTooltip.army == attackingArmy))
 				world.unitMovement.CancelArmyDeployment();
 		
 			if (world.deployingArmy)
@@ -1352,6 +1355,7 @@ public class EnemyCamp
 			}
 			
 			BattleStations(loc, forward);
+			world.CheckMainPlayerLoc(loc, targetCity.cityLoc, pathToTarget);
 			return true;
 		}
 		else
@@ -1365,8 +1369,8 @@ public class EnemyCamp
 		inBattle = false;
 		attackingArmy = world.GetCity(moveToLoc).army;
 		enemyReady = 0;
-		forward = (moveToLoc - threatLoc) / 3;
-		world.AddBattleZones(moveToLoc, threatLoc, false);
+		forward = (actualAttackLoc - threatLoc) / 3;
+		world.AddBattleZones(actualAttackLoc, threatLoc, false);
 
 		if (world.deployingArmy)
 		{
@@ -1701,9 +1705,9 @@ public class EnemyCamp
 		{
 			Vector3 pos = directions[i];
 			if (isHill)
-				pos.y -= 1f;
+				pos.y -= 0.5f;
 
-			float distance = 1.5f;
+			float distance = i % 2 == 0 ? 1.5f : 2.1f;
 			if (i == 8)
 				rayCastLoc.y += 1.5f;
 

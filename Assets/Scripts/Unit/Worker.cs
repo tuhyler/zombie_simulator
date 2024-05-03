@@ -1492,7 +1492,7 @@ public class Worker : Unit
 				}
 			}
 
-			List<Vector3Int> exemptList = new();
+			HashSet<Vector3Int> exemptList = new();
 			if (enemy)
 				exemptList = world.GetExemptList(prevLoc);
 
@@ -1505,7 +1505,7 @@ public class Worker : Unit
 		}
 	}
 
-	public void RepositionWorker(Vector3Int newPos, bool loading, bool enemy, List<Vector3Int> exemptList = null)
+	public void RepositionWorker(Vector3Int newPos, bool loading, bool enemy, HashSet<Vector3Int> exemptList = null)
 	{
 		StopMovementCheck(false);
 
@@ -1725,7 +1725,7 @@ public class Worker : Unit
 			if (transportTarget.bySea && !world.GetTerrainDataAt(goToSpot).canWalk)
 				goToSpot = world.GetAdjacentMoveToTile(world.RoundToInt(transform.position), goToSpot, true);
 
-			List<Vector3Int> exemptList = world.GetExemptList(currentTerrain);
+			HashSet<Vector3Int> exemptList = world.GetExemptList(currentTerrain);
 			path = GridSearch.PlayerMoveExempt(world, transform.position, goToSpot, exemptList);
 
 			if (path.Count > 0)

@@ -577,19 +577,20 @@ public class Army : MonoBehaviour
         }
 	}
 
-    public bool DeployArmyMovingTargetCheck(Vector3Int current, Vector3Int cityLoc, List<Vector3Int> pathList, Vector3Int currentSpot)
+    public bool DeployArmyMovingTargetCheck(Vector3Int current, Vector3Int nextStep, Vector3Int cityLoc, Vector3Int enemyCityLoc, List<Vector3Int> pathList, Vector3Int currentSpot)
     {
-		List<Vector3Int> exemptList = new() { cityLoc };
+		HashSet<Vector3Int> exemptList = new() { enemyCityLoc };
+        HashSet<Vector3Int> firstSteps = new() { current, nextStep, cityLoc };
         Queue<Vector3Int> path = new(pathList);
 
         int currentIndex = pathList.IndexOf(currentSpot);
         for (int i = 0; i < currentIndex; i++)
             path.Dequeue();
 
-		foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.EIGHTWAYINCREMENT))
+		foreach (Vector3Int tile in world.GetNeighborsFor(enemyCityLoc, MapWorld.State.EIGHTWAYINCREMENT))
 			exemptList.Add(tile);
 
-		pathToTarget = GridSearch.TerrainSearchMovingTarget(world, current, path, exemptList, false);
+		pathToTarget = GridSearch.TerrainSearchMovingTarget(world, current, path, firstSteps, exemptList, false);
 
 		if (pathToTarget.Count == 0)
         {
@@ -602,20 +603,21 @@ public class Army : MonoBehaviour
         }
     }
 
-    public bool UpdateArmyCostsMovingTarget(Vector3Int current, Vector3Int cityLoc, List<Vector3Int> pathList, Vector3Int currentSpot)
+    public bool UpdateArmyCostsMovingTarget(Vector3Int current, Vector3Int nextStep, Vector3Int cityLoc, Vector3Int enemyCityLoc, List<Vector3Int> pathList, Vector3Int currentSpot)
     {
-		List<Vector3Int> exemptList = new() { cityLoc };
+		HashSet<Vector3Int> exemptList = new() { enemyCityLoc };
+        HashSet<Vector3Int> firstSteps = new() { current, nextStep, cityLoc };
 		Queue<Vector3Int> path = new(pathList);
 
         int currentIndex = pathList.IndexOf(currentSpot);
 		for (int i = 0; i < currentIndex; i++)
 			path.Dequeue();
 
-		foreach (Vector3Int tile in world.GetNeighborsFor(cityLoc, MapWorld.State.EIGHTWAYINCREMENT))
+		foreach (Vector3Int tile in world.GetNeighborsFor(enemyCityLoc, MapWorld.State.EIGHTWAYINCREMENT))
 			exemptList.Add(tile);
 
         HidePath();
-		pathToTarget = GridSearch.TerrainSearchMovingTarget(world, current, path, exemptList, true, enemyTarget);
+		pathToTarget = GridSearch.TerrainSearchMovingTarget(world, current, path, firstSteps, exemptList, true, enemyTarget);
 
 		if (pathToTarget.Count == 0)
         {

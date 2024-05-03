@@ -206,7 +206,7 @@ public class BodyGuard : Military
 		}
 	}
 
-	public void RepositionBodyGuard(Vector3Int newPos, bool loading, bool enemy, List<Vector3Int> exemptList = null)
+	public void RepositionBodyGuard(Vector3Int newPos, bool loading, bool enemy, HashSet<Vector3Int> exemptList = null)
 	{
 		StopMovementCheck(false);
 
