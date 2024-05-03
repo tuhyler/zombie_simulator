@@ -411,7 +411,7 @@ public class MapWorld : MonoBehaviour
         //populating ambush dict
         foreach (UnitBuildDataSO unit in UpgradeableObjectHolder.Instance.enemyUnitDict.Values)
         {
-            if (unit.unitType == UnitType.Infantry)
+            if (unit.unitType == UnitType.Infantry && !unit.empireUnit)
                 ambushUnitDict[unit.unitEra] = unit.unitNameAndLevel;
         }
     }
@@ -2249,6 +2249,7 @@ public class MapWorld : MonoBehaviour
 			EnemyAmbush ambush = new();
 			ambush.loc = tile;
 			ambush.attackedTrader = ambushLocs[tile].attackedTrader;
+            ambush.targetTrader = ambushLocs[tile].targetTrader;
             Trader unitTrader = ambushedTraders[ambush.attackedTrader];
             ambush.attackedUnits.Add(unitTrader);
 
@@ -4614,7 +4615,14 @@ public class MapWorld : MonoBehaviour
         //check for main player
         CheckMainPlayerLoc(loc, loc);
 
-		GameObject enemyGO = Instantiate(ambushingUnit.prefab, ambushLoc, rotation);
+		Vector3 direction = loc - ambushLoc;
+		Quaternion endRotation;
+		if (direction == Vector3.zero)
+			endRotation = Quaternion.identity;
+		else
+			endRotation = Quaternion.LookRotation(direction, Vector3.up);
+        ambushLoc = new Vector3Int(35, 0, 38);
+		GameObject enemyGO = Instantiate(ambushingUnit.prefab, ambushLoc, endRotation);
         enemyGO.name = ambushingUnit.unitDisplayName;
 		enemyGO.transform.SetParent(enemyUnitHolder, false);
 

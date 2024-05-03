@@ -126,12 +126,11 @@ public class TradeRouteManager : MonoBehaviour
             nextPath = currentStop - 1;
         
         //roll to see if ambushed (currently only affects land units)
-        if (!trader.bySea && ambushSpots.Contains(nextPath) && UnityEngine.Random.Range(0, 100) < ambushProb)
+        if (!trader.bySea && routePathsDict[nextPath].Count > 15 && ambushSpots.Contains(nextPath) && UnityEngine.Random.Range(0, 100) < ambushProb)
         {
-            Vector3Int randomLoc = routePathsDict[nextPath][UnityEngine.Random.Range(6, routePathsDict[nextPath].Count - 5)];
+            Vector3Int randomLoc = routePathsDict[nextPath][UnityEngine.Random.Range(7, routePathsDict[nextPath].Count - 8)];
 
-            Debug.Log(randomLoc);
-            randomLoc = new Vector3Int(8, 0, 26);
+            //randomLoc = new Vector3Int(8, 0, 26);
             //check if city close by
             bool farCity = true;
 
@@ -150,6 +149,7 @@ public class TradeRouteManager : MonoBehaviour
             if (farCity)
             {
                 trader.ambushLoc = trader.world.GetClosestTerrainLoc(randomLoc);
+                Debug.Log(randomLoc);
             }
             else
             {

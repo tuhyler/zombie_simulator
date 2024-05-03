@@ -9,6 +9,7 @@ public class EnemyAmbush
     public string attackedTrader;
     public List<Military> attackingUnits = new();
     public List<Unit> attackedUnits = new();
+    public bool targetTrader;
 
     public EnemyAmbushData GetAmbushData(MapWorld world)
     {
@@ -25,6 +26,7 @@ public class EnemyAmbush
 		data.loc = loc;
 		data.attackingUnits = attackingList;
         data.attackedTrader = attackedTrader;
+        data.targetTrader = targetTrader;
 
         return data;
     }

@@ -267,7 +267,7 @@ public class Unit : MonoBehaviour
         {
 			if (inArmy)
             {
-                attackingUnit.military.enemyCamp.CheckForWeaklings(attackingUnit.military.enemyCamp.threatLoc);
+                //attackingUnit.military.enemyCamp.CheckForWeaklings(attackingUnit.military.enemyCamp.threatLoc);
                 military.AttackCheck();
                 military.StopAttacking();
             }
@@ -605,30 +605,18 @@ public class Unit : MonoBehaviour
 				prevTile = endPositionInt;
 				if (prevTile == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle) //Can also trigger ambush when not on trade route
                 {
-                    ambush = true;
-                    currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
-                    isMoving = false;
-                    StopAnimation();
+                    if (!trader.guarded || Mathf.Abs(trader.guardUnit.transform.position.x - transform.position.x) + Mathf.Abs(trader.guardUnit.transform.position.z - transform.position.z) < 5)
+                    {
+                        ambush = true;
+                        currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
+                        isMoving = false;
+                        StopAnimation();
 
-                    world.SetUpAmbush(ambushLoc, this);
-                    yield break;
+                        world.SetUpAmbush(ambushLoc, this);
+                        yield break;
+                    }
                 }
-
-				if (pathPositions.Count == 1 && ambush)
-				{
-					StopAnimation();
-					isMoving = false;
-					finalDestinationLoc = prevTile;
-					currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
-
-					//               if (enemyAI)
-					//                   enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
-					//else if (!trader)
-					// military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
-
-					yield break;
-				}
-			}
+            }
 			else if (isPlayer)
 			{
                 if (world.IsInNoWalkZone(pathPositions.Peek()))
@@ -640,6 +628,20 @@ public class Unit : MonoBehaviour
                 
                 prevTile = endPositionInt;
 			}
+			else if (ambush && pathPositions.Count == 1) //for going to attack in ambush
+            {
+                StopAnimation();
+                isMoving = false;
+                finalDestinationLoc = prevTile;
+                currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
+
+                if (enemyAI)
+                    enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+                else if (!trader)
+                    military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+
+                yield break;
+            }
 			else
             {
                 prevTile = endPositionInt;

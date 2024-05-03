@@ -312,7 +312,11 @@ public class BasicEnemyAI : MonoBehaviour
 
     public IEnumerator Attack(Unit target)
     {
-		unit.targetBunk = target.military.barracksBunk;
+		if (target.trader)
+			unit.military.enemyAmbush.targetTrader = true;
+		else
+			unit.targetBunk = target.military.barracksBunk;
+
 		unit.attacking = true;
 		float dist = 0;
 		float distThreshold;

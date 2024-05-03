@@ -8,4 +8,5 @@ public class EnemyAmbushData
 	public Vector3Int loc;
 	public List<UnitData> attackingUnits = new();
 	public string attackedTrader;
+	public bool targetTrader;
 }
