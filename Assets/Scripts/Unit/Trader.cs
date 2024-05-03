@@ -1265,6 +1265,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
     public void KillTrader()
     {
+		if (isDead)
+			return;
+		
 		if (isSelected)
 		{
 			world.somethingSelected = false;
@@ -1313,7 +1316,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 					ITradeStop stop = world.GetStop(tradeRouteManager.currentDestination);
 					stop.ClearRestInLine(this, stop);
 				}
-
+					
 				CancelRoute();
 			}
 		}

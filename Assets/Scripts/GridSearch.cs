@@ -307,7 +307,7 @@ public class GridSearch
         return path;
     }
 
-	public static List<Vector3Int> PlayerMoveExempt(MapWorld world, Vector3 startLocation, Vector3Int endPosition, List<Vector3Int> exemptList, bool isPlayer = false)
+	public static List<Vector3Int> PlayerMoveExempt(MapWorld world, Vector3 startLocation, Vector3Int endPosition, HashSet<Vector3Int> exemptList, bool isPlayer = false)
 	{
 		List<Vector3Int> path = new();
 
@@ -1321,7 +1321,7 @@ public class GridSearch
 		return path;
 	}
 
-    public static List<Vector3Int> TerrainSearchMovingTarget(MapWorld world, Vector3Int startTerrain, Queue<Vector3Int> enemyPath, List<Vector3Int> exemptList, bool update, Vector3Int? lastSpot = null)
+    public static List<Vector3Int> TerrainSearchMovingTarget(MapWorld world, Vector3Int startTerrain, Queue<Vector3Int> enemyPath, HashSet<Vector3Int> firstSteps, HashSet<Vector3Int> exemptList, bool update, Vector3Int? lastSpot = null)
     {
 		List<Vector3Int> path = new();
 
@@ -1384,8 +1384,16 @@ public class GridSearch
 				{
 					Vector3Int neighbor = tile + current;
 
-					if (!world.PlayerCheckIfPositionIsValid(neighbor)) //If it's an obstacle, ignore
-						continue;
+					if (firstSteps.Contains(neighbor))
+					{
+						if (!world.CheckIfPositionIsValid(neighbor))
+							continue;
+					}
+					else
+					{
+						if (!world.PlayerCheckIfPositionIsValid(neighbor)) 
+							continue;
+					}
 
 					if (world.CheckIfEnemyTerritory(neighbor) && !exemptList.Contains(neighbor))
 						continue;

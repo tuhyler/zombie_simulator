@@ -1362,7 +1362,7 @@ public class MapWorld : MonoBehaviour
                 city.enemyCamp.actualAttackLoc = enemyData.actualAttackLoc;
                 city.countDownTimer = enemyData.countDownTimer;
 
-                if (city.enemyCamp.movingOut && !city.enemyCamp.returning)
+                if (city.enemyCamp.movingOut && !city.enemyCamp.returning && !city.enemyCamp.pillage)
                     AddBattleZones(city.enemyCamp.actualAttackLoc, city.enemyCamp.threatLoc, city.enemyCamp.inBattle);
 
                 if ((city.enemyCamp.inBattle || city.enemyCamp.movingOut) && !city.enemyCamp.returning && city.enemyCamp.campCount != 0)
@@ -2037,7 +2037,7 @@ public class MapWorld : MonoBehaviour
                     if (GetTerrainDataAt(city.cityLoc).isDiscovered)
                         cityImprovement.StartJustWorkAnimation();
                     else
-                        cityImprovement.RevealImprovement();
+                        cityImprovement.RevealImprovement(true);
                 }
             }
             else
@@ -3698,7 +3698,7 @@ public class MapWorld : MonoBehaviour
         for (int i = 0; i < directions.Count; i++)
         {
 			Vector3 pos = directions[i];
-		    float distance = 1.5f;
+		    float distance = i % 2 == 0 ? 1.5f : 2.1f;
 
             if (i == 8)
                 rayCastLoc.y += 1.3f;
@@ -5537,10 +5537,15 @@ public class MapWorld : MonoBehaviour
         for (int i = 0; i < zones.Length; i++)
         {
             TerrainData td = GetTerrainDataAt(zones[i]);
+
             td.hasBattle = true;
-            td.canPlayerWalk = false;
-            td.canPlayerSail = false;
-            td.canPlayerFly = false;
+            
+            if (!IsCityOnTile(zones[i])) //can still walk on city tiles
+            {
+                td.canPlayerWalk = false;
+                td.canPlayerSail = false;
+                td.canPlayerFly = false;
+            }
 
             if (inBattle)
             {
@@ -5983,10 +5988,10 @@ public class MapWorld : MonoBehaviour
         return neutralZones.Contains(GetClosestTerrainLoc(loc));
     }
 
-	public List<Vector3Int> GetExemptList(Vector3 endLoc)
+	public HashSet<Vector3Int> GetExemptList(Vector3 endLoc)
 	{
         Vector3Int newEndLoc = GetClosestTerrainLoc(endLoc);
-        List<Vector3Int> exemptList = new() { newEndLoc };
+        HashSet<Vector3Int> exemptList = new() { newEndLoc };
 
 		foreach (Vector3Int tile in GetNeighborsFor(newEndLoc, MapWorld.State.EIGHTWAYINCREMENT))
 			exemptList.Add(tile);
@@ -6166,7 +6171,7 @@ public class MapWorld : MonoBehaviour
 						SetRoadActive(tile);
 
 					if (cityImprovementDict.ContainsKey(tile))
-						cityImprovementDict[tile].RevealImprovement();
+						cityImprovementDict[tile].RevealImprovement(false);
 
 					if (IsTradeCenterOnTile(tile))
 						    GetTradeCenter(tile).Reveal();
@@ -9163,6 +9168,8 @@ public interface ITradeStop
         if (waitList.Contains(trader))
 		{
 			int index = waitList.IndexOf(trader);
+            trader.isWaiting = false;
+            targetList.Remove(trader);
 			waitList.RemoveAt(index);
 
 			for (int i = index; i < waitList.Count; i++)

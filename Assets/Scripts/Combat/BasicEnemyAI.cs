@@ -54,6 +54,9 @@ public class BasicEnemyAI : MonoBehaviour
 			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(1, 0, 0) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(-1, 0, 0) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, -forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, -forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -forward.z) + unit.currentLocation);
 		}
 		else
 		{
@@ -61,6 +64,9 @@ public class BasicEnemyAI : MonoBehaviour
 			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, -1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 0) + unit.currentLocation);
 		}
 
 		//just in case
@@ -165,6 +171,9 @@ public class BasicEnemyAI : MonoBehaviour
 			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(1, 0, 0) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(-1, 0, 0) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, -forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, -forward.z) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -forward.z) + unit.currentLocation);
 		}
 		else
 		{
@@ -172,6 +181,9 @@ public class BasicEnemyAI : MonoBehaviour
 			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, 1) + unit.currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, -1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, -1) + unit.currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 0) + unit.currentLocation);
 		}
 
 		if (unit.enemyCamp.attackingArmy == null)

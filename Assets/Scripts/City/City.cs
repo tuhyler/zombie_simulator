@@ -1439,6 +1439,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         bool firstOne = true;
         for (int i = 0; i < cityList.Count; i++)
         {
+            if (cityList[i].attacked) //can't attack the same city mroe than once
+                continue;
+            
             if (cityList[i].currentPop < 4 && (!cityList[i].singleBuildDict.ContainsKey(SingleBuildType.Barracks) || cityList[i].army.UnitsInArmy.Count == 0))
             {
                 smallCityLocList.Add(i);

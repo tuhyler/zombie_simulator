@@ -504,7 +504,7 @@ public class UnitMovement : MonoBehaviour
 						}
                         else 
                         {
-							if (homeBase.army.DeployArmyMovingTargetCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), unit.enemyCamp.cityLoc, unit.enemyCamp.pathToTarget, unit.enemyCamp.lastSpot))
+							if (homeBase.army.DeployArmyMovingTargetCheck(world.GetClosestTerrainLoc(selectedUnit.currentLocation), unit.enemyCamp.threatLoc, homeBase.cityLoc, unit.enemyCamp.cityLoc, unit.enemyCamp.pathToTarget, unit.enemyCamp.lastSpot))
                             {
 							    for (int i = 0; i < unit.enemyCamp.UnitsInCamp.Count; i++)
                                     unit.enemyCamp.UnitsInCamp[i].SoftSelect(Color.white);

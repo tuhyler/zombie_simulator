@@ -255,6 +255,9 @@ public class Military : Unit
 			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + currentLocation);
 			attackingZones.Add(new Vector3Int(1, 0, 0) + currentLocation);
 			attackingZones.Add(new Vector3Int(-1, 0, 0) + currentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, -forward.z) + currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, -forward.z) + currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -forward.z) + currentLocation);
 		}
 		else
 		{
@@ -262,6 +265,9 @@ public class Military : Unit
 			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, 1) + currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, -1) + currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 1) + currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, -1) + currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 0) + currentLocation);
 		}
 
 		foreach (Vector3Int zone in attackingZones)
@@ -366,6 +372,9 @@ public class Military : Unit
 			attackingZones.Add(new Vector3Int(-1, 0, forward.z) + currentLocation);
 			attackingZones.Add(new Vector3Int(1, 0, 0) + currentLocation);
 			attackingZones.Add(new Vector3Int(-1, 0, 0) + currentLocation);
+			attackingZones.Add(new Vector3Int(1, 0, -forward.z) + currentLocation);
+			attackingZones.Add(new Vector3Int(-1, 0, -forward.z) + currentLocation);
+			attackingZones.Add(new Vector3Int(0, 0, -forward.z) + currentLocation);
 		}
 		else
 		{
@@ -373,6 +382,9 @@ public class Military : Unit
 			attackingZones.Add(new Vector3Int(forward.x, 0, -1) + currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, 1) + currentLocation);
 			attackingZones.Add(new Vector3Int(0, 0, -1) + currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 1) + currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, -1) + currentLocation);
+			attackingZones.Add(new Vector3Int(-forward.x, 0, 0) + currentLocation);
 		}
 
 		foreach (Vector3Int zone in attackingZones)
@@ -1140,7 +1152,7 @@ public class Military : Unit
 		}
 	}
 
-	public void KillMilitaryUnit()
+	public void KillMilitaryUnit(Vector3 rotation)
 	{
 		AttackCheck();
 		world.RemoveUnitPosition(currentLocation);
@@ -1195,6 +1207,14 @@ public class Military : Unit
 
 			army.RemoveFromArmy(this, barracksBunk, false);
 			army.DeadList.Add(this);
+
+			Vector3Int currentLoc = world.RoundToInt(transform.position);
+			if (world.IsTraderLocationTaken(currentLoc))
+			{
+				List<Trader> tempTraderList = new(world.GetTrader(currentLoc));
+				for (int i = 0; i < tempTraderList.Count; i++)
+					tempTraderList[i].KillUnit(rotation);
+			}
 		}
 	}
 
@@ -1440,7 +1460,7 @@ public class Military : Unit
 		{
 			Vector3Int endPosition = world.RoundToInt(finalDestinationLoc);
 
-			if (!readyToMarch)
+			if (isMarching && !readyToMarch)
 			{
 				if (data.moveOrders.Count == 0)
 					data.moveOrders.Add(endPosition);
