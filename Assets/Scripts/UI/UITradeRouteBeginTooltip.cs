@@ -6,7 +6,7 @@ using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
+public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 {
 	[SerializeField]
 	private MapWorld world;
@@ -21,7 +21,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 	private GameObject beginButton, addGuardButton;
 
 	private List<UIResourceInfoPanel> costsInfo = new();
-	private List<ResourceType> cantAffordList = new();
+	private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
 
 	[HideInInspector]
 	public bool cantAfford;
@@ -90,12 +90,14 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 
 			gameObject.SetActive(val);
 			activeStatus = true;
+			world.iTooltip = this;
 			world.goldUpdateCheck = this;
 			LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
 		}
 		else
 		{
 			cantAffordList.Clear();
+			resourceTypeList.Clear();
 			if (!confirm)
 				ResetTrader();
 			this.trader = null;
@@ -103,6 +105,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 			homeCity = null;
 
 			activeStatus = false;
+			world.iTooltip = null;
 			world.goldUpdateCheck = null;
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
 		}
@@ -111,7 +114,8 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 	private void SetActiveStatusFalse()
 	{
 		gameObject.SetActive(false);
-		world.infoPopUpCanvas.gameObject.SetActive(false);
+		if (world.iTooltip == null)
+			world.infoPopUpCanvas.gameObject.SetActive(false);
 	}
 
 	private void SetResourcePanelInfo(List<UIResourceInfoPanel> panelList, List<ResourceValue> resourceList, ResourceManager manager)
@@ -133,6 +137,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 			}
 			else
 			{
+				resourceTypeList.Add(resourceList[i].resourceType);
 				panelList[i].gameObject.SetActive(true);
 				panelList[i].SetResourceAmount(resourceList[i].resourceAmount);
 				panelList[i].SetResourceType(resourceList[i].resourceType);
@@ -166,10 +171,10 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 		}
 	}
 
-	public bool CityCheck(City city)
-	{
-		return activeStatus && this.startingCity == city;
-	}
+	//public bool CityCheck(City city)
+	//{
+	//	return activeStatus && this.startingCity == city;
+	//}
 
 	public void ToggleAddGuard(bool v)
 	{
@@ -311,5 +316,11 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck
 		}
 
 		transform.localPosition = initialPos;
+	}
+
+	public void CheckResource(City city, int amount, ResourceType type)
+	{
+		if (startingCity == city && resourceTypeList.Contains(type))
+			UpdateRouteCost(amount, type);
 	}
 }

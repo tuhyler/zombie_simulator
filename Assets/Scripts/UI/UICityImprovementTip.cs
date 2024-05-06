@@ -7,7 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UICityImprovementTip : MonoBehaviour
+public class UICityImprovementTip : MonoBehaviour, ITooltip
 {
     [SerializeField]
     private MapWorld world;
@@ -47,7 +47,7 @@ public class UICityImprovementTip : MonoBehaviour
     [HideInInspector]
     public bool activeStatus;
 
-    private void Awake()
+	private void Awake()
     {
         transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
@@ -86,7 +86,7 @@ public class UICityImprovementTip : MonoBehaviour
         if (val)
         {
             world.cityBuilderManager.PlayAudioClip(improvement.GetImprovementData.audio);
-            
+            world.iTooltip = this;
             highlightList[highlightIndex].gameObject.SetActive(false); // turn off previous one
             this.improvement = improvement;
             ResourceProducer producer = improvement.resourceProducer;
@@ -152,6 +152,7 @@ public class UICityImprovementTip : MonoBehaviour
         }
         else
         {
+            world.iTooltip = null;
             this.improvement.DisableHighlight();
             this.improvement = null;
             activeStatus = false;
@@ -162,7 +163,8 @@ public class UICityImprovementTip : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        world.infoPopUpCanvas.gameObject.SetActive(false);
+        if (world.iTooltip == null)
+            world.infoPopUpCanvas.gameObject.SetActive(false);
     }
 
     private void SetData(CityImprovement improvement)
@@ -581,5 +583,10 @@ public class UICityImprovementTip : MonoBehaviour
 	{
         if (activeStatus && this.improvement == improvement)
             ToggleVisibility(false);
+	}
+
+	public void CheckResource(City city, int amount, ResourceType type)
+	{
+		
 	}
 }

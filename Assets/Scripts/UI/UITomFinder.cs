@@ -27,6 +27,7 @@ public class UITomFinder : MonoBehaviour
         world.CloseWonders();
         world.CloseMap();
         world.CloseTerrainTooltipButton();
+        world.CloseTransferTooltip();
         world.CloseImprovementTooltipButton();
         world.CloseCampTooltipButton();
         world.CloseTradeRouteBeginTooltipButton();

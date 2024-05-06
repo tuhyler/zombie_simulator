@@ -701,10 +701,10 @@ public class Army : MonoBehaviour
 		}
 	}
 
-	public bool DeployBattleScreenCheck()
-    {
-        return world.uiCampTooltip.EnemyScreenActiveForArmy(this);
-    }
+	//public bool DeployBattleScreenCheck()
+ //   {
+ //       return world.uiCampTooltip.EnemyScreenActiveForArmy(this);
+ //   }
 
     public List<ResourceValue> CalculateBattleCost(int enemyStrength)
     {

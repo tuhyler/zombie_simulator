@@ -174,6 +174,11 @@ MonoBehaviour:
   campIcon: {fileID: 21300000, guid: 15e89b14f7d52bc43a8792ab9d89cb4e, type: 3}
   cityIcon: {fileID: 21300000, guid: cbaf4785a80e539408ffd2b8cafc56ae, type: 3}
   enemyCityIcon: {fileID: 21300000, guid: abe97aedf89bef74eb7fec3a41b8c5ea, type: 3}
+  laborTransferCost:
+  - resourceType: 2
+    resourceAmount: 1
+  - resourceType: 1
+    resourceAmount: 1
   cityName: 
   cityLoc: {x: 0, y: 0, z: 0}
   waitingAttackLoc: {x: 0, y: 0, z: 0}

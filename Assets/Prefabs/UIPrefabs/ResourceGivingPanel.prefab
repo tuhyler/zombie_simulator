@@ -130,14 +130,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   world: {fileID: 0}
+  uiResourceSubPanel: {fileID: 0}
   tradeRepImage: {fileID: 8259286154662552542}
   unitNameTitle: {fileID: 4595488942853610281}
   giftedResource: {fileID: 8404703879808770064}
   confirmButton: {fileID: 7147821009518980038}
-  posGiftResponse: {fileID: 6041035029305573530, guid: a0376797f6bfd174296d36140953daf0,
-    type: 3}
-  negGiftResponse: {fileID: 6041035029305573530, guid: 68276fa7cc524a54cb1ae4452bcccb88,
-    type: 3}
   OnIconButtonClick:
     m_PersistentCalls:
       m_Calls:
@@ -157,7 +154,7 @@ MonoBehaviour:
   nameHolder: {fileID: 3665275582657554054}
   activeStatus: 0
   showingResource: 0
-  npc: {fileID: 0}
+  tradeRep: {fileID: 0}
 --- !u!1 &4498985694958448519
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,7 +459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}

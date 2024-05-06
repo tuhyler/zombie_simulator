@@ -44,9 +44,9 @@ public class TerrainData : MonoBehaviour
     public int MovementCost { get { return movementCost; } set { movementCost = value; } }
 
     public bool changeLeafColor;
-    [HideInInspector]
-    public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
-        showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly; //walkable is when it's not discovered, canWalk is when it is, canPlayerWalk includes battlezones
+    [HideInInspector] //walkable is when it's not discovered, canWalk is when it is, canPlayerWalk includes battlezones
+	public bool isHill, hasRoad, hasResourceMap, walkable, sailable, enemyCamp, enemyZone, isSeaCorner, isLand = true, isGlowing = false, isDiscovered = true, beingCleared, 
+        showProp = true, hasNonstatic, straightRiver, border, hasBattle, inBattle, canWalk, canPlayerWalk, canSail, canPlayerSail, canFly, canPlayerFly; 
 
     //[HideInInspector]
     //public List<GameObject> enemyBorders = new();
@@ -71,8 +71,6 @@ public class TerrainData : MonoBehaviour
     public ResourceType resourceType;
     public int resourceAmount;
     private int[] rotations = new int[4] { 0, 90, 180, 270 };
-    //[HideInInspector]
-    //public string originalTag;
 
     private void Awake()
     {
@@ -81,6 +79,8 @@ public class TerrainData : MonoBehaviour
         terrainData.MovementCostCheck();
         ResetMovementCost();
         highlight = GetComponentInChildren<SelectionHighlight>();
+        if (flatlandFP != null)
+            flatlandFP.SetActive(false); //hide after adding to selectionhighlight
         if (highlightPlane != null)
         {
             highlightPlane.SetActive(false);

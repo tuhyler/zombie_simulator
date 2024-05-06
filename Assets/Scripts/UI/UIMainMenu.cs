@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 
-public class UIMainMenu : MonoBehaviour
+public class UIMainMenu : MonoBehaviour, IImmoveable
 {
 	[SerializeField]
 	private MapWorld world;
@@ -68,6 +68,7 @@ public class UIMainMenu : MonoBehaviour
 			world.uiWorldResources.SetInteractable(false);
 			world.uiMainMenuButton.ToggleButtonColor(true);
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, " ");
+			world.iImmoveable = this;
 
 			activeStatus = true;
 			world.UnselectAll();
@@ -99,6 +100,7 @@ public class UIMainMenu : MonoBehaviour
 			world.uiWorldResources.SetInteractable(true);
 			world.uiMainMenuButton.ToggleButtonColor(false);
 			world.BattleCamCheck(false);
+			world.iImmoveable = null;
 
 			//world.immoveableCanvas.gameObject.SetActive(false);
 			Time.timeScale = 1;
@@ -127,7 +129,9 @@ public class UIMainMenu : MonoBehaviour
 	private void SetActiveStatusFalse()
 	{
 		gameObject.SetActive(false);
-		world.ImmoveableCheck();
+		if (world.iImmoveable == null)
+			world.immoveableCanvas.gameObject.SetActive(false);
+		//world.ImmoveableCheck();
 		//if (!world.openingImmoveable)
 		//	world.immoveableCanvas.gameObject.SetActive(false);
 		//else

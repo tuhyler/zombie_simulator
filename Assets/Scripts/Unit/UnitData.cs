@@ -12,7 +12,7 @@ public class UnitData : IUnitData
     public Vector3 position; 
 	public Vector3Int campSpot; //campSpot is for enemy camps
 	public Quaternion rotation;
-    public List<Vector3Int> moveOrders;
+    public List<Vector3Int> moveOrders, switchLocs;
 	public bool secondaryPrefab, isMoving;
 	public Vector3 destinationLoc;
     public Vector3 finalDestinationLoc;

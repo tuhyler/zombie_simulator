@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UITerrainTooltip : MonoBehaviour
+public class UITerrainTooltip : MonoBehaviour, ITooltip
 {
     [SerializeField]
     private MapWorld world;
@@ -52,6 +52,7 @@ public class UITerrainTooltip : MonoBehaviour
         if (val)
         {
             this.td = td;
+            world.iTooltip = this;
             SetData(this.td);
             this.td.EnableHighlight(Color.white);
             gameObject.SetActive(val);
@@ -77,6 +78,7 @@ public class UITerrainTooltip : MonoBehaviour
         }
         else
         {
+            world.iTooltip = null;
             this.td.DisableHighlight();
             if (world.GetClosestTerrainLoc(world.mainPlayer.transform.position) == this.td.TileCoordinates)
                 this.td.ToggleTransparentForest(true);
@@ -88,7 +90,8 @@ public class UITerrainTooltip : MonoBehaviour
 
     private void SetActiveStatusFalse()
     {
-        world.infoPopUpCanvas.gameObject.SetActive(false);
+        if (world.iTooltip == null)
+            world.infoPopUpCanvas.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
 
@@ -177,5 +180,10 @@ public class UITerrainTooltip : MonoBehaviour
                 }
             }
         }
+	}
+
+	public void CheckResource(City city, int amount, ResourceType type)
+	{
+		
 	}
 }

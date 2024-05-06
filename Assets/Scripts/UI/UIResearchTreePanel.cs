@@ -8,7 +8,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System.Linq;
 
-public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
+public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveable
 {
     [SerializeField]
     public MapWorld world;
@@ -137,6 +137,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             world.ToggleMinimap(false);
 			//world.openingImmoveable = true;
 			world.immoveableCanvas.gameObject.SetActive(true);
+            world.iImmoveable = this;
 			world.BattleCamCheck(true);
 			gameObject.SetActive(v);
             world.somethingSelected = true;
@@ -180,6 +181,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
             queueButton.color = originalColor;
             activeStatus = false;
 			world.BattleCamCheck(false);
+            world.iImmoveable = null;
 
 			LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 15, 0.3f)
             .setEase(LeanTweenType.easeOutSine)
@@ -196,7 +198,9 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-		world.ImmoveableCheck();
+		if (world.iImmoveable == null)
+			world.immoveableCanvas.gameObject.SetActive(false);
+		//world.ImmoveableCheck();
 		//     if (!world.openingImmoveable)
 		//         world.immoveableCanvas.gameObject.SetActive(false);
 		//     else
