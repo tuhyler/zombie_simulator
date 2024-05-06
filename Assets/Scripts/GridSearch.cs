@@ -1506,6 +1506,80 @@ public class GridSearch
 		return false;
 	}
 
+	public static int TraderMovementCheckLength(MapWorld world, Vector3Int startPosition, Vector3Int endPosition, bool bySea)
+	{
+		if (bySea)
+			return TraderSeaMovementCheckLength(world, startPosition, endPosition);
+
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current.Equals(endPosition))
+			{
+				return parentsDictionary.Count();
+			}
+
+			foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYINCREMENT))
+			{
+				if (!world.IsRoadOnTileLocation(neighbor) || world.CheckIfEnemyTerritory(neighbor))
+					continue;
+
+				if (!priorityDictionary.ContainsKey(neighbor))
+				{
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = ManhattanDistance(endPosition, neighbor);
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+		return 0;
+	}
+
+	public static int TraderSeaMovementCheckLength(MapWorld world, Vector3Int startPosition, Vector3Int endPosition)
+	{
+		List<Vector3Int> positionsToCheck = new();
+		Dictionary<Vector3Int, int> priorityDictionary = new();
+		Dictionary<Vector3Int, Vector3Int?> parentsDictionary = new();
+
+		positionsToCheck.Add(startPosition);
+		priorityDictionary.Add(startPosition, 0);
+
+		while (positionsToCheck.Count > 0)
+		{
+			Vector3Int current = GetClosestVertex(positionsToCheck, priorityDictionary);
+
+			positionsToCheck.Remove(current);
+			if (current.Equals(endPosition))
+			{
+				return parentsDictionary.Count();
+			}
+
+			foreach (Vector3Int neighbor in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYINCREMENT))
+			{
+				if (!world.CheckIfSeaPositionIsValid(neighbor) || world.CheckIfEnemyTerritory(neighbor))
+					continue;
+
+				if (!priorityDictionary.ContainsKey(neighbor))
+				{
+					positionsToCheck.Add(neighbor);
+					priorityDictionary[neighbor] = ManhattanDistance(endPosition, neighbor);
+					parentsDictionary[neighbor] = current;
+				}
+			}
+		}
+
+		return 0;
+	}
+
 
 	public static Vector3Int GetClosestVertex(List<Vector3Int> list, Dictionary<Vector3Int, int> distanceMap)
     {

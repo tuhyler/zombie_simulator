@@ -115,9 +115,6 @@ public class WorkerTaskManager : MonoBehaviour
             
             if (world.scottFollow && world.scott.isMoving)
                 world.scott.GoToPosition(workerTile, true);
-
-            //if (world.azaiFollow && world.azai.isMoving)
-            //    world.azai.GoToPosition(workerTile, false);
 		}
 		else
 		{
@@ -339,6 +336,26 @@ public class WorkerTaskManager : MonoBehaviour
                 moveUp.y += .2f;
                 worker.transform.position = moveUp;
                 roadManager.BuildRoadAtPosition(workerTile, UtilityType.Road, level);
+
+                if (world.scottFollow)
+                {
+                    if (world.IsRoadOnTileLocation(world.scott.currentLocation))
+                    {
+                        Vector3 moveScottUp = world.scott.transform.position;
+                        moveScottUp.y += .2f;
+                        world.scott.transform.position = moveScottUp;
+                    }
+                }
+
+                if (world.azaiFollow)
+                {
+					if (world.IsRoadOnTileLocation(world.azai.currentLocation))
+					{
+						Vector3 moveAzaiUp = world.azai.transform.position;
+						moveAzaiUp.y += .2f;
+						world.azai.transform.position = moveAzaiUp;
+					}
+				}
             }
         }
         

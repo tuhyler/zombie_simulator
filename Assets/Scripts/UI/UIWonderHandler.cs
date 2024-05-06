@@ -5,7 +5,7 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
-public class UIWonderHandler : MonoBehaviour
+public class UIWonderHandler : MonoBehaviour, IImmoveable
 {
     [SerializeField]
     public MapWorld world;
@@ -116,6 +116,7 @@ public class UIWonderHandler : MonoBehaviour
             gameObject.SetActive(v);
             //world.openingImmoveable = true;
             world.immoveableCanvas.gameObject.SetActive(true);
+            world.iImmoveable = this;
 			world.BattleCamCheck(true);
 			activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
@@ -136,6 +137,7 @@ public class UIWonderHandler : MonoBehaviour
         {
 			world.BattleCamCheck(false);
 			activeStatus = false;
+            world.iImmoveable = null;
 
             if (somethingNew)
             {
@@ -168,7 +170,9 @@ public class UIWonderHandler : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-		world.ImmoveableCheck();
+		if (world.iImmoveable == null)
+			world.immoveableCanvas.gameObject.SetActive(false);
+		//world.ImmoveableCheck();
 		//     if (!world.openingImmoveable)
 		//         world.immoveableCanvas.gameObject.SetActive(false);
 		//     else

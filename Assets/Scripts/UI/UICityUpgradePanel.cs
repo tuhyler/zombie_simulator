@@ -26,6 +26,7 @@ public class UICityUpgradePanel : MonoBehaviour
     private Unit unit;
     private bool cannotAfford;
     private List<ResourceValue> upgradeCost = new(), refundCost = new();
+    private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
     List<List<ResourceValue>> consumes = new();
     List<int> produceTime = new();
 
@@ -33,7 +34,7 @@ public class UICityUpgradePanel : MonoBehaviour
     [HideInInspector]
     public bool activeStatus;
 
-    private void Awake()
+	private void Awake()
     {
         transform.localScale = Vector3.zero;
         gameObject.SetActive(false);
@@ -177,18 +178,19 @@ public class UICityUpgradePanel : MonoBehaviour
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        world.infoPopUpCanvas.gameObject.SetActive(false);
     }
 
     private void ResetData()
     {
         activeStatus = false;
-        this.improvement = null;
-        this.unit = null;
+        improvement = null;
+        unit = null;
         upgradeCost.Clear();
         refundCost.Clear();
         consumes.Clear();
         produceTime.Clear();
+        cantAffordList.Clear();
+        resourceTypeList.Clear();
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> produces,
@@ -402,7 +404,7 @@ public class UICityUpgradePanel : MonoBehaviour
             else
             {
                 resourcesToShow[i].gameObject.SetActive(true);
-
+                resourceTypeList.Add(resourcesInfo[i].resourceType);
                 resourcesToShow[i].SetResourceAmount(resourcesInfo[i].resourceAmount);
                 resourcesToShow[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourcesInfo[i].resourceType);
                 resourcesToShow[i].SetResourceType(resourcesInfo[i].resourceType);
@@ -522,29 +524,74 @@ public class UICityUpgradePanel : MonoBehaviour
         transform.localPosition = initialPos;
     }
 
-    public void CheckCosts(ResourceManager resourceManager)
+    public void ResourceCheck(int amount, ResourceType type)
     {
-        bool cannotAffordTemp = false;
-        
-        int i = 0;
-        foreach (ResourceValue value in upgradeCost)
-        {
-            if (resourceManager.CheckResourceAvailability(value))
-            {
-                costsInfo[i].resourceAmountText.color = Color.white;
-            }
-            else
-            {
-                cannotAffordTemp = true;
-                costsInfo[i].resourceAmountText.color = Color.red;
-            }
-
-            i++;
-
-        }
-
-        cannotAfford = cannotAffordTemp;
+        if (resourceTypeList.Contains(type))
+            UpdateResource(amount, type);
     }
+
+	private void UpdateResource(int amount, ResourceType type)
+	{
+		bool tempCantAfford = false;
+
+		for (int i = 0; i < costsInfo.Count; i++)
+		{
+			if (i >= upgradeCost.Count || type != costsInfo[i].resourceType)
+				continue;
+
+			if (amount >= upgradeCost[i].resourceAmount)
+			{
+				costsInfo[i].resourceAmountText.color = Color.white;
+			}
+			else
+			{
+				costsInfo[i].resourceAmountText.color = Color.red;
+				tempCantAfford = true;
+			}
+
+			break;
+		}
+
+		if (cantAffordList.Contains(type))
+		{
+			if (!tempCantAfford)
+				cantAffordList.Remove(type);
+		}
+		else
+		{
+			if (tempCantAfford)
+				cantAffordList.Add(type);
+		}
+
+		if (cantAffordList.Count == 0)
+			cannotAfford = false;
+		else
+			cannotAfford = true;
+	}
+
+	//public void CheckCosts(ResourceManager resourceManager)
+ //   {
+ //       bool cannotAffordTemp = false;
+        
+ //       int i = 0;
+ //       foreach (ResourceValue value in upgradeCost)
+ //       {
+ //           if (resourceManager.CheckResourceAvailability(value))
+ //           {
+ //               costsInfo[i].resourceAmountText.color = Color.white;
+ //           }
+ //           else
+ //           {
+ //               cannotAffordTemp = true;
+ //               costsInfo[i].resourceAmountText.color = Color.red;
+ //           }
+
+ //           i++;
+
+ //       }
+
+ //       cannotAfford = cannotAffordTemp;
+ //   }
 
     public void CloseWindow()
     {

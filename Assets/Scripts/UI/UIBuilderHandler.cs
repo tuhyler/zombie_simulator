@@ -9,7 +9,7 @@ using System.Resources;
 using static UnityEditor.Progress;
 using UnityEngine.UIElements;
 
-public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck
+public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 {
     [HideInInspector]
     public string tabName;
@@ -175,6 +175,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck
         if (v)
         {
             gameObject.SetActive(v);
+            cityBuilderManager.world.iImmoveable = this;
             activeStatus = true;
             cityBuilderManager.world.goldUpdateCheck = this;
             cityBuilderManager.buildOptionsActive = true;
@@ -245,6 +246,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck
             cityBuilderManager.buildOptionsActive = false;
             cityBuilderManager.activeBuilderHandler = null;
 			cityBuilderManager.world.BattleCamCheck(false);
+            cityBuilderManager.world.iImmoveable = null;
 
 			if (this.somethingNew)
             {
@@ -299,7 +301,9 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck
     private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
-        cityBuilderManager.world.ImmoveableCheck();
+        if (cityBuilderManager.world.iImmoveable == null)
+			cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
+		//cityBuilderManager.world.ImmoveableCheck();
    //     if (!cityBuilderManager.world.openingImmoveable)
    //         cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
    //     else

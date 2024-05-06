@@ -556,6 +556,14 @@ public class Unit : MonoBehaviour
 					}
                 }
             }
+            else if (military.transferring)
+            {
+                if (military.switchLocs.Contains(endPositionInt))
+                {
+                    if (world.GetCityDevelopment(endPositionInt).GetImprovementData.singleBuildType == SingleBuildType.Harbor)
+                        military.ToggleBoat(endPositionInt == military.switchLocs[0]);
+                }
+            }
 		}
 
 		if (pathPositions.Count > 0)
@@ -773,7 +781,7 @@ public class Unit : MonoBehaviour
         }
         else if (isLaborer)
         {
-			world.unitMovement.LaborerJoin(this);
+            GetComponent<Laborer>().FinishMovementLaborer();
 		}
     }
 
@@ -844,9 +852,16 @@ public class Unit : MonoBehaviour
         transform.position = loc;
 
         if (military && !military.guard)
-            world.AddUnitPosition(currentLocation, this);
+        {
+            if (military.atSea)
+                military.ToggleBoat(false);
+            FinishMoving(loc);
+            //world.AddUnitPosition(currentLocation, this);           
+        }
         else if (trader)
+        {
             world.AddTraderPosition(currentLocation, trader);
+        }
     }
 
     public void Reveal()
@@ -964,6 +979,7 @@ public class Unit : MonoBehaviour
 
     public void TurnOffRipples()
     {
+		LeanTween.cancel(ripples.gameObject);
 		LeanTween.alpha(ripples, 0f, 0.5f).setFrom(1f).setEase(LeanTweenType.linear).setOnComplete(SetActiveStatusFalse);
 	}
 
@@ -1093,8 +1109,8 @@ public class Unit : MonoBehaviour
 	{
 		if (!isMoving)
 		{
-			ripples.SetActive(true);
-			//for tweening
+            LeanTween.cancel(ripples.gameObject);
+            ripples.SetActive(true);
 			LeanTween.alpha(ripples, 1f, 0.2f).setFrom(0f).setEase(LeanTweenType.linear);
 		}
 	}
@@ -1129,6 +1145,9 @@ public class Unit : MonoBehaviour
 
     public void KillUnit(Vector3 rotation)
     {
+        if (isDead)
+            return;
+        
         isDead = true;
         if (military)
         {
@@ -1150,21 +1169,13 @@ public class Unit : MonoBehaviour
         unitRigidbody.useGravity = false;
 
 		if (enemyAI)
-        {
             military.KillMilitaryEnemyUnit();
-		}
         else if (military)
-        {
             military.KillMilitaryUnit(rotation);
-		}
 		else if (trader)
-        {
             trader.KillTrader();
-		}
         else if (isLaborer)
-        {
             GetComponent<Laborer>().KillLaborer();
-		}
 
 		Unhighlight();
     }

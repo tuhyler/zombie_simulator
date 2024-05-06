@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public class UIConversationTaskManager : MonoBehaviour
+public class UIConversationTaskManager : MonoBehaviour, IImmoveable
 {
 	[SerializeField]
 	private MapWorld world;
@@ -58,6 +58,7 @@ public class UIConversationTaskManager : MonoBehaviour
 		if (v)
 		{
 			world.UnselectAll();
+			world.iImmoveable = this;
 			world.cameraController.paused = true;
 			minimapHandler.paused = true;
 			world.mapHandler.SetInteractable(false);
@@ -92,6 +93,7 @@ public class UIConversationTaskManager : MonoBehaviour
 			world.uiTomFinder.ToggleButtonOn(true);
 			world.mapHandler.SetInteractable(true);
 			world.BattleCamCheck(false);
+			world.iImmoveable = null;
 
 			activeStatus = false;
 
@@ -108,7 +110,9 @@ public class UIConversationTaskManager : MonoBehaviour
 	private void SetActiveStatusFalse()
 	{
 		gameObject.SetActive(false);
-		world.ImmoveableCheck();
+		if (world.iImmoveable == null)
+			world.immoveableCanvas.gameObject.SetActive(false);
+		//world.ImmoveableCheck();
 	}
 
 	public void CloseWindow()

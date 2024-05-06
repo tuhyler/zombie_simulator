@@ -825,6 +825,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			}
         }
 
+		movingUpInLine = true;
         isWaiting = false;
 		originalMoveSpeed = buildDataSO.movementSpeed;
 		if (LoadUnloadCo != null)
@@ -1265,9 +1266,6 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
     public void KillTrader()
     {
-		if (isDead)
-			return;
-		
 		if (isSelected)
 		{
 			world.somethingSelected = false;

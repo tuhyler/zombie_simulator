@@ -79,7 +79,9 @@ public class MapWorld : MonoBehaviour
     public UITradeRouteBeginTooltip uiTradeRouteBeginTooltip;
     [SerializeField]
     public UICityPopIncreasePanel uiCityPopIncreasePanel;
-    [SerializeField]
+	[SerializeField]
+	public UILaborDestinationWindow uiLaborDestinationWindow;
+	[SerializeField]
     public UITomFinder uiTomFinder;
     [SerializeField]
     public UIInfoPopUpHandler uiInfoPopUpHandler;
@@ -116,6 +118,10 @@ public class MapWorld : MonoBehaviour
 
     [HideInInspector]
     public IGoldUpdateCheck goldUpdateCheck;
+    [HideInInspector]
+    public ITooltip iTooltip;
+    [HideInInspector]
+    public IImmoveable iImmoveable;
 	[HideInInspector]
     public Vector3Int startingLoc;
     //wonder info
@@ -3121,6 +3127,7 @@ public class MapWorld : MonoBehaviour
         uiConversationTaskManager.ToggleVisibility(false);
         CloseMap();
         CloseTerrainTooltipButton();
+        CloseTransferTooltip();
         CloseImprovementTooltipButton();
 	}
 
@@ -4177,9 +4184,20 @@ public class MapWorld : MonoBehaviour
         uiTerrainTooltip.ToggleVisibility(false);
     }
 
+	public void CloseTransferTooltip()
+    {
+        uiLaborDestinationWindow.ToggleVisibility(false);
+    }
+
     //city improvement tooltip
     public void OpenImprovementTooltip(CityImprovement improvement)
     {
+        if (improvement.isConstruction)
+        {
+            CloseTooltip();
+            return;
+        }
+        
         if (TooltipCheck())
             return;
 
@@ -4206,7 +4224,13 @@ public class MapWorld : MonoBehaviour
 
     public void OpenCampTooltip(CityImprovement improvement)
     {
-		if (TooltipCheck())
+        if (improvement.isConstruction)
+        {
+            CloseTooltip();
+            return;
+        }
+        
+        if (TooltipCheck())
 			return;
 
 		uiCampTooltip.ToggleVisibility(true, improvement);
@@ -4252,6 +4276,16 @@ public class MapWorld : MonoBehaviour
         tooltip = true;
         infoPopUpCanvas.gameObject.SetActive(true);
         return false;
+	}
+
+    private void CloseTooltip()
+    {
+		if (tooltip)
+		{
+			CloseTerrainTooltipButton();
+			CloseImprovementTooltipButton();
+			CloseCampTooltipButton();
+		}
 	}
 
     public void SetResearchName(string name)
@@ -4971,6 +5005,71 @@ public class MapWorld : MonoBehaviour
 
         return names;
     }
+
+    public (List<string>, List<int>, List<bool>) GetConnectedCityNamesAndDistances(City city, bool citiesOnly, bool bySea, bool byAir, SingleBuildType buildType = SingleBuildType.None)
+    {
+        List<string> names = new();
+        List<int> lengths = new();
+        List<bool> atSeas = new();
+
+		//getting city names first
+		foreach (string name in cityNameDict.Keys)
+		{
+            if (name == city.cityName)
+                continue;
+
+            if (citiesOnly)
+            {
+                if (!cityDict[cityNameDict[name]].singleBuildDict.ContainsKey(buildType))
+                    continue;
+            }
+
+            int length = 0;
+            bool atSea = false;
+
+            if (!bySea && !byAir)
+            {
+                Vector3Int destination = cityNameDict[name];
+                length = GridSearch.TraderMovementCheckLength(this, city.cityLoc, destination, false);
+            }
+
+			if (city.singleBuildDict.ContainsKey(SingleBuildType.Harbor) && cityDict[cityNameDict[name]].singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+			{
+                int harborLength = GridSearch.TraderMovementCheckLength(this, city.singleBuildDict[SingleBuildType.Harbor], cityDict[cityNameDict[name]].singleBuildDict[SingleBuildType.Harbor], true);
+                if (length == 0 || (harborLength != 0 && harborLength < length))
+                {
+                    length = harborLength;
+                    atSea = true;
+                }
+			}
+
+            if (length > 0)
+            {
+                names.Add(name);
+                lengths.Add(length);
+                atSeas.Add(atSea);
+            }
+		}
+
+		if (citiesOnly)
+			return (names, lengths, atSeas);
+
+		//getting wonder names second
+		foreach (string name in wonderConstructionDict.Keys)
+		{
+			Vector3Int destination = wonderConstructionDict[name].unloadLoc; //can only walk to wonders
+			int length = GridSearch.TraderMovementCheckLength(this, city.cityLoc, destination, false);
+
+			if (length > 0)
+			{
+				names.Add(name);
+				lengths.Add(length);
+                atSeas.Add(false);
+			}
+		}
+
+        return (names, lengths, atSeas);
+	}
 
     public Wonder GetWonderByName(string wonder)
     {
@@ -7978,24 +8077,24 @@ public class MapWorld : MonoBehaviour
 			cityCanvas.gameObject.SetActive(false);
 	}
 
-    public void ImmoveableCheck()
-    {
-        bool turnOff = true;
+  //  public void ImmoveableCheck()
+  //  {
+  //      bool turnOff = true;
 
-        if (cityBuilderManager.activeBuilderHandler != null)
-            turnOff = false;
-		if (uiMainMenu.activeStatus)
-			turnOff = false;
-		if (researchTree.activeStatus)
-			turnOff = false;
-		if (wonderHandler.activeStatus)
-			turnOff = false;
-        if (uiConversationTaskManager.activeStatus)
-			turnOff = false;
+  //      if (cityBuilderManager.activeBuilderHandler != null)
+  //          turnOff = false;
+		//if (uiMainMenu.activeStatus)
+		//	turnOff = false;
+		//if (researchTree.activeStatus)
+		//	turnOff = false;
+		//if (wonderHandler.activeStatus)
+		//	turnOff = false;
+  //      if (uiConversationTaskManager.activeStatus)
+		//	turnOff = false;
 
-		if (turnOff)
-            immoveableCanvas.gameObject.SetActive(false);
-    }
+		//if (turnOff)
+  //          immoveableCanvas.gameObject.SetActive(false);
+  //  }
 
     public void GoToNext()
     {
@@ -9064,16 +9163,16 @@ public interface ITradeStop
 
     void RemoveCheck(List<Trader> waitList, Trader trader)
     {
-		if (waitList.Contains(trader))
+		int index = waitList.IndexOf(trader);
+		    
+        if (index >= 0) //if is in waitlist
         {
-			int index = waitList.IndexOf(trader);
 			waitList.RemoveAt(index);
 
-			int j = 0;
 			for (int i = index; i < waitList.Count; i++)
 			{
-				j++;
-				waitList[i].StartMoveUpInLine(j);
+                if (!waitList[i].movingUpInLine)
+				    waitList[i].StartMoveUpInLine(i + 1);
 			}
 		}
         else
@@ -9085,14 +9184,11 @@ public interface ITradeStop
 				nextTrader.ExitLine();
 			}
 
-			if (waitList.Count > 0)
-			{
-                for (int i = 0; i < waitList.Count; i++)
-                {
-					if (!waitList[i].movingUpInLine)
-                        waitList[i].StartMoveUpInLine(i + 1);
+            for (int i = 0; i < waitList.Count; i++)
+            {
+				if (!waitList[i].movingUpInLine)
+                    waitList[i].StartMoveUpInLine(i + 1);
 
-				}
 			}
 		}
 	}
@@ -9188,17 +9284,24 @@ public interface ITradeStop
 			{
                 for (int i = 0; i < waitList.Count; i++)
                 {
-					if (!waitList[i].movingUpInLine)
+                    if (!waitList[i].isDead && waitList[i].followingRoute)
                     {
-                        if (!waitList[i].isDead && waitList[i].followingRoute)
-                        {
-                            waitList[i].isWaiting = false;
-                            targetList.Remove(waitList[i]);
-                            waitList[i].InterruptRoute(true);
-                        }
+                        waitList[i].isWaiting = false;
+                        targetList.Remove(waitList[i]);
+                        waitList[i].InterruptRoute(true);
                     }
 				}
 			}
 		}
 	}
+}
+
+public interface ITooltip
+{
+    void CheckResource(City city, int amount, ResourceType type);
+}
+
+public interface IImmoveable
+{
+
 }

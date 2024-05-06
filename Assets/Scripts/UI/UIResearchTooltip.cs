@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIResearchTooltip : MonoBehaviour
+public class UIResearchTooltip : MonoBehaviour, ITooltip
 {
     public MapWorld world;
     public TMP_Text title, level, costTitle, producesTitle, descriptionTitle, descriptionText, health, speed, strength, workEthicText, housingText, waterText;
@@ -22,8 +22,8 @@ public class UIResearchTooltip : MonoBehaviour
 
     Vector3 cityStatsOriginalLoc;
 
-    //for tweening
-    [HideInInspector]
+	//for tweening
+	[HideInInspector]
     public bool activeStatus;
     //private List<TMP_Text> noneTextList = new();
 
@@ -82,6 +82,7 @@ public class UIResearchTooltip : MonoBehaviour
         if (v)
         {
             world.infoPopUpCanvas.gameObject.SetActive(true);
+            world.iTooltip = this;
             activeStatus = true;
             gameObject.SetActive(v);
 
@@ -89,6 +90,7 @@ public class UIResearchTooltip : MonoBehaviour
         }
         else
         {
+            world.iTooltip = null;
             activeStatus = false;
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
         }
@@ -96,8 +98,9 @@ public class UIResearchTooltip : MonoBehaviour
 
     private void SetActiveStatusFalse()
     {
+        if (world.iTooltip == null)
+            world.infoPopUpCanvas.gameObject.SetActive(false);
         gameObject.SetActive(false);
-        world.infoPopUpCanvas.gameObject.SetActive(false);
     }
 
     public void SetInfo(Sprite mainSprite, string title, string displayTitle, int level, float workEthic, string description, List<ResourceValue> costs, List<ResourceValue> produces,
@@ -545,4 +548,9 @@ public class UIResearchTooltip : MonoBehaviour
         world.cityBuilderManager.PlayCloseAudio();
         ToggleVisibility(false);
     }
+
+	public void CheckResource(City city, int amount, ResourceType type)
+	{
+		
+	}
 }

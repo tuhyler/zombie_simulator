@@ -29,6 +29,8 @@ public class Military : Unit
 		flankedOnce, cavalryLine, looking, aoe, guard, isGuarding, returning, atSea, benched, duelWatch;
 
 	[HideInInspector]
+	public List<Vector3Int> switchLocs = new();
+	[HideInInspector]
 	public Army army;
 	[HideInInspector]
 	public Navy navy;
@@ -918,6 +920,9 @@ public class Military : Unit
 		go.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
 		LeanTween.scale(go, unitScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 
+		if (transferring)
+			bySea = v;
+
 		unitMesh.SetActive(!v);
 		boatMesh.SetActive(v);
 		ripples.SetActive(v);
@@ -1001,6 +1006,7 @@ public class Military : Unit
 			{
 				world.AddUnitPosition(currentLocation, this);
 				transferring = false;
+				switchLocs.Clear();
 				atHome = true;
 
 				Rotate(army.GetRandomSpot(barracksBunk));
@@ -1306,6 +1312,7 @@ public class Military : Unit
 		data.isGuarding = isGuarding;
 		data.atSea = atSea;
 		data.posSet = posSet;
+		data.switchLocs = switchLocs;
 
 		if (isMoving && readyToMarch)
 			data.moveOrders.Insert(0, world.RoundToInt(destinationLoc));
@@ -1379,6 +1386,7 @@ public class Military : Unit
 		isGuarding = data.isGuarding;
 		atSea = data.atSea;
 		posSet = data.posSet;
+		switchLocs = data.switchLocs;
 
 		if (posSet)
 			world.AddUnitPosition(currentLocation, this);

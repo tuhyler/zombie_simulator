@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEditor.Progress;
 
-public class UICampTip : MonoBehaviour, IGoldUpdateCheck
+public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 {
 	[SerializeField]
 	private MapWorld world;
@@ -27,7 +27,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 	public GameObject infantryHolder, rangedHolder, cavalryHolder, seigeHolder, attackButton, warningText;
 
 	private List<UIResourceInfoPanel> costsInfo = new();
-	private List<ResourceType> cantAffordList = new();
+	private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
 
 	[HideInInspector]
 	public CityImprovement improvement;
@@ -96,6 +96,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 			}
 
 			gameObject.SetActive(val);
+			world.iTooltip = this;
 			activeStatus = true;
 			if (EnemyScreenActive())
 				world.goldUpdateCheck = this;
@@ -129,6 +130,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 		}
 		else
 		{
+			world.iTooltip = null;
 			if (this.improvement != null)
 			{
 				this.improvement.DisableHighlight();
@@ -140,6 +142,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 			}
 
 			cantAffordList.Clear();
+			resourceTypeList.Clear();
 
 			if (clearCosts) //only time when this is relevant is when confirming to deploy army somewhere
 			{
@@ -175,7 +178,8 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 	private void SetActiveStatusFalse()
 	{
 		gameObject.SetActive(false);
-		world.infoPopUpCanvas.gameObject.SetActive(false);
+		if (world.iTooltip == null)
+			world.infoPopUpCanvas.gameObject.SetActive(false);
 	}
 
 	//public bool ArmyScreenActive(Army army)
@@ -377,6 +381,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 			else
 			{
 				panelList[i].gameObject.SetActive(true);
+				resourceTypeList.Add(resourceList[i].resourceType);
 				panelList[i].SetResourceAmount(resourceList[i].resourceAmount);
 				panelList[i].SetResourceType(resourceList[i].resourceType);
 				panelList[i].resourceImage.sprite = ResourceHolder.Instance.GetIcon(resourceList[i].resourceType);
@@ -476,5 +481,11 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck
 		}
 
 		transform.localPosition = initialPos;
+	}
+
+	public void CheckResource(City city, int amount, ResourceType type)
+	{
+		if (city.army == this.army && resourceTypeList.Contains(type))
+			UpdateBattleCostCheck(amount, type);
 	}
 }

@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UICityPopIncreasePanel : MonoBehaviour
+public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 {
 	[SerializeField]
 	private MapWorld world;
@@ -80,6 +80,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 			ToggleColor(true);
 
 			world.infoPopUpCanvas.gameObject.SetActive(true);
+			world.iTooltip = this;
 			gameObject.SetActive(val);
 			activeStatus = true;
 			LeanTween.scale(allContents, Vector3.one, 0.25f).setEaseLinear();
@@ -87,6 +88,7 @@ public class UICityPopIncreasePanel : MonoBehaviour
 		else
 		{
 			this.city = null;
+			world.iTooltip = null;
 			activeStatus = false;
 			ToggleColor(false);
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
@@ -96,7 +98,8 @@ public class UICityPopIncreasePanel : MonoBehaviour
 	private void SetActiveStatusFalse()
 	{
 		gameObject.SetActive(false);
-		world.infoPopUpCanvas.gameObject.SetActive(false);
+		if (world.iTooltip == null)
+			world.infoPopUpCanvas.gameObject.SetActive(false);
 	}
 
 	//setting this in case cities differ on food costs
@@ -313,5 +316,11 @@ public class UICityPopIncreasePanel : MonoBehaviour
 		}
 
 		transform.localPosition = initialPos;
+	}
+
+	public void CheckResource(City city, int amount, ResourceType type)
+	{
+		if (this.city == city && type == ResourceType.Food)
+			UpdateFoodCosts(city);
 	}
 }

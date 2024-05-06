@@ -151,6 +151,11 @@ public class ResourceManager : MonoBehaviour
         return resourceGenerationPerMinuteDict[resourceType];
     }
 
+    public bool CheckResourceAvailability(ResourceType type, int amount)
+    {
+        return resourceDict[type] >= amount;
+    }
+
     public bool CheckResourceAvailability(ResourceValue resourceRequired) //this will be used by building system to see if we have enough resources
     {
         return resourceDict[resourceRequired.resourceType] >= resourceRequired.resourceAmount;
@@ -197,9 +202,6 @@ public class ResourceManager : MonoBehaviour
 				i++;
 			}
 		}
-
-		if (city.activeCity && city.world.cityBuilderManager.uiCityUpgradePanel.activeStatus)
-			city.world.cityBuilderManager.uiCityUpgradePanel.CheckCosts(city.ResourceManager);
 	}
 
     //for resource producers
@@ -224,9 +226,6 @@ public class ResourceManager : MonoBehaviour
                 i++;
             }
 		}
-
-		if (city.activeCity && city.world.cityBuilderManager.uiCityUpgradePanel.activeStatus)
-			city.world.cityBuilderManager.uiCityUpgradePanel.CheckCosts(city.ResourceManager);
 	}
 
     public bool ResourceWaitCheck(List<ResourceValue> consumeResources, int labor, ResourceType type)
@@ -562,7 +561,7 @@ public class ResourceManager : MonoBehaviour
 				city.world.cityBuilderManager.uiMarketPlaceManager.UpdateMarketResourceNumbers(type, resourceDict[type]/*, resourceSellHistoryDict[resourceType]*/);
 
             if (city.world.cityBuilderManager.uiCityUpgradePanel.activeStatus)
-				city.world.cityBuilderManager.uiCityUpgradePanel.CheckCosts(this);
+                city.world.cityBuilderManager.uiCityUpgradePanel.ResourceCheck(resourceDict[type], type);
 
             if (city.world.cityBuilderManager.buildOptionsActive)
     			city.CheckBuildOptionsResource(type, prevAmount, resourceDict[type], amount > 0);
@@ -576,21 +575,9 @@ public class ResourceManager : MonoBehaviour
             if (city.world.uiCityPopIncreasePanel.CheckCity(city) && type == ResourceType.Food)
 				city.world.uiCityPopIncreasePanel.UpdateFoodCosts(city);
 		}
-        else if (city.world.infoPopUpCanvas.gameObject.activeSelf)
-        {
-		    if (city.army.DeployBattleScreenCheck())
-            {
-			    city.world.uiCampTooltip.UpdateBattleCostCheck(resourceDict[type], type);
-            }
-		    else if (city.world.uiTradeRouteBeginTooltip.CityCheck(city))
-            {
-			    city.world.uiTradeRouteBeginTooltip.UpdateRouteCost(resourceDict[type], type);
-            }
-            else if (city.world.uiCityPopIncreasePanel.CheckCity(city) && type == ResourceType.Food)
-            {
-			    city.world.uiCityPopIncreasePanel.UpdateFoodCosts(city);
-		    }
-        }
+        
+        if (city.world.iTooltip != null)
+            city.world.iTooltip.CheckResource(city, resourceDict[type], type);        
 	}
 
 	public int CalculateResourceGeneration(int resourceAmount, float labor, ResourceType type)
