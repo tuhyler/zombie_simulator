@@ -1150,6 +1150,7 @@ public class MapWorld : MonoBehaviour
         city.ExtinguishFire();
         city.cityLoc = cityTile;
         city.cityName = data.cityName;
+        newCity.name = city.cityName + " (Enemy)";
         city.currentPop = data.popSize;
         city.unusedLabor = data.popSize;
         city.minimapIcon.sprite = city.enemyCityIcon;
@@ -1367,6 +1368,11 @@ public class MapWorld : MonoBehaviour
                 city.enemyCamp.seaTravel = enemyData.seaTravel;
                 city.enemyCamp.actualAttackLoc = enemyData.actualAttackLoc;
                 city.countDownTimer = enemyData.countDownTimer;
+                city.enemyCamp.timeTilReturn = enemyData.timeTilReturn;
+                city.enemyCamp.retreat = enemyData.retreat;
+
+                if (city.enemyCamp.timeTilReturn > 0)
+                    StartCoroutine(city.enemyCamp.RetreatTimer());
 
                 if (city.enemyCamp.movingOut && !city.enemyCamp.returning && !city.enemyCamp.pillage)
                     AddBattleZones(city.enemyCamp.actualAttackLoc, city.enemyCamp.threatLoc, city.enemyCamp.inBattle);
@@ -1657,7 +1663,7 @@ public class MapWorld : MonoBehaviour
 		city.UpdateCityName(data.name);
 		AddCity(cityTile, city);
 		//city.SetCityBuilderManager(cityBuilderManager);
-		city.CheckForAvailableSingleBuilds();
+		//city.CheckForAvailableSingleBuilds();
 
 		city.LightFire(td.isHill);
 
@@ -2135,6 +2141,11 @@ public class MapWorld : MonoBehaviour
 				camp.seigeCount = enemyData.seigeCount;
 				camp.health = enemyData.health;
 				camp.strength = enemyData.strength;
+                camp.timeTilReturn = enemyData.timeTilReturn;
+                camp.retreat = enemyData.retreat;
+
+                if (camp.timeTilReturn > 0)
+                    StartCoroutine(camp.RetreatTimer());
 
                 if (!world[camp.threatLoc].isLand)
                     camp.battleAtSea = true;
@@ -2155,6 +2166,10 @@ public class MapWorld : MonoBehaviour
 				camp.returning = enemyData.returning;
 				//camp.chasing = enemyData.chasing;
                 camp.atSea = enemyData.atSea;
+				camp.timeTilReturn = enemyData.timeTilReturn;
+
+				if (camp.timeTilReturn > 0)
+					StartCoroutine(camp.RetreatTimer());
 			}
 
 			bool reveal = false;
@@ -2311,8 +2326,6 @@ public class MapWorld : MonoBehaviour
         {
             newUnit.military.army = city.army;
 			city.army.AddToArmy(newUnit.military);
-            //if (city.currentPop == 0 && city.army.armyCount == 1)
-            //    city.StartGrowthCycle(true);
             city.army.AddToOpenSpots(data.barracksBunk);
 			newUnit.name = unitData.unitDisplayName;
 		}
@@ -4278,8 +4291,10 @@ public class MapWorld : MonoBehaviour
         return false;
 	}
 
-    private void CloseTooltip()
+    public void CloseTooltip()
     {
+		somethingSelected = false;
+
 		if (tooltip)
 		{
 			CloseTerrainTooltipButton();
@@ -4814,8 +4829,10 @@ public class MapWorld : MonoBehaviour
                         foreach (Unit unit in characterUnits)
                             unit.FinishMoving(unit.transform.position);
                         
-                        scott.Rotate(loc);
-				        azai.Rotate(loc);
+                        if (scottFollow)
+                            scott.Rotate(loc);
+				        if (azaiFollow)
+                            azai.Rotate(loc);
                     }
 			    }
             }
@@ -6392,7 +6409,8 @@ public class MapWorld : MonoBehaviour
         if (amount > 0)
         {
             GameObject chestGO = Instantiate(treasureChest, loc, rotation);
-            TreasureChest chest = chestGO.GetComponent<TreasureChest>();
+			chestGO.transform.SetParent(unitHolder, false);
+			TreasureChest chest = chestGO.GetComponent<TreasureChest>();
             chest.amount = amount;
 
 		    treasureLocs[loc] = chest;
@@ -6414,7 +6432,8 @@ public class MapWorld : MonoBehaviour
 			rotation = Quaternion.LookRotation(direction, Vector3.up);
 
 		GameObject chestGO = Instantiate(treasureChest, placementLoc, rotation);
-		TreasureChest chest = chestGO.GetComponent<TreasureChest>();
+        chestGO.transform.SetParent(unitHolder, false);
+        TreasureChest chest = chestGO.GetComponent<TreasureChest>();
 		chest.amount = amount;
 
 		treasureLocs[placementLoc] = chest;

@@ -290,7 +290,10 @@ public class CityBuilderManager : MonoBehaviour
             {
                 City city = improvementSelected.city;
                 if (city == null) //for orphan barracks or harbors
+				{
+                    world.CloseTooltip();
                     return;
+                }
 
                 SingleBuildType type = improvementSelected.GetImprovementData.singleBuildType;
 				if (type == SingleBuildType.Barracks || type == SingleBuildType.Shipyard || type == SingleBuildType.AirBase)
@@ -1853,78 +1856,6 @@ public class CityBuilderManager : MonoBehaviour
 			improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
             return;
         }
-  //      else if (unitData.baseAttackStrength > 0)
-  //      {
-  //          if (unitData.transportationType == TransportationType.Land)
-  //          {
-  //              CityImprovement improvement = world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]);
-  //              improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
-  //              //selectedCity.army.isTraining = true;
-  //              return;
-  //          }
-		//	else if (unitData.transportationType == TransportationType.Sea)
-		//	{
-		//		return;
-		//	}
-		//	else if (unitData.transportationType == TransportationType.Air)
-		//	{
-		//		CityImprovement improvement = world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.AirBase]);
-		//		improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
-		//		return;
-		//	}
-		//}
-  //      else
-  //      {
-  //          if (unitData.transportationType == TransportationType.Land)
-  //          {
-  //              if (unitData.unitType == UnitType.Laborer)
-  //              {
-
-  //              }
-  //          }
-  //          else if (unitData.transportationType == TransportationType.Sea)
-  //          {
-  //              if (unitData.unitType == UnitType.Transport)
-		//		    world.waterTransport = true;
-
-  //          }
-  //          else if (unitData.transportationType == TransportationType.Air)
-  //          {
-		//		if (unitData.unitType == UnitType.Transport)
-  //              {
-		//			world.airTransport = true;
-  //                  CityImprovement improvement = world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Airport]);
-		//		    improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
-  //                  return;
-  //              }
-  //          }
-
-		//	CityImprovement improvement = world.GetCityDevelopment(city.singleBuildDict[unitData.singleBuildType]);
-  //          improvement.BeginTraining(city, improvement.resourceProducer, unitData, upgrading, upgradedUnit, false);
-  //          return;
-  //      }
-        //else if (upgrading)
-        //{
-        //    buildPosition = upgradedUnit.currentLocation;
-        //}
-        //else if (world.IsUnitLocationTaken(buildPosition)) //placing unit in world after building in city
-        //{
-        //    //List<Vector3Int> newPositions = world.GetNeighborsFor(Vector3Int.FloorToInt(buildPosition));
-        //    foreach (Vector3Int pos in world.GetNeighborsFor(buildPosition, MapWorld.State.EIGHTWAY))
-        //    {
-        //        if (!world.IsUnitLocationTaken(pos) && world.GetTerrainDataAt(pos).walkable)
-        //        {
-        //            buildPosition = pos;
-        //            break;
-        //        }
-        //    }
-
-        //    if (buildPosition == world.RoundToInt(transform.position))
-        //    {
-        //        Debug.Log("No suitable locations to build unit");
-        //        return;
-        //    }
-        //}
 
 		GameObject unitGO = unitData.prefab;
         bool secondaryPrefab = false;
@@ -2081,15 +2012,10 @@ public class CityBuilderManager : MonoBehaviour
         unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
         LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 
-		//unit.name = unit.name.Replace("(Clone)", ""); //getting rid of the clone part in name 
 		Unit newUnit = unit.GetComponent<Unit>();
 		newUnit.SetReferences(world);
 		newUnit.SetMinimapIcon(friendlyUnitHolder);
         newUnit.PlayAudioClip(buildClip);
-
-		//Vector3 mainCamLoc = Camera.main.transform.position;
-		//mainCamLoc.y = 0;
-		//Vector3 rot = mainCamLoc - unit.transform.position;
 
 		//transferring all previous trader info to new one
 		if (newUnit.trader)
@@ -2105,8 +2031,7 @@ public class CityBuilderManager : MonoBehaviour
 				newUnit.trader.personalResourceManager = upgradedUnit.trader.personalResourceManager;
 				newUnit.trader.resourceGridDict = upgradedUnit.trader.resourceGridDict;
 				world.GetCityDevelopment(city.singleBuildDict[upgradedUnit.buildDataSO.singleBuildType]).RemoveTraderFromImprovement(upgradedUnit.trader);
-				//city.tradersHere.Remove(upgradedUnit);
-			    upgradedUnit.RemoveUnitFromData();
+			    //upgradedUnit.RemoveUnitFromData();
 			    upgradedUnit.DestroyUnit();
             }
 
@@ -2117,7 +2042,6 @@ public class CityBuilderManager : MonoBehaviour
 
 			newUnit.id = world.traderCount;
             world.traderList.Add(newUnit.trader);
-            //city.tradersHere.Add(newUnit);
             newUnit.trader.atHome = true;
             newUnit.trader.homeCity = city.cityLoc;
 
@@ -2137,16 +2061,11 @@ public class CityBuilderManager : MonoBehaviour
                 newUnit.SoftSelect(Color.white);
             else if (world.assigningGuard && world.uiTradeRouteBeginTooltip.MilitaryLocCheck(world.GetClosestTerrainLoc(buildPosition)))
                 newUnit.SoftSelect(Color.green);
-        
-            //rot = city.army.GetRandomSpot(newUnit.military.barracksBunk) - newUnit.transform.position;
-            //rot += new Vector3(0, 0.05f, 0); //to avoid the warning message
 
 			if (city.activeCity && uiUnitBuilder.activeStatus)
 				uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
 			else if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.improvement == world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]))
 				world.uiCampTooltip.RefreshData();
-    //        else if (city.army.selected)
-				//newUnit.SoftSelect(Color.white);
 
             newUnit.name = unitData.unitDisplayName;
             if (!upgrading)
@@ -2180,13 +2099,6 @@ public class CityBuilderManager : MonoBehaviour
             world.transportList.Add(newUnit.transport);
             newUnit.prevTerrainTile = world.GetClosestTerrainLoc(buildPosition);
         }
-
-        //Quaternion rotation;
-        //if (rot == Vector3.zero)
-        //    rotation = Quaternion.identity;
-        //else
-        //    rotation = Quaternion.LookRotation(rot);
-        //newUnit.transform.rotation = rotation;
 
         if (world.unitMovement.upgradingUnit)
             world.unitMovement.ToggleUnitHighlights(true, city);

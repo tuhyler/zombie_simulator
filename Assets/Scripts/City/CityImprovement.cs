@@ -722,7 +722,6 @@ public class CityImprovement : MonoBehaviour
             {
 				world.traderList.Remove(unit.trader);
 				RemoveTraderFromImprovement(unit);
-				unit.RemoveUnitFromData();
 				unit.DestroyUnit();
 				break;
             }

@@ -140,6 +140,7 @@ public class UIResearchTreePanel : MonoBehaviour, IPointerDownHandler, IImmoveab
             world.iImmoveable = this;
 			world.BattleCamCheck(true);
 			gameObject.SetActive(v);
+            world.tooltip = false;
             world.somethingSelected = true;
 
             foreach (UIResearchItem researchItem in researchItemList)

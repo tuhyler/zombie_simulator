@@ -69,6 +69,7 @@ public class UIWonderSelection : MonoBehaviour
         if (v)
         {
             world.UnselectAll();
+            world.tooltip = false;
             world.somethingSelected = true;
             this.wonder = wonder;
             UpdateWaitingForMessage(wonder.goldWait);

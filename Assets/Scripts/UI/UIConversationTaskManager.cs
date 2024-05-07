@@ -62,6 +62,7 @@ public class UIConversationTaskManager : MonoBehaviour, IImmoveable
 			world.cameraController.paused = true;
 			minimapHandler.paused = true;
 			world.mapHandler.SetInteractable(false);
+			world.tooltip = false;
 			world.somethingSelected = true;
 
 			activeStatus = true;

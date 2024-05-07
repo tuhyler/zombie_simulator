@@ -21,8 +21,8 @@ public class EnemyCamp
 	public GameObject campfire;
 
 	public int enemyReady;
-	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength, pillageTime;
-	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing, isCity, pillage, growing, removingOut, atSea, battleAtSea, seaTravel, duel;
+	public int campCount, deathCount, infantryCount, rangedCount, cavalryCount, seigeCount, health, strength, pillageTime, timeTilReturn;
+	public bool revealed, prepping, attacked, attackReady = false, armyReady, inBattle, returning, movingOut, chasing, isCity, pillage, growing, removingOut, atSea, battleAtSea, seaTravel, duel, retreat;
 	public Army attackingArmy;
 	public Military benchedUnit;
 
@@ -41,7 +41,7 @@ public class EnemyCamp
 
 	public List<Vector3Int> openSpots, totalSpots;
 
-	private WaitForSeconds retreatTime = new(8);
+	private WaitForSeconds retreatTime = new(1);
 
 	public void SetCampfire(GameObject campfire, bool isHill, bool discovered)
 	{
@@ -175,6 +175,8 @@ public class EnemyCamp
 		campData.seigeCount = seigeCount;
 		campData.health = health;
 		campData.strength = strength;
+		campData.timeTilReturn = timeTilReturn;
+		campData.retreat = retreat;
 
 		return campData;
 	}
@@ -215,7 +217,6 @@ public class EnemyCamp
 		campData.pathToTarget = pathToTarget;
 		campData.movingOut = movingOut;
 		campData.returning = returning;
-		//campData.chasing = chasing;
 		campData.allUnits = campList;
 		campData.pillage = pillage;
 		campData.pillageTime = pillageTime;
@@ -227,6 +228,8 @@ public class EnemyCamp
 		campData.atSea = atSea;
 		campData.seaTravel = seaTravel;
 		campData.actualAttackLoc = actualAttackLoc;
+		campData.timeTilReturn = timeTilReturn;
+		campData.retreat = retreat;
 
 		return campData;
 	}
@@ -434,6 +437,7 @@ public class EnemyCamp
 	{
 		if (attackingArmy != null)
 			attackingArmy.inBattle = false;
+		retreat = false;
 		inBattle = false;
 		enemyReady = 0;
 		moveToLoc = loc;
@@ -723,7 +727,7 @@ public class EnemyCamp
 	public void ReturnToCamp()
 	{
 		enemyReady = 0;
-		CheckForSubInBenched();
+		CheckForSubInBenched(false);
 
 		foreach (Military unit in unitsInCamp)
 		{
@@ -768,7 +772,7 @@ public class EnemyCamp
 		}
 	}
 
-	public void CheckForSubInBenched()
+	public void CheckForSubInBenched(bool retreat)
 	{
 		if (benchedUnit)
 		{
@@ -780,6 +784,9 @@ public class EnemyCamp
 			benchedUnit.gameObject.SetActive(true);
 			world.AddUnitPosition(benchedUnit.currentLocation, benchedUnit);
 			unitsInCamp.Add(benchedUnit);
+			if (retreat)
+				benchedUnit.enemyAI.StartReturn();
+
 			benchedUnit = null;
 		}
 		else if (isCity && world.GetEnemyCity(cityLoc).empire.capitalCity == cityLoc)
@@ -791,8 +798,13 @@ public class EnemyCamp
 	}
 
 	public IEnumerator RetreatTimer()
-	{		
-		yield return retreatTime;
+	{
+		retreat = true;
+		while (timeTilReturn > 0)
+		{
+			yield return retreatTime;
+			timeTilReturn--;
+		}
 
 		foreach (Military unit in unitsInCamp)
 		{
@@ -802,8 +814,8 @@ public class EnemyCamp
 					unit.enemyAI.StartReturn();
 			}
 		}
-		
-		CheckForSubInBenched();
+
+		CheckForSubInBenched(true);
 	}
 
 	private void ResurrectCamp()

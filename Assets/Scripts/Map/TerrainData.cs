@@ -88,10 +88,11 @@ public class TerrainData : MonoBehaviour
 		}
     }
 
-    //private void Start()
-    //{
-    //    SetProp();
-    //}
+    private void Start()
+    {
+        if (flatlandFP != null)
+            highlight.ManuallyAddRenderer(flatlandFP.GetComponent<MeshRenderer>());
+    }
 
     public void SkinnedMeshCheck()
     {

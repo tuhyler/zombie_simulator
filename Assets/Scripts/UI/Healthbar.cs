@@ -48,6 +48,7 @@ public class Healthbar : MonoBehaviour
 
     public void RegenerateHealth()
     {
+        gameObject.SetActive(true);
         co = StartCoroutine(Regenerate());
 	}
 

@@ -1077,6 +1077,7 @@ public class UnitMovement : MonoBehaviour
         //}
 
         selectedUnit.SayHello();
+        world.tooltip = false;
 		world.somethingSelected = true;
 		selectedUnit.Highlight(Color.red);
         int bonus = selectedUnit.military ? selectedUnit.military.strengthBonus : 0;
@@ -1102,6 +1103,7 @@ public class UnitMovement : MonoBehaviour
 		}
 
 		selectedUnit.SayHello();
+        world.tooltip = false;
 		world.somethingSelected = true;
 		selectedUnit.Highlight(new Color(.5f, 0, 1));
 		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, selectedUnit.isTrader, 0, false);
@@ -1202,6 +1204,7 @@ public class UnitMovement : MonoBehaviour
     private void SelectBodyGuard()
     {
 		selectedUnit.SayHello();
+        world.tooltip = false;
 		world.somethingSelected = true;
 		selectedUnit.Highlight(Color.green);
 		infoManager.ShowInfoPanel(selectedUnit.name, selectedUnit.buildDataSO, selectedUnit.currentHealth, false, selectedUnit.military.strengthBonus, false);
@@ -1229,7 +1232,8 @@ public class UnitMovement : MonoBehaviour
     public void PrepareMovement()
     {
         selectedUnit.SayHello();
-	
+
+        world.tooltip = false;
         world.somethingSelected = true;
         if (selectedUnit.inArmy)
         {
@@ -1426,13 +1430,8 @@ public class UnitMovement : MonoBehaviour
 
         TerrainData td = world.GetTerrainDataAt(locationInt);
 
-        if ((selectedUnit.bySea && !td.sailable) || (!selectedUnit.bySea && !td.canPlayerWalk))
-        {
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Cannot travel to selected area");
-			return;
-		}
-       
         bool moveToSpeak = false;
+        bool moveToTransport = false;
         if (selectedUnit.isPlayer)
         {
 			if (td.hasBattle)
@@ -1475,6 +1474,7 @@ public class UnitMovement : MonoBehaviour
                 {
                     Vector3Int trySpot = world.GetAdjacentMoveToTile(world.RoundToInt(selectedUnit.transform.position), locationInt, false);
 				    locationInt = trySpot;
+                    moveToTransport = true;
                 }
 			}
             else if (selectedUnit.worker.transportTarget != null)
@@ -1513,11 +1513,12 @@ public class UnitMovement : MonoBehaviour
 				return;
 			}
         }
-  //      else if (world.CheckIfEnemyTerritory(locationInt))
-  //      {
-		//	UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Enemy territory");
-		//	return;
-		//}
+
+        if ((selectedUnit.bySea && !td.sailable) || (!moveToTransport && !selectedUnit.bySea && !td.canPlayerWalk))
+        {
+			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Cannot travel to selected area");
+			return;
+		}
 
 		if (selectedUnit.bySea)
         {
@@ -1526,8 +1527,6 @@ public class UnitMovement : MonoBehaviour
                 Vector3Int trySpot = world.GetClosestMoveToSpot(locationInt, selectedUnit.transform.position, true);
                 locationInt = trySpot;
             }
-
-            //selectedUnit.TurnOnRipples();
         }
         else if (!world.PlayerCheckIfPositionIsValid(locationInt))
         {
@@ -1666,8 +1665,8 @@ public class UnitMovement : MonoBehaviour
             world.GetCityDevelopment(city.singleBuildDict[selectedUnit.buildDataSO.singleBuildType]).RemoveTraderFromImprovement(selectedUnit.trader);
 
 		AddToCity(city, selectedUnit);
-		selectedUnit.DestroyUnit();
-		ClearSelection();
+		//selectedUnit.DestroyUnit();
+		//ClearSelection();
 	}
 
     public void LaborerJoin(Laborer unit)
@@ -1692,6 +1691,7 @@ public class UnitMovement : MonoBehaviour
 			}
             else if (stop.city)
             {
+        		world.laborerList.Remove(unit.GetComponent<Laborer>());
 				AddToCity(world.GetCity(stop.mainLoc), unit);
 			}
         }
@@ -1721,8 +1721,7 @@ public class UnitMovement : MonoBehaviour
             ClearSelection();
         }
 		
-		world.laborerList.Remove(unit.GetComponent<Laborer>());
-		unit.DestroyUnit();
+		//unit.DestroyUnit();
 	}
 
     public void RepositionArmy()
@@ -1807,6 +1806,8 @@ public class UnitMovement : MonoBehaviour
 			InfoResourcePopUpHandler.CreateResourceStat(cityLoc, resourcesGiven, ResourceHolder.Instance.GetIcon(resourceValue.resourceType), world);
 			i++;
 		}
+
+        unit.DestroyUnit();
 	}
 
     public void Unload()

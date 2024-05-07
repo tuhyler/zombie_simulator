@@ -776,10 +776,6 @@ public class ResourceManager : MonoBehaviour
     //checking if enough food to not starve
     public void CheckForPopGrowth()
     {
-        //ResourceValue foodConsumed;
-        //foodConsumed.resourceType = ResourceType.Food;
-        //foodConsumed.resourceAmount = city.cityPop.CurrentPop * city.unitFoodConsumptionPerMinute;
-
         if (resourceDict[ResourceType.Food] >= resourceConsumedPerMinuteDict[ResourceType.Food])
         {
             if (starvationCount > 0)
@@ -850,18 +846,9 @@ public class ResourceManager : MonoBehaviour
             }
         }
 
-        //ConsumeResources(new List<ResourceValue> { foodConsumed }, 1, city.cityLoc);
-
-
         if (city.HousingCount < 0)
         {
             noHousingCount++;
-
-            growthDeclineDanger = true;
-            city.exclamationPoint.SetActive(true);
-
-			if (city.activeCity)
-				city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
 
 			if (noHousingCount >= cyclesToWait)
             {
@@ -883,7 +870,14 @@ public class ResourceManager : MonoBehaviour
                 if (city.activeCity)
                     city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
 			}
+            else
+            {
+                growthDeclineDanger = true;
+                city.exclamationPoint.SetActive(true);
 
+			    if (city.activeCity)
+				    city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
+            }
         }
         else
         {
@@ -901,12 +895,6 @@ public class ResourceManager : MonoBehaviour
         if (city.waterCount < 0)
         {
             noWaterCount++;
-
-            growthDeclineDanger = true;
-            city.exclamationPoint.SetActive(true);
-
-			if (city.activeCity)
-				city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
 
 			if (noWaterCount >= cyclesToWait)
             {
@@ -927,7 +915,15 @@ public class ResourceManager : MonoBehaviour
 
 				if (city.activeCity)
 					city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
-			}
+            }
+            else
+            {
+                growthDeclineDanger = true;
+                city.exclamationPoint.SetActive(true);
+
+			    if (city.activeCity)
+				    city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(true);
+            }
         }
         else
         {
@@ -941,10 +937,6 @@ public class ResourceManager : MonoBehaviour
                     city.world.cityBuilderManager.uiInfoPanelCity.TogglewWarning(false);
 			}
         }
-
-        //CheckProducerUnloadWaitList();
-        //city.CheckLimitWaiter();
-        //UpdateUI(ResourceType.Food);
     }
 
     public void RemoveWarning()
@@ -955,83 +947,6 @@ public class ResourceManager : MonoBehaviour
             city.exclamationPoint.SetActive(false);
         }
     }
-
-    //public void CheckProducerUnloadWaitList()
-    //{
-    //    if (fullInventory)
-    //    {
-    //        fullInventory = false;
-    //        int queueCount = waitingToUnloadProducers.Count;
-
-    //        for (int i = 0; i < queueCount; i++)
-    //        {
-    //            if (!fullInventory)
-    //                waitingToUnloadProducers.Dequeue().UnloadAndRestart();
-    //            else
-    //                break;
-    //        }
-
-    //        //check again to start the others
-    //        if (!fullInventory)
-    //            RestartStorageRoomWaitProduction();
-    //    }
-    //}
-
-   // public void RestartStorageRoomWaitProduction()
-   // {
-   //     List<ResourceProducer> tempProducers = new(waitingForStorageRoomProducerList);
-
-   //     foreach (ResourceProducer producer in tempProducers)
-   //     {
-   //         producer.isWaitingForStorageRoom = false;
-   //         producer.cityImprovement.exclamationPoint.SetActive(false);
-			//producer.StartProducing();
-   //         waitingForStorageRoomProducerList.Remove(producer);
-   //     }
-   // }
-
-    //public void RemoveFromWaitUnloadQueue(ResourceProducer resourceProducer)
-    //{
-    //    if (waitingToUnloadProducers.Contains(resourceProducer))
-    //        waitingToUnloadProducers = new Queue<ResourceProducer>(waitingToUnloadProducers.Where(x => x != resourceProducer));
-    //}
-
-    //public void CheckProducerResourceWaitList()
-    //{
-    //    List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
-
-    //    foreach (ResourceProducer producer in tempWaitingForResource)
-    //    {
-    //        producer.RestartResourceWaitProduction();
-    //    }
-    //}
-
-    //public void RestartGold()
-    //{
-    //    CheckTraderWaitList(ResourceType.Gold);
-    //}
-
-    //public void CheckTraderWaitList(ResourceType resourceType)
-    //{
-    //    List<Trader> tempWaitingForTrader = new(waitingForTraderList);
-
-    //    for (int i = 0; i < tempWaitingForTrader.Count; i++)
-    //    {
-    //        if (tempWaitingForTrader[i].routeCostTypes.Contains(resourceType))
-    //            tempWaitingForTrader[i].RestartRoute(city.cityLoc);
-    //    }
-    //}
-
-	//public void CheckProducerResourceWaitList(ResourceType resourceType)
- //   {
- //       List<ResourceProducer> tempWaitingForResource = new(waitingforResourceProducerList);
-        
- //       foreach (ResourceProducer producer in tempWaitingForResource)
- //       {
- //           if (producer.consumedResourceTypes.Contains(resourceType))
- //               producer.RestartResourceWaitProduction();
- //       }
- //   }
 
     public int RemoveFromGoldWaitList(ICityGoldWait cityGoldWait)
     {
@@ -1079,78 +994,6 @@ public class ResourceManager : MonoBehaviour
     {
         city.world.RemoveFromResearchWaitList(resourceProducer);
     }
-
-    //public void AddToStorageRoomWaitList(ResourceProducer resourceProducer)
-    //{
-    //    if (!waitingForStorageRoomProducerList.Contains(resourceProducer))
-    //        waitingForStorageRoomProducerList.Add(resourceProducer);
-    //}
-
-    //public void RemoveFromStorageRoomWaitList(ResourceProducer resourceProducer)
-    //{
-    //    if (waitingForStorageRoomProducerList.Contains(resourceProducer))
-    //        waitingForStorageRoomProducerList.Remove(resourceProducer);
-    //}
-
-    //public void AddToResourceWaitList(ResourceProducer resourceProducer)
-    //{
-    //    if (!waitingforResourceProducerList.Contains(resourceProducer))
-    //        waitingforResourceProducerList.Add(resourceProducer);
-    //}
-
-    //public void RemoveFromResourceWaitList(ResourceProducer resourceProducer)
-    //{
-    //    if (waitingforResourceProducerList.Contains(resourceProducer))
-    //        waitingforResourceProducerList.Remove(resourceProducer);
-    //}
-
-  //  public void AddToResourcesNeededForProduction(List<ResourceType> consumedResources)
-  //  {
-  //      for (int i = 0; i < consumedResources.Count; i++)
-  //      {
-  //          if (!resourcesNeededForProduction.Contains(consumedResources[i]))
-  //              resourcesNeededForProduction.Add(consumedResources[i]);
-		//}
-  //  }
-
-  //  public void RemoveFromResourcesNeededForProduction(List<ResourceType> consumedResources)
-  //  {
-  //      for (int i = 0; i < consumedResources.Count; i++)
-  //      {
-  //          if (resourcesNeededForProduction.Contains(consumedResources[i]))
-  //              resourcesNeededForProduction.Remove(consumedResources[i]);
-		//}
-  //  }
-
-    //public void AddToTraderWaitList(Trader trader)
-    //{
-    //    if (!waitingForTraderList.Contains(trader))
-    //        waitingForTraderList.Add(trader);
-    //}
-
-    //public void RemoveFromTraderWaitList(Trader trader)
-    //{
-    //    if (waitingForTraderList.Contains(trader))
-    //        waitingForTraderList.Remove(trader);
-    //}
-
- //   public void AddToResourcesNeededForTrader(List<ResourceType> consumedResources)
-	//{
- //       for (int i = 0; i < consumedResources.Count; i++)
- //       {
-	//		if (!resourcesNeededForRoute.Contains(consumedResources[i]))
-	//			resourcesNeededForRoute.Add(consumedResources[i]);
-	//	}
-	//}
-
-	//public void RemoveFromResourcesNeededForTrader(List<ResourceType> consumedResources)
-	//{
- //       for (int i = 0; i < consumedResources.Count; i++)
- //       {
-	//		if (resourcesNeededForRoute.Contains(consumedResources[i]))
- //               resourcesNeededForRoute.Remove(consumedResources[i]);
-	//	}
-	//}
 
 	//for queued build orders in cities
 	public void SetQueueResources(List<ResourceValue> resourceList)

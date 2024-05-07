@@ -16,7 +16,7 @@ public class SelectionHighlight : MonoBehaviour
 
     private void Awake()
     {
-        PrepareMaterialDictionaries();
+		PrepareMaterialDictionaries();
     }
 
     public void PrepareMaterialDictionaries()
@@ -36,6 +36,16 @@ public class SelectionHighlight : MonoBehaviour
             renderersSkinned.Add(renderer);
             materialsToUse.Add(renderer.sharedMaterial); //accessing info on materials creates a new material, sharedMaterial doesn't
         }
+    }
+
+    public void ManuallyAddRenderer(MeshRenderer renderer)
+    {
+        if (!renderers.Contains(renderer))
+        {
+            renderers.Add(renderer);
+            materialsToUse.Add(renderer.sharedMaterial);
+        }
+
     }
 
     public void SetNewRenderer(MeshRenderer[] oldRenderer, MeshRenderer[] newRenderer)

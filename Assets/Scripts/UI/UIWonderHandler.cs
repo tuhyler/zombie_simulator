@@ -120,6 +120,7 @@ public class UIWonderHandler : MonoBehaviour, IImmoveable
 			world.BattleCamCheck(true);
 			activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, 1200f, 0);
+            world.tooltip = false;
             world.somethingSelected = true;
 
             LeanTween.value(globalVolume.gameObject, dof.focalLength.value, 45, 0.4f)

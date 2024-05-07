@@ -274,7 +274,6 @@ MonoBehaviour:
   moveSpeed: 0.5
   originalMoveSpeed: 0.5
   threshold: 0.1
-  moreToMove: 0
   isBusy: 0
   isMoving: 0
   secondaryPrefab: 0
@@ -287,9 +286,10 @@ MonoBehaviour:
   ambushLoc: {x: 0, y: 0, z: 0}
   lastClearTile: {x: 0, y: 0, z: 0}
   currentHealth: 0
+  healthMax: 0
+  upgradeLevel: 0
   enemyAI: {fileID: 0}
   baseSpeed: 0
-  healthMax: 0
   bySea: 0
   isTrader: 0
   isPlayer: 0
@@ -302,7 +302,11 @@ MonoBehaviour:
   sayingSomething: 0
   firstStep: 0
   byAir: 0
+  posSet: 0
+  inMilitary: 0
   inArmy: 0
+  inNavy: 0
+  inAirForce: 0
   isDead: 0
   runningAway: 0
   ambush: 0
@@ -310,7 +314,8 @@ MonoBehaviour:
   isUpgrading: 0
   unitAnimator: {fileID: 0}
   boatMesh: {fileID: 0}
-  boatSail: {fileID: 0}
+  logoSail: {fileID: 0}
+  sail: {fileID: 0}
   targetLocation: {x: 0, y: 0, z: 0}
   targetBunk: {x: 0, y: 0, z: 0}
   barracksBunk: {x: 0, y: 0, z: 0}
@@ -335,17 +340,24 @@ MonoBehaviour:
   isGuarding: 0
   returning: 0
   atSea: 0
-  homeBase: {fileID: 0}
+  benched: 0
+  duelWatch: 0
+  switchLocs: []
+  army: {fileID: 0}
+  navy: {fileID: 0}
+  airForce: {fileID: 0}
   projectile: {fileID: 0}
   guardedTrader: {fileID: 0}
   leader: {fileID: 0}
-  npcName: 
-  leaderMilitaryUnits:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  bodyGuard: {fileID: 0}
+  leaderName: 
+  leaderUnitList: []
   hasSomethingToSay: 0
   defending: 0
+  dueling: 0
+  borderColor: {r: 0, g: 0, b: 0, a: 0}
+  colorOne: {x: 0, y: 0}
+  colorTwo: {x: 0, y: 0}
 --- !u!1001 &2826200693892223195
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -361,7 +373,7 @@ PrefabInstance:
     - target: {fileID: 918213226758697082, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 918213226758697082, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
@@ -371,7 +383,7 @@ PrefabInstance:
     - target: {fileID: 7177162541749506813, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
@@ -619,7 +631,7 @@ PrefabInstance:
     - target: {fileID: 644161447630316390, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2222939180736665397, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
@@ -694,17 +706,17 @@ PrefabInstance:
     - target: {fileID: 2631714467303042577, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3513914610275139090, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6680770185660995771, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf,
         type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d09bf5e2d7f37cb4fb59b35a41bd32bf, type: 3}
