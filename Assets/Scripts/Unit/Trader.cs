@@ -726,7 +726,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			}
 			
 			world.unitMovement.AddToCity(world.GetCity(currentLoc), this);
-			DestroyUnit();
+			//DestroyUnit();
 			return true;
 		}
 

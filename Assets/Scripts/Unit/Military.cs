@@ -813,7 +813,7 @@ public class Military : Unit
 	public void JoinCity(City city)
 	{
 		world.unitMovement.AddToCity(city, this);
-		DestroyUnit();
+		//DestroyUnit();
 	}
 	//public void IdleCheck()
 	//{
@@ -912,6 +912,9 @@ public class Military : Unit
 		lightBeamLoc.y += .01f;
 		lightBeam.transform.position = lightBeamLoc;
 		lightBeam.Play();
+		
+		if (isSelected)
+			selectionCircle.SetActive(v);
 
 		GameObject go = v ? boatMesh : unitMesh;
 		Vector3 unitScale = go.transform.localScale;
@@ -1181,7 +1184,7 @@ public class Military : Unit
 		{
 			army.UnitsInArmy.Remove(this);
 			army.attackingSpots.Remove(currentLocation);
-			RemoveUnitFromData();
+			pathPositions.Clear();
 
 			foreach (Military unit in army.UnitsInArmy)
 			{
@@ -1271,7 +1274,7 @@ public class Military : Unit
 				if (!leader.dueling && enemyCamp.benchedUnit != null)
 				{
 					Military unit = enemyCamp.benchedUnit;
-					world.RemoveUnitPosition(unit.currentLocation);
+					//world.RemoveUnitPosition(unit.currentLocation);
 					unit.gameObject.SetActive(true);
 					unit.HideUnit(true);
 					Vector3 sixFeetUnder = transform.position;

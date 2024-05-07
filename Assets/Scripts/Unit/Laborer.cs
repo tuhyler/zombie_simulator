@@ -77,7 +77,7 @@ public class Laborer : Unit
         if (world.IsCityOnTile(destination))
             GoToDestination(destination, false);
         else
-			DestroyUnit();
+			KillLaborer();
     }
 
     public void Transfer(List<Vector3Int> transferPath, bool atSea)

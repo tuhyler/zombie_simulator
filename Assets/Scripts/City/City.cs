@@ -378,16 +378,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         //CombineFire();
     }
 
-    //public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
-    //{
-    //    this.cityBuilderManager = cityBuilderManager;
-    //}
-
-    //public void UpdateResourceInfo()
-    //{
-    //    world.cityBuilderManager.UpdateResourceInfo();
-    //}
-
     public void AddToMeshFilterList(GameObject go, MeshFilter[] meshFilter, bool building, Vector3Int loc, string name = "")
     {
         int count = meshFilter.Length;
@@ -474,21 +464,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         improvementList.Remove(improvement);
     }
 
-    //public bool WorldResearchingCheck()
-    //{
-    //    return world.researching;
-    //}
-
-    //public void RestartResearch()
-    //{
-    //    resourceManager.CheckProducerUnloadResearchWaitList();
-    //}
-
-    //public void RestartGold2()
-    //{
-    //    resourceManager.CheckProducerResourceWaitList(ResourceType.Gold);
-    //}
-
 	public bool RestartGold(int gold)
 	{
 		if (resourceManager.cityGoldWaitList.Count > 0)
@@ -513,21 +488,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         world.AddToResearchWaitList(producer);
     }
-
-    //public void AddToWorldGoldWaitList()
-    //{
-    //    world.AddToGoldWaitList(this);
-    //}
-
-    //private void EnableHighlight()
-    //{
-    //    cityNameField.EnableHighlight();
-    //}
-
-    //private void DisableHighlight()
-    //{
-    //    cityNameField.DisableHighlight();
-    //}
 
     public bool CheckCityName(string cityName)
     {
@@ -567,6 +527,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public void SetCityName(string cityName)
     {
         this.cityName = cityName;
+        name = cityName;
         cityNameField.SetCityName(cityName);
     }
 
@@ -596,29 +557,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         SetCityName(newCityName);
         AddCityNameToWorld();
     }
-
-    ////update city info after changing foodConsumed info
-    //public void UpdateCityPopInfo(int foodConsumption)
-    //{
-    //    //cityPopText.text = cityPop.CurrentPop.ToString();
-    //    //cityLaborText.text = cityPop.UnusedLabor.ToString();
-    //    resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, foodConsumption);
-    //    //float foodPerMinute = resourceManager.GetResourceGenerationValues(ResourceType.Food);
-    //    //int foodStorage = foodConsumptionPerMinute;
-
-    //    //if (foodPerMinute > 0)
-    //    //{
-    //    //    minutesTillGrowth = Mathf.CeilToInt(((float)resourceManager.FoodGrowthLimit - foodStorage) / foodPerMinute).ToString();
-    //    //}
-    //    //else if (foodPerMinute < 0) 
-    //    //{
-    //    //    minutesTillGrowth = Mathf.FloorToInt(foodStorage / foodPerMinute).ToString(); //maybe take absolute value, change color to red?
-    //    //}
-    //    //else if (foodPerMinute == 0)
-    //    //{
-    //    //    minutesTillGrowth = "-";
-    //    //}
-    //}
 
     public void SetHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, bool upgrade)
     {
@@ -727,14 +665,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         return housingData.improvementName + index.ToString();
     }
-
-    //public int GetGrowthNumber()
-    //{
-    //    if (cityPop.CurrentPop == 0)
-    //        return growthFood;
-    //    else
-    //        return unitFoodConsumptionPerMinute;
-    //}
 
     public void PopulationGrowthCheck(bool joinCity, int amount)
     {        
@@ -1766,19 +1696,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         }
     }
 
- //   public void SetNewTerrainData(TerrainData td)
- //   {
- //       TerrainDataSO tempData;
-
-	//	if (td.isHill)
-	//		tempData = td.terrainData.grassland ? world.grasslandHillTerrain : world.desertHillTerrain;
-	//	else
-	//		tempData = td.terrainData.grassland ? world.grasslandTerrain : world.desertTerrain;
-
- //       td.SetNewData(tempData);
- //       GameLoader.Instance.gameData.allTerrain[td.TileCoordinates] = td.SaveData();
-	//}
-
 	//for queued build items
 	public void GoToNextItemInQueue()
     {
@@ -1848,12 +1765,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             resourceCosts = new(UpgradeableObjectHolder.Instance.improvementDict[item.queueName].improvementCost);
         }
-        //if (nextItem.unitBuildData != null)
-        //    resourceCosts = new(nextItem.unitBuildData.unitCost);
-        //if (nextItem.upgradeCosts != null)
-        //    resourceCosts = new(nextItem.upgradeCosts);
-        //else if (nextItem.improvementData != null)
-        //    resourceCosts = new(nextItem.improvementData.improvementCost);
 
         resourceManager.SetQueueResources(resourceCosts);
     }
@@ -2003,73 +1914,25 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void Select(Color color)
     {
-		//EnableHighlight();
-		//foreach (string name in world.GetBuildingListForCity(cityLoc))
-  //      {
-		//	CityImprovement building = world.GetBuildingData(cityLoc, name);
-		//	building.DisableHighlight();
-		//	building.EnableHighlight(color);
-		//}
-
         highlighted = true;
         world.GetTerrainDataAt(cityLoc).EnableHighlight(color);
 	}
 
     public void Deselect()
     {
-		//DisableHighlight();
-		//foreach (string name in world.GetBuildingListForCity(cityLoc))
-		//{
-		//	CityImprovement building = world.GetBuildingData(cityLoc, name);
-		//	building.DisableHighlight();
-		//}
-
         highlighted = false;
         world.GetTerrainDataAt(cityLoc).DisableHighlight();
 	}
-
- //   public void ClearCityCheck()
- //   {
-	//	for (int i = 0; i < waitList.Count; i++)
-	//		waitList.Dequeue().trader.InterruptRoute(true);
-
- //       if (world.IsUnitLocationTaken(cityLoc))
- //           world.CancelTraderRoute(cityLoc);
-	//}
 
     public void RemoveHarborCheck(Vector3Int harborLoc)
     {
 		stop.ClearStopCheck(seaWaitList, harborLoc, world);
 	}
 
-	//public void ClearHarborCheck()
- //   {
- //       if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
- //       {
-	//	    for (int i = 0; i < seaWaitList.Count; i++)
-	//		    seaWaitList.Dequeue().trader.InterruptRoute(true);
-        
- //           if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Harbor]))
- //               world.CancelTraderRoute(singleBuildDict[SingleBuildType.Harbor]);
- //       }
-	//}
-
     public void RemoveAirportCheck(Vector3Int airportLoc)
     {
 		stop.ClearStopCheck(stop.airWaitList, airportLoc, world);
 	}
-
-	//public void ClearAirportCheck()
- //   {
-	//	if (singleBuildDict.ContainsKey(SingleBuildType.Airport))
- //       {
-	//	    for (int i = 0; i < airWaitList.Count; i++)
-	//		    airWaitList.Dequeue().trader.InterruptRoute(true);
-
- //           if (world.IsUnitLocationTaken(singleBuildDict[SingleBuildType.Airport]))
-	//		    world.CancelTraderRoute(singleBuildDict[SingleBuildType.Airport]);
- //       }
-	//}
 
     public void DestroyThisCity()
     {
@@ -2080,12 +1943,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		if (singleBuildDict.ContainsKey(SingleBuildType.Airport))
 			stop.ClearStopCheck(stop.airWaitList, singleBuildDict[SingleBuildType.Airport], world);
 
-		//ClearCityCheck();
-  //      ClearHarborCheck();
-  //      ClearAirportCheck();
-
-		//initialHouse.DestroyPS();
-		//initialHouse.PlayRemoveEffect(world.GetTerrainDataAt(cityLoc).isHill);
 		if (co != null)
         {
             StopCoroutine(co);
@@ -2104,8 +1961,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         data.isNamed = isNamed;
         data.location = cityLoc;
         data.reachedWaterLimit = reachedWaterLimit;
-        //data.harborTraining = harborTraining;
-        //data.autoGrow = autoGrow;
         data.autoAssignLabor = autoAssignLabor;
         data.hasWater = hasWater;
         data.hasFreshWater = hasFreshWater;
@@ -2116,8 +1971,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         data.hasWool = hasWool;
         data.hasSilk = hasSilk;
         data.hasClay = hasClay;
-        //data.hasBarracks = hasBarracks;
-        //data.hasHarbor = hasHarbor;
 		data.waterMaxPop = waterCount;
         data.currentPop = currentPop;
         data.unusedLabor = unusedLabor;
@@ -2130,24 +1983,11 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         if (singleBuildList != null)
             data.singleBuildList = new(singleBuildList);
 
-        //for (int i = 0; i < tradersHere.Count; i++)
-        //{
-        //    data.tradersHere.Add(tradersHere[i].id);
-        //}
-
 		//resource manager
 		foreach (ResourceType type in resourceManager.ResourceDict.Keys)
 			data.allResourceInfoDict[type] = (resourceManager.ResourceDict[type], resourceManager.resourcePriceDict[type], resourceManager.resourceMinHoldDict[type], resourceManager.resourceSellHistoryDict[type], resourceManager.resourceSellList.Contains(type));
 
 		data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
-		//data.warehouseStorageLimit = resourceManager.ResourceStorageLimit;
-        //data.fullInventory = resourceManager.fullInventory;
-
-		//data.resourceDict = resourceManager.ResourceDict;
-  //      data.resourcePriceDict = resourceManager.resourcePriceDict;
-  //      data.resourceSellList = resourceManager.resourceSellList;
-  //      data.resourceMinHoldDict = resourceManager.resourceMinHoldDict;
-  //      data.resourceSellHistoryDict = resourceManager.resourceSellHistoryDict;
         data.pauseGrowth = resourceManager.pauseGrowth;
         data.growthDeclineDanger = resourceManager.growthDeclineDanger;
         data.starvationCount = resourceManager.starvationCount;
@@ -2160,12 +2000,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         data.queueItemList = queueItemList;
 		data.queuedResourcesToCheck = resourceManager.queuedResourcesToCheck;
 
-		//List<string> buildingList = world.GetBuildingListForCity(cityLoc);
         //for buildings
         foreach (CityImprovement building in world.cityBuildingDict[cityLoc].Values)
 			data.cityBuildings.Add(building.SaveData());
-		//for (int i = 0; i < buildingList.Count; i++)
-  //          data.cityBuildings.Add(world.GetBuildingData(cityLoc, buildingList[i]).SaveData());
 
 		//army data
 		if (singleBuildDict.ContainsKey(SingleBuildType.Barracks))
@@ -2201,12 +2038,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             GameLoader.Instance.gameData.allArmies[cityLoc] = armyData;
         }
 
-        //List<Unit> tempWaitList = ITradeStop.waitList.ToList();
-
 		for (int i = 0; i < stop.waitList.Count; i++)
 			data.waitList.Add(stop.waitList[i].id);
-
-		//List<Unit> tempSeaWaitList = seaWaitList.ToList();
 
 		for (int i = 0; i < stop.seaWaitList.Count; i++)
 			data.seaWaitList.Add(stop.seaWaitList[i].id);
@@ -2230,44 +2063,16 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         for (int i = 0; i < resourceManager.unloadWaitList.Count; i++)
             data.unloadWaitList.Add((resourceManager.unloadWaitList[i].WaitLoc, resourceManager.unloadWaitList[i].waitId));
 
-        //for (int i = 0; i < resourceManager.cityResourceWaitList.Count; i++)
-        //    data.resourceWaitList.Add((resourceManager.cityResourceWaitList[i].WaitLoc, resourceManager.cityResourceWaitList[i].waitId));
-
-		//for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
-		//	data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
-
-		//for (int i = 0; i < resourceManager.waitingforResourceProducerList.Count; i++)
-  //          data.waitingforResourceProducerList.Add(resourceManager.waitingforResourceProducerList[i].producerLoc);
-
-		//for (int i = 0; i < resourceManager.waitingForStorageRoomProducerList.Count; i++)
-		//	data.waitingForProducerStorageList.Add(resourceManager.waitingForStorageRoomProducerList[i].producerLoc);
-
-  //      List<ResourceProducer> waitingToUnload = new(resourceManager.waitingToUnloadProducers.ToList());
-		//for (int i = 0; i < waitingToUnload.Count; i++)
-		//	data.waitingToUnloadProducerList.Add(waitingToUnload[i].producerLoc);
-
-  //      List<ResourceProducer> waitingToUnloadResearch = new(resourceManager.waitingToUnloadResearch.ToList());
-		//for (int i = 0; i < waitingToUnloadResearch.Count; i++)
-		//	data.waitingToUnloadResearchList.Add(waitingToUnloadResearch[i].producerLoc);
-
-		//data.resourcesNeededForProduction = resourceManager.resourcesNeededForProduction;
-
-		//for (int i = 0; i < resourceManager.waitingForTraderList.Count; i++)
-  //          data.waitingForTraderList.Add(resourceManager.waitingForTraderList[i].id);
-
-        //data.resourcesNeededForRoute = resourceManager.resourcesNeededForRoute;
-
 		return data;
     }
 
     public void LoadCityData(CityData data)
     {
         cityName = data.name;
+        name = cityName;
         isNamed = data.isNamed;
         cityLoc = data.location;
         reachedWaterLimit = data.reachedWaterLimit;
-        //harborTraining = data.harborTraining;
-        //autoGrow = data.autoGrow;
         autoAssignLabor = data.autoAssignLabor;
 		hasWater = data.hasWater;
 		hasFreshWater = data.hasFreshWater;
@@ -2278,10 +2083,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		hasWool = data.hasWool;
 		hasSilk = data.hasSilk;
 		hasClay = data.hasClay;
-        //hasBarracks = data.hasBarracks;
-        //hasHarbor = data.hasHarbor;
-        //hasAirport = data.hasAirport;
-        //airportTraining = data.airportTraining;
         waterCount = data.waterMaxPop;
 		currentPop = data.currentPop;
         unusedLabor = data.unusedLabor;
@@ -2308,11 +2109,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
         //adjusting housing and water levels based on pop
         housingCount -= currentPop;
-        waterCount -= currentPop;
+        //waterCount -= currentPop;
 
 		//resource manager
-		//warehouseStorageLimit = data.warehouseStorageLimit;
-        //resourceManager.ResourceStorageLimit = data.warehouseStorageLimit;
         foreach (ResourceType type in data.allResourceInfoDict.Keys)
         {
             resourceManager.ResourceDict[type] = data.allResourceInfoDict[type].Item1;
@@ -2331,12 +2130,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             }
         }
         resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
-        //resourceManager.fullInventory = data.fullInventory;
-        //resourceManager.ResourceDict = data.resourceDict;
-        //resourceManager.resourcePriceDict = data.resourcePriceDict;
-        //resourceManager.resourceSellList = data.resourceSellList;
-        //resourceManager.resourceMinHoldDict = data.resourceMinHoldDict;
-        //resourceManager.resourceSellHistoryDict = data.resourceSellHistoryDict;
         resourceManager.pauseGrowth = data.pauseGrowth;
         resourceManager.growthDeclineDanger = data.growthDeclineDanger;
 		resourceManager.starvationCount = data.starvationCount;
@@ -2345,6 +2138,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		resourceManager.CycleCount = data.cycleCount;
 		resourceGridDict = data.resourceGridDict;
 
+        if (resourceManager.growthDeclineDanger)
+            exclamationPoint.SetActive(true);
+
         //queue lists
         queueItemList = data.queueItemList;
 
@@ -2352,10 +2148,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             improvementQueueDict[queueItemList[i].queueLoc] = queueItemList[i];
 
         resourceManager.queuedResourcesToCheck = data.queuedResourcesToCheck;
-
-		//waiting lists
-		//resourceManager.resourcesNeededForProduction = data.resourcesNeededForProduction;
-		//resourceManager.resourcesNeededForRoute = data.resourcesNeededForRoute;
 
 		//army data
 		if (singleBuildList.Contains(SingleBuildType.Barracks))
@@ -2489,38 +2281,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		}
     }
 
-	//public void SetProducerWaitingList(List<Vector3Int> producerWaiting)
- //   {
- //       for (int i = 0; i < producerWaiting.Count; i++)
- //       {
- //           resourceManager.waitingforResourceProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
- //       }
- //   }
-
- //   public void SetProducerStorageRoomWaitingList(List<Vector3Int> producerWaiting)
- //   {
-	//	for (int i = 0; i < producerWaiting.Count; i++)
-	//	{
-	//		resourceManager.waitingForStorageRoomProducerList.Add(world.GetResourceProducer(producerWaiting[i]));
-	//	}
-	//}
-
- //   public void SetWaitingToUnloadProducerList(List<Vector3Int> producerWaiting)
- //   {
-	//	for (int i = 0; i < producerWaiting.Count; i++)
-	//	{
-	//		resourceManager.waitingToUnloadProducers.Enqueue(world.GetResourceProducer(producerWaiting[i]));
-	//	}
-	//}
-
- //   public void SetWaitingToUnloadResearchList(List<Vector3Int> producerWaiting)
- //   {
-	//	for (int i = 0; i < producerWaiting.Count; i++)
-	//	{
-	//		resourceManager.waitingToUnloadResearch.Add(world.GetResourceProducer(producerWaiting[i]));
-	//	}
-	//}
-
 	public void SetWaitList(List<int> waitList)
     {
         for (int i = 0; i < waitList.Count; i++)
@@ -2535,81 +2295,4 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 			}
 		}
     }
-
-	//public void SetSeaWaitList(List<int> seaWaitList)
-	//{
-	//	for (int i = 0; i < seaWaitList.Count; i++)
-	//	{
-	//		for (int j = 0; j < world.traderList.Count; j++)
-	//		{
-	//			if (world.traderList[j].id == seaWaitList[i])
-	//			{
-	//				this.seaWaitList.Enqueue(world.traderList[j]);
-	//				break;
-	//			}
-	//		}
-	//	}
-	//}
-
-	//public void SetTraderRouteWaitingList(List<int> tradersWaiting)
- //   {
- //       for (int i = 0; i < tradersWaiting.Count; i++)
- //       {
- //           for (int j = 0; j < world.traderList.Count; j++)
- //           {
- //               if (world.traderList[j].id == tradersWaiting[i])
- //               {
- //                   resourceManager.waitingForTraderList.Add(world.traderList[j]);
- //                   break;
- //               }
- //           }
- //       }
- //   }
-
-  //  public void SetTradersHereList(List<int> tradersHere)
-  //  {
-  //      for (int i = 0; i < tradersHere.Count; i++)
-  //      {
-		//	for (int j = 0; j < world.traderList.Count; j++)
-		//	{
-		//		if (world.traderList[j].id == tradersHere[i])
-		//		{
-		//			this.tradersHere.Add(world.traderList[j]);
-		//			break;
-		//		}
-		//	}
-		//}
-  //  }
-
-  //  public Unit FindUpgradingLandUnit()
-  //  {
-  //      Unit upgradedUnit = null;
-        
-  //      for (int i = 0; i < army.UnitsInArmy.Count; i++)
-  //      {
-  //          if (army.UnitsInArmy[i].isUpgrading)
-  //          {
-  //              upgradedUnit = army.UnitsInArmy[i];
-  //              break;
-  //          }
-  //      }
-
-  //      return upgradedUnit;
-  //  }
-
-  //  public Unit FindUpgradingSeaTraderUnit()
-  //  {
-  //      Unit upgradedUnit = null;
-
-		//for (int i = 0; i < tradersHere.Count; i++)
-		//{
-		//	if (tradersHere[i].isUpgrading)
-		//	{
-		//		upgradedUnit = tradersHere[i];
-		//		break;
-		//	}
-		//}
-
-		//return upgradedUnit;
-  //  }
 }

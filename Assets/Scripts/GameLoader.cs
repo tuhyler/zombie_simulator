@@ -629,7 +629,7 @@ public class GameLoader : MonoBehaviour
 
 		foreach (City city in attackingEnemyCitiesList)
 		{
-			if (city.enemyCamp.inBattle)
+			if (city.enemyCamp.inBattle && !city.enemyCamp.retreat)
 			{
 				world.ToggleCityMaterialClear(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
 				//world.AddToBattleAreas(city.army.cavalryRange);
@@ -639,7 +639,7 @@ public class GameLoader : MonoBehaviour
 
 		foreach (Vector3Int loc in gameData.attackedEnemyBases.Keys)
 		{
-			if (gameData.attackedEnemyBases[loc].inBattle)
+			if (gameData.attackedEnemyBases[loc].inBattle && !gameData.attackedEnemyBases[loc].retreat)
 			{
 				world.ToggleCityMaterialClear(world.GetEnemyCamp(loc).loc, world.GetEnemyCamp(loc).attackingArmy.city.cityLoc, world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
 				//world.AddToBattleAreas(world.GetEnemyCamp(loc).attackingArmy.cavalryRange);

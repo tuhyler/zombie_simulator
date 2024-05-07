@@ -848,19 +848,19 @@ public class Unit : MonoBehaviour
 
     public void Teleport(Vector3 loc)
     {
-        currentLocation = world.RoundToInt(loc);
-        transform.position = loc;
-
         if (military && !military.guard)
         {
             if (military.atSea)
                 military.ToggleBoat(false);
-            FinishMoving(loc);
-            //world.AddUnitPosition(currentLocation, this);           
+            transform.position = loc;
+            destinationLoc = loc;
+            StopMovementCheck(true);
         }
         else if (trader)
         {
-            world.AddTraderPosition(currentLocation, trader);
+            currentLocation = world.RoundToInt(loc);
+			transform.position = loc;
+			world.AddTraderPosition(currentLocation, trader);
         }
     }
 
@@ -1192,8 +1192,8 @@ public class Unit : MonoBehaviour
 		RemoveUnitFromData();
 		if (isSelected)
         {
-            world.unitMovement.ClearSelection();
             world.somethingSelected = false;
+            world.unitMovement.ClearSelection();
         }
 		Destroy(gameObject);
 	}
@@ -1274,7 +1274,7 @@ public class Unit : MonoBehaviour
     {
 		pathPositions.Clear();
 
-        if (military)
+        if (military && posSet)
             world.RemoveUnitPosition(currentLocation);
         else if (trader)
             world.RemoveTraderPosition(currentLocation, trader);

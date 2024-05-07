@@ -1303,6 +1303,7 @@ public class Army : MonoBehaviour
         }
 
 		world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
+        targetCamp.timeTilReturn = 8;
         StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleVisibility(false);
 		city.battleIcon.SetActive(false);
