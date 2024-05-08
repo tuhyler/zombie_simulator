@@ -604,7 +604,7 @@ public class EnemyCamp
 			foreach (Military unit in unitsInCamp)
 			{
 				unit.enemyAI.AttackCheck();
-				unit.StopAttacking();
+				unit.StopAttacking(false);
 			}
 
 			if (attackingArmy != null)

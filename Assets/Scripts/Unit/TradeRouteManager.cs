@@ -746,18 +746,10 @@ public class TradeRouteManager : MonoBehaviour
             }
         }
 
-        //Debug.Log("Finished loading");
         resourceCheck = false; //just in case
         trader.RemoveWarning();
         waitForever = false;
         timeWaited = 0;
-
-        //if (city != null)
-        //    city.CheckQueue();
-        //else if (wonder != null)
-        //    wonder.CheckQueue();
-        //else
-        //    tradeCenter.CheckQueue();
 
         trader.isWaiting = false;
         trader.originalMoveSpeed = trader.buildDataSO.movementSpeed;
@@ -766,7 +758,6 @@ public class TradeRouteManager : MonoBehaviour
         resourceCurrentAmount = 0;
         currentResource = 0;
         trader.BeginNextStepInRoute();
-        //FinishedLoading?.Invoke();
     }
 
     public void CheckQueues()
@@ -776,42 +767,7 @@ public class TradeRouteManager : MonoBehaviour
             stop.RemoveFromWaitList(trader, stop);
             stop = null;
         }
-   //     if (city != null)
-   //     {
-   //         if (trader.bySea)
-   //             city.CheckSeaQueue();
-   //         else if (trader.byAir)
-   //             city.CheckAirQueue();
-   //         else
-   //             city.CheckQueue();
-
-			////city = null;
-   //     }
-   //     else if (wonder != null)
-   //     {
-   //         if (trader.bySea)
-			//	wonder.CheckSeaQueue();
-   //         else
-			//    wonder.CheckQueue();
-            
-   //         //wonder = null;
-   //     }
-   //     else if (tradeCenter != null)
-   //     {
-   //         if (trader.bySea)
-   //             tradeCenter.CheckSeaQueue();
-   //         else
-			//	tradeCenter.CheckQueue();
-
-			////tradeCenter = null;
-   //     }
     }
-
-    //public void UnloadCheck()
-    //{
-    //    resourceCheck = false;
-    //    trader.RemoveWarning();
-    //}
 
     private void IncreaseCurrentStop()
     {

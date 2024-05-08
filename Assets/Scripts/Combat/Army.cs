@@ -1261,7 +1261,7 @@ public class Army : MonoBehaviour
             foreach (Military unit in unitsInArmy)
             {
                 unit.AttackCheck();
-                unit.StopAttacking();
+                unit.StopAttacking(false);
             }
 
             attackingSpots.Clear();
@@ -1299,7 +1299,7 @@ public class Army : MonoBehaviour
         foreach (Military unit in unitsInArmy)
         {
             unit.AttackCheck();
-            unit.StopAttacking();
+            unit.StopAttacking(false);
         }
 
 		world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);

@@ -469,7 +469,7 @@ public class BasicEnemyAI : MonoBehaviour
 		if (unit.isDead)
 			return;
 
-		unit.StopAttacking();
+		unit.StopAttacking(false);
 		AttackCheck();
 
 		unit.inBattle = false;
@@ -479,7 +479,7 @@ public class BasicEnemyAI : MonoBehaviour
 		unit.flankedOnce = false;
 		unit.repositioning = true;
 
-		unit.StopMovementCheck(false);
+		//unit.StopMovementCheck(false);
 
 		unit.finalDestinationLoc = campSpot;
 		List<Vector3Int> path;
@@ -497,13 +497,18 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 		else
 		{
-			unit.repositioning = false;
-			if (!unit.leader)
+			
+			if (unit.leader)
 			{
-				unit.enemyCamp.EnemyReturn(unit);
+				unit.repositioning = false;
+			}
+			else
+			{
+				unit.FinishMoving(unit.transform.position);
+				//unit.enemyCamp.EnemyReturn(unit);
 
-				if (unit.currentHealth < unit.buildDataSO.health)
-					unit.healthbar.RegenerateHealth();
+				//if (unit.currentHealth < unit.buildDataSO.health)
+				//	unit.healthbar.RegenerateHealth();
 			}
 		}
 	}

@@ -572,17 +572,17 @@ public class Worker : Unit
             road.SelectionHighlight.DisableHighlight();
         }
 
-        if (!world.IsRoadOnTerrain(workerTile))
-        {
-            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "No road here");
-            return;
-        }
+        //if (!world.IsRoadOnTerrain(workerTile))
+        //{
+        //    InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "No road here");
+        //    return;
+        //}
 
-        if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile) || world.IsTradeCenterOnTile(workerTile))
-        {
-            InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Can't remove this");
-            return;
-        }
+        //if (world.IsCityOnTile(workerTile) || world.IsWonderOnTile(workerTile) || world.IsTradeCenterOnTile(workerTile))
+        //{
+        //    InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(workerTile, "Can't remove this");
+        //    return;
+        //}
 
 		//StopMovement();
 		//isBusy = true;
@@ -1812,7 +1812,7 @@ public class Worker : Unit
 			world.unitMovement.ShowIndividualCityButtonsUI();
 			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);
 
-			if (world.IsTradeLocOnTile(terrainLoc) && !world.IsWonderOnTile(terrainLoc))
+			if (world.StopExistsCheck(terrainLoc) && !world.IsWonderOnTile(terrainLoc))
 				world.unitMovement.uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
 		}
 

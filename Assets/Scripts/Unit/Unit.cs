@@ -269,12 +269,12 @@ public class Unit : MonoBehaviour
             {
                 //attackingUnit.military.enemyCamp.CheckForWeaklings(attackingUnit.military.enemyCamp.threatLoc);
                 military.AttackCheck();
-                military.StopAttacking();
+                military.StopAttacking(false);
             }
             else if (enemyAI)
             {
                 enemyAI.AttackCheck();
-                military.StopAttacking();
+                military.StopAttacking(false);
             }
 
             if (!attackingUnit.military.aoe)
@@ -285,7 +285,7 @@ public class Unit : MonoBehaviour
 				currentHealth = 1;
 				healthbar.SetHealthLevel(currentHealth);
 				attackingUnit.enemyAI.AttackCheck();
-				attackingUnit.military.StopAttacking();
+				attackingUnit.military.StopAttacking(true);
                 attackingUnit.military.leader.StartGloating();
 				military.bodyGuard.GoDizzy();
 			}
@@ -448,7 +448,7 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning && !trader.atHome)
+        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning)
         {
             if (trader.followingRoute)
                 trader.InterruptRoute(true);
@@ -572,7 +572,35 @@ public class Unit : MonoBehaviour
             {
                 if (trader.followingRoute)
                 {
-                    if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
+                    if (pathPositions.Count == 2)
+                    {
+                        if (!world.StopExistsCheck(trader.tradeRouteManager.currentDestination))
+                        {
+                            trader.CancelRoute();
+                            yield break;
+                        }
+
+                        CityImprovement traderLoc = world.GetCityDevelopment(trader.tradeRouteManager.currentDestination);
+                        if (traderLoc.TraderStallCheck())
+                        {
+							isMoving = false;
+							trader.GetInLine();
+							yield break;
+						}
+						else
+                        {
+                            Vector3Int stallLoc = traderLoc.GetStallLoc(endPositionInt);
+                            currentLocation = stallLoc;
+                            pathPositions.Clear();
+                            trader.atStall = true;
+                            finalDestinationLoc = stallLoc;
+                            List<Vector3Int> path = GridSearch.MilitaryMove(world, endPositionInt, stallLoc, bySea);
+                            MoveThroughPath(path);
+                            yield break;
+                        }
+                    }
+
+                    if (!trader.atStall && world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
                     {
                         isMoving = false;
                         trader.GetInLine();
@@ -582,7 +610,7 @@ public class Unit : MonoBehaviour
                     {
                         world.RemoveTraderPosition(endPositionInt, trader);
 
-                        if (trader.guarded && !trader.atHome)
+                        if (trader.guarded)
                         {
                             if (trader.guardUnit.isMoving)
                             {

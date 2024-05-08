@@ -308,6 +308,7 @@ public class WorkerTaskManager : MonoBehaviour
         city.SetWorld(world);
 		world.cityCount++;
 		city.SetNewCityName();
+        world.AddStopName(city.cityName, city);
         world.AddCity(workerTile, city);
         city.CheckForAvailableSingleBuilds();
 

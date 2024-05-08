@@ -310,7 +310,7 @@ public class GameLoader : MonoBehaviour
 		}
 
 		//trade centers (waiting lists)
-		foreach (TradeCenter center in world.tradeCenterDict.Values)
+		foreach (TradeCenter center in world.allTradeCenters)
 		{
 			gameData.allTradeCenters[center.mainLoc].waitList = center.SaveWaitListData(false, false);
 			gameData.allTradeCenters[center.mainLoc].seaWaitList = center.SaveWaitListData(true, false);
@@ -320,18 +320,14 @@ public class GameLoader : MonoBehaviour
 		//wonders
 		gameData.allWonders.Clear();
 		for (int i = 0; i < world.allWonders.Count; i++)
-		{
 			gameData.allWonders.Add(world.allWonders[i].SaveData());
-		}
 
 		//cities
 		gameData.allCities.Clear();
 		gameData.militaryUnits.Clear();
 		gameData.allArmies.Clear();
 		foreach (City city in world.cityDict.Values)
-		{
 			gameData.allCities.Add(city.SaveCityData());
-		}
 
 		//city improvements
 		gameData.allCityImprovements.Clear();

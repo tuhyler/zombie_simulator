@@ -237,7 +237,7 @@ public class CityBuilderManager : MonoBehaviour
         {
             SelectCity(location, world.GetCity(terrainLocation));
         }
-        else if (world.IsWonderOnTile(terrainLocation) && tdTry != null)
+        else if (world.WonderTileCheck(terrainLocation) && tdTry != null)
         {
 			SelectWonder(world.GetWonder(terrainLocation));
 		}
@@ -639,7 +639,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void BuildHarbor()
     {
-        if (selectedWonder.hasHarbor)
+        if (selectedWonder.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
         {
             PlayAudioClip(removeClip);
             selectedWonder.DestroyHarbor();
@@ -817,13 +817,14 @@ public class CityBuilderManager : MonoBehaviour
         selectedWonder.harborImprovement = harbor;
         harborGO.transform.localScale = Vector3.zero;
         LeanTween.scale(harborGO, goScale, 0.25f).setEase(LeanTweenType.easeOutBack);
-        selectedWonder.hasHarbor = true;
-        selectedWonder.harborLoc = loc;
+        selectedWonder.singleBuildDict[SingleBuildType.Harbor] = loc;
+        //selectedWonder.hasHarbor = true;
+        //selectedWonder.harborLoc = loc;
 
         world.AddToCityLabor(loc, null);
         world.AddStructure(loc, harborGO);
         world.AddStop(loc, selectedWonder);
-        world.AddTradeLoc(loc, selectedWonder.wonderName);
+        //world.AddTradeLoc(loc, selectedWonder.wonderName);
         uiWonderSelection.UpdateHarborButton(true);
 
         CloseImprovementBuildPanel();
@@ -840,7 +841,7 @@ public class CityBuilderManager : MonoBehaviour
 		world.AddToCityLabor(loc, null);
         world.AddStop(loc, wonder);
 		world.AddStructure(loc, harborGO);
-		world.AddTradeLoc(loc, wonder.wonderName);
+		//world.AddTradeLoc(loc, wonder.wonderName);
 	}
 
     public void OpenCancelWonderConstructionWarning()
@@ -863,20 +864,17 @@ public class CityBuilderManager : MonoBehaviour
         CreateAllWorkers(selectedWonder);
 		selectedWonder.GoldWaitCheck();
 
-		if (!selectedWonder.roadPreExisted)
-        {
-            RoadManager roadManager = GetComponent<RoadManager>();
-            roadManager.RemoveRoadAtPosition(selectedWonder.unloadLoc);
-        }
+		if (!selectedWonder.hadRoad)
+            world.roadManager.RemoveRoadAtPosition(selectedWonder.unloadLoc);
 
         selectedWonder.RemoveQueuedTraders();
 
-        if (selectedWonder.hasHarbor)
+        if (selectedWonder.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
             selectedWonder.DestroyHarbor();
 
         world.RemoveStop(selectedWonder.unloadLoc);
-        world.RemoveWonderName(selectedWonder.wonderName);
-        world.RemoveTradeLoc(selectedWonder.unloadLoc);
+        world.RemoveStopName(selectedWonder.wonderName);
+        //world.RemoveTradeLoc(selectedWonder.unloadLoc);
 
         GameObject priorGO = world.GetStructure(selectedWonder.unloadLoc);
         Destroy(priorGO);
@@ -890,7 +888,8 @@ public class CityBuilderManager : MonoBehaviour
         {
             world.RemoveStructure(tile);
             world.RemoveSingleBuildFromCityLabor(tile);
-            world.RemoveWonder(tile);
+            world.RemoveWonderTiles(tile);
+            //world.RemoveWonder(tile);
 
             TerrainData td = world.GetTerrainDataAt(tile);
 
@@ -2109,7 +2108,7 @@ public class CityBuilderManager : MonoBehaviour
 
 	public void TransferLaborPrep(string destination, int amount, bool atSea)
 	{
-        Vector3Int loc = world.GetStopLocation(destination);
+        Vector3Int loc = world.GetStopMainLocation(destination);
 
         List<Vector3Int> transferPath;
         List<Vector3Int> spawnLocs;
@@ -2409,22 +2408,20 @@ public class CityBuilderManager : MonoBehaviour
                     td.EnableHighlight(Color.red);
                     tilesToChange.Add(tile);
                 }                
-                //else if (world.CheckIfTileIsUnderConstruction(tile))
-                //{
-                //    //CityImprovement improvement = world.GetCityDevelopmentConstruction(tile);
-                //    //improvement.DisableHighlight();
-
-                //    //improvement.EnableHighlight(Color.red);
-                //    td.EnableHighlight(Color.red);
-                //    tilesToChange.Add(tile);
-                //}
             }
             else //if placing improvement
             {
                 if (isQueueing && world.CheckQueueLocation(tile))
                     continue;
-                
-                if (world.IsTileOpenCheck(tile) && !td.hasBattle)
+
+                bool tileCheck;
+
+                if (improvementData.buildOnRoad)
+                    tileCheck = world.IsTileOpenButRoadCheck(tile);
+                else
+                    tileCheck = world.IsTileOpenCheck(tile);
+
+                if (tileCheck && !td.hasBattle)
                 {
                     TerrainType type = td.terrainData.type;
 
@@ -2480,10 +2477,25 @@ public class CityBuilderManager : MonoBehaviour
         //RemoveQueueGhostImprovement(tempBuildLocation, city);
         world.CheckTileForTreasure(tempBuildLocation);
 
-        if (!upgradingImprovement && !world.IsTileOpenCheck(tempBuildLocation))
+        if (!upgradingImprovement)
         {
-            UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something already here");
-            return;
+            bool somethingInWay = false;
+            if (improvementData.buildOnRoad)
+            {
+                if (!world.IsTileOpenButRoadCheck(tempBuildLocation))
+                    somethingInWay = true;
+            }
+            else
+            {
+                if (!world.IsTileOpenCheck(tempBuildLocation))
+                    somethingInWay = true;
+            } 
+
+            if (somethingInWay)
+            {
+			    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Something already here");
+                return;
+            }
         }
 
         if (!upgradingImprovement)
@@ -2553,8 +2565,8 @@ public class CityBuilderManager : MonoBehaviour
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.SetWorld(world);
         cityImprovement.loc = buildLocation;
+        cityImprovement.SetUpStallLocs();
         cityImprovement.InitializeImprovementData(improvementData);
-        //cityImprovement.SetPSLocs();
         cityImprovement.SetQueueCity(null);
         cityImprovement.building = improvementData.isBuilding;
         cityImprovement.city = city;
@@ -2802,18 +2814,19 @@ public class CityBuilderManager : MonoBehaviour
         }
 
         //setting harbor info
-        if (improvementData.singleBuildType == SingleBuildType.Harbor)
+        if (improvementData.singleBuildType == SingleBuildType.TradeDepot)
         {
-            //city.hasHarbor = true;
-            //city.harborLocation = tempBuildLocation;
+			world.AddStop(tempBuildLocation, city);
+            world.BuildRoadWithObject(tempBuildLocation, true);
+		}
+        else if (improvementData.singleBuildType == SingleBuildType.Harbor)
+        {
 			cityImprovement.mapIconHolder.localRotation = Quaternion.Inverse(improvement.transform.rotation);
             world.AddStop(tempBuildLocation, city);
-			world.AddTradeLoc(tempBuildLocation, city.cityName);
         }
         else if (improvementData.singleBuildType == SingleBuildType.Airport)
         {
 			world.AddStop(tempBuildLocation, city);
-			world.AddTradeLoc(tempBuildLocation, city.cityName);
 		}
         else if (improvementData.singleBuildType == SingleBuildType.Barracks)
         {
@@ -2837,8 +2850,8 @@ public class CityBuilderManager : MonoBehaviour
             city.AutoAssignmentsForLabor();
 
         //removing areas to work
-        foreach (Vector3Int loc in improvementData.noWalkAreas)
-            world.AddToNoWalkList(loc + tempBuildLocation);
+        //foreach (Vector3Int loc in improvementData.noWalkAreas)
+        //    world.AddToNoWalkList(loc + tempBuildLocation);
 
         //no tweening, so must be done here
         if (improvementData.replaceTerrain)
@@ -3052,8 +3065,8 @@ public class CityBuilderManager : MonoBehaviour
         if (!upgradingImprovement && !selectedImprovement.isConstruction)
 		    selectedImprovement.PlayRemoveEffect(td.isHill);
 
-		foreach (Vector3Int loc in improvementData.noWalkAreas)
-            world.RemoveFromNoWalkList(loc + improvementLoc);
+		//foreach (Vector3Int loc in improvementData.noWalkAreas)
+  //          world.RemoveFromNoWalkList(loc + improvementLoc);
 
         //updating city graphic
         if (!selectedImprovement.isConstruction)
@@ -3130,23 +3143,19 @@ public class CityBuilderManager : MonoBehaviour
             return true;
         }
 
-        if (selectedImprovement.city != null)
+		if (!upgradingImprovement && world.IsRoadOnTerrain(improvementLoc) && !selectedImprovement.hadRoad)
+			world.roadManager.RemoveRoadAtPosition(improvementLoc);
+
+		if (selectedImprovement.city != null)
         {
-            if (selectedImprovement.city.singleBuildDict.ContainsKey(SingleBuildType.Harbor) && improvementLoc == selectedImprovement.city.singleBuildDict[SingleBuildType.Harbor])
-            {
-				selectedImprovement.city.singleBuildDict.Remove(improvementData.singleBuildType); //must be here, listed individually for each trader option
-				world.RemoveTradeLoc(improvementLoc);
-                world.RemoveStop(improvementLoc);
-                selectedImprovement.city.RemoveHarborCheck(improvementLoc);
-            }
-			else if (selectedImprovement.city.singleBuildDict.ContainsKey(SingleBuildType.Airport) && improvementLoc == selectedImprovement.city.singleBuildDict[SingleBuildType.Airport])
-            {
-				selectedImprovement.city.singleBuildDict.Remove(improvementData.singleBuildType);
-				world.RemoveTradeLoc(improvementLoc);
+            SingleBuildType type = improvementData.singleBuildType;
+            if (type == SingleBuildType.TradeDepot || type == SingleBuildType.Harbor || type == SingleBuildType.Airport)
+			{
+				selectedImprovement.city.singleBuildDict.Remove(type); //must be here, listed individually for each trader option
 				world.RemoveStop(improvementLoc);
-				selectedImprovement.city.RemoveAirportCheck(improvementLoc);
+				selectedImprovement.city.RemoveStopCheck(improvementLoc, type);
 			}
-			else if (selectedImprovement.city.singleBuildDict.ContainsKey(SingleBuildType.Barracks) && improvementLoc == selectedImprovement.city.singleBuildDict[SingleBuildType.Barracks])
+			else if (type == SingleBuildType.Barracks)
             {
 				world.militaryStationLocs.Remove(improvementLoc);
 				selectedImprovement.city.army.ClearArmySpots();
@@ -3155,10 +3164,10 @@ public class CityBuilderManager : MonoBehaviour
             if (selectedImprovement.city.AutoAssignLabor && selectedImprovement.city.unusedLabor > 0)
 				selectedImprovement.city.AutoAssignmentsForLabor();
 
-            if (improvementData.singleBuildType != SingleBuildType.None)
+            if (type != SingleBuildType.None)
             {
-                selectedImprovement.city.singleBuildDict.Remove(improvementData.singleBuildType);
-                selectedImprovement.city.singleBuildList.Remove(improvementData.singleBuildType);
+                selectedImprovement.city.singleBuildDict.Remove(type);
+                selectedImprovement.city.singleBuildList.Remove(type);
 				world.RemoveSingleBuildFromCityLabor(improvementLoc);
             }
         }
@@ -4016,9 +4025,10 @@ public class CityBuilderManager : MonoBehaviour
         world.RemoveStructure(city.cityLoc);
         //world.RemoveStructureMap(selectedCityLoc);
         //world.ResetTileMap(selectedCityLoc);
-        world.RemoveStop(city.cityLoc);
-        world.RemoveCityName(city.cityLoc);
-        world.RemoveTradeLoc(city.cityLoc);
+        //world.RemoveStop(city.cityLoc);
+        world.RemoveStopName(city.cityName);
+        //world.RemoveCityName(city.cityLoc);
+        //world.RemoveTradeLoc(city.cityLoc);
 		city.DestroyThisCity();
 
         //for all single build improvements, finding a nearby city to join that doesn't have one. If not one available, then is unowned. 
@@ -4054,15 +4064,19 @@ public class CityBuilderManager : MonoBehaviour
                         tempCity.singleBuildDict[singleImprovement] = improvementLoc;
 						world.AddToCityLabor(improvementLoc, tempCity.cityLoc);
 
-						/*if (singleImprovement == "Harbor") //is also done in City object
-						{
-                            //tempCity.singleBuildDict[SingleBuildType.Harbor] = improvementLoc;
-                            //world.RemoveHarbor(improvementLoc);
-							//tempCity.hasHarbor = true;
-							//tempCity.harborLocation = improvementLoc;
-							//world.SetCityHarbor(tempCity, improvementLoc);
-						}
-						else */if (singleImprovement == SingleBuildType.Barracks)
+						if (singleImprovement == SingleBuildType.TradeDepot || singleImprovement == SingleBuildType.Harbor || singleImprovement == SingleBuildType.Airport)
+                            world.AddStop(tile, tempCity);
+
+							/*if (singleImprovement == "Harbor") //is also done in City object
+							{
+								//tempCity.singleBuildDict[SingleBuildType.Harbor] = improvementLoc;
+								//world.RemoveHarbor(improvementLoc);
+								//tempCity.hasHarbor = true;
+								//tempCity.harborLocation = improvementLoc;
+								//world.SetCityHarbor(tempCity, improvementLoc);
+							}
+							else */
+						if (singleImprovement == SingleBuildType.Barracks)
 						{
 							//tempCity.hasBarracks = true;
 							//tempCity.barracksLocation = improvementLoc;
@@ -4083,11 +4097,8 @@ public class CityBuilderManager : MonoBehaviour
 			{
                 improvement.city = null;
                 
-                if (singleImprovement == SingleBuildType.Harbor || singleImprovement == SingleBuildType.Airport)
-                {
+                if (singleImprovement == SingleBuildType.TradeDepot || singleImprovement == SingleBuildType.Harbor || singleImprovement == SingleBuildType.Airport)
 					world.RemoveStop(improvementLoc);
-					world.RemoveTradeLoc(improvementLoc);
-                }
 
                 if (singleImprovement == SingleBuildType.Barracks)
                     improvement.army = null;

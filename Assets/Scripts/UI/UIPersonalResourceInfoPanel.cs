@@ -161,7 +161,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
                 }
                 else if (tradeCenter)
                 {
-					foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
+					foreach (ResourceType type in tradeCenter.resourceBuyGridDict.Keys)
                         ActivateCell(type, true, true);
 
                     gridGrid.cellSize = new Vector2(90, 110);
@@ -259,9 +259,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
             }
             else
             {
-                foreach (ResourceType type in this.tradeCenter.ResourceBuyGridDict.Keys)
+                foreach (ResourceType type in this.tradeCenter.resourceBuyGridDict.Keys)
                 {
-                    int loc = this.tradeCenter.ResourceBuyGridDict[type];
+                    int loc = this.tradeCenter.resourceBuyGridDict[type];
                     gridCellDict[loc].resource.HidePricing();
                 }
 
@@ -339,7 +339,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
             else if (wonder)
                 loc = wonder.ResourceGridDict[type];
             else
-                loc = tradeCenter.ResourceBuyGridDict[type];
+                loc = tradeCenter.resourceBuyGridDict[type];
         }
         else
         {
@@ -600,9 +600,9 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
 
             if (atTradeCenter)
             {
-                foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
+                foreach (ResourceType type in tradeCenter.resourceBuyGridDict.Keys)
                 {
-                    int typeLoc = tradeCenter.ResourceBuyGridDict[type];
+                    int typeLoc = tradeCenter.resourceBuyGridDict[type];
                     gridCellDict[typeLoc].resource.HidePricing();
                 }
 
@@ -768,8 +768,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
                 return;
         }
 
-        foreach (ResourceType type in tradeCenter.ResourceBuyGridDict.Keys)
-            gridCellDict[tradeCenter.ResourceBuyGridDict[type]].resource.SetPriceColor(goldAmount >= Mathf.RoundToInt(tradeCenter.ResourceBuyDict[type] * tradeCenter.multiple) ? Color.white : Color.red);
+        foreach (ResourceType type in tradeCenter.resourceBuyGridDict.Keys)
+            gridCellDict[tradeCenter.resourceBuyGridDict[type]].resource.SetPriceColor(goldAmount >= Mathf.RoundToInt(tradeCenter.ResourceBuyDict[type] * tradeCenter.multiple) ? Color.white : Color.red);
     }
 
     public void ReturnResource(ResourceType type, int amount)

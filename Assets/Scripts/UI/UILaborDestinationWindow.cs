@@ -290,7 +290,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 				}
 				else
 				{
-					City newCity = world.GetCity(world.GetStopLocation(chosenDestination));
+					City newCity = world.GetCity(world.GetStopMainLocation(chosenDestination));
 					CityImprovement dest = world.GetCityDevelopment(newCity.singleBuildDict[buildType]);
 
 					if (!dest.army.atHome || dest.army.defending || dest.army.isFull)

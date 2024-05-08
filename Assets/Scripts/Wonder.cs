@@ -26,9 +26,9 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     //public Quaternion Rotation { set { rotation = value; } }
 
     [HideInInspector]
-    public bool isConstructing, canBuildHarbor, hasHarbor, isActive, roadPreExisted, goldWait;
+    public bool isConstructing, canBuildHarbor, isActive, hadRoad, goldWait;
     [HideInInspector]
-    public Vector3Int unloadLoc, harborLoc;
+    public Vector3Int unloadLoc;
     [HideInInspector]
     public Vector3 centerPos;
     public string wonderName;
@@ -73,6 +73,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     private int timePassed;
     private bool isBuilding;
     private WaitForSeconds oneSecondWait = new WaitForSeconds(1);
+    public Dictionary<SingleBuildType, Vector3Int> singleBuildDict = new();
 
 	//stop info
 	ITradeStop stop;
@@ -83,6 +84,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 	List<Trader> ITradeStop.seaWaitList => seaWaitList;
 	List<Trader> ITradeStop.airWaitList => new();
 	Vector3Int ITradeStop.mainLoc => unloadLoc;
+	Dictionary<SingleBuildType, Vector3Int> ITradeStop.singleBuildLocDict => singleBuildDict;
 	City ITradeStop.city => null;
 	Wonder ITradeStop.wonder => this;
 	TradeCenter ITradeStop.center => null;
@@ -545,18 +547,18 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
             PlaySmokeSplash();
             isConstructing = false;
             world.RemoveStop(unloadLoc);
-            world.RemoveWonderName(wonderName);
+            world.RemoveStopName(wonderName);
             if (isActive)
             {
 				world.cityBuilderManager.uiWonderSelection.HideCancelConstructionButton();
 				world.cityBuilderManager.uiWonderSelection.HideHarborButton();
 				world.cityBuilderManager.uiWonderSelection.HideWorkerCounts();
             }
-            world.RemoveTradeLoc(unloadLoc);
+            //world.RemoveTradeLoc(unloadLoc);
 
             MeshCheck();
 
-			if (hasHarbor)
+			if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
                 DestroyHarbor();
 
             world.roadManager.RemoveRoadAtPosition(unloadLoc);
@@ -604,10 +606,11 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void DestroyHarbor()
     {
+        Vector3Int harborLoc = singleBuildDict[SingleBuildType.Harbor];
         stop.ClearStopCheck(stop.seaWaitList, harborLoc, world);
         //ClearHarborCheck();
         
-        hasHarbor = false;
+        //hasHarbor = false;
         GameObject harbor = world.GetStructure(harborLoc);
         harbor.GetComponent<CityImprovement>().PlayRemoveEffect(false);
         harborImprovement = null;
@@ -615,7 +618,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         world.RemoveSingleBuildFromCityLabor(harborLoc);
         world.RemoveStructure(harborLoc);
 		world.RemoveStop(harborLoc);
-		world.RemoveTradeLoc(harborLoc);
+		//world.RemoveTradeLoc(harborLoc);
     }
 
     public List<Vector3Int> OuterRim()
@@ -890,8 +893,8 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     public void RemoveQueuedTraders()
     {
         stop.ClearStopCheck(stop.waitList, unloadLoc, world);
-        if (hasHarbor)
-            stop.ClearStopCheck(stop.seaWaitList, harborLoc, world);
+        if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+            stop.ClearStopCheck(stop.seaWaitList, singleBuildDict[SingleBuildType.Harbor], world);
                 
         //ClearWonderCheck();
         //ClearHarborCheck();
@@ -905,14 +908,13 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         data.centerPos = centerPos;
         data.rotation = transform.rotation;
         data.unloadLoc = unloadLoc;
-        data.harborLoc = harborLoc;
+        data.singleBuildDict = singleBuildDict;
         data.percentDone = percentDone;
         data.workersReceived = workersReceived;
         data.timePassed = timePassed;
         data.isConstructing = isConstructing;
         data.canBuildHarbor = canBuildHarbor;
-        data.hasHarbor = hasHarbor;
-        data.roadPreExisted = roadPreExisted;
+        data.hadRoad = hadRoad;
         data.isBuilding = isBuilding;
         data.wonderLocs = wonderLocs;
         data.possibleHarborLocs = possibleHarborLocs;
@@ -942,14 +944,13 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         wonderName = data.name;
 		unloadLoc = data.unloadLoc;
         SetExclamationPoint();
-		harborLoc = data.harborLoc;
+        singleBuildDict = data.singleBuildDict;
 		percentDone = data.percentDone;
 		workersReceived = data.workersReceived;
         timePassed = data.timePassed;
 		isConstructing = data.isConstructing;
 		canBuildHarbor = data.canBuildHarbor;
-		hasHarbor = data.hasHarbor;
-		roadPreExisted = data.roadPreExisted;
+		hadRoad = data.hadRoad;
 		wonderLocs = data.wonderLocs;
 		possibleHarborLocs = data.possibleHarborLocs;
 		coastTiles = data.coastTiles;

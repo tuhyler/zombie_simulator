@@ -139,11 +139,11 @@ public class UICityNamer : MonoBehaviour
             if (tempCity.CheckCityName(tempText))
             {
                 StartCoroutine(Shake(.25f, 10));
-			    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Already taken", true);
+			    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Name already taken", true);
 			    return;
             }
 
-            tempCity.RemoveCityName();
+            world.UpdateStopName(tempCity.cityName, tempText);
             tempCity.UpdateCityName(tempText);
             tempCity.isNamed = true;
 

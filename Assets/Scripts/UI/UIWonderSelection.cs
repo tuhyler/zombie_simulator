@@ -92,7 +92,7 @@ public class UIWonderSelection : MonoBehaviour
             if (wonder.canBuildHarbor && wonder.isConstructing)
             {
                 addHarborButton.SetActive(true);
-                if (wonder.hasHarbor)
+                if (wonder.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
                     harborText.text = "Remove Dock";
                 else
                     harborText.text = "Add Dock";
