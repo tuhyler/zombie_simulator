@@ -139,17 +139,13 @@ public class MapWorld : MonoBehaviour
     private bool sideways;
     [HideInInspector]
     public List<Wonder> allWonders = new();
-    //public Dictionary<string, Wonder> wonderConstructionDict = new();
     private HashSet<Vector3Int> wonderTiles = new();
-    //private Dictionary<Vector3Int, Wonder> wonderStopDict = new();
     private GameObject wonderGhost;
 
     //trade center info
     [SerializeField]
     private Sprite tradeCenterMapIcon;
     public List<TradeCenter> allTradeCenters = new();
-    //public Dictionary<string, TradeCenter> tradeCenterDict = new();
-    //private Dictionary<Vector3Int, TradeCenter> tradeCenterStopDict = new();
 	private Dictionary<Vector3Int, List<GameObject>> centerBordersDict = new();
 
 	//miscellaneous sprites
@@ -176,7 +172,6 @@ public class MapWorld : MonoBehaviour
     private List<GameObject> cityNamesMaps = new();
 
     public Dictionary<Vector3Int, City> cityDict = new(); 
-    //private Dictionary<Vector3Int, string> tradeLocDict = new(); //cities and the respective locations of their harbors
     public Dictionary<Vector3Int, CityImprovement> cityImprovementDict = new(); //all the City development locs
     public Dictionary<Vector3Int, Dictionary<string, CityImprovement>> cityBuildingDict = new(); //all the buildings for highlighting
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList = new();
@@ -184,9 +179,9 @@ public class MapWorld : MonoBehaviour
     public HashSet<Vector3Int> unclaimedSingleBuildList = new ();
     private Dictionary<Vector3Int, ITradeStop> tradeStopDict = new();
     private Dictionary<string, ITradeStop> tradeStopNameDict = new();
-	//private Dictionary<string, Vector3Int> cityNameDict = new();
- //   private Dictionary<Vector3Int, string> cityLocDict = new();
     public Dictionary<Vector3Int, List<Trader>> traderPosDict = new();
+    public Dictionary<Vector3Int, TraderStallManager> traderStallDict = new();
+    //unit positions
     public Dictionary<Vector3Int, Unit> playerPosDict = new();
     public Dictionary<Vector3Int, Unit> unitPosDict = new(); //to track unitGO locations
     public Dictionary<Vector3Int, Unit> npcPosDict = new();
@@ -1669,6 +1664,7 @@ public class MapWorld : MonoBehaviour
 		City city = newCity.GetComponent<City>();
 		city.SetWorld(this);
 		city.UpdateCityName(data.name);
+		AddStopName(city.cityName, city);
 		AddCity(cityTile, city);
 		//city.SetCityBuilderManager(cityBuilderManager);
 		//city.CheckForAvailableSingleBuilds();
@@ -1803,7 +1799,6 @@ public class MapWorld : MonoBehaviour
 		CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.SetWorld(this);
         cityImprovement.loc = buildLocation;
-        cityImprovement.SetUpStallLocs();
 		cityImprovement.InitializeImprovementData(improvementData);
 		//cityImprovement.SetPSLocs();
 		cityImprovement.SetQueueCity(null);
@@ -5120,6 +5115,21 @@ public class MapWorld : MonoBehaviour
         return tradeStopDict[loc];
     }
 
+    public bool TraderStallCheck(Vector3Int loc)
+    {
+        return traderStallDict[loc].isFull;
+    }
+
+    public Vector3Int GetTraderStallLoc(Vector3Int loc, Vector3Int currentLoc)
+    {
+        return traderStallDict[loc].GetAvailableStall(currentLoc);
+    }
+
+    public void RemoveTraderFromStall(Vector3Int loc, Vector3Int currentLoc)
+    {
+        traderStallDict[loc].OpenStall(currentLoc);
+    }
+
     public Vector3Int GetStopMainLocation(string name)
     {
         return tradeStopNameDict[name].mainLoc;
@@ -7546,6 +7556,10 @@ public class MapWorld : MonoBehaviour
     public void AddStop(Vector3Int stopLoc, ITradeStop stop)
     {
         tradeStopDict[stopLoc] = stop;
+
+        TraderStallManager stalls = new();
+        stalls.SetUpStallLocs(stopLoc);
+        traderStallDict[stopLoc] = stalls;
     }
 
     public void AddStopName(string stopName, ITradeStop stop)
@@ -7606,32 +7620,13 @@ public class MapWorld : MonoBehaviour
     public void AddCityBuildingDict(Vector3 cityPos)
     {
         Vector3Int cityTile = RoundToInt(cityPos);
-        //cityBuildingGODict[cityTile] = new Dictionary<string, GameObject>();
         cityBuildingDict[cityTile] = new Dictionary<string, CityImprovement>();
-        //cityBuildingCurrentWorkedDict[cityTile] = new Dictionary<string, int>();
-        //cityBuildingMaxWorkedDict[cityTile] = new Dictionary<string, int>();
-        //cityBuildingList[cityTile] = new List<string>();
-        //cityBuildingIsProducer[cityTile] = new Dictionary<string, ResourceProducer>();
     }
-
-    //public int CityCount()
-    //{
-    //    return cityNameDict.Count;
-    //}
-
-    //public void RemoveCityBuilding(Vector3Int cityTile, string buildingName) 
-    //{
-    //    //cityBuildingGODict[cityTile].Remove(buildingName);
-    //    cityBuildingDict[cityTile].Remove(buildingName);
-    //    //cityBuildingCurrentWorkedDict[cityTile].Remove(buildingName);
-    //    //cityBuildingMaxWorkedDict[cityTile].Remove(buildingName);
-    //    //cityBuildingList[cityTile].Remove(buildingName);
-    //    //cityBuildingIsProducer[cityTile].Remove(buildingName);
-    //}
 
     public void RemoveStop(Vector3Int stopLoc)
     {
         tradeStopDict.Remove(stopLoc);
+        traderStallDict.Remove(stopLoc);
     }
 
     public void RemoveStopName(string stopName)
@@ -9214,6 +9209,7 @@ public interface ITradeStop
         for (int i = 0; i < tempWaitList.Count; i++)
         {
             tempWaitList[i].isWaiting = false;
+            tempWaitList[i].TraderStallCheck();
             waitList.Remove(tempWaitList[i]);
             tempWaitList[i].InterruptRoute(true);
         }

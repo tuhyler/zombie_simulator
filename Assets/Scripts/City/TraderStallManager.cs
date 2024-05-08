@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TraderStallManager : MonoBehaviour
+public class TraderStallManager
 {
     private List<Vector3Int> stallLocs = new();
     
@@ -11,7 +11,7 @@ public class TraderStallManager : MonoBehaviour
 
     public void SetUpStallLocs(Vector3Int loc)
     {
-        List<Vector3Int> stallCoordinates = new() { Vector3Int.zero/*, Vector3Int.forward, Vector3Int.left, Vector3Int.back, Vector3Int.right */};
+        List<Vector3Int> stallCoordinates = new() { Vector3Int.zero, Vector3Int.left/*, Vector3Int.forward, Vector3Int.back, Vector3Int.right */};
 
         for (int i = 0; i < stallCoordinates.Count; i++)
             stallLocs.Add(loc + stallCoordinates[i]);

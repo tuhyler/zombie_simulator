@@ -2565,7 +2565,6 @@ public class CityBuilderManager : MonoBehaviour
         CityImprovement cityImprovement = improvement.GetComponent<CityImprovement>();
         cityImprovement.SetWorld(world);
         cityImprovement.loc = buildLocation;
-        cityImprovement.SetUpStallLocs();
         cityImprovement.InitializeImprovementData(improvementData);
         cityImprovement.SetQueueCity(null);
         cityImprovement.building = improvementData.isBuilding;
@@ -3151,9 +3150,9 @@ public class CityBuilderManager : MonoBehaviour
             SingleBuildType type = improvementData.singleBuildType;
             if (type == SingleBuildType.TradeDepot || type == SingleBuildType.Harbor || type == SingleBuildType.Airport)
 			{
-				selectedImprovement.city.singleBuildDict.Remove(type); //must be here, listed individually for each trader option
-				world.RemoveStop(improvementLoc);
+				selectedImprovement.city.singleBuildDict.Remove(type); //must be here
 				selectedImprovement.city.RemoveStopCheck(improvementLoc, type);
+				world.RemoveStop(improvementLoc);
 			}
 			else if (type == SingleBuildType.Barracks)
             {

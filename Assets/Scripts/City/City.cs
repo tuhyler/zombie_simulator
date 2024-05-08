@@ -1929,20 +1929,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         stop.ClearStopCheck(stop.GetWaitList(type), loc, world);
     }
 
-    public void RemoveTradeDepotCheck(Vector3Int depotLoc)
-    {
-        stop.ClearStopCheck(waitList, depotLoc, world);
-    }
+ //   public void RemoveTradeDepotCheck(Vector3Int depotLoc)
+ //   {
+ //       stop.ClearStopCheck(waitList, depotLoc, world);
+ //   }
 
-    public void RemoveHarborCheck(Vector3Int harborLoc)
-    {
-		stop.ClearStopCheck(seaWaitList, harborLoc, world);
-	}
+ //   public void RemoveHarborCheck(Vector3Int harborLoc)
+ //   {
+	//	stop.ClearStopCheck(seaWaitList, harborLoc, world);
+	//}
 
-    public void RemoveAirportCheck(Vector3Int airportLoc)
-    {
-		stop.ClearStopCheck(stop.airWaitList, airportLoc, world);
-	}
+ //   public void RemoveAirportCheck(Vector3Int airportLoc)
+ //   {
+	//	stop.ClearStopCheck(stop.airWaitList, airportLoc, world);
+	//}
 
     public void DestroyThisCity()
     {

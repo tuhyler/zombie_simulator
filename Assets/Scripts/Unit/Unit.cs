@@ -345,7 +345,7 @@ public class Unit : MonoBehaviour
         {
             world.RemoveTraderPosition(currentLocation, trader);
             
-            if (trader.followingRoute && world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
+            if (trader.followingRoute && !trader.atStall && world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
             {
                 isMoving = true;
                 trader.GetInLine();
@@ -448,12 +448,12 @@ public class Unit : MonoBehaviour
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (trader && !bySea && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning)
+        if (trader && !bySea && !trader.atStall && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning)
         {
             if (trader.followingRoute)
                 trader.InterruptRoute(true);
             
-            FinishMoving(transform.position);
+            //FinishMoving(transform.position);
             yield break;
         }
 
@@ -570,7 +570,7 @@ public class Unit : MonoBehaviour
         {
             if (trader)
             {
-                if (trader.followingRoute)
+                if (trader.followingRoute && !trader.atStall)
                 {
                     if (pathPositions.Count == 2)
                     {
@@ -580,8 +580,7 @@ public class Unit : MonoBehaviour
                             yield break;
                         }
 
-                        CityImprovement traderLoc = world.GetCityDevelopment(trader.tradeRouteManager.currentDestination);
-                        if (traderLoc.TraderStallCheck())
+                        if (world.TraderStallCheck(trader.tradeRouteManager.currentDestination))
                         {
 							isMoving = false;
 							trader.GetInLine();
@@ -589,18 +588,12 @@ public class Unit : MonoBehaviour
 						}
 						else
                         {
-                            Vector3Int stallLoc = traderLoc.GetStallLoc(endPositionInt);
-                            currentLocation = stallLoc;
-                            pathPositions.Clear();
-                            trader.atStall = true;
-                            finalDestinationLoc = stallLoc;
-                            List<Vector3Int> path = GridSearch.MilitaryMove(world, endPositionInt, stallLoc, bySea);
-                            MoveThroughPath(path);
+                            trader.GoToTraderStall(endPositionInt);
                             yield break;
                         }
                     }
 
-                    if (!trader.atStall && world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
+                    if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
                     {
                         isMoving = false;
                         trader.GetInLine();
@@ -623,17 +616,6 @@ public class Unit : MonoBehaviour
 								trader.guardUnit.military.GuardGetInLine(endPositionInt, pathPositions.Peek());
 							}
                         }
-
-                        //if (world.StopExistsCheck(trader.GetCurrentDestination()))
-                        //{
-                        //    ITradeStop stop = world.GetStop(trader.GetCurrentDestination());
-                        //    stop.MoveUpRestInLine(trader, stop);
-                        //}
-                        //else
-                        //{
-                        //    trader.CancelRoute();
-                        //    yield break;
-                        //}
                     }
 
                 }
@@ -813,65 +795,64 @@ public class Unit : MonoBehaviour
 		}
     }
 
-    //only used for player, scott, and azai
+    //below two methods only used for player, scott, and azai (currently disabled as it just messes everything up)
     public void UnitInWayCheck()
     {
-		Unit unitInTheWay = world.GetPlayer(currentLocation);
+		//Unit unitInTheWay = world.GetPlayer(currentLocation);
 
-		if (unitInTheWay == this)
-		{
-			world.AddPlayerPosition(currentLocation, this);
-			return;
-		}
-		else if (unitInTheWay.buildDataSO.characterUnit)
-		{
-            if (worker && unitInTheWay.worker)
-            {
-                FindNewSpot(currentLocation, null);
-                return;
-            }
-		}
+		//if (unitInTheWay == this)
+		//{
+		//	world.AddPlayerPosition(currentLocation, this);
+		//	return;
+		//}
+		//else if (unitInTheWay.buildDataSO.characterUnit)
+		//{
+  //          if (worker && unitInTheWay.worker)
+  //          {
+  //              FindNewSpot(currentLocation, null);
+  //              return;
+  //          }
+		//}
 
-		Vector3Int loc;
-		if (unitInTheWay.pathPositions.Count > 0)
-			loc = unitInTheWay.pathPositions.Peek();
-		else
-			loc = new Vector3Int(0, -10, 0);
+		//Vector3Int loc;
+		//if (unitInTheWay.pathPositions.Count > 0)
+		//	loc = unitInTheWay.pathPositions.Peek();
+		//else
+		//	loc = new Vector3Int(0, -10, 0);
 
-		FindNewSpot(currentLocation, loc);
+		//FindNewSpot(currentLocation, loc);
 	}
 
     public void FindNewSpot(Vector3Int current, Vector3Int? next)
     {
-        //Vector3Int lastTile = current;        
-        if (isBusy || (trader && trader.followingRoute) || inArmy || enemyAI)
-            return;
+        //if (isBusy || (trader && trader.followingRoute) || inArmy || enemyAI)
+        //    return;
 
-        int i = 0;
-        bool outerRing = false;
-        foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYTWODEEP))
-        {
-            i++;
-            if (i > 8)
-                outerRing = true;
+        //int i = 0;
+        //bool outerRing = false;
+        //foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYTWODEEP))
+        //{
+        //    i++;
+        //    if (i > 8)
+        //        outerRing = true;
 
-            if (trader && !world.IsRoadOnTileLocation(tile))
-                continue;
+        //    if (trader && !world.IsRoadOnTileLocation(tile))
+        //        continue;
 
-            if (!world.PlayerCheckIfPositionIsValid(tile) || world.IsPlayerLocationTaken(tile))
-                continue;
+        //    if (!world.PlayerCheckIfPositionIsValid(tile) || world.IsPlayerLocationTaken(tile))
+        //        continue;
 
-            if (tile == next && tile != null) 
-                continue;
+        //    if (tile == next && tile != null) 
+        //        continue;
 
-            finalDestinationLoc = tile;
+        //    finalDestinationLoc = tile;
 
-            if (outerRing)
-                MoveThroughPath(new List<Vector3Int> { (current + tile) / 2, tile });
-            else
-                MoveThroughPath(new List<Vector3Int> { tile });
-            return;
-        }
+        //    if (outerRing)
+        //        MoveThroughPath(new List<Vector3Int> { (current + tile) / 2, tile });
+        //    else
+        //        MoveThroughPath(new List<Vector3Int> { tile });
+        //    return;
+        //}
     }
 
     public void Teleport(Vector3 loc)

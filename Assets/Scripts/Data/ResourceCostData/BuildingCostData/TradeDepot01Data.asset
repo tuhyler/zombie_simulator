@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: TradeDepot01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 4908702689438750486, guid: 9a9c2e0e3de836f4e978611d34be1297, type: 3}
+  prefab: {fileID: 4908702689438750486, guid: 71f223efb431eeb4fbf5ad78f827c327, type: 3}
   secondaryData: []
   audio: {fileID: 0}
   isSecondary: 0

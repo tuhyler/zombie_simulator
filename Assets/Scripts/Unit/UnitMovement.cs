@@ -1135,7 +1135,7 @@ public class UnitMovement : MonoBehaviour
                     selectedUnit.worker.SendResourceToCity();
 
                 Vector3Int terrainLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
-                if (world.StopExistsCheck(terrainLoc) && !world.IsWonderOnTile(terrainLoc))
+                if (world.IsCityOnTile(terrainLoc) || world.IsTradeCenterOnTile(terrainLoc))
                     uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
                 else
                     uiWorkerTask.uiLoadUnload.ToggleInteractable(false);
@@ -1596,39 +1596,6 @@ public class UnitMovement : MonoBehaviour
         uiCancelTask.ToggleVisibility(v);
     }
 
-    //public void CancelContinuedMovementOrdersButton()
-    //{
-    //    world.cityBuilderManager.PlaySelectAudio();
-    //    CancelContinuedMovementOrders();
-    //}
-
-    //public void CancelContinuedMovementOrders()
-    //{
-    //    if (selectedUnit != null && !selectedUnit.runningAway)
-    //    {
-    //        if (selectedUnit.isTrader && selectedUnit.followingRoute)
-    //        {
-    //            CancelTradeRoute();
-    //            return;
-    //        }
-
-    //        selectedUnit.ResetMovementOrders();
-    //        uiCancelMove.ToggleVisibility(false);
-    //        selectedUnit.HidePath();
-
-    //        if (selectedUnit.isPlayer)
-    //        {
-    //            //world.scott.ResetMovementOrders();
-    //            world.scott.CatchUp(world.RoundToInt(selectedUnit.transform.position));
-    //            world.azai.CatchUp(world.RoundToInt(selectedUnit.transform.position));
-    //        }
-    //    }
-    //    else if (world.buildingWonder)
-    //    {
-    //        world.CloseBuildingSomethingPanel();
-    //    }
-    //}
-
     public void JoinCity() //for Join City button
     {
         world.cityBuilderManager.PlaySelectAudio();
@@ -1644,8 +1611,6 @@ public class UnitMovement : MonoBehaviour
 			return;
 		}
 
-        //CancelMove();
-        //Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
         City city = null;
 
         if (selectedUnit.isTrader)
@@ -1829,45 +1794,29 @@ public class UnitMovement : MonoBehaviour
             uiWorkerTask.uiLoadUnload.ToggleColor(true);
             selectedUnit.HidePath();
             movementSystem.ClearPaths();
-            //uiTradeRouteManager.ToggleVisibility(false);
-            //selectedTile = null;
-
-            //Vector3Int unitLoc = Vector3Int.RoundToInt(selectedUnit.transform.position);
-            //Vector3Int unitLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
-            ITradeStop stop = world.GetStop(world.GetClosestTerrainLoc(selectedUnit.transform.position));
-            bool atTradeCenter = false;
-
-            if (stop.city)
+            Vector3Int playerLoc = world.GetClosestTerrainLoc(selectedUnit.transform.position);
+            
+            if (world.IsCityOnTile(playerLoc))
             {
-                cityResourceManager = stop.city.ResourceManager;
-                uiCityResourceInfoPanel.SetTitleInfo(stop.city.cityName,
-                    cityResourceManager.ResourceStorageLevel, stop.city.warehouseStorageLimit);
-				//uiCityResourceInfoPanel.PrepareResourceUI(selectedCity.resourceGridDict);
+                City city = world.GetCity(playerLoc);
+                cityResourceManager = city.ResourceManager;
+                uiCityResourceInfoPanel.SetTitleInfo(city.cityName,
+                    cityResourceManager.ResourceStorageLevel, city.warehouseStorageLimit);
 				uiCityResourceInfoPanel.ToggleInventoryLevel(true);
-				uiCityResourceInfoPanel.ToggleVisibility(true, null, stop.city);
+				uiCityResourceInfoPanel.ToggleVisibility(true, null, city);
                 uiCityResourceInfoPanel.SetPosition();
-            }
-            //else if (world.IsWonderOnTile(tradeLoc))
-            //{
-            //    wonder = world.GetWonder(tradeLoc);
-            //    uiCityResourceInfoPanel.SetTitleInfo(wonder.WonderData.wonderDisplayName, 10000, 10000); //not showing inventory levels
-            //    //uiCityResourceInfoPanel.PrepareResourceUI(wonder.ResourceDict);
-            //    uiCityResourceInfoPanel.HideInventoryLevel();
-            //    uiCityResourceInfoPanel.ToggleVisibility(true, null, null, wonder);
-            //    uiCityResourceInfoPanel.SetPosition();
-            //}
-            else if (stop.center)
+				uiPersonalResourceInfoPanel.SetPosition(false, null);
+			}
+            else
             {
+                ITradeStop stop = world.GetStop(playerLoc);
                 tradeCenter = stop.center;
                 uiCityResourceInfoPanel.SetTitleInfo(stop.center.tradeCenterDisplayName, 10000, 10000); //not showing inventory levels
                 uiCityResourceInfoPanel.ToggleInventoryLevel(false);
                 uiCityResourceInfoPanel.ToggleVisibility(true, null, null, null, stop.center);
                 uiCityResourceInfoPanel.SetPosition(true);
-                atTradeCenter = true;
-                //world.cityBuilderManager.uiTradeCenter.ToggleVisibility(true, tradeCenter);
+                uiPersonalResourceInfoPanel.SetPosition(true, stop.center);
             }
-
-            uiPersonalResourceInfoPanel.SetPosition(atTradeCenter, stop.center);
             
             loadScreenSet = true;
         }
@@ -2281,7 +2230,7 @@ public class UnitMovement : MonoBehaviour
 		//	return;
 		//}
 
-		if (!selectedUnit.bySea && !world.IsRoadOnTileLocation(world.RoundToInt(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
+		if (!selectedUnit.bySea && !selectedUnit.trader.followingRoute && !world.IsRoadOnTileLocation(world.GetClosestTerrainLoc(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
 		{
 			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't edit route off road");
 			return;
@@ -2352,7 +2301,7 @@ public class UnitMovement : MonoBehaviour
             //    selectedUnit.trader.tradeRouteManager.currentDestination = firstStep;
             //}
 
-            if (!selectedUnit.bySea && !selectedUnit.byAir && !world.IsRoadOnTileLocation(world.RoundToInt(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
+            if (!selectedUnit.bySea && !selectedUnit.byAir && !world.IsRoadOnTileLocation(world.GetClosestTerrainLoc(selectedUnit.trader.transform.position)) && !selectedUnit.trader.atHome)
             {
 				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't start route off road");
 				return;
@@ -2432,13 +2381,9 @@ public class UnitMovement : MonoBehaviour
 			return;
         }
 
-		//selectedUnit.trader.followingRoute = false; //done earlier as it's in stopmovement
-		//selectedUnit.trader.waitingOnRouteCosts = false;
-        //selectedUnit.StopMovementCheck(false);
 		selectedUnit.trader.RefundRouteCosts();
         selectedUnit.trader.RemoveWarning();
 		selectedUnit.trader.CancelRoute();
-        //uiTraderPanel.SwitchRouteIcons(false);
         
         if (uiTradeRouteManager.activeStatus)
         {
