@@ -52,6 +52,7 @@ public class ImprovementDataSO : ScriptableObject
     public bool getTerrainResource = false; //for mines and quarries to provide resource where they're placed
     public int attackBonus = 0;
     public SingleBuildType singleBuildType;
+    public bool buildOnRoad = false;
     //public List<Vector3Int> stallLocs;
-    public List<Vector3Int> noWalkAreas;
+    //public List<Vector3Int> noWalkAreas;
 }

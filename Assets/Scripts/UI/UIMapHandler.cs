@@ -103,7 +103,7 @@ public class UIMapHandler : MonoBehaviour
         if (v)
         {
             world.UnselectAll();
-            world.showingMap = true;
+            //world.showingMap = true;
             world.ShowCityNamesMap();
             resourceSearch.gameObject.SetActive(true);
             prevRotation = cameraController.transform.localEulerAngles;
@@ -137,7 +137,7 @@ public class UIMapHandler : MonoBehaviour
         }
         else
         {
-            world.showingMap = false;
+            //world.showingMap = false;
             world.HideCityNamesMap();
 
             resourceSearch.DisableHighlights();

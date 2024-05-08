@@ -40,7 +40,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
     public string tradeCenterDisplayName;
     public int cityPop;
     [HideInInspector]
-    public Vector3Int harborLoc, mainLoc;
+    public Vector3Int mainLoc;
     [HideInInspector]
     public bool isDiscovered;
     
@@ -49,8 +49,9 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 
     private Dictionary<ResourceType, int> resourceBuyDict = new();
     public Dictionary<ResourceType, int> ResourceBuyDict { get { return resourceBuyDict; } set { resourceBuyDict = value; } }
-    private Dictionary<ResourceType, int> resourceBuyGridDict = new();
-    public Dictionary<ResourceType, int> ResourceBuyGridDict { get { return resourceBuyGridDict; } }
+    public Dictionary<ResourceType, int> resourceBuyGridDict = new();
+
+    public Dictionary<SingleBuildType, Vector3Int> singleBuildDict = new();
 
     //initial resources to buy & sell
     public List<ResourceValue> buyResources = new();
@@ -68,6 +69,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 	List<Trader> ITradeStop.seaWaitList => seaWaitList;
 	List<Trader> ITradeStop.airWaitList => airWaitList;
 	Vector3Int ITradeStop.mainLoc => mainLoc;
+	Dictionary<SingleBuildType, Vector3Int> ITradeStop.singleBuildLocDict => singleBuildDict;
 	City ITradeStop.city => null;
 	Wonder ITradeStop.wonder => null;
 	TradeCenter ITradeStop.center => this;
@@ -211,7 +213,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
         if (!loading)
         {
             mainLoc = world.RoundToInt(transform.position);
-            harborLoc = mainLoc;
+            Vector3Int harborLoc = mainLoc;
             if (transform.rotation.eulerAngles.y == 0)
                 harborLoc.z += -increment;
             else if (transform.rotation.eulerAngles.y == 90)
@@ -220,6 +222,9 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
                 harborLoc.z += increment;
             else if (transform.rotation.eulerAngles.y == 270)
                 harborLoc.x += increment;
+
+            singleBuildDict[SingleBuildType.TradeDepot] = mainLoc;
+            singleBuildDict[SingleBuildType.Harbor] = harborLoc;
         }
 
         world.AddToCityLabor(mainLoc, null);
@@ -397,7 +402,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
         
         data.name = tradeCenterName;
         data.mainLoc = mainLoc;
-        data.harborLoc = harborLoc;
+        data.singleBuildDict = singleBuildDict;
         data.rotation = main.rotation;
         data.cityPop = cityPop;
         data.isDiscovered = isDiscovered;
@@ -426,7 +431,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 	public void LoadData(TradeCenterData data)
     {
 		mainLoc = data.mainLoc;
-		harborLoc = data.harborLoc;
+		singleBuildDict = data.singleBuildDict;
 		//transform.rotation = data.rotation;
 		//tradeCenterName = data.name; //done elsewhere
   //      cityPop = data.cityPop;

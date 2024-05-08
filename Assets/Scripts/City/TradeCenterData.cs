@@ -5,7 +5,8 @@ using UnityEngine;
 public class TradeCenterData
 {
     public string name;
-    public Vector3Int mainLoc, harborLoc;
+    public Vector3Int mainLoc;
+    public Dictionary<SingleBuildType, Vector3Int> singleBuildDict = new();
     public Quaternion rotation;
     public int cityPop;
     public bool isDiscovered;

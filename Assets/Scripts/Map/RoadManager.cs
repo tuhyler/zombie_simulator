@@ -77,57 +77,7 @@ public class RoadManager : MonoBehaviour
         }
 
         world.SetRoads(roadPosition, road, straight);
-        //replacing prop
-        //TerrainData td = world.GetTerrainDataAt(roadPosition);
-        //if (td.prop != null)
-        //    td.prop.gameObject.SetActive(true);
     }
-
-   // public IEnumerator BuildRoad(Vector3Int roadPosition, Worker worker)
-   // {
-   //     worker.ShowProgressTimeBar(roadBuildingTime);
-   //     worker.SetWorkAnimation(true);
-   //     worker.SetTime(timePassed);
-
-   //     while (timePassed > 0)
-   //     {
-   //         yield return oneSecondWait;
-   //         timePassed--;
-   //         worker.SetTime(timePassed);
-   //     }
-
-   //     worker.taskCo = null;
-   //     worker.HideProgressTimeBar();
-   //     worker.SetWorkAnimation(false);
-   //     BuildRoadAtPosition(roadPosition);
-   //     world.RemoveWorkerWorkLocation(roadPosition);
-
-   //     //moving worker up a smidge to be on top of road
-   //     Vector3 moveUp = worker.transform.position;
-   //     moveUp.y += .2f;
-   //     worker.transform.position = moveUp;
-
-   //     if (worker.MoreOrdersToFollow())
-   //     {
-   //         worker.BeginBuildingRoad();
-   //     }
-   //     else
-   //     {
-   //         world.mainPlayer.isBusy = false;
-			//worker.building = false;
-			//if (world.mainPlayer.isSelected)
-   //             workerTaskManager.TurnOffCancelTask();
-   //         //StartCoroutine(CombineMeshWaiter());
-   //     }
-   // }
-
-    //public IEnumerator CombineMeshWaiter() //waiting for tweening to finish to combine
-    //{
-    //    yield return new WaitForSeconds(0.26f);
-
-    //    CombineMeshes();
-    //}
-
 
     //finds if road changes are happening diagonally or on straight, then destroys objects accordingly
     public void BuildRoadAtPosition(Vector3Int roadPosition, UtilityType type, int level) 
@@ -135,8 +85,6 @@ public class RoadManager : MonoBehaviour
         TerrainData td = world.GetTerrainDataAt(roadPosition);
         bool river = td.straightRiver;
         bool hill = td.isHill;
-
-        //hideRoads = !td.isDiscovered;
 
         if (td.terrainData.type == TerrainType.Forest || td.terrainData.type == TerrainType.ForestHill)
             td.SwitchToRoad();
@@ -193,14 +141,12 @@ public class RoadManager : MonoBehaviour
                 pos.y += .2f;
                 center.tcRep.transform.position = pos;
             }
-
-            if (world.IsWonderOnTile(loc) && world.GetWonder(loc).unloadLoc == loc)
+            else if (world.IsWonderOnTile(loc) && world.GetWonder(loc).unloadLoc == loc)
             {
                 //if (world.GetRoadLevel(loc) > level)
                 //    UpgradeRoad();
             }
-
-            if (world.IsCityOnTile(loc))
+            else if (world.IsCityOnTile(loc))
             {
                 BuildRoadAtPosition(loc, type, level);
 

@@ -512,23 +512,23 @@ public class UITradeRouteManager : MonoBehaviour
         foreach(UITradeStopHandler stopHandler in tradeStopHandlerList)
         {            
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
+
+            if (destination == null)
+            {
+                UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "No assigned destination to stop", false);
+                return;
+            }
+
+            ITradeStop stop = world.GetTradeStopByName(destination);
             
-            if (i == 0 && !world.CheckCityName(destination))
+            if (i == 0 && !stop.city)
             {
                 UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "First stop must be city", false);
                 return;
             }
 
-            if (destination == null)
+            if (stop.wonder)
             {
-                UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "No assigned city to stop", false);
-                return;
-            }
-
-            if (world.CheckWonderName(destination))
-            {
-                Wonder wonder = world.GetWonderByName(destination);
-                
                 for (int j = 0; j < resourceAssignment.Count; j++)
                 {
                     if (resourceAssignment[j].resourceAmount > 0)
@@ -536,7 +536,7 @@ public class UITradeRouteManager : MonoBehaviour
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't load from wonder", false);
 						return;
                     }
-                    else if (!wonder.ResourceCostDict.ContainsKey(resourceAssignment[j].resourceType))
+                    else if (!stop.wonder.ResourceCostDict.ContainsKey(resourceAssignment[j].resourceType))
                     {
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " doesn't need " + resourceAssignment[j].resourceType, false);
 						return;
@@ -544,18 +544,16 @@ public class UITradeRouteManager : MonoBehaviour
                 }
             }
 
-            if (world.CheckTradeCenterName(destination))
+            if (stop.center)
             {
-                TradeCenter center = world.GetTradeCenterByName(destination);
-                
                 for (int j = 0; j < resourceAssignment.Count; j++)
                 {
-                    if (resourceAssignment[j].resourceAmount < 0 && !center.ResourceSellDict.ContainsKey(resourceAssignment[j].resourceType))
+                    if (resourceAssignment[j].resourceAmount < 0 && !stop.center.ResourceSellDict.ContainsKey(resourceAssignment[j].resourceType))
                     {
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " doesn't sell " + resourceAssignment[j].resourceType, false);
 						return;
 					}
-                    else if (resourceAssignment[j].resourceAmount > 0 && !center.ResourceBuyDict.ContainsKey(resourceAssignment[j].resourceType))
+                    else if (resourceAssignment[j].resourceAmount > 0 && !stop.center.ResourceBuyDict.ContainsKey(resourceAssignment[j].resourceType))
                     {
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " won't buy " + resourceAssignment[j].resourceType, false);
 						return;
@@ -589,20 +587,10 @@ public class UITradeRouteManager : MonoBehaviour
 
         selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes);
 
-        //if (selectedTrader.followingRoute)
-        //{
-        //    unitMovement.CancelTradeRoute();
-        //}
-
         if (destinations.Count > 0)
-        {
-            //unitMovement.UninterruptedRoute();
             unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
-        }
         else
-        {
             unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
-        }
 
         ToggleVisibility(false);
     }

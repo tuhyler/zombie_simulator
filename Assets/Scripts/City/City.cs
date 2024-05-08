@@ -129,6 +129,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     List<Trader> ITradeStop.seaWaitList => seaWaitList;
     List<Trader> ITradeStop.airWaitList => airWaitList;
     Vector3Int ITradeStop.mainLoc => cityLoc;
+    Dictionary<SingleBuildType, Vector3Int> ITradeStop.singleBuildLocDict => singleBuildDict;
     City ITradeStop.city => this;
     Wonder ITradeStop.wonder => null;
     TradeCenter ITradeStop.center => null;
@@ -504,7 +505,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             cityName = "Camp " + cityCount.ToString();
 
-            if (!world.CheckCityName(cityName))
+            if (!world.IsCityNameTaken(cityName))
             {
                 approvedName = true;
             }
@@ -512,11 +513,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             cityCount++;
         }
 
-        cityNameMap.GetComponentInChildren<TMP_Text>().text = cityName;
-        SetCityNameFieldSize(cityName);
-        SetCityName(cityName);
+        UpdateCityName(cityName);
+        //cityNameMap.GetComponentInChildren<TMP_Text>().text = cityName;
+        //SetCityNameFieldSize(cityName);
+        //SetCityName(cityName);
         SetCityPop();
-        AddCityNameToWorld();
+        //AddCityNameToWorld();
     }
 
     private void SetCityNameFieldSize(string cityName)
@@ -531,31 +533,31 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         cityNameField.SetCityName(cityName);
     }
 
-    public void AddCityNameToWorld()
-    {
-        world.AddCityName(cityName, cityLoc);
-        world.AddStop(cityLoc, this);
-        world.AddTradeLoc(cityLoc, cityName);
-    }
+    //public void AddCityNameToWorld()
+    //{
+    //    //world.AddCityName(cityName, cityLoc);
+    //    //world.AddStop(cityLoc, this);
+    //    //world.AddTradeLoc(cityLoc, cityName);
+    //}
 
     private void SetCityPop()
     {
         cityNameField.SetCityPop(currentPop);
     }
 
-    public void RemoveCityName()
-    {
-        world.RemoveCityName(cityLoc);
-    }
+    //public void RemoveCityName()
+    //{
+    //    world.RemoveCityName(cityLoc);
+    //}
 
     public void UpdateCityName(string newCityName)
     {
         cityNameMap.GetComponentInChildren<TMP_Text>().text = newCityName;
-        if (!world.showingMap)
+        if (!world.mapHandler.activeStatus)
             cityNameMap.SetActive(false);
         SetCityNameFieldSize(newCityName);
         SetCityName(newCityName);
-        AddCityNameToWorld();
+        //AddCityNameToWorld();
     }
 
     public void SetHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, bool upgrade)
@@ -730,8 +732,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
                     isNamed = true;
                     string newName = world.GetNextCityName();
 
-					RemoveCityName();
-					UpdateCityName(newName);
+					//RemoveCityName();
+                    world.UpdateStopName(cityName, newName);
+                    UpdateCityName(newName);
 
                     if (activeCity)
     					world.cityBuilderManager.uiInfoPanelCity.UpdateCityName(newName);
@@ -1794,13 +1797,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
                 singleBuildDict[buildType] = tile;
                 world.AddToCityLabor(tile, cityLoc);
 
-                if (buildType == SingleBuildType.Harbor || buildType == SingleBuildType.Airport)
+                if (buildType == SingleBuildType.TradeDepot || buildType == SingleBuildType.Harbor || buildType == SingleBuildType.Airport)
                 {
-                    //hasHarbor = true;
-                    //harborLocation = tile;
-                    //world.SetCityHarbor(this, tile);
                     world.AddStop(tile, this);
-                    world.AddTradeLoc(tile, name);
+                    //world.AddTradeLoc(tile, name);
                 }
                 else if (buildType == SingleBuildType.Barracks)
                 {
@@ -1923,6 +1923,16 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         highlighted = false;
         world.GetTerrainDataAt(cityLoc).DisableHighlight();
 	}
+
+    public void RemoveStopCheck(Vector3Int loc, SingleBuildType type)
+    {
+        stop.ClearStopCheck(stop.GetWaitList(type), loc, world);
+    }
+
+    public void RemoveTradeDepotCheck(Vector3Int depotLoc)
+    {
+        stop.ClearStopCheck(waitList, depotLoc, world);
+    }
 
     public void RemoveHarborCheck(Vector3Int harborLoc)
     {

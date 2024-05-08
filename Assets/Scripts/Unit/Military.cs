@@ -503,7 +503,7 @@ public class Military : Unit
 		}
 	}
 
-	public void StopAttacking()
+	public void StopAttacking(bool finishMovement)
 	{
 		strengthBonus = 0;
 		if (isSelected)
@@ -515,7 +515,7 @@ public class Military : Unit
 		flankedOnce = false;
 		flanking = false;
 		targetSearching = false;
-		StopMovementCheck(true);
+		StopMovementCheck(finishMovement);
 		isMarching = false;
 		//StopAnimation();
 	}
@@ -993,12 +993,13 @@ public class Military : Unit
 				if (guardedTrader.waitingOnGuard)
 				{
 					guardedTrader.waitingOnGuard = false;
+					guardedTrader.BeginNextStepInRoute();
 
-					if (!guardedTrader.BeginNextStepCheck(guardedTrader.currentLocation))
-					{
-						guardedTrader.atHome = false;
-						guardedTrader.TradeRouteCheck(guardedTrader.currentLocation);
-					}
+					//if (!guardedTrader.BeginNextStepCheck(guardedTrader.currentLocation))
+					//{
+					//	//guardedTrader.atHome = false;
+					//	guardedTrader.TradeRouteCheck(guardedTrader.currentLocation);
+					//}
 				}
 			}
 			else if (endPosition != barracksBunk)

@@ -214,7 +214,7 @@ public class UIWonderHandler : MonoBehaviour, IImmoveable
 
 			buildOptions[i].ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
 
-			if (locked || world.GetWondersConstruction(buildOptions[i].BuildData.wonderName))
+			if (locked || world.TradeStopNameExists(buildOptions[i].BuildData.wonderName))
 			{
 				buildOptions[i].ToggleVisibility(false);
 				continue;

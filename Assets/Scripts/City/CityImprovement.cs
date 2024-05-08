@@ -30,7 +30,7 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool queued, building, isConstruction, /*isConstructionPrefab, */isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart, showing;
+    public bool queued, building, isConstruction, /*isConstructionPrefab, */isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart, showing, hadRoad;
     [HideInInspector]
     public List<ResourceValue> upgradeCost = new(), refundCost = new();
     [HideInInspector]
@@ -46,6 +46,8 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public int producedResourceIndex;
     public List<List<ResourceValue>> allConsumedResources = new();
+    [HideInInspector]
+    private TraderStallManager traderStallManager;
 
 	[SerializeField]
     public GameObject improvementMesh, exclamationPoint;
@@ -86,7 +88,8 @@ public class CityImprovement : MonoBehaviour
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        
+        traderStallManager = GetComponent<TraderStallManager>();
+
         foreach (Light light in workLights)
             light.gameObject.SetActive(false);
 
@@ -101,22 +104,22 @@ public class CityImprovement : MonoBehaviour
         //isWaitingHash = Animator.StringToHash("isWaiting");
     }
 
-    private void Start()
-    {
-        Vector3 loc = transform.position;
+ //   private void Start()
+ //   {
+ //       Vector3 loc = transform.position;
 
-  //      if (!isConstructionPrefab)
-  //      {
-  //          //removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
-  //          //removeSplash.Stop();
+ // //      if (!isConstructionPrefab)
+ // //      {
+ // //          //removeSplash = Instantiate(removeSplash, loc, Quaternion.Euler(-90, 0, 0));
+ // //          //removeSplash.Stop();
 
-		//	if (improvementData != null && improvementData.hideIdleMesh && co == null)
-		//		animMesh.SetActive(false);
+	//	//	if (improvementData != null && improvementData.hideIdleMesh && co == null)
+	//	//		animMesh.SetActive(false);
 
-  //     //     if (improvementData.producedResourceTime.Count > 0)
-  //  			//CalculateWorkCycleLimit();
-		//}
-	}
+ // //     //     if (improvementData.producedResourceTime.Count > 0)
+ // //  			//CalculateWorkCycleLimit();
+	//	//}
+	//}
 
     //public void CalculateWorkCycleLimit()
     //{
@@ -128,7 +131,28 @@ public class CityImprovement : MonoBehaviour
         this.world = world;
     }
 
-    public void InitializeImprovementData(ImprovementDataSO data)
+    public void SetUpStallLocs()
+    {
+		if (traderStallManager)
+			traderStallManager.SetUpStallLocs(loc);
+	}
+
+    public bool TraderStallCheck()
+    {
+        return traderStallManager.isFull;
+    }
+
+    public Vector3Int GetStallLoc(Vector3Int currentLoc)
+    {
+        return traderStallManager.GetAvailableStall(currentLoc);
+    }
+
+    public void RemoveTraderFromStall(Vector3Int currentLoc)
+    {
+        traderStallManager.OpenStall(currentLoc);
+    }
+
+	public void InitializeImprovementData(ImprovementDataSO data)
     {
         improvementData = data;
 		allConsumedResources.Add(data.consumedResources);
@@ -772,6 +796,7 @@ public class CityImprovement : MonoBehaviour
         data.name = improvementData.improvementNameAndLevel;
         data.rotation = (int)gameObject.transform.localEulerAngles.y;
 		data.location = loc;
+        data.hadRoad = hadRoad;
 
         if (city == null)
             data.cityLoc = new Vector3Int(0, -10, 0);
@@ -821,6 +846,7 @@ public class CityImprovement : MonoBehaviour
     {
         loc = data.location;
         queued = data.queued;
+        hadRoad = data.hadRoad;
         isConstruction = data.isConstruction;
         isUpgrading = data.isUpgrading;
         isTraining = data.isTraining;
