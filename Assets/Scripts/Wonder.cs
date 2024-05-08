@@ -893,8 +893,8 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     public void RemoveQueuedTraders()
     {
         stop.ClearStopCheck(stop.waitList, unloadLoc, world);
-        if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
-            stop.ClearStopCheck(stop.seaWaitList, singleBuildDict[SingleBuildType.Harbor], world);
+        //if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+        //    stop.ClearStopCheck(stop.seaWaitList, singleBuildDict[SingleBuildType.Harbor], world);
                 
         //ClearWonderCheck();
         //ClearHarborCheck();

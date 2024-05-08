@@ -46,8 +46,6 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public int producedResourceIndex;
     public List<List<ResourceValue>> allConsumedResources = new();
-    [HideInInspector]
-    private TraderStallManager traderStallManager;
 
 	[SerializeField]
     public GameObject improvementMesh, exclamationPoint;
@@ -88,7 +86,6 @@ public class CityImprovement : MonoBehaviour
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        traderStallManager = GetComponent<TraderStallManager>();
 
         foreach (Light light in workLights)
             light.gameObject.SetActive(false);
@@ -129,27 +126,6 @@ public class CityImprovement : MonoBehaviour
     public void SetWorld(MapWorld world)
     {
         this.world = world;
-    }
-
-    public void SetUpStallLocs()
-    {
-		if (traderStallManager)
-			traderStallManager.SetUpStallLocs(loc);
-	}
-
-    public bool TraderStallCheck()
-    {
-        return traderStallManager.isFull;
-    }
-
-    public Vector3Int GetStallLoc(Vector3Int currentLoc)
-    {
-        return traderStallManager.GetAvailableStall(currentLoc);
-    }
-
-    public void RemoveTraderFromStall(Vector3Int currentLoc)
-    {
-        traderStallManager.OpenStall(currentLoc);
     }
 
 	public void InitializeImprovementData(ImprovementDataSO data)
