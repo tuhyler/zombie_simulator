@@ -15,10 +15,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public GameObject cityNameMap, exclamationPoint, cityBase, battleIcon;
     [SerializeField]
     public ImprovementDataSO housingData;
-    //private int housingCenterCount;
-    //private CityImprovement initialHouse;
-    //private GameObject currentHouse;
-    //private CityBuilderManager cityBuilderManager;
     private List<MeshFilter> cityMeshFilters = new();
     public List<MeshFilter> CityMeshFilters { get { return cityMeshFilters; } }
     private Dictionary<string, (MeshFilter[], GameObject)> buildingMeshes = new(); //for removing meshes
@@ -26,8 +22,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     private List<CityImprovement> improvementList = new();
     public List<CityImprovement> ImprovementList { get { return improvementList; } }
 
-    //private SelectionHighlight selectionHighlight;
-    //public SelectionHighlight SelectionHighlight { get { return selectionHighlight; } }
     [SerializeField]
     public Renderer cityRenderer;
     
@@ -39,16 +33,13 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     //particle systems
     [SerializeField]
-    private ParticleSystem heavenHighlight, hellHighlight, /*resourceSplash, */lightBullet, fire;
+    private ParticleSystem heavenHighlight, hellHighlight, lightBullet, fire;
 
     [SerializeField]
     public SpriteRenderer minimapIcon;
 
     [SerializeField]
     public Sprite campIcon, cityIcon, enemyCityIcon;
-
-    [SerializeField]
-    private List<ResourceValue> laborTransferCost;
 
     //city info
     [HideInInspector]
@@ -57,16 +48,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public Vector3Int cityLoc, waitingAttackLoc;
     [HideInInspector]
-    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, /*hasHarbor, hasBarracks, */highlighted, /*harborTraining,*/
-        /*hasMarket, */isNamed, growing, attacked/*, hasAirport, airportTraining, hasTradeDepot, tradeDepotTraining*/;
+    public bool hasWater, hasFreshWater, reachedWaterLimit, hasRocksFlat, hasRocksHill, hasTrees, hasFood, hasWool, hasSilk, hasClay, activeCity, highlighted, isNamed, growing, attacked;
     [HideInInspector]
     public int lostPop;
 
     [HideInInspector]
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
-
-    //[HideInInspector]
-    //public Vector3Int harborLocation, barracksLocation, airportLocation;
 
     [HideInInspector]
     public Army army;
@@ -85,11 +72,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     private ResourceManager resourceManager;
     public ResourceManager ResourceManager { get { return resourceManager; } }
 
-    //[HideInInspector]
-    //public Dictionary<string, Vector3Int> singleBuildImprovementsBuildingsDict = new();
-
-    //[HideInInspector]
-    //public CityPopulation cityPop;
     [HideInInspector]
     public int currentPop, unusedLabor, usedLabor;
 
@@ -117,9 +99,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public float improvementWorkEthic;
     public float wonderWorkEthic;
     public int warehouseStorageLimit = 200;
-    //private TradeRouteManager tradeRouteWaiter;
-    //private ResourceType resourceWaiter = ResourceType.None;
-
+    
     //stop info
     ITradeStop stop;
     string ITradeStop.stopName => cityName;
@@ -134,21 +114,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     Wonder ITradeStop.wonder => null;
     TradeCenter ITradeStop.center => null;
 
-	//private Dictionary<Vector3Int, Trader> traderPosDict = new();
-    //private Queue<Unit> waitList = new(), seaWaitList = new(), airWaitList = new();
     private Dictionary<ResourceType, int> resourcesWorkedDict = new();
     [HideInInspector]
     public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown
 
-
-    //world resource info
-    //private int goldPerMinute;
-    //public int GetGoldPerMinute { get { return goldPerMinute; } }
-    //private int researchPerMinute;
-    //public int GetResearchPerMinute { get { return researchPerMinute; } }
-
     //resource priorities
-    [HideInInspector]
+    //[HideInInspector]
     //public bool autoGrow;
     private bool autoAssignLabor;
     public bool AutoAssignLabor { get { return autoAssignLabor; } set { autoAssignLabor = value; } }
@@ -161,9 +132,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     int IGoldWaiter.goldNeeded => 0; //actual amounts aved in trader and city improvement
 	Vector3Int IGoldWaiter.waiterLoc => cityLoc;
-	//audio
-	//[SerializeField]
-	//private AudioClip popGainClip, popLoseClip;
 	private AudioSource audioSource;
 
 	//stored queue items
@@ -171,46 +139,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public Dictionary<Vector3Int, QueueItem> improvementQueueDict = new();
     [HideInInspector]
     public List<QueueItem> queueItemList = new();
-	//[HideInInspector]
-	//public Dictionary<string, bool> buildingQueueDict = new();
-	//[HideInInspector]
- //   public List<UIQueueItem> savedQueueItems = new();
- //   [HideInInspector]
- //   public List<string> savedQueueItemsNames = new();
- //   [HideInInspector]
- //   public Dictionary<string, GameObject> buildingQueueGhostDict = new();
- //   [HideInInspector]
- //   public List<Vector3Int> improvementQueueLocs = new();
-
-    //private SelectionHighlight highlight; //Highlight doesn't work on city name text
 
     private void Awake()
     {
-        //selectionCircle.GetComponent<MeshRenderer>().enabled = false;
-        //world = FindObjectOfType<MapWorld>();
-        //cityPop = GetComponent<CityPopulation>();
         stop = this;
         audioSource = GetComponent<AudioSource>();
         army = GetComponent<Army>();
-        //selectionHighlight = GetComponentInChildren<SelectionHighlight>();
         resourceManager = GetComponent<ResourceManager>();
-        //resourceManager.ResourceStorageLimit = warehouseStorageLimit;
-        //resourceProducer = GetComponent<ResourceProducer>();
         resourceManager.SetCity(this);
-        //resourceProducer.SetResourceManager(resourceManager);
 
         Vector3 pos = transform.position;
         pos.y = 0;
         cityLoc = Vector3Int.RoundToInt(pos);
 
         SetProgressTimeBar();
-        //highlight = GetComponent<SelectionHighlight>();
-
-        //resourceManager.ResourceDict = new(world.GetBlankResourceDict());
-        //resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
-        //resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
-        //resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
-        //resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
         cityNameMap.GetComponentInChildren<TMP_Text>().outlineWidth = 0.35f;
         cityNameMap.GetComponentInChildren<TMP_Text>().outlineColor = Color.black;
 
@@ -219,13 +161,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     private void Start()
     {
-        //if (cityPop.CurrentPop >= 1 || army.UnitsInArmy.Count > 0)
-        //{
-        //    StartGrowthCycle(false);
-        //}
-
         resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, currentPop * unitFoodConsumptionPerMinute);
-
         InstantiateParticleSystems();
     }
 
@@ -253,15 +189,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         uiTimeProgressBar.transform.SetParent(world.objectPoolItemHolder, false);
 		world.CheckCityPermanentChanges(this);
 		army.SetWorld(world);
-		//resourceManager.ResourceDict = new(world.GetBlankResourceDict());
-        //resourceManager.ResourcePriceDict = new(world.GetDefaultResourcePrices());
-        //resourceManager.ResourceSellDict = new(world.GetBoolResourceDict());
-        //resourceManager.ResourceMinHoldDict = new(world.GetBlankResourceDict());
-        //resourceManager.ResourceSellHistoryDict = new(world.GetBlankResourceDict());
         resourceManager.PrepareResourceDictionary();
         if (!enemy)
             resourceManager.SetInitialResourceValues();
-        //resourceManager.SetPrices();
 
         int i = 0;
         foreach (ResourceType type in resourceManager.ResourceDict.Keys)
@@ -272,7 +202,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
                 resourceGridDict[type] = i;
                 i++;
             }
-
         }
     }
 
@@ -302,16 +231,16 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public void LightFire(bool isHill)
     {
         Vector3 loc = cityLoc;
-        loc.y += 0.1f;
+        loc.y += 0.2f;
         loc.z += -0.6f;
         Vector3 cityBaseLoc = cityBase.transform.localPosition;
 
-        if (world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3)))
-        {
-            loc.y += 0.1f;
-            cityBaseLoc.y += 0.1f;
-            cityBase.transform.localPosition = cityBaseLoc;
-        }
+        //if (world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3)))
+        //{
+        //    loc.y += 0.1f;
+        //    cityBaseLoc.y += 0.1f;
+        //    cityBase.transform.localPosition = cityBaseLoc;
+        //}
 
         if (isHill)
         {
@@ -325,31 +254,31 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         fire.Play();
     }
 
-    private void ReigniteFire()
-    {
-        bool alreadyRoad = fire.transform.position.y == 0.2f || fire.transform.position.y == 0.8f; 
-        fire.Play();
-        cityBase.gameObject.SetActive(true);
+    //private void ReigniteFire()
+    //{
+    //    bool alreadyRoad = fire.transform.position.y == 0.2f || fire.transform.position.y == 0.8f; 
+    //    fire.Play();
+    //    cityBase.gameObject.SetActive(true);
 
-        if (!alreadyRoad && world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was added since growth
-        {
-            Vector3 fireLoc = fire.transform.position;
-            fireLoc.y += 0.1f;
-            fire.transform.position = fireLoc;
-            Vector3 cityBaseLoc = cityBase.transform.localPosition;
-            cityBaseLoc.y += 0.1f;
-            cityBase.transform.localPosition = cityBaseLoc;
-        }
-        else if (alreadyRoad && !world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was deleted since growth
-        {
-            Vector3 fireLoc = fire.transform.position;
-            fireLoc.y -= 0.1f;
-            fire.transform.position = fireLoc;
-            Vector3 cityBaseLoc = cityBase.transform.localPosition;
-            cityBaseLoc.y -= 0.1f;
-            cityBase.transform.localPosition = cityBaseLoc;
-        }
-    }
+    //    if (!alreadyRoad && world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was added since growth
+    //    {
+    //        Vector3 fireLoc = fire.transform.position;
+    //        fireLoc.y += 0.1f;
+    //        fire.transform.position = fireLoc;
+    //        Vector3 cityBaseLoc = cityBase.transform.localPosition;
+    //        cityBaseLoc.y += 0.1f;
+    //        cityBase.transform.localPosition = cityBaseLoc;
+    //    }
+    //    else if (alreadyRoad && !world.IsRoadOnTerrain(cityLoc + new Vector3Int(0, 0, -3))) //in case road was deleted since growth
+    //    {
+    //        Vector3 fireLoc = fire.transform.position;
+    //        fireLoc.y -= 0.1f;
+    //        fire.transform.position = fireLoc;
+    //        Vector3 cityBaseLoc = cityBase.transform.localPosition;
+    //        cityBaseLoc.y -= 0.1f;
+    //        cityBase.transform.localPosition = cityBaseLoc;
+    //    }
+    //}
     
     public void ExtinguishFire()
     {
@@ -362,22 +291,22 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         Destroy(fire.gameObject);
     }
 
-    public void RepositionFire()
-    {
-        Vector3 cityBaseLoc = cityBase.transform.localPosition;
-        Vector3 fireLoc = fire.transform.position;
-        cityBaseLoc.y += 0.1f;
-        if (world.GetTerrainDataAt(cityLoc).isHill)
-        {
-            cityBaseLoc.y += 0.1f;
-            fireLoc.y += 0.1f;
-        }
+    //public void RepositionFire()
+    //{
+    //    Vector3 cityBaseLoc = cityBase.transform.localPosition;
+    //    Vector3 fireLoc = fire.transform.position;
+    //    cityBaseLoc.y += 0.1f;
+    //    if (world.GetTerrainDataAt(cityLoc).isHill)
+    //    {
+    //        cityBaseLoc.y += 0.1f;
+    //        fireLoc.y += 0.1f;
+    //    }
 
-        fireLoc.y += 0.1f;
-        cityBase.transform.localPosition = cityBaseLoc;
-        fire.transform.position = fireLoc;
-        //CombineFire();
-    }
+    //    fireLoc.y += 0.1f;
+    //    cityBase.transform.localPosition = cityBaseLoc;
+    //    fire.transform.position = fireLoc;
+    //    //CombineFire();
+    //}
 
     public void AddToMeshFilterList(GameObject go, MeshFilter[] meshFilter, bool building, Vector3Int loc, string name = "")
     {
@@ -1777,11 +1706,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         return queueItemList[0];
     }
 
-    public List<ResourceValue> GetLaborTransferCost()
-    {
-        return laborTransferCost;
-    }
-
     //looking to see if there are any unclaimed single builds in the area to lay claim to
     public void CheckForAvailableSingleBuilds()
     {
@@ -1929,21 +1853,6 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         stop.ClearStopCheck(stop.GetWaitList(type), loc, world);
     }
 
- //   public void RemoveTradeDepotCheck(Vector3Int depotLoc)
- //   {
- //       stop.ClearStopCheck(waitList, depotLoc, world);
- //   }
-
- //   public void RemoveHarborCheck(Vector3Int harborLoc)
- //   {
-	//	stop.ClearStopCheck(seaWaitList, harborLoc, world);
-	//}
-
- //   public void RemoveAirportCheck(Vector3Int airportLoc)
- //   {
-	//	stop.ClearStopCheck(stop.airWaitList, airportLoc, world);
-	//}
-
     public void DestroyThisCity()
     {
         //cancelling routes for all traders in line at this city
@@ -1995,9 +1904,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
 		//resource manager
 		foreach (ResourceType type in resourceManager.ResourceDict.Keys)
-			data.allResourceInfoDict[type] = (resourceManager.ResourceDict[type], resourceManager.resourcePriceDict[type], resourceManager.resourceMinHoldDict[type], resourceManager.resourceSellHistoryDict[type], resourceManager.resourceSellList.Contains(type));
+			data.allResourceInfoDict[type] = (resourceManager.ResourceDict[type], resourceManager.resourcePriceDict[type], resourceManager.resourceMinHoldDict[type], 
+                resourceManager.resourceSellHistoryDict[type], resourceManager.resourceSellList.Contains(type));
 
-		data.warehouseStorageLevel = resourceManager.ResourceStorageLevel;
+		data.warehouseStorageLevel = resourceManager.resourceStorageLevel;
         data.pauseGrowth = resourceManager.pauseGrowth;
         data.growthDeclineDanger = resourceManager.growthDeclineDanger;
         data.starvationCount = resourceManager.starvationCount;
@@ -2139,7 +2049,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
                 resourceManager.resourceSellList.Remove(type);
             }
         }
-        resourceManager.ResourceStorageLevel = data.warehouseStorageLevel;
+        resourceManager.resourceStorageLevel = data.warehouseStorageLevel;
         resourceManager.pauseGrowth = data.pauseGrowth;
         resourceManager.growthDeclineDanger = data.growthDeclineDanger;
 		resourceManager.starvationCount = data.starvationCount;

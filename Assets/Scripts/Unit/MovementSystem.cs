@@ -57,15 +57,15 @@ public class MovementSystem : MonoBehaviour
                         }
                     }
                 }
-                else if (selectedUnit.trader)
-                {
-                    if (selectedUnit.trader.guarded)
-                    {
-                        List<Vector3Int> queuedGuardPath = GetGuardPath(world.RoundToInt(selectedUnit.finalDestinationLoc));
-						selectedUnit.trader.guardUnit.finalDestinationLoc = queuedGuardPath[queuedGuardPath.Count - 1];
-						selectedUnit.trader.guardUnit.AddToMovementQueue(queuedGuardPath);
-                    }
-                }
+      //          else if (selectedUnit.trader)
+      //          {
+      //              if (selectedUnit.trader.guarded)
+      //              {
+      //                  List<Vector3Int> queuedGuardPath = GetGuardPath(world.RoundToInt(selectedUnit.finalDestinationLoc));
+						//selectedUnit.trader.guardUnit.finalDestinationLoc = queuedGuardPath[queuedGuardPath.Count - 1];
+						//selectedUnit.trader.guardUnit.AddToMovementQueue(queuedGuardPath);
+      //              }
+      //          }
             }
 
             orderQueueing = false;

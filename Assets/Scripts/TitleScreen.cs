@@ -30,9 +30,14 @@ public class TitleScreen : MonoBehaviour
 		PlaySelectAudio();
 		
         if (uiLoadGame.currentSaves.Count > 0)
+        {
             uiNewGame.ToggleVisibility(true);
+        }
         else
+        {
+            Cursor.visible = false;
 			GameManager.Instance.NewGame("SouthToggle", "ContinentsToggle", "NormalToggle", "ModerateToggle", "MediumToggle", true);
+        }
 	}
 
     public void LoadGame()

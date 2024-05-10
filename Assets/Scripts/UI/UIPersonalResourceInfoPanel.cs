@@ -361,7 +361,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
             else if (wonder)
                 gridCellDict[loc].resource.SetValue(wonder.ResourceDict[type]);
             else
-                gridCellDict[loc].resource.SetText(" ", tradeCenter.ResourceBuyDict[type]);
+                gridCellDict[loc].resource.SetText(" ", tradeCenter.resourceBuyDict[type]);
         }
         else
         {
@@ -392,7 +392,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
         {
             if (isCity)
             {
-                int price = Mathf.CeilToInt(tradeCenter.ResourceBuyDict[type] * tradeCenter.multiple);
+                int price = Mathf.CeilToInt(tradeCenter.resourceBuyDict[type] * tradeCenter.multiple);
                 if (isCity && price > maxBuyCost)
                     maxBuyCost = price;
 
@@ -402,8 +402,8 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
             }
             else
             {
-                if (tradeCenter.ResourceSellDict.ContainsKey(type))
-                    gridCellDict[loc].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+                if (tradeCenter.resourceSellDict.ContainsKey(type))
+                    gridCellDict[loc].resource.SetPriceText(tradeCenter.resourceSellDict[type]);
             }
         }
 
@@ -533,18 +533,18 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
             {
                 if (unit.trader)
                 {
-                    foreach (ResourceType type in tradeCenter.ResourceSellDict.Keys)
+                    foreach (ResourceType type in tradeCenter.resourceSellDict.Keys)
                     {
                         if (unit.trader.resourceGridDict.ContainsKey(type))
-                            gridCellDict[unit.trader.resourceGridDict[type]].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+                            gridCellDict[unit.trader.resourceGridDict[type]].resource.SetPriceText(tradeCenter.resourceSellDict[type]);
                     }
                 }
                 else
                 {
-					foreach (ResourceType type in tradeCenter.ResourceSellDict.Keys)
+					foreach (ResourceType type in tradeCenter.resourceSellDict.Keys)
 					{
 						if (unit.worker.resourceGridDict.ContainsKey(type))
-							gridCellDict[unit.worker.resourceGridDict[type]].resource.SetPriceText(tradeCenter.ResourceSellDict[type]);
+							gridCellDict[unit.worker.resourceGridDict[type]].resource.SetPriceText(tradeCenter.resourceSellDict[type]);
 					}
 				}
 
@@ -769,7 +769,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
         }
 
         foreach (ResourceType type in tradeCenter.resourceBuyGridDict.Keys)
-            gridCellDict[tradeCenter.resourceBuyGridDict[type]].resource.SetPriceColor(goldAmount >= Mathf.RoundToInt(tradeCenter.ResourceBuyDict[type] * tradeCenter.multiple) ? Color.white : Color.red);
+            gridCellDict[tradeCenter.resourceBuyGridDict[type]].resource.SetPriceColor(goldAmount >= Mathf.RoundToInt(tradeCenter.resourceBuyDict[type] * tradeCenter.multiple) ? Color.white : Color.red);
     }
 
     public void ReturnResource(ResourceType type, int amount)

@@ -548,12 +548,12 @@ public class UITradeRouteManager : MonoBehaviour
             {
                 for (int j = 0; j < resourceAssignment.Count; j++)
                 {
-                    if (resourceAssignment[j].resourceAmount < 0 && !stop.center.ResourceSellDict.ContainsKey(resourceAssignment[j].resourceType))
+                    if (resourceAssignment[j].resourceAmount < 0 && !stop.center.resourceSellDict.ContainsKey(resourceAssignment[j].resourceType))
                     {
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " doesn't sell " + resourceAssignment[j].resourceType, false);
 						return;
 					}
-                    else if (resourceAssignment[j].resourceAmount > 0 && !stop.center.ResourceBuyDict.ContainsKey(resourceAssignment[j].resourceType))
+                    else if (resourceAssignment[j].resourceAmount > 0 && !stop.center.resourceBuyDict.ContainsKey(resourceAssignment[j].resourceType))
                     {
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " won't buy " + resourceAssignment[j].resourceType, false);
 						return;

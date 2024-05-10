@@ -24,7 +24,7 @@ public class GameLoader : MonoBehaviour
 	public List<Military> attackingUnitList = new();
 	public Dictionary<string, List<Vector3Int>> enemyLeaderDict = new();
 	public Dictionary<string, Trader> ambushedTraders = new();
-	public Dictionary<TradeCenter, (List<int>, List<int>)> centerWaitingDict = new();
+	public Dictionary<TradeCenter, (List<int>, List<int>, List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
 	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, List<(Vector3Int, int)>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
@@ -209,6 +209,7 @@ public class GameLoader : MonoBehaviour
 		terrainGenerator.SetMainPlayerLoc();
 		world.NewGamePrep(true, terrainGenerator.terrainDict, terrainGenerator.enemyEmpires, terrainGenerator.enemyRoadLocs, tutorial);
 		terrainGenerator.Clear();
+		Cursor.visible = true;
 		StartCoroutine(WaitASec());
 	}
 
@@ -270,22 +271,6 @@ public class GameLoader : MonoBehaviour
 		for (int i = 0; i < world.goldWaitList.Count; i++)
 			gameData.goldWaitList.Add((world.goldWaitList[i].waiterLoc, world.goldWaitList[i].goldNeeded));
 
-		//gameData.goldCityWaitList.Clear();
-		//for (int i = 0; i < world.goldCityWaitList.Count; i++)
-		//	gameData.goldCityWaitList.Add(world.goldCityWaitList[i].cityLoc);
-
-		//gameData.goldCityRouteWaitList.Clear();
-		//for (int i = 0; i < world.goldCityRouteWaitList.Count; i++)
-		//	gameData.goldCityRouteWaitList.Add(world.goldCityRouteWaitList[i].cityLoc);
-
-		//gameData.goldWonderWaitList.Clear();
-		//for (int i = 0; i < world.goldWonderWaitList.Count; i++)
-		//	gameData.goldWonderWaitList.Add(world.goldWonderWaitList[i].unloadLoc);
-
-		//gameData.goldTradeCenterWaitList.Clear();
-		//for (int i = 0; i < world.goldTradeCenterWaitList.Count; i++)
-		//	gameData.goldTradeCenterWaitList.Add(world.goldTradeCenterWaitList[i].mainLoc);
-
 		gameData.allTCRepData.Clear();
 		foreach (string name in world.allTCReps.Keys)
 			gameData.allTCRepData[name] = world.allTCReps[name].SaveTradeRepData();
@@ -305,16 +290,15 @@ public class GameLoader : MonoBehaviour
 		gameData.ambushLocs.Clear();
 		List<Vector3Int> ambushLocs = new List<Vector3Int>(world.enemyAmbushDict.Keys);
 		for (int i = 0; i < ambushLocs.Count; i++)
-		{
 			gameData.ambushLocs[ambushLocs[i]] = world.enemyAmbushDict[ambushLocs[i]].GetAmbushData(world);
-		}
 
 		//trade centers (waiting lists)
 		foreach (TradeCenter center in world.allTradeCenters)
 		{
-			gameData.allTradeCenters[center.mainLoc].waitList = center.SaveWaitListData(false, false);
-			gameData.allTradeCenters[center.mainLoc].seaWaitList = center.SaveWaitListData(true, false);
-			gameData.allTradeCenters[center.mainLoc].airWaitList = center.SaveWaitListData(false, true);
+			gameData.allTradeCenters[center.mainLoc].goldWaitList = center.SaveWaitListData(false, false, true);
+			gameData.allTradeCenters[center.mainLoc].waitList = center.SaveWaitListData(false, false, false);
+			gameData.allTradeCenters[center.mainLoc].seaWaitList = center.SaveWaitListData(true, false, false);
+			gameData.allTradeCenters[center.mainLoc].airWaitList = center.SaveWaitListData(false, true, false);
 		}
 
 		//wonders
@@ -382,13 +366,9 @@ public class GameLoader : MonoBehaviour
 
 		Vector3 middle = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 		if (gamePersist.SaveData(saveName, gameData, false))
-		{
 			UIInfoPopUpHandler.WarningMessage().Create(middle, "Game Saved!");
-		}
 		else
-		{
 			UIInfoPopUpHandler.WarningMessage().Create(middle, "Failed to save...");
-		}
 
 		Resources.UnloadUnusedAssets();
 		world.uiMainMenu.uiSaveGame.ToggleVisibility(false);
@@ -637,7 +617,8 @@ public class GameLoader : MonoBehaviour
 		{
 			if (gameData.attackedEnemyBases[loc].inBattle && !gameData.attackedEnemyBases[loc].retreat)
 			{
-				world.ToggleCityMaterialClear(world.GetEnemyCamp(loc).loc, world.GetEnemyCamp(loc).attackingArmy.city.cityLoc, world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
+				world.ToggleCityMaterialClear(world.GetEnemyCamp(loc).loc, world.GetEnemyCamp(loc).attackingArmy.city.cityLoc, world.GetEnemyCamp(loc).attackingArmy.enemyTarget, 
+					world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
 				//world.AddToBattleAreas(world.GetEnemyCamp(loc).attackingArmy.cavalryRange);
 			}
 		}
@@ -674,26 +655,6 @@ public class GameLoader : MonoBehaviour
 		}
 		gameData.goldWaitList.Clear();
 
-		//gold city wait list
-		//for (int i = 0; i < gameData.goldCityWaitList.Count; i++)
-		//	world.goldCityWaitList.Add(world.GetCity(gameData.goldCityWaitList[i]));
-		//gameData.goldCityWaitList.Clear();
-
-		//gold city route wait list
-		//for (int i = 0; i < gameData.goldCityRouteWaitList.Count; i++)
-		//	world.goldCityRouteWaitList.Add(world.GetCity(gameData.goldCityRouteWaitList[i]));
-		//gameData.goldCityRouteWaitList.Clear();
-
-		//gold wonder wait list
-		//for (int i = 0; i < gameData.goldWonderWaitList.Count; i++)
-		//	world.goldWonderWaitList.Add(world.GetWonder(gameData.goldWonderWaitList[i]));
-		//gameData.goldWonderWaitList.Clear();
-
-		//gold trade center wait list
-		//for (int i = 0; i < gameData.goldTradeCenterWaitList.Count; i++)
-		//	world.goldTradeCenterWaitList.Add(world.GetTradeCenter(gameData.goldTradeCenterWaitList[i]));
-		//gameData.goldTradeCenterWaitList.Clear();
-
 		//trader positions
 		foreach (Vector3Int loc in gameData.traderPosDict.Keys)
 		{
@@ -716,9 +677,11 @@ public class GameLoader : MonoBehaviour
 		//trade center waiting lists
 		foreach (TradeCenter center in centerWaitingDict.Keys)
 		{
-			(List<int> waitList, List<int> seaWaitList) = centerWaitingDict[center];
+			(List<int> goldWaitList, List<int> waitList, List<int> seaWaitList, List<int> airWaitList) = centerWaitingDict[center];
+			center.SetWaitList(goldWaitList);
 			center.SetWaitList(waitList);
 			center.SetWaitList(seaWaitList);
+			center.SetWaitList(airWaitList);
 		}
 		centerWaitingDict.Clear();
 
@@ -794,6 +757,7 @@ public class GameLoader : MonoBehaviour
 
 		//Time.timeScale = 1f;
 		//AudioListener.pause = false;
+		Cursor.visible = true;
 		StartCoroutine(WaitASec());
 	}
 

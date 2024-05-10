@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -45,8 +46,16 @@ public class SelectionHighlight : MonoBehaviour
             renderers.Add(renderer);
             materialsToUse.Add(renderer.sharedMaterial);
         }
-
     }
+
+    public void ManuallyAddSkinnedRenderer(SkinnedMeshRenderer renderer)
+    {
+		if (!renderersSkinned.Contains(renderer))
+		{
+			renderersSkinned.Add(renderer);
+			materialsToUse.Add(renderer.sharedMaterial);
+		}
+	}
 
     public void SetNewRenderer(MeshRenderer[] oldRenderer, MeshRenderer[] newRenderer)
     {

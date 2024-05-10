@@ -1071,6 +1071,9 @@ public class Army : MonoBehaviour
         
         foreach (Military unit in unitsInArmy)
         {
+            if (unit.isSelected)
+                world.unitMovement.uiCancelTask.ToggleVisibility(false);
+
             unit.strengthBonus = Mathf.RoundToInt(world.GetTerrainDataAt(unit.currentLocation).terrainData.terrainAttackBonus * 0.01f * unit.attackStrength);
             
             if (world.CompletedImprovementCheck(world.GetClosestTerrainLoc(unit.currentLocation)))
@@ -1325,10 +1328,13 @@ public class Army : MonoBehaviour
         return false;
     }
 
-    public void SoftSelectArmy(Color color)
+    public void SoftSelectInfantry(Color color)
     {
 		foreach (Military unit in unitsInArmy)
-			unit.SoftSelect(color);
+        {
+            if (unit.buildDataSO.unitType == UnitType.Infantry)
+			    unit.SoftSelect(color);
+        }
 	}
 
     public void SelectArmy(Military selectedUnit)

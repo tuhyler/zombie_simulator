@@ -15,7 +15,6 @@ public class TradeRouteManager : MonoBehaviour
     [HideInInspector]
     public List<Vector3Int> cityStops = new();
     public Dictionary<int, List<Vector3Int>> routePathsDict = new();
-    //public Dictionary<int, List<Vector3Int>> RoutePathsDict { get { return routePathsDict; } set { routePathsDict = value; } }
     [HideInInspector]
     public List<int> ambushSpots = new();
     [HideInInspector]
@@ -30,19 +29,12 @@ public class TradeRouteManager : MonoBehaviour
     [HideInInspector]
     public Vector3Int currentDestination;
 
-    //private PersonalResourceManager personalResourceManager;
-    //private UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel;
     private UITradeRouteManager uiTradeRouteManager;
 
-    //private List<bool> resourceStepComplete = new();
-
     //for seeing if route orders are completed at a stop
-    //public UnityEvent FinishedLoading; //listener is in Trader
-    //private Dictionary<ResourceType, int> resourcesAtArrival = new();
     private int secondIntervals = 1;
     [HideInInspector]
-    public int timeWaited = 0, waitTime, amountMoved/*for storage waitlist*/; 
-    //private Coroutine holdingCo;
+    public int timeWaited = 0, waitTime, amountMoved, goldAmount; 
     [HideInInspector]
     public bool resourceCheck = false, waitForever = false;
     [HideInInspector]
@@ -51,21 +43,9 @@ public class TradeRouteManager : MonoBehaviour
     [HideInInspector]
     public Trader trader;
     private ITradeStop stop;
-    //private City city;
-    //private Wonder wonder;
-    //private TradeCenter tradeCenter;
     private WaitForSeconds totalWait;
     [HideInInspector]
     public float percDone;
-    //private ResourceType resourceWaiter;
-    //private WaitForSeconds resourceWait = new WaitForSeconds(1);
-    //private WaitForSeconds loadWait;// = new WaitForSeconds(1);
-
-    //public TradeRouteManager(TradeRouteManager tradeRouteManager)
-    //{
-    //    this = tradeRouteManager;
-    //}
-
 
     private void Awake()
     {
@@ -149,7 +129,7 @@ public class TradeRouteManager : MonoBehaviour
             if (farCity)
             {
                 trader.ambushLoc = trader.world.GetClosestTerrainLoc(randomLoc);
-                Debug.Log(randomLoc);
+                Debug.Log(trader.ambushLoc);
             }
             else
             {
@@ -251,7 +231,7 @@ public class TradeRouteManager : MonoBehaviour
             {
                 if (resourceAmount > 0)
                 {
-                    if (!stop.center.ResourceBuyDict.ContainsKey(value.resourceType))
+                    if (!stop.center.resourceBuyDict.ContainsKey(value.resourceType))
                     {
                         InfoPopUpHandler.WarningMessage(trader.world.objectPoolItemHolder).Create(stop.center.mainLoc, "Can't buy " + value.resourceType);
                         SuddenFinish(true);
@@ -265,7 +245,7 @@ public class TradeRouteManager : MonoBehaviour
                 }
                 else if (resourceAmount < 0)
                 {
-                    if (!stop.center.ResourceSellDict.ContainsKey(value.resourceType))
+                    if (!stop.center.resourceSellDict.ContainsKey(value.resourceType))
                     {
                         InfoPopUpHandler.WarningMessage(trader.world.objectPoolItemHolder).Create(stop.center.mainLoc, "Can't sell " + value.resourceType);
                         SuddenFinish(true);
@@ -297,7 +277,8 @@ public class TradeRouteManager : MonoBehaviour
                     {
                         if (stop.center != null)
                         {
-							stop.center.SetWaiter(this, Mathf.Min(resourceAmount - amountMoved, loadUnloadRate) * Mathf.CeilToInt(stop.center.ResourceBuyDict[value.resourceType] * stop.center.multiple), true);
+                            goldAmount = Mathf.Min(resourceAmount - amountMoved, loadUnloadRate) * Mathf.CeilToInt(stop.center.resourceBuyDict[value.resourceType] * stop.center.multiple);
+                            stop.center.SetWaiter(trader, goldAmount, true);
 							trader.SetWarning(false, false, true);
 						}
                         else
@@ -355,7 +336,7 @@ public class TradeRouteManager : MonoBehaviour
                     }
                     else
                     {
-						cost = Mathf.CeilToInt(stop.center.ResourceBuyDict[value.resourceType] * stop.center.multiple); //cost is calculated each time in case it changes while trader is there
+						cost = Mathf.CeilToInt(stop.center.resourceBuyDict[value.resourceType] * stop.center.multiple); //cost is calculated each time in case it changes while trader is there
 						if (stop.center.world.CheckWorldGold(loadUnloadRateMod * cost))
                             resourceAmountAdjusted = loadUnloadRateMod;
                         else
@@ -379,7 +360,8 @@ public class TradeRouteManager : MonoBehaviour
                         }
                         else
                         {
-							stop.center.SetWaiter(this, loadUnloadRateMod * cost, false);
+                            goldAmount = loadUnloadRateMod * cost;
+							stop.center.SetWaiter(trader, goldAmount, false);
 							trader.SetWarning(false, false, true);
 						}
 
@@ -517,7 +499,7 @@ public class TradeRouteManager : MonoBehaviour
 
                     if (stop.center)
                     {
-                        int sellAmount = resourceAmountAdjusted * stop.center.ResourceSellDict[value.resourceType];
+                        int sellAmount = resourceAmountAdjusted * stop.center.resourceSellDict[value.resourceType];
 						stop.center.world.UpdateWorldGold(sellAmount);
                         InfoResourcePopUpHandler.CreateResourceStat(transform.position, sellAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), stop.center.world);
                     }
@@ -651,7 +633,7 @@ public class TradeRouteManager : MonoBehaviour
         if (type == ResourceType.None)
         {
             int loadUnloadRateMod = Mathf.Abs(Mathf.Max(resourceAssignments[currentStop][currentResource].resourceAmount - amountMoved, -loadUnloadRate));
-            if (stop.city != null && loadUnloadRateMod <= stop.city.warehouseStorageLimit - stop.city.ResourceManager.ResourceStorageLevel)
+            if (stop.city != null && loadUnloadRateMod <= stop.city.warehouseStorageLimit - stop.city.ResourceManager.resourceStorageLevel)
             {
                 ContinueLoadingUnloading();
                 //trader.RemoveWarning();

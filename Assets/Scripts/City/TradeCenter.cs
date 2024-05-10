@@ -44,11 +44,8 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public bool isDiscovered;
     
-    private Dictionary<ResourceType, int> resourceSellDict = new();
-    public Dictionary<ResourceType, int> ResourceSellDict { get { return resourceSellDict; } set { resourceSellDict = value; } }
-
-    private Dictionary<ResourceType, int> resourceBuyDict = new();
-    public Dictionary<ResourceType, int> ResourceBuyDict { get { return resourceBuyDict; } set { resourceBuyDict = value; } }
+    public Dictionary<ResourceType, int> resourceSellDict = new();
+    public Dictionary<ResourceType, int> resourceBuyDict = new();
     public Dictionary<ResourceType, int> resourceBuyGridDict = new();
 
     public Dictionary<SingleBuildType, Vector3Int> singleBuildDict = new();
@@ -74,10 +71,8 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 	Wonder ITradeStop.wonder => null;
 	TradeCenter ITradeStop.center => this;
 
-	//for queuing unloading
-	//private Queue<Unit> waitList = new(), seaWaitList = new(), airWaitList = new();
-	//   private Dictionary<Vector3Int, Trader> traderPosDict = new();
-	private TradeRouteManager tradeRouteWaiter;
+    //for queuing unloading
+    private List<Trader> goldWaiters = new();
     [HideInInspector]
     public int waitingAmount;
 
@@ -168,22 +163,12 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 
 		GameObject rep = Instantiate(tradeCenterRep.prefab, instantiateLoc, endRotation);
         rep.transform.SetParent(transform, false);
-        //rep.name = tradeCenterRep.unitDisplayName;
         tcRep = rep.GetComponent<TradeRep>();
         tcRep.SetUpTradeRep(world);
-        //tcRep.SetReferences(world, true);
         tcRep.SetTradeCenter(this);
-        //world.uiSpeechWindow.AddToSpeakingDict(tcRep.npcName, tcRep);
-
-        //world.AddCharacter(tcRep, rep.name);
-
+        
         if (!isDiscovered)
             tcRep.gameObject.SetActive(false);
-
-        //Vector3 actualPosition = rep.transform.position;
-        //world.AddUnitPosition(actualPosition, tcRep);
-
-        //world.allTCReps.Add(tcRep);
 
         if (load)
             tcRep.LoadTradeRepData(GameLoader.Instance.gameData.allTCRepData[tcRep.tradeRepName]);
@@ -256,124 +241,34 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
         }
     }
 
-    public void SetWaiter(TradeRouteManager tradeRouteManager, int amount, bool load)
+    public void SetWaiter(Trader trader, int amount, bool load)
     {
-        tradeRouteWaiter = tradeRouteManager;
-        waitingAmount = amount;
+        if (goldWaiters.Count == 0)
+            waitingAmount = amount;
+
+        goldWaiters.Add(trader);
 
         if (!load)
             world.AddToGoldWaitList(this);
     }
 
-    private void CheckGoldWaiter()
-    {
-        if (tradeRouteWaiter)
-        {
-            tradeRouteWaiter.ContinueLoadingUnloading();
-            //tradeRouteWaiter.resourceCheck = false;
-            //tradeRouteWaiter.trader.RemoveWarning();
-            tradeRouteWaiter = null;
-        }
-    }
-
-	//public void AddToWaitList(Unit unit)
- //   {
- //       if (unit.bySea)
- //       {
-	//		if (!seaWaitList.Contains(unit))
-	//			seaWaitList.Enqueue(unit);
-	//	}
- //       else
- //       {
- //           if (!waitList.Contains(unit))
- //               waitList.Enqueue(unit);
- //       }
- //   }
-
- //   public void RemoveFromWaitList(Unit unit)
- //   {
- //       List<Unit> waitListList = unit.bySea ? seaWaitList.ToList() : waitList.ToList();
-
- //       if (!waitListList.Contains(unit))
- //       {
- //           if (unit.bySea)
- //               CheckSeaQueue();
- //           else
-	//			CheckQueue();
-
-	//		return;
- //       }
-
- //       int index = waitListList.IndexOf(unit);
- //       waitListList.Remove(unit);
-
- //       int j = 0;
- //       for (int i = index; i < waitListList.Count; i++)
- //       {
- //           j++;
- //           waitListList[i].trader.StartMoveUpInLine(j);
- //       }
-
- //       if (unit.bySea)
- //           seaWaitList = new Queue<Unit>(waitListList);
- //       else
-	//		waitList = new Queue<Unit>(waitListList);
-	//	//waitList = new Queue<Unit>(waitList.Where(x => x != unit));
-	//}
-
- //   public void CheckQueue()
- //   {
- //       if (waitList.Count > 0)
- //       {
- //           waitList.Dequeue().trader.ExitLine();
- //       }
-
- //       if (waitList.Count > 0)
- //       {
- //           int i = 0;
- //           foreach (Unit unit in waitList)
- //           {
- //               i++;
- //               unit.trader.StartMoveUpInLine(i);
- //           }
- //       }
- //   }
-
- //   public void CheckSeaQueue()
- //   {
-	//	if (seaWaitList.Count > 0)
-	//	{
-	//		seaWaitList.Dequeue().trader.ExitLine();
-	//	}
-
-	//	if (seaWaitList.Count > 0)
-	//	{
-	//		int i = 0;
-	//		foreach (Unit unit in seaWaitList)
-	//		{
-	//			i++;
- //               unit.trader.StartMoveUpInLine(i);
-	//		}
-	//	}
-	//}
-
     public bool RestartGold(int gold)
     {
-        if (waitingAmount <= gold)
+        if (goldWaiters.Count > 0 && waitingAmount <= gold)
         {
-            CheckGoldWaiter();
-            return true;
+			goldWaiters[0].tradeRouteManager.ContinueLoadingUnloading();
+            goldWaiters.RemoveAt(0);
+
+            if (goldWaiters.Count > 0)
+                waitingAmount = goldWaiters[0].tradeRouteManager.goldAmount;
+
+			return true;
         }
         else
         {
             return false;
         }
     }
-
-    //public void RemoveFromGoldWaitList()
-    //{
-    //    world.RemoveFromGoldWaitList(this);
-    //}
 
     public void EnableHighlight(Color highlightColor, bool newGlow)
     {
@@ -391,11 +286,6 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
         highlight.DisableHighlight();
     }
 
-    public void SetData()
-    {
-
-    }
-
     public TradeCenterData SaveData()
     {
         TradeCenterData data = new();
@@ -410,10 +300,12 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 		return data;
     }
 
-    public List<int> SaveWaitListData(bool bySea, bool byAir)
+    public List<int> SaveWaitListData(bool bySea, bool byAir, bool gold)
     {
         List<Trader> tempWaitList;
-        if (bySea)
+        if (gold)
+            tempWaitList = goldWaiters;
+        else if (bySea)
             tempWaitList = stop.seaWaitList;
         else if (byAir)
             tempWaitList = stop.airWaitList;
@@ -432,9 +324,6 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
     {
 		mainLoc = data.mainLoc;
 		singleBuildDict = data.singleBuildDict;
-		//transform.rotation = data.rotation;
-		//tradeCenterName = data.name; //done elsewhere
-  //      cityPop = data.cityPop;
 		isDiscovered = data.isDiscovered;
 	}
 
@@ -452,19 +341,4 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 			}
 		}
 	}
-
-	//public void SetSeaWaitList(List<int> seaWaitList)
-	//{
-	//	for (int i = 0; i < seaWaitList.Count; i++)
-	//	{
-	//		for (int j = 0; j < world.traderList.Count; j++)
-	//		{
-	//			if (world.traderList[j].id == seaWaitList[i])
-	//			{
-	//				this.seaWaitList.Enqueue(world.traderList[j]);
-	//				break;
-	//			}
-	//		}
-	//	}
-	//}
 }
