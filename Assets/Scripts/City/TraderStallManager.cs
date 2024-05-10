@@ -5,6 +5,7 @@ using UnityEngine;
 public class TraderStallManager
 {
     private List<Vector3Int> stallLocs = new();
+    private List<Vector3Int> usedStalls = new();
     
     [HideInInspector]
     public bool isFull;
@@ -47,6 +48,7 @@ public class TraderStallManager
     public void TakeStall(Vector3Int stall)
     {
         stallLocs.Remove(stall);
+        usedStalls.Add(stall);
 
         if (stallLocs.Count == 0)
             isFull = true;
@@ -56,7 +58,13 @@ public class TraderStallManager
     {
         if (stallLocs.Count == 0)
             isFull = false;
-        
+
+        usedStalls.Remove(stall);
         stallLocs.Add(stall);
+    }
+
+    public List<Vector3Int> GetUsedStalls()
+    {
+        return usedStalls;
     }
 }

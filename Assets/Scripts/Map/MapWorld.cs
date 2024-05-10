@@ -111,6 +111,8 @@ public class MapWorld : MonoBehaviour
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
     [SerializeField]
     public LayerMask enemyKillLayerMask, unitMask;
+    [SerializeField]
+    public List<ResourceValue> laborTransferCost;
 
 	//for worker and army orders
 	[HideInInspector]
@@ -1071,7 +1073,7 @@ public class MapWorld : MonoBehaviour
 
             center.SetTradeCenterRep(true);
             LoadTradeCenterBorders(centerData.mainLoc);
-			GameLoader.Instance.centerWaitingDict[center] = (centerData.waitList, centerData.seaWaitList);
+			GameLoader.Instance.centerWaitingDict[center] = (centerData.goldWaitList, centerData.waitList, centerData.seaWaitList, centerData.airWaitList);
 		}
 	}
 
@@ -2339,7 +2341,7 @@ public class MapWorld : MonoBehaviour
 
         if (newUnit.trader)
         {
-            newUnit.trader.SetRouteManagers(unitMovement.uiTradeRouteManager, unitMovement.uiPersonalResourceInfoPanel); //start method is too slow and awake is too fast
+            newUnit.trader.SetRouteManagers(unitMovement.uiTradeRouteManager/*, unitMovement.uiPersonalResourceInfoPanel*/); //start method is too slow and awake is too fast
             traderList.Add(newUnit.trader);
             newUnit.trader.personalResourceManager.SetUnit(newUnit);
 			newUnit.trader.LoadTraderData(data.GetTraderData());
@@ -3256,12 +3258,12 @@ public class MapWorld : MonoBehaviour
 			{
 				unitMovement.workerTaskManager.CancelTask();
 			}
-            else if (unitMovement.selectedUnit.military && unitMovement.selectedUnit.military.guard)
-            {
-				unitMovement.CancelOrders();
-			}
-            else if (unitMovement.selectedUnit.inArmy && (unitMovement.selectedUnit.military.isMarching || unitMovement.selectedUnit.military.army.inBattle 
-                || unitMovement.selectedUnit.military.army.traveling || unitMovement.selectedUnit.military.army.atHome))
+   //         else if (unitMovement.selectedUnit.military && unitMovement.selectedUnit.military.guard)
+   //         {
+			//	unitMovement.CancelOrders();
+			//}
+            else if (unitMovement.selectedUnit.inArmy && (/*unitMovement.selectedUnit.military.isMarching *//*|| unitMovement.selectedUnit.military.army.inBattle */
+                unitMovement.selectedUnit.military.army.traveling || unitMovement.selectedUnit.military.army.atHome))
             {
                 unitMovement.CancelOrders();
             }
@@ -4412,93 +4414,6 @@ public class MapWorld : MonoBehaviour
         }
     }
 
-    //public void RestartCityProduction()
-    //{
-        //List<City> cityWaitList = new(goldCityWaitList);
-
-    //    foreach (City city in cityWaitList)
-    //    {
-    //        goldCityWaitList.Remove(city);
-    //        city.RestartGold(GetWorldGoldLevel());
-    //    }
-    //}
-
-    //public bool CitiesGoldWaitingCheck()
-    //{
-    //    return goldCityWaitList.Count > 0;
-    //}
-
-    //public void AddToGoldWonderWaitList(Wonder wonder)
-    //{
-    //    goldWaitList.Add(wonder);
-    //    //if (!goldWonderWaitList.Contains(wonder))
-    //    //    goldWonderWaitList.Add(wonder);
-    //}
-
-    //private void RestartWonderConstruction()
-    //{
-    //    List<Wonder> wonderWaitList = new(goldWonderWaitList);
-
-    //    foreach (Wonder wonder in wonderWaitList)
-    //    {
-    //        goldWonderWaitList.Remove(wonder);
-    //        wonder.RestartGold();
-    //    }
-    //}
-
-    //private bool WondersWaitingCheck()
-    //{
-    //    return goldWonderWaitList.Count > 0;
-    //}
-
-    //public void AddToGoldTradeCenterWaitList(TradeCenter tradeCenter)
-    //{
-    //    if (!goldTradeCenterWaitList.Contains(tradeCenter))
-    //        goldTradeCenterWaitList.Add(tradeCenter);
-    //}
-
-    //private void RestartTradeCenterRoutes()
-    //{
-    //    List<TradeCenter> tradeCenterWaitList = new(goldTradeCenterWaitList);
-
-    //    foreach (TradeCenter tradeCenter in tradeCenterWaitList)
-    //    {
-    //        goldTradeCenterWaitList.Remove(tradeCenter);
-    //        tradeCenter.RestartGold();
-    //    }
-    //}
-
-    //private bool TradeCentersWaitingCheck()
-    //{
-    //    return goldTradeCenterWaitList.Count > 0;
-    //}
-
-    //public void RemoveTradeCenterFromWaitList(TradeCenter tradeCenter)
-    //{
-    //    goldTradeCenterWaitList.Remove(tradeCenter);
-    //}
-
-  //  public void RestartCityRoutes()
-  //  {
-  //      List<City> traderWaitList = new(goldCityRouteWaitList);
-
-  //      for (int i = 0; i < traderWaitList.Count; i++)
-  //      {
-		//	goldCityRouteWaitList.Remove(traderWaitList[i]);
-  //          traderWaitList[i].ResourceManager.RestartGold();
-		//}
-  //  }
-
-  //  private bool TraderWaitingCheck()
-  //  {
-  //      return goldCityRouteWaitList.Count > 0;
-  //  }
-
-  //  public void RemoveTraderFromWaitList(City city)
-  //  {
-  //      goldCityRouteWaitList.Remove(city);
-  //  }
-
     //lights in the world
     public void ToggleWorldLights(bool v)
     {
@@ -4655,7 +4570,14 @@ public class MapWorld : MonoBehaviour
 
         if (unitTrader.trader.guarded)
         {
-			Vector3Int guardLoc = RoundToInt(unitTrader.trader.guardUnit.transform.position);
+            if (!unitTrader.bySea && !unitTrader.byAir)
+            {
+                unitTrader.trader.guardUnit.transform.position = unitTrader.transform.position + Vector3.left;
+                unitTrader.trader.guardUnit.gameObject.SetActive(true);
+                unitTrader.trader.guardMeshList[unitTrader.trader.guardUnit.buildDataSO.unitLevel - 1].SetActive(false);
+            }
+
+            Vector3Int guardLoc = RoundToInt(unitTrader.trader.guardUnit.transform.position);
 			foreach (Vector3Int tile in GetNeighborsFor(loc, State.EIGHTWAY))
 			{
                 if (tile == guardLoc)
@@ -4689,7 +4611,7 @@ public class MapWorld : MonoBehaviour
 			endRotation = Quaternion.identity;
 		else
 			endRotation = Quaternion.LookRotation(direction, Vector3.up);
-        ambushLoc = new Vector3Int(35, 0, 38);
+        //ambushLoc = new Vector3Int(35, 0, 38);
 		GameObject enemyGO = Instantiate(ambushingUnit.prefab, ambushLoc, endRotation);
         enemyGO.name = ambushingUnit.unitDisplayName;
 		enemyGO.transform.SetParent(enemyUnitHolder, false);
@@ -5123,6 +5045,16 @@ public class MapWorld : MonoBehaviour
     public Vector3Int GetTraderStallLoc(Vector3Int loc, Vector3Int currentLoc)
     {
         return traderStallDict[loc].GetAvailableStall(currentLoc);
+    }
+
+    public void SetTraderStallLoc(Vector3Int loc, Vector3Int stallLoc)
+    {
+        traderStallDict[loc].TakeStall(stallLoc);
+    }
+
+    public List<Vector3Int> GetAllUsedStallLocs(Vector3Int loc)
+    {
+        return traderStallDict[loc].GetUsedStalls();
     }
 
     public void RemoveTraderFromStall(Vector3Int loc, Vector3Int currentLoc)
@@ -9209,19 +9141,22 @@ public interface ITradeStop
         for (int i = 0; i < tempWaitList.Count; i++)
         {
             tempWaitList[i].isWaiting = false;
-            tempWaitList[i].TraderStallCheck();
             waitList.Remove(tempWaitList[i]);
             tempWaitList[i].InterruptRoute(true);
         }
 
         waitList.Clear();
 
-        if (world.traderPosDict.ContainsKey(stopLoc))
+        List<Vector3Int> stallLocs = new(world.GetAllUsedStallLocs(stopLoc));
+        for (int i = 0; i < stallLocs.Count; i++)
         {
-            List<Trader> tempList = new(world.traderPosDict[stopLoc]);
+            if (world.traderPosDict.ContainsKey(stallLocs[i]))
+            {
+                List<Trader> tempList = new(world.traderPosDict[stallLocs[i]]);
             
-            for (int i = 0; i < tempList.Count; i++)
-                tempList[i].InterruptRoute(true);
+                for (int j = 0; j < tempList.Count; j++)
+                    tempList[j].InterruptRoute(true);
+            }
         }
 	}
 

@@ -26,7 +26,7 @@ public class Military : Unit
 
 	[HideInInspector]
 	public bool atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, 
-		flankedOnce, cavalryLine, looking, aoe, guard, isGuarding, returning, atSea, benched, duelWatch;
+		flankedOnce, cavalryLine, aoe, guard, isGuarding, returning, atSea, benched, duelWatch;
 
 	[HideInInspector]
 	public List<Vector3Int> switchLocs = new();
@@ -178,11 +178,7 @@ public class Military : Unit
 		attacking = false;
 		attackCo = null;
 
-		if (ambush)
-		{
-			ambush = false;
-		}
-		else
+		if (!ambush)
 		{
 			StopMovementCheck(true);
 			//StopAnimation();
@@ -213,11 +209,7 @@ public class Military : Unit
 		attackCo = null;
 		attacking = false;
 
-		if (ambush)
-		{
-			ambush = false;
-		}
-		else
+		if (!ambush)
 		{
 			StopAnimation();
 			AggroCheck();
@@ -548,13 +540,9 @@ public class Military : Unit
 			path = GridSearch.MoveWherever(world, world.RoundToInt(transform.position), barracksBunk);
 
 		if (path.Count > 0)
-		{
 			MoveThroughPath(path);
-		}
 		else
-		{
-			FinishMovementMilitary(currentLocation);
-		}
+			FinishMoving(transform.position);
 	}
 
 	public void MoveForGuardDuty(Vector3 loc)
@@ -992,6 +980,12 @@ public class Military : Unit
 				
 				if (guardedTrader.waitingOnGuard)
 				{
+					if (!bySea && !byAir)
+					{
+						guardedTrader.guardMeshList[buildDataSO.unitLevel - 1].SetActive(true);
+						gameObject.SetActive(false);
+					}
+
 					guardedTrader.waitingOnGuard = false;
 					guardedTrader.BeginNextStepInRoute();
 
@@ -1023,10 +1017,15 @@ public class Military : Unit
 		}
 		else if (guard)
 		{
-			//world.AddUnitPosition(currentLocation, this);
-
-			if (guardedTrader == null && world.IsCityOnTile(currentLocation))
+			if (ambush)
+			{
+				ambush = false;
+				guardedTrader.ContinueTradeRoute();
+			}
+			else if (guardedTrader == null && world.IsCityOnTile(currentLocation))
+			{
 				GuardToBunkCheck(currentLocation);
+			}
 		}
 		else if (repositioning)
 		{
@@ -1429,7 +1428,7 @@ public class Military : Unit
 					if (!bodyGuard.dueling && !bodyGuard.inTransport)
 						healthbar.RegenerateHealth();
 				}
-				else if (enemyAI && !data.inBattle)
+				else if (enemyAI && !isMoving && !data.attacking && !data.inBattle)
 				{
 					healthbar.RegenerateHealth();
 				}

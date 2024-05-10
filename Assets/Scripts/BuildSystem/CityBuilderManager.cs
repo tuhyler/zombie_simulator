@@ -1633,7 +1633,7 @@ public class CityBuilderManager : MonoBehaviour
                 //uiLaborAssignment.UpdateUI(selectedCity, placesToWork);
 
                 //resourceManager.UpdateUI(city.GetResourceValues());
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
             }
             else
             {
@@ -1830,7 +1830,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 //uiLaborAssignment.UpdateUI(city, placesToWork);
                 uiInfoPanelCity.SetAllData(selectedCity);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
                 uiCityTabs.HideSelectedTab(false);
             }
         }
@@ -1913,47 +1913,6 @@ public class CityBuilderManager : MonoBehaviour
             mainCamLoc.y = 0;
             unit.transform.rotation = Quaternion.LookRotation(mainCamLoc - unit.transform.position);
         }
-        //transferring all previous trader info to new one
-  //      if (upgrading && upgradedUnit.isTrader)
-		//{
-  //          world.traderList.Remove(upgradedUnit.trader);
-  //          newUnit.trader.name = upgradedUnit.name;
-		//	//world.traderList.Add(newTrader);
-		//	newUnit.trader.hasRoute = upgradedUnit.trader.hasRoute;
-		//	newUnit.trader.tradeRouteManager = upgradedUnit.trader.tradeRouteManager;
-		//	newUnit.trader.tradeRouteManager.SetTrader(newUnit.trader);
-		//	newUnit.trader.personalResourceManager = upgradedUnit.trader.personalResourceManager;
-		//	newUnit.trader.resourceGridDict = upgradedUnit.trader.resourceGridDict;
-  //          selectedCity.tradersHere.Remove(upgradedUnit);
-  //          upgradedUnit.DestroyUnit();
-  //          //upgradedUnit.gameObject.SetActive(false);
-  //      }
-        //else
-        //{
-        //}
- 
-   //     if (newUnit.trader)
-   //     {
-   //         world.traderCount++;
-   //         if (!upgrading)
-   //             unit.name = "Trader " + world.traderCount;
-    
-			//newUnit.trader.id = world.traderCount;
-   //         world.traderList.Add(newUnit.trader);
-   //         selectedCity.tradersHere.Add(newUnit);
-   //     }
-
-        //if (newUnit.isLaborer)
-        //{
-        //}
-
-        //if (unitData.baseAttackStrength > 0)
-        //{
-        //    city.army.AddToArmy(newUnit);
-        //    newUnit.homeBase = city;
-        //}
-
-        //newUnit.currentLocation = world.AddUnitPosition(buildPosition, newUnit);
 	}
 
     public void BuildUnit(City city, UnitBuildDataSO unitData, bool upgrading, Unit upgradedUnit)
@@ -2177,7 +2136,7 @@ public class CityBuilderManager : MonoBehaviour
             {
                 uiInfoPanelCity.UpdateHousing(city.HousingCount);
                 //resourceManager.UpdateUI(buildingData.improvementCost);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
 
                 if (!upgradingImprovement)
                     uiCityTabs.HideSelectedTab(false);
@@ -2274,7 +2233,7 @@ public class CityBuilderManager : MonoBehaviour
             }
      
             //resourceManager.UpdateUI(buildingData.improvementCost);
-            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
 
             if (!upgradingImprovement)
                 uiCityTabs.HideSelectedTab(false);
@@ -2345,7 +2304,7 @@ public class CityBuilderManager : MonoBehaviour
             if (data.workEthicChange != 0)
                 UpdateCityWorkEthic();
             //resourceManager.UpdateUI(data.improvementCost);
-            uiResourceManager.SetCityCurrentStorage(resourceManager.ResourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(resourceManager.resourceStorageLevel);
             uiInfoPanelCity.SetAllData(selectedCity);
         }
 
@@ -2513,7 +2472,7 @@ public class CityBuilderManager : MonoBehaviour
         if (city.activeCity)
         {
             //resourceManager.UpdateUI(improvementData.improvementCost);
-            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.ResourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
         }
 
         //rotating harbor so it's closest to city
@@ -2965,7 +2924,7 @@ public class CityBuilderManager : MonoBehaviour
 			selectedImprovement.StopUpgrade();
             if (updateCity)
             {
-    			uiResourceManager.SetCityCurrentStorage(selectedImprovement.city.ResourceManager.ResourceStorageLevel);
+    			uiResourceManager.SetCityCurrentStorage(selectedImprovement.city.ResourceManager.resourceStorageLevel);
 			    ImprovementTileHighlight(true);
             }
 
@@ -2985,7 +2944,7 @@ public class CityBuilderManager : MonoBehaviour
                 //placesToWork++;
                 UpdateCityLaborUIs();
                 //resourceManager.UpdateUI(selectedImprovement.upgradeCost);
-                uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.ResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.resourceStorageLevel);
                 ImprovementTileHighlight(true);
             }
 
@@ -3025,7 +2984,7 @@ public class CityBuilderManager : MonoBehaviour
                 ReplaceImprovementCost(improvementData.improvementCost, improvementLoc);
 
             if (updateCity)
-                uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.ResourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.resourceStorageLevel);
 
             if (improvementData.replaceTerrain)
                 td.ToggleTerrainMesh(true);

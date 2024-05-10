@@ -1744,6 +1744,12 @@ public class EnemyCamp
 
 							if (unit.trader && unit.trader.guarded)
 							{
+								if (!unit.bySea && !unit.byAir)
+								{
+									unit.trader.guardUnit.transform.position = unit.transform.position;
+									unit.trader.guardUnit.gameObject.SetActive(true);
+								}
+								
 								unit.trader.guardUnit.KillUnit(endRotation.eulerAngles);
 								unit.KillUnit(endRotation.eulerAngles);
 							}

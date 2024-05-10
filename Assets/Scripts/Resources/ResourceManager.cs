@@ -2,11 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using Mono.Cecil;
-using System.Resources;
-using UnityEditor.iOS;
-using static UnityEngine.Rendering.DebugUI;
-using static UnityEditor.FilePathAttribute;
 
 public class ResourceManager : MonoBehaviour
 {
@@ -14,29 +9,15 @@ public class ResourceManager : MonoBehaviour
     private Dictionary<ResourceType, float> resourceGenerationPerMinuteDict = new(); //for resource generation stats
     public Dictionary<ResourceType, float> resourceConsumedPerMinuteDict = new(); //for resource consumption stats
     public Dictionary<ResourceType, int> resourcePriceDict = new();
+    [HideInInspector]
     public List<ResourceType> resourceSellList = new();
     public Dictionary<ResourceType, int> resourceMinHoldDict = new();
     public Dictionary<ResourceType, int> resourceSellHistoryDict = new();
 
     public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
 
-    //private int resourceStorageLimit; 
-    //public int ResourceStorageLimit { get { return resourceStorageLimit; } set { resourceStorageLimit = value; } }
-    private int resourceStorageLevel;
-    public int ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
-    //[HideInInspector]
-    //public Queue<ResourceProducer> waitingToUnloadProducers = new();
-    //[HideInInspector]
-    //public List<ResourceProducer> waitingToUnloadResearch = new();
-    //[HideInInspector]
-    //public bool fullInventory;
-
-    //wait list for research
-    //private List<ResourceProducer> waitingForResearchProducerList = new();
-
-    //wait list for inventory space
-    //[HideInInspector]
-    //public List<ResourceProducer> waitingForStorageRoomProducerList = new();
+    [HideInInspector]
+    public int resourceStorageLevel;
 
     //waiting for gold, resources, or storage lists
     [HideInInspector]
@@ -45,16 +26,6 @@ public class ResourceManager : MonoBehaviour
     public Dictionary<ResourceType, List<ICityResourceWait>> cityResourceWaitDict = new();
     [HideInInspector]
     public List<ICityResourceWait> unloadWaitList = new();
-
-    //consuming resources
-    //[HideInInspector]
-    //public List<ResourceProducer> waitingforResourceProducerList = new();
-    //[HideInInspector]
-    //public List<ResourceType> resourcesNeededForProduction = new();
-    //[HideInInspector]
-    //public List<Trader> waitingForTraderList = new();
-    //[HideInInspector]
-    //public List<ResourceType> resourcesNeededForRoute = new();
 
     //initial resources
     public List<ResourceValue> initialResources = new(); //resources you start a city with
@@ -68,18 +39,11 @@ public class ResourceManager : MonoBehaviour
     public int cyclesToWait = 2;
     [HideInInspector]
     public int starvationCount, noHousingCount, noWaterCount;
-    //private int foodGrowthLevel;
-    //public int FoodGrowthLevel { get { return foodGrowthLevel; } }
-    //private int foodGrowthLimit;
-    //public int FoodGrowthLimit { get { return foodGrowthLimit; } }
-    //public float FoodPerMinute { get { return resourceGenerationPerMinuteDict[ResourceType.Food]; } }
     private int cycleCount;
     public int CycleCount { get { return cycleCount; } set { cycleCount = value; } }
 
     //for queued build orders
     public Dictionary<ResourceType, int> queuedResourcesToCheck = new();
-    //private List<ResourceType> queuedResourceTypesToCheck = new(); //have this to check if the queue type has recently been added (can't check values easily)   
-    //private CityBuilderManager cityBuilderManager; //only instantiated through queue build
     [HideInInspector]
     public int resourceCount; //for counting wasted resources
 
@@ -569,7 +533,7 @@ public class ResourceManager : MonoBehaviour
             if (city.uiCityResourceInfoPanel)
             {
 				city.uiCityResourceInfoPanel.UpdateResourceInteractable(type, resourceDict[type], false); //false so it doesn't play ps
-				city.uiCityResourceInfoPanel.UpdateStorageLevel(ResourceStorageLevel);
+				city.uiCityResourceInfoPanel.UpdateStorageLevel(resourceStorageLevel);
 			}
 
             if (city.world.uiCityPopIncreasePanel.CheckCity(city) && type == ResourceType.Food)
@@ -651,7 +615,7 @@ public class ResourceManager : MonoBehaviour
                 if (city.uiCityResourceInfoPanel)
                 {
 				    city.uiCityResourceInfoPanel.UpdateResourceInteractable(value.resourceType, resourceDict[value.resourceType], false); //false so it doesn't play ps
-				    city.uiCityResourceInfoPanel.UpdateStorageLevel(ResourceStorageLevel);
+				    city.uiCityResourceInfoPanel.UpdateStorageLevel(resourceStorageLevel);
                 }
 			}
 		}

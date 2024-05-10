@@ -223,7 +223,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     {
         if (type == ResourceType.None)
         {
-            if (resourceManager.city.warehouseStorageLimit - resourceManager.ResourceStorageLevel >= resourceManager.CalculateResourceProductionAmount(producedResource, tempLabor, cityImprovement))
+            if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel >= resourceManager.CalculateResourceProductionAmount(producedResource, tempLabor, cityImprovement))
             {
 				isWaitingForStorageRoom = false;
 				cityImprovement.exclamationPoint.SetActive(false);
@@ -410,7 +410,7 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
 			}
         }
         //checking if storage is free to unload
-        else if (resourceManager.city.warehouseStorageLimit - resourceManager.ResourceStorageLevel < unloadAmount)
+        else if (resourceManager.city.warehouseStorageLimit - resourceManager.resourceStorageLevel < unloadAmount)
         {
 			AddToStorageRoomWaitList();
 			//isWaitingForStorageRoom = true;

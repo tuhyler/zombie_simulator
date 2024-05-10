@@ -92,7 +92,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 				increaseAmount.interactable = true;
 				allContents.sizeDelta = new Vector2(370, 290);
 				transferAmountText.text = transferAmount.ToString();
-				costResourceList = new(city.GetLaborTransferCost());
+				costResourceList = new(world.laborTransferCost);
 				title.text = "Transfer Labor";
 			}
 			else

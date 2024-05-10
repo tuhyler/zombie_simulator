@@ -150,8 +150,8 @@ public class RoadManager : MonoBehaviour
             {
                 BuildRoadAtPosition(loc, type, level);
 
-                if (loc - roadPosition == new Vector3Int(0, 0, 3))
-                    world.GetCity(loc).RepositionFire();
+                //if (loc - roadPosition == new Vector3Int(0, 0, 3))
+                //    world.GetCity(loc).RepositionFire();
             }
         }
     }

@@ -100,7 +100,8 @@ public class Unit : MonoBehaviour
     public WaitForSeconds[] attackPauses = new WaitForSeconds[3];
 
     //selection indicators
-    private SelectionHighlight highlight;
+    [HideInInspector]
+    public SelectionHighlight highlight;
     
     [HideInInspector]
     public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep, byAir, posSet;
@@ -341,11 +342,11 @@ public class Unit : MonoBehaviour
 
         pathPositions = new Queue<Vector3Int>(currentPath);
 
-        if (trader)
+        if (trader && !trader.atStall)
         {
             world.RemoveTraderPosition(currentLocation, trader);
             
-            if (trader.followingRoute && !trader.atStall && world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
+            if (trader.followingRoute && world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
             {
                 isMoving = true;
                 trader.GetInLine();
@@ -605,34 +606,35 @@ public class Unit : MonoBehaviour
 
                         if (trader.guarded)
                         {
-                            if (trader.guardUnit.isMoving)
+                            if (bySea)
                             {
-								Vector3 nextStep = trader.guardUnit.military.GuardRouteFinish(endPositionInt, pathPositions.Peek());
-                                Vector3Int nextStepInt = world.RoundToInt(nextStep);
-                                trader.guardUnit.pathPositions.Enqueue(nextStepInt);
+                                if (trader.guardUnit.isMoving)
+                                {
+								    Vector3 nextStep = trader.guardUnit.military.GuardRouteFinish(endPositionInt, pathPositions.Peek());
+                                    Vector3Int nextStepInt = world.RoundToInt(nextStep);
+                                    trader.guardUnit.pathPositions.Enqueue(nextStepInt);
+                                }
+                                else
+                                {
+								    trader.guardUnit.military.GuardGetInLine(endPositionInt, pathPositions.Peek());
+							    }
                             }
-                            else
-                            {
-								trader.guardUnit.military.GuardGetInLine(endPositionInt, pathPositions.Peek());
-							}
+                            //else if (byAir)
                         }
                     }
 
                 }
 
 				prevTile = endPositionInt;
-				if (prevTile == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle) //Can also trigger ambush when not on trade route
+				if (endPositionInt == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle) //Can also trigger ambush when not on trade route
                 {
-                    if (!trader.guarded || Mathf.Abs(trader.guardUnit.transform.position.x - transform.position.x) + Mathf.Abs(trader.guardUnit.transform.position.z - transform.position.z) < 5)
-                    {
-                        ambush = true;
-                        currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
-                        isMoving = false;
-                        StopAnimation();
+                    ambush = true;
+                    currentLocation = world.AddUnitPosition(endPositionInt, this); //adding trader to military positions to be attacked
+                    isMoving = false;
+                    StopAnimation();
 
-                        world.SetUpAmbush(ambushLoc, this);
-                        yield break;
-                    }
+                    world.SetUpAmbush(ambushLoc, this);
+                    yield break;
                 }
             }
 			else if (isPlayer)

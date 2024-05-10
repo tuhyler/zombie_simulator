@@ -61,6 +61,7 @@ public class UINewGameMenu : MonoBehaviour
 		string resource = resourceGroup.ActiveToggles().FirstOrDefault().name;
 		//string mountains = mountainGroup.ActiveToggles().FirstOrDefault().name;
 		string enemy = enemyGroup.ActiveToggles().FirstOrDefault().name;
+		Cursor.visible = false;
 		GameManager.Instance.NewGame(starting, landType, resource, /*mountains,*/enemy, mapSize, tutorial);
 	}
 }

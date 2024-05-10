@@ -37,7 +37,33 @@ public class EnemyAmbush
         {
             if (attackedUnits[i].trader)
             {
-                attackedUnits[i].trader.ContinueTradeRoute();
+                if (attackedUnits[i].trader.guarded)
+                {
+					attackedUnits[i].trader.guardUnit.StopAnimation();
+					List<Vector3Int> path = new();
+                    if (attackedUnits[i].bySea)
+                    {
+						path.Add(attackedUnits[i].currentLocation + Vector3Int.left);
+					}
+                    else if (attackedUnits[i].byAir)
+                    {
+                        Vector3Int tempSpot = attackedUnits[i].currentLocation;
+                        tempSpot.y += 1;
+                        path.Add(tempSpot);
+					}
+                    else
+                    {
+                        path.Add(attackedUnits[i].currentLocation);
+                    }
+
+                    attackedUnits[i].trader.guardUnit.finalDestinationLoc = path[path.Count - 1];
+					attackedUnits[i].trader.guardUnit.MoveThroughPath(path);
+                }
+                else
+                {
+                    attackedUnits[i].trader.ContinueTradeRoute();
+                }
+
                 break;
             }
         }

@@ -175,10 +175,10 @@ public class UITradeCenter : MonoBehaviour, IGoldUpdateCheck
 			buyMultiple = 1;
 		}
 
-		foreach (ResourceType type in center.ResourceBuyDict.Keys)
+		foreach (ResourceType type in center.resourceBuyDict.Keys)
 		{
 			buyDict[type].gameObject.SetActive(true);
-			int price = Mathf.CeilToInt(center.ResourceBuyDict[type] * buyMultiple);
+			int price = Mathf.CeilToInt(center.resourceBuyDict[type] * buyMultiple);
 			buyDict[type].SetValue(price);
 			if (price > maxBuyCost)
 				maxBuyCost = price;
@@ -186,10 +186,10 @@ public class UITradeCenter : MonoBehaviour, IGoldUpdateCheck
 			activeBuyResources.Add(buyDict[type]);
 		}
 
-		foreach (ResourceType type in center.ResourceSellDict.Keys)
+		foreach (ResourceType type in center.resourceSellDict.Keys)
 		{
 			sellDict[type].gameObject.SetActive(true);
-			sellDict[type].SetValue(center.ResourceSellDict[type]);
+			sellDict[type].SetValue(center.resourceSellDict[type]);
 			sellDict[type].SetColor(Color.green);
 			activeSellResources.Add(sellDict[type]);
 		}

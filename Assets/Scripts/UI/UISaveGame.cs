@@ -195,7 +195,7 @@ public class UISaveGame : MonoBehaviour
         }
         else
         {
-            uiWarning.SetWarningMessages("Overwrite?","Yup!","Nah");
+            uiWarning.SetWarningMessages("Overwrite?","Yup!","Nope");
         }
         uiWarning.ToggleVisibilty(true);
 	}
@@ -233,7 +233,8 @@ public class UISaveGame : MonoBehaviour
                 foreach (GameObject go in GameLoader.Instance.textList)
                     Destroy(go);
             }
-            
+
+            Cursor.visible = false;
             if (GameLoader.Instance == null)
             {
 				string loadName = selectedSaveItem.saveName;
