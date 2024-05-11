@@ -653,7 +653,7 @@ public class CityBuilderManager : MonoBehaviour
         PlaySelectAudio();
         tilesToChange.Clear();
 
-        foreach (Vector3Int loc in selectedWonder.PossibleHarborLocs)
+        foreach (Vector3Int loc in selectedWonder.possibleHarborLocs)
         {
             if (!world.IsTileOpenCheck(loc))
                 continue;
@@ -685,7 +685,7 @@ public class CityBuilderManager : MonoBehaviour
         if (!uiWonderSelection.buttonsAreWorking)
             return;
 
-        if (selectedWonder.WorkersReceived == 0)
+        if (selectedWonder.workersReceived == 0)
         {
             UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No workers to unload");
             return;
@@ -694,13 +694,13 @@ public class CityBuilderManager : MonoBehaviour
         PlaySelectAudio();
 
         selectedWonder.StopConstructing();
-        selectedWonder.WorkersReceived--; //decrease worker count 
+        selectedWonder.workersReceived--; //decrease worker count 
         bool secondary = selectedWonder.workerSexAndHome[0].Item1;
         Vector3Int homeCityLoc = selectedWonder.workerSexAndHome[0].Item2;
         selectedWonder.workerSexAndHome.RemoveAt(0);
 
         if (uiWonderSelection.activeStatus)
-            uiWonderSelection.UpdateUIWorkers(selectedWonder.WorkersReceived, selectedWonder);
+            uiWonderSelection.UpdateUIWorkers(selectedWonder.workersReceived, selectedWonder);
 
         Vector3Int buildPosition = selectedWonder.unloadLoc;
         selectedWonder.GoldWaitCheck();
@@ -753,7 +753,7 @@ public class CityBuilderManager : MonoBehaviour
     public void CreateAllWorkers(Wonder wonder)
     {
         wonder.StopConstructing();
-        wonder.WorkersReceived = 0; //decrease worker count 
+        wonder.workersReceived = 0; //decrease worker count 
 
         if (uiWonderSelection.activeStatus && uiWonderSelection.wonder == wonder)
             uiWonderSelection.UpdateUIWorkers(0, wonder);
@@ -833,6 +833,7 @@ public class CityBuilderManager : MonoBehaviour
     public void LoadWonderHarbor(Vector3Int loc, Wonder wonder)
     {
 		GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, wonder.unloadLoc), 0));
+        harborGO.transform.SetParent(world.wonderHolder, false);
 		CityImprovement harbor = harborGO.GetComponent<CityImprovement>();
         harbor.SetWorld(world);
 		harbor.wonderHarbor = true;
@@ -881,10 +882,10 @@ public class CityBuilderManager : MonoBehaviour
 
         //for no walk zone
         int k = 0;
-        int[] xArray = new int[selectedWonder.WonderLocs.Count];
-        int[] zArray = new int[selectedWonder.WonderLocs.Count];
+        int[] xArray = new int[selectedWonder.wonderLocs.Count];
+        int[] zArray = new int[selectedWonder.wonderLocs.Count];
 
-        foreach (Vector3Int tile in selectedWonder.WonderLocs)
+        foreach (Vector3Int tile in selectedWonder.wonderLocs)
         {
             world.RemoveStructure(tile);
             world.RemoveSingleBuildFromCityLabor(tile);
@@ -893,7 +894,7 @@ public class CityBuilderManager : MonoBehaviour
 
             TerrainData td = world.GetTerrainDataAt(tile);
 
-            if (selectedWonder.WonderData.isSea)
+            if (selectedWonder.wonderData.isSea)
             {
                 td.sailable = true;
                 td.canWalk = false;
@@ -918,7 +919,7 @@ public class CityBuilderManager : MonoBehaviour
         int zMin = Mathf.Min(zArray) - 1;
         int zMax = Mathf.Max(zArray) + 1;
 
-        foreach (Vector3Int tile in selectedWonder.WonderLocs)
+        foreach (Vector3Int tile in selectedWonder.wonderLocs)
         {
             world.RemoveFromNoWalkList(tile);
             
@@ -931,7 +932,7 @@ public class CityBuilderManager : MonoBehaviour
             }
         }
 
-        foreach (Vector3Int tile in selectedWonder.CoastTiles)
+        foreach (Vector3Int tile in selectedWonder.coastTiles)
             world.RemoveFromCoastList(tile);
 
         world.allWonders.Remove(selectedWonder);

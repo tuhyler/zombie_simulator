@@ -536,7 +536,7 @@ public class UITradeRouteManager : MonoBehaviour
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't load from wonder", false);
 						return;
                     }
-                    else if (!stop.wonder.ResourceCostDict.ContainsKey(resourceAssignment[j].resourceType))
+                    else if (!stop.wonder.resourceCostDict.ContainsKey(resourceAssignment[j].resourceType))
                     {
 						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, destination + " doesn't need " + resourceAssignment[j].resourceType, false);
 						return;

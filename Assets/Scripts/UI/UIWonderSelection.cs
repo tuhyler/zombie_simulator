@@ -137,12 +137,12 @@ public class UIWonderSelection : MonoBehaviour
 
     private void SetWonderInfo(Wonder wonder)
     {
-        wonderTitle.text = wonder.WonderData.wonderDisplayName;
-        wonderDescription.text = wonder.WonderData.wonderDescription;
-        workerCount.text = $"{wonder.WorkersReceived}";
-        workerTotal.text = $"/{wonder.WonderData.workersNeeded}";
+        wonderTitle.text = wonder.wonderData.wonderDisplayName;
+        wonderDescription.text = wonder.wonderData.wonderDescription;
+        workerCount.text = $"{wonder.workersReceived}";
+        workerTotal.text = $"/{wonder.wonderData.workersNeeded}";
         percentDone.text = $"{wonder.PercentDone}%";
-        workerCostText.text = $"Cost per Laborer: {wonder.WonderData.workerCost}";
+        workerCostText.text = $"Cost per Laborer: {wonder.wonderData.workerCost}";
         int shift = (workerCostText.text.Length - 18) * 8;
         Vector3 pos = goldImage.transform.localPosition;
         pos.x = 410 + shift;
@@ -150,7 +150,7 @@ public class UIWonderSelection : MonoBehaviour
 
         progressBarMask.fillAmount = wonder.PercentDone / 100f;
 
-        if (wonder.WorkersReceived < wonder.WonderData.workersNeeded)
+        if (wonder.workersReceived < wonder.wonderData.workersNeeded)
             workerCount.color = Color.red;
         else
             workerCount.color = Color.white;
@@ -158,10 +158,10 @@ public class UIWonderSelection : MonoBehaviour
 
     private void SetResources(Wonder wonder)
     {
-        foreach (ResourceValue value in wonder.WonderData.wonderCost)
+        foreach (ResourceValue value in wonder.wonderData.wonderCost)
         {
-            int totalAmount = wonder.ResourceCostDict[value.resourceType];
-            int amount = wonder.ResourceDict[value.resourceType];
+            int totalAmount = wonder.resourceCostDict[value.resourceType];
+            int amount = wonder.resourceDict[value.resourceType];
 
             resourceOptions[value.resourceType].ToggleActive(true);
             resourceOptions[value.resourceType].SetResourceAmount(amount, totalAmount);
@@ -170,7 +170,7 @@ public class UIWonderSelection : MonoBehaviour
 
     private void SetResourcesInactive(Wonder wonder)
     {
-        foreach (ResourceValue value in wonder.WonderData.wonderCost)
+        foreach (ResourceValue value in wonder.wonderData.wonderCost)
         {
             resourceOptions[value.resourceType].ToggleActive(false);
         }
@@ -228,7 +228,7 @@ public class UIWonderSelection : MonoBehaviour
     internal void UpdateUIWorkers(int workersReceived, Wonder wonder)
     {
         workerCount.text = $"{workersReceived}";
-		if (workersReceived < wonder.WonderData.workersNeeded)
+		if (workersReceived < wonder.wonderData.workersNeeded)
 			workerCount.color = Color.red;
 		else
 			workerCount.color = Color.white;

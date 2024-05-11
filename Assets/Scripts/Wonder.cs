@@ -26,7 +26,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     //public Quaternion Rotation { set { rotation = value; } }
 
     [HideInInspector]
-    public bool isConstructing, canBuildHarbor, isActive, hadRoad, goldWait;
+    public bool isConstructing, canBuildHarbor, isActive, hadRoad, goldWait, completed;
     [HideInInspector]
     public Vector3Int unloadLoc;
     [HideInInspector]
@@ -35,30 +35,18 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     [HideInInspector]
     public CityImprovement harborImprovement;
 
-    private List<Vector3Int> wonderLocs = new();
-    public List<Vector3Int> WonderLocs { get { return wonderLocs; } set { wonderLocs = value; } }
+    [HideInInspector]
+    public List<Vector3Int> wonderLocs = new(), possibleHarborLocs = new(), coastTiles = new();
+    public Dictionary<ResourceType, int> resourceDict = new(); //how much that has been added
+    public Dictionary<ResourceType, int> resourceCostDict = new(); //total cost to build wonder
+    public Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown for when trader manually unldoads
 
-    private List<Vector3Int> possibleHarborLocs = new();
-    public List<Vector3Int> PossibleHarborLocs { get { return possibleHarborLocs; } set { possibleHarborLocs = value; } }
+    [HideInInspector]
+    public WonderDataSO wonderData;
 
-    private List<Vector3Int> coastTiles = new();
-    public List<Vector3Int> CoastTiles { get { return coastTiles; } set { coastTiles = value; } }
-
-    private Dictionary<ResourceType, int> resourceDict = new(); //how much that has been added
-    public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
-
-    private Dictionary<ResourceType, int> resourceCostDict = new(); //total cost to build wonder
-    public Dictionary<ResourceType, int> ResourceCostDict { get { return resourceCostDict; } }
-
-    private Dictionary<ResourceType, int> resourceGridDict = new(); //order of resources shown for when trader manually unldoads
-    public Dictionary<ResourceType, int> ResourceGridDict { get { return resourceGridDict; } set { resourceGridDict = value; } }
-
-    private WonderDataSO wonderData;
-    public WonderDataSO WonderData { get { return wonderData; } set { wonderData = value; } }
-
-    private int workersReceived;
-    public int WorkersReceived { get { return workersReceived; } set { workersReceived = value; } }
-
+    [HideInInspector]
+    public int workersReceived;
+    
     [HideInInspector]
     public List<(bool, Vector3Int)> workerSexAndHome = new();
 
@@ -128,6 +116,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     public void SetReferences(MapWorld world, CameraController focusCam)
     {
         this.world = world;
+        removeSplash.transform.SetParent(world.wonderHolder, false);
         removeSplash.transform.SetParent(world.psHolder, false);
         this.focusCam = focusCam;
     }
@@ -238,124 +227,10 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
             SetNextResourceThreshold(resourceType);
     }
 
-    //public void SetUI(UIWonderSelection uiWonderSelection)
-    //{
-    //    this.uiWonderSelection = uiWonderSelection;
-    //}
-
     public bool CheckResourceType(ResourceType resourceType)
     {
         return resourceDict.ContainsKey(resourceType);
     }
-
-	//internal void SetWaiter(TradeRouteManager tradeRouteManager, ResourceType resourceType = ResourceType.None)
-	//{
-	//    tradeRouteWaiter = tradeRouteManager;
-	//    resourceWaiter = resourceType;
-	//}
-
-	//public void CheckResourceWaiter(ResourceType resourceType)
-	//{
-	//    if (tradeRouteWaiter != null && resourceWaiter == resourceType)
-	//    {
-	//        tradeRouteWaiter.resourceCheck = false;
-	//        tradeRouteWaiter = null;
-	//        resourceWaiter = ResourceType.None;
-	//    }
-	//}
-
-	//public void AddToWaitList(Unit unit)
- //   {
- //       if (unit.bySea)
- //       {
-	//		if (!seaWaitList.Contains(unit))
-	//			seaWaitList.Enqueue(unit);
-	//	}
-	//	else
- //       {
- //           if (!waitList.Contains(unit))
- //               waitList.Enqueue(unit);
- //       }
- //   }
-
- //   public void RemoveFromWaitList(Unit unit)
- //   {
- //       List<Unit> waitListList = unit.bySea ? seaWaitList.ToList() : waitList.ToList();
-        
- //       if (!waitListList.Contains(unit))
- //       {
- //           if (unit.bySea)
- //               CheckSeaQueue();
- //           else
- //               CheckQueue();
-            
- //           return;
- //       }
-
- //       int index = waitListList.IndexOf(unit);
- //       waitListList.Remove(unit);
-
- //       int j = 0;
- //       for (int i = index; i < waitListList.Count; i++)
- //       {
- //           j++;
- //           waitListList[i].trader.StartMoveUpInLine(j);
- //       }
-
- //       if (unit.bySea)
- //           seaWaitList = new Queue<Unit>(waitListList);
- //       else
-	//		waitList = new Queue<Unit>(waitListList);
-	//	//waitList = new Queue<Unit>(waitList.Where(x => x != unit));
-	//}
-
- //   internal void CheckQueue()
- //   {
- //       if (waitList.Count > 0)
- //           waitList.Dequeue().trader.ExitLine();
-
- //       if (waitList.Count > 0)
- //       {
- //           int i = 0;
- //           foreach (Unit unit in waitList)
- //           {
- //               i++;
- //               unit.trader.StartMoveUpInLine(i);
- //           }
- //       }
- //   }
-
- //   internal void CheckSeaQueue()
- //   {
-	//	if (seaWaitList.Count > 0)
-	//		seaWaitList.Dequeue().trader.ExitLine();
-
-	//	if (seaWaitList.Count > 0)
-	//	{
-	//		int i = 0;
-	//		foreach (Unit unit in seaWaitList)
-	//		{
-	//			i++;
- //               unit.trader.StartMoveUpInLine(i);
-	//		}
-	//	}
-	//}
-
-    //internal int CheckResource(ResourceType type, int newResourceAmount)
-    //{
-    //    if (resourceDict.ContainsKey(type) && CheckStorageSpaceForResource(type))
-    //    {
-    //        if (!resourceGridDict.ContainsKey(type))
-    //            AddToGrid(type);
-
-    //        return AddResourceToStorage(type, newResourceAmount);
-    //    }
-    //    else
-    //    {
-    //        InfoPopUpHandler.WarningMessage().Create(centerPos, "No storage space for " + type);
-    //        return 0;
-    //    }
-    //}
 
     public int AddResource(ResourceType type, int amount)
     {
@@ -379,6 +254,37 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         return amount;
 	}
 
+    public bool ResourcesNeededCheck(List<ResourceValue> values)
+    {
+        for (int i = 0; i < values.Count; i++)
+        {
+            if (!CompletedResourceCheck(values[i].resourceType))
+                return false;
+        }
+
+        return true;
+    }
+
+    public bool CompletedResourceCheck(ResourceType type)
+    {
+        return resourceCostDict[type] - resourceDict[type] <= 0;
+    }
+
+    private void CompletedCheck()
+    {
+        bool completed = true;
+        foreach (ResourceType type in resourceCostDict.Keys)
+        {
+            if (resourceDict[type] != resourceCostDict[type])
+            {
+                completed = false;
+                break;
+            }
+        }
+
+        this.completed = completed;
+    }
+
     private void UICheck(ResourceType type)
     {
 		if (isActive)
@@ -396,17 +302,20 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         resourceGridDict[type] = resourceGridDict.Count;
     }
 
-
     private void AddResourceToStorage(ResourceType resourceType, int resourceAmount)
     {
         resourceDict[resourceType] += resourceAmount; //updating the dictionary
+
+        if (resourceDict[resourceType] == resourceCostDict[resourceType])
+            CompletedCheck();
+
         UICheck(resourceType);
     }
 
     public void AddWorker(Unit unit)
     {
-        Vector3 pos = unit.transform.position;
-		pos.y = 3f;
+        Vector3 pos = unloadLoc;
+		pos.y = 4.5f;
         Laborer laborer = unit.GetComponent<Laborer>();
 		world.laborerList.Remove(laborer);
 
@@ -420,7 +329,10 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 
 		if (!StillNeedsWorkers())
             ThresholdCheck();
-    }
+
+		world.laborerList.Remove(unit.GetComponent<Laborer>());
+		unit.DestroyUnit();
+	}
 
     public bool StillNeedsWorkers()
     {
@@ -532,11 +444,6 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
             SetNewGO(mesh33Percent, mesh67Percent);
             PlaySmokeSplash();
         }
-        //else if (percentDone == 75)
-        //{
-        //    SetNewGO(mesh50Percent, mesh75Percent);
-        //    PlaySmokeSplash();
-        //}
         else if (percentDone == 100)
         {
             world.UnselectAll();
@@ -546,20 +453,14 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
             LightCheck();
             PlaySmokeSplash();
             isConstructing = false;
-            world.RemoveStop(unloadLoc);
-            world.RemoveStopName(wonderName);
             if (isActive)
             {
 				world.cityBuilderManager.uiWonderSelection.HideCancelConstructionButton();
 				world.cityBuilderManager.uiWonderSelection.HideHarborButton();
 				world.cityBuilderManager.uiWonderSelection.HideWorkerCounts();
             }
-            //world.RemoveTradeLoc(unloadLoc);
 
             MeshCheck();
-
-			if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
-                DestroyHarbor();
 
             world.roadManager.RemoveRoadAtPosition(unloadLoc);
 			world.AddToNoWalkList(unloadLoc);
@@ -576,6 +477,20 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         }
 
         ThresholdCheck();
+    }
+
+    public void ClearWonderStop()
+    {
+        if (world.StopExistsCheck(unloadLoc))
+        {
+            RemoveQueuedTraders();
+
+            if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
+                DestroyHarbor();
+
+            world.RemoveStop(unloadLoc);
+            world.RemoveStopName(wonderName);
+        }
     }
 
     public void MeshCheck()
@@ -608,9 +523,6 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         Vector3Int harborLoc = singleBuildDict[SingleBuildType.Harbor];
         stop.ClearStopCheck(stop.seaWaitList, harborLoc, world);
-        //ClearHarborCheck();
-        
-        //hasHarbor = false;
         GameObject harbor = world.GetStructure(harborLoc);
         harbor.GetComponent<CityImprovement>().PlayRemoveEffect(false);
         harborImprovement = null;
@@ -618,7 +530,6 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         world.RemoveSingleBuildFromCityLabor(harborLoc);
         world.RemoveStructure(harborLoc);
 		world.RemoveStop(harborLoc);
-		//world.RemoveTradeLoc(harborLoc);
     }
 
     public List<Vector3Int> OuterRim()
@@ -872,32 +783,9 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 		}
     }
 
-   // public void ClearWonderCheck()
-   // {
-   //     for (int i = 0; i < waitList.Count; i++)
-			//waitList.Dequeue().trader.CancelRoute();
-
-   //     if (world.IsUnitLocationTaken(unloadLoc))
-   //         world.CancelTraderRoute(unloadLoc);
-   // }
-
-	//public void ClearHarborCheck()
- //   {
-	//	for (int i = 0; i < seaWaitList.Count; i++)
-	//		seaWaitList.Dequeue().trader.CancelRoute();
-
-	//	if (world.IsUnitLocationTaken(harborLoc))
-	//		world.CancelTraderRoute(harborLoc);
-	//}
-
     public void RemoveQueuedTraders()
     {
         stop.ClearStopCheck(stop.waitList, unloadLoc, world);
-        //if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
-        //    stop.ClearStopCheck(stop.seaWaitList, singleBuildDict[SingleBuildType.Harbor], world);
-                
-        //ClearWonderCheck();
-        //ClearHarborCheck();
 	}
 
 	public WonderData SaveData()
@@ -922,6 +810,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         data.resourceDict = resourceDict;
         data.resourceGridDict = resourceGridDict;
         data.workerSexAndHome = workerSexAndHome;
+        data.completed = completed;
 
 		//List<Unit> tempWaitList = waitList.ToList();
 
@@ -942,6 +831,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         //centerPos = data.centerPos; //done elsewhere
         wonderName = data.name;
+        name = wonderName;
 		unloadLoc = data.unloadLoc;
         SetExclamationPoint();
         singleBuildDict = data.singleBuildDict;
@@ -957,6 +847,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         resourceDict = data.resourceDict;
         resourceGridDict = data.resourceGridDict;
         workerSexAndHome = data.workerSexAndHome;
+        completed = data.completed;
 	}
 
     public void DestroyParticleSystems()
@@ -983,19 +874,4 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 			}
 		}
 	}
-
-	//public void SetSeaWaitList(List<int> seaWaitList)
-	//{
-	//	for (int i = 0; i < seaWaitList.Count; i++)
-	//	{
-	//		for (int j = 0; j < world.traderList.Count; j++)
-	//		{
-	//			if (world.traderList[j].id == seaWaitList[i])
-	//			{
-	//				this.seaWaitList.Enqueue(world.traderList[j]);
-	//				break;
-	//			}
-	//		}
-	//	}
-	//}
 }

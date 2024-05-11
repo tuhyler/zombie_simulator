@@ -1856,7 +1856,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public void DestroyThisCity()
     {
         //cancelling routes for all traders in line at this city
-        stop.ClearStopCheck(stop.waitList, cityLoc, world);
+        if (singleBuildDict.ContainsKey(SingleBuildType.TradeDepot))
+            stop.ClearStopCheck(stop.waitList, singleBuildDict[SingleBuildType.TradeDepot], world);
 		if (singleBuildDict.ContainsKey(SingleBuildType.Harbor))
 			stop.ClearStopCheck(stop.seaWaitList, singleBuildDict[SingleBuildType.Harbor], world);
 		if (singleBuildDict.ContainsKey(SingleBuildType.Airport))

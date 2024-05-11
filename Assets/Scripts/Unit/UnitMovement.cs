@@ -49,7 +49,7 @@ public class UnitMovement : MonoBehaviour
     //public bool moveUnit;
 
     private ResourceManager cityResourceManager;
-    private Wonder wonder;
+    //private Wonder wonder;
     private TradeCenter tradeCenter;
     public int cityTraderIncrement = 1;
 
@@ -298,9 +298,9 @@ public class UnitMovement : MonoBehaviour
 
                         world.utilityCostDisplay.ShowUtilityCostDisplay(pos);
                         if (td.straightRiver)
-                            world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.ResourceDict, true);
+                            world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.resourceDict, true);
                         else
-                            world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.ResourceDict, true);
+                            world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.resourceDict, true);
 
                         world.cityBuilderManager.PlaySelectAudio();
                         //highlightedTiles.Add(td);
@@ -311,9 +311,9 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmOrders.ToggleVisibility(false);
 
                         if (td.straightRiver)
-							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.ResourceDict, true);
+							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.resourceDict, true);
                         else
-							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.ResourceDict, true);
+							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.resourceDict, true);
 
                         if (world.scott.OrderList.Count == 0)
                             world.utilityCostDisplay.HideUtilityCostDisplay();
@@ -350,11 +350,11 @@ public class UnitMovement : MonoBehaviour
 
 						world.utilityCostDisplay.ShowUtilityCostDisplay(pos);
 						if (td.straightRiver)
-							world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.ResourceDict, false);
+							world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.resourceDict, false);
 						else
-							world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.ResourceDict, false);
+							world.utilityCostDisplay.AddCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.resourceDict, false);
 
-                        if (world.utilityCostDisplay.inventoryCount > world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.ResourceStorageLevel)
+                        if (world.utilityCostDisplay.inventoryCount > world.mainPlayer.personalResourceManager.resourceStorageLimit - world.mainPlayer.personalResourceManager.resourceStorageLevel)
 							UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not enough storage space");
 
 						foreach (Road road in world.GetAllRoadsOnTile(pos))
@@ -375,9 +375,9 @@ public class UnitMovement : MonoBehaviour
                             uiConfirmOrders.ToggleVisibility(false);
 
 						if (td.straightRiver)
-							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.ResourceDict, false);
+							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.bridgeCost, world.mainPlayer.personalResourceManager.resourceDict, false);
 						else
-							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.ResourceDict, false);
+							world.utilityCostDisplay.SubtractCost(world.scott.currentUtilityCost.utilityCost, world.mainPlayer.personalResourceManager.resourceDict, false);
 
 						td.DisableHighlight();
                         foreach (Road road in world.GetAllRoadsOnTile(pos))
@@ -1018,7 +1018,7 @@ public class UnitMovement : MonoBehaviour
             {
 			    selectedUnit = world.mainPlayer;
 
-			    uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.ResourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
+			    uiPersonalResourceInfoPanel.SetTitleInfo(world.mainPlayer.name, world.mainPlayer.personalResourceManager.resourceStorageLevel, world.mainPlayer.personalResourceManager.resourceStorageLimit);
 			    uiPersonalResourceInfoPanel.ToggleVisibility(true, world.mainPlayer);
 
 			    if (world.mainPlayer.isBusy)
@@ -1071,7 +1071,7 @@ public class UnitMovement : MonoBehaviour
                 selectedUnit.trader.InterruptedRouteMessage();
             if (selectedUnit.trader.tradeRouteManager.resourceCheck || selectedUnit.trader.waitingOnRouteCosts)
                 selectedUnit.trader.CheckWarning();
-            uiPersonalResourceInfoPanel.SetTitleInfo(selectedUnit.trader.name, selectedUnit.trader.personalResourceManager.ResourceStorageLevel, selectedUnit.trader.personalResourceManager.resourceStorageLimit);
+            uiPersonalResourceInfoPanel.SetTitleInfo(selectedUnit.trader.name, selectedUnit.trader.personalResourceManager.resourceStorageLevel, selectedUnit.trader.personalResourceManager.resourceStorageLimit);
             uiPersonalResourceInfoPanel.ToggleVisibility(true, selectedUnit.trader);
             world.traderCanvas.gameObject.SetActive(true);
             world.personalResourceCanvas.gameObject.SetActive(true);
@@ -1533,28 +1533,33 @@ public class UnitMovement : MonoBehaviour
     {
 		Vector3Int unitLoc = world.GetClosestTerrainLoc(unit.transform.position);
 
-        if (world.StopExistsCheck(unitLoc))
+        if (world.IsCityOnTile(unitLoc))
         {
-            ITradeStop stop = world.GetStop(unitLoc);
+        	world.laborerList.Remove(unit.GetComponent<Laborer>());
+			AddToCity(world.GetCity(unitLoc), unit);
+        }
+        else if (world.StopExistsCheck(unitLoc))
+        {
+			ITradeStop stop = world.GetStop(unitLoc);
 
             if (stop.wonder)
             {
-				if (world.GetWonder(stop.mainLoc).StillNeedsWorkers())
-				{
-					wonder.AddWorker(unit);
-				}
-				else
-				{
-					unit.GoToDestination(unit.homeCityLoc, true);
-					return;
-				}
-			}
+			    if (world.GetWonder(stop.mainLoc).StillNeedsWorkers())
+			    {
+				    stop.wonder.AddWorker(unit);
+			    }
+			    else
+			    {
+				    unit.GoToDestination(unit.homeCityLoc, true);
+				    return;
+			    }
+            }
             else if (stop.city)
             {
-        		world.laborerList.Remove(unit.GetComponent<Laborer>());
-				AddToCity(world.GetCity(stop.mainLoc), unit);
+				world.laborerList.Remove(unit.GetComponent<Laborer>());
+				AddToCity(world.GetCity(unitLoc), unit);
 			}
-        }
+		}
         else
         {            
             if (unit.homeCityLoc != unitLoc && world.IsCityOnTile(unit.homeCityLoc))
@@ -1911,12 +1916,12 @@ public class UnitMovement : MonoBehaviour
             uiPersonalResourceInfoPanel.RestorePosition(keepSelection);
             uiCityResourceInfoPanel.RestorePosition(keepSelection);
             cityResourceManager = null;
-            wonder = null;
-            if (tradeCenter)
-            {
-                //world.cityBuilderManager.uiTradeCenter.ToggleVisibility(false);
-                tradeCenter = null;
-            }
+            //wonder = null;
+            tradeCenter = null;
+            //if (tradeCenter)
+            //{
+            //    //world.cityBuilderManager.uiTradeCenter.ToggleVisibility(false);
+            //}
             loadScreenSet = false;
         }
     }
@@ -1957,7 +1962,7 @@ public class UnitMovement : MonoBehaviour
                 InfoResourcePopUpHandler.CreateResourceStat(world.mainPlayer.transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), world);
 
                 uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType), true);
-                uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.ResourceStorageLevel);
+                uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.resourceStorageLevel);
             }
             else if (resourceAmount <= 0) //selling
             {
@@ -1980,7 +1985,7 @@ public class UnitMovement : MonoBehaviour
 
                     uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType), false);
                     uiCityResourceInfoPanel.FlashResource(resourceType);
-                    uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.ResourceStorageLevel);
+                    uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.resourceStorageLevel);
                 }
                 else
                 {
@@ -1993,19 +1998,19 @@ public class UnitMovement : MonoBehaviour
 
 
 
-        if (wonder != null)
-        {
-            if (!wonder.CheckResourceType(resourceType))
-            {
-                InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
-                return;
-            }
-            else if (resourceAmount > 0)
-            {
-                InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Can't move from wonder");
-                return;
-            }
-        }
+        //if (wonder != null)
+        //{
+        //    if (!wonder.CheckResourceType(resourceType))
+        //    {
+        //        InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Can't move resource " + resourceType);
+        //        return;
+        //    }
+        //    else if (resourceAmount > 0)
+        //    {
+        //        InfoPopUpHandler.WarningMessage(world.objectPoolItemHolder).Create(selectedUnit.transform.position, "Can't move from wonder");
+        //        return;
+        //    }
+        //}
 
         bool personalFull = false;
         bool noneLeft = false;
@@ -2015,10 +2020,10 @@ public class UnitMovement : MonoBehaviour
             int remainingInCity;
 			//world.cityBuilderManager.PlayRingAudio();
 
-			if (cityResourceManager != null)
-                remainingInCity = cityResourceManager.GetResourceDictValue(resourceType);
-            else
-                remainingInCity = wonder.ResourceDict[resourceType];
+			//if (cityResourceManager != null)
+            remainingInCity = cityResourceManager.GetResourceDictValue(resourceType);
+            //else
+            //    remainingInCity = wonder.resourceDict[resourceType];
 
             if (remainingInCity < resourceAmount)
                 resourceAmount = remainingInCity;
@@ -2045,15 +2050,15 @@ public class UnitMovement : MonoBehaviour
 
             noneLeft = resourceAmount == 0;
             int resourceAmountAdjusted;
-            if (cityResourceManager != null)
-            {
+            //if (cityResourceManager != null)
+            //{
                 cityResourceManager.resourceCount = 0;
                 resourceAmountAdjusted = cityResourceManager.AddResource(resourceType, -resourceAmount);
-            }
-            else
-            {
-                resourceAmountAdjusted = wonder.AddResource(resourceType, -resourceAmount);
-            }
+            //}
+            //else
+            //{
+            //    resourceAmountAdjusted = wonder.AddResource(resourceType, -resourceAmount);
+            //}
 
             cityFull = resourceAmountAdjusted == 0;
 			world.mainPlayer.personalResourceManager.ManuallySubtractResource(resourceType, resourceAmountAdjusted);
@@ -2068,10 +2073,10 @@ public class UnitMovement : MonoBehaviour
                 uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, cityResourceManager.GetResourceDictValue(resourceType), !toTrader);
                 uiCityResourceInfoPanel.UpdateStorageLevel(cityResourceManager.resourceStorageLevel);
             }
-            else
-            {
-                uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, wonder.ResourceDict[resourceType], !toTrader);
-            }
+            //else
+            //{
+            //    uiCityResourceInfoPanel.UpdateResourceInteractable(resourceType, wonder.resourceDict[resourceType], !toTrader);
+            //}
         }
         else
         {
@@ -2084,7 +2089,7 @@ public class UnitMovement : MonoBehaviour
         if (!personalFull)
         {
             uiPersonalResourceInfoPanel.UpdateResourceInteractable(resourceType, world.mainPlayer.personalResourceManager.GetResourceDictValue(resourceType), toTrader);
-            uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.ResourceStorageLevel);
+            uiPersonalResourceInfoPanel.UpdateStorageLevel(world.mainPlayer.personalResourceManager.resourceStorageLevel);
         }
         else
         {
@@ -2258,6 +2263,8 @@ public class UnitMovement : MonoBehaviour
 				    guardUnit.guard = true;
 
                     selectedUnit.trader.waitingOnGuard = true;
+                    selectedUnit.trader.CheckWarning();
+
                     guardUnit.MoveForGuardDuty(chosenSpot);
 				}
 			}
@@ -2333,7 +2340,7 @@ public class UnitMovement : MonoBehaviour
                 {
 					uiJoinCity.ToggleVisibility(true);
 
-                    if (selectedUnit.trader.personalResourceManager.ResourceStorageLevel > 0)
+                    if (selectedUnit.trader.personalResourceManager.resourceStorageLevel > 0)
                         uiUnload.ToggleVisibility(true);
 				}
 			}

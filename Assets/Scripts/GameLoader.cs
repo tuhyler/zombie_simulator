@@ -238,7 +238,7 @@ public class GameLoader : MonoBehaviour
 		gameData.camLimits.Add(world.cameraController.zMax);
 		gameData.tutorialStep = world.tutorialStep;
 		gameData.gameStep = world.gameStep;
-		gameData.goldAmount = world.worldResourceManager.GetWorldGoldLevel();
+		gameData.goldAmount = world.worldResourceManager.resourceDict[ResourceType.Gold];
 		gameData.scottFollow = world.scottFollow;
 		gameData.azaiFollow = world.azaiFollow;
 		gameData.startingLoc = world.startingLoc;

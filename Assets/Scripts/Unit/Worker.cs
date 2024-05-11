@@ -506,7 +506,7 @@ public class Worker : Unit
 					world.mainPlayer.AddToGrid(costs[i].resourceType);
 
 				int amount = costs[i].resourceAmount;
-				int storageSpace = personalResourceManager.resourceStorageLimit - personalResourceManager.ResourceStorageLevel;
+				int storageSpace = personalResourceManager.resourceStorageLimit - personalResourceManager.resourceStorageLevel;
 				int wasted = 0;
 
 				if (storageSpace < amount)
@@ -1251,8 +1251,8 @@ public class Worker : Unit
 		foreach (ResourceType type in types)
 		{
 			int amount = 0;
-			if (personalResourceManager.ResourceDict.ContainsKey(type))
-				amount = personalResourceManager.ResourceDict[type];
+			if (personalResourceManager.resourceDict.ContainsKey(type))
+				amount = personalResourceManager.resourceDict[type];
 
 			if (amount > 0)
 			{
@@ -1709,8 +1709,8 @@ public class Worker : Unit
 		//personal resource info
 		if (isPlayer)
         {
-			data.resourceDict = personalResourceManager.ResourceDict;
-			data.resourceStorageLevel = personalResourceManager.ResourceStorageLevel;
+			data.resourceDict = personalResourceManager.resourceDict;
+			data.resourceStorageLevel = personalResourceManager.resourceStorageLevel;
 			data.resourceGridDict = resourceGridDict;
 		}
 
@@ -1757,8 +1757,8 @@ public class Worker : Unit
 		//personal resource info
 		if (isPlayer)
 		{
-			personalResourceManager.ResourceDict = data.resourceDict;
-			personalResourceManager.ResourceStorageLevel = data.resourceStorageLevel;
+			personalResourceManager.resourceDict = data.resourceDict;
+			personalResourceManager.resourceStorageLevel = data.resourceStorageLevel;
 			resourceGridDict = data.resourceGridDict;
 		}
 

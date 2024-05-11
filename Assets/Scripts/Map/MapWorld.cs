@@ -228,7 +228,7 @@ public class MapWorld : MonoBehaviour
     private Dictionary<Vector3Int, List<GameObject>> enemyBordersDict = new();
     public Dictionary<Vector3Int, EnemyAmbush> enemyAmbushDict = new();
     public Dictionary<Vector3Int, City> enemyCityDict = new();
-    public int waitTillAttackTime = 600, enemyUnitGrowthTime = 20;
+    public int waitTillAttackTime = 600, enemyUnitGrowthTime = 20, ambushProb;
     [HideInInspector]
     public HashSet<Vector3Int> militaryStationLocs = new(); //for traveling around barracks
     public Dictionary<Vector3Int, TreasureChest> treasureLocs = new();
@@ -3615,10 +3615,11 @@ public class MapWorld : MonoBehaviour
         wonderGO.gameObject.transform.SetParent(wonderHolder, false);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
         wonder.wonderName = wonderData.wonderName;
+        wonderGO.name = wonder.wonderName;
         allWonders.Add(wonder);
         wonder.SetReferences(this, cityBuilderManager.focusCam);
-        wonder.WonderData = wonderData;
-        wonder.WonderLocs = new(wonderPlacementLoc);
+        wonder.wonderData = wonderData;
+        wonder.wonderLocs = new(wonderPlacementLoc);
         wonder.SetPrefabs(false);
         //wonder.wonderName = "Wonder - " + wonderData.wonderName;
         wonder.SetResourceDict(wonderData.wonderCost, false);
@@ -3677,20 +3678,20 @@ public class MapWorld : MonoBehaviour
                         //adding new coast tiles for boat travel
                         Vector3Int newCoastFinder = (tile - neighbor) / 3;
                         coastCoastList.Add(neighbor + newCoastFinder);
-                        wonder.CoastTiles.Add(neighbor + newCoastFinder);
+                        wonder.coastTiles.Add(neighbor + newCoastFinder);
                         if (newCoastFinder.x != 0)
                         {
                             coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, 1));
-                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, 1));
+                            wonder.coastTiles.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, 1));
                             coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, -1));
-                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, -1));
+                            wonder.coastTiles.Add(neighbor + newCoastFinder + new Vector3Int(0, 0, -1));
                         }
                         else if (newCoastFinder.z != 0)
                         {
 						    coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(1, 0, 0));
-                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(1, 0, 0));
+                            wonder.coastTiles.Add(neighbor + newCoastFinder + new Vector3Int(1, 0, 0));
                             coastCoastList.Add(neighbor + newCoastFinder + new Vector3Int(-1, 0, 0));
-                            wonder.CoastTiles.Add(neighbor + newCoastFinder + new Vector3Int(-1, 0, 0));
+                            wonder.coastTiles.Add(neighbor + newCoastFinder + new Vector3Int(-1, 0, 0));
 					    }
                     }
 
@@ -3706,7 +3707,7 @@ public class MapWorld : MonoBehaviour
                 wonder.canBuildHarbor = true;
         }
 
-        wonder.PossibleHarborLocs = harborTiles;
+        wonder.possibleHarborLocs = harborTiles;
 
         noWalkList.AddRange(wonderNoWalkLoc);
 
@@ -3883,7 +3884,7 @@ public class MapWorld : MonoBehaviour
             wonder.LoadData(data);
             allWonders.Add(wonder);
 		    wonder.SetReferences(this, cityBuilderManager.focusCam);
-		    wonder.WonderData = wonderData;
+		    wonder.wonderData = wonderData;
 		    wonder.SetPrefabs(true);
     		wonder.SetResourceDict(wonderData.wonderCost, true);
             AddStop(data.unloadLoc, wonder);
@@ -3910,13 +3911,58 @@ public class MapWorld : MonoBehaviour
             }
 
 			//claiming the area for the wonder
-			foreach (Vector3Int tile in wonderPlacementLoc)
+			foreach (Vector3Int tile in wonder.wonderLocs)
 			{
 				AddToCityLabor(tile, null); //so cities can't take the spot
 				AddStructure(tile, wonderGO); //so nothing else can be built there
 			}
-    
-            noWalkList.AddRange(wonderNoWalkLoc);
+
+            //setting no walk zone
+            List<Vector3Int> tempNoWalkList = new();
+
+            int rotation = Mathf.RoundToInt(wonderGO.transform.eulerAngles.y);
+            bool sideways = rotation / 90 == 1 || rotation / 90 == 3;
+            int width = sideways ? wonderData.sizeHeight : wonderData.sizeWidth;
+			int height = sideways ? wonderData.sizeWidth : wonderData.sizeHeight;
+			Vector3 avgLoc = new Vector3(0, -0.01f, 0);
+			int k = 0;
+			int[] xArray = new int[width * height];
+			int[] zArray = new int[width * height];
+
+			for (int i = 0; i < width; i++)
+			{
+				for (int j = 0; j < height; j++)
+				{
+					Vector3Int newPos = wonder.unloadLoc;
+					newPos.z += i * increment;
+					newPos.x += j * increment;
+
+					xArray[k] = newPos.x;
+					zArray[k] = newPos.z;
+					k++;
+					avgLoc += newPos;
+				}
+			}
+
+			int xMin = Mathf.Min(xArray) - 1;
+			int xMax = Mathf.Max(xArray) + 1;
+			int zMin = Mathf.Min(zArray) - 1;
+			int zMax = Mathf.Max(zArray) + 1;
+
+			foreach (Vector3Int tile in wonder.wonderLocs)
+			{
+				foreach (Vector3Int neighbor in GetNeighborsFor(tile, State.EIGHTWAY))
+				{
+					if (neighbor.x == xMin || neighbor.x == xMax || neighbor.z == zMin || neighbor.z == zMax)
+						continue;
+
+					tempNoWalkList.Add(neighbor);
+				}
+
+				tempNoWalkList.Add(tile);
+			}
+
+			noWalkList.AddRange(tempNoWalkList);
 
             if (data.isBuilding)
                 wonder.LoadWonderBuild();
@@ -4361,18 +4407,6 @@ public class MapWorld : MonoBehaviour
     public void AddToGoldWaitList(IGoldWaiter goldWaiter)
     {
         goldWaitList.Add(goldWaiter);
-
-  //      if (trader)
-  //      {
-		//	if (!goldCityRouteWaitList.Contains(city))
-		//		goldCityRouteWaitList.Add(city);
-		//}
-  //      else
-  //      {
-  //          if (!goldCityWaitList.Contains(city))
-  //              goldCityWaitList.Add(city);
-  //      }
-        
     }
 
     public void RemoveFromGoldWaitList(IGoldWaiter goldWaiter)
@@ -4440,14 +4474,14 @@ public class MapWorld : MonoBehaviour
         if (amount == 0)
             return;
 
-		int prevAmount = worldResourceManager.GetWorldGoldLevel();
+		int prevAmount = worldResourceManager.resourceDict[ResourceType.Gold];
 		worldResourceManager.SetResource(ResourceType.Gold, amount);
 		bool pos = amount > 0;
 
 		if (pos && goldWaitList.Count > 0)
             GoldWaitListCheck();
 
-        int currentAmount = worldResourceManager.GetWorldGoldLevel();
+        int currentAmount = worldResourceManager.resourceDict[ResourceType.Gold];
         if (goldUpdateCheck != null && prevAmount != currentAmount)
             goldUpdateCheck.UpdateGold(prevAmount, currentAmount, pos);
 	}
@@ -4457,7 +4491,7 @@ public class MapWorld : MonoBehaviour
         bool success = true;
         while (success)
         {
-            if (goldWaitList.Count > 0 && goldWaitList[0].RestartGold(GetWorldGoldLevel()))
+            if (goldWaitList.Count > 0 && goldWaitList[0].RestartGold(worldResourceManager.resourceDict[ResourceType.Gold]))
                 goldWaitList.RemoveAt(0);
             else
                 success = false;
@@ -4479,12 +4513,12 @@ public class MapWorld : MonoBehaviour
 
     public bool CheckWorldGold(int amount)
     {
-        return worldResourceManager.GetWorldGoldLevel() >= amount;
+        return worldResourceManager.resourceDict[ResourceType.Gold] >= amount;
     }
 
     public int GetWorldGoldLevel()
     {
-        return worldResourceManager.GetWorldGoldLevel();
+        return worldResourceManager.resourceDict[ResourceType.Gold];
 	}
 
     public List<ResourceType> WorldResourcePrep()
@@ -4492,14 +4526,9 @@ public class MapWorld : MonoBehaviour
         return worldResourceManager.PassWorldResources();
     }
 
-    public void UpdateWorldResourceUI(ResourceType resourceType, int diffAmount)
-    {
-        worldResourceManager.UpdateUIGeneration(resourceType, diffAmount);
-    }
-
     public void SetWorldResearchUI(int researchReceived, int totalResearch)
     {
-        worldResourceManager.SetResearch(researchReceived);
+        worldResourceManager.resourceDict[ResourceType.Research] = researchReceived;
         uiWorldResources.ResearchLimit = totalResearch;
         uiWorldResources.SetResearchValue(researchReceived);
     }
@@ -5008,7 +5037,7 @@ public class MapWorld : MonoBehaviour
 
 			if (length > 0)
 			{
-				names.Add(name);
+                names.Add(wonderStops[i].stopName);
 				lengths.Add(length);
 				atSeas.Add(false);
 			}

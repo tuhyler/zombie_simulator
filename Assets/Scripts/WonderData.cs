@@ -10,7 +10,7 @@ public class WonderData
 	public Vector3Int unloadLoc;
 	public Dictionary<SingleBuildType, Vector3Int> singleBuildDict;
 	public int percentDone, workersReceived, timePassed;
-	public bool isConstructing, canBuildHarbor, hadRoad, isBuilding;
+	public bool isConstructing, canBuildHarbor, hadRoad, isBuilding, completed;
 	public List<Vector3Int> wonderLocs, possibleHarborLocs, coastTiles;
 	public Dictionary<ResourceType, int> resourceDict, resourceGridDict;
 	public List<int> waitList = new(), seaWaitList = new();

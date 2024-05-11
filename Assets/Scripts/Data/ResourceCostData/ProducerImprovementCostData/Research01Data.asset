@@ -33,7 +33,7 @@ MonoBehaviour:
     resourceAmount: 10
   consumedResources:
   - resourceType: 4
-    resourceAmount: 1
+    resourceAmount: 10
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
@@ -65,5 +65,4 @@ MonoBehaviour:
   getTerrainResource: 0
   attackBonus: 0
   singleBuildType: 0
-  noWalkAreas:
-  - {x: 0, y: 0, z: 1}
+  buildOnRoad: 0
