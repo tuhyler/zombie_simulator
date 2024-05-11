@@ -987,6 +987,8 @@ public class Military : Unit
 					}
 
 					guardedTrader.waitingOnGuard = false;
+					if (guardedTrader.isSelected)
+						guardedTrader.RemoveWarning();
 					guardedTrader.BeginNextStepInRoute();
 
 					//if (!guardedTrader.BeginNextStepCheck(guardedTrader.currentLocation))

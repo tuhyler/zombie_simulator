@@ -626,7 +626,7 @@ public class Unit : MonoBehaviour
                 }
 
 				prevTile = endPositionInt;
-				if (endPositionInt == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle) //Can also trigger ambush when not on trade route
+				if (endPositionInt == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle && !world.IsEnemyAmbushHere(ambushLoc)) //Can also trigger ambush when not on trade route
                 {
                     ambush = true;
                     currentLocation = world.AddUnitPosition(endPositionInt, this); //adding trader to military positions to be attacked

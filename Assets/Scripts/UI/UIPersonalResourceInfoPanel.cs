@@ -156,7 +156,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
                 {
                     wonder.uiCityResourceInfoPanel = this;
                     
-                    foreach (ResourceType type in wonder.ResourceGridDict.Keys)
+                    foreach (ResourceType type in wonder.resourceGridDict.Keys)
                         ActivateCell(type, true);
                 }
                 else if (tradeCenter)
@@ -337,7 +337,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
             if (city)
                 loc = city.resourceGridDict[type];
             else if (wonder)
-                loc = wonder.ResourceGridDict[type];
+                loc = wonder.resourceGridDict[type];
             else
                 loc = tradeCenter.resourceBuyGridDict[type];
         }
@@ -359,16 +359,16 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
             if (city)
                 gridCellDict[loc].resource.SetValue(city.ResourceManager.ResourceDict[type]);
             else if (wonder)
-                gridCellDict[loc].resource.SetValue(wonder.ResourceDict[type]);
+                gridCellDict[loc].resource.SetValue(wonder.resourceDict[type]);
             else
                 gridCellDict[loc].resource.SetText(" ", tradeCenter.resourceBuyDict[type]);
         }
         else
         {
             if (unit.trader)
-                gridCellDict[loc].resource.SetValue(unit.trader.personalResourceManager.ResourceDict[type]);
+                gridCellDict[loc].resource.SetValue(unit.trader.personalResourceManager.resourceDict[type]);
             else
-				gridCellDict[loc].resource.SetValue(unit.worker.personalResourceManager.ResourceDict[type]);
+				gridCellDict[loc].resource.SetValue(unit.worker.personalResourceManager.resourceDict[type]);
 		}
 
         gridCellDict[loc].resource.resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
@@ -775,6 +775,6 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
     public void ReturnResource(ResourceType type, int amount)
     {
         unit.worker.personalResourceManager.AddResource(type, amount);
-		gridCellDict[resourceUIDict[type]].resource.SetValue(unit.worker.personalResourceManager.ResourceDict[type]);
+		gridCellDict[resourceUIDict[type]].resource.SetValue(unit.worker.personalResourceManager.resourceDict[type]);
 	}
 }

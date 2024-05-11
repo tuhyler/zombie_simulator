@@ -6,18 +6,15 @@ public class WorldResourceManager : MonoBehaviour
 {
     private UIWorldResources uiWorldResources;
 
-    private Dictionary<ResourceType, int> resourceDict = new(); 
-    //private Dictionary<ResourceType, float> resourceGenerationPerTurnDict = new();
+    public Dictionary<ResourceType, int> resourceDict = new(); 
 
     //initial resources
     public List<ResourceValue> worldResources = new(); //define world resources here
-    //public List<ResourceGenerationValue> initialWorldResourcesGeneration = new(); 
 
     private void Awake()
     {
         PrepareResourceDictionary();
-        SetInitialResourceValues();
-        //SetInitialResourceGenerationValues();
+        //SetInitialResourceValues();
     }
 
     private void PrepareResourceDictionary()
@@ -28,35 +25,24 @@ public class WorldResourceManager : MonoBehaviour
             if (resourceType == ResourceType.None)
                 continue;
             resourceDict[resourceType] = 0;
-            //resourceGenerationPerTurnDict[resourceType] = 0;
         }
     }
 
-    private void SetInitialResourceValues()
-    {
-        foreach (ResourceValue initialResourceValue in worldResources)
-        {
-            if (initialResourceValue.resourceType == ResourceType.None)
-                throw new ArgumentException("Resource can't be none!");
-            resourceDict[initialResourceValue.resourceType] = initialResourceValue.resourceAmount; //assigns the initial values for each resource
-        }
-
-        UpdateUI();
-    }
-
-    public void SetResearch(int amount)
-    {
-        resourceDict[ResourceType.Research] = amount;
-    }
-
-    //private void SetInitialResourceGenerationValues()
+    //private void SetInitialResourceValues()
     //{
-    //    foreach (ResourceGenerationValue initialResourceGeneration in initialWorldResourcesGeneration)
+    //    foreach (ResourceValue initialResourceValue in worldResources)
     //    {
-    //        if (initialResourceGeneration.resourceType == ResourceType.None)
+    //        if (initialResourceValue.resourceType == ResourceType.None)
     //            throw new ArgumentException("Resource can't be none!");
-    //        resourceGenerationPerMinuteDict[initialResourceGeneration.resourceType] = initialResourceGeneration.resourceGenerationAmount; //assign initial generation
+    //        resourceDict[initialResourceValue.resourceType] = initialResourceValue.resourceAmount; //assigns the initial values for each resource
     //    }
+
+    //    UpdateUI();
+    //}
+
+    //public void SetResearch(int amount)
+    //{
+    //    resourceDict[ResourceType.Research] = amount;
     //}
 
     public void SetResource(ResourceType resourceType, int resourceAmount)
@@ -64,16 +50,6 @@ public class WorldResourceManager : MonoBehaviour
         resourceDict[resourceType] += resourceAmount; //updating the dictionary
         UpdateUI(resourceType);
     }
-
-    //public void ModifyResourceGenerationPerMinute(ResourceType resourceType, float generationDiff, bool add)
-    //{
-    //    if (add)
-    //        resourceGenerationPerTurnDict[resourceType] += generationDiff;
-    //    else
-    //        resourceGenerationPerTurnDict[resourceType] -= generationDiff;
-        
-    //    //UpdateUI(resourceType);
-    //}
 
     public List<ResourceType> PassWorldResources()
     {
@@ -85,11 +61,6 @@ public class WorldResourceManager : MonoBehaviour
         }
 
         return resourceList;
-    }
-
-    public int GetWorldGoldLevel()
-    {
-        return resourceDict[ResourceType.Gold];
     }
 
     public void SetWorldGoldLevel(int gold)
@@ -115,11 +86,5 @@ public class WorldResourceManager : MonoBehaviour
     private void UpdateUI(ResourceType resourceType)
     {
         uiWorldResources.SetResource(resourceType, resourceDict[resourceType]);
-        //uiWorldResources.SetResourceGenerationAmount(resourceType, resourceGenerationPerMinuteDict[resourceType]);
-    }
-
-    public void UpdateUIGeneration(ResourceType resourceType, float diffAmount)
-    {
-        //uiWorldResources.SetResourceGenerationAmount(resourceType, diffAmount);
     }
 }

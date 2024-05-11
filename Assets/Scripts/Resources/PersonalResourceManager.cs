@@ -3,14 +3,10 @@ using UnityEngine;
 
 public class PersonalResourceManager : MonoBehaviour
 {
-    private Dictionary<ResourceType, int> resourceDict = new();
-
-    public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
+    public Dictionary<ResourceType, int> resourceDict = new();
 
     [HideInInspector]
-    public int resourceStorageLimit;
-    private int resourceStorageLevel;
-    public int ResourceStorageLevel { get { return resourceStorageLevel; } set { resourceStorageLevel = value; } }
+    public int resourceStorageLimit, resourceStorageLevel;
 
     private MapWorld world;
     private Unit unit;

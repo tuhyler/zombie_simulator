@@ -19,7 +19,7 @@ MonoBehaviour:
   wonderDescription: Fill in description
   wonderEra: 0
   workersNeeded: 2
-  workerCost: 5
+  workerCost: 1
   sizeHeight: 2
   sizeWidth: 2
   unloadLoc: {x: 0, y: 0, z: 0}
@@ -33,5 +33,5 @@ MonoBehaviour:
   wonderBenefitChange: 1000
   replaceTerrain: 0
   replaceProp: 1
-  buildTimePerPercent: 30
+  buildTimePerPercent: 1
   isSea: 0
