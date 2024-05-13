@@ -546,7 +546,7 @@ public class TerrainData : MonoBehaviour
         if (hasResourceMap)
 			world.ToggleResourceIcon(tileCoordinates, true);
 
-        if (resourceType != ResourceType.None && !world.ResourceCheck(resourceType))
+        if (resourceType != ResourceType.None && !world.resourceDiscoveredList.Contains(resourceType))
             world.DiscoverResource(resourceType);
 
 		for (int i = 0; i < whiteMesh.Count; i++)
@@ -567,6 +567,13 @@ public class TerrainData : MonoBehaviour
 
         main.gameObject.SetActive(true);
         ShowProp(true);
+    }
+
+    public void LimitPlayerMovement()
+    {
+        canPlayerWalk = false;
+        canPlayerSail = false;
+        canPlayerFly = false;
     }
 
     public void SetMovement()

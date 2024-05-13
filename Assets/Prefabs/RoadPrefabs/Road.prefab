@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8489739623021197108}
   - component: {fileID: 1984672030699288828}
   - component: {fileID: 876763068309913073}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Road
   m_TagString: Road
   m_Icon: {fileID: 0}
@@ -61,7 +61,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   glowMaterial: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
-  originalMaterial: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+  glowMaterial2: {fileID: 0}
+  isGlowing: 0
 --- !u!114 &876763068309913073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,5 +75,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac7e4531ac38cf740a2f4b3e0439ac97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  road: {fileID: 1627574910764654738}
-  meshFilter: {fileID: 0}
+  roadLevel: 0

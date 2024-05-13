@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -80,8 +81,8 @@ public class BasicEnemyAI : MonoBehaviour
 
 			if (unit.world.IsUnitLocationTaken(zone))
 			{
-				Unit enemy = unit.world.GetUnit(zone);
-				if (enemy.inArmy)
+				Military enemy = unit.world.GetUnit(zone).military;
+				if (unit.enemyCamp.attackingArmy.UnitsInArmy.Contains(enemy))
 				{
 					//unit.attacking = true;
 					if (!unit.enemyCamp.attackingArmy.attackingSpots.Contains(unit.currentLocation))
@@ -93,7 +94,7 @@ public class BasicEnemyAI : MonoBehaviour
 					}
 					else
 					{
-						if (enemy.military && enemy.military.targetSearching)
+						if (enemy.military.targetSearching)
 							enemy.military.StartAttack(unit);
 					}
 
@@ -124,7 +125,7 @@ public class BasicEnemyAI : MonoBehaviour
 				if (unit.world.IsUnitLocationTaken(positionBehind))
 				{
 					Unit unitBehind = unit.world.GetUnit(positionBehind);
-					if (unitBehind.enemyAI && unitBehind.military.targetSearching)
+					if (unit.enemyCamp.UnitsInCamp.Contains(unitBehind) && unitBehind.military.targetSearching)
 						unitBehind.enemyAI.AggroCheck();
 				}
 			}
@@ -196,8 +197,8 @@ public class BasicEnemyAI : MonoBehaviour
 
 			if (unit.world.IsUnitLocationTaken(zone))
 			{
-				Unit enemy = unit.world.GetUnit(zone);
-				if (enemy.inArmy)
+				Military enemy = unit.world.GetUnit(zone).military;
+				if (unit.enemyCamp.attackingArmy.UnitsInArmy.Contains(enemy))
 				{
 					if (!unit.enemyCamp.attackingArmy.attackingSpots.Contains(unit.currentLocation))
 						unit.enemyCamp.attackingArmy.attackingSpots.Add(unit.currentLocation);
@@ -219,8 +220,8 @@ public class BasicEnemyAI : MonoBehaviour
 					}
 					else
 					{
-						if (enemy.military && enemy.military.targetSearching)
-							enemy.military.StartAttack(unit);
+						if (enemy.targetSearching)
+							enemy.StartAttack(unit);
 					}
 				}
 			}
@@ -235,7 +236,7 @@ public class BasicEnemyAI : MonoBehaviour
 		{
 			unit.flankedOnce = true;
 
-			if (unit.world.IsUnitLocationTaken(forwardTile) && unit.world.GetUnit(forwardTile).enemyAI)
+			if (unit.world.IsUnitLocationTaken(forwardTile) && unit.enemyCamp.UnitsInCamp.Contains(unit.world.GetUnit(forwardTile)))
 				newEnemy = unit.enemyCamp.FindEdgeRanged(unit.currentLocation);
 		}
 		else
@@ -261,7 +262,7 @@ public class BasicEnemyAI : MonoBehaviour
 			if (unit.world.IsUnitLocationTaken(positionBehind))
 			{
 				Unit unitBehind = unit.world.GetUnit(positionBehind);
-				if (unitBehind.enemyAI && unitBehind.military.targetSearching)
+				if (unit.enemyCamp.UnitsInCamp.Contains(unitBehind) && unitBehind.military.targetSearching)
 					unitBehind.enemyAI.AggroCheck();
 			}
 
@@ -499,17 +500,9 @@ public class BasicEnemyAI : MonoBehaviour
 		{
 			
 			if (unit.leader)
-			{
 				unit.repositioning = false;
-			}
 			else
-			{
 				unit.FinishMoving(unit.transform.position);
-				//unit.enemyCamp.EnemyReturn(unit);
-
-				//if (unit.currentHealth < unit.buildDataSO.health)
-				//	unit.healthbar.RegenerateHealth();
-			}
 		}
 	}
 

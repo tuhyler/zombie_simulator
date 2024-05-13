@@ -125,8 +125,8 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 	{
 		this.speakingNPC = speakingNPC;
 
-		if (speakingNPC.military && speakingNPC.military.leader)
-			world.ToggleBadGuyTalk(true, speakingNPC.currentLocation);
+		//if (speakingNPC.military && speakingNPC.military.leader)
+		world.ToggleConversationCam(true, speakingNPC.currentLocation);
 	}
 
 	private void PrepNextSpeech()
@@ -271,6 +271,8 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 			unitsSpeaking[i].SaidSomething();
 
 		unitsSpeaking.Clear();
+		if (speakingNPC)
+			world.ToggleConversationCam(false, speakingNPC.currentLocation, false);
 		speakingNPC = null;
 
 		conversationTopic = "";
@@ -325,7 +327,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 	public void ReturnMainPlayer()
 	{
 		world.mainPlayer.ReturnToFriendlyTile();
-		world.ToggleBadGuyTalk(false, speakingNPC.currentLocation);
+		//world.ToggleConversationCam(false, speakingNPC.currentLocation, true);
 	}
 
 	public void OnPointerDown(PointerEventData eventData)

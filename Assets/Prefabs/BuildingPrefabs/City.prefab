@@ -113,6 +113,8 @@ GameObject:
   - component: {fileID: -1354641546340956128}
   - component: {fileID: 7800520638858068917}
   - component: {fileID: 3658065025757672615}
+  - component: {fileID: 7859058687170075084}
+  - component: {fileID: 1886149275974123713}
   - component: {fileID: 1212490461305530498}
   m_Layer: 8
   m_Name: City
@@ -174,11 +176,6 @@ MonoBehaviour:
   campIcon: {fileID: 21300000, guid: 15e89b14f7d52bc43a8792ab9d89cb4e, type: 3}
   cityIcon: {fileID: 21300000, guid: cbaf4785a80e539408ffd2b8cafc56ae, type: 3}
   enemyCityIcon: {fileID: 21300000, guid: abe97aedf89bef74eb7fec3a41b8c5ea, type: 3}
-  laborTransferCost:
-  - resourceType: 2
-    resourceAmount: 1
-  - resourceType: 1
-    resourceAmount: 1
   cityName: 
   cityLoc: {x: 0, y: 0, z: 0}
   waitingAttackLoc: {x: 0, y: 0, z: 0}
@@ -200,6 +197,8 @@ MonoBehaviour:
   lostPop: 0
   uiCityResourceInfoPanel: {fileID: 0}
   army: {fileID: 0}
+  navy: {fileID: 0}
+  airForce: {fileID: 0}
   world: {fileID: 0}
   singleBuildList: 
   currentPop: 0
@@ -265,6 +264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceSellList: 
+  resourceStorageLevel: 0
   initialResources:
   - resourceType: 2
     resourceAmount: 100
@@ -303,6 +303,108 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 576e02dd72dc5df418aa9cf49eb5195f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loc: {x: 0, y: 0, z: 0}
+  forward: {x: 0, y: 0, z: 0}
+  attackZone: {x: 0, y: 0, z: 0}
+  armyCount: 0
+  cyclesGone: 0
+  infantryCount: 0
+  rangedCount: 0
+  cavalryCount: 0
+  seigeCount: 0
+  strength: 0
+  health: 0
+  enemyTarget: {x: 0, y: 0, z: 0}
+  enemyCityLoc: {x: 0, y: 0, z: 0}
+  totalSpots: []
+  openSpots: []
+  pathToTarget: []
+  pathTraveled: []
+  attackingSpots: []
+  movementRange: []
+  cavalryRange: []
+  unitsReady: 0
+  stepCount: 0
+  noMoneyCycles: 0
+  city: {fileID: 0}
+  isEmpty: 1
+  isFull: 0
+  isTransferring: 0
+  isRepositioning: 0
+  traveling: 0
+  inBattle: 0
+  returning: 0
+  atHome: 0
+  selected: 0
+  enemyReady: 0
+  issueRefund: 1
+  defending: 0
+  atSea: 0
+  battleAtSea: 0
+  seaTravel: 0
+--- !u!114 &7859058687170075084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7185426163474996275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40107faf9a8b5f34889dcae11d065148, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loc: {x: 0, y: 0, z: 0}
+  forward: {x: 0, y: 0, z: 0}
+  attackZone: {x: 0, y: 0, z: 0}
+  armyCount: 0
+  cyclesGone: 0
+  infantryCount: 0
+  rangedCount: 0
+  cavalryCount: 0
+  seigeCount: 0
+  strength: 0
+  health: 0
+  enemyTarget: {x: 0, y: 0, z: 0}
+  enemyCityLoc: {x: 0, y: 0, z: 0}
+  totalSpots: []
+  openSpots: []
+  pathToTarget: []
+  pathTraveled: []
+  attackingSpots: []
+  movementRange: []
+  cavalryRange: []
+  unitsReady: 0
+  stepCount: 0
+  noMoneyCycles: 0
+  city: {fileID: 0}
+  isEmpty: 1
+  isFull: 0
+  isTransferring: 0
+  isRepositioning: 0
+  traveling: 0
+  inBattle: 0
+  returning: 0
+  atHome: 0
+  selected: 0
+  enemyReady: 0
+  issueRefund: 1
+  defending: 0
+  atSea: 0
+  battleAtSea: 0
+  seaTravel: 0
+--- !u!114 &1886149275974123713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7185426163474996275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27cbbeda88553584dbae11495714a40e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   loc: {x: 0, y: 0, z: 0}

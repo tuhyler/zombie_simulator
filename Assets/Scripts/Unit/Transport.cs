@@ -212,7 +212,7 @@ public class Transport : Unit
 		}
     }
 
-	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route = null)
+	public void StepAside(Vector3Int playerLoc, HashSet<Vector3Int> route = null)
 	{
 		Vector3Int safeTarget = playerLoc;
 
@@ -257,6 +257,23 @@ public class Transport : Unit
 			case 2:
 				azaiMesh2.SetActive(v);
 				break;
+		}
+	}
+
+	public void NextStepCheck(Vector3 endPosition, Vector3Int endPositionInt)
+	{
+		Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+		if (pos != prevTerrainTile)
+			RevealCheck(pos, false);
+
+		if (pathPositions.Count > 0)
+		{
+			prevTile = endPositionInt;
+			GoToNextStepInPath();
+		}
+		else
+		{
+			FinishMoving(endPosition);
 		}
 	}
 

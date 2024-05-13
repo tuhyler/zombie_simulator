@@ -1026,7 +1026,7 @@ public class Army : MonoBehaviour
         city.battleIcon.transform.localScale = Vector3.zero;
         LeanTween.scale(city.battleIcon, goScale, 0.5f);
 
-		world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, true);
+		world.ToggleForestsInBattleClear(enemyTarget, attackZone, true);
         if (!world.GetTerrainDataAt(attackZone).isLand)
         {
             battleAtSea = true;
@@ -1213,7 +1213,9 @@ public class Army : MonoBehaviour
             if (city)
             {
                 city.attacked = false;
-			    world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
+                if (targetCamp.isCity)
+                    world.ToggleBattleCam(targetCamp.cityLoc, city.cityLoc, false);
+			    world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);
                 //world.RemoveFromBattleArea(cavalryRange);
                 movementRange.Clear();
                 cavalryRange.Clear();
@@ -1226,7 +1228,7 @@ public class Army : MonoBehaviour
             {
                 City enemyCity = world.GetEnemyCity(targetCamp.cityLoc);
                 enemyCity.enemyCamp.FinishDuelCheck();
-                world.ToggleDuelMaterialClear(false, enemyTarget, world.azai, enemyCity.empire.enemyLeader);
+                world.ToggleDuelBattleCam(false, enemyTarget, world.azai, enemyCity.empire.enemyLeader);
                 enemyCity.empire.enemyLeader.dueling = false;
                 world.azai.FinishDuel();
             }
@@ -1278,7 +1280,7 @@ public class Army : MonoBehaviour
             else if (!city)
             {
 				world.mainPlayer.ReturnToFriendlyTile();
-				world.ToggleBadGuyTalk(false, targetCamp.cityLoc);
+				//world.ToggleConversationCam(false, targetCamp.cityLoc, true);
 				targetCamp = null;
 			}
 			else
@@ -1305,7 +1307,9 @@ public class Army : MonoBehaviour
             unit.StopAttacking(false);
         }
 
-		world.ToggleCityMaterialClear(targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc, city.cityLoc, enemyTarget, attackZone, false);
+        if (targetCamp.isCity)
+            world.ToggleBattleCam(targetCamp.cityLoc, city.cityLoc, false);
+		world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);
         targetCamp.timeTilReturn = 8;
         StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleVisibility(false);
@@ -1465,7 +1469,8 @@ public class Army : MonoBehaviour
 				world.unitMovement.ClearSelection();
 		}
 
-        world.GetCityDevelopment(this.loc).PlayPopLossAudio();
+        city.PlaySelectAudio(world.cityBuilderManager.popLoseClip);
+        //world.GetCityDevelopment(this.loc).PlayPopLossAudio();
 		unit.DestroyUnit();
         return loc;
     }

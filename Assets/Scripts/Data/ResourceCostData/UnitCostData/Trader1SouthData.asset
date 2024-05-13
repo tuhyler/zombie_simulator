@@ -10,42 +10,44 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
-  m_Name: Infantry2Data
+  m_Name: Trader1SouthData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2321851027760307080, guid: 65809cd8c87432f48bf176c599d59c8b, type: 3}
+  prefab: {fileID: 4262420279640114416, guid: 993556551309d4747a1b54dc1896af34, type: 3}
   secondaryPrefab: {fileID: 0}
   nationalityAdjective: 
-  unitDisplayName: Bronze Swordsman
-  unitLevel: 2
-  unitNameAndLevel: Infantry-2
+  unitDisplayName: Camel Trader
+  unitLevel: 1
+  unitNameAndLevel: Trader-1
   empireUnit: 0
-  inMilitary: 1
-  image: {fileID: 21300000, guid: 2a1e5b5e0c8a62b4d8462da1d5f2949f, type: 3}
-  mapIcon: {fileID: 21300000, guid: 2fadef0d442ebc9499e1837619d4b1e0, type: 3}
+  inMilitary: 0
+  image: {fileID: 21300000, guid: eacc96afdb465d848b0bdaa57b19db48, type: 3}
+  mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
+  - resourceType: 6
+    resourceAmount: 5
   - resourceType: 7
-    resourceAmount: 12
+    resourceAmount: 5
   cycleCost:
   - resourceType: 4
-    resourceAmount: 2
+    resourceAmount: 1
   - resourceType: 2
     resourceAmount: 1
   battleCost: []
   laborCost: 0
-  unitType: 1
-  unitDescription: Strong, fast unit
+  unitType: 5
+  unitDescription: Transports cargo on land
   availableInitially: 1
-  health: 300
+  health: 14
   regenerationRate: 2
-  baseAttackStrength: 5
-  baseAttackSpeed: 1
-  movementSpeed: 1
-  trainTime: 10
-  cargoCapacity: 0
+  baseAttackStrength: 0
+  baseAttackSpeed: 0.5
+  movementSpeed: 0.5
+  trainTime: 2
+  cargoCapacity: 100
   goldDropRange: {x: 0, y: 0}
   transportationType: 0
   characterUnit: 0
   npc: 0
-  singleBuildType: 1
+  singleBuildType: 2
   unitEra: 0
   unitRegion: 4

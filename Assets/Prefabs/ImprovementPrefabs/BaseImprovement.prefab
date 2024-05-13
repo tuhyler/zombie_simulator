@@ -93,7 +93,6 @@ MonoBehaviour:
   productionTimer: 0
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
-  isWaitingToUnload: 0
   isWaitingForResearch: 0
   isUpgrading: 0
   unloadLabor: 0
@@ -104,6 +103,7 @@ MonoBehaviour:
   producedResources: []
   consumedResources: []
   consumedResourceTypes: 
+  goldNeeded: 0
 --- !u!114 &2050705500241568073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,23 +116,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  world: {fileID: 0}
   city: {fileID: 0}
+  army: {fileID: 0}
   meshCity: {fileID: 0}
   queued: 0
   building: 0
   isConstruction: 0
-  isConstructionPrefab: 0
   isUpgrading: 0
   canBeUpgraded: 0
   isTraining: 0
   wonderHarbor: 0
   firstStart: 0
   showing: 0
+  hadRoad: 0
+  upgradeCost: []
+  refundCost: []
   housingIndex: 0
   laborCost: 0
+  upgradeLevel: 0
+  unitsWithinCount: 0
+  resourceProducer: {fileID: 0}
   loc: {x: 0, y: 0, z: 0}
   producedResource: 0
   producedResourceIndex: 0
+  improvementMesh: {fileID: 0}
   exclamationPoint: {fileID: 3796856266692714023}
   smokeEmitter: {fileID: 214598449315271134}
   smokeSplash: {fileID: 8503803722037680800}
@@ -179,11 +187,11 @@ AudioSource:
   m_GameObject: {fileID: 8789389234130458407}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -3988828231276096640, guid: bce416043a3972e42aa24d33b7fee9bb,
+  OutputAudioMixerGroup: {fileID: 8806396658109062294, guid: bce416043a3972e42aa24d33b7fee9bb,
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.5
   m_Pitch: 1
   Loop: 0
   Mute: 0

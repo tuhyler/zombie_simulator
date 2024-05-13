@@ -53,7 +53,7 @@ public class MovementSystem : MonoBehaviour
                         }
                         else
                         {
-                            selectedUnit.firstStep = true;
+                            selectedUnit.worker.firstStep = true;
                         }
                     }
                 }

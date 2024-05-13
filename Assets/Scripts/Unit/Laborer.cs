@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.VersionControl;
 using UnityEngine;
 
 public class Laborer : Unit
@@ -20,12 +19,12 @@ public class Laborer : Unit
     [HideInInspector]
     public int totalWait;
     [HideInInspector]
-    public bool celebrating, atSea;
+    public bool celebrating, atSea, secondary;
 
     private void Awake()
     {
         AwakeMethods();
-        isLaborer = true;
+        laborer = this;
         isCelebratingHash = Animator.StringToHash("isCelebrating");
         isJumpingHash = Animator.StringToHash("isJumping");
     }
@@ -127,6 +126,19 @@ public class Laborer : Unit
         unitAnimator.SetBool(isJumpingHash, false);
     }
 
+    public void NextStepCheck(Vector3 endPosition, Vector3Int endPositionInt)
+    {
+		if (pathPositions.Count > 0)
+		{
+			prevTile = endPositionInt;
+            GoToNextStepInPath();
+		}
+		else
+		{
+			FinishMoving(endPosition);
+		}
+	}
+
     public void FinishMovementLaborer()
     {
 		world.unitMovement.LaborerJoin(this);
@@ -151,7 +163,7 @@ public class Laborer : Unit
 
         data.unitName = gameObject.name;
 		data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
-		data.secondaryPrefab = secondaryPrefab;
+		data.secondary = secondary;
 		data.position = transform.position;
 		data.rotation = transform.rotation;
 		data.destinationLoc = destinationLoc;
@@ -171,7 +183,7 @@ public class Laborer : Unit
     public void LoadLaborerData(LaborerData data)
     {
         gameObject.name = data.unitName;
-        secondaryPrefab = data.secondaryPrefab;
+        secondary = data.secondary;
 		transform.position = data.position;
 		transform.rotation = data.rotation;
 		destinationLoc = data.destinationLoc;

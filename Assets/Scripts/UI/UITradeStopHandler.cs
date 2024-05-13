@@ -117,7 +117,7 @@ public class UITradeStopHandler : MonoBehaviour
         ChangeCounter(placement);
         transform.SetSiblingIndex(placement - 1);
         tradeRouteManager.MoveStop(placement, true);
-		tradeRouteManager.world.cityBuilderManager.PlayMoveAudio();
+		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(tradeRouteManager.world.cityBuilderManager.moveClip);
 	}
 
     public void MoveStopDown()
@@ -129,7 +129,7 @@ public class UITradeStopHandler : MonoBehaviour
         ChangeCounter(placement + 2);
         transform.SetSiblingIndex(placement + 1);
         tradeRouteManager.MoveStop(placement + 2, false);
-		tradeRouteManager.world.cityBuilderManager.PlayMoveAudio();
+		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(tradeRouteManager.world.cityBuilderManager.moveClip);
 	}
 
     public void ChangeCounter(int num)
@@ -195,7 +195,7 @@ public class UITradeStopHandler : MonoBehaviour
         waitSlider.gameObject.SetActive(!v);
         waitTimeText.gameObject.SetActive(!v);
         waitForever = v;
-		tradeRouteManager.world.cityBuilderManager.PlayCheckAudio();
+		tradeRouteManager.world.cityBuilderManager.PlaySelectAudio(tradeRouteManager.world.cityBuilderManager.checkClip);
 	}
 
     //private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive

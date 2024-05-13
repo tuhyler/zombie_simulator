@@ -10,7 +10,7 @@ public class TraderData : IUnitData
 	public Vector3 position;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, isMoving, interruptedRoute, atStop, followingRoute, isWaiting, isUpgrading, paid, hasRoute, waitingOnRouteCosts, ambush, guarded, waitingOnGuard, atHome, 
+	public bool isMoving, interruptedRoute, atStop, followingRoute, isWaiting, isUpgrading, paid, hasRoute, waitingOnRouteCosts, ambush, guarded, waitingOnGuard, atHome, 
 		returning, movingUpInLine, posSet, atStall;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
@@ -55,7 +55,7 @@ public class TraderData : IUnitData
 		return null;
 	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
-	bool IUnitData.secondaryPrefab => secondaryPrefab;
+	bool IUnitData.secondaryPrefab => false;
 	Vector3 IUnitData.position => position;
 	Quaternion IUnitData.rotation => rotation;
 	Vector3Int IUnitData.barracksBunk => Vector3Int.zero;

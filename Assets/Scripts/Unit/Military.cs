@@ -271,8 +271,8 @@ public class Military : Unit
 
 			if (world.IsUnitLocationTaken(zone))
 			{
-				Unit enemy = world.GetUnit(zone);
-				if (enemy.enemyAI)
+				Military enemy = world.GetUnit(zone).military;
+				if (army.targetCamp.UnitsInCamp.Contains(enemy))
 				{
 					//attacking = true;
 					if (!army.attackingSpots.Contains(currentLocation))
@@ -284,7 +284,7 @@ public class Military : Unit
 					}
 					else
 					{
-						if (enemy.military.targetSearching)
+						if (enemy.targetSearching)
 							enemy.enemyAI.StartAttack(this);
 					}
 				}
@@ -308,7 +308,7 @@ public class Military : Unit
 			if (world.IsUnitLocationTaken(positionBehind))
 			{
 				Unit unitBehind = world.GetUnit(positionBehind);
-				if (unitBehind.inArmy && unitBehind.military.targetSearching)
+				if (army.UnitsInArmy.Contains(unitBehind) && unitBehind.military.targetSearching)
 					unitBehind.military.AggroCheck();
 			}
 
@@ -388,10 +388,9 @@ public class Military : Unit
 
 			if (world.IsUnitLocationTaken(zone))
 			{
-				Unit enemy = world.GetUnit(zone);
-				if (enemy.enemyAI)
+				Military enemy = world.GetUnit(zone).military;
+				if (army.targetCamp.UnitsInCamp.Contains(enemy))
 				{
-					//attacking = true;
 					if (!army.attackingSpots.Contains(currentLocation))
 						army.attackingSpots.Add(currentLocation);
 
@@ -412,7 +411,7 @@ public class Military : Unit
 					}
 					else
 					{
-						if (enemy.military.targetSearching)
+						if (enemy.targetSearching)
 							enemy.enemyAI.StartAttack(this);
 					}
 				}
@@ -428,7 +427,7 @@ public class Military : Unit
 		{
 			flankedOnce = true;
 
-			if ((world.IsUnitLocationTaken(forwardTile) && world.GetUnit(forwardTile).inArmy) || cavalryLine)
+			if ((world.IsUnitLocationTaken(forwardTile) && army.UnitsInArmy.Contains(world.GetUnit(forwardTile))) || cavalryLine)
 			{
 				cavalryLine = false; //for subsequent battles
 				newEnemy = army.FindEdgeRanged(currentLocation);
@@ -457,10 +456,13 @@ public class Military : Unit
 			if (world.IsUnitLocationTaken(positionBehind))
 			{
 				Unit unitBehind = world.GetUnit(positionBehind);
-				if (unitBehind.inArmy && unitBehind.military.targetSearching)
-					unitBehind.military.AggroCheck();
-				else if (unitBehind.inArmy && unitBehind.buildDataSO.unitType == UnitType.Cavalry && !unitBehind.military.flankedOnce)
-					unitBehind.military.cavalryLine = true;
+				if (army.UnitsInArmy.Contains(unitBehind))
+				{
+					if (unitBehind.military.targetSearching)
+						unitBehind.military.AggroCheck();
+					else if (unitBehind.buildDataSO.unitType == UnitType.Cavalry && !unitBehind.military.flankedOnce)
+						unitBehind.military.cavalryLine = true;
+				}	
 			}
 
 			if (flanking)
@@ -478,7 +480,9 @@ public class Military : Unit
 				army.attackingSpots.Add(path[0]);
 			}
 			else if (path.Count == 1)
+			{
 				StartAttack(newEnemy);
+			}
 		}
 		else
 		{
@@ -648,7 +652,7 @@ public class Military : Unit
 	{
 		Army army;
 
-		if (inArmy)
+		if (buildDataSO.inMilitary)
 			army = this.army;
 		else
 			army = enemyCamp.attackingArmy;
@@ -1327,9 +1331,9 @@ public class Military : Unit
 		//data.looking = looking;
 
 		//combat
-		if (inArmy || enemyAI || bodyGuard)
+		if (buildDataSO.inMilitary || enemyAI || bodyGuard)
 		{
-			if (inArmy || bodyGuard)
+			if (buildDataSO.inMilitary || bodyGuard)
 			{
 				if (!guard && !bodyGuard)
 					data.cityHomeBase = army.city.cityLoc;
@@ -1402,9 +1406,9 @@ public class Military : Unit
 		//if (!isMoving && !data.benched && !data.duelWatch && !data.isDead)
 		//	world.AddUnitPosition(currentLocation, this);
 
-		if (inArmy || enemyAI || bodyGuard)
+		if (buildDataSO.inMilitary || enemyAI || bodyGuard)
 		{
-			if (inArmy)
+			if (buildDataSO.inMilitary)
 				transferring = data.transferring;
 			else if (bodyGuard)
 				transferring = data.transferring;
@@ -1434,7 +1438,7 @@ public class Military : Unit
 				{
 					healthbar.RegenerateHealth();
 				}
-				else if (inArmy)
+				else if (buildDataSO.inMilitary)
 				{
 					if (data.atHome || isGuarding)
 						healthbar.RegenerateHealth();
@@ -1564,7 +1568,7 @@ public class Military : Unit
 			if (target == null)
 			{
 				attacking = false;
-				if (inArmy)
+				if (buildDataSO.inMilitary || bodyGuard)
 				{
 					AggroCheck();
 				}
@@ -1583,7 +1587,7 @@ public class Military : Unit
 				return;
 			}
 
-			if (inArmy)
+			if (buildDataSO.inMilitary || bodyGuard)
 			{
 				if (buildDataSO.unitType == UnitType.Ranged)
 					attackCo = StartCoroutine(RangedAttack(target));

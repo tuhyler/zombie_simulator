@@ -9,7 +9,7 @@ public class WorkerData : IUnitData
 	public Vector3 position;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, isBusy, isMoving, somethingToSay, building, removing, gathering, clearingForest, clearedForest, buildingCity, harvested, harvestedForest, 
+	public bool isBusy, isMoving, somethingToSay, building, removing, gathering, clearingForest, clearedForest, buildingCity, harvested, harvestedForest, 
 		firstStep, /*runningAway, stepAside,*/ toTransport, inTransport, inEnemyLines;
 	public Vector3 destinationLoc;
 	public Vector3 finalDestinationLoc;
@@ -45,7 +45,7 @@ public class WorkerData : IUnitData
 		return null;
 	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
-	bool IUnitData.secondaryPrefab => secondaryPrefab;
+	bool IUnitData.secondaryPrefab => false;
 	Vector3 IUnitData.position => position;
 	Quaternion IUnitData.rotation => rotation;
 	Vector3Int IUnitData.barracksBunk => Vector3Int.zero;

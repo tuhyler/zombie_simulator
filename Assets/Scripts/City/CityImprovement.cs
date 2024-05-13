@@ -140,6 +140,7 @@ public class CityImprovement : MonoBehaviour
 
     public void PlayPlacementAudio(AudioClip clip)
     {
+        audioSource.volume = 1;
         audioSource.clip = clip;
         audioSource.Play();
     }
@@ -189,6 +190,7 @@ public class CityImprovement : MonoBehaviour
 		}
         else
         {
+            PlayImprovementAudio();
             if (improvementAnimator != null)
             {
 				co = StartCoroutine(StartWorkAnimation(offset));
@@ -727,15 +729,21 @@ public class CityImprovement : MonoBehaviour
             }
         }
 
-        PlayPopLossAudio();
+        city.PlaySelectAudio(world.cityBuilderManager.popLoseClip);
         return loc;
     }
 
-    public void PlayPopLossAudio()
+    public void PlayImprovementAudio()
     {
-		audioSource.clip = world.cityBuilderManager.popLoseClip;
-		audioSource.Play();
+        audioSource.clip = GetImprovementData.audio;
+        audioSource.Play();
     }
+
+  //  public void PlayPopLossAudio()
+  //  {
+		//audioSource.clip = world.cityBuilderManager.popLoseClip;
+		//audioSource.Play();
+  //  }
 
 	public void RemoveConstruction()
     {

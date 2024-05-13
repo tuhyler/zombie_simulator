@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AirForce : MonoBehaviour
+public class AirForce : Army
 {
-    [HideInInspector]
-    public City city;
+
 }
