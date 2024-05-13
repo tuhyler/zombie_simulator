@@ -49,7 +49,7 @@ public class UILaborResourcePriority : MonoBehaviour, IResourceGridUser
     public void MovePriorityUp()
     {
         //RepositionPanel(true);
-        uiLaborPrioritizationManager.city.world.cityBuilderManager.PlayMoveAudio();
+        uiLaborPrioritizationManager.city.world.cityBuilderManager.PlaySelectAudio(uiLaborPrioritizationManager.city.world.cityBuilderManager.moveClip);
 		//int placement = transform.GetSiblingIndex();
 		if (currentPriorityNumber-1 == 0)
             return;
@@ -66,7 +66,7 @@ public class UILaborResourcePriority : MonoBehaviour, IResourceGridUser
     public void MovePriorityDown()
     {
 		//RepositionPanel(false);
-		uiLaborPrioritizationManager.city.world.cityBuilderManager.PlayMoveAudio();
+		uiLaborPrioritizationManager.city.world.cityBuilderManager.PlaySelectAudio(uiLaborPrioritizationManager.city.world.cityBuilderManager.moveClip);
 		//int placement = transform.GetSiblingIndex();
 		//if (currentPriorityNumber == transform.parent.childCount - 1)
 		if (currentPriorityNumber == uiLaborPrioritizationManager.resourcePriorityList.Count)

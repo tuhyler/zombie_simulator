@@ -10,7 +10,7 @@ public class LaborerData : IUnitData
 	public Vector3 position, destinationLoc, finalDestinationLoc;
 	public Quaternion rotation;
 	public List<Vector3Int> moveOrders;
-	public bool secondaryPrefab, isMoving, somethingToSay, celebrating, atSea;
+	public bool secondary, isMoving, somethingToSay, celebrating, atSea;
 	public Vector3Int currentLocation, homeCityLoc;
 
 	public LaborerData GetLaborerData()
@@ -34,7 +34,7 @@ public class LaborerData : IUnitData
 		return null;
 	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
-	bool IUnitData.secondaryPrefab => secondaryPrefab;
+	bool IUnitData.secondaryPrefab => secondary;
 	Vector3 IUnitData.position => position;
 	Quaternion IUnitData.rotation => rotation;
 	Vector3Int IUnitData.barracksBunk => Vector3Int.zero;

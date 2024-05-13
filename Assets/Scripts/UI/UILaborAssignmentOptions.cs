@@ -14,9 +14,6 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
 
     private CityBuilderManager cityBuilderManager;
 
-    //[SerializeField]
-    //private CanvasGroup canvasGroup; //handles all aspects of a group of UI elements together, instead of individually in Unity
-
     [SerializeField] //changing color of button when selected
     private Image buttonImage;
     private Color originalButtonColor;
@@ -28,9 +25,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
     private void Awake()
     {
         buttonHandler = GetComponentInParent<UILaborAssignment>();
-        //canvasGroup = GetComponent<CanvasGroup>();
         originalButtonColor = buttonImage.color;
-        //button = GetComponent<Button>();
     }
 
     public void SetCityBuilderManager(CityBuilderManager cityBuilderManager)
@@ -38,43 +33,18 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
         this.cityBuilderManager = cityBuilderManager;
     }
 
-    //public void ToggleInteractable(bool v)
-    //{
-    //    button.interactable = v;
-    //    if (!v)
-    //        ToggleButtonSelection(v);
-    //}
-
-    //public void ToggleEnable(bool v)
-    //{
-    //    buttonIsWorking = v;
-    //}
-
-    //public void OnButtonClick()
-    //{
-    //    if (!isSelected)
-    //    {
-    //        ToggleButtonSelection(true);
-    //        buttonHandler.PrepareLaborChange(laborChange);
-    //    }
-    //    else
-    //    {
-    //        ToggleButtonSelection(false);
-    //    }
-    //}
-
-    public void Handle1()
+    public void Handle2()
     {
-		if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus /*&& button.interactable*/)
+		if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus)
 		{
 			laborChange = 1;
             SelectButton();
 		}
 	}
 
-    public void Handle2()
+    public void Handle3()
     {
-        if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus /*&& button.interactable*/)
+        if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus)
         {
             laborChange = -1;
             SelectButton();
@@ -83,9 +53,6 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        //if (!button.interactable /*|| !buttonIsWorking*/)
-        //    return;
-
         if (!isSelected)
         {
             ToggleButtonSelection(true);
@@ -99,8 +66,6 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
         }
 
         cityBuilderManager.PlaySelectAudio();
-        //buttonHandler.PrepareLaborChange(laborChange);
-        //buttonHandler.HandleButtonClick();
     }
 
     public void SelectButton()
@@ -122,9 +87,6 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
 
 	public void ToggleButtonSelection(bool v)
     {
-        //if (!button.interactable && !isSelected)
-        //    return;
-        
         if (v)
         {
             if (!isSelected)

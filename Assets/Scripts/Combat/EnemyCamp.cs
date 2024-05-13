@@ -436,7 +436,11 @@ public class EnemyCamp
 	public void ResetCampToBase()
 	{
 		if (attackingArmy != null)
+		{
 			attackingArmy.inBattle = false;
+			if (isCity)
+				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false);
+		}
 		retreat = false;
 		inBattle = false;
 		enemyReady = 0;
@@ -599,7 +603,10 @@ public class EnemyCamp
 				removingOut = true;
 
 			inBattle = false;
-			world.ToggleCityMaterialClear(isCity ? cityLoc : loc, attackingArmy.city.cityLoc, attackingArmy.enemyTarget, attackingArmy.attackZone, false);
+			if (isCity /*removingOut*/)
+				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false);
+
+			world.ToggleForestsInBattleClear(attackingArmy.enemyTarget, attackingArmy.attackZone, false);
 
 			foreach (Military unit in unitsInCamp)
 			{
@@ -860,7 +867,6 @@ public class EnemyCamp
 		deathCount = 0;
 		deadList.Clear();
 		GameLoader.Instance.gameData.attackedEnemyBases.Remove(loc);
-		attackingArmy = null;
 	}
 
 	//public void StartChase(Vector3Int loc)
@@ -1261,6 +1267,7 @@ public class EnemyCamp
 				}
 
 				forward = (attackingArmy.attackZone - fieldBattleLoc) / 3;
+				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, true);
 				BattleStations(fieldBattleLoc, forward);
 			}
 			else

@@ -316,11 +316,10 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         Vector3 pos = unloadLoc;
 		pos.y = 4.5f;
-        Laborer laborer = unit.GetComponent<Laborer>();
-		world.laborerList.Remove(laborer);
+        world.laborerList.Remove(unit.laborer);
 
 		workersReceived++;
-        workerSexAndHome.Add((unit.secondaryPrefab, laborer.homeCityLoc));
+        workerSexAndHome.Add((unit.laborer.secondary, unit.laborer.homeCityLoc));
         heavenHighlight.transform.position = pos;
         PlayPopGainAudio();
         heavenHighlight.Play();
@@ -330,7 +329,6 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 		if (!StillNeedsWorkers())
             ThresholdCheck();
 
-		world.laborerList.Remove(unit.GetComponent<Laborer>());
 		unit.DestroyUnit();
 	}
 

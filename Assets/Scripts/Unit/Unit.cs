@@ -59,6 +59,8 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public TradeRep tradeRep;
     [HideInInspector]
+    public Laborer laborer;
+    [HideInInspector]
     public ConversationHaver conversationHaver;
 
 	//movement details
@@ -68,8 +70,6 @@ public class Unit : MonoBehaviour
     public float rotationDuration = 0.3f, moveSpeed = 0.5f, originalMoveSpeed = 0.5f, threshold = 0.1f;
     [HideInInspector]
     public Queue<Vector3Int> pathPositions = new();
-    [HideInInspector]
-    public bool isBusy, isMoving, secondaryPrefab, readyToMarch = true; 
     [HideInInspector]
     public Vector3 destinationLoc;
     [HideInInspector]
@@ -104,10 +104,7 @@ public class Unit : MonoBehaviour
     public SelectionHighlight highlight;
     
     [HideInInspector]
-    public bool bySea, isTrader, isPlayer, isLaborer, isSelected, isWaiting, harvested, harvestedForest, somethingToSay, sayingSomething, firstStep, byAir, posSet;
-
-    [HideInInspector]
-    public bool inMilitary, inArmy, inNavy, inAirForce, isDead, runningAway, ambush, hidden, isUpgrading;
+    public bool isMoving, readyToMarch = true, isPlayer, isSelected, somethingToSay, sayingSomething, bySea, byAir, posSet, isDead, ambush, hidden, isUpgrading;
 
     //animation
     [HideInInspector]
@@ -145,13 +142,12 @@ public class Unit : MonoBehaviour
 		healthMax = buildDataSO.health;
         currentHealth = healthMax;
 
-        if (buildDataSO.unitDisplayName != "Azai" && buildDataSO.baseAttackStrength > 0 && CompareTag("Player"))
-        {
-            inMilitary = true;
-            inArmy = buildDataSO.transportationType == TransportationType.Land;
-            inNavy = buildDataSO.transportationType == TransportationType.Sea;
-            inAirForce = buildDataSO.transportationType == TransportationType.Air;
-		}
+  //      if (buildDataSO.unitDisplayName != "Azai" && buildDataSO.inMilitary && CompareTag("Player"))
+  //      {
+  //          inArmy = buildDataSO.transportationType == TransportationType.Land;
+  //          inNavy = buildDataSO.transportationType == TransportationType.Sea;
+  //          inAirForce = buildDataSO.transportationType == TransportationType.Air;
+		//}
 
         enemyAI = GetComponent<BasicEnemyAI>();
         healthbar.SetUnit(this);
@@ -266,7 +262,7 @@ public class Unit : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-			if (inArmy)
+			if (buildDataSO.inMilitary)
             {
                 //attackingUnit.military.enemyCamp.CheckForWeaklings(attackingUnit.military.enemyCamp.threatLoc);
                 military.AttackCheck();
@@ -372,90 +368,28 @@ public class Unit : MonoBehaviour
     private IEnumerator MovementCoroutine(Vector3 endPosition)
     {
         Vector3Int endPositionInt = world.RoundToInt(endPosition);
-
-        if (isPlayer)
-        {
-            if (pathPositions.Count == 0)
-            {
-                if (world.IsNPCThere(endPositionInt))
-                {
-					Unit unitInTheWay = world.GetNPC(endPositionInt);
-
-					if (unitInTheWay.somethingToSay)
-					{
-						if (isSelected)
-						{
-							world.unitMovement.QuickSelect(this);
-							unitInTheWay.SpeakingCheck();
-                            if (unitInTheWay.buildDataSO.npc)
-    							world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay);
-						}
-
-                        bool leader = unitInTheWay.military && unitInTheWay.military.leader;
-						worker.SetUpSpeakingPositions(unitInTheWay.transform.position, leader);
-						FinishMoving(transform.position);
-						yield break;
-					}
-					else 
-					{
-						if (unitInTheWay.tradeRep && unitInTheWay.tradeRep.onQuest)
-						{
-							if (isSelected)
-							{
-								world.ToggleGiftGiving(unitInTheWay.tradeRep);
-							}
-							worker.SetUpSpeakingPositions(unitInTheWay.transform.position, false);
-						}
-
-						FinishMoving(transform.position);
-						yield break;
-					}
-				}
-            }
-        }
-        else if (worker)
-        {
-            if (pathPositions.Count == 0) //don't occupy sqaure if another unit is there
-            {
-                if (world.IsPlayerLocationTaken(endPositionInt))
-                {
-                    Unit unitInTheWay = world.GetPlayer(endPositionInt);
-
-                    if (unitInTheWay.transport)
-                    {
-                        if (worker)
-                        {
-                            FinishMoving(endPosition);
-                            yield break;
-                        }
-                    }
-			        else if (unitInTheWay.worker && !unitInTheWay.isBusy && !unitInTheWay.worker.gathering)
-                    {
-                        Vector3Int next;
-                        if (pathPositions.Count > 0)
-                            next = pathPositions.Peek();
-                        else
-                            next = new Vector3Int(0, -10, 0);
-                        unitInTheWay.FindNewSpot(endPositionInt, next);
-                    }
-                }
-                else if (world.IsNPCThere(endPositionInt) && worker)
-                {
-					FinishMoving(endPosition);
-					yield break;
-                }
-            }
-        }
         destinationLoc = endPosition;
         
         //checks if tile can still be moved to before moving there
-        if (trader && !bySea && !trader.atStall && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning)
+        if (trader)
         {
-            if (trader.followingRoute)
-                trader.InterruptRoute(true);
+            if (!bySea && !trader.atStall && !world.IsRoadOnTileLocation(world.RoundToInt(endPosition)) && !trader.returning)
+            {
+                if (trader.followingRoute)
+                    trader.InterruptRoute(true);
             
-            //FinishMoving(transform.position);
-            yield break;
+                yield break;
+            }
+        }
+        else if (isPlayer)
+        {
+            if (worker.NPCCheck(endPositionInt))
+                yield break;
+        }
+        else if (worker)
+        {
+            if (worker.TransportCheck(endPosition, endPositionInt))
+                yield break;
         }
 
         if (pathPositions.Count == 0)
@@ -488,37 +422,26 @@ public class Unit : MonoBehaviour
             yield return null;
         }
 
-        if (isPlayer)
+        if (trader)
         {
-			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
-			if (pos != prevTerrainTile)
-				RevealCheck(pos, false);
-
-            if (!worker.inEnemyLines && world.GetTerrainDataAt(pos).enemyZone)
-            {
-                worker.inEnemyLines = true;
-                worker.prevFriendlyTile = world.GetClosestTerrainLoc(prevTile);
-
-                if (isSelected)
-                    world.unitMovement.uiMoveUnit.ToggleVisibility(false);
-            }
-
-			if (firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
-			{
-				firstStep = false;
-                worker.CheckToFollow(endPositionInt);
-			}
+            trader.NextStepCheck(endPosition, endPositionInt);
+		}
+        else if (isPlayer)
+        {
+            worker.PlayerNextStepCheck(endPosition, endPositionInt);
 		}
         else if (transport)
         {
-			Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
-			if (pos != prevTerrainTile)
-				RevealCheck(pos, false);
+            transport.NextStepCheck(endPosition, endPositionInt);
 		}
-		else if (military) //making sure army is all in line
+        else if (worker)
+        {
+            worker.WorkerNextStepCheck(endPosition, endPositionInt);    
+		}
+		else if (military) 
 		{
-			if (military.isMarching)
-            {
+			if (military.isMarching) //making sure army is all in line
+			{
                 readyToMarch = false;
                 bool close = pathPositions.Count == 2;
 
@@ -565,119 +488,75 @@ public class Unit : MonoBehaviour
                         military.ToggleBoat(endPositionInt == military.switchLocs[0]);
                 }
             }
+
+            if (pathPositions.Count > 0)
+            {
+                if (ambush && pathPositions.Count == 1)
+                {
+				    StopAnimation();
+				    isMoving = false;
+				    finalDestinationLoc = prevTile;
+				    currentLocation = world.AddUnitPosition(prevTile, this);
+
+				    if (enemyAI)
+					    enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+				    else
+					    military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+
+				    yield break;
+			    }
+			    else
+			    {
+				    prevTile = endPositionInt;
+			    }
+
+				GoToNextStepInPath();
+			}
+            else
+            {
+				FinishMoving(endPosition);
+			}
+		}
+		else if (laborer)
+		{
+            laborer.NextStepCheck(endPosition, endPositionInt);
 		}
 
-		if (pathPositions.Count > 0)
-        {
-            if (trader)
-            {
-                if (trader.followingRoute && !trader.atStall)
-                {
-                    if (pathPositions.Count == 2)
-                    {
-                        if (!world.StopExistsCheck(trader.tradeRouteManager.currentDestination))
-                        {
-                            trader.CancelRoute();
-                            yield break;
-                        }
-
-                        if (world.TraderStallCheck(trader.tradeRouteManager.currentDestination))
-                        {
-							isMoving = false;
-							trader.GetInLine();
-							yield break;
-						}
-						else
-                        {
-                            trader.GoToTraderStall(endPositionInt);
-                            yield break;
-                        }
-                    }
-
-                    if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
-                    {
-                        isMoving = false;
-                        trader.GetInLine();
-                        yield break;
-                    }
-                    else if (isWaiting)
-                    {
-                        world.RemoveTraderPosition(endPositionInt, trader);
-
-                        if (trader.guarded)
-                        {
-                            if (bySea)
-                            {
-                                if (trader.guardUnit.isMoving)
-                                {
-								    Vector3 nextStep = trader.guardUnit.military.GuardRouteFinish(endPositionInt, pathPositions.Peek());
-                                    Vector3Int nextStepInt = world.RoundToInt(nextStep);
-                                    trader.guardUnit.pathPositions.Enqueue(nextStepInt);
-                                }
-                                else
-                                {
-								    trader.guardUnit.military.GuardGetInLine(endPositionInt, pathPositions.Peek());
-							    }
-                            }
-                            //else if (byAir)
-                        }
-                    }
-
-                }
-
-				prevTile = endPositionInt;
-				if (endPositionInt == ambushLoc && !world.GetTerrainDataAt(ambushLoc).hasBattle && !world.IsEnemyAmbushHere(ambushLoc)) //Can also trigger ambush when not on trade route
-                {
-                    ambush = true;
-                    currentLocation = world.AddUnitPosition(endPositionInt, this); //adding trader to military positions to be attacked
-                    isMoving = false;
-                    StopAnimation();
-
-                    world.SetUpAmbush(ambushLoc, this);
-                    yield break;
-                }
-            }
-			else if (isPlayer)
-			{
-                if (world.IsInNoWalkZone(pathPositions.Peek()))
-                {
-                    worker.RealignFollowers(endPositionInt, prevTile, false);
-                    StopMovementCheck(true);
-                    yield break;
-                }
+		//if (pathPositions.Count > 0)
+  //      {
+  //          if (trader)
+  //          {
+  //          }
+		//	else if (isPlayer)
+		//	{
                 
-                prevTile = endPositionInt;
-			}
-			else if (ambush && pathPositions.Count == 1) //for going to attack in ambush
-            {
-                StopAnimation();
-                isMoving = false;
-                finalDestinationLoc = prevTile;
-                currentLocation = world.AddUnitPosition(prevTile, this); //adding trader to military positions to be attacked
+		//	}
+		//	else if (ambush && pathPositions.Count == 1) //for going to attack in ambush
+  //          {
 
-                if (enemyAI)
-                    enemyAI.StartAttack(world.GetUnit(pathPositions.Dequeue()));
-                else if (!trader)
-                    military.StartAttack(world.GetUnit(pathPositions.Dequeue()));
+  //          }
+		//	else if (worker)
+		//	{
+		//	}
+		//	else
+		//	{
+  //              prevTile = endPositionInt;
+  //          }
 
-                yield break;
-            }
-			else
-            {
-                prevTile = endPositionInt;
-            }
-
-            movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
-            if (pathQueue.Count > 0)
-            {
-                DequeuePath();
-            }
-        }
-        else
-        {
-            FinishMoving(endPosition);
-        }
+  //          GoToNextStepInPath();
+  //      }
+  //      else
+  //      {
+  //          FinishMoving(endPosition);
+  //      }
     }
+
+    public void GoToNextStepInPath()
+    {
+		movingCo = StartCoroutine(MovementCoroutine(pathPositions.Dequeue()));
+		if (pathQueue.Count > 0)
+			DequeuePath();
+	}
 
 	public void StopMovementCheck(bool finish)
     {
@@ -767,7 +646,7 @@ public class Unit : MonoBehaviour
 
 		prevTile = currentLocation;
         
-        if (inArmy)
+        if (buildDataSO.inMilitary)
         {
             military.FinishMovementMilitary(endPosition);
         }
@@ -789,11 +668,14 @@ public class Unit : MonoBehaviour
         }
         else if (military && military.bodyGuard)
         {
-            military.bodyGuard.FinishMovementBodyGuard(endPosition);
+            if (military.bodyGuard.dueling)
+				military.FinishMovementMilitary(endPosition);
+            else
+			    military.bodyGuard.FinishMovementBodyGuard(endPosition);
         }
-        else if (isLaborer)
+        else if (laborer)
         {
-            GetComponent<Laborer>().FinishMovementLaborer();
+            laborer.FinishMovementLaborer();
 		}
     }
 
@@ -1185,8 +1067,8 @@ public class Unit : MonoBehaviour
             military.KillMilitaryUnit(rotation);
 		else if (trader)
             trader.KillTrader();
-        else if (isLaborer)
-            GetComponent<Laborer>().KillLaborer();
+        else if (laborer)
+            laborer.KillLaborer();
 
 		Unhighlight();
     }

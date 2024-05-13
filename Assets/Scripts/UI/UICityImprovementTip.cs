@@ -85,7 +85,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
 
         if (val)
         {
-            world.cityBuilderManager.PlayAudioClip(improvement.GetImprovementData.audio);
+            world.cityBuilderManager.PlaySelectAudio(improvement.GetImprovementData.audio);
             world.iTooltip = this;
             highlightList[highlightIndex].gameObject.SetActive(false); // turn off previous one
             this.improvement = improvement;

@@ -2,6 +2,7 @@ using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -111,13 +112,15 @@ public class TradeRouteManager : MonoBehaviour
             //randomLoc = new Vector3Int(8, 0, 26);
             //check if city close by
             bool farCity = true;
+			List<City> cityList = trader.world.cityDict.Values.ToList();
+            cityList.AddRange(trader.world.enemyCityDict.Values.ToList());
 
-            foreach (City city in trader.world.cityDict.Values)
+            for (int i = 0; i < cityList.Count; i++)
             {
-                if (city.currentPop < 5)
+                if (cityList[i].currentPop < 5)
                     continue;
                 
-                if (Mathf.Abs(city.cityLoc.x - randomLoc.x) < 13 && Mathf.Abs(city.cityLoc.z - randomLoc.z) < 13)
+                if (Mathf.Abs(cityList[i].cityLoc.x - randomLoc.x) < 13 && Mathf.Abs(cityList[i].cityLoc.z - randomLoc.z) < 13)
                 {
                     farCity = false;
                     break;
@@ -139,17 +142,6 @@ public class TradeRouteManager : MonoBehaviour
         return routePathsDict[nextPath];
     }
 
-    //public void SetUIPersonalResourceManager(UIPersonalResourceInfoPanel uiPersonalResourceInfoPanel)
-    //{
-    //    //this.personalResourceManager = personalResourceManager;
-    //    this.uiPersonalResourceInfoPanel = uiPersonalResourceInfoPanel;
-    //}
-
-    //public void SetPersonalResourceManager(PersonalResourceManager personalResourceManager)
-    //{
-    //    //this.personalResourceManager = personalResourceManager;
-    //}
-
     public void SetTradeRouteManager(UITradeRouteManager uiTradeRouteManager)
     {
         this.uiTradeRouteManager = uiTradeRouteManager;
@@ -164,24 +156,6 @@ public class TradeRouteManager : MonoBehaviour
     {
         this.stop = stop;
     }
-
-    //public void SetCity(City city)
-    //{
-    //    this.city = city;
-    //    PrepareResourceDictionary();
-    //}
-
-    //public void SetWonder(Wonder wonder)
-    //{
-    //    this.wonder = wonder;
-    //    PrepareResourceDictionary();
-    //}
-
-    //public void SetTradeCenter(TradeCenter tradeCenter)
-    //{
-    //    this.tradeCenter = tradeCenter;
-    //    PrepareResourceDictionary();
-    //}
 
     public bool IsTC()
     {

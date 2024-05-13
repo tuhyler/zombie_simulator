@@ -26,7 +26,7 @@ public class Worker : Unit
     public List<Vector3Int> OrderList { get { return orderList; } }
     private Queue<Vector3Int> orderQueue = new();
     [HideInInspector]
-    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, toTransport, inTransport, inEnemyLines;
+    public bool building, removing, gathering, clearingForest, buildingCity, working, clearedForest, toTransport, inTransport, inEnemyLines, harvested, harvestedForest, runningAway, firstStep, isBusy;
     public int clearingForestTime = 1, cityBuildingTime = 2, roadBuildingTime = 1, roadRemovingTime = 2;
     public int clearedForestlumberAmount = 100;
     public AudioClip[] gatheringClips;
@@ -112,7 +112,7 @@ public class Worker : Unit
             if (!playedOnce && transform.position.y < 5)
             {
                 playedOnce = true;
-                world.cityBuilderManager.PlayThudAudio();
+                world.cityBuilderManager.PlaySelectAudio(world.cityBuilderManager.thudClip);
             }
             
             yield return null;
@@ -1504,7 +1504,7 @@ public class Worker : Unit
 			exclamationPoint.SetActive(false);
 	}
 
-	public void StepAside(Vector3Int playerLoc, List<Vector3Int> route = null)
+	public void StepAside(Vector3Int playerLoc, HashSet<Vector3Int> route = null)
 	{
 		Vector3Int safeTarget = playerLoc;
 
@@ -1521,7 +1521,6 @@ public class Worker : Unit
 		}
 
 		finalDestinationLoc = safeTarget;
-		//firstStep = true;
 
 		List<Vector3Int> runAwayPath = GridSearch.MilitaryMove(world, currentLocation, safeTarget, false);
 
@@ -1583,6 +1582,137 @@ public class Worker : Unit
 		}
 	}
 
+	public bool NPCCheck(Vector3Int endPositionInt)
+	{
+		if (pathPositions.Count == 0)
+		{
+			if (world.IsNPCThere(endPositionInt))
+			{
+				Unit unitInTheWay = world.GetNPC(endPositionInt);
+
+				if (unitInTheWay.somethingToSay)
+				{
+					if (isSelected)
+					{
+						world.unitMovement.QuickSelect(this);
+						unitInTheWay.SpeakingCheck();
+						if (unitInTheWay.buildDataSO.npc)
+							world.uiSpeechWindow.SetSpeakingNPC(unitInTheWay);
+					}
+
+					bool leader = unitInTheWay.military && unitInTheWay.military.leader;
+					worker.SetUpSpeakingPositions(unitInTheWay.transform.position, leader);
+					FinishMoving(transform.position);
+					return true;
+				}
+				else
+				{
+					if (unitInTheWay.tradeRep && unitInTheWay.tradeRep.onQuest)
+					{
+						if (isSelected)
+						{
+							world.ToggleGiftGiving(unitInTheWay.tradeRep);
+						}
+						worker.SetUpSpeakingPositions(unitInTheWay.transform.position, false);
+					}
+
+					FinishMoving(transform.position);
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public bool TransportCheck(Vector3 endPosition, Vector3Int endPositionInt)
+	{
+		if (pathPositions.Count == 0)
+		{
+			if (world.IsPlayerLocationTaken(endPositionInt))
+			{
+				Unit unitInTheWay = world.GetPlayer(endPositionInt);
+
+				if (unitInTheWay.transport)
+				{
+					if (worker)
+					{
+						FinishMoving(endPosition);
+						return true;
+					}
+				}
+				//else if (unitInTheWay.worker && !unitInTheWay.worker.isBusy && !unitInTheWay.worker.gathering)
+				//         {
+				//             Vector3Int next;
+				//             if (pathPositions.Count > 0)
+				//                 next = pathPositions.Peek();
+				//             else
+				//                 next = new Vector3Int(0, -10, 0);
+				//             unitInTheWay.FindNewSpot(endPositionInt, next);
+				//         }
+			}
+			else if (world.IsNPCThere(endPositionInt) && worker)
+			{
+				FinishMoving(endPosition);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public void PlayerNextStepCheck(Vector3 endPosition, Vector3Int endPositionInt)
+	{
+		Vector3Int pos = world.GetClosestTerrainLoc(transform.position);
+		if (pos != prevTerrainTile)
+			RevealCheck(pos, false);
+
+		if (!worker.inEnemyLines && world.GetTerrainDataAt(pos).enemyZone)
+		{
+			worker.inEnemyLines = true;
+			worker.prevFriendlyTile = world.GetClosestTerrainLoc(prevTile);
+
+			if (isSelected)
+				world.unitMovement.uiMoveUnit.ToggleVisibility(false);
+		}
+
+		if (worker.firstStep && (Mathf.Abs(transform.position.x - world.scott.transform.position.x) > 1.2f || Mathf.Abs(transform.position.z - world.scott.transform.position.z) > 1.2f))
+		{
+			worker.firstStep = false;
+			worker.CheckToFollow(endPositionInt);
+		}
+
+		if (pathPositions.Count > 0)
+		{
+			if (world.IsInNoWalkZone(pathPositions.Peek()))
+			{
+				worker.RealignFollowers(endPositionInt, prevTile, false);
+				StopMovementCheck(true);
+				return;
+			}
+
+			prevTile = endPositionInt;
+			GoToNextStepInPath();
+		}
+		else
+		{
+			FinishMoving(endPosition);
+		}
+	}
+
+	public void WorkerNextStepCheck(Vector3 endPosition, Vector3Int endPositionInt)
+	{
+		if (pathPositions.Count > 0)
+		{
+			prevTile = endPositionInt;
+			GoToNextStepInPath();
+		}
+		else
+		{
+			FinishMoving(endPosition);
+		}
+	}
+
 	public void FinishMovementPlayer(Vector3 endPosition)
 	{
 		if (world.tutorialGoing)
@@ -1592,16 +1722,11 @@ public class Worker : Unit
 
 		world.IsTreasureHere(endPositionInt, true);
 
-		if (world.GetTerrainDataAt(endPositionInt).hasBattle)
+		if (world.tempBattleZone.Contains(endPositionInt) || world.IsEnemyAmbushHere(endPositionInt))
 		{
 			if (isBusy)
 				world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
 			
-			//runningAway = true;
-			////isBusy = true;
-
-			//StopPlayer();
-			//exclamationPoint.SetActive(true);
 			StepAside(currentLocation, null);
 			return;
 		}
@@ -1672,7 +1797,6 @@ public class Worker : Unit
         WorkerData data = new();
 
 		data.unitNameAndLevel = buildDataSO.unitNameAndLevel;
-		data.secondaryPrefab = secondaryPrefab;
 		data.position = transform.position;
 		data.rotation = transform.rotation;
 		data.destinationLoc = destinationLoc;
@@ -1719,7 +1843,6 @@ public class Worker : Unit
 
     public void LoadWorkerData(WorkerData data)
     {
-		secondaryPrefab = data.secondaryPrefab;
 		transform.position = data.position;
 		transform.rotation = data.rotation;
 		destinationLoc = data.destinationLoc;

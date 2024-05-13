@@ -55,7 +55,7 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             transform.SetParent(tempParent);
             transform.SetAsLastSibling();
             background.raycastTarget = false;
-            resourceManager.cityBuilderManager.PlayPickUpAudio();
+            resourceManager.cityBuilderManager.PlaySelectAudio(resourceManager.cityBuilderManager.pickUpClip);
         }
      }
 
@@ -78,7 +78,7 @@ public class UIResources : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             transform.SetParent(originalParent);
             transform.localPosition = Vector3.zero;
             background.raycastTarget = true;
-		    resourceManager.cityBuilderManager.PlayPutDownAudio();
+		    resourceManager.cityBuilderManager.PlaySelectAudio(resourceManager.cityBuilderManager.putDownClip);
         }
 	}
 }

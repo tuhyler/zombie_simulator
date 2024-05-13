@@ -193,7 +193,7 @@ public class UIQueueManager : MonoBehaviour
 
 		if (improvementData != null)
 		{
-			cityBuilderManager.PlayQueueAudio();
+			cityBuilderManager.PlaySelectAudio(cityBuilderManager.queueClip);
 
 			if (item.upgrade)
 				cityBuilderManager.CreateQueuedArrow(item, improvementData, worldLoc, building);
@@ -280,7 +280,7 @@ public class UIQueueManager : MonoBehaviour
 
     public void MoveItemUp()
     {
-        cityBuilderManager.PlayMoveAudio();
+        cityBuilderManager.PlaySelectAudio(cityBuilderManager.moveClip);
         
         if (selectedQueueItem != null)
         {
@@ -298,7 +298,7 @@ public class UIQueueManager : MonoBehaviour
 
     public void MoveItemDown()
     {
-		cityBuilderManager.PlayMoveAudio();
+		cityBuilderManager.PlaySelectAudio(cityBuilderManager.moveClip);
 
 		if (selectedQueueItem != null)
         {

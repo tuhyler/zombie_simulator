@@ -173,7 +173,7 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
 
     public void ResearchComplete(MapWorld world)
     {
-        researchTree.world.cityBuilderManager.PlayChimeAudio();
+        researchTree.world.cityBuilderManager.PlaySelectAudio(researchTree.world.cityBuilderManager.chimeClip);
         ChangeColor();
         HideProgressBar();
         researchIcon.gameObject.SetActive(false);

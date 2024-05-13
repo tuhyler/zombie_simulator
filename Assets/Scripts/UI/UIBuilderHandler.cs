@@ -135,7 +135,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
         OnIconButtonClick?.Invoke(buildData);
 
         if (buildData.isBuilding && !buildData.isBuildingImprovement)
-			cityBuilderManager.PlayBoomAudio();
+			cityBuilderManager.PlaySelectAudio(cityBuilderManager.buildClip);
         else
 		    cityBuilderManager.PlaySelectAudio();
     }
@@ -146,10 +146,12 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 
         if (unitBuildData.trainTime > 0)
         {
-            if (unitBuildData.transportationType == TransportationType.Sea)
-                cityBuilderManager.PlayConstructionAudio();
-            else
-                cityBuilderManager.PlayTrainingAudio();
+            cityBuilderManager.PlaySelectAudio(cityBuilderManager.buildClip);
+            //if (unitBuildData.transportationType == TransportationType.Sea)
+            //    cityBuilderManager
+            //    //cityBuilderManager.PlayConstructionAudio();
+            //else
+            //    cityBuilderManager.PlaySelectAudio(cityBuilderManager.trainingClip);
 
         }
     }

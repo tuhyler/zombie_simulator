@@ -56,7 +56,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public UIPersonalResourceInfoPanel uiCityResourceInfoPanel;
 
     [HideInInspector]
-    public Army army;
+    public Army army, navy, airForce;
     [HideInInspector]
     public EnemyCamp enemyCamp;
     [HideInInspector]
@@ -145,6 +145,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         stop = this;
         audioSource = GetComponent<AudioSource>();
         army = GetComponent<Army>();
+        navy = GetComponent<Navy>();
+        airForce = GetComponent<AirForce>();
         resourceManager = GetComponent<ResourceManager>();
         resourceManager.SetCity(this);
 
@@ -167,21 +169,20 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void PlaySelectAudio(AudioClip clip)
     {
-		audioSource.clip = clip;
-		audioSource.Play();
+		audioSource.PlayOneShot(clip);
 	}
 
-	public void PlayPopGainAudio()
-	{
-		audioSource.clip = world.cityBuilderManager.popGainClip;
-		audioSource.Play();
-	}
+	//public void PlayPopGainAudio()
+	//{
+	//	audioSource.clip = world.cityBuilderManager.popGainClip;
+	//	audioSource.Play();
+	//}
 
-	public void PlayPopLossAudio()
-	{
-		audioSource.clip = world.cityBuilderManager.popLoseClip;
-		audioSource.Play();
-	}
+	//public void PlayPopLossAudio()
+	//{
+	//	audioSource.clip = world.cityBuilderManager.popLoseClip;
+	//	audioSource.Play();
+	//}
 
 	public void SetWorld(MapWorld world, bool enemy = false)
     {
@@ -598,9 +599,10 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     }
 
     public void PopulationGrowthCheck(bool joinCity, int amount)
-    {        
+    {
         //int prevPop = cityPop.CurrentPop;
-        PlayPopGainAudio();
+        PlaySelectAudio(world.cityBuilderManager.popGainClip);
+        //PlayPopGainAudio();
 
         //cityPop.IncreasePopulationAndLabor(amount);
         housingCount -= amount;
@@ -690,7 +692,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		
         if (!building)
         {
-            PlayPopLossAudio();
+            PlaySelectAudio(world.cityBuilderManager.popLoseClip);
+            //PlayPopLossAudio();
 
             if (world.GetTerrainDataAt(cityLoc).isHill)
             {
@@ -809,7 +812,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void PlayResourceSplash()
     {
-        world.cityBuilderManager.PlayRingAudio();
+        //world.cityBuilderManager.PlayRingAudio();
+        PlaySelectAudio(world.cityBuilderManager.ringClip);
         world.PlayResourceSplash(cityLoc);
         //resourceSplash.Play();
     }
@@ -1221,7 +1225,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         for (int i = 0; i < losePop; i++)
             PopulationDeclineCheck(true, true);
 
-		PlayPopLossAudio();
+		//PlayPopLossAudio();
 
 		if (world.GetTerrainDataAt(cityLoc).isHill)
 		{
@@ -1823,7 +1827,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         }
 
         queueItemList.Add(item);
-		world.cityBuilderManager.PlayQueueAudio();
+		world.cityBuilderManager.PlaySelectAudio(world.cityBuilderManager.queueClip);
 		if (!building)
             world.AddLocationToQueueList(worldLoc, cityLoc);
 

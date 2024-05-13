@@ -37,7 +37,6 @@ public class BodyGuard : Military
 		//world.mainPlayer.runningAway = true;
 		//world.azaiFollow = false;
 		dueling = true;
-		inArmy = true;
 		army.forward = barracksLoc - loc;
 		army.enemyTarget = barracksLoc;
 		army.enemyCityLoc = enemyCityLoc;
@@ -52,6 +51,8 @@ public class BodyGuard : Military
 		army.movementRange = battleZone;
 
 		List<Vector3Int> path = GridSearch.MoveWherever(world, transform.position, loc);
+
+		world.ToggleDuelBattleCam(true, barracksLoc, this, world.GetEnemyCity(army.enemyCityLoc).empire.enemyLeader);
 
 		if (path.Count > 0)
 		{
@@ -74,8 +75,6 @@ public class BodyGuard : Military
 		Vector3 goScale = battleIcon.transform.localScale;
 		battleIcon.transform.localScale = Vector3.zero;
 		LeanTween.scale(battleIcon, goScale, 0.5f);
-
-		world.ToggleDuelMaterialClear(true, army.enemyTarget, this, leader);
 
 		if (!leader.isMoving)
 			StartCoroutine(WaitASec(leader));
@@ -110,7 +109,6 @@ public class BodyGuard : Military
 		army.attackingSpots.Clear();
 		army.movementRange.Clear();
 		dueling = false;
-		inArmy = false;
 		inBattle = false;
 		if (currentHealth < buildDataSO.health)
 			healthbar.RegenerateHealth();
@@ -145,7 +143,7 @@ public class BodyGuard : Military
 		world.mainPlayer.ReturnToFriendlyTile();
 		if (isSelected || world.mainPlayer.isSelected)
 			world.unitMovement.SelectWorker();
-		world.ToggleBadGuyTalk(false, army.targetCamp.cityLoc);
+		//world.ToggleConversationCam(false, army.targetCamp.cityLoc, true);
 		army.targetCamp = null;
 	}
 
@@ -326,7 +324,6 @@ public class BodyGuard : Military
 		if (dueling)
 		{
 			MilitaryLeader leader = GameLoader.Instance.duelingLeader;
-			inArmy = true;
 			army.forward = data.bodyGuardData.forward;
 			army.enemyTarget = leader.enemyCamp.loc;
 			army.enemyCityLoc = leader.enemyCamp.cityLoc;

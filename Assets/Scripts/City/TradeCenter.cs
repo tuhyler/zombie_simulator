@@ -117,6 +117,12 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 			if (!td.isDiscovered)
                 td.Reveal();
         }
+
+        foreach (ResourceType type in resourceSellDict.Keys)
+        {
+            if (!world.resourceDiscoveredList.Contains(type))
+                world.DiscoverResource(type);
+        }
     }
 
     public void SetWorld(MapWorld world)
@@ -229,16 +235,16 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void ToggleClear(bool v)
     {
-        if (v)
-        {
-            for (int i = 0; i < tcMesh.Count; i++)
-                tcMesh[i].sharedMaterial = world.atlasSemiClear;
-        }
-        else
-        {
-            for (int i = 0; i < tcMesh.Count; i++)
-                tcMesh[i].sharedMaterial = originalMat[i];
-        }
+        //if (v)
+        //{
+        //    for (int i = 0; i < tcMesh.Count; i++)
+        //        tcMesh[i].sharedMaterial = world.atlasSemiClear;
+        //}
+        //else
+        //{
+        //    for (int i = 0; i < tcMesh.Count; i++)
+        //        tcMesh[i].sharedMaterial = originalMat[i];
+        //}
     }
 
     public void SetWaiter(Trader trader, int amount, bool load)

@@ -65,7 +65,7 @@ public class UIAttackWarning : MonoBehaviour
 			return;
 
 		attackLocs.Add(loc);
-		world.cityBuilderManager.PlayAlertAudio();
+		world.cityBuilderManager.PlaySelectAudio(world.cityBuilderManager.alertClip);
 		
 		if (!world.mapHandler.activeStatus)
 

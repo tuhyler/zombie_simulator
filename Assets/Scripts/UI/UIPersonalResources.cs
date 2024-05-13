@@ -154,7 +154,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
                 transform.SetParent(tempParent);
                 transform.SetAsLastSibling();
                 background.raycastTarget = false;
-                buttonHandler.world.cityBuilderManager.PlayPickUpAudio();
+                buttonHandler.world.cityBuilderManager.PlaySelectAudio(buttonHandler.world.cityBuilderManager.pickUpClip);
             }
         }
     }
@@ -183,7 +183,7 @@ public class UIPersonalResources : MonoBehaviour, IPointerDownHandler, IBeginDra
                 transform.SetParent(originalParent);
                 transform.localPosition = Vector3.zero;
                 background.raycastTarget = true;
-			    buttonHandler.world.cityBuilderManager.PlayPutDownAudio();
+			    buttonHandler.world.cityBuilderManager.PlaySelectAudio(buttonHandler.world.cityBuilderManager.putDownClip);
 		    }
         }
     }

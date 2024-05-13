@@ -99,7 +99,7 @@ public class UIMarketResourcePanel : MonoBehaviour
     {
         if (uiMarketPlaceManager != null)
         {
-            uiMarketPlaceManager.city.world.cityBuilderManager.PlayCheckAudio();
+            uiMarketPlaceManager.city.world.cityBuilderManager.PlaySelectAudio(uiMarketPlaceManager.city.world.cityBuilderManager.checkClip);
             bool isOn = sellToggle.isOn;
             minimumAmount.gameObject.SetActive(isOn);
             //minimumAmount.interactable = isOn;

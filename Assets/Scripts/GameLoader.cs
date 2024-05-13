@@ -605,22 +605,17 @@ public class GameLoader : MonoBehaviour
 
 		foreach (City city in attackingEnemyCitiesList)
 		{
+			if ((city.enemyCamp.inBattle && !city.enemyCamp.retreat) || city.enemyCamp.prepping || city.enemyCamp.attackReady)
+				world.ToggleBattleCam(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, true);
 			if (city.enemyCamp.inBattle && !city.enemyCamp.retreat)
-			{
-				world.ToggleCityMaterialClear(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
-				//world.AddToBattleAreas(city.army.cavalryRange);
-			}
+				world.ToggleForestsInBattleClear(city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
 		}
 		attackingEnemyCitiesList.Clear();
 
 		foreach (Vector3Int loc in gameData.attackedEnemyBases.Keys)
 		{
 			if (gameData.attackedEnemyBases[loc].inBattle && !gameData.attackedEnemyBases[loc].retreat)
-			{
-				world.ToggleCityMaterialClear(world.GetEnemyCamp(loc).loc, world.GetEnemyCamp(loc).attackingArmy.city.cityLoc, world.GetEnemyCamp(loc).attackingArmy.enemyTarget, 
-					world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
-				//world.AddToBattleAreas(world.GetEnemyCamp(loc).attackingArmy.cavalryRange);
-			}
+				world.ToggleForestsInBattleClear(world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
 		}
 
 		world.uiAttackWarning.LoadAttackLocs(gameData.attackLocs);
@@ -725,12 +720,15 @@ public class GameLoader : MonoBehaviour
 
 			if (unit.trader)
 				improvement = world.GetCityDevelopment(world.GetCity(unit.trader.homeCity).singleBuildDict[unit.buildDataSO.singleBuildType]);
-			else if (unit.inArmy)
+			else if (unit.buildDataSO.inMilitary)
 				improvement = world.GetCityDevelopment(unit.military.army.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
-			else if (unit.inNavy)
-				improvement = world.GetCityDevelopment(unit.military.navy.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
-			else if (unit.inAirForce)
-				improvement = world.GetCityDevelopment(unit.military.airForce.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
+
+			//else if (unit.inArmy)
+			//	improvement = world.GetCityDevelopment(unit.military.army.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
+			//else if (unit.inNavy)
+			//	improvement = world.GetCityDevelopment(unit.military.navy.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
+			//else if (unit.inAirForce)
+			//	improvement = world.GetCityDevelopment(unit.military.airForce.city.singleBuildDict[unit.buildDataSO.singleBuildType]);
 
 			if (improvement != null)
 				improvement.ResumeTraining(unit);

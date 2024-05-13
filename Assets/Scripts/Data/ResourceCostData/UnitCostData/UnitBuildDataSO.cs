@@ -11,6 +11,7 @@ public class UnitBuildDataSO : ScriptableObject
     public int unitLevel;
     public string unitNameAndLevel;
     public bool empireUnit;
+    public bool inMilitary;
     public Sprite image;
     public Sprite mapIcon;
     public List<ResourceValue> unitCost; //cost to build

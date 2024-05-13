@@ -13,7 +13,7 @@ public class UnitData : IUnitData
 	public Vector3Int campSpot; //campSpot is for enemy camps
 	public Quaternion rotation;
     public List<Vector3Int> moveOrders, switchLocs;
-	public bool secondaryPrefab, isMoving;
+	public bool isMoving;
 	public Vector3 destinationLoc;
     public Vector3 finalDestinationLoc;
     public Vector3Int currentLocation;
@@ -24,7 +24,7 @@ public class UnitData : IUnitData
 	public int currentHealth, strengthBonus, upgradeLevel;
 	public float baseSpeed;
 	public bool readyToMarch, atHome, preparingToMoveOut, isMarching, transferring, repositioning, inBattle, attacking, targetSearching, flanking, flankedOnce, cavalryLine, isDead, 
-		isUpgrading, /*looking, */ambush, aoe, guard, isGuarding, returning, atSea, benched, duelWatch, posSet;
+		isUpgrading, ambush, aoe, guard, isGuarding, returning, atSea, benched, duelWatch, posSet;
 
 	public MilitaryLeaderData leaderData = null;
 	public BodyGuardData bodyGuardData = null;
@@ -50,7 +50,7 @@ public class UnitData : IUnitData
 		return null;
 	}
 	string IUnitData.unitNameAndLevel => unitNameAndLevel;
-	bool IUnitData.secondaryPrefab => secondaryPrefab;
+	bool IUnitData.secondaryPrefab => false;
 	Vector3 IUnitData.position => position;
 	Quaternion IUnitData.rotation => rotation;
 	Vector3Int IUnitData.barracksBunk => barracksBunk;

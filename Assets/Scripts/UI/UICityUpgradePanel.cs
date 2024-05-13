@@ -500,7 +500,7 @@ public class UICityUpgradePanel : MonoBehaviour
         else if (unit != null)
         {
             cityBuilderManager.UpgradeUnit(unit, new(upgradeCost), new(refundCost));
-            cityBuilderManager.PlayBoomAudio();
+            cityBuilderManager.PlaySelectAudio(cityBuilderManager.buildClip);
         }
 
         ResetData();

@@ -214,7 +214,7 @@ public class MilitaryLeader : Military
 
 		FinishDuel();
 		enemyCamp = capitalCity.enemyCamp;
-		world.ToggleDuelMaterialClear(false, capitalCity.singleBuildDict[SingleBuildType.Barracks], world.azai, this);
+		world.ToggleDuelBattleCam(false, capitalCity.singleBuildDict[SingleBuildType.Barracks], world.azai, this);
 		enemyAI.StartReturn();
 		capitalCity.enemyCamp.FinishDuelCheck();
 	}

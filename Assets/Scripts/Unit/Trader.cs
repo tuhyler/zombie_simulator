@@ -22,7 +22,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     private int totalRouteLength, linePause;
 
     [HideInInspector]
-    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, atHome, returning, movingUpInLine, atStall;
+    public bool paid, hasRoute, atStop, followingRoute, waitingOnRouteCosts, interruptedRoute, guarded, waitingOnGuard, atHome, returning, movingUpInLine, atStall, isWaiting;
     [HideInInspector]
     public Unit guardUnit;
 	[HideInInspector]
@@ -66,8 +66,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
         tradeRouteManager = GetComponent<TradeRouteManager>();
         tradeRouteManager.SetTrader(this);
         trader = this;
-        isTrader = true;
-		ambushLoc = new Vector3Int(0, -10, 0);
+        ambushLoc = new Vector3Int(0, -10, 0);
         personalResourceManager = GetComponent<PersonalResourceManager>();
         //tradeRouteManager.SetPersonalResourceManager(personalResourceManager);
         personalResourceManager.resourceStorageLimit = buildDataSO.cargoCapacity;
@@ -1262,6 +1261,84 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 	//	return false;
 	//}
 
+	public void NextStepCheck(Vector3 endPosition, Vector3Int endPositionInt)
+	{
+		if (pathPositions.Count > 0)
+		{
+			if (trader.followingRoute && !trader.atStall)
+			{
+				if (pathPositions.Count == 2)
+				{
+					if (!world.StopExistsCheck(trader.tradeRouteManager.currentDestination))
+					{
+						trader.CancelRoute();
+						return;
+					}
+
+					if (world.TraderStallCheck(trader.tradeRouteManager.currentDestination))
+					{
+						isMoving = false;
+						trader.GetInLine();
+						return;
+					}
+					else
+					{
+						trader.GoToTraderStall(endPositionInt);
+						return;
+					}
+				}
+
+				if (world.IsTraderWaitingForSameStop(pathPositions.Peek(), trader.tradeRouteManager.currentDestination, trader))
+				{
+					isMoving = false;
+					trader.GetInLine();
+					return;
+				}
+				else if (trader.isWaiting)
+				{
+					world.RemoveTraderPosition(endPositionInt, trader);
+
+					if (trader.guarded)
+					{
+						if (bySea)
+						{
+							if (trader.guardUnit.isMoving)
+							{
+								Vector3 nextStep = trader.guardUnit.military.GuardRouteFinish(endPositionInt, pathPositions.Peek());
+								Vector3Int nextStepInt = world.RoundToInt(nextStep);
+								trader.guardUnit.pathPositions.Enqueue(nextStepInt);
+							}
+							else
+							{
+								trader.guardUnit.military.GuardGetInLine(endPositionInt, pathPositions.Peek());
+							}
+						}
+						//else if (byAir)
+					}
+				}
+
+			}
+
+			prevTile = endPositionInt;
+			if (endPositionInt == ambushLoc && !world.BattleNearbyCheck(ambushLoc) && !world.IsEnemyAmbushHere(ambushLoc)) //Can also trigger ambush when not on trade route
+			{
+				ambush = true;
+				currentLocation = world.AddUnitPosition(endPositionInt, this); //adding trader to military positions to be attacked
+				isMoving = false;
+				StopAnimation();
+
+				world.SetUpAmbush(ambushLoc, this);
+				return;
+			}
+
+			GoToNextStepInPath();
+		}
+		else
+		{
+			FinishMoving(endPosition);
+		}
+	}
+
 	public void FinishMovementTrader(Vector3 endPosition)
     {
 		if (followingRoute)
@@ -1377,6 +1454,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			world.somethingSelected = false;
 			world.unitMovement.ClearSelection();
 		}
+
+		for (int i = 0; i < guardMeshList.Count; i++)
+			guardMeshList[i].SetActive(false);
 
 		world.traderList.Remove(this);
 		world.RemoveTraderPosition(currentLocation, this);
