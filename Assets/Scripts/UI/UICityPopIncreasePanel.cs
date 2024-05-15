@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,7 +26,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 	private ResourceValue food;
 	private Color originalButtonColor;
 
-	private bool cantAfford, needWater, needHousing;
+	private bool cantAfford, needWater, needHousing, shaking;
 	
 	//for tweening
 	[SerializeField]
@@ -79,6 +78,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 			SetCostPanelInfo(city, hideFoodCost);
 			ToggleColor(true);
 
+			shaking = false;
 			world.infoPopUpCanvas.gameObject.SetActive(true);
 			world.iTooltip = this;
 			gameObject.SetActive(val);
@@ -288,7 +288,8 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 	{
 		if (cantAfford)
 		{
-			StartCoroutine(Shake());
+			if (!shaking)
+				StartCoroutine(Shake());
 			if (needWater)
 				UIInfoPopUpHandler.WarningMessage().Create(increaseButton.transform.position, "Need water. Build camp with river in radius or build a well.", false);
 			else if (needHousing)
@@ -307,6 +308,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 		Vector3 initialPos = transform.localPosition;
 		float elapsedTime = 0f;
 		float duration = 0.2f;
+		shaking = true;
 
 		while (elapsedTime < duration)
 		{
@@ -315,6 +317,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 			yield return null;
 		}
 
+		shaking = false;
 		transform.localPosition = initialPos;
 	}
 

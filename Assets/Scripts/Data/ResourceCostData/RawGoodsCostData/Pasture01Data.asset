@@ -39,7 +39,7 @@ MonoBehaviour:
   producedResources:
   - resourceType: 17
     resourceAmount: 30
-  producedResourceTime: 1e000000
+  producedResourceTime: 05000000
   rawMaterials: 1
   rawResourceType: 7
   isResearch: 0
@@ -50,15 +50,17 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 0
   adjustForHill: 1
   hideProp: 1
   hillAdjustment: 0.6
-  buildTime: 20
+  buildTime: 10
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
-  noWalkAreas: []
+  attackBonus: 0
+  singleBuildType: 0
+  buildOnRoad: 0

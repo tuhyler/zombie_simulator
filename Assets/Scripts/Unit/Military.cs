@@ -2,10 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Burst.CompilerServices;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.GraphicsBuffer;
 
 public class Military : Unit
 {
@@ -218,9 +215,9 @@ public class Military : Unit
 
 	public void AggroCheck()
 	{
-		UnitType type = buildDataSO.unitType;
 		if (attacking)
 			return;
+		UnitType type = buildDataSO.unitType;
 
 		if (!army.FinishAttack())
 		{
@@ -235,6 +232,9 @@ public class Military : Unit
 
 	public void InfantryAggroCheck()
 	{
+		if (isDead)
+			return;
+
 		targetSearching = false;
 
 		List<Vector3Int> attackingZones = new();
@@ -339,6 +339,9 @@ public class Military : Unit
 
 	public void RangedAggroCheck()
 	{
+		if (isDead)
+			return;
+
 		Unit enemy = army.FindClosestTarget(this);
 
 		if (enemy != null)
@@ -352,6 +355,9 @@ public class Military : Unit
 
 	public void CavalryAggroCheck()
 	{
+		if (isDead)
+			return;
+
 		targetSearching = false;
 
 		List<Vector3Int> attackingZones = new();
@@ -652,7 +658,7 @@ public class Military : Unit
 	{
 		Army army;
 
-		if (buildDataSO.inMilitary)
+		if (buildDataSO.inMilitary || bodyGuard)
 			army = this.army;
 		else
 			army = enemyCamp.attackingArmy;
@@ -1162,6 +1168,7 @@ public class Military : Unit
 		}
 		else if (leader && leader.dueling)
 		{
+			world.AddUnitPosition(currentLocation, this);
 			Rotate(currentLocation + enemyCamp.forward);
 			leader.Charge();
 		}
@@ -1434,7 +1441,7 @@ public class Military : Unit
 					if (!bodyGuard.dueling && !bodyGuard.inTransport)
 						healthbar.RegenerateHealth();
 				}
-				else if (enemyAI && !isMoving && !data.attacking && !data.inBattle)
+				else if (enemyAI && !ambush && !data.attacking && !data.inBattle && !repositioning)
 				{
 					healthbar.RegenerateHealth();
 				}
@@ -1639,7 +1646,7 @@ public class Military : Unit
 		{
 			gameObject.SetActive(false);
 		}
-		else if (inBattle)
+		else if (inBattle && !isMoving)
 		{
 			if (enemyAI)
 				enemyAI.AggroCheck();

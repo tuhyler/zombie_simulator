@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -85,7 +82,8 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
 
         if (val)
         {
-            world.cityBuilderManager.PlaySelectAudio(improvement.GetImprovementData.audio);
+            if (improvement.GetImprovementData.audio != null)
+                world.cityBuilderManager.PlaySelectAudio(improvement.GetImprovementData.audio);
             world.iTooltip = this;
             highlightList[highlightIndex].gameObject.SetActive(false); // turn off previous one
             this.improvement = improvement;

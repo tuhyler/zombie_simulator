@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -223,6 +220,10 @@ public class CityBuilderManager : MonoBehaviour
 				if (world.somethingSelected)
 				{
 					world.somethingSelected = false;
+				}
+                else if (selectedCity != null)
+                {
+					ResetCityUI();
 				}
                 else
                 {
@@ -1528,8 +1529,8 @@ public class CityBuilderManager : MonoBehaviour
             else
                 buildPosition = world.GetTraderBuildLoc(city.singleBuildDict[unitData.singleBuildType]);
 
-		    if (city.activeCity && uiUnitBuilder.activeStatus)
-			    uiUnitBuilder.UpdateTrainingStatus(unitData.singleBuildType);
+		    //if (city.activeCity && uiUnitBuilder.activeStatus)
+			   // uiUnitBuilder.UpdateTrainingStatus(unitData.singleBuildType);
 		}
 
 		GameObject unitGO = unitData.prefab;
@@ -1593,8 +1594,8 @@ public class CityBuilderManager : MonoBehaviour
             else if (world.assigningGuard && world.uiTradeRouteBeginTooltip.MilitaryLocCheck(world.GetClosestTerrainLoc(buildPosition)))
                 newUnit.SoftSelect(Color.green);
 
-			if (city.activeCity && uiUnitBuilder.activeStatus)
-				uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
+			//if (city.activeCity && uiUnitBuilder.activeStatus)
+			//	uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
 			else if (world.uiCampTooltip.activeStatus && world.uiCampTooltip.improvement == world.GetCityDevelopment(city.singleBuildDict[SingleBuildType.Barracks]))
 				world.uiCampTooltip.RefreshData();
 
@@ -2306,8 +2307,8 @@ public class CityBuilderManager : MonoBehaviour
         if (improvementData.singleBuildType != SingleBuildType.None)
         {
             city.singleBuildDict[improvementData.singleBuildType] = tempBuildLocation;
-            if (city.activeCity && uiUnitBuilder.activeStatus)
-                uiUnitBuilder.UpdateTrainingStatus(improvementData.singleBuildType);
+            //if (city.activeCity && uiUnitBuilder.activeStatus)
+            //    uiUnitBuilder.UpdateTrainingStatus(improvementData.singleBuildType);
         }
 
         //setting harbor info
@@ -2335,8 +2336,8 @@ public class CityBuilderManager : MonoBehaviour
 
             city.army.SetLoc(tempBuildLocation, city);
 
-            if (city.activeCity && uiUnitBuilder.activeStatus)
-                uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
+            //if (city.activeCity && uiUnitBuilder.activeStatus)
+            //    uiUnitBuilder.UpdateBarracksStatus(city.army.isFull);
         }
 
         //setting labor info (harbors have no labor)

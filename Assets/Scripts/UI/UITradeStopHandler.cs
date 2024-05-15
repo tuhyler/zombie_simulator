@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEditor.Experimental.GraphView;
-using static UnityEngine.Rendering.DebugUI;
 using UnityEditor;
 
 public class UITradeStopHandler : MonoBehaviour

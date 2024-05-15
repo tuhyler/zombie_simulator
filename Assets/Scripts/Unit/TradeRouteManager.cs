@@ -1,13 +1,7 @@
-using Mono.Cecil;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
-using static UnityEngine.Rendering.DebugUI;
 
 public class TradeRouteManager : MonoBehaviour
 {
@@ -53,6 +47,14 @@ public class TradeRouteManager : MonoBehaviour
         totalWait = new WaitForSeconds(secondIntervals);
     }
 
+    public void ClearTradeRoute()
+    {
+        cityStops.Clear();
+        resourceAssignments.Clear();
+        resourceCompletion.Clear();
+        waitTimes.Clear();
+    }
+
     public void SetTradeRoute(int startingStop, List<Vector3Int> cityStops, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
     {
         this.startingStop = startingStop;
@@ -64,7 +66,7 @@ public class TradeRouteManager : MonoBehaviour
 
         this.waitTimes = waitTimes;
         currentStop = startingStop;
-        currentDestination = cityStops[startingStop];
+        //currentDestination = cityStops[startingStop];
     }
 
     public int CalculateRoutePaths(MapWorld world)
@@ -150,6 +152,7 @@ public class TradeRouteManager : MonoBehaviour
     public void SetTrader(Trader trader)
     {
         this.trader = trader;
+        currentDestination = new Vector3Int(0, -10, 0);
     }
 
     public void SetStop(ITradeStop stop)
@@ -166,13 +169,12 @@ public class TradeRouteManager : MonoBehaviour
     {
 		bool complete = false;
 
-        int i = 0;
         trader.personalResourceManager.DictCheck(resourceAssignments[currentStop]);
 
-        foreach (ResourceValue value in resourceAssignments[currentStop])
+        for (int i = currentResource; i < resourceAssignments[currentStop].Count; i++)
         {
             currentResource = i;
-            i++;
+            ResourceValue value = resourceAssignments[currentStop][currentResource];
             int resourceAmount = value.resourceAmount;
             resourceTotalAmount = Mathf.Abs(resourceAmount);
             bool loadUnloadCheck = true;
@@ -642,6 +644,7 @@ public class TradeRouteManager : MonoBehaviour
                 uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[i].SetCompleteFull(true, true);
         }
 
+        StopHoldingPatternCoroutine();
         trader.SetLoadingAnimation(false);
         trader.SetUnloadingAnimation(false);
         FinishLoading();
@@ -803,39 +806,38 @@ public class TradeRouteManager : MonoBehaviour
             uiTradeRouteManager.SetChosenStopLive(currentStop);
     }
 
-    public void RemoveStop(Vector3Int stop)
-    {
-        cityStops.Remove(stop);
-    }
+    //public void RemoveStop(Vector3Int stop)
+    //{
+    //    cityStops.Remove(stop);
+    //}
 
     public bool TradeRouteCheck()
     {
         List<Vector3Int> destinations = new();
         
         //checking for consecutive stops
-        int i = 0;
         int childCount = cityStops.Count;
         bool consecFound = false;
 
-        foreach (Vector3Int stop in cityStops)
+        for (int i = 0; i < cityStops.Count; i++)
         {
-            destinations.Add(stop);
+            if (trader.world.GetStopName(cityStops[i]) == "")
+            {
+				UIInfoPopUpHandler.WarningMessage().Create(trader.world.unitMovement.uiTraderPanel.uiBeginTradeRoute.transform.position, "No assigned destination to stop");
+				return false;
+            }
+
+            destinations.Add(cityStops[i]);
 
             if (i == childCount - 1)
                 consecFound = destinations[i] == destinations[0];
             else if (i > 0)
                 consecFound = destinations[i] == destinations[i - 1];
 
-            i++;
-
             if (consecFound)
             {
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Consecutive stops for same stop");
+                UIInfoPopUpHandler.WarningMessage().Create(trader.world.unitMovement.uiTraderPanel.uiBeginTradeRoute.transform.position, "Consecutive stops for same stop");
                 return false;
-            }
-            else
-            {
-                return true;
             }
         }
 

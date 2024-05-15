@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -55,13 +53,13 @@ public class UIDuelWarning : MonoBehaviour
 
 	public void ConfirmDuel()
 	{
+		uiSpeechWindow.FinishText(true);
 		leader.DuelSetup();
 		leader.world.unitMovement.ClearSelection();
 		leader.world.unitMovement.SelectUnitPrep(leader.world.azai);
 		leader.world.cameraController.someoneSpeaking = false;
 		leader.world.azai.CenterCamera();
 		ToggleVisibility(false);
-		uiSpeechWindow.FinishText(true);
 	}
 
 	public void DenyDuel()

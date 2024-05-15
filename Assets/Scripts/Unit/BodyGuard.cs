@@ -98,6 +98,7 @@ public class BodyGuard : Military
 	public void BodyGuardCharge()
 	{
 		inBattle = true;
+		//RangedAggroCheck();
 		InfantryAggroCheck();
 	}
 
@@ -137,14 +138,23 @@ public class BodyGuard : Military
 
 		yield return new WaitForSeconds(4);
 
-		FinishDuel();
 		Destroy(dizzy);
 		ToggleDizzy(false);
-		world.mainPlayer.ReturnToFriendlyTile();
-		if (isSelected || world.mainPlayer.isSelected)
-			world.unitMovement.SelectWorker();
-		//world.ToggleConversationCam(false, army.targetCamp.cityLoc, true);
-		army.targetCamp = null;
+	
+		//for ties
+		if (world.GetEnemyCity(army.enemyCityLoc).empire.enemyLeader.isDead)
+		{
+			if (army.targetCamp != null)
+				army.FinishAttack();
+		}
+		else
+		{
+			FinishDuel();
+			world.mainPlayer.ReturnToFriendlyTile();
+			if (isSelected || world.mainPlayer.isSelected)
+				world.unitMovement.SelectWorker();
+			army.targetCamp = null;
+		}
 	}
 
 	public void GetBehindScott(Vector3Int scottSpot)

@@ -19,18 +19,19 @@ MonoBehaviour:
   unitLevel: 2
   unitNameAndLevel: Sennacherib-2
   empireUnit: 0
+  inMilitary: 0
   image: {fileID: 0}
   mapIcon: {fileID: 0}
   unitCost: []
   cycleCost: []
   battleCost: []
   laborCost: 1
-  unitType: 2
+  unitType: 1
   unitDescription: 
   availableInitially: 0
   health: 50
   regenerationRate: 16
-  baseAttackStrength: 101
+  baseAttackStrength: 10
   baseAttackSpeed: 1
   movementSpeed: 1
   trainTime: 0

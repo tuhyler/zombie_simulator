@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class Trader : Unit, ICityGoldWait, ICityResourceWait
 {
@@ -105,6 +104,11 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
     {
         unitAnimator.SetBool(isUnloadingHash, v);
     }
+
+	public void ClearTradeRoute()
+	{
+		tradeRouteManager.ClearTradeRoute();
+	}
 
     //passing details of the trade route
     public void SetTradeRoute(int startingStop, List<string> cityNames, List<List<ResourceValue>> resourceAssignments, List<int> waitTimes)
@@ -269,7 +273,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			TraderStallCheck();
 			tradeRouteManager.CheckQueues();
 			InterruptRoute(true);
-			tradeRouteManager.RemoveStop(endLoc);
+			//tradeRouteManager.RemoveStop(endLoc);
 			interruptedRoute = true;
 			return false;
 		}
@@ -667,23 +671,23 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		}
 	}
 
-	public void PrepForRoute(Vector3Int firstStep)
-	{
-		//Vector3Int firstStep = bySea ? world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor] : homeCity;
-		List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, firstStep, bySea);
+	//public void PrepForRoute(Vector3Int firstStep)
+	//{
+	//	//Vector3Int firstStep = bySea ? world.GetCity(homeCity).singleBuildDict[SingleBuildType.Harbor] : homeCity;
+	//	List<Vector3Int> path = GridSearch.MilitaryMove(world, transform.position, firstStep, bySea);
 
-		if (path.Count == 0)
-		{
-			path = GridSearch.MoveWherever(world, transform.position, firstStep);
+	//	if (path.Count == 0)
+	//	{
+	//		path = GridSearch.MoveWherever(world, transform.position, firstStep);
 
-			if (path.Count == 0)
-				path.Add(firstStep);
-		}
+	//		if (path.Count == 0)
+	//			path.Add(firstStep);
+	//	}
 
-		followingRoute = true;
-		finalDestinationLoc = firstStep;
-		MoveThroughPath(path);
-	}
+	//	followingRoute = true;
+	//	finalDestinationLoc = firstStep;
+	//	MoveThroughPath(path);
+	//}
 
 	private void ReturnToStall()
 	{
@@ -949,6 +953,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 
 		atStop = false;
 		world.RemoveTraderPosition(currentLocation, this);
+		tradeRouteManager.currentDestination = new Vector3Int(0, -10, 0); //setting to default
 		if (!isDead)
 			ReturnHome(0);
     }

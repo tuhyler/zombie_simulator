@@ -1,12 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, ITooltip
 {
@@ -44,7 +41,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 	[SerializeField] //for tweening
 	private RectTransform allContents;
 	[HideInInspector]
-	public bool activeStatus, cantAfford, isLabor;
+	public bool activeStatus, cantAfford, isLabor, shaking;
 	List<string> destinationList = new();
 	List<string> initialOption = new() { "Select..." };
 
@@ -136,8 +133,6 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 			resourceTypeList.Clear();
 			cantAffordList.Clear();
 			activeStatus = false;
-			if (!this.isLabor)
-				world.unitMovement.StillOnMilitaryUnitCheck();
 			destinationDropdown.ClearOptions();
 			destinationDropdown.AddOptions(initialOption);
 			LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);
@@ -327,6 +322,14 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 
 	public void CloseWindowButton()
 	{
+		if (!isLabor)
+		{
+			world.unitMovement.uiJoinCity.ToggleVisibility(true);
+			world.unitMovement.uiSwapPosition.ToggleVisibility(true);
+			world.unitMovement.uiDeployArmy.ToggleVisibility(true);
+			world.unitMovement.uiChangeCity.ToggleVisibility(true);
+		}
+
 		ToggleVisibility(false);
 	}
 
@@ -379,7 +382,8 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 	{
 		if (cantAfford)
 		{
-			StartCoroutine(Shake());
+			if (!shaking)
+				StartCoroutine(Shake());
 			UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Can't afford", false);
 			return false;
 		}
@@ -392,6 +396,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 		Vector3 initialPos = transform.localPosition;
 		float elapsedTime = 0f;
 		float duration = 0.2f;
+		shaking = true;
 
 		while (elapsedTime < duration)
 		{
@@ -400,6 +405,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 			yield return null;
 		}
 
+		shaking = false;
 		transform.localPosition = initialPos;
 	}
 

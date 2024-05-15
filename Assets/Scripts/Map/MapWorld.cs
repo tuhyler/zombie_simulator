@@ -1,4 +1,3 @@
-using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,9 +6,6 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.UI.CanvasScaler;
-//using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class MapWorld : MonoBehaviour
 {
@@ -1249,7 +1245,7 @@ public class MapWorld : MonoBehaviour
         if (cityTile == empire.capitalCity)
         {
             if (!empire.enemyLeader.dueling)
-                empire.enemyLeader.enemyCamp = city.enemyCamp;
+			    empire.enemyLeader.enemyCamp = city.enemyCamp;
             empire.enemyLeader.enemyAI.CampSpot = city.cityLoc;
             empire.enemyLeader.SetBarracksBunk(city.enemyCamp.loc);
         }
@@ -1411,7 +1407,10 @@ public class MapWorld : MonoBehaviour
 
         if (load)
         {
-            if (!td.isDiscovered)
+			if (empire.enemyLeader.dueling)
+                ToggleDuelBattleCam(true, city.singleBuildDict[SingleBuildType.Barracks], azai, empire.enemyLeader);
+
+			if (!td.isDiscovered)
                 city.subTransform.gameObject.SetActive(false); //necessary if one of improvements is showing but not city
 
 			if (city.enemyCamp.growing && !city.enemyCamp.prepping && !city.enemyCamp.attackReady && !city.enemyCamp.inBattle)
@@ -2369,7 +2368,7 @@ public class MapWorld : MonoBehaviour
         mapHandler.ResetResourceLocDict();
         traderList.Clear();
         transportList.Clear();
-        upgradeableObjectMaxLevelDict.Clear();
+        //upgradeableObjectMaxLevelDict.Clear();
         currentWorkedTileDict.Clear();
         maxWorkedTileDict.Clear();
         roadTileDict.Clear();
@@ -2384,13 +2383,11 @@ public class MapWorld : MonoBehaviour
         militaryStationLocs.Clear();
         treasureLocs.Clear();
         neutralZones.Clear();
-        cityNamePool.Clear();
         resourceSelectionGridList.Clear();
         resourceDiscoveredList.Clear();
         newUnitsAndImprovements.Clear();
         ambushUnitDict.Clear();
         battleLocs.Clear();
-        characterUnits.Clear();
         unitsSpeedChangeDict.Clear();
         resourceYieldChangeDict.Clear();
 	}
@@ -3693,44 +3690,32 @@ public class MapWorld : MonoBehaviour
                 wonder.ApplyWonderCompletionReward();
             }
 
-			//claiming the area for the wonder
+			int xMin = wonder.wonderLocs[0].x - 1;
+			int xMax = wonder.wonderLocs[0].x + 1;
+			int zMin = wonder.wonderLocs[0].z - 1;
+			int zMax = wonder.wonderLocs[0].z + 1;
+			
+            //claiming the area for the wonder
 			foreach (Vector3Int tile in wonder.wonderLocs)
 			{
 				AddToCityLabor(tile, null); //so cities can't take the spot
 				AddStructure(tile, wonderGO); //so nothing else can be built there
+
+                if (tile.x - 1 < xMin)
+                    xMin = tile.x - 1;
+                if (tile.x + 1 > xMax)
+                    xMax = tile.x + 1;
+                if (tile.z - 1 < zMin)
+                    zMin = tile.z - 1;
+                if (tile.z + 1 > zMax)
+                    zMax = tile.z + 1;
 			}
 
             //setting no walk zone
             List<Vector3Int> tempNoWalkList = new();
 
-            int rotation = Mathf.RoundToInt(wonderGO.transform.eulerAngles.y);
-            bool sideways = rotation / 90 == 1 || rotation / 90 == 3;
-            int width = sideways ? wonderData.sizeHeight : wonderData.sizeWidth;
-			int height = sideways ? wonderData.sizeWidth : wonderData.sizeHeight;
-			Vector3 avgLoc = new Vector3(0, -0.01f, 0);
-			int k = 0;
-			int[] xArray = new int[width * height];
-			int[] zArray = new int[width * height];
-
-			for (int i = 0; i < width; i++)
-			{
-				for (int j = 0; j < height; j++)
-				{
-					Vector3Int newPos = wonder.unloadLoc;
-					newPos.z += i * increment;
-					newPos.x += j * increment;
-
-					xArray[k] = newPos.x;
-					zArray[k] = newPos.z;
-					k++;
-					avgLoc += newPos;
-				}
-			}
-
-			int xMin = Mathf.Min(xArray) - 1;
-			int xMax = Mathf.Max(xArray) + 1;
-			int zMin = Mathf.Min(zArray) - 1;
-			int zMax = Mathf.Max(zArray) + 1;
+            //int rotation = Mathf.RoundToInt(wonderGO.transform.eulerAngles.y);
+            //bool sideways = rotation / 90 == 1 || rotation / 90 == 3;
 
 			foreach (Vector3Int tile in wonder.wonderLocs)
 			{
@@ -3744,6 +3729,9 @@ public class MapWorld : MonoBehaviour
 
 				tempNoWalkList.Add(tile);
 			}
+
+            if (data.isConstructing)
+                tempNoWalkList.Remove(data.unloadLoc);
 
 			noWalkList.AddRange(tempNoWalkList);
 
@@ -5116,7 +5104,7 @@ public class MapWorld : MonoBehaviour
             unitMovement.ResetArmyHomeButtons();
         ToggleBattleCam(camp.cityLoc, cityLoc, true);
 
-		if (uiCampTooltip.activeStatus && uiCampTooltip.army == GetCity(cityLoc).army)
+		if (deployingArmy)
             unitMovement.CancelArmyDeployment();
 
         if (uiTradeRouteBeginTooltip.activeStatus && uiTradeRouteBeginTooltip.trader.homeCity == cityLoc)
@@ -5205,8 +5193,7 @@ public class MapWorld : MonoBehaviour
             if (battleLocs.Count == 0)
 			    battleCamera.SetActive(true);
 
-		    if (!battleLocs.Contains(enemyLoc))
-			    battleLocs.Add(enemyLoc);
+			battleLocs.Add(enemyLoc);
 
             GetNPC(enemyLoc).unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 
@@ -5236,10 +5223,10 @@ public class MapWorld : MonoBehaviour
 		    if (battleLocs.Count == 0)
 			    battleCamera.SetActive(true);
 
-		    if (!battleLocs.Contains(battleLoc))
-			    battleLocs.Add(battleLoc);
+			battleLocs.Add(battleLoc);
 
-            bodyGuard.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+			foreach (Unit unit in characterUnits)
+				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 			leader.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
 		}
         else
@@ -5249,7 +5236,8 @@ public class MapWorld : MonoBehaviour
 			if (battleLocs.Count == 0)
 				battleCamera.SetActive(false);
 
-			bodyGuard.unitMesh.layer = LayerMask.NameToLayer("Default");
+			foreach (Unit unit in characterUnits)
+				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
 			leader.unitMesh.layer = LayerMask.NameToLayer("Enemy");
 		}
 	}
@@ -6957,17 +6945,21 @@ public class MapWorld : MonoBehaviour
     public Vector3Int GetTraderBuildLoc(Vector3Int pos)
     {
         List<Vector3Int> stallLocs = GetStallLocs(/*pos*/);
+        int[] stallCount = new int[stallLocs.Count];
 
         for (int i = 0; i < stallLocs.Count; i++)
         {
             Vector3Int stall = stallLocs[i] + pos;
             if (!traderPosDict.ContainsKey(stall))
                 return stall;
+            else
+                stallCount[i] = traderPosDict[stall].Count;
         }
 
-        //in case none are open get random one
-        int rand = UnityEngine.Random.Range(0, stallLocs.Count);
-        return stallLocs[rand];
+        //in case none are get the one with the fewest amount
+        int min = stallCount.Min();
+		int index = Array.FindIndex(stallCount, x => x == min);
+        return stallLocs[index] + pos;
     }
 
     public bool IsSpotAvailable(Vector3Int pos)
@@ -8119,7 +8111,7 @@ public interface ITradeStop
 	{
         for (int i = 0; i < world.traderPosDict[pos].Count; i++)
         {
-            if (world.traderPosDict[pos][i] != trader && world.traderPosDict[pos][i].tradeRouteManager.currentDestination == dest)
+            if (world.traderPosDict[pos][i] != trader && world.traderPosDict[pos][i].followingRoute && world.traderPosDict[pos][i].tradeRouteManager.currentDestination == dest)
     			return true;
         }
 

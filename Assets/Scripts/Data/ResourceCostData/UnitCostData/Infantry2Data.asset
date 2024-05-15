@@ -25,6 +25,8 @@ MonoBehaviour:
   unitCost:
   - resourceType: 7
     resourceAmount: 12
+  - resourceType: 17
+    resourceAmount: 2
   cycleCost:
   - resourceType: 4
     resourceAmount: 2

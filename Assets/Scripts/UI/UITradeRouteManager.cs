@@ -182,16 +182,17 @@ public class UITradeRouteManager : MonoBehaviour
         {
             string cityName = world.GetStopName(cityStops[i]);
 
-            if (cityName == "")
-            {
-                tradeRouteManager.RemoveStop(cityStops[i]);
-                continue;
-            }
+            //if (cityName == "")
+            //{
+            //    tradeRouteManager.RemoveStop(cityStops[i]);
+            //    continue;
+            //}
 
             UITradeStopHandler newStopHandler = AddStopPanel(selectedTrader.followingRoute);
             if (newStopHandler != null)
             {
-                newStopHandler.SetCaptionCity(cityName);
+                if (cityName != "")
+                    newStopHandler.SetCaptionCity(cityName);
                 newStopHandler.SetResourceAssignments(tradeRouteManager.resourceAssignments[i], selectedTrader.followingRoute);
                 newStopHandler.SetWaitTimes(tradeRouteManager.waitTimes[i], selectedTrader.followingRoute);
 
@@ -513,7 +514,7 @@ public class UITradeRouteManager : MonoBehaviour
         {            
             (string destination, List<ResourceValue> resourceAssignment, int waitTime) = stopHandler.GetStopInfo();
 
-            if (destination == null)
+            if (destination == null || destination == "")
             {
                 UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "No assigned destination to stop", false);
                 return;
@@ -585,12 +586,16 @@ public class UITradeRouteManager : MonoBehaviour
             }
         }
 
-        selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes);
-
         if (destinations.Count > 0)
+        {
+            selectedTrader.SetTradeRoute(startingStop, destinations, resourceAssignments, waitTimes);
             unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(true);
+        }
         else
+        {
+            selectedTrader.ClearTradeRoute();
             unitMovement.uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
+        }
 
         ToggleVisibility(false);
     }

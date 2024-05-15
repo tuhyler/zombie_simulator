@@ -2,14 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
-using UnityEditor.Tilemaps;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Events;
-using static UnityEngine.UI.CanvasScaler;
 
 [System.Serializable]
 public class Unit : MonoBehaviour
@@ -258,19 +253,17 @@ public class Unit : MonoBehaviour
 
 		healthbar.gameObject.SetActive(true);
 
-        currentHealth -= attackingUnit.military.attackStrength + attackingUnit.military.strengthBonus - 1 + UnityEngine.Random.Range(0, 3);
+        currentHealth -= attackingUnit.military.attackStrength + attackingUnit.military.strengthBonus/* - 1 + UnityEngine.Random.Range(0, 3)*/;
 
         if (currentHealth <= 0)
         {
-			if (buildDataSO.inMilitary)
+			if (military)
             {
-                //attackingUnit.military.enemyCamp.CheckForWeaklings(attackingUnit.military.enemyCamp.threatLoc);
-                military.AttackCheck();
-                military.StopAttacking(false);
-            }
-            else if (enemyAI)
-            {
-                enemyAI.AttackCheck();
+                if (enemyAI)
+                    enemyAI.AttackCheck();
+                else
+                    military.AttackCheck();
+
                 military.StopAttacking(false);
             }
 
@@ -284,7 +277,9 @@ public class Unit : MonoBehaviour
 				attackingUnit.enemyAI.AttackCheck();
 				attackingUnit.military.StopAttacking(true);
                 attackingUnit.military.leader.StartGloating();
-				military.bodyGuard.GoDizzy();
+
+                if (!attackingUnit.isDead)
+    				military.bodyGuard.GoDizzy();
 			}
             else
             {

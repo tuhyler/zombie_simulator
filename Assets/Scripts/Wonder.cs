@@ -1,12 +1,6 @@
-using Mono.Cecil;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.Rendering.DebugUI;
 
 public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 {
@@ -108,9 +102,9 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         removeSplash.transform.localScale = new Vector3(2, 2, 2);
         removeSplash.Stop();
 
-        heavenHighlight = Instantiate(heavenHighlight, transform.position, Quaternion.identity);
-        heavenHighlight.transform.SetParent(transform, false);
-        heavenHighlight.Pause();
+        //heavenHighlight = Instantiate(heavenHighlight, transform.position, Quaternion.identity);
+        //heavenHighlight.transform.SetParent(transform, false);
+        //heavenHighlight.Pause();
     }
 
     public void SetReferences(MapWorld world, CameraController focusCam)
@@ -315,14 +309,18 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     public void AddWorker(Unit unit)
     {
         Vector3 pos = unloadLoc;
-		pos.y = 4.5f;
+		pos.y = 3f;
         world.laborerList.Remove(unit.laborer);
 
 		workersReceived++;
         workerSexAndHome.Add((unit.laborer.secondary, unit.laborer.homeCityLoc));
-        heavenHighlight.transform.position = pos;
+
+		heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
+		heavenHighlight.transform.SetParent(world.psHolder, false);
+
+		//heavenHighlight.transform.position = pos;
         PlayPopGainAudio();
-        heavenHighlight.Play();
+        //heavenHighlight.Play();
         if (world.cityBuilderManager.uiWonderSelection.activeStatus && world.cityBuilderManager.uiWonderSelection.wonder == this)
 			world.cityBuilderManager.uiWonderSelection.UpdateUIWorkers(workersReceived, this);
 
@@ -850,7 +848,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void DestroyParticleSystems()
     {
-        Destroy(heavenHighlight.gameObject);
+        //Destroy(heavenHighlight.gameObject);
         Destroy(smokeEmitter.gameObject);
         Destroy(smokeSplash.gameObject);
         Destroy(removeSplash.gameObject);
