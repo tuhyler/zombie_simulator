@@ -28,8 +28,10 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
-  - resourceType: 6
-    resourceAmount: 15
+  - resourceType: 7
+    resourceAmount: 3
+  - resourceType: 17
+    resourceAmount: 3
   consumedResources:
   - resourceType: 4
     resourceAmount: 1
@@ -64,5 +66,4 @@ MonoBehaviour:
   getTerrainResource: 0
   attackBonus: 0
   singleBuildType: 0
-  noWalkAreas:
-  - {x: 0, y: 0, z: 0}
+  buildOnRoad: 0

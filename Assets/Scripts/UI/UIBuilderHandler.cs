@@ -1,13 +1,9 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
-using System.Resources;
-using static UnityEditor.Progress;
-using UnityEngine.UIElements;
 
 public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 {
@@ -43,8 +39,6 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
     [HideInInspector]
     public bool activeStatus; //set this up so we don't have to wait for tween to set inactive
 
-    //public bool showResourceProduced, showResourceConsumed;
-
     [SerializeField]
     public ScrollRect optionsScroller;
 
@@ -61,15 +55,6 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
     private int maxLabor;
     private int maxGold;
 
-    //for object pooling
-    //private Queue<UIResourceInfoPanel> resourceInfoPanelQueue = new();
-    //[SerializeField]
-    //private GameObject resourceInfoPanel;
-
-    //public bool isUnit; //flag indicating if units will be built using this UI
-
-    //[SerializeField]
-    //public CanvasGroup uiBuildGroup;
 
     private void Awake()
     {
@@ -80,19 +65,8 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
             dof = tmpDof;
         }
         dof.focalLength.value = 15;
-
-       // foreach (Transform selection in uiElementsParent) //populate list
-       // {
-       //     UIBuildOptions option = selection.GetComponent<UIBuildOptions>();
-
-       //     if (option)
-    			//buildOptions.Add(option);
-       // }
-
         originalLoc = allContents.anchoredPosition3D;
         cityBuilderManager = FindObjectOfType<CityBuilderManager>();
-
-        //GrowResourceInfoPanelPool();
     }
 
 	private void Update()
@@ -147,12 +121,6 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
         if (unitBuildData.trainTime > 0)
         {
             cityBuilderManager.PlaySelectAudio(cityBuilderManager.buildClip);
-            //if (unitBuildData.transportationType == TransportationType.Sea)
-            //    cityBuilderManager
-            //    //cityBuilderManager.PlayConstructionAudio();
-            //else
-            //    cityBuilderManager.PlaySelectAudio(cityBuilderManager.trainingClip);
-
         }
     }
 
@@ -292,9 +260,6 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
             {
                 gameObject.SetActive(false);
             }
-
-            //dof.focalLength.value = 15;
-            //gameObject.SetActive(false);
         }
 
         cameraController.enabled = !v;
@@ -305,17 +270,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
         gameObject.SetActive(false);
         if (cityBuilderManager.world.iImmoveable == null)
 			cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
-		//cityBuilderManager.world.ImmoveableCheck();
-   //     if (!cityBuilderManager.world.openingImmoveable)
-   //         cityBuilderManager.world.immoveableCanvas.gameObject.SetActive(false);
-   //     else
-			//cityBuilderManager.world.openingImmoveable = false;
 	}
-
- //   private void OpeningComplete()
- //   {
-	//	cityBuilderManager.world.openingImmoveable = false;
-	//}
 
     public void PrepareBuild(ImprovementDataSO buildData)
     {
@@ -356,33 +311,6 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
                             (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air && resourceManager.city.world.airTransport))
                             hide = true;
 				    }
-
-				    if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
-                    {
-                        buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType);
-
-                        if (!buildOptions[i].needsBarracks)
-                        {
-						    buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[buildOptions[i].UnitBuildData.singleBuildType]).isTraining;
-						    buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
-                            buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
-					    }
-                        else
-                        {
-                            buildOptions[i].trainingBarracks = false;
-						    buildOptions[i].fullBarracks = false;
-                            buildOptions[i].travelingBarracks = false;
-					    }
-				    }
-                    else
-                    {
-					    buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType);
-
-                        if (!buildOptions[i].needsBarracks)
-                            buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[buildOptions[i].UnitBuildData.singleBuildType]).isTraining;
-                        else
-                            buildOptions[i].trainingBarracks = false;
-				    }
                 }
 				
                 resourceCosts = new(buildOptions[i].UnitBuildData.unitCost);
@@ -390,59 +318,6 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 				laborCost.resourceType = ResourceType.Labor;
 				laborCost.resourceAmount = buildOptions[i].UnitBuildData.laborCost;
 				resourceCosts.Add(laborCost);
-				
-                    //itemType = buildOptions[i].UnitBuildData.singleBuildType;
-
-				    //if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
-				    //{
-        //                if (resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Harbor))
-        //                    buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Harbor]).isTraining;
-        //                else
-        //                    buildOptions[i].trainingBarracks = false;
-				    //}
-				    //else
-				    //{
-				    //	if (buildOptions[i].UnitBuildData.baseAttackStrength > 0)
-				    //	{
-				    //		buildOptions[i].needsBarracks = !resourceManager.city.singleBuildDict.ContainsKey(SingleBuildType.Barracks);
-				    //		buildOptions[i].fullBarracks = resourceManager.city.army.isFull;
-        //                    if (!buildOptions[i].needsBarracks)
-        //                        buildOptions[i].trainingBarracks = resourceManager.city.world.GetCityDevelopment(resourceManager.city.singleBuildDict[SingleBuildType.Barracks]).isTraining;
-        //                    else
-        //                        buildOptions[i].trainingBarracks = false;
-        //                    buildOptions[i].travelingBarracks = resourceManager.city.army.IsGone();
-				    //	}
-        //                else
-        //                {
-
-        //                }
-				    //}
-
-
-                    //if (/*buildOptions[i].UnitBuildData.singleBuildType != SingleBuildType.None && */!resourceManager.city.singleBuildDict.ContainsKey(buildOptions[i].UnitBuildData.singleBuildType))
-                    //    hide = true;
-
-        //            if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Land)
-        //            {
-        //                if (buildOptions[i].UnitBuildData.baseAttackStrength > 0 && !resourceManager.city.hasBarracks)
-        //                    hide = true;
-        //            }
-        //            else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Sea)
-        //            {
-        //                if (!resourceManager.city.hasHarbor)
-        //                    hide = true;
-
-        //                if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.waterTransport)
-        //                    hide = true;
-				    //}
-				    //else if (buildOptions[i].UnitBuildData.transportationType == TransportationType.Air)
-				    //{
-				    //	if (!resourceManager.city.hasAirport)
-				    //		hide = true;
-
-				    //	if (buildOptions[i].UnitBuildData.unitType == UnitType.Transport && resourceManager.city.world.airTransport)
-				    //		hide = true;
-				    //}
 			}
 			else if (buildOptions[i].BuildData != null)
 			{
@@ -457,7 +332,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 				itemType = buildOptions[i].BuildData.singleBuildType;
 				resourceCosts = new(buildOptions[i].BuildData.improvementCost);
 
-				buildOptions[i].waterMax = resourceManager.city.reachedWaterLimit;
+				//buildOptions[i].waterMax = resourceManager.city.reachedWaterLimit;
 
 				if (buildOptions[i].BuildData.rawResourceType == RawResourceType.None)
 				{
@@ -628,37 +503,4 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 
         PrepareBuildOptions(resourceManager);
     }
-
-    public void UpdateTrainingStatus(SingleBuildType single)
-    {
-		foreach (UIBuildOptions buildItem in buildOptions)
-		{
-            if (buildItem.UnitBuildData.singleBuildType == single)
-            {
-                buildItem.needsBarracks = false;
-                buildItem.trainingBarracks = false;
-            }
-		}
-	}
-
- //   public void UpdateHarborStatus()
- //   {
-	//	foreach (UIBuildOptions buildItem in buildOptions)
-	//	{
-	//		buildItem.trainingBarracks = false;
-	//	}
-	//}
-
-    public void UpdateBarracksStatus(bool isFull)
-    {
-        foreach (UIBuildOptions buildItem in buildOptions)
-        {
-			buildItem.needsBarracks = false;
-            buildItem.travelingBarracks = false;
-            buildItem.trainingBarracks = false;
-			buildItem.fullBarracks = isFull;
-		}
-	}
-
-
 }

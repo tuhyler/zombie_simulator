@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +25,8 @@ public class WorldResourceManager : MonoBehaviour
                 continue;
             resourceDict[resourceType] = 0;
         }
+
+        UpdateUI();
     }
 
     //private void SetInitialResourceValues()

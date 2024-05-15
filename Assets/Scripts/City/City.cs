@@ -3,10 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
-using static UnityEditor.FilePathAttribute;
-using static UnityEditor.Progress;
+using static UnityEditor.PlayerSettings;
 
 public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 {
@@ -220,12 +218,12 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         lightBullet.transform.SetParent(world.psHolder, false);
         lightBullet.Pause();
         pos.y = isHill ? 3.6f : 3f;
-        heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
-        heavenHighlight.transform.SetParent(world.psHolder, false);
-        heavenHighlight.Pause();
-        hellHighlight = Instantiate(hellHighlight, pos, Quaternion.identity);
-        hellHighlight.transform.SetParent(world.psHolder, false);
-        hellHighlight.Pause();
+        //heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
+        //heavenHighlight.transform.SetParent(world.psHolder, false);
+        //heavenHighlight.Pause();
+        //hellHighlight = Instantiate(hellHighlight, pos, Quaternion.identity);
+        //hellHighlight.transform.SetParent(world.psHolder, false);
+        //hellHighlight.Pause();
 
     }
 
@@ -607,7 +605,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         //cityPop.IncreasePopulationAndLabor(amount);
         housingCount -= amount;
         waterCount -= amount;
-        heavenHighlight.Play();
+		heavenHighlight = Instantiate(heavenHighlight, cityLoc, Quaternion.identity);
+		heavenHighlight.transform.SetParent(world.psHolder, false);
+		//heavenHighlight.Play();
 
         if (waterCount <= 0)
             reachedWaterLimit = true;
@@ -735,9 +735,11 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void PlayHellHighlight(Vector3 loc)
     {
-        loc.y += 3f;
-        hellHighlight.transform.position = loc;
-        hellHighlight.Play();
+		loc.y += 3f;
+		hellHighlight = Instantiate(hellHighlight, loc, Quaternion.identity);
+		hellHighlight.transform.SetParent(world.psHolder, false);
+		//hellHighlight.transform.position = loc;
+		//hellHighlight.Play();
     }
 
     public void HouseLightCheck()
@@ -1068,8 +1070,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
     private bool SendAttackCheck()
     {
-        return cityLoc == empire.attackingCity && !enemyCamp.attacked && !enemyCamp.growing && !enemyCamp.movingOut && !enemyCamp.inBattle &&
-            !enemyCamp.prepping && !enemyCamp.attackReady;
+        return co == null && cityLoc == empire.attackingCity && !enemyCamp.attacked && !enemyCamp.growing && !enemyCamp.movingOut && !enemyCamp.inBattle &&
+            !enemyCamp.prepping && !enemyCamp.attackReady && !enemyCamp.returning;
 	}
 
     private IEnumerator SendAttackWait()
@@ -1080,6 +1082,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             countDownTimer--;
         }
 
+        co = null;
         SendAttack();
     }
 

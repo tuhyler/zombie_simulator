@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.VersionControl;
 using UnityEngine;
 
 public class UnitMovement : MonoBehaviour
@@ -1993,7 +1990,7 @@ public class UnitMovement : MonoBehaviour
 
 		if (!selectedUnit.trader.StartingCityCheck())
 		{
-			UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Starting city removed");
+			UIInfoPopUpHandler.WarningMessage().Create(uiTraderPanel.uiBeginTradeRoute.transform.position, "Starting city removed");
 			return;
 		}
 
@@ -2221,16 +2218,16 @@ public class UnitMovement : MonoBehaviour
         world.changingCity = true;
     }
 
-    public void StillOnMilitaryUnitCheck()
-    {
-        if (selectedUnit != null)
-        {
-			uiJoinCity.ToggleVisibility(true);
-			uiSwapPosition.ToggleVisibility(true);
-			uiDeployArmy.ToggleVisibility(true);
-			uiChangeCity.ToggleVisibility(true);
-		}
-    }
+  //  public void StillOnMilitaryUnitCheck()
+  //  {
+  //      if (selectedUnit != null)
+  //      {
+		//	uiJoinCity.ToggleVisibility(true);
+		//	uiSwapPosition.ToggleVisibility(true);
+		//	uiDeployArmy.ToggleVisibility(true);
+		//	uiChangeCity.ToggleVisibility(true);
+		//}
+  //  }
 
     public void AssignGuard(Army army)
     {
@@ -2479,14 +2476,14 @@ public class UnitMovement : MonoBehaviour
 
 		if (world.uiCampTooltip.cantAfford)
         {
-			StartCoroutine(world.uiCampTooltip.Shake());
+			world.uiCampTooltip.ShakeCheck();
 			UIInfoPopUpHandler.WarningMessage().Create(world.uiCampTooltip.attackButton.transform.position, "Can't afford", false);
 			return;
         }
 
         if (!world.attackMovingTarget && world.IsEnemyCityOnTile(potentialAttackLoc) && world.GetEnemyCity(potentialAttackLoc).enemyCamp.movingOut)
         {
-			StartCoroutine(world.uiCampTooltip.Shake());
+			world.uiCampTooltip.ShakeCheck();
 			UIInfoPopUpHandler.WarningMessage().Create(world.uiCampTooltip.attackButton.transform.position, "Can't attack now, enemy deployed", false);
 			return;
         }

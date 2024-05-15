@@ -1,12 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Resources;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEngine.Rendering.DebugUI;
 
 public class UIBuildOptions : MonoBehaviour, IPointerClickHandler 
 {
@@ -43,14 +42,13 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     private List<Transform> produceConsumesHolders = new();
 
-    private bool isUnitPanel, cannotAfford, isShowing;
+    private bool isUnitPanel, cantAfford, isShowing, shaking;
 
     [HideInInspector]
-    public bool needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, isFlashing, somethingNew/*, locked*/;
+    public bool /*needsBarracks, fullBarracks, travelingBarracks, trainingBarracks, waterMax, */isFlashing, somethingNew/*, locked*/;
     //for checking if city can afford resource and if work ethic changes values
     [HideInInspector]
     public List<UIResourceInfoPanel> costResourcePanels = new(), producedResourcePanels = new();
-
 
     private void Awake()
     {
@@ -101,6 +99,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
     //creating the menu card for each buildable object, showing name, function, cost, etc. 
     private void PopulateSelectionPanel()
     {
+        shaking = false;
         string objectDescription = "";
         List<ResourceValue> objectProduced;
         List<int> producedResourceTime;
@@ -459,7 +458,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     public void SetResourceTextToDefault()
     {
-        cannotAfford = false;
+        cantAfford = false;
         foreach (UIResourceInfoPanel resourcePanel in costResourcePanels)
         {
             resourcePanel.resourceAmountText.color = Color.white;
@@ -468,7 +467,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
 
     public void SetResourceTextToRed(ResourceValue resourceValue)
     {
-        cannotAfford = true;
+        cantAfford = true;
         foreach (UIResourceInfoPanel resourcePanel in costResourcePanels)
         {
             if (resourcePanel.resourceType == resourceValue.resourceType)
@@ -490,46 +489,59 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         {
 		    if (buttonHandler.cityBuilderManager.SelectedCity.army != null && buttonHandler.cityBuilderManager.SelectedCity.army.defending)
             {
-                StartCoroutine(Shake());
-                UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");
+				ShakeCheck();
+				UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't build now, enemy approaching");
                 return;
             }
 
             if (unitBuildData != null)
-            {
-                if (needsBarracks)
+			{
+                if (unitBuildData.singleBuildType != SingleBuildType.None && !buttonHandler.cityBuilderManager.SelectedCity.singleBuildDict.ContainsKey(unitBuildData.singleBuildType))
                 {
                     string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
-					StartCoroutine(Shake());
-			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " required");
+					ShakeCheck();
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " required");
 			        return;
 		        }
-                else if (travelingBarracks)
+                else if (unitBuildData.singleBuildType != SingleBuildType.None && buttonHandler.cityBuilderManager.world.GetCityDevelopment(buttonHandler.cityBuilderManager.SelectedCity.singleBuildDict[unitBuildData.singleBuildType]).isTraining)
                 {
 					string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
-					StartCoroutine(Shake());
-			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " currently deployed");
+					ShakeCheck();
+					UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " currently training");
 			        return;
 		        }
-                else if (fullBarracks)
+                else if (unitBuildData.inMilitary)
                 {
-					string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
-					StartCoroutine(Shake());
-			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " full");
-			        return;
-		        }
-                else if (trainingBarracks)
-                {
-					string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
-					StartCoroutine(Shake());
-			        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " currently training");
-			        return;
-		        }
+                    Army army;
+
+                    if (unitBuildData.transportationType == TransportationType.Sea)
+                        army = buttonHandler.cityBuilderManager.SelectedCity.navy;
+                    else if (unitBuildData.transportationType == TransportationType.Air)
+                        army = buttonHandler.cityBuilderManager.SelectedCity.airForce;
+                    else
+                        army = buttonHandler.cityBuilderManager.SelectedCity.army;
+
+					if (army.IsGone())
+                    {
+					    string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+					    ShakeCheck();
+					    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " currently deployed");
+			            return;
+		            }
+                    else if (army.isFull)
+                    {
+					    string building = Regex.Replace(unitBuildData.singleBuildType.ToString(), "((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))", " $1");
+					    ShakeCheck();
+					    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, building + " full");
+			            return;
+		            }
+                }
+                
             }
         
-            if (cannotAfford && !buttonHandler.isQueueing)
+            if (cantAfford && !buttonHandler.isQueueing)
             {
-                StartCoroutine(Shake());
+                ShakeCheck();
                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Can't afford");
                 return;
             }
@@ -550,11 +562,18 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    private void ShakeCheck()
+    {
+        if (!shaking)
+            StartCoroutine(Shake());
+    }
+
     private IEnumerator Shake()
     {
         Vector3 initialPos = transform.localPosition;
         float elapsedTime = 0f;
         float duration = 0.2f;
+        shaking = true;
 
         while (elapsedTime < duration)
         {
@@ -563,6 +582,7 @@ public class UIBuildOptions : MonoBehaviour, IPointerClickHandler
             yield return null;
         }
 
+        shaking = false;
         transform.localPosition = initialPos;
     }
 }

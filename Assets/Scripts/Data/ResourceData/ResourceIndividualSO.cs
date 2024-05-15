@@ -1,5 +1,4 @@
 using UnityEngine;
-//using UnityEngine.UI;
 
 [CreateAssetMenu(fileName = "Resource Data", menuName = "Resource/ResourceData")]
 public class ResourceIndividualSO : ScriptableObject

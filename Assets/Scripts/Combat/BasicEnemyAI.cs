@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.GraphicsBuffer;
 
 public class BasicEnemyAI : MonoBehaviour
 {
@@ -41,6 +39,9 @@ public class BasicEnemyAI : MonoBehaviour
 
 	public void InfantryAggroCheck()
 	{
+		if (unit.isDead)
+			return;
+
 		unit.targetSearching = false;
 
 		List<Vector3Int> attackingZones = new();
@@ -71,8 +72,8 @@ public class BasicEnemyAI : MonoBehaviour
 		}
 
 		//just in case
-		if (unit.enemyCamp.attackingArmy == null)
-			return;
+		//if (unit.enemyCamp.attackingArmy == null)
+		//	return;
 
 		foreach (Vector3Int zone in attackingZones)
 		{
@@ -149,6 +150,9 @@ public class BasicEnemyAI : MonoBehaviour
 
 	public void RangedAggroCheck()
 	{
+		if (unit.isDead)
+			return;
+
 		Military enemy = unit.enemyCamp.FindClosestTarget(unit);
 
 		if (enemy != null)
@@ -157,6 +161,9 @@ public class BasicEnemyAI : MonoBehaviour
 
 	public void CavalryAggroCheck()
 	{
+		if (unit.isDead)
+			return;
+
 		unit.targetSearching = false;
 
 		List<Vector3Int> attackingZones = new();
@@ -187,8 +194,8 @@ public class BasicEnemyAI : MonoBehaviour
 			attackingZones.Add(new Vector3Int(-forward.x, 0, 0) + unit.currentLocation);
 		}
 
-		if (unit.enemyCamp.attackingArmy == null)
-			return;
+		//if (unit.enemyCamp.attackingArmy == null)
+		//	return;
 
 		foreach (Vector3Int zone in attackingZones)
 		{
@@ -395,11 +402,11 @@ public class BasicEnemyAI : MonoBehaviour
 				}
 			}
 		}
-		else if (unit.enemyCamp.attackingArmy == null)
-		{
-			if (!unit.enemyCamp.movingOut && !unit.repositioning) //pillage done else where
-				StartReturn();
-		}
+		//else if (unit.enemyCamp.attackingArmy == null)
+		//{
+		//	if (!unit.enemyCamp.movingOut && !unit.repositioning) //pillage done else where
+		//		StartReturn();
+		//}
 		else if (dist >= distThreshold && unit.enemyCamp.attackingArmy.returning)
 		{
             unit.enemyCamp.TargetSearchCheck();

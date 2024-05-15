@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TMPro;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, ITooltip
@@ -24,7 +22,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 	private HashSet<ResourceType> cantAffordList = new(), resourceTypeList = new();
 
 	[HideInInspector]
-	public bool cantAfford;
+	public bool cantAfford, shaking;
 	[HideInInspector]
 	public Trader trader;
 	[HideInInspector]
@@ -88,6 +86,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 			
 			SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), startingCity.ResourceManager);
 
+			shaking = false;
 			gameObject.SetActive(val);
 			activeStatus = true;
 			world.iTooltip = this;
@@ -294,7 +293,8 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 	{
 		if (cantAfford)
 		{
-			StartCoroutine(Shake());
+			if (!shaking)
+				StartCoroutine(Shake());
 			UIInfoPopUpHandler.WarningMessage().Create(beginButton.transform.position, "Can't afford", false);
 			return false;
 		}
@@ -307,6 +307,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 		Vector3 initialPos = transform.localPosition;
 		float elapsedTime = 0f;
 		float duration = 0.2f;
+		shaking = true;
 
 		while (elapsedTime < duration)
 		{
@@ -315,6 +316,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 			yield return null;
 		}
 
+		shaking = false;
 		transform.localPosition = initialPos;
 	}
 

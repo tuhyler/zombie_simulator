@@ -1,14 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Timeline;
-using static Unity.Burst.Intrinsics.X86.Avx;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.UI.CanvasScaler;
 
 public class Army : MonoBehaviour
 {
@@ -295,7 +288,7 @@ public class Army : MonoBehaviour
 
 		if (armyCount == 0)
         {
-            if (world.uiCampTooltip.EnemyScreenActiveForArmy(this))
+            if (world.deployingArmy)
             {
                 world.unitMovement.CancelArmyDeployment();
 			}
@@ -307,6 +300,8 @@ public class Army : MonoBehaviour
 
             AWOLClear();
 			isEmpty = true;
+            //resetting in case of ties
+            ResetArmy();
         }
         else
         {
@@ -850,8 +845,8 @@ public class Army : MonoBehaviour
                 if (selected)
                     world.unitMovement.ShowIndividualCityButtonsUI();
                 
-                if (city.activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
-                    world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(isFull);
+                //if (city.activeCity && world.cityBuilderManager.uiUnitBuilder.activeStatus)
+                //    world.cityBuilderManager.uiUnitBuilder.UpdateBarracksStatus(isFull);
 
                 if (world.IsEnemyCityOnTile(city.waitingAttackLoc))
                 {
@@ -1219,7 +1214,8 @@ public class Army : MonoBehaviour
                 //world.RemoveFromBattleArea(cavalryRange);
                 movementRange.Clear();
                 cavalryRange.Clear();
-                returning = true;
+                if (unitsInArmy.Count > 0) //in case of tie
+                    returning = true;
                 city.battleIcon.SetActive(false);
                 //if (targetCamp.campCount == 0)
                 targetCamp.ClearCampCheck();
@@ -1280,6 +1276,8 @@ public class Army : MonoBehaviour
             else if (!city)
             {
 				world.mainPlayer.ReturnToFriendlyTile();
+				if (world.azai.isSelected || world.mainPlayer.isSelected)
+					world.unitMovement.SelectWorker();
 				//world.ToggleConversationCam(false, targetCamp.cityLoc, true);
 				targetCamp = null;
 			}
@@ -1287,7 +1285,8 @@ public class Army : MonoBehaviour
             {
                 world.unitMovement.uiCancelTask.ToggleVisibility(false);
                 //world.unitMovement.uiDeployArmy.ToggleTweenVisibility(true);
-                MoveArmyHome(loc);
+                if (unitsInArmy.Count > 0)
+                    MoveArmyHome(loc);
             }
 
             battleAtSea = false;
@@ -1440,6 +1439,7 @@ public class Army : MonoBehaviour
 
         AWOLClear();
 		Military unit = GetMostExpensiveUnit();
+        SelectionCheck(unit);
 		RemoveFromArmy(unit, unit.barracksBunk, true);
         unit.JoinCity(unit.army.city);
 	}
@@ -1459,21 +1459,43 @@ public class Army : MonoBehaviour
         int random = UnityEngine.Random.Range(0, unitsInArmy.Count);
         Military unit = unitsInArmy[random];
         Vector3Int loc = unit.barracksBunk;
+        SelectionCheck(unit);
         RemoveFromArmy(unit, loc, true);
-        if (unit.isSelected)
-        {
-			Military nextUnitUp = GetNextLivingUnit();
-			if (nextUnitUp != null)
-				world.unitMovement.PrepareMovement(nextUnitUp);
-			else
-				world.unitMovement.ClearSelection();
-		}
 
         city.PlaySelectAudio(world.cityBuilderManager.popLoseClip);
         //world.GetCityDevelopment(this.loc).PlayPopLossAudio();
 		unit.DestroyUnit();
         return loc;
     }
+
+    private void SelectionCheck(Military unit)
+    {
+		if (unit.isSelected)
+		{
+			Military nextUnitUp = GetNextLivingUnit(unit);
+			if (nextUnitUp != null)
+			{
+				world.unitMovement.PrepareMovement(nextUnitUp);
+			}
+			else
+			{
+				if (world.deployingArmy)
+					world.unitMovement.CancelArmyDeployment();
+
+                world.somethingSelected = false;
+				world.unitMovement.ClearSelection();
+			}
+		}
+
+		if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader.homeCity == city.cityLoc)
+		{
+			if (!world.uiTradeRouteBeginTooltip.gameObject.activeSelf)
+				world.unitMovement.CloseBuildingSomethingPanelButton();
+
+			world.uiTradeRouteBeginTooltip.ResetTrader();
+			world.uiTradeRouteBeginTooltip.UpdateGuardCosts();
+		}
+	}
 
     public Vector3 GetRandomSpot(Vector3Int current)
     {
@@ -1488,13 +1510,13 @@ public class Army : MonoBehaviour
         return spot;
     }
 
-    public Military GetNextLivingUnit()
+    public Military GetNextLivingUnit(Military unit = null)
     {
         List<Military> tempList = new(unitsInArmy);
         
         for (int i = 0; i < tempList.Count; i++)
         {
-            if (!tempList[i].isDead)
+            if (!tempList[i].isDead && tempList[i] != unit)
                 return tempList[i];
         }
 
@@ -1537,10 +1559,13 @@ public class Army : MonoBehaviour
 		ClearTraveledPath();
         city.battleIcon.SetActive(false);
         inBattle = false;
+        traveling = false;
+        returning = false;
 		atHome = true;
 		cyclesGone = 0;
 		stepCount = 0;
-        DestroyDeadList();
+        if (deadList.Count > 0)
+            DestroyDeadList();
 	}
 
     //if anyone is transferring during battle stations, instantly move them to barracks

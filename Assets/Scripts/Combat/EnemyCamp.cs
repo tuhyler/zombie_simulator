@@ -1,15 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Burst.Intrinsics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Animations;
-using static Unity.Burst.Intrinsics.X86.Avx;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.RuleTile.TilingRuleOutput;
-using static UnityEngine.UI.CanvasScaler;
-//using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class EnemyCamp 
 {
@@ -603,7 +595,7 @@ public class EnemyCamp
 				removingOut = true;
 
 			inBattle = false;
-			if (isCity /*removingOut*/)
+			if (removingOut)
 				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false);
 
 			world.ToggleForestsInBattleClear(attackingArmy.enemyTarget, attackingArmy.attackZone, false);
@@ -630,7 +622,7 @@ public class EnemyCamp
 				{
 					if (deathCount < 9)
 					{
-						attackingArmy = null; //so that safety nets are thrown
+						//attackingArmy = null; //so that safety nets are thrown
 						if (fieldBattleLoc != cityLoc)
 						{
 							RemoveOut();
@@ -651,7 +643,7 @@ public class EnemyCamp
 				else
 				{
 					attackingArmy.defending = false; //defending is ended normally after pillaging
-					attackingArmy = null;
+					//attackingArmy = null;
 				}
 			}
 
@@ -1179,10 +1171,12 @@ public class EnemyCamp
 		if (world.mainPlayer.runningAway)
 			world.mainPlayer.StopRunningAway();
 
+		world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false);
+		attackingArmy.defending = false;
 		City city = world.GetCity(moveToLoc);
 		city.attacked = false;
-		if (city.army != null)
-			city.army.defending = false;
+		//if (city.army != null)
+		//	city.army.defending = false;
 		world.cityDict[moveToLoc].BePillaged(unitsInCamp.Count - deathCount);
 		pillage = false;
 

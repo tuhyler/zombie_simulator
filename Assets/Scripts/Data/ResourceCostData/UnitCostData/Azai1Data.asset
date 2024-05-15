@@ -18,6 +18,8 @@ MonoBehaviour:
   unitDisplayName: Azai
   unitLevel: 1
   unitNameAndLevel: 
+  empireUnit: 0
+  inMilitary: 0
   image: {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
   mapIcon: {fileID: 21300000, guid: aa6b8968fbfea3242b916a72b18db2fd, type: 3}
   unitCost: []

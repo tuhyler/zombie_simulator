@@ -1,8 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Timeline;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class WorkerTaskManager : MonoBehaviour
 {

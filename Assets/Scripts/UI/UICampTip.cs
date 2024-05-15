@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Resources;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 {
@@ -37,7 +35,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 	public EnemyCamp enemyCamp;
 
 	[HideInInspector]
-	public bool cantAfford;
+	public bool cantAfford, shaking;
 	private int currentWidth;
 
 	//for tweening
@@ -122,6 +120,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 			Vector3 pos = Camera.main.ScreenToWorldPoint(p);
 			allContents.transform.position = pos;
 
+			shaking = false;
 			if (enemyCamp == null)
 				WarningCheck();
 			else
@@ -467,11 +466,18 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 			cantAfford = true;
 	}
 
+	public void ShakeCheck()
+	{
+		if (!shaking)
+			StartCoroutine(Shake());
+	}
+
 	public IEnumerator Shake()
 	{
 		Vector3 initialPos = transform.localPosition;
 		float elapsedTime = 0f;
 		float duration = 0.2f;
+		shaking = true;
 
 		while (elapsedTime < duration)
 		{
@@ -480,6 +486,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 			yield return null;
 		}
 
+		shaking = false;
 		transform.localPosition = initialPos;
 	}
 

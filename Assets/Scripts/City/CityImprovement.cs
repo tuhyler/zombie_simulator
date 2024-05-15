@@ -1,4 +1,3 @@
-using Mono.Cecil;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -722,7 +721,21 @@ public class CityImprovement : MonoBehaviour
         {
             if (unit.buildDataSO.singleBuildType == type)
             {
-				world.traderList.Remove(unit.trader);
+				if (unit.isSelected)
+                {
+                    if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == unit)
+                    {
+						if (!world.uiTradeRouteBeginTooltip.gameObject.activeSelf)
+							world.unitMovement.CloseBuildingSomethingPanelButton();
+
+                        world.uiTradeRouteBeginTooltip.ToggleVisibility(false);
+					}
+
+                    world.somethingSelected = false;
+                    world.unitMovement.ClearSelection();
+                }
+                
+                world.traderList.Remove(unit.trader);
 				RemoveTraderFromImprovement(unit);
 				unit.DestroyUnit();
 				break;
