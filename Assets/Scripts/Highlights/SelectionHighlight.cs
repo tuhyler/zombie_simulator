@@ -85,19 +85,22 @@ public class SelectionHighlight : MonoBehaviour
         foreach (MeshRenderer renderer in renderers)
         {
             renderer.material = glow;
-            foreach (Material item in renderer.materials)
-            {
-                item.SetColor("_GlowColor", highlightColor);
-            }
+            renderer.material.SetColor("_GlowColor", highlightColor);
+
+			//foreach (Material item in renderer.materials)
+   //         {
+   //             item.SetColor("_GlowColor", highlightColor);
+   //         }
         }
 
         foreach (SkinnedMeshRenderer renderer in renderersSkinned)
         {
             renderer.material = glow;
-            foreach (Material item in renderer.materials)
-            {
-                item.SetColor("_GlowColor", highlightColor);
-            }
+            renderer.material.SetColor("_GlowColor", highlightColor);
+			//foreach (Material item in renderer.materials)
+   //         {
+   //             item.SetColor("_GlowColor", highlightColor);
+   //         }
         }
     }
 
@@ -119,12 +122,12 @@ public class SelectionHighlight : MonoBehaviour
         }
     }
 
-    public void EnableTransparent(Material atlasSemiClear)
-    {
-		foreach (MeshRenderer renderer in renderers)
-			renderer.material = atlasSemiClear;
+ //   public void EnableTransparent(Material atlasSemiClear)
+ //   {
+	//	foreach (MeshRenderer renderer in renderers)
+	//		renderer.material = atlasSemiClear;
 
-		foreach (SkinnedMeshRenderer renderer in renderersSkinned)
-			renderer.material = atlasSemiClear;
-	}
+	//	foreach (SkinnedMeshRenderer renderer in renderersSkinned)
+	//		renderer.material = atlasSemiClear;
+	//}
 }

@@ -8,7 +8,7 @@ public class TradeRep : Unit
 	public TradeCenter center;
 	[HideInInspector]
 	public string tradeRepName;
-	public Sprite npcImage;
+	//public Sprite npcImage;
 	[HideInInspector]
 	public int rapportScore;
 	public int angryIncrease;

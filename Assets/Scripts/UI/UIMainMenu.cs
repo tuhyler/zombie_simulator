@@ -84,7 +84,8 @@ public class UIMainMenu : MonoBehaviour, IImmoveable
 				dof.focalLength.value = value;
 			});
 			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.5f).setEaseOutSine().setOnComplete(FreezeTime); //so menu doesn't freeze while tweening
-			//dof.focalLength.value = 45;
+																																	  //dof.focalLength.value = 45;
+			Resources.UnloadUnusedAssets();
 		}
 		else
 		{
@@ -99,6 +100,7 @@ public class UIMainMenu : MonoBehaviour, IImmoveable
 			world.uiMainMenuButton.ToggleButtonColor(false);
 			world.BattleCamCheck(false);
 			world.iImmoveable = null;
+			Resources.UnloadUnusedAssets();
 
 			//world.immoveableCanvas.gameObject.SetActive(false);
 			Time.timeScale = 1;
@@ -158,5 +160,11 @@ public class UIMainMenu : MonoBehaviour, IImmoveable
 	{
 		world.cityBuilderManager.PlaySelectAudio();
 		ToggleVisibility(false);
+	}
+
+	public void ExitToDesktopButton()
+	{
+		Cursor.visible = false;
+		Application.Quit();
 	}
 }

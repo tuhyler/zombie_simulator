@@ -32,15 +32,9 @@ public class ConversationHaver : MonoBehaviour
 		unit.somethingToSay = true;
 
 		if (alternateSpeaker != null)
-		{
-			alternateSpeaker.marker.gameObject.SetActive(false);
 			alternateSpeaker.questionMark.SetActive(true);
-		}
 		else
-		{
-			unit.marker.gameObject.SetActive(false);
 			unit.questionMark.SetActive(true);
-		}
 
 		if (unit.isSelected)
 		{
@@ -77,7 +71,7 @@ public class ConversationHaver : MonoBehaviour
 
 	public void SetSpeechBubble()
 	{
-		unit.marker.gameObject.SetActive(false);
+		//unit.marker.gameObject.SetActive(false);
 		unit.world.speechBubble.SetActive(true);
 		unit.world.speechBubble.transform.SetParent(transform, false);
 	}

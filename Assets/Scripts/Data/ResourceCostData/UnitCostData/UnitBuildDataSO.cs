@@ -13,6 +13,7 @@ public class UnitBuildDataSO : ScriptableObject
     public bool empireUnit;
     public bool inMilitary;
     public Sprite image;
+    public string imageName;
     public Sprite mapIcon;
     public List<ResourceValue> unitCost; //cost to build
     public List<ResourceValue> cycleCost; //cost per city cycle

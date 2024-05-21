@@ -27,14 +27,17 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public GameObject selectionCircle, questionMark, exclamationPoint, ripples;
 
-    [SerializeField]
-    public UnitMarker marker;
+    //[SerializeField]
+    //public UnitMarker marker;
 
     [SerializeField]
     public Healthbar healthbar;
 
     [SerializeField]
     public AudioClip[] greetings, attacks, kills;
+
+    [HideInInspector]
+    public Outline outline;
 
     [HideInInspector]
     public AudioSource audioSource;
@@ -73,7 +76,7 @@ public class Unit : MonoBehaviour
     public Vector3Int currentLocation;
     //public Vector3Int CurrentLocation { get { return currentLocation; } set { currentLocation = value; } }
     [HideInInspector]
-    public Vector3Int prevTile, prevTerrainTile, ambushLoc, lastClearTile;
+    public Vector3Int prevTile, prevTerrainTile, ambushLoc/*, lastClearTile*/;
     private int flatlandSpeed, forestSpeed, hillSpeed, forestHillSpeed, roadSpeed;
     [HideInInspector]
     public Coroutine movingCo;
@@ -113,6 +116,9 @@ public class Unit : MonoBehaviour
 
 	protected virtual void AwakeMethods()
     {
+        outline = GetComponentInChildren<Outline>();
+        outline.PrepOutline();
+        outline.ToggleOutline(false);
         audioSource = GetComponent<AudioSource>();
         highlight = GetComponent<SelectionHighlight>();
         if (highlight == null)
@@ -131,8 +137,8 @@ public class Unit : MonoBehaviour
 
         originalMoveSpeed = buildDataSO.movementSpeed;
         bySea = buildDataSO.transportationType == TransportationType.Sea;
-		if (!bySea)
-			marker.Unit = this;
+		//if (!bySea)
+		//	marker.unit = this;
 
 		healthMax = buildDataSO.health;
         currentHealth = healthMax;
@@ -479,8 +485,8 @@ public class Unit : MonoBehaviour
             {
                 if (military.switchLocs.Contains(endPositionInt))
                 {
-                    if (world.GetCityDevelopment(endPositionInt).GetImprovementData.singleBuildType == SingleBuildType.Harbor)
-                        military.ToggleBoat(endPositionInt == military.switchLocs[0]);
+                    //if (world.GetCityDevelopment(endPositionInt).GetImprovementData.singleBuildType == SingleBuildType.Harbor)
+                    military.ToggleBoat(endPositionInt == military.switchLocs[0]);
                 }
             }
 
@@ -859,11 +865,11 @@ public class Unit : MonoBehaviour
 		conversationHaver.SaidSomething();
 	}
 
-	private void CheckPrevTile()
-    {
-        TerrainData td = world.GetTerrainDataAt(lastClearTile);
-        td.ToggleTransparentForest(false);
-    }
+	//private void CheckPrevTile()
+ //   {
+ //       TerrainData td = world.GetTerrainDataAt(lastClearTile);
+ //       td.ToggleTransparentForest(false);
+ //   }
 
     public void TurnOffRipples()
     {
@@ -877,42 +883,64 @@ public class Unit : MonoBehaviour
             ripples.SetActive(false);
 	}
 
+    public void MarkerCheck()
+    {
+        if (isDead)
+            return;
+        
+        Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
+        TerrainData td = world.GetTerrainDataAt(loc);
+
+        if (world.IsBuildLocationTaken(loc) || td.treeHandler)
+            outline.ToggleOutline(true);
+            //marker.ToggleVisibility(true);
+	}
+
     private void OnCollisionEnter(Collision collision)
     {
-        if (enemyAI)
+        if (military && !military.bodyGuard)
         {
-            if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || collision.gameObject.CompareTag("City"))
-				marker.ToggleVisibility(true);
-			else
-				marker.ToggleVisibility(false);
+            if (!military.battleCam && (military.isMarching || military.returning || military.transferring))
+            {
+				Vector3Int loc = world.GetClosestTerrainLoc(collision.gameObject.transform.position);
+                if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
+                    outline.ToggleOutline(true);
+                //marker.ToggleVisibility(true);
+                else
+                    outline.ToggleOutline(false);
+				    //marker.ToggleVisibility(false);
+            }
 		}
-        else if (!bySea)
+        else if (!bySea && !byAir)
         {
             Vector3Int loc = world.GetClosestTerrainLoc(collision.gameObject.transform.position);
-            TerrainData td = world.GetTerrainDataAt(loc);
+            //TerrainData td = world.GetTerrainDataAt(loc);
 
-            if (td.treeHandler != null || world.IsCityOnTile(loc) || world.IsTradeCenterOnTile(loc))
-            //if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsCityOnTile(loc))
+            if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
             {
-                marker.ToggleVisibility(true);
+                outline.ToggleOutline(true);
+                //marker.ToggleVisibility(true);
+                //outline.enabled = true;
 
-				if (isPlayer)
-				{
-					//TerrainData td = collision.gameObject.GetComponent<TerrainData>();
+				//if (isPlayer)
+				//{
+				//	//TerrainData td = collision.gameObject.GetComponent<TerrainData>();
 
-                    CheckPrevTile();
-					td.ToggleTransparentForest(true);
-                    lastClearTile = td.TileCoordinates;
-				}
+    //                CheckPrevTile();
+				//	//td.ToggleTransparentForest(true);
+    //                //lastClearTile = td.TileCoordinates;
+				//}
 			}
 			else
             {
-                marker.ToggleVisibility(false);
+                outline.ToggleOutline(false);
+                //marker.ToggleVisibility(false);
+                //outline.enabled = false;
 
-                if (isPlayer)
-                {
-                    CheckPrevTile();
-                }
+                //if (isPlayer)
+                //{
+                //    CheckPrevTile();
+                //}
             }
         }
     }
@@ -933,7 +961,7 @@ public class Unit : MonoBehaviour
 					if (td.isDiscovered)
 						UnhideUnit();
                     else
-						HideUnit(false);
+						HideUnit();
 				}
 			}
 
@@ -1050,7 +1078,7 @@ public class Unit : MonoBehaviour
         audioSource.clip = kills[UnityEngine.Random.Range(0, kills.Length)];
         audioSource.Play();
 
-        HideUnit(true);
+        HideUnit();
         Vector3 sixFeetUnder = transform.position;
         sixFeetUnder.y -= 6f;
         transform.position = sixFeetUnder;
@@ -1086,12 +1114,12 @@ public class Unit : MonoBehaviour
 		Destroy(gameObject);
 	}
 
-    public void HideUnit(bool hideMarker)
+    public void HideUnit()
     {
 		if (!hidden)
         {
-            if (marker != null)
-                marker.gameObject.SetActive(!hideMarker);
+            //if (marker != null)
+            //    marker.gameObject.SetActive(!hideMarker);
             if (military && military.atSea)
             {
                 military.boatMesh.SetActive(false);
@@ -1111,15 +1139,15 @@ public class Unit : MonoBehaviour
             {
                 military.boatMesh.SetActive(true);
                 ripples.SetActive(true);
-                marker.gameObject.SetActive(false);
+                //marker.gameObject.SetActive(false);
             }
             else
             {
                 unitMesh.SetActive(true);
 
-                TerrainData td = world.GetTerrainDataAt(world.RoundToInt(transform.position));
-				if (!td.CompareTag("Forest") && !td.CompareTag("Forest Hill"))
-					marker.gameObject.SetActive(false);
+                //TerrainData td = world.GetTerrainDataAt(world.RoundToInt(transform.position));
+				//if (!td.CompareTag("Forest") && !td.CompareTag("Forest Hill"))
+				//	marker.gameObject.SetActive(false);
 			}
             if (currentHealth < healthMax)
     		    healthbar.gameObject.SetActive(true);

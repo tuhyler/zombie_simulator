@@ -29,7 +29,7 @@ public class CityImprovement : MonoBehaviour
     [HideInInspector]
     public City meshCity; //for improvements, when mesh combining
     [HideInInspector]
-    public bool queued, building, isConstruction, /*isConstructionPrefab, */isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart, showing, hadRoad;
+    public bool queued, building, isConstruction, /*isConstructionPrefab, */isUpgrading, canBeUpgraded, isTraining, wonderHarbor, firstStart, /*showing, */hadRoad;
     [HideInInspector]
     public List<ResourceValue> upgradeCost = new(), refundCost = new();
     [HideInInspector]
@@ -319,22 +319,22 @@ public class CityImprovement : MonoBehaviour
         if (!highlight.isGlowing)
             return;
 
-        if (!showing)
-            HideImprovement();
+        //if (!showing)
+        HideImprovement();
 
         highlight.DisableHighlight();
     }
 
-    public void EnableMaterial(Material mat)
-    {
-        if (showing)
-            return;
+  //  public void EnableMaterial(Material mat)
+  //  {
+  //      if (showing)
+  //          return;
 
-		for (int i = 0; i < meshFilter.Length; i++)
-			meshFilter[i].gameObject.SetActive(true);
+		//for (int i = 0; i < meshFilter.Length; i++)
+		//	meshFilter[i].gameObject.SetActive(true);
 
-		highlight.EnableTransparent(mat);
-    }
+		//highlight.EnableTransparent(mat);
+  //  }
 
     public void DisableTransparent()
     {

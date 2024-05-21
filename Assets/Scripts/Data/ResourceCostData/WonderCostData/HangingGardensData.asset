@@ -12,11 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f09b9cc3a2a7dc4f82acc0a521a0fdd, type: 3}
   m_Name: HangingGardensData
   m_EditorClassIdentifier: 
-  wonderPrefab: {fileID: 741225248704783947, guid: 8e965df06144fb64397a21179c17dfff,
-    type: 3}
+  wonderPrefabName: HangingGardens
   wonderName: Wonder - Hanging Gardens
   wonderDisplayName: Hanging Gardens
-  wonderDecription: Increases work ethic for cities by 10%
+  wonderDescription: Fill in description
   wonderEra: 0
   workersNeeded: 10
   workerCost: 1
@@ -39,4 +38,3 @@ MonoBehaviour:
   replaceProp: 1
   buildTimePerPercent: 1
   isSea: 0
-  workerData: {fileID: 11400000, guid: 3b8b0e1b059f5324f9eb6edeef6fdc81, type: 2}

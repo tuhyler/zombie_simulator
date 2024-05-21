@@ -8,6 +8,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
     private int laborChange;
     public int LaborChange { get { return laborChange; } }
 
+    [SerializeField]
     private UILaborAssignment buttonHandler;
     [SerializeField]
     private Button button;
@@ -24,7 +25,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
 
     private void Awake()
     {
-        buttonHandler = GetComponentInParent<UILaborAssignment>();
+        //buttonHandler = GetComponentInParent<UILaborAssignment>();
         originalButtonColor = buttonImage.color;
     }
 

@@ -76,8 +76,8 @@ public class UITerrainTooltip : MonoBehaviour, ITooltip
         {
             world.iTooltip = null;
             this.td.DisableHighlight();
-            if (world.GetClosestTerrainLoc(world.mainPlayer.transform.position) == this.td.TileCoordinates)
-                this.td.ToggleTransparentForest(true);
+            //if (world.GetClosestTerrainLoc(world.mainPlayer.transform.position) == this.td.TileCoordinates)
+            //    this.td.ToggleTransparentForest(true);
             this.td = null;
             activeStatus = false;
             LeanTween.scale(allContents, Vector3.zero, 0.25f).setOnComplete(SetActiveStatusFalse);

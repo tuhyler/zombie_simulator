@@ -140,7 +140,7 @@ public class Worker : Unit
         world.playerInput.paused = false;
 		Vector3Int startingLoc = world.GetClosestTerrainLoc(transform.position);
 		prevTerrainTile = startingLoc;
-		lastClearTile = startingLoc;
+		//lastClearTile = startingLoc;
 		currentLocation = startingLoc;
         conversationHaver.SetSomethingToSay("just_landed");
     }
@@ -757,7 +757,8 @@ public class Worker : Unit
 			TerrainData td = world.GetTerrainDataAt(pos);
 			td.beingCleared = false;
 			td.ShowProp(false);
-			worker.marker.ToggleVisibility(false);
+			worker.outline.ToggleOutline(false);
+			//worker.marker.ToggleVisibility(false);
 			TerrainDataSO tempData;
 
 			if (td.isHill)

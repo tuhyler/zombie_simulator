@@ -279,23 +279,29 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 			{
 				string chosenDestination = destinationList[destinationDropdown.value - 1];
 
+				if (!world.TradeStopNameExists(chosenDestination))
+				{
+					UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Selected location is gone", false);
+					return; 
+				}
+				
 				if (isLabor)
 				{
 					world.cityBuilderManager.TransferLaborPrep(chosenDestination, transferAmount, transferSeaDict[chosenDestination]);
 				}
 				else
-				{
+				{	
 					City newCity = world.GetCity(world.GetStopMainLocation(chosenDestination));
 					CityImprovement dest = world.GetCityDevelopment(newCity.singleBuildDict[buildType]);
 
 					if (!dest.army.atHome || dest.army.defending || dest.army.isFull)
 					{
-						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "New location can't take transfers now", false);
+						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Selected location can't take transfers now", false);
 						return;
 					}
 					else if (newCity.attacked)
 					{
-						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "New location is currently attacked", false);
+						UIInfoPopUpHandler.WarningMessage().Create(confirmButton.transform.position, "Selected location is currently attacked", false);
 						return;
 					}
 
@@ -325,7 +331,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 		if (!isLabor)
 		{
 			world.unitMovement.uiJoinCity.ToggleVisibility(true);
-			world.unitMovement.uiSwapPosition.ToggleVisibility(true);
+			//world.unitMovement.uiSwapPosition.ToggleVisibility(true);
 			world.unitMovement.uiDeployArmy.ToggleVisibility(true);
 			world.unitMovement.uiChangeCity.ToggleVisibility(true);
 		}

@@ -21,7 +21,7 @@ public class UISaveGame : MonoBehaviour
     private UIWarning uiWarning;
 
     [SerializeField]
-    private Image screenshot;
+    public Image screenshot;
 
     [SerializeField]
     private TMP_Text titleText, playTime, version, saveLoadText; 
@@ -29,18 +29,19 @@ public class UISaveGame : MonoBehaviour
     [SerializeField]
     private GameObject uiSaveItemGO, screenshotParent, deleteButton;
     private UISaveItem selectedSaveItem;
+    List<UISaveItem> saveItemList = new();
 
     [HideInInspector]
     public List<string> currentSaves = new();
-    private bool newItem, load, populated;
+    private bool newItem, load/*, populated*/;
     [HideInInspector]
     public bool activeStatus;
 
 	private void Start()
 	{
-        if (!populated)
-            PopulateSaveItems();
-		gameObject.SetActive(false);
+        //if (!populated)
+        //    PopulateSaveItems();
+        gameObject.SetActive(false);
 
 		saveField.onValidateInput += delegate (string input, int charIndex, char addedChar) { return AlphaNumericSpaceCheck(addedChar); };
 	}
@@ -71,15 +72,16 @@ public class UISaveGame : MonoBehaviour
         foreach (string fullSavedName in Directory.GetFiles(Application.persistentDataPath, "*.save"))
 		{
             string[] saveBreaks = fullSavedName.Split("\\");
-			string savedName = "/" + saveBreaks[saveBreaks.Length-1];
+			string fileName = "/" + saveBreaks[saveBreaks.Length-1];
+            string saveName = fileName.Substring(1, fileName.Length - 6);
 
-            currentSaves.Add(savedName.Substring(1,savedName.Length-6));
+			currentSaves.Add(saveName);
             GameData gameData /*= GameManager.Instance.GetLoadInfo(savedName)*/;
 
             if (GameLoader.Instance == null)
-                gameData = GameManager.Instance.GetLoadInfo(savedName);
+                gameData = GameManager.Instance.GetLoadInfo(fileName);
             else
-                gameData = GameLoader.Instance.gamePersist.LoadData(savedName, false);
+                gameData = GameLoader.Instance.gamePersist.LoadData(fileName, false);
 
             if (gameData == null)
             {
@@ -87,20 +89,20 @@ public class UISaveGame : MonoBehaviour
                 continue;
             }
 
-			GameObject item = Instantiate(uiSaveItemGO);
-			//item.transform.SetParent(saveHolder, false);
+            GameObject item = Instantiate(uiSaveItemGO);
 			UISaveItem uiSaveItem = item.GetComponent<UISaveItem>();
 			uiSaveItem.SetSaveGameMenu(this);
-
-			string nameTrunc = gameData.saveName.Substring(1, gameData.saveName.Length - 6);
-			uiSaveItem.saveName = nameTrunc;
-            uiSaveItem.saveItemText.text = nameTrunc;
+            //uiSaveItem.loaded = true;
+            uiSaveItem.fileName = fileName;
+			uiSaveItem.saveName = saveName;
+            uiSaveItem.saveItemText.text = saveName;
             uiSaveItem.playTime = gameData.savePlayTime;
             uiSaveItem.version = gameData.saveVersion;
-            Texture2D texture = new Texture2D(1200, 900, TextureFormat.ARGB32, false);
-            Rect rect = new Rect(0, 0, texture.width, texture.height);    
-            texture.LoadImage(Convert.FromBase64String(gameData.saveScreenshot));
-            uiSaveItem.screenshot = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+            //Texture2D texture = new Texture2D(1200, 900, TextureFormat.ARGB32, false);
+            //Rect rect = new Rect(0, 0, texture.width, texture.height);
+            //texture.LoadImage(Convert.FromBase64String(gameData.saveScreenshot));
+            //uiSaveItem.screenshot = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+            //uiSaveItem.screenshot = Resources.Load<Sprite>("Assets/Resources/SaveScreens" + saveName + ".png");
             uiSaveItem.dateTime = Convert.ToDateTime(gameData.saveDate);
             saveItems.Add(uiSaveItem);
 		}
@@ -108,11 +110,48 @@ public class UISaveGame : MonoBehaviour
         List<UISaveItem> newSaveItems = saveItems.OrderByDescending(s => s.dateTime).ToList();
 
         for (int i = 0; i < newSaveItems.Count; i++)
+        {
             newSaveItems[i].transform.SetParent(saveHolder, false);
+            saveItemList.Add(newSaveItems[i]);
+        }
 
-        populated = true;
+        //populated = true;
         Resources.UnloadUnusedAssets();
 	}
+
+ //   private void PopulateSaveNames()
+ //   {
+	//	List<UISaveItem> saveItems = new();
+
+	//	foreach (string fullSavedName in Directory.GetFiles(Application.persistentDataPath, "*.save"))
+	//	{
+	//		string[] saveBreaks = fullSavedName.Split("\\");
+	//		string fileName = "/" + saveBreaks[saveBreaks.Length - 1];
+	//		string saveName = fileName.Substring(1, fileName.Length - 6);
+
+	//		currentSaves.Add(saveName);
+
+	//		GameObject item = Instantiate(uiSaveItemGO);
+	//		UISaveItem uiSaveItem = item.GetComponent<UISaveItem>();
+	//		uiSaveItem.SetSaveGameMenu(this);
+
+	//		uiSaveItem.fileName = fileName;
+	//		uiSaveItem.saveName = saveName;
+	//		uiSaveItem.saveItemText.text = saveName;
+	//		saveItems.Add(uiSaveItem);
+	//	}
+
+	//	List<UISaveItem> newSaveItems = saveItems.OrderByDescending(s => s.dateTime).ToList();
+
+	//	for (int i = 0; i < newSaveItems.Count; i++)
+	//	{
+	//		newSaveItems[i].transform.SetParent(saveHolder, false);
+	//		saveItemList.Add(newSaveItems[i]);
+	//	}
+
+	//	//populated = true;
+	//	Resources.UnloadUnusedAssets();
+	//}
 
 	public void ToggleVisibility(bool v, bool load = false)
     {
@@ -121,6 +160,8 @@ public class UISaveGame : MonoBehaviour
 
         if (v)
         {
+            //if (world != null)
+            //    PopulateSaveNames();
             this.load = load;
             playTime.gameObject.SetActive(false);
 			version.gameObject.SetActive(false);
@@ -154,8 +195,24 @@ public class UISaveGame : MonoBehaviour
                 selectedSaveItem.UnselectItem();
                 selectedSaveItem = null;
             }
+
+            //if (world != null)
+            //    ClearSaveItems();
+
+            saveItemList.Clear();
         }
     }
+
+ //   public void ClearSaveItems()
+ //   {
+	//	for (int i = 0; i < saveItemList.Count; i++)
+ //       {
+	//		Destroy(saveItemList[i].screenshot);
+	//		Destroy(saveItemList[i].gameObject);
+ //       }
+
+	//	Resources.UnloadUnusedAssets();
+	//}
 
     public void CloseSaveGameButton()
     {
@@ -216,6 +273,7 @@ public class UISaveGame : MonoBehaviour
 		version.gameObject.SetActive(false);
 		screenshotParent.SetActive(false);
 
+        File.Delete("Assets/Resources/SaveScreens/" + selectedSaveItem.saveName + ".png");
 		File.Delete(path);
 	}
 
@@ -226,6 +284,8 @@ public class UISaveGame : MonoBehaviour
             if (selectedSaveItem == null)
                 return;
 
+            Cursor.visible = false;
+
             if (world != null)
             {
                 foreach (GameObject go in GameLoader.Instance.textList)
@@ -233,22 +293,25 @@ public class UISaveGame : MonoBehaviour
             }
 
             Cursor.visible = false;
+            selectedSaveItem.screenshot = null;
+            screenshot.sprite = null;
             if (GameLoader.Instance == null)
             {
 				string loadName = selectedSaveItem.saveName;
 				ToggleVisibility(false);
 
                 //have to do this here, others are in "MapWorld.ClearMap()"
-                if (world != null)
-                {
-                    foreach (Transform go in world.unitHolder)
-                    {
-                        Unit unit = go.GetComponent<Unit>();
-                        if (unit.marker != null)
-                            unit.marker.gameObject.SetActive(false);
-				    }
-                }
+        //        if (world != null)
+        //        {
+        //            foreach (Transform go in world.unitHolder)
+        //            {
+        //                Unit unit = go.GetComponent<Unit>();
+        //                //if (unit.marker != null)
+        //                //    unit.marker.gameObject.SetActive(false);
+				    //}
+        //        }
 
+                //ClearSaveItems();
                 GameManager.Instance.LoadGame(loadName);
                 return;
 			}
@@ -284,7 +347,7 @@ public class UISaveGame : MonoBehaviour
         world.StartSaveProcess(saveName);
     }
 
-    public void UpdateSaveItems(string saveName, float savePlayTime, string saveVersion, Texture2D saveScreenshot)
+    public void UpdateSaveItems(string saveName, float savePlayTime, string saveVersion/*, Texture2D saveScreenshot*/)
     {
         if (newItem)
         {
@@ -298,15 +361,15 @@ public class UISaveGame : MonoBehaviour
 			uiSaveItem.saveItemText.text = saveName;
 			uiSaveItem.playTime = savePlayTime;
 			uiSaveItem.version = saveVersion;
-			Rect rect = new Rect(0, 0, saveScreenshot.width, saveScreenshot.height);
-			uiSaveItem.screenshot = Sprite.Create(saveScreenshot, rect, new Vector2(0.5f, 0.5f));
+			//Rect rect = new Rect(0, 0, saveScreenshot.width, saveScreenshot.height);
+			//uiSaveItem.screenshot = Sprite.Create(saveScreenshot, rect, new Vector2(0.5f, 0.5f));
 		}
         else
         {
             selectedSaveItem.playTime = savePlayTime;
             selectedSaveItem.version = saveVersion;
-			Rect rect = new Rect(0, 0, saveScreenshot.width, saveScreenshot.height);
-			selectedSaveItem.screenshot = Sprite.Create(saveScreenshot, rect, new Vector2(0.5f, 0.5f));
+			//Rect rect = new Rect(0, 0, saveScreenshot.width, saveScreenshot.height);
+			//selectedSaveItem.screenshot = Sprite.Create(saveScreenshot, rect, new Vector2(0.5f, 0.5f));
 		}
 	}
 

@@ -13,6 +13,7 @@ public class UIWorkerOptions : MonoBehaviour, IPointerClickHandler
     private Color originalButtonColor;
     [HideInInspector]
     public bool isSelected, isFlashing;
+    [SerializeField]
     private Button button;
 
     private void Awake()

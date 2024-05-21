@@ -56,7 +56,7 @@ public class UIResourceGivingPanel : MonoBehaviour
 			activeStatus = true;
 			unitNameTitle.text = "Gift to " + tradeRep.tradeRepName;
 			nameHolder.sizeDelta = new Vector3(170 + 16*tradeRep.tradeRepName.Length, 50);
-			tradeRepImage.sprite = tradeRep.npcImage;
+			tradeRepImage.sprite = Resources.Load<Sprite>("MyConvoFaces/" + tradeRep.buildDataSO.imageName);
 			giftedResource.resourceType = ResourceType.None;
 			giftedResource.resourceAmount = 0;
 			giftedResource.gameObject.SetActive(false);

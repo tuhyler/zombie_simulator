@@ -40,6 +40,9 @@ public class MilitaryLeader : Military
 			world.SetNPCLoc(actualPosition, this);
 
 		currentLocation = world.RoundToInt(actualPosition);
+
+		if (!defending && !dueling)
+			outline.ToggleOutline(true);
 		//world.allTCReps[npcName] = this;
 	}
 

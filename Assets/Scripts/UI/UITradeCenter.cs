@@ -84,7 +84,7 @@ public class UITradeCenter : MonoBehaviour, IGoldUpdateCheck
             world.tcCanvas.gameObject.SetActive(true);
             gameObject.SetActive(v);
             ownerName.text = "Rapport with " + center.tcRep.tradeRepName;
-            ownerImage.sprite = center.tcRep.npcImage;
+            ownerImage.sprite = Resources.Load<Sprite>("MyConvoFaces/" + center.tcRep.buildDataSO.imageName);
             increaseText.text = "+" + center.tcRep.angryIncrease.ToString() + "%";
             decreaseText.text = "-" + center.tcRep.happyDiscount.ToString() + "%,";
             ecstaticText.text = "-" + center.tcRep.ecstaticDiscount.ToString() + "%";

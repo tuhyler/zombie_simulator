@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f09b9cc3a2a7dc4f82acc0a521a0fdd, type: 3}
   m_Name: PyramidsData
   m_EditorClassIdentifier: 
-  wonderPrefab: {fileID: 741225248704783947, guid: 86919d8d2103eed4a84b1b9087b91e8d,
-    type: 3}
+  wonderPrefabName: Pyramids
   wonderName: Wonder - Pyramids
   wonderDisplayName: Pyramids
   wonderDescription: Fill in description

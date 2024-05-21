@@ -5,6 +5,7 @@ using UnityEngine;
 public class WonderDataSO : ScriptableObject
 {
     public GameObject wonderPrefab;
+    public string wonderPrefabName;
     public string wonderName;
     public string wonderDisplayName;
     public string wonderDescription = "Fill in description";

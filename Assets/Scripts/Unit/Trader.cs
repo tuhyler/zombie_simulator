@@ -703,7 +703,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			}
 
 			guarded = false;
-			guardUnit.military.GuardToBunkCheck(homeCity);
+			guardUnit.military.GuardToBunkCheck(homeCity, false);
 			guardUnit = null;
 	
 			if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == this)
@@ -826,7 +826,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				}
 				
 				guarded = false;
-				guardUnit.military.GuardToBunkCheck(currentLoc);
+				guardUnit.military.GuardToBunkCheck(currentLoc, false);
 				guardUnit = null;
 
 				if (world.uiTradeRouteBeginTooltip.activeStatus && world.uiTradeRouteBeginTooltip.trader == this)
@@ -1479,8 +1479,8 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 		{
 			//assuming trader is last to be killed in ambush
 			Vector3Int ambushLoc = world.GetClosestTerrainLoc(transform.position);
-			if (world.GetTerrainDataAt(ambushLoc).treeHandler != null)
-				world.GetTerrainDataAt(ambushLoc).ToggleTransparentForest(false);
+			//if (world.GetTerrainDataAt(ambushLoc).treeHandler != null)
+			//	world.GetTerrainDataAt(ambushLoc).ToggleTransparentForest(false);
 
 			world.ClearAmbush(ambushLoc);
 			world.uiAttackWarning.AttackWarningCheck(ambushLoc);

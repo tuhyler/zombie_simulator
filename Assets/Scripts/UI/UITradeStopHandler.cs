@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEditor;
+using System;
 
 public class UITradeStopHandler : MonoBehaviour
 {
@@ -232,7 +233,8 @@ public class UITradeStopHandler : MonoBehaviour
             waitForever = false;
             //waitSlider.gameObject.SetActive(true);
             waitTimeText.gameObject.SetActive(true);
-            waitSlider.value = ArrayUtility.IndexOf(secondPool, waitTime);
+            waitSlider.value = Array.IndexOf(secondPool, waitTime);
+            //waitSlider.value = ArrayUtility.IndexOf(secondPool, waitTime);
             waitTimeText.text = waitTime.ToString();
             //inputWaitTime.interactable = true;
             waitForeverToggle.isOn = false;
@@ -255,7 +257,7 @@ public class UITradeStopHandler : MonoBehaviour
 
     public void SetWaitTimeValue()
     {
-        waitSlider.value = ArrayUtility.IndexOf(secondPool, waitTime);
+        waitSlider.value = Array.IndexOf(secondPool, waitTime);
         waitTimeText.text = waitTime.ToString();
     }
 

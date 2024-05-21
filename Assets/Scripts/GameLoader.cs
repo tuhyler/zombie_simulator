@@ -211,7 +211,7 @@ public class GameLoader : MonoBehaviour
 		StartCoroutine(WaitASec());
 	}
 
-	public void SaveGame(string saveNameRaw, float playTime, string version, string screenshot)
+	public void SaveGame(string saveNameRaw, float playTime, string version/*, string screenshot*/)
 	{
 		//string saveName = "game_data";
 		gameData.saveDate = System.DateTime.Now.ToString();
@@ -219,7 +219,7 @@ public class GameLoader : MonoBehaviour
 		gameData.saveName = saveName;
 		gameData.savePlayTime += playTime;
 		gameData.saveVersion = version;
-		gameData.saveScreenshot = screenshot;
+		//gameData.saveScreenshot = screenshot;
 		gameData.currentEra = world.currentEra;
 		gameData.startingRegion = world.startingRegion;
 		gameData.currentWorkedTileDict = new(world.currentWorkedTileDict);
@@ -464,7 +464,7 @@ public class GameLoader : MonoBehaviour
 		if (!world.scottFollow)
 		{
 			world.scott.gameObject.tag = "Character";
-			world.scott.marker.gameObject.tag = "Character";
+			//world.scott.marker.gameObject.tag = "Character";
 			world.scott.gameObject.SetActive(false);
 			world.characterUnits.Remove(world.scott);
 			world.RemovePlayerPosition(world.RoundToInt(world.scott.transform.position));
@@ -474,7 +474,7 @@ public class GameLoader : MonoBehaviour
 		if (!world.azaiFollow)
 		{
 			world.azai.gameObject.tag = "Character";
-			world.azai.marker.gameObject.tag = "Character";
+			//world.azai.marker.gameObject.tag = "Character";
 			world.azai.gameObject.SetActive(false);
 			world.characterUnits.Remove(world.azai);
 			world.RemovePlayerPosition(world.RoundToInt(world.azai.transform.position));
@@ -540,7 +540,7 @@ public class GameLoader : MonoBehaviour
 			world.azai.gameObject.SetActive(true);
 		world.azai.LoadBodyGuardData(gameData.azai);
 		world.mainPlayer.LoadWorkerData(gameData.playerUnit);
-		world.mainPlayer.lastClearTile = world.RoundToInt(world.mainPlayer.transform.position);
+		//world.mainPlayer.lastClearTile = world.RoundToInt(world.mainPlayer.transform.position);
 
 		//traders
 		for (int i = 0; i < gameData.allTraders.Count; i++)
@@ -605,16 +605,16 @@ public class GameLoader : MonoBehaviour
 		{
 			if ((city.enemyCamp.inBattle && !city.enemyCamp.retreat) || city.enemyCamp.prepping || city.enemyCamp.attackReady)
 				world.ToggleBattleCam(city.cityLoc, city.enemyCamp.attackingArmy.city.cityLoc, true);
-			if (city.enemyCamp.inBattle && !city.enemyCamp.retreat)
-				world.ToggleForestsInBattleClear(city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
+			//if (city.enemyCamp.inBattle && !city.enemyCamp.retreat)
+			//	world.ToggleForestsInBattleClear(city.enemyCamp.attackingArmy.enemyTarget, city.enemyCamp.attackingArmy.attackZone, true);
 		}
 		attackingEnemyCitiesList.Clear();
 
-		foreach (Vector3Int loc in gameData.attackedEnemyBases.Keys)
-		{
-			if (gameData.attackedEnemyBases[loc].inBattle && !gameData.attackedEnemyBases[loc].retreat)
-				world.ToggleForestsInBattleClear(world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
-		}
+		//foreach (Vector3Int loc in gameData.attackedEnemyBases.Keys)
+		//{
+		//	if (gameData.attackedEnemyBases[loc].inBattle && !gameData.attackedEnemyBases[loc].retreat)
+		//		world.ToggleForestsInBattleClear(world.GetEnemyCamp(loc).attackingArmy.enemyTarget, world.GetEnemyCamp(loc).attackingArmy.attackZone, true);
+		//}
 
 		world.uiAttackWarning.LoadAttackLocs(gameData.attackLocs);
 		gameData.attackLocs.Clear();

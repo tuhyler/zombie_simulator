@@ -2,17 +2,18 @@ using UnityEngine;
 
 public class UnitMarker : MonoBehaviour
 {
-    private Unit unit;
-    public Unit Unit { get { return unit; } set { unit = value; } }
+    [HideInInspector]
+    public Unit unit;
 
     private bool activeStatus = true;
 
     private void Awake()
     {
-        ToggleVisibility(false);
-    }
+		activeStatus = false;
+		gameObject.SetActive(false);
+	}
 
-    private void LateUpdate()
+	private void LateUpdate()
     {
         transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
     }
@@ -22,6 +23,8 @@ public class UnitMarker : MonoBehaviour
         if (v == activeStatus)
             return;
 
+        unit.outline.ToggleOutline(v);
+        //unit.outline.enabled = v;
         activeStatus = v;
         gameObject.SetActive(v);
     }
