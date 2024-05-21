@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -28,24 +29,31 @@ public class UISettings : MonoBehaviour
 
 	private void Awake()
 	{
-        resolutions = Screen.resolutions;
+        Resolution[] tempResolutions = Screen.resolutions;
+        //resolutions = Screen.resolutions;
+        List<Resolution> tempResolutionList = new();
 
         List<string> options = new();
         int currentResolution = 0;
 
-        for (int i = 0; i < resolutions.Length; i++)
+        for (int i = 0; i < tempResolutions.Length; i++)
         {
-            string option = resolutions[i].width + "x" + resolutions[i].height;
+            //if (tempResolutions[i].width < 1920)
+            //    continue;
+
+            tempResolutionList.Add(tempResolutions[i]);
+            string option = tempResolutions[i].width + "x" + tempResolutions[i].height;
             options.Add(option);
 
-            if (resolutions[i].width == Screen.currentResolution.width && resolutions[i].height == Screen.currentResolution.height)
+            if (tempResolutions[i].width == Screen.currentResolution.width && tempResolutions[i].height == Screen.currentResolution.height)
                 currentResolution = i;
         }
 
+        resolutions = tempResolutionList.ToArray(); 
 		resolutionDropdown.AddOptions(options);
         resolutionDropdown.value = currentResolution;
         resolutionDropdown.RefreshShownValue();
- 	}
+	}
 
 	private void Start()
 	{
@@ -55,6 +63,12 @@ public class UISettings : MonoBehaviour
             {
                 SettingsData data = GameManager.Instance.gamePersist.LoadSettings();
                 LoadSettings(data);
+            }
+            else
+            {
+				Resolution resolution = resolutions[resolutions.Length - 1];
+				Screen.SetResolution(resolution.width, resolution.height, true);
+                resolutionDropdown.value = resolutions.Length - 1;
             }
         }
 

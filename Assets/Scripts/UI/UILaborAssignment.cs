@@ -17,7 +17,7 @@ public class UILaborAssignment : MonoBehaviour
 
     [SerializeField]
     private Transform uiElementsParent;
-    private List<UILaborAssignmentOptions> laborOptions;
+    private List<UILaborAssignmentOptions> laborOptions = new();
 
     [SerializeField]
     public GameObject showPrioritiesButton;
@@ -34,8 +34,6 @@ public class UILaborAssignment : MonoBehaviour
     {
         originalLoc = allContents.anchoredPosition3D;
         gameObject.SetActive(false); //Hide to start
-
-        laborOptions = new List<UILaborAssignmentOptions>(); //instantiate
 
         foreach (Transform selection in uiElementsParent) //populate list
         {

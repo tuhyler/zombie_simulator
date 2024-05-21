@@ -18,7 +18,10 @@ MonoBehaviour:
   unitDisplayName: Haniya
   unitLevel: 1
   unitNameAndLevel: Haniya-1
+  empireUnit: 0
+  inMilitary: 0
   image: {fileID: 0}
+  imageName: HaniyaHappy
   mapIcon: {fileID: 0}
   unitCost: []
   cycleCost: []
@@ -38,8 +41,6 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 1
   npc: 1
-  borderColor: {r: 0, g: 0, b: 0, a: 0}
-  colorOne: {x: 0, y: 0}
-  colorTwo: {x: 0, y: 0}
+  singleBuildType: 0
   unitEra: 0
   unitRegion: 1

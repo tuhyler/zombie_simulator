@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
 	public GamePersist gamePersist = new();
 	[HideInInspector]
 	public SettingsData settingsData = new();
-	public List<Sprite> loadingScreenImages = new();
+	public List<string> loadingScreenImages = new();
 	public List<string> loadingTips = new();
 
 	private void Awake()
@@ -36,7 +36,8 @@ public class GameManager : MonoBehaviour
 	public void NewGame(string starting, string landType, string resource, /*string mountains,*/string enemy, string mapSize, bool tutorial)
 	{
 		loadingScreen.SetActive(true);
-		loadingBackground.sprite = loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
+		loadingBackground.sprite = Resources.Load<Sprite>("MyLoadingImages/" + loadingScreenImages[Random.Range(0, loadingScreenImages.Count)]);
+		//loadingBackground.sprite = Resources.Load<Sprite>("MyLoadingImages/pyramids1");// loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
 		StartCoroutine(GenerateTip());
 		tipsText.outlineColor = Color.black;
 		tipsText.outlineWidth = 0.3f;
@@ -51,7 +52,8 @@ public class GameManager : MonoBehaviour
 	{
 		isLoading = true;
 		loadingScreen.SetActive(true);
-		loadingBackground.sprite = loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
+		loadingBackground.sprite = Resources.Load<Sprite>("MyLoadingImages/" + loadingScreenImages[Random.Range(0, loadingScreenImages.Count)]);
+		//loadingBackground.sprite = Resources.Load<Sprite>("MyLoadingImages/pyramids1");// loadingScreenImages[Random.Range(0, loadingScreenImages.Count)];
 		StartCoroutine(GenerateTip());
 		tipsText.outlineColor = Color.black;
 		tipsText.outlineWidth = 0.3f;
@@ -70,7 +72,6 @@ public class GameManager : MonoBehaviour
 
 	public void BackToMainMenu(bool load, string loadName = "")
 	{
-		//loadingScreen.SetActive(true);
 		scenesLoading.Clear();
 		scenesLoading.Add(SceneManager.UnloadSceneAsync((int)SceneIndexes.MAIN));
 		scenesLoading.Add(SceneManager.LoadSceneAsync((int)SceneIndexes.TITLE_SCREEN, LoadSceneMode.Additive));
@@ -132,6 +133,8 @@ public class GameManager : MonoBehaviour
 
 		loadingScreen.SetActive(false);
 		scenesLoading.Clear();
+		loadingBackground.sprite = null;
+		Resources.UnloadUnusedAssets();
 	}
 
 	public IEnumerator GetDataLoadProgress()
@@ -144,6 +147,8 @@ public class GameManager : MonoBehaviour
 		loadingScreen.SetActive(false);
 		isLoading = false;
 		scenesLoading.Clear();
+		loadingBackground.sprite = null;
+		Resources.UnloadUnusedAssets();
 	}
 
 	public void ResetProgress()

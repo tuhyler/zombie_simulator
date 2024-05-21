@@ -1,0 +1,306 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &1566781299035226253
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1273472742864187899, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: npcImage
+      value: 
+      objectReference: {fileID: 21300000, guid: 2f63f28d354608347a986abbdd8391ac,
+        type: 3}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: unitMesh
+      value: 
+      objectReference: {fileID: 2896222466084433261}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: buildDataSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 316a90ab665118241baea447cac42fcb,
+        type: 2}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: angryIncrease
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: happyDiscount
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: ecstaticDiscount
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.data[0]
+      value: '- wants 5 stone'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questRewardsInGold.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questRewardsInGold.Array.data[0]
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[0].resourceType
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242731110273484311, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[0].resourceAmount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3136344403743662241, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4084126454760206941, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_Name
+      value: Haniya
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5338010617480299587, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: npcName
+      value: Haniya
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: npcImage
+      value: 
+      objectReference: {fileID: 21300000, guid: 2f63f28d354608347a986abbdd8391ac,
+        type: 3}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: unitMesh
+      value: 
+      objectReference: {fileID: 2896222466084433261}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: buildDataSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 316a90ab665118241baea447cac42fcb,
+        type: 2}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: angryIncrease
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: happyDiscount
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questHints.Array.data[0]
+      value: '- wants 10 lumber'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[0].resourceType
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6133053015447802254, guid: 432df29316b977a4c942eae3d5e6b4fe,
+        type: 3}
+      propertyPath: questGoals.Array.data[0].resourceAmount
+      value: 10
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 432df29316b977a4c942eae3d5e6b4fe, type: 3}
+--- !u!4 &293327695754277238 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1273472742864187899, guid: 432df29316b977a4c942eae3d5e6b4fe,
+    type: 3}
+  m_PrefabInstance: {fileID: 1566781299035226253}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2369062481096902917
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 293327695754277238}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_Name
+      value: Haniya
+      objectReference: {fileID: 0}
+    - target: {fileID: 1630794972795428178, guid: 10f7d8998e9ed7942a942ed93565de22,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: fdf7fa06379a9a944aa7a47b74142d4a, type: 2}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 10f7d8998e9ed7942a942ed93565de22, type: 3}
+--- !u!1 &2896222466084433261 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 635547659545568360, guid: 10f7d8998e9ed7942a942ed93565de22,
+    type: 3}
+  m_PrefabInstance: {fileID: 2369062481096902917}
+  m_PrefabAsset: {fileID: 0}

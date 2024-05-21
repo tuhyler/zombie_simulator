@@ -809,17 +809,17 @@ public class TerrainData : MonoBehaviour
 			highlight.DisableHighlight();
 	}
 
-    public void ToggleTransparentForest(bool v)
-    {
-        if (treeHandler != null)
-        {
-            treeHandler.ToggleForestClear(v, isHill, world.atlasSemiClear);
-        } 
-        else if (world.IsTradeCenterOnTile(tileCoordinates))
-        {
-            world.GetTradeCenter(tileCoordinates).ToggleClear(v);
-        }
-    }
+    //public void ToggleTransparentForest(bool v)
+    //{
+    //    if (treeHandler != null)
+    //    {
+    //        treeHandler.ToggleForestClear(v, isHill, world.atlasSemiClear);
+    //    } 
+    //    else if (world.IsTradeCenterOnTile(tileCoordinates))
+    //    {
+    //        world.GetTradeCenter(tileCoordinates).ToggleClear(v);
+    //    }
+    //}
 
     public void ResetMovementCost()
     {

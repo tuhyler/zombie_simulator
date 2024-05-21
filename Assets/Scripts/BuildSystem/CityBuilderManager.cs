@@ -669,12 +669,12 @@ public class CityBuilderManager : MonoBehaviour
         if (uiWonderSelection.activeStatus && uiWonderSelection.wonder == wonder)
             uiWonderSelection.UpdateUIWorkers(0, wonder);
 
-        List<Vector3Int> locs = wonder.OuterRim();
+        List<Vector3> locs = wonder.OuterRim();
 
-        List<Vector3Int> tempLocs = new(locs);
+        List<Vector3> tempLocs = new(locs);
         for (int i = 0; i < tempLocs.Count; i++)
         {
-            if (!world.PlayerCheckIfPositionIsValid(tempLocs[i]))
+            if (!world.PlayerCheckIfPositionIsValid(world.RoundToInt(tempLocs[i])))
                 locs.Remove(tempLocs[i]);
 		}
 
@@ -699,7 +699,7 @@ public class CityBuilderManager : MonoBehaviour
             unit.transform.SetParent(friendlyUnitHolder, false);
             unit.transform.rotation = Quaternion.LookRotation(wonder.centerPos - unit.transform.position);
             Unit newUnit = unit.GetComponent<Unit>();
-            newUnit.laborer.marker.ToggleVisibility(true);
+            //newUnit.marker.ToggleVisibility(true);
             world.laborerList.Add(newUnit.laborer);
 			newUnit.laborer.StartLaborAnimations(false, wonder.workerSexAndHome[i].Item2);
                     
@@ -1443,8 +1443,6 @@ public class CityBuilderManager : MonoBehaviour
             return;
         }
 
-		GameObject unitGO = unitData.prefab;
-
         Vector3 buildLoc = buildPosition;
         if (world.GetTerrainDataAt(buildPosition).isHill)
         {
@@ -1454,10 +1452,10 @@ public class CityBuilderManager : MonoBehaviour
                 buildLoc.y += .3f;
         }
 
-		GameObject unit = Instantiate(unitGO, buildLoc, Quaternion.identity); //produce unit at specified position
+		GameObject unit = Instantiate(unitData.prefab, buildLoc, Quaternion.identity); //produce unit at specified position
         unit.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
-        Vector3 goScale = unitGO.transform.localScale;
+        Vector3 goScale = unit.transform.localScale;
         float scaleX = goScale.x;
         float scaleZ = goScale.z;
         unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
@@ -1533,13 +1531,12 @@ public class CityBuilderManager : MonoBehaviour
 			   // uiUnitBuilder.UpdateTrainingStatus(unitData.singleBuildType);
 		}
 
-		GameObject unitGO = unitData.prefab;
         Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
-		GameObject unit = Instantiate(unitGO, buildPosition, rotation); //produce unit at specified position
+		GameObject unit = Instantiate(unitData.prefab, buildPosition, rotation); //produce unit at specified position
 		unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
 
 		//for tweening
-		Vector3 goScale = unitGO.transform.localScale;
+		Vector3 goScale = unit.transform.localScale;
         float scaleX = goScale.x;
         float scaleZ = goScale.z;
         unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);

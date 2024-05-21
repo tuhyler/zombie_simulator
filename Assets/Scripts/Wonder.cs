@@ -528,9 +528,9 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 		world.RemoveStop(harborLoc);
     }
 
-    public List<Vector3Int> OuterRim()
+    public List<Vector3> OuterRim()
     {
-        List<Vector3Int> locs = new();
+        List<Vector3> locs = new();
 
         int yAngle = Mathf.RoundToInt(transform.localEulerAngles.y);
 
@@ -554,58 +554,58 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         if (yAngle == 270)
         {
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMax, 0, zMin + i));
+				locs.Add(new Vector3(xMax + 0.4f, 0, zMin + i));
 
 			for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMax - i, 0, zMax));
+				locs.Add(new Vector3(xMax - i, 0, zMax + 0.4f));
 
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMin, 0, zMax - i));
+				locs.Add(new Vector3(xMin - 0.4f, 0, zMax - i));
 
 			for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+				locs.Add(new Vector3(xMin + i, 0, zMin - 0.4f));
 		}
 		else if (yAngle == 180)
         {
 			for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMax - i, 0, zMax));
+				locs.Add(new Vector3(xMax - i, 0, zMax + 0.4f));
 
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMin, 0, zMax - i));
+				locs.Add(new Vector3(xMin - 0.4f, 0, zMax - i));
 	
             for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+				locs.Add(new Vector3(xMin + i, 0, zMin - 0.4f));
 
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMax, 0, zMin + i));
+				locs.Add(new Vector3(xMax + 0.4f, 0, zMin + i));
 		}
 		else if (yAngle == 90)
         {
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMin, 0, zMax - i));
+				locs.Add(new Vector3(xMin - 0.4f, 0, zMax - i));
 
 			for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+				locs.Add(new Vector3(xMin + i, 0, zMin - 0.4f));
 
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMax, 0, zMin + i));
+				locs.Add(new Vector3(xMax + 0.4f, 0, zMin + i));
 
 			for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMax - i, 0, zMax));
+				locs.Add(new Vector3(xMax - i, 0, zMax + 0.4f));
 		}
 		else
         {
 			for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMin + i, 0, zMin));
+				locs.Add(new Vector3(xMin + i, 0, zMin - 0.4f));
 
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMax, 0, zMin + i));
+				locs.Add(new Vector3(xMax + 0.4f, 0, zMin + i));
 
 			for (int i = 0; i < xMax - xMin; i++)
-				locs.Add(new Vector3Int(xMax - i, 0, zMax));
+				locs.Add(new Vector3(xMax - i, 0, zMax + 0.4f));
 
 			for (int i = 0; i < zMax - zMin; i++)
-				locs.Add(new Vector3Int(xMin, 0, zMax - i));
+				locs.Add(new Vector3(xMin - 0.4f, 0, zMax - i));
 		}
 
         return locs;

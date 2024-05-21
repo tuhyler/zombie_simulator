@@ -11,8 +11,6 @@ public class TradeRouteManager : MonoBehaviour
     public List<Vector3Int> cityStops = new();
     public Dictionary<int, List<Vector3Int>> routePathsDict = new();
     [HideInInspector]
-    public List<int> ambushSpots = new();
-    [HideInInspector]
     public List<List<ResourceValue>> resourceAssignments;
     [HideInInspector]
     public List<List<int>> resourceCompletion = new();
@@ -85,9 +83,6 @@ public class TradeRouteManager : MonoBehaviour
 			List<Vector3Int> currentPath = GridSearch.TraderMove(world, cityStops[i], cityStops[j], trader.bySea);
             routePathsDict[i] = currentPath;
             length += currentPath.Count;
-
-            if (currentPath.Count > 22)
-                ambushSpots.Add(i);
 		}
 
         return length;
@@ -107,7 +102,7 @@ public class TradeRouteManager : MonoBehaviour
             nextPath = currentStop - 1;
         
         //roll to see if ambushed (currently only affects land units)
-        if (!trader.bySea && routePathsDict[nextPath].Count > 15 && ambushSpots.Contains(nextPath) && UnityEngine.Random.Range(0, 100) < trader.world.ambushProb)
+        if (!trader.bySea && routePathsDict[nextPath].Count > 15 && UnityEngine.Random.Range(0, 100) < trader.world.ambushProb)
         {
             Vector3Int randomLoc = routePathsDict[nextPath][UnityEngine.Random.Range(7, routePathsDict[nextPath].Count - 8)];
 

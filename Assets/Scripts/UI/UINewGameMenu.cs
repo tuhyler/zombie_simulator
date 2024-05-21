@@ -53,6 +53,7 @@ public class UINewGameMenu : MonoBehaviour
 
 	public void StartNewGame()
 	{
+		//titleScreen.uiLoadGame.ClearSaveItems();
 		string starting = startingGroup.ActiveToggles().FirstOrDefault().name;
 		string mapSize = mapSizeGroup.ActiveToggles().FirstOrDefault().name;
 		string landType = landTypeGroup.ActiveToggles().FirstOrDefault().name;

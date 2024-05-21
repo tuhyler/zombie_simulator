@@ -291,7 +291,7 @@ public class EnemyCamp
 			if (!unit.gameObject.activeSelf)
 			{
 				unit.gameObject.SetActive(true);
-				unit.HideUnit(false);
+				unit.HideUnit();
 			}
 
 			if (unit.buildDataSO.unitType != UnitType.Cavalry)
@@ -342,6 +342,8 @@ public class EnemyCamp
 
 			List<Vector3Int> path = GridSearch.EnemyMove(world, unit.currentLocation, travelLoc + unitDiff, unit.bySea);
 			unit.marchPosition = unitDiff;
+			//unit.marker.ToggleVisibility(true);
+			unit.outline.ToggleOutline(true);
 
 			if (path.Count > 0)
 			{
@@ -595,10 +597,11 @@ public class EnemyCamp
 				removingOut = true;
 
 			inBattle = false;
-			if (removingOut)
-				world.ToggleBattleCam(cityLoc, attackingArmy.city.cityLoc, false);
+			Vector3Int enemyLoc = isCity ? cityLoc : loc;
+			if (removingOut || !isCity)
+				world.ToggleBattleCam(enemyLoc, attackingArmy.city.cityLoc, false);
 
-			world.ToggleForestsInBattleClear(attackingArmy.enemyTarget, attackingArmy.attackZone, false);
+			//world.ToggleForestsInBattleClear(attackingArmy.enemyTarget, attackingArmy.attackZone, false);
 
 			foreach (Military unit in unitsInCamp)
 			{
@@ -1161,6 +1164,8 @@ public class EnemyCamp
 				unitsInCamp[i].StopAttackAnimation();
 			else
 				unitsInCamp[i].StopPillageAnimation();
+
+			unitsInCamp[i].returning = true;
 		}
 
 		FinishPillage();

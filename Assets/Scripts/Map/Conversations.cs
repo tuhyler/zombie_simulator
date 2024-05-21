@@ -7,8 +7,8 @@ public class Conversations : MonoBehaviour
     public static Conversations Instance { get; private set; }
     public Dictionary<string, List<ConversationItem>> conversationDict = new();
 
-    public Sprite koaHappy, koaQuestion, koaSurprised, koaSerious, koaConfused, koaAngry, koaSad, koaAnnoyed, koaGuilty, azaiSerious, scottHappy, scottMad, scottSad, haniyaHappy, haniyaSad, 
-		natakamaniHappy, sennacheribMad;
+  //  public Sprite koaHappy, KoaQuestion, KoaSurprised, KoaSerious, KoaConfused, KoaAngry, koaSad, koaAnnoyed, KoaGulty, AzaiSerious, ScottHappy, ScottMad, scottSad, HaniyaHappy, haniyaSad, 
+		//NatakamaniHappy, SennacheribMad;
 
 	private void Awake()
 	{
@@ -23,16 +23,16 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem just_landed1 = new()
 		{
-			speakerImage = koaSurprised,
+			speakerImage = "KoaSurprised",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
-			speakerText = "Um... ow! I just fell out of the sky!"
+			speakerText = "Ugh... ow! I just fell out of the sky!"
 		};
 		conversationDict["just_landed"].Add(just_landed1);
 
 		ConversationItem just_landed2 = new()
 		{
-			speakerImage = koaConfused,
+			speakerImage = "KoaConfused",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "How did I get here? The last thing I remember is taking a nap on the USS Comet... and now I'm here!"
@@ -41,7 +41,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem just_landed3 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "And it's cold! I guess I'll build a fire, maybe someone will see the smoke?"
@@ -54,7 +54,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial11 = new()
 		{
-			speakerImage = koaSerious,
+			speakerImage = "KoaSerious",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "Ok, that will keep me warm for like a few seconds. I could go for some food now..."
@@ -63,7 +63,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial12 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "(Explore the world by moving the camera around using the arrow or WASD keys. Use Q and E to rotate.)",
@@ -73,7 +73,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial13 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "(Move to the highlighted tile by selecting the button on the right or by right-clicking on the tile.)",
@@ -86,7 +86,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial21 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "OK! I can gather some food here."
@@ -98,7 +98,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial31 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "Well, that's a little food, I'm going to need some more probably, let's say four more?"
@@ -110,7 +110,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial3a1 = new()
 		{
-			speakerImage = koaConfused,
+			speakerImage = "KoaConfused",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "Who's that guy?"
@@ -119,7 +119,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial3a2 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "(Walk over to someone to talk to them if they have something to say)"
@@ -131,7 +131,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor1 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Oh hello... who are you?"
@@ -140,7 +140,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor2 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Hi! I'm Scott! Isn't it a glorious day today?"
@@ -149,7 +149,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor3 = new()
 		{
-			speakerImage = koaSerious,
+			speakerImage = "KoaSerious",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Um, yes, it's fine. Where did you come from?"
@@ -158,7 +158,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor4 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "No clue! But I'm glad to be here and happy to help!"
@@ -167,7 +167,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor5 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "So I'm guessing you showed up when you saw I had some food. Say... could you help me get home?"
@@ -176,7 +176,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor6 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Sure thing! Do you live right around the corner?"
@@ -185,7 +185,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor7 = new()
 		{
-			speakerImage = koaGuilty,
+			speakerImage = "KoaGulty",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Well, no, it's actually not on this planet... uh, this is kind of a big ask, but could you help me build a rocket?"
@@ -194,7 +194,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor8 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Absolutely I will! What do I need to do? Also, and this probably isn't important, but what's a rocket? Is it made by rubbing sticks together? I'm great at that!"
@@ -203,7 +203,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor9 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Um, I guess it's like a tall, metal cylinder? And it flies into space?"
@@ -212,7 +212,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor10 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Something that FLIES?! How does it work?"
@@ -221,7 +221,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor11 = new()
 		{
-			speakerImage = koaGuilty,
+			speakerImage = "KoaGulty",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Oh geez, uh, you know, I don't really know how it works... and you clearly don't know much about anything..."
@@ -230,7 +230,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor12 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "*with a big smile* Nope!"
@@ -239,7 +239,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor13 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "We don't have a lot of know-how around here, but if you'd like, we can get more people like me and figure out how to get you what you need!"
@@ -248,7 +248,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor14 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Really? You will help me? How do we get more people?"
@@ -257,7 +257,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor15 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Oh it's easy! Just provide food, housing, and water, and so long as you're around, they'll arrive to help!"
@@ -266,7 +266,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_labor16 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "I can personally help you gather supplies and also build roads! In fact, let's get some lumber to build a hut."
@@ -278,7 +278,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial41 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "This a good place for lumber?"
@@ -287,7 +287,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial42 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Yes, this is a very handsome forest! From here you can get all the lumber you need for housing. Let's together gather 10 lumber."
@@ -296,7 +296,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial43 = new()
 		{
-			speakerImage = koaConfused,
+			speakerImage = "KoaConfused",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "A \"handsome\" forest?"
@@ -308,7 +308,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial51 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "There, that's enough, right? Can we build the hut now in camp?",
@@ -318,7 +318,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial52 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "(Click on the camp to perform actions within the camp.)",
@@ -330,7 +330,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial61 = new()
 		{
-			speakerImage = koaConfused,
+			speakerImage = "KoaConfused",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Is that supposed to be someone's house? It's a little small..."
@@ -339,7 +339,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial62 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Isn't it quaint? They're going to absolutely love it! Now let's move someone in."
@@ -348,7 +348,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial63 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "(Click on the camp again)"
@@ -360,7 +360,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial71 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Done! Now what?"
@@ -369,7 +369,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial72 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Now let's give him something to do! We need to figure out how to build a rocket, right? So let's build a " +
@@ -382,7 +382,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial81 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Excellent! Now let's go back to camp and build the research building."
@@ -394,7 +394,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial91 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Now that the research building is complete, go to the camp and assign our new pop to work there."
@@ -406,7 +406,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial101 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "And finally, you just have to choose something to research."
@@ -418,7 +418,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial111 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Look! Our new pop is researching now! So long as you have food and money to give him, our people will be happy to research till your heart's content."
@@ -427,7 +427,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial112 = new()
 		{
-			speakerImage = koaGuilty,
+			speakerImage = "KoaGulty",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Can't they... you know... do it all for free?"
@@ -436,7 +436,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial113 = new()
 		{
-			speakerImage = scottMad,
+			speakerImage = "ScottMad",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "No!! A person's labor is not to be stolen, but rather be purchased so that both parties can benefit!"
@@ -445,7 +445,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial114 = new()
 		{
-			speakerImage = koaSurprised,
+			speakerImage = "KoaSurprised",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Oh, sorry... just wondering..."
@@ -454,7 +454,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial115 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "*with a big smile again* No problem! In fact, we're currently in need of more currency, so we'll need to gather more resources that our people can purchase."
@@ -463,7 +463,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial116 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Let's go gather some more food they can purchase. They won't pay a lot for food since they can gather some themselves, but we'll find real value later with crafted goods."
@@ -472,7 +472,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial117 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Camera",
 			speakerText = "(Click on any terrain tile to see what resource it holds.)"
@@ -484,7 +484,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial121 = new()
 		{
-			speakerImage = koaAnnoyed,
+			speakerImage = "KoaAnnoyed",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Ugh, this is tedious. Are we going to be gathering resources ourselves this whole time?"
@@ -493,7 +493,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial122 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Nope! Like I said before, the people here are happy to help. We'll just need to research the proper technologies first before they can do anything."
@@ -505,7 +505,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial131 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Our first research is done! Now we can build a farm and hire somebody to work the fields for us. I think you're ready to handle this project, so I won't hold your hand through this one."
@@ -514,7 +514,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial132 = new()
 		{
-			speakerImage = koaSerious,
+			speakerImage = "KoaSerious",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Holding MY hand? Uh, I'm doing all the heavy lifting here..."
@@ -523,7 +523,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem tutorial133 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Oh, you absolutely are! Now to determine what resources you need, you can go to camp and see the costs required to build the farm."
@@ -535,7 +535,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry1 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "Hello! Who are you? Another helper for me I hope?"
@@ -544,7 +544,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry2 = new()
 		{
-			speakerImage = azaiSerious,
+			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
 			speakerText = "So you are the one who brought us here... I am Azai, destroyer of nations, harbinger of fear!"
@@ -553,7 +553,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry3 = new()
 		{
-			speakerImage = koaGuilty,
+			speakerImage = "KoaGulty",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "Okay, that's a cool name... so you good with grabbing a shovel and..."
@@ -562,7 +562,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry4 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Azai",
 			speakerText = "*interrupting* Hi! I'm Scott! Who are you?"
@@ -571,7 +571,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry5 = new()
 		{
-			speakerImage = azaiSerious,
+			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Scott",
 			speakerText = "I am Azai, destroyer of nations, harbinger of fear!"
@@ -580,7 +580,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry6 = new()
 		{
-			speakerImage = scottHappy,
+			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Azai",
 			speakerText = "Whoa! Cool name!!"
@@ -589,7 +589,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry7 = new()
 		{
-			speakerImage = koaConfused,
+			speakerImage = "KoaConfused",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Right, we just said that..."
@@ -598,7 +598,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry8 = new()
 		{
-			speakerImage = koaSerious,
+			speakerImage = "KoaSerious",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "Uh, so, is there a reason you came here? Hoping to add some more adjectives to your name?"
@@ -607,7 +607,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry9 = new()
 		{
-			speakerImage = azaiSerious,
+			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
 			speakerText = "There will be many who will want to take what you have worked for, I have come to develop your armies and ensure your safey traveling these lands."
@@ -616,7 +616,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry10 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "Excellent! Yeah, I think there's a few people out there that don't want us wondering around..."
@@ -625,7 +625,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry11 = new()
 		{
-			speakerImage = azaiSerious,
+			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
 			speakerText = "Verily! Now they will leave us be as we wander this magnificent world, but they hide, guard, and waste what should be used for the progress of humanity. I will train our armies to prevent that."
@@ -634,7 +634,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_infantry12 = new()
 		{
-			speakerImage = koaHappy,
+			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "Okay, that's cool man. You can hang out with us I guess, just let me know if you want anything or anything."
@@ -646,7 +646,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_pop_loss1 = new()
 		{
-			speakerImage = scottSad,
+			speakerImage = "ScottSad",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "We just lost our first pop... If we don't have enough food, housing or water for a cycle, a pop will leave camp forever. Worst of all, that slightly dampens my otherwise constant ecstatic mood..."
@@ -658,7 +658,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_ambush1 = new()
 		{
-			speakerImage = azaiSerious,
+			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
 			speakerText = "For the many distant journies our traders make, far away from any city or camp, they risk being ambushed. We must protect them by assigning infantry as guards for traders."
@@ -667,7 +667,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_ambush2 = new()
 		{
-			speakerImage = koaQuestion,
+			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
 			speakerText = "Uh, I don't know if you've noticed, but you're a pretty large dude and you've got a big weapon there, can't you go and guard them?"
@@ -676,7 +676,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem first_ambush3 = new()
 		{
-			speakerImage = azaiSerious,
+			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
 			speakerText = "My duty, first and foremost, is to ensure your protection from any enemies out there. Without your presence, this will all go to waste. For this reason, I stay by your side."
@@ -692,7 +692,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem haniya_intro = new()
 		{
-			speakerImage = haniyaHappy,
+			speakerImage = "HaniyaHappy",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
 			speakerText = "My name is Haniya"
@@ -705,7 +705,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem haniya_quest0 = new()
 		{
-			speakerImage = haniyaHappy,
+			speakerImage = "HaniyaHappy",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
 			speakerText = "Could you do this for me"
@@ -722,7 +722,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem natakamani_intro = new()
 		{
-			speakerImage = natakamaniHappy,
+			speakerImage = "NatakamaniHappy",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
 			speakerText = "My name is Natakamani"
@@ -735,7 +735,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem natakamani_quest0 = new()
 		{
-			speakerImage = natakamaniHappy,
+			speakerImage = "NatakamaniHappy",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
 			speakerText = "Could you do this for me"
@@ -748,7 +748,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem natakamani_quest0_complete = new()
 		{
-			speakerImage = natakamaniHappy,
+			speakerImage = "NatakamaniHappy",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
 			speakerText = "Thank you"
@@ -761,7 +761,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem natakamani_quest1 = new()
 		{
-			speakerImage = natakamaniHappy,
+			speakerImage = "NatakamaniHappy",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
 			speakerText = "Could you do this for me this time"
@@ -774,7 +774,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem natakamani_quest1_complete = new()
 		{
-			speakerImage = natakamaniHappy,
+			speakerImage = "NatakamaniHappy",
 			speakerName = "Natakamani",
 			speakerDirection = "Koa",
 			speakerText = "Thank you again"
@@ -791,7 +791,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem sennacherib_intro = new()
 		{
-			speakerImage = sennacheribMad,
+			speakerImage = "SennacheribMad",
 			speakerName = "Sennacherib",
 			speakerDirection = "Koa",
 			speakerText = "My name is Sennacherib"
@@ -803,7 +803,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem sennacherib_challenge0 = new()
 		{
-			speakerImage = sennacheribMad,
+			speakerImage = "SennacheribMad",
 			speakerName = "Sennacherib",
 			speakerDirection = "Koa",
 			speakerText = "I challenge you to a fight"
@@ -817,7 +817,7 @@ public class Conversations : MonoBehaviour
 [Serializable]
 public struct ConversationItem
 {
-    public Sprite speakerImage;
+    public string speakerImage;
     public string speakerName;
 	public string speakerDirection;
     public string speakerText;

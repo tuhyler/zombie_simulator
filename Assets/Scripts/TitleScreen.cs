@@ -8,10 +8,13 @@ public class TitleScreen : MonoBehaviour
     private AudioSource audioSource;
 
     public AudioClip closeClip, selectClip;
+    public Texture2D cursorArrow;
 
 	private void Awake()
 	{
         audioSource = GetComponent<AudioSource>();
+        uiLoadGame.PopulateSaveItems();
+		Cursor.SetCursor(cursorArrow, Vector2.zero, CursorMode.ForceSoftware);
 	}
 
 	public void NewGame()

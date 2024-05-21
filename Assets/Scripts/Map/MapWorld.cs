@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
@@ -94,7 +95,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public RoadManager roadManager;
     [SerializeField]
-    public Material transparentMat, atlasMain, atlasSemiClear;
+    public Material transparentMat, atlasMain/*, atlasSemiClear*/;
     [SerializeField]
     private GameObject selectionIcon, enemyCampIcon, buildPanel, wonderBuildPanel, canvasHolder, enemyBorder;
     [SerializeField]
@@ -319,6 +320,8 @@ public class MapWorld : MonoBehaviour
         NewGamePrep(false);
 		AddToDiscoverList(ResourceType.Gold);
         AddToDiscoverList(ResourceType.Research);
+
+        //Debug.Log("Height is " + Screen.height + " and width is " + Screen.width);
 
         foreach (ImprovementDataSO data in UpgradeableObjectHolder.Instance.allBuildingsAndImprovements)
         {
@@ -592,9 +595,9 @@ public class MapWorld : MonoBehaviour
             scottFollow = false;
             azaiFollow = false;
 			scott.gameObject.tag = "Character";
-			scott.marker.gameObject.tag = "Character";
+			//scott.marker.gameObject.tag = "Character";
 			azai.gameObject.tag = "Character";
-			azai.marker.gameObject.tag = "Character";
+			//azai.marker.gameObject.tag = "Character";
 			unitMovement.uiWorkerTask.DeactivateButtons();
         }
         else
@@ -605,9 +608,9 @@ public class MapWorld : MonoBehaviour
             scottFollow = true;
             azaiFollow = true;
 			scott.gameObject.tag = "Player";
-            scott.marker.gameObject.tag = "Player";
+            //scott.marker.gameObject.tag = "Player";
             azai.gameObject.tag = "Player";
-            azai.marker.gameObject.tag = "Player";
+            //azai.marker.gameObject.tag = "Player";
             unit.currentLocation = RoundToInt(unit.transform.position);
             //AddUnitPosition(unit.transform.position, unit);
 
@@ -1376,9 +1379,10 @@ public class MapWorld : MonoBehaviour
                 if (city.enemyCamp.movingOut)
                 {
                     if (!tdUnit.isDiscovered)
-                        unit.HideUnit(false);
-				    else if (tdUnit.CompareTag("Forest") || tdUnit.CompareTag("Forest Hill"))
-					    unit.marker.ToggleVisibility(true);
+                        unit.HideUnit();
+                    else if (tdUnit.CompareTag("Forest") || tdUnit.CompareTag("Forest Hill") || IsBuildLocationTaken(tdUnit.TileCoordinates))
+                        unit.outline.ToggleOutline(true);
+					    //unit.marker.ToggleVisibility(true);
 			    }
                 else
                 {
@@ -2062,7 +2066,8 @@ public class MapWorld : MonoBehaviour
 
                 Unit unit = enemyGO.GetComponent<Unit>();
                 if (tdCamp.CompareTag("Forest") || tdCamp.CompareTag("Forest Hill"))
-                    unit.marker.ToggleVisibility(true);
+                    unit.outline.ToggleOutline(true);
+                    //unit.marker.ToggleVisibility(true);
 		        unit.SetReferences(this);
                 unit.SetMinimapIcon(enemyUnitHolder);
                 if (!movingOut)
@@ -2126,8 +2131,9 @@ public class MapWorld : MonoBehaviour
 
 				Unit unit = enemyGO.GetComponent<Unit>();
 				unit.SetMinimapIcon(enemyUnitHolder);
-				if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-					unit.marker.ToggleVisibility(true);
+                if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+                    unit.outline.ToggleOutline(true);
+					//unit.marker.ToggleVisibility(true);
 				unit.SetReferences(this);
 				unit.currentLocation = data.currentLocation;
                 ambush.attackingUnits.Add(unit.military);
@@ -2286,22 +2292,24 @@ public class MapWorld : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
 
+        //ScreenCapture.CaptureScreenshot("Assets/Resources/SaveScreens/test.png");
         int height = Mathf.RoundToInt(Screen.width * 0.625f);
         int width = height / 4 * 3;
         Texture2D texture = new Texture2D(height, width, TextureFormat.ARGB32, false);
         texture.ReadPixels(new Rect((Screen.width - height), (Screen.height - width), texture.width, texture.height), 0, 0);
         texture.Apply();
         byte[] bytes = texture.EncodeToPNG();
-        string bytesString = Convert.ToBase64String(bytes);
+        //string bytesString = Convert.ToBase64String(bytes);
         //File.WriteAllBytes(Application.persistentDataPath + "/Screenshot.png", bytes);
-        Texture2D newTexture = texture;
+		File.WriteAllBytes("Assets/Resources/SaveScreens/" + saveName + ".png", bytes);
+		//Texture2D newTexture = texture;
 
         Cursor.visible = true;
         canvasHolder.SetActive(true);
         float playTime = (DateTime.Now - currentTime).Seconds;
-		uiMainMenu.uiSaveGame.UpdateSaveItems(saveName, playTime, version, newTexture);
+		uiMainMenu.uiSaveGame.UpdateSaveItems(saveName, playTime, version/*, newTexture*/);
         //Destroy(texture);
-        GameLoader.Instance.SaveGame(saveName, playTime, version, bytesString);
+        GameLoader.Instance.SaveGame(saveName, playTime, version/*, bytesString*/);
     }
 
     //it's actually "F12"
@@ -2325,71 +2333,71 @@ public class MapWorld : MonoBehaviour
     //probably isn't necessary
 	public void ClearMap()
     {
-		foreach (Transform go in terrainHolder)
-			Destroy(go.gameObject);
+		//foreach (Transform go in terrainHolder)
+		//	Destroy(go.gameObject);
 
-        world.Clear();
+  //      world.Clear();
 
-		foreach (Transform go in tradeCenterHolder)
-			Destroy(go.gameObject);
+		//foreach (Transform go in tradeCenterHolder)
+		//	Destroy(go.gameObject);
 
-        foreach (Transform go in enemyUnitHolder)
-            Destroy(go.gameObject);
+  //      foreach (Transform go in enemyUnitHolder)
+  //          Destroy(go.gameObject);
 
-        foreach (Vector3Int loc in enemyCampDict.Keys)
-            Destroy(enemyCampDict[loc].minimapIcon);
+  //      foreach (Vector3Int loc in enemyCampDict.Keys)
+  //          Destroy(enemyCampDict[loc].minimapIcon);
 
-        foreach (Vector3Int loc in resourceIconDict.Keys)
-            Destroy(resourceIconDict[loc].gameObject);
+  //      foreach (Vector3Int loc in resourceIconDict.Keys)
+  //          Destroy(resourceIconDict[loc].gameObject);
 
-        tradeStopDict.Clear();
-        tradeStopNameDict.Clear();
-        allWonders.Clear();
-        wonderTiles.Clear();
-        allTradeCenters.Clear();
-        centerBordersDict.Clear();
-        researchWaitList.Clear();
-        goldWaitList.Clear();
-        cityWorkedTileDict.Clear();
-        buildingPosDict.Clear();
-        noWalkList.Clear();
-        cityNamesMaps.Clear();
-        cityDict.Clear();
-        cityImprovementDict.Clear();
-        unclaimedSingleBuildList.Clear();
-        enemyCampDict.Clear();
-        playerPosDict.Clear();
-        traderPosDict.Clear();
-        traderStallDict.Clear();
-        unitPosDict.Clear();
-        npcPosDict.Clear();
-        laborerList.Clear();
-        resourceIconDict.Clear();
-        mapHandler.ResetResourceLocDict();
-        traderList.Clear();
-        transportList.Clear();
-        //upgradeableObjectMaxLevelDict.Clear();
-        currentWorkedTileDict.Clear();
-        maxWorkedTileDict.Clear();
-        roadTileDict.Clear();
-        soloRoadLocsList.Clear();
-        roadLocsList.Clear();
-        coastCoastList.Clear();
-        allTCReps.Clear();
-        allEnemyLeaders.Clear();
-        enemyBordersDict.Clear();
-        enemyAmbushDict.Clear();
-        enemyCityDict.Clear();
-        militaryStationLocs.Clear();
-        treasureLocs.Clear();
-        neutralZones.Clear();
-        resourceSelectionGridList.Clear();
-        resourceDiscoveredList.Clear();
-        newUnitsAndImprovements.Clear();
-        ambushUnitDict.Clear();
-        battleLocs.Clear();
-        unitsSpeedChangeDict.Clear();
-        resourceYieldChangeDict.Clear();
+  //      tradeStopDict.Clear();
+  //      tradeStopNameDict.Clear();
+  //      allWonders.Clear();
+  //      wonderTiles.Clear();
+  //      allTradeCenters.Clear();
+  //      centerBordersDict.Clear();
+  //      researchWaitList.Clear();
+  //      goldWaitList.Clear();
+  //      cityWorkedTileDict.Clear();
+  //      buildingPosDict.Clear();
+  //      noWalkList.Clear();
+  //      cityNamesMaps.Clear();
+  //      cityDict.Clear();
+  //      cityImprovementDict.Clear();
+  //      unclaimedSingleBuildList.Clear();
+  //      enemyCampDict.Clear();
+  //      playerPosDict.Clear();
+  //      traderPosDict.Clear();
+  //      traderStallDict.Clear();
+  //      unitPosDict.Clear();
+  //      npcPosDict.Clear();
+  //      laborerList.Clear();
+  //      resourceIconDict.Clear();
+  //      mapHandler.ResetResourceLocDict();
+  //      traderList.Clear();
+  //      transportList.Clear();
+  //      //upgradeableObjectMaxLevelDict.Clear();
+  //      currentWorkedTileDict.Clear();
+  //      maxWorkedTileDict.Clear();
+  //      roadTileDict.Clear();
+  //      soloRoadLocsList.Clear();
+  //      roadLocsList.Clear();
+  //      coastCoastList.Clear();
+  //      allTCReps.Clear();
+  //      allEnemyLeaders.Clear();
+  //      enemyBordersDict.Clear();
+  //      enemyAmbushDict.Clear();
+  //      enemyCityDict.Clear();
+  //      militaryStationLocs.Clear();
+  //      treasureLocs.Clear();
+  //      neutralZones.Clear();
+  //      resourceSelectionGridList.Clear();
+  //      //resourceDiscoveredList.Clear();
+  //      newUnitsAndImprovements.Clear();
+  //      ambushUnitDict.Clear();
+  //      battleLocs.Clear();
+  //      unitsSpeedChangeDict.Clear();
+  //      resourceYieldChangeDict.Clear();
 	}
 
 	public void LoadEnemyBorders(Vector3Int enemyLoc, Color color)
@@ -2484,7 +2492,7 @@ public class MapWorld : MonoBehaviour
 
         //resourceYieldChangeDict[ResourceType.Food] = .5f;
         bridgeResearched = true;
-
+        
 		//for (int i = 0; i < roadLocsList.Count; i++)
 		//    Debug.Log(roadLocsList[i]);
 		//      List<int> num = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -2882,7 +2890,7 @@ public class MapWorld : MonoBehaviour
 		GameObject unit = Instantiate(data.prefab, Vector3.zero, Quaternion.identity); //produce unit at specified position
 		unit.transform.SetParent(cityBuilderManager.friendlyUnitHolder, false);
 		//for tweening
-		Vector3 goScale = data.prefab.transform.localScale;
+		Vector3 goScale = unit.transform.localScale;
 		float scaleX = goScale.x;
 		float scaleZ = goScale.z;
 		unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
@@ -3305,7 +3313,7 @@ public class MapWorld : MonoBehaviour
 
             uiRotateWonder.ToggleVisibility(true);
 
-            wonderGhost = Instantiate(wonderData.wonderPrefab, avgLoc / wonderLocList.Count, rotation);
+            wonderGhost = Instantiate(Resources.Load<GameObject>("Prefabs/WonderPrefabs/" + wonderData.wonderPrefabName), avgLoc / wonderLocList.Count, rotation);
             wonderGhost.transform.SetParent(wonderHolder, false);
             Wonder wonderInfo = wonderGhost.GetComponent<Wonder>();
             wonderInfo.SetLastPrefab(); //only showing 100 Perc prefab
@@ -3414,7 +3422,7 @@ public class MapWorld : MonoBehaviour
         }
         //setting up wonder info
         Vector3 centerPos = avgLoc / wonderPlacementLoc.Count;
-        GameObject wonderGO = Instantiate(wonderData.wonderPrefab, centerPos, rotation);
+        GameObject wonderGO = Instantiate(Resources.Load<GameObject>("Prefabs/WonderPrefabs/" + wonderData.wonderPrefabName), centerPos, rotation);
         wonderGO.gameObject.transform.SetParent(wonderHolder, false);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
         wonder.wonderName = wonderData.wonderName;
@@ -3660,7 +3668,7 @@ public class MapWorld : MonoBehaviour
 			}
 
     		//setting up wonder info
-    		GameObject wonderGO = Instantiate(wonderData.wonderPrefab, data.centerPos, data.rotation);
+    		GameObject wonderGO = Instantiate(Resources.Load<GameObject>("Prefabs/WonderPrefabs/" + wonderData.wonderPrefabName), data.centerPos, data.rotation);
     		wonderGO.gameObject.transform.SetParent(wonderHolder, false);
 		    Wonder wonder = wonderGO.GetComponent<Wonder>();
             wonder.LoadData(data);
@@ -4339,6 +4347,7 @@ public class MapWorld : MonoBehaviour
     {
         ambushes++;
         List<Vector3Int> randomLocs = GetNeighborsFor(loc, State.EIGHTWAY);
+        TerrainData td = GetTerrainDataAt(loc);
 
         if (unitTrader.trader.guarded)
         {
@@ -4347,17 +4356,20 @@ public class MapWorld : MonoBehaviour
                 unitTrader.trader.guardUnit.transform.position = unitTrader.transform.position + Vector3.left;
                 unitTrader.trader.guardUnit.gameObject.SetActive(true);
                 unitTrader.trader.guardMeshList[unitTrader.trader.guardUnit.buildDataSO.unitLevel - 1].SetActive(false);
-            }
+
+                if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+                    unitTrader.trader.guardUnit.outline.ToggleOutline(true);
+					//unitTrader.trader.guardUnit.marker.ToggleVisibility(true);
+			}
 
             randomLocs.Remove(RoundToInt(unitTrader.trader.guardUnit.transform.position));
 		}
 
 		Vector3Int ambushLoc = randomLocs[UnityEngine.Random.Range(0,randomLocs.Count)];
         UnitBuildDataSO ambushingUnit = UpgradeableObjectHolder.Instance.enemyUnitDict[ambushUnitDict[currentEra]];
-        TerrainData td = GetTerrainDataAt(loc);
         td.LimitPlayerMovement();
-        if (td.treeHandler != null)
-            td.ToggleTransparentForest(true);
+        //if (td.treeHandler != null)
+        //    td.ToggleTransparentForest(true);
 
 		EnemyAmbush ambush = new();
 		ambush.loc = loc;
@@ -4379,8 +4391,9 @@ public class MapWorld : MonoBehaviour
 
 		Unit unit = enemyGO.GetComponent<Unit>();
         unit.SetMinimapIcon(enemyUnitHolder);
-		if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-			unit.marker.ToggleVisibility(true);
+        if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+            unit.outline.ToggleOutline(true);
+			//unit.marker.ToggleVisibility(true);
 
 		Vector3 unitScale = unit.transform.localScale;
 		unit.currentLocation = AddUnitPosition(ambushLoc, unit);
@@ -5195,10 +5208,17 @@ public class MapWorld : MonoBehaviour
 
 			battleLocs.Add(enemyLoc);
 
-            GetNPC(enemyLoc).unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+            Unit npc = GetNPC(enemyLoc);
+            npc.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+            npc.outline.ToggleOutline(false);
+            //npc.marker.ToggleVisibility(false);
 
             foreach (Unit unit in characterUnits)
+            {
                 unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+                unit.outline.ToggleOutline(false);
+                //unit.marker.ToggleVisibility(false);
+            }
         }
         else
         {
@@ -5209,10 +5229,15 @@ public class MapWorld : MonoBehaviour
 			if (battleLocs.Count == 0)
 				battleCamera.SetActive(false);
 
-			GetNPC(enemyLoc).unitMesh.layer = LayerMask.NameToLayer(layer);
+            Unit npc = GetNPC(enemyLoc);
+			npc.unitMesh.layer = LayerMask.NameToLayer(layer);
+            npc.MarkerCheck();
 
 			foreach (Unit unit in characterUnits)
+            {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
+                unit.MarkerCheck();
+            }
 		}
 	}
 
@@ -5226,8 +5251,15 @@ public class MapWorld : MonoBehaviour
 			battleLocs.Add(battleLoc);
 
 			foreach (Unit unit in characterUnits)
+            {
 				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+                unit.outline.ToggleOutline(false);
+                //unit.marker.ToggleVisibility(false);
+            }
+
 			leader.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+            leader.outline.ToggleOutline(false);
+            //leader.marker.ToggleVisibility(false);
 		}
         else
         {
@@ -5237,8 +5269,13 @@ public class MapWorld : MonoBehaviour
 				battleCamera.SetActive(false);
 
 			foreach (Unit unit in characterUnits)
+            {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
+                unit.MarkerCheck();
+            }
+
 			leader.unitMesh.layer = LayerMask.NameToLayer("Enemy");
+            leader.MarkerCheck();
 		}
 	}
 
@@ -5255,16 +5292,31 @@ public class MapWorld : MonoBehaviour
 			if (IsEnemyCityOnTile(enemyLoc))
 			{
 				foreach (Military unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
+                {
 					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+                    unit.battleCam = true;
+                    unit.outline.ToggleOutline(false);
+                    //unit.marker.ToggleVisibility(false);
+                }
 			}
 			else
 			{
 				foreach (Military unit in enemyCampDict[enemyLoc].UnitsInCamp)
+                {
 					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+                    unit.battleCam = true;
+                    unit.outline.ToggleOutline(false);
+					//unit.marker.ToggleVisibility(false);
+				}
 			}
 
 			foreach (Military unit in cityDict[armyLoc].army.UnitsInArmy)
+            {
 				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
+                unit.battleCam = true;
+                unit.outline.ToggleOutline(false);
+				//unit.marker.ToggleVisibility(false);
+			}
 		}
         else
         {
@@ -5276,30 +5328,42 @@ public class MapWorld : MonoBehaviour
 			if (IsEnemyCityOnTile(enemyLoc))
 			{
 				foreach (Military unit in enemyCityDict[enemyLoc].enemyCamp.UnitsInCamp)
+                {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
+                    unit.battleCam = false;
+                    unit.MarkerCheck();
+                }
 			}
 			else
 			{
 				foreach (Military unit in enemyCampDict[enemyLoc].UnitsInCamp)
+                {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
+                    unit.battleCam = false;
+					unit.MarkerCheck();
+				}
 			}
 
 			foreach (Military unit in cityDict[armyLoc].army.UnitsInArmy)
+            {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
+                unit.battleCam = false;
+				unit.MarkerCheck();
+			}
 		}
 	}
 
-	public void ToggleForestsInBattleClear(Vector3Int loc, Vector3Int targetLoc, bool v)
-    {
-        if (GetTerrainDataAt(loc).treeHandler != null)
-			GetTerrainDataAt(loc).ToggleTransparentForest(v);
+	//public void ToggleForestsInBattleClear(Vector3Int loc, Vector3Int targetLoc, bool v)
+ //   {
+ //       if (GetTerrainDataAt(loc).treeHandler != null)
+	//		GetTerrainDataAt(loc).ToggleTransparentForest(v);
         
-        if (GetTerrainDataAt(targetLoc).treeHandler != null)
-            GetTerrainDataAt(targetLoc).ToggleTransparentForest(v);
+ //       if (GetTerrainDataAt(targetLoc).treeHandler != null)
+ //           GetTerrainDataAt(targetLoc).ToggleTransparentForest(v);
 
-        if (!v)
-            RemoveBattleZones(loc, targetLoc);
-    }
+ //       if (!v)
+ //           RemoveBattleZones(loc, targetLoc);
+ //   }
 
     public void BattleCamCheck(bool v)
     {
@@ -7883,7 +7947,7 @@ public class MapWorld : MonoBehaviour
                     mainPlayer.gameObject.name = "Koa & co.";
                     scottFollow = true;
 					scott.gameObject.tag = "Player";
-                    scott.marker.gameObject.tag = "Player";
+                    //scott.marker.gameObject.tag = "Player";
 					unitMovement.uiWorkerTask.ReactivateButtons();
 					characterUnits.Add(scott);
 
@@ -8026,7 +8090,7 @@ public class MapWorld : MonoBehaviour
                     RemoveNPCLoc(azai.currentLocation);
                     azaiFollow = true;
                     azai.gameObject.tag = "Player";
-                    azai.marker.gameObject.tag = "Player";
+                    //azai.marker.gameObject.tag = "Player";
 					characterUnits.Add(azai);
 
                     if (mainPlayer.isSelected)

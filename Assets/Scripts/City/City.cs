@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 {
@@ -605,7 +604,9 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         //cityPop.IncreasePopulationAndLabor(amount);
         housingCount -= amount;
         waterCount -= amount;
-		heavenHighlight = Instantiate(heavenHighlight, cityLoc, Quaternion.identity);
+        Vector3Int loc = cityLoc;
+        loc.y += 3;
+		heavenHighlight = Instantiate(heavenHighlight, loc, Quaternion.identity);
 		heavenHighlight.transform.SetParent(world.psHolder, false);
 		//heavenHighlight.Play();
 
@@ -1771,6 +1772,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         if (world.IsNPCThere(cityLoc))
         {
             empire.enemyLeader.gameObject.SetActive(true);
+            //empire.enemyLeader.outline.ToggleOutline(true);
 			empire.enemyLeader.SetSomethingToSay(empire.enemyLeader.leaderName + "_intro");
 		}
 

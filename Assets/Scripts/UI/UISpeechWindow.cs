@@ -130,7 +130,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 	private void PrepNextSpeech()
 	{
-		speakerImage.sprite = conversationItems[conversationPlace].speakerImage;
+		speakerImage.sprite = Resources.Load<Sprite>("MyConvoFaces/" + conversationItems[conversationPlace].speakerImage);
 		string name = conversationItems[conversationPlace].speakerName;
 		speakerName.text = name;
 		speechText.text = conversationItems[conversationPlace].speakerText;

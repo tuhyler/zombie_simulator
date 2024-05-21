@@ -420,9 +420,11 @@ public class Army : MonoBehaviour
 
             if (defending && path.Count == 0)
                 path = GridSearch.MoveWherever(world, unit.currentLocation, travelLoc + unitDiff);
+            //unit.marker.ToggleVisibility(true);
+            unit.outline.ToggleOutline(true);
 
 			if (path.Count > 0)
-            {
+            {    
                 unit.preparingToMoveOut = true;
                 unit.finalDestinationLoc = travelLoc + unitDiff;
     			unit.MoveThroughPath(path);
@@ -1021,7 +1023,7 @@ public class Army : MonoBehaviour
         city.battleIcon.transform.localScale = Vector3.zero;
         LeanTween.scale(city.battleIcon, goScale, 0.5f);
 
-		world.ToggleForestsInBattleClear(enemyTarget, attackZone, true);
+		//world.ToggleForestsInBattleClear(enemyTarget, attackZone, true);
         if (!world.GetTerrainDataAt(attackZone).isLand)
         {
             battleAtSea = true;
@@ -1050,6 +1052,8 @@ public class Army : MonoBehaviour
         }
 
         //world.AddToBattleAreas(cavalryRange);
+        if (!targetCamp.isCity)
+            world.ToggleBattleCam(targetCamp.loc,city.cityLoc,true);
         world.DisableBattleHighlight(attackZone, enemyTarget);
         world.CheckMainPlayerLoc(enemyTarget, attackZone);
 
@@ -1208,9 +1212,9 @@ public class Army : MonoBehaviour
             if (city)
             {
                 city.attacked = false;
-                if (targetCamp.isCity)
-                    world.ToggleBattleCam(targetCamp.cityLoc, city.cityLoc, false);
-			    world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);
+                Vector3Int enemyLoc = targetCamp.isCity ? targetCamp.cityLoc : targetCamp.loc;
+                world.ToggleBattleCam(enemyLoc, city.cityLoc, false);
+			    //world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);
                 //world.RemoveFromBattleArea(cavalryRange);
                 movementRange.Clear();
                 cavalryRange.Clear();
@@ -1308,7 +1312,7 @@ public class Army : MonoBehaviour
 
         if (targetCamp.isCity)
             world.ToggleBattleCam(targetCamp.cityLoc, city.cityLoc, false);
-		world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);
+		//world.ToggleForestsInBattleClear(enemyTarget, attackZone, false);
         targetCamp.timeTilReturn = 8;
         StartCoroutine(targetCamp.RetreatTimer());
 		world.unitMovement.uiCancelTask.ToggleVisibility(false);

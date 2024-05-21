@@ -8,7 +8,7 @@ public class GameData
     public string saveName;
     public float savePlayTime = 0;
     public string saveVersion;
-    public string saveScreenshot;
+    //public string saveScreenshot;
 
     //world misc lists
     public List<string> completedResearch, currentResearch, newUnitsAndImprovements;
