@@ -6,6 +6,8 @@ public class UnitBuildDataSO : ScriptableObject
 {
     public GameObject prefab;
     public GameObject secondaryPrefab;
+    public string prefabLoc;
+    public string secondaryPrefabLoc;
     public string nationalityAdjective;
     public string unitDisplayName;
     public int unitLevel;

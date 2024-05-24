@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 4908702689438750486, guid: 9a9c2e0e3de836f4e978611d34be1297, type: 3}
   secondaryData: []
+  prefabLoc: ImprovementPrefabs/Barracks01
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
@@ -46,6 +47,7 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 1
   replaceRocks: 0
   oneTerrain: 1
@@ -58,4 +60,4 @@ MonoBehaviour:
   getTerrainResource: 0
   attackBonus: 10
   singleBuildType: 1
-  noWalkAreas: []
+  buildOnRoad: 0

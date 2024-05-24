@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 8452152117669528733, guid: af2b68cd7dcd60840b0e7ac54b865141, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitEnemyPrefabs/ranged_1_enemy
+  secondaryPrefabLoc: 
   nationalityAdjective: Bandit
   unitDisplayName: Archer
   unitLevel: 1
   unitNameAndLevel: Ranged-1
+  empireUnit: 0
+  inMilitary: 0
   image: {fileID: 0}
+  imageName: 
   mapIcon: {fileID: 21300000, guid: ac8806db73224c641bbcbd8f1e3dd47f, type: 3}
   unitCost: []
   cycleCost: []

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7480647496174222647, guid: b55141c95836bad45a34ee5c0ee9b7d5, type: 3}
   secondaryData: []
+  prefabLoc: ImprovementPrefabs/Ceramist01
   audio: {fileID: 8300000, guid: 67e2dcfdb0e95d24e800aa8b53da8ea3, type: 3}
   isSecondary: 0
   isBuilding: 0
@@ -56,9 +57,9 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
@@ -67,7 +68,6 @@ MonoBehaviour:
   availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0
-  noWalkAreas:
-  - {x: 0, y: 0, z: 1}
-  - {x: 0, y: 0, z: -1}
-  - {x: -1, y: 0, z: 0}
+  attackBonus: 0
+  singleBuildType: 0
+  buildOnRoad: 0

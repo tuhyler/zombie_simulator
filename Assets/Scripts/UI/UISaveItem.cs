@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -73,14 +74,28 @@ public class UISaveItem : MonoBehaviour, IPointerDownHandler
 		////Rect rect = new Rect(0, 0, texture.width, texture.height);
 		////texture.LoadImage(Convert.FromBase64String(gameData.saveScreenshot));
 		//screenshot = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+		string screenPath = Application.persistentDataPath + "/" + saveName + "Screen.png";
 
-		Texture2D texture = Resources.Load("SaveScreens/" + saveName) as Texture2D;
-
-		if (texture != null)
+		if (File.Exists(screenPath))
 		{
-			Rect rect = new(0, 0, texture.width, texture.height);
-			screenshot = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
-			uiSaveGame.screenshot.sprite = screenshot;
+			byte[] bytes = File.ReadAllBytes(screenPath);
+			int height = Mathf.RoundToInt(Screen.width * 0.625f);
+			int width = height / 4 * 3;
+			Texture2D texture = new Texture2D(width, height);
+			texture.LoadImage(bytes);
+			//Texture2D texture = Resources.Load("SaveScreens/" + saveName) as Texture2D;
+
+			if (texture != null)
+			{
+				Rect rect = new(0, 0, texture.width, texture.height);
+				screenshot = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+				uiSaveGame.screenshot.sprite = screenshot;
+			}
+		}
+		else
+		{
+			screenshot = null;
+			uiSaveGame.screenshot.sprite = null;
 		}
 				//dateTime = Convert.ToDateTime(gameData.saveDate);
 			//}

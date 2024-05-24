@@ -15,6 +15,7 @@ MonoBehaviour:
   prefab: {fileID: 5838738910640936402, guid: 50fad77f197d6cb4caa1fb0219d88212, type: 3}
   secondaryData:
   - {fileID: 11400000, guid: b960112883363494884a086f2586a31c, type: 2}
+  prefabLoc: ImprovementPrefabs/Farm00
   audio: {fileID: 8300000, guid: fd547594fa4d0ec44b52f036d8414a5a, type: 3}
   isSecondary: 0
   isBuilding: 0
@@ -28,10 +29,8 @@ MonoBehaviour:
   image: {fileID: 21300000, guid: dd87c432979319f4a832f52e78dcf6d1, type: 3}
   mapIcon: {fileID: 21300000, guid: 5e827729775d77a4e921661902e65188, type: 3}
   improvementCost:
-  - resourceType: 7
-    resourceAmount: 3
-  - resourceType: 17
-    resourceAmount: 3
+  - resourceType: 6
+    resourceAmount: 10
   consumedResources:
   - resourceType: 4
     resourceAmount: 1

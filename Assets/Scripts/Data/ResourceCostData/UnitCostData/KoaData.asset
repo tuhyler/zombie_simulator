@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitPrefabs/Koa
+  secondaryPrefabLoc: 
   nationalityAdjective: 
   unitDisplayName: Koa
   unitLevel: 1
   unitNameAndLevel: 
+  empireUnit: 0
+  inMilitary: 0
   image: {fileID: 21300000, guid: fb595adc457341340b2a66217b829691, type: 3}
+  imageName: 
   mapIcon: {fileID: 21300000, guid: aa6b8968fbfea3242b916a72b18db2fd, type: 3}
   unitCost: []
   cycleCost: []
@@ -38,8 +43,6 @@ MonoBehaviour:
   transportationType: 0
   characterUnit: 1
   npc: 0
-  borderColor: {r: 0, g: 0, b: 0, a: 0}
-  colorOne: {x: 0, y: 0}
-  colorTwo: {x: 0, y: 0}
+  singleBuildType: 0
   unitEra: 0
   unitRegion: 4

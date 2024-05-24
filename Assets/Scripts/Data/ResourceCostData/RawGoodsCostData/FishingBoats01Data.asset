@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2382750124830825709, guid: 58c8d61894811fe44bb05ebc48d93b4a, type: 3}
   secondaryData: []
+  prefabLoc: ImprovementPrefabs/FishingBoats01
   audio: {fileID: 8300000, guid: 8b90d20adfd43d745b63387d9ef6e9d0, type: 3}
   isSecondary: 0
   isBuilding: 0
@@ -50,9 +51,9 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
@@ -61,6 +62,6 @@ MonoBehaviour:
   availableInitially: 1
   hideIdleMesh: 1
   getTerrainResource: 0
-  noWalkAreas:
-  - {x: -1, y: 0, z: -1}
-  - {x: 1, y: 0, z: 0}
+  attackBonus: 0
+  singleBuildType: 0
+  buildOnRoad: 0

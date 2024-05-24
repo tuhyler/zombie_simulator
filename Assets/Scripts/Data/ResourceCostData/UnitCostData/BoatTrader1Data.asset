@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5390864583482608459, guid: e7017b509bde15c47924ddef24528d00, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitPrefabs/boat_trader_1
+  secondaryPrefabLoc: 
   nationalityAdjective: 
   unitDisplayName: Sail Boat Trader
   unitLevel: 1
   unitNameAndLevel: Boat Trader-1
+  empireUnit: 0
+  inMilitary: 0
   image: {fileID: 21300000, guid: 8ae616c7b21c83149a25565fa87efa77, type: 3}
+  imageName: 
   mapIcon: {fileID: 21300000, guid: e9efdfe6272a137488e554cbaf6294cf, type: 3}
   unitCost:
   - resourceType: 6
@@ -44,9 +49,6 @@ MonoBehaviour:
   transportationType: 1
   characterUnit: 0
   npc: 0
-  borderColor: {r: 0, g: 0, b: 0, a: 0}
-  colorOne: {x: 0, y: 0}
-  colorTwo: {x: 0, y: 0}
   singleBuildType: 3
   unitEra: 0
   unitRegion: 4

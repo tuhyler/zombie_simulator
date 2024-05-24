@@ -902,46 +902,21 @@ public class Unit : MonoBehaviour
         {
             if (!military.battleCam && (military.isMarching || military.returning || military.transferring))
             {
-				Vector3Int loc = world.GetClosestTerrainLoc(collision.gameObject.transform.position);
+				Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
                 if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
                     outline.ToggleOutline(true);
-                //marker.ToggleVisibility(true);
                 else
                     outline.ToggleOutline(false);
-				    //marker.ToggleVisibility(false);
             }
 		}
         else if (!bySea && !byAir)
         {
-            Vector3Int loc = world.GetClosestTerrainLoc(collision.gameObject.transform.position);
-            //TerrainData td = world.GetTerrainDataAt(loc);
+            Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
 
             if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
-            {
                 outline.ToggleOutline(true);
-                //marker.ToggleVisibility(true);
-                //outline.enabled = true;
-
-				//if (isPlayer)
-				//{
-				//	//TerrainData td = collision.gameObject.GetComponent<TerrainData>();
-
-    //                CheckPrevTile();
-				//	//td.ToggleTransparentForest(true);
-    //                //lastClearTile = td.TileCoordinates;
-				//}
-			}
 			else
-            {
                 outline.ToggleOutline(false);
-                //marker.ToggleVisibility(false);
-                //outline.enabled = false;
-
-                //if (isPlayer)
-                //{
-                //    CheckPrevTile();
-                //}
-            }
         }
     }
 

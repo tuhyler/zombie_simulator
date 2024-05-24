@@ -315,8 +315,8 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 		workersReceived++;
         workerSexAndHome.Add((unit.laborer.secondary, unit.laborer.homeCityLoc));
 
-		heavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
-		heavenHighlight.transform.SetParent(world.psHolder, false);
+		ParticleSystem tempHeavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
+		tempHeavenHighlight.transform.SetParent(world.psHolder, false);
 
 		//heavenHighlight.transform.position = pos;
         PlayPopGainAudio();

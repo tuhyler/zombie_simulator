@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 1818493788481445142, guid: 6ac760f8d92380a4db62a30110e8354a, type: 3}
   secondaryData: []
+  prefabLoc: ImprovementPrefabs/FP01
   audio: {fileID: 8300000, guid: fd547594fa4d0ec44b52f036d8414a5a, type: 3}
   isSecondary: 1
   isBuilding: 0
@@ -50,9 +51,9 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 1
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
@@ -61,5 +62,6 @@ MonoBehaviour:
   availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0
-  noWalkAreas:
-  - {x: 0, y: 0, z: 0}
+  attackBonus: 0
+  singleBuildType: 0
+  buildOnRoad: 0

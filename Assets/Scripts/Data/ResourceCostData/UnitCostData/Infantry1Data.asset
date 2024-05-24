@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2321851027760307080, guid: b8ea75b095d526c47b34746b4047349a, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitPrefabs/infantry_1
+  secondaryPrefabLoc: 
   nationalityAdjective: 
   unitDisplayName: Warrior
   unitLevel: 1

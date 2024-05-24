@@ -66,16 +66,16 @@ PrefabInstance:
         type: 3}
       propertyPath: improvementMesh
       value: 
-      objectReference: {fileID: 3630222332398762700}
+      objectReference: {fileID: 3702922285683688036}
     - target: {fileID: 5189153545580261707, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5385069000063072446, guid: 5af237387799660428805ee8b0755933,
         type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8789389234130458407, guid: 5af237387799660428805ee8b0755933,
         type: 3}
@@ -90,7 +90,7 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 4459999481697222705}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &4512688377960351645
+--- !u!1001 &4585233842209619765
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -100,7 +100,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: a58a0f7089fd8e242bcaabb7b37c287e,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a58a0f7089fd8e242bcaabb7b37c287e,
         type: 3}
@@ -169,9 +169,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a58a0f7089fd8e242bcaabb7b37c287e, type: 3}
---- !u!1 &3630222332398762700 stripped
+--- !u!1 &3702922285683688036 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a58a0f7089fd8e242bcaabb7b37c287e,
     type: 3}
-  m_PrefabInstance: {fileID: 4512688377960351645}
+  m_PrefabInstance: {fileID: 4585233842209619765}
   m_PrefabAsset: {fileID: 0}

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 2382750124830825709, guid: 31232bb530b2618478df7e6dc3d950e2, type: 3}
   secondaryData: []
+  prefabLoc: ImprovementPrefabs/Lumbermill01
   audio: {fileID: 8300000, guid: b4526b40350bcec4fa2a92ce4da01ad3, type: 3}
   isSecondary: 0
   isBuilding: 0
@@ -67,5 +68,4 @@ MonoBehaviour:
   getTerrainResource: 0
   attackBonus: 0
   singleBuildType: 0
-  noWalkAreas:
-  - {x: 0, y: 0, z: 0}
+  buildOnRoad: 0
