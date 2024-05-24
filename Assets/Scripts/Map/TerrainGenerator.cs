@@ -161,7 +161,7 @@ public class TerrainGenerator : MonoBehaviour
             if (!enemyLeaderDict[data.unitEra].ContainsKey(data.unitRegion))
                 enemyLeaderDict[data.unitEra][data.unitRegion] = new();
 
-            enemyLeaderDict[data.unitEra][data.unitRegion].Add(data.prefab);
+            enemyLeaderDict[data.unitEra][data.unitRegion].Add(Resources.Load<GameObject>("Prefabs/" + data.prefabLoc));
         }
 
         foreach (UnitBuildDataSO data in enemyUnits)
@@ -172,7 +172,7 @@ public class TerrainGenerator : MonoBehaviour
             if (!enemyUnitDict[data.unitEra].ContainsKey(data.unitRegion))
                 enemyUnitDict[data.unitEra][data.unitRegion] = new();
             
-            enemyUnitDict[data.unitEra][data.unitRegion][data.unitType] = data.prefab;
+            enemyUnitDict[data.unitEra][data.unitRegion][data.unitType] = Resources.Load<GameObject>("Prefabs/" + data.prefabLoc);
 		}
     }
 

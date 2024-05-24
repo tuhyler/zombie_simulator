@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 6605712757047853907, guid: 3c8edcb96e61d3d4aa992a50cf950801, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitEnemyLeaderPrefabs/Sennacherib
+  secondaryPrefabLoc: 
   nationalityAdjective: 
   unitDisplayName: Sennacherib
   unitLevel: 2
@@ -21,6 +23,7 @@ MonoBehaviour:
   empireUnit: 0
   inMilitary: 0
   image: {fileID: 0}
+  imageName: 
   mapIcon: {fileID: 0}
   unitCost: []
   cycleCost: []

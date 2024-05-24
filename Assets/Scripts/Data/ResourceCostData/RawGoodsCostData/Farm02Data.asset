@@ -15,6 +15,7 @@ MonoBehaviour:
   prefab: {fileID: 5838738910640936402, guid: 7424a7609d612054094a5c5c29a63ede, type: 3}
   secondaryData:
   - {fileID: 11400000, guid: 2155c81b9dc009b4cb28374da567cb0f, type: 2}
+  prefabLoc: ImprovementPrefabs/Farm01
   audio: {fileID: 8300000, guid: fd547594fa4d0ec44b52f036d8414a5a, type: 3}
   isSecondary: 0
   isBuilding: 0
@@ -64,5 +65,4 @@ MonoBehaviour:
   getTerrainResource: 0
   attackBonus: 0
   singleBuildType: 0
-  noWalkAreas:
-  - {x: 0, y: 0, z: 0}
+  buildOnRoad: 0

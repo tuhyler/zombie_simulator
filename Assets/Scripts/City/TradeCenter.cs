@@ -164,7 +164,7 @@ public class TradeCenter : MonoBehaviour, ITradeStop, IGoldWaiter
 		else
 			endRotation = Quaternion.LookRotation(rotationDirection, Vector3.up);
 
-		GameObject rep = Instantiate(tradeCenterRep.prefab, instantiateLoc, endRotation);
+		GameObject rep = Instantiate(Resources.Load<GameObject>("Prefabs/" + tradeCenterRep.prefabLoc), instantiateLoc, endRotation);
         rep.transform.SetParent(transform, false);
         tcRep = rep.GetComponent<TradeRep>();
         tcRep.SetUpTradeRep(world);

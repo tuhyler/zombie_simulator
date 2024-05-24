@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5122609563439273834, guid: 3993f2e203871824f9ae6497ee5a3bb9, type: 3}
   secondaryData: []
+  prefabLoc: ImprovementPrefabs/Weaver02
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 0
@@ -60,9 +61,9 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
@@ -71,8 +72,6 @@ MonoBehaviour:
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
-  noWalkAreas:
-  - {x: 1, y: 0, z: 1}
-  - {x: -1, y: 0, z: 0}
-  - {x: 0, y: 0, z: -1}
-  - {x: 1, y: 0, z: -1}
+  attackBonus: 0
+  singleBuildType: 0
+  buildOnRoad: 0

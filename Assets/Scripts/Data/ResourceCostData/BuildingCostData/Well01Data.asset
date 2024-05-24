@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7952248765643111094, guid: 86e1653ccae37404d808370b22a52b1a, type: 3}
   secondaryData: []
+  prefabLoc: BuildingPrefabs/Well01
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
@@ -23,7 +24,7 @@ MonoBehaviour:
   improvementLevel: 1
   improvementNameAndLevel: Well-1
   improvementDescription: 
-  buildingLocation: {x: -0.6, y: 0, z: -1.3}
+  buildingLocation: {x: -0.1, y: 0, z: 0.6}
   image: {fileID: 21300000, guid: 6ca7e4c9d07a9bf4693721e45aadcad3, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
@@ -48,6 +49,7 @@ MonoBehaviour:
   housingIncrease: 0
   cityHousing: 0
   waterIncrease: 4
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   oneTerrain: 1
@@ -60,4 +62,4 @@ MonoBehaviour:
   getTerrainResource: 0
   attackBonus: 0
   singleBuildType: 9
-  noWalkAreas: []
+  buildOnRoad: 0

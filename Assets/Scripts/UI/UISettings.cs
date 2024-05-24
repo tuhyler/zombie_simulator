@@ -195,7 +195,13 @@ public class UISettings : MonoBehaviour
 
 		resolutionDropdown.value = data.resolution;
 		resolutionDropdown.RefreshShownValue();
-		Resolution resolution = resolutions[data.resolution];
+
+        Resolution resolution;
+
+		if (data.resolution >= resolutions.Length)
+			resolution = resolutions[resolutions.Length - 1];
+		else
+            resolution = resolutions[data.resolution];
 		Screen.SetResolution(resolution.width, resolution.height, true);
 	}
 }

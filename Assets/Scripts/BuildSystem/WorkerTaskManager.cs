@@ -297,7 +297,7 @@ public class WorkerTaskManager : MonoBehaviour
         td.ShowProp(false);
         td.FloodPlainCheck(true);
 
-        GameObject newCity = Instantiate(cityData.prefab, workerTile, Quaternion.identity); 
+        GameObject newCity = Instantiate(Resources.Load<GameObject>("Prefabs/" + cityData.prefabLoc), workerTile, Quaternion.identity); 
         newCity.transform.SetParent(world.cityHolder, false);
         world.AddStructure(workerTile, newCity); //adds building location to buildingDict
         City city = newCity.GetComponent<City>();

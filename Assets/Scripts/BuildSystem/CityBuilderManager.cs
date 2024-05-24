@@ -86,8 +86,8 @@ public class CityBuilderManager : MonoBehaviour
 
     //wonder management
     private Wonder selectedWonder;
-    [SerializeField]
-    private GameObject wonderHarbor;
+    //[SerializeField]
+    //private GameObject wonderHarbor;
 
     //trade center management
     private TradeCenter selectedTradeCenter;
@@ -628,9 +628,9 @@ public class CityBuilderManager : MonoBehaviour
 		GameObject workerGO;
 
 		if (secondary)
-			workerGO = world.laborerData.secondaryPrefab;
+			workerGO = Resources.Load<GameObject>("Prefabs/" + world.laborerData.secondaryPrefabLoc);
 		else
-			workerGO = world.laborerData.prefab;
+			workerGO = Resources.Load<GameObject>("Prefabs/" + world.laborerData.prefabLoc);
 
 		GameObject unit = Instantiate(workerGO, buildPosition, Quaternion.identity); //produce unit at specified position
 		unit.transform.SetParent(friendlyUnitHolder, false);
@@ -689,9 +689,9 @@ public class CityBuilderManager : MonoBehaviour
             GameObject workerGO;
             
             if (wonder.workerSexAndHome[i].Item1)
-                workerGO = world.laborerData.secondaryPrefab;
+                workerGO = Resources.Load<GameObject>("Prefabs/" + world.laborerData.secondaryPrefabLoc);
             else
-				workerGO = world.laborerData.prefab;
+				workerGO = Resources.Load<GameObject>("Prefabs/" + world.laborerData.prefabLoc);
 
             int place = i % locs.Count;
 
@@ -716,7 +716,7 @@ public class CityBuilderManager : MonoBehaviour
     public void BuildWonderHarbor(Vector3Int loc)
     {
         PlaySelectAudio(buildClip);
-        GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
+        GameObject harborGO = Instantiate(Resources.Load<GameObject>("Prefabs/ImprovementPrefabs/Harbor01South"), loc, Quaternion.Euler(0, HarborRotation(loc, selectedWonder.unloadLoc), 0));
         //for tweening
         Vector3 goScale = harborGO.transform.localScale;
         harborGO.transform.SetParent(world.wonderHolder, false);
@@ -739,7 +739,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void LoadWonderHarbor(Vector3Int loc, Wonder wonder)
     {
-		GameObject harborGO = Instantiate(wonderHarbor, loc, Quaternion.Euler(0, HarborRotation(loc, wonder.unloadLoc), 0));
+		GameObject harborGO = Instantiate(Resources.Load<GameObject>("Prefabs/ImprovementPrefabs/Harbor01South"), loc, Quaternion.Euler(0, HarborRotation(loc, wonder.unloadLoc), 0));
         harborGO.transform.SetParent(world.wonderHolder, false);
 		CityImprovement harbor = harborGO.GetComponent<CityImprovement>();
         harbor.SetWorld(world);
@@ -1031,7 +1031,7 @@ public class CityBuilderManager : MonoBehaviour
         else if (improvementData.replaceTerrain)
             newLoc.y += .1f;
 
-        GameObject improvementGhost = Instantiate(improvementData.prefab, newLoc, Quaternion.identity);
+        GameObject improvementGhost = Instantiate(Resources.Load<GameObject>("Prefabs/" + improvementData.prefabLoc), newLoc, Quaternion.identity);
 		improvementGhost.layer = LayerMask.NameToLayer("Text");
 		//for tweening
 		Vector3 goScale = improvementGhost.transform.localScale;
@@ -1452,7 +1452,7 @@ public class CityBuilderManager : MonoBehaviour
                 buildLoc.y += .3f;
         }
 
-		GameObject unit = Instantiate(unitData.prefab, buildLoc, Quaternion.identity); //produce unit at specified position
+		GameObject unit = Instantiate(Resources.Load<GameObject>("Prefabs/" + unitData.prefabLoc), buildLoc, Quaternion.identity); //produce unit at specified position
         unit.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
         Vector3 goScale = unit.transform.localScale;
@@ -1532,17 +1532,17 @@ public class CityBuilderManager : MonoBehaviour
 		}
 
         Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
-		GameObject unit = Instantiate(unitData.prefab, buildPosition, rotation); //produce unit at specified position
+		GameObject unit = Instantiate(Resources.Load<GameObject>("Prefabs/" + unitData.prefabLoc), buildPosition, rotation); //produce unit at specified position
 		unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
+		Unit newUnit = unit.GetComponent<Unit>();
 
 		//for tweening
 		Vector3 goScale = unit.transform.localScale;
         float scaleX = goScale.x;
         float scaleZ = goScale.z;
         unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
-        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
+        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(() => newUnit.outline.ToggleOutline(false));
 
-		Unit newUnit = unit.GetComponent<Unit>();
 		newUnit.SetReferences(world);
 		newUnit.SetMinimapIcon(friendlyUnitHolder);
         newUnit.PlayAudioClip(buildClip);
@@ -1734,11 +1734,11 @@ public class CityBuilderManager : MonoBehaviour
         if (world.GetTerrainDataAt(city.cityLoc).isHill)
         {
             cityPos.y += buildingData.hillAdjustment;
-            building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+            building = Instantiate(Resources.Load<GameObject>("Prefabs/" + buildingData.prefabLoc), cityPos, Quaternion.identity);
         }
         else
         {
-            building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+            building = Instantiate(Resources.Load<GameObject>("Prefabs/" + buildingData.prefabLoc), cityPos, Quaternion.identity);
         }
 
         //setting world data
@@ -2068,11 +2068,11 @@ public class CityBuilderManager : MonoBehaviour
         {
             Vector3 buildLocationHill = buildLocation;
             buildLocationHill.y += improvementData.hillAdjustment;
-            improvement = Instantiate(improvementData.prefab, buildLocationHill, Quaternion.Euler(0, rotation, 0));
+            improvement = Instantiate(Resources.Load<GameObject>("Prefabs/" + improvementData.prefabLoc), buildLocationHill, Quaternion.Euler(0, rotation, 0));
         }
         else
         {
-            improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
+            improvement = Instantiate(Resources.Load<GameObject>("Prefabs/" + improvementData.prefabLoc), buildLocation, Quaternion.Euler(0, rotation, 0));
         }
 
         improvement.transform.SetParent(world.objectPoolItemHolder, false);

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5838738910640936402, guid: 50e948a4b0d6df04f936d096275067d5, type: 3}
   secondaryData: []
+  prefabLoc: ImprovementPrefabs/Pasture01
   audio: {fileID: 8300000, guid: 94088e9cd82a59646accab37d4f79f00, type: 3}
   isSecondary: 0
   isBuilding: 0

@@ -676,7 +676,7 @@ public class MapWorld : MonoBehaviour
 					data.popSize = random.Next(5, 13);
 				else
 					data.popSize = 4;
-				BuildEnemyCity(data, tile, GetTerrainDataAt(tile), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, enemyRoadLocs, true, currentEra, false, empire, random);
+				BuildEnemyCity(data, tile, GetTerrainDataAt(tile), Resources.Load<GameObject>("Prefabs/" + UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefabLoc), enemyRoadLocs, true, currentEra, false, empire, random);
             }
     
             //adding city locs to road locs to build roads there (building roads first to build cities on top
@@ -1033,7 +1033,7 @@ public class MapWorld : MonoBehaviour
 
     public EnemyEmpire GenerateEnemyLeaders(UnitData data)
 	{
-        GameObject leaderGO = Instantiate(UpgradeableObjectHolder.Instance.enemyLeaderDict[data.unitNameAndLevel].prefab, data.position, data.rotation);
+        GameObject leaderGO = Instantiate(Resources.Load<GameObject>("Prefabs/" + UpgradeableObjectHolder.Instance.enemyLeaderDict[data.unitNameAndLevel].prefabLoc), data.position, data.rotation);
         leaderGO.transform.SetParent(enemyCityHolder, false);
         MilitaryLeader leader = leaderGO.GetComponent<MilitaryLeader>();
 		leader.SetUpNPC(this, data);
@@ -1052,7 +1052,7 @@ public class MapWorld : MonoBehaviour
 
 	public void GenerateEnemyCities(EnemyCityData data, EnemyEmpire empire, List<Vector3Int> roadLocs)
     {
-		BuildEnemyCity(data, data.loc, GetTerrainDataAt(data.loc), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, roadLocs, true, data.era, true, empire);
+		BuildEnemyCity(data, data.loc, GetTerrainDataAt(data.loc), Resources.Load<GameObject>("Prefabs/" + UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefabLoc), roadLocs, true, data.era, true, empire);
 	}
 
 	public void BuildEnemyCity(EnemyCityData data, Vector3Int cityTile, TerrainData td, GameObject prefab, List<Vector3Int> roadTiles, bool hasWater, Era era, bool load, EnemyEmpire empire, System.Random random = null)
@@ -1339,13 +1339,13 @@ public class MapWorld : MonoBehaviour
                 GameObject enemy;
 
                 if (enemyData.unitType == UnitType.Infantry)
-                    enemy = empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefab;
+                    enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefabLoc);
                 else if (enemyData.unitType == UnitType.Ranged)
-					enemy = empire.enemyLeader.leaderUnitDict[UnitType.Ranged].prefab;
+					enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[UnitType.Ranged].prefabLoc);
                 else if (enemyData.unitType == UnitType.Cavalry)
-					enemy = empire.enemyLeader.leaderUnitDict[UnitType.Cavalry].prefab;
+					enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[UnitType.Cavalry].prefabLoc);
                 else
-					enemy = empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefab;
+					enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefabLoc);
 
 				GameObject enemyGO = Instantiate(enemy, unitSpawn, rotation);
 			    enemyGO.name = enemyData.nationalityAdjective + " " + enemyData.unitDisplayName;
@@ -1445,23 +1445,23 @@ public class MapWorld : MonoBehaviour
 
             if (i < 3)
             {
-                enemy = leader.leaderUnitDict[UnitType.Infantry].prefab;
+                enemy = Resources.Load<GameObject>("Prefabs/" + leader.leaderUnitDict[UnitType.Infantry].prefabLoc);
                 spawnLoc = camp.GetAvailablePosition(UnitType.Infantry);
 			}
             else if (i < 6)
             {
-                enemy = leader.leaderUnitDict[UnitType.Ranged].prefab;
+                enemy = Resources.Load<GameObject>("Prefabs/" + leader.leaderUnitDict[UnitType.Ranged].prefabLoc);
 				spawnLoc = camp.GetAvailablePosition(UnitType.Ranged);
 			}
             else if (i < 8)
             {
-                enemy = leader.leaderUnitDict[UnitType.Cavalry].prefab;
+                enemy = Resources.Load<GameObject>("Prefabs/" + leader.leaderUnitDict[UnitType.Cavalry].prefabLoc);
 				spawnLoc = camp.GetAvailablePosition(UnitType.Cavalry);
 			}
             else
             {
                 UnitType type = types[UnityEngine.Random.Range(0, types.Count)];
-                enemy = leader.leaderUnitDict[type].prefab;
+                enemy = Resources.Load<GameObject>("Prefabs/" + leader.leaderUnitDict[type].prefabLoc);
 				spawnLoc = camp.GetAvailablePosition(type);
 			}
 
@@ -1584,11 +1584,11 @@ public class MapWorld : MonoBehaviour
 		if (GetTerrainDataAt(city.cityLoc).isHill)
 		{
 			cityPos.y += buildingData.hillAdjustment;
-			building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+			building = Instantiate(Resources.Load<GameObject>("Prefabs/" + buildingData.prefabLoc), cityPos, Quaternion.identity);
 		}
 		else
 		{
-			building = Instantiate(buildingData.prefab, cityPos, Quaternion.identity);
+			building = Instantiate(Resources.Load<GameObject>("Prefabs/" + buildingData.prefabLoc), cityPos, Quaternion.identity);
 		}
 
 		//setting world data
@@ -1654,11 +1654,11 @@ public class MapWorld : MonoBehaviour
 		{
 			Vector3 buildLocationHill = buildLocation;
 			buildLocationHill.y += improvementData.hillAdjustment;
-			improvement = Instantiate(improvementData.prefab, buildLocationHill, Quaternion.Euler(0, rotation, 0));
+			improvement = Instantiate(Resources.Load<GameObject>("Prefabs/" + improvementData.prefabLoc), buildLocationHill, Quaternion.Euler(0, rotation, 0));
 		}
 		else
 		{
-			improvement = Instantiate(improvementData.prefab, buildLocation, Quaternion.Euler(0, rotation, 0));
+			improvement = Instantiate(Resources.Load<GameObject>("Prefabs/" + improvementData.prefabLoc), buildLocation, Quaternion.Euler(0, rotation, 0));
 		}
 
 		if (enemy)
@@ -2058,7 +2058,7 @@ public class MapWorld : MonoBehaviour
 					else
 						rotation = Quaternion.LookRotation(direction, Vector3.up);
 				}
-				GameObject enemyGO = Instantiate(enemyData.prefab, unitSpawn, rotation);
+				GameObject enemyGO = Instantiate(Resources.Load<GameObject>("Prefabs/" + enemyData.prefabLoc), unitSpawn, rotation);
                 enemyGO.name = enemyData.unitDisplayName;
                 enemyGO.transform.SetParent(enemyUnitHolder, false);
                 if (!reveal)
@@ -2125,7 +2125,7 @@ public class MapWorld : MonoBehaviour
                 UnitData data = ambushLocs[tile].attackingUnits[i];
 				UnitBuildDataSO enemyData = UpgradeableObjectHolder.Instance.enemyUnitDict[data.unitNameAndLevel];
                 
-				GameObject enemyGO = Instantiate(enemyData.prefab, data.position, data.rotation);
+				GameObject enemyGO = Instantiate(Resources.Load<GameObject>("Prefabs/" + enemyData.prefabLoc), data.position, data.rotation);
 				enemyGO.name = enemyData.unitDisplayName;
 				enemyGO.transform.SetParent(enemyUnitHolder, false);
 
@@ -2149,10 +2149,10 @@ public class MapWorld : MonoBehaviour
     public void CreateUnit(IUnitData data, City city = null)
     {
         UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
-		GameObject unitGO = unitData.prefab;
+		GameObject unitGO = Resources.Load<GameObject>("Prefabs/" + unitData.prefabLoc);
 
         if (data.secondaryPrefab)
-            unitGO = unitData.secondaryPrefab;
+            unitGO = Resources.Load<GameObject>("Prefabs/" + unitData.secondaryPrefabLoc);
 
 		GameObject unit = Instantiate(unitGO, data.position, data.rotation); //produce unit at specified position
 		unit.transform.SetParent(unitHolder, false);
@@ -2267,7 +2267,7 @@ public class MapWorld : MonoBehaviour
 	public void CreateGuard(UnitData data, Trader trader)
     {
 		UnitBuildDataSO unitData = UpgradeableObjectHolder.Instance.unitDict[data.unitNameAndLevel];
-		GameObject unitGO = unitData.prefab;
+		GameObject unitGO = Resources.Load<GameObject>("Prefabs/" + unitData.prefabLoc);
 		GameObject unit = Instantiate(unitGO, data.position, data.rotation); //produce unit at specified position
 		unit.transform.SetParent(unitHolder, false);
 		Unit newUnit = unit.GetComponent<Unit>();
@@ -2301,7 +2301,7 @@ public class MapWorld : MonoBehaviour
         byte[] bytes = texture.EncodeToPNG();
         //string bytesString = Convert.ToBase64String(bytes);
         //File.WriteAllBytes(Application.persistentDataPath + "/Screenshot.png", bytes);
-		File.WriteAllBytes("Assets/Resources/SaveScreens/" + saveName + ".png", bytes);
+		File.WriteAllBytes(Application.persistentDataPath + "/" + saveName + "Screen.png", bytes);
 		//Texture2D newTexture = texture;
 
         Cursor.visible = true;
@@ -2887,7 +2887,7 @@ public class MapWorld : MonoBehaviour
 
     public void UpgradeAzai(UnitBuildDataSO data)
     {
-		GameObject unit = Instantiate(data.prefab, Vector3.zero, Quaternion.identity); //produce unit at specified position
+		GameObject unit = Instantiate(Resources.Load<GameObject>("Prefabs/" + data.prefabLoc), Vector3.zero, Quaternion.identity); //produce unit at specified position
 		unit.transform.SetParent(cityBuilderManager.friendlyUnitHolder, false);
 		//for tweening
 		Vector3 goScale = unit.transform.localScale;
@@ -3319,23 +3319,24 @@ public class MapWorld : MonoBehaviour
             wonderInfo.SetLastPrefab(); //only showing 100 Perc prefab
             if (wonderInfo.wonderCollider != null)
                 wonderInfo.wonderCollider.SetActive(false);
-            Color newColor = new(1, 1, 1, .75f);
+            //Color newColor = new(1, 1, 1, .75f);
             MeshRenderer[] renderers = wonderGhost.GetComponentsInChildren<MeshRenderer>();
 
             //assigning transparent material to all meshrenderers
             foreach (MeshRenderer render in renderers)
             {
-                Material[] newMats = render.materials;
+                render.material = transparentMat;
+                //Material[] newMats = render.materials;
 
-                for (int i = 0; i < newMats.Length; i++)
-                {
-                    Material newMat = new(transparentMat);
-                    newMat.color = newColor;
-                    newMat.SetTexture("_BaseMap", newMats[i].mainTexture);
-                    newMats[i] = newMat;
-                }
+                //for (int i = 0; i < newMats.Length; i++)
+                //{
+                //    Material newMat = new(transparentMat);
+                //    newMat.color = newColor;
+                //    newMat.SetTexture("_BaseMap", newMats[i].mainTexture);
+                //    newMats[i] = newMat;
+                //}
 
-                render.materials = newMats;
+                //render.materials = newMats;
             }
 
             foreach (Vector3Int tile in wonderLocList)
@@ -4385,7 +4386,7 @@ public class MapWorld : MonoBehaviour
 		else
 			endRotation = Quaternion.LookRotation(direction, Vector3.up);
         //ambushLoc = new Vector3Int(35, 0, 38);
-		GameObject enemyGO = Instantiate(ambushingUnit.prefab, ambushLoc, endRotation);
+		GameObject enemyGO = Instantiate(Resources.Load<GameObject>("Prefabs/" + ambushingUnit.prefabLoc), ambushLoc, endRotation);
         enemyGO.name = ambushingUnit.unitDisplayName;
 		enemyGO.transform.SetParent(enemyUnitHolder, false);
 

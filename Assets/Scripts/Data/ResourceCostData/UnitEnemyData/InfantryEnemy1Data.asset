@@ -14,12 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7908251711836792820, guid: 92f04d683c5750b4fafbc7279053199f, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitEnemyPrefabs/infantry_1_enemy
+  secondaryPrefabLoc: 
   nationalityAdjective: Bandit
   unitDisplayName: Smasher
   unitLevel: 1
   unitNameAndLevel: Infantry-1
   empireUnit: 0
+  inMilitary: 0
   image: {fileID: 0}
+  imageName: 
   mapIcon: {fileID: 21300000, guid: b54eab4db8eba204c9f8f31fee95053f, type: 3}
   unitCost: []
   cycleCost: []

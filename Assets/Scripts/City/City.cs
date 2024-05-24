@@ -84,7 +84,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 	[HideInInspector]
 	public bool housingLocsAtMax;
 	//private int[] housingIndex = new[] { 0, 0, 0, 0 };
-	private List<Vector3> housingLocs = new() { new Vector3(0.7f, 0, 1.2f), new Vector3(-1.2f, 0, 0.7f), new Vector3(-1.2f, 0, -0.7f), new Vector3(0.7f, 0, -1.2f) };
+	private List<Vector3> housingLocs = new() { new Vector3(0.7f, 0, 1f), new Vector3(-1f, 0, 0.7f), new Vector3(-1f, 0, -0.7f), new Vector3(0.7f, 0, -1f) };
 	private int housingCount = 0, houseCount, upgradeIndex;
     public int HousingCount { get { return housingCount; } set { housingCount = value; } }
     private CityImprovement[] housingArray = new CityImprovement[4];
@@ -512,7 +512,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         direction.y = 0;
         Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
 
-        GameObject housing = Instantiate(housingData.prefab, houseLoc, endRotation); //underground temporarily
+        GameObject housing = Instantiate(Resources.Load<GameObject>("Prefabs/" + housingData.prefabLoc), houseLoc, endRotation); //underground temporarily
         //housing.transform.position = houseLoc;
         CityImprovement improvement = housing.GetComponent<CityImprovement>();
         improvement.SetWorld(world);
@@ -560,7 +560,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 		direction.y = 0;
 		Quaternion endRotation = Quaternion.LookRotation(direction, Vector3.up);
 
-		GameObject housing = Instantiate(housingData.prefab, houseLoc, endRotation); //underground temporarily
+		GameObject housing = Instantiate(Resources.Load<GameObject>("Prefabs/" + housingData.prefabLoc), houseLoc, endRotation); //underground temporarily
 																					 //housing.transform.position = houseLoc;
 		CityImprovement improvement = housing.GetComponent<CityImprovement>();
         improvement.SetWorld(world);
@@ -606,8 +606,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         waterCount -= amount;
         Vector3Int loc = cityLoc;
         loc.y += 3;
-		heavenHighlight = Instantiate(heavenHighlight, loc, Quaternion.identity);
-		heavenHighlight.transform.SetParent(world.psHolder, false);
+		ParticleSystem tempHeavenHighlight = Instantiate(heavenHighlight, loc, Quaternion.identity);
+		tempHeavenHighlight.transform.SetParent(world.psHolder, false);
 		//heavenHighlight.Play();
 
         if (waterCount <= 0)
@@ -737,8 +737,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public void PlayHellHighlight(Vector3 loc)
     {
 		loc.y += 3f;
-		hellHighlight = Instantiate(hellHighlight, loc, Quaternion.identity);
-		hellHighlight.transform.SetParent(world.psHolder, false);
+		ParticleSystem tempHellHighlight = Instantiate(hellHighlight, loc, Quaternion.identity);
+		tempHellHighlight.transform.SetParent(world.psHolder, false);
 		//hellHighlight.transform.position = loc;
 		//hellHighlight.Play();
     }
@@ -1346,13 +1346,13 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
 
 		if (camp.infantryCount + leaderInfantry < 3)
-            enemy = empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefab;
+            enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[UnitType.Infantry].prefabLoc);
         else if (camp.rangedCount + leaderRanged < 3)
-			enemy = empire.enemyLeader.leaderUnitDict[UnitType.Ranged].prefab;
+			enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[UnitType.Ranged].prefabLoc);
 		else if (camp.cavalryCount < 2)
-			enemy = empire.enemyLeader.leaderUnitDict[UnitType.Cavalry].prefab;
+			enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[UnitType.Cavalry].prefabLoc);
 		else
-            enemy = empire.enemyLeader.leaderUnitDict[types[UnityEngine.Random.Range(0, types.Count)]].prefab;
+            enemy = Resources.Load<GameObject>("Prefabs/" + empire.enemyLeader.leaderUnitDict[types[UnityEngine.Random.Range(0, types.Count)]].prefabLoc);
 
 		UnitType type = enemy.GetComponent<Military>().buildDataSO.unitType;
 		Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);

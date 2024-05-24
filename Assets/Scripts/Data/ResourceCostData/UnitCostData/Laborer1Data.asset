@@ -15,11 +15,16 @@ MonoBehaviour:
   prefab: {fileID: 8266383177558337226, guid: cb350d5765272fc44b256dd944294073, type: 3}
   secondaryPrefab: {fileID: 8266383177558337226, guid: deea346bcc32ad1469f6e06830ec36f0,
     type: 3}
+  prefabLoc: UnitPrefabs/laborer_1
+  secondaryPrefabLoc: UnitPrefabs/laborer_1a
   nationalityAdjective: 
   unitDisplayName: Laborer
   unitLevel: 1
   unitNameAndLevel: Laborer-1
+  empireUnit: 0
+  inMilitary: 0
   image: {fileID: 21300000, guid: 38c96c942e8bff6448b8933a40ad9a8d, type: 3}
+  imageName: 
   mapIcon: {fileID: 21300000, guid: 9b23ce138e88b6d4190fc1a4ee56ab20, type: 3}
   unitCost: []
   cycleCost:

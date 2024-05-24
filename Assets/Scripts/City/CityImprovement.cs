@@ -942,5 +942,6 @@ public enum SingleBuildType
     AirBase,
     Market,
     Monument,
-    Well
+    Well,
+    Walls
 }

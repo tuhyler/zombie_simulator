@@ -485,7 +485,7 @@ public class GameLoader : MonoBehaviour
 		//cities
 		for (int i = 0; i < gameData.allCities.Count; i++)
 		{
-			world.BuildCity(gameData.allCities[i].location, world.GetTerrainDataAt(gameData.allCities[i].location), UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefab, gameData.allCities[i]);
+			world.BuildCity(gameData.allCities[i].location, world.GetTerrainDataAt(gameData.allCities[i].location), Resources.Load<GameObject>("Prefabs/" + UpgradeableObjectHolder.Instance.improvementDict["City-0"].prefabLoc), gameData.allCities[i]);
 		}
 		gameData.allCities.Clear();
 		gameData.allArmies.Clear();

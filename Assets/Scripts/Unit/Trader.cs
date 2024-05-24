@@ -1443,6 +1443,7 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 				world.AddTraderPosition(currentLocation, this);
 
 				Rotate(world.GetNeighborsCoordinates(MapWorld.State.EIGHTWAY)[Random.Range(0,8)] + currentLocation);
+				outline.ToggleOutline(false);
 
 				if (isSelected)
 					world.unitMovement.ShowIndividualCityButtonsUI();

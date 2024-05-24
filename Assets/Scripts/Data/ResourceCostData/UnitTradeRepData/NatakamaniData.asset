@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 3248194934909022928, guid: e97f01c39cfe9e84ea79532f33bf3d57, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitTradeRepPrefabs/Natakamani
+  secondaryPrefabLoc: 
   nationalityAdjective: 
   unitDisplayName: Natakamani
   unitLevel: 1

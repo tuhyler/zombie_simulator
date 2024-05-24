@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
+  m_Name: TradeDepot01SouthData
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 0}
+  secondaryData: []
+  prefabLoc: ImprovementPrefabs/TradeDepot01South
+  audio: {fileID: 0}
+  isSecondary: 0
+  isBuilding: 1
+  isBuildingImprovement: 1
+  improvementName: Trade Depot
+  improvementDisplayName: Trade Depot
+  improvementLevel: 1
+  improvementNameAndLevel: Trade Depot-1
+  improvementDescription: Opens trade stop and builds ancient era traders
+  buildingLocation: {x: 0, y: 0, z: 0}
+  image: {fileID: 21300000, guid: 443eb3caa69410a468f9f460b148f74c, type: 3}
+  mapIcon: {fileID: 21300000, guid: a4ab15b5ffbfb554cbf20f939e4de92d, type: 3}
+  improvementCost:
+  - resourceType: 6
+    resourceAmount: 1
+  - resourceType: 7
+    resourceAmount: 1
+  consumedResources: []
+  consumedResources1: []
+  consumedResources2: []
+  consumedResources3: []
+  consumedResources4: []
+  producedResources: []
+  producedResourceTime: 
+  rawMaterials: 0
+  rawResourceType: 0
+  isResearch: 0
+  terrainType: 5
+  specificTerrain: 0
+  workEthicChange: 0
+  maxLabor: 0
+  housingIncrease: 0
+  cityHousing: 0
+  waterIncrease: 0
+  powerIncrease: 0
+  replaceTerrain: 0
+  replaceRocks: 0
+  oneTerrain: 1
+  adjustForHill: 0
+  hideProp: 1
+  hillAdjustment: 0
+  buildTime: 5
+  availableInitially: 1
+  hideIdleMesh: 0
+  getTerrainResource: 0
+  attackBonus: 0
+  singleBuildType: 2
+  buildOnRoad: 1

@@ -273,7 +273,7 @@ public class UISaveGame : MonoBehaviour
 		version.gameObject.SetActive(false);
 		screenshotParent.SetActive(false);
 
-        File.Delete("Assets/Resources/SaveScreens/" + selectedSaveItem.saveName + ".png");
+        File.Delete(Application.persistentDataPath + "/" + selectedSaveItem.saveName + "Screen.png");
 		File.Delete(path);
 	}
 

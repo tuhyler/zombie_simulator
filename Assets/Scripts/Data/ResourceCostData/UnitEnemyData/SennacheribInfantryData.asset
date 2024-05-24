@@ -14,12 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7908251711836792820, guid: df96022808c074d4b8743d69e8de5496, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitEnemyPrefabs/SennacheribInfantry
+  secondaryPrefabLoc: 
   nationalityAdjective: Assyrian
   unitDisplayName: Warrior
   unitLevel: 2
   unitNameAndLevel: AssyrianInfantry-2
   empireUnit: 1
+  inMilitary: 0
   image: {fileID: 0}
+  imageName: 
   mapIcon: {fileID: 21300000, guid: b54eab4db8eba204c9f8f31fee95053f, type: 3}
   unitCost: []
   cycleCost: []

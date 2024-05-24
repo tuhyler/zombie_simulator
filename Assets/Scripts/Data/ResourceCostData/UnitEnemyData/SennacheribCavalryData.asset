@@ -14,12 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 5472208631966679460, guid: c6c28e939fb9f024694466a996fd8725, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitEnemyPrefabs/SennacheribCavalry
+  secondaryPrefabLoc: 
   nationalityAdjective: Assyrian
   unitDisplayName: Horseman
   unitLevel: 2
   unitNameAndLevel: AssyrianCavalry-2
   empireUnit: 1
+  inMilitary: 0
   image: {fileID: 0}
+  imageName: 
   mapIcon: {fileID: 21300000, guid: dc76964902761f94c935417a2a80ac87, type: 3}
   unitCost: []
   cycleCost: []

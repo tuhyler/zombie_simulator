@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 3248194934909022928, guid: ebe930062ecfe6f489de1145e32053be, type: 3}
   secondaryPrefab: {fileID: 0}
+  prefabLoc: UnitTradeRepPrefabs/Haniya
+  secondaryPrefabLoc: 
   nationalityAdjective: 
   unitDisplayName: Haniya
   unitLevel: 1

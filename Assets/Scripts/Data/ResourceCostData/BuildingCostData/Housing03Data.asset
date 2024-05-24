@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 608994612172062795, guid: b944dbf5507ee214ab5a7d84b59b8e40, type: 3}
   secondaryData: []
+  prefabLoc: BuildingPrefabs/Housing03
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
@@ -23,7 +24,7 @@ MonoBehaviour:
   improvementLevel: 3
   improvementNameAndLevel: Housing-3
   improvementDescription: 
-  buildingLocation: {x: 0, y: 0, z: 1}
+  buildingLocation: {x: 0, y: 0, z: 0}
   image: {fileID: 21300000, guid: e15c6450211bb9d4b9b2c129d30e54f0, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
@@ -48,9 +49,9 @@ MonoBehaviour:
   housingIncrease: 3
   cityHousing: 1
   waterIncrease: 0
+  powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
-  singleBuild: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
@@ -59,4 +60,6 @@ MonoBehaviour:
   availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
-  noWalkAreas: []
+  attackBonus: 0
+  singleBuildType: 0
+  buildOnRoad: 0
