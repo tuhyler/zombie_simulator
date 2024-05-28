@@ -14,3 +14,350 @@ Handy Spend Melt !911
 
 
 What, I would never do that. But since you brough it up, what would it be like?
+
+
+Azai
+*Introduction*
+A: What accomplishments do you have that are worth sharing?
+
+K: Uh, I have lots of them! Like, I'm a high school graduate *cough* equivalent... I've been to New York City TWICE... um, I can tell the difference between butter and I Can't Believe It's Not Butter...
+
+K: Do you want me to keep going? Because, I could keep going...
+
+A: No need! you've said enough for me to know all about you.
+
+Haniya:
+*Introduction*
+
+H: Hi! I'm Haniya, and I run the trade operations out of Indus Valley, can I interest you in some spices? 
+
+K: Hello, I'm Koa. It's nice to--
+
+A: *Interrupting* Greetings! I am Azai, conqueror of Ximara and ruler of Tavaria!  
+
+H: Hi Azai! I like your name, sounds like you've had a lot adventures! 
+
+K: Yeah, he's had an exhausting life. Anyways, do you sell anything that you think our people would like?
+
+H: I do! Like I said before, I have some of the finest spices on the continent, plus some--
+
+A: *Loudly* Perhaps the lady would like to hear me recount my tales of strength and valor, such as when I bested the fierce Ximaran warrior, Hemar.
+
+H: Um, maybe another time? I'm just very excited to show all of you my wares that I have to offer.
+
+K: *Nudging Azai* Yeah, maybe you should let her finish her sales pitch before you start showing off who you've "bested" and how much weight you can bench, and whatever else.
+
+H: Yes, well, I'm glad you stopped by Indus Valley! We have plenty of goods to sell so feel free to stop by at any time, I'll also be glad to take purchase any merchandise you offer as well.
+
+K: Sounds good! Let us take a took at what we need or don't need and we'll send some traders over here soon.
+
+
+*Quest 1 prompt*
+A: *Clears throat loudly*
+
+K: Yes? What is it?
+
+A: *Speaking very softly and in an unnaturally high voice* So do you think she liked me?
+
+K: What? 
+
+A: *Now with a normal tone, trying to appear tough* I am simply querying if the aforementioned lady fancies someone, perhaps someone such as myself. 
+
+K: Who, Haniya? Um, well, you may have come on a bit strong with your loud declarations of your past accomplishments...
+
+A: *High pitched voice again* Maybe you can suggest what I should do then? I know I'm not much to look at and I've never been able to express myself very well when conversing with the opposite sex, so perhaps you can offer guidance...
+
+K: Well, maybe next time, don't focus so much on yourself? I'd say try to learn more about her by asking lots of questions.
+
+A: *A little too loudly* Your challenge is accepted, sir! I shall know everything there is to know about our newest acquaintance, from the number of years she's lived to the amount she weighs. 
+
+K: *Not really listening anymore* Yeah, you got it, that's the spirit!
+
+
+*Quest 1*
+H: Hi guys! I'm so glad you came back!
+
+A: *Clearly nervous* Greetings Haniya! Uh, how are you on this fine day? Um, how was your morning? What did you have for breakfast? If you could be any animal, what would it be and why? 
+
+H: Oh, I'm not doing very well at all, actually. The roof of my house has a terrible leak and I need some containers to catch the leaking water. Do you have anything that you could offer to help me with my problem? 
+
+H: I would need exactly ten of these items. I will, of course, compensate you for your time and offering. 
+
+K: Yeah, I think we can get something like that, what do you say, Azai?
+
+A: Haniya, will our completion of your request make you happy? 
+
+H: *With a big smile* Yes! Very much so!
+
+A: Then we shall waste no time in getting you what you need! Onward, my fellow contemporaries! 
+
+*Quest 1 complete*
+H: Thank you so much for your help! I was worried I was going to have to turn my house into an indoor pool and charge people for entry.
+
+K: Yeah, no problem! Provided you deliver on the compensation you promised...
+
+H: Absolutely, and I'm happy to pay! Oh, and Azai?
+
+A: Yes, my lady?
+
+H: If I could be any animal, I would be a dog, because I love being around others and I'm fiercely loyal to those I love the most. What about you?
+
+A: *Blushing* I would be a stag, the adult male deer, because stags are protective leaders of their herd, gracefully standing up to danger whenever necessary.
+
+K: Wow, that's a pretty pathetic animal to pick from someone who's always talking about "conquering" and "ruling". 
+
+H: I thought it was a great animal to choose! I love deer!
+
+A: *Smiles*
+
+
+*Quest 2 Prompt*
+A: *Ahem* That went quite well, I would say. Our earlier interaction with Haniya, I mean.
+
+S: Yeah, I thought it went great! She really responded well to what you had to say. Great job, Azai!
+
+A: Koa, seeing as your previous advice was so successful, any other tokens of wisdom you'd wish to part with?
+
+K: Well, in my experience with the female folk, they seem to really prefer a man with a high level of confidence.
+
+A: So NOW I can divulge my feats of strength? Of defeating the mighty warrior Hemar? In truth, I was wearing a full suit of armor for the battle, but it would be more impressive if I was shirtless, so I'll recount it that way. 
+
+K: Whoa, settle down Hercules, I don't think you want to come off as arrogant, or overly intimidating. Just, you know, act like it's not a big deal if she doesn't go for you, like you just don't care or whatever.
+
+A: Like I don't care... acknowledged!
+
+
+*Quest 2*
+H: Hello! And thanks again for your help earlier, those vases have been very helpful in catching the water from the leaking roof. 
+
+K: Glad to hear it, anything else we can get for you, preferably for some additional coins?
+
+H: Actually, yes! I'm gathering all the supplies to fix the roof, but I need some material to patch up the cracks, do you have five bricks you can part with? They can't be stone though, those would be too heavy. 
+
+S: Absolutely we can provide that for you, right guys? We'll head home and round those items up right away!
+
+H: Thanks again for you help! I've been so worried about that leaking roof overhead, what if the leaks get worse and it flood my house, or the whole thing collapses while I'm sleeping?
+
+A: To be frank, I couldn't care less about this entire situation.
+
+H: What!?
+
+A: Like I said, I can't think of anything in this entire world that I could possibly care less about. Hu-WAH! *Yells and thumps chest*
+
+H: Oh... well, if that's how you feel, you don't have to--
+
+K: We can help! We'll get you your stuff! *Shooting an angry glance towards Azai* Sorry about Azai, he's just in a somber mood right now, his dog is sick or something...
+
+
+*Quest 2 Complete*
+H: Thanks for your help! This will definitely help me sleep better at night. And here's a little something for your trouble, as promised. 
+
+A: For the record, I really don't care--
+
+K: Dude! 
+
+K: Glad we could help, Haniya, and thanks for your business. We'll be seeing you later, after Azai and I have a little discussion...
+
+
+*Quest 3 Prompt*
+A: Your previous advice to help me with Haniya did not seem to be particularly effective. 
+
+K: That's because you took it way too literally! Maybe this next time around you should stay quiet, you can hope Haniya likes the strong and silent type.
+
+S: Azai, as your closest and dearest friend...
+
+K: You guys just barely met like an hour ago. 
+
+S: As your closest and dearest friend, might I suggest apologizing to her? I've been married to my wife for twenty years now and apologizing has always worked for me whenever I feel like I've said the wrong thing.
+
+A: Nonsense! Apologies are for foppling lubberworts!
+
+K: Apologies are for what? You sound like you just crawled out of a Charles Dickenes novel. 
+
+S: Still, if you really like her, maybe give it a try? 
+
+A: *Grunting* Hrrmmph!
+
+
+*Quest 3*
+H: Hello again! What have you been up to since we last talked?
+
+K: Oh, you know, a little of this, a little of that. Any chance we can get you something for some coins?  
+
+H: Well, I'm in the process of fixing my roof, but I need cloth, specifically ten, to help keep things clean. Is that something you could help with?
+
+S: Delighted to help! We'll get on that straight away!
+
+H: Sounds great! You all are absolute life savers.
+
+S: But Haniya, before we go, I believe Azai has something he'd like to say.
+
+H: *Cautiously* Yes, Azai? What is it? 
+
+A: *Mumbling incoherently* mamjerfpwerhubarbgrerwalmrhubarbyalm...
+
+H: Sorry, what was that? 
+
+A: *Staring wide-eyed at the horizon while holding his breath*
+
+H: Is he going to say something or...?
+
+K: I'm not sure, I think he's determining if he's a "foppling lubberwort" or not. 
+
+
+*Quest 3 completed*
+H: Wow! Thanks for getting that so quickly! And here's a little something for you!
+
+K: Much appreciated! This last one was barely out of our way to go get.
+
+S: Yes indeedy! And you be sure to let us know if there's anything else!
+
+H: Oh, definitely! I've learned I can count on you all to deliver. I'll talk to you later!
+
+A: Wait... Haniya? 
+
+H: Yes?
+
+A: *Looking down at the ground, drawing in the dirt with his toe* I just wanted to say.. you know... about that thing earlier...
+
+H: Go on...
+
+A: I'm sorry for my previous comments. I wasn't quite myself earlier, and I was stupidly following advice from this idiot that I know.
+
+K: Hey!
+
+H: Oh, that's okay, Azai. What you said was so out of character that I assumed you weren't quite yourself. 
+
+A: Oh, I am overcome with relief! No to mention how pleased I am to have completed this "apology" task! 
+
+
+*Quest 4 prompt*
+A: The time has come for us to make our return Haniya.
+
+K: Oh yeah? *In a teasing voice* Do you MISS her? Do you want to be with her ALL THE TIME?
+
+A: Yes, of course. I have clearly been interested ever since we met her, and I even told you as much from the very beginning. 
+
+K: Oh. Right. 
+
+S: Great idea, Azai! Yes, we should go back as soon as we can! I'd like to hear about her progress on that roof of hers. 
+
+
+*Quest 4*
+K: Hi Haniya, we're back! How's it going? How's the roof of your house? 
+
+H: Welcome back, Koa! Good news! I fixed the roof! I don't have to worry about it caving in on me anymore! 
+
+A: Excellent work, Haniya! You handled this issue with a confidence and intelligence seen only from the best of Tavaria!
+
+H: *Beaming with pride* Thanks, Azai! I appreciate it. 
+
+H: Actually, I could use your help again. With all the repairs done on the house, it's gotten pretty stinky. Any chance you could get me something to make it smell better? I wouldn't need too much, let's say five? 
+
+K: After spending time with these two, you are asking the absolute worst people about tips on smelling good. 
+
+K: However, I might be able to scrounge something up for you!
+
+H: Yay! Great, thanks!
+
+
+*Quest 4 completed*
+H: This is perfect! Thank you so much! My house is going to smell so much better now!
+
+K: Yeah, glad to get that for you. I was hoping Scott or Azai could get some, or just roll around in it or something, but they didn't pick up on any of my hints unfortunately. 
+
+A: *Throwing his chest out* A man's musk is nothing to be ashamed of and should be displayed as a sign of his strength and hard work.  
+
+A: Unless you don't like the smell, Haniya? I don't want to make you uncomfortable or anything...
+
+H: *Smiling* I like the way you smell, Azai! Of course, I'm used to the smell of sewage because of my house right now, so my judgment may be a little off. 
+
+H: Oh, and before I forget, here's your payment for you help. I do hope you came back soon! 
+
+
+*Quest 5 prompt*
+A: The time has come for me to ask out Haniya!
+
+S: Is it really 
+
+*Quest 5*
+H: Hello again, Koa! I was hopeful you'd return soon, I have another favor to ask of you all. Would you be able to provide me a metal ingot that you can use to form weapons? 
+
+H: I would need ten of them. 
+
+K: I think Azai wanted to ask you something, right Azai? 
+
+H: Oh? What is it, Azai?
+
+A: Um, yes, er, well, for what purpose did you intend to use this bronze?
+
+*Quest 5 completed*
+H: Thank you again! These are very hard to come by so I'm glad you were able to get me this bronze. 
+
+A: For what purpose did you intend to use this bronze?
+
+H: Actually, they're for my boyfriend!
+
+K: Wait, they're for your what?
+
+H: My boyfriend! He's really big on forging metals and making weapons, he's going to love this!
+
+K: Oh, they're for your boyfriend...
+
+A: This bronze will make an excellent gift to the man in your life, no doubt a very lucky man. 
+
+K: Well Azai, that was a very mature response.
+
+A: However, it is time for us to depart now. We are surely needed back home to help building a civiliation, fending off enemy invaders, saving kittens stuck in tree, talking about our feelings, and so on.  
+
+K: Ah, there's the Azai I know.
+
+H: Goodbye everyone! Thanks again for your help!
+
+
+Natakamani:
+*Introduction*
+N: Greetings travelers! I am Natakamani, king of the Kush!
+
+K: Greetings, Natakamani! I am Koa, king of the pickle ball court! 
+
+N: Welcome to this great city of Meroe, the land where I was raised and where we have accumulated some of the finest goods that you and your people may find extremely appealing.
+
+K: This is a very beautiful city, Natakamani. I like those mini-pyramids you have over there. 
+
+S: Koa is actually from a different world than our! A world with super advanced technologies like flying rockets and plates made out of paper!
+
+N: You're from a different world? What is it like? What sort of technology do you have?
+
+K: Oh, all sorts of stuff, like cars, computers, airplanes, that kind of thing.
+
+N: *Visibly confused* I don't know what any of those items you listed are. 
+
+K: Ok, well, for example, we have a time machine that you can wear on your wrist!
+
+N: A TIME MACHINE!? Does it allow you to travel through time, into the past or future, or does it control the very fabric of time itself, allowing you to stop and start time at will?
+
+K: Well, no, it just... tells you what time it is. 
+
+N: *Clearly disappointed* Oh. That's... interesting...
+
+N: I must return to my people and my city, but do return when you get a chance. As I said before, our goods are some of the finest you will ever see and will no doubt suit the people of your kingdom. 
+
+
+*Can know the weather in advance*
+K: Hey Natakamani, you know, where I'm from, we have apps that tell you everything about the weather. Like what it's going to be like later, what it's like at that moment, that sort of thing. 
+
+N: What, you can't look out the window and see what the weather is? You don't have windows where you're from?  
+
+K: No, like, this technology tells you the weather in advance, so you know what to expect.
+
+N: Well, that's not hard to do either. *In a mocking voice* "Hey look, there's a bunch of dark clouds coming this way, guess that means it's going to rain soon." "Whoa!! How did you know that?? Are you from the future!?"
+
+N: "Hey, it's really windy today, that probably means a storm is coming." "Wow!! You must be a god!!".
+
+K: *flustered* ...look, it's really cool, okay?
+
+N: I'll bet it is, for someone of your, um, intellect. 
+
+
+*Can watch tv, staying in one spot*

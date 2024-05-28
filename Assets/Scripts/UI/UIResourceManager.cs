@@ -91,7 +91,7 @@ public class UIResourceManager : MonoBehaviour
         if (v)
         {
             this.city = city;
-            SetCityInfo(city.cityName, city.warehouseStorageLimit, city.ResourceManager.resourceStorageLevel);
+            SetCityInfo(city.cityName, city.warehouseStorageLimit, city.resourceManager.resourceStorageLevel);
             activeCells = 0;
             buttonDown.gameObject.SetActive(false);
 
@@ -190,7 +190,7 @@ public class UIResourceManager : MonoBehaviour
         activeCells++;
 
         gridCellDict[loc].resource.resourceType = type;
-        gridCellDict[loc].resource.SetValue(city.ResourceManager.ResourceDict[type]);
+        gridCellDict[loc].resource.SetValue(city.resourceManager.resourceDict[type]);
         gridCellDict[loc].resource.resourceImage.sprite = ResourceHolder.Instance.GetIcon(type);
         resourceUIDict[type] = loc;
     }

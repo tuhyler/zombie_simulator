@@ -23,7 +23,7 @@ public class UnitMarker : MonoBehaviour
         if (v == activeStatus)
             return;
 
-        unit.outline.ToggleOutline(v);
+        //unit.outline.ToggleOutline(v);
         //unit.outline.enabled = v;
         activeStatus = v;
         gameObject.SetActive(v);

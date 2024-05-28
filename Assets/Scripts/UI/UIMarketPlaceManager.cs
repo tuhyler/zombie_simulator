@@ -15,6 +15,7 @@ public class UIMarketPlaceManager : MonoBehaviour
     private Transform resourceHolder;
 
     List<UIMarketResourcePanel> marketResourceList = new();
+    Dictionary<ResourceType, UIMarketResourcePanel> marketResourceDict = new(); //for updating data
     List<string> resourceNames = new(); //for sorting alphabetically
 
     //for sorting
@@ -32,7 +33,7 @@ public class UIMarketPlaceManager : MonoBehaviour
     [SerializeField] //for tweening
     private RectTransform allContents;
     [HideInInspector]
-    public bool activeStatus;
+    public bool activeStatus, isTyping;
     private Vector3 originalLoc;
 
 
@@ -85,7 +86,9 @@ public class UIMarketPlaceManager : MonoBehaviour
         }
         else
         {
+            isTyping = false;
             activeStatus = false;
+            this.city = null;
             LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -1200f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
@@ -99,8 +102,8 @@ public class UIMarketPlaceManager : MonoBehaviour
     private void CreateMarketResourcePanel(ResourceIndividualSO resource)
     {
         //currently only allowing sellable resources to be sold
-        if (!resource.sellResource)
-            return;
+        //if (!resource.sellResource)
+        //    return;
         //delete above to allow all to be sold (except world resources)
 
         GameObject marketResourceGO = Instantiate(uiMarketResourcePanel, resourceHolder);
@@ -111,12 +114,16 @@ public class UIMarketPlaceManager : MonoBehaviour
         marketResource.minimumAmount.gameObject.SetActive(marketResource.sell);
 		marketResource.resourceImage.sprite = resource.resourceIcon;
         marketResource.SetResourceType(resource.resourceType, resource.resourceName);
-		resourceNames.Add(resource.resourceName);
+        resourceNames.Add(resource.resourceName);
 
         if (resource.resourceType == ResourceType.Food)
 			marketResource.sellToggle.interactable = false;
 
+        if (!resource.sellResource)
+            marketResource.sellToggle.gameObject.SetActive(false);
+
 		marketResourceList.Add(marketResource);
+        marketResourceDict[resource.resourceType] = marketResource;
 	}
 
     public void UpdateMarketPlaceManager(ResourceType type)
@@ -130,19 +137,22 @@ public class UIMarketPlaceManager : MonoBehaviour
         {
             ResourceType type = resourcePanel.resourceType;
             
-            resourcePanel.SetPrice(city.ResourceManager.resourcePriceDict[type]);
+            resourcePanel.SetPrice(city.resourceManager.resourcePriceDict[type]);
             //resourcePanel.cityPrice.text = city.ResourceManager.resourcePriceDict[type].ToString();
-            resourcePanel.SetAmount(city.ResourceManager.ResourceDict[type]);
+            resourcePanel.SetAmount(city.resourceManager.resourceDict[type]);
             //resourcePanel.cityAmount.text = city.ResourceManager.ResourceDict[type].ToString();
             //resourcePanel.total = city.ResourceManager.resourceSellHistoryDict[type];
             //resourcePanel.cityTotals.text = city.ResourceManager.resourceSellHistoryDict[type].ToString();
 
-            bool isOn = city.ResourceManager.resourceSellList.Contains(type);
+            bool isOn = city.resourceManager.resourceSellList.Contains(type);
             resourcePanel.sellToggle.isOn = isOn;
             resourcePanel.minimumAmount.interactable = isOn;
 
             if (isOn)
-                resourcePanel.minimumAmount.text = city.ResourceManager.resourceMinHoldDict[type].ToString();
+                resourcePanel.minimumAmount.text = city.resourceManager.resourceMinHoldDict[type].ToString();
+
+            int maxHold = city.resourceManager.resourceMaxHoldDict[type];
+            resourcePanel.maximumAmount.text = maxHold < 0 ? city.warehouseStorageLimit.ToString(): maxHold.ToString();
         }
     }
 
@@ -150,40 +160,45 @@ public class UIMarketPlaceManager : MonoBehaviour
     {
         if (isOn)
         {
-            if (!city.ResourceManager.resourceSellList.Contains(type))
-                city.ResourceManager.resourceSellList.Add(type);
+            if (!city.resourceManager.resourceSellList.Contains(type))
+                city.resourceManager.resourceSellList.Add(type);
         }
         else
         {
-            city.ResourceManager.resourceSellList.Remove(type);
+            city.resourceManager.resourceSellList.Remove(type);
         }
     }
 
-    public void SetResourceMinHold(ResourceType resourceType, int minHold)
+    public void SetResourceMinHold(ResourceType type, int minHold, UIMarketResourcePanel panel)
     {
-        city.ResourceManager.resourceMinHoldDict[resourceType] = minHold;
-    }
-
-    public void UpdateMarketResourceNumbers(ResourceType resourceType, int amount/*, int total*/)
-    {
-        foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
+        if (minHold >= city.warehouseStorageLimit)
         {
-            if (resourcePanel.resourceType == resourceType)
-            {
-                //resourcePanel.SetPrice(price);
-                //resourcePanel.cityPrice.text = price.ToString();
-                
-                resourcePanel.SetAmount(amount);
-                //resourcePanel.cityAmount.text = amount.ToString();
-
-                //resourcePanel.total = total;
-                //resourcePanel.cityTotals.text = total.ToString();
-                return;
-            }
+            city.resourceManager.resourceMinHoldDict[type] = city.warehouseStorageLimit;
+            panel.minimumAmount.text = city.warehouseStorageLimit.ToString();
+		}
+        else
+        {
+            city.resourceManager.resourceMinHoldDict[type] = minHold;
         }
     }
 
+    public void SetResourceMaxHold(ResourceType type, int maxHold, UIMarketResourcePanel panel)
+    {
+        if (maxHold >= city.warehouseStorageLimit)
+        {
+            city.resourceManager.resourceMaxHoldDict[type] = -1;
+            panel.maximumAmount.text = city.warehouseStorageLimit.ToString();
+        }
+        else
+        {
+			city.resourceManager.resourceMaxHoldDict[type] = maxHold;
+		}
+    }
 
+    public void UpdateMarketResourceNumbers(ResourceType type, int amount/*, int total*/)
+    {
+        marketResourceDict[type].SetAmount(amount);
+    }
 
     //sort button coloring
     private void ChangeSortButtonsColors(string column)

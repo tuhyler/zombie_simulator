@@ -84,7 +84,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 			else
 				typeNeeded = SingleBuildType.AirBase;
 			
-			SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), startingCity.ResourceManager);
+			SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), startingCity.resourceManager);
 
 			shaking = false;
 			gameObject.SetActive(val);
@@ -286,7 +286,7 @@ public class UITradeRouteBeginTooltip : MonoBehaviour, IGoldUpdateCheck, IToolti
 	public void UpdateGuardCosts()
 	{
 		cantAffordList.Clear();
-		SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), homeCity.ResourceManager);
+		SetResourcePanelInfo(costsInfo, trader.ShowRouteCost(), homeCity.resourceManager);
 	}
 
 	public bool AffordCheck()

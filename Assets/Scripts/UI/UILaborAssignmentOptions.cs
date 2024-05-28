@@ -36,7 +36,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
 
     public void Handle2()
     {
-		if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus)
+		if (cityBuilderManager.CityTypingCheck() && buttonHandler.activeStatus)
 		{
 			laborChange = 1;
             SelectButton();
@@ -45,7 +45,7 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
 
     public void Handle3()
     {
-        if (cityBuilderManager.SelectedCity != null && buttonHandler.activeStatus)
+        if (cityBuilderManager.CityTypingCheck() && buttonHandler.activeStatus)
         {
             laborChange = -1;
             SelectButton();

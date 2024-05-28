@@ -25,7 +25,8 @@ public class GameLoader : MonoBehaviour
 	public Dictionary<TradeCenter, (List<int>, List<int>, List<int>, List<int>)> centerWaitingDict = new();
 	public Dictionary<Wonder, (List<int>, List<int>)> wonderWaitingDict = new();
 	public Dictionary<Unit, List<Vector3Int>> unitMoveOrders = new();
-	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, List<(Vector3Int, int)>, List<int>, List<int>, List<int>)> cityWaitingDict = new();
+	public Dictionary<City, (List<(Vector3Int, int)>, Dictionary<ResourceType, List<(Vector3Int, int)>>, Dictionary<ResourceType, List<Vector3Int>>, List<(Vector3Int, int)>, List<int>, 
+		List<int>, List<int>)> cityWaitingDict = new();
 	[HideInInspector]
 	public List<Unit> unitUpgradeList = new();
 	//[HideInInspector]
@@ -690,10 +691,11 @@ public class GameLoader : MonoBehaviour
 		//city waiting lists
 		foreach (City city in cityWaitingDict.Keys)
 		{
-			(List<(Vector3Int, int)> goldWaitList, Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict, List <(Vector3Int, int)> unloadWaitList, 
-				List<int> waitList, List<int> seaWaitList, List<int> airWaitList) = cityWaitingDict[city];
+			(List<(Vector3Int, int)> goldWaitList, Dictionary<ResourceType, List<(Vector3Int, int)>> resourceWaitDict, Dictionary<ResourceType, List<Vector3Int>> resourceMaxWaitDict, 
+				List <(Vector3Int, int)> unloadWaitList, List<int> waitList, List<int> seaWaitList, List<int> airWaitList) = cityWaitingDict[city];
 			city.SetGoldWaitList(goldWaitList);
 			city.SetResourceWaitList(resourceWaitDict);
+			city.SetResourceMaxWaitList(resourceMaxWaitDict);
 			city.SetUnloadWaitList(unloadWaitList);
 			//city.SetProducerWaitingList(producersWaiting);
 			//city.SetProducerStorageRoomWaitingList(producersStorageWaiting);

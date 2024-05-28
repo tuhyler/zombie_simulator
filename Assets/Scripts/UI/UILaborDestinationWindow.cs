@@ -258,13 +258,13 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 		costsHolder.SetActive(true);
 		int height = isLabor ? 500 : 395;
 		allContents.sizeDelta = new Vector2(370, height);
-		SetResourcePanelInfo(city.ResourceManager, transferCostDict[destinationList[destinationDropdown.value - 1]]);
+		SetResourcePanelInfo(city.resourceManager, transferCostDict[destinationList[destinationDropdown.value - 1]]);
 	}
 
 	public void ShowAllCostData()
 	{
 		cantAffordList.Clear();
-		SetResourcePanelInfo(city.ResourceManager, transferCostDict[destinationList[destinationDropdown.value - 1]]);
+		SetResourcePanelInfo(city.resourceManager, transferCostDict[destinationList[destinationDropdown.value - 1]]);
 	}
 
 	public void ConfirmDestination()
@@ -319,7 +319,7 @@ public class UILaborDestinationWindow : MonoBehaviour, IGoldUpdateCheck, IToolti
 					costs.Add(newResource);
 				}
 
-				city.ResourceManager.ConsumeMaintenanceResources(costs, city.cityLoc, !isLabor, !isLabor);
+				city.resourceManager.ConsumeMaintenanceResources(costs, city.cityLoc, !isLabor, !isLabor);
 				world.cityBuilderManager.PlaySelectAudio();
 				ToggleVisibility(false);
 			}

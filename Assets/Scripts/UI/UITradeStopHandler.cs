@@ -472,7 +472,7 @@ public class UITradeStopHandler : MonoBehaviour
         //task.allToggle.interactable = false;
         task.resourceCountSlider.interactable = false;
         task.resourceNumButton.interactable = false;
-        task.resourceNumButtonImg.color = new Color(1, 1, 1, 0);
+        //task.resourceNumButtonImg.color = new Color(1, 1, 1, 0);
         //task.sliderBackground.color = new Color(1, 1, 1, 0);
         task.sliderHandle.color = new Color(1, 1, 1, 0);
         //task.sliderFill.color = new Color(1, 1, 1, 0);
@@ -500,7 +500,7 @@ public class UITradeStopHandler : MonoBehaviour
             //task.allToggle.interactable = true;
             task.resourceCountSlider.interactable = true;
             task.resourceNumButton.interactable = true;
-            task.resourceNumButtonImg.color = Color.white;
+            //task.resourceNumButtonImg.color = Color.white;
             //task.sliderBackground.color = Color.white;
             task.sliderHandle.color = Color.white;
             //task.sliderFill.color = Color.white;

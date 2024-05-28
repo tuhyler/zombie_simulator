@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Plantation01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5838738910640936402, guid: 8527a29077f2e8b408f3ac100dcdb957, type: 3}
+  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Plantation01
   audio: {fileID: 8300000, guid: ab865f026075ed94fa419ce00b081277, type: 3}

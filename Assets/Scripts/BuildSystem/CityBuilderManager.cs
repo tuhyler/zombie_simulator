@@ -301,7 +301,7 @@ public class CityBuilderManager : MonoBehaviour
                 if (upgradingImprovement)
                 {
                     if (tilesToChange.Contains(terrainLocation) || (terrainLocation == selectedCity.cityLoc && improvementSelected.canBeUpgraded))
-						uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvementSelected);
+						uiCityUpgradePanel.ToggleVisibility(true, selectedCity.resourceManager, improvementSelected);
                     else
                         UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
                 }
@@ -440,7 +440,7 @@ public class CityBuilderManager : MonoBehaviour
 					}
 
 					CityImprovement improvement = world.GetCityDevelopment(terrainLoc);
-                    uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, improvement);
+                    uiCityUpgradePanel.ToggleVisibility(true, selectedCity.resourceManager, improvement);
                     PlaySelectAudio(constructionClip);
 				}
 				else if (removingImprovement)
@@ -905,6 +905,11 @@ public class CityBuilderManager : MonoBehaviour
         world.uiCityPopIncreasePanel.ToggleVisibility(false);
     }
 
+    public bool CityTypingCheck()
+    {
+        return selectedCity != null && !uiMarketPlaceManager.isTyping && !uiCityNamer.activeStatus;
+    }
+
 	private void SelectCity(Vector3 location, City cityReference)
     {
         if (selectedCity != null)
@@ -956,7 +961,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity.lostPop = 0;
 		}
 
-        if (selectedCity.ResourceManager.growthDeclineDanger)
+        if (selectedCity.resourceManager.growthDeclineDanger)
             uiInfoPanelCity.TogglewWarning(true);
         else
             uiInfoPanelCity.TogglewWarning(false);
@@ -972,7 +977,7 @@ public class CityBuilderManager : MonoBehaviour
         world.GetTerrainDataAt(selectedCity.cityLoc).EnableHighlight(Color.green);
         DrawBorders();
         autoAssign.isOn = selectedCity.AutoAssignLabor;
-		resourceManager = selectedCity.ResourceManager;
+		resourceManager = selectedCity.resourceManager;
         resourceManager.UpdateUI(selectedCity.GetResourceValues());
         uiCityTabs.ToggleVisibility(true, selectedCity.singleBuildList.Contains(SingleBuildType.Market), resourceManager);
         uiResourceManager.ToggleVisibility(true, selectedCity);
@@ -1008,7 +1013,7 @@ public class CityBuilderManager : MonoBehaviour
     public void ToggleCityGrowthPause(bool v)
     {
         PlaySelectAudio(checkClip);
-        selectedCity.ResourceManager.pauseGrowth = v;
+        selectedCity.resourceManager.pauseGrowth = v;
     }
 
     public void DestroyQueuedGhost()
@@ -1176,7 +1181,7 @@ public class CityBuilderManager : MonoBehaviour
 			improvement.refundCost = refundCost;
 		}
 	
-		selectedCity.ResourceManager.SpendResource(upgradeCost, unit.transform.position, refund, refundCost);
+		selectedCity.resourceManager.SpendResource(upgradeCost, unit.transform.position, refund, refundCost);
         UnitBuildDataSO data = UpgradeableObjectHolder.Instance.unitDict[upgradeNameAndLevel];
 
         world.unitMovement.ToggleUnitHighlights(false);
@@ -1219,7 +1224,7 @@ public class CityBuilderManager : MonoBehaviour
         string name = selectedImprovement.GetImprovementData.improvementName;
         selectedImprovement.upgradeLevel = world.GetUpgradeableObjectMaxLevel(name);
         string upgradeNameAndLevel = name + "-" + selectedImprovement.upgradeLevel;
-        city.ResourceManager.SpendResource(upgradeCost, upgradeLoc, cityCenterBuilding, refundCost);
+        city.resourceManager.SpendResource(upgradeCost, upgradeLoc, cityCenterBuilding, refundCost);
         ImprovementDataSO data = UpgradeableObjectHolder.Instance.improvementDict[upgradeNameAndLevel];
 
         if (cityCenterBuilding)
@@ -1243,7 +1248,7 @@ public class CityBuilderManager : MonoBehaviour
                 int totalResourceLabor = city.GetResourcesWorkedResourceCount(resourceType);
 
                 if (city.activeCity)
-                    uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, city.ResourceManager.GetResourceGenerationValues(resourceType));
+                    uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, city.resourceManager.GetResourceGenerationValues(resourceType));
                 if (totalResourceLabor == 0)
                     city.RemoveFromResourcesWorked(resourceType);
             }
@@ -1260,7 +1265,7 @@ public class CityBuilderManager : MonoBehaviour
                 RemoveLaborFromDicts(upgradeLoc);
                 UpdateCityLaborUIs();
                 uiInfoPanelCity.SetAllData(selectedCity);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
             }
             else
             {
@@ -1333,14 +1338,15 @@ public class CityBuilderManager : MonoBehaviour
         {
             ResourceProducer producer = world.GetResourceProducer(tile);
             
-            if (producer.isWaitingForStorageRoom)
+            if (producer.isWaitingForStorageRoom || producer.hitResourceMax)
             {
-                producer.TimeProgressBarSetActive(v);
+                if (!v)
+                    producer.TimeProgressBarSetActive(v);
                 
-                if (v)
-                    producer.SetTimeProgressBarToFull();
+                //if (v)
+                //    producer.SetTimeProgressBarToFull();
             }
-            else if (!producer.isWaitingForResearch && !producer.isWaitingForStorageRoom && !producer.isWaitingforResources)
+            else if (!producer.isWaitingForResearch && !producer.isWaitingforResources)
             {
                 if (producer.isUpgrading)
                 {
@@ -1408,7 +1414,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         if (!upgrading)
         {
-            city.ResourceManager.SpendResource(unitData.unitCost, city.cityLoc);
+            city.resourceManager.SpendResource(unitData.unitCost, city.cityLoc);
 
             for (int i = 0; i < unitData.laborCost; i++)
                 city.PopulationDeclineCheck(true, true); //decrease population before creating unit so we can see where labor will be lost
@@ -1417,7 +1423,7 @@ public class CityBuilderManager : MonoBehaviour
             if (city.activeCity)
             {
                 uiInfoPanelCity.SetAllData(selectedCity);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
                 uiCityTabs.HideSelectedTab(false);
             }
         }
@@ -1452,6 +1458,8 @@ public class CityBuilderManager : MonoBehaviour
                 buildLoc.y += .3f;
         }
 
+        if (world.IsRoadOnTileLocation(buildPosition))
+            buildLoc.y += .11f;
 		GameObject unit = Instantiate(Resources.Load<GameObject>("Prefabs/" + unitData.prefabLoc), buildLoc, Quaternion.identity); //produce unit at specified position
         unit.transform.SetParent(friendlyUnitHolder, false);
         //for tweening
@@ -1532,7 +1540,10 @@ public class CityBuilderManager : MonoBehaviour
 		}
 
         Quaternion rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
-		GameObject unit = Instantiate(Resources.Load<GameObject>("Prefabs/" + unitData.prefabLoc), buildPosition, rotation); //produce unit at specified position
+        Vector3 buildLoc = buildPosition;
+        if (world.IsRoadOnTileLocation(buildPosition))
+            buildLoc.y += .11f;
+		GameObject unit = Instantiate(Resources.Load<GameObject>("Prefabs/" + unitData.prefabLoc), buildLoc, rotation); //produce unit at specified position
 		unit.gameObject.transform.SetParent(friendlyUnitHolder, false);
 		Unit newUnit = unit.GetComponent<Unit>();
 
@@ -1541,7 +1552,7 @@ public class CityBuilderManager : MonoBehaviour
         float scaleX = goScale.x;
         float scaleZ = goScale.z;
         unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
-        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(() => newUnit.outline.ToggleOutline(false));
+        LeanTween.scale(unit, goScale, 0.5f).setEase(LeanTweenType.easeOutBack)/*.setOnComplete(() => newUnit.outline.ToggleOutline(false))*/;
 
 		newUnit.SetReferences(world);
 		newUnit.SetMinimapIcon(friendlyUnitHolder);
@@ -1678,7 +1689,7 @@ public class CityBuilderManager : MonoBehaviour
 
 	public void UpgradeUnitWindow(Unit unit)
     {
-        uiCityUpgradePanel.ToggleVisibility(true, selectedCity.ResourceManager, null, unit);
+        uiCityUpgradePanel.ToggleVisibility(true, selectedCity.resourceManager, null, unit);
     }
 
 	public void CreateBuildingQueueCheck(ImprovementDataSO buildingData)
@@ -1704,7 +1715,7 @@ public class CityBuilderManager : MonoBehaviour
             if (city.activeCity)
             {
                 uiInfoPanelCity.UpdateHousing(city.HousingCount);
-                uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
 
                 if (!upgradingImprovement)
                     uiCityTabs.HideSelectedTab(false);
@@ -1726,7 +1737,7 @@ public class CityBuilderManager : MonoBehaviour
 
         if (!upgradingImprovement)
         {
-            city.ResourceManager.SpendResource(buildingData.improvementCost, cityPos);
+            city.resourceManager.SpendResource(buildingData.improvementCost, cityPos);
 		}
         PlaySelectAudio(buildClip);
 
@@ -1754,7 +1765,7 @@ public class CityBuilderManager : MonoBehaviour
         if (buildingData.workEthicChange != 0)
         {
             if (city.activeCity && uiCityTabs.builderUI != null)
-                uiCityTabs.builderUI.UpdateProducedNumbers(city.ResourceManager);
+                uiCityTabs.builderUI.UpdateProducedNumbers(city.resourceManager);
 		    else if (world.uiCityImprovementTip.activeStatus)
 			    world.uiCityImprovementTip.UpdateProduceNumbers();
         }
@@ -1773,7 +1784,7 @@ public class CityBuilderManager : MonoBehaviour
 		}
 
         //for tweening
-        Vector3 goScale = building.transform.localScale;
+        Vector3 goScale = new Vector3(1.5f, 1.5f, 1.5f);
         building.transform.localScale = Vector3.zero;
         LeanTween.scale(building, goScale, 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete( ()=> { CombineMeshes(city, city.subTransform, this.upgradingImprovement); 
             improvement.SetInactive(); ToggleBuildingHighlight(true, city.cityLoc); });
@@ -1800,7 +1811,7 @@ public class CityBuilderManager : MonoBehaviour
                 UpdateCityWorkEthic();
             }
      
-            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
 
             if (!upgradingImprovement)
                 uiCityTabs.HideSelectedTab(false);
@@ -2025,11 +2036,11 @@ public class CityBuilderManager : MonoBehaviour
 
         if (!upgradingImprovement)
         {
-            city.ResourceManager.SpendResource(improvementData.improvementCost, buildLocation);
+            city.resourceManager.SpendResource(improvementData.improvementCost, buildLocation);
         }
 
         if (city.activeCity)
-            uiResourceManager.SetCityCurrentStorage(city.ResourceManager.resourceStorageLevel);
+            uiResourceManager.SetCityCurrentStorage(city.resourceManager.resourceStorageLevel);
 
         //rotating harbor so it's closest to city
         int rotation = 0;
@@ -2099,7 +2110,7 @@ public class CityBuilderManager : MonoBehaviour
         ResourceProducer resourceProducer = improvement.GetComponent<ResourceProducer>();
         buildLocation.y = 0;
         world.AddResourceProducer(tempBuildLocation, resourceProducer);
-        resourceProducer.SetResourceManager(city.ResourceManager);
+        resourceProducer.SetResourceManager(city.resourceManager);
         resourceProducer.InitializeImprovementData(improvementData, td.resourceType); //allows the new structure to also start generating resources
         resourceProducer.SetCityImprovement(cityImprovement);
         resourceProducer.SetLocation(tempBuildLocation);
@@ -2174,7 +2185,7 @@ public class CityBuilderManager : MonoBehaviour
             city.improvementWorkEthic += improvementData.workEthicChange;
             
             if (city.activeCity && uiCityTabs.builderUI != null)
-				uiCityTabs.builderUI.UpdateProducedNumbers(city.ResourceManager);
+				uiCityTabs.builderUI.UpdateProducedNumbers(city.resourceManager);
 			else if (world.uiCityImprovementTip.activeStatus)
 				world.uiCityImprovementTip.UpdateProduceNumbers();
 		}
@@ -2196,7 +2207,7 @@ public class CityBuilderManager : MonoBehaviour
             k++;
         }
 
-        tempObject.transform.localScale = improvement.transform.localScale;
+        //tempObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f); 
         cityImprovement.Embiggen();
 
         city.AddToMeshFilterList(tempObject, meshes, false, tempBuildLocation);
@@ -2234,9 +2245,9 @@ public class CityBuilderManager : MonoBehaviour
         {
             if (td.terrainData.specificTerrain == SpecificTerrain.FloodPlain)
                 td.FloodPlainCheck(true);
-            
+
             //for tweening
-            Vector3 goScale = improvement.transform.localScale;
+            Vector3 goScale = new Vector3(1.5f, 1.5f, 1.5f);// improvement.transform.localScale;
             improvement.transform.localScale = Vector3.zero;
             LeanTween.scale(improvement, goScale, 0.4f).setEase(LeanTweenType.easeOutBack).setOnComplete( () => { CombineMeshes(city, city.subTransform, this.upgradingImprovement); cityImprovement.SetInactive(); TileCheck(tempBuildLocation, city, improvementData.maxLabor); });
         }
@@ -2444,7 +2455,7 @@ public class CityBuilderManager : MonoBehaviour
 			selectedImprovement.StopUpgrade();
             if (updateCity)
             {
-    			uiResourceManager.SetCityCurrentStorage(selectedImprovement.city.ResourceManager.resourceStorageLevel);
+    			uiResourceManager.SetCityCurrentStorage(selectedImprovement.city.resourceManager.resourceStorageLevel);
 			    ImprovementTileHighlight(true);
             }
 
@@ -2462,7 +2473,7 @@ public class CityBuilderManager : MonoBehaviour
             if (updateCity)
             {
                 UpdateCityLaborUIs();
-                uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.resourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(selectedCity.resourceManager.resourceStorageLevel);
                 ImprovementTileHighlight(true);
             }
 
@@ -2489,7 +2500,7 @@ public class CityBuilderManager : MonoBehaviour
 
                 int totalResourceLabor = selectedImprovement.city.GetResourcesWorkedResourceCount(resourceType);
                 if (updateCity)
-                    uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, selectedImprovement.city.ResourceManager.GetResourceGenerationValues(resourceType));
+                    uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, -1, selectedImprovement.city.resourceManager.GetResourceGenerationValues(resourceType));
                 if (totalResourceLabor == 0)
 					selectedImprovement.city.RemoveFromResourcesWorked(resourceType);
             }
@@ -2502,7 +2513,7 @@ public class CityBuilderManager : MonoBehaviour
                 ReplaceImprovementCost(improvementData.improvementCost, improvementLoc);
 
             if (updateCity)
-                uiResourceManager.SetCityCurrentStorage(selectedCity.ResourceManager.resourceStorageLevel);
+                uiResourceManager.SetCityCurrentStorage(selectedCity.resourceManager.resourceStorageLevel);
 
             if (improvementData.replaceTerrain)
                 td.ToggleTerrainMesh(true);
@@ -2890,7 +2901,7 @@ public class CityBuilderManager : MonoBehaviour
 
                 selectedImprovement.city = selectedCity;
 				world.AddToCityLabor(terrainLocation, selectedCity.cityLoc);
-				resourceProducer.SetResourceManager(selectedCity.ResourceManager);
+				resourceProducer.SetResourceManager(selectedCity.resourceManager);
                 resourceProducer.UpdateResourceGenerationData();
 				resourceProducer.StartProducing();
 			}
@@ -2905,7 +2916,15 @@ public class CityBuilderManager : MonoBehaviour
             if (resourceProducer.isWaitingforResources)
             {
                 for (int i = 0; i < resourceProducer.consumedResources.Count; i++)
-                    selectedCity.ResourceManager.ResourceWaitListCheck(resourceProducer.consumedResources[i].resourceType);
+                    selectedCity.resourceManager.ResourceWaitListCheck(resourceProducer.consumedResources[i].resourceType);
+            }
+            else if (resourceProducer.isWaitingForStorageRoom)
+            {
+                selectedCity.resourceManager.StorageSpaceCheck();
+            }
+            else if (resourceProducer.hitResourceMax)
+            {
+                selectedCity.resourceManager.ResourceMaxWaitListCheck(resourceProducer.producedResource.resourceType);
             }
         }
 
@@ -2920,8 +2939,8 @@ public class CityBuilderManager : MonoBehaviour
 
         //updating all the labor info
         UpdateLaborNumbers(selectedCity);
-        uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.ResourceManager.GetResourceGenerationValues(resourceType));
-        uiLaborHandler.UpdateResourcesConsumed(resourceProducer.consumedResourceTypes, selectedCity.ResourceManager.resourceConsumedPerMinuteDict);
+        uiLaborHandler.PlusMinusOneLabor(resourceType, totalResourceLabor, laborChange, selectedCity.resourceManager.GetResourceGenerationValues(resourceType));
+        uiLaborHandler.UpdateResourcesConsumed(resourceProducer.consumedResourceTypes, selectedCity.resourceManager.resourceConsumedPerMinuteDict);
 
         if (totalResourceLabor == 0)
             selectedCity.RemoveFromResourcesWorked(resourceType);
@@ -3269,7 +3288,7 @@ public class CityBuilderManager : MonoBehaviour
             improvement.transform.parent = improvementHolder.transform;
         }
 
-		city.DestroyFire();
+		city.ExtinguishFire();
 		city.ReassignMeshes(improvementHolder, improvementMeshDict, improvementMeshList);
         CombineMeshes();
 
@@ -3487,7 +3506,7 @@ public class CityBuilderManager : MonoBehaviour
         cityTransform.transform.gameObject.SetActive(true);
 
         //meshes inexplicably move without this when making the parent a non-pre-existing item in the heirarchy
-        cityTransform.localScale = new Vector3(1, 1, 1);
+        cityTransform.localScale = Vector3.one;
         cityTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
 
         if (selectedCity == city)

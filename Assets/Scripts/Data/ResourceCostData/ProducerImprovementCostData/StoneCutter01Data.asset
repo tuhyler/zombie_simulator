@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: StoneCutter01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5122609563439273834, guid: 22469ebc534b2394e89834fc324a1702, type: 3}
+  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/StoneCutter01
   audio: {fileID: 8300000, guid: 8787020638fc57b48b26ae3fc8ce56bf, type: 3}

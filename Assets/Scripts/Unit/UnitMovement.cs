@@ -71,7 +71,7 @@ public class UnitMovement : MonoBehaviour
             if (selectedUnit.worker && (selectedUnit.worker.isBusy || selectedUnit.worker.runningAway))
                 return;
 
-            if (world.cityBuilderManager.uiCityNamer.activeStatus)
+            if (world.cityBuilderManager.uiCityNamer.activeStatus && world.cityBuilderManager.uiTraderNamer.activeStatus)
                 return;
 
 			if (selectedUnit.buildDataSO.inMilitary)
@@ -95,13 +95,13 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleSpace()
     {
-        if ((world.mainPlayer.isSelected && world.unitOrders) || world.buildingWonder && !world.cityBuilderManager.uiCityNamer.activeStatus)
+        if ((world.mainPlayer.isSelected && world.unitOrders) || world.buildingWonder && !world.cityBuilderManager.uiCityNamer.activeStatus && !world.cityBuilderManager.uiTraderNamer.activeStatus)
             ConfirmWorkerOrders();
     }
 
     public void HandleB()
     {
-        if (uiJoinCity.activeStatus && !world.cityBuilderManager.uiCityNamer.activeStatus)
+        if (uiJoinCity.activeStatus && !world.cityBuilderManager.uiCityNamer.activeStatus && !world.cityBuilderManager.uiTraderNamer.activeStatus)
             JoinCity();
     }
 
@@ -113,7 +113,7 @@ public class UnitMovement : MonoBehaviour
 
     public void CenterCamOnUnit()
     {
-        if (selectedUnit != null)
+        if (selectedUnit != null && !world.cityBuilderManager.uiTraderNamer.activeStatus)
             selectedUnit.CenterCamera();
     }
 
@@ -774,6 +774,7 @@ public class UnitMovement : MonoBehaviour
 
 		unit.finalDestinationLoc = newLoc;
 		unit.MoveThroughPath(path);
+        unit.outline.ToggleOutline(true);
 		
         if (unit.isSelected)
         {
@@ -1153,9 +1154,7 @@ public class UnitMovement : MonoBehaviour
         if (unit.isPlayer)
         {
             if (world.scottFollow && !world.mainPlayer.isBusy)
-            {
-                world.scott.GoToPosition(terrainPos, true);
-            }
+                world.scott.GoToPosition(terrainPos);
             
             if (unit.isSelected)
             {
@@ -1166,9 +1165,7 @@ public class UnitMovement : MonoBehaviour
         else if (unit == world.scott)
         {
             if (world.azaiFollow)
-            {
                 world.azai.FollowScott(path, unit.transform.position);
-            }
         }
 	}
 
@@ -1358,7 +1355,8 @@ public class UnitMovement : MonoBehaviour
 
     public void HandleShiftDown()
     {
-        queueMovementOrders = true;
+        if (selectedUnit != null && selectedUnit.isPlayer)
+            queueMovementOrders = true;
     }
 
     public void HandleShiftUp()
@@ -1529,10 +1527,10 @@ public class UnitMovement : MonoBehaviour
         joinedCity.PopulationGrowthCheck(joinCity, unit.buildDataSO.laborCost);
 
 		int i = 0;
-        joinedCity.ResourceManager.resourceCount = 0;
+        joinedCity.resourceManager.resourceCount = 0;
 		foreach (ResourceValue resourceValue in unit.buildDataSO.unitCost) //adding back 100% of cost (if there's room)
 		{
-			int resourcesGiven = joinedCity.ResourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
+			int resourcesGiven = joinedCity.resourceManager.AddResource(resourceValue.resourceType, resourceValue.resourceAmount);
 			Vector3 cityLoc = joinedCity.cityLoc;
 			cityLoc.y += unit.buildDataSO.unitCost.Count * 0.4f;
 			cityLoc.y += -0.4f * i;
@@ -1567,7 +1565,7 @@ public class UnitMovement : MonoBehaviour
             if (world.IsCityOnTile(playerLoc))
             {
                 City city = world.GetCity(playerLoc);
-                cityResourceManager = city.ResourceManager;
+                cityResourceManager = city.resourceManager;
                 uiCityResourceInfoPanel.SetTitleInfo(city.cityName,
                     cityResourceManager.resourceStorageLevel, city.warehouseStorageLimit);
 				uiCityResourceInfoPanel.ToggleInventoryLevel(true);
@@ -2032,6 +2030,7 @@ public class UnitMovement : MonoBehaviour
 			if (selectedUnit.trader.LineCutterCheck())
 				return;
 
+            selectedUnit.outline.ToggleOutline(true);
 			if (selectedUnit.trader.guarded)
 			{
     			selectedUnit.trader.guardUnit.StopMovementCheck(false);
@@ -2071,6 +2070,7 @@ public class UnitMovement : MonoBehaviour
                     selectedUnit.trader.waitingOnGuard = true;
                     selectedUnit.trader.CheckWarning();
 
+                    guardUnit.outline.ToggleOutline(true);
                     guardUnit.SoloMove(chosenSpot);
 				}
 			}

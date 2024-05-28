@@ -110,7 +110,7 @@ public class WorkerTaskManager : MonoBehaviour
 			world.mainPlayer.BuildCity();
             
             if (world.scottFollow && world.scott.isMoving)
-                world.scott.GoToPosition(workerTile, true);
+                world.scott.GoToPosition(workerTile);
 		}
 		else
 		{
@@ -249,8 +249,8 @@ public class WorkerTaskManager : MonoBehaviour
 
         world.mainPlayer.StopMovementCheck(true);
 
-        if (world.azaiFollow && world.azai.isMoving)
-            world.azai.GetBehindScott(world.RoundToInt(transform.position));
+        //if (world.azaiFollow && world.azai.isMoving)
+        //    world.azai.GetBehindScott(world.RoundToInt(world.scott.transform.position));
             //world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
 
         world.unitOrders = true;
@@ -311,8 +311,8 @@ public class WorkerTaskManager : MonoBehaviour
 		//clear the forest if building on forest tile
 		if (clearForest)
 		{
-            city.ResourceManager.resourceCount = 0;
-			city.ResourceManager.AddResource(ResourceType.Lumber, world.scott.clearedForestlumberAmount);
+            city.resourceManager.resourceCount = 0;
+			city.resourceManager.AddResource(ResourceType.Lumber, world.scott.clearedForestlumberAmount);
             world.scott.clearedForest = false;
 		}
 

@@ -102,7 +102,8 @@ public class MapWorld : MonoBehaviour
     public UnitBuildDataSO laborerData;
 
     [SerializeField]
-    private ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash, resourceSplash, posGiftResponse, negGiftResponse;
+    public ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash, resourceSplash, posGiftResponse, negGiftResponse, smokeEmitter, smokeSplash, buildingSmokeSplash, heavenHighlight,
+		hellHighlight, lightBullet, fire;
 
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
@@ -393,7 +394,7 @@ public class MapWorld : MonoBehaviour
 
         wonderHandler.FinishMenuSetup();
 
-        CreateParticleSystems();
+        //CreateParticleSystems();
         uiMainMenu.uiSaveGame.PopulateSaveItems();
         DeactivateCanvases();
 
@@ -464,8 +465,8 @@ public class MapWorld : MonoBehaviour
 							ToggleResourceIcon(td.TileCoordinates, true);
 					}
 
-				    if (td.rawResourceType == RawResourceType.Rocks)
-					    td.PrepParticleSystem();
+				    //if (td.rawResourceType == RawResourceType.Rocks)
+					   // td.PrepParticleSystem();
 
 				    foreach (Vector3Int tile in neighborsEightDirections)
 				    {
@@ -797,8 +798,8 @@ public class MapWorld : MonoBehaviour
 			{
 				td.Hide();
 
-				if (td.rawResourceType == RawResourceType.Rocks)
-					td.PrepParticleSystem();
+				//if (td.rawResourceType == RawResourceType.Rocks)
+				//	td.PrepParticleSystem();
 			}
 			else
 			{
@@ -942,8 +943,8 @@ public class MapWorld : MonoBehaviour
             {
                 td.Hide();
 
-                if (td.rawResourceType == RawResourceType.Rocks)
-                    td.PrepParticleSystem();
+                //if (td.rawResourceType == RawResourceType.Rocks)
+                //    td.PrepParticleSystem();
             }
 
             if (!hideTerrain && td.hasResourceMap)
@@ -1380,8 +1381,8 @@ public class MapWorld : MonoBehaviour
                 {
                     if (!tdUnit.isDiscovered)
                         unit.HideUnit();
-                    else if (tdUnit.CompareTag("Forest") || tdUnit.CompareTag("Forest Hill") || IsBuildLocationTaken(tdUnit.TileCoordinates))
-                        unit.outline.ToggleOutline(true);
+                    //else if (tdUnit.CompareTag("Forest") || tdUnit.CompareTag("Forest Hill") || IsBuildLocationTaken(tdUnit.TileCoordinates))
+                    unit.outline.ToggleOutline(true);
 					    //unit.marker.ToggleVisibility(true);
 			    }
                 else
@@ -1556,7 +1557,7 @@ public class MapWorld : MonoBehaviour
         foreach (CityImprovementData improvementData in data.cityBuildings)
             CreateBuilding(UpgradeableObjectHolder.Instance.improvementDict[improvementData.name], city, improvementData);
 
-        GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitDict, data.unloadWaitList,
+        GameLoader.Instance.cityWaitingDict[city] = (data.goldWaitList, data.resourceWaitDict, data.resourceMaxWaitDict, data.unloadWaitList,
             data.waitList, data.seaWaitList, data.airWaitList);
 	}
 
@@ -1692,7 +1693,7 @@ public class MapWorld : MonoBehaviour
 		buildLocation.y = 0;
 		AddResourceProducer(tempBuildLocation, resourceProducer);
         if (city != null)
-    		resourceProducer.SetResourceManager(city.ResourceManager);
+    		resourceProducer.SetResourceManager(city.resourceManager);
 		resourceProducer.InitializeImprovementData(improvementData, td.resourceType); //allows the new structure to also start generating resources
 		resourceProducer.SetCityImprovement(cityImprovement);
 		resourceProducer.SetLocation(tempBuildLocation);
@@ -2131,8 +2132,8 @@ public class MapWorld : MonoBehaviour
 
 				Unit unit = enemyGO.GetComponent<Unit>();
 				unit.SetMinimapIcon(enemyUnitHolder);
-                if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-                    unit.outline.ToggleOutline(true);
+                //if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+                unit.outline.ToggleOutline(true);
 					//unit.marker.ToggleVisibility(true);
 				unit.SetReferences(this);
 				unit.currentLocation = data.currentLocation;
@@ -2315,7 +2316,8 @@ public class MapWorld : MonoBehaviour
     //it's actually "F12"
     public void HandleCtrlT()
     {
-        StartCoroutine(TakeScreenshot());
+        if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
+            StartCoroutine(TakeScreenshot());
     }
 
     private IEnumerator TakeScreenshot()
@@ -2952,19 +2954,28 @@ public class MapWorld : MonoBehaviour
         return grid[loc.x + 22, loc.z + 16];
     }
 
-    private void CreateParticleSystems()
-    {
-        lightBeam = Instantiate(lightBeam, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
-        lightBeam.transform.SetParent(transform, false);
-        lightBeam.Pause();
-    }
+    //private void CreateParticleSystems()
+    //{
+    //    lightBeam = Instantiate(lightBeam, new Vector3(0, 0, 0), Quaternion.Euler(-90, 0, 0));
+    //    lightBeam.transform.SetParent(transform, false);
+    //    lightBeam.Pause();
+    //}
 
     public void CreateLightBeam(Vector3 loc)
     {
         loc.y += 2f;
-        lightBeam.transform.position = loc;
+		ParticleSystem lightBeam = Instantiate(lightBullet, loc, Quaternion.Euler(-90, 0, 0));
+        lightBeam.transform.SetParent(psHolder, false);
         lightBeam.Play();
     }
+
+    public void CreateGodRay(Vector3 loc)
+    {
+		ParticleSystem godRay = Instantiate(godRays);
+        godRay.transform.position = loc;
+        godRay.transform.SetParent(psHolder, false);
+        godRay.Play();
+	}
 
     public void UnselectAll()
     {
@@ -3027,6 +3038,9 @@ public class MapWorld : MonoBehaviour
 
     public void Handle1()
     {
+        if (cityBuilderManager.uiCityNamer.activeStatus || cityBuilderManager.uiTraderNamer.activeStatus || cityBuilderManager.uiMarketPlaceManager.isTyping)
+            return;
+        
         if (uiMainMenu.activeStatus || mapHandler.activeStatus)
             return;
         
@@ -3142,6 +3156,14 @@ public class MapWorld : MonoBehaviour
             {
 				cityBuilderManager.ResetCityUIToBase();
             }
+            else if (cityBuilderManager.uiMarketPlaceManager.activeStatus)
+            {
+                cityBuilderManager.CloseSellResources();
+			}
+            else if (cityBuilderManager.uiCityNamer.activeStatus)
+            {
+                cityBuilderManager.uiCityNamer.ToggleVisibility(false);
+            }
 			else
             {
                 cityBuilderManager.ResetCityUI();
@@ -3156,25 +3178,25 @@ public class MapWorld : MonoBehaviour
 
     public void HandleJ()
     {
-		if (!cityBuilderManager.uiCityNamer.activeStatus)
+		if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
 			OpenConversationList();
     }
 
     public void HandleK()
     {
-		if (!cityBuilderManager.uiCityNamer.activeStatus)
+		if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
 			uiTomFinder.FindTom();
     }
 
     public void HandleM()
     {
-		if (!cityBuilderManager.uiCityNamer.activeStatus)
+		if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
 			mapHandler.ToggleMap();
     }
 
     public void HandleN()
     {
-        if (!cityBuilderManager.uiCityNamer.activeStatus)
+        if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
             OpenWonders();
     }
 
@@ -3186,7 +3208,7 @@ public class MapWorld : MonoBehaviour
 
     public void HandleI()
     {
-		if (!cityBuilderManager.uiCityNamer.activeStatus)
+		if (!cityBuilderManager.uiCityNamer.activeStatus && !cityBuilderManager.uiTraderNamer.activeStatus)
 			OpenResearchTree();
     }
 
@@ -4300,7 +4322,7 @@ public class MapWorld : MonoBehaviour
 		cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(type);
 
 		foreach (City city in cityDict.Values)
-			city.ResourceManager.UpdateDicts(type);
+			city.resourceManager.UpdateDicts(type);
 	}
 
     //when running out of rocks
@@ -4358,8 +4380,8 @@ public class MapWorld : MonoBehaviour
                 unitTrader.trader.guardUnit.gameObject.SetActive(true);
                 unitTrader.trader.guardMeshList[unitTrader.trader.guardUnit.buildDataSO.unitLevel - 1].SetActive(false);
 
-                if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-                    unitTrader.trader.guardUnit.outline.ToggleOutline(true);
+                //if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+                //unitTrader.trader.guardUnit.outline.ToggleOutline(true);
 					//unitTrader.trader.guardUnit.marker.ToggleVisibility(true);
 			}
 
@@ -4392,8 +4414,8 @@ public class MapWorld : MonoBehaviour
 
 		Unit unit = enemyGO.GetComponent<Unit>();
         unit.SetMinimapIcon(enemyUnitHolder);
-        if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
-            unit.outline.ToggleOutline(true);
+        //if (td.CompareTag("Forest") || td.CompareTag("Forest Hill"))
+        unit.outline.ToggleOutline(true);
 			//unit.marker.ToggleVisibility(true);
 
 		Vector3 unitScale = unit.transform.localScale;
@@ -4402,13 +4424,14 @@ public class MapWorld : MonoBehaviour
 		float scaleZ = unitScale.z;
 		unit.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
 
-        Vector3 lightBeamLoc = ambushLoc;
-        lightBeamLoc.y += .01f;
-        if (IsRoadOnTileLocation(ambushLoc))
-            lightBeamLoc.y += .1f;
+        unit.PlayLightBeam();
+        //Vector3 lightBeamLoc = ambushLoc;
+        //lightBeamLoc.y += .01f;
+        //if (IsRoadOnTileLocation(ambushLoc))
+        //    lightBeamLoc.y += .1f;
 
-        unit.lightBeam.transform.position = lightBeamLoc;
-        unit.lightBeam.Play();
+        //unit.lightBeam.transform.position = lightBeamLoc;
+        //unit.lightBeam.Play();
 		LeanTween.scale(enemyGO, unitScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 
 		unit.ambush = true;
@@ -4565,7 +4588,7 @@ public class MapWorld : MonoBehaviour
     public void BuilderHandlerCheck()
     {
         if (cityBuilderManager.activeBuilderHandler)
-            cityBuilderManager.activeBuilderHandler.PrepareBuildOptions(cityBuilderManager.SelectedCity.ResourceManager);
+            cityBuilderManager.activeBuilderHandler.PrepareBuildOptions(cityBuilderManager.SelectedCity.resourceManager);
     }
 
     public Unit GetPlayer(Vector3Int tile)
@@ -4795,7 +4818,7 @@ public class MapWorld : MonoBehaviour
 
     public List<Vector3Int> GetAllUsedStallLocs(Vector3Int loc)
     {
-        return traderStallDict[loc].GetUsedStalls();
+        return traderStallDict[loc].GetUsedStalls().ToList();
     }
 
     public void RemoveTraderFromStall(Vector3Int loc, Vector3Int currentLoc)
@@ -5211,13 +5234,13 @@ public class MapWorld : MonoBehaviour
 
             Unit npc = GetNPC(enemyLoc);
             npc.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-            npc.outline.ToggleOutline(false);
+            //npc.outline.ToggleOutline(false);
             //npc.marker.ToggleVisibility(false);
 
             foreach (Unit unit in characterUnits)
             {
                 unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-                unit.outline.ToggleOutline(false);
+                //unit.outline.ToggleOutline(false);
                 //unit.marker.ToggleVisibility(false);
             }
         }
@@ -5232,12 +5255,12 @@ public class MapWorld : MonoBehaviour
 
             Unit npc = GetNPC(enemyLoc);
 			npc.unitMesh.layer = LayerMask.NameToLayer(layer);
-            npc.MarkerCheck();
+            //npc.MarkerCheck();
 
 			foreach (Unit unit in characterUnits)
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
-                unit.MarkerCheck();
+                //unit.MarkerCheck();
             }
 		}
 	}
@@ -5254,12 +5277,12 @@ public class MapWorld : MonoBehaviour
 			foreach (Unit unit in characterUnits)
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-                unit.outline.ToggleOutline(false);
+                //unit.outline.ToggleOutline(false);
                 //unit.marker.ToggleVisibility(false);
             }
 
 			leader.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-            leader.outline.ToggleOutline(false);
+            //leader.outline.ToggleOutline(false);
             //leader.marker.ToggleVisibility(false);
 		}
         else
@@ -5272,11 +5295,11 @@ public class MapWorld : MonoBehaviour
 			foreach (Unit unit in characterUnits)
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
-                unit.MarkerCheck();
+                //unit.MarkerCheck();
             }
 
 			leader.unitMesh.layer = LayerMask.NameToLayer("Enemy");
-            leader.MarkerCheck();
+            //leader.MarkerCheck();
 		}
 	}
 
@@ -5296,7 +5319,7 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
                     unit.battleCam = true;
-                    unit.outline.ToggleOutline(false);
+                    //unit.outline.ToggleOutline(false);
                     //unit.marker.ToggleVisibility(false);
                 }
 			}
@@ -5306,7 +5329,7 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
                     unit.battleCam = true;
-                    unit.outline.ToggleOutline(false);
+                    //unit.outline.ToggleOutline(false);
 					//unit.marker.ToggleVisibility(false);
 				}
 			}
@@ -5315,7 +5338,7 @@ public class MapWorld : MonoBehaviour
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
                 unit.battleCam = true;
-                unit.outline.ToggleOutline(false);
+                //unit.outline.ToggleOutline(false);
 				//unit.marker.ToggleVisibility(false);
 			}
 		}
@@ -5332,7 +5355,7 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
                     unit.battleCam = false;
-                    unit.MarkerCheck();
+                    //unit.MarkerCheck();
                 }
 			}
 			else
@@ -5341,7 +5364,7 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
                     unit.battleCam = false;
-					unit.MarkerCheck();
+					//unit.MarkerCheck();
 				}
 			}
 
@@ -5349,7 +5372,7 @@ public class MapWorld : MonoBehaviour
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
                 unit.battleCam = false;
-				unit.MarkerCheck();
+				//unit.MarkerCheck();
 			}
 		}
 	}
@@ -5688,11 +5711,11 @@ public class MapWorld : MonoBehaviour
 			city.waterCount = city.hasFreshWater ? 9999 : 0;
 
 			//give some food so pop don't start starving immediately
-			city.ResourceManager.AddResource(ResourceType.Food, city.currentPop * 3);
+			city.resourceManager.AddResource(ResourceType.Food, city.currentPop * 3);
 
             List<ResourceType> resourcesToAdd = new() { ResourceType.Lumber, ResourceType.Stone };
             for (int i = 0; i < resourcesToAdd.Count; i++)
-                city.ResourceManager.AddResource(resourcesToAdd[i],UnityEngine.Random.Range(city.currentPop,city.currentPop * 4));
+                city.resourceManager.AddResource(resourcesToAdd[i],UnityEngine.Random.Range(city.currentPop,city.currentPop * 4));
 
             city.empire.empireCities.Remove(city.cityLoc);
             if (city.empire.empireCities.Count == 0)
@@ -7196,7 +7219,7 @@ public class MapWorld : MonoBehaviour
                 cityWorkEthicChange += changeValue;
 
                 if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
-                    cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+                    cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.resourceManager);
                 else if (uiCityImprovementTip.activeStatus)
                     uiCityImprovementTip.UpdateProduceNumbers();
 				break;
@@ -7214,7 +7237,7 @@ public class MapWorld : MonoBehaviour
 				cityWorkEthicChange -= changeValue;
 
 				if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
-					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.resourceManager);
 				else if (uiCityImprovementTip.activeStatus)
 					uiCityImprovementTip.UpdateProduceNumbers();
 				break;
@@ -7261,7 +7284,7 @@ public class MapWorld : MonoBehaviour
 				resourceYieldChangeDict[type] += changeValue;
 
 				if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
-					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.resourceManager);
 				else if (uiCityImprovementTip.activeStatus)
 					uiCityImprovementTip.UpdateProduceNumbers();
 				break;
@@ -7279,7 +7302,7 @@ public class MapWorld : MonoBehaviour
                     resourceYieldChangeDict.Remove(type);
 
 				if (cityBuilderManager.uiCityTabs.activeStatus && cityBuilderManager.uiCityTabs.builderUI != null)
-					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.ResourceManager);
+					cityBuilderManager.uiCityTabs.builderUI.UpdateProducedNumbers(cityBuilderManager.SelectedCity.resourceManager);
 				else if (uiCityImprovementTip.activeStatus)
 					uiCityImprovementTip.UpdateProduceNumbers();
 				break;
@@ -7481,7 +7504,8 @@ public class MapWorld : MonoBehaviour
 					float scaleX = goScale.x;
 					float scaleZ = goScale.z;
 					scott.transform.localScale = new Vector3(scaleX, 0.1f, scaleZ);
-					scott.lightBeam.Play();
+                    scott.PlayLightBeam();
+					//scott.lightBeam.Play();
 					LeanTween.scale(scott.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 					cityBuilderManager.PlaySelectAudio(cityBuilderManager.buildClip);
 					scott.conversationHaver.SetSomethingToSay("first_labor");
@@ -7534,7 +7558,8 @@ public class MapWorld : MonoBehaviour
 				float azaiScaleX = azaiScale.x;
 				float azaiScaleZ = azaiScale.z;
 				azai.transform.localScale = new Vector3(azaiScaleX, 0.1f, azaiScaleZ);
-				azai.lightBeam.Play();
+                azai.PlayLightBeam();
+				//azai.lightBeam.Play();
 				LeanTween.scale(azai.gameObject, azaiScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 				cityBuilderManager.PlaySelectAudio(cityBuilderManager.buildClip);
 				azai.conversationHaver.SetSomethingToSay("first_infantry");
@@ -7634,7 +7659,7 @@ public class MapWorld : MonoBehaviour
 						bool enoughLumber = false;
 						foreach (City city in cityDict.Values)
 						{
-							if (city.ResourceManager.ResourceDict[ResourceType.Lumber] >= 10)
+							if (city.resourceManager.resourceDict[ResourceType.Lumber] >= 10)
 							{
 								enoughLumber = true;
 								break;
@@ -7750,7 +7775,7 @@ public class MapWorld : MonoBehaviour
 						bool enoughStone = false;
 						foreach (City city in cityDict.Values)
 						{
-							if (city.ResourceManager.ResourceDict[ResourceType.Stone] >= 10)
+							if (city.resourceManager.resourceDict[ResourceType.Stone] >= 10)
 							{
 								enoughStone = true;
 								break;

@@ -115,6 +115,12 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
 				waitingForText.gameObject.SetActive(true);
 				waitingForText.text = "Waiting for Storage";
 			}
+            else if (producer.hitResourceMax)
+            {
+				waiting = true;
+				waitingForText.gameObject.SetActive(true);
+				waitingForText.text = "At Resource Max Level";
+			}
 			else
 			{
 				waiting = false;
@@ -395,7 +401,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
                             else
                                 panelList[i].resourceAmountText.color = Color.red;
 						}
-                        else if (resourceList[i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[resourceList[i].resourceType])
+                        else if (resourceList[i].resourceAmount > improvement.meshCity.resourceManager.resourceDict[resourceList[i].resourceType])
                         {
                             panelList[i].resourceAmountText.color = Color.red;
                         }
@@ -434,7 +440,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         
         ResourceProducer producer = improvement.resourceProducer;
         highlightList[producer.producedResourceIndex].gameObject.SetActive(false);
-        if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources /*|| producer.isWaitingToUnload*/)
+        if (producer.isProducing || producer.isWaitingForStorageRoom || producer.isWaitingforResources || producer.hitResourceMax)
             producer.StopProducing(true);
 
         improvement.producedResource = producesInfo[a].resourceType;
@@ -503,7 +509,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
         SetResourcePanelInfo(consumesInfo, improvement.GetCycleCost(), 0, false, false, 1, true);
 	}
 
-	public void ToggleWaiting(bool v, CityImprovement improvement, bool resource = false, bool storage = false, bool research = false)
+	public void ToggleWaiting(bool v, CityImprovement improvement, bool resource = false, bool storage = false, bool research = false, bool resourceMax = false)
     {
         if (activeStatus && this.improvement == improvement)
         {
@@ -525,6 +531,8 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
                     waitingForText.text = "Waiting for Storage";
                 else if (research)
                     waitingForText.text = "Waiting for Assignment";
+                else if (resourceMax)
+                    waitingForText.text = "At Resource Max Level";
             }
 
 			for (int i = 0; i < improvement.allConsumedResources[highlightIndex].Count; i++)
@@ -538,7 +546,7 @@ public class UICityImprovementTip : MonoBehaviour, ITooltip
                         else
 							consumesInfo[i].resourceAmountText.color = Color.red;
 					}
-                    else if (improvement.allConsumedResources[highlightIndex][i].resourceAmount > improvement.meshCity.ResourceManager.ResourceDict[consumesInfo[i].resourceType])
+                    else if (improvement.allConsumedResources[highlightIndex][i].resourceAmount > improvement.meshCity.resourceManager.resourceDict[consumesInfo[i].resourceType])
                     {
 						consumesInfo[i].resourceAmountText.color = Color.red;
 					}

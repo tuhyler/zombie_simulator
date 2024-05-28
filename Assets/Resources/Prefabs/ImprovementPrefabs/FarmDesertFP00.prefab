@@ -20,12 +20,12 @@ PrefabInstance:
     - target: {fileID: 1427713743040855028, guid: b73720e64124b6d498a5ec216275697d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.1
+      value: 0.176
       objectReference: {fileID: 0}
     - target: {fileID: 1427713743040855028, guid: b73720e64124b6d498a5ec216275697d,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1427713743040855028, guid: b73720e64124b6d498a5ec216275697d,
         type: 3}
@@ -374,6 +374,36 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5066493223152278515, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -5066493223152278515, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -5066493223152278515, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -2080431832172871890, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -2080431832172871890, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -2080431832172871890, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: -1684795525805992340, guid: 226d79e0a9927104caa3614350d1a6fa,
         type: 3}
       propertyPath: m_CastShadows
@@ -398,6 +428,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: FarmDesertFloodPlain00
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856990162907564318, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856990162907564318, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4856990162907564318, guid: 226d79e0a9927104caa3614350d1a6fa,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 5447331667604542231, guid: 226d79e0a9927104caa3614350d1a6fa,
         type: 3}

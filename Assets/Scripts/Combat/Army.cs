@@ -189,11 +189,11 @@ public class Army : MonoBehaviour
             }
 
             resourceTypes.Add(costs[i].resourceType);
-            city.ResourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, costs[i].resourceAmount);
+            city.resourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, costs[i].resourceAmount);
         }
 
         if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
-            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+            city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.resourceManager.resourceConsumedPerMinuteDict);
 	}
 
 	private void AddToBattleCost(List<ResourceValue> costs)
@@ -225,14 +225,14 @@ public class Army : MonoBehaviour
             if (cityCost)
             {
                 resourceTypes.Add(costs[i].resourceType);
-                city.ResourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, -costs[i].resourceAmount);
+                city.resourceManager.ModifyResourceConsumptionPerMinute(costs[i].resourceType, -costs[i].resourceAmount);
             }
         }
 
         if (cityCost)
         {
             if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
-                city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+                city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.resourceManager.resourceConsumedPerMinuteDict);
         }
 	}
 
@@ -737,7 +737,7 @@ public class Army : MonoBehaviour
 
     private void ConsumeBattleCosts()
     {
-        city.ResourceManager.ConsumeMaintenanceResources(totalBattleCosts, city.singleBuildDict[SingleBuildType.Barracks]);
+        city.resourceManager.ConsumeMaintenanceResources(totalBattleCosts, city.singleBuildDict[SingleBuildType.Barracks]);
         //totalBattleCosts.Clear();
     }
 
@@ -751,7 +751,7 @@ public class Army : MonoBehaviour
         if (issueRefund)
         {
             int i = 0;
-            city.ResourceManager.resourceCount = 0;
+            city.resourceManager.resourceCount = 0;
 			foreach (ResourceValue value in totalBattleCosts)
 			{
                 int amount;
@@ -763,7 +763,7 @@ public class Army : MonoBehaviour
 
                 if (amount > 0)
                 {
-                    city.ResourceManager.AddResource(value.resourceType, amount);
+                    city.resourceManager.AddResource(value.resourceType, amount);
 					Vector3 cityLoc = city.singleBuildDict[SingleBuildType.Barracks];
 					cityLoc.y += totalBattleCosts.Count * 0.4f;
 					cityLoc.y += -0.4f * i;

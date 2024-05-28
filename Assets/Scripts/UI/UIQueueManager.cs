@@ -381,7 +381,7 @@ public class UIQueueManager : MonoBehaviour
             //Destroy(queueItem);
 
             if (index == 0)
-                city.ResourceManager.ClearQueueResources();
+                city.resourceManager.ClearQueueResources();
 
             if (city.activeCity && activeStatus)
             {

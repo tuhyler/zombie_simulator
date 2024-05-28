@@ -30,7 +30,7 @@ public class MilitaryLeader : Military
 	{
 		leaderName = buildDataSO.unitDisplayName;
 		name = buildDataSO.unitDisplayName;
-		SetReferences(world, true);
+		SetReferences(world);
 		world.uiSpeechWindow.AddToSpeakingDict(leaderName, this);
 		Vector3 actualPosition = transform.position;
 
@@ -41,8 +41,8 @@ public class MilitaryLeader : Military
 
 		currentLocation = world.RoundToInt(actualPosition);
 
-		if (!defending && !dueling)
-			outline.ToggleOutline(true);
+		//if (defending || dueling)
+		//	outline.ToggleOutline(true);
 		//world.allTCReps[npcName] = this;
 	}
 
