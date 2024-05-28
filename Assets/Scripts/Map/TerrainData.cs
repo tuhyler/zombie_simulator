@@ -54,8 +54,8 @@ public class TerrainData : MonoBehaviour
     public ResourceGraphicHandler resourceGraphic;
     [HideInInspector]
     public TreeHandler treeHandler;
-    [SerializeField]
-    private ParticleSystem godRays;
+    //[SerializeField]
+    //private ParticleSystem godRays;
 
     //private List<MeshRenderer> renderers = new();
 
@@ -285,15 +285,15 @@ public class TerrainData : MonoBehaviour
 		}
     }
 
-    public void PrepParticleSystem()
-    {
-        godRays = Instantiate(godRays);
-        godRays.transform.SetParent(world.psHolder, false);
-        //godRays.transform.parent = transform;
-        //godRays.transform.position = transform.position;
-        //godRays.transform.SetParent(transform, false);
-        godRays.Pause();
-    }
+    //public void PrepParticleSystem() //all 3 in mapworld
+    //{
+    //    godRays = Instantiate(godRays);
+    //    godRays.transform.SetParent(world.psHolder, false);
+    //    //godRays.transform.parent = transform;
+    //    //godRays.transform.position = transform.position;
+    //    //godRays.transform.SetParent(transform, false);
+    //    godRays.Pause();
+    //}
 
     public void SetMinimapIcon()
     {
@@ -634,8 +634,9 @@ public class TerrainData : MonoBehaviour
 
 		if (rawResourceType == RawResourceType.Rocks)
         {
-            godRays.transform.position = tileCoordinates + new Vector3(1, 3, 0);
-			godRays.Play();
+            Vector3 loc = tileCoordinates + new Vector3(1, 3, 0);
+            world.CreateGodRay(loc);
+			//godRays.Play();
 
             if (!world.CompletedImprovementCheck(tileCoordinates))
             {

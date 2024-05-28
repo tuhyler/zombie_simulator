@@ -55,13 +55,13 @@ public class UITraderOrderHandler : MonoBehaviour
 
     public void HandleR()
     {
-        if (activeStatus)
+        if (activeStatus && !world.cityBuilderManager.uiTraderNamer.activeStatus)
             world.unitMovement.SetUpTradeRoute();
     }
 
     public void HandleF()
     {
-        if (activeStatus)
+        if (activeStatus && !world.cityBuilderManager.uiTraderNamer.activeStatus)
             world.unitMovement.ShowTradeRouteCost();
     }
 

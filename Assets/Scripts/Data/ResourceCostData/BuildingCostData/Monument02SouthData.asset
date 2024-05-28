@@ -10,28 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Market01Data
+  m_Name: Monument02SouthData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2047896648242801043, guid: 96bbcee1e4d2d3c47b0587e9066766a8, type: 3}
+  prefab: {fileID: 0}
   secondaryData: []
-  prefabLoc: BuildingPrefabs/Bazaar01
+  prefabLoc: BuildingPrefabs/Monument02
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
   isBuildingImprovement: 0
-  improvementName: Market
-  improvementDisplayName: Bazaar
-  improvementLevel: 1
-  improvementNameAndLevel: Market-1
-  improvementDescription: Allows management of traded goods
-  buildingLocation: {x: 0, y: 0, z: -0.5}
-  image: {fileID: 21300000, guid: fb5244d8238bfa24294e1f4cd843bf44, type: 3}
+  improvementName: Monument
+  improvementDisplayName: Sundial Monument
+  improvementLevel: 2
+  improvementNameAndLevel: Monument-2
+  improvementDescription: 
+  buildingLocation: {x: 1.25, y: 0, z: 0.25}
+  image: {fileID: 21300000, guid: 8bd59da9c5a94dc4b84097eaa5b094ce, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 5
-  - resourceType: 6
-    resourceAmount: 15
+    resourceAmount: 50
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -44,7 +42,7 @@ MonoBehaviour:
   isResearch: 0
   terrainType: 0
   specificTerrain: 0
-  workEthicChange: 0
+  workEthicChange: 0.15
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0
@@ -55,11 +53,11 @@ MonoBehaviour:
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
-  hillAdjustment: 0.6
+  hillAdjustment: 0.2
   buildTime: 0
-  availableInitially: 0
+  availableInitially: 1
   hideIdleMesh: 0
   getTerrainResource: 0
   attackBonus: 0
-  singleBuildType: 7
+  singleBuildType: 8
   buildOnRoad: 0

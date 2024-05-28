@@ -26,7 +26,8 @@ public class UIMarketResourcePanel : MonoBehaviour
     public Toggle sellToggle;
 
     [SerializeField]
-    public TMP_InputField minimumAmount;
+    public TMP_InputField minimumAmount, maximumAmount;
+
     //[SerializeField]
     //private TMP_Text minimumAmountText;
 
@@ -41,7 +42,8 @@ public class UIMarketResourcePanel : MonoBehaviour
 	private void Start()
     {
         minimumAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
-    }
+        maximumAmount.onValidateInput += delegate (string input, int charIndex, char addedChar) { return PositiveIntCheck(addedChar); };
+	}
 
     public void SetMarketPlaceManager(UIMarketPlaceManager uiMarketPlaceManager)
     {
@@ -135,10 +137,22 @@ public class UIMarketResourcePanel : MonoBehaviour
             finalMinimumAmount = int.Parse(stringAmount);
         }
 
-        uiMarketPlaceManager.SetResourceMinHold(resourceType, finalMinimumAmount);
+        uiMarketPlaceManager.SetResourceMinHold(resourceType, finalMinimumAmount, this);
     }
 
-    private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
+    public void UpdateMaxHold()
+    {
+		string chosenMaximumAmount = maximumAmount.text;
+		int finalMaximumAmount = uiMarketPlaceManager.city.warehouseStorageLimit;
+
+		if (int.TryParse(chosenMaximumAmount, out int result))
+			finalMaximumAmount = result;
+
+		uiMarketPlaceManager.SetResourceMaxHold(resourceType, finalMaximumAmount, this);
+        uiMarketPlaceManager.city.resourceManager.ResourceMaxWaitListCheck(resourceType);
+	}
+
+	private char PositiveIntCheck(char charToValidate) //ensuring numbers are positive
     {
         if (charToValidate != '1'
             && charToValidate != '2'
@@ -155,5 +169,15 @@ public class UIMarketResourcePanel : MonoBehaviour
         }
 
         return charToValidate;
+    }
+
+    public void OnInputFieldSelect()
+    {
+        uiMarketPlaceManager.isTyping = true;
+    }
+
+    public void OnInputFieldDeselect()
+    {
+        uiMarketPlaceManager.isTyping = false;
     }
 }

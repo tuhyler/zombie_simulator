@@ -764,14 +764,15 @@ public class Military : Unit
 			Rotate(world.GetNeighborsFor(currentLocation, MapWorld.State.EIGHTWAY)[UnityEngine.Random.Range(0, 8)]);
 		}
 
-		Vector3 newScale = transform.localScale;
-		newScale.y = 0.01f;
-		Vector3 lightPosition = transform.position;
-		lightPosition.y += 0.01f;
-		if (world.IsRoadOnTileLocation(world.RoundToInt(transform.position)))
-			lightPosition.y += .1f;
-		lightBeam.transform.position = lightPosition;
-		lightBeam.Play();
+		PlayLightBeam();
+		//Vector3 newScale = transform.localScale;
+		//newScale.y = 0.01f;
+		//Vector3 lightPosition = transform.position;
+		//lightPosition.y += 0.01f;
+		//if (world.IsRoadOnTileLocation(world.RoundToInt(transform.position)))
+		//	lightPosition.y += .1f;
+		//lightBeam.transform.position = lightPosition;
+		//lightBeam.Play();
 		LeanTween.scale(gameObject, Vector3.zero, 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(DestroyUnit);
 	}
 
@@ -828,10 +829,11 @@ public class Military : Unit
 
 	public void ToggleBoat(bool v)
 	{
-		Vector3 lightBeamLoc = transform.position;
-		lightBeamLoc.y += .01f;
-		lightBeam.transform.position = lightBeamLoc;
-		lightBeam.Play();
+		PlayLightBeam();
+		//Vector3 lightBeamLoc = transform.position;
+		//lightBeamLoc.y += .01f;
+		//lightBeam.transform.position = lightBeamLoc;
+		//lightBeam.Play();
 		
 		if (isSelected)
 			selectionCircle.SetActive(v);
@@ -1375,11 +1377,20 @@ public class Military : Unit
 		if (buildDataSO.inMilitary || enemyAI || bodyGuard)
 		{
 			if (buildDataSO.inMilitary)
+			{
+				if (!data.atHome)
+					outline.ToggleOutline(true);
+
 				transferring = data.transferring;
+			}
 			else if (bodyGuard)
+			{
 				transferring = data.transferring;
+			}
 			else
+			{
 				enemyAI.CampSpot = data.campSpot;
+			}
 
 			strengthBonus = data.strengthBonus;
 			repositioning = data.repositioning;

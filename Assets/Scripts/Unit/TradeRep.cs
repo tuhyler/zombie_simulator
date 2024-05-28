@@ -37,7 +37,7 @@ public class TradeRep : Unit
 	{
 		tradeRepName = buildDataSO.unitDisplayName;
 		name = buildDataSO.unitDisplayName;
-		SetReferences(world, true);
+		SetReferences(world);
 		world.uiSpeechWindow.AddToSpeakingDict(tradeRepName, this);
 		Vector3 actualPosition = transform.position;
 		world.SetNPCLoc(actualPosition, this);

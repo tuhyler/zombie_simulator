@@ -10,26 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
-  m_Name: Monument02Data
+  m_Name: Well01SouthData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 7952248765643111094, guid: 80caa5ba3d769d749b67763f5488ffb4, type: 3}
+  prefab: {fileID: 0}
   secondaryData: []
-  prefabLoc: BuildingPrefabs/Monument02
+  prefabLoc: BuildingPrefabs/Well01
   audio: {fileID: 0}
   isSecondary: 0
   isBuilding: 1
   isBuildingImprovement: 0
-  improvementName: Monument
-  improvementDisplayName: Sundial Monument
-  improvementLevel: 2
-  improvementNameAndLevel: Monument-2
+  improvementName: Well
+  improvementDisplayName: Well
+  improvementLevel: 1
+  improvementNameAndLevel: Well-1
   improvementDescription: 
-  buildingLocation: {x: 1.25, y: 0, z: 0.25}
-  image: {fileID: 21300000, guid: 8bd59da9c5a94dc4b84097eaa5b094ce, type: 3}
+  buildingLocation: {x: -0.1, y: 0, z: 0.6}
+  image: {fileID: 21300000, guid: 6ca7e4c9d07a9bf4693721e45aadcad3, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
   - resourceType: 7
-    resourceAmount: 50
+    resourceAmount: 20
+  - resourceType: 6
+    resourceAmount: 10
   consumedResources: []
   consumedResources1: []
   consumedResources2: []
@@ -42,22 +44,22 @@ MonoBehaviour:
   isResearch: 0
   terrainType: 0
   specificTerrain: 0
-  workEthicChange: 0.15
+  workEthicChange: 0
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0
-  waterIncrease: 0
+  waterIncrease: 4
   powerIncrease: 0
   replaceTerrain: 0
   replaceRocks: 0
   oneTerrain: 1
   adjustForHill: 1
   hideProp: 1
-  hillAdjustment: 0.2
+  hillAdjustment: 0.6
   buildTime: 0
-  availableInitially: 1
+  availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 0
   attackBonus: 0
-  singleBuildType: 8
+  singleBuildType: 9
   buildOnRoad: 0

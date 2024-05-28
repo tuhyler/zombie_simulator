@@ -138,7 +138,7 @@ public class PersonalResourceManager : MonoBehaviour
 			if (!city.resourceGridDict.ContainsKey(type))
 				city.AddToGrid(type);
 
-			int amountLoaded = city.ResourceManager.AddResource(type, remainingWithTrader);
+			int amountLoaded = city.resourceManager.AddResource(type, remainingWithTrader);
 
 			SubtractResource(type, remainingWithTrader);
 

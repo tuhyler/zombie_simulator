@@ -128,7 +128,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 		food.resourceType = ResourceType.Food;
 		food.resourceAmount = foodCost;
 
-		if (city.ResourceManager.CheckResourceAvailability(food))
+		if (city.resourceManager.CheckResourceAvailability(food))
 		{
 			foodCostText.color = Color.white;
 		}
@@ -173,7 +173,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 
 	public void UpdateFoodCosts(City city)
 	{
-		if (city.ResourceManager.CheckResourceAvailability(food))
+		if (city.resourceManager.CheckResourceAvailability(food))
 		{
 			foodCostText.color = Color.white;
 

@@ -468,7 +468,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 				return;
 		}
 
-        PrepareBuildOptions(cityBuilderManager.SelectedCity.ResourceManager);
+        PrepareBuildOptions(cityBuilderManager.SelectedCity.resourceManager);
 	}
 
     public void UpdateBuildOptions(ResourceType type, int prevAmount, int currentAmount, bool pos, ResourceManager resourceManager)

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Mine01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2163178250855241649, guid: 30e5e8222071e5a40ba7e955464007dd, type: 3}
+  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Mine01
   audio: {fileID: 8300000, guid: 380676899f3eecb449c32042adabf3ce, type: 3}

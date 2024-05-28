@@ -21,8 +21,8 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public SpriteRenderer minimapIcon;
 
-    [SerializeField]
-    public ParticleSystem lightBeam;
+    //[SerializeField]
+    //public ParticleSystem lightBeam;
 
     [SerializeField]
     public GameObject selectionCircle, questionMark, exclamationPoint, ripples;
@@ -118,11 +118,11 @@ public class Unit : MonoBehaviour
     {
         outline = GetComponentInChildren<Outline>();
         outline.PrepOutline();
-        outline.ToggleOutline(false);
+
         audioSource = GetComponent<AudioSource>();
-        highlight = GetComponent<SelectionHighlight>();
-        if (highlight == null)
-            highlight = GetComponentInChildren<SelectionHighlight>();
+        //highlight = GetComponent<SelectionHighlight>();
+        //if (highlight == null)
+        highlight = GetComponentInChildren<SelectionHighlight>();
         unitAnimator = GetComponent<Animator>();
         isMovingHash = Animator.StringToHash("isMoving");
         isMarchingHash = Animator.StringToHash("isMarching");
@@ -164,23 +164,33 @@ public class Unit : MonoBehaviour
             healthbar.gameObject.SetActive(false);
     }
 
-	private void SetParticleSystems()
+    public void PlayLightBeam()
     {
 		Vector3 loc = transform.position;
+        loc.y += world.IsRoadOnTileLocation(world.RoundToInt(loc)) ? 0.17f : 0.07f;
 
-        if (world.IsRoadOnTileLocation(world.RoundToInt(loc)))
-		    loc.y += 0.17f;
-		else
-			loc.y += 0.07f;
-
-		lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
+		ParticleSystem lightBeam = Instantiate(world.lightBeam, loc, Quaternion.Euler(0, 0, 0));
 		lightBeam.transform.SetParent(world.psHolder, false);
-
-		if (CompareTag("Player"))
-			lightBeam.Play();
+        lightBeam.Play();
 	}
 
-	public void SetReferences(MapWorld world, bool npc = false)
+	//private void SetParticleSystems()
+ //   {
+	//	Vector3 loc = transform.position;
+
+ //       if (world.IsRoadOnTileLocation(world.RoundToInt(loc)))
+	//	    loc.y += 0.17f;
+	//	else
+	//		loc.y += 0.07f;
+
+	//	lightBeam = Instantiate(lightBeam, loc, Quaternion.Euler(0, 0, 0));
+	//	lightBeam.transform.SetParent(world.psHolder, false);
+
+	//	if (CompareTag("Player"))
+	//		lightBeam.Play();
+	//}
+
+	public void SetReferences(MapWorld world)
     {
         this.world = world;
 		world.CheckUnitPermanentChanges(this);
@@ -192,8 +202,8 @@ public class Unit : MonoBehaviour
         hillSpeed = world.hill.movementCost;
         forestHillSpeed = world.forestHill.movementCost;
 
-        if (!npc)
-            SetParticleSystems();
+		if (CompareTag("Player"))
+			PlayLightBeam();
     }
 
     public void CenterCamera()
@@ -681,64 +691,64 @@ public class Unit : MonoBehaviour
     }
 
     //below two methods only used for player, scott, and azai (currently disabled as it just messes everything up)
-    public void UnitInWayCheck()
-    {
-		//Unit unitInTheWay = world.GetPlayer(currentLocation);
+ //   public void UnitInWayCheck() //two references in worker, one in bodyguard
+ //   {
+	//	//Unit unitInTheWay = world.GetPlayer(currentLocation);
 
-		//if (unitInTheWay == this)
-		//{
-		//	world.AddPlayerPosition(currentLocation, this);
-		//	return;
-		//}
-		//else if (unitInTheWay.buildDataSO.characterUnit)
-		//{
-  //          if (worker && unitInTheWay.worker)
-  //          {
-  //              FindNewSpot(currentLocation, null);
-  //              return;
-  //          }
-		//}
+	//	//if (unitInTheWay == this)
+	//	//{
+	//	//	world.AddPlayerPosition(currentLocation, this);
+	//	//	return;
+	//	//}
+	//	//else if (unitInTheWay.buildDataSO.characterUnit)
+	//	//{
+ // //          if (worker && unitInTheWay.worker)
+ // //          {
+ // //              FindNewSpot(currentLocation, null);
+ // //              return;
+ // //          }
+	//	//}
 
-		//Vector3Int loc;
-		//if (unitInTheWay.pathPositions.Count > 0)
-		//	loc = unitInTheWay.pathPositions.Peek();
-		//else
-		//	loc = new Vector3Int(0, -10, 0);
+	//	//Vector3Int loc;
+	//	//if (unitInTheWay.pathPositions.Count > 0)
+	//	//	loc = unitInTheWay.pathPositions.Peek();
+	//	//else
+	//	//	loc = new Vector3Int(0, -10, 0);
 
-		//FindNewSpot(currentLocation, loc);
-	}
+	//	//FindNewSpot(currentLocation, loc);
+	//}
 
-    public void FindNewSpot(Vector3Int current, Vector3Int? next)
-    {
-        //if (isBusy || (trader && trader.followingRoute) || inArmy || enemyAI)
-        //    return;
+    //public void FindNewSpot(Vector3Int current, Vector3Int? next) //one reference in worker
+    //{
+    //    //if (isBusy || (trader && trader.followingRoute) || inArmy || enemyAI)
+    //    //    return;
 
-        //int i = 0;
-        //bool outerRing = false;
-        //foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYTWODEEP))
-        //{
-        //    i++;
-        //    if (i > 8)
-        //        outerRing = true;
+    //    //int i = 0;
+    //    //bool outerRing = false;
+    //    //foreach (Vector3Int tile in world.GetNeighborsFor(current, MapWorld.State.EIGHTWAYTWODEEP))
+    //    //{
+    //    //    i++;
+    //    //    if (i > 8)
+    //    //        outerRing = true;
 
-        //    if (trader && !world.IsRoadOnTileLocation(tile))
-        //        continue;
+    //    //    if (trader && !world.IsRoadOnTileLocation(tile))
+    //    //        continue;
 
-        //    if (!world.PlayerCheckIfPositionIsValid(tile) || world.IsPlayerLocationTaken(tile))
-        //        continue;
+    //    //    if (!world.PlayerCheckIfPositionIsValid(tile) || world.IsPlayerLocationTaken(tile))
+    //    //        continue;
 
-        //    if (tile == next && tile != null) 
-        //        continue;
+    //    //    if (tile == next && tile != null) 
+    //    //        continue;
 
-        //    finalDestinationLoc = tile;
+    //    //    finalDestinationLoc = tile;
 
-        //    if (outerRing)
-        //        MoveThroughPath(new List<Vector3Int> { (current + tile) / 2, tile });
-        //    else
-        //        MoveThroughPath(new List<Vector3Int> { tile });
-        //    return;
-        //}
-    }
+    //    //    if (outerRing)
+    //    //        MoveThroughPath(new List<Vector3Int> { (current + tile) / 2, tile });
+    //    //    else
+    //    //        MoveThroughPath(new List<Vector3Int> { tile });
+    //    //    return;
+    //    //}
+    //}
 
     public void Teleport(Vector3 loc)
     {
@@ -883,42 +893,42 @@ public class Unit : MonoBehaviour
             ripples.SetActive(false);
 	}
 
-    public void MarkerCheck()
-    {
-        if (isDead)
-            return;
+ //   public void MarkerCheck()
+ //   {
+ //       if (isDead)
+ //           return;
         
-        Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
-        TerrainData td = world.GetTerrainDataAt(loc);
+ //       Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
+ //       TerrainData td = world.GetTerrainDataAt(loc);
 
-        if (world.IsBuildLocationTaken(loc) || td.treeHandler)
-            outline.ToggleOutline(true);
-            //marker.ToggleVisibility(true);
-	}
+ //       if (world.IsBuildLocationTaken(loc) || td.treeHandler)
+ //           outline.ToggleOutline(true);
+ //           //marker.ToggleVisibility(true);
+	//}
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (military && !military.bodyGuard)
-        {
-            if (!military.battleCam && (military.isMarching || military.returning || military.transferring))
-            {
-				Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
-                if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
-                    outline.ToggleOutline(true);
-                else
-                    outline.ToggleOutline(false);
-            }
-		}
-        else if (!bySea && !byAir)
-        {
-            Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
+  //  private void OnCollisionEnter(Collision collision)
+  //  {
+  //      if (military && !military.bodyGuard)
+  //      {
+  //          if (!military.battleCam && (military.isMarching || military.returning || military.transferring))
+  //          {
+		//		Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
+  //              if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
+  //                  outline.ToggleOutline(true);
+  //              else
+  //                  outline.ToggleOutline(false);
+  //          }
+		//}
+  //      else if (!bySea && !byAir)
+  //      {
+  // //         Vector3Int loc = world.GetClosestTerrainLoc(transform.position);
 
-            if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
-                outline.ToggleOutline(true);
-			else
-                outline.ToggleOutline(false);
-        }
-    }
+  // //         if (collision.gameObject.CompareTag("Forest") || collision.gameObject.CompareTag("Forest Hill") || world.IsBuildLocationTaken(loc))
+  // //             outline.ToggleOutline(true);
+		//	//else
+  // //             outline.ToggleOutline(false);
+  //      }
+  //  }
 
     private void OnCollisionStay(Collision collision)
     {

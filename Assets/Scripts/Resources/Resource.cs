@@ -12,6 +12,7 @@ public class Resource : MonoBehaviour
     private City city;
     [HideInInspector]
     public ResourceIndividualSO resourceIndividual;
+    private WaitForSeconds halfSecWait = new(0.5f);
     bool clearForest;
 
 
@@ -49,12 +50,12 @@ public class Resource : MonoBehaviour
         int amount = worker.world.GetTerrainDataAt(worker.world.RoundToInt(worker.transform.position)).GatherResourceAmount(gatheringAmount);
         worker.RemoveWorkLocation();
         LeanTween.scale(gameObject, Vector3.zero, 0.1f).setOnComplete(DestroyResourceIcon);
-        yield return new WaitForSeconds(0.5f);
+        yield return halfSecWait;
         city.PlayLightBullet();
-        yield return new WaitForSeconds(0.5f);
+        yield return halfSecWait;
 
-        city.ResourceManager.resourceCount = 0;
-        int gatheredResource = city.ResourceManager.AddResource(resourceIndividual.resourceType, amount); //only add one of respective resource
+        city.resourceManager.resourceCount = 0;
+        int gatheredResource = city.resourceManager.AddResource(resourceIndividual.resourceType, amount); //only add one of respective resource
         Vector3 loc = city.cityLoc;
         if (gatheredResource > 0)
             InfoResourcePopUpHandler.CreateResourceStat(loc, amount, ResourceHolder.Instance.GetIcon(resourceIndividual.resourceType), city.world);

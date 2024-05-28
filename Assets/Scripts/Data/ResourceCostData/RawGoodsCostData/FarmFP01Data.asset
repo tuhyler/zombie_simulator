@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: FarmFP01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1818493788481445142, guid: 6a43a771a1a04414ba2d5252353b7d76, type: 3}
+  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/FarmDesertFP00
   audio: {fileID: 8300000, guid: fd547594fa4d0ec44b52f036d8414a5a, type: 3}

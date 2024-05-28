@@ -48,8 +48,7 @@ public class CityImprovement : MonoBehaviour
 
 	[SerializeField]
     public GameObject improvementMesh, exclamationPoint;
-    [SerializeField]
-    private ParticleSystem smokeEmitter, smokeSplash;
+    private ParticleSystem smokeEmitter;
     [SerializeField]
     private List<ParticleSystem> workPS = new();
 
@@ -422,10 +421,7 @@ public class CityImprovement : MonoBehaviour
     public void PlayRemoveEffect(bool isHill)
     {
         Vector3 loc = transform.position;
-        if (isHill)
-            loc.y += .8f;
-        else
-            loc.y += .1f;
+        loc.y += isHill ? 0.8f : 0.1f;
 
         if (building)
 			world.PlayRemoveSplash(loc);
@@ -438,11 +434,15 @@ public class CityImprovement : MonoBehaviour
     public void PlaySmokeEmitter(Vector3 loc, int time, bool load)
     {
         //int time = improvementData.buildTime;
+        ParticleSystem smokeEmitter = Instantiate(world.smokeEmitter, loc, Quaternion.Euler(-90, 0, 0));
+        smokeEmitter.transform.SetParent(world.psHolder, false);
+        this.smokeEmitter = smokeEmitter;
+
         var emission = smokeEmitter.emission;
         emission.rateOverTime = 10f / time;
 
-        smokeEmitter.transform.position = loc;
-        smokeEmitter.gameObject.SetActive(true);
+        //smokeEmitter.transform.position = loc;
+        //smokeEmitter.gameObject.SetActive(true);
         if (load)
             smokeEmitter.time = time - timePassed;
 
@@ -452,11 +452,10 @@ public class CityImprovement : MonoBehaviour
     public void PlaySmokeSplash(bool isHill)
     {
         Vector3 loc = transform.position;
-        if (isHill)
-            loc.y += .6f;
-        else
-            loc.y += .1f;
-        smokeSplash.transform.position = loc;
+        loc.y += isHill ? 0.6f : 0.1f;
+
+        ParticleSystem smokeSplash = Instantiate(world.smokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+        smokeSplash.transform.SetParent(world.psHolder, false);
         smokeSplash.Play();
     }
 
@@ -464,7 +463,7 @@ public class CityImprovement : MonoBehaviour
     {
         Vector3 loc = transform.position;
         loc.y += .1f;
-        smokeSplash = Instantiate(smokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+        ParticleSystem smokeSplash = Instantiate(world.buildingSmokeSplash, loc, Quaternion.Euler(-90, 0, 0));
         smokeSplash.transform.SetParent(world.psHolder, false);
         //particleSystems.Add(smokeSplash);
         smokeSplash.Play();
@@ -482,7 +481,8 @@ public class CityImprovement : MonoBehaviour
     public void StopSmokeEmitter()
     {
         smokeEmitter.Stop();
-        smokeEmitter.gameObject.SetActive(false);
+        Destroy(smokeEmitter.gameObject);
+        //smokeEmitter.gameObject.SetActive(false);
     }
 
     public void BeginImprovementConstructionProcess(City city, ResourceProducer producer, Vector3Int tempBuildLocation, CityBuilderManager cityBuilderManager, bool isHill, bool load)
@@ -513,7 +513,7 @@ public class CityImprovement : MonoBehaviour
         }
 
         StopSmokeEmitter();
-        PlaySmokeSplash(isHill);
+        //PlaySmokeSplash(isHill);
         producer.HideConstructionProgressTimeBar();
         //cityBuilderManager.RemoveConstruction(tempBuildLocation);
         cityBuilderManager.FinishImprovement(city, improvementData, tempBuildLocation);
@@ -550,7 +550,7 @@ public class CityImprovement : MonoBehaviour
             producer.SetConstructionTime(timePassed);
         }
 
-		city.ResourceManager.IssueRefund(refundCost, loc);
+		city.resourceManager.IssueRefund(refundCost, loc);
 		StopUpgradeProcess(producer);
         world.cityBuilderManager.UpgradeSelectedImprovement(loc, this, city, data);
     }
@@ -600,7 +600,7 @@ public class CityImprovement : MonoBehaviour
 			producer.SetConstructionTime(timePassed);
 		}
 
-        city.ResourceManager.IssueRefund(refundCost, loc);
+        city.resourceManager.IssueRefund(refundCost, loc);
         StopTraining(producer);
         world.cityBuilderManager.BuildUnit(city, data, upgrading, upgradedUnit);
 	}
@@ -651,11 +651,11 @@ public class CityImprovement : MonoBehaviour
                 cycleCostDict[value.resourceType] += value.resourceAmount;
 
             resourceTypes.Add(value.resourceType);
-			city.ResourceManager.ModifyResourceConsumptionPerMinute(value.resourceType, value.resourceAmount);
+			city.resourceManager.ModifyResourceConsumptionPerMinute(value.resourceType, value.resourceAmount);
 		}
 
 		if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
-			city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+			city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.resourceManager.resourceConsumedPerMinuteDict);
 
 		if (world.uiCityImprovementTip.activeStatus && world.uiCityImprovementTip.improvement.loc == loc)
 			world.uiCityImprovementTip.UpdateConsumeNumbers();
@@ -682,11 +682,11 @@ public class CityImprovement : MonoBehaviour
                 cycleCostDict.Remove(value.resourceType);
 
             resourceTypes.Add(value.resourceType);
-			city.ResourceManager.ModifyResourceConsumptionPerMinute(value.resourceType, -value.resourceAmount);
+			city.resourceManager.ModifyResourceConsumptionPerMinute(value.resourceType, -value.resourceAmount);
 		}
 
 		if (city.activeCity && city.world.cityBuilderManager.uiLaborHandler.activeStatus)
-			city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.ResourceManager.resourceConsumedPerMinuteDict);
+			city.world.cityBuilderManager.uiLaborHandler.UpdateResourcesConsumed(resourceTypes, city.resourceManager.resourceConsumedPerMinuteDict);
 
 		if (world.uiCityImprovementTip.activeStatus && world.uiCityImprovementTip.improvement.loc == loc)
 			world.uiCityImprovementTip.UpdateConsumeNumbers();
@@ -823,6 +823,7 @@ public class CityImprovement : MonoBehaviour
             data.tempLabor = resourceProducer.tempLabor;
             data.unloadLabor = resourceProducer.unloadLabor;
             data.isWaitingForStorageRoom = resourceProducer.isWaitingForStorageRoom;
+            data.hitResourceMax = resourceProducer.hitResourceMax;
             data.isWaitingforResources = resourceProducer.isWaitingforResources;
             //data.isWaitingToUnload = resourceProducer.isWaitingToUnload;
             data.isWaitingForResearch = resourceProducer.isWaitingForResearch;
@@ -857,6 +858,7 @@ public class CityImprovement : MonoBehaviour
 		    //Resource Producer
 			resourceProducer.currentLabor = data.currentLabor;
 			resourceProducer.tempLabor = data.tempLabor;
+            resourceProducer.hitResourceMax = data.hitResourceMax;
 			resourceProducer.unloadLabor = data.unloadLabor;
 			resourceProducer.isWaitingForStorageRoom = data.isWaitingForStorageRoom;
 			resourceProducer.isWaitingforResources = data.isWaitingforResources;
@@ -870,9 +872,9 @@ public class CityImprovement : MonoBehaviour
 
             if (resourceProducer.isProducing)
             {
-			    if (!resourceProducer.isWaitingforResources && !resourceProducer.isWaitingForStorageRoom && /*!resourceProducer.isWaitingToUnload && */!resourceProducer.isWaitingForResearch)
+			    if (!resourceProducer.isWaitingforResources && !resourceProducer.isWaitingForStorageRoom && !resourceProducer.hitResourceMax && !resourceProducer.isWaitingForResearch)
                 {
-					resourceProducer.SetResourceManager(city.ResourceManager);
+					resourceProducer.SetResourceManager(city.resourceManager);
 					resourceProducer.LoadProducingCoroutine();
 
                     //work around to get lights showing on all polys, something to do with combinemeshes

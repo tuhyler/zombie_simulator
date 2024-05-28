@@ -10,14 +10,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1686765677576597183}
   - component: {fileID: 2050705500241568073}
-  - component: {fileID: 7796438051319544572}
-  - component: {fileID: 4530263000516872463}
+  - component: {fileID: 3277869951715035978}
+  - component: {fileID: 2924565007274644614}
   m_Layer: 8
-  m_Name: BazaarBase
+  m_Name: BuildingBase
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 20
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &1686765677576597183
 Transform:
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 8789389234130458407}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -46,27 +46,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d2fd3bfbe04a9498f5d43d966d956f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  world: {fileID: 0}
+  city: {fileID: 0}
+  army: {fileID: 0}
   meshCity: {fileID: 0}
   queued: 0
   building: 0
   isConstruction: 0
-  isConstructionPrefab: 0
   isUpgrading: 0
   canBeUpgraded: 0
   isTraining: 0
   wonderHarbor: 0
   firstStart: 0
-  showing: 0
+  hadRoad: 0
+  upgradeCost: []
+  refundCost: []
   housingIndex: 0
   laborCost: 0
+  upgradeLevel: 0
+  unitsWithinCount: 0
+  resourceProducer: {fileID: 0}
   loc: {x: 0, y: 0, z: 0}
   producedResource: 0
   producedResourceIndex: 0
+  improvementMesh: {fileID: 0}
   exclamationPoint: {fileID: 0}
   smokeEmitter: {fileID: 0}
   smokeSplash: {fileID: 628277446984423490, guid: 7a1a621752e2ab14aab329c269398503,
-    type: 3}
-  removeSplash: {fileID: 6041035029305573530, guid: 227158f9fa8122c4492aaec08d475a56,
     type: 3}
   workPS: []
   workLights: []
@@ -74,7 +80,7 @@ MonoBehaviour:
   timePassed: 0
   mapIcon: {fileID: 0}
   mapIconHolder: {fileID: 0}
---- !u!114 &7796438051319544572
+--- !u!114 &3277869951715035978
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -89,7 +95,7 @@ MonoBehaviour:
   glowMaterial: {fileID: 2100000, guid: b7526339e007ee546b4a6bfb471e7bf7, type: 2}
   glowMaterial2: {fileID: 2100000, guid: 5c952e88fdc907d468a7461232d08a0a, type: 2}
   isGlowing: 0
---- !u!65 &4530263000516872463
+--- !u!65 &2924565007274644614
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -100,5 +106,5 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.8, y: 1.2, z: 0.8}
+  m_Center: {x: 0, y: 0.1, z: 0}

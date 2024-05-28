@@ -740,7 +740,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
                 foreach (City city in world.cityDict.Values)
                 {
                     city.warehouseStorageLimit += (int)wonderData.wonderBenefitChange;
-                    city.ResourceManager.StorageSpaceCheck();
+                    city.resourceManager.StorageSpaceCheck();
                     //city.ResourceManager.RestartStorageRoomWaitProduction();
                 }
                 break;

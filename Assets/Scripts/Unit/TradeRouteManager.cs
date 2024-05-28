@@ -160,6 +160,252 @@ public class TradeRouteManager : MonoBehaviour
         return stop.center != null;
     }
 
+    //separated to be slightly faster
+    public IEnumerator CityLoadUnloadCoroutine(int loadUnloadRate, bool loading)
+    {
+		bool complete = false;
+
+		trader.personalResourceManager.DictCheck(resourceAssignments[currentStop]);
+
+		for (int i = currentResource; i < resourceAssignments[currentStop].Count; i++)
+		{
+			currentResource = i;
+			ResourceValue value = resourceAssignments[currentStop][currentResource];
+			int resourceAmount = value.resourceAmount;
+			resourceTotalAmount = Mathf.Abs(resourceAmount);
+			bool loadUnloadCheck = true;
+			percDone = 0;
+
+			if (uiTradeRouteManager.activeStatus && trader.isSelected)
+				uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetCompletePerc(0, resourceTotalAmount);
+
+			if (resourceAmount == 0)
+			{
+				SuddenFinish(false);
+				complete = true;
+				continue;
+			}
+			else if (resourceAmount > 0) //moving from city to trader
+			{
+                resourceAmount -= trader.personalResourceManager.resourceDict[value.resourceType]; //subtracting amount already present in trader
+                
+                if (loading)
+				{
+					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
+					if (space + amountMoved < resourceAmount)
+					{
+						resourceAmount = space;
+						resourceAmount += amountMoved;
+					}
+					resourceCurrentAmount = amountMoved;
+
+					if (resourceCheck)
+					{
+						trader.SetWarning(false, false, false, false);
+						trader.SetLoadingAnimation(false);
+
+						yield break;
+					}
+				}
+				else
+				{
+					amountMoved = 0;
+					resourceCurrentAmount = 0;
+
+					//if trader wants more than it can store
+					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
+					if (space < resourceAmount)
+					{
+						resourceAmount = space;
+
+						//for when inventory is full
+						if (resourceAmount == 0)
+						{
+							SuddenFinish(true);
+							complete = true;
+							continue;
+						}
+					}
+				}
+
+				//for when trader already has requisite amount
+				if (resourceAmount == 0)
+				{
+					SuddenFinish(false);
+					complete = true;
+					continue;
+				}
+
+				bool isPlaying = false;
+
+				if (!trader.resourceGridDict.ContainsKey(value.resourceType))
+					trader.AddToGrid(value.resourceType);
+
+				while (loadUnloadCheck)
+				{
+					int loadUnloadRateMod = Mathf.Min(resourceAmount - amountMoved, loadUnloadRate);
+					int resourceAmountAdjusted = Mathf.Abs(stop.city.resourceManager.SubtractTraderResource(value.resourceType, loadUnloadRateMod));
+
+					amountMoved += resourceAmountAdjusted;
+					resourceCurrentAmount += resourceAmountAdjusted;
+					percDone = (float)resourceCurrentAmount / resourceTotalAmount;
+
+					if (uiTradeRouteManager.activeStatus && trader.isSelected)
+						uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(percDone);
+
+					if (resourceAmountAdjusted == 0)
+					{
+						resourceCheck = true;
+						stop.city.resourceManager.AddToResourceWaitList(value.resourceType, trader);
+						trader.SetWarning(false, false, false, false);
+
+						trader.SetLoadingAnimation(false);
+						isPlaying = false;
+
+						yield break;
+					}
+					else if (!isPlaying)
+					{
+						trader.SetLoadingAnimation(true);
+						isPlaying = true;
+					}
+
+					//do it before coroutine so that numbers are accurate and can't cancel whilst occurring
+					trader.personalResourceManager.AddResource(value.resourceType, resourceAmountAdjusted);
+
+					yield return totalWait;
+
+					if (amountMoved >= resourceAmount)
+					{
+						loadUnloadCheck = false;
+					}
+				}
+
+				trader.SetLoadingAnimation(false);
+				complete = true;
+			}
+			else if (resourceAmount < 0) //moving from trader to city
+			{
+				if (loading)
+				{
+					int remainingWithTrader = trader.personalResourceManager.GetResourceDictValue(value.resourceType);
+					if (remainingWithTrader - amountMoved < Mathf.Abs(resourceAmount))
+					{
+						resourceAmount = -remainingWithTrader;
+						resourceAmount += amountMoved;
+						resourceTotalAmount = Mathf.Abs(resourceAmount);
+					}
+
+					resourceCurrentAmount = Mathf.Abs(amountMoved);
+
+					if (resourceCheck)
+					{
+						trader.SetUnloadingAnimation(false);
+						trader.SetWarning(true, false, false, false);
+						yield break;
+					}
+				}
+				else
+				{
+					amountMoved = 0;
+					resourceCurrentAmount = 0;
+
+					//if trader holds less than what is asked to be dropped off
+					int remainingWithTrader = trader.personalResourceManager.GetResourceDictValue(value.resourceType);
+					if (remainingWithTrader < Mathf.Abs(resourceAmount))
+					{
+						resourceAmount = -remainingWithTrader;
+						resourceTotalAmount = remainingWithTrader;
+
+						//for when trader isn't carrying any
+						if (resourceAmount == 0)
+						{
+							SuddenFinish(true);
+							complete = true;
+							continue;
+						}
+					}
+				}
+
+				bool isPlaying = false;
+				bool maxCheck = stop.city.resourceManager.resourceMaxHoldDict[value.resourceType] >= 0;
+
+				if (!stop.city.resourceGridDict.ContainsKey(value.resourceType))
+					stop.city.AddToGrid(value.resourceType);
+
+				while (loadUnloadCheck)
+				{
+					int loadUnloadRateMod = Mathf.Abs(Mathf.Max(resourceAmount - amountMoved, -loadUnloadRate));
+                    int resourceAmountAdjusted;
+
+					if (maxCheck)
+					{
+						int maxDiff = Mathf.Clamp(stop.city.resourceManager.resourceMaxHoldDict[value.resourceType] - stop.city.resourceManager.resourceDict[value.resourceType], 0, loadUnloadRateMod);
+                        resourceAmountAdjusted = stop.city.resourceManager.AddTraderResource(value.resourceType, maxDiff);
+
+						if (maxDiff < resourceAmountAdjusted)
+							resourceAmountAdjusted = maxDiff;
+					}
+                    else
+                    {
+                        resourceAmountAdjusted = stop.city.resourceManager.AddTraderResource(value.resourceType, loadUnloadRateMod);
+					}
+
+					amountMoved -= resourceAmountAdjusted;
+					resourceCurrentAmount += resourceAmountAdjusted;
+					percDone = (float)resourceCurrentAmount / resourceTotalAmount;
+
+					if (uiTradeRouteManager.activeStatus && trader.isSelected)
+						uiTradeRouteManager.tradeStopHandlerList[currentStop].uiResourceTasks[currentResource].SetAmount(percDone);
+
+					if (resourceAmountAdjusted == 0)
+					{
+						trader.SetUnloadingAnimation(false);
+						if (maxCheck && stop.city.warehouseStorageLimit > stop.city.resourceManager.resourceStorageLevel)
+						{
+							loadUnloadCheck = false;
+							break;
+						}
+						stop.city.resourceManager.AddToUnloadWaitList(trader);
+
+						resourceCheck = true;
+						isPlaying = false;
+						trader.SetWarning(true, false, false, false);
+						yield break;
+					}
+					else if (!isPlaying)
+					{
+						trader.SetUnloadingAnimation(true);
+						isPlaying = true;
+					}
+
+					trader.personalResourceManager.SubtractResource(value.resourceType, resourceAmountAdjusted);
+
+					yield return totalWait;
+
+					if (amountMoved <= resourceAmount)
+						loadUnloadCheck = false;
+				}
+
+				trader.SetUnloadingAnimation(false);
+				resourceCurrentAmount = 0;
+				amountMoved = 0;
+				complete = true;
+			}
+
+			if (resourceCompletion[currentStop].Count < currentResource + 1)
+				resourceCompletion[currentStop].Add(Mathf.RoundToInt(percDone * 100));
+			else
+				resourceCompletion[currentStop][currentResource] = Mathf.RoundToInt(percDone * 100);
+		}
+
+		if (complete)
+		{
+			trader.personalResourceManager.ResetDict(resourceAssignments[currentStop]);
+			FinishLoading();
+		}
+	}
+
     public IEnumerator LoadUnloadCoroutine(int loadUnloadRate, bool loading)
     {
 		bool complete = false;
@@ -207,10 +453,6 @@ public class TradeRouteManager : MonoBehaviour
                         complete = true;
                         continue;
                     }
-     //               else
-     //               {
-     //                   cost = Mathf.CeilToInt(tradeCenter.ResourceBuyDict[value.resourceType] * tradeCenter.multiple);
-					//}
                 }
                 else if (resourceAmount < 0)
                 {
@@ -230,9 +472,11 @@ public class TradeRouteManager : MonoBehaviour
                 complete = true;
                 continue;
             }
-            else if (resourceAmount > 0) //moving from city to trader
+            else if (resourceAmount > 0) //moving from trade center to trader
             {
-                if (loading)
+				resourceAmount -= trader.personalResourceManager.resourceDict[value.resourceType]; //subtracting amount already present in trader
+
+				if (loading)
                 {
 					int space = trader.personalResourceManager.resourceStorageLimit - trader.personalResourceManager.resourceStorageLevel;
 					if (space + amountMoved < resourceAmount)
@@ -244,21 +488,12 @@ public class TradeRouteManager : MonoBehaviour
 
                     if (resourceCheck)
                     {
-                        if (stop.center != null)
-                        {
-                            goldAmount = Mathf.Min(resourceAmount - amountMoved, loadUnloadRate) * Mathf.CeilToInt(stop.center.resourceBuyDict[value.resourceType] * stop.center.multiple);
-                            stop.center.SetWaiter(trader, goldAmount, true);
-							trader.SetWarning(false, false, true, false);
-						}
-                        else
-                        {
-						    trader.SetWarning(false, false, false, false);
-                        }
-
+                        goldAmount = Mathf.Min(resourceAmount - amountMoved, loadUnloadRate) * Mathf.CeilToInt(stop.center.resourceBuyDict[value.resourceType] * stop.center.multiple);
+                        stop.center.SetWaiter(trader, goldAmount, true);
+						trader.SetWarning(false, false, true, false);
 						trader.SetLoadingAnimation(false);
 
                         yield break;
-						//yield return HoldingPatternCoroutine();
 					}
                 }
                 else
@@ -300,18 +535,11 @@ public class TradeRouteManager : MonoBehaviour
                     int loadUnloadRateMod = Mathf.Min(resourceAmount - amountMoved, loadUnloadRate);
                     int resourceAmountAdjusted;
                     
-                    if (stop.city != null)
-                    {
-                        resourceAmountAdjusted = Mathf.Abs(stop.city.ResourceManager.SubtractTraderResource(value.resourceType, loadUnloadRateMod));
-                    }
+					cost = Mathf.CeilToInt(stop.center.resourceBuyDict[value.resourceType] * stop.center.multiple); //cost is calculated each time in case it changes while trader is there
+					if (stop.center.world.CheckWorldGold(loadUnloadRateMod * cost))
+                        resourceAmountAdjusted = loadUnloadRateMod;
                     else
-                    {
-						cost = Mathf.CeilToInt(stop.center.resourceBuyDict[value.resourceType] * stop.center.multiple); //cost is calculated each time in case it changes while trader is there
-						if (stop.center.world.CheckWorldGold(loadUnloadRateMod * cost))
-                            resourceAmountAdjusted = loadUnloadRateMod;
-                        else
-                            resourceAmountAdjusted = 0;
-                    }
+                        resourceAmountAdjusted = 0;
 
                     amountMoved += resourceAmountAdjusted;
                     resourceCurrentAmount += resourceAmountAdjusted;
@@ -323,49 +551,28 @@ public class TradeRouteManager : MonoBehaviour
                     if (resourceAmountAdjusted == 0)
                     {
                         resourceCheck = true;
-						if (stop.city != null)
-                        {
-                            stop.city.ResourceManager.AddToResourceWaitList(value.resourceType, trader);
-                            trader.SetWarning(false, false, false, false);
-                        }
-                        else
-                        {
-                            goldAmount = loadUnloadRateMod * cost;
-							stop.center.SetWaiter(trader, goldAmount, false);
-							trader.SetWarning(false, false, true, false);
-						}
+                        goldAmount = loadUnloadRateMod * cost;
+						stop.center.SetWaiter(trader, goldAmount, false);
+						trader.SetWarning(false, false, true, false);
 
                         trader.SetLoadingAnimation(false);
                         isPlaying = false;
 
                         yield break;
-						//yield return HoldingPatternCoroutine();
-
-                        //in case deselecting while waiting
-						//if (!trader.resourceGridDict.ContainsKey(value.resourceType))
-						//	trader.AddToGrid(value.resourceType);
-
-						//continue; //start loop over once resources have been found again
                     }
-                    else
-                    {
-                        if (!isPlaying)
-                        {
-                            trader.SetLoadingAnimation(true);
-                            isPlaying = true;
-                        }
+                    else if (!isPlaying)
+					{
+                        trader.SetLoadingAnimation(true);
+                        isPlaying = true;
                     }
 
                     //do it before coroutine so that numbers are accurate and can't cancel whilst occurring
                     trader.personalResourceManager.AddResource(value.resourceType, resourceAmountAdjusted);
 
-                    if (stop.center)
-                    {
-                        int buyAmount = -resourceAmountAdjusted * cost;
-						stop.center.tcRep.IncreasePurchasedAmount(buyAmount);
-						stop.center.world.UpdateWorldGold(buyAmount);
-                        InfoResourcePopUpHandler.CreateResourceStat(transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), stop.center.world);
-                    }
+                    int buyAmount = -resourceAmountAdjusted * cost;
+					stop.center.tcRep.IncreasePurchasedAmount(buyAmount);
+					stop.center.world.UpdateWorldGold(buyAmount);
+                    InfoResourcePopUpHandler.CreateResourceStat(transform.position, buyAmount, ResourceHolder.Instance.GetIcon(ResourceType.Gold), stop.center.world);
 
                     yield return totalWait;
 
@@ -378,9 +585,9 @@ public class TradeRouteManager : MonoBehaviour
                 trader.SetLoadingAnimation(false);
                 complete = true;
             }
-            else if (resourceAmount < 0) //moving from trader to city
+            else if (resourceAmount < 0) //moving from trader to wonder/trade center
             {
-                if (loading) //when loading
+                if (loading)
                 {
 					int remainingWithTrader = trader.personalResourceManager.GetResourceDictValue(value.resourceType);
                     if (remainingWithTrader - amountMoved < Mathf.Abs(resourceAmount))
@@ -397,7 +604,6 @@ public class TradeRouteManager : MonoBehaviour
                         trader.SetUnloadingAnimation(false);
 					    trader.SetWarning(true, false, false, false);
                         yield break;
-					    //yield return HoldingPatternCoroutine();
                     }
 				}
                 else
@@ -436,19 +642,12 @@ public class TradeRouteManager : MonoBehaviour
 
                 bool isPlaying = false;
 
-				if (stop.city != null && !stop.city.resourceGridDict.ContainsKey(value.resourceType))
-					stop.city.AddToGrid(value.resourceType);
-
 				while (loadUnloadCheck)
                 {
                     int loadUnloadRateMod = Mathf.Abs(Mathf.Max(resourceAmount - amountMoved, -loadUnloadRate));
                     int resourceAmountAdjusted;
 
-                    if (stop.city != null)
-                    {
-                        resourceAmountAdjusted = stop.city.ResourceManager.AddTraderResource(value.resourceType, loadUnloadRateMod);
-                    }
-                    else if (stop.wonder != null)
+                    if (stop.wonder != null)
                     {
 						if (stop.wonder.completed)
                         {
@@ -480,24 +679,16 @@ public class TradeRouteManager : MonoBehaviour
 
                     if (resourceAmountAdjusted == 0)
                     {
-                        resourceCheck = true;
-                        if (stop.city != null)
-                            stop.city.ResourceManager.AddToUnloadWaitList(trader);
-
                         trader.SetUnloadingAnimation(false);
+                        resourceCheck = true;
                         isPlaying = false;
 						trader.SetWarning(true, false, false, false);
                         yield break;
-                        //yield return HoldingPatternCoroutine();
-                        //continue; //restart loop once there's storage room
                     }
-                    else
-                    {
-                        if (!isPlaying)
-                        {
-                            trader.SetUnloadingAnimation(true);
-                            isPlaying = true;
-                        }
+                    else if (!isPlaying)
+					{
+                        trader.SetUnloadingAnimation(true);
+                        isPlaying = true;
                     }
 
                     trader.personalResourceManager.SubtractResource(value.resourceType, resourceAmountAdjusted);
@@ -659,9 +850,9 @@ public class TradeRouteManager : MonoBehaviour
         if (type == ResourceType.None)
         {
             int loadUnloadRateMod = Mathf.Abs(Mathf.Max(resourceAssignments[currentStop][currentResource].resourceAmount - amountMoved, -trader.loadUnloadRate));
-            if (stop.city != null && loadUnloadRateMod <= stop.city.warehouseStorageLimit - stop.city.ResourceManager.resourceStorageLevel)
+            if (stop.city != null && loadUnloadRateMod <= stop.city.warehouseStorageLimit - stop.city.resourceManager.resourceStorageLevel)
             {
-                ContinueLoadingUnloading();
+                //ContinueLoadingUnloading();
                 //trader.RemoveWarning();
                 return true;
             }
@@ -672,9 +863,9 @@ public class TradeRouteManager : MonoBehaviour
         }
         else
         {
-            if (stop.city != null && resourceAssignments[currentStop][currentResource].resourceType == type && resourceAssignments[currentStop][currentResource].resourceAmount >= stop.city.ResourceManager.ResourceDict[type])
+            if (stop.city != null && resourceAssignments[currentStop][currentResource].resourceType == type && resourceAssignments[currentStop][currentResource].resourceAmount >= stop.city.resourceManager.resourceDict[type])
             {
-                ContinueLoadingUnloading();
+                //ContinueLoadingUnloading();
                 //         resourceCheck = false;
 			    //trader.RemoveWarning();
                 return true;
@@ -690,7 +881,7 @@ public class TradeRouteManager : MonoBehaviour
     {
 		trader.RemoveWarning();
 		resourceCheck = false;
-        trader.RestartLoadUnload();
+        trader.RestartLoadUnload(stop.city != null);
     }
 
     public void StopHoldingPatternCoroutine()
@@ -710,11 +901,11 @@ public class TradeRouteManager : MonoBehaviour
                     tempValue.resourceType = resourceAssignments[currentStop][currentResource].resourceType;
                     tempValue.resourceAmount = resourceAssignments[currentStop][currentResource].resourceAmount;
                     List<ResourceValue> tempValueList = new() { tempValue };
-                    stop.city.ResourceManager.RemoveFromCityResourceWaitList(trader, tempValueList);
+                    stop.city.resourceManager.RemoveFromCityResourceWaitList(trader, tempValueList);
                 }
                 else
                 {
-                    stop.city.ResourceManager.RemoveFromUnloadWaitList(trader);
+                    stop.city.resourceManager.RemoveFromUnloadWaitList(trader);
                 }
             }
 

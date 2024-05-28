@@ -29,7 +29,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     public Button resourceNumButton;
 
     [SerializeField]
-    public Image background, completeImage, check, chosenResourceSprite, grips, resourceNumButtonImg, sliderBackground, sliderHandle, sliderFill;
+    public Image background, completeImage, check, chosenResourceSprite, grips, /*resourceNumButtonImg, */sliderBackground, sliderHandle, sliderFill;
 
     [SerializeField]
     private Sprite redX, blueCheck;

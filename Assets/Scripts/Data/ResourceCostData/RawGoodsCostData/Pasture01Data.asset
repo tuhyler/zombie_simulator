@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Pasture01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5838738910640936402, guid: 50e948a4b0d6df04f936d096275067d5, type: 3}
+  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Pasture01
   audio: {fileID: 8300000, guid: 94088e9cd82a59646accab37d4f79f00, type: 3}

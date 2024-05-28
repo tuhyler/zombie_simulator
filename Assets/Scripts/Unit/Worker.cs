@@ -53,6 +53,7 @@ public class Worker : Unit
     {
         AwakeMethods();
         worker = this;
+		outline.ToggleOutline(true);
         isWorkingHash = Animator.StringToHash("isWorking");
         isGatheringHash = Animator.StringToHash("isGathering");
         isFallingHash = Animator.StringToHash("isFalling");
@@ -286,7 +287,7 @@ public class Worker : Unit
         FinishedMoving.RemoveListener(RemoveRoad);
         FinishedMoving.RemoveListener(GatherResourceListener);
 
-        GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), true);
+        GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position));
     }
 
     public void SetRoadRemovalQueue()
@@ -397,7 +398,7 @@ public class Worker : Unit
 			world.mainPlayer.isBusy = false;
             world.mainPlayer.StopMovementCheck(true);
 
-			world.scott.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), true);
+			world.scott.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position));
 			//if (world.azaiFollow)
 			//	world.azai.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position), false);
 
@@ -757,7 +758,7 @@ public class Worker : Unit
 			TerrainData td = world.GetTerrainDataAt(pos);
 			td.beingCleared = false;
 			td.ShowProp(false);
-			worker.outline.ToggleOutline(false);
+			//worker.outline.ToggleOutline(false);
 			//worker.marker.ToggleVisibility(false);
 			TerrainDataSO tempData;
 
@@ -1093,8 +1094,8 @@ public class Worker : Unit
         }
         else
         {
-            if (currentSpot == workSpot)
-                FindNewSpot(currentSpot, null);
+            //if (currentSpot == workSpot)
+            //    FindNewSpot(currentSpot, null);
 
             world.scott.FinishedMoving.AddListener(world.scott.GatherResourceListener);
             world.unitMovement.GoStraightToSelectedLocation(workSpot, currentTerrain, world.scott);
@@ -1106,7 +1107,7 @@ public class Worker : Unit
 	//	conversationHaver.SetSomethingToSay(conversationTopic, alternateSpeaker);
 	//}
 
-	public void GoToPosition(Vector3Int position, bool diag)
+	public void GoToPosition(Vector3Int position)
 	{
 		StopMovementCheck(false);
 		Vector3Int currentLoc = world.RoundToInt(transform.position);
@@ -1115,7 +1116,6 @@ public class Worker : Unit
 			return;
 
 		int i = 0;
-		int factor = diag ? 1 : 0;
 		Vector3Int finalLoc = currentLoc;
 		int dist = 0;
 
@@ -1124,8 +1124,8 @@ public class Worker : Unit
 		{
 			i++;
 
-			if (i % 2 == factor)
-				continue;
+			//if (i % 2 == 1)
+			//	continue;
 
 			if (world.IsPlayerLocationTaken(tile))
 				continue;
@@ -1763,11 +1763,11 @@ public class Worker : Unit
 				world.unitMovement.uiWorkerTask.uiLoadUnload.ToggleInteractable(true);
 		}
 
-		if (world.IsPlayerLocationTaken(currentLocation))
-		{
-			UnitInWayCheck();
-		}
-		else
+		//if (world.IsPlayerLocationTaken(currentLocation))
+		//{
+		//	UnitInWayCheck();
+		//}
+		//else
 		{
 			world.AddPlayerPosition(currentLocation, this);
 			world.tempNoWalkList.Clear();
@@ -1780,8 +1780,8 @@ public class Worker : Unit
 			world.AddPlayerPosition(currentLocation, this);
 		else if (toTransport)
 			LoadWorkerInTransport(worker.transportTarget);
-		else if (world.IsPlayerLocationTaken(currentLocation))
-			UnitInWayCheck();
+		//else if (world.IsPlayerLocationTaken(currentLocation))
+		//	UnitInWayCheck();
 		else
 			world.AddPlayerPosition(currentLocation, this);
 	}

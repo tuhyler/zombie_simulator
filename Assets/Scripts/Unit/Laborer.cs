@@ -25,6 +25,7 @@ public class Laborer : Unit
     {
         AwakeMethods();
         laborer = this;
+        outline.ToggleOutline(true);
         isCelebratingHash = Animator.StringToHash("isCelebrating");
         isJumpingHash = Animator.StringToHash("isJumping");
     }

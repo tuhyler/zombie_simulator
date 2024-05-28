@@ -17,6 +17,7 @@ public class BodyGuard : Military
 		base.AwakeMethods();
 		base.MilitaryAwakeMethods();
 		bodyGuard = this;
+		outline.ToggleOutline(true);
 		isDizzyHash = Animator.StringToHash("isDizzy");
 	}
 
@@ -276,10 +277,10 @@ public class BodyGuard : Military
 		{
 			LoadBodyGuardInTransport(transportTarget);
 		}
-		else if (world.IsPlayerLocationTaken(currentLocation))
-		{
-			UnitInWayCheck();
-		}
+		//else if (world.IsPlayerLocationTaken(currentLocation))
+		//{
+		//	UnitInWayCheck();
+		//}
 		else
 		{
 			Vector3Int terrainLoc = world.GetClosestTerrainLoc(currentLocation);

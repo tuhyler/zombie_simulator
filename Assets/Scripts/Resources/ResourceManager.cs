@@ -2,19 +2,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class ResourceManager : MonoBehaviour
 {
-    private Dictionary<ResourceType, int> resourceDict = new(); //need this later for save system
+    public Dictionary<ResourceType, int> resourceDict = new(), resourcePriceDict = new(), resourceMinHoldDict = new(), resourceMaxHoldDict = new(), resourceSellHistoryDict = new();
     private Dictionary<ResourceType, float> resourceGenerationPerMinuteDict = new(); //for resource generation stats
     public Dictionary<ResourceType, float> resourceConsumedPerMinuteDict = new(); //for resource consumption stats
-    public Dictionary<ResourceType, int> resourcePriceDict = new();
     [HideInInspector]
     public List<ResourceType> resourceSellList = new();
-    public Dictionary<ResourceType, int> resourceMinHoldDict = new();
-    public Dictionary<ResourceType, int> resourceSellHistoryDict = new();
-
-    public Dictionary<ResourceType, int> ResourceDict { get { return resourceDict; } set { resourceDict = value; } }
 
     [HideInInspector]
     public int resourceStorageLevel;
@@ -25,6 +21,8 @@ public class ResourceManager : MonoBehaviour
     [HideInInspector]
     public Dictionary<ResourceType, List<ICityResourceWait>> cityResourceWaitDict = new();
     [HideInInspector]
+    public Dictionary<ResourceType, List<ResourceProducer>> cityResourceMaxWaitDict = new();
+	[HideInInspector]
     public List<ICityResourceWait> unloadWaitList = new();
 
     //initial resources
@@ -68,6 +66,7 @@ public class ResourceManager : MonoBehaviour
                     resourceSellList.Add(type);
                 resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
                 resourceMinHoldDict[type] = 0;
+                resourceMaxHoldDict[type] = -1;
                 resourceSellHistoryDict[type] = 0;
             }
         }
@@ -82,6 +81,7 @@ public class ResourceManager : MonoBehaviour
             resourceSellList.Add(type);
         resourcePriceDict[type] = ResourceHolder.Instance.GetPrice(type);
         resourceMinHoldDict[type] = 0;
+        resourceMaxHoldDict[type] = -1;
         resourceSellHistoryDict[type] = 0;
 	}
 
@@ -250,7 +250,24 @@ public class ResourceManager : MonoBehaviour
             cityResourceWaitDict.Remove(type);
     }
 
-    public bool RouteCostCheck(List<ResourceValue> costs, ResourceType type)
+    public void AddToResourceMaxWaitList(ResourceType type, ResourceProducer producer)
+    {
+		if (!cityResourceMaxWaitDict.ContainsKey(type))
+			cityResourceMaxWaitDict[type] = new();
+
+		if (!cityResourceMaxWaitDict[type].Contains(producer))
+			cityResourceMaxWaitDict[type].Add(producer);
+	}
+
+	public void RemoveFromResourceMaxWaitList(ResourceType type)
+	{
+		cityResourceMaxWaitDict[type].RemoveAt(0);
+
+		if (cityResourceMaxWaitDict[type].Count == 0)
+			cityResourceMaxWaitDict.Remove(type);
+	}
+
+	public bool RouteCostCheck(List<ResourceValue> costs, ResourceType type)
     {
         for (int i = 0; i < costs.Count; i++)
         {
@@ -474,13 +491,40 @@ public class ResourceManager : MonoBehaviour
             bool success = true;
             while (success)
             {
-                if (cityResourceWaitDict.ContainsKey(type) && cityResourceWaitDict[type][0].Restart(type))
+                if (cityResourceWaitDict.ContainsKey(type) && cityResourceWaitDict[type][0].RestartCheck(type))
+                {
+                    ICityResourceWait waiter = cityResourceWaitDict[type][0];
                     RemoveFromResourceWaitList(type);
+                    waiter.Restart(type);
+                }
                 else
+                {
                     success = false;
+                }
             }
 		}
 	}
+
+    public void ResourceMaxWaitListCheck(ResourceType type)
+    {
+        if (cityResourceMaxWaitDict.ContainsKey(type))
+        {
+            bool success = true;
+			while (success)
+			{
+				if (cityResourceMaxWaitDict.ContainsKey(type) && cityResourceMaxWaitDict[type][0].RestartCheck(type))
+                {
+					ResourceProducer waiter = cityResourceMaxWaitDict[type][0];
+					RemoveFromResourceMaxWaitList(type);
+                    waiter.Restart(ResourceType.None); //None since all it's doing is unloading finished product
+                }
+                else
+                {
+					success = false;
+                }
+			}
+		}
+    }
 
     public void StorageSpaceCheck()
     {
@@ -489,10 +533,16 @@ public class ResourceManager : MonoBehaviour
             bool success = true;
             while (success)
             {
-                if (unloadWaitList.Count > 0 && unloadWaitList[0].Restart(ResourceType.None))
-                    unloadWaitList.RemoveAt(0);
+                if (unloadWaitList.Count > 0 && unloadWaitList[0].RestartCheck(ResourceType.None))
+                {
+					ICityResourceWait waiter = unloadWaitList[0];
+					unloadWaitList.RemoveAt(0);
+                    waiter.Restart(ResourceType.None);
+                }
                 else
+                {
                     success = false;
+                }
             }
         }
     }
@@ -508,6 +558,7 @@ public class ResourceManager : MonoBehaviour
 
         //check lists needing inventory room, in this order
         StorageSpaceCheck();
+        ResourceMaxWaitListCheck(type);
 		//city.CheckLimitWaiter();
         //CheckProducerUnloadWaitList();
 
@@ -551,36 +602,39 @@ public class ResourceManager : MonoBehaviour
 
     public void SpendResource(List<ResourceValue> buildCost, Vector3 loc, bool refund = false, List<ResourceValue> refundCost = null)
     {
-        int i = 0;
         loc.y += buildCost.Count * 0.4f;
 
-        foreach (ResourceValue value in buildCost)
+        for (int i = 0; i < buildCost.Count; i++)
         {
             Vector3 newLoc = loc;
             
-            if (value.resourceType == ResourceType.Gold)
+            if (buildCost[i].resourceType == ResourceType.Gold)
             {
-                city.world.UpdateWorldGold(-value.resourceAmount);
+                city.world.UpdateWorldGold(-buildCost[i].resourceAmount);
             }
             else
             {
-                int prevAmount = resourceDict[value.resourceType];
-				resourceDict[value.resourceType] -= value.resourceAmount;
-                resourceStorageLevel -= value.resourceAmount;
-                UICheck(value.resourceType, value.resourceAmount, prevAmount);
+                int prevAmount = resourceDict[buildCost[i].resourceType];
+				resourceDict[buildCost[i].resourceType] -= buildCost[i].resourceAmount;
+                resourceStorageLevel -= buildCost[i].resourceAmount;
+                UICheck(buildCost[i].resourceType, buildCost[i].resourceAmount, prevAmount);
             }
     
             newLoc.y += -.4f * i;
-            InfoResourcePopUpHandler.CreateResourceStat(newLoc, -value.resourceAmount, ResourceHolder.Instance.GetIcon(value.resourceType), city.world);
-            i++;
+            InfoResourcePopUpHandler.CreateResourceStat(newLoc, -buildCost[i].resourceAmount, ResourceHolder.Instance.GetIcon(buildCost[i].resourceType), city.world);
         }
 
         if (refund)
-            IssueRefund(refundCost, loc, i);
+            IssueRefund(refundCost, loc, buildCost.Count);
 
         StorageSpaceCheck();
-        //CheckProducerUnloadWaitList();
-        //city.CheckLimitWaiter();
+
+        //those in line for storage space get precedence
+        for (int i = 0; i < buildCost.Count; i++)
+        {
+            if (resourceMaxHoldDict.ContainsKey(buildCost[i].resourceType))
+                ResourceMaxWaitListCheck(buildCost[i].resourceType);
+        }
     }
 
     public void IssueRefund(List<ResourceValue> refundCost, Vector3 loc, int i = 0)
@@ -941,6 +995,24 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
+    public void RemoveFromCityResourceMaxWaitList(ResourceProducer producer, ResourceType type)
+    {
+		if (cityResourceMaxWaitDict.ContainsKey(type))
+		{
+			int index = cityResourceMaxWaitDict[type].IndexOf(producer);
+
+			if (index >= 0)
+			{
+				cityResourceMaxWaitDict[type].RemoveAt(index);
+
+				if (cityResourceMaxWaitDict[type].Count == 0)
+					cityResourceMaxWaitDict.Remove(type);
+				else if (index == 0) //if first in line, checking to see if next one up can go
+					ResourceMaxWaitListCheck(type);
+			}
+		}
+	}
+
     public void RemoveFromUnloadWaitList(ICityResourceWait unloadWaiter)
     {
         int index = unloadWaitList.IndexOf(unloadWaiter);
@@ -1080,5 +1152,6 @@ public interface ICityResourceWait
 {
     Vector3Int WaitLoc { get; }
     int waitId { get; }
-    bool Restart(ResourceType type);
+    void Restart(ResourceType type);
+    bool RestartCheck(ResourceType type);
 }

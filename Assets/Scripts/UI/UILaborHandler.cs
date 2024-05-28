@@ -50,7 +50,7 @@ public class UILaborHandler : MonoBehaviour
         foreach (ResourceType resourceType in city.GetResourcesWorked())
         {
             laborOptionsDict[resourceType].ToggleVisibility(true);
-            laborOptionsDict[resourceType].SetUICount(city.GetResourcesWorkedResourceCount(resourceType), city.ResourceManager.GetResourceGenerationValues(resourceType));
+            laborOptionsDict[resourceType].SetUICount(city.GetResourcesWorkedResourceCount(resourceType), city.resourceManager.GetResourceGenerationValues(resourceType));
             laborOptions.Add(laborOptionsDict[resourceType]);
         }
     }
@@ -131,7 +131,7 @@ public class UILaborHandler : MonoBehaviour
         }
         else
         {
-            uiCityLaborCostPanel.SetConsumedResourcesInfo(city.ResourceManager.resourceConsumedPerMinuteDict);
+            uiCityLaborCostPanel.SetConsumedResourcesInfo(city.resourceManager.resourceConsumedPerMinuteDict);
             uiCityLaborCostPanel.ToggleVisibility(true, uiCityLaborCostPanel.isOpen);
         }
     }

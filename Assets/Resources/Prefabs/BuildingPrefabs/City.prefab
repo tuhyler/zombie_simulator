@@ -165,13 +165,8 @@ MonoBehaviour:
   cityRenderer: {fileID: 0}
   subTransform: {fileID: 943069764017133060}
   cityNameField: {fileID: 8342028981247781059}
-  heavenHighlight: {fileID: 4953528115713912327, guid: a11824c75395cb942965c0ed24f8949d,
-    type: 3}
-  hellHighlight: {fileID: 4953528115713912327, guid: 90209e6c5e668664f98afe2f297f3b3e,
-    type: 3}
-  lightBullet: {fileID: 898278802632816235, guid: 5070ee270a9393146b45080ffcce65f2,
-    type: 3}
-  fire: {fileID: 4335854821895997823, guid: b73720e64124b6d498a5ec216275697d, type: 3}
+  lightBullet: {fileID: 0}
+  fire: {fileID: 0}
   minimapIcon: {fileID: 6369060443479354674}
   campIcon: {fileID: 21300000, guid: 15e89b14f7d52bc43a8792ab9d89cb4e, type: 3}
   cityIcon: {fileID: 21300000, guid: cbaf4785a80e539408ffd2b8cafc56ae, type: 3}
@@ -201,6 +196,7 @@ MonoBehaviour:
   airForce: {fileID: 0}
   world: {fileID: 0}
   singleBuildList: 
+  resourceManager: {fileID: 0}
   currentPop: 0
   unusedLabor: 0
   usedLabor: 0
@@ -240,6 +236,7 @@ MonoBehaviour:
   productionTimer: 0
   isWaitingForStorageRoom: 0
   isWaitingforResources: 0
+  hitResourceMax: 0
   isWaitingForResearch: 0
   isUpgrading: 0
   unloadLabor: 0
@@ -1136,25 +1133,25 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7743528188346123062, guid: da3abf6d934221e4c9bb24a812c8af72,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 7743528188346123062, guid: da3abf6d934221e4c9bb24a812c8af72,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 7743528188346123062, guid: da3abf6d934221e4c9bb24a812c8af72,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.75
+      objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}
       propertyPath: m_RootOrder
       value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
-        type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: da3abf6d934221e4c9bb24a812c8af72,
         type: 3}

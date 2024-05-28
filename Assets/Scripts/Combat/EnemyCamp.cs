@@ -848,9 +848,10 @@ public class EnemyCamp
 			//unit.minimapIcon.gameObject.SetActive(true);
 			//unit.unitMesh.gameObject.SetActive(true);
 			unit.unitMesh.SetActive(true);
-			rebornSpot.y += 0.07f;
-			unit.lightBeam.transform.position = rebornSpot;
-			unit.lightBeam.Play();
+			unit.PlayLightBeam();
+			//rebornSpot.y += 0.07f;
+			//unit.lightBeam.transform.position = rebornSpot;
+			//unit.lightBeam.Play();
 			//unit.healthbar.gameObject.SetActive(true);
 			LeanTween.scale(unit.gameObject, goScale, 0.5f).setEase(LeanTweenType.easeOutBack);
 
@@ -1699,6 +1700,7 @@ public class EnemyCamp
 
 			List<Vector3Int> path = GridSearch.MoveWherever(world, unit.transform.position, newLocInt);
 
+			unit.outline.ToggleOutline(true);
 			unit.duelWatch = true;
 			if (path.Count == 0)
 				path.Add(unit.barracksBunk);

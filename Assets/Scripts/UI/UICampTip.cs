@@ -307,7 +307,7 @@ public class UICampTip : MonoBehaviour, IGoldUpdateCheck, ITooltip
 		else
 		{
 			title.text = "Enemy Camp";
-			SetResourcePanelInfo(costsInfo, costs, false, army.city.ResourceManager);
+			SetResourcePanelInfo(costsInfo, costs, false, army.city.resourceManager);
 
 			costsText.gameObject.SetActive(true);
 			costsText.text = "Cost to Attack";

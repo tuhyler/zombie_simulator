@@ -357,7 +357,7 @@ public class UIPersonalResourceInfoPanel : MonoBehaviour, IGoldUpdateCheck
         if (isCity)
         {
             if (city)
-                gridCellDict[loc].resource.SetValue(city.ResourceManager.ResourceDict[type]);
+                gridCellDict[loc].resource.SetValue(city.resourceManager.resourceDict[type]);
             else if (wonder)
                 gridCellDict[loc].resource.SetValue(wonder.resourceDict[type]);
             else
