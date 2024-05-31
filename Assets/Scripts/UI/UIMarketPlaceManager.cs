@@ -131,6 +131,14 @@ public class UIMarketPlaceManager : MonoBehaviour
         CreateMarketResourcePanel(ResourceHolder.Instance.GetData(type));
     }
 
+    public void UpdatePurchaseAmounts()
+    {
+        foreach (UIMarketResourcePanel resourcePanel in marketResourceList)
+        {
+
+        }
+	}
+
     private void SetResourceData()
     {
         foreach (UIMarketResourcePanel resourcePanel in marketResourceList)

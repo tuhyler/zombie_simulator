@@ -254,7 +254,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         }
     }
 
-    public void ToggleVisibility(bool v, bool market = false, ResourceManager resourceManager = null)
+    public void ToggleVisibility(bool v, /*bool market = false, */ResourceManager resourceManager = null)
     {
         if (activeStatus == v)
             return;
@@ -264,7 +264,7 @@ public class UICityBuildTabHandler : MonoBehaviour
         if (v)
         {
             gameObject.SetActive(v);
-            marketButton.SetActive(market);
+            marketButton.SetActive(true);
 
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);

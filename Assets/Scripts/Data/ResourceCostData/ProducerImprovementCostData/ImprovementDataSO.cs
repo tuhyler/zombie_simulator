@@ -4,7 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Improvement Data", menuName = "EconomyData/ImprovementData")]
 public class ImprovementDataSO : ScriptableObject
 {
-    public GameObject prefab;
     public List<ImprovementDataSO> secondaryData;
     public string prefabLoc;
     public AudioClip audio;
@@ -33,7 +32,8 @@ public class ImprovementDataSO : ScriptableObject
     public bool isResearch; //to identify which improvements produce research
     public TerrainType terrainType;
     public SpecificTerrain specificTerrain;
-    public float workEthicChange; 
+    public float workEthicChange;
+    public float purchaseAmountChange;
     public int maxLabor; //max amount of labor
     //public int laborCost; //how much gold to charge labor
     public int housingIncrease;

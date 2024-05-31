@@ -20,7 +20,7 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
@@ -307,16 +307,6 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 1f2e39f8e17c0174296f020a1facde7e, type: 2}
-    - target: {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b,
-        type: 3}
-      propertyPath: m_Center.y
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
@@ -425,7 +415,7 @@ PrefabInstance:
     - target: {fileID: 5754718410970582699, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6476398586560997936, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -477,12 +467,10 @@ MonoBehaviour:
   buildDataSO: {fileID: 0}
   unitMesh: {fileID: 0}
   minimapIcon: {fileID: 0}
-  lightBeam: {fileID: 0}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 0}
   exclamationPoint: {fileID: 0}
   ripples: {fileID: 0}
-  marker: {fileID: 0}
   healthbar: {fileID: 0}
   greetings: []
   attacks: []
@@ -531,18 +519,6 @@ MonoBehaviour:
   hidden: 0
   isUpgrading: 0
   unitAnimator: {fileID: 0}
---- !u!114 &2987918349945170059 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
-    type: 3}
-  m_PrefabInstance: {fileID: 8590475446320263171}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19261c7a249f40b4caafba3ac3f37bcc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &4101550010191003304 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5754718410970582699, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -590,13 +566,10 @@ MonoBehaviour:
   buildDataSO: {fileID: 11400000, guid: f4b1b8ce04aa9f14b87ca31572aa649c, type: 2}
   unitMesh: {fileID: 6692217044332516390}
   minimapIcon: {fileID: 0}
-  lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
-    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 3914360381294062636}
   exclamationPoint: {fileID: 0}
   ripples: {fileID: 0}
-  marker: {fileID: 2987918349945170059}
   healthbar: {fileID: 7201045382687107315}
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}

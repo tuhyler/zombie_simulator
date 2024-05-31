@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
@@ -590,8 +591,9 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
         isWaitingForStorageRoom = true;
 		cityImprovement.exclamationPoint.SetActive(true);
 		cityImprovement.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, true);
-		uiTimeProgressBar.gameObject.SetActive(false);
-        resourceManager.AddToUnloadWaitList(this);
+		SetTimeProgressBarToFull();
+		//uiTimeProgressBar.gameObject.SetActive(false);
+		resourceManager.AddToUnloadWaitList(this);
 		//resourceManager.AddToStorageRoomWaitList(this);
     }
 
@@ -599,7 +601,8 @@ public class ResourceProducer : MonoBehaviour, ICityGoldWait, ICityResourceWait
     {
         hitResourceMax = true;
 		cityImprovement.world.uiCityImprovementTip.ToggleWaiting(true, cityImprovement, false, false, true);
-		uiTimeProgressBar.gameObject.SetActive(false);
+		SetTimeProgressBarToFull();
+		//uiTimeProgressBar.gameObject.SetActive(false);
 		resourceManager.AddToResourceMaxWaitList(producedResource.resourceType, this);
 	}
 

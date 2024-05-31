@@ -24,7 +24,7 @@ MonoBehaviour:
   improvementLevel: 1
   improvementNameAndLevel: Well-1
   improvementDescription: 
-  buildingLocation: {x: -0.1, y: 0, z: 0.6}
+  buildingLocation: {x: -0.1, y: 0, z: -0.6}
   image: {fileID: 21300000, guid: 6ca7e4c9d07a9bf4693721e45aadcad3, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:

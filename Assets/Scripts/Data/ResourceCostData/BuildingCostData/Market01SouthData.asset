@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Market01SouthData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: BuildingPrefabs/Bazaar01
   audio: {fileID: 0}
@@ -23,8 +22,8 @@ MonoBehaviour:
   improvementDisplayName: Bazaar
   improvementLevel: 1
   improvementNameAndLevel: Market-1
-  improvementDescription: Allows management of traded goods
-  buildingLocation: {x: 0, y: 0, z: -0.5}
+  improvementDescription: Increases goods purchased amount by 50%
+  buildingLocation: {x: -0.1, y: 0, z: 0.6}
   image: {fileID: 21300000, guid: fb5244d8238bfa24294e1f4cd843bf44, type: 3}
   mapIcon: {fileID: 0}
   improvementCost:
@@ -45,6 +44,7 @@ MonoBehaviour:
   terrainType: 0
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0.5
   maxLabor: 0
   housingIncrease: 0
   cityHousing: 0

@@ -255,7 +255,7 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
@@ -326,16 +326,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b,
-        type: 3}
-      propertyPath: m_Center.y
-      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -442,6 +432,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5754718410970582699, guid: cb2720df9ba71c948a71f90c55a9188b,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6008798074786485100, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_SortingOrder
@@ -450,7 +445,7 @@ PrefabInstance:
     - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -470,7 +465,7 @@ PrefabInstance:
     - target: {fileID: 6476398586560997936, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6476398586560997936, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -507,18 +502,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 5338363066459411607}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1465328918421097503 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
-    type: 3}
-  m_PrefabInstance: {fileID: 5338363066459411607}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19261c7a249f40b4caafba3ac3f37bcc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!212 &1834696708367566843 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6008798074786485100, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -559,13 +542,10 @@ MonoBehaviour:
   buildDataSO: {fileID: 11400000, guid: da9cd2aafc783be45a7f6e6a64344493, type: 2}
   unitMesh: {fileID: 1759898001375465587}
   minimapIcon: {fileID: 1834696708367566843}
-  lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
-    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 3330690310085288296}
   exclamationPoint: {fileID: 7391618480052511721}
   ripples: {fileID: 0}
-  marker: {fileID: 1465328918421097503}
   healthbar: {fileID: 6831278477032459367}
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
@@ -705,7 +685,7 @@ PrefabInstance:
     - target: {fileID: 8617386956714445853, guid: c2693cf4b8d8c4547ba99d1f7a502f99,
         type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8617386956714445853, guid: c2693cf4b8d8c4547ba99d1f7a502f99,
         type: 3}
