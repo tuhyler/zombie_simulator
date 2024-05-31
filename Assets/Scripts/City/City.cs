@@ -10,8 +10,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     //city graphics
     [SerializeField]
     public GameObject cityNameMap, exclamationPoint, cityBase, battleIcon;
-    [SerializeField]
-    public ImprovementDataSO housingData;
+    //[SerializeField]
+    //public ImprovementDataSO housingData;
     private List<MeshFilter> cityMeshFilters = new();
     public List<MeshFilter> CityMeshFilters { get { return cityMeshFilters; } }
     private Dictionary<string, (MeshFilter[], GameObject)> buildingMeshes = new(); //for removing meshes
@@ -29,7 +29,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public CityNameField cityNameField;
 
     //particle systems
-    private ParticleSystem lightBullet, fire;
+    private ParticleSystem fire;
 
     [SerializeField]
     public SpriteRenderer minimapIcon;
@@ -94,6 +94,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     public float workEthic = 1f;
     public float improvementWorkEthic;
     public float wonderWorkEthic;
+    public float purchaseAmountMultiple = 1f;
     public int warehouseStorageLimit = 200;
     
     //stop info
@@ -279,9 +280,13 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     
     public void ExtinguishFire()
     {
-        fire.Stop();
-        Destroy(fire.gameObject);
-        //cityBase.gameObject.SetActive(false);    
+        if (fire != null)
+        {
+            fire.Stop();
+            Destroy(fire.gameObject);
+            //cityBase.SetActive(false);
+            Destroy(cityBase);
+        }
     }
 
     //public void DestroyFire()
@@ -531,7 +536,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         housingCount += housingData.housingIncrease;
         string buildingName = housingData.improvementName + index.ToString();
 		improvement.PlaySmokeSplashBuilding();
-		world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, buildingName);
+		world.SetCityBuilding(improvement, housingData, cityLoc, this, buildingName);
         //for tweening
         housing.transform.localScale = Vector3.zero;
         LeanTween.scale(housing, new Vector3(1.5f, 1.5f, 1.5f), 0.25f).setEase(LeanTweenType.easeOutBack).setOnComplete(()=> { 
@@ -539,7 +544,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             world.cityBuilderManager.ToggleBuildingHighlight(true, cityLoc);});
     }
 
-    //for loading up hosuing
+    //for loading up housing
 	public void LoadHouse(ImprovementDataSO housingData, Vector3Int cityLoc, bool isHill, int houseIndex)
 	{
 		houseCount++;
@@ -572,7 +577,8 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
 
 		housingCount += housingData.housingIncrease;
 		string buildingName = housingData.improvementName + index.ToString();
-		world.SetCityBuilding(improvement, housingData, cityLoc, housing, this, buildingName);
+		world.SetCityBuilding(improvement, housingData, cityLoc, this, buildingName);
+        housing.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 		
 		world.cityBuilderManager.CombineMeshes(this, subTransform, false);
 		improvement.SetInactive();
@@ -592,7 +598,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         housingLocsAtMax = false;
         HouseLightCheck();
 
-        return housingData.improvementName + index.ToString();
+        return /*housingData.improvementName*/"Housing" + index.ToString();
     }
 
     public void PopulationGrowthCheck(bool joinCity, int amount)

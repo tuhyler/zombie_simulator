@@ -42,7 +42,7 @@ MonoBehaviour:
   consumedResources3: []
   consumedResources4: []
   producedResources:
-  - resourceType: 21
+  - resourceType: 6
     resourceAmount: 4
   producedResourceTime: 14000000
   rawMaterials: 0

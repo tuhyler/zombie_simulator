@@ -190,16 +190,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: -7406897238590458059, guid: 8b630b77f7a2e7b439f157c0d9fbbe95,
         type: 3}
-    - target: {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 3412779968788641202, guid: cb2720df9ba71c948a71f90c55a9188b,
-        type: 3}
-      propertyPath: m_Center.y
-      value: 0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 4084126454760206941, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_Name
@@ -343,12 +333,12 @@ PrefabInstance:
     - target: {fileID: 5754718410970582699, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6436745273472483980, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -358,7 +348,7 @@ PrefabInstance:
     - target: {fileID: 6476398586560997936, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6476398586560997936, guid: cb2720df9ba71c948a71f90c55a9188b,
         type: 3}
@@ -469,13 +459,10 @@ MonoBehaviour:
   buildDataSO: {fileID: 11400000, guid: 3c924c91f8f9d3043bd2265e9b5c9589, type: 2}
   unitMesh: {fileID: 5390992141709938062}
   minimapIcon: {fileID: 5473824532600306361}
-  lightBeam: {fileID: 4953528115713912327, guid: a1ca819c948319a41b913bd2e72cccee,
-    type: 3}
   selectionCircle: {fileID: 0}
   questionMark: {fileID: 1723151143088321804}
   exclamationPoint: {fileID: 0}
   ripples: {fileID: 0}
-  marker: {fileID: 5104034567501558109}
   healthbar: {fileID: 886464836172312869}
   greetings:
   - {fileID: 8300000, guid: 7485b1aae66158143980e54c0db91818, type: 3}
@@ -623,18 +610,6 @@ MonoBehaviour:
   atSea: 0
   battleAtSea: 0
   seaTravel: 0
---- !u!114 &5104034567501558109 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6791507471362431112, guid: cb2720df9ba71c948a71f90c55a9188b,
-    type: 3}
-  m_PrefabInstance: {fileID: 1771432436929309141}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19261c7a249f40b4caafba3ac3f37bcc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!212 &5473824532600306361 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6008798074786485100, guid: cb2720df9ba71c948a71f90c55a9188b,
@@ -673,7 +648,7 @@ PrefabInstance:
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8265399448152119011, guid: cfead3106494e0548b7cd683cb12370b,
         type: 3}

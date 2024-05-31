@@ -25,6 +25,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     public Vector3Int unloadLoc;
     [HideInInspector]
     public Vector3 centerPos;
+    [HideInInspector]
     public string wonderName;
     [HideInInspector]
     public CityImprovement harborImprovement;
@@ -78,7 +79,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 
 	//particle systems
 	[SerializeField]
-    private ParticleSystem heavenHighlight, smokeEmitter, smokeSplash, removeSplash, fireworks1, fireworks2;
+    private ParticleSystem smokeEmitter;
 
     int IGoldWaiter.goldNeeded => totalGoldCost;
 	Vector3Int IGoldWaiter.waiterLoc => unloadLoc;
@@ -95,12 +96,12 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         isConstructing = true;
         highlight = GetComponent<SelectionHighlight>();
         audioSource = GetComponent<AudioSource>();
-        fireworks1.gameObject.SetActive(false);
-        fireworks2.gameObject.SetActive(false);
+        //fireworks1.gameObject.SetActive(false);
+        //fireworks2.gameObject.SetActive(false);
 
-        removeSplash = Instantiate(removeSplash, transform.position, Quaternion.Euler(-90, 0, 0));
-        removeSplash.transform.localScale = new Vector3(2, 2, 2);
-        removeSplash.Stop();
+        //removeSplash = Instantiate(removeSplash, transform.position, Quaternion.Euler(-90, 0, 0));
+        //removeSplash.transform.localScale = new Vector3(2, 2, 2);
+        //removeSplash.Stop();
 
         //heavenHighlight = Instantiate(heavenHighlight, transform.position, Quaternion.identity);
         //heavenHighlight.transform.SetParent(transform, false);
@@ -110,8 +111,8 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     public void SetReferences(MapWorld world, CameraController focusCam)
     {
         this.world = world;
-        removeSplash.transform.SetParent(world.wonderHolder, false);
-        removeSplash.transform.SetParent(world.psHolder, false);
+        //removeSplash.transform.SetParent(world.wonderHolder, false);
+        //removeSplash.transform.SetParent(world.psHolder, false);
         this.focusCam = focusCam;
     }
 
@@ -315,7 +316,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 		workersReceived++;
         workerSexAndHome.Add((unit.laborer.secondary, unit.laborer.homeCityLoc));
 
-		ParticleSystem tempHeavenHighlight = Instantiate(heavenHighlight, pos, Quaternion.identity);
+		ParticleSystem tempHeavenHighlight = Instantiate(world.heavenHighlight, pos, Quaternion.identity);
 		tempHeavenHighlight.transform.SetParent(world.psHolder, false);
 
 		//heavenHighlight.transform.position = pos;
@@ -442,9 +443,12 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         }
         else if (percentDone == 100)
         {
-            world.UnselectAll();
+            if (!world.uiSpeechWindow.activeStatus)
+            {
+                world.UnselectAll();
+                focusCam.CenterCameraNoFollow(centerPos);
+            }
             PlayFireworks();
-            focusCam.CenterCameraNoFollow(centerPos);
             SetNewGO(mesh67Percent,meshComplete);
             LightCheck();
             PlaySmokeSplash();
@@ -613,11 +617,26 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 
     private void PlayFireworks()
     {
-        fireworks1.gameObject.SetActive(true);
-        fireworks1.Play();
-        fireworks2.gameObject.SetActive(true);
-        fireworks2.Play();
-    }
+        Vector3 averageLoc = Vector3.zero;
+        for (int i = 0; i < wonderLocs.Count; i++)
+            averageLoc += wonderLocs[i];
+
+        averageLoc /= wonderLocs.Count;
+        
+        Vector3[] fireworkLocs = new Vector3[2] { new Vector3(-1, 0, 0) + averageLoc, new Vector3(1, 0, 0) + averageLoc };
+
+        for (int i = 0; i < fireworkLocs.Length; i++)
+        {
+            ParticleSystem firework = Instantiate(world.fireworks, fireworkLocs[i], Quaternion.Euler(-90, 0, 0));
+			firework.transform.SetParent(world.psHolder, false);
+
+		}
+
+		//fireworks1.gameObject.SetActive(true);
+		//fireworks1.Play();
+		//fireworks2.gameObject.SetActive(true);
+		//fireworks2.Play();
+	}
 
     private void RemoveUnits()
     {
@@ -684,7 +703,8 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void PlayRemoveEffect()
     {
-        removeSplash.Play();
+        world.PlayRemoveEruption(transform.position, true);
+        //removeSplash.Play();
     }
 
     private void PlaySmokeEmitter(bool load)
@@ -702,7 +722,12 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 
     public void PlaySmokeSplash()
     {
-        smokeSplash.Play();
+        Vector3 loc = transform.position;
+        loc.y += 0.5f;
+        ParticleSystem smokeSplash = Instantiate(world.smokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+		smokeSplash.transform.SetParent(world.psHolder, false);
+        smokeSplash.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+		smokeSplash.Play();
     }
 
     private void StopSmokeEmitter()
@@ -850,10 +875,10 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         //Destroy(heavenHighlight.gameObject);
         Destroy(smokeEmitter.gameObject);
-        Destroy(smokeSplash.gameObject);
-        Destroy(removeSplash.gameObject);
-        Destroy(fireworks1.gameObject);
-        Destroy(fireworks2.gameObject);
+        //Destroy(smokeSplash.gameObject);
+        //Destroy(removeSplash.gameObject);
+        //Destroy(fireworks1.gameObject);
+        //Destroy(fireworks2.gameObject);
 	}
 
 	public void SetWaitList(List<int> waitList)

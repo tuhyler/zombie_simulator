@@ -979,7 +979,7 @@ public class CityBuilderManager : MonoBehaviour
         autoAssign.isOn = selectedCity.AutoAssignLabor;
 		resourceManager = selectedCity.resourceManager;
         resourceManager.UpdateUI(selectedCity.GetResourceValues());
-        uiCityTabs.ToggleVisibility(true, selectedCity.singleBuildList.Contains(SingleBuildType.Market), resourceManager);
+        uiCityTabs.ToggleVisibility(true, resourceManager);
         uiResourceManager.ToggleVisibility(true, selectedCity);
         CenterCamOnCity();
         uiInfoPanelCity.SetAllData(selectedCity);
@@ -1342,9 +1342,8 @@ public class CityBuilderManager : MonoBehaviour
             {
                 if (!v)
                     producer.TimeProgressBarSetActive(v);
-                
-                //if (v)
-                //    producer.SetTimeProgressBarToFull();
+                else
+                    producer.SetTimeProgressBarToFull();
             }
             else if (!producer.isWaitingForResearch && !producer.isWaitingforResources)
             {
@@ -1708,7 +1707,7 @@ public class CityBuilderManager : MonoBehaviour
     {
         uiQueueManager.CheckIfBuiltItemIsQueued(city.cityLoc, new Vector3Int(0, 0, 0), upgradingImprovement, buildingData, city);
 
-        if (buildingData.improvementName == city.housingData.improvementName)
+        if (buildingData.improvementName == "Housing"/*city.housingData.improvementName*/)
         {
             city.SetHouse(buildingData, city.cityLoc, world.GetTerrainDataAt(city.cityLoc).isHill, upgradingImprovement);
 
@@ -1760,7 +1759,7 @@ public class CityBuilderManager : MonoBehaviour
 
         string buildingName = buildingData.improvementName;
 		improvement.PlaySmokeSplashBuilding();
-		world.SetCityBuilding(improvement, buildingData, city.cityLoc, building, city, buildingName);
+		world.SetCityBuilding(improvement, buildingData, city.cityLoc, city, buildingName);
 
         if (buildingData.workEthicChange != 0)
         {
@@ -1770,6 +1769,7 @@ public class CityBuilderManager : MonoBehaviour
 			    world.uiCityImprovementTip.UpdateProduceNumbers();
         }
 
+        city.purchaseAmountMultiple += buildingData.purchaseAmountChange;
 		city.HousingCount += buildingData.housingIncrease;
         if (buildingData.waterIncrease > 0)
         {
@@ -1790,15 +1790,13 @@ public class CityBuilderManager : MonoBehaviour
             improvement.SetInactive(); ToggleBuildingHighlight(true, city.cityLoc); });
 
         if (buildingData.singleBuildType != SingleBuildType.None)
-        {
             city.singleBuildList.Add(buildingData.singleBuildType);
-        }
 
-        if (buildingData.singleBuildType == SingleBuildType.Market)
-        {
-            if (city.activeCity)
-                uiCityTabs.marketButton.SetActive(true);
-        }
+        //if (buildingData.singleBuildType == SingleBuildType.Market)
+        //    if (city.activeCity) uiCityTabs.marketButton.SetActive(true);
+
+        if (buildingData.singleBuildType == SingleBuildType.Well)
+            city.ExtinguishFire();
 
         //updating uis
         if (city.activeCity)
@@ -1825,7 +1823,7 @@ public class CityBuilderManager : MonoBehaviour
 
 		//putting the resources and labor back
 		string selectedBuilding = data.improvementName;
-        if (selectedBuilding == city.housingData.improvementName)
+        if (selectedBuilding == "Housing"/*city.housingData.improvementName*/)
             selectedBuilding = city.DecreaseHousingCount(improvement.housingIndex);
 
         CityImprovement building = world.GetBuildingData(city.cityLoc, selectedBuilding);
@@ -1850,7 +1848,8 @@ public class CityBuilderManager : MonoBehaviour
         //changing city stats
         city.HousingCount -= data.housingIncrease;
         city.workEthic -= data.workEthicChange;
-        city.improvementWorkEthic -= data.workEthicChange;
+		city.purchaseAmountMultiple -= data.purchaseAmountChange;
+		city.improvementWorkEthic -= data.workEthicChange;
 
 		if (data.waterIncrease > 0)
         {
@@ -2190,6 +2189,9 @@ public class CityBuilderManager : MonoBehaviour
 				world.uiCityImprovementTip.UpdateProduceNumbers();
 		}
 
+		city.purchaseAmountMultiple += improvementData.purchaseAmountChange;
+        if (uiMarketPlaceManager.activeStatus && uiMarketPlaceManager.city == city)
+            uiMarketPlaceManager.UpdatePurchaseAmounts();
 		//making two objects, this one for the parent mesh
 		GameObject tempObject = Instantiate(emptyGO, cityImprovement.transform.position, cityImprovement.transform.rotation);
         tempObject.name = improvement.name;
@@ -2356,7 +2358,8 @@ public class CityBuilderManager : MonoBehaviour
         //no tweening, so must be done here
         if (improvementData.replaceTerrain)
         {
-            CombineMeshes(city, city.subTransform, this.upgradingImprovement); 
+			improvement.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+			CombineMeshes(city, city.subTransform, this.upgradingImprovement); 
             cityImprovement.SetInactive();
             TileCheck(tempBuildLocation, city, improvementData.maxLabor);
         }
@@ -2579,8 +2582,9 @@ public class CityBuilderManager : MonoBehaviour
         if (selectedImprovement.city != null)
         {
 			selectedImprovement.city.HousingCount -= improvementData.housingIncrease;
+			selectedImprovement.city.purchaseAmountMultiple -= improvementData.purchaseAmountChange;
 
-            if (improvementData.workEthicChange != 0)
+			if (improvementData.workEthicChange != 0)
             {
 			    selectedImprovement.city.workEthic -= improvementData.workEthicChange;
 			    selectedImprovement.city.improvementWorkEthic -= improvementData.workEthicChange;

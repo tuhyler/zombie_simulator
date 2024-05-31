@@ -37,7 +37,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 	[SerializeField] //for tweening
 	private RectTransform allContents;
 	[HideInInspector]
-	private bool activeStatus, showingText;
+	public bool activeStatus, showingText;
 	private Vector3 originalLoc;
 	private string conversationTopic;
 

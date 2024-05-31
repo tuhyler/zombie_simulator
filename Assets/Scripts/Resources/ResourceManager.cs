@@ -691,7 +691,7 @@ public class ResourceManager : MonoBehaviour
 
 			if (resourceDict[data.resourceType] - resourceMinHoldDict[data.resourceType] > 0)
 			{
-                int totalDemand = data.resourceQuantityPerPop * city.currentPop;
+                int totalDemand = Mathf.RoundToInt(data.resourceQuantityPerPop * city.currentPop * city.purchaseAmountMultiple);
                 int demandDiff = resourceDict[data.resourceType] - totalDemand;
                 int sellAmount;
 
@@ -1107,7 +1107,9 @@ public enum ResourceType
     Diamond,
     Jewelry,
     Time,
-    Bricks
+    Bricks,
+    Incense,
+    Spices
 }
 
 public enum RawResourceType

@@ -345,6 +345,9 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 				}
 
                 SetProducedNumbers(resourceManager, buildOptions[i]);
+
+                if (resourceManager.city.singleBuildList.Contains(itemType) || (buildOptions[i].BuildData.improvementName == "Housing" && resourceManager.city.housingLocsAtMax))
+                    hide = true;
 			}
 
 			buildOptions[i].ToggleVisibility(true); //turn them all on initially, so as to not turn them on when things change
@@ -353,7 +356,7 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
 			if (buildOptions[i].somethingNew)
 				hide = false;
 
-			if (/*locked || */hide || resourceManager.city.singleBuildList.Contains(itemType) || (buildOptions[i].BuildData == resourceManager.city.housingData && resourceManager.city.housingLocsAtMax))
+			if (hide)
 			{
 				buildOptions[i].Hide();
 				continue;

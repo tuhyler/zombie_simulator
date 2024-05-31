@@ -253,7 +253,9 @@ public class CityImprovement : MonoBehaviour
             if (ps.isPlaying)
                 ps.Stop();
         }
-    }
+
+		firstStart = true;
+	}
 
     public void StopJustWorkAnimation()
     {
@@ -276,6 +278,7 @@ public class CityImprovement : MonoBehaviour
     public void Embiggen()
     {
         Vector3 newScale = new Vector3(1.02f, 1.02f, 1.02f);
+        Vector3 groundScale = Vector3.one;
 
         for (int i = 0; i < meshFilter.Length; i++)
         {
@@ -286,6 +289,10 @@ public class CityImprovement : MonoBehaviour
                 pos.y += 0.01f;
                 meshFilter[i].transform.position = pos;
             }
+            else
+            {
+				meshFilter[i].transform.localScale = groundScale;
+			}
         }
     }
 
@@ -889,6 +896,7 @@ public class CityImprovement : MonoBehaviour
                 else
                 {
                     exclamationPoint.SetActive(true);
+                    firstStart = true;
                 }
             }
             else

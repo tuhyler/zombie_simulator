@@ -50,10 +50,10 @@ public class ResourceHolder : MonoBehaviour
         return resourceDict[resourceType].requirement;
     }
 
-    public int GetDemandAmount(ResourceType resourceType)
-    {
-        return resourceDict[resourceType].resourceQuantityPerPop;
-    }
+    //public int GetDemandAmount(ResourceType resourceType)
+    //{
+    //    return resourceDict[resourceType].resourceQuantityPerPop;
+    //}
 
     public string GetName(ResourceType resourceType)
     {

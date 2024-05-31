@@ -103,7 +103,7 @@ public class MapWorld : MonoBehaviour
 
     [SerializeField]
     public ParticleSystem lightBeam, godRays, removeEruption, removeSplash, deathSplash, resourceSplash, posGiftResponse, negGiftResponse, smokeEmitter, smokeSplash, buildingSmokeSplash, heavenHighlight,
-		hellHighlight, lightBullet, fire;
+		hellHighlight, lightBullet, fire, fireworks;
 
     [SerializeField]
     public Transform terrainHolder, cityHolder, wonderHolder, tradeCenterHolder, psHolder, enemyCityHolder, unitHolder, enemyUnitHolder, roadHolder, orphanImprovementHolder, objectPoolItemHolder;
@@ -1563,7 +1563,7 @@ public class MapWorld : MonoBehaviour
 
     private void CreateBuilding(ImprovementDataSO buildingData, City city, CityImprovementData data)
     {
-		if (buildingData.improvementName == city.housingData.improvementName)
+		if (buildingData.improvementName == "Housing"/*city.housingData.improvementName*/)
 		{
 			city.LoadHouse(buildingData, city.cityLoc, GetTerrainDataAt(city.cityLoc).isHill, data.housingIndex);
 			return;
@@ -1599,7 +1599,8 @@ public class MapWorld : MonoBehaviour
 		building.transform.parent = city.subTransform;
 
 		string buildingName = buildingData.improvementName;
-		SetCityBuilding(improvement, buildingData, city.cityLoc, building, city, buildingName);
+		SetCityBuilding(improvement, buildingData, city.cityLoc, city, buildingName);
+        building.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 		
         city.HousingCount += buildingData.housingIncrease;
 
@@ -1734,8 +1735,9 @@ public class MapWorld : MonoBehaviour
 				k++;
 			}
 
-			tempObject.transform.localScale = improvement.transform.localScale;
-			cityImprovement.Embiggen();
+            //tempObject.transform.localScale = improvement.transform.localScale;
+            improvement.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            cityImprovement.Embiggen();
 
             if (city != null)
             {
@@ -2335,72 +2337,72 @@ public class MapWorld : MonoBehaviour
     //probably isn't necessary
 	public void ClearMap()
     {
-		//foreach (Transform go in terrainHolder)
-		//	Destroy(go.gameObject);
+        foreach (Transform go in terrainHolder)
+            Destroy(go.gameObject);
 
-  //      world.Clear();
+        world.Clear();
 
-		//foreach (Transform go in tradeCenterHolder)
-		//	Destroy(go.gameObject);
+        //foreach (Transform go in tradeCenterHolder)
+        //	Destroy(go.gameObject);
 
-  //      foreach (Transform go in enemyUnitHolder)
-  //          Destroy(go.gameObject);
+        //      foreach (Transform go in enemyUnitHolder)
+        //          Destroy(go.gameObject);
 
-  //      foreach (Vector3Int loc in enemyCampDict.Keys)
-  //          Destroy(enemyCampDict[loc].minimapIcon);
+        //      foreach (Vector3Int loc in enemyCampDict.Keys)
+        //          Destroy(enemyCampDict[loc].minimapIcon);
 
-  //      foreach (Vector3Int loc in resourceIconDict.Keys)
-  //          Destroy(resourceIconDict[loc].gameObject);
+        //      foreach (Vector3Int loc in resourceIconDict.Keys)
+        //          Destroy(resourceIconDict[loc].gameObject);
 
-  //      tradeStopDict.Clear();
-  //      tradeStopNameDict.Clear();
-  //      allWonders.Clear();
-  //      wonderTiles.Clear();
-  //      allTradeCenters.Clear();
-  //      centerBordersDict.Clear();
-  //      researchWaitList.Clear();
-  //      goldWaitList.Clear();
-  //      cityWorkedTileDict.Clear();
-  //      buildingPosDict.Clear();
-  //      noWalkList.Clear();
-  //      cityNamesMaps.Clear();
-  //      cityDict.Clear();
-  //      cityImprovementDict.Clear();
-  //      unclaimedSingleBuildList.Clear();
-  //      enemyCampDict.Clear();
-  //      playerPosDict.Clear();
-  //      traderPosDict.Clear();
-  //      traderStallDict.Clear();
-  //      unitPosDict.Clear();
-  //      npcPosDict.Clear();
-  //      laborerList.Clear();
-  //      resourceIconDict.Clear();
-  //      mapHandler.ResetResourceLocDict();
-  //      traderList.Clear();
-  //      transportList.Clear();
-  //      //upgradeableObjectMaxLevelDict.Clear();
-  //      currentWorkedTileDict.Clear();
-  //      maxWorkedTileDict.Clear();
-  //      roadTileDict.Clear();
-  //      soloRoadLocsList.Clear();
-  //      roadLocsList.Clear();
-  //      coastCoastList.Clear();
-  //      allTCReps.Clear();
-  //      allEnemyLeaders.Clear();
-  //      enemyBordersDict.Clear();
-  //      enemyAmbushDict.Clear();
-  //      enemyCityDict.Clear();
-  //      militaryStationLocs.Clear();
-  //      treasureLocs.Clear();
-  //      neutralZones.Clear();
-  //      resourceSelectionGridList.Clear();
-  //      //resourceDiscoveredList.Clear();
-  //      newUnitsAndImprovements.Clear();
-  //      ambushUnitDict.Clear();
-  //      battleLocs.Clear();
-  //      unitsSpeedChangeDict.Clear();
-  //      resourceYieldChangeDict.Clear();
-	}
+        //      tradeStopDict.Clear();
+        //      tradeStopNameDict.Clear();
+        //      allWonders.Clear();
+        //      wonderTiles.Clear();
+        //      allTradeCenters.Clear();
+        //      centerBordersDict.Clear();
+        //      researchWaitList.Clear();
+        //      goldWaitList.Clear();
+        //      cityWorkedTileDict.Clear();
+        //      buildingPosDict.Clear();
+        //      noWalkList.Clear();
+        //      cityNamesMaps.Clear();
+        //      cityDict.Clear();
+        //      cityImprovementDict.Clear();
+        //      unclaimedSingleBuildList.Clear();
+        //      enemyCampDict.Clear();
+        //      playerPosDict.Clear();
+        //      traderPosDict.Clear();
+        //      traderStallDict.Clear();
+        //      unitPosDict.Clear();
+        //      npcPosDict.Clear();
+        //      laborerList.Clear();
+        //      resourceIconDict.Clear();
+        //      mapHandler.ResetResourceLocDict();
+        //      traderList.Clear();
+        //      transportList.Clear();
+        //      //upgradeableObjectMaxLevelDict.Clear();
+        //      currentWorkedTileDict.Clear();
+        //      maxWorkedTileDict.Clear();
+        //      roadTileDict.Clear();
+        //      soloRoadLocsList.Clear();
+        //      roadLocsList.Clear();
+        //      coastCoastList.Clear();
+        //      allTCReps.Clear();
+        //      allEnemyLeaders.Clear();
+        //      enemyBordersDict.Clear();
+        //      enemyAmbushDict.Clear();
+        //      enemyCityDict.Clear();
+        //      militaryStationLocs.Clear();
+        //      treasureLocs.Clear();
+        //      neutralZones.Clear();
+        //      resourceSelectionGridList.Clear();
+        //      //resourceDiscoveredList.Clear();
+        //      newUnitsAndImprovements.Clear();
+        //      ambushUnitDict.Clear();
+        //      battleLocs.Clear();
+        //      unitsSpeedChangeDict.Clear();
+        //      resourceYieldChangeDict.Clear();
+    }
 
 	public void LoadEnemyBorders(Vector3Int enemyLoc, Color color)
 	{
@@ -4310,6 +4312,9 @@ public class MapWorld : MonoBehaviour
     {
         foreach (ResourceType type in resourceDiscoveredList)
         {
+			if (type == ResourceType.Gold || type == ResourceType.Research || resourceDiscoveredList.Contains(type))
+				return;
+
 			UpdateResourceSelectionGrids(type);
 			cityBuilderManager.uiMarketPlaceManager.UpdateMarketPlaceManager(type);
 		}
@@ -5568,13 +5573,13 @@ public class MapWorld : MonoBehaviour
 		removeSplash.Play();
 	}
 
-	public void PlayRemoveEruption(Vector3 loc)
+	public void PlayRemoveEruption(Vector3 loc, bool big = false)
     {
-        ParticleSystem removeEruption = Instantiate(this.removeEruption, loc, Quaternion.identity);
+        ParticleSystem removeEruption = Instantiate(this.removeEruption, loc, Quaternion.Euler(-90, 0, 0));
         removeEruption.transform.SetParent(objectPoolItemHolder, false);
-        Vector3 rotation = new Vector3(-90, 0, 0);
-        removeEruption.transform.rotation = Quaternion.Euler(rotation);
-        removeEruption.Play();
+        if (big)
+			removeEruption.transform.localScale = new Vector3(2, 2, 2);
+		removeEruption.Play();
     }
 
     public void RemoveEnemyCamp(Vector3Int loc, bool isCity)
@@ -5980,7 +5985,7 @@ public class MapWorld : MonoBehaviour
         cityImprovementDict[tile] = cityDevelopment;
     }
 
-    public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, GameObject building, City city, string buildingName)
+    public void SetCityBuilding(CityImprovement improvement, ImprovementDataSO improvementData, Vector3Int cityTile, City city, string buildingName)
     {
         improvement.building = improvementData.isBuilding;
         improvement.InitializeImprovementData(improvementData);
@@ -5988,7 +5993,8 @@ public class MapWorld : MonoBehaviour
         improvement.transform.parent = city.transform;
         city.workEthic += improvementData.workEthicChange;
         city.improvementWorkEthic += improvementData.workEthicChange;
-        cityBuildingDict[cityTile][buildingName] = improvement;
+		city.purchaseAmountMultiple += improvementData.purchaseAmountChange;
+		cityBuildingDict[cityTile][buildingName] = improvement;
 
         //making two objects, this one for the parent mesh
         GameObject tempObject = Instantiate(cityBuilderManager.emptyGO, improvement.transform.position, improvement.transform.rotation);
@@ -6007,7 +6013,7 @@ public class MapWorld : MonoBehaviour
             k++;
         }
 
-        tempObject.transform.localScale = improvement.transform.localScale;
+        //tempObject.transform.localScale = improvement.transform.localScale;
         improvement.Embiggen();
         city.AddToMeshFilterList(tempObject, meshes, true, Vector3Int.zero, buildingName);
         tempObject.transform.parent = city.transform;
