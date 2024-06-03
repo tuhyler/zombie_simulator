@@ -36,7 +36,7 @@ public class ConversationHaver : MonoBehaviour
 		else
 			unit.questionMark.SetActive(true);
 
-		if (unit.isSelected)
+		if (unit.isPlayer && unit.isSelected && !unit.worker.isBusy)
 		{
 			unit.world.unitMovement.QuickSelect(unit);
 			SpeakingCheck();
@@ -81,7 +81,7 @@ public class ConversationHaver : MonoBehaviour
 		unit.sayingSomething = false;
 		if (conversationTopics.Count > 0)
 		{
-			if (unit.isPlayer && unit.isSelected)
+			if (unit.isPlayer && unit.isSelected && !unit.worker.isBusy)
 				StartCoroutine(WaitASecToSpeakAgain());
 			else
 				StartCoroutine(SetSomethingToSayCoroutine(null));
@@ -91,22 +91,23 @@ public class ConversationHaver : MonoBehaviour
 	private IEnumerator WaitASecToSpeakAgain()
 	{
 		unit.world.playerInput.paused = true;
-		yield return new WaitForSeconds(1);
+		yield return new WaitForEndOfFrame();
 
+		unit.world.unitMovement.QuickSelect(unit);
 		SpeakingCheck();
 	}
 
-	public void RemoveConversationTopic(string conversationTopic)
-	{
-		if (conversationTopics.Contains(conversationTopic))
-		{
-			conversationTopics.Remove(conversationTopic);
+	//public void RemoveConversationTopic(string conversationTopic)
+	//{
+	//	if (conversationTopics.Contains(conversationTopic))
+	//	{
+	//		conversationTopics.Remove(conversationTopic);
 
-			if (conversationTopics.Count == 0)
-			{
-				unit.somethingToSay = false;
-				unit.questionMark.SetActive(false);
-			}
-		}
-	}
+	//		if (conversationTopics.Count == 0)
+	//		{
+	//			unit.somethingToSay = false;
+	//			unit.questionMark.SetActive(false);
+	//		}
+	//	}
+	//}
 }

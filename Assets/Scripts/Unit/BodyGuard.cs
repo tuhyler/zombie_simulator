@@ -293,6 +293,9 @@ public class BodyGuard : Military
 			}
 			world.AddPlayerPosition(currentLocation, this);
 		}
+
+		if (world.uiSpeechWindow.activeStatus)
+			Rotate(world.mainPlayer.transform.position + world.mainPlayer.transform.forward);
 	}
 
 	public BodyGuardData SaveBodyGuardData()

@@ -301,7 +301,7 @@ public class Worker : Unit
         else
         {
             //isBusy = false;
-            world.mainPlayer.isBusy = false;
+            world.mainPlayer.NoLongerBusyCheck();
             if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
@@ -334,7 +334,7 @@ public class Worker : Unit
         }
         else
         {
-            isBusy = false;
+            NoLongerBusyCheck();
 
             if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
@@ -363,7 +363,7 @@ public class Worker : Unit
         }
         else
         {
-			world.mainPlayer.isBusy = false;
+			world.mainPlayer.NoLongerBusyCheck();
             if (world.mainPlayer.isSelected)
                 workerTaskManager.TurnOffCancelTask();
         }
@@ -395,7 +395,7 @@ public class Worker : Unit
         }
         else
         {
-			world.mainPlayer.isBusy = false;
+			world.mainPlayer.NoLongerBusyCheck();
             world.mainPlayer.StopMovementCheck(true);
 
 			world.scott.GoToPosition(world.GetClosestTerrainLoc(world.mainPlayer.transform.position));
@@ -473,11 +473,19 @@ public class Worker : Unit
 		}
 		else
 		{
-			world.mainPlayer.isBusy = false;
+			world.mainPlayer.NoLongerBusyCheck();
 			building = false;
 			if (world.mainPlayer.isSelected)
 				workerTaskManager.TurnOffCancelTask();
 		}
+	}
+
+	public void NoLongerBusyCheck()
+	{
+		isBusy = false;
+
+		if (isPlayer && isSelected && somethingToSay)
+			SpeakingCheck();
 	}
 
 	private void SetResources(List<ResourceValue> costs, bool spend, Vector3Int loc)
@@ -633,7 +641,7 @@ public class Worker : Unit
 		}
 		else
 		{
-			world.mainPlayer.isBusy = false;
+			world.mainPlayer.NoLongerBusyCheck();
 			removing = false;
 			if (world.mainPlayer.isSelected)
 				workerTaskManager.TurnOffCancelTask();
@@ -1490,7 +1498,7 @@ public class Worker : Unit
 
 	public void StopRunningAway()
 	{
-		isBusy = false;
+		NoLongerBusyCheck();
 		runningAway = false;
 		if (inTransport)
 			world.GetKoasTransport().exclamationPoint.SetActive(false);
@@ -1586,7 +1594,7 @@ public class Worker : Unit
 
 				if (unitInTheWay.somethingToSay)
 				{
-					if (isSelected)
+					if (isSelected && !isBusy)
 					{
 						world.unitMovement.QuickSelect(this);
 						unitInTheWay.SpeakingCheck();
@@ -1597,6 +1605,11 @@ public class Worker : Unit
 					bool leader = unitInTheWay.military && unitInTheWay.military.leader;
 					worker.SetUpSpeakingPositions(unitInTheWay.transform.position, leader);
 					FinishMoving(transform.position);
+					foreach (Unit unit in world.characterUnits)
+					{
+						if (!unit.isMoving)
+							unit.Rotate(unitInTheWay.transform.position);
+					}
 					return true;
 				}
 				else
@@ -1784,6 +1797,9 @@ public class Worker : Unit
 		//	UnitInWayCheck();
 		else
 			world.AddPlayerPosition(currentLocation, this);
+
+		if (world.uiSpeechWindow.activeStatus)
+			Rotate(world.mainPlayer.transform.position + world.mainPlayer.transform.forward);
 	}
 
 	public WorkerData SaveWorkerData()

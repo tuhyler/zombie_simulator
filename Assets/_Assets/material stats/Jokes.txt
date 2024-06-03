@@ -9,6 +9,8 @@ Jokes
 "WHOOA!!"
 
 
+"We're cooking with bacon grease now!"
+
 
 Handy Spend Melt !911
 
@@ -22,9 +24,9 @@ A: What accomplishments do you have that are worth sharing?
 
 K: Uh, I have lots of them! Like, I'm a high school graduate *cough* equivalent... I've been to New York City TWICE... um, I can tell the difference between butter and I Can't Believe It's Not Butter...
 
-K: Do you want me to keep going? Because, I could keep going...
+K: Do you want me to keep going? Because, I could totally keep going.
 
-A: No need! you've said enough for me to know all about you.
+A: No need! You've said enough for me to know all about you.
 
 Haniya:
 *Introduction*
@@ -41,13 +43,13 @@ K: Yeah, he's had an exhausting life. Anyways, do you sell anything that you thi
 
 H: I do! Like I said before, I have some of the finest spices on the continent, plus some--
 
-A: *Loudly* Perhaps the lady would like to hear me recount my tales of strength and valor, such as when I bested the fierce Ximaran warrior, Hemar.
+A: *Loudly* Perhaps the lady would like to hear me recount my tales of strength and valor, such as when I bested the fierce Ximaran warrior, Hemar!
 
 H: Um, maybe another time? I'm just very excited to show all of you my wares that I have to offer.
 
-K: *Nudging Azai* Yeah, maybe you should let her finish her sales pitch before you start showing off who you've "bested" and how much weight you can bench, and whatever else.
+K: Yes, Azai, let's save the stories of besting others and how much we can bench and whatever for later.
 
-H: Yes, well, I'm glad you stopped by Indus Valley! We have plenty of goods to sell so feel free to stop by at any time, I'll also be glad to take purchase any merchandise you offer as well.
+H: Well, I'm glad you stopped by Indus Valley! We have plenty of goods to sell so feel free to stop by at any time, I'll also be glad to take purchase any merchandise you offer as well.
 
 K: Sounds good! Let us take a took at what we need or don't need and we'll send some traders over here soon.
 
@@ -61,17 +63,17 @@ A: *Speaking very softly and in an unnaturally high voice* So do you think she l
 
 K: What? 
 
-A: *Now with a normal tone, trying to appear tough* I am simply querying if the aforementioned lady fancies someone, perhaps someone such as myself. 
+A: *Speaking normally* I am simply querying if the lady fancies someone, someone... perhaps such as myself. 
 
 K: Who, Haniya? Um, well, you may have come on a bit strong with your loud declarations of your past accomplishments...
 
-A: *High pitched voice again* Maybe you can suggest what I should do then? I know I'm not much to look at and I've never been able to express myself very well when conversing with the opposite sex, so perhaps you can offer guidance...
+A: Maybe you can suggest what I should do then? I know I'm not much to look at and I've never been able to express myself very well when conversing with the opposite gender, so perhaps you can offer guidance...
 
 K: Well, maybe next time, don't focus so much on yourself? I'd say try to learn more about her by asking lots of questions.
 
 A: *A little too loudly* Your challenge is accepted, sir! I shall know everything there is to know about our newest acquaintance, from the number of years she's lived to the amount she weighs. 
 
-K: *Not really listening anymore* Yeah, you got it, that's the spirit!
+K: *Not listening anymore* Yeah, you got it, that's the spirit!
 
 
 *Quest 1*
@@ -81,7 +83,7 @@ A: *Clearly nervous* Greetings Haniya! Uh, how are you on this fine day? Um, how
 
 H: Oh, I'm not doing very well at all, actually. The roof of my house has a terrible leak and I need some containers to catch the leaking water. Do you have anything that you could offer to help me with my problem? 
 
-H: I would need exactly ten of these items. I will, of course, compensate you for your time and offering. 
+H: I would need exactly 5 of these items. I will, of course, compensate you for your time and offering. 
 
 K: Yeah, I think we can get something like that, what do you say, Azai?
 
@@ -104,7 +106,7 @@ H: If I could be any animal, I would be a dog, because I love being around other
 
 A: *Blushing* I would be a stag, the adult male deer, because stags are protective leaders of their herd, gracefully standing up to danger whenever necessary.
 
-K: Wow, that's a pretty pathetic animal to pick from someone who's always talking about "conquering" and "ruling". 
+K: That's a pretty pathetic animal to pick from someone who's always talking about "conquering" and "ruling". 
 
 H: I thought it was a great animal to choose! I love deer!
 
@@ -112,7 +114,7 @@ A: *Smiles*
 
 
 *Quest 2 Prompt*
-A: *Ahem* That went quite well, I would say. Our earlier interaction with Haniya, I mean.
+A: *Ahem* That went quite well, I would say. Our interaction with Haniya, I mean.
 
 S: Yeah, I thought it went great! She really responded well to what you had to say. Great job, Azai!
 
@@ -120,25 +122,25 @@ A: Koa, seeing as your previous advice was so successful, any other tokens of wi
 
 K: Well, in my experience with the female folk, they seem to really prefer a man with a high level of confidence.
 
-A: So NOW I can divulge my feats of strength? Of defeating the mighty warrior Hemar? In truth, I was wearing a full suit of armor for the battle, but it would be more impressive if I was shirtless, so I'll recount it that way. 
+A: So NOW I can divulge my feats of strength? Of defeating the mighty warrior Hemar? In truth, I was wearing a full suit of armor for the battle, but it would be more impressive if I were shirtless, so I'll recount it that way. 
 
-K: Whoa, settle down Hercules, I don't think you want to come off as arrogant, or overly intimidating. Just, you know, act like it's not a big deal if she doesn't go for you, like you just don't care or whatever.
+K: Settle down Hercules, I don't think you want to come off as arrogant, or overly intimidating. Just, you know, act like it's not a big deal if she doesn't go for you, like you just don't care or whatever.
 
 A: Like I don't care... acknowledged!
 
 
 *Quest 2*
-H: Hello! And thanks again for your help earlier, those vases have been very helpful in catching the water from the leaking roof. 
+H: Hello everyone! And thanks again for your help earlier, those vases have been very helpful in catching the water from the leaking roof. 
 
 K: Glad to hear it, anything else we can get for you, preferably for some additional coins?
 
-H: Actually, yes! I'm gathering all the supplies to fix the roof, but I need some material to patch up the cracks, do you have five bricks you can part with? They can't be stone though, those would be too heavy. 
+H: Actually, yes! I'm gathering all the supplies to fix the roof, but I need some material to patch up the cracks, do you have 5 bricks you can part with?
 
 S: Absolutely we can provide that for you, right guys? We'll head home and round those items up right away!
 
-H: Thanks again for you help! I've been so worried about that leaking roof overhead, what if the leaks get worse and it flood my house, or the whole thing collapses while I'm sleeping?
+H: Thanks again for your help! I've been so worried about that leaking roof overhead, what if the leaks get worse and it floods my house, or the whole thing collapses while I'm sleeping?
 
-A: To be frank, I couldn't care less about this entire situation.
+A: Well, since you asked, I couldn't care less about this entire situation.
 
 H: What!?
 
@@ -146,7 +148,7 @@ A: Like I said, I can't think of anything in this entire world that I could poss
 
 H: Oh... well, if that's how you feel, you don't have to--
 
-K: We can help! We'll get you your stuff! *Shooting an angry glance towards Azai* Sorry about Azai, he's just in a somber mood right now, his dog is sick or something...
+K: We can help! We'll get you your stuff! *Shooting an angry glance towards Azai* Sorry about Azai, he's just grumpy because he hasn't 
 
 
 *Quest 2 Complete*
@@ -162,13 +164,13 @@ K: Glad we could help, Haniya, and thanks for your business. We'll be seeing you
 *Quest 3 Prompt*
 A: Your previous advice to help me with Haniya did not seem to be particularly effective. 
 
-K: That's because you took it way too literally! Maybe this next time around you should stay quiet, you can hope Haniya likes the strong and silent type.
+K: That's because you took it way too literally! Maybe the next time around you should stay quiet, you can hope Haniya likes the strong and silent type.
 
 S: Azai, as your closest and dearest friend...
 
 K: You guys just barely met like an hour ago. 
 
-S: As your closest and dearest friend, might I suggest apologizing to her? I've been married to my wife for twenty years now and apologizing has always worked for me whenever I feel like I've said the wrong thing.
+S: ...might I suggest apologizing to her? I've been married to my wife for twenty years now and apologizing has always worked for me whenever I feel like I've said the wrong thing.
 
 A: Nonsense! Apologies are for foppling lubberworts!
 
@@ -184,7 +186,7 @@ H: Hello again! What have you been up to since we last talked?
 
 K: Oh, you know, a little of this, a little of that. Any chance we can get you something for some coins?  
 
-H: Well, I'm in the process of fixing my roof, but I need cloth, specifically ten, to help keep things clean. Is that something you could help with?
+H: Well, I'm in the process of fixing my roof, but I need cloth, specifically 8, to help keep things clean. Is that something you could help with?
 
 S: Delighted to help! We'll get on that straight away!
 
@@ -202,7 +204,7 @@ A: *Staring wide-eyed at the horizon while holding his breath*
 
 H: Is he going to say something or...?
 
-K: I'm not sure, I think he's determining if he's a "foppling lubberwort" or not. 
+K: I'm not sure, I think he's seeing if he's a "foppling lubberwort" or not. 
 
 
 *Quest 3 completed*
@@ -232,7 +234,7 @@ A: Oh, I am overcome with relief! No to mention how pleased I am to have complet
 
 
 *Quest 4 prompt*
-A: The time has come for us to make our return Haniya.
+A: We must be sure to return to Haniya.
 
 K: Oh yeah? *In a teasing voice* Do you MISS her? Do you want to be with her ALL THE TIME?
 
@@ -240,7 +242,7 @@ A: Yes, of course. I have clearly been interested ever since we met her, and I e
 
 K: Oh. Right. 
 
-S: Great idea, Azai! Yes, we should go back as soon as we can! I'd like to hear about her progress on that roof of hers. 
+S: Great idea, Azai! Yes, we should go back to see her as soon as we can! I'd like to hear about her progress on that roof of hers. 
 
 
 *Quest 4*
@@ -250,9 +252,9 @@ H: Welcome back, Koa! Good news! I fixed the roof! I don't have to worry about i
 
 A: Excellent work, Haniya! You handled this issue with a confidence and intelligence seen only from the best of Tavaria!
 
-H: *Beaming with pride* Thanks, Azai! I appreciate it. 
+H: *Beaming* Thanks, Azai! I appreciate it. 
 
-H: Actually, I could use your help again. With all the repairs done on the house, it's gotten pretty stinky. Any chance you could get me something to make it smell better? I wouldn't need too much, let's say five? 
+H: Actually, I could use your help again. With all the repairs done on the house, it's gotten pretty stinky. Any chance you could get me something to make it smell better? I wouldn't need too much, let's say 5? 
 
 K: After spending time with these two, you are asking the absolute worst people about tips on smelling good. 
 
@@ -276,14 +278,15 @@ H: Oh, and before I forget, here's your payment for you help. I do hope you came
 
 
 *Quest 5 prompt*
-A: The time has come for me to ask out Haniya!
+A: I would be a fool to not ask out Haniya the next chance I get. 
 
+K: All right! We'll come back when 
 S: Is it really 
 
 *Quest 5*
 H: Hello again, Koa! I was hopeful you'd return soon, I have another favor to ask of you all. Would you be able to provide me a metal ingot that you can use to form weapons? 
 
-H: I would need ten of them. 
+H: I would need 9 of them. 
 
 K: I think Azai wanted to ask you something, right Azai? 
 
@@ -321,17 +324,31 @@ N: Greetings travelers! I am Natakamani, king of the Kush!
 
 K: Greetings, Natakamani! I am Koa, king of the pickle ball court! 
 
-N: Welcome to this great city of Meroe, the land where I was raised and where we have accumulated some of the finest goods that you and your people may find extremely appealing.
+N: Welcome to this great city of Meroe, the very city where I was raised by my mother, Amanitore. Here we provide the finest goods that you and your people will surely find to be extremely appealing.
 
-K: This is a very beautiful city, Natakamani. I like those mini-pyramids you have over there. 
+K: This is a cool city, Natakamani. I like those mini-pyramids you have over there. 
 
-S: Koa is actually from a different world than our! A world with super advanced technologies like flying rockets and plates made out of paper!
+N: Yes, aren't they magnificent? They serve as headstones for the graves of some of our greatest leaders, and I hope to someday number among my brethren with a glorious headstone of my own.
+
+S: I hope so too! I mean, when you pass away, after an appropriate amount of time, having lived a long, full life. 
+
+N: I must return to my people and my city, but do return when you get a chance. We are always keen to sell our luxurious incense which will no doubt suit the people of your kingdom. 
+
+
+*Quest 1*
+N: Greetings, friends! You have impeccable timing, we are in the process of building a glorious sun dial for our city center and we have just noted that we have insufficient material to finish the project. 
+
+N: Fortunately, we need only 10 stone to help us get started. Could you perhaps bring us this amount of stone?
+
+K: This is for a sun dial? Like to use to tell time? I keep forgetting how backwards everyone is on this world. 
+
+S: Koa is actually from a different world than ours! A world with super advanced technologies like flying rockets, satellites in space, and plates made out of paper!
 
 N: You're from a different world? What is it like? What sort of technology do you have?
 
 K: Oh, all sorts of stuff, like cars, computers, airplanes, that kind of thing.
 
-N: *Visibly confused* I don't know what any of those items you listed are. 
+N: *Confused* I don't know what any of those things are. 
 
 K: Ok, well, for example, we have a time machine that you can wear on your wrist!
 
@@ -339,25 +356,162 @@ N: A TIME MACHINE!? Does it allow you to travel through time, into the past or f
 
 K: Well, no, it just... tells you what time it is. 
 
-N: *Clearly disappointed* Oh. That's... interesting...
+N: *Clearly disappointed* Oh. That's... interesting... Is that what you're wearing right now on your wrist? Could you tell me what time it is?
 
-N: I must return to my people and my city, but do return when you get a chance. As I said before, our goods are some of the finest you will ever see and will no doubt suit the people of your kingdom. 
+K: Yes! *Look at watch* Oh, shoot, looks like it broke when I fell from the sky. 
+
+N: *Sarcastically* Clearly you come from a civilization filled with wonder and excitement. 
+
+S: *Missing the sarcasm* I know! Isn't it awesome to hear about? Anyways, we can get stones for you, and we'll return when we do, Mr. Natakamani!
 
 
-*Can know the weather in advance*
-K: Hey Natakamani, you know, where I'm from, we have apps that tell you everything about the weather. Like what it's going to be like later, what it's like at that moment, that sort of thing. 
+*Quest 1 complete*
+N: Your help on our sun dial project is much appreciated! With its completion, our people will always know the time and will be able to follow a more structured lifestyle. And as promised, here is a reward for your help on our time-keeping project. 
 
-N: What, you can't look out the window and see what the weather is? You don't have windows where you're from?  
+S: Thanks Mr. Natakamani! We're always glad to help! So what is the sun dial for? 
 
-K: No, like, this technology tells you the weather in advance, so you know what to expect.
+N: It's... to tell us what time it is.
 
-N: Well, that's not hard to do either. *In a mocking voice* "Hey look, there's a bunch of dark clouds coming this way, guess that means it's going to rain soon." "Whoa!! How did you know that?? Are you from the future!?"
+S: Oh, cool!
 
-N: "Hey, it's really windy today, that probably means a storm is coming." "Wow!! You must be a god!!".
+N: Indeed! My mother, Amanitore, has consistently taught to me the importance of punctuality, ensuring I use my time well and to not waste the time of others. I'm hopeful this sun dial helps my people learn that same lesson. 
+
+N: Also, you'll notice, Koa, that our sun dials don't break so easily. We may work with only stones, but we take great care to ensure our structures are of the utmost quality. 
+
+K: Is this about my watch? I fell from the sky! I don't think your high quality sun dials are getting you to your next appointment on time after falling from five thousand feet. 
+
+
+*Quest 2*
+N: Welcome back, friends. I hope you're well on this exceptionally warm day today. 
+
+K: You know, where I'm from, we have technology that tells you everything about the weather. Like what it's going to be like later, what it's like right now, that sort of thing. 
+
+N: You can't look out the window and see what the weather is? You don't have windows where you're from?  
+
+K: Um, yes, but this technology tells you the weather in advance, so you know what to expect.
+
+N: I do that every day and no one I know is particularly impressed by it. 
+
+N: *In a mocking voice* "Look, there's a large swathe of dark clouds coming this way, I'm guessing that means it will rain soon." "Wow, how did you know that?? Are you from the future!?"
+
+N: "Hey, it's really windy today, that probably indicates a storm is coming." "You must be sent by the gods!!".
 
 K: *flustered* ...look, it's really cool, okay?
 
-N: I'll bet it is, for someone of your, um, intellect. 
+N: Yes, it definitely sounds like a worthy use of your time.
+
+N: Moving on, I don't suppose you men would you be able to get us some stone statues, could you? We're thinking of using them to decorate a memorial we are building, and we'd need about 10 of them. 
+
+K: *Bitterly* I guess we can try to get that for you... 
 
 
-*Can watch tv, staying in one spot*
+*Quest 2 complete*
+N: I appreciate you bringing what was requested, and here is your payment, as promised. Your reward is well earned, particularly on this hot and sunny day.
+
+N: And do you want to know how I knew it was sunny? Do you, Koa?
+
+K: *Begrudingly* Let me guess, you looked outside your window and saw that it was sunny? 
+
+N: Exactly! Yes, the presence of our windows truly makes us a top-tier civilization, most likely in the entire universe, no doubt. You must be awe-struck with our technological capabilities.
+
+K: ...we'll just take our reward and leave now, thanks. 
+
+
+*Quest 3*
+N: Hello again, my friends. I've noticed that your little civilization is growing rapidly and building a high amount of large structures, I am very impressed.
+
+K: Yeah, we've been working hard over there, and I'm also getting pretty thirsty from walking around so much, I could really go for a Mountain Dew right about now.
+
+N: Mountain dew? Where you're from, you have a drink that harnesses the clear, crisp, morning dew found on the lush foliage on the highest mountains? 
+
+K: Um, yup, that's exactly how it's made... 
+
+K: You know, we also have a drink called Dr. Pepper, but I am just now realizing I shouldn't have mentioned it because you're just going to interpret the name literally...
+
+N: You drink... pepper? The very spice that causes thirst and you drink it? What posseses you to make a drink like that? Do you also make a drink called Professor Salty? 
+
+K: Yeah, I'm not even going to bring up Coke or Hawaiian Punch with you. 
+
+N: Actually, now that you mention it, we could use those aforementioned seasonings. We're in the process of preparing an enormous feast. Could you bring us something that could improve the flavor of our food? Again, I'd like 10 of them. 
+
+S: Sure thing, Mr. Natakamani! I wouldn't know how to do that since I usually just chew on potato skins, but we'll find something for you! 
+
+
+*Quest 3 completed*
+N: Thank you for retrieving these spices for me, considering how productive you are in your own cities, I knew I could count on you all to deliver!
+
+S: You bet, Mr. Natakamani! This should definitely make your feast much tastier than my potato skins!
+
+N: I'm quite confident my mother could take your potato skins with spices like these and likely turn them into a meal finer than anything you've ever tasted before. I am exceedingly fortunate to grow up under the tutelate of such a fantastic cook. Oh, and Koa? 
+
+K: *Anticipating sarcasm* Yes...?
+
+N: I've invented a new drink that you can take back and show your people. It actually quenches thirst rather than cause it, and it even allows you to carry on living for more than a week! I call this magical drink, WATER.
+
+K: Brilliant. Thanks. A lot. We're going to leave now...
+
+
+*Quest 4*
+N: My friends! Seeing as you're from a different world with advanced technologies, would it be too much trouble to teach me something that could improve our primitive world? 
+
+K: Maybe I can, what would you like to know? Like do you want to know how to make a bow and arrow? Or how to make a sharp stick? 
+
+N: It would be enormously useful to render myself completely invisible to anyone looking in my direction, thus creating the perfect hunter. Could you pass along that technology to me?
+
+K: Oh. Uh... nope, can't do that, haven't figured that one out yet.
+
+N: Well, what about the ability to shift my entire physical body to a different location, miles away, in a split second. Could you teach me to do that? 
+
+K: Oh gosh, no we can't do that one either. I have absolutely no idea how that one would even work... I can teach you how to do the moon walk though!
+
+N: *Getting frustrated* It seems that your "superior" technology is severly lacking in practical application.
+
+N: Well, perhaps you can help me in this particular task. We are building another pyramid, but are in need of building material larger than regular stones or bricks. Could you provide 10 large stone slabs? 
+
+S: That one we can do! We'll be back in a jiffy with the items you want! 
+
+
+*Quest 4 completed*
+N: Thank you for getting this for me, even if you did have to manually walk to retrieve it.
+
+K: Yeah, you bet. You know, in all seriousness, if you figure out how to teleport people or items, could you let me know? All this walking around is exhausting.
+
+N: In retrospect, perhaps a machine like you described is unnecessary, for the journey itself is what builds a man, not the arrival at the destination. That is a lesson my mother taught to me years ago. 
+
+K: Well, with all due respect to your mother, but she's never been dropped from the sky and needed to recreate all of human history...
+
+
+*Quest 5*
+N: My friends, I have a final request, I am in need of some diamonds, could you help me with that? I would need 10 in total. I'm hoping to use them create jewelry for my mother, if it's not too hard to do.
+
+K: Yeah, I don't think it would be too hard, I did it in a video game once.
+
+N: You did it in a "what" game? 
+
+K: Oh geez, I don't know how to explain this one. A video game is a game that you play, but it's not built out of physical objects, but instead out of, uh, lights, which are arranged into images, and you can control the images and move them around.
+
+N: Your world has found the ability to harness light, control it, and create images out of it? And you use it for entertainment? 
+
+K: Yeah, I guess. Well, we also use it to pass along information and communicate over long distances, but I mostly use it play games and watch programs stuff.
+
+N: Oh, that's absolutely incredible actually, you've harnessed light! You've taken a vital ingredient of life and used it to further develop your people! And I trust your people use it solely with good intentions?
+
+K: Um... correct! People on my planet definitely don't use it to do bad things... 
+
+
+*Quest 5 Complete*
+N: Thank you, my friends! These precious stones are just what I needed to finish the jewelry. 
+
+S: So why did you choose these specific stones to use in the jewelry you're making for your mother? 
+
+N: Diamonds were always my mother's favorite of all of the precious stones of this land. She always said the brightness of the diamonds reminded her of the light in every soul. 
+
+K: Were her favorite? She doesn't like them anymore? Or...
+
+N: Alas, Amanitore, my dear mother, she is no longer with us. Did I not make that clear in the beginning? Indeed, all of the tasks that you have helped me with were for the burial ceremony.
+
+N: The sun dial was built to honor her, the memorial with the statues was for her, the spices were for the final feast in her name, the stone slabs were to create her grand pyramid headstone, and the diamonds are for the jewelry to adorn her tomb, to be with her eternally. 
+
+K: Oh, I had no idea, I'm sorry about your loss. Actually, I'm glad we were able to help you out during this trying time.
+
+N: And I am happy you did! For without you and your services, I'm not sure we would ever have been able to give her the proper ceremony she deserved. With that said, here is your reward, and I am tremendously grateful for your help on these tasks!

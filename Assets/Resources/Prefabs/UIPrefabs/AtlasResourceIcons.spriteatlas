@@ -42,6 +42,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 1690ec111a2aa164a8cf0ceca05a283b, type: 3}
   - {fileID: 21300000, guid: a9e00241de0a0344b90c338d6f6ad7ad, type: 3}
   - {fileID: 21300000, guid: 663c0941c68f71b4badacab98cd53fad, type: 3}
+  - {fileID: 21300000, guid: 8d26768149d3217468a583e61d5b08f8, type: 3}
   - {fileID: 21300000, guid: 333d35d1975cad64aa17bc4b21803953, type: 3}
   - {fileID: 21300000, guid: 202609d109b3de44695e860e6736f919, type: 3}
   - {fileID: 21300000, guid: 21012d122bbe64c4784ad70b26599092, type: 3}
@@ -52,6 +53,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: bb9795a4945c9084d9422d9f885f01d7, type: 3}
   - {fileID: 21300000, guid: 07dd4ba4945215b41adc1da71d9fdd07, type: 3}
   - {fileID: 21300000, guid: 00e962550b4c6c0408f1bd04572e3e72, type: 3}
+  - {fileID: 21300000, guid: 846969b634f8e82489a3d01f62070f92, type: 3}
   - {fileID: 21300000, guid: 1563f8c6d8bfe9a40b5f5f53a318b89b, type: 3}
   - {fileID: 21300000, guid: 32c59fa742b58e047af6576bc551a2ad, type: 3}
   - {fileID: 21300000, guid: c5126c7844ad7784c8d0104fa1356feb, type: 3}
@@ -77,6 +79,7 @@ SpriteAtlas:
   - icon_food02
   - icon_rocks_normal
   - icon_coilpottery01
+  - icon_incense
   - icon_ironore01
   - icon_clay
   - icon_emerald
@@ -87,6 +90,7 @@ SpriteAtlas:
   - icon_cotton01
   - icon_stonestatue01
   - icon_silkcloth01
+  - icon_spices
   - icon_copperore01
   - icon_pottery1
   - icon_goldraw

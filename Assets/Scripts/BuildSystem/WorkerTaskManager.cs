@@ -291,7 +291,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildCity(Vector3Int workerTile, Worker worker, bool clearForest, TerrainData td)
     {
-        worker.isBusy = false;
+        worker.NoLongerBusyCheck();
         worker.buildingCity = false;
 
         td.ShowProp(false);
@@ -475,7 +475,7 @@ public class WorkerTaskManager : MonoBehaviour
             world.azai.StopMovementCheck(true);
 
         ResetWorker(world.mainPlayer);
-		world.mainPlayer.isBusy = false;
+		world.mainPlayer.NoLongerBusyCheck();
 		world.mainPlayer.buildingCity = false;
 	}
 

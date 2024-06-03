@@ -831,7 +831,7 @@ public class UnitMovement : MonoBehaviour
             selectedUnit = unitReference;
         }
 
-        if (world.characterUnits.Contains(selectedUnit) && world.mainPlayer.somethingToSay)
+        if (world.characterUnits.Contains(selectedUnit) && world.mainPlayer.somethingToSay && !world.mainPlayer.isBusy)
         {
             selectedUnit = world.mainPlayer;
             
@@ -955,8 +955,14 @@ public class UnitMovement : MonoBehaviour
                         if (world.IsNPCThere(tile) && world.GetNPC(tile).somethingToSay)
                         {                        
                             world.unitMovement.QuickSelect(selectedUnit);
-				            world.GetNPC(tile).SpeakingCheck();
-    				        world.uiSpeechWindow.SetSpeakingNPC(world.GetNPC(tile));
+                            Unit npc = world.GetNPC(tile);
+                            foreach (Unit unit in world.characterUnits)
+                            {
+                                if (!unit.isMoving)
+                                    unit.Rotate(npc.transform.position);
+                            }
+                            npc.SpeakingCheck();
+    				        world.uiSpeechWindow.SetSpeakingNPC(npc);
                             break;
                         }
                     }
@@ -1676,7 +1682,7 @@ public class UnitMovement : MonoBehaviour
             ResetOrderFlags();
 
             world.scott.ResetOrderQueue();
-            world.mainPlayer.isBusy = false;
+            world.mainPlayer.NoLongerBusyCheck();
             uiWorkerTask.ToggleVisibility(true, world);
         }
         else if (world.buildingWonder)
