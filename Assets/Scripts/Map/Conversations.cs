@@ -1609,6 +1609,177 @@ public class Conversations : MonoBehaviour
 		};
 		conversationDict["Haniya_quest2_complete_coda"].Add(haniya_quest2_complete_coda5);
 		#endregion
+		#region quest3
+		conversationDict["Haniya_quest3"] = new();
+
+		ConversationItem haniya_quest31 = new()
+		{
+			speakerImage = "KoaHappy",
+			speakerName = "Koa",
+			speakerDirection = "Haniya",
+			speakerText = "Hi Haniya, we're back! How's it going? How's the roof of your house?"
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest31);
+
+		ConversationItem haniya_quest32 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Welcome back, Koa! Good news! I fixed the roof! I don't have to worry about it caving in on me anymore!"
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest32);
+
+		ConversationItem haniya_quest33 = new()
+		{
+			speakerImage = "AzaiHappy",
+			speakerName = "Azai",
+			speakerDirection = "Haniya",
+			speakerText = "Excellent work, Haniya! You handled this issue with a confidence and intelligence seen only from the best of Tavaria!"
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest33);
+
+		ConversationItem haniya_quest34 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Azai",
+			speakerText = "*Beaming* Thanks, Azai! I appreciate it."
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest34);
+
+		ConversationItem haniya_quest35 = new()
+		{
+			speakerImage = "HaniyaQuestion",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Actually, I could use your help again. With all the repairs done on the house, it's gotten pretty stinky. " +
+			"Any chance you could get me something to make it smell better? I wouldn't need too much, let's say 5?"
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest35);
+
+		ConversationItem haniya_quest36 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Haniya",
+			speakerText = "After spending time with these two, I can say that you are asking the absolute worst people about tips on smelling good."
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest36);
+
+		ConversationItem haniya_quest37 = new()
+		{
+			speakerImage = "KoaHappy",
+			speakerName = "Koa",
+			speakerDirection = "Haniya",
+			speakerText = "However, I might be able to scrounge something up for you!"
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest37);
+
+		ConversationItem haniya_quest38 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Yay! Great, thanks!"
+		};
+		conversationDict["Haniya_quest3"].Add(haniya_quest38);
+		#endregion
+		#region quest3complete
+		conversationDict["Haniya_quest3_complete"] = new();
+
+		ConversationItem haniya_quest3_complete1 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "This is perfect! Thank you so much! My house is going to smell so much better now!"
+		};
+		conversationDict["Haniya_quest3_complete"].Add(haniya_quest3_complete1);
+
+		ConversationItem haniya_quest3_complete2 = new()
+		{
+			speakerImage = "KoaQuestion",
+			speakerName = "Koa",
+			speakerDirection = "Haniya",
+			speakerText = "Yeah, glad to get that for you. I was hoping Scott or Azai could get some, or just roll around in it or something, " +
+			"but they didn't pick up on any of my hints, unfortunately. "
+		};
+		conversationDict["Haniya_quest3_complete"].Add(haniya_quest3_complete2);
+
+		ConversationItem haniya_quest3_complete3 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Haniya",
+			speakerText = "*Throwing his chest out* A man's musk is nothing to be ashamed of and should be displayed as a sign of his strength and hard work."
+		};
+		conversationDict["Haniya_quest3_complete"].Add(haniya_quest3_complete3);
+
+		ConversationItem haniya_quest3_complete4 = new()
+		{
+			speakerImage = "AzaiAwkward",
+			speakerName = "Azai",
+			speakerDirection = "Haniya",
+			speakerText = "Unless you don't like the smell, Haniya? I don't want to make you uncomfortable or anything..."
+		};
+		conversationDict["Haniya_quest3_complete"].Add(haniya_quest3_complete4);
+
+		ConversationItem haniya_quest3_complete5 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Azai",
+			speakerText = "*Smiling* I like the way you smell, Azai! Of course, I'm used to the smell of sewage because of my house right now, so my judgment may be a little off. "
+		};
+		conversationDict["Haniya_quest3_complete"].Add(haniya_quest3_complete5);
+
+		ConversationItem haniya_quest3_complete6 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Oh, and before I forget, here's your payment for your help. I do hope you came back soon!"
+		};
+		conversationDict["Haniya_quest3_complete"].Add(haniya_quest3_complete6);
+		#endregion
+		#region quest3complete_coda
+		conversationDict["Haniya_quest3_complete_coda"] = new();
+
+		ConversationItem haniya_quest3_complete_coda1 = new()
+		{
+			speakerImage = "AzaiSerious",
+			speakerName = "Azai",
+			speakerDirection = "Koa",
+			speakerText = "I would be fool to not ask out Haniya the next chance I get."
+		};
+		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda1);
+		#endregion
+		#region quest4
+		conversationDict["Haniya_quest4"] = new();
+
+		ConversationItem haniya_quest41 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Hello again, Koa! I was hoping you'd return soon, I have another favor to ask of you all. " +
+			"Would you be able to provide me a metal ingot that you can use to form weapons?"
+		};
+		conversationDict["Haniya_quest4"].Add(haniya_quest41);
+		#endregion
+		#region quest4complete
+		conversationDict["Haniya_quest4_complete"] = new();
+
+		ConversationItem haniya_quest4_complete1 = new()
+		{
+			speakerImage = "HaniyaHappy",
+			speakerName = "Haniya",
+			speakerDirection = "Koa",
+			speakerText = "Thank you again! These are very hard to come by so I'm glad you were able to get me this bronze."
+		};
+		conversationDict["Haniya_quest4_complete"].Add(haniya_quest4_complete1);
+		#endregion
 		#endregion
 
 		#region Natakamani
