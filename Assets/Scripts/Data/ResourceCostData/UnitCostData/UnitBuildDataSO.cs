@@ -4,8 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Unit Build Data", menuName = "EconomyData/UnitBuildData")]
 public class UnitBuildDataSO : ScriptableObject
 {
-    public GameObject prefab;
-    public GameObject secondaryPrefab;
+    //public GameObject prefab;
+    //public GameObject secondaryPrefab;
     public string prefabLoc;
     public string secondaryPrefabLoc;
     public string nationalityAdjective;

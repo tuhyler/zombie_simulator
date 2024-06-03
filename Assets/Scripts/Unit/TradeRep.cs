@@ -31,6 +31,7 @@ public class TradeRep : Unit
 	{
 		AwakeMethods();
 		tradeRep = this;
+		outline.ToggleOutline(true);
 	}
 
 	public void SetUpTradeRep(MapWorld world)
@@ -116,6 +117,7 @@ public class TradeRep : Unit
 			timeWaited--;
 		}
 
+		DramaticallyAppear();
 		SetNextQuest();
 	}
 
@@ -142,6 +144,7 @@ public class TradeRep : Unit
 		{
 			timeWaited = waitForNextQuest;
 			StartCoroutine(SetNextQuestWait());
+			DramaticallyDisappear();
 		}
 	}
 
@@ -153,6 +156,33 @@ public class TradeRep : Unit
 	public void SetSomethingToSay(string conversationTopic)
 	{
 		conversationHaver.SetSomethingToSay(conversationTopic);
+	}
+
+	private void DramaticallyAppear()
+	{
+		unitRigidbody.useGravity = true;
+		Vector3 loc = center.tradeRepLoc + center.mainLoc;
+		transform.position = loc;
+
+		UnhideUnit();
+		PlayLightBeam();
+		LeanTween.scale(gameObject, Vector3.one, 0.5f).setEase(LeanTweenType.easeOutBack);
+	}
+
+	private void DramaticallyDisappear()
+	{
+		world.cameraController.followTransform = null;
+		PlayLightBeam();
+		unitRigidbody.useGravity = false;
+		LeanTween.scale(gameObject, Vector3.zero, 0.5f).setEase(LeanTweenType.easeOutBack).setOnComplete(HideTradeRep);
+	}
+
+	private void HideTradeRep()
+	{
+		Vector3 sixFeetUnder = transform.position;
+		sixFeetUnder.y -= 6f;
+		transform.position = sixFeetUnder;
+		HideUnit();
 	}
 
 	public TradeRepData SaveTradeRepData()

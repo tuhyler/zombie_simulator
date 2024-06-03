@@ -8129,6 +8129,21 @@ public class MapWorld : MonoBehaviour
                         azai.Highlight(Color.white);
 				}
 				break;
+            case "Haniya_intro":
+                mainPlayer.conversationHaver.SetSomethingToSay("Haniya_intro_coda");
+                break;
+			case "Haniya_quest0_complete":
+				mainPlayer.conversationHaver.SetSomethingToSay("Haniya_quest0_complete_coda");
+				break;
+			case "Haniya_quest1_complete":
+				mainPlayer.conversationHaver.SetSomethingToSay("Haniya_quest1_complete_coda");
+				break;
+			case "Haniya_quest2_complete":
+				mainPlayer.conversationHaver.SetSomethingToSay("Haniya_quest2_complete_coda");
+				break;
+			case "Haniya_quest3_complete":
+				mainPlayer.conversationHaver.SetSomethingToSay("Haniya_quest3_complete_coda");
+				break;
 		}
     }
 }

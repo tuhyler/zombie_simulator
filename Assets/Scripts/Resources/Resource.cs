@@ -39,7 +39,7 @@ public class Resource : MonoBehaviour
     public IEnumerator SendResourceToCity(int gatheringAmount)
     {
         if ((city.world.scott == worker && !city.world.mainPlayer.harvested) || (city.world.mainPlayer == worker && !city.world.scott.harvested && !city.world.scott.gathering && !city.world.scott.isMoving))
-            city.world.mainPlayer.isBusy = false;
+            city.world.mainPlayer.NoLongerBusyCheck();
 
         worker.harvested = false;
         worker.harvestedForest = false;
