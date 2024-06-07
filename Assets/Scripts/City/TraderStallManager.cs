@@ -30,7 +30,10 @@ public class TraderStallManager
             if (firstOne)
             {
                 if (i == 0)
+                {
+                    TakeStall(stallLocs[i]);
                     return stallLocs[i];
+                }
                 
                 firstOne = false;
                 dist = Mathf.Abs(loc.x - stallLocs[i].x) + Mathf.Abs(loc.z - stallLocs[i].z);

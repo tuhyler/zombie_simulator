@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Azai2Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2321851027760307080, guid: 9e7b01f198fab61478cd17673e6ff301, type: 3}
-  secondaryPrefab: {fileID: 0}
   prefabLoc: UnitPrefabs/Azai2
   secondaryPrefabLoc: 
   nationalityAdjective: 
@@ -33,7 +31,7 @@ MonoBehaviour:
   laborCost: 1
   unitType: 1
   unitDescription: BuildCities and Roads
-  availableInitially: 1
+  availableInitially: 0
   health: 50
   regenerationRate: 0.1
   baseAttackStrength: 3

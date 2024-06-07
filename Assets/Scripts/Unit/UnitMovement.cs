@@ -224,12 +224,12 @@ public class UnitMovement : MonoBehaviour
         if (world.buildingWonder)
             return;
 
-        //if nothing detected, nothing selected
-        if (detectedObject == null)
-        {
-            selectedUnit = null;
-            return;
-        }
+        ////if nothing detected, nothing selected
+        //if (detectedObject == null)
+        //{
+        //    selectedUnit = null;
+        //    return;
+        //}
 
 		location.y = 0;
 
@@ -831,7 +831,7 @@ public class UnitMovement : MonoBehaviour
             selectedUnit = unitReference;
         }
 
-        if (world.characterUnits.Contains(selectedUnit) && world.mainPlayer.somethingToSay && !world.mainPlayer.isBusy)
+        if (world.characterUnits.Contains(selectedUnit) && world.mainPlayer.somethingToSay && (!world.mainPlayer.isBusy || (selectedUnit.worker && selectedUnit.worker.harvested)))
         {
             selectedUnit = world.mainPlayer;
             
@@ -2593,7 +2593,7 @@ public class UnitMovement : MonoBehaviour
             {
                 uiTraderPanel.uiBeginTradeRoute.ToggleInteractable(false);
                 uiTraderPanel.SwitchRouteIcons(false);
-                uiTraderPanel.ToggleVisibility(false, world);
+                uiTraderPanel.ToggleVisibility(false);
                 uiUnload.ToggleVisibility(false);
                 uiTradeRouteManager.ToggleVisibility(false);
                 uiPersonalResourceInfoPanel.ToggleVisibility(false);

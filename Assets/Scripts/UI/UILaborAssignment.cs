@@ -60,6 +60,15 @@ public class UILaborAssignment : MonoBehaviour
         activeStatus = true;
         allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
+        if (cityBuildingManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
+        {
+            for (int i = 0; i < laborOptions.Count; i++)
+            {
+                if (laborOptions[i].isFlashing)
+                    cityBuildingManager.world.StartFlashingButton(laborOptions[i].transform, true);
+            }
+        }
+
         LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + 200f, 0.4f).setEaseOutBack();
     }
 

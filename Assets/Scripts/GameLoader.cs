@@ -235,13 +235,13 @@ public class GameLoader : MonoBehaviour
 		gameData.camLimits.Add(world.cameraController.xMax);
 		gameData.camLimits.Add(world.cameraController.zMin);
 		gameData.camLimits.Add(world.cameraController.zMax);
-		gameData.tutorialStep = world.tutorialStep;
+		if (world.tutorial)
+			gameData.tutorialData.tutorialStep = world.tutorialStep;
 		gameData.gameStep = world.gameStep;
 		gameData.goldAmount = world.worldResourceManager.resourceDict[ResourceType.Gold];
 		gameData.scottFollow = world.scottFollow;
 		gameData.azaiFollow = world.azaiFollow;
 		gameData.startingLoc = world.startingLoc;
-		gameData.tutorialGoing = world.tutorialGoing;
 
 		gameData.attackLocs.Clear();
 		gameData.attackLocs = new(world.uiAttackWarning.attackLocs);
@@ -397,7 +397,6 @@ public class GameLoader : MonoBehaviour
 		world.currentEra = gameData.currentEra;
 		world.startingRegion = gameData.startingRegion;
 		world.tutorial = gameData.tutorial; 
-		world.tutorialGoing = gameData.tutorialGoing;
 		world.GenerateMap(gameData.allTerrain);
 		world.resourceDiscoveredList = new(gameData.resourceDiscoveredList);
 		world.LoadDiscoveredResources();
@@ -431,7 +430,8 @@ public class GameLoader : MonoBehaviour
 		world.newUnitsAndImprovements = new(gameData.newUnitsAndImprovements);
 		gameData.newUnitsAndImprovements.Clear();
 		world.researchTree.LoadCompletedResearch(gameData.completedResearch);
-		world.tutorialStep = gameData.tutorialStep;
+		if (world.tutorial)
+			world.tutorialStep = gameData.tutorialData.tutorialStep;
 		world.gameStep = gameData.gameStep;
 		world.worldResourceManager.SetWorldGoldLevel(gameData.goldAmount);
 		world.ambushes = gameData.ambushes;

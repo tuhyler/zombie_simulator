@@ -61,7 +61,7 @@ public class UIAttackWarning : MonoBehaviour
 
 	public void AttackNotification(Vector3 loc)
 	{
-		if (!world.mapHandler.activeStatus && Camera.main.WorldToViewportPoint(loc).z >= 0)
+		if (Camera.main.WorldToViewportPoint(loc).z >= 0 || (!world.mapHandler.activeStatus && !world.uiSpeechWindow.activeStatus))
 			return;
 
 		attackLocs.Add(loc);

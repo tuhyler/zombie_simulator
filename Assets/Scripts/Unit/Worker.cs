@@ -100,7 +100,8 @@ public class Worker : Unit
 
     public IEnumerator FallingCoroutine(Vector3 pos)
     {
-        bool playedOnce = false;
+		outline.ToggleOutline(false);
+		bool playedOnce = false;
         while (transform.position.y > 0)
         {
             if (!playedOnce && transform.position.y < 5)
@@ -129,14 +130,15 @@ public class Worker : Unit
         Vector3 loc = Vector3.zero;
         loc.y += 1.25f;
         Quaternion rotation = Quaternion.Euler(90, 0, 90);
-        GameObject dizzy = Instantiate(world.dizzyMarker, loc, rotation);
+        GameObject dizzy = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/UnitMarkerDizzy"), loc, rotation);
         dizzy.transform.SetParent(transform, false);
 
         ToggleDizzy(true);
         
         yield return new WaitForSeconds(3);
 
-        Destroy(dizzy);
+		outline.ToggleOutline(true);
+		Destroy(dizzy);
 		ToggleDizzy(false);
         world.playerInput.paused = false;
 		Vector3Int startingLoc = world.GetClosestTerrainLoc(transform.position);
@@ -1722,20 +1724,23 @@ public class Worker : Unit
 
 	public void FinishMovementPlayer(Vector3 endPosition)
 	{
-		if (world.tutorialGoing)
+		if (world.tutorial)
 			world.TutorialCheck("Finished Movement");
 
 		Vector3Int endPositionInt = world.RoundToInt(endPosition);
 
 		world.IsTreasureHere(endPositionInt, true);
 
-		if (world.tempBattleZone.Contains(endPositionInt) || world.IsEnemyAmbushHere(endPositionInt))
+		if (!world.uiSpeechWindow.activeStatus)
 		{
-			if (isBusy)
-				world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
+			if (world.tempBattleZone.Contains(endPositionInt) || world.IsEnemyAmbushHere(endPositionInt))
+			{
+				if (isBusy)
+					world.unitMovement.workerTaskManager.ForceCancelWorkerTask();
 			
-			StepAside(currentLocation, null);
-			return;
+				StepAside(currentLocation, null);
+				return;
+			}
 		}
 
 		if (toTransport && !transportTarget.isUpgrading)

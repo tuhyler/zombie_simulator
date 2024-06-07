@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 
 public class HandlePlayerInput : MonoBehaviour
 {
+    //public MapWorld world;
     public Camera mainCamera;
     public LayerMask layerMask;
     [HideInInspector]
@@ -150,10 +151,35 @@ public class HandlePlayerInput : MonoBehaviour
 
         mousePositionClick = Input.mousePosition;
         Ray ray = mainCamera.ScreenPointToRay(mousePositionClick);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
-        {
+
+		//RaycastHit[] hits = Physics.RaycastAll(ray, 100, layerMask);
+
+		//if (hits.Length > 0)
+		//{
+		//	bool hitUnit = false;
+		//	int loc = 0;
+		//	for (int i = 0; i < hits.Length; i++)
+		//	{
+		//		if (hits[i].collider.gameObject.GetComponent<Unit>())
+		//		{
+		//			hitUnit = true;
+		//			loc = i;
+		//			break;
+		//		}
+		//	}
+
+		//	if (hitUnit)
+		//	{
+		//		world.unitMovement.HandleUnitSelectionAndMovement(hits[loc].point, hits[loc].collider.gameObject); //"Resource" is in here
+		//	}
+		//	else
+		//	{
+  //              world.cityBuilderManager.HandleCitySelection(hits[0].point, hits[0].collider.gameObject); //need to account for wonder placement
+		//	}
+		//}
+
+		if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
             selectedGameObject = hit.collider.gameObject;
-        }
         else
             selectedGameObject = null;
 
@@ -170,9 +196,7 @@ public class HandlePlayerInput : MonoBehaviour
         mousePositionClick = Input.mousePosition;
         Ray ray = mainCamera.ScreenPointToRay(mousePositionClick);
         if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
-        {
             selectedGameObject = hit.collider.gameObject;
-        }
         else
             selectedGameObject = null;
 

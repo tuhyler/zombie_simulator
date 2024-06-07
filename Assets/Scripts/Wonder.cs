@@ -316,7 +316,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
 		workersReceived++;
         workerSexAndHome.Add((unit.laborer.secondary, unit.laborer.homeCityLoc));
 
-		ParticleSystem tempHeavenHighlight = Instantiate(world.heavenHighlight, pos, Quaternion.identity);
+		ParticleSystem tempHeavenHighlight = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/HeavenHighlight"), pos, Quaternion.identity);
 		tempHeavenHighlight.transform.SetParent(world.psHolder, false);
 
 		//heavenHighlight.transform.position = pos;
@@ -622,12 +622,16 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
             averageLoc += wonderLocs[i];
 
         averageLoc /= wonderLocs.Count;
-        
-        Vector3[] fireworkLocs = new Vector3[2] { new Vector3(-1, 0, 0) + averageLoc, new Vector3(1, 0, 0) + averageLoc };
+
+        int angle = Mathf.RoundToInt(transform.eulerAngles.y);
+        int xloc = angle == 90 || angle == 270 ? 0 : 1;
+        int zloc = angle == 90 || angle == 270 ? 1 : 0;
+
+        Vector3[] fireworkLocs = new Vector3[2] { new Vector3(-xloc, 0, -zloc) + averageLoc, new Vector3(xloc, 0, zloc) + averageLoc };
 
         for (int i = 0; i < fireworkLocs.Length; i++)
-        {
-            ParticleSystem firework = Instantiate(world.fireworks, fireworkLocs[i], Quaternion.Euler(-90, 0, 0));
+        {    
+            ParticleSystem firework = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/Fireworks"), fireworkLocs[i], Quaternion.Euler(-90, 0, 0));
 			firework.transform.SetParent(world.psHolder, false);
 
 		}
@@ -647,7 +651,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
         {
             if (world.IsTraderLocationTaken(locs[i]))
             {
-                List<Trader> traders = world.GetTrader(locs[i]);
+                List<Trader> traders = new(world.GetTrader(locs[i]));
                 for (int j = 0; j < traders.Count; j++)
                 {
                     world.RemoveTraderPosition(unloadLoc, traders[j]);
@@ -724,7 +728,7 @@ public class Wonder : MonoBehaviour, ITradeStop, IGoldWaiter
     {
         Vector3 loc = transform.position;
         loc.y += 0.5f;
-        ParticleSystem smokeSplash = Instantiate(world.smokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+        ParticleSystem smokeSplash = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/SmokeSplash"), loc, Quaternion.Euler(-90, 0, 0));
 		smokeSplash.transform.SetParent(world.psHolder, false);
         smokeSplash.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 		smokeSplash.Play();

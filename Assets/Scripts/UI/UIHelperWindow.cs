@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ public class UIHelperWindow : MonoBehaviour
     private TMP_Text messageText;
 
     [SerializeField]
-    private GameObject arrowUp, arrowRight, arrowDown, arrowLeft;
+    private GameObject arrowUp, arrowRight, arrowDown, arrowLeft; 
 
     [SerializeField]
     private RectTransform allContents;
@@ -43,14 +44,14 @@ public class UIHelperWindow : MonoBehaviour
         {
             activeStatus = false;
             gameObject.SetActive(false);
-			LeanTween.scale(allContents, Vector3.zero, 0.25f).setDelay(0.125f).setOnComplete(SetActiveStatusFalse);
+			//LeanTween.scale(allContents, Vector3.zero, 0.25f).setDelay(0.125f).setOnComplete(SetActiveStatusFalse);
 		}
     }
 
-	public void SetActiveStatusFalse()
-	{
-		gameObject.SetActive(false);
-	}
+	//public void SetActiveStatusFalse()
+	//{
+	//	gameObject.SetActive(false);
+	//}
 
 	public void SetPlacement(Vector3 placement, Vector2 pivot)
     {
@@ -93,7 +94,7 @@ public class UIHelperWindow : MonoBehaviour
 			arrowUp.SetActive(false);
 			arrowRight.SetActive(false);
 			arrowDown.SetActive(false);
-			arrowLeft.SetActive(true);
+            arrowLeft.SetActive(true);
         }
     }
 }

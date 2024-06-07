@@ -269,12 +269,12 @@ public class UICityBuildTabHandler : MonoBehaviour
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -200f, 0);
 
-			if (cityBuilderManager.world.tutorialGoing)
+			if (cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
 			{
 				for (int i = 0; i < tabList.Count; i++)
 				{
-					if (tabList[i].isFlashing)
-						StartCoroutine(cityBuilderManager.world.EnableButtonHighlight(tabList[i].transform, true, false));
+                    if (tabList[i].isFlashing)
+                        cityBuilderManager.world.StartFlashingButton(tabList[i].transform, true);
 				}
 			}
 

@@ -164,13 +164,13 @@ public class UIBuilderHandler : MonoBehaviour, IGoldUpdateCheck, IImmoveable
                     dof.focalLength.value = value;
                 });
 
-				if (cityBuilderManager.world.tutorialGoing)
+				if (cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
 				{
 					for (int i = 0; i < buildOptions.Count; i++)
 					{
 						if (buildOptions[i].isFlashing)
                         {
-							StartCoroutine(cityBuilderManager.world.EnableButtonHighlight(buildOptions[i].transform, true, true));
+                            cityBuilderManager.world.StartFlashingButton(buildOptions[i].transform, true, true);
                             break;
                         }   
 					}

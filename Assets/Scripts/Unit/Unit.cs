@@ -169,7 +169,7 @@ public class Unit : MonoBehaviour
 		Vector3 loc = transform.position;
         loc.y += world.IsRoadOnTileLocation(world.RoundToInt(loc)) ? 0.17f : 0.07f;
 
-		ParticleSystem lightBeam = Instantiate(world.lightBeam, loc, Quaternion.Euler(0, 0, 0));
+		ParticleSystem lightBeam = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/LightBeam"), loc, Quaternion.Euler(0, 0, 0));
 		lightBeam.transform.SetParent(world.psHolder, false);
         lightBeam.Play();
 	}
@@ -870,9 +870,9 @@ public class Unit : MonoBehaviour
 		conversationHaver.SetSpeechBubble();
 	}
 
-	public void SaidSomething()
+	public bool SaidSomething()
 	{
-		conversationHaver.SaidSomething();
+		return conversationHaver.SaidSomething();
 	}
 
 	//private void CheckPrevTile()

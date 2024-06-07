@@ -11,6 +11,7 @@ public class GameData
     //public string saveScreenshot;
 
     //world misc lists
+    public TutorialData tutorialData;
     public List<string> completedResearch, currentResearch, newUnitsAndImprovements;
     public int goldAmount, researchAmount, ambushes, cityCount, infantryCount, rangedCount, cavalryCount, traderCount, boatTraderCount, laborerCount, militaryCount, food, lumber, popGrowth, popLost;
     public HashSet<ResourceType> resourceDiscoveredList = new();
@@ -19,9 +20,9 @@ public class GameData
     public Dictionary<Vector3Int, Vector3Int> cityImprovementQueueList;
     public List<Vector3Int> unclaimedSingleBuildList, researchWaitList = new();
     public List<(Vector3Int, int)> goldWaitList = new();
-    public string tutorialStep, gameStep;
+    public string gameStep;
     public List<string> conversationTasks = new();
-    public bool scottFollow, azaiFollow, tutorial, tutorialGoing;
+    public bool scottFollow, azaiFollow, tutorial;
     public Vector3Int startingLoc;
     public List<Vector3> attackLocs = new();
     public Era currentEra;

@@ -479,56 +479,101 @@ public class Conversations : MonoBehaviour
 		};
 		conversationDict["tutorial11"].Add(tutorial117);
 		#endregion
-		#region tutorial12
-		conversationDict["tutorial12"] = new();
+		#region last_resource
+		conversationDict["last_resource"] = new();
 
-		ConversationItem tutorial121 = new()
+		ConversationItem last_resource1 = new()
 		{
 			speakerImage = "KoaAnnoyed",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Ugh, this is tedious. Are we going to be gathering resources ourselves this whole time?"
 		};
-		conversationDict["tutorial12"].Add(tutorial121);
+		conversationDict["last_resource"].Add(last_resource1);
 
-		ConversationItem tutorial122 = new()
+		ConversationItem last_resource2 = new()
 		{
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Nope! Like I said before, the people here are happy to help. We'll just need to research the proper technologies first before they can do anything."
 		};
-		conversationDict["tutorial12"].Add(tutorial122);
+		conversationDict["last_resource"].Add(last_resource2);
 		#endregion
-		#region tutorial13
-		conversationDict["tutorial13"] = new();
+		#region agriculture
+		conversationDict["agriculture"] = new();
 
-		ConversationItem tutorial131 = new()
+		ConversationItem agriculture1 = new()
 		{
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Our first research is done! Now we can build a farm and hire somebody to work the fields for us. I think you're ready to handle this project, so I won't hold your hand through this one."
 		};
-		conversationDict["tutorial13"].Add(tutorial131);
+		conversationDict["agriculture"].Add(agriculture1);
 
-		ConversationItem tutorial132 = new()
+		ConversationItem agriculture2 = new()
 		{
 			speakerImage = "KoaSerious",
 			speakerName = "Koa",
 			speakerDirection = "Scott",
 			speakerText = "Holding MY hand? Uh, I'm doing all the heavy lifting here..."
 		};
-		conversationDict["tutorial13"].Add(tutorial132);
+		conversationDict["agriculture"].Add(agriculture2);
 
-		ConversationItem tutorial133 = new()
+		ConversationItem agriculture3 = new()
 		{
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Koa",
 			speakerText = "Oh, you absolutely are! Now to determine what resources you need, you can go to camp and see the costs required to build the farm."
 		};
-		conversationDict["tutorial13"].Add(tutorial133);
+		conversationDict["agriculture"].Add(agriculture3);
+		#endregion
+		#region pottery
+		conversationDict["pottery"] = new();
+
+		ConversationItem pottery1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Just researched pottery"
+		};
+		conversationDict["pottery"].Add(pottery1);
+		#endregion
+		#region trade
+		conversationDict["trade"] = new();
+
+		ConversationItem trade1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "just resesarched trade"
+		};
+		conversationDict["trade"].Add(trade1);
+		#endregion
+		#region first_farm
+		conversationDict["first_farm"] = new();
+
+		ConversationItem first_farm1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Great! Our first farm is finished! Good job finding out what resources we needed to make it."
+		};
+		conversationDict["first_farm"].Add(first_farm1);
+
+		ConversationItem first_farm2 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "Now we need to assign somebody to work there. Remember, to add more pop, we need to build more huts (housing). After that's done, go back into the camp to add more pop."
+		};
+		conversationDict["first_farm"].Add(first_farm2);
 		#endregion
 		#region first_infantry
 		conversationDict["first_infantry"] = new();
@@ -672,7 +717,7 @@ public class Conversations : MonoBehaviour
 			speakerDirection = "Azai",
 			speakerText = "Uh, I don't know if you've noticed, but you're a pretty large dude and you've got a big weapon there, can't you go and guard them?"
 		};
-		conversationDict["tutorial13"].Add(first_ambush2);
+		conversationDict["first_ambush"].Add(first_ambush2);
 
 		ConversationItem first_ambush3 = new()
 		{
@@ -682,6 +727,18 @@ public class Conversations : MonoBehaviour
 			speakerText = "My duty, first and foremost, is to ensure your protection from any enemies out there. Without your presence, this will all go to waste. For this reason, I stay by your side."
 		};
 		conversationDict["first_ambush"].Add(first_ambush3);
+		#endregion
+		#region first_trader
+		conversationDict["first_trader"] = new();
+
+		ConversationItem first_trader1 = new()
+		{
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
+			speakerDirection = "Koa",
+			speakerText = "We just built our first trader"
+		};
+		conversationDict["first_trader"].Add(first_trader1);
 		#endregion
 		#endregion
 
@@ -731,7 +788,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Haniya",
-			speakerText = "Yeah, he's had an exhausting life. Anyways, do you sell anything that you think our people would like?"
+			speakerText = "Yeah, he's had an exhausting life. Anyways, do you sell anything that you think our people would buy?"
 		};
 		conversationDict["Haniya_intro"].Add(haniya_intro4);
 
@@ -776,15 +833,15 @@ public class Conversations : MonoBehaviour
 			speakerImage = "HaniyaHappy",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
-			speakerText = "Well, I'm glad you stopped by Indus Valley! We have plenty of goods to sell so feel free to stop by at any time, " +
-			"I'll also be glad to take purchase any merchandise you offer as well."
+			speakerText = "Well, I'm glad you stopped by Indus Valley! We have plenty of goods to sell so feel free to stop by at any time. " +
+			"I'll also be glad to purchase any merchandise you offer as well."
 		};
 		conversationDict["Haniya_intro"].Add(haniya_intro9);
 
 		ConversationItem haniya_intro10 = new()
 		{
-			speakerImage = "KoaHappy",
-			speakerName = "Koa",
+			speakerImage = "ScottHappy",
+			speakerName = "Scott",
 			speakerDirection = "Haniya",
 			speakerText = "Sounds good! We'll be back soon!",
 			action = true
@@ -835,7 +892,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
-			speakerText = "*Speaking normally* I am simply querying if the lady fancies someone, someone... such as myself, perhaps."
+			speakerText = "I am simply querying if the lady fancies someone, someone... such as myself, perhaps."
 		};
 		conversationDict["Haniya_intro_coda"].Add(haniya_intro_coda4);
 
@@ -863,7 +920,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "Well, maybe next time, don't focus so much on yourself? I'd say try to learn more about her by asking lots of questions."
+			speakerText = "Well, maybe next time, don't focus so much on yourself? I'd say try to learn more about her by asking her lots of questions."
 		};
 		conversationDict["Haniya_intro_coda"].Add(haniya_intro_coda7);
 
@@ -903,7 +960,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiAwkward",
 			speakerName = "Azai",
 			speakerDirection = "Haniya",
-			speakerText = "*Clearly nervous* Greetings Haniya! Uh, how are you on this fine day? How was your morning? Um, what did you have for breakfast? " +
+			speakerText = "*Clearly nervous* Greetings, Haniya! Uh, how are you on this fine day? How was your morning? Um, what did you have for breakfast? " +
 			"If you could be any animal, what would it be and why? "
 		};
 		conversationDict["Haniya_quest0"].Add(haniya_quest02);
@@ -938,7 +995,7 @@ public class Conversations : MonoBehaviour
 
 		ConversationItem haniya_quest06 = new()
 		{
-			speakerImage = "AzaiSerious",
+			speakerImage = "AzaiAwkward",
 			speakerName = "Azai",
 			speakerDirection = "Haniya",
 			speakerText = "Haniya, will our completion of your request make you happy?"
@@ -980,7 +1037,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaHappy",
 			speakerName = "Koa",
 			speakerDirection = "Haniya",
-			speakerText = "That's a good idea! You could call it \"Sparadise\" and overcharge for lemon water."
+			speakerText = "That's not a bad idea, you could call it \"Sparadise\" and overcharge for lemon water."
 		};
 		conversationDict["Haniya_quest0_complete"].Add(haniya_quest0_complete2);
 
@@ -989,7 +1046,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "HaniyaHappy",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
-			speakerText = "Ha ha, thanks for the suggestion, but I think I'd rather just have my house back. Oh, and Azai?"
+			speakerText = "Thanks for the suggestion, but I think I'd rather just have my house back. Oh, and Azai?"
 		};
 		conversationDict["Haniya_quest0_complete"].Add(haniya_quest0_complete3);
 
@@ -1067,7 +1124,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Azai",
-			speakerText = "Yeah, I thought it went great! She really responded well to what you had to say. Great job, Azai!"
+			speakerText = "Yes, I thought it went great! She really responded well to what you had to say. Great job, Azai!"
 		};
 		conversationDict["Haniya_quest0_complete_coda"].Add(haniya_quest0_complete_coda2);
 
@@ -1085,7 +1142,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaQuestion",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "Well, in my experience with the female folk, they seem to prefer a man with a high level of confidence."
+			speakerText = "Well, in my experience with the lady folk, they seem to prefer a man with a high level of confidence."
 		};
 		conversationDict["Haniya_quest0_complete_coda"].Add(haniya_quest0_complete_coda4);
 
@@ -1144,7 +1201,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "HaniyaQuestion",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
-			speakerText = "Actually, yes! I'm gathering all the supplies to fix the roof, but I need some material to patch up the cracks, do you have 5 bricks you can part with?"
+			speakerText = "Actually, yes! I'm gathering all the supplies to fix the roof, but I need some more material, do you have 5 bricks you can part with?"
 		};
 		conversationDict["Haniya_quest1"].Add(haniya_quest13);
 
@@ -1153,7 +1210,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "ScottHappy",
 			speakerName = "Scott",
 			speakerDirection = "Haniya",
-			speakerText = "Absolutely we can provide that for you, right guys? We'll head home and round those items up right away!"
+			speakerText = "Absolutely we can provide that for you, right everyone? We'll head home and round those items up right away!"
 		};
 		conversationDict["Haniya_quest1"].Add(haniya_quest14);
 
@@ -1162,8 +1219,8 @@ public class Conversations : MonoBehaviour
 			speakerImage = "HaniyaSad",
 			speakerName = "Haniya",
 			speakerDirection = "Koa",
-			speakerText = "Thanks again for your help! I've been so worried about that leaking roof overhead, what if the leaks get worse and it floods my house, " +
-			"or the whole thing collapses while I'm sleeping?"
+			speakerText = "Thanks again for your help! I've been so worried about that leaking roof overhead, what if the leaks get worse and it floods my house? " +
+			"Or what if the roof collapses while I'm sleeping and it flattens me?"
 		};
 		conversationDict["Haniya_quest1"].Add(haniya_quest15);
 
@@ -1172,7 +1229,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Haniya",
-			speakerText = "Well, since you asked, I couldn't care less about this entire situation."
+			speakerText = "Well, just so you know, I couldn't care less about this entire situation."
 		};
 		conversationDict["Haniya_quest1"].Add(haniya_quest16);
 
@@ -1181,7 +1238,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "HaniyaSad",
 			speakerName = "Haniya",
 			speakerDirection = "Azai",
-			speakerText = "What!?"
+			speakerText = "What?"
 		};
 		conversationDict["Haniya_quest1"].Add(haniya_quest17);
 
@@ -1596,7 +1653,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "KoaGuilty",
 			speakerName = "Koa",
 			speakerDirection = "Azai",
-			speakerText = "Oh. Right"
+			speakerText = "Oh. Right."
 		};
 		conversationDict["Haniya_quest2_complete_coda"].Add(haniya_quest2_complete_coda4);
 
@@ -1751,7 +1808,7 @@ public class Conversations : MonoBehaviour
 			speakerImage = "AzaiSerious",
 			speakerName = "Azai",
 			speakerDirection = "Koa",
-			speakerText = "I would be fool to not ask out Haniya the next chance I get."
+			speakerText = "I would be a fool to not ask out Haniya the next chance I get."
 		};
 		conversationDict["Haniya_quest3_complete_coda"].Add(haniya_quest3_complete_coda1);
 		#endregion

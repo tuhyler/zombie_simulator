@@ -1496,9 +1496,9 @@ public class Trader : Unit, ICityGoldWait, ICityResourceWait
 			world.ClearAmbush(ambushLoc);
 			world.uiAttackWarning.AttackWarningCheck(ambushLoc);
 
-			if (world.tutorial && world.ambushes == 1)
+			if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.hadAmbush)
 			{
-				world.mainPlayer.conversationHaver.SetSomethingToSay("first_ambush", world.azai);
+				world.TutorialCheck("First Ambush");
 			}
 
 			if (world.mainPlayer.runningAway)

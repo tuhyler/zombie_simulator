@@ -17,7 +17,7 @@ public class UITradeStopHandler : MonoBehaviour
     public TMP_Dropdown cityNameList;
 
     [SerializeField]
-    private GameObject tradeResourceHolder, tradeResourceTaskTemplate;
+    public GameObject tradeResourceHolder, tradeResourceTaskTemplate;
 
     //[SerializeField]
     //public TMP_InputField inputWaitTime;
@@ -343,7 +343,16 @@ public class UITradeStopHandler : MonoBehaviour
         if (onRoute)
             PrepResource(newResourceTask);
 
-        return newResourceTask;
+		if (tradeRouteManager.world.tutorial && GameLoader.Instance.gameData.tutorialData.addedStop && !GameLoader.Instance.gameData.tutorialData.addedResource)
+		{
+			tradeRouteManager.world.cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 0);
+			tradeRouteManager.world.cityBuilderManager.uiHelperWindow.SetMessage("Select here to identify the resource to either unload or load.");
+			tradeRouteManager.world.cityBuilderManager.uiHelperWindow.SetPlacement(tradeRouteManager.originalLoc + new Vector3(0, 480, 0), tradeRouteManager.allContents.pivot);
+
+			GameLoader.Instance.gameData.tutorialData.addedResource = true;
+		}
+
+		return newResourceTask;
     }
 
     public void SetAsNext(bool onRoute, List<int> resourceComp = null)

@@ -38,7 +38,7 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
     public GameObject dragGrips, closeButton;
 
     [SerializeField]
-    public Transform resourceDropdown;
+    public Transform resourceDropdown, resourceAmountDropdown;
 
     //[SerializeField]
     //private Image resourceIcon;
@@ -167,7 +167,16 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
         if (value == 1)
         {
-            chosenMultiple = -1;
+			if (resourceHolder.tradeStopHandler.tradeRouteManager.world.tutorial && GameLoader.Instance.gameData.tutorialData.choseResource && !GameLoader.Instance.gameData.tutorialData.choseUnload)
+			{
+				resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 0);
+				resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.uiHelperWindow.SetMessage("\"Unload amount\" indicates total amount to unload. If trader has less than chosen amount, it will unload all.");
+				resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.uiHelperWindow.SetPlacement(resourceHolder.tradeStopHandler.tradeRouteManager.originalLoc + new Vector3(100, 480, 0), resourceHolder.tradeStopHandler.tradeRouteManager.allContents.pivot);
+
+				GameLoader.Instance.gameData.tutorialData.choseUnload = true;
+			}
+
+			chosenMultiple = -1;
             resourceCountSlider.value = resourceCountSlider.maxValue;
             chosenResourceAmount = valuePool[(int)resourceCountSlider.maxValue];
             //allToggle.gameObject.SetActive(true);
@@ -481,7 +490,16 @@ public class UITradeResourceTask : MonoBehaviour, IResourceGridUser, IBeginDragH
 
 	public void SetData(Sprite icon, ResourceType resourceType)
 	{
-        chosenResourceSprite.sprite = icon;
+		if (resourceHolder.tradeStopHandler.tradeRouteManager.world.tutorial && GameLoader.Instance.gameData.tutorialData.addedResource && !GameLoader.Instance.gameData.tutorialData.choseResource)
+		{
+			resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 0);
+			resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.uiHelperWindow.SetMessage("\"Load to amount\" includes the amount the trader is already holding. So if amount is set to 10 and trader already has 5, it will only load 5 more.");
+			resourceHolder.tradeStopHandler.tradeRouteManager.world.cityBuilderManager.uiHelperWindow.SetPlacement(resourceHolder.tradeStopHandler.tradeRouteManager.originalLoc + new Vector3(100, 480, 0), resourceHolder.tradeStopHandler.tradeRouteManager.allContents.pivot);
+
+			GameLoader.Instance.gameData.tutorialData.choseResource = true;
+		}
+
+		chosenResourceSprite.sprite = icon;
         chosenResource = resourceType;
 	}
 }

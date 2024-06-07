@@ -61,7 +61,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
 		    if (!uiBuildTabHandler.buttonsAreWorking)
                 return;
 
-		    if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
+		    if (uiBuildTabHandler.cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
             {
                 if (isFlashing)
                 {
@@ -103,7 +103,7 @@ public class UIShowTabHandler : MonoBehaviour, IPointerDownHandler
 		if (!uiBuildTabHandler.buttonsAreWorking)
 			return;
 
-		if (uiBuildTabHandler.cityBuilderManager.world.tutorialGoing)
+		if (uiBuildTabHandler.cityBuilderManager.world.tutorial && !GameLoader.Instance.gameData.tutorialData.builtFarm)
 		{
 			if (isFlashing)
 			{
