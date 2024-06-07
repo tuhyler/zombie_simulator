@@ -441,7 +441,7 @@ public class CityImprovement : MonoBehaviour
     public void PlaySmokeEmitter(Vector3 loc, int time, bool load)
     {
         //int time = improvementData.buildTime;
-        ParticleSystem smokeEmitter = Instantiate(world.smokeEmitter, loc, Quaternion.Euler(-90, 0, 0));
+        ParticleSystem smokeEmitter = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/SmokeEmitter"), loc, Quaternion.Euler(-90, 0, 0));
         smokeEmitter.transform.SetParent(world.psHolder, false);
         this.smokeEmitter = smokeEmitter;
 
@@ -461,7 +461,7 @@ public class CityImprovement : MonoBehaviour
         Vector3 loc = transform.position;
         loc.y += isHill ? 0.6f : 0.1f;
 
-        ParticleSystem smokeSplash = Instantiate(world.smokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+        ParticleSystem smokeSplash = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/SmokeSplash"), loc, Quaternion.Euler(-90, 0, 0));
         smokeSplash.transform.SetParent(world.psHolder, false);
         smokeSplash.Play();
     }
@@ -470,7 +470,7 @@ public class CityImprovement : MonoBehaviour
     {
         Vector3 loc = transform.position;
         loc.y += .1f;
-        ParticleSystem smokeSplash = Instantiate(world.buildingSmokeSplash, loc, Quaternion.Euler(-90, 0, 0));
+        ParticleSystem smokeSplash = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/SmokeSplashBuilding"), loc, Quaternion.Euler(-90, 0, 0));
         smokeSplash.transform.SetParent(world.psHolder, false);
         //particleSystems.Add(smokeSplash);
         smokeSplash.Play();

@@ -272,7 +272,15 @@ public class UIResearchItem : MonoBehaviour, IPointerDownHandler
         GameLoader.Instance.gameData.completedResearch.Add(ResearchName);
 
         world.GameCheck(researchName + " Research Complete");
-        world.TutorialCheck(researchName + " Research Complete");
+
+        if (world.tutorial)
+        {
+            if (researchName == "Agriculture" || researchName == "Pottery" || researchName == "Trade")
+            {
+                world.tutorialStep = "tutorialAny";
+                world.TutorialCheck(researchName + " Research Complete");
+            }
+        }
     }
 
 	public void LoadResearchComplete(MapWorld world)

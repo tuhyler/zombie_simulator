@@ -62,7 +62,7 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		speakerDict[name] = unit;
 	}
 
-	public void ToggleVisibility(bool v)
+	public void ToggleVisibility(bool v, bool shift = true)
 	{
 		if (activeStatus == v)
 			return;
@@ -86,7 +86,8 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		}
 		else
 		{
-			world.ToggleMainUI(true);
+			if (shift)
+				world.ToggleMainUI(true);
 			activeStatus = false;
 			LeanTween.moveY(allContents, allContents.anchoredPosition3D.y + -600f, 0.2f).setOnComplete(SetActiveStatusFalse);
 		}
@@ -232,7 +233,6 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 
 	public void FinishText(bool dueling)
 	{
-		ToggleVisibility(false);
 
 		if (co != null)
 		{
@@ -266,9 +266,14 @@ public class UISpeechWindow : MonoBehaviour, IPointerDownHandler
 		world.ConversationActionCheck(conversationTopic, conversationPlace);
 		conversationPlace = 0;
 
+		bool shiftMinimap = true;
 		for (int i = 0; i < unitsSpeaking.Count; i++)
-			unitsSpeaking[i].SaidSomething();
+		{
+			if (unitsSpeaking[i].SaidSomething())
+				shiftMinimap = false;
+		}
 
+		ToggleVisibility(false, shiftMinimap);
 		unitsSpeaking.Clear();
 		if (speakingNPC)
 			world.ToggleConversationCam(false, speakingNPC.currentLocation, false);

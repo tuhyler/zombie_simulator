@@ -2214,6 +2214,7 @@ MonoBehaviour:
   dragGrips: {fileID: 1297426275736904307}
   closeButton: {fileID: 1766852457296095444}
   resourceDropdown: {fileID: 3692947959459090735}
+  resourceAmountDropdown: {fileID: 4798080526599055841}
   loc: 0
   originalParent: {fileID: 0}
   tempParent: {fileID: 0}

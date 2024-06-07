@@ -15,7 +15,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 	private TMP_Text foodCostText, foodCycleCostText, housingCostText, waterCostText, popCountText;
 
 	[SerializeField]
-	private Button increasePop, decreasePop;
+	public Button increasePop, decreasePop;
 
 	[SerializeField]
 	public Image buttonImage;
@@ -254,7 +254,7 @@ public class UICityPopIncreasePanel : MonoBehaviour, ITooltip
 	{
 		if (AffordCheck())
 		{
-			if (world.tutorialGoing)
+			if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.hadPopAdd)
 				world.TutorialCheck("Add Pop");
 			
 			if (city.world.unitMovement.selectedUnit != null)

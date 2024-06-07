@@ -108,7 +108,10 @@ public class UILaborAssignmentOptions : MonoBehaviour, IPointerDownHandler
                 buttonImage.color = colorToChange;
 
                 if (isFlashing)
+                {
+                    isFlashing = false;
                     cityBuilderManager.world.ButtonFlashCheck();
+                }
             }
         }
         else

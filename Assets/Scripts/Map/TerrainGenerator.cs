@@ -3248,8 +3248,8 @@ public class TerrainGenerator : MonoBehaviour
         world.mainPlayer.transform.position = startingPlace;
         Vector3Int cameraLoc = startingPlace;
         cameraLoc.y += 5;
-        world.startingSpotlight.transform.position = cameraLoc;
-        world.spotlight.transform.position = startingPlace;
+        //world.startingSpotlight.transform.position = cameraLoc;
+        //world.spotlight.transform.position = startingPlace;
         world.cameraController.ResetCamLimits(world.RoundToInt(world.mainPlayer.transform.position));
         world.cameraController.CenterCameraNoFollow(startingPlace);
         //world.water.transform.position = new Vector3(width / 2f * 3, yCoord - 0.06f, height / 2f * 3);

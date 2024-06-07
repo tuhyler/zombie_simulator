@@ -318,20 +318,24 @@ public class CityBuilderManager : MonoBehaviour
                 }
                 else if (laborChange != 0) //for changing labor counts in tile
                 {
-                    if (improvementSelected.isConstruction)
+                    if (improvementSelected.isConstruction || !tilesToChange.Contains(terrainLocation))
                     {
-                        UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Still building...");
-                        return;
-                    }
-                    else if (!tilesToChange.Contains(terrainLocation))
-                    {
-                        if (laborChange > 0 && selectedCity.unusedLabor == 0)
-							UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more available labor");
-                        else if (laborChange < 0 && !world.CheckIfTileIsWorked(terrainLocation))
-							UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more labor to remove");
-                        else
-						    UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
-                    }
+						uiLaborAssignment.ResetLaborAssignment();
+					}
+       //             if (improvementSelected.isConstruction)
+       //             {
+       //                 UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Still building...");
+       //                 return;
+       //             }
+       //             else if (!tilesToChange.Contains(terrainLocation))
+       //             {
+       //                 if (laborChange > 0 && selectedCity.unusedLabor == 0)
+							//UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more available labor");
+       //                 else if (laborChange < 0 && !world.CheckIfTileIsWorked(terrainLocation))
+							//UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "No more labor to remove");
+       //                 else
+						 //   UIInfoPopUpHandler.WarningMessage().Create(Input.mousePosition, "Not here");
+       //             }
                     else
                     {
                         ChangeLaborCount(terrainLocation);
@@ -1585,6 +1589,7 @@ public class CityBuilderManager : MonoBehaviour
             newUnit.trader.homeCity = city.cityLoc;
 
             newUnit.currentLocation = world.AddTraderPosition(buildPosition, newUnit.trader);
+			world.TutorialCheck("Finished Building Trader");
 		}
 
 		//assigning army details and rotation
@@ -1631,6 +1636,8 @@ public class CityBuilderManager : MonoBehaviour
 			}
 		    
             newUnit.currentLocation = world.AddUnitPosition(buildPosition, newUnit);
+			if (world.tutorial && newUnit.buildDataSO.unitType == UnitType.Infantry)
+                world.TutorialCheck("Finished Building Infantry");
 		}
         else if (newUnit.transport)
         {
@@ -2135,7 +2142,7 @@ public class CityBuilderManager : MonoBehaviour
 
     public void FinishImprovement(City city, ImprovementDataSO improvementData, Vector3Int tempBuildLocation)
     {
-		world.TutorialCheck("Finished Building Something");
+		world.TutorialCheck("Finished Building " + improvementData.improvementName);
 		//activating structure
 		GameObject improvement = world.GetStructure(tempBuildLocation);
         TerrainData td = world.GetTerrainDataAt(tempBuildLocation);
@@ -2983,7 +2990,7 @@ public class CityBuilderManager : MonoBehaviour
         CloseLaborMenus();
         CloseSingleWindows();
 
-		if (world.tutorialGoing)
+		if (world.tutorial)
 		{
 			if (uiHelperWindow != null && uiHelperWindow.activeStatus)
 				uiHelperWindow.ToggleVisibility(false);
@@ -3443,7 +3450,7 @@ public class CityBuilderManager : MonoBehaviour
             selectedCity = null;
 			world.StopAudio();
 
-            if (world.tutorialGoing)
+            if (world.tutorial)
             {
                 if (uiHelperWindow.activeStatus)
                     uiHelperWindow.ToggleVisibility(false);

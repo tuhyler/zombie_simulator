@@ -392,12 +392,6 @@ public class BasicEnemyAI : MonoBehaviour
 				}
 				else
 				{
-					if (unit.world.tutorial && unit.world.ambushes == 1)
-					{
-						unit.world.tutorialGoing = true;
-						unit.world.TutorialCheck("Ambush");
-					}
-
 					StartCoroutine(unit.DramaticallyDisappear());
 				}
 			}

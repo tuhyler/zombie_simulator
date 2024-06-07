@@ -247,7 +247,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             cityBase.transform.localPosition = cityBaseLoc;
         }
 
-        fire = Instantiate(world.fire, loc, Quaternion.Euler(-90, 0, 0));
+        fire = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/Fire"), loc, Quaternion.Euler(-90, 0, 0));
         fire.transform.SetParent(world.psHolder, false);
         fire.Play();
     }
@@ -612,7 +612,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
         waterCount -= amount;
         Vector3Int loc = cityLoc;
         loc.y += 3;
-		ParticleSystem tempHeavenHighlight = Instantiate(world.heavenHighlight, loc, Quaternion.identity);
+		ParticleSystem tempHeavenHighlight = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/HeavenHighlight"), loc, Quaternion.identity);
 		tempHeavenHighlight.transform.SetParent(world.psHolder, false);
 		//heavenHighlight.Play();
 
@@ -738,12 +738,18 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
             RemoveRandomFieldLaborer(any);
 
         resourceManager.ModifyResourceConsumptionPerMinute(ResourceType.Food, -unitFoodConsumptionPerMinute);
+
+        if (!building)
+        {
+            if (world.tutorial && !GameLoader.Instance.gameData.tutorialData.hadPopLoss)
+                world.TutorialCheck("First Pop Loss");
+        }
     }
 
     public void PlayHellHighlight(Vector3 loc)
     {
 		loc.y += 3f;
-		ParticleSystem tempHellHighlight = Instantiate(world.hellHighlight, loc, Quaternion.identity);
+		ParticleSystem tempHellHighlight = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/HellHighlight"), loc, Quaternion.identity);
 		tempHellHighlight.transform.SetParent(world.psHolder, false);
 		//hellHighlight.transform.position = loc;
 		//hellHighlight.Play();
@@ -831,7 +837,7 @@ public class City : MonoBehaviour, ITradeStop, IGoldWaiter
     {
 		Vector3 pos = transform.position;
 		pos.y = 8f;
-		ParticleSystem lightBullet = Instantiate(world.lightBullet, pos, Quaternion.Euler(90, 0, 0));
+		ParticleSystem lightBullet = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/LightBullet"), pos, Quaternion.Euler(90, 0, 0));
         lightBullet.transform.SetParent(world.psHolder, false);
         lightBullet.Play();
     }

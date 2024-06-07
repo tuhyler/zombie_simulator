@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: BoatTrader1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5390864583482608459, guid: e7017b509bde15c47924ddef24528d00, type: 3}
-  secondaryPrefab: {fileID: 0}
   prefabLoc: UnitPrefabs/boat_trader_1
   secondaryPrefabLoc: 
   nationalityAdjective: 
@@ -37,7 +35,7 @@ MonoBehaviour:
   laborCost: 0
   unitType: 6
   unitDescription: Water transport for cargo
-  availableInitially: 1
+  availableInitially: 0
   health: 10
   regenerationRate: 2
   baseAttackStrength: 0

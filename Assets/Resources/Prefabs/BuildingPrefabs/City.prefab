@@ -161,12 +161,9 @@ MonoBehaviour:
   exclamationPoint: {fileID: 2672808880277793004}
   cityBase: {fileID: 7014532266241225156}
   battleIcon: {fileID: 402408124033454827}
-  housingData: {fileID: 11400000, guid: 42b13ed0d99811a47b556be96cbb0dd6, type: 2}
   cityRenderer: {fileID: 0}
   subTransform: {fileID: 943069764017133060}
   cityNameField: {fileID: 8342028981247781059}
-  lightBullet: {fileID: 0}
-  fire: {fileID: 0}
   minimapIcon: {fileID: 6369060443479354674}
   campIcon: {fileID: 21300000, guid: 15e89b14f7d52bc43a8792ab9d89cb4e, type: 3}
   cityIcon: {fileID: 21300000, guid: cbaf4785a80e539408ffd2b8cafc56ae, type: 3}
@@ -210,6 +207,7 @@ MonoBehaviour:
   workEthic: 1
   improvementWorkEthic: 0
   wonderWorkEthic: 0
+  purchaseAmountMultiple: 1
   warehouseStorageLimit: 300
   waitList: []
   seaWaitList: []
@@ -264,11 +262,11 @@ MonoBehaviour:
   resourceStorageLevel: 0
   initialResources:
   - resourceType: 2
-    resourceAmount: 100
+    resourceAmount: 50
   - resourceType: 6
-    resourceAmount: 100
+    resourceAmount: 50
   - resourceType: 7
-    resourceAmount: 100
+    resourceAmount: 50
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0

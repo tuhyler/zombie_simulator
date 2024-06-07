@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Research01SouthData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Research01South
   audio: {fileID: 8300000, guid: 4b903425d0583734b9e3d2b48e7d064f, type: 3}
@@ -30,11 +29,9 @@ MonoBehaviour:
   improvementCost:
   - resourceType: 7
     resourceAmount: 10
-  - resourceType: 2
-    resourceAmount: 10
   consumedResources:
   - resourceType: 4
-    resourceAmount: 10
+    resourceAmount: 1
   consumedResources1: []
   consumedResources2: []
   consumedResources3: []
@@ -42,13 +39,14 @@ MonoBehaviour:
   producedResources:
   - resourceType: 5
     resourceAmount: 1
-  producedResourceTime: 02000000
+  producedResourceTime: 0a000000
   rawMaterials: 0
   rawResourceType: 0
   isResearch: 1
   terrainType: 5
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 1
   housingIncrease: 0
   cityHousing: 0

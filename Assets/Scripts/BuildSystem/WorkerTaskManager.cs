@@ -94,7 +94,7 @@ public class WorkerTaskManager : MonoBehaviour
 
     public void BuildCityPrep()
     {
-        if (world.tutorialGoing)
+        if (world.tutorial)
 			unitMovement.uiWorkerTask.GetButton("Build").FlashCheck();
 
 		unitMovement.CancelMove();

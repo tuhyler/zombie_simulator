@@ -35,7 +35,7 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public CameraController cameraController;
     [SerializeField]
-    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas;
+    public Canvas immoveableCanvas, cityCanvas, workerCanvas, traderCanvas, tradeRouteManagerCanvas, infoPopUpCanvas, overflowGridCanvas, personalResourceCanvas, tcCanvas, mainCanvas;
     [HideInInspector]
     public bool tutorial, hideUI, tutorialGoing, scottFollow, azaiFollow, bridgeResearched, waterTransport, airTransport;
     [SerializeField]
@@ -97,7 +97,8 @@ public class MapWorld : MonoBehaviour
     [SerializeField]
     public Material transparentMat, atlasMain/*, atlasSemiClear*/;
     [SerializeField]
-    private GameObject selectionIcon, enemyCampIcon, buildPanel, wonderBuildPanel, canvasHolder, enemyBorder;
+    private GameObject enemyCampIcon, buildPanel, wonderBuildPanel, canvasHolder, enemyBorder;
+    private GameObject selectionIcon;
     [SerializeField]
     public UnitBuildDataSO laborerData;
 
@@ -145,6 +146,7 @@ public class MapWorld : MonoBehaviour
     //trade center info
     [SerializeField]
     private Sprite tradeCenterMapIcon;
+    [HideInInspector]
     public List<TradeCenter> allTradeCenters = new();
 	private Dictionary<Vector3Int, List<GameObject>> centerBordersDict = new();
 
@@ -308,10 +310,6 @@ public class MapWorld : MonoBehaviour
 
         uiInfoPopUpHandler.SetWarningMessage(uiInfoPopUpHandler);
         uiInfoPopUpHandler.gameObject.SetActive(false);
-
-        selectionIcon = Instantiate(selectionIcon);
-        selectionIcon.transform.SetParent(gameObject.transform, false);
-        selectionIcon.SetActive(false);
     }
 
     private void Start()
@@ -340,7 +338,7 @@ public class MapWorld : MonoBehaviour
                 else
 				    builderHandler = cityBuilderManager.uiProducerBuilder;
 
-                GameObject buildPanelGO = Instantiate(buildPanel);
+                GameObject buildPanelGO = Instantiate(Resources.Load<GameObject>("Prefabs/UIPrefabs/BuildObjectPanel"));
                 UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
                 buildOption.BuildData = data;
 			    buildPanelGO.transform.SetParent(builderHandler.objectHolder, false);
@@ -366,7 +364,7 @@ public class MapWorld : MonoBehaviour
 				continue;
 			}
 
-            GameObject buildPanelGO = Instantiate(buildPanel);
+            GameObject buildPanelGO = Instantiate(Resources.Load<GameObject>("Prefabs/UIPrefabs/BuildObjectPanel"));
 			UIBuildOptions buildOption = buildPanelGO.GetComponent<UIBuildOptions>();
 			buildOption.UnitBuildData = data;
 			buildPanelGO.transform.SetParent(cityBuilderManager.uiUnitBuilder.objectHolder, false);
@@ -384,7 +382,7 @@ public class MapWorld : MonoBehaviour
 
         foreach (WonderDataSO wonder in UpgradeableObjectHolder.Instance.allWonders)
         {
-			GameObject wonderPanelGO = Instantiate(wonderBuildPanel);
+			GameObject wonderPanelGO = Instantiate(Resources.Load<GameObject>("Prefabs/UIPrefabs/BuildWonderPanel"));
 
 			UIWonderOptions wonderOption = wonderPanelGO.GetComponent<UIWonderOptions>();
 			wonderOption.BuildData = wonder;
@@ -413,11 +411,12 @@ public class MapWorld : MonoBehaviour
         conversationListButton.gameObject.SetActive(true);
 		uiWorldResources.SetActiveStatus(true);
         this.tutorial = tutorial;
+        GameLoader.Instance.gameData.tutorialData = new();
         GameLoader.Instance.gameData.tutorial = tutorial;
 		if (tutorial)
 		{
 			GameObject helperWindow = Instantiate(uiHelperWindow);
-			helperWindow.transform.SetParent(cityCanvas.transform, false);
+			helperWindow.transform.SetParent(mainCanvas.transform, false);
 			cityBuilderManager.uiHelperWindow = helperWindow.GetComponent<UIHelperWindow>();
 		}
 		List<TerrainData> coastalTerrain = new();
@@ -542,7 +541,7 @@ public class MapWorld : MonoBehaviour
             
             if (enemyCampDict[loc].campCount < 9)
             {
-                GameObject fire = Instantiate(campfire);
+                GameObject fire = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/Campfire"));
                 fire.transform.SetParent(terrainHolder, false);
 				enemyCampDict[loc].SetCampfire(fire, world[loc].isHill, !hideTerrain);
             }
@@ -550,7 +549,7 @@ public class MapWorld : MonoBehaviour
 			GameLoader.Instance.gameData.enemyCampLocs[loc] = enemyCampDict[loc].SendCampData();
 			Vector3 position = Vector3.zero;
 			position.y += 1;
-			GameObject icon = Instantiate(enemyCampIcon);
+			GameObject icon = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/MinimapEnemyCamp"));
 			icon.transform.position = position;
 			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
 			enemyCampDict[loc].minimapIcon = icon;
@@ -715,9 +714,18 @@ public class MapWorld : MonoBehaviour
         yield return new WaitForSeconds(2);
 
 		mainPlayer.unitRigidbody.useGravity = true;
-		spotlight.SetActive(true);
+        Vector3 startingLoc = mainPlayer.transform.position;
+        startingLoc.y = 0;
+        GameObject spotlight = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/Spotlight"));
+        //spotlight.SetActive(true);
+        spotlight.transform.position = startingLoc;
+        spotlight.transform.SetParent(transform, false);
         Vector3 scale = spotlight.transform.localScale;
-        startingSpotlight.gameObject.SetActive(true);
+        Light startingSpotlight = Instantiate(Resources.Load<Light>("Prefabs/MiscPrefabs/StartingSpotlight"));
+        startingSpotlight.transform.SetParent(transform, false);
+        startingLoc.y += 5;
+        startingSpotlight.transform.position = startingLoc;
+		//startingSpotlight.gameObject.SetActive(true);
         cityBuilderManager.PlaySelectAudio(cityBuilderManager.fieryOpen);
 
         while (startingSpotlight.spotAngle < 20)
@@ -841,7 +849,7 @@ public class MapWorld : MonoBehaviour
 		if (tutorial)
 		{
 			GameObject helperWindow = Instantiate(uiHelperWindow);
-			helperWindow.transform.SetParent(cityCanvas.transform, false);
+			helperWindow.transform.SetParent(mainCanvas.transform, false);
 			cityBuilderManager.uiHelperWindow = helperWindow.GetComponent<UIHelperWindow>();
 		}
 
@@ -986,7 +994,7 @@ public class MapWorld : MonoBehaviour
 		for (int i = 0; i < 8; i++)
 		{
 			Vector3Int loc = locs[i];
-			GameObject unexploredGO = Instantiate(unexploredTile, loc, Quaternion.identity);
+			GameObject unexploredGO = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/UnexploredBoundary"), loc, Quaternion.identity);
 			unexploredGO.transform.SetParent(terrainHolder, false);
 			unexploredGO.transform.localScale = new Vector3(width, 1, height);
 		}
@@ -2030,7 +2038,7 @@ public class MapWorld : MonoBehaviour
 			bool fullCamp = enemyCampDict[loc].campCount == 9;
 			if (!fullCamp)
             {
-                GameObject fire = Instantiate(campfire);
+                GameObject fire = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/Campfire"));
                 fire.transform.SetParent(terrainHolder, false);
 				enemyCampDict[loc].SetCampfire(fire, world[loc].isHill, reveal);
             }
@@ -2098,7 +2106,7 @@ public class MapWorld : MonoBehaviour
 
 			Vector3 position = Vector3.zero;
 	        position.y += 1;
-			GameObject icon = Instantiate(enemyCampIcon);
+			GameObject icon = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/MinimapEnemyCamp"));
 	        icon.transform.position = position;
 			icon.transform.SetParent(GetTerrainDataAt(loc).transform, false);
 			enemyCampDict[loc].minimapIcon = icon;
@@ -2432,7 +2440,7 @@ public class MapWorld : MonoBehaviour
                         borderPosition.z += borderLocation.z > 0 ? -.01f : .01f;
 					}
 
-					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+					GameObject border = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/EnemyBorder"), borderPosition, rotation);
 					border.GetComponent<SpriteRenderer>().color = color;
 					border.transform.SetParent(terrainHolder, false);
 
@@ -2474,7 +2482,7 @@ public class MapWorld : MonoBehaviour
 					    borderPosition.z += borderLocation.z > 0 ? -.01f : .01f;
 				    }
 
-				    GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+				    GameObject border = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/EnemyBorder"), borderPosition, rotation);
                     border.GetComponent<SpriteRenderer>().color = new Color(0.43f, 0, 1, 0.68f); 
                     border.transform.SetParent(terrainHolder, false);
 
@@ -2552,8 +2560,8 @@ public class MapWorld : MonoBehaviour
 		else
 			pos = new Vector3(-1, 0, 0);
 		Quaternion rotation = Quaternion.Euler(0, i * 90, 0);
-		GameObject mmGO = Instantiate(mountainMiddle, pos, rotation);
-		GameObject mmNonStatic = Instantiate(mountainMiddle, pos, rotation);
+		GameObject mmGO = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/MountainMiddle"), pos, rotation);
+		GameObject mmNonStatic = Instantiate(Resources.Load<GameObject>("Prefabs/TerrainPrefabs/MountainMiddle"), pos, rotation);
 		mmGO.transform.SetParent(td.main, false);
 		mmNonStatic.transform.SetParent(td.nonstatic, false);
 
@@ -2966,14 +2974,14 @@ public class MapWorld : MonoBehaviour
     public void CreateLightBeam(Vector3 loc)
     {
         loc.y += 2f;
-		ParticleSystem lightBeam = Instantiate(lightBullet, loc, Quaternion.Euler(-90, 0, 0));
+		ParticleSystem lightBeam = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/LightBullet"), loc, Quaternion.Euler(-90, 0, 0));
         lightBeam.transform.SetParent(psHolder, false);
         lightBeam.Play();
     }
 
     public void CreateGodRay(Vector3 loc)
     {
-		ParticleSystem godRay = Instantiate(godRays);
+		ParticleSystem godRay = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/Godrays"));
         godRay.transform.position = loc;
         godRay.transform.SetParent(psHolder, false);
         godRay.Play();
@@ -3002,7 +3010,7 @@ public class MapWorld : MonoBehaviour
 
     public void ToggleMinimap(bool v)
     {
-        if (v)
+		if (v)
         {
             LeanTween.moveX(mapHandler.minimapHolder, mapHandler.minimapHolder.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
             LeanTween.moveX(mapHandler.minimapRing, mapHandler.minimapRing.anchoredPosition3D.x + -400f, 0.5f).setEaseOutSine();
@@ -3450,7 +3458,11 @@ public class MapWorld : MonoBehaviour
         GameObject wonderGO = Instantiate(Resources.Load<GameObject>("Prefabs/WonderPrefabs/" + wonderData.wonderPrefabName), centerPos, rotation);
         wonderGO.gameObject.transform.SetParent(wonderHolder, false);
         Wonder wonder = wonderGO.GetComponent<Wonder>();
-        wonder.wonderName = wonderData.wonderName;
+		wonder.mapIcon.transform.localRotation = Quaternion.Inverse(rotation);
+		Vector3 angles = wonder.mapIcon.transform.localEulerAngles;
+		angles.x = 90;
+		wonder.mapIcon.transform.localEulerAngles = angles;
+		wonder.wonderName = wonderData.wonderName;
         wonderGO.name = wonder.wonderName;
         allWonders.Add(wonder);
         wonder.SetReferences(this, cityBuilderManager.focusCam);
@@ -3696,6 +3708,10 @@ public class MapWorld : MonoBehaviour
     		GameObject wonderGO = Instantiate(Resources.Load<GameObject>("Prefabs/WonderPrefabs/" + wonderData.wonderPrefabName), data.centerPos, data.rotation);
     		wonderGO.gameObject.transform.SetParent(wonderHolder, false);
 		    Wonder wonder = wonderGO.GetComponent<Wonder>();
+            wonder.mapIcon.transform.localRotation = Quaternion.Inverse(data.rotation);
+            Vector3 angles = wonder.mapIcon.transform.localEulerAngles;
+            angles.x = 90;
+            wonder.mapIcon.transform.localEulerAngles = angles;
             wonder.LoadData(data);
             allWonders.Add(wonder);
 		    wonder.SetReferences(this, cityBuilderManager.focusCam);
@@ -4492,7 +4508,7 @@ public class MapWorld : MonoBehaviour
 
     public void CheckMainPlayerLoc(Vector3Int loc, Vector3Int targetLoc, List<Vector3Int> route = null)
     {
-        if (mainPlayer.inEnemyLines)
+        if (mainPlayer.inEnemyLines || uiSpeechWindow.activeStatus)
             return;
 
         Vector3Int playerLoc;
@@ -4998,13 +5014,18 @@ public class MapWorld : MonoBehaviour
     {
         Vector3 pos = GetClosestTerrainLoc(loc);
         pos.y += 0.07f;
-        selectionIcon.transform.position = pos;
-        selectionIcon.SetActive(true);
+
+		selectionIcon = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/MilitaryGrid"));
+		selectionIcon.transform.SetParent(transform, false);
+		//selectionIcon.SetActive(false);
+
+		selectionIcon.transform.position = pos;
+        //selectionIcon.SetActive(true);
     }
 
     public void HideSelectionCircles()
     {
-        selectionIcon.SetActive(false);
+        Destroy(selectionIcon);
     }
 
     public void AddToResourceSelectionGridList(UIResourceSelectionGrid selectionGrid)
@@ -5080,18 +5101,21 @@ public class MapWorld : MonoBehaviour
 
             tempBattleZone.Add(zones[i]);
 
-            foreach (Vector3Int tile in GetNeighborsFor(zones[i], State.EIGHTWAY))
+            if (!uiSpeechWindow.activeStatus)
             {
-                if (IsPlayerLocationTaken(tile))
+                foreach (Vector3Int tile in GetNeighborsFor(zones[i], State.EIGHTWAY))
                 {
-		            if (mainPlayer.isBusy)
-			            unitMovement.workerTaskManager.ForceCancelWorkerTask();
+                    if (IsPlayerLocationTaken(tile))
+                    {
+		                if (mainPlayer.isBusy)
+			                unitMovement.workerTaskManager.ForceCancelWorkerTask();
 
-					mainPlayer.StepAside(mainPlayer.currentLocation, null);
-				}
+					    mainPlayer.StepAside(mainPlayer.currentLocation, null);
+				    }
+                }
+
+                uiTerrainTooltip.UpdateText(td);
             }
-
-            uiTerrainTooltip.UpdateText(td);
         }
 	}
 
@@ -5239,13 +5263,13 @@ public class MapWorld : MonoBehaviour
 
             Unit npc = GetNPC(enemyLoc);
             npc.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-            //npc.outline.ToggleOutline(false);
+            npc.outline.ToggleOutline(false);
             //npc.marker.ToggleVisibility(false);
 
             foreach (Unit unit in characterUnits)
             {
                 unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-                //unit.outline.ToggleOutline(false);
+                unit.outline.ToggleOutline(false);
                 //unit.marker.ToggleVisibility(false);
             }
         }
@@ -5260,11 +5284,13 @@ public class MapWorld : MonoBehaviour
 
             Unit npc = GetNPC(enemyLoc);
 			npc.unitMesh.layer = LayerMask.NameToLayer(layer);
-            //npc.MarkerCheck();
+			npc.outline.ToggleOutline(true);
+			//npc.MarkerCheck();
 
 			foreach (Unit unit in characterUnits)
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
+			    unit.outline.ToggleOutline(true);
                 //unit.MarkerCheck();
             }
 		}
@@ -5282,14 +5308,14 @@ public class MapWorld : MonoBehaviour
 			foreach (Unit unit in characterUnits)
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-                //unit.outline.ToggleOutline(false);
+                unit.outline.ToggleOutline(false);
                 //unit.marker.ToggleVisibility(false);
             }
 
 			leader.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
-            //leader.outline.ToggleOutline(false);
+            leader.outline.ToggleOutline(false);
             //leader.marker.ToggleVisibility(false);
-		}
+        }
         else
         {
 			battleLocs.Remove(battleLoc);
@@ -5300,11 +5326,13 @@ public class MapWorld : MonoBehaviour
 			foreach (Unit unit in characterUnits)
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
-                //unit.MarkerCheck();
-            }
+				unit.outline.ToggleOutline(true);
+				//unit.MarkerCheck();
+			}
 
 			leader.unitMesh.layer = LayerMask.NameToLayer("Enemy");
-            //leader.MarkerCheck();
+			leader.outline.ToggleOutline(true);
+			//leader.MarkerCheck();
 		}
 	}
 
@@ -5324,7 +5352,7 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
                     unit.battleCam = true;
-                    //unit.outline.ToggleOutline(false);
+                    unit.outline.ToggleOutline(false);
                     //unit.marker.ToggleVisibility(false);
                 }
 			}
@@ -5334,7 +5362,7 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
                     unit.battleCam = true;
-                    //unit.outline.ToggleOutline(false);
+                    unit.outline.ToggleOutline(false);
 					//unit.marker.ToggleVisibility(false);
 				}
 			}
@@ -5343,9 +5371,9 @@ public class MapWorld : MonoBehaviour
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("BattleLayer");
                 unit.battleCam = true;
-                //unit.outline.ToggleOutline(false);
-				//unit.marker.ToggleVisibility(false);
-			}
+                unit.outline.ToggleOutline(false);
+                //unit.marker.ToggleVisibility(false);
+            }
 		}
         else
         {
@@ -5360,8 +5388,9 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
                     unit.battleCam = false;
-                    //unit.MarkerCheck();
-                }
+					unit.outline.ToggleOutline(true);
+					//unit.MarkerCheck();
+				}
 			}
 			else
 			{
@@ -5369,6 +5398,9 @@ public class MapWorld : MonoBehaviour
                 {
 					unit.unitMesh.layer = LayerMask.NameToLayer("Enemy");
                     unit.battleCam = false;
+
+                    if (world[enemyLoc].treeHandler != null)
+    					unit.outline.ToggleOutline(true);
 					//unit.MarkerCheck();
 				}
 			}
@@ -5377,6 +5409,7 @@ public class MapWorld : MonoBehaviour
             {
 				unit.unitMesh.layer = LayerMask.NameToLayer("Agent");
                 unit.battleCam = false;
+				unit.outline.ToggleOutline(true);
 				//unit.MarkerCheck();
 			}
 		}
@@ -5558,7 +5591,7 @@ public class MapWorld : MonoBehaviour
 
     public void PlayDeathSplash(Vector3 loc, Vector3 rotation)
     {
-		ParticleSystem deathSplash = Instantiate(this.deathSplash, loc, Quaternion.identity);
+		ParticleSystem deathSplash = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/DeathSplash"), loc, Quaternion.identity);
         deathSplash.transform.SetParent(psHolder, false);
         deathSplash.transform.rotation = Quaternion.Euler(rotation);
         deathSplash.Play();
@@ -5566,7 +5599,7 @@ public class MapWorld : MonoBehaviour
 
     public void PlayRemoveSplash(Vector3 loc)
     {
-		ParticleSystem removeSplash = Instantiate(this.removeSplash, loc, Quaternion.identity);
+		ParticleSystem removeSplash = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/RemoveSplash"), loc, Quaternion.identity);
         removeSplash.transform.SetParent(psHolder, false);
 		Vector3 rotation = new Vector3(-90, 0, 0);
 		removeSplash.transform.rotation = Quaternion.Euler(rotation);
@@ -5575,7 +5608,7 @@ public class MapWorld : MonoBehaviour
 
 	public void PlayRemoveEruption(Vector3 loc, bool big = false)
     {
-        ParticleSystem removeEruption = Instantiate(this.removeEruption, loc, Quaternion.Euler(-90, 0, 0));
+        ParticleSystem removeEruption = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/RemoveEruption"), loc, Quaternion.Euler(-90, 0, 0));
         removeEruption.transform.SetParent(objectPoolItemHolder, false);
         if (big)
 			removeEruption.transform.localScale = new Vector3(2, 2, 2);
@@ -5619,7 +5652,7 @@ public class MapWorld : MonoBehaviour
 						borderPosition.z -= borderLocation.z > 0 ? -.01f : .01f;
 					}
 
-					GameObject border = Instantiate(enemyBorder, borderPosition, rotation);
+					GameObject border = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/EnemyBorder"), borderPosition, rotation);
 					border.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 0.68f);
 					border.transform.SetParent(terrainHolder, false);
 
@@ -5666,7 +5699,7 @@ public class MapWorld : MonoBehaviour
             }
             
             //playing god rays to show triumph
-			ParticleSystem godRays = Instantiate(this.godRays);
+			ParticleSystem godRays = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/Godrays"));
             godRays.transform.SetParent(objectPoolItemHolder, false);
 			godRays.transform.position = loc + new Vector3(1, 3, 0);
 			godRays.Play();
@@ -5777,7 +5810,7 @@ public class MapWorld : MonoBehaviour
 
         if (amount > 0)
         {
-            GameObject chestGO = Instantiate(treasureChest, loc, rotation);
+            GameObject chestGO = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/TreasureChest"), loc, rotation);
 			chestGO.transform.SetParent(unitHolder, false);
 			TreasureChest chest = chestGO.GetComponent<TreasureChest>();
             chest.amount = amount;
@@ -5800,7 +5833,7 @@ public class MapWorld : MonoBehaviour
 		else
 			rotation = Quaternion.LookRotation(direction, Vector3.up);
 
-		GameObject chestGO = Instantiate(treasureChest, placementLoc, rotation);
+		GameObject chestGO = Instantiate(Resources.Load<GameObject>("Prefabs/MiscPrefabs/TreasureChest"), placementLoc, rotation);
         chestGO.transform.SetParent(unitHolder, false);
         TreasureChest chest = chestGO.GetComponent<TreasureChest>();
 		chest.amount = amount;
@@ -5851,7 +5884,7 @@ public class MapWorld : MonoBehaviour
 
     public void PlayResourceSplash(Vector3 loc)
     {
-        ParticleSystem splash = Instantiate(resourceSplash, loc, Quaternion.Euler(-90, UnityEngine.Random.Range(0,360), 0));
+        ParticleSystem splash = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/ResourceSplash"), loc, Quaternion.Euler(-90, UnityEngine.Random.Range(0,360), 0));
         splash.transform.SetParent(psHolder, false);
     }
 
@@ -5862,9 +5895,9 @@ public class MapWorld : MonoBehaviour
         ParticleSystem ps;
 
 		if (doneGood)
-			ps = Instantiate(posGiftResponse, pos, rotation);
+			ps = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/GiftResponsePos"), pos, rotation);
 		else
-			ps = Instantiate(negGiftResponse, pos, rotation);
+			ps = Instantiate(Resources.Load<ParticleSystem>("Prefabs/ParticlePrefabs/GiftResponseNeg"), pos, rotation);
 
         ps.transform.SetParent(psHolder, false);
 	}
@@ -7365,7 +7398,7 @@ public class MapWorld : MonoBehaviour
 
 	private void SetResourceMinimapIcon(TerrainData td)
     {
-		GameObject resourceIconGO = Instantiate(this.resourceIcon, new Vector3(0, 1.5f, -0.75f) + td.TileCoordinates, Quaternion.Euler(90, 0, 0));
+		GameObject resourceIconGO = Instantiate(Resources.Load<GameObject>("Prefabs/InGameSpritePrefabs/ResourceMinimapIcon"), new Vector3(0, 1.5f, -0.75f) + td.TileCoordinates, Quaternion.Euler(90, 0, 0));
 		resourceIconGO.transform.SetParent(terrainHolder, false);
 		ResourceMinimapIcon resourceIcon = resourceIconGO.GetComponent<ResourceMinimapIcon>();
 		resourceIcon.resourceIconSprite.sprite = ResourceHolder.Instance.GetIcon(td.resourceType);
@@ -7581,315 +7614,376 @@ public class MapWorld : MonoBehaviour
         //only check if tutorial is currently on going
         if (tutorial) 
         {
-            if (tutorialGoing)
+            switch (tutorialStep)
             {
-                switch (tutorialStep)
-                {
-                    case "just_landed":
-                        if (source != "Build City")
-                            return;
+                case "just_landed":
+                    if (source != "Build City")
+                        return;
 
-					    mainPlayer.conversationHaver.SetSomethingToSay("tutorial1");
-					    tutorialStep = "tutorial1";
-					    break;
-                    case "tutorial1":
-                        if (source != "Finished Movement")
-                            return;
+					mainPlayer.conversationHaver.SetSomethingToSay("tutorial1");
+					tutorialStep = "tutorial1";
+					break;
+                case "tutorial1":
+                    if (source != "Finished Movement")
+                        return;
 
-						Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
-						if (GetTerrainDataAt(playerLoc).resourceType != ResourceType.Food)
-							return;
+					Vector3Int playerLoc = GetClosestTerrainLoc(mainPlayer.transform.position);
+					if (GetTerrainDataAt(playerLoc).resourceType != ResourceType.Food)
+						return;
 
-						bool foundCity = false;
-						foreach (Vector3Int loc in GetNeighborsFor(playerLoc, State.CITYRADIUS))
+					bool foundCity = false;
+					foreach (Vector3Int loc in GetNeighborsFor(playerLoc, State.CITYRADIUS))
+					{
+						if (IsCityOnTile(loc))
 						{
-							if (IsCityOnTile(loc))
-							{
-								GetTerrainDataAt(playerLoc).DisableHighlight();
-								foundCity = true;
-								break;
-							}
+							GetTerrainDataAt(playerLoc).DisableHighlight();
+							foundCity = true;
+							break;
 						}
+					}
 
-						if (!foundCity)
-							return;
+					if (!foundCity)
+						return;
 
-						ButtonFlashCheck();
-						tutorialStep = "tutorial2";
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial2");
-                        break;
-                    case "tutorial2":
-                        if (source != "Resource")
-                            return;
+					ButtonFlashCheck();
+					tutorialStep = "tutorial2";
+                    mainPlayer.conversationHaver.SetSomethingToSay("tutorial2");
+					break;
+                case "tutorial2":
+                    if (source != "Resource")
+                        return;
 
-                        if (food == 1)
-                        {
-                            ButtonFlashCheck();
-                            mainPlayer.conversationHaver.SetSomethingToSay("tutorial3");
-                        }
-                        else if (food > 1 && food < 5)
-                        {
-                            StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
-                            unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
-                        }
-                        break;
-                    case "first_labor":
-                        if (source != "Finished Movement")
-                            return;
-
-                        Vector3Int playerLoc2 = GetClosestTerrainLoc(mainPlayer.transform.position);
-                        if (GetTerrainDataAt(playerLoc2).resourceType != ResourceType.Lumber)
-                            return;
-
-                        bool foundCity2 = false;
-                        foreach (Vector3Int loc in GetNeighborsFor(playerLoc2, State.CITYRADIUS))
-                        {
-                            if (IsCityOnTile(loc))
-                            {
-                                GetTerrainDataAt(playerLoc2).DisableHighlight();
-                                foundCity2 = true;
-                                break;
-                            }
-                        }
-
-                        if (!foundCity2)
-                            return;
-
-                        tutorialStep = "tutorial4";
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial4");
-                        break;
-                    case "tutorial4":
-                        if (source != "Resource")
-                            return;
-
-						bool enoughLumber = false;
-						foreach (City city in cityDict.Values)
-						{
-							if (city.resourceManager.resourceDict[ResourceType.Lumber] >= 10)
-							{
-								enoughLumber = true;
-								break;
-							}
-						}
-
-						if (enoughLumber)
-                        {
-							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = false;
-						}
-                        else
-						{
-							StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
-							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
-							return;
-						}
-
+                    if (food == 1)
+                    {
                         ButtonFlashCheck();
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial5");
-                        tutorialStep = "tutorial5";
+                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial3");
+                    }
+                    else if (food > 1 && food < 5)
+                    {
+                        StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
+                        unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
+                    }
+                    break;
+                case "first_labor":
+                    if (source != "Finished Movement")
+                        return;
 
-						break;
-                    case "tutorial5":
-						if (source != "Open City")
-							return;
+                    Vector3Int playerLoc2 = GetClosestTerrainLoc(mainPlayer.transform.position);
+                    if (GetTerrainDataAt(playerLoc2).resourceType != ResourceType.Lumber)
+                        return;
 
-						StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Buildings").transform, true));
-						cityBuilderManager.uiCityTabs.GetTab("Buildings").isFlashing = true;
-						tutorialStep = "tutorial5a";
-
-						foreach (Vector3Int tile in cityDict.Keys)
-						{
-							if (!cityDict[tile].activeCity)
-								cityDict[tile].Deselect();
-						}
-
-						break;
-                    case "tutorial5a":
-                        if (source != "Open Buildings Tab")
-                            return;
-
-                        for (int i = 0; i < cityBuilderManager.uiBuildingBuilder.buildOptions.Count; i++)
+                    bool foundCity2 = false;
+                    foreach (Vector3Int loc in GetNeighborsFor(playerLoc2, State.CITYRADIUS))
+                    {
+                        if (IsCityOnTile(loc))
                         {
-                            if (cityBuilderManager.uiBuildingBuilder.buildOptions[i].BuildData.improvementName == "Housing")
-                            {
-    						    StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiBuildingBuilder.buildOptions[i].transform, true, true));
-                                cityBuilderManager.uiBuildingBuilder.buildOptions[i].isFlashing = true;
-                                break;
-                            }
+                            GetTerrainDataAt(playerLoc2).DisableHighlight();
+                            foundCity2 = true;
+                            break;
                         }
+                    }
 
-						tutorialStep = "tutorial5b";
-						break;
-                    case "tutorial5b":
-                        if (source != "Building Building")
-                            return;
+                    if (!foundCity2)
+                        return;
 
-                        tutorialStep = "tutorial6";
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial6");
-						break;
-                    case "tutorial6":
-                        if (source != "Open City")
-                            return;
+                    tutorialStep = "tutorial4";
+                    mainPlayer.conversationHaver.SetSomethingToSay("tutorial4");
+                    break;
+                case "tutorial4":
+                    if (source != "Resource")
+                        return;
 
-						StartCoroutine(EnableButtonHighlight(uiCityPopIncreasePanel.buttonImage.transform, true));
-                        uiCityPopIncreasePanel.isFlashing = true;
-                        tutorialStep = "tutorial6a";
-
-						break;
-                    case "tutorial6a":
-                        if (source != "Add Pop")
-                            return;
-
-                        cityBuilderManager.CenterCamOnCity();
-                        cityBuilderManager.uiHelperWindow.SetMessage("This is the cycle countdown for every camp. Each pop consumes 1 food per cycle, but if no food is available, then pop will leave the camp.");
-						cityBuilderManager.uiHelperWindow.SetPlacement(cityBuilderManager.uiResourceManager.originalLoc + new Vector3(0, -300, 0), cityBuilderManager.uiResourceManager.allContents.pivot);
-                        cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 2);
-                        tutorialStep = "tutorial7";
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial7");
-
-                        break;
-                    case "tutorial7":
-                        if (source != "Finished Movement")
-                            return;
-
-						Vector3Int playerLoc3 = GetClosestTerrainLoc(mainPlayer.transform.position);
-						if (GetTerrainDataAt(playerLoc3).resourceType != ResourceType.Stone)
-							return;
-
-						bool foundCity3 = false;
-						foreach (Vector3Int loc in GetNeighborsFor(playerLoc3, State.CITYRADIUS))
+					bool enoughLumber = false;
+					foreach (City city in cityDict.Values)
+					{
+						if (city.resourceManager.resourceDict[ResourceType.Lumber] >= 10)
 						{
-							if (IsCityOnTile(loc))
-							{
-								GetTerrainDataAt(playerLoc3).DisableHighlight();
-								foundCity3 = true;
-								break;
-							}
+							enoughLumber = true;
+							break;
 						}
+					}
 
-						if (!foundCity3)
-							return;
-
+					if (enoughLumber)
+                    {
+						unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = false;
+					}
+                    else
+					{
 						StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
 						unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
-						tutorialStep = "tutorial7a";
+						return;
+					}
 
-						break;
-                    case "tutorial7a":
-                        if (source != "Resource")
-                            return;
+                    ButtonFlashCheck();
+                    mainPlayer.conversationHaver.SetSomethingToSay("tutorial5");
+                    tutorialStep = "tutorial5";
 
-						bool enoughStone = false;
-						foreach (City city in cityDict.Values)
-						{
-							if (city.resourceManager.resourceDict[ResourceType.Stone] >= 10)
-							{
-								enoughStone = true;
-								break;
-							}
-						}
+					break;
+                case "tutorial5":
+					if (source != "Open City")
+						return;
 
-						if (enoughStone)
+					StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Buildings").transform, true));
+					cityBuilderManager.uiCityTabs.GetTab("Buildings").isFlashing = true;
+					tutorialStep = "tutorial5a";
+
+					foreach (Vector3Int tile in cityDict.Keys)
+					{
+						if (!cityDict[tile].activeCity)
+							cityDict[tile].Deselect();
+					}
+
+					break;
+                case "tutorial5a":
+                    if (source != "Open Buildings Tab")
+                        return;
+
+                    for (int i = 0; i < cityBuilderManager.uiBuildingBuilder.buildOptions.Count; i++)
+                    {
+                        if (cityBuilderManager.uiBuildingBuilder.buildOptions[i].BuildData.improvementName == "Housing")
                         {
-							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = false;
-						}
-                        else
+    						StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiBuildingBuilder.buildOptions[i].transform, true, true));
+                            cityBuilderManager.uiBuildingBuilder.buildOptions[i].isFlashing = true;
+                            break;
+                        }
+                    }
+
+					tutorialStep = "tutorial5b";
+					break;
+                case "tutorial5b":
+                    if (source != "Building Building")
+                        return;
+
+                    tutorialStep = "tutorial6";
+                    mainPlayer.conversationHaver.SetSomethingToSay("tutorial6");
+					break;
+                case "tutorial6":
+                    if (source != "Open City")
+                        return;
+
+					StartCoroutine(EnableButtonHighlight(uiCityPopIncreasePanel.buttonImage.transform, true));
+                    uiCityPopIncreasePanel.isFlashing = true;
+                    tutorialStep = "tutorial6a";
+
+					break;
+                case "tutorial6a":
+                    if (source != "Add Pop")
+                        return;
+
+                    cityBuilderManager.CenterCamOnCity();
+                    cityBuilderManager.uiHelperWindow.SetMessage("This is the cycle countdown for every camp. Each pop consumes 1 food per cycle, but if no food is available, then pop will leave the camp.");
+					cityBuilderManager.uiHelperWindow.SetPlacement(cityBuilderManager.uiResourceManager.originalLoc + new Vector3(0, -300, 0), cityBuilderManager.uiResourceManager.allContents.pivot);
+                    cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 2);
+                    tutorialStep = "tutorial7";
+                    mainPlayer.conversationHaver.SetSomethingToSay("tutorial7");
+                    GameLoader.Instance.gameData.tutorialData.hadPopAdd = true;
+					break;
+                case "tutorial7":
+                    if (source != "Finished Movement")
+                        return;
+
+					Vector3Int playerLoc3 = GetClosestTerrainLoc(mainPlayer.transform.position);
+					if (GetTerrainDataAt(playerLoc3).resourceType != ResourceType.Stone)
+						return;
+
+					bool foundCity3 = false;
+					foreach (Vector3Int loc in GetNeighborsFor(playerLoc3, State.CITYRADIUS))
+					{
+						if (IsCityOnTile(loc))
 						{
-							StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
-							unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
-							return;
+							GetTerrainDataAt(playerLoc3).DisableHighlight();
+							foundCity3 = true;
+							break;
 						}
+					}
 
-                        ButtonFlashCheck();
-						mainPlayer.conversationHaver.SetSomethingToSay("tutorial8", scott);
-						tutorialStep = "tutorial8";
+					if (!foundCity3)
+						return;
 
-						break;
-                    case "tutorial8":
-                        if (source != "Open City")
-                            return;
+					StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
+					unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
+					tutorialStep = "tutorial7a";
 
-						StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Producers").transform, true));
-						cityBuilderManager.uiCityTabs.GetTab("Producers").isFlashing = true;
-						tutorialStep = "tutorial8a";
+					break;
+                case "tutorial7a":
+                    if (source != "Resource")
+                        return;
 
-						break;
-					case "tutorial8a":
-						if (source != "Open Producers Tab")
-							return;
-
-						for (int i = 0; i < cityBuilderManager.uiProducerBuilder.buildOptions.Count; i++)
+					bool enoughStone = false;
+					foreach (City city in cityDict.Values)
+					{
+						if (city.resourceManager.resourceDict[ResourceType.Stone] >= 10)
 						{
-							if (cityBuilderManager.uiProducerBuilder.buildOptions[i].BuildData.improvementName == "Research")
-							{
-								StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiProducerBuilder.buildOptions[i].transform, true, true));
-								cityBuilderManager.uiProducerBuilder.buildOptions[i].isFlashing = true;
-								break;
-							}
+							enoughStone = true;
+							break;
 						}
+					}
 
-						tutorialStep = "tutorial8b";
-						break;
-					case "tutorial8b":
-						if (source != "Build Something")
-							return;
+					if (enoughStone)
+                    {
+						unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = false;
+					}
+                    else
+					{
+						StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Gather").transform, true));
+						unitMovement.uiWorkerTask.GetButton("Gather").isFlashing = true;
+						return;
+					}
 
-						cityBuilderManager.CenterCamOnCity();
-						cityBuilderManager.uiHelperWindow.SetMessage("Resources held in camp will be shown here. The order of resources shown can be rearranged by clicking and dragging the resource.");
-						cityBuilderManager.uiHelperWindow.SetPlacement(cityBuilderManager.uiResourceManager.originalLoc + new Vector3(0, -230, 0), cityBuilderManager.uiResourceManager.allContents.pivot);
-						cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 0);
+                    ButtonFlashCheck();
+					mainPlayer.conversationHaver.SetSomethingToSay("tutorial8", scott);
+					tutorialStep = "tutorial8";
 
-                        tutorialStep = "tutorial8c";
-						break;
-                    case "tutorial8c":
-                        if (source != "Finished Building Something")
-                            return;
+					break;
+                case "tutorial8":
+                    if (source != "Open City")
+                        return;
 
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial9", scott);
-                        tutorialStep = "tutorial9";
-                        break;
-                    case "tutorial9":
-                        if (source != "Open City")
-                            return;
+					StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Producers").transform, true));
+					cityBuilderManager.uiCityTabs.GetTab("Producers").isFlashing = true;
+					tutorialStep = "tutorial8a";
 
-						cityBuilderManager.uiHelperWindow.SetMessage("Whenever pop is added to a camp and there is somewhere for that pop to work, you can assign the labor using these buttons.");
-						cityBuilderManager.uiHelperWindow.SetPlacement(cityBuilderManager.uiLaborAssignment.originalLoc + new Vector3(200, 0, 0), cityBuilderManager.uiLaborAssignment.allContents.pivot);
-						cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 3);
+					break;
+				case "tutorial8a":
+					if (source != "Open Producers Tab")
+						return;
 
-                        tutorialStep = "tutorial9a";
-						break;
-                    case "tutorial9a":
-                        if (source != "Change Labor")
-                            return;
+					for (int i = 0; i < cityBuilderManager.uiProducerBuilder.buildOptions.Count; i++)
+					{
+						if (cityBuilderManager.uiProducerBuilder.buildOptions[i].BuildData.improvementName == "Research")
+						{
+							StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiProducerBuilder.buildOptions[i].transform, true, true));
+							cityBuilderManager.uiProducerBuilder.buildOptions[i].isFlashing = true;
+							break;
+						}
+					}
 
-                        tutorialStep = "tutorial10";
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial10", scott);
-                        break;
-                    case "tutorial10":
-                        if (source != "Research")
-                            return;
+					tutorialStep = "tutorial8b";
+					break;
+				case "tutorial8b":
+					if (source != "Build Something")
+						return;
 
-						tutorialStep = "tutorial11";
-						mainPlayer.conversationHaver.SetSomethingToSay("tutorial11", scott);
-						break;
-                    case "tutorial11":
-                        if (source != "Resource")
-                            return;
+					cityBuilderManager.CenterCamOnCity();
+					cityBuilderManager.uiHelperWindow.SetMessage("Resources held in camp will be shown here. The order of resources shown can be rearranged by clicking and dragging the resource.");
+					cityBuilderManager.uiHelperWindow.SetPlacement(cityBuilderManager.uiResourceManager.originalLoc + new Vector3(0, -230, 0), cityBuilderManager.uiResourceManager.allContents.pivot);
+					cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 0);
 
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial12");
-                        tutorialStep = "tutorial12";
+                    tutorialStep = "tutorial8c";
+					break;
+                case "tutorial8c":
+                    if (source != "Finished Building Research")
+                        return;
 
-                        break;
-                    case "tutorial12":
-                        if (source != "Agriculture Research Complete")
-                            return;
+                    mainPlayer.conversationHaver.SetSomethingToSay("tutorial9", scott);
+                    tutorialStep = "tutorial9";
+                    break;
+                case "tutorial9":
+                    if (source != "Open City")
+                        return;
 
-                        mainPlayer.conversationHaver.SetSomethingToSay("tutorial13", scott);
-                        tutorialGoing = false;
-                        tutorialStep = "";
+					cityBuilderManager.uiHelperWindow.SetMessage("Whenever pop is added to a camp and there is somewhere for that pop to work, you can assign the labor using these buttons.");
+					cityBuilderManager.uiHelperWindow.SetPlacement(cityBuilderManager.uiLaborAssignment.originalLoc + new Vector3(200, 0, 0), cityBuilderManager.uiLaborAssignment.allContents.pivot);
+					cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 3);
 
-                        break;
-				}
-            }
+                    tutorialStep = "tutorial9a";
+					break;
+                case "tutorial9a":
+                    if (source != "Change Labor")
+                        return;
+
+                    tutorialStep = "tutorial10";
+                    mainPlayer.conversationHaver.SetSomethingToSay("tutorial10", scott);
+                    break;
+                case "tutorial10":
+                    if (source != "Research")
+                        return;
+
+					tutorialStep = "tutorialAny";
+					mainPlayer.conversationHaver.SetSomethingToSay("tutorial11", scott);
+					break;
+                case "tutorialAny":
+                    switch (source)
+                    {
+                        case "Resource":
+                            if (GameLoader.Instance.gameData.tutorialData.gathered)
+                                return;
+
+                            mainPlayer.conversationHaver.SetSomethingToSay("last_resource");
+                            GameLoader.Instance.gameData.tutorialData.gathered = true;
+							break;
+                        case "Agriculture Research Complete":
+                            mainPlayer.conversationHaver.SetSomethingToSay("agriculture", scott);
+
+							StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiCityTabs.GetTab("Raw Goods").transform, true));
+							cityBuilderManager.uiCityTabs.GetTab("Raw Goods").isFlashing = true;
+							break;
+                        case "Pottery Research Complete":
+							mainPlayer.conversationHaver.SetSomethingToSay("pottery", scott);
+							break;
+                        case "Trade Research Complete":
+							mainPlayer.conversationHaver.SetSomethingToSay("trade", scott);
+                            break;
+						case "Open Buildings Tab":
+                            if (GameLoader.Instance.gameData.tutorialData.built2ndHouse)
+                                return;
+
+							for (int i = 0; i < cityBuilderManager.uiBuildingBuilder.buildOptions.Count; i++)
+						    {
+							    if (cityBuilderManager.uiBuildingBuilder.buildOptions[i].BuildData.improvementName == "Housing")
+							    {
+								    StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiBuildingBuilder.buildOptions[i].transform, true, true));
+								    cityBuilderManager.uiBuildingBuilder.buildOptions[i].isFlashing = true;
+								    break;
+							    }
+						    }
+
+                            break;
+                        case "Finished Building Housing":
+							if (GameLoader.Instance.gameData.tutorialData.built2ndHouse)
+								return;
+
+							StartCoroutine(EnableButtonHighlight(uiCityPopIncreasePanel.buttonImage.transform, true));
+							uiCityPopIncreasePanel.isFlashing = true;
+
+                            GameLoader.Instance.gameData.tutorialData.built2ndHouse = true;
+							break;
+                        case "Finished Building Farm":
+                            if (GameLoader.Instance.gameData.tutorialData.builtFarm)
+                                return;
+
+							StartCoroutine(EnableButtonHighlight(cityBuilderManager.uiLaborAssignment.GetLaborButton(1).transform, true));
+							cityBuilderManager.uiLaborAssignment.GetLaborButton(1).isFlashing = true;
+							mainPlayer.conversationHaver.SetSomethingToSay("first_farm", scott);
+							GameLoader.Instance.gameData.tutorialData.builtFarm = true;
+							break;
+                        case "Finished Building Infantry":
+                            if (GameLoader.Instance.gameData.tutorialData.builtInfantry)
+                                return;
+
+							mainPlayer.conversationHaver.SetSomethingToSay("first_built_infantry", azai);
+                            GameLoader.Instance.gameData.tutorialData.builtInfantry = true;
+							break;
+                        case "Finished Building Trader":
+                            if (GameLoader.Instance.gameData.tutorialData.builtTrader)
+                                return;
+
+							StartCoroutine(EnableButtonHighlight(unitMovement.uiTraderPanel.GetButtonTransform(), true));
+							mainPlayer.conversationHaver.SetSomethingToSay("first_trader", scott);
+                            GameLoader.Instance.gameData.tutorialData.builtTrader = true;
+							break;
+                        case "First Ambush":
+							mainPlayer.conversationHaver.SetSomethingToSay("first_ambush", azai);
+                            GameLoader.Instance.gameData.tutorialData.hadAmbush = true;
+							break;
+                        case "First Pop Loss":
+							mainPlayer.conversationHaver.SetSomethingToSay("first_pop_loss", scott);
+                            GameLoader.Instance.gameData.tutorialData.hadPopLoss = true;
+							break;
+                    }
+
+                    break;
+			}
         }
     }
 
@@ -7898,7 +7992,8 @@ public class MapWorld : MonoBehaviour
         playerInput.paused = true;
         yield return new WaitForSeconds(timeToWait);
 
-        unit.conversationHaver.SetSomethingToSay(conversationTopic);
+		playerInput.paused = false;
+		unit.conversationHaver.SetSomethingToSay(conversationTopic);
     }
 
     public IEnumerator EnableButtonHighlight(Transform selection, bool button, bool big = false)
@@ -7925,7 +8020,6 @@ public class MapWorld : MonoBehaviour
 				    if (tutorial)
 				    {
                         uiConversationTaskManager.CreateConversationTask("Tutorial");
-                        tutorialGoing = true;
                         tutorialStep = "just_landed";
 						StartCoroutine(EnableButtonHighlight(unitMovement.uiWorkerTask.GetButton("Build").transform, true));
 						unitMovement.uiWorkerTask.GetButton("Build").isFlashing = true;
@@ -8146,7 +8240,13 @@ public class MapWorld : MonoBehaviour
 				break;
 		}
     }
+
+    public void StartFlashingButton(Transform transform, bool button, bool big = false)
+    {
+		StartCoroutine(EnableButtonHighlight(transform, button, big));
+	}
 }
+
 
 public enum Era
 {

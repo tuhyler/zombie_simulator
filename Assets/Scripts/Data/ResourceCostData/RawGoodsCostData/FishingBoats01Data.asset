@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: FishingBoats01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/FishingBoats01
   audio: {fileID: 8300000, guid: 8b90d20adfd43d745b63387d9ef6e9d0, type: 3}
@@ -47,6 +46,7 @@ MonoBehaviour:
   terrainType: 1
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
@@ -59,7 +59,7 @@ MonoBehaviour:
   hideProp: 1
   hillAdjustment: 0.6
   buildTime: 20
-  availableInitially: 1
+  availableInitially: 0
   hideIdleMesh: 1
   getTerrainResource: 0
   attackBonus: 0

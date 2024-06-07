@@ -74,12 +74,12 @@ public class UIWorkerHandler : MonoBehaviour
             activeStatus = true;
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
             
-            if (world.tutorialGoing)
+            if (world.tutorial && GameLoader.Instance.gameData.tutorialData.builtFarm)
             {
                 for (int i = 0; i < buildOptions.Count; i++)
                 {
                     if (buildOptions[i].isFlashing)
-                        StartCoroutine(world.EnableButtonHighlight(buildOptions[i].transform, true, false));
+                        world.StartFlashingButton(buildOptions[i].transform, true);
                 }
             }
 

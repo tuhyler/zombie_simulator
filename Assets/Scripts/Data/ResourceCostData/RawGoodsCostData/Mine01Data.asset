@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d5e557d0de4694bbffa68a83c9a087, type: 3}
   m_Name: Mine01Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
   secondaryData: []
   prefabLoc: ImprovementPrefabs/Mine01
   audio: {fileID: 8300000, guid: 380676899f3eecb449c32042adabf3ce, type: 3}
@@ -59,6 +58,7 @@ MonoBehaviour:
   terrainType: 6
   specificTerrain: 0
   workEthicChange: 0
+  purchaseAmountChange: 0
   maxLabor: 2
   housingIncrease: 0
   cityHousing: 0
@@ -71,7 +71,7 @@ MonoBehaviour:
   hideProp: 1
   hillAdjustment: 0.6
   buildTime: 5
-  availableInitially: 1
+  availableInitially: 0
   hideIdleMesh: 0
   getTerrainResource: 1
   attackBonus: 0

@@ -32,8 +32,9 @@ public class UITraderOrderHandler : MonoBehaviour
 
     private Vector3 originalLoc;
 
-    private bool activeStatus; //set this up so we don't have to wait for tween to set inactive
-
+    [HideInInspector]
+    public bool activeStatus;
+    
     private void Awake()
     {
         uiTradeRoute.ToggleInteractable(true);
@@ -65,7 +66,7 @@ public class UITraderOrderHandler : MonoBehaviour
             world.unitMovement.ShowTradeRouteCost();
     }
 
-    public void ToggleVisibility(bool val, MapWorld world = null) //pass in world for canvas
+    public void ToggleVisibility(bool val) //pass in world for canvas
     {
         if (activeStatus == val)
             return;
@@ -74,7 +75,10 @@ public class UITraderOrderHandler : MonoBehaviour
 
         if (val)
         {
-            SetActiveStatusTrue();
+            if (world.tutorial && GameLoader.Instance.gameData.tutorialData.builtTrader && !GameLoader.Instance.gameData.tutorialData.openedTRM)
+				world.StartFlashingButton(GetButtonTransform(), true);
+
+			SetActiveStatusTrue();
             activeStatus = true; 
             allContents.anchoredPosition3D = originalLoc + new Vector3(0, -600f, 0);
 
@@ -84,7 +88,7 @@ public class UITraderOrderHandler : MonoBehaviour
         else
         {
             activeStatus = false;
-            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.2f).setOnComplete(() => SetActiveStatusFalse(world));
+            LeanTween.moveY(allContents, allContents.anchoredPosition3D.y - 600f, 0.2f).setOnComplete(SetActiveStatusFalse);
         }
     }
 
@@ -93,7 +97,7 @@ public class UITraderOrderHandler : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    private void SetActiveStatusFalse(MapWorld world)
+    private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
         world.traderCanvas.gameObject.SetActive(false);
@@ -113,4 +117,12 @@ public class UITraderOrderHandler : MonoBehaviour
         else
             uiBeginTradeRoute.buttonImage.sprite = beginRoute;
     }
+
+    public Transform GetButtonTransform()
+    {
+        foreach (Transform selection in uiElementsParent)
+            return selection; //just want the first one
+
+        return null;
+	}
 }

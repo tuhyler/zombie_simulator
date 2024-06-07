@@ -47,10 +47,11 @@ public class UITradeRouteManager : MonoBehaviour
     private Color originalButtonColor;
 
     [SerializeField] //for tweening
-    private RectTransform allContents, stopScroller;
+    public RectTransform allContents, stopScroller;
     [HideInInspector]
     public bool activeStatus;
-    private Vector3 originalLoc;
+    [HideInInspector]
+    public Vector3 originalLoc;
     private Vector2 originalSize, originalPos;
 
     //for object pooling
@@ -322,7 +323,7 @@ public class UITradeRouteManager : MonoBehaviour
 
             allContents.anchoredPosition3D = originalLoc + new Vector3(-600f, 0, 0);
 
-            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.3f).setEaseOutSine();
+            LeanTween.moveX(allContents, allContents.anchoredPosition3D.x + 600f, 0.3f).setEaseOutSine().setOnComplete(TutorialCheck);
             //LeanTween.alpha(allContents, 1f, 0.3f).setFrom(0f).setEaseLinear();
         }
         else
@@ -347,10 +348,28 @@ public class UITradeRouteManager : MonoBehaviour
 
             tradeStopHandlerList.Clear();
             unitMovement.TurnOnInfoScreen();
+
+            if (world.tutorial)
+            {
+                if (world.cityBuilderManager.uiHelperWindow.activeStatus)
+                    world.cityBuilderManager.uiHelperWindow.ToggleVisibility(false);
+            }
         }
     }
 
-    private void SetActiveStatusFalse()
+    private void TutorialCheck()
+    {
+		if (world.tutorial && GameLoader.Instance.gameData.tutorialData.builtTrader && !GameLoader.Instance.gameData.tutorialData.openedTRM)
+		{
+			world.ButtonFlashCheck();
+			world.cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 0);
+			world.cityBuilderManager.uiHelperWindow.SetMessage("Select here to create a new stop for the trader. The first stop must be a city to pay for the route.");
+			world.cityBuilderManager.uiHelperWindow.SetPlacement(originalLoc + new Vector3(50, 700, 0), allContents.pivot);
+			GameLoader.Instance.gameData.tutorialData.openedTRM = true;
+		}
+	}
+
+	private void SetActiveStatusFalse()
     {
         gameObject.SetActive(false);
         world.tradeRouteManagerCanvas.gameObject.SetActive(false);
@@ -439,8 +458,17 @@ public class UITradeRouteManager : MonoBehaviour
         //newHolder.transform.localEulerAngles = Vector3.zero;
         if (onRoute)
             PrepStop(newStopHandler);
-        
-        return newStopHandler;
+
+		if (world.tutorial && GameLoader.Instance.gameData.tutorialData.openedTRM && !GameLoader.Instance.gameData.tutorialData.addedStop)
+		{
+			world.cityBuilderManager.uiHelperWindow.ToggleVisibility(true, 0);
+			world.cityBuilderManager.uiHelperWindow.SetMessage("Select here to specify the stop location. \"+ Resource\" allows resource assignments to be given to traders.");
+			world.cityBuilderManager.uiHelperWindow.SetPlacement(originalLoc + new Vector3(100, 600, 0), allContents.pivot);
+
+			GameLoader.Instance.gameData.tutorialData.addedStop = true;
+		}
+
+		return newStopHandler;
     }
 
     private void PrepStop(UITradeStopHandler stop)

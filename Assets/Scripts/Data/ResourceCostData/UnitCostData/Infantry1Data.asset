@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Infantry1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2321851027760307080, guid: b8ea75b095d526c47b34746b4047349a, type: 3}
-  secondaryPrefab: {fileID: 0}
   prefabLoc: UnitPrefabs/infantry_1
   secondaryPrefabLoc: 
   nationalityAdjective: 
@@ -37,7 +35,7 @@ MonoBehaviour:
   laborCost: 0
   unitType: 1
   unitDescription: Strong, fast unit
-  availableInitially: 1
+  availableInitially: 0
   health: 500
   regenerationRate: 2
   baseAttackStrength: 5

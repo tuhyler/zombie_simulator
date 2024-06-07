@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: Trader1Data
   m_EditorClassIdentifier: 
-  prefab: {fileID: 4262420279640114416, guid: 252a6d05c66060d4d9b896e55d3e6108, type: 3}
-  secondaryPrefab: {fileID: 0}
   prefabLoc: UnitPrefabs/trader_1
   secondaryPrefabLoc: 
   nationalityAdjective: 
@@ -39,7 +37,7 @@ MonoBehaviour:
   laborCost: 0
   unitType: 5
   unitDescription: Transports cargo on land
-  availableInitially: 1
+  availableInitially: 0
   health: 14
   regenerationRate: 2
   baseAttackStrength: 0

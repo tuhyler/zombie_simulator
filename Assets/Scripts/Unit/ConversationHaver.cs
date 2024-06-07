@@ -36,7 +36,7 @@ public class ConversationHaver : MonoBehaviour
 		else
 			unit.questionMark.SetActive(true);
 
-		if (unit.isPlayer && unit.isSelected && !unit.worker.isBusy)
+		if (unit.isPlayer && unit.isSelected && !unit.worker.isBusy && !unit.worker.inTransport)
 		{
 			unit.world.unitMovement.QuickSelect(unit);
 			SpeakingCheck();
@@ -76,7 +76,7 @@ public class ConversationHaver : MonoBehaviour
 		unit.world.speechBubble.transform.SetParent(transform, false);
 	}
 
-	public void SaidSomething()
+	public bool SaidSomething()
 	{
 		unit.sayingSomething = false;
 		if (conversationTopics.Count > 0)
@@ -85,7 +85,11 @@ public class ConversationHaver : MonoBehaviour
 				StartCoroutine(WaitASecToSpeakAgain());
 			else
 				StartCoroutine(SetSomethingToSayCoroutine(null));
+
+			return true;
 		}
+
+		return false;
 	}
 
 	private IEnumerator WaitASecToSpeakAgain()
