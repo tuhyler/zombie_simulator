@@ -1241,6 +1241,7 @@ MonoBehaviour:
   uiNewGame: {fileID: 1608904306}
   closeClip: {fileID: 8300000, guid: 19a3703026ae2f04e8af17a90e681b70, type: 3}
   selectClip: {fileID: 8300000, guid: ffb8e9c131370d5409e54d58770305df, type: 3}
+  checkClip: {fileID: 8300000, guid: 599f3fa60289f4a4d85622d15be8804c, type: 3}
   cursorArrow: {fileID: 2800000, guid: 014486d53b5713c4cb116d6a956250db, type: 3}
 --- !u!4 &1137684269
 Transform:
@@ -1865,6 +1866,11 @@ PrefabInstance:
       propertyPath: uiWarning
       value: 
       objectReference: {fileID: 118298135}
+    - target: {fileID: 8746694798797376978, guid: 1eaee8c667b67bb40a4a80f51598fc60,
+        type: 3}
+      propertyPath: titleScreen
+      value: 
+      objectReference: {fileID: 1137684268}
     - target: {fileID: 8939455015843769997, guid: 1eaee8c667b67bb40a4a80f51598fc60,
         type: 3}
       propertyPath: m_AnchorMax.y

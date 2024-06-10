@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c69cf82b491136478724e0d5ed12f0a, type: 3}
   m_Name: ScottData
   m_EditorClassIdentifier: 
-  prefab: {fileID: 8266383177558337226, guid: de374e441caf3cf49aa5ed9ae85ed296, type: 3}
-  secondaryPrefab: {fileID: 0}
   prefabLoc: UnitPrefabs/Scott
   secondaryPrefabLoc: 
   nationalityAdjective: 
@@ -36,7 +34,7 @@ MonoBehaviour:
   regenerationRate: 2
   baseAttackStrength: 0
   baseAttackSpeed: 0.5
-  movementSpeed: 2
+  movementSpeed: 1
   trainTime: 0
   cargoCapacity: 0
   goldDropRange: {x: 0, y: 0}

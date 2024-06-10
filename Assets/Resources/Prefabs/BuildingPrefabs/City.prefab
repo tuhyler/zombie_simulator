@@ -208,7 +208,7 @@ MonoBehaviour:
   improvementWorkEthic: 0
   wonderWorkEthic: 0
   purchaseAmountMultiple: 1
-  warehouseStorageLimit: 300
+  warehouseStorageLimit: 500
   waitList: []
   seaWaitList: []
   airWaitList: []
@@ -260,13 +260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceSellList: 
   resourceStorageLevel: 0
-  initialResources:
-  - resourceType: 2
-    resourceAmount: 50
-  - resourceType: 6
-    resourceAmount: 50
-  - resourceType: 7
-    resourceAmount: 50
+  initialResources: []
   city: {fileID: 0}
   pauseGrowth: 0
   growthDeclineDanger: 0

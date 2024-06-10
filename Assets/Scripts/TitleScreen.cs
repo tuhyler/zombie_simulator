@@ -7,7 +7,7 @@ public class TitleScreen : MonoBehaviour
     public UINewGameMenu uiNewGame;
     private AudioSource audioSource;
 
-    public AudioClip closeClip, selectClip;
+    public AudioClip closeClip, selectClip, checkClip;
     public Texture2D cursorArrow;
 
 	private void Awake()
@@ -37,7 +37,7 @@ public class TitleScreen : MonoBehaviour
         else
         {
             Cursor.visible = false;
-			GameManager.Instance.NewGame("SouthToggle", "ContinentsToggle", "NormalToggle", "ModerateToggle", "MediumToggle", true);
+			GameManager.Instance.NewGame("SouthToggle", "ContinentsToggle", "NormalToggle", "ModerateToggle", "MediumToggle", true, Random.Range(0, 9999999));
         }
 	}
 
@@ -94,6 +94,12 @@ public class TitleScreen : MonoBehaviour
 	public void PlaySelectAudio()
 	{
 		audioSource.clip = selectClip;
+		audioSource.Play();
+	}
+
+	public void PlayCheckAudio()
+	{
+		audioSource.clip = checkClip;
 		audioSource.Play();
 	}
 }
